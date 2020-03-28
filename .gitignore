@@ -208,9 +208,9 @@ static
 ./dotfiles/.local/bin/txt2tags
 ./dotfiles/.local/bin/wsdump.py
 
-./dotfiles/.config/nvim/plugged/*
+./dotfiles/.config/nvim/plugged/**
 
-.local/share/jupyter/*
-.local/share/doc/networkx-2.4/*
-.config/npm/*
-.config/mozilla/*
+.local/share/jupyter/**
+.local/share/doc/networkx-2.4/**
+.config/npm/**
+.config/mozilla/**
