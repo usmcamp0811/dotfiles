@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+
+function main
+{
+  local -a args=()
+  "/home/mcamp/.config/polybar/launch" -k "${args[@]}"
+}
+
+main "$@"

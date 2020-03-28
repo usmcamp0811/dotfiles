@@ -1,0 +1,16 @@
+{
+  "segments": [
+    "time",
+    "virtual_env",
+    "cwd",
+    "git",
+    "newline",
+    "username",
+    "hostname",
+    "root"
+  ],
+  "vcs": {
+    "show_symbol": true
+  },
+  "theme": "~/.config/powerline-shell/themes/matt_theme.py"
+}
