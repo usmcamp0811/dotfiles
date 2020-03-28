@@ -73,11 +73,10 @@ bindsym $mod+Shift+n exec notify-send "Alacritty Colorscheme" `/usr/bin/alacritt
 # bindsym $mod+F4 append_layout ~/.i3/tubespace.json; exec google-chrome-stable --new-window=youtube.com ; exec google-chrome-stable --new-window=facebook.com; exec terminator -p Atom; exec terminator -p Atom -e htop
 
 
-# turn on laptop screen
-bindsym $mod+F11 exec /usr/bin/xrandr | /usr/bin/grep -w "connected" | /usr/bin/awk '{system("/usr/bin/xrandr --output " $1 " --auto")}'
-
+# turn all monitors on
+bindsym $mod+F11 exec ~/.local/bin/auto-screen
 # turn off laptop screen
-bindsym $mod+F12 exec ~/.scripts/laptop_screen_toggle
+bindsym $mod+F12 exec ~/.local/bin/laptop_screen_toggle
 
 # focus_follows_mouse no
 

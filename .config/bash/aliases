@@ -47,6 +47,8 @@ alias master="git checkout master"
 # git dotfiles
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
+#i3 config
+alias i3config='/usr/bin/nvim ~/.config/i3/config'
 ##########################################################
 
 

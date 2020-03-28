@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# the script will not work if xrandr is not available
+if [ -z "$(which xrandr)" ]; then
+    exit 1
+fi
+
+echo "Turning all monitors on"
+# turn all connected monitors on with auto resolution
+echo "Making first non laptop monitor the primary"
+xrandr | grep -w "connected" | awk '{system("xrandr --output " $1 " --auto")}' 
+xrandr | grep -w "disconnected" | awk '{system("xrandr --output " $1 " --off")}' 
+# make the first non-laptop screen the primary because we are connected to it and well why else would it be conncted if it wasnt the primary!
+xrandr | grep -w "connected" | awk '(index($1, "eDP-1") != 1) {print $1}' | awk 'NR == 1' | awk '{system("xrandr --output " $1 " --auto --primary")}' 
+
+exit 0
