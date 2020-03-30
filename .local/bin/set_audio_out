@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# simple script to set puleseaudio output dependent on the number of monitors available
+# designed for XPS 9570 and my 43" LG with sound baked in
+
+NUM_DISPLAYS=$(xrandr | grep -w "connected" | awk '{print $1}' | wc -l)
+[[ "$NUM_DISPLAYS" == "1" ]] \
+&& pactl set-card-profile 1 output:analog-stereo \
+|| pactl set-card-profile 1 output:hdmi-stereo

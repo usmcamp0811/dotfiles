@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# This script will allow you to change the brightness of the monitor 
+# it gets the max brightness and allows you to pick a percentage of total brightness
+
+function in_array {
+    # helper function to check if value is in an array
+    ARRAY=$2
+    for e in ${ARRAY[*]}
+    do
+        if [[ "$e" == "$1" ]]
+        then
+            return 0
+        fi
+    done
+    return 1
+}
+# get system capabiltiies
+CURRENT_BACKLIGHT=$(cat /sys/class/backlight/intel_backlight/brightness)
+MAX_BACKLIGHT=$(cat /sys/class/backlight/intel_backlight/max_brightness)
+# break the range up into 10 options
+STEP=$(($MAX_BACKLIGHT / 10))
+
+#arrays to store things in
+declare -A BACKLIGHT_OPTIONS
+declare -a BACKLIGHT_PERCENT
+
+# populate the arrays 
+p=0
+for ((s=$STEP; s<$MAX_BACKLIGHT+$STEP; s+=$STEP));
+do
+    v=$s
+    p=$((p+10))
+    j=$p%
+    BACKLIGHT_OPTIONS[$j]=$v
+    BACKLIGHT_PERCENT+=($j)
+done
+
+# if we want to select it via dmenu
+if [[ "-dmenu" == "$1" ]]
+then
+    brightness=$(printf "%s\n" "${BACKLIGHT_PERCENT[@]}" | dmenu -fn monospace-14 -p "Set Backlight Brightness:")
+    echo ${BACKLIGHT_OPTIONS[$brightness]} > /sys/class/backlight/intel_backlight/brightness
+    exit 1
+fi
+
+# brightness=${BACKLIGHT_OPTIONS[$brightness]} 
+# echo $brightness 
+
+# check to see if current backlight setting is one of our 10 options
+if in_array $CURRENT_BACKLIGHT "${BACKLIGHT_OPTIONS[*]}"
+then
+    # current setting is known.. increment
+    echo "$(($CURRENT_BACKLIGHT))"
+    # check to see if we increment will go over the max
+    if [[ "$(($CURRENT_BACKLIGHT $1 $STEP))" -gt "$MAX_BACKLIGHT" ]] 
+    then
+        brightness=${BACKLIGHT_OPTIONS[100%]}
+    # check if we go below 0
+    elif [[ "$(($CURRENT_BACKLIGHT $1 $STEP))" -le "0" ]]
+    then
+        brightness=${BACKLIGHT_OPTIONS[10%]}
+    else
+        # we got here so make a step in some direction
+        brightness=$(($CURRENT_BACKLIGHT $1 $STEP)) 
+    fi
+else
+    echo "max!"
+    # current setting is unknown start at full power
+    brightness=$MAX_BACKLIGHT
+fi
+echo $brightness > /sys/class/backlight/intel_backlight/brightness

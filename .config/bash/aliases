@@ -47,11 +47,23 @@ alias master="git checkout master"
 # git dotfiles
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
+##########################################################
+####################### CONFIG STUFF ########################
 #i3 config
 alias i3config='/usr/bin/nvim ~/.config/i3/config'
+
+#bash aliases
+alias aliases='/usr/bin/nvim ~/.config/bash/aliases'
+
+#bash export
+alias exports='/usr/bin/nvim ~/.config/bash/exports'
+
+#vim plugins
+alias vplug='/usr/bin/nvim ~/.config/nvim/load_plugins.vim'
+alias vplug2='/usr/bin/nvim ~/.config/nvim/config_plugins.vim'
+
+
 ##########################################################
-
-
 # Empty the Trash on all mounted volumes and the main HDD. then clear the useless sleepimage
 alias emptytrash=" \
     sudo rm -rfv /Volumes/*/.Trashes; \

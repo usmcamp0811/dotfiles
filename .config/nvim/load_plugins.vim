@@ -39,6 +39,8 @@ Plug 'junegunn/vim-easy-align'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'FelikZ/ctrlp-py-matcher'
 Plug 'posva/vim-vue'
+Plug 'othree/html5.vim'
+" Plug 'leafOfTree/vim-vue-plugin'
 Plug 'tmhedberg/SimpylFold'
 Plug 'junegunn/vim-emoji'
 Plug 'godlygeek/tabular'
@@ -67,5 +69,8 @@ Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
 Plug 'lervag/vimtex'
 Plug 'pechorin/any-jump.vim'
 Plug 'eugen0329/vim-esearch'
+
+Plug 'francoiscabrol/ranger.vim'
+Plug 'rbgrouleff/bclose.vim'
 call plug#end()
 

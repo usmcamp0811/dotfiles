@@ -287,8 +287,8 @@ mode "resize" {
 }
 
 # adjust laptop brightness
-bindsym XF86MonBrightnessDown exec --no-startup-id ~/.scripts/backlight -
-bindsym XF86MonBrightnessUp exec --no-startup-id ~/.scripts/backlight +
+bindsym XF86MonBrightnessDown exec --no-startup-id ~/.local/bin/backlight -
+bindsym XF86MonBrightnessUp exec --no-startup-id ~/.local/bin/backlight +
 
 bindsym XF86AudioStop exec xrandr | grep -w "connected" | awk '{system("xrandr --output " $1 " --auto")}' 
 
@@ -315,7 +315,7 @@ exec --no-startup-id redshift-gtk
 exec --no-startup-id powertop --auto-tune
 # exec --no-startup-id /usr/bin/ckb-next --background
 # exec --no-startup-id /opt/pia/run.sh
-exec --no-startup-id /bin/bash ~/.scripts/lid_action 
+# exec --no-startup-id /bin/bash ~/.scripts/lid_action 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:
 # https://i3wm.org/docs/userguide.html#xresources
