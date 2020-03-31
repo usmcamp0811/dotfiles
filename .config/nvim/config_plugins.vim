@@ -82,7 +82,7 @@ let g:airline_theme='cobalt2' " <theme> is a valid theme name
 
 " UltiSnips {{{
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-" let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-l>"
 let g:UltiSnipsJumpBackwardTrigger="<c-h>"
 let g:UltiSnipsExpandTrigger="<C-j>"
@@ -107,7 +107,7 @@ augroup ft_auto_saves
   au FileType sh let b:auto_save = 1  
   au FileType dockerfile let b:auto_save = 1  
   au FileType javascript let b:auto_save = 1  
-  au FileType vue let b:auto_save = 1  
+  au FileType vue let b:auto_save = 0
   au FileType vim let b:auto_save = 1
   au FileType rmd let b:auto_save = 1
   au FileType tex let b:auto_save = 1
@@ -120,6 +120,8 @@ nnoremap <Bs> :Commentary<CR>
 autocmd FileType apache setlocal commentstring=#\ %s
 autocmd BufNewFile,BufRead *.Xresources set filetype=xdefaults
 autocmd FileType xdefaults setlocal commentstring=!\ %s
+
+
 " }}}
 
 " Vim Wiki {{{
@@ -317,6 +319,7 @@ hi ESearchMatch ctermfg=black ctermbg=white guifg=#000000 guibg=#E6E6FA
 
 " vim vue 
 " let g:vim_vue_plugin_load_full_syntax = 2
+let g:vue_pre_processors = 'detect_on_enter'
 "
 " range in vim
 " let g:NERDTreeHijackNetrw = 0 // add this line if you use NERDTree

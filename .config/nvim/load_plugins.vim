@@ -34,12 +34,15 @@ Plug 'davidhalter/jedi-vim'
 Plug 'ternjs/tern_for_vim', { 'for': ['javascript', 'javascript.jsx'] }
 Plug 'carlitux/deoplete-ternjs', { 'for': ['javascript', 'javascript.jsx'] }
 Plug 'othree/jspc.vim', { 'for': ['javascript', 'javascript.jsx'] }
+Plug 'mxw/vim-jsx'
+Plug 'pangloss/vim-javascript'
 Plug 'honza/vim-snippets'
 Plug 'junegunn/vim-easy-align'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'FelikZ/ctrlp-py-matcher'
 Plug 'posva/vim-vue'
 Plug 'othree/html5.vim'
+Plug 'suy/vim-context-commentstring'
 " Plug 'leafOfTree/vim-vue-plugin'
 Plug 'tmhedberg/SimpylFold'
 Plug 'junegunn/vim-emoji'
