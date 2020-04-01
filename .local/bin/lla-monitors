@@ -1,0 +1,54 @@
+#!/bin/sh
+
+LID=$(cat /proc/acpi/button/lid/LID0/state | awk '{print $2}')
+DISPLAYS=$(xrandr | grep -w "connected" | awk '{print $1}' | wc -l)
+CURRENT_LID=$(cat /proc/acpi/button/lid/LID0/state | awk '{print $2}')
+NUM_DISPLAYS=$(xrandr | grep -w "connected" | awk '{print $1}' | wc -l)
+
+resize_background_and_polybar(){
+    feh --bg-scale ~/.config/background
+    ~/.config/polybar/launch
+}
+
+lid_open(){
+    LID="open"
+    echo "Lid: $LID"
+    # turn all available monitors on
+    auto-screen
+    resize_background_and_polybar 
+    # set_audio_out 
+    echo "# Displays: $DISPLAYS"
+    sleep 3
+}
+
+lid_closed(){
+    LID="closed"
+    echo "Lid: $LID"
+    # all screens on
+    auto-screen
+    # disable the laptop screen
+    xrandr --output eDP-1 --off
+    resize_background_and_polybar 
+    # set_audio_out
+    echo "# Displays: $DISPLAYS"
+    sleep 3
+
+}
+
+# make sure this is a laptop
+[ -f "/proc/acpi/button/lid/LID0/state" ] \
+&& while true
+do
+    [[ "$CURRENT_LID" != "$LID" ]] \
+    && [[ "$CURRENT_LID" == "closed" ]] \
+    && lid_closed
+    [[ "$CURRENT_LID" != "$LID" ]] \
+    && [[ "$CURRENT_LID" == "open" ]] \
+    && lid_open 
+    CURRENT_LID=$(cat /proc/acpi/button/lid/LID0/state | awk '{print $2}')
+done
+
+# must not be the laptop so lets just exit
+exit 0
+
+
