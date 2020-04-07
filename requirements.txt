@@ -3,7 +3,7 @@ Archey3==0.4.1
 attrs==19.3.0
 backcall==0.1.0
 bcrypt==3.1.7
-bleach==3.1.3
+bleach==3.1.4
 bokeh==2.0.0
 CacheControl==0.12.6
 cached-property==1.5.1
