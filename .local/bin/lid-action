@@ -12,25 +12,13 @@ resize_background_and_polybar(){
 
 lid_open(){
     LID="open"
-    echo "Lid: $LID"
-    # turn all available monitors on
-    auto-screen
-    resize_background_and_polybar 
-    # set_audio_out 
-    echo "# Displays: $DISPLAYS"
+    xrandr --output eDP-1 --auto --right-of DP-1
     sleep 3
 }
 
 lid_closed(){
     LID="closed"
-    echo "Lid: $LID"
-    # all screens on
-    auto-screen
-    # disable the laptop screen
     xrandr --output eDP-1 --off
-    resize_background_and_polybar 
-    # set_audio_out
-    echo "# Displays: $DISPLAYS"
     sleep 3
 
 }
