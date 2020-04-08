@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# resize background
+feh --bg-scale ~/.config/background 
+
+# change audio out to laptop
+pactl set-card-profile 1 output:analog-stereo

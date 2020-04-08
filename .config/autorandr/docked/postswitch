@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# adjust background
+feh --bg-scale ~/.config/background 
+
+# change audio out to the monitor
+pactl set-card-profile 1 output:hdmi-stereo

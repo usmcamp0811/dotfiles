@@ -79,7 +79,9 @@ bindsym $mod+F11 exec ~/.local/bin/auto-screen
 bindsym $mod+F12 exec ~/.local/bin/laptop_screen_toggle
 
 # turn off monitor when lid closed
-exec --no-startup-id ~/.local/bin/lla-monitors 
+# exec --no-startup-id ~/.local/bin/lla-monitors 
+# check if we are docked / have external monitor
+# exec --no-startup-id ~/.local/bin/dock-monitors 
 
 
 

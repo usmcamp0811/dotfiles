@@ -320,6 +320,7 @@ hi ESearchMatch ctermfg=black ctermbg=white guifg=#000000 guibg=#E6E6FA
 " vim vue 
 " let g:vim_vue_plugin_load_full_syntax = 2
 let g:vue_pre_processors = 'detect_on_enter'
+
 "
 " range in vim
 " let g:NERDTreeHijackNetrw = 0 // add this line if you use NERDTree
