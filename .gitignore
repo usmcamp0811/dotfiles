@@ -215,3 +215,26 @@ static
 .config/npm/**
 .config/mozilla/**
 .config/nvim/undo/**
+.config/nvim/swaps/**
+.config/zoom/**
+.config/bash/private/**
+.bash_history
+.cargo/**
+.local/bin/**
+.npm/**
+Documents/**
+Downloads/**
+Pictures/**
+code-home/**
+Desktop/**
+.config/BraveSoftware/**
+.config/Unknown Organization/**
+.config/libreoffice/**
+.config/nvim/plugged/**
+.gtm
+.pki/**
+.python_history
+.quasar-starter-kits/**
+.ssh/**
+.wget-hsts
+
