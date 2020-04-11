@@ -57,10 +57,10 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias i3config='/usr/bin/nvim ~/.config/i3/config'
 
 #bash aliases
-alias aliases='/usr/bin/nvim ~/.config/bash/aliases'
+alias aliases='/usr/bin/nvim ~/.config/bash/aliases.bashrc'
 
 #bash export
-alias exports='/usr/bin/nvim ~/.config/bash/exports'
+alias exports='/usr/bin/nvim ~/.config/bash/exports.bashrc'
 
 #vim plugins
 alias vplug='/usr/bin/nvim ~/.config/nvim/load_plugins.vim'
@@ -122,4 +122,9 @@ new_tmux () {
 
 a_tmux () {
   tmux a -t $1
+}
+
+kill () {
+    [ $# -eq 0 ] && echo "You need to specify whom to kill." && return
+    /usr/bin/kill $@
 }
