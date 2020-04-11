@@ -214,3 +214,4 @@ static
 .local/share/doc/networkx-2.4/**
 .config/npm/**
 .config/mozilla/**
+.config/nvim/undo/**
