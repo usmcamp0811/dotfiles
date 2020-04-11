@@ -27,6 +27,10 @@ alias cat='bat'
 
 alias vim='nvim'
 
+alias df='df -h'
+
+alias grep='grep --color=auto'
+
 ##########################################################
 ####################### GIT STUFF ########################
 
@@ -61,7 +65,9 @@ alias exports='/usr/bin/nvim ~/.config/bash/exports'
 #vim plugins
 alias vplug='/usr/bin/nvim ~/.config/nvim/load_plugins.vim'
 alias vplug2='/usr/bin/nvim ~/.config/nvim/config_plugins.vim'
-
+alias vkeys='/usr/bin/nvim ~/.config/nvim/key-mappings.vim'
+alias vgen='/usr/bin/nvim ~/.config/nvim/general.vim'
+alias vinit='/usr/bin/nvim ~/.config/nvim/init.vim'
 
 ##########################################################
 # Empty the Trash on all mounted volumes and the main HDD. then clear the useless sleepimage

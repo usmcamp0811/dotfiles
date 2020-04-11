@@ -20,9 +20,15 @@ case ${TERM} in
         esac
 
 # source all the other bash config files
-for file in ~/.config/bash/{exports,aliases}; do
+for file in ~/.config/bash/*.bashrc; do
     [ -r "$file" ] && source "$file"
 done
+
+# source my private config files
+for file in ~/.config/bash/private/*.bashrc; do
+    [ -r "$file" ] && source "$file"
+done
+
 
 complete -cf sudo
 shopt -s checkwinsize

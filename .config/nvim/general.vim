@@ -24,7 +24,7 @@ set noshowmode " Going to use airline.vim to handle this for us
 set nostartofline " Don't reset cursor to the start of the line when moving around
 set ruler " Show current position
 set nu " enable line numbers
-set shell=/bin/sh
+set shell=/bin/bash
 set splitbelow " New windows go below
 set splitright " New windows go right
 set title " Show the filename in the window titlebar
