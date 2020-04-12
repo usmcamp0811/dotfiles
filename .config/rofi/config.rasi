@@ -1,0 +1,10 @@
+/** Configured For Applets **/
+
+configuration {
+  show-icons:         true;
+  icon-theme:         "Papirus";
+  location: 0;
+  yoffset: -50;
+  xoffset: -20;
+}
+@import "/usr/share/rofi/themes/DarkBlue.rasi"

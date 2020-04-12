@@ -6,7 +6,9 @@ killall -q polybar
 # Wait until the processes have been shut down
 pkill $(pgrep -u $UID -x polybar)
 sleep 1
+# make sure background is scaled correctly
+feh --bg-scale ~/.config/background 
+
 # Launch bar1 and bar2
 polybar -r -q -c ~/.config/polybar/config $HOSTNAME
-
 echo "Bars launched..."

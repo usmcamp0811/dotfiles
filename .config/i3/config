@@ -297,6 +297,11 @@ mode "resize" {
 bindsym XF86MonBrightnessDown exec --no-startup-id ~/.local/bin/backlight -
 bindsym XF86MonBrightnessUp exec --no-startup-id ~/.local/bin/backlight +
 
+bindsym XF86AudioRaiseVolume exec --no-startup-id ~/.local/bin/lmc up 
+bindsym XF86AudioLowerVolume exec --no-startup-id ~/.local/bin/lmc down 
+bindsym XF86AudioMute exec --no-startup-id ~/.local/bin/lmc toggle 
+
+
 bindsym XF86AudioStop exec xrandr | grep -w "connected" | awk '{system("xrandr --output " $1 " --auto")}' 
 
 
