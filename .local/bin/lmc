@@ -4,13 +4,14 @@ NUM="${2:-5}"
 
 # Uncomment the following line to use Pulseaudio.
 PULSE=true
+SINK=$(pulsemixer --list-sinks | grep Built-in | awk '{print $3}' | sed s/,//g)
 
 if [ "$PULSE" ]; then
-	toggle() { pulsemixer --toggle-mute ;}
-	mute() { pulsemixer --mute ;}
-	up() { pulsemixer --change-volume +"$NUM" ;}
-	down() { pulsemixer --change-volume -"$NUM" ;}
-	control() { pulsemixer ;}
+	toggle() { pulsemixer --id $SINK --toggle-mute ;}
+	mute() { pulsemixer --id $SINK --mute ;}
+	up() { pulsemixer --id $SINK --change-volume +"$NUM" ;}
+	down() { pulsemixer --id $SINK --change-volume -"$NUM" ;}
+	control() { pulsemixer --id $SINK ;}
 else
 	toggle() { amixer sset Master toggle ;}
 	mute() { amixer sset Master mute ;}
