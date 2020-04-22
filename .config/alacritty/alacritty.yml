@@ -460,7 +460,7 @@ mouse:
     #   - (Linux/BSD) xdg-open
     #   - (Windows) explorer
     launcher:
-     program: firefox
+     program: brave
     #  args: []
 
     # URL modifiers
