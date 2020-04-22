@@ -42,7 +42,7 @@ map <leader><CR> o<ESC>
 " }}}
 
 " Toggle Folds (<Space>) {{{
-nnoremap <silent> <space> :exe 'silent! normal! '.((foldclosed('.')>0)? 'zMzx' : 'zc')<CR>
+nnoremap <silent> <CR> :exe 'silent! normal! '.((foldclosed('.')>0)? 'zMzx' : 'zc')<CR>
 
 noremap <F5> :call UnrolMe()<CR>
 

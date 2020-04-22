@@ -25,7 +25,7 @@ hi SpellBad    ctermfg=9      ctermbg=16     cterm=underline
 " }}}
 
 " Mapleader {{{
-let mapleader=","
+let mapleader=" "
 " }}}
 
 " Set Vim Directories {{{
