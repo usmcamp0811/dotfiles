@@ -1,7 +1,11 @@
 # Prefer US English and use UTF-8
 export LC_ALL="en_US.UTF-8"
 export LANG="en_US"
-
+# Default programs:
+export EDITOR="nvim"
+export TERMINAL="alacritty"
+export BROWSER="brave"
+export READER="zathura"
 # system TimeZone
 export TZ="America/Chicago"
 
@@ -30,3 +34,6 @@ export XSOCK=/tmp/.X11-unix/X0
 
 #docker socker
 export DOCKER=/var/run/docker.sock
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export TMUX_TMPDIR="$XDG_RUNTIME_DIR"

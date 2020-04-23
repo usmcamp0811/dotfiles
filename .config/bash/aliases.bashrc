@@ -83,6 +83,7 @@ function kill-docker() {
   docker stop $1 && docker rm $1
 }
 
+tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
 
 new-tmux(){
   tmux new -s $1
