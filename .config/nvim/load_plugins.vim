@@ -75,5 +75,9 @@ Plug 'eugen0329/vim-esearch'
 
 Plug 'francoiscabrol/ranger.vim'
 Plug 'rbgrouleff/bclose.vim'
+Plug 'noah/vim256-color'
+Plug 'joshdick/onedark.vim'
+Plug 'sheerun/vim-polyglot'
+Plug 'rakr/vim-one'
 call plug#end()
 
