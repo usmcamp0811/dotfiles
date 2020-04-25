@@ -79,11 +79,11 @@ alias emptytrash=" \
     rm -rv \"/Users/paulirish/Library/Application Support/stremio/stremio-cache\" \
 "
 # stop and rm docker
-function kill-docker() {
-  docker stop $1 && docker rm $1
-}
+# function kill-docker() {
+  # docker stop $1 && docker rm $1
+# }
 
-tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
+alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
 
 new-tmux(){
   tmux new -s $1

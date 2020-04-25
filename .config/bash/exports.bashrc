@@ -37,3 +37,6 @@ export DOCKER=/var/run/docker.sock
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
+
+# makes man pages stay in the terminal when you exitthem
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"

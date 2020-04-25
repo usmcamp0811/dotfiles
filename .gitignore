@@ -231,6 +231,7 @@ Desktop/**
 .config/Unknown Organization/**
 .config/libreoffice/**
 .config/nvim/plugged/**
+.config/nvim/colors/**
 .gtm
 .pki/**
 .python_history

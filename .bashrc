@@ -1,14 +1,6 @@
-#!/bin/bash
-
-
-export XDG_CONFIG_HOME="$HOME/.config"
-export BROWSER='/usr/bin/brave'
-export EDITOR='/usr/bin/nvim'
-# makes man pages stay in the terminal when you exitthem
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+#:highlight SignColumn guibg=darkgrey!/bin/bash
 # I use arch btw...
 archey3
-
 # Change the window title of X terminals
 case ${TERM} in
 	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*|urxvt*)
@@ -18,7 +10,6 @@ case ${TERM} in
 		PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
 		;;
         esac
-
 # source all the other bash config files
 for file in ~/.config/bash/*.bashrc; do
     [ -r "$file" ] && source "$file"
