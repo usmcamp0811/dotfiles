@@ -53,7 +53,7 @@ bindsym $mod+t exec --no-startup-id pkill picom
 bindsym $mod+Ctrl+t exec --no-startup-id picom -b
 bindsym Ctrl+Print exec gnome-screenshot -i
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
-
+bindsym $mod+Ctrl+w exec alacritty -t VimWiki -e nvim +VimwikiIndex NERDTreeClose
 # alacritty theme things
 
 # Toggle between light and dark colorscheme
@@ -227,6 +227,7 @@ for_window [class="Xfburn"] floating enable
 for_window [class="Yad" title="yad-calendar"] floating enable
 for_window [class="Yad" title="yad"] floating enable
 for_window [class="Civilization VI"] floating disable border pixel 1
+for_window [title="VimWiki"] floating enable board normal 
 
 # #---Dropdown Windows---# #
 # General dropdown window traits. The order can matter.

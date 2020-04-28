@@ -83,6 +83,8 @@ alias emptytrash=" \
   # docker stop $1 && docker rm $1
 # }
 
+alias vimwiki="/usr/bin/nvim +VimwikiIndex NERDTreeClose"
+
 alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
 
 new-tmux(){

@@ -127,7 +127,7 @@ autocmd FileType xdefaults setlocal commentstring=!\ %s
 " Vim Wiki {{{
 autocmd BufRead,BufNewFile *.wiki set filetype=vimwik
 let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
-let g:vimwiki_list = [{'path': '~/code-home/VimWiki', 'syntax': 'markdown', 'ext': '.md'}]
+let g:vimwiki_list = [{'path': '~/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
 
 let g:vim_markdown_math = 1
 let g:vim_markdown_json_frontmatter = 1

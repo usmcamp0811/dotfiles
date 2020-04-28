@@ -69,6 +69,7 @@ Plug 'camspiers/lens.vim'
 Plug 'lervag/vimtex'
 " A Vim Plugin for Lively Previewing LaTeX PDF Output
 Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
+Plug 'JamshedVesuna/vim-markdown-preview'
 Plug 'lervag/vimtex'
 Plug 'pechorin/any-jump.vim'
 Plug 'eugen0329/vim-esearch'
