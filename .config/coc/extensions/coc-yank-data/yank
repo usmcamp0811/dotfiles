@@ -112,3 +112,17 @@ b326b5062b2f0e69046810717534cb09|file:///home/mcamp/.config/nvim/coc-settings.js
 5749cfd414ed6ace9c89b147032c24ed|file:///home/mcamp/.config/nvim/coc-settings.json|38|33|v|jsonc
 	false,
 	
+eefebbe686fd396eac01738866f7a7c1|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
+047dd9b15c8d78baf3e7eed4248fae52|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'rbgrouleff/bclose.vim'
+c1cc78969079bec997f835a6118f7f1d|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" A Vim Plugin for Lively Previewing LaTeX PDF Output
+19a1ca410f871aadedf334a404e1a460|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'junegunn/vim-emoji'
+67d0b252d203e995da4e7740ee2e0a7c|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	Plug 'tmhedberg/SimpylFold'
+c581b8fbce997155899b6e35099cfe04|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'scrooloose/syntastic'
+cb6a99f78ae6a084c569d8b877458573|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	Plug 'craigemery/vim-autotag'

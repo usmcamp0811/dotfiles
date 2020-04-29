@@ -71,14 +71,17 @@ let g:airline_theme='cobalt2' " <theme> is a valid theme name
 
 " Using Emojis as Git Gutter symbols {{{
 
-if emoji#available()
-    let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
-    let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
-    let g:gitgutter_sign_removed = emoji#for('small_red_triangle')
-    let g:gitgutter_sign_modified_removed = emoji#for('collision')
-endif
+" if emoji#available()
+"     let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
+"     let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
+"     let g:gitgutter_sign_removed = emoji#for('small_red_triangle')
+"     let g:gitgutter_sign_modified_removed = emoji#for('collision')
+" endif
 " }}}
 
+" undotree {{{
+nnoremap <F5> :UndotreeToggle<cr>
+" }}}
 
 " UltiSnips {{{
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
