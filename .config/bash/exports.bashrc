@@ -8,7 +8,7 @@ export BROWSER="brave"
 export READER="zathura"
 # system TimeZone
 export TZ="America/Chicago"
-
+export XDG_CACHE_HOME=$HOME/.cache
 export PATH=~/.npm-global/bin:$PATH
 
 # for openweather polybar module
@@ -37,6 +37,10 @@ export DOCKER=/var/run/docker.sock
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
-
+export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
+export NVM_DIR="$XDG_DATA_HOME"/nvm
+export PYLINTHOME="$XDG_CACHE_HOME"/pylint
+export PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
+export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 # makes man pages stay in the terminal when you exitthem
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"

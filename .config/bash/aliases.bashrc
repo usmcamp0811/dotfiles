@@ -131,3 +131,4 @@ kill () {
     [ $# -eq 0 ] && echo "You need to specify whom to kill." && return
     /usr/bin/kill $@
 }
+alias wget='wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'

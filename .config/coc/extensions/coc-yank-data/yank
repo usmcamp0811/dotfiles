@@ -126,3 +126,21 @@ c581b8fbce997155899b6e35099cfe04|file:///home/mcamp/.config/nvim/load_plugins.vi
 	" Plug 'scrooloose/syntastic'
 cb6a99f78ae6a084c569d8b877458573|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
 	Plug 'craigemery/vim-autotag'
+b80d4e77bc7787ee342d1d08e4df3eb7|file:///home/mcamp/code-home/MattCampWebsite/sites/matt-camp-website/src/pages/Resume.vue|61|176|v|vue
+	/#/resume
+f3a76596ce40efee036dd84a1d70f4b3|file:///home/mcamp/code-home/MattCampWebsite/sites/matt-camp-website/src/assets/resume/resume.json|1|1|V|json
+	        "Tableau",
+d96427c4322c55559f292ec6ac4e84cf|file:///home/mcamp/code-home/MattCampWebsite/sites/matt-camp-website/src/assets/resume/resume.json|1|1|V|json
+	        "InfoPath",
+feaa12b1e2a6d1f69bd52686b7bda7b6|file:///home/mcamp/code-home/MattCampWebsite/sites/matt-camp-website/src/assets/resume/resume.json|1|1|V|json
+	        "SharePoint",
+05ca74dd3d338b090ffc7aee3c326014|file:///home/mcamp/code-home/MattCampWebsite/sites/matt-camp-website/src/assets/resume/resume.json|8|81|v|json
+	Single Scope Background Investigation completed on July 9, 2012.
+66750ffe19453f8b35d969688e79648d|file:///home/mcamp/code-home/MattCampWebsite/sites/matt-camp-website/src/assets/resume/resume.json|1|1|v|json
+	completed on October 4, 2018
+18e4210c557dbddca889ade290e8da8f|file:///home/mcamp/code-home/Airflow/build_images.py|1|1|V|python
+	    print(hello)
+b52e53d9f460f7a0f0a77c3bb16ba9d5|file:///mnt/backupdrive/Backups/Campcloud/mcamp/files/Documents/jobs/Colsa/daily_report_27_apr_msic3a_campmj.md|39|3|v|vimwiki
+	0700
+5622b3261cdb8e9c211993ea7cda2842|file:///mnt/backupdrive/Backups/Campcloud/mcamp/files/Documents/jobs/Colsa/daily_report_27_apr_msic3a_campmj.md|39|17|v|vimwiki
+	Shell scripting...                     

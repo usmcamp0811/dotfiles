@@ -2119,5 +2119,38 @@
     },
     "INTERPRETERS_CACHE_v3_PipEnvService": [],
     "INTERPRETERS_CACHE_v3_WorkspaceVirtualEnvService": []
+  },
+  "coc-python|/home/mcamp/code-home/Airflow": {
+    "INTERPRETERS_CACHE_v3_PipEnvService:64b8048b418797ed4c1fc2a8fcc08c9c": [],
+    "INTERPRETERS_CACHE_v3_WorkspaceVirtualEnvService:64b8048b418797ed4c1fc2a8fcc08c9c": [],
+    "autoSelectedWorkspacePythonInterpreter-/home/mcamp/code-home/Airflow": {
+      "architecture": 3,
+      "path": "/usr/bin/python",
+      "version": {
+        "options": {
+          "loose": false,
+          "includePrerelease": false
+        },
+        "loose": false,
+        "raw": "3.8.2-final",
+        "major": 3,
+        "minor": 8,
+        "patch": 2,
+        "prerelease": [
+          "final"
+        ],
+        "build": [],
+        "version": "3.8.2-final"
+      },
+      "sysPrefix": "/usr",
+      "fileHash": "c6611ef120a87cb597be2718f2337bc54b5441297adc88e0901d3d7db70209069a5d28a27f470ab60f7417746e0e69b1f664047fc0db30c4753ffbd067c2386a",
+      "type": "Unknown"
+    },
+    "INTERPRETERS_CACHE_v3_PipEnvService": [],
+    "INTERPRETERS_CACHE_v3_WorkspaceVirtualEnvService": []
+  },
+  "coc-python|/home/mcamp/.config": {
+    "INTERPRETERS_CACHE_v3_WorkspaceVirtualEnvService": [],
+    "INTERPRETERS_CACHE_v3_PipEnvService": []
   }
 }
