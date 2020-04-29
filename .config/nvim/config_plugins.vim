@@ -236,44 +236,6 @@ let g:vimtex_compiler_progname = 'nvr'
 " }}}
 
 
-"" Deoplete {{{
-"" Use deoplete.
-"let g:deoplete#enable_at_startup = 1
-"" Use smartcase.
-"" call deoplete#custom#option('smart_case', v:true)
-"autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
-"inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-"inoremap <silent><expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-"inoremap <silent><expr><s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
-"" <CR>: close popup and save indent.
-"" inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-"" function! s:my_cr_function() abort
-""   return deoplete#close_popup() . "\<CR>"
-"" endfunction
-
-"" https://gregjs.com/vim/2016/neovim-deoplete-jspc-ultisnips-and-tern-a-config-for-kickass-autocompletion/
-
-"" so deoplete plays nice with other autocomplete things
-"let g:deoplete#omni#functions = {}
-"let g:deoplete#omni#functions.javascript = [
-"  \ 'tern#Complete',
-"  \ 'jspc#omni'
-"\]
-"set completeopt=longest,menuone,preview
-"let g:deoplete#sources = {}
-"let g:deoplete#sources['javascript.jsx'] = ['file', 'ultisnips', 'ternjs']
-"let g:tern#command = ['tern']
-"let g:tern#arguments = ['--persistent']
-"call deoplete#custom#option('num_processes', 1)
-
-"autocmd FileType javascript let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
-"inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-"" autocmd BufWritePre *.py execute ':Black'
-"" }}}
-""
-
-
-
 " any jump
 
 " Normal mode: Jump to definition under cursore

@@ -1,0 +1,78 @@
+7aa215a822e7a2e7e9ef7343394dbcac|file:///home/mcamp/vimwiki/test.css|1|1|V|css
+	background: #fff
+f3b39064fbb9925a634ed42bfdbf37ea|file:///home/mcamp/vimwiki/test.css|1|1|V|css
+	h1 {
+	    color: #jffk
+	}
+7715ce09d6d526eaf4480533093bcc95|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'tpope/vim-fugitive'
+91d672864582af8090ff06709468e8a7|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'airblade/vim-gitgutter'
+4b6f33262a84c35b90a1af6e08b296ce|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'ap/vim-css-color'
+79a0db8f30df1303eba4e7127598f438|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'mxw/vim-jsx'
+b4a46f16efcf6f19936ad6db7c7dd963|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'posva/vim-vue'
+1c4c3f6561d2cf8249c1250bc4a7cdb2|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'othree/html5.vim'
+8e6ea4946ca7879cec5a05b079d2e500|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'tpope/vim-markdown'
+990fd13ce28011b5114ddd1da2057990|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'machakann/vim-highlightedyank'
+66a6bc46e77e04e148822dcfd231638f|file:///home/mcamp/.config/nvim/load_plugins.vim|40|1|v|vim
+	Plug 'baruchel/vim-notebook'
+39421c24e584d7340b280b7b676abd76|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	Plug 'pangloss/vim-javascript'
+349345d33246f7e645c60d60c98f0fa8|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	if has('nvim')
+76dbff9cd0da313f0aa5757ddf49eb10|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	  " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+2954e92a9b4d0e998fe4893f8141649a|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	else
+63a7bbf9c48e4b2783194f1939a0f324|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	  " Plug 'Shougo/deoplete.nvim'
+193d4ffe62b645a997d42ab089b28234|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	  Plug 'roxma/nvim-yarp'
+dbc220ebcc3bac545f49cde046f6a29b|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	  Plug 'roxma/vim-hug-neovim-rpc'
+e96d8afc259593a20838480dfb84400b|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	endif
+5716036d6f5a74657f2d6aad3118a099|file:///home/mcamp/.config/nvim/config_plugins.vim|1|1|V|vim
+	"" Deoplete {{{
+	"" Use deoplete.
+	"let g:deoplete#enable_at_startup = 1
+	"" Use smartcase.
+	"" call deoplete#custom#option('smart_case', v:true)
+	"autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+	"inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+	"inoremap <silent><expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+	"inoremap <silent><expr><s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
+	"" <CR>: close popup and save indent.
+	"" inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+	"" function! s:my_cr_function() abort
+	""   return deoplete#close_popup() . "\<CR>"
+	"" endfunction
+	
+	"" https://gregjs.com/vim/2016/neovim-deoplete-jspc-ultisnips-and-tern-a-config-for-kickass-autocompletion/
+	
+	"" so deoplete plays nice with other autocomplete things
+	"let g:deoplete#omni#functions = {}
+	"let g:deoplete#omni#functions.javascript = [
+	"  \ 'tern#Complete',
+	"  \ 'jspc#omni'
+	"\]
+	"set completeopt=longest,menuone,preview
+	"let g:deoplete#sources = {}
+	"let g:deoplete#sources['javascript.jsx'] = ['file', 'ultisnips', 'ternjs']
+	"let g:tern#command = ['tern']
+	"let g:tern#arguments = ['--persistent']
+	"call deoplete#custom#option('num_processes', 1)
+	
+	"autocmd FileType javascript let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+	"inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+	"" autocmd BufWritePre *.py execute ':Black'
+	"" }}}
+	""
+05b6053c41a2130afd6fc3b158bda4e6|file:///home/mcamp/vimwiki/DockerTutorial.md|25|4|v|vimwiki
+	docker
