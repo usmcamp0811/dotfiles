@@ -69,6 +69,11 @@ augroup END
 let g:airline_theme='cobalt2' " <theme> is a valid theme name
 " }}}
 
+" lens {{{
+let g:lens#disabled_filetypes = ['nerdtree', 'fzf']
+let g:lens#animate = 0
+" }}}
+
 " Using Emojis as Git Gutter symbols {{{
 
 " if emoji#available()
