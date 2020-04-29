@@ -78,3 +78,37 @@ e96d8afc259593a20838480dfb84400b|file:///home/mcamp/.config/nvim/load_plugins.vi
 	docker
 2043a6086705e5792b16ab4a41560ea3|file:///home/mcamp/.config/bash/aliases.bashrc|45|21|v|sh
 	push -f origin HEAD^:master"
+d9f8229d59a6de6a9af02a113a780a4c|file:///home/mcamp/.config/nvim/load_plugins.vim|1|1|V|vim
+	" Plug 'pangloss/vim-javascript'
+14ddcc38a51b053d77aaa1ef34d7b791|file:///home/mcamp/.config/coc/ultisnips/python.snippets|27|9|v|snippets
+	Tab_trigger
+a14e091439a37800416b0c1535d069f4|file:///home/mcamp/.config/nvim/coc-settings.json|1|1|V|jsonc
+	    "scala": {
+	      "command": "node",
+	      "args": ["/home/jesse/bin/sbt-server-stdio.js"],
+	      "filetypes": ["scala"],
+	      "initializationOptions": {},
+	      "settings": {},
+	      "rootPatterns": ["build.sbt"]
+	    }
+37625c69d9ca23e298c969d0dae1dd5b|file:///home/mcamp/.config/nvim/coc-settings.json|18|1|V|jsonc
+	  "languageserver": {
+	    //"flow": {
+e5be096b6400497b426b2ddbb80c968d|file:///home/mcamp/.config/nvim/coc-settings.json|1|1|^v|jsonc
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+9bdf1403166a4fdf4d4d3c9f903779ea|file:///home/mcamp/vimwiki/HelloFlask.py|1|1|V|python
+	print("hello")
+b326b5062b2f0e69046810717534cb09|file:///home/mcamp/.config/nvim/coc-settings.json|36|29|v|jsonc
+	true
+1aff8aa6b0a95b85a77b3e9a7237c1f6|file:///home/mcamp/.config/nvim/coc-settings.json|37|32|v|jsonc
+	true,
+5749cfd414ed6ace9c89b147032c24ed|file:///home/mcamp/.config/nvim/coc-settings.json|38|33|v|jsonc
+	false,
+	
