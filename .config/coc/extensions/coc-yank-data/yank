@@ -76,3 +76,5 @@ e96d8afc259593a20838480dfb84400b|file:///home/mcamp/.config/nvim/load_plugins.vi
 	""
 05b6053c41a2130afd6fc3b158bda4e6|file:///home/mcamp/vimwiki/DockerTutorial.md|25|4|v|vimwiki
 	docker
+2043a6086705e5792b16ab4a41560ea3|file:///home/mcamp/.config/bash/aliases.bashrc|45|21|v|sh
+	push -f origin HEAD^:master"
