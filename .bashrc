@@ -1,6 +1,6 @@
 #:highlight SignColumn guibg=darkgrey!/bin/bash
 # I use arch btw...
-archey3
+archey3 --config ~/.config/archey3.cfg 
 # Change the window title of X terminals
 case ${TERM} in
 	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*|urxvt*)
