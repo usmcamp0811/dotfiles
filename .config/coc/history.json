@@ -4,5 +4,10 @@
       "snip",
       "templ"
     ]
+  },
+  "diagnostics": {
+    "%2Fhome%2Fmcamp%2Fcode-home%2Fcampfiles": [
+      "j"
+    ]
   }
 }

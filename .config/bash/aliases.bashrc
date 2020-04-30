@@ -79,21 +79,13 @@ alias emptytrash=" \
     rm -rv \"/Users/paulirish/Library/Application Support/stremio/stremio-cache\" \
 "
 # stop and rm docker
-# function kill-docker() {
-  # docker stop $1 && docker rm $1
-# }
+function dkill() {
+  docker stop $1 && docker rm $1
+}
 
 alias vimwiki="/usr/bin/nvim +VimwikiIndex NERDTreeClose"
 
 alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
-
-new-tmux(){
-  tmux new -s $1
-}
-
-my-tmux(){
-  tmux a -t $
-}
 
 # yea i am sick of typing allthat.. 
 alias update="sudo pacman -Syu"
