@@ -232,6 +232,8 @@ Desktop/**
 .config/libreoffice/**
 .config/nvim/plugged/**
 .config/nvim/colors/**
+.config/coc/extensions/node_modules/**
+.config/coc/extensions/db.json
 .gtm
 .pki/**
 .python_history
