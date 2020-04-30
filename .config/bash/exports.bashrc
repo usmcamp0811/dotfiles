@@ -9,7 +9,6 @@ export READER="zathura"
 # system TimeZone
 export TZ="America/Chicago"
 export XDG_CACHE_HOME=$HOME/.cache
-export PATH=~/.npm-global/bin:$PATH
 
 # for openweather polybar module
 export CITY="Huntsville, US"
@@ -17,17 +16,12 @@ export UNITS="imperial"
 export SYMBOL="°"
 
 # add geckodriver to my path for use in selenium
-export PATH=$PATH:/home/mcamp/.geckodriver/
-
-# for npm so we don't need sudo to install global stuff
-export PATH=~/.npm-global/bin:$PATH
-
-# export TERM='linux'
+export PATH=$PATH:$HOME/.geckodriver/
 
 export GID=$(id -g)
 
 # python scripts
-export PATH=/home/mcamp/.local/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
 
 # display socket for dockers to share
 export XSOCK=/tmp/.X11-unix/X0
