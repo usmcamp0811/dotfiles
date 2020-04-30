@@ -228,7 +228,7 @@ for_window [class="Yad" title="yad-calendar"] floating enable
 for_window [class="Yad" title="yad"] floating enable
 for_window [class="Civilization VI"] floating disable border pixel 1
 for_window [title="VimWiki"] floating enable board normal 
-
+for_window [title="Sign in to Security Device"] floating enable board normal 
 # #---Dropdown Windows---# #
 # General dropdown window traits. The order can matter.
 for_window [instance="dropdown_*"] floating enable
