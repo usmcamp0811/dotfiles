@@ -105,3 +105,8 @@ else
     command! -nargs=0 Sw w !sudo tee % > /dev/null
 endif
 
+" toggle unprintable characters in all modes
+set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
+noremap <F4> :set list!<CR>
+inoremap <F4> <C-o>:set list!<CR>
+cnoremap <F4> <C-c>:set list!<CR>
