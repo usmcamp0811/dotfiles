@@ -112,3 +112,8 @@ inoremap <F4> <C-o>:set list!<CR>
 cnoremap <F4> <C-c>:set list!<CR>
 "}}}
 
+" move blocks of text visually.. https://www.youtube.com/watch?v=X5IAdaN6IwM {{{
+xnoremap <silent> K :call visual#move_up()<CR>
+xnoremap <silent> J :call visual#move_down()<CR>
+" }}}
+
