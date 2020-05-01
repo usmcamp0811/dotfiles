@@ -28,6 +28,7 @@ export XSOCK=/tmp/.X11-unix/X0
 
 #docker socker
 export DOCKER=/var/run/docker.sock
+export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
@@ -38,3 +39,7 @@ export PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
 export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 # makes man pages stay in the terminal when you exitthem
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter
+export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
+export PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg

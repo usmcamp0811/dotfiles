@@ -81,3 +81,4 @@ source ~/.config/nvim/config_plugins.vim
 source ~/.config/nvim/key-mappings.vim
 
 colorscheme onedark
+
