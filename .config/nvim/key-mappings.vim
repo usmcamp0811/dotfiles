@@ -98,7 +98,7 @@ nnoremap <C-j> 3<C-e>
 " Ctrl-k Scroll up 3 rows at a time
 nnoremap <C-k> 3<C-y>
 " }}}
-"
+
 if has('nvim')
     cnoremap w!! execute 'silent! write !SUDO_ASKPASS=`which ssh-askpass` sudo tee % >/dev/null' <bar> edit!
 else

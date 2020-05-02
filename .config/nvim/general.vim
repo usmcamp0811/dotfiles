@@ -9,12 +9,18 @@ set diffopt+=iwhite " Ignore whitespace changes
 set softtabstop=4 " Tab key returns 4 spaces
 set shiftwidth=4 " Set # spaces for indention
 " Enable Text Folding {{{
-set foldenable " turn it on
-set foldcolumn=0 "Column to show folds
-set foldlevel=1 "Close all folds by default
-set foldmethod=syntax " Syntax are used to specify folds
-set foldminlines=0 " Allow folding single lines
-set foldnestmax =10 " Set max fold nesting level
+if has('folding')
+    if has('windows')
+        set fillchars=vert:┃
+        set fillchars+=fold:·
+    endif
+    set foldenable " turn it on
+    set foldcolumn=0 "Column to show folds
+    set foldlevel=1 "Close all folds by default
+    set foldmethod=syntax " Syntax are used to specify folds
+endif
+" set foldminlines=0 " Allow folding single lines
+" set foldnestmax =10 " Set max fold nesting level
 " }}}
 set nowrap " Don't wrap lines
 set mouse=a " Enable mouse in all modes
@@ -64,6 +70,9 @@ nnoremap <PageDown> <C-D>
 inoremap <PageUp> <C-O><C-U>
 inoremap <PageDown> <C-O><C-D>
 " }}}
+
+
+
 
 " Restore Cursor Position {{{
 augroup restore_cursor
