@@ -18,21 +18,6 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 " }}}
 " }}}
 
-" Syntastic.vim {{{
-augroup syntastic_config
-    autocmd!
-    let g:syntastic_error_symbol = '✗'
-    let g:syntastic_warning_symbol = '⚠'
-
-    " Like Syntastic's pyflakes checker, but treats messages about  unused
-    " variables/imports as warnings rather than errors.
-    let g:syntastic_python_checkers = ['pyflakes_with_warnings']
-    let g:syntastic_yaml_checkers = ['pyyaml']
-    let g:syntastic_javascript_checkers = ['json_tool']
-    let g:syntastic_json_checkers = ['json_tool']
-augroup END
-" }}}
-
 " RainbowParenthesis.vim {{{
 augroup rainbow_parenthesis_config
     autocmd!
@@ -66,7 +51,7 @@ augroup airline_config
   let g:airline#extensions#tabline#fnamemod = ':t'
 augroup END
 
-let g:airline_theme='cobalt2' " <theme> is a valid theme name
+" let g:airline_theme='cobalt2' " <theme> is a valid theme name
 " }}}
 
 " lens {{{
