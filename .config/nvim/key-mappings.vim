@@ -117,3 +117,10 @@ xnoremap <silent> K :call visual#move_up()<CR>
 xnoremap <silent> J :call visual#move_down()<CR>
 " }}}
 
+" useful markdown bindings {{{
+nnoremap <leader>1 m`yypVr=``
+nnoremap <leader>2 m`yypVr-``
+nnoremap <leader>3 m`^i### <esc>``4l
+nnoremap <leader>4 m`^i#### <esc>``5l
+nnoremap <leader>5 m`^i##### <esc>``6l
+"}}}

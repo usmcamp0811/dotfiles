@@ -55,6 +55,7 @@ set wildignore+=*/smarty/*,*/vendor/*,*/.git/*,*/.hg/*,*/.svn/*,*/.sass-cache/*,
 set wildmode=longest,list,full
 set spell " turns on spell check
 set pastetoggle=<F2>
+filetype plugin on 
 " speed up mode switching
 set timeout timeoutlen=3000 ttimeoutlen=10
 " }}}

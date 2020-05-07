@@ -36,5 +36,6 @@ Plug 'francoiscabrol/ranger.vim'
 Plug 'joshdick/onedark.vim'
 Plug 'sheerun/vim-polyglot'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
 call plug#end()
 
