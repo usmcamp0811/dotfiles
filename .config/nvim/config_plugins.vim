@@ -424,3 +424,8 @@ let g:vue_pre_processors = 'detect_on_enter'
 " let g:ranger_replace_netrw = 1 // open ranger when vim open a directory
 let g:ranger_command_override = 'ranger --cmd "set show_hidden=true"'
 silent! nmap <F2> :Ranger<CR>
+
+" tagalong {{{
+let g:tagalong_additional_filetypes = ['html', 'vue', 'ts']
+
+" }}}
