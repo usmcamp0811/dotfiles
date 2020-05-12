@@ -28,7 +28,6 @@ Plug 'junegunn/vim-easy-align'
 Plug 'camspiers/animate.vim' " moves panes in a pretty way
 Plug 'camspiers/lens.vim' " auto-magically resizes vim panes for you
 Plug 'lervag/vimtex' " for writing latex
-Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' } " for writing latex
 Plug 'JamshedVesuna/vim-markdown-preview'
 Plug 'pechorin/any-jump.vim' " pops up a window of all the times code is referenced
 Plug 'eugen0329/vim-esearch'
@@ -76,7 +75,6 @@ source $HOME/.config/nvim/plug-config/ultisnips.vim
 source $HOME/.config/nvim/plug-config/undotree.vim
 source $HOME/.config/nvim/plug-config/vim-commentary.vim
 source $HOME/.config/nvim/plug-config/vim-esearch.vim
-source $HOME/.config/nvim/plug-config/vim-latex-live-preview.vim
 source $HOME/.config/nvim/plug-config/vim-vue.vim
 source $HOME/.config/nvim/plug-config/vim-which-key.vim
 source $HOME/.config/nvim/plug-config/vimwiki.vim
