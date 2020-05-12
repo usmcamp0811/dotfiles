@@ -16,6 +16,11 @@
     "typescriptreact"
   ],
   "git.realtimeGutters": true,
+  "git.changedSign.text": "~",
+  "git.addedSign.text": "+",
+  "git.removedSign.text": "_",
+  "git.topRemovedSign.text": "‾",
+  "git.changeRemovedSign.text": "≃",
   "suggest.noselect": true,
   "languageserver": {
     "flow": {
@@ -53,7 +58,8 @@
   "typescript.preferences.quoteStyle": "double",
   "typescript.referencesCodeLens.enable": false,
   "git.enableGutters": true,
-
+  // requires `CocInstall coc-pairs`
+  "pairs.enableBackspace": true,
   "explorer.width": 30,
   "explorer.icon.enableNerdfont": true,
   "explorer.file.showHiddenFiles": false,
