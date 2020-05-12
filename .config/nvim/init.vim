@@ -67,9 +67,7 @@ hi SpellBad    ctermfg=9      ctermbg=16     cterm=underline
 
 " Mapleader {{{
 let g:mapleader = "\<Space>"
-let g:maplocalleader = ','
-nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
-nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+let g:maplocalkeader = ','
 " }}}
 
 " Set Vim Directories {{{
@@ -81,7 +79,6 @@ set undodir=~/.config/nvim/undo
 source ~/.config/nvim/general.vim
 source ~/.config/nvim/load_plugins.vim
 source ~/.config/nvim/key-mappings.vim
-" source ~/.config/nvim/config_plugins.vim
 
 colorscheme onedark
 

@@ -40,12 +40,13 @@
     "s": "action:split",
     "v": "action:vsplit"
   },
+  "todolist.autoUpload": false,
   // required `CocInstall coc-texlab`
   // requires `pacman -S texlab`
   "latex.path": "/usr/bin/texlab",
   "latex.build.executable": "/usr/bin/latexmk",
   "latex.build.onSave": true,
-  "latex.forwardSearch.executable": "/usr/bin/zathura",
+  "latex.forwardSearch.executable": "zathura",
   "latex.build.args": [ "-pdf", "-interaction=nonstopmode", "-synctex=1", "-pv" ],
   "latex.forwardSearch.args": [ "--unique", "file:%p#src:%l%f" ],
   // required `pip install pylint`

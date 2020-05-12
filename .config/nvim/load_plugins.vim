@@ -45,10 +45,8 @@ Plug 'liuchengxu/vim-which-key'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim' " super useful search files
 Plug 'airblade/vim-rooter' " puts you in the root of the project
-" Git Integrations
-" Plug 'mhinz/vim-signify'
-" Plug 'tpope/vim-fugitive'
-" Plug 'junegunn/gv.vim'
+
+Plug 'mhinz/vim-startify'
 call plug#end()
 
 
@@ -78,7 +76,7 @@ source $HOME/.config/nvim/plug-config/vim-esearch.vim
 source $HOME/.config/nvim/plug-config/vim-vue.vim
 source $HOME/.config/nvim/plug-config/vim-which-key.vim
 source $HOME/.config/nvim/plug-config/vimwiki.vim
-" source $HOME/.config/nvim/plug-config/git.vim
+source $HOME/.config/nvim/plug-config/startify.vim 
 " source $HOME/.config/nvim/plug-config/nerdtree.vim
 
 lua require'plug-colorizer'

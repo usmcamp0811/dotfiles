@@ -81,7 +81,7 @@ noremap < :vertical:resize -5 <CR>
 noremap > :vertical:resize +5 <CR>
 "}}}
 "
-" "Zoom" a split window into a tab and/or close it {{{
+"Zoom" a split window into a tab and/or close it {{{
 nmap <Leader>zo :tabnew %<CR>
 nmap <Leader>zc :tabclose<CR>
 "}}}
@@ -124,3 +124,7 @@ nnoremap <leader>3 m`^i### <esc>``4l
 nnoremap <leader>4 m`^i#### <esc>``5l
 nnoremap <leader>5 m`^i##### <esc>``6l
 "}}}
+"
+
+" Re-source init.vim 
+map <leader>. :source ~/.config/nvim/init.vim<CR>
