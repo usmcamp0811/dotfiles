@@ -1,6 +1,4 @@
 #:highlight SignColumn guibg=darkgrey!/bin/bash
-# I use arch btw...
-archey3 --config ~/.config/archey3.cfg 
 # Change the window title of X terminals
 case ${TERM} in
 	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*|urxvt*)
@@ -10,7 +8,7 @@ case ${TERM} in
 		PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
 		;;
         esac
-# source all the other bash config files
+source all the other bash config files
 for file in ~/.config/bash/*.bashrc; do
     [ -r "$file" ] && source "$file"
 done
@@ -42,4 +40,6 @@ if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
     PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
 fi
 
+# I use arch btw...
+archey3 --config ~/.config/archey3.cfg 
 eval "$(thefuck --alias)"
