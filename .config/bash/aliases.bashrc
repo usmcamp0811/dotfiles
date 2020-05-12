@@ -126,3 +126,11 @@ kill () {
 alias wget='wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'
 alias nvidia-settings='nvidia-settings --config="$XDG_CONFIG_HOME"/nvidia/settings'
 alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
+
+function pacsearch(){
+    pacman -Slq | fzf -m --preview 'cat <(pacman -Si {1}) <(pacman -Fl {1} | awk "{print \$2}")' | xargs -ro sudo pacman -S
+}
+
+function yaysearch(){
+    yay -Slq | fzf -m --preview 'cat <(yay -Si {1}) <(yay -Fl {1} | awk "{print \$2}")' | xargs -ro  yay -S
+}

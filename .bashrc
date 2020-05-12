@@ -8,7 +8,7 @@ case ${TERM} in
 		PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
 		;;
         esac
-source all the other bash config files
+# source all the other bash config files
 for file in ~/.config/bash/*.bashrc; do
     [ -r "$file" ] && source "$file"
 done
@@ -18,6 +18,8 @@ for file in ~/.config/bash/private/*.bashrc; do
     [ -r "$file" ] && source "$file"
 done
 
+[ -r "/usr/share/fzf/completion.bash" ] && source /usr/share/fzf/completion.bash
+[ -r "/usr/share/fzf/key-bindings.bash" ] && source /usr/share/fzf/key-bindings.bash
 
 complete -cf sudo
 shopt -s checkwinsize

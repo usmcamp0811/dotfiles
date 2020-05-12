@@ -7,7 +7,7 @@ Plug 'vim-pandoc/vim-rmarkdown'
 Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'vimwiki/vimwiki' 
-Plug 'scrooloose/nerdtree' " file system nav
+" Plug 'scrooloose/nerdtree' " file system nav
 Plug 'tpope/vim-commentary' " easy commenting of code
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes' 
@@ -32,7 +32,7 @@ Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' } " for writing latex
 Plug 'JamshedVesuna/vim-markdown-preview'
 Plug 'pechorin/any-jump.vim' " pops up a window of all the times code is referenced
 Plug 'eugen0329/vim-esearch'
-Plug 'francoiscabrol/ranger.vim' " ranger in vima
+Plug 'kevinhwang91/rnvimr', {'do': 'make sync'} " ranger in vima
 Plug 'joshdick/onedark.vim' " new favorite theme
 Plug 'sheerun/vim-polyglot'
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " intelisense auto-complete
@@ -42,6 +42,14 @@ Plug 'tpope/vim-surround' " easily put quotes and other things around stuff
 Plug 'unblevable/quick-scope' " easier horizontal jumping
 Plug 'justinmk/vim-sneak' " better vertical jumping
 Plug 'liuchengxu/vim-which-key'
+" FZF
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim' " super useful search files
+Plug 'airblade/vim-rooter' " puts you in the root of the project
+" Git Integrations
+" Plug 'mhinz/vim-signify'
+" Plug 'tpope/vim-fugitive'
+" Plug 'junegunn/gv.vim'
 call plug#end()
 
 
@@ -52,6 +60,7 @@ source $HOME/.config/nvim/plug-config/any-jump.vim
 source $HOME/.config/nvim/plug-config/autosave.vim
 source $HOME/.config/nvim/plug-config/coc.vim
 source $HOME/.config/nvim/plug-config/easy-align.vim
+source $HOME/.config/nvim/plug-config/fzf.vim
 source $HOME/.config/nvim/plug-config/highlight-yank.vim
 source $HOME/.config/nvim/plug-config/julia.vim
 source $HOME/.config/nvim/plug-config/jupyter-vim.vim
@@ -71,5 +80,7 @@ source $HOME/.config/nvim/plug-config/vim-latex-live-preview.vim
 source $HOME/.config/nvim/plug-config/vim-vue.vim
 source $HOME/.config/nvim/plug-config/vim-which-key.vim
 source $HOME/.config/nvim/plug-config/vimwiki.vim
+" source $HOME/.config/nvim/plug-config/git.vim
+" source $HOME/.config/nvim/plug-config/nerdtree.vim
 
 lua require'plug-colorizer'

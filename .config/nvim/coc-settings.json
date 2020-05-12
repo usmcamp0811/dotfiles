@@ -4,6 +4,7 @@
   "diagnostic.warningSign": "",
   "diagnostic.infoSign": "",
   "diagnostic.hintSign": "➤➤",
+  // requires `CocInstall coc-diagnostic`
   "diagnostic-languageserver.filetypes": {
     "sh": "shellcheck"
   },
@@ -34,19 +35,24 @@
     "s": "action:split",
     "v": "action:vsplit"
   },
+  // required `pip install pylint`
   "python.linting.enabled": true,
   "python.linting.lintOnSave": true,
   "python.linting.pep8Enabled": false,
   "pyright.typeCheckingMode": "basic",
+  // requires `CocInstall coc-lists`
   "list.source.files.command": "fd",
   "list.source.files.args": ["--type", "f"],
+  // requires `CocInstall coc-rls`
   "rust.clippy_preference": "on",
+  // requires `CocInstall coc-tsserver`
+  "tsserver.npm": "/usr/bin/npm",
   "tsserver.enableJavascript": true,
   "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
   "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true,
   "typescript.preferences.quoteStyle": "double",
   "typescript.referencesCodeLens.enable": false,
-  "git.enableGutters": false,
+  "git.enableGutters": true,
 
   "explorer.width": 30,
   "explorer.icon.enableNerdfont": true,
