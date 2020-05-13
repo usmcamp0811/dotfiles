@@ -35,7 +35,7 @@ bindsym $mod+Shift+q kill
 # start program launcher
 # bindsym $mod+d exec --no-startup-id dmenu_recency
 # use rofi
-bindsym $mod+d exec rofi -show drun -show-icons -lines 10 -eh 1 -width 40 -opacity “85” -font "IBM Plex Mono 12" 
+bindsym $mod+d exec --no-startup-id "rofi -show drun -font \\"IBM Plex Mono 12\\" -run-shell-command '{terminal} -e \\" {cmd}; read -n 1 -s\\"'"
 # launch categorized menu
 bindsym $mod+z exec --no-startup-id morc_menu
 
@@ -229,6 +229,7 @@ for_window [class="Yad" title="yad"] floating enable
 for_window [class="Civilization VI"] floating disable border pixel 1
 for_window [title="VimWiki"] floating enable board normal 
 for_window [title="Sign in to Security Device"] floating enable board normal 
+for_window [title="Microsoft Teams Notification"] floating enable board normal
 # #---Dropdown Windows---# #
 # General dropdown window traits. The order can matter.
 for_window [instance="dropdown_*"] floating enable

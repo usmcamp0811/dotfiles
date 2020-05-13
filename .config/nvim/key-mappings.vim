@@ -38,7 +38,7 @@ nnoremap Y y$
 " }}}
 
 " Insert New Line {{{
-map <leader><CR> o<ESC>
+map <leader>o o<ESC>
 " }}}
 
 " Toggle Folds (<Space>) {{{
