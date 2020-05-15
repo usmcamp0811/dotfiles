@@ -42,9 +42,19 @@ map <leader>o o<ESC>
 " }}}
 
 " Toggle Folds (<Space>) {{{
-nnoremap <silent> <CR> :exe 'silent! normal! '.((foldclosed('.')>0)? 'zMzx' : 'zc')<CR>
-
+" nnoremap <silent> <CR> :exe 'silent! normal! '.((foldclosed('.')>0)? 'zMzx' : 'za')<CR>
+noremap <silent> <CR> :call SingleUnrollMe()<CR>
 noremap <F5> :call UnrolMe()<CR>
+
+function SingleUnrollMe()
+if $sunrol==0
+    :exe "normal zc"
+    let $sunrol=1
+else
+    :exe "normal zo"
+    let $sunrol=0
+endif
+endfunction 
 
 let $unrol=0
 function UnrolMe()
@@ -128,3 +138,7 @@ nnoremap <leader>5 m`^i##### <esc>``6l
 
 " Re-source init.vim 
 map <leader>. :source ~/.config/nvim/init.vim<CR>
+
+nnoremap <C-Up> <C-a>
+nnoremap <C-Down> <C-x>
+

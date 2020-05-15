@@ -43,3 +43,6 @@ export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
 export PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
 export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+export GOPATH="$XDG_DATA_HOME/go"
+# for go
+export PATH=$PATH:$GOPATH/bin

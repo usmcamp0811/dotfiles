@@ -1,4 +1,4 @@
-" Airline.vim {{{
+" Airline.vim
 augroup airline_config
   autocmd!
   let g:airline_powerline_fonts = 1
@@ -10,5 +10,3 @@ augroup airline_config
   let g:airline#extensions#tabline#fnamemod = ':t'
 augroup END
 
-" let g:airline_theme='cobalt2' " <theme> is a valid theme name
-" }}}

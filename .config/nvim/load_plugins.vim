@@ -9,8 +9,9 @@ Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'vimwiki/vimwiki' 
 " Plug 'scrooloose/nerdtree' " file system nav
 Plug 'tpope/vim-commentary' " easy commenting of code
-Plug 'vim-airline/vim-airline'
+" Plug 'tomtom/tcomment_vim'
 Plug 'vim-airline/vim-airline-themes' 
+Plug 'vim-airline/vim-airline'
 Plug 'PotatoesMaster/i3-vim-syntax'
 Plug 'mbbill/undotree' " don't use it as much as I should but its neat
 Plug 'sirver/UltiSnips'
@@ -23,7 +24,6 @@ Plug '907th/vim-auto-save' " does what it says
 Plug 'panozzaj/vim-autocorrect'
 Plug 'jupyter-vim/jupyter-vim'
 Plug 'baruchel/vim-notebook'
-Plug 'JuliaLang/julia-vim'
 Plug 'junegunn/vim-easy-align' 
 Plug 'camspiers/animate.vim' " moves panes in a pretty way
 Plug 'camspiers/lens.vim' " auto-magically resizes vim panes for you
@@ -45,8 +45,11 @@ Plug 'liuchengxu/vim-which-key'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim' " super useful search files
 Plug 'airblade/vim-rooter' " puts you in the root of the project
-
+Plug 'szymonmaszke/vimpyter'
 Plug 'mhinz/vim-startify'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'JuliaEditorSupport/julia-vim'
+Plug 'sedm0784/vim-you-autocorrect'
 call plug#end()
 
 
@@ -76,7 +79,8 @@ source $HOME/.config/nvim/plug-config/vim-esearch.vim
 source $HOME/.config/nvim/plug-config/vim-vue.vim
 source $HOME/.config/nvim/plug-config/vim-which-key.vim
 source $HOME/.config/nvim/plug-config/vimwiki.vim
+source $HOME/.config/nvim/plug-config/vim-go.vim 
 source $HOME/.config/nvim/plug-config/startify.vim 
-" source $HOME/.config/nvim/plug-config/nerdtree.vim
 
 lua require'plug-colorizer'
+

@@ -58,6 +58,9 @@ if (has("autocmd"))
     autocmd ColorScheme * call onedark#extend_highlight("Statement", { "fg": { "cterm": 128 } })
     " Override the `Identifier` background color in GUI mode
     autocmd ColorScheme * call onedark#extend_highlight("Identifier", { "bg": { "gui": "#333333" } })
+    " An attempt to modify the gutter color 
+    autocmd ColorScheme * call onedark#extend_highlight("SignColumn", { "bg": { "gui": "#20232a" } })
+    autocmd ColorScheme * call onedark#extend_highlight("LineNr", { "bg": { "gui": "#20232a" } })
   augroup END
 endif
 " let g:lightline = { 'colorscheme': 'nightowl' }
@@ -81,4 +84,6 @@ source ~/.config/nvim/load_plugins.vim
 source ~/.config/nvim/key-mappings.vim
 
 colorscheme onedark
+" highlight SignColumn guibg=#20232a
+" highlight LineNr guibg=#20232a
 
