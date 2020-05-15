@@ -40,7 +40,7 @@ function clone() {
     yarn install
 }
 alias push="git push"
-
+alias gs="git status"
 # Undo a `git push`
 alias undopush="git push -f origin HEAD^:master"
 
