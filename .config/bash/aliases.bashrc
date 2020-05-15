@@ -134,3 +134,11 @@ function pacsearch(){
 function yaysearch(){
     yay -Slq | fzf -m --preview 'cat <(yay -Si {1}) <(yay -Fl {1} | awk "{print \$2}")' | xargs -ro  yay -S
 }
+
+function pac-backup(){
+    pacman -Qqen > ~/pkglist.txt
+    pacman -Qqm > ~/pkglist-aur.txt 
+    dotfiles add ~/pkglist.txt 
+    dotfiles add ~/pkglist-aur.txt 
+    dotfiles commit -m "Backing-up installed packages"
+}
