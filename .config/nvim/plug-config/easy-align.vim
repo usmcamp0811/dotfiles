@@ -1,4 +1,3 @@
-" EasyAlign.vim {{{
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
 
@@ -10,4 +9,7 @@ nmap ga <Plug>(EasyAlign)
 "     vmap <Enter> <Plug>(EasyAlign) " Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
 "     nmap <Leader>a <Plug>(EasyAlign) " Start interactive EasyAlign for a motion/text object (e.g. <Leader>aip)
 " augroup END
-" }}}
+if !exists('g:easy_align_delimiters')
+  let g:easy_align_delimiters = {}
+endif
+let g:easy_align_delimiters['"'] = { 'pattern': '"', 'ignore_grcups': ['String'] }

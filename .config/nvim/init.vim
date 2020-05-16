@@ -1,12 +1,12 @@
 set runtimepath^=~/.config/nvim runtimepath+=~/.config/nvim/after
+set backupdir=~/.config/nvim/backups
+set directory=~/.config/nvim/swaps
+set undodir=~/.config/nvim/undo
 let &packpath=&runtimepath
 set nocompatible
 set t_Co=256
 set termguicolors
 set clipboard+=unnamedplus
-set backupdir=~/.config/nvim/backups
-set directory=~/.config/nvim/swaps
-set undodir=~/.config/nvim/undo
 set autoindent " Copy indent from last line when starting new line
 set cursorline " Highlight current line
 set foldenable " enable folding
@@ -52,7 +52,6 @@ au BufReadPost,BufNewFile * set relativenumber
 filetype plugin on
 syntax enable
 set timeout timeoutlen=3000 ttimeoutlen=10 " speed up mode switching
-
 " Enable Text Folding {{{
 if has('folding')
     if has('windows')
@@ -70,37 +69,33 @@ set foldnestmax =10 " Set max fold nesting level
 
 let g:mapleader = "\<Space>"
 let gmaplocalkeader = '\'
-
-" Restore Cursor Position {{{
-augroup restore_cursor
-  autocmd!
-  autocmd BufReadPost *
-    \ if line("'\"") > 1 && line("'\"") <= line("$") |
-    \   exe "normal! g`\"" |
-    \ endif
-augroup END
-" }}}
-
-" Triger `autoread` when files changes on disk {{{
-" https://unix.stackexchange.com/questions/149209/refresh-changed-content-of-file-opened-in-vim/383044#383044
-" https://vi.stackexchange.com/questions/13692/prevent-focusgained-autocmd-running-in-command-line-editing-mode
-autocmd FocusGained,BufEnter,CursorHold,CursorHoldI *
-            \ if mode() !~ '\v(c|r.?|!|t)' && getcmdwintype() == '' | checktime | endif
-
-" Notification after file change
-" https://vi.stackexchange.com/questions/13091/autocmd-event-for-autoread
-autocmd FileChangedShellPost *
-            \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
-autocmd VimEnter * silent! !xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape' " Map Esc to Caps Lock 
-inoremap <C-s> <esc>:w<cr>                 " save files
+inoremap <C-s> <esc>:w<cr>                        " save files
 nnoremap <C-s> :w<cr>
-" inoremap <C-d> <esc>:wq!<cr>               " save and exit
+" inoremap <C-d> <esc>:wq!<cr>                      " save and exit
 " noremap <C-d> :wq!<cr>
-noremap <C-q> <esc>:q<cr>               " quit discarding changes
+noremap <C-q> <esc>:q<cr>                         " quit discarding changes
 noremap <C-q> :q<cr>
-nnoremap Y y$                           " Yank from cursor to end of line 
-nnoremap <leader><CR> o<ESC>            " Insert New Line 
-
+nnoremap Y y$                                     " Yank from cursor to end of line
+nnoremap <leader><CR> o<ESC>                      " Insert New Line
+map <silent> <localleader>cs <Esc>:noh<CR>        " Clear last search (,qs)
+vnoremap <Tab> >                                  " Tab lines right   TODO: COC breaks this
+vnoremap <S-Tab> <                                " Tab lines left
+noremap + :resize +5 <CR>                         " Window Pane Resizing Horizontal
+noremap - :resize -5 <CR>
+noremap < :vertical:resize -5 <CR>                " Window Pane Resizing Vertical
+noremap > :vertical:resize +5 <CR>
+nnoremap <C-j> 3<C-e>                             " Ctrl-j Scroll down 3 rows at a time
+nnoremap <C-k> 3<C-y>                             " Ctrl-k Scroll up 3 rows at a time
+set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
+noremap <F8> :set list!<CR>                       " toggle unprintable characters in all modes
+inoremap <F8> <C-o>:set list!<CR>                 " toggle unprintable characters in all modes
+cnoremap <F8> <C-c>:set list!<CR>                 " toggle unprintable characters in all modes
+xnoremap <silent> K :call visual#move_up()<CR>    " move blocks of text visually UP.. https://www.youtube.com/watch?v=X5IAdaN6IwM
+xnoremap <silent> J :call visual#move_down()<CR>  " move blocks of text visually DOWN..
+map <leader>. :source ~/.config/nvim/init.vim<CR> " Re-source init.vim
+nnoremap <C-Up> <C-a>                             " re-map increment UP numbers to the arrows
+nnoremap <C-Down> <C-x>                           " re-map increment DOWN numbers to the arrows
+"
 " nnoremap <silent> <CR> :exe 'silent! normal! '.((foldclosed('.')>0)? 'zMzx' : 'za')<CR>
 noremap <silent> <CR> :call SingleUnrollMe()<CR>
 noremap <F5> :call UnrolMe()<CR>
@@ -127,47 +122,11 @@ endif
 endfunction
 " }}}
 
-" Clear last search (,qs) {{{
-map <silent> <leader>cs <Esc>:noh<CR>
-" map <silent> <leader>qs <Esc>:let @/ = ""<CR>
-" }}}
 
-" Window Pane Resizing {{{
-noremap + :resize +5 <CR>
-noremap - :resize -5 <CR>
-noremap < :vertical:resize -5 <CR>
-noremap > :vertical:resize +5 <CR>
-"}}}
-"
 "Zoom" a split window into a tab and/or close it {{{
 nmap <Leader>zo :tabnew %<CR>
 nmap <Leader>zc :tabclose<CR>
 "}}}
-
-" Tab lines over {{{
-vnoremap <Tab> >
-vnoremap <S-Tab> <
-" }}}
-
-" Speed up viewport scrolling {{{
-" Ctrl-j Scroll down 3 rows at a time
-nnoremap <C-j> 3<C-e>
-" Ctrl-k Scroll up 3 rows at a time
-nnoremap <C-k> 3<C-y>
-" }}}
-
-" toggle unprintable characters in all modes {{{
-set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
-noremap <F8> :set list!<CR>
-inoremap <F8> <C-o>:set list!<CR>
-cnoremap <F8> <C-c>:set list!<CR>
-"}}}
-
-" move blocks of text visually.. https://www.youtube.com/watch?v=X5IAdaN6IwM {{{
-xnoremap <silent> K :call visual#move_up()<CR>
-xnoremap <silent> J :call visual#move_down()<CR>
-" }}}
-
 " useful markdown bindings {{{
 nnoremap <localleader>1 m`yypVr=``
 nnoremap <localleader>2 m`yypVr-``
@@ -176,12 +135,27 @@ nnoremap <localleader>4 m`^i#### <esc>``5l
 nnoremap <localleader>5 m`^i##### <esc>``6l
 "}}}
 
-" Re-source init.vim
-map <leader>. :source ~/.config/nvim/init.vim<CR>
+" Restore Cursor Position {{{
+augroup restore_cursor
+  autocmd!
+  autocmd BufReadPost *
+    \ if line("'\"") > 1 && line("'\"") <= line("$") |
+    \   exe "normal! g`\"" |
+    \ endif
+augroup END
+" }}}
 
-" re-map increment numbers to the arrows
-nnoremap <C-Up> <C-a>
-nnoremap <C-Down> <C-x>
+" Triger `autoread` when files changes on disk {{{
+" https://unix.stackexchange.com/questions/149209/refresh-changed-content-of-file-opened-in-vim/383044#383044
+" https://vi.stackexchange.com/questions/13692/prevent-focusgained-autocmd-running-in-command-line-editing-mode
+autocmd FocusGained,BufEnter,CursorHold,CursorHoldI *
+            \ if mode() !~ '\v(c|r.?|!|t)' && getcmdwintype() == '' | checktime | endif
+
+" Notification after file change
+" https://vi.stackexchange.com/questions/13091/autocmd-event-for-autoread
+autocmd FileChangedShellPost *
+            \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+autocmd VimEnter * silent! !xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape' " Map Esc to Caps Lock 
 
 source ~/.config/nvim/load_plugins.vim
 source ~/.config/nvim/plug-config/onedark.vim
