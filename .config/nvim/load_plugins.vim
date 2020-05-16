@@ -50,6 +50,7 @@ Plug 'mhinz/vim-startify'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'JuliaEditorSupport/julia-vim'
 Plug 'sedm0784/vim-you-autocorrect'
+Plug 'voldikss/vim-floaterm'
 call plug#end()
 
 
@@ -81,6 +82,7 @@ source $HOME/.config/nvim/plug-config/vim-which-key.vim
 source $HOME/.config/nvim/plug-config/vimwiki.vim
 source $HOME/.config/nvim/plug-config/vim-go.vim 
 source $HOME/.config/nvim/plug-config/startify.vim 
-
+source $HOME/.config/nvim/plug-config/floaterm.vim 
+" source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim 
 lua require'plug-colorizer'
 

@@ -1,13 +1,18 @@
 " vim-which-key {{{
 " Map leader to which_key
-nnoremap <silent> <leader> :silent WhichKey '<Space>'<CR>
-vnoremap <silent> <leader> :silent <c-u> :silent WhichKeyVisual '<Space>'<CR>
+nnoremap <silent> <leader> :silent <c-u>WhichKey '<Space>'<CR>
+vnoremap <silent> <leader> :<c-u>WhichKeyVisual '<Space>'<CR>
+nnoremap <localleader> :<c-u>WhichKey  '\'<CR>
+vnoremap <localleader> :<c-u>WhichKeyVisual  '\'<CR>
+" TODO: figure out if its possible to use this with the CTRL key
+" nnoremap <C> :<c-u>WhichKey  '<C>'<CR>
+" vnoremap <C> :<c-u>WhichKeyVisual  '<C>C>'<CR>
 
 " Create map to add keys to
 let g:which_key_map =  {}
 " Define a separator
 let g:which_key_sep = '→'
-set timeoutlen=200
+set timeoutlen=300
 
 
 " Not a fan of floating windows for this
@@ -25,7 +30,7 @@ autocmd  FileType which_key set laststatus=0 noshowmode noruler
   \| autocmd BufLeave <buffer> set laststatus=2 noshowmode ruler
 
 " Single mappings
-let g:which_key_map['/'] = [ '<Plug>NERDCommenterToggle'  , 'comment' ]
+let g:which_key_map['/'] = [ ':Commentary'  , 'comment' ]
 let g:which_key_map['e'] = [ ':CocCommand explorer'       , 'explorer' ]
 let g:which_key_map['f'] = [ ':Files'                     , 'search files' ]
 let g:which_key_map['h'] = [ '<C-W>s'                     , 'split below']

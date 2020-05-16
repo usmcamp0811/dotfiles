@@ -19,7 +19,7 @@ if has('folding')
     set foldlevel=1 "Close all folds by default
     set foldmethod=syntax " Syntax are used to specify folds
 endif
-" set foldminlines=0 " Allow folding single lines
+set foldminlines=0 " Allow folding single lines
 " set foldnestmax =10 " Set max fold nesting level
 " }}}
 set nowrap " Don't wrap lines
@@ -54,7 +54,6 @@ set wildignore+=*/bower_components/*,*/node_modules/*
 set wildignore+=*/smarty/*,*/vendor/*,*/.git/*,*/.hg/*,*/.svn/*,*/.sass-cache/*,*/log/*,*/tmp/*,*/build/*,*/ckeditor/*,*/doc/*,*/source_maps/*,*/dist/*
 set wildmode=longest,list,full
 set spell " turns on spell check
-set pastetoggle=<F2>
 filetype plugin on 
 " speed up mode switching
 set timeout timeoutlen=3000 ttimeoutlen=10
@@ -95,27 +94,6 @@ function! StripWhitespace () " {{{
   call setreg('/', old_query)
 endfunction " }}}
 noremap <leader>ss :call StripWhitespace ()<CR>
-
-
-" }}}
-
-" Multipruprose Tab {{{
-" MULTIPURPOSE TAB KEY
-" Indent if we're at the beginning of a line. Else, do completion.
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" function! InsertTabWrapper()
-"     let col = col('.') - 1
-"     if !col || getline('.')[col - 1] !~ '\k'
-"         return "\<tab>"
-"     else
-"         return "\<c-p>"
-"     endif
-" endfunction
-" inoremap <expr> <tab> InsertTabWrapper()
-" inoremap <s-tab> <c-n>
-
-" }}}
-"
 
 " Triger `autoread` when files changes on disk 
 " https://unix.stackexchange.com/questions/149209/refresh-changed-content-of-file-opened-in-vim/383044#383044 
