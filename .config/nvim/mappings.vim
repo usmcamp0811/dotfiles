@@ -24,7 +24,7 @@ xnoremap <silent> J :call visual#move_down()<CR>  " move blocks of text visually
 map <leader>. :source ~/.config/nvim/init.vim<CR> " Re-source init.vim
 nnoremap <C-Up> <C-a>                             " re-map increment UP numbers to the arrows
 nnoremap <C-Down> <C-x>                           " re-map increment DOWN numbers to the arrows
-"
+au BufEnter * silent! !xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'
 " nnoremap <silent> <CR> :exe 'silent! normal! '.((foldclosed('.')>0)? 'zMzx' : 'za')<CR>
 noremap <silent> <CR> :call SingleUnrollMe()<CR>
 noremap <F5> :call UnrolMe()<CR>
