@@ -49,3 +49,4 @@ highlight CocWarnSign guibg=#20232a guifg=#fe7f2d
 highlight CocInfoSign guibg=#20232a guifg=#6f8d9e
 highlight CocErrorSign guibg=#20232a guifg=#a01d26
 highlight CocHintSign guibg=#20232a guifg=#009973
+
