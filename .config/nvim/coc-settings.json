@@ -30,7 +30,7 @@
       "initializationOptions": {},
       "settings": {},
       "rootPatterns": [".flowconfig"]
-    },
+    }
   },
   "list.insertMappings": {
     "<C-x>": "action:split",

@@ -90,7 +90,7 @@ source $HOME/.config/nvim/plug-config/vimwiki.vim
 source $HOME/.config/nvim/plug-config/vim-go.vim 
 source $HOME/.config/nvim/plug-config/startify.vim 
 source $HOME/.config/nvim/plug-config/floaterm.vim 
-source $HOME/.config/nvim/plug-config/onedark.vim 
 source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim 
+source $HOME/.config/nvim/plug-config/onedark.vim 
 lua require'plug-colorizer'
 

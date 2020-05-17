@@ -36,8 +36,6 @@ if (has("autocmd"))
     " An attempt to modify the gutter color 
     autocmd ColorScheme * call onedark#extend_highlight("SignColumn", { "bg": { "gui": "#20232a" } })
     autocmd ColorScheme * call onedark#extend_highlight("LineNr", { "bg": { "gui": "#20232a" } })
-    " TODO: Figure out what the background of the `i` and `~` stuff in the
-    " gutter is so we a can make it match the rest of the gutter.
   augroup END
 endif
 " let g:lightline = { 'colorscheme': 'nightowl' }
@@ -45,3 +43,9 @@ endif
 hi SpellBad    ctermfg=9      ctermbg=16     cterm=underline   
 
 colorscheme onedark
+
+" Fix background color of COC icons in the gutter
+highlight CocWarnSign guibg=#20232a guifg=#fe7f2d 
+highlight CocInfoSign guibg=#20232a guifg=#6f8d9e
+highlight CocErrorSign guibg=#20232a guifg=#a01d26
+highlight CocHintSign guibg=#20232a guifg=#009973
