@@ -7,9 +7,7 @@ Plug 'vim-pandoc/vim-rmarkdown'
 Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'vimwiki/vimwiki' 
-" Plug 'scrooloose/nerdtree' " file system nav
 Plug 'tpope/vim-commentary' " easy commenting of code
-" Plug 'tomtom/tcomment_vim'
 Plug 'vim-airline/vim-airline-themes' 
 Plug 'vim-airline/vim-airline'
 Plug 'PotatoesMaster/i3-vim-syntax'
@@ -51,6 +49,9 @@ Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'JuliaEditorSupport/julia-vim'
 Plug 'sedm0784/vim-you-autocorrect'
 Plug 'voldikss/vim-floaterm'
+Plug 'airblade/vim-gitgutter'
+Plug 'junegunn/gv.vim'
+Plug 'tpope/vim-fugitive'
 call plug#end()
 
 
