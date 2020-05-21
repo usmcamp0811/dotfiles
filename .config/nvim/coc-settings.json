@@ -22,6 +22,7 @@
   "git.topRemovedSign.text": "‾",
   "git.changeRemovedSign.text": "≃",
   "suggest.noselect": true,
+  "suggest.snippetIndicator": "✂",
   "languageserver": {
     "flow": {
       "command": "flow-language-server",

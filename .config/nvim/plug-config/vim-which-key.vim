@@ -44,6 +44,12 @@ let g:which_key_map['T'] = [ ':Rg'                        , 'search text' ]
 let g:which_key_map['v'] = [ '<C-W>v'                     , 'split right']
 let g:which_key_map['w'] = [ 'w'                          , 'write' ]
 
+" coding
+let g:which_key_map.x = {
+    \ 'name': '+slime',
+    \ 'c' : ['<Plug>SlimeParagraphSend', 'Send Code'],
+    \ }
+
 " m is for markdown shortcuts
 let g:which_key_map.m = {
     \ 'name' : '+markdown', 

@@ -1,29 +1,48 @@
-inoremap <C-s> <esc>:w<cr>                        " save files
+" save files
+inoremap <C-s> <esc>:w<cr>
 nnoremap <C-s> :w<cr>
 " inoremap <C-d> <esc>:wq!<cr>                      " save and exit
 " noremap <C-d> :wq!<cr>
-noremap <C-q> <esc>:q<cr>                         " quit discarding changes
+" quit discarding changes
+noremap <C-q> <esc>:q<cr>                         
 noremap <C-q> :q<cr>
-nnoremap Y y$                                     " Yank from cursor to end of line
-nnoremap <leader><CR> o<ESC>                      " Insert New Line
-map <silent> <localleader>cs <Esc>:noh<CR>        " Clear last search (,qs)
-vnoremap <Tab> >                                  " Tab lines right   TODO: COC breaks this
-vnoremap <S-Tab> <                                " Tab lines left
-noremap + :resize +5 <CR>                         " Window Pane Resizing Horizontal
+" Yank from cursor to end of line
+nnoremap Y y$                                     
+" Insert New Line
+nnoremap <leader><CR> o<ESC>
+" Clear last search (,qs)
+map <silent> <localleader>cs <Esc>:noh<CR>        
+" Tab lines right   TODO: COC breaks this
+vnoremap <Tab> >
+" Tab lines left
+vnoremap <S-Tab> <
+" Window Pane Resizing Horizontal
+noremap + :resize +5 <CR>
 noremap - :resize -5 <CR>
-noremap < :vertical:resize -5 <CR>                " Window Pane Resizing Vertical
+" Window Pane Resizing Vertical
+noremap < :vertical:resize -5 <CR>
 noremap > :vertical:resize +5 <CR>
-nnoremap <C-j> 3<C-e>                             " Ctrl-j Scroll down 3 rows at a time
-nnoremap <C-k> 3<C-y>                             " Ctrl-k Scroll up 3 rows at a time
+" Ctrl-j Scroll down 3 rows at a time
+nnoremap <C-j> 3<C-e>                 
+" Ctrl-k Scroll up 3 rows at a time
+nnoremap <C-k> 3<C-y>
 set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
-noremap <F8> :set list!<CR>                       " toggle unprintable characters in all modes
-inoremap <F8> <C-o>:set list!<CR>                 " toggle unprintable characters in all modes
-cnoremap <F8> <C-c>:set list!<CR>                 " toggle unprintable characters in all modes
-xnoremap <silent> K :call visual#move_up()<CR>    " move blocks of text visually UP.. https://www.youtube.com/watch?v=X5IAdaN6IwM
-xnoremap <silent> J :call visual#move_down()<CR>  " move blocks of text visually DOWN..
-map <leader>. :source ~/.config/nvim/init.vim<CR> " Re-source init.vim
-nnoremap <C-Up> <C-a>                             " re-map increment UP numbers to the arrows
-nnoremap <C-Down> <C-x>                           " re-map increment DOWN numbers to the arrows
+" toggle unprintable characters in all modes
+noremap <F8> :set list!<CR>
+" toggle unprintable characters in all modes
+inoremap <F8> <C-o>:set list!<CR>
+" toggle unprintable characters in all modes
+cnoremap <F8> <C-c>:set list!<CR>
+" move blocks of text visually UP.. https://www.youtube.com/watch?v=X5IAdaN6IwM
+xnoremap <silent> K :call visual#move_up()<CR>
+" move blocks of text visually DOWN..
+xnoremap <silent> J :call visual#move_down()<CR>
+" Re-source init.vim
+map <leader>. :source ~/.config/nvim/init.vim<CR>
+" re-map increment UP numbers to the arrows
+nnoremap <C-Up> <C-a>       
+" re-map increment DOWN numbers to the arrows
+nnoremap <C-Down> <C-x>
 au BufEnter * silent! !xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'
 " nnoremap <silent> <CR> :exe 'silent! normal! '.((foldclosed('.')>0)? 'zMzx' : 'za')<CR>
 noremap <silent> <CR> :call SingleUnrollMe()<CR>
@@ -37,7 +56,10 @@ imap <C-l> <C-w>l
 nmap <Leader>zo :tabnew %<CR>
 nmap <Leader>zc :tabclose<CR>
 "}}}
-
+imap <C-h> <C-w>h
+imap <C-j> <C-w>j
+imap <C-k> <C-w>k
+imap <C-l> <C-w>l
 " Better window navigation
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
