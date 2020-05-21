@@ -12,16 +12,16 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'norcalli/nvim-colorizer.lua' " real-time colorizer
 Plug 'junegunn/rainbow_parentheses.vim' " easily spot missing }
 Plug 'lambdalisue/suda.vim' " runs `sudo` when needed.. no need to sudo vim blah
-" Plug 'vim-pandoc/vim-rmarkdown' "rmakrdown support for vim
-" Plug 'vim-pandoc/vim-pandoc'
-" Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'vim-pandoc/vim-rmarkdown' "rmakrdown support for vim
+Plug 'vim-pandoc/vim-pandoc'
+Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'vimwiki/vimwiki' , { 'branch': 'dev' }" a wiki for managing knowledge 
 Plug 'tpope/vim-commentary' " easy commenting of code
 Plug 'vim-airline/vim-airline-themes' 
 Plug 'vim-airline/vim-airline'
 Plug 'PotatoesMaster/i3-vim-syntax'
 Plug 'mbbill/undotree' " don't use it as much as I should but its neat
-Plug 'sirver/UltiSnips'
+" Plug 'sirver/UltiSnips'
 Plug 'honza/vim-snippets'
 Plug 'ctrlpvim/ctrlp.vim'
 " Plug 'FelikZ/ctrlp-py-matcher'
@@ -77,7 +77,7 @@ source $HOME/.config/nvim/plug-config/ranger.vim
 source $HOME/.config/nvim/plug-config/sneak.vim
 source $HOME/.config/nvim/plug-config/suda.vim
 source $HOME/.config/nvim/plug-config/tagalong.vim
-source $HOME/.config/nvim/plug-config/ultisnips.vim
+" source $HOME/.config/nvim/plug-config/ultisnips.vim
 source $HOME/.config/nvim/plug-config/undotree.vim
 source $HOME/.config/nvim/plug-config/vim-commentary.vim
 source $HOME/.config/nvim/plug-config/vim-esearch.vim
