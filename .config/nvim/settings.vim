@@ -3,7 +3,7 @@ set backupdir=~/.config/nvim/backups
 set directory=~/.config/nvim/swaps
 set undodir=~/.config/nvim/undo
 let &packpath=&runtimepath
-set nocompatible
+" set nocompatible
 set t_Co=256
 set termguicolors
 set clipboard+=unnamedplus

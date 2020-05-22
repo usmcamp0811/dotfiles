@@ -10,6 +10,7 @@ source ~/.config/nvim/autocmds.vim
 " --------------------------------------------------- Load Plug-ins -----------------------------------------------------------------
 call plug#begin('~/.config/nvim/plugged')
 Plug 'norcalli/nvim-colorizer.lua' " real-time colorizer
+Plug 'tpope/vim-surround' " easily put quotes and other things around stuff
 Plug 'junegunn/rainbow_parentheses.vim' " easily spot missing }
 Plug 'lambdalisue/suda.vim' " runs `sudo` when needed.. no need to sudo vim blah
 Plug 'vim-pandoc/vim-rmarkdown' "rmakrdown support for vim
@@ -21,10 +22,8 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
 Plug 'PotatoesMaster/i3-vim-syntax'
 Plug 'mbbill/undotree' " don't use it as much as I should but its neat
-" Plug 'sirver/UltiSnips'
 Plug 'honza/vim-snippets'
 Plug 'ctrlpvim/ctrlp.vim'
-" Plug 'FelikZ/ctrlp-py-matcher'
 Plug 'suy/vim-context-commentstring' " figures out what comment string to use
 Plug 'godlygeek/tabular' " makes markdown tables
 Plug '907th/vim-auto-save' " does what it says
@@ -41,7 +40,6 @@ Plug 'sheerun/vim-polyglot' " multiple programing language support
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " intelisense auto-complete
 Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
 Plug 'AndrewRadev/tagalong.vim' " auto-magically change html tags
-Plug 'tpope/vim-surround' " easily put quotes and other things around stuff
 Plug 'unblevable/quick-scope' " easier horizontal jumping
 Plug 'justinmk/vim-sneak' " better vertical jumping
 Plug 'liuchengxu/vim-which-key' " useful tool to help remember what got mapped where.. also kind of an alternative way to map keys
@@ -90,6 +88,7 @@ source $HOME/.config/nvim/plug-config/floaterm.vim
 source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim 
 source $HOME/.config/nvim/plug-config/slime.vim 
 source $HOME/.config/nvim/plug-config/csv.vim 
+source $HOME/.config/nvim/plug-config/pandoc.vim 
 source $HOME/.config/nvim/plug-config/onedark.vim 
 lua require'plug-colorizer'
 

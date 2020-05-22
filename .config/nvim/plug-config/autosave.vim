@@ -1,10 +1,11 @@
-" Vim AutoSave {{{
 " let g:auto_save = 1  " enable AutoSave on Vim startup
 let g:auto_save = 0
 augroup ft_auto_saves
   au!
   au FileType markdown let b:auto_save = 1
   au FileType python let b:auto_save = 1
+  au FileType julia let b:auto_save = 1
+  au FileType go let b:auto_save = 1
   au FileType css let b:auto_save = 1
   au FileType json let b:auto_save = 1
   au FileType java let b:auto_save = 1
@@ -20,5 +21,3 @@ augroup ft_auto_saves
   au FileType rmd let b:auto_save = 1
   au FileType tex let b:auto_save = 1
 augroup END
-" 
-" }}}
