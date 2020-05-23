@@ -1,7 +1,11 @@
-let g:slime_target = "x11"
-xmap <leader>\ <Plug>SlimeRegionSend
-nmap <leader>\ <Plug>SlimeParagraphSend
+xmap <c-\> <Plug>SlimeRegionSend
+nmap <c-\> <Plug>SlimeParagraphSend
 nmap <c-c>v     <Plug>SlimeConfig
+let g:which_key_map['<CR>'] = [ '<Plug>SlimeSendCell', 'Execute # %% Code Cell' ]
+let g:which_key_map['\'] = [ 'SlimeSendCurrentLine', 'Execute Line of Code' ]
+
+let g:slime_target = "x11"
+let g:slime_cell_delimiter = "# %%"
 
 function! _EscapeText_rmarkdown(text)
   " Remove all fences
