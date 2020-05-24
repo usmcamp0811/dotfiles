@@ -61,8 +61,8 @@ if has('folding')
     set foldenable " turn it on
     set foldcolumn=0 "Column to show folds
     set foldlevel=1 "Close all folds by default
-    set foldmethod=syntax " Syntax are used to specify folds
+    set foldmethod=expr " Syntax are used to specify folds
 endif
 set foldminlines=0 " Allow folding single lines
-set foldnestmax =10 " Set max fold nesting level
+set foldnestmax=10 " Set max fold nesting level
 " }}}
