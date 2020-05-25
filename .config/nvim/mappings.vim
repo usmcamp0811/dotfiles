@@ -9,7 +9,7 @@ noremap <C-q> :q<cr>
 " Yank from cursor to end of line
 nnoremap Y y$                                     
 " Insert New Line
-nnoremap <leader><CR> o<ESC>
+" nnoremap <leader><CR> o<ESC>
 " Clear last search (,qs)
 map <silent> <localleader>cs <Esc>:noh<CR>        
 " Tab lines right   TODO: COC breaks this

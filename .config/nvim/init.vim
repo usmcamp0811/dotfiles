@@ -21,8 +21,6 @@ Plug 'vim-pandoc/vim-pandoc-syntax'
 " Plug 'vimwiki/vimwiki' , { 'branch': 'dev' }" a wiki for managing knowledge 
 Plug 'tpope/vim-commentary' " easy commenting of code
 Plug 'ryanoasis/vim-devicons'
-" Plug 'vim-airline/vim-airline-themes' 
-" Plug 'vim-airline/vim-airline'
 Plug 'PotatoesMaster/i3-vim-syntax'
 Plug 'chrisbra/csv.vim'
 Plug 'JuliaEditorSupport/julia-vim'
@@ -61,7 +59,7 @@ Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
 Plug 'Konfekt/FastFold'
 " Themes
-Plug 'joshdick/onedark.vim' " new favorite theme
+" Plug 'joshdick/onedark.vim' " new favorite theme
 " Plug 'laggardkernel/vim-one'
 " Plug 'sonph/onehalf', {'rtp': 'vim/'}
 " Plug 'kristijanhusak/vim-hybrid-material'
@@ -72,8 +70,6 @@ Plug 'mengelbrecht/lightline-bufferline'
 call plug#end()
 
 " --------------------------------------------------- Load Plug-in Configurations -----------------------------------------------------------------
-" source $HOME/.config/nvim/plug-config/airline.vim
-" source $HOME/.config/nvim/plug-config/lightline.vim 
 source $HOME/.config/nvim/plug-config/animate.vim
 source $HOME/.config/nvim/plug-config/any-jump.vim
 source $HOME/.config/nvim/plug-config/autosave.vim
@@ -103,13 +99,13 @@ source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim
 source $HOME/.config/nvim/plug-config/slime.vim 
 source $HOME/.config/nvim/plug-config/csv.vim 
 source $HOME/.config/nvim/plug-config/pandoc.vim 
-source $HOME/.config/nvim/plug-config/onedark.vim 
+" source $HOME/.config/nvim/plug-config/onedark.vim 
 source $HOME/.config/nvim/plug-config/lightline.vim
 lua require'plug-colorizer'
 
 " Theme
-" syntax enable
-" colorscheme base16-onedark
+syntax enable
+colorscheme base16-onedark
 " Fix background color of COC icons in the gutter
 highlight CocWarnSign guibg=#20232a guifg=#fe7f2d 
 highlight CocInfoSign guibg=#20232a guifg=#6f8d9e
