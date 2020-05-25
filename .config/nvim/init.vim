@@ -7,7 +7,8 @@ source ~/.config/nvim/mappings.vim
 source ~/.config/nvim/functions.vim
 source ~/.config/nvim/autocmds.vim
 
-let g:polyglot_disabled = ['python', 'markdown'] 
+
+" this needs to be loaded before the plugins
 " --------------------------------------------------- Load Plug-ins -----------------------------------------------------------------
 call plug#begin('~/.config/nvim/plugged')
 Plug 'norcalli/nvim-colorizer.lua' " real-time colorizer
@@ -19,7 +20,7 @@ Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 " Plug 'vimwiki/vimwiki' , { 'branch': 'dev' }" a wiki for managing knowledge 
 Plug 'tpope/vim-commentary' " easy commenting of code
-Plug 'itchyny/lightline.vim'
+Plug 'ryanoasis/vim-devicons'
 " Plug 'vim-airline/vim-airline-themes' 
 " Plug 'vim-airline/vim-airline'
 Plug 'PotatoesMaster/i3-vim-syntax'
@@ -60,16 +61,19 @@ Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
 Plug 'Konfekt/FastFold'
 " Themes
-" Plug 'joshdick/onedark.vim' " new favorite theme
+Plug 'joshdick/onedark.vim' " new favorite theme
 " Plug 'laggardkernel/vim-one'
 " Plug 'sonph/onehalf', {'rtp': 'vim/'}
 " Plug 'kristijanhusak/vim-hybrid-material'
 " Plug 'jacoborus/tender.vim'
 " Plug 'chriskempson/base16-vim'
+Plug 'itchyny/lightline.vim'
+Plug 'mengelbrecht/lightline-bufferline'
 call plug#end()
 
 " --------------------------------------------------- Load Plug-in Configurations -----------------------------------------------------------------
 " source $HOME/.config/nvim/plug-config/airline.vim
+" source $HOME/.config/nvim/plug-config/lightline.vim 
 source $HOME/.config/nvim/plug-config/animate.vim
 source $HOME/.config/nvim/plug-config/any-jump.vim
 source $HOME/.config/nvim/plug-config/autosave.vim
@@ -99,12 +103,13 @@ source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim
 source $HOME/.config/nvim/plug-config/slime.vim 
 source $HOME/.config/nvim/plug-config/csv.vim 
 source $HOME/.config/nvim/plug-config/pandoc.vim 
-" source $HOME/.config/nvim/plug-config/onedark.vim 
+source $HOME/.config/nvim/plug-config/onedark.vim 
+source $HOME/.config/nvim/plug-config/lightline.vim
 lua require'plug-colorizer'
 
 " Theme
-syntax enable
-colorscheme base16-onedark
+" syntax enable
+" colorscheme base16-onedark
 " Fix background color of COC icons in the gutter
 highlight CocWarnSign guibg=#20232a guifg=#fe7f2d 
 highlight CocInfoSign guibg=#20232a guifg=#6f8d9e
@@ -114,3 +119,4 @@ highlight CocHintSign guibg=#20232a guifg=#009973
 "
 " let g:markdown_folding = 1
 " set synmaxcol=500
+"

@@ -18,9 +18,9 @@ syntax on
 let g:onedark_hide_endofbuffer = 1
 let g:onedark_termcolors = 256
 let g:onedark_terminal_italics = 1
-let g:lightline = {
-  \ 'colorscheme': 'onedark',
-  \ }
+" let g:lightline = {
+  " \ 'colorscheme': 'onedark',
+  " \ }
 " set background=dark " for the dark version
 " set background=light " for the light version
 " colorscheme one

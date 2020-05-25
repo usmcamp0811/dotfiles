@@ -56,10 +56,6 @@ imap <C-l> <C-w>l
 nmap <Leader>zo :tabnew %<CR>
 nmap <Leader>zc :tabclose<CR>
 "}}}
-imap <C-h> <C-w>h
-imap <C-j> <C-w>j
-imap <C-k> <C-w>k
-imap <C-l> <C-w>l
 " Better window navigation
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
