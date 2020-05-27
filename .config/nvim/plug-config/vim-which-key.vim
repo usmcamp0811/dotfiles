@@ -58,6 +58,7 @@ let g:which_key_map.m = {
     \ 'h3' : ['m`^i### <esc>``4l', 'header 3'],
     \ 'h4' : ['m`^i#### <esc>``5l', 'header 4'],
     \ 'h5' : ['m`^i##### <esc>``6l', 'header 5'],
+    \ 't' : [':TableModeToggle', 'Markdown Table Mode Toggle'],
     \ }
 
 

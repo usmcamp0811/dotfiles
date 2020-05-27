@@ -18,7 +18,8 @@ Plug 'lambdalisue/suda.vim' " runs `sudo` when needed.. no need to sudo vim blah
 " Plug 'vim-pandoc/vim-rmarkdown' "rmakrdown support for vim
 Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
-" Plug 'vimwiki/vimwiki' , { 'branch': 'dev' }" a wiki for managing knowledge 
+Plug 'vimwiki/vimwiki' , { 'branch': 'dev' } " a wiki for managing knowledge 
+Plug 'chmp/mdnav'
 Plug 'tpope/vim-commentary' " easy commenting of code
 Plug 'ryanoasis/vim-devicons'
 Plug 'PotatoesMaster/i3-vim-syntax'
@@ -58,6 +59,7 @@ Plug 'junegunn/gv.vim' " part of git config
 Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
 Plug 'Konfekt/FastFold'
+Plug 'dhruvasagar/vim-table-mode'
 " Themes
 " Plug 'joshdick/onedark.vim' " new favorite theme
 " Plug 'laggardkernel/vim-one'
@@ -91,7 +93,7 @@ source $HOME/.config/nvim/plug-config/vim-commentary.vim
 source $HOME/.config/nvim/plug-config/vim-esearch.vim
 source $HOME/.config/nvim/plug-config/vim-vue.vim
 source $HOME/.config/nvim/plug-config/vim-which-key.vim
-" source $HOME/.config/nvim/plug-config/vimwiki.vim
+source $HOME/.config/nvim/plug-config/vimwiki.vim
 source $HOME/.config/nvim/plug-config/vim-go.vim 
 source $HOME/.config/nvim/plug-config/startify.vim 
 source $HOME/.config/nvim/plug-config/floaterm.vim 
@@ -116,3 +118,16 @@ highlight CocHintSign guibg=#20232a guifg=#009973
 " let g:markdown_folding = 1
 " set synmaxcol=500
 "
+function! s:isAtStartOfLine(mapping)
+  let text_before_cursor = getline('.')[0 : col('.')-1]
+  let mapping_pattern = '\V' . escape(a:mapping, '\')
+  let comment_pattern = '\V' . escape(substitute(&l:commentstring, '%s.*$', '', ''), '\')
+  return (text_before_cursor =~? '^' . ('\v(' . comment_pattern . '\v)?') . '\s*\v' . mapping_pattern . '\v$')
+endfunction
+
+inoreabbrev <expr> <bar><bar>
+          \ <SID>isAtStartOfLine('\|\|') ?
+          \ '<c-o>:TableModeEnable<cr><bar><space><bar><left><left>' : '<bar><bar>'
+inoreabbrev <expr> __
+          \ <SID>isAtStartOfLine('__') ?
+          \ '<c-o>:silent! TableModeDisable<cr>' : '__'

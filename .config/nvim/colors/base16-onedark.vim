@@ -15,39 +15,73 @@ if !has("gui_running")
 endif
 
 " GUI color definitions
+" #282c34
 let s:gui00        = "282c34"
+" #282c34
 let g:base16_gui00 = "282c34"
+" #20232a
 let s:gui01        = "20232a"
+" #20232a
 let g:base16_gui01 = "20232a"
+" #353b45
 " let s:gui01        = "353b45"
+" " #353b45"
 " let g:base16_gui01 = "353b45"
+" " #3e4451"
 let s:gui02        = "3e4451"
+" #3e4451
 let g:base16_gui02 = "3e4451"
+" #545862
 let s:gui03        = "545862"
+" #545862
 let g:base16_gui03 = "545862"
+" #565c64
 let s:gui04        = "565c64"
+" #565c64
 let g:base16_gui04 = "565c64"
+" #abb2bf
 let s:gui05        = "abb2bf"
+" #abb2bf
 let g:base16_gui05 = "abb2bf"
+" #b6bdca
 let s:gui06        = "b6bdca"
+" #b6bdca
 let g:base16_gui06 = "b6bdca"
+" #c8ccd4
 let s:gui07        = "c8ccd4"
+" #c8ccd4
 let g:base16_gui07 = "c8ccd4"
+" #e06c75
 let s:gui08        = "e06c75"
+" #e06c75
 let g:base16_gui08 = "e06c75"
+" #d19a66
 let s:gui09        = "d19a66"
+" #d19a66
 let g:base16_gui09 = "d19a66"
+" #e5c07b
 let s:gui0A        = "e5c07b"
+" #e5c07b
 let g:base16_gui0A = "e5c07b"
+" #98c379
 let s:gui0B        = "98c379"
+" #98c379
 let g:base16_gui0B = "98c379"
+" #56b6c2
 let s:gui0C        = "56b6c2"
+" #56b6c2
 let g:base16_gui0C = "56b6c2"
+" #61afef
 let s:gui0D        = "61afef"
+" #61afef
 let g:base16_gui0D = "61afef"
+" #c678dd
 let s:gui0E        = "c678dd"
+" #c678dd
 let g:base16_gui0E = "c678dd"
+" #be5046
 let s:gui0F        = "be5046"
+" #be5046
 let g:base16_gui0F = "be5046"
 
 " Terminal color definitions

@@ -4,8 +4,8 @@ nmap <c-c>v     <Plug>SlimeConfig
 let g:which_key_map['<CR>'] = [ '<Plug>SlimeSendCell', 'Execute # ``` Code Cell' ]
 let g:which_key_map['\'] = [ 'SlimeSendCurrentLine', 'Execute Line of Code' ]
 
-let g:slime_target = "tmux"
-" let g:slime_target = "x11"
+" let g:slime_target = "tmux"
+let g:slime_target = "x11"
 " let g:slime_cell_delimiter = "# %%"
 let g:slime_cell_delimiter = "```"
 
