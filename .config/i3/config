@@ -36,8 +36,6 @@ bindsym $mod+Shift+q kill
 # bindsym $mod+d exec --no-startup-id dmenu_recency
 # use rofi
 bindsym $mod+d exec --no-startup-id "rofi -show drun -font \\"IBM Plex Mono 12\\" -run-shell-command '{terminal} -e \\" {cmd}; read -n 1 -s\\"'"
-# launch categorized menu
-bindsym $mod+z exec --no-startup-id morc_menu
 
 bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
 
@@ -45,7 +43,6 @@ bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
 
 
 # Start Applications
-bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
 bindsym $mod+F2 exec brave
 bindsym $mod+F3 exec ranger
 bindsym $mod+Shift+F3 exec nemo
@@ -53,7 +50,7 @@ bindsym $mod+t exec --no-startup-id pkill picom
 bindsym $mod+Ctrl+t exec --no-startup-id picom -b
 bindsym Ctrl+Print exec gnome-screenshot -i
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
-bindsym $mod+Ctrl+w exec alacritty -t VimWiki -e nvim +VimwikiIndex NERDTreeClose
+bindsym $mod+Ctrl+w exec alacritty -t VimWiki -e nvim +VimwikiIndex 
 # alacritty theme things
 
 # Toggle between light and dark colorscheme
@@ -319,7 +316,6 @@ exec --no-startup-id nitrogen --restore; sleep 1; picom -b
 exec --no-startup-id feh --bg-scale /home/mcamp/.background
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
-exec --no-startup-id clipit
 exec --no-startup-id xautolock -time 10 -locker i3lock-fancy
 exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
@@ -327,6 +323,10 @@ exec --no-startup-id /usr/lib/geoclue-2.0/demos/agent
 exec --no-startup-id redshift-gtk
 # manage power consumption  per Archwiki
 exec --no-startup-id powertop --auto-tune
+# swap caps lock and escape
+exec_always --no-startup-id xmodmap -e "clear lock"
+exec_always --no-startup-id xmodmap -e "keycode 9 = Caps_Lock NoSymbol Caps_Lock"
+exec_always --no-startup-id xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 # exec --no-startup-id /usr/bin/ckb-next --background
 # exec --no-startup-id /opt/pia/run.sh
 # Color palette used for the terminal ( ~/.Xresources file )
