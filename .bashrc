@@ -45,6 +45,22 @@ fi
 if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
   exec tmux
 fi
+
+codi() {
+   local syntax="${1:-python}"
+   shift
+   nvim -c \
+     "let g:startify_disable_at_vimenter = 1 |\
+     set bt=nofile ls=0 noru nonu nornu |\
+     hi CodiVirtualText guifg=red
+     hi ColorColumn ctermbg=NONE |\
+     hi VertSplit ctermbg=NONE |\
+     hi NonText ctermfg=0 |\
+     Codi $syntax" "$@"
+}
+
 # I use arch btw...
 archey3 --config ~/.config/archey3.cfg 
 eval "$(thefuck --alias)"
+
+source /home/mcamp/.config/broot/launcher/bash/br

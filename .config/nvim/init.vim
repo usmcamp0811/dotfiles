@@ -58,6 +58,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'junegunn/gv.vim' " part of git config
 Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
+Plug 'ChristianChiarulli/codi.vim'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
 " Themes
@@ -99,6 +100,7 @@ source $HOME/.config/nvim/plug-config/startify.vim
 source $HOME/.config/nvim/plug-config/floaterm.vim 
 source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim 
 source $HOME/.config/nvim/plug-config/slime.vim 
+source $HOME/.config/nvim/plug-config/codi.vim 
 source $HOME/.config/nvim/plug-config/csv.vim 
 source $HOME/.config/nvim/plug-config/pandoc.vim 
 " source $HOME/.config/nvim/plug-config/onedark.vim 
