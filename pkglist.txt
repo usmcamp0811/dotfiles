@@ -22,6 +22,7 @@ cmake
 compiler-rt
 conky
 cups
+cura
 dhclient
 dialog
 dmenu
@@ -59,6 +60,7 @@ i3status
 java-runtime-common
 jre-openjdk-headless
 julia
+kitty
 libcaca
 libnet
 libreoffice-fresh
@@ -93,6 +95,7 @@ nm-connection-editor
 node-gyp
 nodejs
 nodejs-emojione
+noto-fonts-emoji
 npm
 numlockx
 nvidia
@@ -118,6 +121,7 @@ pulseaudio
 pulsemixer
 python
 python-argparse
+python-cffi
 python-gobject
 python-pip
 python-pyqt5
@@ -133,6 +137,7 @@ sed
 semver
 sudo
 syncthing
+termite
 texinfo
 texlab
 texlive-bibtexextra
@@ -154,6 +159,7 @@ tmux
 traceroute
 ttf-dejavu
 ttf-ibm-plex
+unicode-emoji
 unzip
 usbutils
 w3m
@@ -169,6 +175,7 @@ xcb-util-wm
 xdotool
 xf86-video-intel
 xf86-video-vesa
+xfce4-power-manager
 xorg-bdftopcf
 xorg-docs
 xorg-font-util

@@ -1,13 +1,17 @@
+adobe-base-14-fonts
+balena-etcher
 brave-bin
 ckb-next-git
 dell-bios-fan-control-git
 grub2-theme-archlinux
 grub2-theme-archxion
 haskell-base-noprelude
+i3-layout-manager-git
 i3lock-fancy-git
 i8kutils
 lazydocker
 lazygit
+lexend-fonts-git
 libinput-gestures
 lightdm-slick-greeter
 lightdm-webkit-theme-litarvan-git
@@ -31,6 +35,8 @@ screenkey
 teams
 thermald
 tlpui-git
+ttf-ms-fonts
 yay
 youtube-music-desktop
+ytop
 zoom
