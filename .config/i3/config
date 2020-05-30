@@ -309,7 +309,7 @@ bindsym $mod+9 exec --no-startup-id i3lock-fancy
 bindsym Mod4+l exec --no-startup-id i3lock-fancy
 # autolock after 15 min
 # exec xautolock -time 15 -locker /usr/bin/blurlock
-
+bindsym $mod+l exec --no-startup-id i3-layout-manager
 # Autostart applications
 # exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id nitrogen --restore; sleep 1; picom -b

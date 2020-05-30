@@ -21,7 +21,7 @@
     "coc-tabnine": ">=1.2.2",
     "coc-template": ">=1.2.4",
     "coc-texlab": ">=2.1.0",
-    "coc-todolist": ">=1.2.7",
+    "coc-todolist": ">=1.2.8",
     "coc-tsserver": ">=1.5.1",
     "coc-vetur": ">=1.1.10",
     "coc-yaml": ">=1.0.4"
