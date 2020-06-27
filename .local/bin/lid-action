@@ -34,6 +34,7 @@ do
     && [[ "$CURRENT_LID" == "open" ]] \
     && lid_open 
     CURRENT_LID=$(cat /proc/acpi/button/lid/LID0/state | awk '{print $2}')
+    sleep 2
 done
 
 # must not be the laptop so lets just exit

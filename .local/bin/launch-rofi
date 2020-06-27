@@ -1,0 +1,3 @@
+#!/bin/sh
+
+rofi -show drun -font "IBM Plex Mono 12" -run-shell-command '{terminal} -e " {cmd}; read -n 1 -s"'
