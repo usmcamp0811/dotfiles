@@ -31,6 +31,10 @@ alias df='df -h'
 
 alias grep='grep --color=auto'
 
+# alias zathura='devour zathura'
+# alias feh='devour feh'
+# alias mvp='devour mvp'
+
 ##########################################################
 ####################### GIT STUFF ########################
 
@@ -142,3 +146,6 @@ function pac-backup(){
     dotfiles add ~/pkglist-aur.txt 
     dotfiles commit -m "Backing-up installed packages"
 }
+
+
+alias cura="QT_SCALE_FACTOR=2 cura"
