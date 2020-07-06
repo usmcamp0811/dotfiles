@@ -148,4 +148,4 @@ function pac-backup(){
 }
 
 
-alias cura="QT_SCALE_FACTOR=2 cura"
+alias cura="QT_SCALE_FACTOR=1 cura"

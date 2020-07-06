@@ -7,3 +7,4 @@ let g:vim_markdown_json_frontmatter = 1
 let g:vim_markdown_strikethrough = 1
 let g:vim_markdown_new_list_item_indent = 2
 let g:vimwiki_global_ext = 0
+let g:vimwiki_table_mappings = 0
