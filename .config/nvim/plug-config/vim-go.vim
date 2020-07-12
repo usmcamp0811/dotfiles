@@ -27,3 +27,12 @@ endfunction
 
 autocmd FileType go nmap <leader>b :<C-u>call <SID>build_go_files()<CR>
 autocmd FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
+
+" o for gO
+" let g:which_key_map.o = {
+      " \ 'name' : 'Golang' ,
+      " \ 'b' : ['<C-u>call <SID>build_go_files()<CR>'                        , 'build go files'],
+      " \ 'c' : ['<Plug>(go-coverage-toggle)', 'go coverage'],
+      " \ 't' : ['<Plug>(go-test)', 'go test'],
+      " \ 'r' : ['<Plug>(go-run)', 'go run'],
+      " \ }

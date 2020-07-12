@@ -51,7 +51,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim' " super useful search files
 Plug 'airblade/vim-rooter' " puts you in the root of the project
 Plug 'mhinz/vim-startify' " a start page for vim when no file is opened
-" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' } " really good Go lang support for vim
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' } " really good Go lang support for vim
 " Plug 'sedm0784/vim-you-autocorrect' " autocorrect for vim
 Plug 'voldikss/vim-floaterm' " lets you make anything a floating window in vim
 Plug 'airblade/vim-gitgutter'
