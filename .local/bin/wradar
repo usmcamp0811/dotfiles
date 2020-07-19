@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# SUPER SIMPLE SCRIPT TO GET THE LOCAL WEATHER RADAR
-
-#TODO: write logic to get location and display correct radar.
-mpv --loop-file=inf --stream-buffer-size=2m "https://radar.weather.gov/lite/N0R/HTX_loop.gif"

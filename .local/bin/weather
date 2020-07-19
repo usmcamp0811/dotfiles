@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# SUPER SIMPLE SCRIPT TO GET THE LOCAL WEATHER RADAR
+
+[ $# -eq 0 ] && curl wttr.in && exit 0
+[[ "$1" == "-r" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m "https://radar.weather.gov/lite/N0R/HTX_loop.gif"
+[[ "$1" == "--radar" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m "https://radar.weather.gov/lite/N0R/HTX_loop.gif"
