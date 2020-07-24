@@ -4,7 +4,8 @@ export LANG="en_US"
 # Default programs:
 export EDITOR="nvim"
 export TERMINAL="alacritty"
-export BROWSER="brave"
+# export BROWSER="brave"
+export BROWSER="firefox"
 export READER="zathura"
 # system TimeZone
 export TZ="America/Chicago"
@@ -37,6 +38,10 @@ export NVM_DIR="$XDG_DATA_HOME"/nvm
 export PYLINTHOME="$XDG_CACHE_HOME"/pylint
 export PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
 export WGETRC="$XDG_CONFIG_HOME/wgetrc"
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME"/nv
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export WEECHAT_HOME="$XDG_CONFIG_HOME"/weechat
 # makes man pages stay in the terminal when you exitthem
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter

@@ -1,0 +1,81 @@
+# Current theme
+include                     "~/.config/newsboat/colors/solarized-dark"
+
+# -- feeds ---------------------------------------------------------------------
+
+auto-reload yes
+reload-time 120
+reload-threads 4
+download-retries 4
+download-timeout 10
+prepopulate-query-feeds yes
+
+
+# -- display -------------------------------------------------------------------
+
+show-read-feeds no
+feed-sort-order unreadarticlecount-asc
+text-width 80
+
+
+# -- navigation ----------------------------------------------------------------
+
+goto-next-feed no
+
+bind-key j down
+bind-key k up
+bind-key j next articlelist
+bind-key k prev articlelist
+bind-key J next-feed articlelist
+bind-key K prev-feed articlelist
+bind-key G end
+bind-key g home
+bind-key d pagedown
+bind-key u pageup
+bind-key l open
+bind-key h quit
+bind-key a toggle-article-read
+bind-key n next-unread
+bind-key N prev-unread
+bind-key D pb-download
+bind-key U show-urls
+bind-key x pb-delete
+
+
+# -- bookmarks -----------------------------------------------------------------
+
+bookmark-interactive no
+bookmark-autopilot yes
+
+
+# -- misc ----------------------------------------------------------------------
+
+unbind-key C feedlist
+confirm-exit no
+cleanup-on-quit no
+
+# News settings
+max-items                   10
+text-width                  79
+
+browser                     linkhandler
+macro , open-in-browser
+macro t set browser "qndl" ; open-in-browser ; set browser linkhandler
+macro a set browser "tsp youtube-dl --add-metadata -xic -f bestaudio/best" ; open-in-browser ; set browser linkhandler
+macro v set browser "setsid -f mpv" ; open-in-browser ; set browser linkhandler
+macro w set browser "lynx" ; open-in-browser ; set browser linkhandler
+macro p set browser "dmenuhandler" ; open-in-browser ; set browser linkhandler
+macro c set browser "xsel -b <<<" ; open-in-browser ; set browser linkhandler
+macro C set browser "youtube-viewer --comments=%u" ; open-in-browser ; set browser linkhandler
+
+prepopulate-query-feeds     yes
+goto-next-feed              no
+feedlist-format             "%4n %9u %t"
+articlelist-title-format    "%N %V - '%T' (%u unread, %t total)"
+
+# Podcast settings
+download-path               "/data/podcasts"
+download-filename-format    "%N/%F - %t.%e"
+podlist-format              "[%6dMB/%6tMB] [%5p %%] %-13S %b"
+max-downloads               3
+player                      "rifle"

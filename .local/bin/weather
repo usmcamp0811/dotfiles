@@ -3,5 +3,9 @@
 # SUPER SIMPLE SCRIPT TO GET THE LOCAL WEATHER RADAR
 
 [ $# -eq 0 ] && curl wttr.in && exit 0
+# v2 version of the weather report.. aka "Data-rich output format"
+[[ "$1" == "-v2" ]] && curl v2.wttr.in && exit 0
+# Weather radar for Huntsville
+# TODO: figure out how to get localation and get appropriate radar for your current location.. something like wttr.in does.
 [[ "$1" == "-r" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m "https://radar.weather.gov/lite/N0R/HTX_loop.gif"
 [[ "$1" == "--radar" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m "https://radar.weather.gov/lite/N0R/HTX_loop.gif"
