@@ -58,7 +58,7 @@ if [ "$preview_images" = "True" ]; then
         image/*)
             exit 7;;
         # Image preview for video, disabled by default.:
-        ###video/*)
+        #video/*)
         ###    ffmpegthumbnailer -i "$path" -o "$cached" -s 0 && exit 6 || exit 1;;
     esac
 fi
