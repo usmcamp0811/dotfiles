@@ -39,6 +39,7 @@ Plug 'camspiers/animate.vim' " moves panes in a pretty way
 Plug 'camspiers/lens.vim' " auto-magically resizes vim panes for you
 Plug 'lervag/vimtex' " for writing latex
 " Plug 'JamshedVesuna/vim-markdown-preview'
+Plug 'matthew-brett/vim-rst-sections'
 Plug 'pechorin/any-jump.vim' " pops up a window of all the times code is referenced
 Plug 'eugen0329/vim-esearch'
 Plug 'kevinhwang91/rnvimr', {'do': 'make sync'} " ranger in vima

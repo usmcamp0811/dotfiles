@@ -11,10 +11,10 @@ alias ~="cd ~" # `cd` is probably faster to type though
 alias -- -="cd -"
 
 # ls -al Alh
-alias ls="lsd --group-dirs first"
-alias la="lsd -laF --group-dirs first"
-alias lh='lsd -ls --group-dirs first'
-alias lt='lsd --tree --depth 3'
+[ -e /usr/bin/lsd ] && alias ls="lsd --group-dirs first"
+[ -e /usr/bin/lsd ] && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
+[ -e /usr/bin/lsd ] && alias lt='lsd --tree --depth 3'
+
 
 # mv, rm, cp
 alias mv='mv -v'
@@ -23,7 +23,8 @@ alias cp='cp -v'
 
 
 alias chmox='chmod -x'
-alias cat='bat'
+[ -e /usr/bin/bat ] && alias cat='/usr/bin/bat'
+[ -e /usr/bin/batcat ] && alias =cat='/usr/bin/batcat'
 
 alias vim='nvim'
 
@@ -33,7 +34,7 @@ alias grep='grep --color=auto'
 
 # alias zathura='devour zathura'
 # alias feh='devour feh'
-# alias mvp='devour mvp'
+# alias mvp='devour mvpmh'
 
 ##########################################################
 ####################### GIT STUFF ########################
