@@ -26,6 +26,7 @@ noremap > :vertical:resize +5 <CR>
 nnoremap <C-j> 3<C-e>                 
 " Ctrl-k Scroll up 3 rows at a time
 nnoremap <C-k> 3<C-y>
+
 set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
 " toggle unprintable characters in all modes
 noremap <F8> :set list!<CR>

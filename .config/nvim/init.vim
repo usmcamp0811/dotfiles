@@ -8,6 +8,7 @@ source ~/.config/nvim/functions.vim
 source ~/.config/nvim/autocmds.vim
 
 
+
 " this needs to be loaded before the plugins
 " --------------------------------------------------- Load Plug-ins -----------------------------------------------------------------
 call plug#begin('~/.config/nvim/plugged')
@@ -73,6 +74,7 @@ Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
 call plug#end()
 
+
 " --------------------------------------------------- Load Plug-in Configurations -----------------------------------------------------------------
 source $HOME/.config/nvim/plug-config/animate.vim
 source $HOME/.config/nvim/plug-config/any-jump.vim
@@ -111,7 +113,7 @@ lua require'plug-colorizer'
 " Theme
 syntax enable
 colorscheme base16-onedark
-" Fix background color of COC icons in the gutter
+" Fix background color of SFast
 highlight CocWarnSign guibg=#20232a guifg=#fe7f2d 
 highlight CocInfoSign guibg=#20232a guifg=#6f8d9e
 highlight CocErrorSign guibg=#20232a guifg=#a01d26

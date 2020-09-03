@@ -6,7 +6,7 @@ let &packpath=&runtimepath
 " set nocompatible
 set t_Co=256
 set termguicolors
-set clipboard+=unnamedplus
+set clipboard+=unnamedplus " yank to system clipboard
 set autoindent " Copy indent from last line when starting new line
 set cursorline " Highlight current line
 set foldenable " enable folding
