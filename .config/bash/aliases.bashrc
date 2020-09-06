@@ -153,3 +153,7 @@ function pac-backup(){
 
 
 alias cura="QT_SCALE_FACTOR=1 cura"
+
+copy(){
+    cat -p $1 | xsel -b
+}
