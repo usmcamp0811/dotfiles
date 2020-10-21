@@ -66,3 +66,4 @@ endif
 set foldminlines=0 " Allow folding single lines
 set foldnestmax=10 " Set max fold nesting level
 " }}}
+

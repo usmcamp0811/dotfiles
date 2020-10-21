@@ -42,7 +42,6 @@ alias grep='grep --color=auto'
 function clone() {
     git clone --depth=1 $1
     cd $(basename ${1%.*})
-    yarn install
 }
 alias push="git push"
 alias gs="git status"

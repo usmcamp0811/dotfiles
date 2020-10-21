@@ -72,3 +72,13 @@ inoremap <C-j> <C-\><C-N><C-w>j
 inoremap <C-k> <C-\><C-N><C-w>k
 inoremap <C-l> <C-\><C-N><C-w>l
 tnoremap <Esc> <C-\><C-n>
+
+
+map [[ :silent! eval search('```', 'b')<CR>w99[{
+
+map ][ :silent! eval search('```')<CR>b99]}
+
+map ]] j0[[%:silent! eval search('`')<CR>
+
+map [] k$][%:silent! eval search('`', 'b')<CR>
+

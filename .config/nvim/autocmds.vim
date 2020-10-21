@@ -20,3 +20,7 @@ autocmd FocusGained,BufEnter,CursorHold,CursorHoldI *
 autocmd FileChangedShellPost *
             \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
 autocmd VimEnter * silent! !xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape' " Map Esc to Caps Lock 
+
+" Save manual folds automatically
+autocmd BufWinLeave *.* mkview
+autocmd BufWinEnter *.* silent loadview 

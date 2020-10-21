@@ -47,5 +47,26 @@ function! MarkdownBlocks()
         endif
     endfor
 endfunction
+
+function! LightBlocks()
+    let l:continue = 0
+    execute "sign unplace * file=".expand("%")
+
+    " iterate through each line in the buffer
+    for l:lnum in range(1, len(getline(1, "$")))
+        " detect the start fo a code block
+        if getline(l:lnum) =~ "^#\s/{/{/{.*$" || l:continue
+            " continue placing signs, until the block stops
+            let l:continue = 1
+            " place sign
+            execute "sign place ".l:lnum." line=".l:lnum." name=codeblock file=".expand("%")
+            " stop placing signs
+            if getline(l:lnum) =~ "^#\s/}/}/}$"
+                let l:continue = 0
+            endif
+        endif
+    endfor
+endfunction
+
 let g:markdown_github_languages = ['python', 'julia', 'bash']
 " }}}

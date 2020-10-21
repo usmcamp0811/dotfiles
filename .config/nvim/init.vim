@@ -72,6 +72,8 @@ Plug 'dhruvasagar/vim-table-mode'
 " Plug 'chriskempson/base16-vim'
 Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
+Plug 'mrossinek/deuterium'
+Plug 'dbridges/vim-markdown-runner'
 call plug#end()
 
 
@@ -108,6 +110,7 @@ source $HOME/.config/nvim/plug-config/csv.vim
 source $HOME/.config/nvim/plug-config/pandoc.vim 
 " source $HOME/.config/nvim/plug-config/onedark.vim 
 source $HOME/.config/nvim/plug-config/lightline.vim
+source $HOME/.config/nvim/plug-config/markdown-runner.vim
 lua require'plug-colorizer'
 
 " Theme
@@ -135,4 +138,6 @@ inoreabbrev <expr> <bar><bar>
           \ '<c-o>:TableModeEnable<cr><bar><space><bar><left><left>' : '<bar><bar>'
 inoreabbrev <expr> __
           \ <SID>isAtStartOfLine('__') ?
-          \ '<c-o>:silent! TableModeDisable<cr>' : '__'
+
+noremap <expr> <F7> LaTeXtoUnicode#Toggle()
+noremap! <expr> <F7> LaTeXtoUnicode#Toggle()         \ '<c-o>:silent! TableModeDisable<cr>' : '__'

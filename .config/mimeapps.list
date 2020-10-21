@@ -15,3 +15,4 @@ video/x-matroska=video.desktop
 x-scheme-handler/lbry=lbry.desktop
 inode/directory=file.desktop
 x-scheme-handler/msteams=teams.desktop
+x-scheme-handler/webcal=brave-browser.desktop
