@@ -60,6 +60,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'junegunn/gv.vim' " part of git config
 Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
+Plug 'hanschen/vim-ipython-cell', { 'for': ['python', 'julia', 'Markdown', 'md', 'markdown.pandoc']}
 Plug 'ChristianChiarulli/codi.vim'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
@@ -74,6 +75,7 @@ Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
 Plug 'mrossinek/deuterium'
 Plug 'dbridges/vim-markdown-runner'
+Plug 'kshenoy/vim-signature' " show marks in gutter
 call plug#end()
 
 
@@ -141,3 +143,7 @@ inoreabbrev <expr> __
 
 noremap <expr> <F7> LaTeXtoUnicode#Toggle()
 noremap! <expr> <F7> LaTeXtoUnicode#Toggle()         \ '<c-o>:silent! TableModeDisable<cr>' : '__'
+
+
+let g:ipython_cell_regex = 1
+let g:ipython_cell_tag = '```( [^[].*)?'
