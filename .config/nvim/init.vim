@@ -60,7 +60,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'junegunn/gv.vim' " part of git config
 Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
-Plug 'hanschen/vim-ipython-cell', { 'for': ['python', 'julia', 'Markdown', 'md', 'markdown.pandoc']}
+Plug 'hanschen/vim-ipython-cell', { 'for': ['python', 'julia', 'markdown.pandoc']} " note: I modified this and am waiting on a MR.. so don't update
 Plug 'ChristianChiarulli/codi.vim'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
@@ -73,8 +73,8 @@ Plug 'dhruvasagar/vim-table-mode'
 " Plug 'chriskempson/base16-vim'
 Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
-Plug 'mrossinek/deuterium'
-Plug 'dbridges/vim-markdown-runner'
+" Plug 'mrossinek/deuterium' "Jupyter inteface too much of a wip
+" Plug 'dbridges/vim-markdown-runner' " puts code output into markdown
 Plug 'kshenoy/vim-signature' " show marks in gutter
 call plug#end()
 
@@ -147,3 +147,13 @@ noremap! <expr> <F7> LaTeXtoUnicode#Toggle()         \ '<c-o>:silent! TableModeD
 
 let g:ipython_cell_regex = 1
 let g:ipython_cell_tag = '```( [^[].*)?'
+let g:julia_cell_delimit_cells_by = 'marks'
+let g:ipython_language = "Julia"
+" let g:julia_cell_regex = 1
+" let g:julia_cell_tag = '```( [^[].*)?'
+
+
+nmap zuz <Plug>(FastFoldUpdate)
+let g:fastfold_savehook = 1
+let g:fastfold_fold_command_suffixes =  ['x','X','a','A','o','O','c','C']
+let g:fastfold_fold_movement_commands = [']z', '[z', 'zj', 'zk']

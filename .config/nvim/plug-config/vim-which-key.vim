@@ -59,6 +59,8 @@ let g:which_key_map.m = {
     \ 'h4' : ['m`^i#### <esc>``5l', 'header 4'],
     \ 'h5' : ['m`^i##### <esc>``6l', 'header 5'],
     \ 't' : [':TableModeToggle', 'Markdown Table Mode Toggle'],
+    \ 's' : [':let g:slime_target = "tmux"', 'Switch Slime to Tmux']
+    \ 'x' : [':let g:slime_target = "X11"', 'Switch Slime to X11']
     \ }
 
 

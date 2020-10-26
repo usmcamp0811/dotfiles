@@ -1,11 +1,11 @@
 xmap <c-\> <Plug>SlimeRegionSend
 nmap <c-\> <Plug>SlimeParagraphSend
 nmap <c-c>v     <Plug>SlimeConfig
-let g:which_key_map['<CR>'] = [ '<Plug>SlimeSendCell', 'Execute # ``` Code Cell' ]
+let g:which_key_map['<CR>'] = [ ':IPythonCellExecuteCell', 'Execute # ``` Code Cell' ]
 let g:which_key_map['\'] = [ 'SlimeSendCurrentLine', 'Execute Line of Code' ]
 
-let g:slime_target = "tmux"
-" let g:slime_target = "x11"
+" let g:slime_target = "tmux"
+let g:slime_target = "x11"
 let g:slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
 " let g:slime_cell_delimiter = "# %%"
 let g:slime_cell_delimiter = "```"
@@ -22,3 +22,7 @@ function! _EscapeText_rmarkdown(text)
     return [trimmed]
   endif
 endfunction
+
+" map J and K to jump to the previous and next cell header
+nnoremap K :IPythonCellPrevCell<CR>
+nnoremap J :IPythonCellNextCell<CR>

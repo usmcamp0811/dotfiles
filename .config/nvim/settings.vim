@@ -9,7 +9,7 @@ set termguicolors
 set clipboard+=unnamedplus " yank to system clipboard
 set autoindent " Copy indent from last line when starting new line
 set cursorline " Highlight current line
-set foldenable " enable folding
+" set foldenable " enable folding
 set expandtab
 set diffopt=filler " add vertical spaces to keep right and left aligned
 set diffopt+=iwhite " Ignore whitespace changes
@@ -60,7 +60,7 @@ if has('folding')
     endif
     set foldenable " turn it on
     set foldcolumn=0 "Column to show folds
-    set foldlevel=1 "Close all folds by default
+    " set foldlevel=0 "Close all folds by default
     set foldmethod=expr " Syntax are used to specify folds
 endif
 set foldminlines=0 " Allow folding single lines
