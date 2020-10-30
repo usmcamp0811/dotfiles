@@ -34,7 +34,7 @@ noremap <F8> :set list!<CR>
 inoremap <F8> <C-o>:set list!<CR>
 " toggle unprintable characters in all modes
 cnoremap <F8> <C-c>:set list!<CR>
-" move blocks of text visually UP.. https://www.youtube.com/watch?v=X5IAdaN6IwM
+" move blocks of text visually UP.. https://www.youtube.com/watch?v=X6IAdaN6IwM
 " xnoremap <silent> K :call visual#move_up()<CR>
 " move blocks of text visually DOWN..
 " xnoremap <silent> J :call visual#move_down()<CR>

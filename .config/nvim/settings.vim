@@ -64,6 +64,7 @@ if has('folding')
     set foldmethod=expr " Syntax are used to specify folds
 endif
 set foldminlines=0 " Allow folding single lines
-set foldnestmax=10 " Set max fold nesting level
+" set foldnestmax=10 " Set max fold nesting level
+set foldlevel=999
 " }}}
 

@@ -108,6 +108,7 @@ font:
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
     family: IBM Plex Mono Medium
+    # family: JuliaMono
     # family: Noto Mono
 
     # The `style` can be specified to pick a specific face.

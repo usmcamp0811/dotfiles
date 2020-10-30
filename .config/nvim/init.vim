@@ -61,6 +61,7 @@ Plug 'junegunn/gv.vim' " part of git config
 Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
 Plug 'hanschen/vim-ipython-cell', { 'for': ['python', 'julia', 'markdown.pandoc']} " note: I modified this and am waiting on a MR.. so don't update
+Plug 'mroavi/vim-julia-cell', { 'for': ['julia']}
 Plug 'ChristianChiarulli/codi.vim'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
@@ -149,8 +150,6 @@ let g:ipython_cell_regex = 1
 let g:ipython_cell_tag = '```( [^[].*)?'
 let g:julia_cell_delimit_cells_by = 'marks'
 let g:ipython_language = "Julia"
-" let g:julia_cell_regex = 1
-" let g:julia_cell_tag = '```( [^[].*)?'
 
 
 nmap zuz <Plug>(FastFoldUpdate)

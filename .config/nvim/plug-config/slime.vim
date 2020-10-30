@@ -23,6 +23,5 @@ function! _EscapeText_rmarkdown(text)
   endif
 endfunction
 
-" map J and K to jump to the previous and next cell header
-nnoremap K :IPythonCellPrevCell<CR>
-nnoremap J :IPythonCellNextCell<CR>
+
+
