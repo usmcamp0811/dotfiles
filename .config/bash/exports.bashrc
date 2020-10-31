@@ -50,6 +50,7 @@ export GOPATH="$XDG_DATA_HOME/go"
 # export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
 # for go
 export PATH=$PATH:$GOPATH/bin
+export JULIA_EDITOR=nvim
 # export DOCKER_HOST=tcp://127.0.0.1:2376
 # export DOCKER_TLS_VERIFY=1
 # export DOCKER_CERT_PATH=~/.config/docker

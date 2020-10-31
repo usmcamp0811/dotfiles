@@ -4,7 +4,7 @@ let gmaplocalkeader = '\'
 " --------------------------------------------------- Load Vim Settings -----------------------------------------------------------------
 source ~/.config/nvim/settings.vim
 source ~/.config/nvim/mappings.vim
-source ~/.config/nvim/functions.vim
+source ~/.config/nvim/functions.vim 
 source ~/.config/nvim/autocmds.vim
 
 

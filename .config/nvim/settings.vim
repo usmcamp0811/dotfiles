@@ -68,3 +68,11 @@ set foldminlines=0 " Allow folding single lines
 set foldlevel=999
 " }}}
 
+" make code look pretty 
+syntax match Conceal '=>' conceal cchar=⇒
+syntax match Conceal '|>' conceal cchar=⮀
+syntax match Conceal "<=" conceal cchar=≤
+syntax match Conceal ">=" conceal cchar=≥
+syntax match Conceal "!=" conceal cchar=≢
+syntax keyword Conceal lambda conceal cchar=λ
+setlocal conceallevel=1

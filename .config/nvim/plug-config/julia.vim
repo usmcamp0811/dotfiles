@@ -10,3 +10,8 @@ map ~ :emenu Notebook.<C-Z>
 " run code
 map <S-CR> :NotebookEvaluate<CR>
 " }}}
+"
+"
+
+
+
