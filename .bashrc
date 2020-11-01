@@ -60,7 +60,7 @@ codi() {
 }
 
 # I use arch btw...
-archey3 --config ~/.config/archey3.cfg 
-eval "$(thefuck --alias)"
+[ -e /usr/bin/archey3 ] && archey3 --config ~/.config/archey3.cfg 
+[ -e /usr/bin/thefuck ] && eval "$(thefuck --alias)"
 
 source $HOME/.config/broot/launcher/bash/br
