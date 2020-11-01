@@ -24,7 +24,7 @@ alias cp='cp -v'
 
 alias chmox='chmod -x'
 [ -e /usr/bin/bat ] && alias cat='/usr/bin/bat'
-[ -e /usr/bin/batcat ] && alias =cat='/usr/bin/batcat'
+[ -e /usr/bin/batcat ] && alias cat='/usr/bin/batcat'
 
 alias vim='nvim'
 
