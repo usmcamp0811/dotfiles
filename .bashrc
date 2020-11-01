@@ -63,4 +63,4 @@ codi() {
 archey3 --config ~/.config/archey3.cfg 
 eval "$(thefuck --alias)"
 
-source /home/mcamp/.config/broot/launcher/bash/br
+source $HOME/.config/broot/launcher/bash/br
