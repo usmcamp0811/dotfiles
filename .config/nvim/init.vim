@@ -143,7 +143,7 @@ inoreabbrev <expr> __
           \ <SID>isAtStartOfLine('__') ?
 
 noremap <expr> <F7> LaTeXtoUnicode#Toggle()
-noremap! <expr> <F7> LaTeXtoUnicode#Toggle()         \ '<c-o>:silent! TableModeDisable<cr>' : '__'
+noremap! <expr> <F7> LaTeXtoUnicode#Toggle()   
 
 
 let g:ipython_cell_regex = 1

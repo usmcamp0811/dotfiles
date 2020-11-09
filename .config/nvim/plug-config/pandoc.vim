@@ -1,5 +1,6 @@
 augroup pandoc_syntax
     au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
+    au! BufNewFile,BufFilePre,BufRead *.jmd set filetype=markdown.pandoc syntax=julia
 augroup END
 
 
@@ -33,5 +34,15 @@ augroup code_block_color
     " au BufEnter *.jl hi String ctermbg=black guibg=#21242b
     " au BufWritePost *.jl hi Delimiter ctermbg=black guibg=#21242b
     " au BufEnter *.jl hi Delimiter ctermbg=black guibg=#21242b
+
+    au BufEnter *.jmd call MarkdownBlocks()
+    au InsertLeave *.jmd call MarkdownBlocks()
+    au BufWritePost *.jmd call MarkdownBlocks()
+    au BufWritePost *.jmd hi markdownCodeBlockBG ctermbg=black guibg=#21242b
+    au BufEnter *.jmd hi markdownCodeBlockBG ctermbg=black guibg=#21242b
+    au BufWritePost *.jmd hi String ctermbg=black guibg=#21242b
+    au BufEnter *.jmd hi String ctermbg=black guibg=#21242b
+    au BufWritePost *.jmd hi Delimiter ctermbg=black guibg=#21242b
+    au BufEnter *.jmd hi Delimiter ctermbg=black guibg=#21242b
 
 augroup END

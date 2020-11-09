@@ -12,6 +12,15 @@ map <S-CR> :NotebookEvaluate<CR>
 " }}}
 "
 "
+autocmd FileType julia :call LaTeXtoUnicode#Toggle()
+" noremap <expr> <F7> LaTeXtoUnicode#Toggle()
+" noremap! <expr> <F7> LaTeXtoUnicode#Toggle()
 
-
+" inoremap <expr> <F7> LaTeXtoUnicode#Toggle()
+" inoremap! <expr> <F7> LaTeXtoUnicode#Toggle()
+" let g:latex_to_unicode_cmd_mapping = ['<C-j>']
+" let g:julia_latex_to_unicode=0
+" let g:julia_latex_suggestions_enabled=0
+" let g:julia_auto_latex_to_unicode=0
+" let g:latex_to_unicode_tab = 0
 
