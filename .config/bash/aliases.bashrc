@@ -87,6 +87,10 @@ function dkill() {
   docker stop $1 && docker rm $1
 }
 
+function docker-login() {
+    docker login -u $DHUB_USER -p $DHUB_PASS
+}
+
 alias vimwiki="/usr/bin/nvim +VimwikiIndex NERDTreeClose"
 
 alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
