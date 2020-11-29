@@ -1,4 +1,5 @@
 #:highlight SignColumn guibg=darkgrey!/bin/bash
+umask 022
 # Change the window title of X terminals
 case ${TERM} in
 	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*|urxvt*)
