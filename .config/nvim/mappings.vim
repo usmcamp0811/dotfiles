@@ -20,8 +20,8 @@ vnoremap <S-Tab> <
 noremap + :resize +5 <CR>
 noremap - :resize -5 <CR>
 " Window Pane Resizing Vertical
-noremap < :vertical:resize -5 <CR>
-noremap > :vertical:resize +5 <CR>
+" noremap < :vertical:resize -5 <CR>
+" noremap > :vertical:resize +5 <CR>
 " Ctrl-j Scroll down 3 rows at a time
 nnoremap <C-j> 3<C-e>                 
 " Ctrl-k Scroll up 3 rows at a time

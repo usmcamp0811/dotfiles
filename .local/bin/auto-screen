@@ -11,6 +11,6 @@ NUM_DISPLAYS=$(xrandr | grep -w "connected" | awk '{print $1}' | wc -l)
 && xrandr --output eDP-1 --auto --primary \
 ||  xrandr | grep -w "connected" | awk '{system("xrandr --output " $1 " --auto")}' \
 &&  xrandr | grep -w "disconnected" | awk '{system("xrandr --output " $1 " --off")}' \
-&&  xrandr | grep -w "connected" | awk '(index($1, "eDP-1") != 1) {print $1}' | awk 'NR == 1' | awk '{system("xrandr --output " $1 " --auto --primary")}' 
+&&  xrandr | grep -w "connected" | awk '(index($1, "eDP-1-1-1") != 1) {print $1}' | awk 'NR == 1' | awk '{system("xrandr --output " $1 " --auto --primary")}' 
 
 exit 0

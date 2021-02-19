@@ -51,6 +51,8 @@ export GOPATH="$XDG_DATA_HOME/go"
 # for go
 export PATH=$PATH:$GOPATH/bin
 export JULIA_EDITOR=nvim
+
+export JULIA_NUM_THREADS=6
 # export DOCKER_HOST=tcp://127.0.0.1:2376
 # export DOCKER_TLS_VERIFY=1
 # export DOCKER_CERT_PATH=~/.config/docker
