@@ -7,10 +7,7 @@
 # Copyright (c) 2013 Tao Sauvage
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
+# of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in
@@ -24,16 +21,53 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import List  # noqa: F401
-
-from libqtile import bar, layout, widget
-from libqtile.config import Click, Drag, Group, Key, Match, Screen
+# from typing import List  # noqa: F401
+import os
+import re
+import socket
+import subprocess
+from libqtile.config import KeyChord, Key, Screen, Group, Drag, Click, Drag, Key, Match
+from libqtile.command import lazy
+from libqtile import layout, bar, widget, hook
+from libqtile.widget import *
 from libqtile.lazy import lazy
+from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
+from libqtile import hook
+
+
+@hook.subscribe.startup_once
+def autostart():
+    home = os.path.expanduser('~/.config/qtile/autostart.sh')
+    subprocess.call([home])
+
 
 # mod = "mod4"
 mod = "mod1"
 terminal = guess_terminal()
+myTerm = "alacritty"                             # My terminal of choice
+arrow_font_size = 28
+# The Qtile config file location
+myConfig = "/home/mcamp/.config/qtile/config.py"
+
+colors = [["#282c34", "#282c34"],  # panel background
+          ["#434758", "#434758"],  # background for current screen tab
+          ["#ffffff", "#ffffff"],  # font color for group names
+          ["#E06C75", "#E06C75"],  # border line color for current tab
+          ["#98C379", "#98C379"],  # border line color for other tab and odd widgets
+          ["#61AFEF", "#61AFEF"],  # color for the even widgets
+          ["#e1acff", "#e1acff"]]  # window name
+
+prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
+
+##### DEFAULT WIDGET SETTINGS #####
+widget_defaults = dict(
+    font="IBM Plex Mono",
+    fontsize = 14,
+    padding = 1,
+    background=colors[2]
+)
+
 
 keys = [
     # Switch between windows
@@ -76,95 +110,56 @@ keys = [
     Key([mod], "f",
         lazy.window.toggle_fullscreen(),
         desc="toggle fullscreen on currently focused window",
-    ),
+        ),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     # Key([mod], "d", lazy.spawncmd(),
-        # desc="Spawn a command using a prompt widget"),
+    # desc="Spawn a command using a prompt widget"),
     Key([mod], "F2", lazy.spawn("brave")),
     Key([mod], "F3", lazy.spawn("ranger")),
-    Key([mod, "shift"], "r", lazy.restart()),
-    Key([mod], "d", lazy.spawn("""rofi -show drun -font "IBM Plex Mono 12" -run-shell-command '{terminal} -e " {cmd}; read -n 1 -s"'""")),
-    Key([mod, "control"], "w", lazy.spawn("""alacritty -t VimWiki -e nvim +VimwikiIndex""")),
+    Key([mod, "control"], "r", lazy.restart()),
+    Key([mod], "d", lazy.spawn(
+        """rofi -show drun -font "IBM Plex Mono 12" -run-shell-command '{terminal} -e " {cmd}; read -n 1 -s"'""")),
+    Key([mod, "control"], "w", lazy.spawn(
+        """alacritty -t VimWiki -e nvim +VimwikiIndex""")),
     Key([mod], "F11", lazy.spawn("/bin/bash ~/.local/bin/auto-screen")),
     Key([mod], "F12", lazy.spawn("/bin/bash ~/.local/bin/laptop_screen_toggle")),
     Key(["mod4"], "l", lazy.spawn("i3lock-fancy")),
-    
+
 
     # Key([mod], "F2", lazy.spawn("brave")),
 ]
 
-class Backlight(widget.Backlight):
-	def poll(self):
-		info = self._get_info()
-		if info is False:
-			return '---'
-		no = int(info['brightness'] / info['max'] * 9.999)
-		char = '☼'
-		#self.layout.colour = color_alert
-		return '{}{}{}'.format(char, no, 'L')#chr(0x1F50B))
 
-class Battery(widget.Battery):
-	def _get_text(self):
-		info = self._get_info()
-		if info is False:
-			return '---'
-		if info['full']:
-			no = int(info['now'] / info['full'] * 9.999)
-		else:
-			no = 0
-		if info['stat'] == 'Discharging':
-			char = self.discharge_char
-			if no < 2:
-				self.layout.colour = self.low_foreground
-			else:
-				self.layout.colour = self.foreground
-		elif info['stat'] == 'Charging':
-			char = self.charge_char
-		#elif info['stat'] == 'Unknown':
-		else:
-			char = '■'
-		return '{}{}{}'.format(char, no, 'B')#chr(0x1F506))
+# groups = [Group(i) for i in "123456789"]
 
-class ThermalSensor(widget.ThermalSensor):
-	def poll(self):
-		temp_values = self.get_temp_sensors()
-		if temp_values is None:
-			return '---'
-		no = int(float(temp_values.get(self.tag_sensor, [0])[0]))
-		return '{}{}'.format(no, '°')#chr(0x1F321))
+group_names = [("WWW", {'layout': 'monadtall'}),
+               ("DEV", {'layout': 'monadtall'}),
+               ("SYS", {'layout': 'monadtall'}),
+               ("DOC", {'layout': 'monadtall'}),
+               ("VBOX", {'layout': 'monadtall'}),
+               ("CHAT", {'layout': 'monadtall'}),
+               ("MUS", {'layout': 'monadtall'}),
+               ("VID", {'layout': 'monadtall'}),
+               ("GFX", {'layout': 'floating'})]
 
-class Volume(widget.Volume):
-	def update(self):
-		vol = self.get_volume()
-		if vol != self.volume:
-			self.volume = vol
-			if vol < 0:
-				no = '0'
-			else:
-				no = int(vol / 100 * 9.999)
-			char = '♬'
-			self.text = '{}{}{}'.format(char, no, 'V')#chr(0x1F508))
+groups = [Group(name, **kwargs) for name, kwargs in group_names]
 
-groups = [Group(i) for i in "123456789"]
+for i, (name, kwargs) in enumerate(group_names, 1):
+    # Switch to another group
+    keys.append(Key([mod], str(i), lazy.group[name].toscreen()))
+    # Send current window to another group
+    keys.append(Key([mod, "shift"], str(i), lazy.window.togroup(name)))
 
-for i in groups:
-    keys.extend([
-        # mod1 + letter of group = switch to group
-        Key([mod], i.name, lazy.group[i.name].toscreen(),
-            desc="Switch to group {}".format(i.name)),
 
-        # mod1 + shift + letter of group = switch to & move focused window to group
-        Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
-            desc="Switch to & move focused window to group {}".format(i.name)),
-        # Or, use below if you prefer not to switch to that group.
-        # # mod1 + shift + letter of group = move focused window to group
-        # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-        #     desc="move focused window to group {}".format(i.name)),
-    ])
+layout_theme = {"border_width": 2,
+                "margin": 6,
+                "border_focus": "e1acff",
+                "border_normal": "1D2330"
+                }
 
 layouts = [
     layout.Columns(border_focus_stack='#d75f5f'),
@@ -182,38 +177,212 @@ layouts = [
     layout.Zoomy(),
 ]
 
-widget_defaults = dict(
-    font='sans',
-    fontsize=18,
-    padding=3,
-)
 extension_defaults = widget_defaults.copy()
+
 
 screens = [
     Screen(
         top=bar.Bar(
             [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                # widget.Gap(),
-                widget.Chord(
-                    chords_colors={
-                        'launch': ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
+                widget.Sep(
+                    linewidth=0,
+                    padding=6,
+                    foreground=colors[2],
+                    background=colors[0]
                 ),
-                widget.TextBox("default config", name="default"),
-                widget.Net(interface="wlp59s0"),
-                widget.Systray(),
-                widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
-                widget.ThermalSensor(),
-                widget.Battery(),
-                widget.Volume(),
-                widget.QuickExit(),
+                widget.GroupBox(
+                    font="Ubuntu Bold",
+                    fontsize=9,
+                    margin_y=3,
+                    margin_x=0,
+                    padding_y=5,
+                    padding_x=3,
+                    borderwidth=3,
+                    active=colors[2],
+                    inactive=colors[2],
+                    rounded=False,
+                    highlight_color=colors[1],
+                    highlight_method="line",
+                    this_current_screen_border=colors[3],
+                    this_screen_border=colors[4],
+                    other_current_screen_border=colors[0],
+                    other_screen_border=colors[0],
+                    foreground=colors[2],
+                    background=colors[0]
+                ),
+        widget.Prompt(
+            prompt=prompt,
+            font="Ubuntu Mono",
+            padding=10,
+            foreground=colors[3],
+            background=colors[1]
+        ),
+        widget.Sep(
+            linewidth=0,
+            padding=40,
+            foreground=colors[0],
+            background=colors[0]
+        ),
+        widget.WindowName(
+            foreground=colors[6],
+            background=colors[0],
+            padding=0
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[0],
+            foreground=colors[4],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.TextBox(
+            text="🔋",
+            padding=0,
+            foreground=colors[0],
+            background=colors[4],
+            fontsize=17
+        ),
+        widget.Battery(
+            format='{char} {percent:2.0%}',
+            foreground=colors[0],
+            background=colors[4],
+            padding=5
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[4],
+            foreground=colors[5],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.TextBox(
+            text=" 🌡",
+            padding=2,
+            foreground=colors[0],
+            background=colors[5],
+            fontsize=11
+        ),
+        # widget.BatteryIcon(),
+        widget.ThermalSensor(
+            background=colors[5],
+            foreground=colors[0],
+            threshold=90,
+            padding=5
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[5],
+            foreground=colors[4],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.TextBox(
+            text=" ⟳",
+            padding=2,
+            foreground=colors[0],
+            background=colors[4],
+            fontsize=14
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[4],
+            foreground=colors[5],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.TextBox(
+            text=" 🖬",
+            foreground=colors[0],
+            background=colors[5],
+            padding=0,
+            fontsize=14
+        ),
+        widget.Memory(
+            foreground=colors[0],
+            background=colors[5],
+            mouse_callbacks={
+                'Button1': lambda qtile: qtile.cmd_spawn(myTerm + ' -e htop')},
+            padding=5,
+            measure_mem="G"
+
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[5],
+            foreground=colors[4],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.Net(
+            interface="wlp59s0",
+            format='{down} ↓↑ {up}',
+            foreground=colors[0],
+            background=colors[4],
+            padding=5
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[4],
+            foreground=colors[5],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.TextBox(
+            text=" Vol:",
+            foreground=colors[0],
+            background=colors[5],
+            padding=0
+        ),
+        widget.Volume(
+            foreground=colors[0],
+            background=colors[5],
+            padding=5
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[5],
+            foreground=colors[4],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.CurrentLayoutIcon(
+            custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
+            foreground=colors[0],
+            background=colors[4],
+            padding=0,
+            scale=0.7
+        ),
+        widget.CurrentLayout(
+            foreground=colors[0],
+            background=colors[4],
+            padding=5
+        ),
+        widget.TextBox(
+            text='',
+            background=colors[4],
+            foreground=colors[5],
+            padding=0,
+            fontsize=arrow_font_size
+        ),
+        widget.Clock(
+            foreground=colors[0],
+            background=colors[5],
+            format="%A, %B %d  [ %H:%M ]"
+        ),
+        widget.Sep(
+            linewidth=0,
+            padding=10,
+            foreground=colors[0],
+            background=colors[5]
+        ),
+        widget.Systray(
+            background=colors[5],
+            icon_size=30,
+            padding=5
+        ),
             ],
-            32,
+            # init_widgets_list(),
+            28,
         ),
     ),
 ]
@@ -245,6 +414,8 @@ floating_layout = layout.Floating(float_rules=[
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
+
+
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
