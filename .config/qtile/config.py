@@ -55,16 +55,18 @@ colors = [["#282c34", "#282c34"],  # panel background
           ["#ffffff", "#ffffff"],  # font color for group names
           ["#E06C75", "#E06C75"],  # border line color for current tab
           ["#98C379", "#98C379"],  # border line color for other tab and odd widgets
-          ["#61AFEF", "#61AFEF"],  # color for the even widgets
-          ["#e1acff", "#e1acff"]]  # window name
+          ["#484948", "#484948"],  # color for the even widgets
+          ["#e1acff", "#e1acff"],
+          ["#363636", "#363636"],
+          ]  # window name
 
 prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
 
 ##### DEFAULT WIDGET SETTINGS #####
 widget_defaults = dict(
     font="IBM Plex Mono",
-    fontsize = 14,
-    padding = 1,
+    fontsize=14,
+    padding=1,
     background=colors[2]
 )
 
@@ -99,7 +101,13 @@ keys = [
     Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
 
-    Key([mod], "z", lazy.window.cmd_bring_to_front()),
+    Key([mod], "i", lazy.layout.grow()),
+    Key([mod], "m", lazy.layout.shrink()),
+    Key([mod], "n", lazy.layout.normalize()),
+    Key([mod], "o", lazy.layout.maximize()),
+    Key([mod, "shift"], "space", lazy.layout.flip()),
+
+    Key([mod], "z", lazy.layout.swap_main()),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
@@ -162,19 +170,18 @@ layout_theme = {"border_width": 2,
                 }
 
 layouts = [
-    layout.Columns(border_focus_stack='#d75f5f'),
-    layout.Max(),
+    # layout.Columns(border_focus_stack='#d75f5f'),
+    # layout.Max(),
     # Try more layouts by unleashing below layouts.
-    layout.Stack(num_stacks=2),
-    layout.Bsp(),
-    layout.Matrix(),
-    layout.MonadTall(),
-    layout.MonadWide(),
-    layout.RatioTile(),
-    layout.Tile(),
-    layout.TreeTab(),
-    layout.VerticalTile(),
-    layout.Zoomy(),
+    # layout.Stack(num_stacks=2),
+    # layout.Bsp(),
+    # layout.Matrix(),
+    layout.MonadTall(border_focus_stack='#d75f5f'),
+    layout.MonadWide(border_focus_stack='#d75f5f'),
+    # layout.RatioTile(),
+    # layout.Tile(),
+    # layout.VerticalTile(),
+    # layout.Zoomy(),
 ]
 
 extension_defaults = widget_defaults.copy()
@@ -210,176 +217,142 @@ screens = [
                     foreground=colors[2],
                     background=colors[0]
                 ),
-        widget.Prompt(
-            prompt=prompt,
-            font="Ubuntu Mono",
-            padding=10,
-            foreground=colors[3],
-            background=colors[1]
-        ),
-        widget.Sep(
-            linewidth=0,
-            padding=40,
-            foreground=colors[0],
-            background=colors[0]
-        ),
-        widget.WindowName(
-            foreground=colors[6],
-            background=colors[0],
-            padding=0
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[0],
-            foreground=colors[4],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.TextBox(
-            text="🔋",
-            padding=0,
-            foreground=colors[0],
-            background=colors[4],
-            fontsize=17
-        ),
-        widget.Battery(
-            format='{char} {percent:2.0%}',
-            foreground=colors[0],
-            background=colors[4],
-            padding=5
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[4],
-            foreground=colors[5],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.TextBox(
-            text=" 🌡",
-            padding=2,
-            foreground=colors[0],
-            background=colors[5],
-            fontsize=11
-        ),
-        # widget.BatteryIcon(),
-        widget.ThermalSensor(
-            background=colors[5],
-            foreground=colors[0],
-            threshold=90,
-            padding=5
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[5],
-            foreground=colors[4],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.TextBox(
-            text=" ⟳",
-            padding=2,
-            foreground=colors[0],
-            background=colors[4],
-            fontsize=14
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[4],
-            foreground=colors[5],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.TextBox(
-            text=" 🖬",
-            foreground=colors[0],
-            background=colors[5],
-            padding=0,
-            fontsize=14
-        ),
-        widget.Memory(
-            foreground=colors[0],
-            background=colors[5],
-            mouse_callbacks={
-                'Button1': lambda qtile: qtile.cmd_spawn(myTerm + ' -e htop')},
-            padding=5,
-            measure_mem="G"
+                widget.Prompt(
+                    prompt=prompt,
+                    font="Ubuntu Mono",
+                    padding=10,
+                    foreground=colors[3],
+                    background=colors[1]
+                ),
+                widget.Sep(
+                    linewidth=0,
+                    padding=40,
+                    foreground=colors[0],
+                    background=colors[0]
+                ),
+                widget.WindowName(
+                    foreground=colors[6],
+                    background=colors[0],
+                    padding=0
+                ),
+                widget.TextBox(
+                    text='',
+                    background=colors[0],
+                    foreground=colors[7],
+                    padding=0,
+                    fontsize=arrow_font_size
+                ),
+                widget.TextBox(
+                    text="🔋",
+                    padding=0,
+                    foreground=colors[2],
+                    background=colors[7],
+                    fontsize=17
+                ),
+                widget.Battery(
+                    format='{char} {percent:2.0%}',
+                    foreground=colors[2],
+                    background=colors[7],
+                    padding=5
+                ),
+                widget.TextBox(
+                    text='',
+                    background=colors[7],
+                    foreground=colors[0],
+                    padding=0,
+                    fontsize=arrow_font_size
+                ),
+                widget.TextBox(
+                    text="",
+                    foreground=colors[2],
+                    background=colors[0],
+                    padding=0,
+                    fontsize=25
+                ),
+                widget.Memory(
+                    foreground=colors[2],
+                    background=colors[0],
+                    mouse_callbacks={
+                        'Button1': lambda qtile: qtile.cmd_spawn(myTerm + ' -e htop')},
+                    padding=5,
 
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[5],
-            foreground=colors[4],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.Net(
-            interface="wlp59s0",
-            format='{down} ↓↑ {up}',
-            foreground=colors[0],
-            background=colors[4],
-            padding=5
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[4],
-            foreground=colors[5],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.TextBox(
-            text=" Vol:",
-            foreground=colors[0],
-            background=colors[5],
-            padding=0
-        ),
-        widget.Volume(
-            foreground=colors[0],
-            background=colors[5],
-            padding=5
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[5],
-            foreground=colors[4],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.CurrentLayoutIcon(
-            custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
-            foreground=colors[0],
-            background=colors[4],
-            padding=0,
-            scale=0.7
-        ),
-        widget.CurrentLayout(
-            foreground=colors[0],
-            background=colors[4],
-            padding=5
-        ),
-        widget.TextBox(
-            text='',
-            background=colors[4],
-            foreground=colors[5],
-            padding=0,
-            fontsize=arrow_font_size
-        ),
-        widget.Clock(
-            foreground=colors[0],
-            background=colors[5],
-            format="%A, %B %d  [ %H:%M ]"
-        ),
-        widget.Sep(
-            linewidth=0,
-            padding=10,
-            foreground=colors[0],
-            background=colors[5]
-        ),
-        widget.Systray(
-            background=colors[5],
-            icon_size=30,
-            padding=5
-        ),
+
+                ),
+                widget.TextBox(
+                    text='',
+                    foreground=colors[5],
+                    background=colors[0],
+                    padding=0,
+                    fontsize=arrow_font_size
+                ),
+                widget.Net(
+                    interface="wlp59s0",
+                    format='{down} ↓↑ {up}',
+                    foreground=colors[2],
+                    background=colors[5],
+                    padding=5
+                ),
+                widget.TextBox(
+                    text='',
+                    foreground=colors[7],
+                    background=colors[5],
+                    padding=0,
+                    fontsize=arrow_font_size
+                ),
+                widget.TextBox(
+                    text=" 🔊 ",
+                    foreground=colors[2],
+                    background=colors[7],
+                    padding=0
+                ),
+                widget.Volume(
+                    foreground=colors[2],
+                    background=colors[7],
+                    padding=5
+                ),
+                widget.TextBox(
+                    text='',
+                    foreground=colors[5],
+                    background=colors[7],
+                    padding=0,
+                    fontsize=arrow_font_size
+                ),
+                widget.CurrentLayoutIcon(
+                    custom_icon_paths=[os.path.expanduser(
+                        "~/.config/qtile/icons")],
+                    foreground=colors[2],
+                    background=colors[5],
+                    padding=0,
+                    scale=0.7
+                ),
+                widget.CurrentLayout(
+                    foreground=colors[2],
+                    background=colors[5],
+                    padding=5
+                ),
+                widget.TextBox(
+                    text='',
+                    foreground=colors[0],
+                    background=colors[5],
+                    padding=0,
+                    fontsize=arrow_font_size
+                ),
+                widget.Clock(
+                    foreground=colors[2],
+                    background=colors[0],
+                    format="%A, %B %d  [ %H:%M ]"
+                ),
+                widget.Sep(
+                    linewidth=0,
+                    padding=10,
+                    foreground=colors[2],
+                    background=colors[0]
+                ),
+                widget.Systray(
+                    background=colors[0],
+                    icon_size=30,
+                    padding=5
+                ),
             ],
             # init_widgets_list(),
             28,
@@ -414,7 +387,6 @@ floating_layout = layout.Floating(float_rules=[
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
-
 
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
