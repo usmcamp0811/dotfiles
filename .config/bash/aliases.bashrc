@@ -32,9 +32,10 @@ alias df='df -h'
 
 alias grep='grep --color=auto'
 
-# alias zathura='devour zathura'
-# alias feh='devour feh'
-# alias mvp='devour mvpmh'
+alias zathura='devour zathura'
+alias feh='devour feh'
+alias mpv='devour mpv'
+alias weather='devour weather'
 
 ##########################################################
 ####################### GIT STUFF ########################

@@ -92,15 +92,10 @@ keys = [
 
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(),
-        desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(),
-        desc="Grow window to the right"),
     Key([mod, "control"], "j", lazy.layout.grow_down(),
         desc="Grow window down"),
     Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
-
     Key([mod], "i", lazy.layout.grow()),
     Key([mod], "m", lazy.layout.shrink()),
     Key([mod], "n", lazy.layout.normalize()),
@@ -108,6 +103,25 @@ keys = [
     Key([mod, "shift"], "space", lazy.layout.flip()),
 
     Key([mod], "z", lazy.layout.swap_main()),
+    Key([mod], "r",
+             lazy.spawn("ranger"),
+             desc='File Explorek'
+             ),
+    Key([mod, "mod1"], "r",
+             lazy.spawn(myTerm+" -e rtv"),
+             desc='reddit terminal viewer'
+             ),
+
+    Key([mod, "control"], "h",
+             lazy.layout.grow(),
+             lazy.layout.increase_nmaster(),
+             desc='Expand window (MonadTall), increase number in master pane (Tile)'
+             ),
+    Key([mod, "control"], "l",
+             lazy.layout.shrink(),
+             lazy.layout.decrease_nmaster(),
+             desc='Shrink window (MonadTall), decrease number in master pane (Tile)'
+             ),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
@@ -144,15 +158,15 @@ keys = [
 
 # groups = [Group(i) for i in "123456789"]
 
-group_names = [("WWW", {'layout': 'monadtall'}),
+group_names = [("WEB", {'layout': 'monadtall'}),
                ("DEV", {'layout': 'monadtall'}),
                ("SYS", {'layout': 'monadtall'}),
-               ("DOC", {'layout': 'monadtall'}),
-               ("VBOX", {'layout': 'monadtall'}),
+               ("GAME", {'layout': 'monadtall'}),
+               ("EMAIL", {'layout': 'monadtall'}),
                ("CHAT", {'layout': 'monadtall'}),
                ("MUS", {'layout': 'monadtall'}),
                ("VID", {'layout': 'monadtall'}),
-               ("GFX", {'layout': 'floating'})]
+               ("DOC", {'layout': 'floating'})]
 
 groups = [Group(name, **kwargs) for name, kwargs in group_names]
 
@@ -165,8 +179,8 @@ for i, (name, kwargs) in enumerate(group_names, 1):
 
 layout_theme = {"border_width": 2,
                 "margin": 6,
-                "border_focus": "e1acff",
-                "border_normal": "1D2330"
+                "border_focus": "#e1acff",
+                "border_normal": "#1D2330"
                 }
 
 layouts = [
@@ -174,13 +188,15 @@ layouts = [
     # layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
-    # layout.Bsp(),
+    # layout.Bsp(**layout_theme),
     # layout.Matrix(),
-    layout.MonadTall(border_focus_stack='#d75f5f'),
-    layout.MonadWide(border_focus_stack='#d75f5f'),
-    # layout.RatioTile(),
+    layout.Tile(shift_windows=True, **layout_theme),
+    layout.Stack(num_stacks=2, **layout_theme),
+    layout.MonadTall(**layout_theme),
+    layout.MonadWide(**layout_theme),
+    # layout.RatioTile(**layout_theme),
     # layout.Tile(),
-    # layout.VerticalTile(),
+    # layout.VerticalTile(**layout_theme),
     # layout.Zoomy(),
 ]
 
@@ -275,8 +291,7 @@ screens = [
                     mouse_callbacks={
                         'Button1': lambda qtile: qtile.cmd_spawn(myTerm + ' -e htop')},
                     padding=5,
-
-
+                    measure_mem="G",
                 ),
                 widget.TextBox(
                     text='',

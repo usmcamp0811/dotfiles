@@ -6,6 +6,9 @@
 # v2 version of the weather report.. aka "Data-rich output format"
 [[ "$1" == "-v2" ]] && curl v2.wttr.in && exit 0
 # Weather radar for Huntsville
+WEATHER_URL="https://radblast.wunderground.com/cgi-bin/radar/WUNIDS_map?num=6&type=N0R&mapx=400&mapy=240&brand=wui&delay=15&frame=0&scale=1&transx=0&transy=0&severe=0&smooth=0&centerx=400&centery=240&station=HTX&rainsnow=0&lightning=0&noclutter=0&showlabels=1&showstorms=0&rand=26907775"
+# WEATHER_URL="https://radar.weather.gov/lite/N0R/HTX_loop.gif"
+
 # TODO: figure out how to get localation and get appropriate radar for your current location.. something like wttr.in does.
-[[ "$1" == "-r" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m "https://radar.weather.gov/lite/N0R/HTX_loop.gif"
-[[ "$1" == "--radar" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m "https://radar.weather.gov/lite/N0R/HTX_loop.gif"
+[[ "$1" == "-r" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m $WEATHER_URL
+[[ "$1" == "--radar" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m $WEATHER_URL
