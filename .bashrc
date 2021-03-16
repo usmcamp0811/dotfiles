@@ -65,3 +65,5 @@ codi() {
 [ -e /usr/bin/thefuck ] && eval "$(thefuck --alias)"
 
 source $HOME/.config/broot/launcher/bash/br
+
+source /home/mcamp/.config/broot/launcher/bash/br

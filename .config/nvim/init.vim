@@ -65,6 +65,7 @@ Plug 'mroavi/vim-julia-cell', { 'for': ['julia']}
 Plug 'metakirby5/codi.vim'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
+
 " Themes
 " Plug 'joshdick/onedark.vim' " new favorite theme
 " Plug 'laggardkernel/vim-one'

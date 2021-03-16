@@ -36,7 +36,8 @@ from libqtile.utils import guess_terminal
 from libqtile import hook
 
 
-@hook.subscribe.startup_once
+# @hook.subscribe.startup_once
+@hook.subscribe.startup
 def autostart():
     home = os.path.expanduser('~/.config/qtile/autostart.sh')
     subprocess.call([home])
@@ -160,10 +161,10 @@ keys = [
 
 group_names = [("WEB", {'layout': 'monadtall'}),
                ("DEV", {'layout': 'monadtall'}),
-               ("SYS", {'layout': 'monadtall'}),
-               ("GAME", {'layout': 'monadtall'}),
                ("EMAIL", {'layout': 'monadtall'}),
                ("CHAT", {'layout': 'monadtall'}),
+               ("SYS", {'layout': 'monadtall'}),
+               ("GAME", {'layout': 'monadtall'}),
                ("MUS", {'layout': 'monadtall'}),
                ("VID", {'layout': 'monadtall'}),
                ("DOC", {'layout': 'floating'})]
