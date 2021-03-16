@@ -249,6 +249,17 @@ Desktop/**
 .nv/**
 .steam/**
 .tor-browser/**
+.julia/
+.gnupg
+.steampid
+.steampath
+.xsession-errors
+3D/**
+vimwiki/**
+.Xauthority
+.FreeCAD
+
+.config/syncthing/**
 
 
 
