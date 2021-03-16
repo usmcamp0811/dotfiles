@@ -241,3 +241,14 @@ Desktop/**
 .ssh/**
 .wget-hsts
 
+
+.local/share/**
+.local/applications/**
+.steam/**
+.mozilla/**
+.nv/**
+.steam/**
+.tor-browser/**
+
+
+
