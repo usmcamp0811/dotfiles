@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # SUPER SIMPLE SCRIPT TO GET THE LOCAL WEATHER RADAR
-
 [ $# -eq 0 ] && curl wttr.in && exit 0
 # v2 version of the weather report.. aka "Data-rich output format"
 [[ "$1" == "-v2" ]] && curl v2.wttr.in && exit 0

@@ -12,4 +12,5 @@ powertop --auto-tune &
 nm-applet &
 ckb-next-daemon &
 ckb-next -b &
+blueman-applet &
 # See https://wiki.archli

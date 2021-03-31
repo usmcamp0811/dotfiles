@@ -71,6 +71,9 @@ widget_defaults = dict(
     background=colors[2]
 )
 
+def open_calendar(qtile):  # spawn calendar widget
+    qtile.cmd_spawn(myTerm + ' -e zenity --calendar --text "Cancel to close. Ok to schedule an appt" --title "My Calendar"')
+
 
 keys = [
     # Switch between windows
@@ -356,6 +359,9 @@ screens = [
                 widget.Clock(
                     foreground=colors[2],
                     background=colors[0],
+                    mouse_callbacks={
+                        'Button1':  lambda: qtile.cmd_spawn('alacritty — hold -e cal -3') 
+                        },
                     format="%A, %B %d  [ %H:%M ]"
                 ),
                 widget.Sep(
@@ -366,7 +372,7 @@ screens = [
                 ),
                 widget.Systray(
                     background=colors[0],
-                    icon_size=30,
+                    icon_size=20,
                     padding=5
                 ),
             ],

@@ -36,6 +36,7 @@ alias zathura='devour zathura'
 alias feh='devour feh'
 alias mpv='devour mpv'
 alias weather='devour weather'
+alias radar='devour weather -r'
 
 ##########################################################
 ####################### GIT STUFF ########################
@@ -175,3 +176,5 @@ codi() {
     hi NonText ctermfg=0 |\
     Codi $syntax" "$@"
 }
+
+alias weather='~/.local/bin/weather'
