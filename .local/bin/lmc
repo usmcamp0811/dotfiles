@@ -4,7 +4,7 @@ NUM="${2:-5}"
 
 # Uncomment the following line to use Pulseaudio.
 PULSE=true
-SINK=$(pulsemixer --list-sinks | grep Built-in | awk '{print $3}' | sed s/,//g)
+SINK=$(pulsemixer --list-sinks | grep Family | awk '{print $3}' | sed s/,//g)
 
 if [ "$PULSE" ]; then
 	toggle() { pulsemixer --id $SINK --toggle-mute ;}

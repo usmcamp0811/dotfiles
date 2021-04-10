@@ -35,6 +35,10 @@ from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
 from libqtile import hook
 
+# get display scaling facotr
+SCALE_BY = os.environ.get("SCALE_BY")
+if not SCALE_BY:
+    SCALE_BY = 1.35
 
 # @hook.subscribe.startup_once
 @hook.subscribe.startup
@@ -66,6 +70,7 @@ prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
 ##### DEFAULT WIDGET SETTINGS #####
 widget_defaults = dict(
     font="IBM Plex Mono",
+    # fontsize=int(14 * SCALE_BY),
     fontsize=14,
     padding=1,
     background=colors[2]
@@ -74,6 +79,15 @@ widget_defaults = dict(
 def open_calendar(qtile):  # spawn calendar widget
     qtile.cmd_spawn(myTerm + ' -e zenity --calendar --text "Cancel to close. Ok to schedule an appt" --title "My Calendar"')
 
+def backlight(action):
+    def f(qtile):
+        brightness = int(subprocess.run(['xbacklight', '-get'],
+                                        stdout=subprocess.PIPE).stdout)
+        if action == 'dec':
+            subprocess.run(['backlight_control', '-10'])
+        else:
+            subprocess.run(['backlight_control', '+10'])
+    return f
 
 keys = [
     # Switch between windows
@@ -144,7 +158,8 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     # Key([mod], "d", lazy.spawncmd(),
     # desc="Spawn a command using a prompt widget"),
-    Key([mod], "F2", lazy.spawn("brave")),
+    Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1 --force-device-scale-factor={SCALE_BY}")),
+    # Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1")),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "d", lazy.spawn(
@@ -154,6 +169,16 @@ keys = [
     Key([mod], "F11", lazy.spawn("/bin/bash ~/.local/bin/auto-screen")),
     Key([mod], "F12", lazy.spawn("/bin/bash ~/.local/bin/laptop_screen_toggle")),
     Key(["mod4"], "l", lazy.spawn("i3lock-fancy")),
+    Key([], 'XF86MonBrightnessUp',   lazy.spawn("/usr/bin/backlight_control +10")),
+    Key([], 'XF86MonBrightnessDown', lazy.spawn("/usr/bin/backlight_control -10")),
+    Key([], 'XF86AudioRaiseVolume', lazy.spawn("~/.local/bin/lmc up")),
+    Key([], 'XF86AudioLowerVolume', lazy.spawn("~/.local/bin/lmc down")),
+    Key([], 'XF86AudioMute', lazy.spawn("~/.local/bin/lmc toggle")),
+    Key([], 'XF86Launch4', lazy.spawn("asusctl profile -n")),
+    Key([], 'XF86Launch3', lazy.spawn("asusctl led-mode -n")),
+    Key([], 'XF86Display', lazy.spawn("~/.local/bin/laptop_screen_toggle")),
+    Key([], 'XF86Launch1', lazy.spawn("~/.local/bin/laptop_screen_toggle")),
+
 
 
     # Key([mod], "F2", lazy.spawn("brave")),
@@ -406,6 +431,7 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='ssh-askpass'),  # ssh-askpass
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
+    Match(wm_class="Wine"),
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"

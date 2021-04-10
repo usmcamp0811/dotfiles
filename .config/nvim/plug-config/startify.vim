@@ -7,6 +7,7 @@ let g:startify_lists = [
 
 let g:startify_bookmarks = [
             \ { 'c': '~/.config/i3/config' },
+            \ { 'd': '~/.config/qtile/config.py' },
             \ { 'i': '~/.config/nvim/init.vim' },
             \ { 'p': '~/.config/nvim/load_plugins.vim' },
             \ { 'K': '~/.config/nvim/key-mappings.vim' },

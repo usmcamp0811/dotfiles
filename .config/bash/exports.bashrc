@@ -53,7 +53,8 @@ export PYTHON="/usr/bin/python"
 export PATH=$PATH:$GOPATH/bin
 export JULIA_EDITOR=nvim
 
-export JULIA_NUM_THREADS=6
+export JULIA_NUM_THREADS=8
 # export DOCKER_HOST=tcp://127.0.0.1:2376
 # export DOCKER_TLS_VERIFY=1
 # export DOCKER_CERT_PATH=~/.config/docker
+export GAME_LIBRARY_PATH=$HOME/.local/share/Steam
