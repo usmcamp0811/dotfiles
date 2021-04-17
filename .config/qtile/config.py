@@ -36,9 +36,10 @@ from libqtile.utils import guess_terminal
 from libqtile import hook
 
 # get display scaling facotr
-SCALE_BY = os.environ.get("SCALE_BY")
-if not SCALE_BY:
-    SCALE_BY = 1.35
+GDK_SCALE = os.environ.get("GDK_SCALE")
+if not GDK_SCALE:
+    GDK_SCALE = 1.35
+
 
 # @hook.subscribe.startup_once
 @hook.subscribe.startup
@@ -158,8 +159,7 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     # Key([mod], "d", lazy.spawncmd(),
     # desc="Spawn a command using a prompt widget"),
-    Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1 --force-device-scale-factor={SCALE_BY}")),
-    # Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1")),
+    Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "d", lazy.spawn(

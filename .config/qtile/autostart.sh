@@ -13,4 +13,7 @@ nm-applet &
 ckb-next-daemon &
 ckb-next -b &
 blueman-applet &
+
+export GDK_SCALE=1.4
+[[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33
 # See https://wiki.archli
