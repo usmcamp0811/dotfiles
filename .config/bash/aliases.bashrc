@@ -37,6 +37,8 @@ alias feh='devour feh'
 alias mpv='devour mpv'
 alias weather='devour weather'
 alias radar='devour weather -r'
+alias neovide='devour neovide'
+# alias nvim='devour neovide'
 
 ##########################################################
 ####################### GIT STUFF ########################

@@ -1,15 +1,12 @@
-output DP-0.1
+output DP-1-0
 off
-output DP-0
+output DP-1-1
 off
-output DP-1
+output eDP
 off
-output eDP-1-1
-off
-output HDMI-1-1
-off
-output DP-0.2
+output HDMI-A-0
 crtc 0
 mode 3840x2160
 pos 0x0
+primary
 rate 60.00
