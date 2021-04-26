@@ -10,7 +10,7 @@ case ${TERM} in
 		;;
         esac
 # source all the other bash config files
-for file in ~/.config/bash/*.bashrc; do
+for file in ~/.config/shell/*.shrc; do
     [ -r "$file" ] && source "$file"
 done
 
