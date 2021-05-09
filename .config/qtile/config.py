@@ -162,6 +162,7 @@ keys = [
     Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
+    Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
     Key([mod], "d", lazy.spawn(
         """rofi -show drun -font "IBM Plex Mono 12" -run-shell-command '{terminal} -e " {cmd}; read -n 1 -s"'""")),
     Key([mod, "control"], "w", lazy.spawn(

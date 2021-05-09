@@ -180,3 +180,4 @@ codi() {
 }
 
 alias weather='~/.local/bin/weather'
+alias qconfig='vim ~/.config/qtile/config.py'
