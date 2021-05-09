@@ -1,5 +1,8 @@
 lastupdatecheck: 0
 recentrepos:
+- /home/mcamp/code-home/msic-sys-stack
+- /home/mcamp/code-home/axs_systemstack
+- /home/mcamp/vimwiki
 - /home/mcamp/code-home/JuliaSchool/Training
 - /home/mcamp/code-home/work/cronus
 - /home/mcamp/code-home/DD-WRT_Backups
@@ -7,4 +10,4 @@ recentrepos:
 - /home/mcamp/Documents/jobs/Resume
 - /home/mcamp/.julia/dev/Pluto
 - /home/mcamp/.julia/dev/tadgan
-startuppopupversion: 3
+startuppopupversion: 5

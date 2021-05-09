@@ -432,6 +432,9 @@ floating_layout = layout.Floating(float_rules=[
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
     Match(wm_class="Wine"),
+    Match(wm_class="steam_app_1238810"), # for Battlefiled V
+    Match(wm_class="steam_app_1238840"), # for Battlefield 1
+    Match(wm_class="steam_app_1182480"), # origin thing for steam games
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
