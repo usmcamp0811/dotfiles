@@ -27,3 +27,5 @@ case "$1" in
 	down) down ;;
 	control) control ;;
 esac
+
+notify-send "Volume: $1"

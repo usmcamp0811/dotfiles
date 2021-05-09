@@ -1,9 +1,10 @@
 #!/bin/sh
 
-picom -b
+[[ "$(pgrep -x picom | wc -l)" != "1" ]] && picom -b &
 feh --bg-scale /home/mcamp/.background
 # /home/mcamp/.config/polybar/launch &
-redshift-gtk &
+# [[ "$(pgrep -x redshift-gtk | wc -l)" != "1" ]] && redshift-gtk &
+redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
 bash ~/.local/bin/swap-capslock-esc.sh
 # powertop --auto-tune &
 xautolock -time 10 -locker i3lock-fancy &
@@ -13,6 +14,7 @@ nm-applet &
 ckb-next-daemon &
 ckb-next -b &
 blueman-applet &
+dunst &
 
 export GDK_SCALE=1.4
 [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33

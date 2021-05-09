@@ -52,7 +52,7 @@ def autostart():
 mod = "mod1"
 terminal = guess_terminal()
 myTerm = "alacritty"                             # My terminal of choice
-arrow_font_size = 28
+arrow_font_size = 35
 # The Qtile config file location
 myConfig = "/home/mcamp/.config/qtile/config.py"
 
@@ -170,15 +170,15 @@ keys = [
     Key([mod], "F11", lazy.spawn("/bin/bash ~/.local/bin/auto-screen")),
     Key([mod], "F12", lazy.spawn("/bin/bash ~/.local/bin/laptop_screen_toggle")),
     Key(["mod4"], "l", lazy.spawn("i3lock-fancy")),
-    Key([], 'XF86MonBrightnessUp',   lazy.spawn("/usr/bin/backlight_control +10")),
-    Key([], 'XF86MonBrightnessDown', lazy.spawn("/usr/bin/backlight_control -10")),
-    Key([], 'XF86AudioRaiseVolume', lazy.spawn("~/.local/bin/lmc up")),
-    Key([], 'XF86AudioLowerVolume', lazy.spawn("~/.local/bin/lmc down")),
-    Key([], 'XF86AudioMute', lazy.spawn("~/.local/bin/lmc toggle")),
-    Key([], 'XF86Launch4', lazy.spawn("asusctl profile -n")),
-    Key([], 'XF86Launch3', lazy.spawn("asusctl led-mode -n")),
-    Key([], 'XF86Display', lazy.spawn("~/.local/bin/laptop_screen_toggle")),
-    Key([], 'XF86Launch1', lazy.spawn("~/.local/bin/laptop_screen_toggle")),
+    Key([], 'XF86MonBrightnessUp',   lazy.spawn(["sh", "-c", "/usr/bin/backlight_control +10"])),
+    Key([], 'XF86MonBrightnessDown', lazy.spawn(["sh", "-c", "/usr/bin/backlight_control -10"])),
+    Key([], 'XF86AudioRaiseVolume', lazy.spawn(["sh", "-c", "~/.local/bin/lmc up"])),
+    Key([], 'XF86AudioLowerVolume', lazy.spawn(["sh", "-c", "~/.local/bin/lmc down"])),
+    Key([], 'XF86AudioMute', lazy.spawn(["sh", "-c", "~/.local/bin/lmc toggle"])),
+    Key([], 'XF86Launch4', lazy.spawn(["sh", "-c", "asusctl", "profile -n"])),
+    Key([], 'XF86Launch3', lazy.spawn(["sh", "-c", "asusctl", "led-mode -n"])),
+    Key([], 'XF86Display', lazy.spawn(["sh", "-c", "~/.local/bin/laptop_screen_toggle"])),
+    Key([], 'XF86Launch1', lazy.spawn(["sh", "-c", "~/.local/bin/laptop_screen_toggle"])),
 
 
 
