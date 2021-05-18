@@ -131,6 +131,10 @@ a_tmux () {
   tmux a -t $1
 }
 
+fetch() {
+    git fetch --all && git pull --all && git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+}
+
 kill () {
     [ $# -eq 0 ] && echo "You need to specify whom to kill." && return
     /usr/bin/kill $@
