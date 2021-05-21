@@ -474,7 +474,7 @@ shell:
   # Record all characters and escape sequences as test data.
   #ref_test: false
 
-mouse:
+hints:
   # Click settings
   #
   # The `double_click` and `triple_click` settings control the time
