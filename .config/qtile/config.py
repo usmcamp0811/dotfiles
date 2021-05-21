@@ -111,10 +111,16 @@ keys = [
 
     # Grow windows. If current window is on the edge of screen and dkrection
     # will be to screen edge - window would shrink.
-    Key([mod, "control"], "j", lazy.layout.grow_down(),
-        desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    Key([mod, "control"], "j", 
+        lazy.layout.grow_down(),
+        lazy.layout.decrease_ratio(),
+        desc="Grow window down, Tile: Reduce Ratio"),
+    Key([mod, "control"], "k", 
+        lazy.layout.grow_up(),
+        lazy.layout.increase_ratio(),
+        desc="Grow window up, Tile: Increase Ratio"),
+    Key([mod], "n", lazy.layout.normalize(),
+        desc="Reset all window sizes"),
     Key([mod], "i", lazy.layout.grow()),
     Key([mod], "m", lazy.layout.shrink()),
     Key([mod], "n", lazy.layout.normalize()),
