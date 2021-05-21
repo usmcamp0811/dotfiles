@@ -151,9 +151,18 @@ keys = [
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
     # multiple stack panes
+
+    Key([mod], "space",
+             lazy.layout.next(),
+             desc='Switch window focus to other pane(s) of stack'
+             ),
     Key([mod, "shift"], "Return", lazy.layout.toggle_split(),
         desc="Toggle between split and unsplit sides of stack"),
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    Key([mod, "shift"], "f",
+             lazy.window.toggle_floating(),
+             desc='toggle floating'
+             ),
     Key([mod], "f",
         lazy.window.toggle_fullscreen(),
         desc="toggle fullscreen on currently focused window",
