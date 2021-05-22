@@ -140,12 +140,14 @@ keys = [
     Key([mod, "control"], "h",
              lazy.layout.grow(),
              lazy.layout.increase_nmaster(),
-             desc='Expand window (MonadTall), increase number in master pane (Tile)'
+             lazy.layout.client_to_next(),
+             desc='Expand window (MonadTall), increase number in master pane (Tile), move to next stack (Stack)'
              ),
     Key([mod, "control"], "l",
              lazy.layout.shrink(),
              lazy.layout.decrease_nmaster(),
-             desc='Shrink window (MonadTall), decrease number in master pane (Tile)'
+             lazy.layout.client_to_previous(),
+             desc='Shrink window (MonadTall), decrease number in master pane (Tile), move to previous stack (Stack)'
              ),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
