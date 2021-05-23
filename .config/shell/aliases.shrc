@@ -65,7 +65,7 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias i3config='/usr/bin/nvim ~/.config/i3/config'
 
 #bash aliases
-alias aliases='/usr/bin/nvim ~/.config/bash/aliases.bashrc'
+alias aliases='/usr/bin/nvim ~/.config/shell/aliases.bashrc'
 
 #bash export
 alias exports='/usr/bin/nvim ~/.config/bash/exports.bashrc'
@@ -131,6 +131,10 @@ a_tmux () {
   tmux a -t $1
 }
 
+fetch() {
+    git fetch --all && git pull --all && git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+}
+
 kill () {
     [ $# -eq 0 ] && echo "You need to specify whom to kill." && return
     /usr/bin/kill $@
@@ -180,4 +184,4 @@ codi() {
 }
 
 alias weather='~/.local/bin/weather'
-alias qconfig='vim ~/.config/qtile/config.py'
+alias outdoor='xcalib -invert -alter'
