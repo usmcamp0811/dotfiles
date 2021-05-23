@@ -28,4 +28,5 @@ case "$1" in
 	control) control ;;
 esac
 
-notify-send "Volume: $1"
+CURRENT_VOL=$(amixer sget Master | grep 'Right:' | awk -F'[][]' '{ print $2 }')
+notify-send "Volume: $CURRENT_VOL"
