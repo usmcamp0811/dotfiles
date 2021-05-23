@@ -65,10 +65,10 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias i3config='/usr/bin/nvim ~/.config/i3/config'
 
 #bash aliases
-alias aliases='/usr/bin/nvim ~/.config/shell/aliases.bashrc'
+alias aliases='/usr/bin/nvim ~/.config/shell/aliases.shrc'
 
 #bash export
-alias exports='/usr/bin/nvim ~/.config/bash/exports.bashrc'
+alias exports='/usr/bin/nvim ~/.config/shell/exports.shrc'
 
 #vim plugins
 alias vplug='/usr/bin/nvim ~/.config/nvim/load_plugins.vim'
