@@ -184,3 +184,4 @@ codi() {
 }
 
 alias weather='~/.local/bin/weather'
+alias outdoor='xcalib -invert -alter'
