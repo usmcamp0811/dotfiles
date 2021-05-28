@@ -10,10 +10,13 @@ alias .....="cd ../../../.."
 alias ~="cd ~" # `cd` is probably faster to type though
 alias -- -="cd -"
 
+alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
+
 # ls -al Alh
 [ -e /usr/bin/lsd ] && alias ls="lsd --group-dirs first"
 [ -e /usr/bin/lsd ] && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
 [ -e /usr/bin/lsd ] && alias lt='lsd --tree --depth 3'
+[ -e /usr/bin/ranger ] && alias lr="ranger"
 
 
 # mv, rm, cp
@@ -186,3 +189,5 @@ codi() {
 
 alias weather='~/.local/bin/weather'
 alias outdoor='xcalib -invert -alter'
+
+# exit ranger and go back to last dir in range
