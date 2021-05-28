@@ -63,6 +63,7 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 ####################### CONFIG STUFF ########################
 #i3 config
 alias i3config='/usr/bin/nvim ~/.config/i3/config'
+alias qconfig='vim ~/.config/qtile/config.py'
 
 #bash aliases
 alias aliases='/usr/bin/nvim ~/.config/shell/aliases.shrc'

@@ -1,5 +1,6 @@
 #!/bin/sh
 
+export GDK_SCALE=1.4
 [[ "$(pgrep -x picom | wc -l)" != "1" ]] && picom -b &
 feh --bg-scale /home/mcamp/.background
 # /home/mcamp/.config/polybar/launch &
@@ -16,7 +17,6 @@ ckb-next -b &
 blueman-applet &
 dunst &
 
-export GDK_SCALE=1.4
 [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33
 
 # autorandr -c
