@@ -191,3 +191,5 @@ alias weather='~/.local/bin/weather'
 alias outdoor='xcalib -invert -alter'
 
 # exit ranger and go back to last dir in range
+
+alias night='rogauracore black'
