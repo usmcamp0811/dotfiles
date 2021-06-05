@@ -4,10 +4,11 @@ alsa-utils
 amd-ucode
 arandr
 archey3
+atool
 autoconf
-autofs
 automake
 autorandr
+aws-cli
 base
 bat
 binutils
@@ -16,6 +17,7 @@ blueman
 bluez
 bluez-tools
 bluez-utils
+bpytop
 broot
 btrfs-progs
 cinnamon
@@ -27,6 +29,7 @@ deepin-session-shell
 dhcpcd
 dialog
 dmenu
+dnsmasq
 docker
 docker-compose
 dosfstools
@@ -47,6 +50,7 @@ groff
 grub
 grub-btrfs
 gtkglext
+highlight
 iw
 iwd
 julia
@@ -75,6 +79,7 @@ npm
 numlockx
 nvidia
 nvidia-dkms
+odt2txt
 openssh
 os-prober
 pamixer
@@ -100,6 +105,8 @@ texlive-fontsextra
 thefuck
 tldr
 tmux
+traceroute
+transmission-cli
 ttf-dejavu
 ttf-ibm-plex
 ttf-joypixels
@@ -112,11 +119,13 @@ vulkan-headers
 vulkan-html-docs
 vulkan-tools
 vulkan-validation-layers
+w3m
 wget
 which
 wireless_tools
 wpa_supplicant
 xautolock
+xcalib
 xclip
 xdg-user-dirs
 xdg-utils
@@ -135,3 +144,5 @@ xsel
 zathura
 zathura-pdf-mupdf
 zsh
+zsh-autosuggestions
+zsh-syntax-highlighting

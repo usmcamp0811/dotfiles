@@ -1,5 +1,7 @@
 adobe-base-14-fonts
+alias-tips-git
 asusctl-git
+autofs
 backlight_control
 brave-bin
 ckb-next
@@ -22,6 +24,7 @@ rarian
 rogauracore-git
 singularity-container
 timeshift
+ttf-juliamono
 ttf-ms-fonts
 vscodium-bin
 xorg-font-utils
