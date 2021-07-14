@@ -1,6 +1,19 @@
-using OhMyREPL
+# to automate adding OhMyREPL package to REPL on startup
+atreplinit() do repl
+    try
+        @eval using OhMyREPL
+    catch e
+        @warn "error while importing OhMyREPL" e
+    end
+
+    @async begin
+    # reinstall keybindings to work around https://github.com/KristofferC/OhMyREPL.jl/issues/166
+    sleep(1)
+    OhMyREPL.Prompt.insert_keybindings()
+    enable_autocomplete_brackets(true)
+    end
+end
 # using DataFrames
-enable_autocomplete_brackets(true)
 # OhMyREPL.input_prompt!(">>> ")
 # OhMyREPL.output_prompt!("\n")
 # head(df::DataFrame) = first(df, 5)
