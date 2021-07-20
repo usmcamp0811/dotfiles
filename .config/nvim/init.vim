@@ -112,7 +112,7 @@ source $HOME/.config/nvim/plug-config/floaterm.vim
 source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim 
 source $HOME/.config/nvim/plug-config/slime.vim 
 source $HOME/.config/nvim/plug-config/codi.vim 
-source $HOME/.config/nvim/plug-config/csv.vim 
+" source $HOME/.config/nvim/plug-config/csv.vim 
 source $HOME/.config/nvim/plug-config/pandoc.vim 
 " source $HOME/.config/nvim/plug-config/onedark.vim 
 source $HOME/.config/nvim/plug-config/lightline.vim
@@ -160,3 +160,7 @@ nmap zuz <Plug>(FastFoldUpdate)
 let g:fastfold_savehook = 1
 let g:fastfold_fold_command_suffixes =  ['x','X','a','A','o','O','c','C']
 let g:fastfold_fold_movement_commands = [']z', '[z', 'zj', 'zk']
+
+
+
+
