@@ -88,6 +88,7 @@ dhclient
 dialog
 discover
 dmenu
+dnsmasq
 docker
 dosfstools
 drkonqi
@@ -109,7 +110,6 @@ fish
 five-or-more
 flex
 four-in-a-row
-freecad
 fuse2
 fwupd
 gawk
@@ -231,7 +231,6 @@ libkscreen
 libksysguard
 liblightdm-qt5
 libnet
-libreoffice-fresh
 libtool
 libxcb
 light
@@ -345,6 +344,7 @@ sddm-kcm
 sed
 semver
 simple-scan
+simplescreenrecorder
 sqlite-analyzer
 squashfs-tools
 stalonetray

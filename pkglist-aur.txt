@@ -17,12 +17,14 @@ grub2-theme-archxion
 haskell-haddock-library1.9
 i3lock-fancy-git
 i8kutils
+jack
 kaggle-api
 lazydocker
 lexend-fonts-git
 lf
 libglade
 libinput-gestures
+libopenaptx
 lightdm-webkit-theme-aether
 liveusb-builder-git
 mattercontrol
