@@ -50,12 +50,12 @@ git clone --separate-git-dir=$HOME/.dotfiles git@github.com:usmcamp0811/dotfiles
 However, some programs create default config files, so this might fail if git finds an existing config file in your `$HOME`. In that case, a simple solution is to clone to a temporary directory, and then delete it once you are done:
 
 ```
-git clone --separate-git-dir=$HOME/.dotfiles git@github.com:usmcamp0811/dotfiles.git tmpdotfiles
+git clone --separate-git-dir=$HOME/.dotfiles https://github.com/usmcamp0811/dotfiles.git tmpdotfiles
 rsync --recursive --verbose --exclude '.git' tmpdotfiles/ $HOME/
 rm -r tmpdotfiles
 
 # the above on one line
-git clone --separate-git-dir=$HOME/.dotfiles git@github.com:usmcamp0811/dotfiles.git tmpdotfiles && \
+git clone --separate-git-dir=$HOME/.dotfiles https://github.com/usmcamp0811/dotfiles.git tmpdotfiles && \
 rsync --recursive --verbose --exclude '.git' tmpdotfiles/ $HOME/ && \
 rm -rf tmpdotfiles
 ```
