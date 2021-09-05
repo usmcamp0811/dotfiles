@@ -26,6 +26,7 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'PotatoesMaster/i3-vim-syntax'
 Plug 'chrisbra/csv.vim'
 Plug 'JuliaEditorSupport/julia-vim'
+Plug 'kdheepak/JuliaFormatter.vim'
 " Plug 'plasticboy/vim-markdown'
 " Plug 'sheerun/vim-polyglot' " currently seeing slowdowns with markdown stuff
 " when this is installed
@@ -121,7 +122,8 @@ lua require'plug-colorizer'
 
 " Theme
 syntax enable
-colorscheme base16-onedark
+" colorscheme base16-onedark
+source $HOME/.config/nvim/theme.vim
 " Fix background color of SFast
 highlight CocWarnSign guibg=#20232a guifg=#fe7f2d 
 highlight CocInfoSign guibg=#20232a guifg=#6f8d9e

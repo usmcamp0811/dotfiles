@@ -4,8 +4,8 @@ export LANG="en_US"
 # Default programs:
 export EDITOR="nvim"
 export TERMINAL="alacritty"
-# export BROWSER="brave"
-export BROWSER="firefox"
+export BROWSER="brave"
+# export BROWSER="firefox"
 export READER="zathura"
 # system TimeZone
 export TZ="America/Chicago"
@@ -24,6 +24,8 @@ export GID=$(id -g)
 # python scripts
 export PATH=$HOME/.local/bin:$PATH
 
+# npm things
+export PATH=$HOME/.config/npm/bin/:$PATH
 # display socket for dockers to share
 export XSOCK=/tmp/.X11-unix/X0
 
@@ -58,3 +60,7 @@ export JULIA_NUM_THREADS=12
 # export DOCKER_TLS_VERIFY=1
 # export DOCKER_CERT_PATH=~/.config/docker
 export GAME_LIBRARY_PATH=$HOME/.local/share/Steam
+# this is for Makie because there is some bug in it but this makes it work
+export LD_PRELOAD=/usr/lib64/libstdc++.so.6
+
+export NVIM_THEME=base16-onedark
