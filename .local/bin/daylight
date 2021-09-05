@@ -1,5 +1,8 @@
 #!/bin/sh
 
+
+# requires `npm i -g alacritty-themes`
+
 [ $# -eq 0 ] && echo "colorscheme base16-one-light" > $HOME/.config/nvim/theme.vim && alacritty-themes One-Light 
 [[ "$1" == "off" ]] && echo "colorscheme base16-onedark" > $HOME/.config/nvim/theme.vim && alacritty-themes One-Dark 
 

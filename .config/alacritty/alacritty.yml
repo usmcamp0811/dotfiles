@@ -12,8 +12,8 @@ font:
   use_thin_strokes: true
 colors:
   primary:
-    background: "#282c34"
-    foreground: "#abb2bf"
+    foreground: "#282c34"
+    background: "#ffffff"
   normal:
     black: "#282c34"
     red: "#e06c75"
