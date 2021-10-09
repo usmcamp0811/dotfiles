@@ -66,6 +66,11 @@ Plug 'mroavi/vim-julia-cell', { 'for': ['julia']}
 Plug 'metakirby5/codi.vim'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
+Plug 'heapslip/vimage.nvim'
+Plug 'ellisonleao/glow.nvim'
+Plug 'ashisha/image.vim'
+Plug 'edluffy/hologram.nvim'
+Plug 'wellle/targets.vim'
 
 " Themes
 " Plug 'joshdick/onedark.vim' " new favorite theme
@@ -118,6 +123,7 @@ source $HOME/.config/nvim/plug-config/pandoc.vim
 " source $HOME/.config/nvim/plug-config/onedark.vim 
 source $HOME/.config/nvim/plug-config/lightline.vim
 source $HOME/.config/nvim/plug-config/markdown-runner.vim
+
 lua require'plug-colorizer'
 
 " Theme

@@ -1,1 +1,1 @@
-colorscheme base16-one-light
+colorscheme base16-onedark
