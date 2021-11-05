@@ -65,3 +65,7 @@ export LD_PRELOAD=/usr/lib64/libstdc++.so.6
 
 export NVIM_THEME=base16-onedark
 export DOCKER_GUI=$(echo '-e DISPLAY=$DISPLAY -e XAUTHORITY="~/.Xauthority" -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v "$HOME/.Xauthority:~/.Xauthority:rw"')
+
+# fix CUDA support
+export PATH=/opt/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LD_LIBRARY_PATH
