@@ -1,10 +1,11 @@
 #!/bin/sh
 
 NUM="${2:-5}"
-
+SINK_NAME="Family"
+[[ "$(pulsemixer --list-sinks | grep Radeon | wc -l)" == "1" ]] && SINK_NAME="Radeon"
 # Uncomment the following line to use Pulseaudio.
 PULSE=true
-SINK=$(pulsemixer --list-sinks | grep Family | awk '{print $3}' | sed s/,//g)
+SINK=$(pulsemixer --list-sinks | grep $SINK_NAME | awk '{print $3}' | sed s/,//g)
 
 if [ "$PULSE" ]; then
 	toggle() { pulsemixer --id $SINK --toggle-mute ;}
