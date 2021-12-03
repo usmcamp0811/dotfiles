@@ -33,12 +33,25 @@ from libqtile.widget import *
 from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
-from libqtile import hook
+from libqtile import hook, qtile
 
 # get display scaling facotr
 GDK_SCALE = os.environ.get("GDK_SCALE")
 if not GDK_SCALE:
     GDK_SCALE = 1.35
+
+win_list = []
+def stick_win(qtile):
+    global win_list
+    win_list.append(qtile.current_window)
+def unstick_win(qtile):
+    global win_list
+    if qtile.current_window in win_list:
+        win_list.remove(qtile.current_window)
+@hook.subscribe.setgroup
+def move_win():
+    for w in win_list:
+        w.togroup(qtile.current_group.name)
 
 # thanks to rogerduran for the implementation of my idea (borrowed
 # from stumpwm)
@@ -121,15 +134,15 @@ def window_switch_to_screen_or_pull_group(**kwargs):
 switch_window = window_switch_to_screen_or_pull_group
 
 
-def make_sticky(qtile, *args):
-    window = qtile.current_window
-    screen = qtile.current_screen.index
-    window.static(
-        screen,
-        window.x,
-        window.y,
-        window.width,
-        window.height)
+# def make_sticky(qtile, *args):
+#     window = qtile.current_window
+#     screen = qtile.current_screen.index
+#     window.static(
+#         screen,
+#         window.x,
+#         window.y,
+#         window.width,
+#         window.height)
 
 
 def pull_window_here(**kwargs):
@@ -298,9 +311,9 @@ keys = [
     Key([mod], "o", lazy.layout.maximize()),
     Key([mod, "shift"], "space", lazy.layout.flip()),
 
-    Key([mod], "s", lazy.spawn("rofi -show-icons -show window")),
-    Key([mod, "control"], "s", lazy.function(make_sticky)),
-
+    Key([mod], "a", lazy.spawn("rofi -show-icons -show window")),
+    Key([mod], "s", lazy.function(stick_win), desc="stick win"),
+    Key([mod, "shift"], "s", lazy.function(unstick_win), desc="unstick win"),
     Key([mod], "z", lazy.layout.swap_main()),
     Key([mod], "r",
              lazy.spawn("ranger"),
@@ -654,15 +667,15 @@ def runner():
 # prevent xfce4-notifyd windows from jumping around by ignoring them
 
 
-@hook.subscribe.client_new
-def auto_sticky(window):
-    if window.name == "xfce4-notifyd":
-        if window.group:
-            screen = window.group.screen.index
-        else:
-            screen = window.qtile.current_screen.index
-        window.window.configure(stackmode=xcffib.xproto.StackMode.Above)
-        window.static(screen)
+# @hook.subscribe.client_new
+# def auto_sticky(window):
+#     if window.name == "xfce4-notifyd":
+#         if window.group:
+#             screen = window.group.screen.index
+#         else:
+#             screen = window.qtile.current_screen.index
+#         window.window.configure(stackmode=xcffib.xproto.StackMode.Above)
+#         window.static(screen)
 
 
 # from http://qtile.readthedocs.org/en/latest/manual/config/hooks.html#automatic-floating-dialogs

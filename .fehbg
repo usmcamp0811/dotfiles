@@ -1,2 +1,2 @@
 #!/bin/sh
-feh --no-fehbg --bg-scale '/home/mcamp/Pictures/Space-and-Rocket-Center-21.jpg' 
+feh --no-fehbg --bg-scale '/home/mcamp/.background' 
