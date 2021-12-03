@@ -399,9 +399,10 @@ for i, (name, kwargs) in enumerate(group_names, 1):
 
 
 layout_theme = {"border_width": 2,
-                "margin": 8,
+                "margin": 10,
                 "border_focus": "#e1acff",
                 "border_normal": "#1D2330",
+                "grow_amount": 5
                 }
 
 layouts = [
@@ -430,13 +431,13 @@ screens = [
             [
                 widget.Sep(
                     linewidth=0,
-                    padding=6,
+                    padding=10,
                     foreground=colors[2],
                     background=colors[0]
                 ),
                 widget.GroupBox(
                     font="Ubuntu Bold",
-                    fontsize=9,
+                    fontsize=11,
                     margin_y=3,
                     margin_x=0,
                     padding_y=5,
@@ -594,7 +595,7 @@ screens = [
                 ),
             ],
             # init_widgets_list(),
-            28,
+            35,
         ),
     ),
 ]
