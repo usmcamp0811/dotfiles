@@ -17,6 +17,7 @@ alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir
 [ -e /usr/bin/lsd ] && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
 [ -e /usr/bin/lsd ] && alias lt='lsd --tree --depth 3'
 [ -e /usr/bin/ranger ] && alias lr="ranger"
+[ -e /usr/bin/local/ranger ] && alias lr="ranger"
 
 
 # mv, rm, cp

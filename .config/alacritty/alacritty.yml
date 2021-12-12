@@ -5,37 +5,54 @@ font:
   size: 7
   offset:
     x: 0
-    y: 0
+    'y': 0
   glyph_offset:
     x: 0
-    y: 0
+    'y': 0
   use_thin_strokes: true
 colors:
   primary:
-    background: "#282c34"
-    foreground: "#abb2bf"
+    background: '0x0A0E14'
+    foreground: '0xB3B1AD'
+    dim_foreground: '0xdbdbdb'
+    bright_foreground: '0xd9d9d9'
+    dim_background: '0x202020'
+    bright_background: '0x3a3a3a'
   normal:
-    black: "#282c34"
-    red: "#e06c75"
-    green: "#98c379"
-    yellow: "#d19a66"
-    blue: "#61afef"
-    magenta: "#c678dd"
-    cyan: "#56b6c2"
-    white: "#abb2bf"
+    black: '0x01060E'
+    red: '0xEA6C73'
+    green: '0x91B362'
+    yellow: '0xF9AF4F'
+    blue: '0x53BDFA'
+    magenta: '0xFAE994'
+    cyan: '0x90E1C6'
+    white: '0xC7C7C7'
+    orange: '0xcc6953'
   bright:
-    black: "#5c6370"
-    red: "#e06c75"
-    green: "#98c379"
-    yellow: "#d19a66"
-    blue: "#61afef"
-    magenta: "#c678dd"
-    cyan: "#56b6c2"
-    white: "#ffffff"
+    black: '0x686868'
+    red: '0xF07178'
+    green: '0xC2D94C'
+    yellow: '0xFFB454'
+    blue: '0x59C2FF'
+    magenta: '0xFFEE99'
+    cyan: '0x95E6CB'
+    white: '0xFFFFFF'
+  cursor:
+    text: '0x122637'
+    cursor: '0xf0cb09'
+  dim:
+    black: '0x232323'
+    red: '0x74423f'
+    green: '0x5e6547'
+    yellow: '0x8b7653'
+    blue: '0x556b79'
+    magenta: '0x6e4962'
+    cyan: '0x5c8482'
+    white: '0x828282'
 bell:
   animation: EaseOutExpo
   duration: 1
-  color: "#7a8530"
+  color: '#7a8530'
 background_opacity: 0.9
 window.dynamic_title: true
 cursor:

@@ -307,7 +307,6 @@ keys = [
         desc="Reset all window sizes"),
     Key([mod], "i", lazy.layout.grow()),
     Key([mod], "m", lazy.layout.shrink()),
-    Key([mod], "n", lazy.layout.normalize()),
     Key([mod], "o", lazy.layout.maximize()),
     Key([mod, "shift"], "space", lazy.layout.flip()),
 
@@ -397,7 +396,7 @@ group_names = [("WEB", {'layout': 'monadtall'}),
                ("WORK1", {'layout': 'monadtall'}),
                ("WORK2", {'layout': 'monadtall'}),
                ("SYS", {'layout': 'monadtall'}),
-               ("CHAT", {'layout': 'monadtall'}),
+               ("COMMS", {'layout': 'stack'}),
                ("EMAIL", {'layout': 'monadtall'}),
                ("CAL", {'layout': 'monadtall'}),
                ("DOC", {'layout': 'floating'})]
@@ -424,13 +423,14 @@ layouts = [
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     layout.Bsp(**layout_theme),
-    # layout.Matrix(),
+    layout.Matrix(),
     layout.Tile(shift_windows=True, **layout_theme),
     layout.Stack(num_stacks=2, **layout_theme),
     layout.MonadTall(**layout_theme),
     layout.MonadWide(**layout_theme),
     layout.RatioTile(**layout_theme),
     layout.Tile(),
+    layout.TreeTab(**layout_theme)
     # layout.VerticalTile(**layout_theme),
     # layout.Zoomy(),
 ]

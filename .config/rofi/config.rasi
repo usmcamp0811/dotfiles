@@ -8,3 +8,4 @@ configuration {
   xoffset: -20;
 }
 @import "/usr/share/rofi/themes/DarkBlue.rasi"
+@theme "/usr/share/rofi/themes/arthur.rasi"
