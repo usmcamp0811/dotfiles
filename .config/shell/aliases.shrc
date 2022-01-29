@@ -194,3 +194,5 @@ alias outdoor='xcalib -invert -alter'
 # exit ranger and go back to last dir in range
 
 alias night='rogauracore black'
+alias code='cd ~/code-home'
+alias k='kubectl'

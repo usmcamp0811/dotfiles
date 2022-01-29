@@ -53,6 +53,9 @@ def move_win():
     for w in win_list:
         w.togroup(qtile.current_group.name)
 
+def move_to_top(qtile):
+    w = qtile.current_window
+    w.bring_to_front()
 # thanks to rogerduran for the implementation of my idea (borrowed
 # from stumpwm)
 class PrevFocus(object):
@@ -314,6 +317,7 @@ keys = [
     Key([mod], "s", lazy.function(stick_win), desc="stick win"),
     Key([mod, "shift"], "s", lazy.function(unstick_win), desc="unstick win"),
     Key([mod], "z", lazy.layout.swap_main()),
+    Key([mod, "shift"] ,"z", lazy.function(move_to_top), desc="move to top"),
     Key([mod], "r",
              lazy.spawn("ranger"),
              desc='File Explorek'
@@ -362,7 +366,7 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     # Key([mod], "d", lazy.spawncmd(),
     # desc="Spawn a command using a prompt widget"),
-    Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
+    Key([mod], "F2", lazy.spawn(f"brave --no-xshm --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
