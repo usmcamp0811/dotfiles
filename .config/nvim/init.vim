@@ -59,10 +59,10 @@ Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' } " really good Go lang support
 Plug 'voldikss/vim-floaterm' " lets you make anything a floating window in vim
 Plug 'airblade/vim-gitgutter'
 Plug 'junegunn/gv.vim' " part of git config
-Plug 'tpope/vim-fugitive' " part of git config
+" Plug 'tpope/vim-fugitive' " part of git config
 Plug 'jpalardy/vim-slime' " allow vim to send julia / python commands to the repl
 Plug 'hanschen/vim-ipython-cell', { 'for': ['python', 'julia', 'markdown.pandoc']} " note: I modified this and am waiting on a MR.. so don't update
-Plug 'mroavi/vim-julia-cell', { 'for': ['julia']}
+Plug 'mroavi/vim-julia-cell', { 'for': ['julia', 'jl']}
 Plug 'metakirby5/codi.vim'
 Plug 'Konfekt/FastFold'
 Plug 'dhruvasagar/vim-table-mode'
@@ -118,6 +118,7 @@ source $HOME/.config/nvim/plug-config/floaterm.vim
 source $HOME/.config/nvim/plug-config/vim-you-autocorrect.vim 
 source $HOME/.config/nvim/plug-config/slime.vim 
 source $HOME/.config/nvim/plug-config/codi.vim 
+source $HOME/.config/nvim/plug-config/jupyter-vim.vim  " allows for julia cell jumping
 " source $HOME/.config/nvim/plug-config/csv.vim 
 source $HOME/.config/nvim/plug-config/pandoc.vim 
 " source $HOME/.config/nvim/plug-config/onedark.vim 
@@ -160,7 +161,7 @@ noremap! <expr> <F7> LaTeXtoUnicode#Toggle()
 let g:ipython_cell_regex = 1
 let g:ipython_cell_tag = '```( [^[].*)?'
 let g:julia_cell_delimit_cells_by = 'marks'
-" let g:ipython_language = "Julia"
+let g:ipython_language = "Julia"
 let g:ipython_cell_run_command = 'include("{filepath}")'
 let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 

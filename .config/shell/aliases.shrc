@@ -196,3 +196,14 @@ alias outdoor='xcalib -invert -alter'
 alias night='rogauracore black'
 alias code='cd ~/code-home'
 alias k='kubectl'
+alias kwatch='watch kubectl'
+
+gpu-hybrid(){
+    supergfxctl --mode hybrid
+    sudo pkill -9 -u $USER
+}
+
+gpu-dedicated(){
+    supergfxctl --mode dedicated
+    sudo pkill -9 -u $USER
+}

@@ -2,6 +2,7 @@
 
 NUM="${2:-5}"
 SINK_NAME="Family"
+# SINK_NAME="GA104"
 [[ "$(pulsemixer --list-sinks | grep Radeon | wc -l)" == "1" ]] && SINK_NAME="Radeon"
 # Uncomment the following line to use Pulseaudio.
 PULSE=true
