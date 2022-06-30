@@ -71,6 +71,8 @@ case ${TERM} in
 
 [ -r "/usr/share/fzf/completion.zsh" ] && source /usr/share/fzf/completion.zsh
 [ -r "/usr/share/fzf/key-bindings.zsh" ] && source /usr/share/fzf/key-bindings.zsh
+[ -r "$HOME/.config/fzf/completion.zsh" ] && source $HOME/.config/fzf/completion.zsh
+[ -r "$HOME/.config/fzf/key-bindings.zsh" ] && source $HOME/.config/fzf/key-bindings.zsh
 
 # source all the other bash config files
 for file in ~/.config/shell/*.shrc; do
@@ -79,7 +81,7 @@ done
 
 # TODO move these to ~/.config/shell and update syncthing
 # source my private config files
-for file in ~/.config/bash/private/*.bashrc; do
+for file in ~/.config/shell/private/*.shrc; do
     [ -r "$file" ] && source "$file"
 done
 
@@ -106,7 +108,7 @@ codi() {
 [ -e /usr/bin/thefuck ] && eval "$(thefuck --alias)"
 
 
-source $HOME/.config/broot/launcher/bash/br
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2 >/dev/null
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 2 >/dev/null
-source /usr/share/zsh/plugins/alias-tips/alias-tips.plugin.zsh 2 >/dev/null
+# source $HOME/.config/broot/launcher/bash/br
+# source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2 >/dev/null
+# source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 2 >/dev/null
+# source /usr/share/zsh/plugins/alias-tips/alias-tips.plugin.zsh 2 >/dev/null

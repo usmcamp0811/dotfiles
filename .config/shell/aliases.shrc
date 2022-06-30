@@ -1,5 +1,9 @@
 #!/bin/bash
 
+is_installed() {
+    ( [ -e /usr/bin/$1 ] || [ -e /usr/local/bin/$1 ] ) && return 0
+    return 1
+}
 
 # Easier navigation: .., ..., ~ and -
 alias ..="cd .."
@@ -13,10 +17,12 @@ alias -- -="cd -"
 alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 
 # ls -al Alh
-[ -e /usr/bin/lsd ] && alias ls="lsd --group-dirs first"
-[ -e /usr/bin/lsd ] && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
-[ -e /usr/bin/lsd ] && alias lt='lsd --tree --depth 3'
-[ -e /usr/bin/ranger ] && alias lr="ranger"
+is_installed lsd && alias ls="lsd --group-dirs first"
+# ([ -e /usr/bin/lsd ] || [ -e /usr/local/bin/lsd ]) && alias ls="lsd --group-dirs first"
+is_installed lsd && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
+is_installed lsd && alias lt='lsd --tree --depth 3'
+is_installed ranger && alias lr="ranger"
+
 
 
 # mv, rm, cp
@@ -28,8 +34,10 @@ alias cp='cp -v'
 alias chmox='chmod -x'
 [ -e /usr/bin/bat ] && alias cat='/usr/bin/bat'
 [ -e /usr/bin/batcat ] && alias cat='/usr/bin/batcat'
+[ -e /usr/local/bin/bat ] && alias cat='/usr/local/bin/bat'
 
-alias vim='nvim'
+[ -e /usr/bin/nvim ] && alias vim='/usr/bin/nvim'
+[ -e /usr/local/bin/nvim ] && alias vim='/usr/local/bin/nvim'
 
 alias df='df -h'
 
@@ -65,21 +73,21 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 ##########################################################
 ####################### CONFIG STUFF ########################
 #i3 config
-alias i3config='/usr/bin/nvim ~/.config/i3/config'
+alias i3config='nvim ~/.config/i3/config'
 alias qconfig='vim ~/.config/qtile/config.py'
 
 #bash aliases
-alias aliases='/usr/bin/nvim ~/.config/shell/aliases.shrc'
+alias aliases='nvim ~/.config/shell/aliases.shrc'
 
 #bash export
-alias exports='/usr/bin/nvim ~/.config/shell/exports.shrc'
+alias exports='nvim ~/.config/shell/exports.shrc'
 
 #vim plugins
-alias vplug='/usr/bin/nvim ~/.config/nvim/load_plugins.vim'
-alias vplug2='/usr/bin/nvim ~/.config/nvim/config_plugins.vim'
-alias vkeys='/usr/bin/nvim ~/.config/nvim/key-mappings.vim'
-alias vgen='/usr/bin/nvim ~/.config/nvim/general.vim'
-alias vinit='/usr/bin/nvim ~/.config/nvim/init.vim'
+alias vplug='nvim ~/.config/nvim/load_plugins.vim'
+alias vplug2='nvim ~/.config/nvim/config_plugins.vim'
+alias vkeys='nvim ~/.config/nvim/key-mappings.vim'
+alias vgen='nvim ~/.config/nvim/general.vim'
+alias vinit='nvim ~/.config/nvim/init.vim'
 
 ##########################################################
 # Empty the Trash on all mounted volumes and the main HDD. then clear the useless sleepimage
@@ -99,7 +107,7 @@ function docker-login() {
     docker login -u $DHUB_USER -p $DHUB_PASS
 }
 
-alias vimwiki="/usr/bin/nvim +VimwikiIndex NERDTreeClose"
+alias vimwiki="nvim +VimwikiIndex NERDTreeClose"
 
 alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
 

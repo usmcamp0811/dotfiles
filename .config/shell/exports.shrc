@@ -1,3 +1,5 @@
+export PATH=$PATH:/usr/local/bin
+export PATH=$PATH:$HOME/.cargo/bin
 # Prefer US English and use UTF-8
 export LC_ALL="en_US.UTF-8"
 export LANG="en_US"
@@ -47,7 +49,7 @@ export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
 export PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
 export GNUPGHOME="$XDG_DATA_HOME"/gnupg
 export GOPATH="$XDG_DATA_HOME/go"
-export PYTHON="/usr/bin/python"
+export PYTHON="/usr/bin/python3"
 # export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
 # for go
 export PATH=$PATH:$GOPATH/bin
@@ -58,3 +60,4 @@ export JULIA_NUM_THREADS=8
 # export DOCKER_TLS_VERIFY=1
 # export DOCKER_CERT_PATH=~/.config/docker
 export GAME_LIBRARY_PATH=$HOME/.local/share/Steam
+export PATH=$PATH:/Users/mcamp/Library/Python/3.8/bin
