@@ -79,6 +79,9 @@ Plug 'mengelbrecht/lightline-bufferline'
 " Plug 'dbridges/vim-markdown-runner' " puts code output into markdown
 Plug 'kshenoy/vim-signature' " show marks in gutter
 Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(42) } }
+Plug 'weirongxu/plantuml-previewer.vim'
+Plug 'tyru/open-browser.vim'
+Plug 'aklt/plantuml-syntax'
 
 call plug#end()
 
