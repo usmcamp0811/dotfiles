@@ -1,5 +1,8 @@
 lastupdatecheck: 0
 recentrepos:
+- /home/mcamp/code-home/campfiles
+- /home/mcamp/Documents/jobs/Resume
+- /home/mcamp/.julia/dev/SpatialVoting
 - /home/mcamp/code-home/SpatialVoting
 - /home/mcamp/code-home/spatialvoting.jl
 - /home/mcamp/code-home/proton
@@ -10,7 +13,6 @@ recentrepos:
 - /home/mcamp/code-home/Wfetch
 - /home/mcamp/code-home/SVMakieRecipes
 - /home/mcamp/code-home/SVPlotsRecipes
-- /home/mcamp/code-home/campfiles
 - /home/mcamp/code-home/TrigPolly
 - /home/mcamp/code-home/flow-cookie-cutter
 - /home/mcamp/code-home/axs_mvp
@@ -22,7 +24,6 @@ recentrepos:
 - /home/mcamp/code-home/JuliaSchool/Training
 - /home/mcamp/code-home/work/cronus
 - /home/mcamp
-- /home/mcamp/Documents/jobs/Resume
 - /home/mcamp/.julia/dev/Pluto
 - /home/mcamp/.julia/dev/tadgan
 startuppopupversion: 5

@@ -1,6 +1,8 @@
-require 'options'
-require 'keymaps'
-require 'plugins'
+require "user.options"
+require "user.keymaps"
+require "user.plugins"
+require "user.colorscheme"
+require "user.cmp"
 
 -- local Plug = vim.fn['plug#']
 -- vim.call('plug#begin', '~/.config/nvim/plugged')

@@ -70,3 +70,4 @@ export DOCKER_GUI=$(echo '-e DISPLAY=$DISPLAY -e XAUTHORITY="~/.Xauthority" -v /
 export PATH=/opt/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LD_LIBRARY_PATH
 export KUBECONFIG=$HOME/.kube/config
+export PATH=$PATH:/opt/julia/bin

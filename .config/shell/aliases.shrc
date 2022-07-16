@@ -207,3 +207,8 @@ gpu-dedicated(){
     supergfxctl --mode dedicated
     sudo pkill -9 -u $USER
 }
+
+
+update-all(){
+    ansible-playbook ~/code-home/ansible_playbooks/syu.yml --become --ask-become-pass
+}
