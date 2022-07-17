@@ -46,6 +46,9 @@ return packer.startup(function(use)
   use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
   use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
 
+  use "lewis6991/impatient.nvim" -- suppose to speed up lua load times
+  use "ahmedkhalf/project.nvim"
+  use "kyazdani42/nvim-tree.lua"
 
   use "JuliaEditorSupport/julia-vim"
   use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
@@ -71,7 +74,7 @@ return packer.startup(function(use)
   use "nvim-lualine/lualine.nvim"
   use "akinsho/toggleterm.nvim"
   use "folke/which-key.nvim"
-  -- use "itchyny/lightline.vim"
+  use "kyazdani42/nvim-tree.lua"
   use "moll/vim-bbye"
   use "nvim-lualine/lualine.nvim"
   -- use "mengelbrecht/lightline-bufferline"

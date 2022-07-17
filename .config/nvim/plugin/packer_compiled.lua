@@ -130,6 +130,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/gitsigns.nvim",
     url = "https://github.com/lewis6991/gitsigns.nvim"
   },
+  ["impatient.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/impatient.nvim",
+    url = "https://github.com/lewis6991/impatient.nvim"
+  },
   ["indent-blankline.nvim"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/indent-blankline.nvim",
@@ -175,6 +180,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nvim-lspconfig",
     url = "https://github.com/neovim/nvim-lspconfig"
   },
+  ["nvim-tree.lua"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nvim-tree.lua",
+    url = "https://github.com/kyazdani42/nvim-tree.lua"
+  },
   ["nvim-treesitter"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nvim-treesitter",
@@ -209,6 +219,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/popup.nvim",
     url = "https://github.com/nvim-lua/popup.nvim"
+  },
+  ["project.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/project.nvim",
+    url = "https://github.com/ahmedkhalf/project.nvim"
   },
   ["quick-scope"] = {
     loaded = true,
@@ -285,10 +300,10 @@ vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
-vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
 vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
-vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-ipython-cell', 'vim-julia-cell'}, { ft = "julia" }, _G.packer_plugins)]]
+vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
+vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
+vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end

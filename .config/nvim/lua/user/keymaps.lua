@@ -27,14 +27,14 @@ keymap("n", "<m-\\>", ":tabonly<cr>", opts)
 --Remap space as leader key
 keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+vim.g.maplocalleader = ";"
 
 -- save files
 keymap("i", "<C-s>", "<esc>:w<cr>", opts)
 keymap("n", "<C-s>", ":w<cr>", opts)
 -- exit with ctr + q
-keymap("n", "<C-q>", "<esc>:q<cr>", opts)
-keymap("n", "<C-q>", ":q<cr>", opts)
+-- keymap("n", "<C-q>", "<esc>:q<cr>", opts)
+keymap("n", "<C-q>", ":Bdelete<cr>", opts)
 
 -- Yank from cursor to end of line
 keymap("n", "Y", "y$", opts)
