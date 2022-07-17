@@ -46,8 +46,21 @@ return packer.startup(function(use)
   use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
   use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
 
+  use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
+  use "hanschen/vim-ipython-cell"
+  use "mroavi/vim-julia-cell"
+  use "metakirby5/codi.vim"
+
   use "lunarvim/darkplus.nvim"
   use "joshdick/onedark.vim"
+  use "nvim-lualine/lualine.nvim"
+  use "akinsho/toggleterm.nvim"
+  use "folke/which-key.nvim"
+  use "itchyny/lightline.vim"
+  use "mengelbrecht/lightline-bufferline"
+  use "kevinhwang91/rnvimr" -- ranger in vima
+
+  use "goolord/alpha-nvim"
 
   -- cmp plugins
   use 'neovim/nvim-lspconfig'
@@ -60,7 +73,27 @@ return packer.startup(function(use)
   use "L3MON4D3/LuaSnip" --snippet engine
   use "rafamadriz/friendly-snippets" -- a bunch of snippets to use
 
-  use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
+  -- LSP
+  use "neovim/nvim-lspconfig" -- enable LSP
+  use "williamboman/nvim-lsp-installer" -- simple to use language server installer
+  use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
+
+  -- Telescope
+  use "nvim-telescope/telescope.nvim"
+
+  -- Treesitter
+  use({
+    "nvim-treesitter/nvim-treesitter",
+    run = ":TSUpdate",
+  })
+
+  -- Git
+  use {
+    'lewis6991/gitsigns.nvim',
+    config = function()
+      require('gitsigns').setup()
+    end
+  }
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if PACKER_BOOTSTRAP then

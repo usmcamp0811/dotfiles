@@ -1,8 +1,6 @@
 xmap <c-\> <Plug>SlimeRegionSend
 nmap <c-\> <Plug>SlimeParagraphSend
 nmap <c-c>v     <Plug>SlimeConfig
-let g:which_key_map['<CR>'] = [ ':IPythonCellExecuteCell', 'Execute # ``` Code Cell' ]
-let g:which_key_map['\'] = [ 'SlimeSendCurrentLine', 'Execute Line of Code' ]
 
 " let g:slime_target = "tmux"
 let g:slime_target = "x11"
