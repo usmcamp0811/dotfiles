@@ -16,6 +16,9 @@ require "user.plug-setting.toggleterm"
 require "user.plug-setting.alpha"
 require "user.plug-setting.comment"
 require "user.plug-setting.autopairs"
+require "user.plug-setting.lualine"
+require "user.plug-setting.bufferline"
+
 
 -- TODO: port what I can (below) to Lua
 -- vim.cmd "source $HOME/.config/nvim/autocmds.vim"

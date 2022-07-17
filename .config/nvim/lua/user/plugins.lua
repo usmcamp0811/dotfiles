@@ -49,28 +49,34 @@ return packer.startup(function(use)
 
   use "JuliaEditorSupport/julia-vim"
   use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
-  use "hanschen/vim-ipython-cell"
-  use "mroavi/vim-julia-cell"
+  use({"hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" }})
+  use({"mroavi/vim-julia-cell", ft = { "julia", "jl" }})
   use "metakirby5/codi.vim"
 
   use "lukas-reineke/indent-blankline.nvim"
   use "kyazdani42/nvim-web-devicons"
   use "norcalli/nvim-colorizer.lua"
+  use "dhruvasagar/vim-table-mode"
 
   use "wbthomason/packer.nvim" -- Have packer manage itself
   use "nvim-lua/plenary.nvim" -- Useful lua functions used by lots of plugins
   use "numToStr/Comment.nvim"
   use "windwp/nvim-autopairs"
 
+  use "unblevable/quick-scope" -- easier horizontal jumping
+  use "justinmk/vim-sneak" --  better vertical jumping
   use "JoosepAlviste/nvim-ts-context-commentstring"
   use "lunarvim/darkplus.nvim"
   use "joshdick/onedark.vim"
   use "nvim-lualine/lualine.nvim"
   use "akinsho/toggleterm.nvim"
   use "folke/which-key.nvim"
-  use "itchyny/lightline.vim"
-  use "mengelbrecht/lightline-bufferline"
-  use "kevinhwang91/rnvimr" -- ranger in vima
+  -- use "itchyny/lightline.vim"
+  use "moll/vim-bbye"
+  use "nvim-lualine/lualine.nvim"
+  -- use "mengelbrecht/lightline-bufferline"
+  use "akinsho/bufferline.nvim"
+  use({"kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
 
   use "907th/vim-auto-save"
   use "goolord/alpha-nvim"

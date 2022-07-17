@@ -84,6 +84,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/alpha-nvim",
     url = "https://github.com/goolord/alpha-nvim"
   },
+  ["bufferline.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/bufferline.nvim",
+    url = "https://github.com/akinsho/bufferline.nvim"
+  },
   ["cmp-buffer"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/cmp-buffer",
@@ -134,16 +139,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/julia-vim",
     url = "https://github.com/JuliaEditorSupport/julia-vim"
-  },
-  ["lightline-bufferline"] = {
-    loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/lightline-bufferline",
-    url = "https://github.com/mengelbrecht/lightline-bufferline"
-  },
-  ["lightline.vim"] = {
-    loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/lightline.vim",
-    url = "https://github.com/itchyny/lightline.vim"
   },
   ["lualine.nvim"] = {
     loaded = true,
@@ -215,6 +210,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/popup.nvim",
     url = "https://github.com/nvim-lua/popup.nvim"
   },
+  ["quick-scope"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/quick-scope",
+    url = "https://github.com/unblevable/quick-scope"
+  },
   rnvimr = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/rnvimr",
@@ -235,20 +235,39 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-auto-save",
     url = "https://github.com/907th/vim-auto-save"
   },
-  ["vim-ipython-cell"] = {
+  ["vim-bbye"] = {
     loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-ipython-cell",
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-bbye",
+    url = "https://github.com/moll/vim-bbye"
+  },
+  ["vim-ipython-cell"] = {
+    loaded = false,
+    needs_bufread = false,
+    only_cond = false,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/opt/vim-ipython-cell",
     url = "https://github.com/hanschen/vim-ipython-cell"
   },
   ["vim-julia-cell"] = {
-    loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-julia-cell",
+    loaded = false,
+    needs_bufread = false,
+    only_cond = false,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/opt/vim-julia-cell",
     url = "https://github.com/mroavi/vim-julia-cell"
   },
   ["vim-slime"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-slime",
     url = "https://github.com/jpalardy/vim-slime"
+  },
+  ["vim-sneak"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-sneak",
+    url = "https://github.com/justinmk/vim-sneak"
+  },
+  ["vim-table-mode"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-table-mode",
+    url = "https://github.com/dhruvasagar/vim-table-mode"
   },
   ["which-key.nvim"] = {
     loaded = true,
@@ -262,6 +281,16 @@ time([[Defining packer_plugins]], false)
 time([[Config for gitsigns.nvim]], true)
 try_loadstring("\27LJ\2\n6\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
 time([[Config for gitsigns.nvim]], false)
+vim.cmd [[augroup packer_load_aucmds]]
+vim.cmd [[au!]]
+  -- Filetype lazy-loads
+time([[Defining lazy-load filetype autocommands]], true)
+vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
+vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
+vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
+vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-ipython-cell', 'vim-julia-cell'}, { ft = "julia" }, _G.packer_plugins)]]
+time([[Defining lazy-load filetype autocommands]], false)
+vim.cmd("augroup END")
 if should_profile then save_profiles() end
 
 end)
