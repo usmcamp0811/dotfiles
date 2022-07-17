@@ -1,5 +1,6 @@
 # If you come from bash you might have to change your $PATH.
 
+
 function powerline_precmd() {
     PS1="$(powerline-shell --shell zsh $?)"
 }

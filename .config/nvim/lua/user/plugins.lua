@@ -46,13 +46,16 @@ return packer.startup(function(use)
   use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
   use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
 
+
   use "JuliaEditorSupport/julia-vim"
   use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
   use "hanschen/vim-ipython-cell"
   use "mroavi/vim-julia-cell"
   use "metakirby5/codi.vim"
+
   use "lukas-reineke/indent-blankline.nvim"
   use "kyazdani42/nvim-web-devicons"
+  use "norcalli/nvim-colorizer.lua"
 
   use "wbthomason/packer.nvim" -- Have packer manage itself
   use "nvim-lua/plenary.nvim" -- Useful lua functions used by lots of plugins
@@ -79,6 +82,7 @@ return packer.startup(function(use)
   use 'hrsh7th/cmp-path'
   use 'hrsh7th/cmp-cmdline'
   use 'hrsh7th/nvim-cmp'
+
   -- snippets
   use "L3MON4D3/LuaSnip" --snippet engine
   use "rafamadriz/friendly-snippets" -- a bunch of snippets to use

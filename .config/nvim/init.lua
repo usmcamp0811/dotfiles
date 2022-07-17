@@ -1,16 +1,23 @@
+-- Base Settings
 require "user.options"
 require "user.keymaps"
-require "user.plugins"
-require "user.colorscheme"
-require "user.cmp"
 require "user.lsp"
-require "user.telescope"
-require "user.treesitter"
-require "user.whichkey"
-require "user.toggleterm"
-require "user.alpha"
-require "user.comment"
 
+-- Plugins
+require "user.plugins"
+
+-- Plugin Configurations
+require "user.plug-setting.colorscheme"
+require "user.plug-setting.cmp"
+require "user.plug-setting.telescope"
+require "user.plug-setting.treesitter"
+require "user.plug-setting.whichkey"
+require "user.plug-setting.toggleterm"
+require "user.plug-setting.alpha"
+require "user.plug-setting.comment"
+require "user.plug-setting.autopairs"
+
+-- TODO: port what I can (below) to Lua
 -- vim.cmd "source $HOME/.config/nvim/autocmds.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/lightline.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"

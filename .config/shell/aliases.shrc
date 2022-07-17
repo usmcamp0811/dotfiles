@@ -62,6 +62,7 @@ alias master="git checkout master"
 
 # git dotfiles
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias lazydot='lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 ##########################################################
 ####################### CONFIG STUFF ########################

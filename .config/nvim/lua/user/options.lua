@@ -73,6 +73,5 @@ bo.expandtab = true
 bo.shiftwidth = 2
 bo.softtabstop = 2
 bo.tabstop = 2
-vim.bo.shiftwidth = 2
-
+vim.cmd "set expandtab ts=2 sw=2 ai"
 
