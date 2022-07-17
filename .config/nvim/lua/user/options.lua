@@ -72,5 +72,7 @@ wo.number = true
 bo.expandtab = true
 bo.shiftwidth = 2
 bo.softtabstop = 2
+bo.tabstop = 2
+vim.bo.shiftwidth = 2
 
 
