@@ -9,7 +9,9 @@ require "user.treesitter"
 require "user.whichkey"
 require "user.toggleterm"
 require "user.alpha"
+require "user.comment"
 
+-- vim.cmd "source $HOME/.config/nvim/autocmds.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/lightline.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
 

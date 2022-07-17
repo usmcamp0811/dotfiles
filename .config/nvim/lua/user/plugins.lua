@@ -46,16 +46,20 @@ return packer.startup(function(use)
   use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
   use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
 
+  use "JuliaEditorSupport/julia-vim"
   use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
   use "hanschen/vim-ipython-cell"
   use "mroavi/vim-julia-cell"
   use "metakirby5/codi.vim"
+  use "lukas-reineke/indent-blankline.nvim"
+  use "kyazdani42/nvim-web-devicons"
 
-  use({ "wbthomason/packer.nvim", commit = "00ec5adef58c5ff9a07f11f45903b9dbbaa1b422" }) -- Have packer manage itself
-  use({ "nvim-lua/plenary.nvim", commit = "968a4b9afec0c633bc369662e78f8c5db0eba249" }) -- Useful lua functions used by lots of plugins
-  use({ "windwp/nvim-autopairs", commit = "fa6876f832ea1b71801c4e481d8feca9a36215ec" }) -- Autopairs, integrates with both cmp and treesitter
-  use({ "numToStr/Comment.nvim", commit = "2c26a00f32b190390b664e56e32fd5347613b9e2" })
+  use "wbthomason/packer.nvim" -- Have packer manage itself
+  use "nvim-lua/plenary.nvim" -- Useful lua functions used by lots of plugins
+  use "numToStr/Comment.nvim"
+  use "windwp/nvim-autopairs"
 
+  use "JoosepAlviste/nvim-ts-context-commentstring"
   use "lunarvim/darkplus.nvim"
   use "joshdick/onedark.vim"
   use "nvim-lualine/lualine.nvim"
