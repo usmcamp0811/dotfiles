@@ -79,6 +79,7 @@ return packer.startup(function(use)
   use "dhruvasagar/vim-table-mode"
   use "lunarvim/darkplus.nvim"
   use "joshdick/onedark.vim"
+  use "Yazeed1s/minimal.nvim"
   use "goolord/alpha-nvim"
 
   use "akinsho/bufferline.nvim"
