@@ -38,3 +38,5 @@ autocmd FileType julia nnoremap K :JuliaCellPrevCell<CR>
 autocmd FileType julia nnoremap J :JuliaCellNextCell<CR>
 
 autocmd FileType julia set foldmethod=syntax
+
+autocmd BufRead *.png,*.jpg,*.jpeg :call DisplayImage()
