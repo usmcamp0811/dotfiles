@@ -42,50 +42,49 @@ packer.init {
 -- Install your plugins here
 return packer.startup(function(use)
 
+  -- Basic stuff needed
   use "wbthomason/packer.nvim" -- Have packer manage itself
   use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
   use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
-
   use "lewis6991/impatient.nvim" -- suppose to speed up lua load times
+
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
 
+  -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
   use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
   use({"hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" }})
   use({"mroavi/vim-julia-cell", ft = { "julia", "jl" }})
   use "metakirby5/codi.vim"
 
-  use "lukas-reineke/indent-blankline.nvim"
-  use "kyazdani42/nvim-web-devicons"
-  use "norcalli/nvim-colorizer.lua"
-  use "dhruvasagar/vim-table-mode"
-
-  use "wbthomason/packer.nvim" -- Have packer manage itself
-  use "nvim-lua/plenary.nvim" -- Useful lua functions used by lots of plugins
-  use "numToStr/Comment.nvim"
-  use "windwp/nvim-autopairs"
-
+  -- random plugins
   use "unblevable/quick-scope" -- easier horizontal jumping
   use "justinmk/vim-sneak" --  better vertical jumping
   use "JoosepAlviste/nvim-ts-context-commentstring"
-  use "lunarvim/darkplus.nvim"
-  use "joshdick/onedark.vim"
-  use "nvim-lualine/lualine.nvim"
   use "akinsho/toggleterm.nvim"
   use "folke/which-key.nvim"
-  use "kyazdani42/nvim-tree.lua"
   use "moll/vim-bbye"
-  use "nvim-lualine/lualine.nvim"
-  -- use "mengelbrecht/lightline-bufferline"
+  use "numToStr/Comment.nvim"
+  use "windwp/nvim-autopairs"
+  use "907th/vim-auto-save"
+
+  -- UI
+  use {
+    'nvim-lualine/lualine.nvim',
+    requires = { 'kyazdani42/nvim-web-devicons', opt = true }
+  }
+  use "lukas-reineke/indent-blankline.nvim"
+  use "norcalli/nvim-colorizer.lua"
+  use "dhruvasagar/vim-table-mode"
+  use "lunarvim/darkplus.nvim"
+  use "joshdick/onedark.vim"
+  use "goolord/alpha-nvim"
+
   use "akinsho/bufferline.nvim"
   use({"kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
 
-  use "907th/vim-auto-save"
-  use "goolord/alpha-nvim"
-
   -- cmp plugins
-  use 'neovim/nvim-lspconfig'
   use 'hrsh7th/cmp-nvim-lsp'
   use 'hrsh7th/cmp-buffer'
   use 'hrsh7th/cmp-path'

@@ -25,7 +25,6 @@ require "user.plug-setting.nvim-tree"
 
 -- TODO: port what I can (below) to Lua
 vim.cmd "source $HOME/.config/nvim/autocmds.vim"
-vim.cmd "source $HOME/.config/nvim/plug-config/lightline.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
 
 vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
