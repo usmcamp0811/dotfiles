@@ -50,6 +50,7 @@ return packer.startup(function(use)
 
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
+  use "vimwiki/vimwiki"
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
@@ -79,7 +80,15 @@ return packer.startup(function(use)
   use "dhruvasagar/vim-table-mode"
   use "lunarvim/darkplus.nvim"
   use "joshdick/onedark.vim"
+  use "rebelot/kanagawa.nvim"
+  use "EdenEast/nightfox.nvim"
+  use "Yazeed1s/minimal.nvim"
   use "goolord/alpha-nvim"
+  use "davidgranstrom/nvim-markdown-preview"
+  use { 'michaelb/sniprun', run = 'bash ./install.sh'}
+  use "rcarriga/nvim-notify"
+  use 'Olical/conjure'
+  use "tpope/vim-surround"
 
   use "akinsho/bufferline.nvim"
   use({"kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
@@ -122,3 +131,4 @@ return packer.startup(function(use)
     require("packer").sync()
   end
 end)
+

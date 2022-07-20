@@ -80,7 +80,7 @@ local opts = {
 local my_mappings = {}
 
 local mappings = {
-  ["<CR>"] = {":IPythonCellExecuteCell", "Execute # ``` Code Cell"},
+  ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
   ["\\"] = {"SlimeSendCurrentLine", "Execute Line of Code"},
   ["a"] = { "<cmd>Alpha<cr>", "Alpha" },
   ["b"] = {

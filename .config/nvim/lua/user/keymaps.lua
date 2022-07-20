@@ -82,4 +82,8 @@ keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
 -- keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", term_opts)
 -- keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", term_opts)
 
+-- keymap("v", "u", "<Plug>SnipRun", term_opts)
+-- keymap("n", "<leader>u", "<Plug>SnipRunOperator", term_opts)
+-- keymap("n", "<leader>uu", "<Plug>SnipRun", term_opts)
+
 return M

@@ -34,8 +34,8 @@ autocmd! FileType python set foldmethod=indent
 autocmd FileType pandoc.markdown nnoremap K :IPythonCellPrevCell<CR>
 autocmd FileType pandoc.markdown nnoremap J :IPythonCellNextCell<CR>
 
-autocmd FileType julia nnoremap K :JuliaCellPrevCell<CR>
-autocmd FileType julia nnoremap J :JuliaCellNextCell<CR>
+" autocmd FileType julia nnoremap K :JuliaCellPrevCell<CR>
+" autocmd FileType julia nnoremap J :JuliaCellNextCell<CR>
 
 autocmd FileType julia set foldmethod=syntax
 
