@@ -50,13 +50,21 @@ return packer.startup(function(use)
 
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
+  use "vimwiki/vimwiki"
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
+  use "kdheepak/JuliaFormatter.vim"
   use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
   use({"hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" }})
   use({"mroavi/vim-julia-cell", ft = { "julia", "jl" }})
   use "metakirby5/codi.vim"
+
+  use 'vim-pandoc/vim-pandoc'
+  use 'vim-pandoc/vim-pandoc-syntax'
+  use "godlygeek/tabular"
+  use "lervag/vimtex" -- for writing latex
+  use "lambdalisue/suda.vim" -- runs `sudo` when needed
 
   -- random plugins
   use "unblevable/quick-scope" -- easier horizontal jumping
@@ -79,8 +87,18 @@ return packer.startup(function(use)
   use "dhruvasagar/vim-table-mode"
   use "lunarvim/darkplus.nvim"
   use "joshdick/onedark.vim"
+  use "rebelot/kanagawa.nvim"
+  use "EdenEast/nightfox.nvim"
   use "Yazeed1s/minimal.nvim"
   use "goolord/alpha-nvim"
+  use "davidgranstrom/nvim-markdown-preview"
+  use { 'michaelb/sniprun', run = 'bash ./install.sh'}
+  use "rcarriga/nvim-notify"
+  use 'Olical/conjure'
+  use {
+    "tpope/vim-surround",
+    requires = { "tpope/vim-repeat", opt = true }
+  }
 
   use "akinsho/bufferline.nvim"
   use({"kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
@@ -123,3 +141,4 @@ return packer.startup(function(use)
     require("packer").sync()
   end
 end)
+
