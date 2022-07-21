@@ -3,12 +3,12 @@ require "user.options"
 require "user.keymaps"
 require "user.lsp"
 require "user.autocommands"
+require "user.colorscheme"
 
 -- Plugins
 require "user.plugins"
 
 -- Plugin Configurations
-require "user.plug-setting.colorscheme"
 require "user.plug-setting.cmp"
 require "user.plug-setting.telescope"
 require "user.plug-setting.treesitter"

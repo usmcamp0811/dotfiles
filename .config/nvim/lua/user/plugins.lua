@@ -76,6 +76,15 @@ return packer.startup(function(use)
   use "numToStr/Comment.nvim"
   use "windwp/nvim-autopairs"
   use "907th/vim-auto-save"
+  use( { 
+    "weirongxu/plantuml-previewer.vim",
+    requires = { { "tyru/open-browser.vim", opt = false }, { "aklt/plantuml-syntax", opt = true } }
+  } )
+  use "bluz71/vim-nightfly-guicolors"
+  use "bluz71/vim-moonfly-colors"
+  use "folke/lsp-colors.nvim"
+  use "humanoid-colors/vim-humanoid-colorscheme"
+  use "lalitmee/cobalt2.nvim"
 
   -- UI
   use {

@@ -2,7 +2,7 @@ vim.cmd [[
 try
   colorscheme kanagawa
 catch /^Vim\%((\a\+)\)\=:E185/
-  colorscheme default
+  colorscheme auto
   set background=dark
 endtry
 ]]
