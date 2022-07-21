@@ -27,7 +27,7 @@ keymap("n", "<m-\\>", ":tabonly<cr>", opts)
 --Remap space as leader key
 keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+vim.g.maplocalleader = ";"
 
 -- save files
 keymap("i", "<C-s>", "<esc>:w<cr>", opts)
@@ -74,6 +74,10 @@ keymap("x", "J", ":move '>+1<CR>gv-gv", opts)
 keymap("x", "K", ":move '<-2<CR>gv-gv", opts)
 keymap("x", "<A-j>", ":move '>+1<CR>gv-gv", opts)
 keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
+
+keymap("n", "<BS>", "<Plug>(comment_toggle_current_linewise)<cr>", opts)
+
+keymap("v", "<BS>", "<Plug>(comment_toggle_linewise_visual)<cr>", opts)
 
 -- Terminal --
 -- Better terminal navigation

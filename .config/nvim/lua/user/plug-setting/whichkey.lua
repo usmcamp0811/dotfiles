@@ -14,7 +14,7 @@ local setup = {
     -- the presets plugin, adds help for a bunch of default keybindings in Neovim
     -- No actual key bindings are created
     presets = {
-      operators = false, -- adds help for operators like d, y, ... and registers them for motion / text object completion
+      operators = true, -- adds help for operators like d, y, ... and registers them for motion / text object completion
       motions = true, -- adds help for motions
       text_objects = true, -- help for text objects triggered after entering an operator
       windows = true, -- default bindings on <c-w>
@@ -81,16 +81,12 @@ local my_mappings = {}
 
 local mappings = {
   ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
-  ["\\"] = {"SlimeSendCurrentLine", "Execute Line of Code"},
-  ["a"] = { "<cmd>Alpha<cr>", "Alpha" },
+  ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+  [","] = { "<cmd>Alpha<cr>", "Alpha" },
   ["b"] = {
     "<cmd>BufferLinePick<cr>",
     "Buffers",
   },
-  -- ["b"] = {
-  --   "<cmd>lua require('telescope.builtin').buffers(require('telescope.themes').get_dropdown{previewer = false})<cr>",
-  --   "Buffers",
-  -- },
   ["e"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
   ["w"] = { "<cmd>w!<CR>", "Save" },
   ["q"] = { "<cmd>q!<CR>", "Quit" },
@@ -103,6 +99,18 @@ local mappings = {
   ["F"] = { "<cmd>Telescope live_grep theme=ivy<cr>", "Find Text" },
   ["P"] = { "<cmd>lua require('telescope').extensions.projects.projects()<cr>", "Projects" },
 
+  a = {
+    name = "Actions",
+    c = { ":ColorizerToggle<cr>", "Colorizer"},
+    u = { 'm`yypVr=``', 'underline-double' },
+    ['"'] = { '<Plug>Ysurroundiw"', 'Surround word with "'},
+    ["'"] = { "<Plug>Ysurroundiw'", "Surround word with '"},
+    ["]"] = { "<Plug>Ysurroundiw]", "Surround word with ]"},
+    ["}"] = { "<Plug>Ysurroundiw}", "Surround word with }"},
+    [")"] = { "<Plug>Ysurroundiw)", "Surround word with ) `dw)`"},
+    d = { '<Plug>Dsurround"', 'Delete " from around something'},
+    s = { "<Plug>Dsurround'", "Delete ' from around something"},
+  },
   p = {
     name = "Packer",
     c = { "<cmd>PackerCompile<cr>", "Compile" },

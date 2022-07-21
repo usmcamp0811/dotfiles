@@ -74,6 +74,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/Comment.nvim",
     url = "https://github.com/numToStr/Comment.nvim"
   },
+  ["JuliaFormatter.vim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/JuliaFormatter.vim",
+    url = "https://github.com/kdheepak/JuliaFormatter.vim"
+  },
   LuaSnip = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/LuaSnip",
@@ -88,6 +93,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/bufferline.nvim",
     url = "https://github.com/akinsho/bufferline.nvim"
+  },
+  catppuccin = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/catppuccin",
+    url = "https://github.com/catppuccin/nvim"
   },
   ["cmp-buffer"] = {
     loaded = true,
@@ -108,6 +118,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/cmp-path",
     url = "https://github.com/hrsh7th/cmp-path"
+  },
+  ["cobalt2.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/cobalt2.nvim",
+    url = "https://github.com/lalitmee/cobalt2.nvim"
   },
   ["codi.vim"] = {
     loaded = true,
@@ -154,6 +169,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/kanagawa.nvim",
     url = "https://github.com/rebelot/kanagawa.nvim"
+  },
+  ["lsp-colors.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/lsp-colors.nvim",
+    url = "https://github.com/folke/lsp-colors.nvim"
   },
   ["lualine.nvim"] = {
     loaded = true,
@@ -235,10 +255,25 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/onedark.vim",
     url = "https://github.com/joshdick/onedark.vim"
   },
+  ["open-browser.vim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/open-browser.vim",
+    url = "https://github.com/tyru/open-browser.vim"
+  },
   ["packer.nvim"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/packer.nvim",
     url = "https://github.com/wbthomason/packer.nvim"
+  },
+  ["plantuml-previewer.vim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/plantuml-previewer.vim",
+    url = "https://github.com/weirongxu/plantuml-previewer.vim"
+  },
+  ["plantuml-syntax"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/plantuml-syntax",
+    url = "https://github.com/aklt/plantuml-syntax"
   },
   ["plenary.nvim"] = {
     loaded = true,
@@ -270,6 +305,16 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/sniprun",
     url = "https://github.com/michaelb/sniprun"
   },
+  ["suda.vim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/suda.vim",
+    url = "https://github.com/lambdalisue/suda.vim"
+  },
+  tabular = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/tabular",
+    url = "https://github.com/godlygeek/tabular"
+  },
   ["telescope.nvim"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/telescope.nvim",
@@ -290,6 +335,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-bbye",
     url = "https://github.com/moll/vim-bbye"
   },
+  ["vim-humanoid-colorscheme"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-humanoid-colorscheme",
+    url = "https://github.com/humanoid-colors/vim-humanoid-colorscheme"
+  },
   ["vim-ipython-cell"] = {
     loaded = false,
     needs_bufread = false,
@@ -303,6 +353,31 @@ _G.packer_plugins = {
     only_cond = false,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/opt/vim-julia-cell",
     url = "https://github.com/mroavi/vim-julia-cell"
+  },
+  ["vim-moonfly-colors"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-moonfly-colors",
+    url = "https://github.com/bluz71/vim-moonfly-colors"
+  },
+  ["vim-nightfly-guicolors"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-nightfly-guicolors",
+    url = "https://github.com/bluz71/vim-nightfly-guicolors"
+  },
+  ["vim-pandoc"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-pandoc",
+    url = "https://github.com/vim-pandoc/vim-pandoc"
+  },
+  ["vim-pandoc-syntax"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-pandoc-syntax",
+    url = "https://github.com/vim-pandoc/vim-pandoc-syntax"
+  },
+  ["vim-repeat"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-repeat",
+    url = "https://github.com/tpope/vim-repeat"
   },
   ["vim-slime"] = {
     loaded = true,
@@ -323,6 +398,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-table-mode",
     url = "https://github.com/dhruvasagar/vim-table-mode"
+  },
+  vimtex = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vimtex",
+    url = "https://github.com/lervag/vimtex"
   },
   vimwiki = {
     loaded = true,
@@ -345,10 +425,10 @@ vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
 vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
-vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
+vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
 vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
+vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end

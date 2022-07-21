@@ -54,10 +54,17 @@ return packer.startup(function(use)
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
+  use "kdheepak/JuliaFormatter.vim"
   use "jpalardy/vim-slime" -- allow vim to send julia / python commands to the repl
   use({"hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" }})
   use({"mroavi/vim-julia-cell", ft = { "julia", "jl" }})
   use "metakirby5/codi.vim"
+
+  use 'vim-pandoc/vim-pandoc'
+  use 'vim-pandoc/vim-pandoc-syntax'
+  use "godlygeek/tabular"
+  use "lervag/vimtex" -- for writing latex
+  use "lambdalisue/suda.vim" -- runs `sudo` when needed
 
   -- random plugins
   use "unblevable/quick-scope" -- easier horizontal jumping
@@ -69,6 +76,17 @@ return packer.startup(function(use)
   use "numToStr/Comment.nvim"
   use "windwp/nvim-autopairs"
   use "907th/vim-auto-save"
+  use( { 
+    "weirongxu/plantuml-previewer.vim",
+    requires = { { "tyru/open-browser.vim", opt = false }, { "aklt/plantuml-syntax", opt = false } }
+  } )
+  use "aklt/plantuml-syntax"
+  use "bluz71/vim-nightfly-guicolors"
+  use "bluz71/vim-moonfly-colors"
+  use "folke/lsp-colors.nvim"
+  use "humanoid-colors/vim-humanoid-colorscheme"
+  use "lalitmee/cobalt2.nvim"
+  use { "catppuccin/nvim", as = "catppuccin" }
 
   -- UI
   use {
@@ -88,7 +106,10 @@ return packer.startup(function(use)
   use { 'michaelb/sniprun', run = 'bash ./install.sh'}
   use "rcarriga/nvim-notify"
   use 'Olical/conjure'
-  use "tpope/vim-surround"
+  use {
+    "tpope/vim-surround",
+    requires = { "tpope/vim-repeat", opt = true }
+  }
 
   use "akinsho/bufferline.nvim"
   use({"kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima

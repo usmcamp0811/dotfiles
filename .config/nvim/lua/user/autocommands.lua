@@ -28,6 +28,13 @@ vim.cmd [[
     autocmd!
     autocmd User AlphaReady set showtabline=0 | autocmd BufUnload <buffer> set showtabline=2
   augroup end
+
+  augroup _julia
+    autocmd FileType julia nnoremap K :JuliaCellPrevCell<CR>
+    autocmd FileType julia nnoremap J :JuliaCellNextCell<CR>
+    autocmd FileType julia set foldmethod=syntax
+    autocmd FileType julia let g:which_key['<CR>'] = [ ':JuliaCellExecuteCellJump', 'Execute Julia Code Cell' ]
+  augroup end
 ]]
 
 -- Autoformat
