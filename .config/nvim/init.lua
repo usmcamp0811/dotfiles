@@ -22,6 +22,7 @@ require "user.plug-setting.bufferline"
 require "user.plug-setting.impatient"
 require "user.plug-setting.project"
 require "user.plug-setting.nvim-tree"
+require "user.plug-setting.catppuccin"
 
 
 -- TODO: port what I can (below) to Lua

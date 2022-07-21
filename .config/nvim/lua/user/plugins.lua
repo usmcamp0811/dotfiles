@@ -78,13 +78,15 @@ return packer.startup(function(use)
   use "907th/vim-auto-save"
   use( { 
     "weirongxu/plantuml-previewer.vim",
-    requires = { { "tyru/open-browser.vim", opt = false }, { "aklt/plantuml-syntax", opt = true } }
+    requires = { { "tyru/open-browser.vim", opt = false }, { "aklt/plantuml-syntax", opt = false } }
   } )
+  use "aklt/plantuml-syntax"
   use "bluz71/vim-nightfly-guicolors"
   use "bluz71/vim-moonfly-colors"
   use "folke/lsp-colors.nvim"
   use "humanoid-colors/vim-humanoid-colorscheme"
   use "lalitmee/cobalt2.nvim"
+  use { "catppuccin/nvim", as = "catppuccin" }
 
   -- UI
   use {
