@@ -22,5 +22,5 @@ nnoremap <buffer> <silent> <localleader>U :JupyterUpdateShell<CR>
 
 " Debugging maps
 nnoremap <buffer> <silent> <localleader>b :PythonSetBreak<CR>
-autocmd FileType RMarkdown,julia,python call jupyter#MakeStandardCommands()
+" autocmd FileType RMarkdown,julia,python call jupyter#MakeStandardCommands()
 au BufNewFile,BufRead .Rmd,Rmd set filetype=RMarkdown
