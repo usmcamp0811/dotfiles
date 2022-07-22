@@ -102,6 +102,7 @@ function docker-login() {
 }
 
 alias vimwiki="/usr/bin/nvim +VimwikiIndex NERDTreeClose"
+alias planner="/usr/bin/nvim +Telekasten"
 
 alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
 

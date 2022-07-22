@@ -7,6 +7,7 @@ require "user.colorscheme"
 
 -- Plugins
 require "user.plugins"
+-- $HOME/.config/nvim/lua/user/plugins.lua
 
 -- Plugin Configurations
 require "user.plug-setting.cmp"
@@ -24,6 +25,7 @@ require "user.plug-setting.project"
 require "user.plug-setting.nvim-tree"
 require "user.plug-setting.catppuccin"
 require "user.plug-setting.markdown"
+require "user.plug-setting.telekasten"
 
 
 -- TODO: port what I can (below) to Lua
@@ -35,7 +37,7 @@ vim.cmd "source $HOME/.config/nvim/plug-config/codi.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/autosave.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/jupyter-vim.vim"  -- allows for julia cell jumping
 vim.cmd "source $HOME/.config/nvim/plug-config/pandoc.vim"
-vim.cmd "source $HOME/.config/nvim/functions.vim"
+vim.cmd "source $HOME/.config/nvim/functions.vim" -- has a function for my markdown code blocks
 vim.cmd [[ 
 function! s:isAtStartOfLine(mapping)
   let text_before_cursor = getline('.')[0 : col('.')-1]

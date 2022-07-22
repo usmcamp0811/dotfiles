@@ -94,6 +94,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/bufferline.nvim",
     url = "https://github.com/akinsho/bufferline.nvim"
   },
+  ["calendar-vim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/calendar-vim",
+    url = "https://github.com/renerocksai/calendar-vim"
+  },
   catppuccin = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/catppuccin",
@@ -315,6 +320,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/tabular",
     url = "https://github.com/godlygeek/tabular"
   },
+  ["telekasten.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/telekasten.nvim",
+    url = "https://github.com/renerocksai/telekasten.nvim"
+  },
   ["telescope.nvim"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/telescope.nvim",
@@ -420,10 +430,10 @@ vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
-vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
-vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
 vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
+vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
+vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
+vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end

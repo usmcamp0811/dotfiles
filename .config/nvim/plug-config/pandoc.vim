@@ -5,7 +5,7 @@ augroup END
 
 
 " let g:pandoc#syntax#codeblocks#embeds#langs = ["json=javascript","javascript", "ruby","python","bash=sh", "julia"]
-let g:pandoc#syntax#codeblocks#embeds#langs = ["python", "julia"]
+let g:pandoc#syntax#codeblocks#embeds#langs = ["python", "julia", "bash=sh", "json=javascript", "javascript", "clojure", "zsh=sh", "dockerfile"]
 " let g:pandoc#folding#mode = ['manual']
 let g:pandoc#folding#fdc = 0
 
