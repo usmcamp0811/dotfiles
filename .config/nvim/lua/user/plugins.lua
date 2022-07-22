@@ -86,7 +86,12 @@ return packer.startup(function(use)
   use "folke/lsp-colors.nvim"
   use "humanoid-colors/vim-humanoid-colorscheme"
   use "lalitmee/cobalt2.nvim"
-  use { "catppuccin/nvim", as = "catppuccin" }
+
+  use {
+    "catppuccin/nvim",
+    as = "catppuccin",
+    run = ":CatppuccinCompile"
+  }
 
   -- UI
   use {

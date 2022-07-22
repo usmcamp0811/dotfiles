@@ -22,15 +22,15 @@ require "user.plug-setting.bufferline"
 require "user.plug-setting.impatient"
 require "user.plug-setting.project"
 require "user.plug-setting.nvim-tree"
--- require "user.plug-setting.catppuccin"
+require "user.plug-setting.catppuccin"
 
 
 -- TODO: port what I can (below) to Lua
--- vim.cmd "source $HOME/.config/nvim/autocmds.vim"
--- vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
---
--- vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
--- vim.cmd "source $HOME/.config/nvim/plug-config/codi.vim"
--- vim.cmd "source $HOME/.config/nvim/plug-config/jupyter-vim.vim"  -- allows for julia cell jumping
--- vim.cmd "source $HOME/.config/nvim/plug-config/autosave.vim"
+vim.cmd "source $HOME/.config/nvim/autocmds.vim"
+vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
+
+vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
+vim.cmd "source $HOME/.config/nvim/plug-config/codi.vim"
+vim.cmd "source $HOME/.config/nvim/plug-config/jupyter-vim.vim"  -- allows for julia cell jumping
+vim.cmd "source $HOME/.config/nvim/plug-config/autosave.vim"
 
