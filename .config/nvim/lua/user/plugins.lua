@@ -70,7 +70,7 @@ return packer.startup(function(use)
 
   -- random plugins
   use "unblevable/quick-scope" -- easier horizontal jumping
-  use "justinmk/vim-sneak" --  better vertical jumping
+  use "ggandor/lightspeed.nvim" --  better vertical jumping
   use "JoosepAlviste/nvim-ts-context-commentstring"
   use "akinsho/toggleterm.nvim"
   use "folke/which-key.nvim"

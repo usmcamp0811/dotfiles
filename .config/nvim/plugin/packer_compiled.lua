@@ -175,6 +175,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/kanagawa.nvim",
     url = "https://github.com/rebelot/kanagawa.nvim"
   },
+  ["lightspeed.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/lightspeed.nvim",
+    url = "https://github.com/ggandor/lightspeed.nvim"
+  },
   ["lsp-colors.nvim"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/lsp-colors.nvim",
@@ -394,11 +399,6 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-slime",
     url = "https://github.com/jpalardy/vim-slime"
   },
-  ["vim-sneak"] = {
-    loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-sneak",
-    url = "https://github.com/justinmk/vim-sneak"
-  },
   ["vim-surround"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/vim-surround",
@@ -430,10 +430,10 @@ vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
+vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
 vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
-vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-ipython-cell', 'vim-julia-cell'}, { ft = "julia" }, _G.packer_plugins)]]
 vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
+vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end
