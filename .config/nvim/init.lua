@@ -3,13 +3,13 @@ require "user.options"
 require "user.keymaps"
 require "user.lsp"
 require "user.autocommands"
-require "user.colorscheme"
 
 -- Plugins
 require "user.plugins"
 -- $HOME/.config/nvim/lua/user/plugins.lua
 
 -- Plugin Configurations
+require "user.plug-setting.catppuccin"
 require "user.plug-setting.cmp"
 require "user.plug-setting.telescope"
 require "user.plug-setting.treesitter"
@@ -23,9 +23,10 @@ require "user.plug-setting.bufferline"
 require "user.plug-setting.impatient"
 require "user.plug-setting.project"
 require "user.plug-setting.nvim-tree"
-require "user.plug-setting.catppuccin"
 require "user.plug-setting.markdown"
 require "user.plug-setting.telekasten"
+
+require "user.colorscheme"
 
 
 -- TODO: port what I can (below) to Lua
