@@ -50,7 +50,9 @@ return packer.startup(function(use)
 
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
-  use "vimwiki/vimwiki"
+  -- use "vimwiki/vimwiki"
+  use "renerocksai/telekasten.nvim"
+  use "renerocksai/calendar-vim"
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
@@ -86,7 +88,12 @@ return packer.startup(function(use)
   use "folke/lsp-colors.nvim"
   use "humanoid-colors/vim-humanoid-colorscheme"
   use "lalitmee/cobalt2.nvim"
-  use { "catppuccin/nvim", as = "catppuccin" }
+
+  use {
+    "catppuccin/nvim",
+    as = "catppuccin",
+    run = ":CatppuccinCompile"
+  }
 
   -- UI
   use {
