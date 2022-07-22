@@ -50,7 +50,7 @@ return packer.startup(function(use)
 
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
-  use "vimwiki/vimwiki"
+  -- use "vimwiki/vimwiki"
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
