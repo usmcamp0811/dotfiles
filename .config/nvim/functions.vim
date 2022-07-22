@@ -88,5 +88,5 @@ function! PercentBlocks()
     endfor
 endfunction
 
-let g:markdown_github_languages = ['python', 'julia', 'bash']
+let g:markdown_github_languages = ['python', 'julia', 'bash', 'zsh', 'clojure']
 " }}}
