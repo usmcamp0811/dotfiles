@@ -1,13 +1,14 @@
+vim.g.catppuccin_flavour = "mocha"
 local colors = require("catppuccin.palettes").get_palette()
 colors.none = "NONE"
 require("catppuccin").setup({
 	dim_inactive = {
 		enabled = true,
 		shade = "dark",
-		percentage = 0.25,
+		percentage = 0.15,
 	},
-	transparent_background = true,
-	term_colors = true,
+	transparent_background = false,
+	term_colors = false,
 	compile = {
 		enabled = true,
 		path = vim.fn.stdpath "cache" .. "/catppuccin",
@@ -85,7 +86,7 @@ require("catppuccin").setup({
 		symbols_outline = true,
 		mini = false,
 		aerial = false,
-		vimwiki = true,
+		vimwiki = false,
 		beacon = true,
 	},
 	custom_highlights = {
@@ -99,3 +100,13 @@ require("catppuccin").setup({
 		DiagnosticVirtualTextHint = { bg = colors.none },
 	},
 })
+
+vim.cmd [[
+try
+  let g:catppuccin_flavour = "mocha" " latte, frappe, macchiato, mocha
+  colorscheme catppuccin
+catch /^Vim\%((\a\+)\)\=:E185/
+  colorscheme auto
+  set background=dark
+endtry
+]]
