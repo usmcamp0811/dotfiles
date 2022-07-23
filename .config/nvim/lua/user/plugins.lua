@@ -53,6 +53,7 @@ return packer.startup(function(use)
   -- use "vimwiki/vimwiki"
   use "renerocksai/telekasten.nvim"
   use "renerocksai/calendar-vim"
+  use {'edluffy/hologram.nvim'}
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
@@ -136,6 +137,12 @@ return packer.startup(function(use)
   use "neovim/nvim-lspconfig" -- enable LSP
   use "williamboman/nvim-lsp-installer" -- simple to use language server installer
   use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
+  use({
+    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+    config = function()
+      require("lsp_lines").setup()
+    end,
+  })
 
   -- Telescope
   use "nvim-telescope/telescope.nvim"
