@@ -26,6 +26,7 @@ require "user.plug-setting.project"
 require "user.plug-setting.nvim-tree"
 require "user.plug-setting.markdown"
 require "user.plug-setting.colorizer"
+require "user.plug-setting.vimwiki"
 
 -- require "user.colorscheme"
 
@@ -34,7 +35,6 @@ require "user.plug-setting.colorizer"
 vim.cmd "source $HOME/.config/nvim/autocmds.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
-vim.cmd "source $HOME/.config/nvim/plug-config/vimwiki.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/codi.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/autosave.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/jupyter-vim.vim"  -- allows for julia cell jumping
