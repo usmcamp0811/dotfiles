@@ -48,12 +48,17 @@ return packer.startup(function(use)
   use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
   use "lewis6991/impatient.nvim" -- suppose to speed up lua load times
 
+  -- use 'vim-pandoc/vim-pandoc' -- this is not needed treesitter or something has got the filetypes
+  use 'vim-pandoc/vim-pandoc-syntax'
+  use "jbyuki/nabla.nvim"
+
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
-  -- use "vimwiki/vimwiki"
-  use "renerocksai/telekasten.nvim"
+  use "vimwiki/vimwiki"
+  -- use "renerocksai/telekasten.nvim" -- not quite ready to replace vimwiki
+  use "mzlogin/vim-markdown-toc"
   use "renerocksai/calendar-vim"
-  use {'edluffy/hologram.nvim'}
+  -- use {'edluffy/hologram.nvim'}
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
@@ -63,8 +68,6 @@ return packer.startup(function(use)
   use({"mroavi/vim-julia-cell", ft = { "julia", "jl" }})
   use "metakirby5/codi.vim"
 
-  use 'vim-pandoc/vim-pandoc'
-  use 'vim-pandoc/vim-pandoc-syntax'
   use "godlygeek/tabular"
   use "lervag/vimtex" -- for writing latex
   use "lambdalisue/suda.vim" -- runs `sudo` when needed
@@ -79,7 +82,7 @@ return packer.startup(function(use)
   use "numToStr/Comment.nvim"
   use "windwp/nvim-autopairs"
   use "907th/vim-auto-save"
-  use( { 
+  use( {
     "weirongxu/plantuml-previewer.vim",
     requires = { { "tyru/open-browser.vim", opt = false }, { "aklt/plantuml-syntax", opt = false } }
   } )
@@ -146,6 +149,8 @@ return packer.startup(function(use)
 
   -- Telescope
   use "nvim-telescope/telescope.nvim"
+  use "nvim-telescope/telescope-symbols.nvim"
+  use "nvim-telescope/telescope-media-files.nvim"
 
   -- Treesitter
   use({
@@ -153,6 +158,7 @@ return packer.startup(function(use)
     run = ":TSUpdate",
   })
 
+  use "nvim-treesitter/playground"
   -- Git
   use {
     'lewis6991/gitsigns.nvim',
