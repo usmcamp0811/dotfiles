@@ -31,7 +31,6 @@ require "user.plug-setting.colorizer"
 
 
 -- TODO: port what I can (below) to Lua
-vim.cmd "source $HOME/.config/nvim/plug-config/pandoc.vim"
 vim.cmd "source $HOME/.config/nvim/autocmds.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
 vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
