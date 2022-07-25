@@ -1,2 +1,2 @@
 #!/bin/sh
-feh --no-fehbg --bg-scale '/home/mcamp/.config/background' 
+feh --no-fehbg --bg-scale '/home/mcamp/.background' 

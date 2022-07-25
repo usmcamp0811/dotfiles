@@ -87,9 +87,8 @@ local mappings = {
     "Buffers",
   },
   ["e"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
-  ["w"] = { "<cmd>w!<CR>", "Save" },
   ["q"] = { "<cmd>q!<CR>", "Quit" },
-  ["c"] = { "<cmd>ClaendarVR<CR>", "Open Calendar" },
+  ["c"] = { "<cmd>CalendarVR<CR>", "Open Calendar" },
   ["h"] = { "<cmd>nohlsearch<CR>", "No Highlight" },
   ["f"] = {
     "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>",
@@ -97,8 +96,18 @@ local mappings = {
   },
   ["F"] = { "<cmd>Telescope live_grep theme=ivy<cr>", "Find Text" },
   ["P"] = { "<cmd>lua require('telescope').extensions.projects.projects()<cr>", "Projects" },
-  ["T"] = { "<cmd>Telekasten<cr>", "Telekasten"},
+  ["d"] = { "<cmd>VimwikiDiaryIndex<cr>", "Vimwiki Diary" },
+  ["w"] = { "<cmd>VimwikiIndex<CR>", "Vimwiki Main" },
+  ["n"] = { "<cmd>VimwikiMakeDiaryNote<CR>", "Daily Note"},
+  ["N"] = { "<cmd>VimwikiMakeTomorrowDiaryNote<CR>", "Tomorrows Note"},
 
+  W = {
+    name = "VimWiki",
+    d = { "<Plug>VimwikiIncrementListItem", "Incriment Completion Level"},
+    u = { "<Plug>VimwikiDecrementListItem", "Incriment Completion Level"},
+    t = { "<Plug>VimwikiToggleListItem", "Toggle Checkbox"},
+    f = { '<cmd>lua require("telescope.builtin").find_files({cwd = "~/vimwiki"})<CR>', "Find Wiki" },
+  },
   a = {
     name = "Actions",
     c = { ":ColorizerToggle<cr>", "Colorizer"},
