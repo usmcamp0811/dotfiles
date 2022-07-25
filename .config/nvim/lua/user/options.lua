@@ -27,6 +27,7 @@ local options = {
     wildmenu = true, -- Hitting TAB in command mode will show possible completion above command line
     wrapscan = true, -- Searches wrap around end of file
     encoding = 'utf-8', -- nobomb
+    fileencoding= "utf-8",
     -- vim.o.guioptions = 'a' -- copy on select... requires gvim
     shortmess = 'atI', -- Don't show the intro message when starting vim
     showtabline = 2, -- Always show tab bar

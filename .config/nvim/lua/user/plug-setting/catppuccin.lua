@@ -73,12 +73,12 @@ require("catppuccin").setup({
 		},
 		dashboard = true,
 		neogit = false,
-		vim_sneak = true,
+		vim_sneak = false,
 		fern = false,
 		barbar = false,
 		bufferline = true,
 		markdown = true,
-		lightspeed = false,
+		lightspeed = true,
 		ts_rainbow = false,
 		hop = false,
 		notify = true,
@@ -87,7 +87,7 @@ require("catppuccin").setup({
 		mini = false,
 		aerial = false,
 		vimwiki = false,
-		beacon = true,
+		beacon = false,
 	},
 	custom_highlights = {
 		Comment = { fg = colors.overlay1 },
@@ -103,6 +103,7 @@ require("catppuccin").setup({
 
 vim.cmd [[
 try
+  let g:catppuccin_flavour = "mocha" " latte, frappe, macchiato, mocha
   colorscheme catppuccin
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme auto

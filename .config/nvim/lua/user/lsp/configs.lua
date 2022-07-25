@@ -5,7 +5,7 @@ end
 
 local lspconfig = require("lspconfig")
 
-local servers = { "jsonls", "sumneko_lua", "pyright", "yamlls", "julials" }
+local servers = { "jsonls", "sumneko_lua", "pyright", "yamlls", "julials", "texlab", "dockerls" }
 
 lsp_installer.setup({
 	ensure_installed = servers,
@@ -22,3 +22,8 @@ for _, server in pairs(servers) do
 	end
 	lspconfig[server].setup(opts)
 end
+
+-- Disable virtual_text since it's redundant due to lsp_lines.
+vim.diagnostic.config({
+  virtual_text = false,
+})

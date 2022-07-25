@@ -2,6 +2,7 @@
 vim.cmd "autocmd BufRead,BufNewFile *.wiki set filetype=vimwik"
 -- vim.cmd "autocmd BufRead,BufNewFile diary.md :CalendarVR"
 vim.cmd "autocmd BufReadPre diary.md :VimwikiDiaryGenerateLinks"
+-- vim.cmd "autocmd BufReadPre index.md :VimwikiGenerateLinks"
 
 vim.g.vimwiki_ext2syntax = {
   [".Rmd"] = "markdown",
@@ -24,12 +25,28 @@ vim.g.vimwiki_list = {
       syntax = 'markdown',
       ext = '.md',
       auto_toc = 1,
+      links_space_char = "_",
   },
   {
       path = '~/vimwiki/code',
       syntax = 'markdown',
       ext = '.md',
       auto_toc = 1,
+      links_space_char = "_",
+  },
+  {
+      path = '~/vimwiki/linux',
+      syntax = 'markdown',
+      ext = '.md',
+      auto_toc = 1,
+      links_space_char = "_",
+  },
+  {
+      path = '~/vimwiki/random',
+      syntax = 'markdown',
+      ext = '.md',
+      auto_toc = 1,
+      links_space_char = "_",
   }
 
 

@@ -1,3 +1,4 @@
+local M = {}
 local home = vim.fn.expand("~/vimwiki")
 -- NOTE for Windows users:
 -- - don't use Windows
@@ -86,7 +87,7 @@ require('telekasten').setup({
     tag_notation = "#tag",
 
     -- command palette theme: dropdown (window) or ivy (bottom panel)
-    command_palette_theme = "dropdown",
+    command_palette_theme = "ivy",
 
     -- tag list theme:
     -- get_cursor: small tag list at cursor; ivy and dropdown like above
@@ -130,3 +131,4 @@ require('telekasten').setup({
     -- should all links be updated when a file is renamed
     rename_update_links = true,
 })
+return M
