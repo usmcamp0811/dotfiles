@@ -100,6 +100,7 @@ local mappings = {
   ["w"] = { "<cmd>VimwikiIndex<CR>", "Vimwiki Main" },
   ["n"] = { "<cmd>VimwikiMakeDiaryNote<CR>", "Daily Note"},
   ["N"] = { "<cmd>VimwikiMakeTomorrowDiaryNote<CR>", "Tomorrows Note"},
+  ["r"] = { ":Telescope oldfiles <CR>", "Search Recent Files"},
 
   W = {
     name = "VimWiki",
