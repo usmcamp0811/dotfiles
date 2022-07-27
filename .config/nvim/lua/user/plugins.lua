@@ -59,6 +59,7 @@ return packer.startup(function(use)
   use "mzlogin/vim-markdown-toc"
   use "renerocksai/calendar-vim"
   -- use {'edluffy/hologram.nvim'}
+  use "gioele/vim-autoswap"
 
   -- Notebook like functions / REPL
   use "JuliaEditorSupport/julia-vim"
