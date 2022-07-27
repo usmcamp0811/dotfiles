@@ -79,6 +79,9 @@ keymap("n", "<BS>", "<Plug>(comment_toggle_current_linewise)<cr>", opts)
 
 keymap("v", "<BS>", "<Plug>(comment_toggle_linewise_visual)<cr>", opts)
 
+-- Insert current time... for diary/notes
+keymap("n", "T", ":r! date +'\\%H:\\%M - '<CR>A", opts)
+
 -- Terminal --
 -- Better terminal navigation
 -- keymap("t", "<C-h>", "<C-\\><C-N><C-w>h", term_opts)
