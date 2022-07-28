@@ -27,17 +27,21 @@ require "user.plug-setting.nvim-tree"
 require "user.plug-setting.markdown"
 require "user.plug-setting.colorizer"
 require "user.plug-setting.vimwiki"
+require "user.plug-setting.calendar"
+require "user.plug-setting.knap"
+require "user.plug-setting.autosave"
+require "user.plug-setting.jupyter-vim"
+require "user.plug-setting.slime"
+require "user.plug-setting.ranger"
+-- require "user.plug-setting.codi"
 
 -- require "user.colorscheme"
 
 
 -- TODO: port what I can (below) to Lua
 vim.cmd "source $HOME/.config/nvim/autocmds.vim"
-vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
-vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
-vim.cmd "source $HOME/.config/nvim/plug-config/codi.vim"
-vim.cmd "source $HOME/.config/nvim/plug-config/autosave.vim"
-vim.cmd "source $HOME/.config/nvim/plug-config/jupyter-vim.vim"  -- allows for julia cell jumping
+-- vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
+-- vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
 vim.cmd "source $HOME/.config/nvim/functions.vim" -- has a function for my markdown code blocks
 vim.cmd [[ 
 function! s:isAtStartOfLine(mapping)
