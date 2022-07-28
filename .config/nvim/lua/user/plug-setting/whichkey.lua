@@ -88,7 +88,8 @@ local mappings = {
   },
   ["e"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
   ["q"] = { "<cmd>q!<CR>", "Quit" },
-  ["c"] = { "<cmd>CalendarVR<CR>", "Open Calendar" },
+  ["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
+  ["C"] = { "<cmd>Calendar<CR>", "Open Calendar" },
   ["h"] = { "<cmd>nohlsearch<CR>", "No Highlight" },
   ["f"] = {
     "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>",
@@ -156,7 +157,7 @@ local mappings = {
     name = "LSP",
     a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
     d = {
-      "<cmd>Telescope lsp_document_diagnostics<cr>",
+      "<Plug>(toggle-lsp-diag)",
       "Document Diagnostics",
     },
     w = {
@@ -208,6 +209,16 @@ local mappings = {
     r = { ":RnvimrToggle<CR>", "Ranger" },
   },
 }
+
+local diagnostics_active = true
+local toggle_diagnostics = function()
+  diagnostics_active = not diagnostics_active
+  if diagnostics_active then
+    vim.diagnostic.show()
+  else
+    vim.diagnostic.hide()
+  end
+end
 
 which_key.setup(setup)
 which_key.register(mappings, opts)

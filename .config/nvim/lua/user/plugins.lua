@@ -57,7 +57,7 @@ return packer.startup(function(use)
   use "vimwiki/vimwiki"
   -- use "renerocksai/telekasten.nvim" -- not quite ready to replace vimwiki
   use "mzlogin/vim-markdown-toc"
-  use "renerocksai/calendar-vim"
+  use "itchyny/calendar.vim"
   -- use {'edluffy/hologram.nvim'}
   use "gioele/vim-autoswap"
 
@@ -115,6 +115,8 @@ return packer.startup(function(use)
   use "Yazeed1s/minimal.nvim"
   use "goolord/alpha-nvim"
   use "davidgranstrom/nvim-markdown-preview"
+  -- use "frabjous/knap"
+  -- use "savq/paq-nvim"
   use { 'michaelb/sniprun', run = 'bash ./install.sh'}
   use "rcarriga/nvim-notify"
   use 'Olical/conjure'

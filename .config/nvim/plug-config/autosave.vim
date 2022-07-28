@@ -20,5 +20,10 @@ augroup ft_auto_saves
   au FileType vim let b:auto_save = 1
   au FileType rmd let b:auto_save = 1
   au FileType tex let b:auto_save = 1
-  au FileType lua let b:auto_save = 0
+  au FileType lua let b:auto_save = 1
+  au FileType md let b:auto_save = 1
+  au FileType vimwiki let b:auto_save = 1
 augroup END
+
+let g:auto_save_events = ["InsertLeave", "TextChangedI", "CompleteDone", "TextChanged"]
+let g:auto_save_silent = 1  " do not display the auto-save notification

@@ -93,4 +93,6 @@ keymap("n", "T", ":r! date +'\\%H:\\%M - '<CR>A", opts)
 -- keymap("n", "<leader>u", "<Plug>SnipRunOperator", term_opts)
 -- keymap("n", "<leader>uu", "<Plug>SnipRun", term_opts)
 
+keymap("n", "<leader>lv", "<Cmd>lua require('virtual_text').toggle()<CR>", opts)
+
 return M
