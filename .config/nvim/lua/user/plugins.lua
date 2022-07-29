@@ -55,6 +55,7 @@ return packer.startup(function(use)
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
   use "vimwiki/vimwiki"
+
   -- use "renerocksai/telekasten.nvim" -- not quite ready to replace vimwiki
   use "mzlogin/vim-markdown-toc"
   use "itchyny/calendar.vim"
@@ -115,6 +116,11 @@ return packer.startup(function(use)
   use "Yazeed1s/minimal.nvim"
   use "goolord/alpha-nvim"
   use "davidgranstrom/nvim-markdown-preview"
+  use{ 'anuvyklack/pretty-fold.nvim',
+     config = function()
+        require('user.plug-setting.pretty-fold')
+     end
+  }
   -- use "frabjous/knap"
   -- use "savq/paq-nvim"
   use { 'michaelb/sniprun', run = 'bash ./install.sh'}
@@ -143,12 +149,7 @@ return packer.startup(function(use)
   use "neovim/nvim-lspconfig" -- enable LSP
   use "williamboman/nvim-lsp-installer" -- simple to use language server installer
   use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
-  use({
-    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-    config = function()
-      require("lsp_lines").setup()
-    end,
-  })
+  use "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
 
   -- Telescope
   use "nvim-telescope/telescope.nvim"

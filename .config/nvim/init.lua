@@ -33,8 +33,8 @@ require "user.plug-setting.autosave"
 require "user.plug-setting.jupyter-vim"
 require "user.plug-setting.slime"
 require "user.plug-setting.ranger"
+require "user.plug-setting.pretty-fold"
 -- require "user.plug-setting.codi"
-
 -- require "user.colorscheme"
 
 

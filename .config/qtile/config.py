@@ -298,6 +298,7 @@ keys = [
 
     # Grow windows. If current window is on the edge of screen and dkrection
     # will be to screen edge - window would shrink.
+
     Key([mod, "control"], "j", 
         lazy.layout.grow_down(),
         lazy.layout.decrease_ratio(),

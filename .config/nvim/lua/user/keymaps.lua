@@ -27,7 +27,7 @@ keymap("n", "<m-\\>", ":tabonly<cr>", opts)
 --Remap space as leader key
 keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
-vim.g.maplocalleader = ";"
+vim.g.maplocalleader = ","
 
 -- save files
 keymap("i", "<C-s>", "<esc>:w<cr>", opts)

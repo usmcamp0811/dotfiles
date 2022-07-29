@@ -1,6 +1,7 @@
 
 local options = {
 
+    foldmethod = "syntax",
     directory = vim.fn.stdpath('config') .. '/swaps',
     backupdir = vim.fn.stdpath('config') .. '/backups',
     undodir = vim.fn.stdpath('config') .. '/undo',

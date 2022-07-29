@@ -157,7 +157,7 @@ local mappings = {
     name = "LSP",
     a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
     d = {
-      "<Plug>(toggle-lsp-diag)",
+      "require('lsp_lines').toggle",
       "Document Diagnostics",
     },
     w = {
