@@ -1,6 +1,6 @@
 M = {}
 local opts = { noremap = true, silent = true }
-local term_opts = { silent = true }
+-- local term_opts = { silent = true }
 
 -- Shorten function name
 local keymap = vim.api.nvim_set_keymap
@@ -13,16 +13,6 @@ local keymap = vim.api.nvim_set_keymap
 --   term_mode = "t",
 --   command_mode = "c",
 
--- Better window navigation
-keymap("n", "<C-h>", "<C-w>h", opts)
-keymap("n", "<C-j>", "<C-w>j", opts)
-keymap("n", "<C-k>", "<C-w>k", opts)
-keymap("n", "<C-l>", "<C-w>l", opts)
-
--- Buffer navigation
-keymap("n", "<S-l>", ":bnext<CR>", opts)
-keymap("n", "<S-h>", ":bprevious<CR>", opts)
-
 -- -- Tabs --
 -- keymap("n", "<enter>", ":tabnew %<cr>", opts)
 -- keymap("n", "<s-enter>", ":tabclose<cr>", opts)
@@ -32,61 +22,6 @@ keymap("n", "<S-h>", ":bprevious<CR>", opts)
 keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
-
--- save files
-keymap("i", "<C-s>", "<esc>:w<cr>", opts)
-keymap("n", "<C-s>", ":w<cr>", opts)
--- exit with ctr + q
-keymap("n", "<C-q>", "<esc>:q<cr>", opts)
-keymap("n", "<C-q>", ":q<cr>", opts)
-
--- Yank from cursor to end of line
-keymap("n", "Y", "y$", opts)
-
--- Tab lines right
-keymap("v", "<Tab>", ">", opts)
--- Tab lines left
-keymap("v", "<S-Tab>", "<", opts)
-
--- Window Pane Resizing Horizontal
-keymap("n", "+", "+5 <CR>", opts)
-keymap("n", "-", "-5 <CR>", opts)
-
--- Resize with arrows
-keymap("n", "<C-Up>", ":resize -2<CR>", opts)
-keymap("n", "<C-Down>", ":resize +2<CR>", opts)
-keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
-keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
-
--- Keep whats in the buffer  you paste
-keymap("v", "p", '"_dP', opts)
-
--- Scroll down 5 rows at a time
-keymap("n", "<C-j>", "5<C-e>", opts)
--- Scroll up 5 rows at a time
-keymap("n", "<C-k>", "5<C-y>", opts)
-
--- toggle unprintable characters in all modes
-keymap("n", "<F8>", ":set list!<CR>", opts)
-keymap("i", "<F8>", "<C-o>:set list!<CR>", opts)
-keymap("c", "<F8>", "<C-c>:set list!<CR>", opts)
-
--- Re-source init.vim
-keymap("n", "<leader>.", ":source ~/.config/nvim/init.lua<CR>", opts)
-
--- Visual Block --
--- Move text up and down
-keymap("x", "J", ":move '>+1<CR>gv-gv", opts)
-keymap("x", "K", ":move '<-2<CR>gv-gv", opts)
-keymap("x", "<A-j>", ":move '>+1<CR>gv-gv", opts)
-keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
-
-keymap("n", "<BS>", "<Plug>(comment_toggle_current_linewise)<cr>", opts)
-
-keymap("v", "<BS>", "<Plug>(comment_toggle_linewise_visual)<cr>", opts)
-
--- Insert current time... for diary/notes
-keymap("n", "T", ":r! date +'\\%H:\\%M - '<CR>A", opts)
 
 -- Terminal --
 -- Better terminal navigation
@@ -99,6 +34,58 @@ keymap("n", "T", ":r! date +'\\%H:\\%M - '<CR>A", opts)
 -- keymap("n", "<leader>u", "<Plug>SnipRunOperator", term_opts)
 -- keymap("n", "<leader>uu", "<Plug>SnipRun", term_opts)
 
-keymap("n", "<leader>lv", "<Cmd>lua require('virtual_text').toggle()<CR>", opts)
+local status_ok, which_key = pcall(require, "which-key")
+if not status_ok then
+  return
+end
+
+-- Normal --
+which_key.register({
+-- Better window navigation
+  ["<C-h>"] = { "<C-w>h", "Move One Window Left"},
+  ["<C-j>"] = { "<C-w>j", "Move One Window Down"},
+  ["<C-k>"] = { "<C-w>k", "Move One Window Up"},
+  ["<C-l>"] = { "<C-w>l", "Move One Window Right"},
+-- Buffer navigation
+  ["<S-l>"] = { ":bnext<CR>", "Next Buffer"},
+  ["<S-h>"] = { ":bprevious<CR>", "Previous Buffer"},
+  ["<C-s>"] = { ":w<CR>", "Save"},
+  ["<C-q>"] = { ":q<CR>", "Quit"},
+  Y = { "y$", "Yank from cursor to end of line"},
+  ["<C-Up>"] = { ":resize -2<CR>", "Decrease Current Window Size Horizontally"},
+  ["<C-Down>"] = { ":resize +2<CR>", "Increase Current Window Size Vertically"},
+  ["<C-Left>"] = { ":vertical -2<CR>", "Decrease Current Window Size Horizontally"},
+  ["<C-Right>"] = { ":vertical +2<CR>", "Increase Current Window Size Vertically"},
+-- Scroll 5 rows at a time
+  ["<S-j>"] = { "5<C-e>", "Scroll down 5 rows at a time"},
+  ["<S-k>"] = { "5<C-y>", "Scroll up 5 rows at a time"},
+  T = { ":r! date +'\\%H:\\%M - '<CR>A", "Insert Current Time"},
+  ["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Charactes" },
+})
+
+-- Visual Block --
+which_key.register({
+  J = { ":move '>+1<CR>gv-gv", "Move Text Down"},
+  K = { ":move '<-2<CR>gv-gv", "Move Text Up"},
+  ["<Tab>"] = { ">", "Move Text Right" },
+  ["<S-Tab>"] = { "<", "Move Text Left" },
+}, { mode = "x" })
+
+-- Visual --
+which_key.register({
+  p = { '"_dP', "Paste without overwriting the register" },
+}, { mode = "v" })
+
+-- Command --
+which_key.register({
+  ["<F8>"] = { "<C-o>:set list!<CR>", "Toggle Unprintable Charactes" },
+}, { mode = "c" })
+
+-- Insert --
+which_key.register({
+  ["<C-s>"] = { "<esc>:w<cr>", "Save" },
+  ["<C-q>"] = { "<esc>:q<cr>", "Quit" },
+  ["<F8>"] = { "<C-o>:set list!<CR>", "Toggle Unprintable Charactes" },
+}, { mode = "i" })
 
 return M

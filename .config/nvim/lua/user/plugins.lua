@@ -160,13 +160,14 @@ return packer.startup(function(use)
   use "shoumodip/nvim-literate"
   -- use "frabjous/knap"
   -- use "savq/paq-nvim"
-  use { 'michaelb/sniprun', run = 'bash ./install.sh'}
+  -- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
   use "rcarriga/nvim-notify"
   use 'Olical/conjure'
-  use {
-    "tpope/vim-surround",
-    requires = { "tpope/vim-repeat", opt = true }
-  }
+  use "machakann/vim-sandwich"
+  -- use {
+  --   "tpope/vim-surround",
+  --   requires = { "tpope/vim-repeat", opt = true }
+  -- }
 
   use "akinsho/bufferline.nvim"
   use({"kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
