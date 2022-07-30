@@ -3,7 +3,7 @@ if not status_ok then
 	return
 end
 
-local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
+parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
 
 parser_configs.markdown = {
   install_info = {

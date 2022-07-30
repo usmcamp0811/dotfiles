@@ -94,3 +94,26 @@ telescope.setup {
     -- please take a look at the readme of the extension you want to configure
   },
 }
+
+
+
+local status_ok, which_key = pcall(require, "which-key")
+if not status_ok then
+  return
+end
+
+which_key.register({
+  s = {
+    name = "Search",
+    b = { "<cmd>Telescope git_branches<cr>", "Checkout branch" },
+    c = { "<cmd>Telescope colorscheme<cr>", "Colorscheme" },
+    h = { "<cmd>Telescope help_tags<cr>", "Find Help" },
+    M = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
+    r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
+    R = { "<cmd>Telescope registers<cr>", "Registers" },
+    k = { "<cmd>Telescope keymaps<cr>", "Keymaps" },
+    C = { "<cmd>Telescope commands<cr>", "Commands" },
+  },
+},
+  { prefix = "<leader>" }
+)

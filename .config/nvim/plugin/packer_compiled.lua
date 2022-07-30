@@ -205,6 +205,37 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nabla.nvim",
     url = "https://github.com/jbyuki/nabla.nvim"
   },
+  neorg = {
+    config = { "\27LJ\2\nÌ\6\0\0\b\0%\00016\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\4\0005\3\3\0=\3\5\0025\3\6\0=\3\a\0025\3\b\0004\4\0\0=\4\t\0035\4\21\0005\5\r\0005\6\n\0005\a\v\0=\a\f\6=\6\14\0055\6\15\0005\a\16\0=\a\f\6=\6\17\0055\6\18\0005\a\19\0=\a\f\6=\6\20\5=\5\22\4=\4\23\0034\4\0\0=\4\24\0034\4\0\0=\4\25\0034\4\0\0=\4\26\0034\4\0\0=\4\27\0035\4\29\0005\5\28\0=\5\22\4=\4\30\0035\4\"\0005\5 \0005\6\31\0=\6!\5=\5\22\4=\4#\3=\3$\2B\0\2\1K\0\1\0\tload\21core.norg.dirman\1\0\0\15workspaces\1\0\0\1\0\2\twork\17~/notes/work\thome\17~/notes/home\25core.norg.completion\1\0\0\1\0\1\vengine\rnvim-cmp\24core.norg.concealer core.integrations.telescope\22core.norg.journal\22core.norg.qol.toc!core.integrations.treesitter\vconfig\1\0\0\15norg_table\1\2\0\0\17src/parser.c\1\0\2\burl9https://github.com/nvim-neorg/tree-sitter-norg-table\vbranch\tmain\14norg_meta\1\2\0\0\17src/parser.c\1\0\2\burl8https://github.com/nvim-neorg/tree-sitter-norg-meta\vbranch\tmain\tnorg\1\0\0\nfiles\1\3\0\0\17src/parser.c\19src/scanner.cc\1\0\2\burl3https://github.com/nvim-neorg/tree-sitter-norg\vbranch\tmain\18core.defaults\1\0\0\14highlight\1\0\1\venable\2\21ensure_installed\1\0\0\1\2\0\0\tnorg\nsetup\nneorg\frequire\0" },
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/neorg",
+    url = "https://github.com/nvim-neorg/neorg"
+  },
+  ["neorg-contexts"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/neorg-contexts",
+    url = "https://github.com/max397574/neorg-contexts"
+  },
+  ["neorg-gtd-project-tags"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/neorg-gtd-project-tags",
+    url = "https://github.com/esquires/neorg-gtd-project-tags"
+  },
+  ["neorg-gtd-things"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/neorg-gtd-things",
+    url = "https://github.com/danymat/neorg-gtd-things"
+  },
+  ["neorg-kanban"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/neorg-kanban",
+    url = "https://github.com/max397574/neorg-kanban"
+  },
+  ["neorg-telescope"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/neorg-telescope",
+    url = "https://github.com/nvim-neorg/neorg-telescope"
+  },
   ["nightfox.nvim"] = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nightfox.nvim",
@@ -229,6 +260,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nvim-colorizer.lua",
     url = "https://github.com/norcalli/nvim-colorizer.lua"
+  },
+  ["nvim-literate"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nvim-literate",
+    url = "https://github.com/shoumodip/nvim-literate"
   },
   ["nvim-lsp-installer"] = {
     loaded = true,
@@ -458,22 +494,26 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: gitsigns.nvim
-time([[Config for gitsigns.nvim]], true)
-try_loadstring("\27LJ\2\n6\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
-time([[Config for gitsigns.nvim]], false)
+-- Config for: neorg
+time([[Config for neorg]], true)
+try_loadstring("\27LJ\2\nÌ\6\0\0\b\0%\00016\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\4\0005\3\3\0=\3\5\0025\3\6\0=\3\a\0025\3\b\0004\4\0\0=\4\t\0035\4\21\0005\5\r\0005\6\n\0005\a\v\0=\a\f\6=\6\14\0055\6\15\0005\a\16\0=\a\f\6=\6\17\0055\6\18\0005\a\19\0=\a\f\6=\6\20\5=\5\22\4=\4\23\0034\4\0\0=\4\24\0034\4\0\0=\4\25\0034\4\0\0=\4\26\0034\4\0\0=\4\27\0035\4\29\0005\5\28\0=\5\22\4=\4\30\0035\4\"\0005\5 \0005\6\31\0=\6!\5=\5\22\4=\4#\3=\3$\2B\0\2\1K\0\1\0\tload\21core.norg.dirman\1\0\0\15workspaces\1\0\0\1\0\2\twork\17~/notes/work\thome\17~/notes/home\25core.norg.completion\1\0\0\1\0\1\vengine\rnvim-cmp\24core.norg.concealer core.integrations.telescope\22core.norg.journal\22core.norg.qol.toc!core.integrations.treesitter\vconfig\1\0\0\15norg_table\1\2\0\0\17src/parser.c\1\0\2\burl9https://github.com/nvim-neorg/tree-sitter-norg-table\vbranch\tmain\14norg_meta\1\2\0\0\17src/parser.c\1\0\2\burl8https://github.com/nvim-neorg/tree-sitter-norg-meta\vbranch\tmain\tnorg\1\0\0\nfiles\1\3\0\0\17src/parser.c\19src/scanner.cc\1\0\2\burl3https://github.com/nvim-neorg/tree-sitter-norg\vbranch\tmain\18core.defaults\1\0\0\14highlight\1\0\1\venable\2\21ensure_installed\1\0\0\1\2\0\0\tnorg\nsetup\nneorg\frequire\0", "config", "neorg")
+time([[Config for neorg]], false)
 -- Config for: pretty-fold.nvim
 time([[Config for pretty-fold.nvim]], true)
 try_loadstring("\27LJ\2\n=\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\"user.plug-setting.pretty-fold\frequire\0", "config", "pretty-fold.nvim")
 time([[Config for pretty-fold.nvim]], false)
+-- Config for: gitsigns.nvim
+time([[Config for gitsigns.nvim]], true)
+try_loadstring("\27LJ\2\n6\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
+time([[Config for gitsigns.nvim]], false)
 vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
 vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
 vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
 vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
+vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end

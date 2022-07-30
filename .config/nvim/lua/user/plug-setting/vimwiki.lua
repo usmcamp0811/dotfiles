@@ -67,3 +67,19 @@ vim.g.vimwiki_use_calendar = 1
 vim.g.vimwiki_auto_header = 1
 vim.g.vimwiki_folding = 'custom'
 
+local status_ok, which_key = pcall(require, "which-key")
+if not status_ok then
+  return
+end
+
+which_key.register({
+  W = {
+    name = "VimWiki",
+    d = { "<Plug>VimwikiIncrementListItem", "Incriment Completion Level"},
+    u = { "<Plug>VimwikiDecrementListItem", "Incriment Completion Level"},
+    t = { "<Plug>VimwikiToggleListItem", "Toggle Checkbox"},
+    f = { '<cmd>lua require("telescope.builtin").find_files({cwd = "~/vimwiki"})<CR>', "Find Wiki" },
+  },
+},
+  { prefix = "<leader>" }
+)

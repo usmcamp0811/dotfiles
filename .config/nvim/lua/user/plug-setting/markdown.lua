@@ -6,3 +6,5 @@ vim.g.markdown_folding = 1
 
 vim.o.foldmethod = "expr"
 vim.cmd "set foldexpr=nvim_treesitter#foldexpr()"
+vim.cmd "autocmd FileType markdown lua require('literate')"
+vim.cmd "autocmd FileType vimwiki lua require('literate')"

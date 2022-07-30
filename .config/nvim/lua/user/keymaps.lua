@@ -14,15 +14,19 @@ local keymap = vim.api.nvim_set_keymap
 --   command_mode = "c",
 
 -- Better window navigation
-keymap("n", "<m-h>", "<C-w>h", opts)
-keymap("n", "<m-j>", "<C-w>j", opts)
-keymap("n", "<m-k>", "<C-w>k", opts)
-keymap("n", "<m-l>", "<C-w>l", opts)
+keymap("n", "<C-h>", "<C-w>h", opts)
+keymap("n", "<C-j>", "<C-w>j", opts)
+keymap("n", "<C-k>", "<C-w>k", opts)
+keymap("n", "<C-l>", "<C-w>l", opts)
 
--- Tabs --
-keymap("n", "<enter>", ":tabnew %<cr>", opts)
-keymap("n", "<s-enter>", ":tabclose<cr>", opts)
-keymap("n", "<m-\\>", ":tabonly<cr>", opts)
+-- Buffer navigation
+keymap("n", "<S-l>", ":bnext<CR>", opts)
+keymap("n", "<S-h>", ":bprevious<CR>", opts)
+
+-- -- Tabs --
+-- keymap("n", "<enter>", ":tabnew %<cr>", opts)
+-- keymap("n", "<s-enter>", ":tabclose<cr>", opts)
+-- keymap("n", "<C-\\>", ":tabonly<cr>", opts)
 
 --Remap space as leader key
 keymap("", "<Space>", "<Nop>", opts)
@@ -54,6 +58,8 @@ keymap("n", "<C-Down>", ":resize +2<CR>", opts)
 keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
 keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
+-- Keep whats in the buffer  you paste
+keymap("v", "p", '"_dP', opts)
 
 -- Scroll down 5 rows at a time
 keymap("n", "<C-j>", "5<C-e>", opts)
