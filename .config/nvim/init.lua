@@ -42,7 +42,7 @@ require "user.plug-setting.literate"
 
 
 -- TODO: port what I can (below) to Lua
-vim.cmd "source $HOME/.config/nvim/autocmds.vim"
+-- vim.cmd "source $HOME/.config/nvim/autocmds.vim"
 -- vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
 -- vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
 vim.cmd "source $HOME/.config/nvim/functions.vim" -- has a function for my markdown code blocks
