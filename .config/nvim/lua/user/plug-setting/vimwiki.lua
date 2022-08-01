@@ -16,6 +16,7 @@ vim.g.vimwiki_list = {
       syntax = 'markdown',
       ext = '.md',
       auto_toc = 1,
+      auto_tags = 1,
       links_space_char = "_",
       auto_diary_index = 1,
       diary_caption_level = 2,
@@ -25,6 +26,7 @@ vim.g.vimwiki_list = {
       syntax = 'markdown',
       ext = '.md',
       auto_toc = 1,
+      auto_tags = 1,
       links_space_char = "_",
   },
   {
@@ -32,6 +34,7 @@ vim.g.vimwiki_list = {
       syntax = 'markdown',
       ext = '.md',
       auto_toc = 1,
+      auto_tags = 1,
       links_space_char = "_",
   },
   {
@@ -39,6 +42,7 @@ vim.g.vimwiki_list = {
       syntax = 'markdown',
       ext = '.md',
       auto_toc = 1,
+      auto_tags = 1,
       links_space_char = "_",
   },
   {
@@ -46,6 +50,7 @@ vim.g.vimwiki_list = {
       syntax = 'markdown',
       ext = '.md',
       auto_toc = 1,
+      auto_tags = 1,
       links_space_char = "_",
   }
 
@@ -60,4 +65,25 @@ vim.g.vimwiki_table_mappings = 0
 vim.g.vimwiki_listsyms = '✗○◐●✓'
 vim.g.vimwiki_use_calendar = 1
 vim.g.vimwiki_auto_header = 1
+vim.g.vimwiki_folding = 'custom'
 
+local status_ok, which_key = pcall(require, "which-key")
+if not status_ok then
+  return
+end
+
+which_key.register({
+  W = {
+    name = "VimWiki",
+    d = { "<Plug>VimwikiIncrementListItem", "Incriment Completion Level"},
+    u = { "<Plug>VimwikiDecrementListItem", "Incriment Completion Level"},
+    t = { "<Plug>VimwikiToggleListItem", "Toggle Checkbox"},
+    f = { '<cmd>lua require("telescope.builtin").find_files({cwd = "~/vimwiki"})<CR>', "Find Wiki" },
+    D = { "<cmd>VimwikiDiaryIndex<cr>", "Vimwiki Diary" },
+    w = { "<cmd>VimwikiIndex<CR>", "Vimwiki Main" },
+    n = { "<cmd>VimwikiMakeDiaryNote<CR>", "Daily Note"},
+    N = { "<cmd>VimwikiMakeTomorrowDiaryNote<CR>", "Tomorrows Note"},
+  },
+},
+  { prefix = "<leader>" }
+)

@@ -110,9 +110,12 @@ cmp.setup {
   },
   sources = {
     { name = "nvim_lsp" },
+    { name = "neorg" },
     { name = "luasnip" },
+    { name = "orgmode" },
     { name = "buffer" },
     { name = "path" },
+    { name = "nvim_lua" },
   },
   confirm_opts = {
     behavior = cmp.ConfirmBehavior.Replace,
