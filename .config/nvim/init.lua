@@ -11,7 +11,6 @@ require "user.plugins"
 require "user.plug-setting.catppuccin"
 require "user.plug-setting.cmp"
 require "user.plug-setting.telescope"
--- require "user.plug-setting.telekasten"
 require "user.plug-setting.pandoc"
 require "user.plug-setting.treesitter"
 require "user.plug-setting.whichkey"
@@ -26,6 +25,16 @@ require "user.plug-setting.project"
 require "user.plug-setting.nvim-tree"
 require "user.plug-setting.markdown"
 require "user.plug-setting.colorizer"
+require "user.plug-setting.calendar"
+require "user.plug-setting.knap"
+require "user.plug-setting.autosave"
+require "user.plug-setting.jupyter-vim"
+require "user.plug-setting.slime"
+require "user.plug-setting.ranger"
+require "user.plug-setting.pretty-fold"
+-- require "user.plug-setting.surround"
+require "user.plug-setting.gitsigns"
+require "user.plug-setting.neorg"
 require "user.plug-setting.vimwiki"
 require "user.plug-setting.calendar"
 require "user.plug-setting.knap"
@@ -39,7 +48,7 @@ require "user.plug-setting.ranger"
 
 
 -- TODO: port what I can (below) to Lua
-vim.cmd "source $HOME/.config/nvim/autocmds.vim"
+-- vim.cmd "source $HOME/.config/nvim/autocmds.vim"
 -- vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
 -- vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
 vim.cmd "source $HOME/.config/nvim/functions.vim" -- has a function for my markdown code blocks
@@ -64,4 +73,5 @@ let g:ipython_language = "Julia"
 let g:ipython_cell_run_command = 'include("{filepath}")'
 let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 ]]
+
 

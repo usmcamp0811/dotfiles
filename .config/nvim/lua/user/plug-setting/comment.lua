@@ -20,3 +20,19 @@ comment.setup {
     }
   end,
 }
+
+local status_still_ok, which_key = pcall(require, "which-key")
+if not status_still_ok then
+  return
+end
+
+which_key.register({
+  ["<BS>"] = { "<Plug>(comment_toggle_current_linewise)<cr>", "Comment Toggle" },
+  T = { ":r! date +'\\%H:\\%M - '<CR>A", "Insert Current Time"}
+})
+
+which_key.register({
+  ["<BS>"] = { "<Plug>(comment_toggle_linewise_visual)<cr>", "Comment Toggle" },
+  p = { '"_dP', "Paste without overwriting the register" },
+}, { mode = "v" })
+

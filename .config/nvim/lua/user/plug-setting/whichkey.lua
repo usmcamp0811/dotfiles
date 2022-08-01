@@ -78,6 +78,7 @@ local opts = {
   nowait = true, -- use `nowait` when creating keymaps
 }
 
+  -- ["E"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
 local mappings = {
   ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
   ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
@@ -86,7 +87,6 @@ local mappings = {
     "<cmd>BufferLinePick<cr>",
     "Buffers",
   },
-  ["e"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
   ["q"] = { "<cmd>q!<CR>", "Quit" },
   ["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
   ["C"] = { "<cmd>Calendar<CR>", "Open Calendar" },
@@ -97,10 +97,6 @@ local mappings = {
   },
   ["F"] = { "<cmd>Telescope live_grep theme=ivy<cr>", "Find Text" },
   ["P"] = { "<cmd>lua require('telescope').extensions.projects.projects()<cr>", "Projects" },
-  ["d"] = { "<cmd>VimwikiDiaryIndex<cr>", "Vimwiki Diary" },
-  ["w"] = { "<cmd>VimwikiIndex<CR>", "Vimwiki Main" },
-  ["n"] = { "<cmd>VimwikiMakeDiaryNote<CR>", "Daily Note"},
-  ["N"] = { "<cmd>VimwikiMakeTomorrowDiaryNote<CR>", "Tomorrows Note"},
   ["r"] = { ":Telescope oldfiles <CR>", "Search Recent Files"},
 
   W = {
@@ -222,3 +218,4 @@ end
 
 which_key.setup(setup)
 which_key.register(mappings, opts)
+

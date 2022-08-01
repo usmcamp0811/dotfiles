@@ -30,6 +30,25 @@ if not status_ok then
   return
 end
 
+-- TODO: is there away to do two requires with pcall
+local status_still_ok, which_key = pcall(require, "which-key")
+if not status_still_ok then
+  return
+end
+
+which_key.register({
+  p = {
+    name = "Packer",
+    c = { "<cmd>PackerCompile<cr>", "Compile" },
+    i = { "<cmd>PackerInstall<cr>", "Install" },
+    s = { "<cmd>PackerSync<cr>", "Sync" },
+    S = { "<cmd>PackerStatus<cr>", "Status" },
+    u = { "<cmd>PackerUpdate<cr>", "Update" },
+  },
+},
+  { prefix = "<leader>" }
+)
+
 -- Have packer use a popup window
 packer.init {
   display = {
@@ -50,11 +69,11 @@ return packer.startup(function(use)
 
   -- use 'vim-pandoc/vim-pandoc' -- this is not needed treesitter or something has got the filetypes
   use 'vim-pandoc/vim-pandoc-syntax'
-  use "jbyuki/nabla.nvim"
 
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
   use "vimwiki/vimwiki"
+
   -- use "renerocksai/telekasten.nvim" -- not quite ready to replace vimwiki
   use "mzlogin/vim-markdown-toc"
   use "itchyny/calendar.vim"
@@ -83,6 +102,7 @@ return packer.startup(function(use)
   use "numToStr/Comment.nvim"
   use "windwp/nvim-autopairs"
   use "907th/vim-auto-save"
+  use "jbyuki/nabla.nvim" -- neat looking math pluging
   use( {
     "weirongxu/plantuml-previewer.vim",
     requires = { { "tyru/open-browser.vim", opt = false }, { "aklt/plantuml-syntax", opt = false } }
@@ -100,6 +120,23 @@ return packer.startup(function(use)
     run = ":CatppuccinCompile"
   }
 
+  use {
+    "nvim-neorg/neorg",
+    config = function()
+        require('user.plug-setting.neorg')
+    end,
+    requires = {
+      "nvim-lua/plenary.nvim",
+      "nvim-neorg/neorg-telescope",
+      "esquires/neorg-gtd-project-tags",
+      "danymat/neorg-gtd-things",
+      "max397574/neorg-contexts",
+      "max397574/neorg-kanban",
+      "folke/zen-mode.nvim",
+      "Pocco81/TrueZen.nvim"
+    }
+  }
+
   -- UI
   use {
     'nvim-lualine/lualine.nvim',
@@ -115,15 +152,23 @@ return packer.startup(function(use)
   use "Yazeed1s/minimal.nvim"
   use "goolord/alpha-nvim"
   use "davidgranstrom/nvim-markdown-preview"
+  use{ 'anuvyklack/pretty-fold.nvim',
+     config = function()
+        require('user.plug-setting.pretty-fold')
+     end
+  }
+
+  use "shoumodip/nvim-literate"
   -- use "frabjous/knap"
   -- use "savq/paq-nvim"
-  use { 'michaelb/sniprun', run = 'bash ./install.sh'}
+  -- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
   use "rcarriga/nvim-notify"
   use 'Olical/conjure'
-  use {
-    "tpope/vim-surround",
-    requires = { "tpope/vim-repeat", opt = true }
-  }
+  use "machakann/vim-sandwich"
+  -- use {
+  --   "tpope/vim-surround",
+  --   requires = { "tpope/vim-repeat", opt = true }
+  -- }
 
   use "akinsho/bufferline.nvim"
   use({"kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
@@ -143,12 +188,7 @@ return packer.startup(function(use)
   use "neovim/nvim-lspconfig" -- enable LSP
   use "williamboman/nvim-lsp-installer" -- simple to use language server installer
   use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
-  use({
-    "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-    config = function()
-      require("lsp_lines").setup()
-    end,
-  })
+  use "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
 
   -- Telescope
   use "nvim-telescope/telescope.nvim"
@@ -175,3 +215,4 @@ return packer.startup(function(use)
     require("packer").sync()
   end
 end)
+
