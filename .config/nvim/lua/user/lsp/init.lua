@@ -10,8 +10,8 @@ require("lsp_lines").setup()
 
 
 
-local status_ok, which_key = pcall(require, "which-key")
-if not status_ok then
+local status_still_ok, which_key = pcall(require, "which-key")
+if not status_still_ok then
   return
 end
 

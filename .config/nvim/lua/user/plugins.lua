@@ -131,9 +131,10 @@ return packer.startup(function(use)
       "esquires/neorg-gtd-project-tags",
       "danymat/neorg-gtd-things",
       "max397574/neorg-contexts",
-      "max397574/neorg-kanban"
-    },
-    tag = "*"
+      "max397574/neorg-kanban",
+      "folke/zen-mode.nvim",
+      "Pocco81/TrueZen.nvim"
+    }
   }
 
   -- UI

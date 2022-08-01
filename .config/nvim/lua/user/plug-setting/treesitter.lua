@@ -19,7 +19,7 @@ configs.setup({
 	highlight = {
 		enable = true, -- false will disable the whole extension
 		disable = { "css" }, -- list of language that will be disabled
-    additional_vim_regex_highlighting = {'org'}
+    additional_vim_regex_highlighting = {'org', 'norg'}
 	},
 	autopairs = {
 		enable = true,

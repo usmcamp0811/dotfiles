@@ -97,10 +97,6 @@ local mappings = {
   },
   ["F"] = { "<cmd>Telescope live_grep theme=ivy<cr>", "Find Text" },
   ["P"] = { "<cmd>lua require('telescope').extensions.projects.projects()<cr>", "Projects" },
-  ["d"] = { "<cmd>VimwikiDiaryIndex<cr>", "Vimwiki Diary" },
-  ["w"] = { "<cmd>VimwikiIndex<CR>", "Vimwiki Main" },
-  ["n"] = { "<cmd>VimwikiMakeDiaryNote<CR>", "Daily Note"},
-  ["N"] = { "<cmd>VimwikiMakeTomorrowDiaryNote<CR>", "Tomorrows Note"},
   ["r"] = { ":Telescope oldfiles <CR>", "Search Recent Files"},
 }
 

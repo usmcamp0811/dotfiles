@@ -79,6 +79,10 @@ which_key.register({
     u = { "<Plug>VimwikiDecrementListItem", "Incriment Completion Level"},
     t = { "<Plug>VimwikiToggleListItem", "Toggle Checkbox"},
     f = { '<cmd>lua require("telescope.builtin").find_files({cwd = "~/vimwiki"})<CR>', "Find Wiki" },
+    D = { "<cmd>VimwikiDiaryIndex<cr>", "Vimwiki Diary" },
+    w = { "<cmd>VimwikiIndex<CR>", "Vimwiki Main" },
+    n = { "<cmd>VimwikiMakeDiaryNote<CR>", "Daily Note"},
+    N = { "<cmd>VimwikiMakeTomorrowDiaryNote<CR>", "Tomorrows Note"},
   },
 },
   { prefix = "<leader>" }
