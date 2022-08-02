@@ -60,7 +60,7 @@ which_key.register({
 -- Scroll 5 rows at a time
   ["<S-j>"] = { "5<C-e>", "Scroll down 5 rows at a time"},
   ["<S-k>"] = { "5<C-y>", "Scroll up 5 rows at a time"},
-  T = { ":r! date +'\\%H:\\%M - '<CR>A", "Insert Current Time"},
+  T = { ":r! date +'- \\%H:\\%M - '<CR>A", "Insert Current Time"},
   ["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Charactes" },
 })
 

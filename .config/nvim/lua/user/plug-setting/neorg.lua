@@ -70,7 +70,7 @@ neorg.setup {
                           -- l = { "<Cmd>Neorg keybind norg core.integrations.telescope.find_linkable<CR>", "Find Linkable"},
                           p = { ":Neorg presenter start<cr>", "Start Presentation"},
                           n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note"},
-                          j = { "::Neorg journal today<cr>", "Today's Journal" }
+                          j = { ":Neorg journal today<cr>", "Today's Journal" }
                       },
                       { prefix = "<Space>" }
                       )
@@ -172,5 +172,18 @@ neorg.setup {
           }
         }
 
+local status_ok, which_key = pcall(require, "which-key")
+if not status_ok then
+  return
+end
 
+which_key.register({
+    name = "Note",
+    -- l = { "<Cmd>Neorg keybind norg core.integrations.telescope.find_linkable<CR>", "Find Linkable"},
+    p = { ":Neorg presenter start<cr>", "Start Presentation"},
+    n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note"},
+    j = { ":Neorg journal today<cr>", "Today's Journal" }
+},
+{ prefix = "<Space>" }
+)
 return neorg

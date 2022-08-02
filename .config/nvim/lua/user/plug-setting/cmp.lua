@@ -111,6 +111,7 @@ cmp.setup {
   sources = {
     { name = "nvim_lsp" },
     { name = "neorg" },
+    { name = "latex_symbols" },
     { name = "luasnip" },
     { name = "orgmode" },
     { name = "buffer" },
