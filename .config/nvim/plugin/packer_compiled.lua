@@ -216,9 +216,12 @@ _G.packer_plugins = {
     url = "https://github.com/jbyuki/nabla.nvim"
   },
   neorg = {
+    commands = { "Neorg" },
     config = { "\27LJ\2\n7\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\28user.plug-setting.neorg\frequire\0" },
-    loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/neorg",
+    loaded = false,
+    needs_bufread = true,
+    only_cond = false,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/opt/neorg",
     url = "https://github.com/nvim-neorg/neorg"
   },
   ["neorg-contexts"] = {
@@ -499,26 +502,28 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: neorg
-time([[Config for neorg]], true)
-try_loadstring("\27LJ\2\n7\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\28user.plug-setting.neorg\frequire\0", "config", "neorg")
-time([[Config for neorg]], false)
--- Config for: gitsigns.nvim
-time([[Config for gitsigns.nvim]], true)
-try_loadstring("\27LJ\2\n6\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
-time([[Config for gitsigns.nvim]], false)
 -- Config for: pretty-fold.nvim
 time([[Config for pretty-fold.nvim]], true)
 try_loadstring("\27LJ\2\n=\0\0\3\0\2\0\0046\0\0\0'\2\1\0B\0\2\1K\0\1\0\"user.plug-setting.pretty-fold\frequire\0", "config", "pretty-fold.nvim")
 time([[Config for pretty-fold.nvim]], false)
+-- Config for: gitsigns.nvim
+time([[Config for gitsigns.nvim]], true)
+try_loadstring("\27LJ\2\n6\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
+time([[Config for gitsigns.nvim]], false)
+
+-- Command lazy-loads
+time([[Defining lazy-load commands]], true)
+pcall(vim.cmd, [[command -nargs=* -range -bang -complete=file Neorg lua require("packer.load")({'neorg'}, { cmd = "Neorg", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args>, mods = "<mods>" }, _G.packer_plugins)]])
+time([[Defining lazy-load commands]], false)
+
 vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
 vim.cmd [[au FileType markdown.pandoc ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "markdown.pandoc" }, _G.packer_plugins)]]
-vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
 vim.cmd [[au FileType jl ++once lua require("packer.load")({'vim-julia-cell'}, { ft = "jl" }, _G.packer_plugins)]]
+vim.cmd [[au FileType python ++once lua require("packer.load")({'vim-ipython-cell'}, { ft = "python" }, _G.packer_plugins)]]
+vim.cmd [[au FileType julia ++once lua require("packer.load")({'vim-julia-cell', 'vim-ipython-cell'}, { ft = "julia" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 if should_profile then save_profiles() end

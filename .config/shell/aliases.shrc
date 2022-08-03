@@ -102,8 +102,7 @@ function docker-login() {
 }
 
 alias vimwiki="nvim +VimwikiIndex"
-alias nn='nvim +NeorgStart -c "Neorg journal today"'
-alias org='nvim +NeorgStart'
+alias org="nvim +NeorgStart silent=true"
 # alias notes="nvim +VimwikiDiaryIndex"
 # alias nn="nvim +VimwikiMakeDiaryNote"
 # alias planner="/usr/bin/nvim +Telekasten"

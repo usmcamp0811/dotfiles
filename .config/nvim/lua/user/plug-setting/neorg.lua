@@ -82,12 +82,12 @@ neorg.setup {
                       -- )
                       which_key.register({
                           -- name = "Note",
-                          ["<C-L>"] = { "<Cmd>Neorg keybind norg core.integrations.telescope.insert_link<CR>", "Insert Link"},
+                          -- ["<C-L>"] = { "<Cmd>Neorg keybind norg core.integrations.telescope.insert_link<CR>", "Insert Link"},
                           ["<C-s>"] = { ":w<CR>", "Save"},
                           -- not sure if I want to do these... cause they conflict with window movement
                           ["<C-j>"] = { "<Cmd>Neorg keybind norg core.integrations.treesitter.next.heading<CR>", "Next Heading" },
                           ["<C-k>"] = { "<Cmd>Neorg keybind norg core.integrations.treesitter.previous.heading<CR>", "Next Heading" },
-                          M = { "0i|<esc>", "Marker" }
+                          -- M = { "0i|<esc>", "Marker" }
                       })
                       which_key.register({
                           name = "Note",
@@ -100,6 +100,9 @@ neorg.setup {
                             p = { "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_pending<CR>", "Task Pending"},
                             u = { "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_undone<CR>", "Task Pending"},
                             d = { "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_done<CR>", "Task Done"},
+                            C = {"<Cmd>Neorg gtd capture<CR>","Capture"},
+                            e = {"<Cmd>Neorg gtd edit<CR>","Edit"},
+                            v = {"<Cmd>Neorg gtd views<CR>","Views"},
                           }
                       },
                         { prefix = "g" }
@@ -112,7 +115,7 @@ neorg.setup {
             ["core.integrations.telescope"] = {},
             ["core.gtd.base"] = {
               config = {
-                workspace = "dashboard",
+                workspace = "home",
                 default_lists = {
                   inbox = "inbox.norg",
                 },
@@ -163,10 +166,10 @@ neorg.setup {
             ["core.norg.dirman"] = {
                 config = {
                     workspaces = {
-                        work = "~/notes/work",
                         home = "~/notes/home",
-                        dashboard = "~/notes/dashboard",
-                    }
+                        work = "~/notes/work",
+                    },
+                    default_workspace = "home",
                 }
             }
           }

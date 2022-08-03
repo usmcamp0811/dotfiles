@@ -36,18 +36,18 @@ if not status_still_ok then
   return
 end
 
-which_key.register({
-  p = {
-    name = "Packer",
-    c = { "<cmd>PackerCompile<cr>", "Compile" },
-    i = { "<cmd>PackerInstall<cr>", "Install" },
-    s = { "<cmd>PackerSync<cr>", "Sync" },
-    S = { "<cmd>PackerStatus<cr>", "Status" },
-    u = { "<cmd>PackerUpdate<cr>", "Update" },
-  },
-},
-  { prefix = "<leader>" }
-)
+-- which_key.register({
+--   p = {
+--     name = "Packer",
+--     c = { "<cmd>PackerCompile<cr>", "Compile" },
+--     i = { "<cmd>PackerInstall<cr>", "Install" },
+--     s = { "<cmd>PackerSync<cr>", "Sync" },
+--     S = { "<cmd>PackerStatus<cr>", "Status" },
+--     u = { "<cmd>PackerUpdate<cr>", "Update" },
+--   },
+-- },
+--   { prefix = "<leader>" }
+-- )
 
 -- Have packer use a popup window
 packer.init {
