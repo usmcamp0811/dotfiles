@@ -153,7 +153,12 @@ return packer.startup(function(use)
   use "rebelot/kanagawa.nvim"
   use "EdenEast/nightfox.nvim"
   use "Yazeed1s/minimal.nvim"
+  use "chrisbra/csv.vim"
   use "goolord/alpha-nvim"
+  use {
+    'AckslD/nvim-FeMaco.lua',
+    config = 'require("femaco").setup()',
+  }
   use "davidgranstrom/nvim-markdown-preview"
   use({ 'anuvyklack/pretty-fold.nvim',
      config = function()
@@ -161,6 +166,7 @@ return packer.startup(function(use)
      end,
     ft_setup = {'neorg', {}}
   })
+  -- use "jceb/vim-orgmode"
   use { 'anuvyklack/fold-preview.nvim',
      requires = 'anuvyklack/keymap-amend.nvim',
      config = function()
@@ -172,7 +178,6 @@ return packer.startup(function(use)
   -- use "savq/paq-nvim"
   -- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
   use "rcarriga/nvim-notify"
-  use 'Olical/conjure'
   use "machakann/vim-sandwich"
   -- use {
   --   "tpope/vim-surround",

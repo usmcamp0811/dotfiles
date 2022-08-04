@@ -8,7 +8,8 @@ vim.g.vimwiki_ext2syntax = {
   [".Rmd"] = "markdown",
   [".rmd"] = "markdown",
   [".markdown"] = "markdown",
-  [".mdown"] = "markdown"
+  [".mdown"] = "markdown",
+  [".md"] = "markdown"
 }
 vim.g.vimwiki_list = {
   {
@@ -87,3 +88,5 @@ which_key.register({
 },
   { prefix = "<leader>" }
 )
+
+vim.g.vimwiki_filetypes = {'markdown', 'pandoc'}
