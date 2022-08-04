@@ -1,3 +1,4 @@
+
 local neorg = require('neorg')
 neorg.setup {
           ensure_installed = { "norg",  },
@@ -166,8 +167,8 @@ neorg.setup {
             ["core.norg.dirman"] = {
                 config = {
                     workspaces = {
-                        home = "~/notes/home",
-                        work = "~/notes/work",
+                        home = "~/vimwiki/home",
+                        work = "~/vimwiki/work",
                     },
                     default_workspace = "home",
                 }

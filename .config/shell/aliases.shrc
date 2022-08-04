@@ -101,9 +101,10 @@ function docker-login() {
     docker login -u $DHUB_USER -p $DHUB_PASS
 }
 
-alias vimwiki="nvim +VimwikiIndex"
-alias org="nvim +NeorgStart silent=true"
+# alias vimwiki="nvim +VimwikiIndex"
+alias org="nvim ~/vimwiki/home/index.norg"
 # alias notes="nvim +VimwikiDiaryIndex"
+alias nn="nvim -c 'Neorg journal today'"
 # alias nn="nvim +VimwikiMakeDiaryNote"
 # alias planner="/usr/bin/nvim +Telekasten"
 

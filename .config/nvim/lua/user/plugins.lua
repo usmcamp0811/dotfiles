@@ -120,11 +120,13 @@ return packer.startup(function(use)
     run = ":CatppuccinCompile"
   }
 
-  use {
+  use({
     "nvim-neorg/neorg",
     config = function()
         require('user.plug-setting.neorg')
+        vim.cmd "NeorgStart silent=true"
     end,
+    -- cmd = { 'Neorg' },
     requires = {
       "nvim-lua/plenary.nvim",
       "nvim-neorg/neorg-telescope",
@@ -135,7 +137,7 @@ return packer.startup(function(use)
       "folke/zen-mode.nvim",
       "Pocco81/TrueZen.nvim"
     }
-  }
+  })
 
   -- UI
   use {
@@ -152,12 +154,17 @@ return packer.startup(function(use)
   use "Yazeed1s/minimal.nvim"
   use "goolord/alpha-nvim"
   use "davidgranstrom/nvim-markdown-preview"
-  use{ 'anuvyklack/pretty-fold.nvim',
+  use({ 'anuvyklack/pretty-fold.nvim',
      config = function()
         require('user.plug-setting.pretty-fold')
      end
+  })
+  use { 'anuvyklack/fold-preview.nvim',
+     requires = 'anuvyklack/keymap-amend.nvim',
+     config = function()
+        require('fold-preview').setup()
+     end
   }
-
   use "shoumodip/nvim-literate"
   -- use "frabjous/knap"
   -- use "savq/paq-nvim"
