@@ -87,6 +87,7 @@ return packer.startup(function(use)
   use({"hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" }})
   use({"mroavi/vim-julia-cell", ft = { "julia", "jl" }})
   use "metakirby5/codi.vim"
+  use 'Olical/conjure'
 
   use "godlygeek/tabular"
   use "lervag/vimtex" -- for writing latex
@@ -157,7 +158,8 @@ return packer.startup(function(use)
   use({ 'anuvyklack/pretty-fold.nvim',
      config = function()
         require('user.plug-setting.pretty-fold')
-     end
+     end,
+    ft_setup = {'neorg', {}}
   })
   use { 'anuvyklack/fold-preview.nvim',
      requires = 'anuvyklack/keymap-amend.nvim',

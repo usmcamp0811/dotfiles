@@ -26,12 +26,12 @@ pretty_fold.setup {
    -- Comment signs additional to the value of `&commentstring` option.
    comment_signs = {},
 
-   -- -- List of patterns that will be removed from content foldtext section.
-   -- stop_words = {
-   --    '@brief%s*', -- (for C++) Remove '@brief' and all spaces after.
-   -- },
+   -- List of patterns that will be removed from content foldtext section.
+   stop_words = {
+      '@brief%s*', -- (for C++) Remove '@brief' and all spaces after.
+   },
 
-   -- add_close_pattern = true, -- true, 'last_line' or false
+   add_close_pattern = true, -- true, 'last_line' or false
 
    matchup_patterns = {
       {  '{', '}' },
@@ -39,7 +39,7 @@ pretty_fold.setup {
       { '%[', ']' }, -- % to escape lua pattern char
    },
 
-   ft_ignore = { },
+   -- ft_ignore = { },
 }
 
 return pretty_fold
