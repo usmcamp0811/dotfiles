@@ -7,4 +7,4 @@
 vim.g.python3_host_prog = "python3"
 vim.g.jupyter_mapkeys = 0
 
-vim.keymap.set("n", "<localleader>f", ":JupyterRunFile<cr>", { desc="Execute Code" })
+-- vim.keymap.set("n", "<localleader>f", ":JupyterRunFile<cr>", { desc="Execute Code" })

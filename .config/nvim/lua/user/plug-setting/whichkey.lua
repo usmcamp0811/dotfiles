@@ -80,8 +80,8 @@ local opts = {
 
   -- ["E"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
 local mappings = {
-  ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
-  ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+  -- ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
+  -- ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
   [","] = { "<cmd>Alpha<cr>", "Alpha" },
   ["b"] = {
     "<cmd>BufferLinePick<cr>",
