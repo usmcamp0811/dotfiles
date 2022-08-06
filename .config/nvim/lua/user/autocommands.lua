@@ -36,6 +36,7 @@ vim.cmd [[
     " autocmd FileType julia let g:which_key['<CR>'] = [ ':JuliaCellExecuteCellJump', 'Execute Julia Code Cell' ]
   augroup end
   
+
   " Restore Cursor Position {{{
   augroup restore_cursor
     autocmd!
@@ -60,9 +61,8 @@ vim.cmd [[
   autocmd VimEnter * silent! !xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape' " Map Esc to Caps Lock 
 
   " Save manual folds automatically
-  autocmd BufWinLeave *.* mkview
-  autocmd BufWinEnter *.* silent loadview 
-
+  autocmd BufWrite * mkview
+  autocmd BufRead * silent! loadview
   " set indent folds for python
   autocmd! FileType python set foldmethod=indent
 

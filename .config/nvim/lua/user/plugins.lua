@@ -88,6 +88,9 @@ return packer.startup(function(use)
   use({"mroavi/vim-julia-cell", ft = { "julia", "jl" }})
   use "metakirby5/codi.vim"
   use 'Olical/conjure'
+  use "radenling/vim-dispatch-neovim"
+  use "clojure-vim/vim-jack-in"
+  use "tpope/vim-dispatch"
 
   use "godlygeek/tabular"
   use "lervag/vimtex" -- for writing latex
