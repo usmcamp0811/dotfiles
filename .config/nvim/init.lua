@@ -39,6 +39,7 @@ require "user.plug-setting.vimwiki"
 require "user.plug-setting.literate"
 require "user.plug-setting.zen"
 require "user.plug-setting.conjure"
+-- require "user.plug-setting.marks"
 -- require "user.plug-setting.codi"
 -- require "user.colorscheme"
 

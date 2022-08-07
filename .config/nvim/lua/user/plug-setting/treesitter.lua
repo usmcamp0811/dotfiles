@@ -25,7 +25,16 @@ configs.setup({
 		enable = true,
 	},
 	indent = { enable = true, disable = { "python", "css" } },
-  parser_configs = parser_configs
+  parser_configs = parser_configs,
+  textsubjects = {
+          enable = true,
+          prev_selection = ',', -- (Optional) keymap to select the previous selection
+          keymaps = {
+              ['.'] = 'textsubjects-smart',
+              [';'] = 'textsubjects-container-outer',
+              ['i;'] = 'textsubjects-container-inner',
+          },
+      },
 })
 
 

@@ -9,10 +9,12 @@ M = {}
 -- keymap("n", "<leader><cr>", "<Plug>SlimeParagraphSend", opts)
 -- keymap("n", "<leader>v", "<Plug>SlimeConfig", opts)
 
- -- let g:slime_target = "tmux"
-vim.g.slime_target = "x11"
+-- vim.g.slime_target = "tmux"
+vim.g.slime_target = "neovim"
+-- vim.g.slime_target = "x11"
 -- vim.g.slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
 vim.g.slime_cell_delimiter = "```"
+vim.g.slime_dont_ask_default = 1
 -- " let g:slime_cell_delimiter = "# %%"
 -- " let g:slime_cell_delimiter = "# {{{"
 
@@ -28,6 +30,48 @@ vim.cmd [[
       return [trimmed]
     endif
   endfunction
+
+" autocmd Filetype python nnoremap <leader>s :call StartIPython()<CR>
+
+autocmd TermOpen * setlocal nonumber norelativenumber
+
+function SlimeOverrideConfig()
+  let l:job_id = trim(execute(":echo b:terminal_job_id"))
+  wincmd h
+  let b:slime_config = {}
+  let b:slime_config["jobid"] = job_id
+endfunction
+
+function StartIPython()
+    :vsplit
+    :terminal
+    :$
+    :vertical resize 70
+    :call SlimeOverrideConfig()
+    :SlimeSend1 clear
+    :SlimeSend1 ipython --matplotlib
+endfunction
+
+function StartIJulia()
+    :vsplit
+    :terminal
+    :$
+    :vertical resize 70
+    :call SlimeOverrideConfig()
+    :SlimeSend1 clear
+    :SlimeSend1 julia
+endfunction
+
+function StartClojure()
+    :vsplit
+    :terminal
+    :$
+    :vertical resize 70
+    :call SlimeOverrideConfig()
+    :SlimeSend1 clear
+    :SlimeSend1 clj
+endfunction
+
 ]]
 
 return M

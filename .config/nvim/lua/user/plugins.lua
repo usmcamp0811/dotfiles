@@ -69,7 +69,14 @@ return packer.startup(function(use)
 
   -- use 'vim-pandoc/vim-pandoc' -- this is not needed treesitter or something has got the filetypes
   use 'vim-pandoc/vim-pandoc-syntax'
+  use({
+    "chentoast/marks.nvim",
+    config = function()
+        require('user.plug-setting.marks')
+    end,
+  })
 
+  -- use "kshenoy/vim-signature"
   use "ahmedkhalf/project.nvim"
   use "kyazdani42/nvim-tree.lua"
   use "vimwiki/vimwiki"
@@ -128,7 +135,7 @@ return packer.startup(function(use)
     "nvim-neorg/neorg",
     config = function()
         require('user.plug-setting.neorg')
-        vim.cmd "NeorgStart silent=true"
+        -- vim.cmd "NeorgStart silent=true"
     end,
     -- cmd = { 'Neorg' },
     requires = {
@@ -220,6 +227,9 @@ return packer.startup(function(use)
   use({
     "nvim-treesitter/nvim-treesitter",
     run = ":TSUpdate",
+  })
+  use({
+    "RRethy/nvim-treesitter-textsubjects",
   })
 
   use "nvim-treesitter/playground"

@@ -125,8 +125,11 @@ neorg.setup {
                   start = "#time.start",
                   due = "#time.due",
                   waiting = "#waiting.for",
-                }
-              }
+                },
+                exclude = {
+                  "wiki"
+                },
+              },
             },
             ["external.gtd-project-tags"] = {},
             ["external.context"] = {},

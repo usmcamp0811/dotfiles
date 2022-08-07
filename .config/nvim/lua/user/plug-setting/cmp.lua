@@ -112,9 +112,9 @@ cmp.setup {
     { name = "nvim_lsp" },
     { name = "neorg" },
     { name = "latex_symbols" },
+    { name = "buffer" },
     { name = "luasnip" },
     { name = "orgmode" },
-    { name = "buffer" },
     { name = "path" },
     { name = "nvim_lua" },
   },
@@ -126,9 +126,13 @@ cmp.setup {
     documentation = {
       border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
     },
-  },
-  experimental = {
-    ghost_text = false,
-    native_menu = false,
-  },
+  }
 }
+cmp.setup.cmdline(':', {
+mapping = cmp.mapping.preset.cmdline(),
+sources = cmp.config.sources({
+  { name = 'path' }
+}, {
+  { name = 'cmdline' }
+})
+})

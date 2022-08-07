@@ -88,7 +88,7 @@ local mappings = {
     "Buffers",
   },
   ["q"] = { "<cmd>q!<CR>", "Quit" },
-  ["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
+  -- ["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
   ["C"] = { "<cmd>Calendar<CR>", "Open Calendar" },
   ["h"] = { "<cmd>nohlsearch<CR>", "No Highlight" },
   ["f"] = {
@@ -112,4 +112,114 @@ end
 
 which_key.setup(setup)
 which_key.register(mappings, opts)
+
+local function code_keymap()
+  if vim.fn.has "nvim-0.7" then
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "*",
+      callback = function()
+        vim.schedule(CodeRunner)
+      end,
+    })
+  else
+    vim.cmd "autocmd FileType * lua CodeRunner()"
+  end
+
+  -- credit to https://alpha2phi.medium.com/neovim-for-beginners-lua-autocmd-and-keymap-functions-3bdfe0bebe42
+  function CodeRunner()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
+    local fname = vim.fn.expand "%:p:t"
+    local keymap_c = {}
+    local ncodemap = {}
+    local vcodemap = {}
+
+    if ft == "python" then
+
+      ncodemap = {
+        c = {
+          name = "Code",
+          s = { "<cmd>call StartIPython()<cr>", "Start IPython" },
+      },
+        ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
+        ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+      }
+      vcodemap = {
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
+      }
+    elseif ft == "julia" then
+      ncodemap = {
+        c = {
+          name = "Code",
+          s = { "<cmd>call StartIJulia()<cr>", "Start Julia" },
+      },
+        ["<CR>"] = {":JuliaCellExecuteCell<CR>", "Execute # ``` Julia Code Cell"},
+        ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+      }
+      vcodemap = {
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
+      }
+    elseif ft == "clojure" then
+      ncodemap = {
+        c = {
+          name = "Code",
+          s = { "<cmd>call StartClojure()<cr>", "Start Clojure (clj)" },
+      },
+        ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
+        ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+      }
+      vcodemap = {
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
+      }
+    -- elseif ft == "lua" then
+    --   keymap_c = {
+    --     name = "Code",
+    --     r = { "<cmd>luafile %<cr>", "Run" },
+    --   }
+    -- elseif ft == "rust" then
+    --   keymap_c = {
+    --     name = "Code",
+    --     r = { "<cmd>Cargo run<cr>", "Run" },
+    --     D = { "<cmd>RustDebuggables<cr>", "Debuggables" },
+    --     h = { "<cmd>RustHoverActions<cr>", "Hover Actions" },
+    --     R = { "<cmd>RustRunnables<cr>", "Runnables" },
+    --   }
+    -- elseif ft == "go" then
+    --   keymap_c = {
+    --     name = "Code",
+    --     r = { "<cmd>GoRun<cr>", "Run" },
+    --   }
+    -- elseif ft == "typescript" or ft == "typescriptreact" or ft == "javascript" or ft == "javascriptreact" then
+    --   keymap_c = {
+    --     name = "Code",
+    --     o = { "<cmd>TSLspOrganize<cr>", "Organize" },
+    --     r = { "<cmd>TSLspRenameFile<cr>", "Rename File" },
+    --     i = { "<cmd>TSLspImportAll<cr>", "Import All" },
+    --     R = { "<cmd>lua require('config.test').javascript_runner()<cr>", "Choose Test Runner" },
+    --     s = { "<cmd>2TermExec cmd='yarn start'<cr>", "Yarn Start" },
+    --     t = { "<cmd>2TermExec cmd='yarn test'<cr>", "Yarn Test" },
+    --   }
+    end
+
+    -- if fname == "package.json" then
+    --   keymap_c.v = { "<cmd>lua require('package-info').show()<cr>", "Show Version" }
+    --   keymap_c.c = { "<cmd>lua require('package-info').change_version()<cr>", "Change Version" }
+    --   keymap_c.s = { "<cmd>2TermExec cmd='yarn start'<cr>", "Yarn Start" }
+    --   keymap_c.t = { "<cmd>2TermExec cmd='yarn test'<cr>", "Yarn Test" }
+    -- end
+
+    if next(ncodemap) ~= nil then
+      which_key.register(
+        ncodemap,
+        { mode = "n", silent = true, noremap = true, buffer = bufnr, prefix = "<leader>" }
+      )
+      which_key.register(
+        vcodemap,
+        { mode = "v", silent = true, noremap = true, buffer = bufnr, prefix = "<leader>" }
+      )
+    end
+  end
+end
+
+code_keymap()
 
