@@ -189,7 +189,17 @@ which_key.register({
     -- l = { "<Cmd>Neorg keybind norg core.integrations.telescope.find_linkable<CR>", "Find Linkable"},
     p = { ":Neorg presenter start<cr>", "Start Presentation"},
     n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note"},
-    j = { ":Neorg journal today<cr>", "Today's Journal" }
+    j = { ":Neorg journal today<cr>", "Today's Journal" },
+    N = {
+      name = "Neorg",
+      i = { ":Neorg workspace home<cr>", "Home Index" },
+      w = { ":Neorg workspace work<cr>", "Work Index" },
+      v = { "<Cmd>Neorg gtd views<CR>", "GTD Views" },
+      c = { "<Cmd>Neorg gtd capture<CR>", "GTD Capture" },
+      e = { "<Cmd>Neorg gtd edit<CR>", "GTD Edit" },
+
+      
+  }
 },
 { prefix = "<Space>" }
 )

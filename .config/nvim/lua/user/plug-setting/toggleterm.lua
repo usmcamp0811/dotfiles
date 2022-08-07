@@ -14,7 +14,7 @@ toggleterm.setup({
 	open_mapping = [[<F1>]],
 	hide_numbers = true,
 	shade_filetypes = {},
-	shade_terminals = true,
+	shade_terminals = false,
 	shading_factor = 2,
 	start_in_insert = true,
 	insert_mappings = true,
@@ -108,7 +108,8 @@ function _CLOJURE_TOGGLE()
 end
 
 local python = Terminal:new({
-  cmd = "ipython",
+  -- cmd = "ipython --matplotlib",
+  cmd = "ipython --matplotlib",
   dir = "git_dir",
   direction = "vertical",
   on_open = function()
