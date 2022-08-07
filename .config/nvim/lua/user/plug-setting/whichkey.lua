@@ -209,6 +209,14 @@ local function code_keymap()
       vcodemap = {
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
+    elseif ft == "norg" then
+      ncodemap = {
+        ["<CR>"] = {":SlimeSendCurrentLine<cr>", "Execute Code"},
+        ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+      }
+      vcodemap = {
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
+      }
     -- elseif ft == "rust" then
     --   keymap_c = {
     --     name = "Code",
