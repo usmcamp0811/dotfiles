@@ -33,15 +33,7 @@ vim.cmd [[
 
 " autocmd Filetype python nnoremap <leader>s :call StartIPython()<CR>
 
-autocmd TermOpen * setlocal nonumber norelativenumber
-
-function StartClojure()
-    :ToggleTerm direction=vertical size=70 cmd=clj
-    :$
-    :call SlimeOverrideConfig()
-    :SlimeSend1 clear
-    :SlimeSend1 clj
-endfunction
+" autocmd TermOpen * setlocal nonumber norelativenumber
 
 ]]
 

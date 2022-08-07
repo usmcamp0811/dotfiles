@@ -77,7 +77,6 @@ local opts = {
   noremap = true, -- use `noremap` when creating keymaps
   nowait = true, -- use `nowait` when creating keymaps
 }
-
   -- ["E"] = { "<cmd>NvimTreeToggle<cr>", "Explorer" },
 local mappings = {
   -- ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
@@ -136,16 +135,17 @@ local function code_keymap()
       ncodemap = {
         c = {
           name = "Code",
-          s = { "<cmd>call StartIPython()<cr>", "Start IPython" },
+          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         -- TODO: Figure out how to switch between Slime and Conjure and keep the <leader><CR> for code execution
-        ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
+        ["<CR>"] = {":IPythonCellExecuteCellVerbose<cr>", "Execute Code Cell <marks>"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
       vcodemap = {
         c = {
           name = "Code",
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
+          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
@@ -153,8 +153,8 @@ local function code_keymap()
       ncodemap = {
         c = {
           name = "Code",
-          s = { "<cmd>call StartIJulia()<cr>", "Start Julia" },
           ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
+          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         -- Slime is almost OBE because ToggleTerm does similr things but I'm keeping it 
         -- because of things like vim julia cell uses it and I like being able to do 
@@ -166,6 +166,7 @@ local function code_keymap()
         c = {
           name = "Code",
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
+          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
@@ -175,6 +176,7 @@ local function code_keymap()
           name = "Code",
           s = { "<cmd>call StartClojure()<cr>", "Start Clojure (clj)" },
           ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
+          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         ["<CR>"] = {":SlimeSendCurrentLine<cr>", "Execute Code"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
