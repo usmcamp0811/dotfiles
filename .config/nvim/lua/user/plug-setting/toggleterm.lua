@@ -18,12 +18,12 @@ toggleterm.setup({
 	shell = vim.o.shell,
 	float_opts = {
 		border = "curved",
-		winblend = 0,
+    winblend = 0,
 		highlights = {
 			border = "Normal",
 			background = "Normal",
 		},
-	},
+  },
 })
 
 function _G.set_terminal_keymaps()
@@ -69,10 +69,47 @@ function _HTOP_TOGGLE()
 	htop:toggle()
 end
 
-local python = Terminal:new({ cmd = "python", hidden = true })
+local python = Terminal:new({
+  cmd = "ipython",
+  dir = "git_dir",
+  direction = "vertical",
+  on_open = function()
+    -- vim.cmd("startinsert!")
+    vim.cmd [[ 
+      let g:python_job_id = trim(execute(":echo b:terminal_job_id"))
+    ]]
+  end,
+})
 
 function _PYTHON_TOGGLE()
 	python:toggle()
+  vim.cmd [[ 
+     wincmd h
+     let b:slime_config = {}
+     let b:slime_config["jobid"] = g:python_job_id
+  ]]
+end
+
+local julia = Terminal:new({
+  cmd = "julia",
+  dir = "git_dir",
+  direction = "vertical",
+  on_open = function()
+    -- vim.cmd("startinsert!")
+    vim.cmd [[ 
+      let g:julia_job_id = trim(execute(":echo b:terminal_job_id"))
+    ]]
+  end,
+})
+
+function _JULIA_TOGGLE()
+	julia:toggle()
+  vim.cmd [[ 
+     " Have to switch back to the code buffer first
+     wincmd h
+     let b:slime_config = {}
+     let b:slime_config["jobid"] = g:julia_job_id
+  ]]
 end
 
 local status_ok, which_key = pcall(require, "which-key")
@@ -85,6 +122,7 @@ which_key.register({
     name = "Terminal",
     g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
     n = { "<cmd>lua _NODE_TOGGLE()<cr>", "Node" },
+    j = { "<cmd>lua _JULIA_TOGGLE()<cr>", "Julia" },
     u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
     t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
     p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },

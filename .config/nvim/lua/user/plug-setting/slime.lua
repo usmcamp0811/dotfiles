@@ -43,30 +43,22 @@ function SlimeOverrideConfig()
 endfunction
 
 function StartIPython()
-    :vsplit
-    :terminal
+    :ToggleTerm direction=vertical size=70 cmd=ipython
     :$
-    :vertical resize 70
     :call SlimeOverrideConfig()
-    :SlimeSend1 clear
-    :SlimeSend1 ipython --matplotlib
+    " :SlimeSend1 clear
+    " :SlimeSend1 ipython --matplotlib
 endfunction
 
 function StartIJulia()
-    :vsplit
-    :terminal
+    :ToggleTerm direction=vertical size=70 cmd=julia
     :$
-    :vertical resize 70
     :call SlimeOverrideConfig()
-    :SlimeSend1 clear
-    :SlimeSend1 julia
 endfunction
 
 function StartClojure()
-    :vsplit
-    :terminal
+    :ToggleTerm direction=vertical size=70 cmd=clj
     :$
-    :vertical resize 70
     :call SlimeOverrideConfig()
     :SlimeSend1 clear
     :SlimeSend1 clj

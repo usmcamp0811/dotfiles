@@ -1,19 +1,15 @@
-local status_ok, which_key = pcall(require, "which-key")
-if not status_ok then
-  return
-end
 
-which_key.register({
-  ["<leader><cr>"] = { ":ConjureEval<CR>", "EvalCode"},
-},
-  { prefix = "<leader>", mode = "v" }
-)
-
-which_key.register({
-  ["<cr>"] = { ":ConjureEval<CR>", "EvalCode"},
-},
-  { prefix = "<leader>", mode = "n" }
-)
+-- which_key.register({
+--   ["<leader><cr>"] = { ":ConjureEval<CR>", "EvalCode"},
+-- },
+--   { prefix = "<leader>", mode = "v" }
+-- )
+--
+-- which_key.register({
+--   ["<cr>"] = { ":ConjureEval<CR>", "EvalCode"},
+-- },
+--   { prefix = "<leader>", mode = "n" }
+-- )
 
 local function make_conjure_command()
     local root = require('lspconfig').util.root_pattern('Project.toml')(vim.api.nvim_buf_get_name(0))
@@ -27,6 +23,8 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
     pattern = "*.jl",
     callback = make_conjure_command,
 })
+
+vim.g["conjure#filetypes"] = {}
 
 -- -- Base Conjure Mappings
 -- which_key.register({

@@ -135,16 +135,20 @@ local function code_keymap()
     local vcodemap = {}
 
     if ft == "python" then
-
       ncodemap = {
         c = {
           name = "Code",
           s = { "<cmd>call StartIPython()<cr>", "Start IPython" },
       },
+        -- TODO: Figure out how to switch between Slime and Conjure and keep the <leader><CR> for code execution
         ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
       vcodemap = {
+        c = {
+          name = "Code",
+          ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
+      },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
       }
     elseif ft == "julia" then
@@ -152,11 +156,17 @@ local function code_keymap()
         c = {
           name = "Code",
           s = { "<cmd>call StartIJulia()<cr>", "Start Julia" },
+          ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
       },
         ["<CR>"] = {":JuliaCellExecuteCell<CR>", "Execute # ``` Julia Code Cell"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
       vcodemap = {
+        c = {
+          name = "Code",
+          s = { "<cmd>Clj<cr>", "Start Clj" },
+          ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
+      },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
       }
     elseif ft == "clojure" then
@@ -164,11 +174,16 @@ local function code_keymap()
         c = {
           name = "Code",
           s = { "<cmd>call StartClojure()<cr>", "Start Clojure (clj)" },
+          ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
       },
         ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
       vcodemap = {
+        c = {
+          name = "Code",
+          ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
+      },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
       }
     -- elseif ft == "lua" then
