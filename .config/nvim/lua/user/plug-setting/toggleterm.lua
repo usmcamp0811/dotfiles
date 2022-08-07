@@ -4,7 +4,13 @@ if not status_ok then
 end
 
 toggleterm.setup({
-	size = 20,
+	size = function(term)
+    if term.direction == "horizontal" then
+      return 15
+    elseif term.direction == "vertical" then
+      return vim.o.columns * 0.4
+    end
+  end,
 	open_mapping = [[<F1>]],
 	hide_numbers = true,
 	shade_filetypes = {},
@@ -74,20 +80,18 @@ local python = Terminal:new({
   dir = "git_dir",
   direction = "vertical",
   on_open = function()
-    -- vim.cmd("startinsert!")
-    vim.cmd [[ 
-      let g:python_job_id = trim(execute(":echo b:terminal_job_id"))
-    ]]
+    vim.g.python_job_id = vim.b.terminal_job_id
   end,
 })
 
 function _PYTHON_TOGGLE()
 	python:toggle()
-  vim.cmd [[ 
-     wincmd h
-     let b:slime_config = {}
-     let b:slime_config["jobid"] = g:python_job_id
-  ]]
+  vim.cmd "wincmd h"
+  vim.b.slime_config = {}
+  vim.b.slime_config = {
+    jobid = vim.g.python_job_id
+  }
+  vim.cmd "wincmd l"
 end
 
 local julia = Terminal:new({
@@ -95,21 +99,18 @@ local julia = Terminal:new({
   dir = "git_dir",
   direction = "vertical",
   on_open = function()
-    -- vim.cmd("startinsert!")
-    vim.cmd [[ 
-      let g:julia_job_id = trim(execute(":echo b:terminal_job_id"))
-    ]]
+    vim.g.julia_job_id = vim.b.terminal_job_id
   end,
 })
 
 function _JULIA_TOGGLE()
 	julia:toggle()
-  vim.cmd [[ 
-     " Have to switch back to the code buffer first
-     wincmd h
-     let b:slime_config = {}
-     let b:slime_config["jobid"] = g:julia_job_id
-  ]]
+  vim.cmd "wincmd h"
+  vim.b.slime_config = {}
+  vim.b.slime_config = {
+    jobid = vim.g.julia_job_id
+  }
+  vim.cmd "wincmd l"
 end
 
 local status_ok, which_key = pcall(require, "which-key")

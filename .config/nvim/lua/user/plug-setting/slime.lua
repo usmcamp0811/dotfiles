@@ -35,27 +35,6 @@ vim.cmd [[
 
 autocmd TermOpen * setlocal nonumber norelativenumber
 
-function SlimeOverrideConfig()
-  let l:job_id = trim(execute(":echo b:terminal_job_id"))
-  wincmd h
-  let b:slime_config = {}
-  let b:slime_config["jobid"] = job_id
-endfunction
-
-function StartIPython()
-    :ToggleTerm direction=vertical size=70 cmd=ipython
-    :$
-    :call SlimeOverrideConfig()
-    " :SlimeSend1 clear
-    " :SlimeSend1 ipython --matplotlib
-endfunction
-
-function StartIJulia()
-    :ToggleTerm direction=vertical size=70 cmd=julia
-    :$
-    :call SlimeOverrideConfig()
-endfunction
-
 function StartClojure()
     :ToggleTerm direction=vertical size=70 cmd=clj
     :$
