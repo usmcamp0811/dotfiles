@@ -70,8 +70,14 @@ case ${TERM} in
 		;;
         esac
 
+
+# if we don't have the fzf stuff go get it
+([ -r "/usr/share/fzf/completion.zsh" ] || [ -r "$HOME/.config/fzf/completion.zsh" ]) || $HOME/.local/bin/get-fzf-scripts
+([ -r "/usr/share/fzf/key-bindings.zsh" ] || [ -r "$HOME/.config/fzf/key-bindings.zsh" ]) || $HOME/.local/bin/get-fzf-scripts
 [ -r "/usr/share/fzf/completion.zsh" ] && source /usr/share/fzf/completion.zsh
 [ -r "/usr/share/fzf/key-bindings.zsh" ] && source /usr/share/fzf/key-bindings.zsh
+[ -r "$HOME/.config/fzf/completion.zsh" ] && source $HOME/.config/fzf/completion.zsh
+[ -r "$HOME/.config/fzf/key-bindings.zsh" ] && source $HOME/.config/fzf/key-bindings.zsh
 
 # source all the other bash config files
 for file in ~/.config/shell/*.shrc; do
