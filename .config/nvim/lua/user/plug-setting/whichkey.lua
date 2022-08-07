@@ -129,8 +129,6 @@ local function code_keymap()
   function CodeRunner()
     local bufnr = vim.api.nvim_get_current_buf()
     local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
-    local fname = vim.fn.expand "%:p:t"
-    local keymap_c = {}
     local ncodemap = {}
     local vcodemap = {}
 
@@ -149,7 +147,7 @@ local function code_keymap()
           name = "Code",
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
       },
-        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
     elseif ft == "julia" then
       ncodemap = {
@@ -158,16 +156,18 @@ local function code_keymap()
           s = { "<cmd>call StartIJulia()<cr>", "Start Julia" },
           ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
       },
+        -- Slime is almost OBE because ToggleTerm does similr things but I'm keeping it 
+        -- because of things like vim julia cell uses it and I like being able to do 
+        -- code between marks
         ["<CR>"] = {":JuliaCellExecuteCell<CR>", "Execute # ``` Julia Code Cell"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
       vcodemap = {
         c = {
           name = "Code",
-          s = { "<cmd>Clj<cr>", "Start Clj" },
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
       },
-        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
     elseif ft == "clojure" then
       ncodemap = {
@@ -176,7 +176,7 @@ local function code_keymap()
           s = { "<cmd>call StartClojure()<cr>", "Start Clojure (clj)" },
           ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
       },
-        ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
+        ["<CR>"] = {":SlimeSendCurrentLine<cr>", "Execute Code"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
       vcodemap = {
@@ -184,13 +184,24 @@ local function code_keymap()
           name = "Code",
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
       },
-        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Code Cell"}
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
-    -- elseif ft == "lua" then
-    --   keymap_c = {
-    --     name = "Code",
-    --     r = { "<cmd>luafile %<cr>", "Run" },
-    --   }
+    elseif ft == "javascript" then
+      ncodemap = {
+        ["<CR>"] = {":SlimeSendCurrentLine<cr>", "Execute Code"},
+        ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+      }
+      vcodemap = {
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
+      }
+    elseif ft == "lua" then
+      ncodemap = {
+        ["<CR>"] = { "<cmd>luafile %<cr>", "Run" },
+        ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+      }
+      vcodemap = {
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
+      }
     -- elseif ft == "rust" then
     --   keymap_c = {
     --     name = "Code",
@@ -215,14 +226,6 @@ local function code_keymap()
     --     t = { "<cmd>2TermExec cmd='yarn test'<cr>", "Yarn Test" },
     --   }
     end
-
-    -- if fname == "package.json" then
-    --   keymap_c.v = { "<cmd>lua require('package-info').show()<cr>", "Show Version" }
-    --   keymap_c.c = { "<cmd>lua require('package-info').change_version()<cr>", "Change Version" }
-    --   keymap_c.s = { "<cmd>2TermExec cmd='yarn start'<cr>", "Yarn Start" }
-    --   keymap_c.t = { "<cmd>2TermExec cmd='yarn test'<cr>", "Yarn Test" }
-    -- end
-
     if next(ncodemap) ~= nil then
       which_key.register(
         ncodemap,
