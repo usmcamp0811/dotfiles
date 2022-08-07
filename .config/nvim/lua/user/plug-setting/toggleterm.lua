@@ -82,6 +82,12 @@ function _BPYTOP_TOGGLE()
 	bpytop:toggle()
 end
 
+local k9s = Terminal:new({ cmd = "k9s", hidden = true })
+
+function _K9S_TOGGLE()
+	k9s:toggle()
+end
+
 local htop = Terminal:new({ cmd = "htop", hidden = true })
 
 function _HTOP_TOGGLE()
@@ -182,6 +188,7 @@ which_key.register({
     g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
     u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
     t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
+    k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
     f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
     h = { "<cmd>ToggleTerm size=10 direction=horizontal<cr>", "Horizontal" },
     v = { "<cmd>ToggleTerm size=80 direction=vertical<cr>", "Vertical" },
