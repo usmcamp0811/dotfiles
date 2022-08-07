@@ -28,27 +28,18 @@ require "user.plug-setting.colorizer"
 require "user.plug-setting.calendar"
 require "user.plug-setting.knap"
 require "user.plug-setting.autosave"
--- require "user.plug-setting.jupyter-vim"
 require "user.plug-setting.vim-ipython-cell"
 require "user.plug-setting.slime"
 require "user.plug-setting.ranger"
 require "user.plug-setting.pretty-fold"
--- require "user.plug-setting.surround"
 require "user.plug-setting.gitsigns"
 require "user.plug-setting.neorg"
 require "user.plug-setting.vimwiki"
 require "user.plug-setting.literate"
 require "user.plug-setting.zen"
 require "user.plug-setting.conjure"
--- require "user.plug-setting.marks"
--- require "user.plug-setting.codi"
--- require "user.colorscheme"
 
 
--- TODO: port what I can (below) to Lua
--- vim.cmd "source $HOME/.config/nvim/autocmds.vim"
--- vim.cmd "source $HOME/.config/nvim/plug-config/ranger.vim"
--- vim.cmd "source $HOME/.config/nvim/plug-config/slime.vim"
 vim.cmd "source $HOME/.config/nvim/functions.vim" -- has a function for my markdown code blocks
 vim.cmd [[ 
 function! s:isAtStartOfLine(mapping)

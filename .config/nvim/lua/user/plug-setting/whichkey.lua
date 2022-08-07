@@ -130,6 +130,7 @@ local function code_keymap()
     local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
     local ncodemap = {}
     local vcodemap = {}
+    local nnoleader = {}
 
     if ft == "python" then
       ncodemap = {
@@ -148,6 +149,10 @@ local function code_keymap()
           d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
+      }
+      nnoleader = {
+        ["J"] = {":IPythonCellNextCell<cr>", "Execute Line of Code"},
+        ["K"] = {":IPythonCellPrevCell<cr>", "Execute Line of Code"},
       }
     elseif ft == "julia" then
       ncodemap = {
@@ -236,6 +241,10 @@ local function code_keymap()
       which_key.register(
         vcodemap,
         { mode = "v", silent = true, noremap = true, buffer = bufnr, prefix = "<leader>" }
+      )
+      which_key.register(
+        nnoleader,
+        { mode = "n", silent = true, noremap = true, buffer = bufnr }
       )
     end
   end
