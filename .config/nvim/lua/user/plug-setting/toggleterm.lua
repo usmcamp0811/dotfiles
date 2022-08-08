@@ -114,7 +114,6 @@ function _CLOJURE_TOGGLE()
 end
 
 local python = Terminal:new({
-  -- cmd = "ipython --matplotlib",
   cmd = "ipython --matplotlib",
   dir = "git_dir",
   direction = "vertical",

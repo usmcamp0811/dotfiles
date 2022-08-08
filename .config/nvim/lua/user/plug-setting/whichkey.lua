@@ -87,8 +87,15 @@ local mappings = {
     "Buffers",
   },
   ["q"] = { "<cmd>q!<CR>", "Quit" },
-  -- ["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
-  ["C"] = { "<cmd>Calendar<CR>", "Open Calendar" },
+  ["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
+  ["C"] = {
+    name = "Calendar",
+    c = { "<cmd>Calendar<CR>", "Open Calendar" },
+    w = { "<cmd>Calendar -view=week<CR>", "Week View" },
+    d = { "<cmd>Calendar -view=day<CR>", "Day View" },
+    s = { "<cmd>Calendar -view=days<CR>", "Day View" },
+    o = { "<cmd>Calendar -view=clock<CR>", "Clock" },
+  },
   ["h"] = { "<cmd>nohlsearch<CR>", "No Highlight" },
   ["f"] = {
     "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>",
@@ -148,7 +155,7 @@ local function code_keymap()
         c = {
           name = "Code",
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
-          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
+          ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
@@ -161,11 +168,11 @@ local function code_keymap()
         c = {
           name = "Code",
           ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
-          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         -- Slime is almost OBE because ToggleTerm does similr things but I'm keeping it 
         -- because of things like vim julia cell uses it and I like being able to do 
         -- code between marks
+        ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
         ["<CR>"] = {":JuliaCellExecuteCell<CR>", "Execute # ``` Julia Code Cell"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
@@ -173,8 +180,8 @@ local function code_keymap()
         c = {
           name = "Code",
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
-          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
+        ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
         ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
       }
     elseif ft == "clojure" then
@@ -183,8 +190,8 @@ local function code_keymap()
           name = "Code",
           s = { "<cmd>call StartClojure()<cr>", "Start Clojure (clj)" },
           ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},
-          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
+        ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
         ["<CR>"] = {":SlimeSendCurrentLine<cr>", "Execute Code"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
@@ -197,6 +204,7 @@ local function code_keymap()
       }
     elseif ft == "javascript" then
       ncodemap = {
+        ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
         ["<CR>"] = {":SlimeSendCurrentLine<cr>", "Execute Code"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
@@ -205,6 +213,7 @@ local function code_keymap()
       }
     elseif ft == "lua" then
       ncodemap = {
+        ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
         ["<CR>"] = { "<cmd>luafile %<cr>", "Run" },
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
       }
