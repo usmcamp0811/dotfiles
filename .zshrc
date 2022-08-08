@@ -90,6 +90,10 @@ for file in ~/.config/bash/private/*.bashrc; do
     [ -r "$file" ] && source "$file"
 done
 
+for file in ~/.config/shell/private/*.shrc; do
+    [ -r "$file" ] && source "$file"
+done
+
 # export TERM=notlinux
 if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
     PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
