@@ -63,3 +63,21 @@ let g:ipython_cell_run_command = 'include("{filepath}")'
 let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 ]]
 
+local dirman = require("neorg.modules.core.norg.dirman.module")
+local gtd = require("neorg.modules.core.gtd.base.module")
+local function physical_workspace()
+  return dirman.public.get_current_workspace()[1]
+end
+local function change_gtd_workspace()
+  gtd.config.public["workspace"] = physical_workspace()
+end
+local function reload_gtd()
+  return neorg.modules.load_module("core.gtd.base")
+end
+change_gtd_workspace()
+reload_gtd()
+
+vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+  pattern = '*',
+  callback = require('lspsaga.lightbulb').action_lightbulb,
+})

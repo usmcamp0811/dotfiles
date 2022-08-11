@@ -208,15 +208,46 @@ return packer.startup(function(use)
       { "kdheepak/cmp-latex-symbols" },
     },
   })
+
+  use "saadparwaiz1/cmp_luasnip" -- snippet completions
   -- snippets
   use "L3MON4D3/LuaSnip" --snippet engine
   use "rafamadriz/friendly-snippets" -- a bunch of snippets to use
 
   -- LSP
   use "neovim/nvim-lspconfig" -- enable LSP
-  use "williamboman/nvim-lsp-installer" -- simple to use language server installer
+  -- use "williamboman/nvim-lsp-installer" -- simple to use language server installer
+
+  use "williamboman/mason.nvim"
+  use "williamboman/mason-lspconfig.nvim"
   use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
   use "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
+  use({
+    "lukas-reineke/lsp-format.nvim",
+  })
+  use({
+      "glepnir/lspsaga.nvim",
+      branch = "main",
+      config = function()
+          -- local saga = require("lspsaga")
+          -- local config = require("user.plug-setting.lsp-saga")
+          -- saga.init_lsp_saga(config)
+          require("lspsaga").init_lsp_saga({})
+      end,
+  })
+
+  -- Lua
+  use {
+    "folke/trouble.nvim",
+    requires = "kyazdani42/nvim-web-devicons",
+    config = function()
+      require("trouble").setup {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      }
+    end
+  }
 
   -- Telescope
   use "nvim-telescope/telescope.nvim"

@@ -145,19 +145,20 @@ local function code_keymap()
       ncodemap = {
         c = {
           name = "Code",
-          d = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
+          ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
         -- TODO: Figure out how to switch between Slime and Conjure and keep the <leader><CR> for code execution
         ["<CR>"] = {":IPythonCellExecuteCellVerbose<cr>", "Execute Code Cell <marks>"},
         ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+        ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       }
       vcodemap = {
         c = {
           name = "Code",
           ["<CR>"] = {":'<,'>ConjureEval<cr>", "Run Code w/ Conjure"},
-          ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       },
-        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"}
+        ["<CR>"] = {":'<,'>SlimeSend<CR>", "Execute Selected Code"},
+        ["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
       }
       nnoleader = {
         ["J"] = {":IPythonCellNextCell<cr>", "Execute Line of Code"},
@@ -165,6 +166,9 @@ local function code_keymap()
       }
     elseif ft == "julia" then
       ncodemap = {
+        l = {
+          f = {":JuliaFormatterFormat<CR>", "Format"}
+        },
         c = {
           name = "Code",
           ["<CR>"] = {":ConjureEval<cr>", "Run Code w/ Conjure"},

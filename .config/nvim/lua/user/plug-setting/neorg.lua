@@ -197,8 +197,6 @@ which_key.register({
       v = { "<Cmd>Neorg gtd views<CR>", "GTD Views" },
       c = { "<Cmd>Neorg gtd capture<CR>", "GTD Capture" },
       e = { "<Cmd>Neorg gtd edit<CR>", "GTD Edit" },
-
-      
   }
 },
 { prefix = "<Space>" }
