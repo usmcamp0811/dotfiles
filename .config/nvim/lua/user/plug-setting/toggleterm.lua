@@ -123,11 +123,11 @@ local hshell = Terminal:new({
 })
 
 function _HSHELL_TOGGLE()
-	clojure:toggle()
+	hshell:toggle()
 	vim.cmd("wincmd k")
 	vim.b.slime_config = {}
 	vim.b.slime_config = {
-		jobid = vim.g.hsell_job_id,
+		jobid = vim.g.hshell_job_id,
 	}
 	vim.cmd("wincmd j")
 end
@@ -227,8 +227,8 @@ which_key.register({
 		t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
 		k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
 		f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
-		h = { "<cmd>ToggleTerm size=10 direction=horizontal<cr>", "Horizontal" },
-		v = { "<cmd>ToggleTerm size=80 direction=vertical<cr>", "Vertical" },
+		h = { "<cmd>lua _HSHELL_TOGGLE()<cr>", "Horizontal" },
+		v = { "<cmd>lua _VSHELL_TOGGLE()<cr>", "Vertical" },
 		r = { ":RnvimrToggle<CR>", "Ranger" },
 	},
 }, { prefix = "<leader>" })
