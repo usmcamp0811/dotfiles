@@ -6,16 +6,6 @@ end
 require "user.lsp.configs"
 require("user.lsp.handlers").setup()
 require("user.lsp.mason")
-require "lspconfig".pyright.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".eslint.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".julials.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".dockerls.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".bashls.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".ltex.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".jedi_language_server.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".clojure_lsp.setup { on_attach = require "lsp-format".on_attach }
-require "lspconfig".sumneko_lua.setup { on_attach = require "lsp-format".on_attach }
-require("lsp-format").setup {}
 require "user.lsp.null-ls"
 
 

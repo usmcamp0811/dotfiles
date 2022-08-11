@@ -5,12 +5,12 @@ end
 
 toggleterm.setup({
 	size = function(term)
-    if term.direction == "horizontal" then
-      return 15
-    elseif term.direction == "vertical" then
-      return vim.o.columns * 0.4
-    end
-  end,
+		if term.direction == "horizontal" then
+			return 15
+		elseif term.direction == "vertical" then
+			return vim.o.columns * 0.4
+		end
+	end,
 	open_mapping = [[<F1>]],
 	hide_numbers = true,
 	shade_filetypes = {},
@@ -24,25 +24,25 @@ toggleterm.setup({
 	shell = vim.o.shell,
 	float_opts = {
 		border = "curved",
-    winblend = 0,
+		winblend = 0,
 		highlights = {
 			border = "Normal",
 			background = "Normal",
 		},
-  },
+	},
 })
 
 function _G.set_terminal_keymaps()
-  local opts = {noremap = true}
-  vim.api.nvim_buf_set_keymap(0, 't', '<esc>', [[<C-\><C-n>]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', 'jk', [[<C-\><C-n>]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-h>', [[<C-\><C-n><C-W>h]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-j>', [[<C-\><C-n><C-W>j]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-k>', [[<C-\><C-n><C-W>k]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-l>', [[<C-\><C-n><C-W>l]], opts)
+	local opts = { noremap = true }
+	vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "jk", [[<C-\><C-n>]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
 end
 
-vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
+vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
 
 local Terminal = require("toggleterm.terminal").Terminal
 local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
@@ -52,22 +52,22 @@ function _LAZYGIT_TOGGLE()
 end
 
 local node = Terminal:new({
-  cmd = "node",
-  dir = "git_dir",
-  direction = "vertical",
-  on_open = function()
-    vim.g.node_job_id = vim.b.terminal_job_id
-  end,
+	cmd = "node",
+	dir = "git_dir",
+	direction = "vertical",
+	on_open = function()
+		vim.g.node_job_id = vim.b.terminal_job_id
+	end,
 })
 
 function _NODE_TOGGLE()
 	node:toggle()
-  vim.cmd "wincmd h"
-  vim.b.slime_config = {}
-  vim.b.slime_config = {
-    jobid = vim.g.node_job_id
-  }
-  vim.cmd "wincmd l"
+	vim.cmd("wincmd h")
+	vim.b.slime_config = {}
+	vim.b.slime_config = {
+		jobid = vim.g.node_job_id,
+	}
+	vim.cmd("wincmd l")
 end
 
 local ncdu = Terminal:new({ cmd = "ncdu", hidden = true })
@@ -94,105 +94,141 @@ function _HTOP_TOGGLE()
 	htop:toggle()
 end
 
+local vshell = Terminal:new({
+	cmd = "zsh",
+	dir = "git_dir",
+	direction = "vertical",
+	on_open = function()
+		vim.g.vshell_job_id = vim.b.terminal_job_id
+	end,
+})
+
+function _VSHELL_TOGGLE()
+	vshell:toggle()
+	vim.cmd("wincmd h")
+	vim.b.slime_config = {}
+	vim.b.slime_config = {
+		jobid = vim.g.vshell_job_id,
+	}
+	vim.cmd("wincmd l")
+end
+
+local hshell = Terminal:new({
+	cmd = "zsh",
+	dir = "git_dir",
+	direction = "horizontal",
+	on_open = function()
+		vim.g.hshell_job_id = vim.b.terminal_job_id
+	end,
+})
+
+function _HSHELL_TOGGLE()
+	clojure:toggle()
+	vim.cmd("wincmd k")
+	vim.b.slime_config = {}
+	vim.b.slime_config = {
+		jobid = vim.g.hsell_job_id,
+	}
+	vim.cmd("wincmd j")
+end
+
 local clojure = Terminal:new({
-  cmd = "clj",
-  dir = "git_dir",
-  direction = "vertical",
-  on_open = function()
-    vim.g.clojure_job_id = vim.b.terminal_job_id
-  end,
+	cmd = "clj",
+	dir = "git_dir",
+	direction = "vertical",
+	on_open = function()
+		vim.g.clojure_job_id = vim.b.terminal_job_id
+	end,
 })
 
 function _CLOJURE_TOGGLE()
 	clojure:toggle()
-  vim.cmd "wincmd h"
-  vim.b.slime_config = {}
-  vim.b.slime_config = {
-    jobid = vim.g.clojure_job_id
-  }
-  vim.cmd "wincmd l"
+	vim.cmd("wincmd h")
+	vim.b.slime_config = {}
+	vim.b.slime_config = {
+		jobid = vim.g.clojure_job_id,
+	}
+	vim.cmd("wincmd l")
 end
 
 local python = Terminal:new({
-  cmd = "ipython --matplotlib",
-  dir = "git_dir",
-  direction = "vertical",
-  on_open = function()
-    vim.g.python_job_id = vim.b.terminal_job_id
-  end,
-  shade_terminals = true
+	cmd = "ipython --matplotlib",
+	dir = "git_dir",
+	direction = "vertical",
+	on_open = function()
+		vim.g.python_job_id = vim.b.terminal_job_id
+	end,
+	shade_terminals = true,
 })
 
 function _PYTHON_TOGGLE()
 	python:toggle()
-  vim.cmd "wincmd h"
-  vim.b.slime_config = {}
-  vim.b.slime_config = {
-    jobid = vim.g.python_job_id
-  }
-  vim.cmd "wincmd l"
+	vim.cmd("wincmd h")
+	vim.b.slime_config = {}
+	vim.b.slime_config = {
+		jobid = vim.g.python_job_id,
+	}
+	vim.cmd("wincmd l")
 end
 
 local julia = Terminal:new({
-  cmd = "julia",
-  dir = "git_dir",
-  direction = "vertical",
-  on_open = function()
-    vim.g.julia_job_id = vim.b.terminal_job_id
-  end,
+	cmd = "julia",
+	dir = "git_dir",
+	direction = "vertical",
+	on_open = function()
+		vim.g.julia_job_id = vim.b.terminal_job_id
+	end,
 })
 
 function _JULIA_TOGGLE()
 	julia:toggle()
-  vim.cmd "wincmd h"
-  vim.b.slime_config = {}
-  vim.b.slime_config = {
-    jobid = vim.g.julia_job_id
-  }
-  vim.cmd "wincmd l"
+	vim.cmd("wincmd h")
+	vim.b.slime_config = {}
+	vim.b.slime_config = {
+		jobid = vim.g.julia_job_id,
+	}
+	vim.cmd("wincmd l")
 end
 
 local lua = Terminal:new({
-  cmd = "lua",
-  dir = "git_dir",
-  direction = "vertical",
-  on_open = function()
-    vim.g.lua_job_id = vim.b.terminal_job_id
-  end,
+	cmd = "lua",
+	dir = "git_dir",
+	direction = "vertical",
+	on_open = function()
+		vim.g.lua_job_id = vim.b.terminal_job_id
+	end,
 })
 
 function _LUA_TOGGLE()
 	lua:toggle()
-  vim.cmd "wincmd h"
-  vim.b.slime_config = {}
-  vim.b.slime_config = {
-    jobid = vim.g.lua_job_id
-  }
-  vim.cmd "wincmd l"
+	vim.cmd("wincmd h")
+	vim.b.slime_config = {}
+	vim.b.slime_config = {
+		jobid = vim.g.lua_job_id,
+	}
+	vim.cmd("wincmd l")
 end
 
 local status_ok, which_key = pcall(require, "which-key")
 if not status_ok then
-  return
+	return
 end
 
 which_key.register({
-  t = {
-    name = "Terminal",
-    j = { "<cmd>lua _JULIA_TOGGLE()<cr>", "Julia" },
-    c = { "<cmd>lua _CLOJURE_TOGGLE()<cr>", "Clojure" },
-    p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },
-    n = { "<cmd>lua _NODE_TOGGLE()<cr>", "Node" },
-    l = { "<cmd>lua _LUA_TOGGLE()<cr>", "Lua" },
-    g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
-    u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
-    t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
-    k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
-    f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
-    h = { "<cmd>ToggleTerm size=10 direction=horizontal<cr>", "Horizontal" },
-    v = { "<cmd>ToggleTerm size=80 direction=vertical<cr>", "Vertical" },
-    r = { ":RnvimrToggle<CR>", "Ranger" },
-  },
-},
-  { prefix = "<leader>" }
-)
+	t = {
+		name = "Terminal",
+		j = { "<cmd>lua _JULIA_TOGGLE()<cr>", "Julia" },
+		c = { "<cmd>lua _CLOJURE_TOGGLE()<cr>", "Clojure" },
+		p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },
+		n = { "<cmd>lua _NODE_TOGGLE()<cr>", "Node" },
+		l = { "<cmd>lua _LUA_TOGGLE()<cr>", "Lua" },
+		g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
+		u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
+		t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
+		k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
+		f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
+		h = { "<cmd>ToggleTerm size=10 direction=horizontal<cr>", "Horizontal" },
+		v = { "<cmd>ToggleTerm size=80 direction=vertical<cr>", "Vertical" },
+		r = { ":RnvimrToggle<CR>", "Ranger" },
+	},
+}, { prefix = "<leader>" })
