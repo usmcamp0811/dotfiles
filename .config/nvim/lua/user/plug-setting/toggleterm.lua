@@ -123,11 +123,13 @@ local hshell = Terminal:new({
 })
 
 function _HSHELL_TOGGLE()
-	clojure:toggle()
+	hshell:toggle()
 	vim.cmd("wincmd k")
+	vim.g.slime_target = "neovim"
+	vim.g.slime_dont_ask_default = 1
 	vim.b.slime_config = {}
 	vim.b.slime_config = {
-		jobid = vim.g.hsell_job_id,
+		jobid = vim.g.hshell_job_id,
 	}
 	vim.cmd("wincmd j")
 end
@@ -144,6 +146,8 @@ local clojure = Terminal:new({
 function _CLOJURE_TOGGLE()
 	clojure:toggle()
 	vim.cmd("wincmd h")
+	vim.g.slime_target = "neovim"
+	vim.g.slime_dont_ask_default = 1
 	vim.b.slime_config = {}
 	vim.b.slime_config = {
 		jobid = vim.g.clojure_job_id,
@@ -164,6 +168,8 @@ local python = Terminal:new({
 function _PYTHON_TOGGLE()
 	python:toggle()
 	vim.cmd("wincmd h")
+	vim.g.slime_target = "neovim"
+	vim.g.slime_dont_ask_default = 1
 	vim.b.slime_config = {}
 	vim.b.slime_config = {
 		jobid = vim.g.python_job_id,
@@ -183,6 +189,8 @@ local julia = Terminal:new({
 function _JULIA_TOGGLE()
 	julia:toggle()
 	vim.cmd("wincmd h")
+	vim.g.slime_target = "neovim"
+	vim.g.slime_dont_ask_default = 1
 	vim.b.slime_config = {}
 	vim.b.slime_config = {
 		jobid = vim.g.julia_job_id,
@@ -202,6 +210,8 @@ local lua = Terminal:new({
 function _LUA_TOGGLE()
 	lua:toggle()
 	vim.cmd("wincmd h")
+	vim.g.slime_target = "neovim"
+	vim.g.slime_dont_ask_default = 1
 	vim.b.slime_config = {}
 	vim.b.slime_config = {
 		jobid = vim.g.lua_job_id,
@@ -227,8 +237,8 @@ which_key.register({
 		t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
 		k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
 		f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
-		h = { "<cmd>ToggleTerm size=10 direction=horizontal<cr>", "Horizontal" },
-		v = { "<cmd>ToggleTerm size=80 direction=vertical<cr>", "Vertical" },
+		h = { "<cmd>lua _HSHELL_TOGGLE()<cr>", "Horizontal" },
+		v = { "<cmd>lua _VSHELL_TOGGLE()<cr>", "Vertical" },
 		r = { ":RnvimrToggle<CR>", "Ranger" },
 	},
 }, { prefix = "<leader>" })
