@@ -88,7 +88,12 @@ local mappings = {
 		"Buffers",
 	},
 	["q"] = { "<cmd>q!<CR>", "Quit" },
-	["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
+	-- ["c"] = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
+
+	c = {
+		name = "Code",
+		x = { "<cmd>lua SlimeXSwitch()<CR>", "Switch Slime to X11" },
+	},
 	["C"] = {
 		name = "Calendar",
 		c = { "<cmd>Calendar<CR>", "Open Calendar" },
@@ -96,6 +101,7 @@ local mappings = {
 		d = { "<cmd>Calendar -view=day<CR>", "Day View" },
 		s = { "<cmd>Calendar -view=days<CR>", "Day View" },
 		o = { "<cmd>Calendar -view=clock<CR>", "Clock" },
+		f = { "<cmd>Calendar -view=year -split=vertical -width=25<CR>", "Open Side Calendar" },
 	},
 	["h"] = { "<cmd>nohlsearch<CR>", "No Highlight" },
 	["f"] = {
