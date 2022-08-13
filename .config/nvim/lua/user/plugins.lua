@@ -31,10 +31,10 @@ if not status_ok then
 end
 
 -- TODO: is there away to do two requires with pcall
-local status_still_ok, which_key = pcall(require, "which-key")
-if not status_still_ok then
-	return
-end
+-- local status_still_ok, which_key = pcall(require, "which-key")
+-- if not status_still_ok then
+-- 	return
+-- end
 
 -- which_key.register({
 --   p = {
@@ -194,8 +194,7 @@ return packer.startup(function(use)
 	--   "tpope/vim-surround",
 	--   requires = { "tpope/vim-repeat", opt = true }
 	-- }
-
-	use("akinsho/bufferline.nvim")
+	use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
 	use({ "kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
 
 	-- cmp plugins
