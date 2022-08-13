@@ -109,7 +109,11 @@ return packer.startup(function(use)
 	use("akinsho/toggleterm.nvim")
 	use("folke/which-key.nvim")
 	use("moll/vim-bbye")
-	use("numToStr/Comment.nvim")
+	use({
+		"numToStr/Comment.nvim",
+		tag = "v0.6.1",
+		--branch = "master",
+	})
 	use("windwp/nvim-autopairs")
 	use("907th/vim-auto-save")
 	use("jbyuki/nabla.nvim") -- neat looking math pluging

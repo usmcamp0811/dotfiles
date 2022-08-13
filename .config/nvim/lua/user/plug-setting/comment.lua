@@ -27,7 +27,8 @@ if not status_still_ok then
 end
 
 which_key.register({
-	["<BS>"] = { "<Plug>(comment_toggle_linewise_current)<cr>", "Comment Toggle" },
+	-- ["<BS>"] = { "<Plug>(comment_toggle_linewise_current)<cr>", "Comment Toggle" },
+	["<BS>"] = { "<Plug>(comment_toggle_current_linewise)<cr>", "Comment Toggle" },
 	T = { ":r! date +'\\%H:\\%M - '<CR>A", "Insert Current Time" },
 })
 

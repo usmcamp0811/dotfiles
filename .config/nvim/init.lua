@@ -1,11 +1,11 @@
--- Plugins
-require("user.plugins")
-
 -- Base Settings
 require("user.options")
 require("user.keymaps")
 require("user.lsp")
 require("user.autocommands")
+
+-- Plugins
+require("user.plugins")
 
 -- Plugin Configurations
 require("user.plug-setting.catppuccin")
@@ -62,19 +62,19 @@ let g:ipython_cell_run_command = 'include("{filepath}")'
 let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 ]])
 
-local dirman = require("neorg.modules.core.norg.dirman.module")
-local gtd = require("neorg.modules.core.gtd.base.module")
-local function physical_workspace()
-	return dirman.public.get_current_workspace()[1]
-end
-local function change_gtd_workspace()
-	gtd.config.public["workspace"] = physical_workspace()
-end
-local function reload_gtd()
-	return neorg.modules.load_module("core.gtd.base")
-end
-change_gtd_workspace()
-reload_gtd()
+-- local dirman = require("neorg.modules.core.norg.dirman.module")
+-- local gtd = require("neorg.modules.core.gtd.base.module")
+-- local function physical_workspace()
+-- 	return dirman.public.get_current_workspace()[1]
+-- end
+-- local function change_gtd_workspace()
+-- 	gtd.config.public["workspace"] = physical_workspace()
+-- end
+-- local function reload_gtd()
+-- 	return neorg.modules.load_module("core.gtd.base")
+-- end
+-- change_gtd_workspace()
+-- reload_gtd()
 
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 	pattern = "*",
