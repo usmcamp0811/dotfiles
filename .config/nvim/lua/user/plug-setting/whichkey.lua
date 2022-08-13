@@ -198,6 +198,10 @@ local function code_keymap()
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
 			}
+			nnoleader = {
+				["J"] = { ":JuliaCellNextCell<cr>", "Execute Line of Code" },
+				["K"] = { ":JuliaCellPrevCell<cr>", "Execute Line of Code" },
+			}
 		elseif ft == "clojure" then
 			ncodemap = {
 				c = {

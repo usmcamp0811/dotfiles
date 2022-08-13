@@ -16,9 +16,10 @@ end
 which_key.register({
 	l = {
 		name = "LSP",
+		h = { "<cmd>Lspsaga hover_doc<CR>", "Docs" },
 		a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
 		d = {
-			"require('lsp_lines').toggle",
+			"<cmd>lua require('lsp_lines').toggle()<cr>",
 			"Document Diagnostics",
 		},
 		w = {
