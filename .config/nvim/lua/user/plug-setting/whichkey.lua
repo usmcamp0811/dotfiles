@@ -198,6 +198,10 @@ local function code_keymap()
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
 			}
+			nnoleader = {
+				["J"] = { ":JuliaCellNextCell<cr>", "Execute Line of Code" },
+				["K"] = { ":JuliaCellPrevCell<cr>", "Execute Line of Code" },
+			}
 		elseif ft == "clojure" then
 			ncodemap = {
 				c = {
@@ -243,6 +247,17 @@ local function code_keymap()
 				},
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
+				n = {
+					name = "Neorg",
+					i = { ":Neorg workspace home<cr>", "Home Index" },
+					w = { ":Neorg workspace work<cr>", "Work Index" },
+					v = { "<Cmd>Neorg gtd views<CR>", "GTD Views" },
+					c = { "<Cmd>Neorg gtd capture<CR>", "GTD Capture" },
+					e = { "<Cmd>Neorg gtd edit<CR>", "GTD Edit" },
+					p = { ":Neorg presenter start<cr>", "Start Presentation" },
+					n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note" },
+					j = { ":Neorg journal today<cr>", "Today's Journal" },
+				},
 			}
 			vcodemap = {
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },

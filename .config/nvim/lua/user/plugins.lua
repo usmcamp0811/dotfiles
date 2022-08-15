@@ -31,10 +31,10 @@ if not status_ok then
 end
 
 -- TODO: is there away to do two requires with pcall
-local status_still_ok, which_key = pcall(require, "which-key")
-if not status_still_ok then
-	return
-end
+-- local status_still_ok, which_key = pcall(require, "which-key")
+-- if not status_still_ok then
+-- 	return
+-- end
 
 -- which_key.register({
 --   p = {
@@ -109,7 +109,11 @@ return packer.startup(function(use)
 	use("akinsho/toggleterm.nvim")
 	use("folke/which-key.nvim")
 	use("moll/vim-bbye")
-	use("numToStr/Comment.nvim")
+	use({
+		"numToStr/Comment.nvim",
+		tag = "v0.6.1",
+		--branch = "master",
+	})
 	use("windwp/nvim-autopairs")
 	use("907th/vim-auto-save")
 	use("jbyuki/nabla.nvim") -- neat looking math pluging
@@ -194,8 +198,7 @@ return packer.startup(function(use)
 	--   "tpope/vim-surround",
 	--   requires = { "tpope/vim-repeat", opt = true }
 	-- }
-
-	use("akinsho/bufferline.nvim")
+	use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
 	use({ "kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
 
 	-- cmp plugins
@@ -217,7 +220,7 @@ return packer.startup(function(use)
 
 	-- LSP
 	use("neovim/nvim-lspconfig") -- enable LSP
-	-- use "williamboman/nvim-lsp-installer" -- simple to use language server installer
+	use("williamboman/nvim-lsp-installer") -- simple to use language server installer
 
 	use("williamboman/mason.nvim")
 	use("williamboman/mason-lspconfig.nvim")

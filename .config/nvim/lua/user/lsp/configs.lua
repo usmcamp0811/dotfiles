@@ -1,4 +1,4 @@
-local status_ok, lsp_installer = pcall(require, "nvim-lsp-installer")
+local status_ok, lsp_installer = pcall(require, "mason")
 if not status_ok then
 	return
 end
@@ -25,5 +25,5 @@ end
 
 -- Disable virtual_text since it's redundant due to lsp_lines.
 vim.diagnostic.config({
-  virtual_text = false,
+	virtual_text = false,
 })
