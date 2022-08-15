@@ -3,10 +3,10 @@ if not status_ok then
 	return
 end
 
-require("user.lsp.configs")
-require("user.lsp.handlers").setup()
 require("user.lsp.mason")
 require("user.lsp.null-ls")
+require("user.lsp.configs")
+require("user.lsp.handlers").setup()
 
 local status_still_ok, which_key = pcall(require, "which-key")
 if not status_still_ok then
@@ -30,12 +30,8 @@ which_key.register({
 		i = { "<cmd>LspInfo<cr>", "Info" },
 		I = { "<cmd>LspInstallInfo<cr>", "Installer Info" },
 		j = {
-			"<cmd>lua vim.lsp.diagnostic.goto_next()<CR>",
-			"Next Diagnostic",
-		},
-		k = {
-			"<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>",
-			"Prev Diagnostic",
+			"<cmd>lua vim.lsp.diagnostic.show()<CR>",
+			"Diagnostic Show",
 		},
 		l = { "<cmd>lua vim.lsp.codelens.run()<cr>", "CodeLens Action" },
 		q = { "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", "Quickfix" },
