@@ -23,3 +23,6 @@ dunst &
 # autorandr -c
 rogauracore blue
 # See https://wiki.archli
+
+#hide the mouse 
+xbanish
