@@ -43,6 +43,9 @@ M.setup = function()
 		border = "rounded",
 		width = 60,
 	})
+	vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+		config.virtual_text,
+	})
 end
 
 local function lsp_highlight_document(client)
@@ -51,6 +54,7 @@ local function lsp_highlight_document(client)
 	if not status_ok then
 		return
 	end
+
 	illuminate.on_attach(client)
 	-- end
 end
@@ -80,10 +84,11 @@ local function lsp_keymaps(bufnr)
 end
 
 M.on_attach = function(client, bufnr)
+	client.resolved_capabilities.document_range_formatting = false
+	client.resolved_capabilities.document_formatting = false
 	vim.notify(client.name .. " starting...")
 	-- TODO: refactor this into a method that checks if string in list
 	if client.name == "tsserver" then
-		client.resolved_capabilities.document_formatting = false
 	end
 	lsp_keymaps(bufnr)
 	lsp_highlight_document(client)

@@ -67,21 +67,21 @@ alias lazydot='lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 ##########################################################
 ####################### CONFIG STUFF ########################
 #i3 config
-alias i3config='/usr/bin/nvim ~/.config/i3/config'
+alias i3config='nvim ~/.config/i3/config'
 alias qconfig='vim ~/.config/qtile/config.py'
 
 #bash aliases
-alias aliases='/usr/bin/nvim ~/.config/shell/aliases.shrc'
+alias aliases='nvim ~/.config/shell/aliases.shrc'
 
 #bash export
-alias exports='/usr/bin/nvim ~/.config/shell/exports.shrc'
+alias exports='nvim ~/.config/shell/exports.shrc'
 
 #vim plugins
-alias vplug='/usr/bin/nvim ~/.config/nvim/load_plugins.vim'
-alias vplug2='/usr/bin/nvim ~/.config/nvim/config_plugins.vim'
-alias vkeys='/usr/bin/nvim ~/.config/nvim/key-mappings.vim'
-alias vgen='/usr/bin/nvim ~/.config/nvim/general.vim'
-alias vinit='/usr/bin/nvim ~/.config/nvim/init.vim'
+alias vplug='nvim ~/.config/nvim/load_plugins.vim'
+alias vplug2='nvim ~/.config/nvim/config_plugins.vim'
+alias vkeys='nvim ~/.config/nvim/key-mappings.vim'
+alias vgen='nvim ~/.config/nvim/general.vim'
+alias vinit='nvim ~/.config/nvim/init.vim'
 
 ##########################################################
 # Empty the Trash on all mounted volumes and the main HDD. then clear the useless sleepimage
@@ -106,7 +106,7 @@ alias org="nvim ~/vimwiki/home/index.norg"
 # alias notes="nvim +VimwikiDiaryIndex"
 alias nn="nvim -c 'Neorg journal today'"
 # alias nn="nvim +VimwikiMakeDiaryNote"
-# alias planner="/usr/bin/nvim +Telekasten"
+# alias planner="nvim +Telekasten"
 
 alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
 

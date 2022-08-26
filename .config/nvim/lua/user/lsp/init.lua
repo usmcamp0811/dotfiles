@@ -5,8 +5,8 @@ end
 
 require("user.lsp.configs")
 require("user.lsp.handlers").setup()
-require("user.lsp.mason")
 require("user.lsp.null-ls")
+require("user.lsp.mason")
 
 local status_still_ok, which_key = pcall(require, "which-key")
 if not status_still_ok then
@@ -16,25 +16,22 @@ end
 which_key.register({
 	l = {
 		name = "LSP",
+		h = { "<cmd>Lspsaga hover_doc<CR>", "Docs" },
 		a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
 		d = {
-			"require('lsp_lines').toggle",
+			"<cmd>lua require('lsp_lines').toggle()<cr>",
 			"Document Diagnostics",
 		},
 		w = {
 			"<cmd>Telescope lsp_workspace_diagnostics<cr>",
 			"Workspace Diagnostics",
 		},
-		f = { "<cmd>lua vim.lsp.buf.format{async=true}<cr>", "Format" },
+		f = { "<cmd>lua vim.lsp.buf.formatting()<cr>", "Format" },
 		i = { "<cmd>LspInfo<cr>", "Info" },
 		I = { "<cmd>LspInstallInfo<cr>", "Installer Info" },
 		j = {
-			"<cmd>lua vim.lsp.diagnostic.goto_next()<CR>",
-			"Next Diagnostic",
-		},
-		k = {
-			"<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>",
-			"Prev Diagnostic",
+			"<cmd>lua vim.lsp.diagnostic.show()<CR>",
+			"Diagnostic Show",
 		},
 		l = { "<cmd>lua vim.lsp.codelens.run()<cr>", "CodeLens Action" },
 		q = { "<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>", "Quickfix" },
