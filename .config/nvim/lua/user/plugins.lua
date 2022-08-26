@@ -212,7 +212,13 @@ return packer.startup(function(use)
 			{ "kdheepak/cmp-latex-symbols" },
 		},
 	})
-
+  use ({
+    'samodostal/image.nvim',
+    requires = {
+      'nvim-lua/plenary.nvim'
+    },
+  })
+  use "phaazon/mind.nvim"
 	use("saadparwaiz1/cmp_luasnip") -- snippet completions
 	-- snippets
 	use("L3MON4D3/LuaSnip") --snippet engine
@@ -224,6 +230,9 @@ return packer.startup(function(use)
 
 	use("williamboman/mason.nvim")
 	use("williamboman/mason-lspconfig.nvim")
+  use "b0o/SchemaStore.nvim"
+  use "tamago324/nlsp-settings.nvim"
+  use "lukas-reineke/lsp-format.nvim"
 	use("jose-elias-alvarez/null-ls.nvim") -- for formatters and linters
 	use("https://git.sr.ht/~whynothugo/lsp_lines.nvim")
 

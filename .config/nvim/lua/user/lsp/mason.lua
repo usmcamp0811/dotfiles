@@ -9,8 +9,8 @@ if not status_ok_1 then
 end
 
 local servers = {
-	-- "cssls",
-	-- "cssmodules_ls",
+	"cssls",
+	"cssmodules_ls",
 	-- "emmet_ls",
 	"html",
 	-- "clojure-lsp",
@@ -21,11 +21,13 @@ local servers = {
 	"sumneko_lua",
 	-- "tflint",
 	-- "terraformls",
-	-- "tsserver",
-	-- "pyright",
+	"tsserver",
+	"pyright",
 	"yamlls",
 	"bashls",
 	"julia-lsp",
+  "jq",
+  "prettier",
 	-- "clangd",
 	-- "rust_analyzer",
 	-- "taplo",
