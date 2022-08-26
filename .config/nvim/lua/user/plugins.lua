@@ -232,7 +232,7 @@ return packer.startup(function(use)
 	use("williamboman/mason-lspconfig.nvim")
   use "b0o/SchemaStore.nvim"
   use "tamago324/nlsp-settings.nvim"
-  use "lukas-reineke/lsp-format.nvim"
+  -- use "lukas-reineke/lsp-format.nvim"
 	use("jose-elias-alvarez/null-ls.nvim") -- for formatters and linters
 	use("https://git.sr.ht/~whynothugo/lsp_lines.nvim")
 
