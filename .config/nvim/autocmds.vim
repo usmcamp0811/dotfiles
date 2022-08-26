@@ -28,7 +28,7 @@ autocmd BufWinEnter *.* silent loadview
 " set indent folds for python
 autocmd! FileType python set foldmethod=indent
 
-autocmd FileType julia let g:which_key_map['<CR>'] = [ ':JuliaCellExecuteCellJump', 'Execute Julia Code Cell' ]
+" autocmd FileType julia let g:which_key_map['<CR>'] = [ ':JuliaCellExecuteCellJump', 'Execute Julia Code Cell' ]
 
 " map J and K to jump to the previous and next cell header
 autocmd FileType pandoc.markdown nnoremap K :IPythonCellPrevCell<CR>

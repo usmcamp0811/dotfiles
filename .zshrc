@@ -1,5 +1,6 @@
 # If you come from bash you might have to change your $PATH.
 
+
 function powerline_precmd() {
     PS1="$(powerline-shell --shell zsh $?)"
 }
@@ -106,7 +107,8 @@ codi() {
 [ -e /usr/bin/thefuck ] && eval "$(thefuck --alias)"
 
 
-source $HOME/.config/broot/launcher/bash/br
+# source $HOME/.config/broot/launcher/bash/br
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2 >/dev/null
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 2 >/dev/null
 source /usr/share/zsh/plugins/alias-tips/alias-tips.plugin.zsh 2 >/dev/null
+

@@ -1,5 +1,5 @@
 if has('nvim')
-    let g:python3_host_prog = '/usr/bin/python'
+    let g:python3_host_prog = 'python3'
 else
     set pyxversion=3
 endif
@@ -22,5 +22,5 @@ nnoremap <buffer> <silent> <localleader>U :JupyterUpdateShell<CR>
 
 " Debugging maps
 nnoremap <buffer> <silent> <localleader>b :PythonSetBreak<CR>
-autocmd FileType RMarkdown,julia,python call jupyter#MakeStandardCommands()
+" autocmd FileType RMarkdown,julia,python call jupyter#MakeStandardCommands()
 au BufNewFile,BufRead .Rmd,Rmd set filetype=RMarkdown

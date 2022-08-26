@@ -35,7 +35,7 @@ function! MarkdownBlocks()
     " iterate through each line in the buffer
     for l:lnum in range(1, len(getline(1, "$")))
         " detect the start fo a code block
-        if getline(l:lnum) =~ "^```.*$" || l:continue
+        if getline(l:lnum) =~ "^```.*(&|$)" || l:continue
             " continue placing signs, until the block stops
             let l:continue = 1
             " place sign
@@ -88,5 +88,5 @@ function! PercentBlocks()
     endfor
 endfunction
 
-let g:markdown_github_languages = ['python', 'julia', 'bash']
+let g:markdown_github_languages = ['python', 'julia', 'bash', 'zsh', 'clojure']
 " }}}

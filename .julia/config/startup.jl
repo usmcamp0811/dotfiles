@@ -22,9 +22,9 @@ function template()
         using PkgTemplates
         Template(;
            user="mcamp",
-           dir="/home/mcamp/code-home/",
+           dir="/home/mcamp/.julia/dev/",
            authors="Matthew Camp",
-           julia=v"1.6.1",
+           julia=v"1.7.3",
            plugins=[
                License(; name="MIT"),
                Git(; manifest=true, ssh=true),
@@ -35,4 +35,17 @@ function template()
            ],
        )
     end
+end
+
+viminit() = include("/home/mcamp/.julia/config/vi-repl.jl")
+atreplinit() do repl
+        try
+            @async viminit()
+        catch
+        end
+    end
+
+using Pkg
+if isfile("Project.toml") && isfile("Manifest.toml")
+    Pkg.activate(".")
 end

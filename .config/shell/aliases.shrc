@@ -17,6 +17,7 @@ alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir
 [ -e /usr/bin/lsd ] && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
 [ -e /usr/bin/lsd ] && alias lt='lsd --tree --depth 3'
 [ -e /usr/bin/ranger ] && alias lr="ranger"
+[ -e /usr/bin/local/ranger ] && alias lr="ranger"
 
 
 # mv, rm, cp
@@ -61,7 +62,7 @@ alias master="git checkout master"
 
 # git dotfiles
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-alias lazydot='lazygit --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+alias lazydot='lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 ##########################################################
 ####################### CONFIG STUFF ########################
@@ -100,7 +101,12 @@ function docker-login() {
     docker login -u $DHUB_USER -p $DHUB_PASS
 }
 
-alias vimwiki="/usr/bin/nvim +VimwikiIndex NERDTreeClose"
+# alias vimwiki="nvim +VimwikiIndex"
+alias org="nvim ~/vimwiki/home/index.norg"
+# alias notes="nvim +VimwikiDiaryIndex"
+alias nn="nvim -c 'Neorg journal today'"
+# alias nn="nvim +VimwikiMakeDiaryNote"
+# alias planner="/usr/bin/nvim +Telekasten"
 
 alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
 
@@ -194,4 +200,21 @@ alias outdoor='xcalib -invert -alter'
 # exit ranger and go back to last dir in range
 
 alias night='rogauracore black'
+alias code='cd ~/code-home'
 alias k='kubectl'
+alias kwatch='watch kubectl'
+
+gpu-hybrid(){
+    supergfxctl --mode hybrid
+    sudo pkill -9 -u $USER
+}
+
+gpu-dedicated(){
+    supergfxctl --mode dedicated
+    sudo pkill -9 -u $USER
+}
+
+
+update-all(){
+    ansible-playbook ~/code-home/ansible_playbooks/syu.yml --become --ask-become-pass
+}

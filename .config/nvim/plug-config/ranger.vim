@@ -1,4 +1,4 @@
-" Make Ranger replace Netrw and be the file explorer
+" Make Ranger rep ace Netrw and be the file explorer
 let g:rnvimr_enable_ex = 1
 
 " Make Ranger to be hidden after picking a file
@@ -92,5 +92,5 @@ let g:rnvimr_presets = [
 "
 " Only use initial preset layout
 " let g:rnvimr_presets = [{}]
-nmap <space>r :RnvimrToggle<CR>
+" nmap <space>r :RnvimrToggle<CR>
 let g:rnvimr_vanilla = 1

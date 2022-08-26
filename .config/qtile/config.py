@@ -33,13 +33,200 @@ from libqtile.widget import *
 from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
-from libqtile import hook
+from libqtile import hook, qtile
 
 # get display scaling facotr
 GDK_SCALE = os.environ.get("GDK_SCALE")
 if not GDK_SCALE:
     GDK_SCALE = 1.35
 
+win_list = []
+def stick_win(qtile):
+    global win_list
+    win_list.append(qtile.current_window)
+def unstick_win(qtile):
+    global win_list
+    if qtile.current_window in win_list:
+        win_list.remove(qtile.current_window)
+@hook.subscribe.setgroup
+def move_win():
+    for w in win_list:
+        w.togroup(qtile.current_group.name)
+
+def move_to_top(qtile):
+    w = qtile.current_window
+    w.bring_to_front()
+# thanks to rogerduran for the implementation of my idea (borrowed
+# from stumpwm)
+class PrevFocus(object):
+    """Store last focus per group and go back when called"""
+
+    def __init__(self):
+        self.focus = None
+        self.old_focus = None
+        self.groups_focus = {}
+        hook.subscribe.client_focus(self.on_focus)
+
+    def on_focus(self, window):
+        group = window.group
+        # only store focus if the group is set
+        if not group:
+            return
+        group_focus = self.groups_focus.setdefault(group.name, {
+            "current": None, "prev": None
+        })
+        # don't change prev if the current focus is the same as before
+        if group_focus["current"] == window:
+            return
+        group_focus["prev"] = group_focus["current"]
+        group_focus["current"] = window
+
+    def __call__(self, qtile):
+        group = qtile.current_group
+        group_focus = self.groups_focus.get(group.name, {"prev": None})
+        prev = group_focus["prev"]
+        if prev and group.name == prev.group.name:
+            group.focus(prev, False)
+
+
+# taken from
+# https://github.com/qtile/qtile-examples/blob/master/roger/config.py#L34
+# and adapted
+def pull_window_group_here(**kwargs):
+    """Switch to the *next* window matched by match_window_re with the given
+    **kwargs
+
+    If you have multiple windows matching the args, switch_to will
+    cycle through them.
+
+    (Those semantics are similar to the fvwm Next commands with
+    patterns)
+    """
+
+    def callback(qtile):
+        windows = windows_matching_shuffle(qtile, **kwargs)
+        if windows:
+            window = windows[0]
+            qtile.current_screen.set_group(window.group)
+            window.group.focus(window, False)
+            window.focus(window, False)
+
+    return lazy.function(callback)
+
+
+def window_switch_to_screen_or_pull_group(**kwargs):
+    """If the group of the window matched by match_window_re with the
+    given **kwargs is in a visible on another screen, switch to the
+    screen, otherwise pull the group to the current screen
+
+    """
+
+    def callback(qtile):
+        windows = windows_matching_shuffle(qtile, **kwargs)
+        if windows:
+            window = windows[0]
+            if window.group != qtile.current_group:
+                if window.group.screen:
+                    qtile.cmd_to_screen(window.group.screen.index)
+                qtile.current_screen.set_group(window.group)
+            window.group.focus(window, False)
+
+    return lazy.function(callback)
+
+
+switch_window = window_switch_to_screen_or_pull_group
+
+
+# def make_sticky(qtile, *args):
+#     window = qtile.current_window
+#     screen = qtile.current_screen.index
+#     window.static(
+#         screen,
+#         window.x,
+#         window.y,
+#         window.width,
+#         window.height)
+
+
+def pull_window_here(**kwargs):
+    """pull the matched window to the current group and focus it
+
+    matching behaviour is the same as in switch_to
+    """
+    def callback(qtile):
+        windows = windows_matching_shuffle(qtile, **kwargs)
+        if windows:
+            window = windows[0]
+            window.togroup(qtile.current_group.name)
+            qtile.current_group.focus(window, False)
+
+    return lazy.function(callback)
+
+
+def windows_matching_shuffle(qtile, **kwargs):
+    """return a list of windows matching window_match_re with **kwargs,
+    ordered so that the current Window (if it matches) comes last
+    """
+    windows = sorted(
+        [
+            w
+            for w in qtile.windows_map.values()
+            if w.group and window_match_re(w, **kwargs)],
+        key=lambda ww: ww.window.wid)
+    idx = 0
+    if qtile.current_window is not None:
+        try:
+            idx = windows.index(qtile.current_window)
+            idx += 1
+        except ValueError:
+            pass
+    if idx >= len(windows):
+        idx = 0
+    return windows[idx:] + windows[:idx]
+
+
+def window_match_re(window, wmname=None, wmclass=None, role=None):
+    """
+    match windows by name/title, class or role, by regular expressions
+
+    Multiple conditions will be OR'ed together
+    """
+
+    if not (wmname or wmclass or role):
+        raise TypeError(
+            "at least one of name, wmclass or role must be specified"
+        )
+    ret = False
+    if wmname:
+        ret = ret or re.match(wmname, window.name)
+    try:
+        if wmclass:
+            cls = window.window.get_wm_class()
+            if cls:
+                for v in cls:
+                    ret = ret or re.match(wmclass, v)
+        if role:
+            rol = window.window.get_wm_window_role()
+            if rol:
+                ret = ret or re.match(role, rol)
+    except (xcffib.xproto.WindowError, xcffib.xproto.AccessError):
+        return False
+    return ret
+
+
+def modifier_window_commands(match, spawn, *keys):
+    # Use switch_window by default (just mod)
+    # Use pull_window_here with additional ctrl
+    # spawn new window with additional shift
+    # Use pull_window_group_here with additional shift (mod, "shift", "control")
+    mapping = (
+        ([mod], switch_window(**match)),
+        ([mod, "control"], pull_window_here(**match)),
+        ([mod, "shift"], lazy.spawn(spawn)),
+        ([mod, "shift", "control"], pull_window_group_here(**match)))
+    return [Key(mods, key, command)
+            for mods, command in mapping
+            for key in keys]
 
 # @hook.subscribe.startup_once
 @hook.subscribe.startup
@@ -111,6 +298,7 @@ keys = [
 
     # Grow windows. If current window is on the edge of screen and dkrection
     # will be to screen edge - window would shrink.
+
     Key([mod, "control"], "j", 
         lazy.layout.grow_down(),
         lazy.layout.decrease_ratio(),
@@ -123,11 +311,14 @@ keys = [
         desc="Reset all window sizes"),
     Key([mod], "i", lazy.layout.grow()),
     Key([mod], "m", lazy.layout.shrink()),
-    Key([mod], "n", lazy.layout.normalize()),
     Key([mod], "o", lazy.layout.maximize()),
     Key([mod, "shift"], "space", lazy.layout.flip()),
 
+    Key([mod], "a", lazy.spawn("rofi -show-icons -show window")),
+    Key([mod], "s", lazy.function(stick_win), desc="stick win"),
+    Key([mod, "shift"], "s", lazy.function(unstick_win), desc="unstick win"),
     Key([mod], "z", lazy.layout.swap_main()),
+    Key([mod, "shift"] ,"z", lazy.function(move_to_top), desc="move to top"),
     Key([mod], "r",
              lazy.spawn("ranger"),
              desc='File Explorek'
@@ -176,7 +367,7 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     # Key([mod], "d", lazy.spawncmd(),
     # desc="Spawn a command using a prompt widget"),
-    Key([mod], "F2", lazy.spawn(f"brave --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
+    Key([mod], "F2", lazy.spawn(f"brave --no-xshm --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
@@ -207,12 +398,12 @@ keys = [
 
 group_names = [("WEB", {'layout': 'monadtall'}),
                ("DEV", {'layout': 'monadtall'}),
-               ("EMAIL", {'layout': 'monadtall'}),
-               ("CHAT", {'layout': 'monadtall'}),
+               ("WORK1", {'layout': 'monadtall'}),
+               ("WORK2", {'layout': 'monadtall'}),
                ("SYS", {'layout': 'monadtall'}),
-               ("GAME", {'layout': 'monadtall'}),
-               ("MUS", {'layout': 'monadtall'}),
-               ("VID", {'layout': 'monadtall'}),
+               ("COMMS", {'layout': 'stack'}),
+               ("EMAIL", {'layout': 'monadtall'}),
+               ("CAL", {'layout': 'monadtall'}),
                ("DOC", {'layout': 'floating'})]
 
 groups = [Group(name, **kwargs) for name, kwargs in group_names]
@@ -225,9 +416,10 @@ for i, (name, kwargs) in enumerate(group_names, 1):
 
 
 layout_theme = {"border_width": 2,
-                "margin": 6,
+                "margin": 10,
                 "border_focus": "#e1acff",
-                "border_normal": "#1D2330"
+                "border_normal": "#1D2330",
+                "grow_amount": 5
                 }
 
 layouts = [
@@ -235,14 +427,15 @@ layouts = [
     # layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
-    # layout.Bsp(**layout_theme),
-    # layout.Matrix(),
+    layout.Bsp(**layout_theme),
+    layout.Matrix(),
     layout.Tile(shift_windows=True, **layout_theme),
     layout.Stack(num_stacks=2, **layout_theme),
     layout.MonadTall(**layout_theme),
     layout.MonadWide(**layout_theme),
-    # layout.RatioTile(**layout_theme),
-    # layout.Tile(),
+    layout.RatioTile(**layout_theme),
+    layout.Tile(),
+    layout.TreeTab(**layout_theme)
     # layout.VerticalTile(**layout_theme),
     # layout.Zoomy(),
 ]
@@ -256,13 +449,13 @@ screens = [
             [
                 widget.Sep(
                     linewidth=0,
-                    padding=6,
+                    padding=10,
                     foreground=colors[2],
                     background=colors[0]
                 ),
                 widget.GroupBox(
                     font="Ubuntu Bold",
-                    fontsize=9,
+                    fontsize=11,
                     margin_y=3,
                     margin_x=0,
                     padding_y=5,
@@ -420,7 +613,7 @@ screens = [
                 ),
             ],
             # init_widgets_list(),
-            28,
+            35,
         ),
     ),
 ]
@@ -467,3 +660,42 @@ focus_on_window_activation = "smart"
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"
+
+
+# see
+# http://docs.qtile.org/en/latest/manual/faq.html#my-pointer-mouse-cursor-isn-t-the-one-i-expect-it-to-be  # noqa
+# see https://wiki.dfn-cert.de/cgi-bin/wiki.pl/Workstations15.1Not_WorkingYet#toc15
+@hook.subscribe.startup
+def runner():
+    subprocess.Popen(['xsetroot', '-cursor_name', 'left_ptr'])
+
+# prevent xfce4-notifyd windows from jumping around by ignoring them
+
+
+# @hook.subscribe.client_new
+# def auto_sticky(window):
+#     if window.name == "xfce4-notifyd":
+#         if window.group:
+#             screen = window.group.screen.index
+#         else:
+#             screen = window.qtile.current_screen.index
+#         window.window.configure(stackmode=xcffib.xproto.StackMode.Above)
+#         window.static(screen)
+
+
+# from http://qtile.readthedocs.org/en/latest/manual/config/hooks.html#automatic-floating-dialogs
+@hook.subscribe.client_new
+def floating_dialogs(window):
+    dialog = window.window.get_wm_type() == 'dialog'
+    transient = window.window.get_wm_transient_for()
+    bubble = window.window.get_wm_window_role() == 'bubble'
+    if dialog or transient or bubble:
+        window.floating = True
+
+
+# from https://github.com/ramnes/qtile-config/blob/98e097cfd8d5dd1ab1858c70babce141746d42a7/config.py#L108
+@hook.subscribe.screen_change
+def set_screens(qtile, event):
+    if not os.path.exists(os.path.expanduser('~/NO-AUTORANDR')):
+        subprocess.run(["autorandr", "--change"])
+        qtile.cmd_restart()
