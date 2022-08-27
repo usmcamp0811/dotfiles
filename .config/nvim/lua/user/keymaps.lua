@@ -42,6 +42,10 @@ end
 
 -- Normal --
 which_key.register({
+	c = {
+		name = "Code",
+		x = { "<cmd>lua vim.lsp.buf.hover()<CR>", "Switch Slime to X11" },
+	},
 	-- Better window navigation
 	["<C-h>"] = { "<C-w>h", "Move One Window Left" },
 	["<C-j>"] = { "<C-w>j", "Move One Window Down" },

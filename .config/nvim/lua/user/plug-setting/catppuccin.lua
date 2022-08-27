@@ -11,7 +11,7 @@ require("catppuccin").setup({
 	term_colors = false,
 	compile = {
 		enabled = true,
-		path = vim.fn.stdpath "cache" .. "/catppuccin",
+		path = vim.fn.stdpath("cache") .. "/catppuccin",
 	},
 	styles = {
 		comments = { "italic" },
@@ -51,7 +51,7 @@ require("catppuccin").setup({
 		gitgutter = false,
 		gitsigns = true,
 		leap = false,
-		telescope =  true,
+		telescope = true,
 		nvimtree = {
 			enabled = true,
 			show_root = true,
@@ -101,7 +101,7 @@ require("catppuccin").setup({
 	},
 })
 
-vim.cmd [[
+vim.cmd([[
 try
   let g:catppuccin_flavour = "mocha" " latte, frappe, macchiato, mocha
   colorscheme catppuccin
@@ -109,4 +109,4 @@ catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme auto
   set background=dark
 endtry
-]]
+]])

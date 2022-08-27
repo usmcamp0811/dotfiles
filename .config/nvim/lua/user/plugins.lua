@@ -127,7 +127,7 @@ return packer.startup(function(use)
 	use("folke/lsp-colors.nvim")
 	use("humanoid-colors/vim-humanoid-colorscheme")
 	use("lalitmee/cobalt2.nvim")
-
+	use("konosubakonoakua/synthwave84.nvim")
 	use({
 		"catppuccin/nvim",
 		as = "catppuccin",
