@@ -4,7 +4,7 @@ require("mind").setup({
 		data_header = "* %s",
 	},
 	persistence = {
-		state_path = "~/.wiki/mind.json",
-		data_dir = "~/.wiki",
+		state_path = "~/vimwiki/mind.json",
+		data_dir = "~/vimwiki",
 	},
 })
