@@ -46,7 +46,6 @@ null_ls.setup({
 		diagnostics.vint,
 		diagnostics.yamllint,
 		code_actions.proselint,
-		code_actions.refactoring,
 		completions.spell,
 		completions.vsnip,
 		hover.dictionary,

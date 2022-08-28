@@ -5,6 +5,6 @@ require("mind").setup({
 	},
 	persistence = {
 		state_path = "~/.wiki/mind.json",
-		data_dir = "~/.wiki/",
+		data_dir = "~/.wiki",
 	},
 })
