@@ -3,10 +3,10 @@ if not status_ok then
 	return
 end
 
-require("user.lsp.mason")
-require("user.lsp.null-ls")
 require("user.lsp.configs")
 require("user.lsp.handlers").setup()
+require("user.lsp.null-ls")
+require("user.lsp.mason")
 
 local status_still_ok, which_key = pcall(require, "which-key")
 if not status_still_ok then
@@ -26,7 +26,7 @@ which_key.register({
 			"<cmd>Telescope lsp_workspace_diagnostics<cr>",
 			"Workspace Diagnostics",
 		},
-		f = { "<cmd>lua vim.lsp.buf.format{async=true}<cr>", "Format" },
+		f = { "<cmd>lua vim.lsp.buf.formatting()<cr>", "Format" },
 		i = { "<cmd>LspInfo<cr>", "Info" },
 		I = { "<cmd>LspInstallInfo<cr>", "Installer Info" },
 		j = {

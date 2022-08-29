@@ -22,8 +22,3 @@ for _, server in pairs(servers) do
 	end
 	lspconfig[server].setup(opts)
 end
-
--- Disable virtual_text since it's redundant due to lsp_lines.
-vim.diagnostic.config({
-	virtual_text = false,
-})

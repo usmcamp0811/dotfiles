@@ -8,7 +8,7 @@ require("user.autocommands")
 require("user.plugins")
 
 -- Plugin Configurations
-require("user.plug-setting.catppuccin")
+-- require("user.plug-setting.catppuccin")
 require("user.plug-setting.cmp")
 require("user.plug-setting.telescope")
 require("user.plug-setting.pandoc")
@@ -38,6 +38,8 @@ require("user.plug-setting.vimwiki")
 require("user.plug-setting.literate")
 require("user.plug-setting.zen")
 require("user.plug-setting.conjure")
+require("user.plug-setting.image")
+require("user.plug-setting.mind")
 
 vim.cmd("source $HOME/.config/nvim/functions.vim") -- has a function for my markdown code blocks
 vim.cmd([[ 
@@ -75,8 +77,19 @@ let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 -- end
 -- change_gtd_workspace()
 -- reload_gtd()
+vim.cmd([[colorscheme synthwave84]])
 
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 	pattern = "*",
 	callback = require("lspsaga.lightbulb").action_lightbulb,
 })
+
+vim.cmd([[
+  augroup numbertoggle
+    autocmd!
+    autocmd FocusGained,FileType mind setlocal norelativenumber
+    autocmd FocusGained,FileType mind setlocal nonumber
+    autocmd FocusGained,FileType mind setlocal rnu!
+    autocmd FocusGained,FileType mind setlocal nu!
+  augroup END
+]])

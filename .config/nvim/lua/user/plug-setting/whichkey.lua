@@ -82,6 +82,7 @@ local opts = {
 local mappings = {
 	-- ["<CR>"] = {":IPythonCellExecuteCell<cr>", "Execute # ``` Code Cell"},
 	-- ["\\"] = {":SlimeSendCurrentLine<cr>", "Execute Line of Code"},
+	m = { ":MindOpenMain<CR>", "Open your Mind" },
 	[","] = { "<cmd>Alpha<cr>", "Alpha" },
 	["b"] = {
 		"<cmd>BufferLinePick<cr>",

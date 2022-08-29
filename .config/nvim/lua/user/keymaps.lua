@@ -42,6 +42,10 @@ end
 
 -- Normal --
 which_key.register({
+	c = {
+		name = "Code",
+		x = { "<cmd>lua vim.lsp.buf.hover()<CR>", "Switch Slime to X11" },
+	},
 	-- Better window navigation
 	["<C-h>"] = { "<C-w>h", "Move One Window Left" },
 	["<C-j>"] = { "<C-w>j", "Move One Window Down" },
@@ -62,6 +66,7 @@ which_key.register({
 	["<S-k>"] = { "5<C-y>", "Scroll up 5 rows at a time" },
 	T = { ":r! date +'- \\%H:\\%M - '<CR>A", "Insert Current Time" },
 	["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Charactes" },
+	m = { ":MindOpenMain<CR>", "Open your Mind" },
 })
 
 -- Visual Block --

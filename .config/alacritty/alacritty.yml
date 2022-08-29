@@ -3,6 +3,14 @@ font:
     # family: IBM Plex Mono Medium
     family: JuliaMono
     style: Regular
+  # Bold font face
+  bold:
+    family: ComicMono
+    style: Bold
+  # Italic font face
+  italic:
+    family: IBM Plex Mono
+    style: Light Italic
   size: 8
   offset:
     x: 0

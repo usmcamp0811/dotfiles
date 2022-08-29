@@ -26,11 +26,11 @@ neorg.setup({
 		},
 		["core.norg.qol.toc"] = {},
 
-		["core.norg.esupports.metagen"] = {
-			config = {
-				type = "auto",
-			},
-		},
+		-- ["core.norg.esupports.metagen"] = {
+		-- 	config = {
+		-- 		type = "auto",
+		-- 	},
+		-- },
 		["core.keybinds"] = {
 			config = {
 				hook = function(keybinds)
