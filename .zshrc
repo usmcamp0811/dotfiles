@@ -120,7 +120,7 @@ codi() {
 # source $HOME/.config/broot/launcher/bash/br
 [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2 >/dev/null
 [ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 2 >/dev/null
-[ -r /usr/share/zsh/plugins/alias-tips/alias-tips.plugin.zsh ] && source /usr/share/zsh/plugins/alias-tips/alias-tips.plugin.zsh 2 >/dev/null
+[ -r $HOME/.local/share/alias-tips/alias-tips.plugin.zsh ] && source $HOME/.local/share/alias-tips/alias-tips.plugin.zsh 2 >/dev/null
 
 function tvim() {
    printf '\e]710;%s\007' "FONT-FOR-VIM"
