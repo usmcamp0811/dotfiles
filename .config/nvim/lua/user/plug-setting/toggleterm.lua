@@ -135,7 +135,7 @@ function _HSHELL_TOGGLE()
 end
 
 local clojure = Terminal:new({
-	cmd = "clj",
+	cmd = 'clojure -Sdeps "{:deps {com.bhauman/rebel-readline {:mvn/version \\"0.1.4\\"}}}" -m rebel-readline.main',
 	dir = "git_dir",
 	direction = "vertical",
 	on_open = function()
