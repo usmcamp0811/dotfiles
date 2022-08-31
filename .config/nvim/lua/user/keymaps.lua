@@ -66,7 +66,6 @@ which_key.register({
 	["<S-k>"] = { "5<C-y>", "Scroll up 5 rows at a time" },
 	T = { ":r! date +'- \\%H:\\%M - '<CR>A", "Insert Current Time" },
 	["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Charactes" },
-	m = { ":MindOpenMain<CR>", "Open your Mind" },
 })
 
 -- Visual Block --

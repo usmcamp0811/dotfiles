@@ -157,11 +157,13 @@ local function code_keymap()
 				c = {
 					name = "Code",
 					["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
+					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.python_job_id}<cr>", "Get Python REPL" },
 				},
 				-- TODO: Figure out how to switch between Slime and Conjure and keep the <leader><CR> for code execution
 				["<CR>"] = { ":IPythonCellExecuteCellVerbose<cr>", "Execute Code Cell <marks>" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
+				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
 			}
 			vcodemap = {
 				c = {
@@ -177,19 +179,22 @@ local function code_keymap()
 			}
 		elseif ft == "julia" then
 			ncodemap = {
-				l = {
-					f = { ":JuliaFormatterFormat<CR>", "Format" },
-				},
+				-- l = {
+				-- 	f = { ":JuliaFormatterFormat<CR>", "Format" },
+				-- },
 				c = {
 					name = "Code",
 					["<CR>"] = { ":ConjureEval<cr>", "Run Code w/ Conjure" },
+					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<cr>", "Get Julia REPL" },
 				},
+
 				-- Slime is almost OBE because ToggleTerm does similr things but I'm keeping it
 				-- because of things like vim julia cell uses it and I like being able to do
 				-- code between marks
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				["<CR>"] = { ":JuliaCellExecuteCell<CR>", "Execute # ``` Julia Code Cell" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
+				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
 			}
 			vcodemap = {
 				c = {
@@ -209,10 +214,13 @@ local function code_keymap()
 					name = "Code",
 					s = { "<cmd>call StartClojure()<cr>", "Start Clojure (clj)" },
 					["<CR>"] = { ":ConjureEval<cr>", "Run Code w/ Conjure" },
+					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.clojure_job_id}<cr>", "Get Clojure REPL" },
 				},
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
-				["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
+				-- ["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
+				["<CR>"] = { "(v%", "Execute Code" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
+				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
 			}
 			vcodemap = {
 				c = {
@@ -226,6 +234,11 @@ local function code_keymap()
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
+				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
+				c = {
+					name = "Code",
+					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.node_job_id}<cr>", "Get Node REPL" },
+				},
 			}
 			vcodemap = {
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
@@ -235,6 +248,11 @@ local function code_keymap()
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				["<CR>"] = { "<cmd>luafile %<cr>", "Run" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
+				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
+				c = {
+					name = "Code",
+					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.node_job_id}<cr>", "Get Node REPL" },
+				},
 			}
 			vcodemap = {
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
@@ -258,6 +276,14 @@ local function code_keymap()
 					p = { ":Neorg presenter start<cr>", "Start Presentation" },
 					n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note" },
 					j = { ":Neorg journal today<cr>", "Today's Journal" },
+				},
+				c = {
+					name = "Code",
+					l = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.lua_job_id}<cr>", "Get Lua REPL" },
+					p = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.python_job_id}<cr>", "Get Python REPL" },
+					j = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<cr>", "Get Julia REPL" },
+					c = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.clojure_job_id}<cr>", "Get Clojure REPL" },
+					n = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.node_job_id}<cr>", "Get Node REPL" },
 				},
 			}
 			vcodemap = {
@@ -283,6 +309,14 @@ local function code_keymap()
 				},
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
+				c = {
+					name = "Code",
+					l = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.lua_job_id}<cr>", "Get Lua REPL" },
+					p = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.python_job_id}<cr>", "Get Python REPL" },
+					j = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<cr>", "Get Julia REPL" },
+					c = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.clojure_job_id}<cr>", "Get Clojure REPL" },
+					n = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.node_job_id}<cr>", "Get Node REPL" },
+				},
 			}
 			vcodemap = {
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
