@@ -179,9 +179,9 @@ local function code_keymap()
 			}
 		elseif ft == "julia" then
 			ncodemap = {
-				l = {
-					f = { ":JuliaFormatterFormat<CR>", "Format" },
-				},
+				-- l = {
+				-- 	f = { ":JuliaFormatterFormat<CR>", "Format" },
+				-- },
 				c = {
 					name = "Code",
 					["<CR>"] = { ":ConjureEval<cr>", "Run Code w/ Conjure" },

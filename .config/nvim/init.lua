@@ -40,6 +40,7 @@ require("user.plug-setting.zen")
 require("user.plug-setting.conjure")
 require("user.plug-setting.image")
 require("user.plug-setting.mind")
+require("user.plug-setting.julia")
 
 vim.cmd("source $HOME/.config/nvim/functions.vim") -- has a function for my markdown code blocks
 vim.cmd([[ 
