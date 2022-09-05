@@ -137,6 +137,8 @@ end
 local clojure = Terminal:new({
 	cmd = "clojure -A:rebel",
 	dir = "git_dir",
+  name = "clojure",
+  count = 38,
 	direction = "vertical",
 	on_open = function()
 		vim.g.clojure_job_id = vim.b.terminal_job_id
@@ -157,6 +159,8 @@ end
 
 local python = Terminal:new({
 	cmd = "ipython --matplotlib",
+  name = "pyton",
+  count = 314,
 	dir = "git_dir",
 	direction = "vertical",
 	on_open = function()
@@ -179,6 +183,8 @@ end
 
 local julia = Terminal:new({
 	cmd = "julia",
+  name = "julia",
+  count = 42,
 	dir = "git_dir",
 	direction = "vertical",
 	on_open = function()

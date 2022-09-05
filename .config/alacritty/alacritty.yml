@@ -75,7 +75,7 @@ hints:
     threshold: 300
   url:
     launcher:
-      program: brave
+      program: firefox
 key_bindings:
   - key: V
     mods: Control|Shift
