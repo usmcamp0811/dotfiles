@@ -101,6 +101,9 @@ local vshell = Terminal:new({
 	on_open = function()
 		vim.g.vshell_job_id = vim.b.terminal_job_id
 	end,
+  on_close = function()
+		vim.g.vshell_job_id = nil
+	end,
 })
 
 function _VSHELL_TOGGLE()
@@ -119,6 +122,9 @@ local hshell = Terminal:new({
 	direction = "horizontal",
 	on_open = function()
 		vim.g.hshell_job_id = vim.b.terminal_job_id
+	end,
+  on_close = function()
+		vim.g.hshell_job_id = nil
 	end,
 })
 
@@ -143,6 +149,9 @@ local clojure = Terminal:new({
 	on_open = function()
 		vim.g.clojure_job_id = vim.b.terminal_job_id
 	end,
+  on_close = function()
+		vim.g.clojure_job_id = nil
+	end,
 })
 
 function _CLOJURE_TOGGLE()
@@ -165,6 +174,9 @@ local python = Terminal:new({
 	direction = "vertical",
 	on_open = function()
 		vim.g.python_job_id = vim.b.terminal_job_id
+	end,
+  on_close = function()
+		vim.g.python_job_id = nil
 	end,
 	shade_terminals = true,
 })
@@ -190,6 +202,10 @@ local julia = Terminal:new({
 	on_open = function()
 		vim.g.julia_job_id = vim.b.terminal_job_id
 	end,
+  on_close = function()
+		vim.g.julia_job_id = nil
+	end,
+    
 })
 
 function _JULIA_TOGGLE()
@@ -210,6 +226,9 @@ local lua = Terminal:new({
 	direction = "vertical",
 	on_open = function()
 		vim.g.lua_job_id = vim.b.terminal_job_id
+	end,
+  on_close = function()
+		vim.g.lua_job_id = nil
 	end,
 })
 
