@@ -1,18 +1,4 @@
 # to automate adding OhMyREPL package to REPL on startup
-atreplinit() do repl
-    try
-        @eval using OhMyREPL
-    catch e
-        @warn "error while importing OhMyREPL" e
-    end
-
-    @async begin
-    # reinstall keybindings to work around https://github.com/KristofferC/OhMyREPL.jl/issues/166
-    sleep(1)
-    OhMyREPL.Prompt.insert_keybindings()
-    enable_autocomplete_brackets(true)
-    end
-end
 # using DataFrames
 # OhMyREPL.input_prompt!(">>> ")
 # OhMyREPL.output_prompt!("\n")
@@ -39,13 +25,28 @@ end
 
 viminit() = include("/home/mcamp/.julia/config/vi-repl.jl")
 atreplinit() do repl
-        try
-            @async viminit()
-        catch
-        end
+    try
+        @async viminit()
+    catch
+        @warn "vim mode is not enabled due to an error"
     end
+    try
+        @eval using OhMyREPL
+    catch e
+        @warn "error while importing OhMyREPL" e
+    end
+
+    @async begin
+        # reinstall keybindings to work around https://github.com/KristofferC/OhMyREPL.jl/issues/166
+        sleep(2)
+        OhMyREPL.Prompt.insert_keybindings()
+        OhMyREPL.enable_autocomplete_brackets(false)
+
+    end
+end
 
 using Pkg
 if isfile("Project.toml") && isfile("Manifest.toml")
     Pkg.activate(".")
 end
+
