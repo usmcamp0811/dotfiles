@@ -293,7 +293,12 @@ local function code_keymap()
 			}
 		elseif ft == "markdown" then
 			ncodemap = {
-				["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
+				-- ["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
+				["<CR>"] = {
+					-- ":normal S@c 1j V s@e 1k<CR>:'<,'>SlimeSend<CR>",
+          "<cmd>lua run_code_block()<cr>",
+					"Execute Code?",
+        },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 			}

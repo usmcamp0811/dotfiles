@@ -20,8 +20,6 @@ queries["markdown"] = [[
     )
   ]]
 
--- (language) @lang
--- (code_fence_content) @code
 -- todo rename to norg specific or move the query out
 local function code_block_under_cursor()
 	bufftype = vim.bo.filetype
