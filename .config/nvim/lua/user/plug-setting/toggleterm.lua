@@ -101,6 +101,9 @@ local vshell = Terminal:new({
 	on_open = function()
 		vim.g.vshell_job_id = vim.b.terminal_job_id
 	end,
+  on_close = function()
+		vim.g.vshell_job_id = nil
+	end,
 })
 
 function _VSHELL_TOGGLE()
@@ -120,6 +123,9 @@ local hshell = Terminal:new({
 	on_open = function()
 		vim.g.hshell_job_id = vim.b.terminal_job_id
 	end,
+  on_close = function()
+		vim.g.hshell_job_id = nil
+	end,
 })
 
 function _HSHELL_TOGGLE()
@@ -137,9 +143,14 @@ end
 local clojure = Terminal:new({
 	cmd = "clojure -A:rebel",
 	dir = "git_dir",
+  name = "clojure",
+  count = 38,
 	direction = "vertical",
 	on_open = function()
 		vim.g.clojure_job_id = vim.b.terminal_job_id
+	end,
+  on_close = function()
+		vim.g.clojure_job_id = nil
 	end,
 })
 
@@ -157,10 +168,15 @@ end
 
 local python = Terminal:new({
 	cmd = "ipython --matplotlib",
+  name = "pyton",
+  count = 314,
 	dir = "git_dir",
 	direction = "vertical",
 	on_open = function()
 		vim.g.python_job_id = vim.b.terminal_job_id
+	end,
+  on_close = function()
+		vim.g.python_job_id = nil
 	end,
 	shade_terminals = true,
 })
@@ -179,11 +195,17 @@ end
 
 local julia = Terminal:new({
 	cmd = "julia",
+  name = "julia",
+  count = 42,
 	dir = "git_dir",
 	direction = "vertical",
 	on_open = function()
 		vim.g.julia_job_id = vim.b.terminal_job_id
 	end,
+  on_close = function()
+		vim.g.julia_job_id = nil
+	end,
+    
 })
 
 function _JULIA_TOGGLE()
@@ -204,6 +226,9 @@ local lua = Terminal:new({
 	direction = "vertical",
 	on_open = function()
 		vim.g.lua_job_id = vim.b.terminal_job_id
+	end,
+  on_close = function()
+		vim.g.lua_job_id = nil
 	end,
 })
 

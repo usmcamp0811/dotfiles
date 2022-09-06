@@ -38,9 +38,14 @@ require("user.plug-setting.vimwiki")
 require("user.plug-setting.literate")
 require("user.plug-setting.zen")
 require("user.plug-setting.conjure")
-require("user.plug-setting.image")
+-- require("user.plug-setting.image")
 require("user.plug-setting.mind")
 require("user.plug-setting.julia")
+
+
+-- my own thing's 
+
+require("user.code_blocks")
 
 vim.cmd("source $HOME/.config/nvim/functions.vim") -- has a function for my markdown code blocks
 vim.cmd([[ 

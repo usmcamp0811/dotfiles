@@ -20,7 +20,7 @@ vim.g.slime_cell_delimiter = "```"
 vim.g.slime_dont_ask_default = 1
 -- " let g:slime_cell_delimiter = "# %%"
 -- " let g:slime_cell_delimiter = "# {{{"
-
+-- vim.g.slime_bracketed_paste = true
 vim.cmd([[
   function! _EscapeText_rmarkdown(text)
     " Remove all fences

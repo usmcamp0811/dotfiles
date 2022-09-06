@@ -1,33 +1,8 @@
 lastupdatecheck: 0
 recentrepos:
-- /home/mcamp/code-home/mind.nvim
-- /home/mcamp/code-home/dotfiles
-- /home/mcamp/code-home/dockovpn/dockovpn
 - /home/mcamp/vimwiki
-- /home/mcamp/.julia/dev/SpatialVoting
-- /home/mcamp/code-home/campfiles
 - /home/mcamp/Documents/jobs/Resume
-- /home/mcamp/code-home/SpatialVoting
-- /home/mcamp/code-home/spatialvoting.jl
-- /home/mcamp/code-home/proton
-- /home/mcamp/code-home/proton/wine
-- /home/mcamp/code-home/wine
-- /home/mcamp/code-home/DD-WRT_Backups
-- /home/mcamp/code-home/SVCompression
-- /home/mcamp/code-home/Wfetch
-- /home/mcamp/code-home/SVMakieRecipes
-- /home/mcamp/code-home/SVPlotsRecipes
-- /home/mcamp/code-home/TrigPolly
-- /home/mcamp/code-home/flow-cookie-cutter
-- /home/mcamp/code-home/axs_mvp
-- /home/mcamp/code-home/msic-sys-stack
-- /home/mcamp/code-home/axs-drifty
-- /home/mcamp/code-home/msic_databases
-- /home/mcamp/code-home/axs_systemstack
-- /home/mcamp/code-home/JuliaSchool/Training
-- /home/mcamp/code-home/work/cronus
 - /home/mcamp
-- /home/mcamp/.julia/dev/Pluto
 startuppopupversion: 5
 customcommandshistory:
 - q
