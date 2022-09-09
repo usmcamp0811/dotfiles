@@ -1,1 +1,2 @@
-{:key-map :viins}
+{:key-map     :viins
+ :color-theme :light-screen-theme}

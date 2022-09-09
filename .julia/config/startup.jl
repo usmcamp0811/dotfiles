@@ -50,3 +50,13 @@ if isfile("Project.toml") && isfile("Manifest.toml")
     Pkg.activate(".")
 end
 
+try
+    @eval using OhMyREPL
+catch e
+    @warn "error while importing OhMyREPL" e
+end
+
+schedule(@task begin
+    sleep(0.1)
+    OhMyREPL.__init__()
+end)

@@ -141,7 +141,7 @@ function _HSHELL_TOGGLE()
 end
 
 local clojure = Terminal:new({
-	cmd = "clojure -A:rebel",
+	cmd = "clj -M:repl/conjure",
 	dir = "git_dir",
   name = "clojure",
   count = 38,
