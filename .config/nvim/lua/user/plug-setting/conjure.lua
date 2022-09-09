@@ -12,6 +12,11 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
     callback = make_conjure_command,
 })
 
+vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
+    pattern = "*.clj",
+    callback = make_conjure_command,
+})
+
 -- this seems to need something in it or things break when opening lua files
 vim.g["conjure#filetypes"] = { "fennel" }
-
+vim.g["conjure#mapping#doc_word"] = {"K"}
