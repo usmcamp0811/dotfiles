@@ -89,7 +89,7 @@ which_key.register({
 -- Insert --
 which_key.register({
 	["<C-s>"] = { "<esc>:w<cr>", "Save" },
-	["<C-q>"] = { "<esc>:q<cr>", "Quit" },
+	["<C-q>"] = { "<esc>:Bclose<cr>", "Quit" },
 	["<F8>"] = { "<C-o>:set list!<CR>", "Toggle Unprintable Charactes" },
 }, { mode = "i" })
 

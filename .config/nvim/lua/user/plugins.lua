@@ -105,7 +105,7 @@ return packer.startup(function(use)
 	use("kdheepak/JuliaFormatter.vim")
 	use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
 	use({ "hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" } })
-	use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
+	-- use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
 	use("metakirby5/codi.vim")
 	use({ "Olical/conjure" })
 	-- use({ "Grazfather/conjure", branch = "which-key-descs" })
