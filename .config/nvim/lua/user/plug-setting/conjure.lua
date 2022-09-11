@@ -15,7 +15,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
 --					l = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.lua_job_id}<cr>", "Get Lua REPL" },
 -- this seems to need something in it or things break when opening lua files
 vim.g["conjure#filetypes"] = { "fennel", "clojure", "julia", "jl" }
--- vim.g["conjure#mapping#doc_word"] = { "K" }
+vim.g["conjure#mapping#doc_word"] = { "?" }
 
 -- n ,ecw  {":ConjureEvalCommentWord<CR>:silent! call repeat#set(",ecw", 1)<CR>", ""},
 -- n ,ece  {":ConjureEvalCommentCurrentForm<CR>:silent! call repeat#set(",ece", 1)<CR>", ""},
