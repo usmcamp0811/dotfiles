@@ -184,25 +184,25 @@ local function code_keymap()
 				-- },
 				c = {
 					name = "Code",
-					["<CR>"] = { ":ConjureEval<cr>", "Run Code w/ Conjure" },
 					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<cr>", "Get Julia REPL" },
+				  ["<CR>"] = { ":JuliaCellExecuteCell<CR>", "Run w/ Julia Cell / Slime" },
 				},
 
 				-- Slime is almost OBE because ToggleTerm does similr things but I'm keeping it
 				-- because of things like vim julia cell uses it and I like being able to do
 				-- code between marks
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
-				["<CR>"] = { ":JuliaCellExecuteCell<CR>", "Execute # ``` Julia Code Cell" },
+				["<CR>"] = { ":ConjureEvalCurrentForm<CR>:silent! call repeat#set(\" ee\", 1)<CR>", "Execute Code" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
 			}
 			vcodemap = {
 				c = {
 					name = "Code",
-					["<CR>"] = { ":'<,'>ConjureEval<cr>", "Run Code w/ Conjure" },
+				  ["<CR>"] = { ":'<,'>SlimeSend<CR>", "Run w/ Slime" },
 				},
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
-				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
+				["<CR>"] = { ":'<,'>ConjureEval<cr>", "Run Code w/ Conjure" },
 			}
 			nnoleader = {
 				["J"] = { ":JuliaCellNextCell<cr>", "Execute Line of Code" },
@@ -213,21 +213,21 @@ local function code_keymap()
 				c = {
 					name = "Code",
 					s = { "<cmd>call StartClojure()<cr>", "Start Clojure (clj)" },
-					["<CR>"] = { ":ConjureEval<cr>", "Run Code w/ Conjure" },
+  				["<CR>"] = { "(v%", "Visually Select ()" },
 					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.clojure_job_id}<cr>", "Get Clojure REPL" },
 				},
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				-- ["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
-				["<CR>"] = { "(v%", "Execute Code" },
+				["<CR>"] = { ":ConjureEvalCurrentForm<CR>:silent! call repeat#set(\" ee\", 1)<CR>", "Execute Code" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
 			}
 			vcodemap = {
 				c = {
 					name = "Code",
-					["<CR>"] = { ":'<,'>ConjureEval<cr>", "Run Code w/ Conjure" },
+				  ["<CR>"] = { ":'<,'>SlimeSend<CR>", "Run Code w/ Slime" },
 				},
-				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
+				["<CR>"] = { ":ConjureEvalCurrentForm<CR>:silent! call repeat#set(\" ee\", 1)<CR>", "Execute Code" },
 			}
 		elseif ft == "javascript" then
 			ncodemap = {

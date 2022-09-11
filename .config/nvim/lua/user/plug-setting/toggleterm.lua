@@ -141,7 +141,7 @@ function _HSHELL_TOGGLE()
 end
 
 local clojure = Terminal:new({
-	cmd = "clj -M:repl/conjure",
+	cmd = "clj -M:repl/conjure || clojure -M:repl/remote --port 8794 --host localhost",
 	dir = "git_dir",
   name = "clojure",
   count = 38,

@@ -86,6 +86,19 @@ return packer.startup(function(use)
 	-- use {'edluffy/hologram.nvim'}
 	use("gioele/vim-autoswap")
 
+  use {
+    'chipsenkbeil/distant.nvim',
+    config = function()
+      require('distant').setup {
+        -- Applies Chip's personal settings to every machine you connect to
+        --
+        -- 1. Ensures that distant servers terminate with no connections
+        -- 2. Provides navigation bindings for remote directories
+        -- 3. Provides keybinding to jump into a remote file's parent directory
+        ['*'] = require('distant.settings').chip_default()
+      }
+    end
+  }
 	-- Notebook like functions / REPL
 	use("JuliaEditorSupport/julia-vim")
 	use("kdheepak/JuliaFormatter.vim")
@@ -93,7 +106,9 @@ return packer.startup(function(use)
 	use({ "hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" } })
 	use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
 	use("metakirby5/codi.vim")
-	use("Olical/conjure")
+	-- use({"Olical/conjure"})
+  use({"Grazfather/conjure", branch = "which-key-descs" })
+  use("Olical/aniseed")
 	use("radenling/vim-dispatch-neovim")
 	use("clojure-vim/vim-jack-in")
 	use("tpope/vim-dispatch")
