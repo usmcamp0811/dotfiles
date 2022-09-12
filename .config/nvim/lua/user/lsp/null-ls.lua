@@ -50,6 +50,6 @@ null_ls.setup({
 		completions.vsnip,
 		hover.dictionary,
 	},
-	debounce = 400,
+	debounce = 4000,
 	on_attach = on_attach,
 })
