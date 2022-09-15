@@ -55,6 +55,8 @@ end
 local function parse_test_output(results)
   out = {}
   failed_tests = {}
+  summary_tests = {}
+  -- {name = "tst-name", lvl = 2, total = 3, fail = 1, pass = 2}
   res = {}
   cols = {}
   if results then
@@ -65,38 +67,46 @@ local function parse_test_output(results)
       if string.find(results[i], "Test Failed") then
         test_name = split(results[i],":")[1]
 
-        if failed_tests[test_name] == nil then
-          failed_tests[test_name] = 1
+        if summary_tests[test_name] == nil then
+          summary_tests[test_name] = {
+            name = test_name,
+            fail = 1
+          }
         else
-          failed_tests[test_name] = failed_test_name[test_name] + 1
+          summary_tests[test_name] = {
+            name = test_name,
+            fail = summary_tests[test_name][fail]
+          }
         end
-        -- vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {test_name..failed_tests[test_name]})
-        -- if the line is summary line
-      elseif string.find(results[i], "Test Summary:") then
+        
+      elseif string.find(results[i], "Test Summary:") then -- if the line is summary line
         skip = true
       elseif string.find(results[i], " | ") then
         r = split(results[i],"|")
         -- shouldn't have gotten to these unless we've been told what failed already so...
-        current_test = r[1]
-        print(string.trim(current_test))
-        -- count leading spaces.. aka indention lvl
-        _, lvl, = string.find(r[1], '^(%s*)')
-        currenttest = current_test:gsub(" ","")
-        rr = string.reverse(r[2])
+        current_test = r[1] 
+        _, lvl, _x = string.find(r[1], '^(%s*)') -- count the number of leading spaces.. this is used for grouping and count passes
+        rr = string.reverse(r[2]) -- put things in zulu order to make it easier to index
         time = split(rr, " ")[1]
-        rrr = rr:gsub(time, " ")
+        rrr = rr:gsub(time, " ") -- just poping the time out to get at the totals
+        -- we are going in zulu order so the first match is the totals column
         for c in string.gmatch(rrr, "%S+") do
           total = c
           break
         end
-        if failed_tests[currenttest] == nil then
-          pass = total
-          fails = 0
-        else
-          fails = failed_tests[currenttest]
-          pass = total - fails
+        -- check if we have seen the test.. if not make the table for it
+        if summary_tests[current_test] == nil then
+          summary_tests[current_test] = {
+            name = current_test,
+            fail = 0,
+            total = total,
+            lvl = lvl
+          }
+        else -- we have seen this test in a failed state just add the total tests in it... we counted fails earlier
+          summary_tests[current_test]["total"] = total
+          summary_tests[current_test]["lvl"] = lvl
         end
-        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {current_test..": total - "..total.." pass - "..pass.." fail - "..fails})
+        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {lvl.."-"..current_test..": total - "..total.." pass - "})
       end
           -- table.insert(out, results[i])
     end
