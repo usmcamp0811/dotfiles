@@ -29,25 +29,25 @@ end
 
 -- will return array of length of 3 or 2. The last record will always be total
 local function calc_pass_fail_total(line)
-	pft = {}
-	for v in string.gmatch(current_line, "(%s%d+)") do
-		table.insert(pft, v)
-	end
-	if #pft == 3 then
-		return {
-			pass = pft[1],
-			fail = pft[2],
-			total = pft[3],
-			missing = false,
-		}
-	else
-		return {
-			pass = "0",
-			fail = "0",
-			total = pft[#pft],
-			missing = "true",
-		}
-	end
+    pft = {}
+    for v in string.gmatch(current_line, "(%s%d+%s)") do
+        table.insert(pft, v)
+    end
+    if #pft == 3 then
+        return {
+            pass = pft[1],
+            fail = pft[2],
+            total = pft[3],
+            missing = false,
+        }
+    else
+        return {
+            pass = "0",
+            fail = "0",
+            total = pft[#pft],
+            missing = "true",
+        }
+    end
 end
 
 function rtrim(s)
@@ -58,25 +58,29 @@ function ltrim(s)
 	return s:match("^%s*(.*)")
 end
 
-function tablelength(T)
-	local count = 0
-	for _ in pairs(T) do
-		count = count + 1
-	end
-	return count
-end
-
 local function check_results(res)
 	for t in pairs(res) do
 		pf = res[t].pass + res[t].fail
 		go = pf == tonumber(res[t].total)
 		if go then
-			res[t].missing = false
+			res[t].missing = "false"
 		else
-			error("Test results don't add up.. might be missing one.", 2)
+			error("Test results => ".."Name: "..t.. " Pass: "..res[t].pass.." Fail: "..res[t].fail.. " Total: "..res[t].total, 2)
 		end
 	end
 end
+
+local function updated_failed_test(test_res)
+  if tonumber(test_res.fail) + tonumber(test_res.pass) ~= tonumber(test_res.total) then
+    -- check if these  dont equal maybe we failed all the tests
+    test_res.fail = tostring(tonumber(test_res.fail) + 1)
+  elseif
+    tonumber(test_res.fail) + tonumber(test_res.pass) == tonumber(test_res.total) then
+    test_res.missing = "false"
+  end
+  return test_res
+end
+
 
 local function parse_test_results(results)
 	res = {}
@@ -91,22 +95,10 @@ local function parse_test_results(results)
 				else
 					test_name = ltrim(rtrim(split(current_line, " | ")[1]))
 					res[test_name] = calc_pass_fail_total(current_line)
-					if res[test_name]["missing"] == true then
-						-- if we are here we need to go further and see if everything failed or everything passed
-						table.insert(need_pass_calc, test_name)
-					end
 				end
 			elseif string.find(current_line, "Test Failed") then
 				test_name = ltrim(rtrim(split(current_line, ":")[1]))
-				-- check if these  dont equal maybe we failed all the tests
-				if tonumber(res[test_name].fail) + tonumber(res[test_name].pass) ~= tonumber(res[test_name].total) then
-					res[test_name]["fail"] = tostring(tonumber(res[test_name]["fail"]) + 1)
-				elseif
-					tonumber(res[test_name]["fail"]) + tonumber(res[test_name]["pass"])
-					== tonumber(res[test_name]["total"])
-				then
-					res[test_name]["missing"] = "false"
-				end
+        res[test_name] = updated_failed_test(res[test_name])
 			end
 		end
 	end
@@ -122,17 +114,17 @@ vim.fn.jobstart({ "julia", runtests_jl }, {
 		if data then
 			-- vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
 			test_results = parse_test_results(data)
-			for v in pairs(results) do
+			for v in pairs(test_results) do
 				test = test_results[v]
 				vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {
 					"Match test -> "
-						.. v
+						.. tostring(v)
 						.. "  Failed: "
-						.. test.fail
+						.. tostring(test.fail)
 						.. " Pass: "
-						.. test.pass
+						.. tostring(test.pass)
 						.. " Total: "
-						.. test.total,
+						.. tostring(test.total),
 				})
 				-- 	-- vim.api.nvim_buf_set_extmark(bufnr,ns )
 			end
