@@ -50,11 +50,11 @@ local function calc_pass_fail_total(line)
     end
 end
 
-function rtrim(s)
+local function rtrim(s)
 	return s:match("^(.*%S)%s*$")
 end
 
-function ltrim(s)
+local function ltrim(s)
 	return s:match("^%s*(.*)")
 end
 
@@ -106,36 +106,45 @@ local function parse_test_results(results)
 	return res
 end
 
--- vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {lvl.."-"..current_test..": total - "..total.." pass - "})
+local function get_testset_line_number(test_name)
+  query = "(macro_expression (macro_argument_list (string_literal) @name (#eq? @name \"length test\")))"
+	pq = vim.treesitter.parse_query("julia", query)
+end
 
-vim.fn.jobstart({ "julia", runtests_jl }, {
-	stdout_buffered = true,
-	on_stdout = function(_, data)
-		if data then
-			-- vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
-			test_results = parse_test_results(data)
-			for v in pairs(test_results) do
-				test = test_results[v]
-				vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {
-					"Match test -> "
-						.. tostring(v)
-						.. "  Failed: "
-						.. tostring(test.fail)
-						.. " Pass: "
-						.. tostring(test.pass)
-						.. " Total: "
-						.. tostring(test.total),
-				})
-				-- 	-- vim.api.nvim_buf_set_extmark(bufnr,ns )
-			end
-		end
-	end,
-	-- on_stderr = function(_, data)
-	--   if data then
-	--       vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
-	--   end
-	-- end
-})
+function get_julia_test_file()
 
---TS Query for testsets names
--- (macro_expression (macro_argument_list (string_literal) @name))
+end
+
+require("project_nvim.project")
+
+print(get_project_root())
+
+
+vim.api.nvim_create_user_command("AutoTest", function()
+  print("We are running tests now")
+  bufnr = vim.nvim_get_current_buf
+  runtests = vim.fn.expand('%:p') 
+  vim.fn.jobstart({ "julia", runtests }, {
+    stdout_buffered = true,
+    on_stdout = function(_, data)
+      if data then
+        -- vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
+        test_results = parse_test_results(data)
+        for v in pairs(test_results) do
+          test = test_results[v]
+          vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {
+            "Match test -> "
+              .. tostring(v)
+              .. "  Failed: "
+              .. tostring(test.fail)
+              .. " Pass: "
+              .. tostring(test.pass)
+              .. " Total: "
+              .. tostring(test.total),
+          })
+          -- 	-- vim.api.nvim_buf_set_extmark(bufnr,ns )
+        end
+      end
+    end,
+  })
+end, {})
