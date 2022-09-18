@@ -1,6 +1,7 @@
 local bufnr = 9
 local runtests_jl = "/home/mcamp/.config/nvim/lua/user/julia-tests/runtests.jl"
 
+--todo remove this split function and replace with vim.split
 local function split(str, delimiter)
 	assert(type(delimiter) == "string")
 	assert(#delimiter > 0, "Must provide non empty delimiter")
@@ -107,42 +108,67 @@ local function parse_test_results(results)
 end
 
 local function get_testset_line_number(test_name)
-  query = "(macro_expression (macro_argument_list (string_literal) @name (#eq? @name \"length test\")))"
+	bufftype = vim.bo.filetype
+	language_tree = vim.treesitter.get_parser(bufnr, bufftype)
+	syntax_tree = language_tree:parse()
+	root = syntax_tree[1]:root()
+  query = "(macro_expression (macro_argument_list (string_literal) @name (#match? @name \"" .. test_name .. "\"))  @ml )"
 	pq = vim.treesitter.parse_query("julia", query)
+	for id, node, metadata in pq:iter_captures(root, bufnr, 0, vim.fn.line('$')) do
+    -- there should only be one match
+    -- row1, col1, row2, col2 = node:range()
+    return node:range()
+	end
 end
 
-function get_julia_test_file()
 
+-- vim.api.nvim_create_autocmd("BufWritePost", {
+--   group = vim.api.nvim_create_augroup("julia-autotest", {clear = true}),
+--   pattern = "runtests.jl",
+--   callback = function(_, data)
+--     if data then
+--       line_nr = 1
+--       vim.api.nvim_buf_set_extmark(bufnr, 4, line_nr, 0, { virt_text = { "Hello World!"}})
+--     end
+--   end
+-- })
+
+
+
+local function make_test_status(test)
+  if 
 end
-
-require("project_nvim.project")
-
-print(get_project_root())
-
 
 vim.api.nvim_create_user_command("AutoTest", function()
   print("We are running tests now")
-  bufnr = vim.nvim_get_current_buf
+  bufnr = vim.fn.bufnr('%') 
+  ns_id = vim.api.nvim_create_namespace('julia-testing')
+
   runtests = vim.fn.expand('%:p') 
+  print("On: ".. runtests)
   vim.fn.jobstart({ "julia", runtests }, {
     stdout_buffered = true,
     on_stdout = function(_, data)
       if data then
         -- vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
         test_results = parse_test_results(data)
-        for v in pairs(test_results) do
-          test = test_results[v]
-          vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {
-            "Match test -> "
-              .. tostring(v)
-              .. "  Failed: "
-              .. tostring(test.fail)
-              .. " Pass: "
-              .. tostring(test.pass)
-              .. " Total: "
-              .. tostring(test.total),
-          })
-          -- 	-- vim.api.nvim_buf_set_extmark(bufnr,ns )
+        id = 1
+        for test_name in pairs(test_results) do
+          test = test_results[test_name]
+          line_num, col_num, _, j = get_testset_line_number(test_name)
+          -- line_num = 23
+          -- col_num = 1
+          test_status = make_test_status(test)
+          opts = {
+            end_line = 10,
+            id = id,
+            virt_text = {{test_status, "IncSearch"}},
+            virt_text_pos = 'eol',
+            -- virt_text_win_col = 20,
+          }
+
+          mark_id = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_num, col_num, opts)
+          id = id + 1
         end
       end
     end,
