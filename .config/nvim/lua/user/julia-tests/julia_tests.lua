@@ -68,8 +68,8 @@ local function check_results(res)
 		if go then
 			res[t].missing = "false"
 		else
-      print(vim.inspect(res))
-			error("Test results => ".."Name: "..t.. " Pass: "..res[t].pass.." Fail: "..res[t].fail.. " Total: "..res[t].total, 2)
+      res[t].pass = res[t].total 
+      res[t].missing = "false"
 		end
 	end
 end
@@ -130,16 +130,14 @@ local function get_testset_line_number(test_name)
 end
 
 
--- vim.api.nvim_create_autocmd("BufWritePost", {
---   group = vim.api.nvim_create_augroup("julia-autotest", {clear = true}),
---   pattern = "runtests.jl",
---   callback = function(_, data)
---     if data then
---       line_nr = 1
---       vim.api.nvim_buf_set_extmark(bufnr, 4, line_nr, 0, { virt_text = { "Hello World!"}})
---     end
---   end
--- })
+vim.api.nvim_create_autocmd("BufWritePost", {
+  group = vim.api.nvim_create_augroup("julia-autotest", {clear = true}),
+  pattern = "runtests.jl",
+  callback = function(_, data)
+    vim.cmd":AutoTest"
+  end
+})
+
 vim.cmd"highligh default success guifg=green gui=bold"
 
 local function create_fail_pass_vtext(test)
@@ -149,12 +147,12 @@ local function create_fail_pass_vtext(test)
 end
 
 vim.api.nvim_create_user_command("AutoTest", function()
-  print("We are running tests now")
+  print("We are running tests on ".. runtests)
   bufnr = vim.fn.bufnr('%') 
   ns_id = vim.api.nvim_create_namespace('julia-testing')
+  vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 1, vim.fn.line('$'))
 
   runtests = vim.fn.expand('%:p') 
-  print("On: ".. runtests)
   vim.fn.jobstart({ "julia", runtests }, {
     stdout_buffered = true,
     on_stdout = function(_, data)
