@@ -4,15 +4,17 @@ sites =
     ["http://boardgamegeek.com", "http://lidovky.cz", "http://lemonde.fr", "http://sony.jp"]
 site = first(sites)
 
+
 charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
 
-@testset "My Project Tests" begin
+@testset "My Project Tests!!!" begin
     @testset "fail_fail_fail" begin
         @test 0 ≠ 1
-        @test "a" ≠ "a"
+        @test "a" == "a"
     end
     
     @testset "length test" begin 
+        @test length(charsets) != 44
         @test length(charsets) == 44
     end
     @testset "not group b test" begin 
@@ -26,4 +28,5 @@ charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
     end
 end
 
-#
+
+
