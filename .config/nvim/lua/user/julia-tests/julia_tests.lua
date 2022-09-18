@@ -40,6 +40,7 @@ local function calc_pass_fail_total(line)
             fail = pft[2],
             total = pft[3],
             missing = false,
+            failed_lines = {},
         }
     else
         return {
@@ -47,6 +48,7 @@ local function calc_pass_fail_total(line)
             fail = "0",
             total = pft[#pft],
             missing = "true",
+            failed_lines = {},
         }
     end
 end
@@ -71,7 +73,8 @@ local function check_results(res)
 	end
 end
 
-local function updated_failed_test(test_res)
+local function updated_failed_test(test_res, line)
+  table.insert(test_res.failed_lines, line)
   if tonumber(test_res.fail) + tonumber(test_res.pass) ~= tonumber(test_res.total) then
     -- check if these  dont equal maybe we failed all the tests
     test_res.fail = tostring(tonumber(test_res.fail) + 1)
@@ -98,12 +101,17 @@ local function parse_test_results(results)
 					res[test_name] = calc_pass_fail_total(current_line)
 				end
 			elseif string.find(current_line, "Test Failed") then
-				test_name = ltrim(rtrim(split(current_line, ":")[1]))
-        res[test_name] = updated_failed_test(res[test_name])
+        split_line = vim.split(current_line, ":")
+				-- test_name = ltrim(rtrim(split(current_line, ":")[1]))
+        test_name = ltrim(rtrim(split_line[1]))
+        fail_line = ltrim(rtrim(split_line[3]))
+        res[test_name] = updated_failed_test(res[test_name], fail_line)
 			end
 		end
 	end
+  print(vim.inspect(res))
 	check_results(res)
+
 	return res
 end
 
@@ -162,6 +170,21 @@ vim.api.nvim_create_user_command("AutoTest", function()
           }
 
           mark_id = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_num, col_num, opts)
+          failed_tests = test.failed_lines
+          if #failed_tests > 0 then
+            for ix, f in ipairs(failed_tests) do
+              id = id + 1
+              fline = tonumber(test.failed_lines[ix]) - 1
+              opts = {
+                end_line = 10,
+                id = id,
+                virt_text = {{"<-This Failed", "IncSearch"}},
+                virt_text_pos = 'eol',
+                -- virt_text_win_col = 20,
+              }
+              mark_id2 = vim.api.nvim_buf_set_extmark(bufnr, ns_id, fline, j, opts)
+            end
+          end
           id = id + 1
         end
       end
