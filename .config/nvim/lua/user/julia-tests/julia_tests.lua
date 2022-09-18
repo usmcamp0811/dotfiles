@@ -134,11 +134,6 @@ end
 -- })
 
 
-
-local function make_test_status(test)
-  if 
-end
-
 vim.api.nvim_create_user_command("AutoTest", function()
   print("We are running tests now")
   bufnr = vim.fn.bufnr('%') 
@@ -158,11 +153,10 @@ vim.api.nvim_create_user_command("AutoTest", function()
           line_num, col_num, _, j = get_testset_line_number(test_name)
           -- line_num = 23
           -- col_num = 1
-          test_status = make_test_status(test)
           opts = {
             end_line = 10,
             id = id,
-            virt_text = {{test_status, "IncSearch"}},
+            virt_text = {{"<-Tested", "IncSearch"}},
             virt_text_pos = 'eol',
             -- virt_text_win_col = 20,
           }

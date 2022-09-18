@@ -30,38 +30,3 @@ end
 
 
 
-println("Group B")
-
-module SomeModule
-    export @show_value_no_esc
-    macro show_value_no_esc(variable)
-        quote
-            println("The ", $(string(variable)), " you passed is ", $variable)
-        end
-    end
-end
-
-using .SomeModule
-
-try
-    @show_value_no_esc(orange)
-catch e
-    sprint(showerror, e)
-end
-
-macro fill(exp, sizes...)
-   
-    iterator_expressions = map(sizes) do s
-        Expr(
-            :(=),
-            :_,
-            quote 1:$(esc(s)) end
-        )
-    end
-    
-    Expr(
-        :comprehension,
-        esc(exp),
-        iterator_expressions...
-    )
-end
