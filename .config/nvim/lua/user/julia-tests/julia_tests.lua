@@ -1,6 +1,3 @@
-local bufnr = 9
-local runtests_jl = "/home/mcamp/.config/nvim/lua/user/julia-tests/runtests.jl"
-
 --todo remove this split function and replace with vim.split
 local function split(str, delimiter)
 	assert(type(delimiter) == "string")
