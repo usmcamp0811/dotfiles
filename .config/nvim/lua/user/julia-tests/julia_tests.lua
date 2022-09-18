@@ -68,6 +68,7 @@ local function check_results(res)
 		if go then
 			res[t].missing = "false"
 		else
+      print(vim.inspect(res))
 			error("Test results => ".."Name: "..t.. " Pass: "..res[t].pass.." Fail: "..res[t].fail.. " Total: "..res[t].total, 2)
 		end
 	end
@@ -88,7 +89,7 @@ end
 
 local function parse_test_results(results)
 	res = {}
-	-- res["name"] = {pass = 1, fail = 1, total = 2, missing = false}
+	-- res["name"] = {pass = 1, fail = 1, total = 2, missing = false, failed_lines = { "12" }}
 	need_pass_calc = {}
 	if results then
 		for i = 1, #results do
@@ -102,14 +103,13 @@ local function parse_test_results(results)
 				end
 			elseif string.find(current_line, "Test Failed") then
         split_line = vim.split(current_line, ":")
-				-- test_name = ltrim(rtrim(split(current_line, ":")[1]))
+        -- todo: get the evaluated line and save it so we can make it vtext
         test_name = ltrim(rtrim(split_line[1]))
         fail_line = ltrim(rtrim(split_line[3]))
         res[test_name] = updated_failed_test(res[test_name], fail_line)
 			end
 		end
 	end
-  print(vim.inspect(res))
 	check_results(res)
 
 	return res
@@ -140,7 +140,13 @@ end
 --     end
 --   end
 -- })
+vim.cmd"highligh default success guifg=green gui=bold"
 
+local function create_fail_pass_vtext(test)
+  pass_chunk = {"Pass: "..test.pass .. " ", "success"}
+  err_chunk = {"Fail: "..test.fail .. " ", "error"}
+  return {pass_chunk, err_chunk}
+end
 
 vim.api.nvim_create_user_command("AutoTest", function()
   print("We are running tests now")
@@ -158,32 +164,27 @@ vim.api.nvim_create_user_command("AutoTest", function()
         id = 1
         for test_name in pairs(test_results) do
           test = test_results[test_name]
-          line_num, col_num, _, j = get_testset_line_number(test_name)
-          -- line_num = 23
-          -- col_num = 1
+          line_num, col_num, line_num2, col_num2 = get_testset_line_number(test_name)
           opts = {
             end_line = 10,
             id = id,
-            virt_text = {{"<-Tested", "IncSearch"}},
-            virt_text_pos = 'eol',
+            virt_text = create_fail_pass_vtext(test),
+            virt_text_pos = 'right_align',
             -- virt_text_win_col = 20,
           }
 
           mark_id = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_num, col_num, opts)
-          failed_tests = test.failed_lines
-          if #failed_tests > 0 then
-            for ix, f in ipairs(failed_tests) do
-              id = id + 1
-              fline = tonumber(test.failed_lines[ix]) - 1
-              opts = {
-                end_line = 10,
-                id = id,
-                virt_text = {{"<-This Failed", "IncSearch"}},
-                virt_text_pos = 'eol',
-                -- virt_text_win_col = 20,
-              }
-              mark_id2 = vim.api.nvim_buf_set_extmark(bufnr, ns_id, fline, j, opts)
-            end
+          for ix, f in ipairs(test.failed_lines) do
+            id = id + 1
+            fline = tonumber(test.failed_lines[ix]) - 1
+            opts = {
+              end_line = 10,
+              id = id,
+              virt_text = {{"﮻ Test Failed", "error"}},
+              virt_text_pos = 'eol',
+              -- virt_text_win_col = 20,
+            }
+            mark_id2 = vim.api.nvim_buf_set_extmark(bufnr, ns_id, fline, col_num2, opts)
           end
           id = id + 1
         end
