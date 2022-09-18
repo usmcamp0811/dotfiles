@@ -134,7 +134,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   group = vim.api.nvim_create_augroup("julia-autotest", {clear = true}),
   pattern = "runtests.jl",
   callback = function(_, data)
-    vim.cmd":AutoTest"
+    vim.cmd(":AutoTest")
   end
 })
 
@@ -147,12 +147,12 @@ local function create_fail_pass_vtext(test)
 end
 
 vim.api.nvim_create_user_command("AutoTest", function()
-  print("We are running tests on ".. runtests)
   bufnr = vim.fn.bufnr('%') 
   ns_id = vim.api.nvim_create_namespace('julia-testing')
   vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 1, vim.fn.line('$'))
 
   runtests = vim.fn.expand('%:p') 
+  -- print("We are running tests on ".. runtests)
   vim.fn.jobstart({ "julia", runtests }, {
     stdout_buffered = true,
     on_stdout = function(_, data)

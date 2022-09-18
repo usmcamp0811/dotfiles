@@ -15,10 +15,10 @@ charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
     
     @testset "length test" begin 
         @test length(charsets) != 44
-        @test length(charsets) == 44
+        @test length(charsets) != 44
     end
     @testset "not group b test" begin 
-        @test length(charsets) == 44
+        @test length(charsets) != 44
     end
     @testset "Group B" begin 
         @testset "something good" begin 
