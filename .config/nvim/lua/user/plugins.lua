@@ -153,8 +153,8 @@ return packer.startup(function(use)
   use({
     "nvim-neorg/neorg",
     -- tag = "0.0.12",
-    -- branch = "main",
-    commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
+    branch = "main",
+    -- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
     config = function()
       require("user.plug-setting.neorg")
       -- vim.cmd "NeorgStart silent=true"
