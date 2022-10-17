@@ -18,7 +18,7 @@ font:
   glyph_offset:
     x: 0
     'y': 0
-  use_thin_strokes: true
+  # use_thin_strokes: true
 colors:
   primary:
     background: '0x0A0E14'
