@@ -43,7 +43,7 @@ require("user.plug-setting.mind")
 require("user.plug-setting.julia")
 
 
--- my own thing's 
+-- my own thing's
 
 require("user.code_blocks")
 
@@ -86,8 +86,8 @@ let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 vim.cmd([[colorscheme synthwave84]])
 
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-	pattern = "*",
-	callback = require("lspsaga.lightbulb").action_lightbulb,
+  pattern = "*",
+  callback = require("lspsaga.lightbulb").action_lightbulb,
 })
 
 vim.cmd([[
