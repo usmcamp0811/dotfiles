@@ -105,7 +105,7 @@ return packer.startup(function(use)
   use("kdheepak/JuliaFormatter.vim")
   use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
   use({ "hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" } })
-  use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
+  -- use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
   use("metakirby5/codi.vim")
   use({ "Olical/conjure" })
   -- use({ "Grazfather/conjure", branch = "which-key-descs" })
@@ -120,8 +120,8 @@ return packer.startup(function(use)
 
   -- random plugins
   use("unblevable/quick-scope") -- easier horizontal jumping
-  use("ggandor/lightspeed.nvim") --  better vertical jumping
-  use("JoosepAlviste/nvim-ts-context-commentstring")
+  use("ggandor/leap.nvim") --  better vertical jumping
+  use("JoosepAlviste/nim-ts-context-commentstring")
   use("akinsho/toggleterm.nvim")
   use("folke/which-key.nvim")
   use("moll/vim-bbye")

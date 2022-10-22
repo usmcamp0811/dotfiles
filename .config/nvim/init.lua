@@ -41,6 +41,7 @@ require("user.plug-setting.zen")
 -- require("user.plug-setting.image")
 require("user.plug-setting.mind")
 require("user.plug-setting.julia")
+require("user.plug-setting.leap")
 
 
 -- my own thing's
