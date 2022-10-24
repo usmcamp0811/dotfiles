@@ -4,4 +4,4 @@
 -- vim.g.notebook_send0 = ""
 -- vim.g.notebook_send = 'println(); println("VIMJULIANOTEBOOK")'
 -- vim.g.notebook_detect = "VIMJULIANOTEBOOK"
-vim.g.latex_to_unicode_auto = 1
+-- vim.g.latex_to_unicode_auto = 1
