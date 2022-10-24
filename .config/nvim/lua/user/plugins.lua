@@ -279,6 +279,15 @@ return packer.startup(function(use)
     end,
   })
 
+  use {
+    'gorbit99/codewindow.nvim',
+    config = function()
+      local codewindow = require('codewindow')
+      codewindow.setup()
+      codewindow.apply_default_keybinds()
+    end,
+  }
+
   -- Telescope
   use("nvim-telescope/telescope.nvim")
   use("nvim-telescope/telescope-symbols.nvim")

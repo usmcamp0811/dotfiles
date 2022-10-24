@@ -1,10 +1,37 @@
+
+local function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
+-- looks for the Project.toml to use for the test
+local function julia_project_dir()
+  bufnr = vim.fn.bufnr('%')
+  -- ns_id = vim.api.nvim_create_namespace('julia-testing')
+  local root_dir
+  for dir in vim.fs.parents(vim.api.nvim_buf_get_name(bufnr)) do
+    if file_exists(dir .. "/Project.toml") == true then
+      root_dir = dir
+      break
+    end
+  end
+
+  if root_dir then
+    print("Found julia project at", root_dir)
+    return root_dir
+  end
+end
+
+
 local function make_conjure_command()
-	local root = require("lspconfig").util.root_pattern("Project.toml")(vim.api.nvim_buf_get_name(0))
+	local root = julia_project_dir()
 	if root == nil then
-		root = "."
+		root = ""
+  else
+    root = "--project=" .. root
 	end
 	-- vim.g["conjure#client#julia#stdio#command"] = "julia --banner=no --color=no --project=" .. root
-	vim.g["conjure#client#julia#stdio#command"] = "julia --project=" .. root
+	vim.g["conjure#client#julia#stdio#command"] = "julia " 
 end
 
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
@@ -43,3 +70,4 @@ vim.g["conjure#mapping#doc_word"] = { "?" }
 -- n ,E  {"{":set opfunc=ConjureEvalMotion<CR>", ""},g@
 --
 -- v ,E  {":ConjureEvalVisual<CR>:silent! call repeat#set(",E", 1)<CR>", ""},
+

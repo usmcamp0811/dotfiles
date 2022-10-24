@@ -15,6 +15,7 @@ local diagnostics = {
 	colored = false,
 	update_in_insert = false,
 	always_visible = true,
+  globalstatus = true,
 }
 
 local diff = {

@@ -41,6 +41,8 @@ require("user.plug-setting.zen")
 -- require("user.plug-setting.image")
 require("user.plug-setting.mind")
 require("user.plug-setting.julia")
+require("user.plug-setting.codewindow")
+require("user.julia_tests")
 
 
 -- my own thing's
@@ -98,4 +100,7 @@ vim.cmd([[
     autocmd FocusGained,FileType mind setlocal rnu!
     autocmd FocusGained,FileType mind setlocal nu!
   augroup END
+  " highligh default success guifg=green
+  " highligh default fail guifg=red
 ]])
+

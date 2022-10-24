@@ -1,4 +1,5 @@
 using Test
+using TestProject
 
 sites =
     ["http://boardgamegeek.com", "http://lidovky.cz", "http://lemonde.fr", "http://sony.jp"]
@@ -8,9 +9,12 @@ site = first(sites)
 charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
 
 @testset "My Project Tests!!!" begin
+    @testset "Correct Project" begin
+        @test TestProject.greet() == "Hello World!"
+    end
     @testset "fail_fail_fail" begin
-        @test 0 ≠ 1
-        @test "a" == "a"
+        @test 1 ≠ 1
+        @test "a" == "b"
     end
     
     @testset "length test" begin 
@@ -23,8 +27,8 @@ charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
     end
     @testset "Group B" begin 
         @testset "something good" begin 
-            @test 3.14 ≈ π 
-            @test 2.31 == 2.313
+            # @test 3.14 ≈ π
+            @test 2.31 == 2.311
         end
     end
 end

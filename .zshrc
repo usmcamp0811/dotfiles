@@ -127,3 +127,5 @@ function tvim() {
    /usr/bin/vim "$@"
    printf '\e]710;%s\007' "YOUR-DEFAULT-FONT"
 }
+
+source /home/mcamp/.config/broot/launcher/bash/br

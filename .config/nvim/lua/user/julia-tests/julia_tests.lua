@@ -139,15 +139,41 @@ local function create_fail_pass_vtext(test)
   return {pass_chunk, err_chunk}
 end
 
+local function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
+-- looks for the Project.toml to use for the test
+local function julia_project_dir()
+  bufnr = vim.fn.bufnr('%')
+  -- ns_id = vim.api.nvim_create_namespace('julia-testing')
+  local root_dir
+  for dir in vim.fs.parents(vim.api.nvim_buf_get_name(bufnr)) do
+    if file_exists(dir .. "/Project.toml") == true then
+      root_dir = dir
+      break
+    end
+  end
+
+  if root_dir then
+    print("Found julia project at", root_dir)
+    return root_dir
+  end
+end
+
+
 -- This is the main method that is callable by a user
 vim.api.nvim_create_user_command("AutoTest", function()
   bufnr = vim.fn.bufnr('%') 
   ns_id = vim.api.nvim_create_namespace('julia-testing')
   vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 1, vim.fn.line('$'))
-
+  -- TODO: Allow setting this manually
+  project_dir = julia_project_dir()
   runtests = vim.fn.expand('%:p') 
+  print("julia", "--project=" .. project_dir, runtests)
   -- this is how you get nvim to run something in the background
-  vim.fn.jobstart({ "julia", runtests }, {
+  vim.fn.jobstart({ "julia", "--project=" .. project_dir, runtests }, {
     stdout_buffered = true,
     on_stdout = function(_, data)
       if data then
