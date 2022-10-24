@@ -27,7 +27,7 @@ charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
     end
     @testset "Group B" begin 
         @testset "something good" begin 
-            # @test 3.14 ≈ π
+            @test 3.14 ≈ π
             @test 2.31 == 2.311
         end
     end

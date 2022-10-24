@@ -4,7 +4,6 @@ neorg.setup({
 	highlight = { enable = true },
 	requires = { "core.export.markdown" },
 	load = {
-		["core.defaults"] = {},
 		["core.integrations.treesitter"] = {
 			config = {
 				norg = {
