@@ -43,7 +43,7 @@ require("user.plug-setting.mind")
 require("user.plug-setting.julia")
 require("user.plug-setting.codewindow")
 require("user.julia_tests")
--- require("user.plug-setting.leap")
+require("user.plug-setting.leap")
 
 
 -- my own thing's

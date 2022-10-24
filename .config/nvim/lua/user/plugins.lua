@@ -121,7 +121,7 @@ return packer.startup(function(use)
   -- random plugins
   use("unblevable/quick-scope") -- easier horizontal jumping
   use("ggandor/leap.nvim") --  better vertical jumping
-  use("JoosepAlviste/nim-ts-context-commentstring")
+  use("https://github.com/JoosepAlviste/nvim-ts-context-commentstring.git")
   use("akinsho/toggleterm.nvim")
   use("folke/which-key.nvim")
   use("moll/vim-bbye")
