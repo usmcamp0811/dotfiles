@@ -149,6 +149,14 @@ return packer.startup(function(use)
     as = "catppuccin",
     run = ":CatppuccinCompile",
   })
+  use "samjwill/nvim-unception"
+  use {
+    "narutoxy/silicon.lua",
+    requires = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require('silicon').setup({})
+    end
+  }
 
   use({
     "nvim-neorg/neorg",

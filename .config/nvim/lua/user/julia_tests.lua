@@ -9,19 +9,25 @@ local function calc_pass_fail_total(line)
   end
   if #pft == 3 then
     return {
+      index = "unset",
       pass = pft[1],
       fail = pft[2],
       total = pft[3],
       missing = false,
       failed_lines = {},
+      level = "0",
+      indent = "0",
     }
   else
     return {
+      index = "unset",
       pass = "0",
       fail = "0",
       total = pft[#pft],
       missing = "true",
       failed_lines = {},
+      level = "0",
+      indent = "0",
     }
   end
 end
@@ -43,16 +49,20 @@ end
 -- be 0 which means they are all pass. This is because if it was
 -- all fail we would have already updated the fail values
 -- as we handle the stdout that explains what happened in the fail
-local function check_results(res)
+local function check_results(res, rev_order)
+  tree = {}
+  indent = 0
   for t in pairs(res) do
     pf = res[t].pass + res[t].fail
     go = tonumber(pf) == tonumber(res[t].total)
     if go then
       res[t].missing = "false"
     else
+      prev_test = rev_order[res[t].index - 1]
       res[t].pass = res[t].total
       res[t].missing = "false"
     end
+    -- print(vim.inspect(res[t]["indent"]), t)
   end
 end
 
@@ -72,9 +82,9 @@ end
 -- parse the stdout of the julia test results.. sure wish there was a json option
 local function parse_test_results(results)
   res = {}
+  rev_order = {}
   -- this is what res should look like
   -- res["name"] = {pass = 1, fail = 1, total = 2, missing = false, failed_lines = { "12" }}
-  need_pass_calc = {}
   if results then
     -- do it in zulu order because its easier
     for i = 1, #results do
@@ -86,12 +96,18 @@ local function parse_test_results(results)
           skip = true
         else
           test_name = ltrim(rtrim(vim.split(current_line, " | ")[1]))
-          if test_name == "Group B" then
-            raw_name = rtrim(vim.split(current_line, " | ")[1])
+          raw_name = rtrim(vim.split(current_line, " | ")[1])
 
-            print(vim.inspect(vim.split(raw_name, " ")))
-          end
+          -- need to figure out if we are nested inside another @testset
+          raw_len = table.getn(vim.split(raw_name, " "))
+          name_len = table.getn(vim.split(test_name, " "))
+          
           res[test_name] = calc_pass_fail_total(current_line)
+          res[test_name]["index"] = #results + 1 - i
+          rev_order[#results + 1 - i] = test_name
+          -- keep track of the number of spaces of indention
+          -- this is the key to figure out if we are nested
+          res[test_name]["indent"] = raw_len - name_len
         end
       elseif string.find(current_line, "Test Failed") then
         -- we are done with the table and are parsing the failures
@@ -103,10 +119,11 @@ local function parse_test_results(results)
       end
     end
   end
-  check_results(res)
+  check_results(res, rev_order)
 
   return res
 end
+
 
 -- this is a treesitter query / function to get the line number for a given test
 -- it returns the rows of this -->>  @testset "test name" begin
