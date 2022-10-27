@@ -15,8 +15,11 @@ local function calc_pass_fail_total(line)
       total = pft[3],
       missing = false,
       failed_lines = {},
-      level = "0",
-      indent = "0",
+      parent_set = false,
+      tests = {},
+      first_lvl = false,
+      all_fp = false,
+      all = nil,
     }
   else
     return {
@@ -26,8 +29,11 @@ local function calc_pass_fail_total(line)
       total = pft[#pft],
       missing = "true",
       failed_lines = {},
-      level = "0",
-      indent = "0",
+      parent_set = false,
+      tests = {},
+      first_lvl = false,
+      all_fp = true,
+      all = "unset",
     }
   end
 end
@@ -49,7 +55,7 @@ end
 -- be 0 which means they are all pass. This is because if it was
 -- all fail we would have already updated the fail values
 -- as we handle the stdout that explains what happened in the fail
-local function check_results(res, rev_order)
+local function check_results(res)
   tree = {}
   indent = 0
   for t in pairs(res) do
@@ -61,6 +67,28 @@ local function check_results(res, rev_order)
       prev_test = rev_order[res[t].index - 1]
       res[t].pass = res[t].total
       res[t].missing = "false"
+    end
+    if res[t].parent_set == true then
+      all_failed = false
+      for tt in pairs(res[t].tests) do
+        tt_name = res[t].tests[tt]
+        sub_test = res[tt_name]
+        if table.getn(sub_test.failed_lines) > 0 then
+          all_failed = true
+        else
+          all_failed = false
+        end
+      end
+      if all_failed == false then 
+        -- this is all pass 
+        res[t].pass = res[t].total
+        res[t].fail = 0
+      else
+        -- this is all fail
+        res[t].pass = 0
+        res[t].fail = res[t].total 
+      end
+      print(t,"->",vim.inspect(res[t]))
     end
     -- print(vim.inspect(res[t]["indent"]), t)
   end
@@ -83,12 +111,16 @@ end
 local function parse_test_results(results)
   res = {}
   rev_order = {}
+  tests = {}
+  parent_set = false
+  t = 1
   -- this is what res should look like
   -- res["name"] = {pass = 1, fail = 1, total = 2, missing = false, failed_lines = { "12" }}
   if results then
     -- do it in zulu order because its easier
     for i = 1, #results do
       current_line = results[#results + 1 - i]
+      next_line = results[#results + 0 - i]
       -- every row of the results table has a |
       if string.find(current_line, "|") then
         -- don't do anything with this line
@@ -98,6 +130,7 @@ local function parse_test_results(results)
           test_name = ltrim(rtrim(vim.split(current_line, " | ")[1]))
           raw_name = rtrim(vim.split(current_line, " | ")[1])
 
+          print(test_name)
           -- need to figure out if we are nested inside another @testset
           raw_len = table.getn(vim.split(raw_name, " "))
           name_len = table.getn(vim.split(test_name, " "))
@@ -107,7 +140,40 @@ local function parse_test_results(results)
           rev_order[#results + 1 - i] = test_name
           -- keep track of the number of spaces of indention
           -- this is the key to figure out if we are nested
-          res[test_name]["indent"] = raw_len - name_len
+
+          next_name = ltrim(rtrim(vim.split(next_line, " | ")[1]))
+          next_raw_name = rtrim(vim.split(next_line, " | ")[1])
+          next_raw_len = table.getn(vim.split(next_raw_name, " "))
+          next_name_len = table.getn(vim.split(next_name, " "))
+
+          current_indent = raw_len - name_len
+          next_indent = next_raw_len - next_name_len
+
+          -- if test_name == "something bad" then
+          --   print(t, next_name, test_name, vim.inspect(vim.split(next_raw_name, " ")), vim.inspect(vim.split(raw_name, " ")))
+          -- end
+          -- print(test_name)
+          if tonumber(next_indent) < tonumber(current_indent) then
+            -- if test_name == "Group C" then
+            --   print(t, next_name, test_name, parent_set)
+            -- end
+            parent_set = false
+            tests[t] = test_name
+            t = t + 1
+          else
+            parent_set = true
+            t = 0
+          end
+
+          if parent_set == true then
+            res[test_name]["tests"] = tests
+            res[test_name]["parent_set"] = parent_set
+            tests = {}
+          end
+          
+          if current_indent == 0 then
+            res[test_name]["first_lvl"] = true
+          end
         end
       elseif string.find(current_line, "Test Failed") then
         -- we are done with the table and are parsing the failures
@@ -119,7 +185,7 @@ local function parse_test_results(results)
       end
     end
   end
-  check_results(res, rev_order)
+  check_results(res)
 
   return res
 end

@@ -150,6 +150,7 @@ return packer.startup(function(use)
     run = ":CatppuccinCompile",
   })
   use "samjwill/nvim-unception"
+  use "ii14/neorepl.nvim"
   use {
     "narutoxy/silicon.lua",
     requires = { "nvim-lua/plenary.nvim" },
