@@ -32,8 +32,8 @@ charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
         end
         @testset "Child of Main 5b" begin 
             @testset "Child of Main 5b1" begin 
-                # @test 3.14 ≈ π
-                @test 2.31 == 2.31
+                @test 3.14 ≈ π
+                # @test 2.31 == 2.31
             end
             # @testset "fail good" begin 
             #     # @test 3.14 ≈ π

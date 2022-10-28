@@ -4,8 +4,22 @@
 -- track the total tests. We will handle these cases later
 local function calc_pass_fail_total(line)
   pft = {}
-  for v in string.gmatch(current_line, "(%s%d+%s)") do
+  results = vim.split(current_line, "|")[2]
+  for v in string.gmatch(results, "(%s%d+%s)") do
     table.insert(pft, v)
+  end
+  -- count the spaces to the first number 
+  -- keep track of it so we can infer if its 
+  -- a pass or fail number 
+  s = 0
+  for c in results:gmatch"." do
+    if c == " " then
+      s = s + 1
+    else
+      -- print("spaces =>", s, "number =>", c)
+      s = 0
+      break
+    end
   end
   if #pft == 3 then
     return {
@@ -13,6 +27,7 @@ local function calc_pass_fail_total(line)
       pass = pft[1],
       fail = pft[2],
       total = pft[3],
+      unknown = nil,
       missing = false,
       failed_lines = {},
       parent_set = false,
@@ -20,12 +35,14 @@ local function calc_pass_fail_total(line)
       first_lvl = false,
       all_fp = false,
       all = nil,
+      spaces = nil,
     }
   else
     return {
       index = "unset",
       pass = "0",
       fail = "0",
+      unknown = pft[1],
       total = pft[#pft],
       missing = "true",
       failed_lines = {},
@@ -34,6 +51,7 @@ local function calc_pass_fail_total(line)
       first_lvl = false,
       all_fp = true,
       all = "unset",
+      spaces = s,
     }
   end
 end
@@ -55,43 +73,28 @@ end
 -- be 0 which means they are all pass. This is because if it was
 -- all fail we would have already updated the fail values
 -- as we handle the stdout that explains what happened in the fail
-local function check_results(res)
-  tree = {}
-  indent = 0
-  for t in pairs(res) do
-    pf = res[t].pass + res[t].fail
-    go = tonumber(pf) == tonumber(res[t].total)
-    if go then
-      res[t].missing = "false"
-    else
-      prev_test = rev_order[res[t].index - 1]
-      res[t].pass = res[t].total
-      res[t].missing = "false"
-    end
-    if res[t].parent_set == true then
-      all_failed = false
-      for tt in pairs(res[t].tests) do
-        tt_name = res[t].tests[tt]
-        sub_test = res[tt_name]
-        if table.getn(sub_test.failed_lines) > 0 then
-          all_failed = true
-        else
-          all_failed = false
-        end
-      end
-      if all_failed == false then 
-        -- this is all pass 
-        res[t].pass = res[t].total
-        res[t].fail = 0
+local function check_results(res, spaces_to_Fail)
+	for t in pairs(res) do
+    if res[t].spaces == nil then
+      pf = res[t].pass + res[t].fail
+      go = tonumber(pf) == tonumber(res[t].total)
+      if go then
+        res[t].missing = "false"
       else
-        -- this is all fail
-        res[t].pass = 0
-        res[t].fail = res[t].total 
+        res[t].pass = res[t].total 
+        res[t].missing = "false"
       end
-      print(t,"->",vim.inspect(res[t]))
+    else
+      if res[t].spaces < spaces_to_Fail then
+        -- you must be an all pass
+        res[t].pass = res[t].unknown
+      else
+        res[t].fail = res[t].unknown
+      end
     end
-    -- print(vim.inspect(res[t]["indent"]), t)
-  end
+	end
+  -- for t in pairs(all_fp) do
+  -- end
 end
 
 -- We are updating fail counts after parsing the lines before/after the summary table.
@@ -114,6 +117,7 @@ local function parse_test_results(results)
   tests = {}
   parent_set = false
   t = 1
+  F = 0
   -- this is what res should look like
   -- res["name"] = {pass = 1, fail = 1, total = 2, missing = false, failed_lines = { "12" }}
   if results then
@@ -126,15 +130,25 @@ local function parse_test_results(results)
         -- don't do anything with this line
         if string.find(current_line, "Test Summary:") then
           skip = true
+          -- count spaces to the F in Fail
+          -- use this as a way to tell if the first number found is in the Pass call or Fail col
+          test_sumary_titles = vim.split(current_line, "|")[2]
+          for c in test_sumary_titles:gmatch"." do
+            if c == "F" then
+              F = F + 1
+            else
+              -- print("spaces =>", s, "number =>", c)
+              F = 0
+              break
+            end
+          end
         else
           test_name = ltrim(rtrim(vim.split(current_line, " | ")[1]))
           raw_name = rtrim(vim.split(current_line, " | ")[1])
 
-          print(test_name)
           -- need to figure out if we are nested inside another @testset
           raw_len = table.getn(vim.split(raw_name, " "))
           name_len = table.getn(vim.split(test_name, " "))
-          
           res[test_name] = calc_pass_fail_total(current_line)
           res[test_name]["index"] = #results + 1 - i
           rev_order[#results + 1 - i] = test_name
@@ -185,7 +199,8 @@ local function parse_test_results(results)
       end
     end
   end
-  check_results(res)
+  check_results(res, F)
+  -- print("->",vim.inspect(res),"<-")
 
   return res
 end
