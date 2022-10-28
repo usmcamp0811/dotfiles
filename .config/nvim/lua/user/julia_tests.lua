@@ -16,11 +16,11 @@ local function calc_pass_fail_total(line)
     if c == " " then
       s = s + 1
     else
-      -- print("spaces =>", s, "number =>", c)
       s = 0
       break
     end
   end
+  -- todo: clean up unused things in the table
   if #pft == 3 then
     return {
       index = "unset",
@@ -102,8 +102,6 @@ local function check_results(res, spaces_to_Fail)
       end
     end
 	end
-  -- for t in pairs(all_fp) do
-  -- end
 end
 
 -- We are updating fail counts after parsing the lines before/after the summary table.
@@ -146,7 +144,6 @@ local function parse_test_results(results)
             if c == "F" then
               F = F + 1
             else
-              -- print("spaces =>", s, "number =>", c)
               F = 0
               break
             end
@@ -172,14 +169,7 @@ local function parse_test_results(results)
           current_indent = raw_len - name_len
           next_indent = next_raw_len - next_name_len
 
-          -- if test_name == "something bad" then
-          --   print(t, next_name, test_name, vim.inspect(vim.split(next_raw_name, " ")), vim.inspect(vim.split(raw_name, " ")))
-          -- end
-          -- print(test_name)
           if tonumber(next_indent) < tonumber(current_indent) then
-            -- if test_name == "Group C" then
-            --   print(t, next_name, test_name, parent_set)
-            -- end
             parent_set = false
             tests[t] = test_name
             t = t + 1
@@ -209,7 +199,7 @@ local function parse_test_results(results)
     end
   end
   check_results(res, F)
-  print("->",vim.inspect(res),"<-")
+  -- print("->",vim.inspect(res),"<-")
 
   return res
 end
@@ -243,10 +233,13 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 local function create_fail_pass_vtext(test)
   vim.api.nvim_set_hl(0, 'success', { fg = "green" })
   vim.api.nvim_set_hl(0, 'fail', { fg = "red" })
-  pass_chunk = { "Pass: " .. test.pass .. " ", "success" }
-  -- pass_chunk = { string.rep("■", test.pass), "success" }
-  err_chunk = { "Fail: " .. test.fail .. " ", "fail" }
-  -- err_chunk = { string.rep("■", test.fail), "fail" }
+  if test.parent_set == true then
+    pass_chunk = { "Pass: " .. test.pass .. " ", "success" }
+    err_chunk = { "Fail: " .. test.fail .. " ", "fail" }
+  else
+    pass_chunk = { string.rep("■", test.pass), "success" }
+    err_chunk = { string.rep("■", test.fail), "fail" }
+  end
   return { pass_chunk, err_chunk }
 end
 
@@ -301,9 +294,13 @@ vim.api.nvim_create_user_command("AutoTest", function()
           }
 
           mark_id = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_num, col_num, opts)
+          fails = {}
           for ix, f in ipairs(test.failed_lines) do
+            fails[f] = f
+          end
+          for f in pairs(fails) do
             id = id + 1
-            fline = tonumber(test.failed_lines[ix]) - 1
+            fline = tonumber(f) - 1
             opts = {
               end_line = 10,
               id = id,

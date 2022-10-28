@@ -32,18 +32,20 @@ charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
         end
         @testset "Group C" begin 
             @testset "something bad" begin 
-                @test 3.14 ≈ π
-                # @test 2.31 == 2.31
+                for i ∈ 1:20
+                    @test rand() < rand()
+                end
+                @test 2.31 == 2.31
             end
-            # @testset "fail good" begin 
-            #     # @test 3.14 ≈ π
-            #     @test 2.31 == 2.31
-            # end
+            @testset "fail good" begin
+                # @test 3.14 ≈ π
+                @test 2.31 == 2.31
+            end
         end
-        # @testset "fail good" begin 
-        #     # @test 3.14 ≈ π
-        #     @test 2.31 == 2.31
-        # end
+        @testset "fail good" begin
+            # @test 3.14 ≈ π
+            @test 2.31 == 2.31
+        end
     end
 end
 

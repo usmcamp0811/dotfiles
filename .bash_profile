@@ -1,4 +1,6 @@
 
+source ~/.config/shell/exports.shrc
+
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 
 source /home/mcamp/.config/broot/launcher/bash/br

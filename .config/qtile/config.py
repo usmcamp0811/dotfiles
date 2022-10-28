@@ -238,6 +238,7 @@ def autostart():
 # mod = "mod4"
 mod = "mod1"
 terminal = guess_terminal()
+# terminal = "alacritty"
 myTerm = "alacritty"                             # My terminal of choice
 arrow_font_size = 35
 # The Qtile config file location
