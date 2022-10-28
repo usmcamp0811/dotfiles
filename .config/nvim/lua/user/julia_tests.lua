@@ -86,10 +86,19 @@ local function check_results(res, spaces_to_Fail)
       end
     else
       if res[t].spaces < spaces_to_Fail then
-        -- you must be an all pass
-        res[t].pass = res[t].unknown
+        if #res[t].failed_lines == 0 then
+          -- you must be an all pass
+          res[t].pass = res[t].unknown
+        else
+          res[t].fail = res[t].unknown
+        end
       else
-        res[t].fail = res[t].unknown
+        if #res[t].failed_lines ~= 0 then
+          -- you must be an all fail
+          res[t].fail = res[t].unknown
+        else
+          res[t].pass = res[t].unknown
+        end
       end
     end
 	end
@@ -200,7 +209,7 @@ local function parse_test_results(results)
     end
   end
   check_results(res, F)
-  -- print("->",vim.inspect(res),"<-")
+  print("->",vim.inspect(res),"<-")
 
   return res
 end

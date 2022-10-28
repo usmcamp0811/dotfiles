@@ -8,30 +8,30 @@ site = first(sites)
 
 charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
 
-@testset "Main" begin
-    @testset "Child of Main 1" begin
+@testset "My Project Tests!!!" begin
+    @testset "Correct Project" begin
         @test TestProject.greet() == "Hello World!"
     end
-    @testset "Child of Main 2" begin
+    @testset "fail_fail_fail" begin
         # @test 1 ≠ 1
         @test "a" != "b"
     end
     
-    @testset "Child of Main 3" begin 
+    @testset "length test" begin 
         @test length(charsets) != 44
         @test length(charsets) != 44
     end
-    @testset "Child of Main 4" begin 
+    @testset "not group b test" begin 
         # @test length(charsets) != 4
         @test length(charsets) == 4
     end
-    @testset "Child of Main 5" begin 
-        @testset "Child of Main 5a" begin 
+    @testset "Group B" begin 
+        @testset "something gooda " begin 
             # @test 3.14 ≈ π
-            @test 3.31 == 2.31
+            @test 2.31 == 2.31
         end
-        @testset "Child of Main 5b" begin 
-            @testset "Child of Main 5b1" begin 
+        @testset "Group C" begin 
+            @testset "something bad" begin 
                 @test 3.14 ≈ π
                 # @test 2.31 == 2.31
             end
@@ -46,5 +46,6 @@ charsets = ["UTF-8", "windows-1250", "UTF-8", "Shift_JIS"]
         # end
     end
 end
+
 
 
