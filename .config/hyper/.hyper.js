@@ -5,8 +5,13 @@
 module.exports = {
   config: {
     hyperTransparentDynamic: {
-      alpha: 0.75 // default 50%
+      alpha: 0.75, // default 50%
     },
+    // catCursor: {
+    //   speed: 3000, // length of the sequence in milliseconds
+    //   fontSize: 60, // font size of the cat in css pixels
+    //   cats: ['🐱', '🙀', '😾', '😿', '😹', '😼', '😺', '😻', '😸', '😽'], // custom cat sequence. only cats are accepted, of course
+    // },
     // choose either `'stable'` for receiving highly polished,
     // or `'canary'` for less polished but more frequent updates
     updateChannel: 'stable',
@@ -14,7 +19,7 @@ module.exports = {
     fontSize: 17,
     // font family with optional fallbacks
     fontFamily:
-      'JuliaMono, "IBM Plex Mono", Consolas, "Lucida Console", monospace',
+      '"IBM Plex Mono", Consolas, "Lucida Console", monospace',
     // default font weight: 'normal' or 'bold'
     fontWeight: 'normal',
     // font weight for bold characters: 'normal' or 'bold'
@@ -39,7 +44,7 @@ module.exports = {
     // terminal selection color
     selectionColor: 'rgba(248,28,229,0.3)',
     // border color (window, tabs)
-    borderColor: '#333',
+    borderColor: '',
     // custom CSS to embed in the main window
     css: '',
     // custom CSS to embed in the terminal window
@@ -48,11 +53,11 @@ module.exports = {
     workingDirectory: '',
     // if you're using a Linux setup which show native menus, set to false
     // default: `true` on Linux, `true` on Windows, ignored on macOS
-    showHamburgerMenu: '',
+    showHamburgerMenu: false,
     // set to `false` (without backticks and without quotes) if you want to hide the minimize, maximize and close buttons
     // additionally, set to `'left'` if you want them on the left, like in Ubuntu
     // default: `true` (without backticks and without quotes) on Windows and Linux, ignored on macOS
-    showWindowControls: '',
+    showWindowControls: false,
     // custom padding (CSS format, i.e.: `top right bottom left`)
     padding: '1px 1px',
     // the full list. if you're going to provide the full color palette,
@@ -126,7 +131,7 @@ module.exports = {
     // todo: does not pick up config changes automatically, need to restart terminal :/
     webLinksActivationKey: '',
     // if `false` (without backticks and without quotes), Hyper will use ligatures provided by some fonts
-    disableLigatures: true,
+    disableLigatures: false,
     // set to true to disable auto updates
     disableAutoUpdates: false,
     // set to true to enable screen reading apps (like NVDA) to read the contents of the terminal
@@ -146,7 +151,10 @@ module.exports = {
     'hyperterm-mild-dark',
     'git-falcon9',
     'hyperpower',
-    "hyper-transparent-dynamic"
+    'hyper-transparent-dynamic',
+    'hyper-hide-scroll',
+    'htyt',
+    // 'hyper-cat-cursor',
   ],
   // in development, you can create a directory under
   // `~/.hyper_plugins/local/` and include it here
