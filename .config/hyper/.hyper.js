@@ -19,7 +19,7 @@ module.exports = {
     fontSize: 17,
     // font family with optional fallbacks
     fontFamily:
-      '"IBM Plex Mono", Consolas, "Lucida Console", monospace',
+      '"Hack Nerd Font", "Jetbrains mono","IBM Plex Mono", Consolas, "Lucida Console", monospace',
     // default font weight: 'normal' or 'bold'
     fontWeight: 'normal',
     // font weight for bold characters: 'normal' or 'bold'
