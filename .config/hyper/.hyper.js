@@ -7,11 +7,11 @@ module.exports = {
     hyperTransparentDynamic: {
       alpha: 0.75, // default 50%
     },
-    // catCursor: {
-    //   speed: 3000, // length of the sequence in milliseconds
-    //   fontSize: 60, // font size of the cat in css pixels
-    //   cats: ['🐱', '🙀', '😾', '😿', '😹', '😼', '😺', '😻', '😸', '😽'], // custom cat sequence. only cats are accepted, of course
-    // },
+    catCursor: {
+      speed: 3000, // length of the sequence in milliseconds
+      fontSize: 60, // font size of the cat in css pixels
+      cats: ['🐱', '🙀', '😾', '😿', '😹', '😼', '😺', '😻', '😸', '😽'], // custom cat sequence. only cats are accepted, of course
+    },
     // choose either `'stable'` for receiving highly polished,
     // or `'canary'` for less polished but more frequent updates
     updateChannel: 'stable',
@@ -153,8 +153,7 @@ module.exports = {
     'hyperpower',
     'hyper-transparent-dynamic',
     'hyper-hide-scroll',
-    'htyt',
-    // 'hyper-cat-cursor',
+    'htyt'
   ],
   // in development, you can create a directory under
   // `~/.hyper_plugins/local/` and include it here

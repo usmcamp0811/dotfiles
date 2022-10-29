@@ -179,9 +179,6 @@ local function code_keymap()
 			}
 		elseif ft == "julia" then
 			ncodemap = {
-				l = {
-					f = { ":JuliaFormatterFormat<CR>", "Format" },
-				},
 				c = {
 					name = "Code",
 					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<cr>", "Get Julia REPL" },

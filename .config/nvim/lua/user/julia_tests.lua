@@ -1,3 +1,4 @@
+vim.notify = require("notify")
 -- A function to parse the pass fail total columns of the results
 -- If all the tests pass or all fail there will be only two
 -- columns. In these events we plead ignorance and just
@@ -237,8 +238,8 @@ local function create_fail_pass_vtext(test)
     pass_chunk = { "Pass: " .. test.pass .. " ", "success" }
     err_chunk = { "Fail: " .. test.fail .. " ", "fail" }
   else
-    pass_chunk = { string.rep("■", test.pass), "success" }
-    err_chunk = { string.rep("■", test.fail), "fail" }
+    pass_chunk = { string.rep("▪", test.pass), "success" }
+    err_chunk = { string.rep("▪", test.fail), "fail" }
   end
   return { pass_chunk, err_chunk }
 end
@@ -261,8 +262,47 @@ local function julia_project_dir()
   end
 
   if root_dir then
-    print("Found julia project at", root_dir)
+    -- print("Found julia project at", root_dir)
     return root_dir
+  end
+end
+
+function display_pass_fail_vtext(bufnr, ns_id, test_results)
+  id = 1
+  for test_name in pairs(test_results) do
+    test = test_results[test_name]
+    line_num, col_num, line_num2, col_num2 = get_testset_line_number(test_name)
+    opts = {
+      end_line = 10,
+      id = id,
+      virt_text = create_fail_pass_vtext(test),
+      virt_text_pos = 'right_align',
+      -- virt_text_win_col = 20,
+    }
+
+    -- the Pass: X Fail: X vtext is created here
+    mark_id = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_num, col_num, opts)
+
+    -- now we figure out where the fails were and put a marker on those lines
+    fails = {}
+    -- this just dedupes the fail lines so if you did a for loop of tests we don't have 
+    -- the vtext repeated for every fail on that single line of the for loop
+    for ix, f in ipairs(test.failed_lines) do
+      fails[f] = f
+    end
+    for f in pairs(fails) do
+      id = id + 1
+      fline = tonumber(f) - 1
+      opts = {
+        end_line = 10,
+        id = id,
+        virt_text = { { "", "fail" } },
+        virt_text_pos = 'eol',
+        -- virt_text_win_col = 20,
+      }
+      mark_id2 = vim.api.nvim_buf_set_extmark(bufnr, ns_id, fline, col_num2, opts)
+    end
+    id = id + 1
   end
 end
 
@@ -274,45 +314,57 @@ vim.api.nvim_create_user_command("AutoTest", function()
   -- TODO: Allow setting this manually
   project_dir = julia_project_dir()
   runtests = vim.fn.expand('%:p')
-  print("julia", "--project=" .. project_dir, runtests)
+  local plugin = "Julia Auto Test"
+  error = nil
+  d = 0
+
   -- this is how you get nvim to run something in the background
   vim.fn.jobstart({ "julia", "--project=" .. project_dir, runtests }, {
     stdout_buffered = true,
     on_stdout = function(_, data)
       if data then
+        print(vim.inspect(data))
         test_results = parse_test_results(data)
-        id = 1
-        for test_name in pairs(test_results) do
-          test = test_results[test_name]
-          line_num, col_num, line_num2, col_num2 = get_testset_line_number(test_name)
-          opts = {
-            end_line = 10,
-            id = id,
-            virt_text = create_fail_pass_vtext(test),
-            virt_text_pos = 'right_align',
-            -- virt_text_win_col = 20,
-          }
-
-          mark_id = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_num, col_num, opts)
-          fails = {}
-          for ix, f in ipairs(test.failed_lines) do
-            fails[f] = f
-          end
-          for f in pairs(fails) do
-            id = id + 1
-            fline = tonumber(f) - 1
-            opts = {
-              end_line = 10,
-              id = id,
-              virt_text = { { "﮻ Test Failed", "error" } },
-              virt_text_pos = 'eol',
-              -- virt_text_win_col = 20,
-            }
-            mark_id2 = vim.api.nvim_buf_set_extmark(bufnr, ns_id, fline, col_num2, opts)
-          end
-          id = id + 1
-        end
+        display_pass_fail_vtext(bufnr, ns_id, test_results)
       end
     end,
+    on_stderr = function(_, data)
+      if data then
+        errmsg, _ = string.find(data[1],"Some tests did not pass:")
+        if errmsg ~= nil then
+          error = false
+        end
+
+        -- vim.cmd[[:echo "JULIA TEST ERROR: We tried to run the test but 💩 happened. Read the following error message."]]
+        -- vim.cmd":echo v:errmsg"
+        -- test_results = parse_test_results(data)
+        -- display_pass_fail_vtext(bufnr, ns_id, test_results)
+      end
+    end,
+    on_exit = function(_, data)
+      -- we will always be in exit 1 unless our code is rock solid.. 
+
+      print("EXIT:->>")
+      if error == false then 
+        -- we good 
+      elseif error == nil then
+        -- we still good
+      else
+        vim.notify("This is an error message.\nSomething went wrong!", "error", {
+          title = plugin,
+          on_open = function()
+            vim.notify("Found julia project at: " .. project_dir, vim.log.levels.WARN, {
+              title = plugin,
+            })
+            vim.notify("Attempting to run the following command:\njulia", "--project=" .. project_dir, runtests, vim.log.levels.WARN, {
+              title = plugin,
+            })
+            vim.notify(data, runtests, vim.log.levels.WARN, {
+              title = plugin,
+            })
+          end,
+        })
+      end
+      end
   })
 end, {})
