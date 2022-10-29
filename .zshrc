@@ -1,24 +1,26 @@
 # If you come from bash you might have to change your $PATH.
 
 
-function powerline_precmd() {
-    PS1="$(powerline-shell --shell zsh $?)"
-}
-
-function install_powerline_precmd() {
-  for s in "${precmd_functions[@]}"; do
-    if [ "$s" = "powerline_precmd" ]; then
-      return
-    fi
-  done
-  precmd_functions+=(powerline_precmd)
-}
-
-if [ "$TERM" != "linux" ]; then
-    install_powerline_precmd
-fi
+# function powerline_precmd() {
+#     PS1="$(powerline-shell --shell zsh $?)"
+# }
+#
+# function install_powerline_precmd() {
+#   for s in "${precmd_functions[@]}"; do
+#     if [ "$s" = "powerline_precmd" ]; then
+#       return
+#     fi
+#   done
+#   precmd_functions+=(powerline_precmd)
+# }
+#
+# if [ "$TERM" != "linux" ]; then
+#     install_powerline_precmd
+# fi
+setopt PROMPT_SUBST
 
 COMPLETION_WAITING_DOTS="true"
+
 
 # History in cache directory:
 HISTSIZE=10000000
@@ -94,6 +96,10 @@ for file in ~/.config/shell/private/*.shrc; do
     [ -r "$file" ] && source "$file"
 done
 
+for file in ~/.config/shell/zsh/*.zsh; do
+    [ -r "$file" ] && source "$file"
+done
+
 # export TERM=notlinux
 if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
     PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
@@ -128,4 +134,5 @@ function tvim() {
    printf '\e]710;%s\007' "YOUR-DEFAULT-FONT"
 }
 
+source $HOME/.config/shell/zsh/fino.zsh-theme
 source /home/mcamp/.config/broot/launcher/bash/br

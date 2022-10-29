@@ -5,7 +5,7 @@
 module.exports = {
   config: {
     hyperTransparentDynamic: {
-      alpha: 0.65 // default 50%
+      alpha: 0.75 // default 50%
     },
     // choose either `'stable'` for receiving highly polished,
     // or `'canary'` for less polished but more frequent updates
