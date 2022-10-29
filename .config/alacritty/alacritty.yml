@@ -3,6 +3,14 @@ font:
     # family: IBM Plex Mono Medium
     family: JuliaMono
     style: Regular
+  # Bold font face
+  bold:
+    family: ComicMono
+    style: Bold
+  # Italic font face
+  italic:
+    family: IBM Plex Mono
+    style: Light Italic
   size: 8
   offset:
     x: 0
@@ -10,7 +18,7 @@ font:
   glyph_offset:
     x: 0
     'y': 0
-  use_thin_strokes: true
+  # use_thin_strokes: true
 colors:
   primary:
     background: '0x0A0E14'
@@ -67,7 +75,7 @@ hints:
     threshold: 300
   url:
     launcher:
-      program: brave
+      program: firefox
 key_bindings:
   - key: V
     mods: Control|Shift

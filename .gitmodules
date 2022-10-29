@@ -1,0 +1,3 @@
+[submodule "alias-tips"]
+	path = alias-tips
+	url = /home/mcamp/.local/share/alias-tips

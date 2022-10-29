@@ -1,12 +1,11 @@
-local status_ok, lsp_installer = pcall(require, "nvim-lsp-installer")
+local status_ok, lsp_installer = pcall(require, "mason")
 if not status_ok then
 	return
 end
 
 local lspconfig = require("lspconfig")
 
--- local servers = { "jsonls", "sumneko_lua", "pyright", "yamlls", "julials", "texlab", "dockerls" }
-local servers = {}
+local servers = { "jsonls", "sumneko_lua", "pyright", "yamlls", "julials", "texlab", "dockerls", "clojure_lsp" }
 
 lsp_installer.setup({
 	ensure_installed = servers,
@@ -23,8 +22,3 @@ for _, server in pairs(servers) do
 	end
 	lspconfig[server].setup(opts)
 end
-
--- Disable virtual_text since it's redundant due to lsp_lines.
-vim.diagnostic.config({
-	virtual_text = false,
-})

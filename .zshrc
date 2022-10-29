@@ -1,24 +1,26 @@
 # If you come from bash you might have to change your $PATH.
 
 
-function powerline_precmd() {
-    PS1="$(powerline-shell --shell zsh $?)"
-}
-
-function install_powerline_precmd() {
-  for s in "${precmd_functions[@]}"; do
-    if [ "$s" = "powerline_precmd" ]; then
-      return
-    fi
-  done
-  precmd_functions+=(powerline_precmd)
-}
-
-if [ "$TERM" != "linux" ]; then
-    install_powerline_precmd
-fi
+# function powerline_precmd() {
+#     PS1="$(powerline-shell --shell zsh $?)"
+# }
+#
+# function install_powerline_precmd() {
+#   for s in "${precmd_functions[@]}"; do
+#     if [ "$s" = "powerline_precmd" ]; then
+#       return
+#     fi
+#   done
+#   precmd_functions+=(powerline_precmd)
+# }
+#
+# if [ "$TERM" != "linux" ]; then
+#     install_powerline_precmd
+# fi
+setopt PROMPT_SUBST
 
 COMPLETION_WAITING_DOTS="true"
+
 
 # History in cache directory:
 HISTSIZE=10000000
@@ -70,8 +72,14 @@ case ${TERM} in
 		;;
         esac
 
+
+# if we don't have the fzf stuff go get it
+([ -r "/usr/share/fzf/completion.zsh" ] || [ -r "$HOME/.config/fzf/completion.zsh" ]) || $HOME/.local/bin/get-fzf-scripts
+([ -r "/usr/share/fzf/key-bindings.zsh" ] || [ -r "$HOME/.config/fzf/key-bindings.zsh" ]) || $HOME/.local/bin/get-fzf-scripts
 [ -r "/usr/share/fzf/completion.zsh" ] && source /usr/share/fzf/completion.zsh
 [ -r "/usr/share/fzf/key-bindings.zsh" ] && source /usr/share/fzf/key-bindings.zsh
+[ -r "$HOME/.config/fzf/completion.zsh" ] && source $HOME/.config/fzf/completion.zsh
+[ -r "$HOME/.config/fzf/key-bindings.zsh" ] && source $HOME/.config/fzf/key-bindings.zsh
 
 # source all the other bash config files
 for file in ~/.config/shell/*.shrc; do
@@ -81,6 +89,14 @@ done
 # TODO move these to ~/.config/shell and update syncthing
 # source my private config files
 for file in ~/.config/bash/private/*.bashrc; do
+    [ -r "$file" ] && source "$file"
+done
+
+for file in ~/.config/shell/private/*.shrc; do
+    [ -r "$file" ] && source "$file"
+done
+
+for file in ~/.config/shell/zsh/*.zsh; do
     [ -r "$file" ] && source "$file"
 done
 
@@ -108,7 +124,15 @@ codi() {
 
 
 # source $HOME/.config/broot/launcher/bash/br
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2 >/dev/null
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 2 >/dev/null
-source /usr/share/zsh/plugins/alias-tips/alias-tips.plugin.zsh 2 >/dev/null
+[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2 >/dev/null
+[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 2 >/dev/null
+[ -r $HOME/.local/share/alias-tips/alias-tips.plugin.zsh ] && source $HOME/.local/share/alias-tips/alias-tips.plugin.zsh 2 >/dev/null
 
+function tvim() {
+   printf '\e]710;%s\007' "FONT-FOR-VIM"
+   /usr/bin/vim "$@"
+   printf '\e]710;%s\007' "YOUR-DEFAULT-FONT"
+}
+
+source $HOME/.config/shell/zsh/fino.zsh-theme
+source /home/mcamp/.config/broot/launcher/bash/br

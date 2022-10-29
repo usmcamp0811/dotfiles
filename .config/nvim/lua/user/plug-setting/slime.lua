@@ -8,7 +8,10 @@ M = {}
 -- keymap("x", "<leader><cr>", "<Plug>SlimeRegionSend", opts)
 -- keymap("n", "<leader><cr>", "<Plug>SlimeParagraphSend", opts)
 -- keymap("n", "<leader>v", "<Plug>SlimeConfig", opts)
-
+function SlimeXSwitch()
+	vim.g.slime_target = "x11"
+	vim.g.slime_dont_ask_default = 0
+end
 -- vim.g.slime_target = "tmux"
 vim.g.slime_target = "neovim"
 -- vim.g.slime_target = "x11"
@@ -17,8 +20,8 @@ vim.g.slime_cell_delimiter = "```"
 vim.g.slime_dont_ask_default = 1
 -- " let g:slime_cell_delimiter = "# %%"
 -- " let g:slime_cell_delimiter = "# {{{"
-
-vim.cmd [[
+-- vim.g.slime_bracketed_paste = true
+vim.cmd([[
   function! _EscapeText_rmarkdown(text)
     " Remove all fences
     let trimmed = substitute(a:text, '```{.*}\n', '', 'g')
@@ -35,6 +38,6 @@ vim.cmd [[
 
 " autocmd TermOpen * setlocal nonumber norelativenumber
 
-]]
+]])
 
 return M

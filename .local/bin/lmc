@@ -4,8 +4,10 @@ NUM="${2:-5}"
 SINK_NAME="Family"
 # SINK_NAME="GA104"
 [[ "$(pulsemixer --list-sinks | grep Radeon | wc -l)" == "1" ]] && SINK_NAME="Radeon"
+[[ "$(pulsemixer --list-sinks | grep Headphones | wc -l)" == "1" ]] && SINK_NAME="Headphones"
 # Uncomment the following line to use Pulseaudio.
 PULSE=true
+SINK=$(pulsemixer --list-sinks | grep $SINK_NAME | awk '{print $3}' | sed s/,//g)
 SINK=$(pulsemixer --list-sinks | grep $SINK_NAME | awk '{print $3}' | sed s/,//g)
 
 if [ "$PULSE" ]; then

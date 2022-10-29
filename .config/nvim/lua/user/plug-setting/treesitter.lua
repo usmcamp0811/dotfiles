@@ -5,13 +5,14 @@ end
 
 parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
 
-parser_configs.markdown = {
-  install_info = {
-    url = "https://github.com/ikatyang/tree-sitter-markdown",
-    files = { "src/parser.c", "src/scanner.cc" },
-  },
-  filetype = { "vimwiki", "markdown" },
-}
+-- This has some issue on unsteup systems.. its not installing correctly.. but it also doesn't seem necesary
+-- parser_configs.markdown = {
+--   install_info = {
+--     url = "https://github.com/ikatyang/tree-sitter-markdown",
+--     files = { "src/parser.c", "src/scanner.cc" },
+--   },
+--   filetype = { "vimwiki", "markdown" },
+-- }
 
 configs.setup({
 	ensure_installed = "all", -- one of "all" or a list of languages
@@ -19,22 +20,20 @@ configs.setup({
 	highlight = {
 		enable = true, -- false will disable the whole extension
 		disable = { "css" }, -- list of language that will be disabled
-    additional_vim_regex_highlighting = {'org', 'norg'}
+		additional_vim_regex_highlighting = { "org", "norg" },
 	},
 	autopairs = {
 		enable = true,
 	},
 	indent = { enable = true, disable = { "python", "css" } },
-  parser_configs = parser_configs,
-  textsubjects = {
-          enable = true,
-          prev_selection = ',', -- (Optional) keymap to select the previous selection
-          keymaps = {
-              ['.'] = 'textsubjects-smart',
-              [';'] = 'textsubjects-container-outer',
-              ['i;'] = 'textsubjects-container-inner',
-          },
-      },
+	parser_configs = parser_configs,
+	textsubjects = {
+		enable = true,
+		prev_selection = ",", -- (Optional) keymap to select the previous selection
+		keymaps = {
+			["."] = "textsubjects-smart",
+			[";"] = "textsubjects-container-outer",
+			["i;"] = "textsubjects-container-inner",
+		},
+	},
 })
-
-

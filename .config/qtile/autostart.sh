@@ -17,9 +17,13 @@ ckb-next-daemon &
 ckb-next -b &
 blueman-applet &
 dunst &
+# xinput set-button-map 18 1 0 3 &
 
 [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33
 
 # autorandr -c
 rogauracore blue
 # See https://wiki.archli
+
+#hide the mouse 
+# xbanish &
