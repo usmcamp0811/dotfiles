@@ -101,8 +101,13 @@ return packer.startup(function(use)
   })
   -- Notebook like functions / REPL
   -- use("JuliaEditorSupport/julia-vim")
-  use({ "ExpandingMan/julia-vim", branch = "emfix1" })
-  use("kdheepak/JuliaFormatter.vim")
+  -- use({ "ExpandingMan/julia-vim", branch = "emfix1" })
+  -- use("kdheepak/JuliaFormatter.vim")
+  use({"https://gitlab.com/usmcamp0811/nvim-julia-autotest",
+    config = function()
+      require("julia-autotest").setup()
+    end
+  })
   use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
   use({ "hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" } })
   -- use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
@@ -150,6 +155,7 @@ return packer.startup(function(use)
     as = "catppuccin",
     run = ":CatppuccinCompile",
   })
+  use { 'sindrets/diffview.nvim', requires = 'nvim-lua/plenary.nvim' }
   use "samjwill/nvim-unception"
   use "ii14/neorepl.nvim"
   use {

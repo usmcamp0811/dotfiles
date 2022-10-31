@@ -79,11 +79,6 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/Comment.nvim",
     url = "https://github.com/numToStr/Comment.nvim"
   },
-  ["JuliaFormatter.vim"] = {
-    loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/JuliaFormatter.vim",
-    url = "https://github.com/kdheepak/JuliaFormatter.vim"
-  },
   LuaSnip = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/LuaSnip",
@@ -185,6 +180,11 @@ _G.packer_plugins = {
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/darkplus.nvim",
     url = "https://github.com/lunarvim/darkplus.nvim"
   },
+  ["diffview.nvim"] = {
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/diffview.nvim",
+    url = "https://github.com/sindrets/diffview.nvim"
+  },
   ["distant.nvim"] = {
     config = { "\27LJ\2\nt\0\0\6\0\a\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\5\0006\3\0\0'\5\3\0B\3\2\0029\3\4\3B\3\1\2=\3\6\2B\0\2\1K\0\1\0\6*\1\0\0\17chip_default\21distant.settings\nsetup\fdistant\frequire\0" },
     loaded = true,
@@ -222,11 +222,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/indent-blankline.nvim",
     url = "https://github.com/lukas-reineke/indent-blankline.nvim"
-  },
-  ["julia-vim"] = {
-    loaded = true,
-    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/julia-vim",
-    url = "https://github.com/ExpandingMan/julia-vim"
   },
   ["kanagawa.nvim"] = {
     loaded = true,
@@ -366,6 +361,12 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nvim-colorizer.lua",
     url = "https://github.com/norcalli/nvim-colorizer.lua"
+  },
+  ["nvim-julia-autotest"] = {
+    config = { "\27LJ\2\n<\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\19julia-autotest\frequire\0" },
+    loaded = true,
+    path = "/home/mcamp/.local/share/nvim/site/pack/packer/start/nvim-julia-autotest",
+    url = "https://gitlab.com/usmcamp0811/nvim-julia-autotest"
   },
   ["nvim-literate"] = {
     loaded = true,

@@ -42,9 +42,8 @@ require("user.plug-setting.zen")
 require("user.plug-setting.mind")
 require("user.plug-setting.julia")
 require("user.plug-setting.codewindow")
-require("user.julia_tests")
+-- require("user.julia_tests")
 require("user.plug-setting.leap")
-
 
 -- my own thing's
 
