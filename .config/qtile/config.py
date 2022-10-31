@@ -238,6 +238,7 @@ def autostart():
 # mod = "mod4"
 mod = "mod1"
 terminal = guess_terminal()
+# terminal = "alacritty"
 myTerm = "alacritty"                             # My terminal of choice
 arrow_font_size = 35
 # The Qtile config file location
@@ -367,7 +368,8 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     # Key([mod], "d", lazy.spawncmd(),
     # desc="Spawn a command using a prompt widget"),
-    Key([mod], "F2", lazy.spawn(f"brave --no-xshm --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
+    # Key([mod], "F2", lazy.spawn(f"brave --no-xshm --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
+    Key([mod], "F2", lazy.spawn(f"firefox")),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),

@@ -16,7 +16,7 @@ local code_actions = null_ls.builtins.code_actions
 local on_attach = function(client)
 	-- client.resolved_capabilities.document_range_formatting = true
 	-- client.resolved_capabilities.document_formatting = true
-	if client.resolved_capabilities.document_formatting then
+	if client.server_capabilities.document_formatting then
 		vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()")
 	end
 end
