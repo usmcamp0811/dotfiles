@@ -71,5 +71,6 @@ export PATH=/opt/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LD_LIBRARY_PATH
 export KUBECONFIG=$HOME/.kube/config
 export PATH=$PATH:/opt/julia/bin
+export PATH=$PATH:/usr/local/bin
 export JULIA_LOAD_PATH="$XDG_CONFIG_HOME/julia:$JULIA_LOAD_PATH"
 export JULIA_DEPOT_PATH="$XDG_CONFIG_HOME/julia:$JULIA_DEPOT_PATH"
