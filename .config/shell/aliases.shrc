@@ -13,9 +13,9 @@ alias -- -="cd -"
 alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 
 # ls -al Alh
-[ -e /usr/bin/lsd ] && alias ls="lsd --group-dirs first"
-[ -e /usr/bin/lsd ] && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
-[ -e /usr/bin/lsd ] && alias lt='lsd --tree --depth 3'
+( [ -e /usr/local/bin/lsd ] || [ -e /usr/bin/lsd ] ) && alias ls="lsd --group-dirs first"
+( [ -e /usr/local/bin/lsd ] || [ -e /usr/bin/lsd ] ) && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
+( [ -e /usr/local/bin/lsd ] || [ -e /usr/bin/lsd ] ) && alias lt='lsd --tree --depth 3'
 [ -e /usr/bin/ranger ] && alias lr="ranger"
 [ -e /usr/bin/local/ranger ] && alias lr="ranger"
 

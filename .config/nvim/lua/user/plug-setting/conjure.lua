@@ -31,7 +31,7 @@ local function make_conjure_command()
     root = "--project=" .. root
 	end
 	-- vim.g["conjure#client#julia#stdio#command"] = "julia --banner=no --color=no --project=" .. root
-	vim.g["conjure#client#julia#stdio#command"] = "julia " .. root
+	vim.g["conjure#client#julia#stdio#command"] = "julia ".. root
 end
 
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
