@@ -189,7 +189,7 @@ local function code_keymap()
 				-- because of things like vim julia cell uses it and I like being able to do
 				-- code between marks
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
-				["<CR>"] = { ':ConjureEvalCurrentForm<CR>:silent! call repeat#set(" ee", 1)<CR>', "Execute Code" },
+				["<CR>"] = { "V :'<,'>ConjureEval<cr>", "Execute Code" },
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
 			}

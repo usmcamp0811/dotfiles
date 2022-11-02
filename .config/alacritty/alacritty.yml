@@ -1,15 +1,15 @@
 font:
   normal:
     # family: IBM Plex Mono Medium
-    family: JuliaMono
+    family: SourceCodePro 
     style: Regular
   # Bold font face
   bold:
-    family: ComicMono
-    style: Bold
+    family: SourceCodePro
+    style: Light Bold
   # Italic font face
   italic:
-    family: IBM Plex Mono
+    family: SourceCodePro
     style: Light Italic
   size: 8
   offset:

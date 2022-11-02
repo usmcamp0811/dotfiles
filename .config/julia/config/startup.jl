@@ -35,6 +35,11 @@ atreplinit() do repl
     catch e
         @warn "error while importing OhMyREPL" e
     end
+    try
+        @eval using RemoteREPL
+    catch
+        @warn "error while importing RemoteREPL"
+    end
 
     @async begin
         # reinstall keybindings to work around https://github.com/KristofferC/OhMyREPL.jl/issues/166
@@ -54,6 +59,11 @@ try
     @eval using OhMyREPL
 catch e
     @warn "error while importing OhMyREPL" e
+end
+try
+    @eval using RemoteREPL
+catch
+    @warn "error while importing RemoteREPL"
 end
 
 schedule(@task begin

@@ -17,7 +17,7 @@ local function julia_project_dir()
   end
 
   if root_dir then
-    print("Found julia project at", root_dir)
+    -- print("Found julia project at", root_dir)
     return root_dir
   end
 end
@@ -31,7 +31,7 @@ local function make_conjure_command()
     root = "--project=" .. root
 	end
 	-- vim.g["conjure#client#julia#stdio#command"] = "julia --banner=no --color=no --project=" .. root
-	vim.g["conjure#client#julia#stdio#command"] = "julia " 
+	vim.g["conjure#client#julia#stdio#command"] = "julia " .. root
 end
 
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
@@ -43,6 +43,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
 -- this seems to need something in it or things break when opening lua files
 vim.g["conjure#filetypes"] = { "fennel", "clojure", "julia", "jl" }
 vim.g["conjure#mapping#doc_word"] = { "?" }
+-- vim.g["conjure#client#julia#stdio#prompt_pattern"] = { ";\n"}
 
 -- n ,ecw  {":ConjureEvalCommentWord<CR>:silent! call repeat#set(",ecw", 1)<CR>", ""},
 -- n ,ece  {":ConjureEvalCommentCurrentForm<CR>:silent! call repeat#set(",ece", 1)<CR>", ""},
