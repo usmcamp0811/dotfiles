@@ -48,6 +48,13 @@ atreplinit() do repl
         OhMyREPL.enable_autocomplete_brackets(false)
 
     end
+
+    function ends_with_semicolon(x)
+        lines = split(x, '\n', keepempty=false)
+        return length(lines) > 0 ?
+            REPL.ends_with_semicolon(last(lines)) :
+            false
+    end
 end
 
 using Pkg

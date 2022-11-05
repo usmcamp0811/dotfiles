@@ -45,6 +45,20 @@ require("user.plug-setting.codewindow")
 -- require("user.julia_tests")
 require("user.plug-setting.leap")
 
+require('hologram').setup{
+    auto_display = true -- WIP automatic markdown image display, may be prone to breaking
+}
+
+require'telescope'.setup {
+  extensions = {
+    media_files = {
+      -- filetypes whitelist
+      -- defaults to {"png", "jpg", "mp4", "webm", "pdf"}
+      filetypes = {"png", "webp", "jpg", "jpeg"},
+      find_cmd = "rg" -- find command (defaults to `fd`)
+    }
+  },
+}
 -- my own thing's
 
 require("user.code_blocks")

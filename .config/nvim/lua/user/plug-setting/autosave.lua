@@ -7,7 +7,7 @@ vim.cmd [[
     au!
     au FileType markdown let b:auto_save = 1
     au FileType python let b:auto_save = 1
-    au FileType julia let b:auto_save = 1
+    au FileType julia let b:auto_save = 0
     au FileType go let b:auto_save = 1
     au FileType css let b:auto_save = 1
     au FileType json let b:auto_save = 1

@@ -173,10 +173,10 @@ local function code_keymap()
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 			}
-			nnoleader = {
-				["J"] = { ":IPythonCellNextCell<cr>", "Execute Line of Code" },
-				["K"] = { ":IPythonCellPrevCell<cr>", "Execute Line of Code" },
-			}
+			-- nnoleader = {
+			-- 	["J"] = { ":IPythonCellNextCell<cr>", "Execute Line of Code" },
+			-- 	["K"] = { ":IPythonCellPrevCell<cr>", "Execute Line of Code" },
+			-- }
 		elseif ft == "julia" then
 			ncodemap = {
 				c = {

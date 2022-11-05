@@ -218,3 +218,6 @@ gpu-dedicated(){
 update-all(){
     ansible-playbook ~/code-home/ansible_playbooks/syu.yml --become --ask-become-pass
 }
+
+alias diff='vim -d'
+

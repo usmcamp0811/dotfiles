@@ -4,7 +4,6 @@ local options = {
 	directory = vim.fn.stdpath("config") .. "/swaps",
 	backupdir = vim.fn.stdpath("config") .. "/backups",
 	undodir = vim.fn.stdpath("config") .. "/undo",
-	guifont = "monospace:h17", -- the font used in graphical neovim applications
 	completeopt = { "menuone", "noselect" }, -- mostly just for cmp
 	termguicolors = true,
 	clipboard = "unnamedplus",
@@ -94,3 +93,4 @@ bo.shiftwidth = 2
 bo.softtabstop = 2
 bo.tabstop = 2
 vim.cmd("set expandtab ts=2 sw=2 ai")
+vim.opt.guifont = { "Source Code Pro", ":h8" }

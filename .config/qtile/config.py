@@ -237,9 +237,11 @@ def autostart():
 
 # mod = "mod4"
 mod = "mod1"
-terminal = guess_terminal()
+# terminal = guess_terminal()
+terminal = "kitty"
 # terminal = "alacritty"
-myTerm = "alacritty"                             # My terminal of choice
+# myTerm = "alacritty"                             # My terminal of choice
+myTerm = "kitty"
 arrow_font_size = 35
 # The Qtile config file location
 myConfig = "/home/mcamp/.config/qtile/config.py"
@@ -258,7 +260,7 @@ prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
 
 ##### DEFAULT WIDGET SETTINGS #####
 widget_defaults = dict(
-    font="IBM Plex Mono",
+    font="FiraCode Nerd Font",
     # fontsize=int(14 * SCALE_BY),
     fontsize=14,
     padding=1,

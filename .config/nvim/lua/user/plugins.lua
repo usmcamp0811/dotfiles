@@ -83,8 +83,10 @@ return packer.startup(function(use)
   -- use "renerocksai/telekasten.nvim" -- not quite ready to replace vimwiki
   use("mzlogin/vim-markdown-toc")
   use("itchyny/calendar.vim")
-  -- use {'edluffy/hologram.nvim'}
+  use {'edluffy/hologram.nvim'}
   use("gioele/vim-autoswap")
+
+  use("nvim-telescope/telescope-media-files.nvim")
 
   use({
     "chipsenkbeil/distant.nvim",
@@ -112,6 +114,7 @@ return packer.startup(function(use)
   use({ "hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" } })
   -- use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
   use("metakirby5/codi.vim")
+  -- use({ "/home/mcamp/code/conjure", branch = "develop" })
   use({ "https://github.com/usmcamp0811/conjure.git", branch = "develop" })
   -- use({ "Olical/conjure" })
   -- use({ "Grazfather/conjure", branch = "which-key-descs" })
@@ -228,11 +231,16 @@ return packer.startup(function(use)
   -- use "savq/paq-nvim"
   -- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
   use("rcarriga/nvim-notify")
-  use("machakann/vim-sandwich")
-  -- use {
-  --   "tpope/vim-surround",
-  --   requires = { "tpope/vim-repeat", opt = true }
-  -- }
+  use({
+      "kylechui/nvim-surround",
+      tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+      config = function()
+          require("nvim-surround").setup({
+              -- Configuration here, or leave empty to use defaults
+          })
+      end
+  })
+
   use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
   use({ "kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
 
@@ -312,6 +320,10 @@ return packer.startup(function(use)
   -- Treesitter
   use({
     "nvim-treesitter/nvim-treesitter",
+    run = ":TSUpdate",
+  })
+  use({
+    "nvim-treesitter/nvim-treesitter-textobjects",
     run = ":TSUpdate",
   })
   use({

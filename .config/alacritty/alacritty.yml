@@ -1,11 +1,11 @@
 font:
   normal:
     # family: IBM Plex Mono Medium
-    family: SourceCodePro 
+    family: FiraCode Nerd Font Mono 
     style: Regular
   # Bold font face
   bold:
-    family: SourceCodePro
+    family: FiraCode Nerd Font Mono 
     style: Light Bold
   # Italic font face
   italic:
