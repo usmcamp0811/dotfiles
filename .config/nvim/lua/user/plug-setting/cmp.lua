@@ -110,6 +110,7 @@ cmp.setup({
   },
   sources = {
     { name = "nvim_lsp" },
+    { name = "luasnip" },
     cmp.config.sources({
       { name = "nvim_lsp_document_symbol" },
     }, {
@@ -119,7 +120,6 @@ cmp.setup({
     { name = "dynamic" },
     { name = "latex_symbols" },
     { name = "buffer" },
-    { name = "luasnip" },
     { name = "orgmode" },
     { name = "path" },
     -- { name = "copilot" },
@@ -232,14 +232,4 @@ require("cmp_dynamic").setup({
 -- local types = require("luasnip.util.types")
 -- local parse = require("luasnip.util.parser").parse_snippet
 
-local ls = require("luasnip")
-local s = ls.snippet
-local t = ls.text_node
-local i = ls.insert_node
-
-s("trigger", {
-	t({"After expanding, the cursor is here ->"}), i(1),
-	t({"", "After jumping forward once, cursor is here ->"}), i(2),
-	t({"", "After jumping once more, the snippet is exited there ->"}), i(0),
-})
-
+require("luasnip.loaders.from_lua").load({paths = "/home/mcamp/.config/nvim/lua/user/snippets"})

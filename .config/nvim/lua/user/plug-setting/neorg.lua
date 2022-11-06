@@ -88,8 +88,8 @@ neorg.setup({
               "<Cmd>Neorg keybind norg core.integrations.treesitter.previous.heading<CR>",
               "Next Heading",
             },
-            ["<TAB>"] = { ":Neorg keybind norg core.promo.promote<CR>" , "Promote" },
-            ["<S-TAB>"] = { ":Neorg keybind norg core.promo.demote<CR>" , "Demote" }
+            -- ["<TAB>"] = { ":Neorg keybind norg core.promo.promote<CR>" , "Promote" },
+            -- ["<S-TAB>"] = { ":Neorg keybind norg core.promo.demote<CR>" , "Demote" }
             -- M = { "0i|<esc>", "Marker" }
           })
           which_key.register({
