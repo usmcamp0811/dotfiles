@@ -8,7 +8,7 @@ require("user.autocommands")
 require("user.plugins")
 
 -- Plugin Configurations
--- require("user.plug-setting.catppuccin")
+require("user.plug-setting.catppuccin")
 require("user.plug-setting.conjure")
 require("user.plug-setting.cmp")
 require("user.plug-setting.telescope")
@@ -99,7 +99,7 @@ let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 -- end
 -- change_gtd_workspace()
 -- reload_gtd()
-vim.cmd([[colorscheme synthwave84]])
+-- vim.cmd([[colorscheme synthwave84]])
 
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   pattern = "*",

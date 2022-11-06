@@ -16,7 +16,7 @@ function virtualenv_prompt_info {
 }
 
 function prompt_char {
-  command git branch &>/dev/null && echo "±" || echo '○'
+  command git branch &>/dev/null && echo "🚧" || echo "→"
 }
 
 function box_name {
@@ -35,8 +35,8 @@ PROMPT="╭─${FG[040]}%n ${FG[239]}on ${FG[033]}$(box_name) ${FG[239]}in %B${F
 
 ZSH_THEME_GIT_PROMPT_PREFIX=" ${FG[239]}on%{$reset_color%} ${FG[255]}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY="${FG[202]}✘✘✘"
-ZSH_THEME_GIT_PROMPT_CLEAN="${FG[040]}✔"
+ZSH_THEME_GIT_PROMPT_DIRTY="${FG[202]}🔥"
+ZSH_THEME_GIT_PROMPT_CLEAN="${FG[040]}✔️"
 
 ZSH_THEME_RUBY_PROMPT_PREFIX=" ${FG[239]}using${FG[243]} ‹"
 ZSH_THEME_RUBY_PROMPT_SUFFIX="›%{$reset_color%}"
