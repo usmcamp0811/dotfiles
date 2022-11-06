@@ -74,3 +74,6 @@ export PATH=$PATH:/opt/julia/bin
 export PATH=$PATH:/usr/local/bin
 export JULIA_LOAD_PATH="$XDG_CONFIG_HOME/julia:$JULIA_LOAD_PATH"
 export JULIA_DEPOT_PATH="$XDG_CONFIG_HOME/julia:$JULIA_DEPOT_PATH"
+# fixes zoom
+export SSB_HOME="$XDG_DATA_HOME"/zoom
+export CONDARC="$XDG_CONFIG_HOME/conda/condarc"
