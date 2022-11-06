@@ -48,8 +48,7 @@ local kind_icons = {
 cmp.setup({
   snippet = {
     expand = function(args)
-      -- You must install `vim-vsnip` if you use the following as-is.
-      vim.fn["vsnip#anonymous"](args.body)
+      luasnip.lsp_expand(args.body) -- For `luasnip` users.
     end,
   },
   mapping = {
@@ -110,7 +109,6 @@ cmp.setup({
     end,
   },
   sources = {
-    { name = "vsnip" },
     { name = "nvim_lsp" },
     cmp.config.sources({
       { name = "nvim_lsp_document_symbol" },
@@ -207,3 +205,41 @@ require("cmp_dynamic").setup({
     resolve = true, -- default: false
   },
 })
+
+-- local ls = require("luasnip")
+-- local s = ls.snippet
+-- local sn = ls.snippet_node
+-- local isn = ls.indent_snippet_node
+-- local t = ls.text_node
+-- local i = ls.insert_node
+-- local f = ls.function_node
+-- local c = ls.choice_node
+-- local d = ls.dynamic_node
+-- local r = ls.restore_node
+-- local events = require("luasnip.util.events")
+-- local ai = require("luasnip.nodes.absolute_indexer")
+-- local extras = require("luasnip.extras")
+-- local l = extras.lambda
+-- local rep = extras.rep
+-- local p = extras.partial
+-- local m = extras.match
+-- local n = extras.nonempty
+-- local dl = extras.dynamic_lambda
+-- local fmt = require("luasnip.extras.fmt").fmt
+-- local fmta = require("luasnip.extras.fmt").fmta
+-- local conds = require("luasnip.extras.expand_conditions")
+-- local postfix = require("luasnip.extras.postfix").postfix
+-- local types = require("luasnip.util.types")
+-- local parse = require("luasnip.util.parser").parse_snippet
+
+local ls = require("luasnip")
+local s = ls.snippet
+local t = ls.text_node
+local i = ls.insert_node
+
+s("trigger", {
+	t({"After expanding, the cursor is here ->"}), i(1),
+	t({"", "After jumping forward once, cursor is here ->"}), i(2),
+	t({"", "After jumping once more, the snippet is exited there ->"}), i(0),
+})
+

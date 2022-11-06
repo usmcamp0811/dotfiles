@@ -117,4 +117,4 @@ vim.cmd([[
   " highligh default success guifg=green
   " highligh default fail guifg=red
 ]])
-
+require("luasnip.loaders.from_snipmate").load()

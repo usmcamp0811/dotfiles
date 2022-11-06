@@ -47,7 +47,6 @@ null_ls.setup({
 		diagnostics.yamllint,
 		code_actions.proselint,
 		completions.spell,
-		completions.vsnip,
 		hover.dictionary,
 	},
 	debounce = 4000,

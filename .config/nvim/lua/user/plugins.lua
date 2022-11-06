@@ -303,7 +303,6 @@ return packer.startup(function(use)
   use("f3fora/cmp-spell")
   use("hrsh7th/cmp-cmdline")
   use("hrsh7th/cmp-nvim-lsp-document-symbol")
-  use("hrsh7th/cmp-vsnip")
   use({
     "hrsh7th/nvim-cmp",
     requires = {
@@ -321,6 +320,7 @@ return packer.startup(function(use)
   -- snippets
   use("L3MON4D3/LuaSnip") --snippet engine
   use("rafamadriz/friendly-snippets") -- a bunch of snippets to use
+  use("honza/vim-snippets")
 
   -- LSP
   use("neovim/nvim-lspconfig") -- enable LSP
