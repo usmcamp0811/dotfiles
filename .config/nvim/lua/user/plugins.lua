@@ -384,8 +384,9 @@ return packer.startup(function(use)
   use({
     "RRethy/nvim-treesitter-textsubjects",
   })
-
+  use("windwp/nvim-ts-autotag")
   use("nvim-treesitter/playground")
+  use("echasnovski/mini.nvim")
   -- Git
   use({
     "lewis6991/gitsigns.nvim",
