@@ -75,7 +75,7 @@
                   },
                   "to": [
                     {
-                      "shell_command": "open -n -a Alacritty.app"
+                      "shell_command": "open -n -a kitty.app"
                     }
                   ],
                   "type": "basic"
