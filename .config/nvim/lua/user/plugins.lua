@@ -120,6 +120,8 @@ return packer.startup(function(use)
   use("radenling/vim-dispatch-neovim")
   use("clojure-vim/vim-jack-in")
   use("tpope/vim-dispatch")
+  use("guns/vim-sexp")
+  use("tpope/vim-sexp-mappings-for-regular-people")
 
   use("godlygeek/tabular")
   use("lervag/vimtex") -- for writing latex
