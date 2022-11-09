@@ -1,0 +1,5 @@
+#!/bin/sh
+
+mkdir -p $HOME/.config/fzf
+curl https://raw.githubusercontent.com/junegunn/fzf/d826f9e72f4849c43525d7196ecc7adfe3a50a9d/shell/key-bindings.zsh --output $HOME/.config/fzf/key-bindings.zsh
+curl https://raw.githubusercontent.com/junegunn/fzf/d826f9e72f4849c43525d7196ecc7adfe3a50a9d/shell/completion.zsh --output $HOME/.config/fzf/completion.zsh
