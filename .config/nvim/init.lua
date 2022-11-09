@@ -45,8 +45,8 @@ require("user.plugins")
 -- -- require("user.julia_tests")
 -- require("user.plug-setting.leap")
 -- require('hologram').setup{
-    auto_display = true -- WIP automatic markdown image display, may be prone to breaking
-}
+--    auto_display = true -- WIP automatic markdown image display, may be prone to breaking
+--}
 
 require'telescope'.setup {
   extensions = {
