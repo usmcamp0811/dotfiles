@@ -135,7 +135,7 @@ function tvim() {
 }
 
 source $HOME/.config/shell/zsh/fino.zsh-theme
-source /home/mcamp/.config/broot/launcher/bash/br
+# source /home/mcamp/.config/broot/launcher/bash/br
 #TODO: figure this out
 # something overwrites this so its here for now
 alias diff='vim -d'
