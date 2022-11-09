@@ -257,14 +257,14 @@ local function code_keymap()
 		elseif ft == "norg" then
 			nnoleader = {
 				["<CR>"] = {
-					":FeMaco<CR>",
+					":Neorg keybind all core.looking-glass.magnify-code-block<CR>",
 					"Execute Code?",
 				},
 			}
 			ncodemap = {
 				-- ["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
 				["<CR>"] = {
-					":FeMaco<CR>",
+					":Neorg keybind all core.looking-glass.magnify-code-block<CR>",
 					"Execute Code?",
 				},
 				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
