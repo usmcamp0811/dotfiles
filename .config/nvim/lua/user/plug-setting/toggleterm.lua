@@ -216,6 +216,7 @@ function _JULIA_TOGGLE()
 	vim.b.slime_config = {
 		jobid = vim.g.julia_job_id,
 	}
+  vim.cmd(":let g:julia_bufnr=bufnr('%')")
 	vim.cmd("wincmd l")
 end
 

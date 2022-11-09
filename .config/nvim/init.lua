@@ -44,7 +44,6 @@ require("user.plug-setting.julia")
 require("user.plug-setting.codewindow")
 -- require("user.julia_tests")
 require("user.plug-setting.leap")
-
 require('hologram').setup{
     auto_display = true -- WIP automatic markdown image display, may be prone to breaking
 }
@@ -62,6 +61,8 @@ require'telescope'.setup {
 -- my own thing's
 
 require("user.code_blocks")
+
+vim.g.sexp_filetypes = "clojure,scheme,lisp,timl,neorg,norg"
 
 vim.cmd("source $HOME/.config/nvim/functions.vim") -- has a function for my markdown code blocks
 vim.cmd([[ 
