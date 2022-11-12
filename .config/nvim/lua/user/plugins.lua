@@ -389,6 +389,7 @@ return packer.startup(function(use)
   use("windwp/nvim-ts-autotag")
   use("nvim-treesitter/playground")
   use("echasnovski/mini.nvim")
+  use {'kevinhwang91/nvim-hlslens'}
   -- Git
   use("petertriho/nvim-scrollbar")
   use({
