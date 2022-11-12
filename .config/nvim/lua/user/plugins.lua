@@ -158,6 +158,7 @@ return packer.startup(function(use)
     as = "catppuccin",
     run = ":CatppuccinCompile",
   })
+  use("p00f/nvim-ts-rainbow")
   use { 'sindrets/diffview.nvim', requires = 'nvim-lua/plenary.nvim' }
   use "samjwill/nvim-unception"
   use "ii14/neorepl.nvim"

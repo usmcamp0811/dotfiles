@@ -3,7 +3,10 @@ if not status_ok then
 	return
 end
 
-local markid = require'markid'
+local status_ok, markid = pcall(require, "markid")
+if not status_ok then
+	return
+end
 
 markid.colors = {
     dark = { "#619e9d", "#9E6162", "#81A35C", "#7E5CA3", "#9E9261", "#616D9E", "#97687B", "#689784", "#999C63", "#66639C" },
@@ -77,9 +80,13 @@ configs.setup({
 			["i;"] = "textsubjects-container-inner",
 		},
 	},
+  rainbow = {
+    enable = true,
+    extended_mode = true
+  },
   markid = {
     enable = true,
-    colors = markid.colors.medium,
+    colors = markid.colors.bright,
     queries = markid.queries,
     is_supported = function(lang)
       local queries = configs.get_module("markid").queries
