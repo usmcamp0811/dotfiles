@@ -390,11 +390,12 @@ return packer.startup(function(use)
   use("nvim-treesitter/playground")
   use("echasnovski/mini.nvim")
   -- Git
-  use { 'sindrets/diffview.nvim', requires = 'nvim-lua/plenary.nvim' }
+  use("petertriho/nvim-scrollbar")
   use({
     "lewis6991/gitsigns.nvim",
     config = function()
       require("gitsigns").setup()
+			require("scrollbar.handlers.gitsigns").setup()
     end,
   })
   -- Automatically set up your configuration after cloning packer.nvim

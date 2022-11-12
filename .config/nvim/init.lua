@@ -1,68 +1,55 @@
 
-local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
-if fn.empty(fn.glob(install_path)) > 0 then
-  PACKER_BOOTSTRAP = fn.system({
-    "git",
-    "clone",
-    "--depth",
-    "1",
-    "https://github.com/wbthomason/packer.nvim",
-    install_path,
-  })
-  print("Installing packer close and reopen Neovim...")
-  vim.cmd([[packadd packer.nvim]])
-end
-
 
 -- Base Settings
 require("user.options")
 require("user.keymaps")
--- require("user.lsp")
+require("user.lsp")
 require("user.autocommands")
 
 -- Plugins
 require("user.plugins")
 
 -- Plugin Configurations
--- require("user.plug-setting.catppuccin")
--- require("user.plug-setting.conjure")
--- require("user.plug-setting.cmp")
--- require("user.plug-setting.telescope")
--- require("user.plug-setting.pandoc")
--- require("user.plug-setting.treesitter")
--- require("user.plug-setting.whichkey")
--- require("user.plug-setting.toggleterm")
--- require("user.plug-setting.alpha")
--- require("user.plug-setting.comment")
--- require("user.plug-setting.autopairs")
--- require("user.plug-setting.lualine")
--- require("user.plug-setting.bufferline")
--- require("user.plug-setting.impatient")
--- require("user.plug-setting.project")
--- require("user.plug-setting.nvim-tree")
--- require("user.plug-setting.markdown")
--- require("user.plug-setting.colorizer")
--- require("user.plug-setting.calendar")
--- require("user.plug-setting.knap")
--- require("user.plug-setting.autosave")
--- require("user.plug-setting.vim-ipython-cell")
--- require("user.plug-setting.slime")
--- require("user.plug-setting.ranger")
--- require("user.plug-setting.pretty-fold")
--- require("user.plug-setting.gitsigns")
--- require("user.plug-setting.neorg")
--- require("user.plug-setting.vimwiki")
--- require("user.plug-setting.literate")
--- require("user.plug-setting.zen")
--- -- require("user.plug-setting.image")
--- require("user.plug-setting.mind")
--- require("user.plug-setting.julia")
--- require("user.plug-setting.codewindow")
--- -- require("user.julia_tests")
--- require("user.plug-setting.leap")
--- require('hologram').setup{
---    auto_display = true -- WIP automatic markdown image display, may be prone to breaking
---}
+ require("user.plug-setting.catppuccin")
+ require("user.plug-setting.conjure")
+ require("user.plug-setting.cmp")
+ require("user.plug-setting.telescope")
+ require("user.plug-setting.pandoc")
+ require("user.plug-setting.treesitter")
+ require("user.plug-setting.whichkey")
+ require("user.plug-setting.toggleterm")
+ require("user.plug-setting.alpha")
+ require("user.plug-setting.comment")
+ require("user.plug-setting.autopairs")
+ require("user.plug-setting.lualine")
+ require("user.plug-setting.bufferline")
+ require("user.plug-setting.impatient")
+ require("user.plug-setting.scrollbars")
+ require("user.plug-setting.project")
+ require("user.plug-setting.nvim-tree")
+ require("user.plug-setting.markdown")
+ require("user.plug-setting.colorizer")
+ require("user.plug-setting.calendar")
+ require("user.plug-setting.knap")
+ require("user.plug-setting.autosave")
+ require("user.plug-setting.vim-ipython-cell")
+ require("user.plug-setting.slime")
+ require("user.plug-setting.ranger")
+ require("user.plug-setting.pretty-fold")
+ require("user.plug-setting.gitsigns")
+ require("user.plug-setting.neorg")
+ require("user.plug-setting.vimwiki")
+ require("user.plug-setting.literate")
+ require("user.plug-setting.zen")
+ -- require("user.plug-setting.image")
+ require("user.plug-setting.mind")
+ require("user.plug-setting.julia")
+ require("user.plug-setting.codewindow")
+ -- require("user.julia_tests")
+ require("user.plug-setting.leap")
+ require('hologram').setup{
+    auto_display = true -- WIP automatic markdown image display, may be prone to breaking
+}
 
 require'telescope'.setup {
   extensions = {
