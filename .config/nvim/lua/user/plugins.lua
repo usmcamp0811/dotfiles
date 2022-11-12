@@ -374,10 +374,12 @@ return packer.startup(function(use)
   use("nvim-telescope/telescope-symbols.nvim")
   use("nvim-telescope/telescope-media-files.nvim")
 
+  use 'David-Kunz/markid' -- better function syntax higlighting
   -- Treesitter
   use({
     "nvim-treesitter/nvim-treesitter",
     run = ":TSUpdate",
+    markid = { enable = true }
   })
   use({
     "nvim-treesitter/nvim-treesitter-textobjects",
