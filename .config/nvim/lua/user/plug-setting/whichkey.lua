@@ -98,7 +98,8 @@ local mappings = {
     s = { ":MagmaInit<CR>", "Start Jupyter"},
     d = { ":MagmaDeinit<CR>", "Stop Jupyter"},
     o = { ":MagmaShowOutput<CR>", "Show Output" },
-    i = { ":MagmaInterrupt<CR>", "Interrupt Jupyter"}
+    i = { ":MagmaInterrupt<CR>", "Interrupt Jupyter"},
+    ["<CR>"] = { ":MagmaReevaluateCell<CR>", "Run Cell" }
 
 	},
 	["C"] = {

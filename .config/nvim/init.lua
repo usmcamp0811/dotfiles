@@ -51,7 +51,8 @@ require("user.plugins")
 --     auto_display = true -- WIP automatic markdown image display, may be prone to breaking
 -- }
 
-vim.g.magma_image_provider = "ueberzug"
+-- vim.g.magma_image_provider = "ueberzug"
+vim.g.magma_image_provider = "kitty"
 
 require'telescope'.setup {
   extensions = {
