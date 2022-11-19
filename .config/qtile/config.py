@@ -320,7 +320,7 @@ keys = [
     Key([mod], "a", lazy.spawn("rofi -show-icons -show window")),
     Key([mod], "s", lazy.function(stick_win), desc="stick win"),
     Key([mod, "shift"], "s", lazy.function(unstick_win), desc="unstick win"),
-    Key([mod], "z", lazy.layout.swap_main()),
+    Key([mod], "z", lazy.layout.swap_main(), lazy.layout.master_window()),
     Key([mod, "shift"] ,"z", lazy.function(move_to_top), desc="move to top"),
     Key([mod], "r",
              lazy.spawn("ranger"),
@@ -437,6 +437,7 @@ layouts = [
     layout.Stack(num_stacks=2, **layout_theme),
     layout.MonadTall(**layout_theme),
     layout.MonadWide(**layout_theme),
+    layout.MonadThreeCol(**layout_theme),
     layout.RatioTile(**layout_theme),
     layout.Tile(),
     layout.TreeTab(**layout_theme)
