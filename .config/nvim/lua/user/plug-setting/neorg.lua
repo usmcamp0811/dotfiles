@@ -154,6 +154,7 @@ neorg.setup({
     ["core.tangle"] = {},
     ["core.norg.manoeuvre"] = {},
     ["core.export"] = { config = {} },
+    -- ["core.execute"] = {},
     ["core.export.markdown"] = {
       config = {
         extensions = "all",

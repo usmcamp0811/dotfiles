@@ -47,12 +47,13 @@ local function execute(code)
 		-- if its blank we need to send the new line command
 		if to_send == "(blank)" then
 			-- spike: can we use something native and not rely on Slime?
-			slime = ':SlimeSend0 "\\n"'
+			slime = "\n"
 		else
-			slime = ":SlimeSend1 " .. to_send
+			slime = to_send .. "\n"
 		end
 		-- runs the line of code
-		vim.cmd(slime)
+    vim.api.nvim_chan_send(vim.b.slime_config.jobid, slime) 
+		-- vim.cmd(slime)
 	end
 end
 

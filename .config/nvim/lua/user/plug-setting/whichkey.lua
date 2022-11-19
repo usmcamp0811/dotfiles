@@ -94,6 +94,12 @@ local mappings = {
 	c = {
 		name = "Code",
 		x = { "<cmd>lua SlimeXSwitch()<CR>", "Switch Slime to X11" },
+    r = { ":MagmaRestart!<CR>", "Restart Jupyter"},
+    s = { ":MagmaInit<CR>", "Start Jupyter"},
+    d = { ":MagmaDeinit<CR>", "Stop Jupyter"},
+    o = { ":MagmaShowOutput<CR>", "Show Output" },
+    i = { ":MagmaInterrupt<CR>", "Interrupt Jupyter"}
+
 	},
 	["C"] = {
 		name = "Calendar",
@@ -110,7 +116,7 @@ local mappings = {
 		"Find files",
 	},
 	["F"] = { "<cmd>Telescope live_grep theme=ivy<cr>", "Find Text" },
-	["P"] = { "<cmd>lua require('telescope').extensions.projects.projects()<cr>", "Projects" },
+	-- ["P"] = { "<cmd>lua require('telescope').extensions.projects.projects()<cr>", "Projects" },
 	["r"] = { ":Telescope oldfiles <CR>", "Search Recent Files" },
 	w = { "<cmd>cd ~/vimwiki/home | :Telescope live_grep theme=ivy<cr>", "Search Neorg Wiki" },
 }
@@ -160,8 +166,8 @@ local function code_keymap()
 					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.python_job_id}<cr>", "Get Python REPL" },
 				},
 				-- TODO: Figure out how to switch between Slime and Conjure and keep the <leader><CR> for code execution
-				["<CR>"] = { ":IPythonCellExecuteCellVerbose<cr>", "Execute Code Cell <marks>" },
-				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
+				["<CR>"] = { ":MagmaEvaluateLine<CR>", "Execute Code Cell <marks>" },
+				-- ["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
 			}
@@ -170,7 +176,7 @@ local function code_keymap()
 					name = "Code",
 					["<CR>"] = { ":'<,'>ConjureEval<cr>", "Run Code w/ Conjure" },
 				},
-				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
+				["<CR>"] = { ":<C-u>MagmaEvaluateVisual<CR>", "Execute Selected Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 			}
 			-- nnoleader = {
@@ -184,14 +190,37 @@ local function code_keymap()
 					t = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<cr>", "Get Julia REPL" },
 					["<CR>"] = { ":JuliaCellExecuteCell<CR>", "Run w/ Julia Cell / Slime" },
 				},
+        d = {
+          d = {
+            ":call pluto#delete_cell()<CR>", "Delete Pluto Cell"
+          }
+        },
+        y = {
+          y = {
+            ":call pluto#yank_cell()<CR>", "Yank Pluto Cell"
+          }
+        },
+        O = {
+          ":call pluto#insert_cell_above()<CR>", "Insert Pluto Cell Above"
+        },
+        o = {
+          ":call pluto#insert_cell_below()<CR>", "Insert Pluto Cell Below"
+        },
+        P = {
+          ":call pluto#paste_cell_above()<CR>", "Paste Pluto Cell Above"
+        },
+        p = {
+          ":call pluto#paste_cell_below()<CR>", "Paste Pluto Cell Below"
+        },
 
 				-- Slime is almost OBE because ToggleTerm does similr things but I'm keeping it
 				-- because of things like vim julia cell uses it and I like being able to do
 				-- code between marks
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
-				["<CR>"] = { "V :'<,'>ConjureEval<cr>", "Execute Code" },
-				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
-				["<S-CR>"] = { "ggvG :'<,'>SlimeSend<CR>", "Run Whole File" },
+				["<CR>"] = { ":MagmaEvaluateLine<CR>", "Execute Code" },
+				-- ["<CR>"] = { ":ConjureEvalCurrentForm<CR>", "Execute Code" },
+				-- ["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
+				["<S-CR>"] = { "ggvG :<C-u>MagmaEvaluateVisual<CR>", "Run Whole File" },
 			}
 			vcodemap = {
 				c = {
@@ -199,7 +228,7 @@ local function code_keymap()
 					["<CR>"] = { ":'<,'>SlimeSend<CR>", "Run w/ Slime" },
 				},
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
-				["<CR>"] = { ":'<,'>ConjureEval<cr>", "Run Code w/ Conjure" },
+				["<CR>"] = { ":<C-u>MagmaEvaluateVisual<CR>", "Run Code w/ Conjure" },
 			}
 			-- nnoleader = {
 			-- 	["J"] = { ":JuliaCellNextCell<cr>", "Execute Line of Code" },
@@ -262,17 +291,18 @@ local function code_keymap()
 				},
 			}
 			ncodemap = {
-				-- ["<CR>"] = { ":SlimeSendCurrentLine<cr>", "Execute Code" },
+				["<CR>"] = { ":MagmaEvaluateLine<CR>", "Execute Code" },
 				-- ["<CR>"] = {
 				-- 	":Neorg keybind all core.looking-glass.magnify-code-block<CR>",
 				-- 	"Execute Code?",
 				-- },
 				["<CR>"] = {
 					-- ":normal S@c 1j V s@e 1k<CR>:'<,'>SlimeSend<CR>",
-					"<cmd>lua run_code_block()<cr>",
+					-- "<cmd>lua run_code_block()<cr>",
+          ":MagmaEvaluateLine<CR>",
 					"Execute Code?",
 				},
-				["\\"] = { ":SlimeSendCurrentLine<cr>", "Execute Line of Code" },
+				["\\"] = { ":MagmaEvaluateLine<CR>", "Execute Line of Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				n = {
 					name = "Neorg",
@@ -295,7 +325,7 @@ local function code_keymap()
 				},
 			}
 			vcodemap = {
-				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
+				["<CR>"] = { ":<C-u>MagmaEvaluateVisual<CR>", "Execute Selected Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 			}
 		elseif ft == "markdown" then
