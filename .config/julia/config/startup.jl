@@ -73,7 +73,10 @@ catch
     @warn "error while importing RemoteREPL"
 end
 
+# @async serve_repl()
+
 schedule(@task begin
     sleep(0.1)
     OhMyREPL.__init__()
 end)
+

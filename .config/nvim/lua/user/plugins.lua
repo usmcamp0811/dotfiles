@@ -113,8 +113,17 @@ return packer.startup(function(use)
   -- use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
   use("metakirby5/codi.vim")
   -- use({ "/home/mcamp/code/conjure", branch = "develop" })
-  use({ "https://github.com/usmcamp0811/conjure.git", branch = "develop" })
-  -- use({ "Olical/conjure" })
+  -- use({ "https://github.com/usmcamp0811/conjure.git", branch = "develop" })
+  -- use({ "Olical/conjure" , commit= "2ef87b5ee68ccde4fc12931060bfa9b4b765f0cf" })
+
+  use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
+
+  use({ "Olical/conjure" })
+  use({ "hasundue/vim-pluto",
+    requires = { "vim-denops/denops.vim" },
+  })
+  use({ "PaterJason/cmp-conjure" })
+  -- use({ "michaelb/sniprun", run = "bash ./install.sh"})
   -- use({ "Grazfather/conjure", branch = "which-key-descs" })
   use("Olical/aniseed")
   use("radenling/vim-dispatch-neovim")
@@ -172,10 +181,12 @@ return packer.startup(function(use)
 
   use({
     "nvim-neorg/neorg",
+    -- "tamton-aquib/neorg",
     -- tag = "0.0.12",
     run = ":Neorg sync-parsers",
     -- ft = "norg",
     branch = "main",
+    -- branch = "code-execution",
     -- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
     config = function()
       require("user.plug-setting.neorg")

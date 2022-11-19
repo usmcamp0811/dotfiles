@@ -111,6 +111,7 @@ cmp.setup({
   sources = {
     { name = "nvim_lsp" },
     { name = "luasnip" },
+    { name = "conjure" },
     { name = "neorg" },
     { name = "dynamic" },
     { name = "latex_symbols" },

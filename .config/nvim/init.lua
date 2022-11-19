@@ -5,7 +5,6 @@ require("user.options")
 require("user.keymaps")
 require("user.lsp")
 require("user.autocommands")
-
 -- Plugins
 require("user.plugins")
 
@@ -48,9 +47,11 @@ require("user.plugins")
  require("user.plug-setting.codewindow")
  -- require("user.julia_tests")
  require("user.plug-setting.leap")
- require('hologram').setup{
-    auto_display = true -- WIP automatic markdown image display, may be prone to breaking
-}
+--  require('hologram').setup{
+--     auto_display = true -- WIP automatic markdown image display, may be prone to breaking
+-- }
+
+vim.g.magma_image_provider = "ueberzug"
 
 require'telescope'.setup {
   extensions = {
@@ -122,4 +123,10 @@ vim.cmd([[
   " highligh default success guifg=green
   " highligh default fail guifg=red
 ]])
+
+local myluafun = function() require("nabla").enable_virt() end
+vim.api.nvim_create_autocmd({"BufEnter"}, {
+  pattern = "*",
+  callback = myluafun
+})
 
