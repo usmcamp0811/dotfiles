@@ -41,6 +41,7 @@ require("user.plugins")
  require("user.plug-setting.vimwiki")
  require("user.plug-setting.literate")
  require("user.plug-setting.zen")
+ require("user.plug-setting.navic")
  -- require("user.plug-setting.image")
  require("user.plug-setting.mind")
  require("user.plug-setting.julia")
@@ -53,6 +54,7 @@ require("user.plugins")
 
 -- vim.g.magma_image_provider = "ueberzug"
 vim.g.magma_image_provider = "kitty"
+vim.cmd("let g:magma_automatically_open_output = v:false")
 
 require'telescope'.setup {
   extensions = {
@@ -130,4 +132,7 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
   pattern = "*",
   callback = myluafun
 })
+
+
+
 

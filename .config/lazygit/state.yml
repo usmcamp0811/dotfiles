@@ -1,5 +1,6 @@
 lastupdatecheck: 0
 recentrepos:
+- /home/mcamp/code/magma-nvim
 - /home/mcamp/.config/julia/dev/Norg
 - /home/mcamp/code/why-pluto
 - /home/mcamp/code/conjure
@@ -7,7 +8,6 @@ recentrepos:
 - /home/mcamp/vimwiki
 - /home/mcamp/code/level-up
 - /home/mcamp/Documents/jobs/Resume
-- /home/mcamp
 startuppopupversion: 5
 customcommandshistory:
 - q

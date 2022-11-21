@@ -62,8 +62,8 @@ which_key.register({
 	["<C-Left>"] = { ":vertical -2<CR>", "Decrease Current Window Size Horizontally" },
 	["<C-Right>"] = { ":vertical +2<CR>", "Increase Current Window Size Vertically" },
 	-- Scroll 5 rows at a time
-	["<S-j>"] = { "5<C-e>", "Scroll down 5 rows at a time" },
-	["<S-k>"] = { "5<C-y>", "Scroll up 5 rows at a time" },
+	["<S-D>"] = { "5<C-e>", "Scroll down 5 rows at a time" },
+	["<S-E>"] = { "5<C-y>", "Scroll up 5 rows at a time" },
 	T = { ":r! date +'- \\%H:\\%M - '<CR>A", "Insert Current Time" },
 	["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Charactes" },
 })

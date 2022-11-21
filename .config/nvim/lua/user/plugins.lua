@@ -116,8 +116,12 @@ return packer.startup(function(use)
   -- use({ "https://github.com/usmcamp0811/conjure.git", branch = "develop" })
   -- use({ "Olical/conjure" , commit= "2ef87b5ee68ccde4fc12931060bfa9b4b765f0cf" })
 
-  use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
-
+  -- use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
+  use { '/home/mcamp/code/magma-nvim', run = ':UpdateRemotePlugins' }
+  use {
+      "SmiteshP/nvim-navic",
+      requires = "neovim/nvim-lspconfig"
+  }
   use({ "Olical/conjure" })
   use({ "hasundue/vim-pluto",
     requires = { "vim-denops/denops.vim" },

@@ -52,7 +52,7 @@ local function execute(code)
 			slime = to_send .. "\n"
 		end
 		-- runs the line of code
-    vim.api.nvim_chan_send(vim.b.slime_config.jobid, slime) 
+    -- vim.api.nvim_chan_send(vim.b.slime_config.jobid, slime) 
 		-- vim.cmd(slime)
 	end
 end
