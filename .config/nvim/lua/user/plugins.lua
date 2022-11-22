@@ -167,6 +167,7 @@ return packer.startup(function(use)
   use("lalitmee/cobalt2.nvim")
   use("konosubakonoakua/synthwave84.nvim")
   use("Shatur/neovim-ayu")
+  use("ellisonleao/gruvbox.nvim")
   use({
     "catppuccin/nvim",
     as = "catppuccin",
