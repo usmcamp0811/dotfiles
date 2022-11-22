@@ -9,7 +9,8 @@ require("user.autocommands")
 require("user.plugins")
 
 -- Plugin Configurations
- require("user.plug-setting.catppuccin")
+ -- require("user.plug-setting.catppuccin")
+ require("user.plug-setting.ayu")
  require("user.plug-setting.conjure")
  require("user.plug-setting.cmp")
  require("user.plug-setting.telescope")
@@ -132,7 +133,4 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
   pattern = "*",
   callback = myluafun
 })
-
-
-
 

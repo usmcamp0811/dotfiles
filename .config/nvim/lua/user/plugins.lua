@@ -117,7 +117,7 @@ return packer.startup(function(use)
   -- use({ "Olical/conjure" , commit= "2ef87b5ee68ccde4fc12931060bfa9b4b765f0cf" })
 
   -- use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
-  use { '/home/mcamp/code/magma-nvim', run = ':UpdateRemotePlugins' }
+  use { 'usmcamp0811/magma-nvim', run = ':UpdateRemotePlugins' }
   use {
       "SmiteshP/nvim-navic",
       requires = "neovim/nvim-lspconfig"
@@ -166,6 +166,7 @@ return packer.startup(function(use)
   use("humanoid-colors/vim-humanoid-colorscheme")
   use("lalitmee/cobalt2.nvim")
   use("konosubakonoakua/synthwave84.nvim")
+  use("Shatur/neovim-ayu")
   use({
     "catppuccin/nvim",
     as = "catppuccin",
