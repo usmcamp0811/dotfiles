@@ -286,6 +286,9 @@ local function code_keymap()
 				["<CR>"] = { ":'<,'>SlimeSend<CR>", "Execute Selected Code" },
 			}
 		elseif ft == "norg" then
+      vnoleader = {
+        ["<CR>"] = { ":<C-u>MagmaEvaluateVisual<CR>", "Execute Selected Code" },
+      }
 			nnoleader = {
 				-- ["<CR>"] = {
 				-- 	":Neorg keybind all core.looking-glass.magnify-code-block<CR>",
@@ -298,12 +301,12 @@ local function code_keymap()
 				-- 	":Neorg keybind all core.looking-glass.magnify-code-block<CR>",
 				-- 	"Execute Code?",
 				-- },
-				["<CR>"] = {
-					-- ":normal S@c 1j V s@e 1k<CR>:'<,'>SlimeSend<CR>",
-					-- "<cmd>lua run_code_block()<cr>",
-          ":MagmaEvaluateLine<CR>",
-					"Execute Code?",
-				},
+				-- ["<CR>"] = {
+				-- 	-- ":normal S@c 1j V s@e 1k<CR>:'<,'>SlimeSend<CR>",
+				-- 	-- "<cmd>lua run_code_block()<cr>",
+    --       ":MagmaEvaluateLine<CR>",
+				-- 	"Execute Code?",
+				-- },
 				["\\"] = { ":MagmaEvaluateLine<CR>", "Execute Line of Code" },
 				["?"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", "LSP Hover Definition" },
 				n = {
@@ -401,6 +404,7 @@ local function code_keymap()
 				{ mode = "v", silent = true, noremap = true, buffer = bufnr, prefix = "<leader>" }
 			)
 			which_key.register(nnoleader, { mode = "n", silent = true, noremap = true, buffer = bufnr })
+      which_key.register(vnoleader, { mode = "v", silent = true, noremap = true, buffer = bufnr })
 		end
 	end
 end

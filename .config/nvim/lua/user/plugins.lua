@@ -66,7 +66,6 @@ return packer.startup(function(use)
   use("nvim-lua/plenary.nvim") -- Useful lua functions used ny lots of plugins
   use("lewis6991/impatient.nvim") -- suppose to speed up lua load times
 
-  -- use 'vim-pandoc/vim-pandoc' -- this is not needed treesitter or something has got the filetypes
   use("vim-pandoc/vim-pandoc-syntax")
   use({
     "chentoast/marks.nvim",
@@ -75,12 +74,10 @@ return packer.startup(function(use)
     end,
   })
 
-  -- use "kshenoy/vim-signature"
   use("ahmedkhalf/project.nvim")
   use("kyazdani42/nvim-tree.lua")
   use("vimwiki/vimwiki")
 
-  -- use "renerocksai/telekasten.nvim" -- not quite ready to replace vimwiki
   use("mzlogin/vim-markdown-toc")
   use("itchyny/calendar.vim")
   use {'edluffy/hologram.nvim'}
@@ -99,10 +96,6 @@ return packer.startup(function(use)
       })
     end,
   })
-  -- Notebook like functions / REPL
-  -- use("JuliaEditorSupport/julia-vim")
-  -- use({ "ExpandingMan/julia-vim", branch = "emfix1" })
-  -- use("kdheepak/JuliaFormatter.vim")
   use({"https://gitlab.com/usmcamp0811/nvim-julia-autotest",
     config = function()
       require("julia-autotest").setup()
@@ -110,11 +103,7 @@ return packer.startup(function(use)
   })
   use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
   use({ "hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" } })
-  -- use({ "mroavi/vim-julia-cell", ft = { "julia", "jl" } })
   use("metakirby5/codi.vim")
-  -- use({ "/home/mcamp/code/conjure", branch = "develop" })
-  -- use({ "https://github.com/usmcamp0811/conjure.git", branch = "develop" })
-  -- use({ "Olical/conjure" , commit= "2ef87b5ee68ccde4fc12931060bfa9b4b765f0cf" })
 
   -- use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
   use { 'usmcamp0811/magma-nvim', run = ':UpdateRemotePlugins' }
@@ -128,7 +117,6 @@ return packer.startup(function(use)
   })
   use({ "PaterJason/cmp-conjure" })
   -- use({ "michaelb/sniprun", run = "bash ./install.sh"})
-  -- use({ "Grazfather/conjure", branch = "which-key-descs" })
   use("Olical/aniseed")
   use("radenling/vim-dispatch-neovim")
   use("clojure-vim/vim-jack-in")
@@ -147,6 +135,10 @@ return packer.startup(function(use)
     "ggandor/flit.nvim",
     requires = { "ggandor/leap.nvim" }
   })
+  -- use({ 
+  --   "ggandor/leap-spooky.nvim",
+  --   requires = { "ggandor/leap.nvim" }
+  -- })
   use("https://github.com/JoosepAlviste/nvim-ts-context-commentstring.git")
   use("akinsho/toggleterm.nvim")
   use("folke/which-key.nvim")
