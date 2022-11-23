@@ -1,7 +1,0 @@
-[user]
-	name = Matt Camp
-	email = gitlab@aicampground.com
-[core]
-	editor = nvim
-[alias]
-	track-all-branches = "!git fetch --all && for remote in `git branch -r`; do git branch --track ${remote#origin/} $remote; done && git fetch --all"
