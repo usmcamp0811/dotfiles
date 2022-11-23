@@ -124,4 +124,5 @@ api.nvim_command("hi StatusCursor " .. set_colors(colors.accent, colors.bg))
 api.nvim_command("hi WhichKeyFloat " .. set_colors(colors.accent, colors.bg))
 api.nvim_command("hi SessionName " .. set_colors(colors.string, colors.bg))
 api.nvim_command("hi WildMenu guifg=#0A0E14 guibg=#f07178")
-
+api.nvim_command("hi WildMenu guifg=#0A0E14 guibg=#f07178")
+api.nvim_command("hi @neorg.tags.ranged_verbatim.code_block guibg=#171717")
