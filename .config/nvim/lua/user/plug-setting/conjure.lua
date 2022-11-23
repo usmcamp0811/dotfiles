@@ -31,7 +31,8 @@ local function make_conjure_command()
     root = "--project=" .. root
 	end
 	-- vim.g["conjure#client#julia#stdio#command"] = "julia --banner=no --color=no --project=" .. root
-	vim.g["conjure#client#julia#stdio#command"] = "julia -i ".. root
+	-- vim.g["conjure#client#julia#stdio#command"] = "julia -i ".. root
+	vim.g["conjure#client#julia#stdio#command"] = "jupyter console --kernel julia-1.8 -f /tmp/julia.json"
 end
 
 -- vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
@@ -43,8 +44,8 @@ end
 -- this seems to need something in it or things break when opening lua files
 -- vim.g["conjure#filetypes"] = { "fennel", "clojure" }
 vim.g["conjure#filetypes"] = { "fennel", "clojure", "julia", "jl", "python", "py", "norg" }
-vim.g["conjure#mapping#doc_word"] = { "?" }
--- vim.g["conjure#client#julia#stdio#prompt_pattern"] = { ";\n"}
+-- vim.g["conjure#mapping#doc_word"] = { "?" }
+-- vim.g["conjure#client#julia#stdio#prompt_pattern"] = { "In [1]:"}
 
 -- n ,ecw  {":ConjureEvalCommentWord<CR>:silent! call repeat#set(",ecw", 1)<CR>", ""},
 -- n ,ece  {":ConjureEvalCommentCurrentForm<CR>:silent! call repeat#set(",ece", 1)<CR>", ""},
