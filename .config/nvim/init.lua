@@ -135,3 +135,4 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
   callback = myluafun
 })
 
+vim.g.sexp_enable_insert_mode_mappings = 0

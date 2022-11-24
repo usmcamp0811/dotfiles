@@ -187,15 +187,6 @@ require("cmp_dynamic").setup({
     },
   },
   {
-    label = "code block neorg",
-    insertText = 1,
-    cb = {
-      function()
-        return "@code {lang}\n@end"
-      end,
-    },
-  },
-  {
     label = "next Monday",
     insertText = 1,
     cb = {
@@ -208,4 +199,4 @@ require("cmp_dynamic").setup({
 })
 
 
-require("luasnip.loaders.from_lua").load({paths = "/home/mcamp/.config/nvim/lua/user/snippets"})
+-- require("luasnip.loaders.from_lua").load({paths = "/home/mcamp/.config/nvim/lua/user/snippets"})

@@ -7,7 +7,7 @@ local Rule = require('nvim-autopairs.rule')
 
 
 npairs.setup({
-	check_ts = true,
+	check_ts = false,
 	ts_config = {
 		lua = { "string", "source" },
 		javascript = { "string", "template_string" },
