@@ -27,3 +27,4 @@ rogauracore blue
 
 #hide the mouse 
 # xbanish &
+optimus-manager-qt &

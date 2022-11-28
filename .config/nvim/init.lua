@@ -7,6 +7,7 @@ require("user.lsp")
 require("user.autocommands")
 -- Plugins
 require("user.plugins")
+require("user.snippets")
 
 -- Plugin Configurations
  -- require("user.plug-setting.catppuccin")

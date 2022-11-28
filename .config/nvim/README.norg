@@ -1,0 +1,245 @@
+* Matt's Neovim Config
+
+  This is an attempt to refactor and clean up my config, as well as an attempt to make it more literate. 
+  I am originally writing this in {https://github.com/nvim-neorg/neorg}[Neorg] using the `#tangle` module. Eventually I plan to better learn Fennel and convert everything, but until then this is a pure Lua config.
+
+
+** Base Settings
+
+   These are all the non-plugin Neovim settings. I generally try to keep this part clean of
+   things that need plugins to be installed. 
+
+*** Options
+
+    In order to minimize verbosity of things I am throwing all the options into a single Lua 
+    table.
+
+    #tangle ~/.config/nvim/lua/user/options.lua
+    @code lua
+    local options = {
+
+      foldmethod = "syntax",
+      directory = vim.fn.stdpath("config") .. "/swaps",
+      backupdir = vim.fn.stdpath("config") .. "/backups",
+      undodir = vim.fn.stdpath("config") .. "/undo",
+      completeopt = { "menuone", "noselect" }, -- mostly just for cmp
+      termguicolors = true,
+      clipboard = "unnamedplus",
+      autoindent = true,
+      diffopt = "filler",
+      cursorline = true,
+      mouse = "a", -- enable mouse in all modes
+      wrap = true, -- don't wrp lines
+      magic = true, -- Enable extended regex commands
+      joinspaces = false, -- Only insert single space after a '.', '?' and '!' with a join command
+      showmode = false, -- Going to use airline.vim to handle this for us
+      startofline = false, -- Don't reset cursor to the start of the line when moving around
+      ruler = true, -- Show current position
+      nu = true, -- enable line numbers
+      shell = "/bin/zsh",
+      splitbelow = true, -- New windows go below
+      splitright = true, -- New windows go right
+      title = true, -- Show the filename in the window titlebar
+      undofile = true, -- Persistent Undo
+      wildmenu = true, -- Hitting TAB in command mode will show possible completion above command line
+      wrapscan = true, -- Searches wrap around end of file
+      encoding = "utf-8", -- nobomb
+      fileencoding = "utf-8",
+      -- vim.o.guioptions = 'a' -- copy on select... requires gvim
+      shortmess = "atI", -- Don't show the intro message when starting vim
+      showtabline = 2, -- Always show tab bar
+      sidescrolloff = 3, -- Start scrolling three columns before vertical border of window
+      smartcase = true, -- Ignore 'ignorecase' if search patter contains uppercase characters
+      smarttab = true, -- At start of line, <Tab> inserts shiftwidth spaces, <Bs> deletes shiftwidth spaces
+      scrolloff = 3, -- Start scrolling three lines before horizontal border of window
+      lazyredraw = true, -- Don't redraw when we don't have to
+      laststatus = 2, -- Always show status line
+      spell = true, -- turns on spell check
+      relativenumber = true, -- Use relative line numbers. Current line is still in status bar.
+      wildignore = {
+        ".DS_Store",
+        "*.jpg",
+        "*.jpeg",
+        "*.gif",
+        "*.png",
+        "*.gif",
+        "*.psd",
+        "*.o",
+        "*.obj",
+        "*.min.js",
+        "*/bower_components/*",
+        "*/node_modules/*",
+        "*/smarty/*",
+        "*/vendor/*",
+        "*/.git/*",
+        "*/.hg/*",
+        "*/.svn/*",
+        "*/.sass-cache/*",
+        "*/log/*",
+        "*/tmp/*",
+        "*/build/*",
+        "*/ckeditor/*",
+        "*/doc/*",
+        "*/source_maps/*",
+        "*/dist/*",
+      },
+      wildmode = "longest,list,full",
+      laststatus = 3
+    }
+    @end
+
+** LSP
+
+   My LSP config is a little bastardized as I have borrowed from others and I have had to learn things 
+   along the way. This first `if` statement is suppose to be here to keep things from breaking should
+   we not have `lspconfig` installed.
+
+   #tanglee ~/.config/nvim/lua/user/lsp/init.lua
+   @code lua
+   local status_ok, _ = pcall(require, "lspconfig")
+   if not status_ok then
+     return
+   end
+   @end
+   In an attempt to keep things organized, I broke the config down in to multiple sections and just 
+   import them into a single `init.lua`.
+
+   #tanglee ~/.config/nvim/lua/user/lsp/init.lua
+   @code lua
+   require("user.lsp.configs")
+   require("user.lsp.handlers").setup()
+   require("user.lsp.null-ls")
+   require("user.lsp.mason")
+   @end
+
+*** Configs
+
+    #tangle ~/.config/nvim/lua/user/lsp/configs.lua
+    @code lua
+    local status_ok, lsp_installer = pcall(require, "mason")
+    if not status_ok then
+      return
+    end
+
+    local lspconfig = require("lspconfig")
+
+    local servers = { "jsonls", "sumneko_lua", "pyright", "yamlls", "julials", "texlab", "dockerls", "clojure_lsp" }
+
+    lsp_installer.setup({
+      ensure_installed = servers,
+    })
+
+    for _, server in pairs(servers) do
+      local opts = {
+        on_attach = require("user.lsp.handlers").on_attach,
+        capabilities = require("user.lsp.handlers").capabilities,
+      }
+      local has_custom_opts, server_custom_opts = pcall(require, "user.lsp.settings." .. server)
+      if has_custom_opts then
+        opts = vim.tbl_deep_extend("force", opts, server_custom_opts)
+      end
+      lspconfig[server].setup(opts)
+    end
+
+    @end
+
+*** Handlers
+
+    To be honest I don't have a good explanation of what the Handlers are... 
+
+    @code lua
+    local HANDLERS = {}
+    local navic = require("nvim-navic")
+    -- TODO: backfill this to template
+    HANDLERS.setup = function()
+      local signs = {
+        { name = "DiagnosticSignError", text = "" },
+        { name = "DiagnosticSignWarn", text = "" },
+        { name = "DiagnosticSignHint", text = "" },
+        { name = "DiagnosticSignInfo", text = "" },
+      }
+
+      for _, sign in ipairs(signs) do
+        vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
+      end
+
+      local config = {
+        virtual_text = false,
+        -- show signs
+        signs = {
+          active = signs,
+        },
+        update_in_insert = true,
+        underline = true,
+        severity_sort = true,
+        float = {
+          focusable = false,
+          style = "minimal",
+          border = "rounded",
+          source = "always",
+          header = "",
+          prefix = "",
+        },
+      }
+
+      vim.diagnostic.config(config)
+
+      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+        border = "rounded",
+        width = 60,
+      })
+
+      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+        border = "rounded",
+        width = 60,
+      })
+      vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+        config.virtual_text,
+      })
+    end
+
+    local function lsp_highlight_document(client)
+      -- Set autocommands conditional on server_capabilities
+      local status_ok, illuminate = pcall(require, "illuminate")
+      if not status_ok then
+        return
+      end
+
+      illuminate.on_attach(client)
+      -- end
+    end
+
+    HANDLERS.on_attach = function(client, bufnr)
+      -- client.resolved_capabilities.document_range_formatting = false
+      -- client.resolved_capabilities.document_formatting = false
+      vim.notify(client.name .. " starting...")
+      -- TODO: refactor this into a method that checks if string in list
+      if client.name == "tsserver" then
+      end
+      lsp_keymaps(bufnr)
+      lsp_highlight_document(client)
+      if client.server_capabilities.documentSymbolProvider then
+          navic.attach(client, bufnr)
+      end
+    end
+
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+
+    local status_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+    if not status_ok then
+      return
+    end
+
+    HANDLERS.capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+
+    return HANDLERS
+
+    @end
+
+*** Null-LS
+
+*** Mason
+
+** Plugins
+
+** Key Maps
