@@ -16,15 +16,16 @@ nm-applet &
 ckb-next-daemon &
 ckb-next -b &
 blueman-applet &
+optimus-manager-qt &
 dunst &
 # xinput set-button-map 18 1 0 3 &
 
 [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33
 
+export GDK_SCALE=1.4
 # autorandr -c
 rogauracore blue
 # See https://wiki.archli
 
 #hide the mouse 
 # xbanish &
-optimus-manager-qt &
