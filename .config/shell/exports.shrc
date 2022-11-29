@@ -30,9 +30,9 @@ export PATH=$HOME/.config/npm/bin/:$PATH
 export XSOCK=/tmp/.X11-unix/X0
 
 #docker socker
+export XDG_CONFIG_HOME="$HOME/.config"
 export DOCKER=/var/run/docker.sock
 export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
-export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
