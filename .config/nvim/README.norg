@@ -94,7 +94,7 @@
    along the way. This first `if` statement is suppose to be here to keep things from breaking should
    we not have `lspconfig` installed.
 
-   #tanglee ~/.config/nvim/lua/user/lsp/init.lua
+   #tangle ~/.config/nvim/lua/user/lsp/init.lua
    @code lua
    local status_ok, _ = pcall(require, "lspconfig")
    if not status_ok then
@@ -105,7 +105,7 @@
    In an attempt to keep things organized, I broke the config down in to multiple sections and just 
    import them into a single `init.lua`.
 
-   #tanglee ~/.config/nvim/lua/user/lsp/init.lua
+   #tangle ~/.config/nvim/lua/user/lsp/init.lua
    @code lua
    require("user.lsp.configs")
    require("user.lsp.handlers").setup()
@@ -423,79 +423,170 @@
 
 *** Packer Setup
 
-   @code lua 
-   local fn = vim.fn
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    local fn = vim.fn
 
-   -- Automatically install packer
-   local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
-   if fn.empty(fn.glob(install_path)) > 0 then
-     PACKER_BOOTSTRAP = fn.system({
-       "git",
-       "clone",
-       "--depth",
-       "1",
-       "https://github.com/wbthomason/packer.nvim",
-       install_path,
-     })
-     print("Installing packer close and reopen Neovim...")
-     vim.cmd([[packadd packer.nvim]])
-   end
+    -- Automatically install packer
+    local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
+    if fn.empty(fn.glob(install_path)) > 0 then
+      PACKER_BOOTSTRAP = fn.system({
+        "git",
+        "clone",
+        "--depth",
+        "1",
+        "https://github.com/wbthomason/packer.nvim",
+        install_path,
+      })
+      print("Installing packer close and reopen Neovim...")
+      vim.cmd([[packadd packer.nvim]])
+    end
 
-   -- Autocommand that reloads neovim whenever you save the plugins.lua file
-   vim.cmd([[
+    -- Autocommand that reloads neovim whenever you save the plugins.lua file
+    vim.cmd([[
   augroup packer_user_config
     autocmd!
     autocmd BufWritePost plugins.lua source <afile> | PackerSync
   augroup end
 ]])
 
-   -- Use a protected call so we don't error out on first use
-   local status_ok, packer = pcall(require, "packer")
-   if not status_ok then
-     vim.notify("shit broke")
-     return
-   end
+    -- Use a protected call so we don't error out on first use
+    local status_ok, packer = pcall(require, "packer")
+    if not status_ok then
+      vim.notify("shit broke")
+      return
+    end
 
-   packer.init({
-     display = {
-       open_fn = function()
-         return require("packer.util").float({ border = "rounded" })
-       end,
-     },
-   })
+    packer.init({
+      display = {
+        open_fn = function()
+          return require("packer.util").float({ border = "rounded" })
+        end,
+      },
+    })
 
-   return packer.startup(function(use)
-   @end
-
-*** Basic Plugins
-
-    @code lua 
-    -- Basic stuff needed
+    return packer.startup(function(use)
     use("wbthomason/packer.nvim") -- Have packer manage itself
+    @end
+
+*** Lua Utility Plugins
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
     use("nvim-lua/popup.nvim") -- An implementation of the Popup API from vim in Neovim
     use("nvim-lua/plenary.nvim") -- Useful lua functions used ny lots of plugins
     use("lewis6991/impatient.nvim") -- suppose to speed up lua load times
+    @end
 
-    use("vim-pandoc/vim-pandoc-syntax")
+*** Vim Feature Improvement Plugins
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    use("kyazdani42/nvim-tree.lua")
     use({
       "chentoast/marks.nvim",
       config = function()
         require("user.plug-setting.marks")
       end,
     })
+    @end
 
+*** Note taking & Organizational Plugins
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua
     use("ahmedkhalf/project.nvim")
-    use("kyazdani42/nvim-tree.lua")
     use("vimwiki/vimwiki")
-
     use("mzlogin/vim-markdown-toc")
     use("itchyny/calendar.vim")
     use({ "edluffy/hologram.nvim" })
     use("gioele/vim-autoswap")
+    use({
+      "nvim-neorg/neorg",
+      -- "tamton-aquib/neorg",
+      -- tag = "0.0.12",
+      run = ":Neorg sync-parsers",
+      -- ft = "norg",
+      branch = "main",
+      -- branch = "code-execution",
+      -- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
+      config = function()
+        require("user.plug-setting.neorg")
+        -- vim.cmd "NeorgStart silent=true"
+      end,
+      -- cmd = { 'Neorg' },
+      requires = {
+        "nvim-lua/plenary.nvim",
+        "nvim-neorg/neorg-telescope",
+        "esquires/neorg-gtd-project-tags",
+        "danymat/neorg-gtd-things",
+        "max397574/neorg-contexts",
+        "max397574/neorg-kanban",
+        "folke/zen-mode.nvim",
+        "Pocco81/TrueZen.nvim",
+      },
+    })
+
+    use("davidgranstrom/nvim-markdown-preview")
+    use("chrisbra/csv.vim")
+    use("phaazon/mind.nvim")
     @end
+
+*** Coding Plugins
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
+    use({ "usmcamp0811/magma-nvim", run = ":UpdateRemotePlugins", branch = "fix-output" })
+    use("Olical/aniseed")
+    use("clojure-vim/vim-jack-in")
+    use("lervag/vimtex") -- for writing latex
+    use({ "Olical/conjure" })
+    use({ "hasundue/vim-pluto", requires = { "vim-denops/denops.vim" } })
+    use("ii14/neorepl.nvim")
+
+    use("aklt/plantuml-syntax")
+    use("lukas-reineke/indent-blankline.nvim")
+    @end
+
+
+*** Treesitter & LSP
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    use({
+      "nvim-treesitter/nvim-treesitter",
+      run = ":TSUpdate",
+      markid = { enable = true },
+    })
+    use({
+      "nvim-treesitter/nvim-treesitter-textobjects",
+      run = ":TSUpdate",
+    })
+    use({
+      "RRethy/nvim-treesitter-textsubjects",
+    })
+    use("nvim-treesitter/playground")
+    @end
+
+*** Telescope
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+
+    @end
+
+*** Auto Completion / Suggestions
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+
+    @end
+
 
 *** Some other Group
 
+    #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua 
     use({
       "chipsenkbeil/distant.nvim",
@@ -516,9 +607,6 @@
         require("julia-autotest").setup()
       end,
     })
-    use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
-    use({ "hanschen/vim-ipython-cell", ft = { "python", "julia", "markdown.pandoc" } })
-    use("metakirby5/codi.vim")
     use({
       "gen740/SmoothCursor.nvim",
       config = function()
@@ -554,25 +642,19 @@
       end,
     })
     -- use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
-    use({ "usmcamp0811/magma-nvim", run = ":UpdateRemotePlugins", branch = "fix-output" })
     use({
       "SmiteshP/nvim-navic",
       requires = "neovim/nvim-lspconfig",
     })
-    use({ "Olical/conjure" })
-    use({ "hasundue/vim-pluto", requires = { "vim-denops/denops.vim" } })
     use({ "PaterJason/cmp-conjure" })
     -- use({ "michaelb/sniprun", run = "bash ./install.sh"})
-    use("Olical/aniseed")
     use("radenling/vim-dispatch-neovim")
-    use("clojure-vim/vim-jack-in")
     use("tpope/vim-dispatch")
     use("guns/vim-sexp")
     use("tpope/vim-sexp-mappings-for-regular-people")
     use("Eandrju/cellular-automaton.nvim")
 
     use("godlygeek/tabular")
-    use("lervag/vimtex") -- for writing latex
     use("lambdalisue/suda.vim") -- runs `sudo` when needed
 
     -- random plugins
@@ -602,24 +684,9 @@
       "weirongxu/plantuml-previewer.vim",
       requires = { { "tyru/open-browser.vim", opt = false }, { "aklt/plantuml-syntax", opt = false } },
     })
-    use("aklt/plantuml-syntax")
-    use("bluz71/vim-nightfly-guicolors")
-    use("bluz71/vim-moonfly-colors")
-    use("folke/lsp-colors.nvim")
-    use("humanoid-colors/vim-humanoid-colorscheme")
-    use("lalitmee/cobalt2.nvim")
-    use("konosubakonoakua/synthwave84.nvim")
-    use("Shatur/neovim-ayu")
-    use("ellisonleao/gruvbox.nvim")
-    use({
-      "catppuccin/nvim",
-      as = "catppuccin",
-      run = ":CatppuccinCompile",
-    })
     use("p00f/nvim-ts-rainbow")
     use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim" })
     use("samjwill/nvim-unception")
-    use("ii14/neorepl.nvim")
     use({
       "narutoxy/silicon.lua",
       requires = { "nvim-lua/plenary.nvim" },
@@ -628,46 +695,16 @@
       end,
     })
 
-    use({
-      "nvim-neorg/neorg",
-      -- "tamton-aquib/neorg",
-      -- tag = "0.0.12",
-      run = ":Neorg sync-parsers",
-      -- ft = "norg",
-      branch = "main",
-      -- branch = "code-execution",
-      -- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
-      config = function()
-        require("user.plug-setting.neorg")
-        -- vim.cmd "NeorgStart silent=true"
-      end,
-      -- cmd = { 'Neorg' },
-      requires = {
-        "nvim-lua/plenary.nvim",
-        "nvim-neorg/neorg-telescope",
-        "esquires/neorg-gtd-project-tags",
-        "danymat/neorg-gtd-things",
-        "max397574/neorg-contexts",
-        "max397574/neorg-kanban",
-        "folke/zen-mode.nvim",
-        "Pocco81/TrueZen.nvim",
-      },
-    })
+
 
     -- UI
     use({
       "nvim-lualine/lualine.nvim",
       requires = { "kyazdani42/nvim-web-devicons", opt = true },
     })
-    use("lukas-reineke/indent-blankline.nvim")
     use("norcalli/nvim-colorizer.lua")
     use("dhruvasagar/vim-table-mode")
-    use("lunarvim/darkplus.nvim")
-    use("joshdick/onedark.vim")
-    use("rebelot/kanagawa.nvim")
-    use("EdenEast/nightfox.nvim")
     use("Yazeed1s/minimal.nvim")
-    use("chrisbra/csv.vim")
     use("goolord/alpha-nvim")
     use({
       "AckslD/nvim-FeMaco.lua",
@@ -721,7 +758,6 @@
         end,
       }),
     })
-    use("davidgranstrom/nvim-markdown-preview")
     use({
       "anuvyklack/pretty-fold.nvim",
       config = function()
@@ -738,9 +774,6 @@
       end,
     })
     use("shoumodip/nvim-literate")
-    -- use "frabjous/knap"
-    -- use "savq/paq-nvim"
-    -- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
     use("rcarriga/nvim-notify")
     use({
       "kylechui/nvim-surround",
@@ -752,7 +785,6 @@
       end,
     })
 
-    use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
     use({ "kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
 
     -- cmp plugins
@@ -778,7 +810,6 @@
         "nvim-lua/plenary.nvim",
       },
     })
-    use("phaazon/mind.nvim")
     use("saadparwaiz1/cmp_luasnip") -- snippet completions
     -- snippets
     use("L3MON4D3/LuaSnip") --snippet engine
@@ -805,7 +836,7 @@
         -- local config = require("user.plug-setting.lsp-saga")
         -- saga.init_lsp_saga(config)
         require("lspsaga").init_lsp_saga({})
-    end,
+      end,
     })
 
     -- Lua
@@ -837,20 +868,7 @@
 
     use("David-Kunz/markid") -- better function syntax higlighting
     -- Treesitter
-    use({
-      "nvim-treesitter/nvim-treesitter",
-      run = ":TSUpdate",
-      markid = { enable = true },
-    })
-    use({
-      "nvim-treesitter/nvim-treesitter-textobjects",
-      run = ":TSUpdate",
-    })
-    use({
-      "RRethy/nvim-treesitter-textsubjects",
-    })
     use("windwp/nvim-ts-autotag")
-    use("nvim-treesitter/playground")
     use("echasnovski/mini.nvim")
     use({ "kevinhwang91/nvim-hlslens" })
     -- Git
@@ -864,8 +882,34 @@
     }) 
     @end
 
+*** Theme's & Other Visual Enhancements
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    use("bluz71/vim-nightfly-guicolors")
+    use("bluz71/vim-moonfly-colors")
+    use("humanoid-colors/vim-humanoid-colorscheme")
+    use("lalitmee/cobalt2.nvim")
+    use("konosubakonoakua/synthwave84.nvim")
+    use("Shatur/neovim-ayu")
+    use("ellisonleao/gruvbox.nvim")
+    use({
+      "catppuccin/nvim",
+      as = "catppuccin",
+      run = ":CatppuccinCompile",
+    })
+    use("lunarvim/darkplus.nvim")
+    use("joshdick/onedark.vim")
+    use("rebelot/kanagawa.nvim")
+    use("EdenEast/nightfox.nvim")
+
+    use("folke/lsp-colors.nvim")
+    use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
+    @end
+
 *** Another Group
 
+    #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua 
     if PACKER_BOOTSTRAP then
       require("packer").sync()
@@ -873,4 +917,53 @@
     end)
     @end
 
-** Key Maps
+** General Key Maps
+
+**** Normal Mode
+
+     #tangle ~/.config/nvim/lua/user/keymaps.lua
+     @code lua 
+     which_key.register({
+       -- Better window navigation
+       ["<C-h>"] = { "<C-w>h", "Move One Window Left" },
+       ["<C-j>"] = { "<C-w>j", "Move One Window Down" },
+       ["<C-k>"] = { "<C-w>k", "Move One Window Up" },
+       ["<C-l>"] = { "<C-w>l", "Move One Window Right" },
+       -- Buffer navigation
+       ["<S-l>"] = { ":bnext<CR>", "Next Buffer" },
+       ["<S-h>"] = { ":bprevious<CR>", "Previous Buffer" },
+       ["<C-s>"] = { ":w<CR>", "Save" },
+       ["<C-q>"] = { ":q<CR>", "Quit" },
+       Y = { "y$", "Yank from cursor to end of line" },
+       ["<C-Up>"] = { ":resize -2<CR>", "Decrease Current Window Size Horizontally" },
+       ["<C-Down>"] = { ":resize +2<CR>", "Increase Current Window Size Vertically" },
+       ["<C-Left>"] = { ":vertical -2<CR>", "Decrease Current Window Size Horizontally" },
+       ["<C-Right>"] = { ":vertical +2<CR>", "Increase Current Window Size Vertically" },
+       -- Scroll 5 rows at a time
+       ["<S-D>"] = { "5<C-e>", "Scroll down 5 rows at a time" },
+       ["<S-E>"] = { "5<C-y>", "Scroll up 5 rows at a time" },
+       ["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Charactes" },
+     })
+     @end
+
+**** Visual Mode
+
+     #tangle ~/.config/nvim/lua/user/keymaps.lua
+     @code lua 
+     which_key.register({
+       p = { '"_dP', "Paste without overwriting the register" },
+     }, { mode = "v" })
+     @end
+
+**** Insert Mode
+
+     #tangle ~/.config/nvim/lua/user/keymaps.lua
+     @code lua 
+     which_key.register({
+       ["<C-s>"] = { "<esc>:w<cr>", "Save" },
+       ["<C-q>"] = { "<esc>:Bclose<cr>", "Quit" },
+       ["<F8>"] = { "<C-o>:set list!<CR>", "Toggle Unprintable Charactes" },
+     }, { mode = "i" })
+
+     @end
+
