@@ -669,6 +669,7 @@
 
 *** Git Plugins
 
+    #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua 
     use({
       "lewis6991/gitsigns.nvim",
