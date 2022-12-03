@@ -573,48 +573,99 @@
 
 *** Coding Plugins
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
-    @code lua 
-    use("windwp/nvim-ts-autotag")
-    use({
-      "SmiteshP/nvim-navic",
-      requires = "neovim/nvim-lspconfig",
-    })
-    use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
-    use({ "usmcamp0811/magma-nvim", run = ":UpdateRemotePlugins", branch = "fix-output" })
-    use("Olical/aniseed")
-    use("clojure-vim/vim-jack-in")
-    use("lervag/vimtex") -- for writing latex
-    use({ "Olical/conjure" })
-    use({ "hasundue/vim-pluto", requires = { "vim-denops/denops.vim" } })
-    use("ii14/neorepl.nvim")
+**** Conjure
 
-    use("aklt/plantuml-syntax")
-    use("lukas-reineke/indent-blankline.nvim")
-    use({ "kevinhwang91/nvim-hlslens" })
+     Mostly for Clojure, but works with Julia and a few other languages. I like it a lot 
+     but it doesn't support connecting to remote/external REPLs in Julia so it has some 
+     limitations.
 
-    use({
-      "weirongxu/plantuml-previewer.vim",
-      requires = { 
-        { "tyru/open-browser.vim", opt = false },
-        { "aklt/plantuml-syntax", opt = false } 
-      },
-    })
-    use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim" })
-    use({
-      "numToStr/Comment.nvim",
-      tag = "v0.6.1",
-      --branch = "master",
-    })
-    use("b0o/SchemaStore.nvim")
-    use({
-      "https://gitlab.com/usmcamp0811/nvim-julia-autotest",
-      config = function()
-        require("julia-autotest").setup()
-      end,
-    })
-    use("David-Kunz/markid") -- better function syntax higlighting
-    @end
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({ "Olical/conjure" })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/conjure.lua
+     @code lua 
+     local function file_exists(name)
+       local f=io.open(name,"r")
+       if f~=nil then io.close(f) return true else return false end
+     end
+
+     -- looks for the Project.toml to use for the test
+     local function julia_project_dir()
+       bufnr = vim.fn.bufnr('%')
+       -- ns_id = vim.api.nvim_create_namespace('julia-testing')
+       local root_dir
+       for dir in vim.fs.parents(vim.api.nvim_buf_get_name(bufnr)) do
+         if file_exists(dir .. "/Project.toml") == true then
+           root_dir = dir
+           break
+         end
+       end
+
+       if root_dir then
+         -- print("Found julia project at", root_dir)
+         return root_dir
+       end
+     end
+
+
+     local function make_conjure_command()
+       local root = julia_project_dir()
+       if root == nil then
+         root = ""
+       else
+         root = "--project=" .. root
+       end
+       vim.g["conjure#client#julia#stdio#command"] = "jupyter console --kernel julia-1.8 -f /tmp/julia.json"
+     end
+     vim.g["conjure#filetypes"] = { "fennel", "clojure", "julia", "jl", "python", "py", "norg" }
+     @end
+
+**** Other Plugins in need of Organization
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("windwp/nvim-ts-autotag")
+     use({
+       "SmiteshP/nvim-navic",
+       requires = "neovim/nvim-lspconfig",
+     })
+     use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
+     use({ "usmcamp0811/magma-nvim", run = ":UpdateRemotePlugins", branch = "fix-output" })
+     use("Olical/aniseed")
+     use("clojure-vim/vim-jack-in")
+     use("lervag/vimtex") -- for writing latex
+     use({ "hasundue/vim-pluto", requires = { "vim-denops/denops.vim" } })
+     use("ii14/neorepl.nvim")
+
+     use("aklt/plantuml-syntax")
+     use("lukas-reineke/indent-blankline.nvim")
+     use({ "kevinhwang91/nvim-hlslens" })
+
+     use({
+       "weirongxu/plantuml-previewer.vim",
+       requires = { 
+         { "tyru/open-browser.vim", opt = false },
+         { "aklt/plantuml-syntax", opt = false } 
+       },
+     })
+     use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim" })
+     use({
+       "numToStr/Comment.nvim",
+       tag = "v0.6.1",
+       --branch = "master",
+     })
+     use("b0o/SchemaStore.nvim")
+     use({
+       "https://gitlab.com/usmcamp0811/nvim-julia-autotest",
+       config = function()
+         require("julia-autotest").setup()
+       end,
+     })
+     use("David-Kunz/markid") -- better function syntax higlighting
+     @end
+
 
 *** Git Plugins
 
@@ -743,7 +794,7 @@
         codewindow.apply_default_keybinds()
       end,
     })
-     
+
     use("petertriho/nvim-scrollbar")
     use({
       "narutoxy/silicon.lua",
@@ -774,80 +825,225 @@
 
 *** Theme's & Other Visual Enhancements
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
-    @code lua 
-    use("Yazeed1s/minimal.nvim")
-    use("nvim-tree/nvim-web-devicons")
-    use("bluz71/vim-nightfly-guicolors")
-    use("bluz71/vim-moonfly-colors")
-    use("humanoid-colors/vim-humanoid-colorscheme")
-    use("lalitmee/cobalt2.nvim")
-    use("konosubakonoakua/synthwave84.nvim")
-    use("Shatur/neovim-ayu")
-    use("ellisonleao/gruvbox.nvim")
-    use({
-      "catppuccin/nvim",
-      as = "catppuccin",
-      run = ":CatppuccinCompile",
-    })
-    use("lunarvim/darkplus.nvim")
-    use("joshdick/onedark.vim")
-    use("rebelot/kanagawa.nvim")
-    use("EdenEast/nightfox.nvim")
 
-    use("folke/lsp-colors.nvim")
-    use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
-    use("p00f/nvim-ts-rainbow")
-    use({
-      "nvim-lualine/lualine.nvim",
-      requires = { "kyazdani42/nvim-web-devicons", opt = true },
-    })
-    use("norcalli/nvim-colorizer.lua")
-    use({
-      "gen740/SmoothCursor.nvim",
-      config = function()
-        require("smoothcursor").setup({
-          autostart = true,
-          cursor = "》", -- cursor shape (need nerd font)
-          texthl = "SmoothCursor", -- highlight group, default is { bg = nil, fg = "#FFD400" }
-          linehl = nil, -- highlight sub-cursor line like 'cursorline', "CursorLine" recommended
-          type = "default", -- define cursor movement calculate function, "default" or "exp" (exponential).
-          fancy = {
-            enable = true, -- enable fancy mode
-            head = { cursor = "❱", texthl = "SmoothCursor", linehl = nil },
-            body = {
-              { cursor = "", texthl = "SmoothCursorRed" },
-              { cursor = "", texthl = "SmoothCursorOrange" },
-              { cursor = "●", texthl = "SmoothCursorYellow" },
-              { cursor = "●", texthl = "SmoothCursorGreen" },
-              { cursor = "•", texthl = "SmoothCursorAqua" },
-              { cursor = ".", texthl = "SmoothCursorBlue" },
-              { cursor = ".", texthl = "SmoothCursorPurple" },
-            },
-            tail = { cursor = nil, texthl = "SmoothCursor" },
-          },
-          speed = 25, -- max is 100 to stick to your current position
-          intervals = 35, -- tick interval
-          priority = 10, -- set marker priority
-          timeout = 3000, -- timout for animation
-          threshold = 3, -- animate if threshold lines jump
-          enabled_filetypes = nil, -- example: { "lua", "vim" }
-          disabled_filetypes = nil,
-          --{"mind", "TelescopePrompt", "NvimTree"}, -- this option will be skipped if enabled_filetypes is set. example: { "TelescopePrompt", "NvimTree" }
-        })
-      end,
-    })
+**** Current Theme
 
+     This is my current theme and its configuration. I can't take credit I found the config elsewhere.. think it was posted/linked to on Reddit. I did make a couple tweaks to fix a few color issues. Don't think most of the config is really used but some is... 
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("Shatur/neovim-ayu")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/ayu.lua
+     @code lua 
+     require('ayu').setup({
+       mirage = false, -- Set to `true` to use `mirage` variant instead of `dark` for dark background.
+       overrides = {}, -- A dictionary of group names, each associated with a dictionary of parameters (`bg`, `fg`, `sp` and `style`) and colors in hex.
+     })
+
+     vim.cmd([[
+     try
+      colorscheme ayu
+     catch /^Vim\%((\a\+)\)\=:E185/
+      colorscheme auto
+      set background=dark
+     endtry
+     ]])
+
+     -- Ayu
+     local colors = {}
+     colors.accent = "#E6B450"
+     colors.bg = "#0A0E14"
+     colors.fg = "#B3B1AD"
+     colors.ui = "#4D5566"
+
+     colors.tag = "#39BAE6"
+     colors.func = "#FFB454"
+     colors.entity = "#59C2FF"
+     colors.string = "#C2D94C"
+     colors.regexp = "#95E6CB"
+     colors.markup = "#F07178"
+     colors.keyword = "#FF8F40"
+     colors.special = "#E6B673"
+     colors.comment = "#626A73"
+     colors.constant = "#FFEE99"
+     colors.operator = "#F29668"
+     colors.error = "#FF3333"
+
+     colors.line = "#00010A"
+     colors.panel_bg = "#0D1016"
+     colors.panel_shadow = "#00010A"
+     colors.panel_border = "#000000"
+     colors.gutter_normal = "#323945"
+     colors.gutter_active = "#464D5E"
+     colors.selection_bg = "#273747"
+     colors.selection_inactive = "#1B2733"
+     colors.selection_border = "#304357"
+     colors.guide_active = "#393F4D"
+     colors.guide_normal = "#242A35"
+
+     colors.vcs_added = "#91B362"
+     colors.vcs_modified = "#6994BF"
+     colors.vcs_removed = "#D96C75"
+
+     colors.vcs_added_bg = "#1D2214"
+     colors.vcs_removed_bg = "#2D2220"
+
+     colors.fg_idle = "#3E4B59"
+     colors.warning = "#FF8F40"
+
+     colors.dark0_hard = "#0A0E14"
+     colors.dark0 = "#282828"
+     colors.dark0_soft = "#32302f"
+     colors.dark1 = "#00010A"
+     colors.dark2 = "#504945"
+     colors.dark3 = "#665c54"
+     colors.dark4 = "#7c6f64"
+     colors.light0_hard = "#f9f5d7"
+     colors.light0 = "#fbf1c7"
+     colors.light0_soft = "#f2e5bc"
+     colors.light1 = "#ebdbb2"
+     colors.light2 = "#d5c4a1"
+     colors.light3 = "#bdae93"
+     colors.light4 = "#a89984"
+     colors.bright_red = "#fb4934"
+     colors.bright_green = "#b8bb26"
+     colors.bright_yellow = "#fabd2f"
+     colors.bright_blue = "#83a598"
+     colors.bright_purple = "#d3869b"
+     colors.bright_aqua = "#8ec07c"
+     colors.bright_orange = "#fe8019"
+     colors.neutral_red = "#cc241d"
+     colors.neutral_green = "#98971a"
+     colors.neutral_yellow = "#d79921"
+     colors.neutral_blue = "#458588"
+     colors.neutral_purple = "#b16286"
+     colors.neutral_aqua = "#689d6a"
+     colors.neutral_orange = "#d65d0e"
+     colors.faded_red = "#9d0006"
+     colors.faded_green = "#79740e"
+     colors.faded_yellow = "#b57614"
+     colors.faded_blue = "#076678"
+     colors.faded_purple = "#8f3f71"
+     colors.faded_aqua = "#427b58"
+     colors.faded_orange = "#af3a03"
+     colors.gray = "#928374"
+
+     local function set_colors(fg, bg)
+       return "guifg=" .. fg .. " guibg=" .. bg
+     end
+     -- 
+     -- -- Applying colors
+     local api = vim.api
+     api.nvim_command("hi StatusDefault " .. set_colors(colors.fg, colors.bg))
+     api.nvim_command("hi StatusVimNormal " .. set_colors(colors.bg, colors.accent))
+     api.nvim_command("hi StatusVimInsert " .. set_colors(colors.bg, colors.neutral_blue))
+     api.nvim_command("hi StatusVimVisual " .. set_colors(colors.bg, colors.func))
+     api.nvim_command("hi StatusVimReplace " .. set_colors(colors.bg, colors.entity))
+     api.nvim_command("hi StatusVimEnter " .. set_colors(colors.bg, colors.string))
+     api.nvim_command("hi StatusVimMore " .. set_colors(colors.bg, colors.regexp))
+     api.nvim_command("hi StatusVimSelect " .. set_colors(colors.bg, colors.markup))
+     api.nvim_command("hi StatusVimCmd " .. set_colors(colors.bg, colors.keyword))
+     api.nvim_command("hi StatusVimShell " .. set_colors(colors.bg, colors.special))
+     api.nvim_command("hi StatusVimTerm " .. set_colors(colors.bg, colors.comment))
+     api.nvim_command("hi StatusModified " .. set_colors(colors.bg, colors.constant))
+     api.nvim_command("hi StatusLineNumber " .. set_colors(colors.bg, colors.operator))
+     api.nvim_command("hi StatusColumnNumber " .. set_colors(colors.bg, colors.error))
+     api.nvim_command("hi StatusFileInfo " .. set_colors(colors.keyword, colors.bg))
+     api.nvim_command("hi StatusGitInfo " .. set_colors(colors.bright_green, colors.bg))
+     api.nvim_command("hi StatusLSPProgress " .. set_colors(colors.neutral_blue, colors.bg))
+     api.nvim_command("hi StatusLSPError " .. set_colors(colors.error, colors.bg))
+     api.nvim_command("hi StatusLSPWarn " .. set_colors(colors.accent, colors.bg))
+     api.nvim_command("hi StatusLSPInfo " .. set_colors(colors.entity, colors.bg))
+     api.nvim_command("hi StatusLSPHin " .. set_colors(colors.tag, colors.bg))
+     api.nvim_command("hi StatusLSPStatus " .. set_colors(colors.tag, colors.bg))
+     api.nvim_command("hi StatusCwd " .. set_colors(colors.keyword, colors.bg))
+     api.nvim_command("hi StatusCursor " .. set_colors(colors.accent, colors.bg))
+     api.nvim_command("hi WhichKeyFloat " .. set_colors(colors.accent, colors.bg))
+     api.nvim_command("hi SessionName " .. set_colors(colors.string, colors.bg))
+     api.nvim_command("hi WildMenu guifg=#0A0E14 guibg=#f07178")
+     api.nvim_command("hi WildMenu guifg=#0A0E14 guibg=#f07178")
+     api.nvim_command("hi @neorg.tags.ranged_verbatim.code_block guibg=#171717")
+
+     @end
+
+**** Other Visual Things Needing Organization
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("Yazeed1s/minimal.nvim")
+     use("nvim-tree/nvim-web-devicons")
+     use("bluz71/vim-nightfly-guicolors")
+     use("bluz71/vim-moonfly-colors")
+     use("humanoid-colors/vim-humanoid-colorscheme")
+     use("lalitmee/cobalt2.nvim")
+     use("konosubakonoakua/synthwave84.nvim")
+     use("ellisonleao/gruvbox.nvim")
+     use({
+       "catppuccin/nvim",
+       as = "catppuccin",
+       run = ":CatppuccinCompile",
+     })
+     use("lunarvim/darkplus.nvim")
+     use("joshdick/onedark.vim")
+     use("rebelot/kanagawa.nvim")
+     use("EdenEast/nightfox.nvim")
+
+     use("folke/lsp-colors.nvim")
+     use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
+     use("p00f/nvim-ts-rainbow")
+     use({
+       "nvim-lualine/lualine.nvim",
+       requires = { "kyazdani42/nvim-web-devicons", opt = true },
+     })
+     use("norcalli/nvim-colorizer.lua")
+     use({
+       "gen740/SmoothCursor.nvim",
+       config = function()
+         require("smoothcursor").setup({
+           autostart = true,
+           cursor = "》", -- cursor shape (need nerd font)
+           texthl = "SmoothCursor", -- highlight group, default is { bg = nil, fg = "#FFD400" }
+           linehl = nil, -- highlight sub-cursor line like 'cursorline', "CursorLine" recommended
+           type = "default", -- define cursor movement calculate function, "default" or "exp" (exponential).
+           fancy = {
+             enable = true, -- enable fancy mode
+             head = { cursor = "❱", texthl = "SmoothCursor", linehl = nil },
+             body = {
+               { cursor = "", texthl = "SmoothCursorRed" },
+               { cursor = "", texthl = "SmoothCursorOrange" },
+               { cursor = "●", texthl = "SmoothCursorYellow" },
+               { cursor = "●", texthl = "SmoothCursorGreen" },
+               { cursor = "•", texthl = "SmoothCursorAqua" },
+               { cursor = ".", texthl = "SmoothCursorBlue" },
+               { cursor = ".", texthl = "SmoothCursorPurple" },
+             },
+             tail = { cursor = nil, texthl = "SmoothCursor" },
+           },
+           speed = 25, -- max is 100 to stick to your current position
+           intervals = 35, -- tick interval
+           priority = 10, -- set marker priority
+           timeout = 3000, -- timout for animation
+           threshold = 3, -- animate if threshold lines jump
+           enabled_filetypes = nil, -- example: { "lua", "vim" }
+           disabled_filetypes = nil,
+           --{"mind", "TelescopePrompt", "NvimTree"}, -- this option will be skipped if enabled_filetypes is set. example: { "TelescopePrompt", "NvimTree" }
+         })
+       end,
+     })
+
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     if PACKER_BOOTSTRAP then
+       require("packer").sync()
+     end
+     end)
     @end
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
-    @code lua 
-    if PACKER_BOOTSTRAP then
-      require("packer").sync()
-    end
-    end)
-    @end
-
+** Snippets
 
 ** General Key Maps
 
