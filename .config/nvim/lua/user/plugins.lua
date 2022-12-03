@@ -162,8 +162,9 @@ return packer.startup(function(use)
 	use("lambdalisue/suda.vim") -- runs `sudo` when needed
 
 	-- random plugins
-	use("unblevable/quick-scope") -- easier horizontal jumping
+	-- use("unblevable/quick-scope") -- easier horizontal jumping
 	use("ggandor/leap.nvim") --  better vertical jumping
+  use("nvim-tree/nvim-web-devicons")
 	use({
 		"ggandor/flit.nvim",
 		requires = { "ggandor/leap.nvim" },
@@ -178,7 +179,7 @@ return packer.startup(function(use)
 	use("moll/vim-bbye")
 	use({
 		"numToStr/Comment.nvim",
-		tag = "v0.6.1",
+		-- tag = "v0.6.1",
 		--branch = "master",
 	})
 	use("windwp/nvim-autopairs")
