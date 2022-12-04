@@ -89,7 +89,7 @@
     }
     @end
 
-** LSP
+** LSP
 
    My LSP config is a little bastardized as I have borrowed from others and I have had to learn things 
    along the way. This first `if` statement is suppose to be here to keep things from breaking should
@@ -484,7 +484,6 @@
     #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua 
     use("folke/which-key.nvim")
-    use("kyazdani42/nvim-tree.lua")
     use("radenling/vim-dispatch-neovim")
     use("tpope/vim-dispatch")
     use({
@@ -494,13 +493,6 @@
       end,
     })
 
-    use({
-      "anuvyklack/pretty-fold.nvim",
-      config = function()
-        require("user.plug-setting.pretty-fold")
-      end,
-      ft_setup = { "neorg", {} },
-    })
     -- use "jceb/vim-orgmode"
     use({
       "anuvyklack/fold-preview.nvim",
@@ -510,7 +502,6 @@
       end,
     })
 
-    use("akinsho/toggleterm.nvim")
     use({
       "kylechui/nvim-surround",
       tag = "*", -- Use for stability; omit to use `main` branch for the latest features
@@ -525,6 +516,687 @@
     use("moll/vim-bbye")
     use("rcarriga/nvim-notify")
     @end
+
+**** Toggle Term
+
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    use("akinsho/toggleterm.nvim")
+    @end
+
+    #tangle ~/.config/nvim/lua/user/plug-setting/toggleterm.lua
+    @code lua 
+    local status_ok, toggleterm = pcall(require, "toggleterm")
+    if not status_ok then
+      return
+    end
+
+    toggleterm.setup({
+      size = function(term)
+        if term.direction == "horizontal" then
+          return 15
+        elseif term.direction == "vertical" then
+          return vim.o.columns * 0.4
+        end
+      end,
+      open_mapping = [[<F1>]],
+      hide_numbers = true,
+      shade_filetypes = {},
+      shade_terminals = false,
+      shading_factor = 2,
+      start_in_insert = true,
+      insert_mappings = true,
+      persist_size = true,
+      direction = "float",
+      close_on_exit = true,
+      shell = vim.o.shell,
+      float_opts = {
+        border = "curved",
+        winblend = 0,
+        highlights = {
+          border = "Normal",
+          background = "Normal",
+        },
+      },
+    })
+
+    function _G.set_terminal_keymaps()
+      local opts = { noremap = true }
+      vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
+      vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
+      vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
+      vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
+      vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
+    end
+
+    vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
+
+    local Terminal = require("toggleterm.terminal").Terminal
+    local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
+
+    function _LAZYGIT_TOGGLE()
+      lazygit:toggle()
+    end
+
+    local node = Terminal:new({
+      cmd = "node",
+      dir = "git_dir",
+      direction = "vertical",
+      on_open = function()
+        vim.g.node_job_id = vim.b.terminal_job_id
+      end,
+    })
+
+    function _NODE_TOGGLE()
+      node:toggle()
+      vim.cmd("wincmd h")
+      vim.b.slime_config = {}
+      vim.b.slime_config = {
+        jobid = vim.g.node_job_id,
+      }
+      vim.cmd("wincmd l")
+    end
+
+    local ncdu = Terminal:new({ cmd = "ncdu", hidden = true })
+
+    function _NCDU_TOGGLE()
+      ncdu:toggle()
+    end
+
+    local bpytop = Terminal:new({ cmd = "bpytop", hidden = true })
+
+    function _BPYTOP_TOGGLE()
+      bpytop:toggle()
+    end
+
+    local k9s = Terminal:new({ cmd = "k9s", hidden = true })
+
+    function _K9S_TOGGLE()
+      k9s:toggle()
+    end
+
+    local htop = Terminal:new({ cmd = "htop", hidden = true })
+
+    function _HTOP_TOGGLE()
+      htop:toggle()
+    end
+
+    local vshell = Terminal:new({
+      cmd = "zsh",
+      dir = "git_dir",
+      direction = "vertical",
+      on_open = function()
+        vim.g.vshell_job_id = vim.b.terminal_job_id
+      end,
+      on_close = function()
+        vim.g.vshell_job_id = nil
+      end,
+    })
+
+    function _VSHELL_TOGGLE()
+      vshell:toggle()
+      vim.cmd("wincmd h")
+      vim.b.slime_config = {}
+      vim.b.slime_config = {
+        jobid = vim.g.vshell_job_id,
+      }
+      vim.cmd("wincmd l")
+    end
+
+    local hshell = Terminal:new({
+      cmd = "zsh",
+      dir = "git_dir",
+      direction = "horizontal",
+      on_open = function()
+        vim.g.hshell_job_id = vim.b.terminal_job_id
+      end,
+      on_close = function()
+        vim.g.hshell_job_id = nil
+      end,
+    })
+
+    function _HSHELL_TOGGLE()
+      hshell:toggle()
+      vim.cmd("wincmd k")
+      vim.g.slime_target = "neovim"
+      vim.g.slime_dont_ask_default = 1
+      vim.b.slime_config = {}
+      vim.b.slime_config = {
+        jobid = vim.g.hshell_job_id,
+      }
+      vim.cmd("wincmd j")
+    end
+
+    local clojure = Terminal:new({
+      cmd = "clj -M:repl/conjure || clojure -M:repl/remote --port 8794 --host localhost",
+      dir = "git_dir",
+      name = "clojure",
+      count = 38,
+      direction = "vertical",
+      on_open = function()
+        vim.g.clojure_job_id = vim.b.terminal_job_id
+      end,
+      on_close = function()
+        vim.g.clojure_job_id = nil
+      end,
+    })
+
+    function _CLOJURE_TOGGLE()
+      clojure:toggle()
+      vim.cmd("wincmd h")
+      vim.g.slime_target = "neovim"
+      vim.g.slime_dont_ask_default = 1
+      vim.b.slime_config = {}
+      vim.b.slime_config = {
+        jobid = vim.g.clojure_job_id,
+      }
+      vim.cmd("wincmd l")
+    end
+
+    local python = Terminal:new({
+      cmd = "ipython --matplotlib",
+      name = "pyton",
+      count = 314,
+      dir = "git_dir",
+      direction = "vertical",
+      on_open = function()
+    vim.g.python_job_id = vim.b.terminal_job_id
+      end,
+      on_close = function()
+        vim.g.python_job_id = nil
+      end,
+      shade_terminals = true,
+    })
+
+    function _PYTHON_TOGGLE()
+    python:toggle()
+      vim.cmd("wincmd h")
+      vim.g.slime_target = "neovim"
+      vim.g.slime_dont_ask_default = 1
+      vim.b.slime_config = {}
+      vim.b.slime_config = {
+        jobid = vim.g.python_job_id,
+    }
+      vim.cmd("wincmd l")
+    end
+
+    local julia = Terminal:new({
+      cmd = "julia",
+      name = "julia",
+      count = 42,
+      dir = "git_dir",
+      direction = "vertical",
+      on_open = function()
+        vim.g.julia_job_id = vim.b.terminal_job_id
+      end,
+      on_close = function()
+        vim.g.julia_job_id = nil
+      end,
+
+    })
+
+    function _JULIA_TOGGLE()
+      julia:toggle()
+      vim.cmd("wincmd h")
+      vim.g.slime_target = "neovim"
+      vim.g.slime_dont_ask_default = 1
+      vim.b.slime_config = {}
+      vim.b.slime_config = {
+        jobid = vim.g.julia_job_id,
+      }
+      vim.cmd(":let g:julia_bufnr=bufnr('%')")
+      vim.cmd("wincmd l")
+    end
+
+    local lua = Terminal:new({
+      cmd = "lua",
+      dir = "git_dir",
+      direction = "vertical",
+      on_open = function()
+        vim.g.lua_job_id = vim.b.terminal_job_id
+      end,
+      on_close = function()
+        vim.g.lua_job_id = nil
+      end,
+    })
+
+    function _LUA_TOGGLE()
+      lua:toggle()
+      vim.cmd("wincmd h")
+      vim.g.slime_target = "neovim"
+      vim.g.slime_dont_ask_default = 1
+      vim.b.slime_config = {}
+      vim.b.slime_config = {
+        jobid = vim.g.lua_job_id,
+      }
+      vim.cmd("wincmd l")
+    end
+
+    local status_ok, which_key = pcall(require, "which-key")
+    if not status_ok then
+      return
+    end
+
+    which_key.register({
+      t = {
+        name = "Terminal",
+        j = { "<cmd>lua _JULIA_TOGGLE()<cr>", "Julia" },
+        c = { "<cmd>lua _CLOJURE_TOGGLE()<cr>", "Clojure" },
+        p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },
+        n = { "<cmd>lua _NODE_TOGGLE()<cr>", "Node" },
+        l = { "<cmd>lua _LUA_TOGGLE()<cr>", "Lua" },
+        g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
+        u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
+        t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
+        k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
+        f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
+        h = { "<cmd>lua _HSHELL_TOGGLE()<cr>", "Horizontal" },
+        v = { "<cmd>lua _VSHELL_TOGGLE()<cr>", "Vertical" },
+        r = { ":RnvimrToggle<CR>", "Ranger" },
+      },
+    }, { prefix = "<leader>" })
+
+    @end
+
+
+**** hlsens
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({ "kevinhwang91/nvim-hlslens" })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/hlslens.lua
+     @code lua 
+     require('hlslens').setup()
+
+     local kopts = {noremap = true, silent = true}
+
+     vim.api.nvim_set_keymap('n', 'n',
+       [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
+       kopts)
+     vim.api.nvim_set_keymap('n', 'N',
+       [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
+       kopts)
+     vim.api.nvim_set_keymap('n', '*', [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+     vim.api.nvim_set_keymap('n', '#', [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+     vim.api.nvim_set_keymap('n', 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+     vim.api.nvim_set_keymap('n', 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+
+     vim.api.nvim_set_keymap('n', '<Leader>z', ':noh<CR>', kopts)
+     @end
+
+**** nvim-tree
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("kyazdani42/nvim-tree.lua")
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/nvim-tree.lua
+     @code lua 
+     local status_ok, nvim_tree = pcall(require, "nvim-tree")
+     if not status_ok then
+       return
+     end
+
+     local config_status_ok, nvim_tree_config = pcall(require, "nvim-tree.config")
+     if not config_status_ok then
+       return
+     end
+
+     local tree_cb = nvim_tree_config.nvim_tree_callback
+
+     nvim_tree.setup {
+       update_focused_file = {
+         enable = true,
+         update_cwd = true,
+       },
+       renderer = {
+         root_folder_modifier = ":t",
+         icons = {
+           glyphs = {
+             default = "",
+             symlink = "",
+             folder = {
+               arrow_open = "",
+               arrow_closed = "",
+               default = "",
+               open = "",
+               empty = "",
+               empty_open = "",
+               symlink = "",
+               symlink_open = "",
+             },
+             git = {
+               unstaged = "",
+               staged = "S",
+               unmerged = "",
+               renamed = "➜",
+               untracked = "U",
+               deleted = "",
+               ignored = "◌",
+             },
+           },
+         },
+       },
+       diagnostics = {
+         enable = true,
+         show_on_dirs = true,
+         icons = {
+           hint = "",
+           info = "",
+           warning = "",
+           error = "",
+         },
+       },
+       view = {
+         width = 30,
+         side = "left",
+         mappings = {
+           list = {
+             { key = { "l", "<CR>", "o" }, cb = tree_cb "edit" },
+             { key = "h", cb = tree_cb "close_node" },
+             { key = "v", cb = tree_cb "vsplit" },
+           },
+         },
+       },
+     }
+
+     @end
+
+**** pretty-fold
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({
+       "anuvyklack/pretty-fold.nvim",
+       config = function()
+         require("user.plug-setting.pretty-fold")
+       end,
+       ft_setup = { "neorg", {} },
+     })
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/pretty-fold.lua
+     @code lua 
+     local pretty_fold = require('pretty-fold')
+
+     pretty_fold.setup {
+       sections = {
+         left = {
+           '━ ', function() return string.rep('+', vim.v.foldlevel) end, ' ━┫', 'content', '┣'
+         },
+         right = {
+           '┫ ', 'number_of_folded_lines', ': ', 'percentage', ' ┣━━',
+         }
+       },
+       fill_char = '━',
+       -- fill_char = '•',
+
+       remove_fold_markers = true,
+
+       -- Keep the indentation of the content of the fold string.
+       keep_indentation = true,
+
+       -- Possible values:
+       -- "delete" : Delete all comment signs from the fold string.
+       -- "spaces" : Replace all comment signs with equal number of spaces.
+       -- false    : Do nothing with comment signs.
+       process_comment_signs = 'spaces',
+
+       -- Comment signs additional to the value of `&commentstring` option.
+       comment_signs = {},
+
+       -- List of patterns that will be removed from content foldtext section.
+       stop_words = {
+         '@brief%s*', -- (for C++) Remove '@brief' and all spaces after.
+       },
+
+       add_close_pattern = true, -- true, 'last_line' or false
+
+       matchup_patterns = {
+         {  '{', '}' },
+         { '%(', ')' }, -- % to escape lua pattern char
+         { '%[', ']' }, -- % to escape lua pattern char
+       },
+
+       -- ft_ignore = { },
+     }
+
+     return pretty_fold
+
+     @end
+
+**** autosave
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("907th/vim-auto-save")
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/autosave.lua
+     @code lua  
+     vim.g.auto_save = 1
+     -- vim.g.auto_save_events = {"InsertLeave", "TextChangedI", "CompleteDone", "TextChanged"}
+     vim.g.auto_save_silent = 1
+
+     vim.cmd [[
+  augroup ft_auto_saves
+    au!
+    au FileType markdown let b:auto_save = 1
+    au FileType python let b:auto_save = 1
+    au FileType julia let b:auto_save = 0
+    au FileType go let b:auto_save = 1
+    au FileType css let b:auto_save = 1
+    au FileType json let b:auto_save = 1
+    au FileType java let b:auto_save = 1
+    au FileType html let b:auto_save = 1
+    au FileType r let b:auto_save = 1
+    au FileType scss let b:auto_save = 1 
+    au FileType sql let b:auto_save = 1  
+    au FileType sh let b:auto_save = 1  
+    au FileType dockerfile let b:auto_save = 1  
+    au FileType javascript let b:auto_save = 1  
+    au FileType vue let b:auto_save = 0
+    au FileType vim let b:auto_save = 1
+    au FileType rmd let b:auto_save = 1
+    au FileType tex let b:auto_save = 1
+    au FileType lua let b:auto_save = 1
+    au FileType md let b:auto_save = 1
+    au FileType vimwiki let b:auto_save = 1
+    au BufWinEnter plugins.lua let b:auto_save = 0
+
+  augroup END
+]]
+     @end
+
+**** ranger
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({ "kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/ranger.lua
+     @code lua 
+     -- Make Ranger rep ace Netrw and be the file explorer
+     vim.g.rnvimr_enable_ex = 1
+
+     -- Make Ranger to be hidden after picking a file
+     vim.g.rnvimr_enable_picker = 1
+
+     -- Disable a border for floating window
+     vim.g.rnvimr_draw_border = 0
+
+     -- Hide the files included in gitignore
+     vim.g.rnvimr_hide_gitignore = 1
+
+     -- Change the border's color
+     vim.g.rnvimr_border_attr = {
+       fg = 14,
+       bg = -1
+     }
+
+     -- Make Neovim wipe the buffers corresponding to the files deleted by Ranger
+     vim.g.rnvimr_enable_bw = 1
+
+     -- Add a shadow window, value is equal to 100 will disable shadow
+     vim.g.rnvimr_shadow_winblend = 70
+
+     -- Draw border with both
+     vim.g.rnvimr_ranger_cmd = { 'ranger', '--cmd=set draw_borders both' }
+
+     -- Link CursorLine into RnvimrNormal highlight in the Floating window
+     vim.cmd "highlight link RnvimrNormal CursorLine"
+
+
+     -- Map Rnvimr action
+     vim.g.rnvimr_action = {
+       ['<C-t>'] = 'NvimEdit tabedit',
+       ['<C-x>'] = 'NvimEdit split',
+       ['<C-v>'] = 'NvimEdit vsplit',
+       ['gw'] = 'JumpNvimCwd',
+       ['yw'] = 'EmitRangerCwd'
+     }
+
+     -- Add views for Ranger to adapt the size of floating window
+     vim.g.rnvimr_ranger_views = {
+       {
+         minwidth = 90,
+         ratio = {}
+       },
+       {
+         minwidth = 50,
+         maxwidth = 89,
+         ratio = {1,1}
+       },
+       {
+         maxwidth = 49,
+         ratio = {1}
+       }
+     }
+
+     vim.cmd[[ 
+  " Customize the initial layout
+  let g:rnvimr_layout = {
+              \ 'relative': 'editor',
+              \ 'width': float2nr(round(0.7 * &columns)),
+              \ 'height': float2nr(round(0.7 * &lines)),
+              \ 'col': float2nr(round(0.15 * &columns)),
+              \ 'row': float2nr(round(0.15 * &lines)),
+              \ 'style': 'minimal'
+              \ }
+]]
+
+     -- Customize multiple preset layouts
+     -- '{}' represents the initial layout
+     vim.g.rnvimr_presets = {
+       {
+         width = 0.600,
+         height = 0.600
+       },
+       { width = 0.800,
+         height = 0.800
+       },
+       {
+         width = 0.950,
+         height = 0.950
+       },
+       {
+         width = 0.500,
+         height = 0.500,
+         col = 0,
+         row = 0
+       },
+       {
+         width = 0.500,
+         height = 0.500,
+         col = 0,
+         row = 0.5
+       },
+       {
+         width = 0.500,
+         height = 0.500,
+         col = 0.5,
+         row = 0
+       },
+       {
+         width = 0.500,
+         height = 0.500,
+         col = 0.5,
+         row =  0.5
+       },
+       {
+         width = 0.500,
+         height = 1.000,
+         col = 0,
+         row = 0
+       },
+       {
+         width = 0.500,
+         height = 1.000,
+         col = 0.5,
+         row = 0
+       },
+       {
+         width = 1.000,
+         height = 0.500,
+         col = 0,
+         row = 0
+       },
+       {
+         width = 1.000,
+         height = 0.500,
+         col = 0,
+         row = 0.5
+       }
+     }
+
+     -- Fullscreen for initial layout
+     -- let g:rnvimr_layout = {
+     --            \ relative = editor =
+     --            \ width = &columns,
+     --            \ height = &lines - 2,
+     --            \ col = 0,
+     --            \ row = 0,
+     --            \ 'style': 'minimal'
+     --            \ }
+     --
+     -- Only use initial preset layout
+     -- let g:rnvimr_presets = [{}]
+     -- nmap <space>r :RnvimrToggle<CR>
+     vim.g.rnvimr_vanilla = 1
+     @end
+
+**** impatient
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+      
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/
+     @code lua 
+      
+     @end
+
+**** knap
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+      
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/
+     @code lua 
+      
+     @end
+
+**** whichkey
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+      
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/
+     @code lua 
+      
+     @end
 
 *** Note taking & Organizational Plugins
 
@@ -641,7 +1313,6 @@
 
      use("aklt/plantuml-syntax")
      use("lukas-reineke/indent-blankline.nvim")
-     use({ "kevinhwang91/nvim-hlslens" })
 
      use({
        "weirongxu/plantuml-previewer.vim",
@@ -818,9 +1489,7 @@
       end,
     })
 
-    use({ "kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
     use("goolord/alpha-nvim")
-    use("907th/vim-auto-save")
     use("samjwill/nvim-unception")
     @end
 
@@ -1042,7 +1711,7 @@
        require("packer").sync()
      end
      end)
-    @end
+     @end
 
 ** Snippets
 
