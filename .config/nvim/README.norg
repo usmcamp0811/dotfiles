@@ -1197,8 +1197,6 @@
     #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua
     use("jbyuki/nabla.nvim") -- neat looking math pluging
-    use("ahmedkhalf/project.nvim")
-    use("itchyny/calendar.vim")
     use("edluffy/hologram.nvim")
     use("gioele/vim-autoswap")
 
@@ -1452,7 +1450,6 @@
 
      return neorg
      @end
-
 **** Vimwiki
 
      #tangle ~/.config/nvim/lua/user/plugins.lua
@@ -1756,6 +1753,78 @@
      --     textopdfviewerrefresh = "kill -HUP %pid%"
      -- }
      -- vim.g.knap_settings = gknapsettings
+     @end
+**** project
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("ahmedkhalf/project.nvim")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/project.lua
+     @code lua 
+     local status_ok, project = pcall(require, "project_nvim")
+     if not status_ok then
+       return
+     end
+     project.setup({
+       ---@usage set to false to disable project.nvim.
+       --- This is on by default since it's currently the expected behavior.
+       active = true,
+
+       on_config_done = nil,
+
+       ---@usage set to true to disable setting the current-woriking directory
+       --- Manual mode doesn't automatically change your root directory, so you have
+       --- the option to manually do so using `:ProjectRoot` command.
+       manual_mode = false,
+
+       ---@usage Methods of detecting the root directory
+       --- Allowed values: **"lsp"** uses the native neovim lsp
+       --- **"pattern"** uses vim-rooter like glob pattern matching. Here
+       --- order matters: if one is not detected, the other is used as fallback. You
+       --- can also delete or rearangne the detection methods.
+       -- detection_methods = { "lsp", "pattern" }, -- NOTE: lsp detection will get annoying with multiple langs in one project
+       detection_methods = { "pattern" },
+
+       ---@usage patterns used to detect root dir, when **"pattern"** is in detection_methods
+       patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", "package.json", "deps.edn", "Project.toml", "pyproject.toml" },
+
+       ---@ Show hidden files in telescope when searching for files in a project
+       show_hidden = false,
+
+       ---@usage When set to false, you will get a message when project.nvim changes your directory.
+       -- When set to false, you will get a message when project.nvim changes your directory.
+       silent_chdir = true,
+
+       ---@usage list of lsp client names to ignore when using **lsp** detection. eg: { "efm", ... }
+       ignore_lsp = {},
+
+       ---@type string
+       ---@usage path to store the project history for use in telescope
+       datapath = vim.fn.stdpath("data"),
+     })
+
+     local tele_status_ok, telescope = pcall(require, "telescope")
+     if not tele_status_ok then
+       return
+     end
+
+     telescope.load_extension('projects')
+     @end
+
+**** Calendar
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("itchyny/calendar.vim")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/calendar.lua
+     @code lua 
+     vim.g.calendar_google_calendar = 1
+     vim.g.calendar_google_task = 1
+     vim.cmd "source $HOME/.config/shell/private/calendar-creds.vim"
      @end
 
 *** Coding Plugins
@@ -2674,12 +2743,61 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
     #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua 
-    use("ggandor/leap.nvim") --  better vertical jumping
-    use({
-      "ggandor/flit.nvim",
-      requires = { "ggandor/leap.nvim" },
-    })
+     use({
+       "ggandor/flit.nvim",
+       requires = { "ggandor/leap.nvim" },
+     })
     @end
+
+**** Leap
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("ggandor/leap.nvim") --  better vertical jumping
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/leap.lua
+     @code lua 
+     local leap = require("leap")
+
+     leap.set_default_keymaps()
+
+     vim.api.nvim_set_hl(0, "LeapMatch", { fg = "#ff768e" })
+     vim.api.nvim_set_hl(0, "LeapLabelPrimary", { bg = "#ff768e" })
+     vim.api.nvim_set_hl(0, "LeapLabelSecondary", { bg = "#ff768e" })
+     vim.api.nvim_set_hl(0, "LeapBackdrop", { fg = "gray" })
+
+     leap.setup({
+       max_phase_one_targets = nil,
+       highlight_unlabeled_phase_one_targets = false,
+       max_highlighted_traversal_targets = 10,
+       case_sensitive = false,
+       equivalence_classes = { ' \t\r\n', },
+       substitute_chars = {},
+       -- safe_labels = { 's', 'f', 'n', 'u', 't', . . . },
+       -- labels = { 's', 'f', 'n', 'j', 'k', . . . },
+       special_keys = {
+         repeat_search = '<enter>',
+         next_phase_one_target = '<enter>',
+         next_target = {'<enter>', ';'},
+         prev_target = {'<tab>', ','},
+         next_group = '<space>',
+         prev_group = '<tab>',
+         multi_accept = '<enter>',
+         multi_revert = '<backspace>',
+       }
+     })
+
+     require('flit').setup {
+       keys = { f = 'f', F = 'F', t = 't', T = 'T' },
+       -- A string like "nv", "nvo", "o", etc.
+       labeled_modes = "v",
+       multiline = true,
+       -- Like `leap`s similar argument (call-specific overrides).
+       -- E.g.: opts = { equivalence_classes = {} }
+       opts = {}
+     }
+@end
 
 *** Miscellaneous Plugins 
 
@@ -2711,14 +2829,567 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
       end,
     })
 
-    use("goolord/alpha-nvim")
     use("samjwill/nvim-unception")
     @end
 
 *** Theme's & Other Visual Enhancements
 
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    use("Yazeed1s/minimal.nvim")
+    use("nvim-tree/nvim-web-devicons")
+    use("bluz71/vim-nightfly-guicolors")
+    use("bluz71/vim-moonfly-colors")
+    use("humanoid-colors/vim-humanoid-colorscheme")
+    use("lalitmee/cobalt2.nvim")
+    use("konosubakonoakua/synthwave84.nvim")
+    use("ellisonleao/gruvbox.nvim")
+    use({
+      "catppuccin/nvim",
+      as = "catppuccin",
+      run = ":CatppuccinCompile",
+    })
+    use("lunarvim/darkplus.nvim")
+    use("joshdick/onedark.vim")
+    use("rebelot/kanagawa.nvim")
+    use("EdenEast/nightfox.nvim")
 
-**** Current Theme
+    use("folke/lsp-colors.nvim")
+    use("p00f/nvim-ts-rainbow")
+    use({
+      "gen740/SmoothCursor.nvim",
+      config = function()
+        require("smoothcursor").setup({
+          autostart = true,
+          cursor = "》", -- cursor shape (need nerd font)
+          texthl = "SmoothCursor", -- highlight group, default is { bg = nil, fg = "#FFD400" }
+          linehl = nil, -- highlight sub-cursor line like 'cursorline', "CursorLine" recommended
+          type = "default", -- define cursor movement calculate function, "default" or "exp" (exponential).
+          fancy = {
+            enable = true, -- enable fancy mode
+            head = { cursor = "❱", texthl = "SmoothCursor", linehl = nil },
+            body = {
+              { cursor = "", texthl = "SmoothCursorRed" },
+              { cursor = "", texthl = "SmoothCursorOrange" },
+              { cursor = "●", texthl = "SmoothCursorYellow" },
+              { cursor = "●", texthl = "SmoothCursorGreen" },
+              { cursor = "•", texthl = "SmoothCursorAqua" },
+              { cursor = ".", texthl = "SmoothCursorBlue" },
+              { cursor = ".", texthl = "SmoothCursorPurple" },
+            },
+            tail = { cursor = nil, texthl = "SmoothCursor" },
+          },
+          speed = 25, -- max is 100 to stick to your current position
+          intervals = 35, -- tick interval
+          priority = 10, -- set marker priority
+          timeout = 3000, -- timout for animation
+          threshold = 3, -- animate if threshold lines jump
+          enabled_filetypes = nil, -- example: { "lua", "vim" }
+          disabled_filetypes = nil,
+          --{"mind", "TelescopePrompt", "NvimTree"}, -- this option will be skipped if enabled_filetypes is set. example: { "TelescopePrompt", "NvimTree" }
+        })
+      end,
+    })
+    @end
+
+**** Alpha
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("goolord/alpha-nvim")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/alpha.lua
+     @code lua 
+     local status_ok, alpha = pcall(require, "alpha")
+     if not status_ok then
+       return
+     end
+
+     local dashboard = require("alpha.themes.dashboard")
+     dashboard.section.header.val = {
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⠻⢿⣷⣷⣷⣷⣷⣷⣷⣷⣧⣤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢂⣀⠀⡀⠀⠀⠀⠀⠀⠀⠈⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡀⠀⢀⡍⢛⣷⣿⡆⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣿⣿⣿⣆⠘⠀⠜⠿⠿⠳⠀⢀⣀⣿⣿⣿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⡿⠻⣿⣿⣿⣿⣿⣾⣶⣶⣷⣿⣿⣿⣿⣿⡻⢿⣿⣿⣿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠠⣶⣾⣿⣿⣿⡿⠟⠉⣤⡾⠋⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣯⠙⠷⣦⡈⠛⢾⣿⣿⣿⣿⣶⠄⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠀⠀⠉⠉⠀⠾⠿⠿⠃⠘⣿⣿⣿⣿⠇⠈⠿⠿⠷⠀⠉⠉⠀⠀⠉⠉⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⡿⠉⣿⣿⡉⢿⣧⡀⠀⠀⠀⠀⡄⢂⣀⠀⠀⠀⠀⣊⠄⠴⠐⣤⡀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠀⠀⠀⠀⠈⠩⠡⠔⠔⢤⣤⣤⣉⡃⠀⠀⠀⠐⢋⣭⣴⡀⠀⢀⣧⠠⠖⠘⣡⠈⢿⡆⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⢀⣤⠖⣻⣿⡿⠃⠀⢀⡀⠀⠀⠀⠀⠀⠈⠛⠀⢉⣶⣴⣤⣤⡀⡀⣀⠛⠻⣷⣀⣴⣿⣄⠘⣡⠡⠖⢸⡯⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠛⠟⠢⢴⣿⠃⠀⣀⣸⠁⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⣯⣩⣉⣉⡂⢘⡈⠃⡆⢩⠙⠻⣷⣄⣁⢂⣡⡾⠃⠀⠀]],
+       [[⠀⠀⠀⠀⠀⢠⡐⢠⣿⡗⠘⠇⠀⠐⠛⢛⣢⡀⢀⠀⠀⣤⣴⡈⣿⣿⣿⣿⡟⡛⠟⠿⠆⠻⠛⢦⣌⡘⠅⠦⠉⡋⠛⠉⠀⠀⠀⠀]],
+       [[⠀⠀⠀⢠⡘⠂⢰⣿⣿⠇⣡⠀⠀⣿⡿⠿⠿⢽⣶⣦⣀⢛⠙⢿⠛⠚⠻⢿⣿⣿⣿⣷⣶⡀⠀⠈⢿⣿⣃⡀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⢒⠂⢠⣿⣿⣿⠠⠶⠀⠠⣴⣶⣾⣾⣾⣿⣿⣿⣿⣷⣶⠀⠀⠀⠀⠈⠹⢦⣬⣬⡁⠀⠀⠘⠋⠥⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⢈⠥⠀⣼⣿⠟⢡⡘⠁⡬⠁⢋⣉⣍⣍⣭⣿⣿⣿⣿⣿⣧⡀⠀⠀⠀⠀⠀⢀⡟⠻⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠠⢒⠰⠋⣅⠚⢂⣴⡀⠖⡰⡙⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⡧⠀⠀⢀⡴⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⢩⠄⢓⣤⣾⣿⣿⣧⠘⡠⢁⠐⢶⣷⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⣰⣾⣶⡦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⣠⡄⠞⡈⢿⣿⣿⣿⣿⣄⠀⠋⡤⠀⠉⠡⣥⣽⣿⣿⣿⣿⣿⣆⣼⣉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠈⢡⠂⠻⣿⣿⣿⣿⣷⣦⣀⠋⡄⢀⠀⠈⠉⠛⠛⠛⠋⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠚⢡⠀⡈⠙⠻⠿⣿⣿⣷⣦⠘⠛⠖⠦⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠈⠘⠂⢆⢰⡀⣄⠨⠉⠉⢻⣿⣿⡿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+       [[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]],
+     }
+     dashboard.section.buttons.val = {
+       dashboard.button("f", "  Find file", ":Telescope find_files <CR>"),
+       dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+       dashboard.button("p", "  Find project", ":Telescope projects <CR>"),
+       dashboard.button("r", "  Recently used files", ":Telescope oldfiles <CR>"),
+       dashboard.button("t", "  Find text", ":Telescope live_grep <CR>"),
+       dashboard.button("I", " Neorg Home", ":e ~/vimwiki/home/index.norg<CR>"),
+       dashboard.button("i", "  init.lua", ":e ~/.config/nvim/init.lua <CR>"),
+       dashboard.button("P", "  Plugins", ":e ~/.config/nvim/lua/user/plugins.lua <CR>"),
+       dashboard.button("q", "  Quit Neovim", ":qa<CR>"),
+     }
+
+     local function footer()
+       -- NOTE: requires the fortune-mod package to work
+       -- local handle = io.popen("fortune")
+       -- local fortune = handle:read("*a")
+       -- handle:close()
+       -- return fortune
+       return "matt-camp.com"
+     end
+
+     dashboard.section.footer.val = footer()
+
+     dashboard.section.footer.opts.hl = "Type"
+     dashboard.section.header.opts.hl = "Include"
+     dashboard.section.buttons.opts.hl = "Keyword"
+
+     dashboard.opts.opts.noautocmd = true
+     -- vim.cmd([[autocmd User AlphaReady echo 'ready']])
+     alpha.setup(dashboard.opts)
+     @end
+
+**** lualine
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({
+       "nvim-lualine/lualine.nvim",
+       requires = { "kyazdani42/nvim-web-devicons", opt = true },
+     })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/lualine.lua
+     @code lua 
+     local status_ok, lualine = pcall(require, "lualine")
+     if not status_ok then
+       return
+     end
+
+     local hide_in_width = function()
+       return vim.fn.winwidth(0) > 80
+     end
+
+     local diagnostics = {
+       "diagnostics",
+       sources = { "nvim_diagnostic" },
+       sections = { "error", "warn" },
+       symbols = { error = " ", warn = " " },
+       colored = false,
+       update_in_insert = false,
+       always_visible = true,
+       globalstatus = true,
+     }
+
+     local diff = {
+       "diff",
+       colored = false,
+       symbols = { added = " ", modified = " ", removed = " " }, -- changes diff symbols
+       cond = hide_in_width
+     }
+
+     local mode = {
+       "mode",
+       fmt = function(str)
+         return "-- " .. str .. " --"
+       end,
+     }
+
+     local filetype = {
+       "filetype",
+       icons_enabled = false,
+       icon = nil,
+     }
+
+     local branch = {
+       "branch",
+       icons_enabled = true,
+       icon = "",
+     }
+
+     local location = {
+       "location",
+       padding = 0,
+     }
+
+     -- cool function for progress
+     local progress = function()
+       local current_line = vim.fn.line(".")
+       local total_lines = vim.fn.line("$")
+       local chars = { "__", "▁▁", "▂▂", "▃▃", "▄▄", "▅▅", "▆▆", "▇▇", "██" }
+       local line_ratio = current_line / total_lines
+       local index = math.ceil(line_ratio * #chars)
+       return chars[index]
+     end
+
+     local spaces = function()
+       return "spaces: " .. vim.api.nvim_buf_get_option(0, "shiftwidth")
+     end
+     lualine.setup({
+       options = {
+         icons_enabled = true,
+         theme = "auto",
+         section_separators = { left = '', right = '' },
+         component_separators = { left = '', right = '' },
+         disabled_filetypes = { "alpha", "dashboard", "NvimTree", "Outline" },
+         always_divide_middle = true,
+       },
+       sections = {
+         lualine_a = { branch, diagnostics },
+         lualine_b = { mode },
+         lualine_c = {},
+         -- lualine_x = { "encoding", "fileformat", "filetype" },
+         lualine_x = { diff, spaces, "encoding", filetype },
+         lualine_y = { location },
+         lualine_z = { progress },
+       },
+       inactive_sections = {
+         lualine_a = {},
+         lualine_b = {},
+         lualine_c = { "filename" },
+         lualine_x = { "location" },
+         lualine_y = {},
+         lualine_z = {},
+       },
+       tabline = {},
+       extensions = {},
+     })
+     @end
+
+**** bufferline
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/bufferline.lua
+     @code lua 
+     local status_ok, bufferline = pcall(require, "bufferline")
+     if not status_ok then
+       return
+     end
+
+     bufferline.setup({
+       options = {
+         numbers = "none", -- | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string,
+         close_command = "Bdelete! %d", -- can be a string | function, see "Mouse actions"
+         right_mouse_command = "Bdelete! %d", -- can be a string | function, see "Mouse actions"
+         left_mouse_command = "buffer %d", -- can be a string | function, see "Mouse actions"
+         middle_mouse_command = nil, -- can be a string | function, see "Mouse actions"
+         -- NOTE: this plugin is designed with this icon in mind,
+         -- and so changing this is NOT recommended, this is intended
+         -- as an escape hatch for people who cannot bear it for whatever reason
+         indicator = {
+           icon = "▎",
+           style = "icon"
+         },
+         buffer_close_icon = "",
+         -- buffer_close_icon = '',
+         modified_icon = "●",
+         close_icon = "",
+         -- close_icon = '',
+         left_trunc_marker = "",
+         right_trunc_marker = "",
+         --- name_formatter can be used to change the buffer's label in the bufferline.
+         --- Please note some names can/will break the
+         --- bufferline so use this at your discretion knowing that it has
+         --- some limitations that will *NOT* be fixed.
+         -- name_formatter = function(buf)  -- buf contains a "name", "path" and "bufnr"
+         --   -- remove extension from markdown files for example
+         --   if buf.name:match('%.md') then
+         --     return vim.fn.fnamemodify(buf.name, ':t:r')
+         --   end
+         -- end,
+         max_name_length = 30,
+         max_prefix_length = 30, -- prefix used when a buffer is de-duplicated
+         tab_size = 21,
+         diagnostics = false, -- | "nvim_lsp" | "coc",
+         diagnostics_update_in_insert = false,
+         -- diagnostics_indicator = function(count, level, diagnostics_dict, context)
+         --   return "("..count..")"
+         -- end,
+         -- NOTE: this will be called a lot so don't do any heavy processing here
+         -- custom_filter = function(buf_number)
+         --   -- filter out filetypes you don't want to see
+         --   if vim.bo[buf_number].filetype ~= "<i-dont-want-to-see-this>" then
+         --     return true
+         --   end
+         --   -- filter out by buffer name
+         --   if vim.fn.bufname(buf_number) ~= "<buffer-name-I-dont-want>" then
+         --     return true
+         --   end
+         --   -- filter out based on arbitrary rules
+         --   -- e.g. filter out vim wiki buffer from tabline in your work repo
+         --   if vim.fn.getcwd() == "<work-repo>" and vim.bo[buf_number].filetype ~= "wiki" then
+         --     return true
+         --   end
+         -- end,
+         offsets = { { filetype = "NvimTree", text = "", padding = 1 } },
+         show_buffer_icons = true,
+         show_buffer_close_icons = true,
+         show_close_icon = true,
+         show_tab_indicators = true,
+         persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
+         -- can also be a table containing 2 custom separators
+         -- [focused and unfocused]. eg: { '|', '|' }
+         separator_style = "thin", -- | "thick" | "thin" | { 'any', 'any' },
+         enforce_regular_tabs = true,
+         always_show_bufferline = true,
+         -- sort_by = 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
+         --   -- add custom logic
+         --   return buffer_a.modified > buffer_b.modified
+         -- end
+       },
+       highlights = {
+         fill = {
+           fg = { attribute = "fg", highlight = "#ff0000" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+         background = {
+           fg = { attribute = "fg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+
+         -- buffer_selected = {
+         --   fg = {attribute='fg',highlight='#ff0000'},
+         --   bg = {attribute='bg',highlight='#0000ff'},
+         --   underline = 'none'
+         --   },
+         buffer_visible = {
+           fg = { attribute = "fg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+
+         close_button = {
+           fg = { attribute = "fg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+         close_button_visible = {
+           fg = { attribute = "fg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+         -- close_button_selected = {
+         --   fg = {attribute='fg',highlight='TabLineSel'},
+         --   bg ={attribute='bg',highlight='TabLineSel'}
+         --   },
+
+         tab_selected = {
+           fg = { attribute = "fg", highlight = "Normal" },
+           bg = { attribute = "bg", highlight = "Normal" },
+         },
+         tab = {
+           fg = { attribute = "fg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+         tab_close = {
+           -- fg = {attribute='fg',highlight='LspDiagnosticsDefaultError'},
+           fg = { attribute = "fg", highlight = "TabLineSel" },
+           bg = { attribute = "bg", highlight = "Normal" },
+         },
+
+         --		duplicate_selected = {
+         --			fg = { attribute = "fg", highlight = "TabLineSel" },
+         --			bg = { attribute = "bg", highlight = "TabLineSel" },
+         --			underline = "italic",
+         --		},
+         --		duplicate_visible = {
+         --			fg = { attribute = "fg", highlight = "TabLine" },
+         --			bg = { attribute = "bg", highlight = "TabLine" },
+         --			underline = "italic",
+         --		},
+         --		duplicate = {
+         --			fg = { attribute = "fg", highlight = "TabLine" },
+         --			bg = { attribute = "bg", highlight = "TabLine" },
+         --			underline = "italic",
+         --		},
+
+         modified = {
+           fg = { attribute = "fg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+         modified_selected = {
+           fg = { attribute = "fg", highlight = "Normal" },
+           bg = { attribute = "bg", highlight = "Normal" },
+         },
+         modified_visible = {
+           fg = { attribute = "fg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+
+         separator = {
+           fg = { attribute = "bg", highlight = "TabLine" },
+           bg = { attribute = "bg", highlight = "TabLine" },
+         },
+         separator_selected = {
+           fg = { attribute = "bg", highlight = "Normal" },
+           bg = { attribute = "bg", highlight = "Normal" },
+         },
+         -- separator_visible = {
+         --   fg = {attribute='bg',highlight='TabLine'},
+         --   bg = {attribute='bg',highlight='TabLine'}
+         --   },
+         indicator_selected = {
+           fg = { attribute = "fg", highlight = "LspDiagnosticsDefaultHint" },
+           bg = { attribute = "bg", highlight = "Normal" },
+         },
+       },
+     })
+     @end
+
+**** scrollbars
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("petertriho/nvim-scrollbar")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/scrollbars.lua
+     @code lua 
+     require("scrollbar").setup({
+       show = true,
+       show_in_active_only = false,
+       set_highlights = true,
+       folds = 1000, -- handle folds, set to number to disable folds if no. of lines in buffer exceeds this
+       max_lines = false, -- disables if no. of lines in buffer exceeds this
+       handle = {
+         text = " ",
+         color = nil,
+         cterm = nil,
+         highlight = "CursorColumn",
+         hide_if_all_visible = true, -- Hides handle if all lines are visible
+       },
+       marks = {
+         Search = {
+           text = { "-", "=" },
+           priority = 0,
+           color = nil,
+           cterm = nil,
+           highlight = "Search",
+         },
+         Error = {
+           text = { "-", "=" },
+           priority = 1,
+           color = nil,
+           cterm = nil,
+           highlight = "DiagnosticVirtualTextError",
+         },
+         Warn = {
+           text = { "-", "=" },
+           priority = 2,
+           color = nil,
+           cterm = nil,
+           highlight = "DiagnosticVirtualTextWarn",
+         },
+         Info = {
+           text = { "-", "=" },
+           priority = 3,
+           color = nil,
+           cterm = nil,
+           highlight = "DiagnosticVirtualTextInfo",
+         },
+         Hint = {
+           text = { "-", "=" },
+           priority = 4,
+           color = nil,
+           cterm = nil,
+           highlight = "DiagnosticVirtualTextHint",
+         },
+         Misc = {
+           text = { "-", "=" },
+           priority = 5,
+           color = nil,
+           cterm = nil,
+           highlight = "Normal",
+         },
+         GitAdd = {
+           text = "┆",
+           priority = 5,
+           color = nil,
+           cterm = nil,
+           highlight = "GitSignsAdd",
+         },
+         GitChange = {
+           text = "┆",
+           priority = 5,
+           color = nil,
+           cterm = nil,
+           highlight = "GitSignsChange",
+         },
+         GitDelete = {
+           text = "▁",
+           priority = 5,
+           color = nil,
+           cterm = nil,
+           highlight = "GitSignsDelete",
+         },
+       },
+       excluded_buftypes = {
+         "terminal",
+       },
+       excluded_filetypes = {
+         "prompt",
+         "TelescopePrompt",
+         "noice",
+       },
+       autocmd = {
+         render = {
+           "BufWinEnter",
+           "TabEnter",
+           "TermEnter",
+           "WinEnter",
+           "CmdwinLeave",
+           "TextChanged",
+           "VimResized",
+           "WinScrolled",
+         },
+         clear = {
+           "BufWinLeave",
+           "TabLeave",
+           "TermLeave",
+           "WinLeave",
+         },
+       },
+       handlers = {
+         diagnostic = true,
+         search = false, -- Requires hlslens to be loaded
+         gitsigns = false, -- Requires gitsigns.nvim
+       },
+     })
+     @end
+
+**** colorizer
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("norcalli/nvim-colorizer.lua")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/colorizer.lua
+     @code lua 
+     require 'colorizer'.setup()
+     @end
+
+
+
+
+**** Current Theme (ayu)
 
      This is my current theme and its configuration. I can't take credit I found the config elsewhere.. think it was posted/linked to on Reddit. I did make a couple tweaks to fix a few color issues. Don't think most of the config is really used but some is... 
 
@@ -2860,72 +3531,7 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
      @end
 
-**** Other Visual Things Needing Organization
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
-     @code lua 
-     use("Yazeed1s/minimal.nvim")
-     use("nvim-tree/nvim-web-devicons")
-     use("bluz71/vim-nightfly-guicolors")
-     use("bluz71/vim-moonfly-colors")
-     use("humanoid-colors/vim-humanoid-colorscheme")
-     use("lalitmee/cobalt2.nvim")
-     use("konosubakonoakua/synthwave84.nvim")
-     use("ellisonleao/gruvbox.nvim")
-     use({
-       "catppuccin/nvim",
-       as = "catppuccin",
-       run = ":CatppuccinCompile",
-     })
-     use("lunarvim/darkplus.nvim")
-     use("joshdick/onedark.vim")
-     use("rebelot/kanagawa.nvim")
-     use("EdenEast/nightfox.nvim")
-
-     use("folke/lsp-colors.nvim")
-     use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
-     use("p00f/nvim-ts-rainbow")
-     use({
-       "nvim-lualine/lualine.nvim",
-       requires = { "kyazdani42/nvim-web-devicons", opt = true },
-     })
-     use("norcalli/nvim-colorizer.lua")
-     use({
-       "gen740/SmoothCursor.nvim",
-       config = function()
-         require("smoothcursor").setup({
-           autostart = true,
-           cursor = "》", -- cursor shape (need nerd font)
-           texthl = "SmoothCursor", -- highlight group, default is { bg = nil, fg = "#FFD400" }
-           linehl = nil, -- highlight sub-cursor line like 'cursorline', "CursorLine" recommended
-           type = "default", -- define cursor movement calculate function, "default" or "exp" (exponential).
-           fancy = {
-             enable = true, -- enable fancy mode
-             head = { cursor = "❱", texthl = "SmoothCursor", linehl = nil },
-             body = {
-               { cursor = "", texthl = "SmoothCursorRed" },
-               { cursor = "", texthl = "SmoothCursorOrange" },
-               { cursor = "●", texthl = "SmoothCursorYellow" },
-               { cursor = "●", texthl = "SmoothCursorGreen" },
-               { cursor = "•", texthl = "SmoothCursorAqua" },
-               { cursor = ".", texthl = "SmoothCursorBlue" },
-               { cursor = ".", texthl = "SmoothCursorPurple" },
-             },
-             tail = { cursor = nil, texthl = "SmoothCursor" },
-           },
-           speed = 25, -- max is 100 to stick to your current position
-           intervals = 35, -- tick interval
-           priority = 10, -- set marker priority
-           timeout = 3000, -- timout for animation
-           threshold = 3, -- animate if threshold lines jump
-           enabled_filetypes = nil, -- example: { "lua", "vim" }
-           disabled_filetypes = nil,
-           --{"mind", "TelescopePrompt", "NvimTree"}, -- this option will be skipped if enabled_filetypes is set. example: { "TelescopePrompt", "NvimTree" }
-         })
-       end,
-     })
-
-     @end
 
      #tangle ~/.config/nvim/lua/user/plugins.lua
      @code lua 
