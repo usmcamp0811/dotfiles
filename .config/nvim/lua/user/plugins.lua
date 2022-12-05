@@ -179,7 +179,7 @@ return packer.startup(function(use)
 	use("moll/vim-bbye")
 	use({
 		"numToStr/Comment.nvim",
-		-- tag = "v0.6.1",
+		tag = "v0.7.0",
 		--branch = "master",
 	})
 	use("windwp/nvim-autopairs")

@@ -518,284 +518,284 @@
 
 **** Toggle Term
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
-    @code lua 
-    use("akinsho/toggleterm.nvim")
-    @end
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("akinsho/toggleterm.nvim")
+     @end
 
-    #tangle ~/.config/nvim/lua/user/plug-setting/toggleterm.lua
-    @code lua 
-    local status_ok, toggleterm = pcall(require, "toggleterm")
-    if not status_ok then
-      return
-    end
+     #tangle ~/.config/nvim/lua/user/plug-setting/toggleterm.lua
+     @code lua 
+     local status_ok, toggleterm = pcall(require, "toggleterm")
+     if not status_ok then
+       return
+     end
 
-    toggleterm.setup({
-      size = function(term)
-        if term.direction == "horizontal" then
-          return 15
-        elseif term.direction == "vertical" then
-          return vim.o.columns * 0.4
-        end
-      end,
-      open_mapping = [[<F1>]],
-      hide_numbers = true,
-      shade_filetypes = {},
-      shade_terminals = false,
-      shading_factor = 2,
-      start_in_insert = true,
-      insert_mappings = true,
-      persist_size = true,
-      direction = "float",
-      close_on_exit = true,
-      shell = vim.o.shell,
-      float_opts = {
-        border = "curved",
-        winblend = 0,
-        highlights = {
-          border = "Normal",
-          background = "Normal",
-        },
-      },
-    })
+     toggleterm.setup({
+       size = function(term)
+         if term.direction == "horizontal" then
+           return 15
+         elseif term.direction == "vertical" then
+           return vim.o.columns * 0.4
+         end
+       end,
+       open_mapping = [[<F1>]],
+       hide_numbers = true,
+       shade_filetypes = {},
+       shade_terminals = false,
+       shading_factor = 2,
+       start_in_insert = true,
+       insert_mappings = true,
+       persist_size = true,
+       direction = "float",
+       close_on_exit = true,
+       shell = vim.o.shell,
+       float_opts = {
+         border = "curved",
+         winblend = 0,
+         highlights = {
+           border = "Normal",
+           background = "Normal",
+         },
+       },
+     })
 
-    function _G.set_terminal_keymaps()
-      local opts = { noremap = true }
-      vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
-      vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
-      vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
-      vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
-      vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
-    end
+     function _G.set_terminal_keymaps()
+       local opts = { noremap = true }
+       vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
+       vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
+       vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
+       vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
+       vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
+     end
 
-    vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
+     vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
 
-    local Terminal = require("toggleterm.terminal").Terminal
-    local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
+     local Terminal = require("toggleterm.terminal").Terminal
+     local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
 
-    function _LAZYGIT_TOGGLE()
-      lazygit:toggle()
-    end
+     function _LAZYGIT_TOGGLE()
+       lazygit:toggle()
+     end
 
-    local node = Terminal:new({
-      cmd = "node",
-      dir = "git_dir",
-      direction = "vertical",
-      on_open = function()
-        vim.g.node_job_id = vim.b.terminal_job_id
-      end,
-    })
+     local node = Terminal:new({
+       cmd = "node",
+       dir = "git_dir",
+       direction = "vertical",
+       on_open = function()
+         vim.g.node_job_id = vim.b.terminal_job_id
+       end,
+     })
 
-    function _NODE_TOGGLE()
-      node:toggle()
-      vim.cmd("wincmd h")
-      vim.b.slime_config = {}
-      vim.b.slime_config = {
-        jobid = vim.g.node_job_id,
-      }
-      vim.cmd("wincmd l")
-    end
+     function _NODE_TOGGLE()
+       node:toggle()
+       vim.cmd("wincmd h")
+       vim.b.slime_config = {}
+       vim.b.slime_config = {
+         jobid = vim.g.node_job_id,
+       }
+       vim.cmd("wincmd l")
+     end
 
-    local ncdu = Terminal:new({ cmd = "ncdu", hidden = true })
+     local ncdu = Terminal:new({ cmd = "ncdu", hidden = true })
 
-    function _NCDU_TOGGLE()
-      ncdu:toggle()
-    end
+     function _NCDU_TOGGLE()
+       ncdu:toggle()
+     end
 
-    local bpytop = Terminal:new({ cmd = "bpytop", hidden = true })
+     local bpytop = Terminal:new({ cmd = "bpytop", hidden = true })
 
-    function _BPYTOP_TOGGLE()
-      bpytop:toggle()
-    end
+     function _BPYTOP_TOGGLE()
+       bpytop:toggle()
+     end
 
-    local k9s = Terminal:new({ cmd = "k9s", hidden = true })
+     local k9s = Terminal:new({ cmd = "k9s", hidden = true })
 
-    function _K9S_TOGGLE()
-      k9s:toggle()
-    end
+     function _K9S_TOGGLE()
+       k9s:toggle()
+     end
 
-    local htop = Terminal:new({ cmd = "htop", hidden = true })
+     local htop = Terminal:new({ cmd = "htop", hidden = true })
 
-    function _HTOP_TOGGLE()
-      htop:toggle()
-    end
+     function _HTOP_TOGGLE()
+       htop:toggle()
+     end
 
-    local vshell = Terminal:new({
-      cmd = "zsh",
-      dir = "git_dir",
-      direction = "vertical",
-      on_open = function()
-        vim.g.vshell_job_id = vim.b.terminal_job_id
-      end,
-      on_close = function()
-        vim.g.vshell_job_id = nil
-      end,
-    })
+     local vshell = Terminal:new({
+       cmd = "zsh",
+       dir = "git_dir",
+       direction = "vertical",
+       on_open = function()
+         vim.g.vshell_job_id = vim.b.terminal_job_id
+       end,
+       on_close = function()
+         vim.g.vshell_job_id = nil
+       end,
+     })
 
-    function _VSHELL_TOGGLE()
-      vshell:toggle()
-      vim.cmd("wincmd h")
-      vim.b.slime_config = {}
-      vim.b.slime_config = {
-        jobid = vim.g.vshell_job_id,
-      }
-      vim.cmd("wincmd l")
-    end
+     function _VSHELL_TOGGLE()
+       vshell:toggle()
+       vim.cmd("wincmd h")
+       vim.b.slime_config = {}
+       vim.b.slime_config = {
+         jobid = vim.g.vshell_job_id,
+       }
+       vim.cmd("wincmd l")
+     end
 
-    local hshell = Terminal:new({
-      cmd = "zsh",
-      dir = "git_dir",
-      direction = "horizontal",
-      on_open = function()
-        vim.g.hshell_job_id = vim.b.terminal_job_id
-      end,
-      on_close = function()
-        vim.g.hshell_job_id = nil
-      end,
-    })
+     local hshell = Terminal:new({
+       cmd = "zsh",
+       dir = "git_dir",
+       direction = "horizontal",
+       on_open = function()
+         vim.g.hshell_job_id = vim.b.terminal_job_id
+       end,
+       on_close = function()
+         vim.g.hshell_job_id = nil
+       end,
+     })
 
-    function _HSHELL_TOGGLE()
-      hshell:toggle()
-      vim.cmd("wincmd k")
-      vim.g.slime_target = "neovim"
-      vim.g.slime_dont_ask_default = 1
-      vim.b.slime_config = {}
-      vim.b.slime_config = {
-        jobid = vim.g.hshell_job_id,
-      }
-      vim.cmd("wincmd j")
-    end
+     function _HSHELL_TOGGLE()
+       hshell:toggle()
+       vim.cmd("wincmd k")
+       vim.g.slime_target = "neovim"
+       vim.g.slime_dont_ask_default = 1
+       vim.b.slime_config = {}
+       vim.b.slime_config = {
+         jobid = vim.g.hshell_job_id,
+       }
+       vim.cmd("wincmd j")
+     end
 
-    local clojure = Terminal:new({
-      cmd = "clj -M:repl/conjure || clojure -M:repl/remote --port 8794 --host localhost",
-      dir = "git_dir",
-      name = "clojure",
-      count = 38,
-      direction = "vertical",
-      on_open = function()
-        vim.g.clojure_job_id = vim.b.terminal_job_id
-      end,
-      on_close = function()
-        vim.g.clojure_job_id = nil
-      end,
-    })
+     local clojure = Terminal:new({
+       cmd = "clj -M:repl/conjure || clojure -M:repl/remote --port 8794 --host localhost",
+       dir = "git_dir",
+       name = "clojure",
+       count = 38,
+       direction = "vertical",
+       on_open = function()
+         vim.g.clojure_job_id = vim.b.terminal_job_id
+       end,
+       on_close = function()
+         vim.g.clojure_job_id = nil
+       end,
+     })
 
-    function _CLOJURE_TOGGLE()
-      clojure:toggle()
-      vim.cmd("wincmd h")
-      vim.g.slime_target = "neovim"
-      vim.g.slime_dont_ask_default = 1
-      vim.b.slime_config = {}
-      vim.b.slime_config = {
-        jobid = vim.g.clojure_job_id,
-      }
-      vim.cmd("wincmd l")
-    end
+     function _CLOJURE_TOGGLE()
+       clojure:toggle()
+       vim.cmd("wincmd h")
+       vim.g.slime_target = "neovim"
+       vim.g.slime_dont_ask_default = 1
+       vim.b.slime_config = {}
+       vim.b.slime_config = {
+         jobid = vim.g.clojure_job_id,
+       }
+       vim.cmd("wincmd l")
+     end
 
-    local python = Terminal:new({
-      cmd = "ipython --matplotlib",
-      name = "pyton",
-      count = 314,
-      dir = "git_dir",
-      direction = "vertical",
-      on_open = function()
-    vim.g.python_job_id = vim.b.terminal_job_id
-      end,
-      on_close = function()
-        vim.g.python_job_id = nil
-      end,
-      shade_terminals = true,
-    })
+     local python = Terminal:new({
+       cmd = "ipython --matplotlib",
+       name = "pyton",
+       count = 314,
+       dir = "git_dir",
+       direction = "vertical",
+       on_open = function()
+         vim.g.python_job_id = vim.b.terminal_job_id
+       end,
+       on_close = function()
+         vim.g.python_job_id = nil
+       end,
+       shade_terminals = true,
+     })
 
-    function _PYTHON_TOGGLE()
-    python:toggle()
-      vim.cmd("wincmd h")
-      vim.g.slime_target = "neovim"
-      vim.g.slime_dont_ask_default = 1
-      vim.b.slime_config = {}
-      vim.b.slime_config = {
-        jobid = vim.g.python_job_id,
-    }
-      vim.cmd("wincmd l")
-    end
+     function _PYTHON_TOGGLE()
+       python:toggle()
+       vim.cmd("wincmd h")
+       vim.g.slime_target = "neovim"
+       vim.g.slime_dont_ask_default = 1
+       vim.b.slime_config = {}
+       vim.b.slime_config = {
+         jobid = vim.g.python_job_id,
+       }
+       vim.cmd("wincmd l")
+     end
 
-    local julia = Terminal:new({
-      cmd = "julia",
-      name = "julia",
-      count = 42,
-      dir = "git_dir",
-      direction = "vertical",
-      on_open = function()
-        vim.g.julia_job_id = vim.b.terminal_job_id
-      end,
-      on_close = function()
-        vim.g.julia_job_id = nil
-      end,
+     local julia = Terminal:new({
+       cmd = "julia",
+       name = "julia",
+       count = 42,
+       dir = "git_dir",
+       direction = "vertical",
+       on_open = function()
+         vim.g.julia_job_id = vim.b.terminal_job_id
+       end,
+       on_close = function()
+         vim.g.julia_job_id = nil
+       end,
 
-    })
+     })
 
-    function _JULIA_TOGGLE()
-      julia:toggle()
-      vim.cmd("wincmd h")
-      vim.g.slime_target = "neovim"
-      vim.g.slime_dont_ask_default = 1
-      vim.b.slime_config = {}
-      vim.b.slime_config = {
-        jobid = vim.g.julia_job_id,
-      }
-      vim.cmd(":let g:julia_bufnr=bufnr('%')")
-      vim.cmd("wincmd l")
-    end
+     function _JULIA_TOGGLE()
+       julia:toggle()
+       vim.cmd("wincmd h")
+       vim.g.slime_target = "neovim"
+       vim.g.slime_dont_ask_default = 1
+       vim.b.slime_config = {}
+       vim.b.slime_config = {
+         jobid = vim.g.julia_job_id,
+       }
+       vim.cmd(":let g:julia_bufnr=bufnr('%')")
+       vim.cmd("wincmd l")
+     end
 
-    local lua = Terminal:new({
-      cmd = "lua",
-      dir = "git_dir",
-      direction = "vertical",
-      on_open = function()
-        vim.g.lua_job_id = vim.b.terminal_job_id
-      end,
-      on_close = function()
-        vim.g.lua_job_id = nil
-      end,
-    })
+     local lua = Terminal:new({
+       cmd = "lua",
+       dir = "git_dir",
+       direction = "vertical",
+       on_open = function()
+         vim.g.lua_job_id = vim.b.terminal_job_id
+       end,
+       on_close = function()
+         vim.g.lua_job_id = nil
+       end,
+     })
 
-    function _LUA_TOGGLE()
-      lua:toggle()
-      vim.cmd("wincmd h")
-      vim.g.slime_target = "neovim"
-      vim.g.slime_dont_ask_default = 1
-      vim.b.slime_config = {}
-      vim.b.slime_config = {
-        jobid = vim.g.lua_job_id,
-      }
-      vim.cmd("wincmd l")
-    end
+     function _LUA_TOGGLE()
+       lua:toggle()
+       vim.cmd("wincmd h")
+       vim.g.slime_target = "neovim"
+       vim.g.slime_dont_ask_default = 1
+       vim.b.slime_config = {}
+       vim.b.slime_config = {
+         jobid = vim.g.lua_job_id,
+       }
+       vim.cmd("wincmd l")
+     end
 
-    local status_ok, which_key = pcall(require, "which-key")
-    if not status_ok then
-      return
-    end
+     local status_ok, which_key = pcall(require, "which-key")
+     if not status_ok then
+       return
+     end
 
-    which_key.register({
-      t = {
-        name = "Terminal",
-        j = { "<cmd>lua _JULIA_TOGGLE()<cr>", "Julia" },
-        c = { "<cmd>lua _CLOJURE_TOGGLE()<cr>", "Clojure" },
-        p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },
-        n = { "<cmd>lua _NODE_TOGGLE()<cr>", "Node" },
-        l = { "<cmd>lua _LUA_TOGGLE()<cr>", "Lua" },
-        g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
-        u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
-        t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
-        k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
-        f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
-        h = { "<cmd>lua _HSHELL_TOGGLE()<cr>", "Horizontal" },
-        v = { "<cmd>lua _VSHELL_TOGGLE()<cr>", "Vertical" },
-        r = { ":RnvimrToggle<CR>", "Ranger" },
-      },
-    }, { prefix = "<leader>" })
+     which_key.register({
+       t = {
+         name = "Terminal",
+         j = { "<cmd>lua _JULIA_TOGGLE()<cr>", "Julia" },
+         c = { "<cmd>lua _CLOJURE_TOGGLE()<cr>", "Clojure" },
+         p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },
+         n = { "<cmd>lua _NODE_TOGGLE()<cr>", "Node" },
+         l = { "<cmd>lua _LUA_TOGGLE()<cr>", "Lua" },
+         g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
+         u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
+         t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
+         k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
+         f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
+         h = { "<cmd>lua _HSHELL_TOGGLE()<cr>", "Horizontal" },
+         v = { "<cmd>lua _VSHELL_TOGGLE()<cr>", "Vertical" },
+         r = { ":RnvimrToggle<CR>", "Ranger" },
+       },
+     }, { prefix = "<leader>" })
 
-    @end
+     @end
 
 
 **** hlsens
@@ -1185,11 +1185,11 @@
 
      #tangle ~/.config/nvim/lua/user/plugins.lua
      @code lua 
-      
+
      @end
      #tangle ~/.config/nvim/lua/user/plug-setting/
      @code lua 
-      
+
      @end
 
 *** Note taking & Organizational Plugins
@@ -1198,9 +1198,8 @@
     @code lua
     use("jbyuki/nabla.nvim") -- neat looking math pluging
     use("ahmedkhalf/project.nvim")
-    use("mzlogin/vim-markdown-toc")
     use("itchyny/calendar.vim")
-    use({ "edluffy/hologram.nvim" })
+    use("edluffy/hologram.nvim")
     use("gioele/vim-autoswap")
 
     use("dhruvasagar/vim-table-mode")
@@ -1675,18 +1674,32 @@
 
      #tangle ~/.config/nvim/lua/user/plug-setting/pandoc.lua
      @code lua 
-      
+     vim.g["pandoc#syntax#codeblocks#embeds#langs"] = {"python", "julia", "bash=sh", "json=javascript", "javascript", "clojure", "zsh=sh", "dockerfile"}
+     vim.g["pandoc#syntax#conceal#urls"] = 1
+     -- vim.g["pandoc#folding#mode"] = {'manual'}
+     vim.g["pandoc#folding#fdc"] = 0
+
      @end
 
 **** Markdown
 
      #tangle ~/.config/nvim/lua/user/plugins.lua
      @code lua 
-      
+     use("mzlogin/vim-markdown-toc")
      @end
+
      #tangle ~/.config/nvim/lua/user/plug-setting/
      @code lua 
-      
+     vim.g.vim_markdown_conceal = 1
+     vim.o.conceallevel=2
+     vim.g.vim_markdown_conceal_code_blocks = 1
+     vim.g.vim_markdown_fenced_languages = { 'julia','julia=md', 'python', 'bash=sh', 'viml=vim', 'javascript=js', 'zsh', 'bash=sh'}
+     vim.g.markdown_folding = 1
+
+     vim.o.foldmethod = "expr"
+     vim.cmd "set foldexpr=nvim_treesitter#foldexpr()"
+     vim.cmd "autocmd FileType markdown lua require('literate')"
+     vim.cmd "autocmd FileType vimwiki lua require('literate')"
      @end
 
 **** knap
@@ -1747,6 +1760,35 @@
 
 *** Coding Plugins
 
+    #tangle ~/.config/nvim/lua/user/plugins.lua
+    @code lua 
+    use("windwp/nvim-ts-autotag")
+    use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
+    use({ "usmcamp0811/magma-nvim", run = ":UpdateRemotePlugins", branch = "fix-output" })
+    use("clojure-vim/vim-jack-in")
+    use("lervag/vimtex") -- for writing latex
+    use({ "hasundue/vim-pluto", requires = { "vim-denops/denops.vim" } })
+    use("ii14/neorepl.nvim")
+
+    use("aklt/plantuml-syntax")
+    use("lukas-reineke/indent-blankline.nvim")
+
+    use({
+      "weirongxu/plantuml-previewer.vim",
+      requires = { 
+        { "tyru/open-browser.vim", opt = false },
+        { "aklt/plantuml-syntax", opt = false } 
+      },
+    })
+    use("b0o/SchemaStore.nvim")
+    use({
+      "https://gitlab.com/usmcamp0811/nvim-julia-autotest",
+      config = function()
+        require("julia-autotest").setup()
+      end,
+    })
+    use("David-Kunz/markid") -- better function syntax higlighting
+    @end
 **** Conjure
 
      Mostly for Clojure, but works with Julia and a few other languages. I like it a lot 
@@ -1755,7 +1797,8 @@
 
      #tangle ~/.config/nvim/lua/user/plugins.lua
      @code lua 
-     use({ "Olical/conjure" })
+     use("Olical/conjure")
+     use("Olical/aniseed")
      @end
 
      #tangle ~/.config/nvim/lua/user/plug-setting/conjure.lua
@@ -1796,48 +1839,159 @@
      vim.g["conjure#filetypes"] = { "fennel", "clojure", "julia", "jl", "python", "py", "norg" }
      @end
 
-**** Other Plugins in need of Organization
+**** Comment
 
      #tangle ~/.config/nvim/lua/user/plugins.lua
      @code lua 
-     use("windwp/nvim-ts-autotag")
+     use({
+       "numToStr/Comment.nvim",
+       --tag = "v0.6.1",
+       --branch = "master",
+     })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/comment.lua
+     @code lua 
+     local status_ok, comment = pcall(require, "Comment")
+     if not status_ok then
+       return
+     end
+
+     comment.setup({
+       pre_hook = function(ctx)
+         local U = require("Comment.utils")
+
+         local location = nil
+         if ctx.ctype == U.ctype.block then
+           location = require("ts_context_commentstring.utils").get_cursor_location()
+         elseif ctx.cmotion == U.cmotion.v or ctx.cmotion == U.cmotion.V then
+           location = require("ts_context_commentstring.utils").get_visual_start_location()
+         end
+
+         return require("ts_context_commentstring.internal").calculate_commentstring({
+           key = ctx.ctype == U.ctype.line and "__default" or "__multiline",
+           location = location,
+         })
+       end,
+     })
+
+     local status_still_ok, which_key = pcall(require, "which-key")
+     if not status_still_ok then
+       return
+     end
+
+     which_key.register({
+       ["<BS>"] = { "<Plug>(comment_toggle_linewise_current)<cr>", "Comment Toggle" },
+       T = { ":r! date +'\\%H:\\%M - '<CR>A", "Insert Current Time" },
+     })
+
+     which_key.register({
+       ["<BS>"] = { "<Plug>(comment_toggle_linewise_visual)<cr>", "Comment Toggle" },
+       p = { '"_dP', "Paste without overwriting the register" },
+     }, { mode = "v" })
+     @end
+
+
+
+**** Code Window
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({
+       "gorbit99/codewindow.nvim",
+       config = function()
+         local codewindow = require("codewindow")
+         codewindow.setup()
+         codewindow.apply_default_keybinds()
+       end,
+     })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/codewindow.lua
+     @code lua 
+     local M = {}
+
+     local config = {
+       minimap_width = 20,
+       width_multiplier = 4,
+       use_lsp = true,
+       use_treesitter = true,
+       exclude_filetypes = {},
+       z_index = 1,
+     }
+
+     function M.get()
+       return config
+     end
+
+     function M.setup(new_config)
+       for k, v in pairs(new_config) do
+         config[k] = v
+       end
+     end
+
+     local status_ok, which_key = pcall(require, "which-key")
+     if not status_ok then
+       return
+     end
+     which_key.register({
+       w = { ":lua require('codewindow').toggle_minimap()<CR>", "Toggle Code Window" },
+     }, { mode = "n", silent = true, noremap = true, buffer = bufnr, prefix = "<leader>" })
+     return M
+     @end
+
+**** Navic
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
      use({
        "SmiteshP/nvim-navic",
        requires = "neovim/nvim-lspconfig",
      })
-     use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
-     use({ "usmcamp0811/magma-nvim", run = ":UpdateRemotePlugins", branch = "fix-output" })
-     use("Olical/aniseed")
-     use("clojure-vim/vim-jack-in")
-     use("lervag/vimtex") -- for writing latex
-     use({ "hasundue/vim-pluto", requires = { "vim-denops/denops.vim" } })
-     use("ii14/neorepl.nvim")
-
-     use("aklt/plantuml-syntax")
-     use("lukas-reineke/indent-blankline.nvim")
-
-     use({
-       "weirongxu/plantuml-previewer.vim",
-       requires = { 
-         { "tyru/open-browser.vim", opt = false },
-         { "aklt/plantuml-syntax", opt = false } 
-       },
-     })
-     use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim" })
-     use({
-       "numToStr/Comment.nvim",
-       tag = "v0.6.1",
-       --branch = "master",
-     })
-     use("b0o/SchemaStore.nvim")
-     use({
-       "https://gitlab.com/usmcamp0811/nvim-julia-autotest",
-       config = function()
-         require("julia-autotest").setup()
-       end,
-     })
-     use("David-Kunz/markid") -- better function syntax higlighting
      @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/navic.lua
+     @code lua 
+     local navic = require("nvim-navic")
+
+     navic.setup {
+       icons = {
+         File          = " ",
+         Module        = " ",
+         Namespace     = " ",
+         Package       = " ",
+         Class         = " ",
+         Method        = " ",
+         Property      = " ",
+         Field         = " ",
+         Constructor   = " ",
+         Enum          = "練",
+         Interface     = "練",
+         Function      = " ",
+         Variable      = " ",
+         Constant      = " ",
+         String        = " ",
+         Number        = " ",
+         Boolean       = "◩ ",
+         Array         = " ",
+         Object        = " ",
+         Key           = " ",
+         Null          = "ﳠ ",
+         EnumMember    = " ",
+         Struct        = " ",
+         Event         = " ",
+         Operator      = " ",
+         TypeParameter = " ",
+       },
+       highlight = false,
+       separator = " > ",
+       depth_limit = 0,
+       depth_limit_indicator = "..",
+       safe_output = true
+     }
+     @end
+
+
 
 
 *** Git Plugins
@@ -1851,17 +2005,13 @@
         require("scrollbar.handlers.gitsigns").setup()
       end,
     }) 
+    use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim" })
     @end
 
 *** Treesitter & LSP
 
     #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua 
-    use({
-      "nvim-treesitter/nvim-treesitter",
-      run = ":TSUpdate",
-      markid = { enable = true },
-    })
     use({
       "nvim-treesitter/nvim-treesitter-textobjects",
       run = ":TSUpdate",
@@ -1893,6 +2043,161 @@
     })
     @end
 
+**** Treesitter
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({
+       "nvim-treesitter/nvim-treesitter",
+       run = ":TSUpdate",
+       markid = { enable = true },
+     })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/treesitter.lua
+     @code lua 
+     local status_ok, configs = pcall(require, "nvim-treesitter.configs")
+     if not status_ok then return
+     end
+
+     local status_ok, markid = pcall(require, "markid")
+     if not status_ok then
+       return
+     end
+
+     markid.colors = {
+       dark = { "#619e9d", "#9E6162", "#81A35C", "#7E5CA3", "#9E9261", "#616D9E", "#97687B", "#689784", "#999C63", "#66639C" },
+       bright = {"#f5c0c0", "#f5d3c0", "#f5eac0", "#dff5c0", "#c0f5c8", "#c0f5f1", "#c0dbf5", "#ccc0f5", "#f2c0f5", "#98fc03" },
+       medium = { "#c99d9d", "#c9a99d", "#c9b79d", "#c9c39d", "#bdc99d", "#a9c99d", "#9dc9b6", "#9dc2c9", "#9da9c9", "#b29dc9" }
+     }
+
+     markid.queries = {
+       default = '(identifier) @markid',
+       javascript = [[
+          (identifier) @markid
+          (property_identifier) @markid
+          (shorthand_property_identifier_pattern) @markid
+        ]]
+     }
+     markid.queries.typescript = markid.queries.javascript
+
+     parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
+
+     -- This has some issue on unsteup systems.. its not installing correctly.. but it also doesn't seem necesary
+     -- parser_configs.markdown = {
+     --   install_info = {
+     --     url = "https://github.com/ikatyang/tree-sitter-markdown",
+     --     files = { "src/parser.c", "src/scanner.cc" },
+     --   },
+     --   filetype = { "vimwiki", "markdown" },
+     -- }
+
+     configs.setup({
+       ensure_installed = "all", -- one of "all" or a list of languages
+       ignore_install = { "" }, -- List of parsers to ignore installing
+       highlight = {
+         enable = true, -- false will disable the whole extension
+         disable = { "css" }, -- list of language that will be disabled
+         additional_vim_regex_highlighting = { "org", "norg" },
+       },
+       autopairs = {
+         enable = true,
+       },
+       autotag = {
+         enable = true,
+         filetypes = {
+           "html",
+           "javascript",
+           "typescript",
+           "javascriptreact",
+           "typescriptreact",
+           "svelte",
+           "vue",
+           "tsx",
+           "jsx",
+           "rescript",
+           "xml",
+           "php",
+           "markdown",
+           "glimmer",
+           "handlebars",
+           "hbs",
+           "julia",
+           "norg",
+         },
+       },
+       indent = { enable = true, disable = { "python", "css" } },
+       parser_configs = parser_configs,
+       textsubjects = {
+         enable = true,
+         prev_selection = ",", -- (Optional) keymap to select the previous selection
+         keymaps = {
+           ["."] = "textsubjects-smart",
+           [";"] = "textsubjects-container-outer",
+           ["i;"] = "textsubjects-container-inner",
+         },
+       },
+       rainbow = {
+         enable = true,
+         extended_mode = true
+       },
+       markid = {
+         enable = true,
+         colors = markid.colors.bright,
+         queries = markid.queries,
+         is_supported = function(lang)
+           local queries = configs.get_module("markid").queries
+           return pcall(vim.treesitter.parse_query, lang, queries[lang] or queries['default'])
+         end
+       },
+       textobjects = {
+         select = {
+           enable = true,
+
+           -- Automatically jump forward to textobj, similar to targets.vim
+           lookahead = true,
+
+           keymaps = {
+             -- You can use the capture groups defined in textobjects.scm
+             ["af"] = "@function.outer",
+             ["if"] = "@function.inner",
+             ["ac"] = "@class.outer",
+             ["ae"] = "@call.outer",
+             ["ie"] = "@call.inner",
+             ["ib"] = "@code",
+             ["ag"] = "@def",
+             -- You can optionally set descriptions to the mappings (used in the desc parameter of
+             -- nvim_buf_set_keymap) which plugins like which-key display
+             ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+           },
+           -- You can choose the select mode (default is charwise 'v')
+           --
+           -- Can also be a function which gets passed a table with the keys
+           -- * query_string: eg '@function.inner'
+           -- * method: eg 'v' or 'o'
+           -- and should return the mode ('v', 'V', or '<c-v>') or a table
+           -- mapping query_strings to modes.
+           selection_modes = {
+             ['@parameter.outer'] = 'v', -- charwise
+             ['@function.outer'] = 'V', -- linewise
+             ['@class.outer'] = '<c-v>', -- blockwise
+             ['@call.outer'] = 'v', -- charwise
+           },
+           -- If you set this to `true` (default is `false`) then any textobject is
+           -- extended to include preceding or succeeding whitespace. Succeeding
+           -- whitespace has priority in order to act similarly to eg the built-in
+           -- `ap`.
+           --
+           -- Can also be a function which gets passed a table with the keys
+           -- * query_string: eg '@function.inner'
+           -- * selection_mode: eg 'v'
+           -- and should return true of false
+           include_surrounding_whitespace = true,
+         },
+       },
+     })
+     @end
+
 *** Telescope
 
     #tangle ~/.config/nvim/lua/user/plugins.lua
@@ -1900,6 +2205,129 @@
     use("nvim-telescope/telescope.nvim")
     use("nvim-telescope/telescope-symbols.nvim")
     use("nvim-telescope/telescope-media-files.nvim")
+    @end
+
+    #tangle ~/.config/nvim/lua/user/plug-setting/telescope.lua
+    @code lua 
+    local status_ok, telescope = pcall(require, "telescope")
+    if not status_ok then
+      return
+    end
+
+    local actions = require "telescope.actions"
+
+    telescope.setup {
+      defaults = {
+
+        prompt_prefix = " ",
+        selection_caret = " ",
+        path_display = { "smart" },
+
+        mappings = {
+          i = {
+            ["<C-n>"] = actions.cycle_history_next,
+            ["<C-p>"] = actions.cycle_history_prev,
+
+            ["<C-j>"] = actions.move_selection_next,
+            ["<C-k>"] = actions.move_selection_previous,
+
+            ["<C-c>"] = actions.close,
+
+            ["<Down>"] = actions.move_selection_next,
+            ["<Up>"] = actions.move_selection_previous,
+
+            ["<CR>"] = actions.select_default,
+            ["<C-x>"] = actions.select_horizontal,
+            ["<C-v>"] = actions.select_vertical,
+            ["<C-t>"] = actions.select_tab,
+
+            ["<C-u>"] = actions.preview_scrolling_up,
+            ["<C-d>"] = actions.preview_scrolling_down,
+
+            ["<PageUp>"] = actions.results_scrolling_up,
+            ["<PageDown>"] = actions.results_scrolling_down,
+
+            ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+            ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+            ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+            ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+            ["<C-l>"] = actions.complete_tag,
+            ["<C-_>"] = actions.which_key, -- keys from pressing <C-/>
+          },
+
+          n = {
+            ["<esc>"] = actions.close,
+            ["<CR>"] = actions.select_default,
+            ["<C-x>"] = actions.select_horizontal,
+            ["<C-v>"] = actions.select_vertical,
+            ["<C-t>"] = actions.select_tab,
+
+            ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+            ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+            ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+            ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+
+            ["j"] = actions.move_selection_next,
+            ["k"] = actions.move_selection_previous,
+            ["H"] = actions.move_to_top,
+            ["M"] = actions.move_to_middle,
+            ["L"] = actions.move_to_bottom,
+
+            ["<Down>"] = actions.move_selection_next,
+            ["<Up>"] = actions.move_selection_previous,
+            ["gg"] = actions.move_to_top,
+            ["G"] = actions.move_to_bottom,
+
+            ["<C-u>"] = actions.preview_scrolling_up,
+            ["<C-d>"] = actions.preview_scrolling_down,
+
+            ["<PageUp>"] = actions.results_scrolling_up,
+            ["<PageDown>"] = actions.results_scrolling_down,
+
+            ["?"] = actions.which_key,
+          },
+        },
+      },
+      pickers = {
+        -- Default configuration for builtin pickers goes here:
+        -- picker_name = {
+        --   picker_config_key = value,
+        --   ...
+        -- }
+        -- Now the picker_config_key will be applied every time you call this
+        -- builtin picker
+      },
+      extensions = {
+        -- Your extension configuration goes here:
+        -- extension_name = {
+        --   extension_config_key = value,
+        -- }
+        -- please take a look at the readme of the extension you want to configure
+      },
+    }
+
+
+
+    local status_ok, which_key = pcall(require, "which-key")
+    if not status_ok then
+      return
+    end
+
+    which_key.register({
+      s = {
+        name = "Search",
+        b = { "<cmd>Telescope git_branches<cr>", "Checkout branch" },
+        c = { "<cmd>Telescope colorscheme<cr>", "Colorscheme" },
+        h = { "<cmd>Telescope help_tags<cr>", "Find Help" },
+        M = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
+        r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
+        R = { "<cmd>Telescope registers<cr>", "Registers" },
+        k = { "<cmd>Telescope keymaps<cr>", "Keymaps" },
+        C = { "<cmd>Telescope commands<cr>", "Commands" },
+      },
+    },
+      { prefix = "<leader>" }
+    )
     @end
 
 *** Auto Completion / Snippets
@@ -1916,16 +2344,8 @@
     use("f3fora/cmp-spell")
     use("hrsh7th/cmp-cmdline")
     use("hrsh7th/cmp-nvim-lsp-document-symbol")
-    use({
-      "hrsh7th/nvim-cmp",
-      requires = {
-        { "kdheepak/cmp-latex-symbols" },
-      },
-    })
     use("saadparwaiz1/cmp_luasnip") -- snippet completions
-    use("windwp/nvim-autopairs")
     use({ "PaterJason/cmp-conjure" })
-
     use("L3MON4D3/LuaSnip") --snippet engine
     use("rafamadriz/friendly-snippets") -- a bunch of snippets to use
     use("honza/vim-snippets")
@@ -1941,6 +2361,314 @@
       end,
     })
     @end
+
+**** cmp
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({
+       "hrsh7th/nvim-cmp",
+       requires = {
+         { "kdheepak/cmp-latex-symbols" },
+       },
+     })
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/cmp.lua
+     @code lua 
+     local cmp_status_ok, cmp = pcall(require, "cmp")
+     if not cmp_status_ok then
+       return
+     end
+
+     local snip_status_ok, luasnip = pcall(require, "luasnip")
+     if not snip_status_ok then
+       return
+     end
+
+     -- require("luasnip/loaders/from_vscode").lazy_load()
+
+     local check_backspace = function()
+       local col = vim.fn.col(".") - 1
+       return col == 0 or vim.fn.getline("."):sub(col, col):match("%s")
+     end
+
+     --   פּ ﯟ   some other good icons
+     local kind_icons = {
+       Text = "",
+       Method = "m",
+       Function = "",
+       Constructor = "",
+       Field = "",
+       Variable = "",
+       Class = "",
+       Interface = "",
+       Module = "",
+       Property = "",
+       Unit = "",
+       Value = "",
+       Enum = "",
+       Keyword = "",
+       Snippet = "",
+       Color = "",
+       File = "",
+       Reference = "",
+       Folder = "",
+       EnumMember = "",
+       Constant = "",
+       Struct = "",
+       Event = "",
+       Operator = "",
+       TypeParameter = "",
+     }
+     -- find more here: https://www.nerdfonts.com/cheat-sheet
+
+     cmp.setup({
+       snippet = {
+         expand = function(args)
+           luasnip.lsp_expand(args.body) -- For `luasnip` users.
+         end,
+       },
+       mapping = {
+         ["<C-k>"] = cmp.mapping.select_prev_item(),
+         ["<C-j>"] = cmp.mapping.select_next_item(),
+         ["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-1), { "i", "c" }),
+         ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(1), { "i", "c" }),
+         ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
+         ["<C-y>"] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+         ["<C-e>"] = cmp.mapping({
+           i = cmp.mapping.abort(),
+           c = cmp.mapping.close(),
+         }),
+         -- Accept currently selected item. If none selected, `select` first item.
+         -- Set `select` to `false` to only confirm explicitly selected items.
+         ["<CR>"] = cmp.mapping.confirm({ select = true }),
+         ["<Tab>"] = cmp.mapping(function(fallback)
+           if cmp.visible() then
+             cmp.select_next_item()
+           elseif luasnip.expandable() then
+             luasnip.expand()
+           elseif luasnip.expand_or_jumpable() then
+             luasnip.expand_or_jump()
+           elseif check_backspace() then
+             fallback()
+           else
+             fallback()
+           end
+         end, {
+             "i",
+             "s",
+           }),
+         ["<S-Tab>"] = cmp.mapping(function(fallback)
+           if cmp.visible() then
+             cmp.select_prev_item()
+           elseif luasnip.jumpable(-1) then
+             luasnip.jump(-1)
+           else
+             fallback()
+           end
+         end, {
+             "i",
+             "s",
+           }),
+       },
+       formatting = {
+         fields = { "kind", "abbr", "menu" },
+         format = function(entry, vim_item)
+           -- Kind icons
+           vim_item.kind = string.format("%s", kind_icons[vim_item.kind])
+           -- vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind) -- This concatonates the icons with the name of the item kind
+           vim_item.menu = ({
+             luasnip = "[Snippet]",
+             buffer = "[Buffer]",
+             path = "[Path]",
+           })[entry.source.name]
+           return vim_item
+         end,
+       },
+       sources = {
+         { name = "nvim_lsp" },
+         { name = "luasnip" },
+         { name = "conjure" },
+         { name = "neorg" },
+         { name = "dynamic" },
+         { name = "latex_symbols" },
+         { name = "orgmode" },
+         { name = "path" },
+         cmp.config.sources({
+           { name = "nvim_lsp_document_symbol" },
+         }, {
+             { name = "buffer" },
+           }),
+         -- { name = "copilot" },
+         { name = "nvim_lua" },
+         { name = "calc" },
+         { name = "buffer" },
+         {
+           name = "spell",
+           option = {
+             keep_all_entries = false,
+             enable_in_context = function()
+               return true
+             end,
+           },
+         },
+       },
+       confirm_opts = {
+         behavior = cmp.ConfirmBehavior.Replace,
+         select = true,
+       },
+       window = {
+         documentation = {
+           border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+         },
+       },
+     })
+     cmp.setup.cmdline(":", {
+       mapping = cmp.mapping.preset.cmdline(),
+       sources = cmp.config.sources({
+         { name = "path" },
+       }, {
+           { name = "cmdline" },
+         }),
+     })
+
+     vim.cmd([[
+" gray
+highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=#808080
+" blue
+highlight! CmpItemAbbrMatch guibg=NONE guifg=#569CD6
+highlight! link CmpItemAbbrMatchFuzzy CmpItemAbbrMatch
+" light blue
+highlight! CmpItemKindVariable guibg=NONE guifg=#9CDCFE
+highlight! link CmpItemKindInterface CmpItemKindVariable
+highlight! link CmpItemKindText CmpItemKindVariable
+" pink
+highlight! CmpItemKindFunction guibg=NONE guifg=#C586C0
+highlight! link CmpItemKindMethod CmpItemKindFunction
+" front
+highlight! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
+highlight! link CmpItemKindProperty CmpItemKindKeyword
+highlight! link CmpItemKindUnit CmpItemKindKeyword
+]])
+
+     local Date = require("cmp_dynamic.utils.date")
+
+     require("cmp_dynamic").setup({
+       {
+         label = "today",
+         insertText = 1,
+         cb = {
+           function()
+             return os.date("%Y/%m/%d")
+           end,
+         },
+       },
+       {
+         label = "next Monday",
+         insertText = 1,
+         cb = {
+           function()
+             return Date.new():add_date(7):day(1):format("%Y/%m/%d")
+           end,
+         },
+         resolve = true, -- default: false
+       },
+     })
+
+
+     -- require("luasnip.loaders.from_lua").load({paths = "/home/mcamp/.config/nvim/lua/user/snippets"})
+     @end
+
+**** Auto Pairs
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("windwp/nvim-autopairs")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/autopairs.lua
+     @code lua 
+     -- Setup nvim-cmp.
+     local status_ok, npairs = pcall(require, "nvim-autopairs")
+     if not status_ok then
+       return
+     end
+     local Rule = require('nvim-autopairs.rule')
+
+
+     npairs.setup({
+       check_ts = false,
+       ts_config = {
+         lua = { "string", "source" },
+         javascript = { "string", "template_string" },
+         norg = false,
+       },
+       disable_filetype = { "TelescopePrompt", "spectre_panel" },
+       fast_wrap = {
+         map = "<C-e>",
+         chars = { "{", "[", "(", '"', "'" },
+         -- pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], "%s+", ""),
+         pattern = [=[[%'%"%)%>%]%)%}%,]]=],
+         offset = 0, -- Offset from pattern match
+         end_key = "$",
+         keys = "qwertyuiopzxcvbnmasdfghjkl",
+         check_comma = true,
+         highlight = "PmenuSel",
+         highlight_grey = "LineNr",
+       },
+     })
+
+
+     local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+     local cmp_status_ok, cmp = pcall(require, "cmp")
+     if not cmp_status_ok then
+       return
+     end
+     -- cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
+     local handlers = require('nvim-autopairs.completion.handlers')
+     cmp.event:on(
+       'confirm_done',
+       cmp_autopairs.on_confirm_done({
+         filetypes = {
+           -- "*" is a alias to all filetypes
+           ["*"] = {
+             ["("] = {
+               kind = {
+                 cmp.lsp.CompletionItemKind.Function,
+                 cmp.lsp.CompletionItemKind.Method,
+               },
+               handler = handlers["*"]
+             }
+           },
+           lua = {
+             ["("] = {
+               kind = {
+                 cmp.lsp.CompletionItemKind.Function,
+                 cmp.lsp.CompletionItemKind.Method
+               },
+               ---@param char string
+               ---@param item item completion
+               ---@param bufnr buffer number
+               handler = function(char, item, bufnr)
+                 -- Your handler function. Inpect with print(vim.inspect{char, item, bufnr})
+               end
+             }
+           },
+           -- Disable for tex
+           tex = false
+         }
+       })
+     )
+
+
+     npairs.add_rules({
+       Rule("begin$", " end", "julia")
+         :use_regex(true)
+     })
+
+
+     @end
 
 *** Movement Plugins
 
@@ -1960,14 +2688,6 @@
     use("echasnovski/mini.nvim")
     use("lambdalisue/suda.vim") -- runs `sudo` when needed
     use("Eandrju/cellular-automaton.nvim")
-    use({
-      "gorbit99/codewindow.nvim",
-      config = function()
-        local codewindow = require("codewindow")
-        codewindow.setup()
-        codewindow.apply_default_keybinds()
-      end,
-    })
 
     use("petertriho/nvim-scrollbar")
     use({
