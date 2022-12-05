@@ -476,7 +476,6 @@
     @code lua 
     use("nvim-lua/popup.nvim") -- An implementation of the Popup API from vim in Neovim
     use("nvim-lua/plenary.nvim") -- Useful lua functions used ny lots of plugins
-    use("lewis6991/impatient.nvim") -- suppose to speed up lua load times
     @end
 
 *** Vim Feature Improvement Plugins
@@ -1169,23 +1168,18 @@
 
      #tangle ~/.config/nvim/lua/user/plugins.lua
      @code lua 
-      
+     use("lewis6991/impatient.nvim") -- suppose to speed up lua load times
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/
+     #tangle ~/.config/nvim/lua/user/plug-setting/impatient.lua
      @code lua 
-      
+     local status_ok, impatient = pcall(require, "impatient")
+     if not status_ok then
+       return
+     end
+
+     impatient.enable_profile()
      @end
 
-**** knap
-
-     #tangle ~/.config/nvim/lua/user/plugins.lua
-     @code lua 
-      
-     @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/
-     @code lua 
-      
-     @end
 
 **** whichkey
 
@@ -1203,45 +1197,553 @@
     #tangle ~/.config/nvim/lua/user/plugins.lua
     @code lua
     use("jbyuki/nabla.nvim") -- neat looking math pluging
-    use("shoumodip/nvim-literate")
     use("ahmedkhalf/project.nvim")
-    use("vimwiki/vimwiki")
     use("mzlogin/vim-markdown-toc")
     use("itchyny/calendar.vim")
     use({ "edluffy/hologram.nvim" })
     use("gioele/vim-autoswap")
-    use({
-      "nvim-neorg/neorg",
-      -- "tamton-aquib/neorg",
-      -- tag = "0.0.12",
-      run = ":Neorg sync-parsers",
-      -- ft = "norg",
-      branch = "main",
-      -- branch = "code-execution",
-      -- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
-      config = function()
-        require("user.plug-setting.neorg")
-        -- vim.cmd "NeorgStart silent=true"
-      end,
-      -- cmd = { 'Neorg' },
-      requires = {
-        "nvim-lua/plenary.nvim",
-        "nvim-neorg/neorg-telescope",
-        "esquires/neorg-gtd-project-tags",
-        "danymat/neorg-gtd-things",
-        "max397574/neorg-contexts",
-        "max397574/neorg-kanban",
-        "folke/zen-mode.nvim",
-        "Pocco81/TrueZen.nvim",
-      },
-    })
 
     use("dhruvasagar/vim-table-mode")
     use("davidgranstrom/nvim-markdown-preview")
     use("chrisbra/csv.vim")
-    use("phaazon/mind.nvim")
     use("godlygeek/tabular")
     @end
+
+**** Neorg
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use({
+       "nvim-neorg/neorg",
+       -- "tamton-aquib/neorg",
+       -- tag = "0.0.12",
+       run = ":Neorg sync-parsers",
+       -- ft = "norg",
+       branch = "main",
+       -- branch = "code-execution",
+       -- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
+       config = function()
+         require("user.plug-setting.neorg")
+         -- vim.cmd "NeorgStart silent=true"
+       end,
+       -- cmd = { 'Neorg' },
+       requires = {
+         "nvim-lua/plenary.nvim",
+         "nvim-neorg/neorg-telescope",
+         "esquires/neorg-gtd-project-tags",
+         "danymat/neorg-gtd-things",
+         "max397574/neorg-contexts",
+         "max397574/neorg-kanban",
+         "folke/zen-mode.nvim",
+         "Pocco81/TrueZen.nvim",
+       },
+     })
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/neorg.lua
+     @code lua 
+     local neorg = require("neorg")
+
+     neorg.setup({
+       ensure_installed = { "norg" },
+       highlight = { enable = true },
+       requires = { "core.export.markdown" },
+       load = {
+         ["core.defaults"] = {},
+         ["core.integrations.treesitter"] = {
+           config = {
+             norg = {
+               url = "https://github.com/nvim-neorg/tree-sitter-norg",
+               files = { "src/parser.c", "src/scanner.cc" },
+               branch = "main",
+             },
+             norg_meta = {
+               url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
+               files = { "src/parser.c" },
+               branch = "main",
+             },
+             norg_table = {
+               url = "https://github.com/nvim-neorg/tree-sitter-norg-table",
+               files = { "src/parser.c" },
+               branch = "main",
+             },
+           },
+         },
+         ["core.norg.qol.toc"] = {},
+
+         -- ["core.norg.esupports.metagen"] = {
+         -- 	config = {
+         -- 		type = "auto",
+         -- 	},
+         -- },
+         ["core.keybinds"] = {
+           config = {
+             hook = function(keybinds)
+               local status_ok, which_key = pcall(require, "which-key")
+               if not status_ok then
+                 return
+               end
+               which_key.register({
+                 t = {
+                   name = "+Gtd",
+                   c = "Capture",
+                   e = "Edit",
+                   v = "Views",
+                 },
+                 -- t = {
+                 --   name = "GTD Base",
+                 --   c = { "<Cmd>Neorg keybind norg core.gtd.base.capture<CR>", "Capture"},
+                 --   v = { "<Cmd>Neorg keybind norg core.gtd.base.views<CR>", "Views"},
+                 --   e = { "<Cmd>Neorg keybind norg core.gtd.base.edit<CR>", "Edit"},
+                 -- },
+                 m = {
+                   name = "Neorg",
+                   h = { ":Neorg mode traverse-heading<CR>", "Traverse Heading" },
+                   n = { ":Neorg mode norg<CR>", "Neorg Mode" },
+                   t = { "<Cmd>Neorg keybind norg core.norg.concealer.toggle-markup<CR>", "Toggle Markup" },
+                 },
+                 -- n = {
+                 --   name = "Note",
+                 -- },
+               }, { prefix = "," }, { mode = "n" })
+               which_key.register({
+                 name = "Note",
+                 -- l = { "<Cmd>Neorg keybind norg core.integrations.telescope.find_linkable<CR>", "Find Linkable"},
+                 p = { ":Neorg presenter start<cr>", "Start Presentation" },
+                 n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note" },
+                 j = { ":Neorg journal today<cr>", "Today's Journal" },
+               }, { prefix = "<Space>" })
+               -- which_key.register({
+               --     name = "Note",
+               --     l = { "<Cmd>core.integrations.telescope.insert_link<CR>", "Find Linkable"},
+               -- },
+               -- { mode = "v" }
+               -- )
+               which_key.register({
+                 -- name = "Note",
+                 -- ["<C-L>"] = { "<Cmd>Neorg keybind norg core.integrations.telescope.insert_link<CR>", "Insert Link"},
+                 ["<C-s>"] = { ":w<CR>", "Save" },
+                 -- not sure if I want to do these... cause they conflict with window movement
+                 ["<C-j>"] = {
+                   "<Cmd>Neorg keybind norg core.integrations.treesitter.next.heading<CR>",
+                   "Next Heading",
+                 },
+                 ["<C-k>"] = {
+                   "<Cmd>Neorg keybind norg core.integrations.treesitter.previous.heading<CR>",
+                   "Next Heading",
+                 },
+                 -- ["<TAB>"] = { ":Neorg keybind norg core.promo.promote<CR>" , "Promote" },
+                 -- ["<S-TAB>"] = { ":Neorg keybind norg core.promo.demote<CR>" , "Demote" }
+                 -- M = { "0i|<esc>", "Marker" }
+               })
+               which_key.register({
+                 name = "Note",
+                 t = {
+                   name = "Neorg Task Motions",
+                   r = {
+                     "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_recurring<CR>",
+                     "Task Recurring",
+                   },
+                   c = {
+                     "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_cancelled<CR>",
+                     "Task Cancelled",
+                   },
+                   i = {
+                     "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_important<CR>",
+                     "Task Important",
+                   },
+                   h = {
+                     "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_on_hold<CR>",
+                     "Task On Hold",
+                   },
+                   p = {
+                     "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_pending<CR>",
+                     "Task Pending",
+                   },
+                   u = {
+                     "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_undone<CR>",
+                     "Task Pending",
+                   },
+                   d = { "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_done<CR>", "Task Done" },
+                   C = { "<Cmd>Neorg gtd capture<CR>", "Capture" },
+                   e = { "<Cmd>Neorg gtd edit<CR>", "Edit" },
+                   v = { "<Cmd>Neorg gtd views<CR>", "Views" },
+                 },
+               }, { prefix = "g" })
+               keybinds.unmap("norg", "n", "<C-s>")
+             end,
+           },
+         },
+         ["core.norg.journal"] = {},
+         ["core.integrations.telescope"] = {},
+         ["core.gtd.base"] = {
+           config = {
+             workspace = "home",
+             default_lists = {
+               inbox = "inbox.norg",
+             },
+             syntax = {
+               context = "#contexts",
+               start = "#time.start",
+               due = "#time.due",
+               waiting = "#waiting.for",
+             },
+             exclude = {
+               "wiki",
+             },
+           },
+         },
+         ["external.gtd-project-tags"] = {},
+         ["external.context"] = {},
+         ["core.tangle"] = {},
+         ["core.norg.manoeuvre"] = {},
+         ["core.export"] = { config = {} },
+         -- ["core.execute"] = {},
+         ["core.export.markdown"] = {
+           config = {
+             extensions = "all",
+           },
+         },
+         ["core.presenter"] = {
+           config = {
+             zen_mode = "zen-mode",
+             -- zen_mode = "truezen",
+           },
+         },
+         ["external.kanban"] = {
+           config = {
+             task_states = {
+               "undone",
+               "done",
+               "pending",
+               "cancelled",
+               "uncertain",
+               "urgent",
+               "recurring",
+               "on_hold",
+             },
+           },
+         },
+         ["core.norg.concealer"] = {},
+         ["core.norg.completion"] = {
+           config = {
+             engine = "nvim-cmp", -- we current support nvim-compe and nvim-cmp only
+           },
+         },
+         ["core.norg.dirman"] = {
+           config = {
+             workspaces = {
+               home = "~/vimwiki/home",
+               work = "~/vimwiki/work",
+             },
+             default_workspace = "work",
+           },
+         },
+       },
+     })
+
+     local status_ok, which_key = pcall(require, "which-key")
+     if not status_ok then
+       return
+     end
+
+     which_key.register({
+       name = "Note",
+       n = { ":Neorg workspace home<cr>", "Find Linkable" },
+     }, { prefix = "<Space>" })
+
+     return neorg
+     @end
+
+**** Vimwiki
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("vimwiki/vimwiki")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/
+     @code lua 
+     vim.cmd "autocmd BufRead,BufNewFile *.wiki set filetype=vimwik"
+     -- vim.cmd "autocmd BufRead,BufNewFile diary.md :CalendarVR"
+     vim.cmd "autocmd BufReadPre diary.md :VimwikiDiaryGenerateLinks"
+     -- vim.cmd "autocmd BufReadPre index.md :VimwikiGenerateLinks"
+
+     vim.g.vimwiki_ext2syntax = {
+       [".Rmd"] = "markdown",
+       [".rmd"] = "markdown",
+       [".markdown"] = "markdown",
+       [".mdown"] = "markdown",
+       [".md"] = "markdown"
+     }
+     vim.g.vimwiki_list = {
+       {
+         path = '~/vimwiki',
+         syntax = 'markdown',
+         ext = '.md',
+         auto_toc = 1,
+         auto_tags = 1,
+         links_space_char = "_",
+         auto_diary_index = 1,
+         diary_caption_level = 2,
+       },
+       {
+         path = '~/vimwiki/devops',
+         syntax = 'markdown',
+         ext = '.md',
+         auto_toc = 1,
+         auto_tags = 1,
+         links_space_char = "_",
+       },
+       {
+         path = '~/vimwiki/code',
+         syntax = 'markdown',
+         ext = '.md',
+         auto_toc = 1,
+         auto_tags = 1,
+         links_space_char = "_",
+       },
+       {
+         path = '~/vimwiki/linux',
+         syntax = 'markdown',
+         ext = '.md',
+         auto_toc = 1,
+         auto_tags = 1,
+         links_space_char = "_",
+       },
+       {
+         path = '~/vimwiki/random',
+         syntax = 'markdown',
+         ext = '.md',
+         auto_toc = 1,
+         auto_tags = 1,
+         links_space_char = "_",
+       }
+
+
+     }
+     vim.g.vim_markdown_math = 1
+     vim.g.vim_markdown_json_frontmatter = 1
+     vim.g.vim_markdown_strikethrough = 1
+     vim.g.vim_markdown_new_list_item_indent = 2
+     vim.g.vimwiki_global_ext = 0
+     vim.g.vimwiki_table_mappings = 0
+     vim.g.vimwiki_listsyms = '✗○◐●✓'
+     vim.g.vimwiki_use_calendar = 1
+     vim.g.vimwiki_auto_header = 1
+     vim.g.vimwiki_folding = 'custom'
+
+     local status_ok, which_key = pcall(require, "which-key")
+     if not status_ok then
+       return
+     end
+
+     which_key.register({
+       W = {
+         name = "VimWiki",
+         d = { "<Plug>VimwikiIncrementListItem", "Incriment Completion Level"},
+         u = { "<Plug>VimwikiDecrementListItem", "Incriment Completion Level"},
+         t = { "<Plug>VimwikiToggleListItem", "Toggle Checkbox"},
+         f = { '<cmd>lua require("telescope.builtin").find_files({cwd = "~/vimwiki"})<CR>', "Find Wiki" },
+         D = { "<cmd>VimwikiDiaryIndex<cr>", "Vimwiki Diary" },
+         w = { "<cmd>VimwikiIndex<CR>", "Vimwiki Main" },
+         n = { "<cmd>VimwikiMakeDiaryNote<CR>", "Daily Note"},
+         N = { "<cmd>VimwikiMakeTomorrowDiaryNote<CR>", "Tomorrows Note"},
+       },
+     },
+       { prefix = "<leader>" }
+     )
+
+     vim.g.vimwiki_filetypes = {'markdown', 'pandoc'}
+     @end
+
+**** Literate
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("shoumodip/nvim-literate")
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/literate.lua
+     @code lua 
+     local status_still_ok, which_key = pcall(require, "which-key")
+     if not status_still_ok then
+       return
+     end
+
+     which_key.register({
+       e = {
+         c = { ":lua require'literate'.Comment()<CR>", "Comment"},
+         t = { ":lua require'literate'.Tangle()<CR>", "Tangle" },
+         s = { ":lua require'literate'.Edit()<CR>", "Edit" },
+         q = { ":lua require'literate'.EditClose()<CR>", "Close Edit Window" },
+       },
+     },
+       { prefix = "<leader>" }
+     )
+     @end
+
+**** Zen
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("folke/zen-mode.nvim") 
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/zen.lua
+     @code lua 
+     local zen = require("zen-mode")
+     zen.setup {
+       window = {
+         backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
+         -- height and width can be:
+         -- * an absolute number of cells when > 1
+         -- * a percentage of the width / height of the editor when <= 1
+         -- * a function that returns the width or the height
+         width = 120, -- width of the Zen window
+         height = 1, -- height of the Zen window
+         -- by default, no options are changed for the Zen window
+         -- uncomment any of the options below, or add other vim.wo options you want to apply
+         options = {
+           -- signcolumn = "no", -- disable signcolumn
+           number = false, -- disable number column
+           relativenumber = false, -- disable relative numbers
+           cursorline = false, -- disable cursorline
+           -- cursorcolumn = false, -- disable cursor column
+           foldcolumn = "0", -- disable fold column
+           -- list = false, -- disable whitespace characters
+         },
+       },
+       plugins = {
+         -- disable some global vim options (vim.o...)
+         -- comment the lines to not apply the options
+         options = {
+           enabled = true,
+           ruler = false, -- disables the ruler text in the cmd line area
+           showcmd = false, -- disables the command in the last line of the screen
+         },
+         twilight = { enabled = true }, -- enable to start Twilight when zen mode opens
+         gitsigns = { enabled = false }, -- disables git signs
+         tmux = { enabled = false }, -- disables the tmux statusline
+         -- this will change the font size on kitty when in zen mode
+         -- to make this work, you need to set the following kitty options:
+         -- - allow_remote_control socket-only
+         -- - listen_on unix:/tmp/kitty
+         kitty = {
+           enabled = false,
+           font = "+4", -- font size increment
+         },
+       },
+
+       -- callback where you can add custom code when the Zen window opens
+       on_open = function(win)
+       end,
+       -- callback where you can add custom code when the Zen window closes
+       on_close = function()
+       end,
+     }
+
+     return zen
+
+     @end
+
+**** Mind
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("phaazon/mind.nvim")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/mind.lua
+     @code lua 
+     require("mind").setup({
+       edit = {
+         data_extension = ".norg",
+         data_header = "* %s",
+       },
+       persistence = {
+         state_path = "~/vimwiki/mind.json",
+         data_dir = "~/vimwiki",
+       },
+     })
+     @end
+
+**** Pandoc
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use("vim-pandoc/vim-pandoc-syntax")
+     @end
+
+     #tangle ~/.config/nvim/lua/user/plug-setting/pandoc.lua
+     @code lua 
+      
+     @end
+
+**** Markdown
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+      
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/
+     @code lua 
+      
+     @end
+
+**** knap
+
+     #tangle ~/.config/nvim/lua/user/plugins.lua
+     @code lua 
+     use "frabjous/knap"
+     @end
+     #tangle ~/.config/nvim/lua/user/plug-setting/knap.lua
+     @code lua 
+     -- set shorter name for keymap function
+     local kmap = vim.keymap.set
+
+     -- F5 processes the document once, and refreshes the view
+     kmap('i','<F5>', function() require("knap").process_once() end)
+     kmap('v','<F5>', function() require("knap").process_once() end)
+     kmap('n','<F5>', function() require("knap").process_once() end)
+
+     -- F6 closes the viewer application, and allows settings to be reset
+     kmap('i','<F6>', function() require("knap").launch_viewer() end)
+     kmap('v','<F6>', function() require("knap").launch_viewer() end)
+     kmap('n','<F6>', function() require("knap").launch_viewer() end)
+
+     -- F7 toggles the auto-processing on and off
+     kmap('i','<F7>', function() require("knap").toggle_autopreviewing() end)
+     kmap('v','<F7>', function() require("knap").toggle_autopreviewing() end)
+     kmap('n','<F7>', function() require("knap").toggle_autopreviewing() end)
+
+     -- F8 invokes a SyncTeX forward search, or similar, where appropriate
+     kmap('i','<F8>', function() require("knap").forward_jump() end)
+     kmap('v','<F8>', function() require("knap").forward_jump() end)
+     kmap('n','<F8>', function() require("knap").forward_jump() end)
+
+     local gknapsettings = {
+       texoutputext = "pdf",
+       textopdfforwardjump = "zathura --synctex-forward=%line%:%column%:%srcfile% %outputfile%",
+       textopdfviewerlaunch = "zathura --synctex-editor-command 'nvim --headless -es --cmd \"lua require('\"'\"'knaphelper'\"'\"').relayjump('\"'\"'%servername%'\"'\"','\"'\"'%{input}'\"'\"',%{line},0)\"' %outputfile%",
+       textopdfviewerrefresh = "none"
+     }
+
+     vim.g.knap_settings = gknapsettings
+
+     -- vim.cmd[[ 
+     -- let g:knap_settings = {
+     --     \ "textopdfviewerlaunch": "zathura --synctex-editor-command 'nvim --headless -es --cmd \"lua require('\"'\"'knaphelper'\"'\"').relayjump('\"'\"'%servername%'\"'\"','\"'\"'%{input}'\"'\"',%{line},0)\"' %outputfile%",
+     --     \ "textopdfviewerrefresh": "none",
+     --     \ "textopdfforwardjump": "zathura --synctex-forward=%line%:%column%:%srcfile% %outputfile%"
+     -- \ }
+     -- ]]
+     -- local gknapsettings = {
+     --     texoutputext = "pdf",
+     --     textopdf = "pdflatex -synctex=1 -halt-on-error -interaction=batchmode %docroot%",
+     --     textopdfviewerlaunch = "mupdf %outputfile%",
+     --     textopdfviewerrefresh = "kill -HUP %pid%"
+     -- }
+     -- vim.g.knap_settings = gknapsettings
+     @end
 
 *** Coding Plugins
 
