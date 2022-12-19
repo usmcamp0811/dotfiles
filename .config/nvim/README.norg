@@ -5,17 +5,185 @@
 
   = TOC
 
+** The `init.lua`
+
+   This is the main config file for Neovim. It is written in Lua and is stored at `$XDG_CONFIG_HOME/nvim/init.lua`.
+   My config is pretty big because I like shiny things, so I don't keep a ton of things in the `init.lua`. Instead
+   I just use it as a place to aggregate all my other config files.
+
+   #tangle ./init.lua
+   @code lua 
+   -- Plugins
+   require("user.plugins")
+   require("user.snippets")
+
+   --Vim Fatures
+   require("user.plug-setting.toggleterm")
+
+
+   require("user.plug-setting.hlslens")
+   require("user.plug-setting.nvim-tree")
+   require("user.plug-setting.pretty-fold")
+   require("user.plug-setting.autosave")
+   require("user.plug-setting.ranger")
+   require("user.plug-setting.impatient")
+   require("user.plug-setting.knap")
+   require("user.plug-setting.whichkey")
+
+   -- Note taking
+   require("user.plug-setting.neorg")
+   require("user.plug-setting.vimwiki")
+   require("user.plug-setting.literate")
+   require("user.plug-setting.zen")
+   require("user.plug-setting.mind")
+   require("user.plug-setting.pandoc")
+   require("user.plug-setting.markdown")
+
+   -- Coding
+   require("user.plug-setting.conjure")
+   require("user.plug-setting.comment")
+   require("user.plug-setting.autopairs")
+   require("user.plug-setting.codewindow")
+   require("user.plug-setting.navic")
+
+   -- Git
+   require("user.plug-setting.gitsigns")
+
+   -- Treesitter LSP
+   require("user.plug-setting.treesitter")
+
+   -- Telescope
+   require("user.plug-setting.telescope")
+
+   -- Auto Complete Snipptes
+   require("user.plug-setting.cmp")
+
+   -- Movement
+   require("user.plug-setting.leap")
+
+   -- Themes
+   require("user.plug-setting.ayu")
+   require("user.plug-setting.alpha")
+   require("user.plug-setting.lualine")
+   require("user.plug-setting.bufferline")
+   require("user.plug-setting.scrollbars")
+   require("user.plug-setting.colorizer")
+
+   require("user.plug-setting.project")
+   require("user.plug-setting.calendar")
+   -- Plugin Configurations
+   -- require("user.plug-setting.catppuccin")
+   -- require("user.plug-setting.gruv-box")
+   -- require("user.plug-setting.image")
+   -- require("user.julia_tests")
+   --  require('hologram').setup{
+   --     auto_display = true -- WIP automatic markdown image display, may be prone to breaking
+   -- }
+
+   -- vim.g.magma_image_provider = "ueberzug"
+   vim.g.magma_image_provider = "kitty"
+   vim.cmd("let g:magma_automatically_open_output = v:false")
+
+   require'telescope'.setup {
+     extensions = {
+       media_files = {
+         -- filetypes whitelist
+         -- defaults to {"png", "jpg", "mp4", "webm", "pdf"}
+         filetypes = {"png", "webp", "jpg", "jpeg"},
+         find_cmd = "rg" -- find command (defaults to `fd`)
+       }
+     },
+   }
+   -- my own thing's
+
+   require("user.code_blocks")
+
+   vim.g.sexp_filetypes = "clojure,scheme,lisp,timl,neorg,norg"
+
+   vim.cmd("source $HOME/.config/nvim/functions.vim") -- has a function for my markdown code blocks
+   vim.cmd([[ 
+   function! s:isAtStartOfLine(mapping)
+   let text_before_cursor = getline('.')[0 : col('.')-1]
+   let mapping_pattern = '\V' . escape(a:mapping, '\')
+   let comment_pattern = '\V' . escape(substitute(&l:commentstring, '%s.*$', '', ''), '\')
+   return (text_before_cursor =~? '^' . ('\v(' . comment_pattern . '\v)?') . '\s*\v' . mapping_pattern . '\v$')
+   endfunction
+
+   inoreabbrev <expr> <bar><bar>
+   \ <SID>isAtStartOfLine('\|\|') ?
+   \ '<c-o>:TableModeEnable<cr><bar><space><bar><left><left>' : '<bar><bar>'
+   inoreabbrev <expr> __
+   \ <SID>isAtStartOfLine('__') ?
+
+   let g:ipython_cell_regex = 1
+   let g:ipython_cell_tag = '```( [^[].*)?'
+   let g:julia_cell_delimit_cells_by = 'marks'
+   let g:ipython_language = "Julia"
+   let g:ipython_cell_run_command = 'include("{filepath}")'
+   let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
+]])
+
+   -- local dirman = require("neorg.modules.core.norg.dirman.module")
+   -- local gtd = require("neorg.modules.core.gtd.base.module")
+   -- local function physical_workspace()
+   -- 	return dirman.public.get_current_workspace()[1]
+   -- end
+   -- local function change_gtd_workspace()
+   -- 	gtd.config.public["workspace"] = physical_workspace()
+   -- end
+   -- local function reload_gtd()
+   -- 	return neorg.modules.load_module("core.gtd.base")
+   -- end
+   -- change_gtd_workspace()
+   -- reload_gtd()
+   -- vim.cmd([[colorscheme synthwave84]])
+
+   vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+     pattern = "*",
+     callback = require("lspsaga.lightbulb").action_lightbulb,
+   })
+
+   vim.cmd([[
+  augroup numbertoggle
+  autocmd!
+  autocmd FocusGained,FileType mind setlocal norelativenumber
+  autocmd FocusGained,FileType mind setlocal nonumber
+  autocmd FocusGained,FileType mind setlocal rnu!
+  autocmd FocusGained,FileType mind setlocal nu!
+  augroup END
+  " highligh default success guifg=green
+  " highligh default fail guifg=red
+]])
+
+   local myluafun = function() require("nabla").enable_virt() end
+   vim.api.nvim_create_autocmd({"BufEnter"}, {
+     pattern = "*",
+     callback = myluafun
+   })
+
+   -- this prevents functions (like, this)
+   vim.g.sexp_enable_insert_mode_mappings = 0
+   @end
+
 ** Base Settings
 
    These are all the non-plugin Neovim settings. I generally try to keep this part clean of
    things that need plugins to be installed. 
+
+   #tangle ./init.lua
+   @code lua 
+   -- Base Settings
+   require("user.options")
+   require("user.lsp")
+   require("user.autocommands")
+   @end
 
 *** Options
 
     In order to minimize verbosity of things I am throwing all the options into a single Lua 
     table.
 
-    #tangle ~/.config/nvim/lua/user/options.lua
+    #tangle ./lua/user/options.lua
     @code lua
     local options = {
 
@@ -95,7 +263,9 @@
    along the way. This first `if` statement is suppose to be here to keep things from breaking should
    we not have `lspconfig` installed.
 
-   #tangle ~/.config/nvim/lua/user/lsp/init.lua
+
+
+   #tangle ./lua/user/lsp/init.lua
    @code lua
    local status_ok, _ = pcall(require, "lspconfig")
    if not status_ok then
@@ -106,7 +276,7 @@
    In an attempt to keep things organized, I broke the config down in to multiple sections and just 
    import them into a single `init.lua`.
 
-   #tangle ~/.config/nvim/lua/user/lsp/init.lua
+   #tangle ./lua/user/lsp/init.lua
    @code lua
    require("user.lsp.configs")
    require("user.lsp.handlers").setup()
@@ -116,7 +286,7 @@
 
 *** Configs
 
-    #tangle ~/.config/nvim/lua/user/lsp/configs.lua
+    #tangle ./lua/user/lsp/configs.lua
     @code lua
     local status_ok, lsp_installer = pcall(require, "mason")
     if not status_ok then
@@ -218,7 +388,7 @@
       lsp_keymaps(bufnr)
       lsp_highlight_document(client)
       if client.server_capabilities.documentSymbolProvider then
-          navic.attach(client, bufnr)
+        navic.attach(client, bufnr)
       end
     end
 
@@ -422,9 +592,16 @@
 
 ** Plugins
 
+   #tangle ./init.lua
+   @code lua 
+   -- Plugins
+   require("user.plugins")
+   require("user.snippets")
+   @end
+
 *** Packer Setup
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     local fn = vim.fn
 
@@ -472,7 +649,7 @@
 
 *** Lua Utility Plugins
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use("nvim-lua/popup.nvim") -- An implementation of the Popup API from vim in Neovim
     use("nvim-lua/plenary.nvim") -- Useful lua functions used ny lots of plugins
@@ -480,7 +657,7 @@
 
 *** Vim Feature Improvement Plugins
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use("folke/which-key.nvim")
     use("radenling/vim-dispatch-neovim")
@@ -488,7 +665,7 @@
     use({
       "chentoast/marks.nvim",
       config = function()
-        require("user.plug-setting.marks")
+        require("user.configs.marks")
       end,
     })
 
@@ -518,12 +695,17 @@
 
 **** Toggle Term
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("akinsho/toggleterm.nvim")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/toggleterm.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.toggleterm")
+     @end
+
+     #tangle ./lua/user/configs/toggleterm.lua
      @code lua 
      local status_ok, toggleterm = pcall(require, "toggleterm")
      if not status_ok then
@@ -800,12 +982,17 @@
 
 **** hlsens
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({ "kevinhwang91/nvim-hlslens" })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/hlslens.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.hlslens")
+     @end
+
+     #tangle ./lua/user/configs/hlslens.lua
      @code lua 
      require('hlslens').setup()
 
@@ -827,11 +1014,17 @@
 
 **** nvim-tree
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("kyazdani42/nvim-tree.lua")
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/nvim-tree.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.nvim-tree")
+     @end
+
+     #tangle ./lua/user/configs/nvim-tree.lua
      @code lua 
      local status_ok, nvim_tree = pcall(require, "nvim-tree")
      if not status_ok then
@@ -905,17 +1098,23 @@
 
 **** pretty-fold
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "anuvyklack/pretty-fold.nvim",
        config = function()
-         require("user.plug-setting.pretty-fold")
+         require("user.configs.pretty-fold")
        end,
        ft_setup = { "neorg", {} },
      })
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/pretty-fold.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.pretty-fold")
+     @end
+
+     #tangle ./lua/user/configs/pretty-fold.lua
      @code lua 
      local pretty_fold = require('pretty-fold')
 
@@ -967,11 +1166,17 @@
 
 **** autosave
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("907th/vim-auto-save")
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/autosave.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.autosave")
+     @end
+
+     #tangle ./lua/user/configs/autosave.lua
      @code lua  
      vim.g.auto_save = 1
      -- vim.g.auto_save_events = {"InsertLeave", "TextChangedI", "CompleteDone", "TextChanged"}
@@ -1009,11 +1214,17 @@
 
 **** ranger
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({ "kevinhwang91/rnvimr", run = "make sync" }) -- ranger in vima
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/ranger.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.ranger")
+     @end
+
+     #tangle ./lua/user/configs/ranger.lua
      @code lua 
      -- Make Ranger rep ace Netrw and be the file explorer
      vim.g.rnvimr_enable_ex = 1
@@ -1166,11 +1377,17 @@
 
 **** impatient
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("lewis6991/impatient.nvim") -- suppose to speed up lua load times
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/impatient.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.impatient")
+     @end
+
+     #tangle ./lua/user/configs/impatient.lua
      @code lua 
      local status_ok, impatient = pcall(require, "impatient")
      if not status_ok then
@@ -1183,18 +1400,18 @@
 
 **** whichkey
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
-     @code lua 
-
-     @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/
-     @code lua 
-
-     @end
+     /* #tangle ./lua/user/plugins.lua */
+     /* @code lua  */
+     /**/
+     /* @end */
+     /* #tangle ./lua/user/configs/ */
+     /* @code lua  */
+     /**/
+     /* @end */
 
 *** Note taking & Organizational Plugins
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua
     use("jbyuki/nabla.nvim") -- neat looking math pluging
     use("edluffy/hologram.nvim")
@@ -1208,7 +1425,7 @@
 
 **** Neorg
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "nvim-neorg/neorg",
@@ -1220,7 +1437,7 @@
        -- branch = "code-execution",
        -- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
        config = function()
-         require("user.plug-setting.neorg")
+         require("user.configs.neorg")
          -- vim.cmd "NeorgStart silent=true"
        end,
        -- cmd = { 'Neorg' },
@@ -1236,7 +1453,13 @@
        },
      })
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/neorg.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.neorg")
+     @end
+
+     #tangle ./lua/user/configs/neorg.lua
      @code lua 
      local neorg = require("neorg")
 
@@ -1452,12 +1675,17 @@
      @end
 **** Vimwiki
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("vimwiki/vimwiki")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.vimwiki")
+     @end
+
+     #tangle ./lua/user/configs/vimwiki.lua
      @code lua 
      vim.cmd "autocmd BufRead,BufNewFile *.wiki set filetype=vimwik"
      -- vim.cmd "autocmd BufRead,BufNewFile diary.md :CalendarVR"
@@ -1554,11 +1782,17 @@
 
 **** Literate
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("shoumodip/nvim-literate")
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/literate.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.literate")
+     @end
+
+     #tangle ./lua/user/configs/literate.lua
      @code lua 
      local status_still_ok, which_key = pcall(require, "which-key")
      if not status_still_ok then
@@ -1579,12 +1813,17 @@
 
 **** Zen
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("folke/zen-mode.nvim") 
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/zen.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.zen")
+     @end
+
+     #tangle ./lua/user/configs/zen.lua
      @code lua 
      local zen = require("zen-mode")
      zen.setup {
@@ -1643,12 +1882,17 @@
 
 **** Mind
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("phaazon/mind.nvim")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/mind.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.mind")
+     @end
+
+     #tangle ./lua/user/configs/mind.lua
      @code lua 
      require("mind").setup({
        edit = {
@@ -1664,12 +1908,17 @@
 
 **** Pandoc
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("vim-pandoc/vim-pandoc-syntax")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/pandoc.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.pandoc")
+     @end
+
+     #tangle ./lua/user/configs/pandoc.lua
      @code lua 
      vim.g["pandoc#syntax#codeblocks#embeds#langs"] = {"python", "julia", "bash=sh", "json=javascript", "javascript", "clojure", "zsh=sh", "dockerfile"}
      vim.g["pandoc#syntax#conceal#urls"] = 1
@@ -1680,12 +1929,17 @@
 
 **** Markdown
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("mzlogin/vim-markdown-toc")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.markdown-toc")
+     @end
+
+     #tangle ./lua/user/configs/markdown-toc.lua
      @code lua 
      vim.g.vim_markdown_conceal = 1
      vim.o.conceallevel=2
@@ -1701,11 +1955,17 @@
 
 **** knap
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use "frabjous/knap"
      @end
-     #tangle ~/.config/nvim/lua/user/plug-setting/knap.lua
+
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.knap")
+     @end
+
+     #tangle ./lua/user/configs/knap.lua
      @code lua 
      -- set shorter name for keymap function
      local kmap = vim.keymap.set
@@ -1756,12 +2016,17 @@
      @end
 **** project
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("ahmedkhalf/project.nvim")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/project.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.project")
+     @end
+
+     #tangle ./lua/user/configs/project.lua
      @code lua 
      local status_ok, project = pcall(require, "project_nvim")
      if not status_ok then
@@ -1815,12 +2080,17 @@
 
 **** Calendar
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("itchyny/calendar.vim")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/calendar.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.calendar")
+     @end
+
+     #tangle ./lua/user/configs/calendar.lua
      @code lua 
      vim.g.calendar_google_calendar = 1
      vim.g.calendar_google_task = 1
@@ -1829,7 +2099,7 @@
 
 *** Coding Plugins
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use("windwp/nvim-ts-autotag")
     use("jpalardy/vim-slime") -- allow vim to send julia / python commands to the repl
@@ -1864,13 +2134,18 @@
      but it doesn't support connecting to remote/external REPLs in Julia so it has some 
      limitations.
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("Olical/conjure")
      use("Olical/aniseed")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/conjure.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.conjure")
+     @end
+
+     #tangle ./lua/user/configs/conjure.lua
      @code lua 
      local function file_exists(name)
        local f=io.open(name,"r")
@@ -1910,7 +2185,7 @@
 
 **** Comment
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "numToStr/Comment.nvim",
@@ -1919,7 +2194,12 @@
      })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/comment.lua
+     #tangle ./init.lua
+     @code lua 
+     require("user.configs.comment")
+     @end
+
+     #tangle ./lua/user/configs/comment.lua
      @code lua 
      local status_ok, comment = pcall(require, "Comment")
      if not status_ok then
@@ -1964,7 +2244,7 @@
 
 **** Code Window
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "gorbit99/codewindow.nvim",
@@ -1976,7 +2256,7 @@
      })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/codewindow.lua
+     #tangle ./lua/user/configs/codewindow.lua
      @code lua 
      local M = {}
 
@@ -2011,7 +2291,7 @@
 
 **** Navic
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "SmiteshP/nvim-navic",
@@ -2019,7 +2299,7 @@
      })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/navic.lua
+     #tangle ./lua/user/configs/navic.lua
      @code lua 
      local navic = require("nvim-navic")
 
@@ -2065,7 +2345,7 @@
 
 *** Git Plugins
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use({
       "lewis6991/gitsigns.nvim",
@@ -2079,7 +2359,7 @@
 
 *** Treesitter & LSP
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use({
       "nvim-treesitter/nvim-treesitter-textobjects",
@@ -2114,7 +2394,7 @@
 
 **** Treesitter
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "nvim-treesitter/nvim-treesitter",
@@ -2123,7 +2403,7 @@
      })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/treesitter.lua
+     #tangle ./lua/user/configs/treesitter.lua
      @code lua 
      local status_ok, configs = pcall(require, "nvim-treesitter.configs")
      if not status_ok then return
@@ -2269,14 +2549,14 @@
 
 *** Telescope
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use("nvim-telescope/telescope.nvim")
     use("nvim-telescope/telescope-symbols.nvim")
     use("nvim-telescope/telescope-media-files.nvim")
     @end
 
-    #tangle ~/.config/nvim/lua/user/plug-setting/telescope.lua
+    #tangle ./lua/user/configs/telescope.lua
     @code lua 
     local status_ok, telescope = pcall(require, "telescope")
     if not status_ok then
@@ -2401,7 +2681,7 @@
 
 *** Auto Completion / Snippets
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use("hrsh7th/cmp-nvim-lsp")
     use("hrsh7th/cmp-buffer")
@@ -2424,7 +2704,7 @@
       branch = "main",
       config = function()
         -- local saga = require("lspsaga")
-        -- local config = require("user.plug-setting.lsp-saga")
+        -- local config = require("user.configs.lsp-saga")
         -- saga.init_lsp_saga(config)
         require("lspsaga").init_lsp_saga({})
       end,
@@ -2433,7 +2713,7 @@
 
 **** cmp
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "hrsh7th/nvim-cmp",
@@ -2443,7 +2723,7 @@
      })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/cmp.lua
+     #tangle ./lua/user/configs/cmp.lua
      @code lua 
      local cmp_status_ok, cmp = pcall(require, "cmp")
      if not cmp_status_ok then
@@ -2651,12 +2931,12 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** Auto Pairs
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("windwp/nvim-autopairs")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/autopairs.lua
+     #tangle ./lua/user/configs/autopairs.lua
      @code lua 
      -- Setup nvim-cmp.
      local status_ok, npairs = pcall(require, "nvim-autopairs")
@@ -2741,22 +3021,22 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 *** Movement Plugins
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
-     use({
-       "ggandor/flit.nvim",
-       requires = { "ggandor/leap.nvim" },
-     })
+    use({
+      "ggandor/flit.nvim",
+      requires = { "ggandor/leap.nvim" },
+    })
     @end
 
 **** Leap
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("ggandor/leap.nvim") --  better vertical jumping
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/leap.lua
+     #tangle ./lua/user/configs/leap.lua
      @code lua 
      local leap = require("leap")
 
@@ -2797,11 +3077,11 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
        -- E.g.: opts = { equivalence_classes = {} }
        opts = {}
      }
-@end
+     @end
 
 *** Miscellaneous Plugins 
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use("echasnovski/mini.nvim")
     use("lambdalisue/suda.vim") -- runs `sudo` when needed
@@ -2834,7 +3114,7 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 *** Theme's & Other Visual Enhancements
 
-    #tangle ~/.config/nvim/lua/user/plugins.lua
+    #tangle ./lua/user/plugins.lua
     @code lua 
     use("Yazeed1s/minimal.nvim")
     use("nvim-tree/nvim-web-devicons")
@@ -2894,12 +3174,12 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** Alpha
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("goolord/alpha-nvim")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/alpha.lua
+     #tangle ./lua/user/configs/alpha.lua
      @code lua 
      local status_ok, alpha = pcall(require, "alpha")
      if not status_ok then
@@ -2967,7 +3247,7 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** lualine
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({
        "nvim-lualine/lualine.nvim",
@@ -2975,7 +3255,7 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
      })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/lualine.lua
+     #tangle ./lua/user/configs/lualine.lua
      @code lua 
      local status_ok, lualine = pcall(require, "lualine")
      if not status_ok then
@@ -3074,12 +3354,12 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** bufferline
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use({ "akinsho/bufferline.nvim", tag = "v2.*", requires = "kyazdani42/nvim-web-devicons" })
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/bufferline.lua
+     #tangle ./lua/user/configs/bufferline.lua
      @code lua 
      local status_ok, bufferline = pcall(require, "bufferline")
      if not status_ok then
@@ -3255,12 +3535,12 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** scrollbars
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("petertriho/nvim-scrollbar")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/scrollbars.lua
+     #tangle ./lua/user/configs/scrollbars.lua
      @code lua 
      require("scrollbar").setup({
        show = true,
@@ -3376,12 +3656,12 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** colorizer
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("norcalli/nvim-colorizer.lua")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/colorizer.lua
+     #tangle ./lua/user/configs/colorizer.lua
      @code lua 
      require 'colorizer'.setup()
      @end
@@ -3393,12 +3673,12 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
      This is my current theme and its configuration. I can't take credit I found the config elsewhere.. think it was posted/linked to on Reddit. I did make a couple tweaks to fix a few color issues. Don't think most of the config is really used but some is... 
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      use("Shatur/neovim-ayu")
      @end
 
-     #tangle ~/.config/nvim/lua/user/plug-setting/ayu.lua
+     #tangle ./lua/user/configs/ayu.lua
      @code lua 
      require('ayu').setup({
        mirage = false, -- Set to `true` to use `mirage` variant instead of `dark` for dark background.
@@ -3528,12 +3808,11 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
      api.nvim_command("hi WildMenu guifg=#0A0E14 guibg=#f07178")
      api.nvim_command("hi WildMenu guifg=#0A0E14 guibg=#f07178")
      api.nvim_command("hi @neorg.tags.ranged_verbatim.code_block guibg=#171717")
-
      @end
 
 
 
-     #tangle ~/.config/nvim/lua/user/plugins.lua
+     #tangle ./lua/user/plugins.lua
      @code lua 
      if PACKER_BOOTSTRAP then
        require("packer").sync()
@@ -3547,7 +3826,7 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** Normal Mode
 
-     #tangle ~/.config/nvim/lua/user/keymaps.lua
+     #tangle ./lua/user/keymaps.lua
      @code lua 
      which_key.register({
        -- Better window navigation
@@ -3568,13 +3847,14 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
        -- Scroll 5 rows at a time
        ["<S-D>"] = { "5<C-e>", "Scroll down 5 rows at a time" },
        ["<S-E>"] = { "5<C-y>", "Scroll up 5 rows at a time" },
-       ["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Charactes" },
+       ["<F8>"] = { ":set list!<CR>", "Toggle Unprintable Characters" },
      })
+
      @end
 
 **** Visual Mode
 
-     #tangle ~/.config/nvim/lua/user/keymaps.lua
+     #tangle ./lua/user/keymaps.lua
      @code lua 
      which_key.register({
        p = { '"_dP', "Paste without overwriting the register" },
@@ -3583,12 +3863,12 @@ highlight! link CmpItemKindUnit CmpItemKindKeyword
 
 **** Insert Mode
 
-     #tangle ~/.config/nvim/lua/user/keymaps.lua
+     #tangle ./lua/user/keymaps.lua
      @code lua 
      which_key.register({
        ["<C-s>"] = { "<esc>:w<cr>", "Save" },
        ["<C-q>"] = { "<esc>:Bclose<cr>", "Quit" },
-       ["<F8>"] = { "<C-o>:set list!<CR>", "Toggle Unprintable Charactes" },
+       ["<F8>"] = { "<C-o>:set list!<CR>", "Toggle Unprintable Characters" },
      }, { mode = "i" })
 
      @end

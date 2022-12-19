@@ -198,6 +198,7 @@ return packer.startup(function(use)
 	use("konosubakonoakua/synthwave84.nvim")
 	use("Shatur/neovim-ayu")
 	use("ellisonleao/gruvbox.nvim")
+  use("bytesnake/vim-graphical-preview")
 	use({
 		"catppuccin/nvim",
 		as = "catppuccin",

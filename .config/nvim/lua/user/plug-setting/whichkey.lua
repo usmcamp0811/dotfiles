@@ -327,6 +327,10 @@ local function code_keymap()
 					j = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<cr>", "Get Julia REPL" },
 					c = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.clojure_job_id}<cr>", "Get Clojure REPL" },
 					n = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.node_job_id}<cr>", "Get Node REPL" },
+				  g = {
+					":Neorg keybind all core.looking-glass.magnify-code-block<CR>",
+					"Open Looking Glass",
+				},
 				},
 			}
 			vcodemap = {
