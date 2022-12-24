@@ -135,7 +135,7 @@ return packer.startup(function(use)
 				threshold = 3, -- animate if threshold lines jump
 				enabled_filetypes = nil, -- example: { "lua", "vim" }
 				disabled_filetypes = nil,
-        --{"mind", "TelescopePrompt", "NvimTree"}, -- this option will be skipped if enabled_filetypes is set. example: { "TelescopePrompt", "NvimTree" }
+				--{"mind", "TelescopePrompt", "NvimTree"}, -- this option will be skipped if enabled_filetypes is set. example: { "TelescopePrompt", "NvimTree" }
 			})
 		end,
 	})
@@ -164,7 +164,7 @@ return packer.startup(function(use)
 	-- random plugins
 	-- use("unblevable/quick-scope") -- easier horizontal jumping
 	use("ggandor/leap.nvim") --  better vertical jumping
-  use("nvim-tree/nvim-web-devicons")
+	use("nvim-tree/nvim-web-devicons")
 	use({
 		"ggandor/flit.nvim",
 		requires = { "ggandor/leap.nvim" },
@@ -198,7 +198,7 @@ return packer.startup(function(use)
 	use("konosubakonoakua/synthwave84.nvim")
 	use("Shatur/neovim-ayu")
 	use("ellisonleao/gruvbox.nvim")
-  use("bytesnake/vim-graphical-preview")
+	use("bytesnake/vim-graphical-preview")
 	use({
 		"catppuccin/nvim",
 		as = "catppuccin",
@@ -257,58 +257,58 @@ return packer.startup(function(use)
 	use("Yazeed1s/minimal.nvim")
 	use("chrisbra/csv.vim")
 	use("goolord/alpha-nvim")
---	use({
---		"AckslD/nvim-FeMaco.lua",
---		config = require("femaco").setup({
---			-- should prepare a new buffer and return the winid
---			-- by default opens a floating window
---			-- provide a different callback to change this behaviour
---			-- @param opts: the return value from float_opts
---			prepare_buffer = function(opts)
---				local buf = vim.api.nvim_create_buf(false, false)
---				return vim.api.nvim_open_win(buf, true, opts)
---			end,
---			-- should return options passed to nvim_open_win
---			-- @param code_block: data about the code-block with the keys
---			--   * range
---			--   * lines
---			--   * lang
---			-- float_opts = function(code_block)
---			--   return {
---			--     relative = 'cursor',
---			--     width = clip_val(5, 120, vim.api.nvim_win_get_width(0) - 10),
---			--     height = clip_val(5, #code_block.lines, vim.api.nvim_win_get_height(0) - 6),
---			--     anchor = 'NW',
---			--     row = 0,
---			--     col = 0,
---			--     style = 'minimal',
---			--     border = 'rounded',
---			--     zindex = 1,
---			--   }
---			-- end,
---			-- return filetype to use for a given lang
---			-- lang can be nil
---			ft_from_lang = function(lang)
---				return lang
---			end,
---			-- what to do after opening the float
---			post_open_float = function(winnr)
---				vim.wo.signcolumn = "no"
---			end,
---			-- create the path to a temporary file
---			create_tmp_filepath = function(filetype)
---				return os.tmpname()
---			end,
---			-- if a newline should always be used, useful for multiline injections
---			-- which separators needs to be on separate lines such as markdown, neorg etc
---			-- @param base_filetype: The filetype which FeMaco is called from, not the
---			-- filetype of the injected language (this is the current buffer so you can
---			-- get it from vim.bo.filetyp).
---			ensure_newline = function(base_filetype)
---				return false
---			end,
---		}),
---	})
+	--	use({
+	--		"AckslD/nvim-FeMaco.lua",
+	--		config = require("femaco").setup({
+	--			-- should prepare a new buffer and return the winid
+	--			-- by default opens a floating window
+	--			-- provide a different callback to change this behaviour
+	--			-- @param opts: the return value from float_opts
+	--			prepare_buffer = function(opts)
+	--				local buf = vim.api.nvim_create_buf(false, false)
+	--				return vim.api.nvim_open_win(buf, true, opts)
+	--			end,
+	--			-- should return options passed to nvim_open_win
+	--			-- @param code_block: data about the code-block with the keys
+	--			--   * range
+	--			--   * lines
+	--			--   * lang
+	--			-- float_opts = function(code_block)
+	--			--   return {
+	--			--     relative = 'cursor',
+	--			--     width = clip_val(5, 120, vim.api.nvim_win_get_width(0) - 10),
+	--			--     height = clip_val(5, #code_block.lines, vim.api.nvim_win_get_height(0) - 6),
+	--			--     anchor = 'NW',
+	--			--     row = 0,
+	--			--     col = 0,
+	--			--     style = 'minimal',
+	--			--     border = 'rounded',
+	--			--     zindex = 1,
+	--			--   }
+	--			-- end,
+	--			-- return filetype to use for a given lang
+	--			-- lang can be nil
+	--			ft_from_lang = function(lang)
+	--				return lang
+	--			end,
+	--			-- what to do after opening the float
+	--			post_open_float = function(winnr)
+	--				vim.wo.signcolumn = "no"
+	--			end,
+	--			-- create the path to a temporary file
+	--			create_tmp_filepath = function(filetype)
+	--				return os.tmpname()
+	--			end,
+	--			-- if a newline should always be used, useful for multiline injections
+	--			-- which separators needs to be on separate lines such as markdown, neorg etc
+	--			-- @param base_filetype: The filetype which FeMaco is called from, not the
+	--			-- filetype of the injected language (this is the current buffer so you can
+	--			-- get it from vim.bo.filetyp).
+	--			ensure_newline = function(base_filetype)
+	--				return false
+	--			end,
+	--		}),
+	--	})
 	use("davidgranstrom/nvim-markdown-preview")
 	use({
 		"anuvyklack/pretty-fold.nvim",
@@ -366,7 +366,14 @@ return packer.startup(function(use)
 			"nvim-lua/plenary.nvim",
 		},
 	})
-	use("phaazon/mind.nvim")
+	use({
+		"phaazon/mind.nvim",
+		branch = "v2.2",
+		requires = { "nvim-lua/plenary.nvim" },
+		config = function()
+      require("user.plug-setting.mind")
+		end,
+	})
 	use("saadparwaiz1/cmp_luasnip") -- snippet completions
 	-- snippets
 	use("L3MON4D3/LuaSnip") --snippet engine
