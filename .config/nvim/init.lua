@@ -27,7 +27,7 @@ require("user.snippets")
  require("user.plug-setting.vimwiki")
  require("user.plug-setting.literate")
  require("user.plug-setting.zen")
- require("user.plug-setting.mind")
+--  require("user.plug-setting.mind")
  require("user.plug-setting.pandoc")
  require("user.plug-setting.markdown")
 
