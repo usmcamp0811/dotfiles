@@ -41,10 +41,10 @@ neorg.setup({
           end
           which_key.register({
             t = {
-              name = "+Gtd",
-              c = "Capture",
-              e = "Edit",
-              v = "Views",
+              --[[ name = "+Gtd", ]]
+              --[[ c = "Capture", ]]
+              --[[ e = "Edit", ]]
+              --[[ v = "Views", ]]
             },
             -- t = {
             --   name = "GTD Base",
@@ -121,9 +121,9 @@ neorg.setup({
                 "Task Pending",
               },
               d = { "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_done<CR>", "Task Done" },
-              C = { "<Cmd>Neorg gtd capture<CR>", "Capture" },
-              e = { "<Cmd>Neorg gtd edit<CR>", "Edit" },
-              v = { "<Cmd>Neorg gtd views<CR>", "Views" },
+              --[[ C = { "<Cmd>Neorg gtd capture<CR>", "Capture" }, ]]
+              --[[ e = { "<Cmd>Neorg gtd edit<CR>", "Edit" }, ]]
+              --[[ v = { "<Cmd>Neorg gtd views<CR>", "Views" }, ]]
             },
           }, { prefix = "g" })
           keybinds.unmap("norg", "n", "<C-s>")
@@ -132,24 +132,24 @@ neorg.setup({
     },
     ["core.norg.journal"] = {},
     ["core.integrations.telescope"] = {},
-    ["core.gtd.base"] = {
-      config = {
-        workspace = "home",
-        default_lists = {
-          inbox = "inbox.norg",
-        },
-        syntax = {
-          context = "#contexts",
-          start = "#time.start",
-          due = "#time.due",
-          waiting = "#waiting.for",
-        },
-        exclude = {
-          "wiki",
-        },
-      },
-    },
-    ["external.gtd-project-tags"] = {},
+    --[[ ["core.gtd.base"] = { ]]
+    --[[   config = { ]]
+    --[[     workspace = "home", ]]
+    --[[     default_lists = { ]]
+    --[[       inbox = "inbox.norg", ]]
+    --[[     }, ]]
+    --[[     syntax = { ]]
+    --[[       context = "#contexts", ]]
+    --[[       start = "#time.start", ]]
+    --[[       due = "#time.due", ]]
+    --[[       waiting = "#waiting.for", ]]
+    --[[     }, ]]
+    --[[     exclude = { ]]
+    --[[       "wiki", ]]
+    --[[     }, ]]
+    --[[   }, ]]
+    --[[ }, ]]
+    --[[ ["external.gtd-project-tags"] = {}, ]]
     ["external.context"] = {},
     ["core.tangle"] = {},
     ["core.norg.manoeuvre"] = {},
@@ -166,20 +166,20 @@ neorg.setup({
         -- zen_mode = "truezen",
       },
     },
-    ["external.kanban"] = {
-      config = {
-        task_states = {
-          "undone",
-          "done",
-          "pending",
-          "cancelled",
-          "uncertain",
-          "urgent",
-          "recurring",
-          "on_hold",
-        },
-      },
-    },
+    -- ["external.kanban"] = {
+    --   config = {
+    --     task_states = {
+    --       "undone",
+    --       "done",
+    --       "pending",
+    --       "cancelled",
+    --       "uncertain",
+    --       "urgent",
+    --       "recurring",
+    --       "on_hold",
+    --     },
+    --   },
+    -- },
     ["core.norg.concealer"] = {},
     ["core.norg.completion"] = {
       config = {
