@@ -87,10 +87,10 @@ for file in ~/.config/shell/*.shrc; do
 done
 
 # TODO move these to ~/.config/shell and update syncthing
-# source my private config files
-for file in ~/.config/bash/private/*.bashrc; do
-    [ -r "$file" ] && source "$file"
-done
+# # source my private config files
+# for file in ~/.config/bash/private/*.bashrc; do
+#     [ -r "$file" ] && source "$file"
+# done
 
 for file in ~/.config/shell/private/*.shrc; do
     [ -r "$file" ] && source "$file"
