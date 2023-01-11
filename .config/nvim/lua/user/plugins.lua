@@ -326,8 +326,8 @@ return packer.startup(function(use)
 		end,
 	})
 	use("shoumodip/nvim-literate")
-	-- use "frabjous/knap"
-	-- use "savq/paq-nvim"
+	use "frabjous/knap"
+	use "savq/paq-nvim"
 	-- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
 	use("rcarriga/nvim-notify")
 	use({
