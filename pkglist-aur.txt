@@ -17,9 +17,7 @@ gomason
 gpointing-device-settings
 i3lock-fancy-git
 lexend-fonts-git
-lib32-openssl-1.0
 libvlcpp-git
-libvterm01
 metis
 mingw-w64-tools
 nerd-fonts-complete
@@ -50,6 +48,4 @@ ttf-ms-fonts
 ttf-ubraille
 w3m-imgcat
 xorg-font-utils
-yay-bin
-yay-git
 zoom

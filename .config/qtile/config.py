@@ -38,7 +38,7 @@ from libqtile import hook, qtile
 # get display scaling facotr
 GDK_SCALE = os.environ.get("GDK_SCALE")
 if not GDK_SCALE:
-    GDK_SCALE = 1.35
+    GDK_SCALE = 1.5
 
 win_list = []
 def stick_win(qtile):
@@ -375,6 +375,7 @@ keys = [
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
+    Key([mod], "p", lazy.spawn(["sh", "-c", "~/.local/bin/bwmenu"])),
     Key([mod], "d", lazy.spawn(
         """rofi -show drun -font "IBM Plex Mono 12" -run-shell-command '{terminal} -e " {cmd}; read -n 1 -s"'""")),
     Key([mod, "control"], "w", lazy.spawn(
@@ -400,9 +401,9 @@ keys = [
 
 # groups = [Group(i) for i in "123456789"]
 
-group_names = [("WEB", {'layout': 'monadtall'}),
-               ("DEV", {'layout': 'monadtall'}),
-               ("WORK1", {'layout': 'monadtall'}),
+group_names = [("MAIN", {'layout': 'monadthreecol'}),
+               ("MAIN2", {'layout': 'monadtall'}),
+               ("WORK1", {'layout': 'monadthreecol'}),
                ("WORK2", {'layout': 'monadtall'}),
                ("SYS", {'layout': 'monadtall'}),
                ("COMMS", {'layout': 'stack'}),
@@ -448,6 +449,8 @@ layouts = [
 extension_defaults = widget_defaults.copy()
 
 
+bar_sizes = dict(icon_size=25, bar_size=50, font_size=15)
+
 screens = [
     Screen(
         top=bar.Bar(
@@ -460,10 +463,10 @@ screens = [
                 ),
                 widget.GroupBox(
                     font="Ubuntu Bold",
-                    fontsize=11,
+                    fontsize=bar_sizes["font_size"],
                     margin_y=3,
                     margin_x=0,
-                    padding_y=5,
+                    padding_y=3,
                     padding_x=3,
                     borderwidth=3,
                     active=colors[2],
@@ -508,7 +511,7 @@ screens = [
                     padding=0,
                     foreground=colors[2],
                     background=colors[7],
-                    fontsize=17
+                    fontsize=bar_sizes["font_size"]
                 ),
                 widget.Battery(
                     format='{char} {percent:2.0%}',
@@ -528,7 +531,7 @@ screens = [
                     foreground=colors[2],
                     background=colors[0],
                     padding=0,
-                    fontsize=25
+                    fontsize=bar_sizes["font_size"]
                 ),
                 widget.Memory(
                     foreground=colors[2],
@@ -613,15 +616,16 @@ screens = [
                 ),
                 widget.Systray(
                     background=colors[0],
-                    icon_size=20,
+                    icon_size=bar_sizes["icon_size"],
                     padding=5
                 ),
             ],
             # init_widgets_list(),
-            35,
+            bar_sizes["bar_size"],
         ),
     ),
 ]
+
 
 # Drag floating layouts.
 mouse = [

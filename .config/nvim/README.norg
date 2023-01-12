@@ -1,3 +1,42 @@
+@document.meta
+tangle: [
+  ./lua/user/configs/alpha.lua
+  ./lua/user/configs/autopairs.lua
+  ./lua/user/configs/autosave.lua
+  ./lua/user/configs/ayu.lua
+  ./lua/user/configs/bufferline.lua
+  ./lua/user/configs/calendar.lua
+  ./lua/user/configs/cmp.lua
+  ./lua/user/configs/codewindow.lua
+  ./lua/user/configs/colorizer.lua
+  ./lua/user/configs/comment.lua
+  ./lua/user/configs/conjure.lua
+  ./lua/user/configs/hlslens.lua
+  ./lua/user/configs/impatient.lua
+  ./lua/user/configs/knap.lua
+  ./lua/user/configs/leap.lua
+  ./lua/user/configs/literate.lua
+  ./lua/user/configs/lualine.lua
+  ./lua/user/configs/markdown-toc.lua
+  ./lua/user/configs/mind.lua
+  ./lua/user/configs/navic.lua
+  ./lua/user/configs/neorg.lua
+  ./lua/user/configs/nvim-tree.lua
+  ./lua/user/configs/pandoc.lua
+  ./lua/user/configs/pretty-fold.lua
+  ./lua/user/configs/project.lua
+  ./lua/user/configs/ranger.lua
+  ./lua/user/configs/scrollbars.lua
+  ./lua/user/configs/telescope.lua
+  ./lua/user/configs/toggleterm.lua
+  ./lua/user/configs/treesitter.lua
+  ./lua/user/configs/vimwiki.lua
+  ./lua/user/configs/zen.lua
+  ./lua/user/lsp/configs.lua
+  ./lua/user/options.lua
+]
+@end
+
 * Matt's Neovim Config
 
   This is an attempt to refactor and clean up my config, as well as an attempt to make it more literate. 

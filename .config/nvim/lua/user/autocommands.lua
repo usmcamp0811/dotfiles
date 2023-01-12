@@ -70,3 +70,8 @@ vim.cmd([[
 --   autocmd!
 --   autocmd BufWritePre * lua vim.lsp.buf.formatting()
 -- augroup end
+
+local function run_latex()
+  vim.fn.expand('%:p') 
+
+end
