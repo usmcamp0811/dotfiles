@@ -10,9 +10,9 @@ function template()
            user="mcamp",
            dir="/home/mcamp/.julia/dev/",
            authors="Matthew Camp",
-           julia=v"1.7.3",
+           julia=v"1.8.1",
            plugins=[
-               License(; name="MIT"),
+               License(; name="GPL-3.0+"),
                Git(; manifest=true, ssh=true),
                GitLabCI(),
                Codecov(),

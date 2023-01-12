@@ -1,13 +1,19 @@
 lastupdatecheck: 0
 recentrepos:
+<<<<<<< HEAD
+- /home/mcamp/code/JT-Project
+- /home/mcamp/Documents/jobs/Resume
+- /home/mcamp/work-code/vault-app-stack
+=======
+- /home/mcamp/Documents/jobs/Resume
+- /home/mcamp/.config/julia/dev/MakeResume
+>>>>>>> 57a3db8614a1ba0bf34899747abc160d4ff8f5ed
+- /home/mcamp/code/NewsBlur
 - /home/mcamp/code/magma-nvim
-- /home/mcamp/.config/julia/dev/Norg
 - /home/mcamp/code/why-pluto
-- /home/mcamp/code/conjure
 - /home/mcamp/code/nvim-julia-autotest
 - /home/mcamp/vimwiki
 - /home/mcamp/code/level-up
-- /home/mcamp/Documents/jobs/Resume
 startuppopupversion: 5
 customcommandshistory:
 - q

@@ -87,10 +87,10 @@ for file in ~/.config/shell/*.shrc; do
 done
 
 # TODO move these to ~/.config/shell and update syncthing
-# source my private config files
-for file in ~/.config/bash/private/*.bashrc; do
-    [ -r "$file" ] && source "$file"
-done
+# # source my private config files
+# for file in ~/.config/bash/private/*.bashrc; do
+#     [ -r "$file" ] && source "$file"
+# done
 
 for file in ~/.config/shell/private/*.shrc; do
     [ -r "$file" ] && source "$file"
@@ -139,3 +139,5 @@ source $HOME/.config/shell/zsh/fino.zsh-theme
 #TODO: figure this out
 # something overwrites this so its here for now
 alias diff='vim -d'
+
+eval $(thefuck --alias)
