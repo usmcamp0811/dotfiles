@@ -120,7 +120,7 @@ codi() {
 
 # I use arch btw...
 [ -e /usr/bin/archey3 ] && archey3 --config ~/.config/archey3.cfg 
-[ -e /usr/bin/thefuck ] && eval "$(thefuck --alias)"
+# [ -e /usr/bin/thefuck ] && eval "$(thefuck --alias)"
 
 
 # source $HOME/.config/broot/launcher/bash/br
@@ -140,4 +140,3 @@ source $HOME/.config/shell/zsh/fino.zsh-theme
 # something overwrites this so its here for now
 alias diff='vim -d'
 
-eval $(thefuck --alias)

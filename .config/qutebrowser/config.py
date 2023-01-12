@@ -47,6 +47,10 @@ c.tabs.new_position.stacking = False
 c.url.default_page = str(config.configdir / "startpage.html")
 c.url.start_pages = c.url.default_page
 c.colors.messages.error.bg = "#b22222"
+c.content.tls.certificate_errors = 'ask'
+c.content.unknown_url_scheme_policy = 'allow-from-user-interaction'
+c.auto_save.session = True
+c.qt.force_platformtheme = "dark"
 
 c.url.searchengines = {
     "DEFAULT": "https://searx.aicampground.com/?q={}",
