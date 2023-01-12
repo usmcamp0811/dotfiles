@@ -25,10 +25,10 @@ for dom in [
         p.content.register_protocol_handler = True
 
 c.content.geolocation = False
-c.content.media.audio_video_capture = False
-c.content.media.audio_capture = False
-c.content.media.video_capture = False
-c.content.notifications.enabled = False
+c.content.media.audio_video_capture = True
+c.content.media.audio_capture = True
+c.content.media.video_capture = True
+c.content.notifications.enabled = True
 c.content.cookies.accept = "no-3rdparty"
 c.content.blocking.whitelist = ["thepiratebay.org"]
 c.content.javascript.can_access_clipboard = True
