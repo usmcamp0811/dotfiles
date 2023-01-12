@@ -139,3 +139,5 @@ source $HOME/.config/shell/zsh/fino.zsh-theme
 #TODO: figure this out
 # something overwrites this so its here for now
 alias diff='vim -d'
+
+eval $(thefuck --alias)

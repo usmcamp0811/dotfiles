@@ -147,11 +147,11 @@ vim.cmd([[
   " highligh default fail guifg=red
 ]])
 
-local myluafun = function() require("nabla").enable_virt() end
-vim.api.nvim_create_autocmd({"BufEnter"}, {
-  pattern = "*",
-  callback = myluafun
-})
+--[[ local myluafun = function() require("nabla").enable_virt() end ]]
+--[[ vim.api.nvim_create_autocmd({"BufEnter"}, { ]]
+--[[   pattern = "*", ]]
+--[[   callback = myluafun ]]
+--[[ }) ]]
 
 -- this prevents functions (like, this)
 vim.g.sexp_enable_insert_mode_mappings = 0

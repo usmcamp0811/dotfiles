@@ -42,8 +42,8 @@ end
 
 --					l = { "<cmd>lua vim.b.slime_config = {jobid=vim.g.lua_job_id}<cr>", "Get Lua REPL" },
 -- this seems to need something in it or things break when opening lua files
--- vim.g["conjure#filetypes"] = { "fennel", "clojure" }
-vim.g["conjure#filetypes"] = { "fennel", "clojure", "julia", "jl", "python", "py", "norg" }
+vim.g["conjure#filetypes"] = { "fennel", "clojure" }
+--[[ vim.g["conjure#filetypes"] = { "fennel", "clojure", "julia", "jl", "python", "py", "norg" } ]]
 -- vim.g["conjure#mapping#doc_word"] = { "?" }
 -- vim.g["conjure#client#julia#stdio#prompt_pattern"] = { "In [1]:"}
 

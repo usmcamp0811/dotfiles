@@ -223,6 +223,7 @@ return packer.startup(function(use)
 		run = ":Neorg sync-parsers",
 		-- ft = "norg",
 		branch = "main",
+    --[[ tag = "0.0.18", ]]
 		-- branch = "code-execution",
 		-- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
 		config = function()
@@ -326,8 +327,8 @@ return packer.startup(function(use)
 		end,
 	})
 	use("shoumodip/nvim-literate")
-	-- use "frabjous/knap"
-	-- use "savq/paq-nvim"
+	use "frabjous/knap"
+	use "savq/paq-nvim"
 	-- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
 	use("rcarriga/nvim-notify")
 	use({
