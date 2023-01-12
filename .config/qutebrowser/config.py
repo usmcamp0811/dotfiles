@@ -5,6 +5,8 @@ import sys
 
 config.load_autoconfig(False)
 
+config.source("themes/onedark.py")
+
 c.content.autoplay = True
 autoplay_domains = ["youtube.com"]
 try:
@@ -112,3 +114,4 @@ c.bindings.commands["normal"] = {
     # Youtube
     "yt": "hint links spawn mpv {hint-url} --ytdl-format='bestvideo[height<1080]+bestaudio/best[height<1080]'",
 }
+
