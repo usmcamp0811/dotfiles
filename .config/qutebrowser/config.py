@@ -51,6 +51,15 @@ c.tabs.background = True
 c.tabs.last_close = "default-page"
 c.tabs.select_on_remove = "last-used"
 c.tabs.new_position.stacking = False
+# ### PADDING ###
+# v_padding = 10
+# h_padding = 20
+# s_padding = 10
+# l_padding = 5
+# t_padding = 5
+#
+# c.tabs.padding = { 'top': v_padding, 'bottom': v_padding, 'left': h_padding, 'right': h_padding }
+c.tabs.indicator.padding = {"top": 2, "bottom": 2, "left": 5, "right": 5}
 c.url.default_page = str(config.configdir / "startpage.html")
 c.url.start_pages = c.url.default_page
 c.colors.messages.error.bg = "#b22222"
@@ -128,3 +137,6 @@ c.bindings.commands["normal"] = {
     # Bitwarden
     "zl": "spawn --userscript ~/.config/qutebrowser/userscripts/qute-bitwarden",
 }
+
+c.content.user_stylesheets = ['~/.config/qutebrowser/reddit.css']
+
