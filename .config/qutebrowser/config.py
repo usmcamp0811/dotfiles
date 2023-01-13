@@ -10,7 +10,7 @@ config.load_autoconfig(False)
 
 # set the flavour you'd like to use
 # valid options are 'mocha', 'macchiato', 'frappe', and 'latte'
-catppuccin.setup(c, 'mocha')
+catppuccin.setup(c, "mocha")
 
 c.content.autoplay = False
 autoplay_domains = []
@@ -55,8 +55,8 @@ c.url.default_page = str(config.configdir / "startpage.html")
 c.url.start_pages = c.url.default_page
 c.colors.messages.error.bg = "#b22222"
 c.colors.webpage.bg = "black"
-c.content.tls.certificate_errors = 'ask'
-c.content.unknown_url_scheme_policy = 'allow-from-user-interaction'
+c.content.tls.certificate_errors = "ask"
+c.content.unknown_url_scheme_policy = "allow-from-user-interaction"
 c.auto_save.session = True
 c.qt.force_platformtheme = "dark"
 
@@ -106,8 +106,8 @@ c.zoom.levels = [
 ]
 c.fonts.default_family = ["DejaVu Sans Mono"]
 c.fonts.prompts = "default_size default_family"
-c.fonts.tabs.selected = '15pt default_family'
-c.fonts.tabs.unselected = '15pt default_family'
+c.fonts.tabs.selected = "15pt default_family"
+c.fonts.tabs.unselected = "15pt default_family"
 c.completion.open_categories = ["quickmarks", "bookmarks", "history"]
 c.hints.selectors["magnets"] = ['[href^="magnet:"]']
 
@@ -117,7 +117,6 @@ c.bindings.commands["normal"] = {
     "<ctrl-l>": "tab-next",
     "J": "tab-prev",
     "K": "tab-next",
-
     # zoom
     "<ctrl-=>": "zoom-in",
     "<ctrl-->": "zoom-out",
@@ -125,6 +124,7 @@ c.bindings.commands["normal"] = {
     # Youtube
     "gM": "hint links spawn mpv {hint-url} --ytdl-format='bestvideo[height<1080]+bestaudio/best[height<1080]'",
     "gm": "spawn mpv '{url}'",
-    "gq": "hint --rapid links spawn umpv {hint-url}"
+    "gq": "hint --rapid links spawn umpv {hint-url}",
+    # Bitwarden
+    "zl": "spawn --userscript ~/.config/qutebrowser/userscripts/qute-bitwarden",
 }
-
