@@ -2,12 +2,17 @@ import subprocess
 import os
 from qutebrowser.api import interceptor
 import sys
+import catppuccin
 
 config.load_autoconfig(False)
 
-config.source("themes/onedark.py")
+# config.source("themes/onedark.py")
 
-c.content.autoplay = True
+# set the flavour you'd like to use
+# valid options are 'mocha', 'macchiato', 'frappe', and 'latte'
+catppuccin.setup(c, 'mocha')
+
+c.content.autoplay = False
 autoplay_domains = []
 try:
     with open(config.configdir / "secret_autoplay_false", "r") as saf:
@@ -49,6 +54,7 @@ c.tabs.new_position.stacking = False
 c.url.default_page = str(config.configdir / "startpage.html")
 c.url.start_pages = c.url.default_page
 c.colors.messages.error.bg = "#b22222"
+c.colors.webpage.bg = "black"
 c.content.tls.certificate_errors = 'ask'
 c.content.unknown_url_scheme_policy = 'allow-from-user-interaction'
 c.auto_save.session = True
@@ -100,6 +106,8 @@ c.zoom.levels = [
 ]
 c.fonts.default_family = ["DejaVu Sans Mono"]
 c.fonts.prompts = "default_size default_family"
+c.fonts.tabs.selected = '15pt default_family'
+c.fonts.tabs.unselected = '15pt default_family'
 c.completion.open_categories = ["quickmarks", "bookmarks", "history"]
 c.hints.selectors["magnets"] = ['[href^="magnet:"]']
 
@@ -107,6 +115,9 @@ c.bindings.commands["normal"] = {
     "x": "tab-close",
     "<ctrl-h>": "tab-prev",
     "<ctrl-l>": "tab-next",
+    "J": "tab-prev",
+    "K": "tab-next",
+
     # zoom
     "<ctrl-=>": "zoom-in",
     "<ctrl-->": "zoom-out",
@@ -114,5 +125,6 @@ c.bindings.commands["normal"] = {
     # Youtube
     "gM": "hint links spawn mpv {hint-url} --ytdl-format='bestvideo[height<1080]+bestaudio/best[height<1080]'",
     "gm": "spawn mpv '{url}'",
+    "gq": "hint --rapid links spawn umpv {hint-url}"
 }
 
