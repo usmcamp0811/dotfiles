@@ -8,7 +8,7 @@ config.load_autoconfig(False)
 config.source("themes/onedark.py")
 
 c.content.autoplay = True
-autoplay_domains = ["youtube.com"]
+autoplay_domains = []
 try:
     with open(config.configdir / "secret_autoplay_false", "r") as saf:
         autoplay_domains += [l.strip() for l in saf if l.strip()]
@@ -112,6 +112,7 @@ c.bindings.commands["normal"] = {
     "<ctrl-->": "zoom-out",
     "<ctrl-0>": "zoom 100",
     # Youtube
-    "yt": "hint links spawn mpv {hint-url} --ytdl-format='bestvideo[height<1080]+bestaudio/best[height<1080]'",
+    "gM": "hint links spawn mpv {hint-url} --ytdl-format='bestvideo[height<1080]+bestaudio/best[height<1080]'",
+    "gm": "spawn mpv '{url}'",
 }
 
