@@ -2,15 +2,17 @@ import subprocess
 import os
 from qutebrowser.api import interceptor
 import sys
-import catppuccin
+
+# import catppuccin
 
 config.load_autoconfig(False)
 
 # config.source("themes/onedark.py")
+config.source("themes/city-lights-theme.py")
 
 # set the flavour you'd like to use
 # valid options are 'mocha', 'macchiato', 'frappe', and 'latte'
-catppuccin.setup(c, "mocha")
+# catppuccin.setup(c, "mocha")
 
 c.content.autoplay = False
 autoplay_domains = []
@@ -39,6 +41,7 @@ c.content.notifications.enabled = True
 c.content.cookies.accept = "no-3rdparty"
 c.content.blocking.whitelist = ["thepiratebay.org"]
 c.content.javascript.can_access_clipboard = True
+c.editor.command = ["kitty", "-e", "nvim", "{}"]
 c.downloads.open_dispatcher = "rifle"
 c.downloads.position = "bottom"
 c.downloads.location.remember = False
@@ -63,7 +66,9 @@ c.tabs.indicator.padding = {"top": 2, "bottom": 2, "left": 5, "right": 5}
 c.url.default_page = str(config.configdir / "startpage.html")
 c.url.start_pages = c.url.default_page
 c.colors.messages.error.bg = "#b22222"
-c.colors.webpage.bg = "black"
+c.colors.webpage.bg = "#1D252C"
+
+
 c.content.tls.certificate_errors = "ask"
 c.content.unknown_url_scheme_policy = "allow-from-user-interaction"
 c.auto_save.session = True
@@ -133,10 +138,9 @@ c.bindings.commands["normal"] = {
     # Youtube
     "gM": "hint links spawn mpv {hint-url} --ytdl-format='bestvideo[height<1080]+bestaudio/best[height<1080]'",
     "gm": "spawn mpv '{url}'",
-    "gq": "hint --rapid links spawn umpv {hint-url}",
+    "gq": "hint --rapid links spawn umpv '{hint-url}'",
     # Bitwarden
     "zl": "spawn --userscript ~/.config/qutebrowser/userscripts/qute-bitwarden",
 }
 
-c.content.user_stylesheets = ['~/.config/qutebrowser/reddit.css']
-
+c.content.user_stylesheets = ["~/.config/qutebrowser/reddit.css"]
