@@ -250,5 +250,5 @@ EOF
     if (( status != 0 )); then
         return 1
     fi
-    echo $json | bw encode | bw create item
+    echo $json | bw encode 
 }

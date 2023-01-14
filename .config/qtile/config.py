@@ -394,7 +394,7 @@ keys = [
     # Key([mod], "d", lazy.spawncmd(),
     # desc="Spawn a command using a prompt widget"),
     # Key([mod], "F2", lazy.spawn(f"brave --no-xshm --high-dpi-support=1 --force-device-scale-factor={GDK_SCALE}")),
-    Key([mod], "F2", lazy.spawn(["sh", "-c", """[[ "$(/usr/bin/xrandr | grep -w "connected" | wc -l)" == "1" ]] && export QT_SCALE_FACTOR=1.4 && qutebrowser"""])),
+    Key([mod], "F2", lazy.spawn(["sh", "-c", """[[ "$(/usr/bin/xrandr | grep -w "connected" | wc -l)" == "1" ]] && export QT_SCALE_FACTOR=1.4 && qutebrowser || qutebrowser"""])),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
