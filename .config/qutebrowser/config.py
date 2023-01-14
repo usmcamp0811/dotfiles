@@ -138,9 +138,16 @@ c.bindings.commands["normal"] = {
     # Youtube
     "gM": "hint links spawn mpv {hint-url} --ytdl-format='bestvideo[height<1080]+bestaudio/best[height<1080]'",
     "gm": "spawn mpv '{url}'",
-    "gq": "hint --rapid links spawn umpv '{hint-url}'",
+    "gq": "hint --rapid links spawn ~/.local/bin/umpv '{hint-url}'",
     # Bitwarden
     "zl": "spawn --userscript ~/.config/qutebrowser/userscripts/qute-bitwarden",
 }
 
 c.content.user_stylesheets = ["~/.config/qutebrowser/reddit.css"]
+c.colors.webpage.preferred_color_scheme = 'dark'
+c.colors.webpage.darkmode.enabled = True
+c.colors.webpage.darkmode.algorithm = "lightness-cielab"
+c.colors.webpage.darkmode.threshold.text = 150
+c.colors.webpage.darkmode.threshold.background = 100
+c.colors.webpage.darkmode.policy.images = 'always'
+c.colors.webpage.darkmode.grayscale.images = 0.35

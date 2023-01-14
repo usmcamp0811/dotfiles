@@ -22,8 +22,6 @@ dunst &
 
 [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33
 
-export GDK_SCALE=1.5
-export GDK_DPI_SCALE=1.5
 # autorandr -c
 # rogauracore blue
 # See https://wiki.archli
