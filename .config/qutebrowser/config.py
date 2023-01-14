@@ -9,7 +9,6 @@ config.load_autoconfig(False)
 
 # config.source("themes/onedark.py")
 config.source("themes/city-lights-theme.py")
-
 # set the flavour you'd like to use
 # valid options are 'mocha', 'macchiato', 'frappe', and 'latte'
 # catppuccin.setup(c, "mocha")
