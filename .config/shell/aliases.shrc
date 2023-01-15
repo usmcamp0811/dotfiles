@@ -225,30 +225,3 @@ alias nvim-dir="cd ~/.config/nvim/"
 alias vimconfig="vim ~/.config/nvim/init.lua"
 alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
 
-function bwcreate() {
-    local python_code=$(cat - <<EOF
-import argparse;import json;import secrets;import sys
-parser = argparse.ArgumentParser(description='Create bitwarden item')
-required = parser.add_argument_group('required named arguments')
-required.add_argument('-n', '--name', required=True, help='name of item')
-required.add_argument('-l', '--login', required=True)
-parser.add_argument('-p', '--password', help='auto generate if empty')
-parser.add_argument('-no', '--note')
-if len(sys.argv)==1:
-    parser.print_help(sys.stderr)
-    sys.exit(1)
-args = parser.parse_args()
-if not args.password:
-    args.password = secrets.token_urlsafe(14)
-login_data = {'username':args.login,'password':args.password}
-data = {'organizationId':None,'folderId':None,'type':1,'name':args.name,'notes':args.note,'favorite':False,'fields':[],'login':None,'secureNote':None,'card':None,'identity':None}
-data.update(login=login_data)
-print(json.dumps(data))
-EOF
-    )
-    json=$(python3 -c $python_code "$@")
-    if (( status != 0 )); then
-        return 1
-    fi
-    echo $json | bw encode 
-}

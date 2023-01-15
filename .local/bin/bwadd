@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -e
+
+AUTO_LOCK=900 # 15 minutes, default for bitwarden apps
+DEFAULT_EMAIL=$(stat $HOME/.gitconfig &> /dev/null && cat $HOME/.gitconfig | grep email | cut -d "=" -f 2 | awk '{$1=$1};1')
+DEFAULT_USERNAME=$(whoami)
+URI=$1
+
+
+ask_vaut_password() {
+  mpw=$(printf '' | rofi -dmenu -p "Master Password" -password -l 0 ${ROFI_OPTIONS[@]}) || exit $?
+  echo "$mpw" | bw unlock 2>/dev/null | grep 'export' | sed -E 's/.*export BW_SESSION="(.*==)"$/\1/' || exit_error $? "Could not unlock vault"
+}
+
+get_session_key() {
+  if [ $AUTO_LOCK -eq 0 ]; then
+    keyctl purge user bw_session &>/dev/null
+    export BW_SESSION=$(ask_vault_password)
+  else
+    if ! key_id=$(keyctl request user bw_session 2>/dev/null); then
+      session=$(ask_vault_password)
+      [[ -z "$session" ]] && exit_error 1 "Could not unlock vault"
+      key_id=$(echo "$session" | keyctl padd user bw_session @u)
+    fi
+    
+    if [ $AUTO_LOCK -gt 0 ]; then
+      keyctl timeout "$key_id" $AUTO_LOCK
+    fi
+    export BW_SESSION=$(keyctl pipe "$key_id")
+  fi
+}
+
+ask_name() {
+  NAME=$(printf "" | rofi -dmenu -p "Name:" -l 0 -mesg "The display name for the password.") || exit $?
+}
+
+ask_login() {
+  LOGIN=$(printf "$DEFAULT_EMAIL\n$DEFAULT_USERNAME" | rofi -dmenu -p "Login:" -l 2 -mesg "Please select a username/login or provide an alternate one to use.") || exit $?
+}
+
+ask_pass() {
+  PASS=$(printf "" | rofi -dmenu -p "Password:" -l 2 -mesg "Press Enter for a Randomly Generated Password") || exit $?
+}
+
+ask_uri() {
+  URI=$(printf "$URI" | rofi -dmenu -p "URI:" -l 2 -mesg "Confirm the URI (Enter) or enter a new URI.") || exit $?
+}
+
+get_session_key
+ask_name
+ask_login
+ask_pass
+ask_uri
+
+[ ! -z "$NAME" ] && BWITEM=$($HOME/.local/bin/bwcreate -n "$NAME" -l "$LOGIN" -p "$PASS" -u "$URI") || printf "You MUST provide a Name for this password."
+
+[ ! -z "$BWITEM" ] && bw create item --session "$BW_SESSION" $(echo $BWITEM | bw encode) && notify-send "$NAME Password Saved!"

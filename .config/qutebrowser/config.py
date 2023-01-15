@@ -140,6 +140,7 @@ c.bindings.commands["normal"] = {
     "gq": "hint --rapid links spawn ~/.local/bin/umpv '{hint-url}'",
     # Bitwarden
     "zl": "spawn --userscript ~/.config/qutebrowser/userscripts/qute-bitwarden",
+    "za": "spawn --userscript ~/.local/bin/bwadd '{url}'",
 }
 
 c.content.user_stylesheets = ["~/.config/qutebrowser/reddit.css"]
