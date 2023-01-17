@@ -8,3 +8,4 @@ dotfiles https://gitlab.com/usmcamp0811/dotfiles
 ata slack https://app.slack.com/client/T03KWC12A/C03KWC13S
 seed slack https://app.slack.com/client/T1LAJS8CA/C03GX18ND2L
 yt https://www.youtube.com/
+aws https://signin.amazonaws-us-gov.com/oauth?response_type=code&client_id=arn%3Aaws-us-gov%3Asignin%3A%3A%3Aconsole%2Fcanvas&redirect_uri=https%3A%2F%2Fconsole.amazonaws-us-gov.com%2Fconsole%2Fhome%3FhashArgs%3D%2523%26isauthcode%3Dtrue%26state%3DhashArgsFromTB_us-gov-west-1_94c7adbbfd4435dd&forceMobileLayout=0&forceMobileApp=0&code_challenge=GjjxYXJk-xLjVn2Q2_6vlbRt4b7uD0bHDw8uVL_bNnI&code_challenge_method=SHA-256
