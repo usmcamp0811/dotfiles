@@ -31,8 +31,8 @@ KB_FOLDERSELECT="Alt+c"
 KB_TOTPCOPY="Alt+t"
 KB_LOCK="Alt+L"
 KB_TYPEALL="Ctrl+1"
-KB_TYPEUSER="Ctrl+2"
-KB_TYPEPASS="Ctrl+3"
+KB_TYPEUSER="Alt+2"
+KB_TYPEPASS="Alt+3"
 
 # Item type classification
 TYPE_LOGIN=1

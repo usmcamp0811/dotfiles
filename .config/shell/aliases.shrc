@@ -38,7 +38,7 @@ alias grep='grep --color=auto'
 
 alias zathura='devour zathura'
 alias feh='devour feh'
-alias mpv='devour mpv'
+alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js'
 alias weather='devour weather'
 alias radar='devour weather -r'
 alias neovide='devour neovide'
@@ -224,5 +224,4 @@ alias diff='vim -d'
 alias nvim-dir="cd ~/.config/nvim/"
 alias vimconfig="vim ~/.config/nvim/init.lua"
 alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
-
 

@@ -77,3 +77,9 @@ export JULIA_DEPOT_PATH="$XDG_CONFIG_HOME/julia:$JULIA_DEPOT_PATH"
 # fixes zoom
 export SSB_HOME="$XDG_DATA_HOME"/zoom
 export CONDARC="$XDG_CONFIG_HOME/conda/condarc"
+
+export GDK_SCALE=1.4
+export GDK_DPI_SCALE=1.4
+export QT_SCALE_FACTOR_ROUNDING_POLICY=PassThrough
+export QT_ENABLE_HIGHDPI_SCALING=1
+export QT_SCALE_FACTOR=1.4
