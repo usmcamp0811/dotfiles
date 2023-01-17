@@ -10,3 +10,5 @@ seed slack https://app.slack.com/client/T1LAJS8CA/C03GX18ND2L
 yt https://www.youtube.com/
 campground http://10.8.0.1/Status_Lan.asp
 skynet http://192.168.1.1/
+octoprint http://10.8.0.200:5000/login/?redirect=%2F%3F&permissions=STATUS%2CSETTINGS_READ
+sms https://messages.google.com/web/conversations
