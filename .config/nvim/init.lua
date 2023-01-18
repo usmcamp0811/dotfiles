@@ -130,10 +130,10 @@ let g:ipython_cell_cell_command = 'include_string(Main, clipboard())'
 -- reload_gtd()
 -- vim.cmd([[colorscheme synthwave84]])
 
-vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-  pattern = "*",
-  callback = require("lspsaga.lightbulb").action_lightbulb,
-})
+--[[ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, { ]]
+--[[   pattern = "*", ]]
+--[[   callback = require("lspsaga.lightbulb").action_lightbulb, ]]
+--[[ }) ]]
 
 vim.cmd([[
   augroup numbertoggle
