@@ -11,3 +11,13 @@ WEATHER_URL="https://radblast.wunderground.com/cgi-bin/radar/WUNIDS_map?num=6&ty
 # TODO: figure out how to get localation and get appropriate radar for your current location.. something like wttr.in does.
 [[ "$1" == "-r" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m $WEATHER_URL
 [[ "$1" == "--radar" ]] && echo "Getting Weather Radar Now..." && mpv --loop-file=inf --stream-buffer-size=2m $WEATHER_URL
+
+
+
+[[ "$1" == "somehting"]] || something 
+[[ "$1" == "somehting"]] && something 
+
+[[ "$1" == "somehting"]] && something || somethingelse
+[[ "$1" == "somehting"]] && something2 || somethingelse
+[[ "$1" == "somehting"]] && something3 || somethingelse
+[[ "$1" == "somehting"]] || something 

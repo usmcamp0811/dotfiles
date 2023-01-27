@@ -155,3 +155,22 @@ vim.cmd([[
 
 -- this prevents functions (like, this)
 vim.g.sexp_enable_insert_mode_mappings = 0
+require('nvim-search-and-replace').setup{
+    -- file patters to ignore
+    ignore = {'**/node_modules/**', '**/.git/**',  '**/.gitignore', '**/.gitmodules','build/**'},
+
+    -- save the changes after replace
+    update_changes = false,
+
+    -- keymap for search and replace
+    replace_keymap = '<localleader>gr',
+
+    -- keymap for search and replace ( this does not care about ignored files )
+    replace_all_keymap = '<localleader>gR',
+
+    -- keymap for search and replace
+    replace_and_save_keymap = '<localleader>gu',
+
+    -- keymap for search and replace ( this does not care about ignored files )
+    replace_all_and_save_keymap = '<localleader>gU',
+}

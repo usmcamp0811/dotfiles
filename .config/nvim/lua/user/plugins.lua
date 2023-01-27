@@ -393,6 +393,7 @@ return packer.startup(function(use)
 	use("jose-elias-alvarez/null-ls.nvim") -- for formatters and linters
 	use("https://git.sr.ht/~whynothugo/lsp_lines.nvim")
 
+
 	use({
 		"glepnir/lspsaga.nvim",
 		branch = "main",
@@ -498,6 +499,9 @@ return packer.startup(function(use)
 	use({ "kevinhwang91/nvim-hlslens" })
 	-- Git
 	use("petertriho/nvim-scrollbar")
+  use("f-person/git-blame.nvim")
+  use("pearofducks/ansible-vim")
+  use("s1n7ax/nvim-search-and-replace")
 	use({
 		"lewis6991/gitsigns.nvim",
 		config = function()
