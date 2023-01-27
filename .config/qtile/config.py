@@ -399,6 +399,8 @@ keys = [
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
     Key([mod], "p", lazy.spawn(["sh", "-c", "~/.local/bin/bwmenu"])),
+    Key([mod], "o", lazy.spawn(["sh", "-c", """WEB=$(printf '' | rofi -dmenu 'Search:' -l 0) && qutebrowser "$WEB" """])),
+
     Key(
         [mod],
         "d",

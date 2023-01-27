@@ -155,3 +155,10 @@ vim.cmd([[
 
 -- this prevents functions (like, this)
 vim.g.sexp_enable_insert_mode_mappings = 0
+vim.cmd([[
+au FileType plantuml let g:plantuml_previewer#plantuml_jar_path = get(
+    \  matchlist(system('cat `which plantuml` | grep plantuml.jar'), '\v.*\s[''"]?(\S+plantuml\.jar).*'),
+    \  1,
+    \  0
+    \)
+]])
