@@ -3,12 +3,11 @@ alacritty
 alex
 alsa-tools
 alsa-utils
-amd-ucode
+intel-ucode
 ansible
 apptainer
 arandr
 archey3
-asusctl
 atool
 autoconf
 automake
@@ -102,8 +101,6 @@ lightdm
 lightdm-webkit2-greeter
 linux
 linux-firmware
-linux-g14
-linux-g14-headers
 linux-headers
 linux-lts
 linux-lts-headers
