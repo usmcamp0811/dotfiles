@@ -1,11 +1,14 @@
 lastupdatecheck: 0
 recentrepos:
+<<<<<<< HEAD
 - /home/mcamp/work-code/vault-deployment-config
 - /home/mcamp/work-code/tableau
+=======
+- /home/mcamp/code/ResumeSite
+>>>>>>> 4406012b5b3eaa60efe88679349c45ccd417f9a5
 - /home/mcamp/code/NewsBlur
 - /home/mcamp/code/JT-Project
 - /home/mcamp/Documents/jobs/Resume
-- /home/mcamp/work-code/vault-app-stack
 - /home/mcamp/Documents/jobs/Resume
 - /home/mcamp/code/magma-nvim
 - /home/mcamp/code/why-pluto

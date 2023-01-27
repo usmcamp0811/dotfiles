@@ -7,7 +7,6 @@ DEFAULT_EMAIL=$(stat $HOME/.gitconfig &> /dev/null && cat $HOME/.gitconfig | gre
 DEFAULT_USERNAME=$(whoami)
 URI=$1
 
-
 ask_vaut_password() {
   mpw=$(printf '' | rofi -dmenu -p "Master Password" -password -l 0 ${ROFI_OPTIONS[@]}) || exit $?
   echo "$mpw" | bw unlock 2>/dev/null | grep 'export' | sed -E 's/.*export BW_SESSION="(.*==)"$/\1/' || exit_error $? "Could not unlock vault"

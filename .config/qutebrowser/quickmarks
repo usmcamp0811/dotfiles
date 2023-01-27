@@ -13,4 +13,6 @@ campground http://10.8.0.1/Status_Lan.asp
 skynet http://192.168.1.1/
 octoprint http://10.8.0.200:5000/login/?redirect=%2F%3F&permissions=STATUS%2CSETTINGS_READ
 sms https://messages.google.com/web/conversations
-gmail https://mail.google.com/mail/u/0/?pli=1#inbox
+gmail https://mail.google.com/mail/u/1/#inbox
+photos https://photos.aicampground.com/library/browse
+amex https://www.americanexpress.com/en-us/account/login?inav=iNavLnkLog
