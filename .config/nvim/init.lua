@@ -155,7 +155,8 @@ vim.cmd([[
 
 -- this prevents functions (like, this)
 vim.g.sexp_enable_insert_mode_mappings = 0
-<<<<<<< HEAD
+
+-- todo: move this where it should be
 require('nvim-search-and-replace').setup{
     -- file patters to ignore
     ignore = {'**/node_modules/**', '**/.git/**',  '**/.gitignore', '**/.gitmodules','build/**'},
@@ -175,7 +176,7 @@ require('nvim-search-and-replace').setup{
     -- keymap for search and replace ( this does not care about ignored files )
     replace_all_and_save_keymap = '<localleader>gU',
 }
-=======
+
 vim.cmd([[
 au FileType plantuml let g:plantuml_previewer#plantuml_jar_path = get(
     \  matchlist(system('cat `which plantuml` | grep plantuml.jar'), '\v.*\s[''"]?(\S+plantuml\.jar).*'),
@@ -183,4 +184,3 @@ au FileType plantuml let g:plantuml_previewer#plantuml_jar_path = get(
     \  0
     \)
 ]])
->>>>>>> 4406012b5b3eaa60efe88679349c45ccd417f9a5
