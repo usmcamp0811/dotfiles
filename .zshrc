@@ -140,5 +140,5 @@ source $HOME/.config/shell/zsh/fino.zsh-theme
 # something overwrites this so its here for now
 alias diff='vim -d'
 
-eval "$(bw completion --shell zsh); compdef _bw bw;"
+[ -e /usr/bin/bw ] && eval "$(bw completion --shell zsh); compdef _bw bw;"
 
