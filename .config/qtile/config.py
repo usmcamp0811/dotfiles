@@ -396,7 +396,7 @@ keys = [
     Key([mod, "control"], "r", lazy.restart()),
     Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
     Key([mod], "p", lazy.spawn(["sh", "-c", "~/.local/bin/bwmenu"])),
-    Key([mod, "shift"], "o", lazy.spawn(["sh", "-c", """WEB=$(cat $HOME/.config/qutebrowser/quickmarks | rofi -dmenu 'Search:' -l 7 | awk '{print $NF}') && [ ! -z "$WEB" ] && qutebrowser --target window "$WEB" """])),
+    Key([mod, "shift"], "o", lazy.spawn(["sh", "-c", """WEB=$(cat $HOME/.config/qutebrowser/quickmarks | awk '{print $2}' | rofi -dmenu 'Search:' -l 7) && [ ! -z "$WEB" ] && qutebrowser --target window "$WEB" """])),
 
     Key(
         [mod],

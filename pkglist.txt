@@ -1,9 +1,11 @@
 alacritty
 alsa-tools
 alsa-utils
+intel-ucode
 ansible
 arandr
 archey3
+atool
 autoconf
 automake
 autorandr

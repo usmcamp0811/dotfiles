@@ -46,8 +46,6 @@ neovim
 network-manager-applet
 networkmanager
 npm
-nvidia
-nvidia-dkms
 openssh
 os-prober
 patch
