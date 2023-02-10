@@ -225,3 +225,30 @@ alias nvim-dir="cd ~/.config/nvim/"
 alias vimconfig="vim ~/.config/nvim/init.lua"
 alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
 
+
+# convert "Channel Name" "https://youtube.com/@somechannel" to ytdl-sub yaml
+function subscribe(){
+  channelname=$1
+  url=$2
+  channelidurl=$(yt-channelid "$url")
+  safename=$(echo "$url" | sed 's/^.*@//')
+
+printf \
+$safename':
+  preset:
+    - "yt_channel"
+    - "recent_videos"
+  download:
+    url: "'$channelidurl'"
+  overrides:
+    tv_show_name: "'$channelname'"
+
+
+'
+}
+
+# convert youtube channel url with @channelname to the channel id for ytdl-sub
+function yt-channelid(){
+  echo $(curl $1 | grep '^.*"channelUrl"' | sed 's/^.*"channelUrl":"//g' | sed 's/",.*$//g')
+}
+

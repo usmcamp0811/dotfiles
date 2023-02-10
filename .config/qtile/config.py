@@ -31,7 +31,13 @@ from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
 from libqtile import hook, qtile
+# from MutableScratch import MutableScratch
+# import MutableScratch.MutableScratch
 
+# mutscr = MutableScratch()
+
+
+# hook.subscribe.startup_complete(minscr.qtile_startup)
 # get display scaling facotr
 GDK_SCALE = os.environ.get("GDK_SCALE")
 if not GDK_SCALE:
@@ -435,6 +441,10 @@ keys = [
         [], "XF86Launch1", lazy.spawn(["sh", "-c", "~/.local/bin/laptop_screen_toggle"])
     ),
     # Key([mod], "F2", lazy.spawn("brave")),
+    # Key([mod, "shift"], "-", mutscr.add_current_window()),
+    # Key([mod], "-", mutscr.toggle()),
+    # Key([mod, "shift"], "-", mutscr.add_current_window()),
+
 ]
 
 
@@ -453,6 +463,7 @@ group_names = [
 ]
 
 groups = [Group(name, **kwargs) for name, kwargs in group_names]
+groups.append(Group('')) # for the scratch space
 
 for i, (name, kwargs) in enumerate(group_names, 1):
     # Switch to another group
