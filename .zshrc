@@ -142,3 +142,4 @@ alias diff='vim -d'
 
 [ -e /usr/bin/bw ] && eval "$(bw completion --shell zsh); compdef _bw bw;"
 
+# test
