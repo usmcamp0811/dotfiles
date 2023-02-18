@@ -30,7 +30,7 @@ which_key.register({
 		i = { "<cmd>LspInfo<cr>", "Info" },
 		I = { "<cmd>LspInstallInfo<cr>", "Installer Info" },
 		j = {
-			"<cmd>lua vim.lsp.diagnostic.show()<CR>",
+			"<cmd>lua vim.diagnostic.open_float(nil,{focusable=false,scope=\"cursor\"})<CR>",
 			"Diagnostic Show",
 		},
 		l = { "<cmd>lua vim.lsp.codelens.run()<cr>", "CodeLens Action" },
