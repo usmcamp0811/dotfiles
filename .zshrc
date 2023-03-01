@@ -1,4 +1,3 @@
-
 for file in ~/.config/shell/zsh/*.zsh; do
     [ -r "$file" ] && source "$file"
 done
