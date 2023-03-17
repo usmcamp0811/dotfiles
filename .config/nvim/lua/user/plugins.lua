@@ -144,6 +144,10 @@ return packer.startup(function(use)
 	use({
 		"SmiteshP/nvim-navic",
 		requires = "neovim/nvim-lspconfig",
+		config = function()
+			vim.g.navic_silence = true
+			require("nvim-navic").setup({ separator = " ", highlight = true, depth_limit = 5 })
+		end,
 	})
 	use({ "Olical/conjure" })
 	use({ "hasundue/vim-pluto", requires = { "vim-denops/denops.vim" } })
@@ -223,7 +227,7 @@ return packer.startup(function(use)
 		run = ":Neorg sync-parsers",
 		-- ft = "norg",
 		branch = "main",
-    --[[ tag = "0.0.18", ]]
+		--[[ tag = "0.0.18", ]]
 		-- branch = "code-execution",
 		-- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
 		config = function()
@@ -327,8 +331,8 @@ return packer.startup(function(use)
 		end,
 	})
 	use("shoumodip/nvim-literate")
-	use "frabjous/knap"
-	use "savq/paq-nvim"
+	use("frabjous/knap")
+	use("savq/paq-nvim")
 	-- use { 'michaelb/sniprun', run = 'bash ./install.sh'}
 	use("rcarriga/nvim-notify")
 	use({
@@ -372,7 +376,7 @@ return packer.startup(function(use)
 		branch = "v2.2",
 		requires = { "nvim-lua/plenary.nvim" },
 		config = function()
-      require("user.plug-setting.mind")
+			require("user.plug-setting.mind")
 		end,
 	})
 	use("saadparwaiz1/cmp_luasnip") -- snippet completions
@@ -388,11 +392,10 @@ return packer.startup(function(use)
 	use("williamboman/mason.nvim")
 	use("williamboman/mason-lspconfig.nvim")
 	use("b0o/SchemaStore.nvim")
-	use("tamago324/nlsp-settings.nvim")
+	use("tamago324/nlsp-settings.nvim") -- lsp config with yaml like coc
 	-- use "lukas-reineke/lsp-format.nvim"
 	use("jose-elias-alvarez/null-ls.nvim") -- for formatters and linters
 	use("https://git.sr.ht/~whynothugo/lsp_lines.nvim")
-
 
 	use({
 		"glepnir/lspsaga.nvim",
@@ -401,54 +404,54 @@ return packer.startup(function(use)
 			-- local saga = require("lspsaga")
 			-- local config = require("user.plug-setting.lsp-saga")
 			-- saga.init_lsp_saga(config)
-			require("lspsaga").setup { -- defaults ...
-        debug = false,
-        use_saga_diagnostic_sign = true,
-        -- diagnostic sign
-        error_sign = "",
-        warn_sign = "",
-        hint_sign = "",
-        infor_sign = "",
-        diagnostic_header_icon = "   ",
-        -- code action title icon
-        code_action_icon = " ",
-        code_action_prompt = {
-          enable = true,
-          sign = true,
-          sign_priority = 40,
-          virtual_text = true,
-        },
-        finder_definition_icon = "  ",
-        finder_reference_icon = "  ",
-        max_preview_lines = 10,
-        finder_action_keys = {
-          open = "o",
-          vsplit = "s",
-          split = "i",
-          quit = "q",
-          scroll_down = "<C-f>",
-          scroll_up = "<C-b>",
-        },
-        code_action_keys = {
-          quit = "q",
-          exec = "<CR>",
-        },
-        rename_action_keys = {
-          quit = "<C-c>",
-          exec = "<CR>",
-        },
-        definition_preview_icon = "  ",
-        border_style = "single",
-        rename_prompt_prefix = "➤",
-        rename_output_qflist = {
-          enable = false,
-          auto_open_qflist = false,
-        },
-        server_filetype_map = {},
-        diagnostic_prefix_format = "%d. ",
-        diagnostic_message_format = "%m %c",
-        highlight_prefix = false,
-      }
+			require("lspsaga").setup({ -- defaults ...
+				debug = false,
+				use_saga_diagnostic_sign = true,
+				-- diagnostic sign
+				error_sign = "",
+				warn_sign = "",
+				hint_sign = "",
+				infor_sign = "",
+				diagnostic_header_icon = "   ",
+				-- code action title icon
+				code_action_icon = " ",
+				code_action_prompt = {
+					enable = true,
+					sign = true,
+					sign_priority = 40,
+					virtual_text = true,
+				},
+				finder_definition_icon = "  ",
+				finder_reference_icon = "  ",
+				max_preview_lines = 10,
+				finder_action_keys = {
+					open = "o",
+					vsplit = "s",
+					split = "i",
+					quit = "q",
+					scroll_down = "<C-f>",
+					scroll_up = "<C-b>",
+				},
+				code_action_keys = {
+					quit = "q",
+					exec = "<CR>",
+				},
+				rename_action_keys = {
+					quit = "<C-c>",
+					exec = "<CR>",
+				},
+				definition_preview_icon = "  ",
+				border_style = "single",
+				rename_prompt_prefix = "➤",
+				rename_output_qflist = {
+					enable = false,
+					auto_open_qflist = false,
+				},
+				server_filetype_map = {},
+				diagnostic_prefix_format = "%d. ",
+				diagnostic_message_format = "%m %c",
+				highlight_prefix = false,
+			})
 		end,
 	})
 
@@ -499,9 +502,10 @@ return packer.startup(function(use)
 	use({ "kevinhwang91/nvim-hlslens" })
 	-- Git
 	use("petertriho/nvim-scrollbar")
-  use("f-person/git-blame.nvim")
-  use("pearofducks/ansible-vim")
-  use("s1n7ax/nvim-search-and-replace")
+	use("f-person/git-blame.nvim")
+	use("pearofducks/ansible-vim")
+  use("mfussenegger/nvim-ansible")
+	use("s1n7ax/nvim-search-and-replace")
 	use({
 		"lewis6991/gitsigns.nvim",
 		config = function()
