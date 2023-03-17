@@ -27,8 +27,8 @@ alias cp='cp -v'
 
 
 alias chmox='chmod -x'
-[ -e /usr/bin/bat ] && alias cat='/usr/bin/bat'
-[ -e /usr/bin/batcat ] && alias cat='/usr/bin/batcat'
+[ -e /usr/bin/bat ] && alias cat='/usr/bin/bat' && alias pcat='/usr/bin/bat -p'
+[ -e /usr/bin/batcat ] && alias cat='/usr/bin/batcat' && alias pcat='/usr/bin/batcat -p'
 
 alias vim='nvim'
 
@@ -255,3 +255,8 @@ function yt-channelid(){
 function dl_music(){
   yt-dlp -x --audio-format mp3 $1 --write-thumbnail --add-metadata --embed-thumbnail --cookies-from-browser brave
 }
+
+alias status='sudo systemctl status'
+alias start='sudo systemctl start'
+alias stop='sudo systemctl stop'
+alias restart='sudo systemctl restart'
