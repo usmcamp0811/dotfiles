@@ -38,7 +38,7 @@ alias grep='grep --color=auto'
 
 alias zathura='devour zathura'
 alias feh='devour feh'
-alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js'
+alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js -ao=pipewire'
 alias weather='devour weather'
 alias radar='devour weather -r'
 alias neovide='devour neovide'
