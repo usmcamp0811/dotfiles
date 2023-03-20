@@ -1,5 +1,12 @@
 lastupdatecheck: 0
 recentrepos:
+- /home/mcamp/work-code/vault-deploy/docker-headless-vnc-container
+- /home/mcamp/work-code/aws-nist-compliant-architecture
+- /home/mcamp/work-code/servicenow-mid
+- /home/mcamp/work-code/ata-vpn-playbooks
+- /home/mcamp/work-code/tableau
+- /home/mcamp/work-code/vault-deploy
+- /home/mcamp/work-code/vault-deployment-config
 - /home/mcamp/code/ResumeSite
 - /home/mcamp/code/campfiles
 - /home/mcamp/code/NewsBlur

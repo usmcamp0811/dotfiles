@@ -9,7 +9,7 @@ vim.g.rnvimr_enable_picker = 1
 vim.g.rnvimr_draw_border = 0
 
 -- Hide the files included in gitignore
-vim.g.rnvimr_hide_gitignore = 1
+vim.g.rnvimr_hide_gitignore = 0
 
 -- Change the border's color
 vim.g.rnvimr_border_attr = {

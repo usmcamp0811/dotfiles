@@ -3,9 +3,9 @@ if not status_ok then
   return
 end
 
-local actions = require "telescope.actions"
+local actions = require("telescope.actions")
 
-telescope.setup {
+telescope.setup({
   defaults = {
 
     prompt_prefix = " ",
@@ -78,13 +78,11 @@ telescope.setup {
     },
   },
   pickers = {
-    -- Default configuration for builtin pickers goes here:
-    -- picker_name = {
-    --   picker_config_key = value,
-    --   ...
-    -- }
-    -- Now the picker_config_key will be applied every time you call this
-    -- builtin picker
+    live_grep = {
+      additional_args = function(opts)
+        return { "--hidden" }
+      end,
+    },
   },
   extensions = {
     -- Your extension configuration goes here:
@@ -93,9 +91,7 @@ telescope.setup {
     -- }
     -- please take a look at the readme of the extension you want to configure
   },
-}
-
-
+})
 
 local status_ok, which_key = pcall(require, "which-key")
 if not status_ok then
@@ -114,6 +110,4 @@ which_key.register({
     k = { "<cmd>Telescope keymaps<cr>", "Keymaps" },
     C = { "<cmd>Telescope commands<cr>", "Commands" },
   },
-},
-  { prefix = "<leader>" }
-)
+}, { prefix = "<leader>" })

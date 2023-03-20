@@ -225,3 +225,6 @@ alias nvim-dir="cd ~/.config/nvim/"
 alias vimconfig="vim ~/.config/nvim/init.lua"
 alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
 
+alias tf="terraform"
+alias tfa="terraform apply"
+alias tfd="terraform destroy"
