@@ -30,8 +30,15 @@ local git_info='$(git_prompt_info)'
 local virtualenv_info='$(virtualenv_prompt_info)'
 local prompt_char='$(prompt_char)'
 
-PROMPT="╭─${FG[040]}%n ${FG[239]}on ${FG[033]}$(box_name) ${FG[239]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
+# PROMPT="╭─${FG[040]}%n ${FG[239]}on ${FG[033]}$(box_name) ${FG[239]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
+# ╰─${prompt_char}%{$reset_color%} "
+if [[ $EUID -eq 0 ]]; then
+  PROMPT="${FG[196]}╭─${FG[239]}%n ${FG[196]}on ${FG[033]}$(box_name) ${FG[239]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
+${FG[196]}╰─${prompt_char}%{$reset_color%} "
+else
+  PROMPT="╭─${FG[040]}%n ${FG[239]}on ${FG[033]}$(box_name) ${FG[239]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
 ╰─${prompt_char}%{$reset_color%} "
+fi
 
 ZSH_THEME_GIT_PROMPT_PREFIX=" ${FG[239]}on%{$reset_color%} ${FG[255]}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
