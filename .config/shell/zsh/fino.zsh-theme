@@ -16,7 +16,7 @@ function virtualenv_prompt_info {
 }
 
 function prompt_char {
-  command git branch &>/dev/null && echo "🚧" || echo "喇"
+  command git branch &>/dev/null && echo "🚧" || echo ""
 }
 
 function box_name {

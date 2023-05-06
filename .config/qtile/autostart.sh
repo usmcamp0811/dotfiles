@@ -6,7 +6,7 @@ export GDK_SCALE=1.4
 # [[ "$(pgrep -x redshift-gtk | wc -l)" != "1" ]] && redshift-gtk &
 [[ "$(ps aux | grep redshift | wc -l)" != "1" ]] && redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
 xflux -z 35811
-bash ~/.local/bin/swap-capslock-esc.sh
+bash $HOME/.local/bin/swap-capslock-esc.sh
 # powertop --auto-tune &
 xautolock -time 10 -locker i3lock-fancy &
 # /home/mcamp/.local/bin/lid-action &
@@ -22,7 +22,7 @@ dunst &
 [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33
 
 autorandr --change
-feh --bg-scale /home/mcamp/.background
+feh --bg-scale $HOME/.background
 # rogauracore blue
 # See https://wiki.archli
 

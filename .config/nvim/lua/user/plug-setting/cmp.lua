@@ -113,7 +113,7 @@ cmp.setup({
     { name = "luasnip" },
     { name = "conjure" },
     { name = "neorg" },
-    { name = "dynamic" },
+    --[[ { name = "dynamic" }, ]]
     { name = "latex_symbols" },
     { name = "orgmode" },
     { name = "path" },
