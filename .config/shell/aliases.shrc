@@ -30,7 +30,7 @@ alias chmox='chmod -x'
 [ -e /usr/bin/bat ] && alias cat='/usr/bin/bat' && alias pcat='/usr/bin/bat -p'
 [ -e /usr/bin/batcat ] && alias cat='/usr/bin/batcat' && alias pcat='/usr/bin/batcat -p'
 
-alias vim='nvim'
+[ -e /usr/bin/nvim ] && alias vim='nvim'
 
 alias df='df -h'
 
