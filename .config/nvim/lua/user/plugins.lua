@@ -139,7 +139,7 @@ return packer.startup(function(use)
 			})
 		end,
 	})
-	-- use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
+	--[[ use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' } ]]
 	use({ "usmcamp0811/magma-nvim", run = ":UpdateRemotePlugins", branch = "fix-output" })
 	use({
 		"SmiteshP/nvim-navic",

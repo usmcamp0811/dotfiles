@@ -25,7 +25,7 @@ neorg.setup({
         },
       },
     },
-    ["core.norg.qol.toc"] = {},
+    --[[ ["core.norg.qol.toc"] = {}, ]]
 
     -- ["core.norg.esupports.metagen"] = {
     -- 	config = {
@@ -66,7 +66,7 @@ neorg.setup({
             name = "Note",
             -- l = { "<Cmd>Neorg keybind norg core.integrations.telescope.find_linkable<CR>", "Find Linkable"},
             p = { ":Neorg presenter start<cr>", "Start Presentation" },
-            n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note" },
+            --[[ n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note" }, ]]
             j = { ":Neorg journal today<cr>", "Today's Journal" },
           }, { prefix = "<Space>" })
           -- which_key.register({
@@ -130,8 +130,8 @@ neorg.setup({
         end,
       },
     },
-    ["core.norg.journal"] = {},
-    ["core.integrations.telescope"] = {},
+    --[[ ["core.norg.journal"] = {}, ]]
+    --[[ ["core.integrations.telescope"] = {}, ]]
     --[[ ["core.gtd.base"] = { ]]
     --[[   config = { ]]
     --[[     workspace = "home", ]]
@@ -150,22 +150,22 @@ neorg.setup({
     --[[   }, ]]
     --[[ }, ]]
     --[[ ["external.gtd-project-tags"] = {}, ]]
-    ["external.context"] = {},
-    ["core.tangle"] = {},
-    ["core.norg.manoeuvre"] = {},
-    ["core.export"] = { config = {} },
+    --[[ ["external.context"] = {}, ]]
+    --[[ ["core.tangle"] = {}, ]]
+    --[[ ["core.norg.manoeuvre"] = {}, ]]
+    --[[ ["core.export"] = { config = {} }, ]]
     -- ["core.execute"] = {},
-    ["core.export.markdown"] = {
-      config = {
-        extensions = "all",
-      },
-    },
-    ["core.presenter"] = {
-      config = {
-        zen_mode = "zen-mode",
-        -- zen_mode = "truezen",
-      },
-    },
+    --[[ ["core.export.markdown"] = { ]]
+    --[[   config = { ]]
+    --[[     extensions = "all", ]]
+    --[[   }, ]]
+    --[[ }, ]]
+    --[[ ["core.presenter"] = { ]]
+    --[[   config = { ]]
+    --[[     zen_mode = "zen-mode", ]]
+    --[[     -- zen_mode = "truezen", ]]
+    --[[   }, ]]
+    --[[ }, ]]
     -- ["external.kanban"] = {
     --   config = {
     --     task_states = {
@@ -180,21 +180,21 @@ neorg.setup({
     --     },
     --   },
     -- },
-    ["core.norg.concealer"] = {},
-    ["core.norg.completion"] = {
-      config = {
-        engine = "nvim-cmp", -- we current support nvim-compe and nvim-cmp only
-      },
-    },
-    ["core.norg.dirman"] = {
-      config = {
-        workspaces = {
-          home = "~/vimwiki/home",
-          work = "~/vimwiki/work",
-        },
-        default_workspace = "work",
-      },
-    },
+    --[[ ["core.norg.concealer"] = {}, ]]
+    --[[ ["core.norg.completion"] = { ]]
+    --[[   config = { ]]
+    --[[     engine = "nvim-cmp", -- we current support nvim-compe and nvim-cmp only ]]
+    --[[   }, ]]
+    --[[ }, ]]
+    --[[ ["core.norg.dirman"] = { ]]
+    --[[   config = { ]]
+    --[[     workspaces = { ]]
+    --[[       home = "~/vimwiki/home", ]]
+    --[[       work = "~/vimwiki/work", ]]
+    --[[     }, ]]
+    --[[     default_workspace = "work", ]]
+    --[[   }, ]]
+    --[[ }, ]]
   },
 })
 

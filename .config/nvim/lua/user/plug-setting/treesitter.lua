@@ -89,7 +89,7 @@ configs.setup({
     queries = markid.queries,
     is_supported = function(lang)
       local queries = configs.get_module("markid").queries
-      return pcall(vim.treesitter.parse_query, lang, queries[lang] or queries['default'])
+      return pcall(vim.treesitter.query.parse, lang, queries[lang] or queries['default'])
     end
   },
  textobjects = {
