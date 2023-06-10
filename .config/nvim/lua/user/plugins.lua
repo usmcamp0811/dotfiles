@@ -118,8 +118,8 @@ return packer.startup(function(use)
 					enable = true, -- enable fancy mode
 					head = { cursor = "❱", texthl = "SmoothCursor", linehl = nil },
 					body = {
-						{ cursor = "", texthl = "SmoothCursorRed" },
-						{ cursor = "", texthl = "SmoothCursorOrange" },
+						{ cursor = "󰇊", texthl = "SmoothCursorRed" },
+						{ cursor = "󰇊", texthl = "SmoothCursorOrange" },
 						{ cursor = "●", texthl = "SmoothCursorYellow" },
 						{ cursor = "●", texthl = "SmoothCursorGreen" },
 						{ cursor = "•", texthl = "SmoothCursorAqua" },
@@ -408,13 +408,13 @@ return packer.startup(function(use)
 				debug = false,
 				use_saga_diagnostic_sign = true,
 				-- diagnostic sign
-				error_sign = "",
+				error_sign = "󰇊",
 				warn_sign = "",
-				hint_sign = "",
+				hint_sign = "󰇊",
 				infor_sign = "",
 				diagnostic_header_icon = "   ",
 				-- code action title icon
-				code_action_icon = " ",
+				code_action_icon = "󰇊 ",
 				code_action_prompt = {
 					enable = true,
 					sign = true,
@@ -440,7 +440,7 @@ return packer.startup(function(use)
 					quit = "<C-c>",
 					exec = "<CR>",
 				},
-				definition_preview_icon = "  ",
+				definition_preview_icon = "󰇊  ",
 				border_style = "single",
 				rename_prompt_prefix = "➤",
 				rename_output_qflist = {
