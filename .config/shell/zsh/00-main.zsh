@@ -51,7 +51,7 @@ case ${TERM} in
 	screen*)
 		PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
 		;;
-        esac
+esac
 
 # if we don't have the fzf stuff go get it
 ([ -r "/usr/share/fzf/completion.zsh" ] || [ -r "$HOME/.config/fzf/completion.zsh" ]) || $HOME/.local/bin/get-fzf-scripts

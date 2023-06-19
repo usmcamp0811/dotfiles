@@ -227,7 +227,7 @@ return packer.startup(function(use)
 		run = ":Neorg sync-parsers",
 		-- ft = "norg",
 		branch = "main",
-		--[[ tag = "0.0.18", ]]
+		--[[ tag = "v5.0.0", ]]
 		-- branch = "code-execution",
 		-- commit = "4c0a5b1e49577fba0bd61ea18cf130d9545d2d52",
 		config = function()

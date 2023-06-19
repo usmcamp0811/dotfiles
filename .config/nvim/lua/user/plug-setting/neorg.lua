@@ -6,6 +6,7 @@ neorg.setup({
   requires = { "core.export.markdown" },
   load = {
     ["core.defaults"] = {},
+    ["core.summary"] = {},
     ["core.integrations.treesitter"] = {
       config = {
         norg = {
@@ -25,13 +26,6 @@ neorg.setup({
         },
       },
     },
-    --[[ ["core.norg.qol.toc"] = {}, ]]
-
-    -- ["core.norg.esupports.metagen"] = {
-    -- 	config = {
-    -- 		type = "auto",
-    -- 	},
-    -- },
     ["core.keybinds"] = {
       config = {
         hook = function(keybinds)
@@ -40,46 +34,20 @@ neorg.setup({
             return
           end
           which_key.register({
-            t = {
-              --[[ name = "+Gtd", ]]
-              --[[ c = "Capture", ]]
-              --[[ e = "Edit", ]]
-              --[[ v = "Views", ]]
-            },
-            -- t = {
-            --   name = "GTD Base",
-            --   c = { "<Cmd>Neorg keybind norg core.gtd.base.capture<CR>", "Capture"},
-            --   v = { "<Cmd>Neorg keybind norg core.gtd.base.views<CR>", "Views"},
-            --   e = { "<Cmd>Neorg keybind norg core.gtd.base.edit<CR>", "Edit"},
-            -- },
             m = {
               name = "Neorg",
               h = { ":Neorg mode traverse-heading<CR>", "Traverse Heading" },
               n = { ":Neorg mode norg<CR>", "Neorg Mode" },
               t = { "<Cmd>Neorg keybind norg core.norg.concealer.toggle-markup<CR>", "Toggle Markup" },
             },
-            -- n = {
-            --   name = "Note",
-            -- },
           }, { prefix = "," }, { mode = "n" })
           which_key.register({
             name = "Note",
-            -- l = { "<Cmd>Neorg keybind norg core.integrations.telescope.find_linkable<CR>", "Find Linkable"},
             p = { ":Neorg presenter start<cr>", "Start Presentation" },
-            --[[ n = { "<Cmd>Neorg keybind norg core.norg.dirman.new.note<CR>", "New Note" }, ]]
             j = { ":Neorg journal today<cr>", "Today's Journal" },
           }, { prefix = "<Space>" })
-          -- which_key.register({
-          --     name = "Note",
-          --     l = { "<Cmd>core.integrations.telescope.insert_link<CR>", "Find Linkable"},
-          -- },
-          -- { mode = "v" }
-          -- )
           which_key.register({
-            -- name = "Note",
-            -- ["<C-L>"] = { "<Cmd>Neorg keybind norg core.integrations.telescope.insert_link<CR>", "Insert Link"},
             ["<C-s>"] = { ":w<CR>", "Save" },
-            -- not sure if I want to do these... cause they conflict with window movement
             ["<C-j>"] = {
               "<Cmd>Neorg keybind norg core.integrations.treesitter.next.heading<CR>",
               "Next Heading",
@@ -88,9 +56,6 @@ neorg.setup({
               "<Cmd>Neorg keybind norg core.integrations.treesitter.previous.heading<CR>",
               "Next Heading",
             },
-            -- ["<TAB>"] = { ":Neorg keybind norg core.promo.promote<CR>" , "Promote" },
-            -- ["<S-TAB>"] = { ":Neorg keybind norg core.promo.demote<CR>" , "Demote" }
-            -- M = { "0i|<esc>", "Marker" }
           })
           which_key.register({
             name = "Note",
@@ -121,80 +86,12 @@ neorg.setup({
                 "Task Pending",
               },
               d = { "<Cmd>Neorg keybind norg core.norg.qol.todo_items.todo.task_done<CR>", "Task Done" },
-              --[[ C = { "<Cmd>Neorg gtd capture<CR>", "Capture" }, ]]
-              --[[ e = { "<Cmd>Neorg gtd edit<CR>", "Edit" }, ]]
-              --[[ v = { "<Cmd>Neorg gtd views<CR>", "Views" }, ]]
             },
           }, { prefix = "g" })
           keybinds.unmap("norg", "n", "<C-s>")
         end,
       },
     },
-    --[[ ["core.norg.journal"] = {}, ]]
-    --[[ ["core.integrations.telescope"] = {}, ]]
-    --[[ ["core.gtd.base"] = { ]]
-    --[[   config = { ]]
-    --[[     workspace = "home", ]]
-    --[[     default_lists = { ]]
-    --[[       inbox = "inbox.norg", ]]
-    --[[     }, ]]
-    --[[     syntax = { ]]
-    --[[       context = "#contexts", ]]
-    --[[       start = "#time.start", ]]
-    --[[       due = "#time.due", ]]
-    --[[       waiting = "#waiting.for", ]]
-    --[[     }, ]]
-    --[[     exclude = { ]]
-    --[[       "wiki", ]]
-    --[[     }, ]]
-    --[[   }, ]]
-    --[[ }, ]]
-    --[[ ["external.gtd-project-tags"] = {}, ]]
-    --[[ ["external.context"] = {}, ]]
-    --[[ ["core.tangle"] = {}, ]]
-    --[[ ["core.norg.manoeuvre"] = {}, ]]
-    --[[ ["core.export"] = { config = {} }, ]]
-    -- ["core.execute"] = {},
-    --[[ ["core.export.markdown"] = { ]]
-    --[[   config = { ]]
-    --[[     extensions = "all", ]]
-    --[[   }, ]]
-    --[[ }, ]]
-    --[[ ["core.presenter"] = { ]]
-    --[[   config = { ]]
-    --[[     zen_mode = "zen-mode", ]]
-    --[[     -- zen_mode = "truezen", ]]
-    --[[   }, ]]
-    --[[ }, ]]
-    -- ["external.kanban"] = {
-    --   config = {
-    --     task_states = {
-    --       "undone",
-    --       "done",
-    --       "pending",
-    --       "cancelled",
-    --       "uncertain",
-    --       "urgent",
-    --       "recurring",
-    --       "on_hold",
-    --     },
-    --   },
-    -- },
-    --[[ ["core.norg.concealer"] = {}, ]]
-    --[[ ["core.norg.completion"] = { ]]
-    --[[   config = { ]]
-    --[[     engine = "nvim-cmp", -- we current support nvim-compe and nvim-cmp only ]]
-    --[[   }, ]]
-    --[[ }, ]]
-    --[[ ["core.norg.dirman"] = { ]]
-    --[[   config = { ]]
-    --[[     workspaces = { ]]
-    --[[       home = "~/vimwiki/home", ]]
-    --[[       work = "~/vimwiki/work", ]]
-    --[[     }, ]]
-    --[[     default_workspace = "work", ]]
-    --[[   }, ]]
-    --[[ }, ]]
   },
 })
 

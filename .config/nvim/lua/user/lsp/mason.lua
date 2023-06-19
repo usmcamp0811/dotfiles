@@ -24,7 +24,7 @@ local servers = {
 	"pyright",
 	"yamlls",
 	"bashls",
-  "julials",
+  --[[ "julials", ]]
 	-- "julia-lsp",
 	-- "jq",
 	-- "prettier",
