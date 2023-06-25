@@ -65,8 +65,9 @@ alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup 
 alias master="git checkout master"
 
 # git dotfiles
-[ -e $HOME/.nix-profile/bin/git ] && alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+# alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+command -v git >/dev/null 2>&1 && alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME' 
+
 alias lazydot='lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 ##########################################################

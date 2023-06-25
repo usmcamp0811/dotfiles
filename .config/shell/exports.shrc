@@ -61,7 +61,7 @@ export JULIA_NUM_THREADS=12
 # export DOCKER_CERT_PATH=~/.config/docker
 export GAME_LIBRARY_PATH=$HOME/.local/share/Steam
 # this is for Makie because there is some bug in it but this makes it work
-export LD_PRELOAD=/usr/lib64/libstdc++.so.6
+# export LD_PRELOAD=/usr/lib64/libstdc++.so.6
 
 export NVIM_THEME=base16-onedark
 export DOCKER_GUI=$(echo '-e DISPLAY=$DISPLAY -e XAUTHORITY="~/.Xauthority" -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v "$HOME/.Xauthority:~/.Xauthority:rw"')
