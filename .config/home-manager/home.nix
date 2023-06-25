@@ -18,6 +18,10 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
+    gcc
+    lua
+    zig
+    deno
     neovim
     lsd
     ranger
@@ -27,6 +31,8 @@
     xsel
     zathura
     bat
+    lazygit
+    yt-dlp
   ];
 
   # home.file.".config/ranger/commands.py".source = ./ranger-commands.py;
@@ -57,72 +63,30 @@
 
   programs.bash = {
     enable = true;
-    shellAliases = {
-      ".." = "cd ..";
-      "..." = "cd ../..";
-      "...." = "cd ../../..";
-      "....." = "cd ../../../..";
-      "~" = "cd ~";
-      "-" = "cd -";
-      "ranger" = ''ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'';
-      "mv" = "mv -v";
-      "rm" = "rm -i -v";
-      "cp" = "cp -v";
-      "chmox" = "chmod -x";
-      "vim" = "nvim";
-      "df" = "df -h";
-      "gs" = "git status";
-      "undopush" = "git push -f origin HEAD^:master";
-      "gr" = "bash -c '[ ! -z $(git rev-parse --show-cdup) ] && cd $(git rev-parse --show-cdup || pwd)'";
-      "master" = "git checkout master";
-      "fix-pacman" = "sudo rm /var/lib/pacman/db.lck";
-      "dotfiles" = "git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME";
-      "lazydot" = "lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME";
-      "i3config" = "nvim ~/.config/i3/config";
-      "qconfig" = "vim ~/.config/qtile/config.py";
-      "aliases" = "nvim ~/.config/shell/aliases.shrc";
-      "exports" = "nvim ~/.config/shell/exports.shrc";
-      "vplug" = "nvim ~/.config/nvim/load_plugins.vim";
-      "vplug2" = "nvim ~/.config/nvim/config_plugins.vim";
-      "vkeys" = "nvim ~/.config/nvim/key-mappings.vim";
-      "vgen" = "nvim ~/.config/nvim/general.vim";
-      "vinit" = "nvim ~/.config/nvim/init.vim";
-    };
+    initExtra = ''
+      source ${config.home.homeDirectory}/.config/shell/aliases.shrc
+    '';
   };
   
   programs.zsh = {
     enable = true;
-    shellAliases = {
-      ".." = "cd ..";
-      "..." = "cd ../..";
-      "...." = "cd ../../..";
-      "....." = "cd ../../../..";
-      "~" = "cd ~";
-      "-" = "cd -";
-      "ranger" = ''ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'';
-      "mv" = "mv -v";
-      "rm" = "rm -i -v";
-      "cp" = "cp -v";
-      "chmox" = "chmod -x";
-      "vim" = "nvim";
-      "df" = "df -h";
-      "gs" = "git status";
-      "undopush" = "git push -f origin HEAD^:master";
-      "gr" = "bash -c '[ ! -z $(git rev-parse --show-cdup) ] && cd $(git rev-parse --show-cdup || pwd)'";
-      "master" = "git checkout master";
-      "fix-pacman" = "sudo rm /var/lib/pacman/db.lck";
-      "dotfiles" = "git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME";
-      "lazydot" = "lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME";
-      "i3config" = "nvim ~/.config/i3/config";
-      "qconfig" = "vim ~/.config/qtile/config.py";
-      "aliases" = "nvim ~/.config/shell/aliases.shrc";
-      "exports" = "nvim ~/.config/shell/exports.shrc";
-      "vplug" = "nvim ~/.config/nvim/load_plugins.vim";
-      "vplug2" = "nvim ~/.config/nvim/config_plugins.vim";
-      "vkeys" = "nvim ~/.config/nvim/key-mappings.vim";
-      "vgen" = "nvim ~/.config/nvim/general.vim";
-      "vinit" = "nvim ~/.config/nvim/init.vim";
-    };
+    initExtra = ''
+      for file in ${config.home.homeDirectory}/.config/shell/zsh/*.zsh; do
+          [ -r "$file" ] && source "$file"
+      done
+
+      # source all the other bash config files
+      for file in ${config.home.homeDirectory}/.config/shell/*.shrc; do
+          [ -r "$file" ] && source "$file"
+      done
+
+      for file in ${config.home.homeDirectory}/.config/shell/private/*.shrc; do
+          [ -r "$file" ] && source "$file"
+      done
+
+      source ${config.home.homeDirectory}/.config/shell/zsh/theme
+
+    '';
   };
 }
 
