@@ -1,11 +1,1 @@
-
-source ~/.config/shell/exports.shrc
-
-[[ -f ~/.bashrc ]] && . ~/.bashrc
-
-source /home/mcamp/.config/broot/launcher/bash/br
-
-if [ -z "$DISPLAY" -a "$XDG_VTNR" -eq 1 ];
-then 
-    startx
-fi
+/nix/store/r0zsjkwzq7pacg6ixszdg69hs0slncqr-home-manager-files/.bash_profile
