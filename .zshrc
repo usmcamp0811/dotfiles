@@ -12,3 +12,5 @@ for file in ~/.config/shell/private/*.shrc; do
 done
 
 source $HOME/.config/shell/zsh/theme
+
+eval "$(direnv hook zsh)"

@@ -184,3 +184,25 @@ au FileType plantuml let g:plantuml_previewer#plantuml_jar_path = get(
     \  0
     \)
 ]])
+
+-- TODO: Move to file
+ansible_goto_role_paths = './roles,../_common/roles'
+
+function FindAnsibleRoleUnderCursor()
+  local role_paths
+  if ansible_goto_role_paths then
+    role_paths = ansible_goto_role_paths
+  else
+    role_paths = "./roles"
+  end
+  local tasks_main = vim.fn.expand("<cfile>") .. "/tasks/main.yml"
+  local found_role_path = vim.fn.findfile(tasks_main, role_paths)
+  if found_role_path == "" then
+    print(tasks_main .. " not found")
+  else
+    vim.cmd("edit " .. vim.fn.fnameescape(found_role_path))
+  end
+end
+
+vim.api.nvim_set_keymap('n', '<leader>gr', ':lua FindAnsibleRoleUnderCursor()<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('v', '<leader>gr', ':lua FindAnsibleRoleUnderCursor()<CR>', {noremap = true, silent = true})
