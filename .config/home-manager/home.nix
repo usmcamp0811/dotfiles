@@ -56,7 +56,7 @@
   programs.bat = {
     enable = true;
     config = {
-      theme = "GitHub";
+      theme = "TwoDark";
       italic-text = "always";
     };
   };
