@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Get the directory of the script
+SCRIPT_DIR=$(dirname "$0")
+
+# Change to the script directory
+cd "$SCRIPT_DIR"
+
+# Run the nixos-rebuild command
+sudo nixos-rebuild switch -I nixos-config=./system/configuration.nix
+
+# Go back to the original directory
+cd -
+

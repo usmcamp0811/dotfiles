@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Get the directory of the script
+SCRIPT_DIR=$(dirname "$0")
+
+# Change to the script directory
+cd "$SCRIPT_DIR"
+
+# Run the home-manager command
+home-manager switch -f ./users/mcamp/home.nix
+
+# Go back to the original directory
+cd -
+
