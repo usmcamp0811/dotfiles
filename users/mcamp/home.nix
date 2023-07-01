@@ -38,6 +38,8 @@
     git-crypt
     gnupg
     emacs
+    bitwarden
+    bitwarden-cli
 
   ];
 
@@ -97,6 +99,15 @@
   programs.neovim = {
     viAlias = true;
     vimAlias = true;
+  };
+
+  programs.gpg = {
+    enable = true;
+  };
+
+  services.gpg-agent = {
+    enable =true;
+    pinentryFlavor = "qt";
   };
 }
 
