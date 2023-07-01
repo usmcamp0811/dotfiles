@@ -8,3 +8,9 @@ use the `configuration.nix` that we have in this folder instead of the default l
 ```bash
 sudo nixos-rebuild switch -I nixos-config=./system/configuration.nix
 ```
+
+similar thing but for `home-manager`:
+
+```bash
+home-manager switch -f ./users/mcamp/home.nix
+```
