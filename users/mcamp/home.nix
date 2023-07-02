@@ -40,6 +40,8 @@
     emacs
     bitwarden
     bitwarden-cli
+    rnix-lsp 
+    cargo
 
   ];
 
