@@ -31,10 +31,19 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
 
   in {
     homeManagerConfigurations = {
-      pkgs = nixpkgs.legacyPackages.${system};
-      modules = [
-        ./users/mcamp/home.nix
-      ];
+      mcamp = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.${system};
+        modules = [
+          ./users/mcamp/home.nix
+          {
+            home = {
+              username = "mcamp";
+              homeDirectory = "/home/mcamp";
+              stateVersion = "23.05";
+            };
+          }
+        ];
+      };
     };
 
     nixosConfigurations = {
@@ -43,6 +52,7 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
 
         modules = [
           ./system/configuration.nix
+          home-manager.nixosModules.home-manager
         ];
       };
       nixos = lib.nixosSystem {
@@ -50,6 +60,7 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
 
         modules = [
           ./system/configuration.nix
+          home-manager.nixosModules.home-manager
         ];
       };
     };

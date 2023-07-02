@@ -3,6 +3,9 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
+let
+  mcamp = import ../users/mcamp/user.nix;
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -57,27 +60,14 @@
     xkbVariant = "";
   };
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.mcamp = {
-    isNormalUser = true;
-    description = "Matt Camp";
-    extraGroups = ["docker" "networkmanager" "wheel" ];
-    packages = with pkgs; [];
-    shell = pkgs.zsh;
+    isNormalUser = mcamp.isNormalUser;
+    description = mcamp.description;
+    extraGroups = mcamp.extraGroups;
+    shell = mcamp.shell;
   };
 
-  # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-
-  # Import NUR
-#  nixpkgs.config.packageOverrides = pkgs: {
-#    nur = import (builtins.fetchTarball {
-#      url = "https://github.com/nix-community/NUR/archive/master.tar.gz";
-#      sha256 = "0r155kmzc0zmm28par1qvz7fc40qgdjaf5mi31a3ib1kwfi12f8r";
-#    }) {
-#      inherit pkgs;
-#    };
-#  };
 
   environment.systemPackages = with pkgs; [
     gcc
@@ -120,42 +110,18 @@
     qtile
     lightdm
     netcat-gnu
-    nur.repos.kira-bruneau.themes.lightdm-webkit2-greeter.litarvan
+    # nur.repos.kira-bruneau.themes.lightdm-webkit2-greeter.litarvan
   ];
 
 
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
   programs.zsh.enable = true;
-  #   enableSSHSupport = true;
-  # };
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
   hardware.pulseaudio.enable = true;
   sound.enable = true;
   hardware.pulseaudio.systemWide = true;
   services.xserver.displayManager.defaultSession = "none+qtile";
   services.logind.lidSwitch = "ignore";
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
 
   system.autoUpgrade = {
@@ -174,6 +140,5 @@
   };
 
   virtualisation.docker.enable = true;
-
 
 }
