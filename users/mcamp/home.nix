@@ -18,7 +18,6 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-    gcc
     lua
     zig
     deno
@@ -103,13 +102,13 @@ a
     vimAlias = true;
   };
 
-  programs.gpg = {
-    enable = true;
-  };
-
-  services.gpg-agent = {
-    enable =true;
-    pinentryFlavor = "qt";
-  };
+  /* programs.gpg = { */
+  /*   enable = true; */
+  /* }; */
+  /**/
+  /* services.gpg-agent = { */
+  /*   enable =true; */
+  /*   pinentryFlavor = "qt"; */
+  /* }; */
 }
 

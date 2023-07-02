@@ -83,6 +83,7 @@ in
   };
 
   environment.systemPackages = with pkgs; [
+    gcc
     rsync
     neovim
     git
