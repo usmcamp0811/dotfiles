@@ -31,17 +31,12 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
 
   in {
     homeManagerConfigurations = {
-      mcamp = home-manager.lib.homeManagerConfiguration {
-        inherit system pkgs;
-        username = "mcamp";
-        homeDirectory = "/home/mcamp";
-        configuration = {
-          imports = [
-            ./users/mcamp/home.nix
-          ];
-        };
-      };
+      pkgs = nixpkgs.legacyPackages.${system};
+      modules = [
+        ./users/mcamp/home.nix
+      ];
     };
+
     nixosConfigurations = {
       butler = lib.nixosSystem {
         inherit system;
