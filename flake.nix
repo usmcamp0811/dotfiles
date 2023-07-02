@@ -27,6 +27,13 @@
           ./system/configuration.nix
         ];
       };
+      nixos = lib.nixosSystem {
+        inherit system;
+
+        modules = [
+          ./system/configuration.nix
+        ];
+      };
     };
   };
 }
