@@ -3,11 +3,6 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-let
-  nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
-    inherit pkgs;
-  };
-in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -75,11 +70,14 @@ in
   nixpkgs.config.allowUnfree = true;
 
   # Import NUR
-  nixpkgs.config.packageOverrides = pkgs: {
-    nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
-      inherit pkgs;
-    };
-  };
+  /* nixpkgs.config.packageOverrides = pkgs: { */
+  /*   nur = import (builtins.fetchTarball { */
+  /*     url = "https://github.com/nix-community/NUR/archive/master.tar.gz"; */
+  /*     sha256 = "0r155kmzc0zmm28par1qvz7fc40qgdjaf5mi31a3ib1kwfi12f8r"; */
+  /*   }) { */
+  /*     inherit pkgs; */
+  /*   }; */
+  /* }; */
 
   environment.systemPackages = with pkgs; [
     gcc
@@ -121,8 +119,8 @@ in
     tldr
     qtile
     lightdm
-    nur.repos.kira-bruneau.themes.lightdm-webkit2-greeter.litarvan
     netcat-gnu
+    /* nur.repos.kira-bruneau.themes.lightdm-webkit2-greeter.litarvan */
   ];
 
 
@@ -162,7 +160,7 @@ in
 
   system.autoUpgrade = {
   	enable = true;
-	channel = "httpsL//nixos.org/channels/nixos-unstable";
+	  channel = "httpsL//nixos.org/channels/nixos-unstable";
   };
 
   nix = {
