@@ -5,7 +5,6 @@
     nixpkgs.url = "nixpkgs/nixos-22.11";
 
     nur.url = "github:nix-community/NUR";
-    # nur.inputs.nixpkgs.follows = "nixpkgs";
 
     home-manager.url = "github:nix-community/home-manager/release-23.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -31,12 +30,23 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
         pkgs.lib.mapAttrs (_: callPackage) nur-no-pkgs;
 
   in {
+    homeManagerConfigurations = {
+      mcamp = home-manager.lib.homeManagerConfiguration {
+        inherit system pkgs;
+        username = "mcamp";
+        homeDirectory = "/home/mcamp";
+        configuration = {
+          imports = [
+            ./users/mcamp/home.nix
+          ];
+        };
+      };
+    };
     nixosConfigurations = {
       butler = lib.nixosSystem {
         inherit system;
 
         modules = [
-          nur.nixosModules.nur
           ./system/configuration.nix
         ];
       };
@@ -44,7 +54,6 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
         inherit system;
 
         modules = [
-          nur.nixosModules.nur
           ./system/configuration.nix
         ];
       };
