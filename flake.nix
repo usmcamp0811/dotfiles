@@ -2,14 +2,31 @@
   description = "The Campground Config";
 
   inputs = {
-    
+    nixpkgs.url = "nixpkgs/nixos-22.11";
+    home-manager.url = "github:nix-community/hoop-manager/release-22.11";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs }: {
+  outputs = { nixpkgs, home-manager, ... }: 
+  let
+    system = "x86_64-linux";
 
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+    pkgs = import nixpkgs {
+      inherit system;
+      config = { allowUnfree = true; };
+    };
 
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+    lib = nixpkgs.lib;
 
+  in {
+    nixosConfigurations = {
+      butler = lib.nixosSystem {
+        inherit system;
+
+        modules = [
+          ./system/configuration.nix
+        ];
+      };
+    };
   };
 }

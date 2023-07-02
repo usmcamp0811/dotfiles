@@ -42,7 +42,7 @@
     bitwarden-cli
     rnix-lsp 
     cargo
-
+a
   ];
 
   # home.file.".config/ranger/commands.py".source = ./ranger-commands.py;
