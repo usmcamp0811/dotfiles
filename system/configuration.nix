@@ -70,14 +70,14 @@
   nixpkgs.config.allowUnfree = true;
 
   # Import NUR
-  /* nixpkgs.config.packageOverrides = pkgs: { */
-  /*   nur = import (builtins.fetchTarball { */
-  /*     url = "https://github.com/nix-community/NUR/archive/master.tar.gz"; */
-  /*     sha256 = "0r155kmzc0zmm28par1qvz7fc40qgdjaf5mi31a3ib1kwfi12f8r"; */
-  /*   }) { */
-  /*     inherit pkgs; */
-  /*   }; */
-  /* }; */
+#  nixpkgs.config.packageOverrides = pkgs: {
+#    nur = import (builtins.fetchTarball {
+#      url = "https://github.com/nix-community/NUR/archive/master.tar.gz";
+#      sha256 = "0r155kmzc0zmm28par1qvz7fc40qgdjaf5mi31a3ib1kwfi12f8r";
+#    }) {
+#      inherit pkgs;
+#    };
+#  };
 
   environment.systemPackages = with pkgs; [
     gcc
@@ -120,7 +120,7 @@
     qtile
     lightdm
     netcat-gnu
-    /* nur.repos.kira-bruneau.themes.lightdm-webkit2-greeter.litarvan */
+    nur.repos.kira-bruneau.themes.lightdm-webkit2-greeter.litarvan
   ];
 
 

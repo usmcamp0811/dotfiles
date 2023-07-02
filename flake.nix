@@ -4,16 +4,14 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-22.11";
 
-    /* nur = import (builtins.fetchTarball { */
-    /*   url = "https://github.com/nix-community/NUR/archive/master.tar.gz"; */
-    /*   sha256 = "0r155kmzc0zmm28par1qvz7fc40qgdjaf5mi31a3ib1kwfi12f8r"; */
-    /* })  */
+    nur.url = "github:nix-community/NUR";
+    # nur.inputs.nixpkgs.follows = "nixpkgs";
 
     home-manager.url = "github:nix-community/home-manager/release-23.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { nixpkgs, home-manager, ... }: 
+outputs = { self, nixpkgs, home-manager, nur, ... }: 
   let
     system = "x86_64-linux";
 
@@ -24,12 +22,21 @@
 
     lib = nixpkgs.lib;
 
+    nur-no-pkgs = import (nur + "/repos.json");
+
+    nur-pkgs = { pkgs ? import nixpkgs {} }:
+      let
+        callPackage = pkgs.lib.callPackageWith pkgs;
+      in
+        pkgs.lib.mapAttrs (_: callPackage) nur-no-pkgs;
+
   in {
     nixosConfigurations = {
       butler = lib.nixosSystem {
         inherit system;
 
         modules = [
+          nur.nixosModules.nur
           ./system/configuration.nix
         ];
       };
@@ -37,9 +44,12 @@
         inherit system;
 
         modules = [
+          nur.nixosModules.nur
           ./system/configuration.nix
         ];
       };
     };
   };
+
 }
+
