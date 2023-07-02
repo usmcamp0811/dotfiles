@@ -64,7 +64,7 @@ in
     isNormalUser = mcamp.isNormalUser;
     description = mcamp.description;
     extraGroups = mcamp.extraGroups;
-    shell = mcamp.shell;
+    # shell = mcamp.shell;
   };
 
   nixpkgs.config.allowUnfree = true;
