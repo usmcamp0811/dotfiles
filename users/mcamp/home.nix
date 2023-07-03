@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 let
-  this_user = import ./user.nix;
+  dotfiles = builtins.readDir ../config;
 in
 {
   home.packages = with pkgs; [
@@ -29,6 +29,14 @@ in
     cargo
 
   ];
+
+  home.file = builtins.mapAttrs' (n: _: {
+    name = ".${n}";
+    value = { 
+      source = ../config/${n};
+      target = ".${n}";
+    };
+  }) dotfiles;
 
   home.sessionVariables = {
     EDITOR = "nvim";
