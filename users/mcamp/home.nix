@@ -1,5 +1,6 @@
 { config, pkgs, ... }:
 let
+  lib = pkgs.lib;
   dotfiles = map (file: {
     target = ".${file}";
     source = ../config/${file};
