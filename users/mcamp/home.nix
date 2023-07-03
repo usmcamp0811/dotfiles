@@ -1,9 +1,14 @@
 { config, pkgs, ... }:
 let
-  dotfiles = builtins.readDir ../config;
+  dotfiles = map (file: {
+    target = ".${file}";
+    source = ../config/${file};
+  }) (builtins.attrNames (builtins.readDir ../config));
 in
 {
-  home.packages = with pkgs; [
+
+  home = {
+    packages = with pkgs; [
     lua
     zig
     deno
@@ -28,16 +33,10 @@ in
     rnix-lsp 
     cargo
 
-  ];
+    ];
 
-  home.file = builtins.mapAttrs' (n: _: {
-    name = ".${n}";
-    value = { 
-      source = ../config/${n};
-      target = ".${n}";
-    };
-  }) dotfiles;
-
+    file = lib.mkMerge (map (df: { "${df.target}" = { inherit (df) source; }; }) dotfiles);
+  };
   home.sessionVariables = {
     EDITOR = "nvim";
   };
