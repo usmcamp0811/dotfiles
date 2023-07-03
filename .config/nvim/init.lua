@@ -36,7 +36,7 @@ require("user.snippets")
  require("user.plug-setting.comment")
  require("user.plug-setting.autopairs")
  require("user.plug-setting.codewindow")
- require("user.plug-setting.navic")
+ --[[ require("user.plug-setting.navic") ]]
 
 -- Git
  require("user.plug-setting.gitsigns")

@@ -31,7 +31,13 @@ from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
 from libqtile import hook, qtile
+# from MutableScratch import MutableScratch
+# import MutableScratch.MutableScratch
 
+# mutscr = MutableScratch()
+
+
+# hook.subscribe.startup_complete(minscr.qtile_startup)
 # get display scaling facotr
 GDK_SCALE = os.environ.get("GDK_SCALE")
 if not GDK_SCALE:
@@ -435,6 +441,10 @@ keys = [
         [], "XF86Launch1", lazy.spawn(["sh", "-c", "~/.local/bin/laptop_screen_toggle"])
     ),
     # Key([mod], "F2", lazy.spawn("brave")),
+    # Key([mod, "shift"], "-", mutscr.add_current_window()),
+    # Key([mod], "-", mutscr.toggle()),
+    # Key([mod, "shift"], "-", mutscr.add_current_window()),
+
 ]
 
 
@@ -453,6 +463,7 @@ group_names = [
 ]
 
 groups = [Group(name, **kwargs) for name, kwargs in group_names]
+groups.append(Group('')) # for the scratch space
 
 for i, (name, kwargs) in enumerate(group_names, 1):
     # Switch to another group
@@ -667,22 +678,22 @@ main = None  # WARNING: this is deprecated and will be removed soon
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = False
-floating_layout = layout.Floating(
-    float_rules=[
-        # Run the utility of `xprop` to see the wm class and name of an X client.
-        *layout.Floating.default_float_rules,
-        Match(wm_class="confirmreset"),  # gitk
-        Match(wm_class="makebranch"),  # gitk
-        Match(wm_class="maketag"),  # gitk
-        Match(wm_class="ssh-askpass"),  # ssh-askpass
-        Match(title="branchdialog"),  # gitk
-        Match(title="pinentry"),  # GPG key password entry
-        Match(wm_class="Wine"),
-        Match(wm_class="steam_app_1238810"),  # for Battlefiled V
-        Match(wm_class="steam_app_1238840"),  # for Battlefield 1
-        Match(wm_class="steam_app_1182480"),  # origin thing for steam games
-    ]
-)
+# floating_layout = layout.Floating(
+#     float_rules=[
+#         # Run the utility of `xprop` to see the wm class and name of an X client.
+#         *layout.Floating.default_float_rules,
+#         Match(wm_class="confirmreset"),  # gitk
+#         Match(wm_class="makebranch"),  # gitk
+#         Match(wm_class="maketag"),  # gitk
+#         Match(wm_class="ssh-askpass"),  # ssh-askpass
+#         Match(title="branchdialog"),  # gitk
+#         Match(title="pinentry"),  # GPG key password entry
+#         Match(wm_class="Wine"),
+#         Match(wm_class="steam_app_1238810"),  # for Battlefiled V
+#         Match(wm_class="steam_app_1238840"),  # for Battlefield 1
+#         Match(wm_class="steam_app_1182480"),  # origin thing for steam games
+#     ]
+# )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 

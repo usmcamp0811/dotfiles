@@ -1,22 +1,23 @@
-lastupdatecheck: 0
+lastupdatecheck: 1680626580
 recentrepos:
-- /home/mcamp/work-code/vault-deploy/docker-headless-vnc-container
-- /home/mcamp/work-code/aws-nist-compliant-architecture
-- /home/mcamp/work-code/servicenow-mid
-- /home/mcamp/work-code/ata-vpn-playbooks
-- /home/mcamp/work-code/tableau
-- /home/mcamp/work-code/vault-deploy
-- /home/mcamp/work-code/vault-deployment-config
-- /home/mcamp/code/ResumeSite
+- /home/mcamp
+- /home/mcamp/code/learn-nix
+- /home/mcamp/code/dotfiles
+- /home/mcamp/code/openwrt-autobackup
+- /home/mcamp/code/DD-WRT_Backups/etc
+- /home/mcamp/code/nixos-docker-image
+- /home/mcamp/code/private-gpt/PrivateChad
+- /home/mcamp/code/private-gpt/PrivateChad/src/privateGPT
+- /home/mcamp/code/campground-playbooks
+- /home/mcamp/code/DD-WRT_Backups
+- /home/mcamp/Documents/jobs/Resume
 - /home/mcamp/code/campfiles
+- /home/mcamp/code/ResumeSite
 - /home/mcamp/code/NewsBlur
 - /home/mcamp/code/JT-Project
-- /home/mcamp/Documents/jobs/Resume
-- /home/mcamp/Documents/jobs/Resume
 - /home/mcamp/code/magma-nvim
 - /home/mcamp/code/why-pluto
 - /home/mcamp/code/nvim-julia-autotest
-- /home/mcamp/vimwiki
 - /home/mcamp/code/level-up
 startuppopupversion: 5
 customcommandshistory:

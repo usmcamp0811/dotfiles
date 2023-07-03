@@ -18,7 +18,6 @@ local servers = {
 	"jsonls",
 	-- "solc",
 	-- "solidity_ls",
-	"sumneko_lua",
 	-- "tflint",
 	-- "terraformls",
 	"tsserver",
@@ -101,10 +100,10 @@ for _, server in pairs(servers) do
 		goto continue
 	end
 
-	if server == "tsserver" then
-		local tsserver_opts = require("user.lsp.settings.tsserver")
-		opts = vim.tbl_deep_extend("force", tsserver_opts, opts)
-	end
+	-- if server == "tsserver" then
+	-- 	local tsserver_opts = require("user.lsp.settings.tsserver")
+	-- 	opts = vim.tbl_deep_extend("force", tsserver_opts, opts)
+	-- end
 
 	if server == "pyright" then
 		local pyright_opts = require("user.lsp.settings.pyright")

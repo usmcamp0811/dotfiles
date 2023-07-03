@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Easier navigation: .., ..., ~ and -
 alias ..="cd .."
 alias cd..="cd .."
@@ -13,11 +12,17 @@ alias -- -="cd -"
 alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 
 # ls -al Alh
-( [ -e /usr/local/bin/lsd ] || [ -e /usr/bin/lsd ] ) && alias ls="lsd --group-dirs first"
-( [ -e /usr/local/bin/lsd ] || [ -e /usr/bin/lsd ] ) && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
-( [ -e /usr/local/bin/lsd ] || [ -e /usr/bin/lsd ] ) && alias lt='lsd --tree --depth 3'
-[ -e /usr/bin/ranger ] && alias lr="ranger"
-[ -e /usr/bin/local/ranger ] && alias lr="ranger"
+
+# quick check to see if the program is available
+cmd-exist(){
+  command -v $1 >/dev/null 2>&1
+}
+
+
+cmd-exist lsd && alias ls="lsd --group-dirs first"
+cmd-exist lsd && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
+cmd-exist lsd && alias lt='lsd --tree --depth 3'                              
+cmd-exist ranger && alias lr="ranger"
 
 
 # mv, rm, cp
@@ -27,30 +32,24 @@ alias cp='cp -v'
 
 
 alias chmox='chmod -x'
-[ -e /usr/bin/bat ] && alias cat='/usr/bin/bat'
-[ -e /usr/bin/batcat ] && alias cat='/usr/bin/batcat'
-
-alias vim='nvim'
+cmd-exist bat && alias cat='bat' && alias pcat='bat -p'
+cmd-exist batcat && alias cat='batcat' && alias pcat='batcat -p'
+cmd-exist nvim && alias vim='nvim'
 
 alias df='df -h'
 
 alias grep='grep --color=auto'
 
 alias zathura='devour zathura'
-alias feh='devour feh'
-alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js'
+# alias feh='devour feh'
+alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js -ao=pipewire'
 alias weather='devour weather'
 alias radar='devour weather -r'
 alias neovide='devour neovide'
-# alias nvim='devour neovide'
 
 ##########################################################
 ####################### GIT STUFF ########################
 
-function clone() {
-    git clone --depth=1 $1
-    cd $(basename ${1%.*})
-}
 alias push="git push"
 alias gs="git status"
 # Undo a `git push`
@@ -61,9 +60,9 @@ alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup 
 alias master="git checkout master"
 
 # git dotfiles
-alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+# alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+cmd-exist git && alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME' 
 alias lazydot='lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-
 ##########################################################
 ####################### CONFIG STUFF ########################
 #i3 config
@@ -92,54 +91,77 @@ alias emptytrash=" \
     rm -rv \"/Users/paulirish/Library/Application Support/stremio/Cache\";  \
     rm -rv \"/Users/paulirish/Library/Application Support/stremio/stremio-cache\" \
 "
-# stop and rm docker
+alias org="nvim ~/vimwiki/home/index.norg"
+alias nn="nvim -c 'Neorg journal today'"
+alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
+# yea i am sick of typing allthat.. 
+alias update="sudo pacman -Syu"
+# fix pacman when it doesn't finish installing
+alias fix-pacman="sudo rm /var/lib/pacman/db.lck"
+alias wget='wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'
+alias nvidia-settings='nvidia-settings --config="$XDG_CONFIG_HOME"/nvidia/settings'
+alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
+alias freecad='freecad -u "$XDG_CONFIG_HOME"/FreeCAD/user.cfg -s "$XDG_CONFIG_HOME"/FreeCAD/system.cfg'
+alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
+alias weechat='weechat -d "$XDG_CONFIG_HOME"/weechat'
+alias cura="QT_SCALE_FACTOR=1 cura"
+alias weather='~/.local/bin/weather'
+alias outdoor='xcalib -invert -alter'
+alias night='rogauracore black'
+alias code='cd ~/code'
+alias k='kubectl'
+alias kwatch='watch kubectl'
+alias diff='vim -d'
+alias nvim-dir="cd ~/.config/nvim/"
+alias vimconfig="vim ~/.config/nvim/init.lua"
+alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
+alias status='sudo systemctl status'
+alias start='sudo systemctl start'
+alias stop='sudo systemctl stop'
+alias restart='sudo systemctl restart'
+alias disable='sudo systemctl disable'
+alias enable='sudo systemctl enable'
+
+## Functions
+
+function clone() {
+    git clone --depth=1 $1
+    cd $(basename ${1%.*})
+}
+
 function dkill() {
-  docker stop $1 && docker rm $1
+    docker stop $1 && docker rm $1
 }
 
 function docker-login() {
     docker login -u $DHUB_USER -p $DHUB_PASS
 }
 
-# alias vimwiki="nvim +VimwikiIndex"
-alias org="nvim ~/vimwiki/home/index.norg"
-# alias notes="nvim +VimwikiDiaryIndex"
-alias nn="nvim -c 'Neorg journal today'"
-# alias nn="nvim +VimwikiMakeDiaryNote"
-# alias planner="nvim +Telekasten"
-
-alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
-
-# yea i am sick of typing allthat.. 
-alias update="sudo pacman -Syu"
-
-# fix pacman when it doesn't finish installing
-alias fix-pacman="sudo rm /var/lib/pacman/db.lck"
-
 # fix pulseadudio
 function fix-audio(){
-  pulseaudio -k
-  sleep 2
-  pulseaudio
+    pulseaudio -k
+    sleep 2
+    pulseaudio
 }
 
 save-gnome(){
-    # saves gnome settings to file 
+    # saves gnome settings to file
     echo "Saving gnome settings to ~/.config/dconf/dconf-settings.ini"
     dconf dump / > ~/.config/dconf/dconf-settings.ini
 }
+
 load-gnome(){
-    # load gnome settings from file 
+    # load gnome settings from file
     echo "Loading gnome settings from ~/.config/dconf/dconf-settings.ini"
     dconf load / < ~/.config/dconf/dconf-settings.ini
 }
 
 new_tmux () {
-  tmux new -s $1
+    tmux new -s $1
 }
 
 a_tmux () {
-  tmux a -t $1
+    tmux a -t $1
 }
 
 fetch() {
@@ -150,12 +172,6 @@ kill () {
     [ $# -eq 0 ] && echo "You need to specify whom to kill." && return
     /usr/bin/kill $@
 }
-alias wget='wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'
-alias nvidia-settings='nvidia-settings --config="$XDG_CONFIG_HOME"/nvidia/settings'
-alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
-alias freecad='freecad -u "$XDG_CONFIG_HOME"/FreeCAD/user.cfg -s "$XDG_CONFIG_HOME"/FreeCAD/system.cfg'
-alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
-alias weechat='weechat -d "$XDG_CONFIG_HOME"/weechat'
 
 function pacsearch(){
     pacman -Slq | fzf -m --preview 'cat <(pacman -Si {1}) <(pacman -Fl {1} | awk "{print \$2}")' | xargs -ro sudo pacman -S
@@ -165,16 +181,17 @@ function yaysearch(){
     yay -Slq | fzf -m --preview 'cat <(yay -Si {1}) <(yay -Fl {1} | awk "{print \$2}")' | xargs -ro  yay -S
 }
 
-function pac-backup(){
-    pacman -Qqen > ~/pkglist.txt
-    pacman -Qqm > ~/pkglist-aur.txt 
-    dotfiles add ~/pkglist.txt 
-    dotfiles add ~/pkglist-aur.txt 
-    dotfiles commit -m "Backing-up installed packages"
+function search(){
+  nix search nixpkgs $1
 }
 
-
-alias cura="QT_SCALE_FACTOR=1 cura"
+function pac-backup(){
+    pacman -Qqen > ~/pkglist.txt
+    pacman -Qqm > ~/pkglist-aur.txt
+    dotfiles add ~/pkglist.txt
+    dotfiles add ~/pkglist-aur.txt
+    dotfiles commit -m "Backing-up installed packages"
+}
 
 copy(){
     /usr/bin/cat $1 | xsel -b
@@ -194,16 +211,6 @@ codi() {
     Codi $syntax" "$@"
 }
 
-alias weather='~/.local/bin/weather'
-alias outdoor='xcalib -invert -alter'
-
-# exit ranger and go back to last dir in range
-
-alias night='rogauracore black'
-alias code='cd ~/code'
-alias k='kubectl'
-alias kwatch='watch kubectl'
-
 gpu-hybrid(){
     supergfxctl --mode hybrid
     sudo pkill -9 -u $USER
@@ -219,12 +226,37 @@ update-all(){
     ansible-playbook ~/code-home/ansible_playbooks/syu.yml --become --ask-become-pass
 }
 
-alias diff='vim -d'
+# convert "Channel Name" "https://youtube.com/@somechannel" to ytdl-sub yaml
+function subscribe(){
+  channelname=$1
+  url=$2
+  channelidurl=$(yt-channelid "$url")
+  safename=$(echo "$url" | sed 's/^.*@//')
 
-alias nvim-dir="cd ~/.config/nvim/"
-alias vimconfig="vim ~/.config/nvim/init.lua"
-alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
+printf \
+$safename':
+  preset:
+    - "yt_channel"
+    - "recent_videos"
+  download:
+    url: "'$channelidurl'"
+  overrides:
+    tv_show_name: "'$channelname'"
 
-alias tf="terraform"
-alias tfa="terraform apply"
-alias tfd="terraform destroy"
+
+'
+}
+
+# convert youtube channel url with @channelname to the channel id for ytdl-sub
+function yt-channelid(){
+  echo $(curl $1 | grep '^.*"channelUrl"' | sed 's/^.*"channelUrl":"//g' | sed 's/",.*$//g')
+}
+
+function dl_music(){
+  yt-dlp -x --audio-format mp3 $1 --write-thumbnail --add-metadata --embed-thumbnail --cookies-from-browser brave
+}
+
+fix-pipewire(){
+  systemctl --user restart pipewire-pulse.service
+  systemctl --user restart wireplumber.service
+}

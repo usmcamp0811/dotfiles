@@ -1,6 +1,6 @@
 local navic = require("nvim-navic")
 
-navic.setup {
+navic.setup({
     icons = {
         File          = " ",
         Module        = " ",
@@ -29,10 +29,10 @@ navic.setup {
         Operator      = " ",
         TypeParameter = " ",
     },
-    highlight = false,
+    highlight = true,
     separator = " > ",
-    depth_limit = 0,
-    depth_limit_indicator = "..",
+    depth_limit = 4,
+    depth_limit_indicator = "...",
     safe_output = true
-}
+})
 
