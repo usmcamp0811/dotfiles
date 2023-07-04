@@ -60,11 +60,13 @@ in
     xkbVariant = "";
   };
 
+  services.logind.lidSwitch = "ignore";
+
   users.users.mcamp = {
     isNormalUser = mcamp.isNormalUser;
     description = mcamp.description;
     extraGroups = mcamp.extraGroups;
-    # shell = mcamp.shell;
+    shell = pkgs.zsh;
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -100,13 +102,10 @@ in
     shellcheck
     docker
     docker-compose
-    tldr
     wget
     unzip
-    syncthing
     fuse
     nfs-utils
-    tldr
     qtile
     lightdm
     netcat-gnu

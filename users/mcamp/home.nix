@@ -22,11 +22,12 @@ in
     qtile
     git-crypt
     gnupg
-    emacs
     bitwarden
     bitwarden-cli
     rnix-lsp 
     cargo
+    tldr
+    syncthing
 
   ];
 
