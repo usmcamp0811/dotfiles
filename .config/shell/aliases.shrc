@@ -181,6 +181,10 @@ function yaysearch(){
     yay -Slq | fzf -m --preview 'cat <(yay -Si {1}) <(yay -Fl {1} | awk "{print \$2}")' | xargs -ro  yay -S
 }
 
+function search(){
+  nix search nixpkgs $1
+}
+
 function pac-backup(){
     pacman -Qqen > ~/pkglist.txt
     pacman -Qqm > ~/pkglist-aur.txt

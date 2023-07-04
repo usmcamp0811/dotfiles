@@ -1,22 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  # Home Manager needs a bit of information about you and the paths it should
-  # manage.
   home.username = "mcamp";
   home.homeDirectory = "/home/mcamp";
-
-  # This value determines the Home Manager release that your configuration is
-  # compatible with. This helps avoid breakage when a new Home Manager release
-  # introduces backwards incompatible changes.
-  #
-  # You should not change this value, even if you update Home Manager. If you do
-  # want to update the value, then make sure to first check the Home Manager
-  # release notes.
   home.stateVersion = "23.05"; # Please read the comment before changing.
 
-  # The home.packages option allows you to install Nix packages into your
-  # environment.
   home.packages = with pkgs; [
     gcc
     lua
@@ -29,28 +17,46 @@
     tmux
     ansible
     xsel
+    tldr
     zathura
     bat
     lazygit
     yt-dlp
+    hello
+    pipewire
+    pavucontrol
+    xdg-desktop-portal
+    rofi
+    brave
+    firefox
+    # qutebrowser
+    kitty
+    noto-fonts
+    noto-fonts-emoji
+    fira-mono
+    dejavu_fonts
+    fira-code-symbols
+    nerdfonts
+    hack-font
+    font-awesome
+    ibm-plex
+    material-design-icons
+    networkmanager
+    networkmanagerapplet
   ];
 
-  # home.file.".config/ranger/commands.py".source = ./ranger-commands.py;
-
-  # You can also manage environment variables but you will have to manually
-  # source
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/mcamp/etc/profile.d/hm-session-vars.sh
-  #
-  # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
     EDITOR = "nvim";
   };
 
+  # services.pipewire = {
+    # enable = true;
+    # alsa.enable = true;
+    # alsa.support32Bit = true;
+    # pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
+  # };
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.bat = {

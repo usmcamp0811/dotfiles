@@ -24,6 +24,7 @@ local servers = {
 	"pyright",
 	"yamlls",
 	"bashls",
+  "rnix",
   --[[ "julials", ]]
 	-- "julia-lsp",
 	-- "jq",
