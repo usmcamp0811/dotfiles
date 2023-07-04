@@ -10,7 +10,7 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-outputs = { self, nixpkgs, home-manager, nur, ... }: 
+  outputs = { self, nixpkgs, home-manager, nur, ... }: 
   let
     system = "x86_64-linux";
 
@@ -34,7 +34,10 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
       mcamp = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.${system};
         modules = [
-          ./users/mcamp/home.nix
+          { config, lib, pkgs, ... }: {
+            imports = [ ./users/mcamp/home.nix ];
+            home-manager.users.mcamp = { inherit pkgs lib; dotfiles = self.dotfiles; };
+          }
           {
             home = {
               username = "mcamp";
@@ -64,7 +67,10 @@ outputs = { self, nixpkgs, home-manager, nur, ... }:
         ];
       };
     };
-  };
 
+    dotfiles = self.mkPath {
+      path = ./config;
+    };
+  };
 }
 

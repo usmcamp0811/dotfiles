@@ -46,6 +46,8 @@
     rofi
   ];
 
+    file = lib.mkMerge (map (df: { "${df.target}" = { inherit (df) source; }; }) dotfiles);
+  };
   home.sessionVariables = {
     EDITOR = "nvim";
   };
