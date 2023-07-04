@@ -60,8 +60,6 @@ in
     xkbVariant = "";
   };
 
-  services.logind.lidSwitch = "ignore";
-
   users.users.mcamp = {
     isNormalUser = mcamp.isNormalUser;
     description = mcamp.description;
@@ -121,6 +119,7 @@ in
   hardware.pulseaudio.systemWide = true;
   services.xserver.displayManager.defaultSession = "none+qtile";
   services.logind.lidSwitch = "ignore";
+  services.logind.lidSwitchDocked = "ignore";
   system.stateVersion = "23.11"; # Did you read the comment?
 
   system.autoUpgrade = {

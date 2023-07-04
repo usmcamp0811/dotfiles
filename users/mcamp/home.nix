@@ -1,9 +1,11 @@
 { config, pkgs, ... }:
-let
-  this_user = import ./user.nix;
-in
 {
+  home.username = "mcamp";
+  home.homeDirectory = "/home/mcamp";
+  home.stateVersion = "23.05"; # Please read the comment before changing.
+
   home.packages = with pkgs; [
+    gcc
     lua
     zig
     deno
@@ -14,27 +16,49 @@ in
     tmux
     ansible
     xsel
+    tldr
     zathura
     bat
     lazygit
     yt-dlp
-    lightdm
-    qtile
-    git-crypt
-    gnupg
-    bitwarden
-    bitwarden-cli
-    rnix-lsp 
-    cargo
-    tldr
-    syncthing
-
+    hello
+    pipewire
+    pavucontrol
+    xdg-desktop-portal
+    rofi
+    brave
+    firefox
+    qutebrowser
+    kitty
+    noto-fonts
+    noto-fonts-emoji
+    fira-mono
+    dejavu_fonts
+    fira-code-symbols
+    nerdfonts
+    hack-font
+    font-awesome
+    ibm-plex
+    material-design-icons
+    networkmanager
+    networkmanagerapplet
+    cinny
+    rofi
   ];
 
   home.sessionVariables = {
     EDITOR = "nvim";
   };
 
+  # services.pipewire = {
+    # enable = true;
+    # alsa.enable = true;
+    # alsa.support32Bit = true;
+    # pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
+  # };
+  # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.bat = {
     enable = true;
@@ -71,10 +95,6 @@ in
 
     '';
   };
-  programs.neovim = {
-    viAlias = true;
-    vimAlias = true;
-  };
-
 }
+
 
