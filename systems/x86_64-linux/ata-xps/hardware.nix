@@ -37,13 +37,13 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
   # Add this for the grub bootloader
   boot.loader.grub = {
     enable = true;
     version = 2;
     device = "nodev";
     efiSupport = true;
-    # efiInstallAsRemovable = true; 
   };
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/boot";

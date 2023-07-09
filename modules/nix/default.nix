@@ -33,16 +33,16 @@ in
       cfg.extra-substituters;
 
     environment.systemPackages = with pkgs; [
-      campground.nixos-revision
-      (campground.nixos-hosts.override {
-        hosts = inputs.self.nixosConfigurations;
-      })
+      # campground.nixos-revision
+      # (campground.nixos-hosts.override {
+      #   hosts = inputs.self.nixosConfigurations;
+      # })
       deploy-rs
       nixfmt
       nix-index
       nix-prefetch-git
       nix-output-monitor
-      flake-checker
+      # flake-checker
     ];
 
     nix =
