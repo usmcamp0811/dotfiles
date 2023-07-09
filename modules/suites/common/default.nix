@@ -34,7 +34,7 @@ in
       };
 
       hardware = {
-        # audio = enabled;
+        audio = enabled;
         # storage = enabled;
         # networking = enabled;
       };
