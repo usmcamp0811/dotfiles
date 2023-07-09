@@ -28,7 +28,7 @@ in
     campground.system.xkb.enable = true;
     campground.desktop.addons = {
       # gtk = enabled;
-      wallpapers = enabled;
+      # wallpapers = enabled;
       # electron-support = enabled;
       # foot = enabled;
     };
