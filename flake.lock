@@ -283,6 +283,26 @@
         "type": "github"
       }
     },
+    "nix-ld": {
+      "inputs": {
+        "nixpkgs": [
+          "unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1686849676,
+        "narHash": "sha256-+z9t7BLugZO1WhyYEq6FI38TMh2EwfgfAv3RDFSjwtc=",
+        "owner": "Mic92",
+        "repo": "nix-ld",
+        "rev": "3abd605e56b5b34ec630bb10ba85f98c93cc05b2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "nix-ld",
+        "type": "github"
+      }
+    },
     "nixos-hardware": {
       "locked": {
         "lastModified": 1688798314,
@@ -320,6 +340,7 @@
         "flake": "flake",
         "flake-checker": "flake-checker",
         "home-manager": "home-manager",
+        "nix-ld": "nix-ld",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "snowfall-lib": "snowfall-lib_2",
