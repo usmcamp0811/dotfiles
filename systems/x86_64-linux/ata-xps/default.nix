@@ -5,11 +5,11 @@ with lib.internal;
 {
   imports = [ ./hardware.nix ];
 
-  # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   campground = {
     archetypes = {
-      # workstation = enabled;
+      workstation = enabled;
     };
 
     apps = {
