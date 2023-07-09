@@ -16,7 +16,7 @@ in
     ];
 
     campground = {
-      # nix = enabled;
+      nix = enabled;
 
       cache.public = enabled;
 
