@@ -12,7 +12,7 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      pkgs.campground.list-iommu
+      # pkgs.campground.list-iommu
     ];
 
     campground = {
@@ -21,7 +21,7 @@ in
       cache.public = enabled;
 
       cli-apps = {
-        /* flake = enabled; */
+        # flake = enabled;
       };
 
       tools = {
@@ -52,11 +52,11 @@ in
       };
 
       system = {
-        boot = enabled;
-        fonts = enabled;
-        locale = enabled;
-        time = enabled;
-        xkb = enabled;
+        # boot = enabled;
+        # fonts = enabled;
+        # locale = enabled;
+        # time = enabled;
+        # xkb = enabled;
       };
     };
   };
