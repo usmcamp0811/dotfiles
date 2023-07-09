@@ -87,7 +87,7 @@ in
       #   wayland = cfg.wayland;
       #   autoSuspend = cfg.suspend;
       # };
-      desktopManager.qtile.enable = true;
+      # desktopManager.qtile.enable = true;
     };
 
     campground.home.extraOptions = {
