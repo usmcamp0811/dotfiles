@@ -3,7 +3,7 @@
 with lib;
 with lib.internal;
 let
-  cfg = config.campground.desktop.gnome;
+  cfg = config.campground.desktop.qtile;
 
   # TODO: Look at renaming.. figure this oculd be used to put gui apps that make qtile config pretty and what not
   defaultExtensions = with pkgs; [
