@@ -24,6 +24,13 @@ in
         noto-fonts-cjk-sans
         noto-fonts-cjk-serif
         noto-fonts-emoji
+        hack-font
+        font-awesome
+        ibm-plex
+        material-design-icons
+        fira-mono
+        dejavu_fonts
+        fira-code-symbols
         (nerdfonts.override { fonts = [ "Hack" ]; })
       ] ++ cfg.fonts;
   };
