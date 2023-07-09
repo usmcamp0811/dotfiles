@@ -25,7 +25,7 @@ in
       };
 
       tools = {
-        # git = enabled;
+        git = enabled;
         # misc = enabled;
         # fup-repl = enabled;
         # comma = enabled;
