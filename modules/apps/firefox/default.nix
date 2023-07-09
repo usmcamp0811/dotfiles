@@ -27,7 +27,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.desktop.addons.firefox-nordic-theme = enabled;
+    # campground.desktop.addons.firefox-nordic-theme = enabled;
 
     services.gnome.gnome-browser-connector.enable = config.campground.desktop.qtile.enable;
 

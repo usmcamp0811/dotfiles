@@ -27,10 +27,10 @@ in
   config = mkIf cfg.enable {
     campground.system.xkb.enable = true;
     campground.desktop.addons = {
-      gtk = enabled;
+      # gtk = enabled;
       wallpapers = enabled;
-      electron-support = enabled;
-      foot = enabled;
+      # electron-support = enabled;
+      # foot = enabled;
     };
 
     environment.systemPackages = with pkgs; [
