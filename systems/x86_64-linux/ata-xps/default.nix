@@ -9,7 +9,7 @@ with lib.internal;
 
   campground = {
     archetypes = {
-      workstation = enabled;
+     #  workstation = enabled;
     };
 
     apps = {

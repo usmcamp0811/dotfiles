@@ -16,16 +16,16 @@ in
     ];
 
     campground = {
-      nix = enabled;
+      # nix = enabled;
 
       cache.public = enabled;
 
       cli-apps = {
-        flake = enabled;
+        /* flake = enabled; */
       };
 
       tools = {
-        git = enabled;
+        # git = enabled;
         # misc = enabled;
         # fup-repl = enabled;
         # comma = enabled;
@@ -34,14 +34,14 @@ in
       };
 
       hardware = {
-        audio = enabled;
-        storage = enabled;
-        networking = enabled;
+        # audio = enabled;
+        # storage = enabled;
+        # networking = enabled;
       };
 
       services = {
-        printing = enabled;
-        openssh = enabled;
+        # printing = enabled;
+        # openssh = enabled;
         # tailscale = enabled;
       };
 
