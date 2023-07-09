@@ -27,6 +27,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # System Deployment
+    deploy-rs.url = "github:serokell/deploy-rs";
+    deploy-rs.inputs.nixpkgs.follows = "unstable";
+
     # Flake Hygiene
     flake-checker = {
       url = "github:DeterminateSystems/flake-checker";
