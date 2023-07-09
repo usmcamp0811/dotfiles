@@ -1,5 +1,5 @@
 { options, config, pkgs, lib, inputs, ... }:
-# TODO: Better digest whats going on
+
 with lib;
 with lib.internal;
 let

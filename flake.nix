@@ -37,6 +37,10 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    # Run unpatched dynamically compiled binaries
+    nix-ld.url = "github:Mic92/nix-ld";
+    nix-ld.inputs.nixpkgs.follows = "unstable";
+
   };
 
   outputs = inputs:
@@ -58,9 +62,9 @@
 
       systems.modules = with inputs; [
         home-manager.nixosModules.home-manager
-        # nix-ld.nixosModules.nix-ld
+        nix-ld.nixosModules.nix-ld
         # attic.nixosModules.atticd
-        # vault-service.nixosModules.nixos-vault-service
+        vault-service.nixosModules.nixos-vault-service
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [

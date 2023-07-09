@@ -13,16 +13,16 @@ in
     campground = {
       suites = {
         common = enabled;
-        desktop = enabled;
-        development = enabled;
-        art = enabled;
-        video = enabled;
-        social = enabled;
-        media = enabled;
+        # desktop = enabled;
+        # development = enabled;
+        # art = enabled;
+        # video = enabled;
+        # social = enabled;
+        # media = enabled;
       };
 
       tools = {
-        appimage-run = enabled;
+        # appimage-run = enabled;
       };
     };
   };
