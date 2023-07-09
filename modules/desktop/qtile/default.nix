@@ -81,7 +81,7 @@ in
       enable = true;
 
       libinput.enable = true;
-      displayManager.lightdm.enable = true;
+      # displayManager.lightdm.enable = true;
       # displayManager.gdm = {
       #   enable = true;
       #   wayland = cfg.wayland;
