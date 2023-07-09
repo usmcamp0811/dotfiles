@@ -1,76 +1,76 @@
 {
-  description = "The Campground Config";
+  description = "Campground Config";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    nur.url = "github:nix-community/NUR";
+    # Snowfall Lib
+    snowfall-lib.url = "github:snowfallorg/lib/dev";
+    snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
-    home-manager.url = "github:nix-community/home-manager/release-23.05";
+    # Snowfall Flake
+    flake.url = "github:snowfallorg/flake";
+    flake.inputs.nixpkgs.follows = "unstable";
+
+    # Hardware Configuration
+    nixos-hardware.url = "github:nixos/nixos-hardware";
+
+    # Home Manager (release-22.05)
+    home-manager.url =
+      "github:nix-community/home-manager/release-23.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Vault Integration
+    vault-service = {
+      url = "github:DeterminateSystems/nixos-vault-service";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Flake Hygiene
+    flake-checker = {
+      url = "github:DeterminateSystems/flake-checker";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
   };
 
-  outputs = { self, nixpkgs, home-manager, nur, ... }: 
-  let
-    system = "x86_64-linux";
-
-    pkgs = import nixpkgs {
-      inherit system;
-      config = { allowUnfree = true; };
-    };
-
-    lib = nixpkgs.lib;
-
-    nur-no-pkgs = import (nur + "/repos.json");
-
-    nur-pkgs = { pkgs ? import nixpkgs {} }:
-      let
-        callPackage = pkgs.lib.callPackageWith pkgs;
-      in
-        pkgs.lib.mapAttrs (_: callPackage) nur-no-pkgs;
-
-  in {
-    homeManagerConfigurations = {
-      mcamp = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.${system};
-        modules = [
-          { config, lib, pkgs, ... }: {
-            imports = [ ./users/mcamp/home.nix ];
-            home-manager.users.mcamp = { inherit pkgs lib; dotfiles = self.dotfiles; };
-          }
-          {
-            home = {
-              username = "mcamp";
-              homeDirectory = "/home/mcamp";
-              stateVersion = "23.05";
-            };
-          }
-        ];
+  outputs = inputs:
+    let
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
       };
-    };
+    in
+    lib.mkFlake {
+      package-namespace = "campground";
 
-    nixosConfigurations = {
-      butler = lib.nixosSystem {
-        inherit system;
-
-        modules = [
-          ./system/configuration.nix
-          home-manager.nixosModules.home-manager
-        ];
+      channels-config = {
+        allowUnfree = true;
       };
-      nixos = lib.nixosSystem {
-        inherit system;
 
-        modules = [
-          ./system/configuration.nix
-          home-manager.nixosModules.home-manager
-        ];
-      };
+      overlays = with inputs; [
+      ];
+
+      systems.modules = with inputs; [
+        home-manager.nixosModules.home-manager
+        # nix-ld.nixosModules.nix-ld
+        # attic.nixosModules.atticd
+        # vault-service.nixosModules.nixos-vault-service
+      ];
+
+      systems.hosts.ata-xps.modules = with inputs; [
+        # See https://github.com/NixOS/nixos-hardware/tree/master/dell/xps/13-7390
+        nixos-hardware.nixosModules.dell-xps-13-7390
+      ];
+
+      deploy = lib.mkDeploy { inherit (inputs) self; };
+
+      checks =
+        builtins.mapAttrs
+          (system: deploy-lib:
+            deploy-lib.deployChecks inputs.self.deploy)
+          inputs.deploy-rs.lib;
     };
 
-    dotfiles = self.mkPath {
-      path = ./config;
-    };
-  };
 }
-
