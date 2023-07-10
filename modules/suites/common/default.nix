@@ -18,10 +18,10 @@ in
     campground = {
       nix = enabled;
 
-      cache.public = enabled;
+      # cache.public = enabled;
 
       cli-apps = {
-        flake = enabled;
+        # flake = enabled;
       };
 
       tools = {

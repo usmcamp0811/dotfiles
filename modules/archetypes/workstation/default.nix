@@ -12,7 +12,7 @@ in
   config = mkIf cfg.enable {
     campground = {
       suites = {
-        # common = enabled;
+        common = enabled;
         # desktop = enabled;
         # development = enabled;
         # art = enabled;

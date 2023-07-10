@@ -57,8 +57,8 @@
         allowUnfree = true;
       };
 
-      # overlays = with inputs; [
-      # ];
+      overlays = with inputs; [
+      ];
 
       systems.modules = with inputs; [
         home-manager.nixosModules.home-manager

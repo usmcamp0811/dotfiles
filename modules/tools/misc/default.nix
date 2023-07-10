@@ -22,6 +22,9 @@ in
       wget
       ripgrep
       bat
+      neovim
+      ranger
+      lsd
     ];
   };
 }
