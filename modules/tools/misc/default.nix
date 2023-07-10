@@ -26,6 +26,8 @@ in
       ranger
       lsd
       git
+      rsync
+      tldr
     ];
   };
 }
