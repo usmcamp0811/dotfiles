@@ -26,7 +26,7 @@ in
 
       tools = {
         git = enabled;
-        # misc = enabled;
+        misc = enabled;
         # fup-repl = enabled;
         # comma = enabled;
         # nix-ld = enabled;

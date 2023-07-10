@@ -60,25 +60,25 @@
       # overlays = with inputs; [
       # ];
 
-      # systems.modules = with inputs; [
-      #   home-manager.nixosModules.home-manager
-      #   nix-ld.nixosModules.nix-ld
-      #   # attic.nixosModules.atticd
-      #   vault-service.nixosModules.nixos-vault-service
-      # ];
+      systems.modules = with inputs; [
+        home-manager.nixosModules.home-manager
+        nix-ld.nixosModules.nix-ld
+        # attic.nixosModules.atticd
+        vault-service.nixosModules.nixos-vault-service
+      ];
 
-      # systems.hosts.ata-xps.modules = with inputs; [
-      #   # See https://github.com/NixOS/nixos-hardware/tree/master/dell/xps/13-7390
-      #   nixos-hardware.nixosModules.dell-xps-13-7390
-      # ];
+      systems.hosts.ata-xps.modules = with inputs; [
+        # See https://github.com/NixOS/nixos-hardware/tree/master/dell/xps/13-7390
+        nixos-hardware.nixosModules.dell-xps-13-7390
+      ];
 
-      # deploy = lib.mkDeploy { inherit (inputs) self; };
+      deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      # checks =
-      #   builtins.mapAttrs
-      #     (system: deploy-lib:
-      #       deploy-lib.deployChecks inputs.self.deploy)
-      #     inputs.deploy-rs.lib;
+      checks =
+        builtins.mapAttrs
+          (system: deploy-lib:
+            deploy-lib.deployChecks inputs.self.deploy)
+          inputs.deploy-rs.lib;
     };
 
 }
