@@ -18,7 +18,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ git ];
+    environment.systemPackages = with pkgs; [ git lazygit ];
 
     campground.home.extraOptions = {
       programs.git = {

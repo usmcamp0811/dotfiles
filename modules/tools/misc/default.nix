@@ -25,6 +25,7 @@ in
       neovim
       ranger
       lsd
+      git
     ];
   };
 }
