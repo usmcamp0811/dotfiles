@@ -20,6 +20,8 @@ in
       jq
       clac
       wget
+      ripgrep
+      bat
     ];
   };
 }

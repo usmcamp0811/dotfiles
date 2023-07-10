@@ -26,7 +26,7 @@ in
 
       tools = {
         git = enabled;
-        # misc = enabled;
+        misc = enabled;
         # fup-repl = enabled;
         # comma = enabled;
         # nix-ld = enabled;
@@ -36,7 +36,7 @@ in
       hardware = {
         audio = enabled;
         # storage = enabled;
-        # networking = enabled;
+        networking = enabled;
       };
 
       services = {
