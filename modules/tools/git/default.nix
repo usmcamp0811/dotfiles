@@ -13,8 +13,8 @@ in
     userName = mkOpt types.str user.fullName "The name to configure git with.";
     userEmail = mkOpt types.str user.email "The email to configure git with.";
     # TODO: Replace key
-    signingKey =
-      mkOpt types.str "9762169A1B35EA68" "The key ID to sign commits with.";
+    # signingKey =
+    #   mkOpt types.str "9762169A1B35EA68" "The key ID to sign commits with.";
   };
 
   config = mkIf cfg.enable {
@@ -25,10 +25,10 @@ in
         enable = true;
         inherit (cfg) userName userEmail;
         lfs = enabled;
-        signing = {
-          key = cfg.signingKey;
-          signByDefault = mkIf gpg.enable true;
-        };
+        # signing = {
+        #   key = cfg.signingKey;
+        #   signByDefault = mkIf gpg.enable true;
+        # };
         extraConfig = {
           init = { defaultBranch = "main"; };
           pull = { rebase = true; };
