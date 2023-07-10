@@ -55,10 +55,11 @@ in
     services.openssh = {
       enable = true;
 
-      settings = {
-        PermitRootLogin = if format == "install-iso" then "yes" else "no";
-        PasswordAuthentication = false;
-      };
+      # settings = {
+        # PermitRootLogin = if format == "install-iso" then "yes" else "no";
+        # PasswordAuthentication = true;
+        # TODO: flip back to false when all is good
+      # };
 
       extraConfig = ''
         StreamLocalBindUnlink yes
