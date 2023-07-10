@@ -12,7 +12,7 @@ in
 # TODO: What is a public cache?
   config = mkIf cfg.enable {
     campground.nix.extra-substituters = {
-      "https://attic.ruby.hamho.me/public".key = "public:QUkZTErD8fx9HQ64kuuEUZHO9tXNzws7chV8qy/KLUk=";
+      "https://cache.nixos.org/".key = "public:QUkZTErD8fx9HQ64kuuEUZHO9tXNzws7chV8qy/KLUk=";
     };
   };
 }
