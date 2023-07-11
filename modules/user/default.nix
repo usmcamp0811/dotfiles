@@ -25,10 +25,6 @@ let
 
       cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
-
-  dotfilesDir = ./dotfiles/dotfiles/.config/shell;
-  dotfiles = builtins.filter (name: lib.hasSuffix ".shrc" name) (builtins.attrNames (builtins.readDir dotfilesDir));
-
 in
 {
   options.campground.user = with types; {
@@ -57,21 +53,18 @@ in
     };
 
     campground.home = {
-        file = {
-          "Desktop/.keep".text = "";
-          "Documents/.keep".text = "";
-          "Downloads/.keep".text = "";
-          "Music/.keep".text = "";
-          "Pictures/.keep".text = "";
-          "Videos/.keep".text = "";
-          "work/.keep".text = "";
-          ".face".source = cfg.icon;
-          "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
-        } // lib.mkMerge (map (file: {
-          "${".config/shell/${file}"}" = {
-            source = "${dotfilesDir}/${file}";
-          };
-        }) dotfiles);
+      file = {
+        "Desktop/.keep".text = "";
+        "Documents/.keep".text = "";
+        "Downloads/.keep".text = "";
+        "Music/.keep".text = "";
+        "Pictures/.keep".text = "";
+        "Videos/.keep".text = "";
+        "work/.keep".text = "";
+        ".face".source = cfg.icon;
+        "Pictures/${
+          cfg.icon.fileName or (builtins.baseNameOf cfg.icon)
+        }".source = cfg.icon;
       };
 
       extraOptions = {
