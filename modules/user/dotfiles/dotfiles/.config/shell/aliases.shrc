@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Nix Did this!!
 # Easier navigation: .., ..., ~ and -
 alias ..="cd .."
 alias cd..="cd .."

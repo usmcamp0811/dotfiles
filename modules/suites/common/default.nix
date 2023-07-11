@@ -21,7 +21,7 @@ in
       cache.public = enabled;
 
       cli-apps = {
-        # flake = enabled;
+        flake = enabled;
       };
 
       tools = {
