@@ -52,11 +52,11 @@ in
       };
 
       system = {
-        # boot = enabled;
-        # fonts = enabled;
-        # locale = enabled;
-        # time = enabled;
-        # xkb = enabled;
+        boot = enabled;
+        fonts = enabled;
+        locale = enabled;
+        time = enabled;
+        xkb = enabled;
       };
     };
   };
