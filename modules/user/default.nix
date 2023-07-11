@@ -100,9 +100,9 @@ in
               [ -r "$file" ] && source "$file"
           done
 
-          for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
-              [ -r "$file" ] && source "$file"
-          done
+          # for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
+          #     [ -r "$file" ] && source "$file"
+          # done
 
           source /home/${cfg.name}/.config/shell/zsh/theme
 
