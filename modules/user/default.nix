@@ -32,7 +32,7 @@ let
 in
 {
   options.campground.user = with types; {
-    name = mkOpt str "abe" "The name to use for the user account.";
+    name = mkOpt str "mcamp" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
     initialPassword = mkOpt str "password"
