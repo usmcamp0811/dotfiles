@@ -26,8 +26,8 @@ let
       cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
 
-  dotfilesDir = ./dotfiles/dotfiles/.config/shell;
-  dotfiles = builtins.filter (name: lib.hasSuffix ".shrc" name) (builtins.attrNames (builtins.readDir dotfilesDir));
+  shellDir = ./shell;
+  shellconfig = builtins.attrNames (builtins.readDir shellDir);
 
 in
 {
@@ -67,15 +67,11 @@ in
           "work/.keep".text = "";
           ".face".source = cfg.icon;
           "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
-          ".config/shell/my_shellrc.sh" = {
-            source = ./dotfiles/dotfiles/.config/shell/aliases.shrc;
-            target = ".config/shell/my_shellrc.shrc";
-          };
         } // lib.mkMerge (map (file: {
           "${".config/shell/${file}"}" = {
-            source = "${dotfilesDir}/${file}";
+            source = "${shellDir}/${file}";
           };
-        }) dotfiles);
+        }) shellconfig);
 
       extraOptions = {
         home.shellAliases = {
