@@ -26,8 +26,8 @@ let
       cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
 
-  shellDir = ./shell;
-  shellconfig = builtins.attrNames (builtins.readDir shellDir);
+  dotfilesDir = ./dotfiles;
+  dotfiles = builtins.attrNames (builtins.readDir dotfilesDir);
 
 in
 {
@@ -69,13 +69,13 @@ in
             ".face".source = cfg.icon;
             "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
           };
-          shellFile = builtins.listToAttrs (map (file: {
-            name = ".config/shell/${file}";
+          dotFile = builtins.listToAttrs (map (file: {
+            name = ".config/${file}";
             value = {
-              source = "${shellDir}/${file}";
+              source = "${dotfilesDir}/${file}";
             };
-          }) shellconfig);
-        in baseFile // shellFile;
+          }) dotfiles);
+        in baseFile // dotFile;
 
 
       extraOptions = {
