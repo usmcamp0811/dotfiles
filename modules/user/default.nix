@@ -26,7 +26,7 @@ let
       cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
 
-  dotfilesDir = ./dotfiles;
+  dotfilesDir = ./dotfiles/.config;
   dotfiles = builtins.attrNames (builtins.readDir dotfilesDir);
 
 in
