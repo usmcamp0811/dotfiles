@@ -32,7 +32,7 @@ let
 in
 {
   options.campground.user = with types; {
-    name = mkOpt str "mcamp" "The name to use for the user account.";
+    name = mkOpt str "abe" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
     initialPassword = mkOpt str "password"
@@ -67,6 +67,10 @@ in
           "work/.keep".text = "";
           ".face".source = cfg.icon;
           "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
+          ".config/shell/my_shellrc.sh" = {
+            source = ./dotfiles/dotfiles/.config/shell/aliases.shrc;
+            target = ".config/shell/my_shellrc.shrc";
+          };
         } // lib.mkMerge (map (file: {
           "${".config/shell/${file}"}" = {
             source = "${dotfilesDir}/${file}";
