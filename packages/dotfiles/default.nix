@@ -22,10 +22,6 @@ let
   dotfiles = lib.foldl
     (acc: config:
       let
-        # fileName = builtins.baseNameOf config;
-        # lib.getFileName is a helper to get the basename of
-        # the file and then take the name before the file extension.
-        # eg. mywallpaper.png -> mywallpaper
         name = lib.snowfall.path.get-file-name-without-extension config;
       in
       acc // { "${name}" = mkDotfile name (./dotfiles + "/${config}"); })
