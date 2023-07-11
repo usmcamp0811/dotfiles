@@ -16,7 +16,7 @@
     # Hardware Configuration
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
-    # Home Manager (release-22.05)
+    # Home Manager (release-23.05)
     home-manager.url =
       "github:nix-community/home-manager/release-23.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
