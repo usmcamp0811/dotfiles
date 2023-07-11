@@ -57,21 +57,26 @@ in
     };
 
     campground.home = {
-        file = {
-          "Desktop/.keep".text = "";
-          "Documents/.keep".text = "";
-          "Downloads/.keep".text = "";
-          "Music/.keep".text = "";
-          "Pictures/.keep".text = "";
-          "Videos/.keep".text = "";
-          "work/.keep".text = "";
-          ".face".source = cfg.icon;
-          "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
-        } // lib.mkMerge (map (file: {
-          "${".config/shell/${file}"}" = {
-            source = "${shellDir}/${file}";
+        file = let
+          baseFile = {
+            "Desktop/.keep".text = "";
+            "Documents/.keep".text = "";
+            "Downloads/.keep".text = "";
+            "Music/.keep".text = "";
+            "Pictures/.keep".text = "";
+            "Videos/.keep".text = "";
+            "work/.keep".text = "";
+            ".face".source = cfg.icon;
+            "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
           };
-        }) shellconfig);
+          shellFile = builtins.listToAttrs (map (file: {
+            name = ".config/shell/${file}";
+            value = {
+              source = "${shellDir}/${file}";
+            };
+          }) shellconfig);
+        in baseFile // shellFile;
+
 
       extraOptions = {
         home.shellAliases = {
