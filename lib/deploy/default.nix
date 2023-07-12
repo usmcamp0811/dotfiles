@@ -23,6 +23,7 @@ rec {
                   path = deploy-rs.lib.${system}.activate.nixos host;
                 } // lib.optionalAttrs (user != null) {
                   user = "root";
+                  # made root not mcamp cause it wont work.. seems to be the same issue here https://github.com/serokell/deploy-rs/issues/174
                   sshUser = "root";
                 } // lib.optionalAttrs
                   (host.config.campground.security.doas.enable or false)
