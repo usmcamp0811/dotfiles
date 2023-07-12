@@ -13,7 +13,10 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ lightdm-slick-greeter ];
 
+    
+    services.xserver.displayManager.lightdm.greeters.gtk = true;
     # campground.home.configFile."rofi/config.rasi".source = ./config.rasi;
   };
+
 }
 
