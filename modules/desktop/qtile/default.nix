@@ -32,7 +32,7 @@ in
 
     environment.systemPackages = with pkgs; [
       qtile
-    ] ++ defaultExtensions ++ cfg.extensions;
+    ] ++ defaultExtensions;
 
 
     systemd.services.campground-user-icon = {
