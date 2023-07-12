@@ -24,7 +24,7 @@ in
           greeter = enabled;
           kitty = enabled;
         };
-      };
+      }
       apps = {
         # _1password = enabled;
         # firefox = enabled;
