@@ -21,8 +21,8 @@ in
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
     gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
     lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
-    # suspend =
-    #   mkBoolOpt true "Whether or not to suspend the machine after inactivity.";
+    suspend =
+      mkBoolOpt true "Whether or not to suspend the machine after inactivity.";
   };
 
   config = mkIf cfg.enable {
