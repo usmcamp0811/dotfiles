@@ -2,12 +2,12 @@
 
 with lib;
 with lib.internal;
-let cfg = config.campground.desktop.addons.rofi;
+let cfg = config.campground.desktop.addons.kitty;
 in
 {
-  options.campground.desktop.addons.rofi = with types; {
+  options.campground.desktop.addons.kitty = with types; {
     enable =
-      mkBoolOpt false "Whether to enable Rofi in the desktop environment.";
+      mkBoolOpt false "Whether to enable Kitty in the desktop environment.";
   };
 
   config = mkIf cfg.enable {
