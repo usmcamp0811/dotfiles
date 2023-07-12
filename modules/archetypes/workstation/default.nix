@@ -13,7 +13,7 @@ in
     campground = {
       suites = {
         common = enabled;
-        # desktop = enabled;
+        desktop = enabled;
         # development = enabled;
         # art = enabled;
         # video = enabled;
