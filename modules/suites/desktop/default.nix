@@ -23,7 +23,6 @@ in
       };
 
       apps = {
-        kitty = enabled;
         # _1password = enabled;
         # firefox = enabled;
         # vlc = enabled;

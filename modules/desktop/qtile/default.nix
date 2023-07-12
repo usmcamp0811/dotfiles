@@ -29,6 +29,7 @@ in
     campground.system.xkb.enable = true;
     campground.desktop.addons = {
       wallpapers = enabled;
+      kitty = enabled;
     };
 
     environment.systemPackages = with pkgs; [
