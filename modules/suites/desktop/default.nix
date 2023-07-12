@@ -11,7 +11,6 @@ in
       mkBoolOpt false "Whether or not to enable common desktop configuration.";
   };
 
-  cfg.qtile.lightdm = true;
   config = mkIf cfg.enable {
     campground = {
       desktop = {
