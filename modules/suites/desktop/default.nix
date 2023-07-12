@@ -13,6 +13,7 @@ in
 
   cfg.qtile.lightdm = true;
   config = mkIf cfg.enable {
+    campground = {
       desktop = {
         qtile = {
           enable = true;
@@ -24,7 +25,8 @@ in
           greeter = enabled;
           kitty = enabled;
         };
-      }
+      };
+
       apps = {
         # _1password = enabled;
         # firefox = enabled;
@@ -38,4 +40,9 @@ in
       };
     };
   };
+
+
+
+
+
 }
