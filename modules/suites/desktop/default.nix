@@ -11,13 +11,12 @@ in
       mkBoolOpt false "Whether or not to enable common desktop configuration.";
   };
 
+  cfg.qtile.lightdm = true;
   config = mkIf cfg.enable {
     campground = {
       desktop = {
-        qtile = {
-          enabled;
-          lightdm = true;
-        };
+        qtile = enabled;
+        qtile = lightdm;
 
         addons = { 
           wallpapers = enabled; 
