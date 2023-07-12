@@ -15,8 +15,8 @@ in
     campground = {
       desktop = {
         qtile = {
-          enabled = true
-          lightdm = true
+          enabled = true;
+          lightdm = true;
         }
 
         addons = { 
