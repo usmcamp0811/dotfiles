@@ -13,7 +13,6 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ kitty ];
 
-    campground.home.configFile."kitty/.keep".text = "";
     campground.home.configFile."kitty/current-theme.conf".source = ./current-theme.conf;
     campground.home.configFile."kitty/kitty.conf".source = ./kitty.conf;
   };
