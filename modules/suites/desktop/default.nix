@@ -19,6 +19,7 @@ in
         addons = { 
           wallpapers = enabled; 
           greeter = enabled;
+          kitty = enabled;
           };
       };
 
