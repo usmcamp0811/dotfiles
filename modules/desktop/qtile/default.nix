@@ -33,6 +33,7 @@ in
 
     environment.systemPackages = with pkgs; [
       qtile
+      lightdm
     ] ++ defaultExtensions;
 
 
@@ -76,17 +77,16 @@ in
     services.xserver = {
       enable = true;
       libinput.enable = true;
-      displayManager.lightdm.enable = true;
-      # displayManager = {
-      #   lightdm = {
-      #     enable = cfg.lightdm;
-      #   };
-      #   gdm = {
-      #     enable = cfg.gdm;
-      #     wayland = cfg.wayland;
-      #     autoSuspend = cfg.suspend;
-      #   };
-      # };
+      displayManager = {
+        lightdm = {
+          enable = cfg.lightdm;
+        };
+        gdm = {
+          enable = cfg.gdm;
+          wayland = cfg.wayland;
+          autoSuspend = cfg.suspend;
+        };
+      };
       windowManager.qtile = {
         enable = true;
       };
