@@ -6,7 +6,7 @@ with lib.internal;
   imports = [ ./hardware.nix ];
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-
+  config.campground.desktop.qtile.lightdm = true;
   campground = {
     archetypes = {
       workstation = enabled;
