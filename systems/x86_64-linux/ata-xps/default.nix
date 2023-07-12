@@ -8,6 +8,7 @@ with lib.internal;
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
     desktop.qtile.lightdm = true;
+    # system.boot = enabled;
     archetypes = {
       workstation = enabled;
     };
@@ -18,6 +19,7 @@ with lib.internal;
 
     system = {
       # zfs = enabled;
+      boot = enabled;
     };
 
     hardware.audio = {
