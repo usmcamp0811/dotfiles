@@ -27,17 +27,12 @@ in
   config = mkIf cfg.enable {
     campground.system.xkb.enable = true;
     campground.desktop.addons = {
-      # gtk = enabled;
       wallpapers = enabled;
-      # electron-support = enabled;
-      # foot = enabled;
     };
 
     environment.systemPackages = with pkgs; [
+      qtile
     ] ++ defaultExtensions ++ cfg.extensions;
-
-    # environment.gnome.excludePackages = with pkgs.gnome; [
-    # ];
 
 
     systemd.services.campground-user-icon = {
@@ -81,28 +76,14 @@ in
       enable = true;
 
       libinput.enable = true;
-      # displayManager.lightdm.enable = true;
-      # displayManager.gdm = {
-      #   enable = true;
-      #   wayland = cfg.wayland;
-      #   autoSuspend = cfg.suspend;
-      # };
-      # desktopManager.qtile.enable = true;
+      displayManager.lightdm.enable = true;
+      windowManager.qtile = {
+        enable = true;
+      };
     };
 
     campground.home.extraOptions = {
-      # TODO: Set desktop with feh here?
-      # dconf.settings =
-      #   let
-      #     user = config.users.users.${config.campground.user.name};
-      #     get-wallpaper = wallpaper:
-      #       if lib.isDerivation wallpaper then
-      #         builtins.toString wallpaper
-      #       else
-      #         wallpaper;
-      #   in
-      #   nested-default-attrs {
-      #   };
+
     };
 
     # Open firewall for samba connections to work.

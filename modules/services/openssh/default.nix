@@ -9,8 +9,7 @@ let
   user-id = builtins.toString user.uid;
 
   default-key =
-    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJ4v/zUQ40k9NwUZN8atDyHRv/dVzAGp/MNYuDCEQ/DPQ+3x3peJvytnHPxg1/f90WUb/D2PJoo2J/W95EpdZTPFcWEJLVlECpc5ym5irBcrCtLwWwu1didHOZ80051WXEL5rIhpoaAXb0rVgEHOVV8coSpZDvQ/Z2n+YtlqK58Kz9xFI+odCfaHrjwLHWm+AzZ1c3xGtYflVcD5GuYcx2LgA8xc3yypPDSK6U926So0wrEzxpg2SZnlb8nrDS9iD5ZR91AU8rEeTRWcx5uBaJTgT0cYRMflauAjONBspy/QMGQ7lUXAJVkrzRdelUtWitNgtMsnDd+u3Htc8Q/bvd+DLCeNdcESO9UH5PfaVEF8tKL0bQNa90fiEKl2sU845azE6l9BQCqmkiLKaGs8UQ3xkUQDENTjzDzaaG2sH/ackFoo4q90Ky8NUto/qNh1Wvp474nSZ5/StvaZ3238mw1ltJaF5iI0V/RPGACrn7PcBYkyohmwLD4AZGrx+IV+E= mcamp@butler
-";
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJ4v/zUQ40k9NwUZN8atDyHRv/dVzAGp/MNYuDCEQ/DPQ+3x3peJvytnHPxg1/f90WUb/D2PJoo2J/W95EpdZTPFcWEJLVlECpc5ym5irBcrCtLwWwu1didHOZ80051WXEL5rIhpoaAXb0rVgEHOVV8coSpZDvQ/Z2n+YtlqK58Kz9xFI+odCfaHrjwLHWm+AzZ1c3xGtYflVcD5GuYcx2LgA8xc3yypPDSK6U926So0wrEzxpg2SZnlb8nrDS9iD5ZR91AU8rEeTRWcx5uBaJTgT0cYRMflauAjONBspy/QMGQ7lUXAJVkrzRdelUtWitNgtMsnDd+u3Htc8Q/bvd+DLCeNdcESO9UH5PfaVEF8tKL0bQNa90fiEKl2sU845azE6l9BQCqmkiLKaGs8UQ3xkUQDENTjzDzaaG2sH/ackFoo4q90Ky8NUto/qNh1Wvp474nSZ5/StvaZ3238mw1ltJaF5iI0V/RPGACrn7PcBYkyohmwLD4AZGrx+IV+E= mcamp@butler";
 
   other-hosts = lib.filterAttrs
     (key: host:
