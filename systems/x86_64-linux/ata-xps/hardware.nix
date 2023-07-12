@@ -47,4 +47,13 @@
   # };
   # boot.loader.efi.canTouchEfiVariables = true;
   # boot.loader.efi.efiSysMountPoint = "/boot";
+
+  # Enable DHCP on the wireless link
+  networking = {
+    # Derived from `head -c 8 /etc/machine-id`
+    hostId = "d6bde2a3";
+
+    useDHCP = lib.mkDefault true;
+    networking.interfaces.wlp2s0.useDHCP = true;
+  };
 }
