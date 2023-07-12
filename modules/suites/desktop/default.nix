@@ -17,7 +17,7 @@ in
         qtile = {
           enabled = true;
           lightdm = true;
-        }
+        };
 
         addons = { 
           wallpapers = enabled; 
