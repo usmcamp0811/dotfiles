@@ -23,7 +23,6 @@ in
     #   mkBoolOpt true "Whether or not to suspend the machine after inactivity.";
   };
 
-  # TODO: Whats all this doing exactly?
   config = mkIf cfg.enable {
     campground.system.xkb.enable = true;
     campground.desktop.addons = {

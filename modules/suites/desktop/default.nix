@@ -16,7 +16,10 @@ in
       desktop = {
         qtile = enabled;
 
-        addons = { wallpapers = enabled; };
+        addons = { 
+          wallpapers = enabled; 
+          greeter = enabled;
+          };
       };
 
       apps = {
