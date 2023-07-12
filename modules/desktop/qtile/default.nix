@@ -79,7 +79,7 @@ in
       libinput.enable = true;
       displayManager = {
         lightdm = {
-          enable = cfg.lightdm;
+          enable = true;
         };
         gdm = {
           enable = cfg.gdm;
