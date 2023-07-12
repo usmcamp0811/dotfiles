@@ -14,14 +14,14 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/4b6bb043-c2e5-4bb9-bbed-454ad1c600dc";
+    { device = "/dev/disk/by-uuid/135e05a9-e446-47e1-a25a-5157f74db1bf";
       fsType = "ext4";
     };
 
-  boot.initrd.luks.devices."luks-77a13422-8761-45e7-a68d-090187b7ebbd".device = "/dev/disk/by-uuid/77a13422-8761-45e7-a68d-090187b7ebbd";
+  boot.initrd.luks.devices."luks-2166fd6f-7c05-4980-b094-a410d4555054".device = "/dev/disk/by-uuid/2166fd6f-7c05-4980-b094-a410d4555054";
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/9230-641F";
+    { device = "/dev/disk/by-uuid/5516-4405";
       fsType = "vfat";
     };
 
@@ -32,20 +32,10 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp59s0u2.useDHCP = lib.mkDefault true;
+  # networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-
-  # Add this for the grub bootloader
-  # boot.loader.grub = {
-  #   enable = true;
-  #   version = 2;
-  #   device = "nodev";
-  #   efiSupport = true;
-  # };
-  # boot.loader.efi.canTouchEfiVariables = true;
-  # boot.loader.efi.efiSysMountPoint = "/boot";
-
 }
