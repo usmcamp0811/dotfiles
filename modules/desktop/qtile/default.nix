@@ -18,7 +18,9 @@ in
   options.campground.desktop.qtile = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
-    # wayland = mkBoolOpt true "Whether or not to use Wayland.";
+    wayland = mkBoolOpt false "Whether or not to use Wayland.";
+    gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
+    lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
     # suspend =
     #   mkBoolOpt true "Whether or not to suspend the machine after inactivity.";
   };
@@ -75,7 +77,17 @@ in
       enable = true;
 
       libinput.enable = true;
-      displayManager.lightdm.enable = true;
+      displayManager = {
+        lightdm = {
+          enable = cfg.lightdm;
+          autoSuspend = cfg.suspend;
+        };
+        gdm = {
+          enable = cfg.gdm;
+          wayland = cfg.wayland;
+          autoSuspend = cfg.suspend;
+        };
+      };
       windowManager.qtile = {
         enable = true;
       };
