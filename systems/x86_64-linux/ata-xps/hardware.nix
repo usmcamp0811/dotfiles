@@ -32,7 +32,7 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
+  networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
@@ -48,12 +48,4 @@
   # boot.loader.efi.canTouchEfiVariables = true;
   # boot.loader.efi.efiSysMountPoint = "/boot";
 
-  # Enable DHCP on the wireless link
-  networking = {
-    # Derived from `head -c 8 /etc/machine-id`
-    hostId = "d6bde2a3";
-
-    useDHCP = lib.mkDefault true;
-    networking.interfaces.wlp2s0.useDHCP = true;
-  };
 }
