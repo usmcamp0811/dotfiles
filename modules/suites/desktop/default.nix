@@ -15,6 +15,7 @@ in
     campground = {
       desktop = {
         qtile = enabled;
+        qtile.lightdm = true;
 
         addons = { 
           wallpapers = enabled; 
