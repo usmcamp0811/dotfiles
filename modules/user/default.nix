@@ -159,7 +159,7 @@ in
       bind = {
         distinguishedName = "cn=ldaplookup,ou=ServiceAccounts,dc=aicampground,dc=com";  # The DN to bind to the server
         passwordFile = "/etc/nixos/ldap_bind_password";  # File containing the bind password
-        policy = "simple";  # Use simple bind policy
+        policy = "soft";  # Use simple bind policy
         timeLimit = 5;  # Time limit for bind operations
       };
       daemon = {
