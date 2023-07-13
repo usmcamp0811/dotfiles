@@ -12,7 +12,7 @@ rec {
         (result: name:
           let
             host = hosts.${name};
-            user = host.config.campground.user.name or null;
+            users = host.config.campground.users or [ ];
             inherit (host.pkgs) system;
           in
           result // {
@@ -21,7 +21,7 @@ rec {
               profiles = (overrides.${name}.profiles or { }) // {
                 system = (overrides.${name}.profiles.system or { }) // {
                   path = deploy-rs.lib.${system}.activate.nixos host;
-                } // lib.optionalAttrs (user != null) {
+                } // lib.optionalAttrs (users != [ ]) {
                   user = "root";
                   # made root not mcamp cause it wont work.. seems to be the same issue here https://github.com/serokell/deploy-rs/issues/174
                   sshUser = "root";
@@ -38,3 +38,4 @@ rec {
     in
     { inherit nodes; };
 }
+
