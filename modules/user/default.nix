@@ -50,7 +50,33 @@ in
       lsd
     ];
 
-    };
+    # programs.zsh = {
+    #   enable = true;
+    #   autosuggestions.enable = true;
+    #   histFile = "$XDG_CACHE_HOME/zsh.history";
+    # };
+    programs.zsh = {
+      enable = true; # Enable zsh as the default shell
+      enableCompletion = true; # Enable command completion
+      autosuggestions.enable = true;
+      syntaxHighlighting.enable = true;
+      histFile = "$XDG_CACHE_HOME/zsh.history";
+
+
+      interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
+
+      loginShellInit = ""; # Extra commands to run at login shell initialization
+
+      promptInit = ""; # Extra commands to run at prompt initialization
+
+      # TODO: migrate my theme here
+      ohMyZsh = {
+        enable = false; # Enable Oh My Zsh
+        plugins = [ ]; # Oh My Zsh plugins
+        theme = "fino"; # Oh My Zsh theme
+        custom = ""; # Custom Oh My Zsh configuration
+      };
+     };
 
     campground.home = {
         file = let
@@ -84,28 +110,7 @@ in
           lclu = "${pkgs.colorls}/bin/colorls -U -1";
         };
 
-        programs.zsh = {
-          enable = true; # Enable zsh as the default shell
-          enableCompletion = true; # Enable command completion
-          autosuggestions.enable = true;
-          syntaxHighlighting.enable = true;
-          histFile = "$XDG_CACHE_HOME/zsh.history";
-
-
-          interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
-
-          loginShellInit = ""; # Extra commands to run at login shell initialization
-
-          promptInit = ""; # Extra commands to run at prompt initialization
-
-          # TODO: migrate my theme here
-          ohMyZsh = {
-            enable = false; # Enable Oh My Zsh
-            plugins = [ ]; # Oh My Zsh plugins
-            theme = "fino"; # Oh My Zsh theme
-            custom = ""; # Custom Oh My Zsh configuration
-          };
-         };
+        programs.zsh.enable = true;
 
         programs.zsh.initExtra = ''
           for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
@@ -117,8 +122,14 @@ in
               [ -r "$file" ] && source "$file"
           done
 
-          # source /home/${cfg.name}/.config/shell/zsh/theme
+          # for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
+          #     [ -r "$file" ] && source "$file"
+          # done
+
+          source /home/${cfg.name}/.config/shell/zsh/theme
+
         '';
+      };
     };
 
     users.users.${cfg.name} = {
