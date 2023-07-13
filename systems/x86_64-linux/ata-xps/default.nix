@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, ... }:
+{ options, config, pkgs, lib, nixos-hardware, ... }:
 
 with lib;
 with lib.internal;
