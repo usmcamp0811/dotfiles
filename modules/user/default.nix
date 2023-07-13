@@ -113,12 +113,12 @@ in
         programs.zsh.enable = true;
 
         programs.zsh.initExtra = ''
-          for file in $HOME/.config/shell/zsh/*.zsh; do
+          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
               [ -r "$file" ] && source "$file"
           done
 
           # source all the other bash config files
-          for file in $HOME/.config/shell/*.shrc; do
+          for file in /home/${cfg.name}/.config/shell/*.shrc; do
               [ -r "$file" ] && source "$file"
           done
 
@@ -126,7 +126,7 @@ in
           #     [ -r "$file" ] && source "$file"
           # done
 
-          source $HOME/.config/shell/zsh/theme
+          source /home/${cfg.name}/.config/shell/zsh/theme
 
         '';
       };
@@ -137,8 +137,7 @@ in
 
       inherit (cfg) name initialPassword;
 
-      # home = "/home/${cfg.name}";
-      home = "/etc/skel";
+      home = "/home/${cfg.name}";
       group = "users";
 
       shell = pkgs.zsh;
@@ -153,10 +152,25 @@ in
       extraGroups = [ "wheel" ] ++ cfg.extraGroups;
     } // cfg.extraOptions;
 
-    # users.users.skel = {
-    #   home = "/etc/skel";
-    #   shell = pkgs.zsh;
-    #   isNormalUser = true;
-    # };
+    users.ldap = {
+      enable = true;  # Enable LDAP for user information
+      server = "ldap://10.8.0.140:389";
+      base = "dc=aicampground,dc=com";  # The base DN of your directory
+      bind = {
+        distinguishedName = "cn=ldaplookup,ou=ServiceAccounts,dc=aicampground,dc=com";  # The DN to bind to the server
+        passwordFile = "/etc/nixos/ldap_bind_password";  # File containing the bind password
+        policy = "simple";  # Use simple bind policy
+        timeLimit = 5;  # Time limit for bind operations
+      };
+      daemon = {
+        enable = false;  # Not running an LDAP server on this machine
+      };
+      loginPam = "ldap-login";  # PAM service name for LDAP logins
+      nsswitch = true;  # Enable LDAP for NSS (Name Service Switch)
+      useTLS = false;  # Use TLS for the connection, adjust to true if your LDAP server supports TLS
+      timeLimit = 5;  # Time limit for LDAP operations
+      extraConfig = '';  # Any extra configuration goes here
+    };
+
   };
 }
