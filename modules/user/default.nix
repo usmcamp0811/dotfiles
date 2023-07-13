@@ -123,8 +123,7 @@ in
         home = "/home/${user.name}";
         group = "users";
         shell = pkgs.zsh;
-        uid = 1000;
-        extraGroups = [ "wheel" ] ++ user.extraGroups;
+        extraGroups = user.extraGroups;
       } // user.extraOptions;
     }) cfg);
   };
