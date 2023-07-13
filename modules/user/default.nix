@@ -71,20 +71,8 @@ in
         theme = "fino"; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
-
+     };
     };
-    programs.zsh.initExtra = ''
-      for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
-          [ -r "$file" ] && source "$file"
-      done
-
-      # source all the other bash config files
-      for file in /home/${cfg.name}/.config/shell/*.shrc; do
-          [ -r "$file" ] && source "$file"
-      done
-
-      # source /home/${cfg.name}/.config/shell/zsh/theme
-    '';
 
     campground.home = {
         file = let
@@ -120,7 +108,18 @@ in
 
         programs.zsh.enable = true;
 
-      };
+        programs.zsh.initExtra = ''
+          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
+              [ -r "$file" ] && source "$file"
+          done
+
+          # source all the other bash config files
+          for file in /home/${cfg.name}/.config/shell/*.shrc; do
+              [ -r "$file" ] && source "$file"
+          done
+
+          # source /home/${cfg.name}/.config/shell/zsh/theme
+        '';
     };
 
     users.users.${cfg.name} = {
