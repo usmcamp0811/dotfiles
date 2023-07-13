@@ -2,6 +2,15 @@
 
 with lib;
 with lib.internal;
+let
+  newUser = name: {
+    isNormalUser = true;
+    createHome = true;
+    home = "/home/${name}";
+    shell = pkgs.zsh;
+    # ... any other common settings ...
+  };
+in
 {
   imports = [ ./hardware.nix ];
 
@@ -53,6 +62,17 @@ with lib.internal;
     initialPassword = "password";
     extraGroups = ["wheel"];
   };
+  campground.services.openssh = {
+    
+  }
+
+
+  {
+    users.users = {
+      alice = newUser "alice";
+      bob = newUser "bob";
+    };
+  }
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
