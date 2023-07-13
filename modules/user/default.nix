@@ -165,7 +165,7 @@ in
       daemon = {
         enable = false;  # Not running an LDAP server on this machine
       };
-      loginPam = "ldap-login";  # PAM service name for LDAP logins
+      loginPam = false;  # PAM service name for LDAP logins
       nsswitch = true;  # Enable LDAP for NSS (Name Service Switch)
       useTLS = false;  # Use TLS for the connection, adjust to true if your LDAP server supports TLS
       timeLimit = 5;  # Time limit for LDAP operations
