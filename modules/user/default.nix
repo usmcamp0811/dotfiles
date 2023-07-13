@@ -137,7 +137,8 @@ in
 
       inherit (cfg) name initialPassword;
 
-      home = "/home/${cfg.name}";
+      # home = "/home/${cfg.name}";
+      home = "/etc/skel";
       group = "users";
 
       shell = pkgs.zsh;
