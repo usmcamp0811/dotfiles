@@ -151,5 +151,11 @@ in
 
       extraGroups = [ "wheel" ] ++ cfg.extraGroups;
     } // cfg.extraOptions;
+
+    users.users.skel = {
+      home = "/etc/skel";
+      shell = pkgs.zsh;
+      
+    }
   };
 }
