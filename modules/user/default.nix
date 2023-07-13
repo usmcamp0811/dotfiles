@@ -54,7 +54,7 @@ in
       enable = true; # Enable zsh as the default shell
       enableCompletion = true; # Enable command completion
       autosuggestions.enable = true;
-      enableSyntaxHighlighting = true; # Enable syntax highlighting
+      syntaxHighlighting.enable = true;
       histFile = "$XDG_CACHE_HOME/zsh.history";
 
       # initExtra = ''
