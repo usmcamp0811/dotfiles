@@ -110,7 +110,7 @@ in
           lclu = "${pkgs.colorls}/bin/colorls -U -1";
         };
 
-        programs.zsh.enable = true;
+        # programs.zsh.enable = true;
 
         programs.zsh.initExtra = ''
           for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
