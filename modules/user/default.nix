@@ -93,9 +93,6 @@ in
         theme = "fino"; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
-
-      fpath = [ ]; # Extra fpath directories
-
       sessionVariables = { }; # Extra session variables
     };
 
