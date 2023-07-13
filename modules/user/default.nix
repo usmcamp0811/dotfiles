@@ -66,8 +66,6 @@ in
         for file in /home/${cfg.name}/.config/shell/*.shrc; do
             [ -r "$file" ] && source "$file"
         done
-
-        # source /home/${cfg.name}/.config/shell/zsh/theme
       '';
 
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
