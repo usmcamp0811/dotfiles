@@ -156,6 +156,6 @@ in
       home = "/etc/skel";
       shell = pkgs.zsh;
       
-    }
+    };
   };
 }
