@@ -5,15 +5,12 @@ with lib.internal;
 let
   cfg = config.campground.services.openssh;
 
-  user = config.users.users.${config.campground.user.name};
-  user-id = builtins.toString user.uid;
-
   default-key =
     "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJ4v/zUQ40k9NwUZN8atDyHRv/dVzAGp/MNYuDCEQ/DPQ+3x3peJvytnHPxg1/f90WUb/D2PJoo2J/W95EpdZTPFcWEJLVlECpc5ym5irBcrCtLwWwu1didHOZ80051WXEL5rIhpoaAXb0rVgEHOVV8coSpZDvQ/Z2n+YtlqK58Kz9xFI+odCfaHrjwLHWm+AzZ1c3xGtYflVcD5GuYcx2LgA8xc3yypPDSK6U926So0wrEzxpg2SZnlb8nrDS9iD5ZR91AU8rEeTRWcx5uBaJTgT0cYRMflauAjONBspy/QMGQ7lUXAJVkrzRdelUtWitNgtMsnDd+u3Htc8Q/bvd+DLCeNdcESO9UH5PfaVEF8tKL0bQNa90fiEKl2sU845azE6l9BQCqmkiLKaGs8UQ3xkUQDENTjzDzaaG2sH/ackFoo4q90Ky8NUto/qNh1Wvp474nSZ5/StvaZ3238mw1ltJaF5iI0V/RPGACrn7PcBYkyohmwLD4AZGrx+IV+E= mcamp@butler";
 
   other-hosts = lib.filterAttrs
     (key: host:
-      key != name && (host.config.campground.user.name or null) != null)
+      key != name && (host.config.campground.users or null) != null)
     ((inputs.self.nixosConfigurations or { }) // (inputs.self.darwinConfigurations or { }));
 
   other-hosts-config = lib.concatMapStringsSep
@@ -21,23 +18,28 @@ let
     (name:
       let
         remote = other-hosts.${name};
-        remote-user-name = remote.config.campground.user.name;
-        remote-user-id = builtins.toString remote.config.users.users.${remote-user-name}.uid;
+        remote-users = remote.config.campground.users;
+        remote-user-names = builtins.map (user: user.name) remote-users;
+        remote-user-ids = builtins.map (user: builtins.toString user.uid) remote-users;
 
-        forward-gpg = optionalString (config.programs.gnupg.agent.enable && remote.config.programs.gnupg.agent.enable)
-          ''
-            RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
-            RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
-          '';
+        forward-gpg = lib.concatMapStringsSep "\n" (user: user-id:
+          optionalString (config.programs.gnupg.agent.enable && remote.config.programs.gnupg.agent.enable)
+            ''
+              RemoteForward /run/user/${user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
+              RemoteForward /run/user/${user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
+            ''
+        ) remote-users;
 
       in
-      ''
-        Host ${name}
-          User ${remote-user-name}
-          ForwardAgent yes
-          Port ${builtins.toString cfg.port}
-          ${forward-gpg}
-      ''
+      lib.concatMapStringsSep "\n" (user: user-name:
+        ''
+          Host ${name}
+            User ${user-name}
+            ForwardAgent yes
+            Port ${builtins.toString cfg.port}
+            ${forward-gpg}
+        ''
+      ) remote-user-names
     )
     (builtins.attrNames other-hosts);
 in
@@ -53,12 +55,6 @@ in
   config = mkIf cfg.enable {
     services.openssh = {
       enable = true;
-
-      # settings = {
-        # PermitRootLogin = if format == "install-iso" then "yes" else "no";
-        # PasswordAuthentication = true;
-        # TODO: flip back to false when all is good
-      # };
 
       extraConfig = ''
         StreamLocalBindUnlink yes
@@ -77,8 +73,12 @@ in
       ${optionalString cfg.manage-other-hosts other-hosts-config}
     '';
 
-    campground.user.extraOptions.openssh.authorizedKeys.keys =
-      cfg.authorizedKeys;
+    users.users = builtins.listToAttrs (map (user: {
+      name = user.name;
+      value = {
+        openssh.authorizedKeys.keys = cfg.authorizedKeys;
+      };
+    }) config.campground.users);
 
     campground.home.extraOptions = {
       programs.zsh.shellAliases = foldl
@@ -91,3 +91,4 @@ in
     };
   };
 }
+

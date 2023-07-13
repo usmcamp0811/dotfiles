@@ -12,7 +12,12 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.user.extraGroups = [ "networkmanager" ];
+    users.users = builtins.listToAttrs (map (user: {
+      name = user.name;
+      value = {
+        extraGroups = user.extraGroups ++ [ "networkmanager" ];
+      };
+    }) config.campground.users);
 
     networking = {
       hosts = {
@@ -30,3 +35,4 @@ in
     systemd.services.NetworkManager-wait-online.enable = false;
   };
 }
+

@@ -9,7 +9,6 @@ in
     home-manager.nixosModules.home-manager
   ];
 
-# TODO: Whats this.. feel like this might be something i should edit
   options.campground.home = with types; {
     file = mkOpt attrs { }
       "A set of files to be managed by home-manager's <option>home.file</option>.";
@@ -29,8 +28,11 @@ in
     home-manager = {
       useUserPackages = true;
 
-      users.${config.campground.user.name} =
-        mkAliasDefinitions options.campground.home.extraOptions;
+      users = builtins.listToAttrs (map (user: {
+        name = user.name;
+        value = mkAliasDefinitions options.campground.home.extraOptions;
+      }) config.campground.users);
     };
   };
 }
+

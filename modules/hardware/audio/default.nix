@@ -162,15 +162,24 @@ in
       pavucontrol
     ] ++ cfg.extra-packages;
 
-    campground.user.extraGroups = [ "audio" ];
-
-    campground.home.extraOptions = {
-      systemd.user.services.mpris-proxy = {
-        Unit.Description = "Mpris proxy";
-        Unit.After = [ "network.target" "sound.target" ];
-        Service.ExecStart = "${pkgs.bluez}/bin/mpris-proxy";
-        Install.WantedBy = [ "default.target" ];
+    users.users = builtins.listToAttrs (map (user: {
+      name = user.name;
+      value = {
+        extraGroups = user.extraGroups ++ [ "audio" ];
       };
-    };
+    }) config.campground.users);
+
+    systemd.user.services = builtins.listToAttrs (map (user: {
+      name = user.name;
+      value = {
+        mpris-proxy = {
+          Unit.Description = "Mpris proxy";
+          Unit.After = [ "network.target" "sound.target" ];
+          Service.ExecStart = "${pkgs.bluez}/bin/mpris-proxy";
+          Install.WantedBy = [ "default.target" ];
+        };
+      };
+    }) config.campground.users);
   };
 }
+
