@@ -159,8 +159,19 @@ in
       nsswitch = true;  # Enable LDAP for NSS (Name Service Switch)
       useTLS = false;  # Use TLS for the connection, adjust to true if your LDAP server supports TLS
       timeLimit = 5;  # Time limit for LDAP operations
+      extraConfig = ''
+        ldap_version 3
+        pam_password md5
+
+        # TOFIX: this does not work for some reason
+        # # https://serverfault.com/a/137996
+        # nss_override_attribute_value loginShell /run/current-system/sw/bin/bash
+      '';
     };
     security.pam.services.sshd.makeHomeDir = true;
-
+    # evil, horrifying hack for dysfunctional nss_override_attribute_value
+    systemd.tmpfiles.rules = [
+      "L /bin/bash - - - - /run/current-system/sw/bin/bash"
+    ];
   };
 }
