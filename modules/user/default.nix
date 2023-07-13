@@ -72,9 +72,8 @@ in
       # TODO: migrate my theme here
       ohMyZsh = {
         enable = false; # Enable Oh My Zsh
-        plugins = [ ]; # Oh My Zsh plugins
-        theme = "fino"; # Oh My Zsh theme
-        custom = ""; # Custom Oh My Zsh configuration
+        plugins = [ "git" "thefuck" ];
+        theme = "robbyrussell";
       };
      };
 
