@@ -91,7 +91,6 @@ in
         enable = true;
       };
     };
-
     campground.home.extraOptions = {
 
     };

@@ -3,7 +3,7 @@
 with lib;
 with lib.internal;
 let
-  cfg = config.campground.user;
+  cfg = config.campground.users;
   defaultIconFileName = "profile.png";
   defaultIcon = pkgs.stdenvNoCC.mkDerivation {
     name = "default-icon";
@@ -31,17 +31,22 @@ let
 
 in
 {
-  options.campground.user = with types; {
-    name = mkOpt str "mcamp" "The name to use for the user account.";
-    fullName = mkOpt str "Matt Camp" "The full name of the user.";
-    email = mkOpt str "matt@aicampground.com" "The email of the user.";
-    initialPassword = mkOpt str "password"
-      "The initial password to use when the user is first created.";
-    icon = mkOpt (nullOr package) defaultIcon
-      "The profile picture to use for the user.";
-    extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
-    extraOptions = mkOpt attrs { }
-      "Extra options passed to <option>users.users.<name></option>.";
+  options.campground.users = with types; mkOption {
+    type = listOf (submodule ({ ... }: {
+      options = {
+        name = mkOpt str "mcamp" "The name to use for the user account.";
+        fullName = mkOpt str "Matt Camp" "The full name of the user.";
+        email = mkOpt str "matt@aicampground.com" "The email of the user.";
+        initialPassword = mkOpt str "password"
+          "The initial password to use when the user is first created.";
+        icon = mkOpt (nullOr package) defaultIcon
+          "The profile picture to use for the user.";
+        extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
+        extraOptions = mkOpt attrs { }
+          "Extra options passed to <option>users.users.<name></option>.";
+      };
+    }));
+    default = [];
   };
 
   config = {
@@ -110,24 +115,18 @@ in
       };
     };
 
-    users.users.${cfg.name} = {
-      isNormalUser = true;
-
-      inherit (cfg) name initialPassword;
-
-      home = "/home/${cfg.name}";
-      group = "users";
-
-      shell = pkgs.zsh;
-
-      # Arbitrary user ID to use for the user. Since I only
-      # have a single user on my machines this won't ever collide.
-      # However, if you add multiple users you'll need to change this
-      # so each user has their own unique uid (or leave it out for the
-      # system to select).
-      uid = 1000;
-
-      extraGroups = [ "wheel" ] ++ cfg.extraGroups;
-    } // cfg.extraOptions;
+    users.users = builtins.listToAttrs (map (user: {
+      name = user.name;
+      value = {
+        isNormalUser = true;
+        inherit (user) name initialPassword;
+        home = "/home/${user.name}";
+        group = "users";
+        shell = pkgs.zsh;
+        uid = 1000;
+        extraGroups = [ "wheel" ] ++ user.extraGroups;
+      } // user.extraOptions;
+    }) cfg);
   };
 }
+
