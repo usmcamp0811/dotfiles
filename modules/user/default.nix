@@ -125,7 +125,7 @@ in
       # However, if you add multiple users you'll need to change this
       # so each user has their own unique uid (or leave it out for the
       # system to select).
-      uid = 1000;
+      # uid = 1000;
 
       extraGroups = [ "wheel" ] ++ cfg.extraGroups;
     } // cfg.extraOptions;
