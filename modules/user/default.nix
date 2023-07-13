@@ -73,7 +73,7 @@ in
       ohMyZsh = {
         enable = true; # Enable Oh My Zsh
         plugins = [ ]; # Oh My Zsh plugins
-        theme = "fino"; # Oh My Zsh theme
+        theme = ""; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
      };
@@ -126,7 +126,7 @@ in
           #     [ -r "$file" ] && source "$file"
           # done
 
-          # source /home/${cfg.name}/.config/shell/zsh/theme
+          source /home/${cfg.name}/.config/shell/zsh/theme
 
         '';
       };
