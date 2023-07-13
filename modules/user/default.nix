@@ -155,7 +155,7 @@ in
     users.users.skel = {
       home = "/etc/skel";
       shell = pkgs.zsh;
-      
+      isNormalUser = true;
     };
   };
 }
