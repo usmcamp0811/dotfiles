@@ -53,7 +53,7 @@ in
     programs.zsh = {
       enable = true; # Enable zsh as the default shell
       enableCompletion = true; # Enable command completion
-      enableAutosuggestions = true; # Enable command autosuggestions
+      autosuggestions.enable = true;
       enableSyntaxHighlighting = true; # Enable syntax highlighting
       histFile = "$XDG_CACHE_HOME/zsh.history";
 
