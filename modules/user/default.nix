@@ -85,7 +85,6 @@ in
         theme = "fino"; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
-      sessionVariables = { }; # Extra session variables
     };
 
     campground.home = {
