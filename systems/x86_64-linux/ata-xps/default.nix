@@ -65,7 +65,7 @@ in
 
   campground.services.openssh = {
     
-  }
+  };
 
 
   # This value determines the NixOS release from which the default
