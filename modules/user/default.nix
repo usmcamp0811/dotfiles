@@ -113,12 +113,12 @@ in
         programs.zsh.enable = true;
 
         programs.zsh.initExtra = ''
-          for file in \${"HOME"}/.config/shell/zsh/*.zsh; do
+          for file in \$HOME/.config/shell/zsh/*.zsh; do
               [ -r "$file" ] && source "$file"
           done
 
           # source all the other bash config files
-          for file in \${"HOME"}/.config/shell/*.shrc; do
+          for file in \$HOME/.config/shell/*.shrc; do
               [ -r "$file" ] && source "$file"
           done
 
@@ -126,7 +126,7 @@ in
           #     [ -r "$file" ] && source "$file"
           # done
 
-          source \${"HOME"}/.config/shell/zsh/theme
+          source \$HOME/.config/shell/zsh/theme
 
         '';
       };
