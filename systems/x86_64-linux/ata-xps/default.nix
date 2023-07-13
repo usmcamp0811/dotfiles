@@ -46,6 +46,13 @@ with lib.internal;
     # };
   };
 
+  campground.user = {
+    name = "mcamp";
+    fullName = "Matt Camp";
+    email = "matt@aicampground.com";
+    initialPassword = "password";
+    extraGroups = ["wheel"];
+  };
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
