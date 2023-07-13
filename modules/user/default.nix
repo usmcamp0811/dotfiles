@@ -76,8 +76,6 @@ in
 
       promptInit = ""; # Extra commands to run at prompt initialization
 
-      shellOptions = [ ]; # Extra shell options
-
       # TODO: migrate my theme here
       ohMyZsh = {
         enable = false; # Enable Oh My Zsh
