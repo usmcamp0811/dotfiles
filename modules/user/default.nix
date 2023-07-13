@@ -51,9 +51,52 @@ in
     ];
 
     programs.zsh = {
-      enable = true;
-      autosuggestions.enable = true;
-      histFile = "$XDG_CACHE_HOME/zsh.history";
+      enable = true; # Enable zsh as the default shell
+      enableCompletion = true; # Enable command completion
+      enableAutosuggestions = true; # Enable command autosuggestions
+      enableSyntaxHighlighting = true; # Enable syntax highlighting
+
+      history = {
+        file = "$XDG_CACHE_HOME/zsh.history"; # File to save command history
+        ignoreDuplicates = true; # Ignore duplicate commands in history
+        ignorePatterns = [ " " "ls *" ]; # Ignore specific patterns in history
+        ignoreAllDuplicates = true; # Ignore all duplicates in history
+        save = 1000; # Number of commands to save in history
+        extendedHistory = true; # Save each command's timestamp and duration
+      };
+
+      initExtra = ''
+        for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
+            [ -r "$file" ] && source "$file"
+        done
+
+        # source all the other bash config files
+        for file in /home/${cfg.name}/.config/shell/*.shrc; do
+            [ -r "$file" ] && source "$file"
+        done
+
+        source /home/${cfg.name}/.config/shell/zsh/theme
+      '';
+
+      interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
+
+      loginShellInit = ""; # Extra commands to run at login shell initialization
+
+      promptInit = ""; # Extra commands to run at prompt initialization
+
+      shellOptions = [ ]; # Extra shell options
+
+      # TODO: migrate my theme here
+      ohMyZsh = {
+        enable = false; # Enable Oh My Zsh
+        plugins = [ ]; # Oh My Zsh plugins
+        theme = ""; # Oh My Zsh theme
+        custom = ""; # Custom Oh My Zsh configuration
+      };
+
+      fpath = [ ]; # Extra fpath directories
+
+      sessionVariables = { }; # Extra session variables
     };
 
     campground.home = {
@@ -90,23 +133,6 @@ in
 
         programs.zsh.enable = true;
 
-        programs.zsh.initExtra = ''
-          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          # source all the other bash config files
-          for file in /home/${cfg.name}/.config/shell/*.shrc; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          # for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
-          #     [ -r "$file" ] && source "$file"
-          # done
-
-          source /home/${cfg.name}/.config/shell/zsh/theme
-
-        '';
       };
     };
 
