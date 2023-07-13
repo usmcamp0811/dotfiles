@@ -55,8 +55,7 @@ in
       enableCompletion = true; # Enable command completion
       enableAutosuggestions = true; # Enable command autosuggestions
       enableSyntaxHighlighting = true; # Enable syntax highlighting
-
-      history = "$XDG_CACHE_HOME/zsh.history"; # File to save command history
+      histFile = "$XDG_CACHE_HOME/zsh.history";
 
       initExtra = ''
         for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
