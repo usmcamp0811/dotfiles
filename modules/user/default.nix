@@ -82,7 +82,6 @@ in
           }) dotfiles);
         in baseFile // dotFile;
 
-
       extraOptions = {
         home.shellAliases = {
           lc = "${pkgs.colorls}/bin/colorls --sd";
