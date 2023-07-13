@@ -28,6 +28,10 @@ in
       git
       rsync
       tldr
+      gcc
+      clang
+      zig
+
     ];
   };
 }
