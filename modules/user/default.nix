@@ -56,14 +56,7 @@ in
       enableAutosuggestions = true; # Enable command autosuggestions
       enableSyntaxHighlighting = true; # Enable syntax highlighting
 
-      history = {
-        file = "$XDG_CACHE_HOME/zsh.history"; # File to save command history
-        ignoreDuplicates = true; # Ignore duplicate commands in history
-        ignorePatterns = [ " " "ls *" ]; # Ignore specific patterns in history
-        ignoreAllDuplicates = true; # Ignore all duplicates in history
-        save = 1000; # Number of commands to save in history
-        extendedHistory = true; # Save each command's timestamp and duration
-      };
+      history = "$XDG_CACHE_HOME/zsh.history"; # File to save command history
 
       initExtra = ''
         for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
