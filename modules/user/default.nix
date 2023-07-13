@@ -57,18 +57,6 @@ in
       syntaxHighlighting.enable = true;
       histFile = "$XDG_CACHE_HOME/zsh.history";
 
-      initExtra = ''
-        for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
-            [ -r "$file" ] && source "$file"
-        done
-
-        # source all the other bash config files
-        for file in /home/${cfg.name}/.config/shell/*.shrc; do
-            [ -r "$file" ] && source "$file"
-        done
-
-        # source /home/${cfg.name}/.config/shell/zsh/theme
-      '';
 
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
 
@@ -83,6 +71,19 @@ in
         theme = "fino"; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
+      program.zsh.initExtra = ''
+        for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
+            [ -r "$file" ] && source "$file"
+        done
+
+        # source all the other bash config files
+        for file in /home/${cfg.name}/.config/shell/*.shrc; do
+            [ -r "$file" ] && source "$file"
+        done
+
+        # source /home/${cfg.name}/.config/shell/zsh/theme
+      '';
+
     };
 
     campground.home = {
