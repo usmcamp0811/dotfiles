@@ -169,7 +169,6 @@ in
       nsswitch = true;  # Enable LDAP for NSS (Name Service Switch)
       useTLS = false;  # Use TLS for the connection, adjust to true if your LDAP server supports TLS
       timeLimit = 5;  # Time limit for LDAP operations
-      extraConfig = '';  # Any extra configuration goes here
     };
 
   };
