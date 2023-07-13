@@ -71,9 +71,9 @@ in
 
       # TODO: migrate my theme here
       ohMyZsh = {
-        enable = true; # Enable Oh My Zsh
+        enable = false; # Enable Oh My Zsh
         plugins = [ ]; # Oh My Zsh plugins
-        theme = ""; # Oh My Zsh theme
+        theme = "fino"; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
      };
@@ -110,8 +110,6 @@ in
           lclu = "${pkgs.colorls}/bin/colorls -U -1";
         };
 
-        # programs.zsh.enable = true;
-
         programs.zsh.initExtra = ''
           for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
               [ -r "$file" ] && source "$file"
@@ -126,7 +124,7 @@ in
           #     [ -r "$file" ] && source "$file"
           # done
 
-          source /home/${cfg.name}/.config/shell/zsh/theme
+          # source /home/${cfg.name}/.config/shell/zsh/theme
 
         '';
       };
