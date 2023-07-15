@@ -32,7 +32,7 @@ in
         domains = [ cfg.domain ];
       };
 
-      domain/aicampground = {
+      domain_aicampground = {
         id_provider = "ldap";
         ldap_uri = cfg.ldap_uri;
         ldap_search_base = cfg.ldap_search_base;
