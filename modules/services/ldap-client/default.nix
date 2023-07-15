@@ -23,6 +23,7 @@ in
       openldap
       openssl
     ];
+
     services.sssd.enable = true;
 
     services.sssd.config = {
