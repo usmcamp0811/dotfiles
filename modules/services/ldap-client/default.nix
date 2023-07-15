@@ -25,22 +25,7 @@ in
     ];
 
     services.sssd.enable = true;
-
-    services.sssd.config = {
-      sssd = {
-        services = [ "nss" "pam" ];
-        domains = [ cfg.domain ];
-      };
-
-      domain_aicampground = {
-        id_provider = "ldap";
-        ldap_uri = cfg.ldap_uri;
-        ldap_search_base = cfg.ldap_search_base;
-        ldap_tls_reqcert = "never";
-        cache_credentials = cfg.cache_credentials;
-        enumerate = true;
-        use_fully_qualified_names = false;
-      };
-    };
+    services.sssd.sshAuthorizedKeysIntegration = true;
+    services.sssd.environmentFile = ./sssd.conf
   };
 }
