@@ -50,11 +50,6 @@ in
       lsd
     ];
 
-    # programs.zsh = {
-    #   enable = true;
-    #   autosuggestions.enable = true;
-    #   histFile = "$XDG_CACHE_HOME/zsh.history";
-    # };
     programs.zsh = {
       enable = true; # Enable zsh as the default shell
       enableCompletion = true; # Enable command completion
