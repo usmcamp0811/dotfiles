@@ -41,18 +41,19 @@
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
-    # secrets management, lock with git commit at 2023/5/15
-    # agenix.url = "github:ryantm/agenix/db5637d10f797bb251b94ef9040b237f4702cde3";
 
   };
 
   outputs = inputs:
     let
-      # mysecrets = builtins.fetchGit {
-      #   url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
-      #   ref = "master"; 
-      #   rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
-      # };
+      mysecrets = builtins.fetchGit {
+        url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
+        ref = "master"; 
+        rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
+      };
+
+      # secrets management, lock with git commit at 2023/5/15
+      agenix.url = "github:ryantm/agenix/db5637d10f797bb251b94ef9040b237f4702cde3";
 
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
