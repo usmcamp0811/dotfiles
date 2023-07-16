@@ -47,6 +47,12 @@
     # my private secrets, it's a private repository, you need to replace it with your own.
     mysecrets = { url = "gitlab:usmcamp0811/campground-secrets"; flake = false; };
 
+    mysecrets = builtins.fetchGit {
+      url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
+      ref = "master"; 
+      rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
+    };
+
   };
 
   outputs = inputs:
@@ -71,6 +77,7 @@
         nix-ld.nixosModules.nix-ld
         # attic.nixosModules.atticd
         vault-service.nixosModules.nixos-vault-service
+        ./secrets/default.nix
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
