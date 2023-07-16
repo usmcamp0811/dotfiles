@@ -121,49 +121,49 @@ in
       })
       cfg.services;
 
-    # detsys.vaultAgent = {
-    #   defaultAgentConfig = cfg.settings;
-    #
-    #   systemd.services = mapAttrs
-    #     (service-name: value: {
-    #       inherit (value) enable;
-    #
-    #       agentConfig = value.settings;
-    #
-    #       environment = {
-    #         changeAction = value.secrets.environment.change-action;
-    #
-    #         templateFiles = mapAttrs
-    #           (template-name: value: {
-    #             file =
-    #               if value.source != null then
-    #                 value.source
-    #               else
-    #                 pkgs.writeText "${service-name}-${template-name}-env-template" value.text;
-    #           })
-    #           value.secrets.environment.templates;
-    #
-    #         template =
-    #           if (builtins.isPath value.secrets.environment.template) || (builtins.isNull value.secrets.environment.template) then
-    #             value.secrets.environment.template
-    #           else
-    #             pkgs.writeText "${service-name}-env-template" value.secrets.environment.template;
-    #       };
-    #
-    #       secretFiles = {
-    #         defaultChangeAction = value.secrets.file.change-action;
-    #
-    #         files = mapAttrs
-    #           (file-name: value: {
-    #             changeAction = value.change-action;
-    #             template = value.text;
-    #             templateFile = value.source;
-    #             perms = value.permissions;
-    #           })
-    #           value.secrets.file.files;
-    #       };
-    #     })
-    #     cfg.services;
-    # };
+    detsys.vaultAgent = {
+      defaultAgentConfig = cfg.settings;
+
+      systemd.services = mapAttrs
+        (service-name: value: {
+          inherit (value) enable;
+
+          agentConfig = value.settings;
+
+          environment = {
+            changeAction = value.secrets.environment.change-action;
+
+            templateFiles = mapAttrs
+              (template-name: value: {
+                file =
+                  if value.source != null then
+                    value.source
+                  else
+                    pkgs.writeText "${service-name}-${template-name}-env-template" value.text;
+              })
+              value.secrets.environment.templates;
+
+            template =
+              if (builtins.isPath value.secrets.environment.template) || (builtins.isNull value.secrets.environment.template) then
+                value.secrets.environment.template
+              else
+                pkgs.writeText "${service-name}-env-template" value.secrets.environment.template;
+          };
+
+          secretFiles = {
+            defaultChangeAction = value.secrets.file.change-action;
+
+            files = mapAttrs
+              (file-name: value: {
+                changeAction = value.change-action;
+                template = value.text;
+                templateFile = value.source;
+                perms = value.permissions;
+              })
+              value.secrets.file.files;
+          };
+        })
+        cfg.services;
+    };
   };
 }
