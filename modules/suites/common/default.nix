@@ -42,7 +42,7 @@ in
       services = {
         # printing = enabled;
         openssh = enabled;
-        ldap-client = enabled;
+        # ldap-client = enabled;
         # tailscale = enabled;
       };
 

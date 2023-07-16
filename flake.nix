@@ -42,7 +42,7 @@
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     # secrets management, lock with git commit at 2023/5/15
-    # agenix.url = "github:ryantm/agenix/db5637d10f797bb251b94ef9040b237f4702cde3";
+    agenix.url = "github:ryantm/agenix/db5637d10f797bb251b94ef9040b237f4702cde3";
 
   };
 
@@ -74,7 +74,7 @@
         nix-ld.nixosModules.nix-ld
         # attic.nixosModules.atticd
         vault-service.nixosModules.nixos-vault-service
-        # ./secrets/default.nix
+        ./secrets/default.nix
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
