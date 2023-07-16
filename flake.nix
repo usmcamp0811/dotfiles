@@ -45,8 +45,6 @@
     agenix.url = "github:ryantm/agenix/db5637d10f797bb251b94ef9040b237f4702cde3";
 
     # my private secrets, it's a private repository, you need to replace it with your own.
-    mysecrets = { url = "gitlab:usmcamp0811/campground-secrets"; flake = false; };
-
     mysecrets = builtins.fetchGit {
       url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
       ref = "master"; 
