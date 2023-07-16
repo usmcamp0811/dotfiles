@@ -26,6 +26,6 @@ in
 
     services.sssd.enable = true;
     services.sssd.sshAuthorizedKeysIntegration = true;
-    services.sssd.environmentFile = ./sssd.conf
+    services.sssd.environmentFile = ./sssd.conf;
   };
 }
