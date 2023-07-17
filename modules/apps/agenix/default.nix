@@ -15,5 +15,5 @@ in
   };
 
   config =
-    mkIf cfg.enable { environment.systemPackages = [ agenix.packages.${system}.default ]; };
+    mkIf cfg.enable { environment.systemPackages = [ (pkgs.callPackage "${builtins.fetchTarball "https://github.com/ryantm/agenix/archive/main.tar.gz"}/pkgs/agenix.nix" {}) ]; };
 }
