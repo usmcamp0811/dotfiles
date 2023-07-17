@@ -15,5 +15,12 @@ in
   };
 
   config =
-    mkIf cfg.enable { environment.systemPackages = [ (pkgs.callPackage "${builtins.fetchTarball "https://github.com/ryantm/agenix/archive/main.tar.gz"}/pkgs/agenix.nix" {}) ]; };
+    mkIf cfg.enable { 
+      environment.systemPackages = [ 
+        (pkgs.callPackage "${builtins.fetchTarball {
+          url = "https://github.com/ryantm/agenix/archive/main.tar.gz"}/pkgs/agenix.nix";
+          sha256 = "0x3d45zcqpai6jr3d68jhl2vcwavyflvrh7iksk3ppqpv6m0sy2s";
+        } {})
+      ]; 
+    };
 }
