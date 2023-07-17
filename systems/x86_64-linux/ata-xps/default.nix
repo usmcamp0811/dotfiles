@@ -30,7 +30,6 @@ in
     };
 
     apps = {
-      # steam = enabled;
       agenix = enabled;
     };
 

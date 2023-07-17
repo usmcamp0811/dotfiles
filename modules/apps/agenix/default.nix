@@ -2,10 +2,10 @@
 
 with lib;
 with lib.internal;
-let cfg = config.plusultra.apps.agenix;
+let cfg = config.campground.apps.agenix;
 in
 {
-  options.plusultra.apps.agenix = with types; {
+  options.campground.apps.agenix = with types; {
     enable = mkBoolOpt false "Whether or not to enable agenix.";
   };
 
