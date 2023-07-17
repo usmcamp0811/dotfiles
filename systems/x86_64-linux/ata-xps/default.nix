@@ -15,11 +15,6 @@ let
     shell = pkgs.zsh;
     # ... any other common settings ...
   };
-
-  agenix = {
-    url = "github:yaxitech/ragenix";
-    flake = false;
-  };
 in
 {
   imports = [ ./hardware.nix ];
@@ -77,7 +72,7 @@ in
     
   };
 
-  agenix.age.secrets."test" = {
+  age.secrets."test" = {
     # wether secrets are symlinked to age.secrets.<name>.path
     symlink = true;
     # target path for decrypted file
