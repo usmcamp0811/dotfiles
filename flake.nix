@@ -49,6 +49,12 @@
 
   outputs = inputs:
     let
+      mysecrets = builtins.fetchGit {
+        url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
+        ref = "master"; 
+        rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
+      };
+
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
@@ -70,12 +76,12 @@
         nix-ld.nixosModules.nix-ld
         # attic.nixosModules.atticd
         vault-service.nixosModules.nixos-vault-service
-        secrets
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
         # See https://github.com/NixOS/nixos-hardware/tree/master/dell/xps/13-7390
         nixos-hardware.nixosModules.dell-xps-13-7390
+        ./secrets/default.nix
       ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };

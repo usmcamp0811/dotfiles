@@ -1,12 +1,6 @@
-{ config, pkgs, agenix, ... }:
+# import & decrypt secrets in `mysecrets` in this module
+{ pkgs, agenix, mysecrets, ... }:
 
-let
-  mysecrets = builtins.fetchGit {
-    url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
-    ref = "master"; 
-    rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
-  };
-in
 {
   imports = [
      agenix.nixosModules.default
@@ -17,7 +11,7 @@ in
   ];
 
   age.secrets."test" = {
-    # whether secrets are symlinked to age.secrets.<name>.path
+    # wether secrets are symlinked to age.secrets.<name>.path
     symlink = true;
     # target path for decrypted file
     path = "/etc/some-secret-file";
@@ -28,5 +22,3 @@ in
     group = "root";
   };
 }
-
-
