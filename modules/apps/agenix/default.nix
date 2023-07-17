@@ -15,5 +15,5 @@ in
   };
 
   config =
-    mkIf cfg.enable { environment.systemPackages = with pkgs; [ agenix.packages.${system}.default ]; };
+    mkIf cfg.enable { environment.systemPackages = [ agenix.packages.${system}.default ]; };
 }
