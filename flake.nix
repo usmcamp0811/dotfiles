@@ -42,7 +42,11 @@
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     # secrets management, lock with git commit at 2023/5/15
-    agenix.url = "github:ryantm/agenix";
+    # agenix.url = "github:ryantm/agenix";
+    agenix = {
+      url = "github:ryantm/agenix";
+      flake = false;
+    };
   };
 
   outputs = inputs:
@@ -51,6 +55,15 @@
         url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
         ref = "master"; 
         rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
+      };
+
+      # Override the agenix flake to provide a dummy legacyPackages.x86_64-linux.nix attribute
+      agenixOverride = {
+        legacyPackages = {
+          x86_64-linux = {
+            nix = { };
+          };
+        };
       };
 
       lib = inputs.snowfall-lib.mkLib {
@@ -73,7 +86,7 @@
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
-        agenix.nixosModules.default
+        agenixOverride
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
