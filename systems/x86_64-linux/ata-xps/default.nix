@@ -4,9 +4,9 @@ with lib;
 with lib.internal;
 let
   mysecrets = builtins.fetchGit {
-    url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
+    url = "https://gitlab.com/usmcamp0811/campground-secrets.git";
     ref = "master"; 
-    rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
+    rev = "57228b7bbd48b88a6660f6d2a9540be893e76976"; 
   };
   newUser = name: {
     isNormalUser = true;
