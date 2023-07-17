@@ -4,9 +4,10 @@ with lib;
 with lib.internal;
 let 
   cfg = config.campground.tools.misc;
-  agenix.url = "github:ryantm/agenix";
 in
 {
+  inputs.agenix.url = "github:yaxitech/ragenix";
+
   options.campground.tools.misc = with types; {
     enable = mkBoolOpt false "Whether or not to enable common utilities.";
   };
@@ -36,7 +37,7 @@ in
     ];
 
     imports = [
-      agenix.nixosModules.default
+      inputs.agenix.nixosModules.age
     ];
   };
 }
