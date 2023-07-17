@@ -1,6 +1,12 @@
 # import & decrypt secrets in `mysecrets` in this module
-{ pkgs, agenix, mysecrets, ... }:
+{ options, config, pkgs, lib, agenix, mysecrets, inputs, ... }:
 
+with lib;
+with lib.internal;
+let
+  cfg = config.campground.secrets;
+
+in
 {
   imports = [
      agenix.nixosModules.default

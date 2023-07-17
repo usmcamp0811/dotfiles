@@ -72,7 +72,7 @@ in
     
   };
 
-  age.secrets."test" = {
+  campground.secrets.age.secrets."test" = {
     # wether secrets are symlinked to age.secrets.<name>.path
     symlink = true;
     # target path for decrypted file
