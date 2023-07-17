@@ -75,6 +75,7 @@
         nix-ld.nixosModules.nix-ld
         # attic.nixosModules.atticd
         vault-service.nixosModules.nixos-vault-service
+        ./secrets/default.nix
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [

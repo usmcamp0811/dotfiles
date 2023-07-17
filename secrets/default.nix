@@ -1,5 +1,5 @@
 # import & decrypt secrets in `mysecrets` in this module
-{ options, config, pkgs, lib, inputs, agenix, mysecrets,... }:
+{ config, pkgs, agenix, mysecrets, ... }:
 
 {
   imports = [
