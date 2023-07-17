@@ -14,6 +14,7 @@ in
     enable = mkBoolOpt false "Whether or not to enable agenix.";
   };
 
+  # TODO: use the rust version and also do the other way not this way.. that uses the github repo
   config =
     mkIf cfg.enable { 
       environment.systemPackages = [ 
