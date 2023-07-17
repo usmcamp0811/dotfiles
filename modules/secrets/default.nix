@@ -7,7 +7,7 @@
   ];
 
   environment.systemPackages = [
-    agenix.packages."${pkgs.system}".default
+    agenix.packages."${system}".default
   ];
 
   age.secrets."test" = {
