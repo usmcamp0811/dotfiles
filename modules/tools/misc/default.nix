@@ -2,7 +2,9 @@
 
 with lib;
 with lib.internal;
-let cfg = config.campground.tools.misc;
+let 
+  cfg = config.campground.tools.misc;
+  agenix.url = "github:ryantm/agenix";
 in
 {
   options.campground.tools.misc = with types; {
@@ -31,7 +33,11 @@ in
       gcc
       clang
       zig
+    ];
 
+    imports = [
+      agenix.nixosModules.default
     ];
   };
 }
+
