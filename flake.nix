@@ -44,7 +44,7 @@
     # secrets management, lock with git commit at 2023/5/15
     # agenix.url = "github:ryantm/agenix";
     agenix = {
-      url = "github:ryantm/agenix";
+      url = "github:yaxitech/ragenix";
       flake = false;
     };
   };
