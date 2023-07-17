@@ -19,7 +19,7 @@ in
       environment.systemPackages = [ 
         (pkgs.callPackage (builtins.fetchTarball {
           url = "https://github.com/ryantm/agenix/archive/main.tar.gz";
-          sha256 = "0x3d45zcqpai6jr3d68jhl2vcwavyflvrh7iksk3ppqpv6m0sy2s";
+          sha256 = "1j9yr5q0453wnmn8941vfppwfsqmx98nk1ajqqw4zjgmkc0kjfbn";
         } + "/pkgs/agenix.nix") {})
       ]; 
     };
