@@ -59,6 +59,7 @@
         inherit inputs;
         src = ./.;
       };
+      secrets = import ./secrets/default.nix;
     in
     lib.mkFlake {
       package-namespace = "campground";
@@ -75,7 +76,7 @@
         nix-ld.nixosModules.nix-ld
         # attic.nixosModules.atticd
         vault-service.nixosModules.nixos-vault-service
-        ./secrets/default.nix
+        secrets
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
