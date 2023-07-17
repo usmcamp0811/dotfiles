@@ -51,11 +51,6 @@
 
   outputs = inputs:
     let
-      mysecrets = builtins.fetchGit {
-        url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
-        ref = "master"; 
-        rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
-      };
 
       # Override the agenix flake to provide a dummy legacyPackages.x86_64-linux.nix attribute
       agenixOverride = {

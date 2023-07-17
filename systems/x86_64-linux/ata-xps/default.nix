@@ -3,6 +3,11 @@
 with lib;
 with lib.internal;
 let
+  mysecrets = builtins.fetchGit {
+    url = "git@gitlab.com:usmcamp0811/campground-secrets.git";
+    ref = "master"; 
+    rev = "955a4322b58a027a6eba938150452b485153b7dd"; 
+  };
   newUser = name: {
     isNormalUser = true;
     createHome = true;
