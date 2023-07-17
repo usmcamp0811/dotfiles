@@ -31,7 +31,6 @@ in
       gcc
       clang
       zig
-      ragenix
 
     ];
   };

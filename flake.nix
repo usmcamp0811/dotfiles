@@ -53,14 +53,14 @@
     let
 
       # Override the agenix flake to provide a dummy legacyPackages.x86_64-linux.nix attribute
-      agenixOverride = {
-        legacyPackages = {
-          x86_64-linux = {
-            nix = { };
-          };
-        };
-      };
-
+      # agenixOverride = {
+      #   legacyPackages = {
+      #     x86_64-linux = {
+      #       nix = { };
+      #     };
+      #   };
+      # };
+      #
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
@@ -81,7 +81,6 @@
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
-        agenixOverride
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
