@@ -42,9 +42,7 @@
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     # secrets management, lock with git commit at 2023/5/15
-    agenix.url = "github:yaxitech/ragenix";
-
-
+    agenix.url = "github:ryantm/agenix";
   };
 
   outputs = inputs:
@@ -74,14 +72,12 @@
       systems.modules = with inputs; [
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
-        # attic.nixosModules.atticd
         vault-service.nixosModules.nixos-vault-service
+        agenix.nixosModules.default
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
-        # See https://github.com/NixOS/nixos-hardware/tree/master/dell/xps/13-7390
         nixos-hardware.nixosModules.dell-xps-13-7390
-        ./secrets/default.nix
       ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
@@ -92,5 +88,5 @@
             deploy-lib.deployChecks inputs.self.deploy)
           inputs.deploy-rs.lib;
     };
-
 }
+
