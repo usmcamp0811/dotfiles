@@ -2,7 +2,12 @@
 
 with lib;
 with lib.internal;
-let cfg = config.campground.apps.agenix;
+let 
+  cfg = config.campground.apps.agenix;
+  agenix = {
+    url = "github:yaxitech/ragenix";
+    flake = false;
+  };
 in
 {
   options.campground.apps.agenix = with types; {
