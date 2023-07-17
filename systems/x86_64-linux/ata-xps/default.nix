@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, agenix,... }:
+{ pkgs, lib, nixos-hardware, ... }:
 
 with lib;
 with lib.internal;
@@ -15,9 +15,13 @@ let
     shell = pkgs.zsh;
     # ... any other common settings ...
   };
+  agenix = {
+    url = "github:yaxitech/ragenix";
+    flake = false;
+  };
 in
 {
-  imports = [ ./hardware.nix ];
+  imports = [ ./hardware.nix agenix.nixosModules.default ];
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
