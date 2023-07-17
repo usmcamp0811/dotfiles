@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, agenix, age, ... }:
+{ pkgs, lib, nixos-hardware, agenix,... }:
 
 with lib;
 with lib.internal;
