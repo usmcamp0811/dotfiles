@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, ... }:
+{ pkgs, lib, nixos-hardware, agenix, age, ... }:
 
 with lib;
 with lib.internal;
@@ -14,11 +14,6 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
     # ... any other common settings ...
-  };
-
-  agenix = {
-    url = "github:yaxitech/ragenix";
-    flake = false;
   };
 in
 {
