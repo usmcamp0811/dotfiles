@@ -19,7 +19,7 @@ in
     mkIf cfg.enable { 
       environment.systemPackages = [ 
         (pkgs.callPackage (builtins.fetchTarball {
-          url = "https://github.com/ryantm/agenix/archive/main.tar.gz";
+          url = "https://github.com/yaxitech/ragenix/archive/main.tar.gz";
           sha256 = "1j9yr5q0453wnmn8941vfppwfsqmx98nk1ajqqw4zjgmkc0kjfbn";
         } + "/pkgs/agenix.nix") {})
       ]; 
