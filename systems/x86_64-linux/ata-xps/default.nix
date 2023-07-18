@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, agenix,... }:
+{ pkgs, lib, nixos-hardware, agenix, ... }:
 
 with lib;
 with lib.internal;
@@ -55,7 +55,7 @@ in
     
   };
 
-  # age.secrets."test" = {
+  # agenix.secrets."test" = {
   #   # wether secrets are symlinked to age.secrets.<name>.path
   #   symlink = true;
   #   # target path for decrypted file
