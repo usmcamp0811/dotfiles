@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, agenix, ... }:
+{ pkgs, lib, nixos-hardware, nixosModules, agenix, ... }:
 
 with lib;
 with lib.internal;
@@ -14,6 +14,7 @@ in
 {
   imports = [ 
     ./hardware.nix
+    nixosModules.apps/agenix.age
   ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
@@ -48,17 +49,17 @@ in
     
   };
 
-  # age.secrets."test" = {
-  #   # wether secrets are symlinked to age.secrets.<name>.path
-  #   symlink = true;
-  #   # target path for decrypted file
-  #   path = "/etc/some-secret-file";
-  #   # encrypted file path
-  #   file =  "${mysecrets}/test.age";  # refer to ./xxx.age located in `mysecrets` repo
-  #   mode = "0400";
-  #   owner = "root";
-  #   group = "root";
-  # };
+  age.secrets."test" = {
+    # wether secrets are symlinked to age.secrets.<name>.path
+    symlink = true;
+    # target path for decrypted file
+    path = "/etc/some-secret-file";
+    # encrypted file path
+    file =  "${mysecrets}/test.age";  # refer to ./xxx.age located in `mysecrets` repo
+    mode = "0400";
+    owner = "root";
+    group = "root";
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
