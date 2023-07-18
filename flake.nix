@@ -53,12 +53,7 @@
         inherit inputs;
         src = ./.;
       };
-      secrets = import ./secrets/default.nix;
     in
-    imports = [ 
-       agenix.nixosModules.default
-    ];
-
     lib.mkFlake {
       package-namespace = "campground";
 
