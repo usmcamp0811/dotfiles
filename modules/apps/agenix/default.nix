@@ -8,7 +8,7 @@ let
     # url = "github:yaxitech/ragenix";
     # flake = false;
   # };
-  agenix.url = "github:ryantm/agenix";
+  agenix.url = "github:yaxitech/ragenix";
 in
 {
   options.campground.apps.agenix = with types; {
