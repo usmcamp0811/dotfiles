@@ -30,6 +30,7 @@ in
     };
 
     apps = {
+      agenix = enabled;
     };
 
     system = {
