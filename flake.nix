@@ -42,7 +42,6 @@
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     sops-nix.url = "github:Mic92/sops-nix";
-    agenix.url = "github:ryantm/agenix";
     #
   };
 
@@ -67,12 +66,12 @@
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
+        sops-nix.nixosModules.sops
+        agenix.nixosModules.default
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
         nixos-hardware.nixosModules.dell-xps-13-7390
-        sops-nix.nixosModules.sops
-        agenix.nixosModules.default
 
       ];
 
