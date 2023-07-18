@@ -10,6 +10,11 @@ let
     shell = pkgs.zsh;
     # ... any other common settings ...
   };
+  mysecrets = builtins.fetchGit {
+    url = "https://gitlab.com/usmcamp0811/campground-secrets.git";
+    ref = "master"; 
+    rev = "57228b7bbd48b88a6660f6d2a9540be893e76976"; 
+  };
 in
 {
   imports = [ 
