@@ -17,8 +17,10 @@ let
   };
 in
 {
-  imports = [ ./hardware.nix ];
-
+  imports = [ 
+    ./hardware.nix
+    agenix.nixosModules.default
+  ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
     archetypes = {
@@ -52,17 +54,17 @@ in
     
   };
 
-  campground.age.secrets."test" = {
-    # wether secrets are symlinked to age.secrets.<name>.path
-    symlink = true;
-    # target path for decrypted file
-    path = "/etc/some-secret-file";
-    # encrypted file path
-    file =  "${mysecrets}/test.age";  # refer to ./xxx.age located in `mysecrets` repo
-    mode = "0400";
-    owner = "root";
-    group = "root";
-  };
+  # agenix.secrets."test" = {
+  #   # wether secrets are symlinked to age.secrets.<name>.path
+  #   symlink = true;
+  #   # target path for decrypted file
+  #   path = "/etc/some-secret-file";
+  #   # encrypted file path
+  #   file =  "${mysecrets}/test.age";  # refer to ./xxx.age located in `mysecrets` repo
+  #   mode = "0400";
+  #   owner = "root";
+  #   group = "root";
+  # };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
