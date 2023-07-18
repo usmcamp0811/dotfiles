@@ -41,11 +41,11 @@
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
-    agenix = {
-      url = "github:yaxitech/ragenix";
-      flake = false;
-    };
-
+    # agenix = {
+    #   url = "github:yaxitech/ragenix";
+    #   flake = false;
+    # };
+    #
     mysecrets = builtins.fetchGit {
       url = "https://gitlab.com/usmcamp0811/campground-secrets.git";
       ref = "master"; 
