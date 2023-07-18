@@ -1,4 +1,4 @@
-{ options, config, lib, agenix, pkgs, ... }:
+{ options, config, lib, agenix, mysecrets, pkgs, ... }:
 
 with lib;
 with lib.internal;
@@ -19,5 +19,17 @@ in
           sha256 = "1j9yr5q0453wnmn8941vfppwfsqmx98nk1ajqqw4zjgmkc0kjfbn";
         } + "/pkgs/agenix.nix") {})
       ]; 
+
+      age.secrets."test" = {
+        # wether secrets are symlinked to age.secrets.<name>.path
+        symlink = true;
+        # target path for decrypted file
+        path = "/etc/some-secret-file";
+        # encrypted file path
+        file =  "${mysecrets}/test.age";  # refer to ./xxx.age located in `mysecrets` repo
+        mode = "0400";
+        owner = "root";
+        group = "root";
+      };
     };
 }
