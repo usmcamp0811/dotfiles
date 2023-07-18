@@ -18,6 +18,7 @@ in
   # TODO: use the rust version and also do the other way not this way.. that uses the github repo
   config =
     mkIf cfg.enable { 
+      imports = [ agenix.nixosModules.age ];
       environment.systemPackages = [ 
         (pkgs.callPackage (builtins.fetchTarball {
           url = "https://github.com/yaxitech/ragenix/archive/main.tar.gz";
