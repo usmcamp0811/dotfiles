@@ -8,6 +8,12 @@ let
     ref = "master"; 
     rev = "57228b7bbd48b88a6660f6d2a9540be893e76976"; 
   };
+  agenix = import (pkgs.fetchFromGitHub {
+    owner = "ryantm";
+    repo = "agenix";
+    rev = "v0.1.1";
+    sha256 = "<sha256>"; # replace with the correct SHA-256 hash
+  }) {};
 in
 {
   imports = [ ./hardware.nix agenix.nixosModules.age ];
