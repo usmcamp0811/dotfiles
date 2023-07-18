@@ -14,7 +14,6 @@ in
 {
   imports = [ 
     ./hardware.nix
-    apps/agenix
   ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
@@ -49,7 +48,7 @@ in
     
   };
 
-  age.secrets."test" = {
+  agenix.secrets."test" = {
     # wether secrets are symlinked to age.secrets.<name>.path
     symlink = true;
     # target path for decrypted file
