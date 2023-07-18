@@ -52,14 +52,6 @@ in
   };
 
   campground.services = {
-  systemd.services."my-service" = {
-  description = "My Service";
-  wantedBy = [ "multi-user.target" ];
-  serviceConfig = {
-    ExecStart = "${pkgs.my-package}/bin/my-program";
-    EnvironmentFile = "/secret-tst";
-  };
-};
     vault-agent = {
       enable = true;
 
@@ -105,8 +97,8 @@ in
                   {{ .Data.value }}
                   {{ end }}
                 '';
-                path = "/campground";
-                permissions = "0400";
+                path = "/test";
+                permissions = "0700";
               };
             };
           };
