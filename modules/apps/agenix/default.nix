@@ -9,12 +9,7 @@ let
     ref = "master"; 
     rev = "57228b7bbd48b88a6660f6d2a9540be893e76976"; 
   };
-  agenix = import (pkgs.fetchFromGitHub {
-    owner = "ryantm";
-    repo = "agenix";
-    rev = "v0.9.4"; # replace with the version you want
-    sha256 = "0x3d45zcqpai6jr3d68jhl2vcwavyflvrh7iksk3ppqpv6m0sy2s"; # replace with the correct hash
-  }) {};
+  agenix = "github:ryantm/agenix";
 in
 {
   options.campground.apps.agenix = with types; {
