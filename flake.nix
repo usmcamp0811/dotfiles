@@ -41,6 +41,10 @@
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
+    agenix = {
+      url = "github:yaxitech/ragenix";
+      flake = false;
+    };
   };
 
   outputs = inputs:
