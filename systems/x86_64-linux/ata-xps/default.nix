@@ -53,7 +53,7 @@ in
     
   };
 
-  agenix.secrets."test" = {
+  age.secrets."test" = {
     # wether secrets are symlinked to age.secrets.<name>.path
     symlink = true;
     # target path for decrypted file
