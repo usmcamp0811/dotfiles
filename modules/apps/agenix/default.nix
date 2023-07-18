@@ -9,7 +9,6 @@ let
     ref = "master"; 
     rev = "57228b7bbd48b88a6660f6d2a9540be893e76976"; 
   };
-  agenix.url = "github:ryantm/agenix";
 in
 {
   options.campground.apps.agenix = with types; {
@@ -19,7 +18,6 @@ in
   # TODO: use the rust version and also do the other way not this way.. that uses the github repo
   config =
     mkIf cfg.enable { 
-      imports = [ agenix.nixosModules.age ];
       environment.systemPackages = [ 
         (pkgs.callPackage (builtins.fetchTarball {
           url = "https://github.com/yaxitech/ragenix/archive/main.tar.gz";
