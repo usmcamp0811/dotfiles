@@ -11,7 +11,6 @@ in
   };
 
   imports = [ 
-    ./hardware.nix
      agenix.nixosModules.default
   ];
 
