@@ -1,13 +1,13 @@
-{ options, config, lib, pkgs, ... }:
+{ options, config, lib, agenix, pkgs, ... }:
 
 with lib;
 with lib.internal;
 let 
   cfg = config.campground.apps.agenix;
-  agenix = {
-    url = "github:yaxitech/ragenix";
-    flake = false;
-  };
+  # agenix = {
+  #   url = "github:yaxitech/ragenix";
+  #   flake = false;
+  # };
 in
 {
   options.campground.apps.agenix = with types; {
