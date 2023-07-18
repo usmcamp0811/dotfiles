@@ -42,6 +42,7 @@
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     sops-nix.url = "github:Mic92/sops-nix";
+    agenix.url = "github:ryantm/agenix";
     #
   };
 
