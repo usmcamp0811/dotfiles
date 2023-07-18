@@ -14,7 +14,7 @@ in
 {
   imports = [ 
     ./hardware.nix
-    nixosModules.apps/agenix.age
+    nixosModules.apps/agenix
   ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
