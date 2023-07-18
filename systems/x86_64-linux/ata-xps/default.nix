@@ -15,10 +15,10 @@ let
     shell = pkgs.zsh;
     # ... any other common settings ...
   };
-  agenix = 
-    url = "github:yaxitech/ragenix";
-    flake = false;
-  };
+  # agenix = 
+  #   url = "github:yaxitech/ragenix";
+  #   flake = false;
+  # };
 in
 {
   imports = [ ./hardware.nix agenix.nixosModules.default ];
