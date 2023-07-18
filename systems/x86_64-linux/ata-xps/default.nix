@@ -27,7 +27,8 @@ in
     };
 
     apps = {
-      agenix = enabled;
+      # agenix = enabled;
+
     };
 
     system = {
@@ -36,6 +37,7 @@ in
 
     hardware.audio = {
     };
+
   };
 
   campground.home.extraOptions = {
@@ -49,8 +51,59 @@ in
     extraGroups = ["wheel"];
   };
 
-  campground.services.openssh = {
-    
+  campground.services = {
+    vault-agent = {
+      enable = true;
+
+      settings = {
+        vault.address = "https://vault.lan.campground.com";
+        auto_auth = {
+          method = [{
+            type = "approle";
+
+            config = {
+              role_id_file_path = "/var/lib/vault/role-id";
+              secret_id_file_path = "/var/lib/vault/secret-id";
+
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+
+      services = {
+          "my-service" = {
+            settings = {
+              vault.address = "https://vault.quartz.hamho.me";
+
+              auto_auth = {
+                method = [{
+                  type = "approle";
+
+                  config = {
+                    role_id_file_path = "/var/lib/vault/role-id";
+                    secret_id_file_path = "/var/lib/vault/secret-id";
+
+                    remove_secret_id_file_after_reading = false;
+                  };
+                }];
+              };
+            };
+
+            secrets.file.files = {
+              my-secret = {
+                text = ''
+                  {{ with secret "secret/campground" }}
+                  {{ .Data.value }}
+                  {{ end }}
+                '';
+                path = "/secret-tst";
+                permissions = "0400";
+              };
+            };
+          };
+        };
+      };
   };
 
   # age.secrets."test" = {
