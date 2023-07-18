@@ -41,10 +41,11 @@
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
-    # agenix = {
-    #   url = "github:yaxitech/ragenix";
-    #   flake = false;
-    # };
+    sops-nix.url = "github:Mic92/sops-nix";
+    agenix = {
+      url = "github:yaxitech/ragenix";
+      flake = false;
+    };
     #
   };
 
@@ -73,6 +74,9 @@
 
       systems.hosts.ata-xps.modules = with inputs; [
         nixos-hardware.nixosModules.dell-xps-13-7390
+        sops-nix.nixosModules.sops
+        agenix.nixosModules.default
+
       ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
