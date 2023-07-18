@@ -19,7 +19,6 @@ in
 {
   imports = [ 
     ./hardware.nix
-    agenix.nixosModules.default
   ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
