@@ -4,6 +4,11 @@ with lib;
 with lib.internal;
 let 
   cfg = config.campground.apps.agenix;
+  mysecrets = builtins.fetchGit {
+    url = "https://gitlab.com/usmcamp0811/campground-secrets.git";
+    ref = "master"; 
+    rev = "57228b7bbd48b88a6660f6d2a9540be893e76976"; 
+  };
 in
 {
   options.campground.apps.agenix = with types; {
