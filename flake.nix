@@ -42,7 +42,7 @@
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     sops-nix.url = "github:Mic92/sops-nix";
-    agenix.url = "github:ryantm/agenix";
+    # agenix.url = "github:ryantm/agenix";
     #
   };
 
@@ -68,7 +68,7 @@
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
         sops-nix.nixosModules.sops
-        agenix.nixosModules.default
+        # agenix.nixosModules.default
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
