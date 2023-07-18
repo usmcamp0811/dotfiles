@@ -45,16 +45,6 @@
 
   outputs = inputs:
     let
-
-      # Override the agenix flake to provide a dummy legacyPackages.x86_64-linux.nix attribute
-      # agenixOverride = {
-      #   legacyPackages = {
-      #     x86_64-linux = {
-      #       nix = { };
-      #     };
-      #   };
-      # };
-      #
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
