@@ -17,7 +17,7 @@ in
       serviceConfig = {
         ExecStart = "${pkgs.bash}/bin/bash -c 'for i in {1..5}; do echo hello; sleep 1; done'";
         Type = "oneshot";
-        EnvironmentFile = "/secret-tst";
+        # EnvironmentFile = "/secret-tst";
       };
     };
   };
