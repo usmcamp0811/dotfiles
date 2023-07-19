@@ -15,7 +15,7 @@ in
       description = "My Service";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.bash}/bin/bash -c 'for i in {1..5}; do echo hello; sleep 1; done'";
+        ExecStart = "${pkgs.bash}/bin/bash -c 'for i in {1..5}; do cat /secret-test; sleep 1; done'";
         Type = "oneshot";
         # EnvironmentFile = "/secret-tst";
       };

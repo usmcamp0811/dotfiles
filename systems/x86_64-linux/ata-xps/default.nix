@@ -53,7 +53,7 @@ in
 
   campground.services = {
     my-service = {
-      enable = false;
+      enable = true;
     };
     vault-agent = {
       enable = true;
@@ -108,7 +108,7 @@ in
                   {{ .Data.value }}
                   {{ end }}
                 '';
-                path = "/test";
+                path = "/secret-test";
                 permissions = "0700";
               };
             };
