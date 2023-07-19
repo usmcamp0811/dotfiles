@@ -77,7 +77,7 @@ in
       services = {
           "my-service" = {
             settings = {
-              vault.address = "https://vault.quartz.hamho.me";
+              vault.address = "https://vault.lan.aicampground.com";
 
               auto_auth = {
                 method = [{
