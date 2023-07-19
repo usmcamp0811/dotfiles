@@ -65,8 +65,8 @@ in
             type = "approle";
 
             config = {
-              role_id_file_path = "/var/lib/vault/role-id";
-              secret_id_file_path = "/var/lib/vault/secret-id";
+              role_id_file_path = "/var/lib/vault/my-service/role-id";
+              secret_id_file_path = "/var/lib/vault/my-service/secret-id";
 
               remove_secret_id_file_after_reading = false;
             };
@@ -84,8 +84,8 @@ in
                 type = "approle";
 
                 config = {
-                  role_id_file_path = "/var/lib/vault/role-id";
-                  secret_id_file_path = "/var/lib/vault/secret-id";
+                  role_id_file_path = "/var/lib/vault/my-service/role-id";
+                  secret_id_file_path = "/var/lib/vault/my-service/secret-id";
 
                   remove_secret_id_file_after_reading = false;
                 };
