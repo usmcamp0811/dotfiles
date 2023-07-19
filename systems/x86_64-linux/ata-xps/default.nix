@@ -97,6 +97,7 @@ in
               text = ''
                 {{ with secret "secret/campground" }}
                 SECRET_TEST="{{ .Data.value }}"
+                SECRET_TEST2="{{ .Data.value2 }}"
                 {{ end }}
               '';
             };
