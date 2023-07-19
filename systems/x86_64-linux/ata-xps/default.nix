@@ -75,37 +75,35 @@ in
       };
 
       services = {
-          "my-service" = {
-            settings = {
-              vault.address = "https://vault.lan.aicampground.com";
+        "my-service" = {
+          settings = {
+            vault.address = "https://vault.lan.aicampground.com";
 
-              auto_auth = {
-                method = [{
-                  type = "approle";
+            auto_auth = {
+              method = [{
+                type = "approle";
 
-                  config = {
-                    role_id_file_path = "/var/lib/vault/role-id";
-                    secret_id_file_path = "/var/lib/vault/secret-id";
+                config = {
+                  role_id_file_path = "/var/lib/vault/role-id";
+                  secret_id_file_path = "/var/lib/vault/secret-id";
 
-                    remove_secret_id_file_after_reading = false;
-                  };
-                }];
-              };
+                  remove_secret_id_file_after_reading = false;
+                };
+              }];
             };
-            secrets.file.files = {
-              secret-test = {
-                text = ''
-                  {{ with secret "secret/campground" }}
-                  {{ .Data.value }}
-                  {{ end }}
-                '';
-                path = "/secret-test";
-                permissions = "0700";
-              };
+          };
+          secrets.environment.templates = {
+            my-service-env = {
+              text = ''
+                {{ with secret "secret/campground" }}
+                SECRET_TEST="{{ .Data.value }}"
+                {{ end }}
+              '';
             };
           };
         };
       };
+    };
   };
 
   # age.secrets."test" = {
