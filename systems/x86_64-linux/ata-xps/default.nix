@@ -92,15 +92,15 @@ in
                 }];
               };
             };
-            secrets.environment.templates = {
-              my-service-env = {
-                text = ''
-                  {{ with secret "secret/campground" }}
-                  CAMPGROUND_SECRET="{{ .Data.value }}"
-                  {{ end }}
-                '';
-              };
-            };
+            # secrets.environment.templates = {
+            #   my-service-env = {
+            #     text = ''
+            #       {{ with secret "secret/campground" }}
+            #       CAMPGROUND_SECRET="{{ .Data.value }}"
+            #       {{ end }}
+            #     '';
+            #   };
+            # };
             secrets.file.files = {
               my-secret = {
                 text = ''
