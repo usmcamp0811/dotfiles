@@ -1,13 +1,10 @@
-# How to use Hashicorp Vault to Manage Secrets on NixOS
+# How to Use Hashicorp Vault for Managing Secrets on NixOS
 
-The following is a guide describing how to securely provide secrets to a NixOS system.
-This will assume you have a Hashicorp Vault server already running and configured.
-This will also assume you have your NixOS configuration setup using [Snowfall-lib](https://github.com/snowfallorg/lib).
-Credit goes to [Jake Hamilton](https://github.com/jakehamilton) for being the person
-who actually came up with this method or was at least the person whom I am directly 
-mimicking with my configuration.
+This guide will walk you through the process of securely providing secrets to a NixOS system using Hashicorp Vault. It assumes that you already have a Hashicorp Vault server up and running, and that your NixOS configuration is set up using [Snowfall-lib](https://github.com/snowfallorg/lib). The method described here is inspired by [Jake Hamilton](https://github.com/jakehamilton).
 
-## Create Policy
+## Creating a Policy
+
+First, create a policy using the following code:
 
 ```hcl
 path "secret/campground" {
@@ -15,48 +12,47 @@ path "secret/campground" {
 }
 ```
 
+Then, write the policy to the vault:
+
 ```bash
 vault policy write campground-policy campground_secrets.hcl
 ```
 
-## Create an Authentication Method
+## Setting Up an Authentication Method
 
-Need to enable `approle` authentication.
+Next, enable the `approle` authentication method and write the role:
 
 ```bash
 vault auth enable approle
 vault write auth/approle/role/campground-role policies=campground-policy
 ```
 
+## Obtaining the Role ID and Secret ID
 
-## Get the role ID and the Secret ID
-
-These commands will output the role ID and secret ID, respectively. 
-You'll need to provide these to your application, for example by writing 
-them to the /role_id and /secret_id files as in the previous example.
+Use the following commands to obtain the role ID and secret ID:
 
 ```bash
 vault read auth/approle/role/campground-role/role-id
 vault write -f auth/approle/role/campground-role/secret-id
 ```
 
-## Write the Secrets
+These IDs will be needed by your application. You can provide them by writing them to the /role_id and /secret_id files.
+
+## Writing the Secrets
+
+To write the secrets, use the following command:
 
 ```bash
 vault kv put secret/campground value=my-super-secret-value
 ```
 
-# How to use Vault Secrets in NixOS System
+# Using Vault Secrets in a NixOS System
 
-We are able to use the above secret in systemd services using [nixos-vault-service](https://github.com/determinatesystems/nixos-vault-service).
-This `nixos-vault-service` does this by just patching systemd services. 
+You can use the secrets in systemd services with the help of [nixos-vault-service](https://github.com/determinatesystems/nixos-vault-service), which patches systemd services.
 
-## Create Service
+## Creating a Service
 
-For the purpose of this example we need to create a service to use our secrets. In the 
-context of how my dotfiles are configured (using [Snowfall-lib](https://github.com/snowfallorg/lib)),
-we need to create a folder for our service in `./modules/services/<service-name>`. The service
-is then defined with the following file.
+For this example, we'll create a service to use our secrets. In the context of how my dotfiles are configured (using [Snowfall-lib](https://github.com/snowfallorg/lib)), we need to create a folder for our service in `./modules/services/<service-name>`. The service is then defined with the following file:
 
 *default.nix*
 
@@ -86,10 +82,9 @@ in
 }
 ```
 
-## Enable Service
+## Enabling the Service
 
-In side your system configuration file (`./systems/x86_64-linux/ata-xps`) you will need to enable the service. 
-The following a excerpt from the system config to show what this would look like.
+To enable the service, you need to modify your system configuration file (`./systems/x86_64-linux/ata-xps`). Here's an excerpt from the system config showing how to do this:
 
 ```nix
 # ... more code ...
@@ -103,10 +98,9 @@ The following a excerpt from the system config to show what this would look like
 
 ```
 
-## Patch Services with Vault Secrets
+## Patching Services with Vault Secrets
 
-To do this is pretty simple given you have the `vault-agent` service found at `./modules/services/vault-agent/default.nix`
-
+To patch services with Vault secrets, you need to have the `vault-agent` service found at `./modules/services/vault-agent/default.nix`. Here's how to do it:
 
 ```nix
 # ... more code ...
@@ -149,7 +143,4 @@ To do this is pretty simple given you have the `vault-agent` service found at `.
 # ... more services and code ...
 ```
 
-Things to take note of in the above code block, `role_id_file_path` and `secret_id_file_path` are
-files with just the token output from the above vault command. It is what the system uses to
-authenticate with the Vault. These will need to be pre-deployed to your target system.
-
+Please note that `role_id_file_path` and `secret_id_file_path` are files containing the token output from the above vault command. The system uses these to authenticate with the Vault. These files need to be pre-deployed to your target system.
