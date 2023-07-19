@@ -6,6 +6,10 @@ let
   cfg = config.campground.services.openssh;
 in
 {
+  options.campground.services.openssh = with types; {
+    enable = mkBoolOpt false "Whether or not to configure my-service support.";
+  };
+
   config = mkIf cfg.enable {
 
     my-service = {
