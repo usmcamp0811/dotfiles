@@ -3,16 +3,15 @@
 with lib;
 with lib.internal;
 let
-  cfg = config.campground.services.openssh;
+  cfg = config.campground.services.my-service;
 in
 {
-  options.campground.services.openssh = with types; {
-    enable = mkBoolOpt false "Whether or not to configure my-service support.";
+  options.campground.services.my-service = with types; {
+    enable = mkBoolOpt false "Whether or not to enable my-service.";
   };
 
   config = mkIf cfg.enable {
-
-    my-service = {
+    systemd.services."my-service" = {
       description = "My Service";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
@@ -21,6 +20,6 @@ in
         EnvironmentFile = "/secret-tst";
       };
     };
-
   };
 }
+
