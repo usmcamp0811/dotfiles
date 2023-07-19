@@ -58,21 +58,21 @@ in
     vault-agent = {
       enable = true;
 
-      settings = {
-        vault.address = "https://vault.lan.campground.com";
-        auto_auth = {
-          method = [{
-            type = "approle";
-
-            config = {
-              role_id_file_path = "/var/lib/vault/my-service/role-id";
-              secret_id_file_path = "/var/lib/vault/my-service/secret-id";
-
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
-        };
-      };
+      # settings = {
+      #   vault.address = "https://vault.lan.campground.com";
+      #   auto_auth = {
+      #     method = [{
+      #       type = "approle";
+      #
+      #       config = {
+      #         role_id_file_path = "/var/lib/vault/my-service/role-id";
+      #         secret_id_file_path = "/var/lib/vault/my-service/secret-id";
+      #
+      #         remove_secret_id_file_after_reading = false;
+      #       };
+      #     }];
+      #   };
+      # };
 
       services = {
         "my-service" = {
