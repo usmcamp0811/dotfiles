@@ -53,7 +53,7 @@ in
 
   campground.services = {
     my-service = {
-      enable = true;
+      enable = false;
     };
     vault-agent = {
       enable = true;
