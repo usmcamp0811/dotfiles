@@ -52,6 +52,7 @@ in
   };
 
   campground.services = {
+    my-service = enabled; 
     vault-agent = {
       enable = true;
 
