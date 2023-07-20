@@ -49,7 +49,7 @@ in
     vault-agent = {
       enable = true;
       services = {
-        "ldap-client" = {
+        sssd = {
           settings = {
             vault.address = "https://vault.lan.aicampground.com";
             auto_auth = {
