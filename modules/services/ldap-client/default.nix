@@ -32,7 +32,7 @@ domains = default
 enumerate = true
 id_provider = ldap
 sudo_provider = ldap
-ldap_uri = ${ldap_uri}
+ldap_uri = ${cfg.ldap_uri}
 
 [domain/default]
 auth_provider = ldap
@@ -40,11 +40,11 @@ chpass_provider = ldap
 cache_credentials = True
 debug_timestamps = True
 ldap_default_authtok_type = password
-ldap_search_base = ${ldap_search_base}
-ldap_sudo_search_base = ou=sudoers,${ldap_search_base}
+ldap_search_base = ${cfg.ldap_search_base}
+ldap_sudo_search_base = ou=sudoers,${cfg.ldap_search_base}
 debug_level = 3
 min_id = 100
-ldap_uri = ${ldap_uri}
+ldap_uri = ${cfg.ldap_uri}
 
 id_provider = ldap
 sudo_provider = ldap
