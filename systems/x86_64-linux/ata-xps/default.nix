@@ -9,11 +9,6 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-  mysecrets = builtins.fetchGit {
-    url = "https://gitlab.com/usmcamp0811/campground-secrets.git";
-    ref = "master"; 
-    rev = "57228b7bbd48b88a6660f6d2a9540be893e76976"; 
-  };
 in
 {
   imports = [ 
@@ -49,32 +44,29 @@ in
   };
 
   campground.services = {
-    my-service = {
-      enable = true;
-    };
+    secret-service = enabled;
     vault-agent = {
       enable = true;
       services = {
-        "my-service" = {
+        "secret-service" = {
           settings = {
             vault.address = "https://vault.lan.aicampground.com";
             auto_auth = {
               method = [{
                 type = "approle";
                 config = {
-                  role_id_file_path = "/var/lib/vault/my-service/role-id";
-                  secret_id_file_path = "/var/lib/vault/my-service/secret-id";
+                  role_id_file_path = "/var/lib/vault/secret-service/role-id";
+                  secret_id_file_path = "/var/lib/vault/secret-service/secret-id";
                   remove_secret_id_file_after_reading = false;
                 };
               }];
             };
           };
           secrets.environment.templates = {
-            my-service-env = {
+            secret-service-env = {
               text = ''
                 {{ with secret "secret/campground" }}
-                SECRET_TEST="{{ .Data.value }}"
-                SECRET_TEST2="{{ .Data.value2 }}"
+                YANKEE_WHITE="{{ .Data.value }}"
                 {{ end }}
               '';
             };
