@@ -63,8 +63,6 @@
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
-        sops-nix.nixosModules.sops
-        # agenix.nixosModules.default
       ];
 
       systems.hosts.ata-xps.modules = with inputs; [
