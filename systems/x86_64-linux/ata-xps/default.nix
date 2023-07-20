@@ -56,8 +56,8 @@ in
               method = [{
                 type = "approle";
                 config = {
-                  role_id_file_path = "/var/lib/vault/sssd/role-id";
-                  secret_id_file_path = "/var/lib/vault/sssd/secret-id";
+                  role_id_file_path = "/var/lib/vault/ldap-client/role-id";
+                  secret_id_file_path = "/var/lib/vault/ldap-client/secret-id";
                   remove_secret_id_file_after_reading = false;
                 };
               }];
@@ -66,7 +66,7 @@ in
           secrets = {
             file = {
               files = {
-                sssd-conf = {
+                "ldap_ca.pem" = {
                   text = ''
                     {{ with secret "secret/campground/ldap" }}
                     {{ .Data.ldap_ca.cert.pem }}
