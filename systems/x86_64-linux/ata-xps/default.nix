@@ -82,6 +82,10 @@ in
                   '';
                   permissions = "0400";
                   change-action = "restart";
+                  path = {
+                    readOnly = true;
+                    default = "/secret-file";
+                  };
                 };
               };
             };
