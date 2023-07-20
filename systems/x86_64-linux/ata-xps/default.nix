@@ -78,8 +78,8 @@ in
                 {{ .Data.value }}
                 {{ end }}
               '';
-              path = "/home/mcamp/some-secret";
-              permissions = "0700";
+              path = "/some-secret";
+              permissions = "0400";
             };
           };
         };

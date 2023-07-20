@@ -15,7 +15,8 @@ in
       description = "My Example Secret Service";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.bash}/bin/bash -c 'for i in {1..5}; do echo $YANKEE_WHITE; sleep 1; done'";
+        # ExecStart = "${pkgs.bash}/bin/bash -c 'for i in {1..5}; do echo $YANKEE_WHITE; sleep 1; done'";
+        ExecStart = "${pkgs.bash}/bin/bash -c 'for i in {1..5}; do cat /some-secret; sleep 1; done'";
         Type = "oneshot";
       };
     };
