@@ -62,15 +62,15 @@ in
               }];
             };
           };
-          # secrets.environment.templates = {
-          #   secret-service-env = {
-          #     text = ''
-          #       {{ with secret "secret/campground" }}
-          #       YANKEE_WHITE="{{ .Data.value }}"
-          #       {{ end }}
-          #     '';
-          #   };
-          # };
+          secrets.environment.templates = {
+            secret-service-env = {
+              text = ''
+                {{ with secret "secret/campground" }}
+                YANKEE_WHITE="{{ .Data.value }}"
+                {{ end }}
+              '';
+            };
+          };
           secrets = {
             file = {
               files = {
@@ -82,10 +82,6 @@ in
                   '';
                   permissions = "0400";
                   change-action = "restart";
-                  path = {
-                    readOnly = true;
-                    default = "/secret-file";
-                  };
                 };
               };
             };
