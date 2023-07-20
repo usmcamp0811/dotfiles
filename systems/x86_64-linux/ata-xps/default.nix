@@ -71,15 +71,19 @@ in
           #     '';
           #   };
           # };
-          secrets.file.files = {
-            secret-service-file = {
-              file = ''
-                {{ with secret "secret/campground" }}
-                {{ .Data.value }}
-                {{ end }}
-              '';
-              change-action = "restart";
-              permissions = "0400";
+          secrets = {
+            file = {
+              files = {
+                my-secret-file = {
+                  text = ''
+                    {{ with secret "secret/campground" }}
+                    value="{{ .Data.value }}"
+                    {{ end }}
+                  '';
+                  permissions = "0400";
+                  change-action = "restart";
+                };
+              };
             };
           };
         };
