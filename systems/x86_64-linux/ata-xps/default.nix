@@ -8,7 +8,6 @@ let
     createHome = true;
     home = "/home/${name}";
     shell = pkgs.zsh;
-    # ... any other common settings ...
   };
   mysecrets = builtins.fetchGit {
     url = "https://gitlab.com/usmcamp0811/campground-secrets.git";
@@ -27,8 +26,6 @@ in
     };
 
     apps = {
-      # agenix = enabled;
-
     };
 
     system = {
@@ -57,36 +54,16 @@ in
     };
     vault-agent = {
       enable = true;
-
-      # settings = {
-      #   vault.address = "https://vault.lan.campground.com";
-      #   auto_auth = {
-      #     method = [{
-      #       type = "approle";
-      #
-      #       config = {
-      #         role_id_file_path = "/var/lib/vault/my-service/role-id";
-      #         secret_id_file_path = "/var/lib/vault/my-service/secret-id";
-      #
-      #         remove_secret_id_file_after_reading = false;
-      #       };
-      #     }];
-      #   };
-      # };
-
       services = {
         "my-service" = {
           settings = {
             vault.address = "https://vault.lan.aicampground.com";
-
             auto_auth = {
               method = [{
                 type = "approle";
-
                 config = {
                   role_id_file_path = "/var/lib/vault/my-service/role-id";
                   secret_id_file_path = "/var/lib/vault/my-service/secret-id";
-
                   remove_secret_id_file_after_reading = false;
                 };
               }];
@@ -107,17 +84,6 @@ in
     };
   };
 
-  # age.secrets."test" = {
-  #   # wether secrets are symlinked to age.secrets.<name>.path
-  #   symlink = true;
-  #   # target path for decrypted file
-  #   path = "/etc/some-secret-file";
-  #   # encrypted file path
-  #   file =  "${mysecrets}/test.age";  # refer to ./xxx.age located in `mysecrets` repo
-  #   mode = "0400";
-  #   owner = "root";
-  #   group = "root";
-  # };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
