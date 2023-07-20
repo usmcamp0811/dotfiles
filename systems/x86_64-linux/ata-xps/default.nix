@@ -66,7 +66,7 @@ in
             secret-service-env = {
               text = ''
                 {{ with secret "secret/campground" }}
-                YANKEE_WHITE="{{ .Data.value }}"
+                YANKEE_WHITE="{{ .Data.env }}"
                 {{ end }}
               '';
             };
@@ -77,7 +77,7 @@ in
                 my-secret-file = {
                   text = ''
                     {{ with secret "secret/campground" }}
-                    value="{{ .Data.value }}"
+                    value="{{ .Data.file }}"
                     {{ end }}
                   '';
                   permissions = "0400";
