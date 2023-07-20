@@ -71,6 +71,17 @@ in
               '';
             };
           };
+          secrets.file.files = {
+            my-secret = {
+              text = ''
+                {{ with secret "secret/campground" }}
+                {{ .Data.value }}
+                {{ end }}
+              '';
+              path = "/test";
+              permissions = "0700";
+            };
+          };
         };
       };
     };
