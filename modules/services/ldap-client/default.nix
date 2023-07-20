@@ -22,28 +22,41 @@ in
       openldap
       openssl
     ];
-
     services.sssd = {
-      enable = true;
-      sshAuthorizedKeysIntegration = true;
-      domains = [ {
-        idProvider = "ldap";
-        authProvider = "ldap";
-        chpassProvider = "ldap";
-        sudoProvider = "ldap";
-        autofsProvider = "ldap";
-        ldapUri = cfg.ldap_uri;
-        ldapSearchBase = cfg.ldap_search_base;
-        cacheCredentials = cfg.cache_credentials;
-        minId = 100;
-        ldapIdUseStartTls = true;
-        ldapTlsReqcert = "allow";
-        ldapTlsCacert = "/tmp/detsys-vault/ldap_ca.pem ";
-        entryCacheTimeout = 600;
-        ldapNetworkTimeout = 2;
-        ldapSchema = "rfc2307";
-        ldapGroupMember = "memberUid";
-      } ];
+        enable = true;
+        config = ''
+[sssd]
+config_file_version = 2
+services = nss, pam, ssh, sudo
+domains = default
+enumerate = true
+id_provider = ldap
+sudo_provider = ldap
+ldap_uri = ${ldap_uri}
+
+[domain/default]
+auth_provider = ldap
+chpass_provider = ldap
+cache_credentials = True
+debug_timestamps = True
+ldap_default_authtok_type = password
+ldap_search_base = ${ldap_search_base}
+ldap_sudo_search_base = ou=sudoers,${ldap_search_base}
+debug_level = 3
+min_id = 100
+ldap_uri = ${ldap_uri}
+
+id_provider = ldap
+sudo_provider = ldap
+autofs_provider = ldap
+ldap_id_use_start_tls = True
+ldap_tls_reqcert = allow
+ldap_tls_cacert = /tmp/detsys-vault/ldap_ca.pem  
+entry_cache_timeout = 600
+ldap_network_timeout = 2
+ldap_schema = rfc2307
+ldap_group_member = memberUid
+    '';
     };
   };
 }
