@@ -73,12 +73,12 @@ in
           # };
           secrets.file.files = {
             secret-service-file = {
-              text = ''
+              file = ''
                 {{ with secret "secret/campground" }}
                 {{ .Data.value }}
                 {{ end }}
               '';
-              path = "/some-secret";
+              change-action = "restart";
               permissions = "0400";
             };
           };
