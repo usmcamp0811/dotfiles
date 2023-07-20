@@ -72,13 +72,13 @@ in
             };
           };
           secrets.file.files = {
-            my-secret = {
+            secret-service-file = {
               text = ''
                 {{ with secret "secret/campground" }}
                 {{ .Data.value }}
                 {{ end }}
               '';
-              path = "/test";
+              path = "/home/mcamp/some-secret";
               permissions = "0700";
             };
           };
