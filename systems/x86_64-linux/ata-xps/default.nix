@@ -62,15 +62,15 @@ in
               }];
             };
           };
-          secrets.environment.templates = {
-            secret-service-env = {
-              text = ''
-                {{ with secret "secret/campground" }}
-                YANKEE_WHITE="{{ .Data.value }}"
-                {{ end }}
-              '';
-            };
-          };
+          # secrets.environment.templates = {
+          #   secret-service-env = {
+          #     text = ''
+          #       {{ with secret "secret/campground" }}
+          #       YANKEE_WHITE="{{ .Data.value }}"
+          #       {{ end }}
+          #     '';
+          #   };
+          # };
           secrets.file.files = {
             secret-service-file = {
               text = ''
