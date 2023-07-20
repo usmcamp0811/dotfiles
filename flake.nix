@@ -40,10 +40,6 @@
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
-
-    sops-nix.url = "github:Mic92/sops-nix";
-    # agenix.url = "github:ryantm/agenix";
-    #
   };
 
   outputs = inputs:
