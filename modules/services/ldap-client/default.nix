@@ -24,8 +24,10 @@ in
       openssl
     ];
 
-    services.sssd.enable = true;
-    services.sssd.sshAuthorizedKeysIntegration = true;
-    services.sssd.environmentFile = ./sssd.conf;
+    services.sssd = {
+      enable = true;
+      sshAuthorizedKeysIntegration = true;
+      environmentFile = ./sssd.conf;
+    };
   };
 }
