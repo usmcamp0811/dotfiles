@@ -144,3 +144,6 @@ To patch services with Vault secrets, you need to have the `vault-agent` service
 ```
 
 Please note that `role_id_file_path` and `secret_id_file_path` are files containing the token output from the above vault command. The system uses these to authenticate with the Vault. These files need to be pre-deployed to your target system.
+
+**Additional Notes as I learn things:**
+- Keys in KV secrets probably should not contain `.` in them else you might have a hard time putting them into variables or files.
