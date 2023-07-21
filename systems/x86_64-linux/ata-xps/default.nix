@@ -25,19 +25,21 @@ in
 
     system = {
       boot = enabled;
-      wifi.networks = {
-        SkyNet5 = {
-          ssid = "SkyNet5";
-          password = "password";
-          enable = true;
-        };
-        SkyNet = {
-          ssid = "SkyNet";
-          password = "password";
-          enable = false;
+      wifi = {
+        enable = true;
+        networks = {
+          SkyNet5 = {
+            ssid = "SkyNet5";
+            password = builtins.readFile "/run/secrets/wifi-password-SkyNet5";
+            enable = true;
+          };
+          SkyNet = {
+            ssid = "SkyNet";
+            password = builtins.readFile "/run/secrets/wifi-password-SkyNet";
+            enable = false;
+          };
         };
       };
-      
     };
 
     hardware.audio = {
@@ -92,45 +94,84 @@ in
             };
           };
         };
-        # "secret-service" = {
-        #   settings = {
-        #     vault.address = "https://vault.lan.aicampground.com";
-        #     auto_auth = {
-        #       method = [{
-        #         type = "approle";
-        #         config = {
-        #           role_id_file_path = "/var/lib/vault/secret-service/role-id";
-        #           secret_id_file_path = "/var/lib/vault/secret-service/secret-id";
-        #           remove_secret_id_file_after_reading = false;
-        #         };
-        #       }];
-        #     };
-        #   };
-        #   secrets.environment.templates = {
-        #     secret-service-env = {
-        #       text = ''
-        #         {{ with secret "secret/campground" }}
-        #         YANKEE_WHITE="{{ .Data.env }}"
-        #         {{ end }}
-        #       '';
-        #     };
-        #   };
-        #   secrets = {
-        #     file = {
-        #       files = {
-        #         my-secret-file = {
-        #           text = ''
-        #             {{ with secret "secret/campground" }}
-        #             value="{{ .Data.file }}"
-        #             {{ end }}
-        #           '';
-        #           permissions = "0400";
-        #           change-action = "restart";
-        #         };
-        #       };
-        #     };
-        #   };
-        # };
+        "secret-service" = {
+          settings = {
+            vault.address = "https://vault.lan.aicampground.com";
+            auto_auth = {
+              method = [{
+                type = "approle";
+                config = {
+                  role_id_file_path = "/var/lib/vault/secret-service/role-id";
+                  secret_id_file_path = "/var/lib/vault/secret-service/secret-id";
+                  remove_secret_id_file_after_reading = false;
+                };
+              }];
+            };
+          };
+          secrets.environment.templates = {
+            secret-service-env = {
+              text = ''
+                {{ with secret "secret/campground" }}
+                YANKEE_WHITE="{{ .Data.env }}"
+                {{ end }}
+              '';
+            };
+          };
+          secrets = {
+            file = {
+              files = {
+                my-secret-file = {
+                  text = ''
+                    {{ with secret "secret/campground" }}
+                    value="{{ .Data.file }}"
+                    {{ end }}
+                  '';
+                  permissions = "0400";
+                  change-action = "restart";
+                };
+              };
+            };
+          };
+        };
+        wifi = {
+          settings = {
+            vault.address = "https://vault.lan.aicampground.com";
+            auto_auth = {
+              method = [{
+                type = "approle";
+                config = {
+                  role_id_file_path = "/var/lib/vault/wifi/role-id";
+                  secret_id_file_path = "/var/lib/vault/wifi/secret-id";
+                  remove_secret_id_file_after_reading = false;
+                };
+              }];
+            };
+          };
+          secrets = {
+            file = {
+              files = {
+                "wifi-password-SkyNet" = {
+                  text = ''
+                    {{ with secret "secret/campground/wifi" }}
+                    {{ .Data.SkyNet }}
+                    {{ end }}
+                  '';
+                  permissions = "0400";
+                  change-action = "restart";
+                };
+                "wifi-password-SkyNet5" = {
+                  text = ''
+                    {{ with secret "secret/campground/wifi" }}
+                    {{ .Data.SkyNet5 }}
+                    {{ end }}
+                  '';
+                  permissions = "0400";
+                  change-action = "restart";
+                };
+              };
+            };
+          };
+        };
       };
     };
   };
