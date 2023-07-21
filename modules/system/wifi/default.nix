@@ -7,7 +7,7 @@ in
 {
   options.campground.system.wiki = with types; {
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
-    wifiNetworks = mkOption {
+    networks = mkOption {
       type = attrsOf (submodule {
         options = {
           ssid = mkOption {

@@ -25,6 +25,19 @@ in
 
     system = {
       boot = enabled;
+      wifi.networks = {
+        SkyNet5 = {
+          ssid = "SkyNet5";
+          password = "password";
+          enable = true;
+        };
+        SkyNet = {
+          ssid = "SkyNet";
+          password = "password";
+          enable = false;
+        };
+      };
+      
     };
 
     hardware.audio = {
