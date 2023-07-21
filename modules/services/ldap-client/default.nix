@@ -17,6 +17,7 @@ in
 
   config = mkIf cfg.enable {
 
+    system.activationScripts.binzsh = "ln -sf /run/current-system/sw/bin/zsh /bin/zsh";
     environment.systemPackages = with pkgs; [
       sssd
       openldap
