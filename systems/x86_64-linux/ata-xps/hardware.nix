@@ -25,6 +25,13 @@
       fsType = "vfat";
     };
 
+  # NFS Mounts
+  fileSystems."/mnt/campfs" = {
+    device = "campfs.campground.lan:/mnt/campfs";
+    fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" ];
+  };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
