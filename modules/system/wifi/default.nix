@@ -42,7 +42,7 @@ in
         Type = "oneshot";
       };
     };
-    campground.services.vault-agent.services.wifi = {
+    campground.services.vault-agent.services."wifi-passwords" = {
       settings = {
         vault.address = "https://vault.lan.aicampground.com";
         auto_auth = {
