@@ -26,20 +26,6 @@ in
 
     system = {
       boot = enabled;
-      wifi = {
-        enable = true;
-        # unmanagedInterfaces = [ "wlan0" ];
-        networks = {
-          SkyNet5 = {
-            ssid = "SkyNet5";
-            enable = true;
-          };
-          SkyNet = {
-            ssid = "SkyNet";
-            enable = false;
-          };
-        };
-      };
     };
 
     hardware.audio = {
@@ -85,45 +71,6 @@ in
                   text = ''
                     {{ with secret "secret/campground/ldap" }}
                     {{ .Data.ldap_ca }}
-                    {{ end }}
-                  '';
-                  permissions = "0400";
-                  change-action = "restart";
-                };
-              };
-            };
-          };
-        };
-        "secret-service" = {
-          settings = {
-            vault.address = "https://vault.lan.aicampground.com";
-            auto_auth = {
-              method = [{
-                type = "approle";
-                config = {
-                  role_id_file_path = "/var/lib/vault/secret-service/role-id";
-                  secret_id_file_path = "/var/lib/vault/secret-service/secret-id";
-                  remove_secret_id_file_after_reading = false;
-                };
-              }];
-            };
-          };
-          secrets.environment.templates = {
-            secret-service-env = {
-              text = ''
-                {{ with secret "secret/campground" }}
-                YANKEE_WHITE="{{ .Data.env }}"
-                {{ end }}
-              '';
-            };
-          };
-          secrets = {
-            file = {
-              files = {
-                my-secret-file = {
-                  text = ''
-                    {{ with secret "secret/campground" }}
-                    value="{{ .Data.file }}"
                     {{ end }}
                   '';
                   permissions = "0400";
