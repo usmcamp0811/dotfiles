@@ -56,8 +56,8 @@ in
               method = [{
                 type = "approle";
                 config = {
-                  role_id_file_path = "/var/lib/vault/ldap-client/role-id";
-                  secret_id_file_path = "/var/lib/vault/ldap-client/secret-id";
+                  role_id_file_path = "/var/lib/vault/sssd/role-id";
+                  secret_id_file_path = "/var/lib/vault/sssd/secret-id";
                   remove_secret_id_file_after_reading = false;
                 };
               }];
@@ -79,45 +79,45 @@ in
             };
           };
         };
-        "secret-service" = {
-          settings = {
-            vault.address = "https://vault.lan.aicampground.com";
-            auto_auth = {
-              method = [{
-                type = "approle";
-                config = {
-                  role_id_file_path = "/var/lib/vault/secret-service/role-id";
-                  secret_id_file_path = "/var/lib/vault/secret-service/secret-id";
-                  remove_secret_id_file_after_reading = false;
-                };
-              }];
-            };
-          };
-          secrets.environment.templates = {
-            secret-service-env = {
-              text = ''
-                {{ with secret "secret/campground" }}
-                YANKEE_WHITE="{{ .Data.env }}"
-                {{ end }}
-              '';
-            };
-          };
-          secrets = {
-            file = {
-              files = {
-                my-secret-file = {
-                  text = ''
-                    {{ with secret "secret/campground" }}
-                    value="{{ .Data.file }}"
-                    {{ end }}
-                  '';
-                  permissions = "0400";
-                  change-action = "restart";
-                };
-              };
-            };
-          };
-        };
+        # "secret-service" = {
+        #   settings = {
+        #     vault.address = "https://vault.lan.aicampground.com";
+        #     auto_auth = {
+        #       method = [{
+        #         type = "approle";
+        #         config = {
+        #           role_id_file_path = "/var/lib/vault/secret-service/role-id";
+        #           secret_id_file_path = "/var/lib/vault/secret-service/secret-id";
+        #           remove_secret_id_file_after_reading = false;
+        #         };
+        #       }];
+        #     };
+        #   };
+        #   secrets.environment.templates = {
+        #     secret-service-env = {
+        #       text = ''
+        #         {{ with secret "secret/campground" }}
+        #         YANKEE_WHITE="{{ .Data.env }}"
+        #         {{ end }}
+        #       '';
+        #     };
+        #   };
+        #   secrets = {
+        #     file = {
+        #       files = {
+        #         my-secret-file = {
+        #           text = ''
+        #             {{ with secret "secret/campground" }}
+        #             value="{{ .Data.file }}"
+        #             {{ end }}
+        #           '';
+        #           permissions = "0400";
+        #           change-action = "restart";
+        #         };
+        #       };
+        #     };
+        #   };
+        # };
       };
     };
   };

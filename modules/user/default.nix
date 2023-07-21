@@ -121,6 +121,11 @@ in
           #     [ -r "$file" ] && source "$file"
           # done
 
+          if [ -n "${commands[fzf-share]}" ]; then
+            source "$(fzf-share)/key-bindings.zsh"
+            source "$(fzf-share)/completion.zsh"
+          fi
+
           source /home/${cfg.name}/.config/shell/zsh/theme
 
         '';
