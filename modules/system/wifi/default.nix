@@ -27,7 +27,7 @@ in
     };
   };
   config = mkIf cfg.enable {
-    networking.networkmanager.unmanaged = cfg.unmanagedInterfaces;
+    # networking.networkmanager.unmanaged = cfg.unmanagedInterfaces;
     # networking.wireless.enable = true;
     # networking.wireless.environmentFile = cfg.environmentFile;
     # networking.wireless.networks = lib.mapAttrs (name: network: {
