@@ -26,6 +26,7 @@ in
 
     system = {
       boot = enabled;
+      wifi = enabled;
     };
 
     hardware.audio = {
