@@ -14,10 +14,6 @@ in
             type = str;
             description = "The SSID of the WiFi network.";
           };
-          password = mkOption {
-            type = str;
-            description = "The password for the WiFi network.";
-          };
           enable = mkOption {
             type = bool;
             default = false;
@@ -31,8 +27,10 @@ in
   };
   config = mkIf cfg.enable {
     networking.wireless.enable = true;
+    networking.wireless.environmentFile = "/tmp/detsys-vault/wifi-passwords";
     networking.wireless.networks = lib.mapAttrs (name: network: {
-      psk = network.password;
+      psk = "@${name}@";
     }) (lib.filterAttrs (_: network: network.enable) cfg.networks);
   };
 }
+

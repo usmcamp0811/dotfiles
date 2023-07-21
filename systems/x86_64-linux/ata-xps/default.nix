@@ -31,12 +31,10 @@ in
         networks = {
           SkyNet5 = {
             ssid = "SkyNet5";
-            password = "skynet_password5";
             enable = true;
           };
           SkyNet = {
             ssid = "SkyNet";
-            password = "skynet_password";
             enable = false;
           };
         };
@@ -150,21 +148,11 @@ in
           };
           secrets = {
             file = {
-              files = {
-                "wifi-password-SkyNet" = {
+              files = { 
+                "wifi-passwords" = {
                   text = ''
-                    {{ with secret "secret/campground/wifi" }}
-                    {{ .Data.SkyNet }}
-                    {{ end }}
-                  '';
-                  permissions = "0400";
-                  change-action = "restart";
-                };
-                "wifi-password-SkyNet5" = {
-                  text = ''
-                    {{ with secret "secret/campground/wifi" }}
-                    {{ .Data.SkyNet5 }}
-                    {{ end }}
+                    SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
+                    SkyNet5={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet5 }}{{ end }}
                   '';
                   permissions = "0400";
                   change-action = "restart";
