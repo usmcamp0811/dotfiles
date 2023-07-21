@@ -133,7 +133,7 @@ in
             };
           };
         };
-        wpa_supplicant = {
+        "wifi-passwords" = {
           settings = {
             vault.address = "https://vault.lan.aicampground.com";
             auto_auth = {
