@@ -17,6 +17,7 @@ in
 
   config = mkIf cfg.enable {
 
+    # NOTE! This is super duper important or else you wont be able to login as an LDAP user!!!! 
     system.activationScripts.binzsh = "ln -sf /run/current-system/sw/bin/zsh /usr/bin/zsh";
     environment.systemPackages = with pkgs; [
       sssd
