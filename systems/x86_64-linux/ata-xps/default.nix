@@ -10,8 +10,6 @@ let
     shell = pkgs.zsh;
   };
 
-  skynet_password = builtins.readFile "/run/secrets/wifi-password-SkyNet";
-  skynet5_password = builtins.readFile "/run/secrets/wifi-password-SkyNet5";
 in
 {
   imports = [ 
@@ -33,12 +31,12 @@ in
         networks = {
           SkyNet5 = {
             ssid = "SkyNet5";
-            password = skynet_password5;
+            password = "skynet_password5";
             enable = true;
           };
           SkyNet = {
             ssid = "SkyNet";
-            password = skynet_password;
+            password = "skynet_password";
             enable = false;
           };
         };
