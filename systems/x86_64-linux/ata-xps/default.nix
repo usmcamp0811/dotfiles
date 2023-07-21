@@ -36,7 +36,7 @@ in
   };
 
   campground.user = {
-    name = "mcamp";
+    name = "abe";
     fullName = "Matt Camp";
     email = "matt@aicampground.com";
     initialPassword = "password";
