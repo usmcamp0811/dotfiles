@@ -28,6 +28,7 @@ in
       boot = enabled;
       wifi = {
         enable = true;
+        unmanagedInterfaces = [ "wlan0" ];
         networks = {
           SkyNet5 = {
             ssid = "SkyNet5";
