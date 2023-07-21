@@ -35,9 +35,18 @@ in
     networking.networkmanager.unmanaged = cfg.unmanagedInterfaces;
     # networking.wireless.enable = true;
     # networking.wireless.environmentFile = cfg.environmentFile;
-    networking.wireless.networks = lib.mapAttrs (name: network: {
-      psk = "@${name}@";
-    }) (lib.filterAttrs (_: network: network.enable) cfg.networks);
+    # networking.wireless.networks = lib.mapAttrs (name: network: {
+    #   psk = "@${name}@";
+    # }) (lib.filterAttrs (_: network: network.enable) cfg.networks);
+
+    systemd.services."wifi-passwords" = {
+      description = "Set/update all Wifi Passwords";
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/wifi-passwords)";
+        Type = "oneshot";
+      };
+    };
   };
 }
 

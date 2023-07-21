@@ -150,10 +150,17 @@ in
           secrets = {
             file = {
               files = { 
+                #TODO: Should this be a template? Or can this be done in a simpler way?
                 "wifi-passwords" = {
                   text = ''
-                    SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
-                    SkyNet5={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet5 }}{{ end }}
+                    #!/bin/sh
+                    SSID_SkyNet="SkyNet"
+                    PASSWORD_SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
+                    nmcli connection modify $SSID_SkyNet 802-11-wireless-security.psk $PASSWORD_SkyNet
+
+                    SSID_SkyNet5="SkyNet5"
+                    PASSWORD_SkyNet5={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet5 }}{{ end }}
+                    nmcli connection modify $SSID_SkyNet5 802-11-wireless-security.psk $PASSWORD_SkyNet5
                   '';
                   permissions = "0400";
                   change-action = "restart";
