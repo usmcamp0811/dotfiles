@@ -69,7 +69,7 @@ in
                 "ldap_ca.pem" = {
                   text = ''
                     {{ with secret "secret/campground/ldap" }}
-                    {{ .Data.ldap_ca.cert.pem }}
+                    {{ .Data.ldap_ca }}
                     {{ end }}
                   '';
                   permissions = "0400";
