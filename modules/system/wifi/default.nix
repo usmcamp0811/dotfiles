@@ -25,11 +25,6 @@ in
       default = {};
       description = "A list of WiFi networks to connect to.";
     };
-    unmanagedInterfaces = mkOption {
-      type = listOf str;
-      default = [];
-      description = "List of interfaces that should be left unmanaged by NetworkManager.";
-    };
   };
   config = mkIf cfg.enable {
     networking.networkmanager.unmanaged = cfg.unmanagedInterfaces;
@@ -45,6 +40,42 @@ in
       serviceConfig = {
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/wifi-passwords)";
         Type = "oneshot";
+      };
+    };
+    campground.services.vault-agent.services.wifi = {
+      settings = {
+        vault.address = "https://vault.lan.aicampground.com";
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = "/var/lib/vault/wifi/role-id";
+              secret_id_file_path = "/var/lib/vault/wifi/secret-id";
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = { 
+            #TODO: Should this be a template? Or can this be done in a simpler way?
+            "wifi-passwords" = {
+              text = ''
+                #!/bin/sh
+                SSID_SkyNet="SkyNet"
+                PASSWORD_SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
+                nmcli connection modify $SSID_SkyNet 802-11-wireless-security.psk $PASSWORD_SkyNet
+
+                SSID_SkyNet5="SkyNet5"
+                PASSWORD_SkyNet5={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet5 }}{{ end }}
+                nmcli connection modify $SSID_SkyNet5 802-11-wireless-security.psk $PASSWORD_SkyNet5
+              '';
+              permissions = "0400";
+              change-action = "restart";
+            };
+          };
+        };
       };
     };
   };
