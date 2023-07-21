@@ -5,7 +5,7 @@ with lib.internal;
 let cfg = config.campground.system.wifi;
 in
 {
-  options.campground.system.wiki = with types; {
+  options.campground.system.wifi = with types; {
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
     networks = mkOption {
       type = attrsOf (submodule {
@@ -33,6 +33,6 @@ in
     networking.wireless.enable = true;
     networking.wireless.networks = lib.mapAttrs (name: network: {
       psk = network.password;
-    }) (lib.filterAttrs (_: network: network.enable) cfg.wifiNetworks);
+    }) (lib.filterAttrs (_: network: network.enable) cfg.networks);
   };
 }
