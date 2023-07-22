@@ -65,16 +65,6 @@ in
       enable = true;
       settings = {
         vault.address = "https://vault.lan.aicampground.com";
-        auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = "/var/lib/vault/wifi/role-id";
-              secret_id_file_path = "/var/lib/vault/wifi/secret-id";
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
-        };
       };
       # services = {
         # sssd = {
