@@ -54,9 +54,11 @@ in
           files = { 
             "wifi-passwords" = {
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
-                if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q ${name}; then
-                  PASSWORD_${name}={{ with secret "secret/campground/wifi" }}{{ .Data.${name} }}{{ end }}
-                  ${pkgs.networkmanager}/bin/nmcli dev wifi connect ${name} password $PASSWORD_${name}
+                #!/bin/sh
+                SSID="${name}"
+                PASSWORD={{ with secret "secret/campground/wifi" }}{{ .Data.${name} }}{{ end }}
+                if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
+                  ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID password $PASSWORD
                 fi
               '') cfg.networks);
               permissions = "0400";
