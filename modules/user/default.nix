@@ -71,20 +71,20 @@ in
       };
 
       initExtra = ''
-        for file in ${config.home.homeDirectory}/.config/shell/zsh/*.zsh; do
+        for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
             [ -r "$file" ] && source "$file"
         done
 
         # source all the other bash config files
-        for file in ${config.home.homeDirectory}/.config/shell/*.shrc; do
+        for file in /home/${cfg.name}/.config/shell/*.shrc; do
             [ -r "$file" ] && source "$file"
         done
 
-        for file in ${config.home.homeDirectory}/.config/shell/private/*.shrc; do
+        for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
             [ -r "$file" ] && source "$file"
         done
 
-        source ${config.home.homeDirectory}/.config/shell/zsh/theme
+        source /home/${cfg.name}/.config/shell/zsh/theme
 
       '';
      };
