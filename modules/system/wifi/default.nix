@@ -27,13 +27,6 @@ in
     };
   };
   config = mkIf cfg.enable {
-    # networking.networkmanager.unmanaged = cfg.unmanagedInterfaces;
-    # networking.wireless.enable = true;
-    # networking.wireless.environmentFile = cfg.environmentFile;
-    # networking.wireless.networks = lib.mapAttrs (name: network: {
-    #   psk = "@${name}@";
-    # }) (lib.filterAttrs (_: network: network.enable) cfg.networks);
-
     systemd.services.wifi_passwords = {
       description = "Set/update all Wifi Passwords";
       wantedBy = [ "multi-user.target" ];
@@ -59,22 +52,13 @@ in
       secrets = {
         file = {
           files = { 
-            #TODO: Should this be a template? Or can this be done in a simpler way?
             "wifi-passwords" = {
-              text = ''
-                #!/bin/sh
-                SSID_SkyNet="SkyNet"
-                PASSWORD_SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
-                if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID_SkyNet; then
-                  ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID_SkyNet password $PASSWORD_SkyNet
+              text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
+                if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q ${name}; then
+                  PASSWORD_${name}={{ with secret "secret/campground/wifi" }}{{ .Data.${name} }}{{ end }}
+                  ${pkgs.networkmanager}/bin/nmcli dev wifi connect ${name} password $PASSWORD_${name}
                 fi
-
-                SSID_SkyNet5="SkyNet5"
-                PASSWORD_SkyNet5={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet5 }}{{ end }}
-                if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID_SkyNet5; then
-                  ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID_SkyNet5 password $PASSWORD_SkyNet5
-                fi
-              '';
+              '') cfg.networks);
               permissions = "0400";
               change-action = "restart";
             };
