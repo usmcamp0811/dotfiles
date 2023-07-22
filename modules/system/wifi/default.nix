@@ -11,7 +11,11 @@ in
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
     role-id = mkOpt str "/var/lib/vault/wifi/role-id" "Absolute path to the Vault role-id";
     secret-id = mkOpt str "/var/lib/vault/wifi/secret-id" "Absolute path to the Vault secret-id";
-    vault-address = mkOpt str "https://vault.lan.aicampground.com" "The address of your Vault"; 
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
     networks = mkOption {
       type = attrsOf (submodule {
         options = {
