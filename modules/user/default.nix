@@ -147,6 +147,7 @@ in
     } // cfg.extraOptions;
 
     services.logind.lidSwitch = "ignore";
+
     system.activationScripts.copyDotfiles = lib.stringAfter
       [ "users" ]
       ''
