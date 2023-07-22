@@ -4,7 +4,7 @@ with lib;
 with lib.internal;
 let 
   cfg = config.campground.system.wifi;
-  vault-address = campground.services.vault-agent.vault.address;
+  vault-address = services.vault-agent.vault.address;
 in
 {
 # Save Wifi Passwords in Vault with the SSID as the Key to the KV store
