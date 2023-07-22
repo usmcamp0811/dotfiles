@@ -32,12 +32,13 @@ in
     };
     campground.services.vault-agent.services.wifi_passwords = {
       settings = {
+        vault.address = "https://vault.lan.aicampground.com";
         auto_auth = {
           method = [{
             type = "approle";
             config = {
-              role_id_file_path = "/var/lib/vault/wifi/role-id";
-              secret_id_file_path = "/var/lib/vault/wifi/secret-id";
+              role_id_file_path = "/var/lib/vault/sssd/role-id";
+              secret_id_file_path = "/var/lib/vault/sssd/secret-id";
               remove_secret_id_file_after_reading = false;
             };
           }];
