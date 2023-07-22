@@ -69,6 +69,24 @@ in
         theme = "fino"; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
+
+      initExtra = ''
+        for file in ${config.home.homeDirectory}/.config/shell/zsh/*.zsh; do
+            [ -r "$file" ] && source "$file"
+        done
+
+        # source all the other bash config files
+        for file in ${config.home.homeDirectory}/.config/shell/*.shrc; do
+            [ -r "$file" ] && source "$file"
+        done
+
+        for file in ${config.home.homeDirectory}/.config/shell/private/*.shrc; do
+            [ -r "$file" ] && source "$file"
+        done
+
+        source ${config.home.homeDirectory}/.config/shell/zsh/theme
+
+      '';
      };
 
     users.users.${cfg.name} = {
@@ -95,13 +113,9 @@ in
           for file in ${builtins.toString dotfilesDir}/*; do
             dest="/home/${builtins.toString cfg.name}/.config/$(basename $file)"
             echo "Checking $file..."
-            if [ ! -e "$dest" ]; then
-              echo "Copying $file to $dest..."
-              cp -r $file $dest
-              chown -R ${builtins.toString cfg.name}:users $dest
-            else
-              echo "$dest already exists, skipping..."
-            fi
+            echo "Copying $file to $dest..."
+            cp -r $file $dest
+            chown -R ${builtins.toString cfg.name}:users $dest
           done
         '
       '';
