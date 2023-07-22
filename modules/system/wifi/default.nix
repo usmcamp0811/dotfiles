@@ -37,8 +37,8 @@ in
           method = [{
             type = "approle";
             config = {
-              role_id_file_path = "/var/lib/vault/sssd/role-id";
-              secret_id_file_path = "/var/lib/vault/sssd/secret-id";
+              role_id_file_path = "/var/lib/vault/wifi/role-id";
+              secret_id_file_path = "/var/lib/vault/wifi/secret-id";
               remove_secret_id_file_after_reading = false;
             };
           }];
