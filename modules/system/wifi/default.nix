@@ -65,16 +65,15 @@ in
                 #!/bin/sh
                 SSID_SkyNet="SkyNet"
                 PASSWORD_SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
-                echo $PASSWORD_SkyNet
                 if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID_SkyNet; then
-                  ${pkgs.networkmanager}/bin/nmcli con add con-name $SSID_SkyNet ifname wlan0 type wifi ssid $SSID_SkyNet
+                  ${pkgs.networkmanager}/bin/nmcli con add con-name $SSID_SkyNet ifname wlan0 type wifi ssid $SSID_SkyNet 802-11-wireless-security.key-mgmt wpa-psk
                 fi
                 ${pkgs.networkmanager}/bin/nmcli connection modify $SSID_SkyNet 802-11-wireless-security.psk $PASSWORD_SkyNet
 
                 SSID_SkyNet5="SkyNet5"
                 PASSWORD_SkyNet5={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet5 }}{{ end }}
                 if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID_SkyNet5; then
-                  ${pkgs.networkmanager}/bin/nmcli con add con-name $SSID_SkyNet5 ifname wlan0 type wifi ssid $SSID_SkyNet5
+                  ${pkgs.networkmanager}/bin/nmcli con add con-name $SSID_SkyNet5 ifname wlan0 type wifi ssid $SSID_SkyNet5 802-11-wireless-security.key-mgmt wpa-psk
                 fi
                 ${pkgs.networkmanager}/bin/nmcli connection modify $SSID_SkyNet5 802-11-wireless-security.psk $PASSWORD_SkyNet5
               '';
