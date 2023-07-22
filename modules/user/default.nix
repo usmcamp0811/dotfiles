@@ -146,6 +146,7 @@ in
       extraGroups = [ "wheel" ] ++ cfg.extraGroups;
     } // cfg.extraOptions;
 
+    services.logind.lidSwitch = "ignore";
     system.activationScripts.copyDotfiles = lib.stringAfter
       [ "users" ]
       ''
