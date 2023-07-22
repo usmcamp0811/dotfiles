@@ -8,6 +8,9 @@ in
 # Save Wifi Passwords in Vault with the SSID as the Key to the KV store
   options.campground.system.wifi = with types; {
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
+    role-id = mkOpt str "/var/lib/vault/wifi/role-id" "Absolute path to the Vault role-id";
+    secret-id = mkOpt str "/var/lib/vault/wifi/secret-id" "Absolute path to the Vault secret-id";
+    vault-address = mkOpt str config.campground.services.vault-agent.vault.address "The address of your Vault"; 
     networks = mkOption {
       type = attrsOf (submodule {
         options = {
@@ -32,13 +35,13 @@ in
     };
     campground.services.vault-agent.services.wifi_passwords = {
       settings = {
-        vault.address = "https://vault.lan.aicampground.com";
+        vault.address = cfg.vault-address;
         auto_auth = {
           method = [{
             type = "approle";
             config = {
-              role_id_file_path = "/var/lib/vault/wifi/role-id";
-              secret_id_file_path = "/var/lib/vault/wifi/secret-id";
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
               remove_secret_id_file_after_reading = false;
             };
           }];

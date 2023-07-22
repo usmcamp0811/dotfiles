@@ -63,6 +63,9 @@ in
     secret-service = enabled;
     vault-agent = {
       enable = true;
+      settings = {
+        vault.address = "https://vault.lan.aicampground.com";
+      };
       # services = {
         # sssd = {
         #   settings = {
