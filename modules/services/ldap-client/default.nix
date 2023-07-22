@@ -68,7 +68,6 @@ ldap_group_member = memberUid
     '';
     };
 
-# TODO: see if i can remove the vault address and maybe the auth paths too
     campground.services.vault-agent.services.ssid = {
       settings = {
         vault.address = cfg.vault-address;
