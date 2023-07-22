@@ -13,6 +13,13 @@ in
     ldap_uri = mkOpt str "ldap://ldap.campground.lan:389" "The ldap URI to use.";
     ldap_search_base = mkOpt str "dc=aicampground,dc=com" "The ldap search base.";
     cache_credentials = mkBoolOpt true "Whether or not to cache credentials.";
+    role-id = mkOpt str "/var/lib/vault/sssd/role-id" "Absolute path to the Vault role-id";
+    secret-id = mkOpt str "/var/lib/vault/sssd/secret-id" "Absolute path to the Vault secret-id";
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -64,13 +71,13 @@ ldap_group_member = memberUid
 # TODO: see if i can remove the vault address and maybe the auth paths too
     campground.services.vault-agent.services.ssid = {
       settings = {
-        vault.address = "https://vault.lan.aicampground.com";
+        vault.address = cfg.vault-address;
         auto_auth = {
           method = [{
             type = "approle";
             config = {
-              role_id_file_path = "/var/lib/vault/sssd/role-id";
-              secret_id_file_path = "/var/lib/vault/sssd/secret-id";
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
               remove_secret_id_file_after_reading = false;
             };
           }];
