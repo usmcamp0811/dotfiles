@@ -4,7 +4,6 @@ with lib;
 with lib.internal;
 let 
   cfg = config.campground.system.wifi;
-  vault-address = services.vault-agent.vault.address;
 in
 {
 # Save Wifi Passwords in Vault with the SSID as the Key to the KV store
@@ -12,7 +11,7 @@ in
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
     role-id = mkOpt str "/var/lib/vault/wifi/role-id" "Absolute path to the Vault role-id";
     secret-id = mkOpt str "/var/lib/vault/wifi/secret-id" "Absolute path to the Vault secret-id";
-    vault-address = mkOpt str vault-address "The address of your Vault"; 
+    vault-address = mkOpt str "https://vault.lan.aicampground.com" "The address of your Vault"; 
     networks = mkOption {
       type = attrsOf (submodule {
         options = {
