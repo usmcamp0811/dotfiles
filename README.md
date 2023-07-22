@@ -91,3 +91,12 @@ flake-root/
 │        │ A NixOS module for your system's configuration.
 │        └─ default.nix
 ```
+
+
+## Services that Require Secrets (wip)
+
+I am using Vault to store secrets. I am currently working with the pattern of creating services and if they require secrets I
+add the `vault-agent` service that will get the secret and patch the service all in the same file. I then have options
+to allow specifying the `role-id`, `secret-id` and `vault.address` as part of the service options, defaults are set
+to the "system" values that get set in the system config file. This should limit the need to repeat yourself on multiple systems.
+See my `SECRETS.md` for more details. I will update this to be more clear later... maybe... we will see.. ¯\_(ツ)_/¯
