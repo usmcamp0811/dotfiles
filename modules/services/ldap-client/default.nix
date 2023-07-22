@@ -92,7 +92,6 @@ ldap_group_member = memberUid
         };
       };
     };
-
   };
 }
 
