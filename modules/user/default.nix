@@ -86,13 +86,6 @@ in
             ".face".source = cfg.icon;
             "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
           };
-          dotFile = builtins.listToAttrs (map (file: {
-            name = ".config/${file}";
-            value = {
-              source = "${dotfilesDir}/${file}";
-            };
-          }) dotfiles);
-        in baseFile // dotFile;
 
 
       extraOptions = {
