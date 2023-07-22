@@ -65,11 +65,11 @@ in
                 #!/bin/sh
                 SSID_SkyNet="SkyNet"
                 PASSWORD_SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
-                nmcli connection modify $SSID_SkyNet 802-11-wireless-security.psk $PASSWORD_SkyNet
+                ${pkgs.networkmanager}/bin/nmcli connection modify $SSID_SkyNet 802-11-wireless-security.psk $PASSWORD_SkyNet
 
                 SSID_SkyNet5="SkyNet5"
                 PASSWORD_SkyNet5={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet5 }}{{ end }}
-                nmcli connection modify $SSID_SkyNet5 802-11-wireless-security.psk $PASSWORD_SkyNet5
+                ${pkgs.networkmanager}/bin/nmcli connection modify $SSID_SkyNet5 802-11-wireless-security.psk $PASSWORD_SkyNet5
               '';
               permissions = "0400";
               change-action = "restart";
