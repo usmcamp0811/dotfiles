@@ -65,6 +65,7 @@ in
                 #!/bin/sh
                 SSID_SkyNet="SkyNet"
                 PASSWORD_SkyNet={{ with secret "secret/campground/wifi" }}{{ .Data.SkyNet }}{{ end }}
+                echo $PASSWORD_SkyNet
                 if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID_SkyNet; then
                   ${pkgs.networkmanager}/bin/nmcli con add con-name $SSID_SkyNet ifname wlan0 type wifi ssid $SSID_SkyNet
                 fi
