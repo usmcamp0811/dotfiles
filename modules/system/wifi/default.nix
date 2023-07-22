@@ -31,7 +31,7 @@ in
       description = "Set/update all Wifi Passwords";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/wifi-passwords";
+        ExecStart = "${pkgs.bash}/bin/bash -c 'cat /tmp/detsys-vault/wifi-passwords'";
         Type = "oneshot";
       };
     };
