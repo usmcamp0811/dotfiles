@@ -5,20 +5,15 @@ with lib.internal;
 let cfg = config.campground.system.wifi;
 in
 {
+# Save Wifi Passwords in Vault with the SSID as the Key to the KV store
   options.campground.system.wifi = with types; {
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
-    environmentFile = mkOpt str "/tmp/detsys-vault/wifi-passwords" "Location of WIFI Passwords File.";
     networks = mkOption {
       type = attrsOf (submodule {
         options = {
           ssid = mkOption {
             type = str;
             description = "The SSID of the WiFi network.";
-          };
-          enable = mkOption {
-            type = bool;
-            default = false;
-            description = "Whether to connect to this WiFi network.";
           };
         };
       });
