@@ -13,8 +13,8 @@ in
     ldap_uri = mkOpt str "ldap://ldap.campground.lan:389" "The ldap URI to use.";
     ldap_search_base = mkOpt str "dc=aicampground,dc=com" "The ldap search base.";
     cache_credentials = mkBoolOpt true "Whether or not to cache credentials.";
-    role-id = mkOpt str "/var/lib/vault/ata-xps/role-id" "Absolute path to the Vault role-id";
-    secret-id = mkOpt str "/var/lib/vault/${}/secret-id" "Absolute path to the Vault secret-id";
+    role-id = mkOpt str "/var/lib/vault/${config.campground.services.vault-agent.settings.system-id}/role-id" "Absolute path to the Vault role-id";
+    secret-id = mkOpt str "/var/lib/vault/${config.campground.services.vault-agent.settings.system-id}/secret-id" "Absolute path to the Vault secret-id";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
