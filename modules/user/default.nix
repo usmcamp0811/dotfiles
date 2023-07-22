@@ -45,6 +45,7 @@ in
   };
 
   config = {
+
     environment.systemPackages = with pkgs; [
       propagatedIcon
       lsd
@@ -57,37 +58,71 @@ in
       syntaxHighlighting.enable = true;
       histFile = "$XDG_CACHE_HOME/zsh.history";
 
+
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
 
       loginShellInit = ""; # Extra commands to run at login shell initialization
 
       promptInit = ""; # Extra commands to run at prompt initialization
 
+      # TODO: migrate my theme here
       ohMyZsh = {
         enable = false; # Enable Oh My Zsh
         plugins = [ ]; # Oh My Zsh plugins
         theme = "fino"; # Oh My Zsh theme
         custom = ""; # Custom Oh My Zsh configuration
       };
-
-      interactiveShellInit = ''
-        for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
-            [ -r "$file" ] && source "$file"
-        done
-
-        # source all the other bash config files
-        for file in /home/${cfg.name}/.config/shell/*.shrc; do
-            [ -r "$file" ] && source "$file"
-        done
-
-        for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
-            [ -r "$file" ] && source "$file"
-        done
-
-        source /home/${cfg.name}/.config/shell/zsh/theme
-
-      '';
      };
+    };
+
+    campground.home = {
+        file = let
+          baseFile = {
+            "Desktop/.keep".text = "";
+            "Documents/.keep".text = "";
+            "Downloads/.keep".text = "";
+            "Music/.keep".text = "";
+            "Pictures/.keep".text = "";
+            "Videos/.keep".text = "";
+            "work/.keep".text = "";
+            ".face".source = cfg.icon;
+            "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
+          };
+          dotFile = builtins.listToAttrs (map (file: {
+            name = ".config/${file}";
+            value = {
+              source = "${dotfilesDir}/${file}";
+            };
+          }) dotfiles);
+        in baseFile // dotFile;
+
+
+      extraOptions = {
+        home.shellAliases = {
+          lc = "${pkgs.colorls}/bin/colorls --sd";
+          lcg = "lc --gs";
+          lcl = "lc -1";
+          lclg = "lc -1 --gs";
+          lcu = "${pkgs.colorls}/bin/colorls -U";
+          lclu = "${pkgs.colorls}/bin/colorls -U -1";
+        };
+
+        programs.zsh.enable = true;
+
+        programs.zsh.initExtra = ''
+          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
+              [ -r "$file" ] && source "$file"
+          done
+
+          # source all the other bash config files
+          for file in /home/${cfg.name}/.config/shell/*.shrc; do
+              [ -r "$file" ] && source "$file"
+          done
+
+          # source /home/${cfg.name}/.config/shell/zsh/theme
+        '';
+    };
+
 
     users.users.${cfg.name} = {
       isNormalUser = true;
