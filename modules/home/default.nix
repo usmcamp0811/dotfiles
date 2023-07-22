@@ -27,7 +27,6 @@ in
 
     home-manager = {
       useUserPackages = true;
-
       users.${config.campground.user.name} =
         mkAliasDefinitions options.campground.home.extraOptions;
     };

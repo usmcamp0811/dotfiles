@@ -9,8 +9,8 @@ in
 # Save Wifi Passwords in Vault with the SSID as the Key to the KV store
   options.campground.system.wifi = with types; {
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
-    role-id = mkOpt str "/var/lib/vault/wifi/role-id" "Absolute path to the Vault role-id";
-    secret-id = mkOpt str "/var/lib/vault/wifi/secret-id" "Absolute path to the Vault secret-id";
+    role-id = mkOpt str "/var/lib/vault/ata-xps/role-id" "Absolute path to the Vault role-id";
+    secret-id = mkOpt str "/var/lib/vault/ata-xps/secret-id" "Absolute path to the Vault secret-id";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
