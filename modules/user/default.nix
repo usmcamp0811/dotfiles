@@ -86,6 +86,7 @@ in
             ".face".source = cfg.icon;
             "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
           };
+        in baseFile;
 
 
       extraOptions = {
