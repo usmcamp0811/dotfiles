@@ -60,38 +60,39 @@ ldap_schema = rfc2307
 ldap_group_member = memberUid
     '';
     };
-  };
 
 # TODO: see if i can remove the vault address and maybe the auth paths too
-  campground.services.vault-agent.services.ssid = {
-    settings = {
-      vault.address = "https://vault.lan.aicampground.com";
-      auto_auth = {
-        method = [{
-          type = "approle";
-          config = {
-            role_id_file_path = "/var/lib/vault/sssd/role-id";
-            secret_id_file_path = "/var/lib/vault/sssd/secret-id";
-            remove_secret_id_file_after_reading = false;
-          };
-        }];
+    campground.services.vault-agent.services.ssid = {
+      settings = {
+        vault.address = "https://vault.lan.aicampground.com";
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = "/var/lib/vault/sssd/role-id";
+              secret_id_file_path = "/var/lib/vault/sssd/secret-id";
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
       };
-    };
-    secrets = {
-      file = {
-        files = {
-          "ldap_ca.pem" = {
-            text = ''
-              {{ with secret "secret/campground/ldap" }}
-              {{ .Data.ldap_ca }}
-              {{ end }}
-            '';
-            permissions = "0400";
-            change-action = "restart";
+      secrets = {
+        file = {
+          files = {
+            "ldap_ca.pem" = {
+              text = ''
+                {{ with secret "secret/campground/ldap" }}
+                {{ .Data.ldap_ca }}
+                {{ end }}
+              '';
+              permissions = "0400";
+              change-action = "restart";
+            };
           };
         };
       };
     };
+
   };
 }
 
