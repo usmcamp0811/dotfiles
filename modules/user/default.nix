@@ -45,7 +45,6 @@ in
   };
 
   config = {
-
     environment.systemPackages = with pkgs; [
       propagatedIcon
       lsd
@@ -73,7 +72,6 @@ in
         custom = ""; # Custom Oh My Zsh configuration
       };
      };
-    };
 
     campground.home = {
         file = let
@@ -119,10 +117,20 @@ in
               [ -r "$file" ] && source "$file"
           done
 
-          # source /home/${cfg.name}/.config/shell/zsh/theme
-        '';
-    };
+          # for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
+          #     [ -r "$file" ] && source "$file"
+          # done
 
+          if type -p fzf > /dev/null; then
+            source "$(dirname $(readlink -f $(which fzf)))/shell/key-bindings.zsh"
+            source "$(dirname $(readlink -f $(which fzf)))/shell/completion.zsh"
+          fi
+
+          source /home/${cfg.name}/.config/shell/zsh/theme
+
+        '';
+      };
+    };
 
     users.users.${cfg.name} = {
       isNormalUser = true;
@@ -134,7 +142,12 @@ in
 
       shell = pkgs.zsh;
 
-      uid = 10000;
+      # Arbitrary user ID to use for the user. Since I only
+      # have a single user on my machines this won't ever collide.
+      # However, if you add multiple users you'll need to change this
+      # so each user has their own unique uid (or leave it out for the
+      # system to select).
+      # uid = 1000;
 
       extraGroups = [ "wheel" ] ++ cfg.extraGroups;
     } // cfg.extraOptions;
