@@ -91,12 +91,16 @@ in
       ''
         echo "Copying dotfiles to ${cfg.name}'s home directory..."
         ${pkgs.bash}/bin/bash -c '
+          echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
           for file in ${builtins.toString dotfilesDir}/*; do
             dest="/home/${builtins.toString cfg.name}/.config/$(basename $file)"
+            echo "Checking $file..."
             if [ ! -e "$dest" ]; then
               echo "Copying $file to $dest..."
               cp -r $file $dest
               chown -R ${builtins.toString cfg.name}:users $dest
+            else
+              echo "$dest already exists, skipping..."
             fi
           done
         '
