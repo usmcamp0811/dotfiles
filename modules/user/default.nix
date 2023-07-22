@@ -57,14 +57,12 @@ in
       syntaxHighlighting.enable = true;
       histFile = "$XDG_CACHE_HOME/zsh.history";
 
-
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
 
       loginShellInit = ""; # Extra commands to run at login shell initialization
 
       promptInit = ""; # Extra commands to run at prompt initialization
 
-      # TODO: migrate my theme here
       ohMyZsh = {
         enable = false; # Enable Oh My Zsh
         plugins = [ ]; # Oh My Zsh plugins
@@ -72,65 +70,6 @@ in
         custom = ""; # Custom Oh My Zsh configuration
       };
      };
-
-    campground.home = {
-        file = let
-          baseFile = {
-            "Desktop/.keep".text = "";
-            "Documents/.keep".text = "";
-            "Downloads/.keep".text = "";
-            "Music/.keep".text = "";
-            "Pictures/.keep".text = "";
-            "Videos/.keep".text = "";
-            "work/.keep".text = "";
-            ".face".source = cfg.icon;
-            "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
-          };
-          dotFile = builtins.listToAttrs (map (file: {
-            name = ".config/${file}";
-            value = {
-              source = "${dotfilesDir}/${file}";
-            };
-          }) dotfiles);
-        in baseFile // dotFile;
-
-
-      extraOptions = {
-        home.shellAliases = {
-          lc = "${pkgs.colorls}/bin/colorls --sd";
-          lcg = "lc --gs";
-          lcl = "lc -1";
-          lclg = "lc -1 --gs";
-          lcu = "${pkgs.colorls}/bin/colorls -U";
-          lclu = "${pkgs.colorls}/bin/colorls -U -1";
-        };
-
-        programs.zsh.enable = true;
-
-        programs.zsh.initExtra = ''
-          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          # source all the other bash config files
-          for file in /home/${cfg.name}/.config/shell/*.shrc; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          # for file in /home/${cfg.name}/.config/shell/private/*.shrc; do
-          #     [ -r "$file" ] && source "$file"
-          # done
-
-          if type -p fzf > /dev/null; then
-            source "$(dirname $(readlink -f $(which fzf)))/shell/key-bindings.zsh"
-            source "$(dirname $(readlink -f $(which fzf)))/shell/completion.zsh"
-          fi
-
-          source /home/${cfg.name}/.config/shell/zsh/theme
-
-        '';
-      };
-    };
 
     users.users.${cfg.name} = {
       isNormalUser = true;
@@ -142,15 +81,26 @@ in
 
       shell = pkgs.zsh;
 
-      # Arbitrary user ID to use for the user. Since I only
-      # have a single user on my machines this won't ever collide.
-      # However, if you add multiple users you'll need to change this
-      # so each user has their own unique uid (or leave it out for the
-      # system to select).
       uid = 10000;
 
       extraGroups = [ "wheel" ] ++ cfg.extraGroups;
     } // cfg.extraOptions;
 
+    system.activationScripts.copyDotfiles = lib.stringAfter
+      [ "users" ]
+      ''
+        echo "Copying dotfiles to ${cfg.name}'s home directory..."
+        ${pkgs.bash}/bin/bash -c '
+          for file in ${builtins.toString dotfilesDir}/*; do
+            dest="/home/${builtins.toString cfg.name}/.config/$(basename $file)"
+            if [ ! -e "$dest" ]; then
+              echo "Copying $file to $dest..."
+              cp -r $file $dest
+              chown -R ${builtins.toString cfg.name}:users $dest
+            fi
+          done
+        '
+      '';
   };
 }
+
