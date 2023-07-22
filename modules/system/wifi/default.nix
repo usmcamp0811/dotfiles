@@ -34,7 +34,7 @@ in
     #   psk = "@${name}@";
     # }) (lib.filterAttrs (_: network: network.enable) cfg.networks);
 
-    systemd.services."wifi-passwords" = {
+    systemd.services.wifi_passwords = {
       description = "Set/update all Wifi Passwords";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
@@ -42,7 +42,7 @@ in
         Type = "oneshot";
       };
     };
-    campground.services.vault-agent.services."wifi-passwords" = {
+    campground.services.vault-agent.services.wifi_passwords = {
       settings = {
         vault.address = "https://vault.lan.aicampground.com";
         auto_auth = {
