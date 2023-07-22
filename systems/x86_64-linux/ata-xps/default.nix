@@ -27,6 +27,7 @@ in
     system = {
       boot = enabled;
       wifi = {
+      # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         enable = true;
         networks = {
           SkyNet = {
@@ -60,42 +61,43 @@ in
   campground.services = {
     ldap-client = enabled;
     secret-service = enabled;
-    vault-agent = {
-      enable = true;
-      services = {
-        sssd = {
-          settings = {
-            vault.address = "https://vault.lan.aicampground.com";
-            auto_auth = {
-              method = [{
-                type = "approle";
-                config = {
-                  role_id_file_path = "/var/lib/vault/sssd/role-id";
-                  secret_id_file_path = "/var/lib/vault/sssd/secret-id";
-                  remove_secret_id_file_after_reading = false;
-                };
-              }];
-            };
-          };
-          secrets = {
-            file = {
-              files = {
-                "ldap_ca.pem" = {
-                  text = ''
-                    {{ with secret "secret/campground/ldap" }}
-                    {{ .Data.ldap_ca }}
-                    {{ end }}
-                  '';
-                  permissions = "0400";
-                  change-action = "restart";
-                };
-              };
-            };
-          };
-        };
-      };
-    };
-  };
+    vault-agent = enabled;
+    # vault-agent = {
+      # enable = true;
+      # services = {
+        # sssd = {
+        #   settings = {
+        #     vault.address = "https://vault.lan.aicampground.com";
+        #     auto_auth = {
+        #       method = [{
+        #         type = "approle";
+        #         config = {
+        #           role_id_file_path = "/var/lib/vault/sssd/role-id";
+        #           secret_id_file_path = "/var/lib/vault/sssd/secret-id";
+        #           remove_secret_id_file_after_reading = false;
+        #         };
+        #       }];
+        #     };
+        #   };
+        #   secrets = {
+        #     file = {
+        #       files = {
+        #         "ldap_ca.pem" = {
+        #           text = ''
+        #             {{ with secret "secret/campground/ldap" }}
+        #             {{ .Data.ldap_ca }}
+        #             {{ end }}
+        #           '';
+        #           permissions = "0400";
+        #           change-action = "restart";
+        #         };
+        #       };
+        #     };
+        #   };
+        # };
+      # };
+    # };
+  # };
 
 
   # This value determines the NixOS release from which the default

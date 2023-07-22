@@ -9,7 +9,6 @@ in
     home-manager.nixosModules.home-manager
   ];
 
-# TODO: Whats this.. feel like this might be something i should edit
   options.campground.home = with types; {
     file = mkOpt attrs { }
       "A set of files to be managed by home-manager's <option>home.file</option>.";
