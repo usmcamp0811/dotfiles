@@ -1,24 +1,22 @@
 { options, config, pkgs, lib, ... }:
 
 with lib;
-with lib.internal;
 let cfg = config.campground.system.wifi;
 in
 {
   options.campground.system.wifi = with types; {
-    enable = mkBoolOpt false "Whether or not to enable Wifi.";
-    environmentFile = mkOpt str "/tmp/detsys-vault/wifi-passwords" "Location of WIFI Passwords File.";
+    enable = mkEnableOption "Whether or not to enable Wifi.";
+    environmentFile = mkOption {
+      type = types.str;
+      default = "/tmp/detsys-vault/wifi-passwords";
+      description = "Location of WIFI Passwords File.";
+    };
     networks = mkOption {
       type = attrsOf (submodule {
         options = {
           ssid = mkOption {
-            type = str;
+            type = types.str;
             description = "The SSID of the WiFi network.";
-          };
-          enable = mkOption {
-            type = bool;
-            default = false;
-            description = "Whether to connect to this WiFi network.";
           };
         };
       });
@@ -27,11 +25,12 @@ in
     };
   };
   config = mkIf cfg.enable {
+
     systemd.services.wifi_passwords = {
       description = "Set/update all Wifi Passwords";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.bash}/bin/bash -c 'cat /tmp/detsys-vault/wifi-passwords'";
+        ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/wifi-passwords";
         Type = "oneshot";
       };
     };
@@ -51,12 +50,12 @@ in
       };
       secrets = {
         file = {
-          files = { 
+          files = {
             "wifi-passwords" = {
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
                 #!/bin/sh
-                SSID="${name}"
-                PASSWORD={{ with secret "secret/campground/wifi" }}{{ .Data.${name} }}{{ end }}
+                SSID="${network.ssid}"
+                PASSWORD={{ with secret "secret/campground/wifi" }}{{ .Data.${network.ssid} }}{{ end }}
                 if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
                   ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID password $PASSWORD
                 fi
