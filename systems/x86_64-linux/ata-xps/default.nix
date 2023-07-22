@@ -62,8 +62,11 @@ in
     vault-agent = {
       enable = true;
       settings = {
-        vault.address = "https://vault.lan.aicampground.com";
-        system-id = "ata-xps";
+        vault = {
+          address = "https://vault.lan.aicampground.com";
+          role-id = "/var/lib/vault/ata-xps/role-id";
+          secret-id = "/var/lib/vault/ata-xps/secret-id";
+        };
       };
     };
   };
