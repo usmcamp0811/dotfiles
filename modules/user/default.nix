@@ -70,7 +70,7 @@ in
         custom = ""; # Custom Oh My Zsh configuration
       };
 
-      initExtra = ''
+      interactiveShellInit = ''
         for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
             [ -r "$file" ] && source "$file"
         done
