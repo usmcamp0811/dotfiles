@@ -61,9 +61,8 @@ in
   campground.services = {
     ldap-client = enabled;
     secret-service = enabled;
-    vault-agent = enabled;
-    # vault-agent = {
-      # enable = true;
+    vault-agent = {
+      enable = true;
       # services = {
         # sssd = {
         #   settings = {
@@ -96,7 +95,7 @@ in
         #   };
         # };
       # };
-    # };
+    };
   };
 
 
