@@ -14,7 +14,7 @@ in
     ldap_search_base = mkOpt str "dc=aicampground,dc=com" "The ldap search base.";
     cache_credentials = mkBoolOpt true "Whether or not to cache credentials.";
     role-id = mkOpt str "/var/lib/vault/ata-xps/role-id" "Absolute path to the Vault role-id";
-    secret-id = mkOpt str "/var/lib/vault/ata-xps/secret-id" "Absolute path to the Vault secret-id";
+    secret-id = mkOpt str "/var/lib/vault/${}/secret-id" "Absolute path to the Vault secret-id";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;

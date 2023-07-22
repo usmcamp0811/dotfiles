@@ -32,11 +32,9 @@ in
         networks = {
           SkyNet = {
             ssid = "SkyNet";
-            enable = true;
           };
           SkyNet5 = {
             ssid = "SkyNet5";
-            enable = true;
           };
         };
       };
@@ -65,39 +63,8 @@ in
       enable = true;
       settings = {
         vault.address = "https://vault.lan.aicampground.com";
+        system-id = "ata-xps";
       };
-      # services = {
-        # sssd = {
-        #   settings = {
-        #     vault.address = "https://vault.lan.aicampground.com";
-        #     auto_auth = {
-        #       method = [{
-        #         type = "approle";
-        #         config = {
-        #           role_id_file_path = "/var/lib/vault/sssd/role-id";
-        #           secret_id_file_path = "/var/lib/vault/sssd/secret-id";
-        #           remove_secret_id_file_after_reading = false;
-        #         };
-        #       }];
-        #     };
-        #   };
-        #   secrets = {
-        #     file = {
-        #       files = {
-        #         "ldap_ca.pem" = {
-        #           text = ''
-        #             {{ with secret "secret/campground/ldap" }}
-        #             {{ .Data.ldap_ca }}
-        #             {{ end }}
-        #           '';
-        #           permissions = "0400";
-        #           change-action = "restart";
-        #         };
-        #       };
-        #     };
-        #   };
-        # };
-      # };
     };
   };
 
