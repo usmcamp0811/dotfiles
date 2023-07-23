@@ -52,9 +52,9 @@
   boot.initrd.luks.devices.nixos-root = {
     device = "/dev/disk/by-uuid/2166fd6f-7c05-4980-b094-a410d4555054";
     preOpenCommands = with pkgs; ''
-      ln -s ../.. /nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-${bash.name}
-      ln -s ../.. /nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-${clevis.name}
-      ln -s ../.. /nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-${coreutils.name}
+      ln -s ../.. /nix/store/aw76ql7s2n8gl02swkf2i3bdn9m7qxvh-${bash.name}
+      ln -s ../.. /nix/store/iiws67kq0rb1bvsnr1p2hik0z85yr6aa-${clevis.name}
+      ln -s ../.. /nix/store/qc7bkaragm948qba0sk0nyms488crz1i-${coreutils.name}
 
       bash -e -c 'while [ ! -f /crypt-ramfs/device ]; do sleep 1; done; . /bin/clevis-luks-common-functions; clevis_luks_unlock_device "$(cat /crypt-ramfs/device)" | cryptsetup-askpass' &
     '';
