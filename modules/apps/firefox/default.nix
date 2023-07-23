@@ -15,6 +15,11 @@ let
     "browser.aboutConfig.showWarning" = false;
     "browser.ssb.enabled" = true;
   };
+  # TODO: Feel like if they update the cert this will break.. whats the best way to handle this?
+  cacCertificates = pkgs.fetchurl {
+    url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_WCF.zip";
+    sha256 = "0myfy951v9mq0f3cf7zmw8mymkcszsmsxdlmiq1j0wk12w6l4qr0";
+  };
 in
 {
   options.campground.apps.firefox = with types; {
@@ -24,6 +29,7 @@ in
     userChrome =
       mkOpt str "" "Extra configuration for the user chrome CSS file.";
     settings = mkOpt attrs defaultSettings "Settings to apply to the profile.";
+    cac = mkBoolOpt false "Enable CAC Support";
   };
 
   config = mkIf cfg.enable {
@@ -63,6 +69,11 @@ in
         };
       };
     };
+
+
+    # TODO: Add things to exploade cac certs and install them into firefox here
+    # TODO: See if we can automatically enable services.cac if we say cac enable here
+    
   };
 }
 

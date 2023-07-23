@@ -4,17 +4,10 @@ with lib;
 with lib.internal;
 let
   cfg = config.campground.services.openssh;
-  # TODO: Feel like if they update the cert this will break.. whats the best way to handle this?
-  cacCertificates = pkgs.fetchurl {
-    url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_WCF.zip";
-    sha256 = "0myfy951v9mq0f3cf7zmw8mymkcszsmsxdlmiq1j0wk12w6l4qr0";
-  };
 in
 {
   options.campground.services.cac = with types; {
     enable = mkBoolOpt false "Enable CAC Support;";
-    firefox = mkBoolOpt false "Enable CAC Support in Firefox;";
-    chromium = mkBoolOpt false "Enable CAC Support in Chromium;";
   };
 
   config = mkIf cfg.enable {
