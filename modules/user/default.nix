@@ -63,7 +63,7 @@ in
       };
       history = {
         size = 10000;
-        path = "${config.xdg.dataHome}/zsh/history";
+        path = "$XDG_CACHE_HOME/zsh/history";
       };
 
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
