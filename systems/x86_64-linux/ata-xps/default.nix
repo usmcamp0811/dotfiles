@@ -42,7 +42,7 @@ in
         enable = true;
         networks = {
           CampNet = {
-            key = "wtf";
+            key = "ata_xps";
           };
         };
       };
