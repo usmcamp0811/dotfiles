@@ -55,7 +55,7 @@ in
       enableCompletion = true; # Enable command completion
       autosuggestions.enable = true;
       syntaxHighlighting.enable = true;
-      histFile = "$XDG_CACHE_HOME/zsh.history";
+      # histFile = "$XDG_CACHE_HOME/zsh.history";
 
 
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
