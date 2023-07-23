@@ -65,10 +65,10 @@ in
 
       # TODO: migrate my theme here
       ohMyZsh = {
-        enable = false; # Enable Oh My Zsh
-        plugins = [ ]; # Oh My Zsh plugins
-        theme = "fino"; # Oh My Zsh theme
-        custom = ""; # Custom Oh My Zsh configuration
+        enable = true; # Enable Oh My Zsh
+        plugins = [ fzf ]; # Oh My Zsh plugins
+        # theme = "fino"; # Oh My Zsh theme
+        # custom = ""; # Custom Oh My Zsh configuration
       };
      };
 
