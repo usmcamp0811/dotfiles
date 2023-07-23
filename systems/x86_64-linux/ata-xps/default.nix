@@ -38,6 +38,14 @@ in
           };
         };
       };
+      vpn = {
+        enable = true;
+        networks = {
+          CampNet = {
+            key = "ata-xps";
+          };
+        };
+      };
     };
 
     hardware.audio = {
