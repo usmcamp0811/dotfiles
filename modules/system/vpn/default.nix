@@ -58,7 +58,7 @@ in
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
                 #!/bin/sh
                 VPN_NAME="${name}"
-                OVPN_FILE="/tmp/detsys-vault/vpn-configs/${name}.ovpn"
+                OVPN_FILE="/tmp/${name}.ovpn"
                 cat <<EOF >$OVPN_FILE
       {{ with secret "secret/campground/vpn" }}{{ .Data.${network.key} }}{{ end }}
       EOF
@@ -66,6 +66,7 @@ in
                   ${pkgs.networkmanager}/bin/nmcli con delete id $VPN_NAME
                 fi
                 ${pkgs.networkmanager}/bin/nmcli con import type openvpn file $OVPN_FILE
+                rm -rf $OVPN_FILE
               '') cfg.networks);
               permissions = "0400";
               change-action = "restart";
