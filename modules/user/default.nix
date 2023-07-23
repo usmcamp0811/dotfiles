@@ -57,6 +57,14 @@ in
       syntaxHighlighting.enable = true;
       # histFile = "$XDG_CACHE_HOME/zsh.history";
 
+      shellAliases = {
+        la = "ls -lah";
+        update = "sudo nixos-rebuild switch";
+      };
+      history = {
+        size = 10000;
+        path = "${config.xdg.dataHome}/zsh/history";
+      };
 
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
 
