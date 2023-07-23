@@ -121,8 +121,12 @@ in
       };
     };
 
+    programs.zsh = zshConfig;
+
     users.users.root = {
-      programs.zsh = zshConfig;
+      shell = pkgs.zsh;
+      shellInit = zshConfig.interactiveShellInit;
+      loginShellInit = zshConfig.loginShellInit;
     };
 
     users.users.${cfg.name} = {
@@ -135,7 +139,6 @@ in
 
       shell = pkgs.zsh;
 
-      programs.zsh = zshConfig;
       # Arbitrary user ID to use for the user. Since I only
       # have a single user on my machines this won't ever collide.
       # However, if you add multiple users you'll need to change this
