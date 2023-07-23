@@ -60,7 +60,7 @@ in
                 VPN_NAME="${name}"
                 echo "We are here --> ${network.key}"
                 OVPN_FILE="/tmp/detsys-vault/vpn-configs/${name}.ovpn"
-                echo {{ with secret "secret/campground/vpn" }}{{ .Data.${network.key} }}{{ end }}
+                echo {{ with secret "secret/campground/vpn" }}{{ .Data.${network.key} }}{{ end }} > $OVPN_FILE
                 # cat $OVPN_FILE
                 # if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $VPN_NAME; then
                 #   ${pkgs.networkmanager}/bin/nmcli con delete id $VPN_NAME
