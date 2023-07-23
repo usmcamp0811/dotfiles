@@ -58,10 +58,12 @@ in
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
                 #!/bin/sh
                 VPN_NAME="${name}"
-                OVPN_FILE={{ with secret "secret/campground/vpn" }}{{ .Data.${network.key} }}{{ end }}
-                if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $VPN_NAME; then
-                  ${pkgs.networkmanager}/bin/nmcli con import type openvpn file $OVPN_FILE
+                OVPN_FILE="/tmp/detsys-vault/vpn-configs/${name}.ovpn"
+                echo {{ with secret "secret/campground/vpn" }}{{ .Data.${network.key} }}{{ end }} > $OVPN_FILE
+                if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $VPN_NAME; then
+                  ${pkgs.networkmanager}/bin/nmcli con delete id $VPN_NAME
                 fi
+                ${pkgs.networkmanager}/bin/nmcli con import type openvpn file $OVPN_FILE
               '') cfg.networks);
               permissions = "0400";
               change-action = "restart";
