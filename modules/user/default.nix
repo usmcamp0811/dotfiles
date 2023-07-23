@@ -116,11 +116,6 @@ in
           #     [ -r "$file" ] && source "$file"
           # done
 
-          if type -p fzf > /dev/null; then
-            source "$(dirname $(readlink -f $(which fzf)))/shell/key-bindings.zsh"
-            source "$(dirname $(readlink -f $(which fzf)))/shell/completion.zsh"
-          fi
-
           source /home/${cfg.name}/.config/shell/zsh/theme
 
         '';
