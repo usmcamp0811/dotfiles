@@ -28,27 +28,7 @@ let
 
   dotfilesDir = ./dotfiles/.config;
   dotfiles = builtins.attrNames (builtins.readDir dotfilesDir);
-  # Define the zsh configuration that will be used by both your user and root
-  zshConfig = {
-    enable = true; # Enable zsh as the default shell
-    enableCompletion = true; # Enable command completion
-    autosuggestions.enable = true;
-    syntaxHighlighting.enable = true;
 
-    interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
-
-    loginShellInit = ""; # Extra commands to run at login shell initialization
-
-    promptInit = ""; # Extra commands to run at prompt initialization
-
-    # TODO: migrate my theme here
-    ohMyZsh = {
-      enable = true; # Enable Oh My Zsh
-      plugins = [ "fzf" ]; # Oh My Zsh plugins
-      # theme = "fino"; # Oh My Zsh theme
-      # custom = ""; # Custom Oh My Zsh configuration
-    };
-  };
 in
 {
   options.campground.user = with types; {
@@ -118,16 +98,33 @@ in
           la = "ls -lah";
           update = "sudo nixos-rebuild switch";
         };
+
+        programs.zsh.enable = true;
+
+        programs.zsh.initExtra = ''
+          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
+              [ -r "$file" ] && source "$file"
+          done
+
+          # source all the other bash config files
+          for file in /home/${cfg.name}/.config/shell/*.shrc; do
+              [ -r "$file" ] && source "$file"
+          done
+
+          source /home/${cfg.name}/.config/shell/zsh/theme
+        '';
+
+        programs.zsh.history = {
+          size = 10000;
+          path = "$XDG_CACHE_HOME/zsh/history";
+        };
+
       };
     };
 
-    programs.zsh = zshConfig;
-
     users.users.root = {
       shell = pkgs.zsh;
-      shellInit = zshConfig.interactiveShellInit;
-      loginShellInit = zshConfig.loginShellInit;
-    };
+    } // cfg.extraOptions;
 
     users.users.${cfg.name} = {
       isNormalUser = true;
