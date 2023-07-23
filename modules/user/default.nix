@@ -66,7 +66,7 @@ in
       # TODO: migrate my theme here
       ohMyZsh = {
         enable = true; # Enable Oh My Zsh
-        plugins = [ fzf ]; # Oh My Zsh plugins
+        plugins = [ "fzf" ]; # Oh My Zsh plugins
         # theme = "fino"; # Oh My Zsh theme
         # custom = ""; # Custom Oh My Zsh configuration
       };
