@@ -57,15 +57,6 @@ in
       syntaxHighlighting.enable = true;
       # histFile = "$XDG_CACHE_HOME/zsh.history";
 
-      shellAliases = {
-        la = "ls -lah";
-        update = "sudo nixos-rebuild switch";
-      };
-      history = {
-        size = 10000;
-        path = "$XDG_CACHE_HOME/zsh/history";
-      };
-
       interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
 
       loginShellInit = ""; # Extra commands to run at login shell initialization
@@ -105,9 +96,9 @@ in
           lclg = "lc -1 --gs";
           lcu = "${pkgs.colorls}/bin/colorls -U";
           lclu = "${pkgs.colorls}/bin/colorls -U -1";
+          la = "ls -lah";
+          update = "sudo nixos-rebuild switch";
         };
-
-        programs.zsh.enable = true;
 
         programs.zsh.initExtra = ''
           for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
@@ -131,6 +122,12 @@ in
           source /home/${cfg.name}/.config/shell/zsh/theme
 
         '';
+
+        programs.zsh.history = {
+          size = 10000;
+          path = "$XDG_CACHE_HOME/zsh/history";
+        };
+
       };
     };
 
