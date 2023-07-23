@@ -89,13 +89,7 @@ in
 
       extraOptions = {
         home.shellAliases = {
-          lc = "${pkgs.colorls}/bin/colorls --sd";
-          lcg = "lc --gs";
-          lcl = "lc -1";
-          lclg = "lc -1 --gs";
-          lcu = "${pkgs.colorls}/bin/colorls -U";
-          lclu = "${pkgs.colorls}/bin/colorls -U -1";
-          la = "ls -lah";
+          la = "lsd -lah";
           update = "sudo nixos-rebuild switch";
         };
 
@@ -146,6 +140,7 @@ in
       extraGroups = [ "wheel" ] ++ cfg.extraGroups;
     } // cfg.extraOptions;
 
+    # TODO: Put this in a more fitting place
     services.logind.lidSwitch = "ignore";
 
     system.activationScripts.copyDotfiles = lib.stringAfter
