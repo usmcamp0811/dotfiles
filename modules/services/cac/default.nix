@@ -13,6 +13,8 @@ in
 {
   options.campground.services.cac = with types; {
     enable = mkBoolOpt false "Enable CAC Support;";
+    firefox = mkBoolOpt false "Enable CAC Support in Firefox;";
+    chromium = mkBoolOpt false "Enable CAC Support in Chromium;";
   };
 
   config = mkIf cfg.enable {
@@ -21,6 +23,8 @@ in
       opensc
       ccid
     ];
+
+   services.pcscd.enable = true;
 
   };
 }
