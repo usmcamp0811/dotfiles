@@ -23,6 +23,30 @@ let
       };
     };
   });
+  installCACertsScript = pkgs.writeScript "installCACerts.sh" ''
+    #!/usr/bin/env bash
+
+    function usage {
+      echo "Error: no certificate filename or name supplied."
+      echo "Usage: $ ./installcerts.sh <certname>.pem <Cert-DB-Name>"
+      exit 1
+    }
+
+    certificate_file="$1"
+    certificate_name="$2"
+
+    if [ -z "$certificate_file" ] || [ -z "$certificate_name" ]
+      then
+        usage
+    fi
+
+    for certDB in $(find  ~/.mozilla* -name "cert9.db")
+    do
+      cert_dir=$(dirname ${certDB});
+      echo "Mozilla Firefox certificate" "install '${certificate_name}' in ${cert_dir}"
+      certutil -A -n "${certificate_name}" -t "TCu,Cuw,Tuw" -i ${certificate_file} -d sql:"${cert_dir}"
+    done
+  '';
 in
 {
   options.campground.apps.firefox = with types; {
@@ -32,35 +56,21 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      (firefox.overrideAttrs (oldAttrs: {
-        postInstall = oldAttrs.postInstall or "" + ''
-          mkdir -p $out/lib/firefox/distribution
-          cp ${firefoxPolicies} $out/lib/firefox/distribution/policies.json
-        '';
-      }))
       nssTools
+      firefox
     ];
 
-    systemd.services.installCACerts = {
-      description = "Install CAC certificates into Firefox";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-      script = ''
-        for certDB in ''$(find /home/*/.mozilla* -name "cert9.db")
-        do
-          cert_dir=''$(dirname ''${certDB});
-          for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
-          do
-            echo "Installing ''${certFile}' in ''${cert_dir}"
-            ${pkgs.nssTools}/bin/certutil -A -n "''${certFile}" -t "TCu,Cuw,Tuw" -i "''${certFile}" -d sql:"''${cert_dir}"
-          done
-        done
-      '';
-    };
-
-
     # TODO: Add things to exploade cac certs and install them into firefox here
-    # TODO: See if we can automatically enable services.cac if we say cac enable here
+  systemd.services.installCACerts = {
+    description = "Install CAC certificates into Firefox";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = "yes";
+      ExecStart = "${installCACertsScript} <certname>.pem <Cert-DB-Name>";
+    };
+  };
     campground.services.cac.enable = mkIf cfg.cac true;
   };
 }
