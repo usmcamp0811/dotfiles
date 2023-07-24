@@ -8,7 +8,9 @@ let
     url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_WCF.zip";
     sha256 = "1inbf55mfqi0clsd8ybagfgz90n1h5knvs2rz33f7n6pjy7hcsnm";
   };
-  cacCertificatesUnzipped = pkgs.runCommandNoCC "cac-certificates" {} ''
+  cacCertificatesUnzipped = pkgs.runCommandNoCC "cac-certificates" {
+    nativeBuildInputs = [ pkgs.unzip ];
+  } ''
     mkdir $out
     unzip ${cacCertificates} -d $out
   '';
