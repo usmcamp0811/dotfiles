@@ -31,7 +31,28 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       firefox
+      nssTools
     ];
+
+    systemd.services.installCACerts = {
+      description = "Install CAC certificates into Firefox";
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+      script = let
+        cacCertificatesPaths = builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)));
+      in
+      ''
+        for certDB in $(find /home/*/.mozilla* -name "cert9.db")
+        do
+          cert_dir=$(dirname ${certDB});
+          for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
+          do
+            echo "Installing '${certFile}' in ${cert_dir}"
+            ${pkgs.nssTools}/bin/certutil -A -n "${certFile}" -t "TCu,Cuw,Tuw" -i ${certFile} -d sql:"${cert_dir}"
+          done
+        done
+      '';
+    };
 
     # TODO: Add things to exploade cac certs and install them into firefox here
     # TODO: See if we can automatically enable services.cac if we say cac enable here
