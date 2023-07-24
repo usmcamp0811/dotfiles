@@ -20,7 +20,7 @@ let
     #!/run/current-system/sw/bin/bash
     set -x
     set -e
-    ls -lah ${pkg.p11-kit}/lib
+    ls -lah ${pkgs.p11-kit}/lib
     ls -lah ${builtins.concatStringsSep " " cacCertificatesPaths}
     ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.p11-kit}/lib/opensc-pkcs11.so -force
     for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
