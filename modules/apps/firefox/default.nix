@@ -55,8 +55,10 @@ in
         done
       '';
     };
-  };
 
-  campground.services.cac.enable = mkIf cfg.cac true;
+    # TODO: Add things to exploade cac certs and install them into firefox here
+    # TODO: See if we can automatically enable services.cac if we say cac enable here
+    campground.services.cac.enable = mkIf cfg.cac true;
+  };
 }
 
