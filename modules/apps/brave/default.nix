@@ -18,9 +18,10 @@ let
   cacCertificatesPaths = builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)));
   installCACertsScript = pkgs.writeScript "installCACerts.sh" ''
     #!/run/current-system/sw/bin/bash
+    modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile /usr/lib/opensc-pkcs11.so
     for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
     do
-      modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile /usr/lib/opensc-pkcs11.so
+      echo "Loading Cert into Brave: $certfile"
       certutil -d sql:$HOME/.pki/nssdb -A -t TC -n "$certFile" -i "$certFile"
     done
   '';
