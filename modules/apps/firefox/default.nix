@@ -6,7 +6,7 @@ let
   cfg = config.campground.apps.firefox;
   cacCertificates = pkgs.fetchurl {
     url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_WCF.zip";
-    sha256 = "0myfy951v9mq0f3cf7zmw8mymkcszsmsxdlmiq1j0wk12w6l4qr0";
+    sha256 = "1inbf55mfqi0clsd8ybagfgz90n1h5knvs2rz33f7n6pjy7hcsnm";
   };
   cacCertificatesUnzipped = pkgs.runCommandNoCC "cac-certificates" {} ''
     mkdir $out
