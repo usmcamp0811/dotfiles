@@ -34,6 +34,7 @@ in
 
     environment.systemPackages = with pkgs; [
       qtile
+      rofi
     ] ++ defaultExtensions;
 
 
