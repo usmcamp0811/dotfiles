@@ -13,7 +13,7 @@ let
     unzip ${cacCertificates} -d $out
   '';
 
-  cacCertificatesPaths = builtins.trace (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)) (builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped))));
+  cacCertificatesPaths = builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)));
   firefoxPolicies = pkgs.writeText "policies.json" (builtins.toJSON {
     policies = {
       Certificates = {
@@ -30,7 +30,12 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      firefox
+      (firefox.overrideAttrs (oldAttrs: {
+        postInstall = oldAttrs.postInstall or "" + ''
+          mkdir -p $out/lib/firefox/distribution
+          cp ${firefoxPolicies} $out/lib/firefox/distribution/policies.json
+        '';
+      }))
       nssTools
     ];
 
@@ -38,10 +43,7 @@ in
       description = "Install CAC certificates into Firefox";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      script = let
-        cacCertificatesPaths = builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)));
-      in
-      ''
+      script = ''
         for certDB in $(find /home/*/.mozilla* -name "cert9.db")
         do
           cert_dir=$(dirname ${certDB});
@@ -53,11 +55,8 @@ in
         done
       '';
     };
-
-    # TODO: Add things to exploade cac certs and install them into firefox here
-    # TODO: See if we can automatically enable services.cac if we say cac enable here
-    campground.services.cac.enable = mkIf cfg.cac true;
   };
 
+  campground.services.cac.enable = mkIf cfg.cac true;
 }
 
