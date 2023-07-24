@@ -35,6 +35,7 @@ in
     environment.systemPackages = with pkgs; [
       nssTools
       brave
+      bash
     ];
 
     systemd.services.installCACerts = {
