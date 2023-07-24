@@ -17,7 +17,7 @@ let
 
   cacCertificatesPaths = builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)));
   installCACertsScript = pkgs.writeScript "installCACerts.sh" ''
-    #!/usr/bin/env bash
+    #!/run/current-system/sw/bin/bash
     for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
     do
       modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile /usr/lib/opensc-pkcs11.so
@@ -35,7 +35,6 @@ in
     environment.systemPackages = with pkgs; [
       nssTools
       brave
-      bash
     ];
 
     systemd.services.installCACerts = {
