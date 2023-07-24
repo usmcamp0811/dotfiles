@@ -29,7 +29,7 @@ in
       brave = {
         enable = true;
         cac = true;
-      }
+      };
     };
 
     system = {
