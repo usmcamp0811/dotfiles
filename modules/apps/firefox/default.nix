@@ -23,6 +23,15 @@ let
     mkdir $out
     unzip ${cacCertificates} -d $out
   '';
+
+  cacCertificatesPaths = builtins.trace (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)) (builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped))));
+  firefoxPolicies = pkgs.writeText "policies.json" (builtins.toJSON {
+    policies = {
+      Certificates = {
+        Install = cacCertificatesPaths;
+      };
+    };
+  });
 in
 {
   options.campground.apps.firefox = with types; {
@@ -36,67 +45,56 @@ in
   };
 
   config = mkIf cfg.enable {
-    let
-      cacCertificatesPaths = builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)));
-      firefoxPolicies = pkgs.writeText "policies.json" (builtins.toJSON {
-        policies = {
-          Certificates = {
-            Install = cacCertificatesPaths;
-          };
-        };
-      });
-    in
-    {
-      environment.systemPackages = with pkgs; [
-        (firefox.overrideAttrs (oldAttrs: {
-          postInstall = oldAttrs.postInstall or "" + ''
-            mkdir -p $out/lib/firefox/distribution
-            cp ${firefoxPolicies} $out/lib/firefox/distribution/policies.json
-          '';
-        }))
-      ];
+    environment.systemPackages = with pkgs; [
+      (firefox.overrideAttrs (oldAttrs: {
+        postInstall = oldAttrs.postInstall or "" + ''
+          mkdir -p $out/lib/firefox/distribution
+          cp ${firefoxPolicies} $out/lib/firefox/distribution/policies.json
+        '';
+      }))
+    ];
 
-      # campground.desktop.addons.firefox-nordic-theme = enabled;
+    # campground.desktop.addons.firefox-nordic-theme = enabled;
 
-      services.gnome.gnome-browser-connector.enable = config.campground.desktop.qtile.enable;
+    services.gnome.gnome-browser-connector.enable = config.campground.desktop.qtile.enable;
 
-      campground.home = {
-        file = {
-          ".mozilla/native-messaging-hosts/com.dannyvankooten.browserpass.json".source = "${pkgs.browserpass}/lib/mozilla/native-messaging-hosts/com.dannyvankooten.browserpass.json";
+    campground.home = {
+      file = {
+        ".mozilla/native-messaging-hosts/com.dannyvankooten.browserpass.json".source = "${pkgs.browserpass}/lib/mozilla/native-messaging-hosts/com.dannyvankooten.browserpass.json";
 
-          ".mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json".source = mkIf config.campground.desktop.gnome.enable "${pkgs.chrome-gnome-shell}/lib/mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json";
-        };
+        ".mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json".source = mkIf config.campground.desktop.gnome.enable "${pkgs.chrome-gnome-shell}/lib/mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json";
+      };
 
-        extraOptions = {
-          programs.firefox = {
-            enable = true;
-            package = pkgs.firefox.override (
-              {
-                cfg = {
-                  enableBrowserpass = true;
-                  enableGnomeExtensions = config.campground.desktop.gnome.enable;
-                };
+      extraOptions = {
+        programs.firefox = {
+          enable = true;
+          package = pkgs.firefox.override (
+            {
+              cfg = {
+                enableBrowserpass = true;
+                enableGnomeExtensions = config.campground.desktop.gnome.enable;
+              };
 
-                extraNativeMessagingHosts =
-                  optional
-                    config.campground.desktop.gnome.enable
-                    pkgs.gnomeExtensions.gsconnect;
-              }
-            );
+              extraNativeMessagingHosts =
+                optional
+                  config.campground.desktop.gnome.enable
+                  pkgs.gnomeExtensions.gsconnect;
+            }
+          );
 
-            profiles.${config.campground.user.name} = {
-              inherit (cfg) extraConfig userChrome settings;
-              id = 0;
-              name = config.campground.user.name;
-            };
+          profiles.${config.campground.user.name} = {
+            inherit (cfg) extraConfig userChrome settings;
+            id = 0;
+            name = config.campground.user.name;
           };
         };
       };
-
-      # TODO: Add things to exploade cac certs and install them into firefox here
-      # TODO: See if we can automatically enable services.cac if we say cac enable here
-      campground.services.cac.enable = mkIf cfg.cac true;
     };
+
+    # TODO: Add things to exploade cac certs and install them into firefox here
+    # TODO: See if we can automatically enable services.cac if we say cac enable here
+    campground.services.cac.enable = mkIf cfg.cac true;
   };
+
 }
 
