@@ -22,7 +22,7 @@ let
     set -e
     ls -lah ${pkgs.p11-kit}/lib
     ls -lah ${builtins.concatStringsSep " " cacCertificatesPaths}
-    ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.p11-kit}/lib/opensc-pkcs11.so -force
+    ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so -force
     for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
     do
       echo "Loading Cert into Brave: $certfile"
@@ -40,6 +40,7 @@ in
     environment.systemPackages = with pkgs; [
       nssTools
       brave
+      pkcs11helper
     ];
 
     systemd.services.installCACerts = {
