@@ -20,7 +20,7 @@ let
     #!/run/current-system/sw/bin/bash
     set -x
     set -e
-    ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile /usr/lib/opensc-pkcs11.so
+    ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.p11-kit}/lib/opensc-pkcs11.so -force
     for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
     do
       echo "Loading Cert into Brave: $certfile"
