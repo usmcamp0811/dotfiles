@@ -22,6 +22,10 @@ in
     };
 
     apps = {
+      firefox = {
+        enable = true;
+        cac = true;
+      };
     };
 
     system = {
@@ -67,7 +71,9 @@ in
   campground.services = {
     ldap-client = enabled;
     secret-service = enabled;
-    cac = enabled;
+    cac = {
+      enable = true;
+    };
     vault-agent = {
       enable = true;
       settings = {
