@@ -21,7 +21,8 @@ let
     set -x
     set -e
     ls -lah ${pkgs.p11-kit}/lib
-    ls -lah ${builtins.concatStringsSep " " cacCertificatesPaths}
+    echo "break"
+    ls -lah ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so
     ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so -force
     for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
     do
