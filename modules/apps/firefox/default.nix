@@ -56,31 +56,31 @@ in
 
     # campground.desktop.addons.firefox-nordic-theme = enabled;
 
-    services.gnome.gnome-browser-connector.enable = config.campground.desktop.qtile.enable;
+    # services.gnome.gnome-browser-connector.enable = config.campground.desktop.qtile.enable;
 
     campground.home = {
       file = {
         ".mozilla/native-messaging-hosts/com.dannyvankooten.browserpass.json".source = "${pkgs.browserpass}/lib/mozilla/native-messaging-hosts/com.dannyvankooten.browserpass.json";
 
-        ".mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json".source = mkIf config.campground.desktop.gnome.enable "${pkgs.chrome-gnome-shell}/lib/mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json";
-      };
+        # ".mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json".source = mkIf config.campground.desktop.gnome.enable "${pkgs.chrome-gnome-shell}/lib/mozilla/native-messaging-hosts/org.gnome.chrome_gnome_shell.json";
+      # };
 
       extraOptions = {
         programs.firefox = {
           enable = true;
-          package = pkgs.firefox.override (
-            {
-              cfg = {
-                enableBrowserpass = true;
-                enableGnomeExtensions = config.campground.desktop.gnome.enable;
-              };
-
-              extraNativeMessagingHosts =
-                optional
-                  config.campground.desktop.gnome.enable
-                  pkgs.gnomeExtensions.gsconnect;
-            }
-          );
+          # package = pkgs.firefox.override (
+          #   {
+          #     cfg = {
+          #       enableBrowserpass = true;
+          #       enableGnomeExtensions = config.campground.desktop.gnome.enable;
+          #     };
+          #
+          #     extraNativeMessagingHosts =
+          #       optional
+          #         config.campground.desktop.gnome.enable
+          #         pkgs.gnomeExtensions.gsconnect;
+          #   }
+          # );
 
           profiles.${config.campground.user.name} = {
             inherit (cfg) extraConfig userChrome settings;
