@@ -44,13 +44,13 @@ in
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       script = ''
-        for certDB in \$(find /home/*/.mozilla* -name "cert9.db")
+        for certDB in ''$(find /home/*/.mozilla* -name "cert9.db")
         do
-          cert_dir=\$(dirname \${certDB});
+          cert_dir=''$(dirname ''${certDB});
           for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
           do
-            echo "Installing '\${certFile}' in \${cert_dir}"
-            ${pkgs.nssTools}/bin/certutil -A -n "\${certFile}" -t "TCu,Cuw,Tuw" -i "\${certFile}" -d sql:"\${cert_dir}"
+            echo "Installing ''${certFile}' in ''${cert_dir}"
+            ${pkgs.nssTools}/bin/certutil -A -n "''${certFile}" -t "TCu,Cuw,Tuw" -i "''${certFile}" -d sql:"''${cert_dir}"
           done
         done
       '';
