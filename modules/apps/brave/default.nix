@@ -12,7 +12,7 @@ let
   installCACertsScript = pkgs.writeShellScriptBin "installCACerts" ''
     set -x
     set -e
-    HOME_DIR=/home/${config.users.users.${config.campground.user.name}.home}
+    HOME_DIR=${config.users.users.${config.campground.user.name}.home}
     DOD_CERT_DIR=$HOME_DIR/dodcerts
     NSS_DB_DIR=$HOME_DIR/.pki/nssdb
     mkdir -p $NSS_DB_DIR
