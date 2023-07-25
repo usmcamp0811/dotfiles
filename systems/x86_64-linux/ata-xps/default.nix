@@ -27,7 +27,7 @@ in
         cac = true;
       };
       brave = {
-        enable = true;
+        enable = false;
         cac = true;
       };
     };
