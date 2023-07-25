@@ -16,7 +16,7 @@ let
     DOD_CERT_DIR=$HOME_DIR/dodcerts
     NSS_DB_DIR=$HOME_DIR/.pki/nssdb
     mkdir -p $NSS_DB_DIR
-    ${pkgs.unzip} ${cacCertificates} -d $DOD_CERT_DIR
+    ${pkgs.unzip}/bin/unzip ${cacCertificates} -d $DOD_CERT_DIR
     cd $DOD_CERT_DIR
     ls -lah ${pkgs.opensc}/lib/
     ${pkgs.nssTools}/bin/modutil -dbdir sql:$NSS_DB_DIR -add "CAC Module" -libfile ${pkgs.opensc}/lib/opensc-pkcs11.so -force
