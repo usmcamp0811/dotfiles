@@ -18,7 +18,7 @@ let
     mkdir -p $NSS_DB_DIR
     unzip ${cacCertificates} -d $DOD_CERT_DIR
     cd $DOD_CERT_DIR
-    ${pkgs.nssTools}/bin/modutil -dbdir sql:$NSS_DB_DIR -add "CAC Module" -libfile ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so -force
+    ${pkgs.nssTools}/bin/modutil -dbdir sql:$NSS_DB_DIR -add "CAC Module" -libfile ${pkgs.opensc}/lib/opensc-pkcs11.so -force
     for n in $(ls * | grep Certificates); do
       ${pkgs.nssTools}/bin/certutil -d sql:$NSS_DB_DIR -A -t TC -n "$n" -i "$n"
     done
