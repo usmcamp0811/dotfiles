@@ -23,6 +23,7 @@ let
       ${pkgs.nssTools}/bin/certutil -d sql:$NSS_DB_DIR -A -t TC -n "$n" -i "$n"
     done
     chown -R ${config.campground.user.name} $HOME_DIR
+    rm -rf $DOD_CERT_DIR
   '';
 in
 {
