@@ -11,29 +11,12 @@ end
 local servers = {
 	"cssls",
 	"cssmodules_ls",
-	-- "emmet_ls",
 	"html",
-	-- "clojure-lsp",
-	-- "jdtls",
 	"jsonls",
-	-- "solc",
-	-- "solidity_ls",
-	-- "tflint",
-	-- "terraformls",
 	"tsserver",
 	"pyright",
 	"yamlls",
 	"bashls",
-  "rnix",
-  --[[ "julials", ]]
-	-- "julia-lsp",
-	-- "jq",
-	-- "prettier",
-	-- "clangd",
-	-- "rust_analyzer",
-	-- "taplo",
-	-- "zk@v0.10.1",
-	-- "lemminx"
 }
 
 local settings = {

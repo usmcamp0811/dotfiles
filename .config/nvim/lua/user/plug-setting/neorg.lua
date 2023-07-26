@@ -7,6 +7,7 @@ neorg.setup({
   load = {
     ["core.defaults"] = {},
     ["core.summary"] = {},
+    ["core.concealer"] = {}, -- Adds pretty icons to your documents
     ["core.integrations.treesitter"] = {
       config = {
         norg = {
