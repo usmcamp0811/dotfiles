@@ -21,6 +21,7 @@ let
     ls -lah $DOD_CERT_DIR/certificates_pkcs7_v5_14_wcf
     ${pkgs.nssTools}/bin/modutil -dbdir sql:$NSS_DB_DIR -add "CAC Module" -libfile ${pkgs.opensc}/lib/opensc-pkcs11.so -force
     for n in $(ls * | grep Certificates); do
+      echo $n
       ${pkgs.nssTools}/bin/certutil -d sql:$NSS_DB_DIR -A -t TC -n "$n" -i "$n"
     done
     chown -R ${config.campground.user.name} $HOME_DIR
