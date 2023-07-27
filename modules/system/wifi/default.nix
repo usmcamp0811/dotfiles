@@ -60,9 +60,10 @@ in
                 #!/bin/sh
                 SSID="${name}"
                 PASSWORD={{ with secret "secret/campground/wifi" }}{{ .Data.${name} }}{{ end }}
-                if ! ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
-                  ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID password $PASSWORD
+                if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
+                  ${pkgs.networkmanager}/bin/nmcli con delete id $SSID
                 fi
+                ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID password $PASSWORD
               '') cfg.networks);
               permissions = "0400";
               change-action = "restart";
@@ -73,4 +74,5 @@ in
     };
   };
 }
+
 
