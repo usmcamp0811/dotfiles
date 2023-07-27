@@ -6,7 +6,7 @@ let
   cfg = config.campground.apps.brave;
   cacCertificates = pkgs.fetchurl {
     url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_DoD.zip";
-    sha256 = "09w9z6vs8r394wq2xk4gwaii9l04zb5h1q1qixbr9m45vnfs2i1v";
+    sha256 = "BinhBelA18+B7Ekg8ZT8m64/aSCBZovGEA2f8kviMOU=";
   };
 
   installCACertsScript = pkgs.writeShellScriptBin "installCACerts" ''
@@ -19,9 +19,9 @@ let
     rm -rf $DOD_CERT_DIR
     ${pkgs.unzip}/bin/unzip -o ${cacCertificates} -d $DOD_CERT_DIR
 
-    cd $DOD_CERT_DIR/certificates_pkcs7_v5_14_wcf
+    cd $DOD_CERT_DIR/certificates_pkcs7_v5_12_dod
 #    ${pkgs.nssTools}/bin/modutil -dbdir sql:$NSS_DB_DIR -add "CAC Module" -libfile ${pkgs.opensc}/lib/pkcs11/opensc-pkcs11.so -force
-    for n in $(ls $DOD_CERT_DIR/certificates_pkcs7_v5_14_wcf/*.p7b); do
+    for n in $(ls $DOD_CERT_DIR/certificates_pkcs7_v5_12_dod/*.p7b); do
       echo $n
       ${pkgs.nssTools}/bin/certutil -d sql:$NSS_DB_DIR -A -t TC -n "$n" -i "$n"
     done
