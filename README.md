@@ -5,7 +5,7 @@ I am converting my dotfiles over to Nix. As I learn things I'll add my notes her
 Basing them on [Snowfall Lib](https://github.com/snowfallorg/lib#lib)
 
 ```
-flake-root/ 
+flake-root/
 │
 │ Your Nix flake.
 ├─ flake.nix
@@ -16,7 +16,7 @@ flake-root/
 │  │ A Nix function called with `inputs`, `snowfall-inputs`, and `lib`.
 │  │ The function should return an attribute set to merge with `lib`.
 │  ├─ default.nix
-│  │  
+│  │
 │  │ Any (nestable) directory name.
 │  └─ **/
 │     │
