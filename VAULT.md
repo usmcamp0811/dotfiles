@@ -11,7 +11,7 @@ Follow the steps below to stand up a HashiCorp Vault container:
 1. **Pull the Vault Docker Image**
 
 ```shell
-docker pull vault
+docker pull hashicorp/vault
 ```
 
 2. **Run the Vault Container**
