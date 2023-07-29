@@ -14,23 +14,16 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/135e05a9-e446-47e1-a25a-5157f74db1bf";
+    { device = "/dev/disk/by-uuid/52d0f0b5-3f7c-4e9c-a078-bd680aa2945a";
       fsType = "ext4";
     };
 
-  boot.initrd.luks.devices."luks-2166fd6f-7c05-4980-b094-a410d4555054".device = "/dev/disk/by-uuid/2166fd6f-7c05-4980-b094-a410d4555054";
+  boot.initrd.luks.devices."luks-898e5204-e1fa-4535-b972-815fe570154c".device = "/dev/disk/by-uuid/898e5204-e1fa-4535-b972-815fe570154c";
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/5516-4405";
       fsType = "vfat";
     };
-
-  # NFS Mounts
-  fileSystems."/mnt/campfs" = {
-    device = "campfs.campground.lan:/mnt/campfs";
-    fsType = "nfs";
-    options = [ "x-systemd.automount" "noauto" ];
-  };
 
   swapDevices = [ ];
 
@@ -39,7 +32,6 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.enp59s0u2.useDHCP = lib.mkDefault true;
   # networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
