@@ -80,3 +80,6 @@ schedule(@task begin
     OhMyREPL.__init__()
 end)
 
+if isinteractive()
+    @eval using VimBindings
+end

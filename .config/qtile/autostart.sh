@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export GDK_SCALE=1.4
-[[ "$(pgrep -x picom | wc -l)" != "1" ]] && picom --experimental-backend -b &
+# [[ "$(pgrep -x picom | wc -l)" != "1" ]] && picom --experimental-backend -b &
 # /home/mcamp/.config/polybar/launch &
 # [[ "$(pgrep -x redshift-gtk | wc -l)" != "1" ]] && redshift-gtk &
 [[ "$(ps aux | grep redshift | wc -l)" != "1" ]] && redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &

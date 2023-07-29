@@ -260,3 +260,12 @@ fix-pipewire(){
   systemctl --user restart pipewire-pulse.service
   systemctl --user restart wireplumber.service
 }
+
+get_user_description() {
+  local username="$1"
+  if [ -z "$username" ]; then
+    echo "Usage: get_user_description <username>"
+    return 1
+  fi
+  ldapsearch -x -H $LDAP_SERVER -D "cn=admin,$SEARCH_BASE" -w $LDAP_ADMIN -b "$SEARCH_BASE" "(uid=$username)" description | awk '/^description: /{print substr($0, 14)}'
+}
