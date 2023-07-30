@@ -261,11 +261,44 @@ fix-pipewire(){
   systemctl --user restart wireplumber.service
 }
 
-get_user_description() {
+# somethign I am plaing with to see about getting information from LDAP about users
+get_ldap_user_git_home() {
   local username="$1"
   if [ -z "$username" ]; then
-    echo "Usage: get_user_description <username>"
+    echo "Usage: get_ldap_user_git_home <username>"
     return 1
   fi
   ldapsearch -x -H $LDAP_SERVER -D "cn=admin,$SEARCH_BASE" -w $LDAP_ADMIN -b "$SEARCH_BASE" "(uid=$username)" description | awk '/^description: /{print substr($0, 14)}'
+}
+
+# Function to login to Vault and retrieve AppRole credentials
+get_approle_credentials() {
+  # Check that an approle name was provided
+  if [ -z "$1" ]; then
+    echo "Usage: get_approle_credentials <approle_name>"
+    return 1
+  fi
+
+  # Set the approle name
+  approle_name=$1
+
+  # Prompt for Vault login
+  echo "Please login to Vault..."
+  vault login
+
+  # Check that login was successful
+  if [ $? -ne 0 ]; then
+    echo "Vault login failed."
+    return 1
+  fi
+
+  # Retrieve and save the role-id
+  role_id=$(vault read -field=role_id auth/approle/role/${approle_name}/role-id)
+  echo ${role_id} > role-id
+
+  # Retrieve and save the secret-id
+  secret_id=$(vault write -f -field=secret_id auth/approle/role/${approle_name}/secret-id)
+  echo ${secret_id} > secret-id
+
+  echo "AppRole credentials saved to 'role-id' and 'secret-id'."
 }
