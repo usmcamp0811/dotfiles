@@ -65,9 +65,15 @@
         vault-service.nixosModules.nixos-vault-service
       ];
 
+      #TODO: Move this into the actual system config?
       systems.hosts.ata-xps.modules = with inputs; [
         nixos-hardware.nixosModules.dell-xps-13-7390
 
+      ];
+
+      #TODO: Move this into the actual system config?
+      systems.hosts.butler.modules = with inputs; [
+        nixos-hardware.nixosModules.thinkpad-p1
       ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
