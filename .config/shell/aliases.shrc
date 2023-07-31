@@ -272,10 +272,10 @@ get_ldap_user_git_home() {
 }
 
 # Function to login to Vault and retrieve AppRole credentials
-get_approle_credentials() {
+get-approle-credentials() {
   # Check that an approle name was provided
   if [ -z "$1" ]; then
-    echo "Usage: get_approle_credentials <approle_name>"
+    echo "Usage: get-approle-credentials <approle_name>"
     return 1
   fi
 
