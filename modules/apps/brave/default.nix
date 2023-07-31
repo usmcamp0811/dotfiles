@@ -5,30 +5,27 @@ with lib.internal;
 let
   cfg = config.campground.apps.brave;
   cacCertificates = pkgs.fetchurl {
-    url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_WCF.zip";
-    sha256 = "1inbf55mfqi0clsd8ybagfgz90n1h5knvs2rz33f7n6pjy7hcsnm";
+    url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_DoD.zip";
+    sha256 = "BinhBelA18+B7Ekg8ZT8m64/aSCBZovGEA2f8kviMOU=";
   };
-  cacCertificatesUnzipped = pkgs.runCommandNoCC "cac-certificates" {
-    nativeBuildInputs = [ pkgs.unzip ];
-  } ''
-    mkdir $out
-    unzip ${cacCertificates} -d $out
-  '';
 
-  cacCertificatesPaths = builtins.map (name: "${cacCertificatesUnzipped}/${name}") (builtins.filter (name: lib.hasSuffix ".p7b" name) (builtins.attrNames (builtins.readDir cacCertificatesUnzipped)));
-  installCACertsScript = pkgs.writeScript "installCACerts.sh" ''
-    #!/run/current-system/sw/bin/bash
+  installCACertsScript = pkgs.writeShellScriptBin "installCACerts" ''
     set -x
     set -e
-    ls -lah ${pkgs.p11-kit}/lib
-    echo "break"
-    ls -lah ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so
-    ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so -force
-    for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
-    do
-      echo "Loading Cert into Brave: $certfile"
-      ${pkgs.nssTools}/bin/certutil -d sql:$HOME/.pki/nssdb -A -t TC -n "$certFile" -i "$certFile"
+    HOME_DIR=${config.users.users.${config.campground.user.name}.home}
+    DOD_CERT_DIR=$HOME_DIR/dodcerts
+    NSS_DB_DIR=$HOME_DIR/.pki/nssdb
+    mkdir -p $NSS_DB_DIR
+    rm -rf $DOD_CERT_DIR
+    ${pkgs.unzip}/bin/unzip -o ${cacCertificates} -d $DOD_CERT_DIR
+
+    cd $DOD_CERT_DIR/certificates_pkcs7_v5_12_dod
+#    ${pkgs.nssTools}/bin/modutil -dbdir sql:$NSS_DB_DIR -add "CAC Module" -libfile ${pkgs.opensc}/lib/pkcs11/opensc-pkcs11.so -force
+    for n in $(ls $DOD_CERT_DIR/certificates_pkcs7_v5_12_dod/*.p7b); do
+      echo $n
+      ${pkgs.nssTools}/bin/certutil -d sql:$NSS_DB_DIR -A -t TC -n "$n" -i "$n"
     done
+    rm -rf $DOD_CERT_DIR
   '';
 in
 {
@@ -41,7 +38,7 @@ in
     environment.systemPackages = with pkgs; [
       nssTools
       brave
-      pkcs11helper
+      installCACertsScript
     ];
 
     systemd.services.installCACerts = {
@@ -51,7 +48,8 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = "yes";
-        ExecStart = "${installCACertsScript}";
+        ExecStart = "${installCACertsScript}/bin/installCACerts";
+        User = config.campground.user.name;
       };
     };
 
