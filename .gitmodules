@@ -1,0 +1,3 @@
+[submodule "users/mcamp"]
+	path = users/mcamp
+	url = https://gitlab.com/usmcamp0811/dotfiles.git

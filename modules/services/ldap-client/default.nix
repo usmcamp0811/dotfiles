@@ -4,7 +4,19 @@ with lib;
 with lib.internal;
 let
   cfg = config.campground.services.ldap-client;
-
+  # This script fixes the problem I encountered using home-manager as a random LDAP user
+  # LDAP users don't get `/nix/var/nix/profiles` created so we just watch /home
+  # and if a new folder gets created (aka new user logs in) then we create the folder for them
+  scriptPath = pkgs.writeShellScript "user-directory-watcher" ''
+    ${pkgs.inotify-tools}/bin/inotifywait -m -e create --format '%f' /home | while read -r newUser
+    do
+      if [ -d "/home/$newUser" ]; then
+        mkdir -p "/nix/var/nix/profiles/per-user/$newUser"
+        chown $newUser:nixbld "/nix/var/nix/profiles/per-user/$newUser"
+        echo "Created directory for new user: $newUser"
+      fi
+    done
+  '';
 in
 {
   options.campground.services.ldap-client = with types; {
@@ -20,6 +32,7 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+    trusted_group = mkOpt str "ldap_user" "The LDAP Group of users who can user home-manager on the system.";
   };
 
   config = mkIf cfg.enable {
@@ -30,7 +43,21 @@ in
       sssd
       openldap
       openssl
+      inotify-tools
     ];
+    security.pam.services = {
+      login.makeHomeDir = true;
+      sshd.makeHomeDir = true;
+      su.makeHomeDir = true;
+    };
+
+    # TODO: Test if this is needed... also is there a better place to put the tempated home dir?
+    security.pam = {
+      makeHomeDir = {
+        skelDirectory = "/etc/skel";
+      };
+
+    };
     services.sssd = {
         enable = true;
         config = ''
@@ -68,7 +95,22 @@ ldap_group_member = memberUid
     '';
     };
 
-    campground.services.vault-agent.services.ssid = {
+    # Chad says this should let all ldap users in the `ldap_user` group to use home-manager
+    nix.settings.trusted-users = [ "@${cfg.trusted_group}" ];
+
+    systemd.services.userDirectoryWatcher = {
+      description = "Watch for new user directories in /home because LDAP users seem to break home-manager.";
+      serviceConfig = {
+        Type = "simple";
+        User = "root";
+        Restart = "always";
+        RestartSec = "5s";
+        ExecStart = "${scriptPath}";
+      };
+      wantedBy = [ "multi-user.target" ];
+    };
+
+    campground.services.vault-agent.services.sssd = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
