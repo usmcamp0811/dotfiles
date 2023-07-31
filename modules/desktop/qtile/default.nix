@@ -75,6 +75,13 @@ in
 
     services.udev.packages = with pkgs; [];
 
+    environment.etc = let
+      rofiThemes = "${pkgs.rofi}/share/rofi/themes";
+    in mapAttrs' (name: _: {
+      name = "rofi/themes/${name}";
+      value = { source = "${rofiThemes}/${name}"; };
+    }) (builtins.readDir rofiThemes);
+
     services.xserver = {
       enable = true;
       libinput.enable = true;
