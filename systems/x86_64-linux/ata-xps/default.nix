@@ -16,6 +16,7 @@ in
     ./hardware.nix
   ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  services.logind.lidSwitch = "ignore";
   campground = {
     archetypes = {
       workstation = enabled;
@@ -34,9 +35,11 @@ in
 
     system = {
       boot = enabled;
+      # manage local passwd in vault
+      passwds = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = false;
+        enable = true;
         networks = {
           SkyNet = {
             ssid = "SkyNet";
@@ -47,7 +50,7 @@ in
         };
       };
       vpn = {
-        enable = false;
+        enable = true;
         networks = {
           CampNet = {
             key = "ata_xps";
@@ -65,21 +68,20 @@ in
   };
 
   campground.user = {
-    name = "mcamp";
+    name = "abe";
     fullName = "Matt Camp";
     email = "matt@aicampground.com";
-    initialPassword = "password";
     extraGroups = ["wheel"];
   };
 
   campground.services = {
-#    ldap-client = enabled;
-#    secret-service = enabled;
+    ldap-client = enabled;
+    secret-service = enabled;
     cac = {
       enable = false;
     };
     vault-agent = {
-      enable = false;
+      enable = true;
       settings = {
         vault = {
           address = "https://vault.lan.aicampground.com";
