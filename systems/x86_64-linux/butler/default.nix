@@ -62,6 +62,8 @@ in
     hardware.audio = {
     };
 
+    hardware.nvidia = enabled;
+
   };
 
   campground.home.extraOptions = {
