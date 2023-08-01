@@ -22,6 +22,9 @@ in
     services.xserver.videoDrivers = ["nvidia"];
 
     hardware.nvidia.prime = {
+      sync = {
+        enable = true;
+      };
       offload = {
         enable = true;
         enableOffloadCmd = true;
