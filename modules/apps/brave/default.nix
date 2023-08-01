@@ -44,16 +44,16 @@ in
       pkcs11helper
     ];
 
-    systemd.services.installCACerts = {
-      description = "Install CAC certificates into Chromium based Browsers";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = "yes";
-        ExecStart = "${installCACertsScript}";
-      };
-    };
+    # systemd.services.installCACerts = {
+    #   description = "Install CAC certificates into Chromium based Browsers";
+    #   after = [ "network.target" ];
+    #   wantedBy = [ "multi-user.target" ];
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     RemainAfterExit = "yes";
+    #     ExecStart = "${installCACertsScript}";
+    #   };
+    # };
 
     campground.services.cac.enable = mkIf cfg.cac true;
   };

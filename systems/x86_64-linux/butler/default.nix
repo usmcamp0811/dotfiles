@@ -24,7 +24,7 @@ in
 
     apps = {
       firefox = {
-        enable = true;
+        enable = false;
         cac = false;
       };
       brave = {
