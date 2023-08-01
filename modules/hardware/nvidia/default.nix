@@ -1,26 +1,37 @@
 { options, config, pkgs, lib, ... }:
 
 with lib;
-with lib.internal;
 let cfg = config.campground.hardware.nvidia;
 in
 {
   options.campground.hardware.nvidia = with types; {
-    enable = mkBoolOpt false "Whether or not to enable Nvidia support";
+    enable = mkEnableOption "Nvidia support";
   };
 
   config = mkIf cfg.enable {
-    hardware.opengl = {
-      enable = true;
-      driSupport = true;
-      driSupport32Bit = true;
+    specialisation = {
+      external-display.configuration = {
+        system.nixos.tags = [ "external-display" ];
+        hardware.nvidia = {
+          prime.offload.enable = lib.mkForce false;
+          powerManagement.enable = lib.mkForce false;
+        };
+      };
     };
 
-    # Tell Xorg to use the nvidia driver (also valid for Wayland)
     services.xserver.videoDrivers = ["nvidia"];
 
-    hardware.nvidia = {
+    hardware.nvidia.prime = {
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
 
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
+
+    hardware.nvidia = {
       # Modesetting is needed for most Wayland compositors
       modesetting.enable = true;
 
@@ -36,3 +47,4 @@ in
     };
   };
 }
+
