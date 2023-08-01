@@ -159,27 +159,6 @@ in
 
     # TODO: Make what gets copied here more generic for all users
     # TODO: This needs a zshrc or does it? home-manager needs to be accessible
-   system.activationScripts.copySkelDotfiles = lib.stringAfter
-      [ "users" ]
-      ''
-        echo "Copying dotfiles to /etc/skel home directory..."
-        ${pkgs.bash}/bin/bash -c '
-          rm -rf /etc/skel/*
-          echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
-          for file in ${builtins.toString dotfilesDir}/*; do
-            dest="/etc/skel/.config/$(basename $file)"
-            echo "Checking $file..."
-            echo "Copying $file to $dest..."
-            mkdir -p /etc/skel/.config/
-            ${pkgs.coreutils}/bin/cp -r $file $dest
-          done
-          mkdir -p /home/${builtins.toString cfg.name}/.local/state/home-manager/profiles
-          chown -R ${builtins.toString cfg.name}:${builtins.toString config.users.users.${cfg.name}.group} /home/${builtins.toString cfg.name}/.local/state/home-manager/profiles
-        '
-      '';
-
-    # TODO: Make what gets copied here more generic for all users
-    # TODO: This needs a zshrc or does it? home-manager needs to be accessible
     system.activationScripts.copySkelDotfiles = lib.stringAfter
       [ "users" ]
       ''

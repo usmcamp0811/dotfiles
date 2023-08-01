@@ -73,7 +73,7 @@
 
       #TODO: Move this into the actual system config?
       systems.hosts.butler.modules = with inputs; [
-        nixos-hardware.nixosModules.thinkpad-p1
+        nixos-hardware.nixosModules.lenovo-thinkpad-p1
       ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
