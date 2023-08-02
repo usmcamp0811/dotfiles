@@ -148,15 +148,13 @@ in
         ${pkgs.bash}/bin/bash -c '
           echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
           for file in ${builtins.toString dotfilesDir}/*; do
-            dest="/home/${builtins.toString cfg.name}/.config/$(basename $file)"
+            dest="/home/${builtins.toString cfg.name}/.config/"
             echo "Checking $file..."
             echo "Copying $file to $dest..."
-            if [ -d "$file" ]; then
-              rm -rf $dest
-              ${pkgs.rsync}/bin/rsync -a $file/ $dest/
-            else
-              ${pkgs.rsync}/bin/rsync -a $file $dest
-            fi
+            mkdir -p /home/${builtins.toString cfg.name}/.config
+            chown -R ${builtins.toString cfg.name}:users $dest
+            chmod -R 755 /home/${builtins.toString cfg.name}/.config
+            ${pkgs.rsync}/bin/rsync -a $file $dest
             chown -R ${builtins.toString cfg.name}:users $dest
           done
         '
