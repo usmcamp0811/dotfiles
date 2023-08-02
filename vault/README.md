@@ -97,3 +97,17 @@ You can check the status of the vault by running:
 docker exec -it vault vault status
 ```
 
+-------------------------------------------------------------------------------
+
+## next steps
+
+From here we'll have you access the vault via the web ui, but if you're already comfortable with the vault and want to do thing differently, we encourage that as well.
+
+These are our objectives once you have a working vault, even if it's using the supplied `docker-compose.yml` to accomplish the following:
+
+1. Create username and password set of credentials that we'll use in our nix config
+
+
+1. Modify the nix configuration to utilize your local vault instance
+
+
