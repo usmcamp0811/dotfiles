@@ -16,7 +16,7 @@ in
       external-display.configuration = {
         system.nixos.tags = [ "external-display" ];
         hardware.nvidia = {
-          prime.offload.enable = lib.mkForce true;
+          prime.sync.enable = lib.mkForce true;
           powerManagement.enable = lib.mkForce false;
         };
       };
@@ -32,7 +32,7 @@ in
       open = false;
 
       prime = {
-        reverseSync.enable = true;
+        sync.enable = true; # Enable PRIME Sync instead of Reverse Sync
 
         #enable if using an external GPU
         allowExternalGpu = false;
