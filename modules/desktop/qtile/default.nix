@@ -54,7 +54,7 @@ in
         config_file=/var/lib/AccountsService/users/${config.campground.user.name}
         icon_file=/run/current-system/sw/share/campground-icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
 
-        if ! [ -d "$(dirname "$config_file")"]; then
+        if ! [ -d "$(dirname "$config_file")" ]; then
           mkdir -p "$(dirname "$config_file")"
         fi
 
@@ -64,14 +64,15 @@ in
           SystemAccount=false
           Icon=$icon_file" > "$config_file"
         else
-          icon_config=$(sed -E -n -e "/Icon=.*/p" $config_file)
+          icon_config=$(grep -E "^Icon=.*$" $config_file)
 
           if [[ "$icon_config" == "" ]]; then
             echo "Icon=$icon_file" >> $config_file
           else
-            sed -E -i -e "s#^Icon=.*$#Icon=$icon_file#" $config_file
+            sed -E -i -e "s#^Icon=.*\$#Icon=$icon_file#" $config_file
           fi
         fi
+
       '';
     };
 

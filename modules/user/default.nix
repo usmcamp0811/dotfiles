@@ -23,7 +23,7 @@ let
       local target="$out/share/campground-icons/user/${cfg.name}"
       mkdir -p "$target"
 
-      ${pkgs.coreutils}/bin/cp ${cfg.icon} "$target/${cfg.icon.fileName}"
+      cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
 
   dotfilesDir = ./dotfiles/.config;

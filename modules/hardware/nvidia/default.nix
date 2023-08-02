@@ -22,8 +22,9 @@ in
       };
     };
 
-    services.xserver.videoDrivers = ["nvidia"];
-
+    services.xserver.videoDrivers = ["nvidia" "nouveau"];
+    hardware.opengl.driSupport32Bit = true;
+    hardware.opengl.enable = true;
     hardware.nvidia = {
       # Modesetting should be enabled to prevent screen tearing
       modesetting.enable = true;
