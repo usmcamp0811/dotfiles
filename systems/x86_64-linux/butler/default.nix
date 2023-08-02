@@ -93,7 +93,11 @@ in
       };
     };
   };
-
+  # TODO: Move this somewhere more good and try to automate for when not connected to a monitor
+  environment.variables = {
+    GDK_SCALE = "1.6";
+    GDK_DPI_SCALE = "1.6";
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
