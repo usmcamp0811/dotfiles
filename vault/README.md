@@ -88,3 +88,12 @@ docker-compose up -d
 ## Access the Vault Container
 
 After the container is running, you can interact with the Vault server using the Vault CLI or API. The Vault server is accessible at `http://<local ip>:8200`.
+
+## Checking Vault Status
+
+You can check the status of the vault by running:
+
+```bash
+docker exec -it vault vault status
+```
+
