@@ -35,6 +35,7 @@ in
     environment.systemPackages = with pkgs; [
       qtile
       rofi
+      xclip
     ] ++ defaultExtensions;
 
 
