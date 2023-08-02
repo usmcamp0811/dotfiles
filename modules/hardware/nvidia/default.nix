@@ -9,6 +9,9 @@ in
   };
 
   config = mkIf cfg.enable {
+    services.xserver.displayManager.sessionCommands = ''
+        ${lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 2 0
+    '';
     specialisation = {
       external-display.configuration = {
         system.nixos.tags = [ "external-display" ];
@@ -21,24 +24,23 @@ in
 
     services.xserver.videoDrivers = ["nvidia"];
 
-    hardware.nvidia.prime = {
-      sync = {
-        enable = false;
-      };
-      offload = {
-        enable = true;
-        enableOffloadCmd = true;
-      };
-      intelBusId = "PCI:0:2:0";
-      nvidiaBusId = "PCI:1:0:0";
-    };
-
     hardware.nvidia = {
+      # Modesetting should be enabled to prevent screen tearing
       modesetting.enable = true;
+
+      # Reverse sync is not compatible with the open source kernel module
       open = false;
-      nvidiaSettings = true;
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
-      nvidiaPersistenced = true;
+
+      prime = {
+        reverseSync.enable = true;
+
+        #enable if using an external GPU
+        allowExternalGpu = false;
+
+        intelBusId = "PCI:0:2:0";
+
+        nvidiaBusId = "PCI:1:0:0";
+      };
     };
   };
 }
