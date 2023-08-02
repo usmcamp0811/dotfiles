@@ -20,6 +20,7 @@
   home.packages = with pkgs; [
     k9s
     btop
+    julia
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
