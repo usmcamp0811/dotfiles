@@ -36,6 +36,7 @@ in
       qtile
       rofi
       xclip
+      xsel
     ] ++ defaultExtensions;
 
 
