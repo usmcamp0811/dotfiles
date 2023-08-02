@@ -16,11 +16,12 @@ docker pull hashicorp/vault
 
 2. **Run the Vault Container**
 
-The command below starts a new container with the Vault image. The `-e` flags are used to configure the Vault server. 
+The command below starts a new container with the Vault image. The `-e` flags are used to configure the Vault server.
 `VAULT_DEV_ROOT_TOKEN_ID` sets the token for the root user, and `VAULT_DEV_LISTEN_ADDRESS` sets the address the Vault server will listen on.
+The container will attempt to lock memory to prevent sensitive values from being swapped to disk and as a result must have --cap-add=IPC_LOCK provided to docker run. Since the Vault binary runs as a non-root user, setcap is used to give the binary the ability to lock memory. With some Docker storage plugins in some distributions this call will not work correctly; it seems to fail most often with AUFS. The memory locking behavior can be disabled by setting the SKIP_SETCAP environment variable to any non-empty value.[reference in docker hub](https://hub.docker.com/_/vault/)
 
 ```shell
-docker run --cap-add=IPC_LOCK -e 'VAULT_DEV_ROOT_TOKEN_ID=myroot' -e 'VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200' vault
+docker run --cap-add=IPC_LOCK -e 'VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200' vault
 ```
 
 3. **Access the Vault Container**
@@ -36,3 +37,4 @@ Replace `<container_id>` with your actual Vault Docker container ID.
 ## Note
 
 This guide is meant to help you set up a simple Vault server in a Docker container for local development and testing. It's not suitable for production use. For a production setup, ensure Vault is properly secured and set up in a highly available configuration. For more information, refer to the [Vault Production Hardening guide](https://learn.hashicorp.com/tutorials/vault/production-hardening).
+    
