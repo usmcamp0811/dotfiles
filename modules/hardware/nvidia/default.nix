@@ -23,7 +23,8 @@ in
     # boot.kernelParams = [ "i915.force_probe=46a6" ];
     boot.initrd.systemd.enable = true; # this seemed to be the secret to nvidia-prime working... I think
     hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
-
+    hardware.nvidia.nvidiaPersistenced = true;
+    hardware.nvidia.modesetting.enable = true;
 
 
     hardware.nvidia.prime = {
