@@ -21,7 +21,7 @@ in
     services.xserver.videoDrivers = [ "nvidia" ];
     # services.xserver.videoDrivers = [ "nvidia" "modesetting" ];
     # boot.kernelParams = [ "i915.force_probe=46a6" ];
-    boot.initrd.systemd.enable = true;
+    boot.initrd.systemd.enable = true; # this seemed to be the secret to nvidia-prime working... I think
     hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
 
 
