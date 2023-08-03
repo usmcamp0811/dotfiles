@@ -20,7 +20,7 @@ in
     services.xserver.enable = true;
     services.xserver.videoDrivers = [ "nvidia" ];
     # services.xserver.videoDrivers = [ "nvidia" "modesetting" ];
-    boot.kernelParams = [ "i915.force_probe=46a6" ];
+    # boot.kernelParams = [ "i915.force_probe=46a6" ];
     boot.initrd.systemd.enable = true;
     hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
 
