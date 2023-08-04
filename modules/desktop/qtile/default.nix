@@ -8,6 +8,7 @@ let
   # TODO: Look at renaming.. figure this oculd be used to put gui apps that make qtile config pretty and what not
   defaultExtensions = with pkgs; [
     networkmanagerapplet
+    arc-theme
 
   ];
 
@@ -78,6 +79,10 @@ in
 
     services.udev.packages = with pkgs; [];
 
+    services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+      [org.gnome.desktop.interface]
+      gtk-theme='Arc-Dark'
+    '';
     environment.etc = let
       rofiThemes = "${pkgs.rofi}/share/rofi/themes";
     in mapAttrs' (name: _: {
