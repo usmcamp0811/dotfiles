@@ -25,6 +25,18 @@
     autorandr
     arandr
   ];
+  programs.brave = {
+    enable = true;
+    package = pkgs.brave;
+    extensions = [
+      { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+      { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+      { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
+      { id = "iaddfgegjgjelgkanamleadckkpnjpjc"; } # Auto Quality for YouTube
+      { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # Vimium
+      { id = "annfbnbieaamhaimclajlajpijgkdblo"; } # Dark Theme
+    ];
+  };
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
