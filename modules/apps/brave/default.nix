@@ -40,10 +40,17 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       nssTools
-      brave
       pkcs11helper
     ];
 
+    campground.home.extraOptions.programs.brave = {
+      enable = true;
+      package = pkgs.brave;
+      extensions = [
+        { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+        { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+      ];
+    };
     # systemd.services.installCACerts = {
     #   description = "Install CAC certificates into Chromium based Browsers";
     #   after = [ "network.target" ];
