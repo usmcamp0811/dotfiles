@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  # TODO: Move all things out to modules then import them here using snowfall lib methods
   home.username = "mcamp";
   home.homeDirectory = "/home/mcamp";
   home.stateVersion = "22.11";
