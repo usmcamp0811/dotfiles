@@ -49,6 +49,9 @@ in
       extensions = [
         { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
         { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+        { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
+        { id = "iaddfgegjgjelgkanamleadckkpnjpjc"; } # Auto Quality for YouTube
+        { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # Vimium
       ];
     };
     # systemd.services.installCACerts = {
