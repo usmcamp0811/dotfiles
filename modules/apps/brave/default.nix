@@ -52,6 +52,7 @@ in
         { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
         { id = "iaddfgegjgjelgkanamleadckkpnjpjc"; } # Auto Quality for YouTube
         { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # Vimium
+        { id = "annfbnbieaamhaimclajlajpijgkdblo"; } # Dark Theme
       ];
     };
     # systemd.services.installCACerts = {
