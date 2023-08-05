@@ -8,6 +8,7 @@ let
   # TODO: Look at renaming.. figure this oculd be used to put gui apps that make qtile config pretty and what not
   defaultExtensions = with pkgs; [
     networkmanagerapplet
+    arc-theme
 
   ];
 
@@ -19,7 +20,7 @@ in
     enable =
       mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
-    gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
+    gdm = mkBoolOpt true "Whether or not to use GDM Display Manager.";
     lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
     suspend =
       mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
@@ -35,6 +36,8 @@ in
     environment.systemPackages = with pkgs; [
       qtile
       rofi
+      xclip
+      xsel
     ] ++ defaultExtensions;
 
 
@@ -52,7 +55,7 @@ in
         config_file=/var/lib/AccountsService/users/${config.campground.user.name}
         icon_file=/run/current-system/sw/share/campground-icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
 
-        if ! [ -d "$(dirname "$config_file")"]; then
+        if ! [ -d "$(dirname "$config_file")" ]; then
           mkdir -p "$(dirname "$config_file")"
         fi
 
@@ -62,19 +65,24 @@ in
           SystemAccount=false
           Icon=$icon_file" > "$config_file"
         else
-          icon_config=$(sed -E -n -e "/Icon=.*/p" $config_file)
+          icon_config=$(grep -E "^Icon=.*$" $config_file)
 
           if [[ "$icon_config" == "" ]]; then
             echo "Icon=$icon_file" >> $config_file
           else
-            sed -E -i -e "s#^Icon=.*$#Icon=$icon_file#" $config_file
+            sed -E -i -e "s#^Icon=.*\$#Icon=$icon_file#" $config_file
           fi
         fi
+
       '';
     };
 
     services.udev.packages = with pkgs; [];
 
+    services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+      [org.gnome.desktop.interface]
+      gtk-theme='Arc-Dark'
+    '';
     environment.etc = let
       rofiThemes = "${pkgs.rofi}/share/rofi/themes";
     in mapAttrs' (name: _: {
@@ -86,9 +94,9 @@ in
       enable = true;
       libinput.enable = true;
       displayManager = {
-        lightdm = {
-          enable = cfg.lightdm;
-        };
+        # lightdm = {
+        #   enable = cfg.lightdm;
+        # };
         gdm = {
           enable = cfg.gdm;
           wayland = cfg.wayland;

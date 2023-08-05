@@ -27,6 +27,7 @@ in
     cache_credentials = mkBoolOpt true "Whether or not to cache credentials.";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/ldap" "The Vault path to the KV containing the LDAP Secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -129,7 +130,7 @@ ldap_group_member = memberUid
           files = {
             "ldap_ca.pem" = {
               text = ''
-                {{ with secret "secret/campground/ldap" }}
+                {{ with secret "${cfg.vault-path}" }}
                 {{ .Data.ldap_ca }}
                 {{ end }}
               '';

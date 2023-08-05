@@ -31,6 +31,10 @@ alias mv='mv -v'
 alias rm='rm -i -v'
 alias cp='cp -v'
 
+copy(){
+    cat $1 | xsel -b
+}
+
 
 alias chmox='chmod -x'
 cmd-exist bat && alias cat='bat' && alias pcat='bat -p'
@@ -188,10 +192,6 @@ function pac-backup(){
     dotfiles add ~/pkglist.txt
     dotfiles add ~/pkglist-aur.txt
     dotfiles commit -m "Backing-up installed packages"
-}
-
-copy(){
-    /usr/bin/cat $1 | xsel -b
 }
 
 # Codi
