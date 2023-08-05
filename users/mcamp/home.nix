@@ -1,15 +1,15 @@
 { config, pkgs, ... }:
+
+let
+  modulesPath = ./modules/programs;
+  importAllModules = dir: builtins.concatMap (name: import (dir + "/${name}/default.nix")) (builtins.attrNames (builtins.readDir dir));
+in
 {
   home.username = "mcamp";
   home.homeDirectory = "/home/mcamp";
   home.stateVersion = "22.11";
 
   nixpkgs.config.allowUnfree = true;
-
-  imports = [
-    ./apps/brave.nix
-    ./apps/firefox.nix
-  ];
 
   home.packages = with pkgs; [
     k9s
@@ -25,11 +25,11 @@
     go-sct
   ];
 
-  services = {
-    syncthing = {
-      enable = true;
-    };
-  };
+  # Import all modules from the ./modules/programs directory
+  imports = importAllModules modulesPath;
+
+  programs.firefox.enable = true;
+  programs.brave.enable = true;
 
   xsession.windowManager.command = ''
     ${pkgs.dunst}/bin/dunst &
