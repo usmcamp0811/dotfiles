@@ -88,7 +88,7 @@ sudo_provider = ldap
 autofs_provider = ldap
 ldap_id_use_start_tls = True
 ldap_tls_reqcert = allow
-ldap_tls_cacert = /tmp/detsys-vault/ldap_ca.pem  
+ldap_tls_cacert = /etc/ldap/ldap_ca.pem
 entry_cache_timeout = 600
 ldap_network_timeout = 2
 ldap_schema = rfc2307
@@ -129,6 +129,7 @@ ldap_group_member = memberUid
         file = {
           files = {
             "ldap_ca.pem" = {
+              path = "/etc/ldap/ldap_ca.pem";  # specify the path to store the file
               text = ''
                 {{ with secret "${cfg.vault-path}" }}
                 {{ .Data.ldap_ca }}
