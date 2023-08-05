@@ -28,8 +28,8 @@ in
   # Import all modules from the ./modules/programs directory
   imports = importAllModules modulesPath;
 
-  programs.firefox.enable = true;
-  programs.brave.enable = true;
+  campground.firefox.enable = true;
+  campground.brave.enable = true;
 
   xsession.windowManager.command = ''
     ${pkgs.dunst}/bin/dunst &

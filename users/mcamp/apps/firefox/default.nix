@@ -1,9 +1,9 @@
 { config, pkgs, lib, ... }:
 
 {
-  options.programs.firefox.enable = lib.mkEnableOption "Firefox browser";
+  options.campground.firefox.enable = lib.mkEnableOption "Firefox browser";
 
-  config = lib.mkIf config.programs.firefox.enable {
+  config = lib.mkIf config.campground.firefox.enable {
     programs.firefox = {
       enable = true;
       profiles = {

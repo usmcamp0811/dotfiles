@@ -1,9 +1,9 @@
 { config, pkgs, lib, ... }:
 
 {
-  options.programs.brave.enable = lib.mkEnableOption "Brave browser";
+  options.campground.brave.enable = lib.mkEnableOption "Brave browser";
 
-  config = lib.mkIf config.programs.brave.enable {
+  config = lib.mkIf config.campground.brave.enable {
     programs.brave = {
       enable = true;
       package = pkgs.brave;
