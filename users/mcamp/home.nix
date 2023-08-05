@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  modulesPath = ./modules/programs;
+  modulesPath = ./apps;
   importAllModules = dir: builtins.concatMap (name: import (dir + "/${name}/default.nix")) (builtins.attrNames (builtins.readDir dir));
 in
 {
