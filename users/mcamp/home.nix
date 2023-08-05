@@ -1,8 +1,12 @@
 { config, pkgs, ... }:
 
 let
-  modulesPath = ./apps;
-  importAllModules = dir: builtins.concatMap (name: import (dir + "/${name}/default.nix")) (builtins.attrNames (builtins.readDir dir));
+  importAll = dir: 
+    let
+      allFiles = builtins.attrNames (builtins.readDir dir);
+      nixFiles = builtins.filter (name: builtins.hasSuffix ".nix" name) allFiles;
+    in
+      map (file: import "${dir}/${file}") nixFiles;
 in
 {
   home.username = "mcamp";
@@ -25,11 +29,11 @@ in
     go-sct
   ];
 
-  # Import all modules from the ./modules/programs directory
-  imports = importAllModules modulesPath;
+  # Use the function to import all .nix files from the apps directory
+  imports = importAll ./apps;
 
   campground.firefox.enable = true;
-  campground.brave.enable = true;
+  # campground.brave.enable = true;
 
   xsession.windowManager.command = ''
     ${pkgs.dunst}/bin/dunst &
