@@ -23,7 +23,7 @@ let
       local target="$out/share/campground-icons/user/${cfg.name}"
       mkdir -p "$target"
 
-      ${pkgs.coreutils}/bin/cp ${cfg.icon} "$target/${cfg.icon.fileName}"
+      cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
 
   dotfilesDir = ./dotfiles/.config;
@@ -148,15 +148,17 @@ in
         ${pkgs.bash}/bin/bash -c '
           echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
           for file in ${builtins.toString dotfilesDir}/*; do
-            dest="/home/${builtins.toString cfg.name}/.config/$(basename $file)"
+            dest="/home/${builtins.toString cfg.name}/.config/"
             echo "Checking $file..."
             echo "Copying $file to $dest..."
-            cp -r $file $dest
+            mkdir -p /home/${builtins.toString cfg.name}/.config
+            chown -R ${builtins.toString cfg.name}:users $dest
+            chmod -R 755 /home/${builtins.toString cfg.name}/.config
+            ${pkgs.rsync}/bin/rsync -a $file $dest
             chown -R ${builtins.toString cfg.name}:users $dest
           done
         '
       '';
-
     # TODO: Make what gets copied here more generic for all users
     # TODO: This needs a zshrc or does it? home-manager needs to be accessible
     system.activationScripts.copySkelDotfiles = lib.stringAfter
@@ -167,11 +169,11 @@ in
           rm -rf /etc/skel/*
           echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
           for file in ${builtins.toString dotfilesDir}/*; do
-            dest="/etc/skel/.config/$(basename $file)"
+            dest="/etc/skel/.config/"
             echo "Checking $file..."
             echo "Copying $file to $dest..."
             mkdir -p /etc/skel/.config/
-            cp -r $file $dest
+            ${pkgs.rsync}/bin/rsync -a $file $dest
           done
         '
       '';
