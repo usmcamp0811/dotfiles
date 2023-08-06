@@ -4,6 +4,14 @@
 - Docker installed on your machine.
 - Basic understanding of Docker and HashiCorp Vault.
 
+## Launching the Containers
+
+Once the docker-compose.yml is ready, run the following command in the same directory to start the containers:
+
+```bash
+docker-compose up -d
+```
+
 ## Setup
 
 Follow the steps below to stand up a HashiCorp Vault container:
@@ -76,14 +84,6 @@ disable_mlock = "true"
 ```
 
 > All other pertinent files will be created and adjusted appropriately. Please review the volume mounts within the docker compose.
-
-## Launching the Containers
-
-Once the docker-compose.yml is ready, run the following command in the same directory to start the containers:
-
-```bash
-docker-compose up -d
-```
 
 ## Access the Vault Container
 

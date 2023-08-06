@@ -42,7 +42,7 @@ in
             ssid = "SkyNet";
           };
           SkyNet5 = {
-            ssid = "SkyNet5";
+            ssid = "Boterf-5G";
           };
         };
       };
@@ -76,13 +76,13 @@ in
     ldap-client = disabled;
     secret-service = disabled;
     cac = {
-      enable = true;
+      enable = false;
     };
     vault-agent = {
-      enable = false;
+      enable = true;
       settings = {
         vault = {
-          address = "https://vault.lan.aicampground.com";
+          address = "http://10.0.0.19:8200";
           role-id = "/var/lib/vault/ata-xps/role-id";
           secret-id = "/var/lib/vault/ata-xps/secret-id";
         };
