@@ -7,26 +7,26 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  home.packages = with pkgs; [
-    k9s
-    btop
-    julia
-    deno
-    autorandr
-    arandr
-    feh
-    qutebrowser
-    zathura
-    dunst
-    go-sct
-  ];
+#  home.packages = with pkgs; [
+#    k9s
+#    btop
+#    julia
+#    deno
+#    autorandr
+#    arandr
+#    feh
+#    qutebrowser
+#    zathura
+#    dunst
+#    go-sct
+#  ];
 
   # Use the function to import all .nix files from the apps directory
   #  imports = map (n: "${./apps}/${n}") (builtins.attrNames (builtins.readDir ./apps));
-  imports = [
-    ./apps/brave.nix
-    ./apps/firefox.nix
-  ];
+#   imports = [
+#     ./apps/brave.nix
+#     ./apps/firefox.nix
+#   ];
 
 
   xsession.windowManager.command = ''
