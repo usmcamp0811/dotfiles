@@ -33,6 +33,10 @@ in
       clang
       zig
       home-manager
+      k9s
+      btop
+      deno
+      zathura
     ];
 
   };

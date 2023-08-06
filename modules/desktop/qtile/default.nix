@@ -38,6 +38,11 @@ in
       rofi
       xclip
       xsel
+      feh
+      dunst
+      autorandr
+      arandr
+      go-sct
     ] ++ defaultExtensions;
 
 
