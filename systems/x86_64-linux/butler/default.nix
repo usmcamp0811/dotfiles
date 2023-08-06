@@ -31,6 +31,7 @@ in
         enable = true;
         cac = false;
       };
+      k9s = enabled; 
     };
 
     system = {
