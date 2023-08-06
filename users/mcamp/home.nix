@@ -1,13 +1,5 @@
 { config, pkgs, ... }:
 
-let
-  importAll = dir: 
-    let
-      allFiles = builtins.attrNames (builtins.readDir dir);
-      nixFiles = builtins.filter (name: builtins.hasSuffix ".nix" name) allFiles;
-    in
-      map (file: import "${dir}/${file}") nixFiles;
-in
 {
   home.username = "mcamp";
   home.homeDirectory = "/home/mcamp";
@@ -30,10 +22,20 @@ in
   ];
 
   # Use the function to import all .nix files from the apps directory
-  imports = importAll ./apps;
+  imports = map (n: "${./apps}/${n}") (builtins.attrNames (builtins.readDir ./apps));
 
-  campground.firefox.enable = true;
-  # campground.brave.enable = true;
+  options = {
+    campground = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
+        options.enable = lib.mkEnableOption name;
+      }));
+      default = {};
+      description = "Campground programs";
+    };
+  };
+
+#  campground.firefox.enable = true;
+#  campground.brave.enable = true;
 
   xsession.windowManager.command = ''
     ${pkgs.dunst}/bin/dunst &
