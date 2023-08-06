@@ -17,6 +17,10 @@ let
       fi
     done
   '';
+
+  copyLdapCAPem = pkgs.writeShellScript "copy-ldap-ca-pem" ''
+    cp /tmp/detsys-vault/ldap_ca.pem /etc/ldap/ldap_ca.pem
+  '';
 in
 {
   options.campground.services.ldap-client = with types; {
@@ -111,6 +115,17 @@ ldap_group_member = memberUid
       wantedBy = [ "multi-user.target" ];
     };
 
+    systemd.services.copyLdapCAPem = {
+      description = "Copy ldap_ca.pem to /etc/ldap/ldap_ca.pem after Vault agent has started";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = "${copyLdapCAPem}";
+      };
+      after = [ "vault-agent.service" ];
+      wantedBy = [ "multi-user.target" ];
+    };
+
     campground.services.vault-agent.services.sssd = {
       settings = {
         vault.address = cfg.vault-address;
@@ -129,7 +144,6 @@ ldap_group_member = memberUid
         file = {
           files = {
             "ldap_ca.pem" = {
-              path = "/etc/ldap/ldap_ca.pem";  # specify the path to store the file
               text = ''
                 {{ with secret "${cfg.vault-path}" }}
                 {{ .Data.ldap_ca }}
