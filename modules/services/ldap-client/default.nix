@@ -17,10 +17,6 @@ let
       fi
     done
   '';
-
-  copyLdapCAPem = pkgs.writeShellScript "copy-ldap-ca-pem" ''
-    cp /tmp/detsys-vault/ldap_ca.pem /etc/ldap/ldap_ca.pem
-  '';
 in
 {
   options.campground.services.ldap-client = with types; {
@@ -120,13 +116,12 @@ ldap_group_member = memberUid
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart = "${copyLdapCAPem}";
+        ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyLDAP_CA.sh";
       };
-      after = [ "vault-agent.service" ];
       wantedBy = [ "multi-user.target" ];
     };
 
-    campground.services.vault-agent.services.sssd = {
+    campground.services.vault-agent.services.copyLdapCAPem = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -143,13 +138,22 @@ ldap_group_member = memberUid
       secrets = {
         file = {
           files = {
-            "ldap_ca.pem" = {
+            "copyLDAP_CA.sh" = {
               text = ''
-                {{ with secret "${cfg.vault-path}" }}
-                {{ .Data.ldap_ca }}
-                {{ end }}
+                #!/bin/sh
+                set -e  # exit immediately on error
+                CA_CERT="/etc/ldap/ldap_ca.pem"
+                TEMP_CERT=$(mktemp)
+                
+                # Write the certificate to a temp file first
+                cat <<EOF >$TEMP_CERT
+    {{ with secret "${cfg.vault-path}" }}{{ .Data.ldap_ca }}{{ end }}
+    EOF
+                # Move temp file to target, ensuring atomic update
+                mv $TEMP_CERT $CA_CERT
+                chmod 0644 $CA_CERT  # Set appropriate permissions
               '';
-              permissions = "0400";
+              permissions = "0755";  # Make the script executable
               change-action = "restart";
             };
           };
