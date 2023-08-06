@@ -28,18 +28,6 @@ in
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/kubeconfig";
-      };
-      wantedBy = [ "multi-user.target" ];
-    };
-
-
-
-    systemd.services.copyKUBECONFIG = {
-      description = "Copy Kubeconfig to /etc/k8s/";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
         ExecStart = "${pkgs.bash}/bin/bash -c 'mkdir -p /etc/k8s/ && cp /tmp/detsys-vault/kubeconfig /etc/k8s/config && chgrp k8s /etc/k8s/config'";
       };
       wantedBy = [ "multi-user.target" ];
