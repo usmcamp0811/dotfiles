@@ -32,11 +32,9 @@ in
       gcc
       clang
       zig
+      home-manager
     ];
 
-    # imports = [
-    #   # agenix.nixosModules.age
-    # ];
   };
 }
 

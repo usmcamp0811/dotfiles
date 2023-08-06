@@ -7,5 +7,5 @@ configuration {
   yoffset: -50;
   xoffset: -20;
 }
-@import "/usr/share/rofi/themes/DarkBlue.rasi"
-@theme "/usr/share/rofi/themes/arthur.rasi"
+@import "/etc/rofi/themes/DarkBlue.rasi"
+@theme "/etc/rofi/themes/arthur.rasi"

@@ -10,6 +10,7 @@ in
     enable = mkBoolOpt false "Whether or not to enable VPN.";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/vpn" "The Vault path to the KV containing the VPN Secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -60,7 +61,7 @@ in
                 VPN_NAME="${name}"
                 OVPN_FILE="/tmp/${name}.ovpn"
                 cat <<EOF >$OVPN_FILE
-      {{ with secret "secret/campground/vpn" }}{{ .Data.${network.key} }}{{ end }}
+      {{ with secret "${cfg.vault-path}" }}{{ .Data.${network.key} }}{{ end }}
       EOF
                 if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $VPN_NAME; then
                   ${pkgs.networkmanager}/bin/nmcli con delete id $VPN_NAME

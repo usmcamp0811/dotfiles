@@ -25,11 +25,11 @@ in
     apps = {
       firefox = {
         enable = false;
-        cac = true;
+        cac = false;
       };
       brave = {
-        enable = false;
-        cac = true;
+        enable = true;
+        cac = false;
       };
     };
 
@@ -53,7 +53,7 @@ in
         enable = true;
         networks = {
           CampNet = {
-            key = "ata_xps";
+            key = "butler";
           };
         };
       };
@@ -61,6 +61,8 @@ in
 
     hardware.audio = {
     };
+
+    hardware.nvidia = enabled;
 
   };
 
@@ -85,13 +87,17 @@ in
       settings = {
         vault = {
           address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/ata-xps/role-id";
-          secret-id = "/var/lib/vault/ata-xps/secret-id";
+          role-id = "/var/lib/vault/butler/role-id";
+          secret-id = "/var/lib/vault/butler/secret-id";
         };
       };
     };
   };
-
+  # TODO: Move this somewhere more good and try to automate for when not connected to a monitor
+  environment.variables = {
+    GDK_SCALE = "1.6";
+    GDK_DPI_SCALE = "1.6";
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
