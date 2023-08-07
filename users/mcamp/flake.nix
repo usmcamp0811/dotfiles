@@ -23,7 +23,7 @@
     {
       inherit lib;
       homeConfigurations = {
-        "mcamp@butler" = lib.homeManagerConfiguration {
+        "mcamp@system" = lib.homeManagerConfiguration {
           modules = [ ./system.nix ];
           pkgs = pkgsFor.x86_64-linux;
           extraSpecialArgs = { inherit inputs; };

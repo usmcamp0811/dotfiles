@@ -7,7 +7,9 @@
 
   # Use modules from the jakehamilton flake
   imports = [
-    inputs.jakehamilton.nixosModules.apps.gimp
+    inputs.jakehamilton.outputs.nixosModules.apps/gimp
   ];
+
+  programs.gimp.enable = true;
 }
 
