@@ -120,25 +120,25 @@ in
       shell = pkgs.zsh;
     } // cfg.extraOptions;
 
-    users.users.${cfg.name} = {
-      isNormalUser = true;
+   users.users.${cfg.name} = {
+     isNormalUser = true;
 
-      inherit (cfg) name initialPassword;
+     inherit (cfg) name initialPassword;
 
-      home = "/home/${cfg.name}";
-      group = "users";
+     home = "/home/${cfg.name}";
+     group = "users";
 
-      shell = pkgs.zsh;
+     shell = pkgs.zsh;
 
-      # Arbitrary user ID to use for the user. Since I only
-      # have a single user on my machines this won't ever collide.
-      # However, if you add multiple users you'll need to change this
-      # so each user has their own unique uid (or leave it out for the
-      # system to select).
-      uid = 1000;
+     # Arbitrary user ID to use for the user. Since I only
+     # have a single user on my machines this won't ever collide.
+     # However, if you add multiple users you'll need to change this
+     # so each user has their own unique uid (or leave it out for the
+     # system to select).
+     uid = 1000;
 
-      extraGroups = [ "wheel" ] ++ cfg.extraGroups;
-    } // cfg.extraOptions;
+     extraGroups = [ "wheel" ] ++ cfg.extraGroups;
+   } // cfg.extraOptions;
 
 
     system.activationScripts.copyDotfiles = lib.stringAfter
@@ -155,7 +155,7 @@ in
             chown -R ${builtins.toString cfg.name}:users $dest
             chmod -R 755 /home/${builtins.toString cfg.name}/.config
             ${pkgs.rsync}/bin/rsync -a $file $dest
-            chown -R ${builtins.toString cfg.name}:users $dest
+            chown -R ${builtins.toString cfg.name}:ldap_user $dest
           done
         '
       '';

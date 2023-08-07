@@ -98,6 +98,21 @@ in
       };
     };
   };
+
+#  users.users.mcamp = {
+#    isNormalUser = true;
+#    home = "/home/mcamp";
+#    group = "ldap_user";
+#    shell = pkgs.zsh;
+#
+#    # Arbitrary user ID to use for the user. Since I only
+#    # have a single user on my machines this won't ever collide.
+#    # However, if you add multiple users you'll need to change this
+#    # so each user has their own unique uid (or leave it out for the
+#    # system to select).
+#    uid = 10000;
+#  }; 
+
   # TODO: Move this somewhere more good and try to automate for when not connected to a monitor
   environment.variables = {
     GDK_SCALE = "1.6";
