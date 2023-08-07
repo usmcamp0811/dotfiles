@@ -29,7 +29,6 @@
             ({ pkgs, ... }: {
               imports = [
                 ./home.nix
-                plusultra.nixosModules.home-manager
               ];
               home.username = "mcamp";
               home.homeDirectory = "/home/mcamp";

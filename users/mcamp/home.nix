@@ -4,7 +4,7 @@
   programs.home-manager.enable = true;
 
   # Enable the GIMP module
-  plusultra.apps.gimp.enable = true;
+#  plusultra.apps.gimp.enable = true;
 
   # Set your shell
   programs.zsh.enable = true;
