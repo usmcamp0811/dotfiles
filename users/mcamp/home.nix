@@ -1,24 +1,16 @@
-{ pkgs, plusultra, ... }:
-
+{ config, pkgs, ... }:
 {
-  programs.home-manager.enable = true;
+  home.username = "mcamp";
+  home.homeDirectory = "/home/mcamp";
+  home.stateVersion = "22.11";
 
-  # Enable the GIMP module
-#  plusultra.apps.gimp.enable = true;
+  nixpkgs.config.allowUnfree = true;
 
-  # Set your shell
-  programs.zsh.enable = true;
+  imports = [
+    ./apps/brave.nix
+    ./apps/firefox.nix
+  ];
 
-  # Set your editor
-  programs.neovim.enable = true;
-
-  # Define some aliases
-  home.sessionVariables = {
-    ll = "ls -l";
-    la = "ls -A";
-  };
-
-  # Define your packages
   home.packages = with pkgs; [
     k9s
     btop
@@ -32,5 +24,25 @@
     dunst
     go-sct
   ];
+
+  services = {
+    syncthing = {
+      enable = true;
+    };
+  };
+
+  xsession.windowManager.command = ''
+    ${pkgs.dunst}/bin/dunst &
+    ${config.xsession.windowManager.command}
+    ${pkgs.ckb-next}/bin/ckb-next -b &
+    ${pkgs.go-sct}/bin/sct &
+  '';
+
+  home.file = { };
+
+  home.sessionVariables = { };
+
+  programs.home-manager.enable = true;
 }
+
 
