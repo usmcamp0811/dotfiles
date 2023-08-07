@@ -153,7 +153,7 @@ ldap_group_member = memberUid
                 mv $TEMP_CERT $CA_CERT
                 chmod 0644 $CA_CERT  # Set appropriate permissions
               '';
-              permissions = "0755";  # Make the script executable
+              permissions = "0400";  # Make the script executable
               change-action = "restart";
             };
           };
