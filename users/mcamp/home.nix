@@ -1,43 +1,36 @@
-{ config, pkgs, lib, ... }:
+{ pkgs, plusultra, ... }:
 
 {
-  home.username = "mcamp";
-  home.homeDirectory = "/home/mcamp";
-  home.stateVersion = "22.11";
+  programs.home-manager.enable = true;
 
-  nixpkgs.config.allowUnfree = true;
+  # Enable the GIMP module
+  plusultra.apps.gimp.enable = true;
 
-#  home.packages = with pkgs; [
-#    k9s
-#    btop
-#    julia
-#    deno
-#    autorandr
-#    arandr
-#    feh
-#    qutebrowser
-#    zathura
-#    dunst
-#    go-sct
-#  ];
+  # Set your shell
+  programs.zsh.enable = true;
 
-  # Use the function to import all .nix files from the apps directory
-  #  imports = map (n: "${./apps}/${n}") (builtins.attrNames (builtins.readDir ./apps));
-#   imports = [
-#     ./apps/brave.nix
-#     ./apps/firefox.nix
-#   ];
+  # Set your editor
+  programs.neovim.enable = true;
 
+  # Define some aliases
+  home.sessionVariables = {
+    ll = "ls -l";
+    la = "ls -A";
+  };
 
-  xsession.windowManager.command = ''
-    ${pkgs.dunst}/bin/dunst &
-    ${config.xsession.windowManager.command}
-    ${pkgs.ckb-next}/bin/ckb-next -b &
-    ${pkgs.go-sct}/bin/sct &
-  '';
-
-  home.file = { };
-
-  home.sessionVariables = { };
+  # Define your packages
+  home.packages = with pkgs; [
+    k9s
+    btop
+    julia
+    deno
+    autorandr
+    arandr
+    feh
+    qutebrowser
+    zathura
+    dunst
+    go-sct
+  ];
 }
 
