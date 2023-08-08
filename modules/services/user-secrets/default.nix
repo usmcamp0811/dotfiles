@@ -43,11 +43,7 @@ in
         secrets.file.files = lib.listToAttrs (map (secret: {
           name = "${user}-${secret}";
           value = {
-            text = ''
-              {{ with secret "secret/campground/users/${user}" }}
-              {{ .Data.${secret} }}
-              {{ end }}
-            '';
+            text = ''{{ with secret "secret/campground/users/${user}" }}{{ .Data.${secret} }}{{ end }}'';
             permissions = "0400";
             change-action = "restart";
           };
