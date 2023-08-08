@@ -24,7 +24,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.services.vault-agent.services = lib.mkMerge (lib.mapAttrs' (user: secrets: {
+    campground.services.vault-agent.services = lib.mapAttrs' (user: secrets: {
       name = "secret-service-${user}";
       value = {
         enable = true;
@@ -43,7 +43,7 @@ in
         };
         secrets = {
           file = {
-            files = lib.mkMerge (lib.mapAttrsToList (secret: _: {
+            files = lib.mapAttrs' (secret: _: {
               name = "${user}-${secret}";
               value = {
                 text = ''
@@ -54,13 +54,13 @@ in
                 permissions = "0400";
                 change-action = "restart";
               };
-            }) secrets);
+            }) secrets;
           };
         };
       };
-    }) cfg.users);
+    }) cfg.users;
 
-    systemd.services = lib.mkMerge (lib.mapAttrsToList (user: secrets: {
+    systemd.services = lib.mapAttrs' (user: secrets: {
       name = "copy-secret-service-${user}";
       value = {
         description = "Copy Secret Service for ${user}";
@@ -70,7 +70,7 @@ in
           Type = "oneshot";
         };
       };
-    }) cfg.users);
+    }) cfg.users;
   };
 }
 
