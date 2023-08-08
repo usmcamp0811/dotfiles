@@ -95,6 +95,11 @@ ldap_schema = rfc2307
 ldap_group_member = memberUid
     '';
     };
+    # Add this section to ensure sssd restarts on failure
+    systemd.services.sssd.serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
 
     # Chad says this should let all ldap users in the `ldap_user` group to use home-manager
     nix.settings.trusted-users = [ "@${cfg.trusted_group}" ];
