@@ -93,7 +93,7 @@ in
         mcamp =  {
           files = [
             "id_ed25519"
-            "passwords.shrc"
+            "passwords"
           ];
         };
       };
