@@ -91,7 +91,7 @@ in
       enable = true;
       users = {
         mcamp =  [
-          id_ed25519
+          "id_ed25519"
           "passwords.shrc"
         ];
       };
