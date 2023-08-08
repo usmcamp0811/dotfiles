@@ -39,6 +39,7 @@
 
   home.file = { 
     ".background".source = ./files/.background;
+    ".config/shell/aliases.shrc".source = ./files/aliases.shrc;
   };
 
   home.sessionVariables = {

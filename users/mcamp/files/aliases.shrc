@@ -1,0 +1,259 @@
+#!/bin/bash
+
+# Nix Did this!!
+# Easier navigation: .., ..., ~ and -
+alias ..="cd .."
+alias cd..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ~="cd ~" # `cd` is probably faster to type though
+alias -- -="cd -"
+
+alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
+
+# ls -al Alh
+
+# quick check to see if the program is available
+cmd-exist(){
+  command -v $1 >/dev/null 2>&1
+}
+
+
+cmd-exist lsd && alias ls="lsd --group-dirs first"
+cmd-exist lsd && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
+cmd-exist lsd && alias lt='lsd --tree --depth 3'                              
+cmd-exist ranger && alias lr="ranger"
+
+
+# mv, rm, cp
+alias mv='mv -v'
+alias rm='rm -i -v'
+alias cp='cp -v'
+
+copy(){
+    cat $1 | xsel -b
+}
+
+
+alias chmox='chmod -x'
+cmd-exist bat && alias cat='bat' && alias pcat='bat -p'
+cmd-exist batcat && alias cat='batcat' && alias pcat='batcat -p'
+cmd-exist nvim && alias vim='nvim'
+
+alias df='df -h'
+
+alias grep='grep --color=auto'
+
+alias zathura='devour zathura'
+# alias feh='devour feh'
+alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js -ao=pipewire'
+alias weather='devour weather'
+alias radar='devour weather -r'
+alias neovide='devour neovide'
+
+##########################################################
+####################### GIT STUFF ########################
+
+alias push="git push"
+alias gs="git status"
+# Undo a `git push`
+alias undopush="git push -f origin HEAD^:master"
+
+# git root
+alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup || pwd`'
+alias master="git checkout master"
+
+# git dotfiles
+# alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+cmd-exist git && alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME' 
+alias lazydot='lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+##########################################################
+####################### CONFIG STUFF ########################
+#i3 config
+alias i3config='nvim ~/.config/i3/config'
+alias qconfig='vim ~/.config/qtile/config.py'
+
+#bash aliases
+alias aliases='nvim ~/.config/shell/aliases.shrc'
+
+#bash export
+alias exports='nvim ~/.config/shell/exports.shrc'
+
+#vim plugins
+alias vplug='nvim ~/.config/nvim/load_plugins.vim'
+alias vplug2='nvim ~/.config/nvim/config_plugins.vim'
+alias vkeys='nvim ~/.config/nvim/key-mappings.vim'
+alias vgen='nvim ~/.config/nvim/general.vim'
+alias vinit='nvim ~/.config/nvim/init.vim'
+
+##########################################################
+# Empty the Trash on all mounted volumes and the main HDD. then clear the useless sleepimage
+alias emptytrash=" \
+    sudo rm -rfv /Volumes/*/.Trashes; \
+    rm -rfv ~/.Trash/*; \
+    sudo rm -v /private/var/vm/sleepimage; \
+    rm -rv \"/Users/paulirish/Library/Application Support/stremio/Cache\";  \
+    rm -rv \"/Users/paulirish/Library/Application Support/stremio/stremio-cache\" \
+"
+alias org="nvim ~/vimwiki/home/index.norg"
+alias nn="nvim -c 'Neorg journal today'"
+alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
+# yea i am sick of typing allthat.. 
+alias update="sudo pacman -Syu"
+# fix pacman when it doesn't finish installing
+alias fix-pacman="sudo rm /var/lib/pacman/db.lck"
+alias wget='wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'
+alias nvidia-settings='nvidia-settings --config="$XDG_CONFIG_HOME"/nvidia/settings'
+alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
+alias freecad='freecad -u "$XDG_CONFIG_HOME"/FreeCAD/user.cfg -s "$XDG_CONFIG_HOME"/FreeCAD/system.cfg'
+alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
+alias weechat='weechat -d "$XDG_CONFIG_HOME"/weechat'
+alias cura="QT_SCALE_FACTOR=1 cura"
+alias weather='~/.local/bin/weather'
+alias outdoor='xcalib -invert -alter'
+alias night='rogauracore black'
+alias code='cd ~/code'
+alias k='kubectl'
+alias kwatch='watch kubectl'
+alias diff='vim -d'
+alias nvim-dir="cd ~/.config/nvim/"
+alias vimconfig="vim ~/.config/nvim/init.lua"
+alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
+alias status='sudo systemctl status'
+alias start='sudo systemctl start'
+alias stop='sudo systemctl stop'
+alias restart='sudo systemctl restart'
+alias disable='sudo systemctl disable'
+alias enable='sudo systemctl enable'
+
+## Functions
+
+function clone() {
+    git clone --depth=1 $1
+    cd $(basename ${1%.*})
+}
+
+function dkill() {
+    docker stop $1 && docker rm $1
+}
+
+function docker-login() {
+    docker login -u $DHUB_USER -p $DHUB_PASS
+}
+
+# fix pulseadudio
+function fix-audio(){
+    pulseaudio -k
+    sleep 2
+    pulseaudio
+}
+
+save-gnome(){
+    # saves gnome settings to file
+    echo "Saving gnome settings to ~/.config/dconf/dconf-settings.ini"
+    dconf dump / > ~/.config/dconf/dconf-settings.ini
+}
+
+load-gnome(){
+    # load gnome settings from file
+    echo "Loading gnome settings from ~/.config/dconf/dconf-settings.ini"
+    dconf load / < ~/.config/dconf/dconf-settings.ini
+}
+
+new_tmux () {
+    tmux new -s $1
+}
+
+a_tmux () {
+    tmux a -t $1
+}
+
+fetch() {
+    git fetch --all && git pull --all && git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+}
+
+kill () {
+    [ $# -eq 0 ] && echo "You need to specify whom to kill." && return
+    /usr/bin/kill $@
+}
+
+function pacsearch(){
+    pacman -Slq | fzf -m --preview 'cat <(pacman -Si {1}) <(pacman -Fl {1} | awk "{print \$2}")' | xargs -ro sudo pacman -S
+}
+
+function yaysearch(){
+    yay -Slq | fzf -m --preview 'cat <(yay -Si {1}) <(yay -Fl {1} | awk "{print \$2}")' | xargs -ro  yay -S
+}
+
+function pac-backup(){
+    pacman -Qqen > ~/pkglist.txt
+    pacman -Qqm > ~/pkglist-aur.txt
+    dotfiles add ~/pkglist.txt
+    dotfiles add ~/pkglist-aur.txt
+    dotfiles commit -m "Backing-up installed packages"
+}
+
+# Codi
+# Usage: codi [filetype] [filename]
+codi() {
+  local syntax="${1:-python}"
+  shift
+  nvim -c \
+    "let g:startify_disable_at_vimenter = 1 |\
+    set bt=nofile ls=0 noru nonu nornu |\
+    hi ColorColumn ctermbg=NONE |\
+    hi VertSplit ctermbg=NONE |\
+    hi NonText ctermfg=0 |\
+    Codi $syntax" "$@"
+}
+
+gpu-hybrid(){
+    supergfxctl --mode hybrid
+    sudo pkill -9 -u $USER
+}
+
+gpu-dedicated(){
+    supergfxctl --mode dedicated
+    sudo pkill -9 -u $USER
+}
+
+
+update-all(){
+    ansible-playbook ~/code-home/ansible_playbooks/syu.yml --become --ask-become-pass
+}
+
+# convert "Channel Name" "https://youtube.com/@somechannel" to ytdl-sub yaml
+function subscribe(){
+  channelname=$1
+  url=$2
+  channelidurl=$(yt-channelid "$url")
+  safename=$(echo "$url" | sed 's/^.*@//')
+
+printf \
+$safename':
+  preset:
+    - "yt_channel"
+    - "recent_videos"
+  download:
+    url: "'$channelidurl'"
+  overrides:
+    tv_show_name: "'$channelname'"
+
+
+'
+}
+
+# convert youtube channel url with @channelname to the channel id for ytdl-sub
+function yt-channelid(){
+  echo $(curl $1 | grep '^.*"channelUrl"' | sed 's/^.*"channelUrl":"//g' | sed 's/",.*$//g')
+}
+
+function dl_music(){
+  yt-dlp -x --audio-format mp3 $1 --write-thumbnail --add-metadata --embed-thumbnail --cookies-from-browser brave
+}
+
+fix-pipewire(){
+  systemctl --user restart pipewire-pulse.service
+  systemctl --user restart wireplumber.service
+}
