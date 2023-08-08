@@ -39,9 +39,21 @@
 
   home.file = { 
     ".background".source = ./files/.background;
-    ".config/shell/aliases.shrc".source = ./files/aliases.shrc;
+    ".config/shell/aliases.shrc".source = ./files/shell/aliases.shrc;
+    ".config/shell/zsh/00-main.zsh".source = ./files/shell/zsh/00-main.zsh;
+    ".config/shell/zsh/fino.zsh-theme".source = ./files/shell/zsh/fino.zsh-theme;
+    ".config/shell/zsh/git.zsh".source = ./files/shell/zsh/git.zsh;
+    ".config/shell/zsh/prompt_info_functions.zsh".source = ./files/shell/zsh/prompt_info_functions.zsh;
+    ".config/shell/zsh/spectrum.zsh".source = ./files/shell/zsh/spectrum.zsh;
+    ".config/shell/zsh/theme-and-appearance.zsh".source = ./files/shell/zsh/theme-and-appearance.zsh;
   };
 
+  programs.zsh = {
+    enable = true;
+    initExtra = ''
+      source $HOME/.config/shell/zsh/fino.zsh-theme
+    '';
+  };
   home.sessionVariables = {
     KUBECONFIG = "/etc/k8s/config";
     EDITOR = "nvim";
