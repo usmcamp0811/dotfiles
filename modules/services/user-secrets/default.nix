@@ -24,7 +24,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.services.vault-agent.services = lib.mkMerge (lib.mapAttrsToList (user: secrets: {
+    campground.services.vault-agent.services = lib.mkMerge (lib.mapAttrs' (user: secrets: {
       name = "secret-service-${user}";
       value = {
         enable = true;
@@ -34,8 +34,8 @@ in
             method = [{
               type = "approle";
               config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
+                role_id_file_path = config.campground.services.vault-agent.settings.vault.role-id;
+                secret_id_file_path = config.campground.services.vault-agent.settings.vault.secret-id;
                 remove_secret_id_file_after_reading = false;
               };
             }];
@@ -60,14 +60,13 @@ in
       };
     }) cfg.users);
 
-    systemd.services = lib.mkMerge (lib.mapAttrsToList (user: secrets: {
-      name = "secret-service-${user}";
+    systemd.services = lib.mkMerge (lib.mapAttrs' (user: secrets: {
+      name = "copy-secret-service-${user}";
       value = {
         description = "Copy Secret Service for ${user}";
         wantedBy = [ "multi-user.target" ];
         serviceConfig = {
           ExecStart = "${pkgs.bash}/bin/bash -c 'mkdir -p /var/lib/vault/users/${user}; chown ${user} /var/lib/vault/users/${user}; chmod 0700 /var/lib/vault/users/${user}; for secret in ${lib.concatStringsSep " " secrets}; do cp /tmp/detsys-vault/${user}-$secret /var/lib/vault/users/${user}/$secret; chown ${user} /var/lib/vault/users/${user}/$secret; chmod 0400 /var/lib/vault/users/${user}/$secret; done'";
-
           Type = "oneshot";
         };
       };
