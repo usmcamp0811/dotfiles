@@ -36,9 +36,12 @@
     ${config.xsession.windowManager.command}
     ${pkgs.ckb-next}/bin/ckb-next -b &
     ${pkgs.go-sct}/bin/sct &
+    ${pkgs.feh}/bin/feh --bg-scale $HOME/.background
   '';
 
-  home.file = { };
+  home.file = { 
+    ".background".source = ./files/.background;
+  };
 
   home.sessionVariables = { };
 
