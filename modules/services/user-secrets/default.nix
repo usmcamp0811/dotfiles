@@ -1,31 +1,16 @@
 { options, config, pkgs, lib, ... }:
 
 with lib;
+with lib.internal;
 let
   cfg = config.campground.services.user-secrets;
 in
 {
   options.campground.services.user-secrets = with types; {
     enable = mkEnableOption "user-secrets";
-
-    role-id = mkOption {
-      type = str;
-      default = config.campground.services.vault-agent.settings.vault.role-id;
-      description = "Absolute path to the Vault role-id";
-    };
-
-    secret-id = mkOption {
-      type = str;
-      default = config.campground.services.vault-agent.settings.vault.secret-id;
-      description = "Absolute path to the Vault secret-id";
-    };
-
-    vault-path = mkOption {
-      type = str;
-      default = "secret/campground/users";
-      description = "The Vault path to the KV containing the User Secrets.";
-    };
-
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/wifi" "The Vault path to the KV containing the Wifi Secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -55,7 +40,7 @@ in
             };
           }];
         };
-        secrets.file.files = lib.mapAttrs' (secret: _: {
+        secrets.file.files = lib.listToAttrs (map (secret: {
           name = "${user}-${secret}";
           value = {
             text = ''
@@ -66,22 +51,39 @@ in
             permissions = "0400";
             change-action = "restart";
           };
-        }) secrets.files;
+        }) secrets.files);
       };
     }) cfg.users;
 
+      # Create systemd services for each user to handle secret copying
     systemd.services = lib.mapAttrs' (user: secrets: {
       name = "user-secrets-${user}";
       value = {
         description = "Copy Secret Service for ${user}";
         wantedBy = [ "multi-user.target" ];
         serviceConfig = {
-          ExecStart = "${pkgs.bash}/bin/bash -c 'mkdir -p /var/lib/vault/users/${user}; chown ${user} /var/lib/vault/users/${user}; chmod 0700 /var/lib/vault/users/${user}; for secret in ${lib.concatStringsSep " " secrets.files}; do cp /tmp/detsys-vault/${user}-$secret /var/lib/vault/users/${user}/$secret; chown ${user} /var/lib/vault/users/${user}/$secret; chmod 0400 /var/lib/vault/users/${user}/$secret; done'";
+          ExecStart = ''
+            ${pkgs.bash}/bin/bash -c '
+              echo "Mkdir"
+              mkdir -p /var/lib/vault/users/${user};
+              chown ${user} /var/lib/vault/users/${user};
+              chmod 0700 /var/lib/vault/users/${user};
+              echo "Move files"
+
+              for secret in ${lib.concatStringsSep " " secrets.files}; do
+                echo "This is $secret"
+                cp /tmp/detsys-vault/${user}-$secret /var/lib/vault/users/${user}/$secret;
+                chown ${user} /var/lib/vault/users/${user}/$secret;
+                chmod 0400 /var/lib/vault/users/${user}/$secret;
+              done
+            '
+          '';
           Type = "oneshot";
         };
       };
     }) cfg.users;
   };
+
 
 }
 
