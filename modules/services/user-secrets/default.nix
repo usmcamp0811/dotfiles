@@ -3,10 +3,10 @@
 with lib;
 with lib.internal;
 let
-  cfg = config.services.user-secrets;
+  cfg = config.campground.services.user-secrets;
 in
 {
-  options.services.user-secrets = with types; {
+  options.campground.services.user-secrets = with types; {
     enable = mkBoolOpt false "Whether or not to enable secret-service.";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
