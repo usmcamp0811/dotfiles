@@ -23,6 +23,7 @@ in
       k9s
     ];
 
+    # TODO: Maybe move to a new group-secrets service that gets group level things from Vault
     systemd.services.copyKUBECONFIG = {
       description = "Copy Kubeconfig to /etc/k8s/";
       serviceConfig = {
