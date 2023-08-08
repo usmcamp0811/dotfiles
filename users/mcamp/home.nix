@@ -18,11 +18,8 @@
     deno
     autorandr
     arandr
-    feh
     qutebrowser
     zathura
-    dunst
-    go-sct
   ];
 
   services = {
@@ -43,7 +40,38 @@
     ".background".source = ./files/.background;
   };
 
-  home.sessionVariables = { };
+  home.sessionVariables = {
+    KUBECONFIG=/etc/k8s/config
+    EDITOR="nvim"
+    TERMINAL="kitty"
+    BROWSER="qutebrowser"
+    READER="zathura"
+    XDG_CONFIG_HOME="$HOME/.config"
+    DOCKER=/var/run/docker.sock
+    DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
+    XDG_DATA_HOME="$HOME/.local/share"
+    TMUX_TMPDIR="$XDG_RUNTIME_DIR"
+    NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
+    NVM_DIR="$XDG_DATA_HOME"/nvm
+    PYLINTHOME="$XDG_CACHE_HOME"/pylint
+    PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
+    WGETRC="$XDG_CONFIG_HOME/wgetrc"
+    GNUPGHOME="$XDG_DATA_HOME"/gnupg
+    CARGO_HOME="$XDG_DATA_HOME"/cargo
+    # makes man pages stay in the terminal when you exitthem
+    MANPAGER="sh -c 'col -bx | bat -l man -p'"
+    IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter
+    JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
+    PYTHON_EGG_CACHE="$XDG_CACHE_HOME"/python-eggs
+    GNUPGHOME="$XDG_DATA_HOME"/gnupg
+    GOPATH="$XDG_DATA_HOME/go"
+    JULIA_EDITOR=nvim
+    JULIA_NUM_THREADS=12
+    JULIA_LOAD_PATH="$XDG_CONFIG_HOME/julia:$JULIA_LOAD_PATH"
+    JULIA_DEPOT_PATH="$XDG_CONFIG_HOME/julia:$JULIA_DEPOT_PATH"
+    SSB_HOME="$XDG_DATA_HOME"/zoom
+    CONDARC="$XDG_CONFIG_HOME/conda/condarc"
+  };
 
   programs.home-manager.enable = true;
 
