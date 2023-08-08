@@ -87,6 +87,15 @@ in
     cac = {
       enable = false;
     };
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  [
+          id_ed25519
+          "passwords.shrc"
+        ];
+      };
+    };
     vault-agent = {
       enable = true;
       settings = {
