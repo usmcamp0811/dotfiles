@@ -91,7 +91,7 @@ in
       enable = true;
       users = {
         mcamp =  {
-          secrets = [
+          files = [
             "id_ed25519"
             "passwords.shrc"
           ];
