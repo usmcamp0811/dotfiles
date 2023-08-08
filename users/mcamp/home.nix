@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 {
   home.username = "mcamp";
   home.homeDirectory = "/home/mcamp";
@@ -43,6 +43,16 @@
   home.sessionVariables = { };
 
   programs.home-manager.enable = true;
+
+  home.activation = {
+    copyMySSHKey = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      cp /var/lib/vault/users/mcamp/id_ed25519 $HOME/.ssh/id_ed25519
+      chmod 600 $HOME/.ssh/id_ed25519
+      ${pkgs.openssh}/bin/ssh-keygen -y -f $HOME/.ssh/id_ed25519 > $HOME/.ssh/id_ed25519.pub
+    '';
+  };
+
+
 }
 
 
