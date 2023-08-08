@@ -34,8 +34,8 @@ in
             method = [{
               type = "approle";
               config = {
-                role_id_file_path = config.campground.services.vault-agent.settings.vault.role-id;
-                secret_id_file_path = config.campground.services.vault-agent.settings.vault.secret-id;
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
                 remove_secret_id_file_after_reading = false;
               };
             }];
