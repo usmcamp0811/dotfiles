@@ -90,10 +90,12 @@ in
     user-secrets = {
       enable = true;
       users = {
-        mcamp =  [
-          "id_ed25519"
-          "passwords.shrc"
-        ];
+        mcamp =  {
+          secrets = [
+            "id_ed25519"
+            "passwords.shrc"
+          ];
+        };
       };
     };
     vault-agent = {

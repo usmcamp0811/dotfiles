@@ -10,7 +10,7 @@ in
     enable = mkBoolOpt false "Whether or not to enable secret-service.";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/wifi" "The Vault path to the KV containing the Wifi Secrets.";
+    vault-path = mkOpt str "secret/campground/users" "The Vault path to the KV containing the Wifi Secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -24,9 +24,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.services.vault-agent.services = lib.mapAttrs' (user: secrets: {
-      name = "secret-service-${user}";
-      value = {
+    campground.services.vault-agent.services = lib.mapAttrs (user: secrets: {
+      "secret-service-${user}" = {
         enable = true;
         settings = {
           vault.address = config.campground.services.vault-agent.settings.vault.address;
@@ -43,9 +42,8 @@ in
         };
         secrets = {
           file = {
-            files = lib.mapAttrs' (secret: _: {
-              name = "${user}-${secret}";
-              value = {
+            files = lib.mapAttrs (secret: _: {
+              "${user}-${secret}" = {
                 text = ''
                   {{ with secret "secret/campground/users/${user}/${secret}" }}
                   {{ .Data.${secret} }}
@@ -60,9 +58,8 @@ in
       };
     }) cfg.users;
 
-    systemd.services = lib.mapAttrs' (user: secrets: {
-      name = "copy-secret-service-${user}";
-      value = {
+    systemd.services = lib.mapAttrs (user: secrets: {
+      "secret-service-${user}" = {
         description = "Copy Secret Service for ${user}";
         wantedBy = [ "multi-user.target" ];
         serviceConfig = {
