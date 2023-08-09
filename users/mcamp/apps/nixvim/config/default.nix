@@ -1,7 +1,7 @@
 {
   # Import all your configuration modules here
   imports = [
-    ./keymaps.nix
+#    ./keymaps.nix
     ./options.nix
     ./bufferline.nix
   ];

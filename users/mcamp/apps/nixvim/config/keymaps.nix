@@ -21,9 +21,6 @@
       T = ":r! date +'- \\%H:\\%M - '<CR>A";
       "<F8>" = ":set list!<CR>";
     };
-    visual = {
-      p = '"_dP';
-    };
     visualBlock = {
       J = ":move '>+1<CR>gv-gv";
       K = ":move '<-2<CR>gv-gv";
