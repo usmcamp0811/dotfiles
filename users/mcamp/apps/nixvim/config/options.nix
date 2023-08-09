@@ -33,20 +33,7 @@
     lazyredraw = true;
     spell = true;
     relativenumber = true;
-    clipboard = {
-      register = "unnamedplus";
-      providers = {
-        xclip = {
-          enable = true;
-        };
-        xsel = {
-          enable = false;
-        };
-        wl-copy = {
-          enable = false;
-        };
-      };
-    };
+    clipboard = "unnamedplus";
     wildignore = [
         ".DS_Store"
         "*.jpg"
