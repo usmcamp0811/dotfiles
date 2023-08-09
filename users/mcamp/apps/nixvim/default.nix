@@ -1,0 +1,5 @@
+{
+  nixvim = {
+    enable = true;
+}
+

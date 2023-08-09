@@ -52,8 +52,10 @@
     enable = true;
     initExtra = ''
       source $HOME/.config/shell/zsh/fino.zsh-theme
+      source $HOME/.config/shell/aliases.shrc
     '';
   };
+
   home.sessionVariables = {
     KUBECONFIG = "/etc/k8s/config";
     EDITOR = "nvim";
