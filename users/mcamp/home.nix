@@ -21,6 +21,8 @@
     arandr
     qutebrowser
     zathura
+    xclip
+    xsel
   ];
 
   services = {
@@ -53,6 +55,7 @@
     initExtra = ''
       source $HOME/.config/shell/zsh/fino.zsh-theme
       source $HOME/.config/shell/aliases.shrc
+      bindkey -v
     '';
   };
 
