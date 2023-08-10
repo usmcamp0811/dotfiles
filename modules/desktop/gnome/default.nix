@@ -126,7 +126,7 @@ in
           autoSuspend = cfg.suspend;
         };
       };
-      windowManager.gnome = {
+      desktopManager.gnome3 = {
         enable = true;
       };
     };
