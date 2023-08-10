@@ -26,6 +26,7 @@ in
 
       enable = false;
       lightdm = false;
+      wayland = true;
       gdm = true;
     };
     desktop.gnome = {
