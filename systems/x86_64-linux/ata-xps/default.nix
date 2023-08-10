@@ -21,17 +21,13 @@ in
     archetypes = {
       workstation = enabled;
     };
-    
     desktop.qtile = {
-
       enable = true;
       lightdm = true;
-      gdm = false;
     };
     desktop.gnome = {
       enable = true;
       lightdm = true;
-      gdm = false;
       wallpaper = {
         light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
         dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
@@ -40,12 +36,12 @@ in
 
     apps = {
       firefox = {
-        enable = false;
-        cac = true;
+        enable = true;
+        cac = false;
       };
       brave = {
-        enable = false;
-        cac = true;
+        enable = true;
+        cac = false;
       };
     };
 
@@ -96,10 +92,6 @@ in
 
   campground.services = {
     ldap-client = enabled;
-    secret-service = enabled;
-    cac = {
-      enable = false;
-    };
     user-secrets = {
       enable = true;
       users = {
