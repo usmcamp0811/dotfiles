@@ -99,9 +99,9 @@ in
       enable = true;
       libinput.enable = true;
       displayManager = {
-        # lightdm = {
-        #   enable = cfg.lightdm;
-        # };
+        lightdm = {
+          enable = cfg.lightdm;
+        };
         gdm = {
           enable = cfg.gdm;
           wayland = cfg.wayland;

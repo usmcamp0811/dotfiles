@@ -34,7 +34,8 @@ in
       dark = mkOpt (oneOf [ str package ]) pkgs.campground.wallpapers.nord-rainbow-dark-nix "The dark wallpaper to use.";
     };
     color-scheme = mkOpt (enum [ "light" "dark" ]) "dark" "The color scheme to use.";
-    wayland = mkBoolOpt true "Whether or not to use Wayland.";
+    wayland = mkBoolOpt false "Whether or not to use Wayland.";
+    lightdm = mkBoolOpt true "Whether or not to use LightDM Display Manager.";
     suspend =
       mkBoolOpt true "Whether or not to suspend the machine after inactivity.";
     monitors = mkOpt (nullOr path) null "The monitors.xml file to create.";
@@ -114,14 +115,20 @@ in
 
     services.xserver = {
       enable = true;
-
       libinput.enable = true;
-      displayManager.gdm = {
-        enable = true;
-        wayland = cfg.wayland;
-        autoSuspend = cfg.suspend;
+      displayManager = {
+        lightdm = {
+          enable = cfg.lightdm;
+        };
+        gdm = {
+          enable = cfg.gdm;
+          wayland = cfg.wayland;
+          autoSuspend = cfg.suspend;
+        };
       };
-      desktopManager.gnome.enable = true;
+      windowManager.qtile = {
+        enable = true;
+      };
     };
 
     campground.home.extraOptions = {
