@@ -46,8 +46,8 @@ in
   config = mkIf cfg.enable {
     campground.system.xkb.enable = true;
     campground.desktop.addons = {
-      gtk = enabled;
-#      wallpapers = enabled;
+#      gtk = enabled;
+      wallpapers = enabled;
 #      electron-support = enabled;
 #      foot = enabled;
     };
