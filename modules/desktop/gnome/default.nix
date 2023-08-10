@@ -126,6 +126,9 @@ in
           autoSuspend = cfg.suspend;
         };
       };
+      windowManager.gnome = {
+        enable = true;
+      };
     };
 
     campground.home.extraOptions = {
