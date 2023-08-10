@@ -24,13 +24,12 @@ in
     
     desktop.qtile = {
 
-      enable = false;
-      lightdm = false;
-      wayland = true;
-      gdm = true;
+      enable = true;
+      lightdm = true;
+      gdm = false;
     };
     desktop.gnome = {
-      enable = true;
+      enable = false;
       lightdm = false;
       gdm = true;
       wallpaper = {
@@ -96,7 +95,7 @@ in
   };
 
   campground.services = {
-   # ldap-client = enabled;
+    ldap-client = enabled;
     secret-service = enabled;
     cac = {
       enable = false;
