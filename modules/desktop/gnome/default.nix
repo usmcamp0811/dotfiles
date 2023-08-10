@@ -38,7 +38,7 @@ in
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
     lightdm = mkBoolOpt true "Whether or not to use LightDM Display Manager.";
     suspend =
-      mkBoolOpt true "Whether or not to suspend the machine after inactivity.";
+      mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
     monitors = mkOpt (nullOr path) null "The monitors.xml file to create.";
     extensions = mkOpt (listOf package) [ ] "Extra Gnome extensions to install.";
   };
