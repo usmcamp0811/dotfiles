@@ -16,7 +16,6 @@ in
       desktop = {
         qtile = {
           enable = true;
-          lightdm = true;
         };
 
         addons = { 
