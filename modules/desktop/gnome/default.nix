@@ -34,6 +34,7 @@ in
       dark = mkOpt (oneOf [ str package ]) pkgs.campground.wallpapers.nord-rainbow-dark-nix "The dark wallpaper to use.";
     };
     color-scheme = mkOpt (enum [ "light" "dark" ]) "dark" "The color scheme to use.";
+    gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
     lightdm = mkBoolOpt true "Whether or not to use LightDM Display Manager.";
     suspend =
