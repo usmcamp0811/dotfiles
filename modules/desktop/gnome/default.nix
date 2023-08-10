@@ -4,7 +4,7 @@ with lib;
 with lib.internal;
 let
   cfg = config.campground.desktop.gnome;
-  gdmHome = config.users.users.gdm.home;
+#  gdmHome = config.users.users.gdm.home;
 
   defaultExtensions = with pkgs.gnomeExtensions; [
     appindicator
@@ -67,13 +67,13 @@ in
       gnome-maps
     ];
 
-    systemd.tmpfiles.rules = [
-      "d ${gdmHome}/.config 0711 gdm gdm"
-    ] ++ (
-      # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
-      # display information is updated.
-      lib.optional (cfg.monitors != null) "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}"
-    );
+#    systemd.tmpfiles.rules = [
+#      "d ${gdmHome}/.config 0711 gdm gdm"
+#    ] ++ (
+#      # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
+#      # display information is updated.
+#      lib.optional (cfg.monitors != null) "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}"
+#    );
 
     systemd.services.campground-user-icon = {
       before = [ "display-manager.service" ];
