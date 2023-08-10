@@ -22,6 +22,12 @@ in
       workstation = enabled;
     };
     
+    desktop.qtile = {
+
+      enable = true;
+      lightdm = false;
+      gdm = true;
+    };
     desktop.gnome = {
       enable = true;
       lightdm = false;
