@@ -101,7 +101,7 @@ in
       enable = false;
     };
     user-secrets = {
-      enable = true;
+      enable = false;
       users = {
         mcamp =  {
           files = [
