@@ -29,7 +29,7 @@ in
       gdm = false;
     };
     desktop.gnome = {
-      enable = false;
+      enable = true;
       lightdm = false;
       gdm = true;
       wallpaper = {
@@ -101,7 +101,7 @@ in
       enable = false;
     };
     user-secrets = {
-      enable = false;
+      enable = true;
       users = {
         mcamp =  {
           files = [
