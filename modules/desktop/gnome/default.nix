@@ -126,9 +126,6 @@ in
           autoSuspend = cfg.suspend;
         };
       };
-      windowManager.qtile = {
-        enable = true;
-      };
     };
 
     campground.home.extraOptions = {
