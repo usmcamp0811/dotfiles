@@ -21,6 +21,14 @@ in
     archetypes = {
       workstation = enabled;
     };
+    
+    desktop.gnome = {
+      enable = true;
+      wallpaper = {
+        light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
+        dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
+      };
+    };
 
     apps = {
       firefox = {
@@ -65,6 +73,10 @@ in
   };
 
   campground.home.extraOptions = {
+    home.shellAliases = {
+      la = "lsd -lah";
+      update = "sudo nixos-rebuild switch";
+    };
   };
 
   campground.user = {
@@ -79,6 +91,17 @@ in
     secret-service = enabled;
     cac = {
       enable = false;
+    };
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
+      };
     };
     vault-agent = {
       enable = true;

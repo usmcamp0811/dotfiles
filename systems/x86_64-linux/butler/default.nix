@@ -22,6 +22,7 @@ in
       workstation = enabled;
     };
 
+
     apps = {
       firefox = {
         enable = false;
