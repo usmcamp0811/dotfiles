@@ -2,7 +2,6 @@
   description = "A nixvim configuration";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable"; # Use nixpkgs unstable
     nixvim.url = "github:nix-community/nixvim";
     flake-utils.url = "github:numtide/flake-utils";
   };
@@ -17,7 +16,7 @@
   in
     flake-utils.lib.eachDefaultSystem (system: let
       nixvimLib = nixvim.lib.${system};
-      pkgs = import nixpkgs { inherit system; }; # Use the nixpkgs from inputs
+      pkgs = import nixpkgs {inherit system;};
       nixvim' = nixvim.legacyPackages.${system};
       nvim = nixvim'.makeNixvimWithModule {
         inherit pkgs;
@@ -38,4 +37,3 @@
       };
     });
 }
-
