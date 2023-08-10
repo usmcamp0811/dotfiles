@@ -154,11 +154,11 @@ in
               [ "org.gnome.Nautilus.desktop" ]
               ++ optional config.campground.apps.firefox.enable "firefox.desktop"
               ++ optional config.campground.apps.vscode.enable "code.desktop"
-              ++ optional config.campground.desktop.addons.foot.enable "foot.desktop"
-              ++ optional config.campground.apps.logseq.enable "logseq.desktop"
-              ++ optional config.campground.apps.discord.enable "discord.desktop"
-              ++ optional config.campground.apps.element.enable "element-desktop.desktop"
-              ++ optional config.campground.apps.steam.enable "steam.desktop";
+#              ++ optional config.campground.desktop.addons.foot.enable "foot.desktop"
+#              ++ optional config.campground.apps.logseq.enable "logseq.desktop"
+#              ++ optional config.campground.apps.discord.enable "discord.desktop"
+#              ++ optional config.campground.apps.element.enable "element-desktop.desktop"
+#              ++ optional config.campground.apps.steam.enable "steam.desktop";
           };
 
           "org/gnome/desktop/background" = {
