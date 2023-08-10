@@ -24,14 +24,14 @@ in
     
     desktop.qtile = {
 
-      enable = false;
-      lightdm = false;
-      gdm = true;
+      enable = true;
+      lightdm = true;
+      gdm = false;
     };
     desktop.gnome = {
       enable = true;
-      lightdm = false;
-      gdm = true;
+      lightdm = true;
+      gdm = false;
       wallpaper = {
         light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
         dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;

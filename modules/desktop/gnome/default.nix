@@ -36,7 +36,7 @@ in
     color-scheme = mkOpt (enum [ "light" "dark" ]) "dark" "The color scheme to use.";
     gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
-    lightdm = mkBoolOpt true "Whether or not to use LightDM Display Manager.";
+    lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
     suspend =
       mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
     monitors = mkOpt (nullOr path) null "The monitors.xml file to create.";
@@ -130,8 +130,6 @@ in
         enable = true;
       };
     };
-
-    services.xserver.desktopManager.gnome3.enable = true;
 
     campground.home.extraOptions = {
       dconf.settings =
