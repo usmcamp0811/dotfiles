@@ -155,6 +155,7 @@ ldap_group_member = memberUid
     {{ with secret "${cfg.vault-path}" }}{{ .Data.ldap_ca }}{{ end }}
     EOF
                 # Move temp file to target, ensuring atomic update
+                mkdir -p /etc/ldap/
                 mv $TEMP_CERT $CA_CERT
                 chmod 0644 $CA_CERT  # Set appropriate permissions
               '';
