@@ -53,7 +53,6 @@ in
     };
 
     environment.systemPackages = with pkgs; [
-      (hiPrio campground.xdg-open-with-portal)
       wl-clipboard
       gnome.gnome-tweaks
       gnome.nautilus-python
