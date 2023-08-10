@@ -95,7 +95,7 @@ in
   };
 
   campground.services = {
-    ldap-client = enabled;
+   # ldap-client = enabled;
     secret-service = enabled;
     cac = {
       enable = false;
