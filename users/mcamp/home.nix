@@ -55,6 +55,7 @@
     initExtra = ''
       source $HOME/.config/shell/zsh/fino.zsh-theme
       source $HOME/.config/shell/aliases.shrc
+      [ -r "/var/lib/vault/users/mcamp/passwords" ] && source "/var/lib/vault/users/mcamp/passwords"
       bindkey -v
     '';
   };
