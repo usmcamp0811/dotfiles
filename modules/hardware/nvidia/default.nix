@@ -19,7 +19,7 @@ in
   config = mkIf cfg.enable {
     services.xserver.enable = true;
     # services.xserver.videoDrivers = [ "nvidia" ];
-    services.xserver.videoDrivers = [ "nvidia" "modesetting" ];
+    services.xserver.videoDrivers = [ "nvidia" ];
     # boot.kernelParams = [ "i915.force_probe=46a6" ];
     boot.initrd.systemd.enable = true; # this seemed to be the secret to nvidia-prime working... I think
     hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
@@ -35,6 +35,8 @@ in
 
     hardware.nvidia.prime = {
       offload.enable = true;
+      reverseSync.enable = false;
+      offload.enableOffloadCmd = false;
       intelBusId = "PCI:0:2:0";
       nvidiaBusId = "PCI:1:0:0";
     };
