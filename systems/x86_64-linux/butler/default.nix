@@ -22,6 +22,10 @@ in
       workstation = enabled;
     };
 
+    desktop.qtile = {
+      enable = true;
+      lightdm = true;
+    };
 
     apps = {
       firefox = {
