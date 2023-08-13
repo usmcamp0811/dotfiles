@@ -18,28 +18,44 @@ in
 
   config = mkIf cfg.enable {
     services.xserver.enable = true;
-    # services.xserver.videoDrivers = [ "nvidia" ];
-    services.xserver.videoDrivers = [ "nvidia" ];
-    # boot.kernelParams = [ "i915.force_probe=46a6" ];
-    boot.initrd.systemd.enable = true; # this seemed to be the secret to nvidia-prime working... I think
-    hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
-    hardware.nvidia.nvidiaPersistenced = true;
-    hardware.nvidia.modesetting.enable = true;
-    hardware.nvidia.powerManagement.enable=true;
+    services.xserver.videoDrivers = [ "displaylink" "nvidia" ];
+    boot.kernelParams = [ "i915.force_probe=46a6" ];
+    # boot.initrd.systemd.enable = true; # this seemed to be the secret to nvidia-prime working... I think
+    boot.initrd.kernelModules = [ "i915" ];
+    # boot.kernelParams = [ "module_blacklist=i915" ];
+    boot.extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
+
     # hardware.nvidia.powerManagement.finegrained = true;
 
-    hardware.opengl = {
-      driSupport = true;
-      driSupport32Bit = true;
+    hardware = {
+      opengl = {
+        enable = true;
+         driSupport = true;
+         driSupport32Bit = true;
+      };
+      nvidia = {
+        package = config.boot.kernelPackages.nvidiaPackages.stable;
+        nvidiaPersistenced = true;
+        modesetting.enable = true;
+        powerManagement.enable=true;
+        prime = {
+          offload.enable = true;
+          # sync.enable = true;
+          # reverseSync.enable = true;
+          # offload.enableOffloadCmd = true;
+          intelBusId = "PCI:0:2:0";
+          nvidiaBusId = "PCI:1:0:0";
+        };
+      };
+    };
+    services.tlp = {
+      enable = true;
+      settings = {
+        TLP_DEFAULT_MODE = "BAT";
+        TLP_PERSISTENT_DEFAULT = 1;
+      };
     };
 
-    hardware.nvidia.prime = {
-      offload.enable = true;
-      reverseSync.enable = false;
-      offload.enableOffloadCmd = false;
-      intelBusId = "PCI:0:2:0";
-      nvidiaBusId = "PCI:1:0:0";
-    };
 
     specialisation = {
       external-display.configuration = {
