@@ -66,12 +66,12 @@
     userEmail = "matt@aicampground.com";
   };
 
-  gtk = {
-    enable = true;
-    theme.name = "adw-gtk3";
-    cursorTheme.name = "Bibata-Modern-Ice";
-    iconTheme.name = "GruvboxPlus";
-  }
+#  gtk = {
+#    enable = true;
+#    theme.name = "adw-gtk3";
+#    cursorTheme.name = "Bibata-Modern-Ice";
+#    iconTheme.name = "GruvboxPlus";
+#  };
 
   home.sessionVariables = {
     KUBECONFIG = "/etc/k8s/config";

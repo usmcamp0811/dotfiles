@@ -47,8 +47,8 @@ in
       { id = "annfbnbieaamhaimclajlajpijgkdblo"; } # Dark Theme
     ];
   };
-  home.activation.installCACerts = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    ${installCACertsScript}
-  '';
+#  home.activation.installCACerts = lib.hm.dag.entryAfter ["writeBoundary"] ''
+#    ${installCACertsScript}
+#  '';
 }
 
