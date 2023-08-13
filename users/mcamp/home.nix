@@ -72,6 +72,13 @@
 #    cursorTheme.name = "Bibata-Modern-Ice";
 #    iconTheme.name = "GruvboxPlus";
 #  };
+  xdg.mimeApps.defaultApplications = {
+    "application/pdf" = [ "zathura.desktop" ];
+    "image/*" = [ "sxiv.desktop" ];
+    "video/png" = [ "mpv.desktop" ];
+    "video/jpg" = [ "mpv.desktop" ];
+    "video/*" = [ "mpv.desktop" ];
+  };
 
   home.sessionVariables = {
     KUBECONFIG = "/etc/k8s/config";
