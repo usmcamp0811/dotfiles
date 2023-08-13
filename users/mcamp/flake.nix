@@ -10,6 +10,7 @@
     };
 
     nur.url = "github:nix-community/NUR";
+
   };
 
   outputs = { self, nixpkgs, home-manager, nur, ... }:
