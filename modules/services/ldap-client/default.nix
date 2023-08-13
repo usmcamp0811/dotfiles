@@ -122,6 +122,8 @@ ldap_group_member = memberUid
         Type = "oneshot";
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyLDAP_CA.sh";
+        after = [ "vault-agent.service" ];
+        before = [ "sssd.service" ];
       };
       wantedBy = [ "multi-user.target" ];
     };
