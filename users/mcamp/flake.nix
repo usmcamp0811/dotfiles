@@ -19,7 +19,7 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      nvim = campground-nvim.default.${system}.default; # Access the nvim package from campground-nvim
+      nvim = campground-nvim.packages.${system}.default; # Access the nvim package from campground-nvim
     in {
       homeConfigurations."mcamp" = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
