@@ -12,7 +12,6 @@
     ./apps/firefox.nix
   ];
   home.packages = with pkgs; [
-    nvim
     k9s
     btop
     julia

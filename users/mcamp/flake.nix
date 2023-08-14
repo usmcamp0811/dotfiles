@@ -19,15 +19,12 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      nvim = campground-nvim.packages.${system}.default; # Access the nvim package from campground-nvim
+      nvim = campground-nvim.default.${system}; # Access the nvim package from campground-nvim
     in {
       homeConfigurations."mcamp" = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
-        };
-        specialArgs = {
-          nvim = campground-nvim.packages.${system}.default; # Add the nvim package here
         };
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
@@ -36,13 +33,17 @@
             nixpkgs.overlays = [
               nur.overlay
             ];
+            programs.neovim = { # Configure Neovim with campground-nvim
+              enable = true;
+              package = nvim; # Use the nvim package from campground-nvim
+            };
           })
           ./home.nix
         ];
+
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
       };
-
     };
 }
 
