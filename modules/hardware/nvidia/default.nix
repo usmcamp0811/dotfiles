@@ -22,18 +22,23 @@ in
       enable = true;
       exportConfiguration = true;
       videoDrivers = [ "nvidia" "displaylink" ];
-      displayManager.gdm = {
-        enable = true;
-        wayland = false;
-      };
-      desktopManager.gnome3.enable = true;
     };
 
   };
-  services.xserver.displayManager.setupCommands = ''
-    ${pkgs.lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutsource modesetting NVIDIA-0
-    ${pkgs.lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
-  '';
+
+  # set output source to Nvidia for HDMI port
+  systemd.user.services.xrandr-outputsource = {
+    script = ''
+      ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0 modesetting && ${pkgs.xorg.xrandr}/bin/xrandr --auto
+    '';
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    enable = true;
+  };
+  # services.xserver.displayManager.setupCommands = ''
+  #   ${pkgs.lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutsource modesetting NVIDIA-0
+  #   ${pkgs.lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
+  # '';
 
   hardware = {
     nvidia = {
@@ -49,7 +54,14 @@ in
       driSupport = true;
       driSupport32Bit = true;
     };
+
   };
+   environment.systemPackages = with pkgs; [
+     wget
+     pciutils
+     nvidia-offload
+     glxinfo
+   ];
 
 #     services.xserver.enable = true;
 #     # services.xserver.videoDrivers = [ "displaylink" "nvidia" ];
@@ -113,11 +125,5 @@ in
 #     # };
 #     # List packages installed in system profile. To search, run:
 #     # $ nix search wget
-#     environment.systemPackages = with pkgs; [
-#       wget
-#       pciutils
-#       nvidia-offload
-#       glxinfo
-#     ];
   };
 }

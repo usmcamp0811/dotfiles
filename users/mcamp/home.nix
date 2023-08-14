@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, campground-nvim, ... }:
 
 {
   home.username = "mcamp";
@@ -11,8 +11,8 @@
     ./apps/brave.nix
     ./apps/firefox.nix
   ];
-
   home.packages = with pkgs; [
+    nvim
     k9s
     btop
     julia
@@ -30,6 +30,7 @@
       enable = true;
     };
   };
+
 
   xsession.windowManager.command = ''
     ${pkgs.dunst}/bin/dunst &

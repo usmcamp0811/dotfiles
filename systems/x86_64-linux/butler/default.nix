@@ -24,8 +24,8 @@ in
 
     desktop.qtile = {
       enable = true;
-      lightdm = false;
-      gdm = true;
+      lightdm = true;
+      gdm = false;
     };
 
     apps = {
