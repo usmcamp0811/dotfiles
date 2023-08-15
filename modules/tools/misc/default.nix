@@ -36,6 +36,7 @@ in
       btop
       deno
       zathura
+      flameshot
       neovim
     ];
 
