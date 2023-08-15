@@ -39,6 +39,7 @@ in
       };
       k9s = enabled; 
       vscode = enabled;
+      vmware = enabled;
     };
 
     system = {
