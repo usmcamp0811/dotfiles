@@ -39,6 +39,7 @@ in
         enable = true;
       };
       vscode = enabled;
+      virtualbox = enabled;
     };
 
     system = {
