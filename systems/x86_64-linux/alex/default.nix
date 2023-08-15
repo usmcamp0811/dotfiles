@@ -38,7 +38,7 @@ in
       brave = {
         enable = true;
       };
-      # vscode = enabled;
+      vscode = enabled;
     };
 
     system = {
@@ -48,6 +48,7 @@ in
     hardware.audio = {
     };
 
+    # hardware.bluetooth = enabled;
   };
 
   campground.home.extraOptions = {
