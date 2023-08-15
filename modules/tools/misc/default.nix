@@ -38,6 +38,7 @@ in
       zathura
       flameshot
       neovim
+      deno
     ];
 
   };
