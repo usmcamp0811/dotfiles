@@ -40,6 +40,7 @@ in
       };
       vscode = enabled;
       virtualbox = enabled;
+      libreoffice = enabled;
     };
 
     system = {
