@@ -43,6 +43,7 @@ in
 
     system = {
       boot = enabled;
+      bluetooth = enabled;
     };
 
     hardware.audio = {
