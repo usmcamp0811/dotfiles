@@ -43,12 +43,12 @@ in
 
     system = {
       boot = enabled;
-      bluetooth = enabled;
     };
 
     hardware.audio = {
     };
 
+    hardware.bluetooth = enabled;
   };
 
   campground.home.extraOptions = {
