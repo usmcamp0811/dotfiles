@@ -34,13 +34,11 @@ in
     apps = {
       firefox = {
         enable = true;
-        cac = false;
       };
       brave = {
         enable = true;
-        cac = false;
       };
-      vscode = enabled;
+      # vscode = enabled;
     };
 
     system = {
