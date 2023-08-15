@@ -38,6 +38,7 @@ in
         cac = false;
       };
       k9s = enabled; 
+      libreoffice = enabled;
     };
 
     system = {
