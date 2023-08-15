@@ -3,13 +3,6 @@
 with lib;
 let
   cfg = config.campground.hardware.nvidia;
-  nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
-    export __NV_PRIME_RENDER_OFFLOAD=1
-    export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
-    export __GLX_VENDOR_LIBRARY_NAME=nvidia
-    export __VK_LAYER_NV_optimus=NVIDIA_only
-    exec -a "$0" "$@"
-  '';
 in
 {
   options.campground.hardware.nvidia = with types; {
@@ -25,6 +18,7 @@ in
     };
 
   };
+  # boot.extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
 
   # set output source to Nvidia for HDMI port
   systemd.user.services.xrandr-outputsource = {
@@ -39,18 +33,23 @@ in
   #   ${pkgs.lib.getBin pkgs.xorg.xrandr}/bin/xrandr --setprovideroutsource modesetting NVIDIA-0
   #   ${pkgs.lib.getBin pkgs.xorg.xrandr}/bin/xrandr --auto
   # '';
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   hardware = {
     nvidia = {
-      modesetting.enable = false;
+      modesetting.enable = true;
+      powerManagement.enable = true;
+      powerManagement.finegrained = false;
       prime = {
         offload.enable = true;
         intelBusId = "PCI:0:2:0";
         nvidiaBusId = "PCI:1:0:0";
       };
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
     };
 
     opengl = {
+      enable = true;
       driSupport = true;
       driSupport32Bit = true;
     };
@@ -59,7 +58,6 @@ in
    environment.systemPackages = with pkgs; [
      wget
      pciutils
-     nvidia-offload
      glxinfo
    ];
 

@@ -23,7 +23,6 @@ in
       wget
       ripgrep
       bat
-      neovim
       ranger
       lsd
       git
@@ -37,6 +36,7 @@ in
       btop
       deno
       zathura
+      neovim
     ];
 
   };

@@ -38,6 +38,7 @@ in
         cac = false;
       };
       k9s = enabled; 
+      vscode = enabled;
     };
 
     system = {
@@ -69,7 +70,7 @@ in
     hardware.audio = {
     };
 
-    hardware.nvidia = enabled;
+    # hardware.nvidia = enabled;
 
   };
 
