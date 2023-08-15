@@ -48,7 +48,7 @@ in
     hardware.audio = {
     };
 
-    hardware.bluetooth = enabled;
+    # hardware.bluetooth = enabled;
   };
 
   campground.home.extraOptions = {
