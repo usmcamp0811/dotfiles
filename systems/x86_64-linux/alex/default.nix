@@ -38,7 +38,7 @@ in
       brave = {
         enable = true;
       };
-      # vscode = enabled;
+      vscode = enabled;
     };
 
     system = {
