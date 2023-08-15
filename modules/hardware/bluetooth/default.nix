@@ -5,7 +5,7 @@ with lib.internal;
 let cfg = config.campground.hardware.bluetooth;
 in
 {
-  options.campground.hardware.networking = with types; {
+  options.campground.hardware.bluetooth = with types; {
     enable = mkBoolOpt false "Whether or not to enable bluetooth support";
   };
 
