@@ -38,8 +38,6 @@ in
         cac = false;
       };
       k9s = enabled; 
-      vscode = enabled;
-      virtualbox = enabled;
     };
 
     system = {
