@@ -10,10 +10,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.bluetooth.enable = true;
+    # services.bluetooth.enable = true;
 
-    environment.systemPackages = with pkgs; [
-      blueman
-    ];
+    #environment.systemPackages = with pkgs; [
+      #blueman
+    #];
   };
 }
