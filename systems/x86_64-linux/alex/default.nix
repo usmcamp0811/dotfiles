@@ -68,6 +68,7 @@ in
   };
 
   campground.services = {
+    cac = enabled;
   };
 
 
