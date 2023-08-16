@@ -39,6 +39,7 @@ in
       };
       k9s = enabled; 
       libreoffice = enabled;
+      virtmanager = enabled;
     };
 
     system = {
