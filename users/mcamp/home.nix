@@ -22,6 +22,7 @@
     zathura
     xclip
     xsel
+    flameshot
   ];
 
   services = {
