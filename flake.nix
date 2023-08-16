@@ -5,6 +5,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
+
     # Snowfall Lib
     snowfall-lib.url = "github:snowfallorg/lib/dev";
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
@@ -55,9 +57,13 @@
       channels-config = {
         allowUnfree = true;
       };
-
-      overlays = with inputs; [
+      overlays = [
+        (final: prev: {
+          neovim = inputs.campground-nvim.packages.x86_64-linux.default;
+        })
       ];
+     # overlays = with inputs; [
+     # ];
 
       systems.modules = with inputs; [
         home-manager.nixosModules.home-manager
@@ -72,9 +78,9 @@
       ];
 
       #TODO: Move this into the actual system config?
-      systems.hosts.butler.modules = with inputs; [
-        nixos-hardware.nixosModules.lenovo-thinkpad-p1
-      ];
+      # systems.hosts.butler.modules = with inputs; [
+      #   nixos-hardware.nixosModules.lenovo-thinkpad-p1
+      # ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 

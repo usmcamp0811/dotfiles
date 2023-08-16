@@ -22,12 +22,12 @@ let
     set -e
     ls -lah ${pkgs.p11-kit}/lib
     echo "break"
-    ls -lah ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so
-    ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.opensc}/lib/onepin-opensc-pkcs11.so -force
+    ls -lah ${pkgs.opensc}/lib/opensc-pkcs11.so
+    ${pkgs.nssTools}/bin/modutil -dbdir sql:$HOME/.pki/nssdb/ -add "CAC Module" -libfile ${pkgs.opensc}/lib/opensc-pkcs11.so -force
     for certFile in ${builtins.concatStringsSep " " cacCertificatesPaths}
     do
       echo "Loading Cert into Brave: $certfile"
-      ${pkgs.nssTools}/bin/certutil -d sql:$HOME/.pki/nssdb -A -t TC -n "$certFile" -i "$certFile"
+      ${pkgs.nssTools}/bin/certutil -d sql:${users.users.${cfg.name}.home}/.pki/nssdb -A -t TC -n "$certFile" -i "$certFile"
     done
   '';
 in

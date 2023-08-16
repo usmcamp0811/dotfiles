@@ -21,14 +21,26 @@ in
     archetypes = {
       workstation = enabled;
     };
+    desktop.qtile = {
+      enable = true;
+      lightdm = true;
+    };
+    desktop.gnome = {
+      enable = true;
+      lightdm = true;
+      wallpaper = {
+        light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
+        dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
+      };
+    };
 
     apps = {
       firefox = {
-        enable = false;
-        cac = true;
+        enable = true;
+        cac = false;
       };
       brave = {
-        enable = false;
+        enable = true;
         cac = true;
       };
     };
@@ -65,6 +77,10 @@ in
   };
 
   campground.home.extraOptions = {
+    home.shellAliases = {
+      la = "lsd -lah";
+      update = "sudo nixos-rebuild switch";
+    };
   };
 
   campground.user = {
@@ -76,9 +92,16 @@ in
 
   campground.services = {
     ldap-client = enabled;
-    secret-service = enabled;
-    cac = {
-      enable = false;
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
+      };
     };
     vault-agent = {
       enable = true;

@@ -22,15 +22,24 @@ in
       workstation = enabled;
     };
 
+    desktop.qtile = {
+      enable = true;
+      lightdm = true;
+      gdm = false;
+    };
+
     apps = {
       firefox = {
         enable = false;
         cac = false;
       };
       brave = {
-        enable = true;
+        enable = false;
         cac = false;
       };
+      k9s = enabled; 
+      libreoffice = enabled;
+      virtmanager = enabled;
     };
 
     system = {
@@ -62,11 +71,15 @@ in
     hardware.audio = {
     };
 
-    hardware.nvidia = enabled;
+    # hardware.nvidia = enabled;
 
   };
 
   campground.home.extraOptions = {
+    home.shellAliases = {
+      la = "lsd -lah";
+      update = "sudo nixos-rebuild switch";
+    };
   };
 
   campground.user = {
@@ -82,6 +95,17 @@ in
     cac = {
       enable = false;
     };
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
+      };
+    };
     vault-agent = {
       enable = true;
       settings = {
@@ -93,6 +117,21 @@ in
       };
     };
   };
+
+#  users.users.mcamp = {
+#    isNormalUser = true;
+#    home = "/home/mcamp";
+#    group = "ldap_user";
+#    shell = pkgs.zsh;
+#
+#    # Arbitrary user ID to use for the user. Since I only
+#    # have a single user on my machines this won't ever collide.
+#    # However, if you add multiple users you'll need to change this
+#    # so each user has their own unique uid (or leave it out for the
+#    # system to select).
+#    uid = 10000;
+#  }; 
+
   # TODO: Move this somewhere more good and try to automate for when not connected to a monitor
   environment.variables = {
     GDK_SCALE = "1.6";
@@ -106,5 +145,6 @@ in
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
+
 }
 

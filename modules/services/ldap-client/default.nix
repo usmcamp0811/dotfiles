@@ -95,6 +95,11 @@ ldap_schema = rfc2307
 ldap_group_member = memberUid
     '';
     };
+    # Add this section to ensure sssd restarts on failure
+    systemd.services.sssd.serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
 
     # Chad says this should let all ldap users in the `ldap_user` group to use home-manager
     nix.settings.trusted-users = [ "@${cfg.trusted_group}" ];
@@ -117,6 +122,8 @@ ldap_group_member = memberUid
         Type = "oneshot";
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyLDAP_CA.sh";
+        after = [ "vault-agent.service" ];
+        before = [ "sssd.service" ];
       };
       wantedBy = [ "multi-user.target" ];
     };
@@ -150,10 +157,11 @@ ldap_group_member = memberUid
     {{ with secret "${cfg.vault-path}" }}{{ .Data.ldap_ca }}{{ end }}
     EOF
                 # Move temp file to target, ensuring atomic update
+                mkdir -p /etc/ldap/
                 mv $TEMP_CERT $CA_CERT
                 chmod 0644 $CA_CERT  # Set appropriate permissions
               '';
-              permissions = "0755";  # Make the script executable
+              permissions = "0400";  # Make the script executable
               change-action = "restart";
             };
           };

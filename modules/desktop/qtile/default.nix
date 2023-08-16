@@ -18,9 +18,9 @@ in
 {
   options.campground.desktop.qtile = with types; {
     enable =
-      mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
+      mkBoolOpt false "Whether or not to use Qtile as the desktop environment.";
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
-    gdm = mkBoolOpt true "Whether or not to use GDM Display Manager.";
+    gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
     lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
     suspend =
       mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
@@ -38,6 +38,11 @@ in
       rofi
       xclip
       xsel
+      feh
+      dunst
+      autorandr
+      arandr
+      go-sct
     ] ++ defaultExtensions;
 
 
@@ -94,9 +99,9 @@ in
       enable = true;
       libinput.enable = true;
       displayManager = {
-        # lightdm = {
-        #   enable = cfg.lightdm;
-        # };
+        lightdm = {
+          enable = cfg.lightdm;
+        };
         gdm = {
           enable = cfg.gdm;
           wayland = cfg.wayland;

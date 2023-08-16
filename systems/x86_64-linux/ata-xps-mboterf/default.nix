@@ -22,6 +22,10 @@ in
     };
 
     apps = {
+      emacs = {
+        enable = true;
+        spacemacs = true;
+      };
       firefox = {
         enable = false;
         cac = false;

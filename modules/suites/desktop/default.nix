@@ -14,10 +14,6 @@ in
   config = mkIf cfg.enable {
     campground = {
       desktop = {
-        qtile = {
-          enable = true;
-          lightdm = true;
-        };
 
         addons = { 
           wallpapers = enabled; 
