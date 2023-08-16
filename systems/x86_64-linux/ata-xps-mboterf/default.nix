@@ -22,6 +22,10 @@ in
     };
 
     apps = {
+      emacs = {
+        enable = true;
+        spacemacs = true;
+      };
       firefox = {
         enable = false;
         cac = true;
@@ -36,7 +40,7 @@ in
       boot = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = true;
+        enable = false;
         networks = {
           SkyNet = {
             ssid = "SkyNet";
@@ -47,7 +51,7 @@ in
         };
       };
       vpn = {
-        enable = true;
+        enable = false;
         networks = {
           CampNet = {
             key = "ata_xps";
