@@ -14,12 +14,17 @@ in
     virtualisation.libvirtd.enable = true;
     programs.dconf.enable = true;
     environment.systemPackages = with pkgs; [ virt-manager ];
-  };
-    dconf.settings = {
-      "org/virt-manager/virt-manager/connections" = {
-        autoconnect = ["qemu:///system"];
-        uris = ["qemu:///system"];
+
+    # TODO: Move to user config
+    campground.home.extraOptions = {
+      dconf.settings = {
+        "org/virt-manager/virt-manager/connections" = {
+          autoconnect = ["qemu:///system"];
+          uris = ["qemu:///system"];
+        };
       };
     };
-  campground.user.extraGroups = [ "libvirtd" ];
+    campground.user.extraGroups = [ "libvirtd" ];
+
+  };
 }

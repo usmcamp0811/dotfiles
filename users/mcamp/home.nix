@@ -121,5 +121,12 @@
       ${pkgs.openssh}/bin/ssh-keygen -y -f ${config.home.homeDirectory}/.ssh/id_ed25519 > ${config.home.homeDirectory}/.ssh/id_ed25519.pub
     '';
   };
+
+  dconf.settings = {
+    "org/virt-manager/virt-manager/connections" = {
+      autoconnect = ["qemu:///system"];
+      uris = ["qemu:///system"];
+    };
+  };
 }
 
