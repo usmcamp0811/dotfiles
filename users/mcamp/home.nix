@@ -114,6 +114,8 @@
 
   home.activation = {
     copyMySSHKey = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      mkdir -p ~/.ssh
+      chmod 0700 ~/.ssh
       cp /var/lib/vault/users/mcamp/id_ed25519 ${config.home.homeDirectory}/.ssh/id_ed25519
       chmod 600 ${config.home.homeDirectory}/.ssh/id_ed25519
       ${pkgs.openssh}/bin/ssh-keygen -y -f ${config.home.homeDirectory}/.ssh/id_ed25519 > ${config.home.homeDirectory}/.ssh/id_ed25519.pub
