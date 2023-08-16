@@ -11,7 +11,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.virtualisation.virtualbox.host = {
+    virtualisation.virtualbox.host = {
       enable = true;
       enableExtensionPack = true;
     };
