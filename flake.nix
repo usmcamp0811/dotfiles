@@ -54,6 +54,12 @@
     lib.mkFlake {
       package-namespace = "campground";
 
+      homeConfigurations = {
+        "mcamp@butler" = inputs.home-manager.lib.homeManagerConfiguration {
+          modules = [ ./users/mcamp/home.nix ];
+          pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        };
+      };
       channels-config = {
         allowUnfree = true;
       };
