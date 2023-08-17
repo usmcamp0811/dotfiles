@@ -45,6 +45,7 @@ in
       };
       vscode = enabled;
       virtualbox = enabled;
+      virtmanager = enabled;
       libreoffice = enabled;
     };
 
