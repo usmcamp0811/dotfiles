@@ -34,7 +34,7 @@ in
         cac = false;
       };
       brave = {
-        enable = false;
+        enable = true;
         cac = false;
       };
       k9s = enabled; 
