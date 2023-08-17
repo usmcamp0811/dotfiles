@@ -87,25 +87,25 @@ in
       reload-yubikey
     ];
 
-    programs = {
-      ssh.startAgent = false;
+    # programs = {
+    #   ssh.startAgent = false;
+    #
+    #   gnupg.agent = {
+    #     enable = true;
+    #     enableSSHSupport = true;
+    #     enableExtraSocket = true;
+    #     pinentryFlavor = "gnome3";
+    #   };
+    # };
 
-      gnupg.agent = {
-        enable = true;
-        enableSSHSupport = true;
-        enableExtraSocket = true;
-        pinentryFlavor = "gnome3";
-      };
-    };
-
-    campground = {
-      home.file = {
-        ".gnupg/yubikey-guide.md".source = guide;
-        ".gnupg/yubikey-guide.html".source = guideHTML;
-
-        ".gnupg/gpg.conf".source = gpgConf;
-        ".gnupg/gpg-agent.conf".text = gpgAgentConf;
-      };
-    };
+    # campground = {
+    #   home.file = {
+    #     ".gnupg/yubikey-guide.md".source = guide;
+    #     ".gnupg/yubikey-guide.html".source = guideHTML;
+    #
+    #     ".gnupg/gpg.conf".source = gpgConf;
+    #     ".gnupg/gpg-agent.conf".text = gpgAgentConf;
+    #   };
+    # };
   };
 }

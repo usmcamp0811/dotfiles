@@ -14,8 +14,8 @@ in
     environment.systemPackages = with pkgs; [ kitty ];
 
     # TODO: look at the nix config options for kitty.. maybe we can do away with these files
-    campground.home.configFile."kitty/current-theme.conf".source = ./current-theme.conf;
-    campground.home.configFile."kitty/kitty.conf".source = ./kitty.conf;
+    # campground.home.configFile."kitty/current-theme.conf".source = ./current-theme.conf;
+    # campground.home.configFile."kitty/kitty.conf".source = ./kitty.conf;
   };
 }
 

@@ -71,50 +71,50 @@ in
       };
      };
 
-    campground.home = {
-        file = let
-          baseFile = {
-            "Desktop/.keep".text = "";
-            "Documents/.keep".text = "";
-            "Downloads/.keep".text = "";
-            "Music/.keep".text = "";
-            "Pictures/.keep".text = "";
-            "Videos/.keep".text = "";
-            "work/.keep".text = "";
-            ".face".source = cfg.icon;
-            "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
-          };
-        in baseFile;
-
-
-      extraOptions = {
-        home.shellAliases = {
-          la = "lsd -lah";
-          update = "sudo nixos-rebuild switch";
-        };
-
-        programs.zsh.enable = true;
-
-        programs.zsh.initExtra = ''
-          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          # source all the other bash config files
-          for file in /home/${cfg.name}/.config/shell/*.shrc; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          source /home/${cfg.name}/.config/shell/zsh/theme
-        '';
-
-        programs.zsh.history = {
-          size = 10000;
-          path = "$XDG_CACHE_HOME/zsh/history";
-        };
-
-      };
-    };
+    # campground.home = {
+    #     file = let
+    #       baseFile = {
+    #         "Desktop/.keep".text = "";
+    #         "Documents/.keep".text = "";
+    #         "Downloads/.keep".text = "";
+    #         "Music/.keep".text = "";
+    #         "Pictures/.keep".text = "";
+    #         "Videos/.keep".text = "";
+    #         "work/.keep".text = "";
+    #         ".face".source = cfg.icon;
+    #         "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
+    #       };
+    #     in baseFile;
+    #
+    #
+    #   extraOptions = {
+    #     home.shellAliases = {
+    #       la = "lsd -lah";
+    #       update = "sudo nixos-rebuild switch";
+    #     };
+    #
+    #     programs.zsh.enable = true;
+    #
+    #     programs.zsh.initExtra = ''
+    #       for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
+    #           [ -r "$file" ] && source "$file"
+    #       done
+    #
+    #       # source all the other bash config files
+    #       for file in /home/${cfg.name}/.config/shell/*.shrc; do
+    #           [ -r "$file" ] && source "$file"
+    #       done
+    #
+    #       source /home/${cfg.name}/.config/shell/zsh/theme
+    #     '';
+    #
+    #     programs.zsh.history = {
+    #       size = 10000;
+    #       path = "$XDG_CACHE_HOME/zsh/history";
+    #     };
+    #
+    #   };
+    # };
 
     users.users.root = {
       shell = pkgs.zsh;

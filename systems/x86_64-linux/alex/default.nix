@@ -53,12 +53,12 @@ in
     # hardware.bluetooth = enabled;
   };
 
-  campground.home.extraOptions = {
-    home.shellAliases = {
-      la = "lsd -lah";
-      update = "sudo nixos-rebuild switch";
-    };
-  };
+  # campground.home.extraOptions = {
+  #   home.shellAliases = {
+  #     la = "lsd -lah";
+  #     update = "sudo nixos-rebuild switch";
+  #   };
+  # };
 
   campground.user = {
     name = "ajames";

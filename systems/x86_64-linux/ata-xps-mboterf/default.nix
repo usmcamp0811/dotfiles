@@ -61,8 +61,8 @@ in
 
   };
 
-  campground.home.extraOptions = {
-  };
+  # campground.home.extraOptions = {
+  # };
 
   campground.user = {
     name = "mboterf";

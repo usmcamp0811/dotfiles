@@ -13,7 +13,7 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ rofi ];
 
-    campground.home.configFile."rofi/config.rasi".source = ./config.rasi;
+    # campground.home.configFile."rofi/config.rasi".source = ./config.rasi;
   };
 }
 

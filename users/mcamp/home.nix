@@ -3,7 +3,7 @@
 {
   home.username = "mcamp";
   home.homeDirectory = "/home/mcamp";
-  home.stateVersion = "22.11";
+  home.stateVersion = "22.1
 
   nixpkgs.config.allowUnfree = true;
 

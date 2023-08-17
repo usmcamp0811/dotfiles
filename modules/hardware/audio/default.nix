@@ -164,13 +164,13 @@ in
 
     campground.user.extraGroups = [ "audio" ];
 
-    campground.home.extraOptions = {
-      systemd.user.services.mpris-proxy = {
-        Unit.Description = "Mpris proxy";
-        Unit.After = [ "network.target" "sound.target" ];
-        Service.ExecStart = "${pkgs.bluez}/bin/mpris-proxy";
-        Install.WantedBy = [ "default.target" ];
-      };
-    };
+    # campground.home.extraOptions = {
+    #   systemd.user.services.mpris-proxy = {
+    #     Unit.Description = "Mpris proxy";
+    #     Unit.After = [ "network.target" "sound.target" ];
+    #     Service.ExecStart = "${pkgs.bluez}/bin/mpris-proxy";
+    #     Install.WantedBy = [ "default.target" ];
+    #   };
+    # };
   };
 }

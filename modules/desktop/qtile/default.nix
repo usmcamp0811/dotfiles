@@ -112,9 +112,9 @@ in
         enable = true;
       };
     };
-    campground.home.extraOptions = {
-
-    };
+    # campground.home.extraOptions = {
+    #
+    # };
 
     # Open firewall for samba connections to work.
     # networking.firewall.extraCommands =

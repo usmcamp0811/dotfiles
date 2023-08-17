@@ -43,18 +43,18 @@ in
       pkcs11helper
     ];
 
-    campground.home.extraOptions.programs.brave = {
-      enable = true;
-      package = pkgs.brave;
-      extensions = [
-        { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
-        { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-        { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
-        { id = "iaddfgegjgjelgkanamleadckkpnjpjc"; } # Auto Quality for YouTube
-        { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # Vimium
-        { id = "annfbnbieaamhaimclajlajpijgkdblo"; } # Dark Theme
-      ];
-    };
+    # campground.home.extraOptions.programs.brave = {
+    #   enable = true;
+    #   package = pkgs.brave;
+    #   extensions = [
+    #     { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+    #     { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+    #     { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
+    #     { id = "iaddfgegjgjelgkanamleadckkpnjpjc"; } # Auto Quality for YouTube
+    #     { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # Vimium
+    #     { id = "annfbnbieaamhaimclajlajpijgkdblo"; } # Dark Theme
+    #   ];
+    # };
     # systemd.services.installCACerts = {
     #   description = "Install CAC certificates into Chromium based Browsers";
     #   after = [ "network.target" ];

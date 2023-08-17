@@ -13,15 +13,15 @@ in
   };
 # TODO: Make this mine.... 
   config = {
-    campground.home.file = lib.foldl
-      (acc: name:
-        let wallpaper = wallpapers.${name};
-        in
-        acc // {
-          "Pictures/wallpapers/${wallpaper.fileName}".source = wallpaper;
-        })
-      { }
-      (wallpapers.names);
+    # campground.home.file = lib.foldl
+    #   (acc: name:
+    #     let wallpaper = wallpapers.${name};
+    #     in
+    #     acc // {
+    #       "Pictures/wallpapers/${wallpaper.fileName}".source = wallpaper;
+    #     })
+    #   { }
+    #   (wallpapers.names);
   };
 }
 
