@@ -1,7 +1,7 @@
 { pkgs, lib, nixos-hardware, nixosModules, agenix, ... }:
 
 with lib;
-with lib.internal;
+with lib.campground;
 let
   newUser = name: {
     isNormalUser = true;
@@ -21,6 +21,20 @@ in
       workstation = enabled;
     };
 
+    desktop.qtile = {
+      enable = true;
+      lightdm = true;
+    };
+
+    desktop.gnome = {
+      enable = true;
+      lightdm = true;
+      wallpaper = {
+        light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
+        dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
+      };
+    };
+
     apps = {
       emacs = {
         enable = true;
@@ -28,11 +42,11 @@ in
       };
       firefox = {
         enable = false;
-        cac = false;
+        cac = true;
       };
       brave = {
-        enable = false;
-        cac = false;
+        enable = true;
+        cac = true;
       };
     };
 
@@ -46,7 +60,7 @@ in
             ssid = "SkyNet";
           };
           SkyNet5 = {
-            ssid = "Boterf-5G";
+            ssid = "SkyNet5";
           };
         };
       };
@@ -66,6 +80,10 @@ in
   };
 
   campground.home.extraOptions = {
+    home.shellAliases = {
+      la = "lsd -lah";
+      update = "sudo nixos-rebuild switch";
+    };
   };
 
   campground.user = {
@@ -79,14 +97,11 @@ in
   campground.services = {
     ldap-client = disabled;
     secret-service = disabled;
-    cac = {
-      enable = false;
-    };
     vault-agent = {
-      enable = true;
+      enable = false;
       settings = {
         vault = {
-          address = "http://10.0.0.19:8200";
+          address = "https://vault.lan.aicampground.com";
           role-id = "/var/lib/vault/ata-xps/role-id";
           secret-id = "/var/lib/vault/ata-xps/secret-id";
         };
