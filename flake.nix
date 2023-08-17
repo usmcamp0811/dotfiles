@@ -60,7 +60,7 @@
       ];
 
       systems.modules = with inputs; [
-        home-manager.nixosModules.home-manager
+        # home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
       ];

@@ -29,14 +29,14 @@ in
     };
 
     apps = {
-      firefox = {
-        enable = false;
-        cac = false;
-      };
-      brave = {
-        enable = false;
-        cac = false;
-      };
+      # firefox = {
+      #   enable = false;
+      #   cac = false;
+      # };
+      # brave = {
+      #   enable = false;
+      #   cac = false;
+      # };
       k9s = enabled; 
       libreoffice = enabled;
     };
@@ -74,19 +74,20 @@ in
 
   };
 
-  campground.home.extraOptions = {
-    home.shellAliases = {
-      la = "lsd -lah";
-      update = "sudo nixos-rebuild switch";
-    };
-  };
+  # campground.home.extraOptions = {
+  #   home.shellAliases = {
+  #     la = "lsd -lah";
+  #     update = "sudo nixos-rebuild switch";
+  #   };
+  # };
 
-  campground.user = {
-    name = "abe";
-    fullName = "Matt Camp";
-    email = "matt@aicampground.com";
-    extraGroups = ["wheel"];
-  };
+  # campground.user = {
+  #   name = "abe";
+  #   fullName = "Matt Camp";
+  #   email = "matt@aicampground.com";
+  #   extraGroups = ["wheel"];
+  # };
+
 
   campground.services = {
     ldap-client = enabled;
