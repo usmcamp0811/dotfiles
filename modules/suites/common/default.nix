@@ -27,8 +27,6 @@ in
       tools = {
         git = enabled;
         misc = enabled;
-        julia = enabled;
-        python = enabled;
         # fup-repl = enabled;
         # comma = enabled;
         # nix-ld = enabled;
