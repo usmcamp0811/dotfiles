@@ -52,11 +52,14 @@
       };
     in
     lib.mkFlake {
-      package-namespace = "campground";
-
       channels-config = {
         allowUnfree = true;
+        permittedInsecurePackages = [
+          "python-2.7.18.6"
+        ];
       };
+      package-namespace = "campground";
+
       overlays = [
         (final: prev: {
           neovim = inputs.campground-nvim.packages.x86_64-linux.default;

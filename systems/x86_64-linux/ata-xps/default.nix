@@ -43,6 +43,7 @@ in
         enable = true;
         cac = true;
       };
+      virtmanager = enabled;
     };
 
     system = {
