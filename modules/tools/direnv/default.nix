@@ -10,11 +10,11 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.home.extraOptions = {
-      programs.direnv = {
-        enable = true;
-        nix-direnv = enabled;
-      };
-    };
+    # campground.home.extraOptions = {
+    #   programs.direnv = {
+    #     enable = true;
+    #     nix-direnv = enabled;
+    #   };
+    # };
   };
 }

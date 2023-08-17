@@ -11,7 +11,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.home.configFile."wgetrc".text = "";
+    # campground.home.configFile."wgetrc".text = "";
 
     environment.systemPackages = with pkgs; [
       fzf

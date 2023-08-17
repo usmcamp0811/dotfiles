@@ -20,25 +20,25 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ git lazygit ];
 
-    campground.home.extraOptions = {
-      programs.git = {
-        enable = true;
-        inherit (cfg) userName userEmail;
-        lfs = enabled;
-        # signing = {
-        #   key = cfg.signingKey;
-        #   signByDefault = mkIf gpg.enable true;
-        # };
-        extraConfig = {
-          init = { defaultBranch = "main"; };
-          pull = { rebase = true; };
-          push = { autoSetupRemote = true; };
-          core = { whitespace = "trailing-space,space-before-tab"; };
-          safe = {
-            directory = "${config.users.users.${user.name}.home}/work/config";
-          };
-        };
-      };
-    };
+    # campground.home.extraOptions = {
+    #   programs.git = {
+    #     enable = true;
+    #     inherit (cfg) userName userEmail;
+    #     lfs = enabled;
+    #     # signing = {
+    #     #   key = cfg.signingKey;
+    #     #   signByDefault = mkIf gpg.enable true;
+    #     # };
+    #     extraConfig = {
+    #       init = { defaultBranch = "main"; };
+    #       pull = { rebase = true; };
+    #       push = { autoSetupRemote = true; };
+    #       core = { whitespace = "trailing-space,space-before-tab"; };
+    #       safe = {
+    #         directory = "${config.users.users.${user.name}.home}/work/config";
+    #       };
+    #     };
+    #   };
+    # };
   };
 }
