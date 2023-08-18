@@ -3,11 +3,11 @@
 with lib.campground;
 {
   campground = {
-    # user = {
-    #   enable = true;
-    #   # name = config.snowfallorg.user.name;
-    #   name = "ccamp";
-    # };
+    user = {
+      enable = true;
+      # name = config.snowfallorg.user.name;
+      name = "abe";
+    };
 
     cli-apps = {
     #   zsh = enabled;
