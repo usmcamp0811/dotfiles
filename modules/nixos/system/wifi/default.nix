@@ -2,7 +2,7 @@
 
 with lib;
 with lib.campground;
-let 
+let
   cfg = config.campground.system.wifi;
 in
 {
@@ -55,7 +55,7 @@ in
       };
       secrets = {
         file = {
-          files = { 
+          files = {
             "wifi-passwords" = {
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
                 #!/bin/sh
@@ -75,5 +75,3 @@ in
     };
   };
 }
-
-

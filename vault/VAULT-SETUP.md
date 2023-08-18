@@ -81,7 +81,7 @@ mkdir -p /var/lib/vault/<system>
 touch /var/lib/vault/ata-xps/role_id /var/lib/vault/ata-xps/secret_id
 ```
 
-```sh
+```nix
 # in your default.nix system level config
     vault-agent = {
       enable = true;
@@ -112,4 +112,4 @@ vault kv put secrets/campground/data value=my-super-secret-value
 
 ## Walk-through setting up WIFI for your system
 
-[Wifi walkthrough](./WIFI-GUIDE.md)
+[Wifi walkthrough](WIFI-GUIDE.md)

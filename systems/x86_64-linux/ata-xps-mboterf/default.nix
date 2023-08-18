@@ -65,13 +65,14 @@ in
       boot = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = false;
+        enable = true;
+        vault-path = "boterf_home/wifi"
         networks = {
-          SkyNet = {
-            ssid = "SkyNet";
+          Boterf5 = {
+            ssid = "Boterf-5G";
           };
-          SkyNet5 = {
-            ssid = "SkyNet5";
+          Boterf24 = {
+            ssid = "Boterf-2.4G";
           };
         };
       };
@@ -107,7 +108,7 @@ in
 
   campground.services = {
     ldap-client = disabled;
-    secret-service = disabled;
+    secret-service = enabled;
     vault-agent = {
       enable = false;
       settings = {

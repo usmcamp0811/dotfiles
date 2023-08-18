@@ -101,4 +101,4 @@ docker exec -it vault vault status
 
 ## Next Steps
 
-[Steps to setup VAULT](./VAULT-SETUP.md)
+[Steps to setup VAULT](VAULT-SETUP.md)
