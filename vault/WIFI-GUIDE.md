@@ -26,12 +26,22 @@ In short, we're going to go back to our configuration and add or adjust the foll
       settings = {
         vault = {
           address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/ata-xps/role-id";     # These lines are what should be adjusted
-          secret-id = "/var/lib/vault/ata-xps/secret-id";
+          role-id = "/var/lib/vault/ata-xps-mboterf/role-id";
+          secret-id = "/var/lib/vault/ata-xps-mboterf/secret-id";
         };
       };
     };
   };
+```
+
+## Setup files
+
+Observing where you've described the role and secret id's for your vault. You'll need to place them at the same location as indicated by the role-id and secret-id in your configuration file. This will probably require some gymnastics as both locations are owned by root. I took the route of copying them to my local home directory and pushing them into the required machine's home directory. From there I simply created the proper directories and moved `mv` the files into the proper location. Clean up if you have any leftover directories in your home path
+
+```sh
+ssh <username>@<ip>
+mkdir -p /var/lib/vault/ata-xps-mboterf/
+
 ```
 
 In the first code block we have wifi `enable = true`. This going to allow us to pull the secrets for our wifi appropriately. At this point we need to upload these creds into our vault

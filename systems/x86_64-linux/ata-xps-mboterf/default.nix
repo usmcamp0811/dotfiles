@@ -100,9 +100,9 @@ in
       enable = false;
       settings = {
         vault = {
-          address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/ata-xps/role-id";
-          secret-id = "/var/lib/vault/ata-xps/secret-id";
+          address = "http://10.0.0.19:8200";
+          role-id = "/var/lib/vault/ata-xps-mboterf/role-id";
+          secret-id = "/var/lib/vault/ata-xps-mboterf/secret-id";
         };
       };
     };
