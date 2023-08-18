@@ -38,12 +38,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      nssTools
-      pkcs11helper
-    ];
 
-    campground.home.extraOptions.programs.brave = {
+    programs.brave = {
       enable = true;
       package = pkgs.brave;
       extensions = [
@@ -66,7 +62,6 @@ in
     #   };
     # };
 
-    campground.services.cac.enable = mkIf cfg.cac true;
   };
 }
 
