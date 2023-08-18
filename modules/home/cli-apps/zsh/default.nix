@@ -15,7 +15,7 @@ in
       enable = true;
       enableCompletion = true; # Enable command completion
       enableAutosuggestions = true;
-      syntaxHighlighting.enable = true;
+      enableSyntaxHighlighting = true;
 
       # TODO: migrate my theme here
       oh-my-zsh = {
