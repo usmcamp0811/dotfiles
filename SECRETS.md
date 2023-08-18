@@ -60,7 +60,7 @@ For this example, we'll create a service to use our secrets. In the context of h
 { options, config, pkgs, lib, systems, name, format, inputs, ... }:
 
 with lib;
-with lib.internal;
+with lib.campground;
 let
   cfg = config.campground.services.secret-service;
 in
