@@ -53,7 +53,7 @@ in
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         enable = true;
-        vault-path = "boterf_home/wifi";
+        vault-path = "boterf_home/wifi/";
         networks = {
           Boterf-5G = {
             ssid = "Boterf-5G";
