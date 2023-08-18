@@ -13,7 +13,7 @@ in
   config = mkIf cfg.enable {
     virtualisation.libvirtd.enable = true;
     programs.dconf.enable = true;
-    environment.systemPackages = with pkgs; [ virt-manager spice_gtk ];
+    environment.systemPackages = with pkgs; [ virt-manager spice-gtk ];
     security.wrappers.spice-client-glib-usb-acl-helper.source = "${pkgs.spice_gtk}/bin/spice-client-glib-usb-acl-helper";
     # TODO: Move to user config
     campground.home.extraOptions = {
@@ -26,6 +26,7 @@ in
     };
     campground.user.extraGroups = [ "libvirtd" "usb" ];
 
+   # TODO: Revisit this issue https://github.com/NixOS/nixpkgs/pull/35214
    # let all usb devices be in the usb group
     services.udev.extraRules = ''
       KERNEL=="*", SUBSYSTEMS=="usb", MODE="0664", GROUP="usb"
