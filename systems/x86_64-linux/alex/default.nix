@@ -1,7 +1,7 @@
 { pkgs, lib, nixos-hardware, nixosModules, agenix, ... }:
 
 with lib;
-with lib.internal;
+with lib.campground;
 let
   newUser = name: {
     isNormalUser = true;

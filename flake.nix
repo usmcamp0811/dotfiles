@@ -15,8 +15,14 @@
     flake.url = "github:snowfallorg/flake";
     flake.inputs.nixpkgs.follows = "unstable";
 
+
     # Hardware Configuration
     nixos-hardware.url = "github:nixos/nixos-hardware";
+
+    # Generate System Images
+    nixos-generators.url =
+      "github:nix-community/nixos-generators";
+    nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
 
     # Home Manager (release-23.05)
     home-manager.url =
@@ -49,6 +55,14 @@
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
+
+        snowfall = {
+          meta = {
+            name = "campground";
+            title = "AI Campground";
+          };
+          namespace = "campground";
+        };
       };
     in
     lib.mkFlake {

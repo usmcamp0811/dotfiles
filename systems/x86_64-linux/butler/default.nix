@@ -1,7 +1,7 @@
-{ pkgs, lib, nixos-hardware, nixosModules, agenix, ... }:
+{ pkgs, lib, ... }:
 
 with lib;
-with lib.internal;
+with lib.campground;
 let
   newUser = name: {
     isNormalUser = true;
@@ -75,12 +75,12 @@ in
 
   };
 
-  campground.home.extraOptions = {
-    home.shellAliases = {
-      la = "lsd -lah";
-      update = "sudo nixos-rebuild switch";
-    };
-  };
+  # campground.home.extraOptions = {
+  #   home.shellAliases = {
+  #     la = "lsd -lah";
+  #     update = "sudo nixos-rebuild switch";
+  #   };
+  # };
 
   campground.user = {
     name = "abe";
