@@ -20,13 +20,25 @@ in
     archetypes = {
       workstation = enabled;
     };
+    desktop.qtile = {
+      enable = true;
+      lightdm = true;
+    };
+    desktop.gnome = {
+      enable = true;
+      lightdm = true;
+      wallpaper = {
+        light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
+        dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
+      };
+    };
 
     apps = {
       emacs = {
         enable = true;
       };
       firefox = {
-        enable = false;
+        enable = true;
         cac = true;
       };
       brave = {
