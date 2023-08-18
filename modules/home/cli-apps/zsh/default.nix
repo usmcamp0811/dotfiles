@@ -3,10 +3,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.plusultra.cli-apps.zsh;
+  cfg = config.campground.cli-apps.zsh;
 in
 {
-  options.plusultra.cli-apps.zsh = {
+  options.campground.cli-apps.zsh = {
     enable = mkEnableOption "ZSH";
   };
 
