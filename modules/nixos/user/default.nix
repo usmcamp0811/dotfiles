@@ -32,7 +32,7 @@ let
 in
 {
   options.campground.user = with types; {
-    name = mkOpt str "mcamp" "The name to use for the user account.";
+    name = mkOpt str "abe" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
     initialPassword = mkOpt str "password"
@@ -72,8 +72,7 @@ in
      };
 
     campground.home = {
-        file = let
-          baseFile = {
+        file = {
             "Desktop/.keep".text = "";
             "Documents/.keep".text = "";
             "Downloads/.keep".text = "";
@@ -84,7 +83,6 @@ in
             ".face".source = cfg.icon;
             "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
           };
-        in baseFile;
 
 
       extraOptions = {

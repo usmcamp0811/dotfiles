@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, inputs, ... }:
 
 let
   inherit (lib) mkEnableOption mkIf;
@@ -11,10 +11,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    home = {
-      packages = with pkgs; [
-        less
-        campground.nvim
-      ];
+    # environment.systemPackages = with pkgs; [
+    #   less
+    # ];
   };
 }

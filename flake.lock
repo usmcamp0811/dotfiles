@@ -31,11 +31,11 @@
         "nixvim": "nixvim"
       },
       "locked": {
-        "lastModified": 1692372173,
-        "narHash": "sha256-U/Ev8YrMSzwoNj3DOpC4cqyeqGnG9YlFqawED0C1V+0=",
+        "lastModified": 1692375183,
+        "narHash": "sha256-3TQWI2NTQmeN3DMicavvGg607taBeSaR7UfVb2X/7iI=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "1b2b4f642a44337232369aac6d7e73cb72dbdd4b",
+        "rev": "4a72e868eb33d429bfa98c399b59d251cd0a92bd",
         "type": "gitlab"
       },
       "original": {
@@ -478,11 +478,11 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1691871742,
-        "narHash": "sha256-6yDNjfbAMpwzWL4y75fxs6beXHRANfYX8BNSPjYehck=",
+        "lastModified": 1692373088,
+        "narHash": "sha256-EPgCecdc9I8aTdmDNoO1l7R72r2WPhZRcesV4nzxBj8=",
         "owner": "nixos",
         "repo": "nixos-hardware",
-        "rev": "430a56dd16fe583a812b2df44dca002acab2f4f6",
+        "rev": "7f1836531b126cfcf584e7d7d71bf8758bb58969",
         "type": "github"
       },
       "original": {

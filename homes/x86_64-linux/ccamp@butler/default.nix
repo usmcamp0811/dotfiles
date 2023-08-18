@@ -9,14 +9,15 @@ with lib.campground;
     };
 
     cli-apps = {
-      zsh = enabled;
-      neovim = enabled;
+    #   zsh = enabled;
+    #   neovim = enabled;
       home-manager = enabled;
     };
-
-    tools = {
-      git = enabled;
-      direnv = enabled;
-    };
+    #
+    # tools = {
+    #   git = enabled;
+    #   direnv = enabled;
+    # };
   };
+  home.stateVersion = "23.05";
 }

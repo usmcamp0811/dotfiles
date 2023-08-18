@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, inputs, ... }:
 
 let
   inherit (lib) mkEnableOption mkIf;
@@ -14,7 +14,8 @@ in
     home = {
       packages = with pkgs; [
         less
-        campground.nvim
+        inputs.campground-nvim.packages.x86_64-linux.default
       ];
+    };
   };
 }
