@@ -24,7 +24,11 @@ in
         };
       };
     };
-    campground.user.extraGroups = [ "libvirtd" ];
+    campground.user.extraGroups = [ "libvirtd" "usb" ];
 
+   # let all usb devices be in the usb group
+    services.udev.extraRules = ''
+      KERNEL=="*", SUBSYSTEMS=="usb", MODE="0664", GROUP="usb"
+    ''; 
   };
 }
