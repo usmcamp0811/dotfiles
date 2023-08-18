@@ -1,7 +1,7 @@
 { pkgs, lib, nixos-hardware, nixosModules, agenix, ... }:
 
 with lib;
-with lib.internal;
+with lib.campground;
 let
   newUser = name: {
     isNormalUser = true;
@@ -12,7 +12,7 @@ let
 
 in
 {
-  imports = [ 
+  imports = [
     ./hardware.nix
   ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -32,6 +32,10 @@ in
     };
 
     apps = {
+
+      emacs = {
+        enable = true;
+      };
       firefox = {
         enable = true;
       };
@@ -40,6 +44,7 @@ in
       };
       vscode = enabled;
       virtualbox = enabled;
+      virtmanager = enabled;
       libreoffice = enabled;
     };
 
@@ -80,4 +85,3 @@ in
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
 }
-
