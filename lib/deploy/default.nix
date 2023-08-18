@@ -4,6 +4,18 @@ let
   inherit (inputs) deploy-rs;
 in
 rec {
+  ## Create deployment configuration for use with deploy-rs.
+  ##
+  ## ```nix
+  ## mkDeploy {
+  ##   inherit self;
+  ##   overrides = {
+  ##     my-host.system.sudo = "doas -u";
+  ##   };
+  ## }
+  ## ```
+  ##
+  #@ { self: Flake, overrides: Attrs ? {} } -> Attrs
   mkDeploy = { self, overrides ? { } }:
     let
       hosts = self.nixosConfigurations or { };
@@ -23,8 +35,7 @@ rec {
                   path = deploy-rs.lib.${system}.activate.nixos host;
                 } // lib.optionalAttrs (user != null) {
                   user = "root";
-                  # made root not mcamp cause it wont work.. seems to be the same issue here https://github.com/serokell/deploy-rs/issues/174
-                  sshUser = "root";
+                  sshUser = user;
                 } // lib.optionalAttrs
                   (host.config.campground.security.doas.enable or false)
                   {

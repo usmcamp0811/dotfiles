@@ -1,0 +1,4 @@
+WRN 2023-08-17T07:37:00.163 ?.55444    server_start:164: Failed to start server: permission denied: /run/user/1000/
+WRN 2023-08-17T07:37:00.394 ?.55444    server_start:164: Failed to start server: permission denied: /run/user/1000/
+WRN 2023-08-17T07:37:18.710 ?.55525    server_start:164: Failed to start server: permission denied: /run/user/1000/
+WRN 2023-08-17T07:37:18.930 ?.55525    server_start:164: Failed to start server: permission denied: /run/user/1000/
