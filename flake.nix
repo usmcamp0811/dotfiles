@@ -83,7 +83,7 @@
      # overlays = with inputs; [
      # ];
 
-      systems.modules.nixos = with inputs; [
+      systems.modules = with inputs; [
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
