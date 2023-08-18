@@ -55,7 +55,7 @@ in
         enable = true;
         vault-path = "boterf_home/wifi/";
         networks = {
-          Boterf-5G = {
+          Boterf5 = {
             ssid = "Boterf-5G";
           };
           # Boterf-24G = {
