@@ -11,7 +11,7 @@ with lib.campground;
     };
 
     cli-apps = {
-      zsh = enabled;
+      # zsh = enabled;
       # neovim = enabled;
       home-manager = enabled;
     };
@@ -20,7 +20,7 @@ with lib.campground;
       firefox = enabled;
     };
     tools = {
-      git = enabled;
+      # git = enabled;
       direnv = enabled;
     };
   };
