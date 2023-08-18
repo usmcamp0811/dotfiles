@@ -18,6 +18,7 @@ with lib.campground;
     #
     apps = {
       firefox = enabled;
+      brave = enabled;
     };
     tools = {
       # git = enabled;
