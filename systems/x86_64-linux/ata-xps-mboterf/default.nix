@@ -55,12 +55,12 @@ in
         enable = true;
         vault-path = "boterf_home/wifi";
         networks = {
-          Boterf5 = {
+          Boterf-5G = {
             ssid = "Boterf-5G";
           };
-          Boterf24 = {
-            ssid = "Boterf-2.4G";
-          };
+          # Boterf-24G = {
+          #   ssid = "Boterf-2.4G";
+          # };
         };
       };
       vpn = {
