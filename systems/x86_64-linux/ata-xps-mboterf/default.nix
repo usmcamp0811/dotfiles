@@ -24,19 +24,6 @@ in
       enable = true;
       lightdm = true;
     };
-    desktop.gnome = {
-      enable = true;
-      lightdm = true;
-      wallpaper = {
-        light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
-        dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
-      };
-    };
-
-    desktop.qtile = {
-      enable = true;
-      lightdm = true;
-    };
 
     desktop.gnome = {
       enable = true;
