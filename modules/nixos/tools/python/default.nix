@@ -1,7 +1,7 @@
 { options, config, lib, pkgs, ... }:
 
 with lib;
-with lib.internal;
+with lib.campground;
 let cfg = config.campground.tools.python;
 in
 {
