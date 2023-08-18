@@ -12,7 +12,7 @@ let
 
 in
 {
-  imports = [ 
+  imports = [
     ./hardware.nix
   ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -35,7 +35,6 @@ in
 
       emacs = {
         enable = true;
-        spacemacs = true;
       };
       firefox = {
         enable = true;
@@ -86,4 +85,3 @@ in
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
 }
-
