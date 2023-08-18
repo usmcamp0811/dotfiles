@@ -78,11 +78,12 @@
         (final: prev: {
           neovim = inputs.campground-nvim.packages.x86_64-linux.default;
         })
+        inputs.flake.overlay
       ];
      # overlays = with inputs; [
      # ];
 
-      systems.modules = with inputs; [
+      systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
