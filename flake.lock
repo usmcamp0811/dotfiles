@@ -575,6 +575,21 @@
         "type": "github"
       }
     },
+    "nur": {
+      "locked": {
+        "lastModified": 1692391460,
+        "narHash": "sha256-8+17i2eFIdAJ9zZShFCtm7CPTXrrGGPfAGvd/yzKxNM=",
+        "owner": "nix-community",
+        "repo": "NUR",
+        "rev": "b6185ff5f42311bf686571981ca48486a3f9c430",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "NUR",
+        "type": "github"
+      }
+    },
     "poetry2nix": {
       "inputs": {
         "flake-utils": [
@@ -641,6 +656,7 @@
         "nixos-generators": "nixos-generators",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_3",
+        "nur": "nur",
         "snowfall-lib": "snowfall-lib_2",
         "unstable": "unstable_2",
         "vault-service": "vault-service"

@@ -48,6 +48,8 @@
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
+
+    nur.url = "github:nix-community/NUR";
   };
 
   outputs = inputs:
@@ -79,6 +81,7 @@
           neovim = inputs.campground-nvim.packages.x86_64-linux.default;
         })
         inputs.flake.overlay
+        inputs.nur.overlay
       ];
      # overlays = with inputs; [
      # ];

@@ -12,10 +12,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      nssTools
-      firefox
-    ];
+    # environment.systemPackages = with pkgs; [
+    #   nssTools
+    #   firefox
+    # ];
 
     programs.firefox = {
       enable = true;
