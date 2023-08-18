@@ -75,9 +75,9 @@
       package-namespace = "campground";
 
       overlays = [
-        (final: prev: {
-          neovim = inputs.campground-nvim.packages.x86_64-linux.default;
-        })
+        # (final: prev: {
+        #   neovim = inputs.campground-nvim.packages.x86_64-linux.default;
+        # })
         inputs.flake.overlay
       ];
      # overlays = with inputs; [
@@ -87,8 +87,13 @@
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
+        campground-nvim.nixosModules.nvim
       ];
 
+      # systems.modules = with inputs; [
+      #   campground-nvim.nixosModules.nixvim
+      # ];
+      #
       #TODO: Move this into the actual system config?
       systems.hosts.ata-xps.modules = with inputs; [
         nixos-hardware.nixosModules.dell-xps-13-7390
