@@ -60,7 +60,7 @@ in
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
                 #!/bin/sh
                 SSID="${name}"
-                PASSWORD={{ with secret "${cfg.vault-path}" }}{{ .Data.${name} }}{{ end }}
+                PASSWORD={{ with secret \"${cfg.vault-path}\" }}{{ .Data.\"${name}\" }}{{ end }}
                 if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
                   ${pkgs.networkmanager}/bin/nmcli con delete id $SSID
                 fi

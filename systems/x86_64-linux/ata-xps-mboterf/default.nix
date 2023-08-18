@@ -95,7 +95,7 @@ in
 
   campground.services = {
     ldap-client = disabled;
-    secret-service = enabled;
+    secret-service = disabled;
     vault-agent = {
       enable = false;
       settings = {
