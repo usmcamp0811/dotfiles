@@ -257,3 +257,13 @@ fix-pipewire(){
   systemctl --user restart pipewire-pulse.service
   systemctl --user restart wireplumber.service
 }
+
+update-user(){
+  nix run /config/\#homeConfigurations.${USER}@ldap.activationPackage
+}
+
+update-sys(){
+  sudo nixos-rebuild switch --flake /config/\#$(hostname)
+}
+
+
