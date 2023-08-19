@@ -3,10 +3,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.cli-apps.neovim;
+  cfg = config.campground.cli.neovim;
 in
 {
-  options.campground.cli-apps.neovim = {
+  options.campground.cli.neovim = {
     enable = mkEnableOption "Neovim";
   };
 

@@ -4,10 +4,10 @@ let
   inherit (lib) mkEnableOption mkIf;
   inherit (lib.campground) enabled;
 
-  cfg = config.campground.cli-apps.home-manager;
+  cfg = config.campground.cli.home-manager;
 in
 {
-  options.campground.cli-apps.home-manager = {
+  options.campground.cli.home-manager = {
     enable = mkEnableOption "home-manager";
   };
 

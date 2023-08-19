@@ -9,7 +9,7 @@ with lib.campground;
       # name = "abe";
     };
 
-    cli-apps = {
+    cli = {
       zsh = enabled;
     #   neovim = enabled;
       home-manager = enabled;

@@ -3,10 +3,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.cli-apps.zsh;
+  cfg = config.campground.cli.zsh;
 in
 {
-  options.campground.cli-apps.zsh = {
+  options.campground.cli.zsh = {
     enable = mkEnableOption "ZSH";
     extraSource = lib.mkOption { # Corrected line
       type = with lib.types; listOf str;

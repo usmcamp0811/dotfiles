@@ -53,7 +53,7 @@ You can also specify additional files to be sourced outside this configuration b
 *Example configuration:*
 
 ```nix
-cli-apps = {
+cli = {
   zsh = {
     enable = true;
     extraSource = [

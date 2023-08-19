@@ -3,7 +3,7 @@
 with lib;
 with lib.campground;
 let 
-  cfg = config.campground.cli-apps.env;
+  cfg = config.campground.cli.env;
   cfg-user = config.campground.user;
 
   is-linux = pkgs.stdenv.isLinux;
@@ -18,7 +18,7 @@ let
       "/home/${cfg-user.name}";
 in
 {
-  options.campground.cli-apps.env = with types;
+  options.campground.cli.env = with types;
     mkOption {
       type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
       apply = mapAttrs (n: v:

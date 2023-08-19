@@ -3,10 +3,10 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.cli-apps.k9s;
+  cfg = config.campground.cli.k9s;
 in
 {
-  options.campground.cli-apps.k9s = with types; {
+  options.campground.cli.k9s = with types; {
     enable = mkBoolOpt false "Whether or not to enable K9s.";
   };
 
