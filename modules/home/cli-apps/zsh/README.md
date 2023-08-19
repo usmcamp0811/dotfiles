@@ -27,6 +27,7 @@ The `fino-theme` directory contains theme-related files.
 - **Autosuggestions:** Suggests commands based on your history.
 - **Syntax Highlighting:** Colors your command line for readability.
 - **Oh My Zsh Integration:** Enables the popular Oh My Zsh framework with the "fzf" plugin.
+- **Vim Bindings:** Vim key bindings are enabled, allowing you to navigate and edit the command line using familiar Vim commands.
 
 ### User Secrets Integration
 
