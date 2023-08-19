@@ -72,7 +72,7 @@ in
     hardware.audio = {
     };
 
-    hardware.nvidia = enabled;
+    # hardware.nvidia = enabled;
 
   };
 

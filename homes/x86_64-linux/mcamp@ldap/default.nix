@@ -19,7 +19,7 @@ with lib.campground;
       #TODO: Add my Nvim config 
     };
     services = {
-      picom = enabled;
+      # picom = enabled;
     };
     #
     apps = {

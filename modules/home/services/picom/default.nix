@@ -11,7 +11,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    packages.picom.enable = true;
+    # programs.picom.enable = true;
   };
 }
 
