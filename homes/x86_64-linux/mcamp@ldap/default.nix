@@ -25,6 +25,7 @@ with lib.campground;
       alacritty = enabled;
       kitty = enabled;
       rofi = enabled;
+      mpv = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {
