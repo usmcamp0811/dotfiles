@@ -18,18 +18,15 @@ in
       enableAutosuggestions = true;
       enableSyntaxHighlighting = true;
 
-      # TODO: migrate my theme here
       oh-my-zsh = {
         enable = true; # Enable Oh My Zsh
         plugins = [ "fzf" ]; # Oh My Zsh plugins
-        # theme = "fino"; # Oh My Zsh theme
-        # custom = ""; # Custom Oh My Zsh configuration
       };
       # TODO: Move the passwords thing out of here
       initExtra = ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         source $HOME/.config/shell/aliases.shrc
-        [ -r "/var/lib/vault/users/mcamp/passwords" ] && source "/var/lib/vault/users/mcamp/passwords"
+        [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
         bindkey -v
       '';
     };
