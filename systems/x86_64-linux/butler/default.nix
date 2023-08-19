@@ -102,6 +102,7 @@ in
           files = [
             "id_ed25519"
             "passwords"
+            "kubeconfig"
           ];
         };
       };
