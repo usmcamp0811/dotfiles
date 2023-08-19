@@ -31,12 +31,10 @@ in
     };
 
     home.file = { 
-      ".config/shell/zsh/00-main.zsh".source = ./00-main.zsh;
-      ".config/shell/zsh/fino.zsh-theme".source = ./fino.zsh-theme;
-      ".config/shell/zsh/git.zsh".source = ./git.zsh;
-      ".config/shell/zsh/prompt_info_functions.zsh".source = ./prompt_info_functions.zsh;
-      ".config/shell/zsh/spectrum.zsh".source = ./spectrum.zsh;
-      ".config/shell/zsh/theme-and-appearance.zsh".source = ./theme-and-appearance.zsh;
+      ".config/shell/zsh/fino.zsh-theme".source = ./fino-theme/fino.zsh-theme;
+      ".config/shell/zsh/git.zsh".source = ./fino-theme/git.zsh;
+      ".config/shell/zsh/prompt_info_functions.zsh".source = ./fino-theme/prompt_info_functions.zsh;
+      ".config/shell/zsh/spectrum.zsh".source = ./fino-theme/spectrum.zsh;
     };
   };
 }
