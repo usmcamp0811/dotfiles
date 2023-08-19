@@ -8,6 +8,7 @@ in
 {
   options.campground.cli-apps.zsh = {
     enable = mkEnableOption "ZSH";
+      # TODO: Make initExtra accept additional options from user config
   };
 
   config = mkIf cfg.enable {
@@ -24,6 +25,7 @@ in
         # theme = "fino"; # Oh My Zsh theme
         # custom = ""; # Custom Oh My Zsh configuration
       };
+      # TODO: Move the passwords thing out of here
       initExtra = ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         source $HOME/.config/shell/aliases.shrc
