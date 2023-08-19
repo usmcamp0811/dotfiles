@@ -22,7 +22,6 @@ in
         enable = true; # Enable Oh My Zsh
         plugins = [ "fzf" ]; # Oh My Zsh plugins
       };
-      # TODO: Move the passwords thing out of here
       initExtra = ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         source $HOME/.config/shell/aliases.shrc
