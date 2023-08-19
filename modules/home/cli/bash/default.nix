@@ -1,10 +1,10 @@
 { lib, config, pkgs, ... }:
 
 let
-  cfg = config.campground.cli-apps.bash;
+  cfg = config.campground.cli.bash;
 in
 {
-  options.campground.cli-apps.bash = {
+  options.campground.cli.bash = {
     enable = lib.mkEnableOption "Bash";
     extraSource = lib.mkOption {
       type = with lib.types; listOf str;
@@ -13,26 +13,23 @@ in
     };
   };
 
+# TODO: Maybe setup powerline-shell or some other PS1 prompt
   config = lib.mkIf cfg.enable {
-    programs.bash = {
-      enable = true;
+    home.file.".bashrc".text = ''
+      # Custom prompt
+      PS1='\u@\h:\w\$ '
 
-      # Bash Prompt Configuration
-      promptInit = ''
-        PS1='\u@\h:\w\$ '
-      '';
+      # Enable Vim mode
+      set -o vi
 
-      # Bashrc Content
-      bashrcExtra = ''
-        # Enable Vim mode
-        set -o vi
+      # Aliases
+      alias ls="ls --color=auto"
+      alias ll="ls -l"
 
-        # Source extra files
-        ${lib.concatMapStringsSep "\n" (file: "[ -r \"${file}\" ] && source \"${file}\"") cfg.extraSource}
-
-        source $HOME/.config/shell/aliases.shrc
-        [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
-      '';
-    };
+      # Source extra files
+      ${lib.concatMapStringsSep "\n" (file: "[ -r \"${file}\" ] && source \"${file}\"") cfg.extraSource}
+      source $HOME/.config/shell/aliases.shrc
+      [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
+    '';
   };
 }

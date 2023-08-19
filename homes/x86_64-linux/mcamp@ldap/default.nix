@@ -10,6 +10,7 @@ with lib.campground;
 
     cli = {
       zsh = enabled;
+      bash = enabled;
       env = enabled;
       home-manager = enabled;
       k9s = enabled;
