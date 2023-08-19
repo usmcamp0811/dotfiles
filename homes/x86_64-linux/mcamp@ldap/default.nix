@@ -24,6 +24,7 @@ with lib.campground;
       libreoffice = enabled;
       alacritty = enabled;
       kitty = enabled;
+      rofi = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {
