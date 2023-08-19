@@ -11,7 +11,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.programs = with pkgs; [
+    home.packages = with pkgs; [
       fzf
       killall
       unzip

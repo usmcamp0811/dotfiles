@@ -1,8 +1,8 @@
 # TODO: Configs that Need porting to Nix
 
-- [ ] Alacritty
+- [x] Alacritty
 - [ ] Autorandr
-- [ ] Bash
+- [x] Bash
 - [ ] broot
 - [ ] cura
 - [ ] FreeCAD
