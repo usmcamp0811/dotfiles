@@ -14,6 +14,7 @@ with lib.campground;
       env = enabled;
       home-manager = enabled;
       k9s = enabled;
+      broot = enabled;
       # neovim = enabled;
       #TODO: Add my Nvim config 
     };
