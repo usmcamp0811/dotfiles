@@ -12,6 +12,7 @@ with lib.campground;
       zsh = enabled;
       env = enabled;
       home-manager = enabled;
+      k9s = enabled;
       # neovim = enabled;
     };
     #
