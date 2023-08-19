@@ -17,7 +17,5 @@ in
         uris = ["qemu:///system"];
       };
     };
-    user.extraGroups = [ "libvirtd" ];
-
   };
 }
