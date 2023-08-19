@@ -1,6 +1,6 @@
 # ZSH Configuration
 
-This Nix module offers a comprehensive setup for ZSH within the Campground CLI Apps framework. It incorporates features like command completion, autosuggestions, syntax highlighting, and Oh My Zsh integration.
+This Nix module offers a comprehensive setup for ZSH. It incorporates features like command completion, autosuggestions, syntax highlighting, and Oh My Zsh integration.
 
 ## Directory Structure
 
