@@ -12,19 +12,23 @@ with lib.campground;
       zsh = enabled;
       env = enabled;
       home-manager = enabled;
-      # k9s = enabled;
+      k9s = enabled;
       # neovim = enabled;
+      #TODO: Add my Nvim config 
     };
     #
     apps = {
       firefox = enabled;
       brave = enabled;
       libreoffice = enabled;
+      #TODO: Add Qutebrowser
     };
     tools = {
       # git = enabled;
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
+      julia = enabled;
+      python = enabled;
     };
   };
 
