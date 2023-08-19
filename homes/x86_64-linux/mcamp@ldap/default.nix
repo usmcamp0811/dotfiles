@@ -23,6 +23,7 @@ with lib.campground;
       brave = enabled;
       libreoffice = enabled;
       alacritty = enabled;
+      kitty = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {

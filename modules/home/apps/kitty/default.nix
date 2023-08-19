@@ -17,29 +17,28 @@ in
     ];
     programs.kitty = {
       enable = true;
-
+      theme = "Alabaster Dark";
+      font = {
+        name = "FiraCode Nerd Font Mono";
+        size = 20;
+      };
       settings = {
         # Fonts
-        font_family = "FiraCode Nerd Font Mono";
         italic_font = "SourceCodePro";
-        font_size = 16;
 
         # Terminal bell
         enable_audio_bell = false;
 
         # Window layout
-        inactive_text_alpha = 0.8;
+        inactive_text_alpha = "0.8";
         confirm_os_window_close = 0;
 
         # Color scheme
-        background_opacity = 0.95;
+        background_opacity = "0.85";
 
         # Advanced
         allow_remote_control = "yes";
         listen_on = "/tmp/mykitty";
-
-        # Include your theme file
-        # include = "current-theme.conf";
       };
     };
   };
