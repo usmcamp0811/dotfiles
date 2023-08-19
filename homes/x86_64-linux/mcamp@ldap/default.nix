@@ -18,6 +18,9 @@ with lib.campground;
       # neovim = enabled;
       #TODO: Add my Nvim config 
     };
+    services = {
+      picom = enabled;
+    };
     #
     apps = {
       firefox = enabled;

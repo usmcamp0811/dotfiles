@@ -83,7 +83,7 @@ in
     };
 
     services.udev.packages = with pkgs; [];
-
+    services.picom.enable = true;
     services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
       [org.gnome.desktop.interface]
       gtk-theme='Arc-Dark'
