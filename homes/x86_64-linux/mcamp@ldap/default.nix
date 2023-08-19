@@ -8,7 +8,7 @@ with lib.campground;
       name = "mcamp";
     };
 
-    cli-apps = {
+    cli = {
       zsh = enabled;
       env = enabled;
       home-manager = enabled;
