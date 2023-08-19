@@ -3,17 +3,15 @@
 with lib;
 with lib.campground;
 let 
-  cfg = config.campground.tools.misc;
+  cfg = config.campground.cli.misc;
 in
 {
-  options.campground.tools.misc = with types; {
-    enable = mkBoolOpt false "Whether or not to enable common utilities.";
+  options.campground.cli.misc = with types; {
+    enable = mkBoolOpt false "Whether or not to misc cli programs.";
   };
 
   config = mkIf cfg.enable {
-    campground.home.configFile."wgetrc".text = "";
-
-    environment.systemPackages = with pkgs; [
+    home.programs = with pkgs; [
       fzf
       killall
       unzip
@@ -23,9 +21,7 @@ in
       wget
       ripgrep
       bat
-      ranger
       lsd
-      git
       rsync
       tldr
       gcc
@@ -33,12 +29,8 @@ in
       zig
       btop
       deno
-      zathura
-      flameshot
-      neovim
       devour
     ];
-
   };
 }
 
