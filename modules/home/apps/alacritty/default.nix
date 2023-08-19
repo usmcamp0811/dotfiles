@@ -11,6 +11,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    fonts.fontconfig.enable = true;
+    home.packages = [
+      (pkgs.nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
+    ];
     programs.alacritty = {
       enable = true;
       settings = {
