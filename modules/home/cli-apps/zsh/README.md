@@ -1,49 +1,69 @@
-# ZSH Configuration with Campground CLI Apps
+# ZSH Configuration
 
-This Nix configuration file provides a robust setup for ZSH within the Campground CLI Apps framework. It includes features like command completion, autosuggestions, syntax highlighting, and integration with Oh My Zsh.
+This Nix module offers a comprehensive setup for ZSH within the Campground CLI Apps framework. It incorporates features like command completion, autosuggestions, syntax highlighting, and Oh My Zsh integration.
 
 ## Directory Structure
 
-The configuration organizes ZSH themes and settings within the `.config/shell/zsh` directory.
+The configuration is organized as follows:
+
+```
+.
+├── default.nix
+├── fino-theme
+│   ├── fino.zsh-theme
+│   ├── git.zsh
+│   ├── prompt_info_functions.zsh
+│   └── spectrum.zsh
+└── README.md
+```
+
+The `fino-theme` directory contains theme-related files.
 
 ## Features
 
 ### ZSH Enhancements
 
-- **Command Completion:** Enhances the command-line experience with intelligent suggestions.
-- **Autosuggestions:** Offers real-time command suggestions based on your command history.
-- **Syntax Highlighting:** Adds color to your command line for better readability.
-- **Oh My Zsh Integration:** Includes the popular Oh My Zsh framework with the "fzf" plugin.
+- **Command Completion:** Provides intelligent suggestions as you type.
+- **Autosuggestions:** Suggests commands based on your history.
+- **Syntax Highlighting:** Colors your command line for readability.
+- **Oh My Zsh Integration:** Enables the popular Oh My Zsh framework with the "fzf" plugin.
 
 ### User Secrets Integration
 
-One of the standout features of this configuration is the integration with user secrets, specifically with HashiCorp's key-value store. Here's how it works:
+If the `user-secrets` service is enabled with a `passwords` file for the user, the shell will automatically source the file, making the secrets available in the shell environment.
+
+*Example `user-secrets` configuration:*
 
 ```nix
 campground.services.user-secrets = {
   enable = true;
   users = {
     mcamp = {
-      files = [
-        "passwords"
-      ];
+      files = ["passwords"];
     };
   };
 };
 ```
 
-By defining the `passwords` key, the system will automatically source shell variables containing passwords or other secret values into the shell environment. This seamless integration ensures that your sensitive information is handled securely and efficiently.
+### Extra Source Files
 
-## Files Included
+You can also specify additional files to be sourced outside this configuration by using the `extraSource` option. Provide the absolute paths to the files you wish to include.
 
-- `00-main.zsh`: Main ZSH configuration.
-- `fino.zsh-theme`: Custom ZSH theme.
-- `git.zsh`: Git-related configurations.
-- `prompt_info_functions.zsh`: Functions for customizing the prompt.
-- `spectrum.zsh`: Color configurations.
-- `theme-and-appearance.zsh`: Theme and appearance settings.
+*Example configuration:*
+
+```nix
+cli-apps = {
+  zsh = {
+    enable = true;
+    extraSource = [
+      "~/example-file-to-source"
+      "~/.secrets"
+    ];
+  };
+};
+```
 
 ## Usage
 
-To utilize this configuration, include it in your Nix system setup and adjust the user-specific settings as needed. Refer to the provided code for detailed configuration options and customization.
+To use this module, include it in your Nix system setup and modify the user-specific settings as required. The provided code contains detailed configuration options for customization.
 

@@ -9,7 +9,13 @@ with lib.campground;
     };
 
     cli-apps = {
-      zsh = enabled;
+      zsh = {
+        enable = true;
+        extraSource = [
+          "~/example-file-to-source"
+          "~/.secrets"
+        ];
+      };
       env = enabled;
       home-manager = enabled;
       k9s = enabled;

@@ -8,23 +8,28 @@ in
 {
   options.campground.cli-apps.zsh = {
     enable = mkEnableOption "ZSH";
-      # TODO: Make initExtra accept additional options from user config
+    extraSource = lib.mkOption { # Corrected line
+      type = with lib.types; listOf str;
+      default = [];
+      description = "Additional files to source in ZSH initialization.";
+    };
   };
 
   config = mkIf cfg.enable {
     programs.zsh = {
       enable = true;
-      enableCompletion = true; # Enable command completion
+      enableCompletion = true; 
       enableAutosuggestions = true;
       enableSyntaxHighlighting = true;
 
       oh-my-zsh = {
-        enable = true; # Enable Oh My Zsh
-        plugins = [ "fzf" ]; # Oh My Zsh plugins
+        enable = true; 
+        plugins = [ "fzf" ]; 
       };
       initExtra = ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         source $HOME/.config/shell/aliases.shrc
+        ${lib.concatMapStringsSep "\n" (file: "[ -r \"${file}\" ] && source \"${file}\"") cfg.extraSource}
         [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
         bindkey -v
       '';
