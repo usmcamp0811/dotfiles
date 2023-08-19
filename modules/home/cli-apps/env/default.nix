@@ -62,5 +62,10 @@ in
     };
     # programs.zsh.extraInit = concatStringsSep "\n"
     #     (mapAttrsToList (n: v: ''export ${n}="${v}"'') cfg);
+
+    # aliases are in a seperate file because we can't do shell functions in Nix
+    home.file = { 
+      ".config/shell/aliases.shrc".source = ./aliases.shrc;
     };
+  };
 }
