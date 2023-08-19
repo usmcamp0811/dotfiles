@@ -11,6 +11,7 @@ with lib.campground;
 
     cli-apps = {
       zsh = enabled;
+      enb = enabled;
     #   neovim = enabled;
       home-manager = enabled;
     };
