@@ -68,7 +68,7 @@ in
         window = { opacity = 0.9; dynamic_title = true; };
         cursor = { style = "Block"; unfocused_hollow = true; };
         live_config_reload = true;
-        shell = { program = "/bin/zsh"; };
+        shell = { program = "zsh"; };
         hints = {
           double_click = { threshold = 300; };
           url = { launcher = { program = "firefox"; }; };
