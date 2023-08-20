@@ -22,6 +22,7 @@ with lib.campground;
       home-manager = enabled;
       k9s = enabled;
       broot = enabled;
+      ranger = enabled;
       # neovim = enabled;
       #TODO: Add my Nvim config 
     };
