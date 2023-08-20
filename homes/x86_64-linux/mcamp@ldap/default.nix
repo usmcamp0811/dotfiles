@@ -7,6 +7,7 @@ with lib.campground;
       enable = true;
       name = "mcamp";
     };
+    desktop.qtile = enabled;
 
     cli = {
       zsh = enabled;
@@ -21,7 +22,7 @@ with lib.campground;
     services = {
       # picom = enabled;
     };
-    #
+
     apps = {
       firefox = enabled;
       brave = enabled;

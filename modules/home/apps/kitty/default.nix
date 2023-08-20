@@ -13,14 +13,14 @@ in
   config = mkIf cfg.enable {
     fonts.fontconfig.enable = true;
     home.packages = [
-      (pkgs.nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
+      (pkgs.nerdfonts.override { fonts = [ "FiraCode" "SourceCodePro" ]; })
     ];
     programs.kitty = {
       enable = true;
       theme = "Alabaster Dark";
       font = {
         name = "FiraCode Nerd Font Mono";
-        size = 20;
+        size = 17;
       };
       settings = {
         # Fonts
