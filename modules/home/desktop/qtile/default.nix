@@ -16,6 +16,8 @@ in
   options.campground.desktop.qtile = with types; {
     enable = mkBoolOpt false "Whether or not to turn on qtile config.";
     wallpaper = mkOpt str "hsv-saturnV.png" "Name of the Wallpaper to Set";
+    lat-lon = mkOpt str "34.6503:86.7757" "Lat Long for Redshift.";
+    lock-time = mkOpt str "10" "Time in Minutes to wait to lock the screen";
   };
 
   config = mkIf cfg.enable {
@@ -24,8 +26,8 @@ in
       ".config/qtile/autostart.sh".text = ''
 #!/bin/sh
 
-${pkgs.redshift}/bin/redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
-${pkgs.xautolock}/bin/xautolock -time 10 -locker i3lock-fancy &
+${pkgs.redshift}/bin/redshift-gtk -l ${cfg.lat-long} -t 5700:3600 -g 0.8 -m randr -v &
+${pkgs.xautolock}/bin/xautolock -time ${cfg.lock-time} -locker i3lock-fancy &
 ${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpapers/${cfg.wallpaper}
       '';
     };
