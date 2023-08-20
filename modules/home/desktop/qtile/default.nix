@@ -18,6 +18,7 @@ with lib.campground;
 
       ${pkgs.redshift}/bin/redshift-gtk -l ${cfg.lat-lon} -t 5700:3600 -g 0.8 -m randr -v &
       ${pkgs.xautolock}/bin/xautolock -time ${cfg.lock-time} -locker i3lock-fancy &
+      ${pkgs.networkmanagerapplet}/bin/nm-applet &
       ${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpapers/${cfg.wallpaper}
     '';
   in mkIf cfg.enable {
