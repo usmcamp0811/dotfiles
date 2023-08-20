@@ -2,16 +2,7 @@
 
 with lib;
 with lib.campground;
-let 
-  cfg = config.campground.desktop.qtile;
-  QtileAutostart = pkgs.writeShellScript "autostart.sh" ''
-#!/bin/sh
 
-${pkgs.redshift}/bin/redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
-${pkgs.xautolock}/bin/xautolock -time 10 -locker i3lock-fancy &
-${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpapers/${cfg.wallpaper}
-  '';
-in
 {
   options.campground.desktop.qtile = with types; {
     enable = mkBoolOpt false "Whether or not to turn on qtile config.";
@@ -20,21 +11,20 @@ in
     lock-time = mkOpt str "10" "Time in Minutes to wait to lock the screen";
   };
 
-  config = mkIf cfg.enable {
-    home.file = { 
-      ".config/qtile/config.py".source = ./config.py;
-      ".config/qtile/autostart.sh".text = ''
-#!/bin/sh
+  config = let
+    cfg = config.campground.desktop.qtile;
+    QtileAutostart = pkgs.writeShellScript "autostart.sh" ''
+      #!/bin/sh
 
-${pkgs.redshift}/bin/redshift-gtk -l ${cfg.lat-long} -t 5700:3600 -g 0.8 -m randr -v &
-${pkgs.xautolock}/bin/xautolock -time ${cfg.lock-time} -locker i3lock-fancy &
-${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpapers/${cfg.wallpaper}
-      '';
-    };
+      ${pkgs.redshift}/bin/redshift-gtk -l ${cfg.lat-lon} -t 5700:3600 -g 0.8 -m randr -v &
+      ${pkgs.xautolock}/bin/xautolock -time ${cfg.lock-time} -locker i3lock-fancy &
+      ${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpapers/${cfg.wallpaper}
+    '';
+  in mkIf cfg.enable {
+    home.file.".config/qtile/config.py".source = ./config.py;
     home.file.".config/qtile/autostart.sh" = {
       source = QtileAutostart;
       executable = true;
     };
   };
 }
-
