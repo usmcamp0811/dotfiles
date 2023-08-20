@@ -33,6 +33,7 @@ in
   config = {
 
     home.sessionVariables = {
+      XDG_CACHE_HOME = "${home-directory}/.cache";
       KUBECONFIG = "/etc/k8s/config";
       EDITOR = "nvim";
       TERMINAL = "kitty";
@@ -42,11 +43,11 @@ in
       DOCKER = "/var/run/docker.sock";
       DOCKER_CONFIG = "${config.home.sessionVariables.XDG_CONFIG_HOME}/docker";
       XDG_DATA_HOME = "${home-directory}/.local/share";
-      TMUX_TMPDIR = "$xdg_runtime_dir";
+      TMUX_TMPDIR = "$XDG_RUNTIME_DIR";
       NODE_REPL_HISTORY = "${config.home.sessionVariables.XDG_DATA_HOME}/node_repl_history";
       NVM_DIR = "${config.home.sessionVariables.XDG_DATA_HOME}/nvm";
-      PYLINTHOME = "$xdg_cache_home/pylint";
-      PYTHON_EGG_CACHE = "$xdg_cache_home/python-eggs";
+      PYLINTHOME = "$XDG_CACHE_HOME/pylint";
+      PYTHON_EGG_CACHE = "${config.home.sessionVariables.XDG_CACHE_HOME}/python-eggs";
       WGETRC = "${config.home.sessionVariables.XDG_CONFIG_HOME}/wgetrc";
       CARGO_HOME = "${config.home.sessionVariables.XDG_DATA_HOME}/cargo";
       MANPAGER = "sh -c 'col -bx | ${pkgs.bat}/bin/bat -l man -p'";
