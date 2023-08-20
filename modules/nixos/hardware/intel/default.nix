@@ -10,17 +10,40 @@ in
   };
 
   config = mkIf cfg.enable {
-    nixpkgs.config.packageOverrides = pkgs: {
-      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-    };
-    hardware.opengl = {
-      enable = true;
-      extraPackages = with pkgs; [
-        intel-media-driver # LIBVA_DRIVER_NAME=iHD
-        vaapiIntel         # LIBVA_DRIVER_NAME=i965 (older but works better for Firefox/Chromium)
-        vaapiVdpau
-        libvdpau-va-gl
-      ];
+    boot.kernelPackages = pkgs.linuxPackages_zen;
+    environment.systemPackages = [
+      pkgs.linuxKernel.packages.linux_zen.nvidia_x11
+    ];
+
+    services.xserver.config = ''
+      # Integrated Intel GPU
+      Section "Device"
+        Identifier "iGPU"
+        Driver "modesetting"
+      EndSection
+
+      # Dedicated NVIDIA GPU
+      Section "Device"
+        Identifier "dGPU"
+        Driver "nvidia"
+      EndSection
+
+      Section "ServerLayout"
+        Identifier "layout"
+        Screen 0 "iGPU"
+      EndSection
+
+      Section "Screen"
+        Identifier "iGPU"
+        Device "iGPU"
+      EndSection
+    '';
+
+    services.xserver.videoDrivers = [ "nvidia" ];
+    hardware.nvidia.prime = {
+      offload.enable = true;
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
     };
   };
 }
