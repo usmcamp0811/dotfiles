@@ -54,7 +54,7 @@ in
       time = {
         enable = true;
         TZ = "America/New_York";
-      }
+      };
     };
 
     hardware.audio = {
