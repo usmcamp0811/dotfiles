@@ -44,7 +44,7 @@ in
     };
 
     system = {
-      boot = enabled;
+      # boot = enabled;
       # manage local passwd in vault
       passwds = enabled;
       wifi = {
