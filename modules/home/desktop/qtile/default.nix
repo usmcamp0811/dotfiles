@@ -14,12 +14,12 @@ in
   config = mkIf cfg.enable {
     home.file = { 
       ".config/qtile/config.py".source = ./config.py;
-      ".config/qtile/autostart.sh".source = ''
+      ".config/qtile/autostart.sh".text = ''
 #!/bin/sh
 
-${redshift}/bin/redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
-${xautolock}/bin/xautolock -time 10 -locker i3lock-fancy &
-${feh}/bin/feh --bg-scale ${home.users.users.name}/Pictures/wallpaper/${cfg.wallpaper}
+${pkgs.redshift}/bin/redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
+${pkgs.xautolock}/bin/xautolock -time 10 -locker i3lock-fancy &
+${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpaper/${cfg.wallpaper}
       '';
     };
   };
