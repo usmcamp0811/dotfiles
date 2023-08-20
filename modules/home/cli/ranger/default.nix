@@ -14,8 +14,10 @@ in
     
     home.packages = with pkgs; [
       ranger
+      ueberzug
     ];
     # TODO: Look at moving some of the shell sripts into Nix Shell Scripts
+    # TODO: Make Kitty and ueberzug options for how to display images. Maybe set ueberzug if Alacitty is true
     home.file = {
       ".config/ranger/rc.conf" = { source = ./configs/rc.conf; };
       ".config/ranger/rifle.conf" = { source = ./configs/rifle.conf; };
