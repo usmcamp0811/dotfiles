@@ -4,6 +4,13 @@ with lib;
 with lib.campground;
 let 
   cfg = config.campground.desktop.qtile;
+  QtileAutostart = pkgs.writeShellScript "autostart.sh" ''
+#!/bin/sh
+
+${pkgs.redshift}/bin/redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
+${pkgs.xautolock}/bin/xautolock -time 10 -locker i3lock-fancy &
+${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpapers/${cfg.wallpaper}
+  '';
 in
 {
   options.campground.desktop.qtile = with types; {
@@ -19,8 +26,12 @@ in
 
 ${pkgs.redshift}/bin/redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
 ${pkgs.xautolock}/bin/xautolock -time 10 -locker i3lock-fancy &
-${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpaper/${cfg.wallpaper}
+${pkgs.feh}/bin/feh --bg-scale $HOME/Pictures/wallpapers/${cfg.wallpaper}
       '';
+    };
+    home.file.".config/qtile/autostart.sh" = {
+      source = QtileAutostart;
+      executable = true;
     };
   };
 }
