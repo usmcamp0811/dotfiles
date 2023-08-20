@@ -51,6 +51,10 @@ in
 
     system = {
       boot = enabled;
+      time = {
+        enable = true;
+        TZ = "America/New_York";
+      }
     };
 
     hardware.audio = {
