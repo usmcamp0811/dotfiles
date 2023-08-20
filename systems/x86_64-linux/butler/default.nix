@@ -24,9 +24,9 @@ in
 
     desktop.qtile = {
       enable = true;
-      lightdm = false;
-      wayland = true;
-      gdm = true;
+      lightdm = true;
+      # wayland = true;
+      gdm = false;
     };
 
     apps = {
@@ -72,8 +72,8 @@ in
     hardware.audio = {
     };
 
-    # hardware.nvidia = enabled;
-    hardware.intel = enabled;
+    hardware.nvidia = enabled;
+    # hardware.intel = enabled;
 
   };
 

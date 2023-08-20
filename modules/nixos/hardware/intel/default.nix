@@ -10,14 +10,23 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    systemd.user.services.xrandr-outputsource = {
+      script = ''
+        ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0 modesetting && ${pkgs.xorg.xrandr}/bin/xrandr --auto
+      '';
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      enable = true;
+    };
     environment.sessionVariables.LIBVA_DRIVER_NAME = "nvidia";
     # environment.sessionVariables.WLR_NO_HARDWARE_CURSORS = "nvidia";
 
     # systemd.services.NetworkManager-wait-online.enable = false;
     boot = {
-      kernelPackages = pkgs.linuxPackages_6_1;
+      # kernelPackages = pkgs.linuxPackages_6_1;
       blacklistedKernelModules = ["nouveau"];
-      supportedFilesystems = ["ntfs"];
+      supportedFilesystems = ["btrfs"];
       # kernelPatches = [
       #   {
       #     name = "nouveau-try";
@@ -28,7 +37,7 @@ in
       #   }
       # ];
       loader = {
-        # systemd-boot.enable = true;
+        systemd-boot.enable = lib.mkForce false;
         efi = {
           canTouchEfiVariables = true;
           efiSysMountPoint = "/boot/efi";
@@ -50,6 +59,7 @@ in
       "nohibernate"
     ];
 
+
     hardware.nvidia = {
       open = false;
       modesetting.enable = true;
@@ -57,7 +67,7 @@ in
         enable = true;
         finegrained = true;
       };
-      nvidiaSettings = false;
+      nvidiaSettings = true;
       nvidiaPersistenced = true;
       forceFullCompositionPipeline = true;
       package = config.boot.kernelPackages.nvidiaPackages.stable;
@@ -68,12 +78,28 @@ in
         nvidiaBusId = "PCI:1:0:0";
       };
     };
+
     services.xserver = {
       videoDrivers = ["nvidia"];
-      # deviceSection = ''
-      #   Option "DRI" "2"
-      #   Option "TearFree" "true"
-      # '';
+      exportConfiguration = true;
+      deviceSection = ''
+        Section "OutputClass"
+            Identifier "intel"
+            MatchDriver "i915"
+            Driver "modesetting"
+        EndSection
+
+        Section "OutputClass"
+            Identifier "nvidia"
+            MatchDriver "nvidia-drm"
+            Driver "nvidia"
+            Option "AllowEmptyInitialConfiguration"
+            Option "PrimaryGPU" "yes"
+            ModulePath "/usr/lib/nvidia/xorg"
+            ModulePath "/usr/lib/xorg/modules"
+        EndSection
+      '';
+
     };
 
     # specialisation = {
@@ -84,20 +110,20 @@ in
 
     hardware = {
       # bumblebee.enable = true;
-      opentabletdriver.enable = true;
+      # opentabletdriver.enable = true;
 
       opengl = {
         enable = true;
         driSupport = true;
         driSupport32Bit = true;
-        extraPackages = with pkgs; [nvidia-vaapi-driver];
+        # extraPackages = with pkgs; [nvidia-vaapi-driver];
         extraPackages32 = with pkgs.pkgsi686Linux; [nvidia-vaapi-driver];
-        # extraPackages = with pkgs; [
-        #   intel-media-driver
-        #   # vaapiIntel
-        #   vaapiVdpau
-        #   libvdpau-va-gl
-        # ];
+        extraPackages = with pkgs; [
+          intel-media-driver
+          # vaapiIntel
+          vaapiVdpau
+          libvdpau-va-gl
+        ];
         # setLdLibraryPath = true;
         # driSupport = true;
         # extraPackages = with pkgs; [

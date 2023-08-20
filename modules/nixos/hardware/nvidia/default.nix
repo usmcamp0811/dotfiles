@@ -14,7 +14,23 @@ in
     xserver = {
       enable = true;
       exportConfiguration = true;
-      videoDrivers = [ "nvidia" "displaylink" ];
+      # videoDrivers = [ "nvidia" "displaylink" ];
+      videoDrivers = [ "nvidia" ];
+      # deviceSection = ''
+      #   Section "OutputClass"
+      #       Identifier "intel"
+      #       MatchDriver "i915"
+      #       Driver "modesetting"
+      #   EndSection
+      #
+      #   Section "OutputClass"
+      #       Identifier "nvidia"
+      #       MatchDriver "nvidia-drm"
+      #       Driver "nvidia"
+      #       Option "AllowEmptyInitialConfiguration"
+      #       Option "PrimaryGPU" "yes"
+      #   EndSection
+      # '';
     };
 
   };
@@ -23,7 +39,7 @@ in
   # set output source to Nvidia for HDMI port
   systemd.user.services.xrandr-outputsource = {
     script = ''
-      ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0 modesetting && ${pkgs.xorg.xrandr}/bin/xrandr --auto
+      ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-0 modesetting && ${pkgs.xorg.xrandr}/bin/xrandr --auto
     '';
     wantedBy = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
@@ -35,6 +51,7 @@ in
   # '';
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  boot.initrd.kernelModules = [ "i915" "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
   hardware = {
     nvidia = {
       modesetting.enable = true;
@@ -65,11 +82,11 @@ in
 #     # services.xserver.videoDrivers = [ "displaylink" "nvidia" ];
 #     # services.xserver.videoDrivers = [ "nvidia" ];
 #     services.xserver.videoDrivers = [ "nvidia" "displaylink" "modesetting" ];
-#     # boot.kernelParams = [ "i915.force_probe=46a6" ];
+    # boot.kernelParams = [ "i915.force_probe=46a6" ];
 #     # boot.initrd.systemd.enable = true; # this seemed to be the secret to nvidia-prime working... I think
 #     # boot.initrd.kernelModules = [ "i915" "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
-#     # boot.kernelParams = [ "module_blacklist=i915" ];
-#     boot.extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
+    boot.kernelParams = [ "module_blacklist=i915" ];
+    boot.extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
 # 
 #   # Need to set Thunderbolt to "BIOS Assist Mode"
 #   # https://forums.lenovo.com/t5/Other-Linux-Discussions/T480-CPU-temperature-and-fan-speed-under-linux/m-p/4114832
