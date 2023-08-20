@@ -8,6 +8,7 @@ with lib.campground;
       name = "mcamp";
     };
     desktop.qtile = enabled;
+    desktop.wallpapers = enabled;
 
     cli = {
       zsh = enabled;
