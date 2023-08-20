@@ -38,10 +38,10 @@ in
       TERMINAL = "kitty";
       BROWSER = "qutebrowser";
       READER = "zathura";
-      XDG_CONFIG_HOME = "${HOME-DIRECTORY}/.config";
+      XDG_CONFIG_HOME = "${home-directory}/.config";
       DOCKER = "/var/run/docker.sock";
       DOCKER_CONFIG = "${config.home.sessionVariables.XDG_CONFIG_HOME}/docker";
-      XDG_DATA_HOME = "${HOME-DIRECTORY}/.local/share";
+      XDG_DATA_HOME = "${home-directory}/.local/share";
       TMUX_TMPDIR = "$xdg_runtime_dir";
       NODE_REPL_HISTORY = "${config.home.sessionVariables.XDG_DATA_HOME}/node_repl_history";
       NVM_DIR = "${config.home.sessionVariables.XDG_DATA_HOME}/nvm";
