@@ -73,6 +73,7 @@ in
     };
 
     # hardware.nvidia = enabled;
+    hardware.intel = enabled;
 
   };
 
