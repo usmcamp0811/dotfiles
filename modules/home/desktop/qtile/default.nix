@@ -8,11 +8,19 @@ in
 {
   options.campground.desktop.qtile = with types; {
     enable = mkBoolOpt false "Whether or not to turn on qtile config.";
+    wallpaper = mkOpt str "hsv-saturnV.png" "Name of the Wallpaper to Set";
   };
 
   config = mkIf cfg.enable {
     home.file = { 
       ".config/qtile/config.py".source = ./config.py;
+      ".config/qtile/autostart.sh".source = ''
+#!/bin/sh
+
+${redshift}/bin/redshift-gtk -l 34.6503:86.7757 -t 5700:3600 -g 0.8 -m randr -v &
+${xautolock}/bin/xautolock -time 10 -locker i3lock-fancy &
+${feh}/bin/feh --bg-scale ${home.users.users.name}/Pictures/wallpaper/${cfg.wallpaper}
+      '';
     };
   };
 }

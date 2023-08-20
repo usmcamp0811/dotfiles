@@ -7,8 +7,13 @@ with lib.campground;
       enable = true;
       name = "mcamp";
     };
-    desktop.qtile = enabled;
-    desktop.wallpapers = enabled;
+    desktop = {
+      wallpapers = enabled;
+      qtile = {
+        enable = true;
+        wallpaper = "hsv-saturnV.png";
+      };
+    };
 
     cli = {
       zsh = enabled;
