@@ -9,6 +9,10 @@ with lib.campground;
     };
     desktop = {
       wallpapers = enabled;
+      qtile = {
+        enable = true;
+        wallpaper = "hsv-saturnV.png";
+      };
     };
 
     cli = {
