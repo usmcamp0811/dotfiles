@@ -9,10 +9,6 @@ with lib.campground;
     };
     desktop = {
       wallpapers = enabled;
-      qtile = {
-        enable = true;
-        wallpaper = "hsv-saturnV.png";
-      };
     };
 
     cli = {
@@ -20,11 +16,7 @@ with lib.campground;
       bash = enabled;
       env = enabled;
       home-manager = enabled;
-      k9s = enabled;
-      broot = enabled;
       ranger = enabled;
-      # neovim = enabled;
-      #TODO: Add my Nvim config 
     };
     services = {
       # picom = enabled;
@@ -34,11 +26,9 @@ with lib.campground;
       firefox = enabled;
       brave = enabled;
       libreoffice = enabled;
-      alacritty = enabled;
       kitty = enabled;
       rofi = enabled;
       mpv = enabled;
-      #TODO: Add Qutebrowser
     };
     tools = {
       git = enabled;
