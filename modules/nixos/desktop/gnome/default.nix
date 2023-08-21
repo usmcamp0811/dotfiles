@@ -315,5 +315,6 @@ in
       enable = true;
       package = pkgs.gnomeExtensions.gsconnect;
     };
+    programs.geary.enable = true;
   };
 }
