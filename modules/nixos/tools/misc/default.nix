@@ -31,13 +31,12 @@ in
       gcc
       clang
       zig
-      home-manager
-      k9s
       btop
       deno
       zathura
       flameshot
       neovim
+      devour
     ];
 
   };

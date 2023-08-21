@@ -32,7 +32,7 @@ let
 in
 {
   options.campground.user = with types; {
-    name = mkOpt str "mcamp" "The name to use for the user account.";
+    name = mkOpt str "abe" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
     initialPassword = mkOpt str "password"
@@ -72,8 +72,7 @@ in
      };
 
     campground.home = {
-        file = let
-          baseFile = {
+        file = {
             "Desktop/.keep".text = "";
             "Documents/.keep".text = "";
             "Downloads/.keep".text = "";
@@ -84,7 +83,6 @@ in
             ".face".source = cfg.icon;
             "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
           };
-        in baseFile;
 
 
       extraOptions = {
@@ -94,19 +92,6 @@ in
         };
 
         programs.zsh.enable = true;
-
-        programs.zsh.initExtra = ''
-          for file in /home/${cfg.name}/.config/shell/zsh/*.zsh; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          # source all the other bash config files
-          for file in /home/${cfg.name}/.config/shell/*.shrc; do
-              [ -r "$file" ] && source "$file"
-          done
-
-          source /home/${cfg.name}/.config/shell/zsh/theme
-        '';
 
         programs.zsh.history = {
           size = 10000;
@@ -141,42 +126,24 @@ in
    } // cfg.extraOptions;
 
 
-    system.activationScripts.copyDotfiles = lib.stringAfter
-      [ "users" ]
-      ''
-        echo "Copying dotfiles to ${cfg.name}'s home directory..."
-        ${pkgs.bash}/bin/bash -c '
-          echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
-          for file in ${builtins.toString dotfilesDir}/*; do
-            dest="/home/${builtins.toString cfg.name}/.config/"
-            echo "Checking $file..."
-            echo "Copying $file to $dest..."
-            mkdir -p /home/${builtins.toString cfg.name}/.config
-            chown -R ${builtins.toString cfg.name}:users $dest
-            chmod -R 755 /home/${builtins.toString cfg.name}/.config
-            ${pkgs.rsync}/bin/rsync -a $file $dest
-            chown -R ${builtins.toString cfg.name}:ldap_user $dest
-          done
-        '
-      '';
-    # TODO: Make what gets copied here more generic for all users
-    # TODO: This needs a zshrc or does it? home-manager needs to be accessible
-    system.activationScripts.copySkelDotfiles = lib.stringAfter
-      [ "users" ]
-      ''
-        echo "Copying dotfiles to /etc/skel home directory..."
-        ${pkgs.bash}/bin/bash -c '
-          rm -rf /etc/skel/*
-          echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
-          for file in ${builtins.toString dotfilesDir}/*; do
-            dest="/etc/skel/.config/"
-            echo "Checking $file..."
-            echo "Copying $file to $dest..."
-            mkdir -p /etc/skel/.config/
-            ${pkgs.rsync}/bin/rsync -a $file $dest
-          done
-        '
-      '';
+    # # TODO: Make what gets copied here more generic for all users
+    # # TODO: This needs a zshrc or does it? home-manager needs to be accessible
+    # system.activationScripts.copySkelDotfiles = lib.stringAfter
+    #   [ "users" ]
+    #   ''
+    #     echo "Copying dotfiles to /etc/skel home directory..."
+    #     ${pkgs.bash}/bin/bash -c '
+    #       rm -rf /etc/skel/*
+    #       echo "Dotfiles directory: ${builtins.toString dotfilesDir}"
+    #       for file in ${builtins.toString dotfilesDir}/*; do
+    #         dest="/etc/skel/.config/"
+    #         echo "Checking $file..."
+    #         echo "Copying $file to $dest..."
+    #         mkdir -p /etc/skel/.config/
+    #         ${pkgs.rsync}/bin/rsync -a $file $dest
+    #       done
+    #     '
+    #   '';
   };
 }
 

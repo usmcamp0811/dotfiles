@@ -48,6 +48,8 @@
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
+
+    nur.url = "github:nix-community/NUR";
   };
 
   outputs = inputs:
@@ -78,6 +80,8 @@
         (final: prev: {
           neovim = inputs.campground-nvim.packages.x86_64-linux.default;
         })
+        inputs.flake.overlay
+        inputs.nur.overlay
       ];
      # overlays = with inputs; [
      # ];
@@ -88,6 +92,10 @@
         vault-service.nixosModules.nixos-vault-service
       ];
 
+      # systems.modules = with inputs; [
+      #   campground-nvim.nixosModules.nixvim
+      # ];
+      #
       #TODO: Move this into the actual system config?
       systems.hosts.ata-xps.modules = with inputs; [
         nixos-hardware.nixosModules.dell-xps-13-7390

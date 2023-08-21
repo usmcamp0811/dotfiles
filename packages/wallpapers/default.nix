@@ -49,7 +49,7 @@ pkgs.stdenvNoCC.mkDerivation {
   '';
 
   passthru = { inherit names; } // wallpapers;
-  #TODO: replace jake
+
   meta = with lib; {
     description = "Some good wallpapers!";
     license = licenses.asl20;

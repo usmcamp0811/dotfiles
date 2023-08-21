@@ -5,15 +5,15 @@ with lib.campground;
 let cfg = config.campground.home;
 in
 {
-  imports = with inputs; [
-    home-manager.nixosModules.home-manager
-  ];
+  # imports = with inputs; [
+  #   home-manager.nixosModules.home-manager
+  # ];
 
   options.campground.home = with types; {
     file = mkOpt attrs { }
-      "A set of files to be managed by home-manager's <option>home.file</option>.";
+      (mdDoc "A set of files to be managed by home-manager's `home.file`.");
     configFile = mkOpt attrs { }
-      "A set of files to be managed by home-manager's <option>xdg.configFile</option>.";
+      (mdDoc "A set of files to be managed by home-manager's `xdg.configFile`.");
     extraOptions = mkOpt attrs { } "Options to pass directly to home-manager.";
   };
 
@@ -27,9 +27,10 @@ in
 
     home-manager = {
       useUserPackages = true;
+      useGlobalPkgs = true;
+
       users.${config.campground.user.name} =
         mkAliasDefinitions options.campground.home.extraOptions;
     };
   };
 }
-

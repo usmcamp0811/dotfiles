@@ -57,6 +57,7 @@ in
       value = {
         description = "Copy Secret Service for ${user}";
         wantedBy = [ "multi-user.target" ];
+        after = [ "sssd.service" ];
         serviceConfig = {
         ExecStart = "${pkgs.bash}/bin/bash -c 'rm -rf /var/lib/vault/users/${user} && mkdir -p /var/lib/vault/users/${user} && chown ${user} /var/lib/vault/users/${user} && chmod 0700 /var/lib/vault/users/${user} && echo Move files && for secret in ${lib.concatStringsSep " " secrets.files}; do cp /tmp/detsys-vault/${user}-$secret /var/lib/vault/users/${user}/$secret && chown ${user} /var/lib/vault/users/${user}/$secret && chmod 0400 /var/lib/vault/users/${user}/$secret; done'";
           Type = "oneshot";

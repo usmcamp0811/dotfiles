@@ -34,13 +34,11 @@ in
     desktop.qtile = {
       enable = true;
       gdm = true;
-      lightdm = false;
     };
 
     desktop.cinnamon = {
       enable = true;
       gdm = true;
-      lightdm = false;
     };
 
     apps = {
@@ -63,6 +61,10 @@ in
 
     system = {
       boot = enabled;
+      time = {
+        enable = true;
+        TZ = "America/New_York";
+      };
     };
 
     hardware.audio = {

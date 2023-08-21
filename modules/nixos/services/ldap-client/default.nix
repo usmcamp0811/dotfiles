@@ -97,7 +97,7 @@ ldap_group_member = memberUid
     };
     # Add this section to ensure sssd restarts on failure
     systemd.services.sssd.serviceConfig = {
-      Restart = "on-failure";
+      Restart = "on-abnormal";
       RestartSec = "5s";
     };
 

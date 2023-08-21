@@ -24,26 +24,26 @@ in
 
     desktop.qtile = {
       enable = true;
-      lightdm = true;
-      gdm = false;
+      lightdm = false;
+      gdm = true;
+    };
+
+    desktop.cinnamon = {
+      enable = true;
+      lightdm = false;
+      gdm = true;
     };
 
     apps = {
-      firefox = {
-        enable = false;
-        cac = false;
-      };
-      brave = {
-        enable = false;
-        cac = false;
-      };
       k9s = enabled; 
-      libreoffice = enabled;
       virtmanager = enabled;
     };
 
+    security = {
+      keyring = enabled;
+    };
+
     system = {
-      boot = enabled;
       # manage local passwd in vault
       passwds = enabled;
       wifi = {
@@ -75,13 +75,6 @@ in
 
   };
 
-  # campground.home.extraOptions = {
-  #   home.shellAliases = {
-  #     la = "lsd -lah";
-  #     update = "sudo nixos-rebuild switch";
-  #   };
-  # };
-
   campground.user = {
     name = "abe";
     fullName = "Matt Camp";
@@ -102,6 +95,7 @@ in
           files = [
             "id_ed25519"
             "passwords"
+            "kubeconfig"
           ];
         };
       };
@@ -137,7 +131,6 @@ in
     GDK_SCALE = "1.6";
     GDK_DPI_SCALE = "1.6";
   };
-
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
