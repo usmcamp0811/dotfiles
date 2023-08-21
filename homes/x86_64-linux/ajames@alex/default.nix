@@ -5,7 +5,7 @@ with lib.campground;
   campground = {
     user = {
       enable = true;
-      name = "ajames";
+      name = config.snowfallorg.user.name;
     };
     desktop = {
       wallpapers = enabled;
