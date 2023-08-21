@@ -22,26 +22,10 @@ in
       workstation = enabled;
     };
 
-    desktop.gnome = {
-      enable = true;
-      gdm = true;
-      lightdm = false;
-      wallpaper = {
-        light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
-        dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
-      };
-    };
-
     desktop.qtile = {
       enable = true;
       gdm = true;
     };
-
-    desktop.cinnamon = {
-      enable = true;
-      gdm = true;
-    };
-
 
     apps = {
       k9s = enabled; 
