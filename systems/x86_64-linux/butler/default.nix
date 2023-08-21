@@ -25,21 +25,11 @@ in
     desktop.qtile = {
       enable = true;
       lightdm = false;
-      # wayland = true;
       gdm = true;
     };
 
     apps = {
-      firefox = {
-        enable = false;
-        cac = false;
-      };
-      brave = {
-        enable = false;
-        cac = false;
-      };
       k9s = enabled; 
-      libreoffice = enabled;
       virtmanager = enabled;
     };
 
@@ -73,16 +63,8 @@ in
     };
 
     # hardware.nvidia = enabled;
-    # hardware.intel = enabled;
 
   };
-
-  # campground.home.extraOptions = {
-  #   home.shellAliases = {
-  #     la = "lsd -lah";
-  #     update = "sudo nixos-rebuild switch";
-  #   };
-  # };
 
   campground.user = {
     name = "abe";
