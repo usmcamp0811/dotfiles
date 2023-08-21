@@ -5,7 +5,7 @@ with lib.campground;
   campground = {
     user = {
       enable = true;
-      name = "mcamp";
+      name = "ajames";
     };
     desktop = {
       wallpapers = enabled;
