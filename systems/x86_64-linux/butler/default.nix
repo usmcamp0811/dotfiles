@@ -28,6 +28,12 @@ in
       gdm = true;
     };
 
+    desktop.cinnamon = {
+      enable = true;
+      lightdm = false;
+      gdm = true;
+    };
+
     apps = {
       k9s = enabled; 
       virtmanager = enabled;
@@ -38,7 +44,6 @@ in
     };
 
     system = {
-      # boot = enabled;
       # manage local passwd in vault
       passwds = enabled;
       wifi = {

@@ -12,6 +12,9 @@ in
     gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
     lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
+    suspend =
+      mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
+    monitors = mkOpt (nullOr path) null "The monitors.xml file to create.";
   };
 
   config = mkIf cfg.enable {
@@ -27,7 +30,7 @@ in
       wl-clipboard
       gnome.gnome-tweaks
       gnome.nautilus-python
-    ] ++ defaultExtensions ++ cfg.extensions;
+    ];
 
     environment.gnome.excludePackages = with pkgs.gnome; [
       pkgs.gnome-tour
