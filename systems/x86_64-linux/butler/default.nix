@@ -33,6 +33,10 @@ in
       virtmanager = enabled;
     };
 
+    security = {
+      keyring = enabled;
+    };
+
     system = {
       # boot = enabled;
       # manage local passwd in vault
