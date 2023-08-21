@@ -23,7 +23,6 @@ in
     };
     desktop.gnome = {
       enable = true;
-      lightdm = false;
       gdm = true;
       lightdm = false;
       wallpaper = {
