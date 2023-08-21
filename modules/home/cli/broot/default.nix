@@ -7,7 +7,7 @@ let
 in
 {
   options.campground.cli.broot = with types; {
-    enable = mkBoolOpt false "Whether or not to enable K9s.";
+    enable = mkBoolOpt false "Whether or not to enable broot.";
   };
 
   config = mkIf cfg.enable {
