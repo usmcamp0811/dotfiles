@@ -35,7 +35,7 @@ with lib.campground;
       brave = enabled;
       libreoffice = enabled;
       alacritty = enabled;
-      kitty = enabled;
+      # kitty = enabled;
       rofi = enabled;
       mpv = enabled;
       #TODO: Add Qutebrowser
