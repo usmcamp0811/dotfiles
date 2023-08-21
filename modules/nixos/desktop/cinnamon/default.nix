@@ -1,0 +1,107 @@
+{ options, config, lib, pkgs, ... }:
+
+with lib;
+with lib.campground;
+let
+  cfg = config.campground.desktop.cinnamon;
+in
+{
+  options.campground.desktop.cinnamon = with types; {
+    enable =
+      mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
+    gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
+    wayland = mkBoolOpt false "Whether or not to use Wayland.";
+    lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
+  };
+
+  config = mkIf cfg.enable {
+    campground.system.xkb.enable = true;
+    campground.desktop.addons = {
+#      gtk = enabled;
+      wallpapers = enabled;
+#      electron-support = enabled;
+#      foot = enabled;
+    };
+
+    environment.systemPackages = with pkgs; [
+      wl-clipboard
+      gnome.gnome-tweaks
+      gnome.nautilus-python
+    ] ++ defaultExtensions ++ cfg.extensions;
+
+    environment.gnome.excludePackages = with pkgs.gnome; [
+      pkgs.gnome-tour
+      epiphany
+      geary
+      gnome-font-viewer
+      gnome-system-monitor
+      gnome-maps
+    ];
+
+#    systemd.tmpfiles.rules = [
+#      "d ${gdmHome}/.config 0711 gdm gdm"
+#    ] ++ (
+#      # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
+#      # display information is updated.
+#      lib.optional (cfg.monitors != null) "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}"
+#    );
+
+    systemd.services.campground-user-icon = {
+      before = [ "display-manager.service" ];
+      wantedBy = [ "display-manager.service" ];
+
+      serviceConfig = {
+        Type = "simple";
+        User = "root";
+        Group = "root";
+      };
+
+      script = ''
+        config_file=/var/lib/AccountsService/users/${config.campground.user.name}
+        icon_file=/run/current-system/sw/share/campground-icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
+
+        if ! [ -d "$(dirname "$config_file")"]; then
+          mkdir -p "$(dirname "$config_file")"
+        fi
+
+        if ! [ -f "$config_file" ]; then
+          echo "[User]
+          Session=gnome
+          SystemAccount=false
+          Icon=$icon_file" > "$config_file"
+        else
+          icon_config=$(sed -E -n -e "/Icon=.*/p" $config_file)
+
+          if [[ "$icon_config" == "" ]]; then
+            echo "Icon=$icon_file" >> $config_file
+          else
+            sed -E -i -e "s#^Icon=.*$#Icon=$icon_file#" $config_file
+          fi
+        fi
+      '';
+    };
+
+    services.xserver = {
+      enable = true;
+      libinput.enable = true;
+      displayManager = {
+        lightdm = {
+          enable = cfg.lightdm;
+        };
+        gdm = {
+          enable = cfg.gdm;
+          wayland = cfg.wayland;
+          autoSuspend = cfg.suspend;
+        };
+      };
+      desktopManager.cinnamon = {
+        enable = true;
+      };
+    };
+
+    programs.kdeconnect = {
+      enable = true;
+      package = pkgs.gnomeExtensions.gsconnect;
+    };
+  };
+}
