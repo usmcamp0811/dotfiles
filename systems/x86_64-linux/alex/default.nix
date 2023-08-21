@@ -47,12 +47,6 @@ in
         enable = true;
         spacemacs = true;
       };
-      firefox = {
-        enable = true;
-      };
-      brave = {
-        enable = true;
-      };
       vscode = enabled;
       virtualbox = enabled;
       virtmanager = enabled;
