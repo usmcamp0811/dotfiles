@@ -25,10 +25,23 @@ in
       enable = true;
       lightdm = false;
       gdm = true;
+      lightdm = false;
       wallpaper = {
         light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
         dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
       };
+    };
+
+    desktop.qtile = {
+      enable = true;
+      gdm = true;
+      lightdm = false;
+    };
+
+    desktop.cinnamon = {
+      enable = true;
+      gdm = true;
+      lightdm = false;
     };
 
     apps = {
