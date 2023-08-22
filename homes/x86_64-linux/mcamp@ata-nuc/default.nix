@@ -28,6 +28,7 @@ with lib.campground;
     };
     services = {
       # picom = enabled;
+      openssh = enabled;
     };
 
     apps = {
@@ -35,6 +36,7 @@ with lib.campground;
       brave = enabled;
       libreoffice = enabled;
       alacritty = enabled;
+      freerdp = enabled;
       # kitty = enabled;
       rofi = enabled;
       mpv = enabled;
