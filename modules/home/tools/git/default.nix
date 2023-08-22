@@ -15,6 +15,10 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    home.packages = with pkgs; [
+      lazygit
+    ];
     programs.git = {
       enable = true;
       userName  = cfg.userName;

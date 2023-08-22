@@ -54,6 +54,7 @@ in
     manage-other-hosts = mkOpt bool true "Whether or not to add other host configurations to SSH config.";
   };
 
+
   config = mkIf cfg.enable {
 
     programs.ssh.extraConfig = ''
@@ -63,7 +64,12 @@ in
       ${optionalString cfg.manage-other-hosts other-hosts-config}
     '';
 
-    # campground.user.extraOptions.openssh.authorizedKeys.keys = cfg.authorizedKeys;
+    home.activation.setSSHKeyPermissions = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
+      mkdir -p "${config.home.homeDirectory}/.ssh"
+      echo "${concatStringsSep "\n" cfg.authorizedKeys}" > "${config.home.homeDirectory}/.ssh/authorized_keys"
+      chmod 600 "${config.home.homeDirectory}/.ssh/authorized_keys"
+    '';
+
 
     programs.zsh.shellAliases = foldl
       (aliases: system:
