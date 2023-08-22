@@ -64,7 +64,7 @@ in
       ${optionalString cfg.manage-other-hosts other-hosts-config}
     '';
 
-    home.activation.setSSHKeyPermissions = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
+    home.activation.authorizedKeys = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
       mkdir -p "${config.home.homeDirectory}/.ssh"
       echo "${concatStringsSep "\n" cfg.authorizedKeys}" > "${config.home.homeDirectory}/.ssh/authorized_keys"
       chmod 600 "${config.home.homeDirectory}/.ssh/authorized_keys"
