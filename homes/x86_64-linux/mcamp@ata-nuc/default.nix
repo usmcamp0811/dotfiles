@@ -13,6 +13,7 @@ with lib.campground;
         enable = true;
         wallpaper = "hsv-saturnV.png";
       };
+      xkb = enabled;
     };
 
     cli = {
