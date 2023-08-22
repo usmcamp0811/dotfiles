@@ -55,24 +55,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.openssh = {
-      enable = true;
-
-      # settings = {
-        # PermitRootLogin = if format == "install-iso" then "yes" else "no";
-        # PasswordAuthentication = true;
-        # TODO: flip back to false when all is good
-      # };
-
-      extraConfig = ''
-        StreamLocalBindUnlink yes
-      '';
-
-      ports = [
-        22
-        cfg.port
-      ];
-    };
 
     programs.ssh.extraConfig = ''
       Host *
@@ -81,17 +63,14 @@ in
       ${optionalString cfg.manage-other-hosts other-hosts-config}
     '';
 
-    campground.user.extraOptions.openssh.authorizedKeys.keys =
-      cfg.authorizedKeys;
+    # campground.user.extraOptions.openssh.authorizedKeys.keys = cfg.authorizedKeys;
 
-    campground.home.extraOptions = {
-      programs.zsh.shellAliases = foldl
-        (aliases: system:
-          aliases // {
-            "ssh-${system}" = "ssh ${system} -t tmux a";
-          })
-        { }
-        (builtins.attrNames other-hosts);
-    };
+    programs.zsh.shellAliases = foldl
+      (aliases: system:
+        aliases // {
+          "ssh-${system}" = "ssh ${system} -t tmux a";
+        })
+      { }
+      (builtins.attrNames other-hosts);
   };
 }

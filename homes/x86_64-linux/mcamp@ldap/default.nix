@@ -30,6 +30,7 @@ with lib.campground;
     };
     services = {
       # picom = enabled;
+      openssh = enabled;
     };
 
     apps = {

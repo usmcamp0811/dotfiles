@@ -1,5 +1,6 @@
 { lib, config, pkgs, osConfig ? { }, ... }:
 
+
 let
   inherit (lib) types mkIf mkDefault mkMerge;
   inherit (lib.campground) mkOpt;
@@ -8,6 +9,9 @@ let
 
   is-linux = pkgs.stdenv.isLinux;
   is-darwin = pkgs.stdenv.isDarwin;
+
+  default-key =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler";
 
   home-directory =
     if cfg.name == null then
@@ -26,6 +30,8 @@ in
     email = mkOpt types.str "matt@aicampground.com" "The email of the user.";
 
     home = mkOpt (types.nullOr types.str) home-directory "The user's home directory.";
+
+    authorizedKeys = mkOpt types.str default-key "The public key to apply.";
   };
 
   config = mkIf cfg.enable (mkMerge [
