@@ -6,6 +6,8 @@ with lib.campground;
     user = {
       enable = true;
       name = "mcamp";
+      fullName = "Matt Camp";
+      email = "matt@aicampground.com";
     };
     desktop = {
       wallpapers = enabled;
@@ -41,7 +43,7 @@ with lib.campground;
       #TODO: Add Qutebrowser
     };
     tools = {
-      # git = enabled;
+      git = enabled;
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
       julia = enabled;

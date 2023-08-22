@@ -23,26 +23,10 @@ in
     };
     desktop.qtile = {
       enable = true;
-      lightdm = true;
-    };
-    desktop.gnome = {
-      enable = true;
-      lightdm = true;
-      wallpaper = {
-        light = pkgs.campground.wallpapers.nord-rainbow-light-nix-ultrawide;
-        dark = pkgs.campground.wallpapers.nord-rainbow-dark-nix-ultrawide;
-      };
+      gdm = true;
     };
 
     apps = {
-      firefox = {
-        enable = true;
-        cac = false;
-      };
-      brave = {
-        enable = true;
-        cac = true;
-      };
       virtmanager = enabled;
     };
 
@@ -75,13 +59,6 @@ in
     hardware.audio = {
     };
 
-  };
-
-  campground.home.extraOptions = {
-    home.shellAliases = {
-      la = "lsd -lah";
-      update = "sudo nixos-rebuild switch";
-    };
   };
 
   campground.user = {
