@@ -13,7 +13,7 @@ in
   config = mkIf cfg.enable {
     virtualisation.libvirtd.enable = true;
     programs.dconf.enable = true;
-    environment.systemPackages = with pkgs; [ virt-manager spice-gtk ];
+    environment.systemPackages = with pkgs; [ spice win-spice virt-manager spice-gtk ];
 
   };
 }
