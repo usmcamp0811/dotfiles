@@ -2,10 +2,10 @@
 
 with lib;
 let
-  cfg = config.home.campground.system.xkb;
+  cfg = config.campground.desktop.xkb;
 in
-{
-  options.home.campground.system.xkb = with lib.types; {
+{  
+  options.campground.desktop.xkb = with lib.types; {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
