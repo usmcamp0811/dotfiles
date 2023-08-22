@@ -11,8 +11,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    programs.freerdp = {
-      enable = true;
-    };
+    home.packages = with pkgs [
+      freerdp
+    ];
   };
 }
