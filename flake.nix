@@ -97,10 +97,10 @@
       # ];
       #
       #TODO: Move this into the actual system config?
-      systems.hosts.ata-xps.modules = with inputs; [
-        nixos-hardware.nixosModules.dell-xps-13-7390
-
-      ];
+      # systems.hosts.ata-xps.modules = with inputs; [
+      #   nixos-hardware.nixosModules.dell-xps-13-7390
+      #
+      # ];
 
       #TODO: Move this into the actual system config?
       # systems.hosts.butler.modules = with inputs; [
