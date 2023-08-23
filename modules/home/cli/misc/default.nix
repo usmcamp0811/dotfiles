@@ -30,6 +30,7 @@ in
       btop
       deno
       devour
+      inputs.campground-nvim.packages.x86_64-linux.default
     ];
   };
 }
