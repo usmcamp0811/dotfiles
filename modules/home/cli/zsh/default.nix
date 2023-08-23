@@ -32,6 +32,9 @@ in
         ${lib.concatMapStringsSep "\n" (file: "[ -r \"${file}\" ] && source \"${file}\"") cfg.extraSource}
         [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
         bindkey -v
+        for file in ~/.config/shell/private/*.shrc; do
+          [ -r "$file" ] && source "$file"                                                  
+        done
       '';
     };
 # TODO: Move the aliases.shrc into a nix file so if programs are called in there they are for sure installed and have the correct path
