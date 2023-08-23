@@ -17,7 +17,6 @@ in
 
     };
 
-    services.virtualboxGuest.enable = true;
     campground.user.extraGroups = [ "vboxusers" ];
   };
 }
