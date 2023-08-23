@@ -14,8 +14,10 @@ in
     virtualisation.virtualbox.host = {
       enable = true;
       enableExtensionPack = true;
+
     };
 
+    services.virtualboxGuest.enable = true;
     campground.user.extraGroups = [ "vboxusers" ];
   };
 }
