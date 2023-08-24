@@ -14,7 +14,7 @@ in
     virtualisation.virtualbox.host = {
       enable = true;
       enableExtensionPack = true;
-      host.headless = true;
+      headless = true;
 
     };
     virtualisation.virtualbox.guest.enable = true;

@@ -26,6 +26,7 @@ in
       enable = true;
       gdm = true;
       lightdm = false;
+      sddm = false;
     };
 
     apps = {
