@@ -94,6 +94,7 @@ in
       pulseaudio.enable = false;
       
       nvidia = {
+        nvidiaPersistenced = true;
         modesetting.enable = false;
         prime = {
           reverseSync.enable = true;

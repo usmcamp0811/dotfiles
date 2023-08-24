@@ -77,9 +77,11 @@
       package-namespace = "campground";
 
       overlays = [
-        (final: prev: {
-          neovim = inputs.campground-nvim.packages.x86_64-linux.default;
-        })
+          (final: prev: {
+            nvidia = final.callPackage inputs.unstable.nvidia { };
+            displayManager = final.callPackage inputs.unstable.displayManager { };
+            neovim = inputs.campground-nvim.packages.x86_64-linux.default;
+          })
         inputs.flake.overlay
         inputs.nur.overlay
       ];

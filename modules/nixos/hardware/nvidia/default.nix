@@ -26,6 +26,7 @@ in
     extraModprobeConfig = ''
       options bbswitch load_state=-1 unload_state=1 nvidia-drm
     '';
+      extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
       kernelParams = [
         "nouveau.modeset=1"
         "nohibernate"
@@ -37,10 +38,10 @@ in
      xserver.videoDrivers = [ "nvidia" "intel" ]; 
    }; 
    hardware = { 
-     bumblebee.enable = true;
+     bumblebee.enable = false;
      nvidia = { 
        open = false; 
-       modesetting.enable = true; 
+       modesetting.enable = false; 
        prime = { 
          reverseSync.enable = true;
          offload.enable = true; 
