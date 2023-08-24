@@ -11,14 +11,14 @@ in
 
   config = mkIf cfg.enable {
 
-    # systemd.user.services.xrandr-outputsource = {
-    #   script = ''
-    #     ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-0 modesetting && ${pkgs.xorg.xrandr}/bin/xrandr --auto
-    #   '';
-    #   wantedBy = [ "graphical-session.target" ];
-    #   partOf = [ "graphical-session.target" ];
-    #   enable = true;
-    # };
+    systemd.user.services.xrandr-outputsource = {
+      script = ''
+        ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-0 modesetting && ${pkgs.xorg.xrandr}/bin/xrandr --auto
+      '';
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      enable = true;
+    };
     # environment.sessionVariables.LIBVA_DRIVER_NAME = "nvidia";
     boot = {
       # kernelPackages = pkgs.linuxPackages_6_1;
@@ -89,7 +89,6 @@ in
     #     hardware.nvidia.prime.sync.enable = lib.mkForce true;
     #   };
     # };
-
     hardware = {
       bluetooth.enable = true;
       pulseaudio.enable = false;
