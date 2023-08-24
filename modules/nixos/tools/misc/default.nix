@@ -37,6 +37,8 @@ in
       flameshot
       neovim
       devour
+      usbutils
+      pciutils
     ];
 
   };
