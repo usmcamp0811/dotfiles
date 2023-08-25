@@ -12,15 +12,15 @@ in
   config = mkIf cfg.enable {
     services.xserver = {
       enable = true;
-      deviceSection = ''
-        Identifier "Intel Graphics"
-        Driver "modesetting"
-      '';
+      # deviceSection = ''
+      #   Identifier "Intel Graphics"
+      #   Driver "modesetting"
+      # '';
     };
 
-    boot.kernelModules = [ "bbswitch" ];
-    powerManagement.powerUpCommands = ''
-      echo OFF > /proc/acpi/bbswitch
-    '';    };
+    # boot.kernelModules = [ "bbswitch" ];
+    # powerManagement.powerUpCommands = ''
+    #   echo OFF > /proc/acpi/bbswitch
+    # '';    
   };
 }

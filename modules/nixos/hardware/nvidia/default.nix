@@ -23,6 +23,7 @@ in
 
   config = mkIf cfg.enable {
    boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
     extraModprobeConfig = ''
       options bbswitch load_state=-1 unload_state=1 nvidia-drm
     '';
@@ -34,10 +35,10 @@ in
    services = { 
      tlp.enable = true; 
      auto-cpufreq.enable = true; 
-     xserver.videoDrivers = [ "nvidia" "intel" ]; 
+     xserver.videoDrivers = [ "nvidia" ]; 
    }; 
    hardware = { 
-     bumblebee.enable = true;
+     # bumblebee.enable = true;
      nvidia = { 
        open = false; 
        modesetting.enable = true; 
@@ -47,7 +48,8 @@ in
          intelBusId = "PCI:00:02:0"; 
          nvidiaBusId = "PCI:01:00:0"; 
        }; 
-       package = config.boot.kernelPackages.nvidiaPackages.beta;
+ #      package = pkgs.nvidiaPackages;
+       package = config.boot.kernelPackages.nvidiaPackages.stable;
      }; 
      opengl = { 
        enable = true; 

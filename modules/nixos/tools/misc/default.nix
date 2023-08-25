@@ -39,6 +39,7 @@ in
       devour
       usbutils
       pciutils
+      neofetch
     ];
 
   };

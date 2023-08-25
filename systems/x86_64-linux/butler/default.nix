@@ -15,7 +15,8 @@ in
   imports = [ 
     ./hardware.nix
   ];
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
   services.logind.lidSwitch = "ignore";
   campground = {
     archetypes = {
@@ -25,7 +26,7 @@ in
     desktop.qtile = {
       enable = true;
       gdm = true;
-      lightdm = false;
+
       sddm = false;
     };
 
@@ -67,6 +68,7 @@ in
     };
 
     hardware.nvidia = enabled;
+    # hardware.intel = enabled;
 
   };
 
