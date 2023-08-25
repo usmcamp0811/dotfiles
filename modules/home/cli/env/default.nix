@@ -1,4 +1,4 @@
-{ options, config, pkgs, lib, ... }:
+{ inputs, options, config, pkgs, lib, ... }:
 
 with lib;
 with lib.campground;
@@ -68,5 +68,9 @@ in
     home.file = { 
       ".config/shell/aliases.shrc".source = ./aliases.shrc;
     };
+
+    home.activation.privateDir = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
+      mkdir -p "${config.home.homeDirectory}/.config/shell/private/"
+    '';
   };
 }
