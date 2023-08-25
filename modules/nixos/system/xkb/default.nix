@@ -1,4 +1,4 @@
-{ options, config, lib, ... }:
+{ options, config, pkgs, lib, ... }:
 
 with lib;
 with lib.campground;
@@ -16,5 +16,11 @@ in
       layout = "us";
       xkbOptions = "caps:escape";
     };
+
+    # console.keyMap = pkg.writeTextDir "swap_caps_esc.map" ''
+    #   keymaps 0-127
+    #   keycode 1 = Caps_Lock
+    #   keycode 58 = escape
+    # '';
   };
 }

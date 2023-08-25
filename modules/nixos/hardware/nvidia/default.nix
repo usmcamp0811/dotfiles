@@ -5,7 +5,7 @@ let
   cfg = config.campground.hardware.nvidia;
   displaySetupScript = pkgs.writeShellScript "display_setup.sh" ''
     #!/bin/sh
-    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-0
+    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0
     ${pkgs.xorg.xrandr}/bin/xrandr --auto
   '';
   nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" '' 
@@ -23,14 +23,20 @@ in
 
   config = mkIf cfg.enable {
    boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
-    extraModprobeConfig = ''
-      options bbswitch load_state=-1 unload_state=1 nvidia-drm
-    '';
-      kernelParams = [
-        "nouveau.modeset=1"
-        "nohibernate"
-      ];
+    # kernelPackages = pkgs.linuxPackages_zen;
+    # extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
+    # kernelParams = [ "module_blacklist=i915" ];
+    initrd.kernelModules = ["nvidia"];
+    # blacklistedKernelModules = [ "nouveau" ];
+
+    # extraModprobeConfig = ''
+    #   options bbswitch load_state=-1 unload_state=1 nvidia-drm
+    # '';
+    #   kernelParams = [
+    #     "nouveau.modeset=1"
+    #     "nohibernate"
+    #     "nvidia-drm.modeset=1"
+    #   ];
    };
    services = { 
      tlp.enable = true; 
@@ -42,13 +48,17 @@ in
      nvidia = { 
        open = false; 
        modesetting.enable = true; 
+       nvidiaSettings = true;
        prime = { 
-         reverseSync.enable = true;
+         # reverseSync.enable = true;
          offload.enable = true; 
+         allowExternalGpu = false;
          intelBusId = "PCI:00:02:0"; 
          nvidiaBusId = "PCI:01:00:0"; 
        }; 
  #      package = pkgs.nvidiaPackages;
+       # powerManagement.finegrained = true;
+       powerManagement.enable = true;
        package = config.boot.kernelPackages.nvidiaPackages.stable;
      }; 
      opengl = { 
