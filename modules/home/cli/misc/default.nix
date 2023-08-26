@@ -30,7 +30,7 @@ in
       btop
       deno
       devour
-      nvim
+      neovim
     ];
   };
 }

@@ -29,6 +29,7 @@ in
         misc = enabled;
         julia = enabled;
         python = enabled;
+        nvim = enabled;
         # fup-repl = enabled;
         # comma = enabled;
         # nix-ld = enabled;
