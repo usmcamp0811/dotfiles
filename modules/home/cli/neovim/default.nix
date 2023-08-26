@@ -14,7 +14,7 @@ in
     home = {
       packages = with pkgs; [
         less
-        inputs.campground-nvim.packages.x86_64-linux.default
+        neovim
       ];
     };
   };
