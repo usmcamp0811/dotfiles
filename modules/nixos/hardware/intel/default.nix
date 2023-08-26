@@ -10,6 +10,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.xserver.videoDrivers = [ "intel" ];
+    # services.xserver.videoDrivers = [ "intel" ];
   };
 }
