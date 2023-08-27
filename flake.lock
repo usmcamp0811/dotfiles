@@ -31,14 +31,17 @@
         "nixvim": "nixvim"
       },
       "locked": {
-        "lastModified": 1693152028,
-        "narHash": "sha256-6R1m0pj44xR8ZO4SctQ15l+DFKI1ldOnBolaB6ir5FI=",
-        "path": "/home/mcamp/code/campground-nvim",
-        "type": "path"
+        "lastModified": 1693155862,
+        "narHash": "sha256-KpIWKCfy0JAdJNULa468yPJaUcusNzw4NszwPcFNvw4=",
+        "owner": "usmcamp0811",
+        "repo": "campground-nvim",
+        "rev": "4d023d2f9f67ec8e86a7c9066b1088db9f060d90",
+        "type": "gitlab"
       },
       "original": {
-        "path": "/home/mcamp/code/campground-nvim",
-        "type": "path"
+        "owner": "usmcamp0811",
+        "repo": "campground-nvim",
+        "type": "gitlab"
       }
     },
     "crane": {
@@ -574,11 +577,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1693145932,
-        "narHash": "sha256-dJTmp7Ixb8EDqUfZ2+AT07G0IHUSflfVmYP/MAaN1rc=",
+        "lastModified": 1693155170,
+        "narHash": "sha256-ah5+0d3RSDDuYvI4lUU6AsTc/oUlTxXWpl9xA7Ujh74=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "e8917652bdfaf514b762afe4c815f4c938699675",
+        "rev": "22099c917d6204437be4d7abe088b8e0a4ffa57d",
         "type": "github"
       },
       "original": {
