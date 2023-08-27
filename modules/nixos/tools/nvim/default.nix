@@ -14,7 +14,7 @@ in
 
 # TODO: Figure out maybe a better way to optionally use my nixvim.. but till then its mine or none
     environment.systemPackages = with pkgs; [
-      nvim
+      neovim
     ];
   };
 }

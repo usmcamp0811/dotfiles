@@ -5,7 +5,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
+    # campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
+    campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
     # Snowfall Lib
     snowfall-lib.url = "github:snowfallorg/lib/dev";
