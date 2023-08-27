@@ -77,12 +77,10 @@
       };
       package-namespace = "campground";
 
-      overlays = [
-        inputs.flake.overlay
-        inputs.nur.overlay
-      ];
-     # overlays = with inputs; [
-     # ];
+     overlays = with inputs; [
+        flake.overlay
+        nur.overlay
+     ];
 
       systems.modules = with inputs; [
         home-manager.nixosModules.home-manager
