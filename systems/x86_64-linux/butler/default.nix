@@ -26,6 +26,7 @@ in
     desktop.qtile = {
       enable = true;
       gdm = true;
+      lightdm = false;
 
       sddm = false;
     };
@@ -33,6 +34,7 @@ in
     apps = {
       k9s = enabled; 
       virtmanager = enabled;
+      virtualbox = enabled;
     };
 
     security = {
@@ -67,8 +69,8 @@ in
     hardware.audio = {
     };
 
-    # hardware.nvidia = enabled;
-    hardware.intel = enabled;
+    hardware.nvidia = enabled;
+    # hardware.intel = enabled;
 
   };
 
