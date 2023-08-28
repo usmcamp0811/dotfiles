@@ -23,7 +23,9 @@ in
 
   config = mkIf cfg.enable {
 
-    boot.blacklistedKernelModules = [ "nvidiafb" ];
+    # boot.blacklistedKernelModules = [ "nvidiafb" ];
+    # boot.kernelParams = [ "nvidia.NVreg_OpenRmEnableUnsupportedGpus=1" ];
+    boot.kernelParams = ["module_blacklist=i915"];
     # Enable OpenGL
     hardware.opengl = {
       enable = true;
@@ -32,11 +34,11 @@ in
     };
 
     # Load nvidia driver for Xorg and Wayland
-    services.xserver.videoDrivers = ["nvidia"];
+    services.xserver.videoDrivers = ["nvidia" "nouveau" "intel"];
     hardware.nvidia = {
 
       # Modesetting is needed most of the time
-      modesetting.enable = false;
+      modesetting.enable = true;
 
     # Enable power management (do not disable this unless you have a reason to).
     # Likely to cause problems on laptops and with screen tearing if disabled.
