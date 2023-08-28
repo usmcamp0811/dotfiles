@@ -40,6 +40,7 @@ in
       usbutils
       pciutils
       neofetch
+      libnotify
     ];
 
   };
