@@ -61,7 +61,7 @@ in
     # # support all the latest Nvidia GPU features.
     # # You most likely don't want this.
     #   # Only available on driver 515.43.04+
-    #   open = false;
+      open = false;
     #
     #   # Enable the Nvidia settings menu,
     # # accessible via `nvidia-settings`.
@@ -69,7 +69,7 @@ in
     #
     #   # Optionally, you may need to select the appropriate driver version for your specific GPU.
     #   # package = config.boot.kernelPackages.nvidiaPackages.stable;
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = config.boot.kernelPackages.nvidiaPackages.vulkan_beta;
     #
       prime = {
         offload = {
