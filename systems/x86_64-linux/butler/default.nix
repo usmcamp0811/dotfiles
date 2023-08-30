@@ -33,8 +33,8 @@ in
 
     apps = {
       k9s = enabled; 
-      virtmanager = enabled;
-      virtualbox = enabled;
+      # virtmanager = enabled;
+      # virtualbox = enabled;
     };
 
     security = {
