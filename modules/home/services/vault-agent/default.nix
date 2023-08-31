@@ -1,7 +1,7 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, inputs, ... }:
 
 let
-  cfg = config.home-manager.services.vault-agent;
+  cfg = config.campground.services.vault-agent;
 
   secret-files-root = "/tmp/detsys-vault";
   environment-files-root = "/run/keys/environment";
@@ -125,7 +125,7 @@ let
   });
 
 in {
-  options.home-manager.services.vault-agent = {
+  options.campground.services.vault-agent = {
     enable = lib.mkEnableOption "Vault Agent";
     settings = lib.mkOption {
       type = lib.types.attrs;
@@ -140,7 +140,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    home.activation.vaultAgent = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    home.activation.vaultAgent = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       # Your activation script to set up Vault Agent with Home Manager
     '';
   };

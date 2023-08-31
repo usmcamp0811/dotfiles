@@ -31,6 +31,16 @@ with lib.campground;
     services = {
       # picom = enabled;
       openssh = enabled;
+      vault-agent = {
+        enable = true;
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            role-id = "/var/lib/vault/butler/role-id";
+            secret-id = "/var/lib/vault/butler/secret-id";
+          };
+        };
+      };
     };
 
     apps = {
