@@ -51,6 +51,8 @@
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     nur.url = "github:nix-community/NUR";
+
+    nix2sbom.url = "https://flakehub.com/f/louib/nix2sbom/0.1.97.tar.gz";
   };
 
   outputs = inputs:
@@ -80,6 +82,7 @@
      overlays = with inputs; [
         flake.overlay
         nur.overlay
+        nix2sbom.overlay
      ];
 
       systems.modules = with inputs; [
