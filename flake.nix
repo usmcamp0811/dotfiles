@@ -56,9 +56,9 @@
     nix2sbom.inputs.nixpkgs.follows = "unstable";
 
     sbomnix = {
-      url = "github:tiiuae/sbomnix#sbomnix";
+      url = "github:tiiuae/sbomnix";
       inputs.nixpkgs.follows = "unstable";
-    }
+    };
   };
 
   outputs = inputs:

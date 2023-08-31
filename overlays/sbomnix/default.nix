@@ -3,6 +3,6 @@
 final: prev:
 
 {
-  sbomnix = nix2sbom.packages.${prev.system}.default;
+  sbomnix = sbomnix.packages.${prev.system}.default;
 }
 

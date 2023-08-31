@@ -42,6 +42,7 @@ in
       neofetch
       libnotify
       nix2sbom
+      sbomnix
     ];
 
   };

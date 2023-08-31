@@ -695,6 +695,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_3",
         "nur": "nur",
+        "sbomnix": "sbomnix",
         "snowfall-lib": "snowfall-lib_2",
         "unstable": "unstable_2",
         "vault-service": "vault-service"
@@ -749,6 +750,26 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "sbomnix": {
+      "inputs": {
+        "nixpkgs": [
+          "unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1692272089,
+        "narHash": "sha256-LXaSIQm3326MhwaHz/MsLyiCqBt/ELVC4Q9FX5I/7NM=",
+        "owner": "tiiuae",
+        "repo": "sbomnix",
+        "rev": "055bf464f1a3344870a40f337caa492a69f69dbb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tiiuae",
+        "repo": "sbomnix",
         "type": "github"
       }
     },
