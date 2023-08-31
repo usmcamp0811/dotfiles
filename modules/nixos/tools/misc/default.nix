@@ -41,6 +41,7 @@ in
       pciutils
       neofetch
       libnotify
+      nix2sbom
     ];
 
   };

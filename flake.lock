@@ -461,7 +461,9 @@
     "nix2sbom": {
       "inputs": {
         "flake-utils": "flake-utils_6",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": [
+          "unstable"
+        ]
       },
       "locked": {
         "narHash": "sha256-AWS9vUAPt89EKzvmBBX0GCqV9luFaXqlUHssF07UAzQ=",
@@ -574,21 +576,6 @@
       }
     },
     "nixpkgs_3": {
-      "locked": {
-        "lastModified": 1691966966,
-        "narHash": "sha256-S3dR+npt0jlaMpxY6lCK9TsoYiB0ePpjajTIPLxrMvg=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "890ef80b26adb50b4c9ffef99eb70e1631cf231a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_4": {
       "locked": {
         "lastModified": 1693231525,
         "narHash": "sha256-Zmh8m0HHcgGBDth6jdJPmc4UAAP0L4jQmqIztywF1Iw=",
@@ -706,7 +693,7 @@
         "nix2sbom": "nix2sbom",
         "nixos-generators": "nixos-generators",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs_4",
+        "nixpkgs": "nixpkgs_3",
         "nur": "nur",
         "snowfall-lib": "snowfall-lib_2",
         "unstable": "unstable_2",
