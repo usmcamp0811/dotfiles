@@ -54,6 +54,11 @@
 
     nix2sbom.url = "https://flakehub.com/f/louib/nix2sbom/0.1.97.tar.gz";
     nix2sbom.inputs.nixpkgs.follows = "unstable";
+
+    sbomnix = {
+      url = "github:tiiuae/sbomnix#sbomnix";
+      inputs.nixpkgs.follows = "unstable";
+    }
   };
 
   outputs = inputs:
