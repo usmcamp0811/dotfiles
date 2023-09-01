@@ -2,7 +2,7 @@
 
 with lib;
 with lib.campground;
-let 
+let
   cfg = config.campground.system.wifi;
 in
 {
@@ -55,11 +55,11 @@ in
       };
       secrets = {
         file = {
-          files = { 
+          files = {
             "wifi-passwords" = {
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
                 #!/bin/sh
-                SSID="${name}"
+                SSID="${network.ssid}"
                 PASSWORD={{ with secret "${cfg.vault-path}" }}{{ .Data.${name} }}{{ end }}
                 if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
                   ${pkgs.networkmanager}/bin/nmcli con delete id $SSID
@@ -75,5 +75,3 @@ in
     };
   };
 }
-
-

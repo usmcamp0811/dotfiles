@@ -13,8 +13,10 @@ in
   config = mkIf cfg.enable {
     virtualisation.libvirtd.enable = true;
     virtualisation.spiceUSBRedirection.enable = true;
-    programs.dconf.enable = true;
     environment.systemPackages = with pkgs; [ spice win-spice virt-manager spice-gtk ];
+
+    # Ensuring dconf is enabled
+    programs.dconf.enable = true;
 
   };
 }

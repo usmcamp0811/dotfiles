@@ -21,32 +21,29 @@ in
       workstation = enabled;
     };
 
+    desktop.qtile = {
+      enable = true;
+      gdm = true;
+    };
+
     apps = {
       emacs = {
         enable = true;
-        spacemacs = true;
-      };
-      firefox = {
-        enable = false;
-        cac = true;
-      };
-      brave = {
-        enable = true;
-        cac = true;
       };
     };
 
     system = {
       boot = enabled;
-      wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = false;
+      wifi = {
+        enable = true;
+        vault-path = "boterfhome_v1/wifi";
         networks = {
-          SkyNet = {
-            ssid = "SkyNet";
+          boterf24 = {
+            ssid = "Boterf-2.4G";
           };
-          SkyNet5 = {
-            ssid = "SkyNet5";
+          boterf5 = {
+            ssid = "Boterf-5G";
           };
         };
       };
@@ -66,6 +63,10 @@ in
   };
 
   campground.home.extraOptions = {
+      home.shellAliases = {
+      la = "lsd -lah";
+      update = "sudo nixos-rebuild switch";
+    };
   };
 
   campground.user = {
@@ -83,13 +84,13 @@ in
       enable = true;
     };
     vault-agent = {
-      enable = false;
+      enable = true;
       settings = {
         vault = {
-          address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/ata-xps/role-id";
-          secret-id = "/var/lib/vault/ata-xps/secret-id";
-        };
+          address = "http://10.0.0.19:8200";
+          role-id = "/var/lib/vault/ata-xps-mboterf/role_id";
+          secret-id = "/var/lib/vault/ata-xps-mboterf/secret_id";
+       };
       };
     };
   };

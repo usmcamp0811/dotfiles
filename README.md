@@ -5,7 +5,7 @@ I am converting my dotfiles over to Nix. As I learn things I'll add my notes her
 Basing them on [Snowfall Lib](https://github.com/snowfallorg/lib#lib)
 
 ```
-flake-root/ 
+flake-root/
 │
 │ Your Nix flake.
 ├─ flake.nix
@@ -16,7 +16,7 @@ flake-root/
 │  │ A Nix function called with `inputs`, `snowfall-inputs`, and `lib`.
 │  │ The function should return an attribute set to merge with `lib`.
 │  ├─ default.nix
-│  │  
+│  │
 │  │ Any (nestable) directory name.
 │  └─ **/
 │     │
@@ -100,3 +100,5 @@ add the `vault-agent` service that will get the secret and patch the service all
 to allow specifying the `role-id`, `secret-id` and `vault.address` as part of the service options, defaults are set
 to the "system" values that get set in the system config file. This should limit the need to repeat yourself on multiple systems.
 See my `SECRETS.md` for more details. I will update this to be more clear later... maybe... we will see.. ¯\_(ツ)_/¯
+
+[Link to Vault README](vault/README.md)
