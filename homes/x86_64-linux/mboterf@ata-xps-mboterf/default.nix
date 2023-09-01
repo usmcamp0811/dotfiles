@@ -24,7 +24,7 @@ with lib.campground;
       broot = enabled;
       ranger = enabled;
       # neovim = enabled;
-      #TODO: Add my Nvim config 
+      #TODO: Add my Nvim config
     };
     services = {
       # picom = enabled;
@@ -43,7 +43,7 @@ with lib.campground;
     tools = {
       git = enabled;
       direnv = enabled;
-      virtmanager = enabled; # don't forget to add to libvirtd group
+      # virtmanager = enabled; # don't forget to add to libvirtd group
       julia = enabled;
       python = enabled;
     };
