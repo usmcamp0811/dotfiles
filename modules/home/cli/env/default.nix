@@ -74,7 +74,7 @@ in
     '';
 
     home.activation.sshKeys = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
-      if [ -e "/var/lib/vault/users/${cfg-user.name}/id_" ]; then
+      if [ -e "/var/lib/vault/users/${cfg-user.name}/id_*" ]; then
         cp /var/lib/vault/users/${cfg-user.name}/id_* /home/${cfg-user.name}/.ssh/
       fi
     '';
