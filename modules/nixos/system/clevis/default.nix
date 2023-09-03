@@ -2,7 +2,7 @@
 
 with lib;
 with lib.campground;
-let cfg = config.campground.system.boot;
+let cfg = config.campground.system.clevis;
 in
 {
   options.campground.system.clevis = with types; {
