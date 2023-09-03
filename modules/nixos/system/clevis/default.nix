@@ -14,7 +14,14 @@ in
     environment.systemPackages = with pkgs; [
       clevis
     ];
-
+    # boot.initrd = {
+    #   preLVMCommands = ''
+    #     ${pkgs.curl}/bin/curl http://10.8.0.127:1234/adv > /dev/console
+    #   '';
+    # };
+    boot.initrd.network = {
+      enable = true;
+    };
     boot.initrd.extraUtilsCommands = ''
         # clevis dependencies
         copy_bin_and_libs ${pkgs.curl}/bin/curl
