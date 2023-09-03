@@ -26,8 +26,7 @@ in
           copy_bin_and_libs "$i"
         done
     '';
-    boot.initrd.luks.devices.nixos-root = {
-      device = config.boot.initrd.luks.devices."luks".device;
+    boot.initrd.luks.devices."luks" = {
       preOpenCommands = ''
         # what would be a sensible way of automating this? at the very least the versions should not be hard coded
         ln -s ../.. /nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-bash-5.1-p16
