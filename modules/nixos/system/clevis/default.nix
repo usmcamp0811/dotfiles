@@ -10,6 +10,11 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    environment.systemPackages = with pkgs; [
+      clevis
+    ];
+
     boot.initrd.extraUtilsCommands = ''
         # clevis dependencies
         copy_bin_and_libs ${pkgs.curl}/bin/curl
@@ -22,7 +27,7 @@ in
         done
     '';
     boot.initrd.luks.devices.nixos-root = {
-      device = "/dev/disk/by-uuid/${uuid}";
+      device = config.boot.initrd.luks.devices."luks".device;
       preOpenCommands = ''
         # what would be a sensible way of automating this? at the very least the versions should not be hard coded
         ln -s ../.. /nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-bash-5.1-p16

@@ -54,7 +54,7 @@ in
           };
         };
       };
-      celvis = enabled;
+      clevis = enabled;
       vpn = {
         enable = false;
         networks = {
