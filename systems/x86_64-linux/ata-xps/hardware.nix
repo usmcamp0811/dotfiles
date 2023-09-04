@@ -12,15 +12,27 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
+  networking.hostId = "e829ba6a";
+
+  # TODO: Move out of here to ZFS module #
+  boot.supportedFilesystems = [ "zfs" ];
+  boot.zfs.requestEncryptionCredentials = true;
+  services.zfs.autoScrub.enable = true;
+  ########################################
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/8522b664-269b-434c-9873-10b317edba2d";
-      fsType = "ext4";
+    { device = "NIXROOT/root";
+      fsType = "zfs";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/5516-4405";
+    { device = "/dev/disk/by-uuid/5A52-7587";
       fsType = "vfat";
+    };
+
+  fileSystems."/home" =
+    { device = "NIXROOT/home";
+      fsType = "zfs";
     };
 
   swapDevices = [ ];
@@ -30,6 +42,7 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp59s0u2.useDHCP = lib.mkDefault true;
   # networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
