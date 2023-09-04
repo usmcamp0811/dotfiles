@@ -31,6 +31,7 @@ in
       };
     };
     # TODO: This should probably be parameterized and or not here because it could vary per system
+    # use this lspci -v | grep -iA8 'network\|ethernet' to then ask Chad what modules to use here
     boot.initrd.availableKernelModules = [ "iwlwifi" "igc" "nfsv4" ];
     boot.kernelParams = [ "ip=dhcp" ];
   };
