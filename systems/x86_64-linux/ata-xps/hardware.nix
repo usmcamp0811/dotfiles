@@ -12,13 +12,7 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
-  networking.hostId = "e829ba6a";
 
-  # TODO: Move out of here to ZFS module #
-  boot.supportedFilesystems = [ "zfs" ];
-  boot.zfs.requestEncryptionCredentials = true;
-  services.zfs.autoScrub.enable = true;
-  ########################################
 
   fileSystems."/" =
     { device = "NIXROOT/root";
