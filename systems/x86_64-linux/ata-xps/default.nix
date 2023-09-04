@@ -9,13 +9,14 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-
 in
 {
   imports = [ 
     ./hardware.nix
   ];
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
+
   services.logind.lidSwitch = "ignore";
   campground = {
     archetypes = {
