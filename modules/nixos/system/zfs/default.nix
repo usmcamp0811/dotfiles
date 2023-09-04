@@ -31,8 +31,12 @@ in
 
       };
     };
-    boot.initrd.availableKernelModules = [ "iwlwifi" "igc" "nfsv4" ];
+
+    # use this lspci -v | grep -iA8 'network\|ethernet' to then ask Chad what modules to use here
+    boot.initrd.availableKernelModules = [ "iwlwifi" "igc" "nfsv4" "cdc_ether" ];
     boot.kernelParams = [ "ip=dhcp" ];
+    boot.kernelModules = [ "iwlwifi" "cdc_ether" ];
+    boot.initrd.kernelModules = [ "iwlwifi" "cdc_ether" ];
   };
 
 }
