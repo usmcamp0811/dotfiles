@@ -2,16 +2,12 @@
 
 with lib;
 with lib.campground;
-let 
-  cfg = config.campground.system.zfs;
-  hostIdFromFile = pkgs.runCommand "get-hostId" {} ''
-    head -c 8 /etc/machine-id > $out
-  '';
+let cfg = config.campground.system.zfs;
 in
 {
   options.campground.system.zfs = with types; {
     enable = mkBoolOpt false "Whether or not to configure zfs.";
-    hostId = mkOpt str builtins.readFile hostIdFromFile "The output of head -c 8 /etc/machine-id";
+    hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
   };
 
   config = mkIf cfg.enable {

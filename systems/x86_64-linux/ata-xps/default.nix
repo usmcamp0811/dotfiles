@@ -32,6 +32,10 @@ in
 
     system = {
       boot = enabled;
+      zfs = {
+        enable = true;
+        hostId = "e829ba6a";
+      };
       # manage local passwd in vault
       passwds = enabled;
       wifi = {
