@@ -41,7 +41,7 @@ in
       passwds = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = true;
+        enable = false;
         networks = {
           SkyNet = {
             ssid = "SkyNet";
