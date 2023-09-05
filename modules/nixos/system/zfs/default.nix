@@ -27,6 +27,7 @@ in
       postCommands = ''
         mkdir -p /mnt/campfs
         mount -t nfs -o vers=4 10.8.0.140:/mnt/campfs /mnt/campfs
+        ls -lah /mnt/campfs
       '';
       ssh = {
         enable = true;
@@ -39,7 +40,7 @@ in
     networking.useDHCP = lib.mkForce true;
     # use this lspci -v | grep -iA8 'network\|ethernet' to then ask Chad what modules to use here
     boot.initrd.availableKernelModules = [ "iwlwifi" "igc" "nfsv4" "cdc_ether" ];
-    # boot.kernelParams = [ "ip=dhcp" ];
+    boot.kernelParams = [ "ip=dhcp" ];
     # boot.kernelModules = [ "iwlwifi" "cdc_ether" ];
     # boot.initrd.kernelModules = [ "iwlwifi" "cdc_ether" ];
   };

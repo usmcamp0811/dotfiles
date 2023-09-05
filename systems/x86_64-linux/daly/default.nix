@@ -66,6 +66,7 @@ in
 
   campground.services = {
     ldap-client = enabled;
+    secret-service = enabled;
     user-secrets = {
       enable = true;
       users = {

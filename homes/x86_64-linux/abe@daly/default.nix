@@ -10,7 +10,14 @@ with lib.campground;
 
     cli = {
       zsh = enabled;
+      bash = enabled;
+      env = enabled;
       home-manager = enabled;
+      k9s = enabled;
+      broot = enabled;
+      ranger = enabled;
+      neovim = enabled;
+      #TODO: Add my Nvim config 
     };
   };
   home.stateVersion = "23.05";
