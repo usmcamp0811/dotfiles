@@ -30,6 +30,11 @@ in
         ls -lah /mnt/campfs
         zpool import -a;
         echo $(cat /mnt/campfs/zfs-passphrase) | zfs load-key -a && killall zfs
+
+        #
+        # curl 10.8.0.140:8080/zfs-passphrase.key
+        # clevis decrypt < zfs-passphrase.key > zfs-passphrase
+        # echo $(cat zfs-passphrase) | zfs load-key -a && killall zfs
       '';
       ssh = {
         enable = true;
