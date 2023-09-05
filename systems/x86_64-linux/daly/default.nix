@@ -34,7 +34,7 @@ in
       boot = enabled;
       zfs = {
         enable = true;
-        hostId = "123fe409";
+        hostId = "65c8b2d7";
       };
       # manage local passwd in vault
       passwds = enabled;

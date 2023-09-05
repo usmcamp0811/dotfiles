@@ -13,14 +13,14 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/85DC-0C68";
-      fsType = "vfat";
-    };
-
   fileSystems."/" =
     { device = "NIXROOT/root";
       fsType = "zfs";
+    };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/1FFE-3606";
+      fsType = "vfat";
     };
 
   fileSystems."/home" =
