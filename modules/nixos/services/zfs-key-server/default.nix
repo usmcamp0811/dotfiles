@@ -6,11 +6,15 @@ let
   tangServersJSON = builtins.toJSON (lib.concatMapStrings (server: { url = server; }) cfg.tang-servers);
 in
 {
-  options.campground.services.cac = with types; {
+  options.campground.services.zfs-key-server = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
     port = mkOpt int 8080 "Port to Host the NGINX porxy on.";
-    tang-servers = mkOpt listOf str [] "List of Tang Servers";
-
+    tang-servers = mkOption {
+      type = listOf str;
+      default = [ ];
+      example = [ "http://10.8.0.140:1234" "http://10.8.0.127:1234" ];
+      description = "List of Tang servers.";
+    };
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/zfs" "The Vault path to the KV containing the LDAP Secrets.";
@@ -28,8 +32,8 @@ in
       virtualHosts."zfs-key-server" = {
         listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];
         locations."/".extraConfig = ''
-          alias /root/hdd-keys/;
-          autoindex on;
+          alias /var/lib/vault/zfs-keys/;
+          autoindex off;
         '';
       };
     };
@@ -76,7 +80,7 @@ in
                 mkdir -p /var/lib/vault/zfs-keys/
 
                 # Perform Clevis encryption with SSS and store it in a file
-                ${pkg.clevis}/bin/clevis encrypt sss \
+                ${pkgs.clevis}/bin/clevis encrypt sss \
                   '{"t":1,"pins":{"tang":${tangServersJSON}}}' \
                   <<< "$ZFS_PASSPHRASE" > /var/lib/vault/zfs-keys/zfs-keyfile
 
