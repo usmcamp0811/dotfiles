@@ -69,6 +69,7 @@ in
     secret-service = enabled;
     zfs-key-server = {
       enable = true;
+      keyfile-url = "http://ata-xps:8080/zfs-keyfile";
       tang-servers = [
        "http://webb:1234" 
        "http://lucas:1234" 
