@@ -67,6 +67,14 @@ in
   campground.services = {
     ldap-client = enabled;
     secret-service = enabled;
+    zfs-key-server = {
+      enable = true;
+      tang-servers = [
+       "http://webb:1234" 
+       "http://lucas:1234" 
+       "http://ermy:1234" 
+      ];
+    };
     user-secrets = {
       enable = true;
       users = {
