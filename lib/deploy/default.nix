@@ -35,7 +35,7 @@ rec {
                   path = deploy-rs.lib.${system}.activate.nixos host;
                 } // lib.optionalAttrs (user != null) {
                   user = "root";
-                  sshUser = user;
+                  sshUser = "root";
                 } // lib.optionalAttrs
                   (host.config.campground.security.doas.enable or false)
                   {
