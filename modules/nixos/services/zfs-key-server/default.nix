@@ -3,17 +3,12 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.zfs-key-server;
-  # tangServersJSON = builtins.toJSON (map (server: { url = server; }) cfg.tang-servers);
   tangServersJSON = builtins.toJSON {
     t = cfg.threshold;
     pins = {
       tang = map (server: { url = server; }) cfg.tang-servers;
     };
   };
- # tangServersJSON = servers: builtins.toFile "clevis.json" (builtins.toJSON {
- #    t = cfg.threshold;
- #    shares = map (server: { t = "tang"; url = server; }) cfg.tang-servers;
- #  });
 in
 {
   options.campground.services.zfs-key-server = with types; {
@@ -62,6 +57,7 @@ in
         before = [ "nginx.service" ];
       };
       wantedBy = [ "multi-user.target" ];
+      # TODO: Remove all but what is needed here
       path = with pkgs; [
         ncurses
         python3
