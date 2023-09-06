@@ -3,8 +3,17 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.zfs-key-server;
-  tangServersJSON = builtins.toJSON (map (server: { url = server; }) cfg.tang-servers);
-
+  # tangServersJSON = builtins.toJSON (map (server: { url = server; }) cfg.tang-servers);
+  tangServersJSON = builtins.toJSON {
+    t = cfg.threshold;
+    pins = {
+      tang = map (server: { url = server; }) cfg.tang-servers;
+    };
+  };
+ # tangServersJSON = servers: builtins.toFile "clevis.json" (builtins.toJSON {
+ #    t = cfg.threshold;
+ #    shares = map (server: { t = "tang"; url = server; }) cfg.tang-servers;
+ #  });
 in
 {
   options.campground.services.zfs-key-server = with types; {
@@ -16,6 +25,7 @@ in
       example = [ "http://10.8.0.140:1234" "http://10.8.0.127:1234" ];
       description = "List of Tang servers.";
     };
+    threshold = mkOpt int 1 "Number of tanger serveres required to unlock";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/zfs" "The Vault path to the KV containing the LDAP Secrets.";
@@ -67,10 +77,10 @@ in
         attr
         curl
         clevis
+        gnugrep
       ];
 
     };
-
     campground.services.vault-agent.services.encryptZFSkey = {
       settings = {
         vault.address = cfg.vault-address;
@@ -92,19 +102,33 @@ in
               text = ''
                 $SHELL
                 set -e  # exit immediately on error
-                set -x
                 mkdir -p /var/lib/vault/zfs-keys
 
                 ZFS_PASSPHRASE='{{ with secret "${cfg.vault-path}" }}{{ .Data.passphrase }}{{ end }}'
 
                 # Create directory if it doesn't exist
                 mkdir -p /var/lib/vault/zfs-keys/
-                env
-                ${pkgs.curl}/bin/curl http://webb:1234/adv
-                ${pkgs.curl}/bin/curl http://lucas:1234/adv
-                ${pkgs.curl}/bin/curl http://ermy:1234/adv
+                CMD_JSON=$(printf "%s" "${builtins.toJSON {
+                  t = cfg.threshold;
+                  pins = {
+                    tang = map (server: { url = server; }) cfg.tang-servers;
+                  };
+                }}")
+
+                # Add quotes around keys
+                json_str=$(echo $CMD_JSON | ${pkgs.perl}/bin/perl -pe 's/([{,])(\w+):/\1"\2":/g; s/:(http[^,}]+)/:"\1"/g')
+
+
+
+                # Add quotes around URLs
+                # json_str=$(echo "$json_str" | sed 's/\(http:\/\/[a-zA-Z0-9:_]*\)/"\1"/g')
+
+                ${pkgs.clevis}/bin/clevis encrypt sss \'$json_str'\ <<< \"$ZFS_PASSPHRASE\" > /var/lib/vault/zfs-keys/zfs-keyfile
+
+                # echo $RUNME > /config/debug
+                # echo $json_str >> /config/debug
+                # eval $RUNME
                 # Perform Clevis encryption with SSS and store it in a file
-                ${pkgs.clevis}/bin/clevis encrypt sss '{"t":1,"pins":{"tang":[{"url":"http://webb:1234"},{"url":"http://lucas:1234"},{"url":"http://ermy:1234"}]}}' -y <<< $ZFS_PASSPHRASE > /var/lib/vault/zfs-keys/zfs-keyfile
 
                 # Change file owner to the user running Nginx
                 chown nginx:nginx /var/lib/vault/zfs-keys/zfs-keyfile
@@ -116,6 +140,5 @@ in
         };
       };
     };
-
   };
 }
