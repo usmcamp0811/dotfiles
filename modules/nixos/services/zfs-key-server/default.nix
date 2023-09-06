@@ -104,31 +104,11 @@ in
                 set -e  # exit immediately on error
                 mkdir -p /var/lib/vault/zfs-keys
 
-                ZFS_PASSPHRASE='{{ with secret "${cfg.vault-path}" }}{{ .Data.passphrase }}{{ end }}'
-
                 # Create directory if it doesn't exist
                 mkdir -p /var/lib/vault/zfs-keys/
-                CMD_JSON=$(printf "%s" "${builtins.toJSON {
-                  t = cfg.threshold;
-                  pins = {
-                    tang = map (server: { url = server; }) cfg.tang-servers;
-                  };
-                }}")
 
-                # Add quotes around keys
-                json_str=$(echo $CMD_JSON | ${pkgs.perl}/bin/perl -pe 's/([{,])(\w+):/\1"\2":/g; s/:(http[^,}]+)/:"\1"/g')
-
-
-
-                # Add quotes around URLs
-                # json_str=$(echo "$json_str" | sed 's/\(http:\/\/[a-zA-Z0-9:_]*\)/"\1"/g')
-
-                ${pkgs.clevis}/bin/clevis encrypt sss \'$json_str'\ <<< \"$ZFS_PASSPHRASE\" > /var/lib/vault/zfs-keys/zfs-keyfile
-
-                # echo $RUNME > /config/debug
-                # echo $json_str >> /config/debug
-                # eval $RUNME
                 # Perform Clevis encryption with SSS and store it in a file
+                ${pkgs.clevis}/bin/clevis encrypt sss '${tangServersJSON}' -y <<< '{{ with secret "${cfg.vault-path}" }}{{ .Data.passphrase }}{{ end }}' > /var/lib/vault/zfs-keys/zfs-keyfile
 
                 # Change file owner to the user running Nginx
                 chown nginx:nginx /var/lib/vault/zfs-keys/zfs-keyfile
