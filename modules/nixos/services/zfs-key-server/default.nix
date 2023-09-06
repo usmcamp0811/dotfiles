@@ -47,10 +47,28 @@ in
         Type = "oneshot";
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/save_encrypted_zfs_passphrase.sh";
+        # ExecStart = "${pkgs.bash}/bin/bash /config/test.sh";
         after = [ "vault-agent.service" ];
         before = [ "nginx.service" ];
       };
       wantedBy = [ "multi-user.target" ];
+      path = with pkgs; [
+        ncurses
+        python3
+        cairo
+        freetype
+        bzip2
+        brotli
+        fontconfig
+        expat
+        clevis
+        glib
+        gettext
+        attr
+        curl
+        clevis
+      ];
+
     };
 
     campground.services.vault-agent.services.encryptZFSkey = {
@@ -72,20 +90,21 @@ in
           files = {
             "save_encrypted_zfs_passphrase.sh" = {
               text = ''
-                #!/bin/sh
+                $SHELL
                 set -e  # exit immediately on error
                 set -x
                 mkdir -p /var/lib/vault/zfs-keys
+
                 ZFS_PASSPHRASE='{{ with secret "${cfg.vault-path}" }}{{ .Data.passphrase }}{{ end }}'
 
                 # Create directory if it doesn't exist
                 mkdir -p /var/lib/vault/zfs-keys/
-
+                env
+                ${pkgs.curl}/bin/curl http://webb:1234/adv
+                ${pkgs.curl}/bin/curl http://lucas:1234/adv
+                ${pkgs.curl}/bin/curl http://ermy:1234/adv
                 # Perform Clevis encryption with SSS and store it in a file
-                echo 'clevis encrypt sss {"t":1,"pins":{"tang":${tangServersJSON}}}'
-                ${pkgs.clevis}/bin/clevis encrypt sss -y \
-                  \'{"t":1,"pins":{"tang":${tangServersJSON}}}\' \
-                  <<< "$ZFS_PASSPHRASE" > /var/lib/vault/zfs-keys/zfs-keyfile
+                ${pkgs.clevis}/bin/clevis encrypt sss '{"t":1,"pins":{"tang":[{"url":"http://webb:1234"},{"url":"http://lucas:1234"},{"url":"http://ermy:1234"}]}}' -y <<< $ZFS_PASSPHRASE > /var/lib/vault/zfs-keys/zfs-keyfile
 
                 # Change file owner to the user running Nginx
                 chown nginx:nginx /var/lib/vault/zfs-keys/zfs-keyfile
