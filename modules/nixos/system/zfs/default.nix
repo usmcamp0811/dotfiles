@@ -25,8 +25,9 @@ in
     boot.initrd.network = {
       enable = true;
       postCommands = ''
+        export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:$PATH"
         zpool import -a;
-        echo $(curl http::/ata-xps:8080/zfs-keyfile) | zfs load-key -a && killall zfs
+        echo $(echo $(${pkgs.curl}/bin/curl -s http://ata-xps:8080/zfs-keyfile) | ${pkgs.clevis}/bin/clevis decrypt) | zfs load-key -a && killall zfs
       '';
       ssh = {
         enable = true;
@@ -42,8 +43,8 @@ in
     boot.kernelParams = [ "ip=dhcp" ];
     boot.kernelModules = [ "r8169" "cdc_ether" ];
     boot.initrd.kernelModules = [ "r8169" "cdc_ether" ];
-    # boot.kernelModules = [ "iwlwifi" "cdc_ether" ];
-    # boot.initrd.kernelModules = [ "iwlwifi" "cdc_ether" ];
+    # TODO: Move this somewhere more appropriate or otherwise fix dns
+    networking.useDHCP = mkForce true;
   };
 
 }
