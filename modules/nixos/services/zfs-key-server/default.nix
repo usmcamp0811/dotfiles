@@ -3,7 +3,8 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.zfs-key-server;
-  tangServersJSON = builtins.toJSON (lib.concatMapStrings (server: { url = server; }) cfg.tang-servers);
+  tangServersJSON = builtins.toJSON (map (server: { url = server; }) cfg.tang-servers);
+
 in
 {
   options.campground.services.zfs-key-server = with types; {
@@ -73,6 +74,7 @@ in
               text = ''
                 #!/bin/sh
                 set -e  # exit immediately on error
+                set -x
                 mkdir -p /var/lib/vault/zfs-keys
                 ZFS_PASSPHRASE='{{ with secret "${cfg.vault-path}" }}{{ .Data.passphrase }}{{ end }}'
 
@@ -80,8 +82,9 @@ in
                 mkdir -p /var/lib/vault/zfs-keys/
 
                 # Perform Clevis encryption with SSS and store it in a file
-                ${pkgs.clevis}/bin/clevis encrypt sss \
-                  '{"t":1,"pins":{"tang":${tangServersJSON}}}' \
+                echo 'clevis encrypt sss {"t":1,"pins":{"tang":${tangServersJSON}}}'
+                ${pkgs.clevis}/bin/clevis encrypt sss -y \
+                  \'{"t":1,"pins":{"tang":${tangServersJSON}}}\' \
                   <<< "$ZFS_PASSPHRASE" > /var/lib/vault/zfs-keys/zfs-keyfile
 
                 # Change file owner to the user running Nginx
