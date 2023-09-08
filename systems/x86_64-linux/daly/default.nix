@@ -68,6 +68,7 @@ in
   campground.services = {
     ldap-client = enabled;
     secret-service = enabled;
+    tang = enabled;
     zfs-key-server = {
       enable = true;
       tang-servers = [
