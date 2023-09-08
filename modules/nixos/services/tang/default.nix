@@ -7,7 +7,7 @@ in
 {
   options.campground.services.tang = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
-    port = mkOpt str 1234 "Port to Host the tang server on.";
+    port = mkOpt str "1234" "Port to Host the tang server on.";
   };
 
   config = mkIf cfg.enable {
