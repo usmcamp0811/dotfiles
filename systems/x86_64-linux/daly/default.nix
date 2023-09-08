@@ -69,6 +69,8 @@ in
     ldap-client = enabled;
     secret-service = enabled;
     tang = enabled;
+    k0s = enabled;
+    ntp = enabled;
     zfs-key-server = {
       enable = true;
       tang-servers = [

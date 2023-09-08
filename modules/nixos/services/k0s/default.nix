@@ -12,6 +12,7 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       k0s
+      k0sctl
     ];
   };
 }
