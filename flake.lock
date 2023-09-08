@@ -83,11 +83,11 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1686747123,
-        "narHash": "sha256-XUQK9kwHpTeilHoad7L4LjMCCyY13Oq383CoFADecRE=",
+        "lastModified": 1694158470,
+        "narHash": "sha256-yWx9eBDHt6WR3gr65+J85KreHdMypty/P6yM35tIYYM=",
         "owner": "serokell",
         "repo": "deploy-rs",
-        "rev": "724463b5a94daa810abfc64a4f87faef4e00f984",
+        "rev": "d0cfc042eba92eb206611c9e8784d41a2c053bab",
         "type": "github"
       },
       "original": {
@@ -475,26 +475,6 @@
         "type": "github"
       }
     },
-    "k0s": {
-      "inputs": {
-        "nixpkgs": [
-          "unstable"
-        ]
-      },
-      "locked": {
-        "lastModified": 1692352367,
-        "narHash": "sha256-Y3EqCZYT0cFQ6pZluGRjJXsh6o/Y2c8htOzM0MFpqX8=",
-        "owner": "TECHNOFAB",
-        "repo": "nix-packages",
-        "rev": "ad6d2493a4b1d158ed5d62af302a3956bc8ebd11",
-        "type": "gitlab"
-      },
-      "original": {
-        "owner": "TECHNOFAB",
-        "repo": "nix-packages",
-        "type": "gitlab"
-      }
-    },
     "nix-ld": {
       "inputs": {
         "nixpkgs": [
@@ -524,11 +504,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1694123991,
-        "narHash": "sha256-g5mAgEGlCsN+GZTX3f8YBetiOpZjVyxw2UBzxOd4OP4=",
+        "lastModified": 1694183252,
+        "narHash": "sha256-ssQdDNHnfvWOt9JPsC7R7XfgPNgtBwBc6HLj3oPOzEE=",
         "owner": "pdtpartners",
         "repo": "nix-snapshotter",
-        "rev": "628904e564ec1ac3b58201b0cc3f2a1443fa562d",
+        "rev": "47f1a274f7494eb479179d03a2628a8064ef85b2",
         "type": "github"
       },
       "original": {
@@ -693,11 +673,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1694128128,
-        "narHash": "sha256-Mh2Of79t5glO7FAMA97e+cZe7cn5VhnDBUmi3yJ23Ms=",
+        "lastModified": 1694187987,
+        "narHash": "sha256-UuoxSsXSlMV9hTbw2509SAeHF1xObnk6neWUempdys8=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "793d43c8f2c71399627ce66a3d25766aece453ba",
+        "rev": "0d83b01718f7353592390891f9cde9431cf6e944",
         "type": "github"
       },
       "original": {
@@ -768,7 +748,6 @@
         "flake": "flake",
         "flake-checker": "flake-checker",
         "home-manager": "home-manager",
-        "k0s": "k0s",
         "nix-ld": "nix-ld",
         "nix-snapshotter": "nix-snapshotter",
         "nix2sbom": "nix2sbom",
@@ -778,6 +757,7 @@
         "nur": "nur",
         "sbomnix": "sbomnix",
         "snowfall-lib": "snowfall-lib_2",
+        "technofab": "technofab",
         "unstable": "unstable_2",
         "vault-service": "vault-service"
       }
@@ -974,6 +954,26 @@
         "owner": "nix-systems",
         "repo": "default",
         "type": "github"
+      }
+    },
+    "technofab": {
+      "inputs": {
+        "nixpkgs": [
+          "unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1692352367,
+        "narHash": "sha256-Y3EqCZYT0cFQ6pZluGRjJXsh6o/Y2c8htOzM0MFpqX8=",
+        "owner": "TECHNOFAB",
+        "repo": "nix-packages",
+        "rev": "ad6d2493a4b1d158ed5d62af302a3956bc8ebd11",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "TECHNOFAB",
+        "repo": "nix-packages",
+        "type": "gitlab"
       }
     },
     "unstable": {
