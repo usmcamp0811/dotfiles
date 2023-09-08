@@ -6,8 +6,8 @@ let
 in
 {
   options.campground.services.tang = with types; {
-    enable = mkBoolOpt false "Enable an Nginx Proxy;";
-    port = mkOpt int 8080 "Port to Host the NGINX porxy on.";
+    enable = mkBoolOpt false "Enable an Tang;";
+    port = mkOpt int 1234 "Port to Host the tang server on.";
   };
 
   config = mkIf cfg.enable {
@@ -15,7 +15,7 @@ in
       tang = {
         image = "padhihomelab/tang";
         volumes = ["tangdb:/db"];
-        ports = ["1234:8080"]; # expose on 9090
+        ports = ["${cfg.port}:8080"]; 
       };
     }; 
   };
