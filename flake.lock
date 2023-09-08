@@ -475,6 +475,26 @@
         "type": "github"
       }
     },
+    "k0s": {
+      "inputs": {
+        "nixpkgs": [
+          "unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1692352367,
+        "narHash": "sha256-Y3EqCZYT0cFQ6pZluGRjJXsh6o/Y2c8htOzM0MFpqX8=",
+        "owner": "TECHNOFAB",
+        "repo": "nix-packages",
+        "rev": "ad6d2493a4b1d158ed5d62af302a3956bc8ebd11",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "TECHNOFAB",
+        "repo": "nix-packages",
+        "type": "gitlab"
+      }
+    },
     "nix-ld": {
       "inputs": {
         "nixpkgs": [
@@ -748,6 +768,7 @@
         "flake": "flake",
         "flake-checker": "flake-checker",
         "home-manager": "home-manager",
+        "k0s": "k0s",
         "nix-ld": "nix-ld",
         "nix-snapshotter": "nix-snapshotter",
         "nix2sbom": "nix2sbom",

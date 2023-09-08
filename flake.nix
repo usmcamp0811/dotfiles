@@ -64,6 +64,11 @@
       url = "github:pdtpartners/nix-snapshotter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    k0s = {
+      url = "gitlab:TECHNOFAB/nix-packages";
+      inputs.nixpkgs.follows = "unstable";
+    };
   };
 
   outputs = inputs:
