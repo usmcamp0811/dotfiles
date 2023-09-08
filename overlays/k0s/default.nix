@@ -1,7 +1,8 @@
-{ channels, ... }:
+{ technofab, ... }:
 
 final: prev:
 
 {
-  inherit (channels.unstable) technofab;
+  k0s = technofab.packages.${prev.system}.k0s;
 }
+
