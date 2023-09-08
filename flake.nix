@@ -65,7 +65,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    k0s = {
+    technofab = {
       url = "gitlab:TECHNOFAB/nix-packages";
       inputs.nixpkgs.follows = "unstable";
     };
