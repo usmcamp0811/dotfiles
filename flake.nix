@@ -59,6 +59,11 @@
       url = "github:tiiuae/sbomnix";
       inputs.nixpkgs.follows = "unstable";
     };
+
+    nix-snapshotter = {
+      url = "github:pdtpartners/nix-snapshotter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs:
