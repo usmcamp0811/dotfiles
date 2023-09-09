@@ -6,7 +6,7 @@ let
 in
 {
   options.campground.services.k0s = with types; {
-    enable = mkBoolOpt false "Enable CAC Support;";
+    enable = mkBoolOpt false "Enable k0s;";
   };
 
   config = mkIf cfg.enable {

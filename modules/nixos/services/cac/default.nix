@@ -2,7 +2,7 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.openssh;
+  cfg = config.campground.services.cac;
 in
 {
   options.campground.services.cac = with types; {
