@@ -20,6 +20,8 @@ let
 
   version = "1.27.4+k0s.0";
   hash = "sha256-JmaCRTMU3qsVu/AzyDHpSwv0j9NPxs11WiRbZYqAPHs=";
+  # version = "1.26.3+k0s.0";
+  # hash = "sha256-JmaCRTMU3qsVu/AzyDHpSwv0j9NPxs11WiRbZYqAPHs=";
 
   # Build a derivation from binary releases hosted on GitHub
   k0s = pkgs.stdenv.mkDerivation {
@@ -50,7 +52,7 @@ let
   #   spec.network.provider = "kuberouter";
   # });
   new-meta = with lib; {
-    description = "A helper to list all of the NixOS hosts available from your flake.";
+    description = "k0s - The Zero Friction Kubernetes";
     license = licenses.asl20;
     maintainers = with maintainers; [ jakehamilton ];
   };
@@ -59,18 +61,5 @@ in
 #   # If k0s should be in the PATH:
 #   # environment.systemPackages = [ k0s ];
 #
-#   systemd.services.k0scontroller = {
-#     inherit description;
-#     documentation = [ "https://docs.k0sproject.io" ];
-#     path = with pkgs; [
-#       util-linux # required by kubelet: https://github.com/k0sproject/k0s/issues/3386
-#     ];
-#     after = [ "network-online.target" ];
-#     wants = [ "network-online.target" ];
-#     wantedBy = [ "multi-user.target" ];
-#     serviceConfig = {
-#       ExecStart = "${k0s}/bin/k0s controller --config=${k0sConfig} --data-dir=/var/lib/k0s --single=true";
-#     };
-#   };
 # }
 override-meta new-meta k0s
