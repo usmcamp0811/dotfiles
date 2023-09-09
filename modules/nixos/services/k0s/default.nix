@@ -3,6 +3,7 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.k0s;
+  inherit (pkgs.campground) k0s;
 in
 {
   options.campground.services.k0s = with types; {
