@@ -8,7 +8,7 @@ let
 
   version = "1.27.4+k0s.0";
   hash = "sha256-JmaCRTMU3qsVu/AzyDHpSwv0j9NPxs11WiRbZYqAPHs=";
-
+in{
   # Build a derivation from binary releases hosted on GitHub
   k0s = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
