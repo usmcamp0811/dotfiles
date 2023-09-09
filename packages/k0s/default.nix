@@ -22,37 +22,11 @@ let
     ''; # Shell completions could be added here.
 
     # Metadata required for a real package
-    # meta = with lib; {
     #   inherit description;
     #   license = licenses.asl20;
+    # meta = with lib; {
     #   homepage = "https://k0sproject.io";
     #   platforms = [ "x86_64-linux" ]; # ARM 32/64 binary releases also available.
     # };
-  };
-
-  # Some minimal sample config
-  k0sConfig = pkgs.writeText "${pname}.json" (builtins.toJSON {
-    apiVersion = "k0s.k0sproject.io/v1beta1";
-    kind = "ClusterConfig";
-    metadata.name = pname;
-    spec.network.provider = "kuberouter";
-  });
-in
-{
-  # If k0s should be in the PATH:
-  # environment.systemPackages = [ k0s ];
-
-  systemd.services.k0scontroller = {
-    inherit description;
-    documentation = [ "https://docs.k0sproject.io" ];
-    path = with pkgs; [
-      util-linux # required by kubelet: https://github.com/k0sproject/k0s/issues/3386
-    ];
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${k0s}/bin/k0s controller --config=${k0sConfig} --data-dir=/var/lib/k0s --single=true";
-    };
   };
 }
