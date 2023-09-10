@@ -56,6 +56,21 @@ in
     environment.etc."cni/net.d/10-kuberouter.conflist".text = ''
       {"cniVersion":"0.3.0","name":"mynet","plugins":[{"auto-mtu":true,"bridge":"kube-bridge","hairpinMode":true,"ipMasq":false,"ipam":{"subnet":"10.244.2.0/24","type":"host-local"},"isDefaultGateway":true,"mtu":1500,"name":"kubernetes","type":"bridge"},{"capabilities":{"portMappings":true,"snat":true},"mtu":1500,"type":"portmap"}]}
     '';
+
+    systemd.services.flannel-subnet-env = {
+      description = "Create /run/flannel/subnet.env";
+      script = ''
+        mkdir -p /run/flannel/
+        echo "FLANNEL_NETWORK=10.244.0.0/16" > /run/flannel/subnet.env
+        echo "FLANNEL_SUBNET=10.244.2.1/24" >> /run/flannel/subnet.env
+        echo "FLANNEL_MTU=1450" >> /run/flannel/subnet.env
+        echo "FLANNEL_IPMASQ=true" >> /run/flannel/subnet.env
+      '';
+      serviceConfig = {
+        Type = "oneshot";
+      };
+    };
+
     systemd.services.k0sworker = {
       description = "k0s - Zero Friction Kubernetes";
       documentation = [ "https://docs.k0sproject.io" ];
