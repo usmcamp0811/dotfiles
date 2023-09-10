@@ -34,8 +34,38 @@ in
     environment.systemPackages = with pkgs; [
       k0s
       k0sctl
+      openiscsi
+      cni-plugin-flannel
     ];
 
+    # systemd.services.iscsi = enabled;
+    security.apparmor.enable = true;
+
+    environment.etc."cni/net.d/10-flannel.conflist".text = ''
+      {
+        "name": "cbr0",
+        "cniVersion": "0.3.1",
+        "plugins": [
+          {
+            "type": "flannel",
+            "delegate": {
+              "hairpinMode": true,
+              "isDefaultGateway": true
+            }
+          },
+          {
+            "type": "portmap",
+            "capabilities": {
+              "portMappings": true
+            }
+          }
+        ]
+      }
+    '';
+
+    environment.etc."cni/net.d/10-kuberouter.conflist".text = ''
+      {"cniVersion":"0.3.0","name":"mynet","plugins":[{"auto-mtu":true,"bridge":"kube-bridge","hairpinMode":true,"ipMasq":false,"ipam":{"subnet":"10.244.2.0/24","type":"host-local"},"isDefaultGateway":true,"mtu":1500,"name":"kubernetes","type":"bridge"},{"capabilities":{"portMappings":true,"snat":true},"mtu":1500,"type":"portmap"}]}
+    '';
     systemd.services.k0sworker = {
       description = "k0s - Zero Friction Kubernetes";
       documentation = [ "https://docs.k0sproject.io" ];
@@ -47,15 +77,40 @@ in
       };
       wantedBy = [ "multi-user.target" ];
     };
-    services.kubernetes = {
-      roles = ["master" "node"];
-      masterAddress = "10.8.0.161";
-      flannel = {
-        enable = true;
-      };
-    };
-    # services.openiscsi.enable = true;
-
+    # services.kubernetes = {
+    #   roles = ["master" "node"];
+    #   masterAddress = "10.8.0.161";
+    #   flannel = {
+    #     enable = true;
+    #   };
+    # };
+    services.openiscsi.enable = true;
+    services.openiscsi.name = "daly";
+    # systemd.services.iscsid = {
+    #   description = "Open-iSCSI";
+    #   documentation = [ "man:iscsid(8)" "man:iscsiuio(8)" "man:iscsiadm(8)" ];
+    #   wantedBy = [ "multi-user.target" ];
+    #   requires = [ "iscsi-init.service" ];
+    #   after = [ "network-online.target" "iscsiuio.service" "iscsi-init.service" ];
+    #   before = [ "remote-fs-pre.target" ];
+    #   wants = [ "remote-fs-pre.target" ];
+    #   serviceConfig = {
+    #     Type = "notify";
+    #     NotifyAccess = "main";
+    #     ExecStart = "${pkgs.openiscsi}/bin/iscsid -f";
+    #     KillMode = "mixed";
+    #     Restart = "on-failure";
+    #     # Add these lines to specify the correct paths for the configuration files
+    #     Environment = [
+    #       "ISCSI_CONFIG_DIR=/etc/iscsi"
+    #     ];
+    #   };
+    # };
+    #
+    # systemd.sockets.iscsid = {
+    #   wantedBy = [ "sockets.target" ];
+    # };
+    #
 
     # systemd.services.k0scontroller = {
     #   description = "k0s - The Zero Friction Kubernetes";
