@@ -71,7 +71,7 @@ in
     };
     services.openiscsi = {
       enable = true;
-      name = config.snowfallorg.host.name;
+      name = config.system.name;
     };
 
     campground.services.vault-agent.services.k0sworker = {
