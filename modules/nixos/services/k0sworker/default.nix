@@ -69,8 +69,10 @@ in
       };
       wantedBy = [ "multi-user.target" ];
     };
-    services.openiscsi.enable = true;
-    services.openiscsi.name = "daly";
+    services.openiscsi = {
+      enable = true;
+      name = config.campground.host;
+    };
 
     campground.services.vault-agent.services.k0sworker = {
       settings = {
