@@ -79,7 +79,8 @@ in
       serviceConfig = {
         ExecStart = "${pkgs.campground.k0s}/bin/k0s worker --token-file=/tmp/detsys-vault/worker-token";
         Restart = "always";
-        Environment = "PATH=/run/wrappers/bin/:$PATH";  # Add this line
+        Environment = "PATH=${pkgs.openiscsi}/bin:/run/wrappers/bin:$PATH";
+
 
       };
       wantedBy = [ "multi-user.target" ];
