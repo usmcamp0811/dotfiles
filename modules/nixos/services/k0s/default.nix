@@ -2,12 +2,21 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.k0s;
+  cfg = config.campground.services.k0sworker;
   inherit (pkgs.campground) k0s;
 in
 {
-  options.campground.services.k0s = with types; {
-    enable = mkBoolOpt false "Enable k0s;";
+  options.campground.services.k0sworker = with types; {
+    enable = mkBoolOpt false "Enable k0sworker;";
+
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -53,7 +62,7 @@ in
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.campground.k0s}/bin/k0s worker --token-file=/config/workertoken";
+        ExecStart = "${pkgs.campground.k0s}/bin/k0s worker --token-file=/tmp/detsys-vault/worker-token";
         Restart = "always";
         Environment = "PATH=/run/wrappers/bin/:$PATH";  # Add this line
 
@@ -62,5 +71,32 @@ in
     };
     services.openiscsi.enable = true;
     services.openiscsi.name = "daly";
+
+    campground.services.vault-agent.services.k0sworker = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = {
+            "worker-token" = {
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ .Data.worker }}{{ end }}'';
+              permissions = "0400";  # Make the script executable
+              change-action = "restart";
+            };
+          };
+        };
+      };
+    };
   };
 }
