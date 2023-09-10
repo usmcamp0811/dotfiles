@@ -72,7 +72,7 @@ in
     ldap-client = enabled;
     secret-service = enabled;
     tang = enabled;
-    k0s = enabled;
+    k0sworker = enabled;
     ntp = enabled;
     zfs-key-server = {
       enable = false;
