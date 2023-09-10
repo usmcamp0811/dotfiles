@@ -35,7 +35,9 @@ in
       k0s
       k0sctl
       openiscsi
+      cni-plugins
       cni-plugin-flannel
+      calico-cni-plugin
     ];
 
     # systemd.services.iscsi = enabled;
@@ -62,6 +64,7 @@ in
         ]
       }
     '';
+    # services.kubernetes.kubelet.cni.packages = [pkgs.cni-plugins pkgs.cni-plugin-flannel];
 
     environment.etc."cni/net.d/10-kuberouter.conflist".text = ''
       {"cniVersion":"0.3.0","name":"mynet","plugins":[{"auto-mtu":true,"bridge":"kube-bridge","hairpinMode":true,"ipMasq":false,"ipam":{"subnet":"10.244.2.0/24","type":"host-local"},"isDefaultGateway":true,"mtu":1500,"name":"kubernetes","type":"bridge"},{"capabilities":{"portMappings":true,"snat":true},"mtu":1500,"type":"portmap"}]}
@@ -74,6 +77,8 @@ in
       serviceConfig = {
         ExecStart = "${pkgs.campground.k0s}/bin/k0s worker --token-file=/config/workertoken";
         Restart = "always";
+        Environment = "PATH=/run/wrappers/bin/:$PATH";  # Add this line
+
       };
       wantedBy = [ "multi-user.target" ];
     };
