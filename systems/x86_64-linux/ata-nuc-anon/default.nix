@@ -78,7 +78,7 @@ in
 
   campground.services = {
     ldap-client = enabled;
-    k0sworker = enabled;
+    # k0sworker = enabled;
     secret-service = enabled;
     cac = {
       enable = false;
