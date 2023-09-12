@@ -17,6 +17,11 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v1";
+      description = "KV store version";
+    };
     networks = mkOption {
       type = attrsOf (submodule {
         options = {
@@ -60,7 +65,8 @@ in
               text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
                 #!/bin/sh
                 SSID="${network.ssid}"
-                PASSWORD={{ with secret "${cfg.vault-path}" }}{{ .Data.${name} }}{{ end }}
+                PASSWORD={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
+
                 if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
                   ${pkgs.networkmanager}/bin/nmcli con delete id $SSID
                 fi
