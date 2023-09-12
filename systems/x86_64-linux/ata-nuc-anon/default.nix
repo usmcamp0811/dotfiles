@@ -33,6 +33,7 @@ in
     apps = {
       k9s = enabled; 
       virtmanager = enabled;
+      barrier = enabled;
     };
 
     security = {
