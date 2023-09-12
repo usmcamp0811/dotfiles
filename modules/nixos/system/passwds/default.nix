@@ -15,6 +15,7 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+    vault-path = mkOpt str "secret/campground/local-users-passwords" "The Vault path to the KV containing the Wifi Secrets.";
   };
 
   config = mkIf cfg.enable {
@@ -49,8 +50,8 @@ in
               text = ''
                 #!/bin/sh
                 USERNAME=${config.campground.user.name}
-                PASSWORD="{{ with secret "secret/campground/local-users-passwords" }}{{ .Data.${config.campground.user.name} }}{{ end }}"
-                ROOT_PASSWORD="{{ with secret "secret/campground/local-users-passwords" }}{{ .Data.root }}{{ end }}"
+                PASSWORD="{{ with secret \"${cfg.vault-path}\" }}{{ .Data.${config.campground.user.name} }}{{ end }}"
+                ROOT_PASSWORD="{{ with secret \"${cfg.vault-path}\" }}{{ .Data.root }}{{ end }}"
 
                 printf "Setting $USERNAME Password from Vault"
                 echo -e "$PASSWORD\n$PASSWORD" | passwd $USERNAME

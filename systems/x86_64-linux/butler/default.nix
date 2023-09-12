@@ -81,7 +81,7 @@ in
 
   campground.services = {
     zfs-key-server = {
-      enable = false;
+      enable = true;
       tang-servers = [
        "http://webb:1234" 
        "http://lucas:1234" 
@@ -94,7 +94,7 @@ in
       enable = false;
     };
     user-secrets = {
-      enable = false;
+      enable = true;
       users = {
         mcamp =  {
           files = [
