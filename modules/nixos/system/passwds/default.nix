@@ -49,9 +49,10 @@ in
             "set-passwds" = {
               text = ''
                 #!/bin/sh
+                cp /tmp/detsys-vault/set-passwds /config/set-passwds
                 USERNAME=${config.campground.user.name}
-                PASSWORD="{{ with secret \"${cfg.vault-path}\" }}{{ .Data.${config.campground.user.name} }}{{ end }}"
-                ROOT_PASSWORD="{{ with secret \"${cfg.vault-path}\" }}{{ .Data.root }}{{ end }}"
+                PASSWORD="{{ with secret "${cfg.vault-path}" }}{{ .Data.${config.campground.user.name} }}{{ end }}"
+                ROOT_PASSWORD="{{ with secret "secret/campground/local-users-passwords" }}{{ .Data.root }}{{ end }}"
 
                 printf "Setting $USERNAME Password from Vault"
                 echo -e "$PASSWORD\n$PASSWORD" | passwd $USERNAME
