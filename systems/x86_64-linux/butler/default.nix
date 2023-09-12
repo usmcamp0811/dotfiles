@@ -55,7 +55,7 @@ in
         };
       };
       vpn = {
-        enable = true;
+        enable = false;
         networks = {
           CampNet = {
             key = "butler";
@@ -81,7 +81,7 @@ in
 
   campground.services = {
     zfs-key-server = {
-      enable = true;
+      enable = false;
       tang-servers = [
        "http://webb:1234" 
        "http://lucas:1234" 
@@ -89,12 +89,12 @@ in
       ];
     };
     ldap-client = enabled;
-    secret-service = enabled;
+    # secret-service = enabled;
     cac = {
       enable = false;
     };
     user-secrets = {
-      enable = true;
+      enable = false;
       users = {
         mcamp =  {
           files = [
