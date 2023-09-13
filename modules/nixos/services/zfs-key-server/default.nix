@@ -24,6 +24,11 @@ in
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/zfs" "The Vault path to the KV containing the LDAP Secrets.";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v1";
+      description = "KV store version";
+    };
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -104,7 +109,7 @@ in
                 mkdir -p /var/lib/vault/zfs-keys/
 
                 # Perform Clevis encryption with SSS and store it in a file
-                ${pkgs.clevis}/bin/clevis encrypt sss '${tangServersJSON}' -y <<< '{{ with secret "${cfg.vault-path}" }}{{ .Data.passphrase }}{{ end }}' > /var/lib/vault/zfs-keys/zfs-keyfile
+                ${pkgs.clevis}/bin/clevis encrypt sss '${tangServersJSON}' -y <<< '{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.passphrase }}{{ else }}{{ .Data.data.passphrase }}{{ end }}{{ end }}' > /var/lib/vault/zfs-keys/zfs-keyfile
 
                 # Change file owner to the user running Nginx
                 chown nginx:nginx /var/lib/vault/zfs-keys/zfs-keyfile
