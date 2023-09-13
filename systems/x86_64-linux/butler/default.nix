@@ -41,7 +41,12 @@ in
 
     system = {
       # manage local passwd in vault
-      passwds = enabled;
+      # passwds = enabled;
+      passwds = {
+        enable = true;
+        kvVersion = "v2";
+        vault-path = "kv/campground/local-users-passwords";
+      };
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         enable = true;

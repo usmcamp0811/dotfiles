@@ -16,6 +16,11 @@ in
       description = "The address of your Vault";
     };
     vault-path = mkOpt str "secret/campground/local-users-passwords" "The Vault path to the KV containing the Wifi Secrets.";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v1";
+      description = "KV store version";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -49,10 +54,9 @@ in
             "set-passwds" = {
               text = ''
                 #!/bin/sh
-                cp /tmp/detsys-vault/set-passwds /config/set-passwds
                 USERNAME=${config.campground.user.name}
-                PASSWORD="{{ with secret "${cfg.vault-path}" }}{{ .Data.${config.campground.user.name} }}{{ end }}"
-                ROOT_PASSWORD="{{ with secret "secret/campground/local-users-passwords" }}{{ .Data.root }}{{ end }}"
+                PASSWORD="{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${config.campground.user.name} }}{{ else }}{{ .Data.data.${config.campground.user.name} }}{{ end }}{{ end }}"
+                ROOT_PASSWORD="{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.root }}{{ else }}{{ .Data.data.root }}{{ end }}{{ end }}"
 
                 printf "Setting $USERNAME Password from Vault"
                 echo -e "$PASSWORD\n$PASSWORD" | passwd $USERNAME
