@@ -4,6 +4,19 @@ After setting up your Vault server/container and logging in, follow this guide t
 
 A friendly reminder: While you'll see paths like "boterf24" or "boterfhome/wifi" in this guide, they're just examples. Feel free to craft your own paths that resonate with your setup. This is a guide to inspire and assist, not a strict blueprint to follow.
 
+## Quick Setup Guide
+
+### KV Version
+You can now specify the version of the KV store you're using in Vault (`v1` or `v2`). Update the `kvVersion` option in your Nix configuration accordingly.
+
+```nix
+kvVersion = mkOption {
+  type = enum ["v1" "v2"];
+  default = "v1";
+  description = "KV store version";
+};
+```
+
 ### Quick Setup Guide
 
 If this is your first time, please do yourself a favor and go through the [In-Depth Setup](#in-depth-setup). This is more of a reference point rather than a set of detailed instructions.
@@ -36,6 +49,7 @@ If this is your first time, please do yourself a favor and go through the [In-De
 5. **Update Your Nix Configuration**:
    - Enable `wifi` in your Nix flake with the path: `boterfhome/wifi` and specify the networks you wish to connect to.
    - Enable the `vault-agent` in your Nix flake configuration. Set the `role-id` and `secret-id` paths according to where you securely stored them on your target machine. Specify the Vault server's HTTP URL.
+   - **New**: Specify the `kvVersion` as either `v1` or `v2`.
 
 ---
 
@@ -135,4 +149,5 @@ AppRoles are tied to access policies which grant access to secret engines.
 
 ## Conclusion:
 
-You've now set up a method to securely store, manage, and access secrets in Vault using KV version 1. Ensure that Role IDs, Secret IDs, and Vault tokens are handled securely. Rotate secrets periodically and monitor for unauthorized access. Security is of utmost importance when working with a secrets management system like Vault. Regularly audit and review access logs and ensure that only the necessary permissions are granted.
+You've now set up a method to securely store, manage, and access secrets in Vault using KV version 1 or 2. Ensure that Role IDs, Secret IDs, and Vault tokens are handled securely. Rotate secrets periodically and monitor for unauthorized access.
+
