@@ -11,6 +11,11 @@ in
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/users" "The Vault path to the KV containing the User Secrets.";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v1";
+      description = "KV store version";
+    };
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -43,7 +48,7 @@ in
         secrets.file.files = lib.listToAttrs (map (secret: {
           name = "${user}-${secret}";
           value = {
-            text = ''{{ with secret "secret/campground/users/${user}" }}{{ .Data.${secret} }}{{ end }}'';
+            text = ''{{ with secret "secret/campground/users/${user}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${secret} }}{{ else }}{{ .Data.data.${secret} }}{{ end }}{{ end }}'';
             permissions = "0400";
             change-action = "restart";
           };
