@@ -5,6 +5,8 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    devshell.url = "github:numtide/devshell";
+
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
     # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
@@ -122,6 +124,27 @@
       ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
+
+      devShell =
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [
+              devshell.overlays.default
+              (final: prev: {
+                sbomnix = sbomnix.packages.${system}.default;
+                nvim = campground-nvim.packages.${system}.default;
+              })
+            ];
+          };
+        in
+        pkgs.devshell.mkShell {
+          imports = [ (pkgs.devshell.importTOML ./devshell.toml) ];
+          packages = [ 
+            "sbomnix"
+            pkgs.rustc
+          ];
+        };
 
       checks =
         builtins.mapAttrs

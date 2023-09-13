@@ -1,0 +1,6 @@
+# https://numtide.github.io/devshell
+[[commands]]
+package = "hello"
+
+[[commands]]
+package = "nvim"
