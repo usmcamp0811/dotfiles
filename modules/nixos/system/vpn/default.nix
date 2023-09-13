@@ -16,6 +16,11 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v1";
+      description = "KV store version";
+    };
     networks = mkOption {
       type = attrsOf (submodule {
         options = {
@@ -61,7 +66,7 @@ in
                 VPN_NAME="${name}"
                 OVPN_FILE="/tmp/${name}.ovpn"
                 cat <<EOF >$OVPN_FILE
-      {{ with secret "${cfg.vault-path}" }}{{ .Data.${network.key} }}{{ end }}
+      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${network.key} }}{{ else }}{{ .Data.data.${network.key} }}{{ end }}{{ end }}
       EOF
                 if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $VPN_NAME; then
                   ${pkgs.networkmanager}/bin/nmcli con delete id $VPN_NAME

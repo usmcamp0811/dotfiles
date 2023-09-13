@@ -125,27 +125,6 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      devShell =
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [
-              devshell.overlays.default
-              (final: prev: {
-                sbomnix = sbomnix.packages.${system}.default;
-                nvim = campground-nvim.packages.${system}.default;
-              })
-            ];
-          };
-        in
-        pkgs.devshell.mkShell {
-          imports = [ (pkgs.devshell.importTOML ./devshell.toml) ];
-          packages = [ 
-            "sbomnix"
-            pkgs.rustc
-          ];
-        };
-
       checks =
         builtins.mapAttrs
           (system: deploy-lib:
