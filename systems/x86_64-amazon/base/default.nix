@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, nixosModules, ... }:
+{ pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
 
 with lib;
 with lib.campground;
@@ -13,6 +13,7 @@ let
 in
 {
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
+
   campground = {
     # nix = enabled;
     cli-apps = {
@@ -26,7 +27,7 @@ in
       openssh = enabled;
     };
     system = {
-      boot = enabled;
+      # boot = enabled;
       fonts = enabled;
       locale = enabled;
       time = enabled;

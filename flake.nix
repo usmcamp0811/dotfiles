@@ -126,7 +126,7 @@
       # systems.modules = with inputs; [
       #   campground-nvim.nixosModules.nixvim
       # ];
-      #
+      
       #TODO: Move this into the actual system config?
       systems.hosts.ata-xps.modules = with inputs; [
         nixos-hardware.nixosModules.dell-xps-13-7390
@@ -137,6 +137,8 @@
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
       ];
+
+      systems.hosts.base.modules = [({...}: { amazonImage.sizeMB = 16 * 1024; })];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
