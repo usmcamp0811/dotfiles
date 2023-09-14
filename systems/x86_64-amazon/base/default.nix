@@ -2,33 +2,51 @@
 
 with lib;
 with lib.campground;
+let
+  newUser = name: {
+    isNormalUser = true;
+    createHome = true;
+    home = "/home/${name}";
+    shell = pkgs.zsh;
+  };
+
+in
 {
   boot.loader.grub = enabled;
   campground = {
-    system = {
-      time = {
-        enable = true;
-        TZ = "America/Chicago";
-      };
+    nix = enabled;
+    cli-apps = {
+      flake = enabled;
     };
-
     tools = {
       git = enabled;
+      misc = enabled;
+    };
+
+    services = {
+      openssh = enabled;
+    };
+    system = {
+      boot = enabled;
+      fonts = enabled;
+      locale = enabled;
+      time = enabled;
+      xkb = enabled;
+    };
+    user = {
+      name = "ec2-user";
+      fullName = "Matt";
+      email = "mcamp@ata-llc.com";
+      extraGroups = ["wheel"];
     };
   };
 
-  campground.home.extraOptions = {
-    home.shellAliases = {
-      la = "lsd -lah";
-    };
-  };
+  # campground.home.extraOptions = {
+  #   home.shellAliases = {
+  #     la = "lsd -lah";
+  #   };
+  # };
 
-  campground.user = {
-    name = "vault";
-    fullName = "Matt";
-    email = "mcamp@ata-llc.com";
-    extraGroups = ["wheel"];
-  };
 
   campground.services = {
   };

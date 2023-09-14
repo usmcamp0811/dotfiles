@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, nixosModules, agenix, ... }:
+{ pkgs, lib, nixos-hardware, nixosModules, ... }:
 
 with lib;
 with lib.campground;
