@@ -4,9 +4,6 @@ with lib;
 with lib.campground;
 {
   campground = {
-    archetypes = {
-    };
-
     apps = {
     };
 
@@ -21,7 +18,6 @@ with lib.campground;
       git = enabled;
     };
 
-    # hardware.bluetooth = enabled;
   };
 
   campground.home.extraOptions = {
