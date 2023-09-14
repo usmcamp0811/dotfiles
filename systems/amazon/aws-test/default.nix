@@ -3,10 +3,12 @@
 with lib;
 with lib.campground;
 {
-  campground = {
-    apps = {
-    };
+  # virtualisation.amazon = {
+  #   rebuildFromUserData = false;
+  # };
 
+  boot.loader.grub = enabled;
+  campground = {
     system = {
       time = {
         enable = true;
@@ -17,7 +19,6 @@ with lib.campground;
     tools = {
       git = enabled;
     };
-
   };
 
   campground.home.extraOptions = {
