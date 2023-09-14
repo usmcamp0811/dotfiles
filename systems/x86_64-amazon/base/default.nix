@@ -3,9 +3,9 @@
 with lib;
 with lib.campground;
 {
-  # virtualisation.amazon = {
-  #   rebuildFromUserData = false;
-  # };
+  virtualisation.digitalOcean = {
+    rebuildFromUserData = false;
+  };
 
   boot.loader.grub = enabled;
   campground = {

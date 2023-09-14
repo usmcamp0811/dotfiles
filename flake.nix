@@ -5,6 +5,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    # macOS Support (master)
+    darwin.url = "github:lnl7/nix-darwin";
+    darwin.inputs.nixpkgs.follows = "nixpkgs";
+
     devshell.url = "github:numtide/devshell";
 
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
