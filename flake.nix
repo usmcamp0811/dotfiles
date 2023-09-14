@@ -37,27 +37,25 @@
     # Home Manager (release-23.05)
     home-manager.url =
       "github:nix-community/home-manager/release-23.05";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs"; 
 
-    # Vault Integration
-    vault-service = {
-      url = "github:DeterminateSystems/nixos-vault-service";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Vault Integration 
 
-    # System Deployment
-    deploy-rs.url = "github:serokell/deploy-rs";
-    deploy-rs.inputs.nixpkgs.follows = "unstable";
+    vault-service = { url = "github:DeterminateSystems/nixos-vault-service"; 
+    inputs.nixpkgs.follows = "nixpkgs"; }; 
 
-    # Flake Hygiene
-    flake-checker = {
+    # System Deployment 
+    deploy-rs.url = "github:serokell/deploy-rs"; 
+    deploy-rs.inputs.nixpkgs.follows = "unstable"; 
+
+    # Flake Hygiene 
+    flake-checker = { 
       url = "github:DeterminateSystems/flake-checker";
       inputs.nixpkgs.follows = "unstable";
-    };
-
-    # Run unpatched dynamically compiled binaries
-    nix-ld.url = "github:Mic92/nix-ld";
-    nix-ld.inputs.nixpkgs.follows = "unstable";
+    }; 
+    # Run unpatched dynamically compiled binaries 
+    nix-ld.url = "github:Mic92/nix-ld"; 
+    nix-ld.inputs.nixpkgs.follows = "unstable"; 
 
     nur.url = "github:nix-community/NUR";
 
@@ -78,6 +76,13 @@
       url = "gitlab:TECHNOFAB/nix-packages";
       inputs.nixpkgs.follows = "unstable";
     };
+
+    # GPG default configuration
+    gpg-base-conf = {
+      url = "github:drduh/config";
+      flake = false;
+    };
+
   };
 
   outputs = inputs:
@@ -91,6 +96,7 @@
             name = "campground";
             title = "AI Campground";
           };
+
           namespace = "campground";
         };
       };
@@ -102,14 +108,13 @@
           "python-2.7.18.6"
         ];
       };
-      package-namespace = "campground";
 
-     overlays = with inputs; [
-        flake.overlay
-        nur.overlay
-     ];
+      overlays = with inputs; [
+          flake.overlay
+          nur.overlay
+      ];
 
-      systems.modules = with inputs; [
+      systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
