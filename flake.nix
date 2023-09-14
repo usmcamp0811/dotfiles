@@ -138,6 +138,7 @@
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
       ];
 
+      # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules = [({...}: { amazonImage.sizeMB = 16 * 1024; })];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
