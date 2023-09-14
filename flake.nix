@@ -21,7 +21,10 @@
     # Snowfall Flake
     flake.url = "github:snowfallorg/flake";
     flake.inputs.nixpkgs.follows = "unstable";
-
+    
+    # Comma
+    comma.url = "github:nix-community/comma";
+    comma.inputs.nixpkgs.follows = "unstable";
 
     # Hardware Configuration
     nixos-hardware.url = "github:nixos/nixos-hardware";
