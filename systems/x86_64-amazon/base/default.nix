@@ -12,9 +12,9 @@ let
 
 in
 {
-  boot.loader.grub = enabled;
+  home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
   campground = {
-    nix = enabled;
+    # nix = enabled;
     cli-apps = {
       flake = enabled;
     };
@@ -22,7 +22,6 @@ in
       git = enabled;
       misc = enabled;
     };
-
     services = {
       openssh = enabled;
     };
