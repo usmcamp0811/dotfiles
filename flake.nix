@@ -9,17 +9,19 @@
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
 
-    devshell.url = "github:numtide/devshell";
+    # devshell.url = "github:numtide/devshell";
 
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
     # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
     # Snowfall Lib
+    # snowfall-lib.url = "github:snowfallorg/lib/cbe1b6e0fb04243b1c3cd25f6fc0ce86c5248024";
     snowfall-lib.url = "github:snowfallorg/lib/dev";
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
     # Snowfall Flake
-    flake.url = "github:snowfallorg/flake";
+    flake.url = "github:snowfallorg/flake/40049e2b3e25f68d99d30b0f0f458100a02a2451";
+    # flake.url = "github:snowfallorg/flake";
     flake.inputs.nixpkgs.follows = "unstable";
     
     # Comma
@@ -31,7 +33,8 @@
 
     # Generate System Images
     nixos-generators.url =
-      "github:nix-community/nixos-generators";
+      "github:nix-community/nixos-generators/b1171de4d362c022130c92d7c8adc4bf2b83d586";
+      # "github:nix-community/nixos-generators";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
 
     # Home Manager (release-23.05)

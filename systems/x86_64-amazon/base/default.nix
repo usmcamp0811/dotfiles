@@ -3,10 +3,6 @@
 with lib;
 with lib.campground;
 {
-  virtualisation.digitalOcean = {
-    rebuildFromUserData = false;
-  };
-
   boot.loader.grub = enabled;
   campground = {
     system = {
