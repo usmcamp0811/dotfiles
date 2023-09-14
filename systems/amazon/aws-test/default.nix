@@ -2,20 +2,7 @@
 
 with lib;
 with lib.campground;
-let
-  newUser = name: {
-    isNormalUser = true;
-    createHome = true;
-    home = "/home/${name}";
-    shell = pkgs.zsh;
-  };
-
-in
 {
-  imports = [ 
-    ./hardware.nix
-  ];
-
   campground = {
     archetypes = {
     };
