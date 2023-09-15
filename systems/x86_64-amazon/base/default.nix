@@ -15,7 +15,7 @@ in
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
 
   campground = {
-    # nix = enabled;
+    nix = enabled;
     cli-apps = {
       flake = enabled;
     };
