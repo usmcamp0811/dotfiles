@@ -4,13 +4,45 @@
 - Ensure you have the VHD and `image-info.json` available.
 - Setup AWS CLI and have necessary AWS credentials configured.
 
-### 2. **S3 Bucket Creation**
+### 2. **S3 Bucket Creation and Configuration**
 - Create an S3 bucket to upload your VHD:
 
   ```bash
   aws s3api create-bucket --bucket nix-image --region us-gov-west-1 --create-bucket-configuration LocationConstraint=us-gov-west-1
   ```
 
+- Create a bucket policy (`bucket-policy.json`) with the following content:
+
+  ```json
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws-us-gov:iam::YOUR_ACCOUNT_ID:user/UserName1",
+                    "arn:aws-us-gov:iam::YOUR_ACCOUNT_ID:user/UserName2"
+                ]
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws-us-gov:s3:::nix-image/*"
+        }
+    ]
+  }
+  ```
+
+  Replace `YOUR_ACCOUNT_ID` with your AWS account ID, and `UserName1` and `UserName2` with the usernames of the IAM users who should have access.
+
+- Apply the bucket policy:
+
+  ```bash
+  aws s3api put-bucket-policy --bucket nix-image --policy file://bucket-policy.json
+  ```
 ### 3. **IAM Role and Policy Configuration**
 - Create a `vmimport` role with a trust relationship:
 
