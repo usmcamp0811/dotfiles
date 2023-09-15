@@ -14,6 +14,7 @@ in
 {
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
   boot.loader.grub = enabled;
+  virtualisation.amazon-init = enabled;
 
   campground = {
     nix = enabled;
