@@ -13,6 +13,7 @@ let
 in
 {
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
+  boot.loader.grub = enabled;
 
   campground = {
     nix = enabled;
