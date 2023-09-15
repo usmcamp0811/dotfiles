@@ -12,11 +12,19 @@ let
 
 in
 {
-  home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
+  home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
   campground = {
     nix = enabled;
+    archetypes = {
+      workstation = enabled;
+    };
+
+    desktop.qtile = {
+      enable = true;
+      gdm = true;
+    };
     cli-apps = {
       flake = enabled;
     };
@@ -34,7 +42,7 @@ in
       xkb = enabled;
     };
     user = {
-      name = "ec2-user";
+      name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
       extraGroups = ["wheel"];
