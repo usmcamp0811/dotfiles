@@ -1,0 +1,20 @@
+# https://numtide.github.io/devshell
+[[commands]]
+package = "hello"
+
+[[commands]]
+package = "rustc"
+
+[[env]]
+name = "SEED"
+value = "TOXIC"
+
+[[env]]
+name = "ATA"
+value = "Not-TOXIC"
+
+[devshell]
+packages = [
+  "R",
+  "rustc"
+]
