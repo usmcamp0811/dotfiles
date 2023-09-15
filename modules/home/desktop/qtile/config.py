@@ -407,6 +407,13 @@ keys = [
     Key( [mod], "d", lazy.spawn("""rofi -show window -theme-str 'entry { enabled: false; }'"""),),
     Key(
         [mod],
+        "w",
+        lazy.spawn(
+            """rofi -show window -theme-str 'entry { enabled: false; }'"""
+        ),
+    ),
+    Key(
+        [mod],
         "d",
         lazy.spawn(
             """rofi -show drun -font "IBM Plex Mono 12" -run-shell-command '{terminal} -e " {cmd}; read -n 1 -s"'"""

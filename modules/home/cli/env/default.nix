@@ -75,10 +75,18 @@ in
 
     home.activation.sshKeys = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
       if [ -e "/var/lib/vault/users/${cfg-user.name}/id_ed25519" ]; then
-        cp /var/lib/vault/users/${cfg-user.name}/id_ed25519 /home/${cfg-user.name}/.ssh/
+        rm -rf /home/${cfg-user.name}/.ssh/id_ed25519
+        cat /var/lib/vault/users/${cfg-user.name}/id_ed25519 > /home/${cfg-user.name}/.ssh/id_ed25519
+        echo "Copied id_ed25519 successfully"
+      else
+        echo "id_ed25519 not found"
       fi
       if [ -e "/var/lib/vault/users/${cfg-user.name}/id_rsa" ]; then
-        cp /var/lib/vault/users/${cfg-user.name}/id_rsa /home/${cfg-user.name}/.ssh/
+        rm -rf /home/${cfg-user.name}/.ssh/id_rsa
+        cp /var/lib/vault/users/${cfg-user.name}/id_rsa /home/${cfg-user.name}/.ssh/id_rsa
+        echo "Copied id_rsa successfully"
+      else
+        echo "id_rsa not found"
       fi
     '';
 
