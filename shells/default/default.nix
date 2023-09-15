@@ -17,7 +17,6 @@ mkShell {
   ];
 
   shellHook = ''
-
     echo 🏕️ Welcome to the Campground
 
 
