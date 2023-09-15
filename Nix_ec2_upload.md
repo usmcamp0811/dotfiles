@@ -13,10 +13,29 @@
 
 - Create a bucket policy (`bucket-policy.json`) with the following content:
 
-  ```json
-  {
+```json
+{
     "Version": "2012-10-17",
     "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "vmie.amazonaws.com"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws-us-gov:s3:::nix-image",
+                "arn:aws-us-gov:s3:::nix-image/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "060045187027"
+                }
+            }
+        },
         {
             "Effect": "Allow",
             "Principal": {
@@ -33,8 +52,8 @@
             "Resource": "arn:aws-us-gov:s3:::nix-image/*"
         }
     ]
-  }
-  ```
+}
+```
 
   Replace `YOUR_ACCOUNT_ID` with your AWS account ID, and `UserName1` and `UserName2` with the usernames of the IAM users who should have access.
 
