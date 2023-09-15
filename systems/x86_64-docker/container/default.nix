@@ -26,6 +26,7 @@ in
     };
     services = {
       openssh = enabled;
+      busybox = enabled;
     };
     system = {
       fonts = enabled;
