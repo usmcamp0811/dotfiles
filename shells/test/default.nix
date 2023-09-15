@@ -2,25 +2,12 @@
 , pkgs
 , ...
 }:
-mkShell {
-  buildInputs = with pkgs; [
-    deadnix
-    hydra-check
-    nix-diff
-    nix-index
-    nix-prefetch-git
-    nixpkgs-fmt
-    nixpkgs-hammering
-    nixpkgs-lint
-    snowfallorg.flake
-    statix
-  ];
-
-  shellHook = ''
-
-    echo 🔨 Welcome to the Test Shell
-
-
-  '';
-
+let
+  # Import the devshell TOML configuration
+  devshellConfig = pkgs.devshell.importTOML ./devshell.toml;
+in
+  pkgs.devshell.mkShell {
+    imports = [ devshellConfig ];
+  }
 }
+
