@@ -25,26 +25,8 @@ in
     };
     services = {
       openssh = enabled;
-      # vault = {
-      #   enable = true;
-      #
-      #   policies =
-      #     builtins.foldl'
-      #       (policies: file: policies // {
-      #         "${snowfall.path.get-file-name-without-extension file}" = file;
-      #       })
-      #       { }
-      #       (builtins.filter (snowfall.path.has-file-extension "hcl")
-      #         (builtins.map
-      #           (path:
-      #             ./vault/policies +
-      #             "/${builtins.baseNameOf (builtins.unsafeDiscardStringContext path)}"
-      #           )
-      #           (snowfall.fs.get-files ./vault/policies)));
-      # };
     };
     system = {
-      # boot = enabled;
       fonts = enabled;
       locale = enabled;
       time = enabled;
