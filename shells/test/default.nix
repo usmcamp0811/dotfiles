@@ -1,5 +1,4 @@
-{ mkShell
-, pkgs
+{ pkgs
 , ...
 }:
 let
@@ -8,6 +7,6 @@ let
 in
   pkgs.devshell.mkShell {
     imports = [ devshellConfig ];
-  }
+  };
 }
 
