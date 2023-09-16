@@ -85,6 +85,7 @@ in
   };
 
   campground.services = {
+    docker = enabled;
     zfs-key-server = {
       enable = true;
       tang-servers = [
