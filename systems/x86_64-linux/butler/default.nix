@@ -86,6 +86,7 @@ in
 
   campground.services = {
     docker = enabled;
+    jupyter = enabled;
     zfs-key-server = {
       enable = true;
       tang-servers = [

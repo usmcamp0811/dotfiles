@@ -6,7 +6,7 @@ let
 in
 {
   options.campground.services.busybox = with types; {
-    enable = mkBoolOpt false "Enable Getty;";
+    enable = mkBoolOpt false "Enable busybox;";
   };
 
   config = mkIf cfg.enable {
