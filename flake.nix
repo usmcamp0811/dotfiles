@@ -16,7 +16,8 @@
 
     # Snowfall Lib
     # snowfall-lib.url = "github:snowfallorg/lib";
-    snowfall-lib.url = "path:/home/mcamp/code/lib";
+    # my fork with docker support... waiting till merged into above
+    snowfall-lib.url = "github:usmcamp0811/lib";
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
     # Snowfall Flake

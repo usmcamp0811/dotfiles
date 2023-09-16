@@ -104,11 +104,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1694497842,
-        "narHash": "sha256-z03v/m0OwcLBok97KcUgMl8ZFw5Xwsi2z+n6nL7JdXY=",
+        "lastModified": 1694810318,
+        "narHash": "sha256-LuvrVj2oj9TzdnnwtQUClqcXjpgwCP01FFVBM7azGV8=",
         "owner": "lnl7",
         "repo": "nix-darwin",
-        "rev": "4496ab26628c5f43d2a5c577a06683c753e32fe2",
+        "rev": "80bb201f4925cdda5a7a3c7b1900fb26bb2af2e8",
         "type": "github"
       },
       "original": {
@@ -804,11 +804,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1694799961,
-        "narHash": "sha256-DLJEO+RH3jqrucu1Vydv1g0PwLwNgy5EnVqoRKAHkg0=",
+        "lastModified": 1694814340,
+        "narHash": "sha256-eo9444JGI/G9jZF+X3xmS5TMRuIT4VYPKyZQ11iF65Q=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "d354ad497e09ab333a6e06ae352163c098dd17d9",
+        "rev": "9b70f21fd41d3b96580e7ca4a3d1c29e87bdab36",
         "type": "github"
       },
       "original": {
@@ -1001,8 +1001,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1694803008,
-        "narHash": "sha256-taLKr5pdkSHWPAj4kQyHTmhGAteS+YAvNGkk9771Eac=",
+        "lastModified": 1694819108,
+        "narHash": "sha256-9w33nqWzFcJwB350ij+vxtX6vZor8M4xp8QBh0apewA=",
         "path": "/home/mcamp/code/lib",
         "type": "path"
       },
@@ -1138,11 +1138,11 @@
     },
     "unstable": {
       "locked": {
-        "lastModified": 1694669921,
-        "narHash": "sha256-6ESpJ6FsftHV96JO/zn6je07tyV2dlLR7SdLsmkegTY=",
+        "lastModified": 1694767346,
+        "narHash": "sha256-5uH27SiVFUwsTsqC5rs3kS7pBoNhtoy9QfTP9BmknGk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "f2ea252d23ebc9a5336bf6a61e0644921f64e67c",
+        "rev": "ace5093e36ab1e95cb9463863491bee90d5a4183",
         "type": "github"
       },
       "original": {

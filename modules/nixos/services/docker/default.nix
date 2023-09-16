@@ -11,7 +11,6 @@ in
 
   config = mkIf cfg.enable {
     virtualisation.docker.enable = true;
-    services.docker.enable = true;
 
   };
 }
