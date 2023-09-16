@@ -145,11 +145,11 @@
         "systems": "systems_5"
       },
       "locked": {
-        "lastModified": 1694435990,
-        "narHash": "sha256-yLQPD2eZGepu3yvdwABXrR3GhAqWRWTj9rn3a4knYuk=",
+        "lastModified": 1694858246,
+        "narHash": "sha256-zcKnlTrMspD6YUgN1VyKMKSZ5Few3LCyDyBz3wtGPJQ=",
         "owner": "numtide",
         "repo": "devshell",
-        "rev": "f6aec2e8b1cdddcab10ce7fc2eac66886e3deaad",
+        "rev": "f26c2e05cd766be3750dd3d6e276650a1eab4c61",
         "type": "github"
       },
       "original": {
@@ -804,11 +804,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1694814340,
-        "narHash": "sha256-eo9444JGI/G9jZF+X3xmS5TMRuIT4VYPKyZQ11iF65Q=",
+        "lastModified": 1694866994,
+        "narHash": "sha256-uo50mKCooOkNvJRBl/O4AOKa2QztMvda0aFppp2QrBE=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "9b70f21fd41d3b96580e7ca4a3d1c29e87bdab36",
+        "rev": "5f8282ce5ce11225ae6cd5fff355685fef0c132e",
         "type": "github"
       },
       "original": {
@@ -1001,14 +1001,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1694819108,
-        "narHash": "sha256-9w33nqWzFcJwB350ij+vxtX6vZor8M4xp8QBh0apewA=",
-        "path": "/home/mcamp/code/lib",
-        "type": "path"
+        "lastModified": 1694832968,
+        "narHash": "sha256-9MiTlrEtsVZngGvUG44dc9oL6u7Iy2H/ZQsF7dfZzfI=",
+        "owner": "snowfallorg",
+        "repo": "lib",
+        "rev": "83e7839dd1aaa7694b88f50963716dc1bc5de371",
+        "type": "github"
       },
       "original": {
-        "path": "/home/mcamp/code/lib",
-        "type": "path"
+        "owner": "snowfallorg",
+        "repo": "lib",
+        "type": "github"
       }
     },
     "systems": {
