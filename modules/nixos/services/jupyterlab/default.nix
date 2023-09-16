@@ -2,10 +2,10 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.docker;
+  cfg = config.campground.services.jupyter;
 in
 {
-  options.campground.services.docker = with types; {
+  options.campground.services.jupyter = with types; {
     enable = mkBoolOpt false "Enable Docker;";
   };
 
@@ -17,26 +17,12 @@ in
 
     users.groups.jupyter = {};
 
-    services.jupyter = {
-      enable = true;
-      port = 8888;
-      notebookDir = "/path/to/notebooks";
-      user = "jupyter";
-      group = "jupyter";
-      environment = pkgs.python3.withPackages (ps: with ps; [ jupyterlab ]);
-    };
-
-    systemd.services.jupyter = {
+    systemd.services.jupyterlab = {
       description = "Jupyter Lab";
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.python3Packages.jupyter}/bin/jupyter lab --no-browser --port=${toString config.services.jupyter.port} --notebook-dir=${config.services.jupyter.notebookDir}";
-        User = config.services.jupyter.user;
-        Group = config.services.jupyter.group;
-        Restart = "always";
+        ExecStart = "${pkgs.jupyterlab}/bin/jupyter-lab";
       };
-      environment = config.services.jupyter.environment;
     };
-
   };
 }
