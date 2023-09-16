@@ -83,6 +83,9 @@
       flake = false;
     };
 
+    jupyenv.url = "github:tweag/jupyenv";
+    jupyenv.inputs.nixpkgs.follows = "unstable";
+
   };
 
   outputs = inputs:
