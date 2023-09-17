@@ -17,7 +17,7 @@ in
 
 
   campground = {
-    nix = enabled;
+    # nix = enabled;
     # cli-apps = {
     #   flake = enabled;
     # };
