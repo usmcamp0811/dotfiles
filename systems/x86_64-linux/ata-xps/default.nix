@@ -75,6 +75,7 @@ in
 
   campground.services = {
     ldap-client = enabled;
+    jupyterlab = enabled;
     # k0sworker = enabled;
     zfs-key-server = {
       enable = true;
