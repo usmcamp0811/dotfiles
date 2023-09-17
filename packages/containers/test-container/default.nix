@@ -20,7 +20,7 @@ let
   image = pkgs.dockerTools.buildImage {
     name = "hello-docker";
     config = {
-      Cmd = [ "${pkgs.hello}/bin/hello" ];
+      Cmd = [ "${pkgs.jupyterlab}/bin/jupyter-lab" ];
     };
   };
 in
