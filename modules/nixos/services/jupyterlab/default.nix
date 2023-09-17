@@ -17,12 +17,16 @@ in
 
     users.groups.jupyter = {};
 
-    systemd.services.jupyterlab = {
-      description = "Jupyter Lab";
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        ExecStart = "${pkgs.jupyterlab}/bin/jupyter-lab";
-      };
-    };
+    environment.systemPackages = with pkgs; [
+      jupyter-lab
+    ];
+
+    # systemd.services.jupyterlab = {
+    #   description = "Jupyter Lab";
+    #   wantedBy = [ "multi-user.target" ];
+    #   serviceConfig = {
+    #     ExecStart = "${jupyter-lab}";
+    #   };
+    # };
   };
 }

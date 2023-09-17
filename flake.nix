@@ -83,8 +83,8 @@
       flake = false;
     };
 
-    jupyenv.url = "github:tweag/jupyenv";
-    jupyenv.inputs.nixpkgs.follows = "unstable";
+    campground-jupyterlab.url = "gitlab:usmcamp0811/campground-jupyter-lab";
+    campground-jupyterlab.inputs.nixpkgs.follows = "unstable";
 
   };
 
