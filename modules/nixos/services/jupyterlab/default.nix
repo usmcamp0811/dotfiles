@@ -11,7 +11,6 @@ in
     group = mkOpt str "jupyter" "The group name to run Jupyter Lab as..";
     ip = mkOpt str "0.0.0.0" "The IP to expose Jupyter on.";
     workDir = mkOpt str "/code" "Working dir to start Jupyter in.";
-    password = mkOpt str "argon2:$argon2id$v=19$m=10240,t=10,p=8$0Rad6yIClLblb+9k+PvzYg$0BumATdwYv5ZATMwtOJBMddzD6hBQGDZF6+63Iizm4A" "Jupyter Lab Hashed Password <your_password_here>.";
   };
 
   config = mkIf cfg.enable {
@@ -35,7 +34,7 @@ in
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.workDir;
-        ExecStart = "/bin/sh -c '${pkgs.jupyterlab}/bin/jupyter-lab --ip=${cfg.ip} --NotebookApp.password=${cfg.password}'";
+        ExecStart = "/bin/sh -c '${pkgs.jupyterlab}/bin/jupyter-lab --ip=${cfg.ip}'";
       };
     };
   };
