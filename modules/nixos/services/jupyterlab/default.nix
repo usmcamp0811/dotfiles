@@ -25,6 +25,11 @@ in
       jupyterlab
     ];
 
+    systemd.tmpfiles.rules = [
+      "d /code 0755 ${cfg.user} ${cfg.group} -"
+    ];
+
+
     systemd.services.jupyterlab = {
       description = "Jupyter Lab";
       wantedBy = [ "multi-user.target" ];
