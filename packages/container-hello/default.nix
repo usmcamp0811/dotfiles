@@ -12,15 +12,15 @@ let
   inherit (lib.campground) override-meta;
 
   new-meta = with lib; {
-    description = "k0s - The Zero Friction Kubernetes";
+    description = "Hello World Docker Image";
     license = licenses.asl20;
-    maintainers = with maintainers; [ jakehamilton ];
+    maintainers = with maintainers; [ mattcamp ];
   };
 
   image = pkgs.dockerTools.buildImage {
     name = "hello-docker";
     config = {
-      Cmd = [ "${pkgs.jupyterlab}/bin/jupyter-lab" ];
+      Cmd = [ "${pkgs.hello}/bin/hello" ];
     };
   };
 in
