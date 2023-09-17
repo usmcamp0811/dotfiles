@@ -2,14 +2,14 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.docker;
+  cfg = config.campground.services.entrypoint;
 in
 {
-  options.campground.services.docker = with types; {
+  options.campground.services.entrypoint = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     user = mkOpt str "root" "User to run the container";
     group = mkOpt str "root" "Group of the user running the container";
-    script = mkOpt str "/path/to/script" "Path to the entrypoint script";
+    script = mkOpt str "${pkgs.zsh}/bin/zsh" "Path to the entrypoint script";
     cmd = mkOpt str "" "The CMD to run in the Docker container";
   };
 
