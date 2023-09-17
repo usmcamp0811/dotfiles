@@ -34,8 +34,8 @@ in
         Type = "oneshot";
         User = cfg.user;
         Group = cfg.group;
-        WorkingDirectory = ${cfg.workDir};
-        ExecStart = "/bin/sh -c '${pkgs.jupyter-lab}/bin/jupyter-lab --ip=${cfg.ip} --NotebookApp.password=\'${cfg.password}\''";
+        WorkingDirectory = cfg.workDir;
+        ExecStart = "/bin/sh -c '${pkgs.jupyter-lab}/bin/jupyter-lab --ip=${cfg.ip} --NotebookApp.password=${cfg.password}'";
       };
     };
   };
