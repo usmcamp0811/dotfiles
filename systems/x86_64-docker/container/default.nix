@@ -14,23 +14,31 @@ in
 {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
-    nix = enabled;
-    cli-apps = {
-      flake = enabled;
-    };
+
+
+  campground = {
+    # nix = enabled;
+    # cli-apps = {
+    #   flake = enabled;
+    # };
     tools = {
-      git = enabled;
+      # git = enabled;
       misc = enabled;
     };
     services = {
       openssh = enabled;
+      entrypoint = {
+        enable = true;
+        # user = "nixos";
+        # group = "wheel";
+      };
     };
-    system = {
-      fonts = enabled;
-      locale = enabled;
-      time = enabled;
-      xkb = enabled;
-    };
+    # system = {
+    #   fonts = enabled;
+    #   locale = enabled;
+    #   time = enabled;
+    #   xkb = enabled;
+    # };
     user = {
       name = "nixos";
       fullName = "Matt";
