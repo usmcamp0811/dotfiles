@@ -88,7 +88,7 @@ in
     docker = enabled;
     jupyter = enabled;
     zfs-key-server = {
-      enable = true;
+      enable = false;
       tang-servers = [
        "http://webb:1234" 
        "http://lucas:1234" 

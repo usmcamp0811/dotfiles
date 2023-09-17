@@ -34,11 +34,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1694915814,
-        "narHash": "sha256-QELnY5SL9a5qriMpVGZzCtoaVCk6y3C7W5EzNzmI7k8=",
+        "lastModified": 1694922765,
+        "narHash": "sha256-Fxun1CcWQPhOfbO000PWEbP+rEcd/dpOI0N66bTCjns=",
         "owner": "usmcamp0811",
         "repo": "campground-jupyter-lab",
-        "rev": "7dc3c545bc16d95ee9bcb41d32c4f0035000f5b0",
+        "rev": "a1b382dce4839e56343ade7111be080b46c6465a",
         "type": "gitlab"
       },
       "original": {
@@ -1186,11 +1186,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1694897917,
-        "narHash": "sha256-hJJoRsYhe8USPBn1kAcGy6+PqbsLcfdPCPu47SP2ghE=",
+        "lastModified": 1694916038,
+        "narHash": "sha256-8e8B2UuHBEnixoMcFMEVOaoa/aOhqeMuNi1T/869UbY=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "15981b93620d6d50c0bef767028213810806ad74",
+        "rev": "af834ba09f8a087f1f46868def06d281b4b9d71f",
         "type": "github"
       },
       "original": {

@@ -18,7 +18,7 @@ in
     # users.groups.jupyter = {};
 
     environment.systemPackages = with pkgs; [
-      jupyter-lab
+      jupyterlab
     ];
 
     # systemd.services.jupyterlab = {
