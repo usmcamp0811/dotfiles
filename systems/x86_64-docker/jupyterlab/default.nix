@@ -17,18 +17,19 @@ in
 
 
   campground = {
-    # nix = enabled;
+    nix = enabled;
     # cli-apps = {
     #   flake = enabled;
     # };
     tools = {
-      # git = enabled;
+      git = enabled;
       misc = enabled;
     };
     services = {
-      openssh = enabled;
+      # openssh = enabled;
+      jupyter = enabled;
       entrypoint = {
-        enable = true;
+        enable = false;
         # user = "nixos";
         # group = "wheel";
       };

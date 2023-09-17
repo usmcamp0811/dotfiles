@@ -26,7 +26,7 @@ in
     ];
 
     systemd.tmpfiles.rules = [
-      "d /code 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.workDir} 0755 ${cfg.user} ${cfg.group} -"
     ];
 
 
