@@ -32,7 +32,6 @@ let
         mkdir -p config/bin
         cat ${scriptContent} > config/bin/entrypoint.sh
         chmod +x config/bin/entrypoint.sh
-        cat ${scriptContent}
       '';
     };
     l2 = pkgs.dockerTools.buildImage{
@@ -51,14 +50,14 @@ let
     copyToRoot = pkgs.buildEnv{
       name = "image-root";
       pathsToLink = [ "/bin" ];
-      paths = [ pkgs.coreutils ];
+      paths = [ pkgs.coreutils pkgs.ranger pkgs.neovim ];
     };
     extraCommands = ''
-      mkdir =p tmp
+      mkdir -p tmp
       echo Layer3 > tmp/layer3
     '';
     config = {
-      Env = [ "PATH=${pkgs.coreutils}/bin/" ];
+      Env = [ "PATH=${pkgs.coreutils}/bin/:${pkgs.ranger}/bin/:${pkgs.neovim}/bin/" ];
       WorkingDir = "/config/bin";
       Cmd = [
         "${pkgs.bash}/bin/bash" "/config/bin/entrypoint.sh"
