@@ -4,3 +4,4 @@ modules/home/apps/rofi/config.rasi
 modules/home/cli/ranger/configs/plugins/__pycache__
 .direnv
 nixos-amazon-image-23.05.20230912.e5f018c-x86_64-linux.vhd
+.jupyter
