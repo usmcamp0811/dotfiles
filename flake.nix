@@ -144,13 +144,13 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      # containerConfigurations = let
-      #   containersDir = ./containers;
-      #   containerNames = builtins.attrNames (builtins.readDir containersDir);
-      # in builtins.listToAttrs (map (name: {
-      #   name = name;
-      #   value = import "${containersDir}/${name}/default.nix";
-      # }) containerNames);
+      containerConfigurations = let
+        containersDir = ./containers;
+        containerNames = builtins.attrNames (builtins.readDir containersDir);
+      in builtins.listToAttrs (map (name: {
+        name = name;
+        value = import "${containersDir}/${name}/default.nix";
+      }) containerNames);
 
       checks =
         builtins.mapAttrs
