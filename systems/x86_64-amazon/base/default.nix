@@ -15,7 +15,9 @@ in
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
   boot.loader.grub = enabled;
   virtualisation.amazon-init = enabled;
-
+  environment.etc."fstab".text = ''
+    LABEL=nixos / ext4 defaults 0 0
+  '';
   campground = {
     nix = enabled;
     cli-apps = {
@@ -29,6 +31,7 @@ in
       openssh = enabled;
     };
     system = {
+      # boot = enabled;
       fonts = enabled;
       locale = enabled;
       time = enabled;
