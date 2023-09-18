@@ -15,7 +15,8 @@
     # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
     # Snowfall Lib
-    snowfall-lib.url = "github:snowfallorg/lib";
+    # snowfall-lib.url = "github:snowfallorg/lib";
+    snowfall-lib.url = "path:/home/mcamp/code/lib";
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
     # Snowfall Flake
@@ -143,13 +144,13 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      containerConfigurations = let
-        containersDir = ./containers;
-        containerNames = builtins.attrNames (builtins.readDir containersDir);
-      in builtins.listToAttrs (map (name: {
-        name = name;
-        value = import "${containersDir}/${name}/default.nix";
-      }) containerNames);
+      # containerConfigurations = let
+      #   containersDir = ./containers;
+      #   containerNames = builtins.attrNames (builtins.readDir containersDir);
+      # in builtins.listToAttrs (map (name: {
+      #   name = name;
+      #   value = import "${containersDir}/${name}/default.nix";
+      # }) containerNames);
 
       checks =
         builtins.mapAttrs
