@@ -15,8 +15,8 @@
     # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
     # Snowfall Lib
-    # snowfall-lib.url = "github:snowfallorg/lib";
-    snowfall-lib.url = "path:/home/mcamp/code/lib";
+    snowfall-lib.url = "github:snowfallorg/lib";
+    # snowfall-lib.url = "path:/home/mcamp/code/lib";
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
     # Snowfall Flake
