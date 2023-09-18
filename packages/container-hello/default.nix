@@ -17,12 +17,55 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-  image = pkgs.dockerTools.buildImage {
-    name = "hello-docker";
+  scriptContent = pkgs.writeText "entrypoint.sh" ''
+    #!/bin/sh
+    echo "Hello, this is the entrypoint script."
+    ${pkgs.hello}/bin/hello
+    # exec "$@"
+  '';
+
+  hello-image = let
+    l1 = pkgs.dockerTools.buildImage{
+      name = "layer-1";
+      tag = "latest";
+      extraCommands = ''
+        mkdir -p config/bin
+        cat ${scriptContent} > config/bin/entrypoint.sh
+        chmod +x config/bin/entrypoint.sh
+        cat ${scriptContent}
+      '';
+    };
+    l2 = pkgs.dockerTools.buildImage{
+      name = "layer-2";
+      fromImage = l1;
+      tag = "latest";
+      extraCommands = ''
+        mkdir -p config
+        echo "Hello World" > config/hello.txt
+      '';
+    };
+  in pkgs.dockerTools.buildImage{
+    name = "layer-3" ;
+    fromImage = l2;
+    tag = "latest";
+    copyToRoot = pkgs.buildEnv{
+      name = "image-root";
+      pathsToLink = [ "/bin" ];
+      paths = [ pkgs.coreutils ];
+    };
+    extraCommands = ''
+      mkdir =p tmp
+      echo Layer3 > tmp/layer3
+    '';
     config = {
-      Cmd = [ "${pkgs.hello}/bin/hello" ];
+      Env = [ "PATH=${pkgs.coreutils}/bin/" ];
+      WorkingDir = "/config/bin";
+      Cmd = [
+        "${pkgs.bash}/bin/bash" "/config/bin/entrypoint.sh"
+      ];
     };
   };
-in
+  
+in 
 
-override-meta new-meta image
+override-meta new-meta hello-image
