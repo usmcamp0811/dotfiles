@@ -30,16 +30,16 @@ let
   example-flask-image = pkgs.dockerTools.buildLayeredImage{
     name = "example-flask-app" ;
     tag = "latest";
-    contents = [ pkgs.campground.example-flask-app pkgs.bash pkgs.coreutils ];
+    contents = [ example-flask-app pkgs.bash pkgs.coreutils ];
     extraCommands = ''
       mkdir -p usr/bin
-      cat ${pkgs.campground.example-flask-app}/bin/run-flask-app > /usr/bin/run-flask-app
+      cat ${example-flask-app}/bin/run-flask-app > /usr/bin/run-flask-app
       chmod +x /usr/bin/run-flask-app
     '';
     config = {
       WorkingDir = "/www/data";
       Cmd = [
-        "/bin/sh ${pkgs.campground.example-flask-app}/bin/run-flask-app"
+        "/bin/sh ${example-flask-app}/bin/run-flask-app"
       ];
       ExposedPorts = {
         "8081/tcp" = {};
