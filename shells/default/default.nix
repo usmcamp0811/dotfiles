@@ -1,5 +1,6 @@
 { mkShell
 , pkgs
+, flaskApp # Assuming flaskApp is the attribute name of your Flask package
 , ...
 }:
 mkShell {
@@ -14,12 +15,13 @@ mkShell {
     nixpkgs-lint
     snowfallorg.flake
     statix
+    flaskApp # Add your Flask app here
   ];
 
   shellHook = ''
     echo 🏕️ Welcome to the Campground
-
-
+    echo 🌐 Starting Flask app...
+    export FLASK_APP=$out/bin/app.py # Set the FLASK_APP environment variable
+    flask run # Optionally, run the Flask app
   '';
-
 }
