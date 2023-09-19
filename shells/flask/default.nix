@@ -14,7 +14,7 @@ mkShell {
     nixpkgs-lint
     snowfallorg.flake
     statix
-    campground.flask-app # Add your Flask app here
+    campground.example-flask-app # Add your Flask app here
   ];
 
   shellHook = ''

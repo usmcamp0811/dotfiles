@@ -40,7 +40,7 @@ let
   pythonWithFlask = pkgs.python3.withPackages (ps: [ ps.flask ]);
 
   # Build a derivation for the Flask app
-  flask-app = pkgs.stdenv.mkDerivation {
+  example-flask-app = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     src = flaskApp;
     phases = [ "installPhase" ];
@@ -60,4 +60,4 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 in
-override-meta new-meta flask-app
+override-meta new-meta example-flask-app
