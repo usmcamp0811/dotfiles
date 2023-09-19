@@ -68,8 +68,7 @@ let
       mkdir -p etc/nginx/
       mkdir -p var/log/nginx/
       cat ${indexHTMLContent} > www/data/index.html
-      cat ${nginxConfContent} > etc/nginx/nginx.conf
-    '';
+      cat ${nginxConfContent} > etc/nginx/nginx.conf '';
     config = {
       WorkingDir = "/www/data";
       Cmd = [
