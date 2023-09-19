@@ -33,12 +33,13 @@ let
     '';
     config = {
       # WorkingDir = "/www/data";
-      Cmd = [
-        "/usr/bin/run-flask-app"
+      Entrypoint = [
+        "run-flask-app"
       ];
       ExposedPorts = {
         "8081/tcp" = {};
       };
+      Env = [ "PATH=${pkgs.coreutils}/bin/:/usr/bin/" ];
     };
   };
 

@@ -67,7 +67,7 @@ let
       plugins = python3
       die-on-term = true
       EOL
-      echo "#!/usr/bin/env sh" > $out/bin/run-flask-app
+      echo "#!/bin/sh" > $out/bin/run-flask-app
       echo "export PYTHONPATH=${pythonWithFlask}/lib/python3.10/site-packages" >> $out/bin/run-flask-app
       echo "${uwsgiWithPython3}/bin/uwsgi --ini $out/etc/uwsgi.ini" >> $out/bin/run-flask-app
       chmod +x $out/bin/run-flask-app
