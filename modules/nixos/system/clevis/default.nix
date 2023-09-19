@@ -7,6 +7,8 @@ in
 {
   options.campground.system.clevis = with types; {
     enable = mkBoolOpt false "Whether or not to enable Clevis.";
+    hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
+    keyfile-url = mkOpt str "http://key-server:8080/zfs-keyfile" "The URL for the Clevis encrypted Keyfile";
   };
 
   config = mkIf cfg.enable {
@@ -18,8 +20,7 @@ in
     boot.initrd.network = {
       enable = true;
       postCommands = ''
-        mkdir -p /mnt/campfs
-        mount -t nfs -o vers=4 10.8.0.140:/mnt/campfs /mnt/campfs
+        echo $(echo $(${pkgs.curl}/bin/curl -s $cfg.keyfile-url) | ${pkgs.clevis}/bin/clevis decrypt) > /luks.key
       '';
       ssh = {
         enable = true;

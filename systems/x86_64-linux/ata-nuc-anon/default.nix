@@ -65,7 +65,11 @@ in
           };
         };
       };
-      clevis = enabled;
+      clevis = {
+        enable = true;
+        keyfile-url = "http://ata-xps:8080/zfs-keyfile";
+      };
+
       time = {
         enable = true;
         TZ = "America/New_York";
@@ -92,7 +96,7 @@ in
   };
 
   campground.services = {
-    # ldap-client = enabled;
+    ldap-client = enabled;
     # secret-service = enabled;
     user-secrets = {
       enable = false;
