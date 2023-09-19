@@ -1,104 +1,74 @@
-# README
+<h3 align="center">
+ <img src="https://gitlab.com/uploads/-/system/user/avatar/5181247/avatar.png?width=400" width="100" alt="Logo"/><br/>
+ <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
+ <img src="https://nixos.org/logo/nixos-logo-only-hires.png" height="20" /> NixOS Config for <a href="https://gitlab.com/usmcamp0811">Matt Camp</a>
+ <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
+</h3>
 
-I am converting my dotfiles over to Nix. As I learn things I'll add my notes here:
+<p align="center">
+ <img src="https://img.shields.io/badge/dynamic/json?color=363a4f&label=Stars&query=$.star_count&url=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%2Fusmcamp0811%252Fdotfiles&style=for-the-badge">
+<a href="https://gitlab.com/usmcamp0811/dotfiles/-/commits/nixos">
+  <img src="https://img.shields.io/badge/dynamic/json?color=363a4f&label=Last%20commit&query=$.created_at&url=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%2Fusmcamp0811%252Fdotfiles%2Frepository%2Fcommits%3Fref_name%3Dnixos&style=for-the-badge">
+</a>
+ <a href="https://nixos.wiki/wiki/Flakes" target="_blank"><img alt="Nix Flakes Ready" src="https://img.shields.io/static/v1?logo=nixos&logoColor=d8dee9&label=Nix%20Flakes&labelColor=5e81ac&message=Ready&color=d8dee9&style=for-the-badge"></a>
+ <a href="https://gitlab.com/snowfallorg/lib" target="_blank"><img alt="Built With Snowfall" src="https://img.shields.io/static/v1?logoColor=d8dee9&label=Built%20With&labelColor=5e81ac&message=Snowfall&color=d8dee9&style=for-the-badge"></a>
+</p>
 
-Basing them on [Snowfall Lib](https://github.com/snowfallorg/lib#lib)
+Welcome to AI Campground, your gateway to my personalized Nix ecosystem. This repository serves as a comprehensive collection of both my NixOS and generic Nix configurations, as I transition from traditional dotfiles. The migration is a work in progress, but the goal is a cohesive, well-documented Nix setup. Throughout this evolution, I'm committed to providing detailed READMEs to share my journey, insights, and solutions to challenges encountered.
 
-```
-flake-root/
-│
-│ Your Nix flake.
-├─ flake.nix
-│
-│ An optional custom library.
-├─ lib/
-│  │
-│  │ A Nix function called with `inputs`, `snowfall-inputs`, and `lib`.
-│  │ The function should return an attribute set to merge with `lib`.
-│  ├─ default.nix
-│  │
-│  │ Any (nestable) directory name.
-│  └─ **/
-│     │
-│     │ A Nix function called with `inputs`, `snowfall-inputs`, and `lib`.
-│     │ The function should return an attribute set to merge with `lib`.
-│     └─ default.nix
-│
-│ An optional set of packages to export.
-├─ packages/
-│  │
-│  │ Any (nestable) directory name. The name of the directory will be the
-│  │ name of the package.
-│  └─ **/
-│     │
-│     │ A Nix package to be instantiated with `callPackage`. This file
-│     │ should contain a function that takes an attribute set of packages
-│     │ and *required* `lib` and returns a derivation.
-│     └─ default.nix
-│
-│
-├─ modules/ (optional modules)
-│  │
-│  │ Any (nestable) directory name. The name of the directory will be the
-│  │ name of the module.
-│  └─ **/
-│     │
-│     │ A NixOS module.
-│     └─ default.nix
-│
-├─ overlays/ (optional overlays)
-│  │
-│  │ Any (nestable) directory name.
-│  └─ **/
-│     │
-│     │ A custom overlay. This file should contain a function that takes three arguments:
-│     │   - An attribute set of your flake's inputs and a `channels` attribute containing
-│     │     all of your available channels (eg. nixpkgs, unstable).
-│     │   - The final set of `pkgs`.
-│     │   - The previous set of `pkgs`.
-│     │
-│     │ This function should return an attribute set to merge onto `pkgs`.
-│     └─ default.nix
-│
-├─ systems/ (optional system configurations)
-│  │
-│  │ A directory named after the `system` type that will be used for all machines within.
-│  │
-│  │ The architecture is any supported architecture of NixPkgs, for example:
-│  │  - x86_64
-│  │  - aarch64
-│  │  - i686
-│  │
-│  │ The format is any supported NixPkgs format *or* a format provided by either nix-darwin
-│  │ or nixos-generators. However, in order to build systems with nix-darwin or nixos-generators,
-│  │ you must add `darwin` and `nixos-generators` inputs to your flake respectively. Here
-│  │ are some example formats:
-│  │  - linux
-│  │  - darwin
-│  │  - iso
-│  │  - install-iso
-│  │  - do
-│  │  - vmware
-│  │
-│  │ With the architecture and format together (joined by a hyphen), you get the name of the
-│  │ directory for the system type.
-│  └─ <architecture>-<format>/
-│     │
-│     │ A directory that contains a single system's configuration. The directory name
-│     │ will be the name of the system.
-│     └─ <system-name>/
-│        │
-│        │ A NixOS module for your system's configuration.
-│        └─ default.nix
+## Table of Contents
+
+1. [Getting Started](#getting-started)
+2. [Features](#features)
+3. [Usage](#usage)
+4. [Customization](#customization)
+
+## Getting Started
+
+Before diving in, ensure that you have Nix installed on your system. If not, you can download and install it from the official [Nix website](https://nixos.org/download.html).
+
+### Clone this repository to your local machine:
+
+```bash
+    git clone https://gitlab.com/usmcamp0811/dotfiles.git
 ```
 
+### New System Install
 
-## Services that Require Secrets (wip)
+```bash
+  nixos-install --root /mnt --flake gitlab:usmcamp0811/dotfiles#<system name>
+```
 
-I am using Vault to store secrets. I am currently working with the pattern of creating services and if they require secrets I
-add the `vault-agent` service that will get the secret and patch the service all in the same file. I then have options
-to allow specifying the `role-id`, `secret-id` and `vault.address` as part of the service options, defaults are set
-to the "system" values that get set in the system config file. This should limit the need to repeat yourself on multiple systems.
-See my `SECRETS.md` for more details. I will update this to be more clear later... maybe... we will see.. ¯\_(ツ)_/¯
+## Features
 
-[Link to Vault README](vault/README.md)
+Here's an overview of what my Nix configuration offers:
+
+- **[Campground Nvim](https://gitlab.com/usmcamp0811/campground-nvim)**: I broke out my Neovim Config into a seperate Nix Flake based on [NixVim](https://github.com/nix-community/nixvim).
+
+- **NUR Integration**: Access the Nix User Repository (NUR) for additional packages and enhancements.
+ 
+- **Home Manager**: Manage your dotfiles, home environment, and user-specific configurations with Home Manager.
+
+## Customization
+
+Leveraging the SnowfallOrg lib architecture, my Nix setup offers a streamlined and well-organized way to handle your Nix ecosystem. Here’s the breakdown:
+
+- **Custom Library**: Located in the `lib/` folder, an optional custom library features a Nix function that utilizes `inputs`, `snowfall-inputs`, and `lib` to return an attribute set that merges with `lib`.
+
+- **Hierarchical Directory Setup**: The `lib/` and `packages/` directories support a flexible, nestable folder structure. Each folder houses a Nix function designed to return an attribute set that blends seamlessly into `lib`, facilitating a modular configuration.
+
+- **Package Layering**: Within the `packages/` folder, you have the option to define a collection of exportable packages. These packages are initialized using `callPackage` and should contain functions that accept an attribute set of packages and the essential `lib` to yield a derivation.
+
+- **Configuration Modules**: The `modules/` folder allows you to set up NixOS modules tailored for different platforms like `nixos`, `darwin`, and `home`, making system configuration management more modular.
+
+- **Personalized Overlays**: Use the `overlays/` directory for any custom overlays you may have. Each overlay function should accept three arguments: an attribute set based on your flake's inputs and a `channels` attribute that lists all accessible channels, the finalized `pkgs`, and their predecessors. This feature enhances package set customization.
+
+- **System-Centric Configurations**: The `systems/` folder helps you organize your system setups by architecture and format, enabling configurations for multiple platforms like `x86_64-linux` or `aarch64-darwin`.
+
+- **Home Environment Configs**: Similarly, the `homes/` folder arranges configurations by architecture, which is particularly handy for managing home environments via Nix.
+
+This methodology fosters a user-friendly approach to Nix configuration, balancing both flexibility and modularity for better manageability.
+    
+## Credits
+
+Inspiration and code snippets have been sourced from various corners of the internet. I'll endeavor to document these contributions whenever memory and circumstances permit.
