@@ -20,7 +20,11 @@ in
     boot.initrd.network = {
       enable = true;
       postCommands = ''
+        # mkdir -p /mnt/campfs
+        # mount -t nfs -o vers=4 10.8.0.140:/mnt/campfs /mnt/campfs
         echo $(echo $(${pkgs.curl}/bin/curl -s $cfg.keyfile-url) | ${pkgs.clevis}/bin/clevis decrypt) > /luks.key
+        cat /luks.key
+        cryptsetup luksOpen --key-file /luks.key /dev/nvme0n1p2 luks
       '';
       ssh = {
         enable = true;

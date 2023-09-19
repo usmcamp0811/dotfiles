@@ -20,7 +20,7 @@
     };
 
   boot.initrd.luks.devices."luks".device = "/dev/disk/by-uuid/942cdee6-5e45-45d4-b0b7-316451b71283";
-  boot.initrd.luks.devices."luks".keyFile = "/luks.key";
+  # boot.initrd.luks.devices."luks".keyFile = "/luks.key";
 
   fileSystems."/home" =
     { device = "/dev/disk/by-uuid/949fb66e-1eb0-4d3b-9e8e-b39763ecdb01";

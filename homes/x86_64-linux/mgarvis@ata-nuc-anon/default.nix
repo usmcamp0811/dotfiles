@@ -32,6 +32,7 @@ with lib.campground;
       mpv = enabled;
     };
     tools = {
+      git = enabled;
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
       julia = enabled;

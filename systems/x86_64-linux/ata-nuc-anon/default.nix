@@ -52,7 +52,7 @@ in
 
     system = {
       # manage local passwd in vault
-      passwds = enabled;
+      # passwds = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         enable = false;
@@ -78,7 +78,7 @@ in
         enable = false;
         networks = {
           CampNet = {
-            key = "butler";
+            key = "ata-nuc-anon";
           };
         };
       };
@@ -96,8 +96,9 @@ in
   };
 
   campground.services = {
-    ldap-client = enabled;
+    # ldap-client = enabled;
     # secret-service = enabled;
+    cac = enabled;
     user-secrets = {
       enable = false;
       users = {
@@ -111,7 +112,7 @@ in
       };
     };
     vault-agent = {
-      enable = true;
+      enable = false;
       settings = {
         vault = {
           address = "https://vault.lan.aicampground.com";
