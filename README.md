@@ -57,6 +57,8 @@ Here's an overview of what my Nix configuration offers:
  
 - **Home Manager**: Manage your dotfiles, home environment, and user-specific configurations with Home Manager.
 
+- **Hashicorp Vault**: Leveraging insights from [Jake Hamilton's dotfiles](https://github.com/jakehamilton/config), I've seamlessly integrated Vault Agent into my Nix configuration. This provides an exemplary secret management experience, eliminating the need to store sensitive information in git repositories or other insecure locations.
+
 ## Customization
 
 Leveraging the SnowfallOrg lib architecture, my Nix setup offers a streamlined and well-organized way to handle your Nix ecosystem. Here’s the breakdown:
