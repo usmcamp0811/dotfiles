@@ -85,7 +85,7 @@ in
   };
 
   campground.user = {
-    name = "";
+    name = "mgarvis";
     fullName = "Matt Camp";
     email = "mgarvis@ata-llc.com";
     extraGroups = ["wheel"];
