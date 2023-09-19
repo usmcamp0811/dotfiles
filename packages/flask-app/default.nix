@@ -21,21 +21,36 @@ let
   # Create a simple Flask app
   flaskApp = pkgs.writeText "app.py" ''
     from flask import Flask
+
     app = Flask(__name__)
+    app.debug = True
 
     @app.route('/')
-    def hello_world():
-        return 'Hello, World!'
+    def hello():
+        return "Hello World!"
+
+    @app.route('/<name>')
+    def hello_name(name):
+        return "Hello {}!".format(name)
+
+    if __name__ == '__main__':
+        app.run()
   '';
 
+  pythonWithFlask = pkgs.python3.withPackages (ps: [ ps.flask ]);
+
   # Build a derivation for the Flask app
-  simpleFlaskApp = pkgs.stdenv.mkDerivation {
+  flask-app = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     src = flaskApp;
-    buildInputs = [ pkgs.python3Packages.flask ];
     phases = [ "installPhase" ];
+    buildInputs = [ pythonWithFlask ];
+
     installPhase = ''
       install -Dm644 $src $out/bin/app.py
+      echo "#!/usr/bin/env sh" > $out/bin/run-flask-app
+      echo "${pythonWithFlask.interpreter} $out/bin/app.py" >> $out/bin/run-flask-app
+      chmod +x $out/bin/run-flask-app
     '';
   };
 
@@ -45,4 +60,4 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 in
-override-meta new-meta simpleFlaskApp
+override-meta new-meta flask-app
