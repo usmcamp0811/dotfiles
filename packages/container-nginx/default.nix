@@ -7,9 +7,13 @@
 , hosts ? { }
 , ...
 }:
+with lib;
+with lib.campground;
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
+
+  campground.system.env = enabled;
 
   new-meta = with lib; {
     description = "nginx container";
@@ -59,15 +63,15 @@ let
       pathsToLink = [ "/bin" ];
       paths = [ pkgs.coreutils pkgs.nginx ];
     };
-    extraCommands = ''
-      mkdir -p ./www/data
-      mkdir /www
-      mkdir -p tmp
-      cat ${indexHTMLContent} > ./www/data/index.html
-      cat ${nginxConfContent} > /etc/nginx/nginx.conf
+    runAsRoot = ''
+      mkdir -p www/data
+      mkdir -p etc/nginx/
+      mkdir -p var/log/nginx/
+      cat ${indexHTMLContent} > www/data/index.html
+      cat ${nginxConfContent} > etc/nginx/nginx.conf
     '';
     config = {
-      WorkingDir = "/config/bin";
+      WorkingDir = "/www/data";
       Cmd = [
         "${pkgs.nginx}/bin/nginx"
       ];
@@ -76,4 +80,4 @@ let
 
 in
 
-override-meta new-meta hello-image
+override-meta new-meta nginx-image
