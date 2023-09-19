@@ -26,13 +26,23 @@ in
     desktop.qtile = {
       enable = true;
       gdm = true;
+    };
 
-      sddm = false;
+    desktop.cinnamon = {
+      enable = true;
+      gdm = true;
     };
 
     apps = {
-      k9s = enabled; 
+
+      emacs = {
+        enable = true;
+        spacemacs = true;
+      };
+      vscode = enabled;
+      virtualbox = enabled;
       virtmanager = enabled;
+      libreoffice = enabled;
       barrier = enabled;
     };
 
@@ -56,6 +66,10 @@ in
         };
       };
       clevis = enabled;
+      time = {
+        enable = true;
+        TZ = "America/New_York";
+      };
       vpn = {
         enable = false;
         networks = {
@@ -71,21 +85,17 @@ in
   };
 
   campground.user = {
-    name = "abe";
+    name = "";
     fullName = "Matt Camp";
-    email = "mcamp@ata-llc.com";
+    email = "mgarvis@ata-llc.com";
     extraGroups = ["wheel"];
   };
 
   campground.services = {
-    ldap-client = enabled;
-    # k0sworker = enabled;
-    secret-service = enabled;
-    cac = {
-      enable = false;
-    };
+    # ldap-client = enabled;
+    # secret-service = enabled;
     user-secrets = {
-      enable = true;
+      enable = false;
       users = {
         mcamp =  {
           files = [
@@ -107,20 +117,6 @@ in
       };
     };
   };
-
-#  users.users.mcamp = {
-#    isNormalUser = true;
-#    home = "/home/mcamp";
-#    group = "ldap_user";
-#    shell = pkgs.zsh;
-#
-#    # Arbitrary user ID to use for the user. Since I only
-#    # have a single user on my machines this won't ever collide.
-#    # However, if you add multiple users you'll need to change this
-#    # so each user has their own unique uid (or leave it out for the
-#    # system to select).
-#    uid = 10000;
-#  }; 
 
   # TODO: Move this somewhere more good and try to automate for when not connected to a monitor
   environment.variables = {
