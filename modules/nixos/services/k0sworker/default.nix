@@ -9,6 +9,7 @@ in
   options.campground.services.k0sworker = with types; {
     enable = mkBoolOpt false "Enable k0sworker;";
 
+# TODO: Update to support kv v2 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
