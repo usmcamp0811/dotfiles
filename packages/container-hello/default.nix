@@ -20,7 +20,7 @@ let
   scriptContent = pkgs.writeText "entrypoint.sh" ''
     #!/bin/sh
     echo "Hello, this is the entrypoint script."
-    ${pkgs.hello}/bin/hello
+    ${pkgs.cowsay}/bin/cowsay "yut yut"
     # exec "$@"
   '';
 
