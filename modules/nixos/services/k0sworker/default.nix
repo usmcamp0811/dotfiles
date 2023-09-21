@@ -28,6 +28,8 @@ in
       cni-plugins
       cni-plugin-flannel
       calico-cni-plugin
+      nfs-utils
+
     ];
 
     security.apparmor.enable = true;
