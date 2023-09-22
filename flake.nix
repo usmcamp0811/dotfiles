@@ -116,6 +116,9 @@
       overlays = with inputs; [
 				  flake.overlays."package/flake"
           nur.overlay
+          (self: super: {
+            nvidia_x11 = unstable.nvidia_x11;
+          })
       ];
 
       systems.modules.nixos = with inputs; [

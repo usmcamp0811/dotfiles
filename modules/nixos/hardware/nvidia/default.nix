@@ -22,67 +22,60 @@ in
   };
 
   config = mkIf cfg.enable {
-   boot = {
-    # kernelPackages = pkgs.linuxPackages_zen;
-    # extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
-    # kernelParams = [ "module_blacklist=i915" ];
-    initrd.kernelModules = ["nvidia"];
-    # blacklistedKernelModules = [ "nouveau" ];
 
-    # extraModprobeConfig = ''
-    #   options bbswitch load_state=-1 unload_state=1 nvidia-drm
-    # '';
-    #   kernelParams = [
-    #     "nouveau.modeset=1"
-    #     "nohibernate"
-    #     "nvidia-drm.modeset=1"
-    #   ];
-   };
-   services = { 
-     tlp.enable = true; 
-     auto-cpufreq.enable = true; 
-     xserver.videoDrivers = [ "nvidia" "modesetting" ]; 
-   }; 
-   hardware = { 
-     # bumblebee.enable = true;
-     nvidia = { 
-       open = false; 
-       modesetting.enable = true; 
-       nvidiaSettings = true;
-       prime = { 
-         # reverseSync.enable = true;
-         offload.enable = true; 
-         allowExternalGpu = false;
-         intelBusId = "PCI:00:02:0"; 
-         nvidiaBusId = "PCI:01:00:0"; 
-       }; 
- #      package = pkgs.nvidiaPackages;
-       # powerManagement.finegrained = true;
-       powerManagement.enable = true;
-       package = config.boot.kernelPackages.nvidiaPackages.stable;
-       nvidiaPersistenced = true;
-     }; 
-     opengl = { 
-       enable = true; 
-       driSupport = true; 
-       driSupport32Bit = true; 
-       extraPackages = with pkgs; [ 
-         intel-media-driver 
-         vaapiIntel 
-         nvidia-vaapi-driver 
-         vaapiVdpau 
-         libvdpau-va-gl 
-       ]; 
-     }; 
-     pulseaudio.support32Bit = true; 
-   }; 
-   environment = { 
-     systemPackages = with pkgs; [ 
-       nvidia-offload 
-       libva 
-       libva-utils 
-       glxinfo 
-     ]; 
-   }; 
+    boot = {
+      # kernelPackages = pkgs.linuxPackages_6_1;
+      extraModprobeConfig = ''
+        options bbswitch load_state=-1 unload_state=1 nvidia-drm
+      '';
+      blacklistedKernelModules = [
+        "nouveau"
+        "rivafb"
+        "nvidiafb"
+        "rivatv"
+        "nv"
+        "uvcvideo"
+      ];
+      extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
+      kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
+      kernelParams = [
+        "nouveau.modeset=1"
+        "nohibernate"
+      ];
+    };
+
+    services.xserver = {
+      videoDrivers = ["nvidia" "modesetting"];
+      exportConfiguration = true;
+    };
+
+    hardware = {
+      bluetooth.enable = true;
+      pulseaudio.enable = false;
+      
+      nvidia = {
+        modesetting.enable = true;
+        prime = {
+          reverseSync.enable = true;
+          intelBusId = "PCI:0:2:0";
+          nvidiaBusId = "PCI:1:0:0";
+        };
+        package = config.boot.kernelPackages.nvidiaPackages.stable;
+        nvidiaPersistenced = true;
+      };
+
+      opengl = {
+        enable = true;
+        driSupport = true;
+        extraPackages = with pkgs; [
+          intel-media-driver
+          vaapiIntel
+          vaapiVdpau
+          libvdpau-va-gl
+          nvidia-vaapi-driver
+        ];
+      };
+    };
   };
 }
+
