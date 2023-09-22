@@ -72,7 +72,7 @@ in
     hardware.audio = {
     };
 
-    # hardware.nvidia = enabled;
+    hardware.nvidia = enabled;
     # hardware.intel = enabled;
 
   };
@@ -86,7 +86,7 @@ in
 
   campground.services = {
     docker = enabled;
-    jupyter = enabled;
+    # jupyter = enabled;
     zfs-key-server = {
       enable = false;
       tang-servers = [

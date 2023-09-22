@@ -44,7 +44,7 @@ Before diving in, ensure that you have Nix installed on your system. If not, you
 ### New System Install
 
 ```bash
-  nixos-install --root /mnt --flake gitlab:usmcamp0811/dotfiles#<system name>
+    nixos-install --root /mnt --flake gitlab:usmcamp0811/dotfiles#<system name>
 ```
 
 ## Features
