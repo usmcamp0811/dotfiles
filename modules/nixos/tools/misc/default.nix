@@ -43,6 +43,7 @@ in
       libnotify
       nix2sbom
       sbomnix
+      bash
     ];
 
   };

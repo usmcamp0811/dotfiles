@@ -41,7 +41,7 @@ in
    services = { 
      tlp.enable = true; 
      auto-cpufreq.enable = true; 
-     xserver.videoDrivers = [ "nvidia" ]; 
+     xserver.videoDrivers = [ "nvidia" "modesetting" ]; 
    }; 
    hardware = { 
      # bumblebee.enable = true;
@@ -60,6 +60,7 @@ in
        # powerManagement.finegrained = true;
        powerManagement.enable = true;
        package = config.boot.kernelPackages.nvidiaPackages.stable;
+       nvidiaPersistenced = true;
      }; 
      opengl = { 
        enable = true; 

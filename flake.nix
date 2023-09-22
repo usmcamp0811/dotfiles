@@ -137,20 +137,13 @@
       #TODO: Move this into the actual system config?
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
+        nixos-hardware.nixosModules.lenovo-thinkpad-p53
       ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules = [({...}: { amazonImage.sizeMB = 16 * 1024; })];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
-
-      # containerConfigurations = let
-      #   containersDir = ./containers;
-      #   containerNames = builtins.attrNames (builtins.readDir containersDir);
-      # in builtins.listToAttrs (map (name: {
-      #   name = name;
-      #   value = import "${containersDir}/${name}/default.nix";
-      # }) containerNames);
 
       checks =
         builtins.mapAttrs
