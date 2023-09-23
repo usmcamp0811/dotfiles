@@ -22,10 +22,14 @@ in
   };
 
   config = mkIf cfg.enable {
+    # systemd.services.nvidia-persistenced.serviceConfig.PIDFile = lib.mkForce "/run/nvidia-persistenced/nvidia-persistenced.pid";
+
     boot = {
-      kernelPackages = pkgs.linuxPackages_latest;
+      # extraModprobeConfig = ''
+      #   options bbswitch load_state=-1 unload_state=1 nvidia-drm
+      # '';
       extraModprobeConfig = ''
-        options bbswitch load_state=-1 unload_state=1 nvidia-drm
+        option nvidia-drm.modeset=1
       '';
       blacklistedKernelModules = [
         "nouveau"
@@ -38,8 +42,9 @@ in
       extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
       kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
       kernelParams = [
-        "nouveau.modeset=1"
+        "nouveau.modeset=0"
         "nohibernate"
+        "nvidia-drm.modeset=1"
       ];
     };
 
@@ -49,13 +54,14 @@ in
     };
 
     hardware = {
-      bluetooth.enable = true;
-      pulseaudio.enable = false;
-      
       nvidia = {
         modesetting.enable = true;
         prime = {
-          sync.enable = true;
+          offload = {
+            enable = true;
+            enableOffloadCmd = true;
+          };
+          # sync.enable = true;
           intelBusId = "PCI:0:2:0";
           nvidiaBusId = "PCI:1:0:0";
         };

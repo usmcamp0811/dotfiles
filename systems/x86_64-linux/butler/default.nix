@@ -16,9 +16,9 @@ in
     ./hardware.nix
   ];
 
-  services.xserver.videoDrivers = [ "nouveau" ];
-  boot.blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # services.xserver.videoDrivers = [ "nouveau" ];
+  # boot.blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
 
 
   campground = {
@@ -76,7 +76,7 @@ in
     hardware.audio = {
     };
 
-    # hardware.nvidia = enabled;
+    hardware.nvidia = enabled;
     # hardware.intel = enabled;
 
   };

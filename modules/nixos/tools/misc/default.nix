@@ -44,6 +44,8 @@ in
       nix2sbom
       sbomnix
       bash
+      lsof
+      hwinfo
     ];
 
   };
