@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, inputs,... }:
 
 with lib;
 with lib.campground;
@@ -15,9 +15,30 @@ in
   imports = [ 
     ./hardware.nix
   ];
-  # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  services.logind.lidSwitch = "ignore";
+
+  # nixpkgs.config.allowUnfree = true;
+  # # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  # boot.kernelPackages = inputs.unstable.legacyPackages.x86_64-linux.pkgs.linuxPackages_latest;
+  # services.logind.lidSwitch = "ignore";
+  #
+  # # nvidia bullshit
+  # services.xserver.videoDrivers = [ "nvidia" ];
+  # hardware.opengl.enable = true;
+  # hardware.nvidia.package = inputs.unstable.legacyPackages.x86_64-linux.pkgs.linuxPackages_latest.nvidiaPackages.stable;
+  # hardware.nvidia.modesetting.enable = true;
+  # hardware.nvidia.prime = {
+  #         offload.enable = true;
+  #         intelBusId = "PCI:0:2:0";
+  #         nvidiaBusId = "PCI:1:0:0";
+  #       };
+  #
+  # hardware.nvidia.powerManagement.enable = true;
+  # hardware.nvidia.powerManagement.finegrained= true;
+  #
+  # # steam bullshit
+  # hardware.opengl.driSupport = true;
+  # hardware.opengl.driSupport32Bit = true;
+
   campground = {
     archetypes = {
       workstation = enabled;
@@ -25,8 +46,8 @@ in
 
     desktop.qtile = {
       enable = true;
-      gdm = false;
-      lightdm = true;
+      gdm = true;
+      lightdm = false;
 
       sddm = false;
     };
@@ -73,7 +94,7 @@ in
     hardware.audio = {
     };
 
-    hardware.nvidia = enabled;
+    # hardware.nvidia = enabled;
     # hardware.intel = enabled;
 
   };

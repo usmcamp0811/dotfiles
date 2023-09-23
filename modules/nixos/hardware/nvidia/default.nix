@@ -45,7 +45,7 @@ in
     };
 
     services.xserver = {
-      videoDrivers = ["nvidia" "modesetting"];
+      videoDrivers = ["nvidia"];
       exportConfiguration = true;
     };
 
@@ -56,7 +56,7 @@ in
       nvidia = {
         modesetting.enable = true;
         prime = {
-          reverseSync.enable = true;
+          offload.enable = true;
           intelBusId = "PCI:0:2:0";
           nvidiaBusId = "PCI:1:0:0";
         };
@@ -78,4 +78,3 @@ in
     };
   };
 }
-
