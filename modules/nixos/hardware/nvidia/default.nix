@@ -1,4 +1,4 @@
-{ options, config, pkgs, lib, ... }:
+{ options, config, inputs, pkgs, lib, ... }:
 
 with lib;
 let
@@ -22,9 +22,8 @@ in
   };
 
   config = mkIf cfg.enable {
-
     boot = {
-      # kernelPackages = pkgs.linuxPackages_6_1;
+      kernelPackages = pkgs.linuxPackages_latest;
       extraModprobeConfig = ''
         options bbswitch load_state=-1 unload_state=1 nvidia-drm
       '';
@@ -56,11 +55,11 @@ in
       nvidia = {
         modesetting.enable = true;
         prime = {
-          offload.enable = true;
+          sync.enable = true;
           intelBusId = "PCI:0:2:0";
           nvidiaBusId = "PCI:1:0:0";
         };
-        package = config.boot.kernelPackages.nvidiaPackages.stable;
+        package = config.boot.kernelPackages.nvidiaPackages.latest;
         nvidiaPersistenced = true;
       };
 
