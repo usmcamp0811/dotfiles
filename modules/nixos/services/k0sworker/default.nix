@@ -12,11 +12,16 @@ in
 # TODO: Update to support kv v2 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
+    vault-path = mkOpt str "kv/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
+    };
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
     };
   };
 
@@ -83,8 +88,6 @@ in
         ExecStart = "${pkgs.campground.k0s}/bin/k0s worker --token-file=/tmp/detsys-vault/worker-token";
         Restart = "always";
         Environment = "PATH=${pkgs.openiscsi}/bin:/run/wrappers/bin:$PATH";
-
-
       };
       wantedBy = [ "multi-user.target" ];
     };
@@ -111,7 +114,7 @@ in
         file = {
           files = {
             "worker-token" = {
-              text = ''{{ with secret "${cfg.vault-path}" }}{{ .Data.worker }}{{ end }}'';
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.worker }}{{ else }}{{ .Data.data.worker }}{{ end }}{{ end }}'';
               permissions = "0400";  # Make the script executable
               change-action = "restart";
             };
