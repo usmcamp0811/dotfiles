@@ -1,4 +1,4 @@
-{ lib, plusultra, fetchFromGitHub, runCommandNoCC, callPackage, unzip, favicon ? "light", ... }:
+{ lib, campground, fetchFromGitHub, runCommandNoCC, callPackage, unzip, favicon ? "light", ... }:
 
 let
   homer = callPackage ../homer { };
