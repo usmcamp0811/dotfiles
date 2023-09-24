@@ -1,4 +1,4 @@
-{ pkgs, lib, nixos-hardware, nixosModules, agenix, ... }:
+{ pkgs, config, lib, nixos-hardware, nixosModules, agenix, ... }:
 
 with lib;
 with lib.campground;
@@ -28,6 +28,11 @@ in
     };
 
     apps = {
+    };
+
+    security = {
+      # doas = enabled;
+      acme = enabled;
     };
 
     system = {
@@ -145,7 +150,11 @@ in
     vault = {
       enable = true;
       ui = true;
-
+      settings = ''
+        storage "file" {
+          path = "/var/lib/vault/storage"
+        }
+      '';
       
       policies =
         builtins.foldl'
@@ -171,6 +180,28 @@ in
         };
       };
     };
+  };
+  services.nginx = {
+    enable = true;
+    recommendedProxySettings = true;
+
+    virtualHosts =
+      # TODO: get certs from certManager 
+      # let
+      #   shared-config = {
+      #     extra-config = {
+      #       forceSSL = true;
+      #
+      #       sslCertificate = "${config.security.acme.certs."daly.campground.lan".directory}/fullchain.pem";
+      #       sslCertificateKey = "${config.security.acme.certs."daly.campground.lan".directory}/key.pem";
+      #     };
+      #   };
+      # in
+      {
+        "vault.lan" = network.create-proxy
+          ((network.get-address-parts config.services.vault.address));
+            # // shared-config);
+      };
   };
 
 
