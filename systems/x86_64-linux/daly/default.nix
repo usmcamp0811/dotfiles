@@ -94,6 +94,53 @@ in
         };
       };
     };
+    homer = {
+      enable = true;
+      host = "daly";
+
+      package = pkgs.campground.homer-catppuccin.override { favicon = "light"; };
+
+      settings = {
+        title = "Dashboard";
+        subtitle = "Campground Home";
+
+        # logo = pkgs.campground.homer-catppuccin.logos.light;
+
+        # stylesheet = [
+        #   pkgs.campground.homer-catppuccin.stylesheets.latte
+        #   pkgs.campground.homer-catppuccin.stylesheets.frappe
+        # ];
+
+        footer = "";
+
+        connectivityCheck = true;
+
+        columns = "auto";
+
+        defaults = {
+          layout = "list";
+          colorTheme = "auto";
+        };
+
+        services = [
+          {
+            name = "Administration";
+            icon = "fas fa-shield-halved";
+            items = [
+              {
+                name = "Vault";
+                icon = "fas fa-lock";
+                url = "https://vault.daly";
+                target = "_blank";
+              }
+            ];
+          }
+        ];
+      };
+
+      # settings-path = "/var/lib/homer/config.yml";
+    };
+
 
     vault = {
       enable = true;
