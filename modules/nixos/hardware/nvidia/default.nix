@@ -22,12 +22,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    # systemd.services.nvidia-persistenced.serviceConfig.PIDFile = lib.mkForce "/run/nvidia-persistenced/nvidia-persistenced.pid";
 
     boot = {
-      # extraModprobeConfig = ''
-      #   options bbswitch load_state=-1 unload_state=1 nvidia-drm
-      # '';
       extraModprobeConfig = ''
         option nvidia-drm.modeset=1
       '';
