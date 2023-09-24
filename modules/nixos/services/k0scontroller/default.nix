@@ -20,7 +20,7 @@ in
     };
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
-      default = "v1";
+      default = "v2";
       description = "KV store version";
     };
   };
@@ -115,7 +115,7 @@ in
       secrets = {
         file = {
           files = {
-            "worker-token" = {
+            "controller-token" = {
               text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
               permissions = "0400";  # Make the script executable
               change-action = "restart";
