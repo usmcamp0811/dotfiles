@@ -150,11 +150,10 @@ in
     vault = {
       enable = true;
       ui = true;
-      # settings = ''
-      #   storage "file" {
-      #     path = "/persist/vault"
-      #   }
-      # '';
+      
+      storage = {
+        backend = "file";
+      };
       
       policies =
         builtins.foldl'

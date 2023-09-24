@@ -60,7 +60,21 @@ in
     ui = mkBoolOpt true "Whether the UI should be enabled.";
 
     storage = {
-      backend = mkOpt types.str "file" "The storage backend for Vault.";
+      backend = mkOption {
+        type = types.str;
+        default = "file";
+        description = "The storage backend for Vault.";
+      };
+      path = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "The path for file storage backend.";
+      };
+      extraOptions = mkOption {
+        type = types.attrs;
+        default = {};
+        description = "Extra options for storage backends.";
+      };
     };
 
     settings = mkOpt types.str "" "Configuration for Vault's config file.";
@@ -88,8 +102,16 @@ in
       extraConfig = ''
         ui = ${if cfg.ui then "true" else "false"}
 
+        storage "${cfg.storage.backend}" {
+          ${optionalString (cfg.storage.backend == "file") ''
+            path = "${cfg.storage.path}"
+          ''}
+          ${concatStringsSep "\n" (mapAttrsToList (name: value: "${name} = \"${value}\"") cfg.storage.extraOptions)}
+        }
+
         ${cfg.settings}
       '';
+
 
     };
 
