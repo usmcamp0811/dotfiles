@@ -64,7 +64,7 @@ in
         };
       };
       vpn = {
-        enable = false;
+        enable = true;
         networks = {
           CampNet = {
             key = "butler";
