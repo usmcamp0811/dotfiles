@@ -150,11 +150,11 @@ in
     vault = {
       enable = true;
       ui = true;
-      settings = ''
-        storage "file" {
-          path = "/var/lib/vault/storage"
-        }
-      '';
+      # settings = ''
+      #   storage "file" {
+      #     path = "/persist/vault"
+      #   }
+      # '';
       
       policies =
         builtins.foldl'
