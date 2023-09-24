@@ -97,19 +97,22 @@ in
 
     vault = {
       enable = true;
+      ui = true;
+
+      
       policies =
         builtins.foldl'
           (policies: file: policies // {
-            "${campground.path.get-file-name-without-extension file}" = file;
+            "${snowfall.path.get-file-name-without-extension file}" = file;
           })
           { }
-          (builtins.filter (campground.path.has-file-extension "hcl")
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
             (builtins.map
               (path:
                 ./vault/policies +
                 "/${builtins.baseNameOf (builtins.unsafeDiscardStringContext path)}"
               )
-              (campground.fs.get-files ./vault/policies)));
+              (snowfall.fs.get-files ./vault/policies)));
     };
     vault-agent = {
       enable = true;
