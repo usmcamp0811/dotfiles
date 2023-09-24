@@ -85,7 +85,9 @@ in
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.campground.k0s}/bin/k0s controller --token-file=/tmp/detsys-vault/controller-token";
+        # ExecStart = "${pkgs.campground.k0s}/bin/k0s controller --config=/tmp/detsys-vault/controller-token --enable-dynamic-config=true";
+        # sudo k0s install controller --token-file /path/to/token/file -c /etc/k0s/k0s.yaml
+        ExecStart = "${pkgs.campground.k0s}/bin/k0s controller --token-file=/tmp/detsys-vault/controller-token -c /tmp/detsys-vault/k0s.yaml";
         Restart = "always";
         Environment = "PATH=${pkgs.openiscsi}/bin:/run/wrappers/bin:$PATH";
 
@@ -116,7 +118,13 @@ in
         file = {
           files = {
             "controller-token" = {
+              # text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
               text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
+              permissions = "0400";  # Make the script executable
+              change-action = "restart";
+            };
+            "k0s.yaml" = {
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
               permissions = "0400";  # Make the script executable
               change-action = "restart";
             };
