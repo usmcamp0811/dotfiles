@@ -12,6 +12,9 @@ let
 
 in
 {
+  imports = [ 
+    ./hardware.nix
+  ];
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
   campground = {
     nix = enabled;
