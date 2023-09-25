@@ -16,7 +16,6 @@ in
     ./hardware.nix
   ];
   boot.loader.grub = enabled;
-  virtualisation.amazon-init = enabled;
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
   campground = {
     nix = enabled;
