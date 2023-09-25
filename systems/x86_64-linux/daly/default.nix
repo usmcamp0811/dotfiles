@@ -109,12 +109,12 @@ in
         title = "Dashboard";
         subtitle = "Campground Home";
 
-        # logo = pkgs.campground.homer-catppuccin.logos.light;
+        logo = pkgs.campground.homer-catppuccin.logos.light;
 
-        # stylesheet = [
-        #   pkgs.campground.homer-catppuccin.stylesheets.latte
-        #   pkgs.campground.homer-catppuccin.stylesheets.frappe
-        # ];
+        stylesheet = [
+          pkgs.campground.homer-catppuccin.stylesheets.latte
+          pkgs.campground.homer-catppuccin.stylesheets.frappe
+        ];
 
         footer = "";
 
