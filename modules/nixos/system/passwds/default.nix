@@ -18,7 +18,7 @@ in
     vault-path = mkOpt str "secret/campground/local-users-passwords" "The Vault path to the KV containing the Wifi Secrets.";
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
-      default = "v1";
+      default = "v2";
       description = "KV store version";
     };
   };

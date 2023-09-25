@@ -19,7 +19,7 @@ in
     };
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
-      default = "v1";
+      default = "v2";
       description = "KV store version";
     };
     networks = mkOption {
