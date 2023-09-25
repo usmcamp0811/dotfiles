@@ -33,6 +33,11 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
     trusted_group = mkOpt str "ldap_user" "The LDAP Group of users who can user home-manager on the system.";
   };
 
@@ -154,8 +159,8 @@ ldap_group_member = memberUid
                 
                 # Write the certificate to a temp file first
                 cat <<EOF >$TEMP_CERT
-    {{ with secret "${cfg.vault-path}" }}{{ .Data.ldap_ca }}{{ end }}
-    EOF
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ldap_ca }}{{ else }}{{ .Data.data.ldap_ca }}{{ end }}{{ end }}
+              EOF
                 # Move temp file to target, ensuring atomic update
                 mkdir -p /etc/ldap/
                 mv $TEMP_CERT $CA_CERT
