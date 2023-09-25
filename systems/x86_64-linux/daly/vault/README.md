@@ -24,7 +24,10 @@ vault auth enable approle
 vault write auth/approle/role/vault token_policies="vault-policy"
 
 # Fetch RoleID and SecretID and store them in files
-vault read -field=role_id auth/approle/role/vault/role-id | sudo tee /var/lib/vault/vault-role-id
-vault write -f -field=secret_id auth/approle/role/vault/secret-id | sudo tee /var/lib/vault/vault-secret-id
+vault read -field=role_id auth/approle/role/vault/role-id | sudo tee /var/lib/vault/role-id
+vault write -f -field=secret_id auth/approle/role/vault/secret-id | sudo tee /var/lib/vault/secret-id
+
+sudo chown vault:vault /var/lib/vault/*-id
+sudo chmod 0400 /var/lib/vault/*-id
 
 ```
