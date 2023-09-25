@@ -1,33 +1,46 @@
-# README
+# Vault Setup on NixOS
 
+This README outlines the steps required to set up Vault on a NixOS system.
 
-This will not build fully the first go because vault isn't setup.
+## Prerequisites
 
-`update-sys`
+- Make sure you have run `update-sys` to update your system.
+  
+## Initial Setup
 
-then go create the Vault / unseal
+1. **Initialize Vault**: After updating your system, you'll need to initialize and unseal Vault.
 
-Next to make this vault plicy-agent work you need to go create an approle for the vault policy agent thing. Then go give that approle the vault-policies.hcl policy. 
-Store the `secret-id` and `vault-id` files at `/var/lib/vault/*` unless you wanna go specify it in your config. After this everything will
-build correctly. 
+## Configuring Vault Policy Agent
 
+1. **Create AppRole**: To make the Vault Policy Agent work, you'll need to create an AppRole specifically for it.
 
-Something like this needs to be done:
+2. **Assign Policy**: Assign the `vault-policies.hcl` policy to the newly created AppRole.
+
+3. **Store Credentials**: Save the `role-id` and `secret-id` in `/var/lib/vault/`. If you prefer a different location, make sure to specify it in your configuration.
+
+## Commands
+
+Here are the shell commands to execute the above steps:
 
 ```sh
+# Change ownership of the Vault data directory
 sudo chown -R vault:vault /persist/vault
-# done in the policies dir
+
+# Write the Vault policy
 vault policy write vault-policy vault-policies.hcl
 
-# Create the AppRole named 'vault'
+# Enable AppRole and assign the policy
 vault auth enable approle
 vault write auth/approle/role/vault token_policies="vault-policy"
 
-# Fetch RoleID and SecretID and store them in files
+# Retrieve and store the RoleID and SecretID
 vault read -field=role_id auth/approle/role/vault/role-id | sudo tee /var/lib/vault/role-id
 vault write -f -field=secret_id auth/approle/role/vault/secret-id | sudo tee /var/lib/vault/secret-id
 
+# Set appropriate permissions
 sudo chown vault:vault /var/lib/vault/*-id
 sudo chmod 0400 /var/lib/vault/*-id
-
 ```
+
+After completing these steps, your Vault setup should be operational.
+
