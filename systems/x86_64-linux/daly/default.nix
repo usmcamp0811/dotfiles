@@ -135,7 +135,7 @@ in
               {
                 name = "Vault";
                 icon = "fas fa-lock";
-                url = "https://vault.daly";
+                url = "http://vault.lan";
                 target = "_blank";
               }
             ];

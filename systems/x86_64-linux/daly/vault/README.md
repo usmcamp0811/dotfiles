@@ -11,4 +11,20 @@ Next to make this vault plicy-agent work you need to go create an approle for th
 Store the `secret-id` and `vault-id` files at `/var/lib/vault/*` unless you wanna go specify it in your config. After this everything will
 build correctly. 
 
-##TODO: Figure out where on disk the data is at.
+
+Something like this needs to be done:
+
+```sh
+sudo chown -R vault:vault /persist/vault
+# done in the policies dir
+vault policy write vault-policy vault-policies.hcl
+
+# Create the AppRole named 'vault'
+vault auth enable approle
+vault write auth/approle/role/vault token_policies="vault-policy"
+
+# Fetch RoleID and SecretID and store them in files
+vault read -field=role_id auth/approle/role/vault/role-id | sudo tee /var/lib/vault/vault-role-id
+vault write -f -field=secret_id auth/approle/role/vault/secret-id | sudo tee /var/lib/vault/vault-secret-id
+
+```
