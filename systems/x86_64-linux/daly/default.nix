@@ -150,9 +150,9 @@ in
     vault = {
       enable = true;
       ui = true;
-      
       storage = {
         backend = "file";
+        path = "/persist/vault";
       };
       
       policies =
