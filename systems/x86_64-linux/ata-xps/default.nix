@@ -52,7 +52,7 @@ in
         };
       };
       vpn = {
-        enable = true;
+        enable = false;
         networks = {
           CampNet = {
             key = "ata_xps";
@@ -100,7 +100,7 @@ in
       enable = true;
       settings = {
         vault = {
-          address = "https://vault.lan.aicampground.com";
+          address = "http://vault.lan";
           role-id = "/var/lib/vault/ata-xps/role-id";
           secret-id = "/var/lib/vault/ata-xps/secret-id";
         };
