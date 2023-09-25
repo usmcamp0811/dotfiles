@@ -49,11 +49,13 @@ in
       passwds = {
         enable = true;
         kvVersion = "v2";
-        vault-path = "kv/campground/local-users-passwords";
+        vault-path = "secret/campground/local-users-passwords";
       };
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         enable = true;
+        kvVersion = "v2";
+        vault-path = "secret/campground/wifi";
         networks = {
           SkyNet = {
             ssid = "SkyNet";
@@ -64,7 +66,7 @@ in
         };
       };
       vpn = {
-        enable = true;
+        enable = false;
         networks = {
           CampNet = {
             key = "butler";
@@ -120,7 +122,7 @@ in
       enable = true;
       settings = {
         vault = {
-          address = "https://vault.lan.aicampground.com";
+          address = "http://vault.lan";
           role-id = "/var/lib/vault/butler/role-id";
           secret-id = "/var/lib/vault/butler/secret-id";
         };

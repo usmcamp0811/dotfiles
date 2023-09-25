@@ -16,6 +16,11 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v1";
+      description = "KV store version";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -53,9 +58,13 @@ in
           files = {
             "kubeconfig" = {
               text = ''
-              {{ with secret "${cfg.vault-path}" }}
-              {{ .Data.config }}
-              {{ end }}
+                {{ with secret "${cfg.vault-path}" }}
+                {{ if eq "${cfg.kvVersion}" "v1" }}
+                {{ .Data.config }}
+                {{ else }}
+                {{ .Data.data.config }}
+                {{ end }}
+                {{ end }}
               '';
               permissions = "0440";  # Make the script executable
               change-action = "restart";
