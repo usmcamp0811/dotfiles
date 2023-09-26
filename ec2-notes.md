@@ -28,8 +28,8 @@
                 "s3:ListBucket"
             ],
             "Resource": [
-                "arn:aws-us-gov:s3:::nix-image",
-                "arn:aws-us-gov:s3:::nix-image/*"
+                "arn:aws-us:s3:::nix-image",
+                "arn:aws-us:s3:::nix-image/*"
             ],
             "Condition": {
                 "StringEquals": {
@@ -41,8 +41,8 @@
             "Effect": "Allow",
             "Principal": {
                 "AWS": [
-                    "arn:aws-us-gov:iam::YOUR_ACCOUNT_ID:user/UserName1",
-                    "arn:aws-us-gov:iam::YOUR_ACCOUNT_ID:user/UserName2"
+                    "arn:aws-us:iam::YOUR_ACCOUNT_ID:user/UserName1",
+                    "arn:aws-us:iam::YOUR_ACCOUNT_ID:user/UserName2"
                 ]
             },
             "Action": [
@@ -50,7 +50,7 @@
                 "s3:PutObject",
                 "s3:DeleteObject"
             ],
-            "Resource": "arn:aws-us-gov:s3:::nix-image/*"
+            "Resource": "arn:aws-us:s3:::nix-image/*"
         }
     ]
 }
@@ -105,7 +105,7 @@
       {
         "Effect": "Allow",
         "Action": ["s3:GetBucketLocation", "s3:GetObject", "s3:ListBucket"],
-        "Resource": ["arn:aws-us-gov:s3:::nix-image", "arn:aws-us-gov:s3:::nix-image/*"]
+        "Resource": ["arn:aws-us:s3:::nix-image", "arn:aws-us:s3:::nix-image/*"]
       },
       {
         "Effect": "Allow",
