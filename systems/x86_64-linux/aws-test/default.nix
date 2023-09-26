@@ -13,7 +13,7 @@ let
 in
 {
   imports = [ 
-    ./hardware.nix
+    # ./hardware.nix
   ];
   boot.loader.grub = enabled;
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
@@ -38,7 +38,7 @@ in
       };
     };
     system = {
-      # boot = enabled;
+      boot = enabled;
       fonts = enabled;
       locale = enabled;
       time = enabled;
