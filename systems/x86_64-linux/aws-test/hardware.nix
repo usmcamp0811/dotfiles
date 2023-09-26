@@ -13,11 +13,8 @@
 
   boot.loader.grub = {
     enable = true;
-    version = 2;
     efiSupport = true;
-    #efiInstallAsRemovable = true;
     device = "nodev";
-    #device = "/dev/disk/by-id/ata-ST4000LM024-2AN17V_WCK0WHYR-part2";
   };
 
   fileSystems."/" =
