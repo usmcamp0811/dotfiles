@@ -9,7 +9,7 @@
 - Create an S3 bucket to upload your VHD:
 
   ```bash
-  aws s3api create-bucket --bucket nix-image --region us-gov-west-1 --create-bucket-configuration LocationConstraint=us-gov-west-1
+  aws s3api create-bucket --bucket nix-image --region us-west-1 --create-bucket-configuration LocationConstraint=us-west-1
   ```
 
 - Create a bucket policy (`bucket-policy.json`) with the following content:
