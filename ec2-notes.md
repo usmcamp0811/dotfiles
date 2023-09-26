@@ -1,3 +1,4 @@
+
 ## AWS EC2 Instance Creation Using a Local VHD
 
 ### 1. **Preparation**
@@ -32,7 +33,7 @@
             ],
             "Condition": {
                 "StringEquals": {
-                    "aws:SourceAccount": "060045187027"
+                    "aws:SourceAccount": "YOUR_ACCOUNT_ID"
                 }
             }
         },
