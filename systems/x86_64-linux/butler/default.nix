@@ -71,7 +71,7 @@ in
     hardware.audio = {
     };
 
-    hardware.nvidia = enabled;
+    # hardware.nvidia = enabled;
     # hardware.intel = enabled;
 
   };
