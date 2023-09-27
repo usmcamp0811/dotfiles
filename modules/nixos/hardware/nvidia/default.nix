@@ -27,7 +27,6 @@ in
         KERNEL=="nvidia*", MODE="0666"
       '';
 
-      systemd.services.nvidia-persistenced.serviceConfig.PIDFile = "/run/nvidia-persistenced/nvidia-persistenced.pid";
 
       services.xserver.extraConfig = ''
         Section "Screen"
