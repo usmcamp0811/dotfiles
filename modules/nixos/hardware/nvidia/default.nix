@@ -23,6 +23,19 @@ in
 
   config = mkIf cfg.enable {
 
+      services.udev.extraRules = ''
+        KERNEL=="nvidia*", MODE="0666"
+      '';
+
+      systemd.services.nvidia-persistenced.serviceConfig.PIDFile = "/run/nvidia-persistenced/nvidia-persistenced.pid";
+
+      services.xserver.extraConfig = ''
+        Section "Screen"
+          Identifier "Screen-nvidia[0]"
+          Device "Device-nvidia[0]"
+        EndSection
+      '';
+
     boot = {
       extraModprobeConfig = ''
         option nvidia-drm.modeset=1
