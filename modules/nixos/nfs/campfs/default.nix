@@ -2,10 +2,10 @@
 
 with lib;
 with lib.campground;
-let cfg = config.campground.system.campfs;
+let cfg = config.campground.nfs.campfs;
 in
 {
-  options.campground.system.campfs = with types; {
+  options.campground.nfs.campfs = with types; {
     enable = mkBoolOpt false "Whether or not to mount campfs.";
   };
 

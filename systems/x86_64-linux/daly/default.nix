@@ -35,6 +35,10 @@ in
       acme = enabled;
     };
 
+    nfs = {
+      campfs = enabled;
+    };
+
     system = {
       boot = enabled;
       zfs = {
