@@ -167,7 +167,7 @@ in
 
           if ! [ -f '${cfg.policy-agent.auth.secretIdFilePath}' ]; then
             echo 'secret-id file not found: ${cfg.policy-agent.auth.secretIdFilePath}'
-            exit 1
+            exit 0
           fi
 
           role_id="$(cat '${cfg.policy-agent.auth.roleIdFilePath}')"
