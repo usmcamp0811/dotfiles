@@ -5,7 +5,7 @@ with lib.campground;
 let cfg = config.campground.system.campfs;
 in
 {
-  options.campground.system.boot = with types; {
+  options.campground.system.campfs = with types; {
     enable = mkBoolOpt false "Whether or not to mount campfs.";
   };
 
