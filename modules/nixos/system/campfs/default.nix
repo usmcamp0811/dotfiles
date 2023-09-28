@@ -1,0 +1,19 @@
+{ options, config, pkgs, lib, ... }:
+
+with lib;
+with lib.campground;
+let cfg = config.campground.system.campfs;
+in
+{
+  options.campground.system.boot = with types; {
+    enable = mkBoolOpt false "Whether or not to mount campfs.";
+  };
+
+  config = mkIf cfg.enable {
+    fileSystems."/mnt/campfs" = {
+      device = "lucas:/mnt/campfs";
+      fsType = "nfs";
+      options = [ "rw" "soft" ];
+    };
+  };
+}
