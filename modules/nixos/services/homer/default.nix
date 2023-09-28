@@ -25,6 +25,13 @@ in
 
     host = mkOpt (types.nullOr types.str) null "The host to serve Homer on.";
 
+    listen = lib.mkOption {
+      type = lib.types.attrs;
+      default = null;
+      # default = { addr = "0.0.0.0"; port = 8080; };
+      description = "Nginx listen config for the virtual host.";
+    };
+
     nginx = {
       forceSSL = mkOption {
         type = types.bool;
@@ -63,6 +70,8 @@ in
       enable = true;
 
       virtualHosts."${cfg.host}" = {
+        listen = lib.optional (cfg.listen != null) cfg.listen;
+
         enableACME = cfg.acme.enable;
         forceSSL = cfg.nginx.forceSSL;
 

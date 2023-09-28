@@ -64,6 +64,8 @@ in
 
     };
 
+    address = mkOpt types.str "0.0.0.0:8200" "Where to access vault UI at";
+
     settings = mkOpt types.str "" "Configuration for Vault's config file.";
 
     mutable-policies = mkBoolOpt false "Whether policies not specified in Nix should be removed.";
@@ -84,6 +86,7 @@ in
   config = mkIf cfg.enable {
     services.vault = {
       enable = true;
+      address = cfg.address;
       inherit package;
       storageBackend = cfg.storage.backend;
       storagePath = cfg.storage.path;
@@ -96,6 +99,11 @@ in
     };
 
     systemd.services.vault = { };
+
+    systemd.tmpfiles.rules = 
+      if cfg.storage.backend == "file" then [
+        "d ${cfg.storage.path} 0600 vault vault -"
+      ] else [];
 
     systemd.services.vault-policies = mkIf (has-policies || !cfg.mutable-policies) {
       wantedBy = [ "vault.service" ];
@@ -199,6 +207,7 @@ in
 
           ${optionalString (!cfg.mutable-policies) remove-unknown-policies}
         '';
+
     };
   };
 }
