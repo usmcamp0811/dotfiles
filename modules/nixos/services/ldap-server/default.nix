@@ -95,8 +95,8 @@ in
     networking.firewall.allowedTCPPorts = [ 389 8080 ]; # OpenLDAP and phpLDAPadmin ports
     services.openldap = {
       enable = true;
-      rootdn = "cn=admin,${ldapBaseDN}";
-      rootpw = "{CLEARTEXT}admin"; # Use a more secure method in production
+      # rootdn = "cn=admin,${cfg.ldapBaseDN}";
+      # rootpw = "{CLEARTEXT}admin"; # Use a more secure method in production
 
       /* enable plain connections only */
       urlList = [ "ldap:///" ];
