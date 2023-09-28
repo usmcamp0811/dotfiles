@@ -84,8 +84,8 @@ in
 {
   options.campground.services.ldap-server = with types; {
     enable = mkBoolOpt false "Enable Docker;";
-    ldapBackend = mkOpt str "??Look at jinja docker things" "the Ldap Backend";
-    ldapBaseDN = mkOpt str "Look at jinja" "The BaseDN";
+    ldapBackend = mkOpt str "mdb" "the Ldap Backend";
+    ldapBaseDN = mkOpt str "dc=aicampground,dc=com" "The BaseDN";
     domain-name = mkOpt str "aicampground" "The domain name to use";
     rootdn = mkOpt str "cn=admin,dc=${cfg.domain-name},dc=com" "The Root DN to use";
     suffix = mkOpt str "dc=${cfg.domain-name},dc=com" "The suffix";
@@ -93,48 +93,51 @@ in
 
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ 389 8080 ]; # OpenLDAP and phpLDAPadmin ports
-
     services.openldap = {
       enable = true;
       rootdn = "cn=admin,${ldapBaseDN}";
       rootpw = "{CLEARTEXT}admin"; # Use a more secure method in production
-      extraDatabaseConfig = {
-        mdb = {
-          suffix = ldapBaseDN;
-        };
-      };
-      ldif = pp-ldif;
-    };
 
-    services.httpd = {
-      enable = true;
-      adminAddr = "admin@aicampground.com";
-      ports = [
-        { port = 8080; }
-      ];
-      extraModules = [
-        { name = "proxy"; path = "${pkgs.apacheHttpd}/modules/mod_proxy.so"; }
-        { name = "proxy_fcgi"; path = "${pkgs.apacheHttpd}/modules/mod_proxy_fcgi.so"; }
-      ];
-      virtualHosts = [
-        {
-          hostName = "localhost";
-          documentRoot = "${pkgs.phpLDAPadmin}/share/phpldapadmin/htdocs";
-          extraConfig = ''
-            <Directory "${pkgs.phpLDAPadmin}/share/phpldapadmin/htdocs">
-              DirectoryIndex index.php
-              Require all granted
-            </Directory>
-          '';
-        }
-      ];
-    };
+      /* enable plain connections only */
+      urlList = [ "ldap:///" ];
 
-    services.phpfpm.pools.phpldapadmin = {
-      user = "httpd";
       settings = {
-        "listen.owner" = "httpd";
-        "listen.group" = "httpd";
+        attrs = {
+          olcLogLevel = "conns config";
+        };
+
+        children = {
+          "cn=schema".includes = [
+            "${pkgs.openldap}/etc/schema/core.ldif"
+            "${pkgs.openldap}/etc/schema/cosine.ldif"
+            "${pkgs.openldap}/etc/schema/inetorgperson.ldif"
+          ];
+
+          "olcDatabase={1}mdb".attrs = {
+            objectClass = [ "olcDatabaseConfig" "olcMdbConfig" ];
+
+            olcDatabase = "{1}mdb";
+            olcDbDirectory = "/var/lib/openldap/data";
+
+            olcSuffix = cfg.ldapBaseDN;
+
+            /* your admin account, do not use writeText on a production system */
+            olcRootDN = "cn=admin,${cfg.ldapBaseDN}";
+            olcRootPW.path = pkgs.writeText "olcRootPW" "pass";
+
+            olcAccess = [
+              /* custom access rules for userPassword attributes */
+              ''{0}to attrs=userPassword
+                  by self write
+                  by anonymous auth
+                  by * none''
+
+              /* allow read on anything else */
+              ''{1}to *
+                  by * read''
+            ];
+          };
+        };
       };
     };
   };
