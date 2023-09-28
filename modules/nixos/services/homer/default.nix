@@ -26,10 +26,9 @@ in
     host = mkOpt (types.nullOr types.str) null "The host to serve Homer on.";
 
     listen = lib.mkOption {
-      type = lib.types.attrs;
+      type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
       default = null;
-      # default = { addr = "0.0.0.0"; port = 8080; };
-      description = "Nginx listen config for the virtual host.";
+      description = "Nginx listen config for the virtual host. example:`{ addr = "0.0.0.0"; port = 8080; }`";
     };
 
     nginx = {

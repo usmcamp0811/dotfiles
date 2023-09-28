@@ -100,10 +100,10 @@ in
 
     systemd.services.vault = { };
 
-    systemd.tmpfiles.rules = 
-      if cfg.storage.backend == "file" then [
-        "d ${cfg.storage.path} 0600 vault vault -"
-      ] else [];
+    # systemd.tmpfiles.rules = 
+    #   if cfg.storage.backend == "file" then [
+    #     "d ${cfg.storage.path} 0750 vault vault -"
+    #   ] else [];
 
     systemd.services.vault-policies = mkIf (has-policies || !cfg.mutable-policies) {
       wantedBy = [ "vault.service" ];
@@ -206,6 +206,7 @@ in
           ${write-policies}
 
           ${optionalString (!cfg.mutable-policies) remove-unknown-policies}
+          exit 0
         '';
 
     };
