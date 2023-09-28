@@ -162,7 +162,7 @@ in
         ''
           if ! [ -f '${cfg.policy-agent.auth.roleIdFilePath}' ]; then
             echo 'role-id file not found: ${cfg.policy-agent.auth.roleIdFilePath}'
-            exit 1
+            exit 0
           fi
 
           if ! [ -f '${cfg.policy-agent.auth.secretIdFilePath}' ]; then
