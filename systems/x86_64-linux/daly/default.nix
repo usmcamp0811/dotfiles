@@ -146,26 +146,6 @@ in
       # settings-path = "/var/lib/homer/config.yml";
     };
 
-    attic = {
-      enable = true;
-
-      user = "atticd";
-      group = "atticd";
-
-      settings = {
-        listen = "[::]:8989";
-
-        chunking = {
-          nar-size-threshold = 64 * 1024;
-          min-size = 16 * 1024;
-          avg-size = 64 * 1024;
-          max-size = 256 * 1024;
-        };
-
-        require-proof-of-possession = false;
-      };
-    };
-
     vault = {
       enable = true;
       ui = true;
