@@ -12,6 +12,17 @@ let
 
 in
 {
+  ###### REQUIRED FOR EC2 SYSTEMS #######
+  boot.loader.grub = {
+    device = "nodev";
+  };
+  # as long as we use the same AMI this works else have to see what the drives are called
+  fileSystems."/" = {
+    device = "/dev/xvda2";
+    fsType = "ext4";
+  };  
+  ###### REQUIRED FOR EC2 SYSTEMS #######
+
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
 
 
@@ -47,7 +58,6 @@ in
       };
     };
     system = {
-      # boot = enabled;
       fonts = enabled;
       locale = enabled;
       time = enabled;
