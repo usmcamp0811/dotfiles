@@ -67,6 +67,7 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
+      gen-clients
     ];
 
     users.users.ovpn = {
@@ -105,6 +106,18 @@ in
         Type = "oneshot";
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
+        after = [ "vault-agent.service" ];
+        before = [ "openvpn-campground.service" ];
+      };
+      wantedBy = [ "multi-user.target" ];
+    };
+
+    systemd.services.genVPNclients = {
+      description = "Get VPN Client Certs from Vault";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = "${pkgs.bash}/bin/bash ${gen-clients} ";
         after = [ "vault-agent.service" ];
         before = [ "openvpn-campground.service" ];
       };
