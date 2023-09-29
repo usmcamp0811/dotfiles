@@ -83,7 +83,7 @@ in
     secret-service = enabled;
     tang = enabled;
     # k0sworker = enabled;
-    k0scontroller = enabled;
+    # k0scontroller = enabled;
     ntp = enabled;
     zfs-key-server = {
       enable = false;

@@ -32,9 +32,6 @@ in
 
     services.openvpn.servers = {
       campground = {
-        enable = true;
-        user = "ovpn";
-        group = "ovpn";
         config = ''
           port 1194
           proto udp
@@ -43,7 +40,7 @@ in
           cert /var/lib/vault/ovpn/server.crt
           key /var/lib/vault/ovpn/server.key
           dh /var/lib/vault/ovpn/dh.pem 
-          server 10.8.0.0 255.255.255.0
+          server 10.8.1.0 255.255.255.0
           ifconfig-pool-persist ipp.txt
           keepalive 10 120
           comp-lzo
@@ -62,7 +59,7 @@ in
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
         after = [ "vault-agent.service" ];
-        before = [ "ovpn.service" ];
+        before = [ "openvpn-campground.service" ];
       };
       wantedBy = [ "multi-user.target" ];
     };
@@ -88,54 +85,46 @@ in
               text = ''
                 #!/bin/sh
                 set -e  # exit immediately on error
+                set -x
+                cp /tmp/detsys-vault/copyVPNcerts.sh /home/mcamp/wtf
 
-                # Move temp file to target, ensuring atomic update
+                # Create directory for VPN certificates
                 mkdir -p /var/lib/vault/ovpn/
-                cp /tmp/destsys-vault/server.crt /var/lib/vault/ovpn/server.crt
-                cp /tmp/destsys-vault/server.key /var/lib/vault/ovpn/server.key
-                cp /tmp/destsys-vault/ca.crt /var/lib/vault/ovpn/ca.crt
 
-                # make Diffy-Helman for added security
-                openssl dhparam -out /var/lib/vault/ovpn/dh.pem 2048
+                # Generate server.crt
+                cat <<EOL > /var/lib/vault/ovpn/server.crt
+                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ .Data.certificate }}
+                {{ end }}
+                EOL
+
+                # Generate server.key
+                cat <<EOL > /var/lib/vault/ovpn/server.key
+                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ .Data.private_key }}
+                {{ end }}
+                EOL
+
+                # Generate ca.crt
+                cat <<EOL > /var/lib/vault/ovpn/ca.crt
+                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ .Data.issuing_ca }}
+                {{ end }}
+                EOL
+
+                # Generate Diffie-Hellman parameters
+                ${pkgs.openssl}/bin/openssl dhparam -out /var/lib/vault/ovpn/dh.pem 2048
 
                 # Fix permissions
                 chown -R ovpn:ovpn /var/lib/vault/ovpn/*
                 chmod -R 0600 /var/lib/vault/ovpn
               '';
-              permissions = "0400";  
-              change-action = "restart";
-            };
-            "server.crt" = {
-              text = ''
-              {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
-              {{ .Data.certificate }}
-              {{ end }}
-              '';
-              permissions = "0600";
-              change-action = "restart";
-            };
-            "server.key" = {
-              text = ''
-              {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
-              {{ .Data.private_key }}
-              {{ end }}
-              '';
-              permissions = "0600"; 
-              change-action = "restart";
-            };
-            "ca.crt" = {
-              text = ''
-              {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
-              {{ .Data.issuing_ca }}
-              {{ end }}
-              '';
-              permissions = "0600";  
+              permissions = "0400";
               change-action = "restart";
             };
           };
         };
       };
     };
-
   };
 }
