@@ -8,7 +8,7 @@ in
   options.campground.tools.vault = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common Vault CLI.";
-    vault-addr = mkOpt str "https://vault.aicampground.com" "url for the vault";
+    vault-addr = mkOpt str "https://vault.lan.aicampground.com" "url for the vault";
   };
 
   config = mkIf cfg.enable {
