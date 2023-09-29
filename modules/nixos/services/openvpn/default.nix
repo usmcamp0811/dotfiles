@@ -22,9 +22,19 @@ in
     environment.systemPackages = with pkgs; [
     ];
 
+    users.users.ovpn = {
+      isSystemUser = true;
+      group = "ovpn";
+      description = "OpenVPN service user";
+    };
+
+    users.groups.ovpn = {};
+
     services.openvpn.servers = {
       campground = {
         enable = true;
+        user = "ovpn";
+        group = "ovpn";
         config = ''
           port 1194
           proto udp
