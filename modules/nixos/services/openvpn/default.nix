@@ -22,18 +22,19 @@ let
       exit 1
     fi
 
+    seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
+
     echo "Seal Status: $seal_status"
 
-    if [ seal_status = "true" ]; then
+    if [ $seal_status = "true" ]; then
       echo "Vault is currently sealed, cannot generate client certificats."
       exit 1
     fi
 
-    seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
 
     echo "Getting token..."
 
-    token=$(vault write -field=token auth/approle/login \
+    token=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login \
       role_id="${cfg.role-id}" \
       secret_id="${cfg.secret-id}" \
     )
@@ -47,7 +48,7 @@ let
 
     # If the role doesn't exist, create it
     if [ $? -ne 0 ]; then
-      ${vault}/bin/vault write ${cfg.vault-client-path} \
+      ${pkgs.vault}/bin/vault write ${cfg.vault-client-path} \
         allowed_domains="$COMMON_NAME" \
         allow_subdomains="true" \
         max_ttl="72h"
