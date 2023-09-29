@@ -22,3 +22,8 @@ path "pki/ca" {
 path "pki/crl" {
   capabilities = ["read"]
 }
+
+path "pki/roles/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
