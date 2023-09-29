@@ -98,3 +98,48 @@ openssl dhparam -out dh.pem 2048
 - **Firewall Rules**: Ensure your firewall allows traffic on the OpenVPN port (default 1194/UDP).
 
 By following these steps, you should have a fully functional OpenVPN server with certificates managed by Vault.
+
+
+### Generating Client Certificates
+
+You can create a new role in Vault specifically for OpenVPN clients and then issue certificates based on that role. Here's how you can set it up:
+
+1. **Create a Role for OpenVPN Clients**
+
+    ```bash
+    vault write pki/roles/campground-vpn-client-role \
+      allowed_domains="client.aicampground.com" \
+      allow_subdomains=true max_ttl=72h
+    ```
+
+2. **Generate a Client Certificate**
+
+    ```bash
+    vault write pki/issue/campground-vpn-client-role common_name="client1.client.aicampground.com"
+    ```
+
+    This will output the client certificate, private key, and the CA certificate. You can put these into your client's OpenVPN configuration.
+
+### Revoking Certificates
+
+Vault's PKI secrets engine allows you to revoke certificates. To revoke a certificate, you'll need its serial number. You can find this in the certificate details.
+
+1. **Revoke a Certificate**
+
+    ```bash
+    vault write pki/revoke serial_number="XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX"
+    ```
+
+    This will mark the certificate as revoked and update the CRL (Certificate Revocation List).
+
+2. **Update OpenVPN to Use CRL**
+
+    You'll need to configure OpenVPN to use this CRL. Add the following line to your OpenVPN server configuration:
+
+    ```bash
+    crl-verify /path/to/crl.pem
+    ```
+
+    You can download the updated CRL from Vault and place it in the specified path.
+
+By following these steps, you can generate client certificates and also have the ability to revoke them when needed.

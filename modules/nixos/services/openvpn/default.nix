@@ -3,6 +3,53 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.openvpn;
+
+  gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
+    #!/usr/bin/env bash
+
+    if [ -z "$1" ]; then
+      echo "Usage: $0 <client_name>"
+      exit 1
+    fi
+
+    CLIENT_NAME=$1
+    COMMON_NAME="${CLIENT_NAME}.client.aicampground.com"
+
+    # Fetch client certificate, key, and CA from Vault
+    CLIENT_CERT=$(${vault}/bin/vault write -field=certificate pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
+    CLIENT_KEY=$(${vault}/bin/vault write -field=private_key pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
+    CA_CERT=$(${vault}/bin/vault read -field=certificate pki/cert/ca)
+
+    # Create .ovpn file
+    cat > "${CLIENT_NAME}.ovpn" <<EOL
+    client
+    dev tun
+    proto udp
+    remote vpn.aicampground.com 1194
+    resolv-retry infinite
+    nobind
+    persist-key
+    persist-tun
+    remote-cert-tls server
+    auth-nocache
+    cipher AES-256-CBC
+    verb 3
+
+    <ca>
+    $CA_CERT
+    </ca>
+
+    <cert>
+    $CLIENT_CERT
+    </cert>
+
+    <key>
+    $CLIENT_KEY
+    </key>
+    EOL
+
+    echo "${CLIENT_NAME}.ovpn file has been generated."
+  '';
 in
 {
   options.campground.services.openvpn = with types; {
