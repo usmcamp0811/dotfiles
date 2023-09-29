@@ -100,24 +100,29 @@ in
       };
     };
 
+    systemd.services.genVPNclients = {
+        description = "Generate VPN Client Certs";
+        environment.CLIENTS = builtins.concatStringsSep " " config.campground.services.openvpn.clients;
+        WorkingDirectory = "/var/lib/vault/ovpn/clients";
+        serviceConfig = {
+          Type = "oneshot";
+          User = "root";
+          ExecStart = ''
+            ${pkgs.bash}/bin/bash -c 'for client in $CLIENTS; do ${gen-clients}/bin/generate-client-ovpn $client; done'
+          '';
+          after =  [ "vault-agent.service" ];
+          before = [ "openvpn-campground.service" ];
+        };
+        wantedBy = [ "multi-user.target" ];
+      };
+    };
+
     systemd.services.copyVPNcerts = {
       description = "Get VPN Server Certs from Vault";
       serviceConfig = {
         Type = "oneshot";
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
-        after = [ "vault-agent.service" ];
-        before = [ "openvpn-campground.service" ];
-      };
-      wantedBy = [ "multi-user.target" ];
-    };
-
-    systemd.services.genVPNclients = {
-      description = "Get VPN Client Certs from Vault";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = "${pkgs.bash}/bin/bash ${gen-clients} ";
         after = [ "vault-agent.service" ];
         before = [ "openvpn-campground.service" ];
       };
@@ -150,6 +155,9 @@ in
 
                 # Create directory for VPN certificates
                 mkdir -p /var/lib/vault/ovpn/
+
+                # Create directory for client certificates
+                mkdir -p /var/lib/vault/ovpn/clients/
 
                 # Generate server.crt
                 cat <<EOL > /var/lib/vault/ovpn/server.crt
