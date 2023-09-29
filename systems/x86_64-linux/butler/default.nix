@@ -50,7 +50,6 @@ in
     system = {
       # manage local passwd in vault
       passwds = enabled;
-      campfs = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         enable = true;
