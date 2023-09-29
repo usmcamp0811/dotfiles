@@ -56,7 +56,8 @@ in
       home.activation.sshKeys = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
         if [ -e "/var/lib/vault/users/${cfg-user.name}/id_ed25519" ]; then
           rm -rf /home/${cfg-user.name}/.ssh/id_ed25519
-          cp /var/lib/vault/users/${cfg-user.name}/id_ed25519 /home/${cfg-user.name}/.ssh/id_ed25519
+          cat /var/lib/vault/users/${cfg-user.name}/id_ed25519 > /home/${cfg-user.name}/.ssh/id_ed25519
+          echo "" >> /home/${cfg-user.name}/.ssh/id_ed25519
           chmod 600 /home/${cfg-user.name}/.ssh/id_ed25519
           ${pkgs.openssh}/bin/ssh-keygen -y -f /home/${cfg-user.name}/.ssh/id_ed25519 > /home/${cfg-user.name}/.ssh/id_ed25519.pub
           chmod 644 /home/${cfg-user.name}/.ssh/id_ed25519.pub
@@ -66,7 +67,8 @@ in
         fi
         if [ -e "/var/lib/vault/users/${cfg-user.name}/id_rsa" ]; then
           rm -rf /home/${cfg-user.name}/.ssh/id_rsa
-          cp /var/lib/vault/users/${cfg-user.name}/id_rsa /home/${cfg-user.name}/.ssh/id_rsa
+          cat /var/lib/vault/users/${cfg-user.name}/id_rsa > /home/${cfg-user.name}/.ssh/id_rsa
+          echo "" >> /home/${cfg-user.name}/.ssh/id_rsa
           ${pkgs.openssh}/bin/ssh-keygen -y -f /home/${cfg-user.name}/.ssh/id_rsa > /home/${cfg-user.name}/.ssh/id_rsa.pub
           chmod 600 /home/${cfg-user.name}/.ssh/id_rsa
           chmod 644 /home/${cfg-user.name}/.ssh/id_rsa.pub

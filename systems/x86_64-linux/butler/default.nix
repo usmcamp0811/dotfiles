@@ -43,9 +43,9 @@ in
       keyring = enabled;
     };
 
-    nfs = {
-      campfs = enabled;
-    };
+    # nfs = {
+    #   campfs = enabled;
+    # };
 
     system = {
       # manage local passwd in vault
