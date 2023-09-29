@@ -22,16 +22,11 @@ in
     archetypes = {
       workstation = enabled;
     };
-    desktop.qtile = {
-      enable = false;
-      gdm = true;
-    };
 
     apps = {
     };
 
     security = {
-      # doas = enabled;
       acme = enabled;
     };
 
