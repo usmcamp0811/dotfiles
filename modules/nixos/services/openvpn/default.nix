@@ -22,6 +22,29 @@ in
     environment.systemPackages = with pkgs; [
     ];
 
+    services.openvpn.servers = {
+      campground = {
+        enable = true;
+        config = ''
+          port 1194
+          proto udp
+          dev tun
+          ca /var/lib/vault/ovpn/ca.crt
+          cert /var/lib/vault/ovpn/server.crt
+          key /var/lib/vault/ovpn/server.key
+          dh /var/lib/vault/ovpn/dh.pem 
+          server 10.8.0.0 255.255.255.0
+          ifconfig-pool-persist ipp.txt
+          keepalive 10 120
+          comp-lzo
+          persist-key
+          persist-tun
+          status openvpn-status.log
+          verb 3
+        '';
+      };
+    };
+
     systemd.services.copyVPNcerts = {
       description = "Get VPN Server Certs from Vault";
       serviceConfig = {
@@ -29,12 +52,12 @@ in
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
         after = [ "vault-agent.service" ];
-        before = [ "sssd.service" ];
+        before = [ "ovpn.service" ];
       };
       wantedBy = [ "multi-user.target" ];
     };
 
-    campground.services.vault-agent.services.copyLdapCAPem = {
+    campground.services.vault-agent.services.copyVPNcerts = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -51,13 +74,34 @@ in
       secrets = {
         file = {
           files = {
+            "copyVPNcerts.sh" = {
+              text = ''
+                #!/bin/sh
+                set -e  # exit immediately on error
+
+                # Move temp file to target, ensuring atomic update
+                mkdir -p /var/lib/vault/ovpn/
+                cp /tmp/destsys-vault/server.crt /var/lib/vault/ovpn/server.crt
+                cp /tmp/destsys-vault/server.key /var/lib/vault/ovpn/server.key
+                cp /tmp/destsys-vault/ca.crt /var/lib/vault/ovpn/ca.crt
+
+                # make Diffy-Helman for added security
+                openssl dhparam -out /var/lib/vault/ovpn/dh.pem 2048
+
+                # Fix permissions
+                chown -R ovpn:ovpn /var/lib/vault/ovpn/*
+                chmod -R 0600 /var/lib/vault/ovpn
+              '';
+              permissions = "0400";  
+              change-action = "restart";
+            };
             "server.crt" = {
               text = ''
               {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
               {{ .Data.certificate }}
               {{ end }}
               '';
-              permissions = "0600";  # Make the script executable
+              permissions = "0600";
               change-action = "restart";
             };
             "server.key" = {
@@ -66,7 +110,7 @@ in
               {{ .Data.private_key }}
               {{ end }}
               '';
-              permissions = "0600";  # Make the script executable
+              permissions = "0600"; 
               change-action = "restart";
             };
             "ca.crt" = {
@@ -75,7 +119,7 @@ in
               {{ .Data.issuing_ca }}
               {{ end }}
               '';
-              permissions = "0600";  # Make the script executable
+              permissions = "0600";  
               change-action = "restart";
             };
           };
