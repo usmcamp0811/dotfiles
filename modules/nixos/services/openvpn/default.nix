@@ -12,13 +12,59 @@ let
       exit 1
     fi
 
+    if ! [ -f '${cfg.role-id}' ]; then
+      echo 'role-id file not found: ${cfg.role-id}'
+      exit 1
+    fi
+
+    if ! [ -f '${cfg.secret-id}' ]; then
+      echo 'secret-id file not found: ${cfg.secret-id}'
+      exit 1
+    fi
+
+    echo "Seal Status: $seal_status"
+
+    if [ seal_status = "true" ]; then
+      echo "Vault is currently sealed, cannot generate client certificats."
+      exit 1
+    fi
+
+    seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
+
+    echo "Getting token..."
+
+    token=$(vault write -field=token auth/approle/login \
+      role_id="${cfg.role-id}" \
+      secret_id="${cfg.secret-id}" \
+    )
+
+    echo "Logging in..."
+
+    export VAULT_TOKEN="$(vault login -method=token -token-only token="$token")"
+
+    # Check if the client role exists
+    ROLE_EXISTS=$(${vault}/bin/vault read -format=json ${cfg.vault-client-path} | jq -e .data > /dev/null 2>&1)
+
+    # If the role doesn't exist, create it
+    if [ $? -ne 0 ]; then
+      ${vault}/bin/vault write ${cfg.vault-client-path} \
+        allowed_domains="$COMMON_NAME" \
+        allow_subdomains="true" \
+        max_ttl="72h"
+      echo "Client role campground-vpn-client-role has been created."
+    else
+      echo "Client role campground-vpn-client-role already exists."
+    fi
+
     CLIENT_NAME=$1
     COMMON_NAME="''${CLIENT_NAME}.client.aicampground.com"
+    
+    echo "Writing certificates..."
 
     # Fetch client certificate, key, and CA from Vault
-    CLIENT_CERT=$(${pkgs.vault}/bin/vault write -field=certificate pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
-    CLIENT_KEY=$(${pkgs.vault}/bin/vault write -field=private_key pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
-    CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate pki/cert/ca)
+    CLIENT_CERT=$(${pkgs.vault}/bin/vault write -field=certificate ${cfg.vault-client-path} common_name="$COMMON_NAME")
+    CLIENT_KEY=$(${pkgs.vault}/bin/vault write -field=private_key ${cfg.vault-client-path} common_name="$COMMON_NAME")
+    CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate ${cfg.vault-ca-path})
 
     # Create .ovpn file
     cat > "''${CLIENT_NAME}.ovpn" <<EOL
@@ -61,7 +107,9 @@ in
     };
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "pki/issue/campground-vpn-server-role" "The Vault path to the Cert in Vault";
+    vault-path = mkOpt str "pki/issue/campground-vpn-server-role" "The Vault path to the Server Cert in Vault";
+    vault-client-path = mkOpt str "pki/issue/campground-vpn-client-role" "The Vault path to the Client Cert in Vault"; 
+    vault-ca-path = mkOpt str "pki/cert/ca" "The Vault path to the CA Cert in Vault"; 
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
