@@ -41,10 +41,10 @@ let
 
     echo "Logging in..."
 
-    export VAULT_TOKEN="$(vault login -method=token -token-only token="$token")"
+    export VAULT_TOKEN="$(${pkgs.vault}/bin/vault login -method=token -token-only token="$token")"
 
     # Check if the client role exists
-    ROLE_EXISTS=$(${vault}/bin/vault read -format=json ${cfg.vault-client-path} | jq -e .data > /dev/null 2>&1)
+    ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-client-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1)
 
     # If the role doesn't exist, create it
     if [ $? -ne 0 ]; then
