@@ -74,6 +74,11 @@ in
 
     openvpn = {
       enable = true;
+      clients = [
+        "butler"
+        "oconus"
+        "pixel"
+      ];
 
     };
     openssh = {

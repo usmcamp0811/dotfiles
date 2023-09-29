@@ -13,15 +13,15 @@ let
     fi
 
     CLIENT_NAME=$1
-    COMMON_NAME="${CLIENT_NAME}.client.aicampground.com"
+    COMMON_NAME="''${CLIENT_NAME}.client.aicampground.com"
 
     # Fetch client certificate, key, and CA from Vault
-    CLIENT_CERT=$(${vault}/bin/vault write -field=certificate pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
-    CLIENT_KEY=$(${vault}/bin/vault write -field=private_key pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
-    CA_CERT=$(${vault}/bin/vault read -field=certificate pki/cert/ca)
+    CLIENT_CERT=$(${pkgs.vault}/bin/vault write -field=certificate pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
+    CLIENT_KEY=$(${pkgs.vault}/bin/vault write -field=private_key pki/issue/campground-vpn-client-role common_name="$COMMON_NAME")
+    CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate pki/cert/ca)
 
     # Create .ovpn file
-    cat > "${CLIENT_NAME}.ovpn" <<EOL
+    cat > "''${CLIENT_NAME}.ovpn" <<EOL
     client
     dev tun
     proto udp
@@ -48,12 +48,17 @@ let
     </key>
     EOL
 
-    echo "${CLIENT_NAME}.ovpn file has been generated."
+    echo "''${CLIENT_NAME}.ovpn file has been generated."
   '';
 in
 {
   options.campground.services.openvpn = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
+    clients = mkOption {
+      type = types.listOf types.str;
+      default = [];
+      description = "List of OpenVPN clients.";
+    };
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "pki/issue/campground-vpn-server-role" "The Vault path to the Cert in Vault";
@@ -101,20 +106,19 @@ in
     };
 
     systemd.services.genVPNclients = {
-        description = "Generate VPN Client Certs";
-        environment.CLIENTS = builtins.concatStringsSep " " config.campground.services.openvpn.clients;
-        WorkingDirectory = "/var/lib/vault/ovpn/clients";
-        serviceConfig = {
-          Type = "oneshot";
-          User = "root";
-          ExecStart = ''
-            ${pkgs.bash}/bin/bash -c 'for client in $CLIENTS; do ${gen-clients}/bin/generate-client-ovpn $client; done'
-          '';
-          after =  [ "vault-agent.service" ];
-          before = [ "openvpn-campground.service" ];
-        };
-        wantedBy = [ "multi-user.target" ];
+      description = "Generate VPN Client Certs";
+      environment.CLIENTS = builtins.concatStringsSep " " config.campground.services.openvpn.clients;
+      # WorkingDirectory = "/var/lib/vault/ovpn/clients";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = ''
+          ${pkgs.bash}/bin/bash -c 'mkdir -p /var/lib/vault/ovpn/clients && cd /var/lib/vault/ovpn/clients && for client in $CLIENTS; do ${gen-clients}/bin/generate-client-ovpn $client; done'
+        '';
+        after =  [ "copyVPNcerts.service" ];
+        before = [ "openvpn-campground.service" ];
       };
+      wantedBy = [ "multi-user.target" ];
     };
 
     systemd.services.copyVPNcerts = {
