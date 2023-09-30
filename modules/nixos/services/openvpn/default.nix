@@ -68,8 +68,14 @@ let
     echo "Writing certificates..."
 
     # Fetch client certificate, key, and CA from Vault
-    CLIENT_CERT=$(${pkgs.vault}/bin/vault write -field=certificate ${cfg.vault-client-path} common_name="$COMMON_NAME")
-    CLIENT_KEY=$(${pkgs.vault}/bin/vault write -field=private_key ${cfg.vault-client-path} common_name="$COMMON_NAME")
+    # Issue a new certificate and key pair, capturing the JSON output
+    VAULT_OUTPUT=$(${pkgs.vault}/bin/vault write -format=json ${cfg.vault-client-path} common_name="$COMMON_NAME")
+
+    # Parse the JSON to get the certificate and key
+    CLIENT_CERT=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.certificate')
+    CLIENT_KEY=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.private_key')
+
+    # Get the CA certificate
     CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate ${cfg.vault-ca-path})
 
     # Create .ovpn file
