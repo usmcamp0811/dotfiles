@@ -5,10 +5,11 @@ let
   cfg = config.campground.services.openvpn;
 
   gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
-    #!/usr/bin/env bash
+    set -e
+    set -x
 
     CLIENT_NAME=$1
-    COMMON_NAME="''${CLIENT_NAME}.client.aicampground.com"
+    COMMON_NAME="''${CLIENT_NAME}.client.${cfg.domain-name}"
 
     export VAULT_ADDR=${cfg.vault-address}
 
@@ -27,7 +28,7 @@ let
       exit 1
     fi
 
-    seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
+    seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | ${pkgs.jq}/bin/jq ".sealed")
 
     echo "Seal Status: $seal_status"
 
@@ -42,24 +43,24 @@ let
     token=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login \
       role_id="$(cat ${cfg.role-id})" \
       secret_id="$(cat ${cfg.secret-id})" \
-    )
+    ) || { echo "Failed to get token"; exit 1; }
 
-    echo "Logging in..."
-
-    export VAULT_TOKEN="$(${pkgs.vault}/bin/vault login -method=token -token-only token="$token")"
+    echo "Setting VAULT_TOKEN..."
+    export VAULT_TOKEN="$token" || { echo "Failed to set VAULT_TOKEN"; exit 1; }
 
     # Check if the client role exists
-    ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-client-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1)
+    ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-client-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1; echo $?)
 
+    # Check if the client role exists
     if [ -z "$ROLE_EXISTS" ]; then
       echo "ROLE_EXISTS is empty, creating the client role."
       ${pkgs.vault}/bin/vault write ${cfg.vault-client-path} \
-        allowed_domains="$COMMON_NAME" \
+        allowed_domains="${cfg.domain-name}" \
         allow_subdomains="true" \
         max_ttl="72h"
-      echo "Client role campground-vpn-client-role has been created."
+      echo "Client role ${cfg.vault-client-path} has been created."
     elif [ "$ROLE_EXISTS" -ne 0 ]; then
-      echo "Client role campground-vpn-client-role already exists."
+      echo "Client role ${cfg.vault-client-path} already exists."
     else
       echo "An unexpected condition occurred."
     fi
@@ -88,7 +89,7 @@ let
     resolv-retry infinite
     nobind
     remote-cert-tls server
-    cipher AES-256-GCM
+    cipher AES-256-CBC
     verb 3
     redirect-gateway def1
 
@@ -126,7 +127,8 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    common-name = mkOpt str "vpn.aicampground.com" "Common Name for Server Certs";
+    common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
+    domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
   };
 
   config = mkIf cfg.enable {
