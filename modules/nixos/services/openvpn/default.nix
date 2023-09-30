@@ -84,14 +84,13 @@ let
     dev tun
     proto udp
     remote vpn.aicampground.com 1194
+    remote-random-hostname
     resolv-retry infinite
     nobind
-    persist-key
-    persist-tun
     remote-cert-tls server
-    auth-nocache
-    cipher AES-256-CBC
+    cipher AES-256-GCM
     verb 3
+    redirect-gateway def1
 
     <ca>
     $CA_CERT
