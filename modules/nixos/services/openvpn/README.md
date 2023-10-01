@@ -60,7 +60,7 @@ Create Vault Agent templates to fetch the necessary certificate files dynamicall
 ### For `server.crt`:
 
 ```liquid
-{{ with secret "pki/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
+{{ with secret "campground-vpn/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
 {{ .Data.certificate }}
 {{ end }}
 ```
@@ -68,7 +68,7 @@ Create Vault Agent templates to fetch the necessary certificate files dynamicall
 ### For `server.key`:
 
 ```liquid
-{{ with secret "pki/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
+{{ with secret "campground-vpn/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
 {{ .Data.private_key }}
 {{ end }}
 ```
@@ -76,7 +76,7 @@ Create Vault Agent templates to fetch the necessary certificate files dynamicall
 ### For `ca.crt`:
 
 ```liquid
-{{ with secret "pki/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
+{{ with secret "campground-vpn/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
 {{ .Data.issuing_ca }}
 {{ end }}
 ```
