@@ -56,8 +56,8 @@ let
       echo "ROLE_EXISTS is empty, creating the client role."
       ${pkgs.vault}/bin/vault write ${cfg.vault-path} \
         allowed_domains="${cfg.domain-name}" \
-        allow_subdomains="true" \
-        max_ttl="72h"
+        allow_subdomains="false" \
+        max_ttl="336h" # 2 weeks
       echo "Client role ${cfg.vault-path} has been created."
     elif [ "$ROLE_EXISTS" -ne 0 ]; then
       echo "Client role ${cfg.vault-path} already exists."
@@ -80,6 +80,8 @@ let
     SERIAL_NUMBER=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.serial_number')
 
     # Append the serial number and common name 
+    # TODO: store this on the VPN server
+    # TODO: Get the previous (not current or the one we are creating) serial number and invalidate it
     echo "$SERIAL_NUMBER,$COMMON_NAME" 
 
     # Get the CA certificate
@@ -172,7 +174,7 @@ in
         ${pkgs.networkmanager}/bin/nmcli con import type openvpn file $OVPN_FILE
 
         # Clean up
-        rm -rf $OVPN_FILE
+        # rm -rf $OVPN_FILE
       '';
       wantedBy = [ "multi-user.target" ];
     };
