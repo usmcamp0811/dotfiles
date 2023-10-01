@@ -151,6 +151,8 @@ in
 
     users.groups.ovpn = {};
 
+    boot.kernel.sysctl."net.ipv4.ip_forward" = 1; # so we can get to the internet
+
     services.openvpn.servers = {
       campground = {
         config = ''
@@ -167,6 +169,8 @@ in
           comp-lzo
           persist-key
           persist-tun
+          client-to-client
+          push "redirect-gateway def1"
           status openvpn-status.log
           verb 3
         '';
