@@ -136,6 +136,7 @@ in
 
     environment.systemPackages = with pkgs; [
       gen-clients
+      openvpn
     ];
 
     systemd.timers.genVPNcert = {
