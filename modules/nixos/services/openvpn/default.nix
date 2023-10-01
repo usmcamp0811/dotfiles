@@ -76,6 +76,12 @@ let
     CLIENT_CERT=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.certificate')
     CLIENT_KEY=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.private_key')
 
+    # Extract the serial number from the JSON output
+    SERIAL_NUMBER=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.serial_number')
+
+    # Append the serial number and common name to the CSV file
+    echo "$SERIAL_NUMBER,$COMMON_NAME" >> ${vpn-cert-csv}
+
     # Get the CA certificate
     CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate ${cfg.vault-ca-path})
 
@@ -129,6 +135,7 @@ in
     };
     common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
     domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
+    vpn-cert-csv = mkOpt str "/var/lib/vault/ovpn/vpn-certs.csv" "CSV with Cert Serial Numbers";
   };
 
   config = mkIf cfg.enable {
