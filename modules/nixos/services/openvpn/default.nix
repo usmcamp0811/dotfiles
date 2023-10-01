@@ -70,7 +70,7 @@ in
       };
       wantedBy = [ "multi-user.target" ];
     };
-
+# TODO: Refactor this so that we rotate server certs in a similar manner as the client certs
     campground.services.vault-agent.services.copyVPNcerts = {
       settings = {
         vault.address = cfg.vault-address;
@@ -92,8 +92,6 @@ in
               text = ''
                 #!/bin/sh
                 set -e  # exit immediately on error
-                set -x
-                cp /tmp/detsys-vault/copyVPNcerts.sh /home/mcamp/wtf
 
                 # Create directory for VPN certificates
                 mkdir -p /var/lib/vault/ovpn/
