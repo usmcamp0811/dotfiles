@@ -12,26 +12,26 @@ path "secret/campground/data/*" {
 
 # TODO: Move all vpn policies to a seperate policy
 # Allow reading from the PKI secrets engine to issue server certificates
-path "campground-vpn/issue/server-role" {
+path "campground-pki/issue/vpn-server-role" {
   capabilities = ["create", "read", "update"]
 }
 
 # Allow reading from the PKI secrets engine to issue client certificates
-path "campground-vpn/issue/client-role" {
+path "campground-pki/issue/vpn-client-role" {
   capabilities = ["create", "read", "update"]
 }
 
 # Allow reading the CA certificate
-path "campground-vpn/ca" {
+path "campground-pki/ca" {
   capabilities = ["read"]
 }
 
 # Allow reading the CRL configuration
-path "campground-vpn/crl" {
+path "campground-pki/crl" {
   capabilities = ["read"]
 }
 
-path "campground-vpn/roles/*" {
+path "campground-pki/roles/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
