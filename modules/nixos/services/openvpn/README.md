@@ -12,6 +12,8 @@ This README provides a comprehensive guide on how to set up an OpenVPN server on
 
 Enable the PKI secrets engine and configure it to issue certificates.
 
+We set `ttl=8760h` meaning the cert if valid for 1 year. We don't set `max_ttl` so that we can just renew the certificate and not change things.
+
 ```bash
 vault secrets enable pki
 
