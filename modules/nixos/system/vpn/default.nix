@@ -77,6 +77,8 @@ let
     CLIENT_CERT=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.certificate')
     CLIENT_KEY=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.private_key')
 
+    TLS_KEY=$(vault kv get -field=tls ${cfg.vault-tls-path})
+
     # Extract the serial number from the JSON output
     SERIAL_NUMBER=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.serial_number')
 
@@ -113,6 +115,10 @@ let
     <key>
     $CLIENT_KEY
     </key>
+
+    <tls-auth>
+    $TLS_KEY
+    </tls-auth>
     EOL
 
     echo "''${CLIENT_NAME}.ovpn file has been generated."
@@ -124,6 +130,7 @@ in
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "campground-pki/issue/vpn-client-role" "The Vault path to the Client Cert in Vault"; 
+    vault-tls-path = mkOpt str "secret/campground/vpn" "The Vault path to the TLS Key in Vault"; 
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;

@@ -14,6 +14,12 @@ in
     vault-path = mkOpt str "campground-pki/issue/vpn-server-role" "The Vault path to the Server Cert in Vault";
     vault-client-path = mkOpt str "campground-pki/issue/vpn-client-role" "The Vault path to the Client Cert in Vault"; 
     vault-ca-path = mkOpt str "campground-pki/cert/ca" "The Vault path to the CA Cert in Vault"; 
+    vault-tls-path = mkOpt str "secret/campground/vpn" "The Vault path to the TLS Key in Vault"; 
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version used for tls key";
+    };
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -149,7 +155,11 @@ in
                 # ${pkgs.openssl}/bin/openssl dhparam -out /var/lib/vault/ovpn/dh.pem 2048
 
                 # Generate tls-auth key
-                ${pkgs.openvpn}/bin/openvpn --genkey secret /var/lib/vault/ovpn/ta.key
+                # generate it like this ->  openvpn --genkey secret /var/lib/vault/ovpn/ta.key and put in the vault
+
+                cat <<EOL > /var/lib/vault/ovpn/ta.key
+                {{ with secret "${cfg.vault-tls-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.tls }}{{ else }}{{ .Data.data.tls }}{{ end }}{{ end }}
+                EOL
 
                 # Fix permissions
                 chown -R ovpn:ovpn /var/lib/vault/ovpn/*

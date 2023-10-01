@@ -43,6 +43,32 @@ vault write campground-pki/roles/vpn-client-role \
     allow_subdomains=true max_ttl=336h
 ```
 
+## Step 2.1: Create TLS Key
+
+This helps avoid 
+
+The `tls-auth` key in OpenVPN serves as an additional layer of security on top of the TLS control channel to harden it against DoS attacks, port scanning, and buffer overflow vulnerabilities. It's a shared secret key that is used by both the server and all its clients.
+
+The key essentially signs each packet's HMAC hash with a signature that can only be verified by the opposite side knowing the same `tls-auth` key. This provides an early stage filter for unauthorized clients and potentially malicious third parties.
+
+The `tls-auth` directive adds this HMAC signature to the TLS control channel to protect against:
+
+- DoS attacks by an unauthenticated client
+- Port flooding
+- Buffer overflow vulnerabilities
+
+It's not mandatory but is an extra layer of security.
+
+generate it like this:
+
+```
+openvpn --genkey secret ta.key 
+```
+
+Then put in a vault KV store somewhere like `secret/campgrouns/vpn/` with the key `tls` 
+
+This can't be generated on the fly because the clients need it also
+
 ## Step 3: Issue a Certificate
 
 Issue a certificate based on the role created. The `common_name` is crucial as it identifies the certificate.
