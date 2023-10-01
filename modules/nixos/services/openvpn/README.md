@@ -109,7 +109,7 @@ You can create a new role in Vault specifically for OpenVPN clients and then iss
     ```bash
     vault write pki/roles/campground-vpn-client-role \
       allowed_domains="client.aicampground.com" \
-      allow_subdomains=true max_ttl=72h
+      allow_subdomains=true max_ttl=h
     ```
 
 2. **Generate a Client Certificate**
@@ -159,13 +159,26 @@ vault write pki/config/urls \
 
 ### Vault Role Creation
 
-Create a role to define certificate properties.
+Create a role to define certificate properties. `max_ttl` says that certs created with this role will be valid for no longer than 2 weeks (336h)
+
+The server role and client role are used for different purposes:
+
+The server role is used to generate certificates for the VPN server itself.
+The client role is used to generate certificates for the VPN clients.
+If the server certificate expires, it won't affect the client certificates. They have their own separate lifetimes defined by their respective max_ttl settings. So, you're correct: you use the server role to create server certs and the client role to create client certs, and they operate independently of each other.
 
 ```bash
 vault write pki/roles/campground-vpn-server-role \
   allowed_domains="aicampground.com" \
   allow_subdomains=true \
-  max_ttl=72h
+  max_ttl=336h
+```
+
+This role is required for being able to generate client certs. 
+```bash
+vault write pki/roles/campground-vpn-client-role \
+    allowed_domains="client.aicampground.com" \
+    allow_subdomains=true max_ttl=336h
 ```
 
 ### NixOS Configuration

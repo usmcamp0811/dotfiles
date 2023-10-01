@@ -49,21 +49,22 @@ let
     export VAULT_TOKEN="$token" || { echo "Failed to set VAULT_TOKEN"; exit 1; }
 
     # Check if the client role exists
-    ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1; echo $?)
+    # # TODO: Move this to the server cert
+    # ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1; echo $?)
 
-    # Check if the client role exists
-    if [ -z "$ROLE_EXISTS" ]; then
-      echo "ROLE_EXISTS is empty, creating the client role."
-      ${pkgs.vault}/bin/vault write ${cfg.vault-path} \
-        allowed_domains="${cfg.domain-name}" \
-        allow_subdomains="false" \
-        max_ttl="336h" # 2 weeks
-      echo "Client role ${cfg.vault-path} has been created."
-    elif [ "$ROLE_EXISTS" -ne 0 ]; then
-      echo "Client role ${cfg.vault-path} already exists."
-    else
-      echo "An unexpected condition occurred."
-    fi
+    # # Check if the client role exists
+    # if [ -z "$ROLE_EXISTS" ]; then
+    #   echo "ROLE_EXISTS is empty, creating the client role."
+    #   ${pkgs.vault}/bin/vault write ${cfg.vault-path} \
+    #     allowed_domains="${cfg.domain-name}" \
+    #     allow_subdomains="false" \
+    #     max_ttl="336h" # 2 weeks
+    #   echo "Client role ${cfg.vault-path} has been created."
+    # elif [ "$ROLE_EXISTS" -ne 0 ]; then
+    #   echo "Client role ${cfg.vault-path} already exists."
+    # else
+    #   echo "An unexpected condition occurred."
+    # fi
 
     
     echo "Writing certificates..."
