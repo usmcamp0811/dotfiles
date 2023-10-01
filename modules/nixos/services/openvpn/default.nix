@@ -58,8 +58,21 @@ in
       };
     };
 
+# TODO: Refactor so that this just renews the server cert 
+# TODO: Refactor to make the `copyVPNcerts.sh` script is installed and can be run independent of the systmed service
+# TODO: Clean up or otherwise just make things look better and more uniform
+    systemd.timers.genVPNserver-cert = {
+      description = "Timer for Generate VPN Client Certs";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar = "daily"; # Runs every day at midnight
+      };
+      unitConfig = {
+        PartOf = [ "genVPNcert.service" ];
+      };
+    };
 
-    systemd.services.copyVPNcerts = {
+    systemd.services.genVPNserver-cert = {
       description = "Get VPN Server Certs from Vault";
       serviceConfig = {
         Type = "oneshot";
@@ -71,7 +84,7 @@ in
       wantedBy = [ "multi-user.target" ];
     };
 # TODO: Refactor this so that we rotate server certs in a similar manner as the client certs
-    campground.services.vault-agent.services.copyVPNcerts = {
+    campground.services.vault-agent.services.genVPNserver-cert = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
