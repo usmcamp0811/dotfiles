@@ -44,17 +44,27 @@ in
           ca /var/lib/vault/ovpn/ca.crt
           cert /var/lib/vault/ovpn/server.crt
           key /var/lib/vault/ovpn/server.key
-          dh /var/lib/vault/ovpn/dh.pem 
-          server 10.8.1.0 255.255.255.0
+          dh /var/lib/vault/ovpn/dh.pem
           ifconfig-pool-persist ipp.txt
+          duplicate-cn
           keepalive 10 120
-          comp-lzo
+          cipher AES-256-GCM
+          ncp-ciphers AES-256-GCM:AES-256-CBC
+          auth SHA512
           persist-key
           persist-tun
-          client-to-client
-          push "redirect-gateway def1"
           status openvpn-status.log
-          verb 3
+          verb 1
+          management 0.0.0.0 5555
+          tls-server
+          tls-version-min 1.2
+          tls-auth /var/lib/vault/ovpn/ta.key 0
+          crl-verify /var/lib/vault/ovpn/crl.pem
+          server 10.8.1.0 255.255.255.0
+          push "redirect-gateway def1 bypass-dhcp"
+          push "route 10.8.1.0 255.255.255.0"
+          push "dhcp-option DNS 8.8.8.8"
+          push "dhcp-option DNS 8.8.4.4"
         '';
       };
     };
