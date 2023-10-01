@@ -55,8 +55,7 @@ in
           persist-key
           persist-tun
           status openvpn-status.log
-          verb 3
-          management 0.0.0.0 5555
+          verb 1
           tls-server
           tls-version-min 1.2
           tls-auth /var/lib/vault/ovpn/ta.key 0
@@ -72,7 +71,8 @@ in
 # TODO: Refactor so that this just renews the server cert 
 # TODO: Refactor to make the `copyVPNcerts.sh` script is installed and can be run independent of the systmed service
 # TODO: Clean up or otherwise just make things look better and more uniform
-
+# TODO: Add OpenVPN Admin: https://github.com/flant/ovpn-admin
+# Probably just make it a package.. looks simple enough
     systemd.timers.genVPNserver-cert = {
       description = "Timer for Generate VPN Client Certs";
       wantedBy = [ "timers.target" ];
