@@ -15,12 +15,12 @@ Enable the PKI secrets engine and configure it to issue certificates.
 We set `ttl=8760h` meaning the cert if valid for 1 year. We don't set `max_ttl` so that we can just renew the certificate and not change things.
 
 ```bash
-vault secrets enable -path=campground-vpn pki
+vault secrets enable -path=campground-pki pki
 
 
-vault write campground-vpn/root/generate/internal common_name="campground-vpn" ttl=8760h
+vault write campground-pki/root/generate/internal common_name="campground-pki" ttl=8760h
 
-vault write campground-vpn/config/urls \
+vault write campground-pki/config/urls \
   issuing_certificates="https://vault.lan.aicampground.com/v1/pki/ca" \
   crl_distribution_points="https://vault.lan.aicampground.com/v1/pki/crl"
 ```
@@ -30,7 +30,7 @@ vault write campground-vpn/config/urls \
 Create a role that will define the properties of the certificates to be issued.
 
 ```bash
-vault write campground-vpn/roles/server-role \
+vault write campground-pki/roles/vpn-server-role \
   allowed_domains="aicampground.com" \
   allow_subdomains=true \
   max_ttl=336h
@@ -38,7 +38,7 @@ vault write campground-vpn/roles/server-role \
 
 This role is required for being able to generate client certs. 
 ```bash
-vault write campground-vpn/roles/client-role \
+vault write campground-pki/roles/vpn-client-role \
     allowed_domains="client.aicampground.com" \
     allow_subdomains=true max_ttl=336h
 ```
@@ -50,7 +50,7 @@ Issue a certificate based on the role created. The `common_name` is crucial as i
 This needs to be take and put into the vpn server because this is the server cert
 
 ```bash
-vault write campground-vpn/issue/server-role common_name="vpn.aicampground.com"
+vault write campground-pki/issue/server-role common_name="vpn.aicampground.com"
 ```
 
 ## Step 4: Vault Agent Templates
@@ -60,7 +60,7 @@ Create Vault Agent templates to fetch the necessary certificate files dynamicall
 ### For `server.crt`:
 
 ```liquid
-{{ with secret "campground-vpn/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
+{{ with secret "campground-pki/issue/campground-pki-server-role" "common_name=vpn.aicampground.com" }}
 {{ .Data.certificate }}
 {{ end }}
 ```
@@ -68,7 +68,7 @@ Create Vault Agent templates to fetch the necessary certificate files dynamicall
 ### For `server.key`:
 
 ```liquid
-{{ with secret "campground-vpn/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
+{{ with secret "campground-pki/issue/campground-pki-server-role" "common_name=vpn.aicampground.com" }}
 {{ .Data.private_key }}
 {{ end }}
 ```
@@ -76,7 +76,7 @@ Create Vault Agent templates to fetch the necessary certificate files dynamicall
 ### For `ca.crt`:
 
 ```liquid
-{{ with secret "campground-vpn/issue/campground-vpn-server-role" "common_name=vpn.aicampground.com" }}
+{{ with secret "campground-pki/issue/campground-pki-server-role" "common_name=vpn.aicampground.com" }}
 {{ .Data.issuing_ca }}
 {{ end }}
 ```
@@ -122,7 +122,7 @@ You can create a new role in Vault specifically for OpenVPN clients and then iss
 1. **Create a Role for OpenVPN Clients**
 
     ```bash
-    vault write pki/roles/campground-vpn-client-role \
+    vault write pki/roles/campground-pki-client-role \
       allowed_domains="client.aicampground.com" \
       allow_subdomains=true max_ttl=h
     ```
@@ -130,7 +130,7 @@ You can create a new role in Vault specifically for OpenVPN clients and then iss
 2. **Generate a Client Certificate**
 
     ```bash
-    vault write pki/issue/campground-vpn-client-role common_name="client1.client.aicampground.com"
+    vault write pki/issue/campground-pki-client-role common_name="client1.client.aicampground.com"
     ```
 
     This will output the client certificate, private key, and the CA certificate. You can put these into your client's OpenVPN configuration.
@@ -166,7 +166,7 @@ Enable the PKI secrets engine and configure it.
 
 ```bash
 vault secrets enable pki
-vault write pki/root/generate/internal common_name="campground-vpn" ttl=8760h
+vault write pki/root/generate/internal common_name="campground-pki" ttl=8760h
 vault write pki/config/urls \
   issuing_certificates="https://vault.lan.aicampground.com/v1/pki/ca" \
   crl_distribution_points="https://vault.lan.aicampground.com/v1/pki/crl"
@@ -183,7 +183,7 @@ The client role is used to generate certificates for the VPN clients.
 If the server certificate expires, it won't affect the client certificates. They have their own separate lifetimes defined by their respective max_ttl settings. So, you're correct: you use the server role to create server certs and the client role to create client certs, and they operate independently of each other.
 
 ```bash
-vault write pki/roles/campground-vpn-server-role \
+vault write pki/roles/vpn-server-role \
   allowed_domains="aicampground.com" \
   allow_subdomains=true \
   max_ttl=336h
@@ -191,7 +191,7 @@ vault write pki/roles/campground-vpn-server-role \
 
 This role is required for being able to generate client certs. 
 ```bash
-vault write pki/roles/campground-vpn-client-role \
+vault write pki/roles/vpn-client-role \
     allowed_domains="client.aicampground.com" \
     allow_subdomains=true max_ttl=336h
 ```
