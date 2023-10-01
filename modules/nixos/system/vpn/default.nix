@@ -77,7 +77,7 @@ let
     CLIENT_CERT=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.certificate')
     CLIENT_KEY=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.private_key')
 
-    TLS_KEY=$(vault kv get -field=tls ${cfg.vault-tls-path})
+    TLS_KEY=$(${pkgs.vault}/bin/vault kv get -field=tls ${cfg.vault-tls-path})
 
     # Extract the serial number from the JSON output
     SERIAL_NUMBER=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.serial_number')
@@ -96,14 +96,20 @@ let
     dev tun
     proto udp
     remote ${cfg.common-name} 1194
-    remote-random-hostname
     resolv-retry infinite
     nobind
     remote-cert-tls server
-    cipher AES-256-CBC
     verb 3
     redirect-gateway def1
-
+    resolv-retry infinite
+    persist-key
+    persist-tun
+    cipher AES-256-GCM
+    auth SHA512
+    tls-client
+    tls-version-min 1.2
+    key-direction 1
+    remote-cert-tls server                                                                                                                                                         
     <ca>
     $CA_CERT
     </ca>
