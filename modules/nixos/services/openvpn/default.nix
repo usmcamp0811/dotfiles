@@ -61,6 +61,7 @@ in
 # TODO: Refactor so that this just renews the server cert 
 # TODO: Refactor to make the `copyVPNcerts.sh` script is installed and can be run independent of the systmed service
 # TODO: Clean up or otherwise just make things look better and more uniform
+
     systemd.timers.genVPNserver-cert = {
       description = "Timer for Generate VPN Client Certs";
       wantedBy = [ "timers.target" ];
@@ -68,7 +69,7 @@ in
         OnCalendar = "daily"; # Runs every day at midnight
       };
       unitConfig = {
-        PartOf = [ "genVPNcert.service" ];
+        PartOf = [ "genVPNserver-cert.service" ];
       };
     };
 
