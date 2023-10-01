@@ -4,125 +4,10 @@ with lib.campground;
 let
   cfg = config.campground.services.openvpn;
 
-  gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
-    set -e
-    set -x
-
-    CLIENT_NAME=$1
-    COMMON_NAME="''${CLIENT_NAME}.client.${cfg.domain-name}"
-
-    export VAULT_ADDR=${cfg.vault-address}
-
-    if [ -z "$1" ]; then
-      echo "Usage: $0 <client_name>"
-      exit 1
-    fi
-
-    if ! [ -f '${cfg.role-id}' ]; then
-      echo 'role-id file not found: ${cfg.role-id}'
-      exit 1
-    fi
-
-    if ! [ -f '${cfg.secret-id}' ]; then
-      echo 'secret-id file not found: ${cfg.secret-id}'
-      exit 1
-    fi
-
-    seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | ${pkgs.jq}/bin/jq ".sealed")
-
-    echo "Seal Status: $seal_status"
-
-    if [ $seal_status = "true" ]; then
-      echo "Vault is currently sealed, cannot generate client certificats."
-      exit 1
-    fi
-
-
-    echo "Getting token..."
-
-    token=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login \
-      role_id="$(cat ${cfg.role-id})" \
-      secret_id="$(cat ${cfg.secret-id})" \
-    ) || { echo "Failed to get token"; exit 1; }
-
-    echo "Setting VAULT_TOKEN..."
-    export VAULT_TOKEN="$token" || { echo "Failed to set VAULT_TOKEN"; exit 1; }
-
-    # Check if the client role exists
-    ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-client-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1; echo $?)
-
-    # Check if the client role exists
-    if [ -z "$ROLE_EXISTS" ]; then
-      echo "ROLE_EXISTS is empty, creating the client role."
-      ${pkgs.vault}/bin/vault write ${cfg.vault-client-path} \
-        allowed_domains="${cfg.domain-name}" \
-        allow_subdomains="true" \
-        max_ttl="72h"
-      echo "Client role ${cfg.vault-client-path} has been created."
-    elif [ "$ROLE_EXISTS" -ne 0 ]; then
-      echo "Client role ${cfg.vault-client-path} already exists."
-    else
-      echo "An unexpected condition occurred."
-    fi
-
-    
-    echo "Writing certificates..."
-
-    # Fetch client certificate, key, and CA from Vault
-    # Issue a new certificate and key pair, capturing the JSON output
-    VAULT_OUTPUT=$(${pkgs.vault}/bin/vault write -format=json ${cfg.vault-client-path} common_name="$COMMON_NAME")
-
-    # Parse the JSON to get the certificate and key
-    CLIENT_CERT=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.certificate')
-    CLIENT_KEY=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.private_key')
-
-    # Extract the serial number from the JSON output
-    SERIAL_NUMBER=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.serial_number')
-
-    # Append the serial number and common name to the CSV file
-    echo "$SERIAL_NUMBER,$COMMON_NAME" >> ${cfg.vpn-cert-csv}
-
-    # Get the CA certificate
-    CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate ${cfg.vault-ca-path})
-
-    # Create .ovpn file
-    cat > "''${CLIENT_NAME}.ovpn" <<EOL
-    client
-    dev tun
-    proto udp
-    remote vpn.aicampground.com 1194
-    remote-random-hostname
-    resolv-retry infinite
-    nobind
-    remote-cert-tls server
-    cipher AES-256-CBC
-    verb 3
-    redirect-gateway def1
-
-    <ca>
-    $CA_CERT
-    </ca>
-
-    <cert>
-    $CLIENT_CERT
-    </cert>
-
-    <key>
-    $CLIENT_KEY
-    </key>
-    EOL
-
-    echo "''${CLIENT_NAME}.ovpn file has been generated."
-  '';
 in
 {
   options.campground.services.openvpn = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
-    clients = mkOption {
-      type = types.listOf types.str;
-      default = [];
-      description = "List of OpenVPN clients.";
-    };
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "pki/issue/campground-vpn-server-role" "The Vault path to the Server Cert in Vault";
@@ -139,10 +24,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      gen-clients
-    ];
-
     users.users.ovpn = {
       isSystemUser = true;
       group = "ovpn";
@@ -177,21 +58,6 @@ in
       };
     };
 
-    systemd.services.genVPNclients = {
-      description = "Generate VPN Client Certs";
-      environment.CLIENTS = builtins.concatStringsSep " " config.campground.services.openvpn.clients;
-      # WorkingDirectory = "/var/lib/vault/ovpn/clients";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = ''
-          ${pkgs.bash}/bin/bash -c 'mkdir -p /var/lib/vault/ovpn/clients && cd /var/lib/vault/ovpn/clients && for client in $CLIENTS; do ${gen-clients}/bin/generate-client-ovpn $client; done'
-        '';
-        after =  [ "copyVPNcerts.service" ];
-        before = [ "openvpn-campground.service" ];
-      };
-      wantedBy = [ "multi-user.target" ];
-    };
 
     systemd.services.copyVPNcerts = {
       description = "Get VPN Server Certs from Vault";
