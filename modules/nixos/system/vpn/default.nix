@@ -7,7 +7,6 @@ let
 
   gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
     set -e
-    set -x
 
     CLIENT_NAME=$1
     COMMON_NAME="''${CLIENT_NAME}.client.${cfg.domain-name}"
@@ -173,7 +172,7 @@ in
         ${pkgs.networkmanager}/bin/nmcli con import type openvpn file $OVPN_FILE
 
         # Clean up
-        # rm -rf $OVPN_FILE
+        rm -rf $OVPN_FILE
       '';
       wantedBy = [ "multi-user.target" ];
     };
