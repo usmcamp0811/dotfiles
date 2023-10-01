@@ -143,3 +143,83 @@ Vault's PKI secrets engine allows you to revoke certificates. To revoke a certif
     You can download the updated CRL from Vault and place it in the specified path.
 
 By following these steps, you can generate client certificates and also have the ability to revoke them when needed.
+
+
+### Vault PKI Setup
+
+Enable the PKI secrets engine and configure it.
+
+```bash
+vault secrets enable pki
+vault write pki/root/generate/internal common_name="campground-vpn" ttl=8760h
+vault write pki/config/urls \
+  issuing_certificates="https://vault.lan.aicampground.com/v1/pki/ca" \
+  crl_distribution_points="https://vault.lan.aicampground.com/v1/pki/crl"
+```
+
+### Vault Role Creation
+
+Create a role to define certificate properties.
+
+```bash
+vault write pki/roles/campground-vpn-server-role \
+  allowed_domains="aicampground.com" \
+  allow_subdomains=true \
+  max_ttl=72h
+```
+
+### NixOS Configuration
+
+In your NixOS configuration, enable the OpenVPN service and specify the clients.
+
+```nix
+{
+  campground.services.openvpn = {
+    enable = true;
+    clients = [
+      "butler"
+      "oconus"
+      "pixel"
+    ];
+  };
+}
+```
+
+### Client Certificate Generation
+
+Generate client certificates using the script `generate-client-ovpn`.
+
+```bash
+generate-client-ovpn client-name
+```
+
+This will generate a client certificate and record its serial number and common name in a CSV file (`vpn-cert-csv` in your NixOS configuration).
+
+#### CSV File Format
+
+- `Serial Number`: Certificate's serial number.
+- `Common Name`: Certificate's common name.
+
+Example:
+
+```csv
+Serial Number,Common Name
+01:23:45:67:89:AB:CD:EF,client1.client.aicampground.com
+```
+
+### Revoking Certificates
+
+To revoke a certificate:
+
+1. Find its serial number in the CSV file.
+2. Run:
+
+```bash
+vault write pki/revoke serial_number="XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX"
+```
+
+This will revoke the certificate and update the CRL.
+
+---
+
+By following this guide, you'll have a functional OpenVPN server with Vault-managed certificates, and the ability to track and revoke them as needed.
