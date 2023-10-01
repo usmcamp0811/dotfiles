@@ -80,7 +80,7 @@ let
     SERIAL_NUMBER=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.serial_number')
 
     # Append the serial number and common name to the CSV file
-    echo "$SERIAL_NUMBER,$COMMON_NAME" >> ${vpn-cert-csv}
+    echo "$SERIAL_NUMBER,$COMMON_NAME" >> ${cfg.vpn-cert-csv}
 
     # Get the CA certificate
     CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate ${cfg.vault-ca-path})
