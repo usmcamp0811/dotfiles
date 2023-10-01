@@ -7,7 +7,7 @@ let
 
   gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
     set -e
-    # set -x
+    set -x
 
     CLIENT_NAME=$1
     COMMON_NAME="''${CLIENT_NAME}.client.${cfg.domain-name}"
@@ -163,7 +163,7 @@ in
         mkdir -p $OVPN_DIR
         cd $OVPN_DIR
 
-        ${pkgs.bash}/bin/bash -c '${gen-clients}/bin/generate-client-ovpn ${config.networking.hostName}'
+        ${gen-clients}/bin/generate-client-ovpn ${config.networking.hostName}
 
         # Add the certificate to nmcli
         if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $VPN_NAME; then
