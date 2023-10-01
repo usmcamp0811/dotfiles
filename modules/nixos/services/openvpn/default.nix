@@ -50,11 +50,12 @@ in
           keepalive 10 120
           cipher AES-256-GCM
           ncp-ciphers AES-256-GCM:AES-256-CBC
+          topology subnet
           auth SHA512
           persist-key
           persist-tun
           status openvpn-status.log
-          verb 1
+          verb 3
           management 0.0.0.0 5555
           tls-server
           tls-version-min 1.2
@@ -148,7 +149,7 @@ in
                 # ${pkgs.openssl}/bin/openssl dhparam -out /var/lib/vault/ovpn/dh.pem 2048
 
                 # Generate tls-auth key
-                ${pkgs.openssl}/bin/openssl genpkey -algorithm HMAC -out /var/lib/vault/ovpn/ta.key
+                ${pkgs.openvpn}/bin/openvpn --genkey secret /var/lib/vault/ovpn/ta.key
 
                 # Fix permissions
                 chown -R ovpn:ovpn /var/lib/vault/ovpn/*
