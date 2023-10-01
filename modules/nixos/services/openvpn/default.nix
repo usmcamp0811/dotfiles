@@ -52,7 +52,6 @@ in
           key /var/lib/vault/ovpn/server.key
           dh /var/lib/vault/ovpn/dh.pem
           ifconfig-pool-persist ipp.txt
-          duplicate-cn
           keepalive 10 120
           cipher AES-256-GCM
           ncp-ciphers AES-256-GCM:AES-256-CBC
