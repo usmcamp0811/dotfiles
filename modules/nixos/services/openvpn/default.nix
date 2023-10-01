@@ -6,6 +6,7 @@ let
 
 in
 {
+# TODO: clean up any unused options
   options.campground.services.openvpn = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
