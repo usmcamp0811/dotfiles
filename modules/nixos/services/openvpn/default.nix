@@ -11,9 +11,9 @@ in
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "campground-vpn/issue/server-role" "The Vault path to the Server Cert in Vault";
-    vault-client-path = mkOpt str "campground-vpn/issue/client-role" "The Vault path to the Client Cert in Vault"; 
-    vault-ca-path = mkOpt str "campground-vpn/cert/ca" "The Vault path to the CA Cert in Vault"; 
+    vault-path = mkOpt str "campground-pki/issue/vpn-server-role" "The Vault path to the Server Cert in Vault";
+    vault-client-path = mkOpt str "campground-pki/issue/vpn-client-role" "The Vault path to the Client Cert in Vault"; 
+    vault-ca-path = mkOpt str "campground-pki/cert/ca" "The Vault path to the CA Cert in Vault"; 
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
