@@ -59,7 +59,6 @@ in
           tls-server
           tls-version-min 1.2
           tls-auth /var/lib/vault/ovpn/ta.key 0
-          crl-verify /var/lib/vault/ovpn/crl.pem
           server 10.8.1.0 255.255.255.0
           push "redirect-gateway def1 bypass-dhcp"
           push "route 10.8.1.0 255.255.255.0"
@@ -147,6 +146,9 @@ in
 
                 # # Generate Diffie-Hellman parameters
                 # ${pkgs.openssl}/bin/openssl dhparam -out /var/lib/vault/ovpn/dh.pem 2048
+
+                # Generate tls-auth key
+                ${pkgs.openssl}/bin/openssl genpkey -algorithm HMAC -out /var/lib/vault/ovpn/ta.key
 
                 # Fix permissions
                 chown -R ovpn:ovpn /var/lib/vault/ovpn/*
