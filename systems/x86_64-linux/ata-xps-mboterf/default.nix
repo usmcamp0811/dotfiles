@@ -47,14 +47,14 @@ in
           };
         };
       };
-      vpn = {
-        enable = false;
-        networks = {
-          CampNet = {
-            key = "ata_xps";
-          };
-        };
-      };
+      # vpn = {
+      #   enable = false;
+      #   networks = {
+      #     CampNet = {
+      #       key = "ata_xps";
+      #     };
+      #   };
+      # };
     };
 
     hardware.audio = {

@@ -74,14 +74,14 @@ in
         enable = true;
         TZ = "America/New_York";
       };
-      vpn = {
-        enable = false;
-        networks = {
-          CampNet = {
-            key = "ata-nuc-anon";
-          };
-        };
-      };
+      # vpn = {
+      #   enable = false;
+      #   networks = {
+      #     CampNet = {
+      #       key = "ata-nuc-anon";
+      #     };
+      #   };
+      # };
     };
 
     hardware.audio = {

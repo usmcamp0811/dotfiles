@@ -62,14 +62,7 @@ in
           };
         };
       };
-      vpn = {
-        enable = false;
-        networks = {
-          CampNet = {
-            key = "butler";
-          };
-        };
-      };
+      vpn = enabled;
     };
 
     hardware.audio = {

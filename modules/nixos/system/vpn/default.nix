@@ -7,7 +7,7 @@ let
 
   gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
     set -e
-    set -x
+    # set -x
 
     CLIENT_NAME=$1
     COMMON_NAME="''${CLIENT_NAME}.client.${cfg.domain-name}"
@@ -50,18 +50,18 @@ let
     export VAULT_TOKEN="$token" || { echo "Failed to set VAULT_TOKEN"; exit 1; }
 
     # Check if the client role exists
-    ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-client-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1; echo $?)
+    ROLE_EXISTS=$(${pkgs.vault}/bin/vault read -format=json ${cfg.vault-path} | ${pkgs.jq}/bin/jq -e .data > /dev/null 2>&1; echo $?)
 
     # Check if the client role exists
     if [ -z "$ROLE_EXISTS" ]; then
       echo "ROLE_EXISTS is empty, creating the client role."
-      ${pkgs.vault}/bin/vault write ${cfg.vault-client-path} \
+      ${pkgs.vault}/bin/vault write ${cfg.vault-path} \
         allowed_domains="${cfg.domain-name}" \
         allow_subdomains="true" \
         max_ttl="72h"
-      echo "Client role ${cfg.vault-client-path} has been created."
+      echo "Client role ${cfg.vault-path} has been created."
     elif [ "$ROLE_EXISTS" -ne 0 ]; then
-      echo "Client role ${cfg.vault-client-path} already exists."
+      echo "Client role ${cfg.vault-path} already exists."
     else
       echo "An unexpected condition occurred."
     fi
@@ -71,7 +71,7 @@ let
 
     # Fetch client certificate, key, and CA from Vault
     # Issue a new certificate and key pair, capturing the JSON output
-    VAULT_OUTPUT=$(${pkgs.vault}/bin/vault write -format=json ${cfg.vault-client-path} common_name="$COMMON_NAME")
+    VAULT_OUTPUT=$(${pkgs.vault}/bin/vault write -format=json ${cfg.vault-path} common_name="$COMMON_NAME")
 
     # Parse the JSON to get the certificate and key
     CLIENT_CERT=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.certificate')
@@ -80,8 +80,8 @@ let
     # Extract the serial number from the JSON output
     SERIAL_NUMBER=$(echo "$VAULT_OUTPUT" | ${pkgs.jq}/bin/jq -r '.data.serial_number')
 
-    # Append the serial number and common name to the CSV file
-    echo "$SERIAL_NUMBER,$COMMON_NAME" >> ${cfg.vpn-cert-csv}
+    # Append the serial number and common name 
+    echo "$SERIAL_NUMBER,$COMMON_NAME" 
 
     # Get the CA certificate
     CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate ${cfg.vault-ca-path})
@@ -121,7 +121,7 @@ in
     enable = mkBoolOpt false "Whether or not to enable VPN.";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/vpn" "The Vault path to the KV containing the VPN Secrets.";
+    vault-path = mkOpt str "pki/issue/campground-vpn-client-role" "The Vault path to the Client Cert in Vault"; 
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -129,6 +129,7 @@ in
     };
     common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
     domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
+    vault-ca-path = mkOpt str "pki/cert/ca" "The Vault path to the CA Cert in Vault"; 
   };
   config = mkIf cfg.enable {
 
@@ -147,18 +148,6 @@ in
       };
     };
 
-    systemd.services.genVPNcert = {
-      description = "Generate VPN Client Cert";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        WorkingDirectory = "/var/lib/vault/${config.networking.hostName}/";
-        ExecStart = ''
-          ${pkgs.bash}/bin/bash -c '${gen-clients}/bin/generate-client-ovpn ${config.networking.hostName}'
-        '';
-      };
-      wantedBy = [ "multi-user.target" ];
-    };
     systemd.services.genVPNcert = {
       description = "Generate VPN Client Cert and Add to nmcli";
       serviceConfig = {
@@ -184,7 +173,7 @@ in
         ${pkgs.networkmanager}/bin/nmcli con import type openvpn file $OVPN_FILE
 
         # Clean up
-        rm -rf $OVPN_FILE
+        # rm -rf $OVPN_FILE
       '';
       wantedBy = [ "multi-user.target" ];
     };
