@@ -23,12 +23,6 @@
       fsType = "zfs";
     };
 
-  fileSystems."/boot" =
-    { device = "/boot";
-      fsType = "none";
-      options = [ "bind" ];
-    };
-
   fileSystems."/home" =
     { device = "NIXROOT/home";
       fsType = "zfs";
