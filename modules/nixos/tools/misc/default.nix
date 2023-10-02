@@ -46,6 +46,7 @@ in
       bash
       lsof
       hwinfo
+      traceroute
     ];
 
   };
