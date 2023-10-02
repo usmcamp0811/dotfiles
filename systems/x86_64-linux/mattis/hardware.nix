@@ -33,6 +33,24 @@
       fsType = "zfs";
     };
 
+  fileSystems."/boot" =
+    { device = "/boot";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/home" =
+    { device = "/home";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
+  fileSystems."/persist" =
+    { device = "/persist";
+      fsType = "none";
+      options = [ "bind" ];
+    };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
