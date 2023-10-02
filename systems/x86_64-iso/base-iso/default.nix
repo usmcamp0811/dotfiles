@@ -40,6 +40,7 @@ in
       locale = enabled;
       time = enabled;
       xkb = enabled;
+      zfs = enabled;
     };
     user = {
       name = "nixos";

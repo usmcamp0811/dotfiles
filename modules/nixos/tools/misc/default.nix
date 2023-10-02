@@ -47,6 +47,8 @@ in
       lsof
       hwinfo
       traceroute
+      gptfdisk 
+      parted
     ];
 
   };
