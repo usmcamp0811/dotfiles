@@ -37,6 +37,7 @@ vault write campground-pki/roles/vpn-server-role \
 ```
 
 This role is required for being able to generate client certs. 
+
 ```bash
 vault write campground-pki/roles/vpn-client-role \
     allowed_domains="client.aicampground.com" \
