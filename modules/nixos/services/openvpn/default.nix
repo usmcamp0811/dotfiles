@@ -39,7 +39,15 @@ in
 
     users.groups.ovpn = {};
 
-    boot.kernel.sysctl."net.ipv4.ip_forward" = 1; # so we can get to the internet
+    boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+
+    networking.nat = {
+      enable = true;
+      externalInterface = "eth0";
+      internalInterfaces = [ "tun0" ];
+    };
+
+    networking.firewall.allowedUDPPorts = [ 1194 ];
 
     services.openvpn.servers = {
       campground = {
