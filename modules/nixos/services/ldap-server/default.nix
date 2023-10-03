@@ -93,6 +93,17 @@ in
 
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ 389 8080 ]; # OpenLDAP and phpLDAPadmin ports
+
+    services.phpLDAPadmin = {
+      enable = true;
+      config = {
+        "servers.1.server.host" = "localhost";
+        "servers.1.server.base" = [ "dc=aicampground,dc=com" ];
+        "servers.1.login.DN" = "cn=admin,dc=aicampground,dc=com";
+        "servers.1.login.password" = "pass";
+      };
+    };
+
     services.openldap = {
       enable = true;
       # rootdn = "cn=admin,${cfg.ldapBaseDN}";
