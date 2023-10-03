@@ -94,15 +94,17 @@ in
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ 389 8080 ]; # OpenLDAP and phpLDAPadmin ports
 
-    services.phpLDAPadmin = {
-      enable = true;
-      config = {
-        "servers.1.server.host" = "localhost";
-        "servers.1.server.base" = [ "dc=aicampground,dc=com" ];
-        "servers.1.login.DN" = "cn=admin,dc=aicampground,dc=com";
-        "servers.1.login.password" = "pass";
+    virtualisation.oci-containers.containers = {
+      phpldapadmin = {
+        image = "osixia/phpldapadmin:latest";
+        ports = ["8080:80"];
+        environment = {
+          PHPLDAPADMIN_LDAP_HOSTS = "10.8.0.135"; # Replace with your LDAP server address
+          PHPLDAPADMIN_HTTPS = "false";
+        };
       };
     };
+
 
     services.openldap = {
       enable = true;
