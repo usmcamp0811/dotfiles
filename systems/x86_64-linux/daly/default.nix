@@ -36,6 +36,7 @@ in
 
     system = {
       boot = enabled;
+      vpn = enabled;
       zfs = {
         enable = true;
         hostId = "65c8b2d7";
