@@ -10,8 +10,7 @@ in
   options.campground.services.ldap-server = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     ldapBackend = mkOpt str "mdb" "the Ldap Backend";
-    ldapBaseDN = mkOpt str "dc=aicampground,dc=com" "The BaseDN";
-    domain-name = mkOpt str "aicampground" "The domain name to use";
+    ldapBaseDN = mkOpt str "dc=aicampground,dc=com" "The BaseDN"; domain-name = mkOpt str "aicampground" "The domain name to use";
     rootdn = mkOpt str "cn=admin,dc=${cfg.domain-name},dc=com" "The Root DN to use";
     suffix = mkOpt str "dc=${cfg.domain-name},dc=com" "The suffix";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
@@ -69,6 +68,7 @@ in
             "${pkgs.openldap}/etc/schema/nis.ldif"
           ];
           "olcDatabase={1}mdb".attrs = {
+
             objectClass = [ "olcDatabaseConfig" "olcMdbConfig" ];
 
             olcDatabase = "{1}mdb";
@@ -90,6 +90,10 @@ in
               /* allow read on anything else */
               ''{1}to *
                   by * read''
+
+              "to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break"
+              "to attrs=userPassword,shadowLastChange by self write by dn=\"cn=admin,dc=aicampground,dc=com\" write by anonymous auth by * none"
+              "to * by anonymous read by dn=\"cn=admin,dc=aicampground,dc=com\" write by * none"
             ];
           };
         };
