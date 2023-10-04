@@ -4,6 +4,7 @@ with lib.campground;
 let
   cfg = config.campground.services.ldap-server;
 
+  sudoSchemaPath = ./openldap/sudo-config.ldif;
 in
 {
   options.campground.services.ldap-server = with types; {
