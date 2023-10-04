@@ -92,7 +92,7 @@ in
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
-    common-name = mkOpt str "ldap.server.${cfg.domain-name}" "Common Name for Server Certs";
+    common-name = mkOpt str "server.${cfg.domain-name}" "Common Name for Server Certs";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -194,7 +194,7 @@ in
                 {{ .Data.certificate }}
                 {{ end }}
               '';
-              permissions = "0700";
+              permissions = "0600";
               change-action = "restart";
             };
             "ldap.key" = {
@@ -203,7 +203,7 @@ in
                 {{ .Data.private_key }}
                 {{ end }}
               '';
-              permissions = "0700";
+              permissions = "0600";
               change-action = "restart";
             };
             "ca.crt" = {
@@ -212,7 +212,7 @@ in
                 {{ .Data.issuing_ca }}
                 {{ end }}
               '';
-              permissions = "0700";
+              permissions = "0600";
               change-action = "restart";
             };
           };
