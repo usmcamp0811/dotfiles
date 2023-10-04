@@ -122,9 +122,9 @@ in
         attrs = {
           olcLogLevel = "conns config";
           /* settings for acme ssl */
-          olcTLSCACertificateFile = "/var/lib/acme/${your-host-name}/full.pem";
-          olcTLSCertificateFile = "/var/lib/acme/${your-host-name}/cert.pem";
-          olcTLSCertificateKeyFile = "/var/lib/acme/${your-host-name}/key.pem";
+          olcTLSCACertificateFile = "/tmp/detsys-vault/ca.crt";
+          olcTLSCertificateFile = "/tmp/detsys-vault/ldap.crt";
+          olcTLSCertificateKeyFile = "/tmp/detsys-vault/ldap.key";
           olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
           olcTLSCRLCheck = "none";
           olcTLSVerifyClient = "never";
