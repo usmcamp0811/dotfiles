@@ -194,7 +194,7 @@ in
                 {{ .Data.certificate }}
                 {{ end }}
               '';
-              permissions = "0600";
+              permissions = "0700";
               change-action = "restart";
             };
             "ldap.key" = {
@@ -203,7 +203,7 @@ in
                 {{ .Data.private_key }}
                 {{ end }}
               '';
-              permissions = "0600";
+              permissions = "0700";
               change-action = "restart";
             };
             "ca.crt" = {
@@ -212,7 +212,7 @@ in
                 {{ .Data.issuing_ca }}
                 {{ end }}
               '';
-              permissions = "0600";
+              permissions = "0700";
               change-action = "restart";
             };
           };
