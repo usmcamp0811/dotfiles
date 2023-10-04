@@ -21,6 +21,10 @@ path "campground-pki/issue/vpn-client-role" {
   capabilities = ["create", "read", "update"]
 }
 
+path "campground-pki/issue/vpn-server-role" {
+  capabilities = ["create", "read", "update"]
+}
+
 # Allow reading the CA certificate
 path "campground-pki/ca" {
   capabilities = ["read"]
