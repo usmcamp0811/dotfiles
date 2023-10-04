@@ -91,8 +91,8 @@ in
     suffix = mkOpt str "dc=${cfg.domain-name},dc=com" "The suffix";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "campground-pki/issue/vpn-server-role" "The Vault path to the Server Cert in Vault";
-    common-name = mkOpt str "server.${cfg.domain-name}" "Common Name for Server Certs";
+    vault-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
+    common-name = mkOpt str "ldap.${cfg.domain-name}" "Common Name for Server Certs";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
