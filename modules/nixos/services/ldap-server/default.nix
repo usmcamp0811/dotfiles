@@ -46,7 +46,20 @@ in
 
       /* enable plain connections only */
       urlList = [ "ldap:///" ];
-
+      declarativeContents = {
+        "ou=Group,dc=aicampground,dc=com" = ''
+          objectClass: top
+          objectClass: organizationalUnit
+          ou: Group
+        '';
+        "cn=ldap_user,ou=Group,dc=aicampground,dc=com" = ''
+          objectClass: top
+          objectClass: posixGroup
+          cn: ldap_user
+          gidNumber: 10000
+        '';
+        # ... other entries
+      };
       settings = {
         attrs = {
           olcLogLevel = "conns config";
@@ -98,30 +111,6 @@ in
           };
         };
       };
-    declarativeContents = ''
-      dn: ou=Group,dc=aicampground,dc=com
-      objectClass: top
-      objectClass: organizationalUnit
-      ou: Group
-
-      dn: cn=ldap_user,ou=Group,dc=aicampground,dc=com
-      objectClass: top
-      objectClass: posixGroup
-      cn: ldap_user
-      gidNumber: 10000
-
-      dn: cn=docker,ou=Group,dc=aicampground,dc=com
-      objectClass: top
-      objectClass: posixGroup
-      cn: docker
-      gidNumber: 10001
-
-      dn: cn=wheel,ou=Group,dc=aicampground,dc=com
-      objectClass: top
-      objectClass: posixGroup
-      cn: wheel
-      gidNumber: 10002
-    '';
     };
 
     campground.services.vault-agent.services.openldap = {
