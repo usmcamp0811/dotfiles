@@ -1,0 +1,15 @@
+version: 1
+
+dn: ou=sudoers,dc=aicampground,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: sudoers
+
+dn: cn=defaults,ou=sudoers,dc=aicampground,dc=com
+objectClass: sudoRole
+objectClass: top
+cn: defaults
+sudoOption: env_reset
+sudoOption: mail_badpass
+sudoOption: secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+sudoOrder: 1

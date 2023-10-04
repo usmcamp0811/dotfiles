@@ -1,0 +1,3 @@
+dn: cn=openssh-lpk,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: openssh-lpk

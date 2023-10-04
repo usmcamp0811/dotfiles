@@ -1,0 +1,50 @@
+# Begin Templated User: Matt Camp
+dn: uid=mcamp,ou=People,dc=aicampground,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectclass: ldapPublicKey
+uid: mcamp
+cn: Matt Camp
+sn: Camp
+givenName: Matt Camp
+title: Data Scientist
+mobile: +1 555 867 5309
+mail: matt@aicampground.com
+loginShell: /usr/bin/zsh
+uidNumber: 10000
+gidNumber: 10000
+homeDirectory: /home/mcamp
+userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
+sshpublickey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJ4v/zUQ40k9NwUZN8atDyHRv/dVzAGp/MNYuDCEQ/DPQ+3x3peJvytnHPxg1/f90WUb/D2PJoo2J/W95EpdZTPFcWEJLVlECpc5ym5irBcrCtLwWwu1didHOZ80051WXEL5rIhpoaAXb0rVgEHOVV8coSpZDvQ/Z2n+YtlqK58Kz9xFI+odCfaHrjwLHWm+AzZ1c3xGtYflVcD5GuYcx2LgA8xc3yypPDSK6U926So0wrEzxpg2SZnlb8nrDS9iD5ZR91AU8rEeTRWcx5uBaJTgT0cYRMflauAjONBspy/QMGQ7lUXAJVkrzRdelUtWitNgtMsnDd+u3Htc8Q/bvd+DLCeNdcESO9UH5PfaVEF8tKL0bQNa90fiEKl2sU845azE6l9BQCqmkiLKaGs8UQ3xkUQDENTjzDzaaG2sH/ackFoo4q90Ky8NUto/qNh1Wvp474nSZ5/StvaZ3238mw1ltJaF5iI0V/RPGACrn7PcBYkyohmwLD4AZGrx+IV+E= mcamp@butlerdescription: This user was created from Ansible
+
+# End Templated User
+
+# Begin Templated User: Candace Camp
+dn: uid=ccamp,ou=People,dc=aicampground,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectclass: ldapPublicKey
+uid: ccamp
+cn: Candace Camp
+sn: Camp
+givenName: Candace Camp
+title: Domestic Engineer
+mobile: +1 555 867 5309
+mail: candace@aicampground.com
+loginShell: /usr/bin/zsh
+uidNumber: 10001
+gidNumber: 10000
+homeDirectory: /home/ccamp
+userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
+description: This user was created from Ansible
+
+# End Templated User
+
