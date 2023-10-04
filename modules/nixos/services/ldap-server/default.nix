@@ -73,6 +73,7 @@ in
             "${pkgs.openldap}/etc/schema/core.ldif"
             "${pkgs.openldap}/etc/schema/cosine.ldif"
             "${pkgs.openldap}/etc/schema/inetorgperson.ldif"
+            "${pkgs.openldap}/etc/schema/nis.ldif"
           ];
           "olcDatabase={1}mdb".attrs = {
             objectClass = [ "olcDatabaseConfig" "olcMdbConfig" ];
