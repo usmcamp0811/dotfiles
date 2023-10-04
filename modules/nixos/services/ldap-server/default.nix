@@ -61,6 +61,14 @@ in
         };
 
         children = {
+          "ou=People,dc=aicampground,dc=com" = {
+            objectClass = [ "top" "organizationalUnit" ];
+            ou = "People";
+          };
+          "ou=Group,dc=aicampground,dc=com" = {
+            objectClass = [ "top" "organizationalUnit" ];
+            ou = "Group";
+          };
           "cn=schema".includes = [
             "${pkgs.openldap}/etc/schema/core.ldif"
             "${pkgs.openldap}/etc/schema/cosine.ldif"
