@@ -81,15 +81,15 @@ in
             olcRootPW.path = pkgs.writeText "olcRootPW" "pass";
 
             olcAccess = [
-              /* custom access rules for userPassword attributes */
-              ''{0}to attrs=userPassword
-                  by self write
-                  by anonymous auth
-                  by * none''
-
-              /* allow read on anything else */
-              ''{1}to *
-                  by * read''
+              # /* custom access rules for userPassword attributes */
+              # ''{0}to attrs=userPassword
+              #     by self write
+              #     by anonymous auth
+              #     by * none''
+              #
+              # /* allow read on anything else */
+              # ''{1}to *
+              #     by * read''
 
               "to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break"
               "to attrs=userPassword,shadowLastChange by self write by dn=\"cn=admin,dc=aicampground,dc=com\" write by anonymous auth by * none"
