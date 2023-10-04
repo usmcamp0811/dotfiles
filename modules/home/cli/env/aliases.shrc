@@ -266,4 +266,8 @@ update-sys(){
   sudo nixos-rebuild switch --flake /config/\#$(hostname)
 }
 
-
+get_approle() {          
+  local role_id=$(sudo cat /var/lib/vault/$(hostname)/role-id)
+  local secret_id=$(sudo cat /var/lib/vault/$(hostname)/secret-id)
+  export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$role_id" secret_id="$secret_id")
+}
