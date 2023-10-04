@@ -41,6 +41,7 @@ with lib.campground;
       direnv = enabled;
       julia = enabled;
       python = enabled;
+      vault = enabled;
     };
   };
 
