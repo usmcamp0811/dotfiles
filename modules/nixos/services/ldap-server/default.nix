@@ -89,6 +89,10 @@ in
     domain-name = mkOpt str "aicampground" "The domain name to use";
     rootdn = mkOpt str "cn=admin,dc=${cfg.domain-name},dc=com" "The Root DN to use";
     suffix = mkOpt str "dc=${cfg.domain-name},dc=com" "The suffix";
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "campground-pki/issue/vpn-server-role" "The Vault path to the Server Cert in Vault";
+    common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
   };
 
   config = mkIf cfg.enable {
@@ -117,6 +121,14 @@ in
       settings = {
         attrs = {
           olcLogLevel = "conns config";
+          /* settings for acme ssl */
+          olcTLSCACertificateFile = "/var/lib/acme/${your-host-name}/full.pem";
+          olcTLSCertificateFile = "/var/lib/acme/${your-host-name}/cert.pem";
+          olcTLSCertificateKeyFile = "/var/lib/acme/${your-host-name}/key.pem";
+          olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
+          olcTLSCRLCheck = "none";
+          olcTLSVerifyClient = "never";
+          olcTLSProtocolMin = "3.1";
         };
 
         children = {
@@ -149,6 +161,55 @@ in
               ''{1}to *
                   by * read''
             ];
+          };
+        };
+      };
+    };
+
+    campground.services.vault-agent.services.openldap = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = {
+            "ldap.crt" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ .Data.certificate }}
+                {{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+            "ldap.key" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ .Data.private_key }}
+                {{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+            "ca.crt" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ .Data.issuing_ca }}
+                {{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
           };
         };
       };
