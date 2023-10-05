@@ -6,7 +6,6 @@ let
 
   sudoSchemaPath = ./openldap/sudo-config.ldif;
 
-  ldapUsersPath = ./openldap/users.ldif;
 in
 {
   options.campground.services.ldap-server = with types; {
@@ -46,12 +45,10 @@ in
       # rootdn = "cn=admin,${cfg.ldapBaseDN}";
       # rootpw = "{CLEARTEXT}admin"; # Use a more secure method in production
 
-      /* enable plain connections only */
-      urlList = [ "ldap:///" ];
+      /* enable plain and secure connections */
+      urlList = [ "ldap:///" "ldaps:///" ];
 
-      declarativeContents = pkgs.writeTextFile {
-        name = "ldap-users";
-        text = builtins.readFile ldapUsersPath;  # Read the contents of your LDIF file
+      declarativeContents = {
       };
 
       settings = {
