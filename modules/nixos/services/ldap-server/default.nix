@@ -153,6 +153,7 @@ userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
             "${pkgs.openldap}/etc/schema/cosine.ldif"
             "${pkgs.openldap}/etc/schema/inetorgperson.ldif"
             "${pkgs.openldap}/etc/schema/nis.ldif"
+            "${pkgs.openldap}/etc/schema/openssh-lpk.ldif"
           ];
           "olcDatabase={1}mdb".attrs = {
 
