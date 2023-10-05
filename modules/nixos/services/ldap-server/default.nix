@@ -52,7 +52,7 @@ in
 
     services.nginx = {
       enable = true;
-      virtualHosts."your-domain.com" = {
+      virtualHosts."daly.lan" = {
         root = "/var/www/phpLDAPadmin";
         locations."~ \.php$".extraConfig = ''
           fastcgi_pass unix:${config.services.phpfpm.pools.phpLDAPadmin.socket};
@@ -67,6 +67,8 @@ in
         user = "nginx";
         group = "nginx";
         settings = {
+          "pm" = "dynamic";
+          "pm.max_children" = 5;
           "listen.owner" = "nginx";
           "listen.group" = "nginx";
         };

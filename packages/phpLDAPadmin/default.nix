@@ -1,16 +1,24 @@
-{ lib, stdenv, fetchurl, pkgs, writeText}:
+{ lib
+, writeText
+, writeShellApplication
+, substituteAll
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "phpLDAPadmin";
   version = "1.2.6.6";
 
-  desc
-  phpLDAPadmin = stdenv.mkDerivation {
+  phpLDAPadmin = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     src = pkgs.fetchurl {
       url = "https://github.com/leenooks/phpLDAPadmin/archive/refs/tags/${version}.tar.gz";
-      sha256 = "1p10r7dv6f03f099wlrbcrbg6znbpia8z30is7dwxqghnyy2a5a8"; # Replace with the actual hash
+      sha256 = "sha256-eowCphHmCqZxPRz4Y9+sljfiPD9NQB6l5H2+KyLUiVo="; 
     };
 
     buildInputs = [ pkgs.php ];
@@ -20,11 +28,12 @@ let
       cp -r . $out/var/www/${pname}
     '';
 
-    meta = {
-      description = "A web-based LDAP administration tool";
-      homepage = "https://github.com/leenooks/phpLDAPadmin";
-      platforms = [ "x86_64-linux" ];
-    };
+
+  };
+  new-meta = with lib; {
+    description = "A web-based LDAP administration tool";
+    license = licenses.asl20;
+    maintainers = with maintainers; [ mattcamp ];
   };
 in
 
