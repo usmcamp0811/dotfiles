@@ -80,6 +80,34 @@ dn: ou=Group,dc=aicampground,dc=com
 ou: Group
 objectClass: top
 objectClass: organizationalUnit
+
+# Begin Templated Group: ldap_user
+dn: cn=ldap_user,ou=Group,dc=aicampground,dc=com
+objectClass: top
+objectClass: posixGroup
+cn:ldap_user
+gidNumber: 10000
+
+# End Templated Group
+
+# Begin Templated Group: docker
+dn: cn=docker,ou=Group,dc=aicampground,dc=com
+objectClass: top
+objectClass: posixGroup
+cn:docker
+gidNumber: 10001
+
+# End Templated Group
+
+# Begin Templated Group: wheel
+dn: cn=wheel,ou=Group,dc=aicampground,dc=com
+objectClass: top
+objectClass: posixGroup
+cn:wheel
+gidNumber: 10002
+
+# End Templated Group
+
         '';
       };
 
