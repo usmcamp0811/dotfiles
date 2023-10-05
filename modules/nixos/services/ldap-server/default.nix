@@ -52,6 +52,33 @@ in
       declarativeContents = {
         "dc=aicampground,dc=com" = ''
 
+          dn: cn=openssh-lpk,cn=schema,cn=config
+          objectClass: olcSchemaConfig
+          cn: openssh-lpk
+
+          # Entry: cn=docker,ou=sudoers,dc=aicampground,dc=com
+          dn: cn=docker,ou=sudoers,dc=aicampground,dc=com
+          cn: docker
+          objectclass: sudoRole
+          objectclass: top
+          sudocommand: /usr/sbin/docker
+          sudohost: ALL
+          sudooption: !authenticate
+          sudoorder: 2
+          sudorunasuser: root
+          sudouser: %docker
+
+          # Entry: cn=wheel,ou=sudoers,dc=aicampground,dc=com
+          dn: cn=wheel,ou=sudoers,dc=aicampground,dc=com
+          cn: wheel
+          objectclass: sudoRole
+          objectclass: top
+          sudocommand: ALL
+          sudohost: ALL
+          sudoorder: 2
+          sudorunasuser: ALL
+          sudouser: %wheel
+
           # Manager, aicampground.com
           dn: cn=Manager,dc=aicampground,dc=com
           cn: Manager
