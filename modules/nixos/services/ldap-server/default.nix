@@ -5,6 +5,7 @@ let
   cfg = config.campground.services.ldap-server;
 
   sudoSchemaPath = ./openldap/sudo-config.ldif;
+  sudoersLdif = ./openldap/sudoers.ldif;
 
 in
 {
@@ -101,6 +102,16 @@ in
             ];
           };
         };
+      };
+    };
+
+    systemd.services.ldapCustomEntries = {
+      description = "Add custom LDAP entries";
+      after = [ "network.target" "slapd.service" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.openldap}/bin/ldapadd -x -D 'cn=admin,dc=aicampground,dc=com' -w 'pass' -f ${sudoersLdif}";
       };
     };
 
