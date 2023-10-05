@@ -5,7 +5,8 @@ let
   cfg = config.campground.services.ldap-server;
 
   sudoSchemaPath = ./openldap/sudo-config.ldif;
-  ldapEntriesPath = ./openldap/groups.ldif;
+
+  ldapUsersPath = ./openldap/users.ldif;
 in
 {
   options.campground.services.ldap-server = with types; {
@@ -47,10 +48,12 @@ in
 
       /* enable plain connections only */
       urlList = [ "ldap:///" ];
+
       declarativeContents = pkgs.writeTextFile {
-        name = "my-ldap-entries";
-        text = builtins.readFile ldapEntriesPath;  # Read the contents of your LDIF file
+        name = "ldap-users";
+        text = builtins.readFile ldapUsersPath;  # Read the contents of your LDIF file
       };
+
       settings = {
         attrs = {
           olcLogLevel = "conns config";
