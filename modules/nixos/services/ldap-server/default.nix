@@ -5,7 +5,7 @@ let
   cfg = config.campground.services.ldap-server;
 
   sudoSchemaPath = ./openldap/sudo-config.ldif;
-  sudoersLdif = ./openldap/sudoers.ldif;
+  # sudoersLdif = ./openldap/sudoers.ldif;
 
 in
 {
@@ -50,6 +50,53 @@ in
       urlList = [ "ldap:///" "ldaps:///" ];
 
       declarativeContents = {
+        "${ldapBaseDN}" = ''
+          # Begin Templated User: Matt Camp
+          dn: uid=mcamp,ou=People,dc=aicampground,dc=com
+          objectClass: top
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          objectClass: posixAccount
+          objectClass: shadowAccount
+          uid: mcamp
+          cn: Matt Camp
+          sn: Camp
+          givenName: Matt Camp
+          title: Data Scientist
+          mobile: +1 555 867 5309
+          mail: matt@aicampground.com
+          loginShell: /usr/bin/zsh
+          uidNumber: 10000
+          gidNumber: 10000
+          homeDirectory: /home/mcamp
+          userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
+          # End Templated User
+
+          # Begin Templated User: Candace Camp
+          dn: uid=ccamp,ou=People,dc=aicampground,dc=com
+          objectClass: top
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          objectClass: posixAccount
+          objectClass: shadowAccount
+          uid: ccamp
+          cn: Candace Camp
+          sn: Camp
+          givenName: Candace Camp
+          title: Domestic Engineer
+          mobile: +1 555 867 5309
+          mail: candace@aicampground.com
+          loginShell: /usr/bin/zsh
+          uidNumber: 10001
+          gidNumber: 10000
+          homeDirectory: /home/ccamp
+          userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
+          description: This user was created from Ansible
+          # End Templated User
+
+        '';
       };
 
       settings = {
@@ -105,15 +152,15 @@ in
       };
     };
 
-    systemd.services.ldapCustomEntries = {
-      description = "Add custom LDAP entries";
-      after = [ "network.target" "slapd.service" ];
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.openldap}/bin/ldapadd -x -D 'cn=admin,dc=aicampground,dc=com' -w 'pass' -f ${sudoersLdif}";
-      };
-    };
+    # systemd.services.ldapCustomEntries = {
+    #   description = "Add custom LDAP entries";
+    #   after = [ "network.target" "openldap.service" ];
+    #   wantedBy = [ "multi-user.target" ];
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     ExecStart = "${pkgs.openldap}/bin/ldapadd -x -D 'cn=admin,dc=aicampground,dc=com' -w 'pass' -f ${sudoersLdif}";
+    #   };
+    # };
 
     campground.services.vault-agent.services.openldap = {
       settings = {
