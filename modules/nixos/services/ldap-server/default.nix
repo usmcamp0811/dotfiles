@@ -50,7 +50,7 @@ in
       urlList = [ "ldap:///" "ldaps:///" ];
 
       declarativeContents = {
-        "${ldapBaseDN}" = ''
+        "dc=aicampground,dc=com" = ''
           # Begin Templated User: Matt Camp
           dn: uid=mcamp,ou=People,dc=aicampground,dc=com
           objectClass: top
