@@ -51,6 +51,54 @@ in
 
       declarativeContents = {
         "dc=aicampground,dc=com" = ''
+
+          # Manager, aicampground.com
+          dn: cn=Manager,dc=aicampground,dc=com
+          cn: Manager
+          description: LDAP administrator
+          objectClass: organizationalRole
+          objectClass: top
+          roleOccupant: dc=aicampground,dc=com
+
+          # People, dc=aicampground,dc=com
+          dn: ou=People,dc=aicampground,dc=com
+          ou: People
+          objectClass: top
+          objectClass: organizationalUnit
+
+          # Groups, dc=aicampground,dc=com
+          dn: ou=Group,dc=aicampground,dc=com
+          ou: Group
+          objectClass: top
+          objectClass: organizationalUnit
+
+          # Begin Templated Group: ldap_user
+          dn: cn=ldap_user,ou=Group,dc=aicampground,dc=com
+          objectClass: top
+          objectClass: posixGroup
+          cn:ldap_user
+          gidNumber: 10000
+
+          # End Templated Group
+
+          # Begin Templated Group: docker
+          dn: cn=docker,ou=Group,dc=aicampground,dc=com
+          objectClass: top
+          objectClass: posixGroup
+          cn:docker
+          gidNumber: 10001
+
+          # End Templated Group
+
+          # Begin Templated Group: wheel
+          dn: cn=wheel,ou=Group,dc=aicampground,dc=com
+          objectClass: top
+          objectClass: posixGroup
+          cn:wheel
+          gidNumber: 10002
+
+          # End Templated Group
+
           # Begin Templated User: Matt Camp
           dn: uid=mcamp,ou=People,dc=aicampground,dc=com
           objectClass: top
