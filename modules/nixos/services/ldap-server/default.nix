@@ -14,13 +14,20 @@ in
   options.campground.services.ldap-server = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     ldapBackend = mkOpt str "mdb" "the Ldap Backend";
-    ldapBaseDN = mkOpt str "dc=aicampground,dc=com" "The BaseDN"; domain-name = mkOpt str "aicampground" "The domain name to use";
+    ldapBaseDN = mkOpt str "dc=aicampground,dc=com" "The BaseDN";
+    domain-name = mkOpt str "aicampground" "The domain name to use";
     rootdn = mkOpt str "cn=admin,dc=${cfg.domain-name},dc=com" "The Root DN to use";
     suffix = mkOpt str "dc=${cfg.domain-name},dc=com" "The suffix";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
+    vault-pki-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
+    vault-path = mkOpt str "secret/campground/ldap" "The Vault path to the KV containing the LDAP Secrets.";
     common-name = mkOpt str "ldap.server.aicampground.com" "Common Name for Server Certs";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -45,91 +52,89 @@ in
 
     services.openldap = {
       enable = true;
-      # rootdn = "cn=admin,${cfg.ldapBaseDN}";
-      # rootpw = "{CLEARTEXT}admin"; # Use a more secure method in production
 
       /* enable plain and secure connections */
       urlList = [ "ldap:///" "ldaps:///" ];
 
       declarativeContents = {
         "dc=aicampground,dc=com" = ''
-# base.ldif
-# Base DN
-dn: dc=aicampground,dc=com
-objectClass: top
-objectClass: dcObject
-objectClass: organization
-o: aicampground
-dc: aicampground
+        # base.ldif
+        # Base DN
+        dn: dc=aicampground,dc=com
+        objectClass: top
+        objectClass: dcObject
+        objectClass: organization
+        o: aicampground
+        dc: aicampground
 
-# Manager, aicampground.com
-dn: cn=Manager,dc=aicampground,dc=com
-cn: Manager
-description: LDAP administrator
-objectClass: organizationalRole
-objectClass: top
-roleOccupant: dc=aicampground,dc=com
+        # Manager, aicampground.com
+        dn: cn=Manager,dc=aicampground,dc=com
+        cn: Manager
+        description: LDAP administrator
+        objectClass: organizationalRole
+        objectClass: top
+        roleOccupant: dc=aicampground,dc=com
 
-# People, dc=aicampground,dc=com
-dn: ou=People,dc=aicampground,dc=com
-ou: People
-objectClass: top
-objectClass: organizationalUnit
+        # People, dc=aicampground,dc=com
+        dn: ou=People,dc=aicampground,dc=com
+        ou: People
+        objectClass: top
+        objectClass: organizationalUnit
 
-# Groups, dc=aicampground,dc=com
-dn: ou=Group,dc=aicampground,dc=com
-ou: Group
-objectClass: top
-objectClass: organizationalUnit
+        # Groups, dc=aicampground,dc=com
+        dn: ou=Group,dc=aicampground,dc=com
+        ou: Group
+        objectClass: top
+        objectClass: organizationalUnit
 
-# groups.ldif
-# Begin Templated Group: ldap_user
-dn: cn=ldap_user,ou=Group,dc=aicampground,dc=com
-objectClass: top
-objectClass: posixGroup
-cn:ldap_user
-gidNumber: 10000
+        # groups.ldif
+        # Begin Templated Group: ldap_user
+        dn: cn=ldap_user,ou=Group,dc=aicampground,dc=com
+        objectClass: top
+        objectClass: posixGroup
+        cn:ldap_user
+        gidNumber: 10000
 
-# End Templated Group
+        # End Templated Group
 
-# Begin Templated Group: docker
-dn: cn=docker,ou=Group,dc=aicampground,dc=com
-objectClass: top
-objectClass: posixGroup
-cn:docker
-gidNumber: 10001
+        # Begin Templated Group: docker
+        dn: cn=docker,ou=Group,dc=aicampground,dc=com
+        objectClass: top
+        objectClass: posixGroup
+        cn:docker
+        gidNumber: 10001
 
-# End Templated Group
+        # End Templated Group
 
-# Begin Templated Group: wheel
-dn: cn=wheel,ou=Group,dc=aicampground,dc=com
-objectClass: top
-objectClass: posixGroup
-cn:wheel
-gidNumber: 10002
+        # Begin Templated Group: wheel
+        dn: cn=wheel,ou=Group,dc=aicampground,dc=com
+        objectClass: top
+        objectClass: posixGroup
+        cn:wheel
+        gidNumber: 10002
 
-# End Templated Group
+        # End Templated Group
 
-dn: uid=mcamp,ou=People,dc=aicampground,dc=com
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-objectClass: posixAccount
-objectClass: shadowAccount
-# objectclass: ldapPublicKey
-uid: mcamp
-cn: Matt Camp
-sn: Camp
-givenName: Matt Camp
-title: Data Scientist
-mobile: +1 555 867 5309
-mail: matt@aicampground.com
-loginShell: /usr/bin/zsh
-uidNumber: 10000
-gidNumber: 10000
-homeDirectory: /home/mcamp
-userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
+        dn: uid=mcamp,ou=People,dc=aicampground,dc=com
+        objectClass: top
+        objectClass: person
+        objectClass: organizationalPerson
+        objectClass: inetOrgPerson
+        objectClass: posixAccount
+        objectClass: shadowAccount
+        # objectclass: ldapPublicKey
+        uid: mcamp
+        cn: Matt Camp
+        sn: Camp
+        givenName: Matt Camp
+        title: Data Scientist
+        mobile: +1 555 867 5309
+        mail: matt@aicampground.com
+        loginShell: /usr/bin/zsh
+        uidNumber: 10000
+        gidNumber: 10000
+        homeDirectory: /home/mcamp
+        userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
 
         '';
       };
@@ -187,16 +192,6 @@ userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
       };
     };
 
-    # systemd.services.ldapCustomEntries = {
-    #   description = "Add custom LDAP entries";
-    #   after = [ "network.target" "openldap.service" ];
-    #   wantedBy = [ "multi-user.target" ];
-    #   serviceConfig = {
-    #     Type = "oneshot";
-    #     ExecStart = "${pkgs.openldap}/bin/ldapadd -x -D 'cn=admin,dc=aicampground,dc=com' -w 'pass' -f ${sudoersLdif}";
-    #   };
-    # };
-
     campground.services.vault-agent.services.openldap = {
       settings = {
         vault.address = cfg.vault-address;
@@ -216,7 +211,7 @@ userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
           files = {
             "ldap.crt" = {
               text = ''
-                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ with secret "${cfg.vault-pki-path}" "common_name=${cfg.common-name}" }}
                 {{ .Data.certificate }}
                 {{ end }}
               '';
@@ -225,7 +220,7 @@ userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
             };
             "ldap.key" = {
               text = ''
-                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ with secret "${cfg.vault-pki-path}" "common_name=${cfg.common-name}" }}
                 {{ .Data.private_key }}
                 {{ end }}
               '';
@@ -234,9 +229,16 @@ userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
             };
             "ca.crt" = {
               text = ''
-                {{ with secret "${cfg.vault-path}" "common_name=${cfg.common-name}" }}
+                {{ with secret "${cfg.vault-pki-path}" "common_name=${cfg.common-name}" }}
                 {{ .Data.issuing_ca }}
                 {{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+            "olcRootPW.secret" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.olcRootPW }}{{ else }}{{ .Data.data.olcRootPW }}{{ end }}{{ end }}
               '';
               permissions = "0600";
               change-action = "restart";
