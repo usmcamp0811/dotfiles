@@ -117,7 +117,7 @@ objectClass: organizationalPerson
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-objectclass: ldapPublicKey
+# objectclass: ldapPublicKey
 uid: mcamp
 cn: Matt Camp
 sn: Camp
