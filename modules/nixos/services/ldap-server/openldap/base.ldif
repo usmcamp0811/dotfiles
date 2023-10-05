@@ -1,3 +1,11 @@
+# Base DN
+dn: dc=aicampground,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: aicampground
+dc: aicampground
+
 # Manager, aicampground.com
 dn: cn=Manager,dc=aicampground,dc=com
 cn: Manager

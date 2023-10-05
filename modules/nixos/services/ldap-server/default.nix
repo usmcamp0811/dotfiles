@@ -53,8 +53,7 @@ in
 
       declarativeContents = {
         "dc=aicampground,dc=com" = ''
-          # ${baseLdif}
-          # ${groupsLdif}
+          ${baseLdif}
         '';
       };
 
