@@ -5,9 +5,9 @@ let
   cfg = config.campground.services.ldap-server;
 
   sudoSchemaPath = ./openldap/sudo-config.ldif;
-  # sudoersLdif = ./openldap/sudoers.ldif;
-  baseLdif = ./openldap/base.ldif;
-  groupsLdif = ./openldap/groups.ldif;
+  sshPublicPath = ./openldap/ssh-public.ldif;
+  sudoersPath = ./openldap/sudoers.ldif;
+
 
 in
 {
@@ -130,13 +130,42 @@ in
         title: Data Scientist
         mobile: +1 555 867 5309
         mail: matt@aicampground.com
-        loginShell: /usr/bin/zsh
+        loginShell: zsh
         uidNumber: 10000
         gidNumber: 10000
         homeDirectory: /home/mcamp
         userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
 
+        # passwords.ldif
+        #load password policy module
+        dn: ou=pwpolicies,dc=aicampground,dc=com
+        objectClass: organizationalUnit
+        objectClass: top
+        ou: pwpolicies
+
+        dn: cn=default,ou=pwpolicies,dc=aicampground,dc=com
+        objectClass: top
+        objectClass: device
+        objectClass: pwdPolicy
+        cn: default
+        pwdAttribute: userPassword
+        pwdAllowUserChange: TRUE
+        pwdCheckQuality: 1
+        pwdExpireWarning: 3600
+        pwdFailureCountInterval: 3600
+        pwdInHistory: 3
+        pwdLockout: TRUE
+        pwdLockoutDuration: 300
+        pwdMaxAge: 0
+        pwdMaxFailure: 5
+        pwdMinLength: 6
+        pwdMustChange: FALSE
+        pwdSafeModify: FALSE
+
         '';
+      # "cn=config" = ''
+      #
+      #   '';
       };
 
       settings = {
@@ -158,6 +187,8 @@ in
             "${pkgs.openldap}/etc/schema/cosine.ldif"
             "${pkgs.openldap}/etc/schema/inetorgperson.ldif"
             "${pkgs.openldap}/etc/schema/nis.ldif"
+            sudoSchemaPath
+            sshPublicPath
           ];
           "olcDatabase={1}mdb".attrs = {
 
@@ -170,7 +201,8 @@ in
 
             /* your admin account, do not use writeText on a production system */
             olcRootDN = "cn=admin,${cfg.ldapBaseDN}";
-            olcRootPW.path = pkgs.writeText "olcRootPW" "pass";
+            # olcRootPW.path = pkgs.writeText "olcRootPW" "pass";
+            olcRootPW.path = "/tmp/detsys-vault/olcRootPW.secret";
 
             olcAccess = [
               # /* custom access rules for userPassword attributes */
@@ -237,9 +269,7 @@ in
               change-action = "restart";
             };
             "olcRootPW.secret" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.olcRootPW }}{{ else }}{{ .Data.data.olcRootPW }}{{ end }}{{ end }}
-              '';
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.olcRootPW }}{{ else }}{{ .Data.data.olcRootPW }}{{ end }}{{ end }}'';
               permissions = "0600";
               change-action = "restart";
             };
