@@ -7,7 +7,6 @@ let
   sudoSchemaPath = ./openldap/sudo-config.ldif;
   sshPublicPath = ./openldap/ssh-public.ldif;
   sudoersPath = ./openldap/sudoers.ldif;
-  defaultUserPath = ./openldap/default-user.ldif;
 
 
 in
@@ -116,27 +115,6 @@ in
 
         # End Templated Group
 
-        dn: uid=mcamp,ou=People,dc=aicampground,dc=com
-        objectClass: top
-        objectClass: person
-        objectClass: organizationalPerson
-        objectClass: inetOrgPerson
-        objectClass: posixAccount
-        objectClass: shadowAccount
-        # objectclass: ldapPublicKey
-        uid: mcamp
-        cn: Matt Camp
-        sn: Camp
-        givenName: Matt Camp
-        title: Data Scientist
-        mobile: +1 555 867 5309
-        mail: matt@aicampground.com
-        loginShell: zsh
-        uidNumber: 10000
-        gidNumber: 10000
-        homeDirectory: /home/mcamp
-        userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
-
         # passwords.ldif
         #load password policy module
         dn: ou=pwpolicies,dc=aicampground,dc=com
@@ -190,7 +168,6 @@ in
             "${pkgs.openldap}/etc/schema/nis.ldif"
             sudoSchemaPath
             sshPublicPath
-            defaultUserPath
           ];
           "olcDatabase={1}mdb".attrs = {
 
