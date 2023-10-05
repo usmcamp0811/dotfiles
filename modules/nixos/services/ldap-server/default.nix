@@ -7,6 +7,7 @@ let
   sudoSchemaPath = ./openldap/sudo-config.ldif;
   sshPublicPath = ./openldap/ssh-public.ldif;
   sudoersPath = ./openldap/sudoers.ldif;
+  defaultUserPath = ./openldap/default-user.ldif;
 
 
 in
@@ -189,6 +190,7 @@ in
             "${pkgs.openldap}/etc/schema/nis.ldif"
             sudoSchemaPath
             sshPublicPath
+            defaultUserPath
           ];
           "olcDatabase={1}mdb".attrs = {
 

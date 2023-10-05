@@ -1,0 +1,10 @@
+attributetype ( 1.1.1.1.1 NAME 'uid'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+objectclass ( 1.1.1.1.2 NAME 'customUser'
+        SUP inetOrgPerson STRUCTURAL
+        MUST uid
+        MAY ( title $ mobile $ mail $ loginShell $ uidNumber $ gidNumber $ homeDirectory $ userPassword ) )
+
