@@ -53,6 +53,7 @@ in
 
       declarativeContents = {
         "dc=aicampground,dc=com" = ''
+# base.ldif
 # Base DN
 dn: dc=aicampground,dc=com
 objectClass: top
@@ -81,6 +82,7 @@ ou: Group
 objectClass: top
 objectClass: organizationalUnit
 
+# groups.ldif
 # Begin Templated Group: ldap_user
 dn: cn=ldap_user,ou=Group,dc=aicampground,dc=com
 objectClass: top
@@ -107,6 +109,27 @@ cn:wheel
 gidNumber: 10002
 
 # End Templated Group
+
+dn: uid=mcamp,ou=People,dc=aicampground,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectclass: ldapPublicKey
+uid: mcamp
+cn: Matt Camp
+sn: Camp
+givenName: Matt Camp
+title: Data Scientist
+mobile: +1 555 867 5309
+mail: matt@aicampground.com
+loginShell: /usr/bin/zsh
+uidNumber: 10000
+gidNumber: 10000
+homeDirectory: /home/mcamp
+userPassword: {SSHA}+8SkRmY3EbMC/T8+yusewaotB103xOFs
 
         '';
       };
