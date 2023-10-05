@@ -6,6 +6,8 @@ let
 
   sudoSchemaPath = ./openldap/sudo-config.ldif;
   # sudoersLdif = ./openldap/sudoers.ldif;
+  baseLdif = ./openldap/base.ldif;
+  groupsLdif = ./openldap/groups.ldif;
 
 in
 {
@@ -50,10 +52,10 @@ in
       urlList = [ "ldap:///" "ldaps:///" ];
 
       declarativeContents = {
-        "dc=aicampground,dc=com" = [
-          "./openldap/base.ldif"
-          "./openldap/groups.ldif"
-        ];
+        "dc=aicampground,dc=com" = ''
+          ${baseLdif}
+          ${groupsLdif}
+        '';
       };
 
       settings = {
