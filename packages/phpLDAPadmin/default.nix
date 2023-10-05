@@ -98,6 +98,7 @@ let
     installPhase = ''
       mkdir -p $out/var/www
       cp -r . $out/var/www/${pname}
+      cp ${config-php} $out/var/www/${pname}/config/config.php
     '';
 
 
