@@ -53,6 +53,7 @@ in
     };
     environment.systemPackages = [ phpLDAPadmin ];
 
+    # TODO: Move to nix package over oci-contianer for phpldapadmin
     # services.nginx = {
     #   enable = true;
     #   virtualHosts."phpLDAPadmin" = {

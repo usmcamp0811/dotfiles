@@ -74,7 +74,10 @@ in
   };
 
   campground.services = {
-    ldap-client = enabled;
+    ldap-client = {
+      enable = true;
+      ldap_uri = "ldap://10.8.0.135:389";
+    };
     # jupyter = enabled;
     k0sworker = enabled;
     zfs-key-server = {
