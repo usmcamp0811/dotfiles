@@ -6,6 +6,7 @@ let
 
   user-template = toString ./openldap/user-template.xml;
   entrypoint = toString ./openldap/run;
+  sudoSchemaPath = ./openldap/sudo-config.ldif;
 
   inherit (pkgs.campground) phpLDAPadmin;
 in
@@ -452,6 +453,20 @@ in
         pwdMinLength: 6
         pwdMustChange: FALSE
         pwdSafeModify: FALSE
+
+# dn: ou=sudoers,${cfg.ldapBaseDN}
+# objectClass: organizationalUnit
+# objectClass: top
+# ou: sudoers
+#
+# dn: cn=defaults,ou=sudoers,${cfg.ldapBaseDN}
+# objectClass: sudoRole
+# objectClass: top
+# cn: defaults
+# sudoOption: env_reset
+# sudoOption: mail_badpass
+# sudoOption: secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+# sudoOrder: 1
         '';
       # "cn=config" = ''
       #
