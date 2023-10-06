@@ -35,11 +35,6 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    kvVersion = mkOption {
-      type = enum ["v1" "v2"];
-      default = "v2";
-      description = "KV store version";
-    };
     trusted_group = mkOpt str "ldap_user" "The LDAP Group of users who can user home-manager on the system.";
   };
 
@@ -123,17 +118,6 @@ ldap_group_member = memberUid
       wantedBy = [ "multi-user.target" ];
     };
 
-    # systemd.services.copyLdapCAPem = {
-    #   description = "Copy ldap_ca.pem to /etc/ldap/ldap_ca.pem after Vault agent has started";
-    #   serviceConfig = {
-    #     Type = "oneshot";
-    #     User = "root";
-    #     ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyLDAP_CA.sh";
-    #     after = [ "vault-agent.service" ];
-    #     before = [ "sssd.service" ];
-    #   };
-    #   wantedBy = [ "multi-user.target" ];
-    # };
 
     campground.services.vault-agent.services.sssd = {
       settings = {
@@ -165,55 +149,6 @@ ldap_group_member = memberUid
         };
       };
     };
-    # campground.services.vault-agent.services.copyLdapCAPem = {
-    #   settings = {
-    #     vault.address = cfg.vault-address;
-    #     auto_auth = {
-    #       method = [{
-    #         type = "approle";
-    #         config = {
-    #           role_id_file_path = cfg.role-id;
-    #           secret_id_file_path = cfg.secret-id;
-    #           remove_secret_id_file_after_reading = false;
-    #         };
-    #       }];
-    #     };
-    #   };
-    #   secrets = {
-    #     file = {
-    #       files = {
-    #         "ca.crt" = {
-    #           text = ''
-    #             {{ with secret "${cfg.vault-pki-path}" "common_name=${cfg.common-name}" }}
-    #             {{ .Data.issuing_ca }}
-    #             {{ end }}
-    #           '';
-    #           permissions = "0600";
-    #           change-action = "restart";
-    #         };
-    #         "copyLDAP_CA.sh" = {
-    #           text = ''
-    #             #!/bin/sh
-    #             set -e  # exit immediately on error
-    #             CA_CERT="/etc/ldap/ldap_ca.pem"
-    #             TEMP_CERT=$(mktemp)
-    #             
-    #             # Write the certificate to a temp file first
-    #             cat <<EOF >$TEMP_CERT
-    #           {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ldap_ca }}{{ else }}{{ .Data.data.ldap_ca }}{{ end }}{{ end }}
-    #           EOF
-    #             # Move temp file to target, ensuring atomic update
-    #             mkdir -p /etc/ldap/
-    #             mv $TEMP_CERT $CA_CERT
-    #             chmod 0644 $CA_CERT  # Set appropriate permissions
-    #           '';
-    #           permissions = "0400";  # Make the script executable
-    #           change-action = "restart";
-    #         };
-    #       };
-    #     };
-    #   };
-    # };
   };
 }
 
