@@ -8,7 +8,7 @@
           type = "gpt";
           partitions = {
             ESP = {
-              size = "1G";
+              size = "2G";
               type = "EF00";
               content = {
                 type = "filesystem";
@@ -42,23 +42,35 @@
           root = {
             type = "zfs_fs";
             mountpoint = "/";
-          };
-          home = {
-            type = "zfs_fs";
-            mountpoint = "/home";
-          };
-          persist = {
-            type = "zfs_fs";
-            mountpoint = "/persist";
-          };
-          encrypted = {
-            type = "zfs_fs";
             options = {
-              mountpoint = "none";
+              mountpoint = "/";
               encryption = "aes-256-gcm";
               keyformat = "passphrase";
               keylocation = "file:///tmp/secret.key";
             };
+          };
+          home = {
+            type = "zfs_fs";
+            mountpoint = "/home";
+            options = {
+              mountpoint = "/home";
+              encryption = "aes-256-gcm";
+              keyformat = "passphrase";
+              keylocation = "file:///tmp/secret.key";
+            };
+          };
+          persist = {
+            type = "zfs_fs";
+            mountpoint = "/persist";
+            options = {
+              mountpoint = "/persist";
+              encryption = "aes-256-gcm";
+              keyformat = "passphrase";
+              keylocation = "file:///tmp/secret.key";
+            };
+          };
+          encrypted = {
+            type = "zfs_fs";
           };
         };
       };
@@ -66,3 +78,4 @@
   };
 }
 
+# sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
