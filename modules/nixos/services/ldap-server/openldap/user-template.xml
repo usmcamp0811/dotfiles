@@ -45,10 +45,14 @@
 	<page>1</page>
 	<spacer>1</spacer>
 </attribute>
-<attribute id="homeDirectory">
-	<display>Home directory</display>
-	<order>8</order>
+<attribute id="userPassword">
+	<display>Password</display>
+	<icon>lock.png</icon>
+	<order>5</order>
 	<page>1</page>
+	<post>=php.PasswordEncrypt(%enc%;%userPassword%)</post>
+	<spacer>1</spacer>
+	<verify>1</verify>
 </attribute>
 <attribute id="uidNumber">
 	<display>UID Number</display>
@@ -63,6 +67,12 @@
 	<page>1</page>
 	<value>=php.GetNextNumber(/;gidNumber;10000)</value>
 </attribute>
+<attribute id="homeDirectory">
+	<display>Home directory</display>
+  <onchange>=autoFill(homeDirectory;/home/%uid%)</onchange>
+	<order>8</order>
+	<page>1</page>
+</attribute>
 <attribute id="loginShell">
 	<display>Login shell</display>
 	<order>9</order>
@@ -71,15 +81,30 @@
 	<value id="/usr/bin/env bash">Bash</value>
 	<value id="/usr/bin/env zsh">Zsh</value>
 </attribute>
-<attribute id="userPassword">
-	<display>Password</display>
-	<icon>lock.png</icon>
-	<order>5</order>
+<attribute id="title">
+	<display>Title</display>
+	<order>10</order>
 	<page>1</page>
-	<post>=php.PasswordEncrypt(%enc%;%userPassword%)</post>
-	<spacer>1</spacer>
-	<verify>1</verify>
 </attribute>
+<attribute id="mobile">
+	<display>Mobile</display>
+	<order>11</order>
+	<page>1</page>
+	<value>+1 555 867 5309</value>
+</attribute>
+<attribute id="mail">
+	<display>Email</display>
+	<order>12</order>
+	<page>1</page>
+</attribute>
+<attribute id="description">
+	<display>Description</display>
+	<order>13</order>
+	<page>1</page>
+	<value>This is a Linux User</value>
+</attribute>
+
 </attributes>
 
 </template>
+
