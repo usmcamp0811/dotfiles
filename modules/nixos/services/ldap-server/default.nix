@@ -396,8 +396,8 @@ in
         objectClass: top
         objectClass: dcObject
         objectClass: organization
-        o: aicampground
-        dc: aicampground
+        o: ${cfg.domain-name}
+        dc: ${cfg.domain-name}
 
         # Manager, aicampground.com
         dn: cn=Manager,${cfg.ldapBaseDN}
