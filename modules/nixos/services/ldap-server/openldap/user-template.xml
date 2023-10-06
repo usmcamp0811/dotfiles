@@ -3,16 +3,18 @@
 
 <template>
 <askcontainer>1</askcontainer>
-<description>New User Account</description>
+<description>New Campground User Account</description>
 <icon>ldap-user.png</icon>
 <invalid>0</invalid>
 <rdn>cn</rdn>
-<title>Generic: User Account</title>
+<title>Generic: Campground User Account</title>
 <visible>1</visible>
 
 <objectClasses>
 <objectClass id="inetOrgPerson"></objectClass>
 <objectClass id="posixAccount"></objectClass>
+<objectClass id="shadowAccount"></objectClass>
+<objectClass id="organziationalPerson"></objectClass>
 </objectClasses>
 
 <attributes>
@@ -38,7 +40,7 @@
 </attribute>
 <attribute id="uid">
 	<display>User ID</display>
-	<onchange>=autoFill(homeDirectory;/home/users/%uid%)</onchange>
+	<onchange>=autoFill(homeDirectory;/home/%uid%)</onchange>
 	<order>4</order>
 	<page>1</page>
 	<spacer>1</spacer>
@@ -54,13 +56,13 @@
 	<order>6</order>
 	<page>1</page>
 	<readonly>1</readonly>
-	<value>=php.GetNextNumber(/;uidNumber;1000)</value>
+	<value>=php.GetNextNumber(/;uidNumber;10000)</value>
 </attribute>
 <attribute id="gidNumber">
 	<display>GID Number</display>
 	<order>7</order>
 	<page>1</page>
-	<value>=php.GetNextNumber(/;gidNumber;1000)</value>
+	<value>=php.GetNextNumber(/;gidNumber;10000)</value>
 </attribute>
 <attribute id="loginShell">
 	<display>Login shell</display>
