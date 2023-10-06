@@ -9,6 +9,8 @@ let
   sudoersPath = ./openldap/sudoers.ldif;
   user-template = toString ./openldap/user-template.xml;
   templatesDir = toString ./openldap;
+  copy-template = toString ./openldap/copy-template.sh;
+  entrypoint = toString ./openldap/run;
 
 
   inherit (pkgs.campground) phpLDAPadmin;
@@ -50,8 +52,11 @@ in
           PHPLDAPADMIN_HTTPS = "false";
         };
         volumes = [
-          # "${user-template}:/var/www/phpldapadmin/templates/creation/user-template.xml"
+          "${user-template}:/templates/customUser.xml"
+          "${entrypoint}:/container/tool/run"
         ];
+        # entrypoint = "/bin/sh -c 'cp /customUser.xml /var/www/phpldapadmin/templates/creation/user-template.xml && /container/tool/run'";
+
       };
     };
     environment.systemPackages = [ phpLDAPadmin ];
