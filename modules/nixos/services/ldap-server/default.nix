@@ -88,18 +88,18 @@ in
 
     services.openldap = {
       enable = true;
+      settings.attrs = {
+          olcLogLevel = "conns config";
+          /* settings for acme ssl */
+          olcTLSCACertificateFile = "/tmp/detsys-vault/ca.crt";
+          olcTLSCertificateFile = "/tmp/detsys-vault/ldap.crt";
+          olcTLSCertificateKeyFile = "/tmp/detsys-vault/ldap.key";
+          olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
+          olcTLSCRLCheck = "none";
+          olcTLSVerifyClient = "never";
+          olcTLSProtocolMin = "3.1";
+        };
 
-      attrs = {
-        olcLogLevel = "conns config";
-        /* settings for acme ssl */
-        olcTLSCACertificateFile = "/var/lib/vault/ldap/ca.crt";
-        olcTLSCertificateFile = "/var/lib/vault/ldap/server.crt";
-        olcTLSCertificateKeyFile = "/var/lib/vault/ldap/server.key";
-        olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
-        olcTLSCRLCheck = "none";
-        olcTLSVerifyClient = "never";
-        olcTLSProtocolMin = "3.1";
-      };
       # settings.attrs.olcLogLevel = "0";
 
       /* enable plain and secure connections */
