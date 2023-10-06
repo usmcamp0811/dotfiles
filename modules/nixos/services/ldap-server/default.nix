@@ -7,7 +7,6 @@ let
   user-template = toString ./openldap/user-template.xml;
   entrypoint = toString ./openldap/run;
 
-
   inherit (pkgs.campground) phpLDAPadmin;
 in
 {
@@ -44,7 +43,6 @@ in
         environment = {
           PHPLDAPADMIN_LDAP_HOSTS = "ldap://10.8.0.135"; # Replace with your LDAP server address
           PHPLDAPADMIN_HTTPS = "false";
-          # LDAP_TLS_CACERT = "/container/service/phpldapadmin/assets/certs/ca.crt";
 
         };
         volumes = [
@@ -91,6 +89,7 @@ in
 
     services.openldap = {
       enable = true;
+      mutableConfig = true;
       settings.attrs = {
           olcLogLevel = "conns config";
           /* settings for acme ssl */

@@ -55,7 +55,6 @@
 	<icon>terminal.png</icon>
 	<order>6</order>
 	<page>1</page>
-	<readonly>1</readonly>
 	<value>=php.GetNextNumber(/;uidNumber;10000)</value>
 </attribute>
 <attribute id="gidNumber">
@@ -69,8 +68,8 @@
 	<order>9</order>
 	<page>1</page>
 	<type>select</type>
-	<value id="bash">Bash</value>
-	<value id="zsh">Zsh</value>
+	<value id="/usr/bin/env bash">Bash</value>
+	<value id="/usr/bin/env zsh">Zsh</value>
 </attribute>
 <attribute id="userPassword">
 	<display>Password</display>
@@ -84,4 +83,3 @@
 </attributes>
 
 </template>
-
