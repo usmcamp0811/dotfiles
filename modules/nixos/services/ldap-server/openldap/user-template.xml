@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE template SYSTEM "../template.dtd">
+
+<template>
+<askcontainer>1</askcontainer>
+<description>New User Account</description>
+<icon>ldap-user.png</icon>
+<invalid>0</invalid>
+<rdn>cn</rdn>
+<title>Generic: User Account</title>
+<visible>1</visible>
+
+<objectClasses>
+<objectClass id="inetOrgPerson"></objectClass>
+<objectClass id="posixAccount"></objectClass>
+</objectClasses>
+
+<attributes>
+<attribute id="givenName">
+	<display>First name</display>
+	<icon>ldap-uid.png</icon>
+	<onchange>=autoFill(cn;%givenName% %sn%)</onchange>
+	<onchange>=autoFill(uid;%givenName|0-1/l%%sn/l%)</onchange>
+	<order>1</order>
+	<page>1</page>
+</attribute>
+<attribute id="sn">
+	<display>Last name</display>
+	<onchange>=autoFill(cn;%givenName% %sn%)</onchange>
+	<onchange>=autoFill(uid;%givenName|0-1/l%%sn/l%)</onchange>
+	<order>2</order>
+	<page>1</page>
+</attribute>
+<attribute id="cn">
+	<display>Common Name</display>
+	<order>3</order>
+	<page>1</page>
+</attribute>
+<attribute id="uid">
+	<display>User ID</display>
+	<onchange>=autoFill(homeDirectory;/home/users/%uid%)</onchange>
+	<order>4</order>
+	<page>1</page>
+	<spacer>1</spacer>
+</attribute>
+<attribute id="homeDirectory">
+	<display>Home directory</display>
+	<order>8</order>
+	<page>1</page>
+</attribute>
+<attribute id="uidNumber">
+	<display>UID Number</display>
+	<icon>terminal.png</icon>
+	<order>6</order>
+	<page>1</page>
+	<readonly>1</readonly>
+	<value>=php.GetNextNumber(/;uidNumber;1000)</value>
+</attribute>
+<attribute id="gidNumber">
+	<display>GID Number</display>
+	<order>7</order>
+	<page>1</page>
+	<value>=php.GetNextNumber(/;gidNumber;1000)</value>
+</attribute>
+<attribute id="loginShell">
+	<display>Login shell</display>
+	<order>9</order>
+	<page>1</page>
+	<type>select</type>
+	<value id="bash">Bash</value>
+	<value id="zsh">Zsh</value>
+</attribute>
+<attribute id="userPassword">
+	<display>Password</display>
+	<icon>lock.png</icon>
+	<order>5</order>
+	<page>1</page>
+	<post>=php.PasswordEncrypt(%enc%;%userPassword%)</post>
+	<spacer>1</spacer>
+	<verify>1</verify>
+</attribute>
+</attributes>
+
+</template>
+
