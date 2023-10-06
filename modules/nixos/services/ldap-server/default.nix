@@ -509,6 +509,18 @@ in
         sudoorder: 2
         sudorunasuser: ALL
         sudouser: %wheel
+
+        dn: cn=k8s,ou=Group,${cfg.ldapBaseDN}
+        cn: k8s
+        gidnumber: 999
+        objectclass: posixGroup
+        objectclass: top
+
+        dn: cn=libvirtd,ou=Group,${cfg.ldapBaseDN}
+        cn: libvirtd
+        gidnumber: 5001
+        objectclass: posixGroup
+        objectclass: top
         '';
       # "cn=config" = ''
       #
