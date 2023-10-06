@@ -36,44 +36,52 @@ in
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [ 389 8080 ]; # OpenLDAP and phpLDAPadmin ports
+    networking.firewall.allowedTCPPorts = [ 389 8080 8081 ]; # OpenLDAP and phpLDAPadmin ports
 
-    virtualisation.oci-containers.containers = {
-      phpldapadmin = {
-        image = "osixia/phpldapadmin:latest";
-        ports = ["8080:80"];
-        environment = {
-          PHPLDAPADMIN_LDAP_HOSTS = "10.8.0.135"; # Replace with your LDAP server address
-          PHPLDAPADMIN_HTTPS = "false";
-        };
-      };
-    };
-    # environment.systemPackages = [ phpLDAPadmin ];
-    #
-    # services.nginx = {
-    #   enable = true;
-    #   virtualHosts."daly.lan" = {
-    #     root = "/var/www/phpLDAPadmin";
-    #     locations."~ \.php$".extraConfig = ''
-    #       fastcgi_pass unix:${config.services.phpfpm.pools.phpLDAPadmin.socket};
-    #       include ${pkgs.nginx}/conf/fastcgi_params;
-    #       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-    #     '';
-    #   };
-    # };
-    #
-    # services.phpfpm.pools = {
-    #   phpLDAPadmin = {
-    #     user = "nginx";
-    #     group = "nginx";
-    #     settings = {
-    #       "pm" = "dynamic";
-    #       "pm.max_children" = 5;
-    #       "listen.owner" = "nginx";
-    #       "listen.group" = "nginx";
+    # virtualisation.oci-containers.containers = {
+    #   phpldapadmin = {
+    #     image = "osixia/phpldapadmin:latest";
+    #     ports = ["8080:80"];
+    #     environment = {
+    #       PHPLDAPADMIN_LDAP_HOSTS = "10.8.0.135"; # Replace with your LDAP server address
+    #       PHPLDAPADMIN_HTTPS = "false";
     #     };
     #   };
     # };
+    environment.systemPackages = [ phpLDAPadmin ];
+
+    services.nginx = {
+      enable = true;
+      virtualHosts."phpLDAPadmin" = {
+        listen = [
+          { addr = "0.0.0.0"; port = 8080; }
+          { addr = "::"; port = 8080; }
+        ];
+        root = "/var/www/phpLDAPadmin";
+        locations."~ \.php$".extraConfig = ''
+          fastcgi_pass unix:${config.services.phpfpm.pools.phpLDAPadmin.socket};
+          include ${pkgs.nginx}/conf/fastcgi_params;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        '';
+      };
+    };
+
+    services.phpfpm.pools = {
+      phpLDAPadmin = {
+        user = "nginx";
+        group = "nginx";
+        settings = {
+          "pm" = "dynamic";
+          "pm.max_children" = 5;
+          "pm.start_servers" = 2;  # Number of servers to start
+          "pm.min_spare_servers" = 1;  # Minimum number of idle servers
+          "pm.max_spare_servers" = 3;  # Maximum number of idle servers
+          "listen.owner" = "nginx";
+          "listen.group" = "nginx";
+        };
+      };
+    };
+
     services.openldap = {
       enable = true;
 
