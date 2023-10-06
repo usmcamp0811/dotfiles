@@ -793,7 +793,7 @@ def main(args):
 	state_reset_startup_done()
 
 	if args.set_env_hostname_to_etc_hosts:
-		set_env_hostname_to_etc_hosts()
+	    set_env_hostname_to_etc_hosts()
 
 	wait_states(args.wait_states)
 	setup_run_directories(args)
@@ -812,6 +812,7 @@ def main(args):
 	if not args.skip_env_files:
 		set_process_env(args.keep_startup_env)
 
+	copy_xml_files('/templates/', '/var/www/phpldapadmin/templates/creation/')
 	run_cmds(args,"process")
 
 	debug_env_dump()
@@ -914,7 +915,6 @@ exit_code = 0
 
 try:
 	main(args)
-    copy_xml_files('/templates/', '/var/www/phpldapadmin/templates/creation/')
 
 except SystemExit as err:
 	exit_code = err.code
