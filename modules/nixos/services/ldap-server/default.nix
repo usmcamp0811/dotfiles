@@ -106,6 +106,7 @@ in
 
     services.openldap = {
       enable = true;
+      # NOTE: If you make changes to the schema and have `mutableConfig = true` the schema will not update most likely.
       mutableConfig = true;
       settings.attrs = {
           olcLogLevel = "conns config";
@@ -489,19 +490,42 @@ in
         pwdMustChange: FALSE
         pwdSafeModify: FALSE
 
-        dn: ou=sudoers,dc=aicampground,dc=com
+        dn: ou=sudoers,${cfg.ldapBaseDN}
         objectClass: organizationalUnit
         objectClass: top
         ou: sudoers
 
-        # dn: cn=defaults,ou=sudoers,dc=aicampground,dc=com
-        # objectClass: sudoRole
-        # objectClass: top
-        # cn: defaults
-        # sudoOption: env_reset
-        # sudoOption: mail_badpass
-        # sudoOption: secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
-        # sudoOrder: 1
+        dn: cn=defaults,ou=sudoers,${cfg.ldapBaseDN}
+        objectClass: sudoRole
+        objectClass: top
+        cn: defaults
+        sudoOption: env_reset
+        sudoOption: mail_badpass
+        sudoOption: secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+        sudoOrder: 1
+
+        # Entry: cn=docker,ou=sudoers,${cfg.ldapBaseDN}
+        dn: cn=docker,ou=sudoers,${cfg.ldapBaseDN}
+        cn: docker
+        objectclass: sudoRole
+        objectclass: top
+        sudocommand: /usr/sbin/docker
+        sudohost: ALL
+        sudooption: !authenticate
+        sudoorder: 2
+        sudorunasuser: root
+        sudouser: %docker
+
+        # Entry: cn=wheel,ou=sudoers,${cfg.ldapBaseDN}
+        dn: cn=wheel,ou=sudoers,${cfg.ldapBaseDN}
+        cn: wheel
+        objectclass: sudoRole
+        objectclass: top
+        sudocommand: ALL
+        sudohost: ALL
+        sudoorder: 2
+        sudorunasuser: ALL
+        sudouser: %wheel
         '';
       # "cn=config" = ''
       #
