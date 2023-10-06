@@ -78,8 +78,8 @@
 	<order>9</order>
 	<page>1</page>
 	<type>select</type>
-	<value id="/usr/bin/env bash">Bash</value>
-	<value id="/usr/bin/env zsh">Zsh</value>
+	<value id="/usr/bin/bash">Bash</value>
+	<value id="/usr/bin/zsh">Zsh</value>
 </attribute>
 <attribute id="title">
 	<display>Title</display>
