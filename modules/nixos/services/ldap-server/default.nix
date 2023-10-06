@@ -42,12 +42,15 @@ in
         image = "osixia/phpldapadmin:latest";
         ports = ["8080:80"];
         environment = {
-          PHPLDAPADMIN_LDAP_HOSTS = "10.8.0.135"; # Replace with your LDAP server address
+          PHPLDAPADMIN_LDAP_HOSTS = "ldap://10.8.0.135"; # Replace with your LDAP server address
           PHPLDAPADMIN_HTTPS = "false";
+          # LDAP_TLS_CACERT = "/container/service/phpldapadmin/assets/certs/ca.crt";
+
         };
         volumes = [
           "${user-template}:/templates/customUser.xml"
           "${entrypoint}:/container/tool/run"
+          # "/tmp/detsys-vault/ca.crt:/container/service/phpldapadmin/assets/certs/ca.crt"
         ];
       };
     };
