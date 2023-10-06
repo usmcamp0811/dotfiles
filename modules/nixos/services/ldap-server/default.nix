@@ -4,12 +4,7 @@ with lib.campground;
 let
   cfg = config.campground.services.ldap-server;
 
-  sudoSchemaPath = ./openldap/sudo-config.ldif;
-  sshPublicPath = ./openldap/ssh-public.ldif;
-  sudoersPath = ./openldap/sudoers.ldif;
   user-template = toString ./openldap/user-template.xml;
-  templatesDir = toString ./openldap;
-  copy-template = toString ./openldap/copy-template.sh;
   entrypoint = toString ./openldap/run;
 
 
@@ -19,10 +14,9 @@ in
   options.campground.services.ldap-server = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     ldapBackend = mkOpt str "mdb" "the Ldap Backend";
-    ldapBaseDN = mkOpt str "dc=aicampground,dc=com" "The BaseDN";
     domain-name = mkOpt str "aicampground" "The domain name to use";
+    ldapBaseDN = mkOpt str "dc=${cfg.domain-name},dc=com" "The BaseDN";
     rootdn = mkOpt str "cn=admin,dc=${cfg.domain-name},dc=com" "The Root DN to use";
-    suffix = mkOpt str "dc=${cfg.domain-name},dc=com" "The suffix";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-pki-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
@@ -41,7 +35,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [ 389 8080 8081 ]; # OpenLDAP and phpLDAPadmin ports
+    networking.firewall.allowedTCPPorts = [ 389 636 8080 8081 ]; # OpenLDAP and phpLDAPadmin ports
 
     virtualisation.oci-containers.containers = {
       phpldapadmin = {
@@ -55,8 +49,6 @@ in
           "${user-template}:/templates/customUser.xml"
           "${entrypoint}:/container/tool/run"
         ];
-        # entrypoint = "/bin/sh -c 'cp /customUser.xml /var/www/phpldapadmin/templates/creation/user-template.xml && /container/tool/run'";
-
       };
     };
     environment.systemPackages = [ phpLDAPadmin ];
@@ -118,16 +110,16 @@ in
           olcAccess = [
             ''            {0}to attrs=userPassword
                              by self write  by anonymous auth
-                             by dn.base="cn=dovecot,dc=mail,dc=aicampground,dc=com" read
-                             by dn.base="cn=gitlab,ou=system,ou=users,dc=aicampground,dc=com" read
-                             by dn.base="cn=ldapsync,ou=system,ou=users,dc=aicampground,dc=com"
+                             by dn.base="cn=dovecot,dc=mail,${cfg.ldapBaseDN}" read
+                             by dn.base="cn=gitlab,ou=system,ou=users,${cfg.ldapBaseDN}" read
+                             by dn.base="cn=ldapsync,ou=system,ou=users,${cfg.ldapBaseDN}"
                              read by * none''
             ''{1}to attrs=loginShell  by self write  by * read''
-            ''            {2}to dn.subtree="ou=system,ou=users,dc=aicampground,dc=com"
-                             by dn.base="cn=dovecot,dc=mail,dc=aicampground,dc=com" read
-                             by dn.subtree="ou=system,ou=users,dc=aicampground,dc=com" read
+            ''            {2}to dn.subtree="ou=system,ou=users,${cfg.ldapBaseDN}"
+                             by dn.base="cn=dovecot,dc=mail,${cfg.ldapBaseDN}" read
+                             by dn.subtree="ou=system,ou=users,${cfg.ldapBaseDN}" read
                              by * none''
-            ''{3}to dn.subtree="ou=jabber,ou=users,dc=aicampground,dc=com"  by dn.base="cn=prosody,ou=system,ou=users,dc=aicampground,dc=com" write  by * read''
+            ''{3}to dn.subtree="ou=jabber,ou=users,${cfg.ldapBaseDN}"  by dn.base="cn=prosody,ou=system,ou=users,${cfg.ldapBaseDN}" write  by * read''
             ''{4}to * by * read''
           ];
         };
@@ -141,7 +133,7 @@ in
           objectClass = ["olcDatabaseConfig" "olcMonitorConfig"];
           olcAccess = [
             ''            {0}to *
-                           by dn.exact="cn=netdata,ou=system,ou=users,dc=aicampground,dc=com" read
+                           by dn.exact="cn=netdata,ou=system,ou=users,${cfg.ldapBaseDN}" read
                            by * none''
           ];
         };
@@ -363,10 +355,10 @@ in
         };
       };
       declarativeContents = {
-        "dc=aicampground,dc=com" = ''
+        "${cfg.ldapBaseDN}" = ''
         # base.ldif
         # Base DN
-        dn: dc=aicampground,dc=com
+        dn: ${cfg.ldapBaseDN}
         objectClass: top
         objectClass: dcObject
         objectClass: organization
@@ -374,28 +366,28 @@ in
         dc: aicampground
 
         # Manager, aicampground.com
-        dn: cn=Manager,dc=aicampground,dc=com
+        dn: cn=Manager,${cfg.ldapBaseDN}
         cn: Manager
         description: LDAP administrator
         objectClass: organizationalRole
         objectClass: top
-        roleOccupant: dc=aicampground,dc=com
+        roleOccupant: ${cfg.ldapBaseDN}
 
-        # People, dc=aicampground,dc=com
-        dn: ou=People,dc=aicampground,dc=com
+        # People, ${cfg.ldapBaseDN}
+        dn: ou=People,${cfg.ldapBaseDN}
         ou: People
         objectClass: top
         objectClass: organizationalUnit
 
-        # Groups, dc=aicampground,dc=com
-        dn: ou=Group,dc=aicampground,dc=com
+        # Groups, ${cfg.ldapBaseDN}
+        dn: ou=Group,${cfg.ldapBaseDN}
         ou: Group
         objectClass: top
         objectClass: organizationalUnit
 
         # groups.ldif
         # Begin Templated Group: ldap_user
-        dn: cn=ldap_user,ou=Group,dc=aicampground,dc=com
+        dn: cn=ldap_user,ou=Group,${cfg.ldapBaseDN}
         objectClass: top
         objectClass: posixGroup
         cn:ldap_user
@@ -404,7 +396,7 @@ in
         # End Templated Group
 
         # Begin Templated Group: docker
-        dn: cn=docker,ou=Group,dc=aicampground,dc=com
+        dn: cn=docker,ou=Group,${cfg.ldapBaseDN}
         objectClass: top
         objectClass: posixGroup
         cn:docker
@@ -413,7 +405,7 @@ in
         # End Templated Group
 
         # Begin Templated Group: wheel
-        dn: cn=wheel,ou=Group,dc=aicampground,dc=com
+        dn: cn=wheel,ou=Group,${cfg.ldapBaseDN}
         objectClass: top
         objectClass: posixGroup
         cn:wheel
@@ -423,30 +415,29 @@ in
 
         # passwords.ldif
         #load password policy module
-        dn: ou=pwpolicies,dc=aicampground,dc=com
+        dn: ou=pwpolicies,${cfg.ldapBaseDN}
         objectClass: organizationalUnit
         objectClass: top
         ou: pwpolicies
 
-        # dn: cn=default,ou=pwpolicies,dc=aicampground,dc=com
-        # objectClass: top
-        # objectClass: device
-        # objectClass: pwdPolicy
-        # cn: default
-        # pwdAttribute: userPassword
-        # pwdAllowUserChange: TRUE
-        # pwdCheckQuality: 1
-        # pwdExpireWarning: 3600
-        # pwdFailureCountInterval: 3600
-        # pwdInHistory: 3
-        # pwdLockout: TRUE
-        # pwdLockoutDuration: 300
-        # pwdMaxAge: 0
-        # pwdMaxFailure: 5
-        # pwdMinLength: 6
-        # pwdMustChange: FALSE
-        # pwdSafeModify: FALSE
-
+        dn: cn=default,ou=pwpolicies,${cfg.ldapBaseDN}
+        objectClass: top
+        objectClass: device
+        objectClass: pwdPolicy
+        cn: default
+        pwdAttribute: userPassword
+        pwdAllowUserChange: TRUE
+        pwdCheckQuality: 1
+        pwdExpireWarning: 3600
+        pwdFailureCountInterval: 3600
+        pwdInHistory: 3
+        pwdLockout: TRUE
+        pwdLockoutDuration: 300
+        pwdMaxAge: 0
+        pwdMaxFailure: 5
+        pwdMinLength: 6
+        pwdMustChange: FALSE
+        pwdSafeModify: FALSE
         '';
       # "cn=config" = ''
       #
