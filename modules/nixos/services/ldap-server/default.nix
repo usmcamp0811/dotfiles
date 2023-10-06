@@ -99,16 +99,16 @@ in
           olcAccess = [
             ''            {0}to attrs=userPassword
                              by self write  by anonymous auth
-                             by dn.base="cn=dovecot,dc=mail,dc=eve" read
-                             by dn.base="cn=gitlab,ou=system,ou=users,dc=eve" read
-                             by dn.base="cn=ldapsync,ou=system,ou=users,dc=eve"
+                             by dn.base="cn=dovecot,dc=mail,dc=aicampground,dc=com" read
+                             by dn.base="cn=gitlab,ou=system,ou=users,dc=aicampground,dc=com" read
+                             by dn.base="cn=ldapsync,ou=system,ou=users,dc=aicampground,dc=com"
                              read by * none''
             ''{1}to attrs=loginShell  by self write  by * read''
-            ''            {2}to dn.subtree="ou=system,ou=users,dc=eve"
-                             by dn.base="cn=dovecot,dc=mail,dc=eve" read
-                             by dn.subtree="ou=system,ou=users,dc=eve" read
+            ''            {2}to dn.subtree="ou=system,ou=users,dc=aicampground,dc=com"
+                             by dn.base="cn=dovecot,dc=mail,dc=aicampground,dc=com" read
+                             by dn.subtree="ou=system,ou=users,dc=aicampground,dc=com" read
                              by * none''
-            ''{3}to dn.subtree="ou=jabber,ou=users,dc=eve"  by dn.base="cn=prosody,ou=system,ou=users,dc=eve" write  by * read''
+            ''{3}to dn.subtree="ou=jabber,ou=users,dc=aicampground,dc=com"  by dn.base="cn=prosody,ou=system,ou=users,dc=aicampground,dc=com" write  by * read''
             ''{4}to * by * read''
           ];
         };
@@ -122,7 +122,7 @@ in
           objectClass = ["olcDatabaseConfig" "olcMonitorConfig"];
           olcAccess = [
             ''            {0}to *
-                           by dn.exact="cn=netdata,ou=system,ou=users,dc=eve" read
+                           by dn.exact="cn=netdata,ou=system,ou=users,dc=aicampground,dc=com" read
                            by * none''
           ];
         };
@@ -435,68 +435,6 @@ in
       };
 
     };
-    # services.openldap = {
-    #   enable = true;
-    #
-    #   /* enable plain and secure connections */
-    #   urlList = [ "ldap:///" "ldaps:///" ];
-    #
-    #
-    #   settings = {
-    #     attrs = {
-    #       olcLogLevel = "conns config";
-    #       /* settings for acme ssl */
-    #       olcTLSCACertificateFile = "/tmp/detsys-vault/ca.crt";
-    #       olcTLSCertificateFile = "/tmp/detsys-vault/ldap.crt";
-    #       olcTLSCertificateKeyFile = "/tmp/detsys-vault/ldap.key";
-    #       olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
-    #       olcTLSCRLCheck = "none";
-    #       olcTLSVerifyClient = "never";
-    #       olcTLSProtocolMin = "3.1";
-    #     };
-    #
-    #     children = {
-    #       "cn=schema".includes = [
-    #         "${pkgs.openldap}/etc/schema/core.ldif"
-    #         "${pkgs.openldap}/etc/schema/cosine.ldif"
-    #         "${pkgs.openldap}/etc/schema/inetorgperson.ldif"
-    #         "${pkgs.openldap}/etc/schema/nis.ldif"
-    #         sudoSchemaPath
-    #         sshPublicPath
-    #       ];
-    #       "olcDatabase={1}mdb".attrs = {
-    #
-    #         objectClass = [ "olcDatabaseConfig" "olcMdbConfig" ];
-    #
-    #         olcDatabase = "{1}mdb";
-    #         olcDbDirectory = "/var/lib/openldap/data";
-    #
-    #         olcSuffix = cfg.ldapBaseDN;
-    #
-    #         /* your admin account, do not use writeText on a production system */
-    #         olcRootDN = "cn=admin,${cfg.ldapBaseDN}";
-    #         # olcRootPW.path = pkgs.writeText "olcRootPW" "pass";
-    #         olcRootPW.path = "/tmp/detsys-vault/olcRootPW.secret";
-    #
-    #         olcAccess = [
-    #           # /* custom access rules for userPassword attributes */
-    #           # ''{0}to attrs=userPassword
-    #           #     by self write
-    #           #     by anonymous auth
-    #           #     by * none''
-    #           #
-    #           # /* allow read on anything else */
-    #           # ''{1}to *
-    #           #     by * read''
-    #
-    #           "to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break"
-    #           "to attrs=userPassword,shadowLastChange by self write by dn=\"cn=admin,dc=aicampground,dc=com\" write by anonymous auth by * none"
-    #           "to * by anonymous read by dn=\"cn=admin,dc=aicampground,dc=com\" write by * none"
-    #         ];
-    #       };
-    #     };
-    #   };
-    # };
 
     campground.services.vault-agent.services.openldap = {
       settings = {
