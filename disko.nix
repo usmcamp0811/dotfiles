@@ -8,7 +8,7 @@
           type = "gpt";
           partitions = {
             ESP = {
-              size = "2G";
+              size = "1G";
               type = "EF00";
               content = {
                 type = "filesystem";
@@ -39,38 +39,26 @@
         postCreateHook = "zfs snapshot zroot@blank";
 
         datasets = {
-          root = {
-            type = "zfs_fs";
-            mountpoint = "/";
-            options = {
-              mountpoint = "/";
-              encryption = "aes-256-gcm";
-              keyformat = "passphrase";
-              keylocation = "file:///tmp/secret.key";
-            };
-          };
-          home = {
-            type = "zfs_fs";
-            mountpoint = "/home";
-            options = {
-              mountpoint = "/home";
-              encryption = "aes-256-gcm";
-              keyformat = "passphrase";
-              keylocation = "file:///tmp/secret.key";
-            };
-          };
-          persist = {
-            type = "zfs_fs";
-            mountpoint = "/persist";
-            options = {
-              mountpoint = "/persist";
-              encryption = "aes-256-gcm";
-              keyformat = "passphrase";
-              keylocation = "file:///tmp/secret.key";
-            };
-          };
           encrypted = {
             type = "zfs_fs";
+            options = {
+              mountpoint = "none";
+              encryption = "aes-256-gcm";
+              keyformat = "passphrase";
+              keylocation = "file:///tmp/secret.key";
+            };
+          };
+          "encrypted/root" = {
+            type = "zfs_fs";
+            mountpoint = "/";
+          };
+          "encrypted/home" = {
+            type = "zfs_fs";
+            mountpoint = "/home";
+          };
+          "encrypted/persist" = {
+            type = "zfs_fs";
+            mountpoint = "/persist";
           };
         };
       };

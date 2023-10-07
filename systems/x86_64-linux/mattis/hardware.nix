@@ -14,22 +14,22 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "zroot";
+    { device = "NIXROOT/root";
       fsType = "zfs";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/6D71-DDB4";
+    { device = "/dev/disk/by-uuid/FFDB-236D";
       fsType = "vfat";
     };
 
   fileSystems."/home" =
-    { device = "zroot/home";
+    { device = "NIXROOT/home";
       fsType = "zfs";
     };
 
   fileSystems."/persist" =
-    { device = "zroot/persist";
+    { device = "NIXROOT/persist";
       fsType = "zfs";
     };
 
