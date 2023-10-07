@@ -400,7 +400,7 @@ keys = [
     Key([mod], "F2", lazy.spawn(["sh", "-c", """[[ "$(/usr/bin/xrandr | grep -w "connected" | wc -l)" == "1" ]] && export QT_SCALE_FACTOR=1.4 && qutebrowser || qutebrowser"""])),
     Key([mod], "F3", lazy.spawn("ranger")),
     Key([mod, "control"], "r", lazy.restart()),
-    Key([mod], "e", lazy.spawn(["sh", "-c", "~/.local/bin/dmenuunicode"])),
+    Key([mod], "e", lazy.spawn(["sh", "-c", "emoji-picker"])),
     Key([mod], "p", lazy.spawn(["sh", "-c", "~/.local/bin/bwmenu"])),
     Key([mod, "shift"], "o", lazy.spawn(["sh", "-c", """WEB=$(cat $HOME/.config/qutebrowser/quickmarks | awk '{print $2}' | rofi -dmenu 'Search:' -l 7) && [ ! -z "$WEB" ] && qutebrowser --target window "$WEB" """])),
 

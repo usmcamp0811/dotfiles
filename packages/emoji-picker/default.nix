@@ -19,7 +19,7 @@ let
   description = "Luke Smith's Emoji Picker converted to use Rofi and ported to Nix";
   version = "0.1.0";
 
-  emojis = builtins.readFile ./emojis;
+  emojis = writeText "emojis" (builtins.readFile ./emojis);
 
   emoji-script = pkgs.writeShellScript "emoji-picker" ''
   #!/bin/sh
@@ -44,7 +44,9 @@ let
 
   emoji-picker = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
+    phases = [ "installPhase" ];
     installPhase = ''
+      mkdir -p $out/bin
       cp ${emoji-script} $out/bin/'${pname}'
       chmod +x $out/bin/'${pname}'
     ''; 
