@@ -7,8 +7,8 @@
         content = {
           type = "gpt";
           partitions = {
-            ESP = {
-              size = "1G";
+            boot = {
+              size = "1G"; # Adjust size as needed
               type = "EF00";
               content = {
                 type = "filesystem";
@@ -20,7 +20,13 @@
               size = "100%";
               content = {
                 type = "zfs";
-                pool = "zroot";
+                pool = "NIXROOT";
+                options = {
+                  mountpoint = "none";
+                  encryption = "aes-256-gcm";
+                  keyformat = "passphrase";
+                  keylocation = "prompt";
+                };
               };
             };
           };
@@ -28,42 +34,38 @@
       };
     };
     zpool = {
-      zroot = {
+      NIXROOT = {
         type = "zpool";
-        mode = ""; # You can change this to "mirror" if you have another disk
+        mode = "single";
         rootFsOptions = {
-          compression = "zstd";
+          compression = "lz4";
           "com.sun:auto-snapshot" = "false";
         };
-        mountpoint = "/";
-        postCreateHook = "zfs snapshot zroot@blank";
+        mountpoint = "none";
+        postCreateHook = "zfs snapshot NIXROOT@blank";
 
         datasets = {
-          encrypted = {
+          root = {
+            type = "zfs_fs";
+            options.mountpoint = "legacy";
+          };
+          home = {
+            type = "zfs_fs";
+            options.mountpoint = "legacy";
+          };
+          persist = {
+            type = "zfs_fs";
+            options.mountpoint = "legacy";
+          };
+          reserved = {
             type = "zfs_fs";
             options = {
+              refreservation = "1G";
               mountpoint = "none";
-              encryption = "aes-256-gcm";
-              keyformat = "passphrase";
-              keylocation = "file:///tmp/secret.key";
             };
-          };
-          "encrypted/root" = {
-            type = "zfs_fs";
-            mountpoint = "/";
-          };
-          "encrypted/home" = {
-            type = "zfs_fs";
-            mountpoint = "/home";
-          };
-          "encrypted/persist" = {
-            type = "zfs_fs";
-            mountpoint = "/persist";
           };
         };
       };
     };
   };
 }
-
-# sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
