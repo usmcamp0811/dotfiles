@@ -38,7 +38,7 @@ in
         hostId = "5ae58e7a";
       };
       # manage local passwd in vault
-      passwds = enabled;
+      # passwds = enabled;
       # wifi = {
       # # TODO: is there anything I can do to clean this up a little.. seems a little verbose
       #   enable = false;
