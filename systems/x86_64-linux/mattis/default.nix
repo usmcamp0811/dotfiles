@@ -76,7 +76,7 @@ in
   campground.services = {
     ldap-client = enabled;
     # jupyter = enabled;
-    k0sworker = enabled;
+    # k0sworker = enabled;
     # zfs-key-server = {
     #   enable = true;
     #   tang-servers = [
@@ -85,17 +85,17 @@ in
     #    "http://ermy:1234" 
     #   ];
     # };
-    user-secrets = {
-      enable = true;
-      users = {
-        mcamp =  {
-          files = [
-            "id_ed25519"
-            "passwords"
-          ];
-        };
-      };
-    };
+    # user-secrets = {
+    #   enable = true;
+    #   users = {
+    #     mcamp =  {
+    #       files = [
+    #         "id_ed25519"
+    #         "passwords"
+    #       ];
+    #     };
+    #   };
+    # };
     # vault-agent = {
     #   enable = true;
     #   settings = {
