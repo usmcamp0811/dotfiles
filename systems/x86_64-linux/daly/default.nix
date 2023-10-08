@@ -40,7 +40,7 @@ in
       zfs = {
         enable = true;
         hostId = "65c8b2d7";
-        keyfile-url = "http://ata-xps:8080/zfs-keyfile";
+        keyfile-url = "http://key-server.lan:1234/zfs-keyfile";
       };
       # manage local passwd in vault
       passwds = enabled;
@@ -87,12 +87,13 @@ in
     # k0scontroller = enabled;
     ntp = enabled;
     zfs-key-server = {
-      enable = false;
+      enable = true;
       tang-servers = [
        "http://webb:1234" 
        "http://lucas:1234" 
        "http://ermy:1234" 
       ];
+      port = 8123;
     };
     user-secrets = {
       enable = true;
