@@ -90,7 +90,7 @@ in
     services.openldap = {
       enable = true;
       # NOTE: If you make changes to the schema and have `mutableConfig = true` the schema will not update most likely.
-      mutableConfig = true;
+      # mutableConfig = true;
       settings.attrs = {
           olcLogLevel = "conns config";
           /* settings for acme ssl */
@@ -388,144 +388,144 @@ in
           ];
         };
       };
-      declarativeContents = {
-        "${cfg.ldapBaseDN}" = ''
-        # base.ldif
-        # Base DN
-        dn: ${cfg.ldapBaseDN}
-        objectClass: top
-        objectClass: dcObject
-        objectClass: organization
-        o: ${cfg.domain-name}
-        dc: ${cfg.domain-name}
-
-        # Manager, aicampground.com
-        dn: cn=Manager,${cfg.ldapBaseDN}
-        cn: Manager
-        description: LDAP administrator
-        objectClass: organizationalRole
-        objectClass: top
-        roleOccupant: ${cfg.ldapBaseDN}
-
-        # People, ${cfg.ldapBaseDN}
-        dn: ou=People,${cfg.ldapBaseDN}
-        ou: People
-        objectClass: top
-        objectClass: organizationalUnit
-
-        # Groups, ${cfg.ldapBaseDN}
-        dn: ou=Group,${cfg.ldapBaseDN}
-        ou: Group
-        objectClass: top
-        objectClass: organizationalUnit
-
-        # groups.ldif
-        # Begin Templated Group: ldap_user
-        dn: cn=ldap_user,ou=Group,${cfg.ldapBaseDN}
-        objectClass: top
-        objectClass: posixGroup
-        cn:ldap_user
-        gidNumber: 10000
-
-        # End Templated Group
-
-        # Begin Templated Group: docker
-        dn: cn=docker,ou=Group,${cfg.ldapBaseDN}
-        objectClass: top
-        objectClass: posixGroup
-        cn:docker
-        gidNumber: 10001
-
-        # End Templated Group
-
-        # Begin Templated Group: wheel
-        dn: cn=wheel,ou=Group,${cfg.ldapBaseDN}
-        objectClass: top
-        objectClass: posixGroup
-        cn:wheel
-        gidNumber: 10002
-
-        # End Templated Group
-
-        # passwords.ldif
-        #load password policy module
-        dn: ou=pwpolicies,${cfg.ldapBaseDN}
-        objectClass: organizationalUnit
-        objectClass: top
-        ou: pwpolicies
-
-        dn: cn=default,ou=pwpolicies,${cfg.ldapBaseDN}
-        objectClass: top
-        objectClass: device
-        objectClass: pwdPolicy
-        cn: default
-        pwdAttribute: userPassword
-        pwdAllowUserChange: TRUE
-        pwdCheckQuality: 1
-        pwdExpireWarning: 3600
-        pwdFailureCountInterval: 3600
-        pwdInHistory: 3
-        pwdLockout: TRUE
-        pwdLockoutDuration: 300
-        pwdMaxAge: 0
-        pwdMaxFailure: 5
-        pwdMinLength: 6
-        pwdMustChange: FALSE
-        pwdSafeModify: FALSE
-
-        dn: ou=sudoers,${cfg.ldapBaseDN}
-        objectClass: organizationalUnit
-        objectClass: top
-        ou: sudoers
-
-        dn: cn=defaults,ou=sudoers,${cfg.ldapBaseDN}
-        objectClass: sudoRole
-        objectClass: top
-        cn: defaults
-        sudoOption: env_reset
-        sudoOption: mail_badpass
-        sudoOption: secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
-        sudoOrder: 1
-
-        # Entry: cn=docker,ou=sudoers,${cfg.ldapBaseDN}
-        dn: cn=docker,ou=sudoers,${cfg.ldapBaseDN}
-        cn: docker
-        objectclass: sudoRole
-        objectclass: top
-        sudocommand: /usr/sbin/docker
-        sudohost: ALL
-        sudooption: !authenticate
-        sudoorder: 2
-        sudorunasuser: root
-        sudouser: %docker
-
-        # Entry: cn=wheel,ou=sudoers,${cfg.ldapBaseDN}
-        dn: cn=wheel,ou=sudoers,${cfg.ldapBaseDN}
-        cn: wheel
-        objectclass: sudoRole
-        objectclass: top
-        sudocommand: ALL
-        sudohost: ALL
-        sudoorder: 2
-        sudorunasuser: ALL
-        sudouser: %wheel
-
-        dn: cn=k8s,ou=Group,${cfg.ldapBaseDN}
-        cn: k8s
-        gidnumber: 999
-        objectclass: posixGroup
-        objectclass: top
-
-        dn: cn=libvirtd,ou=Group,${cfg.ldapBaseDN}
-        cn: libvirtd
-        gidnumber: 5001
-        objectclass: posixGroup
-        objectclass: top
-        '';
-      # "cn=config" = ''
+      # declarativeContents = {
+      #   "${cfg.ldapBaseDN}" = ''
+      #   # base.ldif
+      #   # Base DN
+      #   dn: ${cfg.ldapBaseDN}
+      #   objectClass: top
+      #   objectClass: dcObject
+      #   objectClass: organization
+      #   o: ${cfg.domain-name}
+      #   dc: ${cfg.domain-name}
       #
+      #   # Manager, aicampground.com
+      #   dn: cn=Manager,${cfg.ldapBaseDN}
+      #   cn: Manager
+      #   description: LDAP administrator
+      #   objectClass: organizationalRole
+      #   objectClass: top
+      #   roleOccupant: ${cfg.ldapBaseDN}
+      #
+      #   # People, ${cfg.ldapBaseDN}
+      #   dn: ou=People,${cfg.ldapBaseDN}
+      #   ou: People
+      #   objectClass: top
+      #   objectClass: organizationalUnit
+      #
+      #   # Groups, ${cfg.ldapBaseDN}
+      #   dn: ou=Group,${cfg.ldapBaseDN}
+      #   ou: Group
+      #   objectClass: top
+      #   objectClass: organizationalUnit
+      #
+      #   # groups.ldif
+      #   # Begin Templated Group: ldap_user
+      #   dn: cn=ldap_user,ou=Group,${cfg.ldapBaseDN}
+      #   objectClass: top
+      #   objectClass: posixGroup
+      #   cn:ldap_user
+      #   gidNumber: 10000
+      #
+      #   # End Templated Group
+      #
+      #   # Begin Templated Group: docker
+      #   dn: cn=docker,ou=Group,${cfg.ldapBaseDN}
+      #   objectClass: top
+      #   objectClass: posixGroup
+      #   cn:docker
+      #   gidNumber: 10001
+      #
+      #   # End Templated Group
+      #
+      #   # Begin Templated Group: wheel
+      #   dn: cn=wheel,ou=Group,${cfg.ldapBaseDN}
+      #   objectClass: top
+      #   objectClass: posixGroup
+      #   cn:wheel
+      #   gidNumber: 10002
+      #
+      #   # End Templated Group
+      #
+      #   # passwords.ldif
+      #   #load password policy module
+      #   dn: ou=pwpolicies,${cfg.ldapBaseDN}
+      #   objectClass: organizationalUnit
+      #   objectClass: top
+      #   ou: pwpolicies
+      #
+      #   dn: cn=default,ou=pwpolicies,${cfg.ldapBaseDN}
+      #   objectClass: top
+      #   objectClass: device
+      #   objectClass: pwdPolicy
+      #   cn: default
+      #   pwdAttribute: userPassword
+      #   pwdAllowUserChange: TRUE
+      #   pwdCheckQuality: 1
+      #   pwdExpireWarning: 3600
+      #   pwdFailureCountInterval: 3600
+      #   pwdInHistory: 3
+      #   pwdLockout: TRUE
+      #   pwdLockoutDuration: 300
+      #   pwdMaxAge: 0
+      #   pwdMaxFailure: 5
+      #   pwdMinLength: 6
+      #   pwdMustChange: FALSE
+      #   pwdSafeModify: FALSE
+      #
+      #   dn: ou=sudoers,${cfg.ldapBaseDN}
+      #   objectClass: organizationalUnit
+      #   objectClass: top
+      #   ou: sudoers
+      #
+      #   dn: cn=defaults,ou=sudoers,${cfg.ldapBaseDN}
+      #   objectClass: sudoRole
+      #   objectClass: top
+      #   cn: defaults
+      #   sudoOption: env_reset
+      #   sudoOption: mail_badpass
+      #   sudoOption: secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+      #   sudoOrder: 1
+      #
+      #   # Entry: cn=docker,ou=sudoers,${cfg.ldapBaseDN}
+      #   dn: cn=docker,ou=sudoers,${cfg.ldapBaseDN}
+      #   cn: docker
+      #   objectclass: sudoRole
+      #   objectclass: top
+      #   sudocommand: /usr/sbin/docker
+      #   sudohost: ALL
+      #   sudooption: !authenticate
+      #   sudoorder: 2
+      #   sudorunasuser: root
+      #   sudouser: %docker
+      #
+      #   # Entry: cn=wheel,ou=sudoers,${cfg.ldapBaseDN}
+      #   dn: cn=wheel,ou=sudoers,${cfg.ldapBaseDN}
+      #   cn: wheel
+      #   objectclass: sudoRole
+      #   objectclass: top
+      #   sudocommand: ALL
+      #   sudohost: ALL
+      #   sudoorder: 2
+      #   sudorunasuser: ALL
+      #   sudouser: %wheel
+      #
+      #   dn: cn=k8s,ou=Group,${cfg.ldapBaseDN}
+      #   cn: k8s
+      #   gidnumber: 999
+      #   objectclass: posixGroup
+      #   objectclass: top
+      #
+      #   dn: cn=libvirtd,ou=Group,${cfg.ldapBaseDN}
+      #   cn: libvirtd
+      #   gidnumber: 5001
+      #   objectclass: posixGroup
+      #   objectclass: top
       #   '';
-      };
+      # # "cn=config" = ''
+      # #
+      # #   '';
+      # };
 
     };
 
