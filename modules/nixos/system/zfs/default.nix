@@ -29,7 +29,6 @@ in
         sleep 2
         export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:$PATH"
         zpool import -a;
-      	echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url})
         echo $(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt) | zfs load-key -a && killall zfs
       '';
       ssh = {
