@@ -16,6 +16,7 @@ in
   ];
   # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
+  boot.initrd.availableKernelModules = [ "thunderbolt" "xhci_hcd" ];
 
   services.logind.lidSwitch = "ignore";
   campground = {
