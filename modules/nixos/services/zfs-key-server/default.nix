@@ -26,7 +26,7 @@ in
     vault-path = mkOpt str "secret/campground/zfs" "The Vault path to the KV containing the LDAP Secrets.";
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
-      default = "v1";
+      default = "v2";
       description = "KV store version";
     };
     vault-address = mkOption {
