@@ -36,9 +36,10 @@ in
       zfs = {
         enable = true;
         hostId = "5ae58e7a";
+        keyfile-url = "key-server.lan:1234/zfs-keyfile";
       };
       # manage local passwd in vault
-      # passwds = enabled;
+      passwds = enabled;
       # wifi = {
       # # TODO: is there anything I can do to clean this up a little.. seems a little verbose
       #   enable = false;
@@ -76,36 +77,38 @@ in
   campground.services = {
     ldap-client = enabled;
     # jupyter = enabled;
-    # k0sworker = enabled;
-    # zfs-key-server = {
-    #   enable = true;
-    #   tang-servers = [
-    #    "http://webb:1234" 
-    #    "http://lucas:1234" 
-    #    "http://ermy:1234" 
-    #   ];
-    # };
-    # user-secrets = {
-    #   enable = true;
-    #   users = {
-    #     mcamp =  {
-    #       files = [
-    #         "id_ed25519"
-    #         "passwords"
-    #       ];
-    #     };
-    #   };
-    # };
-    # vault-agent = {
-    #   enable = true;
-    #   settings = {
-    #     vault = {
-    #       address = "https://vault.lan.aicampground.com";
-    #       role-id = "/var/lib/vault/mattis/role-id";
-    #       secret-id = "/var/lib/vault/mattis/secret-id";
-    #     };
-    #   };
-    # };
+    tang = enabled;
+    k0sworker = enabled;
+    zfs-key-server = {
+      enable = true;
+      port = 8123;
+      tang-servers = [
+       "http://webb:1234" 
+       "http://daly:1234" 
+       "http://ermy:1234" 
+      ];
+    };
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
+      };
+    };
+    vault-agent = {
+      enable = true;
+      settings = {
+        vault = {
+          address = "https://vault.lan.aicampground.com";
+          role-id = "/var/lib/vault/mattis/role-id";
+          secret-id = "/var/lib/vault/mattis/secret-id";
+        };
+      };
+    };
   };
 
 
