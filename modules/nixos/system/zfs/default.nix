@@ -26,6 +26,16 @@ in
     boot.initrd.network = {
       enable = true;
       postCommands = ''
+        echo lsmod
+        ${pkgs.kmod}/bin/lsmod | grep r8152
+        # echo lspci
+        # ${pkgs.pciutils}/bin/lspci
+        echo lsusb
+        ${pkgs.usbutils}/bin/lsusb
+        echo thunder
+        ls /sys/bus/thunrderbold/devives/
+        ip link
+        ip link set enp10s0u1u2 up
         export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:$PATH"
         zpool import -a;
         echo $(echo $(${pkgs.curl}/bin/curl -s $cfg.keyfile-url) | ${pkgs.clevis}/bin/clevis decrypt) | zfs load-key -a && killall zfs
@@ -38,10 +48,10 @@ in
       };
     };
     # use this lspci -v | grep -iA8 'network\|ethernet' to then ask Chad what modules to use here
-    boot.initrd.availableKernelModules = [ "iwlwifi" "igc" "cdc_ether" ];
+    boot.initrd.availableKernelModules = [  "thunderbolt" "usbnet" "r8152" "iwlwifi" "igc" "cdc_ether" ];
     boot.kernelParams = [ "ip=dhcp" ];
-    boot.kernelModules = [ "r8169" "cdc_ether" ];
-    boot.initrd.kernelModules = [ "r8169" "cdc_ether" ];
+    boot.kernelModules = [ "r8169" "cdc_ether" "r8152" ];
+    boot.initrd.kernelModules = [ "r8169" "cdc_ether" "r8152" ];
 
     # TODO: Move this somewhere more appropriate or otherwise fix dns
     networking.useDHCP = mkForce true;
