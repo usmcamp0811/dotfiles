@@ -26,20 +26,11 @@ in
     boot.initrd.network = {
       enable = true;
       postCommands = ''
-        echo lsmod
-        ${pkgs.kmod}/bin/lsmod | grep r8152
-        # echo lspci
-        # ${pkgs.pciutils}/bin/lspci
-        echo lsusb
-        ${pkgs.usbutils}/bin/lsusb
-        echo thunder
-        ls /sys/bus/thunrderbold/devives/
-        ip link
-        ip link set enp10s0u1u2 up
+        sleep 2
         export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:$PATH"
         zpool import -a;
-	echo $(${pkgs.curl}/bin/curl -s $cfg.keyfile-url)
-        echo $(echo $(${pkgs.curl}/bin/curl -s $cfg.keyfile-url) | ${pkgs.clevis}/bin/clevis decrypt) | zfs load-key -a && killall zfs
+      	echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url})
+        echo $(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt) | zfs load-key -a && killall zfs
       '';
       ssh = {
         enable = true;
