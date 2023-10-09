@@ -12,7 +12,7 @@ in
 # TODO: Update to support kv v2 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "kv/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
+    vault-path = mkOpt str "secret/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -120,12 +120,12 @@ in
             "controller-token" = {
               # text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
               text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
-              permissions = "0400";  # Make the script executable
+              permissions = "0600";  # Make the script executable
               change-action = "restart";
             };
             "k0s.yaml" = {
               text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
-              permissions = "0400";  # Make the script executable
+              permissions = "0600";  # Make the script executable
               change-action = "restart";
             };
           };
