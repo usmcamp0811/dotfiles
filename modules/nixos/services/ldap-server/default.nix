@@ -21,7 +21,7 @@ in
     vault-pki-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
     vault-path = mkOpt str "secret/campground/ldap" "The Vault path to the KV containing the LDAP Secrets.";
     common-name = mkOpt str "ldap.server.aicampground.com" "Common Name for Server Certs";
-    ldap_uri = mkOpt str "ldap://ldap.campground.lan";
+    ldap_uri = mkOpt str "ldap://ldap.campground.lan" "The url of hte server.. should be the hostname or ip or dns name";
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
       default = "v2";
