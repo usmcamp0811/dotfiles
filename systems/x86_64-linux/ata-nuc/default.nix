@@ -22,6 +22,7 @@ in
 
 
   campground = {
+    system.boot = enabled;
     # archetypes = {
     #   workstation = enabled;
     # };
