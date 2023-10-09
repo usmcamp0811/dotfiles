@@ -90,7 +90,7 @@ sudo_provider = ldap
 autofs_provider = ldap
 ldap_id_use_start_tls = True
 ldap_tls_reqcert = allow
-ldap_tls_cacert = /tmp/detsys-vault/ca.crt
+ldap_tls_cacert = /var/lib/vault/ca.crt
 entry_cache_timeout = 600
 ldap_network_timeout = 2
 ldap_schema = rfc2307
@@ -118,8 +118,18 @@ ldap_group_member = memberUid
       wantedBy = [ "multi-user.target" ];
     };
 
+    systemd.services.copyCAcert = {
+      description = "Copy LDAP CA Cert somewhere to avoid SSSD shitting the bed randomly";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/ca.crt /var/lib/vault/ca.crt";
+      };
+      wantedBy = [ "multi-user.target" ];
+      before = [ "sssd.service" ];
+    };
 
-    campground.services.vault-agent.services.sssd = {
+    campground.services.vault-agent.services.copyCAcert = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
