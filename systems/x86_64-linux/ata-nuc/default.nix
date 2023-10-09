@@ -23,19 +23,19 @@ in
 
   campground = {
     system.boot = enabled;
-    # archetypes = {
-    #   workstation = enabled;
-    # };
-    #
-    # desktop.qtile = {
-    #   enable = true;
-    #   gdm = true;
-    # };
+    archetypes = {
+      workstation = enabled;
+    };
+    
+    desktop.qtile = {
+      enable = true;
+      gdm = true;
+    };
 
-    # apps = {
-    #   k9s = enabled; 
-    #   virtmanager = enabled;
-    # };
+    apps = {
+      k9s = enabled; 
+      virtmanager = enabled;
+    };
 
     # security = {
     #   keyring = enabled;
@@ -52,19 +52,19 @@ in
         hostId = "9151fb2a";
         keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
       };
-      # passwds = enabled;
-      # wifi = {
-      # # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-      #   enable = true;
-      #   networks = {
-      #     SkyNet = {
-      #       ssid = "SkyNet";
-      #     };
-      #     SkyNet5 = {
-      #       ssid = "SkyNet5";
-      #     };
-      #   };
-      # };
+      passwds = enabled;
+      wifi = {
+      # TODO: is there anything I can do to clean this up a little.. seems a little verbose
+        enable = true;
+        networks = {
+          SkyNet = {
+            ssid = "SkyNet";
+          };
+          SkyNet5 = {
+            ssid = "SkyNet5";
+          };
+        };
+      };
       # vpn = enabled;
     };
 
@@ -84,43 +84,43 @@ in
   };
 
   campground.services = {
-    # docker = enabled;
-    # # jupyter = enabled;
-    # zfs-key-server = {
-    #   enable = false;
-    #   tang-servers = [
-    #    "http://webb:1234" 
-    #    "http://lucas:1234" 
-    #    "http://ermy:1234" 
-    #   ];
-    # };
-    # ldap-client = enabled;
-    # secret-service = enabled;
+    docker = enabled;
+    # jupyter = enabled;
+    zfs-key-server = {
+      enable = false;
+      tang-servers = [
+       "http://webb:1234" 
+       "http://lucas:1234" 
+       "http://ermy:1234" 
+      ];
+    };
+    ldap-client = enabled;
+    secret-service = enabled;
     # cac = {
     #   enable = false;
     # };
-    # user-secrets = {
-    #   enable = true;
-    #   users = {
-    #     mcamp =  {
-    #       files = [
-    #         "id_ed25519"
-    #         "passwords"
-    #         "kubeconfig"
-    #       ];
-    #     };
-    #   };
-    # };
-    # vault-agent = {
-    #   enable = true;
-    #   settings = {
-    #     vault = {
-    #       address = "https://vault.lan.aicampground.com";
-    #       role-id = "/var/lib/vault/ata-nuc/role-id";
-    #       secret-id = "/var/lib/vault/ata-nuc/secret-id";
-    #     };
-    #   };
-    # };
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  {
+          files = [
+            "id_ed25519"
+            "passwords"
+            "kubeconfig"
+          ];
+        };
+      };
+    };
+    vault-agent = {
+      enable = true;
+      settings = {
+        vault = {
+          address = "https://vault.lan.aicampground.com";
+          role-id = "/var/lib/vault/ata-nuc/role-id";
+          secret-id = "/var/lib/vault/ata-nuc/secret-id";
+        };
+      };
+    };
   };
 
 #  users.users.mcamp = {
