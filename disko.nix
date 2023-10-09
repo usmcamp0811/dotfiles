@@ -7,8 +7,8 @@
         content = {
           type = "gpt";
           partitions = {
-            boot = {
-              size = "1G"; # Adjust size as needed
+            ESP = {
+              size = "2G";
               type = "EF00";
               content = {
                 type = "filesystem";
@@ -20,13 +20,7 @@
               size = "100%";
               content = {
                 type = "zfs";
-                pool = "NIXROOT";
-                options = {
-                  mountpoint = "none";
-                  encryption = "aes-256-gcm";
-                  keyformat = "passphrase";
-                  keylocation = "prompt";
-                };
+                pool = "zroot";
               };
             };
           };
@@ -34,38 +28,42 @@
       };
     };
     zpool = {
-      NIXROOT = {
+      zroot = {
         type = "zpool";
-        mode = "single";
+        mode = ""; # You can change this to "mirror" if you have another disk
         rootFsOptions = {
-          compression = "lz4";
+          compression = "zstd";
           "com.sun:auto-snapshot" = "false";
         };
-        mountpoint = "none";
-        postCreateHook = "zfs snapshot NIXROOT@blank";
+        mountpoint = "/";
+        postCreateHook = "zfs snapshot zroot@blank";
 
         datasets = {
           root = {
             type = "zfs_fs";
-            options.mountpoint = "legacy";
+            mountpoint = "/";
+            options = {
+              mountpoint = "/";
+              encryption = "aes-256-gcm";
+              keyformat = "passphrase";
+              keylocation = "file:///tmp/secret.key";
+            };
           };
           home = {
             type = "zfs_fs";
-            options.mountpoint = "legacy";
+            mountpoint = "/home";
           };
           persist = {
             type = "zfs_fs";
-            options.mountpoint = "legacy";
+            mountpoint = "/persist";
           };
-          reserved = {
+          encrypted = {
             type = "zfs_fs";
-            options = {
-              refreservation = "1G";
-              mountpoint = "none";
-            };
           };
         };
       };
     };
   };
 }
+
+# sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
