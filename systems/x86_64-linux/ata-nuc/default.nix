@@ -29,9 +29,6 @@ in
     desktop.qtile = {
       enable = true;
       gdm = true;
-      lightdm = false;
-
-      sddm = false;
     };
 
     apps = {
@@ -52,6 +49,7 @@ in
       zfs = {
         enable = true;
         hostId = "9151fb2a";
+        keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
       };
       passwds = enabled;
       wifi = {
