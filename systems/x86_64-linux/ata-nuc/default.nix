@@ -21,6 +21,10 @@ in
   # boot.kernelPackages = pkgs.linuxPackages_zen;
 
 
+  networking.networkmanager.enable = true;
+  hardware.enableRedistributableFirmware = true;
+
+
   campground = {
     system.boot = enabled;
     archetypes = {
@@ -53,18 +57,18 @@ in
         keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
       };
       passwds = enabled;
-      wifi = {
-      # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = true;
-        networks = {
-          SkyNet = {
-            ssid = "SkyNet";
-          };
-          SkyNet5 = {
-            ssid = "SkyNet5";
-          };
-        };
-      };
+      # wifi = {
+      # # TODO: is there anything I can do to clean this up a little.. seems a little verbose
+      #   enable = true;
+      #   networks = {
+      #     SkyNet = {
+      #       ssid = "SkyNet";
+      #     };
+      #     SkyNet5 = {
+      #       ssid = "SkyNet5";
+      #     };
+      #   };
+      # };
       # vpn = enabled;
     };
 
@@ -138,10 +142,10 @@ in
 #  }; 
 
   # TODO: Move this somewhere more good and try to automate for when not connected to a monitor
-  environment.variables = {
-    GDK_SCALE = "1.6";
-    GDK_DPI_SCALE = "1.6";
-  };
+  # environment.variables = {
+  #   GDK_SCALE = "1.6";
+  #   GDK_DPI_SCALE = "1.6";
+  # };
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave

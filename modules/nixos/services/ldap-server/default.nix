@@ -21,6 +21,7 @@ in
     vault-pki-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
     vault-path = mkOpt str "secret/campground/ldap" "The Vault path to the KV containing the LDAP Secrets.";
     common-name = mkOpt str "ldap.server.aicampground.com" "Common Name for Server Certs";
+    ldap_uri = mkOpt str "ldap://ldap.campground.lan";
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
       default = "v2";
@@ -38,10 +39,10 @@ in
 
     virtualisation.oci-containers.containers = {
       phpldapadmin = {
-        image = "osixia/phpldapadmin:latest";
+        image = "osixia/phplpdapadmin:latest";
         ports = ["8080:80"];
         environment = {
-          PHPLDAPADMIN_LDAP_HOSTS = "ldap://10.8.0.135"; # Replace with your LDAP server address
+          PHPLDAPADMIN_LDAP_HOSTS = "${cfg.ldap_uri}"; # Replace with your LDAP server address
           PHPLDAPADMIN_HTTPS = "false";
 
         };

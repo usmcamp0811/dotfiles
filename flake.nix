@@ -135,6 +135,11 @@
 
       ];
 
+      systems.hosts.ata-nuc.modules = with inputs; [
+        nixos-hardware.nixosModules.intel-nuc-8i7beh
+
+      ];
+
       #TODO: Move this into the actual system config?
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
