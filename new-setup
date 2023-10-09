@@ -1,0 +1,36 @@
+sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
+
+sudo zpool import
+sudo zpool import -f zroot
+sudo zpool destroy zroot
+sudo zpool create -f \
+-o altroot="/mnt" \
+-o ashift=12 \
+-o autotrim=on \
+-O compression=lz4 \
+-O acltype=posixacl \
+-O xattr=sa \
+-O relatime=on \
+-O normalization=formD \
+-O dnodesize=auto \
+-O sync=disabled \
+-O encryption=aes-256-gcm \
+-O keylocation=prompt \
+-O keyformat=passphrase \
+-O mountpoint=none \
+NIXROOT \
+/dev/nvme0n1p2
+sudo zfs create -o mountpoint=legacy NIXROOT/root
+sudo zfs create -o mountpoint=legacy NIXROOT/home
+sudo zfs create -o mountpoint=legacy NIXROOT/persist
+# reserved to cope with running out of disk space
+sudo zfs create -o refreservation=1G -o mountpoint=none NIXROOT/reserved
+sudo mount -t zfs NIXROOT/root /mnt
+sudo mkdir /mnt/boot
+sudo mkdir /mnt/home
+sudo mkdir /mnt/persist
+sudo mount /dev/nvme0n1p1 /mnt/boot
+sudo mount -t zfs NIXROOT/home /mnt/home
+sudo mount -t zfs NIXROOT/persist /mnt/persist
+sudo nixos-generate-config --root /mnt
+sudo nixos-install --flake gitlab:usmcamp0811/dotfiles#ata-nuc

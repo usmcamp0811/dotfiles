@@ -22,14 +22,14 @@ in
 
 
   campground = {
-    archetypes = {
-      workstation = enabled;
-    };
-
-    desktop.qtile = {
-      enable = true;
-      gdm = true;
-    };
+    # archetypes = {
+    #   workstation = enabled;
+    # };
+    #
+    # desktop.qtile = {
+    #   enable = true;
+    #   gdm = true;
+    # };
 
     # apps = {
     #   k9s = enabled; 
