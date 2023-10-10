@@ -48,7 +48,7 @@ in
         secrets.file.files = lib.listToAttrs (map (secret: {
           name = "${user}-${secret}";
           value = {
-            text = ''{{ with secret "secret/campground/users/${user}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${secret} }}{{ else }}{{ .Data.data.${secret} }}{{ end }}{{ end }}'';
+            text = ''{{ with secret "${cfg.vault-path}/${user}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${secret} }}{{ else }}{{ .Data.data.${secret} }}{{ end }}{{ end }}'';
             permissions = "0400";
             change-action = "restart";
           };
