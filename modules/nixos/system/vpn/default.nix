@@ -95,7 +95,7 @@ let
     client
     dev tun
     proto udp
-    remote ${cfg.common-name} 1194
+    remote ${cfg.vpn-server-address} ${cfg.vpn-port}
     resolv-retry infinite
     nobind
     remote-cert-tls server
@@ -145,6 +145,8 @@ in
     common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
     domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
     vault-ca-path = mkOpt str "campground-pki/cert/ca" "The Vault path to the CA Cert in Vault"; 
+    vpn-server-address = mkOpt str cfg.common-name "The public url or ip of the VPN server.";
+    vpn-port = mkOpt str "1194" "The port used to connect to the VPN";
   };
   config = mkIf cfg.enable {
 
