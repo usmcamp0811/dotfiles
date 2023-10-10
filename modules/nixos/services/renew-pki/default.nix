@@ -2,9 +2,9 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.renew-aws-vpn;
+  cfg = config.campground.services.renew-pki;
 
-  gen-server = pkgs.writeShellScriptBin "generate-server-ovpn" ''
+  gen-server = pkgs.writeShellScriptBin "generate-server-pki" ''
       set -e
       SERVER_NAME=$1
       COMMON_NAME="vpn.server.${cfg.domain-name}"
@@ -63,12 +63,12 @@ let
     '';
 in
 {
-  options.campground.services.renew-aws-vpn = with types; {
+  options.campground.services.renew-pki = with types; {
     # TODO: See if we can make the defaults come from elsewhere
     enable = mkBoolOpt false "Enable an AWS VPN Certificate Generation Service;";
     vpn-name = mkOpt str "vault" "VPN Name? might not be needed";
     cert-serial-nbr = mkOpt (listOf str) [ "1234545678890" ] "The Serial Numbers of the Certificates to Renew..";
-    domain-name = mkOpt str "ata-llc.com" "the domain name used in the PKI cert creation";
+    domain-name = mkOpt str "aicampground.com" "the domain name used in the PKI cert creation";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -76,8 +76,8 @@ in
     };
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "ata-pki/issue/aws-vpn-server-role" "The Vault path to the Client Cert in Vault"; 
-    vault-tls-path = mkOpt str "secret/ata/vpn" "The Vault path to the TLS Key in Vault"; 
+    vault-path = mkOpt str "campground-pki/issue/vpn-server-role" "The Vault path to the Client Cert in Vault"; 
+    vault-tls-path = mkOpt str "secret/campground/vpn" "The Vault path to the TLS Key in Vault"; 
     common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
   };
 
