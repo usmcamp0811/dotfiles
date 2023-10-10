@@ -35,3 +35,13 @@ sudo mount -t zfs NIXROOT/home /mnt/home
 sudo mount -t zfs NIXROOT/persist /mnt/persist
 sudo nixos-generate-config --root /mnt
 sudo nixos-install --flake gitlab:usmcamp0811/dotfiles#ata-nuc
+
+
+sudo nixos-enter
+
+# update install to include Qtile 
+sudo ssh-keygen -t ed25519 -f /mnt/etc/ssh/ssh_host_ed25519_key -N ""
+sudo ssh-keygen -f /mnt/etc/ssh/ssh_host_rsa_key -N ""
+sudo nixos-rebuild boot --flake gitlab:usmcamp0811/dotfiles#ata-nuc
+
+reboot
