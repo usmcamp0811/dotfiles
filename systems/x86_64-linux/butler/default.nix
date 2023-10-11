@@ -20,6 +20,16 @@ in
   # boot.blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
   # boot.kernelPackages = pkgs.linuxPackages_zen;
 
+  campground.nix = {
+    package = pkgs.nixUnstable;
+    default-substituter.url = "https://cache.nixos.org";
+    default-substituter.key = "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=";
+    extra-substituters = {
+       "https://nix-gaming.cachix.org"  = {
+        key = "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
+      };
+    };
+  };
 
   campground = {
     archetypes = {
