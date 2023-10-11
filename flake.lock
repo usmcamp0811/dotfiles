@@ -54,11 +54,11 @@
         "nixvim": "nixvim"
       },
       "locked": {
-        "lastModified": 1695061662,
-        "narHash": "sha256-BihfSEFniNGOwt151oXtPpOgcTngd/qsSPxz/ybc2Zk=",
+        "lastModified": 1696995520,
+        "narHash": "sha256-ixMvQfhQEj6TE2XW4JyYWT5/37XNBd8fENdKUcPEgh4=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "87690e77932b0fff1ab6a58e6f211227c83a361c",
+        "rev": "3b7dd561b6f7790978b1fb815d56047778f870d6",
         "type": "gitlab"
       },
       "original": {
