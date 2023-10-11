@@ -11,6 +11,8 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
     services = {
       searx = {
         enable = true;
@@ -18,13 +20,13 @@ in
           server.port = cfg.port;
           server.bind_address = "0.0.0.0";
           server.secret_key = "@SEARX_SECRET_KEY@";
-          engines = nixpkgs.lib.singleton
-            {
-              name = "wolframalpha";
-              shortcut = "wa";
-              api_key = "@WOLFRAM_API_KEY@";
-              engine = "wolframalpha_api";
-            };
+        #   engines = nixpkgs.lib.singleton
+        #     {
+        #       name = "wolframalpha";
+        #       shortcut = "wa";
+        #       api_key = "@WOLFRAM_API_KEY@";
+        #       engine = "wolframalpha_api";
+        #     };
         };
       };
     };
