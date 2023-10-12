@@ -78,6 +78,7 @@ in
   campground.services = {
     ldap-client = enabled;
     # jupyter = enabled;
+    syncthing = enabled;
     tang = enabled;
     k0sworker = enabled;
     zfs-key-server = {
