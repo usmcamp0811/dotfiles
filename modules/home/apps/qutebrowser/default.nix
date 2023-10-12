@@ -4,6 +4,8 @@ let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.apps.qutebrowser;
+  dir = ./qutebrowser; # Assuming qutebrowser folder is here
+
 in
 {
   options.campground.apps.qutebrowser = {
@@ -11,10 +13,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.file = builtins.attrsets.mapAttrsToList (name: path: {
-      target = ".config/qutebrowser/${name}";
-      source = path;
-    }) (builtins.readDir ./qutebrowser);
+    home.file = lib.attrsets.listToAttrs (lib.attrsets.mapAttrsToList (name: _: {
+      name = ".config/qutebrowser/${name}";
+      value = { source = "${dir}/${name}"; };
+    }) (builtins.readDir dir));
     home.packages = with pkgs; [
       qutebrowser
     ];

@@ -42,6 +42,7 @@ with lib.campground;
       rofi = enabled;
       mpv = enabled;
       zoom = enabled;
+      qutebrowser = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {
