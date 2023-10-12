@@ -4,7 +4,7 @@ let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.apps.qutebrowser;
-  dir = ./qutebrowser; # Assuming qutebrowser folder is here
+  dir = ./qutebrowser; 
 
 in
 {
