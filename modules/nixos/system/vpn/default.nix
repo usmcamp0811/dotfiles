@@ -176,7 +176,7 @@ in
         # Generate the client certificate
         OVPN_DIR="/var/lib/vault/${config.networking.hostName}"
         OVPN_FILE="$OVPN_DIR/${config.networking.hostName}.ovpn"
-        VPN_NAME="${config.networking.hostName}_vpn"
+        VPN_NAME="${config.networking.hostName}"
 
         mkdir -p $OVPN_DIR
         cd $OVPN_DIR
