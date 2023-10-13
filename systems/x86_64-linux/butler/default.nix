@@ -78,6 +78,7 @@ in
     hardware.audio = {
     };
 
+    hardware.ckb-next = enabled;
     # hardware.nvidia = enabled;
     # hardware.intel = enabled;
 
