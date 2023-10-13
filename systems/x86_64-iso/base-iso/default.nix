@@ -20,7 +20,6 @@ in
     archetypes = {
       workstation = enabled;
     };
-
     desktop.qtile = {
       enable = true;
       gdm = true;

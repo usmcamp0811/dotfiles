@@ -11,6 +11,19 @@ with lib.campground;
     cli = {
       zsh = enabled;
       home-manager = enabled;
+      env = enabled;
+    };
+    desktop = {
+      wallpapers = enabled;
+      qtile = {
+        enable = true;
+        wallpaper = "hsv-saturnV.png";
+      };
+    };
+    apps = {
+      qutebrowser = enabled;
+      kitty = enabled;
+      rofi = enabled;
     };
   };
   home.stateVersion = "23.05";
