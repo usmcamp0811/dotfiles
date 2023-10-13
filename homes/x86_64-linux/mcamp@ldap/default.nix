@@ -44,6 +44,7 @@ with lib.campground;
       mpv = enabled;
       zoom = enabled;
       qutebrowser = enabled;
+      ckb-next = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {
