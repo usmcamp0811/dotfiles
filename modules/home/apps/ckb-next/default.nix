@@ -14,5 +14,8 @@ in
     home.packages = with pkgs; [
       ckb-next
     ];
+    home.file = { 
+      ".config/ckb-next/ckb-next.conf".source = ./ckb-next.conf;
+    };
   };
 }
