@@ -31,6 +31,7 @@ with lib.campground;
     services = {
       # picom = enabled;
       openssh = enabled;
+      syncthing = enabled;
     };
 
     apps = {
