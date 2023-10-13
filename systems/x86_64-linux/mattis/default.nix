@@ -20,6 +20,9 @@ in
 
   services.logind.lidSwitch = "ignore";
   campground = {
+    # nix = {
+    #   package = pkgs.nixVersions.nix_2_18;
+    # };
     archetypes = {
       workstation = enabled;
     };
