@@ -10,9 +10,14 @@ in
   };
 
   config = mkIf cfg.enable {
+    networking.firewall.allowedTCPPorts = [ 5432 ];  # Open PostgreSQL port
+
     services.postgresql = {
       enable = true;
       package = pkgs.postgresql_13;
+      authentication = pkgs.lib.mkOverride 10 ''
+        host  all  all  0.0.0.0/0  trust
+      '';
       initialScript = pkgs.writeText "postgresql-init.sql" ''
         CREATE DATABASE mydatabase;
         CREATE USER postgres WITH PASSWORD 'postgrespassword';
