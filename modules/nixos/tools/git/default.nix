@@ -19,7 +19,8 @@ in
     campground.home.extraOptions = {
       programs.git = {
         enable = true;
-        inherit (cfg) userName userEmail;
+        userName = cfg.userName;
+        userEmail = cfg.userEmail;
         lfs = enabled;
         extraConfig = {
           init = { defaultBranch = "main"; };
