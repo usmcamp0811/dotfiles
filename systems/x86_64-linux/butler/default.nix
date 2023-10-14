@@ -70,6 +70,9 @@ in
           SkyNet5 = {
             ssid = "SkyNet5";
           };
+          SkyNet6 = {
+            ssid = "SkyNet2.0";
+          };
         };
       };
       vpn = enabled;
