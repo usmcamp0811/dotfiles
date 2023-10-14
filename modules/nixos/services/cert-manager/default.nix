@@ -59,6 +59,7 @@ in
           Type = "oneshot";
         };
         script = ''
+          export KUBECONFIG=/etc/k8s/config
           # Fetch the certificates
           ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.crt}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.crt
           ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.key}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.key
