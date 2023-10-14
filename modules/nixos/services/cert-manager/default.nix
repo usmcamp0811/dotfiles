@@ -6,7 +6,7 @@ let
 in
 {
   options.campground.services.fetchCertManagerCerts = with types; {
-    enable = mkBolOpt false "Whether to enable the fetch-cert-manager-certs service.";
+    enable = mkBoolOpt false "Whether to enable the fetch-cert-manager-certs service.";
 
     certs = lib.mkOption {
       type = lib.types.listOf (lib.types.submodule {
