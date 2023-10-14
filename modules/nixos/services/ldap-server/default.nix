@@ -39,7 +39,9 @@ in
 
     virtualisation.oci-containers.containers = {
       phpldapadmin = {
-        image = "osixia/phplpdapadmin:latest";
+        # image = "docker.io/osixia/phplpdapadmin:latest";
+        # some stupid shit is going on with podman not getting the image.. need to hurry up making my phpldapadmin config thing  below
+        image = "dbb580facde3";
         ports = ["8080:80"];
         environment = {
           PHPLDAPADMIN_LDAP_HOSTS = "${cfg.ldap_uri}"; # Replace with your LDAP server address
