@@ -97,12 +97,23 @@ ldap_schema = rfc2307
 ldap_group_member = memberUid
     '';
     };
-    # Add this section to ensure sssd restarts on failure
-    systemd.services.sssd.serviceConfig = {
-      Restart = "on-abnormal";
-      RestartSec = "5s";
+    systemd.services.sssd = {
+      serviceConfig = {
+        Restart = "on-abnormal";
+        RestartSec = "5s";
+      };
+
+      wantedBy = [ "multi-user.target" ];
+      after = [ "nscd.service" ];
     };
 
+    systemd.services.nscd = {
+
+      wantedBy = [ "multi-user.target" ];
+      partOf = [ "sssd.service" ];
+      bindsTo = [ "sssd.service" ];
+      restartTriggers = [ "sssd.service" ];
+    };
     # Chad says this should let all ldap users in the `ldap_user` group to use home-manager
     nix.settings.trusted-users = [ "@${cfg.trusted_group}" ];
 
