@@ -15,8 +15,10 @@ in
     services.postgresql = {
       enable = true;
       package = pkgs.postgresql_13;
+      enableTCPIP = true;
       authentication = pkgs.lib.mkOverride 10 ''
-        host  all  all  0.0.0.0/0  trust
+        host  all  all  10.8.0.1/24  trust
+        local postgres postgres trust
       '';
       initialScript = pkgs.writeText "postgresql-init.sql" ''
         CREATE DATABASE mydatabase;
