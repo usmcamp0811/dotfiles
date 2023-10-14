@@ -49,10 +49,12 @@ vault secrets enable -path=campground-dbs database
 Next, you'll need to configure the connection to your PostgreSQL database. **Note:** In a production environment, avoid hardcoding passwords and usernames.
 
 ```bash
-vault write campground-dbs/config/example-postgresql-database \
+export DB_HOST=mattis
+export DB_PORT=5432
+vault write campground-dbs/config/my-postgresql-database \
     plugin_name=postgresql-database-plugin \
     allowed_roles="*" \
-    connection_url="postgresql://{{username}}:{{password}}@localhost:5432/mydatabase?sslmode=disable" \
+    connection_url="postgresql://{{username}}:{{password}}@$DB_HOST:$DB_PORT/mydatabase?sslmode=disable" \
     username="postgres" \
     password="postgrespassword"
 ```

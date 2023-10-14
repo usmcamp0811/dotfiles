@@ -80,6 +80,7 @@ in
 
   campground.services = {
     ldap-client = enabled;
+    example_postgresql = enabled;
     # jupyter = enabled;
     syncthing = enabled;
     tang = enabled;
