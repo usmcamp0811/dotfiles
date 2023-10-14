@@ -27,6 +27,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    
     systemd.services = lib.listToAttrs (lib.mapAttrsToList (name: cert: {
       name = "fetchCertManagerCert-${name}";
       value = {
@@ -36,8 +37,8 @@ in
         };
         script = ''
           # Fetch the certificates
-          kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.crt}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.crt
-          kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.key}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.key
+          ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.crt}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.crt
+          ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.key}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.key
         '';
       };
     }) (lib.flip lib.listToAttrs (builtins.attrNames cfg.certs)) cfg.certs);
