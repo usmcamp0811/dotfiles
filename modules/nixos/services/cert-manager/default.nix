@@ -2,7 +2,7 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.services.fetchCertManagerCerts;
+  cfg = config.campground.services.fetchCertManagerCerts;
 in
 {
   options.campground.services.fetchCertManagerCerts = with types; {
