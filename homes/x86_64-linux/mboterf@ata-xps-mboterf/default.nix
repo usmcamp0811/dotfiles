@@ -41,11 +41,19 @@ with lib.campground;
       #TODO: Add Qutebrowser
     };
     tools = {
-      git = enabled;
+      git = {
+        enable = true;
+        userEmail = "mboterf@ata-llc.com";
+        userName = "BruceBoterf";
+      }; 
       direnv = enabled;
       # virtmanager = enabled; # don't forget to add to libvirtd group
       julia = enabled;
       python = enabled;
+      vault = {
+        enable = true;
+        vault-addr = "http://10.2.0.215:8200";
+      };
     };
   };
 
