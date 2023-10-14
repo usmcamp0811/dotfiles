@@ -21,14 +21,14 @@ in
   };
 
   config = mkIf cfg.enable {
-    virtualisation.oci-containers = {
-      enable = true;
-      auths = {
-        "${cfg.registry}" = {
-          username = cfg.username;
-          passwordFile = "/home/mcamp/dockerhub";
-        };
-      };
+    systemd.services.my-podman-login = {
+      description = "Podman Login";
+      wantedBy = [ "multi-user.target" ];
+      before = [ "your-container-service.service" ]; # Replace with actual service name
+      script = ''
+        # Your logic here. For example:
+        podman login ${cfg.registery} --username ${cfg.username} --password-stdin < /home/mcamp/dockerhub
+      '';
     };
 
     # campground.services.vault-agent.services.copyCAcert = {
