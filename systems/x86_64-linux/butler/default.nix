@@ -96,6 +96,7 @@ in
 
   campground.services = {
     docker = enabled;
+    example_postgresql = enabled;
     cert-manager = {
       enable = true;
       certs = [
