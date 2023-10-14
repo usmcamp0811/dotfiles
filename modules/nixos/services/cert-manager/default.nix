@@ -2,10 +2,10 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.fetchCertManagerCerts;
+  cfg = config.campground.services.cert-manager;
 in
 {
-  options.campground.services.fetchCertManagerCerts = with types; {
+  options.campground.services.cert-manager = with types; {
     enable = mkBoolOpt false "Whether to enable the fetch-cert-manager-certs service.";
 
     certs = lib.mkOption {
@@ -24,10 +24,32 @@ in
       default = [];
       description = "List of certs to fetch.";
     };
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/k8s" "The Vault path to the KV containing the Kubeconfig.";
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
   };
 
   config = lib.mkIf cfg.enable {
     
+    campground.apps.k9s = {
+      enable = true;
+      role-id = cfg.role-id;
+      secret-id = cfg.secret-id;
+      vault-path = cfg.vault-path;
+      kvVersion = cfg.kvVersion;
+      vault-address = cfg.vault-address;
+    };
+
     systemd.services = lib.listToAttrs (lib.mapAttrsToList (name: cert: {
       name = "fetchCertManagerCert-${name}";
       value = {

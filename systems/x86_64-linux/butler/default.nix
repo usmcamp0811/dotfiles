@@ -96,6 +96,15 @@ in
 
   campground.services = {
     docker = enabled;
+    cert-manager = {
+      enable = true;
+      certs = [
+        {
+          namespace = "bitwarden";
+          tlsSecret = "bw-tls";
+        } 
+      ];
+    };
     # jupyter = enabled;
     zfs-key-server = {
       enable = false;
