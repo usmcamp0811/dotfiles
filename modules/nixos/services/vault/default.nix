@@ -73,12 +73,12 @@ in
     policies = mkOpt (types.attrsOf (types.either types.str types.path)) { } "Policies to install when Vault runs.";
 
     policy-agent = {
-      user = mkOpt types.str "vault" "The user to run the Vault Agent as.";
-      group = mkOpt types.str "vault" "The group to run the Vault Agent as.";
+      user = mkOpt types.str "root" "The user to run the Vault Agent as.";
+      group = mkOpt types.str "root" "The group to run the Vault Agent as.";
 
       auth = {
-        roleIdFilePath = mkOpt types.str "/var/lib/vault/role-id" "The file to read the role-id from.";
-        secretIdFilePath = mkOpt types.str "/var/lib/vault/secret-id" "The file to read the secret-id from.";
+        roleIdFilePath = mkOpt types.str "/var/lib/vault/vault/role-id" "The file to read the role-id from.";
+        secretIdFilePath = mkOpt types.str "/var/lib/vault/vault/secret-id" "The file to read the secret-id from.";
       };
     };
   };
