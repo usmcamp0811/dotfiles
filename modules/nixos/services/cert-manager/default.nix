@@ -25,7 +25,7 @@ in
       default = [];
       description = "List of certs to fetch.";
     };
-    # Assuming that mkOpt is defined elsewhere
+    cert-folder = mkOpt str "/var/lib/vault/certs/" "The place to store all certs on disk";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/k8s" "The Vault path to the KV containing the Kubeconfig.";
@@ -60,6 +60,9 @@ in
         };
         script = ''
           export KUBECONFIG=/etc/k8s/config
+
+          mkdir -p ${cfg.cert-folder}
+          
           # Fetch the certificates
           ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.crt}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.crt
           ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.key}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.key
