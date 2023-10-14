@@ -271,3 +271,8 @@ get-approle() {
   local secret_id=$(sudo cat /var/lib/vault/$(hostname)/secret-id)
   export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$role_id" secret_id="$secret_id")
 }
+
+zsh-unlock() {
+  HOST=$1
+  ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
+}
