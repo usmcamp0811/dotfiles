@@ -25,13 +25,19 @@ Read [this](https://yuweisung.medium.com/postgresql-pg-hba-conf-explained-part1-
 ```nix
 { pkgs, ... }:
 {
+    networking.firewall.allowedTCPPorts = [ 5432 ];  # Open PostgreSQL port
     services.postgresql = {
       enable = true;
       package = pkgs.postgresql_13;
       enableTCPIP = true;
       authentication = pkgs.lib.mkOverride 10 ''
-        host  all  all  10.8.0.1/24  trust
-        local postgres postgres trust
+        # Allow only local connections for the root user
+        local all postgres peer
+        # Require password for Vault-generated users over the network
+        host  all  all  10.8.0.1/24  md5  
+        # Deny other remote connections
+        host  all  all  0.0.0.0/0  reject
+        host  all  all  ::0/0  reject
       '';
       initialScript = pkgs.writeText "postgresql-init.sql" ''
         CREATE DATABASE mydatabase;
