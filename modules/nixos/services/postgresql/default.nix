@@ -6,7 +6,7 @@ with lib.campground;
     enable = mkBoolOpt false "Enable PostgreSQL on a server";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/postgresql" "The Vault path to the KV containing the User Secrets.";
+    vault-path = mkOpt str "secret/campground/postgresql" "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
       default = "v2";
@@ -18,11 +18,33 @@ with lib.campground;
       description = "The address of your Vault";
     };
     databases = mkOpt list [] "List of Databases to init from Vault.";
+    package = mkOpt str pkgs.postgresql_13 "What PostgreSQL to use";
+    enableTCPIP = mkBoolOpt false "Enable TCP access";
+    authentication = mkOption {
+      type = str;
+      default = ''
+        # Allow only local connections for the root user
+        local all postgres peer
+        # Require password for Vault-generated users over the network
+        host  all  all  10.8.0.1/24  md5  
+        # Deny other remote connections
+        host  all  all  0.0.0.0/0  reject
+        host  all  all  ::0/0  reject
+      '';
+      description = "Authentication settings for PostgreSQL";
+    };
 
   };
 
   config = mkIf cfg.enable {
-    services.postgresql.initialScript = "/tmp/detsys-vault/psql_init.sql";
+    services.postgresql = {
+      enable = true;
+      initialScript = "/tmp/detsys-vault/psql_init.sql";
+      package = cfg.package;
+      enableTCPIP = cfg.enableTCPIP;
+      authentication = cfg.authentication;
+      ensureDatabases = cfg.databases;
+    };
     campground.services.vault-agent.services.postgresql = {
       settings = {
         vault.address = cfg.vault-address;
