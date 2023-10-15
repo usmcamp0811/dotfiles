@@ -11,20 +11,30 @@ in
 
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ 5432 ];  # Open PostgreSQL port
-
-    services.postgresql = {
-      enable = true;
-      package = pkgs.postgresql_13;
-      enableTCPIP = true;
-      authentication = pkgs.lib.mkOverride 10 ''
-        host  all  all  10.8.0.1/24  trust
-        local postgres postgres trust
-      '';
-      initialScript = pkgs.writeText "postgresql-init.sql" ''
-        CREATE DATABASE mydatabase;
-        CREATE USER postgres WITH PASSWORD 'postgrespassword';
-        GRANT ALL PRIVILEGES ON DATABASE mydatabase TO postgres;
-      '';
-    };
+      services.postgresql = {
+        enable = true;
+        package = pkgs.postgresql_13;
+        enableTCPIP = true;
+        # # Map system users to DB users
+        # identMap = ''
+        #   superuser_map root      postgres
+        #   superuser_map postgres  postgres
+        # '';
+        authentication = pkgs.lib.mkOverride 10 ''
+          # Allow only local connections for the root user
+          local all postgres peer
+          host all postgres 10.8.0.135/32 md5
+          # Require password for Vault-generated users over the network
+          host  all  all  10.8.0.1/24  md5  
+          # Deny other remote connections
+          host  all  all  0.0.0.0/0  reject
+          host  all  all  ::0/0  reject
+        '';
+        initialScript = pkgs.writeText "postgresql-init.sql" ''
+          CREATE DATABASE mydatabase;
+          CREATE USER postgres WITH PASSWORD 'postgrespassword';
+          GRANT ALL PRIVILEGES ON DATABASE mydatabase TO postgres;
+        '';
+      };
   };
 }
