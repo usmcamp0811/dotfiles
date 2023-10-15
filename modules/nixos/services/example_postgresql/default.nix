@@ -15,11 +15,6 @@ in
         enable = true;
         package = pkgs.postgresql_13;
         enableTCPIP = true;
-        # # Map system users to DB users
-        # identMap = ''
-        #   superuser_map root      postgres
-        #   superuser_map postgres  postgres
-        # '';
         authentication = pkgs.lib.mkOverride 10 ''
           # Allow only local connections for the root user
           local all postgres peer
