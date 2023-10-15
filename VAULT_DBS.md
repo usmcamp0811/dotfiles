@@ -98,6 +98,10 @@ vault read campground-dbs/creds/mydb-app
 
 ---
 
+## Step 5: Use Credentials
+
+
+
 ## Additional DB Types
 
 Vault also supports other databases like MySQL, MongoDB, etc. The setup is similar; you just have to change the plugin name and connection parameters.
