@@ -1,6 +1,10 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
+let
+  cfg = config.campground.services.postgresql;
+
+in
 {
   options.campground.services.postgresql = with types; {
     enable = mkBoolOpt false "Enable PostgreSQL on a server";
@@ -17,8 +21,8 @@ with lib.campground;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    databases = mkOpt list [] "List of Databases to init from Vault.";
-    package = mkOpt str pkgs.postgresql_13 "What PostgreSQL to use";
+    databases = mkOpt (listOf str) [] "List of Databases to init from Vault.";
+    package = mkOpt package pkgs.postgresql_13 "What PostgreSQL to use";
     enableTCPIP = mkBoolOpt false "Enable TCP access";
     authentication = mkOption {
       type = str;
@@ -33,6 +37,7 @@ with lib.campground;
       '';
       description = "Authentication settings for PostgreSQL";
     };
+    extraInit = mkOpt str "" "Extra stuff to put into the Init script";
 
   };
 
@@ -69,6 +74,7 @@ with lib.campground;
                 CREATE USER {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.username }}{{ else }}{{ .Data.data.username }}{{ end }} WITH PASSWORD '{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}';
                 GRANT ALL PRIVILEGES ON DATABASE ${dbName} TO {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.username }}{{ else }}{{ .Data.data.username }}{{ end }};
                 {{ end }}
+                ${cfg.extraInit}
               '') cfg.databases);
               permissions = "0600";
               change-action = "restart";
