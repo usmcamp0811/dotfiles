@@ -61,6 +61,7 @@ in
       };
 
     };
+
     services.sssd = {
         enable = true;
         config = ''
@@ -99,21 +100,35 @@ ldap_group_member = memberUid
     };
     systemd.services.sssd = {
       serviceConfig = {
-        Restart = "on-abnormal";
+        Restart = "always";
         RestartSec = "5s";
       };
 
-      wantedBy = [ "multi-user.target" ];
+      /* # wantedBy = [ "multi-user.target" ]; */
+      # after = [ "nscd.service" ];
+    };
+    systemd.services.sssd-restart-on-nscd-failure = {
+      description = "Restart sssd if nscd fails";
+      bindsTo = [ "nscd.service" ];
       after = [ "nscd.service" ];
-    };
-
-    systemd.services.nscd = {
-
       wantedBy = [ "multi-user.target" ];
-      partOf = [ "sssd.service" ];
-      bindsTo = [ "sssd.service" ];
-      restartTriggers = [ "sssd.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.systemd}/bin/systemctl restart sssd.service";
+        RemainAfterExit = "yes";
+      };
     };
+    # systemd.services.nscd = {
+    #
+    #   serviceConfig = {
+    #     Restart = "always";
+    #     RestartSec = "10s";
+    #   };
+    #   wantedBy = [ "multi-user.target" ];
+    #   partOf = [ "sssd.service" ];
+    #   bindsTo = [ "sssd.service" ];
+    #   restartTriggers = [ "sssd.service" ];
+    # };
     # Chad says this should let all ldap users in the `ldap_user` group to use home-manager
     nix.settings.trusted-users = [ "@${cfg.trusted_group}" ];
 
