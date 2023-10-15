@@ -1,9 +1,4 @@
 
----
-
-Feel free to use this updated README to guide you through the process.
-
-
 # HashiCorp Vault with Database Engine on NixOS: A Quick Guide
 
 This guide is compatible with Vault 1.8+ and NixOS 21.05+, and will walk you through setting up HashiCorp Vault's Database Secrets Engine on NixOS to manage PostgreSQL database passwords.
