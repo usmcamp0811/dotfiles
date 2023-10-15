@@ -103,4 +103,5 @@ in
 
   users.groups.vaultwarden_ldap = { };
   };
+
 }
