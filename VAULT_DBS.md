@@ -1,3 +1,9 @@
+
+---
+
+Feel free to use this updated README to guide you through the process.
+
+
 # HashiCorp Vault with Database Engine on NixOS: A Quick Guide
 
 This guide is compatible with Vault 1.8+ and NixOS 21.05+, and will walk you through setting up HashiCorp Vault's Database Secrets Engine on NixOS to manage PostgreSQL database passwords.
@@ -14,19 +20,25 @@ This guide is compatible with Vault 1.8+ and NixOS 21.05+, and will walk you thr
 ## Step 0: Initialize PostgreSQL Database on NixOS
 
 Add the following configuration to your `configuration.nix` to create an initial PostgreSQL database and user.
+Read [this](https://yuweisung.medium.com/postgresql-pg-hba-conf-explained-part1-3792de3d64c2) to learn more about PostgreSQL authentication.
 
 ```nix
 { pkgs, ... }:
 {
-  services.postgresql = {
-    enable = true;
-    package = pkgs.postgresql_13;
-    initialScript = pkgs.writeText "postgresql-init.sql" ''
-      CREATE DATABASE mydatabase;
-      CREATE USER postgres WITH PASSWORD 'postgrespassword';
-      GRANT ALL PRIVILEGES ON DATABASE mydatabase TO postgres;
-    '';
-  };
+    services.postgresql = {
+      enable = true;
+      package = pkgs.postgresql_13;
+      enableTCPIP = true;
+      authentication = pkgs.lib.mkOverride 10 ''
+        host  all  all  10.8.0.1/24  trust
+        local postgres postgres trust
+      '';
+      initialScript = pkgs.writeText "postgresql-init.sql" ''
+        CREATE DATABASE mydatabase;
+        CREATE USER postgres WITH PASSWORD 'postgrespassword';
+        GRANT ALL PRIVILEGES ON DATABASE mydatabase TO postgres;
+      '';
+    };
 }
 ```
 
@@ -46,7 +58,7 @@ vault secrets enable -path=campground-dbs database
 
 ## Step 2: Configure PostgreSQL Connection
 
-Next, you'll need to configure the connection to your PostgreSQL database. **Note:** In a production environment, avoid hardcoding passwords and usernames.
+Next, set up the database connection in Vault. Use a consistent name like `my-postgresql-database`.
 
 ```bash
 export DB_HOST=mattis
@@ -63,11 +75,11 @@ vault write campground-dbs/config/my-postgresql-database \
 
 ## Step 3: Create a Role for Credential Generation
 
-Create a role that will map to a set of PostgreSQL permissions.
+Here, `db_name` should match the Vault database connection name (`my-postgresql-database`), **not** the PostgreSQL database name (`mydatabase`).
 
 ```bash
 vault write campground-dbs/roles/mydb-app \
-    db_name=example-postgresql-database \
+    db_name=my-postgresql-database \
     creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
     GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
     default_ttl="1h" \
@@ -78,33 +90,10 @@ vault write campground-dbs/roles/mydb-app \
 
 ## Step 4: Generate Credentials
 
-Generate a new set of credentials based on the `mydb-app` role. These credentials can be used to access the database with the permissions specified in Step 3.
+Generate a new set of credentials based on the `mydb-app` role.
 
 ```bash
 vault read campground-dbs/creds/mydb-app
-```
-
----
-
-## NixOS: Testing with Temporary Databases
-
-You can use NixOS's `nixosTests` to create temporary PostgreSQL databases for testing. Here's a simplified example. After running the test, examine the test logs for results or debug issues.
-
-```nix
-{ pkgs, ... }:
-{
-  services.postgresql = {
-    enable = true;
-    package = pkgs.postgresql_13;
-    initialScript = pkgs.writeText "postgresql-init.sql" ''
-      CREATE DATABASE mydatabase;
-      CREATE USER postgres WITH PASSWORD 'postgrespassword';
-      GRANT ALL PRIVILEGES ON DATABASE mydatabase TO postgres;
-    '';
-  };
-}
-
-Run this with `nixos-rebuild test`.
 ```
 
 ---
