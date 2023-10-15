@@ -18,7 +18,6 @@ in
         authentication = pkgs.lib.mkOverride 10 ''
           # Allow only local connections for the root user
           local all postgres peer
-          host all postgres 10.8.0.135/32 md5
           # Require password for Vault-generated users over the network
           host  all  all  10.8.0.1/24  md5  
           # Deny other remote connections
