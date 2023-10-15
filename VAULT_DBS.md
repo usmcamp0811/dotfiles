@@ -64,12 +64,15 @@ Next, set up the database connection in Vault. Use a consistent name like `my-po
 ```bash
 export DB_HOST=mattis
 export DB_PORT=5432
+export DB_NAME=mydatabase
+export ROOT_DB_USER=postgres
+export ROOT_DB_PASS=postgrespassword
 vault write campground-dbs/config/my-postgresql-database \
     plugin_name=postgresql-database-plugin \
     allowed_roles="*" \
-    connection_url="postgresql://{{username}}:{{password}}@$DB_HOST:$DB_PORT/mydatabase?sslmode=disable" \
-    username="postgres" \
-    password="postgrespassword"
+    connection_url="postgresql://{{username}}:{{password}}@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable" \
+    username="$ROOT_DB_USER" \
+    password="$ROOT_DB_PASS"
 ```
 
 ---
