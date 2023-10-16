@@ -57,6 +57,7 @@ in
   };
 
   config = mkIf cfg.enable {
+    networking.firewall.allowedTCPPorts = [ 5432 ];  # Open PostgreSQL port
     services.postgresql = {
       enable = true;
       package = cfg.package;

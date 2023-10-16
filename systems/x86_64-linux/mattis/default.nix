@@ -82,6 +82,7 @@ in
     ldap-client = enabled;
     postgresql = {
       enable = true;
+      enableTCPIP = true;
       databases = [
         { 
           name = "my_test_db"; 
