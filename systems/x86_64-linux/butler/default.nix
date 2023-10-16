@@ -105,12 +105,6 @@ in
         } 
       ];
     };
-    postgresql = {
-      enable = true;
-      databases = [
-        "example_db"
-      ];
-    };
     # jupyter = enabled;
     zfs-key-server = {
       enable = false;

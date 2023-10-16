@@ -29,6 +29,8 @@ in
       default = ''
         # Allow only local connections for the root user
         local all postgres peer
+        local all root peer 
+
         # Require password for Vault-generated users over the network
         host  all  all  10.8.0.1/24  md5  
         # Deny other remote connections
@@ -72,7 +74,7 @@ in
                 {{ with secret "${cfg.vault-path}/${dbName}" }}
                 CREATE DATABASE ${dbName};
                 CREATE USER {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.username }}{{ else }}{{ .Data.data.username }}{{ end }} WITH PASSWORD '{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}';
-                GRANT ALL PRIVILEGES ON DATABASE ${dbName} TO {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.username }}{{ else }}{{ .Data.data.username }}{{ end }};
+                GRANT ALL PRIVILEGES ON DATABASE ${dbName} TO postgres;
                 {{ end }}
                 ${cfg.extraInit}
               '') cfg.databases);
