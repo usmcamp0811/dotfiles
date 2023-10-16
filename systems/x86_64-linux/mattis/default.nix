@@ -85,7 +85,7 @@ in
       databases = [
         { 
           name = "my-test-db"; 
-          users = ["root_user"];
+          user = "root_user";
         }
       ];
     };
