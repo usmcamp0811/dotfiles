@@ -102,16 +102,28 @@ ldap_group_member = memberUid
         Restart = "always";
         RestartSec = "15s";
       };
-
-      wantedBy = [ "multi-user.target" "nscd.service" ];
-      # after = [ "nscd.service" ];
+      # wantedBy = [ "multi-user.target" "nscd.service" ];
+      after = [ "nscd.service" "sssd-after-dns.service" ];
+      requires = [ "sssd-after-dns.service" ];
     };
 
+    systemd.services.sssd-after-dns = {
+      requires = [ "NetworkManager.service" ];
+      after = [ "NetworkManager.service" ];
+      script = ''
+        while ! grep -q '^nameserver' /etc/resolv.conf; do
+          sleep 1;
+        done
+      '';
+      serviceConfig.Type = "oneshot";
+    };
     systemd.services.nscd = {
 
       wantedBy = [ "multi-user.target" ];
       partOf = [ "sssd.service" ];
       bindsTo = [ "sssd.service" ];
+      after = [ "nscd.service" "sssd-after-dns.service" ];
+      requires = [ "sssd-after-dns.service" ];
       restartTriggers = [ "sssd.service" ];
     };
     # Chad says this should let all ldap users in the `ldap_user` group to use home-manager
@@ -137,7 +149,7 @@ ldap_group_member = memberUid
         ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/ca.crt /var/lib/vault/ca.crt";
       };
       wantedBy = [ "multi-user.target" ];
-      before = [ "sssd.service" ];
+      before = [ "nscd.service" ];
     };
 
     campground.services.vault-agent.services.copyCAcert = {
