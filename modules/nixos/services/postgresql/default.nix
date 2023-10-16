@@ -103,11 +103,11 @@ in
         file = {
           files = {
             "set-passwords.sql" = {
-              text = builtins.concatStringsSep "\n" (map (user: ''
-                {{ with secret "${cfg.vault-path}/${user}" }}
-                ALTER USER ${user} WITH PASSWORD '{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}';
+              text = builtins.concatStringsSep "\n" (map (db: ''
+                {{ with secret "${cfg.vault-path}/${db.user}" }}
+                ALTER USER ${db.user} WITH PASSWORD '{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}';
                 {{ end }}
-              '') config.services.postgresql.ensureUsers);
+              '') cfg.databases);
               permissions = "0600";
               change-action = "restart";
             };
