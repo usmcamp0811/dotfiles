@@ -16,6 +16,6 @@ in
     ];
     # home.file = { 
     #   ".config/barrier/barrier.conf".source = ./barrier.conf;
-    };
+    # };
   };
 }
