@@ -87,7 +87,7 @@ in
       preStart = "echo 'Preparing to set PostgreSQL passwords'";
     };
 
-    campground.services.vault-agent.services.postgresql = {
+    campground.services.vault-agent.services.set-postgres-passwords = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
