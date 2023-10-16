@@ -28,13 +28,13 @@ in
             type = str;
             description = "Database name";
           };
-          users = mkOption {
-            type = listOf str;
-            description = "Users who should have full access to the database";
+          user = mkOption {
+            type = str;
+            description = "User who should have full access to the database";
           };
         };
       });
-      description = "Databases to initialize, along with privileged users for each.";
+      description = "Databases to initialize, along with a privileged user for each.";
     };
     package = mkOpt package pkgs.postgresql_13 "What PostgreSQL to use";
     enableTCPIP = mkBoolOpt false "Enable TCP access";
@@ -64,16 +64,13 @@ in
       enableTCPIP = cfg.enableTCPIP;
       authentication = cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
-      ensureUsers = let
-        userMap = builtins.foldl' (acc: db: acc // { "${db.name}" = db.users; }) {} cfg.databases;
-      in lib.attrsets.mapAttrsToList (dbName: users: {
-        name = dbName;
-        ensurePermissions = "ALL PRIVILEGES ON DATABASE ${dbName}";
+      ensureUsers = map (db: {
+        name = db.user;
+        ensurePermissions = "ALL PRIVILEGES ON DATABASE ${db.name}";
         ensureClauses = {
           login = true; # or however you wish to set this
         };
-      }) userMap;
-
+      }) cfg.databases;
     };
 
     systemd.services.set-postgres-passwords = {
