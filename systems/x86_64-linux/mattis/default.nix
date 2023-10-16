@@ -84,7 +84,7 @@ in
       enable = true;
       databases = [
         { 
-          name = "my-test-db"; 
+          name = "my_test_db"; 
           user = "root_user";
         }
       ];
