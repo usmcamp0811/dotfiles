@@ -66,7 +66,9 @@ in
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers = map (db: {
         name = db.user;
-        ensurePermissions = "ALL PRIVILEGES ON DATABASE ${db.name}";
+        ensurePermissions = {
+          "DATABASE ${db.name}" = "ALL PRIVILEGES";
+        };
         ensureClauses = {
           login = true; # or however you wish to set this
         };
