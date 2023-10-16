@@ -83,7 +83,10 @@ in
     postgresql = {
       enable = true;
       databases = [
-        "my-test-db"
+        { 
+          name = "my-test-db"; 
+          users = ["root_user"];
+        }
       ];
     };
     # jupyter = enabled;
