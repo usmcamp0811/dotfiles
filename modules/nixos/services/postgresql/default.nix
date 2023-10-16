@@ -106,8 +106,8 @@ in
           files = {
             "set-passwords.sql" = {
               text = builtins.concatStringsSep "\n" (map (db: ''
-                {{ with secret "${cfg.vault-path}/${db.user}" }}
-                ALTER USER ${db.user} WITH PASSWORD '{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}';
+                {{ with secret "${cfg.vault-path}" }}
+                ALTER USER ${db.user} WITH PASSWORD '{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${db.user}.password }}{{ else }}{{ .Data.data.${db.user}.password }}{{ end }}';
                 {{ end }}
               '') cfg.databases);
               permissions = "0600";
