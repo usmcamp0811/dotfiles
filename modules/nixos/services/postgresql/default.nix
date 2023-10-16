@@ -59,7 +59,6 @@ in
   config = mkIf cfg.enable {
     services.postgresql = {
       enable = true;
-      initialScript = "/tmp/detsys-vault/psql_init.sql";
       package = cfg.package;
       enableTCPIP = cfg.enableTCPIP;
       authentication = cfg.authentication;
