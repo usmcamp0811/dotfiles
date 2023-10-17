@@ -3,31 +3,23 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.vaultwarden;
-  ldapConfig = {
-    vaultwarden_url = "https://bitwarden.thalheim.io";
-    vaultwarden_admin_token = "@ADMIN_TOKEN@";
-    ldap_host = "ldap.campground.lan";
-    ldap_bind_dn = "cn=bitwarden,ou=system,ou=users,dc=campground,dc=com";
-    ldap_bind_password = "@LDAP_PASSWORD@";
-    ldap_search_base_dn = "ou=users,dc=campground,dc=com";
-    ldap_search_filter = "(&(objectClass=bitwarden))";
-    ldap_sync_interval_seconds = 3600;
-  };
-
-  ldapConfigFile =
-    pkgs.runCommand "config.toml"
-      {
-        buildInputs = [ pkgs.remarshal ];
-        preferLocalBuild = true;
-      } ''
-      remarshal -if json -of toml \
-      < ${pkgs.writeText "config.json" (builtins.toJSON ldapConfig)} \
-      > $out
-    '';
 in
 {
   options.campground.services.vaultwarden = with types; {
     enable = mkBoolOpt false "Enable Vaultwarden;";
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/vaultwarden" "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -35,44 +27,7 @@ in
   services.vaultwarden = {
     enable = true;
     dbBackend = "postgresql";
-    config = {
-      domain = "todo";
-      signupsAllowed = false;
-      rocketPort = 3011;
-      databaseUrl = "postgresql://vaultwarden@%2Frun%2Fpostgresql/bitwarden_rs";
-      enableDbWal = "false";
-      websocketEnabled = true;
-      smtpHost = "todo";
-      smtpFrom = "todo";
-      smtpUsername = "todo";
-    };
   };
-
-  # systemd.services.vaultwarden.serviceConfig = {
-  #   EnvironmentFile = [ config.sops.secrets.bitwarden-smtp-password.path ];
-  # };
-
-  # systemd.services.vaultwarden_ldap = {
-  #   wantedBy = [ "multi-user.target" ];
-  #
-  #   preStart = ''
-  #     sed \
-  #       -e "s=@LDAP_PASSWORD@=$(<${config.sops.secrets.bitwarden-ldap-password.path})=" \
-  #       -e "s=@ADMIN_TOKEN@=$(<${config.sops.secrets.bitwarden-admin-token.path})=" \
-  #       ${ldapConfigFile} \
-  #       > /run/vaultwarden_ldap/config.toml
-  #   '';
-  #
-  #   serviceConfig = {
-  #     Restart = "on-failure";
-  #     RestartSec = "2s";
-  #     ExecStart = "${inputs.nur-packages.packages.${pkgs.hostPlatform.system}.vaultwarden_ldap}/bin/vaultwarden_ldap";
-  #     Environment = "CONFIG_PATH=/run/vaultwarden_ldap/config.toml";
-  #
-  #     RuntimeDirectory = [ "vaultwarden_ldap" ];
-  #     User = "vaultwarden_ldap";
-  #   };
-  # };
 
   services.nginx = {
     virtualHosts."bitwarden.lan" = {
@@ -95,13 +50,41 @@ in
       };
     };
   };
-
-  users.users.vaultwarden_ldap = {
-    isSystemUser = true;
-    group = "vaultwarden_ldap";
+  campground.services.vault-agent.services.vaultwarden = {
+    settings = {
+      vault.address = cfg.vault-address;
+      auto_auth = {
+        method = [{
+          type = "approle";
+          config = {
+            role_id_file_path = cfg.role-id;
+            secret_id_file_path = cfg.secret-id;
+            remove_secret_id_file_after_reading = false;
+          };
+        }];
+      };
+    };
+    secrets = {
+      environment = {
+        changeAction = "restart";
+        template = 
+          if cfg.kvVersion == "v1" then ''
+            {{ with secret cfg.vault-path }}
+            {{ range $key, $value := .Data }}
+            {{ $key }}={{ $value }}
+            {{ end }}
+            {{ end }}
+          '' else ''
+            {{ with secret cfg.vault-path }}
+            {{ range $key, $value := .Data.data }}  # Note the added .data for KV2
+            {{ $key }}={{ $value }}
+            {{ end }}
+            {{ end }}
+          '';
+      };
+    };
   };
+};
 
-  users.groups.vaultwarden_ldap = { };
-  };
 
 }

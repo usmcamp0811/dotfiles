@@ -85,8 +85,8 @@ in
       enableTCPIP = true;
       databases = [
         { 
-          name = "my_test_db"; 
-          user = "root_user";
+          name = "vaultwarden"; 
+          user = "vaultwarden";
         }
       ];
     };
