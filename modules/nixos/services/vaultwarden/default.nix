@@ -70,16 +70,43 @@ in
           files = {
             "vaultwarden.env" = {
               text = ''
-                #!/bin/sh
                 {{ with secret "${cfg.vault-path}" }}
                 {{ if eq "${cfg.kvVersion}" "v1" }}
-                {{ range $key, $value := .Data }}
-                {{ $key }}={{ $value }}
-                {{ end }}
+                SMTP_FROM={{ .Data.SMTP_FROM }}
+                ADMIN_TOKEN={{ .Data.ADMIN_TOKEN }}
+                DATABASE_URL={{ .Data.DATABASE_URL }}
+                DOMAIN={{ .Data.DOMAIN }}
+                EMERGENCY_ACCESS_ALLOWED={{ .Data.EMERGENCY_ACCESS_ALLOWED }}
+                EVENTS_DAYS_RETAIN={{ .Data.EVENTS_DAYS_RETAIN }}
+                ORG_CREATION_USERS={{ .Data.ORG_CREATION_USERS }}
+                ORG_EVENTS_ENABLED={{ .Data.ORG_EVENTS_ENABLED }}
+                SIGNUPS_ALLOWED={{ .Data.SIGNUPS_ALLOWED }}
+                SMTP_FROM_NAME={{ .Data.SMTP_FROM_NAME }}
+                SMTP_HOST={{ .Data.SMTP_HOST }}
+                SMTP_PASSWORD={{ .Data.SMTP_PASSWORD }}
+                SMTP_PORT={{ .Data.SMTP_PORT }}
+                SMTP_SECURITY={{ .Data.SMTP_SECURITY }}
+                SMTP_TIMEOUT={{ .Data.SMTP_TIMEOUT }}
+                SMTP_USERNAME={{ .Data.SMTP_USERNAME }}
+                TZ={{ .Data.TZ }}
                 {{ else }}
-                {{ range $key, $value := .Data.data }}  # Note the added .data for KV2
-                {{ $key }}={{ $value }}
-                {{ end }}
+                SMTP_FROM={{ .Data.data.SMTP_FROM }}
+                ADMIN_TOKEN={{ .Data.data.ADMIN_TOKEN }}
+                DATABASE_URL={{ .Data.data.DATABASE_URL }}
+                DOMAIN={{ .Data.data.DOMAIN }}
+                EMERGENCY_ACCESS_ALLOWED={{ .Data.data.EMERGENCY_ACCESS_ALLOWED }}
+                EVENTS_DAYS_RETAIN={{ .Data.data.EVENTS_DAYS_RETAIN }}
+                ORG_CREATION_USERS={{ .Data.data.ORG_CREATION_USERS }}
+                ORG_EVENTS_ENABLED={{ .Data.data.ORG_EVENTS_ENABLED }}
+                SIGNUPS_ALLOWED={{ .Data.data.SIGNUPS_ALLOWED }}
+                SMTP_FROM_NAME={{ .Data.data.SMTP_FROM_NAME }}
+                SMTP_HOST={{ .Data.data.SMTP_HOST }}
+                SMTP_PASSWORD={{ .Data.data.SMTP_PASSWORD }}
+                SMTP_PORT={{ .Data.data.SMTP_PORT }}
+                SMTP_SECURITY={{ .Data.data.SMTP_SECURITY }}
+                SMTP_TIMEOUT={{ .Data.data.SMTP_TIMEOUT }}
+                SMTP_USERNAME={{ .Data.data.SMTP_USERNAME }}
+                TZ={{ .Data.data.TZ }}
                 {{ end }}
                 {{ end }}
               '';
