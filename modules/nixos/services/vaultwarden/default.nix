@@ -27,7 +27,7 @@ in
     services.vaultwarden = {
       enable = true;
       dbBackend = "postgresql";
-      environmentFile = "/tmp/detsys-vault/vaultwarden.env";
+      environmentFile = "/var/lib/vault/vaultwarden.env";
     };
 
     services.nginx = {
@@ -51,7 +51,20 @@ in
         };
       };
     };
-    campground.services.vault-agent.services.vaultwarden = {
+    systemd.services.vaultwarden_env = {
+      description = "Create Vaultwarden environment file";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";  # Use the root user to create the folder and set permissions
+        ExecStartPre = "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
+        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/vaultwarden.env /var/lib/vault/vaultwarden.env";
+        ExecStartPost = "${pkgs.coreutils}/bin/chown vaultwarden:vaultwarden /var/lib/vault/vaultwarden.env"; # Change file ownership to vaultwarden
+      };
+      wantedBy = [ "multi-user.target" ];
+      before = [ "vaultwarden.service" ];
+    };
+
+    campground.services.vault-agent.services.vaultwarden_env = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -70,6 +83,7 @@ in
           files = {
             "vaultwarden.env" = {
               text = ''
+                ROCKET_ADDRESS=0.0.0.0
                 {{ with secret "${cfg.vault-path}" }}
                 {{ if eq "${cfg.kvVersion}" "v1" }}
                 SMTP_FROM={{ .Data.SMTP_FROM }}
