@@ -83,6 +83,17 @@ in
     postgresql = {
       enable = true;
       enableTCPIP = true;
+      authentication = ''
+        # Allow only local connections for the root user
+        local all root trust 
+        local all postgres peer
+        local vaultwarden vaultwarden trust
+        # Require password for Vault-generated users over the network
+        host  all  all  10.8.0.1/24  md5  
+        # Deny other remote connections
+        host  all  all  0.0.0.0/0  reject
+        host  all  all  ::0/0  reject
+      '';
       databases = [
         { 
           name = "vaultwarden"; 
