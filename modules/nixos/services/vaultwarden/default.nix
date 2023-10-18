@@ -38,7 +38,7 @@ in
           client_max_body_size 128M;
         '';
         locations."/" = {
-          proxyPass = "http://localhost:8000";
+          proxyPass = "http://localhost:3011";
           proxyWebsockets = true;
         };
         locations."/notifications/hub" = {
@@ -83,6 +83,8 @@ in
           files = {
             "vaultwarden.env" = {
               text = ''{{ with secret "${cfg.vault-path}" }}
+  WEBSOCKET_PORT=3012
+  ROCKET_PORT=3011
                 {{ if eq "${cfg.kvVersion}" "v1" }}
   SMTP_FROM={{ .Data.SMTP_FROM }}
   ADMIN_TOKEN={{ .Data.ADMIN_TOKEN }}
