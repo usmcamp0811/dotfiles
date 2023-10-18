@@ -27,6 +27,7 @@ in
   services.vaultwarden = {
     enable = true;
     dbBackend = "postgresql";
+    environmentFile = "/tmp/detsys-vault/vaultwarden.env";
   };
 
   services.nginx = {
@@ -65,22 +66,26 @@ in
       };
     };
     secrets = {
-      environment = {
-        changeAction = "restart";
-        template = 
-          if cfg.kvVersion == "v1" then ''
-            {{ with secret cfg.vault-path }}
-            {{ range $key, $value := .Data }}
-            {{ $key }}={{ $value }}
-            {{ end }}
-            {{ end }}
-          '' else ''
-            {{ with secret cfg.vault-path }}
-            {{ range $key, $value := .Data.data }}  # Note the added .data for KV2
-            {{ $key }}={{ $value }}
-            {{ end }}
-            {{ end }}
-          '';
+      file = {
+        files = {
+          "vaultwarden.env" = {
+            text = if cfg.kvVersion == "v1" then ''
+              {{ with secret cfg.vault-path }}
+              {{ range $key, $value := .Data }}
+              {{ $key }}={{ $value }}
+              {{ end }}
+              {{ end }}
+            '' else ''
+              {{ with secret cfg.vault-path }}
+              {{ range $key, $value := .Data.data }}  # Note the added .data for KV2
+              {{ $key }}={{ $value }}
+              {{ end }}
+              {{ end }}
+            '';
+            # permission = "0600";
+            # change-action = "restart";
+          };
+        };
       };
     };
   };

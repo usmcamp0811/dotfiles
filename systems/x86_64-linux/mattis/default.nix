@@ -90,6 +90,9 @@ in
         }
       ];
     };
+    vaultwarden = {
+      enable = true;
+    };
     # jupyter = enabled;
     syncthing = enabled;
     tang = enabled;
