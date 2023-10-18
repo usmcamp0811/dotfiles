@@ -24,72 +24,71 @@ in
 
   config = mkIf cfg.enable {
 
-  services.vaultwarden = {
-    enable = true;
-    dbBackend = "postgresql";
-    environmentFile = "/tmp/detsys-vault/vaultwarden.env";
-  };
+    services.vaultwarden = {
+      enable = true;
+      dbBackend = "postgresql";
+      environmentFile = "/tmp/detsys-vault/vaultwarden.env";
+    };
 
-  services.nginx = {
-    virtualHosts."bitwarden.lan" = {
-      # useACMEHost = "thalheim.io";
-      # forceSSL = true;
-      extraConfig = ''
-        client_max_body_size 128M;
-      '';
-      locations."/" = {
-        proxyPass = "http://localhost:3011";
-        proxyWebsockets = true;
-      };
-      locations."/notifications/hub" = {
-        proxyPass = "http://localhost:3012";
-        proxyWebsockets = true;
-      };
-      locations."/notifications/hub/negotiate" = {
-        proxyPass = "http://localhost:3011";
-        proxyWebsockets = true;
-      };
-    };
-  };
-  campground.services.vault-agent.services.vaultwarden = {
-    settings = {
-      vault.address = cfg.vault-address;
-      auto_auth = {
-        method = [{
-          type = "approle";
-          config = {
-            role_id_file_path = cfg.role-id;
-            secret_id_file_path = cfg.secret-id;
-            remove_secret_id_file_after_reading = false;
-          };
-        }];
+    services.nginx = {
+      virtualHosts."bitwarden.lan" = {
+        # useACMEHost = "thalheim.io";
+        # forceSSL = true;
+        extraConfig = ''
+          client_max_body_size 128M;
+        '';
+        locations."/" = {
+          proxyPass = "http://localhost:3011";
+          proxyWebsockets = true;
+        };
+        locations."/notifications/hub" = {
+          proxyPass = "http://localhost:3012";
+          proxyWebsockets = true;
+        };
+        locations."/notifications/hub/negotiate" = {
+          proxyPass = "http://localhost:3011";
+          proxyWebsockets = true;
+        };
       };
     };
-    secrets = {
-      file = {
-        files = {
-          "vaultwarden.env" = {
-            text = if cfg.kvVersion == "v1" then ''
-              {{ with secret cfg.vault-path }}
-              {{ range $key, $value := .Data }}
-              {{ $key }}={{ $value }}
-              {{ end }}
-              {{ end }}
-            '' else ''
-              {{ with secret cfg.vault-path }}
-              {{ range $key, $value := .Data.data }}  # Note the added .data for KV2
-              {{ $key }}={{ $value }}
-              {{ end }}
-              {{ end }}
-            '';
-            # permission = "0600";
-            # change-action = "restart";
+    campground.services.vault-agent.services.vaultwarden = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = {
+            "vaultwarden.env" = {
+              text = ''
+                #!/bin/sh
+                {{ with secret "${cfg.vault-path}" }}
+                {{ if eq "${cfg.kvVersion}" "v1" }}
+                {{ range $key, $value := .Data }}
+                {{ $key }}={{ $value }}
+                {{ end }}
+                {{ else }}
+                {{ range $key, $value := .Data.data }}  # Note the added .data for KV2
+                {{ $key }}={{ $value }}
+                {{ end }}
+                {{ end }}
+                {{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
           };
         };
       };
     };
   };
-};
-
-
 }
