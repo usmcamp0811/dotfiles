@@ -53,6 +53,9 @@ in
       description = "Authentication settings for PostgreSQL";
     };
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
+    backupEnable = mkBoolOpt false "Enable backups";
+    backupLocation = mkOpt str "/persist/db-backups/" "Place to store backups";
+    backupStartAt = mkOpt str "*-*-* 01:15:00" "Time to start backups";
 
   };
 
@@ -64,6 +67,7 @@ in
       enableTCPIP = cfg.enableTCPIP;
       authentication = cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
+      postgresqlBackup = cfg.postgresqlBackup;
       ensureUsers = map (db: {
         name = db.user;
         ensurePermissions = {
@@ -73,6 +77,12 @@ in
           login = true; # or however you wish to set this
         };
       }) cfg.databases;
+    };
+
+    services.postgresqlBackup = {
+      backupAll = cfg.backupEnable;
+      location = cfg.backupLocation;
+      startAt = cfg.backupStartAt;
     };
 
     systemd.services.set-postgres-passwords = {

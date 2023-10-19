@@ -14,15 +14,11 @@ in
   imports = [ 
     ./hardware.nix
   ];
-  # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   boot.initrd.availableKernelModules = [ "thunderbolt" "xhci_hcd" ];
 
   services.logind.lidSwitch = "ignore";
   campground = {
-    # nix = {
-    #   package = pkgs.nixVersions.nix_2_18;
-    # };
     archetypes = {
       workstation = enabled;
     };
@@ -30,10 +26,6 @@ in
       enable = true;
       gdm = true;
     };
-
-    # apps = {
-    #   virtmanager = enabled;
-    # };
 
     system = {
       boot = enabled;
@@ -44,26 +36,6 @@ in
       };
       # manage local passwd in vault
       passwds = enabled;
-      # wifi = {
-      # # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-      #   enable = false;
-      #   networks = {
-      #     SkyNet = {
-      #       ssid = "SkyNet";
-      #     };
-      #     SkyNet5 = {
-      #       ssid = "SkyNet5";
-      #     };
-      #   };
-      # };
-      # vpn = {
-      #   enable = false;
-      #   networks = {
-      #     CampNet = {
-      #       key = "ata_xps";
-      #     };
-      #   };
-      # };
     };
 
     hardware.audio = {
@@ -83,13 +55,13 @@ in
     postgresql = {
       enable = true;
       enableTCPIP = true;
+      backupEnable = true;
+      backupLocation = "/persist/postgresqlBackups/";
       authentication = ''
         # Allow only local connections for the root user
         local all root trust 
         local all postgres peer
         local vaultwarden vaultwarden trust
-        # Require password for Vault-generated users over the network
-        host  all  all  10.8.0.1/24  md5  
         # Deny other remote connections
         host  all  all  0.0.0.0/0  reject
         host  all  all  ::0/0  reject
@@ -104,7 +76,6 @@ in
     vaultwarden = {
       enable = true;
     };
-    # jupyter = enabled;
     syncthing = enabled;
     tang = enabled;
     k0sworker = enabled;
