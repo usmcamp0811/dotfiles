@@ -18,10 +18,10 @@ in
   campground = {
     nix = enabled;
     archetypes = {
-      workstation = enabled;
+      barebones = enabled;
     };
     desktop.qtile = {
-      enable = true;
+      enable = false;
       gdm = true;
     };
     cli-apps = {
