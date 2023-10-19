@@ -67,7 +67,6 @@ in
       enableTCPIP = cfg.enableTCPIP;
       authentication = cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
-      postgresqlBackup = cfg.postgresqlBackup;
       ensureUsers = map (db: {
         name = db.user;
         ensurePermissions = {
