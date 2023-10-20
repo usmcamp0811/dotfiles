@@ -12,7 +12,7 @@ let
 in
 {
   imports = [ 
-    ./webb-disko.nix
+    # ./webb-disko.nix
   ];
   # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   boot.kernelModules = [ "igb" ];
