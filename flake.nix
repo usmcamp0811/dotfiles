@@ -88,6 +88,8 @@
     campground-jupyterlab.url = "gitlab:usmcamp0811/campground-jupyter-lab";
     campground-jupyterlab.inputs.nixpkgs.follows = "unstable";
 
+    dream2nix.url = "github:nix-community/dream2nix";
+
   };
 
   outputs = inputs:
