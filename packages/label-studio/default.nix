@@ -14,7 +14,7 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  label-studio = { python, dream2nix, ...}:
+  label-studio = { config, python, inputs, dream2nix, ...}:
   {
     imports = [
       dream2nix.modules.dream2nix.pip
@@ -27,18 +27,15 @@ let
       python = nixpkgs.python310;
     };
 
-    name = name;
-    version = version;
-
     buildPythonPackage = {
       pythonImportsCheck = [
-        name
+        config.name
       ];
     };
 
     pip = {
       pypiSnapshotDate = "2023-10-20";
-      requirementsList = ["${name}==${version}"];
+      requirementsList = ["${config.name}==${config.version}"];
     };
   };
 
