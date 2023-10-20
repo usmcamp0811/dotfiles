@@ -52,6 +52,7 @@ in
 
   campground.services = {
     ldap-client = enabled;
+    label-studio = enabled;
     postgresql = {
       enable = true;
       enableTCPIP = true;
