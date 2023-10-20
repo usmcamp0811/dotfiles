@@ -11,11 +11,11 @@ let
   };
 in
 {
-  # imports = [ 
-  #   ./hardware.nix
-  # ];
+  imports = [ 
+    ./webb-disko.nix
+  ];
   # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-
+  boot.kernelModules = [ "igb" ];
 
   services.logind.lidSwitch = "ignore";
   campground = {
