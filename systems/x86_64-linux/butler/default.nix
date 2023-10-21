@@ -96,6 +96,7 @@ in
 
   campground.services = {
     docker = enabled;
+    label-studio = enabled;
     cert-manager = {
       enable = true;
       certs = [
