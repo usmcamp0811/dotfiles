@@ -88,7 +88,7 @@
     campground-jupyterlab.url = "gitlab:usmcamp0811/campground-jupyter-lab";
     campground-jupyterlab.inputs.nixpkgs.follows = "unstable";
 
-    label-studio.url = "gitlab:usmcamp0811/label-studio-nix-flake";
+    campground-packages.url = "gitlab:usmcamp0811/campground-packages";
 
   };
 

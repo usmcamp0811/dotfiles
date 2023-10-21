@@ -28,7 +28,7 @@ let
       exit 1
     fi
 
-    seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | ${pkgs.jq}/bin/jq ".sealed")
+    seal_status=$(${pkgs.curl}/bin/curl -s "$VAULT_ADDR/v1/sys/seal-status" | ${pkgs.jq}/bin/jq ".sealed")
 
     echo "Seal Status: $seal_status"
 
