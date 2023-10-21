@@ -39,7 +39,7 @@ in
       vpn = enabled;
       zfs = {
         enable = true;
-        hostId = "65c8b243";
+        hostId = "119db424";
         keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
       };
       # manage local passwd in vault
