@@ -1,7 +1,7 @@
-{ channels, ... }:
+{ label-studio, ... }:
 
 final: prev:
 
 {
-  inherit (channels.unstable) label-studio;
+  label_studio = label-studio.packages.${prev.system}.label-studio;
 }
