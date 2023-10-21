@@ -12,7 +12,7 @@ let
 in
 {
   imports = [ 
-    # ./webb-disko.nix
+    ./hardware.nix
   ];
   # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   boot.kernelModules = [ "igb" ];
@@ -44,18 +44,6 @@ in
       };
       # manage local passwd in vault
       passwds = enabled;
-      wifi = {
-      # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = false;
-        networks = {
-          SkyNet = {
-            ssid = "SkyNet";
-          };
-          SkyNet5 = {
-            ssid = "SkyNet5";
-          };
-        };
-      };
     };
 
     hardware.audio = {
@@ -107,8 +95,8 @@ in
       };
     };
     homer = {
-      enable = true;
-      host = "daly";
+      enable = false;
+      host = "webb";
 
       package = pkgs.campground.homer-catppuccin.override { favicon = "light"; };
 
