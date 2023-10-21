@@ -77,17 +77,17 @@ in
       ];
       port = 8123;
     };
-    user-secrets = {
-      enable = true;
-      users = {
-        mcamp =  {
-          files = [
-            "id_ed25519"
-            "passwords"
-          ];
-        };
-      };
-    };
+    # user-secrets = {
+    #   enable = true;
+    #   users = {
+    #     mcamp =  {
+    #       files = [
+    #         "id_ed25519"
+    #         "passwords"
+    #       ];
+    #     };
+    #   };
+    # };
     # homer = {
     #   enable = false;
     #   host = "webb";
@@ -140,8 +140,8 @@ in
       settings = {
         vault = {
           address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/daly/role-id";
-          secret-id = "/var/lib/vault/daly/secret-id";
+          role-id = "/var/lib/vault/webb/role-id";
+          secret-id = "/var/lib/vault/webb/secret-id";
         };
       };
     };
