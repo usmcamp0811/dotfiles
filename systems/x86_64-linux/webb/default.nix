@@ -17,7 +17,6 @@ in
   # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   boot.kernelModules = [ "igb" ];
 
-  services.logind.lidSwitch = "ignore";
   campground = {
     archetypes = {
       workstation = enabled;
