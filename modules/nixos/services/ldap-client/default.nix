@@ -28,7 +28,7 @@ in
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-pki-path = mkOpt str "campground-pki/issue/ldap-server-role" "The Vault path to the Server Cert in Vault";
-    common-name = mkOpt str "ldap.server.aicampground.com" "Common Name for Server Certs";
+    common-name = mkOpt str "client.ldap.lan.aicampground.com" "Common Name for Server Certs";
     vault-path = mkOpt str "secret/campground/ldap" "The Vault path to the KV containing the LDAP Secrets.";
     vault-address = mkOption {
       type = str;
