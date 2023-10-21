@@ -65,13 +65,14 @@ in
     ldap-client = enabled;
     secret-service = enabled;
     tang = enabled;
-    # k0sworker = enabled;
+    k0sworker = enabled;
     # k0scontroller = enabled;
     ntp = enabled;
     zfs-key-server = {
       enable = true;
       tang-servers = [
        "http://daly:1234" 
+       "http://mattis:1234" 
        "http://lucas:1234" 
        "http://ermy:1234" 
       ];
