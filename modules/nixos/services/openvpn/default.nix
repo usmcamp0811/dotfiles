@@ -25,7 +25,7 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
+    common-name = mkOpt str "server.vpn.${cfg.domain-name}" "Common Name for Server Certs";
     domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
     vpn-cert-csv = mkOpt str "/var/lib/vault/ovpn/vpn-certs.csv" "CSV with Cert Serial Numbers";
   };
