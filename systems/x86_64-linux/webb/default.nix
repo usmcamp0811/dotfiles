@@ -29,9 +29,9 @@ in
     #   acme = enabled;
     # };
 
-    # nfs = {
-    #   campfs = enabled;
-    # };
+    nfs = {
+      campfs = enabled;
+    };
 
     system = {
       boot = enabled;
@@ -62,32 +62,32 @@ in
     openssh = {
       authorizedKeys = [ "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler" ];
     };
-    # ldap-client = enabled;
-    # secret-service = enabled;
+    ldap-client = enabled;
+    secret-service = enabled;
     tang = enabled;
     # k0sworker = enabled;
     # k0scontroller = enabled;
     ntp = enabled;
-    # zfs-key-server = {
-    #   enable = true;
-    #   tang-servers = [
-    #    "http://webb:1234" 
-    #    "http://lucas:1234" 
-    #    "http://ermy:1234" 
-    #   ];
-    #   port = 8123;
-    # };
-    # user-secrets = {
-    #   enable = true;
-    #   users = {
-    #     mcamp =  {
-    #       files = [
-    #         "id_ed25519"
-    #         "passwords"
-    #       ];
-    #     };
-    #   };
-    # };
+    zfs-key-server = {
+      enable = true;
+      tang-servers = [
+       "http://daly:1234" 
+       "http://lucas:1234" 
+       "http://ermy:1234" 
+      ];
+      port = 8123;
+    };
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
+      };
+    };
     # homer = {
     #   enable = false;
     #   host = "webb";
@@ -135,38 +135,16 @@ in
     #   # settings-path = "/var/lib/homer/config.yml";
     # };
 
-    # vault = {
-    #   enable = true;
-    #   ui = true;
-    #   storage = {
-    #     backend = "file";
-    #     path = "/persist/vault";
-    #   };
-    #   
-    #   policies =
-    #     builtins.foldl'
-    #       (policies: file: policies // {
-    #         "${snowfall.path.get-file-name-without-extension file}" = file;
-    #       })
-    #       { }
-    #       (builtins.filter (snowfall.path.has-file-extension "hcl")
-    #         (builtins.map
-    #           (path:
-    #             ./vault/policies +
-    #             "/${builtins.baseNameOf (builtins.unsafeDiscardStringContext path)}"
-    #           )
-    #           (snowfall.fs.get-files ./vault/policies)));
-    # };
-    # vault-agent = {
-    #   enable = true;
-    #   settings = {
-    #     vault = {
-    #       address = "https://vault.lan.aicampground.com";
-    #       role-id = "/var/lib/vault/daly/role-id";
-    #       secret-id = "/var/lib/vault/daly/secret-id";
-    #     };
-    #   };
-    # };
+    vault-agent = {
+      enable = true;
+      settings = {
+        vault = {
+          address = "https://vault.lan.aicampground.com";
+          role-id = "/var/lib/vault/daly/role-id";
+          secret-id = "/var/lib/vault/daly/secret-id";
+        };
+      };
+    };
   };
   # services.nginx = {
   #   enable = true;
