@@ -26,17 +26,17 @@ in
     apps = {
     };
 
-    security = {
-      acme = enabled;
-    };
+    # security = {
+    #   acme = enabled;
+    # };
 
-    nfs = {
-      campfs = enabled;
-    };
+    # nfs = {
+    #   campfs = enabled;
+    # };
 
     system = {
       boot = enabled;
-      vpn = enabled;
+      # vpn = enabled;
       zfs = {
         enable = true;
         hostId = "119db424";
@@ -59,143 +59,138 @@ in
   };
 
   campground.services = {
-    ldap-server = enabled;
 
-    openvpn = {
-      enable = true;
-
-    };
     openssh = {
       authorizedKeys = [ "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler" ];
     };
-    ldap-client = enabled;
-    secret-service = enabled;
+    # ldap-client = enabled;
+    # secret-service = enabled;
     tang = enabled;
     # k0sworker = enabled;
-    k0scontroller = enabled;
+    # k0scontroller = enabled;
     ntp = enabled;
-    zfs-key-server = {
-      enable = true;
-      tang-servers = [
-       "http://webb:1234" 
-       "http://lucas:1234" 
-       "http://ermy:1234" 
-      ];
-      port = 8123;
-    };
-    user-secrets = {
-      enable = true;
-      users = {
-        mcamp =  {
-          files = [
-            "id_ed25519"
-            "passwords"
-          ];
-        };
-      };
-    };
-    homer = {
-      enable = false;
-      host = "webb";
+    # zfs-key-server = {
+    #   enable = true;
+    #   tang-servers = [
+    #    "http://webb:1234" 
+    #    "http://lucas:1234" 
+    #    "http://ermy:1234" 
+    #   ];
+    #   port = 8123;
+    # };
+    # user-secrets = {
+    #   enable = true;
+    #   users = {
+    #     mcamp =  {
+    #       files = [
+    #         "id_ed25519"
+    #         "passwords"
+    #       ];
+    #     };
+    #   };
+    # };
+    # homer = {
+    #   enable = false;
+    #   host = "webb";
+    #
+    #   package = pkgs.campground.homer-catppuccin.override { favicon = "light"; };
+    #
+    #   settings = {
+    #     title = "Dashboard";
+    #     subtitle = "Campground Home";
+    #
+    #     logo = pkgs.campground.homer-catppuccin.logos.light;
+    #
+    #     stylesheet = [
+    #       pkgs.campground.homer-catppuccin.stylesheets.latte
+    #       pkgs.campground.homer-catppuccin.stylesheets.frappe
+    #     ];
+    #
+    #     footer = "";
+    #
+    #     connectivityCheck = true;
+    #
+    #     columns = "auto";
+    #
+    #     defaults = {
+    #       layout = "list";
+    #       colorTheme = "auto";
+    #     };
+    #
+    #     services = [
+    #       {
+    #         name = "Administration";
+    #         icon = "fas fa-shield-halved";
+    #         items = [
+    #           {
+    #             name = "Vault";
+    #             icon = "fas fa-lock";
+    #             url = "http://vault.lan";
+    #             target = "_blank";
+    #           }
+    #         ];
+    #       }
+    #     ];
+    #   };
+    #
+    #   # settings-path = "/var/lib/homer/config.yml";
+    # };
 
-      package = pkgs.campground.homer-catppuccin.override { favicon = "light"; };
-
-      settings = {
-        title = "Dashboard";
-        subtitle = "Campground Home";
-
-        logo = pkgs.campground.homer-catppuccin.logos.light;
-
-        stylesheet = [
-          pkgs.campground.homer-catppuccin.stylesheets.latte
-          pkgs.campground.homer-catppuccin.stylesheets.frappe
-        ];
-
-        footer = "";
-
-        connectivityCheck = true;
-
-        columns = "auto";
-
-        defaults = {
-          layout = "list";
-          colorTheme = "auto";
-        };
-
-        services = [
-          {
-            name = "Administration";
-            icon = "fas fa-shield-halved";
-            items = [
-              {
-                name = "Vault";
-                icon = "fas fa-lock";
-                url = "http://vault.lan";
-                target = "_blank";
-              }
-            ];
-          }
-        ];
-      };
-
-      # settings-path = "/var/lib/homer/config.yml";
-    };
-
-    vault = {
-      enable = true;
-      ui = true;
-      storage = {
-        backend = "file";
-        path = "/persist/vault";
-      };
-      
-      policies =
-        builtins.foldl'
-          (policies: file: policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ./vault/policies +
-                "/${builtins.baseNameOf (builtins.unsafeDiscardStringContext path)}"
-              )
-              (snowfall.fs.get-files ./vault/policies)));
-    };
-    vault-agent = {
-      enable = true;
-      settings = {
-        vault = {
-          address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/daly/role-id";
-          secret-id = "/var/lib/vault/daly/secret-id";
-        };
-      };
-    };
+    # vault = {
+    #   enable = true;
+    #   ui = true;
+    #   storage = {
+    #     backend = "file";
+    #     path = "/persist/vault";
+    #   };
+    #   
+    #   policies =
+    #     builtins.foldl'
+    #       (policies: file: policies // {
+    #         "${snowfall.path.get-file-name-without-extension file}" = file;
+    #       })
+    #       { }
+    #       (builtins.filter (snowfall.path.has-file-extension "hcl")
+    #         (builtins.map
+    #           (path:
+    #             ./vault/policies +
+    #             "/${builtins.baseNameOf (builtins.unsafeDiscardStringContext path)}"
+    #           )
+    #           (snowfall.fs.get-files ./vault/policies)));
+    # };
+    # vault-agent = {
+    #   enable = true;
+    #   settings = {
+    #     vault = {
+    #       address = "https://vault.lan.aicampground.com";
+    #       role-id = "/var/lib/vault/daly/role-id";
+    #       secret-id = "/var/lib/vault/daly/secret-id";
+    #     };
+    #   };
+    # };
   };
-  services.nginx = {
-    enable = true;
-    recommendedProxySettings = true;
-
-    virtualHosts =
-      # TODO: get certs from certManager 
-      # let
-      #   shared-config = {
-      #     extra-config = {
-      #       forceSSL = true;
-      #
-      #       sslCertificate = "${config.security.acme.certs."daly.campground.lan".directory}/fullchain.pem";
-      #       sslCertificateKey = "${config.security.acme.certs."daly.campground.lan".directory}/key.pem";
-      #     };
-      #   };
-      # in
-      {
-        "vault.lan" = network.create-proxy
-          ((network.get-address-parts config.services.vault.address));
-            # // shared-config);
-      };
-  };
+  # services.nginx = {
+  #   enable = true;
+  #   recommendedProxySettings = true;
+  #
+  #   virtualHosts =
+  #     # TODO: get certs from certManager 
+  #     # let
+  #     #   shared-config = {
+  #     #     extra-config = {
+  #     #       forceSSL = true;
+  #     #
+  #     #       sslCertificate = "${config.security.acme.certs."daly.campground.lan".directory}/fullchain.pem";
+  #     #       sslCertificateKey = "${config.security.acme.certs."daly.campground.lan".directory}/key.pem";
+  #     #     };
+  #     #   };
+  #     # in
+  #     {
+  #       "vault.lan" = network.create-proxy
+  #         ((network.get-address-parts config.services.vault.address));
+  #           # // shared-config);
+  #     };
+  # };
 
 
   # This value determines the NixOS release from which the default
