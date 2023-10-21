@@ -77,17 +77,17 @@ in
       ];
       port = 8123;
     };
-    # user-secrets = {
-    #   enable = true;
-    #   users = {
-    #     mcamp =  {
-    #       files = [
-    #         "id_ed25519"
-    #         "passwords"
-    #       ];
-    #     };
-    #   };
-    # };
+    user-secrets = {
+      enable = true;
+      users = {
+        mcamp =  {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
+      };
+    };
     # homer = {
     #   enable = false;
     #   host = "webb";
