@@ -15,8 +15,6 @@ in
     ./hardware.nix
   ];
   # boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  boot.kernelModules = [ "igb" ];
-
   campground = {
     archetypes = {
       workstation = enabled;
