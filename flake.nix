@@ -90,6 +90,12 @@
 
     campground-packages.url = "gitlab:usmcamp0811/campground-packages";
 
+    # Backup management
+    icehouse = {
+      url = "github:snowfallorg/icehouse";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.unstable.follows = "unstable";
+    };
   };
 
   outputs = inputs:
@@ -118,6 +124,7 @@
       };
 
       overlays = with inputs; [
+          icehouse.overlay
 				  flake.overlays."package/flake"
           nur.overlay
       ];
