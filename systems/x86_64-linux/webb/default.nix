@@ -41,6 +41,7 @@ in
       # searx = {
       #   enable = true;
       # };
+      mattermost = enabled;
       postgresql = {
         enable = true;
         enableTCPIP = true;
@@ -50,7 +51,7 @@ in
           local all root trust
           local all postgres peer
           local vaultwarden vaultwarden trust
-          local mattermost mmuser trust
+          local mattermost mattermost trust
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
@@ -61,7 +62,7 @@ in
           } 
           { 
             name = "mattermost"; 
-            user = "mmuser"; 
+            user = "mattermost"; 
           } 
         ];
       };
