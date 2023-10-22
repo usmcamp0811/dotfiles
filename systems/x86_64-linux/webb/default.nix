@@ -37,6 +37,10 @@ in
     };
 
     services = {
+      # TODO: configure searx
+      # searx = {
+      #   enable = true;
+      # };
       postgresql = {
         enable = true;
         enableTCPIP = true;
@@ -45,7 +49,8 @@ in
         authentication = ''
           local all root trust
           local all postgres peer
-          local all vaultwarden trust
+          local vaultwarden vaultwarden trust
+          local mattermost mmuser trust
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
@@ -53,6 +58,10 @@ in
           { 
             name = "vaultwarden"; 
             user = "vaultwarden"; 
+          } 
+          { 
+            name = "mattermost"; 
+            user = "mmuser"; 
           } 
         ];
       };
