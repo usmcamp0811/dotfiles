@@ -15,37 +15,34 @@ in
   };
 
   config = mkIf cfg.enable {
-    networking.useDHCP = false;
+    systemd.services.network-team-setup = {
+      description = "Network Teaming Setup";
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig.Type = "oneshot";
 
-    systemd.network = {
-      netdevs = {
-        bond0 = {
-          netdevConfig = {
-            Kind = "bond";
-            Name = "bond0";
-          };
-          bondConfig = {
-            Mode = "802.3ad";
-            TransmitHashPolicy = "layer3+4";
-          };
-        };
-      };
-      
-      networks = lib.listToAttrs (map (nic: {
-        name = "${nic}";
-        value = {
-          matchConfig.Name = "${nic}";
-          networkConfig.Bond = "bond0";
-        };
-      }) cfg.bondNICs // [{
-        name = "bond0";
-        value = {
-          matchConfig.Name = "bond0";
-          networkConfig.Address = [ "${cfg.ip}/24" ];
-          networkConfig.LinkLocalAddressing = "no";
-        };
-      }]);
+      script = ''
+        # Your shell commands here, adapted from your Ansible script
+        ${pkgs.networkmanager}/bin/nmcli connection delete team0 || true
+
+        NIC_LIST="${lib.concatStringsSep " " cfg.bondNICs}"
+
+        ${pkgs.networkmanager}/bin/nmcli connection add type team con-name team0 ifname team0 config '{"runner": {"name": "loadbalance"}}'
+
+        for nic in $NIC_LIST; do
+          ${pkgs.networkmanager}/bin/nmcli connection delete team0-nic-$nic || true
+          ${pkgs.networkmanager}/bin/nmcli connection add type team-slave con-name team0-nic-$nic ifname $nic master team0
+        done
+
+        ${pkgs.networkmanager}/bin/nmcli connection modify team0 ipv4.addresses ${cfg.ip}
+        ${pkgs.networkmanager}/bin/nmcli connection modify team0 ipv4.method manual
+        ${pkgs.networkmanager}/bin/nmcli connection up team0
+      '';
     };
+    
+    environment.systemPackages = with pkgs; [
+      networkmanager
+    ];
   };
 }
 
