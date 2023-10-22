@@ -31,10 +31,11 @@ in
     };
 
     services.nginx = {
-      virtualHosts."bitwarden.lan" = {
+      virtualHosts."0.0.0.0" = {
         # useACMEHost = "thalheim.io";
         # forceSSL = true;
         extraConfig = ''
+          listen 8989;
           client_max_body_size 128M;
         '';
         locations."/" = {
