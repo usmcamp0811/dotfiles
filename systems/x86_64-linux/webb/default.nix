@@ -35,6 +35,16 @@ in
 
     system = {
       boot = enabled;
+      nic-teaming = {
+        enable = true;
+        ip = "10.8.0.127";
+        bondNICs = [
+          "eno1"
+          "eno2"
+          "eno3"
+          "eno4"
+        ];
+      };
       # vpn = enabled;
       zfs = {
         enable = true;
