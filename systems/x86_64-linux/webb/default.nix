@@ -25,6 +25,11 @@ in
     apps = {
     };
 
+    tools = {
+      icehouse = enabled;
+
+    };
+
     # security = {
     #   acme = enabled;
     # };
@@ -36,7 +41,7 @@ in
     system = {
       boot = enabled;
       nic-teaming = {
-        enable = true;
+        enable = false;
         ip = "10.8.0.127";
         bondNICs = [
           "eno1"

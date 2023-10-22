@@ -124,7 +124,7 @@
       };
 
       overlays = with inputs; [
-          icehouse.overlay
+          icehouse.overlays."package/icehouse"
 				  flake.overlays."package/flake"
           nur.overlay
       ];
