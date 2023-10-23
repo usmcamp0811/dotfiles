@@ -14,8 +14,8 @@ in
     # have to force this since we create the db elsewhere
     services.postgresql.enable = lib.mkForce true;
     # open ports for calls
-    networking.firewall.allowedTCPPorts = [ 3478 ];
-    networking.firewall.allowedUDPPorts = [ 3478 ];
+    networking.firewall.allowedTCPPorts = [ 3478 8443 8045 ];
+    networking.firewall.allowedUDPPorts = [ 3478 8443 8045 ];
 
     services.mattermost = {
       enable = true;
@@ -78,38 +78,6 @@ in
       };
     };
 
-    # campground.services.vault-agent.services.mattermost = {
-    #   settings = {
-    #     vault.address = cfg.vault-address;
-    #     auto_auth = {
-    #       method = [{
-    #         type = "approle";
-    #         config = {
-    #           role_id_file_path = cfg.role-id;
-    #           secret_id_file_path = cfg.secret-id;
-    #           remove_secret_id_file_after_reading = false;
-    #         };
-    #       }];
-    #     };
-    #   };
-    #   secrets = {
-    #     file = {
-    #       files = {
-    #         "mattermost.env" = {
-    #           text = ''{{ with secret "${cfg.vault-path}" }}
-    # MM_SQLSETTINGS_DRIVERNAME=postgres
-    # MM_SQLSETTINGS_DATASOURCE=postgres://mmuser@/mattermost?host=/run/postgresql/    
-    # {{ if eq "${cfg.kvVersion}" "v1" }}
-    # {{ else }}
-    # {{ end }}
-    # {{ end }}'';
-    #           permissions = "0600";
-    #           change-action = "restart";
-    #         };
-    #       };
-    #     };
-    #   };
-    # };
 
   };
 }

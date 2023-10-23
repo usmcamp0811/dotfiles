@@ -94,7 +94,6 @@
     icehouse = {
       url = "github:snowfallorg/icehouse";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.unstable.follows = "unstable";
     };
   };
 
