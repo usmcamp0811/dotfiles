@@ -77,11 +77,10 @@ in
         };
       }) cfg.databases;
     };
-
     services.postgresqlBackup = {
-      backupAll = cfg.backupEnable;
       location = cfg.backupLocation;
       startAt = cfg.backupStartAt;
+      databases = map (db: db.name) cfg.databases; 
     };
 
     systemd.services.set-postgres-passwords = {
