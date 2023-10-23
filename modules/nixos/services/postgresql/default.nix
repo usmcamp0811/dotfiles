@@ -78,7 +78,7 @@ in
       }) cfg.databases;
     };
     services.postgresqlBackup = {
-      enable = true;
+      enable = cfg.backupEnable;
       location = cfg.backupLocation;
       startAt = cfg.backupStartAt;
       databases = map (db: db.name) cfg.databases; 
