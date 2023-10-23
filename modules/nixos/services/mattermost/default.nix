@@ -10,12 +10,19 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    # have to force this since we create the db elsewhere
     services.postgresql.enable = lib.mkForce true;
+    # open ports for calls
+    networking.firewall.allowedTCPPorts = [ 3478 ];
+    networking.firewall.allowedUDPPorts = [ 3478 ];
+
     services.mattermost = {
       enable = true;
 
       siteUrl = "https://mattermost.aicampground.com";
       listenAddress = "0.0.0.0:8065";
+      # TODO: Move away from mutable
       mutableConfig = true;
       matterircd = {
         enable = true;
