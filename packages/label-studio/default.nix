@@ -19,42 +19,24 @@ let
 
   uwsgiConfig = writeText "uwsgi.ini" ''
     [uwsgi]
-    chdir = /label-studio/label_studio
+    chdir = ${pkgs.label_studio}/lib/python3.10/site-packages/label_studio
     http = [::]:8000
-    module = server:application
-    master = true
-    cheaper = true
-    single-interpreter = true
-    processes = 4
-    vacuum = true
-    die-on-term = true
-    pidfile = /tmp/%n.pid
-    buffer-size = 65535
-    http-timeout = 300
-    stats = :1717
-    stats-http = true
-    memory-report = true
-    auto-procname = true
-    procname-prefix = ls-
-    need-app = true
-    env = APP_WEBSERVER=uwsgi
-    ignore-sigpipe = true
-    ignore-write-errors = true
-    disable-write-exception = true
-    post-buffering = 4096
-    disable-logging = True
-    log-5xx = true
-    skip-atexit-teardown = True
-    enable-threads = True
-    thunder-lock = True
-    lazy-apps = True
-    reload-on-rss = 1024
-    max-worker-lifetime = 1200
-    max-worker-lifetime-delta = 60
-    harakiri = 91
-    harakiri-verbose = true
-    reload-mercy = 3
-    worker-reload-mercy = 3
+    wsgi-file = ${pkgs.label_studio}/lib/python3.10/site-packages/label_studio/core/wsgi.py
+    callable = application
+    # module = core.wsgi:application
+    # master = true
+    # cheaper = true
+    # single-interpreter = true
+    # log-level = 4
+    # vacuum = true
+    # die-on-term = true
+    # pidfile = /tmp/%n.pid
+    # buffer-size = 65535
+    # http-timeout = 300
+    # stats = :1717
+    # stats-http = true
+    # reload-mercy = 3
+    # worker-reload-mercy = 3
   '';
 
   label-studio = pkgs.stdenv.mkDerivation {
@@ -64,8 +46,11 @@ let
     buildInputs = [ uwsgiWithPython3 ];
 
     installPhase = ''
+      mkdir -p $out/bin
       install -Dm644 ${uwsgiConfig} $out/etc/uwsgi.ini
       echo "#!/bin/sh" > $out/bin/run-label-studio
+      echo "export PATH=${pkgs.label_studio.pyEnv}/bin:$PATH" >> $out/bin/run-label-studio
+      echo "export PYTHONPATH=${pkgs.label_studio.pyEnv}" >> $out/bin/run-label-studio
       echo "${uwsgiWithPython3}/bin/uwsgi --ini $out/etc/uwsgi.ini" >> $out/bin/run-label-studio
       chmod +x $out/bin/run-label-studio
     '';
