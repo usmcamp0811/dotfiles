@@ -29,7 +29,8 @@ in
     services = {
       searx = {
         enable = true;
-        environmentFile = "/tmp/detsys-vault/searx.env";
+        environmentFile = "/var/lib/vault/searx.env";
+        package = pkgs.searxng;
         settings = {
           runInUwsgi = true;
           server.port = cfg.port;
@@ -39,7 +40,21 @@ in
       };
     };
 
-    campground.services.vault-agent.services.searx = {
+    systemd.services.copy-searx-env = {
+      description = "Copy Searx environment variables";
+      serviceConfig = {
+        Type = "oneshot";
+      };
+      script = ''
+        cp /tmp/detsys-vault/searx.env /var/lib/vault/searx.env
+        chmod 600 /var/lib/vault/searx.env
+        chown searx:searx /var/lib/vault/searx.env
+      '';
+      wantedBy = [ "multi-user.target" ];
+      before = [ "searx.service" ];
+    };
+
+    campground.services.vault-agent.services.copy-searx-env = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
