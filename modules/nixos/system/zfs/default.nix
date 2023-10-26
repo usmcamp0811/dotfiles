@@ -9,6 +9,8 @@ in
     enable = mkBoolOpt false "Whether or not to configure zfs.";
     hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
     keyfile-url = mkOpt str "http://key-server:8080/zfs-keyfile" "The URL for the Clevis encrypted Keyfile";
+    snapshot_datasets = mkOpt (lib.listOf str) [] [ "NIXROOT/dataset1" "NIXROOT/dataset2" ] "List of ZFS datasets to snapshot.";
+    public_keys = mkOpt (lib.listOf str) [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler" ] "List of public ssh keys to access the Phase 1 Boot for remote unlocking of ZFS";
   };
 
   config = mkIf cfg.enable {
@@ -36,7 +38,7 @@ in
       ssh = {
         enable = true;
         port = 22;
-        authorizedKeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler" ];
+        authorizedKeys = cfg.public_keys;
         hostKeys = [ "/etc/ssh/ssh_host_rsa_key" "/etc/ssh/ssh_host_ed25519_key" ];
       };
     };
@@ -48,6 +50,24 @@ in
 
     # TODO: Move this somewhere more appropriate or otherwise fix dns
     networking.useDHCP = mkForce true;
+
+    systemd.services.zfs-auto-snapshot = {
+      description = "ZFS auto snapshot service";
+      script = ''
+        #!/bin/sh
+        for ds in ${toString cfg.datasets}; do
+          zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
+        done
+      '';
+      serviceConfig.Type = "oneshot";
+    };
+
+    systemd.timers.zfs-auto-snapshot = {
+      description = "Run ZFS snapshots nightly";
+      wantedBy = [ "timers.target" ];
+      timerConfig.OnCalendar = "daily";
+      timerConfig.Persistent = true;
+    };
   };
 
 }
