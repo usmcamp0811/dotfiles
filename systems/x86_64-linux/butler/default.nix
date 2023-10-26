@@ -115,10 +115,6 @@ in
        "http://ermy:1234" 
       ];
     };
-    searx = {
-      enable = true;
-      port = 8080;
-    };
     ldap-client = enabled;
     # secret-service = enabled;
     cac = {

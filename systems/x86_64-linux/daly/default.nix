@@ -73,6 +73,11 @@ in
   campground.services = {
     ldap-server = enabled;
 
+    searx = {
+      enable = true;
+      port = 8080;
+    };
+
     openvpn = {
       enable = true;
 
