@@ -33,6 +33,7 @@ in
         enable = true;
         hostId = "5ae58e7a";
         keyfile-url = "key-server.lan:1234/zfs-keyfile";
+        snapshot_datasets = [ "NIXROOT/home" "NIXROOT/persist" ];
       };
       # manage local passwd in vault
       passwds = enabled;
