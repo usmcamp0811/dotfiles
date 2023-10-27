@@ -56,7 +56,7 @@ in
       script = ''
         #!/bin/sh
         for ds in ${toString cfg.snapshot_datasets}; do
-          zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
+          ${pkgs.zfs}/bin/zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
         done
       '';
       serviceConfig.Type = "oneshot";
