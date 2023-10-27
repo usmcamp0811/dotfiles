@@ -76,7 +76,7 @@ in
 
     searx = {
       enable = true;
-      port = 8080;
+      port = 8181;
     };
 
     openvpn = {
