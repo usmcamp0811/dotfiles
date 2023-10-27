@@ -9,8 +9,8 @@ in
     enable = mkBoolOpt false "Whether or not to configure zfs.";
     hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
     keyfile-url = mkOpt str "http://key-server:8080/zfs-keyfile" "The URL for the Clevis encrypted Keyfile";
-    snapshot_datasets = mkOpt (lib.listOf str) [] [ "NIXROOT/dataset1" "NIXROOT/dataset2" ] "List of ZFS datasets to snapshot.";
-    public_keys = mkOpt (lib.listOf str) [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler" ] "List of public ssh keys to access the Phase 1 Boot for remote unlocking of ZFS";
+    snapshot_datasets = mkOpt (lib.types.listOf lib.types.str) [] "List of ZFS datasets to snapshot.";
+    public_keys = mkOpt (lib.types.listOf lib.types.str) [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler" ] "List of public ssh keys to access the Phase 1 Boot for remote unlocking of ZFS";
   };
 
   config = mkIf cfg.enable {
@@ -55,7 +55,7 @@ in
       description = "ZFS auto snapshot service";
       script = ''
         #!/bin/sh
-        for ds in ${toString cfg.datasets}; do
+        for ds in ${toString cfg.snapshot_datasets}; do
           zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
         done
       '';
