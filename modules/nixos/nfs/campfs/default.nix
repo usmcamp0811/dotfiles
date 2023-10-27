@@ -15,10 +15,5 @@ in
       fsType = "nfs";
       options = [ "rw" "soft" ];
     };
-    fileSystems."/mnt/webb" = {
-      device = "webb:/webb";
-      fsType = "nfs";
-      options = [ "rw" "soft" ];
-    };
   };
 }

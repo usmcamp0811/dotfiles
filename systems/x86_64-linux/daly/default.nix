@@ -32,6 +32,7 @@ in
 
     nfs = {
       campfs = enabled;
+      webb = enabled;
     };
 
     system = {

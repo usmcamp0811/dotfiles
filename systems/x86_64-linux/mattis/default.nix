@@ -39,6 +39,11 @@ in
       passwds = enabled;
     };
 
+    nfs = {
+      campfs = enabled;
+      webb = enabled;
+    };
+
     hardware.audio = {
     };
 
