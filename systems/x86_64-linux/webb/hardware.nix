@@ -34,12 +34,12 @@
     };
 
   fileSystems."/webb" =
-    { device = "NIXROOT/webb";
+    { device = "NIXROOT/persist/webb";
       fsType = "zfs";
     };
 
   fileSystems."/k8s" =
-    { device = "NIXROOT/kubernetes-data";
+    { device = "NIXROOT/persist/kubernetes-data";
       fsType = "zfs";
     };
 
