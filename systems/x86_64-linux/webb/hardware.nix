@@ -48,7 +48,7 @@
       fsType = "zfs";
     };
 
-  fileSystems."/webb/photos" =
+  fileSystems."/webb/media/photos" =
     { device = "NIXROOT/persist/photos";
       fsType = "zfs";
     };

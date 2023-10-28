@@ -55,8 +55,19 @@ in
       description = "ZFS auto snapshot service";
       script = ''
         #!/bin/sh
-        for ds in ${toString cfg.snapshot_datasets}; do
-          ${pkgs.zfs}/bin/zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
+        for pattern in ${toString cfg.snapshot_datasets}; do
+          # Check if the pattern ends with /*
+          if echo "$pattern" | grep -qE "/\*$"; then
+            # Remove the /* from the end
+            base_ds=$(echo "$pattern" | sed 's/\/\*$//')
+            # List datasets that match the pattern
+            datasets=$(${pkgs.zfs}/bin/zfs list -o name -H | grep "^$base_ds/")
+          else
+            datasets=$pattern
+          fi
+          for ds in $datasets; do
+            ${pkgs.zfs}/bin/zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
+          done
         done
       '';
       serviceConfig.Type = "oneshot";
