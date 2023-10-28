@@ -31,7 +31,7 @@ in
     };
 
     services.nginx = {
-      virtualHosts."0.0.0.0" = {
+      virtualHosts."vaultwarden.lan" = {
         # useACMEHost = "thalheim.io";
         # forceSSL = true;
         extraConfig = ''

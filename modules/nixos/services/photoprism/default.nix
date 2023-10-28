@@ -8,7 +8,7 @@ in
   options.campground.services.photoprism = with types; {
     enable = mkBoolOpt false "Enable Photoprisim;";
     originalsPath = mkOpt str "" "Path to store original photos";
-    port = mkOpt str "2342" "Port to expose Photoprism on";
+    port = mkOpt int 2342 "Port to expose Photoprism on";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
@@ -47,29 +47,50 @@ in
 
     services.nginx = {
       enable = true;
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
-      recommendedProxySettings = true;
-      clientMaxBodySize = "500m";
+      # recommendedTlsSettings = true;
+      # recommendedOptimisation = true;
+      # recommendedGzipSettings = true;
+      # recommendedProxySettings = true;
+      # clientMaxBodySize = "500m";
       virtualHosts = {
-        "photoprisim.lan" = {
-          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];
-          forceSSL = true;
-          enableACME = true;
+        "photoprism.lan" = {
+          # listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];
           http2 = true;
           locations."/" = {
             proxyPass = "http://127.0.0.1:2342";
             proxyWebsockets = true;
-            extraConfig = ''
-              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header Host $host;
-              proxy_buffering off;
-              proxy_http_version 1.1;
-            '';
+            # extraConfig = ''
+            #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            #   proxy_set_header Host $host;
+            #   proxy_buffering off;
+            #   proxy_http_version 1.1;
+            # '';
           };
         };
       };
+    };
+
+    users.users.photoprism = {
+      isNormalUser = false;
+      isSystemUser = true;
+      description = "Photoprism user";
+      group = "photoprism";
+      extraGroups = [ "photoprism" ]; # Optional if you want the user to be in additional groups
+    };
+
+    users.groups.photoprism = {};
+
+    systemd.services.photoprismPasswordFile = {
+      description = "Create Photoprism environment file";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";  # Use the root user to create the folder and set permissions
+        ExecStartPre = "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
+        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/photoprism.pass /var/lib/vault/photoprism.pass";
+        ExecStartPost = "${pkgs.coreutils}/bin/chown photoprism:photoprism /var/lib/vault/photoprism.pass"; # Change file ownership to vaultwarden
+      };
+      wantedBy = [ "multi-user.target" ];
+      before = [ "photoprism.service" ];
     };
 
     services.photoprism = {
@@ -77,7 +98,7 @@ in
       port = 2342;
       originalsPath = "/var/lib/private/photoprism/originals";
       address = "127.0.0.1";
-      passwordFile = "/tmp/detsys-vault/photoprism.pass";
+      passwordFile = "/var/lib/vault/photoprism.pass";
       settings = {
         PHOTOPRISM_ADMIN_USER = "admin";
         PHOTOPRISM_DEFAULT_LOCALE = "en";
@@ -90,7 +111,7 @@ in
       };
     };
 
-    campground.services.vault-agent.services.photoprisim = {
+    campground.services.vault-agent.services.photoprismPasswordFile = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
