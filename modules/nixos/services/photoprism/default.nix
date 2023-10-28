@@ -2,10 +2,10 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.photoprisim;
+  cfg = config.campground.services.photoprism;
 in
 {
-  options.campground.services.photoprisim = with types; {
+  options.campground.services.photoprism = with types; {
     enable = mkBoolOpt false "Enable Photoprisim;";
     originalsPath = mkOpt str "" "Path to store original photos";
     port = mkOpt str "2342" "Port to expose Photoprism on";

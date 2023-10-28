@@ -47,6 +47,7 @@ in
       };
       photoprism = {
         enable = true;
+        originalsPath = "/webb/media/photos";
       };
       postgresql = {
         enable = true;
