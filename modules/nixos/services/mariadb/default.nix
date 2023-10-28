@@ -41,17 +41,6 @@ in
 
     package = mkOpt package pkgs.mysql "What MySQL to use";
     enableTCPIP = mkBoolOpt false "Enable TCP access";
-    authentication = mkOption {
-      type = str;
-      default = ''
-        # Allow only local connections for the root user
-        local all root trust 
-        # Deny other remote connections
-        host  all  all  0.0.0.0/0  reject
-        host  all  all  ::0/0  reject
-      '';
-      description = "Authentication settings for MySQL";
-    };
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
     backupEnable = mkBoolOpt false "Enable backups";
     backupLocation = mkOpt str "/persist/db-backups/" "Place to store backups";
@@ -64,7 +53,6 @@ in
       enable = true;
       package = cfg.package;
       enableTCPIP = cfg.enableTCPIP;
-      authentication = cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers = map (db: {
         name = db.user;
@@ -81,47 +69,47 @@ in
       databases = map (db: db.name) cfg.databases; 
     };
 
-    systemd.services.set-mysql-passwords = {
-      description = "Set MySQL user passwords";
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.mysql}/bin/mysql -f /tmp/detsys-vault/set-passwords.sql";
-        User = "mysql";
-      };
-      after = [ "mysql.service" ];
-      wantedBy = [ "multi-user.target" ];
-      preStart = "echo 'Preparing to set MySQL passwords'";
-    };
+    # systemd.services.set-mysql-passwords = {
+    #   description = "Set MySQL user passwords";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     ExecStart = "${pkgs.mysql}/bin/mysql -f /tmp/detsys-vault/set-passwords.sql";
+    #     User = "mysql";
+    #   };
+    #   after = [ "mysql.service" ];
+    #   wantedBy = [ "multi-user.target" ];
+    #   preStart = "echo 'Preparing to set MySQL passwords'";
+    # };
 
-    campground.services.vault-agent.services.set-mysql-passwords = {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
-        };
-      };
-      secrets = {
-        file = {
-          files = {
-            "set-passwords.sql" = {
-              text = builtins.concatStringsSep "\n" (map (db: ''
-                {{ with secret "${cfg.vault-path}" }}
-                SET PASSWORD FOR '${db.user}'@'localhost' = PASSWORD('{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${db.user} }}{{ else }}{{ .Data.data.${db.user} }}{{ end }}');
-                {{ end }}
-              '') cfg.databases);
-              permissions = "0600";
-              change-action = "restart";
-            };
-          };
-        };
-      };
-    };
+    # campground.services.vault-agent.services.set-mysql-passwords = {
+    #   settings = {
+    #     vault.address = cfg.vault-address;
+    #     auto_auth = {
+    #       method = [{
+    #         type = "approle";
+    #         config = {
+    #           role_id_file_path = cfg.role-id;
+    #           secret_id_file_path = cfg.secret-id;
+    #           remove_secret_id_file_after_reading = false;
+    #         };
+    #       }];
+    #     };
+    #   };
+    #   secrets = {
+    #     file = {
+    #       files = {
+    #         "set-passwords.sql" = {
+    #           text = builtins.concatStringsSep "\n" (map (db: ''
+    #             {{ with secret "${cfg.vault-path}" }}
+    #             SET PASSWORD FOR '${db.user}'@'localhost' = PASSWORD('{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${db.user} }}{{ else }}{{ .Data.data.${db.user} }}{{ end }}');
+    #             {{ end }}
+    #           '') cfg.databases);
+    #           permissions = "0600";
+    #           change-action = "restart";
+    #         };
+    #       };
+    #     };
+    #   };
+    # };
   };
 }
