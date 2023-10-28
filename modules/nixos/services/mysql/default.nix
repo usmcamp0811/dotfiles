@@ -52,7 +52,6 @@ in
     services.mysql = {
       enable = true;
       package = cfg.package;
-      # enableTCPIP = cfg.enableTCPIP;
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers = map (db: {
         name = db.user;
@@ -65,7 +64,6 @@ in
     services.mysqlBackup = {
       enable = cfg.backupEnable;
       location = cfg.backupLocation;
-      # startAt = cfg.backupStartAt;
       databases = map (db: db.name) cfg.databases; 
     };
 
