@@ -9,6 +9,20 @@ in
     enable = mkBoolOpt false "Enable Photoprisim;";
     originalsPath = mkOpt str "" "Path to store original photos";
     port = mkOpt str "2342" "Port to expose Photoprism on";
+
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/photoprism" "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {

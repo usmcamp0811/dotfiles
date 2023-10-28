@@ -45,6 +45,9 @@ in
       mysql = {
         backupLocation = "/persist/mysqlBackups/";
       };
+      photoprism = {
+        enable = true;
+      };
       postgresql = {
         enable = true;
         enableTCPIP = true;
