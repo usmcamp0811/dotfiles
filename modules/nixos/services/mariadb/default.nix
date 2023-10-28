@@ -40,7 +40,7 @@ in
     };
 
     package = mkOpt package pkgs.mysql "What MySQL to use";
-    enableTCPIP = mkBoolOpt false "Enable TCP access";
+    # enableTCPIP = mkBoolOpt false "Enable TCP access";
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
     backupEnable = mkBoolOpt false "Enable backups";
     backupLocation = mkOpt str "/persist/db-backups/" "Place to store backups";
@@ -52,7 +52,7 @@ in
     services.mysql = {
       enable = true;
       package = cfg.package;
-      enableTCPIP = cfg.enableTCPIP;
+      # enableTCPIP = cfg.enableTCPIP;
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers = map (db: {
         name = db.user;
@@ -65,7 +65,7 @@ in
     services.mysqlBackup = {
       enable = cfg.backupEnable;
       location = cfg.backupLocation;
-      startAt = cfg.backupStartAt;
+      # startAt = cfg.backupStartAt;
       databases = map (db: db.name) cfg.databases; 
     };
 
@@ -105,7 +105,7 @@ in
     #             {{ end }}
     #           '') cfg.databases);
     #           permissions = "0600";
-    #           change-action = "restart";
+              # change-action = "restart";
     #         };
     #       };
     #     };
