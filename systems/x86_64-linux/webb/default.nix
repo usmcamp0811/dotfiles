@@ -25,7 +25,6 @@ in
         enable = true;
         hostId = "119db424";
         keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
-        snapshot_datasets = [ "NIXROOT/home" "NIXROOT/persist/*" ];
       };
       passwds = enabled;
     };
