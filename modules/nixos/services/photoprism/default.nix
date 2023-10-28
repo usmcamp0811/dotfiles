@@ -1,0 +1,108 @@
+{ lib, config, pkgs, ... }:
+with lib;
+with lib.campground;
+let
+  cfg = config.campground.services.photoprisim;
+in
+{
+  options.campground.services.photoprisim = with types; {
+    enable = mkBoolOpt false "Enable Photoprisim;";
+    originalsPath = mkOpt str "" "Path to store original photos";
+    port = mkOpt str "2342" "Port to expose Photoprism on";
+  };
+
+  config = mkIf cfg.enable {
+
+    fileSystems = if cfg.originalsPath != "" then {
+      "/var/lib/private/photoprism/originals" = {
+        device = cfg.originalsPath;
+        options = [ "bind" ];
+      };
+    } else {};
+
+
+    campground.services.mysql = {
+      enable = true;
+      databases = [
+        { 
+          name = "photoprism"; 
+          user = "photoprism"; 
+        } 
+      ];
+    };
+
+    services.nginx = {
+      enable = true;
+      recommendedTlsSettings = true;
+      recommendedOptimisation = true;
+      recommendedGzipSettings = true;
+      recommendedProxySettings = true;
+      clientMaxBodySize = "500m";
+      virtualHosts = {
+        "photoprisim.lan" = {
+          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];
+          forceSSL = true;
+          enableACME = true;
+          http2 = true;
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:2342";
+            proxyWebsockets = true;
+            extraConfig = ''
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header Host $host;
+              proxy_buffering off;
+              proxy_http_version 1.1;
+            '';
+          };
+        };
+      };
+    };
+
+    services.photoprism = {
+      enable = true;
+      port = 2342;
+      originalsPath = "/var/lib/private/photoprism/originals";
+      address = "127.0.0.1";
+      passwordFile = "/tmp/detsys-vault/photoprism.pass";
+      settings = {
+        PHOTOPRISM_ADMIN_USER = "admin";
+        PHOTOPRISM_DEFAULT_LOCALE = "en";
+        PHOTOPRISM_DATABASE_DRIVER = "mysql";
+        PHOTOPRISM_DATABASE_NAME = "photoprism";
+        PHOTOPRISM_DATABASE_SERVER = "/run/mysqld/mysqld.sock";
+        PHOTOPRISM_DATABASE_USER = "photoprism";
+        PHOTOPRISM_SITE_URL = "https://photos.aicampground.com";
+        PHOTOPRISM_SITE_TITLE = "Campground Photos";
+      };
+    };
+
+    campground.services.vault-agent.services.photoprisim = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = {
+            "photoprism.pass" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}{{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+          };
+        };
+      };
+    };
+  };
+}

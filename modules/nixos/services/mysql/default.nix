@@ -39,7 +39,7 @@ in
       description = "Databases to initialize, along with a privileged user for each.";
     };
 
-    package = mkOpt package pkgs.mysql "What MySQL to use";
+    package = mkOpt package pkgs.mariadb "What MySQL to use";
     # enableTCPIP = mkBoolOpt false "Enable TCP access";
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
     backupEnable = mkBoolOpt false "Enable backups";
