@@ -116,4 +116,12 @@ in
                 SET PASSWORD FOR '${db.user}'@'localhost' = PASSWORD('{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${db.user} }}{{ else }}{{ .Data.data.${db.user} }}{{ end }}');
                 {{ end }}
               '') cfg.databases);
-             
+              permissions = "0600";
+              change-action = "restart";
+            };
+          };
+        };
+      };
+    };
+  };
+}
