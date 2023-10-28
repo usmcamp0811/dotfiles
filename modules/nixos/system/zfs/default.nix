@@ -51,34 +51,38 @@ in
     # TODO: Move this somewhere more appropriate or otherwise fix dns
     networking.useDHCP = mkForce true;
 
-    systemd.services.zfs-auto-snapshot = {
-      description = "ZFS auto snapshot service";
-      script = ''
-        #!/bin/sh
-        for pattern in ${toString cfg.snapshot_datasets}; do
-          # Check if the pattern ends with /*
-          if echo "$pattern" | grep -qE "/\*$"; then
-            # Remove the /* from the end
-            base_ds=$(echo "$pattern" | sed 's/\/\*$//')
-            # List datasets that match the pattern
-            datasets=$(${pkgs.zfs}/bin/zfs list -o name -H | grep "^$base_ds/")
-          else
-            datasets=$pattern
-          fi
-          for ds in $datasets; do
-            ${pkgs.zfs}/bin/zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
-          done
-        done
-      '';
-      serviceConfig.Type = "oneshot";
+    services.zfs.autoSnapshot = {
+      enable = true;
     };
 
-    systemd.timers.zfs-auto-snapshot = {
-      description = "Run ZFS snapshots nightly";
-      wantedBy = [ "timers.target" ];
-      timerConfig.OnCalendar = "daily";
-      timerConfig.Persistent = true;
-    };
+    # systemd.services.zfs-auto-snapshot = {
+    #   description = "ZFS auto snapshot service";
+    #   script = ''
+    #     #!/bin/sh
+    #     for pattern in ${toString cfg.snapshot_datasets}; do
+    #       # Check if the pattern ends with /*
+    #       if echo "$pattern" | grep -qE "/\*$"; then
+    #         # Remove the /* from the end
+    #         base_ds=$(echo "$pattern" | sed 's/\/\*$//')
+    #         # List datasets that match the pattern
+    #         datasets=$(${pkgs.zfs}/bin/zfs list -o name -H | grep "^$base_ds/")
+    #       else
+    #         datasets=$pattern
+    #       fi
+    #       for ds in $datasets; do
+    #         ${pkgs.zfs}/bin/zfs snapshot "$ds@$(date '+%Y%m%d%H%M%S')"
+    #       done
+    #     done
+    #   '';
+    #   serviceConfig.Type = "oneshot";
+    # };
+
+    # systemd.timers.zfs-auto-snapshot = {
+    #   description = "Run ZFS snapshots nightly";
+    #   wantedBy = [ "timers.target" ];
+    #   timerConfig.OnCalendar = "daily";
+    #   timerConfig.Persistent = true;
+    # };
   };
 
 }
