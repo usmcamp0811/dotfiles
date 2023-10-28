@@ -43,6 +43,11 @@
       fsType = "zfs";
     };
 
+  fileSystems."/var/lib/mattermost" =
+    { device = "NIXROOT/persist/mattermost-data";
+      fsType = "zfs";
+    };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
