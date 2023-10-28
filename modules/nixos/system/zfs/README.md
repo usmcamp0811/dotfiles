@@ -63,3 +63,15 @@ ssh -p 2222 root@host "zpool import -a; zfs load-key -a && killall zfs"
 ```
 
 This provides a secure ZFS root partition with options for both manual and automated unlocking.
+
+## Auto Snapshot
+
+Auto Snapshot is enabled automatically with this module but does nothing till you turn it on per dataset.
+The default number of snapshots will be retained.
+
+Per dataset you want to snapshot:
+
+```
+ sudo zfs set com.sun:auto-snapshot=true <dataset name>
+```
+
