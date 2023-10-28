@@ -54,7 +54,7 @@ in
     };
 
     nfs = {
-      campfs = enabled;
+      # campfs = enabled;
       webb = enabled;
     };
 

@@ -15,10 +15,5 @@ in
       fsType = "nfs";
       options = [ "rw" "soft" ];
     };
-    fileSystems."/mnt/k8s" = {
-      device = "webb:/k8s";
-      fsType = "nfs";
-      options = [ "rw" "soft" ];
-    };
   };
 }
