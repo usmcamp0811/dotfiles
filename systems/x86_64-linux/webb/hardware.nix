@@ -48,6 +48,11 @@
       fsType = "zfs";
     };
 
+  fileSystems."/webb/photos" =
+    { device = "NIXROOT/persist/photos";
+      fsType = "zfs";
+    };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
