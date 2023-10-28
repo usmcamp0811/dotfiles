@@ -42,6 +42,9 @@ in
       #   enable = true;
       # };
       mattermost = enabled;
+      mysql = {
+        backupLocation = "/persist/mysqlBackups/";
+      };
       postgresql = {
         enable = true;
         enableTCPIP = true;
