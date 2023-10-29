@@ -1,13 +1,10 @@
 import pandas as pd
 import os
 import json
+import sys
 from tabulate import tabulate
 
-# Your JSON string
-file_path = os.path.expanduser('~/test.json')
-# Load JSON into a dictionary
-with open(file_path, 'r') as file:
-    data_dict = json.load(file)
+data_dict = json.load(sys.stdin)
 
 # Prepare a list of unique paths
 all_paths = set()
@@ -59,4 +56,3 @@ table_str = tabulate(df_colored, headers='keys', tablefmt='pretty', showindex=Tr
 
 # Print the colored table to terminal
 print(table_str)
-# df.to_csv('output.csv')  # Uncomment this line to save to a CSV file

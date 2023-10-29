@@ -8,6 +8,8 @@
 with lib;
 with lib.campground;
 let 
+
+
   checkVaultPath = pkgs.writeShellScriptBin "check-vault-path" ''
     full_path="$1"
 
@@ -36,26 +38,6 @@ let
 
     exit 1
   '';
-  # checkVaultPath = pkgs.writeShellScriptBin "check-vault-path" ''
-  #   full_path="$1"
-  #
-  #   # Check for PKI engines
-  #   if [[ "$full_path" == *"/issue/"* ]]; then
-  #     engine_path=$(echo "$full_path" | awk -F '/issue/' '{print $1}')
-  #     role=$(echo "$full_path" | awk -F '/issue/' '{print $2}')
-  #     
-  #     if vault read -format=json "$engine_path/roles/$role" > /dev/null 2>&1; then
-  #       exit 0
-  #     fi
-  #   else
-  #     if vault kv get $1 > /dev/null 2>&1; then
-  #       exit 0
-  #     fi
-  #   fi
-  #
-  #   exit 1
-  # '';
-  # test = builtins.toJSON (findVaultPaths 8 config.campground);
   getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
     # Create empty JSON object
     outputJson="{}"
@@ -117,6 +99,18 @@ let
     overrides = p2n-overrides;
     preferWheels = true;
   };
+
+  vault-table_py = pkgs.writeText "vault-table.py" (builtins.readFile ./vault-table.py);
+  vault-report = pkgs.stdenv.mkDerivation {
+    name = "vault-report";
+    src = ./.;  # Copy the entire project directory into the Nix store
+    installPhase = ''
+      mkdir -p $out
+      cp -r ./* $out/
+      echo "${devshell-python}/bin/python3 ${vault-table_py}" > $out/vault-report
+      chmod +x $out/vault-report
+    '';
+  };
 in
 mkShell {
   buildInputs = [
@@ -133,6 +127,7 @@ mkShell {
     getVaultPaths
     checkVaultPath
     devshell-python
+    vault-report
   ];
 
   shellHook = ''
