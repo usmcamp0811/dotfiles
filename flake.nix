@@ -105,6 +105,9 @@
       url = "github:snowfallorg/icehouse";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    poetry2nix.url = "github:nix-community/poetry2nix";
+
   };
 
   outputs = inputs:

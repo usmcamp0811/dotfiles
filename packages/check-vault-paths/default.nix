@@ -12,9 +12,9 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  pname = "simple-flask-app";
+  pname = "vault-report";
 
-  description = "A Simple Flask App";
+  description = "A thing to check Vault to see if all the paths in the Flake are good";
 
   version = "1.0.0";
 
@@ -107,23 +107,30 @@ let
     overrides = p2n-overrides;
     preferWheels = true;
   };
-
-  vault-table_py = pkgs.writeText "vault-table.py" (builtins.readFile ./vault-table.py);
-  vault-report = pkgs.stdenv.mkDerivation {
-    name = "vault-report";
+  thisProject = pkgs.stdenv.mkDerivation {
+    name = "boat_models";
     src = ./.;  # Copy the entire project directory into the Nix store
     installPhase = ''
       mkdir -p $out
       cp -r ./* $out/
-      echo "${devshell-python}/bin/python3 ${devshell-python}/vault-table.py" > $out/vault-report
-      chmod +x $out/vault-report
     '';
-
+  };
+  vault-report = pkgs.stdenv.mkDerivation {
+    name = "vault-report";
+    src = ./.;  # Copy the entire project directory into the Nix store
+    installPhase = ''
+      mkdir -p $out/bin
+      cp -r ./* $out/
+      cp ${getVaultPaths}/bin/get-vault-paths $out/bin
+      echo "#!/usr/bin/env sh" > $out/bin/vault-report
+      echo "${devshell-python}/bin/python3 ${thisProject}/vault-table.py" >> $out/bin/vault-report
+      chmod +x $out/bin/vault-report
+    '';
+};
   new-meta = with lib; {
-    description = "A Simple Flask App";
+    description = "A thing to check Vault to see if all the paths in the Flake are good";
     license = licenses.mit;
     maintainers = with maintainers; [ mattcamp ];
   };
-
 in
-override-meta new-meta example-flask-app
+override-meta new-meta vault-report
