@@ -47,24 +47,12 @@ in
 
     services.nginx = {
       enable = true;
-      # recommendedTlsSettings = true;
-      # recommendedOptimisation = true;
-      # recommendedGzipSettings = true;
-      # recommendedProxySettings = true;
-      # clientMaxBodySize = "500m";
       virtualHosts = {
         "photoprism.lan" = {
-          # listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];
           http2 = true;
           locations."/" = {
             proxyPass = "http://127.0.0.1:2342";
             proxyWebsockets = true;
-            # extraConfig = ''
-            #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            #   proxy_set_header Host $host;
-            #   proxy_buffering off;
-            #   proxy_http_version 1.1;
-            # '';
           };
         };
       };
