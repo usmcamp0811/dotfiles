@@ -77,7 +77,7 @@ with lib; rec {
             in
               if res.success then
                 if isAttrs res.value then acc ++ (tryRecurse res.value)
-                else if key == "vault-path" then acc ++ [res.value]
+                else if key == "vault-path" && cfg.enable or false then acc ++ [res.value]
                 else acc
               else acc
           ) [] (builtins.attrNames cfg)
