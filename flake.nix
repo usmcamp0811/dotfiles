@@ -15,6 +15,16 @@
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
     # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
+    # Binary Cache
+    attic = {
+      url = "github:zhaofengli/attic";
+
+      # @FIXME(jakehamilton): A specific version of Rust is needed right now or
+      # the build fails. Re-enable this after some time has passed.
+      inputs.nixpkgs.follows = "unstable";
+      # inputs.nixpkgs-stable.follows = "nixpkgs";
+    };
+
     # Snowfall Lib
     snowfall-lib.url = "github:snowfallorg/lib";
     # snowfall-lib.url = "path:/home/mcamp/code/lib";
@@ -125,6 +135,7 @@
       overlays = with inputs; [
           icehouse.overlays."package/icehouse"
 				  flake.overlays."package/flake"
+          attic.overlays.default
           nur.overlay
       ];
 
