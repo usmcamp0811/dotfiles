@@ -1,17 +1,16 @@
-# Vault Path Checker
+# **Vault Path Checker**
 
-If you try to run this flake and are don't have Vault setup with the correct KV engines
-the flake might take a long time to fail and it might not be super clear what is wrong.
-I made this so that you can just quickly check the table this package outputs to see
-if you missed any `vault-path`. This is still very much a work in progress. It currently
-requires you to run it from the root of the Flake. 
+**Overview:**
+The Vault Path Checker is a diagnostic tool designed for the Nix Flake ecosystem. If you're working with Vault and encounter long delays or unclear error messages, this tool helps you quickly inspect whether you've configured the correct KV engines. By producing an insightful table output, you can instantly identify any missing `vault-path`.
+
+**Usage:**
 
 ```bash
 nix build .\#check-vault-paths
 ./result/bin/check-vault-paths
 ```
 
-This should output a table that looks like this:
+The expected output table format:
 
 ```
 +-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
@@ -35,22 +34,15 @@ This should output a table that looks like this:
 +-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
 ```
 
+## **Mechanism**
 
-## How it works
+1. **Nix Function (`findVaultPaths`)**: This function delves recursively into all modules to identify `vault-path` attributes. When a module is activated, it returns the corresponding `vault-path`.
+2. **Shell Scripts**: Composed in Nix, these scripts process the output of the aforementioned Nix function, converting it into a structured JSON format—grouped by system.
+3. **Python Script**: This script transforms the JSON data into a visually appealing table for easier inspection.
 
-- Basically I have a Nix function (`findVaultPaths`) that I added that recursively scans all the modules to find `vault-path` attributes.
-It then returns the `vault-path` if the module is enabled. 
-- Then there is 2 shell scripts that are written in Nix that get used to turn the output of the Nix function into a `json` grouped by 
-system.
-- Finally there is a Python script that turns the `json` into a nice pretty table. 
+## **Known Issues & Future Enhancements**
 
-
-## Bugs / TODOs
-
-- I need to figure out how to not return the `user-secrets` `vault-path` with out the user name appended to it. This is harder than 
-it should be. This is due to using a Nix function to get most of the work done and my ignorance with Nix loops.
-- The thing takes too long to run. I do some recursive looping over `campground` to find all the modules that contain `vault-path` 
-so that I don't have to hard code anything and forget to update it. 
-- Want to add an argument to the script so I can pass a single host name and it will only do the table for that host(s). 
-
+- **Vault-Path Handling**: Currently, the tool returns the `user-secrets` `vault-path` without appending the username. Given Nix's intricacies and the nature of our implementation, rectifying this is a bit challenging.
+- **Performance**: The tool's execution time is longer than desired due to the recursive looping over `campground` to detect all modules containing `vault-path`. The goal is to automate the process without resorting to manual updates.
+- **Feature Request**: In future versions, we aim to introduce an argument to the script, enabling users to input a specific host name. This would tailor the table output for that specific host.
 
