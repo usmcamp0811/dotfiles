@@ -10,10 +10,12 @@ in
   };
 
   config = mkIf cfg.enable {
-    # services.bluetooth.enable = true;
+    services.blueman.enable = true;
+    hardware.bluetooth.enable = true;
+    hardware.bluetooth.powerOnBoot = true;
 
-    #environment.systemPackages = with pkgs; [
-      #blueman
-    #];
+    environment.systemPackages = with pkgs; [
+      blueman
+    ];
   };
 }
