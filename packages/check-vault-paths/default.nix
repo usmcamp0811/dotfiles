@@ -41,6 +41,8 @@ let
         exit 0
       elif vault kv get $1 > /dev/null 2>&1; then
         exit 0
+      elif vault kv list $1/ > /dev/null 2>&1; then
+        exit 0
       fi
     fi
 
