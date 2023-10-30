@@ -13,27 +13,7 @@ vault login
 
 The expected output table format:
 
-```
-+-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
-|                                         | alex | ata-nuc | ata-xps | ata-xps-mboterf | aws-test | butler | daly | mattis | webb |
-+-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
-|           boterfhome_v1/wifi            |  -   |    -    |    -    |        X        |    -     |   -    |  -   |   -    |  -   |
-|  campground-pki/issue/vpn-client-role   |  -   |    -    |    -    |        -        |    -     |   ✓    |  ✓   |   -    |  -   |
-|  campground-pki/issue/vpn-server-role   |  -   |    -    |    -    |        -        |    -     |   -    |  ✓   |   -    |  -   |
-|    secret/campground/database-users     |  -   |    -    |    -    |        -        |    -     |   -    |  -   |   ✓    |  ✓   |
-|          secret/campground/k0s          |  -   |    -    |    ✓    |        -        |    -     |   -    |  ✓   |   ✓    |  ✓   |
-|          secret/campground/k8s          |  -   |    ✓    |    -    |        -        |    -     |   ✓    |  -   |   -    |  -   |
-|         secret/campground/ldap          |  -   |    ✓    |    ✓    |        -        |    -     |   ✓    |  ✓   |   ✓    |  ✓   |
-| secret/campground/local-users-passwords |  -   |    ✓    |    ✓    |        -        |    -     |   ✓    |  ✓   |   ✓    |  ✓   |
-|      secret/campground/photoprism       |  -   |    -    |    -    |        -        |    -     |   -    |  -   |   -    |  ✓   |
-|         secret/campground/searx         |  -   |    -    |    -    |        -        |    -     |   -    |  ✓   |   -    |  -   |
-|         secret/campground/users         |  -   |    X    |    X    |        -        |    -     |   X    |  X   |   X    |  X   |
-|      secret/campground/users/mcamp      |  -   |    ✓    |    ✓    |        -        |    -     |   ✓    |  ✓   |   ✓    |  ✓   |
-|      secret/campground/vaultwarden      |  -   |    -    |    -    |        -        |    -     |   -    |  -   |   ✓    |  ✓   |
-|         secret/campground/wifi          |  -   |    -    |    -    |        -        |    -     |   ✓    |  -   |   -    |  -   |
-|          secret/campground/zfs          |  -   |    -    |    ✓    |        -        |    -     |   -    |  ✓   |   ✓    |  ✓   |
-+-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
-```
+![Script Output](table.png)
 
 ## **Mechanism**
 
