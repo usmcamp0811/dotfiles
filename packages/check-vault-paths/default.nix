@@ -12,7 +12,7 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  pname = "check-vault-path";
+  pname = "vault-report";
 
   description = "A thing to check Vault to see if all the paths in the Flake are good";
 
@@ -109,7 +109,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
   };
   thisProject = pkgs.stdenv.mkDerivation {
     name = "CampgroundDotfiles";
-    src = ../.;  # Copy the entire project directory into the Nix store
+    src = ./.;  # Copy the entire project directory into the Nix store
     installPhase = ''
       mkdir -p $out
       cp -r ./* $out/

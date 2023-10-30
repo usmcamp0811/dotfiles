@@ -1,91 +1,56 @@
-# Simple Flask App with Nix and uWSGI
+# Vault Path Checker
 
-## Overview
+If you try to run this flake and are don't have Vault setup with the correct KV engines
+the flake might take a long time to fail and it might not be super clear what is wrong.
+I made this so that you can just quickly check the table this package outputs to see
+if you missed any `vault-path`. This is still very much a work in progress. It currently
+requires you to run it from the root of the Flake. 
 
-This repository provides a template for deploying a Flask application using Nix and uWSGI. It's designed for Python developers familiar with Flask but new to Nix.
-
-## Prerequisites
-
-- Nix package manager
-- Basic understanding of Flask
-
-## How it Works
-
-### Nix Package
-
-The `default.nix` file defines a Nix package for the Flask application. It specifies all the dependencies and configurations needed to run the app.
-
-- `uwsgiWithPython3`: uWSGI server with Python 3 plugin.
-- `pythonWithFlask`: Python environment with Flask installed.
-- `example-flask-app`: The Flask app itself.
-
-### uWSGI
-
-uWSGI is used to serve the Flask application. It is a WSGI server that communicates with web servers like Nginx and serves Python applications. The `uwsgi.ini` file contains uWSGI configurations such as:
-
-- Socket to bind to: `:8081`
-- HTTP access: `:8080`
-- Number of processes: `4`
-- Number of threads: `2`
-
-This setup allows you to access the application both via a socket and HTTP, providing flexibility for different deployment scenarios.
-
-### Dev Shell
-
-A development shell is provided with various Nix utilities and the Flask app as build inputs. The `shellHook` script prints a welcome message and provides two commands:
-
-- `run-flask-app`: Starts the Flask app using uWSGI.
-- `dev-flask-app`: Runs the Flask development server.
-
-## Getting Started
-
-1. Navigate to the `./packages` directory.
-2. Create a new directory with the name of your Flask app.
-3. Inside this new directory, create a `default.nix` file similar to the one provided, but customized for your app.
-
-### Modifying the Dev Shell
-
-1. Navifate to the `./shells` directory.
-2. Create a new directory with the name of your Flask app.
-3. Inside this new directory, create a `default.nix` file that looks like the below.
-
-```nix
-{ mkShell
-, pkgs
-, ...
-}:
-mkShell {
-  buildInputs = with pkgs; [
-    deadnix
-    hydra-check
-    nix-diff
-    nix-index
-    nix-prefetch-git
-    nixpkgs-fmt
-    nixpkgs-hammering
-    nixpkgs-lint
-    snowfallorg.flake
-    statix
-    campground.<your-flask-app-name> # same as ./packages/<your-flask-app-name>
-  ];
-
-shellHook = ''
-  echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
-  echo -e "\e[32m|🏕️  Welcome to the Campground                              |\e[0m"
-  echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
-  echo -e "\e[34m| run-flask-app  \e[0m - \e[37mTo start Flask with uWSGI               |\e[0m"
-  echo -e "\e[34m| dev-flask-app  \e[0m - \e[37mTo run the Flask dev server.            |\e[0m"
-  echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
-
-  # Additional setup can go here
-'';
-}
+```bash
+nix build .\#check-vault-paths
+./result/bin/check-vault-paths
 ```
 
-## Example Directory Structure
+This should output a table that looks like this:
 
 ```
-./packages/
-└── your-flask-app/
-    └── default.nix
++-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
+|                                         | alex | ata-nuc | ata-xps | ata-xps-mboterf | aws-test | butler | daly | mattis | webb |
++-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
+|           boterfhome_v1/wifi            |  -   |    -    |    -    |        X        |    -     |   -    |  -   |   -    |  -   |
+|  campground-pki/issue/vpn-client-role   |  -   |    -    |    -    |        -        |    -     |   ✓    |  ✓   |   -    |  -   |
+|  campground-pki/issue/vpn-server-role   |  -   |    -    |    -    |        -        |    -     |   -    |  ✓   |   -    |  -   |
+|    secret/campground/database-users     |  -   |    -    |    -    |        -        |    -     |   -    |  -   |   ✓    |  ✓   |
+|          secret/campground/k0s          |  -   |    -    |    ✓    |        -        |    -     |   -    |  ✓   |   ✓    |  ✓   |
+|          secret/campground/k8s          |  -   |    ✓    |    -    |        -        |    -     |   ✓    |  -   |   -    |  -   |
+|         secret/campground/ldap          |  -   |    ✓    |    ✓    |        -        |    -     |   ✓    |  ✓   |   ✓    |  ✓   |
+| secret/campground/local-users-passwords |  -   |    ✓    |    ✓    |        -        |    -     |   ✓    |  ✓   |   ✓    |  ✓   |
+|      secret/campground/photoprism       |  -   |    -    |    -    |        -        |    -     |   -    |  -   |   -    |  ✓   |
+|         secret/campground/searx         |  -   |    -    |    -    |        -        |    -     |   -    |  ✓   |   -    |  -   |
+|         secret/campground/users         |  -   |    X    |    X    |        -        |    -     |   X    |  X   |   X    |  X   |
+|      secret/campground/users/mcamp      |  -   |    ✓    |    ✓    |        -        |    -     |   ✓    |  ✓   |   ✓    |  ✓   |
+|      secret/campground/vaultwarden      |  -   |    -    |    -    |        -        |    -     |   -    |  -   |   ✓    |  ✓   |
+|         secret/campground/wifi          |  -   |    -    |    -    |        -        |    -     |   ✓    |  -   |   -    |  -   |
+|          secret/campground/zfs          |  -   |    -    |    ✓    |        -        |    -     |   -    |  ✓   |   ✓    |  ✓   |
++-----------------------------------------+------+---------+---------+-----------------+----------+--------+------+--------+------+
 ```
+
+
+## How it works
+
+- Basically I have a Nix function (`findVaultPaths`) that I added that recursively scans all the modules to find `vault-path` attributes.
+It then returns the `vault-path` if the module is enabled. 
+- Then there is 2 shell scripts that are written in Nix that get used to turn the output of the Nix function into a `json` grouped by 
+system.
+- Finally there is a Python script that turns the `json` into a nice pretty table. 
+
+
+## Bugs / TODOs
+
+- I need to figure out how to not return the `user-secrets` `vault-path` with out the user name appended to it. This is harder than 
+it should be. This is due to using a Nix function to get most of the work done and my ignorance with Nix loops.
+- The thing takes too long to run. I do some recursive looping over `campground` to find all the modules that contain `vault-path` 
+so that I don't have to hard code anything and forget to update it. 
+- Want to add an argument to the script so I can pass a single host name and it will only do the table for that host(s). 
+
+
