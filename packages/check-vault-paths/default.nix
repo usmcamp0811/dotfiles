@@ -107,7 +107,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
     overrides = p2n-overrides;
     preferWheels = true;
   };
-  thisRepo = pkgs.stdenv.mkDerivation {
+  thisProject = pkgs.stdenv.mkDerivation {
     name = "CampgroundDotfiles";
     src = ../.;  # Copy the entire project directory into the Nix store
     installPhase = ''
