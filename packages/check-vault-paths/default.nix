@@ -12,7 +12,7 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  pname = "vault-report";
+  pname = "check-vault-path";
 
   description = "A thing to check Vault to see if all the paths in the Flake are good";
 
@@ -52,7 +52,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
 
     # Fetch list of systems
     systems=$(nix repl 2>/dev/null <<EOF
-    :lf .
+    :lf ${thisRepo}
     builtins.attrNames outputs.nixosConfigurations
     EOF
     )
@@ -66,7 +66,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
       pathChecks=()
 
       result=$(nix repl 2>/dev/null <<EOF
-    :lf .
+    :lf ${thisRepo}
     lib.findVaultPaths 3 outputs.nixosConfigurations.$system.config.campground
     EOF
       )
@@ -107,9 +107,9 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
     overrides = p2n-overrides;
     preferWheels = true;
   };
-  thisProject = pkgs.stdenv.mkDerivation {
-    name = "boat_models";
-    src = ./.;  # Copy the entire project directory into the Nix store
+  thisRepo = pkgs.stdenv.mkDerivation {
+    name = "CampgroundDotfiles";
+    src = ../../.;  # Copy the entire project directory into the Nix store
     installPhase = ''
       mkdir -p $out
       cp -r ./* $out/
@@ -123,7 +123,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
       cp -r ./* $out/
       cp ${getVaultPaths}/bin/get-vault-paths $out/bin
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
-      echo "${devshell-python}/bin/python3 ${thisProject}/vault-table.py" >> $out/bin/vault-report
+      echo "${devshell-python}/bin/python3 ${thisRepo}/packages/check-vault-paths/vault-table.py" >> $out/bin/vault-report
       chmod +x $out/bin/vault-report
       echo "#!/usr/bin/env sh" > $out/bin/check-vault-paths
       echo "$out/bin/get-vault-paths | $out/bin/vault-report" >> $out/bin/check-vault-paths
