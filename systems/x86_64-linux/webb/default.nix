@@ -43,6 +43,7 @@ in
       # };
       mattermost = enabled;
       mysql = {
+        backupEnable = true;
         backupLocation = "/persist/mysqlBackups/";
       };
       photoprism = {
