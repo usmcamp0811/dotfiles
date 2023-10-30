@@ -7,6 +7,9 @@
 }:
 with lib;
 with lib.campground;
+let
+  inherit (lib.campground) override-meta;
+in
 mkShell {
   buildInputs = [
     pkgs.deadnix
@@ -19,6 +22,7 @@ mkShell {
     pkgs.nixpkgs-lint
     pkgs.snowfallorg.flake
     pkgs.statix
+    pkgs.campground.check-vault-paths
   ];
 
   shellHook = ''
