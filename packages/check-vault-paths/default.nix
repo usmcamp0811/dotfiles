@@ -52,7 +52,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
 
     # Fetch list of systems
     systems=$(nix repl 2>/dev/null <<EOF
-    :lf ${thisRepo}
+    :lf .
     builtins.attrNames outputs.nixosConfigurations
     EOF
     )
@@ -66,7 +66,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
       pathChecks=()
 
       result=$(nix repl 2>/dev/null <<EOF
-    :lf ${thisRepo}
+    :lf .
     lib.findVaultPaths 3 outputs.nixosConfigurations.$system.config.campground
     EOF
       )
@@ -109,7 +109,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
   };
   thisRepo = pkgs.stdenv.mkDerivation {
     name = "CampgroundDotfiles";
-    src = ../../.;  # Copy the entire project directory into the Nix store
+    src = ../.;  # Copy the entire project directory into the Nix store
     installPhase = ''
       mkdir -p $out
       cp -r ./* $out/
@@ -123,7 +123,7 @@ getVaultPaths = pkgs.writeShellScriptBin "get-vault-paths" ''
       cp -r ./* $out/
       cp ${getVaultPaths}/bin/get-vault-paths $out/bin
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
-      echo "${devshell-python}/bin/python3 ${thisRepo}/packages/check-vault-paths/vault-table.py" >> $out/bin/vault-report
+      echo "${devshell-python}/bin/python3 ${thisProject}/vault-table.py" >> $out/bin/vault-report
       chmod +x $out/bin/vault-report
       echo "#!/usr/bin/env sh" > $out/bin/check-vault-paths
       echo "$out/bin/get-vault-paths | $out/bin/vault-report" >> $out/bin/check-vault-paths
