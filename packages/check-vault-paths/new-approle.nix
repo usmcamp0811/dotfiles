@@ -1,9 +1,21 @@
 { pkgs }:
 
 pkgs.writeShellScriptBin "create-approle" ''
-  # Check if logged into Vault
-  if ! ${pkgs.vault}/bin/vault token lookup > /dev/null 2>&1; then
-    echo "Not logged into Vault. Exiting early."
+
+
+  # Check if already logged into Vault
+  vault_status=$(${pkgs.vault}/bin/vault status -format=json 2>/dev/null)
+
+  if [ $? -eq 0 ]; then
+    echo "Already logged into Vault."
+  else
+    echo "Please login to Vault..."
+    ${pkgs.vault}/bin/vault login || { echo "Vault login failed."; exit 1; }
+  fi
+
+  # Check that login was successful
+  if [ \$? -ne 0 ]; then
+    echo "Vault login failed."
     exit 1
   fi
 
