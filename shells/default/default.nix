@@ -22,7 +22,7 @@ mkShell {
     pkgs.nixpkgs-lint
     pkgs.snowfallorg.flake
     pkgs.statix
-    pkgs.campground.check-vault-paths
+    pkgs.campground.vault-scripts
   ];
 
   shellHook = ''

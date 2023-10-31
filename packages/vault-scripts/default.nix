@@ -23,12 +23,13 @@ let
   new-approle = import ./new-approle.nix  { inherit pkgs; };
   save-approle-secrets = import ./save-approle.nix { inherit pkgs new-approle; };
 
-  vault-report = pkgs.stdenv.mkDerivation {
+  vault-scripts = pkgs.stdenv.mkDerivation {
     name = "vault-report";
     src = ./.;  # Copy the entire project directory into the Nix store
     installPhase = ''
       mkdir -p $out/bin
       cp -r ./* $out/
+
       cp ${new-approle}/bin/create-approle $out/bin
       cp ${getVaultPaths}/bin/get-vault-paths $out/bin
       cp ${save-approle-secrets}/bin/save-approle-secrets $out/bin
@@ -36,15 +37,16 @@ let
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
       echo "${devshell-python}/bin/python3 $src/vault-table.py" >> $out/bin/vault-report
       chmod +x $out/bin/vault-report
+
       echo "#!/usr/bin/env sh" > $out/bin/check-vault-paths
       echo "$out/bin/get-vault-paths | $out/bin/vault-report" >> $out/bin/check-vault-paths
       chmod +x $out/bin/check-vault-paths
     '';
 };
   new-meta = with lib; {
-    description = "A thing to check Vault to see if all the paths in the Flake are good";
+    description = description;
     license = licenses.mit;
     maintainers = with maintainers; [ mattcamp ];
   };
 in
-override-meta new-meta vault-report
+override-meta new-meta vault-scripts
