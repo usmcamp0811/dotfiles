@@ -139,6 +139,7 @@
           icehouse.overlays."package/icehouse"
 				  flake.overlays."package/flake"
           attic.overlays.default
+          devshell.overlays.default 
           nur.overlay
       ];
 
