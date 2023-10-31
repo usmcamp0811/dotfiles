@@ -23,14 +23,14 @@ let
   new-approle = import ./new-approle.nix  { inherit pkgs; };
   save-approle-secrets = import ./save-approle.nix { inherit pkgs new-approle; };
 
-  thisProject = pkgs.stdenv.mkDerivation {
-    name = "CampgroundDotfiles";
-    src = ./.;  # Copy the entire project directory into the Nix store
-    installPhase = ''
-      mkdir -p $out
-      cp -r ./* $out/
-    '';
-  };
+  # thisProject = pkgs.stdenv.mkDerivation {
+  #   name = "CampgroundDotfiles";
+  #   src = ./.;  # Copy the entire project directory into the Nix store
+  #   installPhase = ''
+  #     mkdir -p $out
+  #     cp -r ./* $out/
+  #   '';
+  # };
   vault-report = pkgs.stdenv.mkDerivation {
     name = "vault-report";
     src = ./.;  # Copy the entire project directory into the Nix store
@@ -42,7 +42,6 @@ let
       cp ${save-approle-secrets}/bin/save-approle-secrets $out/bin
 
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
-      echo "${devshell-python}/bin/python3 ${thisProject}/vault-table.py" >> $out/bin/vault-report
       chmod +x $out/bin/vault-report
       echo "#!/usr/bin/env sh" > $out/bin/check-vault-paths
       echo "$out/bin/get-vault-paths | $out/bin/vault-report" >> $out/bin/check-vault-paths
