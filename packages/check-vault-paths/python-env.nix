@@ -11,11 +11,9 @@ let
     ) pypkgs-build-requirements
   );
 in
-{
-  devshell-python = pkgs.poetry2nix.mkPoetryEnv  {
+pkgs.poetry2nix.mkPoetryEnv  {
     projectDir = ./.;
     python = pkgs.python3;
     overrides = p2n-overrides;
     preferWheels = true;
-  };
 }

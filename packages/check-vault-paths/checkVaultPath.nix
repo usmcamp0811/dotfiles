@@ -1,6 +1,5 @@
 { pkgs }:
-{
-  checkVaultPath = pkgs.writeShellScriptBin "check-vault-path" ''
+pkgs.writeShellScriptBin "check-vault-path" ''
     full_path="$1"
 
     # Check for PKI engines
@@ -29,5 +28,4 @@
     fi
 
     exit 1
-  '';
-  }
+  ''
