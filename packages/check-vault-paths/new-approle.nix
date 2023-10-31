@@ -14,7 +14,7 @@ pkgs.writeShellScriptBin "create-approle" ''
   fi
 
   # Check that login was successful
-  if [ \$? -ne 0 ]; then
+  if [ $? -ne 0 ]; then
     echo "Vault login failed."
     exit 1
   fi

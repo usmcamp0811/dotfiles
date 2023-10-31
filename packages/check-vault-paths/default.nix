@@ -21,7 +21,7 @@ let
   getVaultPaths  = import ./getVaultPaths.nix  { inherit pkgs checkVaultPath; };
   devshell-python = import ./python-env.nix  { inherit pkgs; };
   new-approle = import ./new-approle.nix  { inherit pkgs; };
-  save-approle-secrets = import ./save-approle.nix { inherit pkgs; };
+  save-approle-secrets = import ./save-approle.nix { inherit pkgs new-approle; };
 
   thisProject = pkgs.stdenv.mkDerivation {
     name = "CampgroundDotfiles";

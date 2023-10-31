@@ -1,7 +1,7 @@
-{ pkgs }:
+{ pkgs, new-approle }:
 
 pkgs.writeShellScriptBin "save-approle-secrets" ''
-  #! $SHELL
+  set -e
   # Check that an approle name was provided
   if [ -z "$1" ]; then
     echo "Usage: save-approle-secrets <approle_name>"
@@ -10,6 +10,14 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
 
   # Set the approle name
   approle_name=$1
+
+  if ${pkgs.vault}/bin/vault read auth/approle/role/$approle_name > /dev/null 2>&1; then
+      echo "Approle $approle_name exists."
+  else
+      echo "Approle $approle_name does not exist."
+      echo "Please run 'create-approle "$approle_name"'"
+      exit 1
+  fi
 
   # Check if already logged into Vault
   vault_status=$(${pkgs.vault}/bin/vault status -format=json 2>/dev/null)
