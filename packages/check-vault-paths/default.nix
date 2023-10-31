@@ -12,14 +12,15 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  pname = "vault-report";
+  pname = "vault-scripts";
 
-  description = "A thing to check Vault to see if all the paths in the Flake are good";
+  description = "A package for all of the Vault things...";
 
-  version = "1.0.0";
+  version = "0.1.0";
   checkVaultPath = import ./checkVaultPath.nix { inherit pkgs; };
   getVaultPaths  = import ./getVaultPaths.nix  { inherit pkgs checkVaultPath; };
   devshell-python = import ./python-env.nix  { inherit pkgs; };
+  new-approle = import ./new-approle.nix  { inherit pkgs; };
 
   thisProject = pkgs.stdenv.mkDerivation {
     name = "CampgroundDotfiles";
@@ -35,6 +36,7 @@ let
     installPhase = ''
       mkdir -p $out/bin
       cp -r ./* $out/
+      cp ${new-approle}/bin/create-approle $out/bin
       cp ${getVaultPaths}/bin/get-vault-paths $out/bin
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
       echo "${devshell-python}/bin/python3 ${thisProject}/vault-table.py" >> $out/bin/vault-report
