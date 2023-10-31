@@ -8,11 +8,6 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
     exit 1
   fi
 
-  # if [ "$EUID" -ne 0 ]; then
-  #   echo "This script must be run as root or with sudo."
-  #   exit 1
-  # fi
-  #
   # Set the approle name
   approle_name=$1
 
@@ -32,8 +27,8 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
     exit 1
   fi
 
-  sudo mkdir -p /var/lib/vault/\$approle_name
-  sudo chmod -R 777 /var/lib/vault/\$approle_name
+  sudo mkdir -p /var/lib/vault/$approle_name
+  sudo chmod -R 777 /var/lib/vault/$approle_name
 
   # Retrieve and save the role-id
   role_id=$(${pkgs.vault}/bin/vault read -field=role_id auth/approle/role/$approle_name/role-id)
