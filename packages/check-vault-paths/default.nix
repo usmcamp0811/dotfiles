@@ -21,6 +21,7 @@ let
   getVaultPaths  = import ./getVaultPaths.nix  { inherit pkgs checkVaultPath; };
   devshell-python = import ./python-env.nix  { inherit pkgs; };
   new-approle = import ./new-approle.nix  { inherit pkgs; };
+  save-approle-secrets = import ./save-approle.nix { inherit pkgs; };
 
   thisProject = pkgs.stdenv.mkDerivation {
     name = "CampgroundDotfiles";
@@ -38,6 +39,8 @@ let
       cp -r ./* $out/
       cp ${new-approle}/bin/create-approle $out/bin
       cp ${getVaultPaths}/bin/get-vault-paths $out/bin
+      cp ${save-approle-secrets}/bin/save-approle-secrets $out/bin
+
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
       echo "${devshell-python}/bin/python3 ${thisProject}/vault-table.py" >> $out/bin/vault-report
       chmod +x $out/bin/vault-report
