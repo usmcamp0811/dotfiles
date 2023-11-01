@@ -63,7 +63,7 @@ in
           local all postgres peer
           local vaultwarden vaultwarden trust
           local mattermost mattermost trust
-          local paperless paperless  trust
+          host paperless paperless 127.0.0.1/32 trust
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
@@ -88,7 +88,7 @@ in
         port = 8123;
         tang-servers = [ 
           "http://daly:1234" 
-          "http://mattis:1234" 
+          # "http://mattis:1234" 
           "http://lucas:1234" 
           "http://ermy:1234" 
         ];

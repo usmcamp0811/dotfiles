@@ -63,6 +63,12 @@ in
       extraConfig = {
         PAPERLESS_URL = cfg.domainName;
 
+        # NOTE: Be sure to set a password for the paperless db user cause i had issues being able to connect
+        # required setting up the db in one go and then deploy again with this.. my db game needs work
+        # if you neglect the above there is a chance it will use SQLite as a fall back.. but might not now
+        # that I set a dbhost. ¯\_(ツ)_/¯
+        PAPERLESS_DBHOST = "127.0.0.1";
+
         PAPERLESS_OCR_LANGUAGE = "eng";
         PAPERLESS_TASK_WORKERS = 4;
         PAPERLESS_THREADS_PER_WORKER = 8;
