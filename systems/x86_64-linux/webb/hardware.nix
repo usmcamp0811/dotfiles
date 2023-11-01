@@ -38,6 +38,11 @@
       fsType = "zfs";
     };
 
+  fileSystems."/webb/documents" =
+    { device = "NIXROOT/persist/documents";
+      fsType = "zfs";
+    };
+
   fileSystems."/k8s" =
     { device = "NIXROOT/persist/kubernetes-data";
       fsType = "zfs";
