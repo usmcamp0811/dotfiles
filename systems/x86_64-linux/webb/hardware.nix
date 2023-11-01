@@ -38,7 +38,7 @@
       fsType = "zfs";
     };
 
-  fileSystems."/webb/documents" =
+  fileSystems."/var/lib/paperless" =
     { device = "NIXROOT/persist/documents";
       fsType = "zfs";
     };

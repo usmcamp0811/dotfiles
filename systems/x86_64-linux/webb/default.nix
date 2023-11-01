@@ -52,10 +52,6 @@ in
       };
       paperless = {
         enable = true;
-        dataDir = "/var/lib/paperless";
-        mediaDir = "var/lib/paperless/media";
-        consumptionDir = "/var/lib/paperless/consume";
-
       };
       postgresql = {
         enable = true;

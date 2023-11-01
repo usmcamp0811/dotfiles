@@ -8,7 +8,7 @@ in
   options.campground.services.paperless = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
     dataDir = mkOpt str "/var/lib/paperless" "Location to store data";
-    mediaDir = mkOpt str "var/lib/paperless/media" "Location to store media";
+    mediaDir = mkOpt str "/var/lib/paperless/media" "Location to store media";
     consumptionDir = mkOpt str "/var/lib/paperless/consume" "Place to import files from";
     address = mkOpt str "localhost" "Host address";
     gotenbergPort = mkOpt str "3000" "Gotenberg Port";
@@ -55,7 +55,7 @@ in
       dataDir = cfg.dataDir;
       mediaDir = cfg.mediaDir;
       consumptionDir = cfg.consumptionDir;
-      passwordFile = "/tmp/detsys-vault/paperless.env"; 
+      passwordFile = "/var/lib/vault/paperless.pass"; 
       address = "0.0.0.0";
       port = 28981;
       user = "paperless";
@@ -73,6 +73,19 @@ in
 
         PAPERLESS_EMAIL_TASK_CRON = "*/5 * * * *";
       };
+    };
+
+    systemd.services.paperlessPasswordFile = {
+      description = "Create Photoprism environment file";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";  # Use the root user to create the folder and set permissions
+        ExecStartPre = "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
+        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/paperless.pass /var/lib/vault/paperless.pass";
+        ExecStartPost = "${pkgs.coreutils}/bin/chown paperless:paperless /var/lib/vault/paperless.pass"; # Change file ownership to vaultwarden
+      };
+      wantedBy = [ "multi-user.target" ];
+      before = [ "photoprism.service" ];
     };
 
     virtualisation.oci-containers.containers.gotenberg = {
@@ -94,7 +107,7 @@ in
       ];
     };
 
-    campground.services.vault-agent.services.paperless = {
+    campground.services.vault-agent.services.paperlessPasswordFile = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -111,7 +124,7 @@ in
       secrets = {
         file = {
           files = {
-            "paperless.env" = {
+            "paperless.pass" = {
               text = ''{{ with secret "${cfg.vault-path}" }}
                 {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}{{ end }}'';
               permissions = "0600";
