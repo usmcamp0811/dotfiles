@@ -50,6 +50,13 @@ in
         enable = true;
         originalsPath = "/webb/media/photos";
       };
+      paperless = {
+        enable = true;
+        dataDir = "/var/lib/paperless";
+        mediaDir = "var/lib/paperless/media";
+        consumptionDir = "/var/lib/paperless/consume";
+
+      };
       postgresql = {
         enable = true;
         enableTCPIP = true;
