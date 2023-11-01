@@ -24,6 +24,26 @@ in
 
   config = mkIf cfg.enable {
 
+      
+      campground.services.postgresql = {
+        enable = true;
+        # TODO: configure authentication in a way that its set here and doesn't break other places
+        # authentication = ''
+        #   local all root trust
+        #   local all postgres peer
+        #   local vaultwarden vaultwarden trust
+        #   local mattermost mattermost trust
+        #   host  all  all  0.0.0.0/0  reject
+        #   host  all  all  ::0/0  reject
+        # '';
+        databases = [ 
+          { 
+            name = "vaultwarden"; 
+            user = "vaultwarden"; 
+          } 
+        ];
+      };
+
     services.vaultwarden = {
       enable = true;
       dbBackend = "postgresql";

@@ -37,7 +37,7 @@ in
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ 389 636 8080 8081 ]; # OpenLDAP and phpLDAPadmin ports
 
-    system.activationScripts.myCustomScript = {
+    system.activationScripts.copyLdapFiles = {
       text = ''
         mkdir -p /var/ldap
         cp ${user-template} /var/ldap/customUser.xml

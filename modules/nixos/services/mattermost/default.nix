@@ -11,6 +11,25 @@ in
 
   config = mkIf cfg.enable {
 
+      campground.services.postgresql = {
+        enable = true;
+        # TODO: configure authentication in a way that its set here and doesn't break other places
+        # authentication = ''
+        #   local all root trust
+        #   local all postgres peer
+        #   local vaultwarden vaultwarden trust
+        #   local mattermost mattermost trust
+        #   host  all  all  0.0.0.0/0  reject
+        #   host  all  all  ::0/0  reject
+        # '';
+        databases = [ 
+          { 
+            name = "mattermost"; 
+            user = "mattermost"; 
+          } 
+        ];
+      };
+
     # have to force this since we create the db elsewhere
     services.postgresql.enable = lib.mkForce true;
     # open ports for calls

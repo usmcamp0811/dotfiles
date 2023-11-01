@@ -63,16 +63,6 @@ in
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
-        databases = [ 
-          { 
-            name = "vaultwarden"; 
-            user = "vaultwarden"; 
-          } 
-          { 
-            name = "mattermost"; 
-            user = "mattermost"; 
-          } 
-        ];
       };
 
       vaultwarden = { 
