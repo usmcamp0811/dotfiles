@@ -4,8 +4,8 @@ with lib.campground;
 let
   cfg = config.campground.services.ldap-server;
 
-  user-template = toString ./openldap/user-template.xml;
-  entrypoint = toString ./openldap/run;
+  user-template = pkgs.writeText "user-template.xml" (builtins.readFile ./openldap/user-template.xml);
+  entrypoint = pkgs.writeText "run" (builtins.readFile ./openldap/run);
 
   inherit (pkgs.campground) phpLDAPadmin;
 in
@@ -37,6 +37,16 @@ in
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ 389 636 8080 8081 ]; # OpenLDAP and phpLDAPadmin ports
 
+    system.activationScripts.myCustomScript = {
+      text = ''
+        mkdir -p /var/ldap
+        cp ${user-template} /var/ldap/customUser.xml
+        cp ${entrypoint} /var/ldap/run
+        chmod 600 /var/ldap/customUser.xml
+        chmod 600 /var/ldap/run
+      '';
+    };
+
     virtualisation.oci-containers.containers = {
       phpldapadmin = {
         # image = "docker.io/osixia/phplpdapadmin:latest";
@@ -49,8 +59,8 @@ in
 
         };
         volumes = [
-          "${user-template}:/templates/customUser.xml"
-          "${entrypoint}:/container/tool/run"
+          "/var/ldap/customUser.xml:/templates/customUser.xml"
+          "/var/ldap/run:/container/tool/run"
           # "/tmp/detsys-vault/ca.crt:/container/service/phpldapadmin/assets/certs/ca.crt"
         ];
       };
