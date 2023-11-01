@@ -125,8 +125,7 @@ in
         file = {
           files = {
             "paperless.pass" = {
-              text = ''{{ with secret "${cfg.vault-path}" }}
-                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}{{ end }}'';
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}{{ end }}'';
               permissions = "0600";
               change-action = "restart";
             };
