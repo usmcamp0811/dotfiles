@@ -82,7 +82,7 @@ in
       cmd = ["gotenberg" "--chromium-disable-javascript=true" "--chromium-allow-list=file:///tmp/.*"];
 
       ports = [
-        "127.0.0.1:${gotenbergPort}:3000"
+        "127.0.0.1:${cfg.gotenbergPort}:3000"
       ];
     };
 
@@ -90,7 +90,7 @@ in
       image = "apache/tika:2.4.0";
 
       ports = [
-        "127.0.0.1:${tikaPort}:9998"
+        "127.0.0.1:${cfg.tikaPort}:9998"
       ];
     };
 
