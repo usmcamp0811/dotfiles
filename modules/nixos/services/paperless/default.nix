@@ -59,7 +59,6 @@ in
       address = "0.0.0.0";
       port = 28981;
       user = "paperless";
-      group = "paperless";
       package = pkgs.paperless-ngx;
       extraConfig = {
         PAPERLESS_URL = cfg.domainName;
