@@ -49,6 +49,7 @@ in
       traceroute
       gptfdisk 
       parted
+      tmux
     ];
 
   };
