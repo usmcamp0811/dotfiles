@@ -108,6 +108,7 @@
 
     poetry2nix.url = "github:nix-community/poetry2nix";
 
+    scientific-fhs.url = "github:olynch/scientific-fhs";
   };
 
   outputs = inputs:
@@ -146,6 +147,7 @@
       systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
+        scientific-fhs.nixosModules.default
         vault-service.nixosModules.nixos-vault-service
       ];
 

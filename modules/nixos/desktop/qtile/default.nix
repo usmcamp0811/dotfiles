@@ -35,6 +35,7 @@ in
     };
 
     environment.systemPackages = with pkgs; [
+      gtk4
       qtile
       rofi
       xclip

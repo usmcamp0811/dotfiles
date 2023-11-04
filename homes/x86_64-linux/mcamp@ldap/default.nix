@@ -53,7 +53,7 @@ with lib.campground;
       vault = enabled;
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
-      julia = enabled;
+      scientifc-fhs = enabled;
       python = enabled;
       emoji-picker = enabled;
     };
