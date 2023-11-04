@@ -147,9 +147,12 @@
       systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
-        scientific-fhs.nixosModules.default
         vault-service.nixosModules.nixos-vault-service
       ];
+
+      # systems.modules.home = with inputs; [
+      #   scientific-fhs.nixosModules.default
+      # ];
 
       # systems.modules = with inputs; [
       #   campground-nvim.nixosModules.nixvim

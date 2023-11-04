@@ -1,4 +1,4 @@
-{ options, inputs, config, lib, pkgs, ... }:
+{ options, config, lib, pkgs, ... }:
 
 with lib;
 with lib.campground;
@@ -11,20 +11,9 @@ in
   };
 
   config = mkIf cfg.enable {
-    programs.scientific-fhs = {
-      enable = true;
-      juliaVersions = [
-        {
-          version = "julia_18";
-          default = true;
-        }
-        { version = "julia_17"; }
-        { version = "julia_16"; }
-      ];
-      enableNVIDIA = false;
-    };
-    # home.packages = with pkgs; [
-    #   julia
-    # ];
+    
+    home.packages = with pkgs; [
+      julia
+    ];
   };
 }

@@ -3,6 +3,6 @@
 final: prev:
 
 {
-  scientific-fhs = scientific-fhs.nixosModules.default;
+  julia = scientific-fhs.packages.${prev.system}.julia;
 }
 
