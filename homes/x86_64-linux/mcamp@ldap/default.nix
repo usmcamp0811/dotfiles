@@ -2,6 +2,7 @@
 
 with lib.campground;
 {
+
   campground = {
     user = {
       enable = true;
@@ -53,7 +54,7 @@ with lib.campground;
       vault = enabled;
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
-      scientifc-fhs = enabled;
+      julia = enabled;
       python = enabled;
       emoji-picker = enabled;
     };
