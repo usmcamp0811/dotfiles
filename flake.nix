@@ -109,6 +109,7 @@
     poetry2nix.url = "github:nix-community/poetry2nix";
 
     scientific-fhs.url = "github:olynch/scientific-fhs";
+    julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
   };
 
   outputs = inputs:
@@ -141,6 +142,7 @@
 				  flake.overlays."package/flake"
           attic.overlays.default
           devshell.overlays.default 
+          julia2nix.overlays.default
           nur.overlay
       ];
 
