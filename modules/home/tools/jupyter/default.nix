@@ -13,7 +13,7 @@ in
 
   config = mkIf cfg.enable {
 
-    home.file.".config/.jupyter/jupyter_qtconsole_config.py".text = ''
+    home.file.".config/jupyter/jupyter_qtconsole_config.py".text = ''
       c = get_config()  # noqa
       c.JupyterWidget.syntax_style = "${cfg.syntaxStyle}"  # specify color theme
       c.JupyterQtConsoleApp.hide_menubar = True
