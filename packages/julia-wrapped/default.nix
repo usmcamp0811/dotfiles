@@ -21,7 +21,6 @@ let
   version = "1.9.2";
 
   julia = inputs.julia2nix.lib.${system}.julia-wrapped {
-    # package = inputs.julia2nix.packages.${system}.julia_19-bin;
     package = inputs.julia2nix.packages.${system}.julia_19-bin;
     enable = {
       # only x86_64-linux is supported

@@ -3,6 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.tools.julia;
+  inherit (pkgs.campground) julia-wrapped;
 in
 {
   options.campground.tools.julia = with types; {
@@ -13,7 +14,7 @@ in
   config = mkIf cfg.enable {
     
     home.packages = with pkgs; [
-      julia
+      julia-wrapped
     ];
   };
 }
