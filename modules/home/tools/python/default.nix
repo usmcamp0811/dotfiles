@@ -14,7 +14,11 @@ in
 
     home.packages = with pkgs; [
       python
-      jupyter
+      libstdcxx5
+      zlib
+      gcc
+      glib
     ];
+
   };
 }
