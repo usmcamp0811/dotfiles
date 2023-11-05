@@ -55,6 +55,7 @@ with lib.campground;
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
       julia = enabled;
+      jupyter = enabled;
       python = enabled;
       emoji-picker = enabled;
     };
