@@ -116,11 +116,11 @@
         "scientific-fhs": "scientific-fhs"
       },
       "locked": {
-        "lastModified": 1699132649,
-        "narHash": "sha256-mjwZ+5Fuk3EOTi70qfMVbBzjmguv8xJHOIyuFdVP+gM=",
+        "lastModified": 1699149014,
+        "narHash": "sha256-2WFKKmqhhXJstZoyNLGsq0OSM8LWHjnF1aZtjPWMI5U=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "67bf41c6f35a1a326ebbc9b789f5a278bc291d0b",
+        "rev": "7e5af5f64686f2d46432dd8dd382c6ee7e67ca95",
         "type": "gitlab"
       },
       "original": {
@@ -546,11 +546,11 @@
         "rust-overlay": "rust-overlay_5"
       },
       "locked": {
-        "lastModified": 1698541957,
-        "narHash": "sha256-2ZtgRaCYYpsAaGlULIvDDmqQaeGLmPPFTHBMeYIiV/s=",
+        "lastModified": 1699144622,
+        "narHash": "sha256-vZGqjQrUYFqvZwWJJC77ll21QP/Ps7qKUZQW3Z4+4Mk=",
         "owner": "DeterminateSystems",
         "repo": "flake-checker",
-        "rev": "e37780909e168b755e4ba0fe3b990cc3c65cf023",
+        "rev": "ad86851c6161a4c90a07526bd7686885d745f4d0",
         "type": "github"
       },
       "original": {
@@ -2479,11 +2479,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1699131694,
-        "narHash": "sha256-dKWORPD0ODREKihqCZqEqc1zJ3wACmoMmuf2BGg3DbE=",
+        "lastModified": 1699148602,
+        "narHash": "sha256-zxNmHB/DaMKautDpP1h3hZnsnzDJltPpuy+t83N/sXQ=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "6226a48fb329802a63da2babbdd2d375713af333",
+        "rev": "ef1f4abd4235068c1f1505730a063def47e9e3c4",
         "type": "github"
       },
       "original": {
