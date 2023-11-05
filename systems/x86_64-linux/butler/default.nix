@@ -83,6 +83,7 @@ in
     };
 
     hardware.ckb-next = enabled;
+    # hardware.networking = enabled;
     # hardware.nvidia = enabled;
     # hardware.intel = enabled;
 
