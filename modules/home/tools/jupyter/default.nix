@@ -5,20 +5,10 @@ with lib.campground;
 let cfg = config.campground.tools.jupyter;
 in
 {
-  options.campground.tools.python = with types; {
-    enable = lib.mkEnableOption "Jupyter QtConsole";
-
-    syntaxStyle = lib.mkOption {
-      type = lib.types.str;
-      default = "gruvbox-dark";
-      description = "Syntax style for Jupyter QtConsole.";
-    };
-
-    fontSize = lib.mkOption {
-      type = lib.types.int;
-      default = 14;
-      description = "Font size for Jupyter QtConsole.";
-    };
+  options.campground.tools.jupyter = with types; {
+    enable = mkBoolOpt false "Jupyter QtConsole";
+    syntaxStle = mkOpt str "gruvbox-dark" "Syntax style for Jupyter QtConsole.";
+    fontSize = mkOpt int 14 "Font size for Jupyter QtConsole.";
   };
 
   config = mkIf cfg.enable {
