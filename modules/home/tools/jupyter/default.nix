@@ -7,7 +7,7 @@ in
 {
   options.campground.tools.jupyter = with types; {
     enable = mkBoolOpt false "Jupyter QtConsole";
-    syntaxStle = mkOpt str "gruvbox-dark" "Syntax style for Jupyter QtConsole.";
+    syntaxStyle = mkOpt str "gruvbox-dark" "Syntax style for Jupyter QtConsole.";
     fontSize = mkOpt int 14 "Font size for Jupyter QtConsole.";
   };
 

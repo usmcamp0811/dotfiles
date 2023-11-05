@@ -51,6 +51,7 @@ alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js -ao=p
 alias weather='devour weather'
 alias radar='devour weather -r'
 alias neovide='devour neovide'
+alias jupyterqt='devour jupyter qtconsole'
 
 ##########################################################
 ####################### GIT STUFF ########################
