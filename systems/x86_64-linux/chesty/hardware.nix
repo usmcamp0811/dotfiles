@@ -33,6 +33,15 @@
       fsType = "vfat";
     };
 
+  fileSystems."/chesty" =
+    { device = "/dev/disk/by-uuid/3059f94a-0c8a-449a-9f02-bf6fed3c1094";
+      fsType = "ext4";
+    };
+
+    environment.etc."crypttab".text = ''
+      luks /dev/disk/by-uuid/3059f94a-0c8a-449a-9f02-bf6fed3c1094 /root/luks.key
+    '';
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
