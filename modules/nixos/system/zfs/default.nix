@@ -45,8 +45,8 @@ in
     # use this lspci -v | grep -iA8 'network\|ethernet' to then ask Chad what modules to use here
     boot.initrd.availableKernelModules = [  "thunderbolt" "usbnet" "igb" "r8152" "iwlwifi" "igc" "cdc_ether" ];
     boot.kernelParams = [ "ip=dhcp" ];
-    boot.kernelModules = [ "r8169" "igb" "cdc_ether" "r8152" ];
-    boot.initrd.kernelModules = [ "r8169" "igb" "cdc_ether" "r8152" ];
+    boot.kernelModules = [ "e1000e" "alx" "r8169" "igb" "cdc_ether" "r8152" ];
+    boot.initrd.kernelModules = [ "e1000e" "alx" "r8169" "igb" "cdc_ether" "r8152" ];
 
     # TODO: Move this somewhere more appropriate or otherwise fix dns
     networking.useDHCP = mkForce true;
