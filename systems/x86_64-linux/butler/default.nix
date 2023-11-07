@@ -118,7 +118,6 @@ in
       ];
     };
     ldap-client = enabled;
-    # secret-service = enabled;
     cac = {
       enable = false;
     };
