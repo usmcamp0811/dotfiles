@@ -8,6 +8,7 @@ in
   options.campground.services.photoprism = with types; {
     enable = mkBoolOpt false "Enable Photoprisim;";
     originalsPath = mkOpt str "" "Path to store original photos";
+    importPath = mkOpt str "/webb/media/phone-pictures" "Path to import folder";
     port = mkOpt int 2342 "Port to expose Photoprism on";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
@@ -87,6 +88,7 @@ in
       originalsPath = "/var/lib/private/photoprism/originals";
       address = "127.0.0.1";
       passwordFile = "/var/lib/vault/photoprism.pass";
+      importPath = cfg.importPath;
       settings = {
         PHOTOPRISM_ADMIN_USER = "admin";
         PHOTOPRISM_DEFAULT_LOCALE = "en";
