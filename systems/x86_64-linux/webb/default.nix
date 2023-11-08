@@ -43,7 +43,7 @@ in
       # };
       mlflow = {
         enable = true;
-        port = 8000;
+        # port = 5000;
       };
       mattermost = enabled;
       mysql = {
@@ -67,6 +67,7 @@ in
           local all postgres peer
           local vaultwarden vaultwarden trust
           local mattermost mattermost trust
+          local mlflow mlflow trust
           host paperless paperless 127.0.0.1/32 trust
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject

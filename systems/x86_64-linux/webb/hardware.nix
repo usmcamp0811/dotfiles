@@ -57,6 +57,11 @@
     { device = "NIXROOT/persist/photos";
       fsType = "zfs";
     };
+    
+  fileSystems."/var/lib/mlflow" =
+    { device = "NIXROOT/persist/mlflow";
+      fsType = "zfs";
+    };
 
 
   swapDevices = [ ];
