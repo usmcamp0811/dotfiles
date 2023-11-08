@@ -41,6 +41,10 @@ in
       # searx = {
       #   enable = true;
       # };
+      mlflow = {
+        enable = true;
+        port = 8000;
+      };
       mattermost = enabled;
       mysql = {
         backupEnable = true;
