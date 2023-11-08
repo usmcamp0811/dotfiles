@@ -22,32 +22,12 @@ in
       };
     };
 
-    services.uwsgi = {
-      enable = true;
-      plugins = [ "python" ];
-      instances = {
-        mlflow = {
-          plugins = [ "python3" ];
-          socket = "127.0.0.1:${toString cfg.port}";
-          wsgi-file = "${pkgs.writeScript "mlflow_wsgi.py" ''
-            from mlflow.server import app
-            if __name__ == "__main__":
-                app.run()
-          ''}";
-          processes = 4;
-          chmod-socket = "660";
-          vacuum = true;
-          die-on-term = true;
-        };
-      };
-    };
-
     systemd.services.mlflow = {
       description = "MLflow tracking server";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.mlflow}/bin/mlflow server --host 127.0.0.1 --port ${toString cfg.port}";
+        ExecStart = "${pkgs.mlflow-server}/bin/mlflow server --host 127.0.0.1 --port ${toString cfg.port}";
         Restart = "always";
       };
     };
