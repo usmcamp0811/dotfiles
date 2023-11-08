@@ -29,6 +29,10 @@ in
       passwds = enabled;
     };
 
+    hardware = {
+      nvidia = enabled;
+    };
+
     user = {
       name = "abe";
       fullName = "Matt Camp";

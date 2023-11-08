@@ -17,7 +17,7 @@ let
    '';
 in
 {
-  options.campground.hardware.nvidia = with types; {
+  options.campground.hardware.nvidia-prime = with types; {
     enable = mkEnableOption "Nvidia support";
   };
 
