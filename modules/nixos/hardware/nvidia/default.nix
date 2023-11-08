@@ -3,18 +3,6 @@
 with lib;
 let
   cfg = config.campground.hardware.nvidia;
-  displaySetupScript = pkgs.writeShellScript "display_setup.sh" ''
-    #!/bin/sh
-    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0
-    ${pkgs.xorg.xrandr}/bin/xrandr --auto
-  '';
-  nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" '' 
-     export __NV_PRIME_RENDER_OFFLOAD=1 
-     export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0 
-     export __GLX_VENDOR_LIBRARY_NAME=nvidia 
-     export __VK_LAYER_NV_optimus=NVIDIA_only 
-     exec "$@" 
-   '';
 in
 {
   options.campground.hardware.nvidia = with types; {
@@ -22,72 +10,35 @@ in
   };
 
   config = mkIf cfg.enable {
+    # Load nvidia driver for Xorg and Wayland
+    services.xserver.videoDrivers = ["nvidia"];
 
-      services.udev.extraRules = ''
-        KERNEL=="nvidia*", MODE="0666"
-      '';
+    hardware.nvidia = {
 
+      # Modesetting is required.
+      modesetting.enable = true;
 
-      services.xserver.extraConfig = ''
-        Section "Screen"
-          Identifier "Screen-nvidia[0]"
-          Device "Device-nvidia[0]"
-        EndSection
-      '';
+      # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
+      powerManagement.enable = false;
+      # Fine-grained power management. Turns off GPU when not in use.
+      # Experimental and only works on modern Nvidia GPUs (Turing or newer).
+      powerManagement.finegrained = false;
 
-    boot = {
-      extraModprobeConfig = ''
-        option nvidia-drm.modeset=1
-      '';
-      blacklistedKernelModules = [
-        "nouveau"
-        "rivafb"
-        "nvidiafb"
-        "rivatv"
-        "nv"
-        "uvcvideo"
-      ];
-      extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
-      kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
-      kernelParams = [
-        "nouveau.modeset=0"
-        "nohibernate"
-        "nvidia-drm.modeset=1"
-      ];
-    };
+      # Use the NVidia open source kernel module (not to be confused with the
+      # independent third-party "nouveau" open source driver).
+      # Support is limited to the Turing and later architectures. Full list of 
+      # supported GPUs is at: 
+      # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+      # Only available from driver 515.43.04+
+      # Currently alpha-quality/buggy, so false is currently the recommended setting.
+      open = false;
 
-    services.xserver = {
-      videoDrivers = ["nvidia"];
-      exportConfiguration = true;
-    };
+      # Enable the Nvidia settings menu,
+    # accessible via `nvidia-settings`.
+      nvidiaSettings = true;
 
-    hardware = {
-      nvidia = {
-        modesetting.enable = true;
-        prime = {
-          offload = {
-            enable = true;
-            enableOffloadCmd = true;
-          };
-          # sync.enable = true;
-          intelBusId = "PCI:0:2:0";
-          nvidiaBusId = "PCI:1:0:0";
-        };
-        package = config.boot.kernelPackages.nvidiaPackages.latest;
-        nvidiaPersistenced = true;
-      };
-
-      opengl = {
-        enable = true;
-        driSupport = true;
-        extraPackages = with pkgs; [
-          intel-media-driver
-          vaapiIntel
-          vaapiVdpau
-          libvdpau-va-gl
-          nvidia-vaapi-driver
-        ];
-      };
+      # Optionally, you may need to select the appropriate driver version for your specific GPU.
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
     };
   };
 }
