@@ -1,6 +1,7 @@
 # https://numtide.github.io/devshell
 [devshell]
 packages = [
+  "julia",
   "git",
   "gitRepo",
   "gnupg",
@@ -18,7 +19,7 @@ packages = [
   "libGL",
   "xorg.libXi",
   "xorg.libXmu",
-  "freeglut"
+  "freeglut",
   "xorg.libXext",
   "xorg.libX11",
   "xorg.libXv", 
