@@ -46,19 +46,24 @@ in
       ];
     };
 
-    services.nginx = {
-      enable = true;
-      virtualHosts = {
-        "mlflow.lan" = {
-          http2 = true;
-          locations."/" = {
-            proxyPass = "http://127.0.0.1:5000";
-            proxyWebsockets = true;
-          };
-        };
-      };
-    };
+    environment.systemPackages = with pkgs; [
+      mlflow-server
+      python3Packages.mlflow
+    ];
 
+    # services.nginx = {
+    #   enable = true;
+    #   virtualHosts = {
+    #     "mlflow.lan" = {
+    #       http2 = true;
+    #       locations."/" = {
+    #         proxyPass = "http://127.0.0.1:5000";
+    #         proxyWebsockets = true;
+    #       };
+    #     };
+    #   };
+    # };
+# --backend-store-uri ${pgUri} 
     systemd.services.mlflow = {
       description = "MLflow tracking server";
       after = [ "network.target" ];
@@ -68,7 +73,7 @@ in
         ExecStart = let
           pgUri = "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql";
           artifactRoot = "/var/lib/mlflow";
-        in "${pkgs.python3Packages.mlflow}/bin/mlflow server --backend-store-uri ${pgUri} --default-artifact-root file://${artifactRoot} --host 0.0.0.0 --port 5000";
+        in "${pkgs.python3Packages.mlflow}/bin/mlflow server --default-artifact-root file://${artifactRoot} --host 0.0.0.0 --port 5000";
         # environment = {
         #   PYTHONPATH="${myPythonEnv}/${pkgs.python3.sitePackages}";
         # };
