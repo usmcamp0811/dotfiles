@@ -76,7 +76,7 @@ in
       };
       serviceConfig = {
         User = "mlflow";
-        ExecStart = "${pkgs.mlflow-server}/bin/gunicornMlflow -b 0.0.0.0:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
+        ExecStart = "${pkgs.mlflow-server}/bin/gunicornMlflow -b 127.0.0.1:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
         Restart = "always";
         ProtectSystem = "strict";
         ReadWritePaths = [ "/var/lib/mlflow" ];
