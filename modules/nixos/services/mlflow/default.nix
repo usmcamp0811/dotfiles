@@ -13,6 +13,9 @@ in
   options.campground.services.mlflow = with types; {
     enable = mkBoolOpt false "Enable an MLFlow;";
     port = mkOpt int 8000 "Port to Host the mlflow server on.";
+    dbURI = mkOpt str "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql" "Backend DB URI";
+    artifactRoot = mkOpt str "/var/lib/mlflow" "Artifact Root Location";
+
   };
 
   config = mkIf cfg.enable {
@@ -51,32 +54,29 @@ in
       python3Packages.mlflow
     ];
 
-    # services.nginx = {
-    #   enable = true;
-    #   virtualHosts = {
-    #     "mlflow.lan" = {
-    #       http2 = true;
-    #       locations."/" = {
-    #         proxyPass = "http://127.0.0.1:5000";
-    #         proxyWebsockets = true;
-    #       };
-    #     };
-    #   };
-    # };
-# --backend-store-uri ${pgUri} 
+    services.nginx = {
+      enable = true;
+      virtualHosts = {
+        "mlflow.lan" = {
+          http2 = true;
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:5000";
+            proxyWebsockets = true;
+          };
+        };
+      };
+    };
     systemd.services.mlflow = {
       description = "MLflow tracking server";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
+      environment = {
+        MLFLOW_BACKEND_STORE_URI="${cfg.dbURI}";
+        MLFLOW_DEFAULT_ARTIFACT_ROOT="${cfg.artifactRoot}";
+      };
       serviceConfig = {
         User = "mlflow";
-        ExecStart = let
-          pgUri = "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql";
-          artifactRoot = "/var/lib/mlflow";
-        in "${pkgs.python3Packages.mlflow}/bin/mlflow server --default-artifact-root file://${artifactRoot} --host 0.0.0.0 --port 5000";
-        # environment = {
-        #   PYTHONPATH="${myPythonEnv}/${pkgs.python3.sitePackages}";
-        # };
+        ExecStart = "${pkgs.mlflow-server}/bin/gunicornMlflow -b 0.0.0.0:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
         Restart = "always";
         ProtectSystem = "strict";
         ReadWritePaths = [ "/var/lib/mlflow" ];
