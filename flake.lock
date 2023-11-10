@@ -361,11 +361,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1698429334,
-        "narHash": "sha256-Gq3+QabboczSu7RMpcy79RSLMSqnySO3wsnHQk4DfbE=",
+        "lastModified": 1699569089,
+        "narHash": "sha256-MdOnyXrmMdVU9o7GpcbWKgehoK9L76ihp8rTikPcC1k=",
         "owner": "lnl7",
         "repo": "nix-darwin",
-        "rev": "afe83cbc2e673b1f08d32dd0f70df599678ff1e7",
+        "rev": "c8f385766ba076a096caa794309c40f89894d88a",
         "type": "github"
       },
       "original": {
@@ -753,11 +753,11 @@
         "rust-overlay": "rust-overlay_5"
       },
       "locked": {
-        "lastModified": 1699144622,
-        "narHash": "sha256-vZGqjQrUYFqvZwWJJC77ll21QP/Ps7qKUZQW3Z4+4Mk=",
+        "lastModified": 1699552195,
+        "narHash": "sha256-yysI+9C6qXmbMkwTRR9gFAk6TZ1LJ3tIiMH3PiNeu54=",
         "owner": "DeterminateSystems",
         "repo": "flake-checker",
-        "rev": "ad86851c6161a4c90a07526bd7686885d745f4d0",
+        "rev": "f00e9ce806afbc436e80e7db2b6c055a935d4b3e",
         "type": "github"
       },
       "original": {
@@ -3035,11 +3035,11 @@
     },
     "nixpkgs_21": {
       "locked": {
-        "lastModified": 1699169573,
-        "narHash": "sha256-cvUb1xZkvOp3W2SzylStrTirhVd9zCeo5utJl9nSIhw=",
+        "lastModified": 1699291058,
+        "narHash": "sha256-5ggduoaAMPHUy4riL+OrlAZE14Kh7JWX4oLEs22ZqfU=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "aeefe2054617cae501809b82b44a8e8f7be7cc4b",
+        "rev": "41de143fda10e33be0f47eab2bfe08a50f234267",
         "type": "github"
       },
       "original": {
@@ -3063,19 +3063,6 @@
         "ref": "master",
         "repo": "nixpkgs",
         "type": "github"
-      }
-    },
-    "nixpkgs_23": {
-      "locked": {
-        "lastModified": 1689192006,
-        "narHash": "sha256-QM0f0d8oPphOTYJebsHioR9+FzJcy1QNIzREyubB91U=",
-        "path": "/nix/store/3j9garb3574mxikwbi6zn594j8mjd19s-source",
-        "rev": "2de8efefb6ce7f5e4e75bdf57376a96555986841",
-        "type": "path"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "type": "indirect"
       }
     },
     "nixpkgs_3": {
@@ -3259,11 +3246,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1699236273,
-        "narHash": "sha256-D3aPI98dUTuktW9jo05y7E31j++1E81dmP8/aQx1lrM=",
+        "lastModified": 1699627475,
+        "narHash": "sha256-/Vj3NbIDBn+K0STgMqB+jSqQXs4gb0S8eDjbkuKcf54=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "8476fe748f6f45fb2340f24a792c0475a0c849a7",
+        "rev": "b5c981ce2bb878af4e48a43182031ca1e2714b89",
         "type": "github"
       },
       "original": {
@@ -3778,11 +3765,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1699231189,
-        "narHash": "sha256-sW+/iiWdew5mftukqVm7AXPimyAWd6dMOfDkqnyBIec=",
+        "lastModified": 1699564504,
+        "narHash": "sha256-M/hlnnot4uly/wnbtO9o495aCkNPiIoPOb4+bT3S4rA=",
         "owner": "nix-community",
         "repo": "poetry2nix",
-        "rev": "8810f7d31d4d8372f764d567ea140270745fe173",
+        "rev": "d41df260abef6a15478ff994a938e9acfb9a42e9",
         "type": "github"
       },
       "original": {
@@ -3942,7 +3929,6 @@
         "nur": "nur",
         "poetry2nix": "poetry2nix_4",
         "sbomnix": "sbomnix",
-        "scientific-fhs": "scientific-fhs",
         "snowfall-lib": "snowfall-lib_3",
         "technofab": "technofab",
         "unstable": "unstable",
@@ -4174,24 +4160,6 @@
       "original": {
         "owner": "tiiuae",
         "repo": "sbomnix",
-        "type": "github"
-      }
-    },
-    "scientific-fhs": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_23"
-      },
-      "locked": {
-        "lastModified": 1698186043,
-        "narHash": "sha256-SY2WCqjy/rJa2nUa5mCkoveu1coGokj/FLLJZ3eHglY=",
-        "owner": "olynch",
-        "repo": "scientific-fhs",
-        "rev": "1aaeaf6d7e3d27b8273e39bef85d6101d33aa4c1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "olynch",
-        "repo": "scientific-fhs",
         "type": "github"
       }
     },

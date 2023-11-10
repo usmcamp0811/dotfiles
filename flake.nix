@@ -108,7 +108,6 @@
 
     poetry2nix.url = "github:nix-community/poetry2nix";
 
-    scientific-fhs.url = "github:olynch/scientific-fhs";
     julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
   };
 
