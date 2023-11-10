@@ -70,19 +70,13 @@ in
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       environment = {
-        # MLFLOW_BACKEND_STORE_URI="${cfg.dbURI}";
-        MLFLOW_BACKEND_STORE_URI="file:///var/lib/mlflow";
+        MLFLOW_BACKEND_STORE_URI="${cfg.dbURI}";
         MLFLOW_ARTIFACT_ROOT="file:///var/lib/mlflow/artifacts";
 
-        # MLFLOW_DEFAULT_ARTIFACT_ROOT="${cfg.artifactRoot}";
+        MLFLOW_DEFAULT_ARTIFACT_ROOT="${cfg.artifactRoot}";
         MLFLOW_HOST="0.0.0.0";
         MLFLOW_PORT="5000";
-        # MLFLOW_BACKEND_STORE_URI="${cfg.artifactRoot}";
       };
-      # script = ''
-      #   ${pkgs.mlflow-server}/bin/mlflow server
-      #
-      # '';
       serviceConfig = {
         User = "mlflow";
         ExecStart = "${pkgs.campground.mlflow}/bin/gunicornMlflow -b 127.0.0.1:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";

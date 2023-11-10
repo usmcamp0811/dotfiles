@@ -26,7 +26,6 @@ let
       pkgs.python3Packages.boto3
       pkgs.python3Packages.mysqlclient
       pkgs.python3Packages.psycopg2
-      pkgs.python3Packages.mlflow
     ];
 
     postPatch = ''
@@ -37,10 +36,11 @@ let
 
     gunicornScript = writeText "gunicornMlflow"
     ''
-        #!/usr/bin/env python
+        #!${pkgs.python3}/bin/python
         import re
         import sys
         from gunicorn.app.wsgiapp import run
+
         if __name__ == '__main__':
           sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', ''', sys.argv[0])
           sys.exit(run())
