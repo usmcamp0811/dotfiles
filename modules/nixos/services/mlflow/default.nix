@@ -50,11 +50,6 @@ in
       ];
     };
 
-    environment.systemPackages = with pkgs; [
-      mlflow-server
-      python3Packages.mlflow
-    ];
-
     services.nginx = {
       enable = true;
       virtualHosts = {
