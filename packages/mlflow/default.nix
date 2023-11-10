@@ -26,6 +26,7 @@ let
       pkgs.python3Packages.boto3
       pkgs.python3Packages.mysqlclient
       pkgs.python3Packages.psycopg2
+      pkgs.python3Packages.mlflow
     ];
 
     postPatch = ''
