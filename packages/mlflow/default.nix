@@ -18,13 +18,14 @@ let
 
   description = "MLFlow hack job";
 
-  version = "1.9.2";
+  version = "2.3.2";
 
-  pkgs.python3Packages.toPythonApplication (pkgs.python3Packages.mlflow.overridePythonAttrs(old: rec {
+  mlflow = pkgs.python3Packages.toPythonApplication (pkgs.python3Packages.mlflow.overridePythonAttrs(old: rec {
 
     propagatedBuildInputs = old.propagatedBuildInputs ++ [
-      py.boto3
-      py.mysqlclient
+      pkgs.python3Packages.boto3
+      pkgs.python3Packages.mysqlclient
+      pkgs.python3Packages.psycopg2
     ];
 
     postPatch = ''
@@ -49,6 +50,11 @@ let
       cp ${gunicornScript} $gpath
       chmod 555 $gpath
     '';
-}))
+  }));
+  new-meta = with lib; {
+    description = description;
+    license = licenses.asl20;
+    maintainers = with maintainers; [ mattcamp ];
+  };
 in
 override-meta new-meta mlflow

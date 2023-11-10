@@ -3,6 +3,7 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.mlflow;
+  inherit (pkgs.campground) mlflow;
   mlflowPlusPostgres = pkgs.python3.withPackages (ps: with ps; [
     mlflow
     psycopg2  
@@ -76,7 +77,7 @@ in
       };
       serviceConfig = {
         User = "mlflow";
-        ExecStart = "${pkgs.mlflow-server}/bin/gunicornMlflow -b 127.0.0.1:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
+        ExecStart = "${pkgs.mlflow}/bin/gunicornMlflow -b 127.0.0.1:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
         Restart = "always";
         ProtectSystem = "strict";
         ReadWritePaths = [ "/var/lib/mlflow" ];
