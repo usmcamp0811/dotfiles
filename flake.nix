@@ -116,7 +116,6 @@
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
-
         snowfall = {
           meta = {
             name = "campground";

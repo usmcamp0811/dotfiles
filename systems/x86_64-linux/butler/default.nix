@@ -18,7 +18,7 @@ in
 
   # services.xserver.videoDrivers = [ "nouveau" ];
   # boot.blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
-  # boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   campground.nix = {
     package = pkgs.nixUnstable;
@@ -84,7 +84,7 @@ in
 
     hardware.ckb-next = enabled;
     # hardware.networking = enabled;
-    # hardware.nvidia = enabled;
+    hardware.nvidia-prime = enabled;
     # hardware.intel = enabled;
 
   };

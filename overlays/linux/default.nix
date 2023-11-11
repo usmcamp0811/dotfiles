@@ -1,4 +1,4 @@
-{ channels, ... }:
+{ unstable, channels, ... }:
 
 final: prev:
 
@@ -8,6 +8,9 @@ final: prev:
   # hardware.opengl.package = channels.unstable.mesa_drivers;
   # Fixes an issue with building Raspberry Pi kernels:
   # https://github.com/NixOS/nixpkgs/issues/154163
+  # linuxPackages_latest = unstable.legacyPackages.${prev.system}.linuxPackages_latest;
+  # nvidia_x11 = unstable.legacyPackages.${prev.system}.linuxPackages_latest.nvidia_x11;
+
   makeModulesClosure = x: prev.makeModulesClosure (x // {
     allowMissing = true;
   });

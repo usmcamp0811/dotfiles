@@ -22,7 +22,6 @@ in
   };
 
   config = mkIf cfg.enable {
-
       services.udev.extraRules = ''
         KERNEL=="nvidia*", MODE="0666"
       '';
@@ -48,6 +47,7 @@ in
         "uvcvideo"
       ];
       extraModulePackages = [ config.boot.kernelPackages.nvidia_x11 ];
+
       kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
       kernelParams = [
         "nouveau.modeset=0"
