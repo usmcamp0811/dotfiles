@@ -14,16 +14,40 @@ let
   inherit (lib.campground) override-meta;
 
   uwsgiWithPython3 = pkgs.uwsgi.override {
-    plugins = [ "python3" ];
+    plugins = [ "python311" ];
   };
+
+  pypkgs-build-requirements = {
+    drf-flex-fields = [ "setuptools" ];
+    attr = [ "setuptools"];
+    attrs = [ "hatchling" "setuptools"];
+    django-ranged-fileresponse = [ "setuptools" ];
+    rules = [ "setuptools" ];
+    launchdarkly-server-sdk = [ "setuptools" ];
+  };
+  p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super:
+    builtins.mapAttrs (package: build-requirements:
+      (builtins.getAttr package super).overridePythonAttrs (old: {
+        # buildInputs = (old.buildInputs or [ ]) ++ (builtins.map (pkg: if builtins.isString pkg then builtins.getAttr pkg super else pkg) build-requirements);
+        # sqlparse = super.structlog.overridePythonAttrs (old: {
+        #   buildInputs = old.buildInputs or [ ] ++ [ pkgs.python311Packages.flit-core ];
+        # });
+        launchdarkly-server-sdk = super.structlog.overridePythonAttrs (old: {
+          buildInputs = old.buildInputs or [ ] ++ [ pkgs.python311Packages.protobuf ];
+        });
+      })
+    ) pypkgs-build-requirements
+  );
 
   poetry-label-studio = pkgs.poetry2nix.mkPoetryEnv {
     projectDir = ./.;
-    # pyproject = ./pyproject.toml;
-    # poetrylock = ./poetry.lock;
-    # editablePackageSources = {
-    #   label-studio = ./label_studio/frontend;
-    # };
+    pyproject = ./pyproject.toml;
+    python = pkgs.python311;
+    overrides = p2n-overrides;
+    preferWheels = true;
+    editablePackageSources = {
+      label-studio = ./label_studio/frontend;
+    };
   };
 
   # uwsgiConfig = writeText "uwsgi.ini" ''
