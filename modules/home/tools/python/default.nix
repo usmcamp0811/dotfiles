@@ -18,6 +18,7 @@ in
       zlib
       gcc
       glib
+      poetry
     ];
 
   };
