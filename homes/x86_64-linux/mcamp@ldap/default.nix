@@ -58,6 +58,7 @@ with lib.campground;
       jupyter = enabled;
       python = enabled;
       emoji-picker = enabled;
+      dvc = enabled;
     };
   };
 
