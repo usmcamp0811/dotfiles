@@ -50,6 +50,7 @@ in
       gptfdisk 
       parted
       tmux
+      cntr
     ];
 
   };
