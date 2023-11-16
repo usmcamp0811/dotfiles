@@ -90,7 +90,7 @@ in
 
     hardware.ckb-next = enabled;
     # hardware.networking = enabled;
-    hardware.nvidia-prime = enabled;
+    # hardware.nvidia-prime = enabled;
     # hardware.intel = enabled;
 
   };
