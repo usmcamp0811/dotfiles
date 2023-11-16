@@ -41,6 +41,9 @@ in
       # searx = {
       #   enable = true;
       # };
+      minio = {
+        enable = true;
+      };
       mlflow = {
         enable = true;
         # port = 5000;
