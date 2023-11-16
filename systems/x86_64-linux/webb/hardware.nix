@@ -63,6 +63,10 @@
       fsType = "zfs";
     };
 
+  fileSystems."/var/lib/minio" =
+    { device = "NIXROOT/persist/minio";
+      fsType = "zfs";
+    };
 
   swapDevices = [ ];
 
@@ -85,6 +89,5 @@
   services.nfs.server.exports = ''
     /k8s *(rw,fsid=root,no_subtree_check)
     /webb *(rw,fsid=root,no_subtree_check)
-    /var/lib/mlflow/artifacts *(rw,fsid=root,no_subtree_check)
   '';
 }
