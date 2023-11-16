@@ -18,8 +18,23 @@ in
     enable = mkBoolOpt false "Enable an MLFlow;";
     port = mkOpt int 8000 "Port to Host the mlflow server on.";
     dbURI = mkOpt str "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql" "Backend DB URI";
-    artifactRoot = mkOpt str "/var/lib/mlflow" "Artifact Root Location";
+    artifactRoot = mkOpt str "s3://mlflow" "Artifact Root Location";
+    s3EndpointURL = mkOpt str "https://api.s3.lan.aicampground.com" "S3 Storage Endpoint URL";
+    s3Region = mkOpt str "campground" "S3 Region";
 
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/mlflow" "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -71,8 +86,10 @@ in
       wantedBy = [ "multi-user.target" ];
       environment = {
         MLFLOW_BACKEND_STORE_URI="${cfg.dbURI}";
-        MLFLOW_ARTIFACT_ROOT="file:///var/lib/mlflow/artifacts";
-
+        MLFLOW_ARTIFACT_ROOT="${cfg.artifactRoot}";
+        MLFLOW_S3_ENDPOINT_URL="${cfg.s3EndpointURL}";
+        MLFLOW_S3_IGNORE_TLS="true";
+        AWS_DEFAULT_REGION="${cfg.s3Region}";
         MLFLOW_DEFAULT_ARTIFACT_ROOT="${cfg.artifactRoot}";
         MLFLOW_HOST="0.0.0.0";
         MLFLOW_PORT="5000";
@@ -89,5 +106,32 @@ in
 
 
     networking.firewall.allowedTCPPorts = [ cfg.port ];
+
+    campground.services.vault-agent.services.mlflow = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets.environment.templates = {
+        mlflow = {
+          text = ''
+            {{ with secret "${cfg.vault-path}" }}
+            AWS_ACCESS_KEY_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AWS_ACCESS_KEY_ID }}{{ else }}{{ .Data.data.AWS_ACCESS_KEY_ID }}{{ end }}'
+            AWS_SECRET_ACCESS_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AWS_SECRET_ACCESS_KEY }}{{ else }}{{ .Data.data.AWS_SECRET_ACCESS_KEY }}{{ end }}'
+            {{ end }}
+          '';
+        };
+      };
+    };
   };
+
 }
