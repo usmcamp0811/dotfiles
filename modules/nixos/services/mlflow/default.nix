@@ -19,8 +19,8 @@ in
     port = mkOpt int 8000 "Port to Host the mlflow server on.";
     dbURI = mkOpt str "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql" "Backend DB URI";
     artifactRoot = mkOpt str "s3://mlflow" "Artifact Root Location";
-    s3EndpointURL = mkOpt str "https://api.s3.lan.aicampground.com" "S3 Storage Endpoint URL";
-    s3Region = mkOpt str "campground" "S3 Region";
+    s3EndpointURL = mkOpt str "https://s3-api.lan.aicampground.com" "S3 Storage Endpoint URL";
+    s3Region = mkOpt str "us-east-1" "S3 Region";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
