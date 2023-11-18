@@ -33,14 +33,10 @@
       fsType = "vfat";
     };
 
-  # fileSystems."/chesty" =
-  #   { device = "/dev/disk/by-uuid/3059f94a-0c8a-449a-9f02-bf6fed3c1094";
-  #     fsType = "ext4";
-  #   };
-  #
-  #   environment.etc."crypttab".text = ''
-  #     luks /dev/disk/by-uuid/402d0165-e7b1-415c-aa9e-7f980a02fa15 /root/luks.key
-  #   '';
+  fileSystems."/mnt/chestyfs" =
+    { device = "ChestyPoolr/chestyfs";
+      fsType = "zfs";
+    };
 
   swapDevices = [ ];
 
@@ -56,4 +52,10 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  services.nfs.server.enable = true;
+  services.nfs.server.exports = ''
+    /mnt/chestyfs *(rw,fsid=root,no_subtree_check)
+  '';
+
+
 }
