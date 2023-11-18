@@ -41,6 +41,7 @@ in
     nfs = {
       campfs = enabled;
       webb = enabled;
+      chestyfs = enabled;
     };
 
     hardware.audio = {

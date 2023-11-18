@@ -18,6 +18,7 @@ in
     archetypes.workstation = enabled;
     tools.icehouse = enabled;
     nfs.campfs = enabled;
+    nfs.chestyfs = enabled;
 
     system = {
       boot = enabled;
