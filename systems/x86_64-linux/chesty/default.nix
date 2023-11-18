@@ -53,7 +53,7 @@ in
       };
       ldap-client = enabled;
       tang = enabled;
-      # k0sworker = enabled;
+      k0sworker = enabled;
       ntp = enabled;
 
       zfs-key-server = {
@@ -82,6 +82,7 @@ in
         settings = { 
           vault = { 
             address = "https://vault.lan.aicampground.com"; 
+            # address = "http://vault.lan/";
             role-id = "/var/lib/vault/chesty/role-id"; 
             secret-id = "/var/lib/vault/chesty/secret-id"; 
           }; 
