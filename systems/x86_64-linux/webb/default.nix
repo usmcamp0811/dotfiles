@@ -91,6 +91,7 @@ in
       tang = enabled;
       k0sworker = enabled;
       ntp = enabled;
+      openvpn = enabled;
 
       zfs-key-server = {
         enable = true;
