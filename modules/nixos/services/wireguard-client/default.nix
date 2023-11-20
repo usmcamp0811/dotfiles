@@ -2,10 +2,10 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.openvpn;
+  cfg = config.campground.services.wireguard-client;
 in
 {
-  options.campground.services.openvpn = with types; {
+  options.campground.services.wireguard-client = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     pulicKey = mkOpt str "123456789" "The client's public key";
     endpoint = mkOpt str "vpn.aicampground.com" "VPN Domain Name / IP address.";
