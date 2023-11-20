@@ -14,6 +14,7 @@ in
     ips = mkOpt (listOf str) [ "10.100.0.2/24" "fc10:100:0::1/64" ] "List of IPs of the server end of the tunner interface.";
     allowedIPs = mkOpt (listOf str) [ "10.100.0.5/32" "fc10:100:0::5/128" ] "List of IPs of the client IPs supported.";
     postRoutCIDR = mkOpt str "10.8.0.0/24" "CIDR to route traffic to..";
+    peers = mkOpt (listOf (attrsOf str)) "List of Peers";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
@@ -54,11 +55,7 @@ in
      postShutdown = ''
        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s ${cfg.postRoutCIDR} -o eth0 -j MASQUERADE
      '';
-     peers = [
-       { publicKey = cfg.publicKey;
-         allowedIPs = cfg.allowedIPs;
-       }
-     ];
+     peers = cfg.peers;
     };
 
     systemd.services.getWireguardKeys = {
