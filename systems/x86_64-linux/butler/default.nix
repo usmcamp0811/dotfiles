@@ -123,6 +123,10 @@ in
        "http://ermy:1234" 
       ];
     };
+    wireguard = {
+      enable = true;
+      ips = [ "10.100.0.2/32" "2001:db8::1/128" ];
+    };
     ldap-client = enabled;
     cac = {
       enable = false;
