@@ -14,8 +14,27 @@ in
     ips = mkOpt (listOf str) [ "10.100.0.2/24" "fc10:100:0::1/64" ] "List of IPs of the server end of the tunner interface.";
     allowedIPs = mkOpt (listOf str) [ "10.100.0.5/32" "fc10:100:0::5/128" ] "List of IPs of the client IPs supported.";
     postRoutCIDR = mkOpt str "10.8.0.0/24" "CIDR to route traffic to..";
-    peers = mkOpt (listOf (attrsOf str)) "List of Peers";
-
+    peers = mkOption {
+      type = types.listOf (types.submodule {
+        options = {
+          publicKey = mkOption {
+            type = types.str;
+            description = "Public key of the peer.";
+          };
+          allowedIPs = mkOption {
+            type = types.listOf types.str;
+            default = [];
+            description = "IPs allowed for this peer.";
+          };
+        };
+      });
+      default = [];
+      description = "Configuration for WireGuard peers.";
+      example = [
+        { publicKey = "public1"; allowedIPs = [ "10.100.0.2/32" ]; }
+        { publicKey = "public2"; allowedIPs = [ "10.100.0.3/32" ]; }
+      ];
+    };
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/wireguard" "The Vault path to the Server Cert in Vault";
