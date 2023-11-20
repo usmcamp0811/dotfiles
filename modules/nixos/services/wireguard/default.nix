@@ -8,11 +8,11 @@ in
   options.campground.services.wireguard = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     server = mkBoolOpt true "Is a Wireguard Server";
-    pulicKey = mkOpt str "123456789" "The server's public key";
+    publicKey = mkOpt str "123456789" "The server's public key";
     endpoint = mkOpt str "vpn.aicampground.com" "VPN Domain Name / IP address.";
-    port = mkOpt int "1149" "Port to use for the VPN";
-    ips = mkOpt listOf str [ "10.100.0.2/24" "fc10:100:0::1/64" ] "List of IPs of the server end of the tunner interface.";
-    allowedIPs = mkOpt listOf str [ "10.100.0.5/32" "fc10:100:0::5/128" ] "List of IPs of the client IPs supported.";
+    port = mkOpt int 1149 "Port to use for the VPN";
+    ips = mkOpt (listOf str) [ "10.100.0.2/24" "fc10:100:0::1/64" ] "List of IPs of the server end of the tunner interface.";
+    allowedIPs = mkOpt (listOf str) [ "10.100.0.5/32" "fc10:100:0::5/128" ] "List of IPs of the client IPs supported.";
     postRoutCIDR = mkOpt str "10.8.0.0/24" "CIDR to route traffic to..";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
@@ -60,7 +60,18 @@ in
        }
      ];
     };
-    campground.services.vault-agent.services.genVPNserver-cert = {
+
+    systemd.services.getWireguardKeys = {
+      description = "Fetch Private Key from Vault";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";  # Use the root user to create the folder and set permissions
+        ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
+      };
+      wantedBy = [ "multi-user.target" ];
+    };
+
+    campground.services.vault-agent.services.getWireguardKeys = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
