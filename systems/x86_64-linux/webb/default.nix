@@ -91,7 +91,22 @@ in
       tang = enabled;
       k0sworker = enabled;
       ntp = enabled;
-      openvpn = enabled;
+      wireguard = {
+        enable = true;
+        publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
+        ips = [ "10.100.0.1/24" "fc10:100:0::1/64" ];
+        allowedIPs = [ "10.100.0.5/32" "fc10:100:0::5/128" ];
+        peers = [
+          { # butler
+            publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
+            allowedIPs = [ "10.100.0.2/32" ];
+          }
+          { # phone
+            publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
+            allowedIPs = [ "10.100.0.3/32" ];
+          }
+        ];
+      };
 
       zfs-key-server = {
         enable = true;
