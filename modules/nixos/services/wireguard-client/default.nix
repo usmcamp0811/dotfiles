@@ -29,8 +29,10 @@ in
 
   config = mkIf cfg.enable {
     networking.firewall = {
+      checkReversePath = false; 
       allowedUDPPorts = [ cfg.port ]; # Clients and peers can use the same port, see listenport
     };
+
     # Enable WireGuard
     networking.wireguard.interfaces = {
       # "wg0" is the network interface name. You can name the interface arbitrarily.
