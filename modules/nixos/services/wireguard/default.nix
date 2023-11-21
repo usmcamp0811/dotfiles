@@ -26,13 +26,17 @@ in
             default = [];
             description = "IPs allowed for this peer.";
           };
+          presharedKeyFile = mkOption {
+            type = types.str;
+            description = "PreShared key of the peer.";
+          };
         };
       });
       default = [];
       description = "Configuration for WireGuard peers.";
       example = [
-        { publicKey = "public1"; allowedIPs = [ "10.100.0.2/32" ]; }
-        { publicKey = "public2"; allowedIPs = [ "10.100.0.3/32" ]; }
+        { publicKey = "public1"; presharedKeyFile = "/var/lib/wireguard/preshared-keyfile"; allowedIPs = [ "10.100.0.2/32" ]; }
+        { publicKey = "public2"; presharedKeyFile = "/var/lib/wireguard/preshared-keyfile"; allowedIPs = [ "10.100.0.3/32" ]; }
       ];
     };
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
