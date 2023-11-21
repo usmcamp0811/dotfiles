@@ -51,7 +51,7 @@ in
     };
 
     apps = {
-      k9s = enabled; 
+      # k9s = enabled; 
       virtmanager = enabled;
     };
 
@@ -66,10 +66,10 @@ in
 
     system = {
       # manage local passwd in vault
-      passwds = enabled;
+      # passwds = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        enable = true;
+        # enable = true;
         networks = {
           SkyNet = {
             ssid = "SkyNet";
@@ -106,7 +106,7 @@ in
     docker = enabled;
     label-studio = enabled;
     cert-manager = {
-      enable = true;
+      # enable = true;
       certs = [
         {
           namespace = "bitwarden";
@@ -126,14 +126,14 @@ in
     wireguard = {
       enable = true;
       port = 1149;
-      ips = [ "10.100.0.2/32" "2001:db8::1/128" ];
+      ips = [ "10.100.0.2/32" ];
     };
     ldap-client = enabled;
     cac = {
       enable = false;
     };
     user-secrets = {
-      enable = true;
+      # enable = true;
       users = {
         mcamp =  {
           files = [
@@ -145,7 +145,7 @@ in
       };
     };
     vault-agent = {
-      enable = true;
+      # enable = true;
       settings = {
         vault = {
           address = "https://vault.lan.aicampground.com";

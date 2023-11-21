@@ -141,16 +141,16 @@ ldap_group_member = memberUid
       wantedBy = [ "multi-user.target" ];
     };
 
-    systemd.services.copyCAcert = {
-      description = "Copy LDAP CA Cert somewhere to avoid SSSD shitting the bed randomly";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/ca.crt /var/lib/vault/ca.crt";
-      };
-      wantedBy = [ "multi-user.target" ];
-      before = [ "nscd.service" ];
-    };
+    # systemd.services.copyCAcert = {
+    #   description = "Copy LDAP CA Cert somewhere to avoid SSSD shitting the bed randomly";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     User = "root";
+    #     ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/ca.crt /var/lib/vault/ca.crt";
+    #   };
+    #   wantedBy = [ "multi-user.target" ];
+    #   before = [ "nscd.service" ];
+    # };
 
     campground.services.vault-agent.services.copyCAcert = {
       settings = {

@@ -33,7 +33,6 @@ in
     campground.services.vault-agent.services = lib.mapAttrs' (user: secrets: {
       name = "user-secrets-${user}";
       value = {
-        enable = true;
         settings = {
           vault.address = cfg.vault-address;
           auto_auth.method = [{

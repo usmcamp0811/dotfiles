@@ -57,7 +57,7 @@ in
             publicKey = cfg.publicKey;
 
             # Forward all the traffic via VPN.
-            allowedIPs = [ "0.0.0.0/0" ];
+            allowedIPs = [ "0.0.0.0/0" "::/0" ];
             # Or forward only particular subnets
             #allowedIPs = [ "10.100.0.1" "91.108.12.0/22" ];
 
@@ -70,57 +70,59 @@ in
         ];
       };
     };
-    systemd.services.getWireguardKeys = {
-      description = "Fetch Private Key from Vault";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";  # Use the root user to create the folder and set permissions
-        ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
-      };
-      wantedBy = [ "multi-user.target" ];
-    };
+    # systemd.services.getWireguardKeys = {
+    #   description = "Fetch Private Key from Vault";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     User = "root";  # Use the root user to create the folder and set permissions
+    #     ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
+    #     # ExecStart = "/bin/sh -c 'test -f /tmp/detsys-vault/getWireguardKeys.sh && /tmp/detsys-vault/getWireguardKeys.sh || exit 0'";
+    #
+    #   };
+    #   wantedBy = [ "multi-user.target" ];
+    # };
 
-    campground.services.vault-agent.services.getWireguardKeys = {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
-        };
-      };
-      secrets = {
-        file = {
-          files = {
-            "getWireguardKeys.sh" = {
-              text = ''
-                #!/bin/sh
-                set -e  # exit immediately on error
-
-                # Create directory for VPN certificates
-                mkdir -p /var/lib/wireguard/
-
-                cat <<EOL > /var/lib/wireguard/${config.networking.hostName}
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data."${config.networking.hostName}" }}{{ else }}{{ .Data.data."${config.networking.hostName}" }}{{ end }}{{ end }}
-                EOL
-                cat <<EOL > /var/lib/wireguard/preshared-private-key
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.privateKey }}{{ else }}{{ .Data.data.privateKey }}{{ end }}{{ end }}
-                EOL
-
-                # Fix permissions
-                chmod -R 0600 /var/lib/wireguard
-              '';
-              permissions = "0400";
-              change-action = "restart";
-            };
-          };
-        };
-      };
-    };
+    # campground.services.vault-agent.services.getWireguardKeys = {
+    #   settings = {
+    #     vault.address = cfg.vault-address;
+    #     auto_auth = {
+    #       method = [{
+    #         type = "approle";
+    #         config = {
+    #           role_id_file_path = cfg.role-id;
+    #           secret_id_file_path = cfg.secret-id;
+    #           remove_secret_id_file_after_reading = false;
+    #         };
+    #       }];
+    #     };
+    #   };
+    #   secrets = {
+    #     file = {
+    #       files = {
+    #         "getWireguardKeys.sh" = {
+    #           text = ''
+    #             #!/bin/sh
+    #             set -e  # exit immediately on error
+    #
+    #             # Create directory for VPN certificates
+    #             mkdir -p /var/lib/wireguard/
+    #
+    #             cat <<EOL > /var/lib/wireguard/${config.networking.hostName}
+    #             {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data."${config.networking.hostName}" }}{{ else }}{{ .Data.data."${config.networking.hostName}" }}{{ end }}{{ end }}
+    #             EOL
+    #             cat <<EOL > /var/lib/wireguard/preshared-private-key
+    #             {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.presharedKey }}{{ else }}{{ .Data.data.presharedKey }}{{ end }}{{ end }}
+    #             EOL
+    #
+    #             # Fix permissions
+    #             chmod -R 0600 /var/lib/wireguard
+    #           '';
+    #           permissions = "0400";
+    #           change-action = "restart";
+    #         };
+    #       };
+    #     };
+    #   };
+    # };
   };
 }

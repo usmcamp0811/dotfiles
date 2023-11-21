@@ -96,15 +96,15 @@ in
       peers = cfg.peers;
     };
 
-    systemd.services.getWireguardKeys = {
-      description = "Fetch Private Key from Vault";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";  # Use the root user to create the folder and set permissions
-        ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
-      };
-      wantedBy = [ "multi-user.target" ];
-    };
+    # systemd.services.getWireguardKeys = {
+    #   description = "Fetch Private Key from Vault";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     User = "root";  # Use the root user to create the folder and set permissions
+    #     ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
+    #   };
+    #   wantedBy = [ "multi-user.target" ];
+    # };
 
     campground.services.vault-agent.services.getWireguardKeys = {
       settings = {
