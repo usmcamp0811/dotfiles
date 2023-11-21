@@ -93,9 +93,9 @@ in
       ntp = enabled;
       wireguard = {
         enable = true;
-        publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
-        ips = [ "10.100.0.1/24" "fc10:100:0::1/64" ];
-        allowedIPs = [ "10.100.0.5/32" "fc10:100:0::5/128" ];
+        port = 1149;
+        # publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
+        ips = [ "10.100.0.1/24" ];
         peers = [
           { # butler
             publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";

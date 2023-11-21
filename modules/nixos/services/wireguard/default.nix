@@ -13,7 +13,7 @@ in
     port = mkOpt int 1149 "Port to use for the VPN";
     ips = mkOpt (listOf str) [ "10.100.0.2/24" "fc10:100:0::1/64" ] "List of IPs of the server end of the tunner interface.";
     allowedIPs = mkOpt (listOf str) [ "10.100.0.5/32" "fc10:100:0::5/128" ] "List of IPs of the client IPs supported.";
-    postRoutCIDR = mkOpt str "10.8.0.0/24" "CIDR to route traffic to..";
+    postRoutCIDR = mkOpt str "10.100.0.0/24" "CIDR to route traffic to..";
     peers = mkOption {
       type = types.listOf (types.submodule {
         options = {
@@ -51,30 +51,51 @@ in
   };
 
   config = mkIf cfg.enable {
+    networking.nat = {
+      enable = true;
+      enableIPv6 = true;
+      externalInterface = "eth0";
+      internalInterfaces = [ "wg0" ];
+    };
+    services.dnsmasq = {
+      enable = true;
+      settings = {
+        interface = "wg0";
+      };
+    };
 
-    networking.firewall.allowedUDPPorts = [ cfg.port ];
+    boot.kernel.sysctl = {
+      "net.ipv4.ip_forward" = 1;
+    };
+    networking.firewall.allowedUDPPorts = [ cfg.port 53 ];
+    # networking.firewall.allowedTCPPorts = [ 53 ];
 
     networking.wireguard.enable = true;
     # TODO: Support multiple vpns
     networking.wireguard.interfaces."wg0" = {
-     privateKeyFile = "/var/lib/wireguard/wg0-private-key";
-     # The port that WireGuard listens to. Must be accessible by the client.
-     listenPort = cfg.port;
+      privateKeyFile = "/var/lib/wireguard/wg0-private-key";
+      # The port that WireGuard listens to. Must be accessible by the client.
+      listenPort = cfg.port;
+      # Determines the IP address and subnet of the server's end of the tunnel interface.
+      ips = cfg.ips;
 
-     # Determines the IP address and subnet of the server's end of the tunnel interface.
-     ips = cfg.ips;
+      # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
+      # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
+      postSetup = ''
+        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s ${cfg.postRoutCIDR} -o eno1 -j MASQUERADE;
+        # # New rules for forwarding from wg0 to eth0 and vice versa
+        # ${pkgs.iptables}/bin/iptables -A FORWARD -i wg0 -o eth0 -j ACCEPT
+        # ${pkgs.iptables}/bin/iptables -A FORWARD -i eth0 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+      '';
 
-     # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
-     # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
-     postSetup = ''
-       ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s ${cfg.postRoutCIDR} -o eth0 -j MASQUERADE;
-     '';
-
-     # This undoes the above command
-     postShutdown = ''
-       ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s ${cfg.postRoutCIDR} -o eth0 -j MASQUERADE
-     '';
-     peers = cfg.peers;
+      # This undoes the above command
+      postShutdown = ''
+        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s ${cfg.postRoutCIDR} -o eno1 -j MASQUERADE
+        # # Remove forwarding rules
+        # ${pkgs.iptables}/bin/iptables -D FORWARD -i wg0 -o eth0 -j ACCEPT
+        # ${pkgs.iptables}/bin/iptables -D FORWARD -i eth0 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+      '';
+      peers = cfg.peers;
     };
 
     systemd.services.getWireguardKeys = {
