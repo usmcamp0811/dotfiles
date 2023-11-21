@@ -94,15 +94,16 @@ in
       wireguard = {
         enable = true;
         port = 1149;
-        # publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
         ips = [ "10.100.0.1/24" ];
         peers = [
           { # butler
             publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
+            presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
             allowedIPs = [ "10.100.0.2/32" ];
           }
           { # phone
             publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
+            presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
             allowedIPs = [ "10.100.0.3/32" ];
           }
         ];

@@ -83,17 +83,11 @@ in
       # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
       postSetup = ''
         ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s ${cfg.postRoutCIDR} -o eno1 -j MASQUERADE;
-        # # New rules for forwarding from wg0 to eth0 and vice versa
-        # ${pkgs.iptables}/bin/iptables -A FORWARD -i wg0 -o eth0 -j ACCEPT
-        # ${pkgs.iptables}/bin/iptables -A FORWARD -i eth0 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
       '';
 
       # This undoes the above command
       postShutdown = ''
         ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s ${cfg.postRoutCIDR} -o eno1 -j MASQUERADE
-        # # Remove forwarding rules
-        # ${pkgs.iptables}/bin/iptables -D FORWARD -i wg0 -o eth0 -j ACCEPT
-        # ${pkgs.iptables}/bin/iptables -D FORWARD -i eth0 -o wg0 -m state --state RELATED,ESTABLISHED -j ACCEPT
       '';
       peers = cfg.peers;
     };
@@ -135,6 +129,10 @@ in
 
                 cat <<EOL > /var/lib/wireguard/wg0-private-key
                 {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.privateKey }}{{ else }}{{ .Data.data.privateKey }}{{ end }}{{ end }}
+                EOL
+
+                cat <<EOL > /var/lib/wireguard/wg0-preshared-key
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.presharedKey }}{{ else }}{{ .Data.data.presharedKey }}{{ end }}{{ end }}
                 EOL
 
                 # Fix permissions
