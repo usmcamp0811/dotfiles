@@ -40,14 +40,16 @@ in
         # Determines the IP address and subnet of the client's end of the tunnel interface.
         ips = cfg.ips;
         listenPort = cfg.port; # to match firewall allowedUDPPorts (without this wg uses random port numbers)
+        dns = "10.8.0.1";
 
         # Path to the private key file.
         #
         # Note: The private key can also be included inline via the privateKey option,
         # but this makes the private key world-readable; thus, using privateKeyFile is
         # recommended.
-        privateKeyFile = "/var/lib/wireguard/${config.networking.hostName}";
-        presharedKeyFile = "/var/lib/wireguard/preshared-private-key";
+        # privateKeyFile = "/var/lib/wireguard/${config.networking.hostName}";
+        privateKeyFile = "/var/lib/wireguard/wg0-private-key";
+        presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
 
         peers = [
           # For a client configuration, one peer entry for the server will suffice.
