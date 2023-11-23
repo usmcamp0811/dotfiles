@@ -45,6 +45,7 @@ in
       autorandr
       arandr
       go-sct
+      brightnessctl 
     ] ++ defaultExtensions;
 
 
