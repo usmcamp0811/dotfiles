@@ -38,7 +38,6 @@ in
   config = mkIf cfg.enable {
     systemd.services.wifi_passwords = {
       description = "Set/update all Wifi Passwords";
-      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/wifi-passwords";
         Type = "oneshot";

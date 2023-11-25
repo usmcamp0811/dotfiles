@@ -69,7 +69,7 @@ in
       passwds = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
-        # enable = true;
+        enable = true;
         networks = {
           SkyNet = {
             ssid = "SkyNet";
@@ -123,10 +123,11 @@ in
        "http://ermy:1234" 
       ];
     };
-    wireguard = {
+    wireguard-client = {
       enable = true;
       port = 1149;
       ips = [ "10.100.0.2/32" ];
+      publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
     };
     ldap-client = enabled;
     cac = {
