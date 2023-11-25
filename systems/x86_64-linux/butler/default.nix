@@ -66,7 +66,7 @@ in
 
     system = {
       # manage local passwd in vault
-      # passwds = enabled;
+      passwds = enabled;
       wifi = {
       # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         # enable = true;
@@ -145,10 +145,11 @@ in
       };
     };
     vault-agent = {
-      # enable = true;
+      enable = true;
       settings = {
         vault = {
-          address = "https://vault.lan.aicampground.com";
+          # address = "https://vault.lan.aicampground.com";
+          address = "https://vault.somewhere.com";
           role-id = "/var/lib/vault/butler/role-id";
           secret-id = "/var/lib/vault/butler/secret-id";
         };

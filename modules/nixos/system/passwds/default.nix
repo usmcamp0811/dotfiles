@@ -28,7 +28,7 @@ in
       description = "Set/update Local User & Root User Passwords";
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/set-passwds";
+        ExecStart = "VAULT_ADDR=${config.campground.services.vault-agent.settings.vault.address} ${pkgs.vault}/bin/vault status > /dev/null 2>&1 && ${pkgs.bash}/bin/bash /tmp/detsys-vault/set-passwds || echo 'Vault is not accessible'";
         Environment = "PATH=${pkgs.shadow}/bin:${pkgs.coreutils}/bin:${config.system.path}/bin";
         Type = "oneshot";
       };
