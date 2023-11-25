@@ -61,7 +61,7 @@ in
 
     nfs = {
       # campfs = enabled;
-      webb = enabled;
+      # webb = enabled;
     };
 
     system = {
