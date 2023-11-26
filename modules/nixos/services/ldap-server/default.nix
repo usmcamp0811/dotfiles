@@ -39,11 +39,11 @@ in
 
     system.activationScripts.copyLdapFiles = {
       text = ''
-        mkdir -p /var/ldap
-        cp ${user-template} /var/ldap/customUser.xml
-        cp ${entrypoint} /var/ldap/run
-        chmod 600 /var/ldap/customUser.xml
-        chmod 600 /var/ldap/run
+        mkdir -p /var/lib/ldap
+        cp ${user-template} /var/lib/ldap/customUser.xml
+        cp ${entrypoint} /var/lib/ldap/run
+        chmod 777 /var/lib/ldap/customUser.xml
+        chmod 777 /var/lib/ldap/run
       '';
     };
 
@@ -51,7 +51,7 @@ in
       phpldapadmin = {
         # image = "docker.io/osixia/phplpdapadmin:latest";
         # some stupid shit is going on with podman not getting the image.. need to hurry up making my phpldapadmin config thing  below
-        image = "dbb580facde3";
+        image = "dbb580facde30c5698bdc8945399de0709b75a5606182180f1d3da991c6c356d";
         ports = ["8080:80"];
         environment = {
           PHPLDAPADMIN_LDAP_HOSTS = "${cfg.ldap_uri}"; # Replace with your LDAP server address
@@ -59,8 +59,8 @@ in
 
         };
         volumes = [
-          "/var/ldap/customUser.xml:/templates/customUser.xml"
-          "/var/ldap/run:/container/tool/run"
+          "/var/lib/ldap/customUser.xml:/templates/customUser.xml"
+          "/var/lib/ldap/run:/container/tool/run"
           # "/tmp/detsys-vault/ca.crt:/container/service/phpldapadmin/assets/certs/ca.crt"
         ];
       };
