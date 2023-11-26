@@ -12,6 +12,7 @@ in
     port = mkOpt int "1149" "Port to use for the VPN";
     ips = mkOpt (listOf str) [ "10.100.0.5/32"] "List of IPs of the client's end of the tunner interface.";
     ip = mkOpt str "10.100.0.5/32" "List of IPs of the client's end of the tunner interface.";
+    vpn-name = mkOpt str "campnet" "Name of the VPN";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
@@ -34,18 +35,26 @@ in
       allowedUDPPorts = [ cfg.port ]; # Clients and peers can use the same port, see listenport
     };
 
-    systemd.services.getWireguardClientKeys = {
+    systemd.services.getWireguardConf = {
       description = "Fetch Private Key from Vault";
       serviceConfig = {
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/campnet.conf /var/lib/vault/campnet.conf";
         User = "root";
         Type = "oneshot";
 
       };
+      # TODO: maybe change wantedBy to something else
       wantedBy = [ "graphical.target" ];
+      script = ''
+        # Add the certificate to nmcli
+        if ${pkgs.networkmanager}/bin/nmcli con show | grep -q ${cfg.vpn-name}; then
+          ${pkgs.networkmanager}/bin/nmcli con delete id ${cfg.vpn-name}
+        fi
+        ${pkgs.networkmanager}/bin/nmcli con import type wireguard file /tmp/detsys-vault/${cfg.vpn-name}.conf
+        ${pkgs.networkmanager}/bin/nmcli con down ${cfg.vpn-name}
+      '';
     };
 
-    campground.services.vault-agent.services.getWireguardClientKeys = {
+    campground.services.vault-agent.services.getWireguardConf = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -62,11 +71,11 @@ in
       secrets = {
         file = {
           files = {
-            "campnet.conf" = {
+            "${cfg.vpn-name}.conf" = {
               text = ''
 [Interface]
 # Client private key
-PrivateKey = {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.butler }}{{ else }}{{ .Data.data.butler }}{{ end }}{{ end }}
+PrivateKey = {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${config.networking.hostName} }}{{ else }}{{ .Data.data.${config.networking.hostName} }}{{ end }}{{ end }}
 # Client IP address
 Address = ${cfg.ip}
 # Optional: Uncomment the next line to set a DNS server
