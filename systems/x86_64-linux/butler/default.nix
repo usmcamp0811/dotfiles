@@ -51,7 +51,7 @@ in
     };
 
     apps = {
-      # k9s = enabled; 
+      k9s = enabled; 
       virtmanager = enabled;
     };
 
@@ -68,7 +68,6 @@ in
       # manage local passwd in vault
       passwds = enabled;
       wifi = {
-      # TODO: is there anything I can do to clean this up a little.. seems a little verbose
         enable = true;
         networks = {
           SkyNet = {
@@ -82,7 +81,6 @@ in
           };
         };
       };
-      # vpn = enabled;
     };
 
     hardware.audio = {
@@ -127,6 +125,7 @@ in
       enable = true;
       port = 1149;
       ips = [ "10.100.0.2/32" ];
+      ip = "10.100.0.2/32";
       publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
     };
     ldap-client = enabled;
@@ -134,7 +133,7 @@ in
       enable = false;
     };
     user-secrets = {
-      # enable = true;
+      enable = true;
       users = {
         mcamp =  {
           files = [
@@ -149,8 +148,7 @@ in
       enable = true;
       settings = {
         vault = {
-          # address = "https://vault.lan.aicampground.com";
-          address = "https://vault.somewhere.com";
+          address = "https://vault.lan.aicampground.com";
           role-id = "/var/lib/vault/butler/role-id";
           secret-id = "/var/lib/vault/butler/secret-id";
         };
