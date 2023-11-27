@@ -109,6 +109,7 @@
     poetry2nix.url = "github:nix-community/poetry2nix";
 
     julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
+    dream2nix.url = "github:nix-community/dream2nix";
   };
 
   outputs = inputs:
