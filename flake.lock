@@ -173,11 +173,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1701056149,
-        "narHash": "sha256-kV5dWBUeeNtH2vMfLqqRsv9jQTUeay1Goge4/UTaAe0=",
+        "lastModified": 1701061103,
+        "narHash": "sha256-7dfa99a8V0Z5oh9joowqCI7y1uQRazRURQ1MnJo0Xyk=",
         "owner": "usmcamp0811",
         "repo": "campground-packages",
-        "rev": "b334e588cc83824ecad4beb788ec568588475f7c",
+        "rev": "5427ee06384e3e27a0c2a485b40a1d4194908603",
         "type": "gitlab"
       },
       "original": {
@@ -3239,11 +3239,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1701056488,
-        "narHash": "sha256-laNP6EWqqsPGeusGjFFkh3/1T22CqhlWXdglZmh4P9g=",
+        "lastModified": 1701058359,
+        "narHash": "sha256-Q61lHoddLHT8t9QQ02/wzYAsgF1w5WjQdJQYQ0mFGZQ=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "ae6a9846dfafebb8cfbf3800cca219dd4d984698",
+        "rev": "503b834c86a5fcebe8c824e9a2f9ccade2f1e9fa",
         "type": "github"
       },
       "original": {
