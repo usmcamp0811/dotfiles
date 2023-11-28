@@ -8,49 +8,60 @@ in
 {
   options.campground.services.label-studio = with types; {
     enable = mkBoolOpt false "Enable label-studio;";
-    user = lib.mkOption {
-      type = lib.types.str;
-      default = "label-studio";
-      description = "User account under which Label Studio runs.";
-    };
-    group = lib.mkOption {
-      type = lib.types.str;
-      default = "label-studio";
-      description = "Group under which Label Studio runs.";
-    };
+    port = mkOpt int 8080 "Port to listen on";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      label_studio
-    ];
-    users.users.label-studio = {
+    users.users.label_studio = {
+      isNormalUser = false;
       isSystemUser = true;
-      group = cfg.group;
+      description = "Label Studio System User";
+      group = "label_studio";
     };
-    users.groups.label-studio = {};
+    users.groups.label_studio = {};
 
     systemd.services.label-studio = {
       description = "Label Studio";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
+      environment = {};
       serviceConfig = {
-        ExecStart = "${pkgs.label_studio}/bin/label-studio-gunicorn --bind unix:${labelStudioSocket} -w 4";
-        User = cfg.user;
-        Group = cfg.group;
-        RuntimeDirectory = "label-studio";
-        PrivateTmp = true;
+        User = "label_studio";
+        ExecStart = "${pkgs.label_studio}/bin/label-studio-gunicorn -b 127.0.0.1:50001 -w 4 ";
+        WorkingDirectory = "/var/lib/label-studio";
+        ReadWritePaths = [ "/var/lib/label-studio" ];
       };
     };
 
+    campground.services.postgresql = {
+      enable = true;
+      # TODO: configure authentication in a way that its set here and doesn't break other places
+      # authentication = ''
+      #   local all root trust
+      #   local all postgres peer
+      #   local vaultwarden vaultwarden trust
+      #   local mattermost mattermost trust
+      #   host  all  all  0.0.0.0/0  reject
+      #   host  all  all  ::0/0  reject
+      # '';
+      databases = [ 
+        { 
+          name = "label-studio"; 
+          user = "label_studio"; 
+        } 
+      ];
+    };
     services.nginx = {
       enable = true;
-      recommendedGzipSettings = true;
-      recommendedOptimisation = true;
-      recommendedProxySettings = true;
-      recommendedTlsSettings = true;
-      virtualHosts."label-studio.example.com" = {
-        locations."/".proxyPass = "http://unix:${labelStudioSocket}";
+      virtualHosts = {
+          "label-studio.lan" = {
+          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
+          http2 = true;
+          locations."/" = {
+            proxyPass = "http://127.0.0.1:50001";
+            proxyWebsockets = true;
+          };
+        };
       };
     };
 
