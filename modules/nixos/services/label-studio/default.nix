@@ -24,7 +24,9 @@ in
       description = "Label Studio";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      environment = {};
+      environment = {
+        DATABASE_URL="postgresql://label_studio@/label-studio";
+      };
       serviceConfig = {
         User = "label_studio";
         ExecStart = "${pkgs.label_studio}/bin/label-studio-gunicorn -b 127.0.0.1:50001 -w 4 ";
