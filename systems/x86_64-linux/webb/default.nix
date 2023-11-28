@@ -91,6 +91,7 @@ in
       tang = enabled;
       k0sworker = enabled;
       ntp = enabled;
+      label-studio = enabled;
       wireguard = {
         enable = true;
         port = 1149;
