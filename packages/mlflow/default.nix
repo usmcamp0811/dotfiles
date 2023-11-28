@@ -20,12 +20,13 @@ let
 
   version = "2.3.2";
 
-  mlflow = pkgs.python3Packages.toPythonApplication (pkgs.python3Packages.mlflow.overridePythonAttrs(old: rec {
+  mlflow = pkgs.python310Packages.toPythonApplication (pkgs.python3Packages.mlflow.overridePythonAttrs(old: rec {
 
     propagatedBuildInputs = old.propagatedBuildInputs ++ [
-      pkgs.python3Packages.boto3
-      pkgs.python3Packages.mysqlclient
-      pkgs.python3Packages.psycopg2
+      pkgs.python310Packages.boto3
+      pkgs.python310Packages.psycopg2
+      pkgs.python310Packages.mysqlclient
+      pkgs.python310Packages.gunicorn
     ];
 
     postPatch = ''
@@ -49,7 +50,12 @@ let
     postInstall = ''
       gpath=$out/bin/gunicornMlflow
       cp ${gunicornScript} $gpath
+      echo "#!/bin/sh" > $out/bin/mlflow-server
+      echo "export PYTHONPATH=$out/lib/python3.10/site-packages:$PYTHONPATH" >> $out/bin/mlflow-server
+      echo "export PATH=$out/bin:$PATH" >> $out/bin/mlflow-server
+      echo "mlflow \"\$@\"" >> $out/bin/mlflow-server
       chmod 555 $gpath
+      chmod 555 $out/bin/mlflow-server
     '';
   }));
   new-meta = with lib; {

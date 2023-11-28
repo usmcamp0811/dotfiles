@@ -18,6 +18,7 @@ in
     enable = mkBoolOpt false "Enable an MLFlow;";
     port = mkOpt int 8000 "Port to Host the mlflow server on.";
     dbURI = mkOpt str "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql" "Backend DB URI";
+    # dbURI = mkOpt str "mysql://mlflow:lflow@localhost/mlflow?unix_socket=/run/mysqld/mysqld.sock" "Backend DB URI";
     artifactRoot = mkOpt str "s3://mlflow" "Artifact Root Location";
     s3EndpointURL = mkOpt str "https://s3-api.lan.aicampground.com" "S3 Storage Endpoint URL";
     s3Region = mkOpt str "us-east-1" "S3 Region";
@@ -68,6 +69,16 @@ in
       ];
     };
 
+    # campground.services.mysql = {
+    #   enable = true;
+    #   databases = [
+    #     { 
+    #       name = "mlflow"; 
+    #       user = "mlflow"; 
+    #     } 
+    #   ];
+    # };
+
     services.nginx = {
       enable = true;
       virtualHosts = {
@@ -86,7 +97,8 @@ in
       wantedBy = [ "multi-user.target" ];
       environment = {
         MLFLOW_BACKEND_STORE_URI="${cfg.dbURI}";
-        MLFLOW_ARTIFACT_ROOT="${cfg.artifactRoot}";
+        MLFLOW_ARTIFACT_URI="${cfg.artifactRoot}";
+        # MLFLOW_ARTIFACT_ROOT="${cfg.artifactRoot}";
         MLFLOW_S3_ENDPOINT_URL="${cfg.s3EndpointURL}";
         MLFLOW_S3_IGNORE_TLS="true";
         AWS_DEFAULT_REGION="${cfg.s3Region}";
@@ -94,9 +106,14 @@ in
         MLFLOW_HOST="0.0.0.0";
         MLFLOW_PORT="5000";
       };
+      script = ''
+
+      ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 0.0.0.0 --port 5000
+      '';
       serviceConfig = {
         User = "mlflow";
-        ExecStart = "${pkgs.campground.mlflow}/bin/gunicornMlflow -b 127.0.0.1:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
+        # ExecStart = "${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 0.0.0.0 --port 5000";
+        # ExecStart = "${pkgs.campground.mlflow}/bin/gunicornMlflow -b 127.0.0.1:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
         WorkingDirectory = "/var/lib/mlflow";
         # Restart = "always";
         # ProtectSystem = "strict";
@@ -105,6 +122,10 @@ in
     };
 
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/mlflow 0755 mlflow mlflow -"
+      "d /var/lib/mlflow/tmp 0755 mlflow mlflow -"
+    ];
     networking.firewall.allowedTCPPorts = [ cfg.port ];
 
     campground.services.vault-agent.services.mlflow = {
