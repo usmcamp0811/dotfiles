@@ -72,6 +72,7 @@ in
           local vaultwarden vaultwarden trust
           local mattermost mattermost trust
           local mlflow mlflow trust
+          local labelstudio labelstudio trust
           host paperless paperless 127.0.0.1/32 trust
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject

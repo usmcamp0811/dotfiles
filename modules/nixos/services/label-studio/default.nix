@@ -12,26 +12,42 @@ in
   };
 
   config = mkIf cfg.enable {
-    users.users.label_studio = {
+
+    environment.systemPackages = with pkgs; [
+      label_studio
+    ];
+    users.users.labelstudio = {
       isNormalUser = false;
       isSystemUser = true;
       description = "Label Studio System User";
-      group = "label_studio";
+      group = "labelstudio";
+      extraGroups = [ "labelstudio" ]; # Optional if you want the user to be in additional groups
+      home = "/var/lib/label-studio";
     };
-    users.groups.label_studio = {};
+    users.groups.labelstudio = {};
+
+    systemd.tmpfiles.rules = [
+      "d /var/lib/label-studio 0755 labelstudio labelstudio -"
+    ];
+
 
     systemd.services.label-studio = {
       description = "Label Studio";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      environment = {
-        DATABASE_URL="postgresql://label_studio@/label-studio";
-      };
+      # environment = {
+      #   DJANGO_DB="default";
+      #   POSTGRE_NAME="labelstudio";
+      #   POSTGRE_USER="labelstudio";
+      #   POSTGRE_PORT="5432";
+      #   POSTGRE_HOST="/var/run/postgresql";
+      #
+      # };
       serviceConfig = {
-        User = "label_studio";
-        ExecStart = "${pkgs.label_studio}/bin/label-studio-gunicorn -b 127.0.0.1:50001 -w 4 ";
-        WorkingDirectory = "/var/lib/label-studio";
-        ReadWritePaths = [ "/var/lib/label-studio" ];
+        User = "labelstudio";
+        ExecStart = "${pkgs.label_studio}/bin/label-studio-gunicorn -b 127.0.0.1:5001 -w 4";
+        # WorkingDirectory = "/var/lib/label-studio";
+        # ReadWritePaths = [ "/var/lib/label-studio" ];
       };
     };
 
@@ -48,8 +64,8 @@ in
       # '';
       databases = [ 
         { 
-          name = "label-studio"; 
-          user = "label_studio"; 
+          name = "labelstudio"; 
+          user = "labelstudio"; 
         } 
       ];
     };
@@ -60,7 +76,7 @@ in
           listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
           http2 = true;
           locations."/" = {
-            proxyPass = "http://127.0.0.1:50001";
+            proxyPass = "http://127.0.0.1:5001";
             proxyWebsockets = true;
           };
         };
