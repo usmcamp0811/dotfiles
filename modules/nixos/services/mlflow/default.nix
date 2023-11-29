@@ -108,7 +108,7 @@ in
       };
       script = ''
 
-      ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 0.0.0.0 --port 5000
+      ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
       '';
       serviceConfig = {
         User = "mlflow";

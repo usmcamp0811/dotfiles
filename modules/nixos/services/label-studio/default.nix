@@ -45,12 +45,10 @@ in
 
       };
       script = ''
-      ${pkgs.label_studio}/bin/label-studio start --database "${cfg.dbURI}"
+      ${pkgs.label_studio}/bin/label-studio start --database "${cfg.dbURI}" --host 127.0.0.1 --port 5903
       '';
       serviceConfig = {
         User = "labelstudio";
-        # WorkingDirectory = "/var/lib/label-studio";
-        # ReadWritePaths = [ "/var/lib/label-studio" ];
       };
     };
 
@@ -79,7 +77,7 @@ in
           listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
           http2 = true;
           locations."/" = {
-            proxyPass = "http://127.0.0.1:5001";
+            proxyPass = "http://127.0.0.1:5903";
             proxyWebsockets = true;
           };
         };
