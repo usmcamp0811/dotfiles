@@ -9,6 +9,7 @@ in
   options.campground.services.label-studio = with types; {
     enable = mkBoolOpt false "Enable label-studio;";
     port = mkOpt int 8080 "Port to listen on";
+    dbURI = mkOpt str "postgresql+psycopg2://labelstudio:@/labelstudio?host=/var/run/postgresql" "DB URI";
   };
 
   config = mkIf cfg.enable {
@@ -35,17 +36,19 @@ in
       description = "Label Studio";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      # environment = {
-      #   DJANGO_DB="default";
-      #   POSTGRE_NAME="labelstudio";
-      #   POSTGRE_USER="labelstudio";
-      #   POSTGRE_PORT="5432";
-      #   POSTGRE_HOST="/var/run/postgresql";
-      #
-      # };
+      environment = {
+        DJANGO_DB="postgresql";
+        POSTGRE_NAME="labelstudio";
+        POSTGRE_USER="labelstudio";
+        POSTGRE_PORT="5432";
+        POSTGRE_HOST="/var/run/postgresql";
+
+      };
+      script = ''
+      ${pkgs.label_studio}/bin/label-studio start --database "${cfg.dbURI}"
+      '';
       serviceConfig = {
         User = "labelstudio";
-        ExecStart = "${pkgs.label_studio}/bin/label-studio-gunicorn -b 127.0.0.1:5001 -w 4";
         # WorkingDirectory = "/var/lib/label-studio";
         # ReadWritePaths = [ "/var/lib/label-studio" ];
       };
