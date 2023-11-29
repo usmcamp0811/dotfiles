@@ -58,6 +58,7 @@ in
         POSTGRE_USER="labelstudio";
         POSTGRE_PORT="5432";
         POSTGRE_HOST="/var/run/postgresql";
+        LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK="true";
         S3_ENDPOINT="${cfg.s3EndpointURL}";
       };
       script = ''
