@@ -65,6 +65,7 @@ in
       '';
       serviceConfig = {
         User = "labelstudio";
+        Restart = "always";
       };
     };
 

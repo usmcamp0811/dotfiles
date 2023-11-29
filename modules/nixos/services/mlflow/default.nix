@@ -112,12 +112,9 @@ in
       '';
       serviceConfig = {
         User = "mlflow";
-        # ExecStart = "${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 0.0.0.0 --port 5000";
-        # ExecStart = "${pkgs.campground.mlflow}/bin/gunicornMlflow -b 127.0.0.1:5000 --worker-tmp-dir /var/lib/mlflow/tmp --workers 4 'mlflow.server:app'";
         WorkingDirectory = "/var/lib/mlflow";
-        # Restart = "always";
-        # ProtectSystem = "strict";
         ReadWritePaths = [ "/var/lib/mlflow" ];
+        Restart = "always";
       };
     };
 
