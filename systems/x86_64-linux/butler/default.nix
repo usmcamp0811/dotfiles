@@ -18,6 +18,8 @@ in
 
   # services.xserver.videoDrivers = [ "nouveau" ];
   # boot.blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
+
+  services.logind.lidSwitch = "ignore";
   boot.kernelPackages = pkgs.linuxPackages_latest;
   services.tlp = {
       enable = true;
