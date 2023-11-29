@@ -10,6 +10,22 @@ in
     enable = mkBoolOpt false "Enable label-studio;";
     port = mkOpt int 8080 "Port to listen on";
     dbURI = mkOpt str "postgresql+psycopg2://labelstudio:@/labelstudio?host=/var/run/postgresql" "DB URI";
+    s3EndpointURL = mkOpt str "https://s3-api.lan.aicampground.com" "S3 Storage Endpoint URL";
+    s3Region = mkOpt str "us-east-1" "S3 Region";
+
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/mlflow" "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -42,7 +58,7 @@ in
         POSTGRE_USER="labelstudio";
         POSTGRE_PORT="5432";
         POSTGRE_HOST="/var/run/postgresql";
-
+        S3_ENDPOINT="${cfg.s3EndpointURL}";
       };
       script = ''
       ${pkgs.label_studio}/bin/label-studio start --database "${cfg.dbURI}" --host 127.0.0.1 --port 5903
@@ -84,5 +100,30 @@ in
       };
     };
 
+    campground.services.vault-agent.services.label-studio = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets.environment.templates = {
+        mlflow = {
+          text = ''
+            {{ with secret "${cfg.vault-path}" }}
+            AWS_ACCESS_KEY_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AWS_ACCESS_KEY_ID }}{{ else }}{{ .Data.data.AWS_ACCESS_KEY_ID }}{{ end }}'
+            AWS_SECRET_ACCESS_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AWS_SECRET_ACCESS_KEY }}{{ else }}{{ .Data.data.AWS_SECRET_ACCESS_KEY }}{{ end }}'
+            {{ end }}
+          '';
+        };
+      };
+    };
   };
 }
