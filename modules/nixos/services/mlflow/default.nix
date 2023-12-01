@@ -84,6 +84,7 @@ in
       virtualHosts = {
         "mlflow.lan" = {
           http2 = true;
+          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
           locations."/" = {
             proxyPass = "http://127.0.0.1:5000";
             proxyWebsockets = true;

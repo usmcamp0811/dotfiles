@@ -9,7 +9,7 @@ in
     enable = mkBoolOpt false "Enable Photoprisim;";
     originalsPath = mkOpt str "" "Path to store original photos";
     importPath = mkOpt str "/webb/media/phone-pictures" "Path to import folder";
-    port = mkOpt int 2342 "Port to expose Photoprism on";
+    port = mkOpt int 9080 "Port to expose Photoprism on";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
@@ -45,11 +45,11 @@ in
         } 
       ];
     };
-
     services.nginx = {
       enable = true;
       virtualHosts = {
-        "photoprism.lan" = {
+        "sub.domain.tld" = {
+          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
           http2 = true;
           locations."/" = {
             proxyPass = "http://127.0.0.1:2342";
@@ -65,6 +65,7 @@ in
       description = "Photoprism user";
       group = "photoprism";
       extraGroups = [ "photoprism" ]; # Optional if you want the user to be in additional groups
+      home = "/var/lib/photoprism";
     };
 
     users.groups.photoprism = {};
@@ -86,9 +87,9 @@ in
       enable = true;
       port = 2342;
       originalsPath = "/var/lib/private/photoprism/originals";
-      address = "127.0.0.1";
+      address = "0.0.0.0";
       passwordFile = "/var/lib/vault/photoprism.pass";
-      importPath = cfg.importPath;
+      # importPath = cfg.importPath;
       settings = {
         PHOTOPRISM_ADMIN_USER = "admin";
         PHOTOPRISM_DEFAULT_LOCALE = "en";
