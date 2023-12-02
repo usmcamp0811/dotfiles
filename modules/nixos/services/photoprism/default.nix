@@ -48,7 +48,7 @@ in
     services.nginx = {
       enable = true;
       virtualHosts = {
-        "sub.domain.tld" = {
+        "photoprism.lan" = {
           listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
           http2 = true;
           locations."/" = {
@@ -60,12 +60,12 @@ in
     };
 
     users.users.photoprism = {
-      isNormalUser = false;
-      isSystemUser = true;
+      isNormalUser = true;
+      isSystemUser = false;
       description = "Photoprism user";
       group = "photoprism";
       extraGroups = [ "photoprism" ]; # Optional if you want the user to be in additional groups
-      home = "/var/lib/photoprism";
+      # home = "/var/lib/photoprism";
     };
 
     users.groups.photoprism = {};
@@ -87,9 +87,9 @@ in
       enable = true;
       port = 2342;
       originalsPath = "/var/lib/private/photoprism/originals";
-      address = "0.0.0.0";
+      address = "127.0.0.1";
       passwordFile = "/var/lib/vault/photoprism.pass";
-      # importPath = cfg.importPath;
+      importPath = cfg.importPath;
       settings = {
         PHOTOPRISM_ADMIN_USER = "admin";
         PHOTOPRISM_DEFAULT_LOCALE = "en";
