@@ -64,8 +64,8 @@ in
     };
 
     users.users.photoprism = {
-      isNormalUser = true;
-      isSystemUser = false;
+      isNormalUser = false;
+      isSystemUser = true;
       description = "Photoprism user";
       group = "photoprism";
       extraGroups = [ "photoprism" ]; # Optional if you want the user to be in additional groups
