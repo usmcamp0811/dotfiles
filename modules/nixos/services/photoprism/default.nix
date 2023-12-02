@@ -35,6 +35,13 @@ in
       };
     } else {};
 
+    fileSystems = if cfg.importPath != "" then {
+      "/var/lib/photoprism/import" = {
+        device = cfg.importPath;
+        options = [ "bind" ];
+      };
+    } else {};
+
 
     campground.services.mysql = {
       enable = true;
@@ -65,7 +72,7 @@ in
       description = "Photoprism user";
       group = "photoprism";
       extraGroups = [ "photoprism" ]; # Optional if you want the user to be in additional groups
-      # home = "/var/lib/photoprism";
+      home = "/var/lib/photoprism";
     };
 
     users.groups.photoprism = {};
