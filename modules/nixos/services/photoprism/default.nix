@@ -28,19 +28,16 @@ in
 
   config = mkIf cfg.enable {
 
-    fileSystems = if cfg.originalsPath != "" then {
-      "/var/lib/private/photoprism/originals" = {
+    fileSystems = {
+      "/var/lib/private/photoprism/originals" = if cfg.originalsPath != "" then {
         device = cfg.originalsPath;
         options = [ "bind" ];
-      };
-    } else {};
-
-    fileSystems = if cfg.importPath != "" then {
-      "/var/lib/photoprism/import" = {
+      } else null;
+      "/var/lib/photoprism/import" = if cfg.importPath != "" then {
         device = cfg.importPath;
         options = [ "bind" ];
-      };
-    } else {};
+      } else null;
+    };
 
 
     campground.services.mysql = {
