@@ -23,6 +23,10 @@ with lib.campground;
     '';
   in mkIf cfg.enable {
     home.file.".config/qtile/config.py".source = ./config.py;
+    home.file.".config/qtile/custom/layout/master_stack.py".source = ./master_stack.py;
+    home.file.".config/qtile/custom/layout/__init__.py".text = ''
+    from .master_stack import MasterStack
+    '';
     home.file.".config/qtile/autostart.sh" = {
       source = QtileAutostart;
       executable = true;

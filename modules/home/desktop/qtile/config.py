@@ -31,6 +31,7 @@ from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
 from libqtile import hook, qtile
+from custom.layout import MasterStack
 # from MutableScratch import MutableScratch
 # import MutableScratch.MutableScratch
 
@@ -459,7 +460,7 @@ keys = [
 # groups = [Group(i) for i in "123456789"]
 
 group_names = [
-    ("MAIN", {"layout": "monadthreecol"}),
+    ("MAIN", {"layout": "master_stack"}),
     ("MAIN2", {"layout": "monadtall"}),
     ("WORK1", {"layout": "monadthreecol"}),
     ("WORK2", {"layout": "monadtall"}),
