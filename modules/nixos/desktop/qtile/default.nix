@@ -46,8 +46,8 @@ in
       arandr
       go-sct
       brightnessctl 
+      python310Packages.qtile-extras
     ] ++ defaultExtensions;
-
 
     systemd.services.campground-user-icon = {
       before = [ "display-manager.service" ];
@@ -116,6 +116,9 @@ in
       };
       windowManager.qtile = {
         enable = true;
+        extraPackages = python3Packages: with python3Packages; [
+          qtile-extras
+        ];
       };
     };
     campground.home.extraOptions = {
