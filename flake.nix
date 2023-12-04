@@ -55,7 +55,7 @@
 
     vault-service = { 
       url = "github:DeterminateSystems/nixos-vault-service"; 
-      # inputs.nixpkgs.follows = "nixpkgs"; 
+      inputs.nixpkgs.follows = "nixpkgs"; 
     }; 
 
     # System Deployment 
