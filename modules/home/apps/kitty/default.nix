@@ -38,7 +38,7 @@ in
 
         # Advanced
         allow_remote_control = "yes";
-        listen_on = "/tmp/mykitty";
+        # listen_on = "/tmp/mykitty";
       };
     };
   };

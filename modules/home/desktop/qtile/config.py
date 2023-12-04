@@ -31,7 +31,7 @@ from libqtile.lazy import lazy
 from typing import List  # noqa: F401
 from libqtile.utils import guess_terminal
 from libqtile import hook, qtile
-from custom.layout import MasterStack
+# from custom.layout import MasterStack
 # from MutableScratch import MutableScratch
 # import MutableScratch.MutableScratch
 

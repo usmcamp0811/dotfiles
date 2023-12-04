@@ -20,7 +20,8 @@ in
       enable = true;
       enableCompletion = true; 
       enableAutosuggestions = true;
-      enableSyntaxHighlighting = true;
+      # enableSyntaxHighlighting = true;
+      syntaxHighlighting.enable = true;
 
       oh-my-zsh = {
         enable = true; 
