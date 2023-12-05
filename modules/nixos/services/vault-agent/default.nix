@@ -98,6 +98,10 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    environment.systemPackages = with pkgs; [
+      getent
+    ];
     assertions = flatten (mapAttrsToList
       (service-name: service:
         (mapAttrsToList

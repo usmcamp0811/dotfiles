@@ -54,7 +54,8 @@
     # Vault Integration 
 
     vault-service = { 
-      url = "github:DeterminateSystems/nixos-vault-service"; 
+      # url = "github:DeterminateSystems/nixos-vault-service"; 
+      url = "github:usmcamp0811/nixos-vault-service/23.11-wip";
       inputs.nixpkgs.follows = "nixpkgs"; 
     }; 
 
@@ -108,7 +109,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    poetry2nix.url = "github:nix-community/poetry2nix";
+    poetry2nix = {
+      url = "github:nix-community/poetry2nix";
+      inputs.nixpkgs.follows = "unstable";
+    };
 
     julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
     dream2nix.url = "github:nix-community/dream2nix";

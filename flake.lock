@@ -3042,22 +3042,6 @@
         "type": "github"
       }
     },
-    "nixpkgs_23": {
-      "locked": {
-        "lastModified": 1699838902,
-        "narHash": "sha256-gtaGIer0Fg7QUvsUFsKIjrns32lhnd+o6FvIyokzcKQ=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "6c986b681d6b35affcc4eda42db63595ab01860e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "master",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs_3": {
       "locked": {
         "lastModified": 1686519857,
@@ -3753,7 +3737,9 @@
       "inputs": {
         "flake-utils": "flake-utils_21",
         "nix-github-actions": "nix-github-actions_2",
-        "nixpkgs": "nixpkgs_23",
+        "nixpkgs": [
+          "unstable"
+        ],
         "systems": "systems_12",
         "treefmt-nix": "treefmt-nix_2"
       },
@@ -4886,15 +4872,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1689956398,
-        "narHash": "sha256-EiicgTsh53vx574uMI/qWynqUSItnW2rX3z4Zuindw4=",
-        "owner": "DeterminateSystems",
+        "lastModified": 1701752683,
+        "narHash": "sha256-W/RGqptFKkfvPx4S1Zib1QxZusH0PXs6CSpdcYqHGSw=",
+        "owner": "usmcamp0811",
         "repo": "nixos-vault-service",
-        "rev": "4de9bb77b05df6aa63406d99a1bf77c439414d6e",
+        "rev": "4d64da171f2cf27c474ca48138f3de31f1388da3",
         "type": "github"
       },
       "original": {
-        "owner": "DeterminateSystems",
+        "owner": "usmcamp0811",
+        "ref": "23.11-wip",
         "repo": "nixos-vault-service",
         "type": "github"
       }
