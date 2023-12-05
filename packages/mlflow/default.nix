@@ -20,7 +20,7 @@ let
 
   version = "2.3.2";
 
-  mlflow = pkgs.python310Packages.toPythonApplication (pkgs.python3Packages.mlflow.overridePythonAttrs(old: rec {
+  mlflow = pkgs.python310Packages.toPythonApplication (pkgs.python310Packages.mlflow.overridePythonAttrs(old: rec {
 
     propagatedBuildInputs = old.propagatedBuildInputs ++ [
       pkgs.python310Packages.boto3
