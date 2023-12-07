@@ -123,7 +123,7 @@ in
     security.rtkit.enable = true;
 
     services.pipewire = {
-      enable = true;
+      enable = false;
       alsa.enable = true;
       pulse.enable = true;
       jack.enable = true;
@@ -134,28 +134,28 @@ in
     environment.etc = {
       "pipewire/pipewire.conf.d/10-pipewire.conf".source =
         pkgs.writeText "pipewire.conf" (builtins.toJSON pipewire-config);
-      # "pipewire/pipewire.conf.d/21-alsa.conf".source =
-      #   pkgs.writeText "pipewire.conf" (builtins.toJSON alsa-config);
+      "pipewire/pipewire.conf.d/21-alsa.conf".source =
+        pkgs.writeText "pipewire.conf" (builtins.toJSON alsa-config);
 
-      #       "wireplumber/wireplumber.conf".source =
-      #         pkgs.writeText "pipewire.conf" (builtins.toJSON pipewire-config);
+      "wireplumber/wireplumber.conf".source =
+        pkgs.writeText "pipewire.conf" (builtins.toJSON pipewire-config);
 
-      # "wireplumber/scripts/config.lua.d/alsa.lua".text = ''
-      #   local input = ${lua-format.generate "sample.lua" cfg.alsa-monitor}
+      "wireplumber/scripts/config.lua.d/alsa.lua".text = ''
+        local input = ${lua-format.generate "sample.lua" cfg.alsa-monitor}
 
-      #   if input.rules == nil then
-      #    input.rules = {}
-      #   end
+        if input.rules == nil then
+         input.rules = {}
+        end
 
-      #   local rules = input.rules
+        local rules = input.rules
 
-      #   for _, rule in ipairs(input.rules) do
-      #     table.insert(alsa_monitor.rules, rule)
-      #   end
-      # '';
+        for _, rule in ipairs(input.rules) do
+          table.insert(alsa_monitor.rules, rule)
+        end
+      '';
     };
 
-    hardware.pulseaudio.enable = mkForce false;
+    hardware.pulseaudio.enable = mkForce true;
 
     environment.systemPackages = with pkgs; [
       pulsemixer
