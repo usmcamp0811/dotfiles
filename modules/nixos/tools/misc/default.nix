@@ -51,6 +51,7 @@ in
       parted
       tmux
       cntr
+      borgbackup
     ];
 
   };
