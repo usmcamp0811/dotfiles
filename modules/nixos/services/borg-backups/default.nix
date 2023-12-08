@@ -4,59 +4,50 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.borgbackup;
-  
-  borgJob = name: job: ''
-    borg create --compression ${job.compression} ${builtins.concatStringsSep " " (map (path: "--exclude " + path) job.exclude)} ${job.repo}::'{now}' ${job.paths}
-  '';
 in
 {
-  options.campground.services.borgbackup = {
-    enable = mkEnableOption "BorgBackup service";
-    
-    jobs = mkOption {
-      type = attrsOf (submodule {
+  options.campground.system.borgbackup = {
+    jobs = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
         options = {
-          paths = mkOption {
-            type = str;
-            description = "Path to backup";
+          paths = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            description = "List of paths to backup.";
           };
-          exclude = mkOption {
-            type = listOf str;
-            default = [];
-            description = "Paths to exclude from backup";
+          encryption = {
+            mode = lib.mkOption {
+              type = lib.types.str;
+              default = "none";
+              description = "Encryption mode.";
+            };
           };
-          repo = mkOption {
-            type = str;
-            description = "Backup repository location";
+          environment = {
+            BORG_RSH = lib.mkOption {
+              type = lib.types.str;
+              description = "SSH command for Borg to use.";
+            };
           };
-          encryption = mkOption {
-            type = attrs;
-            description = "Encryption settings";
+          repo = lib.mkOption {
+            type = lib.types.str;
+            description = "Repository location.";
           };
-          compression = mkOption {
-            type = str;
-            default = "auto,lzma";
-            description = "Compression method and level";
+          compression = lib.mkOption {
+            type = lib.types.str;
+            default = "auto,zstd";
+            description = "Compression method and options.";
           };
-          startAt = mkOption {
-            type = str;
-            default = "daily";
-            description = "When to run the backup job";
+          startAt = lib.mkOption {
+            type = lib.types.str;
+            description = "Schedule for the backup job.";
           };
         };
-      });
-      description = "Backup jobs configuration";
+      }));
+      default = {};
+      description = "Borg backup jobs configuration.";
     };
   };
-  
-  config = mkIf cfg.enable {
-    systemd.services = lib.mkMerge (lib.mapAttrsToList (name: job: {
-      "borgbackup-${name}" = {
-        description = "BorgBackup job ${name}";
-        script = borgJob name job;
-        serviceConfig.Type = "oneshot";
-        startAt = job.startAt;
-      };
-    }) cfg.jobs);
+
+  config = lib.mkIf cfg.enable {
+    services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
   };
 }
