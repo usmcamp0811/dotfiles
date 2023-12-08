@@ -61,10 +61,11 @@ in
       keyring = enabled;
     };
 
-    nfs = {
-      campfs = enabled;
-      webb = enabled;
-    };
+
+    # nfs = {
+    #   campfs = enabled;
+    #   webb = enabled;
+    # };
 
     system = {
       # manage local passwd in vault
@@ -103,6 +104,14 @@ in
   };
 
   campground.services = {
+    borgbackup = {
+      enable = true;
+      jobs = {
+        path = "/home/mcamp/Documents";
+        repo = "mcamp@chesty:/mnt/backups/";
+        encryption.mode = "none";
+      };
+    };
     docker = enabled;
     cert-manager = {
       # enable = true;

@@ -26,16 +26,16 @@ in
     home.packages = with pkgs; [
       python
       jupyter
-      python310Packages.ipython
-      python310Packages.jupyter_console
-      python310Packages.matplotlib-inline
-      python310Packages.jupyter
-      python310Packages.jupyter-core
-      python310Packages.jupyter_server
-      python310Packages.jupyterlab
-      python310Packages.ipykernel
-      python310Packages.qtconsole
-      python310Packages.xcffib
+      python311Packages.ipython
+      python311Packages.jupyter_console
+      python311Packages.matplotlib-inline
+      python311Packages.jupyter
+      python311Packages.jupyter-core
+      python311Packages.jupyter_server
+      python311Packages.jupyterlab
+      python311Packages.ipykernel
+      python311Packages.qtconsole
+      python311Packages.xcffib
       libstdcxx5
       zlib
       gcc
