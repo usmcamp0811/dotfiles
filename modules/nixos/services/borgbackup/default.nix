@@ -6,7 +6,7 @@ let
   cfg = config.campground.services.borgbackup;
 in
 {
-  options.campground.system.borgbackup = {
+  options.campground.services.borgbackup = {
     jobs = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
         options = {
@@ -24,6 +24,7 @@ in
           environment = {
             BORG_RSH = lib.mkOption {
               type = lib.types.str;
+              default = "ssh -i /var/lib/vault/users/mcamp/id_ed25519";
               description = "SSH command for Borg to use.";
             };
           };

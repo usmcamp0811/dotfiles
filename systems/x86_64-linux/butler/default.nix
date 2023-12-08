@@ -107,9 +107,12 @@ in
     borgbackup = {
       enable = true;
       jobs = {
-        path = "/home/mcamp/Documents";
-        repo = "mcamp@chesty:/mnt/backups/";
-        encryption.mode = "none";
+        "backup-test" = {
+          paths = [ "/home/mcamp/Documents" ];
+          encryption.mode = "none";
+          repo = "mcamp@chesty:/mnt/backups/";
+          startAt = "daily";
+        };
       };
     };
     docker = enabled;
