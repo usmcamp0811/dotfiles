@@ -74,6 +74,17 @@ in
 
   campground.services = {
     ldap-server = enabled;
+    borgbackup = {
+      enable = true;
+      jobs = {
+        "backup-daly" = {
+          paths = [ "/persist/vault" ];
+          encryption.mode = "repokey";
+          repo = "mcamp@chesty:/mnt/backups/daly/";
+          startAt = "daily";
+        };
+      };
+    };
 
     searx = {
       enable = true;
