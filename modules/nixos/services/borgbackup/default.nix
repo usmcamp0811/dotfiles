@@ -25,7 +25,7 @@ in
           environment = {
             BORG_RSH = lib.mkOption {
               type = lib.types.str;
-              default = "ssh -i /var/lib/vault/users/mcamp/id_ed25519";
+              default = "ssh -o 'StrictHostKeyChecking=no' -i /home/mcamp/.ssh/id_ed25519";
               description = "SSH command for Borg to use.";
             };
           };
