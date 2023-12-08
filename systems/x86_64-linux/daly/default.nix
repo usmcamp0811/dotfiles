@@ -79,7 +79,7 @@ in
       jobs = {
         "backup-daly" = {
           paths = [ "/persist/vault" ];
-          encryption.mode = "repokey";
+          encryption.mode = "none";
           repo = "mcamp@chesty:/mnt/backups/daly/";
           startAt = "daily";
         };
