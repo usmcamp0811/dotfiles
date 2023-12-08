@@ -7,6 +7,7 @@ let
 in
 {
   options.campground.services.borgbackup = {
+    enable = mkBoolOpt false "Whether or not to enable Borg Backups.";
     jobs = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
         options = {
