@@ -5,8 +5,7 @@ with lib.campground;
 let
   cfg = config.campground.services.vault;
 
-  # package = if cfg.ui then pkgs.vault-bin else pkgs.vault;
-  package = pkgs.vault;
+  package = if cfg.ui then pkgs.vault-bin else pkgs.vault;
 
   has-policies = (builtins.length (builtins.attrNames cfg.policies)) != 0;
 
