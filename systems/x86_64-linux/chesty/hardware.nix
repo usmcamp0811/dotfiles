@@ -38,8 +38,13 @@
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/backups" =
-    { device = "ChestyPoolr/backups";
+  # fileSystems."/mnt/backups" =
+  #   { device = "ChestyPoolr/backups";
+  #     fsType = "zfs";
+  #   };
+
+  fileSystems."/mnt/backups/daly" =
+    { device = "ChestyPoolr/backups/daly";
       fsType = "zfs";
     };
 
