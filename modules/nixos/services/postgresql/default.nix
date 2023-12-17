@@ -36,7 +36,7 @@ in
       });
       description = "Databases to initialize, along with a privileged user for each.";
     };
-    package = mkOpt package pkgs.postgresql_13 "What PostgreSQL to use";
+    package = mkOpt package pkgs.postgresql_16 "What PostgreSQL to use";
     enableTCPIP = mkBoolOpt false "Enable TCP access";
     authentication = mkOption {
       type = str;
@@ -69,9 +69,10 @@ in
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers = map (db: {
         name = db.user;
-        ensurePermissions = {
-          "DATABASE ${db.name}" = "ALL PRIVILEGES";
-        };
+        ensureDBOwnership = true;
+        # ensurePermissions = {
+        #   "DATABASE ${db.name}" = "ALL PRIVILEGES";
+        # };
         ensureClauses = {
           login = true; # or however you wish to set this
         };

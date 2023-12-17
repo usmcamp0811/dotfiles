@@ -18,7 +18,7 @@ in
     archetypes.workstation = enabled;
     tools.icehouse = enabled;
     nfs.campfs = enabled;
-    nfs.chestyfs = enabled;
+    # nfs.chestyfs = enabled;
 
     system = {
       boot = enabled;
@@ -58,9 +58,9 @@ in
         enable = true;
         originalsPath = "/webb/media/photos";
       };
-      paperless = {
-        enable = true;
-      };
+      # paperless = {
+      #   enable = true;
+      # };
       postgresql = {
         enable = true;
         enableTCPIP = true;
