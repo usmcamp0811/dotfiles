@@ -80,7 +80,6 @@ in
         "chesty" = {
           paths = [ 
             "/persist/vault" 
-            "/home/mcamp/Documents"
           ];
           repo = "mcamp@chesty:/mnt/backups/daly/";
           startAt = "daily";
