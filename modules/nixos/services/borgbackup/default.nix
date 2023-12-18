@@ -6,7 +6,7 @@ let
   cfg = config.campground.services.borgbackup;
 in
 {
-  options.campground.services.borgbackup = {
+  options.campground.services.borgbackup = with types; { 
     enable = mkBoolOpt false "Whether or not to enable Borg Backups.";
     jobs = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
@@ -24,7 +24,7 @@ in
             passCommand = lib.mkOption {
               type = lib.types.str;
               default = "cat /var/lib/vault/borg-passphrase";
-              description = "Encryption mode.";
+              description = "encryptiong key";
             };
           };
           environment = {
