@@ -65,7 +65,7 @@ in
       borgbackup = {
         enable = true;
         jobs = {
-          "chesty" = {
+          "campground-backups" = {
             paths = [ 
               "/persist" 
               "/webb/media/photos"
