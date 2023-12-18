@@ -70,7 +70,7 @@ in
               "/persist" 
               "/webb/media/photos"
             ];
-            repo = "mcamp@chesty:/mnt/backups/daly/";
+            repo = "mcamp@chesty:/mnt/backups/webb/";
             startAt = "daily";
           };
         };
