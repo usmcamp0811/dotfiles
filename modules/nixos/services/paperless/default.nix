@@ -67,7 +67,8 @@ in
         # required setting up the db in one go and then deploy again with this.. my db game needs work
         # if you neglect the above there is a chance it will use SQLite as a fall back.. but might not now
         # that I set a dbhost. ¯\_(ツ)_/¯
-        PAPERLESS_DBHOST = "127.0.0.1";
+        PAPERLESS_DBHOST = "/run/postgresql";
+        # PAPERLESS_DBHOST = "127.0.0.1";
 
         PAPERLESS_OCR_LANGUAGE = "eng";
         PAPERLESS_TASK_WORKERS = 4;
@@ -82,7 +83,7 @@ in
     };
 
     systemd.services.paperlessPasswordFile = {
-      description = "Create Photoprism environment file";
+      description = "Create Paperless environment file";
       serviceConfig = {
         Type = "oneshot";
         User = "root";  # Use the root user to create the folder and set permissions
@@ -91,7 +92,7 @@ in
         ExecStartPost = "${pkgs.coreutils}/bin/chown paperless:paperless /var/lib/vault/paperless.pass"; # Change file ownership to vaultwarden
       };
       wantedBy = [ "multi-user.target" ];
-      before = [ "photoprism.service" ];
+      before = [ "paperless.service" ];
     };
 
     virtualisation.oci-containers.containers.gotenberg = {
