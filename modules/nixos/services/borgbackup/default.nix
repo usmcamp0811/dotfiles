@@ -18,7 +18,12 @@ in
           encryption = {
             mode = lib.mkOption {
               type = lib.types.str;
-              default = "none";
+              default = "repokey-blake2";
+              description = "Encryption mode.";
+            };
+            passCommand = lib.mkOption {
+              type = lib.types.str;
+              default = "cat /var/lib/vault/borg-passphrase";
               description = "Encryption mode.";
             };
           };
@@ -47,9 +52,62 @@ in
       default = {};
       description = "Borg backup jobs configuration.";
     };
+
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/borg" "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
+
+    systemd.services.copyBorgPass = {
+      description = "Copy the default encryption pass for Borg Backups";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/borg-passphrase /var/lib/vault/borg-passphrase";
+      };
+      wantedBy = [ "multi-user.target" ];
+    };
+
+    campground.services.vault-agent.services.copyBorgPass = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = {
+            "borg-pass" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.passphrase }}{{ else }}{{ .Data.data.passphrase }}{{ end }}{{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+          };
+        };
+      };
+    };
   };
 }
