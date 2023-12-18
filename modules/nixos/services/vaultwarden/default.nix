@@ -109,7 +109,7 @@ in
   ROCKET_PORT=3011
                 {{ if eq "${cfg.kvVersion}" "v1" }}
   SMTP_FROM={{ .Data.SMTP_FROM }}
-  ADMIN_TOKEN={{ .Data.ADMIN_TOKEN }}
+  # ADMIN_TOKEN={{ .Data.ADMIN_TOKEN }}
   DATABASE_URL={{ .Data.DATABASE_URL }}
   DOMAIN={{ .Data.DOMAIN }}
   EMERGENCY_ACCESS_ALLOWED={{ .Data.EMERGENCY_ACCESS_ALLOWED }}
@@ -127,7 +127,7 @@ in
   TZ={{ .Data.TZ }}
   {{ else }}
   SMTP_FROM={{ .Data.data.SMTP_FROM }}
-  ADMIN_TOKEN={{ .Data.data.ADMIN_TOKEN }}
+  # ADMIN_TOKEN={{ .Data.data.ADMIN_TOKEN }}
   DATABASE_URL={{ .Data.data.DATABASE_URL }}
   DOMAIN={{ .Data.data.DOMAIN }}
   EMERGENCY_ACCESS_ALLOWED={{ .Data.data.EMERGENCY_ACCESS_ALLOWED }}
