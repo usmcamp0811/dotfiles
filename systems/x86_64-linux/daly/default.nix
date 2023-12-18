@@ -79,7 +79,7 @@ in
       jobs = {
         "chesty" = {
           paths = [ 
-            "/persist/vault" 
+            "/persist" 
           ];
           repo = "mcamp@chesty:/mnt/backups/daly/";
           startAt = "daily";
