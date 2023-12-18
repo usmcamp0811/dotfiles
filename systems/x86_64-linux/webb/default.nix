@@ -69,8 +69,10 @@ in
             paths = [ 
               "/persist" 
               "/webb/media/photos"
+              "/var/lib/paperless"
+              "/var/lib/minio"
             ];
-            repo = "mcamp@chesty:/mnt/backups/webb/";
+            repo = "mcamp@chesty:/mnt/backups/";
             startAt = "daily";
           };
         };
