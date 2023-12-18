@@ -77,11 +77,11 @@ in
     borgbackup = {
       enable = true;
       jobs = {
-        "chesty" = {
+        "campground-backups" = {
           paths = [ 
             "/persist" 
           ];
-          repo = "mcamp@chesty:/mnt/backups/daly/";
+          repo = "mcamp@chesty:/mnt/backups/";
           startAt = "daily";
         };
       };
