@@ -77,9 +77,8 @@ in
     borgbackup = {
       enable = true;
       jobs = {
-        "backup-daly" = {
+        "chesty" = {
           paths = [ "/persist/vault" ];
-          encryption.mode = "none";
           repo = "mcamp@chesty:/mnt/backups/daly/";
           startAt = "daily";
         };
