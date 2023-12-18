@@ -61,6 +61,20 @@ in
       paperless = {
         enable = true;
       };
+
+      borgbackup = {
+        enable = true;
+        jobs = {
+          "chesty" = {
+            paths = [ 
+              "/persist" 
+              "/webb/media/photos"
+            ];
+            repo = "mcamp@chesty:/mnt/backups/daly/";
+            startAt = "daily";
+          };
+        };
+      };
       postgresql = {
         enable = true;
         enableTCPIP = true;
