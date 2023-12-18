@@ -78,7 +78,10 @@ in
       enable = true;
       jobs = {
         "chesty" = {
-          paths = [ "/persist/vault" ];
+          paths = [ 
+            "/persist/vault" 
+            "/home/mcamp/Documents"
+          ];
           repo = "mcamp@chesty:/mnt/backups/daly/";
           startAt = "daily";
         };
