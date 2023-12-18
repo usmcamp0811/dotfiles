@@ -98,7 +98,7 @@ in
       secrets = {
         file = {
           files = {
-            "borg-pass" = {
+            "borg-passphrase" = {
               text = ''
                 {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.passphrase }}{{ else }}{{ .Data.data.passphrase }}{{ end }}{{ end }}
               '';
