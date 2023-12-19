@@ -71,6 +71,7 @@ in
               "/webb/media/photos"
               "/var/lib/paperless"
               "/var/lib/minio"
+              "/var/lib/label-studio"
             ];
             repo = "mcamp@chesty:/mnt/backups/";
             startAt = "daily";
