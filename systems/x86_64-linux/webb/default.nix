@@ -76,6 +76,9 @@ in
             ];
             repo = "mcamp@chesty:/mnt/backups/";
             startAt = "03:00";
+            extraArgs = [
+              "--lock-wait=600"
+            ];
           };
         };
       };
