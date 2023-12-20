@@ -47,6 +47,15 @@ in
             type = lib.types.str;
             description = "Schedule for the backup job.";
           };
+          extraArgs = mkOption {
+            type = with types; coercedTo (listOf str) escapeShellArgs str;
+            description = lib.mdDoc ''
+              Additional arguments for all {command}`borg` calls the
+              service has. Handle with care.
+            '';
+            default = [ ];
+            example = [ "--remote-path=/path/to/borg" ];
+          };
         };
       }));
       default = {};
