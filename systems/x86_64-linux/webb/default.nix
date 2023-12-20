@@ -75,7 +75,7 @@ in
               "/var/lib/mattermost"
             ];
             repo = "mcamp@chesty:/mnt/backups/";
-            startAt = "daily";
+            startAt = "03:00";
           };
         };
       };
