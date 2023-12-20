@@ -72,7 +72,7 @@ in
               "/var/lib/paperless"
               "/var/lib/minio"
               "/var/lib/label-studio"
-              "/var/lib/mattermost"
+              "/var/lib/mattermost/files"
             ];
             repo = "mcamp@chesty:/mnt/backups/";
             startAt = "03:00";
