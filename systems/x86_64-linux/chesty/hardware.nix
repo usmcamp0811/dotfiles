@@ -48,6 +48,16 @@
       fsType = "zfs";
     };
 
+  fileSystems."/mnt/backups/butler" =
+    { device = "ChestyPoolr/backups/butler";
+      fsType = "zfs";
+    };
+
+  fileSystems."/mnt/backups/lucas" =
+    { device = "ChestyPoolr/backups/lucas";
+      fsType = "zfs";
+    };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
