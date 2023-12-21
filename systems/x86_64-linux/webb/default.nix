@@ -69,6 +69,8 @@ in
             paths = [ 
               "/persist" 
               "/webb/media/photos"
+              "/webb/kubernetes"
+              "/webb/backups/openwrt-backups"
               "/var/lib/paperless"
               "/var/lib/minio"
               "/var/lib/label-studio"
@@ -76,9 +78,6 @@ in
             ];
             repo = "mcamp@chesty:/mnt/backups/";
             startAt = "03:00";
-            extraArgs = [
-              "--lock-wait=600"
-            ];
           };
         };
       };
