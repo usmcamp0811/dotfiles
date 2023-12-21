@@ -26,24 +26,11 @@ in
   config = mkIf cfg.enable {
     services.hydra = {
       enable = true;
-      hydraURL = "http://127.0.0.1:9842";
+      port = cfg.port;
+      hydraURL = "https://hydra.lan.aicampground.com";
       notificationSender = "hydra@aicampground.com";
       buildMachinesFiles = [];
       useSubstitutes = true;
-    };
-
-    services.nginx = {
-      enable = true;
-      virtualHosts = {
-          "hydra.lan" = {
-          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
-          http2 = true;
-          locations."/" = {
-            proxyPass = "http://127.0.0.1:9842";
-            proxyWebsockets = true;
-          };
-        };
-      };
     };
   };
 }
