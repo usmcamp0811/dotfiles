@@ -76,8 +76,8 @@ in
               "/var/lib/label-studio"
               "/var/lib/mattermost/files"
             ];
-            repo = "mcamp@chesty:/mnt/backups/";
-            startAt = "03:00";
+            repo = "mcamp@chesty:/mnt/backups/webb";
+            startAt = "daily";
           };
         };
       };

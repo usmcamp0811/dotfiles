@@ -38,15 +38,15 @@
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/backups" =
-    { device = "ChestyPoolr/backups";
+  fileSystems."/mnt/backups/webb" =
+    { device = "ChestyPoolr/backups/webb";
       fsType = "zfs";
     };
 
-  # fileSystems."/mnt/backups/daly" =
-  #   { device = "ChestyPoolr/backups/daly";
-  #     fsType = "zfs";
-  #   };
+  fileSystems."/mnt/backups/daly" =
+    { device = "ChestyPoolr/backups/daly";
+      fsType = "zfs";
+    };
 
   swapDevices = [ ];
 
