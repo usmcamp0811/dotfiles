@@ -45,6 +45,7 @@ in
       # searx = {
       #   enable = true;
       # };
+      hydra = enabled;
 
       openssh = { 
         authorizedKeys = [ 
