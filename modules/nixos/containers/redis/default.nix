@@ -1,24 +1,20 @@
-inputs@{ options, config, lib, ... }:
+inputs@{ options, pkgs, config, lib, ... }:
 
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.cli-apps.cowsay;
+  cfg = config.campground.containers.redis;
 in
 {
-  options.campground.cli-apps.cowsay = with types; {
-    enable = mkBoolOpt false "Whether or not to enable cowsay.";
+  options.campground.containers.redis = with types; {
+    enable = mkBoolOpt false "Whether or not to enable redis container.";
   };
 
   config = mkIf cfg.enable {
-    pkgs = import nixpkgs {
-      overlays = [ nix-snapshotter.overlays.default ];
-    };
-
     # Builds a native Nix image but intended for an OCI-compliant registry.
     redis = pkgs.nix-snapshotter.buildImage {
-      name = "ghcr.io/pdtpartners/redis";
-      tag = "latest";
+      name = "redis";
+      resolvedByNix = true;
       config.entrypoint = [ "${pkgs.redis}/bin/redis-server" ];
     };
   };
