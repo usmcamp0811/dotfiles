@@ -61,10 +61,6 @@ in
       keyring = enabled;
     };
 
-    containers = {
-      redis = enabled;
-    };
-
 
     # nfs = {
     #   campfs = enabled;
