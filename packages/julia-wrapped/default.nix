@@ -28,7 +28,7 @@ let
       python = 
         pkgs.python3.buildEnv.override
         {
-          extraLibs = with pkgs.python3Packages; [xlrd matplotlib plotly pyqt5  ];
+          extraLibs = with pkgs.python3Packages; [xlrd matplotlib plotly pyqt5  ] ++ [pkgs.glibc];
           # ignoreCollisions = true;
         };
     };

@@ -24,8 +24,6 @@ in
     '';
 
     home.packages = with pkgs; [
-      python
-      jupyter
       python311Packages.ipython
       python311Packages.jupyter_console
       python311Packages.matplotlib-inline
