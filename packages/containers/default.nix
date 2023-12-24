@@ -36,7 +36,7 @@ let
         };
 
         mlflow = buildImage {
-          name = "ghcr.io/pdtpartners/mlflow";
+          name = "aicampground.com/testing/mlflow";
           tag = "latest";
           config = {
             entrypoint = [ "${pkgs.campground.mlflow}/bin/mlflow-server" ];
