@@ -20,6 +20,7 @@ in
     services.nix-snapshotter = {
       enable = true;
       setContainerdSnapshotter = true;
+      # preloadContainerdImages = preloadContainerdImages;
       inherit preloadContainerdImages;
     };
 

@@ -62,5 +62,5 @@ let
         };
       };
 in 
-examples.hello
+examples.redisWithShell
 
