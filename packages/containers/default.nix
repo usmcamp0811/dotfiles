@@ -10,6 +10,7 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
+  inherit (pkgs.nix-snapshotter) buildImage;
 
   new-meta = with lib; {
     description = "Hello World Docker Image";
@@ -17,12 +18,41 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-  # Builds a native Nix image but intended for an OCI-compliant registry.
-  hello-nix = pkgs.nix-snapshotter.buildImage {
-    name = "ghcr.io/pdtpartners/hello";
-    tag = "latest";
-    config.entrypoint = [ "${pkgs.hello}/bin/hello" ];
-  };
+        hello = buildImage {
+          name = "ghcr.io/pdtpartners/hello";
+          tag = "latest";
+          config = {
+            entrypoint = ["${pkgs.hello}/bin/hello"];
+          };
+        };
+
+        redis = buildImage {
+          name = "ghcr.io/pdtpartners/redis";
+          tag = "latest";
+          config = {
+            entrypoint = [ "${pkgs.redis}/bin/redis-server" ];
+          };
+        };
+
+        redisWithShell = buildImage {
+          name = "ghcr.io/pdtpartners/redis-shell";
+          tag = "latest";
+          fromImage = redis;
+          config = {
+            entrypoint = [ "/bin/sh" ];
+          };
+          copyToRoot = pkgs.buildEnv {
+            name = "system-path";
+            pathsToLink = [ "/bin" ];
+            paths = [
+              pkgs.bashInteractive
+              pkgs.coreutils
+              pkgs.redis
+            ];
+          };
+        };
+
+
 in 
 
-override-meta new-meta hello-nix
+override-meta new-meta redisWithShell
