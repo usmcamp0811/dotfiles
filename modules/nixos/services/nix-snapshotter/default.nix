@@ -20,7 +20,7 @@ in
       setContainerdSnapshotter = true;
     };
 
-    environment.systemPackages = [ pkgs.nerdctl pkgs.campground.containers ];
+    environment.systemPackages = [ pkgs.nerdctl ];
 
   };
 }

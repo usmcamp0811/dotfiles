@@ -18,6 +18,7 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
+      examples = rec {
         hello = buildImage {
           name = "ghcr.io/pdtpartners/hello";
           tag = "latest";
@@ -31,6 +32,14 @@ let
           tag = "latest";
           config = {
             entrypoint = [ "${pkgs.redis}/bin/redis-server" ];
+          };
+        };
+
+        mlflow = buildImage {
+          name = "ghcr.io/pdtpartners/mlflow";
+          tag = "latest";
+          config = {
+            entrypoint = [ "${pkgs.campground.mlflow}/bin/mlflow-server" ];
           };
         };
 
@@ -51,8 +60,8 @@ let
             ];
           };
         };
-
-
+      };
 in 
 
-override-meta new-meta redisWithShell
+override-meta new-meta examples.mlflow
+
