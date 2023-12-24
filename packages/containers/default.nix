@@ -12,15 +12,15 @@ let
   inherit (lib.campground) override-meta;
   inherit (pkgs.nix-snapshotter) buildImage;
 
-  new-meta = with lib; {
-    description = "Hello World Docker Image";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ mattcamp ];
-  };
+  # new-meta = with lib; {
+  #   description = "Hello World Docker Image";
+  #   license = licenses.asl20;
+  #   maintainers = with maintainers; [ mattcamp ];
+  # };
 
       examples = rec {
         hello = buildImage {
-          name = "ghcr.io/pdtpartners/hello";
+          name = "ghcr.io/pdtpartners/my-hello";
           tag = "latest";
           config = {
             entrypoint = ["${pkgs.hello}/bin/hello"];
@@ -28,7 +28,7 @@ let
         };
 
         redis = buildImage {
-          name = "ghcr.io/pdtpartners/redis";
+          name = "ghcr.io/pdtpartners/my-redis";
           tag = "latest";
           config = {
             entrypoint = [ "${pkgs.redis}/bin/redis-server" ];
@@ -62,6 +62,5 @@ let
         };
       };
 in 
-
-override-meta new-meta examples.mlflow
+examples.hello
 
