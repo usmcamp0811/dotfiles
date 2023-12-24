@@ -20,7 +20,7 @@ let
 
       examples = rec {
         hello = buildImage {
-          name = "ghcr.io/pdtpartners/my-hello";
+          name = "ghcr.io/aicampground/my-hello2";
           tag = "latest";
           config = {
             entrypoint = ["${pkgs.hello}/bin/hello"];

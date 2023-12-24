@@ -4,14 +4,7 @@ with lib.campground;
 let
   cfg = config.campground.services.nix-snapshotter;
   
-  hello = pkgs.nix-snapshotter.buildImage {
-    name = "hello";
-    tag = "latest";
-    config = {
-      entrypoint = ["${pkgs.hello}/bin/hello"];
-    };
-  };
-
+  preloadContainerdImages = [pkgs.campground.containers];
 in
 {
   imports = [
@@ -27,6 +20,7 @@ in
     services.nix-snapshotter = {
       enable = true;
       setContainerdSnapshotter = true;
+      inherit preloadContainerdImages;
     };
 
 
