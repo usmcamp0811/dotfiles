@@ -19,7 +19,7 @@ let
   version = "0.1.0";
   checkVaultPath = import ./checkVaultPath.nix { inherit pkgs; };
   getVaultPaths  = import ./getVaultPaths.nix  { inherit pkgs checkVaultPath; };
-  devshell-python = import ./python-env.nix  { inherit pkgs; };
+  # devshell-python = import ./python-env.nix  { inherit pkgs; };
   new-approle = import ./new-approle.nix  { inherit pkgs; };
   save-approle-secrets = import ./save-approle.nix { inherit pkgs new-approle; };
 
@@ -35,7 +35,7 @@ let
       cp ${save-approle-secrets}/bin/save-approle-secrets $out/bin
 
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
-      echo "${devshell-python}/bin/python3 $src/vault-table.py" >> $out/bin/vault-report
+      # echo "$${devshell-python}/bin/python3 $src/vault-table.py" >> $out/bin/vault-report
       chmod +x $out/bin/vault-report
 
       echo "#!/usr/bin/env sh" > $out/bin/check-vault-paths
