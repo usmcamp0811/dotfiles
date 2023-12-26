@@ -25,8 +25,21 @@ in
     };
 
 
-    environment.systemPackages = [ 
-      pkgs.nerdctl  
+    environment.systemPackages = with pkgs; [ 
+        containerd
+        cri-tools
+        delve
+        gdb
+        golangci-lint
+        gopls
+        gotools
+        kind
+        kubectl
+        redis
+        rootlesskit
+        runc
+        slirp4netns
+        nerdctl
     ];
 
   };

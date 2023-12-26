@@ -41,6 +41,8 @@ in
     };
 
     services = {
+      
+      nix-snapshotter = enabled;
       # TODO: configure searx
       # searx = {
       #   enable = true;

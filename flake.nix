@@ -84,7 +84,7 @@
 
     nix-snapshotter = {
       url = "github:pdtpartners/nix-snapshotter";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "unstable";
     };
 
     technofab = {

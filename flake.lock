@@ -2358,7 +2358,7 @@
         "flake-compat": "flake-compat_19",
         "flake-parts": "flake-parts",
         "nixpkgs": [
-          "nixpkgs"
+          "unstable"
         ]
       },
       "locked": {
