@@ -54,8 +54,7 @@
     # Vault Integration 
 
     vault-service = { 
-      # url = "github:DeterminateSystems/nixos-vault-service"; 
-      url = "github:usmcamp0811/nixos-vault-service/23.11-wip";
+      url = "github:DeterminateSystems/nixos-vault-service"; 
       inputs.nixpkgs.follows = "nixpkgs"; 
     }; 
 
