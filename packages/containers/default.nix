@@ -12,12 +12,6 @@ let
   inherit (lib.campground) override-meta;
   inherit (pkgs.nix-snapshotter) buildImage;
 
-  # new-meta = with lib; {
-  #   description = "Hello World Docker Image";
-  #   license = licenses.asl20;
-  #   maintainers = with maintainers; [ mattcamp ];
-  # };
-
       examples = rec {
         hello = buildImage {
           name = "ghcr.io/aicampground/my-hello2";

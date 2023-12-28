@@ -47,7 +47,7 @@ in
     desktop.qtile = {
       enable = true;
       gdm = true;
-      lightdm = false;
+      # lightdm = true;
 
       sddm = false;
     };
@@ -55,6 +55,7 @@ in
     apps = {
       k9s = enabled; 
       virtmanager = enabled;
+      steam = enabled;
     };
 
     security = {
@@ -91,7 +92,7 @@ in
 
     hardware.ckb-next = enabled;
     # hardware.networking = enabled;
-    # hardware.nvidia-prime = enabled;
+    hardware.nvidia-prime = enabled;
     # hardware.intel = enabled;
 
   };
