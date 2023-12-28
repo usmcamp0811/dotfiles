@@ -1,15 +1,15 @@
 # TODO: Configs that Need porting to Nix
 
 - [x] Alacritty
-- [ ] Autorandr
+- [x] Autorandr
 - [x] Bash
-- [ ] broot
+- [x] broot
 - [ ] cura
 - [ ] FreeCAD
-- [ ] syncthing
-- [ ] tmux
-- [ ] mpv
-- [ ] ranger
-- [ ] qutebrowser
-- [ ] qtile
-- [ ] julia
+- [x] syncthing
+- [x] tmux
+- [x] mpv
+- [x] ranger
+- [x] qutebrowser
+- [x] qtile
+- [x] julia
