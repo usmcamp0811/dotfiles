@@ -46,8 +46,8 @@ in
 
     desktop.qtile = {
       enable = true;
-      gdm = true;
-      # lightdm = true;
+      # gdm = true;
+      lightdm = true;
 
       sddm = false;
     };
