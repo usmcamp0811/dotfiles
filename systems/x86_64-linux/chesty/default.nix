@@ -56,7 +56,7 @@ in
       tang = enabled;
       k0sworker = enabled;
       ntp = enabled;
-
+      docker = enabled;
       zfs-key-server = {
         enable = true;
         port = 8123;
