@@ -25,11 +25,17 @@ in
 
     environment.systemPackages = with pkgs; [
       nvidia-offload
+      pciutils
     ];
 
     services.xserver = {         
       videoDrivers = ["nvidia"]; 
       exportConfiguration = true;
+      displayManager = {
+        startx = {
+          enable = true;
+        };
+      };
     };  
 
     hardware = {
