@@ -106,6 +106,7 @@ in
 
   campground.services = {
     nix-snapshotter = enabled;
+    nixery = enabled;
     borgbackup = {
       enable = true;
       jobs = {
