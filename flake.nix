@@ -206,7 +206,7 @@
       specialArgs = {
         nixery-pkgs = import inputs.nixery-flake.outPath {
           pkgs = import inputs.nixpkgs {
-            inherit (inputs) self;
+            system = "x86_64-linux";
           };
         };
       };
