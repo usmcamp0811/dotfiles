@@ -7,14 +7,14 @@ let
   description = "Nixery";
   storagePath = "/var/lib/nixery";
 
-  nixery = nixery-pkgs.nixery.overrideAttrs(old: {
-    # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
-    postInstall = ''
-      wrapProgram $out/bin/server \
-        --prefix PATH : ${nixery-pkgs.nixery-prepare-image}/bin \
-        --prefix PATH : ${nix}/bin
-    '';
-  });
+  # nixery = nixery-pkgs.nixery.overrideAttrs(old: {
+  #   # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
+  #   postInstall = ''
+  #     wrapProgram $out/bin/server \
+  #       --prefix PATH : ${nixery-pkgs.nixery-prepare-image}/bin \
+  #       --prefix PATH : ${nix}/bin
+  #   '';
+  # });
 in
 {
   options.campground.services.nixery = with types; {
