@@ -6,6 +6,14 @@
     # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    # Nixery
+    nixery-flake = {
+      type = "github";
+      owner = "tazjin";
+      repo = "nixery";
+      flake = false;
+    };
+
     # macOS Support (master)
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
@@ -165,6 +173,7 @@
       #   campground-nvim.nixosModules.nixvim
       # ];
       
+
       #TODO: Move this into the actual system config?
       systems.hosts.ata-xps.modules = with inputs; [
         nixos-hardware.nixosModules.dell-xps-13-7390

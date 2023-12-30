@@ -2498,6 +2498,22 @@
         "type": "github"
       }
     },
+    "nixery-flake": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1698683601,
+        "narHash": "sha256-t2FY0Vvnws55adBQ+/098OGnImyH1wYqXoQRNP4Tp0Q=",
+        "owner": "tazjin",
+        "repo": "nixery",
+        "rev": "0d880c60b5f89cadcb876c4bb5420a8e80659b82",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tazjin",
+        "repo": "nixery",
+        "type": "github"
+      }
+    },
     "nixlib": {
       "locked": {
         "lastModified": 1653180592,
@@ -3909,6 +3925,7 @@
         "nix-ld": "nix-ld",
         "nix-snapshotter": "nix-snapshotter",
         "nix2sbom": "nix2sbom",
+        "nixery-flake": "nixery-flake",
         "nixos-generators": "nixos-generators",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_22",
