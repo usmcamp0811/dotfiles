@@ -204,11 +204,11 @@
           inputs.deploy-rs.lib;
 
       specialArgs = {
-        nixery-pkgs = import inputs.nixery-flake.outPath {
-          pkgs = import inputs.nixpkgs {
-            system = "x86_64-linux";
-          };
-        };
+        # nixery-pkgs = import inputs.nixery-flake.outPath {
+        #   pkgs = import inputs.nixpkgs {
+        #     system = "x86_64-linux";
+        #   };
+        # };
       };
     };
 

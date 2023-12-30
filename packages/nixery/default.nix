@@ -5,7 +5,6 @@
 , gum
 , inputs
 , pkgs
-, specialArgs
 , nix 
 , hosts ? { }
 , ...
@@ -18,11 +17,11 @@ let
   pname = "nixery";
   storagePath = "/var/lib/nixery";
 
-  nixery = specialArgs.nixery-pkgs.nixery.overrideAttrs(old: {
+  nixery = pkgs.nixery-pkgs.nixery.overrideAttrs(old: {
     # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
     postInstall = ''
       wrapProgram $out/bin/server \
-        --prefix PATH : ${specialArgs.nixery-pkgs.nixery-prepare-image}/bin \
+        --prefix PATH : ${pkgs.nixery-pkgs.nixery-prepare-image}/bin \
         --prefix PATH : ${nix}/bin
     '';
   });
@@ -38,6 +37,6 @@ in
 #   # environment.systemPackages = [ k0s ];
 #
 # }
-override-meta new-meta specialArgs.nixery-pkgs.nixery
+override-meta new-meta pkgs.nixery-pkgs.nixery
 
 
