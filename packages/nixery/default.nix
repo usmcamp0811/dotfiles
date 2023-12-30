@@ -38,6 +38,6 @@ in
 #   # environment.systemPackages = [ k0s ];
 #
 # }
-override-meta new-meta nixery
+override-meta new-meta specialArgs.nixery-pkgs.nixery
 
 
