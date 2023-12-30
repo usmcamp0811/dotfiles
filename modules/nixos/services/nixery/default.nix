@@ -6,14 +6,15 @@ let
   cfg = config.campground.services.nixery;
   description = "Nixery";
   storagePath = "/var/lib/nixery";
-  nixery = pkgs.nixery-pkgs.nixery.overrideAttrs(old: {
-    # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
-    postInstall = ''
-      wrapProgram $out/bin/server \
-        --prefix PATH : ${pkgs.nixery-pkgs.nixery-prepare-image}/bin \
-        --prefix PATH : ${pkgs.nix}/bin
-    '';
-  });
+
+  # nixery = pkgs.nixery-pkgs.nixery.overrideAttrs(old: {
+  #   # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
+  #   postInstall = ''
+  #     wrapProgram $out/bin/server \
+  #       --prefix PATH : ${pkgs.nixery-pkgs.nixery-prepare-image}/bin \
+  #       --prefix PATH : ${pkgs.nix}/bin
+  #   '';
+  # });
 in
 {
   options.campground.services.nixery = with types; {
@@ -21,6 +22,14 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    # environment.systemPackages = with pkgs; [
+    #   nixery-pkgs.nixery-prepare-image
+    #   nixery-pkgs.nixery-image
+    #   nixery-pkgs.nixery-popcount
+    #   nixery-pkgs.nixery-web
+    #
+    # ];
     systemd.services.nixery = {
       inherit description;
       wantedBy = [ "multi-user.target" ];
@@ -30,7 +39,7 @@ in
         StateDirectory = "nixery";
         Restart = "always";
         ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${storagePath}";
-        ExecStart = "${nixery}/bin/server";
+        ExecStart = "${pkgs.nixery-pkgs.nixery}/bin/server";
       };
 
       environment = {

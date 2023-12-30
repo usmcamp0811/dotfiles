@@ -38,6 +38,8 @@ in
     };
 
     services = {
+
+      nixery = enabled;
       # TODO: configure searx
       # searx = {
       #   enable = true;
