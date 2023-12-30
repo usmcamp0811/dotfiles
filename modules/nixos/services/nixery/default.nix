@@ -13,27 +13,27 @@ in
   };
 
   config = mkIf cfg.enable {
-    # systemd.services.nixery = {
-    #   inherit description;
-    #   wantedBy = [ "multi-user.target" ];
-    #
-    #   serviceConfig = {
-    #     DynamicUser = true;
-    #     StateDirectory = "nixery";
-    #     Restart = "always";
-    #     ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${storagePath}";
-    #     ExecStart = "${nixery-pkgs.nixery}/bin/server";
-    #   };
-    #
-    #   environment = {
-    #     PORT = "8080";
-    #     NIXERY_PKGS_PATH = pkgs.path;
-    #     NIXERY_STORAGE_BACKEND = "filesystem";
-    #     NIX_TIMEOUT = "60";
-    #     STORAGE_PATH = storagePath;
-    #     WEB_DIR = "/dev/null";
-    #   };
-    # };
+    systemd.services.nixery = {
+      inherit description;
+      wantedBy = [ "multi-user.target" ];
+
+      serviceConfig = {
+        DynamicUser = true;
+        StateDirectory = "nixery";
+        Restart = "always";
+        ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${storagePath}";
+        ExecStart = "${pkgs.nixery-pkgs.nixery}/bin/server";
+      };
+
+      environment = {
+        PORT = "8080";
+        NIXERY_PKGS_PATH = pkgs.path;
+        NIXERY_STORAGE_BACKEND = "filesystem";
+        NIX_TIMEOUT = "60";
+        STORAGE_PATH = storagePath;
+        WEB_DIR = "/dev/null";
+      };
+    };
   };
 }
 
