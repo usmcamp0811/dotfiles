@@ -40,6 +40,7 @@ in
     services = {
 
       nixery = enabled;
+      docker = enabled;
       # TODO: configure searx
       # searx = {
       #   enable = true;

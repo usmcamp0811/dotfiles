@@ -202,14 +202,6 @@
           (system: deploy-lib:
             deploy-lib.deployChecks inputs.self.deploy)
           inputs.deploy-rs.lib;
-
-      specialArgs = {
-        # nixery-pkgs = import inputs.nixery-flake.outPath {
-        #   pkgs = import inputs.nixpkgs {
-        #     system = "x86_64-linux";
-        #   };
-        # };
-      };
     };
 
 }
