@@ -46,9 +46,9 @@ in
     ];
 
     nix =
-      let users = [ "root" config.campground.user.name ] ++
-        optional config.services.hydra.enable "hydra" ++
-        optional config.services.nixery.enable "nixery";
+      let users = [ "root" config.campground.user.name ]
+      ++ (optional config.services.hydra.enable "hydra") 
+      ++ (optional config.campground.services.nixery.enable "nixery");
       in
       {
         package = cfg.package;
