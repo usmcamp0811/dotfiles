@@ -4,34 +4,19 @@ with lib;
 with lib.campground;
 let 
   cfg = config.campground.services.nixery;
-  description = "Nixery";
-  storagePath = "/var/lib/nixery";
-
-  # nixery = pkgs.nixery-pkgs.nixery.overrideAttrs(old: {
-  #   # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
-  #   postInstall = ''
-  #     wrapProgram $out/bin/server \
-  #       --prefix PATH : ${pkgs.nixery-pkgs.nixery-prepare-image}/bin \
-  #       --prefix PATH : ${pkgs.nix}/bin
-  #   '';
-  # });
 in
 {
   options.campground.services.nixery = with types; {
     enable = mkBoolOpt false "Whether or not to enable nixery.";
+    port = mkOpt str "4567" "Port to listen on";
+    storagePath = mkOpt str "/var/lib/nixery" "Place to store images";
+    storageBackend = mkOpt str "filesystem" "Backend";
   };
 
   config = mkIf cfg.enable {
 
-    # environment.systemPackages = with pkgs; [
-    #   nixery-pkgs.nixery-prepare-image
-    #   nixery-pkgs.nixery-image
-    #   nixery-pkgs.nixery-popcount
-    #   nixery-pkgs.nixery-web
-    #
-    # ];
     systemd.services.nixery = {
-      inherit description;
+      description = "Nixery";
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
@@ -43,11 +28,11 @@ in
       };
 
       environment = {
-        PORT = "8080";
+        PORT = cfg.port;
         NIXERY_PKGS_PATH = pkgs.path;
-        NIXERY_STORAGE_BACKEND = "filesystem";
+        NIXERY_STORAGE_BACKEND = cfg.storageBackend;
         NIX_TIMEOUT = "60";
-        STORAGE_PATH = storagePath;
+        STORAGE_PATH = cfg.storagePath;
         WEB_DIR = "/dev/null";
       };
     };
