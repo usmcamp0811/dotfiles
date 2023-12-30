@@ -1,4 +1,4 @@
-{ nix, options, config, lib, pkgs, ... }:
+{ nixery-pkgs, nix, options, config, lib, pkgs, ... }:
 
 with lib;
 with lib.campground;
@@ -6,6 +6,15 @@ let
   cfg = config.campground.services.nixery;
   description = "Nixery";
   storagePath = "/var/lib/nixery";
+
+  nixery = nixery-pkgs.nixery.overrideAttrs(old: {
+    # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
+    postInstall = ''
+      wrapProgram $out/bin/server \
+        --prefix PATH : ${nixery-pkgs.nixery-prepare-image}/bin \
+        --prefix PATH : ${nix}/bin
+    '';
+  });
 
 in
 {
@@ -23,7 +32,7 @@ in
         StateDirectory = "nixery";
         Restart = "always";
         ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${storagePath}";
-        ExecStart = "${pkgs.campground.nixery}/bin/server";
+        ExecStart = "${nixery}/bin/server";
       };
 
       environment = {
