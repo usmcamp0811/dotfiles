@@ -1,0 +1,29 @@
+{ lib, config, pkgs, ... }:
+
+with lib;
+with lib.campground;
+let
+  cfg = config.campground.services.jellyfin;
+in
+{
+  options.campground.services.jellyfin = {
+    enable = mkEnableOption "Jellyfin";
+
+  };
+
+  config = mkIf cfg.enable {
+    nixpkgs.config.packageOverrides = pkgs: {
+      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
+    };
+    environment.systemPackages = with pkgs; [
+      jellyfin
+      jellyfin-web
+      jellyfin-ffmpeg
+    ];
+    services.jellyfin = {
+      enable = true;
+      openFirewall = true;
+      jellyseerr.enable = true;
+    };
+  };
+}
