@@ -61,6 +61,11 @@ in
     # };
 
     system = {
+      zfs = {
+        enable = true;
+        hostId = "13ec383b";
+        keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
+      };
       # manage local passwd in vault
       passwds = enabled;
       wifi = {
