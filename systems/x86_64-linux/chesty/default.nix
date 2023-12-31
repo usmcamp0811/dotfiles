@@ -46,6 +46,7 @@ in
       #   enable = true;
       # };
       hydra = enabled;
+      jellyfin = enabled;
 
       openssh = { 
         authorizedKeys = [ 
