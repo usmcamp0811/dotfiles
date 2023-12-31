@@ -38,8 +38,8 @@ in
 
     desktop.qtile = {
       enable = true;
-      # gdm = true;
-      lightdm = true;
+      gdm = true;
+      # lightdm = true;
 
       sddm = false;
     };
@@ -55,10 +55,10 @@ in
     };
 
 
-    # nfs = {
-    #   campfs = enabled;
-    #   webb = enabled;
-    # };
+    nfs = {
+      campfs = enabled;
+      # webb = enabled;
+    };
 
     system = {
       zfs = {
@@ -161,8 +161,8 @@ in
       settings = {
         vault = {
           address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/butler/role-id";
-          secret-id = "/var/lib/vault/butler/secret-id";
+          role-id = "/var/lib/vault/reckless/role-id";
+          secret-id = "/var/lib/vault/reckless/secret-id";
         };
       };
     };
