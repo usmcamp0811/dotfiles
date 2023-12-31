@@ -1,9 +1,26 @@
+
+
+nvme_drive="/dev/nvme0n1"
+
+# Zap the NVMe drive
+sgdisk --zap-all "$nvme_drive"
+
+# Create a 1GB boot partition
+sgdisk -n 1:0:+1G -t 1:EF00 "$nvme_drive"
+
+# Create a partition for the remaining space
+sgdisk -n 2:0:0 -t 2:BF00 "$nvme_drive"
+
+
+# Make sure Boot is bootable
+sudo parted /dev/nvme0n1 -- set 1 esp on
+
+
+
 sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
 
 sudo zpool export -a
 sudo zpool import
-sudo zpool import -f zroot
-sudo zpool destroy zroot
 sudo zpool create -f \
 -o altroot="/mnt" \
 -o ashift=12 \
