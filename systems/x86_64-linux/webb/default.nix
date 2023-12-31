@@ -19,6 +19,9 @@ in
     tools.icehouse = enabled;
     nfs.campfs = enabled;
     # nfs.chestyfs = enabled;
+    apps = {
+     k9s = enabled; 
+    };
 
     system = {
       boot = enabled;
