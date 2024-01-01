@@ -32,7 +32,17 @@ in
         sleep 2
         export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:$PATH"
         zpool import -a;
-        echo $(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt) | zfs load-key -a && killall zfs
+
+        # Retrieve and decrypt the passphrase
+        PASSPHRASE=$(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt)
+
+        # Load the key for each ZFS pool
+        for pool in $(zpool list -H -o name)
+        do
+            echo $PASSPHRASE | zfs load-key $pool
+        done
+
+        killall zfs
       '';
       ssh = {
         enable = true;
