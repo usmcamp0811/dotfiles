@@ -29,20 +29,20 @@ in
     boot.initrd.network = {
       enable = true;
       postCommands = ''
-        sleep 2
-        export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:$PATH"
-        zpool import -a;
+      sleep 2
+      export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:$PATH"
+      zpool import -a;
 
-        # Retrieve and decrypt the passphrase
-        PASSPHRASE=$(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt)
+      # Retrieve and decrypt the passphrase
+      export PASSPHRASE="$(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt)"
 
-        # Load the key for each ZFS pool
-        for pool in $(zpool list -H -o name)
-        do
-            echo $PASSPHRASE | zfs load-key $pool
-        done
+      # Load the key for each encrypted ZFS dataset
+      for dataset in $(zfs get keystatus -H -o name,value -t filesystem,volume | grep "unavailable" | awk '{print $1}')
+      do
+          echo -n $PASSPHRASE | zfs load-key $dataset
+      done
 
-        killall zfs
+      killall zfs
       '';
       ssh = {
         enable = true;
