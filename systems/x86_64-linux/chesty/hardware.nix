@@ -33,31 +33,6 @@
       fsType = "vfat";
     };
 
-  fileSystems."/mnt/chestyfs" =
-    { device = "ChestyPoolr/chestyfs";
-      fsType = "zfs";
-    };
-
-  fileSystems."/mnt/backups/webb" =
-    { device = "ChestyPoolr/backups/webb";
-      fsType = "zfs";
-    };
-
-  fileSystems."/mnt/backups/daly" =
-    { device = "ChestyPoolr/backups/daly";
-      fsType = "zfs";
-    };
-
-  fileSystems."/mnt/backups/butler" =
-    { device = "ChestyPoolr/backups/butler";
-      fsType = "zfs";
-    };
-
-  fileSystems."/mnt/backups/lucas" =
-    { device = "ChestyPoolr/backups/lucas";
-      fsType = "zfs";
-    };
-
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
