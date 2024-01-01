@@ -82,7 +82,7 @@ in
               "/var/lib/label-studio"
               "/var/lib/mattermost/files"
             ];
-            repo = "mcamp@chesty:/mnt/backups/webb";
+            repo = "mcamp@reckless:/mnt/backups/webb";
             startAt = "daily";
           };
         };
