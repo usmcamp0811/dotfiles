@@ -67,6 +67,7 @@ in
           "http://lucas:1234" 
           "http://ermy:1234" 
           "http://webb:1234" 
+          "http://reckless:1234"
         ];
       };
 
