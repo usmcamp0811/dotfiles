@@ -81,7 +81,7 @@ in
           paths = [ 
             "/persist" 
           ];
-          repo = "mcamp@chesty:/mnt/backups/daly";
+          repo = "mcamp@reckless:/mnt/backups/daly";
           startAt = "daily";
         };
       };
