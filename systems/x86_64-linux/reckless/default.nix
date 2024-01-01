@@ -125,6 +125,7 @@ in
     #   ];
     # };
     # jupyter = enabled;
+    tang = enabled;
     zfs-key-server = {
       enable = false;
       tang-servers = [
