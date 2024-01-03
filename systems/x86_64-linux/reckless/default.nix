@@ -56,7 +56,7 @@ in
 
 
     nfs = {
-      campfs = enabled;
+      # campfs = enabled;
       # webb = enabled;
     };
 
@@ -103,6 +103,7 @@ in
 
   campground.services = {
     nix-snapshotter = enabled;
+    k0sworker = enabled;
     # borgbackup = {
     #   enable = true;
     #   jobs = {
@@ -184,10 +185,10 @@ in
 #  }; 
 
   # TODO: Move this somewhere more good and try to automate for when not connected to a monitor
-  # environment.variables = {
-  #   GDK_SCALE = "1.6";
-  #   GDK_DPI_SCALE = "1.6";
-  # };
+  environment.variables = {
+    GDK_SCALE = "1.0";
+    GDK_DPI_SCALE = "1.0";
+  };
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave

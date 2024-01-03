@@ -58,7 +58,16 @@
       fsType = "zfs";
     };
 
-  swapDevices = [ ];
+  # sudo zfs create -V 16G -o compression=zle -o logbias=throughput -o sync=always -o primarycache=metadata -o secondarycache=none NIXROOT/swap
+  # sudo mkswap -f /dev/zvol/NIXROOT/swap
+  # sudo swapon /dev/zvol/NIXROOT/swap
+
+  swapDevices = [
+    {
+      device = "/dev/zvol/NIXROOT/swap";
+      randomEncryption.enable = true;
+    }
+  ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
