@@ -80,15 +80,17 @@ in
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
-    systemd.services.copyBorgPass = {
-      description = "Copy the default encryption pass for Borg Backups";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/borg-passphrase /var/lib/vault/borg-passphrase";
-      };
+    systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+      description = "Copy the passphrase for ${name} Borg Backup job";
+      serviceConfig.Type = "oneshot";
+      serviceConfig.User = "root";
+      script = ''
+        mkdir -p /var/lib/vault
+        cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
+      '';
       wantedBy = [ "multi-user.target" ];
-    };
+    });
+
 
     campground.services.vault-agent.services.copyBorgPass = {
       settings = {
@@ -104,19 +106,20 @@ in
           }];
         };
       };
-      secrets = {
+
+      secrets = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
         file = {
           files = {
-            "borg-passphrase" = {
+            "${name}-borg-passphrase" = {
               text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.passphrase }}{{ else }}{{ .Data.data.passphrase }}{{ end }}{{ end }}
+                {{ with secret "${cfg.jobs.${name}.vaultPath}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
               '';
               permissions = "0600";
               change-action = "restart";
             };
           };
         };
-      };
+      });
     };
   };
 }
