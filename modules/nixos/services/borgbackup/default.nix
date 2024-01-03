@@ -92,7 +92,7 @@ in
     });
 
 
-    campground.services.vault-agent.services.copyBorgPass = {
+    campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -107,19 +107,19 @@ in
         };
       };
 
-      secrets = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+      secrets = {
         file = {
           files = {
             "${name}-borg-passphrase" = {
               text = ''
-                {{ with secret "${cfg.jobs.${name}.vaultPath}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
               '';
               permissions = "0600";
               change-action = "restart";
             };
           };
         };
-      });
-    };
+      };
+    });
   };
 }

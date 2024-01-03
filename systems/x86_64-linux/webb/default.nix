@@ -85,7 +85,7 @@ in
             repo = "mcamp@reckless:/mnt/backups/webb";
             startAt = "daily";
           };
-          "campground-offsite" = {
+          "webb_rsync" = {
             paths = [ 
               "/persist" 
               "/webb/media/photos"
@@ -96,7 +96,7 @@ in
               "/var/lib/label-studio"
               "/var/lib/mattermost/files"
             ];
-            repo = "de3288@de3288.rsync.net:/webb";
+            repo = "de3288@de3288.rsync.net:/data2/home/de3288/backups/webb";
             startAt = "daily";
           };
         };
