@@ -85,6 +85,20 @@ in
             repo = "mcamp@reckless:/mnt/backups/webb";
             startAt = "daily";
           };
+          "campground-offsite" = {
+            paths = [ 
+              "/persist" 
+              "/webb/media/photos"
+              "/webb/kubernetes"
+              "/webb/backups/openwrt-backups"
+              "/var/lib/paperless"
+              "/var/lib/minio"
+              "/var/lib/label-studio"
+              "/var/lib/mattermost/files"
+            ];
+            repo = "de3288@de3288.rsync.net:/webb";
+            startAt = "daily";
+          };
         };
       };
       postgresql = {
