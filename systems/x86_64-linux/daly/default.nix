@@ -84,7 +84,6 @@ in
           repo = "mcamp@reckless:/mnt/backups/daly";
           startAt = "daily";
         };
-      };
         "daly_rsync" = {
           paths = [ 
             "/persist" 
@@ -92,6 +91,7 @@ in
           repo = "de3288@de3288.rsync.net:/data2/home/de3288/backups/daly";
           startAt = "daily";
         };
+      };
     };
 
     searx = {
