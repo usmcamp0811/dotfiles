@@ -14,10 +14,22 @@ in
 {
   imports = [ ./hardware.nix ];
 
+    fileSystems."/mnt/webb" = {
+      device = "webb:/webb";
+      fsType = "nfs";
+      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+    };
+
+    fileSystems."/mnt/media" = {
+      device = "webb:/export";
+      fsType = "nfs";
+      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+    };
   campground = {
     archetypes.workstation = enabled;
     # tools.icehouse = enabled;
-    nfs.client.campfs = enabled;
+    nfs.client.webb = enabled;
+    nfs.client.media = enabled;
 
     system = {
       boot = enabled;
