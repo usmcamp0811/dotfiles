@@ -58,6 +58,7 @@ in
     nfs = {
       # campfs = enabled;
       # webb = enabled;
+      media = enabled;
     };
 
     system = {
