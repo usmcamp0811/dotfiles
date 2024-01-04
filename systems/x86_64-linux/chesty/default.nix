@@ -17,7 +17,7 @@ in
   campground = {
     archetypes.workstation = enabled;
     # tools.icehouse = enabled;
-    nfs.campfs = enabled;
+    nfs.client.campfs = enabled;
 
     system = {
       boot = enabled;

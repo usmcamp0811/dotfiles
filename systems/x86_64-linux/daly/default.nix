@@ -30,7 +30,7 @@ in
       acme = enabled;
     };
 
-    nfs = {
+    nfs.client = {
       campfs = enabled;
       webb = enabled;
       chestyfs = enabled;

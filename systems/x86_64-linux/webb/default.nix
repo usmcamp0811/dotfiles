@@ -17,7 +17,7 @@ in
   campground = {
     archetypes.workstation = enabled;
     tools.icehouse = enabled;
-    nfs.campfs = enabled;
+    # nfs.campfs = enabled;
     # nfs.chestyfs = enabled;
     apps = {
      k9s = enabled; 
