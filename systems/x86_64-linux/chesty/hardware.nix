@@ -47,10 +47,10 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-  services.nfs.server.enable = true;
-  services.nfs.server.exports = ''
-    /mnt/chestyfs *(rw,fsid=root,no_subtree_check)
-  '';
+  # services.nfs.server.enable = true;
+  # services.nfs.server.exports = ''
+  #   /mnt/chestyfs *(rw,fsid=root,no_subtree_check)
+  # '';
 
 
 }
