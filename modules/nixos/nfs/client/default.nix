@@ -31,6 +31,12 @@ in
       fsType = "nfs";
       options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
     };
+  } // mkIf cfg.media {
+    fileSystems."/mnt/media" = {
+      device = "webb:/export/media";
+      fsType = "nfs";
+      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+    };
   } // mkIf cfg.k8s {
     fileSystems."/mnt/k8s" = {
       device = "k8s:/k8s";
