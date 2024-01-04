@@ -10,6 +10,7 @@ in
     campfs = mkBoolOpt false "Whether or not to campfs mount.";
     chestyfs = mkBoolOpt false "Whether or not to chestyfs mount.";
     k8s = mkBoolOpt false "Whether or not to k8s mount.";
+    media = mkBoolOpt false "Whether or not to media mount.";
   
   };
 
