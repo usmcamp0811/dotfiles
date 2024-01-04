@@ -68,7 +68,7 @@
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/media" =
+  fileSystems."/export/media" =
     { device = "NIXROOT/media";
       fsType = "zfs";
     };
@@ -94,5 +94,7 @@
   services.nfs.server.exports = ''
     /k8s *(rw,fsid=root,no_subtree_check)
     /webb *(rw,fsid=root,no_subtree_check)
+    /export *(rw,fsid=root,no_subtree_check)
+    /export/media *(rw,fsid=root,no_subtree_check)
   '';
 }
