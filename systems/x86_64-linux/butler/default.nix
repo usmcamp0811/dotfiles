@@ -63,10 +63,11 @@ in
     };
 
 
-    # nfs = {
+    nfs.client = {
+      enable = true;
     #   campfs = enabled;
     #   webb = enabled;
-    # };
+    };
 
     system = {
       # manage local passwd in vault
@@ -106,17 +107,17 @@ in
 
   campground.services = {
     nix-snapshotter = enabled;
-    borgbackup = {
-      enable = true;
-      jobs = {
-        "backup-test" = {
-          paths = [ "/home/mcamp/Documents" ];
-          encryption.mode = "none";
-          repo = "mcamp@chesty:/mnt/backups/";
-          startAt = "daily";
-        };
-      };
-    };
+    # borgbackup = {
+    #   enable = true;
+    #   jobs = {
+    #     "backup-test" = {
+    #       paths = [ "/home/mcamp/Documents" ];
+    #       encryption.mode = "none";
+    #       repo = "mcamp@chesty:/mnt/backups/";
+    #       startAt = "daily";
+    #     };
+    #   };
+    # };
     docker = enabled;
     cert-manager = {
       # enable = true;

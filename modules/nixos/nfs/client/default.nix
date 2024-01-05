@@ -6,6 +6,7 @@ let cfg = config.campground.nfs.client;
 in
 {
   options.campground.nfs.client = with types; {
+    enable = mkBoolOpt false "NFS";
     webb = mkBoolOpt false "Whether or not to Webb mount.";
     campfs = mkBoolOpt false "Whether or not to campfs mount.";
     chestyfs = mkBoolOpt false "Whether or not to chestyfs mount.";
@@ -14,36 +15,71 @@ in
   
   };
 
-  config = mkIf cfg.webb {
-    fileSystems."/mnt/webb" = {
-      device = "webb:/webb";
-      fsType = "nfs";
-      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+  config = mkIf cfg.enable {
+    services.rpcbind.enable = true; # needed for NFS
+    systemd.mounts = let commonMountOptions = {
+      type = "nfs";
+      mountConfig = {
+        Options = "noatime";
+      };
     };
-  } // mkIf cfg.campfs {
-    fileSystems."/mnt/campfs" = {
-      device = "campfs:/campfs";
-      fsType = "nfs";
-      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+
+    in
+
+    [
+      (commonMountOptions // {
+        what = "webb:/export/webb";
+        where = "/mnt/webb";
+      })
+
+      (commonMountOptions // {
+        what = "webb:/export/media";
+        where = "/mnt/media";
+      })
+    ];
+
+    systemd.automounts = let commonAutoMountOptions = {
+      wantedBy = [ "multi-user.target" ];
+      automountConfig = {
+        TimeoutIdleSec = "600";
+      };
     };
-  } // mkIf cfg.chestyfs {
-    fileSystems."/mnt/chestyfs" = {
-      device = "chesty:/mnt/chestyfs";
-      fsType = "nfs";
-      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
-    };
-  } // mkIf cfg.media {
-    fileSystems."/mnt/media" = {
-      device = "webb:/export/media";
-      fsType = "nfs";
-      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
-    };
-  } // mkIf cfg.k8s {
-    fileSystems."/mnt/k8s" = {
-      device = "k8s:/k8s";
-      fsType = "nfs";
-      options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
-    };
+
+    in
+
+    [
+      (commonAutoMountOptions // { where = "/mnt/webb"; })
+      (commonAutoMountOptions // { where = "/mnt/media"; })
+    ];
+  #   fileSystems."/mnt/webb" = {
+  #     device = "webb:/webb";
+  #     fsType = "nfs";
+  #     options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+  #   };
+  # } // mkIf cfg.campfs {
+  #   fileSystems."/mnt/campfs" = {
+  #     device = "campfs:/campfs";
+  #     fsType = "nfs";
+  #     options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+  #   };
+  # } // mkIf cfg.chestyfs {
+  #   fileSystems."/mnt/chestyfs" = {
+  #     device = "chesty:/mnt/chestyfs";
+  #     fsType = "nfs";
+  #     options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+  #   };
+  # } // mkIf cfg.media {
+  #   fileSystems."/mnt/media" = {
+  #     device = "webb:/export/media";
+  #     fsType = "nfs";
+  #     options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+  #   };
+  # } // mkIf cfg.k8s {
+  #   fileSystems."/mnt/k8s" = {
+  #     device = "k8s:/k8s";
+  #     fsType = "nfs";
+  #     options = [ "rw" "soft" "x-systemd.automount" "noauto" ];
+  #   };
   };
 }
 
