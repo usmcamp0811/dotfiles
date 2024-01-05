@@ -73,6 +73,11 @@
       fsType = "zfs";
     };
 
+  fileSystems."/export/webb" = {
+    device = "/webb";
+    options = [ "bind" ];
+  };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
@@ -88,13 +93,13 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-  # networking.firewall.allowedTCPPorts = [ 2049 20048 ];
-  # networking.firewall.allowedUDPPorts = [ 2049 20048 ];
+  networking.firewall.allowedTCPPorts = [ 2049 20048 ];
+  networking.firewall.allowedUDPPorts = [ 2049 20048 ];
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
-    /k8s *(rw,fsid=root,no_subtree_check)
-    /webb *(rw,fsid=root,no_subtree_check)
     /export *(rw,fsid=root,no_subtree_check)
     /export/media *(rw,fsid=root,no_subtree_check)
+    /export/webb *(rw,fsid=root,no_subtree_check)
+    /k8s *(rw,fsid=root,no_subtree_check)
   '';
 }
