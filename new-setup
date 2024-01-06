@@ -1,19 +1,20 @@
 
 
 nvme_drive="/dev/nvme0n1"
+install_drive="/dev/sdb"
 
 # Zap the NVMe drive
-sgdisk --zap-all "$nvme_drive"
+sudo sgdisk --zap-all "$install_drive"
 
 # Create a 1GB boot partition
-sgdisk -n 1:0:+1G -t 1:EF00 "$nvme_drive"
+sudo sgdisk -n 1:0:+1G -t 1:EF00 "$install_drive"
 
 # Create a partition for the remaining space
-sgdisk -n 2:0:0 -t 2:BF00 "$nvme_drive"
+sudo sgdisk -n 2:0:0 -t 2:BF00 "$install_drive"
 
 
 # Make sure Boot is bootable
-sudo parted /dev/nvme0n1 -- set 1 esp on
+sudo parted $install_drive -- set 1 esp on
 
 
 
@@ -37,7 +38,8 @@ sudo zpool create -f \
 -O keyformat=passphrase \
 -O mountpoint=none \
 NIXROOT \
-/dev/nvme0n1p2
+${install_drive}2
+
 sudo zfs create -o mountpoint=legacy NIXROOT/root
 sudo zfs create -o mountpoint=legacy NIXROOT/home
 sudo zfs create -o mountpoint=legacy NIXROOT/persist
@@ -47,7 +49,7 @@ sudo mount -t zfs NIXROOT/root /mnt
 sudo mkdir /mnt/boot
 sudo mkdir /mnt/home
 sudo mkdir /mnt/persist
-sudo mount /dev/nvme0n1p1 /mnt/boot
+sudo mount ${install_drive}1 /mnt/boot
 sudo mount -t zfs NIXROOT/home /mnt/home
 sudo mount -t zfs NIXROOT/persist /mnt/persist
 sudo nixos-generate-config --root /mnt
