@@ -111,7 +111,7 @@
   };
 
   networking.firewall.allowedTCPPorts = [ 2049 20048 ];
-  networkingqjjj.firewall.allowedUDPPorts = [ 2049 20048 ];
+  networking.firewall.allowedUDPPorts = [ 2049 20048 ];
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
     /export/media 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
