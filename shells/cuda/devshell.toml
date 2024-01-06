@@ -13,7 +13,7 @@ packages = [
   "m4",
   "gperf",
   "unzip",
-  "cudatoolkit",
+  # "cudatoolkit",
   "linuxPackages.nvidia_x11",
   "libGLU",
   "libGL",
@@ -27,5 +27,9 @@ packages = [
   "zlib",
   "ncurses5", 
   "stdenv.cc",
-  "binutils"
+  "binutils",
+  "cudaPackages.cudnn",
+  "cudaPackages.nvidia_fs",
+  "cudaPackages.cutensor",
+  "cudaPackages.cuda_nvml_dev"
 ]

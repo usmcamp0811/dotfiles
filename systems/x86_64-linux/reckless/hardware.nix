@@ -58,6 +58,31 @@
       fsType = "zfs";
     };
 
+    fileSystems."/mnt/media" = 
+    { device = "ChestyPoolr/media";
+      fsType = "zfs";
+    };
+
+    fileSystems."/mnt/media/audiobooks" = 
+    { device = "ChestyPoolr/media/audiobooks";
+      fsType = "zfs";
+    };
+
+    fileSystems."/mnt/media/movies" = 
+    { device = "ChestyPoolr/media/movies";
+      fsType = "zfs";
+    };
+
+    fileSystems."/mnt/media/tv-shows" = 
+    { device = "ChestyPoolr/media/tv-shows";
+      fsType = "zfs";
+    };
+
+    fileSystems."/mnt/media/music" = 
+    { device = "ChestyPoolr/media/music";
+      fsType = "zfs";
+    };
+
   # sudo zfs create -V 16G -o compression=zle -o logbias=throughput -o sync=always -o primarycache=metadata -o secondarycache=none NIXROOT/swap
   # sudo mkswap -f /dev/zvol/NIXROOT/swap
   # sudo swapon /dev/zvol/NIXROOT/swap
@@ -79,4 +104,16 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  fileSystems."/export/media" = {
+    device = "/mnt/media";
+    options = [ "bind" ];
+  };
+
+  networking.firewall.allowedTCPPorts = [ 2049 20048 ];
+  networkingqjjj.firewall.allowedUDPPorts = [ 2049 20048 ];
+  services.nfs.server.enable = true;
+  services.nfs.server.exports = ''
+    /export/media 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
+  '';
 }
