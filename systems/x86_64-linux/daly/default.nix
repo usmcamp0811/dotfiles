@@ -31,9 +31,10 @@ in
     };
 
     nfs.client = {
-      campfs = enabled;
-      webb = enabled;
-      chestyfs = enabled;
+      enable = true;
+      # campfs = enabled;
+      # webb = enabled;
+      # chestyfs = enabled;
     };
 
     system = {
