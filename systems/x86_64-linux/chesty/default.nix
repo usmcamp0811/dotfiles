@@ -13,7 +13,6 @@ let
 in
 {
   imports = [ ./hardware.nix ];
-
   campground = {
     archetypes.workstation = enabled;
     # tools.icehouse = enabled;
