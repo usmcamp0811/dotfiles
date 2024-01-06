@@ -110,10 +110,34 @@
     options = [ "bind" ];
   };
 
+  fileSystems."/export/media/movies" = {
+    device = "/mnt/media/movies";
+    options = [ "bind" ];
+  };
+
+  fileSystems."/export/media/tv-shows" = {
+    device = "/mnt/media/tv-shows";
+    options = [ "bind" ];
+  };
+
+  fileSystems."/export/media/audiobooks" = {
+    device = "/mnt/media/audiobooks";
+    options = [ "bind" ];
+  };
+
+  fileSystems."/export/media/music" = {
+    device = "/mnt/media/music";
+    options = [ "bind" ];
+  };
+
   networking.firewall.allowedTCPPorts = [ 2049 20048 ];
   networking.firewall.allowedUDPPorts = [ 2049 20048 ];
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
-    /export/media 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
+    /export/media 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) /export/media 172.16.10.190(rw,nohide,insecure,no_subtree_check)
+    /export/media/movies 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) /export/media/movies 172.16.10.190(rw,nohide,insecure,no_subtree_check)
+    /export/media/tv-shows 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) /export/media/tv-shows 172.16.10.190(rw,nohide,insecure,no_subtree_check)
+    /export/media/audiobooks 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) /export/media/audiobooks 172.16.10.190(rw,nohide,insecure,no_subtree_check)
+    /export/media/music 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) /export/media/music 172.16.10.190(rw,nohide,insecure,no_subtree_check)
   '';
 }
