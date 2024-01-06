@@ -98,7 +98,6 @@
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
     /export 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
-    /export/media 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
     /export/webb 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
   '';
 }
