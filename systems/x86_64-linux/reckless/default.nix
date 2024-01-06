@@ -58,7 +58,7 @@ in
     nfs.client = {
       # campfs = enabled;
       # webb = enabled;
-      media = enabled;
+      enable = true;
     };
 
     system = {
