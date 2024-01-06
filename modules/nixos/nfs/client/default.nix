@@ -28,13 +28,13 @@ in
 
     [
       (commonMountOptions // {
-        what = "webb:/export/webb";
-        where = "/mnt/webb";
+        what = "reckless:/export/media";
+        where = "/mnt/media";
       })
 
       (commonMountOptions // {
-        what = "webb:/export/media";
-        where = "/mnt/media";
+        what = "webb:/export/webb";
+        where = "/mnt/webb";
       })
     ];
 
@@ -48,8 +48,8 @@ in
     in
 
     [
-      (commonAutoMountOptions // { where = "/mnt/webb"; })
       (commonAutoMountOptions // { where = "/mnt/media"; })
+      (commonAutoMountOptions // { where = "/mnt/webb"; })
     ];
   #   fileSystems."/mnt/webb" = {
   #     device = "webb:/webb";
