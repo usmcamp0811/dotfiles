@@ -97,7 +97,7 @@
   networking.firewall.allowedUDPPorts = [ 2049 20048 ];
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
-    /export 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
-    /export/webb 10.8.0.1/24(rw,nohide,insecure,no_subtree_check)
+    /export 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) /export 172.16.10.190(rw,nohide,insecure,no_subtree_check)
+    /export/webb 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) /export/webb 172.16.10.190(rw,nohide,insecure,no_subtree_check)
   '';
 }
