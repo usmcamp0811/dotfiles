@@ -1,7 +1,7 @@
 
 
-nvme_drive="/dev/nvme0n1"
-install_drive="/dev/sdb"
+install_drive="/dev/nvme0n1"
+install_drive="/dev/sda"
 
 # Zap the NVMe drive
 sudo sgdisk --zap-all "$install_drive"
@@ -17,8 +17,11 @@ sudo sgdisk -n 2:0:0 -t 2:BF00 "$install_drive"
 sudo parted $install_drive -- set 1 esp on
 
 
-
 sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
+
+
+sudo mkfs.fat -F 32 /dev/sda1
+sudo fatlabel /dev/sda1 BOOT
 
 sudo zpool export -a
 sudo zpool import
@@ -45,6 +48,7 @@ sudo zfs create -o mountpoint=legacy NIXROOT/home
 sudo zfs create -o mountpoint=legacy NIXROOT/persist
 # reserved to cope with running out of disk space
 sudo zfs create -o refreservation=1G -o mountpoint=none NIXROOT/reserved
+sudo mkdir /mnt
 sudo mount -t zfs NIXROOT/root /mnt
 sudo mkdir /mnt/boot
 sudo mkdir /mnt/home
