@@ -53,6 +53,7 @@ in
       cntr
       glibc
       borgbackup
+      yt-dlp
     ];
 
   };
