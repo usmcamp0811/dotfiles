@@ -7,6 +7,9 @@ with lib.campground;
       enable = true;
       name = config.snowfallorg.user.name;
     };
+    tools = {
+      vault = enabled;
+    };
 
     cli = {
       zsh = enabled;

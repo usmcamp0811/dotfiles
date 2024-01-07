@@ -59,40 +59,40 @@ in
       k0sworker = enabled;
       ntp = enabled;
       docker = enabled;
-      # zfs-key-server = {
-      #   enable = true;
-      #   port = 8123;
-      #   tang-servers = [ 
-      #     "http://daly:1234" 
-      #     # "http://mattis:1234" 
-      #     "http://chesty:1234" 
-      #     "http://ermy:1234" 
-      #     "http://webb:1234" 
-      #     "http://reckless:1234"
-      #   ];
-      # };
+      zfs-key-server = {
+        enable = true;
+        port = 8123;
+        tang-servers = [ 
+          "http://daly:1234" 
+          # "http://mattis:1234" 
+          "http://chesty:1234" 
+          "http://ermy:1234" 
+          "http://webb:1234" 
+          "http://reckless:1234"
+        ];
+      };
 
-      # user-secrets = {
-      #   enable = true;
-      #   users.mcamp = { 
-      #     files = [ 
-      #       "id_ed25519" 
-      #       "passwords" 
-      #     ]; 
-      #   };
-      # };
+      user-secrets = {
+        enable = true;
+        users.mcamp = { 
+          files = [ 
+            "id_ed25519" 
+            "passwords" 
+          ]; 
+        };
+      };
 
-      # vault-agent = {
-      #   enable = true;
-      #   settings = { 
-      #     vault = { 
-      #       address = "https://vault.lan.aicampground.com"; 
-      #       # address = "http://vault.lan/";
-      #       role-id = "/var/lib/vault/chesty/role-id"; 
-      #       secret-id = "/var/lib/vault/chesty/secret-id"; 
-      #     }; 
-      #   };
-      # };
+      vault-agent = {
+        enable = true;
+        settings = { 
+          vault = { 
+            address = "https://vault.lan.aicampground.com"; 
+            # address = "http://vault.lan/";
+            role-id = "/var/lib/vault/lucas/role-id"; 
+            secret-id = "/var/lib/vault/lucas/secret-id"; 
+          }; 
+        };
+      };
     };
   };
 
