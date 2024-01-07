@@ -13,21 +13,26 @@ in
 
   config = mkIf cfg.enable {
     
+    # home.packages = with pkgs; [
+    #   scientific-fhs
+    #
+    # ];
+
     # home.sessionVariables = {
     #   LD_LIBRARY_PATH = "${pkgs.gcc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH";
     # };
-    programs.scientific-fhs = {
-      enable = true;
-      juliaVersions = [
-        {
-          version = "julia_18";
-          default = true;
-        }
-        { version = "julia_17"; }
-        { version = "julia_16"; }
-      ];
-      enableNVIDIA = true;
-    };
+    # programs.scientific-fhs = {
+    #   enable = true;
+    #   juliaVersions = [
+    #     {
+    #       version = "julia_18";
+    #       default = true;
+    #     }
+    #     { version = "julia_17"; }
+    #     { version = "julia_16"; }
+    #   ];
+    #   # enableNVIDIA = true;
+    # };
   };
 }
 

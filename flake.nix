@@ -168,7 +168,7 @@
       ];
 
       # systems.modules.home = with inputs; [
-      #   scientific-fhs.nixosModules.default
+      #   inputs.scientific-fhs.nixosModules.default
       # ];
 
       # systems.modules = with inputs; [
