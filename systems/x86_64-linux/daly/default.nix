@@ -23,13 +23,6 @@ in
       workstation = enabled;
     };
 
-    desktop.qtile = {
-      enable = true;
-      gdm = true;
-      # lightdm = true;
-
-      sddm = false;
-    };
     apps = {
     };
 
