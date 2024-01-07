@@ -15,9 +15,6 @@ in
   imports = [ ./hardware.nix ];
   campground = {
     archetypes.workstation = enabled;
-    # tools.icehouse = enabled;
-    # nfs.client.webb = enabled;
-    # nfs.client.media = enabled;
     nfs.client.enable = true;
 
     system = {
