@@ -1,4 +1,4 @@
-
+# This is more or less how to setup a new machine.. some context missing and some things need to be tweaked but this will get you there if you understand what the commands do.
 
 install_drive="/dev/nvme0n1"
 install_drive="/dev/sda"
