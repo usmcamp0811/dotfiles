@@ -93,7 +93,7 @@ in
       originalsPath = "/var/lib/private/photoprism/originals";
       address = "127.0.0.1";
       passwordFile = "/var/lib/vault/photoprism.pass";
-      importPath = cfg.importPath;
+      importPath = "/var/lib/photoprism/import";
       settings = {
         PHOTOPRISM_ADMIN_USER = "admin";
         PHOTOPRISM_DEFAULT_LOCALE = "en";
