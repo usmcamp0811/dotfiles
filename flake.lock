@@ -3039,6 +3039,19 @@
         "type": "github"
       }
     },
+    "nixpkgs_23": {
+      "locked": {
+        "lastModified": 1698318101,
+        "narHash": "sha256-gUihHt3yPD7bVqg+k/UVHgngyaJ3DMEBchbymBMvK1E=",
+        "path": "/nix/store/35dcag44a0ymww0vy0s4jjgxwpv9g62d-source",
+        "rev": "63678e9f3d3afecfeafa0acead6239cdb447574c",
+        "type": "path"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
     "nixpkgs_3": {
       "locked": {
         "lastModified": 1686519857,
@@ -3932,6 +3945,7 @@
         "nur": "nur",
         "poetry2nix": "poetry2nix_3",
         "sbomnix": "sbomnix",
+        "scientific-fhs": "scientific-fhs",
         "snowfall-lib": "snowfall-lib_3",
         "technofab": "technofab",
         "unstable": "unstable",
@@ -4142,6 +4156,24 @@
       "original": {
         "owner": "tiiuae",
         "repo": "sbomnix",
+        "type": "github"
+      }
+    },
+    "scientific-fhs": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_23"
+      },
+      "locked": {
+        "lastModified": 1701458677,
+        "narHash": "sha256-+CamioI2vcSnEf4XxVKezm0VEy3+QL1OgEqBMlvCwJg=",
+        "owner": "olynch",
+        "repo": "scientific-fhs",
+        "rev": "7fc4206c93d3b9a8eb4d2051fc64111e111a66a2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "olynch",
+        "repo": "scientific-fhs",
         "type": "github"
       }
     },

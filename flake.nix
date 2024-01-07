@@ -123,6 +123,7 @@
 
     julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
     dream2nix.url = "github:nix-community/dream2nix";
+    scientific-fhs.url = "github:olynch/scientific-fhs";
   };
 
   outputs = inputs:
@@ -166,9 +167,9 @@
         vault-service.nixosModules.nixos-vault-service
       ];
 
-      # systems.modules.home = with inputs; [
-      #   scientific-fhs.nixosModules.default
-      # ];
+      systems.modules.home = with inputs; [
+        scientific-fhs.nixosModules.default
+      ];
 
       # systems.modules = with inputs; [
       #   campground-nvim.nixosModules.nixvim
@@ -176,15 +177,15 @@
       
 
       #TODO: Move this into the actual system config?
-      systems.hosts.ata-xps.modules = with inputs; [
-        nixos-hardware.nixosModules.dell-xps-13-7390
+      # systems.hosts.ata-xps.modules = with inputs; [
+      #   nixos-hardware.nixosModules.dell-xps-13-7390
+      #
+      # ];
 
-      ];
-
-      systems.hosts.ata-nuc.modules = with inputs; [
-        nixos-hardware.nixosModules.intel-nuc-8i7beh
-
-      ];
+      # systems.hosts.ata-nuc.modules = with inputs; [
+      #   nixos-hardware.nixosModules.intel-nuc-8i7beh
+      #
+      # ];
 
       #TODO: Move this into the actual system config?
       systems.hosts.butler.modules = with inputs; [
