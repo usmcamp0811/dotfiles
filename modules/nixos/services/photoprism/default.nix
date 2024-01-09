@@ -74,17 +74,16 @@ in
 
     users.groups.photoprism = {};
 
-    systemd.services.photoprismPasswordFile = {
-      description = "Create Photoprism environment file";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";  # Use the root user to create the folder and set permissions
-        ExecStartPre = "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/photoprism.pass /var/lib/vault/photoprism.pass";
-        ExecStartPost = "${pkgs.coreutils}/bin/chown photoprism:photoprism /var/lib/vault/photoprism.pass"; # Change file ownership to vaultwarden
+    services.webdav = {
+      enable = true;
+      user = "photoprism";
+      group = "photoprism";
+      settings = {
+        host = "127.0.0.1";
+        port = 9191;
+        auth = false;
+        location = "/var/lib/photoprism/import";
       };
-      wantedBy = [ "multi-user.target" ];
-      before = [ "photoprism.service" ];
     };
 
 
