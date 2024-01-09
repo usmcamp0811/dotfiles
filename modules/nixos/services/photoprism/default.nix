@@ -87,21 +87,22 @@ in
       before = [ "photoprism.service" ];
     };
 
+
+
+
     systemd.services.photoprismAutoImport = {
       description = "Auto import when files are added to the folder";
       serviceConfig = {
-        # User = "photoprism";
+        User = "root";
         Restart = "on-failure";
         WorkingDirectory = "/var/lib/photoprism"; 
       };
       wantedBy = [ "multi-user.target" ];
       after = [ "photoprism.service" ];
       script = ''
-        cd /var/lib/photoprism/import
         ${pkgs.inotify-tools}/bin/inotifywait -m -e create "${cfg.importPath}" | while read path action file; do
-          export PHOTOPRISM_ADMIN_PASSWORD=$(cat /var/lib/vault/photoprism.pass)
           echo "File $file was added to ${cfg.importPath}. Running photoprism import."
-          ${pkgs.photoprism}/bin/photoprism import /var/lib/photoprism/import
+          /var/lib/photoprism/photoprism-manage import
         done
       '';
     };
