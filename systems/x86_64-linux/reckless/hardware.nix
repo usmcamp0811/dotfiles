@@ -33,30 +33,30 @@
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/chestyfs" =
-    { device = "ChestyPoolr/chestyfs";
-      fsType = "zfs";
-    };
+  # fileSystems."/mnt/chestyfs" =
+  #   { device = "ChestyPoolr/chestyfs";
+  #     fsType = "zfs";
+  #   };
 
   fileSystems."/mnt/backups/webb" =
     { device = "ChestyPoolr/backups/webb";
       fsType = "zfs";
     };
-
+  #
   fileSystems."/mnt/backups/daly" =
     { device = "ChestyPoolr/backups/daly";
       fsType = "zfs";
     };
-
-  fileSystems."/mnt/backups/butler" =
-    { device = "ChestyPoolr/backups/butler";
-      fsType = "zfs";
-    };
-
-  fileSystems."/mnt/backups/lucas" =
-    { device = "ChestyPoolr/backups/lucas";
-      fsType = "zfs";
-    };
+  #
+  # fileSystems."/mnt/backups/butler" =
+  #   { device = "ChestyPoolr/backups/butler";
+  #     fsType = "zfs";
+  #   };
+  #
+  # fileSystems."/mnt/backups/lucas" =
+  #   { device = "ChestyPoolr/backups/lucas";
+  #     fsType = "zfs";
+  #   };
 
     fileSystems."/mnt/media" = 
     { device = "ChestyPoolr/media";
@@ -87,12 +87,12 @@
   # sudo mkswap -f /dev/zvol/NIXROOT/swap
   # sudo swapon /dev/zvol/NIXROOT/swap
 
-  swapDevices = [
-    {
-      device = "/dev/zvol/NIXROOT/swap";
-      randomEncryption.enable = true;
-    }
-  ];
+  # swapDevices = [
+  #   {
+  #     device = "/dev/zvol/NIXROOT/swap";
+  #     randomEncryption.enable = true;
+  #   }
+  # ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
