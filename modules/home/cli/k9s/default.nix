@@ -13,6 +13,8 @@ in
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
       k9s
+      kubernetes-helm
+      kubectl
     ];
   };
 }
