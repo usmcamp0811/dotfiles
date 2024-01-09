@@ -55,11 +55,11 @@ in
     };
 
 
-    # nfs.client = {
-    #   # campfs = enabled;
-    #   # webb = enabled;
-    #   enable = true;
-    # };
+    nfs.client = {
+      # campfs = enabled;
+      # webb = enabled;
+      enable = true;
+    };
 
     system = {
       zfs = {
