@@ -74,21 +74,6 @@ in
 
     users.groups.photoprism = {};
 
-    services.webdav = {
-      enable = true;
-      user = "photoprism";
-      group = "photoprism";
-      settings = {
-        host = "127.0.0.1";
-        port = 9191;
-        auth = false;
-        location = "/var/lib/photoprism";
-      };
-    };
-
-
-
-
     systemd.services.photoprismAutoImport = {
       description = "Auto import when files are added to the folder";
       serviceConfig = {
