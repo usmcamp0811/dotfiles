@@ -3,6 +3,7 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.photoprism;
+# If you setup Syncthing to sync with your phone and have the sync folder mapped to cfg.importPath then this will automatically import whenever you take a pic
 in
 {
   options.campground.services.photoprism = with types; {
