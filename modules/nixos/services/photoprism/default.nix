@@ -88,6 +88,8 @@ in
         export PHOTOPRISM_ADMIN_PASSWORD=$(cat "/var/lib/vault/photoprism.pass")
         ${pkgs.inotify-tools}/bin/inotifywait -m -e create "${cfg.importPath}" | while read path action file; do
           echo "File $file was added to ${cfg.importPath}. Running photoprism import."
+          # wait a minute incase a lot of files go copied... 
+          sleep 60
           ${pkgs.sudo}/bin/sudo -u root /var/lib/photoprism/photoprism-manage import
         done
       '';
