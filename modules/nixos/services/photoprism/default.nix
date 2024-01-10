@@ -82,7 +82,7 @@ in
         host = "127.0.0.1";
         port = 9191;
         auth = false;
-        location = "/var/lib/photoprism/import";
+        location = "/var/lib/photoprism";
       };
     };
 
@@ -99,9 +99,10 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [ "photoprism.service" ];
       script = ''
+        export PHOTOPRISM_ADMIN_PASSWORD=$(cat "/var/lib/vault/photoprism.pass")
         ${pkgs.inotify-tools}/bin/inotifywait -m -e create "${cfg.importPath}" | while read path action file; do
           echo "File $file was added to ${cfg.importPath}. Running photoprism import."
-          /var/lib/photoprism/photoprism-manage import
+          ${pkgs.sudo}/bin/sudo -u root /var/lib/photoprism/photoprism-manage import
         done
       '';
     };
