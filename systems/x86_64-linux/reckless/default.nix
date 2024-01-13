@@ -36,13 +36,16 @@ in
       workstation = enabled;
     };
 
-    desktop.qtile = {
+    desktop.hyperland = {
       enable = true;
-      gdm = true;
-      # lightdm = true;
-
-      sddm = false;
     };
+    # desktop.qtile = {
+    #   enable = true;
+    #   gdm = true;
+    #   # lightdm = true;
+    #
+    #   sddm = false;
+    # };
 
     apps = {
       k9s = enabled; 
