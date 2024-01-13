@@ -14,8 +14,8 @@ with lib.campground;
   config = let
     cfg = config.campground.desktop.qtile;
     QtileAutostart = pkgs.writeShellScript "autostart.sh" ''
-      #!/bin/sh
 
+      [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33
       ${pkgs.redshift}/bin/redshift-gtk -l ${cfg.lat-lon} -t 5700:3600 -g 0.8 -m randr -v &
       ${pkgs.xautolock}/bin/xautolock -time ${cfg.lock-time} -locker i3lock-fancy &
       ${pkgs.networkmanagerapplet}/bin/nm-applet &
