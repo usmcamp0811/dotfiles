@@ -58,27 +58,27 @@
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/media" = 
+  fileSystems."/export/media" = 
     { device = "ChestyPoolr/media";
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/media/audiobooks" = 
+  fileSystems."/export/audiobooks" = 
     { device = "ChestyPoolr/media/audiobooks";
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/media/movies" = 
+  fileSystems."/export/media/movies" = 
     { device = "ChestyPoolr/media/movies";
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/media/tv-shows" = 
+  fileSystems."/export/media/tv-shows" = 
     { device = "ChestyPoolr/media/tv-shows";
       fsType = "zfs";
     };
 
-  fileSystems."/mnt/media/music" = 
+  fileSystems."/export/media/music" = 
     { device = "ChestyPoolr/media/music";
       fsType = "zfs";
     };
@@ -104,31 +104,6 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-
-  fileSystems."/export/media" = {
-    device = "/mnt/media";
-    options = [ "bind" ];
-  };
-
-  fileSystems."/export/media/movies" = {
-    device = "/mnt/media/movies";
-    options = [ "bind" ];
-  };
-
-  fileSystems."/export/media/tv-shows" = {
-    device = "/mnt/media/tv-shows";
-    options = [ "bind" ];
-  };
-
-  fileSystems."/export/media/audiobooks" = {
-    device = "/mnt/media/audiobooks";
-    options = [ "bind" ];
-  };
-
-  fileSystems."/export/media/music" = {
-    device = "/mnt/media/music";
-    options = [ "bind" ];
-  };
 
   networking.firewall.allowedTCPPorts = [ 2049 20048 ];
   networking.firewall.allowedUDPPorts = [ 2049 20048 ];
