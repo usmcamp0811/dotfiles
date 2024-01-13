@@ -41,7 +41,7 @@ in
 
   config = mkIf cfg.enable {
         environment.systemPackages = [
-          # config.campground.desktop.addons.gtk.cursor.pkg
+          config.campground.desktop.addons.gtk.cursor.pkg
           # config.campground.desktop.addons.gtk.icon.pkg
           # config.campground.desktop.addons.gtk.theme.pkg
           pkgs.vulkan-validation-layers
@@ -58,7 +58,7 @@ in
 
             GTK = {
               application_prefer_dark_theme = true;
-              # cursor_theme_name = "${config.campground.desktop.addons.gtk.cursor.name}";
+              cursor_theme_name = "${config.campground.desktop.addons.gtk.cursor.name}";
               # font_name = "${config.campground.system.fonts.default} * 12";
               # icon_theme_name = "${config.campground.desktop.addons.gtk.icon.name}";
               # theme_name = "${config.campground.desktop.addons.gtk.theme.name}";

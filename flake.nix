@@ -20,6 +20,11 @@
 
     devshell.url = "github:numtide/devshell";
 
+    bibata-cursors = {
+      url = "github:suchipi/Bibata_Cursor";
+      flake = false;
+    };
+
     # Hyprland
     hyprland = {
       url = "github:hyprwm/Hyprland";
