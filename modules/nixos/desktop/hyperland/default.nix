@@ -131,8 +131,11 @@ in
         #   #   enable = cfg.sddm;
         #   # };
         # };
-        campground.display-managers.regreet = {
-            enable = true;
+        campground.display-managers = {
+          gdm.enable = true;
+          regreet = {
+            enable = false;
+          };
         };
         programs.hyprland = {
           enable = true;

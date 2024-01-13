@@ -37,13 +37,15 @@ in
   options.campground.display-managers.regreet = with types; {
     enable = mkBoolOpt false "Whether or not to enable greetd.";
     swayOutput = mkOpt lines "" "Sway Outputs config.";
+    font = mkOpt types.str "MonaspiceNe Nerd Font" "Default font name";
+
   };
 
   config = mkIf cfg.enable {
         environment.systemPackages = [
           config.campground.desktop.addons.gtk.cursor.pkg
-          # config.campground.desktop.addons.gtk.icon.pkg
-          # config.campground.desktop.addons.gtk.theme.pkg
+          config.campground.desktop.addons.gtk.icon.pkg
+          config.campground.desktop.addons.gtk.theme.pkg
           pkgs.vulkan-validation-layers
         ];
 
@@ -59,16 +61,16 @@ in
             GTK = {
               application_prefer_dark_theme = true;
               cursor_theme_name = "${config.campground.desktop.addons.gtk.cursor.name}";
-              # font_name = "${config.campground.system.fonts.default} * 12";
-              # icon_theme_name = "${config.campground.desktop.addons.gtk.icon.name}";
-              # theme_name = "${config.campground.desktop.addons.gtk.theme.name}";
+              font_name = "${config.campground.system.fonts.default} * 12";
+              icon_theme_name = "${config.campground.desktop.addons.gtk.icon.name}";
+              theme_name = "${config.campground.desktop.addons.gtk.theme.name}";
             };
           };
         };
 
-        # services.greetd.settings.default_session = {
-        #   command = "env GTK_USE_PORTAL=0 ${getExe pkgs.sway} --config ${greetdSwayConfig}";
-        # };
+        services.greetd.settings.default_session = {
+          command = "env GTK_USE_PORTAL=0 ${getExe pkgs.sway} --config ${greetdSwayConfig}";
+        };
 
         security.pam.services.greetd = {
           enableGnomeKeyring = true;
