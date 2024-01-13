@@ -203,6 +203,7 @@
           (system: deploy-lib:
             deploy-lib.deployChecks inputs.self.deploy)
           inputs.deploy-rs.lib;
+          docker-version-test = import ./docker-version.nix;
     };
 
 }
