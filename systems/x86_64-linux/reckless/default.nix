@@ -19,7 +19,7 @@ in
   # services.xserver.videoDrivers = [ "nouveau" ];
   # boot.blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
   campground.nix = {
     package = pkgs.nixUnstable;
     default-substituter.url = "https://cache.nixos.org";
