@@ -18,7 +18,6 @@ let
       tap enabled
     }
 
-    seat seat0 xcursor_theme ${config.campground.desktop.addons.gtk.cursor.name} 24
 
     xwayland disable
 
@@ -42,9 +41,9 @@ in
 
   config = mkIf cfg.enable {
         environment.systemPackages = [
-          config.campground.desktop.addons.gtk.cursor.pkg
-          config.campground.desktop.addons.gtk.icon.pkg
-          config.campground.desktop.addons.gtk.theme.pkg
+          # config.campground.desktop.addons.gtk.cursor.pkg
+          # config.campground.desktop.addons.gtk.icon.pkg
+          # config.campground.desktop.addons.gtk.theme.pkg
           pkgs.vulkan-validation-layers
         ];
 
@@ -52,10 +51,10 @@ in
           enable = true;
 
           settings = {
-            background = {
-              path = pkgs.campground.wallpapers.flatppuccin_macchiato;
-              fit = "Cover";
-            };
+            # background = {
+            #   path = pkgs.campground.wallpapers.flatppuccin_macchiato;
+            #   fit = "Cover";
+            # };
 
             GTK = {
               application_prefer_dark_theme = true;
