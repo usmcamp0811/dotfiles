@@ -6,9 +6,9 @@
 , system
 , ...
 }:
+with lib;
+with lib.campground;
 let
-  inherit (lib) types mkIf getExe getExe';
-  inherit (lib.internal) mkBoolOpt mkOpt enabled;
   inherit (inputs) hyprland;
 
   cfg = config.campground.desktop.hyprland;
