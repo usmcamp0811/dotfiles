@@ -4,10 +4,8 @@
 , pkgs
 , ...
 }:
-let
-  inherit (lib) types mkIf getExe';
-  inherit (lib.internal) mkBoolOpt mkOpt stringAfter;
-
+with lib;
+with lib.campground; let
   cfg = config.campground.display-managers.gdm;
   gdmHome = config.users.users.gdm.home;
 in
@@ -38,10 +36,12 @@ in
           enable = true;
 
           displayManager = {
-            inherit (cfg) defaultSession;
+            # inherit (cfg) defaultSession;
 
             gdm = {
-              inherit (cfg) enable wayland autoSuspend;
+              # inherit (cfg) enable wayland autoSuspend;
+              enable = cfg.enable;
+              wayland = cfg.wayland;
             };
           };
 
