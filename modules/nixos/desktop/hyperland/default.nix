@@ -34,6 +34,7 @@ in
           MOZ_ENABLE_WAYLAND = "1";
           MOZ_USE_XINPUT2 = "1";
           QT_QPA_PLATFORM = "wayland;xcb";
+          WLR_NO_HARDWARE_CURSORS = "1";
           QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
           SDL_VIDEODRIVER = "wayland";
           WLR_DRM_NO_ATOMIC = "1";
