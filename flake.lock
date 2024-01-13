@@ -64,6 +64,22 @@
         "type": "github"
       }
     },
+    "bibata-cursors": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1673748590,
+        "narHash": "sha256-7QUz1JrRMxyOI4ovsvTBNTF5TgECbSRnkeKNk9IZEZg=",
+        "owner": "suchipi",
+        "repo": "Bibata_Cursor",
+        "rev": "ff2475240548c68b6eb59a664465be0d756222ad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "suchipi",
+        "repo": "Bibata_Cursor",
+        "type": "github"
+      }
+    },
     "blank": {
       "locked": {
         "lastModified": 1625557891,
@@ -4307,6 +4323,7 @@
     "root": {
       "inputs": {
         "attic": "attic",
+        "bibata-cursors": "bibata-cursors",
         "campground-jupyterlab": "campground-jupyterlab",
         "campground-nvim": "campground-nvim",
         "campground-packages": "campground-packages",
