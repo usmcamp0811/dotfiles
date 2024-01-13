@@ -2,7 +2,9 @@
 
 with lib;
 with lib.campground;
-
+let
+  cfg = config.campground.desktop.hyperland;
+in
 {
   options.campground.desktop.hyperland = with types; {
     enable = mkBoolOpt false "Whether or not to turn on hyperland config.";
