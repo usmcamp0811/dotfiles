@@ -66,9 +66,9 @@ in
           };
         };
 
-        services.greetd.settings.default_session = {
-          command = "env GTK_USE_PORTAL=0 ${getExe pkgs.sway} --config ${greetdSwayConfig}";
-        };
+        # services.greetd.settings.default_session = {
+        #   command = "env GTK_USE_PORTAL=0 ${getExe pkgs.sway} --config ${greetdSwayConfig}";
+        # };
 
         security.pam.services.greetd = {
           enableGnomeKeyring = true;

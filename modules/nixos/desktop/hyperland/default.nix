@@ -118,19 +118,19 @@ in
         #     wlroots = enabled;
         #   };
         # };
-        services.xserver.displayManager = {
-          # lightdm = {
-          #   enable = cfg.lightdm;
-          # };
-          gdm = {
-            enable = true;
-            wayland = true;
-            # autoSuspend = cfg.suspend;
-          };
-          # sddm = {
-          #   enable = cfg.sddm;
-          # };
-        };
+        # services.xserver.displayManager = {
+        #   # lightdm = {
+        #   #   enable = cfg.lightdm;
+        #   # };
+        #   gdm = {
+        #     enable = true;
+        #     wayland = true;
+        #     # autoSuspend = cfg.suspend;
+        #   };
+        #   # sddm = {
+        #   #   enable = cfg.sddm;
+        #   # };
+        # };
         campground.display-managers.regreet = {
             enable = true;
         };
