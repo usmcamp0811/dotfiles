@@ -139,6 +139,12 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    # Run unpatched dynamically compiled binaries
+    nix-ld-rs = {
+      url = "github:nix-community/nix-ld-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
     dream2nix.url = "github:nix-community/dream2nix";
     scientific-fhs.url = "github:olynch/scientific-fhs";
@@ -175,6 +181,7 @@
 				  flake.overlays."package/flake"
           attic.overlays.default
           devshell.overlays.default 
+          nix-ld-rs.overlays.default
           julia2nix.overlays.default
           nur.overlay
       ];

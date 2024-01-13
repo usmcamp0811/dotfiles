@@ -48,64 +48,64 @@ in
           hyprpaper
         ];
 
-        campground = {
-          apps = {
-            partitionmanager = enabled;
-            gamemode = {
-              startscript = /* bash */ ''
-                ${getExe pkgs.libnotify} 'GameMode started'
-                export PATH=$PATH:${programs}
-                export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
-                ${getExe' hyprland.packages.${system}.hyprland "hyprctl"} --batch 'keyword decoration:blur 0 ; keyword animations:enabled 0 ; keyword misc:no_vfr 1'
-              '';
-
-              endscript = /* bash */ ''
-                ${getExe pkgs.libnotify} 'GameMode stopped'
-                export PATH=$PATH:${programs}
-                export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
-                ${getExe' hyprland.packages.${system}.hyprland "hyprctl"} --batch 'keyword decoration:blur 1 ; keyword animations:enabled 1 ; keyword misc:no_vfr 0'
-              '';
-            };
-          };
-
-          # Desktop additions
-          desktop.addons = {
-            # eww = enabled;
-            gtk = enabled;
-            kanshi = enabled;
-            kitty = enabled;
-            nautilus = enabled;
-            qt = enabled;
-            thunar = enabled;
-            xdg-portal = enabled;
-          };
-
-          display-managers.regreet = {
-            enable = true;
-          };
-
-          home = {
-            configFile =
-              {
-                "hypr/assets/square.png".source = ./hypr/assets/square.png;
-                "hypr/assets/diamond.png".source = ./hypr/assets/diamond.png;
-              }
-              // cfg.customConfigFiles;
-
-            file =
-              { }
-              // cfg.customFiles;
-          };
-
-          security = {
-            keyring = enabled;
-            polkit = enabled;
-          };
-
-          suites = {
-            wlroots = enabled;
-          };
-        };
+        # campground = {
+        #   # apps = {
+        #   #   partitionmanager = enabled;
+        #   #   gamemode = {
+        #   #     startscript = /* bash */ ''
+        #   #       ${getExe pkgs.libnotify} 'GameMode started'
+        #   #       export PATH=$PATH:${programs}
+        #   #       export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
+        #   #       ${getExe' hyprland.packages.${system}.hyprland "hyprctl"} --batch 'keyword decoration:blur 0 ; keyword animations:enabled 0 ; keyword misc:no_vfr 1'
+        #   #     '';
+        #   #
+        #   #     endscript = /* bash */ ''
+        #   #       ${getExe pkgs.libnotify} 'GameMode stopped'
+        #   #       export PATH=$PATH:${programs}
+        #   #       export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
+        #   #       ${getExe' hyprland.packages.${system}.hyprland "hyprctl"} --batch 'keyword decoration:blur 1 ; keyword animations:enabled 1 ; keyword misc:no_vfr 0'
+        #   #     '';
+        #   #   };
+        #   # };
+        #
+        #   # Desktop additions
+        #   # desktop.addons = {
+        #   #   # eww = enabled;
+        #   #   gtk = enabled;
+        #   #   kanshi = enabled;
+        #   #   kitty = enabled;
+        #   #   nautilus = enabled;
+        #   #   qt = enabled;
+        #   #   thunar = enabled;
+        #   #   xdg-portal = enabled;
+        #   # };
+        #
+        #   display-managers.regreet = {
+        #     enable = true;
+        #   };
+        #
+        #   home = {
+        #     configFile =
+        #       {
+        #         "hypr/assets/square.png".source = ./hypr/assets/square.png;
+        #         "hypr/assets/diamond.png".source = ./hypr/assets/diamond.png;
+        #       }
+        #       // cfg.customConfigFiles;
+        #
+        #     file =
+        #       { }
+        #       // cfg.customFiles;
+        #   };
+        #
+        #   security = {
+        #     keyring = enabled;
+        #     polkit = enabled;
+        #   };
+        #
+        #   suites = {
+        #     wlroots = enabled;
+        #   };
+        # };
 
         programs.hyprland = {
           enable = true;

@@ -36,7 +36,7 @@ in
       workstation = enabled;
     };
 
-    desktop.hyperland = {
+    desktop.hyprland = {
       enable = true;
     };
     # desktop.qtile = {
