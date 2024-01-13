@@ -42,43 +42,43 @@
     { device = "ChestyPoolr/backups/webb";
       fsType = "zfs";
     };
-  #
+
   fileSystems."/mnt/backups/daly" =
     { device = "ChestyPoolr/backups/daly";
       fsType = "zfs";
     };
-  #
-  # fileSystems."/mnt/backups/butler" =
-  #   { device = "ChestyPoolr/backups/butler";
-  #     fsType = "zfs";
-  #   };
-  #
-  # fileSystems."/mnt/backups/lucas" =
-  #   { device = "ChestyPoolr/backups/lucas";
-  #     fsType = "zfs";
-  #   };
 
-    fileSystems."/mnt/media" = 
+  fileSystems."/mnt/backups/butler" =
+    { device = "ChestyPoolr/backups/butler";
+      fsType = "zfs";
+    };
+
+  fileSystems."/mnt/backups/lucas" =
+    { device = "ChestyPoolr/backups/lucas";
+      fsType = "zfs";
+    };
+
+  fileSystems."/mnt/media" = 
     { device = "ChestyPoolr/media";
       fsType = "zfs";
     };
 
-    fileSystems."/mnt/media/audiobooks" = 
+  fileSystems."/mnt/media/audiobooks" = 
     { device = "ChestyPoolr/media/audiobooks";
       fsType = "zfs";
     };
 
-    fileSystems."/mnt/media/movies" = 
+  fileSystems."/mnt/media/movies" = 
     { device = "ChestyPoolr/media/movies";
       fsType = "zfs";
     };
 
-    fileSystems."/mnt/media/tv-shows" = 
+  fileSystems."/mnt/media/tv-shows" = 
     { device = "ChestyPoolr/media/tv-shows";
       fsType = "zfs";
     };
 
-    fileSystems."/mnt/media/music" = 
+  fileSystems."/mnt/media/music" = 
     { device = "ChestyPoolr/media/music";
       fsType = "zfs";
     };
@@ -141,3 +141,16 @@
     /export/media/music 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
   '';
 }
+
+
+
+# sudo mount -t zfs ChestyPoolr/media /mnt/media                                                                                
+# sudo mount -t zfs ChestyPoolr/media/music /mnt/media/music                                                                    
+# sudo mount -t zfs ChestyPoolr/media/audiobooks /mnt/media/audiobooks 
+# sudo mount -t zfs ChestyPoolr/media/tv-shows /mnt/media/tv-shows 
+# sudo mount -t zfs ChestyPoolr/media/movies /mnt/media/movies 
+# sudo mount -t zfs ChestyPoolr/backups/webb /mnt/backups/webb         
+# sudo mount -t zfs ChestyPoolr/backups/daly /mnt/backups/daly         
+#
+#
+#
