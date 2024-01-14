@@ -1,8 +1,9 @@
-{ options, config, lib, pkgs, ... }:
+{ inputs, options, config, lib, pkgs, ... }:
 
 with lib;
 with lib.campground;
 let cfg = config.campground.desktop.addons.gbar;
+  inherit (inputs) gBar;
 in
 {
   options.campground.desktop.addons.gbar = with types; {
