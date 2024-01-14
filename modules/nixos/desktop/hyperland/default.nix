@@ -32,6 +32,7 @@ in
           GDK_BACKEND = "wayland,x11";
           HYPRLAND_LOG_WLR = "1";
           MOZ_ENABLE_WAYLAND = "1";
+          XKB_DEFAULT_OPTIONS= "caps:escape";
           MOZ_USE_XINPUT2 = "1";
           QT_QPA_PLATFORM = "wayland;xcb";
           WLR_NO_HARDWARE_CURSORS = "1";

@@ -16,10 +16,11 @@ with lib.campground;
     };
     desktop = {
       wallpapers = enabled;
-      qtile = {
-        enable = true;
-        wallpaper = "hsv-saturnV.png";
-      };
+      # qtile = {
+      #   enable = true;
+      #   wallpaper = "hsv-saturnV.png";
+      # };
+      hyprland = enabled;
     };
 
     cli = {

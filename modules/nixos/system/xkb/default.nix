@@ -6,7 +6,7 @@ let cfg = config.campground.system.xkb;
 in
 {
   options.campground.system.xkb = with types; {
-    enable = mkBoolOpt false "Whether or not to configure xkb.";
+    enable = mkBoolOpt false "Whether or not to swap caps:escape.";
   };
 
   config = mkIf cfg.enable {

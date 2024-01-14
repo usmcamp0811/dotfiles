@@ -65,6 +65,7 @@ in
     };
 
     system = {
+      xkb = enabled;
       zfs = {
         enable = true;
         hostId = "13ec383b";
@@ -107,7 +108,7 @@ in
 
   campground.services = {
     nix-snapshotter = enabled;
-    k0sworker = enabled;
+    # k0sworker = enabled;
     # borgbackup = {
     #   enable = true;
     #   jobs = {

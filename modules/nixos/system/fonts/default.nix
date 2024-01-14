@@ -8,7 +8,7 @@ in
   options.campground.system.fonts = with types; {
     enable = mkBoolOpt false "Whether or not to manage fonts.";
     fonts = mkOpt (listOf package) [ ] "Custom font packages to install.";
-    default = mkOpt types.str "MonaspiceNe Nerd Font" "Default font name";
+    default = mkOpt types.str "FiraCode" "Default font name";
   };
 
   config = mkIf cfg.enable {

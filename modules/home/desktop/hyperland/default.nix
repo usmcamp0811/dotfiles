@@ -1,16 +1,42 @@
-{ options, config, lib, pkgs, ... }:
+{ inputs, system, options, config, lib, pkgs, ... }:
 
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.desktop.hyperland;
+  inherit (inputs) hyprland;
+
+  cfg = config.campground.desktop.hyprland;
 in
 {
-  options.campground.desktop.hyperland = with types; {
+  options.campground.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to turn on hyperland config.";
+    appendConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Extra configuration lines to add to bottom of `~/.config/hypr/hyprland.conf`.
+      '';
+    };
+    prependConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Extra configuration lines to add to top of `~/.config/hypr/hyprland.conf`.
+      '';
+    };
   };
 
+  imports = [
+    ./binds.nix
+  ];
+
   config = mkIf cfg.enable {
+    programs.waybar = { 
+      enable = true;
+      systemd.target = "hyprland-session.target";
+    };
+
+
     wayland.windowManager.hyprland = {
       enable = true;
       extraConfig = /* bash */ ''
@@ -20,29 +46,11 @@ in
         ${cfg.appendConfig}
       '';
       package = hyprland.packages.${system}.hyprland;
-      settings = {
-        exec = [
-          "${getExe pkgs.libnotify} --icon ~/.face -u normal \"Hello $(whoami)\""
-        ];
-      };
+
       systemd = {
         enable = true;
       };
       xwayland.enable = true;
     };
-    # wayland.windowManager.hyprland = {
-    #   # Whether to enable Hyprland wayland compositor
-    #   enable = true;
-    #   # The hyprland package to use
-    #   package = pkgs.hyprland;
-    #   # Whether to enable XWayland
-    #   xwayland.enable = true;
-    #
-    #   # Optional
-    #   # Whether to enable hyprland-session.target on hyprland startup
-    #   systemd.enable = true;
-    #   # Whether to enable patching wlroots for better Nvidia support
-    #   enableNvidiaPatches = true;
-    # };
   };
 }
