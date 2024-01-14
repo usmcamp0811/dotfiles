@@ -27,6 +27,23 @@ in
   config =
     mkIf cfg.enable
       {
+      campground.apps = {
+        gamemode = {
+          startscript = /* bash */ ''
+            ${getExe pkgs.libnotify} 'GameMode started'
+            export PATH=$PATH:${programs}
+            export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
+            ${getExe' hyprland.packages.${system}.hyprland "hyprctl"} --batch 'keyword decoration:blur 0 ; keyword animations:enabled 0 ; keyword misc:no_vfr 1'
+          '';
+
+          endscript = /* bash */ ''
+            ${getExe pkgs.libnotify} 'GameMode stopped'
+            export PATH=$PATH:${programs}
+            export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
+            ${getExe' hyprland.packages.${system}.hyprland "hyprctl"} --batch 'keyword decoration:blur 1 ; keyword animations:enabled 1 ; keyword misc:no_vfr 0'
+          '';
+        };
+      };
         environment.sessionVariables = {
           CLUTTER_BACKEND = "wayland";
           GDK_BACKEND = "wayland,x11";
