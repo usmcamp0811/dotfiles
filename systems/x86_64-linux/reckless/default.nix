@@ -36,8 +36,15 @@ in
       workstation = enabled;
     };
 
-    desktop.hyprland = {
-      enable = true;
+    desktop = {
+      display-manager = {
+        gdm = {
+          enable = true;
+          wayland = true;
+        };
+      };
+      # qtile = enabled;
+      hyprland = enabled;
     };
     # desktop.qtile = {
     #   enable = true;
