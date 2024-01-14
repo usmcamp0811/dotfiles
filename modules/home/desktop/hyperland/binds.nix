@@ -63,7 +63,7 @@ in
             # ░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░░▀░
             "SUPER_ALT, V, togglefloating,"
             "$mainMod, P, pseudo, # dwindle"
-            # "$mainMod, J, togglesplit, # dwindle"
+            "$mainMod, TAB, togglesplit, # dwindle"
             "$mainMod, F, fullscreen"
             # "SUPER_SHIFT, V, workspaceopt, allfloat"
 
