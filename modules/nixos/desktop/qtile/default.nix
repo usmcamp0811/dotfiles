@@ -48,41 +48,6 @@ in
       brightnessctl 
     ] ++ defaultExtensions;
 
-    systemd.services.campground-user-icon = {
-      before = [ "display-manager.service" ];
-      wantedBy = [ "display-manager.service" ];
-
-      serviceConfig = {
-        Type = "simple";
-        User = "root";
-        Group = "root";
-      };
-
-      script = ''
-        config_file=/var/lib/AccountsService/users/${config.campground.user.name}
-        icon_file=/run/current-system/sw/share/campground-icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
-
-        if ! [ -d "$(dirname "$config_file")" ]; then
-          mkdir -p "$(dirname "$config_file")"
-        fi
-
-        if ! [ -f "$config_file" ]; then
-          echo "[User]
-          Session=gnome
-          SystemAccount=false
-          Icon=$icon_file" > "$config_file"
-        else
-          icon_config=$(grep -E "^Icon=.*$" $config_file)
-
-          if [[ "$icon_config" == "" ]]; then
-            echo "Icon=$icon_file" >> $config_file
-          else
-            sed -E -i -e "s#^Icon=.*\$#Icon=$icon_file#" $config_file
-          fi
-        fi
-
-      '';
-    };
 
     services.udev.packages = with pkgs; [];
     services.picom.enable = true;
@@ -100,19 +65,19 @@ in
     services.xserver = {
       enable = true;
       libinput.enable = true;
-      displayManager = {
-        lightdm = {
-          enable = cfg.lightdm;
-        };
-        gdm = {
-          enable = cfg.gdm;
-          wayland = cfg.wayland;
-          autoSuspend = cfg.suspend;
-        };
-        sddm = {
-          enable = cfg.sddm;
-        };
-      };
+      # displayManager = {
+      #   lightdm = {
+      #     enable = cfg.lightdm;
+      #   };
+      #   gdm = {
+      #     enable = cfg.gdm;
+      #     wayland = cfg.wayland;
+      #     autoSuspend = cfg.suspend;
+      #   };
+      #   sddm = {
+      #     enable = cfg.sddm;
+      #   };
+      # };
       windowManager.qtile = {
         enable = true;
         # extraPackages = python3Packages: with python3Packages; [
