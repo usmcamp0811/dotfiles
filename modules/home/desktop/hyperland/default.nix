@@ -28,6 +28,7 @@ in
 
   imports = [
     ./binds.nix
+    ./variables.nix
   ];
 
   config = mkIf cfg.enable {
