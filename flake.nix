@@ -37,6 +37,7 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    gBar.url = "github:scorpion-26/gBar";
 
     # NixPkgs-Wayland
     nixpkgs-wayland = {
