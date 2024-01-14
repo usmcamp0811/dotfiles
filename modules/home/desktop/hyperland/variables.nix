@@ -64,11 +64,11 @@ in
             general = {
               allow_tearing = true;
               border_size = 2;
-              "col.active_border" = "rgba(7793D1FF)";
+              "col.active_border" = "rgba(FF69B4FF)";
               "col.inactive_border" = "rgb(5e6798)";
               gaps_in = 5;
               gaps_out = 20;
-              layout = "dwindle";
+              layout = "master";
               no_cursor_warps = true;
             };
 
@@ -96,6 +96,13 @@ in
             master = {
               # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
               new_is_master = true;
+              special_scale_factor = 0.8;
+              mfact = 0.55;
+              new_on_top = false;
+              no_gaps_when_only = false;
+              orientation = "left";
+              inherit_fullscreen = true;
+              always_center_master = true;
             };
 
             misc = {

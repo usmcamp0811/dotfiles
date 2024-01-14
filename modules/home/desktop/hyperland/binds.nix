@@ -63,7 +63,8 @@ in
             # ░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░░▀░
             "SUPER_ALT, V, togglefloating,"
             "$mainMod, P, pseudo, # dwindle"
-            "$mainMod, TAB, togglesplit, # dwindle"
+            # "$mainMod, TAB, togglesplit, # dwindle"
+            "$mainMod, TAB, layoutmsg, orientationcycle"
             "$mainMod, F, fullscreen"
             # "SUPER_SHIFT, V, workspaceopt, allfloat"
 
@@ -107,6 +108,10 @@ in
             # Inactive
             "ALT_SHIFT,grave,movetoworkspace,special:inactive"
             "ALT,grave,togglespecialworkspace,inactive"
+
+            "ALT, M, layoutmsg, addmaster"
+            "ALT, Z, layoutmsg, swapwithmaster master"
+            "ALT, U, layoutmsg, orientationcenter" # centered master layout
 
             # ░█▄█░█▀█░█▀█░▀█▀░▀█▀░█▀█░█▀▄
             # ░█░█░█░█░█░█░░█░░░█░░█░█░█▀▄
