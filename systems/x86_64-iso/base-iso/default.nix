@@ -20,9 +20,11 @@ in
     archetypes = {
       barebones = enabled;
     };
-    desktop.qtile = {
-      enable = false;
-      gdm = true;
+    desktop = {
+      display-manager = {
+        gdm = enabled;
+      };
+      qtile = enabled;
     };
     cli-apps = {
       flake = enabled;

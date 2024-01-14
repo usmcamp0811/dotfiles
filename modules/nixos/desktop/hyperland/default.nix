@@ -62,12 +62,6 @@ in
           gtk3.out # for gtk-launch
           playerctl
         ];
-        campground.display-managers = {
-          gdm.enable = true;
-          regreet = {
-            enable = false;
-          };
-        };
         programs.hyprland = {
           enable = true;
           xwayland.enable = true;

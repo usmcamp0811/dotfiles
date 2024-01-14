@@ -9,9 +9,6 @@ in
   options.campground.desktop.cinnamon = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
-    gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
-    wayland = mkBoolOpt false "Whether or not to use Wayland.";
-    lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
     suspend =
       mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
     monitors = mkOpt (nullOr path) null "The monitors.xml file to create.";
@@ -87,16 +84,6 @@ in
     services.xserver = {
       enable = true;
       libinput.enable = true;
-      displayManager = {
-        lightdm = {
-          enable = cfg.lightdm;
-        };
-        gdm = {
-          enable = cfg.gdm;
-          wayland = cfg.wayland;
-          autoSuspend = cfg.suspend;
-        };
-      };
       desktopManager.cinnamon = {
         enable = true;
       };

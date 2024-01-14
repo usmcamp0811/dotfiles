@@ -22,9 +22,12 @@ in
     archetypes = {
       workstation = enabled;
     };
-    desktop.qtile = {
-      enable = true;
-      gdm = true;
+
+    desktop = {
+      display-manager = {
+        gdm = enabled;
+      };
+      qtile = enabled;
     };
 
     system = {

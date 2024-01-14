@@ -7,7 +7,7 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.desktop.display-managers.regreet;
+  cfg = config.campground.desktop.display-manager.regreet;
   greetdSwayConfig = pkgs.writeText "greetd-sway-config" ''
     exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
     exec systemctl --user import-environment
@@ -34,7 +34,7 @@ let
   '';
 in
 {
-  options.campground.desktop.display-managers.regreet = with types; {
+  options.campground.desktop.display-manager.regreet = with types; {
     enable = mkBoolOpt false "Whether or not to enable greetd.";
     swayOutput = mkOpt lines "" "Sway Outputs config.";
     font = mkOpt types.str "MonaspiceNe Nerd Font" "Default font name";

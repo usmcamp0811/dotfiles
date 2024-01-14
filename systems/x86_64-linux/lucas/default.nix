@@ -27,12 +27,11 @@ in
       passwds = enabled;
     };
 
-    desktop.qtile = {
-      enable = true;
-      gdm = true;
-      # lightdm = true;
-
-      sddm = false;
+    desktop = {
+      display-manager = {
+        gdm = enabled;
+      };
+      qtile = enabled;
     };
     # hardware = {
     #   nvidia = enabled;

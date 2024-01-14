@@ -6,14 +6,20 @@
 }:
 with lib;
 with lib.campground; let
-  cfg = config.campground.desktop.display-managers.lightdm;
+  cfg = config.campground.desktop.display-manager.lightdm;
 in
 {
-  options.campground.desktop.display-managers.lightdm = with types; {
+  options.campground.desktop.display-manager.lightdm = with types; {
     enable = mkBoolOpt false "Whether or not to enable lightdm.";
     greeter = lib.mkOption {
       type = lib.types.attrs;
       description = "Configuration for the LightDM greeter, mirroring the LightDM module options.";
+      default = {
+        enable = true;
+        package = pkgs.lightdm-gtk-greeter;
+        name = "lightdm-gtk-greeter";
+        # Add any additional options you might need here
+      };
     };
   };
 
