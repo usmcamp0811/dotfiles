@@ -16,7 +16,7 @@ in
             "$mainMod, RETURN, exec, $term"
             "SUPER_ALT, RETURN, exec, $term tmux"
             "SUPER_SHIFT, RETURN, exec, $term --title floating_kitty --single-instance"
-            "$mainMod, Q, killactive,"
+            "ALT_SHIFT, Q, killactive,"
             # "SUPER_SHIFT, P, exec, ${getExe pkgs.hyprpicker} -a && (${getExe' pkgs.imagemagick "convert"} -size 32x32 xc:$(${getExe' nixpkgs-wayland.packages.${system}.wl-clipboard "wl-paste"}) /tmp/color.png && ${getExe pkgs.libnotify} \"Color Code:\" \"$(${getExe' pkgs.wl-clipboard "wl-paste"})\" -h \"string:bgcolor:$(${getExe' pkgs.wl-clipboard "wl-paste"})\" --icon /tmp/color.png -u critical -t 4000)"
             "$mainMod, B, exec, $browser"
             "$mainMod, E, exec, $term ranger"
@@ -63,7 +63,7 @@ in
             # ░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░░▀░
             "SUPER_ALT, V, togglefloating,"
             "$mainMod, P, pseudo, # dwindle"
-            "$mainMod, J, togglesplit, # dwindle"
+            # "$mainMod, J, togglesplit, # dwindle"
             "$mainMod, F, fullscreen"
             # "SUPER_SHIFT, V, workspaceopt, allfloat"
 
@@ -71,15 +71,15 @@ in
             # ░█▄█░░█░░█░█░█░█░█░█░█▄█
             # ░▀░▀░▀▀▀░▀░▀░▀▀░░▀▀▀░▀░▀
             # WINDOWS FOCUS
-            "ALT,left,movefocus,l"
-            "ALT,right,movefocus,r"
-            "ALT,up,movefocus,u"
-            "ALT,down,movefocus,d"
+            "ALT,H,movefocus,l"
+            "ALT,L,movefocus,r"
+            "ALT,K,movefocus,u"
+            "ALT,J,movefocus,d"
             # Move window
-            "SUPER,left,movewindow,l"
-            "SUPER,right,movewindow,r"
-            "SUPER,up,movewindow,u"
-            "SUPER,down,movewindow,d"
+            "ALT_SHIFT,H,movewindow,l"
+            "ALT_SHIFT,L,movewindow,r"
+            "ALT_SHIFT,K,movewindow,u"
+            "ALT_SHIFT,J,movewindow,d"
 
             # ░█░█░█▀█░█▀▄░█░█░█▀▀░█▀█░█▀█░█▀▀░█▀▀
             # ░█▄█░█░█░█▀▄░█▀▄░▀▀█░█▀▀░█▀█░█░░░█▀▀
