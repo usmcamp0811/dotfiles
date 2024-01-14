@@ -6,11 +6,11 @@
 }:
 with lib;
 with lib.campground; let
-  cfg = config.campground.display-managers.gdm;
+  cfg = config.campground.desktop.display-managers.gdm;
   gdmHome = config.users.users.gdm.home;
 in
 {
-  options.campground.display-managers.gdm = with types; {
+  options.campground.desktop.display-managers.gdm = with types; {
     enable = mkBoolOpt false "Whether or not to enable gdm.";
     autoSuspend =
       mkBoolOpt true "Whether or not to suspend the machine after inactivity.";

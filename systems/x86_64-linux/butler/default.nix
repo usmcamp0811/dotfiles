@@ -44,12 +44,11 @@ in
       workstation = enabled;
     };
 
-    desktop.qtile = {
-      enable = true;
-      # gdm = true;
-      lightdm = true;
-
-      sddm = false;
+    desktop = {
+      display-manager = {
+        lightdm = enabled;
+      };
+      qtile = enabled;
     };
 
     apps = {

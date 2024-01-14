@@ -6,10 +6,10 @@
 }:
 with lib;
 with lib.campground; let
-  cfg = config.campground.display-managers.lightdm;
+  cfg = config.campground.desktop.display-managers.lightdm;
 in
 {
-  options.campground.display-managers.lightdm = with types; {
+  options.campground.desktop.display-managers.lightdm = with types; {
     enable = mkBoolOpt false "Whether or not to enable lightdm.";
     greeter = lib.mkOption {
       type = lib.types.attrs;
