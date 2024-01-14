@@ -19,8 +19,9 @@ in
     # Enable GameCube controller support.
     services.udev.packages = [ pkgs.dolphinEmu ];
 
-    environment.systemPackages = with pkgs.campground; [
-      steam
+    environment.systemPackages = with pkgs; [
+      campground.steam
+      steamtinkerlaunch
     ];
 
     environment.sessionVariables = {

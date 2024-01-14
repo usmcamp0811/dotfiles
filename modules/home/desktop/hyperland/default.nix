@@ -37,7 +37,6 @@ in
       systemd.target = "hyprland-session.target";
     };
 
-
     wayland.windowManager.hyprland = {
       enable = true;
       extraConfig = /* bash */ ''
