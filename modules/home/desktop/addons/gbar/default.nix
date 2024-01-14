@@ -10,7 +10,7 @@ in
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
   };
-
+  imports = [ inputs.gBar.homeManagerModules.x86_64-linux.default ];
   config = mkIf cfg.enable {
     programs.gBar = {
         enable = true;
