@@ -46,7 +46,10 @@ in
 
     desktop = {
       display-manager = {
-        lightdm = enabled;
+        gdm = {
+          enable = true;
+          wayland = false;
+        };
       };
       qtile = enabled;
     };
