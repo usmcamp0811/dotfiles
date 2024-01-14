@@ -105,7 +105,7 @@ in
               vrr = 2;
             };
 
-            "$mainMod" = "SUPER";
+            "$mainMod" = "ALT";
             "$LHYPER" = "SUPER_LALT_LCTRL"; # TODO: fix
             "$RHYPER" = "SUPER_RALT_RCTRL"; # TODO: fix
 

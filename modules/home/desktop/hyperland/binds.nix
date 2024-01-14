@@ -13,24 +13,24 @@ in
             # ░█▀█░█▀█░█▀█░░░█░░░█▀█░█░█░█▀█░█▀▀░█░█░█▀▀░█▀▄░█▀▀
             # ░█▀█░█▀▀░█▀▀░░░█░░░█▀█░█░█░█░█░█░░░█▀█░█▀▀░█▀▄░▀▀█
             # ░▀░▀░▀░░░▀░░░░░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀
-            "$mainMod, RETURN, exec, $term tmux a"
+            "$mainMod, RETURN, exec, $term"
             "SUPER_ALT, RETURN, exec, $term tmux"
             "SUPER_SHIFT, RETURN, exec, $term --title floating_kitty --single-instance"
             "$mainMod, Q, killactive,"
             # "SUPER_SHIFT, P, exec, ${getExe pkgs.hyprpicker} -a && (${getExe' pkgs.imagemagick "convert"} -size 32x32 xc:$(${getExe' nixpkgs-wayland.packages.${system}.wl-clipboard "wl-paste"}) /tmp/color.png && ${getExe pkgs.libnotify} \"Color Code:\" \"$(${getExe' pkgs.wl-clipboard "wl-paste"})\" -h \"string:bgcolor:$(${getExe' pkgs.wl-clipboard "wl-paste"})\" --icon /tmp/color.png -u critical -t 4000)"
             "$mainMod, B, exec, $browser"
             "$mainMod, E, exec, $term ranger"
-            "SUPER_SHIFT, E, exec, $explorer"
-            "$mainMod, SPACE, exec, $launcher"
-            "SUPER_ALT, SPACE, exec, $launcher_alt"
-            "SUPER_SHIFT, SPACE, exec, $launcher_shift"
-            "$mainMod, A, exec, $launchpad"
+            # "SUPER_SHIFT, E, exec, $explorer"
+            "$mainMod, D, exec, $launcher"
+            # "SUPER_ALT, SPACE, exec, $launcher_alt"
+            # "SUPER_SHIFT, SPACE, exec, $launcher_shift"
+            # "$mainMod, A, exec, $launchpad"
             # "$mainMod, L, exec, ${getExe config.programs.swaylock.package} --grace 0 --fade-in 0"
-            "$mainMod, T, exec, $term btop"
+            # "$mainMod, T, exec, $term btop"
             # "$mainMod, N, exec, ${getExe' pkgs.swaynotificationcenter "swaync-client"} -t -sw"
             # "SUPER, V, clipman pick -t rofi
             # "$mainMod, V, exec, ${getExe pkgs.cliphist} list | ${getExe config.programs.rofi.package} -dmenu | ${getExe pkgs.cliphist} decode | ${getExe' nixpkgs-wayland.packages.${system}.wl-clipboard "wl-copy"}"
-            "$mainMod, W, exec, $looking-glass"
+            # "$mainMod, W, exec, $looking-glass"
             # "$mainMod, I, exec, ${getExe hyprland-contrib.packages.${system}.hyprprop}"
 
             # ░█▀▀░█░█░█▀▀░▀█▀░█▀▀░█▄█

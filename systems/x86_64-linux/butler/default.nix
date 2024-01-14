@@ -48,10 +48,11 @@ in
       display-manager = {
         gdm = {
           enable = true;
-          wayland = false;
+          wayland = true;
         };
       };
-      qtile = enabled;
+      # qtile = enabled;
+      hyprland = enabled;
     };
 
     apps = {
