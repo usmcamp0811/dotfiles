@@ -15,6 +15,7 @@ with lib.campground;
       email = "matt@aicampground.com";
     };
     desktop = {
+      addons.waybar = enabled;
       addons.gbar = enabled;
       wallpapers = enabled;
       qtile = {

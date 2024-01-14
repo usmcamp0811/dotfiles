@@ -11,7 +11,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    systemd.user.services.waybar.Service.ExecStart = mkIf cfg.debug (mkForce "${getExe config.programs.waybar.package} -l debug");
+    # systemd.user.services.waybar.Service.ExecStart = mkIf cfg.debug (mkForce "${getExe config.programs.waybar.package} -l debug");
 
     programs.waybar = {
       enable = true;
@@ -20,10 +20,10 @@ in
       systemd.enable = true;
 
       # TODO: make dynamic / support different number of bars etc
-      settings = {
-        mainBar = mkMerge [ bar mainBar all-modules ];
-        secondaryBar = mkMerge [ bar secondaryBar all-modules ];
-      };
+      # settings = {
+      #   mainBar = mkMerge [ bar mainBar all-modules ];
+      #   secondaryBar = mkMerge [ bar secondaryBar all-modules ];
+      # };
 
       # style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
     }; 
