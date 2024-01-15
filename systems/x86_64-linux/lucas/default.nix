@@ -31,13 +31,6 @@ in
     };
     nfs.client.enable = true;
 
-    desktop = {
-      display-manager = {
-        gdm = enabled;
-      };
-      qtile = enabled;
-    };
-
     services = {
       zfs-key-server = {
         enable = true;

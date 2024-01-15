@@ -44,16 +44,6 @@ in
       };
     };
 
-    desktop = {
-      display-manager = {
-        gdm = {
-          enable = true;
-          wayland = true;
-        };
-      };
-      hyprland = enabled;
-    };
-
     apps = {
       steam = enabled;
     };
