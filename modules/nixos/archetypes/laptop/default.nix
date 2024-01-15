@@ -10,11 +10,38 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    services.logind.lidSwitch = "ignore";
+
+    services.tlp = {
+        enable = true;
+        settings = {
+          TLP_DEFAULT_MODE = "BAT";
+          TLP_PERSISTENT_DEFAULT = 1;
+        };
+     };
+
     campground = {
       suites = {
         common = enabled;
         desktop = enabled;
         development = enabled;
+      };
+      system = {
+        wifi = {
+          enable = true;
+          networks = {
+            SkyNet = {
+              ssid = "SkyNet";
+            };
+            SkyNet5 = {
+              ssid = "SkyNet5";
+            };
+            SkyNet6 = {
+              ssid = "SkyNet2.0";
+            };
+          };
+        };
       };
     };
   };
