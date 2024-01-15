@@ -17,20 +17,20 @@ in
   config =
     mkIf cfg.enable
       {
-        systemd.user.services.hypr_socket_watch = {
-          Install.WantedBy = [ "hyprland-session.target" ];
-
-          Unit = {
-            Description = "Hypr Socket Watch Service";
-            PartOf = [ "graphical-session.target" ];
-          };
-
-          Service = {
-            Environment = "PATH=/run/wrappers/bin:${lib.makeBinPath hypr_socket_watch_dependencies}";
-            ExecStart = "${getExe pkgs.campground.hypr_socket_watch}";
-            Restart = "on-failure";
-          };
-        };
+        # systemd.user.services.hypr_socket_watch = {
+        #   Install.WantedBy = [ "hyprland-session.target" ];
+        #
+        #   Unit = {
+        #     Description = "Hypr Socket Watch Service";
+        #     PartOf = [ "graphical-session.target" ];
+        #   };
+        #
+        #   Service = {
+        #     Environment = "PATH=/run/wrappers/bin:${lib.makeBinPath hypr_socket_watch_dependencies}";
+        #     ExecStart = "${getExe pkgs.campground.hypr_socket_watch}";
+        #     Restart = "on-failure";
+        #   };
+        # };
 
         wayland.windowManager.hyprland = {
           settings = {
