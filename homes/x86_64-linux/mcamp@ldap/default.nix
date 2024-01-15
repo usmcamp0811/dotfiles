@@ -17,6 +17,7 @@ with lib.campground;
     desktop = {
       addons.waybar = enabled;
       addons.gbar = enabled;
+      addons.wofi = enabled;
       wallpapers = enabled;
       qtile = {
         enable = true;

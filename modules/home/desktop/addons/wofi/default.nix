@@ -11,11 +11,11 @@ in
 
   config = mkIf cfg.enable { 
     programs.wofi = {
-      enabel = true;
+      enable = true;
       settings = {
         location = "bottom-right";
         allow_markup = true;
-        width = 250;
+        width = 850;
       };
       style = ''
         window {
