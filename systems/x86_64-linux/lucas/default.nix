@@ -14,29 +14,6 @@ in
 {
   imports = [ ./hardware.nix ];
   campground = {
-    archetypes.workstation = enabled;
-    nfs.client.enable = true;
-
-    system = {
-      boot = enabled;
-      zfs = {
-        enable = true;
-        hostId = "930864f0";
-        keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
-      };
-      passwds = enabled;
-    };
-
-    desktop = {
-      display-manager = {
-        gdm = enabled;
-      };
-      qtile = enabled;
-    };
-    # hardware = {
-    #   nvidia = enabled;
-    # };
-
     user = {
       name = "abe";
       fullName = "Matt Camp";
@@ -44,24 +21,24 @@ in
       extraGroups = ["wheel"];
     };
 
-    services = {
-      # TODO: configure searx
-      # searx = {
-      #   enable = true;
-      # };
-      # hydra = enabled;
-      # jellyfin = enabled;
-
-      openssh = { 
-        authorizedKeys = [ 
-          "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler"
-        ];
+    archetypes = {
+      workstation = enabled;
+      server = {
+        enable = true;
+        worker = true;
+        hostId = "930864f0";
       };
-      ldap-client = enabled;
-      tang = enabled;
-      k0sworker = enabled;
-      ntp = enabled;
-      docker = enabled;
+    };
+    nfs.client.enable = true;
+
+    desktop = {
+      display-manager = {
+        gdm = enabled;
+      };
+      qtile = enabled;
+    };
+
+    services = {
       zfs-key-server = {
         enable = true;
         port = 8123;
@@ -74,7 +51,6 @@ in
           "http://reckless:1234"
         ];
       };
-
       user-secrets = {
         enable = true;
         users.mcamp = { 
@@ -84,13 +60,11 @@ in
           ]; 
         };
       };
-
       vault-agent = {
         enable = true;
         settings = { 
           vault = { 
             address = "https://vault.lan.aicampground.com"; 
-            # address = "http://vault.lan/";
             role-id = "/var/lib/vault/lucas/role-id"; 
             secret-id = "/var/lib/vault/lucas/secret-id"; 
           }; 

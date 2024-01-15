@@ -15,6 +15,7 @@ in
     campground = {
       apps = {
         k9s = enabled; 
+        virtmanager = enabled;
       };
       tools = {
         git = enabled;
