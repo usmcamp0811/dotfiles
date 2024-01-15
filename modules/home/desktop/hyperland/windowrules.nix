@@ -145,16 +145,17 @@ in
               "workspace 4, class:^(lutris)$"
               "workspace 4, class:.*(cemu|yuzu|ryujinx|emulationstation|retroarch).*"
               "workspace 4, title:.*(cemu|yuzu|ryujinx|emulationstation|retroarch).*"
-              # Messaging
-              "workspace 5 silent, class:^(Slack)$"
-              "workspace 5 silent, class:^(Caprine)$"
-              "workspace 5 silent, class:^(org.telegram.desktop)$"
-              "workspace 5 silent, class:^(discord)$"
-              "workspace 5 silent, class:^(zoom)$"
-              "workspace 5 silent, class:^(Element)$"
               # Mail
-              "workspace 6 silent, class:^(thunderbird)$"
-              "workspace 6 silent, class:^(Mailspring)$"
+              "workspace 5 silent, class:^(thunderbird)$"
+              "workspace 5 silent, class:^(Mailspring)$"
+              # Messaging
+              "workspace 6 silent, title:^(Slack)$"
+              "workspace 6 silent, title:^(Mattermost)$"
+              "workspace 6 silent, class:^(Caprine)$"
+              "workspace 6 silent, class:^(org.telegram.desktop)$"
+              "workspace 6 silent, class:^(discord)$"
+              "workspace 6 silent, class:^(zoom)$"
+              "workspace 6 silent, class:^(Element)$"
               # Media
               "workspace 7, class:^(mpv|vlc|mpdevil)$"
               "workspace 7 silent, class:^(Spotify)$"
