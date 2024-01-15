@@ -19,7 +19,7 @@ in
             "ALT_SHIFT, Q, killactive,"
             # "SUPER_SHIFT, P, exec, ${getExe pkgs.hyprpicker} -a && (${getExe' pkgs.imagemagick "convert"} -size 32x32 xc:$(${getExe' nixpkgs-wayland.packages.${system}.wl-clipboard "wl-paste"}) /tmp/color.png && ${getExe pkgs.libnotify} \"Color Code:\" \"$(${getExe' pkgs.wl-clipboard "wl-paste"})\" -h \"string:bgcolor:$(${getExe' pkgs.wl-clipboard "wl-paste"})\" --icon /tmp/color.png -u critical -t 4000)"
             "$mainMod, B, exec, $browser"
-            "$mainMod, E, exec, $term ranger"
+            "$mainMod, E, exec, $term emoji-picker"
             # "SUPER_SHIFT, E, exec, $explorer"
             "$mainMod, D, exec, $launcher"
             # "SUPER_ALT, SPACE, exec, $launcher_alt"
