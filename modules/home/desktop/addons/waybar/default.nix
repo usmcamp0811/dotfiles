@@ -2,7 +2,52 @@
 
 with lib;
 with lib.campground;
-let cfg = config.campground.desktop.addons.waybar;
+let 
+  cfg = config.campground.desktop.addons.waybar;
+
+  theme = builtins.readFile ./styles/catppuccin.css;
+  style = builtins.readFile ./styles/style.css;
+  notificationsStyle = builtins.readFile ./styles/notifications.css;
+  powerStyle = builtins.readFile ./styles/power.css;
+  statsStyle = builtins.readFile ./styles/stats.css;
+  workspacesStyle = builtins.readFile ./styles/workspaces.css;
+
+  custom-modules = import ./modules/custom-modules.nix { inherit config lib pkgs; };
+  default-modules = import ./modules/default-modules.nix { inherit lib pkgs; };
+  group-modules = import ./modules/group-modules.nix;
+  hyprland-modules = import ./modules/hyprland-modules.nix { inherit config lib; };
+
+  bar = {
+    "layer" = "top";
+    "position" = "top";
+
+    "margin-top" = 10;
+    "margin-left" = 20;
+    "margin-right" = 20;
+
+    "modules-left" = [
+      "group/power"
+      "hyprland/workspaces"
+      "custom/separator-left"
+      "hyprland/window"
+    ];
+  };
+
+  mainBar = {
+    "output" = "eDP-1";
+    # "modules-center" = [ "mpris" ];
+
+    "modules-right" = [
+      "group/tray"
+      "custom/separator-right"
+      "group/stats"
+      "custom/separator-right"
+      "group/notifications"
+      "hyprland/submap"
+      "custom/weather"
+      "clock"
+    ];
+  };
 in
 {
   options.campground.desktop.addons.waybar = with types; {
@@ -19,13 +64,13 @@ in
       package = pkgs.waybar;
       systemd.enable = true;
 
-      # TODO: make dynamic / support different number of bars etc
-      # settings = {
-      #   mainBar = mkMerge [ bar mainBar all-modules ];
-      #   secondaryBar = mkMerge [ bar secondaryBar all-modules ];
-      # };
+      TODO: make dynamic / support different number of bars etc
+      settings = {
+        mainBar = mkMerge [ bar mainBar all-modules ];
+        # secondaryBar = mkMerge [ bar secondaryBar all-modules ];
+      };
 
-      # style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
+      style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
     }; 
   };
 }

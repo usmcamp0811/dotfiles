@@ -6,9 +6,8 @@ let
   cfg = config.campground.desktop.addons.hyprpaper;
   inherit (pkgs.campground) wallpapers;
 
-  # preload = ${wallpapers}/share/wallpapers/hsv-saturnV.png
   hyprpaper-config = ''
-  preload = /home/mcamp/Pictures/wallpapers/hsv-saturnV.jpg
+  preload = ${wallpapers}/share/wallpapers/hsv-saturnV.jpg
   #if more than one preload is desired then continue to preload other backgrounds
   # preload = /path/to/next_image.png
   # .. more preloads
