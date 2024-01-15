@@ -27,6 +27,7 @@ in
   };
 
   imports = [
+    ./apps.nix
     ./binds.nix
     ./variables.nix
   ];
