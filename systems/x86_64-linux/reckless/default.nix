@@ -25,12 +25,15 @@ in
     };
 
     archetypes = {
-      development = enabled;
       workstation = enabled;
       server = {
         enable = true;
         hostId = "13ec383b";
       };
+    };
+
+    suites = {
+      development = enabled;
     };
 
     nix = {

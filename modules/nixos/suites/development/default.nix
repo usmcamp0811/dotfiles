@@ -7,8 +7,7 @@ let
 in
 {
   options.campground.suites.development = with types; {
-    enable =
-      mkBoolOpt false "Whether or not to enable common development configuration.";
+    enable = mkBoolOpt false "Whether or not to enable common development configuration.";
   };
 
   config = mkIf cfg.enable {

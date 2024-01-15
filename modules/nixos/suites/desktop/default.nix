@@ -16,7 +16,6 @@ in
       desktop = {
         addons = { 
           wallpapers = enabled; 
-          greeter = enabled;
           kitty = enabled;
         };
         display-manager = {
@@ -25,7 +24,6 @@ in
             wayland = true;
           };
         };
-        # qtile = enabled;
         hyprland = enabled;
       };
       apps = {
