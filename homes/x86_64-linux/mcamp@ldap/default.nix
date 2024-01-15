@@ -22,7 +22,7 @@ with lib.campground;
       wallpapers = enabled;
       qtile = {
         enable = true;
-        wallpaper = "hsv-saturnV.png";
+        wallpaper = "hsv-saturnV.jpg";
       };
       hyprland = enabled;
     };
