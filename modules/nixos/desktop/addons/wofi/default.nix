@@ -15,7 +15,7 @@ in
       wofi-emoji
     ];
 
-    khanelinix.home.configFile = {
+    campground.home.configFile = {
       "wofi/config".source = ./config;
       "wofi/style.css".source = ./style.css;
     };

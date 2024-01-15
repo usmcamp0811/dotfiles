@@ -37,6 +37,7 @@ in
     };
 
     desktop = {
+      addons.wofi = enabled;
       display-manager = {
         gdm = {
           enable = true;
