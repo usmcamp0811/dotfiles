@@ -3,12 +3,12 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.suites.programming;
+  cfg = config.campground.suites.development;
 in
 {
-  options.campground.suites.programming = with types; {
+  options.campground.suites.development = with types; {
     enable =
-      mkBoolOpt false "Whether or not to enable common programming configuration.";
+      mkBoolOpt false "Whether or not to enable common development configuration.";
   };
 
   config = mkIf cfg.enable {

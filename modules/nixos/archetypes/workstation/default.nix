@@ -14,6 +14,7 @@ in
       suites = {
         common = enabled;
         desktop = enabled;
+        development = enabled;
         # development = enabled;
         # art = enabled;
         # video = enabled;
