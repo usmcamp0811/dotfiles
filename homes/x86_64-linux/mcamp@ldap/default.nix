@@ -15,10 +15,15 @@ with lib.campground;
       email = "matt@aicampground.com";
     };
     desktop = {
-      addons.waybar = enabled;
-      addons.gbar = enabled;
-      addons.wofi = enabled;
-      addons.hyprpaper = enabled;
+      addons = {
+        waybar = {
+          enable = true;
+          display = "HDMI-A-3";
+        };
+        gbar = enabled;
+        wofi = enabled;
+        hyprpaper = enabled;
+      };
       wallpapers = enabled;
       qtile = {
         enable = true;

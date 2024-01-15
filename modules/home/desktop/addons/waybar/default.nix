@@ -42,7 +42,7 @@ let
   };
 
   mainBar = {
-    "output" = "eDP-1";
+    "output" = cfg.display;
     # "modules-center" = [ "mpris" ];
 
     "modules-right" = [
@@ -61,6 +61,7 @@ in
   options.campground.desktop.addons.waybar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
+    display = mkOpt str "DP-1" "the name of the output";
   };
 
   config = mkIf cfg.enable {

@@ -16,28 +16,24 @@ in
     ./hardware.nix
   ];
 
-  # services.xserver.videoDrivers = [ "nouveau" ];
-  # boot.blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
-
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  campground.nix = {
-    package = pkgs.nixUnstable;
-    default-substituter.url = "https://cache.nixos.org";
-    default-substituter.key = "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=";
-    extra-substituters = {
-       "https://nix-gaming.cachix.org"  = {
-        key = "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
-      };
-    };
-  };
 
   campground = {
     archetypes = {
       workstation = enabled;
     };
 
+    nix = {
+      package = pkgs.nixUnstable;
+      default-substituter.url = "https://cache.nixos.org";
+      default-substituter.key = "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=";
+      extra-substituters = {
+         "https://nix-gaming.cachix.org"  = {
+          key = "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
+        };
+      };
+    };
+
     desktop = {
-      addons.wofi = enabled;
       display-manager = {
         gdm = {
           enable = true;
@@ -47,13 +43,6 @@ in
       # qtile = enabled;
       hyprland = enabled;
     };
-    # desktop.qtile = {
-    #   enable = true;
-    #   gdm = true;
-    #   # lightdm = true;
-    #
-    #   sddm = false;
-    # };
 
     apps = {
       k9s = enabled; 
