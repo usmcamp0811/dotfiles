@@ -41,8 +41,9 @@ let
     ];
   };
 
+  # TODO: make bars an option that gets passed in maybe so you can specify multiple monitors
   mainBar = {
-    "output" = cfg.display;
+    # "output" = cfg.display;
     # "modules-center" = [ "mpris" ];
 
     "modules-right" = [
