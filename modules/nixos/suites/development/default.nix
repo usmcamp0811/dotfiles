@@ -13,6 +13,9 @@ in
 
   config = mkIf cfg.enable {
     campground = {
+      apps = {
+        k9s = enabled; 
+      };
       tools = {
         git = enabled;
         misc = enabled;

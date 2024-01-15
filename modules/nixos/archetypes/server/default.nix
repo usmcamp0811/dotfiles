@@ -26,6 +26,9 @@ in
         passwds = enabled;
       };
       services = {
+        ntp = enabled;
+        ldap-client = enabled;
+        tang = enabled;
         k0sworker = {
           enable = cfg.worker;
         };

@@ -15,22 +15,6 @@ in
   imports = [ ./hardware.nix ];
 
   campground = {
-    archetypes = {
-      server = {
-        enable = true;
-        worker = true;
-        hostId = "119db424";
-      };
-    };
-    # tools.icehouse = enabled;
-    nfs.client = enabled;
-    # nfs.server = enabled;
-    # nfs.campfs = enabled;
-    # nfs.chestyfs = enabled;
-    apps = {
-     k9s = enabled; 
-    };
-
     user = {
       name = "abe";
       fullName = "Matt Camp";
@@ -38,32 +22,33 @@ in
       extraGroups = ["wheel"];
     };
 
+    archetypes = {
+      server = {
+        enable = true;
+        worker = true;
+        hostId = "119db424";
+      };
+    };
+
     services = {
 
       nixery = enabled;
       docker = enabled;
-      # TODO: configure searx
-      # searx = {
-      #   enable = true;
-      # };
-      minio = {
-        enable = true;
-      };
-      mlflow = {
-        enable = true;
-        # port = 5000;
-      };
+      minio = enabled;
+      mlflow = enabled;
+      label-studio = enabled;
+      vaultwarden = enabled;
       mattermost = enabled;
+      paperless = enabled;
+
       mysql = {
         backupEnable = true;
         backupLocation = "/persist/mysqlBackups/";
       };
+
       photoprism = {
         enable = true;
         originalsPath = "/webb/media/photos";
-      };
-      paperless = {
-        enable = true;
       };
 
       borgbackup = {
@@ -118,19 +103,12 @@ in
         '';
       };
 
-      vaultwarden = { 
-        enable = true; 
-      };
       openssh = { 
         authorizedKeys = [ 
           "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler"
         ];
       };
-      ldap-client = enabled;
-      tang = enabled;
-      k0sworker = enabled;
-      ntp = enabled;
-      label-studio = enabled;
+
       wireguard = {
         enable = true;
         port = 1149;
@@ -183,6 +161,7 @@ in
         };
       };
     };
+    nfs.client = enabled;
   };
 
   system.stateVersion = "23.05";
