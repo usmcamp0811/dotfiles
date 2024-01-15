@@ -18,6 +18,7 @@ with lib.campground;
       addons.waybar = enabled;
       addons.gbar = enabled;
       addons.wofi = enabled;
+      addons.hyprpaper = enabled;
       wallpapers = enabled;
       qtile = {
         enable = true;
