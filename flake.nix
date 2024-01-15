@@ -31,6 +31,11 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    hyprpaper = {
+      url = "github:hyprwm/hyprpaper";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     # Hyprland user contributions flake
     hyprland-contrib = {
       url = "github:hyprwm/contrib";
