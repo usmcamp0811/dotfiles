@@ -17,6 +17,14 @@ let
   group-modules = import ./modules/group-modules.nix;
   hyprland-modules = import ./modules/hyprland-modules.nix { inherit config lib; };
 
+
+  all-modules = mkMerge [
+    custom-modules
+    default-modules
+    group-modules
+    (lib.mkIf config.campground.desktop.hyprland.enable hyprland-modules)
+  ];
+
   bar = {
     "layer" = "top";
     "position" = "top";
@@ -64,7 +72,7 @@ in
       package = pkgs.waybar;
       systemd.enable = true;
 
-      TODO: make dynamic / support different number of bars etc
+      # TODO: make dynamic / support different number of bars etc
       settings = {
         mainBar = mkMerge [ bar mainBar all-modules ];
         # secondaryBar = mkMerge [ bar secondaryBar all-modules ];

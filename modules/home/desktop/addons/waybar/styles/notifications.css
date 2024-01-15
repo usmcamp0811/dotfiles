@@ -66,7 +66,7 @@
     box-shadow: none;
 }
 #pulseaudio-slider trough {
-    min-height: 10px;
+    min-height: 7px;
     min-width: 80px;
     border-radius: 5px;
     background-color: @base;

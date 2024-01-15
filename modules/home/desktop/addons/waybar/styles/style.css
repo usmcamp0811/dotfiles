@@ -3,7 +3,7 @@
 * */
 * {
   font-family: MonaspiceNe Nerd Font;
-  font-size: 16px;
+  font-size: 10px;
   border-radius: 0.75em;
 }
 
@@ -56,13 +56,13 @@ box {
 }
 
 #clock {
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 #custom-separator-right,
 #custom-separator-left {
-  font-size: 20px;
+  font-size: 15px;
   padding-left: 1em;
   padding-right: 1em;
   color: @text;
