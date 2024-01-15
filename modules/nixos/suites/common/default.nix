@@ -26,8 +26,6 @@ in
       tools = {
         git = enabled;
         misc = enabled;
-        julia = enabled;
-        python = enabled;
       };
 
       hardware = {

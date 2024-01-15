@@ -14,14 +14,20 @@ in
   config = mkIf cfg.enable {
     campground = {
       desktop = {
-
         addons = { 
           wallpapers = enabled; 
           greeter = enabled;
           kitty = enabled;
         };
+        display-manager = {
+          gdm = {
+            enable = true;
+            wayland = true;
+          };
+        };
+        # qtile = enabled;
+        hyprland = enabled;
       };
-
       apps = {
         # _1password = enabled;
         # firefox = enabled;

@@ -40,7 +40,6 @@ in
           wayland = true;
         };
       };
-      # qtile = enabled;
       hyprland = enabled;
     };
 
