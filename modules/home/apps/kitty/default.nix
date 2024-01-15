@@ -20,7 +20,7 @@ in
       theme = "Alabaster Dark";
       font = {
         name = "FiraCode Nerd Font Mono";
-        size = 17;
+        size = 11;
       };
       settings = {
         # Fonts
