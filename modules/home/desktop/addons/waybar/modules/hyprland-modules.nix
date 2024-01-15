@@ -72,7 +72,7 @@ in
       "class<discord>" = "󰙯";
       "class<firefox>" = "";
       "class<brave.*> title<Mattermost.*>" = "󰰑";
-      "class<brave.*> title<Slack.*>" = "󰒱";
+      "class<brave.*> title<.*Slack.*>" = "󰒱";
       "class<firefox> title<.*github.*>" = "";
       "class<firefox> title<.*twitch|youtube|plex|tntdrama|bally sports.*>" = "";
       "class<kitty>" = "";
