@@ -71,6 +71,7 @@ in
       "code-url-handler" = "󰨞";
       "class<discord>" = "󰙯";
       "class<firefox>" = "";
+      "class<brave.*> title<Mattermost.*>" = "󰰑";
       "class<firefox> title<.*github.*>" = "";
       "class<firefox> title<.*twitch|youtube|plex|tntdrama|bally sports.*>" = "";
       "class<kitty>" = "";
