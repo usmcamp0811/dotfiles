@@ -6,14 +6,15 @@ let
   cfg = config.campground.desktop.addons.hyprpaper;
   inherit (pkgs.campground) wallpapers;
 
+  # preload = ${wallpapers}/share/wallpapers/hsv-saturnV.png
   hyprpaper-config = ''
-  preload = ${wallpapers."hsv-saturnV.png"}
+  preload = /home/mcamp/Pictures/wallpapers/hsv-saturnV.jpg
   #if more than one preload is desired then continue to preload other backgrounds
   # preload = /path/to/next_image.png
   # .. more preloads
 
   #set the default wallpaper(s) seen on initial workspace(s) --depending on the number of monitors used
-  wallpaper = monitor1,${wallpapers."hsv-saturnV.png"}
+  wallpaper = monitor1,${wallpapers}/share/wallpapers/hsv-saturnV.jpg
   #if more than one monitor in use, can load a 2nd image
   # wallpaper = monitor2,/path/to/next_image.png
   # .. more monitors
@@ -32,7 +33,7 @@ in
       hyprpaper
     ];
 
-    home.file.".config/hypr/hyprpaper.conf".source = hyprpaper-config;
+    home.file.".config/hypr/hyprpaper.conf".text = hyprpaper-config;
 
   };
 }
