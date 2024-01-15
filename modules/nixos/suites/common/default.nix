@@ -12,7 +12,6 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      # pkgs.campground.list-iommu
     ];
 
     campground = {
@@ -29,29 +28,18 @@ in
         misc = enabled;
         julia = enabled;
         python = enabled;
-        # nvim = enabled;
-        # fup-repl = enabled;
-        # comma = enabled;
-        # nix-ld = enabled;
-        # bottom = enabled;
       };
 
       hardware = {
         audio = enabled;
-        # storage = enabled;
         networking = enabled;
       };
 
       services = {
-        # printing = enabled;
         openssh = enabled;
-        # ldap-client = enabled;
-        # tailscale = enabled;
       };
 
       security = {
-        # gpg = enabled;
-        # doas = enabled;
         keyring = enabled;
       };
 
