@@ -41,6 +41,7 @@ in
 
   campground = {
     archetypes = {
+      laptop = enabled;
       workstation = enabled;
     };
 

@@ -15,24 +15,20 @@ in
   imports = [ ./hardware.nix ];
 
   campground = {
-    archetypes.workstation = enabled;
-    tools.icehouse = enabled;
+    archetypes = {
+      server = {
+        enable = true;
+        worker = true;
+        hostId = "119db424";
+      };
+    };
+    # tools.icehouse = enabled;
     nfs.client = enabled;
     # nfs.server = enabled;
     # nfs.campfs = enabled;
     # nfs.chestyfs = enabled;
     apps = {
      k9s = enabled; 
-    };
-
-    system = {
-      boot = enabled;
-      zfs = {
-        enable = true;
-        hostId = "119db424";
-        keyfile-url = "http://10.8.0.1:1234/zfs-keyfile";
-      };
-      passwds = enabled;
     };
 
     user = {
