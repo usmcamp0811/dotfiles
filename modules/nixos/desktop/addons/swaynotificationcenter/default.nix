@@ -15,7 +15,7 @@ in
       libnotify
     ];
 
-    khanelinix.home = {
+    campground.home = {
       configFile."swaync/" = {
         source = lib.cleanSourceWith {
           src = lib.cleanSource ./config/.;

@@ -20,9 +20,18 @@ with lib.campground;
           enable = true;
           display = "HDMI-A-3";
         };
+        hyprpaper = {
+          monitors = [
+            { name = "DP-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
+            { name = "eDP-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
+          ];
+
+          wallpapers = [
+            "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
+          ];
+        };
         gbar = enabled;
         wofi = enabled;
-        hyprpaper = enabled;
       };
       wallpapers = enabled;
       qtile = {
