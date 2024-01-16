@@ -113,6 +113,7 @@ in
             "ALT,grave,togglespecialworkspace,inactive"
 
             "ALT, M, layoutmsg, addmaster"
+            "ALT_SHIFT, M, layoutmsg, removemaster"
             "ALT, Z, layoutmsg, swapwithmaster master"
             "ALT, U, layoutmsg, orientationcenter" # centered master layout
 
