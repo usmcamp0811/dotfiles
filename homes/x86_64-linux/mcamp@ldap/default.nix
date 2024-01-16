@@ -24,7 +24,7 @@ with lib.campground;
         hyprpaper = {
           enable = true;
           monitors = [
-            { name = "DP-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
+            { name = "HDMI-A-2"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
             { name = "eDP-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
           ];
 
