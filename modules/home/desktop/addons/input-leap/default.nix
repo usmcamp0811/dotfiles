@@ -11,7 +11,7 @@ in
       mkBoolOpt false "Whether to enable input-leap in the desktop environment.";
   };
   config = mkIf cfg.enable {
-    environment.systemPackages = [
+    home.packages = [
       pkgs.input-leap
     ];
   };
