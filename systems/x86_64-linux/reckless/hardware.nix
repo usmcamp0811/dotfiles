@@ -83,6 +83,11 @@
       fsType = "zfs";
     };
 
+  fileSystems."/var/lib/atticd" = 
+    { device = "MotorPool/attic";
+      fsType = "zfs";
+    };
+
   # sudo zfs create -V 16G -o compression=zle -o logbias=throughput -o sync=always -o primarycache=metadata -o secondarycache=none NIXROOT/swap
   # sudo mkswap -f /dev/zvol/NIXROOT/swap
   # sudo swapon /dev/zvol/NIXROOT/swap
