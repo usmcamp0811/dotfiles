@@ -22,7 +22,7 @@ in
             "$mainMod, E, exec, emoji-picker"
             # "SUPER_SHIFT, E, exec, $explorer"
             # "$mainMod, D, exec, $launcher"
-            "$mainMod, D, exec,  wofi --show drun --prompt search --allow-images --insensitive	"
+            "$mainMod, D, exec,  wofi --show drun --prompt search --allow-images --insensitive"
             # "SUPER_ALT, SPACE, exec, $launcher_alt"
             # "SUPER_SHIFT, SPACE, exec, $launcher_shift"
             # "$mainMod, A, exec, $launchpad"
@@ -67,6 +67,8 @@ in
             # "$mainMod, TAB, togglesplit, # dwindle"
             "$mainMod, TAB, layoutmsg, orientationcycle"
             "$mainMod, F, fullscreen"
+            "SUPER, L, exec, hyprctl keyword general:layout 'dwindle'"
+            "SUPERSHIFT, L, exec, hyprctl keyword general:layout 'master'"
             # "SUPER_SHIFT, V, workspaceopt, allfloat"
 
             # ░█░█░▀█▀░█▀█░█▀▄░█▀█░█░█
