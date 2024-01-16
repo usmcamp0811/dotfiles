@@ -158,7 +158,10 @@
 
     julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
     dream2nix.url = "github:nix-community/dream2nix";
-    scientific-fhs.url = "github:olynch/scientific-fhs";
+    scientific-fhs = {
+      url = "github:olynch/scientific-fhs";
+      inputs.nixpkgs.follows = "unstable";
+    };
   };
 
   outputs = inputs:
