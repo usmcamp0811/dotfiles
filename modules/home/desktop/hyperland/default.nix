@@ -8,53 +8,56 @@ let
   cfg = config.campground.desktop.hyprland;
 in
 {
-  options.campground.desktop.addons.hyprpaper = {
-    enable = mkEnableOption "Hyprpaper";
-    monitors = mkOption {
-      description = "Monitors and their wallpapers";
-      type = with types; listOf (submodule {
-        options = {
-          name = mkOption {
-            type = str;
-          };
-          wallpaper = mkOption {
-            type = path;
-          };
-        };
-      });
+  options.campground.desktop.hyprland = with types; {
+    enable = mkBoolOpt false "Whether or not to turn on hyperland config.";
+    appendConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Extra configuration lines to add to bottom of `~/.config/hypr/hyprland.conf`.
+      '';
     };
-    wallpapers = mkOpt (types.listOf types.path) [
-    ] "Wallpapers to preload.";
+    prependConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Extra configuration lines to add to top of `~/.config/hypr/hyprland.conf`.
+      '';
+    };
   };
 
-  config =
-    mkIf cfg.enable
-      {
-        xdg.configFile = {
-          "hypr/hyprpaper.conf".text = /* bash */ ''
-            # ░█░█░█▀█░█░░░█░░░█▀█░█▀█░█▀█░█▀▀░█▀▄░█▀▀
-            # ░█▄█░█▀█░█░░░█░░░█▀▀░█▀█░█▀▀░█▀▀░█▀▄░▀▀█
-            # ░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░░░▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀
+  imports = [
+    ./apps.nix
+    ./binds.nix
+    ./variables.nix
+  ];
 
-            ${concatStringsSep "\n" (map (wallpaper: "preload = ${wallpaper}") cfg.wallpapers)}
-            
-            ${concatStringsSep "\n" (map (monitor: "wallpaper = ${monitor.name},${monitor.wallpaper}") cfg.monitors)}
-            
-          '';
-        };
+  config = mkIf cfg.enable {
+    programs.waybar = { 
+      enable = true;
+      systemd.target = "hyprland-session.target";
+    };
 
-        systemd.user.services.hyprpaper = {
-          Install.WantedBy = [ "hyprland-session.target" ];
+    wayland.windowManager.hyprland = {
+      enable = true;
+      extraConfig = /* bash */ ''
+        ${cfg.prependConfig}
+        env = XDG_DATA_DIRS,'${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}':$XDG_DATA_DIRS
+        env = HYPRLAND_TRACE,1
+        ${cfg.appendConfig}
+      '';
+      package = hyprland.packages.${system}.hyprland;
 
-          Unit = {
-            Description = "Hyprpaper Service";
-            PartOf = [ "graphical-session.target" ];
-          };
-
-          Service = {
-            ExecStart = "${getExe pkgs.hyprpaper}";
-            Restart = "always";
-          };
-        };
+      settings = {
+        exec = [
+          "${getExe pkgs.libnotify} --icon ~/.face -u normal \"Hello $(whoami)\""
+        ];
       };
+
+      systemd = {
+        enable = true;
+      };
+      xwayland.enable = true;
+    };
+  };
 }
