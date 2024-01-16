@@ -26,35 +26,33 @@ in
     ] "Wallpapers to preload.";
   };
 
-  config =
-    mkIf cfg.enable
-      {
-        xdg.configFile = {
-          "hypr/hyprpaper.conf".text = /* bash */ ''
-            # ░█░█░█▀█░█░░░█░░░█▀█░█▀█░█▀█░█▀▀░█▀▄░█▀▀
-            # ░█▄█░█▀█░█░░░█░░░█▀▀░█▀█░█▀▀░█▀▀░█▀▄░▀▀█
-            # ░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░░░▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀
+  config = mkIf cfg.enable {
+    xdg.configFile = {
+      "hypr/hyprpaper.conf".text = /* bash */ ''
+        # ░█░█░█▀█░█░░░█░░░█▀█░█▀█░█▀█░█▀▀░█▀▄░█▀▀
+        # ░█▄█░█▀█░█░░░█░░░█▀▀░█▀█░█▀▀░█▀▀░█▀▄░▀▀█
+        # ░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░░░▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀
 
-            ${concatStringsSep "\n" (map (wallpaper: "preload = ${wallpaper}") cfg.wallpapers)}
-            
-            ${concatStringsSep "\n" (map (monitor: "wallpaper = ${monitor.name},${monitor.wallpaper}") cfg.monitors)}
-            
-          '';
-        };
+        ${concatStringsSep "\n" (map (wallpaper: "preload = ${wallpaper}") cfg.wallpapers)}
+        
+        ${concatStringsSep "\n" (map (monitor: "wallpaper = ${monitor.name},${monitor.wallpaper}") cfg.monitors)}
+        
+      '';
+    };
 
-        systemd.user.services.hyprpaper = {
-          Install.WantedBy = [ "hyprland-session.target" ];
+    systemd.user.services.hyprpaper = {
+      Install.WantedBy = [ "hyprland-session.target" ];
 
-          Unit = {
-            Description = "Hyprpaper Service";
-            PartOf = [ "graphical-session.target" ];
-          };
-
-          Service = {
-            ExecStart = "${getExe pkgs.hyprpaper}";
-            Restart = "always";
-          };
-        };
+      Unit = {
+        Description = "Hyprpaper Service";
+        PartOf = [ "graphical-session.target" ];
       };
+
+      Service = {
+        ExecStart = "${getExe pkgs.hyprpaper}";
+        Restart = "always";
+      };
+    };
+  };
 }
 
