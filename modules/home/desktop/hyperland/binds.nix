@@ -22,7 +22,7 @@ in
             "$mainMod, E, exec, emoji-picker"
             # "SUPER_SHIFT, E, exec, $explorer"
             # "$mainMod, D, exec, $launcher"
-            "$mainMod, D, exec,  wofi --show drun --prompt search"
+            "$mainMod, D, exec,  wofi --show drun --prompt search --allow-images --insensitive	"
             # "SUPER_ALT, SPACE, exec, $launcher_alt"
             # "SUPER_SHIFT, SPACE, exec, $launcher_shift"
             # "$mainMod, A, exec, $launchpad"

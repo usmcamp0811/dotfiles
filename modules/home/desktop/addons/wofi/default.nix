@@ -15,136 +15,84 @@ in
       settings = {
         location = "bottom-right";
         allow_markup = true;
-        width = 850;
+        width = 650;
+        hide_scroll=true;
+        prompt="";
+        no_actions=true;
       };
       style = ''
-        window {
-          font-family: "Hack Nerd Font";
-          background: transparent;
-        }
+      @define-color accent #b4befe;
+      @define-color txt #b4befe;
+      @define-color bg #181825;
+      @define-color bg2 #1e1e2e;
+      * {
+          font-family: 'CaskaydiaCove Nerd Font mono';
+          font-size: 12px;
+       }
 
-        #outer-box {
-          padding: 10px;
+       /* Window */
+       window {
+          margin: 0px;
+          padding: 8px;
           border-radius: 8px;
-          background: #2e3440;
-        }
+          background-color: @bg;
+       }
 
-        #scroll {
-          /* The Nordic gtk theme adds an outline to show scroll areas... */
-          outline-color: transparent;
-        }
+       /* Inner Box */
+       #inner-box {
+          margin: 5px;
+          padding: 10px;
+          border: none;
+          border-radius: 5px;
+          background-color: @bg;
+       }
 
-        #input {
-          color: #e5e9f0;
-          caret-color: #e5e9f0;
-          background: #3b4252;
-          border-top-color: #3b4252;
-          border-left-color: #3b4252;
-          border-right-color: #3b4252;
-          border-bottom-color: #3b4252;
-          box-shadow: 0 0 0 1px transparent inset;
-          outline-color: transparent !important;
-        }
+       /* Outer Box */
+       #outer-box {
+          margin: 5px;
+          padding: 10px;
+          border: none;
+          background-color: @bg;
+          border-radius: 5px;
+       }
 
-        #input:focus {
-          background: #3b4252;
-          border-color: #3b4252 !important;
-          box-shadow: 0 0 0 1px transparent inset;
-          border-top-color: #3b4252 !important;
-          border-left-color: #3b4252 !important;
-          border-right-color: #3b4252 !important;
-          border-bottom-color: #3b4252 !important;
-          box-shadow: none !important;
-          outline-color: transparent !important;
-        }
+       /* Scroll */
+       #scroll {
+          margin: 0px;
+          padding: 10px;
+          border: none;
+       }
 
-        #input image.left {
-          color: #d8dee9;
-        }
+       /* Input */
+       #input {
+          margin: 5px;
+          padding: 10px;
+          border: none;
+          color: @accent;
+          background-color: @bg;
+          border: 2px solid @accent;
+       }
 
-        #input:focus image.left {
-          color: #e5e9f0;
-        }
+       /* Text */
+       #text {
+          margin: 5px;
+          padding: 10px;
+          border: none;
+          color: @txt;
+       }
 
-        #input image.right {
-          color: #d8dee9;
-        }
+       /* Selected Entry */
+       #entry:selected {
+         background-color: @bg;
+         outline: 1px solid @accent;
+       }
 
-        #input:focus image.right {
-          color: #e5e9f0;
-        }
-
-        label {
-          /* We set backgrounds on the block level. */
-          background: transparent;
-        }
-
-        #scroll {
-          padding-top: 6px;
-        }
-
-        #entry {
-          color: #4c566a;
-          padding: 8px 8px;
-          border-radius: 4px;
-          background: transparent;
-        }
-
-        #entry:selected {
-          color: #eceff4;
-          background: #8fbcbb;
-          font-weight: bold;
-        }
-
-        expander arrow {
-          margin-right: 8px;
-        }
-
-        #entry #selected #text {
-          color: #eceff4;
-        }
-
-        expander list {
-          margin-top: 8px;
-          /* background: #8fbcbb; */
-          background: transparent;
-          padding-left: 16px;
-        }
-
-        expander list #entry {
-          transition: none;
-          background: transparent;
-        }
-
-        expander list #entry:hover,
-        expander list #entry:active {
-          /* color: #8fbcbb;
-          background: #e5e9f0; */
-        }
-
-        expander list #entry #selected {
-          background: #8fbcbb;
-        }
-
-        expander list #entry #selected label {
-          color: #eceff4;
-          font-weight: bold;
-        }
-
-        expander list #entry:hover,
-        expander list #entry:active {
-          background: #8fbcbb;
-        }
-
-        expander list #entry:hover label,
-        expander list #entry:active label {
-          color: #eceff4;
-          font-weight: bold;
-        }
-
-        expander list label {
-          color: #d8dee9;
-        }
+       #entry:selected #text {
+          color: @txt;
+       }
+       image {
+         margin-left: 10px;
+       }
 
       '';
     };
