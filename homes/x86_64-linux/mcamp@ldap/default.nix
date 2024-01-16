@@ -16,6 +16,7 @@ with lib.campground;
     };
     desktop = {
       addons = {
+        input-leap = enabled;
         waybar = {
           enable = true;
           display = "HDMI-A-3";
