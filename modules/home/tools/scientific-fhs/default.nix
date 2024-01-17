@@ -15,18 +15,14 @@ in
   imports = [ 
     inputs.scientific-fhs.nixosModules.default
   ];
+
   config = mkIf cfg.enable {
     
-    # home.packages = with pkgs; [
-    #   scientific-fhs
-    #
-    # ];
+    campground.tools.julia.enable = mkForce false;
+    campground.tools.python.enable = mkForce false;
 
-    # home.sessionVariables = {
-    #   LD_LIBRARY_PATH = "${pkgs.gcc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH";
-    # };
     programs.scientific-fhs = {
-      # enable = true;
+      enable = true;
       # juliaVersions = [
       #   {
       #     version = "julia_19";
