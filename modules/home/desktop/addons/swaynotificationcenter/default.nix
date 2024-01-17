@@ -16,7 +16,7 @@ in
       swaynotificationcenter
       libnotify
     ];
-
+# TODO: Nixifiy the config.json so we can get the correct paths to things
     xdg.configFile = {
       "swaync" = {
         source = lib.cleanSourceWith {
