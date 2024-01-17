@@ -13,7 +13,7 @@ with lib.campground;
     };
     desktop = {
       addons = {
-        input-leap = enabled;
+        waynergy = enabled;
         waybar = {
           enable = true;
           display = "HDMI-A-3";
