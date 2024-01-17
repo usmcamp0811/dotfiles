@@ -17,7 +17,6 @@ sudo sgdisk -n 2:0:0 -t 2:BF00 "$install_drive"
 sudo parted $install_drive -- set 1 esp on
 
 
-sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
 
 
 sudo mkfs.fat -F 32 /dev/sda1
