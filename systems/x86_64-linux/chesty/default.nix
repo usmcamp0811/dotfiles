@@ -34,7 +34,10 @@ in
     services = {
       hydra = enabled;
       jellyfin = enabled;
-      searx = enabled;
+      searx = {
+        enable = true;
+        port = 3249;
+      };
       zfs-key-server = {
         enable = true;
         port = 8123;

@@ -32,6 +32,10 @@ in
     nfs.client.enable = true;
 
     services = {
+      searx = {
+        enable = true;
+        port = 3249;
+      };
       zfs-key-server = {
         enable = true;
         port = 8123;

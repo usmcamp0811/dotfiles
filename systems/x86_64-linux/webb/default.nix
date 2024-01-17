@@ -39,7 +39,10 @@ in
       vaultwarden = enabled;
       mattermost = enabled;
       paperless = enabled;
-      searx = enabled;
+      searx = {
+        enable = true;
+        port = 3249;
+      };
 
       mysql = {
         backupEnable = true;
