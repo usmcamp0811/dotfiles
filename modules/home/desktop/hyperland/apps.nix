@@ -42,7 +42,7 @@ in
               # Startup background apps
               "${pkgs.libsForQt5.polkit-kde-agent}/libexec/polkit-kde-authentication-agent-1 &"
               "${getExe pkgs.ckb-next} -b"
-              "${getExe pkgs.openrgb} --startminimized --profile default"
+              # "${getExe pkgs.openrgb} --startminimized --profile default"
               # "${getExe pkgs._1password-gui} --silent"
               "command -v ${getExe pkgs.cliphist} && ${getExe' pkgs.wl-clipboard "wl-paste"} --type text --watch cliphist store" #Stores only text data
               "command -v ${getExe pkgs.cliphist} && ${getExe' pkgs.wl-clipboard "wl-paste"} --type image --watch cliphist store" #Stores only image data

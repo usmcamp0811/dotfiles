@@ -64,7 +64,6 @@ in
             # ░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░░▀░
             "SUPER_ALT, V, togglefloating,"
             "$mainMod, P, pseudo, # dwindle"
-            # "$mainMod, TAB, togglesplit, # dwindle"
             "$mainMod, TAB, layoutmsg, orientationcycle"
             "$mainMod, F, fullscreen"
             "SUPER, L, exec, hyprctl keyword general:layout 'dwindle'"
