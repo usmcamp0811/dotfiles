@@ -18,7 +18,7 @@ in
     ];
 
     xdg.configFile = {
-      "rofi" = {
+      "swaync" = {
         source = lib.cleanSourceWith {
           src = lib.cleanSource ./config/.;
         };

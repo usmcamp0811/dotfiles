@@ -34,6 +34,9 @@ in
         rofi-calc
         rofi-emoji
         rofi-top
+        rofi-bluetooth
+        rofi-vpn
+        rofi-systemd
       ];
     };
 
