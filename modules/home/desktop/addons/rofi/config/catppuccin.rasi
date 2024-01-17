@@ -1,42 +1,41 @@
 * {
-    bg-col:  #1E1D2F;
-    bg-col-light: #1E1D2F;
-    border-col: #1E1D2F;
-    selected-col: #1E1D2F;
-    fg-col: #D9E0EE;
-    fg-col2: #F28FAD;
-    grey: #D9E0EE;
+    bg-col:  #1E1E2E;
+    bg-col-light: #313244;
+    border-col: #161320;
+    selected-col: #45475A;
+    fg-col: #CDD6F4;
+    fg-col2: #A6ADC8;
+    grey: #565F89;
     width: 600;
 
-    base:   #24273a;
-    mantle: #1e2030;
-    crust:  #181926;
+    base:   #1E1E2E;
+    mantle: #313244;
+    crust:  #161320;
 
-    text:     #cad3f5;
-    subtext0: #b8c0e0;
-    subtext1: #a5adcb;
+    text:     #CDD6F4;
+    subtext0: #BAC2DE;
+    subtext1: #A6ADC8;
 
-    surface0: #363a4f;
-    surface1: #494d64;
-    surface2: #5b6078;
+    surface0: #565F89;
+    surface1: #3E445E;
+    surface2: #2E303E;
 
-    overlay0: #6e738d;
-    overlay1: #8087a2;
-    overlay2: #939ab7;
+    overlay0: #6C7086;
+    overlay1: #7F849C;
+    overlay2: #9499B2;
 
-    blue:      #8aadf4;
-    lavender:  #b7bdf8;
-    sapphire:  #7dc4e4;
-    sky:       #91d7e3;
-    teal:      #8bd5ca;
-    green:     #a6da95;
-    yellow:    #eed49f;
-    peach:     #f5a97f;
-    maroon:    #ee99a0;
-    red:       #ed8796;
-    mauve:     #c6a0f6;
-    pink:      #f5bde6;
-    flamingo:  #f0c6c6;
-    rosewater: #f4dbd6;
+    blue:      #89B4FA;
+    lavender:  #9399B2;
+    sapphire:  #74C7EC;
+    sky:       #89DCEB;
+    teal:      #94E2D5;
+    green:     #A6E3A1;
+    yellow:    #F9E2AF;
+    peach:     #FAB387;
+    maroon:    #F5B9B9;
+    red:       #F38BA8;
+    mauve:     #CBA6F7;
+    pink:      #F5C2E7;
+    flamingo:  #F2CDCD;
+    rosewater: #F5E0DC;
 }
-
