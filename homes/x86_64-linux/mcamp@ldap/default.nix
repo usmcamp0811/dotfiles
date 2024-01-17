@@ -14,6 +14,7 @@ with lib.campground;
     desktop = {
       addons = {
         waynergy = enabled;
+        swaynotificationcenter = enabled;
         waybar = {
           enable = true;
           display = "HDMI-A-3";
