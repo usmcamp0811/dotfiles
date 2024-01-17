@@ -11,19 +11,16 @@ in
   };
 
   config = mkIf cfg.enable { 
+
     home.packages = with pkgs; [
       swaynotificationcenter
       libnotify
     ];
 
-    campground.home = {
-      configFile."swaync/" = {
-        source = lib.cleanSourceWith {
-          src = lib.cleanSource ./config/.;
-        };
-
-        recursive = true;
-      };
+    home.file = { 
+      ".config/swaync/catppuccin.css".source = ./config/catppuccin.css;
+      ".config/swaync/config.json".source = ./config/config.json;
+      ".config/swaync/style.css".source = ./config/style.css;
     };
   };
 }
