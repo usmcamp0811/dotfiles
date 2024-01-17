@@ -14,6 +14,7 @@ with lib.campground;
     desktop = {
       addons = {
         waynergy = enabled;
+        rofi = enabled;
         swaynotificationcenter = enabled;
         waybar = {
           enable = true;
@@ -66,7 +67,6 @@ with lib.campground;
       libreoffice = enabled;
       alacritty = enabled;
       kitty = enabled;
-      rofi = enabled;
       mpv = enabled;
       zoom = enabled;
       qutebrowser = enabled;
