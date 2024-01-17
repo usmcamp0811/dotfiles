@@ -39,6 +39,7 @@ in
       vaultwarden = enabled;
       mattermost = enabled;
       paperless = enabled;
+      searx = enabled;
 
       mysql = {
         backupEnable = true;
