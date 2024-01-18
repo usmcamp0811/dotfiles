@@ -3,10 +3,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.kitty;
+  cfg = config.campground.desktop.addons.kitty;
 in
 {
-  options.campground.apps.kitty = {
+  options.campground.desktop.addons.kitty = {
     enable = mkEnableOption "Kitty";
   };
 

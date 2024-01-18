@@ -19,6 +19,7 @@ with lib.campground;
         swayidle = enabled;
         swaylock = enabled;
         qt = enabled;
+        kitty = enabled;
         waybar = {
           enable = true;
           display = "HDMI-A-3";
@@ -69,7 +70,6 @@ with lib.campground;
       brave = enabled;
       libreoffice = enabled;
       alacritty = enabled;
-      kitty = enabled;
       mpv = enabled;
       zoom = enabled;
       qutebrowser = enabled;
