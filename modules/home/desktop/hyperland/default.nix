@@ -34,11 +34,6 @@ in
   ];
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [
-      xdg-desktop-portal-hyprland
-      xdg-desktop-portal-wlr
-      xdg-desktop-portal
-    ];
     wayland.windowManager.hyprland = {
       enable = true;
       extraConfig = /* bash */ ''
