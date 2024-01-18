@@ -1,6 +1,6 @@
 configuration{
     modi: "run,drun";
-    lines: 6;
+    lines: 10;
     font: "MonaspiceNe Nerd Font 14";
     show-icons: true;
     icon-theme: "Papirus-Dark";
@@ -28,7 +28,7 @@ window {
     border: 3px;
     border-radius:6px;
     background-color: @bg-col;
-    border-color:@peach;
+    border-color:@overlay0;
 }
 
 mainbox {
@@ -43,7 +43,7 @@ inputbar {
 }
 
 prompt {
-    background-color: @peach;
+    background-color: @overlay0;
     padding: 6px;
     text-color: @bg-col;
     border-radius: 6px;
@@ -62,7 +62,7 @@ entry {
     background-color: @bg-col;
     border: 2px;
     border-radius: 3px;
-    border-color: @peach;
+    border-color: @overlay0;
     placeholder:"Search";
 
 }
@@ -104,5 +104,5 @@ button {
 
 button selected {
   background-color: @bg-col;
-  text-color: @peach;
+  text-color: @overlay0;
 }
