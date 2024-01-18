@@ -65,11 +65,11 @@
             }
             {
               label = " Lock";
-              command = "swaylock -f ";
+              command = "${pkgs.swaylock}/bin/swaylock -f ";
             }
             {
               label = " Logout";
-              command = "hyprctl exit";
+              command = "${pkgs.hyprland}/bin/hyprctl exit";
             }
             {
               label = " Shut down";
