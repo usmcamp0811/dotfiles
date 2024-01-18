@@ -21,17 +21,9 @@ in
       swaynotificationcenter
       libnotify
     ];
-# TODO: Nixifiy the config.json so we can get the correct paths to things
-    home.file.".config/swaync/config.json".source = swayncConfigFile;
-    xdg.configFile = {
-      "swaync" = {
-        source = lib.cleanSourceWith {
-          src = lib.cleanSource ./config/.;
-        };
-
-        recursive = true;
-      };
-    };
+    home.file.".config/swaync/config.json".source = lib.cleanSource swayncConfigFile;
+    home.file.".config/swaync/style.css".source = ./config/style.css; 
+    home.file.".config/swaync/catppuccin.css".source = ./config/catppuccin.css;
   };
 }
 

@@ -1,7 +1,7 @@
 { pkgs, ... }:
 { 
   swayncConfig = {
-    "$schema" = "/etc/xdg/swaync/configSchema.json";
+    "$schema" = "${pkgs.swaynotificationcenter}/etc/xdg/swaync/configSchema.json";
     positionX = "right";
     positionY = "top";
     cssPriority = "user";
@@ -28,32 +28,40 @@
     "script-fail-notify" = true;
     scripts = {};
     "notification-visibility" = {};
-    widgets = [ "menubar#label" "buttons-grid" "volume" "mpris" "title" "dnd" "notifications" ];
+    widgets = [ 
+      "menubar#label" 
+      # "buttons-grid" 
+      # "volume" 
+      # "mpris" 
+      # "title" 
+      # "dnd" 
+      # "notifications" 
+    ];
     "widget-config" = {
-      title = {
-        text = "Notifications";
-        "clear-all-button" = true;
-        "button-text" = "Clear All";
-      };
-      dnd = {
-        text = "Do Not Disturb";
-      };
-      label = {
-        "max-lines" = 4;
-        text = "Control Center";
-      };
-      mpris = {
-        "image-size" = 96;
-        "image-radius" = 12;
-      };
-      "backlight#KB" = {
-        label = " ";
-        device = "corsair::kbd_backlight";
-        subsystem = "leds";
-      };
-      volume = {
-        label = "";
-      };
+      # title = {
+      #   text = "Notifications";
+      #   "clear-all-button" = true;
+      #   "button-text" = "Clear All";
+      # };
+      # dnd = {
+      #   text = "Do Not Disturb";
+      # };
+      # label = {
+      #   "max-lines" = 4;
+      #   text = "Control Center";
+      # };
+      # mpris = {
+      #   "image-size" = 96;
+      #   "image-radius" = 12;
+      # };
+      # "backlight#KB" = {
+      #   label = " ";
+      #   device = "corsair::kbd_backlight";
+      #   subsystem = "leds";
+      # };
+      # volume = {
+      #   label = "";
+      # };
       "menubar#label" = {
         "menu#power-buttons" = {
           label = "";
