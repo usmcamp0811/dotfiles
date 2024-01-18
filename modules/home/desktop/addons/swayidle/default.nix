@@ -3,13 +3,13 @@
 with lib;
 with lib.campground;
 let 
-  cfg = config.campground.desktop.addons.swaylock;
+  cfg = config.campground.desktop.addons.swayidle;
   inherit (inputs) nixpkgs-wayland;
 in
 {
-  options.campground.desktop.addons.swaylock = with types; {
+  options.campground.desktop.addons.swayidle = with types; {
     enable =
-      mkBoolOpt false "Whether to enable swaylock in the desktop environment.";
+      mkBoolOpt false "Whether to enable swayidle in the desktop environment.";
   };
   config = mkIf cfg.enable {
     services.swayidle = {

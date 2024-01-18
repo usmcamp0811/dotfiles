@@ -16,6 +16,9 @@ with lib.campground;
         waynergy = enabled;
         rofi = enabled;
         swaynotificationcenter = enabled;
+        swayidle = enabled;
+        swaylock = enabled;
+        qt = enabled;
         waybar = {
           enable = true;
           display = "HDMI-A-3";
