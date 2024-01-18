@@ -42,13 +42,36 @@ let
   fi
   '';
 
+  wl-emoji-script = pkgs.writeShellScript "emoji-picker" ''
+  #!/bin/sh
+
+  # The famous "get a menu of emojis to copy" script.
+
+  # Get user selection via dmenu from emoji file.
+  chosen=$(cut -d ';' -f1 ${emojis} | ${pkgs.rofi}/bin/rofi -dmenu | sed "s/ .*//")
+
+  # Exit if none chosen.
+  [ -z "$chosen" ] && exit
+
+  # If you run this command with an argument, it will automatically insert the
+  # character. Otherwise, show a message that the emoji has been copied.
+  if [ -n "$1" ]; then
+      ${pkgs.wl-clipboard}/bin/wl-copy "$chosen"
+  else
+      printf "$chosen" | ${pkgs.wl-clipboard}/bin/wl-copy
+      ${pkgs.inotify-tools}/bin/notify-send "'$chosen' copied to clipboard." &
+  fi
+  '';
+
   emoji-picker = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     phases = [ "installPhase" ];
     installPhase = ''
       mkdir -p $out/bin
       cp ${emoji-script} $out/bin/'${pname}'
+      cp ${wl-emoji-script} $out/bin/'wl-${pname}'
       chmod +x $out/bin/'${pname}'
+      chmod +x $out/bin/'wl-${pname}'
     ''; 
   };
 
