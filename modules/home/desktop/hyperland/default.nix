@@ -34,11 +34,11 @@ in
   ];
 
   config = mkIf cfg.enable {
-    programs.waybar = { 
-      enable = true;
-      systemd.target = "hyprland-session.target";
-    };
-
+    home.packages = with pkgs; [
+      xdg-desktop-portal-hyprland
+      xdg-desktop-portal-wlr
+      xdg-desktop-portal
+    ];
     wayland.windowManager.hyprland = {
       enable = true;
       extraConfig = /* bash */ ''
