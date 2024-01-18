@@ -1,6 +1,6 @@
 configuration{
     modi: "run,drun";
-    lines: 10;
+    lines: 20;
     font: "MonaspiceNe Nerd Font 14";
     show-icons: true;
     icon-theme: "Papirus-Dark";
