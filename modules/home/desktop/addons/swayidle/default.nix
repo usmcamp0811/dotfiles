@@ -1,4 +1,4 @@
-{ inputs, options, config, lib, pkgs, ... }:
+{ inputs, options, config, lib, pkgs, system, ... }:
 
 with lib;
 with lib.campground;
