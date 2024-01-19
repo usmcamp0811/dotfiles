@@ -1,4 +1,4 @@
-{ unstable, ... }:
+{ unstable, channels, ... }:
 
 final: prev:
 
