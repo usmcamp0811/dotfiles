@@ -32,15 +32,15 @@ in
         }
       ];
       timeouts = [
-        {
-          timeout = 900;
-          command = "${getExe config.programs.swaylock.package} -defF";
-        }
-        {
-          # TODO: Make dynamic for window manager
-          timeout = 1200;
-          command = "${getExe' config.wayland.windowManager.hyprland.package "hyprctl"} dispatch dpms off";
-        }
+        # {
+        #   timeout = 900;
+        #   command = "${getExe config.programs.swaylock.package} -defF";
+        # }
+        # {
+        #   # TODO: Make dynamic for window manager
+        #   timeout = 1200;
+        #   command = "${getExe' config.wayland.windowManager.hyprland.package "hyprctl"} dispatch dpms off";
+        # }
       ];
     };
   };

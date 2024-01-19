@@ -33,13 +33,13 @@
 
     hyprpaper = {
       url = "github:hyprwm/hyprpaper";
-      inputs.nixpkgs.follows = "unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Hyprland user contributions flake
     hyprland-contrib = {
       url = "github:hyprwm/contrib";
-      inputs.nixpkgs.follows = "unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     gBar.url = "github:scorpion-26/gBar";
@@ -47,7 +47,7 @@
     # NixPkgs-Wayland
     nixpkgs-wayland = {
       url = "github:nix-community/nixpkgs-wayland";
-      inputs.nixpkgs.follows = "unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
     # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
