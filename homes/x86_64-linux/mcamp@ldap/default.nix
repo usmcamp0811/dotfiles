@@ -18,6 +18,7 @@ with lib.campground;
         swaynotificationcenter = enabled;
         swayidle = enabled;
         swaylock = enabled;
+        input-leap = enabled;
         qt = enabled;
         kitty = enabled;
         waybar = {
