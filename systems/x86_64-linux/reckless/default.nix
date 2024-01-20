@@ -58,6 +58,9 @@ in
     };
 
     services = {
+      # attic = {
+      #   enable = true; 
+      # };
       nix-snapshotter = enabled;
       zfs-key-server = {
         enable = false;

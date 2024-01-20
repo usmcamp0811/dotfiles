@@ -9,8 +9,8 @@
 with lib;
 with lib.campground;
 let
-  inherit (inputs) hyprland;
-  inherit (inputs) nixpkgs-wayland;
+  # inherit (inputs) hyprland;
+  # inherit (inputs) nixpkgs-wayland;
 
 
   cfg = config.campground.desktop.hyprland;
@@ -70,9 +70,11 @@ in
           hyprpaper
           cliphist
           swayimg
-          nixpkgs-wayland.packages.${system}.wdisplays
+          wdisplays
+          # nixpkgs-wayland.packages.${system}.wdisplays
           wl-screenrec
-          nixpkgs-wayland.packages.${system}.wl-clipboard
+          wl-clipboard
+          # nixpkgs-wayland.packages.${system}.wl-clipboard
           wlr-randr
           # Not really wayland specific, but I don't want to make a new module for it
           brightnessctl
@@ -83,8 +85,10 @@ in
         programs.hyprland = {
           enable = true;
           xwayland.enable = true;
-          package = hyprland.packages.${system}.hyprland;
-          portalPackage = hyprland.packages.${system}.xdg-desktop-portal-hyprland;
+          package = pkgs.hyprland;
+          portalPackage = pkgs.xdg-desktop-portal-hyprland;
+          # package = hyprland.packages.${system}.hyprland;
+          # portalPackage = hyprland.packages.${system}.xdg-desktop-portal-hyprland;
         };
       };
 }

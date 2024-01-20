@@ -3,7 +3,7 @@
 with lib;
 with lib.campground;
 let
-  inherit (inputs) hyprland;
+  # inherit (inputs) hyprland;
 
   cfg = config.campground.desktop.hyprland;
 in
@@ -42,7 +42,8 @@ in
         env = HYPRLAND_TRACE,1
         ${cfg.appendConfig}
       '';
-      package = hyprland.packages.${system}.hyprland;
+      # package = hyprland.packages.${system}.hyprland;
+      package = pkgs.hyprland;
 
       settings = {
         exec = [
