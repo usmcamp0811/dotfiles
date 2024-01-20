@@ -15,12 +15,8 @@ let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   inherit system;
-  pname = "mlflow";
 
-  description = "MLFlow hack job";
-
-  version = "2.3.2";
-  pkgs.nuenv.mkDerivation {
+  nuenv-hello = pkgs.nuenv.mkDerivation {
     name = "hello";
     src = ./.;
     inherit system;
@@ -34,10 +30,5 @@ let
     '';
     MESSAGE = "My custom Nuenv derivation!";
   };
-  new-meta = with lib; {
-    description = description;
-    license = licenses.asl20;
-    maintainers = with maintainers; [ mattcamp ];
-  };
 in
-override-meta new-meta mlflow
+override-meta nuenv-hello
