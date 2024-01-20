@@ -3,17 +3,15 @@
 , writeShellApplication
 , substituteAll
 , gum
-, inputs
 , pkgs
 , system
-, nuenv
 , hosts ? { }
 , ...
 }:
 
 let
-  inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  # inherit (lib) mapAttrsToList concatStringsSep;
+  # inherit (lib.campground) override-meta;
   inherit system;
 
   nuenv-hello = pkgs.nuenv.mkDerivation {
@@ -31,4 +29,4 @@ let
     MESSAGE = "My custom Nuenv derivation!";
   };
 in
-override-meta nuenv-hello
+nuenv-hello
