@@ -5,6 +5,9 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    
+    #nuenv
+    nuenv.url = "github:DeterminateSystems/nuenv";
 
     # Nixery
     nixery-flake = {
@@ -197,6 +200,7 @@
           devshell.overlays.default 
           nix-ld-rs.overlays.default
           julia2nix.overlays.default
+          nuenv.overlays.default
           nur.overlay
       ];
 
