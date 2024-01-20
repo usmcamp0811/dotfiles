@@ -16,8 +16,8 @@ with lib.campground;
         waynergy = enabled;
         rofi = enabled;
         swaynotificationcenter = enabled;
-        swayidle = enabled;
-        swaylock = enabled;
+        # swayidle = enabled;
+        # swaylock = enabled;
         input-leap = enabled;
         qt = enabled;
         kitty = enabled;
@@ -75,6 +75,8 @@ with lib.campground;
       zoom = enabled;
       qutebrowser = enabled;
       ckb-next = enabled;
+      mattermost-desktop = enabled;
+      slack = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {
