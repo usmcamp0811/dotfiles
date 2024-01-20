@@ -10,8 +10,6 @@
 }:
 
 let
-  # inherit (lib) mapAttrsToList concatStringsSep;
-  # inherit (lib.campground) override-meta;
   inherit system;
 
   nuenv-hello = pkgs.nuenv.mkDerivation {
