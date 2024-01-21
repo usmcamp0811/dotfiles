@@ -1,9 +1,7 @@
 { unstable, channels, ... }:
 
-final: prev:
-
-{
-
-  # nvidia_x11 = unstable.legacyPackages.${prev.system}.nvidia_x11;
-  # nvidia_x11 = unstable.legacyPackages.${prev.system}.nvidia_x11;
+self: super: {
+  nvidia_x11 = super.nvidia_x11.overrideAttrs (oldAttrs: {
+    src = self.unstable.nvidia_x11.src;
+  });
 }

@@ -31,7 +31,7 @@
     # Hyprland
     hyprland = {
       url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "unstable";
+      # inputs.nixpkgs.follows = "unstable";
     };
 
     hyprpaper = {
@@ -128,7 +128,7 @@
 
     technofab = {
       url = "gitlab:TECHNOFAB/nix-packages";
-      inputs.nixpkgs.follows = "unstable";
+      # inputs.nixpkgs.follows = "unstable";
     };
 
     # GPG default configuration

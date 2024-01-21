@@ -4,7 +4,7 @@ with lib;
 with lib.campground;
 let 
   cfg = config.campground.desktop.addons.swayidle;
-  inherit (inputs) nixpkgs-wayland;
+  # inherit (inputs) nixpkgs-wayland;
 in
 {
   options.campground.desktop.addons.swayidle = with types; {
