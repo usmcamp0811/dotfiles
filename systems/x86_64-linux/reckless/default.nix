@@ -62,7 +62,7 @@ in
         enable = true; 
         settings = {
           database = {
-            url = "postgres://atticd@/atticd?host=/run/postgresql/";
+            url = "postgres://atticd@localhost/atticd?host=/run/postgresql/";
           };
           storage = {
             type = "local";
@@ -88,12 +88,6 @@ in
         enableTCPIP = true;
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        databases = [
-          {
-            name = "atticd";
-            user = "atticd";
-          }
-        ];
         authentication = ''
           local all root trust
           local all postgres peer

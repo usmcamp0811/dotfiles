@@ -80,34 +80,24 @@ in
 
     campground = {
       tools.attic = enabled;
+      services = {
+        attic.settings = {
+          database.url = mkDefault "postgres://atticd@/atticd?host=/run/postgresql/";
 
-      services.attic.settings = {
-        database.url = mkDefault "sqlite:///var/lib/atticd/server.db?mode=rwc";
-
-        storage = mkDefault {
-          type = "local";
-          path = "/var/lib/atticd/storage";
+          storage = mkDefault {
+            type = "local";
+            path = "/var/lib/atticd/storage";
+          };
         };
-      };
-    };
-
-    systemd.services.atticd = {
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ]
-        ++ optionals is-local-postgres [ "postgresql.service" "nss-lookup.target" ];
-
-      serviceConfig = {
-        ExecStart = "${cfg.package}/bin/atticd -f ${server-toml}";
-        StateDirectory = "atticd";
-        User = cfg.user;
-        Group = cfg.group;
-        DynamicUser = false;
-      } // optionalAttrs (cfg.credentials != null) {
-        EnvironmentFile = mkDefault cfg.credentials;
-      };
-    };
-
-      campground.services = {
+        postgresql = {
+          enable = true;
+          databases = [ 
+            { 
+              name = "atticd";
+              user = cfg.user; 
+            } 
+          ];
+        };
         vault-agent = {
           services = {
             "atticd" = {
@@ -137,5 +127,23 @@ in
           };
         };
       };
+    };
+
+    systemd.services.atticd = {
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ]
+        ++ optionals is-local-postgres [ "postgresql.service" "nss-lookup.target" ];
+
+      serviceConfig = {
+        ExecStart = "${cfg.package}/bin/atticd -f ${server-toml}";
+        StateDirectory = "atticd";
+        User = cfg.user;
+        Group = cfg.group;
+        DynamicUser = false;
+      } // optionalAttrs (cfg.credentials != null) {
+        EnvironmentFile = mkDefault cfg.credentials;
+      };
+    };
+
   };
 }
