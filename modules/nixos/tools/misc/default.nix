@@ -41,7 +41,6 @@ in
       pciutils
       neofetch
       libnotify
-      nix2sbom
       sbomnix
       bash
       lsof
