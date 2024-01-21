@@ -2,8 +2,8 @@
   description = "Campground Config";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-    # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     
     #nuenv
@@ -88,7 +88,8 @@
 
     # Home Manager (release-23.05)
     home-manager.url =
-      "github:nix-community/home-manager/release-23.11";
+      # "github:nix-community/home-manager/release-23.11";
+      "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs"; 
 
     # Vault Integration 
