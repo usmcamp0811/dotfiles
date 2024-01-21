@@ -11,7 +11,7 @@ in
   };
   config = mkIf cfg.enable {
     campground.nix.extra-substituters = {
-      "http://reckless:8080/campground".key = "campground:kOmxjP/V7XGZvhuiKVSt1Nb3dP+JFt8rg99RD78nVec=";
+      "https://attic.lan.aicampground.com/campground".key = "campground:kOmxjP/V7XGZvhuiKVSt1Nb3dP+JFt8rg99RD78nVec=";
     };
   };
 }
