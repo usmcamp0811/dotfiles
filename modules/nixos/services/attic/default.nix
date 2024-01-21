@@ -14,9 +14,9 @@ let
 
     export ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64="dGVzdCBzZWNyZXQ="
     export ATTIC_SERVER_DATABASE_URL="sqlite://:memory:"
-
+    
+    echo $config
     ${cfg.package}/bin/atticd --mode check-config -f "$config"
-
     cat < $config > $out
   '';
 
@@ -42,6 +42,20 @@ in
     group = mkOpt types.str "atticd" "The group under which attic runs.";
 
     settings = mkOpt toml-format.type { } "Settings for the atticd config file.";
+
+    role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt types.str "secret/campground/attic" "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = types.enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = types.str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -59,7 +73,6 @@ in
           isSystemUser = true;
         };
       };
-
       groups = optionalAttrs (cfg.group == "atticd") {
         atticd = { };
       };
@@ -88,10 +101,41 @@ in
         StateDirectory = "atticd";
         User = cfg.user;
         Group = cfg.group;
-        DynamicUser = true;
+        DynamicUser = false;
       } // optionalAttrs (cfg.credentials != null) {
         EnvironmentFile = mkDefault cfg.credentials;
       };
     };
+
+      campground.services = {
+        vault-agent = {
+          services = {
+            "atticd" = {
+              settings = {       # replace with the address of your vault
+                vault.address = "https://vault.lan.aicampground.com";
+                auto_auth = {
+                  method = [{
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }];
+                };
+              };
+              secrets.environment.templates = {
+                atticd = {
+                  text = ''
+                    {{ with secret "${cfg.vault-path}" }}
+                    ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.token  }}{{ else }}{{ .Data.data.token }}{{ end }}
+                    {{ end }}
+                  '';
+                };
+              };
+            };
+          };
+        };
+      };
   };
 }

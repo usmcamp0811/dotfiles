@@ -58,9 +58,50 @@ in
     };
 
     services = {
-      # attic = {
-      #   enable = true; 
-      # };
+      attic = {
+        enable = true; 
+        settings = {
+          database = {
+            url = "postgres://atticd@/atticd?host=/run/postgresql/";
+          };
+          storage = {
+            type = "local";
+            path = "/var/lib/atticd";
+          };
+          chunking = {
+            "nar-size-threshold" = 65536; # chunk files that are 64 KiB or larger
+            "min-size" = 16384;           # 16 KiB
+            "avg-size" = 65536;           # 64 KiB
+            "max-size" = 262144;          # 256 KiB
+          };
+          compression = {
+            type = "zstd";
+          };
+          garbage-collection = {
+            interval = "12 hours";
+          };
+        };
+      };
+
+      postgresql = {
+        enable = true;
+        enableTCPIP = true;
+        backupEnable = true;
+        backupLocation = "/persist/postgresqlBackups/";
+        databases = [
+          {
+            name = "atticd";
+            user = "atticd";
+          }
+        ];
+        authentication = ''
+          local all root trust
+          local all postgres peer
+          local atticd atticd trust
+          host  all  all  0.0.0.0/0  reject
+          host  all  all  ::0/0  reject
+        '';
+      };
       nix-snapshotter = enabled;
       zfs-key-server = {
         enable = false;
