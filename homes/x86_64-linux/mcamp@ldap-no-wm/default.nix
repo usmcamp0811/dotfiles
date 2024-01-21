@@ -40,8 +40,8 @@ with lib.campground;
     tools = {
       git = enabled;
       direnv = enabled;
-      julia = enabled;
-      python = enabled;
+      # julia = enabled;
+      # python = enabled;
       vault = enabled;
     };
   };
