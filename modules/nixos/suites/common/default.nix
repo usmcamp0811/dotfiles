@@ -19,7 +19,10 @@ in
         enable = true;
       };
 
-      cache.public = enabled;
+      cache = {
+        public = enabled;
+        campground = enabled;
+      };
 
       cli-apps = {
         flake = enabled;
