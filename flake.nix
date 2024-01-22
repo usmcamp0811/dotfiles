@@ -168,6 +168,7 @@
 
   outputs = inputs:
     let
+      inherit (inputs) deploy-rs snowfall-lib;
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
@@ -238,13 +239,14 @@
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules = [({...}: { amazonImage.sizeMB = 16 * 1024; })];
 
-      # deploy = lib.mkDeploy { inherit (inputs) self; };
+      deploy = lib.mkDeploy { inherit (inputs) self; };
 
       checks =
         builtins.mapAttrs
-          (system: deploy-lib:
+          (_system: deploy-lib:
             deploy-lib.deployChecks inputs.self.deploy)
-          inputs.deploy-rs.lib;
+          deploy-rs.lib;
+
     };
 
 }
