@@ -168,7 +168,7 @@
 
   outputs = inputs:
     let
-      inherit (inputs) deploy-rs snowfall-lib;
+      inherit (inputs) deploy-rs;
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
@@ -210,27 +210,6 @@
         vault-service.nixosModules.nixos-vault-service
       ];
 
-      # systems.modules.home = with inputs; [
-      #   inputs.scientific-fhs.nixosModules.default
-      # ];
-
-      # systems.modules = with inputs; [
-      #   campground-nvim.nixosModules.nixvim
-      # ];
-      
-
-      #TODO: Move this into the actual system config?
-      # systems.hosts.ata-xps.modules = with inputs; [
-      #   nixos-hardware.nixosModules.dell-xps-13-7390
-      #
-      # ];
-
-      # systems.hosts.ata-nuc.modules = with inputs; [
-      #   nixos-hardware.nixosModules.intel-nuc-8i7beh
-      #
-      # ];
-
-      #TODO: Move this into the actual system config?
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53
