@@ -58,9 +58,6 @@
     # Binary Cache
     attic = {
       url = "github:zhaofengli/attic";
-
-      # @FIXME(jakehamilton): A specific version of Rust is needed right now or
-      # the build fails. Re-enable this after some time has passed.
       inputs.nixpkgs.follows = "unstable";
       # inputs.nixpkgs-stable.follows = "nixpkgs";
     };
