@@ -18,7 +18,7 @@ rec {
           (result: name:
             let
               host = hosts.${name};
-              user = host.config.khanelinix.user.name or null;
+              user = host.config.campground.user.name or null;
               inherit (host.pkgs) system;
             in
             result
@@ -40,7 +40,7 @@ rec {
                           sshUser = user;
                         }
                         // lib.optionalAttrs
-                          (host.config.khanelinix.security.doas.enable or false)
+                          (host.config.campground.security.doas.enable or false)
                           {
                             sudo = "doas -u";
                           };
