@@ -4,7 +4,8 @@ with lib.campground;
 let
   cfg = config.campground.services.nix-snapshotter;
   
-  preloadContainerdImages = [pkgs.campground.containers];
+  # preloadContainerdImages = [pkgs.campground.containers];
+  preloadContainerdImages = [];
 in
 {
   imports = [
