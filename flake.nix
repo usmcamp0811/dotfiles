@@ -164,6 +164,8 @@
       url = "github:olynch/scientific-fhs";
       inputs.nixpkgs.follows = "unstable";
     };
+    
+    dataflow2nix.url = "github:GTrunSec/dataflow2nix";
   };
 
   outputs = inputs:
@@ -208,6 +210,7 @@
         home-manager.nixosModules.home-manager
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
+        dataflow2nix.nixosModules.airflow
       ];
 
       systems.hosts.butler.modules = with inputs; [

@@ -23,6 +23,7 @@ in
 
   config = mkIf cfg.enable {
 
+
     environment.systemPackages = with pkgs; [
       nvidia-offload
       pciutils
