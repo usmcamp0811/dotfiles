@@ -19,7 +19,6 @@ with lib.campground;
       broot = enabled;
       ranger = enabled;
       neovim = enabled;
-      #TODO: Add my Nvim config 
     };
     services = {
       # picom = enabled;

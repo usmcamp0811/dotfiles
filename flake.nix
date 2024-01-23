@@ -211,6 +211,7 @@
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
         dataflow2nix.nixosModules.airflow
+        # scientific-fhs.nixosModules.default
       ];
 
       systems.hosts.butler.modules = with inputs; [

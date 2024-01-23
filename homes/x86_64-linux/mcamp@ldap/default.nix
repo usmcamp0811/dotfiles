@@ -57,10 +57,8 @@ with lib.campground;
       broot = enabled;
       ranger = enabled;
       neovim = enabled;
-      #TODO: Add my Nvim config 
     };
     services = {
-      # picom = enabled;
       openssh = enabled;
       syncthing = enabled;
     };
@@ -77,7 +75,6 @@ with lib.campground;
       ckb-next = enabled;
       mattermost-desktop = enabled;
       slack = enabled;
-      #TODO: Add Qutebrowser
     };
     tools = {
       git = enabled;
