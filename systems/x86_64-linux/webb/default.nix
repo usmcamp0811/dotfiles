@@ -30,6 +30,10 @@ in
       };
     };
 
+    tools = {
+      attic = enabled;
+    };
+
     services = {
       nixery = enabled;
       docker = enabled;
