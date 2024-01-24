@@ -1,0 +1,20 @@
+stages:
+  - build
+
+nixos-build:
+  stage: build
+  tags:
+    - nix
+  only:
+    - nixos
+    - schedules
+  script:
+    - git rm flake.lock
+    - nix flake update
+    - for dir in $(find systems/x86_64-linux/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;); do
+        nix build .#nixosConfigurations.${dir}.config.system.build.toplevel -j 1;
+      done
+    - attic push campground ./result
+  schedule:
+    cron: '0 1 * * *'
+
