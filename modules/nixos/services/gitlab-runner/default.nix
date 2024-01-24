@@ -45,11 +45,13 @@ in
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.gitlab-runner}/bin/gitlab-runner run --config /tmp/detsys-vault/config.toml";
         Restart = "always";
         User = "gitlab-runner";
         Group = "gitlab-runner";
       };
+      script = ''
+      ${pkgs.gitlab-runner}/bin/gitlab-runner run --config /tmp/detsys-vault/config.toml 
+      '';
     };
 
     # systemd.services.copyConfig = {
@@ -57,11 +59,10 @@ in
     #   serviceConfig = {
     #     Type = "oneshot";
     #     User = "root";
-    #     ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/ca.crt /var/lib/vault/ca.crt";
     #   };
-    #   wantedBy = [ "nss-lookup.target" ];
-    #   # before = [ "nscd.service" ];
+    #   before = [ "gitlab-runner.service" ];
     # };
+    #
     campground = {
       services = {
         vault-agent = {
