@@ -15,6 +15,3 @@ nixos-build:
         nix build .#nixosConfigurations.${dir}.config.system.build.toplevel -j 1;
       done
     - attic push campground ./result
-  schedule:
-    cron: '0 1 * * *'
-
