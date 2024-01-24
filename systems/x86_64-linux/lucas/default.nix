@@ -32,6 +32,7 @@ in
     nfs.client.enable = true;
 
     services = {
+      gitlab-runner = enabled;
       searx = {
         enable = true;
         port = 3249;
