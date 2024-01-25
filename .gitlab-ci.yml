@@ -35,7 +35,7 @@ build-butler:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - attic push campground ./result
+    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
 
@@ -49,7 +49,7 @@ build-daly:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - attic push campground ./result
+    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
     - build-butler
@@ -64,7 +64,7 @@ build-lucas:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - attic push campground ./result
+    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
     - build-daly
@@ -79,7 +79,7 @@ build-chesty:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - attic push campground ./result
+    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
     - build-lucas
@@ -94,7 +94,7 @@ build-webb:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - attic push campground ./result
+    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
     - build-chesty
