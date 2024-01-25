@@ -5,14 +5,16 @@ stages:
 variables:
   SYSTEM: "lucas"
 
+workflow:
+  rules:
+  - if: $CI_PIPELINE_SOURCE == "schedule"
+    when: always
+    allow_failure: false
+
 update-flake:
   stage: update
   tags:
     - nix
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
-      allow_failure: false
   only:
     - nixos
   script:
