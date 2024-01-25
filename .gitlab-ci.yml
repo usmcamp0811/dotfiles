@@ -22,7 +22,7 @@ update-flake:
       - flake.lock
     expire_in: 1 hour
 
-build-butler:
+butler:
   stage: build
   variables:
     SYSTEM: "butler"
@@ -37,7 +37,7 @@ build-butler:
     - update-flake
   resource_group: build_sequential
 
-build-daly:
+daly:
   stage: build
   variables:
     SYSTEM: "daly"
@@ -52,7 +52,7 @@ build-daly:
     - update-flake
   resource_group: build_sequential
 
-build-lucas:
+lucas:
   stage: build
   variables:
     SYSTEM: "lucas"
@@ -67,7 +67,7 @@ build-lucas:
     - update-flake
   resource_group: build_sequential
 
-build-chesty:
+chesty:
   stage: build
   variables:
     SYSTEM: "chesty"
@@ -82,7 +82,7 @@ build-chesty:
     - update-flake
   resource_group: build_sequential
 
-build-webb:
+webb:
   stage: build
   variables:
     SYSTEM: "webb"
@@ -97,7 +97,7 @@ build-webb:
     - update-flake
   resource_group: build_sequential
 
-build-reckless:
+reckless:
   stage: build
   variables:
     SYSTEM: "reckless"
