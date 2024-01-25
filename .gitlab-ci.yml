@@ -2,9 +2,6 @@ stages:
   - update
   - build
 
-variables:
-  SYSTEM: "lucas"
-
 workflow:
   rules:
   - if: $CI_PIPELINE_SOURCE == "schedule"
