@@ -30,6 +30,7 @@ in
       };
     };
     nfs.client.enable = true;
+    tools.attic = enabled;
 
     services = {
       gitlab-runner = enabled;
