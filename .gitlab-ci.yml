@@ -2,6 +2,9 @@ stages:
   - update
   - build
 
+variables:
+  SYSTEM: "lucas"
+
 update-flake:
   stage: update
   tags:
@@ -14,22 +17,78 @@ update-flake:
   artifacts:
     paths:
       - flake.lock
-    expire_in: 6 hour
+    expire_in: 1 hour
 
-build-jobs:
+build-butler:
   stage: build
+  variables:
+    SYSTEM: "butler"
   tags:
     - nix
   only:
     - nixos
   script:
-    - chmod +x generate_pipeline.sh
-    - ./generate_pipeline.sh | tee dynamic-builds.yml
-  artifacts:
-    paths:
-      - dynamic-builds.yml
-    expire_in: 6 hour
-  trigger:
-    include:
-      - artifact: dynamic-builds.yml
-        job: build-jobs
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+
+build-daly:
+  stage: build
+  variables:
+    SYSTEM: "daly"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-butler
+
+build-lucas:
+  stage: build
+  variables:
+    SYSTEM: "lucas"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-daly
+
+build-chesty:
+  stage: build
+  variables:
+    SYSTEM: "chesty"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-lucas
+
+build-webb:
+  stage: build
+  variables:
+    SYSTEM: "webb"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-chesty
