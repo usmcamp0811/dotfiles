@@ -58,6 +58,7 @@ in
             ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-20.09 nixpkgs # 3
             ${pkgs.nix}/bin/nix-channel --update nixpkgs
             ${pkgs.nix}/bin/nix-env -i ${concatStringsSep " " (with pkgs; [ nix cacert git openssh ])}
+            echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
           '';
           environmentVariables = {
             ENV = "/etc/profile";
