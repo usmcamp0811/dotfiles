@@ -42,6 +42,7 @@ in
             "/nix/store:/nix/store:ro"
             "/nix/var/nix/db:/nix/var/nix/db:ro"
             "/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket:ro"
+            "/root/.config/attic:/root/.config/attic:ro"
           ];
           dockerDisableCache = true;
           preBuildScript = pkgs.writeScript "setup-container" ''
