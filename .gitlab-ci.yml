@@ -1,11 +1,12 @@
 stages:
+  - update
   - build
 
 variables:
   SYSTEM: "lucas"
 
-nixos-build:
-  stage: build
+update-flake:
+  stage: update
   tags:
     - nix
   only:
@@ -13,5 +14,81 @@ nixos-build:
   script:
     - git rm flake.lock
     - nix flake update
+  artifacts:
+    paths:
+      - flake.lock
+    expire_in: 1 hour
+
+build-butler:
+  stage: build
+  variables:
+    SYSTEM: "butler"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
     - attic push campground ./result
+  needs:
+    - update-flake
+
+build-daly:
+  stage: build
+  variables:
+    SYSTEM: "daly"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-butler
+
+build-lucas:
+  stage: build
+  variables:
+    SYSTEM: "lucas"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-daly
+
+build-chesty:
+  stage: build
+  variables:
+    SYSTEM: "chesty"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-lucas
+
+build-webb:
+  stage: build
+  variables:
+    SYSTEM: "webb"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - attic push campground ./result
+  needs:
+    - update-flake
+    - build-chesty
