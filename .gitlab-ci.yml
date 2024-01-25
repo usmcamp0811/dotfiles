@@ -98,3 +98,18 @@ build-webb:
   needs:
     - update-flake
     - build-chesty
+
+build-reckless:
+  stage: build
+  variables:
+    SYSTEM: "reckless"
+  tags:
+    - nix
+  only:
+    - nixos
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
+    - nix run github:zhaofengli/attic\#attic-client push campground ./result
+  needs:
+    - update-flake
+    - build-webb
