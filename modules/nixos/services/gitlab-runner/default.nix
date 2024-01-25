@@ -8,9 +8,6 @@ in
 {
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
-    user = mkOpt types.str "gitlab-runner" "The user under which gitlab-runner runs.";
-    group = mkOpt types.str "gitlab-runner" "The group under which gitlab-runner runs.";
-
     role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt types.str "secret/campground/gitlab-runner" "The Vault path to the KV containing the KVs that are for each database";
@@ -39,7 +36,7 @@ in
           # File should contain at least these two variables:
           # `CI_SERVER_URL`
           # `REGISTRATION_TOKEN`
-          registrationConfigFile = toString ./path/to/ci-env; # 2
+          registrationConfigFile = toString /tmp/detsys-vault/config.toml; # 2
           dockerImage = "alpine";
           dockerVolumes = [
             "/nix/store:/nix/store:ro"
@@ -74,41 +71,6 @@ in
       };
     };
 
-    # users = {
-    #   users = optionalAttrs (cfg.user == "gitlab-runner") {
-    #     gitlab-runner = {
-    #       group = cfg.group;
-    #       isSystemUser = true;
-    #     };
-    #   };
-    #   groups = optionalAttrs (cfg.group == "gitlab-runner") {
-    #     gitlab-runner = { };
-    #   };
-    # };
-
-    # systemd.services.gitlab-runner = {
-    #   description = "GitLab Runner";
-    #   after = [ "network.target" ];
-    #   wantedBy = [ "multi-user.target" ];
-    #   serviceConfig = {
-    #     Restart = "always";
-    #     User = "gitlab-runner";
-    #     Group = "gitlab-runner";
-    #   };
-    #   script = ''
-    #   ${pkgs.gitlab-runner}/bin/gitlab-runner run --config /tmp/detsys-vault/config.toml 
-    #   '';
-    # };
-
-    # systemd.services.copyConfig = {
-    #   description = "Copy the gitlab runner config from Vault to /var/lib/vault/gitlab-runner.toml";
-    #   serviceConfig = {
-    #     Type = "oneshot";
-    #     User = "root";
-    #   };
-    #   before = [ "gitlab-runner.service" ];
-    # };
-    #
     campground = {
       services = {
         vault-agent = {
@@ -131,7 +93,12 @@ in
                 file = {
                   files = {
                     "config.toml" = {
-                      text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.config }}{{ else }}{{ .Data.data.config }}{{ end }}{{ end }}'';
+                      text = ''
+                        {{ with secret "${cfg.vault-path}" }}
+                        CI_SERVER_URL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CI_SERVER_URL }}{{ else }}{{ .Data.data.CI_SERVER_URL }}{{ end }}'
+                        REGISTRATION_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.REGISTRATION_TOKEN }}{{ else }}{{ .Data.data.REGISTRATION_TOKEN }}{{ end }}'
+                        {{ end }}
+                      '';
                       permissions = "0600";
                       change-action = "restart";
                     };
