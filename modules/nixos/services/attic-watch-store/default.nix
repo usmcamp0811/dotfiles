@@ -51,8 +51,8 @@ in
       };
     };
 
-    # campground = {
-    #   tools.attic = enabled;
+    campground = {
+      tools.attic = enabled;
     #   services = {
     #     vault-agent = {
     #       services = {
@@ -83,6 +83,6 @@ in
     #       };
     #     };
     #   };
-    # };
+    };
   };
 }
