@@ -8,11 +8,15 @@ in
 {
   options.campground.services.attic-watch-store = {
     enable = mkEnableOption "Attic";
-    cache = mkOpt types.str "campground" "Name of the Attic Cache that we want to push things to";
+    cache-name = mkOpt types.str "campground" "Name of the Attic Cache that we want to push things to";
+    endpoint = mkOpt types.str "https://attic.lan.aicampground.com" "URL of the Cache";
+
+    user = mkOpt types.str "atticd" "The user under which attic runs.";
+    group = mkOpt types.str "atticd" "The group under which attic runs.";
 
     role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt types.str "secret/campground/attic" "The Vault path to the KV containing the KVs that are for each database";
+    vault-path = mkOpt types.str "secret/campground/attic" "The Vault path to the KV containing the KVs that are for the attic cache token";
     kvVersion = mkOption {
       type = types.enum ["v1" "v2"];
       default = "v2";
@@ -43,46 +47,55 @@ in
       after = [ "atticd.service" ];
 
       serviceConfig = {
-        ExecStart = "${cfg.package}/bin/attic watch-store $cfg.cache";
+        # ExecStart = "${pkgs.attic}/bin/attic watch-store ${cfg.cache}";
         StateDirectory = "atticd";
-        User = cfg.user;
-        Group = cfg.group;
+        # User = cfg.user;
+        # Group = cfg.group;
         DynamicUser = false;
       };
+      script = ''
+      /bin/sh /tmp/detsys-vault/attic-watch-store
+      '';
     };
 
     campground = {
       tools.attic = enabled;
-    #   services = {
-    #     vault-agent = {
-    #       services = {
-    #         "atticd" = {
-    #           settings = {       # replace with the address of your vault
-    #             vault.address = "https://vault.lan.aicampground.com";
-    #             auto_auth = {
-    #               method = [{
-    #                 type = "approle";
-    #                 config = {
-    #                   role_id_file_path = cfg.role-id;
-    #                   secret_id_file_path = cfg.secret-id;
-    #                   remove_secret_id_file_after_reading = false;
-    #                 };
-    #               }];
-    #             };
-    #           };
-    #           secrets.environment.templates = {
-    #             atticd = {
-    #               text = ''
-    #                 {{ with secret "${cfg.vault-path}" }}
-    #                 ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.token  }}{{ else }}{{ .Data.data.token }}{{ end }}
-    #                 {{ end }}
-    #               '';
-    #             };
-    #           };
-    #         };
-    #       };
-    #     };
-    #   };
+      services = {
+        vault-agent = {
+          services = {
+            "attic-watch-store" = {
+              settings = {       # replace with the address of your vault
+                vault.address = "https://vault.lan.aicampground.com";
+                auto_auth = {
+                  method = [{
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }];
+                };
+              };
+              secrets = {
+                file = {
+                  files = {
+                    "attic-watch-store" = {
+                      text = ''
+#!/bin/sh
+${pkgs.attic}/bin/attic login ${cfg.cache-name} ${cfg.endpoint} {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${cfg.cache-name} }}{{ else }}{{ .Data.data.${cfg.cache-name} }}{{ end }}{{ end }}
+${pkgs.attic}/bin/attic watch-store ${cfg.cache-name}
+                      '';
+                      permissions = "0600";
+                      change-action = "restart";
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
     };
   };
 }

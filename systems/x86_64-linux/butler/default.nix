@@ -40,6 +40,7 @@ in
     };
 
     services = {
+      attic-watch-store = enabled;
       zfs-key-server = {
         enable = false;
         tang-servers = [
