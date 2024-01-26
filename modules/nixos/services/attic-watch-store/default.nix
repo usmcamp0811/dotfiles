@@ -3,10 +3,10 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.services.attic;
+  cfg = config.campground.services.attic-watch-store;
 in
 {
-  options.campground.services.attic = {
+  options.campground.services.attic-watch-store = {
     enable = mkEnableOption "Attic";
     cache = mkOpt types.str "campground" "Name of the Attic Cache that we want to push things to";
 
