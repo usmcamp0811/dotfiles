@@ -32,7 +32,6 @@ butler:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
   resource_group: build_sequential
@@ -47,7 +46,6 @@ daly:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
   resource_group: build_sequential
@@ -62,7 +60,6 @@ lucas:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
   resource_group: build_sequential
@@ -77,7 +74,6 @@ chesty:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
   resource_group: build_sequential
@@ -92,7 +88,6 @@ webb:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
   resource_group: build_sequential
@@ -107,7 +102,6 @@ reckless:
     - nixos
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - nix run github:zhaofengli/attic\#attic-client push campground ./result
   needs:
     - update-flake
   resource_group: build_sequential
