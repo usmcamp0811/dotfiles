@@ -37,6 +37,7 @@ in
     };
 
     services = {
+      attic-watch-store = enabled;
       ldap-server = enabled;
       borgbackup = {
         enable = true;

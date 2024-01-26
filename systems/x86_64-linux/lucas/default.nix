@@ -33,6 +33,7 @@ in
     tools.attic = enabled;
 
     services = {
+      attic-watch-store = enabled;
       gitlab-runner = enabled;
       searx = {
         enable = true;

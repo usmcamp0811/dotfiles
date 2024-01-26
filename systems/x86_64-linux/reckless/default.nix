@@ -58,6 +58,7 @@ in
     };
 
     services = {
+      attic-watch-store = enabled;
       attic = {
         enable = true; 
         settings = {

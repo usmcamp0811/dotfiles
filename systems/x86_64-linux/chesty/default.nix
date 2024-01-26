@@ -32,6 +32,7 @@ in
       nvidia = enabled;
     };
     services = {
+      attic-watch-store = enabled;
       hydra = enabled;
       jellyfin = enabled;
       searx = {
