@@ -16,6 +16,7 @@ with lib.campground;
         waynergy = enabled;
         rofi = enabled;
         swaynotificationcenter = enabled;
+        networkmanagerapplet = enabled;
         # swayidle = enabled;
         # swaylock = enabled;
         input-leap = enabled;
