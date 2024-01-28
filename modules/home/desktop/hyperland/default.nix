@@ -10,6 +10,7 @@ in
 {
   options.campground.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to turn on hyperland config.";
+    startup = mkOpt (listOf str) [ ] "List of commands to run when you login";
     appendConfig = lib.mkOption {
       type = lib.types.lines;
       default = "";
@@ -48,7 +49,7 @@ in
       settings = {
         exec = [
           "${getExe pkgs.libnotify} --icon ~/.face -u normal \"Hello $(whoami)\""
-        ];
+        ] ++ cfg.startup;
       };
 
       systemd = {
