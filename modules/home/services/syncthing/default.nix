@@ -14,7 +14,7 @@ in
     services.syncthing = {
       enable = true;
       tray = {
-        enable = true;
+        enable = false;
       };
       extraOptions = [ "--no-default-folder" ];
     };
