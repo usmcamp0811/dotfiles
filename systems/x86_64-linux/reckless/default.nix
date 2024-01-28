@@ -18,10 +18,11 @@ in
 
   campground = {
     user = {
-      name = "abe";
+      name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
       extraGroups = ["wheel"];
+      uid = 10000;
     };
 
     archetypes = {
