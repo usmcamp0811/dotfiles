@@ -27,6 +27,7 @@ in
   config =
     mkIf cfg.enable
       {
+      campground.desktop.addons.swaylock.enable = true;
       campground.apps = {
         gamemode = {
           startscript = /* bash */ ''
