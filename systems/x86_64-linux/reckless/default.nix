@@ -59,6 +59,9 @@ in
     };
 
     services = {
+      ldap-client = {
+        enable = mkForce false;
+      };
       attic-watch-store = enabled;
       attic = {
         enable = true; 
