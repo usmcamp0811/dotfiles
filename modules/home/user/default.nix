@@ -27,6 +27,7 @@ in
     enable = mkOpt types.bool false "Whether to configure the user account.";
     name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name "The user account.";
 
+    uid = mkOpt types.int 1000 "UID of the user";
     fullName = mkOpt types.str "Matt Camp" "The full name of the user.";
     email = mkOpt types.str "matt@aicampground.com" "The email of the user.";
 
