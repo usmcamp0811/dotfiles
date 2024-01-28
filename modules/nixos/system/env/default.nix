@@ -27,7 +27,7 @@ in
         # To prevent firefox from creating ~/Desktop.
         XDG_DESKTOP_DIR = "$HOME";
         EDITOR = "nvim";
-        TERM = "xterm";
+        TERM = "kitty";
       };
       variables = {
         # Make some programs "XDG" compliant.
