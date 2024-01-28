@@ -7,6 +7,12 @@ with lib.campground;
       enable = true;
       name = config.snowfallorg.user.name;
     };
+    # user = {
+    #   name = "mcamp";
+    #   fullName = "Matt Camp";
+    #   email = "matt@aicampground.com";
+    #   uid = 10000;
+    # };
 
     cli = {
       zsh = enabled;

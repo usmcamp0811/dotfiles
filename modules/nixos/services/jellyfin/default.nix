@@ -18,12 +18,12 @@ in
 
     users.users.jellyfin = {
       isSystemUser = true;
-      extraGroups = [ "ldap-user" ];  #TODO: change to a different group
+      extraGroups = [ "users" ];  #TODO: change to a different group
     };
 
-    users.groups.ldap-user = {
-      gid = 10000;
-    };
+    # users.groups.ldap-user = {
+    #   gid = 10000;
+    # };
 
     environment.systemPackages = with pkgs; [
       jellyfin

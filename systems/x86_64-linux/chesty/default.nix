@@ -20,6 +20,12 @@ in
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
       extraGroups = ["wheel"];
+      GroupsIds = {
+        users = 10000;
+        k8s = 999;
+        paperless = 317;
+      };
+      uid = 10000;
     };
     archetypes = {
       server = {
@@ -32,6 +38,9 @@ in
       nvidia = enabled;
     };
     services = {
+      ldap-client = {
+        enable = mkForce false;
+      };
       attic-watch-store = enabled;
       hydra = enabled;
       jellyfin = enabled;
