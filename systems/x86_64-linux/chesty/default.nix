@@ -16,7 +16,7 @@ in
   campground = {
     nfs.client.enable = true;
     user = {
-      name = "abe";
+      name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
       extraGroups = ["wheel"];
