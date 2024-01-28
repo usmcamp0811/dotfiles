@@ -27,6 +27,7 @@ in
       };
       uid = 10000;
     };
+
     archetypes = {
       server = {
         enable = true;
