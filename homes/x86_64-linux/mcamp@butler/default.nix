@@ -18,7 +18,7 @@ with lib.campground;
         swaynotificationcenter = enabled;
         networkmanagerapplet = enabled;
         # swayidle = enabled;
-        # swaylock = enabled;
+        swaylock = enabled;
         input-leap = enabled;
         qt = enabled;
         kitty = enabled;
@@ -50,6 +50,8 @@ with lib.campground;
         enable = true;
         startup = [
           "${getExe pkgs.networkmanagerapplet}"
+          "${getExe pkgs.firefox}"
+          "${getExe pkgs.mattermost}"
         ];
       };
     };

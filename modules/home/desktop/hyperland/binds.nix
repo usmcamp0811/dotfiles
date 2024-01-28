@@ -17,7 +17,7 @@ in
             "SUPER_ALT, RETURN, exec, $term tmux"
             "SUPER_SHIFT, RETURN, exec, $term --title floating_kitty --single-instance"
             "ALT_SHIFT, Q, killactive,"
-            # "SUPER_SHIFT, P, exec, ${getExe pkgs.hyprpicker} -a && (${getExe' pkgs.imagemagick "convert"} -size 32x32 xc:$(${getExe' pkgs.wl-clipboard "wl-paste"}) /tmp/color.png && ${getExe pkgs.libnotify} \"Color Code:\" \"$(${getExe' pkgs.wl-clipboard "wl-paste"})\" -h \"string:bgcolor:$(${getExe' pkgs.wl-clipboard "wl-paste"})\" --icon /tmp/color.png -u critical -t 4000)"
+            "SUPER_SHIFT, P, exec, ${getExe pkgs.hyprpicker} -a && (${getExe' pkgs.imagemagick "convert"} -size 32x32 xc:$(${getExe' pkgs.wl-clipboard "wl-paste"}) /tmp/color.png && ${getExe pkgs.libnotify} \"Color Code:\" \"$(${getExe' pkgs.wl-clipboard "wl-paste"})\" -h \"string:bgcolor:$(${getExe' pkgs.wl-clipboard "wl-paste"})\" --icon /tmp/color.png -u critical -t 4000)"
             "$mainMod, B, exec, $browser"
             "$mainMod, E, exec, wl-emoji-picker"
             # "SUPER_SHIFT, E, exec, $explorer"
@@ -28,9 +28,9 @@ in
             # "$mainMod, A, exec, $launchpad"
             # "$mainMod, L, exec, ${getExe config.programs.swaylock.package} --grace 0 --fade-in 0"
             # "$mainMod, T, exec, $term btop"
-            # "$mainMod, N, exec, ${getExe' pkgs.swaynotificationcenter "swaync-client"} -t -sw"
+            "$mainMod, N, exec, ${getExe' pkgs.swaynotificationcenter "swaync-client"} -t -sw"
             # "SUPER, V, clipman pick -t rofi
-            # "$mainMod, V, exec, ${getExe pkgs.cliphist} list | ${getExe config.programs.rofi.package} -dmenu | ${getExe pkgs.cliphist} decode | ${getExe' pkgs.wl-clipboard "wl-copy"}"
+            "$mainMod, V, exec, ${getExe pkgs.cliphist} list | ${getExe config.programs.rofi.package} -dmenu | ${getExe pkgs.cliphist} decode | ${getExe' pkgs.wl-clipboard "wl-copy"}"
             # "$mainMod, W, exec, $looking-glass"
             # "$mainMod, I, exec, ${getExe hyprland-contrib.packages.${system}.hyprprop}"
 
