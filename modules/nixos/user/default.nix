@@ -20,7 +20,7 @@ let
   propagatedIcon = pkgs.runCommandNoCC "propagated-icon"
     { passthru = { fileName = cfg.icon.fileName; }; }
     ''
-      local target="$out/share/campground-icons/user/${cfg.name}"
+      local target="$out/share/icons/user/${cfg.name}"
       mkdir -p "$target"
 
       cp ${cfg.icon} "$target/${cfg.icon.fileName}"
@@ -95,11 +95,16 @@ in
             "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
           };
 
+        configFile = {
+          "sddm/faces/.${cfg.name}".source = cfg.icon;
+        };
 
-      extraOptions = {
-        home.shellAliases = {
-          la = "lsd -lah";
-          update = "sudo nixos-rebuild switch";
+
+        extraOptions = {
+          home.shellAliases = {
+            la = "lsd -lah";
+            update = "sudo nixos-rebuild switch --flake /config#$HOST";
+            nixre = "sudo flake switch";
         };
 
         programs.zsh.enable = true;

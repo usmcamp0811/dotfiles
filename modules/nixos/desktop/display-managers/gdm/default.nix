@@ -86,7 +86,7 @@ in
         system.activationScripts.postInstallGdm = stringAfter [ "users" ] /* bash */ ''
           echo "Setting gdm permissions for user icon"
           ${getExe' pkgs.acl "setfacl"} -m u:gdm:x /home/${config.campground.user.name}
-          ${getExe' pkgs.acl "setfacl"} -m u:gdm:r /home/${config.campground.user.name}/.face.icon || true
+          ${getExe' pkgs.acl "setfacl"} -m u:gdm:r /home/${config.campground.user.name}/.face || true
         '';
       };
 }
