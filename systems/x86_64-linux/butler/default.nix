@@ -17,18 +17,11 @@ in
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  # users.groups = {
-  #   # wheel.gid = 10002;
-  #   user.gid = 10000;
-  #   paperless.gid = 315;
-  #   k8s.gid = 10003;
-  # };
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      # extraGroups = ["wheel" "networkmanager" "user" "paperless" "docker" "audio" ];
       uid = 10000;
     };
 

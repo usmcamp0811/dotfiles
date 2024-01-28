@@ -17,7 +17,16 @@ with lib.campground;
       broot = enabled;
       ranger = enabled;
       neovim = enabled;
-      #TODO: Add my Nvim config 
+    };
+    services = {
+      openssh = enabled;
+      syncthing = enabled;
+    };
+
+    tools = {
+      git = enabled;
+      direnv = enabled;
+      vault = enabled;
     };
   };
   home.stateVersion = "23.05";

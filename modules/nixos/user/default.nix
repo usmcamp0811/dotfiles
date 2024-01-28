@@ -46,11 +46,8 @@ in
     GroupsIds = mkOption {
       type = types.attrsOf types.int;
       default = {
-        wheel = 10002;
         users = 10000;
         k8s = 999;
-        libvirtd = 5001;
-        networkmanager = 57;
         paperless = 317;
       };
       example = { wheel = 10; audio = 29; };
