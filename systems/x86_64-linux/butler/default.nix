@@ -28,7 +28,7 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "networkmanager" "user" "paperless" "docker" "audio" ];
+      # extraGroups = ["wheel" "networkmanager" "user" "paperless" "docker" "audio" ];
       uid = 10000;
     };
 

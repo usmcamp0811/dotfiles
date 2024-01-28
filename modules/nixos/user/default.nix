@@ -43,6 +43,19 @@ in
     extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
     extraOptions = mkOpt attrs { }
       "Extra options passed to <option>users.users.<name></option>.";
+    GroupsIds = mkOption {
+      type = types.attrsOf types.int;
+      default = {
+        wheel = 10002;
+        users = 10000;
+        k8s = 999;
+        libvirtd = 5001;
+        networkmanager = 57;
+        paperless = 317;
+      };
+      example = { wheel = 10; audio = 29; };
+      description = "Groups and their corresponding IDs.";
+    };
   };
 
   config = {
@@ -102,6 +115,8 @@ in
       };
     };
 
+    users.groups = mapAttrs' (name: id: nameValuePair name { gid = mkForce id; }) cfg.GroupsIds;
+
     users.users.root = {
       shell = pkgs.zsh;
     } // cfg.extraOptions;
@@ -123,7 +138,7 @@ in
      # system to select).
      uid = cfg.uid;
 
-     extraGroups = [ ] ++ cfg.extraGroups;
+     extraGroups = [ ] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
    } // cfg.extraOptions;
   };
 }
