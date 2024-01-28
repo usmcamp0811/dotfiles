@@ -14,7 +14,7 @@ in
   config = mkIf cfg.enable {
     services.swayidle = {
       enable = true;
-      package = nixpkgs-wayland.packages.${system}.swayidle;
+      package = pkgs.swayidle;
 
       events = [
         {
