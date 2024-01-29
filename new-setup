@@ -57,6 +57,30 @@ sudo mount -t zfs NIXROOT/home /mnt/home
 sudo mount -t zfs NIXROOT/persist /mnt/persist
 sudo nixos-generate-config --root /mnt
 
+
+
+
+# OR BTRFS
+
+sudo cryptsetup --batch-mode -c aes-xts-plain64 --use-random luksFormat "/dev/${system_hdd_name}p2"
+sudo cryptsetup luksOpen "/dev/${system_hdd_name}p2" luks
+nix shell nixpkgs\#btrfs-progs
+sudo mkfs.btrfs /dev/mapper/luks
+sudo mkdir /mnt 
+sudo mount /dev/mapper/luks /mnt
+sudo btrfs subvolume create /mnt/root
+sudo btrfs subvolume create /mnt/home
+sudo btrfs subvolume create /mnt/persist
+sudo umount /mnt
+sudo mount -o subvol=root,compress=lzo /dev/mapper/luks /mnt
+sudo mkdir /mnt/{boot,home,persist}
+sudo mount -o subvol=home,compress=lzo /dev/mapper/luks /mnt/home
+sudo mount -o subvol=persist,compress=lzo /dev/mapper/luks /mnt/persist
+sudo mount /dev/nvme0n1p1 /mnt/boot
+sudo nixos-generate-config --root /mnt
+
+
+
 # edit the default config
 sudo nixos-install
 # get the latest version of nix if needed
