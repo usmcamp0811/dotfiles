@@ -26,9 +26,10 @@ in
   };
 
   config = mkIf cfg.enable {
-
+# WIP
     environment.systemPackages = [ 
-      pkgs.python312Packages.openllm  
+      # pkgs.python311Packages.openllm  
+      pkgs.python312Packages.openllm-core
     ];
 
     # campground.services.vault-agent.services.openllm = {
