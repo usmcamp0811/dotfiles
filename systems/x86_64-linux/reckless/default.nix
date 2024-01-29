@@ -59,6 +59,7 @@ in
     };
 
     services = {
+      openllm = enabled;
       ldap-client = {
         enable = mkForce false;
       };
