@@ -22,6 +22,8 @@
 
 </div>
 
+![Last Commit](https://shields.io/endpoint?url=https://gitlab.com/api/v4/projects/38220901/badge)
+
 Welcome to AI Campground, your gateway to my personalized Nix ecosystem. This repository serves as a comprehensive collection of both my NixOS and generic Nix configurations, as I transition from traditional dotfiles. The migration is a work in progress, but the goal is a cohesive, well-documented Nix setup. Throughout this evolution, I'm committed to providing detailed READMEs to share my journey, insights, and solutions to challenges encountered.
 
 ## Getting Started
