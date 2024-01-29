@@ -1,7 +1,7 @@
 <div align="center">
 
   <h3>
-    <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/ff9924aeb0ff1b9c86e130976b5dfd32fff80a0b/modules/nixos/user/profile.png" width="100" alt="Logo"/><br/>
+    <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/nixos/modules/nixos/user/profile.png?ref_type=heads" width="100" alt="Logo" style="border-radius: 50%; overflow: hidden;"/><br/>
     <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
     <img src="https://nixos.org/logo/nixos-logo-only-hires.png" height="20" /> NixOS Config for <a href="https://gitlab.com/usmcamp0811">Matt Camp</a>
     <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
@@ -42,6 +42,13 @@ Before diving in, ensure that you have Nix installed on your system. If not, you
 ```
 
 ### New System Install
+
+#### Create a LIVE USB
+
+```
+nix build gitlab:usmcamp0811/dotfiles#isoConfigurations.base-iso
+dd if=./result/iso/ of=/dev/usb_drive status=progress
+```
 
 ```bash
     nixos-install --root /mnt --flake gitlab:usmcamp0811/dotfiles#<system name>

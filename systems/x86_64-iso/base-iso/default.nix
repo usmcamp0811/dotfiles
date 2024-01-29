@@ -16,38 +16,19 @@ in
   # boot.loader.grub = enabled;
 
   campground = {
-    nix = enabled;
-    archetypes = {
-      barebones = enabled;
-    };
-    desktop = {
-      display-manager = {
-        gdm = enabled;
-      };
-      qtile = enabled;
-    };
-    cli-apps = {
-      flake = enabled;
-    };
-    tools = {
-      git = enabled;
-      misc = enabled;
-    };
-    services = {
-      openssh = enabled;
-    };
-    system = {
-      fonts = enabled;
-      locale = enabled;
-      time = enabled;
-      xkb = enabled;
-      zfs = enabled;
-    };
     user = {
       name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
       extraGroups = ["wheel"];
+    };
+
+    archetypes = {
+      barebones = enabled;
+    };
+
+    suites = {
+      desktop = enabled;
     };
   };
 
