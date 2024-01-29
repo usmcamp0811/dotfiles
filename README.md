@@ -10,7 +10,7 @@
   <p>
     <img src="https://img.shields.io/badge/dynamic/json?color=363a4f&label=Stars&query=$.star_count&url=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%2Fusmcamp0811%252Fdotfiles&style=for-the-badge">
     <a href="https://gitlab.com/usmcamp0811/dotfiles/-/commits/nixos">
-      <img src="https://img.shields.io/badge/dynamic/json?color=363a4f&label=Last%20commit&query=$.created_at&url=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%2Fusmcamp0811%252Fdotfiles%2Frepository%2Fcommits%3Fref_name%3Dnixos&style=for-the-badge">
+      <img src="https://shields.io/endpoint?url=https://gitlab.com/api/v4/projects/38220901/badge">
     </a>
     <a href="https://nixos.wiki/wiki/Flakes" target="_blank">
       <img alt="Nix Flakes Ready" src="https://img.shields.io/static/v1?logo=nixos&logoColor=d8dee9&label=Nix%20Flakes&labelColor=5e81ac&message=Ready&color=d8dee9&style=for-the-badge">
@@ -22,7 +22,6 @@
 
 </div>
 
-![Last Commit](https://shields.io/endpoint?url=https://gitlab.com/api/v4/projects/38220901/badge)
 
 Welcome to AI Campground, your gateway to my personalized Nix ecosystem. This repository serves as a comprehensive collection of both my NixOS and generic Nix configurations, as I transition from traditional dotfiles. The migration is a work in progress, but the goal is a cohesive, well-documented Nix setup. Throughout this evolution, I'm committed to providing detailed READMEs to share my journey, insights, and solutions to challenges encountered.
 
