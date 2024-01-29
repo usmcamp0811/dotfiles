@@ -66,8 +66,8 @@ in
             "$mainMod, P, pseudo, # dwindle"
             "$mainMod, TAB, layoutmsg, orientationcycle"
             "$mainMod, F, fullscreen"
-            "SUPER, L, exec, hyprctl keyword general:layout 'dwindle'"
-            "SUPERSHIFT, L, exec, hyprctl keyword general:layout 'master'"
+            "SUPER, M, exec, hyprctl keyword general:layout 'dwindle'"
+            "SUPERSHIFT, M, exec, hyprctl keyword general:layout 'master'"
             # "SUPER_SHIFT, V, workspaceopt, allfloat"
 
             # ░█░█░▀█▀░█▀█░█▀▄░█▀█░█░█
