@@ -50,9 +50,6 @@ nix build gitlab:usmcamp0811/dotfiles#isoConfigurations.base-iso
 dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 ```
 
-#### Boot into the Live USB
-
-Reformat your drives and create your file system ([see my notes](./new-setup)). Eventually I will learn [Disko](https://github.com/nix-community/disko) and this will be automated.
 
 #### [Install NixOS](./docs/Install.md)
 

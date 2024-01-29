@@ -1,4 +1,46 @@
-# Install NixOS
+# Reformat & Install NixOS
+
+## Boot into the Live USB
+
+```
+install_drive="/dev/nvme0n1"
+
+# Zap the NVMe drive
+sudo sgdisk --zap-all "$install_drive"
+
+# Create a 1GB boot partition
+sudo sgdisk -n 1:0:+1G -t 1:EF00 "$install_drive"
+
+# Create a partition for the remaining space
+sudo sgdisk -n 2:0:0 -t 2:BF00 "$install_drive"
+
+# Make sure Boot is bootable
+sudo parted $install_drive -- set 1 esp on
+```
+
+
+### Boot Partition
+
+```
+sudo mkfs.fat -F 32 /dev/nvme0n1p1
+sudo fatlabel /dev/nvme0n1p1 BOOT
+```
+
+*If you aren't encrypting your drive...you are wrong...*
+
+### BTRFS / Ext4
+
+```
+# incase your USB doesn't have LUKS
+nix shell nixpkgs#cryptsetup
+
+
+```
+
+### ZFS
+
+
+## Install 
 
 Generate your `hardware.nix` and create your new system configs by running:
 
