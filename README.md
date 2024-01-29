@@ -54,7 +54,7 @@ dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 
 Reformat your drives and create your file system ([see my notes](./new-setup)). Eventually I will learn [Disko](https://github.com/nix-community/disko) and this will be automated.
 
-[#### Install NixOS](./docs/Install.md)
+#### [Install NixOS](./docs/Install.md)
 
 
 ## Features
