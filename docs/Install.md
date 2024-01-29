@@ -2,8 +2,9 @@
 
 If you need a video or something to see this stuff in action checkout these two YouTube videos:
 
-https://www.youtube.com/live/ADIcVWCoVB4?si=l1a8Iy2nu2DNW5LY
-https://youtu.be/CboOUrkIZ2k?si=rDSyXlYu0EyMbBau
+- https://www.youtube.com/live/ADIcVWCoVB4?si=l1a8Iy2nu2DNW5LY
+
+- https://youtu.be/CboOUrkIZ2k?si=rDSyXlYu0EyMbBau
 
 ## Boot into the Live USB
 
