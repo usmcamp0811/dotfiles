@@ -26,19 +26,69 @@ sudo mkfs.fat -F 32 /dev/nvme0n1p1
 sudo fatlabel /dev/nvme0n1p1 BOOT
 ```
 
-*If you aren't encrypting your drive...you are wrong...*
+*If you aren't encrypting your drive(s)...you are wrong...fix yourself!*
 
 ### BTRFS / Ext4
 
 ```
 # incase your USB doesn't have LUKS
-nix shell nixpkgs#cryptsetup
+nix shell nixpkgs\#cryptsetup
 
-
+sudo cryptsetup --batch-mode -c aes-xts-plain64 --use-random luksFormat "/dev/nvme0n1p2"
+sudo cryptsetup luksOpen "/dev/nvme0n1p2" luks
+nix shell nixpkgs\#btrfs-progs
+sudo mkfs.btrfs /dev/mapper/luks
+sudo mkdir /mnt 
+sudo mount /dev/mapper/luks /mnt
+sudo btrfs subvolume create /mnt/root
+sudo btrfs subvolume create /mnt/home
+sudo btrfs subvolume create /mnt/persist
+sudo umount /mnt
+sudo mount -o subvol=root,compress=lzo /dev/mapper/luks /mnt
+sudo mkdir /mnt/{boot,home,persist}
+sudo mount -o subvol=home,compress=lzo /dev/mapper/luks /mnt/home
+sudo mount -o subvol=persist,compress=lzo /dev/mapper/luks /mnt/persist
+sudo mount /dev/nvme0n1p1 /mnt/boot
 ```
 
 ### ZFS
 
+```
+sudo zpool export -a
+sudo zpool import
+sudo zpool create -f \
+-o altroot="/mnt" \
+-o ashift=12 \
+-o autotrim=on \
+-O compression=lz4 \
+-O acltype=posixacl \
+-O xattr=sa \
+-O relatime=on \
+-O normalization=formD \
+-O dnodesize=auto \
+-O sync=disabled \
+-O encryption=aes-256-gcm \
+-O keylocation=prompt \
+-O keyformat=passphrase \
+-O mountpoint=none \
+NIXROOT \
+/dev/nvme0n1p2
+
+sudo zfs create -o mountpoint=legacy NIXROOT/root
+sudo zfs create -o mountpoint=legacy NIXROOT/home
+sudo zfs create -o mountpoint=legacy NIXROOT/persist
+
+# reserved to cope with running out of disk space
+sudo zfs create -o refreservation=1G -o mountpoint=none NIXROOT/reserved
+sudo mkdir /mnt
+sudo mount -t zfs NIXROOT/root /mnt
+sudo mkdir /mnt/boot
+sudo mkdir /mnt/home
+sudo mkdir /mnt/persist
+sudo mount ${install_drive}1 /mnt/boot
+sudo mount -t zfs NIXROOT/home /mnt/home
+sudo mount -t zfs NIXROOT/persist /mnt/persist
+```
 
 ## Install 
 
