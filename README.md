@@ -34,14 +34,14 @@ Before diving in, ensure that you have Nix installed on your system. If not, you
 git clone https://gitlab.com/usmcamp0811/dotfiles.git
 ```
 
-#### [New System Install](./docs/Install.md)
-
 #### Create a LIVE USB
 
 ```bash
 nix build gitlab:usmcamp0811/dotfiles#isoConfigurations.base-iso
 dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 ```
+
+#### [New System Install](./docs/Install.md)
 
 
 ## Features
