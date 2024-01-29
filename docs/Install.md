@@ -26,9 +26,11 @@ sudo mkfs.fat -F 32 /dev/nvme0n1p1
 sudo fatlabel /dev/nvme0n1p1 BOOT
 ```
 
+The both the BTRFS and ZFS partitioning below are more or less the same.
+
 *If you aren't encrypting your drive(s)...you are wrong...fix yourself!*
 
-### BTRFS / Ext4
+### BTRFS
 
 ```
 # incase your USB doesn't have LUKS
