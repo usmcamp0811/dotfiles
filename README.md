@@ -1,11 +1,11 @@
 <div align="center">
 
-  <h3>
-    <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/nixos/modules/nixos/user/profile.png?ref_type=heads" width="100" alt="Logo" style="border-radius: 50%; overflow: hidden;"/><br/>
-    <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
-    <img src="https://nixos.org/logo/nixos-logo-only-hires.png" height="20" /> NixOS Config for <a href="https://gitlab.com/usmcamp0811">Matt Camp</a>
-    <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
-  </h3>
+<h3>
+  <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/nixos/modules/nixos/user/profile.png?ref_type=heads" width="100" alt="Logo" style="border-radius: 50%; overflow: hidden;"/><br/>
+  <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
+  <img src="https://nixos.org/logo/nixos-logo-only-hires.png" height="20" /> NixOS Config for <a href="https://gitlab.com/usmcamp0811">Matt Camp</a>
+  <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
+</h3>
 
   <p>
     <img src="https://img.shields.io/badge/dynamic/json?color=363a4f&label=Stars&query=$.star_count&url=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%2Fusmcamp0811%252Fdotfiles&style=for-the-badge">
@@ -24,13 +24,6 @@
 
 Welcome to AI Campground, your gateway to my personalized Nix ecosystem. This repository serves as a comprehensive collection of both my NixOS and generic Nix configurations, as I transition from traditional dotfiles. The migration is a work in progress, but the goal is a cohesive, well-documented Nix setup. Throughout this evolution, I'm committed to providing detailed READMEs to share my journey, insights, and solutions to challenges encountered.
 
-## Table of Contents
-
-1. [Getting Started](#getting-started)
-2. [Features](#features)
-3. [Usage](#usage)
-4. [Customization](#customization)
-
 ## Getting Started
 
 Before diving in, ensure that you have Nix installed on your system. If not, you can download and install it from the official [Nix website](https://nixos.org/download.html).
@@ -38,20 +31,17 @@ Before diving in, ensure that you have Nix installed on your system. If not, you
 ### Clone this repository to your local machine:
 
 ```bash
-    git clone https://gitlab.com/usmcamp0811/dotfiles.git
+git clone https://gitlab.com/usmcamp0811/dotfiles.git
 ```
 
-### New System Install
+#### [New System Install](./docs/Install.md)
 
 #### Create a LIVE USB
 
-```
+```bash
 nix build gitlab:usmcamp0811/dotfiles#isoConfigurations.base-iso
 dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 ```
-
-
-#### [Install NixOS](./docs/Install.md)
 
 
 ## Features
