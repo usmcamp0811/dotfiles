@@ -17,8 +17,8 @@ with lib.campground;
         rofi = enabled;
         swaynotificationcenter = enabled;
         networkmanagerapplet = enabled;
-        # swayidle = enabled;
-        # swaylock = enabled;
+        swayidle = enabled;
+        swaylock = enabled;
         input-leap = enabled;
         qt = enabled;
         kitty = enabled;
@@ -46,7 +46,15 @@ with lib.campground;
         enable = true;
         wallpaper = "hsv-saturnV.jpg";
       };
-      hyprland = enabled;
+      hyprland = {
+        enable = true;
+        startup = [
+          "${getExe pkgs.networkmanagerapplet}"
+          "${getExe pkgs.firefox}"
+          "${getExe pkgs.mattermost}"
+          "${getExe pkgs._1password-gui} --silent"
+        ];
+      };
     };
 
     cli = {

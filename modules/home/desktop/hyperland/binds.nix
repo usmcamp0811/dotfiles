@@ -144,6 +144,7 @@ in
             ",XF86AudioStop,exec,${getExe pkgs.playerctl} stop"
             ",XF86AudioPrev,exec,${getExe pkgs.playerctl} previous"
             ",XF86AudioNext,exec,${getExe pkgs.playerctl} next"
+            
           ]
           # ░█░█░█▀█░█▀▄░█░█░█▀▀░█▀█░█▀█░█▀▀░█▀▀
           # ░█▄█░█░█░█▀▄░█▀▄░▀▀█░█▀▀░█▀█░█░░░█▀▀

@@ -1,5 +1,6 @@
 { config
 , lib
+, pkgs
 , ...
 }:
 with lib;
@@ -93,6 +94,7 @@ in
               "opaque, title:^(.*(Twitch|TNTdrama|YouTube|Bally Sports|Video Entertainment|Plex)).*(Firefox).*$"
               "dimaround, class:^(gcr-prompter)$"
 
+
               # Require input
               "bordercolor rgba(ed8796FF), class:org.kde.polkit-kde-authentication-agent-1"
               "dimaround, class:org.kde.polkit-kde-authentication-agent-1"
@@ -119,6 +121,13 @@ in
               # ░░▀░░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀▀
               ##
               "immediate, class:^(gamescope|steam_app).*"
+
+              # screen sharing
+              "opacity 0.0 override 0.0 override,class:^(${getExe pkgs.xwaylandvideobridge})$"
+              "noanim,class:^(${getExe pkgs.xwaylandvideobridge})$"
+              "noinitialfocus,class:^(${getExe pkgs.xwaylandvideobridge})$"
+              "maxsize 1 1,class:^(${getExe pkgs.xwaylandvideobridge})$"
+              "noblur,class:^(${getExe pkgs.xwaylandvideobridge})$"
 
               ##
               # ░█░█░█▀█░█▀▄░█░█░█▀▀░█▀█░█▀█░█▀▀░█▀▀░░░█▀▀░█▀█░█▀█░█▀▀░▀█▀░█▀▀
