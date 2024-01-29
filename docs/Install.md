@@ -115,7 +115,7 @@ cp /mnt/etc/nixos/hardware-configuration.nix /mnt/config/systems/x86_64-linux/ca
 cp /mnt/config/systems/x86_64-linux/template /mnt/config/systems/x86_64-linux/carey/default.nix
 ```
 
-You will need to make some modifications to `/mnt/config/systems/x86_64-linux/carey/default.nix`, but don't add things that need secrets from Vault, because we don't have our our approle setup yet and I don't recommend doing that yet.
+You will need to make some modifications to `/mnt/config/systems/x86_64-linux/carey/default.nix`, but don't add things that need secrets from Vault, because we don't have our [approle setup](./SECRETS.md) yet and I don't recommend doing that yet.
 
 You will need to `git add` the new config files so the Flake can see them.
 
