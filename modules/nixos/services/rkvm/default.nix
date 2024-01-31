@@ -61,6 +61,7 @@ in
           # Change this to your own value before deploying rkvm.
           password = "$RKVM_PASS"
           EOF
+          chmod 600 /var/lib/rkvm/server.toml
         '';
       };
     })
@@ -90,11 +91,12 @@ in
           # Change this to your own value before deploying rkvm.
           password = "$RKVM_PASS"
           EOF
+          chmod 600 /var/lib/rkvm/client.toml
         '';
       };
     })
     ({
-      vault-agent = {
+      campground.services.vault-agent = {
         services = {
           "rkvm" = {
             settings = {       # replace with the address of your vault
