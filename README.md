@@ -1,7 +1,7 @@
 <div align="center">
-
 <h3>
-  <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/nixos/modules/nixos/user/profile.png?ref_type=heads" width="100" alt="Logo" style="border-radius: 50%; overflow: hidden;"/><br/>
+  <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/nixos/modules/nixos/user/profile.png?ref_type=heads" alt="Matt Camp" style="border-radius: 50%; width: 200px; height: 200px; object-fit: cover;">
+  <br/>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
   <img src="https://nixos.org/logo/nixos-logo-only-hires.png" height="20" /> NixOS Config for <a href="https://gitlab.com/usmcamp0811">Matt Camp</a>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
