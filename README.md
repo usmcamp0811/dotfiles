@@ -1,14 +1,16 @@
 <div align="center">
 
 <h3>
-  <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/nixos/modules/nixos/user/profile.png?ref_type=heads" width="100" alt="Logo" style="border-radius: 50%; overflow: hidden;"/>
+  <img src="https://gitlab.com/usmcamp0811/dotfiles/-/raw/nixos/modules/nixos/user/profile.png?ref_type=heads" width="100" alt="Logo" style="border-radius: 50%; overflow: hidden;"/><br/>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
   <img src="https://nixos.org/logo/nixos-logo-only-hires.png" height="20" /> NixOS Config for <a href="https://gitlab.com/usmcamp0811">Matt Camp</a>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
 </h3>
 
   <p>
-    <img src="https://img.shields.io/badge/dynamic/json?color=363a4f&label=Stars&query=$.star_count&url=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%2Fusmcamp0811%252Fdotfiles&style=for-the-badge">
+    <a href="https://gitlab.com/usmcamp0811/dotfiles/-/commits/nixos">
+        <img src="https://img.shields.io/badge/dynamic/json?color=363a4f&label=Stars&query=$.star_count&url=https%3A%2F%2Fgitlab.com%2Fapi%2Fv4%2Fprojects%2Fusmcamp0811%252Fdotfiles&style=for-the-badge">
+    </a>
     <a href="https://gitlab.com/usmcamp0811/dotfiles/-/commits/nixos">
       <img src="https://img.shields.io/gitlab/last-commit/38220901?style=for-the-badge&color=rgb(54%2C%2058%2C%2079)">
     </a>
