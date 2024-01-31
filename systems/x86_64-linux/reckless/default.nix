@@ -25,6 +25,10 @@ in
       uid = 10000;
     };
 
+    desktop.addons.rkvm = {
+      enableServer = true; 
+    };
+
     archetypes = {
       workstation = enabled;
       server = {
