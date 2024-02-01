@@ -26,7 +26,9 @@ in
     };
 
     desktop.addons.rkvm = {
-      enableServer = true; 
+      enableServer = false; 
+      enableClient = true; 
+      address = "ata-nuc:5258";
     };
 
     archetypes = {
