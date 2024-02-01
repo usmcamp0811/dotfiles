@@ -17,7 +17,8 @@ in
         addons = { 
           wallpapers = enabled; 
           kitty = enabled;
-          swaynotificationcenter = enabled;
+          swaylock = enabled;
+          swappy = enabled;
         };
         display-manager = {
           gdm = {
