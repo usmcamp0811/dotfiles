@@ -2,27 +2,28 @@
 
 with lib;
 with lib.campground;
-let cfg = config.campground.desktop.addons.swaynotificationcenter;
+let 
+  cfg = config.campground.desktop.addons.swaynotificationcenter;
+  swayncConfig = import ./config.nix { inherit pkgs; };
+  swayncConfigFile = pkgs.writeTextFile {
+    name = "swaync-config.json";
+    text = builtins.toJSON swayncConfig;
+  };
 in
 {
-  options.campground.desktop.addons.swaynotificationcenter = with types; {
-    enable = mkBoolOpt false "Whether to enable swaynotificationcenter in the desktop environment.";
+  options.campground.desktop.addons.swaynotificationcenter = {
+    enable = mkEnableOption "Hyprpaper";
   };
 
   config = mkIf cfg.enable { 
-    environment.systemPackages = with pkgs; [
+
+    home.packages = with pkgs; [
       swaynotificationcenter
       libnotify
     ];
-
-    campground.home = {
-      configFile."swaync/" = {
-        source = lib.cleanSourceWith {
-          src = lib.cleanSource ./config/.;
-        };
-
-        recursive = true;
-      };
-    };
+    home.file.".config/swaync/config.json".source = lib.cleanSource swayncConfigFile;
+    home.file.".config/swaync/style.css".source = ./config/style.css; 
+    home.file.".config/swaync/catppuccin.css".source = ./config/catppuccin.css;
   };
 }
+
