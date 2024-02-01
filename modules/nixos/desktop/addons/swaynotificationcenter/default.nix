@@ -17,13 +17,13 @@ in
 
   config = mkIf cfg.enable { 
 
-    home.packages = with pkgs; [
+    environment.systemPackages = with pkgs; [
       swaynotificationcenter
       libnotify
     ];
-    home.file.".config/swaync/config.json".source = lib.cleanSource swayncConfigFile;
-    home.file.".config/swaync/style.css".source = ./config/style.css; 
-    home.file.".config/swaync/catppuccin.css".source = ./config/catppuccin.css;
+    # home.file.".config/swaync/config.json".source = lib.cleanSource swayncConfigFile;
+    # home.file.".config/swaync/style.css".source = ./config/style.css; 
+    # home.file.".config/swaync/catppuccin.css".source = ./config/catppuccin.css;
   };
 }
 
