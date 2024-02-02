@@ -20,8 +20,8 @@
     };
     "modules" = [
       "custom/wlogout"
-      # "custom/quit"
-      # "custom/lock"
+      "custom/quit"
+      "custom/lock"
       # "custom/reboot"
     ];
   };
@@ -51,6 +51,7 @@
       "memory"
       "disk"
       "temperature"
+      "battery"
     ];
   };
 

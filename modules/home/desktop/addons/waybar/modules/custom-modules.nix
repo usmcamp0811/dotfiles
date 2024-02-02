@@ -21,13 +21,13 @@ in
     "tooltip" = false;
   };
 
-  "custom/github" = {
-    "format" = " {}";
-    "return-type" = "json";
-    "interval" = 60;
-    "exec" = "${getExe githubHelper}";
-    "on-click" = "${getExe' pkgs.coreutils "sleep"} 0.1 && ${getExe' pkgs.xdg-utils "xdg-open"} https://github.com/notifications";
-  };
+  # "custom/github" = {
+  #   "format" = " {}";
+  #   "return-type" = "json";
+  #   "interval" = 60;
+  #   "exec" = "${getExe githubHelper}";
+  #   "on-click" = "${getExe' pkgs.coreutils "sleep"} 0.1 && ${getExe' pkgs.xdg-utils "xdg-open"} https://github.com/notifications";
+  # };
 
   "custom/lock" = {
     "format" = "󰍁";
@@ -35,17 +35,17 @@ in
     "on-click" = "${getExe config.programs.swaylock.package}";
   };
 
-  "custom/media" = {
-    "format" = "{icon} {}";
-    "return-type" = "json";
-    "max-length" = 40;
-    "format-icons" = {
-      "spotify" = "";
-      "default" = "🎜";
-    };
-    "escape" = true;
-    "exec" = "$HOME/.config/waybar/mediaplayer.py 2> /dev/null";
-  };
+  # "custom/media" = {
+  #   "format" = "{icon} {}";
+  #   "return-type" = "json";
+  #   "max-length" = 40;
+  #   "format-icons" = {
+  #     "spotify" = "";
+  #     "default" = "🎜";
+  #   };
+  #   "escape" = true;
+  #   "exec" = "$HOME/.config/waybar/mediaplayer.py 2> /dev/null";
+  # };
 
   "custom/notification" = {
     "tooltip" = true;

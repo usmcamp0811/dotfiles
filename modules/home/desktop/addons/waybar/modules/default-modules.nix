@@ -43,6 +43,21 @@ in
     "format" = "󰍛 {}%";
   };
 
+  "battery" = {
+    "format" = "{icon} {capacity}%";
+    "format-icons" = {
+      "charging" = "󱊥";
+      "full" = "󱊣";
+      "discharging" = "󱧥";
+      "empty" = "󱃍";
+    };
+    "states" = {
+      "good" = 95;
+      "warning" = 30;
+      "critical" = 15;
+    };
+  };
+
   "mpris" = {
     "format" = "{player_icon} {status_icon} {dynamic}";
     "format-paused" = "{player_icon} {status_icon} <i>{dynamic}</i>";
@@ -129,15 +144,14 @@ in
   };
 
   "temperature" = {
-    "hwmon-path-abs" = "/sys/devices/pci0000:00/0000:00:18.3/hwmon";
     "input-filename" = "temp3_input";
     "critical-threshold" = 80;
     "format-critical" = "{temperatureC}°C {icon}";
     "format" = "{icon} {temperatureC}°C";
     "format-icons" = [
-      ""
+      ""
       ""
-      ""
+      ""
     ];
     "interval" = "5";
   };

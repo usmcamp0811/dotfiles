@@ -34,6 +34,7 @@ let
     "margin-right" = 20;
 
     "modules-left" = [
+      "battery"
       "group/power"
       "hyprland/workspaces"
       "custom/separator-left"
