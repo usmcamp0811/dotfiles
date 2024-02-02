@@ -948,11 +948,11 @@
         "rust-overlay": "rust-overlay_4"
       },
       "locked": {
-        "lastModified": 1705108068,
-        "narHash": "sha256-vZ9z4QU2tKzZiV2YPNErFJZHIe9Yy//i2WZJ4m+SHOY=",
+        "lastModified": 1706717438,
+        "narHash": "sha256-8Js7FP2a8ZU2LUphkgQYBaeVgDQFNwxIy372XOjRRqc=",
         "owner": "DeterminateSystems",
         "repo": "flake-checker",
-        "rev": "ff42c30635f86b52f1a8fdb4f9a4708ce1999d4d",
+        "rev": "30621cfb985c063f75fd95445c87009e75ea62fc",
         "type": "github"
       },
       "original": {
