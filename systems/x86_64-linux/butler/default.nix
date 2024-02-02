@@ -35,7 +35,7 @@ in
     };
 
     hardware = {
-      # nvidia-prime = enabled;
+      nvidia-prime = enabled;
     };
 
     services = {

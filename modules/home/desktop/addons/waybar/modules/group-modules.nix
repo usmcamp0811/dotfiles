@@ -22,7 +22,7 @@
       "custom/wlogout"
       "custom/quit"
       "custom/lock"
-      # "custom/reboot"
+      "custom/reboot"
     ];
   };
 
