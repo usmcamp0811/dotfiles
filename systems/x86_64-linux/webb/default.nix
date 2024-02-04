@@ -40,7 +40,7 @@ in
       docker = enabled;
       minio = enabled;
       mlflow = enabled;
-      airflow = enabled;
+      # airflow = enabled;
       label-studio = enabled;
       vaultwarden = enabled;
       mattermost = enabled;
