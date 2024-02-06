@@ -84,6 +84,7 @@ with lib.campground;
       prismlauncher = enabled;
       mattermost-desktop = enabled;
       slack = enabled;
+      onepass = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {
