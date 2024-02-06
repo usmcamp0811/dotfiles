@@ -2,8 +2,7 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.apps.virtmanager;
+let cfg = config.campground.apps.virtmanager;
 in
 {
   options.campground.apps.virtmanager = with types; {

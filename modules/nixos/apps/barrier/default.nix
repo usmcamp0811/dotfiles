@@ -9,7 +9,7 @@ in
     enable = mkBoolOpt false "Whether or not to enable barrier.";
   };
 
-  config = mkIf cfg.enable { 
+  config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       barrier
     ];
