@@ -7,6 +7,11 @@ in
 {
   options.campground.hardware.nvidia = with types; {
     enable = mkEnableOption "Nvidia support";
+    driverType = mkOption {
+      type = types.enum ["stable" "beta" "production" "vulkan_beta" "legacy_470" "legacy_390" "legacy_340"];
+      default = "stable";
+      description = "Type of NVIDIA driver to use.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -37,12 +42,18 @@ in
       open = false;
 
       # Enable the Nvidia settings menu,
-    # accessible via `nvidia-settings`.
+      # accessible via `nvidia-settings`.
       nvidiaSettings = true;
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
     };
-    hardware.opengl.enable = true;
+    # Enable OpenGL
+    hardware.opengl = {
+      enable = true;
+      driSupport = true;
+      driSupport32Bit = true;
+    };
+  #  hardware.opengl.enable = true;
   };
 }
