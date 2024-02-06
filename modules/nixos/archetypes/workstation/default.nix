@@ -33,9 +33,10 @@ in
           ];
         };
       };
-      # tools = {
-      #   # appimage-run = enabled;
-      # };
+      tools = {
+        # appimage-run = enabled;
+        noisetorch = enabled;
+      };
     };
   };
 }
