@@ -13,8 +13,8 @@ in
     console.useXkbConfig = true;
 
     services.xserver = {
-      layout = "us";
-      xkbOptions = "caps:escape";
+      xkb.layout = "us";
+      xkb.options = "caps:escape";
     };
 
     # console.keyMap = pkg.writeTextDir "swap_caps_esc.map" ''
