@@ -32,6 +32,10 @@ in
     nfs.client.enable = true;
     tools.attic = enabled;
 
+    hardware = {
+      nvidia = enabled;
+    };
+
     services = {
       attic-watch-store = enabled;
       gitlab-runner = enabled;
