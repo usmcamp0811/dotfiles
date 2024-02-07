@@ -31,7 +31,7 @@
     # Hyprland
     hyprland = {
       url = "github:hyprwm/Hyprland";
-      # inputs.nixpkgs.follows = "unstable";
+      inputs.nixpkgs.follows = "unstable";
     };
 
     hyprpaper = {

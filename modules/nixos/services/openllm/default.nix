@@ -29,7 +29,7 @@ in
 # WIP
     environment.systemPackages = [ 
       # pkgs.python311Packages.openllm  
-      pkgs.python312Packages.openllm-core
+      pkgs.python311Packages.openllm-core
     ];
 
     # campground.services.vault-agent.services.openllm = {
