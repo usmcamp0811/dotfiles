@@ -12,25 +12,26 @@ in
       mkBoolOpt false "Whether or not to enable common Scientific FHS.";
   };
 
-  # imports = [ 
-  #   inputs.scientific-fhs.nixosModules.default
-  # ];
+  imports = [ 
+    inputs.scientific-fhs.nixosModules.default
+  ];
 
   config = mkIf cfg.enable {
     
-    # campground.tools.julia.enable = mkForce false;
-    # campground.tools.python.enable = mkForce false;
-    #
-    # programs.scientific-fhs = {
-    #   enable = true;
-    #   # juliaVersions = [
-    #   #   {
-    #   #     version = "julia_19";
-    #   #     default = true;
-    #   #   }
-    #   # ];
-    #   # enableNVIDIA = true;
-    # };
+    campground.tools.julia.enable = mkForce false;
+    campground.tools.python.enable = mkForce false;
+
+    programs.scientific-fhs = {
+      enable = true;
+      # juliaVersions = [
+      #   {
+      #     version = "1.10.0";
+      #     default = true;
+      #   }
+      # ];
+      # enableNVIDIA = true;
+      # enableGraphical = true;
+    };
   };
 }
 

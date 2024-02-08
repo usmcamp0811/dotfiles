@@ -15,10 +15,11 @@ in
   imports = [ ./hardware.nix ];
   campground = {
     user = {
-      name = "abe";
+      name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel"];
+      extraGroups = ["wheel" "docker"];
+      uid = 10000;
     };
 
     archetypes = {

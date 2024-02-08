@@ -17,7 +17,7 @@ in
     #   LD_LIBRARY_PATH = "${pkgs.gcc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH";
     # };
     home.packages = with pkgs; [
-      julia-wrapped
+      # julia-wrapped
       # jupyter
 
     ];

@@ -19,8 +19,8 @@ in
       tools = {
         git = enabled;
         misc = enabled;
-        julia = enabled;
-        python = enabled;
+        # julia = enabled;
+        # python = enabled;
       };
     };
   };
