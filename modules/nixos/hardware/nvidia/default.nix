@@ -16,6 +16,7 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
+      nvtop
 
     ];
     # Load nvidia driver for Xorg and Wayland

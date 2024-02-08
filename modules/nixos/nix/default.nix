@@ -55,6 +55,7 @@ in
 
         settings = {
           experimental-features = "nix-command flakes";
+          fallback = true;
           http-connections = 50;
           warn-dirty = false;
           log-lines = 50;
