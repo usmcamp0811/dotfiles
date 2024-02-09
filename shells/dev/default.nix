@@ -20,6 +20,7 @@ pkgs.mkShell {
      ncurses5 stdenv.cc binutils
      stdenv.cc.cc.lib
      cudatoolkit
+     poetry
    ];
    propagatedBuildInputs = with pkgs; [ python3Packages.pip];
    shellHook = ''
