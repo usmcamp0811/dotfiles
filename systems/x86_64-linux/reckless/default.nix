@@ -62,6 +62,7 @@ in
     hardware = {
       ckb-next = enabled;
       nvidia = enabled;
+      bluetooth = enabled;
     };
 
     services = {
