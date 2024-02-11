@@ -4,5 +4,5 @@ final: prev:
 
 {
 
-  mlflow = unstable.legacyPackages.${prev.system}.mlflow;
+  python311Packages = unstable.legacyPackages.${prev.system}.python311Packages;
 }
