@@ -108,8 +108,7 @@ in
         MLFLOW_PORT="5000";
       };
       script = ''
-
-      ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
+      ${pkgs.campground.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}' && ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
       '';
       serviceConfig = {
         User = "mlflow";
