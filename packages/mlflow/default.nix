@@ -20,13 +20,13 @@ let
 
   version = "2.3.2";
 
-  mlflow = pkgs.python310Packages.toPythonApplication (pkgs.python310Packages.mlflow.overridePythonAttrs(old: rec {
+  mlflow = pkgs.python311Packages.toPythonApplication (pkgs.python311Packages.mlflow.overridePythonAttrs(old: rec {
 
     propagatedBuildInputs = old.propagatedBuildInputs ++ [
-      pkgs.python310Packages.boto3
-      pkgs.python310Packages.psycopg2
-      pkgs.python310Packages.mysqlclient
-      pkgs.python310Packages.gunicorn
+      pkgs.python311Packages.boto3
+      pkgs.python311Packages.psycopg2
+      pkgs.python311Packages.mysqlclient
+      pkgs.python311Packages.gunicorn
     ];
 
     postPatch = ''
@@ -51,7 +51,7 @@ let
       gpath=$out/bin/gunicornMlflow
       cp ${gunicornScript} $gpath
       echo "#!/bin/sh" > $out/bin/mlflow-server
-      echo "export PYTHONPATH=$out/lib/python3.10/site-packages:$PYTHONPATH" >> $out/bin/mlflow-server
+      echo "export PYTHONPATH=$out/lib/python3.11/site-packages:$PYTHONPATH" >> $out/bin/mlflow-server
       echo "export PATH=$out/bin:$PATH" >> $out/bin/mlflow-server
       echo "mlflow \"\$@\"" >> $out/bin/mlflow-server
       chmod 555 $gpath
