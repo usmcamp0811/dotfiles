@@ -108,9 +108,9 @@ in
         MLFLOW_PORT="5000";
       };
       # Use a preStart script to ensure the database is initialized or upgraded before the server starts
-      preStart = ''
-        ${pkgs.campground.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}'
-      '';
+      # preStart = ''
+      #   ${pkgs.campground.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}'
+      # '';
       script = ''
         ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
       '';
