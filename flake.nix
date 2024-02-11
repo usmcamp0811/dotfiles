@@ -161,8 +161,8 @@
     julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
     dream2nix.url = "github:nix-community/dream2nix";
     scientific-fhs = {
-      # url = "github:olynch/scientific-fhs";
-      url = "path:/home/mcamp/code/scientific-fhs";
+      url = "github:usmcamp0811/scientific-fhs";
+      # url = "path:/home/mcamp/code/scientific-fhs";
       inputs.nixpkgs.follows = "unstable";
     };
     
