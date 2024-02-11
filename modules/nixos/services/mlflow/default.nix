@@ -92,6 +92,7 @@ in
         };
       };
     };
+
     systemd.services.mlflow = {
       description = "MLflow tracking server";
       after = [ "network.target" ];
@@ -99,7 +100,6 @@ in
       environment = {
         MLFLOW_BACKEND_STORE_URI="${cfg.dbURI}";
         MLFLOW_ARTIFACT_URI="${cfg.artifactRoot}";
-        # MLFLOW_ARTIFACT_ROOT="${cfg.artifactRoot}";
         MLFLOW_S3_ENDPOINT_URL="${cfg.s3EndpointURL}";
         MLFLOW_S3_IGNORE_TLS="true";
         AWS_DEFAULT_REGION="${cfg.s3Region}";
@@ -107,8 +107,12 @@ in
         MLFLOW_HOST="0.0.0.0";
         MLFLOW_PORT="5000";
       };
+      # Use a preStart script to ensure the database is initialized or upgraded before the server starts
+      preStart = ''
+        ${pkgs.campground.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}'
+      '';
       script = ''
-      ${pkgs.campground.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}' && ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
+        ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host ${MLFLOW_HOST} --port ${MLFLOW_PORT}
       '';
       serviceConfig = {
         User = "mlflow";
