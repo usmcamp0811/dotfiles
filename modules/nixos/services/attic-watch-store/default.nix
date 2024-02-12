@@ -34,6 +34,7 @@ in
       users = optionalAttrs (cfg.user == "atticd") {
         atticd = {
           group = cfg.group;
+          isNormalUser = false;
           isSystemUser = true;
         };
       };
@@ -45,17 +46,19 @@ in
     systemd.services.attic-watch-store = {
       wantedBy = [ "multi-user.target" ];
       after = [ "atticd.service" ];
-
+      environment = {
+        HOME="/var/lib/atticd";
+      };
       serviceConfig = {
-        # ExecStart = "${pkgs.attic}/bin/attic watch-store ${cfg.cache}";
-        StateDirectory = "atticd";
+        ExecStartPre = "mkdir -p /var/lib/atticd/.config/attic && cp /tmp/detsys-vault/config.toml /var/lib/atticd/.config/attic/config.toml";
+        ExecStart = "${pkgs.attic}/bin/attic watch-store ${cfg.cache-name}";
+        # StateDirectory = "atticd";
         User = cfg.user;
         Group = cfg.group;
         DynamicUser = false;
+        WorkingDirectory = "/var/lib/atticd";
+        Restart = "always";
       };
-      script = ''
-      /bin/sh /tmp/detsys-vault/attic-watch-store
-      '';
     };
 
     campground = {
@@ -80,11 +83,12 @@ in
               secrets = {
                 file = {
                   files = {
-                    "attic-watch-store" = {
+                    "config.toml" = {
                       text = ''
-#!/bin/sh
-${pkgs.attic}/bin/attic login ${cfg.cache-name} ${cfg.endpoint} {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${cfg.cache-name} }}{{ else }}{{ .Data.data.${cfg.cache-name} }}{{ end }}{{ end }}
-${pkgs.attic}/bin/attic watch-store ${cfg.cache-name}
+default-server = "${cfg.cache-name}"
+[servers.${cfg.cache-name}]
+endpoint = "${cfg.endpoint}"
+token = "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${cfg.cache-name} }}{{ else }}{{ .Data.data.${cfg.cache-name} }}{{ end }}{{ end }}"
                       '';
                       permissions = "0600";
                       change-action = "restart";
