@@ -20,13 +20,13 @@ let
 
   version = "2.3.2";
 
-  mlflow = pkgs.python311Packages.toPythonApplication (pkgs.python311Packages.mlflow.overridePythonAttrs(old: rec {
+  mlflow = pkgs.python311Packages.toPythonApplication (pkgs.mlflow-unstable.overridePythonAttrs(old: rec {
 
     propagatedBuildInputs = old.propagatedBuildInputs ++ [
-      pkgs.python311Packages.boto3
-      pkgs.python311Packages.psycopg2
-      pkgs.python311Packages.mysqlclient
-      pkgs.python311Packages.gunicorn
+      pkgs.boto3-unstable
+      pkgs.psycopg2-unstable
+      pkgs.mysqlclient-unstable
+      pkgs.gunicorn-unstable
     ];
 
     postPatch = ''
@@ -37,7 +37,7 @@ let
 
     gunicornScript = writeText "gunicornMlflow"
     ''
-        #!${pkgs.python311}/bin/python
+        #!${pkgs.python3-11}/bin/python
         import re
         import sys
         from gunicorn.app.wsgiapp import run
