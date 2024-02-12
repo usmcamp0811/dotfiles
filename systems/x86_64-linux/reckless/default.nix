@@ -61,7 +61,10 @@ in
 
     hardware = {
       ckb-next = enabled;
-      nvidia = enabled;
+      nvidia = {
+        enable = true;
+        driverType = "beta";
+      };
       bluetooth = enabled;
     };
 

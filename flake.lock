@@ -826,11 +826,11 @@
         "pyproject-nix": "pyproject-nix_2"
       },
       "locked": {
-        "lastModified": 1707223475,
-        "narHash": "sha256-tDmoPA3gukJPfjR/pKl6hNcRP7cuEGw6ruoguHS4szo=",
+        "lastModified": 1707485598,
+        "narHash": "sha256-9ta9bNgJHMYCAvuqr3y2BMqy2OFCYS+mZoi9yhYYewY=",
         "owner": "nix-community",
         "repo": "dream2nix",
-        "rev": "936208ae7d88a178a0bcf7e6ac21bb6b87f6c8ea",
+        "rev": "367e7fcc980bf2fad69229ed8733697ed5c3fef8",
         "type": "github"
       },
       "original": {
@@ -2032,11 +2032,11 @@
     "gpg-base-conf": {
       "flake": false,
       "locked": {
-        "lastModified": 1697417581,
-        "narHash": "sha256-R45L/Xv3z0lJhGt781wDbjaq1qc+sGTmsUt+XHwgf4A=",
+        "lastModified": 1707605382,
+        "narHash": "sha256-0+Rv1BGPO40twnc5BpqjM1GroIqa2+vdsyiz3kae+C0=",
         "owner": "drduh",
         "repo": "config",
-        "rev": "8c21617100795fea2313656abdf25f93b98fdc30",
+        "rev": "7c26aa46c9fa60c536cdd3602b136bd4749e48f7",
         "type": "github"
       },
       "original": {
@@ -2288,11 +2288,11 @@
         "xdph": "xdph"
       },
       "locked": {
-        "lastModified": 1707176359,
-        "narHash": "sha256-h6BkgPOewfefG40E0KhEIqub207lUsfA84VfETb1m7c=",
+        "lastModified": 1707696217,
+        "narHash": "sha256-s75IRQvjFKrjJWw9vTGUD5y+ASz2em2jECYNNG/Vc+s=",
         "owner": "hyprwm",
         "repo": "Hyprland",
-        "rev": "ded174d6e5d14bc376919194cbc52c238a07f640",
+        "rev": "6e5c78bf632b6b6d3b32f132cf05b8f33ebf0e8a",
         "type": "github"
       },
       "original": {
@@ -3401,11 +3401,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1706085261,
-        "narHash": "sha256-7PgpHRHyShINcqgevPP1fJ6N8kM5ZSOJnk3QZBrOCQ0=",
+        "lastModified": 1707405218,
+        "narHash": "sha256-ZQ366Oo8WJbCqXAZET7N0Sz6RQ3G2IbqVtxQRSa3SXc=",
         "owner": "nix-community",
         "repo": "nixos-generators",
-        "rev": "896f6589db5b25023b812bbb6c1f5d3a499b1132",
+        "rev": "843e2f04c716092797ffa4ce14c446adce2f09ef",
         "type": "github"
       },
       "original": {
@@ -3846,11 +3846,11 @@
     },
     "nixpkgs_27": {
       "locked": {
-        "lastModified": 1707091808,
-        "narHash": "sha256-LahKBAfGbY836gtpVNnWwBTIzN7yf/uYM/S0g393r0Y=",
+        "lastModified": 1707514827,
+        "narHash": "sha256-Y+wqFkvikpE1epCx57PsGw+M1hX5aY5q/xgk+ebDwxI=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "9f2ee8c91ac42da3ae6c6a1d21555f283458247e",
+        "rev": "20f65b86b6485decb43c5498780c223571dd56ef",
         "type": "github"
       },
       "original": {
@@ -4106,11 +4106,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1707249572,
-        "narHash": "sha256-I4iLd10K+gnhesJuVZeh7LOI8xYLr0BYXHxUkpn+DQU=",
+        "lastModified": 1707701846,
+        "narHash": "sha256-9ItDrTVXw4nJmMlUsl0DsCx4VcIHHnsm0IgfobIB5ME=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "d2c468ae02e54593b1d83537429853873b93abd0",
+        "rev": "fece3b48c569c4adb1a4e8a8956cf121e2df8437",
         "type": "github"
       },
       "original": {
@@ -5928,11 +5928,11 @@
     },
     "unstable": {
       "locked": {
-        "lastModified": 1707092692,
-        "narHash": "sha256-ZbHsm+mGk/izkWtT4xwwqz38fdlwu7nUUKXTOmm4SyE=",
+        "lastModified": 1707546158,
+        "narHash": "sha256-nYYJTpzfPMDxI8mzhQsYjIUX+grorqjKEU9Np6Xwy/0=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "faf912b086576fd1a15fca610166c98d47bc667e",
+        "rev": "d934204a0f8d9198e1e4515dd6fec76a139c87f0",
         "type": "github"
       },
       "original": {
@@ -6051,11 +6051,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1706145785,
-        "narHash": "sha256-j9MP4fv2U/vdRKAXXc2gyMTmYwVnHP6kHx1/y6jprrU=",
+        "lastModified": 1706521509,
+        "narHash": "sha256-AInZ50acOJ3wzUwGzNr1TmxGTMx+8j6oSTzz4E7Vbp8=",
         "owner": "hyprwm",
         "repo": "xdg-desktop-portal-hyprland",
-        "rev": "5a592647587cd20b9692a347df6939b6d371b3bb",
+        "rev": "c06fd88b3da492b8f9067be021b9184f7012b5a8",
         "type": "github"
       },
       "original": {
