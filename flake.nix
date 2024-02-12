@@ -165,6 +165,8 @@
       # url = "path:/home/mcamp/code/scientific-fhs";
       inputs.nixpkgs.follows = "unstable";
     };
+
+    nix-output-monitor.url = "github:maralorn/nix-output-monitor";
     
     dataflow2nix.url = "github:GTrunSec/dataflow2nix";
   };
