@@ -50,15 +50,17 @@ in
         HOME="/var/lib/atticd";
       };
       serviceConfig = {
-        ExecStartPre = "mkdir -p /var/lib/atticd/.config/attic && cp /tmp/detsys-vault/config.toml /var/lib/atticd/.config/attic/config.toml";
         ExecStart = "${pkgs.attic}/bin/attic watch-store ${cfg.cache-name}";
-        # StateDirectory = "atticd";
         User = cfg.user;
         Group = cfg.group;
         DynamicUser = false;
         WorkingDirectory = "/var/lib/atticd";
         Restart = "always";
       };
+      preStart = ''
+        mkdir -p /var/lib/atticd/.config/attic
+        cp /tmp/detsys-vault/attic-config.toml /var/lib/atticd/.config/attic/config.toml
+      '';
     };
 
     campground = {
@@ -83,7 +85,7 @@ in
               secrets = {
                 file = {
                   files = {
-                    "config.toml" = {
+                    "attic-config.toml" = {
                       text = ''
 default-server = "${cfg.cache-name}"
 [servers.${cfg.cache-name}]
