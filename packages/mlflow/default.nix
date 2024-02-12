@@ -37,7 +37,7 @@ let
 
     gunicornScript = writeText "gunicornMlflow"
     ''
-        #!${pkgs.python3}/bin/python
+        #!${pkgs.python311}/bin/python
         import re
         import sys
         from gunicorn.app.wsgiapp import run
