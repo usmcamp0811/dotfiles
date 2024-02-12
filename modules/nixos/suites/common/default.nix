@@ -31,6 +31,7 @@ in
       tools = {
         git = enabled;
         misc = enabled;
+        nix-output-monitor = enabled;
       };
 
       hardware = {
