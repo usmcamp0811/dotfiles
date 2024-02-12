@@ -49,8 +49,8 @@ in
       serviceConfig = {
         # ExecStart = "${pkgs.attic}/bin/attic watch-store ${cfg.cache}";
         StateDirectory = "atticd";
-        # User = cfg.user;
-        # Group = cfg.group;
+        User = cfg.user;
+        Group = cfg.group;
         DynamicUser = false;
       };
       script = ''
