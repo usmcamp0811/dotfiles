@@ -135,12 +135,13 @@ in
         ++ optionals is-local-postgres [ "postgresql.service" "nss-lookup.target" ];
 
       serviceConfig = {
-        ExecStartPre = "${pkgs.coreutils}/bin/chown -R ${cfg.user}:${cfg.group} /var/lib/atticd";
+        # ExecStartPre = "${pkgs.coreutils}/bin/chown -R ${cfg.user}:${cfg.group} /var/lib/atticd";
         ExecStart = "${cfg.package}/bin/atticd -f ${server-toml}";
         StateDirectory = "atticd";
         User = cfg.user;
         Group = cfg.group;
         DynamicUser = false;
+        Restart = "always";
       } // optionalAttrs (cfg.credentials != null) {
         EnvironmentFile = mkDefault cfg.credentials;
       };
