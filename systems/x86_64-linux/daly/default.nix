@@ -22,7 +22,7 @@ in
       extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
-
+    suites.desktop.enable = mkForce false;
     archetypes = {
       laptop = enabled;
       server = {
@@ -157,7 +157,7 @@ in
         enable = true;
         settings = {
           vault = {
-            address = "https://vault.lan.aicampground.com";
+            address = "http://vault.lan";
             role-id = "/var/lib/vault/daly/role-id";
             secret-id = "/var/lib/vault/daly/secret-id";
           };
