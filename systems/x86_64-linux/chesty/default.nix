@@ -53,7 +53,7 @@ in
         enable = true;
         port = 8123;
         tang-servers = [ 
-          "http://daly:1234" 
+          # "http://daly:1234" 
           "http://lucas:1234" 
           "http://ermy:1234" 
           "http://webb:1234" 
@@ -73,7 +73,8 @@ in
         enable = true;
         settings = { 
           vault = { 
-            address = "https://vault.lan.aicampground.com"; 
+            # address = "https://vault.lan.aicampground.com"; 
+            address = "http://vault.lan";
             role-id = "/var/lib/vault/chesty/role-id"; 
             secret-id = "/var/lib/vault/chesty/secret-id"; 
           }; 
