@@ -16,7 +16,6 @@ in
     ./hardware.nix
   ];
 
-
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
     user = {
@@ -29,27 +28,26 @@ in
     archetypes = {
       gaming-platform = enabled;
     };
-
     hardware = {
       nvidia = {
         enable = true;
         driverType = "production";
       };
     };
-
     apps = {
       onepass = enabled;
+      steam = enabled;
     };
 
     system = {
       boot = enabled;
     };
+    tools = {
+      appimage = enabled;
+      noisetorch = enabled;
+    };
   };
 
-  campground.tools = {
-    appimage = enabled;
-    noisetorch = enabled;
-  };
 
   campground.services = {
   };

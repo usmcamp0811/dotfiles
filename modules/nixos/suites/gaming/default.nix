@@ -18,6 +18,7 @@ in
       pkgs.steam
       pkgs.prismlauncher
       pkgs.mangohud
+      pkgs.gamescope
       # pkgs.campground.list-iommu
     ];
 
