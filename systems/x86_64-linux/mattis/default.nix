@@ -19,26 +19,21 @@ in
 
   services.logind.lidSwitch = "ignore";
   campground = {
+    user = {
+      name = "mcamp";
+      fullName = "Matt Camp";
+      email = "matt@aicampground.com";
+      extraGroups = ["wheel" "docker"];
+      uid = 10000;
+    };
+
     archetypes = {
-      workstation = enabled;
-    };
-
-    desktop = {
-      display-manager = {
-        gdm = enabled;
-      };
-      qtile = enabled;
-    };
-
-    system = {
-      boot = enabled;
-      zfs = {
+      laptop = enabled;
+      server = {
         enable = true;
+        controller = true;
         hostId = "5ae58e7a";
-        keyfile-url = "key-server.lan:1234/zfs-keyfile";
       };
-      # manage local passwd in vault
-      passwds = enabled;
     };
 
     nfs.client = {
@@ -47,77 +42,66 @@ in
       chestyfs = enabled;
     };
 
-    hardware.audio = {
-    };
-
-  };
-
-  campground.user = {
-    name = "abe";
-    fullName = "Matt Camp";
-    email = "matt@aicampground.com";
-    extraGroups = ["wheel"];
-  };
-
-  campground.services = {
-    ldap-client = enabled;
-    label-studio = enabled;
-    postgresql = {
-      enable = true;
-      enableTCPIP = true;
-      backupEnable = true;
-      backupLocation = "/persist/postgresqlBackups/";
-      authentication = ''
-        # Allow only local connections for the root user
-        local all root trust 
-        local all postgres peer
-        local vaultwarden vaultwarden trust
-        # Deny other remote connections
-        host  all  all  0.0.0.0/0  reject
-        host  all  all  ::0/0  reject
-      '';
-      databases = [
-        { 
-          name = "vaultwarden"; 
-          user = "vaultwarden";
-        }
-      ];
-    };
-    vaultwarden = {
-      enable = true;
-    };
-    syncthing = enabled;
-    tang = enabled;
-    k0sworker = enabled;
-    zfs-key-server = {
-      enable = true;
-      port = 8123;
-      tang-servers = [
-       "http://webb:1234" 
-       # "http://daly:1234" 
-       "http://ermy:1234" 
-       "http://reckless:1234" 
-       "http://lucas:1234" 
-      ];
-    };
-    user-secrets = {
-      enable = true;
-      users = {
-        mcamp =  {
-          files = [
-            "id_ed25519"
-            "passwords"
-          ];
+    services = {
+      ldap-client = enabled;
+      label-studio = enabled;
+      postgresql = {
+        enable = true;
+        enableTCPIP = true;
+        backupEnable = true;
+        backupLocation = "/persist/postgresqlBackups/";
+        authentication = ''
+          # Allow only local connections for the root user
+          local all root trust 
+          local all postgres peer
+          local vaultwarden vaultwarden trust
+          # Deny other remote connections
+          host  all  all  0.0.0.0/0  reject
+          host  all  all  ::0/0  reject
+        '';
+        databases = [
+          { 
+            name = "vaultwarden"; 
+            user = "vaultwarden";
+          }
+        ];
+      };
+      vaultwarden = {
+        enable = true;
+      };
+      syncthing = enabled;
+      tang = enabled;
+      k0sworker = enabled;
+      zfs-key-server = {
+        enable = true;
+        port = 8123;
+        tang-servers = [
+         "http://webb:1234" 
+         # "http://daly:1234" 
+         "http://ermy:1234" 
+         "http://reckless:1234" 
+         "http://lucas:1234" 
+        ];
+      };
+      user-secrets = {
+        enable = true;
+        users = {
+          mcamp =  {
+            files = [
+              "id_ed25519"
+              "passwords"
+            ];
+          };
         };
       };
-    };
-    vault-agent = {
-      enable = true;
-      settings = {
-        vault = {
-          address = "http://vault.lan";
-          role-id = "/var/lib/vault/mattis/role-id";
-          secret-id = "/var/lib/vault/mattis/secret-id";
+      vault-agent = {
+        enable = true;
+        settings = {
+          vault = {
+            address = "http://vault.lan";
+            role-id = "/var/lib/vault/mattis/role-id";
+            secret-id = "/var/lib/vault/mattis/secret-id";
+          };
         };
       };
     };
