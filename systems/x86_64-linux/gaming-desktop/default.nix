@@ -33,7 +33,7 @@ in
     hardware = {
       nvidia = {
         enable = true;
-        driverType = "beta";
+        driverType = "production";
       };
     };
 
