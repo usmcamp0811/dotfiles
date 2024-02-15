@@ -31,7 +31,7 @@ in
       laptop = enabled;
       server = {
         enable = true;
-        controller = true;
+        worker = true;
         hostId = "5ae58e7a";
       };
     };
@@ -71,7 +71,6 @@ in
       };
       syncthing = enabled;
       tang = enabled;
-      k0sworker = enabled;
       zfs-key-server = {
         enable = true;
         port = 8123;
