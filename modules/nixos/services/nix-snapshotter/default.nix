@@ -18,11 +18,12 @@ in
 
   config = mkIf cfg.enable {
 
+    virtualisation.containerd = {
+      enable = true;
+      nixSnapshotterIntegration = true;
+    };
     services.nix-snapshotter = {
       enable = true;
-      setContainerdSnapshotter = true;
-      # preloadContainerdImages = preloadContainerdImages;
-      inherit preloadContainerdImages;
     };
 
 

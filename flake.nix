@@ -208,6 +208,7 @@
           julia2nix.overlays.default
           nuenv.overlays.default
           nur.overlay
+          nix-snapshotter.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
