@@ -16,10 +16,11 @@ in
 
   campground = {
     user = {
-      name = "abe";
+      name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel"];
+      extraGroups = ["wheel" "docker"];
+      uid = 10000;
     };
 
     archetypes = {
@@ -35,6 +36,9 @@ in
     };
 
     services = {
+      ldap-client = {
+        enable = mkForce false;
+      };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
