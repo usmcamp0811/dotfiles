@@ -1,69 +1,58 @@
-{ lib, config, pkgs, ... }:
-{
-  options.campground.services.ntp = with types; {
-    enable = mkBoolOpt false "Enable CAC Support;";
-  };
-
-  config = mkIf cfg.enable {
-    # networking.timeServers = options.networking.timeServers.default ++ [ "0.arch.pool.ntp.org" ]; 
-    services.ntp.enable = true;
-  };
-}
-
 { config, lib, pkgs, ... }:
 
 with lib;
 with lib.campground;
 let
   cfg = config.campground.services.netmaker;
-  generateConfig = {
-    apihost = cfg.apiHost;
-    apiport = cfg.apiPort;
-    masterkey = cfg.masterKey;
-    allowedorigin = cfg.allowedOrigin;
-    restbackend = cfg.restBackend;
-    clientmode = cfg.clientMode;
-    dnsmode = cfg.dnsMode;
-    sqlconn = cfg.sqlConn;
-    disableremoteipcheck = cfg.disableRemoteIpCheck;
-    version = cfg.version;
-    rce = cfg.rce;
-    mqhost = cfg.mqHost;
-    nodeid = cfg.nodeId;
-    messagequeuebackend = cfg.messageQueueBackend;
-    database = cfg.database;
-    verbosity = cfg.verbosity;
-    authprovider = cfg.authProvider;
-    displaykeys = cfg.displayKeys;
-    manageiptables = cfg.manageIptables;
-    portforwardservices = cfg.portForwardServices;
-    hostnetwork = cfg.hostNetwork;
-    mqport = cfg.mqPort;
-    mqserverport = cfg.mqServerPort;
-    server = cfg.server;
-  };
-  configFile = pkgs.writeText "netmaker-config.yml" (builtins.toJSON generateConfig);
 in {
   options.services.netmaker = {
-    enable = mkEnableOption "Netmaker";
-    
-    # Netmaker specific options
-    apiHost = mkOption {
-      type = types.str;
-      default = "127.0.0.1";
-      description = "API host for Netmaker.";
+    enable = mkBoolOpt false "Netmaker";
+    configFile = {
+      server_name = mkOpt str "campground" "This is the public, resolvable DNS name of the MQ Broker.";
+      server_host = mkOpt str "" "The public IP of the server where the machine is running.";
+      server_api_conn_string = mkOpt str "" "MUST SET THIS VALUE. This is the public, resolvable address of the API, including the port.";
+      coredns_addr = mkOpt str "" "The public IP of the CoreDNS server.";
+      server_http_host = mkOpt str "" "Should be the same as SERVER_API_CONN_STRING minus the port.";
+      api_port = mkOpt int 8081 "Sets the port for the API on the server.";
+
+      master_key = mkOpt str "secretkey" "The admin master key for accessing the API.";
+
+      cors_allowed_origin = mkOpt str "*" "The 'allowed origin' for API requests.";
+      rest_backend = mkBoolOpt true "Enables the REST backend.";
+      dns_mode = mkBoolOpt false "Enables DNS Mode.";
+
+      database = types.enum ["postgres" "sqlite" "rqlite"] "postgres" "Specify db type to connect with.";
+      sql_conn = mkOpt str "http://" "Specify the necessary string to connect with your SQL database.";
+      sql_host = mkOpt str "localhost" "Host where the SQL database is running.";
+      sql_port = mkOpt int 5432 "Port the SQL database is running on.";
+      sql_db = mkOpt str "netmaker" "DB to use in SQL database.";
+      sql_user = mkOpt str "postgres" "User for SQL database.";
+      sql_pass = mkOpt str "nopass" "Password for SQL database.";
+
+      rce = mkBoolOpt false "Remote Code Execution feature.";
+      display_keys = mkBoolOpt true "If 'on', will display key values of 'access keys'.";
+      node_id = mkOpt str "" "Used for HA configurations of the server.";
+      telemetry = mkBoolOpt false "If 'on', sends anonymous telemetry data.";
+      mq_host = mkOpt str "" "The address of the MQ server.";
+      host_network = mkBoolOpt false "Whether or not host networking is turned on.";
+      manage_iptables = mkBoolOpt true "Allows Netmaker to manage iptables locally.";
+      port_forward_services = mkOpt str "" "Comma-separated list of services for port forwarding.";
+      verbosity = mkOpt int 0 "Specify the level of logging on the server.";
     };
-    apiPort = mkOption {
-      type = types.str;
-      default = "8081";
-      description = "API port for Netmaker.";
+
+    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/netmaker" "The Vault path to the KV containing the k0s secrets.";
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
     };
-    masterKey = mkOption {
-      type = types.str;
-      default = "secretkey";
-      description = "Master key for Netmaker.";
+    kvVersion = mkOption {
+      type = enum ["v1" "v2"];
+      default = "v2";
+      description = "KV store version";
     };
-    # Add similar options for other configuration parameters...
   };
 
   config = mkIf cfg.enable {
@@ -92,19 +81,6 @@ in {
         51821 # Wireguard
       ];
     };
-    # # Get HTTPS certificates from LetsEncrypt
-    # security.acme = {
-    #   acceptTerms = true;
-    #   defaults.email = "gio@damelio.net";
-    #
-    #   certs."nm.gio.ninja" = {
-    #     dnsProvider = "cloudflare";
-    #     domain = "*.${baseDomain}";
-    #     extraDomainNames = [baseDomain];
-    #     credentialsFile = config.age.secrets.cert_netmaker_gio_ninja.path;
-    #   };
-    # };
-
 
     # Setup Mosquitto MQTT message broker
     services.mosquitto = {
@@ -129,34 +105,6 @@ in {
       ];
     };
 
-    # Use Caddy to reverse proxy
-    # services.caddy = {
-    #   enable = true;
-    #   group = "acme";
-    #
-    #   virtualHosts."https://dashboard.nm.gio.ninja" = {
-    #     useACMEHost = "nm.gio.ninja";
-    #     extraConfig = ''
-    #       header {
-    #           Access-Control-Allow-Origin *.${baseDomain}
-    #           Strict-Transport-Security "max-age=31536000;"
-    #           X-XSS-Protection "1; mode=block"
-    #           X-Frame-Options "SAMEORIGIN"
-    #           X-Robots-Tag "none"
-    #           -Server
-    #       }
-    #       root * ${n.netmaker-ui}
-    #       file_server
-    #     '';
-    #   };
-    #
-    #   virtualHosts."wss://broker.nm.gio.ninja" = {
-    #     useACMEHost = "nm.gio.ninja";
-    #     extraConfig = ''
-    #       reverse_proxy ws://localhost:8883
-    #     '';
-    #   };
-    # };
     systemd.services.netmaker = {
 
       description = "Netmaker Wireguard Mesh Network";
@@ -167,11 +115,7 @@ in {
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.netmaker}/bin/netmaker -c ${netmakerConfig}";
-        EnvironmentFile = config.age.secrets.service_netmaker_envfile.path;
       };
-      script = ''
-        ${pkgs.netmaker}/bin/netmaker -c ${configFile}
-      '';
       serviceConfig = {
         # EnvironmentFile = config.age.secrets.service_netmaker_envfile.path;
         Restart = "always";
@@ -181,7 +125,68 @@ in {
       };
     };
 
-    networking.firewall.allowedTCPPorts = [ (builtins.toInteger cfg.apiPort) ]; # Open port for Netmaker UI/API
+
+    campground.services.vault-agent.services = {
+      netmaker = {
+        secrets = {
+          file = {
+            files = {
+              "netmaker-config.yml" = {
+                text = ''
+                  server:
+                    apihost: "${cfg.server_host}" 
+                    apiport: "${toString cfg.api_port}"
+                    masterkey: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.masterkey }}{{ else }}{{ .Data.data.masterkey }}{{ end }}{{ end }}"
+                    allowedorigin: "${cfg.cors_allowed_origin}"
+                    restbackend: "${boolToString cfg.rest_backend}"
+                    dnsmode: "${boolToString cfg.dns_mode}"
+                    sqlconn: "${cfg.sql_conn}"
+                    disableremoteipcheck: "false"
+                    verbosity: "${toString cfg.verbosity}"
+                    database: "${cfg.database}"
+                    mqhost: "${cfg.mq_host}"
+                    displaykeys: "${boolToString cfg.display_keys}"
+                    manageiptables: "${boolToString cfg.manage_iptables}"
+                    portforwardservices: "${cfg.port_forward_services}"
+                    hostnetwork: "${boolToString cfg.host_network}"
+                    sql_user: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sql_user }}{{ else }}{{ .Data.data.sql_user }}{{ end }}{{ end }}"
+                    sql_pass: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sql_pass }}{{ else }}{{ .Data.data.sql_pass }}{{ end }}{{ end }}"
+                '';
+                permissions = "0400";  # Ensure the file has read permission for the owner only
+                change-action = "restart";  # Restart service if the config changes
+              };
+            };
+          };
+        };
+      };
+    };
+      mosquitto = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets = {
+          file = {
+            files = {
+              "mosquitto-pass" = {
+                text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.mosquitto-pass }}{{ else }}{{ .Data.data.mosquitto-pass }}{{ end }}{{ end }}'';
+                permissions = "0400";  # Make the script executable
+                change-action = "restart";
+              };
+            };
+          };
+        };
+      };
+    };
   };
 }
 
