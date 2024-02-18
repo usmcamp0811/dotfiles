@@ -4,41 +4,44 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.netmaker;
-in {
-  options.services.netmaker = {
+in 
+{
+  options.campground.services.netmaker = with types; {
     enable = mkBoolOpt false "Netmaker";
-    configFile = {
-      server_name = mkOpt str "campground" "This is the public, resolvable DNS name of the MQ Broker.";
-      server_host = mkOpt str "" "The public IP of the server where the machine is running.";
-      server_api_conn_string = mkOpt str "" "MUST SET THIS VALUE. This is the public, resolvable address of the API, including the port.";
-      coredns_addr = mkOpt str "" "The public IP of the CoreDNS server.";
-      server_http_host = mkOpt str "" "Should be the same as SERVER_API_CONN_STRING minus the port.";
-      api_port = mkOpt int 8081 "Sets the port for the API on the server.";
+    server_name = mkOpt str "campground" "This is the public, resolvable DNS name of the MQ Broker.";
+    server_host = mkOpt str "" "The public IP of the server where the machine is running.";
+    server_api_conn_string = mkOpt str "" "MUST SET THIS VALUE. This is the public, resolvable address of the API, including the port.";
+    coredns_addr = mkOpt str "" "The public IP of the CoreDNS server.";
+    server_http_host = mkOpt str "" "Should be the same as SERVER_API_CONN_STRING minus the port.";
+    api_port = mkOpt int 8081 "Sets the port for the API on the server.";
 
-      master_key = mkOpt str "secretkey" "The admin master key for accessing the API.";
+    master_key = mkOpt str "secretkey" "The admin master key for accessing the API.";
 
-      cors_allowed_origin = mkOpt str "*" "The 'allowed origin' for API requests.";
-      rest_backend = mkBoolOpt true "Enables the REST backend.";
-      dns_mode = mkBoolOpt false "Enables DNS Mode.";
+    cors_allowed_origin = mkOpt str "*" "The 'allowed origin' for API requests.";
+    rest_backend = mkBoolOpt true "Enables the REST backend.";
+    dns_mode = mkBoolOpt false "Enables DNS Mode.";
 
-      database = types.enum ["postgres" "sqlite" "rqlite"] "postgres" "Specify db type to connect with.";
-      sql_conn = mkOpt str "http://" "Specify the necessary string to connect with your SQL database.";
-      sql_host = mkOpt str "localhost" "Host where the SQL database is running.";
-      sql_port = mkOpt int 5432 "Port the SQL database is running on.";
-      sql_db = mkOpt str "netmaker" "DB to use in SQL database.";
-      sql_user = mkOpt str "postgres" "User for SQL database.";
-      sql_pass = mkOpt str "nopass" "Password for SQL database.";
-
-      rce = mkBoolOpt false "Remote Code Execution feature.";
-      display_keys = mkBoolOpt true "If 'on', will display key values of 'access keys'.";
-      node_id = mkOpt str "" "Used for HA configurations of the server.";
-      telemetry = mkBoolOpt false "If 'on', sends anonymous telemetry data.";
-      mq_host = mkOpt str "" "The address of the MQ server.";
-      host_network = mkBoolOpt false "Whether or not host networking is turned on.";
-      manage_iptables = mkBoolOpt true "Allows Netmaker to manage iptables locally.";
-      port_forward_services = mkOpt str "" "Comma-separated list of services for port forwarding.";
-      verbosity = mkOpt int 0 "Specify the level of logging on the server.";
+    database = mkOption {
+      type = enum ["postgres" "sqlite" "rqlite"];
+      default = "postgres"; 
+      description = "Specify db type to connect with.";
     };
+    sql_conn = mkOpt str "http://" "Specify the necessary string to connect with your SQL database.";
+    sql_host = mkOpt str "localhost" "Host where the SQL database is running.";
+    sql_port = mkOpt int 5432 "Port the SQL database is running on.";
+    sql_db = mkOpt str "netmaker" "DB to use in SQL database.";
+    sql_user = mkOpt str "postgres" "User for SQL database.";
+    sql_pass = mkOpt str "nopass" "Password for SQL database.";
+
+    rce = mkBoolOpt false "Remote Code Execution feature.";
+    display_keys = mkBoolOpt true "If 'on', will display key values of 'access keys'.";
+    node_id = mkOpt str "" "Used for HA configurations of the server.";
+    telemetry = mkBoolOpt false "If 'on', sends anonymous telemetry data.";
+    mq_host = mkOpt str "" "The address of the MQ server.";
+    host_network = mkBoolOpt false "Whether or not host networking is turned on.";
+    manage_iptables = mkBoolOpt true "Allows Netmaker to manage iptables locally.";
+    port_forward_services = mkOpt str "" "Comma-separated list of services for port forwarding.";
+    verbosity = mkOpt int 0 "Specify the level of logging on the server.";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
@@ -114,7 +117,7 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.netmaker}/bin/netmaker -c ${netmakerConfig}";
+        ExecStart = "${pkgs.netmaker}/bin/netmaker -c /tmp/detsys-vault/netmaker-config.yml";
       };
       serviceConfig = {
         # EnvironmentFile = config.age.secrets.service_netmaker_envfile.path;
@@ -159,7 +162,6 @@ in {
           };
         };
       };
-    };
       mosquitto = {
         settings = {
           vault.address = cfg.vault-address;
