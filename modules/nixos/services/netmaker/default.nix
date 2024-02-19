@@ -26,7 +26,7 @@ in
       default = "postgres"; 
       description = "Specify db type to connect with.";
     };
-    sql_conn = mkOpt str "postgres://" "Specify the necessary string to connect with your SQL database.";
+    sql_conn = mkOpt str "postgres://netmaker@/netmaker?host=/run/postgresql/" "Specify the necessary string to connect with your SQL database.";
     sql_host = mkOpt str "localhost" "Host where the SQL database is running.";
     sql_port = mkOpt int 5432 "Port the SQL database is running on.";
     sql_db = mkOpt str "netmaker" "DB to use in SQL database.";
@@ -123,16 +123,30 @@ in
       wantedBy = ["multi-user.target"];
       after = ["network.target"];
       serviceConfig = {
-        ExecStart = "${pkgs.netmaker}/bin/netmaker -c /tmp/detsys-vault/netmaker-config.yml";
+        ExecStart = "${pkgs.netmaker}/bin/netmaker";
         Restart = "always";
         DynamicUser = true;
         User = "netmaker";
-        Group = "netmaker";
         WorkingDirectory = "/var/lib/netmaker"; 
       };
-      preStart = ''
-        ${pkgs.bat}/bin/bat /tmp/detsys-vault/netmaker-config.yml
-      '';
+      environment = {
+        APIHOST="${cfg.server_host}";
+        APIPORT="${toString cfg.api_port}";
+        ALLOWEDORIGIN="${cfg.cors_allowed_origin}";
+        RESTBACKEND="${boolToString cfg.rest_backend}";
+        DNSMODE="${boolToString cfg.dns_mode}";
+        SQLCONN="${cfg.sql_conn}";
+        DISABLEREMOTEIPCHECK="false";
+        VERBOSITY="${toString cfg.verbosity}";
+        DATABASE="${cfg.database}";
+        MQHOST="${cfg.mq_host}";
+        DISPLAYKEYS="${boolToString cfg.display_keys}";
+        MANAGEIPTABLES="${boolToString cfg.manage_iptables}";
+        PORTFORWARDSERVICES="${cfg.port_forward_services}";
+        HOSTNETWORK="${boolToString cfg.host_network}";
+        TELEMETRY="${boolToString cfg.telemetry}";
+        MQ_HOST="${cfg.mq_host}";
+      };
     };
 
 
@@ -151,33 +165,13 @@ in
           };
         };
         secrets = {
-          file = {
-            files = {
-              "netmaker-config.yml" = {
-                text = ''
-                  server:
-                    apihost: "${cfg.server_host}" 
-                    apiport: "${toString cfg.api_port}"
-                    masterkey: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.masterkey }}{{ else }}{{ .Data.data.masterkey }}{{ end }}{{ end }}"
-                    allowedorigin: "${cfg.cors_allowed_origin}"
-                    restbackend: "${boolToString cfg.rest_backend}"
-                    dnsmode: "${boolToString cfg.dns_mode}"
-                    sqlconn: "${cfg.sql_conn}"
-                    disableremoteipcheck: "false"
-                    verbosity: "${toString cfg.verbosity}"
-                    database: "${cfg.database}"
-                    mqhost: "${cfg.mq_host}"
-                    displaykeys: "${boolToString cfg.display_keys}"
-                    manageiptables: "${boolToString cfg.manage_iptables}"
-                    portforwardservices: "${cfg.port_forward_services}"
-                    hostnetwork: "${boolToString cfg.host_network}"
-                    telemetry: "${boolToString cfg.telemetry}"
-                    mq_host: "${cfg.mq_host}"
-                    sqlconn: "postgres://netmaker:netmaker@localhost:5432/netmaker?sslmode=disable"
-                '';
-                permissions = "0600";  # Ensure the file has read permission for the owner only
-                change-action = "restart";  # Restart service if the config changes
-              };
+          environment.templates = {
+            rkvm = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}
+                MASTER_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.masterkey }}{{ else }}{{ .Data.data.masterkey }}{{ end }}{{ end }}
+                {{ end }}
+              '';
             };
           };
         };
