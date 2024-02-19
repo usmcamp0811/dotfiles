@@ -23,6 +23,7 @@ in
     services.zfs.autoScrub.enable = true;
     services.nfs.server.enable = true;
 
+    boot.kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
 
     networking.hostId = cfg.hostId;
 
