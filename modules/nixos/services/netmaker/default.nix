@@ -26,12 +26,10 @@ in
       default = "postgres"; 
       description = "Specify db type to connect with.";
     };
-    sql_conn = mkOpt str "http://" "Specify the necessary string to connect with your SQL database.";
+    sql_conn = mkOpt str "postgres://" "Specify the necessary string to connect with your SQL database.";
     sql_host = mkOpt str "localhost" "Host where the SQL database is running.";
     sql_port = mkOpt int 5432 "Port the SQL database is running on.";
     sql_db = mkOpt str "netmaker" "DB to use in SQL database.";
-    sql_user = mkOpt str "postgres" "User for SQL database.";
-    sql_pass = mkOpt str "nopass" "Password for SQL database.";
 
     rce = mkBoolOpt false "Remote Code Execution feature.";
     display_keys = mkBoolOpt true "If 'on', will display key values of 'access keys'.";
@@ -62,8 +60,12 @@ in
     environment.systemPackages = [ pkgs.campground.netmaker-ui pkgs.netmaker ]; # Ensure netmaker package is available
 
     users.users.netmaker = {
+      isNormalUser = false;
       isSystemUser = true;
+      description = "Netmaker user";
       group = "netmaker";
+      extraGroups = [ "netmaker" ]; # Optional if you want the user to be in additional groups
+      home = "/var/lib/netmaker";
     };
     users.groups.netmaker = {};
 
@@ -114,6 +116,8 @@ in
       ];
     };
 
+    systemd.tmpfiles.rules = [ "D /var/lib/netmaker 0755 netmaker netmaker -" ];
+
     systemd.services.netmaker = {
       description = "Netmaker Wireguard Mesh Network";
       wantedBy = ["multi-user.target"];
@@ -124,9 +128,10 @@ in
         DynamicUser = true;
         User = "netmaker";
         Group = "netmaker";
+        WorkingDirectory = "/var/lib/netmaker"; 
       };
       preStart = ''
-        cp /tmp/detsys-vault/netmaker-config.yml /tmp/netmaker-config.yml
+        ${pkgs.bat}/bin/bat /tmp/detsys-vault/netmaker-config.yml
       '';
     };
 
@@ -166,8 +171,11 @@ in
                     manageiptables: "${boolToString cfg.manage_iptables}"
                     portforwardservices: "${cfg.port_forward_services}"
                     hostnetwork: "${boolToString cfg.host_network}"
+                    telemetry: "${boolToString cfg.telemetry}"
+                    mq_host: "${cfg.mq_host}"
+                    sqlconn: "postgres://netmaker:netmaker@localhost:5432/netmaker?sslmode=disable"
                 '';
-                permissions = "0400";  # Ensure the file has read permission for the owner only
+                permissions = "0600";  # Ensure the file has read permission for the owner only
                 change-action = "restart";  # Restart service if the config changes
               };
             };
@@ -193,7 +201,7 @@ in
             files = {
               "passwordFile" = {
                 text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.mosquitto_pass }}{{ else }}{{ .Data.data.mosquitto_pass }}{{ end }}{{ end }}'';
-                permissions = "0400";  # Make the script executable
+                permissions = "0600";  # Make the script executable
                 change-action = "restart";
               };
             };
