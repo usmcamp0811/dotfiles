@@ -114,28 +114,30 @@ in
           local labelstudio labelstudio trust
           local paperless paperless trust
           local netmaker netmaker trust
+          local postgres netmaker trust
           host  paperless paperless 127.0.0.1/32 trust
+          host  netmaker  netmaker  127.0.0.1/32 trust
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
       };
-      wireguard = {
-        enable = true;
-        port = 1149;
-        ips = [ "10.100.0.1/24" ];
-        peers = [
-          { # butler
-            publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
-            presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-            allowedIPs = [ "10.100.0.2/32" ];
-          }
-          { # phone
-            publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
-            presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-            allowedIPs = [ "10.100.0.3/32" ];
-          }
-        ];
-      };
+      # wireguard = {
+      #   enable = true;
+      #   port = 1149;
+      #   ips = [ "10.100.0.1/24" ];
+      #   peers = [
+      #     { # butler
+      #       publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
+      #       presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
+      #       allowedIPs = [ "10.100.0.2/32" ];
+      #     }
+      #     { # phone
+      #       publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
+      #       presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
+      #       allowedIPs = [ "10.100.0.3/32" ];
+      #     }
+      #   ];
+      # };
       zfs-key-server = {
         enable = true;
         port = 8123;
