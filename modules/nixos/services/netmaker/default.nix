@@ -61,6 +61,12 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = [ pkgs.campground.netmaker-ui pkgs.netmaker ]; # Ensure netmaker package is available
 
+    users.users.netmaker = {
+      isSystemUser = true;
+      group = "netmaker";
+    };
+    users.groups.netmaker = {};
+
     campground.services.postgresql = {
       enable = true;
       databases = [ 
@@ -91,7 +97,7 @@ in
       listeners = [
         {
           port = 8883;
-          users.netmaker.passwordFile = "/var/lib/netmaker/netmaker-pass";
+          users.netmaker.passwordFile = "/tmp/detsys-vault/passwordFile";
           settings = {
             protocol = "websockets";
             allow_anonymous = false;
@@ -99,7 +105,7 @@ in
         }
         {
           port = 1883;
-          users.netmaker.passwordFile = "/tmp/detsys-vault/mosquitto-pass";
+          users.netmaker.passwordFile = "/tmp/detsys-vault/passwordFile";
           settings = {
             protocol = "websockets";
             allow_anonymous = false;
@@ -120,13 +126,12 @@ in
         Group = "netmaker";
       };
       preStart = ''
-        cp /tmp/detsys-vault/netmaker-config.yml /home/mcamp/netmaker-config.yml
+        cp /tmp/detsys-vault/netmaker-config.yml /tmp/netmaker-config.yml
       '';
     };
 
 
-    campground.services.vault-agent.services = {
-      netmaker = {
+    campground.services.vault-agent.services.netmaker = {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
@@ -161,44 +166,41 @@ in
                     manageiptables: "${boolToString cfg.manage_iptables}"
                     portforwardservices: "${cfg.port_forward_services}"
                     hostnetwork: "${boolToString cfg.host_network}"
-                    sql_user: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sql_user }}{{ else }}{{ .Data.data.sql_user }}{{ end }}{{ end }}"
-                    sql_pass: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sql_pass }}{{ else }}{{ .Data.data.sql_pass }}{{ end }}{{ end }}"
                 '';
-                permissions = "0600";  # Ensure the file has read permission for the owner only
+                permissions = "0400";  # Ensure the file has read permission for the owner only
                 change-action = "restart";  # Restart service if the config changes
               };
             };
           };
         };
       };
-      # mosquitto = {
-      #   settings = {
-      #     vault.address = cfg.vault-address;
-      #     auto_auth = {
-      #       method = [{
-      #         type = "approle";
-      #         config = {
-      #           role_id_file_path = cfg.role-id;
-      #           secret_id_file_path = cfg.secret-id;
-      #           remove_secret_id_file_after_reading = false;
-      #         };
-      #       }];
-      #     };
-      #   };
-      #   secrets = {
-      #     file = {
-      #       files = {
-      #         "mosquitto-pass" = {
-      #           text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.mosquitto-pass }}{{ else }}{{ .Data.data.mosquitto-pass }}{{ end }}{{ end }}'';
-      #           permissions = "0600";  # Make the script executable
-      #           change-action = "restart";
-      #         };
-      #       };
-      #     };
-      #   };
-      # };
+    campground.services.vault-agent.services.mosquitto = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets = {
+          file = {
+            files = {
+              "passwordFile" = {
+                text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.mosquitto_pass }}{{ else }}{{ .Data.data.mosquitto_pass }}{{ end }}{{ end }}'';
+                permissions = "0400";  # Make the script executable
+                change-action = "restart";
+              };
+            };
+          };
+        };
+      };
     };
-  };
 }
 
 

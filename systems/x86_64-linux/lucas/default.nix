@@ -40,6 +40,22 @@ in
     services = {
       attic-watch-store = enabled;
       gitlab-runner = enabled;
+      netmaker = {
+        enable = true;
+      };
+      postgresql = {
+        enable = true;
+        enableTCPIP = true;
+        backupEnable = true;
+        backupLocation = "/persist/postgresqlBackups/";
+        authentication = ''
+          local all root trust
+          local all postgres peer
+          local netmaker netmaker trust
+          host  all  all  0.0.0.0/0  reject
+          host  all  all  ::0/0  reject
+        '';
+      };
       searx = {
         enable = true;
         port = 3249;
