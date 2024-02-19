@@ -99,7 +99,7 @@ in
         }
         {
           port = 1883;
-          users.netmaker.passwordFile = "/var/lib/netmaker/netmaker-pass";
+          users.netmaker.passwordFile = "/tmp/detsys-vault/mosquitto-pass";
           settings = {
             protocol = "websockets";
             allow_anonymous = false;
@@ -109,28 +109,37 @@ in
     };
 
     systemd.services.netmaker = {
-
       description = "Netmaker Wireguard Mesh Network";
-
       wantedBy = ["multi-user.target"];
       after = ["network.target"];
-
       serviceConfig = {
-        Type = "simple";
         ExecStart = "${pkgs.netmaker}/bin/netmaker -c /tmp/detsys-vault/netmaker-config.yml";
-      };
-      serviceConfig = {
-        # EnvironmentFile = config.age.secrets.service_netmaker_envfile.path;
         Restart = "always";
         DynamicUser = true;
         User = "netmaker";
         Group = "netmaker";
       };
+      preStart = ''
+        cp /tmp/detsys-vault/netmaker-config.yml /home/mcamp/netmaker-config.yml
+      '';
     };
 
 
     campground.services.vault-agent.services = {
       netmaker = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
         secrets = {
           file = {
             files = {
@@ -155,39 +164,39 @@ in
                     sql_user: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sql_user }}{{ else }}{{ .Data.data.sql_user }}{{ end }}{{ end }}"
                     sql_pass: "{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sql_pass }}{{ else }}{{ .Data.data.sql_pass }}{{ end }}{{ end }}"
                 '';
-                permissions = "0400";  # Ensure the file has read permission for the owner only
+                permissions = "0600";  # Ensure the file has read permission for the owner only
                 change-action = "restart";  # Restart service if the config changes
               };
             };
           };
         };
       };
-      mosquitto = {
-        settings = {
-          vault.address = cfg.vault-address;
-          auto_auth = {
-            method = [{
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }];
-          };
-        };
-        secrets = {
-          file = {
-            files = {
-              "mosquitto-pass" = {
-                text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.mosquitto-pass }}{{ else }}{{ .Data.data.mosquitto-pass }}{{ end }}{{ end }}'';
-                permissions = "0400";  # Make the script executable
-                change-action = "restart";
-              };
-            };
-          };
-        };
-      };
+      # mosquitto = {
+      #   settings = {
+      #     vault.address = cfg.vault-address;
+      #     auto_auth = {
+      #       method = [{
+      #         type = "approle";
+      #         config = {
+      #           role_id_file_path = cfg.role-id;
+      #           secret_id_file_path = cfg.secret-id;
+      #           remove_secret_id_file_after_reading = false;
+      #         };
+      #       }];
+      #     };
+      #   };
+      #   secrets = {
+      #     file = {
+      #       files = {
+      #         "mosquitto-pass" = {
+      #           text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.mosquitto-pass }}{{ else }}{{ .Data.data.mosquitto-pass }}{{ end }}{{ end }}'';
+      #           permissions = "0600";  # Make the script executable
+      #           change-action = "restart";
+      #         };
+      #       };
+      #     };
+      #   };
+      # };
     };
   };
 }
