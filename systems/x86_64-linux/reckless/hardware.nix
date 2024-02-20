@@ -8,7 +8,7 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "ahci" "xhci_pci" "usb_storage" "sd_mod" ];
+  boot.initrd.availableKernelModules = [ "nvme" "ahci" "xhci_pci" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
@@ -16,11 +16,6 @@
   fileSystems."/" =
     { device = "NIXROOT/root";
       fsType = "zfs";
-    };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/58E3-766F";
-      fsType = "vfat";
     };
 
   fileSystems."/home" =
@@ -33,10 +28,10 @@
       fsType = "zfs";
     };
 
-  # fileSystems."/mnt/chestyfs" =
-  #   { device = "ChestyPoolr/chestyfs";
-  #     fsType = "zfs";
-  #   };
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/8BE0-C3B9";
+      fsType = "vfat";
+    };
 
   fileSystems."/mnt/backups/webb" =
     { device = "ChestyPoolr/backups/webb";
@@ -88,16 +83,8 @@
       fsType = "zfs";
     };
 
-  # sudo zfs create -V 16G -o compression=zle -o logbias=throughput -o sync=always -o primarycache=metadata -o secondarycache=none NIXROOT/swap
-  # sudo mkswap -f /dev/zvol/NIXROOT/swap
-  # sudo swapon /dev/zvol/NIXROOT/swap
 
-  # swapDevices = [
-  #   {
-  #     device = "/dev/zvol/NIXROOT/swap";
-  #     randomEncryption.enable = true;
-  #   }
-  # ];
+  swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
@@ -105,7 +92,7 @@
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
   # networking.interfaces.eno1.useDHCP = lib.mkDefault true;
-  # networking.interfaces.enp14s0u1u2.useDHCP = lib.mkDefault true;
+  # networking.interfaces.wlp9s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
@@ -121,16 +108,3 @@
     /export/media/music 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
   '';
 }
-
-
-
-# sudo mount -t zfs ChestyPoolr/media /mnt/media                                                                                
-# sudo mount -t zfs ChestyPoolr/media/music /mnt/media/music                                                                    
-# sudo mount -t zfs ChestyPoolr/media/audiobooks /mnt/media/audiobooks 
-# sudo mount -t zfs ChestyPoolr/media/tv-shows /mnt/media/tv-shows 
-# sudo mount -t zfs ChestyPoolr/media/movies /mnt/media/movies 
-# sudo mount -t zfs ChestyPoolr/backups/webb /mnt/backups/webb         
-# sudo mount -t zfs ChestyPoolr/backups/daly /mnt/backups/daly         
-#
-#
-#
