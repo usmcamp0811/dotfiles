@@ -85,6 +85,7 @@ with lib.campground;
       mattermost-desktop = enabled;
       slack = enabled;
       onepass = enabled;
+      logseq = enabled;
       #TODO: Add Qutebrowser
     };
     tools = {
