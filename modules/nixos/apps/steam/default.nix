@@ -13,7 +13,7 @@ in
   config = mkIf cfg.enable {
     programs.steam.enable = true;
     programs.steam.remotePlay.openFirewall = true;
-
+    programs.steam.gamescopeSession.enable = true;
     hardware.steam-hardware.enable = true;
 
     # Enable GameCube controller support.
