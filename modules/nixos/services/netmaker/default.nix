@@ -59,16 +59,53 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = [ pkgs.campground.netmaker-ui pkgs.netmaker ]; # Ensure netmaker package is available
 
+    # services.nginx = {
+    #   enable = true;
+    #   # recommendedGzipSettings = true;
+    #   # recommendedOptimisationSettings = true;
+    #   # recommendedProxySettings = true;
+    #   # recommendedTlsSettings = false; # Since we're not using SSL/TLS yet
+    #
+    #   virtualHosts = {
+    #     "dashboard.nm.webb.lan" = {
+    #       forceSSL = false; # Not using SSL
+    #       listen = [{ addr = "0.0.0.0"; port = 80; }];
+    #       extraConfig = ''
+    #         location / {
+    #           root ${pkgs.campground.netmaker-ui}; 
+    #           add_header Access-Control-Allow-Origin *.$baseDomain;
+    #           add_header X-XSS-Protection "1; mode=block";
+    #           add_header X-Frame-Options "SAMEORIGIN";
+    #           add_header X-Robots-Tag "none";
+    #           server_tokens off;
+    #         }
+    #       '';
+    #     };
+    #     "broker.nm.webb.lan" = {
+    #       forceSSL = false;
+    #       listen = [{ addr = "0.0.0.0"; port = 80; }];
+    #       extraConfig = ''
+    #         location / {
+    #           proxy_pass http://localhost:8883;
+    #           proxy_http_version 1.1;
+    #           proxy_set_header Upgrade $http_upgrade;
+    #           proxy_set_header Connection "upgrade";
+    #         }
+    #       '';
+    #     };
+    #   };
+    # };
+
     # Use Caddy to reverse proxy
     services.caddy = {
       enable = true;
       # group = "acme";
 
-      virtualHosts."https://netmaker.webb" = {
+      virtualHosts."http://dashboard.nm.webb.lan" = {
         # useACMEHost = "nm.gio.ninja";
         extraConfig = ''
           header {
-              Access-Control-Allow-Origin *.${baseDomain}
+              Access-Control-Allow-Origin *.webb
               Strict-Transport-Security "max-age=31536000;"
               X-XSS-Protection "1; mode=block"
               X-Frame-Options "SAMEORIGIN"
@@ -80,8 +117,8 @@ in
         '';
       };
 
-      virtualHosts."wss://broker.netmaker.webb" = {
-        useACMEHost = "nm.gio.ninja";
+      virtualHosts."ws://broker.nm.webb.lan" = {
+        # useACMEHost = "nm.gio.ninja";
         extraConfig = ''
           reverse_proxy ws://localhost:8883
         '';
