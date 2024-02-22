@@ -264,7 +264,7 @@ update-user(){
 }
 
 update-sys(){
-  sudo nixos-rebuild switch --flake /config/\#$(hostname) |& nom
+  sudo sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'
 }
 
 get-approle() {          
