@@ -30,9 +30,9 @@ with lib.campground;
         hyprpaper = {
           enable = true;
           monitors = [
-            { name = "HDMI-A-3"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
+            { name = "HDMI-A-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
             { name = "HDMI-A-2"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
-            { name = "eDP-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
+            { name = "HDMI-A-3"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
           ];
 
           wallpapers = [
