@@ -19,6 +19,17 @@ in
 {
   options.campground.hardware.nvidia-prime = with types; {
     enable = mkEnableOption "Nvidia support";
+    driverType = mkOption {
+      type = types.enum ["stable" "beta" "production" "vulkan_beta" "legacy_470" "legacy_390" "legacy_340" "custom"];
+      default = "stable";
+      description = "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
+    };
+
+    customDriverPackage = mkOption {
+      type = types.nullOr types.package;
+      default = null;
+      description = "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -64,7 +75,7 @@ in
       nvidiaSettings = true;
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = if cfg.driverType == "custom" then cfg.customDriverPackage else config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
 
       prime = {
         sync.enable = true;
