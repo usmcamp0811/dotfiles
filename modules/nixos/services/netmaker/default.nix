@@ -27,7 +27,6 @@ in
       description = "Specify db type to connect with.";
     };
     sql_conn = mkOpt str "postgres://netmaker@/netmaker?host=/run/postgresql/" "Specify the necessary string to connect with your SQL database.";
-    # sql_conn = mkOpt str "postgresql://netmaker:netmaker@localhost/netmaker" "Specify the necessary string to connect with your SQL database.";
     sql_host = mkOpt str "127.0.0.1" "Host where the SQL database is running.";
     sql_port = mkOpt int 5432 "Port the SQL database is running on.";
     sql_db = mkOpt str "netmaker" "DB to use in SQL database.";
@@ -59,6 +58,35 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = [ pkgs.campground.netmaker-ui pkgs.netmaker ]; # Ensure netmaker package is available
+
+    # Use Caddy to reverse proxy
+    services.caddy = {
+      enable = true;
+      # group = "acme";
+
+      virtualHosts."https://netmaker.webb" = {
+        # useACMEHost = "nm.gio.ninja";
+        extraConfig = ''
+          header {
+              Access-Control-Allow-Origin *.${baseDomain}
+              Strict-Transport-Security "max-age=31536000;"
+              X-XSS-Protection "1; mode=block"
+              X-Frame-Options "SAMEORIGIN"
+              X-Robots-Tag "none"
+              -Server
+          }
+          root * ${pkgs.campground.netmaker-ui}
+          file_server
+        '';
+      };
+
+      virtualHosts."wss://broker.netmaker.webb" = {
+        useACMEHost = "nm.gio.ninja";
+        extraConfig = ''
+          reverse_proxy ws://localhost:8883
+        '';
+      };
+    };
 
     users.users.netmaker = {
       isNormalUser = false;
@@ -159,14 +187,12 @@ in
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        # ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/passwordFile /var/lib/vault/mq.pass";
       };
       wantedBy = [ "mosquitto.service" ];
       script = ''
       ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/passwordFile /var/lib/vault/mq.pass
       chown mosquitto:mosquitto /var/lib/vault/mq.pass
       '';
-      # before = [ "nscd.service" ];
     };
 
     campground.services.vault-agent.services.netmaker = {
