@@ -1,7 +1,11 @@
 { unstable, channels, ... }:
 
-self: super: {
-  nvidia_x11 = super.nvidia_x11.overrideAttrs (oldAttrs: {
-    src = self.unstable.nvidia_x11.src;
-  });
+final: prev:
+
+{
+
+  inherit (channels.unstable) nvidia_x11;
+  # hardware.nvidia.package = channels.unstable.linuxPackages_latest.nvidia_x11;
+  # hardware.opengl.package = channels.unstable.mesa_drivers;
 }
+
