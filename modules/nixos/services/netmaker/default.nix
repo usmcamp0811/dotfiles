@@ -14,7 +14,8 @@ in
     api_port = mkOpt int 8081 "Sets the port for the API on the server.";
     stun_list = mkOpt str "stun1.netmaker.io:3478,stun2.netmaker.io:3478,stun1.l.google.com:19302,stun2.l.google.com:19302" "Stun list";
     nm_domain = mkOpt str "nm.lucas.lan" "toplevel domain";
-    broker_endpoint = mkOpt str "wss://broker.${cfg.nm_domain}" "broker endpoint url";
+    # broker_endpoint = mkOpt str "wss://broker.${cfg.nm_domain}" "broker endpoint url";
+    broker_endpoint = mkOpt str "wss://localhost" "broker endpoint url";
     server_api_conn_string = mkOpt str "api.${cfg.nm_domain}:443" "server api con string";
     server_http_host= mkOpt str "api.${cfg.nm_domain}" "Should be the same as SERVER_API_CONN_STRING minus the port.";
     master_key = mkOpt str "secretkey" "The admin master key for accessing the API.";
@@ -107,7 +108,7 @@ in
         # useACMEHost = "nm.gio.ninja";
         extraConfig = ''
           header {
-              Access-Control-Allow-Origin *.lucas.lan
+              Access-Control-Allow-Origin *.nm.lucas.lan
               Strict-Transport-Security "max-age=31536000;"
               X-XSS-Protection "1; mode=block"
               X-Frame-Options "SAMEORIGIN"
@@ -119,11 +120,17 @@ in
           reverse_proxy http://localhost
         '';
       };
-
       virtualHosts."http://broker.nm.lucas.lan" = {
         # useACMEHost = "nm.gio.ninja";
         extraConfig = ''
-          reverse_proxy ws://localhost:8883
+          reverse_proxy http://localhost:8883
+        '';
+      };
+
+      virtualHosts."http://api.nm.lucas.lan" = {
+        # useACMEHost = "nm.gio.ninja";
+        extraConfig = ''
+          reverse_proxy http://localhost:8081
         '';
       };
     };
@@ -209,7 +216,6 @@ in
         DISABLEREMOTEIPCHECK="false";
         VERBOSITY="${toString cfg.verbosity}";
         DATABASE="${cfg.database}";
-        MQHOST="${cfg.mq_host}";
         DISPLAYKEYS="${boolToString cfg.display_keys}";
         MANAGEIPTABLES="${boolToString cfg.manage_iptables}";
         PORTFORWARDSERVICES="${cfg.port_forward_services}";
