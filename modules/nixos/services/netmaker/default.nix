@@ -10,11 +10,13 @@ in
     enable = mkBoolOpt false "Netmaker";
     server_name = mkOpt str "campground" "This is the public, resolvable DNS name of the MQ Broker.";
     server_host = mkOpt str "" "The public IP of the server where the machine is running.";
-    server_api_conn_string = mkOpt str "" "MUST SET THIS VALUE. This is the public, resolvable address of the API, including the port.";
     coredns_addr = mkOpt str "" "The public IP of the CoreDNS server.";
-    server_http_host = mkOpt str "" "Should be the same as SERVER_API_CONN_STRING minus the port.";
     api_port = mkOpt int 8081 "Sets the port for the API on the server.";
-
+    stun_list = mkOpt str "stun1.netmaker.io:3478,stun2.netmaker.io:3478,stun1.l.google.com:19302,stun2.l.google.com:19302" "Stun list";
+    nm_domain = mkOpt str "nm.lucas.lan" "toplevel domain";
+    broker_endpoint = mkOpt str "wss://broker.${cfg.nm_domain}" "broker endpoint url";
+    server_api_conn_string = mkOpt str "api.${cfg.nm_domain}:443" "server api con string";
+    server_http_host= mkOpt str "api.${cfg.nm_domain}" "Should be the same as SERVER_API_CONN_STRING minus the port.";
     master_key = mkOpt str "secretkey" "The admin master key for accessing the API.";
 
     cors_allowed_origin = mkOpt str "*" "The 'allowed origin' for API requests.";
@@ -101,11 +103,11 @@ in
       enable = true;
       # group = "acme";
 
-      virtualHosts."http://dashboard.nm.webb.lan" = {
+      virtualHosts."http://dashboard.nm.lucas.lan" = {
         # useACMEHost = "nm.gio.ninja";
         extraConfig = ''
           header {
-              Access-Control-Allow-Origin *.webb
+              Access-Control-Allow-Origin *.lucas.lan
               Strict-Transport-Security "max-age=31536000;"
               X-XSS-Protection "1; mode=block"
               X-Frame-Options "SAMEORIGIN"
@@ -114,10 +116,11 @@ in
           }
           root * ${pkgs.campground.netmaker-ui}
           file_server
+          reverse_proxy http://localhost
         '';
       };
 
-      virtualHosts."ws://broker.nm.webb.lan" = {
+      virtualHosts."http://broker.nm.lucas.lan" = {
         # useACMEHost = "nm.gio.ninja";
         extraConfig = ''
           reverse_proxy ws://localhost:8883
@@ -213,6 +216,11 @@ in
         HOSTNETWORK="${boolToString cfg.host_network}";
         TELEMETRY="${boolToString cfg.telemetry}";
         MQ_HOST="${cfg.mq_host}";
+        STUN_LIST="${cfg.stun_list}";
+        BROKER_ENDPOINT="${cfg.broker_endpoint}";
+        SERVER_NAME="${cfg.nm_domain}";
+        SERVER_API_CONN_STRING="${cfg.server_api_conn_string}";
+        SERVER_HTTP_HOST="${cfg.server_http_host}";
       };
       script = ''
       ${pkgs.netmaker}/bin/netmaker
