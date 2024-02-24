@@ -209,6 +209,7 @@
           nuenv.overlays.default
           nur.overlay
           nix-snapshotter.overlays.default
+          poetry2nix.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
