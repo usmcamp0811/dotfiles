@@ -81,7 +81,7 @@ in
       ldap-client = {
         enable = mkForce false;
       };
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
       attic = {
         enable = true; 
         settings = {
@@ -102,7 +102,7 @@ in
             type = "zstd";
           };
           garbage-collection = {
-            interval = "12 hours";
+            interval = "144 hours";
           };
         };
       };
