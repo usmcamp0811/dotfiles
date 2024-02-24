@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "mlflow-serve"
+version = "0.1.0"
+description = "This is an environment to be able to run MLFlow model serve"
+authors = ["Matt Camp <matt@aicampground.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+matplotlib = "*"
+pandas = "*"
+requests = "^2.31.0"
+pillow = "^10.1.0"
+pyjulia = "^0.0.6"
+juliacall = "^0.9.14"
+julia = "^0.6.1"
+mlflow = "*"
+setuptools = "^69.0.3"
+setuptools-scm = "^8.0.4"
+boto3 = "^1.34.33"
+pip = "^23.3.2"
+virtualenv = "^20.25.0"
+gunicorn = "^21.2.0"
+cloudpickle = "^3.0.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.1"]
+build-backend = "poetry.core.masonry.api"
+
