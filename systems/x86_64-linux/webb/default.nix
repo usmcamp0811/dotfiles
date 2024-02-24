@@ -36,9 +36,6 @@ in
     };
 
     services = {
-      netmaker = {
-        enable = true;
-      };
       ldap-client = {
         enable = mkForce false;
       };
