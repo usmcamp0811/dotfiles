@@ -19,8 +19,8 @@ in
     campground.home.extraOptions = {
       programs.git = {
         enable = true;
-        userName = cfg.userName;
-        userEmail = cfg.userEmail;
+        userName = lib.mkForce cfg.userName;
+        userEmail = lib.mkForce cfg.userEmail;
         lfs = enabled;
         extraConfig = {
           init = { defaultBranch = "main"; };
