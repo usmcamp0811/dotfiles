@@ -39,6 +39,9 @@ in
       ldap-client = {
         enable = mkForce false;
       };
+      keycloak = {
+        enable = true;
+      };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
@@ -114,6 +117,7 @@ in
           local postgres netmaker trust
           host  paperless paperless 127.0.0.1/32 trust
           host  netmaker  netmaker  127.0.0.1/32 trust
+          host  keycloak  keycloak  127.0.0.1/32 trust
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
