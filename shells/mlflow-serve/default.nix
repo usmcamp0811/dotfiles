@@ -10,7 +10,7 @@ with lib;
 with lib.campground;
 let
   inherit (lib.campground) override-meta;
-  pkgs-unstable = inputs.unstable.legacyPackages.${system};
+  nix-unstable = inputs.unstable.legacyPackages.${system};
 
   # This is required if you get odd errors
   # read the https://github.com/nix-community/poetry2nix/blob/master/docs/edgecases.md
@@ -42,68 +42,68 @@ let
     preferWheels = true;
   };
 in
-pkgs-unstable.mkShell {
+nix-unstable.mkShell {
   buildInputs = [
    python-env 
-   pkgs-unstable.gcc
-   pkgs-unstable.libunistring
-   pkgs-unstable.libidn2
-   pkgs-unstable.tzdata
-   pkgs-unstable.zlib
-   pkgs-unstable.zlib.dev
-   pkgs-unstable.readline
-   pkgs-unstable.readline.dev
-   pkgs-unstable.bzip2
-   pkgs-unstable.bzip2.dev
-   pkgs-unstable.ncurses
-   pkgs-unstable.ncurses.dev
-   pkgs-unstable.sqlite
-   pkgs-unstable.sqlite.dev
-   pkgs-unstable.openssl
-   pkgs-unstable.openssl.dev
-   pkgs-unstable.libuuid
-   pkgs-unstable.libuuid.dev
-   pkgs-unstable.gdbm
-   pkgs-unstable.lzlib
-   pkgs-unstable.tk
-   pkgs-unstable.tk.dev
-   pkgs-unstable.libffi
-   pkgs-unstable.libffi.dev
-   pkgs-unstable.expat
-   pkgs-unstable.expat.dev
-   pkgs-unstable.mailcap
-   pkgs-unstable.xz
-   pkgs-unstable.xz.dev
-   pkgs-unstable.openssl
-   pkgs-unstable.unzip
-   pkgs-unstable.gnutar
-   pkgs-unstable.wget
-   pkgs-unstable.curl
-   pkgs-unstable.gnugrep
-   pkgs-unstable.gawk
-   pkgs-unstable.gnused
-   pkgs-unstable.pyenv
-   pkgs-unstable.bashInteractive
-   pkgs-unstable.gnumake
-   pkgs-unstable.zlib
-   pkgs-unstable.libffi
-   pkgs-unstable.readline
-   pkgs-unstable.bzip2
-   pkgs-unstable.openssl
-   pkgs-unstable.ncurses
-   pkgs-unstable.stdenv.cc.cc.lib
-   pkgs-unstable.julia
+   nix-unstable.gcc
+   nix-unstable.libunistring
+   nix-unstable.libidn2
+   nix-unstable.tzdata
+   nix-unstable.zlib
+   nix-unstable.zlib.dev
+   nix-unstable.readline
+   nix-unstable.readline.dev
+   nix-unstable.bzip2
+   nix-unstable.bzip2.dev
+   nix-unstable.ncurses
+   nix-unstable.ncurses.dev
+   nix-unstable.sqlite
+   nix-unstable.sqlite.dev
+   nix-unstable.openssl
+   nix-unstable.openssl.dev
+   nix-unstable.libuuid
+   nix-unstable.libuuid.dev
+   nix-unstable.gdbm
+   nix-unstable.lzlib
+   nix-unstable.tk
+   nix-unstable.tk.dev
+   nix-unstable.libffi
+   nix-unstable.libffi.dev
+   nix-unstable.expat
+   nix-unstable.expat.dev
+   nix-unstable.mailcap
+   nix-unstable.xz
+   nix-unstable.xz.dev
+   nix-unstable.openssl
+   nix-unstable.unzip
+   nix-unstable.gnutar
+   nix-unstable.wget
+   nix-unstable.curl
+   nix-unstable.gnugrep
+   nix-unstable.gawk
+   nix-unstable.gnused
+   nix-unstable.pyenv
+   nix-unstable.bashInteractive
+   nix-unstable.gnumake
+   nix-unstable.zlib
+   nix-unstable.libffi
+   nix-unstable.readline
+   nix-unstable.bzip2
+   nix-unstable.openssl
+   nix-unstable.ncurses
+   nix-unstable.stdenv.cc.cc.lib
+   nix-unstable.julia
   ];
 
   shellHook = ''
-    export CPPFLAGS="-I${pkgs-unstable.zlib.dev}/include -I${pkgs-unstable.libffi.dev}/include -I${pkgs-unstable.readline.dev}/include -I${pkgs-unstable.bzip2.dev}/include -I${pkgs-unstable.openssl.dev}/include"
-    export CXXFLAGS="-I${pkgs-unstable.zlib.dev}/include -I${pkgs-unstable.libffi.dev}/include -I${pkgs-unstable.readline.dev}/include -I${pkgs-unstable.bzip2.dev}/include -I${pkgs-unstable.openssl.dev}/include"
-    export CFLAGS="-I${pkgs-unstable.openssl.dev}/include"
-    export LDFLAGS="-L${pkgs-unstable.zlib.out}/lib -L${pkgs-unstable.libffi.out}/lib -L${pkgs-unstable.readline.out}/lib -L${pkgs-unstable.bzip2.out}/lib -L${pkgs-unstable.openssl.out}/lib"
-    export PKG_CONFIG_PATH="${pkgs-unstable.ncurses}/lib/pkgconfig:${pkgs-unstable.libffi}/lib/pkgconfig:${pkgs-unstable.readline}/lib/pkgconfig:${pkgs-unstable.openssl}/lib/pkgconfig"
-    export CONFIGURE_OPTS="-with-openssl=${pkgs-unstable.openssl.dev}"
-    export LD_LIBRARY_PATH=${pkgs-unstable.lib.makeLibraryPath [
-      pkgs-unstable.stdenv.cc.cc
+    export CPPFLAGS="-I${nix-unstable.zlib.dev}/include -I${nix-unstable.libffi.dev}/include -I${nix-unstable.readline.dev}/include -I${nix-unstable.bzip2.dev}/include -I${nix-unstable.openssl.dev}/include"
+    export CXXFLAGS="-I${nix-unstable.zlib.dev}/include -I${nix-unstable.libffi.dev}/include -I${nix-unstable.readline.dev}/include -I${nix-unstable.bzip2.dev}/include -I${nix-unstable.openssl.dev}/include"
+    export CFLAGS="-I${nix-unstable.openssl.dev}/include"
+    export LDFLAGS="-L${nix-unstable.zlib.out}/lib -L${nix-unstable.libffi.out}/lib -L${nix-unstable.readline.out}/lib -L${nix-unstable.bzip2.out}/lib -L${nix-unstable.openssl.out}/lib"
+    export PKG_CONFIG_PATH="${nix-unstable.ncurses}/lib/pkgconfig:${nix-unstable.libffi}/lib/pkgconfig:${nix-unstable.readline}/lib/pkgconfig:${nix-unstable.openssl}/lib/pkgconfig"
+    export CONFIGURE_OPTS="-with-openssl=${nix-unstable.openssl.dev}"
+    export LD_LIBRARY_PATH=${nix-unstable.lib.makeLibraryPath [
+      nix-unstable.stdenv.cc.cc
     ]}
     echo 🏕️ Welcome to the Campground
   '';

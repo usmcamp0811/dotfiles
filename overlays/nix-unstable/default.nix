@@ -2,6 +2,6 @@
 
 final: prev:
 {
-  gcc-unstable = unstable.legacyPackages.${prev.system}.gcc;
+  nix-unstable = unstable.legacyPackages.${prev.system};
 }                                                                                   
                                                                                    
