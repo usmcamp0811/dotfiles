@@ -8,7 +8,7 @@ in
 {
   options.campground.services.keycloak = with types; {
     enable = mkBoolOpt false "Whether or not to enable keycloak.";
-    port = mkOpt str "21567" "Port to listen on";
+    port = mkOpt int 22547 "Port to listen on";
     hostname = mkOpt str "aicampground.com" "The hostname part of the public URL used as base for all frontend requests.";
 
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
@@ -41,8 +41,8 @@ in
 
       virtualHosts = {
         "keycloak.lan" = {
-          forceSSL = true;
-          enableACME = true;
+          # forceSSL = true;
+          # enableACME = true;
           locations = {
             "/cloak/" = {
               proxyPass = "http://localhost:${toString config.services.keycloak.settings.http-port}/cloak/";

@@ -253,11 +253,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1708192298,
-        "narHash": "sha256-f8pxHbuhs0lhiJ0Ux5mBrw9EyKnscPk+z2PpDVQsvxU=",
+        "lastModified": 1708889905,
+        "narHash": "sha256-nKeOsdQxzuabMw93TbGmI0UjIX3673Il/fcYsiz/by4=",
         "owner": "usmcamp0811",
         "repo": "campground-packages",
-        "rev": "2bf0d6feaeab61bf6513e6a9bf6a4aab041e70d0",
+        "rev": "f2c23d7c4089f4a3941726671487f047fa8fb14c",
         "type": "gitlab"
       },
       "original": {
