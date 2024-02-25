@@ -105,6 +105,8 @@ nix-unstable.mkShell {
     export LD_LIBRARY_PATH=${nix-unstable.lib.makeLibraryPath [
       nix-unstable.stdenv.cc.cc
     ]}
+    export MLFLOW_S3_ENDPOINT_URL=https://s3-api.lan.aicampground.com
+    export MLFLOW_TRACKING_URI=https://mlflow.lan.aicampground.com
     echo 🏕️ Welcome to the Campground
   '';
 }
