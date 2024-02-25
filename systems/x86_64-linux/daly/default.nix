@@ -41,6 +41,9 @@ in
     services = {
       attic-watch-store = enabled;
       ldap-server = enabled;
+      keycloak = {
+        enable = true;
+      };
       borgbackup = {
         enable = true;
         jobs = {
