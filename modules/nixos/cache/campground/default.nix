@@ -11,7 +11,7 @@ in
   };
   config = mkIf cfg.enable {
     campground.nix.extra-substituters = {
-      "https://attic.lan.aicampground.com/campground".key = "campground:kBMAxN6RjjZTukcWPu7BJ4nglK76jaxm8t+hq2if2/8=";
+      "https://attic.aicampground.com/campground".key = "campground:kBMAxN6RjjZTukcWPu7BJ4nglK76jaxm8t+hq2if2/8=";
     };
   };
 }

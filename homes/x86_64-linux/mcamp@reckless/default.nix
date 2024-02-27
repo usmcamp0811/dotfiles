@@ -90,6 +90,7 @@ with lib.campground;
       virtmanager = enabled; # don't forget to add to libvirtd group
       emoji-picker = enabled;
       scientific-fhs = enabled;
+      jupyter = enabled;
     };
   };
 
