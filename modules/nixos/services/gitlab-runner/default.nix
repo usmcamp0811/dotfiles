@@ -5,8 +5,8 @@ with lib.campground;
 let
   cfg = config.campground.services.gitlab-runner;
   
-  CI_SERVER_URL="${runner-name}-CI_SERVER_URL";
-  REGISTRATION_TOKEN="${runner-name}-REGISTRATION_TOKEN";
+  CI_SERVER_URL="${cfg.runner-name}-CI_SERVER_URL";
+  REGISTRATION_TOKEN="${cfg.runner-name}-REGISTRATION_TOKEN";
 in
 {
   options.campground.services.gitlab-runner = {
