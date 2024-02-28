@@ -15,7 +15,7 @@ with lib.campground;
         rofi = enabled;
         swaynotificationcenter = enabled;
         networkmanagerapplet = enabled;
-        swayidle = enabled;
+        #swayidle = enabled;
         swaylock = enabled;
         input-leap = enabled;
         qt = enabled;
