@@ -82,6 +82,7 @@ in
         enable = mkForce false;
       };
       # attic-watch-store = enabled;
+      gitlab-runner = enabled;
       attic = {
         enable = true; 
         settings = {
