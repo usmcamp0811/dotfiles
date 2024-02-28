@@ -169,6 +169,8 @@
     nix-output-monitor.url = "github:maralorn/nix-output-monitor";
     
     dataflow2nix.url = "github:GTrunSec/dataflow2nix";
+
+    nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
   };
 
   outputs = inputs:
