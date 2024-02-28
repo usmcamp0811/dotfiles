@@ -4,10 +4,15 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.gitlab-runner;
+  
+  CI_SERVER_URL="${runner-name}-CI_SERVER_URL";
+  REGISTRATION_TOKEN="${runner-name}-REGISTRATION_TOKEN";
 in
 {
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
+    runner-name = mkOpt types.str config.networking.hostName "Name used in Vault to deleniate runners";
+
     role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt types.str "secret/campground/gitlab-runner" "The Vault path to the KV containing the KVs that are for each database";
@@ -99,8 +104,8 @@ in
                     "config.toml" = {
                       text = ''
                         {{ with secret "${cfg.vault-path}" }}
-                        CI_SERVER_URL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CI_SERVER_URL }}{{ else }}{{ .Data.data.CI_SERVER_URL }}{{ end }}'
-                        REGISTRATION_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.REGISTRATION_TOKEN }}{{ else }}{{ .Data.data.REGISTRATION_TOKEN }}{{ end }}'
+                        CI_SERVER_URL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${CI_SERVER_URL} }}{{ else }}{{ .Data.data.${CI_SERVER_URL} }}{{ end }}'
+                        REGISTRATION_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${REGISTRATION_TOKEN} }}{{ else }}{{ .Data.data.${REGISTRATION_TOKEN} }}{{ end }}'
                         {{ end }}
                       '';
                       permissions = "0600";
