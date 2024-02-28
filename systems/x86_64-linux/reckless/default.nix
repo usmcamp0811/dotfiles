@@ -1,4 +1,4 @@
-{ pkgs, lib, inputs,... }:
+{ pkgs, config, lib, inputs,... }:
 
 with lib;
 with lib.campground;
@@ -9,7 +9,6 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-
 in
 {
   imports = [ 
@@ -26,9 +25,9 @@ in
     };
 
     desktop.addons.rkvm = {
-      enableServer = false; 
-      enableClient = true; 
-      address = "ata-nuc:5258";
+      enableServer = true; 
+      # enableClient = true; 
+      # address = "ata-nuc:5258";
     };
 
     archetypes = {
@@ -63,7 +62,16 @@ in
       ckb-next = enabled;
       nvidia = {
         enable = true;
-        driverType = "beta";
+        driverType = "custom";
+        customDriverPackage = config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
+          version = "550.40.07";
+          # the new driver
+          src = pkgs.fetchurl
+              {
+                url = "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
+                sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
+              };
+        };
       };
       bluetooth = enabled;
     };
@@ -73,7 +81,8 @@ in
       ldap-client = {
         enable = mkForce false;
       };
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
+      gitlab-runner = enabled;
       attic = {
         enable = true; 
         settings = {
@@ -94,7 +103,7 @@ in
             type = "zstd";
           };
           garbage-collection = {
-            interval = "12 hours";
+            interval = "144 hours";
           };
         };
       };

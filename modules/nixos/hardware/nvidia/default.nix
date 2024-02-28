@@ -8,9 +8,15 @@ in
   options.campground.hardware.nvidia = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
-      type = types.enum ["stable" "beta" "production" "vulkan_beta" "legacy_470" "legacy_390" "legacy_340"];
+      type = types.enum ["stable" "beta" "production" "vulkan_beta" "legacy_470" "legacy_390" "legacy_340" "custom"];
       default = "stable";
-      description = "Type of NVIDIA driver to use.";
+      description = "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
+    };
+
+    customDriverPackage = mkOption {
+      type = types.nullOr types.package;
+      default = null;
+      description = "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
     };
   };
 
@@ -47,7 +53,18 @@ in
       nvidiaSettings = true;
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package = config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      # package = config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      package = if cfg.driverType == "custom" then cfg.customDriverPackage else config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      # package = config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
+      #   version = "550.40.07";
+      #   # the new driver
+      #   src = pkgs.fetchurl
+      #       {
+      #         url = "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
+      #         sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
+      #       };
+      # };
+
     };
     # Enable OpenGL
     hardware.opengl = {

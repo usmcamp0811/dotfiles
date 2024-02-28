@@ -21,54 +21,5 @@ in
       pkgs.gamescope
       # pkgs.campground.list-iommu
     ];
-
-    campground = {
-      cli-apps = {
-        # flake = enabled;
-      };
-
-      apps = {
-        barrier = enabled;
-      };
-
-      tools = {
-        # git = enabled;
-        # misc = enabled;
-        # julia = enabled;
-        # python = enabled;
-        # nvim = enabled;
-        # fup-repl = enabled;
-        # comma = enabled;
-        # nix-ld = enabled;
-        # bottom = enabled;
-      };
-
-      hardware = {
-        # audio = enabled;
-        # storage = enabled;
-        # networking = enabled;
-      };
-
-      services = {
-        # printing = enabled;
-        openssh = enabled;
-        # ldap-client = enabled;
-        # tailscale = enabled;
-      };
-
-      security = {
-        # gpg = enabled;
-        # doas = enabled;
-        # keyring = enabled;
-      };
-
-      system = {
-        # boot = enabled;
-        # fonts = enabled;
-        # locale = enabled;
-        # time = enabled;
-        # xkb = enabled;
-      };
-    };
   };
 }

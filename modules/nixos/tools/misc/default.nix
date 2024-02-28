@@ -51,6 +51,8 @@ in
       tmux
       cntr
       glibc
+      smartmontools
+      lshw
       borgbackup
       yt-dlp
     ];

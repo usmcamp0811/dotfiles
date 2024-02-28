@@ -48,10 +48,11 @@
     gBar.url = "github:scorpion-26/gBar";
 
     # NixPkgs-Wayland
-    # nixpkgs-wayland = {
-    #   url = "github:nix-community/nixpkgs-wayland";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    nixpkgs-wayland = {
+      url = "github:nix-community/nixpkgs-wayland";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
     # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
@@ -86,7 +87,6 @@
     # Home Manager (release-23.05)
     home-manager.url =
       "github:nix-community/home-manager/release-23.11";
-      # "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs"; 
 
     # Vault Integration 
@@ -169,6 +169,8 @@
     nix-output-monitor.url = "github:maralorn/nix-output-monitor";
     
     dataflow2nix.url = "github:GTrunSec/dataflow2nix";
+
+    nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
   };
 
   outputs = inputs:
@@ -207,6 +209,8 @@
           julia2nix.overlays.default
           nuenv.overlays.default
           nur.overlay
+          nix-snapshotter.overlays.default
+          poetry2nix.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [

@@ -13,7 +13,7 @@ in
   options.campground.desktop.display-manager.gdm = with types; {
     enable = mkBoolOpt false "Whether or not to enable gdm.";
     autoSuspend =
-      mkBoolOpt true "Whether or not to suspend the machine after inactivity.";
+      mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
     defaultSession = mkOpt (nullOr str) null "The default session to use.";
     monitors = mkOpt (nullOr path) null "The monitors.xml file to create.";
     wayland = mkBoolOpt true "Whether or not to use Wayland.";
@@ -36,12 +36,10 @@ in
           enable = true;
 
           displayManager = {
-            # inherit (cfg) defaultSession;
+            inherit (cfg) defaultSession;
 
             gdm = {
-              # inherit (cfg) enable wayland autoSuspend;
-              enable = cfg.enable;
-              wayland = cfg.wayland;
+              inherit (cfg) enable wayland autoSuspend;
             };
           };
 
