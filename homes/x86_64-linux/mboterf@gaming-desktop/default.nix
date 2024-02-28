@@ -77,7 +77,7 @@ with lib.campground;
       alacritty = enabled;
       mpv = enabled;
       zoom = enabled;
-      webcord = enabled;
+      #webcord = enabled;
       lutris = enabled;
       minecraft = enabled;
       signal = enabled;

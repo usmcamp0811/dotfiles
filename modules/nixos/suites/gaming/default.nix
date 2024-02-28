@@ -12,13 +12,13 @@ in
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      pkgs.lutris
+      # pkgs.lutris
       pkgs.minecraft
       pkgs.discord
       pkgs.steam
       pkgs.prismlauncher
       pkgs.mangohud
-      pkgs.gamescope
+      #pkgs.gamescope
       # pkgs.campground.list-iommu
     ];
   };
