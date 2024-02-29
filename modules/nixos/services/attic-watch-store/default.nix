@@ -9,7 +9,7 @@ in
   options.campground.services.attic-watch-store = {
     enable = mkEnableOption "Attic";
     cache-name = mkOpt types.str "campground" "Name of the Attic Cache that we want to push things to";
-    endpoint = mkOpt types.str "https://attic.lan.aicampground.com" "URL of the Cache";
+    endpoint = mkOpt types.str "https://attic.aicampground.com" "URL of the Cache";
 
     user = mkOpt types.str "atticd" "The user under which attic runs.";
     group = mkOpt types.str "atticd" "The group under which attic runs.";
