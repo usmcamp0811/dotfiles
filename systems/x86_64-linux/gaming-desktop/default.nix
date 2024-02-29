@@ -48,7 +48,7 @@ in
     };
   };
 
-
+  campground.cache.campground = enabled;
   campground.services = {
   };
 
