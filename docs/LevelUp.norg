@@ -26,7 +26,7 @@
 *** Important Files
 
     - `flake.nix`: The `main` file for your Nix Flake.
-    - `flake.lock`: The lock file that tells Nix what commits/dendencies to use for each of your `inputs`. 
+    - `flake.lock`: The lock file that tells Nix what commits/dependencies to use for each of your `inputs`. 
     - `.direnv`: An optional file that allows you to automatically switch to your Shell when you enter the directory; requires `direnv` be installed.
     - `.gitignore`: Every Flake -should- needs to be a `git` repository; so we might want to have a `.gitignore`. 
 
@@ -124,7 +124,7 @@
    @end
 
 ** Making a Shell Environment
-   The following should generally go in the `let` `in` block of the `outputs` section of your flake or in something that gets imported into it. It is a function call that returns a `buildEnv` that we call `shell-env`. This isn't 100% necessary that we do it seperate like we are, but it will allow us to define our environent once, and use it in both a `devShell` and a OCI compliant container. The function takes a couple of named arguments, the first being `name` which we just give it a descriptive name. The second argument is `paths` which is effectively a list of packages to include. For our example we include `julia-env` which we defined above. 
+   The following should generally go in the `let` `in` block of the `outputs` section of your flake or in something that gets imported into it. It is a function call that returns a `buildEnv` that we call `shell-env`. This isn't 100% necessary that we do it seperate like we are, but it will allow us to define our environment once, and use it in both a `devShell` and a OCI compliant container. The function takes a couple of named arguments, the first being `name` which we just give it a descriptive name. The second argument is `paths` which is effectively a list of packages to include. For our example we include `julia-env` which we defined above. 
 
    @code nix
     shell-env = pkgs.buildEnv rec { 
@@ -150,7 +150,7 @@
 
 ** Making an OCI Image
 
-   You spent all that time getting your environment just right to be able to run your application and now it needs to be containerized so it can run in Kubernetes somewhere. In the traditional Docker workflow you would have to create a `Docerkfile` and spend a lot of time making sure you included all the dependecies of your application, and their dependencies...and you would have to make sure that the version of the dependency in your base image's package manager was the correct version (looking at you Debian and Redhat)... several hours later you finally have a Docker image. 
+   You spent all that time getting your environment just right to be able to run your application and now it needs to be containerized so it can run in Kubernetes somewhere. In the traditional Docker workflow you would have to create a `Dockerfile` and spend a lot of time making sure you included all the dependencies of your application, and their dependencies...and you would have to make sure that the version of the dependency in your base image's package manager was the correct version (looking at you Debian and Redhat)... several hours later you finally have a Docker image. 
 
    With Nix and this way of making your development environment all you have to do to build a container image is the following:
 
