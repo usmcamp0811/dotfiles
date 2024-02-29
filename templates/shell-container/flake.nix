@@ -27,6 +27,7 @@
           name = "shell-env";       
           paths = [
              julia-env
+             pluto
             ];
         };
         pluto = pkgs.writeShellScriptBin "pluto" ''
