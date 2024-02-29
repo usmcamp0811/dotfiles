@@ -1,0 +1,108 @@
+* LevelUp Your Nix
+
+** Installing Nix
+
+   @code bash
+   sh <(curl -L https://nixos.org/nix/install) --daemon
+   @end
+
+*** Enable Flakes
+    Add the following to `~/.config/nix/nix.conf or /etc/nix/nix.conf`:
+
+    @code
+    experimental-features = nix-command flakes
+    @end
+
+** Nix Templates
+
+   You don't have to start from zero, you can start with a template. 
+
+   @code bash
+   mkdir project-dir 
+   cd project-dir
+   nix flake init --template gitlab:usmcamp0811/dotfiles#shell-container
+   @end
+
+*** Important Files
+
+    - `flake.nix`: The `main` file for your Nix Flake.
+    - `flake.lock`: The lock file that tells Nix what commits/dendencies to use for each of your `inputs`. 
+    - `.direnv`: An optional file that allows you to automatically switch to your Shell when you enter the directory; requires `direnv` be installed.
+    - `.gitignore`: Every Flake -should- needs to be a `git` repository; so we might want to have a `.gitignore`. 
+
+    /*NOTE:* Nix can only see files that have been added to the `git` repo./
+
+** Parts of a `flake.nix`
+
+   There are really only two parts to a `flake.nix`. 
+
+*** `inputs`
+    This section contains other Flakes you want to use or have available in your Flake. Each is assigned a local name that can be referenced in the Flake. 
+
+    All three of the following are the same, just different styles of Nix code.
+
+    @code nix
+    inputs = {
+      the-flake-name = {
+        url = "gitlab:owner/repo/branch";
+      };
+    };
+    @end
+
+    @code nix
+    inputs.the-flake-name.url = "gitlab:owner/repo/branch";
+    @end
+
+    @code nix
+    inputs = {
+      the-flake-name.url = "gitlab:owner/repo/branch";
+    };
+    @end
+
+    /Note: You can't mix styles if you are nesting things. The follwing is *not* valid./
+
+    @code nix
+    inputs.flakeA.url = "gitlab:owner/repoA/branch";
+    inputs = {
+      flakeB.url = "gitlab:owner/repoB";
+    };
+    @end
+
+    The correct way would be to do:
+
+    @code nix
+    inputs = {
+      flakeA.url = "gitlab:owner/repoA/branch";
+      flakeB.url = "gitlab:owner/repoB";
+    };
+    @end
+
+    or
+
+    @code nix
+    inputs.flakeA.url = "gitlab:owner/repoA/branch";
+    inputs.flakeB.url = "gitlab:owner/repoB";
+    @end
+
+*** `outputs`
+
+    This is the section the as the name implies is the output of your Flake. For the purpose of this tutorial session lets break the `outputs` section into two parts. 
+
+**** `let`... `in` block
+     This section is where you can create Nix variables that are the outputs of Nix functions. The functions can do things like create packages or create shells. General programming concepts can apply here, after all it is a programming language.
+
+**** `{` ... `}` block
+     This section is part of the `flake.nix` that is a little more strucutred. There are some standardized outputs that most all Flakes should have, such as `packages` or `devShells`. 
+
+
+** Making a Shell Environment
+   The following should generally go in the `let` `in` block of the `outputs` section of your flake or in something that gets imported into it. It is a function call that returns a `buildEnv` that we call `shell-env`. This isn't 100% necessary that we do it seperate like we are, but it will allow us to define our environent once, and use it in both a `devShell` and a OCI compliant container. The function takes a couple of named arguments, the first being `name` which we just give it a descriptive name. The second argument is `paths` which is effectively a list of packages to include. 
+
+   @code nix
+    shell-env = pkgs.buildEnv rec { 
+      name = "shell-env";       
+      paths = [
+         pkgs.pluto
+        ];
+    };
+   @end
