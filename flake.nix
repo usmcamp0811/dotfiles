@@ -237,6 +237,17 @@
             deploy-lib.deployChecks inputs.self.deploy)
           deploy-rs.lib;
 
+      templates = {
+        basic = {
+          path = ./templates/basic;
+          description = "a very basic flake";
+        };
+        shell-container = {
+          path = ./templates/shell-container;
+          description = "An example Shell that is also a Docker Container";
+        };
+      };
+
     };
 
 }
