@@ -50,7 +50,7 @@
           name = "shell-container" ;
           tag = "latest";
           drv = shell;
-          command = ''${pluto}/bin/pluto'';
+          command = ''${pluto}/bin/pluto --port ${PORT:-1234}'';
         };
         shell = pkgs.mkShell {
             buildInputs = [ (shell-env) ];
