@@ -82,8 +82,8 @@ with lib.campground;
       minecraft = enabled;
       signal = enabled;
       prismlauncher = enabled;
-      mattermost-desktop = enabled;
-      slack = enabled;
+     # mattermost-desktop = enabled;
+     # slack = enabled;
       onepass = enabled;
       logseq = enabled;
       #TODO: Add Qutebrowser
