@@ -101,8 +101,8 @@ in
               "stayfocused, class:org.kde.polkit-kde-authentication-agent-1"
               "stayfocused, class:Rofi"
               "nofocus, class:^(steam)$, title:^()$"
-              "stayfocused, class:^(steam)$, title:^()$"
-              "minsize 1 1, class:^(steam)$, title:^()$"
+#             "stayfocused, class:^(steam)$, title:^()$"
+#             "minsize 1 1, class:^(steam)$, title:^()$"
 
               ##
               # ░▀█▀░█▀▄░█░░░█▀▀░▀█▀░█▀█░█░█░▀█▀░█▀▄░▀█▀░▀█▀
