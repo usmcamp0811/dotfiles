@@ -81,7 +81,7 @@ in
       ldap-client = {
         enable = mkForce false;
       };
-      # attic-watch-store = enabled;
+      attic-watch-store = enabled;
       gitlab-runner = enabled;
       attic = {
         enable = true; 
