@@ -149,3 +149,16 @@ in
 
   };
 }
+
+# Do this when you have problems trying to create a cache:
+# be sure to have the token in the environment
+# sudo -E atticadm make-token \
+#   --validity "10y" \
+#   --sub "campground*" \
+#   --pull "campground*" \
+#   --push "campground*" \
+#   --create-cache "campground*" \
+#   --configure-cache "campground*" \
+#   --configure-cache-retention "campground*" \
+#   --destroy-cache "campground*" \
+#   --config /nix/store/1dkccph2xqj6sb6bdk6g057ay1b7lkjl-checked-server.toml
