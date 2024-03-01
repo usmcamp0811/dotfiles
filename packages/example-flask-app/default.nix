@@ -12,7 +12,7 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  pname = "simple-flask-app";
+  pname = "example-flask-app";
 
   description = "A Simple Flask App";
 
@@ -74,6 +74,7 @@ let
       echo "#!/usr/bin/env sh" > $out/bin/dev-flask-app
       echo "${pythonWithFlask.interpreter} $out/bin/app.py" >> $out/bin/dev-flask-app
       chmod +x $out/bin/dev-flask-app
+      cp $out/bin/run-flask-app $out/bin/example-flask-app
     '';
   };
 
