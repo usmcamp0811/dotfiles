@@ -81,7 +81,7 @@ in
       ldap-client = {
         enable = mkForce false;
       };
-      # attic-watch-store = enabled;
+      attic-watch-store = enabled;
       gitlab-runner = enabled;
       attic = {
         enable = true; 
@@ -108,19 +108,19 @@ in
         };
       };
 
-      # postgresql = {
-      #   enable = true;
-      #   enableTCPIP = true;
-      #   backupEnable = true;
-      #   backupLocation = "/persist/postgresqlBackups/";
-      #   authentication = ''
-      #     local all root trust
-      #     local all postgres peer
-      #     local atticd atticd trust
-      #     host  all  all  0.0.0.0/0  reject
-      #     host  all  all  ::0/0  reject
-      #   '';
-      # };
+      postgresql = {
+        enable = true;
+        enableTCPIP = true;
+        backupEnable = true;
+        backupLocation = "/persist/postgresqlBackups/";
+        authentication = ''
+          local all root trust
+          local all postgres peer
+          local atticd atticd trust
+          host  all  all  0.0.0.0/0  reject
+          host  all  all  ::0/0  reject
+        '';
+      };
       nix-snapshotter = enabled;
       zfs-key-server = {
         enable = false;
