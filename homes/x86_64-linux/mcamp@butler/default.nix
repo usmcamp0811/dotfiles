@@ -89,12 +89,9 @@ with lib.campground;
       vault = enabled;
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
-      # julia = enabled;
-      # jupyter = enabled;
-      # python = enabled;
       emoji-picker = enabled;
       scientific-fhs = enabled;
-      # dvc = enabled;
+      # jupyter = enabled;
     };
   };
 
