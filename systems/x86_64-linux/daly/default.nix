@@ -41,6 +41,25 @@ in
     services = {
       attic-watch-store = enabled;
       ldap-server = enabled;
+      k0s = {
+        enable = true;
+        package = pkgs.campground.k0s; 
+        role = "controller"; # Options: "controller", "worker", "controller+worker", "single"
+        apiAddress = "10.8.0.1";
+        apiSans = [ "daly" "ermy" "campnet" ];
+        clusterName = "mycluster";
+        isLeader = true; # Set this to true on the initial controller node
+        dataDir = "/var/lib/k0s";
+        tokenFile = "/var/lib/k0s/token";
+        users = {
+          etcdUser = "etcd";
+          kineUser = "kine";
+          konnectivityUser = "konnectivity";
+          kubeAPIserverUser = "kube-apiserver";
+          kubeSchedulerUser = "kube-scheduler";
+        };
+        vault-path = "secret/data/campground/k0s"; # Vault path
+      };
       borgbackup = {
         enable = true;
         jobs = {
