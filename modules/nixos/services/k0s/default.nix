@@ -199,9 +199,6 @@ in
           + optionalString (cfg.role != "single" && !cfg.isLeader) " --token-file=${cfg.tokenFile}";
         Environment = "PATH=${pkgs.openiscsi}/bin:/run/wrappers/bin:$PATH";
       };
-      unitConfig = mkIf (!cfg.isLeader) {
-        ConditionPathExists = cfg.tokenFile;
-      };
     };
 
     users.users = concatMapAttrs
