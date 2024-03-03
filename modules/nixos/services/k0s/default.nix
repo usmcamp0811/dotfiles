@@ -170,7 +170,7 @@ in
 
     environment.etc."k0s/k0s.yaml".source = configFile;
 
-    systemd.services.${unitName} = {
+    systemd.services.${unitName} = lib.mkForce {
       description = "k0s - Zero Friction Kubernetes";
       documentation = [ "https://docs.k0sproject.io" ];
       path = with pkgs; [
