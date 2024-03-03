@@ -197,6 +197,7 @@ in
           + optionalString (cfg.role == "single") " --single"
           + optionalString (cfg.role == "controller+worker") " --enable-worker"
           + optionalString (cfg.role != "single" && !cfg.isLeader) " --token-file=${cfg.tokenFile}";
+        Environment = "PATH=${pkgs.openiscsi}/bin:/run/wrappers/bin:$PATH";
       };
       unitConfig = mkIf (!cfg.isLeader) {
         ConditionPathExists = cfg.tokenFile;
@@ -212,8 +213,7 @@ in
         };
       })
       cfg.users;
-
-    campground.services.vault-agent.services.k0s = {
+    campground.services.vault-agent.services.k0s = mkIf (cfg.role != "single" && !cfg.isLeader) {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -241,4 +241,4 @@ in
     };
   };
 }
-
+# Largely adapted from https://github.com/johbo/k0s-nix/tree/main 
