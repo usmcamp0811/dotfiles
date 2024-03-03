@@ -144,16 +144,16 @@ in
       };
     };
 
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
+    role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
+    secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
+    vault-path = mkOpt types.str "secret/campground/k0s" "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
-      type = str;
+      type = types.str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = types.enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
