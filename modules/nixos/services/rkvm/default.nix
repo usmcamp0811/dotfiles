@@ -74,6 +74,14 @@ in
         description = "RKVM Service";
         wantedBy = [ "multi-user.target" ];
         serviceConfig = {
+          RestartSec = 120;
+          Delegate = "yes";
+          KillMode = "process";
+          LimitCORE = "infinity";
+          TasksMax = "infinity";
+          TimeoutStartSec = 0;
+          LimitNOFILE = 999999;
+          Restart = "always";
           ExecStart = "${pkgs.rkvm}/bin/rkvm-client /var/lib/rkvm/client.toml";
           # Add other service configurations as needed
         };
