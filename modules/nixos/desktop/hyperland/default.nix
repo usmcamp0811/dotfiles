@@ -11,8 +11,30 @@ with lib.campground;
 let
   # inherit (inputs) hyprland;
   # inherit (inputs) nixpkgs-wayland;
+  configure-gtk = pkgs.writeTextFile {
+    name = "configure-gtk";
+    destination = "/bin/configure-gtk";
+    executable = true;
+    text = let
+      schema = pkgs.gsettings-desktop-schemas;
+      datadir = "${schema}/share/gesettings/schemas/${schema.name}";
+    in ''
+      export XDG_DATA_DIRS=${datadir}:$XDG_DATA_DIRS
+      gnome_schema=org.gnome.desktop.interface
+      gesettings set $gnome_schema gtk-theme 'Adwaita'
+    '';
+  };
+  dbus-hyprland-environment = pkgs.writeTextFile {
+    name = "dbus-hyprland-environment";
+    destination = "/bin/dbus-hyprland-environment";
+    executable = true;
 
-
+    text = ''
+      dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=hyprland
+      systemctl --user stop pipewire pipewire-media-session xdg-desktop-portal xdg-desktop-portal-wlr
+      systemctl --user start pipewire pipewire-media-session xdg-desktop-portal xdg-desktop-portal-wlr
+    '';
+  };
   cfg = config.campground.desktop.hyprland;
   programs = lib.makeBinPath [ config.programs.hyprland.package ];
 in
@@ -66,7 +88,11 @@ in
           __GL_GSYNC_ALLOWED = "0";
           __GL_VRR_ALLOWED = "0";
         };
-
+        xdg.portal = {
+          enable = true;
+          wlr.enable = true;
+          extraPortals = [pkgs.xdg-desktop-portal-gtk];
+        };
         environment.systemPackages = with pkgs; [
           hyprpaper
           cliphist
@@ -82,11 +108,15 @@ in
           glib # for gsettings
           gtk3.out # for gtk-launch
           playerctl
+          dbus-hyprland-environment
+          configure-gtk
         ];
         programs.hyprland = {
           enable = true;
           xwayland.enable = true;
           package = pkgs.hyprland;
+    # credits to IceDBorn and fufexan for this patch <3
+  ### Add `dbus-hyprland-environment` and `configure-gtk` to your autostart
           portalPackage = pkgs.xdg-desktop-portal-hyprland;
           # package = hyprland.packages.${system}.hyprland;
           # portalPackage = hyprland.packages.${system}.xdg-desktop-portal-hyprland;
