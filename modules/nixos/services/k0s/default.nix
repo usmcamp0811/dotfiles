@@ -109,7 +109,7 @@ in
 
     tokenFile = mkOption {
       type = types.path;
-      default = "/tmp/detsys-vault/worker-token";
+      default = "/tmp/detsys-vault/k0s-token";
     };
 
     configText = mkOption {
@@ -170,7 +170,7 @@ in
 
     environment.etc."k0s/k0s.yaml".source = configFile;
 
-    systemd.services.${unitName} = lib.mkForce {
+    systemd.services.${unitName} = {
       description = "k0s - Zero Friction Kubernetes";
       documentation = [ "https://docs.k0sproject.io" ];
       path = with pkgs; [
@@ -210,7 +210,7 @@ in
         };
       })
       cfg.users;
-    campground.services.vault-agent.services.k0s = mkIf (cfg.role != "single" && !cfg.isLeader) {
+    campground.services.vault-agent.services.${unitName} = mkIf (cfg.role != "single" && !cfg.isLeader) {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -227,9 +227,9 @@ in
       secrets = {
         file = {
           files = {
-            "worker-token" = {
-              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.worker }}{{ else }}{{ .Data.data.worker }}{{ end }}{{ end }}'';
-              permissions = "0400";  # Make the script executable
+            "k0s-token" = {
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${cfg.role} }}{{ else }}{{ .Data.data.${cfg.role} }}{{ end }}{{ end }}'';
+              permissions = "0600";  # Make the script executable
               change-action = "restart";
             };
           };
