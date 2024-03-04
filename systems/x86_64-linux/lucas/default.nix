@@ -26,7 +26,8 @@ in
       workstation = enabled;
       server = {
         enable = true;
-        worker = true;
+        k8s = true;
+        role = "worker";
         hostId = "930864f0";
       };
     };
