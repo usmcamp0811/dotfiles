@@ -7,9 +7,16 @@ in
   options.campground.archetypes.server = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable the server archetype.";
-    worker = mkBoolOpt false "Is this a K8s Worker?";
-    controller = mkBoolOpt false "Is this a K8s Controller?";
+    k8s = mkBoolOpt false "Is this a K8s Node?";
+    role = mkOption {
+      type = types.enum [ "controller" "controller+worker" "worker" "single"];
+      default = "single";
+      description = ''
+        K8s role.
+      '';
+    };
     hostId = mkOpt str "" "ZFS Host ID";
+    isLeader = mkBoolOpt false "Whether or not k0s leader"; 
   };
 
   config = mkIf cfg.enable {
@@ -30,11 +37,15 @@ in
         docker = enabled;
         ldap-client = enabled;
         tang = enabled;
-        k0sworker = {
-          enable = cfg.worker;
-        };
-        k0scontroller = {
-          enable = cfg.controller;
+        k0s = {
+          enable = cfg.k8s;
+          package = pkgs.campground.k0s; 
+          role = cfg.role;
+          apiAddress = "10.8.0.1";
+          apiSans = [ "daly" "ermy" "campnet" ];
+          clusterName = "campground";
+          isLeader = false; # Set this to true on the initial controller node
+          dataDir = "/var/lib/k0s";
         };
         openssh = { 
           authorizedKeys = [ 
