@@ -35,6 +35,7 @@ in
     };
 
     hardware = {
+      bluetooth = enabled;
       # nvidia-prime = enabled;
     };
 

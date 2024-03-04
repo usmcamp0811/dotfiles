@@ -27,7 +27,8 @@ in
       laptop = enabled;
       server = {
         enable = true;
-        controller = true;
+        k8s = true;
+        role = "worker";
         hostId = "65c8b2d7";
       };
     };
@@ -39,8 +40,18 @@ in
     };
 
     services = {
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
       ldap-server = enabled;
+      k0s = {
+        enable = true;
+        package = pkgs.campground.k0s; 
+        role = "controller"; # Options: "controller", "worker", "controller+worker", "single"
+        apiAddress = "10.8.0.1";
+        apiSans = [ "daly" "ermy" "campnet" ];
+        clusterName = "campground";
+        isLeader = false; # Set this to true on the initial controller node
+        dataDir = "/var/lib/k0s";
+      };
       borgbackup = {
         enable = true;
         jobs = {
