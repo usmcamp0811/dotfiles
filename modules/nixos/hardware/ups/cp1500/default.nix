@@ -1,6 +1,7 @@
 { options, config, inputs, pkgs, lib, ... }:
 
 with lib;
+with lib.campground;
 let
   cfg = config.campground.hardware.ups.cp1500;
   password = "TODO";
