@@ -10,7 +10,7 @@ in
   options.campground.hardware.ups.cp1500 = with types; {
     enable = mkEnableOption "Enable the management of CP1500 UPS";
     vid = mkOpt str "0764" "Set the vid";
-    pid = mkOpt str "0501" "Set the pid";
+    pid = mkOpt str "0601" "Set the pid";
   };
 
   config = mkIf cfg.enable {
