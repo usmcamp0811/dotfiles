@@ -61,6 +61,9 @@ in
 
     hardware = {
       ckb-next = enabled;
+      ups.cp1500 = {
+        enable = true;
+      };
       nvidia = {
         enable = true;
         driverType = "custom";
