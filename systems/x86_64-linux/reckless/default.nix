@@ -81,6 +81,13 @@ in
     };
 
     services = {
+      keepalived = {
+        enable = true;
+        ip = "10.8.0.69";
+        interface = "eno1";
+        priority = 50;
+        state = "BACKUP";
+      };
       openllm = enabled;
       ldap-client = {
         enable = mkForce false;
