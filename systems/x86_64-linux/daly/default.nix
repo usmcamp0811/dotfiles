@@ -43,14 +43,14 @@ in
       keepalived = {
         enable = true;
         instances = {
-            pub-campground = {
-              interface = "enp3s0f1";
-              ips = [ "10.8.0.69" ];  # Multiple IPs for instance1
-              state = "MASTER";
-              priority = 50;
-              virtualRouterId = 51;
-            };
+          "pub-campground" = {
+            interface = "enp3s0f1";
+            ips = [ "10.8.0.69" ];
+            state = "MASTER";
+            priority = 50;
+            virtualRouterId = 51;
           };
+        };
       };
       # attic-watch-store = enabled;
       ldap-server = enabled;
