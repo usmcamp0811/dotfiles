@@ -11,7 +11,11 @@ in
       type = lib.types.attrsOf (lib.types.submodule {
         options = {
           interface = lib.mkOption { type = lib.types.str; default = "eth1"; description = "The interface name"; };
-          ips = lib.mkOption { type = lib.types.listOf lib.types.str; default = []; description = "The IPs to bind to"; };
+          ips = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [];
+            description = "The IPs to bind to";
+          };
           state = lib.mkOption { type = lib.types.str; default = "MASTER"; description = "State"; };
           priority = lib.mkOption { type = lib.types.int; default = 50; description = "Priority"; };
           virtualRouterId = lib.mkOption { type = lib.types.int; default = 50; description = "Virtual Router ID"; };
@@ -29,7 +33,7 @@ in
       interface = instanceCfg.interface;
       state = instanceCfg.state;
       priority = instanceCfg.priority;
-      virtualIps = lib.map (ip: { addr = ip; }) instanceCfg.ips;
+      virtualIps = map (ip: { addr = ip; }) instanceCfg.ips;
       virtualRouterId = instanceCfg.virtualRouterId;
     }) cfg.instances;
     environment.systemPackages = [ pkgs.tcpdump ];
