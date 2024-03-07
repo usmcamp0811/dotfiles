@@ -20,14 +20,14 @@ in
           enable = true;
           instances = {
             "pub-campground" = {
-              interface = "enp3s0f1";
+              interface = cfg.pub-interface;
               ips = [ "10.8.0.69" ];
               state = "MASTER";
               priority = 50;
               virtualRouterId = 51;
             };
             "lan-campground" = {
-              interface = "enp3s0f1";
+              interface = cfg.lan-interface;
               ips = [ "10.8.0.70" ];
               state = "MASTER";
               priority = 50;
