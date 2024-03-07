@@ -8,7 +8,7 @@ in
 {
   options.campground.suites.hosting = with types; {
     enable = mkBoolOpt false "Whether or not to enable common hosting configuration.";
-    interaface = mkOpt str "eno1" "Interface to use for the LAN Instance";
+    interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     lan-interface = mkOpt str cfg.interface "Interface to use for the LAN Instance";
     pub-interface = mkOpt str cfg.interface "Interface to use for the Public Instance";
   };
