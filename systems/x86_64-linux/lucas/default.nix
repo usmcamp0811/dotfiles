@@ -39,6 +39,25 @@ in
     };
 
     services = {
+      keepalived = {
+        enable = true;
+        instances = {
+          "pub-campground" = {
+            interface = "eno1";
+            ips = [ "10.8.0.69" ];
+            state = "MASTER";
+            priority = 50;
+            virtualRouterId = 51;
+          };
+          "lan-campground" = {
+            interface = "enp7s0";
+            ips = [ "10.8.0.70" ];
+            state = "MASTER";
+            priority = 50;
+            virtualRouterId = 52;
+          };
+        };
+      };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       netmaker = {

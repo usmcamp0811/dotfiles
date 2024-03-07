@@ -50,6 +50,13 @@ in
             priority = 50;
             virtualRouterId = 51;
           };
+          "lan-campground" = {
+            interface = "enp3s0f1";
+            ips = [ "10.8.0.70" ];
+            state = "MASTER";
+            priority = 50;
+            virtualRouterId = 52;
+          };
         };
       };
       # attic-watch-store = enabled;
