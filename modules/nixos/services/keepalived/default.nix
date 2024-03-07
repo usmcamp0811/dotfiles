@@ -23,7 +23,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    networking.firewall.allowedProtocols = [ "vrrp" ];
+    networking.firewall.extraCommands = "iptables -A INPUT -p vrrp -j ACCEPT";
     services.keepalived.enable = true;
     services.keepalived.vrrpInstances = lib.mapAttrs' (name: instanceCfg: lib.nameValuePair name {
       interface = instanceCfg.interface;
