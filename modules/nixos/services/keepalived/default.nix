@@ -2,8 +2,9 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campround.services.keepalived;
-in {
+  cfg = config.campground.services.keepalived;
+in 
+{
   options.campground.services.keepalived = {
     enable = lib.mkEnableOption "Enable KeepAliveD";
     instances = lib.mkOption {
