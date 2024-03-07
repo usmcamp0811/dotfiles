@@ -40,19 +40,26 @@ in
     };
 
     services = {
+      keepalived = {
+        enable = true;
+        ip = "10.8.0.69";
+        interface = "enp3s0f1";
+        priority = 51;
+        state = "MASTER";
+      };
       # attic-watch-store = enabled;
       ldap-server = enabled;
-      k0s = {
-        enable = true;
-        package = pkgs.campground.k0s; 
-        role = "controller"; # Options: "controller", "worker", "controller+worker", "single"
-        apiAddress = "10.8.0.1";
-        # apiSans = [ "daly" "ermy" "campnet" ];
-        apiSans = [ "10.8.0.1" ];
-        clusterName = "campground";
-        isLeader = false; # Set this to true on the initial controller node
-        dataDir = "/var/lib/k0s";
-      };
+      # k0s = {
+      #   enable = true;
+      #   package = pkgs.campground.k0s; 
+      #   role = "controller"; # Options: "controller", "worker", "controller+worker", "single"
+      #   apiAddress = "10.8.0.1";
+      #   # apiSans = [ "daly" "ermy" "campnet" ];
+      #   apiSans = [ "10.8.0.1" ];
+      #   clusterName = "campground";
+      #   isLeader = false; # Set this to true on the initial controller node
+      #   dataDir = "/var/lib/k0s";
+      # };
       borgbackup = {
         enable = true;
         jobs = {

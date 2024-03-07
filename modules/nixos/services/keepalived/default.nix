@@ -10,16 +10,17 @@ in
     instanceName = mkOpt str "campground" "The instance Name";
     interface = mkOpt str "eth1" "The interface name";
     ip = mkOpt str "10.0.0.1" "The IP to bind to";
-    workDir = mkOpt str "/code" "Working dir to start Jupyter in.";
+    state = mkOpt str "MASTER" "state";
+    priority = mkOpt int 50 "priority";
   };
 
   config = mkIf cfg.enable {
     networking.firewall.extraCommands = "iptables -A INPUT -p vrrp -j ACCEPT";
     services.keepalived.enable = true;
     services.keepalived.vrrpInstances.${cfg.instanceName} = {
-      interface = "eth1";
-      state = "MASTER";
-      priority = 50;
+      interface = cfg.interface;
+      state = cfg.state;
+      priority = cfg.priority;
       virtualIps = [{ addr = cfg.ip; }];
       virtualRouterId = 1;
     };
