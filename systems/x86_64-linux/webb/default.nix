@@ -47,16 +47,16 @@ in
       ldap-client = {
         enable = mkForce false;
       };
-      keycloak = {
-        enable = true;
-      };
+      # keycloak = {
+      #   enable = true;
+      # };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
       minio = enabled;
       mlflow = enabled;
       # airflow = enabled;
-      label-studio = enabled;
+      # label-studio = enabled;
       vaultwarden = enabled;
       mattermost = enabled;
       paperless = enabled;
