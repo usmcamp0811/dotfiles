@@ -43,8 +43,8 @@ in
       keepalived = {
         enable = true;
         ip = "10.8.0.69";
-        interface = "enp3s0f1";
-        priority = 51;
+        interface = "eno1";
+        priority = 50;
         state = "MASTER";
       };
       # attic-watch-store = enabled;
