@@ -42,16 +42,15 @@ in
     services = {
       keepalived = {
         enable = true;
-        instances = [
-          {
-            instanceName = "instance1";
-            interface = "enp3s0f1";
-            ips = [ "10.8.0.69" ];
-            state = "MASTER";
-            priority = 50;
-            virtualRouterId = 51; # Ensure this is unique per instance
-          }
-        ];
+        instances = {
+            pub-campground = {
+              interface = "enp3s0f1";
+              ips = [ "10.8.0.69" ];  # Multiple IPs for instance1
+              state = "MASTER";
+              priority = 50;
+              virtualRouterId = 51;
+            };
+          };
       };
       # attic-watch-store = enabled;
       ldap-server = enabled;
