@@ -43,7 +43,7 @@ in
       keepalived = {
         enable = true;
         ip = "10.8.0.69";
-        interface = "eno1";
+        interface = "eth0";
         priority = 50;
         state = "MASTER";
       };

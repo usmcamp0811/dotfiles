@@ -11,7 +11,7 @@ in
     interface = mkOpt str "eth1" "The interface name";
     ip = mkOpt str "10.0.0.1" "The IP to bind to";
     state = mkOpt str "MASTER" "state";
-    priority = mkOpt int 50 "priority";
+    priority = mkOpt types.ints.between 1 255 50 "priority";
   };
 
   config = mkIf cfg.enable {
