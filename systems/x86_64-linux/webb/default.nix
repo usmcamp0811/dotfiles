@@ -22,6 +22,13 @@ in
       extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
+    suites = {
+      hosting = {
+        enable = true;
+        lan-interface = "eno1";
+        pub-interface = "eno2";
+      };
+    };
 
     archetypes = {
       server = {
