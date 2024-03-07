@@ -22,7 +22,13 @@ in
       extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
-    suites.desktop.enable = mkForce false;
+    suites = {
+      desktop.enable = mkForce false;
+      hosting = {
+        enable = true;
+        interface = "enp3s0f1";
+      };
+    };
     archetypes = {
       laptop = enabled;
       server = {
@@ -40,25 +46,6 @@ in
     };
 
     services = {
-      keepalived = {
-        enable = true;
-        instances = {
-          "pub-campground" = {
-            interface = "enp3s0f1";
-            ips = [ "10.8.0.69" ];
-            state = "MASTER";
-            priority = 50;
-            virtualRouterId = 51;
-          };
-          "lan-campground" = {
-            interface = "enp3s0f1";
-            ips = [ "10.8.0.70" ];
-            state = "MASTER";
-            priority = 50;
-            virtualRouterId = 52;
-          };
-        };
-      };
       # attic-watch-store = enabled;
       ldap-server = enabled;
       # k0s = {
