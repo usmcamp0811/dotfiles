@@ -31,6 +31,13 @@ in
         hostId = "930864f0";
       };
     };
+    suites = {
+      hosting = {
+        enable = true;
+        lan-interface = "eno1";
+        pub-interface = "enp7s0";
+      };
+    };
     nfs.client.enable = true;
     tools.attic = enabled;
 
@@ -39,25 +46,6 @@ in
     };
 
     services = {
-      keepalived = {
-        enable = true;
-        instances = {
-          "pub-campground" = {
-            interface = "eno1";
-            ips = [ "10.8.0.69" ];
-            state = "MASTER";
-            priority = 50;
-            virtualRouterId = 51;
-          };
-          "lan-campground" = {
-            interface = "enp7s0";
-            ips = [ "10.8.0.70" ];
-            state = "MASTER";
-            priority = 50;
-            virtualRouterId = 52;
-          };
-        };
-      };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       netmaker = {
