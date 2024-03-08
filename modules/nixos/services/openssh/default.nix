@@ -57,7 +57,7 @@ in
   config = mkIf cfg.enable {
     services.openssh = {
       enable = true;
-
+      forwardX11 = true;
       # settings = {
         # PermitRootLogin = if format == "install-iso" then "yes" else "no";
         # PasswordAuthentication = true;
