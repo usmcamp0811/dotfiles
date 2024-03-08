@@ -9,7 +9,7 @@ in
     enable = mkBoolOpt false "Enable an Tang;";
     port = mkOption {
       type = types.listOf  types.str;
-      default = ["1234"];
+      default = ["80" "443" ];
       description = "Port to Host the traefik server on.";
     };
     ipAddressAllow = mkOption {
