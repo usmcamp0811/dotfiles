@@ -34,7 +34,7 @@ in
       server = {
         enable = true;
         k8s = true;
-        role = "worker";
+        role = "controller";
         hostId = "65c8b2d7";
       };
     };
