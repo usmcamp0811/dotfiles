@@ -44,7 +44,7 @@ in
     };
 
     services = {
-      campground.services.traefik = {
+      traefik = {
         enable = true;
         http = {
           routers = {
@@ -61,7 +61,6 @@ in
         };
       };
         
-      };
       ldap-client = {
         enable = mkForce false;
       };

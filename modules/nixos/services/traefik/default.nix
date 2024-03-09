@@ -13,12 +13,12 @@ in
       default = {};
       description = "HTTP configuration for routers and services";
     };
-    # entrypoints = lib.mkOption {
-    #   type = lib.types.listOf (lib.types.attrsOf lib.types.str);
-    #   default = [{ web = ":80" }];
-    #   example = [{ web = ":80" }];
-    #   description = "List of entrypoints for Traefik.";
-    # };
+    entrypoints = lib.mkOption {
+      type = lib.types.listOf (lib.types.attrsOf lib.types.str);
+      default = [{ web = ":80" }];
+      example = [{ web = ":80" }];
+      description = "List of entrypoints for Traefik.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -44,7 +44,7 @@ in
           sendAnonymousUsage = false;
         };
 
-        # entryPoints = lib.foldl' (acc: ep: acc // lib.mapAttrsToList (name: value: { inherit name value; }) ep) {} cfg.entrypoints;
+        entryPoints = lib.foldl' (acc: ep: acc // lib.mapAttrsToList (name: value: { inherit name value; }) ep) {} cfg.entrypoints;
         providers.docker.exposedByDefault = cfg.docker-provider;
       };
       # environmentFiles = [(pkgs.writeText "traefik.env" ''
