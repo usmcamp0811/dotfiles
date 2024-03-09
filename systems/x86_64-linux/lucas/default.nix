@@ -36,6 +36,7 @@ in
         enable = true;
         lan-interface = "eno1";
         pub-interface = "enp7s0";
+        entrypoints = { web = { address = "lucas:80"; }; };
       };
     };
     nfs.client.enable = true;
