@@ -11,14 +11,14 @@ let
     shell = pkgs.zsh;
   };
 
-  findEnabledServices = { serviceName }: builtins.filter (name: let
-    cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
-    in cfg) (builtins.attrNames self.nixosConfigurations);
-  searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
-  searxURLs = map (host: {
-    # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
-    url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
-  }) searxEnabledSystems;
+  # findEnabledServices = { serviceName }: builtins.filter (name: let
+  #   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
+  #   in cfg) (builtins.attrNames self.nixosConfigurations);
+  # searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
+  # searxURLs = map (host: {
+  #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
+  #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
+  # }) searxEnabledSystems;
 in
 {
   imports = [ ./hardware.nix ];
@@ -53,33 +53,6 @@ in
     };
 
     services = {
-      traefik = {
-        enable = true;
-        entrypoints = { web.address = "10.8.0.195:80"; };
-        dynamicConfigOptions = {
-          http.routers.searx = {
-            rule = "Host(`searx.aicampground.com`)";
-            entryPoints = [ "web" ];
-            service = "searx";
-          };
-
-          http.services.searx = {
-            loadBalancer.servers = searxURLs;
-          };
-          http.routers.simplehttp = {
-            rule = "Host(`test.campground.lan`)";
-            entryPoints = [ "web" ];
-            service = "simplehttp";
-          };
-
-          http.services.simplehttp = {
-            loadBalancer.servers = [{
-              url = "http://10.8.0.115:8112";
-            }];
-          };
-        };
-      };
-        
       ldap-client = {
         enable = mkForce false;
       };
