@@ -13,11 +13,11 @@ in
       default = {};
       description = "HTTP configuration for routers and services";
     };
-    entrypoints = lib.mkOption {
-      type = lib.types.listOf (lib.types.attrsOf lib.types.str);
-      default = [{ web = ":80" }];
-      example = [{ web = ":80" }];
-      description = "List of entrypoints for Traefik.";
+    entrypoints = mkOption {
+      type = types.attrsOf types.str;
+      default = { web = "10.8.0.3:80"; };
+      example = { web = "10.8.0.3:80"; };
+      description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
@@ -44,7 +44,10 @@ in
           sendAnonymousUsage = false;
         };
 
-        entryPoints = lib.foldl' (acc: ep: acc // lib.mapAttrsToList (name: value: { inherit name value; }) ep) {} cfg.entrypoints;
+        entryPoints = mapAttrs' (name: address: {
+          name = "address";
+          value = address;
+        }) cfg.entrypoints;
         providers.docker.exposedByDefault = cfg.docker-provider;
       };
       # environmentFiles = [(pkgs.writeText "traefik.env" ''
