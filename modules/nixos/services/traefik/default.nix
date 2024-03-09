@@ -3,6 +3,9 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.traefik;
+  # toEntryPointsFormat = entrypoints: lib.foldl' (acc: ep: acc // {
+  #   "${lib.head (lib.attrNames ep)}".address = lib.head (lib.attrValues ep);
+  # }) {} entrypoints;
 in
 {
   options.campground.services.traefik = with types; {
@@ -15,8 +18,8 @@ in
     };
     entrypoints = mkOption {
       type = types.attrsOf types.str;
-      default = { web = "10.8.0.3:80"; };
-      example = { web = "10.8.0.3:80"; };
+      default = { web = "0.0.0.0:80"; };
+      example = { web = "0.0.0.0:80"; };
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
@@ -28,24 +31,21 @@ in
       dynamicConfigOptions = {
         http = {
           routers = cfg.http.routers;
-          services = lib.mapAttrs (_: service: {
-            loadBalancer = {
-              servers = [{
-                url = service.url;
-              }];
-            };
-          }) cfg.http.services;
+          services = cfg.http.services;
         };
       };
-
       staticConfigOptions = {
         global = {
           checkNewVersion = false;
           sendAnonymousUsage = false;
         };
 
+        api = {
+          dashboard = true;
+          insecure = true; # Set to false in production and use proper authentication and HTTPS
+        };
         entryPoints = mapAttrs' (name: address: {
-          name = "address";
+          name = name;
           value = address;
         }) cfg.entrypoints;
         providers.docker.exposedByDefault = cfg.docker-provider;
