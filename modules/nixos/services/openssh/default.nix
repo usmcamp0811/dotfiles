@@ -57,12 +57,12 @@ in
   config = mkIf cfg.enable {
     services.openssh = {
       enable = true;
-      forwardX11 = true;
-      # settings = {
-        # PermitRootLogin = if format == "install-iso" then "yes" else "no";
+      settings = {
+        PermitRootLogin = if format == "install-iso" then "yes" else "no";
         # PasswordAuthentication = true;
+        X11Forwarding = true;
         # TODO: flip back to false when all is good
-      # };
+      };
 
       extraConfig = ''
         StreamLocalBindUnlink yes
@@ -74,6 +74,7 @@ in
       ];
     };
 
+    programs.ssh.forwardX11 = true;
     programs.ssh.extraConfig = ''
       Host *
         HostKeyAlgorithms +ssh-rsa
