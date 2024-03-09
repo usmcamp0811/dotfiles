@@ -44,6 +44,10 @@ in
     };
 
     services = {
+      traefik = {
+        enable = true;
+        
+      };
       ldap-client = {
         enable = mkForce false;
       };
