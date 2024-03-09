@@ -44,8 +44,22 @@ in
     };
 
     services = {
-      traefik = {
+      campground.services.traefik = {
         enable = true;
+        http = {
+          routers = {
+            simplehttp = {
+              rule = "Host(`searx.campground.lan`)";
+              entryPoints = [ "web" ];
+            };
+          };
+          services = {
+            simplehttp = {
+              url = "http://127.0.0.1:3249";
+            };
+          };
+        };
+      };
         
       };
       ldap-client = {
