@@ -11,15 +11,24 @@ in
   options.campground.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
-    http = lib.mkOption {
+    dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
       default = {};
       description = "HTTP configuration for routers and services";
     };
     entrypoints = mkOption {
-      type = types.attrsOf types.str;
-      default = { web = "0.0.0.0:80"; };
-      example = { web = "0.0.0.0:80"; };
+      type = types.attrsOf (types.submodule {
+        options = {
+          address = mkOption {
+            type = types.str;
+            default = "0.0.0.0:80";
+            example = "0.0.0.0:80";
+            description = "Address to bind the entrypoint to";
+          };
+        };
+      });
+      default = { web = { address = "0.0.0.0:80"; }; };
+      example = { web = { address = "0.0.0.0:80"; }; };
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
@@ -27,13 +36,7 @@ in
   config = mkIf cfg.enable {
     services.traefik = {
       enable = true;
-
-      dynamicConfigOptions = {
-        http = {
-          routers = cfg.http.routers;
-          services = cfg.http.services;
-        };
-      };
+      dynamicConfigOptions = cfg.dynamicConfigOptions;
       staticConfigOptions = {
         global = {
           checkNewVersion = false;
@@ -44,10 +47,9 @@ in
           dashboard = true;
           insecure = true; # Set to false in production and use proper authentication and HTTPS
         };
-        entryPoints = mapAttrs' (name: address: {
-          name = name;
-          value = address;
-        }) cfg.entrypoints;
+        # entryPoints.web.address = "10.8.0.195:80";
+
+        entryPoints = cfg.entrypoints;
         providers.docker.exposedByDefault = cfg.docker-provider;
       };
       # environmentFiles = [(pkgs.writeText "traefik.env" ''

@@ -46,16 +46,15 @@ in
     services = {
       traefik = {
         enable = true;
-        entrypoints = { web = "10.8.0.194:80"; };
-        http = {
-          routers = {
-            simplehttp = {
-              rule = "Host(`searx.campground.lan`)";
-              entryPoints = [ "web" ];
-              service = [ "simplehttp" ];
-            };
+        entrypoints = { web.address = "10.8.0.195:80"; };
+        dynamicConfigOptions = {
+          http.routers.simplehttp = {
+            rule = "Host(`test.campground.lan`)";
+            entryPoints = [ "web" ];
+            service = "simplehttp";
           };
-          services.simplehttp = {
+
+          http.services.simplehttp = {
             loadBalancer.servers = [{
               url = "http://10.8.0.115:8112";
             }];
