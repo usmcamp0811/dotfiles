@@ -25,6 +25,16 @@ in
       uid = 10000;
     };
 
+    suites = {
+      hosting = {
+        enable = true;
+        lan-interface = "eno1";
+        pub-interface = "eno1";
+        entrypoints = { 
+          web = { address = "reckless:80"; }; 
+        };
+      };
+    };
     desktop.addons.rkvm = {
       enableServer = true; 
       # enableClient = true; 
