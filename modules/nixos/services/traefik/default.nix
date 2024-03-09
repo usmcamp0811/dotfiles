@@ -7,10 +7,12 @@ in
 {
   options.campground.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
-    port = mkOption {
-      type = types.listOf  types.str;
-      default = ["80" "443" ];
-      description = "Port to Host the traefik server on.";
+    docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
+    entrypoints = lib.mkOption {
+      type = lib.types.listOf lib.types.attrs;
+      default = [ { web = ":80" } ];
+      example = [ { web = ":80" } ];
+      description = "List of entrypoints for Traefik.";
     };
   };
 
@@ -19,16 +21,15 @@ in
       enable = true;
 
       dynamicConfigOptions = {
-        http.routers.simplehttp = {
-          rule = "Host(`searx.campground.lan`)";
-          entryPoints = [ "web" ];
-          service = "simplehttp";
-        };
-
-        http.services.simplehttp = {
-          loadBalancer.servers = [{
-            url = "http://127.0.0.1:3249";
-          }];
+        http = {
+          routers = cfg.http.routers;
+          services = lib.mapAttrs (_: service: {
+            loadBalancer = {
+              servers = [{
+                url = service.url;
+              }];
+            };
+          }) cfg.http.services;
         };
       };
 
@@ -38,13 +39,13 @@ in
           sendAnonymousUsage = false;
         };
 
-        entryPoints.web.address = ":\${HTTP_PORT}";
-
-        providers.docker.exposedByDefault = false;
+        entryPoints = lib.foldl' (acc: ep: acc // lib.mapAttrsToList (name: value: { inherit name value; }) ep) {} cfg.entrypoints;
+        providers.docker.exposedByDefault = cfg.docker-provider;
       };
-      environmentFiles = [(pkgs.writeText "traefik.env" ''
-        HTTP_PORT=80
-      '')];
+      # environmentFiles = [(pkgs.writeText "traefik.env" ''
+      #   HTTP_PORT=80
+      # '')];
     };
   };
 }
+
