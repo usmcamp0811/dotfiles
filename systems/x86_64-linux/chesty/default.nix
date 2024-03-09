@@ -28,6 +28,16 @@ in
       uid = 10000;
     };
 
+    suites = {
+      hosting = {
+        enable = true;
+        lan-interface = "enp0s31f6";
+        pub-interface = "enp7s0";
+        entrypoints = { 
+          web = { address = "chesty:80"; }; 
+        };
+      };
+    };
     archetypes = {
       server = {
         enable = true;
