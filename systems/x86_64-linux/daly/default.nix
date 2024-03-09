@@ -27,6 +27,7 @@ in
       hosting = {
         enable = true;
         interface = "enp3s0f1";
+        entrypoints = { web = { address = "daly:80"; }; };
       };
     };
     archetypes = {
