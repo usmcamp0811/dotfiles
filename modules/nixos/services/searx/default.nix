@@ -3,6 +3,12 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.searx;
+  # Assuming the definition of `findEnabledServices` is correct and placed appropriately
+  #
+  # Assuming `self` is correctly defined in your broader context
+  #
+  # # Generate URLs for each enabled service
+
 in
 {
   options.campground.services.searx = with types; {
@@ -25,6 +31,21 @@ in
 
   config = mkIf cfg.enable {
 
+    # campground.services = {
+    #   traefik = {
+    #     dynamicConfigOptions = {
+    #       http.routers.searx = {
+    #         rule = "Host(`searx.aicampground.com`)";
+    #         entryPoints = [ "web" ];
+    #         service = "searx";
+    #       };
+    #
+    #       http.services.searx = {
+    #         loadBalancer.servers = searxURLs;
+    #       };
+    #     };
+    #   };
+    # };
     networking.firewall.allowedTCPPorts = [ cfg.port ];
     services = {
       searx = {

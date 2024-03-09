@@ -3,9 +3,6 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.traefik;
-  # toEntryPointsFormat = entrypoints: lib.foldl' (acc: ep: acc // {
-  #   "${lib.head (lib.attrNames ep)}".address = lib.head (lib.attrValues ep);
-  # }) {} entrypoints;
 in
 {
   options.campground.services.traefik = with types; {
