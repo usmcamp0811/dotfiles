@@ -13,7 +13,7 @@ in
 {
   options.campground.services.searx = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
-    port = mkOpt int 8080 "Port to Host the searx server on.";
+    port = mkOpt int 8081 "Port to Host the searx server on.";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/searx" "The Vault path to the KV containing the Searx Secrets.";

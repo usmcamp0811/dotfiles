@@ -13,7 +13,7 @@ in
 {
   options.campground.services.zfs-key-server = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
-    port = mkOpt int 8080 "Port to Host the NGINX porxy on.";
+    port = mkOpt int 8082 "Port to Host the NGINX porxy on.";
     tang-servers = mkOption {
       type = listOf str;
       default = [ ];

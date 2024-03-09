@@ -8,6 +8,7 @@ in
   options.campground.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
+    insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
       default = {};
@@ -42,16 +43,12 @@ in
 
         api = {
           dashboard = true;
-          insecure = true; # Set to false in production and use proper authentication and HTTPS
+          insecure = cfg.insecure; # Set to false in production and use proper authentication and HTTPS
         };
-        # entryPoints.web.address = "10.8.0.195:80";
 
         entryPoints = cfg.entrypoints;
         providers.docker.exposedByDefault = cfg.docker-provider;
       };
-      # environmentFiles = [(pkgs.writeText "traefik.env" ''
-      #   HTTP_PORT=80
-      # '')];
     };
   };
 }

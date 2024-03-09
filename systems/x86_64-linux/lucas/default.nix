@@ -36,7 +36,9 @@ in
         enable = true;
         lan-interface = "eno1";
         pub-interface = "enp7s0";
-        entrypoints = { web = { address = "lucas:80"; }; };
+        entrypoints = { 
+          web = { address = "lucas:80"; }; 
+        };
       };
     };
     nfs.client.enable = true;
@@ -49,23 +51,23 @@ in
     services = {
       attic-watch-store = enabled;
       gitlab-runner = enabled;
-      netmaker = {
-        enable = true;
-      };
-      postgresql = {
-        enable = true;
-        enableTCPIP = true;
-        backupEnable = true;
-        backupLocation = "/persist/postgresqlBackups/";
-        authentication = ''
-          local all root trust
-          local all postgres peer
-          local netmaker netmaker trust
-          host  netmaker  netmaker  127.0.0.1/32 trust
-          host  all  all  0.0.0.0/0  reject
-          host  all  all  ::0/0  reject
-        '';
-      };
+      # netmaker = {
+      #   enable = true;
+      # };
+      # postgresql = {
+      #   enable = true;
+      #   enableTCPIP = true;
+      #   backupEnable = true;
+      #   backupLocation = "/persist/postgresqlBackups/";
+      #   authentication = ''
+      #     local all root trust
+      #     local all postgres peer
+      #     local netmaker netmaker trust
+      #     host  netmaker  netmaker  127.0.0.1/32 trust
+      #     host  all  all  0.0.0.0/0  reject
+      #     host  all  all  ::0/0  reject
+      #   '';
+      # };
       searx = {
         enable = true;
         port = 3249;

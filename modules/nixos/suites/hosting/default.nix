@@ -35,7 +35,8 @@ in
       services = {
         traefik = {
           enable = true;
-          entrypoints = cfg.entrypoints;
+          insecure = true;
+          entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
