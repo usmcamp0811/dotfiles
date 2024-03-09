@@ -36,6 +36,7 @@ in
         enable = true;
         lan-interface = "eno1";
         pub-interface = "eno2";
+        entrypoints = { web = { address = "10.8.0.195:80"; }; };
       };
     };
 

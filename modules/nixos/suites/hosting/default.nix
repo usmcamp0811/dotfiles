@@ -13,6 +13,21 @@ in
     pub-interface = mkOpt str cfg.interface "Interface to use for the Public Instance";
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.70" "IP to use for the Public Instance";
+    entrypoints = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          address = mkOption {
+            type = types.str;
+            default = "0.0.0.0:80";
+            example = "0.0.0.0:80";
+            description = "Address to bind the entrypoint to";
+          };
+        };
+      });
+      default = { web = { address = "0.0.0.0:80"; }; };
+      example = { web = { address = "0.0.0.0:80"; }; };
+      description = "List of entrypoints for Traefik, mapping names to their address.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -20,7 +35,7 @@ in
       services = {
         traefik = {
           enable = true;
-          entrypoints = { web.address = "${cfg.pub-ip}:80"; };
+          entrypoints = cfg.entrypoints;
           dynamicConfigOptions = {
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
