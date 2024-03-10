@@ -35,6 +35,10 @@ in
   config = mkIf cfg.enable {
     campground = {
       services = {
+        searx = {
+          enable = true;
+          port = 3249;
+        };
         traefik = {
           enable = true;
           insecure = true;
