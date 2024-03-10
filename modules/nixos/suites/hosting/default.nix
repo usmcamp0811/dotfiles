@@ -23,8 +23,8 @@ in
   options.campground.suites.hosting = with types; {
     enable = mkBoolOpt false "Whether or not to enable common hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
-    lan-interface = mkOpt str cfg.interface "Interface to use for the LAN Instance";
-    pub-interface = mkOpt str cfg.interface "Interface to use for the Public Instance";
+    lan-interface = mkBoolOpt false "Interface to use for the LAN Instance";
+    pub-interface = mkBoolOpt false "Interface to use for the Public Instance";
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.70" "IP to use for the Public Instance";
     entrypoints = mkOption {
@@ -105,14 +105,14 @@ in
         keepalived = {
           enable = true;
           instances = {
-            "pub-campground" = {
+            "pub-campground" = mkIf cfg.pub-interface {
               interface = cfg.pub-interface;
               ips = [ cfg.pub-ip ];
               state = "MASTER";
               priority = 50;
               virtualRouterId = 51;
             };
-            "lan-campground" = {
+            "lan-campground" = mkIf cfg.lan-interface {
               interface = cfg.lan-interface;
               ips = [ cfg.lan-ip ];
               state = "MASTER";

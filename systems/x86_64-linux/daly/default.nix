@@ -26,8 +26,8 @@ in
       desktop.enable = mkForce false;
       hosting = {
         enable = true;
+        lan-interface = true;
         interface = "enp3s0f1";
-        entrypoints = { web = { address = "daly:80"; }; };
       };
     };
     archetypes = {

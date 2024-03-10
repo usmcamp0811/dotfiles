@@ -35,11 +35,8 @@ in
     suites = {
       hosting = {
         enable = true;
-        lan-interface = "eno1";
-        pub-interface = "enp7s0";
-        # entrypoints = { 
-        #   web = { address = "lucas:80"; }; 
-        # };
+        interface = "eno1";
+        pub-interface = true;
       };
     };
     nfs.client.enable = true;
