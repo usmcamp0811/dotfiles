@@ -40,16 +40,113 @@ in
           insecure = true;
           entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
-            http.routers.searx = {
+            http.routers.minio = {
+              rule = "Host(`s3.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "minio-api";
+            };
+
+            http.services.minio = {
+              loadBalancer.servers = [
+                { url = "http://webb:9001"; }
+              ];
+              loadBalancer.healthCheck = {
+                path = "/health"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
+            };
+
+            http.routers.minio-api = {
+              rule = "Host(`s3-api.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "minio-api";
+            };
+
+            http.services.minio-api = {
+              loadBalancer.servers = [
+                { url = "http://webb:9000"; }
+              ];
+              loadBalancer.healthCheck = {
+                path = "/health"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
+            };
+
+            http.routers.mlflow = {
+              rule = "Host(`mlflow.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "mlflow";
+            };
+
+            http.services.mlflow = {
+              loadBalancer.servers = [
+                { url = "http://webb:8000"; }
+              ];
+              loadBalancer.healthCheck = {
+                path = "/health"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
+            };
+
+            http.routers.vault = {
+              rule = "Host(`vault.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "vault";
+            };
+
+            http.services.vault = {
+              loadBalancer.servers = [
+                { url = "http://daly:8200"; }
+              ];
+              loadBalancer.healthCheck = {
+                path = "/health"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
+            };
+
+            http.routers.nixery = {
+              rule = "Host(`nixery.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "nixery";
+            };
+
+            http.services.nixery = {
+              loadBalancer.servers = [
+                { url = "http://webb:4567"; }
+              ];
+            };
+
+            http.routers.paperless = {
               rule = "Host(`docs.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "paperless";
             };
 
             http.services.paperless = {
-              loadBalancer.paperless = [
+              loadBalancer.servers = [
                 { url = "http://webb:28981"; }
               ];
+            };
+
+            http.routers.jellyfin = {
+              rule = "Host(`jellyfin.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "jellyfin";
+            };
+
+            http.services.jellyfin = {
+              loadBalancer.servers = [
+                { url = "http://chesty:8096"; }
+              ];
+              loadBalancer.healthCheck = {
+                path = "/health"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
             };
           };
         };

@@ -67,6 +67,23 @@ in
               };
             };
 
+            http.routers.photoprism = {
+              rule = "Host(`photos.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "photoprism";
+            };
+
+            http.services.photoprism = {
+              loadBalancer.servers = [
+                { url = "http://reckless:9080"; }
+              ];
+              loadBalancer.healthCheck = {
+                path = "/health"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
+            };
+
             http.routers.attic = {
               rule = "Host(`attic.aicampground.com`)";
               entryPoints = [ "websecure" ];
