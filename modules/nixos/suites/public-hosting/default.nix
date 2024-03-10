@@ -58,6 +58,11 @@ in
                 { url = "http://lucas:3249"; }
                 { url = "http://reckless:3249"; }
               ];
+              loadBalancer.healthCheck = {
+                path = "/"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
             };
 
             http.routers.attic = {
@@ -70,6 +75,11 @@ in
               loadBalancer.servers = [
                 { url = "http://reckless:8080"; }
               ];
+              loadBalancer.healthCheck = {
+                path = "/api/v4/system/ping"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
             };
 
             http.routers.bitwarden = {
@@ -80,8 +90,13 @@ in
 
             http.services.bitwarden = {
               loadBalancer.servers = [
-                { url = "http://webb:9012"; }
+                { url = "http://webb:8989"; }
               ];
+              loadBalancer.healthCheck = {
+                path = "/health"; 
+                interval = "10s"; 
+                timeout = "5s";
+              };
             };
 
             http.routers.mattermost = {
