@@ -75,6 +75,7 @@ in
               certResolver = "cloudflare";
               domains = [{ main = cfg.domain; sans = [ 
                 "*.${cfg.domain}" 
+                "mattermost.lan.${cfg.domain}"
                 "*.lan.${cfg.domain}" ]; }];
             };
           };
@@ -121,8 +122,7 @@ in
                 traefik = {
                   text = ''
                     {{ with secret "${cfg.vault-path}" }}
-                      CLOUDFLARE_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CF_API_KEY }}{{ else }}{{ .Data.data.CF_API_KEY }}{{ end }}'
-                      CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
+                    CF_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
                     {{ end }}
                   '';
                 };
@@ -134,3 +134,7 @@ in
     };
   };
 }
+                    # CLOUDFLARE_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+                    # CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
+                    # CF_API_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
+                    # CF_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
