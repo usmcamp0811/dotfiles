@@ -59,6 +59,18 @@ in
               ];
             };
 
+            http.routers.attic = {
+              rule = "Host(`attic.aicampground.com`)";
+              entryPoints = [ "web" ];
+              service = "attic";
+            };
+
+            http.services.attic = {
+              loadBalancer.servers = [
+                { url = "http://reckless:8080"; }
+              ];
+            };
+
             http.routers.bitwarden = {
               rule = "Host(`bw.aicampground.com`)";
               entryPoints = [ "web" ];
