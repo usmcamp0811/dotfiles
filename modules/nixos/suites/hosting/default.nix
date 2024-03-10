@@ -4,6 +4,20 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.suites.hosting;
+  jsonValue = with types;
+    let
+      valueType = nullOr (oneOf [
+        bool
+        int
+        float
+        str
+        (lazyAttrsOf valueType)
+        (listOf valueType)
+      ]) // {
+        description = "JSON value";
+        emptyValue.value = { };
+      };
+    in valueType;
 in
 {
   options.campground.suites.hosting = with types; {
@@ -14,16 +28,7 @@ in
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.70" "IP to use for the Public Instance";
     entrypoints = mkOption {
-      type = types.attrsOf (types.submodule {
-        options = {
-          address = mkOption {
-            type = types.str;
-            default = "0.0.0.0:80";
-            example = "0.0.0.0:80";
-            description = "Address to bind the entrypoint to";
-          };
-        };
-      });
+      type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
       description = "List of entrypoints for Traefik, mapping names to their address.";

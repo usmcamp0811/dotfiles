@@ -47,12 +47,13 @@ in
         };
       };
     };
+
     systemd.services.copyDNSCreds = {
-      description = "Copy DNS Provider Key";
+      description = "Copy DNS Provider Key and adjust ownership";
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/cloudflare.env /var/lib/vault/cloudflare.env";
+        ExecStart = "${pkgs.coreutils}/bin/sh -c 'cp /tmp/detsys-vault/cloudflare.env /var/lib/vault/cloudflare.env && chown acme:acme /var/lib/vault/cloudflare.env'";
       };
     };
 
@@ -81,6 +82,7 @@ in
                       text = ''
                         {{ with secret "${cfg.vault-path}" }}
                           CF_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CF_API_KEY }}{{ else }}{{ .Data.data.CF_API_KEY }}{{ end }}'
+                          CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
                         {{ end }}
                       '';
                       permissions = "0600";
