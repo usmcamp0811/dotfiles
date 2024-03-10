@@ -79,7 +79,6 @@ in
               certResolver = "cloudflare";
               domains = [{ main = cfg.domain; sans = [ 
                 "*.${cfg.domain}" 
-                "mattermost.lan.${cfg.domain}"
                 "*.lan.${cfg.domain}" ]; }];
             };
           };
