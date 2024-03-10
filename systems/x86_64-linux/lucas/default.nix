@@ -31,6 +31,7 @@ in
         hostId = "930864f0";
       };
     };
+    # security.acme = enabled;
     suites = {
       hosting = {
         enable = true;
