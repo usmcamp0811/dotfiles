@@ -51,6 +51,7 @@ in
             };
 
             http.services.searx = {
+
               loadBalancer.servers = [
                 { url = "http://webb:3249"; }
                 { url = "http://daly:3249"; }
@@ -58,6 +59,7 @@ in
                 { url = "http://lucas:3249"; }
                 { url = "http://reckless:3249"; }
               ];
+
               loadBalancer.healthCheck = {
                 path = "/"; 
                 interval = "10s"; 
