@@ -26,10 +26,9 @@ in
     };
 
     suites = {
-      hosting = {
+      public-hosting = {
         enable = true;
         interface = "eno1";
-        pub-interface = true;
       };
     };
     desktop.addons.rkvm = {

@@ -33,10 +33,9 @@ in
     };
     # security.acme = enabled;
     suites = {
-      hosting = {
+      public-hosting = {
         enable = true;
         interface = "eno1";
-        pub-interface = true;
       };
     };
     nfs.client.enable = true;

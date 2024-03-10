@@ -32,10 +32,9 @@ in
       uid = 10000;
     };
     suites = {
-      hosting = {
+      public-hosting = {
         enable = true;
         interface = "eno1";
-        pub-interface = true;
       };
     };
 

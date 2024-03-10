@@ -24,9 +24,8 @@ in
     };
     suites = {
       desktop.enable = mkForce false;
-      hosting = {
+      lan-hosting = {
         enable = true;
-        lan-interface = true;
         interface = "enp3s0f1";
       };
     };

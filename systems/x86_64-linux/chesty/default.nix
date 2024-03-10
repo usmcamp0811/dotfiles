@@ -29,9 +29,8 @@ in
     };
 
     suites = {
-      hosting = {
+      lan-hosting = {
         enable = true;
-        lan-interface = true;
         interface = "enp7s0";
       };
     };
