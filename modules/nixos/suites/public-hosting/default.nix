@@ -93,7 +93,7 @@ in
                 { url = "http://webb:8989"; }
               ];
               loadBalancer.healthCheck = {
-                path = "/health"; 
+                path = "/alive"; 
                 interval = "10s"; 
                 timeout = "5s";
               };
