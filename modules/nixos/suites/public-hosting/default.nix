@@ -3,7 +3,7 @@
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.suites.hosting;
+  cfg = config.campground.suites.public-hosting;
   jsonValue = with types;
     let
       valueType = nullOr (oneOf [
@@ -20,12 +20,9 @@ let
     in valueType;
 in
 {
-  options.campground.suites.hosting = with types; {
-    enable = mkBoolOpt false "Whether or not to enable common hosting configuration.";
+  options.campground.suites.public-hosting = with types; {
+    enable = mkBoolOpt false "Whether or not to enable common public-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
-    lan-interface = mkBoolOpt false "Interface to use for the LAN Instance";
-    pub-interface = mkBoolOpt false "Interface to use for the Public Instance";
-    lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.70" "IP to use for the Public Instance";
     entrypoints = mkOption {
       type = jsonValue;
@@ -41,11 +38,11 @@ in
         traefik = {
           enable = true;
           insecure = true;
-          entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
+          entrypoints = cfg.entrypoints; 
           dynamicConfigOptions = {
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
-              entryPoints = [ "web" ];
+              entryPoints = [ "websecure" ];
               service = "searx";
             };
 
@@ -61,7 +58,7 @@ in
 
             http.routers.attic = {
               rule = "Host(`attic.aicampground.com`)";
-              entryPoints = [ "web" ];
+              entryPoints = [ "websecure" ];
               service = "attic";
             };
 
@@ -73,7 +70,7 @@ in
 
             http.routers.bitwarden = {
               rule = "Host(`bw.aicampground.com`)";
-              entryPoints = [ "web" ];
+              entryPoints = [ "websecure" ];
               service = "bitwarden";
             };
 
@@ -84,14 +81,14 @@ in
             };
 
             http.routers.mattermost = {
-              rule = "Host(`mattermost.lan.aicampground.com`)";
+              rule = "Host(`mattermost.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "mattermost";
             };
 
             http.routers.mm = {
               rule = "Host(`mm.aicampground.com`)";
-              entryPoints = [ "web" ];
+              entryPoints = [ "websecure" ];
               service = "mattermost";
             };
 
@@ -105,19 +102,12 @@ in
         keepalived = {
           enable = true;
           instances = {
-            "pub-campground" = mkIf cfg.pub-interface {
+            "pub-campground" = {
               interface = cfg.interface;
               ips = [ cfg.pub-ip ];
               state = "MASTER";
               priority = 50;
               virtualRouterId = 51;
-            };
-            "lan-campground" = mkIf cfg.lan-interface {
-              interface = cfg.interface;
-              ips = [ cfg.lan-ip ];
-              state = "MASTER";
-              priority = 50;
-              virtualRouterId = 52;
             };
           };
         };
