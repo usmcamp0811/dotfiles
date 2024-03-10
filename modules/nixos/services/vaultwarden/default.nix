@@ -7,7 +7,7 @@ in
 {
   options.campground.services.vaultwarden = with types; {
     enable = mkBoolOpt false "Enable Vaultwarden;";
-    port = mkOpt int 9012 "Port to expose Vaultwarden on";
+    port = mkOpt int 8989 "Port to expose Vaultwarden on";
     role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
     secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/vaultwarden" "The Vault path to the KV containing the KVs that are for each database";
@@ -53,12 +53,13 @@ in
 
     services.nginx = {
       virtualHosts."vaultwarden.lan" = {
+        listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
         # useACMEHost = "thalheim.io";
         # forceSSL = true;
-        extraConfig = ''
-          listen 8989;
-          client_max_body_size 128M;
-        '';
+        # extraConfig = ''
+        #   listen ${toString cfg.port};
+        #   client_max_body_size 128M;
+        # '';
         locations."/" = {
           proxyPass = "http://localhost:3011";
           proxyWebsockets = true;
