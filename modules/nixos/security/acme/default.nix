@@ -3,6 +3,7 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.security.acme;
+  # STILL A WIP.. didn't get acme fully working yet.
 in
 {
   options.campground.security.acme = with lib.types; {

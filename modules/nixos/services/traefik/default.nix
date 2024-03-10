@@ -118,7 +118,7 @@ in
                 };
               };
               secrets.environment.templates = {
-                atticd = {
+                traefik = {
                   text = ''
                     {{ with secret "${cfg.vault-path}" }}
                       CLOUDFLARE_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CF_API_KEY }}{{ else }}{{ .Data.data.CF_API_KEY }}{{ end }}'

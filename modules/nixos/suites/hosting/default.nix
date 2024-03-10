@@ -72,8 +72,8 @@ in
             };
 
             http.routers.mattermost = {
-              rule = "Host(`mattermost.aicampground.com`)";
-              entryPoints = [ "web" ];
+              rule = "Host(`mattermost.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
               service = "mattermost";
             };
 
