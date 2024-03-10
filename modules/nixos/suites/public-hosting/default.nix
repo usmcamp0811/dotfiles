@@ -23,7 +23,7 @@ in
   options.campground.suites.public-hosting = with types; {
     enable = mkBoolOpt false "Whether or not to enable common public-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
-    pub-ip = mkOpt str "10.8.0.70" "IP to use for the Public Instance";
+    pub-ip = mkOpt str "10.8.0.42" "IP to use for the Public Instance";
     entrypoints = mkOption {
       type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
