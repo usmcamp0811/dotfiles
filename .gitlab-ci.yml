@@ -1,4 +1,3 @@
-# TODO: Clean this up break things out do good stuff
 stages:
   - update
   - build
@@ -6,15 +5,13 @@ stages:
 
 workflow:
   rules:
-  - if: $CI_PIPELINE_SOURCE == "schedule"
-    when: always
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
 
 update-flake:
   stage: update
   tags:
     - nix
-  only:
-    - nixos
   script:
     - git rm flake.lock
     - nix flake update
@@ -22,94 +19,53 @@ update-flake:
     paths:
       - flake.lock
     expire_in: 1 hour
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
+
+build_job_template: &build_job_template
+  stage: build
+  tags:
+    - nix
+  script:
+    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
+  needs:
+    - update-flake
+  resource_group: build_sequential
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 butler:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "butler"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 daly:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "daly"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 lucas:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "lucas"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 chesty:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "chesty"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 webb:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "webb"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 reckless:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "reckless"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
-
 
 .deploy_template: &deploy_template
+  stage: deploy
   script:
     - >
       if [ "$DEPLOY_TYPE" = "public" ]; then
@@ -125,21 +81,16 @@ reckless:
   tags:
     - linux
     - nix
-  only:
-    - branches
+  rules:
+    - changes:
+        - ./modules/nixos/suites/$DEPLOY_TYPE-hosting/default.nix
 
 deploy_public:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "public"
-  rules:
-    - changes:
-      - ./modules/nixos/suites/public-hosting/default.nix
 
 deploy_lan:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "lan"
-  rules:
-    - changes:
-      - ./modules/nixos/suites/lan-hosting/default.nix
