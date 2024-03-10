@@ -28,11 +28,8 @@ in
     suites = {
       hosting = {
         enable = true;
-        lan-interface = "eno1";
-        pub-interface = "eno1";
-        entrypoints = { 
-          web = { address = "reckless:80"; }; 
-        };
+        interface = "eno1";
+        pub-interface = true;
       };
     };
     desktop.addons.rkvm = {
