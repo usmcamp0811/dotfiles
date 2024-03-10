@@ -97,6 +97,7 @@ in
       attic = {
         enable = true; 
         settings = {
+          listen = "[::]:8082";
           database = {
             url = "postgres://atticd@localhost/atticd?host=/run/postgresql/";
           };
