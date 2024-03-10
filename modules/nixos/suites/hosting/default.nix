@@ -106,14 +106,14 @@ in
           enable = true;
           instances = {
             "pub-campground" = mkIf cfg.pub-interface {
-              interface = cfg.pub-interface;
+              interface = cfg.interface;
               ips = [ cfg.pub-ip ];
               state = "MASTER";
               priority = 50;
               virtualRouterId = 51;
             };
             "lan-campground" = mkIf cfg.lan-interface {
-              interface = cfg.lan-interface;
+              interface = cfg.interface;
               ips = [ cfg.lan-ip ];
               state = "MASTER";
               priority = 50;
