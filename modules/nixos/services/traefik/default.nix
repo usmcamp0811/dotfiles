@@ -53,6 +53,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    users.users.traefik = {
+      extraGroups = [ "docker" ];
+    };
+
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
@@ -123,6 +127,7 @@ in
                   text = ''
                     {{ with secret "${cfg.vault-path}" }}
                     CF_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+                    CLOUDFLARE_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
                     {{ end }}
                   '';
                 };
