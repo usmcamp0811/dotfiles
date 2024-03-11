@@ -40,6 +40,18 @@ in
           insecure = true;
           entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.uptime-kuma = {
+              rule = "Host(`uptime.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "uptime-kuma";
+            };
+
+            http.services.uptime-kuma = {
+              loadBalancer.servers = [
+                { url = "http://webb:4000"; }
+              ];
+            };
+
             http.routers.pub-traefik = {
               rule = "Host(`public-traefik.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
