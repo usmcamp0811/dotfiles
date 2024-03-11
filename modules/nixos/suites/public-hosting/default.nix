@@ -75,13 +75,8 @@ in
 
             http.services.photoprism = {
               loadBalancer.servers = [
-                { url = "http://reckless:9080"; }
+                { url = "http://webb:9080"; }
               ];
-              loadBalancer.healthCheck = {
-                path = "/health"; 
-                interval = "10s"; 
-                timeout = "5s";
-              };
             };
 
             http.routers.attic = {
@@ -92,13 +87,8 @@ in
 
             http.services.attic = {
               loadBalancer.servers = [
-                { url = "http://reckless:8080"; }
+                { url = "http://reckless:8082"; }
               ];
-              loadBalancer.healthCheck = {
-                path = "/api/v4/system/ping"; 
-                interval = "10s"; 
-                timeout = "5s";
-              };
             };
 
             http.routers.bitwarden = {

@@ -55,6 +55,7 @@ in
       ldap-client = {
         enable = mkForce false;
       };
+      uptime-kuma = enabled;
       # keycloak = {
       #   enable = true;
       # };
