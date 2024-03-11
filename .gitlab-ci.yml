@@ -82,7 +82,6 @@ reckless:
         deploy --hostname ${SYSTEM} .#${SYSTEM}
       done
   tags:
-    - linux
     - nix
 
 deploy_public:
