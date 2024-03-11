@@ -16,6 +16,7 @@ in
       appriseSupport = true;
       settings = {
         PORT = "${toString cfg.port}";
+        HOST = "0.0.0.0";
       };
     };
   };
