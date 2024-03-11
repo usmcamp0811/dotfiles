@@ -40,6 +40,18 @@ in
           insecure = true;
           entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.pub-traefik = {
+              rule = "Host(`public-traefik.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "pub-traefik";
+            };
+
+            http.services.pub-traefik = {
+              loadBalancer.servers = [
+                { url = "http://10.8.0.42:8080"; }
+              ];
+            };
+
             http.routers.sonar = {
               rule = "Host(`sonar.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
