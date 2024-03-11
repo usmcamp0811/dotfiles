@@ -49,7 +49,7 @@ in
       ldap-client = {
         enable = mkForce false;
       };
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
       hydra = enabled;
       jellyfin = enabled;
       searx = {

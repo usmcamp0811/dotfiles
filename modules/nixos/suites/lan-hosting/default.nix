@@ -40,10 +40,82 @@ in
           insecure = true;
           entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.sonar = {
+              rule = "Host(`sonar.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "sonar";
+            };
+
+            http.services.sonar = {
+              loadBalancer.servers = [
+                { url = "http://chesty:8989"; }
+              ];
+            };
+
+            http.routers.reiverr = {
+              rule = "Host(`reiverr.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "reiverr";
+            };
+
+            http.services.reiverr = {
+              loadBalancer.servers = [
+                { url = "http://chesty:9494"; }
+              ];
+            };
+
+            http.routers.radar = {
+              rule = "Host(`radar.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "radar";
+            };
+
+            http.services.radar = {
+              loadBalancer.servers = [
+                { url = "http://chesty:7878"; }
+              ];
+            };
+
+            http.routers.prowlarr = {
+              rule = "Host(`prowlarr.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "prowlarr";
+            };
+
+            http.services.prowlarr = {
+              loadBalancer.servers = [
+                { url = "http://chesty:9696"; }
+              ];
+            };
+
+            http.routers.jacket = {
+              rule = "Host(`jacket.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "jacket";
+            };
+
+            http.services.jacket = {
+              loadBalancer.servers = [
+                { url = "http://chesty:9117"; }
+              ];
+            };
+
+            http.routers.deluge = {
+              rule = "Host(`deluge.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "deluge";
+            };
+
+            http.services.deluge = {
+              loadBalancer.servers = [
+                { url = "http://chesty:8112"; }
+              ];
+            };
+
             http.routers.minio = {
               rule = "Host(`s3.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "minio-api";
+              service = "minio";
             };
 
             http.services.minio = {
@@ -101,11 +173,6 @@ in
               loadBalancer.servers = [
                 { url = "http://daly:8200"; }
               ];
-              loadBalancer.healthCheck = {
-                path = "/health"; 
-                interval = "10s"; 
-                timeout = "5s";
-              };
             };
 
             http.routers.nixery = {
