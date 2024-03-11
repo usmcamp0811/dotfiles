@@ -46,7 +46,6 @@ in
               service = "pub-traefik";
             };
 
-
             http.services.pub-traefik = {
               loadBalancer.servers = [
                 { url = "http://10.8.0.42:8080"; }
