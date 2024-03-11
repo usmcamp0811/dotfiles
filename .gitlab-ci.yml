@@ -75,15 +75,15 @@ reckless:
       fi
     - >
       for SYSTEM in $SYSTEMS; do
-        nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel;
-        nix-copy-closure --to mcamp@${SYSTEM} ./result;
+        deploy --hostname ${SYSTEM} .#${SYSTEM}
       done
   tags:
     - linux
     - nix
   rules:
     - changes:
-        - ./modules/nixos/suites/$DEPLOY_TYPE-hosting/default.nix
+        - ./modules/nixos/suites/lan-hosting/default.nix
+        - ./modules/nixos/suites/public-hosting/default.nix
 
 deploy_public:
   <<: *deploy_template
