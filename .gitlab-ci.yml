@@ -5,8 +5,10 @@ stages:
 
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - changes:
+        - "./modules/nixos/suites/public-hosting/default.nix"
+        - "./modules/nixos/suites/lan-hosting/default.nix"
 
 update-flake:
   stage: update
@@ -20,7 +22,7 @@ update-flake:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '$CI_COMMIT_BRANCH == "nixos"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 build_job_template: &build_job_template
   stage: build
@@ -32,7 +34,7 @@ build_job_template: &build_job_template
     - update-flake
   resource_group: build_sequential
   rules:
-    - if: '$CI_COMMIT_BRANCH == "nixos"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 butler:
   <<: *build_job_template
