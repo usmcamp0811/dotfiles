@@ -1,7 +1,7 @@
 stages:
   - update
   - build
-  - deploy
+  - hosting
 
 workflow:
   rules:
@@ -65,7 +65,7 @@ reckless:
     SYSTEM: "reckless"
 
 .deploy_template: &deploy_template
-  stage: deploy
+  stage: hosting
   script:
     - >
       if [ "$DEPLOY_TYPE" = "public" ]; then
