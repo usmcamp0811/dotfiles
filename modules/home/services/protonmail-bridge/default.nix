@@ -3,11 +3,11 @@
 with lib;
 with lib.campground;
 let 
-  cfg = config.campground.services.syncthing;
+  cfg = config.campground.services.protonmail-bridge;
 in
 {
-  options.campground.services.syncthing = with types; {
-    enable = mkBoolOpt false "Whether or not to enable syncthing.";
+  options.campground.services.protonmail-bridge = with types; {
+    enable = mkBoolOpt false "Whether or not to enable protonmail-bridge.";
     pass = mkOption {
       type = types.nullOr types.package;
       default = pkgs.pass-wayland;
