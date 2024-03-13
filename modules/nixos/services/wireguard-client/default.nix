@@ -87,7 +87,7 @@ PublicKey = ${cfg.publicKey}
 # Pre-shared key
 PresharedKey = {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.presharedKey }}{{ else }}{{ .Data.data.presharedKey }}{{ end }}{{ end }}
 # Server endpoint (replace with server's public IP address and port)
-Endpoint = ${cfg.endpoint}:${toString cfg.port}
+Endpoint = {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.vpn-endpoint }}{{ else }}{{ .Data.data.vpn-endpoint }}{{ end }}{{ end }}
 # Allowed IPs (0.0.0.0/0 allows routing all traffic through the VPN)
 AllowedIPs = 0.0.0.0/0, ::/0
 # Optional: Uncomment for persistent keepalive (useful behind NAT)
