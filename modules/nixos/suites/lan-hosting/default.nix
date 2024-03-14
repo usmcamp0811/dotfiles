@@ -40,6 +40,19 @@ in
           insecure = true;
           entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+
+            http.routers.hydra = {
+              rule = "Host(`hydra.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "uptime-kuma";
+            };
+
+            http.services.hydra = {
+              loadBalancer.servers = [
+                { url = "http://chesty:6956"; }
+              ];
+            };
+
             http.routers.uptime-kuma = {
               rule = "Host(`uptime.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
