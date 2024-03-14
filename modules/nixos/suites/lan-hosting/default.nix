@@ -44,7 +44,7 @@ in
             http.routers.hydra = {
               rule = "Host(`hydra.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "uptime-kuma";
+              service = "hydra";
             };
 
             http.services.hydra = {
