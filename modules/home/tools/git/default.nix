@@ -19,10 +19,14 @@ in
     home.packages = with pkgs; [
       lazygit
     ];
+
     programs.git = {
       enable = true;
       userName  = cfg.userName;
       userEmail = cfg.userEmail;
+      ignores = [
+        "result"
+      ];
       lfs = enabled;
       extraConfig = {
         init = { defaultBranch = "main"; };
