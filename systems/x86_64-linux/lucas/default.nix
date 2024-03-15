@@ -48,6 +48,9 @@ in
     services = {
       attic-watch-store = enabled;
       gitlab-runner = enabled;
+      keycloak = {
+        enable = true;
+      };
       # netmaker = {
       #   enable = true;
       # };
