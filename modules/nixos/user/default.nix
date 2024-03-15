@@ -123,6 +123,7 @@ in
       shell = pkgs.zsh;
     } // cfg.extraOptions;
 
+
    users.users.${cfg.name} = {
      isNormalUser = true;
 

@@ -22,6 +22,7 @@ in
       uid = 10000;
     };
 
+    deploy-user = enabled;
     archetypes = {
       workstation = enabled;
       server = {
@@ -94,7 +95,8 @@ in
         enable = true;
         settings = { 
           vault = { 
-            address = "http://vault.lan.aicampground.com";
+            # address = "http://vault.lan.aicampground.com";
+            address = "http://vault.lan";
             role-id = "/var/lib/vault/lucas/role-id"; 
             secret-id = "/var/lib/vault/lucas/secret-id"; 
           }; 
