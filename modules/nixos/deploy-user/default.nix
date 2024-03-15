@@ -7,7 +7,9 @@ let
 in
 {
   options.campground.deploy-user = with types; {
+    enable = mkEnableOption "Enable the deploy user";
     name = mkOpt str "deploy" "The name to use for the user account.";
+    authorizedKeys = mkOpt (listOf str) [ config.campground.services.openssh.authorizedKeys ] "The public keys to apply.";
     uid = mkOpt int 1001 "UID of the user";
     extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
     extraOptions = mkOpt attrs { }
@@ -27,7 +29,8 @@ in
   config = {
     users.users."${cfg.name}" = {
       isNormalUser = true;
-      extraGroups = [ "wheel" ]; # Ensure user can use sudo
+      extraGroups = [ "wheel" ]; 
+      openssh.authorizedKeys.keys = cfg.authorizedKeys;
     };
 
     security.sudo.configFile = ''
