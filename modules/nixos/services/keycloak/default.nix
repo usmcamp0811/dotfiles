@@ -35,7 +35,7 @@ in
 
       virtualHosts = {
         "keycloak.lan" = {
-          listen = [ { addr = "0.0.0.0"; port = 9323; } ];  # Specify the port here
+          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
           locations = {
             "/cloak/" = {
               proxyPass = "http://localhost:${toString config.services.keycloak.settings.http-port}/cloak/";

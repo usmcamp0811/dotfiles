@@ -40,6 +40,17 @@ in
           insecure = true;
           entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.keycloak = {
+              rule = "Host(`keycloak.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "keycloak";
+            };
+
+            http.services.keycloak = {
+              loadBalancer.servers = [
+                { url = "http://lucas:22547"; }
+              ];
+            };
 
             http.routers.hydra = {
               rule = "Host(`hydra.lan.aicampground.com`)";
