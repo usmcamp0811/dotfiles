@@ -33,17 +33,9 @@ in
     services.nginx = {
       enable = true;
 
-      # enable recommended settings
-      recommendedGzipSettings = true;
-      recommendedOptimisation = true;
-      recommendedTlsSettings = true;
-      recommendedProxySettings = true;
-
       virtualHosts = {
         "keycloak.lan" = {
           listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
-          # forceSSL = true;
-          # enableACME = true;
           locations = {
             "/cloak/" = {
               proxyPass = "http://localhost:${toString config.services.keycloak.settings.http-port}/cloak/";
