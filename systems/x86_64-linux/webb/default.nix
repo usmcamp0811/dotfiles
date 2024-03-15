@@ -177,7 +177,8 @@ in
         enable = true;
         settings = { 
           vault = { 
-            address = "http://vault.lan.aicampground.com";
+            # address = "http://vault.lan.aicampground.com";
+            address = "http://vault.lan";
             role-id = "/var/lib/vault/webb/role-id"; 
             secret-id = "/var/lib/vault/webb/secret-id"; 
           }; 
