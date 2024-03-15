@@ -41,6 +41,7 @@ in
 
       virtualHosts = {
         "keycloak.lan" = {
+          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
           # forceSSL = true;
           # enableACME = true;
           locations = {
