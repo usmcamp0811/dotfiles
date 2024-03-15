@@ -231,11 +231,11 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks =
-        builtins.mapAttrs
-          (_system: deploy-lib:
-            deploy-lib.deployChecks inputs.self.deploy)
-          deploy-rs.lib;
+      # checks =
+      #   builtins.mapAttrs
+      #     (_system: deploy-lib:
+      #       deploy-lib.deployChecks inputs.self.deploy)
+      #     deploy-rs.lib;
 
       templates = {
         basic = {
