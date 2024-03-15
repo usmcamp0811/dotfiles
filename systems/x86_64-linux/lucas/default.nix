@@ -50,6 +50,7 @@ in
       gitlab-runner = enabled;
       keycloak = {
         enable = true;
+        port = 43852;
       };
       # netmaker = {
       #   enable = true;
