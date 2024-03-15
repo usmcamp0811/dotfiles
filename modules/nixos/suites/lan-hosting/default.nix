@@ -48,7 +48,7 @@ in
 
             http.services.keycloak = {
               loadBalancer.servers = [
-                { url = "http://lucas:22547"; }
+                { url = "http://webb:22547"; }
               ];
             };
 

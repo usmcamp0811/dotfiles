@@ -56,9 +56,10 @@ in
         enable = mkForce false;
       };
       uptime-kuma = enabled;
-      # keycloak = {
-      #   enable = true;
-      # };
+      keycloak = {
+        enable = true;
+        port = 43852;
+      };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
