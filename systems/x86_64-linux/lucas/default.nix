@@ -46,9 +46,9 @@ in
       nvidia = enabled;
     };
 
-    security = {
-      doas = enabled;
-    };
+    # security = {
+    #   doas = enabled;
+    # };
     services = {
       attic-watch-store = enabled;
       gitlab-runner = enabled;
