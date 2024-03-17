@@ -17,6 +17,7 @@ in
     security.doas = {
       enable = true;
       extraRules = [{
+        cmd = "nixos-rebuild";
         users = [ config.campground.user.name ];
         noPass = true;
         keepEnv = true;
