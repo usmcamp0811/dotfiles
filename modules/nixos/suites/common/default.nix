@@ -19,9 +19,9 @@ in
         enable = true;
       };
 
-      security = {
-        doas = enabled;
-      };
+      # security = {
+      #   doas = enabled;
+      # };
 
       cache = {
         public = enabled;
