@@ -24,7 +24,7 @@ rec {
         (result: name:
           let
             host = hosts.${name};
-            user = host.config.plusultra.user.name or null;
+            user = host.config.campground.user.name or null;
             inherit (host.pkgs) system;
           in
           result // {
@@ -37,7 +37,7 @@ rec {
                   user = "root";
                   sshUser = user;
                 } // lib.optionalAttrs
-                  (host.config.plusultra.security.doas.enable or false)
+                  (host.config.campground.security.doas.enable or false)
                   {
                     sudo = "doas -u";
                   };
