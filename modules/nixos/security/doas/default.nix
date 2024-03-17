@@ -18,7 +18,6 @@ in
       enable = true;
       extraRules = [{
         users = [ config.campground.user.name ];
-        cmd = "/run/current-system/sw/bin/nixos-rebuild";
         noPass = true;
         keepEnv = true;
       }];
