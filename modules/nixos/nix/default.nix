@@ -48,7 +48,6 @@ in
     nix =
       let 
         users = [ "root" config.campground.user.name ] 
-        ++ (optional config.campground.deploy-user.enable "deploy")
         ++ (optional config.services.hydra.enable "hydra") 
         ++ (optional config.campground.services.nixery.enable "nixery");
       in
