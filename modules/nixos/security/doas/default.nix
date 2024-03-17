@@ -16,15 +16,16 @@ in
     # Enable and configure `doas`.
     security.doas = {
       enable = true;
-      extraRules = [{
+      extraRules = [
+      {
         runAs = "root";
         cmd = "nixos-rebuild";
         users = [ config.campground.user.name ];
         noPass = true;
         keepEnv = true;
-      }];
+      }
+      ];
     };
-
     # Add an alias to the shell for backward-compat and convenience.
     environment.shellAliases = { sudo = "doas"; };
   };

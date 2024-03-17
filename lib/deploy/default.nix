@@ -34,8 +34,7 @@ rec {
                 system = (overrides.${name}.profiles.system or { }) // {
                   path = deploy-rs.lib.${system}.activate.nixos host;
                 } // lib.optionalAttrs (user != null) {
-                  # user = "root";
-                  user = user;
+                  user = "root";
                   sshUser = user;
                 } // lib.optionalAttrs
                   (host.config.campground.security.doas.enable or false)
