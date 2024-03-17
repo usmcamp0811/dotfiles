@@ -36,9 +36,6 @@ in
       # enableClient = true; 
       # address = "ata-nuc:5258";
     };
-    security = {
-      doas = enabled;
-    };
 
     archetypes = {
       workstation = enabled;

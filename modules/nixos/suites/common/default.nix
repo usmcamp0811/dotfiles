@@ -19,6 +19,10 @@ in
         enable = true;
       };
 
+      security = {
+        doas = enabled;
+      };
+
       cache = {
         public = enabled;
         campground = enabled;
