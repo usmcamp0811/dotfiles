@@ -82,8 +82,7 @@ in
       ${optionalString cfg.manage-other-hosts other-hosts-config}
     '';
 
-    campground.user.extraOptions.openssh.authorizedKeys.keys =
-      cfg.authorizedKeys;
+    campground.user.extraOptions.openssh.authorizedKeys.keys = cfg.authorizedKeys;
 
     campground.home.extraOptions = {
       programs.zsh.shellAliases = foldl

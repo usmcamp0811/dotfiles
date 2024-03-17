@@ -22,7 +22,7 @@ in
       uid = 10000;
     };
 
-    deploy-user = enabled;
+    # deploy-user = enabled;
     archetypes = {
       workstation = enabled;
       server = {
@@ -46,6 +46,9 @@ in
       nvidia = enabled;
     };
 
+    security = {
+      doas = enabled;
+    };
     services = {
       attic-watch-store = enabled;
       gitlab-runner = enabled;

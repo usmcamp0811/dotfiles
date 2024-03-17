@@ -27,15 +27,20 @@ in
   };
 
   config = {
-    users.users."${cfg.name}" = {
-      isNormalUser = true;
-      extraGroups = [ "wheel" ]; 
-      openssh.authorizedKeys.keys = cfg.authorizedKeys;
-    };
-
-    security.sudo.configFile = ''
-      ${cfg.name} ALL=(ALL:ALL) NOPASSWD: /run/current-system/sw/bin/nixos-rebuild
-    '';
+    # users.users."${cfg.name}" = {
+    #   isNormalUser = true;
+    #   extraGroups = [ "wheel" "deploy" ]; 
+    #   openssh.authorizedKeys.keys = cfg.authorizedKeys;
+    # };
+    security.sudo.extraRules = [
+      {
+        groups = [ "wheel" ];
+        commands = [ 
+          { command = "/run/current-system/sw/bin/nixos-rebuild"; options = [ "NOPASSWD" ]; }
+          { command = "/nix/var/nix/profiles/per-user/mcamp/system/bin/switch-to-configuration"; options = [ "NOPASSWD" ]; }
+        ];
+      }
+    ];
   };
 }
 
