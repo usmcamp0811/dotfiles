@@ -71,8 +71,6 @@ reckless:
 .deploy_template: &deploy_template
   stage: hosting
   script:
-    - pwd
-    - ls -lah /var/lib
     - >
       if [ "$DEPLOY_TYPE" = "public" ]; then
         SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public)
