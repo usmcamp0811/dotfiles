@@ -62,6 +62,7 @@ let
     description = description;
     license = licenses.asl20;
     maintainers = with maintainers; [ mattcamp ];
+    mainProgram = "mlflow-server";
   };
 in
 override-meta new-meta mlflow
