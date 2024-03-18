@@ -79,6 +79,8 @@ reckless:
       fi
     - >
       for SYSTEM in $SYSTEMS; do
+        pwd
+        ls -lah /var/lib
         deploy --hostname ${SYSTEM} .#${SYSTEM}
       done
   tags:
