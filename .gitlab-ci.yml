@@ -77,6 +77,7 @@ reckless:
       elif [ "$DEPLOY_TYPE" = "lan" ]; then
         SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh lan)
       fi
+    - echo $SYSTEMS
     - >
       for SYSTEM in $SYSTEMS; do
         ./ci-scripts/deploy-script.sh ${SYSTEM}
