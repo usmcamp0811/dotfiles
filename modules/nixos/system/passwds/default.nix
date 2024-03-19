@@ -26,10 +26,12 @@ in
   config = mkIf cfg.enable {
     systemd.services.passwds = {
       description = "Set/update Local User & Root User Passwords";
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/set-passwds";
         Environment = "PATH=${pkgs.shadow}/bin:${pkgs.coreutils}/bin:${config.system.path}/bin";
         Type = "oneshot";
+        RemainAfterExit = true;
       };
     };
 
