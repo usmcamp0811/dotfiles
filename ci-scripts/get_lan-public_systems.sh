@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env -S nix shell nixpkgs#jq --command bash
 
 # The first argument passed to the script
 TYPE="$1"
