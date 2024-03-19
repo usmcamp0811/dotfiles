@@ -36,6 +36,7 @@ in
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
     uid = mkOpt int 1000 "UID of the user";
+    deploy-user = mkBoolOpt false "Enable a user named `deploy` for deploying builds";
     initialPassword = mkOpt str "password"
       "The initial password to use when the user is first created.";
     icon = mkOpt (nullOr package) defaultIcon
@@ -123,6 +124,13 @@ in
       shell = pkgs.zsh;
     } // cfg.extraOptions;
 
+    users.users.deploy = mkIf cfg.deploy-user {
+      shell = pkgs.zsh;
+      isNormalUser = true;
+      inherit (cfg) name initialPassword;
+      home = "/val/lib/deploy";
+      group = "deploy";
+    };
 
    users.users.${cfg.name} = {
      isNormalUser = true;
