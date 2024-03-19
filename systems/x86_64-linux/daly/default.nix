@@ -46,6 +46,9 @@ in
     };
 
     services = {
+      ldap-client = {
+        enable = mkForce false;
+      };
       # attic-watch-store = enabled;
       # ldap-server = enabled;
       # k0s = {
@@ -104,51 +107,6 @@ in
           };
         };
       };
-      homer = {
-        enable = true;
-        host = "daly";
-
-        package = pkgs.campground.homer-catppuccin.override { favicon = "light"; };
-
-        settings = {
-          title = "Dashboard";
-          subtitle = "Campground Home";
-
-          logo = pkgs.campground.homer-catppuccin.logos.light;
-
-          stylesheet = [
-            pkgs.campground.homer-catppuccin.stylesheets.latte
-            pkgs.campground.homer-catppuccin.stylesheets.frappe
-          ];
-
-          footer = "";
-
-          connectivityCheck = true;
-
-          columns = "auto";
-
-          defaults = {
-            layout = "list";
-            colorTheme = "auto";
-          };
-
-          services = [
-            {
-              name = "Administration";
-              icon = "fas fa-shield-halved";
-              items = [
-                {
-                  name = "Vault";
-                  icon = "fas fa-lock";
-                  url = "http://vault.lan";
-                  target = "_blank";
-                }
-              ];
-            }
-          ];
-        };
-      };
-
       vault = {
         enable = true;
         ui = true;
@@ -175,8 +133,8 @@ in
         enable = true;
         settings = {
           vault = {
-            # address = "https://vault.lan.aicampground.com"; 
-            address = "https://vault.lan"; 
+            address = "https://vault.lan.aicampground.com"; 
+            # address = "https://vault.lan"; 
             role-id = "/var/lib/vault/daly/role-id";
             secret-id = "/var/lib/vault/daly/secret-id";
           };
@@ -185,14 +143,14 @@ in
     };
   };
 
-  services.nginx = {
-    enable = true;
-    recommendedProxySettings = true;
-    virtualHosts = {
-      "vault.lan" = network.create-proxy
-        ((network.get-address-parts config.services.vault.address));
-    };
-  };
+  # services.nginx = {
+  #   enable = true;
+  #   recommendedProxySettings = true;
+  #   virtualHosts = {
+  #     "vault.lan" = network.create-proxy
+  #       ((network.get-address-parts config.services.vault.address));
+  #   };
+  # };
 
 
   # This value determines the NixOS release from which the default
