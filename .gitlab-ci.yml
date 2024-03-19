@@ -79,7 +79,7 @@ reckless:
       fi
     - >
       for SYSTEM in $SYSTEMS; do
-        deploy --hostname ${SYSTEM} .#${SYSTEM}
+        ./ci-scripts/deploy-script.sh ${SYSTEM}
       done
   tags:
     - nix
