@@ -47,7 +47,7 @@ in
 
     services = {
       # attic-watch-store = enabled;
-      ldap-server = enabled;
+      # ldap-server = enabled;
       # k0s = {
       #   enable = true;
       #   package = pkgs.campground.k0s; 
