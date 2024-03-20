@@ -1,4 +1,7 @@
-#!/usr/bin/env -S nix shell nixpkgs#expect nixpkgs#vault --command bash
+#!/usr/bin/bash
+
+# Manually setup the environment
+export PATH=$(nix shell nixpkgs#expect nixpkgs#vault --command echo $PATH)
 
 # Variables
 hostname="$1"
