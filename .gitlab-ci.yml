@@ -73,16 +73,28 @@ reckless:
   script:
     - |
       nix shell nixpkgs#figlet --command figlet -t -c "WHAT THE FUCK"
+
+      # Determine the hosting type based on the argument
       if [ "$DEPLOY_TYPE" = "public" ]; then
-        SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public)
+        ENABLED_PATH=".config.campground.suites.public-hosting.enable"
       elif [ "$DEPLOY_TYPE" = "lan" ]; then
-        SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh lan)
+        ENABLED_PATH=".config.campground.suites.lan-hosting.enable"
+      else
+        echo "Invalid type: $TYPE"
+        exit 1
       fi
+
+      SYSTEMS=$(nix eval --json '.#nixosConfigurations' --apply "
+        configurations: (builtins.filter (name: 
+          configurations.\${name}$ENABLED_PATH == true
+        ) (builtins.attrNames configurations))
+      " | jq -r '.[]')
+
       echo $SYSTEMS
-      for SYSTEM in $SYSTEMS; do
-        echo "$SYSTEM"
-        ./ci-scripts/deploy-script.sh "${SYSTEM}"
-      done
+      # for SYSTEM in $SYSTEMS; do
+      #   echo "$SYSTEM"
+      #   ./ci-scripts/deploy-script.sh "${SYSTEM}"
+      # done
   tags:
     - nix
 
