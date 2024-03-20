@@ -3,13 +3,6 @@ stages:
   - build
   - hosting
 
-# workflow:
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#     - changes:
-#         - "./modules/nixos/suites/public-hosting/default.nix"
-#         - "./modules/nixos/suites/lan-hosting/default.nix"
-
 update-flake:
   stage: update
   tags:
@@ -38,52 +31,44 @@ build_job_template: &build_job_template
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
 
+# Define systems using build_job_template
 butler:
   <<: *build_job_template
   variables:
     SYSTEM: "butler"
-
-daly:
-  <<: *build_job_template
-  variables:
-    SYSTEM: "daly"
-
-lucas:
-  <<: *build_job_template
-  variables:
-    SYSTEM: "lucas"
-
-chesty:
-  <<: *build_job_template
-  variables:
-    SYSTEM: "chesty"
-
-webb:
-  <<: *build_job_template
-  variables:
-    SYSTEM: "webb"
-
-reckless:
-  <<: *build_job_template
-  variables:
-    SYSTEM: "reckless"
+# Repeat for each system...
 
 .deploy_template: &deploy_template
   stage: hosting
+  tags:
+    - nix
   script:
     - >
       if [ "$DEPLOY_TYPE" = "public" ]; then
-        SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public)
+        SYSTEMS=$(nix eval --json '.#nixosConfigurations' --apply "configurations: (builtins.filter (name: configurations.\${name}.config.campground.suites.public-hosting.enable == true) (builtins.attrNames configurations))" | jq -r '.[]')
       elif [ "$DEPLOY_TYPE" = "lan" ]; then
-        SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh lan)
+        SYSTEMS=$(nix eval --json '.#nixosConfigurations' --apply "configurations: (builtins.filter (name: configurations.\${name}.config.campground.suites.lan-hosting.enable == true) (builtins.attrNames configurations))" | jq -r '.[]')
       fi
     - echo $SYSTEMS
     - >
       for SYSTEM in $SYSTEMS; do
-        ./ci-scripts/deploy-script.sh ${SYSTEM}
+        hostname="$SYSTEM"
+        kv_path="secret/campground/local-users-passwords"
+        vault login -method=approle role_id="./role_id" secret_id="./secret_id" > /dev/null
+        password=$(vault kv get -field="$DEPLOY_USER" "$kv_path")
+        /usr/bin/env -S nix shell nixpkgs#expect --command expect <<EOF
+        set timeout 600
+        spawn deploy --interactive-sudo true --hostname $hostname .#$hostname
+        expect "(sudo for $hostname) Password:"
+        send "$password\r"
+        interact
+        EOF
       done
-  tags:
-    - nix
+  rules:
+    - changes:
+        - "./modules/nixos/suites/public-hosting/default.nix"
+      when: always
+# Deploy jobs...
 
 deploy_public:
   <<: *deploy_template
