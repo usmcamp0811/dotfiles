@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/sh
 
 # Manually setup the environment
 export PATH=$(nix shell nixpkgs#jq --command echo $PATH)
