@@ -73,12 +73,13 @@ reckless:
   script:
     - |
       echo "WHATS WRONG"
+      nix-channel --list
       if [ "$DEPLOY_TYPE" = "public" ]; then
         SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public)
       elif [ "$DEPLOY_TYPE" = "lan" ]; then
         SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh lan)
       fi
-      echo "$SYSTEMS"
+      echo $SYSTEMS
       for SYSTEM in $SYSTEMS; do
         echo "$SYSTEM"
         ./ci-scripts/deploy-script.sh "${SYSTEM}"
