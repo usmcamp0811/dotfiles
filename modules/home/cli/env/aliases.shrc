@@ -14,16 +14,10 @@ alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir
 
 # ls -al Alh
 
-# quick check to see if the program is available
-cmd-exist(){
-  command -v $1 >/dev/null 2>&1
-}
-
-
-cmd-exist lsd && alias ls="lsd --group-dirs first"
-cmd-exist lsd && alias la="lsd -laF --group-dirs first" || alias la='ls -lah' 
-cmd-exist lsd && alias lt='lsd --tree --depth 3'                              
-cmd-exist ranger && alias lr="ranger"
+alias ls="lsd --group-dirs first"
+alias la="lsd -laF --group-dirs first"
+alias lt='lsd --tree --depth 3'                              
+alias lr="ranger"
 
 
 # mv, rm, cp
@@ -37,9 +31,9 @@ copy(){
 
 
 alias chmox='chmod -x'
-cmd-exist bat && alias cat='bat' && alias pcat='bat -p'
-cmd-exist batcat && alias cat='batcat' && alias pcat='batcat -p'
-cmd-exist nvim && alias vim='nvim'
+alias cat='bat'
+alias pcat='bat -p'
+alias vim='nvim'
 
 alias df='df -h'
 
@@ -65,10 +59,6 @@ alias undopush="git push -f origin HEAD^:master"
 alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup || pwd`'
 alias master="git checkout master"
 
-# git dotfiles
-# alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-cmd-exist git && alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME' 
-alias lazydot='lazygit --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 ##########################################################
 ####################### CONFIG STUFF ########################
 #i3 config
