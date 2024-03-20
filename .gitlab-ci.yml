@@ -74,9 +74,9 @@ reckless:
     - >
       [ "$DEPLOY_TYPE" = "public" ] && SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public)
       [ "$DEPLOY_TYPE" = "lan" ] && SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh lan)
-    - echo $SYSTEMS
     - >
       for SYSTEM in $SYSTEMS; do
+        echo $SYSTEM
         ./ci-scripts/deploy-script.sh ${SYSTEM}
       done
   tags:
