@@ -72,6 +72,7 @@ reckless:
   stage: hosting
   script:
     - |
+      echo "WHATS WRONG"
       if [ "$DEPLOY_TYPE" = "public" ]; then
         SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public)
       elif [ "$DEPLOY_TYPE" = "lan" ]; then
