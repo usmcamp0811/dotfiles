@@ -162,8 +162,7 @@ in
         enable = true;
         settings = {
           vault = {
-            # address = "http://vault.lan.aicampground.com";
-            address = "http://vault.lan";
+            address = "http://vault.lan.aicampground.com";
             role-id = "/var/lib/vault/reckless/role-id";
             secret-id = "/var/lib/vault/reckless/secret-id";
           };
