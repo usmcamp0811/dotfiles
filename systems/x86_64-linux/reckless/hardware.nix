@@ -33,50 +33,50 @@
       fsType = "vfat";
     };
 
-  fileSystems."/mnt/backups/webb" =
-    { device = "ChestyPoolr/backups/webb";
-      fsType = "zfs";
-    };
+ fileSystems."/mnt/backups/webb" =
+   { device = "ChestyPoolr/backups/webb";
+     fsType = "zfs";
+   };
 
-  fileSystems."/mnt/backups/daly" =
-    { device = "ChestyPoolr/backups/daly";
-      fsType = "zfs";
-    };
+ fileSystems."/mnt/backups/daly" =
+   { device = "ChestyPoolr/backups/daly";
+     fsType = "zfs";
+   };
 
-  fileSystems."/mnt/backups/butler" =
-    { device = "ChestyPoolr/backups/butler";
-      fsType = "zfs";
-    };
+ fileSystems."/mnt/backups/butler" =
+   { device = "ChestyPoolr/backups/butler";
+     fsType = "zfs";
+   };
 
-  fileSystems."/mnt/backups/lucas" =
-    { device = "ChestyPoolr/backups/lucas";
-      fsType = "zfs";
-    };
+ fileSystems."/mnt/backups/lucas" =
+   { device = "ChestyPoolr/backups/lucas";
+     fsType = "zfs";
+   };
 
-  fileSystems."/export/media" = 
-    { device = "ChestyPoolr/media";
-      fsType = "zfs";
-    };
+ fileSystems."/export/media" = 
+   { device = "ChestyPoolr/media";
+     fsType = "zfs";
+   };
 
-  fileSystems."/export/audiobooks" = 
-    { device = "ChestyPoolr/media/audiobooks";
-      fsType = "zfs";
-    };
+ fileSystems."/export/audiobooks" = 
+   { device = "ChestyPoolr/media/audiobooks";
+     fsType = "zfs";
+   };
 
-  fileSystems."/export/media/movies" = 
-    { device = "ChestyPoolr/media/movies";
-      fsType = "zfs";
-    };
+ fileSystems."/export/media/movies" = 
+   { device = "ChestyPoolr/media/movies";
+     fsType = "zfs";
+   };
 
-  fileSystems."/export/media/tv-shows" = 
-    { device = "ChestyPoolr/media/tv-shows";
-      fsType = "zfs";
-    };
+ fileSystems."/export/media/tv-shows" = 
+   { device = "ChestyPoolr/media/tv-shows";
+     fsType = "zfs";
+   };
 
-  fileSystems."/export/media/music" = 
-    { device = "ChestyPoolr/media/music";
-      fsType = "zfs";
-    };
+ fileSystems."/export/media/music" = 
+   { device = "ChestyPoolr/media/music";
+     fsType = "zfs";
+   };
 
   fileSystems."/var/lib/atticd" = 
     { device = "MotorPool/attic";
