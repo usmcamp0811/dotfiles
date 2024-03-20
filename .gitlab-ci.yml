@@ -71,12 +71,16 @@ reckless:
 .deploy_template: &deploy_template
   stage: hosting
   script:
-    - >
-      [ "$DEPLOY_TYPE" = "public" ] && SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public) && echo $SYSTEMS
-      [ "$DEPLOY_TYPE" = "lan" ] && SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh lan) && echo $SYSTEMS
+    - |
+      if [ "$DEPLOY_TYPE" = "public" ]; then
+        SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh public)
+      elif [ "$DEPLOY_TYPE" = "lan" ]; then
+        SYSTEMS=$(./ci-scripts/get_lan-public_systems.sh lan)
+      fi
+      echo "$SYSTEMS"
       for SYSTEM in $SYSTEMS; do
-        echo $SYSTEM
-        ./ci-scripts/deploy-script.sh ${SYSTEM}
+        echo "$SYSTEM"
+        ./ci-scripts/deploy-script.sh "${SYSTEM}"
       done
   tags:
     - nix
