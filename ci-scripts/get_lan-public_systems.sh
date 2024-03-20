@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash jq
+#!nix-shell -i bash -p jq
 
 # The first argument passed to the script
 TYPE="$1"
