@@ -67,6 +67,7 @@ in
             ${pkgs.nix}/bin/nix-env -i ${concatStringsSep " " (with pkgs; [ nix cacert git openssh ])}
             mkdir -p -m 0755 /etc/nix
             echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
+            echo "allow-unfree = true" >> /etc/nix/nix.conf
             chmod 644 /etc/nix/nix.conf 
           '';
           environmentVariables = {
