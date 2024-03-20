@@ -73,7 +73,7 @@ reckless:
   script:
     - |
       nix shell nixpkgs#figlet --command figlet -t -c "WHAT THE FUCK"
-      nix shell nixpkgs#jq nixpkgs#expect nixpkgs#vault --command bash
+      nix shell nixpkgs#jq --command bash
 
       # Determine the hosting type based on the argument
       if [ "$DEPLOY_TYPE" = "public" ]; then
