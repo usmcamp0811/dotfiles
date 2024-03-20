@@ -44,6 +44,7 @@ butler:
     - nix
   script:
     - >
+      nix shell nixpkgs#jq
       if [ "$DEPLOY_TYPE" = "public" ]; then
         SYSTEMS=$(nix eval --json '.#nixosConfigurations' --apply "configurations: (builtins.filter (name: configurations.\${name}.config.campground.suites.public-hosting.enable == true) (builtins.attrNames configurations))" | jq -r '.[]')
       elif [ "$DEPLOY_TYPE" = "lan" ]; then
