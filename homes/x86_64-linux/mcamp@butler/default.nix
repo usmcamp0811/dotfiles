@@ -2,8 +2,6 @@
 with lib;
 with lib.campground;
 {
-
-
   campground = {
     user = {
       name = "mcamp";
@@ -91,7 +89,7 @@ with lib.campground;
       virtmanager = enabled; # don't forget to add to libvirtd group
       emoji-picker = enabled;
       scientific-fhs = enabled;
-      # jupyter = enabled;
+      jupyter = enabled;
     };
   };
 
