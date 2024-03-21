@@ -20,14 +20,13 @@ in
       enable = true;
       enableCompletion = true; 
       enableAutosuggestions = true;
-      # enableSyntaxHighlighting = true;
       syntaxHighlighting.enable = true;
 
       oh-my-zsh = {
         enable = true; 
         plugins = [ "fzf" ]; 
       };
-      initExtra = ''
+      initExtra = lib.mkBefore ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         source $HOME/.config/shell/aliases.shrc
         ${lib.concatMapStringsSep "\n" (file: "[ -r \"${file}\" ] && source \"${file}\"") cfg.extraSource}

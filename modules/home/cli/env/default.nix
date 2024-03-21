@@ -9,6 +9,7 @@ let
   is-linux = pkgs.stdenv.isLinux;
   is-darwin = pkgs.stdenv.isDarwin;
 
+  aliases = ./aliases.shrc;
   home-directory =
     if cfg-user.name == null then
       null
@@ -66,12 +67,16 @@ in
 
     # aliases are in a seperate file because we can't do shell functions in Nix
     home.file = { 
-      ".config/shell/aliases.shrc".source = ./aliases.shrc;
+      ".config/shell/aliases.shrc".source = aliases;
     };
 
     home.activation.privateDir = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
       mkdir -p "${config.home.homeDirectory}/.config/shell/private/"
     '';
+
+    programs.zsh.initExtra = lib.mkAfter ''
+        source ${aliases}
+      '';
 
   };
 }

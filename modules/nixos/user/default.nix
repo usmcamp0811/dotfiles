@@ -101,7 +101,7 @@ in
 
         extraOptions = {
           home.shellAliases = {
-            la = "lsd -lah";
+            la = "lsd -lah --group-dirs first";
             update = "sudo nixos-rebuild switch --flake /config#$HOST";
             nixre = "sudo flake switch";
         };
