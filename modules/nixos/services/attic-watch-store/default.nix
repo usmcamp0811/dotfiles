@@ -70,7 +70,7 @@ in
           services = {
             "attic-watch-store" = {
               settings = {       # replace with the address of your vault
-                vault.address = "https://vault.lan.aicampground.com";
+                vault.address = cfg.vault-address;
                 auto_auth = {
                   method = [{
                     type = "approle";
