@@ -61,6 +61,10 @@ in
       steam = enabled;
     };
 
+    tools = {
+      nix-doc = enabled;
+    };
+
     nfs.client = {
       enable = true;
     };
