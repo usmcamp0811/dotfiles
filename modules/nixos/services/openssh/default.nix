@@ -58,7 +58,7 @@ in
     services.openssh = {
       enable = true;
       settings = {
-        PermitRootLogin = if format == "install-iso" then "yes" else "no";
+        PermitRootLogin = if format == "install-iso" then "yes" else "without-password";
         # PasswordAuthentication = true;
         X11Forwarding = true;
         # TODO: flip back to false when all is good
