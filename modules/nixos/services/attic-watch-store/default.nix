@@ -60,7 +60,6 @@ in
       preStart = ''
         mkdir -p /var/lib/atticd/.config/attic
         cp /tmp/detsys-vault/attic-config.toml /var/lib/atticd/.config/attic/config.toml
-        chown -R ${cfg.user}:${cfg.group} /var/lib/atticd
       '';
     };
 
