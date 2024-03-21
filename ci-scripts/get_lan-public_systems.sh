@@ -1,9 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env -S nix shell nixpkgs#expect nixpkgs#vault --command bash
 
-# Manually setup the environment
-export PATH=$(nix shell nixpkgs#jq --command echo $PATH)
-export JQ=$(nix shell nixpkgs#jq --command which jq)
-echo "$JQ <<<- This is jq"
 # The first argument passed to the script
 TYPE="$1"
 
