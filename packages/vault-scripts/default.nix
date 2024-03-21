@@ -1,13 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -18,14 +10,15 @@ let
 
   version = "0.1.0";
   checkVaultPath = import ./checkVaultPath.nix { inherit pkgs; };
-  getVaultPaths  = import ./getVaultPaths.nix  { inherit pkgs checkVaultPath; };
+  getVaultPaths = import ./getVaultPaths.nix { inherit pkgs checkVaultPath; };
   # devshell-python = import ./python-env.nix  { inherit pkgs; };
-  new-approle = import ./new-approle.nix  { inherit pkgs; };
-  save-approle-secrets = import ./save-approle.nix { inherit pkgs new-approle; };
+  new-approle = import ./new-approle.nix { inherit pkgs; };
+  save-approle-secrets =
+    import ./save-approle.nix { inherit pkgs new-approle; };
 
   vault-scripts = pkgs.stdenv.mkDerivation {
     name = "vault-report";
-    src = ./.;  # Copy the entire project directory into the Nix store
+    src = ./.; # Copy the entire project directory into the Nix store
     installPhase = ''
       mkdir -p $out/bin
       cp -r ./* $out/
@@ -35,18 +28,17 @@ let
       cp ${save-approle-secrets}/bin/save-approle-secrets $out/bin
 
       echo "#!/usr/bin/env sh" > $out/bin/vault-report
-      # echo "$${devshell-python}/bin/python3 $src/vault-table.py" >> $out/bin/vault-report
+      # echo "$''${devshell-python}/bin/python3 $src/vault-table.py" >> $out/bin/vault-report
       chmod +x $out/bin/vault-report
 
       echo "#!/usr/bin/env sh" > $out/bin/check-vault-paths
       echo "$out/bin/get-vault-paths | $out/bin/vault-report" >> $out/bin/check-vault-paths
       chmod +x $out/bin/check-vault-paths
     '';
-};
+  };
   new-meta = with lib; {
     description = description;
     license = licenses.mit;
     maintainers = with maintainers; [ mattcamp ];
   };
-in
-override-meta new-meta vault-scripts
+in override-meta new-meta vault-scripts

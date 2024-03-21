@@ -17,20 +17,19 @@ let
 
     passthru = { fileName = defaultIconFileName; };
   };
-  propagatedIcon = pkgs.runCommandNoCC "propagated-icon"
-    { passthru = { fileName = cfg.icon.fileName; }; }
-    ''
-      local target="$out/share/icons/user/${cfg.name}"
-      mkdir -p "$target"
+  propagatedIcon = pkgs.runCommandNoCC "propagated-icon" {
+    passthru = { fileName = cfg.icon.fileName; };
+  } ''
+    local target="$out/share/icons/user/${cfg.name}"
+    mkdir -p "$target"
 
-      cp ${cfg.icon} "$target/${cfg.icon.fileName}"
-    '';
+    cp ${cfg.icon} "$target/${cfg.icon.fileName}"
+  '';
 
   dotfilesDir = ./dotfiles/.config;
   dotfiles = builtins.attrNames (builtins.readDir dotfilesDir);
 
-in
-{
+in {
   options.campground.user = with types; {
     name = mkOpt str "abe" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
@@ -41,7 +40,8 @@ in
     icon = mkOpt (nullOr package) defaultIcon
       "The profile picture to use for the user.";
     extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
-    extraOptions = mkOpt attrs { } "Extra options passed to <option>users.users.<name></option>.";
+    extraOptions = mkOpt attrs { }
+      "Extra options passed to <option>users.users.<name></option>.";
     GroupsIds = mkOption {
       type = types.attrsOf types.int;
       default = {
@@ -49,16 +49,16 @@ in
         k8s = 999;
         paperless = 317;
       };
-      example = { wheel = 10; audio = 29; };
+      example = {
+        wheel = 10;
+        audio = 29;
+      };
       description = "Groups and their corresponding IDs.";
     };
   };
 
   config = {
-    environment.systemPackages = with pkgs; [
-      propagatedIcon
-      lsd
-    ];
+    environment.systemPackages = with pkgs; [ propagatedIcon lsd ];
 
     programs.zsh = {
       enable = true; # Enable zsh as the default shell
@@ -66,7 +66,8 @@ in
       autosuggestions.enable = true;
       syntaxHighlighting.enable = true;
 
-      interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
+      interactiveShellInit =
+        ""; # Extra commands to run at interactive shell initialization
 
       loginShellInit = ""; # Extra commands to run at login shell initialization
 
@@ -79,31 +80,30 @@ in
         # theme = "fino"; # Oh My Zsh theme
         # custom = ""; # Custom Oh My Zsh configuration
       };
-     };
+    };
 
     campground.home = {
-        file = {
-            "Desktop/.keep".text = "";
-            "Documents/.keep".text = "";
-            "Downloads/.keep".text = "";
-            "Music/.keep".text = "";
-            "Pictures/.keep".text = "";
-            "Videos/.keep".text = "";
-            "work/.keep".text = "";
-            ".face".source = cfg.icon;
-            "Pictures/${cfg.icon.fileName or (builtins.baseNameOf cfg.icon)}".source = cfg.icon;
-          };
+      file = {
+        "Desktop/.keep".text = "";
+        "Documents/.keep".text = "";
+        "Downloads/.keep".text = "";
+        "Music/.keep".text = "";
+        "Pictures/.keep".text = "";
+        "Videos/.keep".text = "";
+        "work/.keep".text = "";
+        ".face".source = cfg.icon;
+        "Pictures/${
+          cfg.icon.fileName or (builtins.baseNameOf cfg.icon)
+        }".source = cfg.icon;
+      };
 
-        configFile = {
-          "sddm/faces/.${cfg.name}".source = cfg.icon;
-        };
+      configFile = { "sddm/faces/.${cfg.name}".source = cfg.icon; };
 
-
-        extraOptions = {
-          home.shellAliases = {
-            la = "lsd -lah --group-dirs first";
-            update = "sudo nixos-rebuild switch --flake /config#$HOST";
-            nixre = "sudo flake switch";
+      extraOptions = {
+        home.shellAliases = {
+          la = "lsd -lah --group-dirs first";
+          update = "sudo nixos-rebuild switch --flake /config#$HOST";
+          nixre = "sudo flake switch";
         };
 
         programs.zsh.enable = true;
@@ -116,32 +116,31 @@ in
       };
     };
 
-    users.groups = mapAttrs' (name: id: nameValuePair name { gid = mkForce id; }) cfg.GroupsIds;
+    users.groups =
+      mapAttrs' (name: id: nameValuePair name { gid = mkForce id; })
+      cfg.GroupsIds;
 
-    users.users.root = {
+    users.users.root = { shell = pkgs.zsh; } // cfg.extraOptions;
+
+    users.users.${cfg.name} = {
+      isNormalUser = true;
+
+      inherit (cfg) name initialPassword;
+
+      home = "/home/${cfg.name}";
+      group = "users";
+
       shell = pkgs.zsh;
+
+      # Arbitrary user ID to use for the user. Since I only
+      # have a single user on my machines this won't ever collide.
+      # However, if you add multiple users you'll need to change this
+      # so each user has their own unique uid (or leave it out for the
+      # system to select).
+      uid = cfg.uid;
+
+      extraGroups = [ ] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
     } // cfg.extraOptions;
-
-   users.users.${cfg.name} = {
-     isNormalUser = true;
-
-     inherit (cfg) name initialPassword;
-
-     home = "/home/${cfg.name}";
-     group = "users";
-
-     shell = pkgs.zsh;
-
-     # Arbitrary user ID to use for the user. Since I only
-     # have a single user on my machines this won't ever collide.
-     # However, if you add multiple users you'll need to change this
-     # so each user has their own unique uid (or leave it out for the
-     # system to select).
-     uid = cfg.uid;
-
-     extraGroups = [ ] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
-   } // cfg.extraOptions;
   };
 }
-
 

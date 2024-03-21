@@ -1,7 +1,7 @@
-{ pkgs, ... }:
-{ 
+{ pkgs, ... }: {
   swayncConfig = {
-    "$schema" = "${pkgs.swaynotificationcenter}/etc/xdg/swaync/configSchema.json";
+    "$schema" =
+      "${pkgs.swaynotificationcenter}/etc/xdg/swaync/configSchema.json";
     positionX = "right";
     positionY = "top";
     cssPriority = "user";
@@ -26,16 +26,16 @@
     "hide-on-clear" = false;
     "hide-on-action" = true;
     "script-fail-notify" = true;
-    scripts = {};
-    "notification-visibility" = {};
-    widgets = [ 
+    scripts = { };
+    "notification-visibility" = { };
+    widgets = [
       # "menubar#label" 
-      "buttons-grid" 
-      "volume" 
-      "mpris" 
+      "buttons-grid"
+      "volume"
+      "mpris"
       # "title" 
       # "dnd" 
-      "notifications" 
+      "notifications"
     ];
     # "widget-config" = {
     #   title = {

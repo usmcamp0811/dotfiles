@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.desktop.addons.term;
-in
-{
+in {
   options.campground.desktop.addons.term = with types; {
     enable = mkBoolOpt false "Whether to enable the gnome file manager.";
     pkg = mkOpt package pkgs.foot "The terminal to install.";

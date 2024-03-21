@@ -18,20 +18,20 @@ let
         emptyValue.value = { };
       };
     in valueType;
-in
-{
+in {
   options.campground.suites.public-hosting = with types; {
-    enable = mkBoolOpt false "Whether or not to enable common public-hosting configuration.";
+    enable = mkBoolOpt false
+      "Whether or not to enable common public-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.42" "IP to use for the Public Instance";
     entrypoints = mkOption {
       type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description = "List of entrypoints for Traefik, mapping names to their address.";
+      description =
+        "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
-
 
   config = mkIf cfg.enable {
     campground = {
@@ -43,7 +43,7 @@ in
         traefik = {
           enable = true;
           insecure = true;
-          entrypoints = cfg.entrypoints; 
+          entrypoints = cfg.entrypoints;
           dynamicConfigOptions = {
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
@@ -62,8 +62,8 @@ in
               ];
 
               loadBalancer.healthCheck = {
-                path = "/"; 
-                interval = "10s"; 
+                path = "/";
+                interval = "10s";
                 timeout = "5s";
               };
             };
@@ -75,9 +75,7 @@ in
             };
 
             http.services.photoprism = {
-              loadBalancer.servers = [
-                { url = "http://webb:9080"; }
-              ];
+              loadBalancer.servers = [{ url = "http://webb:9080"; }];
             };
 
             http.routers.attic = {
@@ -87,9 +85,7 @@ in
             };
 
             http.services.attic = {
-              loadBalancer.servers = [
-                { url = "http://reckless:8082"; }
-              ];
+              loadBalancer.servers = [{ url = "http://reckless:8082"; }];
             };
 
             http.routers.bitwarden = {
@@ -99,12 +95,10 @@ in
             };
 
             http.services.bitwarden = {
-              loadBalancer.servers = [
-                { url = "http://webb:8989"; }
-              ];
+              loadBalancer.servers = [{ url = "http://webb:8989"; }];
               loadBalancer.healthCheck = {
-                path = "/alive"; 
-                interval = "10s"; 
+                path = "/alive";
+                interval = "10s";
                 timeout = "5s";
               };
             };
@@ -122,9 +116,7 @@ in
             };
 
             http.services.mattermost = {
-              loadBalancer.servers = [
-                { url = "http://webb:8065"; }
-              ];
+              loadBalancer.servers = [{ url = "http://webb:8065"; }];
             };
           };
         };

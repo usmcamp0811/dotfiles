@@ -1,19 +1,22 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.mysql;
+let cfg = config.campground.services.mysql;
 
-in
-{
+in {
   options.campground.services.mysql = with types; {
     enable = mkBoolOpt false "Enable MySQL on a server";
 
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/database-users" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/database-users"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -36,7 +39,8 @@ in
           };
         };
       });
-      description = "Databases to initialize, along with a privileged user for each.";
+      description =
+        "Databases to initialize, along with a privileged user for each.";
     };
 
     package = mkOpt package pkgs.mariadb "What MySQL to use";
@@ -48,23 +52,21 @@ in
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [ 3306 ];  # Open MySQL port
+    networking.firewall.allowedTCPPorts = [ 3306 ]; # Open MySQL port
     services.mysql = {
       enable = true;
       package = cfg.package;
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers = map (db: {
         name = db.user;
-        ensurePermissions = {
-          "${db.name}.*" = "ALL PRIVILEGES";
-        };
+        ensurePermissions = { "${db.name}.*" = "ALL PRIVILEGES"; };
       }) cfg.databases;
     };
 
     services.mysqlBackup = {
       enable = cfg.backupEnable;
       location = cfg.backupLocation;
-      databases = map (db: db.name) cfg.databases; 
+      databases = map (db: db.name) cfg.databases;
     };
 
     # systemd.services.set-mysql-passwords = {
@@ -103,7 +105,7 @@ in
     #             {{ end }}
     #           '') cfg.databases);
     #           permissions = "0600";
-              # change-action = "restart";
+    # change-action = "restart";
     #         };
     #       };
     #     };

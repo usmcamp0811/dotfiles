@@ -1,14 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, system
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, system, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -39,5 +30,4 @@ let
     license = licenses.asl20;
     maintainers = with maintainers; [ mattcamp ];
   };
-in
-override-meta new-meta netmaker-ui
+in override-meta new-meta netmaker-ui

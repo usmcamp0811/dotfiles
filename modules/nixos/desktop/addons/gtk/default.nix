@@ -1,46 +1,33 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.desktop.addons.gtk;
   gdmCfg = config.services.xserver.displayManager.gdm;
 in {
   options.campground.desktop.addons.gtk = with types; {
     enable = mkBoolOpt false "Whether to customize GTK and apply themes.";
     theme = {
-      name =
-        mkOpt str "Nordic-darker"
-        "The name of the GTK theme to apply.";
+      name = mkOpt str "Nordic-darker" "The name of the GTK theme to apply.";
       pkg = mkOpt package pkgs.nordic "The package to use for the theme.";
     };
     cursor = {
       name =
-        mkOpt str "Bibata-Modern-Ice"
-        "The name of the cursor theme to apply.";
-      pkg = mkOpt package pkgs.campground.bibata-cursors "The package to use for the cursor theme.";
+        mkOpt str "Bibata-Modern-Ice" "The name of the cursor theme to apply.";
+      pkg = mkOpt package pkgs.campground.bibata-cursors
+        "The package to use for the cursor theme.";
     };
     icon = {
-      name =
-        mkOpt str "Papirus"
-        "The name of the icon theme to apply.";
-      pkg = mkOpt package pkgs.papirus-icon-theme "The package to use for the icon theme.";
+      name = mkOpt str "Papirus" "The name of the icon theme to apply.";
+      pkg = mkOpt package pkgs.papirus-icon-theme
+        "The package to use for the icon theme.";
     };
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [
-      cfg.icon.pkg
-      cfg.cursor.pkg
-    ];
+    environment.systemPackages = [ cfg.icon.pkg cfg.cursor.pkg ];
 
-    environment.sessionVariables = {
-      XCURSOR_THEME = cfg.cursor.name;
-    };
+    environment.sessionVariables = { XCURSOR_THEME = cfg.cursor.name; };
 
     campground.home.extraOptions = {
       gtk = {
@@ -97,21 +84,18 @@ in {
             ${pkgs.dconf}/bin/dconf compile $out ${customDconf}/dconf
           '';
         };
-      in
-        mkForce (
-          pkgs.stdenv.mkDerivation {
-            name = "dconf-gdm-profile";
-            buildCommand = ''
-              # Check that the GDM profile starts with what we expect.
-              if [ $(head -n 1 ${pkgs.gnome.gdm}/share/dconf/profile/gdm) != "user-db:user" ]; then
-                echo "GDM dconf profile changed, please update gtk/default.nix"
-                exit 1
-              fi
-              # Insert our custom DB behind it.
-              sed '2ifile-db:${customDconfDb}' ${pkgs.gnome.gdm}/share/dconf/profile/gdm > $out
-            '';
-          }
-        );
+      in mkForce (pkgs.stdenv.mkDerivation {
+        name = "dconf-gdm-profile";
+        buildCommand = ''
+          # Check that the GDM profile starts with what we expect.
+          if [ $(head -n 1 ${pkgs.gnome.gdm}/share/dconf/profile/gdm) != "user-db:user" ]; then
+            echo "GDM dconf profile changed, please update gtk/default.nix"
+            exit 1
+          fi
+          # Insert our custom DB behind it.
+          sed '2ifile-db:${customDconfDb}' ${pkgs.gnome.gdm}/share/dconf/profile/gdm > $out
+        '';
+      });
     };
   };
 }

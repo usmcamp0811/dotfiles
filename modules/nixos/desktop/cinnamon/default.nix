@@ -2,10 +2,8 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.desktop.cinnamon;
-in
-{
+let cfg = config.campground.desktop.cinnamon;
+in {
   options.campground.desktop.cinnamon = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
@@ -17,10 +15,10 @@ in
   config = mkIf cfg.enable {
     campground.system.xkb.enable = true;
     campground.desktop.addons = {
-#      gtk = enabled;
+      #      gtk = enabled;
       wallpapers = enabled;
-#      electron-support = enabled;
-#      foot = enabled;
+      #      electron-support = enabled;
+      #      foot = enabled;
     };
 
     environment.systemPackages = with pkgs; [
@@ -38,13 +36,13 @@ in
       gnome-maps
     ];
 
-#    systemd.tmpfiles.rules = [
-#      "d ${gdmHome}/.config 0711 gdm gdm"
-#    ] ++ (
-#      # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
-#      # display information is updated.
-#      lib.optional (cfg.monitors != null) "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}"
-#    );
+    #    systemd.tmpfiles.rules = [
+    #      "d ${gdmHome}/.config 0711 gdm gdm"
+    #    ] ++ (
+    #      # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
+    #      # display information is updated.
+    #      lib.optional (cfg.monitors != null) "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}"
+    #    );
 
     systemd.services.campground-user-icon = {
       before = [ "display-manager.service" ];
@@ -84,9 +82,7 @@ in
     services.xserver = {
       enable = true;
       libinput.enable = true;
-      desktopManager.cinnamon = {
-        enable = true;
-      };
+      desktopManager.cinnamon = { enable = true; };
     };
 
     programs.kdeconnect = {

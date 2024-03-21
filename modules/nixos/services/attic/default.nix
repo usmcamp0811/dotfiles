@@ -9,45 +9,50 @@ let
 
   raw-server-toml = toml-format.generate "server.toml" cfg.settings;
 
-  server-toml = pkgs.runCommand "checked-server.toml" { config = raw-server-toml; } ''
-    cat $config
+  server-toml =
+    pkgs.runCommand "checked-server.toml" { config = raw-server-toml; } ''
+      cat $config
 
-    export ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64="dGVzdCBzZWNyZXQ="
-    export ATTIC_SERVER_DATABASE_URL="sqlite://:memory:"
-    
-    echo $config
-    ${cfg.package}/bin/atticd --mode check-config -f "$config"
-    cat < $config > $out
-  '';
+      export ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64="dGVzdCBzZWNyZXQ="
+      export ATTIC_SERVER_DATABASE_URL="sqlite://:memory:"
 
-  is-local-postgres =
-    let
-      url = cfg.settings.database.url or "";
-      local-db-strings = [ "localhost" "127.0.0.1" "/run/postgresql" ];
-      is-local-db-url = any (flip hasInfix url) local-db-strings;
-    in
-    config.services.postgresql.enable
-    && hasPrefix "postgresql://" url
-    && is-local-db-url;
-in
-{
+      echo $config
+      ${cfg.package}/bin/atticd --mode check-config -f "$config"
+      cat < $config > $out
+    '';
+
+  is-local-postgres = let
+    url = cfg.settings.database.url or "";
+    local-db-strings = [ "localhost" "127.0.0.1" "/run/postgresql" ];
+    is-local-db-url = any (flip hasInfix url) local-db-strings;
+  in config.services.postgresql.enable && hasPrefix "postgresql://" url
+  && is-local-db-url;
+in {
   options.campground.services.attic = {
     enable = mkEnableOption "Attic";
 
-    package = mkOpt types.package pkgs.attic-server "The attic-server package to use.";
+    package =
+      mkOpt types.package pkgs.attic-server "The attic-server package to use.";
 
-    credentials = mkOpt (types.nullOr types.path) null "The path to an optional EnvironmentFile for the atticd service to use.";
+    credentials = mkOpt (types.nullOr types.path) null
+      "The path to an optional EnvironmentFile for the atticd service to use.";
 
     user = mkOpt types.str "atticd" "The user under which attic runs.";
     group = mkOpt types.str "atticd" "The group under which attic runs.";
 
-    settings = mkOpt toml-format.type { } "Settings for the atticd config file.";
+    settings =
+      mkOpt toml-format.type { } "Settings for the atticd config file.";
 
-    role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt types.str "secret/campground/attic" "The Vault path to the KV containing the KVs that are for each database";
+    role-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt types.str "secret/campground/attic"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -59,12 +64,11 @@ in
   };
 
   config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = !isStorePath cfg.credentials;
-        message = "campground.services.attic.credentials CANNOT be in the Nix Store.";
-      }
-    ];
+    assertions = [{
+      assertion = !isStorePath cfg.credentials;
+      message =
+        "campground.services.attic.credentials CANNOT be in the Nix Store.";
+    }];
 
     users = {
       users = optionalAttrs (cfg.user == "atticd") {
@@ -73,16 +77,15 @@ in
           isSystemUser = true;
         };
       };
-      groups = optionalAttrs (cfg.group == "atticd") {
-        atticd = { };
-      };
+      groups = optionalAttrs (cfg.group == "atticd") { atticd = { }; };
     };
 
     campground = {
       tools.attic = enabled;
       services = {
         attic.settings = {
-          database.url = mkDefault "postgres://atticd@/atticd?host=/run/postgresql/";
+          database.url =
+            mkDefault "postgres://atticd@/atticd?host=/run/postgresql/";
 
           storage = mkDefault {
             type = "local";
@@ -91,17 +94,15 @@ in
         };
         postgresql = {
           enable = true;
-          databases = [ 
-            { 
-              name = "atticd";
-              user = cfg.user; 
-            } 
-          ];
+          databases = [{
+            name = "atticd";
+            user = cfg.user;
+          }];
         };
         vault-agent = {
           services = {
             "atticd" = {
-              settings = {       # replace with the address of your vault
+              settings = { # replace with the address of your vault
                 vault.address = cfg.vault-address;
                 auto_auth = {
                   method = [{
@@ -131,8 +132,10 @@ in
 
     systemd.services.atticd = {
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ]
-        ++ optionals is-local-postgres [ "postgresql.service" "nss-lookup.target" ];
+      after = [ "network.target" ] ++ optionals is-local-postgres [
+        "postgresql.service"
+        "nss-lookup.target"
+      ];
 
       serviceConfig = {
         # ExecStartPre = "${pkgs.coreutils}/bin/chown -R ${cfg.user}:${cfg.group} /var/lib/atticd";

@@ -2,22 +2,17 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.suites.common;
-in
-{
+let cfg = config.campground.suites.common;
+in {
   options.campground.suites.common = with types; {
     enable = mkBoolOpt false "Whether or not to enable common configuration.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [
-    ];
+    environment.systemPackages = [ ];
 
     campground = {
-      nix = {
-        enable = true;
-      };
+      nix = { enable = true; };
 
       # security = {
       #   doas = enabled;
@@ -28,9 +23,7 @@ in
         campground = enabled;
       };
 
-      cli-apps = {
-        flake = enabled;
-      };
+      cli-apps = { flake = enabled; };
 
       tools = {
         git = enabled;
@@ -43,13 +36,9 @@ in
         networking = enabled;
       };
 
-      services = {
-        openssh = enabled;
-      };
+      services = { openssh = enabled; };
 
-      security = {
-        keyring = enabled;
-      };
+      security = { keyring = enabled; };
 
       system = {
         boot = enabled;

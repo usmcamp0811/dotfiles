@@ -1,7 +1,6 @@
 { lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 
-with lib.campground;
-{
+with lib.campground; {
   campground = {
     user = {
       enable = true;
@@ -45,7 +44,7 @@ with lib.campground;
         enable = true;
         userEmail = "mboterf@ata-llc.com";
         userName = "BruceBoterf";
-      }; 
+      };
       direnv = enabled;
       # virtmanager = enabled; # don't forget to add to libvirtd group
       julia = enabled;

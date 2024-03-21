@@ -1,19 +1,11 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "pluto";
-  julia-env = pkgs.julia.withPackages [ "Pluto" "PythonCall"];
+  julia-env = pkgs.julia.withPackages [ "Pluto" "PythonCall" ];
   pluto = pkgs.writeShellScriptBin "pluto" ''
     #!/usr/bin/env bash
     HOST="0.0.0.0" # Default host
@@ -38,5 +30,4 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-in
-override-meta new-meta pluto
+in override-meta new-meta pluto

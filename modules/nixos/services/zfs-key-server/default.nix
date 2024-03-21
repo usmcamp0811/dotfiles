@@ -5,12 +5,9 @@ let
   cfg = config.campground.services.zfs-key-server;
   tangServersJSON = builtins.toJSON {
     t = cfg.threshold;
-    pins = {
-      tang = map (server: { url = server; }) cfg.tang-servers;
-    };
+    pins = { tang = map (server: { url = server; }) cfg.tang-servers; };
   };
-in
-{
+in {
   options.campground.services.zfs-key-server = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
     port = mkOpt int 8082 "Port to Host the NGINX porxy on.";
@@ -21,11 +18,16 @@ in
       description = "List of Tang servers.";
     };
     threshold = mkOpt int 1 "Number of tanger serveres required to unlock";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/zfs" "The Vault path to the KV containing the LDAP Secrets.";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/zfs"
+      "The Vault path to the KV containing the LDAP Secrets.";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -41,7 +43,10 @@ in
     services.nginx = {
       enable = true;
       virtualHosts."zfs-key-server" = {
-        listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];
+        listen = [{
+          addr = "0.0.0.0";
+          port = cfg.port;
+        }];
         locations."/".extraConfig = ''
           alias /var/lib/vault/zfs-keys/;
           autoindex off;
@@ -56,7 +61,8 @@ in
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/save_encrypted_zfs_passphrase.sh";
+        ExecStart =
+          "${pkgs.bash}/bin/bash /tmp/detsys-vault/save_encrypted_zfs_passphrase.sh";
         # ExecStart = "${pkgs.bash}/bin/bash /config/test.sh";
         after = [ "vault-agent.service" ];
         before = [ "nginx.service" ];
@@ -114,7 +120,7 @@ in
                 # Change file owner to the user running Nginx
                 chown nginx:nginx /var/lib/vault/zfs-keys/zfs-keyfile
               '';
-              permissions = "0400";  # Make the script executable
+              permissions = "0400"; # Make the script executable
               change-action = "restart";
             };
           };

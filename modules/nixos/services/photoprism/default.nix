@@ -3,20 +3,24 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.photoprism;
-# If you setup Syncthing to sync with your phone and have the sync folder mapped to cfg.importPath then this will automatically import whenever you take a pic
-in
-{
+  # If you setup Syncthing to sync with your phone and have the sync folder mapped to cfg.importPath then this will automatically import whenever you take a pic
+in {
   options.campground.services.photoprism = with types; {
     enable = mkBoolOpt false "Enable Photoprisim;";
     originalsPath = mkOpt str "" "Path to store original photos";
     importPath = mkOpt str "/webb/media/phone-pictures" "Path to import folder";
     port = mkOpt int 9080 "Port to expose Photoprism on";
 
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/photoprism" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/photoprism"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -30,31 +34,34 @@ in
   config = mkIf cfg.enable {
 
     fileSystems = {
-      "/var/lib/private/photoprism/originals" = if cfg.originalsPath != "" then {
-        device = cfg.originalsPath;
-        options = [ "bind" ];
-      } else null;
+      "/var/lib/private/photoprism/originals" =
+        if cfg.originalsPath != "" then {
+          device = cfg.originalsPath;
+          options = [ "bind" ];
+        } else
+          null;
       "/var/lib/photoprism/import" = if cfg.importPath != "" then {
         device = cfg.importPath;
         options = [ "bind" ];
-      } else null;
+      } else
+        null;
     };
-
 
     campground.services.mysql = {
       enable = true;
-      databases = [
-        { 
-          name = "photoprism"; 
-          user = "photoprism"; 
-        } 
-      ];
+      databases = [{
+        name = "photoprism";
+        user = "photoprism";
+      }];
     };
     services.nginx = {
       enable = true;
       virtualHosts = {
         "photoprism.lan" = {
-          listen = [ { addr = "0.0.0.0"; port = cfg.port; } ];  # Specify the port here
+          listen = [{
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }]; # Specify the port here
           http2 = true;
           locations."/" = {
             proxyPass = "http://127.0.0.1:2342";
@@ -69,18 +76,20 @@ in
       isSystemUser = true;
       description = "Photoprism user";
       group = "photoprism";
-      extraGroups = [ "photoprism" ]; # Optional if you want the user to be in additional groups
+      extraGroups = [
+        "photoprism"
+      ]; # Optional if you want the user to be in additional groups
       home = "/var/lib/photoprism";
     };
 
-    users.groups.photoprism = {};
+    users.groups.photoprism = { };
 
     systemd.services.photoprismAutoImport = {
       description = "Auto import when files are added to the folder";
       serviceConfig = {
         User = "root";
         Restart = "on-failure";
-        WorkingDirectory = "/var/lib/photoprism"; 
+        WorkingDirectory = "/var/lib/photoprism";
       };
       wantedBy = [ "multi-user.target" ];
       after = [ "photoprism.service" ];

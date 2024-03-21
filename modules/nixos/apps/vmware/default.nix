@@ -2,17 +2,13 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.apps.vmware;
-in
-{
+let cfg = config.campground.apps.vmware;
+in {
   options.campground.apps.vmware = with types; {
     enable = mkBoolOpt false "Whether or not to enable Firefox.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      vmware-workstation
-    ];
+    environment.systemPackages = with pkgs; [ vmware-workstation ];
   };
 }

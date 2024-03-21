@@ -1,4 +1,4 @@
-{ nix-snapshotter,... }:
+{ nix-snapshotter, ... }:
 
 final: prev:
 

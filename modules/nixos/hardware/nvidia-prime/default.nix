@@ -15,30 +15,36 @@ let
     export __VK_LAYER_NV_optimus=NVIDIA_only
     exec -a "$0" "$@"
   '';
-in
-{
+in {
   options.campground.hardware.nvidia-prime = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
-      type = types.enum ["stable" "beta" "production" "vulkan_beta" "legacy_470" "legacy_390" "legacy_340" "custom"];
+      type = types.enum [
+        "stable"
+        "beta"
+        "production"
+        "vulkan_beta"
+        "legacy_470"
+        "legacy_390"
+        "legacy_340"
+        "custom"
+      ];
       default = "stable";
-      description = "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
+      description =
+        "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
     };
 
     customDriverPackage = mkOption {
       type = types.nullOr types.package;
       default = null;
-      description = "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
+      description =
+        "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
     };
   };
 
   config = mkIf cfg.enable {
 
-
-    environment.systemPackages = with pkgs; [
-      nvidia-offload
-      pciutils
-    ];
+    environment.systemPackages = with pkgs; [ nvidia-offload pciutils ];
 
     # Enable OpenGL
     hardware.opengl = {
@@ -48,7 +54,7 @@ in
     };
 
     # Load nvidia driver for Xorg and Wayland
-    services.xserver.videoDrivers = ["nvidia"];
+    services.xserver.videoDrivers = [ "nvidia" ];
 
     hardware.nvidia = {
 
@@ -71,11 +77,14 @@ in
       open = false;
 
       # Enable the Nvidia settings menu,
-    # accessible via `nvidia-settings`.
+      # accessible via `nvidia-settings`.
       nvidiaSettings = true;
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package = if cfg.driverType == "custom" then cfg.customDriverPackage else config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      package = if cfg.driverType == "custom" then
+        cfg.customDriverPackage
+      else
+        config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
 
       prime = {
         sync.enable = true;
@@ -85,6 +94,4 @@ in
     };
   };
 }
-
-
 

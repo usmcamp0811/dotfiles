@@ -12,24 +12,24 @@ let
   defaultEndScript = ''
     ${getExe' pkgs.libnotify "notify-send"} 'GameMode ended'
   '';
-in
-{
+in {
   options.campground.apps.gamemode = with types; {
     enable = mkBoolOpt false "Whether or not to enable gamemode.";
-    endscript = mkOpt (nullOr str) null "The script to run when disabling gamemode.";
-    startscript = mkOpt (nullOr str) null "The script to run when enabling gamemode.";
+    endscript =
+      mkOpt (nullOr str) null "The script to run when disabling gamemode.";
+    startscript =
+      mkOpt (nullOr str) null "The script to run when enabling gamemode.";
   };
 
-  config =
-  let
-    startScript =
-      if (cfg.startscript == null)
-      then pkgs.writeShellScript "gamemode-start" defaultStartScript
-      else pkgs.writeShellScript "gamemode-start" cfg.startscript;
-    endScript =
-      if (cfg.endscript == null)
-      then pkgs.writeShellScript "gamemode-end" defaultEndScript
-      else pkgs.writeShellScript "gamemode-end" cfg.endscript;
+  config = let
+    startScript = if (cfg.startscript == null) then
+      pkgs.writeShellScript "gamemode-start" defaultStartScript
+    else
+      pkgs.writeShellScript "gamemode-start" cfg.startscript;
+    endScript = if (cfg.endscript == null) then
+      pkgs.writeShellScript "gamemode-end" defaultEndScript
+    else
+      pkgs.writeShellScript "gamemode-end" cfg.endscript;
   in mkIf cfg.enable {
     programs.gamemode = {
       enable = true;

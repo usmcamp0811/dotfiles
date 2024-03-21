@@ -4,18 +4,22 @@ with lib.campground;
 let
   labelStudioSocket = "/run/airflow.sock";
   cfg = config.campground.services.airflow;
-in
-{
+in {
   options.campground.services.airflow = with types; {
     enable = mkBoolOpt false "Enable airflow;";
     port = mkOpt int 8888 "Where the airflow port number";
     ip = mkOpt str "127.0.0.1" "Where the airflow ip address";
     path = mkOpt str "/var/lib/airflow" "Where to put the airflow directory.";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/mlflow" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/mlflow"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };

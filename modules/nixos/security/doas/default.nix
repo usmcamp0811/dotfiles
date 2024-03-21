@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.security.doas;
-in
-{
+in {
   options.campground.security.doas = {
     enable = mkBoolOpt false "Whether or not to replace sudo with doas.";
   };
@@ -16,15 +15,13 @@ in
     # Enable and configure `doas`.
     security.doas = {
       enable = true;
-      extraRules = [
-      {
+      extraRules = [{
         runAs = "root";
         cmd = "nixos-rebuild";
         users = [ config.campground.user.name ];
         noPass = true;
         keepEnv = true;
-      }
-      ];
+      }];
     };
     # Add an alias to the shell for backward-compat and convenience.
     environment.shellAliases = { sudo = "doas"; };

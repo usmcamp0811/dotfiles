@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.tools.k8s;
-in
-{
+in {
   options.campground.tools.k8s = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common Kubernetes utilities.";

@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.hardware.networking;
-in
-{
+in {
   options.campground.hardware.networking = with types; {
     enable = mkBoolOpt false "Whether or not to enable networking support";
     hosts = mkOpt attrs { }
@@ -26,9 +25,7 @@ in
     };
 
     # TODO: Figure this out cause if its on jupyter is not accessible
-    networking.firewall = {
-      enable = false;
-    };
+    networking.firewall = { enable = false; };
     # Fixes an issue that normally causes nixos-rebuild to fail.
     # https://github.com/NixOS/nixpkgs/issues/180175
     systemd.services.NetworkManager-wait-online.enable = false;

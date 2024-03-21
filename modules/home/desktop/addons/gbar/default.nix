@@ -2,10 +2,10 @@
 
 with lib;
 with lib.campground;
-let cfg = config.campground.desktop.addons.gbar;
+let
+  cfg = config.campground.desktop.addons.gbar;
   inherit (inputs) gBar;
-in
-{
+in {
   options.campground.desktop.addons.gbar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
@@ -13,16 +13,16 @@ in
   imports = [ inputs.gBar.homeManagerModules.x86_64-linux.default ];
   config = mkIf cfg.enable {
     programs.gBar = {
-        enable = true;
-        config = {
-            Location = "L";
-            EnableSNI = true;
-            SNIIconSize = {
-                Discord = 26;
-                OBS = 23;
-            };
-            WorkspaceSymbols = [ " " " " ];
+      enable = true;
+      config = {
+        Location = "L";
+        EnableSNI = true;
+        SNIIconSize = {
+          Discord = 26;
+          OBS = 23;
         };
+        WorkspaceSymbols = [ " " " " ];
+      };
     };
   };
 }

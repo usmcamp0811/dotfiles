@@ -2,11 +2,9 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.borgbackup;
-in
-{
-  options.campground.services.borgbackup = with types; { 
+let cfg = config.campground.services.borgbackup;
+in {
+  options.campground.services.borgbackup = with types; {
     enable = mkBoolOpt false "Whether or not to enable Borg Backups.";
     jobs = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
@@ -30,7 +28,8 @@ in
           environment = {
             BORG_RSH = lib.mkOption {
               type = lib.types.str;
-              default = "ssh -o 'StrictHostKeyChecking=no' -i /home/mcamp/.ssh/id_ed25519";
+              default =
+                "ssh -o 'StrictHostKeyChecking=no' -i /home/mcamp/.ssh/id_ed25519";
               description = "SSH command for Borg to use.";
             };
           };
@@ -58,15 +57,20 @@ in
           };
         };
       }));
-      default = {};
+      default = { };
       description = "Borg backup jobs configuration.";
     };
 
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/borg" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/borg"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -78,7 +82,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
+    services.borgbackup.jobs =
+      lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
     systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       description = "Copy the passphrase for ${name} Borg Backup job";
@@ -91,35 +96,35 @@ in
       wantedBy = [ "multi-user.target" ];
     });
 
-
-    campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+    campground.services.vault-agent.services =
+      lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
         };
-      };
 
-      secrets = {
-        file = {
-          files = {
-            "${name}-borg-passphrase" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
-              '';
-              permissions = "0600";
-              change-action = "restart";
+        secrets = {
+          file = {
+            files = {
+              "${name}-borg-passphrase" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
             };
           };
         };
-      };
-    });
+      });
   };
 }

@@ -4,20 +4,25 @@ with lib.campground;
 let
   cfg = config.campground.security.acme;
   # STILL A WIP.. didn't get acme fully working yet.
-in
-{
+in {
   options.campground.security.acme = with lib.types; {
     enable = mkEnableOption "default ACME configuration";
     email = mkOpt str config.campground.user.email "The email to use.";
     staging = mkOpt bool virtual "Whether to use the staging server or not.";
     dnsProvider = mkOpt str "cloudflare" "DNS Provider";
-    credentialsFile = mkOpt str "/var/lib/vault/cloudflare.env" "The credentials File.";
+    credentialsFile =
+      mkOpt str "/var/lib/vault/cloudflare.env" "The credentials File.";
 
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/cloudflare" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/cloudflare"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -37,14 +42,19 @@ in
 
         dnsProvider = cfg.dnsProvider;
         group = mkIf config.services.traefik.enable "traefik";
-        server = mkIf cfg.staging "https://acme-staging-v02.api.letsencrypt.org/directory";
+        server = mkIf cfg.staging
+          "https://acme-staging-v02.api.letsencrypt.org/directory";
 
-        reloadServices = optional config.services.traefik.enable "traefik.service";
+        reloadServices =
+          optional config.services.traefik.enable "traefik.service";
         credentialsFile = cfg.credentialsFile;
       };
       certs = {
         "aicampground.com" = {
-          extraDomainNames = [ "*.aicampground.com" "*.lan.aicampground.com" ]; # Add additional domains if needed
+          extraDomainNames = [
+            "*.aicampground.com"
+            "*.lan.aicampground.com"
+          ]; # Add additional domains if needed
         };
       };
     };
@@ -54,7 +64,8 @@ in
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart = "${pkgs.coreutils}/bin/sh -c 'cp /tmp/detsys-vault/cloudflare.env /var/lib/vault/cloudflare.env && chown acme:acme /var/lib/vault/cloudflare.env'";
+        ExecStart =
+          "${pkgs.coreutils}/bin/sh -c 'cp /tmp/detsys-vault/cloudflare.env /var/lib/vault/cloudflare.env && chown acme:acme /var/lib/vault/cloudflare.env'";
       };
     };
 

@@ -14,43 +14,38 @@ let
 
   default-attrs = mapAttrs (key: mkDefault);
   nested-default-attrs = mapAttrs (key: default-attrs);
-in
-{
+in {
   options.campground.desktop.qtile = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Qtile as the desktop environment.";
   };
 
-
   config = mkIf cfg.enable {
     campground.system.xkb.enable = true;
-    campground.desktop.addons = {
-      wallpapers = enabled;
-    };
+    campground.desktop.addons = { wallpapers = enabled; };
 
-    environment.systemPackages = with pkgs; [
-      gtk4
-      qtile
-      rofi
-      xclip
-      xsel
-      feh
-      dunst
-      autorandr
-      arandr
-      go-sct
-      brightnessctl 
-    ] ++ defaultExtensions;
+    environment.systemPackages = with pkgs;
+      [
+        gtk4
+        qtile
+        rofi
+        xclip
+        xsel
+        feh
+        dunst
+        autorandr
+        arandr
+        go-sct
+        brightnessctl
+      ] ++ defaultExtensions;
 
-
-    services.udev.packages = with pkgs; [];
+    services.udev.packages = with pkgs; [ ];
     services.picom.enable = true;
     services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
       [org.gnome.desktop.interface]
       gtk-theme='Arc-Dark'
     '';
-    environment.etc = let
-      rofiThemes = "${pkgs.rofi}/share/rofi/themes";
+    environment.etc = let rofiThemes = "${pkgs.rofi}/share/rofi/themes";
     in mapAttrs' (name: _: {
       name = "rofi/themes/${name}";
       value = { source = "${rofiThemes}/${name}"; };

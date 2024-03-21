@@ -1,23 +1,28 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.minio;
-in
-{
+let cfg = config.campground.services.minio;
+in {
   options.campground.services.minio = with types; {
     enable = mkBoolOpt false "Enable minio;";
-    dataDir = mkOpt str "/var/lib/minio/data" "Data directory for MinIO server.";
+    dataDir =
+      mkOpt str "/var/lib/minio/data" "Data directory for MinIO server.";
     configDir = mkOpt str "/var/lib/minio/config" "Config directory";
     listenAddress = mkOpt str ":9000" "IP addres and port of the server";
     consoleAddress = mkOpt str ":9001" "IP addres and port of the web UI.";
-    region = mkOpt str "us-east-1" "where the server is at... defaults to the same as AWS";
-    
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/minio" "The Vault path to the KV containing the KVs that are for each database";
+    region = mkOpt str "us-east-1"
+      "where the server is at... defaults to the same as AWS";
+
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/minio"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -26,19 +31,19 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    
+
   };
 
   config = mkIf cfg.enable {
 
-   services.minio = {
+    services.minio = {
       enable = true;
       listenAddress = cfg.listenAddress;
       consoleAddress = cfg.consoleAddress;
       dataDir = [ cfg.dataDir ];
       configDir = cfg.configDir;
       region = cfg.region;
-      rootCredentialsFile ="/var/lib/minio/minio-root-creds"; 
+      rootCredentialsFile = "/var/lib/minio/minio-root-creds";
     };
 
     systemd.services.copyMinioCreds = {
@@ -46,7 +51,8 @@ in
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/minio-root-creds /var/lib/minio/minio-root-creds";
+        ExecStart =
+          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/minio-root-creds /var/lib/minio/minio-root-creds";
       };
       wantedBy = [ "multi-user.target" ];
       before = [ "minio.service" ];

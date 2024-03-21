@@ -1,18 +1,21 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.postgresql;
+let cfg = config.campground.services.postgresql;
 
-in
-{
+in {
   options.campground.services.postgresql = with types; {
     enable = mkBoolOpt false "Enable PostgreSQL on a server";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/database-users" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/database-users"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -34,7 +37,8 @@ in
           };
         };
       });
-      description = "Databases to initialize, along with a privileged user for each.";
+      description =
+        "Databases to initialize, along with a privileged user for each.";
     };
     package = mkOpt package pkgs.postgresql_16 "What PostgreSQL to use";
     enableTCPIP = mkBoolOpt false "Enable TCP access";
@@ -60,7 +64,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [ 5432 ];  # Open PostgreSQL port
+    networking.firewall.allowedTCPPorts = [ 5432 ]; # Open PostgreSQL port
     services.postgresql = {
       enable = true;
       package = cfg.package;
@@ -82,14 +86,15 @@ in
       enable = cfg.backupEnable;
       location = cfg.backupLocation;
       startAt = cfg.backupStartAt;
-      databases = map (db: db.name) cfg.databases; 
+      databases = map (db: db.name) cfg.databases;
     };
 
     systemd.services.set-postgres-passwords = {
       description = "Set PostgreSQL user passwords";
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = "${pkgs.postgresql}/bin/psql -f /tmp/detsys-vault/set-passwords.sql";
+        ExecStart =
+          "${pkgs.postgresql}/bin/psql -f /tmp/detsys-vault/set-passwords.sql";
         User = "postgres";
       };
       after = [ "postgresql.service" ];
@@ -129,5 +134,4 @@ in
     };
   };
 }
-
 

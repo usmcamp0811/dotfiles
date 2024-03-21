@@ -10,8 +10,7 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+in {
   imports = [ ./hardware.nix ];
   campground = {
     nfs.client.enable = true;
@@ -19,7 +18,7 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
       GroupsIds = {
         users = 10000;
         k8s = 999;
@@ -42,13 +41,9 @@ in
         hostId = "13ec383b";
       };
     };
-    hardware = {
-      nvidia = enabled;
-    };
+    hardware = { nvidia = enabled; };
     services = {
-      ldap-client = {
-        enable = mkForce false;
-      };
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       hydra = enabled;
       jellyfin = enabled;
@@ -59,31 +54,26 @@ in
       zfs-key-server = {
         enable = true;
         port = 8123;
-        tang-servers = [ 
+        tang-servers = [
           # "http://daly:1234" 
-          "http://lucas:1234" 
-          "http://ermy:1234" 
-          "http://webb:1234" 
+          "http://lucas:1234"
+          "http://ermy:1234"
+          "http://webb:1234"
           "http://reckless:1234"
         ];
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { 
-          files = [ 
-            "id_ed25519" 
-            "passwords" 
-          ]; 
-        };
+        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
       };
       vault-agent = {
         enable = true;
-        settings = { 
-          vault = { 
-            address = "https://vault.lan.aicampground.com"; 
-            role-id = "/var/lib/vault/chesty/role-id"; 
-            secret-id = "/var/lib/vault/chesty/secret-id"; 
-          }; 
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            role-id = "/var/lib/vault/chesty/role-id";
+            secret-id = "/var/lib/vault/chesty/secret-id";
+          };
         };
       };
     };

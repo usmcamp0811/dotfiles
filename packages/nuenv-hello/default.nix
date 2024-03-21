@@ -1,13 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, pkgs
-, system
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, pkgs, system
+, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -28,5 +20,4 @@ let
     '';
     MESSAGE = "My custom Nuenv derivation!";
   };
-in
-nuenv-hello
+in nuenv-hello

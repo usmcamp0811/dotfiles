@@ -34,5 +34,4 @@ let
     name = "steam-desktop-items";
     paths = [ steam-pipewire steam-pipewire-gamepadui ];
   };
-in
-override-meta new-meta package
+in override-meta new-meta package

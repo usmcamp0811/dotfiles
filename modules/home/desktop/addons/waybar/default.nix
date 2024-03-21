@@ -2,7 +2,7 @@
 
 with lib;
 with lib.campground;
-let 
+let
   cfg = config.campground.desktop.addons.waybar;
 
   theme = builtins.readFile ./styles/catppuccin.css;
@@ -12,11 +12,12 @@ let
   statsStyle = builtins.readFile ./styles/stats.css;
   workspacesStyle = builtins.readFile ./styles/workspaces.css;
 
-  custom-modules = import ./modules/custom-modules.nix { inherit config lib pkgs; };
+  custom-modules =
+    import ./modules/custom-modules.nix { inherit config lib pkgs; };
   default-modules = import ./modules/default-modules.nix { inherit lib pkgs; };
   group-modules = import ./modules/group-modules.nix;
-  hyprland-modules = import ./modules/hyprland-modules.nix { inherit config lib; };
-
+  hyprland-modules =
+    import ./modules/hyprland-modules.nix { inherit config lib; };
 
   all-modules = mkMerge [
     custom-modules
@@ -57,8 +58,7 @@ let
       "clock"
     ];
   };
-in
-{
+in {
   options.campground.desktop.addons.waybar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
@@ -80,8 +80,9 @@ in
         # secondaryBar = mkMerge [ bar secondaryBar all-modules ];
       };
 
-      style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
-    }; 
+      style =
+        "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
+    };
   };
 }
 

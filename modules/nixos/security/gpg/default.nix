@@ -49,11 +49,11 @@ let
   reload-yubikey = pkgs.writeShellScriptBin "reload-yubikey" ''
     ${pkgs.gnupg}/bin/gpg-connect-agent "scd serialno" "learn --force" /bye
   '';
-in
-{
+in {
   options.campground.security.gpg = with types; {
     enable = mkBoolOpt false "Whether or not to enable GPG.";
-    agentTimeout = mkOpt int 5 "The amount of time to wait before continuing with shell init.";
+    agentTimeout = mkOpt int 5
+      "The amount of time to wait before continuing with shell init.";
   };
 
   config = mkIf cfg.enable {
@@ -66,7 +66,9 @@ in
       export GPG_TTY="$(tty)"
       export SSH_AUTH_SOCK=$(${pkgs.gnupg}/bin/gpgconf --list-dirs agent-ssh-socket)
 
-      ${pkgs.coreutils}/bin/timeout ${builtins.toString cfg.agentTimeout} ${pkgs.gnupg}/bin/gpgconf --launch gpg-agent
+      ${pkgs.coreutils}/bin/timeout ${
+        builtins.toString cfg.agentTimeout
+      } ${pkgs.gnupg}/bin/gpgconf --launch gpg-agent
       gpg_agent_timeout_status=$?
 
       if [ "$gpg_agent_timeout_status" = 124 ]; then

@@ -2,8 +2,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.archetypes.workstation;
-in
-{
+in {
   options.campground.archetypes.workstation = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable the workstation archetype.";
@@ -27,8 +26,8 @@ in
         docker = enabled;
         ldap-client = enabled;
         tang = enabled;
-        openssh = { 
-          authorizedKeys = [ 
+        openssh = {
+          authorizedKeys = [
             "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler"
           ];
         };

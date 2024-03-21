@@ -17,8 +17,7 @@ let
         emptyValue.value = { };
       };
     in valueType;
-in
-{
+in {
   options.campground.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     email = mkOpt str config.campground.user.email "The email to use.";
@@ -27,21 +26,27 @@ in
     insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
-      default = {};
+      default = { };
       description = "HTTP configuration for routers and services";
     };
     entrypoints = mkOption {
       type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description = "List of entrypoints for Traefik, mapping names to their address.";
+      description =
+        "List of entrypoints for Traefik, mapping names to their address.";
     };
 
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/cloudflare" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/cloudflare"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -53,9 +58,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    users.users.traefik = {
-      extraGroups = [ "docker" ];
-    };
+    users.users.traefik = { extraGroups = [ "docker" ]; };
 
     services.traefik = {
       enable = true;
@@ -77,16 +80,17 @@ in
             address = "0.0.0.0:443";
             http.tls = {
               certResolver = "cloudflare";
-              domains = [{ main = cfg.domain; sans = [ 
-                "*.${cfg.domain}" 
-                "*.lan.${cfg.domain}" ]; }];
+              domains = [{
+                main = cfg.domain;
+                sans = [ "*.${cfg.domain}" "*.lan.${cfg.domain}" ];
+              }];
             };
           };
         } // cfg.entrypoints;
 
         api = {
           dashboard = true;
-          insecure = cfg.insecure; 
+          insecure = cfg.insecure;
         };
         certificatesResolvers = {
           cloudflare = {
@@ -138,7 +142,7 @@ in
     };
   };
 }
-                    # CLOUDFLARE_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
-                    # CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
-                    # CF_API_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
-                    # CF_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+# CLOUDFLARE_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+# CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
+# CF_API_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
+# CF_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'

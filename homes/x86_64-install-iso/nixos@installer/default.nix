@@ -1,7 +1,6 @@
 { lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 
-with lib.campground;
-{
+with lib.campground; {
   campground = {
     user = {
       enable = true;
@@ -21,9 +20,9 @@ with lib.campground;
     #   };
     # };
     # apps = {
-      # qutebrowser = enabled;
-      # kitty = enabled;
-      # rofi = enabled;
+    # qutebrowser = enabled;
+    # kitty = enabled;
+    # rofi = enabled;
     # };
   };
   home.stateVersion = "23.05";

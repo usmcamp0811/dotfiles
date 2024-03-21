@@ -10,23 +10,18 @@ let
     shell = pkgs.zsh;
   };
 
-in
-{
+in {
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
   boot.loader.grub = enabled;
   virtualisation.amazon-init = enabled;
   campground = {
     nix = enabled;
-    cli-apps = {
-      flake = enabled;
-    };
+    cli-apps = { flake = enabled; };
     tools = {
       git = enabled;
       misc = enabled;
     };
-    services = {
-      openssh = enabled;
-    };
+    services = { openssh = enabled; };
     system = {
       boot = enabled;
       fonts = enabled;
@@ -38,10 +33,9 @@ in
       name = "ec2-user";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
   };
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

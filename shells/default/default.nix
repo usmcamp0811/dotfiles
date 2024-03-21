@@ -1,15 +1,8 @@
-{ mkShell
-, pkgs
-, config
-, lib
-, ...
-}:
+{ mkShell, pkgs, config, lib, ... }:
 with lib;
 with lib.campground;
-let
-  inherit (lib.campground) override-meta;
-in
-mkShell {
+let inherit (lib.campground) override-meta;
+in mkShell {
   buildInputs = [
     pkgs.deadnix
     pkgs.hydra-check

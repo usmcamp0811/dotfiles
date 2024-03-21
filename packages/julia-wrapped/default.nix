@@ -1,14 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, system
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, system, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -25,17 +16,16 @@ let
     enable = {
       # only x86_64-linux is supported
       GR = true;
-      python = 
-        pkgs.python3.buildEnv.override
-        {
-          extraLibs = with pkgs.python3Packages; [xlrd matplotlib plotly pyqt5  ] ++ [pkgs.glibc];
-          # ignoreCollisions = true;
-        };
+      python = pkgs.python3.buildEnv.override {
+        extraLibs = with pkgs.python3Packages;
+          [ xlrd matplotlib plotly pyqt5 ] ++ [ pkgs.glibc ];
+        # ignoreCollisions = true;
+      };
     };
   };
   project = pkgs.stdenv.mkDerivation {
     name = "campground-julia";
-    src = ./.;  
+    src = ./.;
     package = julia;
     installPhase = ''
       mkdir -p $out
@@ -49,5 +39,4 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-in
-override-meta new-meta julia
+in override-meta new-meta julia

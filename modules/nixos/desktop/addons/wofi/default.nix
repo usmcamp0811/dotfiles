@@ -3,17 +3,14 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.desktop.addons.wofi;
-in
-{
+in {
   options.campground.desktop.addons.wofi = with types; {
-    enable = mkBoolOpt false "Whether to enable the Wofi in the desktop environment.";
+    enable =
+      mkBoolOpt false "Whether to enable the Wofi in the desktop environment.";
   };
 
-  config = mkIf cfg.enable { 
-    environment.systemPackages = with pkgs; [
-      wofi
-      wofi-emoji
-    ];
+  config = mkIf cfg.enable {
+    environment.systemPackages = with pkgs; [ wofi wofi-emoji ];
 
     campground.home.configFile = {
       "wofi/config".source = ./config;

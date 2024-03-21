@@ -5,8 +5,7 @@ with lib.campground;
 let
   cfg = config.campground.hardware.ups.cp1500;
   password = "TODO";
-in
-{
+in {
   options.campground.hardware.ups.cp1500 = with types; {
     enable = mkEnableOption "Enable the management of CP1500 UPS";
     vid = mkOpt str "0764" "Set the vid";
@@ -28,10 +27,7 @@ in
         driver = "usbhid-ups";
         description = "CP1500 AVR UPS";
         port = "auto";
-        directives = [
-          "vendorid = ${cfg.vid}"
-          "productid = ${cfg.pid}"
-        ];
+        directives = [ "vendorid = ${cfg.vid}" "productid = ${cfg.pid}" ];
         # this option is not valid for usbhid-ups
         maxStartDelay = null;
       };
@@ -77,9 +73,9 @@ in
       upsdUsers = {
         # update upsmonConf MONITOR to match
         text = ''
-        [upsmon]
-          password = ${password}
-          upsmon master
+          [upsmon]
+            password = ${password}
+            upsmon master
         '';
         target = "nut/upsd.users";
         mode = "0440";

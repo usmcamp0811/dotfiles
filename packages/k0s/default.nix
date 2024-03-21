@@ -1,13 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -29,7 +21,8 @@ let
   k0s = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     src = pkgs.fetchurl {
-      url = "https://github.com/${owner}/${repo}/releases/download/v${version}/${repo}-v${version}-amd64";
+      url =
+        "https://github.com/${owner}/${repo}/releases/download/v${version}/${repo}-v${version}-amd64";
       inherit hash;
     };
     phases = [ "installPhase" ];
@@ -43,5 +36,4 @@ let
     license = licenses.asl20;
     maintainers = with maintainers; [ jakehamilton ];
   };
-in
-override-meta new-meta k0s
+in override-meta new-meta k0s

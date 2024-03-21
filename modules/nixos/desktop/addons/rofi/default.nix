@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.desktop.addons.rofi;
-in
-{
+in {
   options.campground.desktop.addons.rofi = with types; {
     enable =
       mkBoolOpt false "Whether to enable Rofi in the desktop environment.";

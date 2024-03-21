@@ -1,4 +1,4 @@
-{ pkgs, lib, inputs,... }:
+{ pkgs, lib, inputs, ... }:
 
 with lib;
 with lib.campground;
@@ -10,11 +10,8 @@ let
     shell = pkgs.zsh;
   };
 
-in
-{
-  imports = [ 
-    ./hardware.nix
-  ];
+in {
+  imports = [ ./hardware.nix ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
   campground = {
@@ -22,7 +19,7 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
 
@@ -31,9 +28,7 @@ in
       workstation = enabled;
     };
 
-    nfs.client = {
-      enable = true;
-    };
+    nfs.client = { enable = true; };
 
     hardware = {
       bluetooth = enabled;
@@ -41,17 +36,12 @@ in
     };
 
     services = {
-      ldap-client = {
-        enable = mkForce false;
-      };
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       zfs-key-server = {
         enable = false;
-        tang-servers = [
-         "http://webb:1234" 
-         "http://lucas:1234" 
-         "http://ermy:1234" 
-        ];
+        tang-servers =
+          [ "http://webb:1234" "http://lucas:1234" "http://ermy:1234" ];
       };
       wireguard-client = {
         enable = true;
@@ -63,13 +53,7 @@ in
       user-secrets = {
         enable = true;
         users = {
-          mcamp =  {
-            files = [
-              "id_ed25519"
-              "passwords"
-              "kubeconfig"
-            ];
-          };
+          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
         };
       };
       vault-agent = {

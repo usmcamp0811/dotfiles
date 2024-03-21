@@ -1,12 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, hosts ? { }
+, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -14,9 +7,8 @@ let
 
   substitute = args: builtins.readFile (substituteAll args);
 
-  formatted-hosts = mapAttrsToList
-    (name: host: "${name},${host.pkgs.system}")
-    hosts;
+  formatted-hosts =
+    mapAttrsToList (name: host: "${name},${host.pkgs.system}") hosts;
 
   hosts-csv = writeText "hosts.csv" ''
     Name,System
@@ -35,15 +27,13 @@ let
 
     checkPhase = "";
 
-    runtimeInputs = [
-      gum
-    ];
+    runtimeInputs = [ gum ];
   };
-#TODO: replace jakehamilton
+  #TODO: replace jakehamilton
   new-meta = with lib; {
-    description = "A helper to list all of the NixOS hosts available from your flake.";
+    description =
+      "A helper to list all of the NixOS hosts available from your flake.";
     license = licenses.asl20;
     maintainers = with maintainers; [ jakehamilton ];
   };
-in
-override-meta new-meta nixos-hosts
+in override-meta new-meta nixos-hosts

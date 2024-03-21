@@ -2,11 +2,10 @@
 
 with lib;
 with lib.campground;
-let 
+let
   cfg = config.campground.desktop.addons.swayidle;
   # inherit (inputs) nixpkgs-wayland;
-in
-{
+in {
   options.campground.desktop.addons.swayidle = with types; {
     enable =
       mkBoolOpt false "Whether to enable swayidle in the desktop environment.";
@@ -23,7 +22,9 @@ in
         }
         {
           event = "after-resume";
-          command = "${getExe' config.wayland.windowManager.hyprland.package "hyprctl"} dispatch dpms on";
+          command = "${
+              getExe' config.wayland.windowManager.hyprland.package "hyprctl"
+            } dispatch dpms on";
         }
         {
           event = "lock";
@@ -37,7 +38,9 @@ in
         }
         {
           timeout = 1200;
-          command = "${getExe' config.wayland.windowManager.hyprland.package "hyprctl"} dispatch dpms off";
+          command = "${
+              getExe' config.wayland.windowManager.hyprland.package "hyprctl"
+            } dispatch dpms off";
         }
       ];
     };

@@ -19,8 +19,7 @@ let
   #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
   #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
   # }) searxEnabledSystems;
-in
-{
+in {
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -28,7 +27,7 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
     suites = {
@@ -47,14 +46,10 @@ in
       };
     };
 
-    tools = {
-      attic = enabled;
-    };
+    tools = { attic = enabled; };
 
     services = {
-      ldap-client = {
-        enable = mkForce false;
-      };
+      ldap-client = { enable = mkForce false; };
       uptime-kuma = enabled;
       keycloak = {
         enable = true;
@@ -85,8 +80,8 @@ in
         enable = true;
         jobs = {
           "campground" = {
-            paths = [ 
-              "/persist" 
+            paths = [
+              "/persist"
               "/webb/media/photos"
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
@@ -99,8 +94,8 @@ in
             startAt = "daily";
           };
           "webb_rsync" = {
-            paths = [ 
-              "/persist" 
+            paths = [
+              "/persist"
               "/webb/media/photos"
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
@@ -156,32 +151,27 @@ in
       zfs-key-server = {
         enable = true;
         port = 8123;
-        tang-servers = [ 
-          "http://daly:1234" 
-          "http://lucas:1234" 
+        tang-servers = [
+          "http://daly:1234"
+          "http://lucas:1234"
           "http://reckless:1234"
           "http://chesty:1234"
-          "http://ermy:1234" 
+          "http://ermy:1234"
         ];
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { 
-          files = [ 
-            "id_ed25519" 
-            "passwords" 
-          ]; 
-        };
+        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
       };
 
       vault-agent = {
         enable = true;
-        settings = { 
-          vault = { 
+        settings = {
+          vault = {
             address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/webb/role-id"; 
-            secret-id = "/var/lib/vault/webb/secret-id"; 
-          }; 
+            role-id = "/var/lib/vault/webb/role-id";
+            secret-id = "/var/lib/vault/webb/secret-id";
+          };
         };
       };
     };

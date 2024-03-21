@@ -2,10 +2,8 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.suites.desktop;
-in
-{
+let cfg = config.campground.suites.desktop;
+in {
   options.campground.suites.desktop = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common desktop configuration.";
@@ -14,8 +12,8 @@ in
   config = mkIf cfg.enable {
     campground = {
       desktop = {
-        addons = { 
-          wallpapers = enabled; 
+        addons = {
+          wallpapers = enabled;
           kitty = enabled;
           swaylock = enabled;
           swappy = enabled;
@@ -41,9 +39,5 @@ in
       };
     };
   };
-
-
-
-
 
 }

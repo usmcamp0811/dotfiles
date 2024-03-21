@@ -1,7 +1,7 @@
-{ pkgs, ... }:
-{ 
+{ pkgs, ... }: {
   swayncConfig = {
-    "$schema" = "${pkgs.swaynotificationcenter}/etc/xdg/swaync/configSchema.json";
+    "$schema" =
+      "${pkgs.swaynotificationcenter}/etc/xdg/swaync/configSchema.json";
     positionX = "right";
     positionY = "top";
     cssPriority = "user";
@@ -26,105 +26,105 @@
     "hide-on-clear" = false;
     "hide-on-action" = true;
     "script-fail-notify" = true;
-    scripts = {};
-    "notification-visibility" = {};
-    widgets = [ 
+    scripts = { };
+    "notification-visibility" = { };
+    widgets = [
       # "menubar#label" 
-      "buttons-grid" 
-      "volume" 
-      "mpris" 
+      "buttons-grid"
+      "volume"
+      "mpris"
       # "title" 
       # "dnd" 
-      "notifications" 
+      "notifications"
     ];
     "widget-config" = {
-    #   title = {
-    #     text = "Notifications";
-    #     "clear-all-button" = true;
-    #     "button-text" = "Clear All";
-    #   };
-    #   dnd = {
-    #     text = "Do Not Disturb";
-    #   };
-    #   label = {
-    #     "max-lines" = 4;
-    #     text = "Control Center";
-    #   };
-    #   mpris = {
-    #     "image-size" = 96;
-    #     "image-radius" = 12;
-    #   };
-    #   "backlight#KB" = {
-    #     label = " ";
-    #     device = "corsair::kbd_backlight";
-    #     subsystem = "leds";
-    #   };
-    #   volume = {
-    #     label = "";
-    #   };
-    #   "menubar#label" = {
-    #     "menu#power-buttons" = {
-    #       label = "";
-    #       position = "right";
-    #       actions = [
-    #         {
-    #           label = " Reboot";
-    #           command = "systemctl reboot";
-    #         }
-    #         {
-    #           label = " Lock";
-    #           command = "${pkgs.swaylock}/bin/swaylock -f ";
-    #         }
-    #         {
-    #           label = " Logout";
-    #           command = "${pkgs.hyprland}/bin/hyprctl exit";
-    #         }
-    #         {
-    #           label = " Shut down";
-    #           command = "systemctl poweroff";
-    #         }
-    #       ];
-    #     };
-    #     "menu#powermode-buttons" = {
-    #       label = "";
-    #       position = "left";
-    #       actions = [
-    #         {
-    #           label = "Performance";
-    #           command = "powerprofilesctl set performance";
-    #         }
-    #         {
-    #           label = "Balanced";
-    #           command = "powerprofilesctl set balanced";
-    #         }
-    #         {
-    #           label = "Power-saver";
-    #           command = "powerprofilesctl set power-saver";
-    #         }
-    #       ];
-    #     };
-    #     "buttons#topbar-buttons" = {
-    #       position = "left";
-    #       actions = [
-    #         {
-    #           label = "";
-    #           command = "grim";
-    #         }
-    #       ];
-    #     };
-    #   };
-    #   "buttons-grid" = {
-    #     actions = [
-    #       {
-    #         label = "";
-    #         command = "~/.config/rofi/rofi-wifi-menu.sh";
-    #       }
-    #       {
-    #         label = "";
-    #         command = "~/.config/rofi/rofi-bluetooth";
-    #       }
-    #     ];
-    #   };
+      #   title = {
+      #     text = "Notifications";
+      #     "clear-all-button" = true;
+      #     "button-text" = "Clear All";
+      #   };
+      #   dnd = {
+      #     text = "Do Not Disturb";
+      #   };
+      #   label = {
+      #     "max-lines" = 4;
+      #     text = "Control Center";
+      #   };
+      #   mpris = {
+      #     "image-size" = 96;
+      #     "image-radius" = 12;
+      #   };
+      #   "backlight#KB" = {
+      #     label = " ";
+      #     device = "corsair::kbd_backlight";
+      #     subsystem = "leds";
+      #   };
+      #   volume = {
+      #     label = "";
+      #   };
+      #   "menubar#label" = {
+      #     "menu#power-buttons" = {
+      #       label = "";
+      #       position = "right";
+      #       actions = [
+      #         {
+      #           label = " Reboot";
+      #           command = "systemctl reboot";
+      #         }
+      #         {
+      #           label = " Lock";
+      #           command = "${pkgs.swaylock}/bin/swaylock -f ";
+      #         }
+      #         {
+      #           label = " Logout";
+      #           command = "${pkgs.hyprland}/bin/hyprctl exit";
+      #         }
+      #         {
+      #           label = " Shut down";
+      #           command = "systemctl poweroff";
+      #         }
+      #       ];
+      #     };
+      #     "menu#powermode-buttons" = {
+      #       label = "";
+      #       position = "left";
+      #       actions = [
+      #         {
+      #           label = "Performance";
+      #           command = "powerprofilesctl set performance";
+      #         }
+      #         {
+      #           label = "Balanced";
+      #           command = "powerprofilesctl set balanced";
+      #         }
+      #         {
+      #           label = "Power-saver";
+      #           command = "powerprofilesctl set power-saver";
+      #         }
+      #       ];
+      #     };
+      #     "buttons#topbar-buttons" = {
+      #       position = "left";
+      #       actions = [
+      #         {
+      #           label = "";
+      #           command = "grim";
+      #         }
+      #       ];
+      #     };
+      #   };
+      #   "buttons-grid" = {
+      #     actions = [
+      #       {
+      #         label = "";
+      #         command = "~/.config/rofi/rofi-wifi-menu.sh";
+      #       }
+      #       {
+      #         label = "";
+      #         command = "~/.config/rofi/rofi-bluetooth";
+      #       }
+      #     ];
+      #   };
     };
   };
 

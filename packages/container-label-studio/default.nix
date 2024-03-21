@@ -1,13 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 with lib;
 with lib.campground;
 let
@@ -22,8 +14,8 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-  container-label-studio = pkgs.dockerTools.buildLayeredImage{
-    name = "label-studio-app" ;
+  container-label-studio = pkgs.dockerTools.buildLayeredImage {
+    name = "label-studio-app";
     tag = "latest";
     contents = [ pkgs.label_studio pkgs.bash pkgs.coreutils ];
     extraCommands = ''
@@ -32,16 +24,9 @@ let
       chmod +x usr/bin/label-studio
     '';
     config = {
-      Entrypoint = [
-      "label-studio"
-      ];
-      ExposedPorts = {
-        "8080/tcp" = {};
-      };
-      Env = [
-        "PATH=${pkgs.coreutils}/bin/:/usr/bin/"
-      ];
+      Entrypoint = [ "label-studio" ];
+      ExposedPorts = { "8080/tcp" = { }; };
+      Env = [ "PATH=${pkgs.coreutils}/bin/:/usr/bin/" ];
     };
   };
-in
-override-meta new-meta container-label-studio
+in override-meta new-meta container-label-studio

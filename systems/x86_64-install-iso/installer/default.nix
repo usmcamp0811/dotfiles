@@ -10,8 +10,7 @@ let
     shell = pkgs.zsh;
   };
 
-in
-{
+in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
@@ -19,19 +18,13 @@ in
 
   campground = {
     nix = enabled;
-    archetypes = {
-      barebones = enabled;
-    };
-    cli-apps = {
-      flake = enabled;
-    };
+    archetypes = { barebones = enabled; };
+    cli-apps = { flake = enabled; };
     tools = {
       git = enabled;
       misc = enabled;
     };
-    services = {
-      openssh = enabled;
-    };
+    services = { openssh = enabled; };
     system = {
       fonts = enabled;
       locale = enabled;
@@ -43,10 +36,9 @@ in
       name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
   };
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

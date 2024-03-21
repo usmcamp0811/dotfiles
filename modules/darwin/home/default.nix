@@ -2,10 +2,8 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.home;
-in
-{
+let cfg = config.campground.home;
+in {
   # imports = with inputs; [
   #   home-manager.darwinModules.home-manager
   # ];
@@ -27,7 +25,8 @@ in
       xdg.configFile = mkAliasDefinitions options.campground.home.configFile;
     };
 
-    snowfallorg.user.${config.campground.user.name}.home.config = mkAliasDefinitions options.campground.home.extraOptions;
+    snowfallorg.user.${config.campground.user.name}.home.config =
+      mkAliasDefinitions options.campground.home.extraOptions;
 
     home-manager = {
       useUserPackages = true;

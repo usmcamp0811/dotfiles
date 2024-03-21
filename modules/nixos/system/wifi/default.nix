@@ -2,23 +2,26 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.system.wifi;
-in
-{
-# Save Wifi Passwords in Vault with the SSID as the Key to the KV store
+let cfg = config.campground.system.wifi;
+in {
+  # Save Wifi Passwords in Vault with the SSID as the Key to the KV store
   options.campground.system.wifi = with types; {
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/wifi" "The Vault path to the KV containing the Wifi Secrets.";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/wifi"
+      "The Vault path to the KV containing the Wifi Secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -31,7 +34,7 @@ in
           };
         };
       });
-      default = {};
+      default = { };
       description = "A list of WiFi networks to connect to.";
     };
   };
@@ -61,16 +64,17 @@ in
         file = {
           files = {
             "wifi-passwords" = {
-              text = builtins.concatStringsSep "\n" (lib.mapAttrsToList (name: network: ''
-                #!/bin/sh
-                SSID="${network.ssid}"
-                PASSWORD={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
+              text = builtins.concatStringsSep "\n" (lib.mapAttrsToList
+                (name: network: ''
+                  #!/bin/sh
+                  SSID="${network.ssid}"
+                  PASSWORD={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
 
-                if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
-                  ${pkgs.networkmanager}/bin/nmcli con delete id $SSID
-                fi
-                ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID password $PASSWORD
-              '') cfg.networks);
+                  if ${pkgs.networkmanager}/bin/nmcli con show | grep -q $SSID; then
+                    ${pkgs.networkmanager}/bin/nmcli con delete id $SSID
+                  fi
+                  ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID password $PASSWORD
+                '') cfg.networks);
               permissions = "0400";
               change-action = "restart";
             };

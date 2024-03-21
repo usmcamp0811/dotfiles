@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.system.fonts;
-in
-{
+in {
   options.campground.system.fonts = with types; {
     enable = mkBoolOpt false "Whether or not to manage fonts.";
     fonts = mkOpt (listOf package) [ ] "Custom font packages to install.";

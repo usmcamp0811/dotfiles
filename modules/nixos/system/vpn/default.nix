@@ -2,7 +2,7 @@
 
 with lib;
 with lib.campground;
-let 
+let
   cfg = config.campground.system.vpn;
 
   gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
@@ -66,7 +66,7 @@ let
     #   echo "An unexpected condition occurred."
     # fi
 
-    
+
     echo "Writing certificates..."
 
     # Fetch client certificate, key, and CA from Vault
@@ -129,31 +129,36 @@ let
 
     echo "''${CLIENT_NAME}.ovpn file has been generated."
   '';
-in
-{
+in {
   options.campground.system.vpn = with types; {
     enable = mkBoolOpt false "Whether or not to enable VPN.";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "campground-pki/issue/vpn-client-role" "The Vault path to the Client Cert in Vault"; 
-    vault-tls-path = mkOpt str "secret/campground/vpn" "The Vault path to the TLS Key in Vault"; 
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "campground-pki/issue/vpn-client-role"
+      "The Vault path to the Client Cert in Vault";
+    vault-tls-path = mkOpt str "secret/campground/vpn"
+      "The Vault path to the TLS Key in Vault";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    common-name = mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
+    common-name =
+      mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
     domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
-    vault-ca-path = mkOpt str "campground-pki/cert/ca" "The Vault path to the CA Cert in Vault"; 
-    vpn-server-address = mkOpt str cfg.common-name "The public url or ip of the VPN server.";
+    vault-ca-path = mkOpt str "campground-pki/cert/ca"
+      "The Vault path to the CA Cert in Vault";
+    vpn-server-address =
+      mkOpt str cfg.common-name "The public url or ip of the VPN server.";
     vpn-port = mkOpt str "1194" "The port used to connect to the VPN";
   };
   config = mkIf cfg.enable {
 
-    environment.systemPackages = with pkgs; [
-      gen-clients
-      openvpn
-    ];
+    environment.systemPackages = with pkgs; [ gen-clients openvpn ];
 
     systemd.timers.genVPNcert = {
       description = "Timer for Generate VPN Client Certs";
@@ -161,9 +166,7 @@ in
       timerConfig = {
         OnCalendar = "daily"; # Runs every day at midnight
       };
-      unitConfig = {
-        PartOf = [ "genVPNcert.service" ];
-      };
+      unitConfig = { PartOf = [ "genVPNcert.service" ]; };
     };
 
     systemd.services.genVPNcert = {

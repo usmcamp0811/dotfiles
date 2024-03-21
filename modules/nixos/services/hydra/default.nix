@@ -1,10 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.hydra;
-in
-{
+let cfg = config.campground.services.hydra;
+in {
   options.campground.services.hydra = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
     port = mkOpt int 6956 "Port to Host the hydra server on.";
@@ -29,7 +27,7 @@ in
       port = cfg.port;
       hydraURL = "https://hydra.lan.aicampground.com";
       notificationSender = "hydra@aicampground.com";
-      buildMachinesFiles = [];
+      buildMachinesFiles = [ ];
       useSubstitutes = true;
     };
   };

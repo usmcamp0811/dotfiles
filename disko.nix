@@ -57,9 +57,7 @@
             type = "zfs_fs";
             mountpoint = "/persist";
           };
-          encrypted = {
-            type = "zfs_fs";
-          };
+          encrypted = { type = "zfs_fs"; };
         };
       };
     };

@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.system.env;
-in
-{
+in {
   options.campground.system.env = with types;
     mkOption {
       type = attrsOf (oneOf [ str path (listOf (either str path)) ]);

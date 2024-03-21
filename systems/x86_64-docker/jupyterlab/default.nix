@@ -10,11 +10,9 @@ let
     shell = pkgs.zsh;
   };
 
-in
-{
+in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
-
 
   campground = {
     # nix = enabled;
@@ -44,10 +42,9 @@ in
       name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
   };
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
