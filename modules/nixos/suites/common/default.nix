@@ -13,7 +13,6 @@ in {
 
     campground = {
       nix = { enable = true; };
-
       # security = {
       #   doas = enabled;
       # };
@@ -36,7 +35,15 @@ in {
         networking = enabled;
       };
 
-      services = { openssh = enabled; };
+      services = { 
+        openssh = {
+          enable = true;
+          authorizedKeys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGw+o+9F4kz+dYyI2I4WudgKjyFOK+L0QW4LhxkG4sMt gitlab-runner@aicampground.com"
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdMWMFyi7Lvjm78KOX3tKZ5bkEZ7bHA56ZKKtTb9wIo mcamp@aicampground.com"
+          ];
+        };
+      };
 
       security = { keyring = enabled; };
 

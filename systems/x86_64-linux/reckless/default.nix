@@ -55,7 +55,7 @@ in {
 
     apps = { steam = enabled; };
 
-    tools = { nix-doc = enabled; };
+    # tools = { nix-doc = enabled; };
 
     nfs.client = { enable = true; };
 
