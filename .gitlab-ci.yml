@@ -88,6 +88,7 @@ reckless:
       chmod 600 ~/.ssh/id_ed25519
 
       echo "$sshkey" | ssh-add -
+      ssh-keyscan lucas >> ~/.ssh/known_hosts
       for SYSTEM in $SYSTEMS; do
         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
         deploy --hostname $SYSTEM .#$SYSTEM
