@@ -76,7 +76,7 @@ reckless:
       echo $SYSTEMS
       eval "$(ssh-agent -s)"
       # Login to Vault
-      vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID
+      vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID > /dev/null
       # Get password from Vault
       vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
       sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
