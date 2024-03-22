@@ -87,7 +87,7 @@ reckless:
       echo "$sshkey" | ssh-add -
       for SYSTEM in $SYSTEMS; do
         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-        nix run github:serokell/deploy-rs -- --hostname $hostname $PWD#$hostname
+        deploy --hostname $hostname $PWD#$hostname
       done
   tags:
     - reckless
