@@ -81,7 +81,7 @@ reckless:
       # Get password from Vault
       vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
       sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-      # mkdir -p ~/.ssh
+      mkdir -p ~/.ssh
       # echo $sshkey > ~/.ssh/id_ed25519
       # chmod 600 ~/.ssh/id_ed25519
 
