@@ -78,14 +78,12 @@ reckless:
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       echo $SYSTEMS
       eval "$(ssh-agent -s)"
-      # Login to Vault
-      # vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID > /dev/null
       # Get password from Vault
       vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
       sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-      mkdir -p ~/.ssh
-      echo $sshkey > ~/.ssh/id_ed25519
-      chmod 600 ~/.ssh/id_ed25519
+      # mkdir -p ~/.ssh
+      # echo $sshkey > ~/.ssh/id_ed25519
+      # chmod 600 ~/.ssh/id_ed25519
 
       echo "$sshkey" | ssh-add -
       ssh-keyscan lucas >> ~/.ssh/known_hosts
