@@ -21,6 +21,6 @@ writeShellApplication {
       configurations: (builtins.filter (name: 
         configurations.\''${name}$ENABLED_PATH == true
       ) (builtins.attrNames configurations))
-    " | jq -r '.[]'
+    " | ${pkgs.jq}/bin/jq -r '.[]'
   '';
 }
