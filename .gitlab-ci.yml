@@ -71,12 +71,15 @@ reckless:
 .deploy_template: &deploy_template
   stage: hosting
   script:
+    - echo "Authenticating with Vault..."
+    - vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
+    - export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
     - |
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       echo $SYSTEMS
       eval "$(ssh-agent -s)"
       # Login to Vault
-      export VAULT_TOKEN=$(vault write auth/approle/login -field=token role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID)
+      # vault write auth/approle/login role_id=$VAULT_ROLE_ID secret_id=$VAULT_SECRET_ID > /dev/null
       # Get password from Vault
       vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
       sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
