@@ -13,9 +13,6 @@ in {
 
     campground = {
       nix = { enable = true; };
-      # security = {
-      #   doas = enabled;
-      # };
 
       cache = {
         public = enabled;
