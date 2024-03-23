@@ -1,7 +1,28 @@
 stages:
+  - setup
   - update
   - build
   - deploy
+
+setup_ssh_and_vault:
+  stage: setup
+  script:
+    - echo "Authenticating with Vault..."
+    - vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
+    - export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+    - |
+      eval "$(ssh-agent -s)"
+      sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+      echo "$sshkey" | ssh-add -
+    - |
+      attic-token=$(vault kv get -field="attic" "secret/campground/gitlab-runner")
+      attic login campground https://attic.aicampground.com $attic-token
+  tags:
+    - nix
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
 
 update-flake:
   stage: update
@@ -24,7 +45,10 @@ build_job_template: &build_job_template
     - nix
   script:
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
+    - attic use campground
+    - attic push campground ./result
   needs:
+    - setup_ssh_and_vault
     - update-flake
   resource_group: build_sequential
   rules:
@@ -64,18 +88,9 @@ reckless:
 .deploy_template: &deploy_template
   stage: deploy
   script:
-    - echo "Authenticating with Vault..."
-    - vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
-    - export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
     - |
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       echo $SYSTEMS
-      eval "$(ssh-agent -s)"
-      vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
-      sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-      mkdir -p ~/.ssh
-
-      echo "$sshkey" | ssh-add -
       for SYSTEM in $SYSTEMS; do
         ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
@@ -83,6 +98,8 @@ reckless:
       done
   tags:
     - nix
+  needs:
+    - setup_ssh_and_vault
 
 deploy_public_hosting:
   <<: *deploy_template
@@ -99,4 +116,3 @@ deploy_lan_hosting:
   rules:
     - changes:
         - "**/lan-hosting/default.nix"
-

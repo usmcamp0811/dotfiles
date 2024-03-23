@@ -70,7 +70,17 @@ in {
             ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-23.11 nixpkgs # 3
             ${pkgs.nix}/bin/nix-channel --update nixpkgs
             ${pkgs.nix}/bin/nix-env -i ${
-              concatStringsSep " " (with pkgs; [ nix cacert git openssh deploy-rs campground.get-lan-pub-systems vault ssh-agents ])
+              concatStringsSep " " (with pkgs; [ 
+                nix 
+                cacert 
+                git 
+                openssh 
+                deploy-rs 
+                campground.get-lan-pub-systems 
+                vault 
+                ssh-agents 
+                attic
+              ])
             }
             mkdir -p -m 0755 /etc/nix
             echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
