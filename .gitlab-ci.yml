@@ -1,33 +1,32 @@
 stages:
-  - setup
+  # - setup
   - update_flake
   - build_systems
   - deploy_hosting
 
-setup_ssh_and_vault:
-  stage: setup
-  script:
-    - echo "Authenticating with Vault..."
-    - vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
-    - export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
-    - export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-  tags:
-    - nix
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - changes:
-        - "**/lan-hosting/default.nix"
-        - "**/public-hosting/default.nix"
+# setup_ssh_and_vault:
+#   stage: setup
+#   script:
+#     - echo "Authenticating with Vault..."
+#     - vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
+#     - export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+#     - export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+#   tags:
+#     - nix
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#       when: always
+#     - changes:
+#         - "**/lan-hosting/default.nix"
+#         - "**/public-hosting/default.nix"
 
 update-flake:
   stage: update_flake
   tags:
     - nix
   script:
-    - echo "pass"
-    # - git rm flake.lock
-    # - nix flake update
+    - git rm flake.lock
+    - nix flake update
   artifacts:
     paths:
       - flake.lock
@@ -35,8 +34,6 @@ update-flake:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
-  needs:
-    - setup_ssh_and_vault
 
 .build_job_template: &build_job_template
   stage: build_systems
@@ -109,8 +106,6 @@ reckless:
       done
   tags:
     - nix
-  needs:
-    - setup_ssh_and_vault
 
 deploy_public_hosting:
   <<: *deploy_hosting_template
