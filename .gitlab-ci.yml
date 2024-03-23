@@ -1,5 +1,4 @@
 stages:
-  # - setup
   - update_flake
   - build_systems
   - deploy_hosting
