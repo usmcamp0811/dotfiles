@@ -50,6 +50,7 @@ build_job_template: &build_job_template
     - attic use campground
     - attic push campground ./result
   needs:
+    - setup_ssh_and_vault
     - update-flake
   resource_group: build_sequential
   rules:
