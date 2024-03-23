@@ -34,8 +34,6 @@ update-flake:
   stage: build_systems
   tags:
     - nix
-  extends:
-    - .setup_ssh
   script:
     - |
       ssh-keyscan reckless >> ~/.ssh/known_hosts
@@ -96,6 +94,9 @@ deploy_public_hosting:
   <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "public"
+  extends:
+    - .setup_ssh
+    - .build_job_template
   rules:
     - changes:
         - "**/public-hosting/default.nix"
