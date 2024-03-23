@@ -38,6 +38,8 @@ update-flake:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
+  needs:
+    - setup_ssh_and_vault
 
 build_job_template: &build_job_template
   stage: build
@@ -48,7 +50,6 @@ build_job_template: &build_job_template
     - attic use campground
     - attic push campground ./result
   needs:
-    - setup_ssh_and_vault
     - update-flake
   resource_group: build_sequential
   rules:
