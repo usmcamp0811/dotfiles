@@ -98,7 +98,6 @@ deploy_public:
   rules:
     - changes:
         - "./modules/nixos/suites/public-hosting/default.nix"
-      when: always
 
 deploy_lan:
   <<: *deploy_template
@@ -107,4 +106,3 @@ deploy_lan:
   rules:
     - changes:
         - "./modules/nixos/suites/lan-hosting/default.nix"
-      when: always
