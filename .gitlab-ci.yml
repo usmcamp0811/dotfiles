@@ -1,7 +1,7 @@
 stages:
+  - deploy
   - update
   - build
-  - deploy
 
 # workflow:
 #   rules:
