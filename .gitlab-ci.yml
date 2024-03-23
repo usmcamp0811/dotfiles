@@ -105,6 +105,9 @@ deploy_lan_hosting:
   <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "lan"
+  extends:
+    - .setup_ssh
+    - .build_job_template
   rules:
     - changes:
         - "**/lan-hosting/default.nix"
