@@ -95,19 +95,18 @@ deploy_public:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "public"
+  only:
+    - trigger
   rules:
     - changes:
-        compare_to: refs/heads/nixos
-        paths:
-          - "./modules/nixos/suites/public-hosting/default.nix"
+        - "./modules/nixos/suites/public-hosting/default.nix"
 
 deploy_lan:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "lan"
+  only:
+    - trigger
   rules:
     - changes:
-        compare_to: refs/heads/nixos
-        paths:
-          - "./modules/nixos/suites/lan-hosting/default.nix"
-      when: always
+        - "./modules/nixos/suites/lan-hosting/default.nix"
