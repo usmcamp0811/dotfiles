@@ -1,7 +1,7 @@
 stages:
   - update
   - build
-  - hosting
+  - deploy
 
 # workflow:
 #   rules:
@@ -69,7 +69,7 @@ reckless:
     SYSTEM: "reckless"
 
 .deploy_template: &deploy_template
-  stage: hosting
+  stage: deploy
   script:
     - echo "Authenticating with Vault..."
     - vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
@@ -95,8 +95,6 @@ deploy_public:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "public"
-  only:
-    - trigger
   rules:
     - changes:
         - "./modules/nixos/suites/public-hosting/default.nix"
@@ -105,8 +103,6 @@ deploy_lan:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "lan"
-  only:
-    - trigger
   rules:
     - changes:
         - "./modules/nixos/suites/lan-hosting/default.nix"
