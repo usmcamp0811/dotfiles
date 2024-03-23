@@ -95,6 +95,7 @@ reckless:
     - |
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       echo $SYSTEMS
+      mkdir -p ~/.ssh
       for SYSTEM in $SYSTEMS; do
         ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
