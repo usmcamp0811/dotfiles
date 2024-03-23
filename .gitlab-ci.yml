@@ -95,14 +95,15 @@ deploy_public:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "public"
-  only:
-    changes:
-      - ./modules/nixos/suites/public-hosting/default.nix
+  rules:
+    - changes:
+        - "*/public-hosting/default.nix"
 
 deploy_lan:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "lan"
-  only:
-    changes:
-      - ./modules/nixos/suites/lan-hosting/default.nix
+  rules:
+    - changes:
+        - "*/lan-hosting/default.nix"
+
