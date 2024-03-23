@@ -41,7 +41,7 @@ update-flake:
   needs:
     - setup_ssh_and_vault
 
-build_job_template: &build_job_template
+.build_job_template: &build_job_template
   stage: build_systems
   tags:
     - nix
