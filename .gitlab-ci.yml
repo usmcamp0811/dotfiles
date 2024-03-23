@@ -97,7 +97,9 @@ deploy_public:
     DEPLOY_TYPE: "public"
   rules:
     - changes:
-        - "./modules/nixos/suites/public-hosting/default.nix"
+        compare_to: refs/heads/nixos
+        paths:
+          - "./modules/nixos/suites/public-hosting/default.nix"
 
 deploy_lan:
   <<: *deploy_template
@@ -105,4 +107,7 @@ deploy_lan:
     DEPLOY_TYPE: "lan"
   rules:
     - changes:
-        - "./modules/nixos/suites/lan-hosting/default.nix"
+        compare_to: refs/heads/nixos
+        paths:
+          - "./modules/nixos/suites/lan-hosting/default.nix"
+      when: always
