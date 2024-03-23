@@ -1,14 +1,7 @@
 stages:
-  - deploy
   - update
   - build
-
-# workflow:
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#     - changes:
-#         - "./modules/nixos/suites/public-hosting/default.nix"
-#         - "./modules/nixos/suites/lan-hosting/default.nix"
+  - deploy
 
 update-flake:
   stage: update
@@ -97,7 +90,7 @@ deploy_public:
     DEPLOY_TYPE: "public"
   rules:
     - changes:
-        - "*/public-hosting/default.nix"
+        - "**/public-hosting/default.nix"
 
 deploy_lan:
   <<: *deploy_template
@@ -105,5 +98,5 @@ deploy_lan:
     DEPLOY_TYPE: "lan"
   rules:
     - changes:
-        - "*/lan-hosting/default.nix"
+        - "**/lan-hosting/default.nix"
 
