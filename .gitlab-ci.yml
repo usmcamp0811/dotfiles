@@ -1,8 +1,8 @@
 stages:
   - setup
-  - update
-  - build
-  - deploy
+  - update_flake
+  - build_systems
+  - deploy_hosting
 
 setup_ssh_and_vault:
   stage: setup
@@ -25,7 +25,7 @@ setup_ssh_and_vault:
       when: always
 
 update-flake:
-  stage: update
+  stage: update_flake
   tags:
     - nix
   script:
@@ -42,7 +42,7 @@ update-flake:
     - setup_ssh_and_vault
 
 build_job_template: &build_job_template
-  stage: build
+  stage: build_systems
   tags:
     - nix
   script:
@@ -50,7 +50,6 @@ build_job_template: &build_job_template
     - attic use campground
     - attic push campground ./result
   needs:
-    - setup_ssh_and_vault
     - update-flake
   resource_group: build_sequential
   rules:
@@ -88,8 +87,7 @@ reckless:
     SYSTEM: "reckless"
 
 .deploy_template: &deploy_template
-  stage: deploy
-  resource_group: build_sequential
+  stage: deploy_hosting
   script:
     - |
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
