@@ -96,8 +96,6 @@ deploy_public:
   variables:
     DEPLOY_TYPE: "public"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
     - changes:
         - "./modules/nixos/suites/public-hosting/default.nix"
       when: always
@@ -107,8 +105,6 @@ deploy_lan:
   variables:
     DEPLOY_TYPE: "lan"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
     - changes:
         - "./modules/nixos/suites/lan-hosting/default.nix"
       when: always
