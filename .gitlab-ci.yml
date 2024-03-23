@@ -97,6 +97,13 @@ deploy_public_hosting:
   extends:
     - .setup_ssh
     - .build_job_template
+  script:
+    - |
+      for SYSTEM in $SYSTEMS; do
+        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+        deploy --hostname $SYSTEM .#$SYSTEM
+      done
   rules:
     - changes:
         - "**/public-hosting/default.nix"
@@ -107,7 +114,13 @@ deploy_lan_hosting:
     DEPLOY_TYPE: "lan"
   extends:
     - .setup_ssh
-    - .build_job_template
+  script:
+    - |
+      for SYSTEM in $SYSTEMS; do
+        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+        deploy --hostname $SYSTEM .#$SYSTEM
+      done
   rules:
     - changes:
         - "**/lan-hosting/default.nix"
