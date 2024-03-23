@@ -91,12 +91,10 @@ reckless:
     - nix
 
 deploy_public_hosting:
-  <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "public"
   extends:
     - .setup_ssh
-    - .build_job_template
   script:
     - |
       for SYSTEM in $SYSTEMS; do
@@ -109,7 +107,6 @@ deploy_public_hosting:
         - "**/public-hosting/default.nix"
 
 deploy_lan_hosting:
-  <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "lan"
   extends:
