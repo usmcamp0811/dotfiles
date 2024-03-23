@@ -13,8 +13,6 @@ setup_ssh_and_vault:
     - |
       eval "$(ssh-agent -s)"
       sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-      mkdir -p ~/.ssh
-      echo "$sshkey" | ssh-add -
   tags:
     - nix
   rules:
@@ -89,13 +87,14 @@ reckless:
   variables:
     SYSTEM: "reckless"
 
-.deploy_template: &deploy_template
+.deploy_hosting_template: &deploy_hosting_template
   stage: deploy_hosting
   script:
     - |
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       echo $SYSTEMS
       mkdir -p ~/.ssh
+      echo "$sshkey" | ssh-add -
       for SYSTEM in $SYSTEMS; do
         ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
@@ -107,7 +106,7 @@ reckless:
     - setup_ssh_and_vault
 
 deploy_public_hosting:
-  <<: *deploy_template
+  <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "public"
   rules:
@@ -115,7 +114,7 @@ deploy_public_hosting:
         - "**/public-hosting/default.nix"
 
 deploy_lan_hosting:
-  <<: *deploy_template
+  <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "lan"
   rules:
