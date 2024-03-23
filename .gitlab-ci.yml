@@ -49,7 +49,7 @@ update-flake:
       echo "$sshkey" | ssh-add -
       ssh-keyscan reckless >> ~/.ssh/known_hosts
       nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
-      nix-copy-closure --to root@reckless ./result
+      nix-copy-closure --to root@${SYSTEM} ./result
   needs:
     - update-flake
   resource_group: build_sequential
