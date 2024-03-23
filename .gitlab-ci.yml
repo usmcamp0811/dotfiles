@@ -15,9 +15,6 @@ setup_ssh_and_vault:
       sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
       mkdir -p ~/.ssh
       echo "$sshkey" | ssh-add -
-    - |
-      ATTIC_TOKEN=$(vault kv get -field="attic" "secret/campground/gitlab-runner")
-      attic login campground https://attic.aicampground.com "$ATTIC_TOKEN"
   tags:
     - nix
   rules:
@@ -49,6 +46,10 @@ update-flake:
   tags:
     - nix
   script:
+    - |
+      mkdir -p ~/.config/attic
+      ATTIC_TOKEN=$(vault kv get -field="attic" "secret/campground/gitlab-runner")
+      attic login campground https://attic.aicampground.com "$ATTIC_TOKEN"
     - attic use campground
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
     - attic push campground ./result
