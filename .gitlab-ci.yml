@@ -27,8 +27,9 @@ update-flake:
   tags:
     - nix
   script:
-    - git rm flake.lock
-    - nix flake update
+    - echo "pass"
+    # - git rm flake.lock
+    # - nix flake update
   artifacts:
     paths:
       - flake.lock
