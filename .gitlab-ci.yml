@@ -46,11 +46,11 @@ update-flake:
     - nix
   script:
     - |
-      mkdir -p ~/.config/attic
-      attic login campground https://attic.aicampground.com "$ATTIC_TOKEN"
-    - attic use campground
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
-    - attic push campground ./result
+      mkdir -p ~/.ssh
+      echo "$sshkey" | ssh-add -
+      ssh-keyscan reckless >> ~/.ssh/known_hosts
+      nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
+      nix-copy-closure --to root@reckless ./result
   needs:
     - update-flake
   resource_group: build_sequential
