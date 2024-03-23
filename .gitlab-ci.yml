@@ -20,6 +20,12 @@ setup_ssh_and_vault:
       attic login campground https://attic.aicampground.com $attic-token
   tags:
     - nix
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - changes:
+        - "**/lan-hosting/default.nix"
+        - "**/public-hosting/default.nix"
 
 update-flake:
   stage: update_flake
