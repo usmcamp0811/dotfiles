@@ -48,7 +48,6 @@ update-flake:
   script:
     - |
       mkdir -p ~/.config/attic
-      ATTIC_TOKEN=$(vault kv get -field="attic" "secret/campground/gitlab-runner")
       attic login campground https://attic.aicampground.com "$ATTIC_TOKEN"
     - attic use campground
     - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
