@@ -17,6 +17,7 @@ let
         emptyValue.value = { };
       };
     in valueType;
+
 in {
   options.campground.suites.lan-hosting = with types; {
     enable = mkBoolOpt false
