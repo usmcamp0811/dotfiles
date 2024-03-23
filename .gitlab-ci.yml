@@ -78,12 +78,9 @@ reckless:
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       echo $SYSTEMS
       eval "$(ssh-agent -s)"
-      # Get password from Vault
       vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
       sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
       mkdir -p ~/.ssh
-      # echo $sshkey > ~/.ssh/id_ed25519
-      # chmod 600 ~/.ssh/id_ed25519
 
       echo "$sshkey" | ssh-add -
       for SYSTEM in $SYSTEMS; do
@@ -92,13 +89,15 @@ reckless:
         deploy --hostname $SYSTEM .#$SYSTEM
       done
   tags:
-    - reckless
+    - nix
 
 deploy_public:
   <<: *deploy_template
   variables:
     DEPLOY_TYPE: "public"
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - changes:
         - "./modules/nixos/suites/public-hosting/default.nix"
       when: always
@@ -108,6 +107,8 @@ deploy_lan:
   variables:
     DEPLOY_TYPE: "lan"
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - changes:
         - "./modules/nixos/suites/lan-hosting/default.nix"
       when: always
