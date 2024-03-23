@@ -76,25 +76,28 @@ reckless:
   variables:
     SYSTEM: "reckless"
 
-.deploy_hosting_template: &deploy_hosting_template
-  stage: deploy_hosting
-  extends:
-    - .setup_ssh
-  script:
-    - |
-      for SYSTEM in $SYSTEMS; do
-        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
-        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-        deploy --hostname $SYSTEM .#$SYSTEM
-      done
-  tags:
-    - nix
+# .deploy_hosting_template: &deploy_hosting_template
+#   stage: deploy_hosting
+#   extends:
+#     - .setup_ssh
+#   script:
+#     - |
+#       for SYSTEM in $SYSTEMS; do
+#         ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+#         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+#         deploy --hostname $SYSTEM .#$SYSTEM
+#       done
+#   tags:
+#     - nix
 
 deploy_public_hosting:
+  stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "public"
   extends:
     - .setup_ssh
+  tags:
+    - nix
   script:
     - |
       for SYSTEM in $SYSTEMS; do
@@ -107,10 +110,13 @@ deploy_public_hosting:
         - "**/public-hosting/default.nix"
 
 deploy_lan_hosting:
+  stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "lan"
   extends:
     - .setup_ssh
+  tags:
+    - nix
   script:
     - |
       for SYSTEM in $SYSTEMS; do
