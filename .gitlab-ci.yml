@@ -89,6 +89,7 @@ reckless:
 
 .deploy_template: &deploy_template
   stage: deploy
+  resource_group: build_sequential
   script:
     - |
       SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
