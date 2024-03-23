@@ -31,6 +31,7 @@ in {
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
     };
+
   };
 
   config = mkIf cfg.enable {
