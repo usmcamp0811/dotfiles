@@ -163,8 +163,6 @@ deploy_public_hosting:
   variables:
     DEPLOY_TYPE: "public"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
-      when: manual
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - changes:
         - "**/public-hosting/default.nix"
@@ -174,8 +172,6 @@ deploy_lan_hosting:
   variables:
     DEPLOY_TYPE: "lan"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
-      when: manual
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - changes:
         - "**/lan-hosting/default.nix"
