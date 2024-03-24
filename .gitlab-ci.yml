@@ -110,8 +110,9 @@ butler_deploy:
   variables:
     SYSTEM: "butler"
   rules:
-    - allow_failure: true
-
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+      allow_failure: true
 daly_deploy:
   <<: *deploy_job_template
   variables:
