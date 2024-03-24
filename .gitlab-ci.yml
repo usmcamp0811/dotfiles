@@ -110,7 +110,7 @@ butler_deploy:
   variables:
     SYSTEM: "butler"
   rules:
-    allow_failure: true
+    - allow_failure: true
 
 daly_deploy:
   <<: *deploy_job_template
