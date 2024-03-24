@@ -165,6 +165,7 @@ deploy_public_hosting:
   rules:
     - changes:
         - "**/public-hosting/default.nix"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 deploy_lan_hosting:
   <<: *deploy_hosting_template
@@ -173,3 +174,4 @@ deploy_lan_hosting:
   rules:
     - changes:
         - "**/lan-hosting/default.nix"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
