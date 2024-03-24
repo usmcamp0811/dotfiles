@@ -100,6 +100,8 @@ deploy_public_hosting:
         deploy --hostname $SYSTEM .#$SYSTEM
       done
   rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
     - changes:
         - "**/public-hosting/default.nix"
 
@@ -125,6 +127,8 @@ deploy_lan_hosting:
         deploy --hostname $SYSTEM .#$SYSTEM
       done
   rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
     - changes:
         - "**/lan-hosting/default.nix"
 
@@ -150,5 +154,7 @@ deploy:
         deploy --hostname $SYSTEM .#$SYSTEM
       done
   rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
