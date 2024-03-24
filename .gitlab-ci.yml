@@ -1,4 +1,5 @@
 stages:
+  - test
   - update_flake
   - build_systems
   - deploy_hosting
