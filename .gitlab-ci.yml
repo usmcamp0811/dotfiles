@@ -3,7 +3,7 @@ stages:
   - build_systems
   - deploy_hosting
 
-.setup_ssh:
+.setupssh:
   script:
     - |
       echo "Authenticating with Vault..."
@@ -94,7 +94,7 @@ deploy_public_hosting:
   variables:
     DEPLOY_TYPE: "public"
   extends:
-    - .setup_ssh
+    - .setupssh
   tags:
     - nix
   script:
@@ -113,7 +113,8 @@ deploy_lan_hosting:
   stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "lan"
-  extends: .setup_ssh
+  extends:
+    - .setupssh
   tags:
     - nix
   script:
