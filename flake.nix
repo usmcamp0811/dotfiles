@@ -9,6 +9,9 @@
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
 
+    # nixvim
+    nix-vim.url = "github:nix-community/nixvim";
+
     # Nixery
     nixery-flake = {
       type = "github";
@@ -52,9 +55,6 @@
       url = "github:nix-community/nixpkgs-wayland";
       inputs.nixpkgs.follows = "unstable";
     };
-
-    campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
-    # campground-nvim.url = "path:/home/mcamp/code/campground-nvim";
 
     # Binary Cache
     attic = {
@@ -186,6 +186,7 @@
           namespace = "campground";
         };
       };
+      # nixvimLib = nix-vim.lib.${system};
 
     in lib.mkFlake {
       channels-config = {
@@ -226,11 +227,12 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      # checks =
-      #   builtins.mapAttrs
-      #     (_system: deploy-lib:
-      #       deploy-lib.deployChecks inputs.self.deploy)
-      #     deploy-rs.lib;
+      checks =
+        builtins.mapAttrs
+          (_system: deploy-lib:
+            deploy-lib.deployChecks inputs.self.deploy)
+          deploy-rs.lib;
+
 
       templates = {
         basic = {
