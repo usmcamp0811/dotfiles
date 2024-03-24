@@ -79,3 +79,4 @@ This methodology fosters a user-friendly approach to Nix configuration, balancin
 ## Credits
 
 Inspiration and code snippets have been sourced from various corners of the internet. I'll endeavor to document these contributions whenever memory and circumstances permit.
+
