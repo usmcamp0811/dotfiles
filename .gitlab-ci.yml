@@ -2,7 +2,6 @@ stages:
   - update_flake
   - build_systems
   - deploy
-  - deploy_hosting
 
 .setup_ssh:
   script:
@@ -29,6 +28,9 @@ update-flake:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: false
 
 .build_job_template: &build_job_template
   stage: build_systems
@@ -42,11 +44,13 @@ update-flake:
       nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
       nix-copy-closure --to root@${SYSTEM} ./result
   needs:
-    - update-flake
+    - job: update-flake
+      optional: true  # Makes the dependency on update-flake optional
   resource_group: build_sequential
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
+      allow_failure: false
 
 butler:
   <<: *build_job_template
@@ -78,83 +82,48 @@ reckless:
   variables:
     SYSTEM: "reckless"
 
-deploy_public_hosting:
-  stage: deploy_hosting
-  variables:
-    DEPLOY_TYPE: "public"
-  tags:
-    - nix
-  script:
-    - |
-      echo "Authenticating with Vault..."
-      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
-      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
-      export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-      mkdir -p ~/.ssh
-      eval "$(ssh-agent -s)"
-      echo "$sshkey" | ssh-add -
-      SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
-      for SYSTEM in $SYSTEMS; do
-        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
-        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-        deploy --hostname $SYSTEM .#$SYSTEM
-      done
-  rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: always
-    - changes:
-        - "**/public-hosting/default.nix"
-
-deploy_lan_hosting:
-  stage: deploy_hosting
-  variables:
-    DEPLOY_TYPE: "lan"
-  tags:
-    - nix
-  script:
-    - |
-      echo "Authenticating with Vault..."
-      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
-      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
-      export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-      mkdir -p ~/.ssh
-      eval "$(ssh-agent -s)"
-      echo "$sshkey" | ssh-add -
-      SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
-      for SYSTEM in $SYSTEMS; do
-        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
-        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-        deploy --hostname $SYSTEM .#$SYSTEM
-      done
-  rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: always
-    - changes:
-        - "**/lan-hosting/default.nix"
-
-# TODO: Make this a dynamic thing I would like a seperate task for each system
-deploy:
+.deploy_job_template: &deploy_job_template
   stage: deploy
-  variables:
-    SYSTEMS: "butler daly lucas chesty webb reckless"
   tags:
     - nix
+  extends:
+    - .setup_ssh
   script:
     - |
-      echo "Authenticating with Vault..."
-      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
-      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
-      export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
-      mkdir -p ~/.ssh
-      eval "$(ssh-agent -s)"
-      echo "$sshkey" | ssh-add -
-      for SYSTEM in $SYSTEMS; do
-        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
-        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-        deploy --hostname $SYSTEM .#$SYSTEM
-      done
+      ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+      nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+      deploy --hostname $SYSTEM .#$SYSTEM
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: always
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: always
+      when: manual
+      allow_failure: false
+
+butler_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "butler"
+
+daly_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "daly"
+
+lucas_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "lucas"
+
+chesty_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "chesty"
+
+webb_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "webb"
+
+reckless_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "reckless"
