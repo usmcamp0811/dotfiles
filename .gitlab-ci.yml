@@ -25,6 +25,8 @@ update-flake:
     paths:
       - flake.lock
     expire_in: 1 hour
+  rules:
+    - if: '$BUILD_SYSTEMS == "true"'
 
 .build_job_template: &build_job_template
   stage: build_systems
@@ -161,13 +163,19 @@ deploy_public_hosting:
   variables:
     DEPLOY_TYPE: "public"
   rules:
-    - changes:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
         - "**/public-hosting/default.nix"
+      when: always
+      allow_failure: false
 
 deploy_lan_hosting:
   <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "lan"
   rules:
-    - changes:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
         - "**/lan-hosting/default.nix"
+      when: always
+      allow_failure: false
