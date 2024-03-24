@@ -128,3 +128,17 @@ deploy_lan_hosting:
         - "**/lan-hosting/default.nix"
   extends:
     - .setup_ssh
+
+.tests:
+  script: rake test
+  stage: test
+  only:
+    refs:
+      - branches
+
+rspec:
+  extends: .tests
+  script: rake rspec
+  only:
+    variables:
+      - $RSPEC
