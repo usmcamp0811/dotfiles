@@ -86,9 +86,16 @@ reckless:
   stage: deploy
   tags:
     - nix
-  extends:
-    - .setup_ssh
   script:
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      eval "$(ssh-agent -s)"
+      vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
+      sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+      echo "$sshkey" | ssh-add -
     - |
       ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
       nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
@@ -127,3 +134,42 @@ reckless_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "reckless"
+
+.deploy_hosting_template: &deploy_hosting_template
+  stage: deploy
+  script:
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
+      echo $SYSTEMS
+      eval "$(ssh-agent -s)"
+      vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
+      sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+
+      echo "$sshkey" | ssh-add -
+      for SYSTEM in $SYSTEMS; do
+        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+        deploy --hostname $SYSTEM .#$SYSTEM
+      done
+  tags:
+    - nix
+
+deploy_public_hosting:
+  <<: *deploy_hosting_template
+  variables:
+    DEPLOY_TYPE: "public"
+  rules:
+    - changes:
+        - "**/public-hosting/default.nix"
+
+deploy_lan_hosting:
+  <<: *deploy_hosting_template
+  variables:
+    DEPLOY_TYPE: "lan"
+  rules:
+    - changes:
+        - "**/lan-hosting/default.nix"
