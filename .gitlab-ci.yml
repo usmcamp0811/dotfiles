@@ -132,13 +132,7 @@ deploy_lan_hosting:
 .tests:
   script: rake test
   stage: deploy_hosting
-  only:
-    refs:
-      - branches
 
 rspec:
   extends: .tests
   script: rake rspec
-  only:
-    variables:
-      - $RSPEC
