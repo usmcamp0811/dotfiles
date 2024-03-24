@@ -16,6 +16,7 @@ let
         description = "JSON value";
         emptyValue.value = { };
       };
+
     in valueType;
 in {
   options.campground.suites.lan-hosting = with types; {
