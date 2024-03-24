@@ -109,6 +109,8 @@ butler_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "butler"
+  rules:
+    allow_failure: true
 
 daly_deploy:
   <<: *deploy_job_template
