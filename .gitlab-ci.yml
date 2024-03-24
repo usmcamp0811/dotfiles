@@ -2,6 +2,7 @@ stages:
   - update_flake
   - build_systems
   - deploy_hosting
+  - deploy
 
 .setup_ssh:
   script:
@@ -75,20 +76,7 @@ reckless:
   variables:
     SYSTEM: "reckless"
 
-.deploy_hosting_template: &deploy_hosting_template
-  stage: deploy_hosting
-  script:
-    - |
-      for SYSTEM in $SYSTEMS; do
-        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
-        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-        deploy --hostname $SYSTEM .#$SYSTEM
-      done
-  tags:
-    - nix
-
 deploy_public_hosting:
-  <<: *deploy_hosting_template
   variables:
     DEPLOY_TYPE: "public"
   tags:
@@ -113,7 +101,6 @@ deploy_public_hosting:
         - "**/public-hosting/default.nix"
 
 deploy_lan_hosting:
-  <<: *deploy_hosting_template
   stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "lan"
@@ -138,3 +125,27 @@ deploy_lan_hosting:
     - changes:
         - "**/lan-hosting/default.nix"
 
+# TODO: Make this a dynamic thing I would like a seperate task for each system
+deploy:
+  stage: deploy
+  variables:
+    SYSTEMS: "butler daly lucas chesty webb reckless"
+  tags:
+    - nix
+  script:
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+      eval "$(ssh-agent -s)"
+      echo "$sshkey" | ssh-add -
+      for SYSTEM in $SYSTEMS; do
+        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+        deploy --hostname $SYSTEM .#$SYSTEM
+      done
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
