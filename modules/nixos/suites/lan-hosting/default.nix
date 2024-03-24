@@ -42,6 +42,16 @@ in {
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.grafana = {
+              rule = "Host(`grafana.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "grafana";
+            };
+
+            http.services.grafana = {
+              loadBalancer.servers = [{ url = "http://webb:7443"; }];
+            };
+
             http.routers.keycloak = {
               rule = "Host(`keycloak.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];

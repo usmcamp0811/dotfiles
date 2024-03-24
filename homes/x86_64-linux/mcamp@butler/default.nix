@@ -57,10 +57,9 @@ with lib.campground; {
       };
       hyprland = {
         enable = true;
-        startup = [
+        startup = [ 
+          "${getExe pkgs.ckb-next} -b"
           "${getExe pkgs.networkmanagerapplet}"
-          "${getExe pkgs.firefox}"
-          "${getExe pkgs.mattermost}"
         ];
       };
     };
@@ -90,7 +89,6 @@ with lib.campground; {
       zoom = enabled;
       qutebrowser = enabled;
       ckb-next = enabled;
-      mattermost-desktop = enabled;
       slack = enabled;
     };
     tools = {

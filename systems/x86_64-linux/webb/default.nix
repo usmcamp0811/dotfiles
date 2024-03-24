@@ -51,6 +51,7 @@ in {
     services = {
       ldap-client = { enable = mkForce false; };
       uptime-kuma = enabled;
+      grafana = enabled;
       keycloak = {
         enable = true;
         port = 43852;
