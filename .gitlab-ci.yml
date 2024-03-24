@@ -48,7 +48,7 @@ update-flake:
       optional: true  # Makes the dependency on update-flake optional
   resource_group: build_sequential
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
       when: always
       allow_failure: false
 
@@ -163,6 +163,7 @@ deploy_public_hosting:
   variables:
     DEPLOY_TYPE: "public"
   rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - changes:
         - "**/public-hosting/default.nix"
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
@@ -172,6 +173,7 @@ deploy_lan_hosting:
   variables:
     DEPLOY_TYPE: "lan"
   rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - changes:
         - "**/lan-hosting/default.nix"
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
