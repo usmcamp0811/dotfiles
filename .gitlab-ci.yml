@@ -19,8 +19,7 @@ update-flake:
   tags:
     - nix
   script:
-    - git rm flake.lock
-    - nix flake update
+    - [ "$CI_PIPELINE_SOURCE" = "schedule" ] && ( git rm flake.lock && nix flake update ) || true
   artifacts:
     paths:
       - flake.lock
