@@ -45,7 +45,6 @@ dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 
 #### [New System Install](./docs/Install.md)
 
-
 ## Features
 
 Here's an overview of what my Nix configuration offers:
