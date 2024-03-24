@@ -77,6 +77,7 @@ reckless:
     SYSTEM: "reckless"
 
 deploy_public_hosting:
+  stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "public"
   tags:
