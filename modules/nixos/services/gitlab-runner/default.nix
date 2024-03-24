@@ -80,6 +80,7 @@ in {
                 vault
                 ssh-agents
                 attic
+                sbomnix
               ])
             }
             mkdir -p -m 0755 /etc/nix
