@@ -99,6 +99,7 @@ deploy_public_hosting:
     - nix
   script:
     - |
+      SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       for SYSTEM in $SYSTEMS; do
         ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
@@ -118,6 +119,7 @@ deploy_lan_hosting:
     - nix
   script:
     - |
+      SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
       for SYSTEM in $SYSTEMS; do
         ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
