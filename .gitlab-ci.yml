@@ -25,12 +25,6 @@ update-flake:
     paths:
       - flake.lock
     expire_in: 1 hour
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: false
 
 .build_job_template: &build_job_template
   stage: build_systems
@@ -50,7 +44,6 @@ update-flake:
       nix-copy-closure --to root@${SYSTEM} ./result
   needs:
     - job: update-flake
-      optional: true  # Makes the dependency on update-flake optional
   resource_group: build_sequential
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
