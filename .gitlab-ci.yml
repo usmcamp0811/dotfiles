@@ -150,5 +150,5 @@ deploy:
         deploy --hostname $SYSTEM .#$SYSTEM
       done
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
