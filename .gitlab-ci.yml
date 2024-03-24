@@ -3,7 +3,7 @@ stages:
   - build_systems
   - deploy_hosting
 
-.setupssh:
+.setup_ssh:
   script:
     - |
       echo "Authenticating with Vault..."
@@ -94,7 +94,7 @@ deploy_public_hosting:
   variables:
     DEPLOY_TYPE: "public"
   extends:
-    - .setupssh
+    - .setup_ssh
   tags:
     - nix
   script:
@@ -113,8 +113,6 @@ deploy_lan_hosting:
   stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "lan"
-  extends:
-    - .setupssh
   tags:
     - nix
   script:
@@ -128,4 +126,5 @@ deploy_lan_hosting:
   rules:
     - changes:
         - "**/lan-hosting/default.nix"
-
+  extends:
+    - .setup_ssh
