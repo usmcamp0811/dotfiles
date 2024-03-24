@@ -11,6 +11,6 @@ in {
   config = mkIf cfg.enable {
 
     # TODO: Figure out maybe a better way to optionally use my nixvim.. but till then its mine or none
-    environment.systemPackages = with pkgs; [ neovim ];
+    environment.systemPackages = with pkgs; [ campground.neovim ];
   };
 }

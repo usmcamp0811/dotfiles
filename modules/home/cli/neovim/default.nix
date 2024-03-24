@@ -8,5 +8,5 @@ in {
   options.campground.cli.neovim = { enable = mkEnableOption "Neovim"; };
 
   config =
-    mkIf cfg.enable { home = { packages = with pkgs; [ less neovim ]; }; };
+    mkIf cfg.enable { home = { packages = with pkgs; [ less campground.neovim ]; }; };
 }

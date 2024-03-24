@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "campground-nvim"
+version = "0.1.0"
+description = ""
+authors = ["Matt Camp <matt@aicampground.com>"]
+readme = "README.md"
+packages = [{include = "campground_nvim"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"  # Adjusted line
+kaleido = "0.2.1"
+jupyter-core = "^5.5.0"
+pynvim = "^0.4.3"
+jupyter-client = "^8.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
