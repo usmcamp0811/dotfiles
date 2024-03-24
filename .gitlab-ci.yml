@@ -113,8 +113,7 @@ deploy_lan_hosting:
   stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "lan"
-  extends:
-    - .setup_ssh
+  extends: .setup_ssh
   tags:
     - nix
   script:
