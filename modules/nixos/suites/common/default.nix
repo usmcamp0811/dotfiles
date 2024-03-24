@@ -32,7 +32,7 @@ in {
         networking = enabled;
       };
 
-      services = { 
+      services = {
         openssh = {
           enable = true;
           authorizedKeys = [
