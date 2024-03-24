@@ -75,26 +75,24 @@ reckless:
   variables:
     SYSTEM: "reckless"
 
-# .deploy_hosting_template: &deploy_hosting_template
-#   stage: deploy_hosting
-#   extends:
-#     - .setup_ssh
-#   script:
-#     - |
-#       for SYSTEM in $SYSTEMS; do
-#         ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
-#         nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-#         deploy --hostname $SYSTEM .#$SYSTEM
-#       done
-#   tags:
-#     - nix
-
-deploy_public_hosting:
+.deploy_hosting_template: &deploy_hosting_template
   stage: deploy_hosting
-  variables:
-    DEPLOY_TYPE: "public"
   extends:
     - .setup_ssh
+  script:
+    - |
+      for SYSTEM in $SYSTEMS; do
+        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+        deploy --hostname $SYSTEM .#$SYSTEM
+      done
+  tags:
+    - nix
+
+deploy_public_hosting:
+  <<: *deploy_hosting_template
+  variables:
+    DEPLOY_TYPE: "public"
   tags:
     - nix
   script:
@@ -110,6 +108,7 @@ deploy_public_hosting:
         - "**/public-hosting/default.nix"
 
 deploy_lan_hosting:
+  <<: *deploy_hosting_template
   stage: deploy_hosting
   variables:
     DEPLOY_TYPE: "lan"
@@ -126,13 +125,4 @@ deploy_lan_hosting:
   rules:
     - changes:
         - "**/lan-hosting/default.nix"
-  extends:
-    - .setup_ssh
 
-.tests:
-  script: rake test
-  stage: deploy_hosting
-
-rspec:
-  extends: .tests
-  script: rake rspec
