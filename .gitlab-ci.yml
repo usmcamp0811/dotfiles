@@ -1,5 +1,4 @@
 stages:
-  - test
   - update_flake
   - build_systems
   - deploy_hosting
@@ -132,7 +131,7 @@ deploy_lan_hosting:
 
 .tests:
   script: rake test
-  stage: test
+  stage: deploy_hosting
   only:
     refs:
       - branches
