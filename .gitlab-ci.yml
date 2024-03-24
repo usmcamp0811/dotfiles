@@ -1,8 +1,8 @@
 stages:
   - update_flake
   - build_systems
-  - deploy_hosting
   - deploy
+  - deploy_hosting
 
 .setup_ssh:
   script:
