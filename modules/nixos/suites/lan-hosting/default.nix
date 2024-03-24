@@ -3,7 +3,6 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.suites.lan-hosting;
-
   jsonValue = with types;
     let
       valueType = nullOr (oneOf [
