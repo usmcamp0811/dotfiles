@@ -4,7 +4,6 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.nix;
-
   substituters-submodule = types.submodule ({ name, ... }: {
     options = with types; {
       key =
