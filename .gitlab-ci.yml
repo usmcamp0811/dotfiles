@@ -102,7 +102,7 @@ reckless:
       deploy --hostname $SYSTEM .#$SYSTEM
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: manual
+      when: always
       allow_failure: false
 
 butler_deploy:
