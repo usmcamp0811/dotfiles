@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-    # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     #nuenv
@@ -186,7 +185,6 @@
           namespace = "campground";
         };
       };
-      # nixvimLib = nix-vim.lib.${system};
 
     in lib.mkFlake {
       channels-config = {
@@ -242,6 +240,10 @@
         shell-container = {
           path = ./templates/shell-container;
           description = "An example Shell that is also a Docker Container";
+        };
+        new-system = {
+          path = ./templates/new-system;
+          description = "A new system config to get things started.";
         };
       };
 

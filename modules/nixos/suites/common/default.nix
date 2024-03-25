@@ -25,6 +25,7 @@ in {
         git = enabled;
         misc = enabled;
         nix-output-monitor = enabled;
+        pluto = enabled;
       };
 
       hardware = {
