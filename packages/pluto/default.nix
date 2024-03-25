@@ -4,10 +4,12 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  pname = "pluto";
   julia-env = pkgs.julia.withPackages [ "Pluto" "PythonCall" ];
-  pluto = pkgs.writeShellScriptBin "pluto" ''
-    #!/usr/bin/env bash
+in 
+writeShellApplication {
+  name = "pluto";
+  meta = { mainProgram = "pluto"; };
+  text = ''
     HOST="0.0.0.0" # Default host
     PORT=1234      # Default port
 
@@ -23,11 +25,4 @@ let
 
     ${julia-env}/bin/julia -e "using Pluto; Pluto.run(host=\"$HOST\", port=$PORT)"
   '';
-
-  new-meta = with lib; {
-    description = "Pluto.jl";
-    license = licenses.mit;
-    maintainers = with maintainers; [ mattcamp ];
-  };
-
-in override-meta new-meta pluto
+}

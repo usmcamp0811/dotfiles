@@ -14,7 +14,15 @@ in {
 
     environment.systemPackages = with pkgs;
       [
-        # julia-wrapped
+        julia.withPackages [ 
+          "CUDA" 
+          "FileIO" 
+          "Flux" 
+          "JLD2" 
+          "cuDNN" 
+          "DataFrames" 
+          "MLJ" 
+          "PyCall"]
       ];
   };
 }
