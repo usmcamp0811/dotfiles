@@ -45,7 +45,7 @@ in {
           insecure = true;
           entrypoints = cfg.entrypoints;
           dynamicConfigOptions = {
-            http.routers.photoprism = {
+            http.routers.adhoc = {
               rule = "Host(`adhoc.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "adhoc";
