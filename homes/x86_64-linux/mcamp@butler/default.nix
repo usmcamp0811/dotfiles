@@ -58,7 +58,6 @@ with lib.campground; {
       hyprland = {
         enable = true;
         startup = [ 
-          "${getExe pkgs.ckb-next} -b"
           "${getExe pkgs.networkmanagerapplet}"
         ];
       };
