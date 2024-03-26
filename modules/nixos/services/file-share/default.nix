@@ -8,17 +8,20 @@ in {
     port = mkOpt int 8380 "Port to listen on";
   };
 
-  config =
-    mkIf cfg.enable { 
+  config = mkIf cfg.enable {
     services.nginx = {
       enable = true;
       virtualHosts."localhost" = {
-        listen = [{ addr = "0.0.0.0"; port = cfg.port; }];
+        listen = [{
+          addr = "0.0.0.0";
+          port = cfg.port;
+        }];
         root = "/export/share";
         locations."/".extraConfig = ''
           autoindex on;
         '';
       };
+    };
   };
 }
 

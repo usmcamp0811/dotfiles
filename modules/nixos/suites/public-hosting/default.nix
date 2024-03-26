@@ -45,6 +45,16 @@ in {
           insecure = true;
           entrypoints = cfg.entrypoints;
           dynamicConfigOptions = {
+            http.routers.photoprism = {
+              rule = "Host(`adhoc.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "adhoc";
+            };
+
+            http.services.adhoc = {
+              loadBalancer.servers = [{ url = "http://reckless:8380"; }];
+            };
+
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
               entryPoints = [ "websecure" ];

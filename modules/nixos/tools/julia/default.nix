@@ -12,17 +12,9 @@ in {
 
   config = mkIf cfg.enable {
 
-    environment.systemPackages = with pkgs;
-      [
-        julia.withPackages [ 
-          "CUDA" 
-          "FileIO" 
-          "Flux" 
-          "JLD2" 
-          "cuDNN" 
-          "DataFrames" 
-          "MLJ" 
-          "PyCall"]
-      ];
+    environment.systemPackages = with pkgs; [
+      julia.withPackages
+      [ "CUDA" "FileIO" "Flux" "JLD2" "cuDNN" "DataFrames" "MLJ" "PyCall" ]
+    ];
   };
 }

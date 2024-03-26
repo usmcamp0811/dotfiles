@@ -1,13 +1,13 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.grafana;
+let cfg = config.campground.services.grafana;
 in {
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
-    domain = mkOpt str "grafana.lan.aicampground.com" "Domain to Host the grafana server on.";
+    domain = mkOpt str "grafana.lan.aicampground.com"
+      "Domain to Host the grafana server on.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
