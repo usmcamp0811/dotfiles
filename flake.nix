@@ -225,12 +225,25 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks =
-        builtins.mapAttrs
-          (_system: deploy-lib:
-            deploy-lib.deployChecks inputs.self.deploy)
-          deploy-rs.lib;
-
+      checks = builtins.mapAttrs
+        (_system: deploy-lib:
+          deploy-lib.deployChecks inputs.self.deploy)
+        deploy-rs.lib
+        // {
+          mlflow-test = inputs.nixpkgs.legacyPackages.x86_64-linux.nixosTest {
+            name = "mlflow-test";
+            nodes = {
+              machine = { ... }: {
+                environment.systemPackages = [ lib.campground.mlflow ];
+              };
+            };
+            testScript = ''
+              startAll;
+              machine.waitUntilSucceeds("mlflow --help");
+              machine.succeed("mlflow --help");
+            '';
+          };
+        };
 
       templates = {
         basic = {
