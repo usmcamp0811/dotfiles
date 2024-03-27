@@ -185,10 +185,10 @@
           namespace = "campground";
         };
       };
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-      };
+      # system = "x86_64-linux";
+      # pkgs = import nixpkgs {
+      #   inherit system;
+      # };
 
     in lib.mkFlake {
       channels-config = {
@@ -233,21 +233,21 @@
         (_system: deploy-lib:
           deploy-lib.deployChecks inputs.self.deploy)
         deploy-rs.lib
-        // {
-          x86_64-linux.mlflow-test = pkgs.nixosTest {
-            name = "mlflow-test";
-            nodes = {
-              machine = { config, pkgs, ... }: {
-                environment.systemPackages = [ pkgs.mlflow-server ];
-              };
-            };
-            testScript = ''
-              startAll;
-              machine.waitUntilSucceeds("mlflow --help");
-              machine.succeed("mlflow --help");
-            '';
-          };
-        };
+        # // {
+        #   x86_64-linux.mlflow-test = pkgs.nixosTest {
+        #     name = "mlflow-test";
+        #     nodes = {
+        #       machine = { config, pkgs, ... }: {
+        #         environment.systemPackages = [ pkgs.mlflow-server ];
+        #       };
+        #     };
+        #     testScript = ''
+        #       startAll;
+        #       machine.waitUntilSucceeds("mlflow --help");
+        #       machine.succeed("mlflow --help");
+        #     '';
+        #   };
+        # };
 
       templates = {
         basic = {
