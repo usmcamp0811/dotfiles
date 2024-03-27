@@ -8,6 +8,8 @@
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
 
+    # example for scott
+    srob.url = "gitlab:usmcamp0811/expamle-derivation";
     # nixvim
     nix-vim.url = "github:nix-community/nixvim";
 
