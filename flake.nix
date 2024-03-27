@@ -185,6 +185,10 @@
           namespace = "campground";
         };
       };
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+      };
 
     in lib.mkFlake {
       channels-config = {
@@ -230,11 +234,11 @@
           deploy-lib.deployChecks inputs.self.deploy)
         deploy-rs.lib
         // {
-          mlflow-test = inputs.nixpkgs.legacyPackages.x86_64-linux.nixosTest {
+          x86_64-linux.mlflow-test = pkgs.nixosTest {
             name = "mlflow-test";
             nodes = {
-              machine = { ... }: {
-                environment.systemPackages = [ lib.campground.mlflow ];
+              machine = { config, pkgs, ... }: {
+                environment.systemPackages = [ pkgs.mlflow-server ];
               };
             };
             testScript = ''
