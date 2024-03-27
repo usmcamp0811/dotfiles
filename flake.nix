@@ -232,7 +232,7 @@
       checks = builtins.mapAttrs
         (_system: deploy-lib:
           deploy-lib.deployChecks inputs.self.deploy)
-        deploy-rs.lib
+        deploy-rs.lib;
         # // {
         #   x86_64-linux.mlflow-test = pkgs.nixosTest {
         #     name = "mlflow-test";
