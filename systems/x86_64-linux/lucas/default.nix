@@ -47,6 +47,7 @@ in {
     #   doas = enabled;
     # };
     services = {
+      matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       # netmaker = {
