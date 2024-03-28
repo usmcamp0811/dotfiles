@@ -1,0 +1,19 @@
+version: "2"
+
+services:
+  main-website:
+    restart: always
+    ports:
+      - "8083:80"
+    image: matt-camp-website
+    build: .
+    container_name: matt-camp_website
+    volumes:
+      - "/home/mcamp/MattCampWebsite/volumes/matt-camp-website/conf.d/:/etc/nginx/conf.d"
+      - "/home/mcamp/MattCampWebsite/volumes/config/matt-camp-website/config.js:/usr/share/nginx/html/config.js"
+    environment:
+      - VIRTUAL_HOST=matt-camp.com
+      - VIRTUAL_NETWORK=nginx-proxy
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=matt-camp.com
+      - LETSENCRYPT_EMAIL=matt@campmail.org

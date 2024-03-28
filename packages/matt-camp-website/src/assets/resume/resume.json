@@ -1,0 +1,152 @@
+{
+  "profile": "Accomplished leader and strategist with expertise in operations oversight, training administration, and intelligence analysis. Leverage leadership strengths to formulate objectives and direct high performing teams in executing strategies that maximize operational productivity and performance. Proven background marked by success managing high priority technical assignments, training and development initiatives, and core operational objectives. ",
+  "profile_bullets": [
+    "Demonstrated success in developing integrated software systems. Record of success in both government and private sectors.",
+    "Respected for capacity to apply systematic approach and ability to thrive in challenging environments requiring strong critical thinking, investigative, and analytical skills.",
+    "Recognized as the driving force behind highly successful projects that exceed organizational expectations.",
+    "Well-versed in creating high-performance cultures and focusing teams on operational excellence.",
+    "Current Top Secret/Specialized Compartmentalized Information (TS/SCI) with Counterintelligence Polygraph."
+  ],
+  "jobs": [
+    {
+      "job_title": "Senior Full Stack Data Scientist",
+      "company": "ATA LLC",
+      "description": "Worked on a platform team to deploy a JupyterHub instance on enterprise Kubernetes clusters. Modified Zero-to-JupyterHub Helm Chart to support Istio service mesh. Created custom JupyterLab docker images. Wrote custom shell scripts and created project templates to allow users to easily follow best practices when bootstrapping new projects. Customized Airflow Helm Chart and developed processes to facilitate DAG development. Created architecture diagrams and automated their deployment using PlantUML and Gitlab CICD.",
+      "key_accomplishments": [
+      ],
+      "dt_from": "November 2021",
+      "dt_to": "Present"
+    },
+    {
+      "job_title": "Artificial Intelligence Software Developer / Full Stack Data Scientist / Tech Lead",
+      "company": "Colsa",
+      "description": "Developed data science strategies for dealing with big data problems. Primary driving force behind the adoption of modern software development practices by the government customer. Assisted junior developers become better familiar with Linux, Python and a number of DevOps tools. Interacted with customer Technical Point of Contact (TPOC) daily to ensure contract needs were being satisfied.",
+      "key_accomplishments": [
+        "Initiated the organizational adoption of DevOps tools such as Gitlab CI/CD Pipelines and Docker",
+        "Created a GraphQL API in Python utilizing the Graphene, MongoEngine, and a self-written Neo4j API.",
+        "Wrote an unsupervised machine learning algorithm for describing data found in domain specific files. ",
+        "Architected and developed a data pipeline using a combination of Docker and Apache Airflow.",
+        "Built and implemented a domain specific graph data (MongoDB + Neo4j) model for use in maintaining a file meta database."
+      ],
+      "dt_from": "September 2018",
+      "dt_to": "November 2021"
+    },
+    {
+      "job_title": "Senior Database Administrator & Business Process Improvement Analyst",
+      "company": "Science Applications International Corporation (SAIC)",
+      "description": "Sole technical developer in the security department, responsible for fulfilling data needs of senior leadership as well as being instrumental in the transition processes from a legacy Access Commander database system to a Sims database system. Rapid development of automated solutions using Python to provide a high level of integration with existing enterprise systems, greatly increasing the efficiency of human labor. Worked with subject matter experts to systematically define incomplete or non-existent business processes. Began the implementation of Lean practices in the management of department wide projects using a self-hosted web-based Kanban system.",
+      "key_accomplishments": [
+        "Developed real-time automated reporting solutions for enterprise wide consumption using a Flask web app architecture and SQL Server",
+        "Created Python based web scrapers with Selenium and Autoit to autonomously download reports from parts of the enterprise without readily available APIs",
+        "Built a web-based user interface for service center personnel to be able to efficiently process hundreds of security clearance prescreens weekly",
+        "Took the initiative to develop a nearly autonomous contract closeout system to eliminate hundreds of backlogged contracts and decrease the number of man hours required for the process going forward."
+      ],
+      "dt_from": "August 2017",
+      "dt_to": "August 2018"
+    },
+    {
+      "job_title": "Algorithm Developer",
+      "company": "ExoAnalytic Solutions",
+      "description": "Assisted the Chief Information Officer as the local information technology (IT) support lead for the Huntsville office. Researched, purchased, and built computer systems for deep learning. Regularly worked with large datasets of over several million records. Quickly adapted to fill many miscellaneous technical and non-technical requirements of a small office",
+      "key_accomplishments": [
+        "Investigated cutting edge deep learning algorithms, to include Recurrent Neural Networks, Convolutional Neural Networks and Generative Adversarial Networks to aid in space situational awareness (SSA) and missile defense applications using Python and Tensorflow.",
+        "Orchestrated the conversion of Missile Defense data from complicated MATLAB structures to a faster and more efficient SQLite database.",
+        "Launched an effort to convert the company’s Customer Relationship Management (CRM) system to a graph database using Neo4j software.",
+        "Used Python to build automated web scrapers for mining data from multiple online sources. Provided increased situational awareness of the local business environment.",
+        "Using a combination of both R and Python, developed machine learning models based on EO/IR sensor data for both the Missile Defense and space situational awareness domains."
+      ],
+      "dt_from": "April 2016",
+      "dt_to": "August 2017"
+    },
+    {
+      "job_title": "Marketing Intern",
+      "company": "Elbit Systems of America",
+      "description": "Assisted with product demonstrations for prospective customers as needed. Built PowerPoint presentations to be briefed to the CEO and other executive level leaders. Researched and analyzed product details and specifications to synthesize a simplified fact-sheet for the many aerospace offerings of the company. Initiated the development of a Customer Relationship Management system to be used in house by the business development associates.",
+      "key_accomplishments": [
+        "Engaged with business development associates to devise requirements for a Customer Relationship Management (CRM) system.",
+        "Architected the database schema for a CRM tool.",
+        "Researched the federal acquisition process and utilized GovWin software to analyze key stakeholders."
+      ],
+      "dt_from": "September 2015",
+      "dt_to": "April 2016"
+    },
+    {
+      "job_title": "Training & Operations Supervisor/Intelligence Analyst",
+      "company": "Intelligence Support Battalion, Force Headquarter Group, Marine Forces Reserve USMC",
+      "description": "Worked closely with senior leadership to devise organizational requirements for a training and operations reporting system. Developed custom software tools, enabling near real-time management of the training and operational readiness. Prepared readiness reporting and operational briefs which were disseminated to senior leadership.",
+      "key_accomplishments": [
+        "Analyzed large amounts of data and developed presentations for senior leadership that addressed current and future training, operations, and readiness levels.",
+        "Developed and tested scripts written in Visual Basic for Applications (VBA) to enable close integration with the Marine Corps training system. Designed and customized a Microsoft Access database to generate reports and dashboards for senior leadership.",
+        "Credited with facilitating team collaboration across 28 geographically dispersed locations through the development of a battalion wide SharePoint page that integrated closely with a Microsoft Access database capable of delivering information to users in near real time.",
+        "Created documentation and training materials for the use of developed systems",
+        "Awarded a Navy and Marine Corps Commendation Medal for accomplishments."
+      ],
+      "dt_from": "March 2012",
+      "dt_to": "February 2015"
+    },
+    {
+      "job_title": "Artillery Section Chief",
+      "company": "United States Marine Corps Reserve",
+      "description": "Set objectives and led a team of 15 in performing operational functions in support of Mike Battery 3rd Battalion 14th Marine Regiment 4th Marine Division USMC. Developed and delivered training to junior associates on all equipment. Played a key role in developing and maintaining international relationships. Met the organizations requirements in inspecting critical components of artillery pieces. Held accountability for all activities that took place on the gun section, including safety procedures and safe handling and storage of ammunition. Developed watch schedules and assigned Marines to working parties.",
+      "key_accomplishments": [
+        "Trained, cross-trained, and ensured each section Marine had the knowledge and skill required to properly operate the artillery piece.",
+        "Ensured safety while leading Marines on mounted and dismounted patrols in Iraq. Wrote comprehensive after action reports on each patrol.",
+        "Selected to work collaboratively in training Iraqi Police.",
+        "Skillfully operated highly technical equipment including a BackSkatter X-Ray machine to scan all vehicles coming through traffic control points.",
+        "Engaged in operation of a Biometrics Automated Toolset System, a scanning/database system that aided in finding insurgents and providing background information, including subject names, pictures, fingerprints, retina scans, work histories, past records, and any illegal activity.",
+        "Credited for taking the initiative to learn how to fill crypto on radios.",
+        "Received a Letter of Appreciation for role in the Battle of Fallujah."
+      ],
+      "dt_from": "2004 - 2010",
+      "dt_to": "2011 - 2012"
+    }
+  ],
+  "education": [
+    {
+      "degree": "Artificial Intelligence Nanodegree",
+      "school": "Udacity",
+      "grad_dt": "February 2018",
+      "image": "ai.jpg"
+    },
+    {
+      "degree": "Deep Learning Nanodegree",
+      "school": "Udacity",
+      "grad_dt": "May 2017",
+      "image": "deeplearning.jpg"
+    },
+    {
+      "degree": "Master of Science in Management Science - Business Analytics",
+      "school": "University of Alabama in Huntsville",
+      "grad_dt": "May 2017",
+      "image": "masters.jpg"
+    },
+    {
+      "degree": "Bachelor of Arts in History",
+      "school": "University of Alabama in Huntsville",
+      "grad_dt": "May 2016",
+      "image": "bachelors.jpg"
+    }
+  ],
+  "skills": [
+    "Microsoft Office",
+    "Oracle SQL Developer",
+    "R (Programming Language)",
+    "Visual Basic for Applications (VBA)",
+    "Structured Query Language (SQL)",
+    "Tensorflow",
+    "Neo4j",
+    "Linux",
+    "Bash",
+    "Airflow",
+    "JavaScript",
+    "Python",
+    "Julia",
+    "Flask",
+    "Vue.js",
+    "Docker",
+    "Hadoop",
+    "Cassandra",
+    "Spark"
+  ],
+  "interest": "I have many interests from history and firearms to cooking and coding. I consider myself a life long learner and am always trying to better understand a concept or figure out how something works. I really enjoy problem solving and programming. My goals are to increase my knowledge of both Machine Learning and Artificial Intelligence to further the automation of route tasks in our daily lives."
+}
