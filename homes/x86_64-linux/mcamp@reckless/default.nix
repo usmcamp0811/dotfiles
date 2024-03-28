@@ -64,7 +64,6 @@ with lib.campground; {
     };
 
     cli = {
-      srob-example = enabled;
       zsh = enabled;
       bash = enabled;
       env = enabled;
