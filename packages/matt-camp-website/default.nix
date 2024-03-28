@@ -1,4 +1,4 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+{ lib, writeText, mkYarnPackage, substituteAll, gum, inputs, pkgs
 , hosts ? { }, ... }:
 
 let
@@ -12,5 +12,4 @@ mkYarnPackage {
     yarnLock = ./yarn.lock;
     # NOTE: this is optional and generated dynamically if omitted
     yarnNix = ./yarn.nix;
-  };
 }
