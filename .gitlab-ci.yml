@@ -98,12 +98,6 @@ reckless:
       allow_failure: false
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - changes:
-        - "**/*.md"
-      when: never
-    - changes:
-        - "**/*.yml"
-      when: never
 
 butler_deploy:
   <<: *deploy_job_template
