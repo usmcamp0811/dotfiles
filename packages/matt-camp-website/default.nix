@@ -13,3 +13,4 @@ mkYarnPackage {
     # NOTE: this is optional and generated dynamically if omitted
     yarnNix = ./yarn.nix;
 }
+

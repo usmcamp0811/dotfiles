@@ -1,1 +1,0 @@
-{"name":"unyield","dist-tags":{"latest":"0.0.1"},"versions":{"0.0.1":{"name":"unyield","version":"0.0.1","dependencies":{"co":"~3.1.0"},"devDependencies":{"mocha":"*","co-mocha":"0.0.4"},"dist":{"shasum":"150e65da42bf7742445b958a64eb9b85d1d2b180","tarball":"https://registry.npmjs.org/unyield/-/unyield-0.0.1.tgz"}}},"modified":"2014-08-02T08:14:31.765Z"}
