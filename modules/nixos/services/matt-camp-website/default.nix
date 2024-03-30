@@ -17,7 +17,7 @@ in {
           port = cfg.port;
         }];
         root =
-          "${pkgs.campground.matt-camp-website}/libexec/matt-camp-website/deps/matt-camp-website"; # Adjusted path
+          "${pkgs.campground.matt-camp-website}/libexec/matt-camp-website/deps/matt-camp-website/dist/spa/css";
         extraConfig = ''
           location / {
             try_files $uri $uri/ =404;
