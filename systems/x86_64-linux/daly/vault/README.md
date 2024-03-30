@@ -44,3 +44,14 @@ sudo chmod 0400 /var/lib/vault/*-id
 
 After completing these steps, your Vault setup should be operational.
 
+
+### Additional Useful Things
+
+
+```
+# limits approle to a particular set of ips.
+vault write auth/approle/role/gitlab-runner \
+    token_ttl=3m \
+    token_max_ttl=5m \
+    token_bound_cidrs="10.0.0.1/32,10.0.0.2/32"
+```

@@ -10,8 +10,16 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+
+  # findEnabledServices = { serviceName }: builtins.filter (name: let
+  #   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
+  #   in cfg) (builtins.attrNames self.nixosConfigurations);
+  # searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
+  # searxURLs = map (host: {
+  #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
+  #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
+  # }) searxEnabledSystems;
+in {
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -19,29 +27,34 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
+    };
+    suites = {
+      public-hosting = {
+        enable = true;
+        interface = "eno1";
+      };
     };
 
     archetypes = {
       server = {
         enable = true;
-        k8s = true;
+        k8s = false;
         role = "worker";
         hostId = "119db424";
       };
     };
 
-    tools = {
-      attic = enabled;
-    };
+    tools = { attic = enabled; };
 
     services = {
-      ldap-client = {
-        enable = mkForce false;
-      };
+      ldap-client = { enable = mkForce false; };
+      uptime-kuma = enabled;
+      grafana = enabled;
       keycloak = {
         enable = true;
+        port = 43852;
       };
       attic-watch-store = enabled;
       nixery = enabled;
@@ -49,14 +62,10 @@ in
       minio = enabled;
       mlflow = enabled;
       # airflow = enabled;
-      label-studio = enabled;
+      # label-studio = enabled;
       vaultwarden = enabled;
       mattermost = enabled;
       paperless = enabled;
-      searx = {
-        enable = true;
-        port = 3249;
-      };
 
       mysql = {
         backupEnable = true;
@@ -72,8 +81,8 @@ in
         enable = true;
         jobs = {
           "campground" = {
-            paths = [ 
-              "/persist" 
+            paths = [
+              "/persist"
               "/webb/media/photos"
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
@@ -86,8 +95,8 @@ in
             startAt = "daily";
           };
           "webb_rsync" = {
-            paths = [ 
-              "/persist" 
+            paths = [
+              "/persist"
               "/webb/media/photos"
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
@@ -123,52 +132,47 @@ in
           host  all  all  ::0/0  reject
         '';
       };
-      # wireguard = {
-      #   enable = true;
-      #   port = 1149;
-      #   ips = [ "10.100.0.1/24" ];
-      #   peers = [
-      #     { # butler
-      #       publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
-      #       presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-      #       allowedIPs = [ "10.100.0.2/32" ];
-      #     }
-      #     { # phone
-      #       publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
-      #       presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-      #       allowedIPs = [ "10.100.0.3/32" ];
-      #     }
-      #   ];
-      # };
+      wireguard = {
+        enable = true;
+        port = 1149;
+        ips = [ "10.100.0.1/24" ];
+        peers = [
+          { # butler
+            publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
+            presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
+            allowedIPs = [ "10.100.0.2/32" ];
+          }
+          { # phone
+            publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
+            presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
+            allowedIPs = [ "10.100.0.3/32" ];
+          }
+        ];
+      };
       zfs-key-server = {
         enable = true;
         port = 8123;
-        tang-servers = [ 
-          "http://daly:1234" 
-          "http://lucas:1234" 
+        tang-servers = [
+          "http://daly:1234"
+          "http://lucas:1234"
           "http://reckless:1234"
           "http://chesty:1234"
-          "http://ermy:1234" 
+          "http://ermy:1234"
         ];
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { 
-          files = [ 
-            "id_ed25519" 
-            "passwords" 
-          ]; 
-        };
+        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
       };
 
       vault-agent = {
         enable = true;
-        settings = { 
-          vault = { 
-            address = "http://vault.lan";
-            role-id = "/var/lib/vault/webb/role-id"; 
-            secret-id = "/var/lib/vault/webb/secret-id"; 
-          }; 
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            role-id = "/var/lib/vault/webb/role-id";
+            secret-id = "/var/lib/vault/webb/secret-id";
+          };
         };
       };
     };

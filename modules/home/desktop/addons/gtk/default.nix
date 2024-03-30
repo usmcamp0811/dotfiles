@@ -2,39 +2,33 @@
 
 with lib;
 with lib.campground;
-let 
+let
   cfg = config.campground.desktop.addons.gtk;
   default-attrs = mapAttrs (_key: mkDefault);
   nested-default-attrs = mapAttrs (_key: default-attrs);
-in
-{
+in {
   options.campground.desktop.addons.gtk = with types; {
     enable = mkBoolOpt false "Whether to customize GTK and apply themes.";
     cursor = {
-      name =
-        mkOpt str "Catppuccin-Macchiato-Blue-Cursors"
-          "The name of the cursor theme to apply.";
-      pkg = mkOpt package pkgs.catppuccin-cursors.macchiatoBlue "The package to use for the cursor theme.";
+      name = mkOpt str "Catppuccin-Macchiato-Blue-Cursors"
+        "The name of the cursor theme to apply.";
+      pkg = mkOpt package pkgs.catppuccin-cursors.macchiatoBlue
+        "The package to use for the cursor theme.";
       size = mkOpt int 32 "The size of the cursor.";
     };
     icon = {
-      name =
-        mkOpt str "breeze-dark"
-          "The name of the icon theme to apply.";
-      pkg = mkOpt package pkgs.libsForQt5.breeze-icons "The package to use for the icon theme.";
+      name = mkOpt str "breeze-dark" "The name of the icon theme to apply.";
+      pkg = mkOpt package pkgs.libsForQt5.breeze-icons
+        "The package to use for the icon theme.";
     };
     theme = {
-      name =
-        mkOpt str "Catppuccin-Macchiato-Standard-Blue-Dark"
-          "The name of the GTK theme to apply.";
-      pkg =
-        mkOpt package
-          (pkgs.catppuccin-gtk.override
-            {
-              accents = [ "blue" ];
-              size = "standard";
-              variant = "macchiato";
-            }) "The package to use for the theme.";
+      name = mkOpt str "Catppuccin-Macchiato-Standard-Blue-Dark"
+        "The name of the GTK theme to apply.";
+      pkg = mkOpt package (pkgs.catppuccin-gtk.override {
+        accents = [ "blue" ];
+        size = "standard";
+        variant = "macchiato";
+      }) "The package to use for the theme.";
     };
   };
   config = mkIf cfg.enable {
@@ -69,17 +63,11 @@ in
         package = cfg.cursor.pkg;
       };
 
-      font = {
-        name = config.campground.system.fonts.default;
-      };
+      font = { name = config.campground.system.fonts.default; };
 
-      gtk3.extraConfig = {
-        "gtk-application-prefer-dark-theme" = 1;
-      };
+      gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
 
-      gtk4.extraConfig = {
-        "gtk-application-prefer-dark-theme" = 1;
-      };
+      gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
 
       iconTheme = {
         inherit (cfg.icon) name;

@@ -1,28 +1,16 @@
-{
-  pkgs,
-  config,
-  lib,
-  modulesPath,
-  inputs,
-  ...
-}:
+{ pkgs, config, lib, modulesPath, inputs, ... }:
 with lib;
 with lib.campground; {
-  imports = with inputs.nixos-hardware.nixosModules; [
-    (modulesPath + "/installer/scan/not-detected.nix")
-  ];
+  imports = with inputs.nixos-hardware.nixosModules;
+    [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
   # nixpkgs.config.allowUnsupportedSystem = true;
   # nixpkgs.crossSystem.system = "aarch64-linux";
 
-  boot = {
-    kernelPackages = pkgs.linuxKernel.packages.linux_rpi3;
-  };
+  boot = { kernelPackages = pkgs.linuxKernel.packages.linux_rpi3; };
 
   campground = {
-    archetypes = {
-      server = enabled;
-    };
+    archetypes = { server = enabled; };
 
     system = {
       boot = {

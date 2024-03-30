@@ -1,7 +1,6 @@
 { channels, unstable, nixpkgs, ... }:
 
-final: prev:
-{
+final: prev: {
   nix-unstable = unstable.legacyPackages.${prev.system};
-}                                                                                   
-                                                                                   
+}
+

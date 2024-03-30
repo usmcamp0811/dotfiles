@@ -2,10 +2,8 @@
 
 with lib;
 with lib.campground;
-let 
-  cfg = config.campground.cli.misc;
-in
-{
+let cfg = config.campground.cli.misc;
+in {
   options.campground.cli.misc = with types; {
     enable = mkBoolOpt false "Whether or not to misc cli programs.";
   };

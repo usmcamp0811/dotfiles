@@ -1,107 +1,174 @@
 stages:
-  - update
-  - build
-
-workflow:
-  rules:
-  - if: $CI_PIPELINE_SOURCE == "schedule"
-    when: always
-    allow_failure: false
+  - update_flake
+  - build_systems
+  - deploy
 
 update-flake:
-  stage: update
+  stage: update_flake
   tags:
     - nix
-  only:
-    - nixos
   script:
-    - git rm flake.lock
-    - nix flake update
+    - |
+      [ "$CI_PIPELINE_SOURCE" = "schedule" ] && git rm flake.lock && nix flake update || true;
   artifacts:
     paths:
       - flake.lock
     expire_in: 1 hour
+  rules:
+    - if: '$BUILD_SYSTEMS == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+      allow_failure: false
+
+.build_job_template: &build_job_template
+  stage: build_systems
+  tags:
+    - nix
+  script:
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID" > /dev/null
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+      eval "$(ssh-agent -s)"
+      echo "$sshkey" | ssh-add -
+      ssh-keyscan ${SYSTEM} >> ~/.ssh/known_hosts
+      nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
+      nix-copy-closure --to root@${SYSTEM} ./result
+  needs:
+    - job: update-flake
+  resource_group: build_sequential
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+      allow_failure: false
 
 butler:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "butler"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 daly:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "daly"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 lucas:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "lucas"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 chesty:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "chesty"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 webb:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "webb"
-  tags:
-    - nix
-  only:
-    - nixos
-  script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
 
 reckless:
-  stage: build
+  <<: *build_job_template
   variables:
     SYSTEM: "reckless"
+
+.deploy_job_template: &deploy_job_template
+  stage: deploy
   tags:
     - nix
-  only:
-    - nixos
   script:
-    - nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1;
-  needs:
-    - update-flake
-  resource_group: build_sequential
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID" > /dev/null
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      eval "$(ssh-agent -s)"
+      vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
+      sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+      echo "$sshkey" | ssh-add -
+    - |
+      ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+      nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+      deploy --hostname $SYSTEM .#$SYSTEM
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+      allow_failure: false
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+
+butler_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "butler"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+      allow_failure: true
+daly_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "daly"
+
+lucas_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "lucas"
+
+chesty_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "chesty"
+
+webb_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "webb"
+
+reckless_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "reckless"
+
+.deploy_hosting_template: &deploy_hosting_template
+  stage: deploy
+  script:
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID" > /dev/null
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      SYSTEMS=$(get-lan-pub-systems $DEPLOY_TYPE)
+      echo $SYSTEMS
+      eval "$(ssh-agent -s)"
+      vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
+      sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+
+      echo "$sshkey" | ssh-add -
+      for SYSTEM in $SYSTEMS; do
+        ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+        nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+        deploy --hostname $SYSTEM .#$SYSTEM
+      done
+  tags:
+    - nix
+
+deploy_public_hosting:
+  <<: *deploy_hosting_template
+  variables:
+    DEPLOY_TYPE: "public"
+  rules:
+    - changes:
+        - "**/public-hosting/default.nix"
+      allow_failure: false
+
+deploy_lan_hosting:
+  <<: *deploy_hosting_template
+  variables:
+    DEPLOY_TYPE: "lan"
+  rules:
+    - changes:
+        - "**/lan-hosting/default.nix"
+      allow_failure: false

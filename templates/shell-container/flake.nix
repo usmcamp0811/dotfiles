@@ -15,20 +15,14 @@
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
-            poetry2nix.overlays.default
-          ];
-          config = {
-            allowUnfree = true; 
-          };
+          overlays = [ poetry2nix.overlays.default ];
+          config = { allowUnfree = true; };
         };
-        julia-env = pkgs.julia.withPackages [ "Pluto" "FileIO" "JLD2" "PythonCall"];
-        shell-env = pkgs.buildEnv rec { 
-          name = "shell-env";       
-          paths = [
-             julia-env
-             pluto
-            ];
+        julia-env =
+          pkgs.julia.withPackages [ "Pluto" "FileIO" "JLD2" "PythonCall" ];
+        shell-env = pkgs.buildEnv rec {
+          name = "shell-env";
+          paths = [ julia-env pluto ];
         };
         pluto = pkgs.writeShellScriptBin "pluto" ''
           #!/usr/bin/env bash
@@ -48,26 +42,24 @@
           ${julia-env}/bin/julia -e "using Pluto; Pluto.run(host=\"$HOST\", port=$PORT)"
         '';
         shell-img = pkgs.dockerTools.buildNixShellImage {
-          name = "shell-container" ;
+          name = "shell-container";
           tag = "latest";
           drv = shell;
-          command = ''${pluto}/bin/pluto --port ${PORT:-1234}'';
+          command = "${pluto}/bin/pluto --port ${"PORT:-1234"}";
         };
         shell = pkgs.mkShell {
-            buildInputs = [ (shell-env) ];
-            shellHook = ''
+          buildInputs = [ (shell-env) ];
+          shellHook = ''
             echo "Example Shell Container with Pluto.jl" | ${pkgs.figlet}/bin/figlet
-            '';
-          };
-      in
-      {
+          '';
+        };
+      in {
         packages = {
           container = shell-img;
           pluto = pluto;
         };
 
         devShells.default = shell;
-      }
-    );
+      });
 }
 

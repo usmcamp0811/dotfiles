@@ -1,34 +1,30 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.mattermost;
-in
-{
+let cfg = config.campground.services.mattermost;
+in {
   options.campground.services.mattermost = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
   };
 
   config = mkIf cfg.enable {
 
-      campground.services.postgresql = {
-        enable = true;
-        # TODO: configure authentication in a way that its set here and doesn't break other places
-        # authentication = ''
-        #   local all root trust
-        #   local all postgres peer
-        #   local vaultwarden vaultwarden trust
-        #   local mattermost mattermost trust
-        #   host  all  all  0.0.0.0/0  reject
-        #   host  all  all  ::0/0  reject
-        # '';
-        databases = [ 
-          { 
-            name = "mattermost"; 
-            user = "mattermost"; 
-          } 
-        ];
-      };
+    campground.services.postgresql = {
+      enable = true;
+      # TODO: configure authentication in a way that its set here and doesn't break other places
+      # authentication = ''
+      #   local all root trust
+      #   local all postgres peer
+      #   local vaultwarden vaultwarden trust
+      #   local mattermost mattermost trust
+      #   host  all  all  0.0.0.0/0  reject
+      #   host  all  all  ::0/0  reject
+      # '';
+      databases = [{
+        name = "mattermost";
+        user = "mattermost";
+      }];
+    };
 
     # have to force this since we create the db elsewhere
     services.postgresql.enable = lib.mkForce true;
@@ -43,9 +39,7 @@ in
       listenAddress = "0.0.0.0:8065";
       # TODO: Move away from mutable
       mutableConfig = true;
-      matterircd = {
-        enable = true;
-      };
+      matterircd = { enable = true; };
 
       # TODO reevaluate option on fresh install
       # Database was created before this option existed. Also using this
@@ -63,7 +57,6 @@ in
         FileSettings.Directory = "/var/lib/mattermost/files";
       };
     };
-
 
     systemd.services.mattermost = {
 
@@ -96,7 +89,6 @@ in
         ];
       };
     };
-
 
   };
 }

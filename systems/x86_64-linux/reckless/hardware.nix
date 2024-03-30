@@ -4,85 +4,83 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
-    ];
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "ahci" "xhci_pci" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd.availableKernelModules =
+    [ "nvme" "ahci" "xhci_pci" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "NIXROOT/root";
-      fsType = "zfs";
-    };
+  fileSystems."/" = {
+    device = "NIXROOT/root";
+    fsType = "zfs";
+  };
 
-  fileSystems."/home" =
-    { device = "NIXROOT/home";
-      fsType = "zfs";
-    };
+  fileSystems."/home" = {
+    device = "NIXROOT/home";
+    fsType = "zfs";
+  };
 
-  fileSystems."/persist" =
-    { device = "NIXROOT/persist";
-      fsType = "zfs";
-    };
+  fileSystems."/persist" = {
+    device = "NIXROOT/persist";
+    fsType = "zfs";
+  };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/8BE0-C3B9";
-      fsType = "vfat";
-    };
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/8BE0-C3B9";
+    fsType = "vfat";
+  };
 
-  fileSystems."/mnt/backups/webb" =
-    { device = "ChestyPoolr/backups/webb";
-      fsType = "zfs";
-    };
+  fileSystems."/mnt/backups/webb" = {
+    device = "ChestyPoolr/backups/webb";
+    fsType = "zfs";
+  };
 
-  fileSystems."/mnt/backups/daly" =
-    { device = "ChestyPoolr/backups/daly";
-      fsType = "zfs";
-    };
+  fileSystems."/mnt/backups/daly" = {
+    device = "ChestyPoolr/backups/daly";
+    fsType = "zfs";
+  };
 
-  fileSystems."/mnt/backups/butler" =
-    { device = "ChestyPoolr/backups/butler";
-      fsType = "zfs";
-    };
+  fileSystems."/mnt/backups/butler" = {
+    device = "ChestyPoolr/backups/butler";
+    fsType = "zfs";
+  };
 
-  fileSystems."/mnt/backups/lucas" =
-    { device = "ChestyPoolr/backups/lucas";
-      fsType = "zfs";
-    };
+  fileSystems."/mnt/backups/lucas" = {
+    device = "ChestyPoolr/backups/lucas";
+    fsType = "zfs";
+  };
 
-  fileSystems."/export/media" = 
-    { device = "ChestyPoolr/media";
-      fsType = "zfs";
-    };
+  fileSystems."/export/media" = {
+    device = "ChestyPoolr/media";
+    fsType = "zfs";
+  };
 
-  fileSystems."/export/audiobooks" = 
-    { device = "ChestyPoolr/media/audiobooks";
-      fsType = "zfs";
-    };
+  fileSystems."/export/audiobooks" = {
+    device = "ChestyPoolr/media/audiobooks";
+    fsType = "zfs";
+  };
 
-  fileSystems."/export/media/movies" = 
-    { device = "ChestyPoolr/media/movies";
-      fsType = "zfs";
-    };
+  fileSystems."/export/media/movies" = {
+    device = "ChestyPoolr/media/movies";
+    fsType = "zfs";
+  };
 
-  fileSystems."/export/media/tv-shows" = 
-    { device = "ChestyPoolr/media/tv-shows";
-      fsType = "zfs";
-    };
+  fileSystems."/export/media/tv-shows" = {
+    device = "ChestyPoolr/media/tv-shows";
+    fsType = "zfs";
+  };
 
-  fileSystems."/export/media/music" = 
-    { device = "ChestyPoolr/media/music";
-      fsType = "zfs";
-    };
+  fileSystems."/export/media/music" = {
+    device = "ChestyPoolr/media/music";
+    fsType = "zfs";
+  };
 
-  fileSystems."/var/lib/atticd" = 
-    { device = "MotorPool/attic";
-      fsType = "zfs";
-    };
-
+  fileSystems."/var/lib/atticd" = {
+    device = "MotorPool/attic";
+    fsType = "zfs";
+  };
 
   swapDevices = [ ];
 
@@ -95,7 +93,8 @@
   # networking.interfaces.wlp9s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.amd.updateMicrocode =
+    lib.mkDefault config.hardware.enableRedistributableFirmware;
 
   networking.firewall.allowedTCPPorts = [ 2049 20048 ];
   networking.firewall.allowedUDPPorts = [ 2049 20048 ];

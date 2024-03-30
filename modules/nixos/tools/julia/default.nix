@@ -2,19 +2,19 @@
 
 with lib;
 with lib.campground;
-let cfg = config.campground.tools.julia;
+let
+  cfg = config.campground.tools.julia;
   inherit (pkgs.campground) julia-wrapped;
-in
-{
+in {
   options.campground.tools.julia = with types; {
-    enable =
-      mkBoolOpt false "Whether or not to enable common Julia.";
+    enable = mkBoolOpt false "Whether or not to enable common Julia.";
   };
 
   config = mkIf cfg.enable {
 
     environment.systemPackages = with pkgs; [
-      # julia-wrapped
+      julia.withPackages
+      [ "CUDA" "FileIO" "Flux" "JLD2" "cuDNN" "DataFrames" "MLJ" "PyCall" ]
     ];
   };
 }

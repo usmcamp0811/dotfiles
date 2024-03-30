@@ -1,9 +1,7 @@
 { inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib;
-with lib.campground;
-{
+with lib.campground; {
 
-  
   campground = {
     user = {
       enable = true;
@@ -27,23 +25,30 @@ with lib.campground;
         hyprpaper = {
           enable = true;
           monitors = [
-            { name = "DP-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png"; }
-            { name = "DP-2"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png"; }
+            {
+              name = "DP-1";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png";
+            }
+            {
+              name = "DP-2";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png";
+            }
           ];
 
-          wallpapers = [
-            "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png"
-          ];
+          wallpapers =
+            [ "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png" ];
         };
         gbar = enabled;
         wofi = enabled;
       };
       wallpapers = enabled;
       # cinnamon = enabled;
-     # qtile = {
-     #   enable = true;
-     #   wallpaper = "atmosphere.png";
-     # };
+      # qtile = {
+      #   enable = true;
+      #   wallpaper = "atmosphere.png";
+      # };
       hyprland = {
         enable = true;
         startup = [

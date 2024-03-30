@@ -1,13 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 with lib;
 with lib.campground;
 let
@@ -22,8 +14,8 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-  example-flask-image = pkgs.dockerTools.buildLayeredImage{
-    name = "example-flask-app" ;
+  example-flask-image = pkgs.dockerTools.buildLayeredImage {
+    name = "example-flask-app";
     tag = "latest";
     contents = [ pkgs.campground.example-flask-app pkgs.bash pkgs.coreutils ];
     extraCommands = ''
@@ -33,15 +25,10 @@ let
     '';
     config = {
       # WorkingDir = "/www/data";
-      Entrypoint = [
-        "run-flask-app"
-      ];
-      ExposedPorts = {
-        "8081/tcp" = {};
-      };
+      Entrypoint = [ "run-flask-app" ];
+      ExposedPorts = { "8081/tcp" = { }; };
       Env = [ "PATH=${pkgs.coreutils}/bin/:/usr/bin/" ];
     };
   };
 
-in
-override-meta new-meta example-flask-image
+in override-meta new-meta example-flask-image

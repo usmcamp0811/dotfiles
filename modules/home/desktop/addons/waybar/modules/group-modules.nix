@@ -5,10 +5,7 @@
       "transition-duration" = 500;
       "transition-left-to-right" = false;
     };
-    "modules" = [
-      "pulseaudio"
-      "pulseaudio/slider"
-    ];
+    "modules" = [ "pulseaudio" "pulseaudio/slider" ];
   };
 
   "group/power" = {
@@ -18,41 +15,24 @@
       "children-class" = "not-power";
       "transition-left-to-right" = false;
     };
-    "modules" = [
-      "custom/wlogout"
-      "custom/quit"
-      "custom/lock"
-      "custom/reboot"
-    ];
+    "modules" =
+      [ "custom/wlogout" "custom/quit" "custom/lock" "custom/reboot" ];
   };
 
   "group/notifications" = {
     "orientation" = "horizontal";
-    "modules" = [
-      "idle_inhibitor"
-      "custom/notification"
-      "custom/github"
-      "group/audio"
-    ];
+    "modules" =
+      [ "idle_inhibitor" "custom/notification" "custom/github" "group/audio" ];
   };
 
   "group/tray" = {
     "orientation" = "horizontal";
-    "modules" = [
-      "tray"
-    ];
+    "modules" = [ "tray" ];
   };
 
   "group/stats" = {
     "orientation" = "horizontal";
-    "modules" = [
-      "network"
-      "cpu"
-      "memory"
-      "disk"
-      "temperature"
-      "battery"
-    ];
+    "modules" = [ "network" "cpu" "memory" "disk" "temperature" "battery" ];
   };
 
   "group/stats-drawer" = {
@@ -77,9 +57,6 @@
       "transition-duration" = 500;
       "transition-left-to-right" = true;
     };
-    "modules" = [
-      "custom/separator-right"
-      "tray"
-    ];
+    "modules" = [ "custom/separator-right" "tray" ];
   };
 }

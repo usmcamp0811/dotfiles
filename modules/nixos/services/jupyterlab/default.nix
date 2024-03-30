@@ -1,10 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.jupyter;
-in
-{
+let cfg = config.campground.services.jupyter;
+in {
   options.campground.services.jupyter = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     user = mkOpt str "jupyter" "The user name to run Jupyter Lab as..";
@@ -19,16 +17,12 @@ in
       group = cfg.group;
     };
 
-    users.groups."${cfg.group}" = {};
+    users.groups."${cfg.group}" = { };
 
-    environment.systemPackages = with pkgs; [
-      jupyterlab
-    ];
+    environment.systemPackages = with pkgs; [ jupyterlab ];
 
-    systemd.tmpfiles.rules = [
-      "d ${cfg.workDir} 0755 ${cfg.user} ${cfg.group} -"
-    ];
-
+    systemd.tmpfiles.rules =
+      [ "d ${cfg.workDir} 0755 ${cfg.user} ${cfg.group} -" ];
 
     systemd.services.jupyterlab = {
       description = "Jupyter Lab";
@@ -39,7 +33,8 @@ in
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.workDir;
-        ExecStart = "/bin/sh -c '${pkgs.jupyterlab}/bin/jupyter-lab --ip=${cfg.ip}'";
+        ExecStart =
+          "/bin/sh -c '${pkgs.jupyterlab}/bin/jupyter-lab --ip=${cfg.ip}'";
       };
     };
   };

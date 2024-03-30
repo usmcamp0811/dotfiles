@@ -9,11 +9,8 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
-  imports = [ 
-    ./hardware.nix
-  ];
+in {
+  imports = [ ./hardware.nix ];
 
   boot.initrd.availableKernelModules = [ "thunderbolt" "xhci_hcd" ];
 
@@ -23,10 +20,20 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
 
+    # suites = {
+    #   hosting = {
+    #     enable = true;
+    #     lan-interface = "eno1";
+    #     pub-interface = "enp7s0";
+    #     entrypoints = { 
+    #       web = { address = "mattis:80"; }; 
+    #     };
+    #   };
+    # };
     archetypes = {
       laptop = enabled;
       server = {
@@ -60,45 +67,34 @@ in
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
-        databases = [
-          { 
-            name = "vaultwarden"; 
-            user = "vaultwarden";
-          }
-        ];
+        databases = [{
+          name = "vaultwarden";
+          user = "vaultwarden";
+        }];
       };
-      vaultwarden = {
-        enable = true;
-      };
+      vaultwarden = { enable = true; };
       syncthing = enabled;
       tang = enabled;
       zfs-key-server = {
         enable = true;
         port = 8123;
         tang-servers = [
-         "http://webb:1234" 
-         # "http://daly:1234" 
-         "http://ermy:1234" 
-         "http://reckless:1234" 
-         "http://lucas:1234" 
+          "http://webb:1234"
+          # "http://daly:1234" 
+          "http://ermy:1234"
+          "http://reckless:1234"
+          "http://lucas:1234"
         ];
       };
       user-secrets = {
         enable = true;
-        users = {
-          mcamp =  {
-            files = [
-              "id_ed25519"
-              "passwords"
-            ];
-          };
-        };
+        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
       };
       vault-agent = {
         enable = true;
         settings = {
           vault = {
-            address = "http://vault.lan";
+            address = "http://vault.lan.aicampground.com";
             role-id = "/var/lib/vault/mattis/role-id";
             secret-id = "/var/lib/vault/mattis/secret-id";
           };
@@ -106,7 +102,6 @@ in
       };
     };
   };
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

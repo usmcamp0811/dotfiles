@@ -1,12 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
+, hosts ? { }, ... }:
 with lib;
 with lib.campground;
 let
@@ -55,10 +48,10 @@ let
     </html>
   '';
 
-  nginx-image = pkgs.dockerTools.buildImage{
-    name = "layer-1" ;
+  nginx-image = pkgs.dockerTools.buildImage {
+    name = "layer-1";
     tag = "latest";
-    copyToRoot = pkgs.buildEnv{
+    copyToRoot = pkgs.buildEnv {
       name = "image-root";
       pathsToLink = [ "/bin" ];
       paths = [ pkgs.coreutils pkgs.nginx ];
@@ -71,12 +64,8 @@ let
       cat ${nginxConfContent} > etc/nginx/nginx.conf '';
     config = {
       WorkingDir = "/www/data";
-      Cmd = [
-        "${pkgs.nginx}/bin/nginx"
-      ];
+      Cmd = [ "${pkgs.nginx}/bin/nginx" ];
     };
   };
 
-in
-
-override-meta new-meta nginx-image
+in override-meta new-meta nginx-image

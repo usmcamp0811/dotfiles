@@ -10,8 +10,7 @@ let
     shell = pkgs.zsh;
   };
 
-in
-{
+in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
@@ -20,18 +19,13 @@ in
       name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
 
-    archetypes = {
-      barebones = enabled;
-    };
+    archetypes = { barebones = enabled; };
 
-    suites = {
-      desktop = enabled;
-    };
+    suites = { desktop = enabled; };
   };
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

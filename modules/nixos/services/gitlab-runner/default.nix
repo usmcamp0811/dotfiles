@@ -4,20 +4,25 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.gitlab-runner;
-  
-  CI_SERVER_URL="${cfg.runner-name}_CI_SERVER_URL";
-  REGISTRATION_TOKEN="${cfg.runner-name}_REGISTRATION_TOKEN";
-in
-{
+
+  CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
+  REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
+in {
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
-    runner-name = mkOpt types.str config.networking.hostName "Name used in Vault to deleniate runners";
+    runner-name = mkOpt types.str config.networking.hostName
+      "Name used in Vault to deleniate runners";
 
-    role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt types.str "secret/campground/gitlab-runner" "The Vault path to the KV containing the KVs that are for each database";
+    role-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt types.str "secret/campground/gitlab-runner"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -34,10 +39,10 @@ in
     virtualisation.docker.enable = true;
     services.gitlab-runner = {
       enable = true;
-      services= {
+      services = {
         # runner for building in docker via host's nix-daemon
         # nix store will be readable in runner, might be insecure
-        nix = with lib;{
+        nix = with lib; {
           # File should contain at least these two variables:
           # `CI_SERVER_URL`
           # `REGISTRATION_TOKEN`
@@ -61,19 +66,36 @@ in
             mkdir -p -m 0755 /nix/var/nix/profiles/per-user/root
             mkdir -p -m 0700 "$HOME/.nix-defexpr"
             . ${pkgs.nix}/etc/profile.d/nix-daemon.sh
+            # TODO: link to inputs.nixpkgs
             ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-23.11 nixpkgs # 3
             ${pkgs.nix}/bin/nix-channel --update nixpkgs
-            ${pkgs.nix}/bin/nix-env -i ${concatStringsSep " " (with pkgs; [ nix cacert git openssh ])}
+            ${pkgs.nix}/bin/nix-env -i ${
+              concatStringsSep " " (with pkgs; [
+                nix
+                cacert
+                git
+                openssh
+                deploy-rs
+                campground.get-lan-pub-systems
+                vault
+                ssh-agents
+                attic
+                sbomnix
+              ])
+            }
             mkdir -p -m 0755 /etc/nix
             echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
+            echo "allow-unfree = true" >> /etc/nix/nix.conf
             chmod 644 /etc/nix/nix.conf 
           '';
           environmentVariables = {
             ENV = "/etc/profile";
             USER = "root";
             NIX_REMOTE = "daemon";
-            PATH = "/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:/bin:/sbin:/usr/bin:/usr/sbin";
-            NIX_SSL_CERT_FILE = "/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt";
+            PATH =
+              "/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:/bin:/sbin:/usr/bin:/usr/sbin";
+            NIX_SSL_CERT_FILE =
+              "/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt";
           };
           tagList = [ "nix" ];
         };
@@ -85,8 +107,8 @@ in
         vault-agent = {
           services = {
             "gitlab-runner" = {
-              settings = {       # replace with the address of your vault
-                vault.address = "https://vault.lan.aicampground.com";
+              settings = { # replace with the address of your vault
+                vault.address = cfg.vault-address;
                 auto_auth = {
                   method = [{
                     type = "approle";

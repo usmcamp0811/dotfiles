@@ -4,27 +4,38 @@ let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.apps.alacritty;
-in
-{
-  options.campground.apps.alacritty = {
-    enable = mkEnableOption "Alacritty";
-  };
+in {
+  options.campground.apps.alacritty = { enable = mkEnableOption "Alacritty"; };
 
   config = mkIf cfg.enable {
     fonts.fontconfig.enable = true;
-    home.packages = [
-      (pkgs.nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
-    ];
+    home.packages =
+      [ (pkgs.nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; }) ];
     programs.alacritty = {
       enable = true;
       settings = {
         font = {
-          normal = { family = "FiraCode Nerd Font Mono"; style = "Regular"; };
-          bold = { family = "FiraCode Nerd Font Mono"; style = "Light Bold"; };
-          italic = { family = "SourceCodePro"; style = "Light Italic"; };
+          normal = {
+            family = "FiraCode Nerd Font Mono";
+            style = "Regular";
+          };
+          bold = {
+            family = "FiraCode Nerd Font Mono";
+            style = "Light Bold";
+          };
+          italic = {
+            family = "SourceCodePro";
+            style = "Light Italic";
+          };
           size = 8;
-          offset = { x = 0; y = 0; };
-          glyph_offset = { x = 0; y = 0; };
+          offset = {
+            x = 0;
+            y = 0;
+          };
+          glyph_offset = {
+            x = 0;
+            y = 0;
+          };
         };
         colors = {
           primary = {
@@ -56,7 +67,10 @@ in
             cyan = "0x95E6CB";
             white = "0xFFFFFF";
           };
-          cursor = { text = "0x122637"; cursor = "0xf0cb09"; };
+          cursor = {
+            text = "0x122637";
+            cursor = "0xf0cb09";
+          };
           dim = {
             black = "0x232323";
             red = "0x74423f";
@@ -68,9 +82,19 @@ in
             white = "0x828282";
           };
         };
-        bell = { animation = "EaseOutExpo"; duration = 1; color = "#7a8530"; };
-        window = { opacity = 0.9; dynamic_title = true; };
-        cursor = { style = "Block"; unfocused_hollow = true; };
+        bell = {
+          animation = "EaseOutExpo";
+          duration = 1;
+          color = "#7a8530";
+        };
+        window = {
+          opacity = 0.9;
+          dynamic_title = true;
+        };
+        cursor = {
+          style = "Block";
+          unfocused_hollow = true;
+        };
         live_config_reload = true;
         shell = { program = "zsh"; };
         hints = {
@@ -78,11 +102,31 @@ in
           url = { launcher = { program = "firefox"; }; };
         };
         key_bindings = [
-          { key = "V"; mods = "Control|Shift"; action = "Paste"; }
-          { key = "C"; mods = "Control|Shift"; action = "Copy"; }
-          { key = "Key0"; mods = "Control"; action = "ResetFontSize"; }
-          { key = "Equals"; mods = "Control"; action = "IncreaseFontSize"; }
-          { key = "Minus"; mods = "Control"; action = "DecreaseFontSize"; }
+          {
+            key = "V";
+            mods = "Control|Shift";
+            action = "Paste";
+          }
+          {
+            key = "C";
+            mods = "Control|Shift";
+            action = "Copy";
+          }
+          {
+            key = "Key0";
+            mods = "Control";
+            action = "ResetFontSize";
+          }
+          {
+            key = "Equals";
+            mods = "Control";
+            action = "IncreaseFontSize";
+          }
+          {
+            key = "Minus";
+            mods = "Control";
+            action = "DecreaseFontSize";
+          }
         ];
       };
     };

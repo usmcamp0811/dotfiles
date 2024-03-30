@@ -2,26 +2,22 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.tools.appimage;
-in
-{
+let cfg = config.campground.tools.appimage;
+in {
   options.campground.tools.appimage = with types; {
     enable = mkBoolOpt false "Whether or not to enable common appimage-run.";
   };
 
   config = mkIf cfg.enable {
 
-    environment.systemPackages = with pkgs; [
-      appimage-run
-    ];
+    environment.systemPackages = with pkgs; [ appimage-run ];
     boot.binfmt.registrations.appimage = {
       wrapInterpreterInShell = false;
       interpreter = "${pkgs.appimage-run}/bin/appimage-run";
       recognitionType = "magic";
       offset = 0;
-      mask = ''\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff'';
-      magicOrExtension = ''\x7fELF....AI\x02'';
+      mask = "\\xff\\xff\\xff\\xff\\x00\\x00\\x00\\x00\\xff\\xff\\xff";
+      magicOrExtension = "\\x7fELF....AI\\x02";
     };
   };
 }

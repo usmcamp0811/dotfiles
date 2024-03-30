@@ -2,19 +2,15 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.apps.onepass;
+let cfg = config.campground.apps.onepass;
 
-in
-{
+in {
   options.campground.apps.onepass = with types; {
-    enable = mkBoolOpt false "Whether or not to enable 1Password and 1Password-cli.";
+    enable =
+      mkBoolOpt false "Whether or not to enable 1Password and 1Password-cli.";
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ 
-      _1password-gui
-      _1password
-    ];
+    home.packages = with pkgs; [ _1password-gui _1password ];
   };
 }

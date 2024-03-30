@@ -1,12 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
+, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -25,7 +18,7 @@ let
   '';
 
   hello-image = let
-    l1 = pkgs.dockerTools.buildImage{
+    l1 = pkgs.dockerTools.buildImage {
       name = "layer-1";
       tag = "latest";
       extraCommands = ''
@@ -34,7 +27,7 @@ let
         chmod +x config/bin/entrypoint.sh
       '';
     };
-    l2 = pkgs.dockerTools.buildImage{
+    l2 = pkgs.dockerTools.buildImage {
       name = "layer-2";
       fromImage = l1;
       tag = "latest";
@@ -43,11 +36,11 @@ let
         echo "Hello World" > config/hello.txt
       '';
     };
-  in pkgs.dockerTools.buildImage{
-    name = "layer-3" ;
+  in pkgs.dockerTools.buildImage {
+    name = "layer-3";
     fromImage = l2;
     tag = "latest";
-    copyToRoot = pkgs.buildEnv{
+    copyToRoot = pkgs.buildEnv {
       name = "image-root";
       pathsToLink = [ "/bin" ];
       paths = [ pkgs.coreutils pkgs.ranger pkgs.neovim ];
@@ -57,14 +50,12 @@ let
       echo Layer3 > tmp/layer3
     '';
     config = {
-      Env = [ "PATH=${pkgs.coreutils}/bin/:${pkgs.ranger}/bin/:${pkgs.neovim}/bin/" ];
-      WorkingDir = "/config/bin";
-      Cmd = [
-        "${pkgs.bash}/bin/bash" "/config/bin/entrypoint.sh"
+      Env = [
+        "PATH=${pkgs.coreutils}/bin/:${pkgs.ranger}/bin/:${pkgs.neovim}/bin/"
       ];
+      WorkingDir = "/config/bin";
+      Cmd = [ "${pkgs.bash}/bin/bash" "/config/bin/entrypoint.sh" ];
     };
   };
-  
-in 
 
-override-meta new-meta hello-image
+in override-meta new-meta hello-image

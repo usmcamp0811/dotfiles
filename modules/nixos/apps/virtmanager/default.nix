@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.apps.virtmanager;
-in
-{
+in {
   options.campground.apps.virtmanager = with types; {
     enable = mkBoolOpt false "Whether or not to enable Virt-manager.";
   };
@@ -12,7 +11,12 @@ in
   config = mkIf cfg.enable {
     virtualisation.libvirtd.enable = true;
     virtualisation.spiceUSBRedirection.enable = true;
-    environment.systemPackages = with pkgs; [ spice win-spice virt-manager spice-gtk ];
+    environment.systemPackages = with pkgs; [
+      spice
+      win-spice
+      virt-manager
+      spice-gtk
+    ];
 
     # Ensuring dconf is enabled
     programs.dconf.enable = true;

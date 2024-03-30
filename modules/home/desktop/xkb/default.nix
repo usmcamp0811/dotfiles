@@ -1,10 +1,8 @@
 { config, lib, pkgs, ... }:
 
 with lib;
-let
-  cfg = config.campground.desktop.xkb;
-in
-{  
+let cfg = config.campground.desktop.xkb;
+in {
   options.campground.desktop.xkb = with lib.types; {
     enable = lib.mkOption {
       type = lib.types.bool;

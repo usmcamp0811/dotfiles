@@ -1,32 +1,42 @@
 { options, config, inputs, pkgs, lib, ... }:
 
 with lib;
-let
-  cfg = config.campground.hardware.nvidia;
-in
-{
+let cfg = config.campground.hardware.nvidia;
+in {
   options.campground.hardware.nvidia = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
-      type = types.enum ["stable" "beta" "production" "vulkan_beta" "legacy_470" "legacy_390" "legacy_340" "custom"];
+      type = types.enum [
+        "stable"
+        "beta"
+        "production"
+        "vulkan_beta"
+        "legacy_470"
+        "legacy_390"
+        "legacy_340"
+        "custom"
+      ];
       default = "stable";
-      description = "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
+      description =
+        "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
     };
 
     customDriverPackage = mkOption {
       type = types.nullOr types.package;
       default = null;
-      description = "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
+      description =
+        "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
     };
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      nvtop
+    environment.systemPackages = with pkgs;
+      [
+        nvtop
 
-    ];
+      ];
     # Load nvidia driver for Xorg and Wayland
-    services.xserver.videoDrivers = ["nvidia"];
+    services.xserver.videoDrivers = [ "nvidia" ];
 
     hardware.nvidia = {
 
@@ -39,7 +49,6 @@ in
       # Experimental and only works on modern Nvidia GPUs (Turing or newer).
       powerManagement.finegrained = false;
 
-      
       forceFullCompositionPipeline = true;
       # Use the NVidia open source kernel module (not to be confused with the
       # independent third-party "nouveau" open source driver).
@@ -56,7 +65,10 @@ in
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
       # package = config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
-      package = if cfg.driverType == "custom" then cfg.customDriverPackage else config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      package = if cfg.driverType == "custom" then
+        cfg.customDriverPackage
+      else
+        config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
       # package = config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
       #   version = "550.40.07";
       #   # the new driver
@@ -74,6 +86,6 @@ in
       driSupport = true;
       driSupport32Bit = true;
     };
-  #  hardware.opengl.enable = true;
+    #  hardware.opengl.enable = true;
   };
 }

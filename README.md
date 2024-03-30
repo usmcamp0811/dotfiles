@@ -50,13 +50,13 @@ dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 
 Here's an overview of what my Nix configuration offers:
 
-- **[Campground Nvim](https://gitlab.com/usmcamp0811/campground-nvim)**: I broke out my Neovim Config into a seperate Nix Flake based on [NixVim](https://github.com/nix-community/nixvim).
+- **[Campground Nvim](https://gitlab.com/usmcamp0811/dotfiles/-/tree/nixos/packages/neovim?ref_type=heads)**: I configured my Neovim config using [NixVim](https://github.com/nix-community/nixvim) and export it as a package.
 
-- **NUR Integration**: Access the Nix User Repository (NUR) for additional packages and enhancements.
- 
 - **Home Manager**: Manage your dotfiles, home environment, and user-specific configurations with Home Manager.
 
 - **Hashicorp Vault**: Leveraging insights from [Jake Hamilton's dotfiles](https://github.com/jakehamilton/config), I've seamlessly integrated Vault Agent into my Nix configuration. This provides an exemplary secret management experience, eliminating the need to store sensitive information in git repositories or other insecure locations.
+
+- **Automated Deploy**: Ability to automatically deploy all systems through Gitlab CICD or with `deploy --host <hostname> .#<hostname>`.
 
 ## Customization
 
@@ -81,3 +81,4 @@ This methodology fosters a user-friendly approach to Nix configuration, balancin
 ## Credits
 
 Inspiration and code snippets have been sourced from various corners of the internet. I'll endeavor to document these contributions whenever memory and circumstances permit.
+

@@ -1,7 +1,6 @@
 { lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 
-with lib.campground;
-{
+with lib.campground; {
   campground = {
     user = {
       enable = true;

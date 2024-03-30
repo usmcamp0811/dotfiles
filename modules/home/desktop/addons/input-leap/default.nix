@@ -2,18 +2,12 @@
 
 with lib;
 with lib.campground;
-let 
-  cfg = config.campground.desktop.addons.input-leap;
-in
-{
+let cfg = config.campground.desktop.addons.input-leap;
+in {
   options.campground.desktop.addons.input-leap = with types; {
-    enable =
-      mkBoolOpt false "Whether to enable input-leap in the desktop environment.";
+    enable = mkBoolOpt false
+      "Whether to enable input-leap in the desktop environment.";
   };
-  config = mkIf cfg.enable {
-    home.packages = [
-      pkgs.input-leap
-    ];
-  };
+  config = mkIf cfg.enable { home.packages = [ pkgs.input-leap ]; };
 }
 

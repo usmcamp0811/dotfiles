@@ -10,26 +10,21 @@ let
     shell = pkgs.zsh;
   };
 
-in
-{
+in {
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
 
   ###### REQUIRED FOR EC2 SYSTEMS #######
-  boot.loader.grub = {
-    device = "nodev";
-  };
+  boot.loader.grub = { device = "nodev"; };
   # as long as we use the same AMI this works else have to see what the drives are called
   fileSystems."/" = {
     device = "/dev/xvda2";
     fsType = "ext4";
-  };  
+  };
   ###### REQUIRED FOR EC2 SYSTEMS #######
 
   campground = {
     nix = enabled;
-    cli-apps = {
-      flake = enabled;
-    };
+    cli-apps = { flake = enabled; };
     tools = {
       git = enabled;
       misc = enabled;
@@ -55,10 +50,9 @@ in
       name = "ec2-user";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
   };
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

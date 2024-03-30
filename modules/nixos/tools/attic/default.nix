@@ -2,17 +2,10 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.tools.attic;
-in
-{
-  options.campground.tools.attic = {
-    enable = mkEnableOption "Attic";
-  };
+let cfg = config.campground.tools.attic;
+in {
+  options.campground.tools.attic = { enable = mkEnableOption "Attic"; };
 
-  config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      attic
-    ];
-  };
+  config =
+    mkIf cfg.enable { environment.systemPackages = with pkgs; [ attic ]; };
 }

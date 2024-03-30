@@ -2,20 +2,15 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.apps.firefox;
-in
-{
+let cfg = config.campground.apps.firefox;
+in {
   options.campground.apps.firefox = with types; {
     enable = mkBoolOpt false "Whether or not to enable Firefox.";
     cac = mkBoolOpt false "Enable CAC Support";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      nssTools
-      firefox
-    ];
+    environment.systemPackages = with pkgs; [ nssTools firefox ];
 
     # TODO: Add things to exploade cac certs and install them into firefox here
     campground.services.cac.enable = mkIf cfg.cac true;

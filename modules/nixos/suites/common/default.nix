@@ -2,36 +2,30 @@
 
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.suites.common;
-in
-{
+let cfg = config.campground.suites.common;
+in {
   options.campground.suites.common = with types; {
     enable = mkBoolOpt false "Whether or not to enable common configuration.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [
-    ];
+    environment.systemPackages = [ ];
 
     campground = {
-      nix = {
-        enable = true;
-      };
+      nix = { enable = true; };
 
       cache = {
         public = enabled;
         campground = enabled;
       };
 
-      cli-apps = {
-        flake = enabled;
-      };
+      cli-apps = { flake = enabled; };
 
       tools = {
         git = enabled;
         misc = enabled;
         nix-output-monitor = enabled;
+        pluto = enabled;
       };
 
       hardware = {
@@ -40,12 +34,16 @@ in
       };
 
       services = {
-        openssh = enabled;
+        openssh = {
+          enable = true;
+          authorizedKeys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGw+o+9F4kz+dYyI2I4WudgKjyFOK+L0QW4LhxkG4sMt gitlab-runner@aicampground.com"
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdMWMFyi7Lvjm78KOX3tKZ5bkEZ7bHA56ZKKtTb9wIo mcamp@aicampground.com"
+          ];
+        };
       };
 
-      security = {
-        keyring = enabled;
-      };
+      security = { keyring = enabled; };
 
       system = {
         boot = enabled;

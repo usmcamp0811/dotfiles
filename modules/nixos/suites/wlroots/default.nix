@@ -1,19 +1,11 @@
-{ config
-, inputs
-, system
-, lib
-, options
-, pkgs
-, ...
-}:
+{ config, inputs, system, lib, options, pkgs, ... }:
 with lib;
 with lib.campground;
 let
   inherit (inputs) nixpkgs-wayland;
 
   cfg = config.campground.suites.wlroots;
-in
-{
+in {
   options.campground.suites.wlroots = {
     enable =
       mkBoolOpt false "Whether or not to enable common wlroots configuration.";

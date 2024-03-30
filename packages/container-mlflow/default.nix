@@ -1,13 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 with lib;
 with lib.campground;
 let
@@ -22,8 +14,8 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-  container-mlflow = pkgs.dockerTools.buildLayeredImage{
-    name = "mlflow-app" ;
+  container-mlflow = pkgs.dockerTools.buildLayeredImage {
+    name = "mlflow-app";
     tag = "latest";
     contents = [ pkgs.campground.mlflow pkgs.bash pkgs.coreutils ];
     extraCommands = ''
@@ -32,12 +24,8 @@ let
       chmod +x usr/bin/mlflow-server
     '';
     config = {
-      Entrypoint = [
-      "mlflow-server"
-      ];
-      ExposedPorts = {
-        "5000/tcp" = {};
-      };
+      Entrypoint = [ "mlflow-server" ];
+      ExposedPorts = { "5000/tcp" = { }; };
       Env = [
         "PATH=${pkgs.coreutils}/bin/:/usr/bin/"
         "MLFLOW_S3_IGNORE_TLS=true"
@@ -46,5 +34,4 @@ let
       ];
     };
   };
-in
-override-meta new-meta container-mlflow
+in override-meta new-meta container-mlflow

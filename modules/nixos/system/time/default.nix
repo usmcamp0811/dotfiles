@@ -3,8 +3,7 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.system.time;
-in
-{
+in {
   options.campground.system.time = with types; {
     enable =
       mkBoolOpt false "Whether or not to configure timezone information.";

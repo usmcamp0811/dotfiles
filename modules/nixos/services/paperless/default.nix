@@ -1,24 +1,28 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.paperless;
-in
-{
+let cfg = config.campground.services.paperless;
+in {
   options.campground.services.paperless = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
     dataDir = mkOpt str "/var/lib/paperless" "Location to store data";
     mediaDir = mkOpt str "/var/lib/paperless/media" "Location to store media";
-    consumptionDir = mkOpt str "/var/lib/paperless/consume" "Place to import files from";
+    consumptionDir =
+      mkOpt str "/var/lib/paperless/consume" "Place to import files from";
     address = mkOpt str "localhost" "Host address";
     gotenbergPort = mkOpt str "3000" "Gotenberg Port";
     tikaPort = mkOpt str "9998" "Tika Port";
     domainName = mkOpt str "https://docs.lan.aicampground.com" "domain to use";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/paperless" "The Vault path to the KV containing the KVs that are for each database";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/paperless"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -42,12 +46,10 @@ in
       #   host  all  all  0.0.0.0/0  reject
       #   host  all  all  ::0/0  reject
       # '';
-      databases = [ 
-        { 
-          name = "paperless"; 
-          user = "paperless"; 
-        } 
-      ];
+      databases = [{
+        name = "paperless";
+        user = "paperless";
+      }];
     };
 
     services.paperless = {
@@ -55,7 +57,7 @@ in
       dataDir = cfg.dataDir;
       mediaDir = cfg.mediaDir;
       consumptionDir = cfg.consumptionDir;
-      passwordFile = "/var/lib/vault/paperless.pass"; 
+      passwordFile = "/var/lib/vault/paperless.pass";
       address = "0.0.0.0";
       port = 28981;
       user = "paperless";
@@ -76,7 +78,8 @@ in
 
         PAPERLESS_TIKA_ENABLED = true;
         PAPERLESS_TIKA_ENDPOINT = "http://127.0.0.1:${cfg.tikaPort}";
-        PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://127.0.0.1:${cfg.gotenbergPort}";
+        PAPERLESS_TIKA_GOTENBERG_ENDPOINT =
+          "http://127.0.0.1:${cfg.gotenbergPort}";
 
         PAPERLESS_EMAIL_TASK_CRON = "*/5 * * * *";
       };
@@ -86,10 +89,14 @@ in
       description = "Create Paperless environment file";
       serviceConfig = {
         Type = "oneshot";
-        User = "root";  # Use the root user to create the folder and set permissions
-        ExecStartPre = "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/paperless.pass /var/lib/vault/paperless.pass";
-        ExecStartPost = "${pkgs.coreutils}/bin/chown paperless:paperless /var/lib/vault/paperless.pass"; # Change file ownership to vaultwarden
+        User =
+          "root"; # Use the root user to create the folder and set permissions
+        ExecStartPre =
+          "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
+        ExecStart =
+          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/paperless.pass /var/lib/vault/paperless.pass";
+        ExecStartPost =
+          "${pkgs.coreutils}/bin/chown paperless:paperless /var/lib/vault/paperless.pass"; # Change file ownership to vaultwarden
       };
       wantedBy = [ "multi-user.target" ];
       before = [ "paperless.service" ];
@@ -99,19 +106,19 @@ in
       user = "gotenberg:gotenberg";
       image = "gotenberg/gotenberg:7.8.1";
 
-      cmd = ["gotenberg" "--chromium-disable-javascript=true" "--chromium-allow-list=file:///tmp/.*"];
-
-      ports = [
-        "127.0.0.1:${cfg.gotenbergPort}:3000"
+      cmd = [
+        "gotenberg"
+        "--chromium-disable-javascript=true"
+        "--chromium-allow-list=file:///tmp/.*"
       ];
+
+      ports = [ "127.0.0.1:${cfg.gotenbergPort}:3000" ];
     };
 
     virtualisation.oci-containers.containers.tika = {
       image = "apache/tika:2.4.0";
 
-      ports = [
-        "127.0.0.1:${cfg.tikaPort}:9998"
-      ];
+      ports = [ "127.0.0.1:${cfg.tikaPort}:9998" ];
     };
 
     campground.services.vault-agent.services.paperlessPasswordFile = {
@@ -132,7 +139,8 @@ in
         file = {
           files = {
             "paperless.pass" = {
-              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}{{ end }}'';
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.password }}{{ else }}{{ .Data.data.password }}{{ end }}{{ end }}'';
               permissions = "0600";
               change-action = "restart";
             };

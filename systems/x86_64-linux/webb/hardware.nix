@@ -4,74 +4,80 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
-    ];
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules = [ "ahci" "ehci_pci" "megaraid_sas" "usb_storage" "usbhid" "sd_mod" "sr_mod" ];
+  boot.initrd.availableKernelModules = [
+    "ahci"
+    "ehci_pci"
+    "megaraid_sas"
+    "usb_storage"
+    "usbhid"
+    "sd_mod"
+    "sr_mod"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "NIXROOT/root";
-      fsType = "zfs";
-    };
+  fileSystems."/" = {
+    device = "NIXROOT/root";
+    fsType = "zfs";
+  };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/0879-5D97";
-      fsType = "vfat";
-    };
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/0879-5D97";
+    fsType = "vfat";
+  };
 
-  fileSystems."/home" =
-    { device = "NIXROOT/home";
-      fsType = "zfs";
-    };
+  fileSystems."/home" = {
+    device = "NIXROOT/home";
+    fsType = "zfs";
+  };
 
-  fileSystems."/persist" =
-    { device = "NIXROOT/persist";
-      fsType = "zfs";
-    };
+  fileSystems."/persist" = {
+    device = "NIXROOT/persist";
+    fsType = "zfs";
+  };
 
-  fileSystems."/webb" =
-    { device = "NIXROOT/persist/webb";
-      fsType = "zfs";
-    };
+  fileSystems."/webb" = {
+    device = "NIXROOT/persist/webb";
+    fsType = "zfs";
+  };
 
-  fileSystems."/var/lib/paperless" =
-    { device = "NIXROOT/persist/documents";
-      fsType = "zfs";
-    };
+  fileSystems."/var/lib/paperless" = {
+    device = "NIXROOT/persist/documents";
+    fsType = "zfs";
+  };
 
-  fileSystems."/k8s" =
-    { device = "NIXROOT/persist/kubernetes-data";
-      fsType = "zfs";
-    };
+  fileSystems."/k8s" = {
+    device = "NIXROOT/persist/kubernetes-data";
+    fsType = "zfs";
+  };
 
-  fileSystems."/var/lib/mattermost" =
-    { device = "NIXROOT/persist/mattermost-data";
-      fsType = "zfs";
-    };
+  fileSystems."/var/lib/mattermost" = {
+    device = "NIXROOT/persist/mattermost-data";
+    fsType = "zfs";
+  };
 
-  fileSystems."/webb/media/photos" =
-    { device = "NIXROOT/persist/photos";
-      fsType = "zfs";
-    };
-    
-  fileSystems."/var/lib/mlflow" =
-    { device = "NIXROOT/persist/mlflow";
-      fsType = "zfs";
-    };
+  fileSystems."/webb/media/photos" = {
+    device = "NIXROOT/persist/photos";
+    fsType = "zfs";
+  };
 
-  fileSystems."/var/lib/minio" =
-    { device = "NIXROOT/persist/minio";
-      fsType = "zfs";
-    };
+  fileSystems."/var/lib/mlflow" = {
+    device = "NIXROOT/persist/mlflow";
+    fsType = "zfs";
+  };
 
-  fileSystems."/export/media" =
-    { device = "NIXROOT/media";
-      fsType = "zfs";
-    };
+  fileSystems."/var/lib/minio" = {
+    device = "NIXROOT/persist/minio";
+    fsType = "zfs";
+  };
+
+  fileSystems."/export/media" = {
+    device = "NIXROOT/media";
+    fsType = "zfs";
+  };
 
   fileSystems."/export/webb" = {
     device = "/webb";
@@ -91,7 +97,8 @@
   # networking.interfaces.eno4.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.intel.updateMicrocode =
+    lib.mkDefault config.hardware.enableRedistributableFirmware;
 
   networking.firewall.allowedTCPPorts = [ 2049 20048 ];
   networking.firewall.allowedUDPPorts = [ 2048 20048 ];

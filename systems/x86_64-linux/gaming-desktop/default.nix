@@ -10,11 +10,8 @@ let
     shell = pkgs.zsh;
   };
 
-in
-{
-  imports = [
-    ./hardware.nix
-  ];
+in {
+  imports = [ ./hardware.nix ];
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
@@ -23,11 +20,10 @@ in
       fullName = "Michael Boterf";
       email = "michaelboterf@gmail.com";
       initialPassword = "password";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
-    archetypes = {
-      gaming-platform = enabled;
-    };
+    archetypes = { gaming-platform = enabled; };
+
     hardware = {
       nvidia = {
         enable = true;
@@ -38,7 +34,6 @@ in
       onepass = enabled;
       steam = enabled;
     };
-
     system = {
       boot = enabled;
     };
@@ -49,7 +44,7 @@ in
   };
 
   campground.cache.campground = enabled;
-  campground.services = {
+  campground.services = { };
   };
 
   # This value determines the NixOS release from which the default

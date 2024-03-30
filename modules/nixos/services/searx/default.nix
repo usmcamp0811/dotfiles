@@ -3,16 +3,26 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.searx;
-in
-{
+  # Assuming the definition of `findEnabledServices` is correct and placed appropriately
+  #
+  # Assuming `self` is correctly defined in your broader context
+  #
+  # # Generate URLs for each enabled service
+
+in {
   options.campground.services.searx = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
-    port = mkOpt int 8080 "Port to Host the searx server on.";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/searx" "The Vault path to the KV containing the Searx Secrets.";
+    port = mkOpt int 8081 "Port to Host the searx server on.";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/searx"
+      "The Vault path to the KV containing the Searx Secrets.";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -25,6 +35,21 @@ in
 
   config = mkIf cfg.enable {
 
+    # campground.services = {
+    #   traefik = {
+    #     dynamicConfigOptions = {
+    #       http.routers.searx = {
+    #         rule = "Host(`searx.aicampground.com`)";
+    #         entryPoints = [ "web" ];
+    #         service = "searx";
+    #       };
+    #
+    #       http.services.searx = {
+    #         loadBalancer.servers = searxURLs;
+    #       };
+    #     };
+    #   };
+    # };
     networking.firewall.allowedTCPPorts = [ cfg.port ];
     services = {
       searx = {
@@ -42,9 +67,7 @@ in
 
     systemd.services.copy-searx-env = {
       description = "Copy Searx environment variables";
-      serviceConfig = {
-        Type = "oneshot";
-      };
+      serviceConfig = { Type = "oneshot"; };
       script = ''
         cp /tmp/detsys-vault/searx.env /var/lib/vault/searx.env
         chmod 600 /var/lib/vault/searx.env
@@ -75,7 +98,7 @@ in
               text = ''
                 SEARX_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SEARX_SECRET_KEY }}{{ else }}{{ .Data.data.SEARX_SECRET_KEY }}{{ end }}{{ end }}
               '';
-              permissions = "0600";  # Make the script executable
+              permissions = "0600"; # Make the script executable
               change-action = "restart";
             };
           };

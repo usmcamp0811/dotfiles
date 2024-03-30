@@ -1,9 +1,6 @@
 { inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib;
-with lib.campground;
-{
-
-
+with lib.campground; {
   campground = {
     user = {
       name = "mcamp";
@@ -29,9 +26,21 @@ with lib.campground;
         hyprpaper = {
           enable = true;
           monitors = [
-            { name = "HDMI-A-3"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
-            { name = "HDMI-A-2"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
-            { name = "eDP-1"; wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"; }
+            {
+              name = "HDMI-A-3";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+            }
+            {
+              name = "HDMI-A-2";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+            }
+            {
+              name = "eDP-1";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+            }
           ];
 
           wallpapers = [
@@ -48,11 +57,7 @@ with lib.campground;
       };
       hyprland = {
         enable = true;
-        startup = [
-          "${getExe pkgs.networkmanagerapplet}"
-          "${getExe pkgs.firefox}"
-          "${getExe pkgs.mattermost}"
-        ];
+        startup = [ "${getExe pkgs.networkmanagerapplet}" ];
       };
     };
 
@@ -73,6 +78,7 @@ with lib.campground;
 
     apps = {
       barrier = enabled;
+      element-desktop = enabled;
       firefox = enabled;
       brave = enabled;
       libreoffice = enabled;
@@ -81,7 +87,6 @@ with lib.campground;
       zoom = enabled;
       qutebrowser = enabled;
       ckb-next = enabled;
-      mattermost-desktop = enabled;
       slack = enabled;
     };
     tools = {
@@ -91,7 +96,7 @@ with lib.campground;
       virtmanager = enabled; # don't forget to add to libvirtd group
       emoji-picker = enabled;
       scientific-fhs = enabled;
-      # jupyter = enabled;
+      jupyter = enabled;
     };
   };
 

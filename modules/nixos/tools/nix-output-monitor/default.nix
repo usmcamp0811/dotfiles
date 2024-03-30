@@ -3,16 +3,13 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.tools.nix-output-monitor;
-in
-{
+in {
   options.campground.tools.nix-output-monitor = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common Nix Output Monitor.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      output-monitor
-    ];
+    environment.systemPackages = with pkgs; [ output-monitor ];
   };
 }

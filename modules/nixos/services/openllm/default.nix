@@ -1,10 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.openllm;
-in
-{
+let cfg = config.campground.services.openllm;
+in {
   options.campground.services.openllm = with types; {
     enable = mkBoolOpt false "Enable openllm;";
     # port = mkOpt int 8888 "Where the openllm port number";
@@ -26,8 +24,8 @@ in
   };
 
   config = mkIf cfg.enable {
-# WIP
-    environment.systemPackages = [ 
+    # WIP
+    environment.systemPackages = [
       # pkgs.python311Packages.openllm  
       pkgs.python311Packages.openllm-core
     ];

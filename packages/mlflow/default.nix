@@ -1,14 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, system
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, system, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -20,23 +11,23 @@ let
 
   version = "2.3.2";
 
-  mlflow = pkgs.python311Packages.toPythonApplication (pkgs.mlflow-unstable.overridePythonAttrs(old: rec {
+  mlflow = pkgs.python311Packages.toPythonApplication
+    (pkgs.mlflow-unstable.overridePythonAttrs (old: rec {
 
-    propagatedBuildInputs = old.propagatedBuildInputs ++ [
-      pkgs.boto3-unstable
-      pkgs.psycopg2-unstable
-      pkgs.mysqlclient-unstable
-      pkgs.gunicorn-unstable
-    ];
+      propagatedBuildInputs = old.propagatedBuildInputs ++ [
+        pkgs.boto3-unstable
+        pkgs.psycopg2-unstable
+        pkgs.mysqlclient-unstable
+        pkgs.gunicorn-unstable
+      ];
 
-    postPatch = ''
-      substituteInPlace mlflow/utils/process.py --replace \
-        "child = subprocess.Popen(cmd, env=cmd_env, cwd=cwd, universal_newlines=True," \
-        "cmd[0]='$out/bin/gunicornMlflow'; child = subprocess.Popen(cmd, env=cmd_env, cwd=cwd, universal_newlines=True,"
-    '';
+      postPatch = ''
+        substituteInPlace mlflow/utils/process.py --replace \
+          "child = subprocess.Popen(cmd, env=cmd_env, cwd=cwd, universal_newlines=True," \
+          "cmd[0]='$out/bin/gunicornMlflow'; child = subprocess.Popen(cmd, env=cmd_env, cwd=cwd, universal_newlines=True,"
+      '';
 
-    gunicornScript = writeText "gunicornMlflow"
-    ''
+      gunicornScript = writeText "gunicornMlflow" ''
         #!${pkgs.python3-11}/bin/python
         import re
         import sys
@@ -47,21 +38,21 @@ let
           sys.exit(run())
       '';
 
-    postInstall = ''
-      gpath=$out/bin/gunicornMlflow
-      cp ${gunicornScript} $gpath
-      echo "#!/bin/sh" > $out/bin/mlflow-server
-      echo "export PYTHONPATH=$out/lib/python3.11/site-packages:$PYTHONPATH" >> $out/bin/mlflow-server
-      echo "export PATH=$out/bin:$PATH" >> $out/bin/mlflow-server
-      echo "mlflow \"\$@\"" >> $out/bin/mlflow-server
-      chmod 555 $gpath
-      chmod 555 $out/bin/mlflow-server
-    '';
-  }));
+      postInstall = ''
+        gpath=$out/bin/gunicornMlflow
+        cp ${gunicornScript} $gpath
+        echo "#!/bin/sh" > $out/bin/mlflow-server
+        echo "export PYTHONPATH=$out/lib/python3.11/site-packages:$PYTHONPATH" >> $out/bin/mlflow-server
+        echo "export PATH=$out/bin:$PATH" >> $out/bin/mlflow-server
+        echo "mlflow \"\$@\"" >> $out/bin/mlflow-server
+        chmod 555 $gpath
+        chmod 555 $out/bin/mlflow-server
+      '';
+    }));
   new-meta = with lib; {
     description = description;
     license = licenses.asl20;
     maintainers = with maintainers; [ mattcamp ];
+    mainProgram = "mlflow-server";
   };
-in
-override-meta new-meta mlflow
+in override-meta new-meta mlflow

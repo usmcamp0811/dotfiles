@@ -6,8 +6,7 @@ let
   # inherit (inputs) hyprland;
 
   cfg = config.campground.desktop.hyprland;
-in
-{
+in {
   options.campground.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to turn on hyperland config.";
     startup = mkOpt (listOf str) [ ] "List of commands to run when you login";
@@ -27,34 +26,31 @@ in
     };
   };
 
-  imports = [
-    ./apps.nix
-    ./binds.nix
-    ./variables.nix
-    ./windowrules.nix
-  ];
+  imports = [ ./apps.nix ./binds.nix ./variables.nix ./windowrules.nix ];
 
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       enable = true;
-      extraConfig = /* bash */ ''
-        ${cfg.prependConfig}
-        env = XDG_DATA_DIRS,'${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}':$XDG_DATA_DIRS
-        env = HYPRLAND_TRACE,1
-        ${cfg.appendConfig}
-      '';
+      extraConfig = # bash
+        ''
+          ${cfg.prependConfig}
+          env = XDG_DATA_DIRS,'${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}':$XDG_DATA_DIRS
+          env = HYPRLAND_TRACE,1
+          ${cfg.appendConfig}
+        '';
       # package = hyprland.packages.${system}.hyprland;
       package = pkgs.hyprland;
 
       settings = {
         exec = [
-          "${getExe pkgs.libnotify} --icon ~/.face -u normal \"Hello $(whoami)\""
+          ''
+            ${
+              getExe pkgs.libnotify
+            } --icon ~/.face -u normal "Hello $(whoami)"''
         ] ++ cfg.startup;
       };
 
-      systemd = {
-        enable = true;
-      };
+      systemd = { enable = true; };
       xwayland.enable = true;
     };
   };

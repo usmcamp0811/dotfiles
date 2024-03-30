@@ -14,7 +14,5 @@ rec {
   ##
   #@ Attrs -> Package -> Package
   override-meta = meta: package:
-    package.overrideAttrs (attrs: {
-      meta = (attrs.meta or { }) // meta;
-    });
+    package.overrideAttrs (attrs: { meta = (attrs.meta or { }) // meta; });
 }

@@ -63,7 +63,7 @@ let
 
     # Get the CA certificate
     CA_CERT=$(${pkgs.vault}/bin/vault read -field=certificate ${cfg.vault-ca-path})
-    
+
     mkdir -p /var/lib/vault/ovpn/server/
 
     # generate diffie-hellman parameters
@@ -74,19 +74,26 @@ let
     echo "$SERVER_KEY" > /var/lib/vault/ovpn/server.key
   '';
 
-in
-{
-# TODO: clean up any unused options
+in {
+  # TODO: clean up any unused options
   options.campground.services.openvpn = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
-    role-id = mkOpt str config.campground.services.vault-agent.settings.vault.role-id "Absolute path to the Vault role-id";
-    secret-id = mkOpt str config.campground.services.vault-agent.settings.vault.secret-id "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "campground-pki/issue/vpn-server-role" "The Vault path to the Server Cert in Vault";
-    vault-client-path = mkOpt str "campground-pki/issue/vpn-client-role" "The Vault path to the Client Cert in Vault"; 
-    vault-ca-path = mkOpt str "campground-pki/cert/ca" "The Vault path to the CA Cert in Vault"; 
-    vault-tls-path = mkOpt str "secret/campground/vpn" "The Vault path to the TLS Key in Vault"; 
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "campground-pki/issue/vpn-server-role"
+      "The Vault path to the Server Cert in Vault";
+    vault-client-path = mkOpt str "campground-pki/issue/vpn-client-role"
+      "The Vault path to the Client Cert in Vault";
+    vault-ca-path = mkOpt str "campground-pki/cert/ca"
+      "The Vault path to the CA Cert in Vault";
+    vault-tls-path = mkOpt str "secret/campground/vpn"
+      "The Vault path to the TLS Key in Vault";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version used for tls key";
     };
@@ -95,23 +102,22 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    common-name = mkOpt str "server.vpn.${cfg.domain-name}" "Common Name for Server Certs";
+    common-name =
+      mkOpt str "server.vpn.${cfg.domain-name}" "Common Name for Server Certs";
     domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
-    vpn-cert-csv = mkOpt str "/var/lib/vault/ovpn/vpn-certs.csv" "CSV with Cert Serial Numbers";
+    vpn-cert-csv = mkOpt str "/var/lib/vault/ovpn/vpn-certs.csv"
+      "CSV with Cert Serial Numbers";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      gen-server
-      openvpn
-    ];
+    environment.systemPackages = with pkgs; [ gen-server openvpn ];
     users.users.ovpn = {
       isSystemUser = true;
       group = "ovpn";
       description = "OpenVPN service user";
     };
 
-    users.groups.ovpn = {};
+    users.groups.ovpn = { };
 
     boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
@@ -155,20 +161,18 @@ in
       };
     };
 
-# TODO: Refactor so that this just renews the server cert 
-# TODO: Refactor to make the `copyVPNcerts.sh` script is installed and can be run independent of the systmed service
-# TODO: Clean up or otherwise just make things look better and more uniform
-# TODO: Add OpenVPN Admin: https://github.com/flant/ovpn-admin
-# Probably just make it a package.. looks simple enough
+    # TODO: Refactor so that this just renews the server cert 
+    # TODO: Refactor to make the `copyVPNcerts.sh` script is installed and can be run independent of the systmed service
+    # TODO: Clean up or otherwise just make things look better and more uniform
+    # TODO: Add OpenVPN Admin: https://github.com/flant/ovpn-admin
+    # Probably just make it a package.. looks simple enough
     systemd.timers.genVPNserver-cert = {
       description = "Timer for Generate VPN Client Certs";
       wantedBy = [ "timers.target" ];
       timerConfig = {
         OnCalendar = "daily"; # Runs every day at midnight
       };
-      unitConfig = {
-        PartOf = [ "genVPNserver-cert.service" ];
-      };
+      unitConfig = { PartOf = [ "genVPNserver-cert.service" ]; };
     };
 
     systemd.services.genVPNserver-cert = {
@@ -182,7 +186,7 @@ in
       };
       wantedBy = [ "multi-user.target" ];
     };
-# TODO: Refactor this so that we rotate server certs in a similar manner as the client certs
+    # TODO: Refactor this so that we rotate server certs in a similar manner as the client certs
     campground.services.vault-agent.services.genVPNserver-cert = {
       settings = {
         vault.address = cfg.vault-address;

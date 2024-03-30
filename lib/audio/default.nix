@@ -5,15 +5,9 @@ rec {
   ##
   #@ { name: String, description: String } -> { matches: List, apply_properties: Attrs }
   mkAlsaRename = { name, description }: {
-    matches = [
-      [
-        [ "device.name" "matches" name ]
-      ]
-    ];
+    matches = [[[ "device.name" "matches" name ]]];
     # actions = { "update-props" = { "node.description" = description; }; };
-    apply_properties = {
-      "device.description" = description;
-    };
+    apply_properties = { "device.description" = description; };
   };
 
   ## Create a pipewire audio node.
@@ -47,11 +41,10 @@ rec {
   mkBridgeAudioModule = args@{ from, to, ... }: {
     name = "libpipewire-module-loopback";
     args = (builtins.removeAttrs args [ "from" "to" "name" ]) // {
-      "node.name" =
-        if args ? name then
-          "${args.name}-bridge"
-        else
-          "${lib.toLower from}-to-${lib.toLower to}-bridge";
+      "node.name" = if args ? name then
+        "${args.name}-bridge"
+      else
+        "${lib.toLower from}-to-${lib.toLower to}-bridge";
       "audio.position" = args."audio.position" or [ "FL" "FR" ];
       "capture.props" = {
         "node.target" = from;

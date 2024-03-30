@@ -1,13 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -37,9 +29,7 @@ let
         app.run()
   '';
 
-  uwsgiWithPython3 = pkgs.uwsgi.override {
-    plugins = [ "python3" ];
-  };
+  uwsgiWithPython3 = pkgs.uwsgi.override { plugins = [ "python3" ]; };
 
   pythonWithFlask = pkgs.python3.withPackages (ps: [ ps.flask ]);
 
@@ -49,7 +39,7 @@ let
     phases = [ "installPhase" ];
     buildInputs = [ pythonWithFlask uwsgiWithPython3 ];
 
-  # Build a derivation for the Flask app
+    # Build a derivation for the Flask app
     installPhase = ''
       install -Dm644 $src $out/bin/app.py
       mkdir -p $out/etc
@@ -84,5 +74,4 @@ let
     maintainers = with maintainers; [ mattcamp ];
   };
 
-in
-override-meta new-meta example-flask-app
+in override-meta new-meta example-flask-app

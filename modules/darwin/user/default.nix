@@ -8,8 +8,7 @@ let
 
   is-linux = pkgs.stdenv.isLinux;
   is-darwin = pkgs.stdenv.isDarwin;
-in
-{
+in {
   options.campground.user = {
     name = mkOpt types.str "abe" "The user account.";
 
