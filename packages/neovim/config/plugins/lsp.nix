@@ -18,7 +18,6 @@
         line = "<BS><BS>";
       };
       opleader = { line = "<BS>"; };
-      mappings = { extended = false; };
     };
     lsp = {
       enable = true;
