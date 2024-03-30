@@ -19,18 +19,20 @@ website
 #   version = "0.1.0";
 #   src = website;
 #   buildInputs = [ pkgs.nodejs pkgs.yarn website ];
-#   # buildPhase = ''
-#   #   # each phase has pre/postHooks. When you make your own phase be sure to still call the hooks
-#   #   yarn
-#   #   quasar build
-#   # '';
-#   installPhase = ''
-#     # runHook preInstall
+#   buildPhase = ''
 #     mkdir -p $out
-#     cp ${website} $out/website
-#     # cp -r node_modules $out/node_modules
-#     # cp package.json $out/package.json
-#     # cp -r dist $out/dist
-#     # runHook postInstall
+#     # cp -r ${website.src} $out
+#     cp -r ${website} $out
+#     # yarn
+#     # quasar build
 #   '';
+#   # installPhase = ''
+#   #   # runHook preInstall
+#   #   mkdir -p $out
+#   #   cp ${website} $out/website
+#   #   # cp -r node_modules $out/node_modules
+#   #   # cp package.json $out/package.json
+#   #   # cp -r dist $out/dist
+#   #   # runHook postInstall
+#   # '';
 # }
