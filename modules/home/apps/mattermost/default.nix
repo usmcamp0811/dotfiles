@@ -13,7 +13,7 @@ in {
 
     home.packages = with pkgs;
       [
-        # mattermost-desktop
+        mattermost-desktop
       ];
 
   };
