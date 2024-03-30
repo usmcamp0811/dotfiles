@@ -11,10 +11,7 @@ in {
 
   config = mkIf cfg.enable {
 
-    home.packages = with pkgs;
-      [
-        mattermost-desktop
-      ];
+    home.packages = with pkgs; [ mattermost-desktop ];
 
   };
 

@@ -12,8 +12,12 @@ in {
     services.nginx = {
       enable = true;
       virtualHosts."matt-camp.com" = {
-        listen = [{ addr = "0.0.0.0"; port = cfg.port; }];
-        root = "${pkgs.campground.matt-camp-website}/libexec/matt-camp-website/deps/matt-camp-website"; # Adjusted path
+        listen = [{
+          addr = "0.0.0.0";
+          port = cfg.port;
+        }];
+        root =
+          "${pkgs.campground.matt-camp-website}/libexec/matt-camp-website/deps/matt-camp-website"; # Adjusted path
         extraConfig = ''
           location / {
             try_files $uri $uri/ =404;
