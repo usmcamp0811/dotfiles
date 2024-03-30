@@ -13,8 +13,8 @@ in {
 
   config = mkIf cfg.enable {
 
-    home.packages = mkIf (cfg.wayland == false) [ pkgs.element-desktop ];
-    home.packages = mkIf cfg.wayland [ pkgs.element-desktop-wayland ];
+    home.packages = lib.mkIf (!cfg.wayland) [ pkgs.element-desktop ]
+    ++ lib.mkIf cfg.wayland [ pkgs.element-desktop-wayland ];
 
   };
 
