@@ -86,7 +86,7 @@ in {
 
               loadBalancer.servers = [
                 { url = "http://webb:3249"; }
-                { url = "http://daly:3249"; }
+                { url = "http://daly:8181"; }
                 { url = "http://chesty:3249"; }
                 { url = "http://lucas:3249"; }
                 { url = "http://reckless:3249"; }
