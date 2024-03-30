@@ -9,8 +9,13 @@ let
     src = ./.;
     packageJSON = ./package.json;
     yarnLock = ./yarn.lock;
-    yarnNix = ./yarn.nix;
+    # yarnNix = ./yarn.nix;
     doDist = true;
+  buildPhase = ''
+    export NODE_OPTIONS=--openssl-legacy-provider
+    yarn build
+    # quasar build
+  '';
   };
 in
 website
