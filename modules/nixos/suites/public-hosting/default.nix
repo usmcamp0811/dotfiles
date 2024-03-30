@@ -44,6 +44,7 @@ in {
           enable = true;
           insecure = true;
           entrypoints = cfg.entrypoints;
+          domains = [ "aicampground.com" "matt-camp.com" ];
           dynamicConfigOptions = {
             # http.routers.adhoc = {
             #   rule = "Host(`adhoc.aicampground.com`)";
