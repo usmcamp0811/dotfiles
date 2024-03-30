@@ -55,6 +55,22 @@ in {
             #   loadBalancer.servers = [{ url = "http://reckless:8380"; }];
             # };
 
+            http.routers.aicampground = {
+              rule = "Host(`aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "matt-camp";
+            };
+
+            http.routers.matt-camp = {
+              rule = "Host(`matt-camp.com`)";
+              entryPoints = [ "websecure" ];
+              service = "matt-camp";
+            };
+
+            http.services.matt-camp = {
+              loadBalancer.servers = [{ url = "http://lucas:4356"; }];
+            };
+
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
               entryPoints = [ "websecure" ];
