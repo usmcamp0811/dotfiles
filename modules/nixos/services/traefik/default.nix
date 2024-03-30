@@ -22,7 +22,12 @@ in {
     enable = mkBoolOpt false "Enable an Tang;";
     email = mkOpt str config.campground.user.email "The email to use.";
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
-    domain = mkOpt str "aicampground.com" "Default domain name";
+    domains = mkOption {
+      type = listOf str;
+      default = [ "aicampground.com" ];
+      example = [ "example.com" "example.org" ];
+      description = "List of domains.";
+    };
     insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
@@ -80,10 +85,10 @@ in {
             address = "0.0.0.0:443";
             http.tls = {
               certResolver = "cloudflare";
-              domains = [{
-                main = cfg.domain;
-                sans = [ "*.${cfg.domain}" "*.lan.${cfg.domain}" ];
-              }];
+              domains = map (domain: {
+                main = domain;
+                sans = [ "*.${domain}" "*.lan.${domain}" ];
+              }) cfg.domains;
             };
           };
         } // cfg.entrypoints;
