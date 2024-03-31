@@ -1,14 +1,8 @@
-{ lib, writeShellScriptBin, docker }:
+{ lib, writeShellScriptBin, pkgs }:
 
 writeShellScriptBin "mac-nix" ''
   #!/usr/bin/env bash
   # This script wraps Nix commands to run inside a Docker container for compatibility with macOS.
-
-  # Ensure Docker is running
-  if ! docker info >/dev/null 2>&1; then
-    echo "Docker does not seem to be running, please start Docker first."
-    exit 1
-  fi
 
   # Initialize an empty array for positional arguments
   declare -a POSITIONAL_ARGS=()
@@ -32,7 +26,7 @@ writeShellScriptBin "mac-nix" ''
   set -- "''${POSITIONAL_ARGS[@]}"
 
   # Run the Nix command in the nixpkgs/nix-flakes Docker container
-  docker run -it --rm \
+  ${pkgs.podman}/bin/podman run -it --rm \
     ''${ENV_FILE_ARG:-} \
     --volume "$PWD:/build" \
     --volume "/nix:/nix:ro" \
