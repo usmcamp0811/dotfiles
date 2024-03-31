@@ -23,13 +23,15 @@ writeShellScriptBin "mac-nix" ''
   done
   
   # Set positional arguments back
-  set -- "''${POSITIONAL_ARGS[@]}"
+  set -- "${POSITIONAL_ARGS[@]}"
 
-  # Run the Nix command in the nixpkgs/nix-flakes Docker container
+  # Form the command string to execute inside the container
+  COMMAND_STR="nix $@; if [ -e /build/result ]; then cp -r /build/result /build/nix-result; fi"
+
+  # Run the command in the nixpkgs/nix-flakes Docker container and handle result copying
   ${pkgs.podman}/bin/podman run -it --rm \
-    ''${ENV_FILE_ARG:-} \
+    ${ENV_FILE_ARG:-} \
     --volume "$PWD:/build" \
     --workdir "/build" \
-    --entrypoint bash nixpkgs/nix-flakes -c "$@; if [ -e /build/result ]; then cp -r /build/result /build/nix-result; fi"
+    --entrypoint bash nixpkgs/nix-flakes -c "$COMMAND_STR"
 ''
-
