@@ -34,8 +34,6 @@ writeShellScriptBin "mac-nix" ''
     ''${ENV_FILE_ARG:-} \
     --volume "$PWD:/build" \
     --volume "$HOME/.ssh:/root/.ssh:ro" \
-    --volume "/nix/store:/nix/store:ro" \
-    --volume "/nix/var/nix/db:/nix/var/nix/db:ro" \
     --workdir "/build" \
     --entrypoint bash nixpkgs/nix-flakes -c "$COMMAND_STR"
 ''
