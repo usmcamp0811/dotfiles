@@ -27,7 +27,7 @@ writeShellScriptBin "mac-nix" ''
 
   # Form the command string to execute inside the container
 
-  COMMAND_STR="nix $@; if [ -e /build/result ]; then nix copy --to file:///build/nix-result /build/result; fi"
+  COMMAND_STR="nix $@; if [ -e /build/result ]; then cp -r $(readlink /build/result) /build/nix-result; fi"
 
   # Run the command in the nixpkgs/nix-flakes Docker container and handle result copying
   ${pkgs.podman}/bin/podman run -it --rm \
