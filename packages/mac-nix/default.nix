@@ -30,7 +30,7 @@ writeShellScriptBin "mac-nix" ''
   COMMAND_STR="nix $@; if [ -e /build/result ]; then cp -r $(readlink /build/result) /build/nix-result; fi"
 
   # Run the command in the nixpkgs/nix-flakes Docker container and handle result copying
-  ${pkgs.podman}/bin/podman run -it --rm \
+  docker run -it --rm \
     ''${ENV_FILE_ARG:-} \
     --volume "$PWD:/build" \
     --volume "$HOME/.ssh:/root/.ssh:ro" \
