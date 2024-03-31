@@ -30,6 +30,6 @@ writeShellScriptBin "mac-nix" ''
     ''${ENV_FILE_ARG:-} \
     --volume "$PWD:/build" \
     --workdir "/build" \
-    --entrypoint nix nixpkgs/nix-flakes "$@"
+    --entrypoint bash nixpkgs/nix-flakes -c "$@; if [ -e /build/result ]; then cp -r /build/result /build/nix-result; fi"
 ''
 
