@@ -29,7 +29,6 @@ writeShellScriptBin "mac-nix" ''
   ${pkgs.podman}/bin/podman run -it --rm \
     ''${ENV_FILE_ARG:-} \
     --volume "$PWD:/build" \
-    --volume "/nix:/nix:ro" \
     --workdir "/build" \
     --entrypoint nix nixpkgs/nix-flakes "$@"
 ''
