@@ -10,10 +10,33 @@ writeShellScriptBin "mac-nix" ''
     exit 1
   fi
 
+  # Initialize an empty array for positional arguments
+  declare -a POSITIONAL_ARGS=()
+
+  # Parse command-line arguments
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --env)
+        ENV_FILE_ARG="--env-file $2"
+        shift # past argument
+        shift # past value
+        ;;
+      *)    # unknown option
+        POSITIONAL_ARGS+=("$1") # save it in an array for later
+        shift # past argument
+        ;;
+    esac
+  done
+  
+  # Set positional arguments back
+  set -- "''${POSITIONAL_ARGS[@]}"
+
   # Run the Nix command in the nixpkgs/nix-flakes Docker container
-  docker run -it --rm \\
-    -v "$PWD:/build" \\
-    $(env | sed 's/^/-e /') \\
-    nixpkgs/nix-flakes "\$@"
+  docker run -it --rm \
+    ''${ENV_FILE_ARG:-} \
+    --volume "$PWD:/build" \
+    --volume "/nix:/nix:ro" \
+    --workdir "/build" \
+    --entrypoint nix nixpkgs/nix-flakes "$@"
 ''
 
