@@ -36,7 +36,6 @@ writeShellScriptBin "mac-nix" ''
     --volume "$HOME/.ssh:/root/.ssh:ro" \
     --volume "/nix/store:/nix/store:ro" \
     --volume "/nix/var/nix/db:/nix/var/nix/db:ro" \
-    --volume "/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket:ro" \
     --workdir "/build" \
     --entrypoint bash nixpkgs/nix-flakes -c "$COMMAND_STR"
 ''
