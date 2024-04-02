@@ -1,6 +1,7 @@
 stages:
   - update_flake
   - build_systems
+  - build
   - deploy
 
 update-flake:
@@ -175,6 +176,8 @@ deploy_lan_hosting:
 
 build_resume:
   stage: build
+  tags:
+    - nix
   script:
     - nix run .#resume-builder
   artifacts:
@@ -183,4 +186,4 @@ build_resume:
     expire_in: 1 week
   only:
     changes:
-      - "**/matt-camp-website/src/assets/resume/resume.json"
+      - "package/matt-camp-website/src/assets/resume/resume.json"
