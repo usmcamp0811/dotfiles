@@ -172,3 +172,15 @@ deploy_lan_hosting:
     - changes:
         - "**/lan-hosting/default.nix"
       allow_failure: false
+
+build_resume:
+  stage: build
+  script:
+    - nix run .#resume-builder
+  artifacts:
+    paths:
+      - resume.pdf
+    expire_in: 1 week
+  only:
+    changes:
+      - "**/matt-camp-website/src/assets/resume/resume.json"
