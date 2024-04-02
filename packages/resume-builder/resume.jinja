@@ -1,0 +1,73 @@
+\documentclass{resume} % The style class
+
+\name{ {{name}} } % Your name
+\citystate{ {{citystate}} } 
+\phone{ {{phone}} }
+\email{ {{email}} }
+
+\begin{document}
+
+\thispagestyle{firstp}
+\profile{
+    {{ profile }}
+}
+\begin{profilelist}[noitemsep]
+    {% for my_bullet in profile_bullets %}
+        \item {{ my_bullet }}
+    {% endfor %}
+\end{profilelist}
+
+\bf\center\uppercase{Core Compenecies}
+\normalfont
+\begin{multicols}{3}
+    \begin{itemize}[noitemsep]
+      {% for my_comp in core_compencies %}
+        \item {{ my_comp }}
+      {% endfor %}
+    \end{itemize}
+\end{multicols}
+
+\professionalexperience
+
+
+{% for my_job in jobs %}
+  \job{
+    {{ my_job.company }}
+  }
+  {
+    {{ my_job.company_location }}
+  }
+  {
+    {{ my_job.job_title | replace("&", "\&")}}
+  }
+  {
+    {{ my_job.dt_from }} - {{ my_job.dt_to }}
+  }
+  {
+    {{ my_job.description | replace("&", "\&")}}
+  }
+  {% if my_job.key_accomplishments %}{
+  {% if loop.index <= 6 %}
+  {% for accomplishment in my_job.key_accomplishments %}{{ accomplishment | replace(",", "\,")}}{{ ",\n" if not loop.last }} {% endfor %}
+  {% endif %}}{% endif %}
+{% endfor %}
+
+\education
+
+{% for school in education %}
+  {%- if school.city %}
+  \school{ {{ school.degree }} }{ {{ school.grad_dt }} }{ {{ school.school }} }{-- {{ school.city }}}
+  {% else %}
+  \school{ {{ school.degree }} }{ {{ school.grad_dt }} }{ {{ school.school }} }
+  {% endif %}
+{% endfor %}
+
+\techskills
+
+\skills{
+{% for my_skill in skills %}\skill{ {{ my_skill }} }{{ "\n" if not loop.last }}{% endfor %}
+}
+\myskills
+
+\end{document}
+
