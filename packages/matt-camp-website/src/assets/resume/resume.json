@@ -34,7 +34,7 @@
         "Wrote custom shell scripts and created project templates for best practices. Customized Airflow Helm Chart for DAG development and automated architecture diagram deployment using PlantUML and Gitlab CICD.",
         "Developed a reproducible and highly auditable deployment strategy for cross-architecture Linux systems using Nix and NixOS. Modified and developed Ansible playbooks for AWS EC2 and EKS deployment, and worked with Terraform to create AWS infrastructure.",
         "Led training of junior associates in various technologies, including Julia, Nix, Docker, and Kubernetes. Regularly led brown bag knowledge-sharing sessions to foster team collaboration.",
-        "Pioneered the integration of Nix Dev Shells to establish a highly reproducible development environment, significantly streamlining the onboarding of new DevOps personnel. Advanced project capabilities by configuring and deploying ServiceNow infrastructure, prioritizing Nix's flexibility and efficiency over traditional Docker setups."
+        "Pioneered the integration of Nix Dev Shells to establish a highly reproducible development environment, significantly streamlining the onboarding of new DevOps personnel. Advanced project capabilities by configuring and deploying infrastructure, prioritizing Nix's flexibility and efficiency over traditional Docker setups."
       ],
       "dt_from": "November 2021",
       "dt_to": "Present"
