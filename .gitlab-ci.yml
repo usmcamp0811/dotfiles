@@ -187,3 +187,4 @@ build_resume:
   rules:
     - changes:
       - "package/matt-camp-website/src/assets/resume/resume.json"
+      when: always
