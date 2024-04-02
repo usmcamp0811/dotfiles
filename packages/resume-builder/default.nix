@@ -26,6 +26,7 @@ let
     cp ${resume-latex}/resume.cls ''${temp_dir}/
     cd $temp_dir
     ${pkgs.texlive.combined.scheme-full}/bin/pdflatex ''${temp_dir}/resume.tex
+    ${pkgs.texlive.combined.scheme-full}/bin/pdflatex ''${temp_dir}/resume.tex
     cp ''${temp_dir}/resume.pdf $current_dir/resume.pdf
   '';
 
