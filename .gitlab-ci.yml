@@ -184,6 +184,6 @@ build_resume:
     paths:
       - resume.pdf
     expire_in: 1 week
-  only:
+  rules:
     changes:
       - "package/matt-camp-website/src/assets/resume/resume.json"
