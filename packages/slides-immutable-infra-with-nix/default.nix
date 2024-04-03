@@ -6,13 +6,13 @@ let
   inherit (lib.campground) override-meta;
   nix-slides = mkYarnPackage {
     name = "nix-slides";
-    src = ./.;
+    src = ./immutable-infra-with-nix/.;
     packageJSON = ./immutable-infra-with-nix/package.json;
     yarnLock = ./immutable-infra-with-nix/yarn.lock;
-    doDist = true;
+    # doDist = true;
   buildPhase = ''
     export NODE_OPTIONS=--openssl-legacy-provider
-    yarn dev
+    yarn build
   '';
   };
 in
