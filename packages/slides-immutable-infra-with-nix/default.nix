@@ -11,7 +11,6 @@ let
     yarnLock = ./immutable-infra-with-nix/yarn.lock;
     # doDist = true;
   buildPhase = ''
-    export NODE_OPTIONS=--openssl-legacy-provider
     yarn build
   '';
   };
