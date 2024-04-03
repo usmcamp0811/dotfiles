@@ -10,10 +10,10 @@ let
     src = ./immutable-infra-with-nix/.;
     packageJSON = ./immutable-infra-with-nix/package.json;
     yarnLock = ./immutable-infra-with-nix/yarn.lock;
-    # doDist = true;
+    doDist = true;
   buildPhase = ''
-    export NODE_OPTIONS=--openssl-legacy-provider
-    yarn 
+    # yarn install
+    # yarn build 
   '';
   };
 in
