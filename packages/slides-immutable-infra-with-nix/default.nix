@@ -4,18 +4,16 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  nix-slides = import ./immutable-infra-with-nix/node-env.nix;
-  # nix-slides = mkYarnPackage {
-  #   version = "0.1.0";
-  #   name = "nix-slides";
-  #   src = ./immutable-infra-with-nix/.;
-  #   packageJSON = ./immutable-infra-with-nix/package.json;
-  #   yarnLock = ./immutable-infra-with-nix/yarn.lock;
-  #   doDist = true;
-  # buildPhase = ''
-  #   # yarn install
-  #   # yarn build 
-  # '';
-  # };
+  nix-slides = mkYarnPackage {
+    version = "0.1.0";
+    name = "nix-slides";
+    src = ./immutable-infra-with-nix/.;
+    packageJSON = ./immutable-infra-with-nix/package.json;
+    yarnLock = ./immutable-infra-with-nix/yarn.lock;
+  buildPhase = ''
+    # yarn install
+    # yarn build 
+  '';
+  };
 in
 nix-slides
