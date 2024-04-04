@@ -5,16 +5,15 @@ theme: seriph
 # like them? see https://unsplash.com/collections/94734566/slidev
 background: https://cover.sli.dev
 # some information about your slides, markdown enabled
-title: Welcome to Slidev
+title: Immutable Infrastructure with Nix
 info: |
-  ## Slidev Starter Template
-  Presentation slides for developers.
+  ## A Path to Reliable Deployments
 
-  Learn more at [Sli.dev](https://sli.dev)
+  Learn more at [nixos.org](https://nixos.org)
 # apply any unocss classes to the current slide
 class: text-center
 # https://sli.dev/custom/highlighters.html
-highlighter: shiki
+highlighter: prism
 # https://sli.dev/guide/drawing
 drawings:
   persist: false
@@ -24,9 +23,9 @@ transition: slide-left
 mdc: true
 ---
 
-# Welcome to Slidev
+# Immutable Infrastructure with Nix
 
-Presentation slides for developers
+Immutable Infrastructure with Nix
 
 <div class="pt-12">
   <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
@@ -52,89 +51,42 @@ The last comment block of each slide will be treated as slide notes. It will be 
 transition: fade-out
 ---
 
-# What is Slidev?
+# Introduction
 
-Slidev is a slides maker and presenter designed for developers, consist of the following features
-
-- 📝 **Text-based** - focus on the content with Markdown, and then style them later
-- 🎨 **Themable** - theme can be shared and used with npm packages
-- 🧑‍💻 **Developer Friendly** - code highlighting, live coding with autocompletion
-- 🤹 **Interactive** - embedding Vue components to enhance your expressions
-- 🎥 **Recording** - built-in recording and camera view
-- 📤 **Portable** - export into PDF, PNGs, or even a hostable SPA
-- 🛠 **Hackable** - anything possible on a webpage
-
-<br>
-<br>
-
-Read more about [Why Slidev?](https://sli.dev/guide/why)
-
-<!--
-You can have `style` tag in markdown to override the style for the current page.
-Learn more: https://sli.dev/guide/syntax#embedded-styles
--->
-
-<style>
-h1 {
-  background-color: #2B90B6;
-  background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
-  background-size: 100%;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-}
-</style>
-
-<!--
-Here is another comment.
--->
+   - Highlighting the critical role of infrastructure in today's fast-paced digital landscape.
+   - The quest for efficiency and reliability: How traditional DevOps approaches are falling short.
+   - Introducing Immutable Infrastructure as a transformative solution to persistent DevOps challenges.
+   - Overview of Nix: A game-changer in achieving Immutable Infrastructure, minimizing risk, and maximizing efficiency.
+   - Setting the stage for a deep dive into how Nix can redefine deployment practices for better business outcomes.
 
 ---
-transition: slide-up
-level: 2
+transition: fade-out
 ---
 
-# Navigation
+# Current Problems & Pitfalls of DevOps
 
-Hover on the bottom-left corner to see the navigation's controls panel, [learn more](https://sli.dev/guide/navigation.html)
-
-## Keyboard Shortcuts
-
-|     |     |
-| --- | --- |
-| <kbd>right</kbd> / <kbd>space</kbd>| next animation or slide |
-| <kbd>left</kbd>  / <kbd>shift</kbd><kbd>space</kbd> | previous animation or slide |
-| <kbd>up</kbd> | previous slide |
-| <kbd>down</kbd> | next slide |
-
-<!-- https://sli.dev/guide/animations.html#click-animations -->
-<img
-  v-click
-  class="absolute -bottom-9 -left-7 w-80 opacity-50"
-  src="https://sli.dev/assets/arrow-bottom-left.svg"
-  alt=""
-/>
-<p v-after class="absolute bottom-23 left-45 opacity-30 transform -rotate-10">Here!</p>
+   - Lengthy setup and onboarding for newcomers
+   - Variances in environments causing unpredictable behavior
+   - Collaboration hindered by discrepancies across local setups
+   - Regular disruptions and backwards compatibility issues with updates
+   - Challenges in achieving consistent settings across all stages of deployment
+   - Security exposure due to uneven application of updates
+   - Complicated recovery processes for deployment setbacks
 
 ---
-layout: two-cols
-layoutClass: gap-16
+transition: fade-out
 ---
 
-# Table of contents
+# Business Risks with the Standard
 
-You can use the `Toc` component to generate a table of contents for your slides:
+   - Reduced productivity from resolving environment issues
+   - Higher costs linked to prolonged development and deployment timelines
+   - Risk of deploying substandard or vulnerable software
+   - Brand image risks from continuous downtime or performance hiccups
+   - Exposure to legal issues from non-compliant security practices
+   - Slower feature releases leading to competitive lag
+   - Revenue impacts from customer turnover or dissatisfaction with service stability
 
-```html
-<Toc minDepth="1" maxDepth="1"></Toc>
-```
-
-The title will be inferred from your slide content, or you can override it with `title` and `level` in your frontmatter.
-
-::right::
-
-<Toc v-click minDepth="1" maxDepth="2"></Toc>
 
 ---
 transition: fade-out
