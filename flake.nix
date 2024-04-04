@@ -36,6 +36,8 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    nix-topology.url = "github:oddlama/nix-topology";
+
     hyprpaper = {
       url = "github:hyprwm/hyprpaper";
       inputs.nixpkgs.follows = "unstable";
@@ -208,6 +210,7 @@
         nur.overlay
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
+        nix-topology.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
@@ -215,6 +218,7 @@
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
         dataflow2nix.nixosModules.airflow
+        nix-topology.nixosModules.default
         # scientific-fhs.nixosModules.default
       ];
 
