@@ -10,7 +10,7 @@ in {
 
   config = mkIf cfg.enable {
 
-    home.packages = with pkgs; [ nodesjs yarn ];
+    home.packages = with pkgs; [ nodejs yarn ];
 
   };
 }
