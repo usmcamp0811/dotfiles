@@ -1,6 +1,6 @@
 ---
 # try also 'default' to start simple
-theme: seriph
+theme: dracula
 # random image from a curated Unsplash collection by Anthony
 # like them? see https://unsplash.com/collections/94734566/slidev
 background: https://cover.sli.dev
@@ -48,30 +48,50 @@ The last comment block of each slide will be treated as slide notes. It will be 
 -->
 
 ---
-transition: fade-out
+marp: true
+paginate: true
+layout: image-left
+image: components/cloudcraft1-1200x630.png 
 ---
 
 # Introduction
 
-   - Highlighting the critical role of infrastructure in today's fast-paced digital landscape.
-   - The quest for efficiency and reliability: How traditional DevOps approaches are falling short.
-   - Introducing Immutable Infrastructure as a transformative solution to persistent DevOps challenges.
-   - Overview of Nix: A game-changer in achieving Immutable Infrastructure, minimizing risk, and maximizing efficiency.
-   - Setting the stage for a deep dive into how Nix can redefine deployment practices for better business outcomes.
+- Infrastructure is critical to today's fast-paced digital landscape.
+
+- Traditional DevOps approaches are falling short.
+
+- Immutable Infrastructure: A Revolutionary Approach to Overcoming DevOps Challenges
+
+- Overview of Nix: A game-changer in achieving Immutable Infrastructure, minimizing risk, and maximizing efficiency.
+
+- Setting the stage for a deep dive into how Nix can redefine deployment practices for better business outcomes.
+
 
 ---
 transition: fade-out
+marp: true
+paginate: true
+layout: image-right
+image: components/servers.jpg
 ---
 
 # Current Problems & Pitfalls of DevOps
 
-   - Lengthy setup and onboarding for newcomers
-   - Variances in environments causing unpredictable behavior
-   - Collaboration hindered by discrepancies across local setups
-   - Regular disruptions and backwards compatibility issues with updates
-   - Challenges in achieving consistent settings across all stages of deployment
-   - Security exposure due to uneven application of updates
-   - Complicated recovery processes for deployment setbacks
+- Lengthy setup and onboarding for newcomers
+
+--
+
+- Variances in environments causing unpredictable behavior
+
+- Collaboration hindered by discrepancies across local setups
+
+- Regular disruptions and backwards compatibility issues with updates
+
+- Challenges in achieving consistent settings across all stages of deployment
+
+- Security exposure due to uneven application of updates
+
+- Complicated recovery processes for deployment setbacks
 
 ---
 transition: fade-out

@@ -981,6 +981,11 @@
     vue "^3.4.21"
     vue-router "^4.3.0"
 
+"@slidev/types@^0.42.5":
+  version "0.42.11"
+  resolved "https://registry.yarnpkg.com/@slidev/types/-/types-0.42.11.tgz#a9c806aa3a15df615f8439052efb89e510664576"
+  integrity sha512-K7+UWzEQpUe3eEFs7ktm3tw17Ke9ZOJPTy7yGSlZfWl4jCTf9Z0HNKECPLQ3JGL6EkJ4Wyy1y0HE92/20cTn0Q==
+
 "@slidev/types@^0.47.0":
   version "0.47.5"
   resolved "https://registry.yarnpkg.com/@slidev/types/-/types-0.47.5.tgz#53715dfabf25aa54893dfaa8de5d67027bdd6370"
@@ -4403,6 +4408,16 @@ slash@^5.1.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-5.1.0.tgz#be3adddcdf09ac38eebe8dcdc7b1a57a75b095ce"
   integrity sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==
 
+slidev-theme-dracula@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/slidev-theme-dracula/-/slidev-theme-dracula-0.2.0.tgz#15802c504e8d7dc58db9d3d80138b39e9595d984"
+  integrity sha512-ndMD27+gUNYt9aXrb4/0vSBHKP007mpD2eCJppzhqXDG1DmN0Q6I6iFz+QvIjOPDKzzPjoYZbsWp6lPLJjgs9g==
+  dependencies:
+    "@slidev/types" "^0.42.5"
+    codemirror-theme-vars "^0.1.2"
+    prism-theme-vars "^0.2.4"
+    theme-vitesse "^0.7.2"
+
 source-map-js@^1.0.1, source-map-js@^1.0.2, source-map-js@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.2.0.tgz#16b809c162517b5b8c3e7dcd315a2a5c2612b2af"
@@ -4502,6 +4517,11 @@ tar@^6.2.0:
     minizlib "^2.1.1"
     mkdirp "^1.0.3"
     yallist "^4.0.0"
+
+theme-vitesse@^0.7.2:
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/theme-vitesse/-/theme-vitesse-0.7.8.tgz#099479e90cfb92bf0b5cb66cacf888f8ae64744a"
+  integrity sha512-RS7XkU3i67piJvfYLWo52r/5aL+l2tCMifBPvmdD8woGHW2Jye9Trd0vwcjXBpWbdQGpyiPyZxx0yPlXCqAQAw==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"
