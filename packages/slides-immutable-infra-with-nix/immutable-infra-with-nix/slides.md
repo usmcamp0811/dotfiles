@@ -68,18 +68,17 @@ image: components/cloudcraft1-1200x630.png
 
 
 ---
-transition: fade-out
 marp: true
 paginate: true
 layout: image-right
 image: components/servers.jpg
+transition: slide-up
+level: 2
 ---
 
 # Current Problems & Pitfalls of DevOps
 
-- Lengthy setup and onboarding for newcomers
-
---
+- **Lengthy setup and onboarding for newcomers**
 
 - Variances in environments causing unpredictable behavior
 
@@ -92,6 +91,44 @@ image: components/servers.jpg
 - Security exposure due to uneven application of updates
 
 - Complicated recovery processes for deployment setbacks
+
+---
+level: 3
+layout: image
+# the web page source
+image: ./components/bigbang.jpg
+# a custom class name to the content
+class: my-cool-content-on-the-left
+transition: slide-down
+---
+
+
+---
+marp: true
+paginate: true
+layout: image-right
+image: components/servers.jpg
+transition: slide-up
+level: 2
+---
+
+# Current Problems & Pitfalls of DevOps
+
+- Lengthy setup and onboarding for newcomers
+
+- **Variances in environments causing unpredictable behavior**
+
+- Collaboration hindered by discrepancies across local setups
+
+- Regular disruptions and backwards compatibility issues with updates
+
+- Challenges in achieving consistent settings across all stages of deployment
+
+- Security exposure due to uneven application of updates
+
+- Complicated recovery processes for deployment setbacks
+
+
 
 ---
 transition: fade-out
