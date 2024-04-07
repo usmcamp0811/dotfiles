@@ -1,4 +1,4 @@
-{ lib, writeText, fetchYarnDeps, mkYarnPackage, substituteAll, gum, inputs, pkgs
+{ lib, writeText, fetchFromGitHub, fetchYarnDeps, mkYarnPackage, substituteAll, gum, inputs, pkgs
 , hosts ? { }, ... }:
 
 let
@@ -6,6 +6,10 @@ let
   inherit (lib.campground) override-meta;
   src = ./immutable-infra-with-nix/.;
 
+  offlineCache = fetchYarnDeps {
+    yarnLock = slidevSrc + "/yarn.lock";
+    hash = "sha256-aK4P9KVu6KIzZmJca7sw0Vl1UM0RrSM9gGeFvs4KvSA=";
+  };
   slidevSrc = fetchFromGitHub {
     owner = "slidevjs";
     repo = "slidev";
