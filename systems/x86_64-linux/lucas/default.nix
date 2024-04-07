@@ -50,6 +50,12 @@ in {
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
+      zookeeper = {
+        enable = true;
+      };
+      apache-kafka = {
+        enable = true;
+      };
       # netmaker = {
       #   enable = true;
       # };
