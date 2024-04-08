@@ -44,10 +44,12 @@ in {
       dataDir = cfg.dataDir;
       purgeInterval = 24; # Configures the purge interval to 24 hours.
       extraConf = ''
-        initLimit=10
-        syncLimit=5
+        initLimit=5
+        syncLimit=2
         tickTime=2000
-      ''; # Adds extra Zookeeper configuration.
+        admin.enableServer=true
+        admin.serverPort=8438
+      ''; # Add your desired admin port here
     };
   };
 }
