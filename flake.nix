@@ -170,6 +170,8 @@
     dataflow2nix.url = "github:GTrunSec/dataflow2nix";
 
     nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
+
+    gradle2nix.url = "github:tadfisher/gradle2nix";
   };
 
   outputs = inputs:
