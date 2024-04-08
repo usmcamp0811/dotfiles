@@ -42,6 +42,16 @@ in {
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.kafka = {
+              rule = "Host(`kafka.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "kafka";
+            };
+
+            http.services.kafka = {
+              loadBalancer.servers = [{ url = "http://lucas:9092"; }];
+            };
+
             http.routers.grafana = {
               rule = "Host(`grafana.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
