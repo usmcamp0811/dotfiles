@@ -44,6 +44,6 @@ in {
       servers = servers;
       logging = logging;
       dataDir = dataDir;
-    }
+    };
   };
 }

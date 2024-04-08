@@ -61,6 +61,6 @@ in {
   config = mkIf cfg.enable {
     services.apache-kafka = {
       enable = true;   
-    }
+    };
   };
 }
