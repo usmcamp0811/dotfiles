@@ -10,9 +10,7 @@ in {
       default = "";
       type = types.lines;
       example = ''
-        server.0=host0:2888:3888
-        server.1=host1:2888:3888
-        server.2=host2:2888:3888
+        server.0=lucas:2888:3888
       '';
     };
 
@@ -41,9 +39,15 @@ in {
   config = mkIf cfg.enable {
     services.zookeeper = {
       enable = true;   
-      servers = servers;
-      logging = logging;
-      dataDir = dataDir;
+      servers = cfg.servers;
+      logging = cfg.logging;
+      dataDir = cfg.dataDir;
+      purgeInterval = 24; # Configures the purge interval to 24 hours.
+      extraConf = ''
+        initLimit=10
+        syncLimit=5
+        tickTime=2000
+      ''; # Adds extra Zookeeper configuration.
     };
   };
 }
