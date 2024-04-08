@@ -6,54 +6,31 @@ in {
   options.campground.services.apache-kafka = with types; {
     enable = mkBoolOpt false "Enable Kafka;";
 
-    settings = mkOption {
-      description = lib.mdDoc ''
-        [Kafka broker configuration](https://kafka.apache.org/documentation.html#brokerconfigs)
-        {file}`server.properties`.
-
-        Note that .properties files contain mappings from string to string.
-        Keys with dots are NOT represented by nested attrs in these settings,
-        but instead as quoted strings (ie. `settings."broker.id"`, NOT
-        `settings.broker.id`).
-     '';
-      type = types.submodule {
-        freeformType = with types; let
-          primitive = oneOf [bool int str];
-        in lazyAttrsOf (nullOr (either primitive (listOf primitive)));
-
-        options = {
-          "broker.id" = mkOption {
-            description = lib.mdDoc "Broker ID. -1 or null to auto-allocate in zookeeper mode.";
-            default = null;
-            type = with types; nullOr int;
-          };
-
-          "log.dirs" = mkOption {
-            description = lib.mdDoc "Log file directories.";
-            # Deliberaly leave out old default and use the rewrite opportunity
-            # to have users choose a safer value -- /tmp might be volatile and is a
-            # slightly scary default choice.
-            default = [ "/var/lib/kafka/logs" ];
-            type = with types; listOf path;
-          };
-
-          "listeners" = mkOption {
-            description = lib.mdDoc ''
-              Kafka Listener List.
-              See [listeners](https://kafka.apache.org/documentation/#brokerconfigs_listeners).
-            '';
-            type = types.listOf types.str;
-            default = [ "PLAINTEXT://0.0.0.0:9092" ];
-          };
-          "zookeeper.connect" = mkOption {
-            description = lib.mdDoc ''
-              Zookeepr connection string.
-            '';
-            type = types.listOf types.str;
-            default = [ "localhost:2181" ];
-          };
-        };
+    settings = lib.mkOption {
+      type = lib.types.attrs;
+      default = {
+        "broker.id" = 1;
+        "log.dirs" = [ "/var/lib/kafka/logs" ];
+        "listeners" = [ "PLAINTEXT://:9092" ];
+        "num.network.threads" = 3;
+        "num.io.threads" = 8;
+        "socket.send.buffer.bytes" = 102400;
+        "socket.receive.buffer.bytes" = 102400;
+        "socket.request.max.bytes" = 104857600;
+        "zookeeper.connect" = "localhost:2181";
       };
+      example = {
+        "broker.id" = 1;
+        "log.dirs" = [ "/var/lib/kafka/logs" ];
+        "listeners" = [ "PLAINTEXT://:9092" ];
+        "num.network.threads" = 3;
+        "num.io.threads" = 8;
+        "socket.send.buffer.bytes" = 102400;
+        "socket.receive.buffer.bytes" = 102400;
+        "socket.request.max.bytes" = 104857600;
+        "zookeeper.connect" = "localhost:2181";
+      };
+      description = "Kafka service settings.";
     };
 
     clusterId = mkOption {
