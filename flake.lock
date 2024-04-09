@@ -1914,7 +1914,7 @@
         "type": "github"
       }
     },
-    "gradle2nix": {
+    "gradle-2-nix": {
       "inputs": {
         "flake-utils": "flake-utils_10",
         "nixpkgs": "nixpkgs_10"
@@ -4443,7 +4443,7 @@
         "flake-checker": "flake-checker",
         "gBar": "gBar",
         "gpg-base-conf": "gpg-base-conf",
-        "gradle2nix": "gradle2nix",
+        "gradle-2-nix": "gradle-2-nix",
         "home-manager": "home-manager",
         "hyprland": "hyprland",
         "hyprland-contrib": "hyprland-contrib",
