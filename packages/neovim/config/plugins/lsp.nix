@@ -13,11 +13,13 @@
     ts-context-commentstring = { enable = true; };
     comment = {
       enable = true;
-      toggler = {
-        block = "<BS>";
-        line = "<BS><BS>";
+      settings = {
+        toggler = {
+          block = "<BS>";
+          line = "<BS><BS>";
+        };
+        opleader = { line = "<BS>"; };
       };
-      opleader = { line = "<BS>"; };
     };
     lsp = {
       enable = true;
