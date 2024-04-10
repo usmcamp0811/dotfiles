@@ -46,15 +46,15 @@ in {
           entrypoints = cfg.entrypoints;
           domains = [ "aicampground.com" "matt-camp.com" ];
           dynamicConfigOptions = {
-            # http.routers.adhoc = {
-            #   rule = "Host(`adhoc.aicampground.com`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "adhoc";
-            # };
-            #
-            # http.services.adhoc = {
-            #   loadBalancer.servers = [{ url = "http://reckless:8380"; }];
-            # };
+            http.routers.adhoc = {
+              rule = "Host(`adhoc.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "adhoc";
+            };
+
+            http.services.adhoc = {
+              loadBalancer.servers = [{ url = "http://reckless:5000"; }];
+            };
 
             http.routers.aicampground = {
               rule = "Host(`aicampground.com`)";
