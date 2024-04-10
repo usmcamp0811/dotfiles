@@ -11,7 +11,7 @@
     conjure = { enable = true; };
     vimtex = { enable = true; };
     ts-context-commentstring = { enable = true; };
-    comment-nvim = {
+    comment = {
       enable = true;
       toggler = {
         block = "<BS>";
