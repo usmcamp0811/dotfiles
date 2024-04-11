@@ -15,6 +15,7 @@ let
     description = "A Nix packaging of a Python package using Poetry2Nix";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
+    mainProgram = "ct";
   };
 
   pypkgs-build-requirements = {
