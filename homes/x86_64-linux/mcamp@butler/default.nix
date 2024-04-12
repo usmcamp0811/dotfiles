@@ -88,6 +88,7 @@ with lib.campground; {
       qutebrowser = enabled;
       ckb-next = enabled;
       slack = enabled;
+      compose2nix = enabled;
     };
     tools = {
       git = enabled;

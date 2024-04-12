@@ -90,6 +90,7 @@ with lib.campground; {
       ckb-next = enabled;
       mattermost-desktop = enabled;
       slack = enabled;
+      compose2nix = enabled;
     };
     tools = {
       git = enabled;
