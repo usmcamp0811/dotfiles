@@ -57,16 +57,16 @@ in {
             # };
 
             http.routers.aicampground = {
-              rule = "Host(`aicampground.com`)";
+              rule = "Host(`aicampground.com`) || Host(`matt-camp.com`)";
               entryPoints = [ "websecure" ];
               service = "aicampground";
             };
 
-            http.routers.matt-camp = {
-              rule = "Host(`matt-camp.com`)";
-              entryPoints = [ "websecure" ];
-              service = "matt-camp";
-            };
+            # http.routers.matt-camp = {
+            #   rule = "Host(`matt-camp.com`)";
+            #   entryPoints = [ "websecure" ];
+            #   service = "matt-camp";
+            # };
 
             http.services.matt-camp = {
               loadBalancer.servers = [{ url = "http://lucas:4356"; }];
