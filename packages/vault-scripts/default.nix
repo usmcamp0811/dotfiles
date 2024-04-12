@@ -1,4 +1,4 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+{ lib, writeText, writeShellScriptBin, substituteAll, gum, inputs, pkgs
 , hosts ? { }, ... }:
 
 let
@@ -36,9 +36,22 @@ let
       chmod +x $out/bin/check-vault-paths
     '';
   };
+
+  run-script = writeShellScriptBin "run-script" ''
+    #!/usr/bin/env sh
+    if [ $# -lt 1 ]; then
+      echo "Usage: $0 <script> [args]"
+      exit 1
+    fi
+    SCRIPT=$1
+    shift
+    echo "Running: $SCRIPT" 
+    sh ${vault-scripts}/bin/$SCRIPT "$@"
+  '';
   new-meta = with lib; {
     description = description;
     license = licenses.mit;
     maintainers = with maintainers; [ mattcamp ];
+    mainProgram = "run-script";
   };
-in override-meta new-meta vault-scripts
+in override-meta new-meta run-script
