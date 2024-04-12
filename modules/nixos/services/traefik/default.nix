@@ -41,6 +41,11 @@ in {
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
     };
+    accessLog = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Enable access logs.";
+    };
     accessLogFilePath = mkOption {
       type = types.path;
       default = "/var/log/traefik/access.log";
