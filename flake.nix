@@ -249,7 +249,6 @@
       # // {
       # };
       outputs-builder = channels: {
-        # formatter = channels.nixpkgs.alejandra;
         checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
           src = ./.;
           hooks = { nixpkgs-fmt.enable = true; };
