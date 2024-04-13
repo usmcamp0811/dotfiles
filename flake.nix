@@ -176,29 +176,30 @@
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  outputs = inputs: let
-    inherit (inputs) deploy-rs;
-    lib = inputs.snowfall-lib.mkLib {
-      inherit inputs;
-      src = ./.;
-      snowfall = {
-        meta = {
-          name = "campground";
-          title = "AI Campground";
-        };
+  outputs = inputs:
+    let
+      inherit (inputs) deploy-rs;
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
+        snowfall = {
+          meta = {
+            name = "campground";
+            title = "AI Campground";
+          };
 
-        namespace = "campground";
+          namespace = "campground";
+        };
       };
-    };
-    # system = "x86_64-linux";
-    # pkgs = import nixpkgs {
-    #   inherit system;
-    # };
-  in
+      # system = "x86_64-linux";
+      # pkgs = import nixpkgs {
+      #   inherit system;
+      # };
+    in
     lib.mkFlake {
       channels-config = {
         allowUnfree = true;
-        permittedInsecurePackages = ["python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4"];
+        permittedInsecurePackages = [ "python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4" ];
       };
 
       overlays = with inputs; [
@@ -230,46 +231,46 @@
       ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
-      systems.hosts.base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
+      systems.hosts.base.modules = [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
 
-      deploy = lib.mkDeploy {inherit (inputs) self;};
+      deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      # checks = let
-      #   # Assuming `mlflow` is available through your flake's package set,
-      #   # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
-      #   # This assumes your flake's packages are made available to `nixpkgs` package set,
-      #   # which might involve using overlays or similar mechanisms.
-      #   pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-      # in
-      #   builtins.mapAttrs
-      #   (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
-      #   deploy-rs.lib;
-      # # // {
-      # # };
+      checks =
+        let
+          # Assuming `mlflow` is available through your flake's package set,
+          # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
+          # This assumes your flake's packages are made available to `nixpkgs` package set,
+          # which might involve using overlays or similar mechanisms.
+          pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        in
+        builtins.mapAttrs
+          (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
+          deploy-rs.lib;
+      # // {
+      # };
       outputs-builder = channels: {
-        formatter = channels.nixpkgs.alejandra;
+        # formatter = channels.nixpkgs.alejandra;
         checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
           src = ./.;
-          hooks = {alejandra.enable = true;};
+          hooks = { nixpkgs-fmt.enable = true; };
         };
-
-        # checks.mlflow-test = channels.nixpkgs.nixosTest {
-        #   name = "mlflow-test";
-        #   nodes = {
-        #     machine = {
-        #       config,
-        #       inputs,
-        #       ...
-        #     }: {
-        #       environment.systemPackages = [inputs.self.mlflow-server];
-        #     };
-        #   };
-        #   testScript = ''
-        #     startAll;
-        #     machine.waitUntilSucceeds("mlflow --help");
-        #     machine.succeed("mlflow --help");
-        #   '';
-        # };
+        checks.mlflow-test = channels.nixpkgs.nixosTest {
+          name = "mlflow-test";
+          nodes = {
+            machine =
+              { config
+              , inputs
+              , ...
+              }: {
+                environment.systemPackages = [ inputs.self.mlflow-server ];
+              };
+          };
+          testScript = ''
+            startAll;
+            machine.waitUntilSucceeds("mlflow --help");
+            machine.succeed("mlflow --help");
+          '';
+        };
       };
       templates = {
         basic = {
