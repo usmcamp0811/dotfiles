@@ -241,7 +241,7 @@
           # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
           # This assumes your flake's packages are made available to `nixpkgs` package set,
           # which might involve using overlays or similar mechanisms.
-          pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+          # pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
         in
         builtins.mapAttrs
           (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
@@ -255,16 +255,15 @@
             nixpkgs-fmt.enable = true;
             flake8.enable = true;
             markdownlint.enable = true;
+            yamllint.enable = true;
+            deadnix.enable = true;
           };
         };
         checks.mlflow-test = channels.nixpkgs.nixosTest {
           name = "mlflow-test";
           nodes = {
             machine =
-              { config
-              , inputs
-              , ...
-              }: {
+              { inputs, ... }: {
                 environment.systemPackages = [ inputs.self.mlflow-server ];
               };
           };
