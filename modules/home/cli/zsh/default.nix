@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, inputs, pkgs, ... }:
 
 let
   inherit (lib) mkEnableOption mkIf;
@@ -15,10 +15,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    users.user = {
-      imports = [catppuccin.homeManagerModules.catppuccin];
-    };
-
     programs.zsh = {
       enable = true;
       enableCompletion = true;
