@@ -173,6 +173,7 @@
 
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
+    catppuccin.url = "github:catppuccin/nix";
   };
 
   outputs = inputs:
@@ -222,6 +223,7 @@
         vault-service.nixosModules.nixos-vault-service
         dataflow2nix.nixosModules.airflow
         nix-topology.nixosModules.default
+        catppuccin.nixosModules.catppuccin
         # scientific-fhs.nixosModules.default
       ];
 

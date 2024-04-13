@@ -15,6 +15,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    users.user = {
+      imports = [catppuccin.homeManagerModules.catppuccin];
+    };
+
     programs.zsh = {
       enable = true;
       enableCompletion = true;
