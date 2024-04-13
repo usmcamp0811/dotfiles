@@ -1,10 +1,8 @@
 { inputs, system, lib, pkgs, ... }:
-let
-  config = import ./config; 
-in
+let config = import ./config;
 
-pkgs.nixvim.makeNixvimWithModule {
-          inherit pkgs;
-          module = (config { inherit pkgs; });
-        }
+in pkgs.nixvim.makeNixvimWithModule {
+  inherit pkgs;
+  module = (config { inherit pkgs; });
+}
 

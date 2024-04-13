@@ -239,30 +239,29 @@
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
       checks = let
-  # Assuming `mlflow` is available through your flake's package set,
-  # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
-  # This assumes your flake's packages are made available to `nixpkgs` package set,
-  # which might involve using overlays or similar mechanisms.
-  pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-in builtins.mapAttrs
-        (_system: deploy-lib:
-          deploy-lib.deployChecks inputs.self.deploy)
-        deploy-rs.lib;
-        # // {
-        #   x86_64-linux.mlflow-test = pkgs.nixosTest {
-        #     name = "mlflow-test";
-        #     nodes = {
-        #       machine = { config, pkgs, ... }: {
-        #         environment.systemPackages = [ pkgs.mlflow-server ];
-        #       };
-        #     };
-        #     testScript = ''
-        #       startAll;
-        #       machine.waitUntilSucceeds("mlflow --help");
-        #       machine.succeed("mlflow --help");
-        #     '';
-        #   };
-        # };
+        # Assuming `mlflow` is available through your flake's package set,
+        # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
+        # This assumes your flake's packages are made available to `nixpkgs` package set,
+        # which might involve using overlays or similar mechanisms.
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+      in builtins.mapAttrs
+      (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
+      deploy-rs.lib;
+      # // {
+      #   x86_64-linux.mlflow-test = pkgs.nixosTest {
+      #     name = "mlflow-test";
+      #     nodes = {
+      #       machine = { config, pkgs, ... }: {
+      #         environment.systemPackages = [ pkgs.mlflow-server ];
+      #       };
+      #     };
+      #     testScript = ''
+      #       startAll;
+      #       machine.waitUntilSucceeds("mlflow --help");
+      #       machine.succeed("mlflow --help");
+      #     '';
+      #   };
+      # };
 
       templates = {
         basic = {

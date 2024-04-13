@@ -33,10 +33,7 @@ let
   resume-builder = pkgs.stdenv.mkDerivation {
     name = "resume-builder";
     src = ./.;
-    propagatedBuildInputs = [
-      pkgs.texliveTeTeX
-      pkgs.texliveFull
-    ];
+    propagatedBuildInputs = [ pkgs.texliveTeTeX pkgs.texliveFull ];
     installPhase = ''
       mkdir -p $out/bin
       cp ${make-resume}/bin/make-resume $out/bin/make-resume
@@ -48,5 +45,4 @@ let
     maintainers = with maintainers; [ mattcamp ];
     mainProgram = "make-resume";
   };
-in 
-override-meta new-meta resume-builder
+in override-meta new-meta resume-builder

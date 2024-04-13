@@ -38,7 +38,7 @@ in {
 
   config = mkIf cfg.enable {
     services.zookeeper = {
-      enable = true;   
+      enable = true;
       servers = cfg.servers;
       logging = cfg.logging;
       dataDir = cfg.dataDir;

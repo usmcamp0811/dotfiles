@@ -5,8 +5,7 @@ let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   julia-env = pkgs.julia.withPackages [ "Pluto" "PythonCall" ];
-in 
-writeShellApplication {
+in writeShellApplication {
   name = "pluto";
   meta = { mainProgram = "pluto"; };
   text = ''

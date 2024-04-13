@@ -23,6 +23,5 @@ let
     #   yarn build --offline
     # '';
   };
-in
-nix-slides
+in nix-slides
 # offlineCache

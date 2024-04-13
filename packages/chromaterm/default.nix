@@ -1,12 +1,5 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
+, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -18,25 +11,22 @@ let
     mainProgram = "ct";
   };
 
-  pypkgs-build-requirements = {
-   chromaterm = [ "setuptools" ];
-  };
+  pypkgs-build-requirements = { chromaterm = [ "setuptools" ]; };
 
   p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super:
     builtins.mapAttrs (package: build-requirements:
       (builtins.getAttr package super).overridePythonAttrs (old: {
-        buildInputs = (old.buildInputs or [ ]) ++ (builtins.map (pkg: if builtins.isString pkg then builtins.getAttr pkg super else pkg) build-requirements);
+        buildInputs = (old.buildInputs or [ ]) ++ (builtins.map (pkg:
+          if builtins.isString pkg then builtins.getAttr pkg super else pkg)
+          build-requirements);
 
-      })
-    ) pypkgs-build-requirements
-  );
- 
-  chromaterm-env = pkgs.poetry2nix.mkPoetryEnv{
+      })) pypkgs-build-requirements);
+
+  chromaterm-env = pkgs.poetry2nix.mkPoetryEnv {
     projectDir = ./.;
     overrides = p2n-overrides;
     python = pkgs.python311;
   };
-
 
   chromaterm = pkgs.stdenv.mkDerivation {
     name = "chromaterm";
@@ -48,5 +38,4 @@ let
       cp -r ${chromaterm-env}/bin/* $out/bin
     '';
   };
-in 
-override-meta new-meta chromaterm
+in override-meta new-meta chromaterm

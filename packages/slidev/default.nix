@@ -1,5 +1,5 @@
-{ lib, writeText, fetchFromGitHub, fetchYarnDeps, mkYarnPackage, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib, writeText, fetchFromGitHub, fetchYarnDeps, mkYarnPackage, substituteAll
+, gum, inputs, pkgs, hosts ? { }, ... }:
 
 let
   inherit (lib) mapAttrsToList concatStringsSep;
@@ -14,7 +14,8 @@ let
     owner = "slidevjs";
     repo = "slidev";
     rev = "v0.48.8"; # Use the latest release or commit hash
-    sha256 = "sha256-yhm9ZQcQ/QXqAIb15VomX/gc287EoLuZzGYTUWNYj0o="; # Update this with the correct hash
+    sha256 =
+      "sha256-yhm9ZQcQ/QXqAIb15VomX/gc287EoLuZzGYTUWNYj0o="; # Update this with the correct hash
   };
   nix-slides = mkYarnPackage {
     version = "0.1.0";
@@ -30,6 +31,5 @@ let
     #   yarn build --offline
     # '';
   };
-in
-nix-slides
+in nix-slides
 # offlineCache

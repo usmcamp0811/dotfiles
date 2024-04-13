@@ -21,7 +21,7 @@ writeShellScriptBin "mac-nix" ''
         ;;
     esac
   done
-  
+
   # Set positional arguments back
   set -- "''${POSITIONAL_ARGS[@]}"
 

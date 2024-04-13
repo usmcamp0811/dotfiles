@@ -10,8 +10,7 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+in {
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -22,7 +21,8 @@ in
       zfs = {
         enable = true;
         hostId = "13ec383b"; # run -> head -c 8 /dev/machine-id
-        keyfile-url = "http://10.8.0.1:1234/zfs-keyfile"; # optional for autounlocking
+        keyfile-url =
+          "http://10.8.0.1:1234/zfs-keyfile"; # optional for autounlocking
       };
       passwds = enabled;
     };
@@ -31,7 +31,7 @@ in
       name = "abe";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
 
     services = {
