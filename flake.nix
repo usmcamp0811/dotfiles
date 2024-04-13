@@ -251,7 +251,10 @@
       outputs-builder = channels: {
         checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
           src = ./.;
-          hooks = { nixpkgs-fmt.enable = true; };
+          hooks = {
+            nixpkgs-fmt.enable = true;
+            flake8.enable = true;
+          };
         };
         checks.mlflow-test = channels.nixpkgs.nixosTest {
           name = "mlflow-test";
