@@ -58,7 +58,7 @@ Here's an overview of what my Nix configuration offers:
 
 - **Automated Deploy**: Ability to automatically deploy all systems through Gitlab CICD or with `deploy --host <hostname> .#<hostname>`.
 
-- Git Pre-Commit Hooks: Seamless integration of git hooks with Nix. 
+- Git Pre-Commit Hooks: Seamless integration of git hooks with Nix. To enable the hooks just activate the default shell. `nix develop`
 
 
 ## Customization
