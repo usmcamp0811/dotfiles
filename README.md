@@ -58,6 +58,9 @@ Here's an overview of what my Nix configuration offers:
 
 - **Automated Deploy**: Ability to automatically deploy all systems through Gitlab CICD or with `deploy --host <hostname> .#<hostname>`.
 
+- Git Pre-Commit Hooks: Seamless integration of git hooks with Nix. 
+
+
 ## Customization
 
 Leveraging the SnowfallOrg lib architecture, my Nix setup offers a streamlined and well-organized way to handle your Nix ecosystem. Here’s the breakdown:

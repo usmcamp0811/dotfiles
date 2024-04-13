@@ -10,25 +10,26 @@
   };
 
   # Use flake-utils to simplify flake outputs for multiple systems
-  outputs = {
-    self,
-    julia2nix,
-    poetry2nix,
-    nixpkgs,
-    flake-utils,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
+  outputs =
+    { self
+    , julia2nix
+    , poetry2nix
+    , nixpkgs
+    , flake-utils
+    , ...
+    }:
+    flake-utils.lib.eachDefaultSystem (system:
+    let
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [poetry2nix.overlays.default];
-        config = {allowUnfree = true;};
+        overlays = [ poetry2nix.overlays.default ];
+        config = { allowUnfree = true; };
       };
       julia-env =
-        pkgs.julia.withPackages ["Pluto" "FileIO" "JLD2" "PythonCall"];
+        pkgs.julia.withPackages [ "Pluto" "FileIO" "JLD2" "PythonCall" ];
       shell-env = pkgs.buildEnv rec {
         name = "shell-env";
-        paths = [julia-env pluto];
+        paths = [ julia-env pluto ];
       };
       pluto = pkgs.writeShellScriptBin "pluto" ''
         #!/usr/bin/env bash
@@ -54,17 +55,30 @@
         command = "${pluto}/bin/pluto --port ${"PORT:-1234"}";
       };
       shell = pkgs.mkShell {
-        buildInputs = [shell-env];
+        buildInputs = [ shell-env ];
         shellHook = ''
           echo "Example Shell Container with Pluto.jl" | ${pkgs.figlet}/bin/figlet
         '';
       };
-    in {
+      # adds shell hooks to the nix dev shell but not the container this creates
+      devShell = {
+        buildInputs = shell.buildInputs ++ self.checks.${system}.pre-commit-check.enabledPackages;
+        shellHook = shell.shellHook + "\n" + (self.checks.${system}.pre-commit-check.shellHook or "");
+      };
+    in
+    {
       packages = {
         container = shell-img;
         pluto = pluto;
       };
-
-      devShells.default = shell;
+      checks = {
+        pre-commit-check = pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            nixpkgs-fmt.enable = true;
+          };
+        };
+      };
+      devShells.default = devShell;
     });
 }
