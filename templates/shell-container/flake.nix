@@ -4,6 +4,7 @@
   # Specifies the inputs for this flake, such as nixpkgs
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
     poetry2nix.url = "github:nix-community/poetry2nix";
@@ -12,7 +13,7 @@
   # Use flake-utils to simplify flake outputs for multiple systems
   outputs =
     { self
-    , julia2nix
+    , pre-commit-hooks
     , poetry2nix
     , nixpkgs
     , flake-utils
@@ -61,7 +62,7 @@
         '';
       };
       # adds shell hooks to the nix dev shell but not the container this creates
-      devShell = {
+      devShell = pkgs.mkShell {
         buildInputs = shell.buildInputs ++ self.checks.${system}.pre-commit-check.enabledPackages;
         shellHook = shell.shellHook + "\n" + (self.checks.${system}.pre-commit-check.shellHook or "");
       };
