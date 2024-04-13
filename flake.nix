@@ -157,7 +157,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
     dream2nix.url = "github:nix-community/dream2nix";
     scientific-fhs = {
       url = "github:usmcamp0811/scientific-fhs/add-poetry";
@@ -210,7 +209,6 @@
         attic.overlays.default
         devshell.overlays.default
         nix-ld-rs.overlays.default
-        julia2nix.overlays.default
         nuenv.overlays.default
         nur.overlay
         nix-snapshotter.overlays.default
