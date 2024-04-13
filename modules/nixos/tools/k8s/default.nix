@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.k8s;
+with lib.campground; let
+  cfg = config.campground.tools.k8s;
 in {
   options.campground.tools.k8s = with types; {
     enable =

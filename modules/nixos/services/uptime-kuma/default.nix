@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.uptime-kuma;
+with lib.campground; let
+  cfg = config.campground.services.uptime-kuma;
 in {
   options.campground.services.uptime-kuma = with types; {
     enable = mkBoolOpt false "Enable an Searx;";

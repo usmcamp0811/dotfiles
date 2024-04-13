@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   imports = [
     ./plugins/alpha.nix
     ./plugins/molten.nix
@@ -108,15 +108,15 @@
     auto-save.enable = true;
     diffview.enable = true;
     mini.enable = true;
-    wilder = { enable = true; };
+    wilder = {enable = true;};
 
     # Neorg Configuration
     neorg = {
       enable = true;
       modules = {
-        "core.defaults" = { __empty = null; };
-        "core.summary" = { __empty = null; };
-        "core.concealer" = { __empty = null; };
+        "core.defaults" = {__empty = null;};
+        "core.summary" = {__empty = null;};
+        "core.concealer" = {__empty = null;};
         # "core.completion".config.engine = "nvim-cmp";
         "core.dirman" = {
           config = {
@@ -130,4 +130,3 @@
     };
   };
 }
-

@@ -1,18 +1,22 @@
-{ options, config, pkgs, lib, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.system.env;
+with lib.campground; let
+  cfg = config.campground.system.env;
 in {
   options.campground.system.env = with types;
     mkOption {
-      type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
+      type = attrsOf (oneOf [str path (listOf (either str path))]);
       apply = mapAttrs (n: v:
-        if isList v then
-          concatMapStringsSep ":" (x: toString x) v
-        else
-          (toString v));
-      default = { };
+        if isList v
+        then concatMapStringsSep ":" (x: toString x) v
+        else (toString v));
+      default = {};
       description = "A set of environment variables to set.";
     };
 
@@ -33,7 +37,8 @@ in {
         LESSHISTFILE = "$XDG_CACHE_HOME/less.history";
         WGETRC = "$XDG_CONFIG_HOME/wgetrc";
       };
-      extraInit = concatStringsSep "\n"
+      extraInit =
+        concatStringsSep "\n"
         (mapAttrsToList (n: v: ''export ${n}="${v}"'') cfg);
     };
   };

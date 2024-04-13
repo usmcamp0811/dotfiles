@@ -1,6 +1,9 @@
-{ lib, config, pkgs, ... }:
-
-let
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.desktop.addons.kitty;
@@ -11,8 +14,7 @@ in {
 
   config = mkIf cfg.enable {
     fonts.fontconfig.enable = true;
-    home.packages =
-      [ (pkgs.nerdfonts.override { fonts = [ "FiraCode" "SourceCodePro" ]; }) ];
+    home.packages = [(pkgs.nerdfonts.override {fonts = ["FiraCode" "SourceCodePro"];})];
     programs.kitty = {
       enable = true;
       theme = "Alabaster Dark";

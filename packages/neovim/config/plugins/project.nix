@@ -1,5 +1,5 @@
 {
-  plugins = { project-nvim.enable = true; };
+  plugins = {project-nvim.enable = true;};
   extraConfigLua = ''
     local status_ok, project = pcall(require, "project_nvim")
     if not status_ok then
@@ -53,5 +53,4 @@
     --[[   autocmd FileType * if &ft != 'norg' |ProjectRoot| endif ]]
     --[[ ]]
   '';
-
 }

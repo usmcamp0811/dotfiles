@@ -1,7 +1,15 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, system, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  system,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   inherit system;
@@ -28,6 +36,7 @@ let
   new-meta = with lib; {
     description = description;
     license = licenses.asl20;
-    maintainers = with maintainers; [ mattcamp ];
+    maintainers = with maintainers; [mattcamp];
   };
-in override-meta new-meta netmaker-ui
+in
+  override-meta new-meta netmaker-ui

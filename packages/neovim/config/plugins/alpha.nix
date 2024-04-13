@@ -136,8 +136,7 @@
             {
               type = "button";
               val = "󱔚 Neorg Home";
-              on_press.__raw =
-                "function() vim.cmd(':e ~/vimwiki/home/index.norg<CR>') end";
+              on_press.__raw = "function() vim.cmd(':e ~/vimwiki/home/index.norg<CR>') end";
               opts = {
                 shortcut = "N";
                 keymap = [
@@ -194,4 +193,3 @@
     };
   };
 }
-

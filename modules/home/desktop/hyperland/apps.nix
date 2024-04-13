@@ -1,10 +1,14 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.hyprland;
 
-  hypr_socket_watch_dependencies = with pkgs; [ coreutils gnused ];
+  hypr_socket_watch_dependencies = with pkgs; [coreutils gnused];
   configure-gtk = pkgs.writeTextFile {
     name = "configure-gtk";
     destination = "/bin/configure-gtk";

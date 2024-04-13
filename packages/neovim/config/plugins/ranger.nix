@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ rnvimr ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [rnvimr];
 
   extraConfigLua = ''
     vim.cmd [[
@@ -77,4 +77,3 @@
     ]]
   '';
 }
-

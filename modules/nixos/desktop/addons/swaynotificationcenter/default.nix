@@ -1,10 +1,14 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.addons.swaynotificationcenter;
-  swayncConfig = import ./config.nix { inherit pkgs; };
+  swayncConfig = import ./config.nix {inherit pkgs;};
   swayncConfigFile = pkgs.writeTextFile {
     name = "swaync-config.json";
     text = builtins.toJSON swayncConfig;
@@ -15,14 +19,12 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     environment.systemPackages = with pkgs; [
       swaynotificationcenter
       libnotify
     ];
     # home.file.".config/swaync/config.json".source = lib.cleanSource swayncConfigFile;
-    # home.file.".config/swaync/style.css".source = ./config/style.css; 
+    # home.file.".config/swaync/style.css".source = ./config/style.css;
     # home.file.".config/swaync/catppuccin.css".source = ./config/catppuccin.css;
   };
 }
-

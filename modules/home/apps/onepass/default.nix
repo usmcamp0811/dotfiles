@@ -1,9 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.apps.onepass;
-
+with lib.campground; let
+  cfg = config.campground.apps.onepass;
 in {
   options.campground.apps.onepass = with types; {
     enable =
@@ -11,6 +15,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ _1password-gui _1password ];
+    home.packages = with pkgs; [_1password-gui _1password];
   };
 }

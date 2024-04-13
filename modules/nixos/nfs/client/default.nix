@@ -1,8 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.nfs.client;
+with lib.campground; let
+  cfg = config.campground.nfs.client;
 in {
   options.campground.nfs.client = with types; {
     enable = mkBoolOpt false "NFS";
@@ -11,7 +16,6 @@ in {
     chestyfs = mkBoolOpt false "Whether or not to chestyfs mount.";
     k8s = mkBoolOpt false "Whether or not to k8s mount.";
     media = mkBoolOpt false "Whether or not to media mount.";
-
   };
 
   config = mkIf cfg.enable {
@@ -19,30 +23,30 @@ in {
     systemd.mounts = let
       commonMountOptions = {
         type = "nfs";
-        mountConfig = { Options = "noatime"; };
+        mountConfig = {Options = "noatime";};
       };
-
     in [
-      (commonMountOptions // {
-        what = "reckless:/export/media";
-        where = "/mnt/media";
-      })
+      (commonMountOptions
+        // {
+          what = "reckless:/export/media";
+          where = "/mnt/media";
+        })
 
-      (commonMountOptions // {
-        what = "webb:/export/webb";
-        where = "/mnt/webb";
-      })
+      (commonMountOptions
+        // {
+          what = "webb:/export/webb";
+          where = "/mnt/webb";
+        })
     ];
 
     systemd.automounts = let
       commonAutoMountOptions = {
-        wantedBy = [ "multi-user.target" ];
-        automountConfig = { TimeoutIdleSec = "600"; };
+        wantedBy = ["multi-user.target"];
+        automountConfig = {TimeoutIdleSec = "600";};
       };
-
     in [
-      (commonAutoMountOptions // { where = "/mnt/media"; })
-      (commonAutoMountOptions // { where = "/mnt/webb"; })
+      (commonAutoMountOptions // {where = "/mnt/media";})
+      (commonAutoMountOptions // {where = "/mnt/webb";})
     ];
     #   fileSystems."/mnt/webb" = {
     #     device = "webb:/webb";
@@ -75,4 +79,3 @@ in {
     #   };
   };
 }
-

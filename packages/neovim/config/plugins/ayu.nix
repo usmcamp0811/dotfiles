@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ neovim-ayu ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [neovim-ayu];
   extraConfigLua = ''
 
     require('ayu').setup({
@@ -98,7 +98,7 @@
     local function set_colors(fg, bg)
     	return "guifg=" .. fg .. " guibg=" .. bg
     end
-    -- 
+    --
     -- -- Applying colors
     local api = vim.api
     api.nvim_command("hi StatusDefault " .. set_colors(colors.fg, colors.bg))

@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.matt-camp-website;
+with lib.campground; let
+  cfg = config.campground.services.matt-camp-website;
 in {
   options.campground.services.matt-camp-website = with types; {
     enable = mkBoolOpt false "Enable matt-camp-website;";
@@ -12,12 +17,13 @@ in {
     services.nginx = {
       enable = true;
       virtualHosts."matt-camp.com" = {
-        listen = [{
-          addr = "0.0.0.0";
-          port = cfg.port;
-        }];
-        root =
-          "${pkgs.campground.matt-camp-website}/libexec/matt-camp-website/deps/matt-camp-website/dist/spa";
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }
+        ];
+        root = "${pkgs.campground.matt-camp-website}/libexec/matt-camp-website/deps/matt-camp-website/dist/spa";
         extraConfig = ''
           location / {
             try_files $uri $uri/ =404;
@@ -27,4 +33,3 @@ in {
     };
   };
 }
-

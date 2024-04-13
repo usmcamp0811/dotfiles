@@ -1,13 +1,19 @@
-{ options, config, lib, pkgs, ... }:
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.archetypes.server;
+with lib.campground; let
+  cfg = config.campground.archetypes.server;
 in {
   options.campground.archetypes.server = with types; {
     enable = mkBoolOpt false "Whether or not to enable the server archetype.";
     k8s = mkBoolOpt false "Is this a K8s Node?";
     role = mkOption {
-      type = types.enum [ "controller" "controller+worker" "worker" "single" ];
+      type = types.enum ["controller" "controller+worker" "worker" "single"];
       default = "single";
       description = ''
         K8s role.
@@ -19,7 +25,7 @@ in {
 
   config = mkIf cfg.enable {
     campground = {
-      suites = { common = enabled; };
+      suites = {common = enabled;};
       system = {
         zfs = {
           enable = true;
@@ -38,7 +44,7 @@ in {
           package = pkgs.campground.k0s;
           role = cfg.role;
           apiAddress = "10.8.0.1";
-          apiSans = [ "daly" "ermy" "campnet" ];
+          apiSans = ["daly" "ermy" "campnet"];
           clusterName = "campground";
           isLeader = false; # Set this to true on the initial controller node
           dataDir = "/var/lib/k0s";

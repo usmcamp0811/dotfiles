@@ -1,17 +1,19 @@
-{ pkgs, lib, inputs, ... }:
-
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-
 in {
-  imports = [ ./hardware.nix ];
+  imports = [./hardware.nix];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
   campground = {
@@ -19,7 +21,7 @@ in {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
 
@@ -28,7 +30,7 @@ in {
       workstation = enabled;
     };
 
-    nfs.client = { enable = true; };
+    nfs.client = {enable = true;};
 
     hardware = {
       bluetooth = enabled;
@@ -36,24 +38,23 @@ in {
     };
 
     services = {
-      ldap-client = { enable = mkForce false; };
+      ldap-client = {enable = mkForce false;};
       attic-watch-store = enabled;
       zfs-key-server = {
         enable = false;
-        tang-servers =
-          [ "http://webb:1234" "http://lucas:1234" "http://ermy:1234" ];
+        tang-servers = ["http://webb:1234" "http://lucas:1234" "http://ermy:1234"];
       };
       wireguard-client = {
         enable = true;
         port = 1149;
-        ips = [ "10.100.0.2/32" ];
+        ips = ["10.100.0.2/32"];
         ip = "10.100.0.2/32";
         publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
       };
       user-secrets = {
         enable = true;
         users = {
-          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
+          mcamp = {files = ["id_ed25519" "passwords" "kubeconfig"];};
         };
       };
       vault-agent = {
@@ -76,6 +77,4 @@ in {
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
-
 }
-

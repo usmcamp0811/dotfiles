@@ -1,9 +1,13 @@
-{ pkgs, config, lib, nixos-hardware, nixosModules, ... }:
-
+{
+  pkgs,
+  config,
+  lib,
+  nixos-hardware,
+  nixosModules,
+  ...
+}:
 with lib;
-with lib.campground;
-
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -11,7 +15,7 @@ let
     shell = pkgs.zsh;
   };
 in {
-  imports = [ ./hardware.nix ];
+  imports = [./hardware.nix];
 
   campground = {
     archetypes.barebones = enabled;
@@ -21,8 +25,7 @@ in {
       zfs = {
         enable = true;
         hostId = "13ec383b"; # run -> head -c 8 /dev/machine-id
-        keyfile-url =
-          "http://10.8.0.1:1234/zfs-keyfile"; # optional for autounlocking
+        keyfile-url = "http://10.8.0.1:1234/zfs-keyfile"; # optional for autounlocking
       };
       passwds = enabled;
     };
@@ -31,7 +34,7 @@ in {
       name = "abe";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
     };
 
     services = {

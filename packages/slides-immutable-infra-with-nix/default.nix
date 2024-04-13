@@ -1,7 +1,15 @@
-{ lib, writeText, fetchYarnDeps, mkYarnPackage, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  fetchYarnDeps,
+  mkYarnPackage,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   src = ./immutable-infra-with-nix/.;
@@ -23,5 +31,7 @@ let
     #   yarn build --offline
     # '';
   };
-in nix-slides
+in
+  nix-slides
 # offlineCache
+

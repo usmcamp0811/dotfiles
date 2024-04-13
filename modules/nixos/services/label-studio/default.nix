@@ -1,14 +1,19 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   labelStudioSocket = "/run/label-studio.sock";
   cfg = config.campground.services.label-studio;
 in {
   options.campground.services.label-studio = with types; {
     enable = mkBoolOpt false "Enable label-studio;";
     port = mkOpt int 8080 "Port to listen on";
-    dbURI = mkOpt str
+    dbURI =
+      mkOpt str
       "postgresql+psycopg2://labelstudio:@/labelstudio?host=/var/run/postgresql"
       "DB URI";
     s3EndpointURL =
@@ -21,10 +26,11 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/mlflow"
+    vault-path =
+      mkOpt str "secret/campground/mlflow"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -36,8 +42,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-
-    environment.systemPackages = with pkgs; [ label_studio ];
+    environment.systemPackages = with pkgs; [label_studio];
     users.users.labelstudio = {
       isNormalUser = false;
       isSystemUser = true;
@@ -48,15 +53,14 @@ in {
       ]; # Optional if you want the user to be in additional groups
       home = "/var/lib/label-studio";
     };
-    users.groups.labelstudio = { };
+    users.groups.labelstudio = {};
 
-    systemd.tmpfiles.rules =
-      [ "d /var/lib/label-studio 0755 labelstudio labelstudio -" ];
+    systemd.tmpfiles.rules = ["d /var/lib/label-studio 0755 labelstudio labelstudio -"];
 
     systemd.services.label-studio = {
       description = "Label Studio";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
       environment = {
         DJANGO_DB = "postgresql";
         POSTGRE_NAME = "labelstudio";
@@ -86,19 +90,23 @@ in {
       #   host  all  all  0.0.0.0/0  reject
       #   host  all  all  ::0/0  reject
       # '';
-      databases = [{
-        name = "labelstudio";
-        user = "labelstudio";
-      }];
+      databases = [
+        {
+          name = "labelstudio";
+          user = "labelstudio";
+        }
+      ];
     };
     services.nginx = {
       enable = true;
       virtualHosts = {
         "label-studio.lan" = {
-          listen = [{
-            addr = "0.0.0.0";
-            port = cfg.port;
-          }]; # Specify the port here
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = cfg.port;
+            }
+          ]; # Specify the port here
           http2 = true;
           locations."/" = {
             proxyPass = "http://127.0.0.1:5903";
@@ -112,14 +120,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets.environment.templates = {

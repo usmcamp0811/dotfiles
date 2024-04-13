@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  plugins = { conjure.enable = true; };
+{pkgs, ...}: {
+  plugins = {conjure.enable = true;};
   extraConfigLua = ''
     --[[ -- local function file_exists(name) ]]
     --    local f=io.open(name,"r")

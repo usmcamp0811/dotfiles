@@ -10,7 +10,7 @@
       collapse = "⊟";
       codeAction = "💡";
       actionfix = "";
-      kind = { };
+      kind = {};
       impSign = "󰳛 ";
     };
 
@@ -64,11 +64,11 @@
       maxHeight = 0.5;
       leftWidth = 0.3;
       rightWidth = 0.3;
-      methods = { };
+      methods = {};
       default = "ref+imp";
       layout = "float";
       silent = false;
-      filter = { };
+      filter = {};
       keys = {
         shuttle = "[w";
         toggleOrOpen = "o";

@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.nix-output-monitor;
+with lib.campground; let
+  cfg = config.campground.tools.nix-output-monitor;
 in {
   options.campground.tools.nix-output-monitor = with types; {
     enable =
@@ -10,6 +15,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ output-monitor ];
+    environment.systemPackages = with pkgs; [output-monitor];
   };
 }

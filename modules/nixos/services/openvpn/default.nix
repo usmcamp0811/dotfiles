@@ -1,7 +1,11 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.openvpn;
   gen-server = pkgs.writeShellScriptBin "generate-server-ovpn" ''
     set -e
@@ -73,7 +77,6 @@ let
     echo "$SERVER_CERT" > /var/lib/vault/ovpn/server.crt
     echo "$SERVER_KEY" > /var/lib/vault/ovpn/server.key
   '';
-
 in {
   # TODO: clean up any unused options
   options.campground.services.openvpn = with types; {
@@ -84,16 +87,20 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "campground-pki/issue/vpn-server-role"
+    vault-path =
+      mkOpt str "campground-pki/issue/vpn-server-role"
       "The Vault path to the Server Cert in Vault";
-    vault-client-path = mkOpt str "campground-pki/issue/vpn-client-role"
+    vault-client-path =
+      mkOpt str "campground-pki/issue/vpn-client-role"
       "The Vault path to the Client Cert in Vault";
-    vault-ca-path = mkOpt str "campground-pki/cert/ca"
+    vault-ca-path =
+      mkOpt str "campground-pki/cert/ca"
       "The Vault path to the CA Cert in Vault";
-    vault-tls-path = mkOpt str "secret/campground/vpn"
+    vault-tls-path =
+      mkOpt str "secret/campground/vpn"
       "The Vault path to the TLS Key in Vault";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version used for tls key";
     };
@@ -105,29 +112,30 @@ in {
     common-name =
       mkOpt str "server.vpn.${cfg.domain-name}" "Common Name for Server Certs";
     domain-name = mkOpt str "aicampground.com" "Domain Name for Certs";
-    vpn-cert-csv = mkOpt str "/var/lib/vault/ovpn/vpn-certs.csv"
+    vpn-cert-csv =
+      mkOpt str "/var/lib/vault/ovpn/vpn-certs.csv"
       "CSV with Cert Serial Numbers";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ gen-server openvpn ];
+    environment.systemPackages = with pkgs; [gen-server openvpn];
     users.users.ovpn = {
       isSystemUser = true;
       group = "ovpn";
       description = "OpenVPN service user";
     };
 
-    users.groups.ovpn = { };
+    users.groups.ovpn = {};
 
     boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
     networking.nat = {
       enable = true;
       externalInterface = "eth0";
-      internalInterfaces = [ "tun0" ];
+      internalInterfaces = ["tun0"];
     };
 
-    networking.firewall.allowedUDPPorts = [ 1194 ];
+    networking.firewall.allowedUDPPorts = [1194];
 
     services.openvpn.servers = {
       campground = {
@@ -161,18 +169,18 @@ in {
       };
     };
 
-    # TODO: Refactor so that this just renews the server cert 
+    # TODO: Refactor so that this just renews the server cert
     # TODO: Refactor to make the `copyVPNcerts.sh` script is installed and can be run independent of the systmed service
     # TODO: Clean up or otherwise just make things look better and more uniform
     # TODO: Add OpenVPN Admin: https://github.com/flant/ovpn-admin
     # Probably just make it a package.. looks simple enough
     systemd.timers.genVPNserver-cert = {
       description = "Timer for Generate VPN Client Certs";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "daily"; # Runs every day at midnight
       };
-      unitConfig = { PartOf = [ "genVPNserver-cert.service" ]; };
+      unitConfig = {PartOf = ["genVPNserver-cert.service"];};
     };
 
     systemd.services.genVPNserver-cert = {
@@ -181,24 +189,26 @@ in {
         Type = "oneshot";
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
-        after = [ "vault-agent.service" ];
-        before = [ "openvpn-campground.service" ];
+        after = ["vault-agent.service"];
+        before = ["openvpn-campground.service"];
       };
-      wantedBy = [ "multi-user.target" ];
+      wantedBy = ["multi-user.target"];
     };
     # TODO: Refactor this so that we rotate server certs in a similar manner as the client certs
     campground.services.vault-agent.services.genVPNserver-cert = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {

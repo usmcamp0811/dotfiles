@@ -1,7 +1,14 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
@@ -33,7 +40,7 @@ let
   resume-builder = pkgs.stdenv.mkDerivation {
     name = "resume-builder";
     src = ./.;
-    propagatedBuildInputs = [ pkgs.texliveTeTeX pkgs.texliveFull ];
+    propagatedBuildInputs = [pkgs.texliveTeTeX pkgs.texliveFull];
     installPhase = ''
       mkdir -p $out/bin
       cp ${make-resume}/bin/make-resume $out/bin/make-resume
@@ -42,7 +49,8 @@ let
   new-meta = with lib; {
     description = "A package to compile my resume into a PDF";
     license = licenses.asl20;
-    maintainers = with maintainers; [ mattcamp ];
+    maintainers = with maintainers; [mattcamp];
     mainProgram = "make-resume";
   };
-in override-meta new-meta resume-builder
+in
+  override-meta new-meta resume-builder

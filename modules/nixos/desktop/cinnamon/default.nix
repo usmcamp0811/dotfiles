@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.cinnamon;
+with lib.campground; let
+  cfg = config.campground.desktop.cinnamon;
 in {
   options.campground.desktop.cinnamon = with types; {
     enable =
@@ -45,8 +50,8 @@ in {
     #    );
 
     systemd.services.campground-user-icon = {
-      before = [ "display-manager.service" ];
-      wantedBy = [ "display-manager.service" ];
+      before = ["display-manager.service"];
+      wantedBy = ["display-manager.service"];
 
       serviceConfig = {
         Type = "simple";
@@ -82,7 +87,7 @@ in {
     services.xserver = {
       enable = true;
       libinput.enable = true;
-      desktopManager.cinnamon = { enable = true; };
+      desktopManager.cinnamon = {enable = true;};
     };
 
     programs.kdeconnect = {

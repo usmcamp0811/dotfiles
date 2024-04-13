@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   plugins.molten = {
     enable = true; # Whether to enable molten-nvim
     settings = {
@@ -6,8 +6,7 @@
         false; # Automatically open the output window when your cursor moves over a cell
       copy_output =
         true; # Copy evaluation output to clipboard automatically (requires pyperclip)
-      enter_output_behavior =
-        "open_then_enter"; # The behavior of MoltenEnterOutput
+      enter_output_behavior = "open_then_enter"; # The behavior of MoltenEnterOutput
       image_provider = "image.nvim"; # How images are displayed
       output_crop_border =
         true; # ‘crops’ the bottom border of the output window

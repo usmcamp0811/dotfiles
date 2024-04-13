@@ -1,16 +1,19 @@
-{ pkgs, config, lib, nixos-hardware, nixosModules, ... }:
-
+{
+  pkgs,
+  config,
+  lib,
+  nixos-hardware,
+  nixosModules,
+  ...
+}:
 with lib;
-with lib.campground;
-
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-
   # findEnabledServices = { serviceName }: builtins.filter (name: let
   #   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
   #   in cfg) (builtins.attrNames self.nixosConfigurations);
@@ -20,14 +23,14 @@ let
   #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
   # }) searxEnabledSystems;
 in {
-  imports = [ ./hardware.nix ];
+  imports = [./hardware.nix];
 
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
     suites = {
@@ -46,10 +49,10 @@ in {
       };
     };
 
-    tools = { attic = enabled; };
+    tools = {attic = enabled;};
 
     services = {
-      ldap-client = { enable = mkForce false; };
+      ldap-client = {enable = mkForce false;};
       uptime-kuma = enabled;
       grafana = enabled;
       keycloak = {
@@ -135,17 +138,19 @@ in {
       wireguard = {
         enable = true;
         port = 1149;
-        ips = [ "10.100.0.1/24" ];
+        ips = ["10.100.0.1/24"];
         peers = [
-          { # butler
+          {
+            # butler
             publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
             presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-            allowedIPs = [ "10.100.0.2/32" ];
+            allowedIPs = ["10.100.0.2/32"];
           }
-          { # phone
+          {
+            # phone
             publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
             presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-            allowedIPs = [ "10.100.0.3/32" ];
+            allowedIPs = ["10.100.0.3/32"];
           }
         ];
       };
@@ -162,7 +167,7 @@ in {
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
+        users.mcamp = {files = ["id_ed25519" "passwords"];};
       };
 
       vault-agent = {

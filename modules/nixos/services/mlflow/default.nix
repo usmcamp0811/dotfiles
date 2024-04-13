@@ -1,7 +1,11 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.mlflow;
   inherit (pkgs.campground) mlflow;
   pythonEnv = pkgs.python3.withPackages (ps:
@@ -32,10 +36,11 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/mlflow"
+    vault-path =
+      mkOpt str "secret/campground/mlflow"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -47,17 +52,15 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     users.users.mlflow = {
       isNormalUser = false;
       isSystemUser = true;
       description = "MLflow system user";
       group = "mlflow";
-      extraGroups =
-        [ "mlflow" ]; # Optional if you want the user to be in additional groups
+      extraGroups = ["mlflow"]; # Optional if you want the user to be in additional groups
     };
 
-    users.groups.mlflow = { };
+    users.groups.mlflow = {};
 
     campground.services.postgresql = {
       enable = true;
@@ -70,19 +73,21 @@ in {
       #   host  all  all  0.0.0.0/0  reject
       #   host  all  all  ::0/0  reject
       # '';
-      databases = [{
-        name = "mlflow";
-        user = "mlflow";
-      }];
+      databases = [
+        {
+          name = "mlflow";
+          user = "mlflow";
+        }
+      ];
     };
 
     # campground.services.mysql = {
     #   enable = true;
     #   databases = [
-    #     { 
-    #       name = "mlflow"; 
-    #       user = "mlflow"; 
-    #     } 
+    #     {
+    #       name = "mlflow";
+    #       user = "mlflow";
+    #     }
     #   ];
     # };
 
@@ -91,10 +96,12 @@ in {
       virtualHosts = {
         "mlflow.lan" = {
           http2 = true;
-          listen = [{
-            addr = "0.0.0.0";
-            port = cfg.port;
-          }]; # Specify the port here
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = cfg.port;
+            }
+          ]; # Specify the port here
           locations."/" = {
             proxyPass = "http://127.0.0.1:5000";
             proxyWebsockets = true;
@@ -105,8 +112,8 @@ in {
 
     systemd.services.mlflow = {
       description = "MLflow tracking server";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
       environment = {
         MLFLOW_BACKEND_STORE_URI = "${cfg.dbURI}";
         MLFLOW_ARTIFACT_URI = "${cfg.artifactRoot}";
@@ -127,7 +134,7 @@ in {
       serviceConfig = {
         User = "mlflow";
         WorkingDirectory = "/var/lib/mlflow";
-        ReadWritePaths = [ "/var/lib/mlflow" ];
+        ReadWritePaths = ["/var/lib/mlflow"];
         Restart = "always";
       };
     };
@@ -136,20 +143,22 @@ in {
       "d /var/lib/mlflow 0755 mlflow mlflow -"
       "d /var/lib/mlflow/tmp 0755 mlflow mlflow -"
     ];
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
+    networking.firewall.allowedTCPPorts = [cfg.port];
 
     campground.services.vault-agent.services.mlflow = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets.environment.templates = {
@@ -164,5 +173,4 @@ in {
       };
     };
   };
-
 }

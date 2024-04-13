@@ -1,8 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.system.wifi;
+with lib.campground; let
+  cfg = config.campground.system.wifi;
 in {
   # Save Wifi Passwords in Vault with the SSID as the Key to the KV store
   options.campground.system.wifi = with types; {
@@ -13,7 +18,8 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/wifi"
+    vault-path =
+      mkOpt str "secret/campground/wifi"
       "The Vault path to the KV containing the Wifi Secrets.";
     vault-address = mkOption {
       type = str;
@@ -21,7 +27,7 @@ in {
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -34,7 +40,7 @@ in {
           };
         };
       });
-      default = { };
+      default = {};
       description = "A list of WiFi networks to connect to.";
     };
   };
@@ -50,14 +56,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {
@@ -74,7 +82,8 @@ in {
                     ${pkgs.networkmanager}/bin/nmcli con delete id $SSID
                   fi
                   ${pkgs.networkmanager}/bin/nmcli dev wifi connect $SSID password $PASSWORD
-                '') cfg.networks);
+                '')
+                cfg.networks);
               permissions = "0400";
               change-action = "restart";
             };

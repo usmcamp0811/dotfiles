@@ -1,12 +1,16 @@
-{ lib, config, pkgs, inputs, ... }:
-
-let
+{
+  lib,
+  config,
+  pkgs,
+  inputs,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli.spacevim;
 in {
-  options.campground.cli.spacevim = { enable = mkEnableOption "Neovim"; };
+  options.campground.cli.spacevim = {enable = mkEnableOption "Neovim";};
 
   config =
-    mkIf cfg.enable { home = { packages = with pkgs; [ less spacevim ]; }; };
+    mkIf cfg.enable {home = {packages = with pkgs; [less spacevim];};};
 }

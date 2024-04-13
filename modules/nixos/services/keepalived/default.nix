@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.keepalived;
+with lib.campground; let
+  cfg = config.campground.services.keepalived;
 in {
   options.campground.services.keepalived = {
     enable = lib.mkEnableOption "Enable KeepAliveD";
@@ -15,7 +20,7 @@ in {
           };
           ips = lib.mkOption {
             type = lib.types.listOf lib.types.str;
-            default = [ ];
+            default = [];
             description = "The IPs to bind to";
           };
           state = lib.mkOption {
@@ -35,7 +40,7 @@ in {
           };
         };
       });
-      default = { };
+      default = {};
       description = "KeepAliveD instances configuration.";
     };
   };
@@ -48,9 +53,10 @@ in {
         interface = instanceCfg.interface;
         state = instanceCfg.state;
         priority = instanceCfg.priority;
-        virtualIps = map (ip: { addr = ip; }) instanceCfg.ips;
+        virtualIps = map (ip: {addr = ip;}) instanceCfg.ips;
         virtualRouterId = instanceCfg.virtualRouterId;
-      }) cfg.instances;
-    environment.systemPackages = [ pkgs.tcpdump ];
+      })
+    cfg.instances;
+    environment.systemPackages = [pkgs.tcpdump];
   };
 }

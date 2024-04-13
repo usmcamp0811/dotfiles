@@ -1,7 +1,14 @@
-{ config, lib, options, pkgs, inputs, system, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  inputs,
+  system,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   # inherit (inputs) hyprland;
   # inherit (inputs) nixpkgs-wayland;
   configure-gtk = pkgs.writeTextFile {
@@ -29,13 +36,15 @@ let
     '';
   };
   cfg = config.campground.desktop.hyprland;
-  programs = lib.makeBinPath [ config.programs.hyprland.package ];
+  programs = lib.makeBinPath [config.programs.hyprland.package];
 in {
   options.campground.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to enable Hyprland.";
-    customConfigFiles = mkOpt attrs { }
+    customConfigFiles =
+      mkOpt attrs {}
       "Custom configuration files that can be used to override the default files.";
-    customFiles = mkOpt attrs { }
+    customFiles =
+      mkOpt attrs {}
       "Custom files that can be used to override the default files.";
     wallpaper = mkOpt (nullOr package) null "The wallpaper to display.";
   };
@@ -44,7 +53,8 @@ in {
     campground.desktop.addons.swaylock.enable = true;
     campground.apps = {
       gamemode = {
-        startscript = # bash
+        startscript =
+          # bash
           ''
             ${getExe pkgs.libnotify} 'GameMode started'
             export PATH=$PATH:${programs}
@@ -54,7 +64,8 @@ in {
             } --batch 'keyword decoration:blur 0 ; keyword animations:enabled 0 ; keyword misc:no_vfr 1'
           '';
 
-        endscript = # bash
+        endscript =
+          # bash
           ''
             ${getExe pkgs.libnotify} 'GameMode stopped'
             export PATH=$PATH:${programs}
@@ -89,7 +100,7 @@ in {
     xdg.portal = {
       enable = true;
       wlr.enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+      extraPortals = [pkgs.xdg-desktop-portal-gtk];
     };
     environment.systemPackages = with pkgs; [
       hyprpaper

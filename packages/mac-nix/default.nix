@@ -1,5 +1,8 @@
-{ lib, writeShellScriptBin, pkgs }:
-
+{
+  lib,
+  writeShellScriptBin,
+  pkgs,
+}:
 writeShellScriptBin "mac-nix" ''
   #!/usr/bin/env bash
   # This script wraps Nix commands to run inside a Docker container for compatibility with macOS.

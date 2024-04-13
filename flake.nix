@@ -88,23 +88,23 @@
     home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Vault Integration 
+    # Vault Integration
 
     vault-service = {
       url = "github:DeterminateSystems/nixos-vault-service";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # System Deployment 
+    # System Deployment
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
-    # Flake Hygiene 
+    # Flake Hygiene
     flake-checker = {
       url = "github:DeterminateSystems/flake-checker";
       inputs.nixpkgs.follows = "unstable";
     };
-    # Run unpatched dynamically compiled binaries 
+    # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
@@ -176,31 +176,29 @@
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  outputs = inputs:
-    let
-      inherit (inputs) deploy-rs;
-      lib = inputs.snowfall-lib.mkLib {
-        inherit inputs;
-        src = ./.;
-        snowfall = {
-          meta = {
-            name = "campground";
-            title = "AI Campground";
-          };
-
-          namespace = "campground";
+  outputs = inputs: let
+    inherit (inputs) deploy-rs;
+    lib = inputs.snowfall-lib.mkLib {
+      inherit inputs;
+      src = ./.;
+      snowfall = {
+        meta = {
+          name = "campground";
+          title = "AI Campground";
         };
-      };
-      # system = "x86_64-linux";
-      # pkgs = import nixpkgs {
-      #   inherit system;
-      # };
 
-    in lib.mkFlake {
+        namespace = "campground";
+      };
+    };
+    # system = "x86_64-linux";
+    # pkgs = import nixpkgs {
+    #   inherit system;
+    # };
+  in
+    lib.mkFlake {
       channels-config = {
         allowUnfree = true;
-        permittedInsecurePackages =
-          [ "python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4" ];
+        permittedInsecurePackages = ["python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4"];
       };
 
       overlays = with inputs; [
@@ -232,41 +230,46 @@
       ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
-      systems.hosts.base.modules =
-        [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
+      systems.hosts.base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
 
-      deploy = lib.mkDeploy { inherit (inputs) self; };
+      deploy = lib.mkDeploy {inherit (inputs) self;};
 
-      checks = let
-        # Assuming `mlflow` is available through your flake's package set,
-        # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
-        # This assumes your flake's packages are made available to `nixpkgs` package set,
-        # which might involve using overlays or similar mechanisms.
-        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-      in builtins.mapAttrs
-      (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
-      deploy-rs.lib;
-      # // {
-      #   x86_64-linux.mlflow-test = pkgs.nixosTest {
-      #     name = "mlflow-test";
-      #     nodes = {
-      #       machine = { config, pkgs, ... }: {
-      #         environment.systemPackages = [ pkgs.mlflow-server ];
-      #       };
-      #     };
-      #     testScript = ''
-      #       startAll;
-      #       machine.waitUntilSucceeds("mlflow --help");
-      #       machine.succeed("mlflow --help");
-      #     '';
-      #   };
-      # };
+      # checks = let
+      #   # Assuming `mlflow` is available through your flake's package set,
+      #   # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
+      #   # This assumes your flake's packages are made available to `nixpkgs` package set,
+      #   # which might involve using overlays or similar mechanisms.
+      #   pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+      # in
+      #   builtins.mapAttrs
+      #   (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
+      #   deploy-rs.lib;
+      # # // {
+      # # };
       outputs-builder = channels: {
-        checks.pre-commit-check =
-          inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-            src = ./.;
-            hooks = { nixpkgs-fmt.enable = true; };
-          };
+        formatter = channels.nixpkgs.alejandra;
+        checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+          src = ./.;
+          hooks = {alejandra.enable = true;};
+        };
+
+        # checks.mlflow-test = channels.nixpkgs.nixosTest {
+        #   name = "mlflow-test";
+        #   nodes = {
+        #     machine = {
+        #       config,
+        #       inputs,
+        #       ...
+        #     }: {
+        #       environment.systemPackages = [inputs.self.mlflow-server];
+        #     };
+        #   };
+        #   testScript = ''
+        #     startAll;
+        #     machine.waitUntilSucceeds("mlflow --help");
+        #     machine.succeed("mlflow --help");
+        #   '';
+        # };
       };
       templates = {
         basic = {
@@ -282,8 +285,5 @@
           description = "A new system config to get things started.";
         };
       };
-
     };
-
 }
-

@@ -57,11 +57,11 @@
             type = "zfs_fs";
             mountpoint = "/persist";
           };
-          encrypted = { type = "zfs_fs"; };
+          encrypted = {type = "zfs_fs";};
         };
       };
     };
   };
 }
-
 # sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
+

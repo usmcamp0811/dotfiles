@@ -1,30 +1,34 @@
-{ pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
-
+{
+  pkgs,
+  inputs,
+  lib,
+  nixos-hardware,
+  nixosModules,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-
 in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
-  boot.kernelModules = [ "igb" ];
+  boot.kernelModules = ["igb"];
 
   campground = {
     nix = enabled;
-    archetypes = { barebones = enabled; };
-    cli-apps = { flake = enabled; };
+    archetypes = {barebones = enabled;};
+    cli-apps = {flake = enabled;};
     tools = {
       git = enabled;
       misc = enabled;
     };
-    services = { openssh = enabled; };
+    services = {openssh = enabled;};
     system = {
       fonts = enabled;
       locale = enabled;
@@ -36,7 +40,7 @@ in {
       name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
     };
   };
 
@@ -48,4 +52,3 @@ in {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
 }
-

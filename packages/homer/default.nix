@@ -1,6 +1,9 @@
-{ yarn2nix-moretea, fetchFromGitHub, lib, ... }:
-
-let
+{
+  yarn2nix-moretea,
+  fetchFromGitHub,
+  lib,
+  ...
+}: let
   homer = yarn2nix-moretea.mkYarnPackage rec {
     pname = "homer";
     version = "unstable-2023-06-23";
@@ -20,7 +23,7 @@ let
       description = "A very simple static homepage for your server.";
       homepage = "https://github.com/bastienwirtz/homer";
       license = licenses.asl20;
-      maintainers = with maintainers; [ jakehamilton ];
+      maintainers = with maintainers; [jakehamilton];
     };
 
     doDist = false;
@@ -44,5 +47,5 @@ let
       runHook postInstall
     '';
   };
-in homer
-
+in
+  homer

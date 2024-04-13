@@ -1,7 +1,13 @@
-{ options, config, lib, pkgs, ... }:
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.archetypes.workstation;
+with lib.campground; let
+  cfg = config.campground.archetypes.workstation;
 in {
   options.campground.archetypes.workstation = with types; {
     enable =

@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ rnvimr markid ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [rnvimr markid];
 
   plugins = {
     treesitter = {

@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.apps.mattermost-desktop;
+with lib.campground; let
+  cfg = config.campground.apps.mattermost-desktop;
 in {
   options.campground.apps.mattermost-desktop = with types; {
     enable =
@@ -10,10 +15,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
-    home.packages = with pkgs; [ mattermost-desktop ];
-
+    home.packages = with pkgs; [mattermost-desktop];
   };
-
 }
-

@@ -1,6 +1,5 @@
-{ pkgs, ... }: {
-
-  extraPlugins = with pkgs.vimPlugins; [ knap ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [knap];
   extraConfigLua = ''
     -- set shorter name for keymap function
     local kmap = vim.keymap.set

@@ -1,7 +1,14 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "k0s";
@@ -21,11 +28,10 @@ let
   k0s = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     src = pkgs.fetchurl {
-      url =
-        "https://github.com/${owner}/${repo}/releases/download/v${version}/${repo}-v${version}-amd64";
+      url = "https://github.com/${owner}/${repo}/releases/download/v${version}/${repo}-v${version}-amd64";
       inherit hash;
     };
-    phases = [ "installPhase" ];
+    phases = ["installPhase"];
     installPhase = ''
       install -m 555 -D -- "$src" "$out"/bin/'${pname}'
     ''; # Shell completions could be added here.
@@ -34,6 +40,7 @@ let
   new-meta = with lib; {
     description = "k0s - The Zero Friction Kubernetes";
     license = licenses.asl20;
-    maintainers = with maintainers; [ jakehamilton ];
+    maintainers = with maintainers; [jakehamilton];
   };
-in override-meta new-meta k0s
+in
+  override-meta new-meta k0s

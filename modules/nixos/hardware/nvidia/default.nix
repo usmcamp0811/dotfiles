@@ -1,7 +1,13 @@
-{ options, config, inputs, pkgs, lib, ... }:
-
-with lib;
-let cfg = config.campground.hardware.nvidia;
+{
+  options,
+  config,
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
+  cfg = config.campground.hardware.nvidia;
 in {
   options.campground.hardware.nvidia = with types; {
     enable = mkEnableOption "Nvidia support";
@@ -17,29 +23,24 @@ in {
         "custom"
       ];
       default = "stable";
-      description =
-        "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
+      description = "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
     };
 
     customDriverPackage = mkOption {
       type = types.nullOr types.package;
       default = null;
-      description =
-        "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
+      description = "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
     };
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs;
-      [
-        nvtop
-
-      ];
+    environment.systemPackages = with pkgs; [
+      nvtop
+    ];
     # Load nvidia driver for Xorg and Wayland
-    services.xserver.videoDrivers = [ "nvidia" ];
+    services.xserver.videoDrivers = ["nvidia"];
 
     hardware.nvidia = {
-
       # Modesetting is required.
       modesetting.enable = true;
 
@@ -52,9 +53,9 @@ in {
       forceFullCompositionPipeline = true;
       # Use the NVidia open source kernel module (not to be confused with the
       # independent third-party "nouveau" open source driver).
-      # Support is limited to the Turing and later architectures. Full list of 
-      # supported GPUs is at: 
-      # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+      # Support is limited to the Turing and later architectures. Full list of
+      # supported GPUs is at:
+      # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
       # Only available from driver 515.43.04+
       # Currently alpha-quality/buggy, so false is currently the recommended setting.
       open = false;
@@ -65,10 +66,10 @@ in {
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
       # package = config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
-      package = if cfg.driverType == "custom" then
-        cfg.customDriverPackage
-      else
-        config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      package =
+        if cfg.driverType == "custom"
+        then cfg.customDriverPackage
+        else config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
       # package = config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
       #   version = "550.40.07";
       #   # the new driver
@@ -78,7 +79,6 @@ in {
       #         sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
       #       };
       # };
-
     };
     # Enable OpenGL
     hardware.opengl = {

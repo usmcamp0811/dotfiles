@@ -1,8 +1,14 @@
-{ config, lib, pkgs, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) getExe getExe';
 
-  githubHelper = pkgs.writeShellScriptBin "githubHelper" # bash
+  githubHelper =
+    pkgs.writeShellScriptBin "githubHelper" # bash
+    
     ''
       #!/usr/bin/env bash
 
@@ -53,19 +59,18 @@ in {
       "dnd-none" = "";
       "inhibited-notification" = "<span foreground='red'><sup></sup></span>";
       "inhibited-none" = "";
-      "dnd-inhibited-notification" =
-        "<span foreground='red'><sup></sup></span>";
+      "dnd-inhibited-notification" = "<span foreground='red'><sup></sup></span>";
       "dnd-inhibited-none" = "";
     };
     "return-type" = "json";
     "exec-if" = "which ${getExe' pkgs.swaynotificationcenter "swaync-client"}";
     "exec" = "${getExe' pkgs.swaynotificationcenter "swaync-client"} -swb";
     "on-click" = "${getExe' pkgs.coreutils "sleep"} 0.1 && ${
-        getExe' pkgs.swaynotificationcenter "swaync-client"
-      } -t -sw";
+      getExe' pkgs.swaynotificationcenter "swaync-client"
+    } -t -sw";
     "on-click-right" = "${getExe' pkgs.coreutils "sleep"} 0.1 && ${
-        getExe' pkgs.swaynotificationcenter "swaync-client"
-      } -d -sw";
+      getExe' pkgs.swaynotificationcenter "swaync-client"
+    } -d -sw";
     "escape" = true;
   };
 
@@ -107,7 +112,7 @@ in {
     "interval" = "once";
     "tooltip" = false;
     "on-click" = "${getExe' pkgs.coreutils "sleep"} 0.1 && ${
-        getExe pkgs.wlogout
-      } -c 5 -r 5 -p layer-shell";
+      getExe pkgs.wlogout
+    } -c 5 -r 5 -p layer-shell";
   };
 }

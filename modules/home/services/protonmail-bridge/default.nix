@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.protonmail-bridge;
+with lib.campground; let
+  cfg = config.campground.services.protonmail-bridge;
 in {
   options.campground.services.protonmail-bridge = with types; {
     enable = mkBoolOpt false "Whether or not to enable protonmail-bridge.";
@@ -14,22 +19,20 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.protonmail-bridge cfg.pass ];
+    home.packages = [pkgs.protonmail-bridge cfg.pass];
 
     services.pass-secret-service.enable = true;
     systemd.user.services.protonmail = {
       Unit = {
         Description = "Protonmail Bridge";
-        Requires = [ "pass-secret-service.service" "gpg-agent.socket" ];
+        Requires = ["pass-secret-service.service" "gpg-agent.socket"];
       };
       Service = {
         Restart = "always";
-        ExecStart =
-          "${pkgs.protonmail-bridge}/bin/protonmail-bridge --noninteractive";
-        Environment = [ "PATH=${cfg.pass}/bin" ];
+        ExecStart = "${pkgs.protonmail-bridge}/bin/protonmail-bridge --noninteractive";
+        Environment = ["PATH=${cfg.pass}/bin"];
       };
-      Install = { WantedBy = [ "default.target" ]; };
+      Install = {WantedBy = ["default.target"];};
     };
   };
 }
-

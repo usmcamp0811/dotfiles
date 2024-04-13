@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.addons.rofi;
+with lib.campground; let
+  cfg = config.campground.desktop.addons.rofi;
 in {
   options.campground.desktop.addons.rofi = with types; {
     enable =
@@ -10,9 +15,8 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ rofi ];
+    environment.systemPackages = with pkgs; [rofi];
 
     campground.home.configFile."rofi/config.rasi".source = ./config.rasi;
   };
 }
-

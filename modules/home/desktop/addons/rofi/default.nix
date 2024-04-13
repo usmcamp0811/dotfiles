@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.addons.rofi;
+with lib.campground; let
+  cfg = config.campground.desktop.addons.rofi;
 in {
   options.campground.desktop.addons.rofi = with types; {
     enable =
@@ -10,8 +15,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-
-    home.packages = with pkgs; [ wtype ];
+    home.packages = with pkgs; [wtype];
 
     programs.rofi = {
       enable = true;
@@ -38,7 +42,7 @@ in {
 
     xdg.configFile = {
       "rofi" = {
-        source = lib.cleanSourceWith { src = lib.cleanSource ./config/.; };
+        source = lib.cleanSourceWith {src = lib.cleanSource ./config/.;};
 
         recursive = true;
       };
@@ -60,4 +64,3 @@ in {
   #     '';
   #   };
 }
-

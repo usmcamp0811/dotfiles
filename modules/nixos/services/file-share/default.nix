@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.file-share;
+with lib.campground; let
+  cfg = config.campground.services.file-share;
 in {
   options.campground.services.file-share = with types; {
     enable = mkBoolOpt false "Enable file-share;";
@@ -12,10 +17,12 @@ in {
     services.nginx = {
       enable = true;
       virtualHosts."localhost" = {
-        listen = [{
-          addr = "0.0.0.0";
-          port = cfg.port;
-        }];
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }
+        ];
         root = "/export/share";
         locations."/".extraConfig = ''
           autoindex on;
@@ -24,4 +31,3 @@ in {
     };
   };
 }
-

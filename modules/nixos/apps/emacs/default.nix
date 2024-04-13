@@ -1,8 +1,12 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.apps.emacs;
   src = pkgs.fetchFromGitHub {
     owner = "syl20bnr";
@@ -17,7 +21,7 @@ in {
   };
 
   config = mkIf (cfg.enable || cfg.spacemacs) {
-    environment.systemPackages = mkIf cfg.enable (with pkgs; [ emacs29 ]);
+    environment.systemPackages = mkIf cfg.enable (with pkgs; [emacs29]);
 
     system.activationScripts.spacemacs = lib.mkIf cfg.spacemacs {
       text = ''

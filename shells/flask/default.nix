@@ -1,4 +1,8 @@
-{ mkShell, pkgs, ... }:
+{
+  mkShell,
+  pkgs,
+  ...
+}:
 mkShell {
   buildInputs = with pkgs; [
     deadnix

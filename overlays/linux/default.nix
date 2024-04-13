@@ -1,8 +1,7 @@
-{ unstable, channels, ... }:
-
-final: prev:
-
 {
+  unstable,
+  channels,
+  ...
+}: final: prev: {
   inherit (channels.unstable) linuxPackages_latest;
 }
-

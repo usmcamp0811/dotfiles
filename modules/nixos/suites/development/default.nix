@@ -1,11 +1,17 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.suites.development;
+with lib.campground; let
+  cfg = config.campground.suites.development;
 in {
   options.campground.suites.development = with types; {
-    enable = mkBoolOpt false
+    enable =
+      mkBoolOpt false
       "Whether or not to enable common development configuration.";
   };
 
@@ -23,5 +29,4 @@ in {
       };
     };
   };
-
 }

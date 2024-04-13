@@ -1,7 +1,11 @@
-{ pkgs, config, lib, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   inherit (lib.campground) override-meta;
   cudaFHS = pkgs.buildFHSUserEnv {
     name = "cuda-env";
@@ -34,7 +38,7 @@ let
         stdenv.cc
         binutils
       ];
-    multiPkgs = pkgs: with pkgs; [ zlib ];
+    multiPkgs = pkgs: with pkgs; [zlib];
     runScript = "bash";
     profile = ''
       export CUDA_PATH=${pkgs.cudatoolkit}
@@ -43,7 +47,8 @@ let
       export EXTRA_CCFLAGS="-I/usr/include"
     '';
   };
-in cudaFHS.env
+in
+  cudaFHS.env
 # pkgs.devshell.mkShell {
 #   imports = [ (pkgs.devshell.importTOML ./devshell.toml) ];
 #   commands = [

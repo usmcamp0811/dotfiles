@@ -1,11 +1,13 @@
-{ lib, config, pkgs, ... }:
-
-let
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.apps.qutebrowser;
   dir = ./qutebrowser;
-
 in {
   options.campground.apps.qutebrowser = {
     enable = mkEnableOption "qutebrowser";
@@ -15,8 +17,8 @@ in {
     home.file = lib.attrsets.listToAttrs (lib.attrsets.mapAttrsToList
       (name: _: {
         name = ".config/qutebrowser/${name}";
-        value = { source = "${dir}/${name}"; };
+        value = {source = "${dir}/${name}";};
       }) (builtins.readDir dir));
-    home.packages = with pkgs; [ qutebrowser ];
+    home.packages = with pkgs; [qutebrowser];
   };
 }

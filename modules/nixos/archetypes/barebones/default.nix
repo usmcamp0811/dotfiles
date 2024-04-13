@@ -1,7 +1,13 @@
-{ options, config, lib, pkgs, ... }:
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.archetypes.barebones;
+with lib.campground; let
+  cfg = config.campground.archetypes.barebones;
 in {
   options.campground.archetypes.barebones = with types; {
     enable =
@@ -9,5 +15,5 @@ in {
   };
 
   config =
-    mkIf cfg.enable { campground = { suites = { common = enabled; }; }; };
+    mkIf cfg.enable {campground = {suites = {common = enabled;};};};
 }

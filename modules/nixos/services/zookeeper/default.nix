@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.zookeeper;
+with lib.campground; let
+  cfg = config.campground.services.zookeeper;
 in {
   options.campground.services.zookeeper = with types; {
     enable = mkBoolOpt false "Enable Kafka;";

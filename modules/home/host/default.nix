@@ -1,6 +1,11 @@
-{ lib, config, pkgs, host ? null, format ? "unknown", ... }:
-
-let
+{
+  lib,
+  config,
+  pkgs,
+  host ? null,
+  format ? "unknown",
+  ...
+}: let
   inherit (lib) types;
   inherit (lib.campground) mkOpt;
 in {

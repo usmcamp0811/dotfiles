@@ -1,20 +1,24 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.apps.brave;
   cacCertificates = pkgs.fetchurl {
-    url =
-      "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_WCF.zip";
+    url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_WCF.zip";
     sha256 = "1inbf55mfqi0clsd8ybagfgz90n1h5knvs2rz33f7n6pjy7hcsnm";
   };
-  cacCertificatesUnzipped = pkgs.runCommandNoCC "cac-certificates" {
-    nativeBuildInputs = [ pkgs.unzip ];
-  } ''
-    mkdir $out
-    unzip ${cacCertificates} -d $out
-  '';
+  cacCertificatesUnzipped =
+    pkgs.runCommandNoCC "cac-certificates" {
+      nativeBuildInputs = [pkgs.unzip];
+    } ''
+      mkdir $out
+      unzip ${cacCertificates} -d $out
+    '';
 
   cacCertificatesPaths =
     builtins.map (name: "${cacCertificatesUnzipped}/${name}")
@@ -32,8 +36,8 @@ let
     do
       echo "Loading Cert into Brave: $certfile"
       ${pkgs.nssTools}/bin/certutil -d sql:${
-        users.users.${cfg.name}.home
-      }/.pki/nssdb -A -t TC -n "$certFile" -i "$certFile"
+      users.users.${cfg.name}.home
+    }/.pki/nssdb -A -t TC -n "$certFile" -i "$certFile"
     done
   '';
 in {
@@ -43,18 +47,18 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ nssTools pkcs11helper ];
+    environment.systemPackages = with pkgs; [nssTools pkcs11helper];
 
     campground.home.extraOptions.programs.brave = {
       enable = true;
       package = pkgs.brave;
       extensions = [
-        { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
-        { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-        { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
-        { id = "iaddfgegjgjelgkanamleadckkpnjpjc"; } # Auto Quality for YouTube
-        { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # Vimium
-        { id = "annfbnbieaamhaimclajlajpijgkdblo"; } # Dark Theme
+        {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # uBlock Origin
+        {id = "nngceckbapebfimnlniiiahkandclblb";} # Bitwarden
+        {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # Dark Reader
+        {id = "iaddfgegjgjelgkanamleadckkpnjpjc";} # Auto Quality for YouTube
+        {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # Vimium
+        {id = "annfbnbieaamhaimclajlajpijgkdblo";} # Dark Theme
       ];
     };
     # systemd.services.installCACerts = {
@@ -71,4 +75,3 @@ in {
     campground.services.cac.enable = mkIf cfg.cac true;
   };
 }
-

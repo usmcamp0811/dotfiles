@@ -1,6 +1,8 @@
-{ lib, inputs, snowfall-inputs }:
-
-rec {
+{
+  lib,
+  inputs,
+  snowfall-inputs,
+}: rec {
   ## Override a package's metadata
   ##
   ## ```nix
@@ -14,5 +16,5 @@ rec {
   ##
   #@ Attrs -> Package -> Package
   override-meta = meta: package:
-    package.overrideAttrs (attrs: { meta = (attrs.meta or { }) // meta; });
+    package.overrideAttrs (attrs: {meta = (attrs.meta or {}) // meta;});
 }

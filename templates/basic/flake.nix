@@ -4,13 +4,18 @@
   inputs.devshell.url = "github:numtide/devshell";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, flake-utils, devshell, nixpkgs }:
+  outputs = {
+    self,
+    flake-utils,
+    devshell,
+    nixpkgs,
+  }:
     flake-utils.lib.eachDefaultSystem (system: {
       devShells.default = let
         pkgs = import nixpkgs {
           inherit system;
 
-          overlays = [ devshell.overlays.default ];
+          overlays = [devshell.overlays.default];
         };
 
         randomFiglet = pkgs.writeShellScript "randomFiglet" ''
@@ -25,19 +30,22 @@
             5) ${pkgs.figlet}/bin/figlet "Why Fix It, When You Can Nix It?";;
           esac
         '';
-      in pkgs.devshell.mkShell {
-        imports = [ (pkgs.devshell.importTOML ./devshell.toml) ];
-        name = "basic-shell";
-        motd = ''
-          {214}👁️  Welcome to a Basic devshell 👁️{reset}
-          $( ${randomFiglet} | ${pkgs.lolcat}/bin/lolcat -f )
-          $(type -p menu &>/dev/null && menu)
-        '';
-        commands = [ ];
-        env = [{
-          name = "LD_LIBRARY_PATH";
-          value = "${pkgs.gcc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH";
-        }];
-      };
+      in
+        pkgs.devshell.mkShell {
+          imports = [(pkgs.devshell.importTOML ./devshell.toml)];
+          name = "basic-shell";
+          motd = ''
+            {214}👁️  Welcome to a Basic devshell 👁️{reset}
+            $( ${randomFiglet} | ${pkgs.lolcat}/bin/lolcat -f )
+            $(type -p menu &>/dev/null && menu)
+          '';
+          commands = [];
+          env = [
+            {
+              name = "LD_LIBRARY_PATH";
+              value = "${pkgs.gcc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH";
+            }
+          ];
+        };
     });
 }

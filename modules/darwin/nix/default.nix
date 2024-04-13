@@ -1,8 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.nix;
+with lib.campground; let
+  cfg = config.campground.nix;
 in {
   options.campground.nix = with types; {
     enable = mkBoolOpt true "Whether or not to manage nix configuration.";
@@ -17,7 +22,8 @@ in {
       nix-prefetch-git
     ];
 
-    nix = let users = [ "root" config.campground.user.name ];
+    nix = let
+      users = ["root" config.campground.user.name];
     in {
       package = cfg.package;
 
@@ -43,7 +49,7 @@ in {
 
       gc = {
         automatic = true;
-        interval = { Day = 7; };
+        interval = {Day = 7;};
         options = "--delete-older-than 30d";
         user = config.campground.user.name;
       };

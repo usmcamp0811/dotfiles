@@ -1,8 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.nfs.server;
+with lib.campground; let
+  cfg = config.campground.nfs.server;
 in {
   options.campground.nfs.server = with types; {
     enable = mkBoolOpt false "Whether or not to mount server.";
@@ -20,8 +25,8 @@ in {
     networking.firewall = {
       enable = true;
       # for NFSv3; view with `rpcinfo -p`
-      allowedTCPPorts = [ 111 2049 4000 4001 4002 20048 ];
-      allowedUDPPorts = [ 111 2049 4000 4001 4002 20048 ];
+      allowedTCPPorts = [111 2049 4000 4001 4002 20048];
+      allowedUDPPorts = [111 2049 4000 4001 4002 20048];
     };
   };
 }

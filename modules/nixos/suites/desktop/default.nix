@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.suites.desktop;
+with lib.campground; let
+  cfg = config.campground.suites.desktop;
 in {
   options.campground.suites.desktop = with types; {
     enable =
@@ -39,5 +44,4 @@ in {
       };
     };
   };
-
 }

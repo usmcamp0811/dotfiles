@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.apache-kafka;
+with lib.campground; let
+  cfg = config.campground.services.apache-kafka;
 in {
   options.campground.services.apache-kafka = with types; {
     enable = mkBoolOpt false "Enable Kafka;";
@@ -10,8 +15,8 @@ in {
       type = lib.types.attrs;
       default = {
         "broker.id" = 1;
-        "log.dirs" = [ "/var/lib/kafka/logs" ];
-        "listeners" = [ "PLAINTEXT://:9092" ];
+        "log.dirs" = ["/var/lib/kafka/logs"];
+        "listeners" = ["PLAINTEXT://:9092"];
         "num.network.threads" = 3;
         "num.io.threads" = 8;
         "socket.send.buffer.bytes" = 102400;
@@ -21,8 +26,8 @@ in {
       };
       example = {
         "broker.id" = 1;
-        "log.dirs" = [ "/var/lib/kafka/logs" ];
-        "listeners" = [ "PLAINTEXT://:9092" ];
+        "log.dirs" = ["/var/lib/kafka/logs"];
+        "listeners" = ["PLAINTEXT://:9092"];
         "num.network.threads" = 3;
         "num.io.threads" = 8;
         "socket.send.buffer.bytes" = 102400;

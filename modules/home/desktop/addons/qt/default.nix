@@ -1,8 +1,13 @@
-{ inputs, options, config, lib, pkgs, ... }:
-
+{
+  inputs,
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.addons.qt;
   settings = {
     Appearance = {
@@ -48,25 +53,29 @@ in {
   options.campground.desktop.addons.qt = with types; {
     enable = mkBoolOpt false "Whether to customize qt and apply themes.";
     theme = {
-      name = mkOpt str "Catppuccin-Macchiato-Blue"
+      name =
+        mkOpt str "Catppuccin-Macchiato-Blue"
         "The name of the kvantum theme to apply.";
-      pkg = mkOpt package pkgs.catppuccin-kvantum
+      pkg =
+        mkOpt package pkgs.catppuccin-kvantum
         "The package to use for the theme.";
     };
   };
   config = mkIf cfg.enable {
     xdg.configFile = {
       "Kvantum".source = ./Kvantum;
-      "qt5ct/qt5ct.conf".text = lib.generators.toINI { } (settings // {
-        Appearance = mergeAttrs settings.Appearance {
-          color_scheme_path = colorSchemePath;
-        };
-      });
-      "qt6ct/qt6ct.conf".text = lib.generators.toINI { } (settings // {
-        Appearance = mergeAttrs settings.Appearance {
-          color_scheme_path = colorSchemePath;
-        };
-      });
+      "qt5ct/qt5ct.conf".text = lib.generators.toINI {} (settings
+        // {
+          Appearance = mergeAttrs settings.Appearance {
+            color_scheme_path = colorSchemePath;
+          };
+        });
+      "qt6ct/qt6ct.conf".text = lib.generators.toINI {} (settings
+        // {
+          Appearance = mergeAttrs settings.Appearance {
+            color_scheme_path = colorSchemePath;
+          };
+        });
     };
 
     qt = {

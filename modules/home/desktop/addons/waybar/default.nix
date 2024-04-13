@@ -1,8 +1,12 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.addons.waybar;
 
   theme = builtins.readFile ./styles/catppuccin.css;
@@ -13,11 +17,11 @@ let
   workspacesStyle = builtins.readFile ./styles/workspaces.css;
 
   custom-modules =
-    import ./modules/custom-modules.nix { inherit config lib pkgs; };
-  default-modules = import ./modules/default-modules.nix { inherit lib pkgs; };
+    import ./modules/custom-modules.nix {inherit config lib pkgs;};
+  default-modules = import ./modules/default-modules.nix {inherit lib pkgs;};
   group-modules = import ./modules/group-modules.nix;
   hyprland-modules =
-    import ./modules/hyprland-modules.nix { inherit config lib; };
+    import ./modules/hyprland-modules.nix {inherit config lib;};
 
   all-modules = mkMerge [
     custom-modules
@@ -76,13 +80,11 @@ in {
 
       # TODO: make dynamic / support different number of bars etc
       settings = {
-        mainBar = mkMerge [ bar mainBar all-modules ];
+        mainBar = mkMerge [bar mainBar all-modules];
         # secondaryBar = mkMerge [ bar secondaryBar all-modules ];
       };
 
-      style =
-        "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
+      style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
     };
   };
 }
-

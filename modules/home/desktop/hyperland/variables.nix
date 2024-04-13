@@ -1,7 +1,15 @@
-{ inputs, system, options, config, lib, pkgs, ... }:
+{
+  inputs,
+  system,
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.hyprland;
+with lib.campground; let
+  cfg = config.campground.desktop.hyprland;
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
@@ -26,7 +34,7 @@ in {
           ];
         };
 
-        debug = { disable_logs = false; };
+        debug = {disable_logs = false;};
 
         decoration = {
           active_opacity = 0.95;
@@ -67,7 +75,7 @@ in {
           no_cursor_warps = true;
         };
 
-        xwayland = { force_zero_scaling = true; };
+        xwayland = {force_zero_scaling = true;};
 
         gestures = {
           workspace_swipe = true;
@@ -122,11 +130,10 @@ in {
         "$music" = "${getExe pkgs.spotify}";
         "$launcher" = "${getExe config.programs.rofi.package} -show drun -n";
         "$launcher_alt" = "${getExe config.programs.rofi.package} -show calc";
-        "$launcher_shift" =
-          "${getExe config.programs.rofi.package} -show run -n";
+        "$launcher_shift" = "${getExe config.programs.rofi.package} -show run -n";
         "$launchpad" = "${
-            getExe config.programs.rofi.package
-          } -show drun -config '~/.config/rofi/appmenu/rofi.rasi'";
+          getExe config.programs.rofi.package
+        } -show drun -config '~/.config/rofi/appmenu/rofi.rasi'";
         "$looking-glass" = "${getExe pkgs.looking-glass-client}";
       };
     };

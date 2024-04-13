@@ -1,15 +1,20 @@
-{ lib, config, inputs, pkgs, ... }:
-
-let
+{
+  lib,
+  config,
+  inputs,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli.zsh;
 in {
   options.campground.cli.zsh = {
     enable = mkEnableOption "ZSH";
-    extraSource = lib.mkOption { # Corrected line
+    extraSource = lib.mkOption {
+      # Corrected line
       type = with lib.types; listOf str;
-      default = [ ];
+      default = [];
       description = "Additional files to source in ZSH initialization.";
     };
   };
@@ -23,13 +28,14 @@ in {
 
       oh-my-zsh = {
         enable = true;
-        plugins = [ "fzf" ];
+        plugins = ["fzf"];
       };
       initExtra = lib.mkBefore ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         source $HOME/.config/shell/aliases.shrc
         ${lib.concatMapStringsSep "\n"
-        (file: ''[ -r "${file}" ] && source "${file}"'') cfg.extraSource}
+          (file: ''[ -r "${file}" ] && source "${file}"'')
+          cfg.extraSource}
         [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
         bindkey -v
 

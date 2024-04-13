@@ -1,8 +1,12 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.tools.julia;
   inherit (pkgs.campground) julia-wrapped;
 in {
@@ -11,10 +15,9 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     environment.systemPackages = with pkgs; [
       julia.withPackages
-      [ "CUDA" "FileIO" "Flux" "JLD2" "cuDNN" "DataFrames" "MLJ" "PyCall" ]
+      ["CUDA" "FileIO" "Flux" "JLD2" "cuDNN" "DataFrames" "MLJ" "PyCall"]
     ];
   };
 }

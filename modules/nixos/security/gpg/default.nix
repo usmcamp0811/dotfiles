@@ -1,8 +1,13 @@
-{ options, config, pkgs, lib, inputs, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.security.gpg;
 
   gpgConf = "${inputs.gpg-base-conf}/gpg.conf";
@@ -23,7 +28,7 @@ let
     sha256 = "1h48yqffpaz437f3c9hfryf23r95rr319lrb3y79kxpxbc9hihxb";
   };
 
-  guideHTML = pkgs.runCommand "yubikey-guide" { } ''
+  guideHTML = pkgs.runCommand "yubikey-guide" {} ''
     ${pkgs.pandoc}/bin/pandoc \
       --standalone \
       --metadata title="Yubikey Guide" \
@@ -43,7 +48,7 @@ let
     genericName = "View Yubikey Guide in a web browser";
     exec = "${pkgs.xdg-utils}/bin/xdg-open ${guideHTML}";
     icon = ./yubico-icon.svg;
-    categories = [ "System" ];
+    categories = ["System"];
   };
 
   reload-yubikey = pkgs.writeShellScriptBin "reload-yubikey" ''
@@ -52,13 +57,14 @@ let
 in {
   options.campground.security.gpg = with types; {
     enable = mkBoolOpt false "Whether or not to enable GPG.";
-    agentTimeout = mkOpt int 5
+    agentTimeout =
+      mkOpt int 5
       "The amount of time to wait before continuing with shell init.";
   };
 
   config = mkIf cfg.enable {
     services.pcscd.enable = true;
-    services.udev.packages = with pkgs; [ yubikey-personalization ];
+    services.udev.packages = with pkgs; [yubikey-personalization];
 
     # @NOTE(jakehamilton): This should already have been added by programs.gpg, but
     # keeping it here for now just in case.

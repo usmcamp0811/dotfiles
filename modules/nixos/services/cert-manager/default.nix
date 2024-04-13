@@ -1,8 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-
-let cfg = config.campground.services.cert-manager;
+with lib.campground; let
+  cfg = config.campground.services.cert-manager;
 in {
   options.campground.services.cert-manager = with types; {
     enable =
@@ -13,17 +17,15 @@ in {
         options = {
           namespace = lib.mkOption {
             type = lib.types.str;
-            description =
-              "Kubernetes namespace where the certificate is located.";
+            description = "Kubernetes namespace where the certificate is located.";
           };
           tlsSecret = lib.mkOption {
             type = lib.types.str;
-            description =
-              "Name of the Kubernetes TLS Secret containing the certificate.";
+            description = "Name of the Kubernetes TLS Secret containing the certificate.";
           };
         };
       });
-      default = [ ];
+      default = [];
       description = "List of certs to fetch.";
     };
     cert-folder =
@@ -34,7 +36,8 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/k8s"
+    vault-path =
+      mkOpt str "secret/campground/k8s"
       "The Vault path to the KV containing the Kubeconfig.";
     vault-address = mkOption {
       type = types.str;
@@ -42,7 +45,7 @@ in {
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = types.enum [ "v1" "v2" ];
+      type = types.enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -59,31 +62,32 @@ in {
     };
 
     systemd.services = lib.listToAttrs (builtins.map (cert: {
-      name = "fetchCertManagerCert-${cert.namespace}";
-      value = {
-        description = "Fetch certificates from cert-manager and store them";
-        serviceConfig = { Type = "oneshot"; };
-        script = ''
-          export KUBECONFIG=/etc/k8s/config
+        name = "fetchCertManagerCert-${cert.namespace}";
+        value = {
+          description = "Fetch certificates from cert-manager and store them";
+          serviceConfig = {Type = "oneshot";};
+          script = ''
+            export KUBECONFIG=/etc/k8s/config
 
-          mkdir -p ${cfg.cert-folder}
+            mkdir -p ${cfg.cert-folder}
 
-          # Fetch the certificates
-          ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.crt}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.crt
-          ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.key}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.key
-        '';
-      };
-    }) cfg.certs);
+            # Fetch the certificates
+            ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.crt}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.crt
+            ${pkgs.kubectl}/bin/kubectl get secret ${cert.tlsSecret} -n ${cert.namespace} -o jsonpath="{.data.tls\.key}" | base64 --decode > /var/lib/vault/certs/${cert.namespace}-${cert.tlsSecret}-tls.key
+          '';
+        };
+      })
+      cfg.certs);
 
     systemd.timers = lib.listToAttrs (builtins.map (cert: {
-      name = "fetchCertManagerCert-${cert.namespace}.timer";
-      value = {
-        description =
-          "Timer to run fetchCertManagerCert-${cert.namespace} service";
-        partOf = [ "fetchCertManagerCert-${cert.namespace}.service" ];
-        timerConfig.OnCalendar = "daily";
-        timerConfig.Persistent = true;
-      };
-    }) cfg.certs);
+        name = "fetchCertManagerCert-${cert.namespace}.timer";
+        value = {
+          description = "Timer to run fetchCertManagerCert-${cert.namespace} service";
+          partOf = ["fetchCertManagerCert-${cert.namespace}.service"];
+          timerConfig.OnCalendar = "daily";
+          timerConfig.Persistent = true;
+        };
+      })
+      cfg.certs);
   };
 }

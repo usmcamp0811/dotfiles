@@ -1,22 +1,28 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.traefik;
-  jsonValue = with types;
-    let
-      valueType = nullOr (oneOf [
+  jsonValue = with types; let
+    valueType =
+      nullOr (oneOf [
         bool
         int
         float
         str
         (lazyAttrsOf valueType)
         (listOf valueType)
-      ]) // {
+      ])
+      // {
         description = "JSON value";
-        emptyValue.value = { };
+        emptyValue.value = {};
       };
-    in valueType;
+  in
+    valueType;
 in {
   options.campground.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
@@ -24,22 +30,21 @@ in {
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
     domains = mkOption {
       type = listOf str;
-      default = [ "aicampground.com" ];
-      example = [ "example.com" "example.org" ];
+      default = ["aicampground.com"];
+      example = ["example.com" "example.org"];
       description = "List of domains.";
     };
     insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
-      default = { };
+      default = {};
       description = "HTTP configuration for routers and services";
     };
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; };
-      example = { web = { address = "0.0.0.0:80"; }; };
-      description =
-        "List of entrypoints for Traefik, mapping names to their address.";
+      default = {web = {address = "0.0.0.0:80";};};
+      example = {web = {address = "0.0.0.0:80";};};
+      description = "List of entrypoints for Traefik, mapping names to their address.";
     };
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -47,10 +52,11 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/cloudflare"
+    vault-path =
+      mkOpt str "secret/campground/cloudflare"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -62,7 +68,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    users.users.traefik = { extraGroups = [ "docker" ]; };
+    users.users.traefik = {extraGroups = ["docker"];};
 
     services.traefik = {
       enable = true;
@@ -73,24 +79,28 @@ in {
           sendAnonymousUsage = false;
         };
 
-        entryPoints = {
-          web = {
-            http.redirections.entryPoint = {
-              to = "websecure";
-              scheme = "https";
+        entryPoints =
+          {
+            web = {
+              http.redirections.entryPoint = {
+                to = "websecure";
+                scheme = "https";
+              };
             };
-          };
-          websecure = {
-            address = "0.0.0.0:443";
-            http.tls = {
-              certResolver = "cloudflare";
-              domains = map (domain: {
-                main = domain;
-                sans = [ "*.${domain}" "*.lan.${domain}" ];
-              }) cfg.domains;
+            websecure = {
+              address = "0.0.0.0:443";
+              http.tls = {
+                certResolver = "cloudflare";
+                domains =
+                  map (domain: {
+                    main = domain;
+                    sans = ["*.${domain}" "*.lan.${domain}"];
+                  })
+                  cfg.domains;
+              };
             };
-          };
-        } // cfg.entrypoints;
+          }
+          // cfg.entrypoints;
 
         api = {
           dashboard = true;
@@ -103,7 +113,7 @@ in {
               storage = "/var/lib/traefik/acme.json";
               dnsChallenge = {
                 provider = "cloudflare";
-                resolvers = [ "1.1.1.1:53" "1.0.0.1:53" ];
+                resolvers = ["1.1.1.1:53" "1.0.0.1:53"];
               };
             };
           };
@@ -119,14 +129,16 @@ in {
               settings = {
                 vault.address = cfg.vault-address;
                 auto_auth = {
-                  method = [{
-                    type = "approle";
-                    config = {
-                      role_id_file_path = cfg.role-id;
-                      secret_id_file_path = cfg.secret-id;
-                      remove_secret_id_file_after_reading = false;
-                    };
-                  }];
+                  method = [
+                    {
+                      type = "approle";
+                      config = {
+                        role_id_file_path = cfg.role-id;
+                        secret_id_file_path = cfg.secret-id;
+                        remove_secret_id_file_after_reading = false;
+                      };
+                    }
+                  ];
                 };
               };
               secrets.environment.templates = {
@@ -150,3 +162,4 @@ in {
 # CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
 # CF_API_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
 # CF_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+

@@ -1,9 +1,8 @@
 {
-
   options = {
     # Basic settings
     foldmethod = "syntax";
-    completeopt = [ "menuone" "noselect" ];
+    completeopt = ["menuone" "noselect"];
     termguicolors = true;
     autoindent = true;
     diffopt = "filler";
@@ -52,7 +51,7 @@
     iskeyword = "-";
 
     # Window settings
-    window = { number = true; };
+    window = {number = true;};
 
     # Buffer settings
     buffer = {
@@ -63,7 +62,7 @@
     };
 
     # Font settings
-    guifont = [ "Source Code Pro" ":h8" ];
+    guifont = ["Source Code Pro" ":h8"];
 
     # Wild ignore patterns
     wildignore = [
@@ -95,5 +94,4 @@
     # undodir = "~/.config/nvim/undo";
     # undofile = true;
   };
-
 }

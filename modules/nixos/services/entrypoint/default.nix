@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.entrypoint;
+with lib.campground; let
+  cfg = config.campground.services.entrypoint;
 in {
   options.campground.services.entrypoint = with types; {
     enable = mkBoolOpt false "Enable Docker;";
@@ -17,7 +22,7 @@ in {
       group = "${cfg.group}";
     };
 
-    users.groups."${cfg.group}" = { };
+    users.groups."${cfg.group}" = {};
     systemd.user.services.docker-entrypoint = {
       description = "Entrypoint Systemd Service for use in Docker Images";
       serviceConfig = {
@@ -25,14 +30,14 @@ in {
         User = cfg.user;
         Group = cfg.group;
         ExecStart = "${
-            pkgs.writeScript "entrypoint" ''
-              #!/bin/sh
-              echo "Welcome to the Campground Container."
-              /bin/sh ${cfg.script} ${cfg.cmd}
-            ''
-          }/bin/entrypoint";
+          pkgs.writeScript "entrypoint" ''
+            #!/bin/sh
+            echo "Welcome to the Campground Container."
+            /bin/sh ${cfg.script} ${cfg.cmd}
+          ''
+        }/bin/entrypoint";
       };
-      wantedBy = [ "default.target" ];
+      wantedBy = ["default.target"];
     };
   };
 }

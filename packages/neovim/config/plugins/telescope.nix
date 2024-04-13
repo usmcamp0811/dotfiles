@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   plugins = {
     # Telescope
     telescope = {
@@ -7,7 +7,6 @@
         fzf-native.enable = true; # so fzf gets in teh path
       };
     };
-
   };
 
   extraPlugins = with pkgs.vimPlugins; [

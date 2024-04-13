@@ -1,8 +1,12 @@
-{ pkgs, lib, nixos-hardware, nixosModules, ... }:
-
+{
+  pkgs,
+  lib,
+  nixos-hardware,
+  nixosModules,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -10,9 +14,9 @@ let
     shell = pkgs.zsh;
   };
 in {
-  imports = [ ./hardware.nix ];
+  imports = [./hardware.nix];
 
-  boot.initrd.availableKernelModules = [ "thunderbolt" "xhci_hcd" ];
+  boot.initrd.availableKernelModules = ["thunderbolt" "xhci_hcd"];
 
   services.logind.lidSwitch = "ignore";
   campground = {
@@ -20,7 +24,7 @@ in {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
 
@@ -29,8 +33,8 @@ in {
     #     enable = true;
     #     lan-interface = "eno1";
     #     pub-interface = "enp7s0";
-    #     entrypoints = { 
-    #       web = { address = "mattis:80"; }; 
+    #     entrypoints = {
+    #       web = { address = "mattis:80"; };
     #     };
     #   };
     # };
@@ -60,19 +64,21 @@ in {
         backupLocation = "/persist/postgresqlBackups/";
         authentication = ''
           # Allow only local connections for the root user
-          local all root trust 
+          local all root trust
           local all postgres peer
           local vaultwarden vaultwarden trust
           # Deny other remote connections
           host  all  all  0.0.0.0/0  reject
           host  all  all  ::0/0  reject
         '';
-        databases = [{
-          name = "vaultwarden";
-          user = "vaultwarden";
-        }];
+        databases = [
+          {
+            name = "vaultwarden";
+            user = "vaultwarden";
+          }
+        ];
       };
-      vaultwarden = { enable = true; };
+      vaultwarden = {enable = true;};
       syncthing = enabled;
       tang = enabled;
       zfs-key-server = {
@@ -80,7 +86,7 @@ in {
         port = 8123;
         tang-servers = [
           "http://webb:1234"
-          # "http://daly:1234" 
+          # "http://daly:1234"
           "http://ermy:1234"
           "http://reckless:1234"
           "http://lucas:1234"
@@ -88,7 +94,7 @@ in {
       };
       user-secrets = {
         enable = true;
-        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
+        users = {mcamp = {files = ["id_ed25519" "passwords"];};};
       };
       vault-agent = {
         enable = true;
@@ -111,4 +117,3 @@ in {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
 }
-

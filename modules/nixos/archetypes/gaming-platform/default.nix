@@ -1,7 +1,13 @@
-{ options, config, lib, pkgs, ... }:
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.archetypes.gaming-platform;
+with lib.campground; let
+  cfg = config.campground.archetypes.gaming-platform;
 in {
   options.campground.archetypes.gaming-platform = with types; {
     enable =

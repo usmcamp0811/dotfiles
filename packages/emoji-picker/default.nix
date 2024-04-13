@@ -1,15 +1,21 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "emoji-picker";
 
   owner = "Matt Camp";
   repo = pname;
-  description =
-    "Luke Smith's Emoji Picker converted to use Rofi and ported to Nix";
+  description = "Luke Smith's Emoji Picker converted to use Rofi and ported to Nix";
   version = "0.1.0";
 
   emojis = writeText "emojis" (builtins.readFile ./emojis);
@@ -58,7 +64,7 @@ let
 
   emoji-picker = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
-    phases = [ "installPhase" ];
+    phases = ["installPhase"];
     installPhase = ''
       mkdir -p $out/bin
       cp ${emoji-script} $out/bin/'${pname}'
@@ -71,11 +77,12 @@ let
   new-meta = with lib; {
     description = description;
     license = licenses.mit;
-    maintainers = with maintainers; [ mattcamp ];
+    maintainers = with maintainers; [mattcamp];
   };
   # {
   #   # If k0s should be in the PATH:
   #   # environment.systemPackages = [ k0s ];
   #
   # }
-in override-meta new-meta emoji-picker
+in
+  override-meta new-meta emoji-picker

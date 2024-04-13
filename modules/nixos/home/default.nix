@@ -1,19 +1,27 @@
-{ options, config, pkgs, lib, inputs, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.home;
+with lib.campground; let
+  cfg = config.campground.home;
 in {
   # imports = with inputs; [
   #   home-manager.nixosModules.home-manager
   # ];
 
   options.campground.home = with types; {
-    file = mkOpt attrs { }
+    file =
+      mkOpt attrs {}
       (mdDoc "A set of files to be managed by home-manager's `home.file`.");
-    configFile = mkOpt attrs { } (mdDoc
-      "A set of files to be managed by home-manager's `xdg.configFile`.");
-    extraOptions = mkOpt attrs { } "Options to pass directly to home-manager.";
+    configFile =
+      mkOpt attrs {} (mdDoc
+        "A set of files to be managed by home-manager's `xdg.configFile`.");
+    extraOptions = mkOpt attrs {} "Options to pass directly to home-manager.";
   };
 
   config = {
