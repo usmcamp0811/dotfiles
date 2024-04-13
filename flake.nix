@@ -264,13 +264,12 @@
       #   };
       # };
       outputs-builder = channels: {
-              checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-                src = ./.;
-                hooks = {
-                  nixpkgs-fmt.enable = true;
-                };
-              };
-            };
+        checks.pre-commit-check =
+          inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+            src = ./.;
+            hooks = { nixpkgs-fmt.enable = true; };
+          };
+      };
       templates = {
         basic = {
           path = ./templates/basic;

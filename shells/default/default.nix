@@ -1,7 +1,7 @@
 { mkShell, pkgs, config, system, inputs, lib, ... }:
 with lib;
 with lib.campground;
-let 
+let
   inherit (lib.campground) override-meta;
   inherit (inputs.self.checks.${system}.pre-commit-check) shellHook;
 in mkShell {
