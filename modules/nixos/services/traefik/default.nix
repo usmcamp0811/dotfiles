@@ -41,26 +41,6 @@ in {
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
     };
-    accessLog = mkOption {
-      type = types.bool;
-      default = true;
-      description = "Enable access logs.";
-    };
-    accessLogFilePath = mkOption {
-      type = types.path;
-      default = "/var/log/traefik/access.log";
-      description = "Path to the access log file.";
-    };
-    logFilePath = mkOption {
-      type = types.path;
-      default = "/var/log/traefik/traefik.log";
-      description = "Path to the Traefik log file.";
-    };
-    logLevel = mkOption {
-      type = types.enum [ "debug" "info" "warn" "error" ];
-      default = "debug";
-      description = "The log level of Traefik.";
-    };
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
@@ -86,15 +66,6 @@ in {
 
     services.traefik = {
       enable = true;
-      logLevel = cfg.logLevel;
-      accessLog = {
-        enabled = cfg.accessLog;
-        filePath = cfg.accessLogFilePath;
-      };
-      log = {
-        level = cfg.logLevel;
-        filePath = cfg.logFilePath;
-      };
       dynamicConfigOptions = cfg.dynamicConfigOptions;
       staticConfigOptions = {
         global = {
