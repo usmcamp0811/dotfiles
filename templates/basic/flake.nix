@@ -9,6 +9,7 @@
     { self
     , flake-utils
     , devshell
+    , pre-commit-hooks
     , nixpkgs
     ,
     }:
@@ -35,16 +36,12 @@
           '';
         in
         pkgs.devshell.mkShell {
-          imports = [
-            (pkgs.devshell.importTOML ./devshell.toml)
-            self.checks.${system}.pre-commit-check.enabledPackages
-          ];
+          imports = [ (pkgs.devshell.importTOML ./devshell.toml) ];
           name = "basic-shell";
           motd = ''
             {214}👁️  Welcome to a Basic devshell 👁️{reset}
             $( ${randomFiglet} | ${pkgs.lolcat}/bin/lolcat -f )
             $(type -p menu &>/dev/null && menu)
-            ${self.checks.${system}.pre-commit-check.shellHook}
           '';
           commands = [ ];
           env = [
@@ -53,6 +50,8 @@
               value = "${pkgs.gcc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH";
             }
           ];
+          devshell.packages = [ ] ++ self.checks.${system}.pre-commit-check.enabledPackages;
+          devshell.startup.githooks.text = "${self.checks.${system}.pre-commit-check.shellHook}";
         };
       checks = {
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
