@@ -174,6 +174,7 @@
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
   outputs = inputs:
@@ -262,7 +263,14 @@
       #     '';
       #   };
       # };
-
+      outputs-builder = channels: {
+              checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+                src = ./.;
+                hooks = {
+                  nixpkgs-fmt.enable = true;
+                };
+              };
+            };
       templates = {
         basic = {
           path = ./templates/basic;
