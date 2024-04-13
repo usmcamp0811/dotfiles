@@ -53,8 +53,7 @@
             echo "Example Shell Container with Pluto.jl" | ${pkgs.figlet}/bin/figlet
           '';
         };
-      in 
-      {
+      in {
         packages = {
           container = shell-img;
           pluto = pluto;
