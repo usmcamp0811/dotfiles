@@ -36,7 +36,10 @@ with lib.campground;
         enable = true;
         interface = "eno1";
       };
-      kafka = { enable = true; };
+      kafka = { 
+        enable = true; 
+        zookeeper-id = 0;
+      };
     };
     nfs.client.enable = true;
     tools.attic = enabled;

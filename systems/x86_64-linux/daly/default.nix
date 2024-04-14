@@ -25,7 +25,10 @@ with lib.campground;
         enable = true;
         interface = "enp3s0f1";
       };
-      kafka = { enable = true; };
+      kafka = { 
+        enable = true; 
+        zookeeper-id = 3;
+      };
     };
     archetypes = {
       laptop = enabled;

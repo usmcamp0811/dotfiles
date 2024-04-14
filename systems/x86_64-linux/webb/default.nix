@@ -33,7 +33,10 @@ with lib.campground;
         enable = true;
         interface = "eno1";
       };
-      kafka = { enable = true; };
+      kafka = { 
+        enable = true; 
+        zookeeper-id = 2;
+      };
     };
 
     archetypes = {

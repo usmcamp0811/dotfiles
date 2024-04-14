@@ -9,6 +9,7 @@ in
 {
   options.campground.services.zookeeper = with types; {
     enable = mkBoolOpt false "Enable Kafka;";
+    id = mkOpt int 0 "Server ID";
     servers = mkOption {
       description = lib.mdDoc "All Zookeeper Servers.";
       default = "";
@@ -42,6 +43,7 @@ in
 
   config = mkIf cfg.enable {
     services.zookeeper = {
+      id = cfg.id;
       enable = true;
       servers = cfg.servers;
       logging = cfg.logging;

@@ -5,6 +5,17 @@ let cfg = config.campground.suites.kafka;
 in {
   options.campground.suites.kafka = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
+    zookeeper-id = mkOpt int 0 "Zookeeper Server ID";
+    servers = mkOption {
+      description = lib.mdDoc "All Zookeeper Servers.";
+      type = types.lines;
+      default = ''
+        server.0=lucas:2888:3888
+        server.1=chesty:2888:3888
+        server.2=webb:2888:3888
+        server.3=daly:2888:3888
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -12,13 +23,9 @@ in {
       services = {
         zookeeper = {
           enable = true;
+          zookeeper-id = cfg.id;
           # TODO: Figure out how to infer this
-          servers = ''
-            server.0=lucas:2888:3888
-            server.1=chesty:2888:3888
-            server.2=webb:2888:3888
-            server.3=daly:2888:3888
-          '';
+          servers = cfg.servers;
         };
         apache-kafka = {
           enable = true;
