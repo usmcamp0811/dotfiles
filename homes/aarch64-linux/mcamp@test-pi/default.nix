@@ -1,11 +1,4 @@
-{
-  lib,
-  pkgs,
-  config,
-  osConfig ? {},
-  format ? "unknown",
-  ...
-}:
+{ lib, config, ... }:
 with lib.campground; {
   campground = {
     user = {
@@ -17,6 +10,7 @@ with lib.campground; {
       zsh = enabled;
       home-manager = enabled;
     };
+    tools = { git = enabled; };
   };
   home.stateVersion = "23.05";
 }
