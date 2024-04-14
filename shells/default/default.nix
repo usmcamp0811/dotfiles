@@ -1,17 +1,10 @@
-{ mkShell
-, pkgs
-, config
-, system
-, inputs
-, lib
-, ...
-}:
+{ mkShell, pkgs, lib, ... }:
 with lib;
-with lib.campground; let
-  inherit (lib.campground) override-meta;
+with lib.campground;
+let
+  # inherit (lib.campground) override-meta;
   # inherit (inputs.self.checks.${system}.pre-commit-check) shellHook;
-in
-mkShell {
+in mkShell {
   buildInputs = [
     pkgs.deadnix
     pkgs.hydra-check
@@ -24,8 +17,7 @@ mkShell {
     pkgs.snowfallorg.flake
     pkgs.statix
     pkgs.campground.vault-scripts
-  ];
-  # ++ inputs.self.checks.${system}.pre-commit-check.enabledPackages;
+  ]; # ++ inputs.self.checks.${system}.pre-commit-check.enabledPackages;
 
     # ${shellHook}
   shellHook = ''

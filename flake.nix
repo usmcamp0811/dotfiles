@@ -195,11 +195,11 @@
       # pkgs = import nixpkgs {
       #   inherit system;
       # };
-    in
-    lib.mkFlake {
+    in lib.mkFlake {
       channels-config = {
         allowUnfree = true;
-        permittedInsecurePackages = [ "python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4" ];
+        permittedInsecurePackages =
+          [ "python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4" ];
       };
 
       overlays = with inputs; [
@@ -231,41 +231,41 @@
       ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
-      systems.hosts.base.modules = [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
+      systems.hosts.base.modules =
+        [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks =
-        builtins.mapAttrs
-          (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
-          deploy-rs.lib;
+      checks = builtins.mapAttrs
+        (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
+        deploy-rs.lib;
 
-      outputs-builder = channels: {
-        checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-          src = ./.;
-          hooks = {
-            nixfmt.enable = true;
-            # flake8.enable = true;
-            # markdownlint.enable = true;
-            # yamllint.enable = true;
-            # deadnix.enable = true;
-          };
-        };
-        # checks.mlflow-test = channels.nixpkgs.nixosTest {
-        #   name = "mlflow-test";
-        #   nodes = {
-        #     machine =
-        #       { inputs, ... }: {
-        #         environment.systemPackages = [ inputs.self.mlflow-server ];
-        #       };
-        #   };
-        #   testScript = ''
-        #     startAll;
-        #     machine.waitUntilSucceeds("mlflow --help");
-        #     machine.succeed("mlflow --help");
-        #   '';
-        # };
-      };
+      # outputs-builder = channels: {
+      #   checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+      #     src = ./.;
+      #     hooks = {
+      #       nixfmt.enable = true;
+      #       flake8.enable = true;
+      #       markdownlint.enable = true;
+      #       yamllint.enable = true;
+      #       deadnix.enable = true;
+      #     };
+      #   };
+      #   # checks.mlflow-test = channels.nixpkgs.nixosTest {
+      #   #   name = "mlflow-test";
+      #   #   nodes = {
+      #   #     machine =
+      #   #       { inputs, ... }: {
+      #   #         environment.systemPackages = [ inputs.self.mlflow-server ];
+      #   #       };
+      #   #   };
+      #   #   testScript = ''
+      #   #     startAll;
+      #   #     machine.waitUntilSucceeds("mlflow --help");
+      #   #     machine.succeed("mlflow --help");
+      #   #   '';
+      #   # };
+      # };
       templates = {
         basic = {
           path = ./templates/basic;
