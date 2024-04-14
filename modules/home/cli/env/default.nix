@@ -1,17 +1,13 @@
-{
-  inputs,
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
+{ inputs
+, options
+, config
+, pkgs
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
-  cfg = config.campground.cli.env;
   cfg-user = config.campground.user;
-
-  is-linux = pkgs.stdenv.isLinux;
   is-darwin = pkgs.stdenv.isDarwin;
 
   aliases = ./aliases.shrc;
@@ -21,15 +17,16 @@ with lib.campground; let
     else if is-darwin
     then "/Users/${cfg-user.name}"
     else "/home/${cfg-user.name}";
-in {
+in
+{
   options.campground.cli.env = with types;
     mkOption {
-      type = attrsOf (oneOf [str path (listOf (either str path))]);
-      apply = mapAttrs (n: v:
+      type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
+      apply = mapAttrs (_n: v:
         if isList v
         then concatMapStringsSep ":" (x: toString x) v
         else (toString v));
-      default = {};
+      default = { };
       description = "A set of environment variables to set.";
     };
 
@@ -67,9 +64,9 @@ in {
     #     (mapAttrsToList (n: v: ''export ${n}="${v}"'') cfg);
 
     # aliases are in a seperate file because we can't do shell functions in Nix
-    home.file = {".config/shell/aliases.shrc".source = aliases;};
+    home.file = { ".config/shell/aliases.shrc".source = aliases; };
 
-    home.activation.privateDir = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
+    home.activation.privateDir = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       mkdir -p "${config.home.homeDirectory}/.config/shell/private/"
     '';
 

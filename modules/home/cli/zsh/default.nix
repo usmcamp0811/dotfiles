@@ -1,20 +1,19 @@
-{
-  lib,
-  config,
-  inputs,
-  pkgs,
-  ...
-}: let
+{ lib
+, config
+, ...
+}:
+let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli.zsh;
-in {
+in
+{
   options.campground.cli.zsh = {
     enable = mkEnableOption "ZSH";
     extraSource = lib.mkOption {
       # Corrected line
       type = with lib.types; listOf str;
-      default = [];
+      default = [ ];
       description = "Additional files to source in ZSH initialization.";
     };
   };
@@ -28,7 +27,7 @@ in {
 
       oh-my-zsh = {
         enable = true;
-        plugins = ["fzf"];
+        plugins = [ "fzf" ];
       };
       initExtra = lib.mkBefore ''
         source $HOME/.config/shell/zsh/fino.zsh-theme

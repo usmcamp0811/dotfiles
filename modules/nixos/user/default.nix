@@ -1,9 +1,8 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
+{ options
+, config
+, pkgs
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -19,21 +18,20 @@ with lib.campground; let
       ${pkgs.coreutils}/bin/cp $src $out
     '';
 
-    passthru = {fileName = defaultIconFileName;};
+    passthru = { fileName = defaultIconFileName; };
   };
   propagatedIcon =
-    pkgs.runCommandNoCC "propagated-icon" {
-      passthru = {fileName = cfg.icon.fileName;};
-    } ''
+    pkgs.runCommandNoCC "propagated-icon"
+      {
+        passthru = { fileName = cfg.icon.fileName; };
+      } ''
       local target="$out/share/icons/user/${cfg.name}"
       mkdir -p "$target"
 
       cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
-
-  dotfilesDir = ./dotfiles/.config;
-  dotfiles = builtins.attrNames (builtins.readDir dotfilesDir);
-in {
+in
+{
   options.campground.user = with types; {
     name = mkOpt str "abe" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
@@ -41,14 +39,14 @@ in {
     uid = mkOpt int 1000 "UID of the user";
     initialPassword =
       mkOpt str "password"
-      "The initial password to use when the user is first created.";
+        "The initial password to use when the user is first created.";
     icon =
       mkOpt (nullOr package) defaultIcon
-      "The profile picture to use for the user.";
-    extraGroups = mkOpt (listOf str) [] "Groups for the user to be assigned.";
+        "The profile picture to use for the user.";
+    extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
     extraOptions =
-      mkOpt attrs {}
-      "Extra options passed to <option>users.users.<name></option>.";
+      mkOpt attrs { }
+        "Extra options passed to <option>users.users.<name></option>.";
     GroupsIds = mkOption {
       type = types.attrsOf types.int;
       default = {
@@ -65,7 +63,7 @@ in {
   };
 
   config = {
-    environment.systemPackages = with pkgs; [propagatedIcon lsd];
+    environment.systemPackages = with pkgs; [ propagatedIcon lsd ];
 
     programs.zsh = {
       enable = true; # Enable zsh as the default shell
@@ -82,7 +80,7 @@ in {
       # TODO: migrate my theme here
       ohMyZsh = {
         enable = true; # Enable Oh My Zsh
-        plugins = ["fzf"]; # Oh My Zsh plugins
+        plugins = [ "fzf" ]; # Oh My Zsh plugins
         # theme = "fino"; # Oh My Zsh theme
         # custom = ""; # Custom Oh My Zsh configuration
       };
@@ -104,7 +102,7 @@ in {
           cfg.icon;
       };
 
-      configFile = {"sddm/faces/.${cfg.name}".source = cfg.icon;};
+      configFile = { "sddm/faces/.${cfg.name}".source = cfg.icon; };
 
       extraOptions = {
         home.shellAliases = {
@@ -123,10 +121,10 @@ in {
     };
 
     users.groups =
-      mapAttrs' (name: id: nameValuePair name {gid = mkForce id;})
-      cfg.GroupsIds;
+      mapAttrs' (name: id: nameValuePair name { gid = mkForce id; })
+        cfg.GroupsIds;
 
-    users.users.root = {shell = pkgs.zsh;} // cfg.extraOptions;
+    users.users.root = { shell = pkgs.zsh; } // cfg.extraOptions;
 
     users.users.${cfg.name} =
       {
@@ -146,7 +144,7 @@ in {
         # system to select).
         uid = cfg.uid;
 
-        extraGroups = [] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
+        extraGroups = [ ] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
       }
       // cfg.extraOptions;
   };

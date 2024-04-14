@@ -1,16 +1,16 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}: let
+{ lib
+, config
+, ...
+}:
+let
   cfg = config.campground.cli.bash;
-in {
+in
+{
   options.campground.cli.bash = {
     enable = lib.mkEnableOption "Bash";
     extraSource = lib.mkOption {
       type = with lib.types; listOf str;
-      default = [];
+      default = [ ];
       description = "Additional files to source in Bash initialization.";
     };
   };

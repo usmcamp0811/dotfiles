@@ -1,8 +1,7 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -64,15 +63,16 @@ with lib.campground; let
           telemetry:
             enabled: true
       '';
-in {
+in
+{
   options.campground.services.k0s = {
     enable =
       mkEnableOption (lib.mdDoc "Enable the k0s Kubernetes distribution.");
 
-    package = mkPackageOption pkgs "k0s" {};
+    package = mkPackageOption pkgs "k0s" { };
 
     role = mkOption {
-      type = types.enum ["controller" "controller+worker" "worker" "single"];
+      type = types.enum [ "controller" "controller+worker" "worker" "single" ];
       default = "single";
       description = ''
         The role of the node.
@@ -154,22 +154,22 @@ in {
 
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/k0s"
-      "The Vault path to the KV containing the k0s secrets.";
+        "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = types.str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -187,11 +187,11 @@ in {
 
     systemd.services.${unitName} = {
       description = "k0s - Zero Friction Kubernetes";
-      documentation = ["https://docs.k0sproject.io"];
-      path = with pkgs; [kmod util-linux mount];
-      after = ["network-online.target"];
-      wants = ["network-online.target"];
-      wantedBy = ["multi-user.target"];
+      documentation = [ "https://docs.k0sproject.io" ];
+      path = with pkgs; [ kmod util-linux mount ];
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
+      wantedBy = [ "multi-user.target" ];
       startLimitIntervalSec = 5;
       startLimitBurst = 10;
       serviceConfig = {
@@ -209,20 +209,21 @@ in {
           + optionalString (cfg.role == "single") " --single"
           + optionalString (cfg.role == "controller+worker") " --enable-worker"
           + optionalString (cfg.role != "single" && !cfg.isLeader)
-          " --token-file=${cfg.tokenFile}";
+            " --token-file=${cfg.tokenFile}";
         Environment = "PATH=${pkgs.openiscsi}/bin:/run/wrappers/bin:$PATH";
       };
     };
 
     users.users =
-      concatMapAttrs (name: value: {
-        ${value} = {
-          isSystemUser = true;
-          group = "users";
-          home = "${cfg.dataDir}";
-        };
-      })
-      cfg.users;
+      concatMapAttrs
+        (_name: value: {
+          ${value} = {
+            isSystemUser = true;
+            group = "users";
+            home = "${cfg.dataDir}";
+          };
+        })
+        cfg.users;
     campground.services.vault-agent.services.${unitName} = mkIf (cfg.role != "single" && !cfg.isLeader) {
       settings = {
         vault.address = cfg.vault-address;

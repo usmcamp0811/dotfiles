@@ -1,21 +1,20 @@
-{
-  inputs,
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ inputs
+, options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.tools.scientific-fhs;
   # inherit (inputs) scientific-fhs;
-in {
+in
+{
   options.campground.tools.scientific-fhs = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Scientific FHS.";
   };
 
-  imports = [inputs.scientific-fhs.nixosModules.default];
+  imports = [ inputs.scientific-fhs.nixosModules.default ];
 
   config = mkIf cfg.enable {
     campground.tools.julia.enable = mkForce false;

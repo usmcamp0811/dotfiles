@@ -1,18 +1,17 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.kubernetes;
-  inherit (pkgs.campground) k0s;
-in {
+in
+{
   options.campground.services.kubernetes = with types; {
     enable = mkBoolOpt false "Enable k0scontroller;";
     roles = mkOption {
-      type = types.listOf (types.enum ["master" "node"]);
+      type = types.listOf (types.enum [ "master" "node" ]);
       default = "stable";
       description = "What type of role?";
     };
@@ -24,32 +23,32 @@ in {
       mkOpt str "10.8.0.1" "The IP of the master node or your HA Proxy";
     apiserverAddress =
       mkOpt str
-      "https://${cfg.kubeMasterHostname}:${cfg.kubeMasterAPIServerPort}"
-      "The API Server Address";
+        "https://${cfg.kubeMasterHostname}:${cfg.kubeMasterAPIServerPort}"
+        "The API Server Address";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/kubernetes"
-      "The Vault path to the KV containing the k0s secrets.";
+        "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [kompose kubectl kubernetes];
+    environment.systemPackages = with pkgs; [ kompose kubectl kubernetes ];
     security.apparmor.enable = true;
 
     services.kubernetes = {
@@ -67,9 +66,9 @@ in {
     };
 
     systemd.services.UploadK8sAPIToken = {
-      after = ["kubernetes.service"]; # Ensure it runs after Kubernetes
-      requires = ["kubernetes.service"];
-      wantedBy = ["multi-user.target"];
+      after = [ "kubernetes.service" ]; # Ensure it runs after Kubernetes
+      requires = [ "kubernetes.service" ];
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
         User = "root"; # Run as root, adjust if necessary

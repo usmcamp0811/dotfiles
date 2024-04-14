@@ -1,16 +1,13 @@
-{
-  inputs,
-  system,
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.hyprland;
-in {
+in
+{
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -34,7 +31,7 @@ in {
           ];
         };
 
-        debug = {disable_logs = false;};
+        debug = { disable_logs = false; };
 
         decoration = {
           active_opacity = 0.95;
@@ -75,7 +72,7 @@ in {
           no_cursor_warps = true;
         };
 
-        xwayland = {force_zero_scaling = true;};
+        xwayland = { force_zero_scaling = true; };
 
         gestures = {
           workspace_swipe = true;

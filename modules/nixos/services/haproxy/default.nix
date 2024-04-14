@@ -1,13 +1,12 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.haproxy;
-in {
+in
+{
   options.campground.services.haproxy = with types; {
     enable = mkBoolOpt false "Enable HAProxy;";
     defaults = mkOption {
@@ -32,7 +31,7 @@ in {
           };
         };
       });
-      default = {};
+      default = { };
       description = "Backend servers for HAProxy.";
     };
   };

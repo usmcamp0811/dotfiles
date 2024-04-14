@@ -1,40 +1,40 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.suites.public-hosting;
   jsonValue = with types; let
     valueType =
-      nullOr (oneOf [
-        bool
-        int
-        float
-        str
-        (lazyAttrsOf valueType)
-        (listOf valueType)
-      ])
+      nullOr
+        (oneOf [
+          bool
+          int
+          float
+          str
+          (lazyAttrsOf valueType)
+          (listOf valueType)
+        ])
       // {
         description = "JSON value";
-        emptyValue.value = {};
+        emptyValue.value = { };
       };
   in
-    valueType;
-in {
+  valueType;
+in
+{
   options.campground.suites.public-hosting = with types; {
     enable =
       mkBoolOpt false
-      "Whether or not to enable common public-hosting configuration.";
+        "Whether or not to enable common public-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.42" "IP to use for the Public Instance";
     entrypoints = mkOption {
       type = jsonValue;
-      default = {web = {address = "0.0.0.0:80";};};
-      example = {web = {address = "0.0.0.0:80";};};
+      default = { web = { address = "0.0.0.0:80"; }; };
+      example = { web = { address = "0.0.0.0:80"; }; };
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
@@ -50,7 +50,7 @@ in {
           enable = true;
           insecure = true;
           entrypoints = cfg.entrypoints;
-          domains = ["aicampground.com" "matt-camp.com"];
+          domains = [ "aicampground.com" "matt-camp.com" ];
           dynamicConfigOptions = {
             # http.routers.adhoc = {
             #   rule = "Host(`adhoc.aicampground.com`)";
@@ -64,7 +64,7 @@ in {
 
             http.routers.aicampground = {
               rule = "Host(`aicampground.com`) || Host(`matt-camp.com`)";
-              entryPoints = ["websecure"];
+              entryPoints = [ "websecure" ];
               service = "aicampground";
             };
 
@@ -75,26 +75,26 @@ in {
             # };
 
             http.services.matt-camp = {
-              loadBalancer.servers = [{url = "http://lucas:4356";}];
+              loadBalancer.servers = [{ url = "http://lucas:4356"; }];
             };
 
             http.services.aicampground = {
-              loadBalancer.servers = [{url = "http://lucas:4356";}];
+              loadBalancer.servers = [{ url = "http://lucas:4356"; }];
             };
 
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
-              entryPoints = ["websecure"];
+              entryPoints = [ "websecure" ];
               service = "searx";
             };
 
             http.services.searx = {
               loadBalancer.servers = [
-                {url = "http://webb:3249";}
-                {url = "http://daly:8181";}
-                {url = "http://chesty:3249";}
-                {url = "http://lucas:3249";}
-                {url = "http://reckless:3249";}
+                { url = "http://webb:3249"; }
+                { url = "http://daly:8181"; }
+                { url = "http://chesty:3249"; }
+                { url = "http://lucas:3249"; }
+                { url = "http://reckless:3249"; }
               ];
 
               loadBalancer.healthCheck = {
@@ -106,32 +106,32 @@ in {
 
             http.routers.photoprism = {
               rule = "Host(`photos.aicampground.com`)";
-              entryPoints = ["websecure"];
+              entryPoints = [ "websecure" ];
               service = "photoprism";
             };
 
             http.services.photoprism = {
-              loadBalancer.servers = [{url = "http://webb:9080";}];
+              loadBalancer.servers = [{ url = "http://webb:9080"; }];
             };
 
             http.routers.attic = {
               rule = "Host(`attic.aicampground.com`)";
-              entryPoints = ["websecure"];
+              entryPoints = [ "websecure" ];
               service = "attic";
             };
 
             http.services.attic = {
-              loadBalancer.servers = [{url = "http://reckless:8082";}];
+              loadBalancer.servers = [{ url = "http://reckless:8082"; }];
             };
 
             http.routers.bitwarden = {
               rule = "Host(`bw.aicampground.com`)";
-              entryPoints = ["websecure"];
+              entryPoints = [ "websecure" ];
               service = "bitwarden";
             };
 
             http.services.bitwarden = {
-              loadBalancer.servers = [{url = "http://webb:8989";}];
+              loadBalancer.servers = [{ url = "http://webb:8989"; }];
               loadBalancer.healthCheck = {
                 path = "/alive";
                 interval = "10s";
@@ -141,18 +141,18 @@ in {
 
             http.routers.mattermost = {
               rule = "Host(`mattermost.aicampground.com`)";
-              entryPoints = ["websecure"];
+              entryPoints = [ "websecure" ];
               service = "mattermost";
             };
 
             http.routers.mm = {
               rule = "Host(`mm.aicampground.com`)";
-              entryPoints = ["websecure"];
+              entryPoints = [ "websecure" ];
               service = "mattermost";
             };
 
             http.services.mattermost = {
-              loadBalancer.servers = [{url = "http://webb:8065";}];
+              loadBalancer.servers = [{ url = "http://webb:8065"; }];
             };
           };
         };
@@ -161,7 +161,7 @@ in {
           instances = {
             "pub-campground" = {
               interface = cfg.interface;
-              ips = [cfg.pub-ip];
+              ips = [ cfg.pub-ip ];
               state = "MASTER";
               priority = 50;
               virtualRouterId = 51;

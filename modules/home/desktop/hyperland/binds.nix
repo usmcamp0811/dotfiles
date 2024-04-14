@@ -1,16 +1,13 @@
-{
-  inputs,
-  system,
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.hyprland;
-in {
+in
+{
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -209,16 +206,20 @@ in {
           # ░█▄█░█░█░█▀▄░█▀▄░▀▀█░█▀▀░█▀█░█░░░█▀▀
           # ░▀░▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░░░▀░▀░▀▀▀░▀▀▀
           # Switch workspaces with CTRL_ALT + [0-9]
-          ++ (builtins.concatLists (builtins.genList (x: let
-              ws = let
-                c = (x + 1) / 10;
+          ++ (builtins.concatLists (builtins.genList
+            (x:
+              let
+                ws =
+                  let
+                    c = (x + 1) / 10;
+                  in
+                  builtins.toString (x + 1 - (c * 10));
               in
-                builtins.toString (x + 1 - (c * 10));
-            in [
-              "$ALT, ${ws}, workspace, ${toString (x + 1)}"
-              "$ALT_SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}"
-              "$SUPER_SHIFT, ${ws}, movetoworkspacesilent, ${toString (x + 1)}"
-            ])
+              [
+                "$ALT, ${ws}, workspace, ${toString (x + 1)}"
+                "$ALT_SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}"
+                "$SUPER_SHIFT, ${ws}, movetoworkspacesilent, ${toString (x + 1)}"
+              ])
             10));
         # Move/resize windows with mainMod + LMB/RMB and dragging
         bindm = [

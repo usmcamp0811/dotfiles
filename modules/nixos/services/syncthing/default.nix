@@ -1,14 +1,13 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.syncthing;
-in {
+in
+{
   options.campground.services.syncthing = with types; {
     enable = mkBoolOpt false "Whether or not to enable syncthing.";
     user = mkOpt str "mcamp" "User name";
@@ -17,7 +16,7 @@ in {
       mkOpt str "/home/mcamp/Documents" "Default folder for new synced folders";
     configDir =
       mkOpt str "/home/mcamp/.config/syncthing"
-      "# Folder for Syncthing's settings and keys";
+        "# Folder for Syncthing's settings and keys";
   };
 
   config = mkIf cfg.enable {

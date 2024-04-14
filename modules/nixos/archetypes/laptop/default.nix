@@ -1,14 +1,13 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.archetypes.laptop;
-in {
+in
+{
   options.campground.archetypes.laptop = with types; {
     enable = mkBoolOpt false "Whether or not to enable the laptop archetype.";
   };
@@ -44,9 +43,9 @@ in {
         wifi = {
           enable = true;
           networks = {
-            SkyNet = {ssid = "SkyNet";};
-            SkyNet5 = {ssid = "SkyNet5";};
-            SkyNet6 = {ssid = "SkyNet2.0";};
+            SkyNet = { ssid = "SkyNet"; };
+            SkyNet5 = { ssid = "SkyNet5"; };
+            SkyNet6 = { ssid = "SkyNet2.0"; };
           };
         };
       };

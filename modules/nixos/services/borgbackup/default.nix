@@ -1,17 +1,16 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.borgbackup;
-in {
+in
+{
   options.campground.services.borgbackup = with types; {
     enable = mkBoolOpt false "Whether or not to enable Borg Backups.";
     jobs = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule ({name, ...}: {
+      type = lib.types.attrsOf (lib.types.submodule ({ ... }: {
         options = {
           paths = lib.mkOption {
             type = lib.types.listOf lib.types.str;
@@ -55,26 +54,26 @@ in {
               Additional arguments for all {command}`borg` calls the
               service has. Handle with care.
             '';
-            default = [];
-            example = ["--remote-path=/path/to/borg"];
+            default = [ ];
+            example = [ "--remote-path=/path/to/borg" ];
           };
         };
       }));
-      default = {};
+      default = { };
       description = "Borg backup jobs configuration.";
     };
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/borg"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -97,7 +96,7 @@ in {
         mkdir -p /var/lib/vault
         cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
       '';
-      wantedBy = ["multi-user.target"];
+      wantedBy = [ "multi-user.target" ];
     });
 
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {

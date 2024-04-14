@@ -1,22 +1,21 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
+{ options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.system.env;
-in {
+in
+{
   options.campground.system.env = with types;
     mkOption {
-      type = attrsOf (oneOf [str path (listOf (either str path))]);
-      apply = mapAttrs (n: v:
+      type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
+      apply = mapAttrs (_n: v:
         if isList v
         then concatMapStringsSep ":" (x: toString x) v
         else (toString v));
-      default = {};
+      default = { };
       description = "A set of environment variables to set.";
     };
 
@@ -39,7 +38,7 @@ in {
       };
       extraInit =
         concatStringsSep "\n"
-        (mapAttrsToList (n: v: ''export ${n}="${v}"'') cfg);
+          (mapAttrsToList (n: v: ''export ${n}="${v}"'') cfg);
     };
   };
 }

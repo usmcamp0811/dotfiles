@@ -1,11 +1,9 @@
-{
-  config,
-  lib,
-  options,
-  pkgs,
-  inputs,
-  system,
-  ...
+{ config
+, lib
+, options
+, pkgs
+, system
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -15,14 +13,16 @@ with lib.campground; let
     name = "configure-gtk";
     destination = "/bin/configure-gtk";
     executable = true;
-    text = let
-      schema = pkgs.gsettings-desktop-schemas;
-      datadir = "${schema}/share/gesettings/schemas/${schema.name}";
-    in ''
-      export XDG_DATA_DIRS=${datadir}:$XDG_DATA_DIRS
-      gnome_schema=org.gnome.desktop.interface
-      gesettings set $gnome_schema gtk-theme 'Adwaita'
-    '';
+    text =
+      let
+        schema = pkgs.gsettings-desktop-schemas;
+        datadir = "${schema}/share/gesettings/schemas/${schema.name}";
+      in
+      ''
+        export XDG_DATA_DIRS=${datadir}:$XDG_DATA_DIRS
+        gnome_schema=org.gnome.desktop.interface
+        gesettings set $gnome_schema gtk-theme 'Adwaita'
+      '';
   };
   dbus-hyprland-environment = pkgs.writeTextFile {
     name = "dbus-hyprland-environment";
@@ -36,16 +36,17 @@ with lib.campground; let
     '';
   };
   cfg = config.campground.desktop.hyprland;
-  programs = lib.makeBinPath [config.programs.hyprland.package];
-in {
+  programs = lib.makeBinPath [ config.programs.hyprland.package ];
+in
+{
   options.campground.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to enable Hyprland.";
     customConfigFiles =
-      mkOpt attrs {}
-      "Custom configuration files that can be used to override the default files.";
+      mkOpt attrs { }
+        "Custom configuration files that can be used to override the default files.";
     customFiles =
-      mkOpt attrs {}
-      "Custom files that can be used to override the default files.";
+      mkOpt attrs { }
+        "Custom files that can be used to override the default files.";
     wallpaper = mkOpt (nullOr package) null "The wallpaper to display.";
   };
 
@@ -100,7 +101,7 @@ in {
     xdg.portal = {
       enable = true;
       wlr.enable = true;
-      extraPortals = [pkgs.xdg-desktop-portal-gtk];
+      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
     };
     environment.systemPackages = with pkgs; [
       hyprpaper

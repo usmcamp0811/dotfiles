@@ -1,13 +1,12 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.mattermost;
-in {
+in
+{
   options.campground.services.mattermost = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
   };
@@ -35,8 +34,8 @@ in {
     # have to force this since we create the db elsewhere
     services.postgresql.enable = lib.mkForce true;
     # open ports for calls
-    networking.firewall.allowedTCPPorts = [3478 8443 8045];
-    networking.firewall.allowedUDPPorts = [3478 8443 8045];
+    networking.firewall.allowedTCPPorts = [ 3478 8443 8045 ];
+    networking.firewall.allowedUDPPorts = [ 3478 8443 8045 ];
 
     services.mattermost = {
       enable = true;
@@ -45,7 +44,7 @@ in {
       listenAddress = "0.0.0.0:8065";
       # TODO: Move away from mutable
       mutableConfig = true;
-      matterircd = {enable = true;};
+      matterircd = { enable = true; };
 
       # TODO reevaluate option on fresh install
       # Database was created before this option existed. Also using this
@@ -56,7 +55,7 @@ in {
         ServiceSettings = {
           EnableEmailInvitations = true;
           EnableOAuthServiceProvider = true;
-          TrustedProxyIPHeader = ["X-Forwarded-For" "X-Real-IP"];
+          TrustedProxyIPHeader = [ "X-Forwarded-For" "X-Real-IP" ];
           AllowCorsFrom = "*";
         };
 

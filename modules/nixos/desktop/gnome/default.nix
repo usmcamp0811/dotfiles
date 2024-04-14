@@ -1,9 +1,8 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -26,24 +25,25 @@ with lib.campground; let
     wireless-hid
   ];
 
-  default-attrs = mapAttrs (key: mkDefault);
-  nested-default-attrs = mapAttrs (key: default-attrs);
-in {
+  default-attrs = mapAttrs (_key: mkDefault);
+  nested-default-attrs = mapAttrs (_key: default-attrs);
+in
+{
   options.campground.desktop.gnome = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
     wallpaper = {
       light =
-        mkOpt (oneOf [str package])
-        pkgs.campground.wallpapers.nord-rainbow-light-nix
-        "The light wallpaper to use.";
+        mkOpt (oneOf [ str package ])
+          pkgs.campground.wallpapers.nord-rainbow-light-nix
+          "The light wallpaper to use.";
       dark =
-        mkOpt (oneOf [str package])
-        pkgs.campground.wallpapers.nord-rainbow-dark-nix
-        "The dark wallpaper to use.";
+        mkOpt (oneOf [ str package ])
+          pkgs.campground.wallpapers.nord-rainbow-dark-nix
+          "The dark wallpaper to use.";
     };
     color-scheme =
-      mkOpt (enum ["light" "dark"]) "dark" "The color scheme to use.";
+      mkOpt (enum [ "light" "dark" ]) "dark" "The color scheme to use.";
     gdm = mkBoolOpt false "Whether or not to use GDM Display Manager.";
     wayland = mkBoolOpt false "Whether or not to use Wayland.";
     lightdm = mkBoolOpt false "Whether or not to use LightDM Display Manager.";
@@ -51,7 +51,7 @@ in {
       mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
     monitors = mkOpt (nullOr path) null "The monitors.xml file to create.";
     extensions =
-      mkOpt (listOf package) [] "Extra Gnome extensions to install.";
+      mkOpt (listOf package) [ ] "Extra Gnome extensions to install.";
   };
 
   config = mkIf cfg.enable {
@@ -64,7 +64,7 @@ in {
     };
 
     environment.systemPackages = with pkgs;
-      [wl-clipboard gnome.gnome-tweaks gnome.nautilus-python]
+      [ wl-clipboard gnome.gnome-tweaks gnome.nautilus-python ]
       ++ defaultExtensions
       ++ cfg.extensions;
 
@@ -86,8 +86,8 @@ in {
     #    );
 
     systemd.services.campground-user-icon = {
-      before = ["display-manager.service"];
-      wantedBy = ["display-manager.service"];
+      before = [ "display-manager.service" ];
+      wantedBy = [ "display-manager.service" ];
 
       serviceConfig = {
         Type = "simple";
@@ -121,30 +121,30 @@ in {
     };
 
     # Required for app indicators
-    services.udev.packages = with pkgs; [gnome3.gnome-settings-daemon];
+    services.udev.packages = with pkgs; [ gnome3.gnome-settings-daemon ];
 
     services.xserver = {
       enable = true;
       libinput.enable = true;
       displayManager = {
-        lightdm = {enable = cfg.lightdm;};
+        lightdm = { enable = cfg.lightdm; };
         gdm = {
           enable = cfg.gdm;
           wayland = cfg.wayland;
           autoSuspend = cfg.suspend;
         };
       };
-      desktopManager.gnome = {enable = true;};
+      desktopManager.gnome = { enable = true; };
     };
 
     campground.home.extraOptions = {
-      dconf.settings = let
-        user = config.users.users.${config.campground.user.name};
-        get-wallpaper = wallpaper:
-          if lib.isDerivation wallpaper
-          then builtins.toString wallpaper
-          else wallpaper;
-      in
+      dconf.settings =
+        let
+          get-wallpaper = wallpaper:
+            if lib.isDerivation wallpaper
+            then builtins.toString wallpaper
+            else wallpaper;
+        in
         nested-default-attrs {
           "org/gnome/shell" = {
             disable-user-extensions = false;
@@ -157,7 +157,7 @@ in {
                 "user-theme@gnome-shell-extensions.gcampax.github.com"
               ];
             favorite-apps =
-              ["org.gnome.Nautilus.desktop"]
+              [ "org.gnome.Nautilus.desktop" ]
               ++ optional config.campground.apps.firefox.enable "firefox.desktop"
               ++ optional config.campground.apps.vscode.enable "code.desktop";
             #              ++ optional config.campground.desktop.addons.foot.enable "foot.desktop"
@@ -185,42 +185,42 @@ in {
           "org/gnome/desktop/peripherals/touchpad" = {
             disable-while-typing = false;
           };
-          "org/gnome/desktop/wm/preferences" = {num-workspaces = 10;};
+          "org/gnome/desktop/wm/preferences" = { num-workspaces = 10; };
           "org/gnome/desktop/wm/keybindings" = {
-            switch-to-workspace-1 = ["<Super>1"];
-            switch-to-workspace-2 = ["<Super>2"];
-            switch-to-workspace-3 = ["<Super>3"];
-            switch-to-workspace-4 = ["<Super>4"];
-            switch-to-workspace-5 = ["<Super>5"];
-            switch-to-workspace-6 = ["<Super>6"];
-            switch-to-workspace-7 = ["<Super>7"];
-            switch-to-workspace-8 = ["<Super>8"];
-            switch-to-workspace-9 = ["<Super>9"];
-            switch-to-workspace-10 = ["<Super>0"];
+            switch-to-workspace-1 = [ "<Super>1" ];
+            switch-to-workspace-2 = [ "<Super>2" ];
+            switch-to-workspace-3 = [ "<Super>3" ];
+            switch-to-workspace-4 = [ "<Super>4" ];
+            switch-to-workspace-5 = [ "<Super>5" ];
+            switch-to-workspace-6 = [ "<Super>6" ];
+            switch-to-workspace-7 = [ "<Super>7" ];
+            switch-to-workspace-8 = [ "<Super>8" ];
+            switch-to-workspace-9 = [ "<Super>9" ];
+            switch-to-workspace-10 = [ "<Super>0" ];
 
-            move-to-workspace-1 = ["<Shift><Super>1"];
-            move-to-workspace-2 = ["<Shift><Super>2"];
-            move-to-workspace-3 = ["<Shift><Super>3"];
-            move-to-workspace-4 = ["<Shift><Super>4"];
-            move-to-workspace-5 = ["<Shift><Super>5"];
-            move-to-workspace-6 = ["<Shift><Super>6"];
-            move-to-workspace-7 = ["<Shift><Super>7"];
-            move-to-workspace-8 = ["<Shift><Super>8"];
-            move-to-workspace-9 = ["<Shift><Super>9"];
-            move-to-workspace-10 = ["<Shift><Super>0"];
+            move-to-workspace-1 = [ "<Shift><Super>1" ];
+            move-to-workspace-2 = [ "<Shift><Super>2" ];
+            move-to-workspace-3 = [ "<Shift><Super>3" ];
+            move-to-workspace-4 = [ "<Shift><Super>4" ];
+            move-to-workspace-5 = [ "<Shift><Super>5" ];
+            move-to-workspace-6 = [ "<Shift><Super>6" ];
+            move-to-workspace-7 = [ "<Shift><Super>7" ];
+            move-to-workspace-8 = [ "<Shift><Super>8" ];
+            move-to-workspace-9 = [ "<Shift><Super>9" ];
+            move-to-workspace-10 = [ "<Shift><Super>0" ];
           };
           "org/gnome/shell/keybindings" = {
             # Remove the default hotkeys for opening favorited applications.
-            switch-to-application-1 = [];
-            switch-to-application-2 = [];
-            switch-to-application-3 = [];
-            switch-to-application-4 = [];
-            switch-to-application-5 = [];
-            switch-to-application-6 = [];
-            switch-to-application-7 = [];
-            switch-to-application-8 = [];
-            switch-to-application-9 = [];
-            switch-to-application-10 = [];
+            switch-to-application-1 = [ ];
+            switch-to-application-2 = [ ];
+            switch-to-application-3 = [ ];
+            switch-to-application-4 = [ ];
+            switch-to-application-5 = [ ];
+            switch-to-application-6 = [ ];
+            switch-to-application-7 = [ ];
+            switch-to-application-8 = [ ];
+            switch-to-application-9 = [ ];
+            switch-to-application-10 = [ ];
           };
           "org/gnome/mutter" = {
             edge-tiling = false;
@@ -278,9 +278,9 @@ in {
           };
 
           "org/gnome/shell/extensions/top-bar-organizer" = {
-            left-box-order = ["menuButton" "activities" "dateMenu" "appMenu"];
+            left-box-order = [ "menuButton" "activities" "dateMenu" "appMenu" ];
 
-            center-box-order = ["Space Bar"];
+            center-box-order = [ "Space Bar" ];
 
             right-box-order = [
               "keyboard"

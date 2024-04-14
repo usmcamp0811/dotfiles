@@ -1,19 +1,14 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.addons.swaynotificationcenter;
-  swayncConfig = import ./config.nix {inherit pkgs;};
-  swayncConfigFile = pkgs.writeTextFile {
-    name = "swaync-config.json";
-    text = builtins.toJSON swayncConfig;
-  };
-in {
+in
+{
   options.campground.desktop.addons.swaynotificationcenter = {
     enable = mkEnableOption "Hyprpaper";
   };

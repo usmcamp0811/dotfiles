@@ -1,9 +1,8 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -14,10 +13,8 @@ with lib.campground; let
     networkmanagerapplet
     arc-theme
   ];
-
-  default-attrs = mapAttrs (key: mkDefault);
-  nested-default-attrs = mapAttrs (key: default-attrs);
-in {
+in
+{
   options.campground.desktop.qtile = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Qtile as the desktop environment.";
@@ -25,7 +22,7 @@ in {
 
   config = mkIf cfg.enable {
     campground.system.xkb.enable = true;
-    campground.desktop.addons = {wallpapers = enabled;};
+    campground.desktop.addons = { wallpapers = enabled; };
 
     environment.systemPackages = with pkgs;
       [
@@ -43,19 +40,22 @@ in {
       ]
       ++ defaultExtensions;
 
-    services.udev.packages = with pkgs; [];
+    services.udev.packages = with pkgs; [ ];
     services.picom.enable = true;
     services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
       [org.gnome.desktop.interface]
       gtk-theme='Arc-Dark'
     '';
-    environment.etc = let
-      rofiThemes = "${pkgs.rofi}/share/rofi/themes";
-    in
-      mapAttrs' (name: _: {
-        name = "rofi/themes/${name}";
-        value = {source = "${rofiThemes}/${name}";};
-      }) (builtins.readDir rofiThemes);
+    environment.etc =
+      let
+        rofiThemes = "${pkgs.rofi}/share/rofi/themes";
+      in
+      mapAttrs'
+        (name: _: {
+          name = "rofi/themes/${name}";
+          value = { source = "${rofiThemes}/${name}"; };
+        })
+        (builtins.readDir rofiThemes);
 
     services.xserver = {
       enable = true;
@@ -67,8 +67,7 @@ in {
         # ];
       };
     };
-    campground.home.extraOptions = {
-    };
+    campground.home.extraOptions = { };
 
     # Open firewall for samba connections to work.
     # networking.firewall.extraCommands =

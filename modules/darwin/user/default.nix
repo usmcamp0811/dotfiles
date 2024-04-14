@@ -1,17 +1,14 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}: let
-  inherit (lib) types mkIf mkDefault;
+{ lib
+, config
+, ...
+}:
+let
+  inherit (lib) types mkIf;
   inherit (lib.campground) mkOpt;
 
   cfg = config.campground.user;
-
-  is-linux = pkgs.stdenv.isLinux;
-  is-darwin = pkgs.stdenv.isDarwin;
-in {
+in
+{
   options.campground.user = {
     name = mkOpt types.str "abe" "The user account.";
 

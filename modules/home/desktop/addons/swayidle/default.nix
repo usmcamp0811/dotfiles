@@ -1,17 +1,15 @@
-{
-  inputs,
-  options,
-  config,
-  lib,
-  pkgs,
-  system,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.addons.swayidle;
   # inherit (inputs) nixpkgs-wayland;
-in {
+in
+{
   options.campground.desktop.addons.swayidle = with types; {
     enable =
       mkBoolOpt false "Whether to enable swayidle in the desktop environment.";

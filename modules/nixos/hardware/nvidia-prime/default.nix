@@ -1,18 +1,11 @@
-{
-  options,
-  config,
-  inputs,
-  pkgs,
-  lib,
-  ...
+{ options
+, config
+, pkgs
+, lib
+, ...
 }:
 with lib; let
   cfg = config.campground.hardware.nvidia-prime;
-  displaySetupScript = pkgs.writeShellScript "display_setup.sh" ''
-    #!/bin/sh
-    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0
-    ${pkgs.xorg.xrandr}/bin/xrandr --auto
-  '';
   nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
     export __NV_PRIME_RENDER_OFFLOAD=1
     export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
@@ -20,7 +13,8 @@ with lib; let
     export __VK_LAYER_NV_optimus=NVIDIA_only
     exec -a "$0" "$@"
   '';
-in {
+in
+{
   options.campground.hardware.nvidia-prime = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
@@ -46,7 +40,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [nvidia-offload pciutils];
+    environment.systemPackages = with pkgs; [ nvidia-offload pciutils ];
 
     # Enable OpenGL
     hardware.opengl = {
@@ -56,7 +50,7 @@ in {
     };
 
     # Load nvidia driver for Xorg and Wayland
-    services.xserver.videoDrivers = ["nvidia"];
+    services.xserver.videoDrivers = [ "nvidia" ];
 
     hardware.nvidia = {
       # Modesetting is required.

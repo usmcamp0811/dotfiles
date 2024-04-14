@@ -1,14 +1,13 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
+{ options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.system.locale;
-in {
+in
+{
   options.campground.system.locale = with types; {
     enable = mkBoolOpt false "Whether or not to manage locale settings.";
   };
@@ -16,6 +15,6 @@ in {
   config = mkIf cfg.enable {
     i18n.defaultLocale = "en_US.UTF-8";
 
-    console = {keyMap = mkForce "us";};
+    console = { keyMap = mkForce "us"; };
   };
 }

@@ -1,15 +1,14 @@
-{
-  inputs,
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.addons.swaylock;
-in {
+in
+{
   options.campground.desktop.addons.swaylock = with types; {
     enable =
       mkBoolOpt false "Whether to enable swaylock in the desktop environment.";

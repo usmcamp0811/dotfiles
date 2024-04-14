@@ -1,29 +1,20 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.mlflow;
   inherit (pkgs.campground) mlflow;
-  pythonEnv = pkgs.python3.withPackages (ps:
-    with ps; [
-      mlflow
-      boto3
-      gunicorn
-      mysqlclient
-      psycopg2
-      # add any other Python packages your MLflow server requires
-    ]);
-in {
+in
+{
   options.campground.services.mlflow = with types; {
     enable = mkBoolOpt false "Enable an MLFlow;";
     port = mkOpt int 8000 "Port to Host the mlflow server on.";
     dbURI =
       mkOpt str "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql"
-      "Backend DB URI";
+        "Backend DB URI";
     # dbURI = mkOpt str "mysql://mlflow:lflow@localhost/mlflow?unix_socket=/run/mysqld/mysqld.sock" "Backend DB URI";
     artifactRoot = mkOpt str "s3://mlflow" "Artifact Root Location";
     s3EndpointURL =
@@ -32,15 +23,15 @@ in {
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/mlflow"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -57,10 +48,10 @@ in {
       isSystemUser = true;
       description = "MLflow system user";
       group = "mlflow";
-      extraGroups = ["mlflow"]; # Optional if you want the user to be in additional groups
+      extraGroups = [ "mlflow" ]; # Optional if you want the user to be in additional groups
     };
 
-    users.groups.mlflow = {};
+    users.groups.mlflow = { };
 
     campground.services.postgresql = {
       enable = true;
@@ -112,8 +103,8 @@ in {
 
     systemd.services.mlflow = {
       description = "MLflow tracking server";
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
       environment = {
         MLFLOW_BACKEND_STORE_URI = "${cfg.dbURI}";
         MLFLOW_ARTIFACT_URI = "${cfg.artifactRoot}";
@@ -134,7 +125,7 @@ in {
       serviceConfig = {
         User = "mlflow";
         WorkingDirectory = "/var/lib/mlflow";
-        ReadWritePaths = ["/var/lib/mlflow"];
+        ReadWritePaths = [ "/var/lib/mlflow" ];
         Restart = "always";
       };
     };
@@ -143,7 +134,7 @@ in {
       "d /var/lib/mlflow 0755 mlflow mlflow -"
       "d /var/lib/mlflow/tmp 0755 mlflow mlflow -"
     ];
-    networking.firewall.allowedTCPPorts = [cfg.port];
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
 
     campground.services.vault-agent.services.mlflow = {
       settings = {

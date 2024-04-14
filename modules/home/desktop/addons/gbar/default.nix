@@ -1,21 +1,20 @@
-{
-  inputs,
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ inputs
+, options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.addons.gbar;
   inherit (inputs) gBar;
-in {
+in
+{
   options.campground.desktop.addons.gbar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
   };
-  imports = [inputs.gBar.homeManagerModules.x86_64-linux.default];
+  imports = [ inputs.gBar.homeManagerModules.x86_64-linux.default ];
   config = mkIf cfg.enable {
     programs.gBar = {
       enable = true;
@@ -26,7 +25,7 @@ in {
           Discord = 26;
           OBS = 23;
         };
-        WorkspaceSymbols = [" " " "];
+        WorkspaceSymbols = [ " " " " ];
       };
     };
   };

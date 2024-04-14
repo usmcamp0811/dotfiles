@@ -1,16 +1,14 @@
-{
-  options,
-  config,
-  inputs,
-  pkgs,
-  lib,
-  ...
+{ options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.hardware.ups.cp1500;
   password = "TODO";
-in {
+in
+{
   options.campground.hardware.ups.cp1500 = with types; {
     enable = mkEnableOption "Enable the management of CP1500 UPS";
     vid = mkOpt str "0764" "Set the vid";
@@ -32,7 +30,7 @@ in {
         driver = "usbhid-ups";
         description = "CP1500 AVR UPS";
         port = "auto";
-        directives = ["vendorid = ${cfg.vid}" "productid = ${cfg.pid}"];
+        directives = [ "vendorid = ${cfg.vid}" "productid = ${cfg.pid}" ];
         # this option is not valid for usbhid-ups
         maxStartDelay = null;
       };
@@ -48,7 +46,7 @@ in {
         home = "/var/lib/nut";
         createHome = true;
       };
-      groups.nut = {};
+      groups.nut = { };
     };
 
     services.udev.extraRules = ''

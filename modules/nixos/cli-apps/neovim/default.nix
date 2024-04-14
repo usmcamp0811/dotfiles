@@ -1,15 +1,14 @@
-{
-  lib,
-  config,
-  pkgs,
-  inputs,
-  ...
-}: let
+{ lib
+, config
+, ...
+}:
+let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli-apps.neovim;
-in {
-  options.campground.cli-apps.neovim = {enable = mkEnableOption "Neovim";};
+in
+{
+  options.campground.cli-apps.neovim = { enable = mkEnableOption "Neovim"; };
 
   config = mkIf cfg.enable {
     # environment.systemPackages = with pkgs; [

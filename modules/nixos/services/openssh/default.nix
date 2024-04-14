@@ -1,12 +1,10 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  host ? "",
-  format ? "",
-  inputs ? {},
-  ...
+{ options
+, config
+, lib
+, host ? ""
+, format ? ""
+, inputs ? { }
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -22,38 +20,45 @@ with lib.campground; let
   default-key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler";
 
   other-hosts =
-    lib.filterAttrs (key: host:
-      key != name && (host.config.campground.user.name or null) != null)
-    ((inputs.self.nixosConfigurations or {})
-      // (inputs.self.darwinConfigurations or {}));
+    lib.filterAttrs
+      (key: host:
+        key != name && (host.config.campground.user.name or null) != null)
+      ((inputs.self.nixosConfigurations or { })
+        // (inputs.self.darwinConfigurations or { }));
 
-  other-hosts-config = lib.concatMapStringsSep "\n" (name: let
-    remote = other-hosts.${name};
-    remote-user-name = remote.config.campground.user.name;
-    remote-user-id =
-      builtins.toString remote.config.users.users.${remote-user-name}.uid;
+  other-hosts-config = lib.concatMapStringsSep "\n"
+    (name:
+      let
+        remote = other-hosts.${name};
+        remote-user-name = remote.config.campground.user.name;
+        remote-user-id =
+          builtins.toString remote.config.users.users.${remote-user-name}.uid;
 
-    forward-gpg = optionalString (config.programs.gnupg.agent.enable
-      && remote.config.programs.gnupg.agent.enable) ''
-      RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
-      RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
-    '';
-  in ''
-    Host ${name}
-      User ${remote-user-name}
-      ForwardAgent yes
-      Port ${builtins.toString cfg.port}
-      ${forward-gpg}
-  '') (builtins.attrNames other-hosts);
-in {
+        forward-gpg = optionalString
+          (config.programs.gnupg.agent.enable
+            && remote.config.programs.gnupg.agent.enable) ''
+          RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
+          RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
+        '';
+      in
+      ''
+        Host ${name}
+          User ${remote-user-name}
+          ForwardAgent yes
+          Port ${builtins.toString cfg.port}
+          ${forward-gpg}
+      '')
+    (builtins.attrNames other-hosts);
+in
+{
   options.campground.services.openssh = with types; {
     enable = mkBoolOpt false "Whether or not to configure OpenSSH support.";
     authorizedKeys =
-      mkOpt (listOf str) [default-key] "The public keys to apply.";
+      mkOpt (listOf str) [ default-key ] "The public keys to apply.";
     port = mkOpt port 2222 "The port to listen on (in addition to 22).";
     manage-other-hosts =
       mkOpt bool true
-      "Whether or not to add other host configurations to SSH config.";
+        "Whether or not to add other host configurations to SSH config.";
   };
 
   config = mkIf cfg.enable {
@@ -73,7 +78,7 @@ in {
         StreamLocalBindUnlink yes
       '';
 
-      ports = [22 cfg.port];
+      ports = [ 22 cfg.port ];
     };
 
     programs.ssh.forwardX11 = true;
@@ -88,11 +93,14 @@ in {
       cfg.authorizedKeys;
 
     campground.home.extraOptions = {
-      programs.zsh.shellAliases = foldl (aliases: system:
-        aliases
-        // {
-          "ssh-${system}" = "ssh ${system} -t tmux a";
-        }) {} (builtins.attrNames other-hosts);
+      programs.zsh.shellAliases = foldl
+        (aliases: system:
+          aliases
+          // {
+            "ssh-${system}" = "ssh ${system} -t tmux a";
+          })
+        { }
+        (builtins.attrNames other-hosts);
     };
   };
 }

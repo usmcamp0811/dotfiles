@@ -1,14 +1,13 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.tools.virtmanager;
-in {
+in
+{
   options.campground.tools.virtmanager = with types; {
     enable = mkBoolOpt false "Whether or not to enable Virt-manager.";
   };
@@ -16,8 +15,8 @@ in {
   config = mkIf cfg.enable {
     dconf.settings = {
       "org/virt-manager/virt-manager/connections" = {
-        autoconnect = ["qemu:///system"];
-        uris = ["qemu:///system"];
+        autoconnect = [ "qemu:///system" ];
+        uris = [ "qemu:///system" ];
       };
     };
   };

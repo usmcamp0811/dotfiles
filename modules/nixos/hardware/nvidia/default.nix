@@ -1,14 +1,13 @@
-{
-  options,
-  config,
-  inputs,
-  pkgs,
-  lib,
-  ...
+{ options
+, config
+, pkgs
+, lib
+, ...
 }:
 with lib; let
   cfg = config.campground.hardware.nvidia;
-in {
+in
+{
   options.campground.hardware.nvidia = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
@@ -38,7 +37,7 @@ in {
       nvtop
     ];
     # Load nvidia driver for Xorg and Wayland
-    services.xserver.videoDrivers = ["nvidia"];
+    services.xserver.videoDrivers = [ "nvidia" ];
 
     hardware.nvidia = {
       # Modesetting is required.

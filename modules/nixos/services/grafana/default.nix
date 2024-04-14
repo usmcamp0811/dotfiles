@@ -1,31 +1,30 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.grafana;
-in {
+in
+{
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
     domain =
       mkOpt str "grafana.lan.aicampground.com"
-      "Domain to Host the grafana server on.";
+        "Domain to Host the grafana server on.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/grafana"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -56,7 +55,7 @@ in {
       };
     };
 
-    networking.firewall.allowedTCPPorts = [cfg.port];
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
 
     campground.services.vault-agent.services.grafana = {
       settings = {

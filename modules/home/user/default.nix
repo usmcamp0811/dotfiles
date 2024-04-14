@@ -1,18 +1,15 @@
-{
-  lib,
-  inputs,
-  config,
-  pkgs,
-  osConfig ? {},
-  ...
-}: let
+{ lib
+, inputs
+, config
+, pkgs
+, ...
+}:
+let
   inherit (lib) types mkIf mkDefault mkMerge;
   inherit (lib.campground) mkOpt;
 
   cfg = config.campground.user;
   cfg-user = config.campground.user;
-
-  is-linux = pkgs.stdenv.isLinux;
   is-darwin = pkgs.stdenv.isDarwin;
 
   default-key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler";
@@ -23,12 +20,13 @@
     else if is-darwin
     then "/Users/${cfg.name}"
     else "/home/${cfg.name}";
-in {
+in
+{
   options.campground.user = {
     enable = mkOpt types.bool false "Whether to configure the user account.";
     name =
       mkOpt (types.nullOr types.str) config.snowfallorg.user.name
-      "The user account.";
+        "The user account.";
 
     uid = mkOpt types.int 1000 "UID of the user";
     fullName = mkOpt types.str "Matt Camp" "The full name of the user.";
@@ -36,7 +34,7 @@ in {
 
     home =
       mkOpt (types.nullOr types.str) home-directory
-      "The user's home directory.";
+        "The user's home directory.";
 
     authorizedKeys = mkOpt types.str default-key "The public key to apply.";
   };
@@ -59,7 +57,7 @@ in {
         homeDirectory = mkDefault cfg.home;
       };
 
-      home.activation.sshKeys = inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
+      home.activation.sshKeys = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         if [ -e "/var/lib/vault/users/${cfg-user.name}/id_ed25519" ]; then
           rm -rf /home/${cfg-user.name}/.ssh/id_ed25519
           cat /var/lib/vault/users/${cfg-user.name}/id_ed25519 > /home/${cfg-user.name}/.ssh/id_ed25519
