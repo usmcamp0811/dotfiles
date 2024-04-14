@@ -11,7 +11,7 @@ with lib.campground; {
   imports = with inputs.nixos-hardware.nixosModules; [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
-
+  sdImage.compressImage = false;
   # nixpkgs.config.allowUnsupportedSystem = true;
   # nixpkgs.crossSystem.system = "aarch64-linux";
 
@@ -20,16 +20,23 @@ with lib.campground; {
   };
 
   campground = {
-    archetypes = {
-      barebones = enabled;
+    user = {
+      name = "mcamp";
+      fullName = "Matt Camp";
+      email = "matt@aicampground.com";
+      extraGroups = ["wheel" "docker"];
+      uid = 10000;
     };
-
-    system = {
-      boot = {
-        # Raspberry Pi requires a specific bootloader.
-        enable = mkForce false;
-      };
-    };
+    # archetypes = {
+    #   basic-pi = enabled;
+    # };
+    #
+    # system = {
+    #   boot = {
+    #     # Raspberry Pi requires a specific bootloader.
+    #     enable = mkForce false;
+    #   };
+    # };
   };
 
   # This value determines the NixOS release from which the default

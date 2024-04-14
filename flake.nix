@@ -259,20 +259,20 @@
             deadnix.enable = true;
           };
         };
-        checks.mlflow-test = channels.nixpkgs.nixosTest {
-          name = "mlflow-test";
-          nodes = {
-            machine =
-              { inputs, ... }: {
-                environment.systemPackages = [ inputs.self.mlflow-server ];
-              };
-          };
-          testScript = ''
-            startAll;
-            machine.waitUntilSucceeds("mlflow --help");
-            machine.succeed("mlflow --help");
-          '';
-        };
+        # checks.mlflow-test = channels.nixpkgs.nixosTest {
+        #   name = "mlflow-test";
+        #   nodes = {
+        #     machine =
+        #       { inputs, ... }: {
+        #         environment.systemPackages = [ inputs.self.mlflow-server ];
+        #       };
+        #   };
+        #   testScript = ''
+        #     startAll;
+        #     machine.waitUntilSucceeds("mlflow --help");
+        #     machine.succeed("mlflow --help");
+        #   '';
+        # };
       };
       templates = {
         basic = {

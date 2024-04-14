@@ -15,7 +15,7 @@ in {
 
   config = mkIf cfg.enable {
     campground = {
-      suites = {common = enabled;};
+      # suites = {common = enabled;};
       system = {
         passwds = enabled;
       };

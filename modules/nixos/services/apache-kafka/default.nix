@@ -23,6 +23,10 @@ in {
         "socket.receive.buffer.bytes" = 102400;
         "socket.request.max.bytes" = 104857600;
         "zookeeper.connect" = "localhost:2181";
+        "num.partitions" = 3;
+        "log.retention.hours" = 168;
+        "message.max.bytes" = 1000012;
+        "auto.create.topics.enable" = false;
       };
       example = {
         "broker.id" = 1;
@@ -52,6 +56,7 @@ in {
       enable = true; # Enables the Apache Kafka service.
 
       settings = cfg.settings;
+      clusterId = cfg.clusterId;
 
       jvmOptions = [
         "-Xmx1G" # Sets the maximum size of the memory allocation pool.
