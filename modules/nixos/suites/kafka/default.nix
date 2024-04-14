@@ -23,7 +23,7 @@ in {
       services = {
         zookeeper = {
           enable = true;
-          zookeeper-id = cfg.id;
+          id = cfg.zookeeper-id;
           # TODO: Figure out how to infer this
           servers = cfg.servers;
         };
