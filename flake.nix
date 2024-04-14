@@ -241,15 +241,17 @@
         deploy-rs.lib;
 
       outputs-builder = channels: {
+        # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and 
+        # which will break `deploy`. 
         hooks.pre-commit-check =
           inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
             src = ./.;
             hooks = {
               nixfmt.enable = true;
-              # flake8.enable = true;
-              # markdownlint.enable = true;
-              # yamllint.enable = true;
-              # deadnix.enable = true;
+              flake8.enable = true;
+              markdownlint.enable = true;
+              yamllint.enable = true;
+              deadnix.enable = true;
             };
           };
         # checks.mlflow-test = channels.nixpkgs.nixosTest {
