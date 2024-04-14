@@ -9,7 +9,7 @@
 with lib;
 with lib.campground; let
   inherit (lib.campground) override-meta;
-  inherit (inputs.self.checks.${system}.pre-commit-check) shellHook;
+  # inherit (inputs.self.checks.${system}.pre-commit-check) shellHook;
 in
 mkShell {
   buildInputs = [
@@ -24,10 +24,11 @@ mkShell {
     pkgs.snowfallorg.flake
     pkgs.statix
     pkgs.campground.vault-scripts
-  ] ++ inputs.self.checks.${system}.pre-commit-check.enabledPackages;
+  ];
+  # ++ inputs.self.checks.${system}.pre-commit-check.enabledPackages;
 
+    # ${shellHook}
   shellHook = ''
-    ${shellHook}
     echo 🏕️ Welcome to the Campground
     # Additional setup can go here
 
