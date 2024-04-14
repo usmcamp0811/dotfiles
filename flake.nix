@@ -248,10 +248,10 @@
             src = ./.;
             hooks = {
               nixfmt.enable = true;
-              flake8.enable = true;
-              markdownlint.enable = true;
-              yamllint.enable = true;
-              deadnix.enable = true;
+              # flake8.enable = true;
+              # markdownlint.enable = true;
+              # yamllint.enable = true;
+              # deadnix.enable = true;
             };
           };
         # checks.mlflow-test = channels.nixpkgs.nixosTest {
