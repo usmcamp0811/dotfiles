@@ -240,32 +240,33 @@
         (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
         deploy-rs.lib;
 
-      # outputs-builder = channels: {
-      #   checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-      #     src = ./.;
-      #     hooks = {
-      #       nixfmt.enable = true;
-      #       flake8.enable = true;
-      #       markdownlint.enable = true;
-      #       yamllint.enable = true;
-      #       deadnix.enable = true;
-      #     };
-      #   };
-      #   # checks.mlflow-test = channels.nixpkgs.nixosTest {
-      #   #   name = "mlflow-test";
-      #   #   nodes = {
-      #   #     machine =
-      #   #       { inputs, ... }: {
-      #   #         environment.systemPackages = [ inputs.self.mlflow-server ];
-      #   #       };
-      #   #   };
-      #   #   testScript = ''
-      #   #     startAll;
-      #   #     machine.waitUntilSucceeds("mlflow --help");
-      #   #     machine.succeed("mlflow --help");
-      #   #   '';
-      #   # };
-      # };
+      outputs-builder = channels: {
+        hooks.pre-commit-check =
+          inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+            src = ./.;
+            hooks = {
+              nixfmt.enable = true;
+              # flake8.enable = true;
+              # markdownlint.enable = true;
+              # yamllint.enable = true;
+              # deadnix.enable = true;
+            };
+          };
+        # checks.mlflow-test = channels.nixpkgs.nixosTest {
+        #   name = "mlflow-test";
+        #   nodes = {
+        #     machine =
+        #       { inputs, ... }: {
+        #         environment.systemPackages = [ inputs.self.mlflow-server ];
+        #       };
+        #   };
+        #   testScript = ''
+        #     startAll;
+        #     machine.waitUntilSucceeds("mlflow --help");
+        #     machine.succeed("mlflow --help");
+        #   '';
+        # };
+      };
       templates = {
         basic = {
           path = ./templates/basic;
