@@ -1,12 +1,8 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.apache-kafka;
-in
-{
+with lib.campground;
+let cfg = config.campground.services.apache-kafka;
+in {
   options.campground.services.apache-kafka = with types; {
     enable = mkBoolOpt false "Enable Kafka;";
 
@@ -43,7 +39,7 @@ in
 
     clusterId = mkOption {
       description = lib.mdDoc ''
-        KRaft mode ClusterId used for formatting log directories. Can be generated with `kafka-storage.sh random-uuid`
+        Raft mode ClusterId used for formatting log directories. Can be generated with `kafka-storage.sh random-uuid`
       '';
       type = with types; nullOr str;
       default = null;

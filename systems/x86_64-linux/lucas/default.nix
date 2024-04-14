@@ -1,27 +1,22 @@
-{
-  pkgs,
-  config,
-  lib,
-  nixos-hardware,
-  nixosModules,
-  ...
-}:
+{ lib, ... }:
 with lib;
-with lib.campground; let
-  newUser = name: {
-    isNormalUser = true;
-    createHome = true;
-    home = "/home/${name}";
-    shell = pkgs.zsh;
-  };
-in {
-  imports = [./hardware.nix];
+with lib.campground;
+# let
+#   newUser = name: {
+#     isNormalUser = true;
+#     createHome = true;
+#     home = "/home/${name}";
+#     shell = pkgs.zsh;
+#   };
+# in 
+{
+  imports = [ ./hardware.nix ];
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
 
@@ -41,11 +36,12 @@ in {
         enable = true;
         interface = "eno1";
       };
+      kafka = { enable = true; };
     };
     nfs.client.enable = true;
     tools.attic = enabled;
 
-    hardware = {nvidia = enabled;};
+    hardware = { nvidia = enabled; };
 
     # security = {
     #   doas = enabled;
@@ -54,8 +50,6 @@ in {
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
-      zookeeper = {enable = true;};
-      apache-kafka = {enable = true;};
       # netmaker = {
       #   enable = true;
       # };
@@ -91,7 +85,7 @@ in {
       };
       user-secrets = {
         enable = true;
-        users.mcamp = {files = ["id_ed25519" "passwords"];};
+        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
       };
       vault-agent = {
         enable = true;

@@ -1,28 +1,22 @@
-{
-  pkgs,
-  config,
-  lib,
-  nixos-hardware,
-  nixosModules,
-  agenix,
-  ...
-}:
+{ lib, ... }:
 with lib;
-with lib.campground; let
-  newUser = name: {
-    isNormalUser = true;
-    createHome = true;
-    home = "/home/${name}";
-    shell = pkgs.zsh;
-  };
-in {
-  imports = [./hardware.nix];
+with lib.campground;
+# let
+#   newUser = name: {
+#     isNormalUser = true;
+#     createHome = true;
+#     home = "/home/${name}";
+#     shell = pkgs.zsh;
+#   };
+# in 
+{
+  imports = [ ./hardware.nix ];
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
     suites = {
@@ -31,6 +25,7 @@ in {
         enable = true;
         interface = "enp3s0f1";
       };
+      kafka = { enable = true; };
     };
     archetypes = {
       laptop = enabled;
@@ -44,10 +39,10 @@ in {
     # security = {
     #   acme = enabled;
     # };
-    nfs.client = {enable = true;};
+    nfs.client = { enable = true; };
 
     services = {
-      ldap-client = {enable = mkForce false;};
+      ldap-client = { enable = mkForce false; };
       # attic-watch-store = enabled;
       # ldap-server = enabled;
       # k0s = {
@@ -65,12 +60,12 @@ in {
         enable = true;
         jobs = {
           "campground" = {
-            paths = ["/persist"];
+            paths = [ "/persist" ];
             repo = "mcamp@reckless:/mnt/backups/daly";
             startAt = "daily";
           };
           "daly_rsync" = {
-            paths = ["/persist"];
+            paths = [ "/persist" ];
             repo = "de3288@de3288.rsync.net:/data2/home/de3288/backups/daly";
             startAt = "daily";
           };
@@ -93,7 +88,7 @@ in {
       };
       user-secrets = {
         enable = true;
-        users = {mcamp = {files = ["id_ed25519" "passwords"];};};
+        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
       };
       vault = {
         enable = true;
@@ -104,15 +99,13 @@ in {
         };
 
         policies = builtins.foldl' (policies: file:
-          policies
-          // {
+          policies // {
             "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) {} (builtins.filter (snowfall.path.has-file-extension "hcl")
-          (builtins.map (path:
-            ./vault/policies
-            + "/${
-              builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-            }") (snowfall.fs.get-files ./vault/policies)));
+          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map (path:
+              ./vault/policies + "/${
+                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+              }") (snowfall.fs.get-files ./vault/policies)));
       };
       vault-agent = {
         enable = true;
