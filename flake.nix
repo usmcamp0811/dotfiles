@@ -267,6 +267,7 @@
         #   '';
         # };
       };
+
       templates = {
         basic = {
           path = ./templates/basic;
