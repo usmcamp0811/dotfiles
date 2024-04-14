@@ -1,30 +1,20 @@
-{
-  pkgs,
-  config,
-  lib,
-  modulesPath,
-  inputs,
-  ...
-}:
+{ pkgs, lib, modulesPath, inputs, ... }:
 with lib;
 with lib.campground; {
-  imports = with inputs.nixos-hardware.nixosModules; [
-    (modulesPath + "/installer/scan/not-detected.nix")
-  ];
-  sdImage.compressImage = false;
+  imports = with inputs.nixos-hardware.nixosModules;
+    [ (modulesPath + "/installer/scan/not-detected.nix") ];
+  # sdImage.compressImage = false;
   # nixpkgs.config.allowUnsupportedSystem = true;
   # nixpkgs.crossSystem.system = "aarch64-linux";
 
-  boot = {
-    kernelPackages = pkgs.linuxKernel.packages.linux_rpi3;
-  };
+  boot = { kernelPackages = pkgs.linuxKernel.packages.linux_rpi3; };
 
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
     # archetypes = {

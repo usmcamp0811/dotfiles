@@ -1,15 +1,6 @@
 { lib, ... }:
 with lib;
-with lib.campground;
-# let
-#   newUser = name: {
-#     isNormalUser = true;
-#     createHome = true;
-#     home = "/home/${name}";
-#     shell = pkgs.zsh;
-#   };
-# in 
-{
+with lib.campground; {
   imports = [ ./hardware.nix ];
   campground = {
     user = {
@@ -25,8 +16,8 @@ with lib.campground;
         enable = true;
         interface = "enp3s0f1";
       };
-      kafka = { 
-        enable = true; 
+      kafka = {
+        enable = true;
         zookeeper-id = 3;
       };
     };
@@ -46,19 +37,6 @@ with lib.campground;
 
     services = {
       ldap-client = { enable = mkForce false; };
-      # attic-watch-store = enabled;
-      # ldap-server = enabled;
-      # k0s = {
-      #   enable = true;
-      #   package = pkgs.campground.k0s;
-      #   role = "controller"; # Options: "controller", "worker", "controller+worker", "single"
-      #   apiAddress = "10.8.0.1";
-      #   # apiSans = [ "daly" "ermy" "campnet" ];
-      #   apiSans = [ "10.8.0.1" ];
-      #   clusterName = "campground";
-      #   isLeader = false; # Set this to true on the initial controller node
-      #   dataDir = "/var/lib/k0s";
-      # };
       borgbackup = {
         enable = true;
         jobs = {
@@ -123,15 +101,6 @@ with lib.campground;
       };
     };
   };
-
-  # services.nginx = {
-  #   enable = true;
-  #   recommendedProxySettings = true;
-  #   virtualHosts = {
-  #     "vault.lan" = network.create-proxy
-  #       ((network.get-address-parts config.services.vault.address));
-  #   };
-  # };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
