@@ -41,7 +41,7 @@ in {
             "socket.send.buffer.bytes" = 102400;
             "socket.receive.buffer.bytes" = 102400;
             "socket.request.max.bytes" = 104857600;
-            "zookeeper.connect" = "localhost:2181";
+            "zookeeper.connect" = ["chesty:2181" "webb:2181" "daly:2181" "lucas:2181"];
             "num.partitions" = 3;
             "log.retention.hours" = 168;
             "message.max.bytes" = 1000012;
