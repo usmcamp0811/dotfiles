@@ -22,13 +22,13 @@ in {
     campground = {
       services = {
         zookeeper = {
-          # enable = true;
+          enable = true;
           id = cfg.zookeeper-id;
           # TODO: Figure out how to infer this
           servers = cfg.servers;
         };
         apache-kafka = {
-          # enable = true;
+          enable = true;
           settings = {
             "log.dirs" = [ "/var/lib/kafka/logs" ];
             "listeners" = [ "PLAINTEXT://:9092" ];
