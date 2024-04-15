@@ -22,14 +22,14 @@ in rec {
   }: let
     hosts = self.nixosConfigurations or {};
     names = builtins.attrNames hosts;
-    nodes = lib.foldl (result: name: let
-      host = hosts.${name};
-      inherit (host.pkgs) system;
-      # Condition to check if the system type is x86_64-linux
-      isActive = system == "x86_64-linux";
-    in
-      if !isActive then result
-      else
+    nodes = lib.foldl' (result: name:
+      if name == "test-pi" then
+        result
+      else let
+        host = hosts.${name};
+        user = host.config.campground.user.name or null;
+        inherit (host.pkgs) system;
+      in
         result // {
           ${name} =
             (overrides.${name} or {})
@@ -43,7 +43,7 @@ in rec {
                     // {
                       path = deploy-rs.lib.${system}.activate.nixos host;
                     }
-                    // lib.optionalAttrs (host.config.users.users.${host.config.campground.user.name or "root"}.isNormalUser or false) {
+                    // lib.optionalAttrs (user != null) {
                       user = "root";
                       sshUser = "root";
                     }
@@ -52,8 +52,7 @@ in rec {
                       sudo = "doas -u";
                     };
                 };
-            };
-        }) {}
-    names;
+        };
+    ) {} names;
   in {inherit nodes;};
 }
