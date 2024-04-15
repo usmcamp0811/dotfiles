@@ -1,16 +1,10 @@
 { lib, ... }:
 with lib;
 with lib.campground;
-# let
-#   newUser = name: {
-#     isNormalUser = true;
-#     createHome = true;
-#     home = "/home/${name}";
-#     shell = pkgs.zsh;
-#   };
-# in 
 {
   imports = [ ./hardware.nix ];
+
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
     user = {
       name = "mcamp";
@@ -19,8 +13,6 @@ with lib.campground;
       extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
-
-    # deploy-user = enabled;
     archetypes = {
       workstation = enabled;
       server = {
@@ -30,7 +22,6 @@ with lib.campground;
         hostId = "930864f0";
       };
     };
-    # security.acme = enabled;
     suites = {
       public-hosting = {
         enable = true;
@@ -45,31 +36,10 @@ with lib.campground;
     tools.attic = enabled;
 
     hardware = { nvidia = enabled; };
-
-    # security = {
-    #   doas = enabled;
-    # };
     services = {
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
-      # netmaker = {
-      #   enable = true;
-      # };
-      # postgresql = {
-      #   enable = true;
-      #   enableTCPIP = true;
-      #   backupEnable = true;
-      #   backupLocation = "/persist/postgresqlBackups/";
-      #   authentication = ''
-      #     local all root trust
-      #     local all postgres peer
-      #     local netmaker netmaker trust
-      #     host  netmaker  netmaker  127.0.0.1/32 trust
-      #     host  all  all  0.0.0.0/0  reject
-      #     host  all  all  ::0/0  reject
-      #   '';
-      # };
       searx = {
         enable = true;
         port = 3249;
