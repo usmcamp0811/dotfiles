@@ -30,7 +30,6 @@ in {
         apache-kafka = {
           enable = true;
           settings = {
-            "broker.id" = cfg.zookeeper-id;
             "log.dirs" = [ "/var/lib/kafka/logs" ];
             "listeners" = [ "PLAINTEXT://:9092" ];
             "num.network.threads" = 3;
