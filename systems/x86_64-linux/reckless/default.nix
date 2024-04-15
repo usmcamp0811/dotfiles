@@ -17,6 +17,7 @@ in {
   imports = [./hardware.nix];
   # cause ASUS sucks and the ethernet port dies
   boot.kernelParams = ["pcie_port_pm=off" "pcie_aspm.policy=performance"];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ]);
   campground = {
     user = {
       name = "mcamp";
