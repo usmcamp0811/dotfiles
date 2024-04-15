@@ -38,7 +38,7 @@ with lib.campground;
         zookeeper-id = 2;
         servers = ''
           server.1=chesty:2888:3888
-          server.2=0.0.0.0:2888:3888
+          server.2=127.0.0.1:2888:3888
           server.3=daly:2888:3888
           server.4=lucas:2888:3888
         '';
@@ -136,7 +136,7 @@ with lib.campground;
           host  paperless paperless 127.0.0.1/32 trust
           host  netmaker  netmaker  127.0.0.1/32 trust
           host  keycloak  keycloak  127.0.0.1/32 trust
-          host  all  all  0.0.0.0/0  reject
+          host  all  all  127.0.0.1/0  reject
           host  all  all  ::0/0  reject
         '';
       };

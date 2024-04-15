@@ -22,7 +22,7 @@ with lib.campground; {
         servers = ''
           server.1=chesty:2888:3888
           server.2=webb:2888:3888
-          server.3=0.0.0.0:2888:3888
+          server.3=127.0.0.1:2888:3888
           server.4=lucas:2888:3888
         '';
       };
