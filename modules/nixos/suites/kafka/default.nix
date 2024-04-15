@@ -10,10 +10,10 @@ in {
       description = lib.mdDoc "All Zookeeper Servers.";
       type = types.lines;
       default = ''
-        server.0=lucas:2888:3888
         server.1=chesty:2888:3888
         server.2=webb:2888:3888
         server.3=daly:2888:3888
+        server.4=lucas:2888:3888
       '';
     };
   };
