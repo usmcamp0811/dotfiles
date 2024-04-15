@@ -38,7 +38,7 @@ with lib.campground;
         zookeeper-id = 2;
         servers = ''
           server.1=chesty:2888:3888
-          server.2=127.0.0.1:2888:3888
+          server.2=0.0.0.0:2888:3888
           server.3=daly:2888:3888
           server.4=lucas:2888:3888
         '';
