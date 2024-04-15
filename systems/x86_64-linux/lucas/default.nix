@@ -29,7 +29,7 @@ with lib.campground;
       };
       kafka = { 
         enable = true; 
-        zookeeper-id = 0;
+        zookeeper-id = 4;
       };
     };
     nfs.client.enable = true;
