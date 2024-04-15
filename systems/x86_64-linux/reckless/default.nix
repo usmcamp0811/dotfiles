@@ -1,12 +1,7 @@
-{
-  pkgs,
-  config,
-  lib,
-  inputs,
-  ...
-}:
+{ pkgs, config, lib, inputs, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -14,16 +9,16 @@ with lib.campground; let
     shell = pkgs.zsh;
   };
 in {
-  imports = [./hardware.nix];
+  imports = [ ./hardware.nix ];
   # cause ASUS sucks and the ethernet port dies
-  boot.kernelParams = ["pcie_port_pm=off" "pcie_aspm.policy=performance"];
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ]);
+  boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
 
@@ -47,36 +42,39 @@ in {
       };
     };
 
-    suites = {development = enabled;};
+    suites = { development = enabled; };
 
     nix = {
       extra-substituters = {
         "https://nix-gaming.cachix.org" = {
-          key = "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
+          key =
+            "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
         };
       };
     };
 
-    apps = {steam = enabled;};
+    apps = { steam = enabled; };
 
     # tools = { nix-doc = enabled; };
 
-    nfs.client = {enable = true;};
+    nfs.client = { enable = true; };
 
     hardware = {
       ckb-next = enabled;
-      ups.cp1500 = {enable = true;};
+      ups.cp1500 = { enable = true; };
       nvidia = {
         enable = true;
         driverType = "custom";
-        customDriverPackage = config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
-          version = "550.40.07";
-          # the new driver
-          src = pkgs.fetchurl {
-            url = "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
-            sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
+        customDriverPackage =
+          config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
+            version = "550.40.07";
+            # the new driver
+            src = pkgs.fetchurl {
+              url =
+                "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
+              sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
+            };
           };
-        };
       };
       bluetooth = enabled;
     };
@@ -84,7 +82,7 @@ in {
     services = {
       openllm = enabled;
       file-share = enabled;
-      ldap-client = {enable = mkForce false;};
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       attic = {
@@ -105,8 +103,8 @@ in {
             "avg-size" = 65536; # 64 KiB
             "max-size" = 262144; # 256 KiB
           };
-          compression = {type = "zstd";};
-          garbage-collection = {interval = "144 hours";};
+          compression = { type = "zstd"; };
+          garbage-collection = { interval = "144 hours"; };
         };
       };
 
@@ -139,7 +137,7 @@ in {
       user-secrets = {
         enable = true;
         users = {
-          mcamp = {files = ["id_ed25519" "passwords" "kubeconfig"];};
+          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
         };
       };
 
