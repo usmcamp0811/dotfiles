@@ -19,6 +19,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+
+    networking.firewall = {
+      allowedTCPPorts = [ 2181 2888 3888 9092 ]; 
+    };
     campground = {
       services = {
         zookeeper = {
