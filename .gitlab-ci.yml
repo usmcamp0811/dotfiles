@@ -92,7 +92,7 @@ reckless:
     - |
       ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
       nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
-      deploy --hostname $SYSTEM .#$SYSTEM
+      deploy --hostname $SYSTEM .#$SYSTEM --skip-checks
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
