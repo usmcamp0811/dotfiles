@@ -19,6 +19,12 @@ with lib.campground; {
       kafka = {
         enable = true;
         zookeeper-id = 3;
+        servers = ''
+          server.1=chesty:2888:3888
+          server.2=webb:2888:3888
+          server.3=0.0.0.0:2888:3888
+          server.4=lucas:2888:3888
+        '';
       };
     };
     archetypes = {

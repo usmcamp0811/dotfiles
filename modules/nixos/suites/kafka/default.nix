@@ -30,14 +30,6 @@ in {
           id = cfg.zookeeper-id;
           # TODO: Figure out how to infer this
           servers = cfg.servers;
-          logging = ''
-            zookeeper.root.logger=DEBUG, CONSOLE
-            log4j.rootLogger=DEBUG, CONSOLE
-            log4j.logger.org.apache.zookeeper.audit.Log4jAuditLogger=DEBUG, CONSOLE
-            log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
-            log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout
-            log4j.appender.CONSOLE.layout.ConversionPattern=[myid:%X{myid}] - %-5p [%t:%C{1}@%L] - %m%n
-      '';
         };
         apache-kafka = {
           enable = true;
