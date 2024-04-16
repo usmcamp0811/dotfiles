@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 with lib;
 with lib.campground;
 # let
@@ -36,7 +36,7 @@ with lib.campground;
       kafka = { 
         enable = true; 
         zookeeper-id = 2;
-        enableTimescale = true;
+        timescalePkg = pkgs.postgresql16Packages.timescaledb;
         servers = ''
           server.1=chesty:2888:3888
           server.2=0.0.0.0:2888:3888
@@ -124,22 +124,22 @@ with lib.campground;
         enableTCPIP = true;
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        authentication = ''
-          local all root trust
-          local all postgres peer
-          local vaultwarden vaultwarden trust
-          local mattermost mattermost trust
-          local mlflow mlflow trust
-          local labelstudio labelstudio trust
-          local paperless paperless trust
-          local netmaker netmaker trust
-          local postgres netmaker trust
-          host  paperless paperless 127.0.0.1/32 trust
-          host  netmaker  netmaker  127.0.0.1/32 trust
-          host  keycloak  keycloak  127.0.0.1/32 trust
-          host  all  all  127.0.0.1/0  reject
-          host  all  all  ::0/0  reject
-        '';
+        authentication = [
+          "local all root trust",
+          "local all postgres peer",
+          "local vaultwarden vaultwarden trust",
+          "local mattermost mattermost trust",
+          "local mlflow mlflow trust",
+          "local labelstudio labelstudio trust",
+          "local paperless paperless trust",
+          "local netmaker netmaker trust",
+          "local postgres netmaker trust",
+          "host paperless paperless 127.0.0.1/32 trust",
+          "host netmaker netmaker 127.0.0.1/32 trust",
+          "host keycloak keycloak 127.0.0.1/32 trust",
+          "host all all 127.0.0.1/0 reject",
+          "host all all ::0/0 reject"
+        ];
       };
       wireguard = {
         enable = true;
