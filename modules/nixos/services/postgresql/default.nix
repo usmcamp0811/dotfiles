@@ -47,17 +47,17 @@ in {
     package = mkOpt package pkgs.postgresql_16 "What PostgreSQL to use";
     enableTCPIP = mkBoolOpt false "Enable TCP access";
     authentication = mkOption {
-      type = str;
-      default = ''
-        # Allow only local connections for the root user
-        local all root trust
-        local all postgres peer
-        # Require password for Vault-generated users over the network
-        host  all  all  10.8.0.1/24  md5
-        # Deny other remote connections
-        host  all  all  0.0.0.0/0  reject
-        host  all  all  ::0/0  reject
-      '';
+      type = types.lines;
+      default = [
+        "# Allow only local connections for the root user"
+        "local all root trust"
+        "local all postgres peer"
+        "# Require password for Vault-generated users over the network"
+        "host  all  all  10.8.0.1/24  md5"
+        "# Deny other remote connections"
+        "host  all  all  0.0.0.0/0  reject"
+        "host  all  all  ::0/0  reject"
+      ];
       description = "Authentication settings for PostgreSQL";
     };
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
@@ -81,7 +81,7 @@ in {
       package = cfg.package;
       extraPlugins = cfg.extraPlugins;
       enableTCPIP = cfg.enableTCPIP;
-      authentication = cfg.authentication;
+      authentication = lib.concatStringsSep "\n" [cfg.authentication];
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers =
         map (db: {

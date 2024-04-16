@@ -32,7 +32,9 @@ in
     };
 
     # have to force this since we create the db elsewhere
-    services.postgresql.enable = lib.mkForce true;
+    services.postgresql = {
+      enable = lib.mkForce true;
+    };
     # open ports for calls
     networking.firewall.allowedTCPPorts = [ 3478 8443 8045 ];
     networking.firewall.allowedUDPPorts = [ 3478 8443 8045 ];
