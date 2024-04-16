@@ -6,6 +6,7 @@ in {
   options.campground.suites.kafka = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
     zookeeper-id = mkOpt int 0 "Zookeeper Server ID";
+    enableTimescale = mkBoolOpt false "Enable Timescale Plugin for Postgres";
     servers = mkOption {
       description = lib.mdDoc "All Zookeeper Servers.";
       type = types.lines;
@@ -25,7 +26,7 @@ in {
     };
     campground = {
       services = {
-        postgresql.extraPlugins = [ pkgs.postgresql16Packages.timescaledb ];
+        postgresql.extraPlugins = mkIf cfg.enableTimescale [ pkgs.postgresql16Packages.timescaledb ];
         zookeeper = {
           enable = true;
           id = cfg.zookeeper-id;
