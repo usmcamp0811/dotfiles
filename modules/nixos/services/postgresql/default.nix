@@ -61,6 +61,14 @@ in {
       description = "Authentication settings for PostgreSQL";
     };
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
+    extraPlugins = mkOption {
+      type = with types; coercedTo (listOf path) (path: _ignorePg: path) (functionTo (listOf path));
+      default = _: [];
+      example = literalExpression "ps: with ps; [ postgis pg_repack ]";
+      description = ''
+        List of PostgreSQL plugins.
+      '';
+    };
     backupEnable = mkBoolOpt false "Enable backups";
     backupLocation = mkOpt str "/persist/db-backups/" "Place to store backups";
     backupStartAt = mkOpt str "*-*-* 01:15:00" "Time to start backups";
@@ -71,6 +79,7 @@ in {
     services.postgresql = {
       enable = true;
       package = cfg.package;
+      extraPlugins = cfg.extraPlugins;
       enableTCPIP = cfg.enableTCPIP;
       authentication = cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
