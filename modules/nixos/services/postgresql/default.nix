@@ -79,9 +79,9 @@ in {
     services.postgresql = {
       enable = true;
       package = cfg.package;
-      extraPlugins = cfg.extraPlugins;
+      extraPlugins = [ cfg.extraPlugins ];
       enableTCPIP = cfg.enableTCPIP;
-      authentication = lib.concatStringsSep "\n" [cfg.authentication];
+      authentication = lib.concatStringsSep "\n" [ cfg.authentication ];
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers =
         map (db: {
