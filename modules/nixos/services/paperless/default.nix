@@ -42,15 +42,10 @@ in {
   config = mkIf cfg.enable {
     campground.services.postgresql = {
       enable = true;
-      # TODO: configure authentication in a way that its set here and doesn't break other places
-      # authentication = ''
-      #   local all root trust
-      #   local all postgres peer
-      #   local vaultwarden vaultwarden trust
-      #   local paperless paperless trust
-      #   host  all  all  0.0.0.0/0  reject
-      #   host  all  all  ::0/0  reject
-      # '';
+      authentication = [
+        "local paperless paperless trust"
+        "host paperless paperless 127.0.0.1/32 trust"
+      ];
       databases = [
         {
           name = "paperless";

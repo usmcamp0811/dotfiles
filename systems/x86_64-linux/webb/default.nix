@@ -126,13 +126,6 @@ with lib.campground;
         authentication = [
           "local all root trust"
           "local all postgres peer"
-          "local labelstudio labelstudio trust"
-          "local paperless paperless trust"
-          "local netmaker netmaker trust"
-          "local postgres netmaker trust"
-          "host paperless paperless 127.0.0.1/32 trust"
-          "host netmaker netmaker 127.0.0.1/32 trust"
-          "host keycloak keycloak 127.0.0.1/32 trust"
           "host all all 127.0.0.1/0 reject"
           "host all all ::0/0 reject"
         ];

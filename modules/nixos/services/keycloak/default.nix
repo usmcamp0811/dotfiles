@@ -74,8 +74,6 @@ in {
       before = ["keycloak.service"];
     };
 
-    services.postgresql.enable = true;
-
     services.keycloak = {
       enable = true;
 
@@ -93,6 +91,13 @@ in {
         proxy = "passthrough";
         http-enabled = true;
       };
+    };
+
+    campground.services.postgresql = {
+      enable = true;
+      authentication = [
+        "host keycloak keycloak 127.0.0.1/32 trust"
+      ];
     };
 
     campground.services.vault-agent.services.keycloakPasswordFile = {

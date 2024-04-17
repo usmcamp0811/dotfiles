@@ -179,6 +179,11 @@ in {
 
     campground.services.postgresql = {
       enable = true;
+      authentication = [
+        "local netmaker netmaker trust"
+        "local postgres netmaker trust"
+        "host netmaker netmaker 127.0.0.1/32 trust"
+      ];
       databases = [
         {
           name = "netmaker";
