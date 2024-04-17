@@ -28,9 +28,31 @@ in {
     networking.firewall = {
       allowedTCPPorts = [ 2181 2888 3888 9092 ]; 
     };
+
+    users.users.kafka = {
+      isNormalUser = false;
+      isSystemUser = true;
+      description = "kafka system user";
+      group = "kafka";
+      extraGroups = [ "kafka" ]; 
+    };
+    users.groups.kafka = { };
+
     campground = {
       services = {
-        postgresql.extraPlugins = [ cfg.timescalePackage ];
+        postgresql = {
+          enable = true;
+          extraPlugins = [ cfg.timescalePackage ];
+          authentication = [
+            "local kafka kafka trust"
+          ];
+          databases = [
+            {
+              name = "kafka";
+              user = "kafka";
+            }
+          ];
+        };
         zookeeper = {
           enable = true;
           id = cfg.zookeeper-id;
