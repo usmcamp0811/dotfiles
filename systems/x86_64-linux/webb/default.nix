@@ -36,7 +36,6 @@ with lib.campground;
       kafka = { 
         enable = true; 
         zookeeper-id = 2;
-        # timescalePackage = [ pkgs.postgresql16Packages.timescaledb ];
         servers = ''
           server.1=chesty:2888:3888
           server.2=0.0.0.0:2888:3888
@@ -127,9 +126,6 @@ with lib.campground;
         authentication = [
           "local all root trust"
           "local all postgres peer"
-          "local vaultwarden vaultwarden trust"
-          "local mattermost mattermost trust"
-          "local mlflow mlflow trust"
           "local labelstudio labelstudio trust"
           "local paperless paperless trust"
           "local netmaker netmaker trust"

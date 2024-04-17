@@ -30,7 +30,7 @@ in {
     };
     campground = {
       services = {
-        postgresql.extraPlugins = [ pkgs.postgresql16Packages.timescaledb ];
+        postgresql.extraPlugins = [ cfg.timescalePackage ];
         zookeeper = {
           enable = true;
           id = cfg.zookeeper-id;
