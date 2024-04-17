@@ -60,10 +60,10 @@ with lib.campground;
       ldap-client = { enable = mkForce false; };
       uptime-kuma = enabled;
       grafana = enabled;
-      keycloak = {
-        enable = true;
-        port = 43852;
-      };
+      # keycloak = {
+      #   enable = true;
+      #   port = 43852;
+      # };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
