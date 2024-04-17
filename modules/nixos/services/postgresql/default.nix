@@ -62,13 +62,10 @@ in {
     };
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
     extraPlugins = mkOption {
-      type = with types; coercedTo (listOf path) (path: _ignorePg: path) (functionTo (listOf path));
-      default = _: [];
-      example = literalExpression "ps: with ps; [ postgis pg_repack ]";
-      description = ''
-        List of PostgreSQL plugins.
-      '';
-    };
+      type = lib.types.listOf lib.types.package;
+      default = [  ];
+      description = "A list of packages to use.";
+    };    
     backupEnable = mkBoolOpt false "Enable backups";
     backupLocation = mkOpt str "/persist/db-backups/" "Place to store backups";
     backupStartAt = mkOpt str "*-*-* 01:15:00" "Time to start backups";
