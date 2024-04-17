@@ -46,8 +46,8 @@ in {
     };
     package = mkOpt package pkgs.postgresql_16 "What PostgreSQL to use";
     enableTCPIP = mkBoolOpt false "Enable TCP access";
-    authentication = mkOption {
-      type = types.lines;
+    authentication = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
       default = [
         "# Allow only local connections for the root user"
         "local all root trust"
@@ -61,11 +61,11 @@ in {
       description = "Authentication settings for PostgreSQL";
     };
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
-    extraPlugins = mkOption {
+    extraPlugins = lib.mkOption {
       type = lib.types.listOf lib.types.package;
-      default = [  ];
+      default = [pkgs.postgresql16Packages.timescaledb];
       description = "A list of packages to use.";
-    };    
+    };
     backupEnable = mkBoolOpt false "Enable backups";
     backupLocation = mkOpt str "/persist/db-backups/" "Place to store backups";
     backupStartAt = mkOpt str "*-*-* 01:15:00" "Time to start backups";
@@ -76,9 +76,9 @@ in {
     services.postgresql = {
       enable = true;
       package = cfg.package;
-      extraPlugins = [ cfg.extraPlugins ];
+      extraPlugins = cfg.extraPlugins;
       enableTCPIP = cfg.enableTCPIP;
-      authentication = lib.concatStringsSep "\n" [ cfg.authentication ];
+      authentication = lib.concatStringsSep "\n"  cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
       ensureUsers =
         map (db: {

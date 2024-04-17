@@ -36,7 +36,7 @@ with lib.campground;
       kafka = { 
         enable = true; 
         zookeeper-id = 2;
-        timescalePkg = pkgs.postgresql16Packages.timescaledb;
+        # timescalePackage = [ pkgs.postgresql16Packages.timescaledb ];
         servers = ''
           server.1=chesty:2888:3888
           server.2=0.0.0.0:2888:3888

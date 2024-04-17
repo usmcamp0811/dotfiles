@@ -1,4 +1,4 @@
-{ options, config, lib, ... }:
+{ options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.suites.kafka;
@@ -6,7 +6,11 @@ in {
   options.campground.suites.kafka = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
     zookeeper-id = mkOpt int 0 "Zookeeper Server ID";
-    timescalePkg = mkOpt (nullOr package) null "The Timescale Package";
+    timescalePackage = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.postgresql16Packages.timescaledb;
+      description = "TimescaleDB package to use.";
+    };
     servers = mkOption {
       description = lib.mdDoc "All Zookeeper Servers.";
       type = types.lines;
@@ -26,7 +30,7 @@ in {
     };
     campground = {
       services = {
-        postgresql.extraPlugins = [ cfg.timescalePkg ];
+        postgresql.extraPlugins = [ pkgs.postgresql16Packages.timescaledb ];
         zookeeper = {
           enable = true;
           id = cfg.zookeeper-id;
