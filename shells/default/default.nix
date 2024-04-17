@@ -17,6 +17,7 @@ in mkShell {
     pkgs.snowfallorg.flake
     pkgs.statix
     pkgs.campground.vault-scripts
+    pkgs.vault
   ] ++ inputs.self.hooks.${system}.pre-commit-check.enabledPackages;
 
   shellHook = ''
