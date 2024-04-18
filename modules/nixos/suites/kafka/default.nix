@@ -29,15 +29,6 @@ in {
       allowedTCPPorts = [ 2181 2888 3888 9092 ]; 
     };
 
-    users.users.kafka = {
-      isNormalUser = false;
-      isSystemUser = true;
-      description = "kafka system user";
-      group = "kafka";
-      extraGroups = [ "kafka" ]; 
-    };
-    users.groups.kafka = { };
-
     campground = {
       services = {
         postgresql = {
@@ -52,6 +43,7 @@ in {
               user = "kafka";
             }
           ];
+          identMap = "kafka-map apache-kafka kafka";
         };
         zookeeper = {
           enable = true;

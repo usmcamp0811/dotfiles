@@ -60,6 +60,19 @@ in {
       ];
       description = "Authentication settings for PostgreSQL";
     };
+    identMap = mkOption {
+      type = lib.types.lines;
+      default = "";
+      example = ''
+        map-name-0 system-username-0 database-username-0
+        map-name-1 system-username-1 database-username-1
+      '';
+      description = lib.mdDoc ''
+        Defines the mapping from system users to database users.
+
+        See the [auth doc](https://postgresql.org/docs/current/auth-username-maps.html).
+      '';
+    };
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
     extraPlugins = lib.mkOption {
       type = lib.types.listOf lib.types.package;
