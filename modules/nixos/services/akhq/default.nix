@@ -13,8 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.interfaces."podman-+".allowedUDPPorts = [ 53 ];
-    networking.firewall.interfaces."podman-+".allowedTCPPorts = [ 9092 9093 ];
+    networking.firewall.trustedInterfaces = [ "podman0" ];
     # Runtime
     virtualisation.podman = {
       enable = true;
@@ -41,6 +40,9 @@ in {
       };
       ports = [
         "${builtins.toString cfg.port}:8080/tcp"
+      ];
+      volumes = [
+        "/etc/resolv.conf:/etc/resolv.conf:ro"
       ];
       log-driver = "journald";
       extraOptions = [
