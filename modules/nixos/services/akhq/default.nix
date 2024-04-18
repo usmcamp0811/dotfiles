@@ -4,7 +4,6 @@ with lib;
 with lib.campground;
 let 
   cfg = config.campground.services.akhq;
-  ahkq-config = builtins.toYAML cfg.settings;
 in {
   options.campground.services.akhq = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
@@ -36,16 +35,32 @@ in {
   };
 
   config = mkIf cfg.enable {
+    users.users.apache-kafka = {
+      isSystemUser = true;
+      group = "apache-kafka";
+      home = "/var/lib/apache-kafka";
+      createHome = true;
+    };
+
+    users.groups.apache-kafka = {};
     systemd.services.akhq = {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       serviceConfig = {
         ExecStart = "${pkgs.campground.akhq}/bin/akhq";
         Restart = "always";
+        User = "apache-kafka"; 
+        Group = "apache-kafka";  
       };
       environment = {
-        MICRONAUT_CONFIG_FILES = ${ahkq-config};
+        MICRONAUT_CONFIG_FILES = "/var/lib/apache-kafka/config.yml";
       };
+      preStart = ''
+        mkdir -p /var/lib/apache-kafka
+        cat > /var/lib/apache-kafka/config.yml <<EOF
+        ${generators.toYAML {} cfg.settings}
+EOF
+      '';
     };
 
   };

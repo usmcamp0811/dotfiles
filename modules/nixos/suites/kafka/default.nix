@@ -38,6 +38,12 @@ in {
         akhq = {
           enable = cfg.ui-server;
           settings = {
+            micronaut = {
+              server = {
+                port = 8435;
+                host = "0.0.0.0";
+              };  
+            };
             akhq = {
               connections = {
                 local = {
