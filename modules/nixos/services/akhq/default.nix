@@ -14,6 +14,7 @@ in {
 
   config = mkIf cfg.enable {
     networking.firewall.interfaces."podman-+".allowedUDPPorts = [ 53 ];
+    networking.firewall.interfaces."podman-+".allowedTCPPorts = [ 9092 9093 ];
     # Runtime
     virtualisation.podman = {
       enable = true;
