@@ -40,7 +40,7 @@ in {
           settings = {
             micronaut = {
               server = {
-                port = 8435;
+                port = cfg.ui-port;
                 host = "0.0.0.0";
               };  
             };
@@ -48,7 +48,7 @@ in {
               connections = {
                 local = {
                   properties = {
-                    "bootstrap.servers" = "lucas:9092";
+                    "bootstrap.servers" = cfg.ui-bootstrap-server;
                   };
                 };
               };
