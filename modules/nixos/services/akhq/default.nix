@@ -5,7 +5,9 @@ let cfg = config.campground.suites.kafka;
 in {
   options.campground.suites.akhq = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
-    bootstrap-servers = mkOpt str "kafka.lan.aicampground.com"
+    connection-name = mkOpt str "campground"
+        "Name of the connection";
+    bootstrap-server = mkOpt str "kafka.lan.aicampground.com"
         "Kafka server address";
     port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
   };
@@ -29,9 +31,9 @@ in {
       environment = {
         AKHQ_CONFIGURATION = "akhq:
       connections:
-        local:
+        ${cfg.connection-name}:
           properties:
-            bootstrap.servers: ${cfg.bootstrap-servers}
+            bootstrap.servers: ${cfg.bootstrap-server}
     ";
       };
       ports = [
