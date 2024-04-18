@@ -46,7 +46,7 @@ in {
             };
             akhq = {
               connections = {
-                local = {
+                campground = {
                   properties = {
                     "bootstrap.servers" = cfg.ui-bootstrap-server;
                   };
