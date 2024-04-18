@@ -17,7 +17,7 @@ in {
     virtualisation.podman = {
       enable = true;
       autoPrune.enable = true;
-      dockerCompat = true;
+      # dockerCompat = true;
       defaultNetwork.settings = {
         # Required for container networking to be able to use names.
         dns_enabled = true;
@@ -37,7 +37,7 @@ in {
     ";
       };
       ports = [
-        "${cfg.port}:8080/tcp"
+        "${builtins.toString cfg.port}:8080/tcp"
       ];
       log-driver = "journald";
       extraOptions = [
