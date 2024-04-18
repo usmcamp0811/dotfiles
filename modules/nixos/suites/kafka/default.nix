@@ -37,8 +37,17 @@ in {
       services = {
         akhq = {
           enable = cfg.ui-server;
-          port = cfg.ui-port;
-          bootstrap-server = cfg.ui-bootstrap-server;
+          settings = {
+            akhq = {
+              connections = {
+                local = {
+                  properties = {
+                    "bootstrap.servers" = "lucas:9092";
+                  };
+                };
+              };
+            };
+          };
         };
         postgresql = {
           enable = true;
