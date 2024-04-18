@@ -1,7 +1,7 @@
 { options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.kafka;
+let cfg = config.campground.services.akhq;
 in {
   options.campground.services.akhq = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
