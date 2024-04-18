@@ -1,9 +1,9 @@
 { options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.kafka;
+let cfg = config.campground.services.kafka;
 in {
-  options.campground.akhq = with types; {
+  options.campground.services.akhq = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
     connection-name = mkOpt str "campground"
         "Name of the connection";

@@ -35,7 +35,7 @@ in {
 
     campground = {
       services = {
-        ahkq = {
+        akhq = {
           enable = cfg.ui-server;
           port = cfg.ui-port;
           bootstrap-server = cfg.ui-bootstrap-server;
