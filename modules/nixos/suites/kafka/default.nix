@@ -1,4 +1,4 @@
-{ options, config, lib, pkgs, ... }:
+{ host ? "", options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.suites.kafka;
@@ -13,7 +13,7 @@ in {
     };
     ui-server = mkBoolOpt false "Wheather or not to enable AKHQ on this server.";
     ui-port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
-    ui-bootstrap-server = mkOpt str "kafka.lan.aicampground.com"
+    ui-bootstrap-server = mkOpt str "${host}:9092"
         "Kafka server address";
     servers = mkOption {
       description = lib.mdDoc "All Zookeeper Servers.";

@@ -1,4 +1,5 @@
-{ options, config, lib, pkgs, ... }:
+{ host ? "", options, config, lib, pkgs, ... }:
+
 with lib;
 with lib.campground;
 let cfg = config.campground.services.akhq;
@@ -7,8 +8,7 @@ in {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
     connection-name = mkOpt str "campground"
         "Name of the connection";
-    bootstrap-server = mkOpt str "kafka.lan.aicampground.com"
-        "Kafka server address";
+    bootstrap-server = mkOpt str "${host}:9092" "Kafka server address";
     port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
   };
 
