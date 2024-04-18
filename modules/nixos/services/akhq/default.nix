@@ -45,9 +45,10 @@ in {
         "--network=akhq_default"
       ];
     };
+
     systemd.services."podman-akhq-akhq" = {
       serviceConfig = {
-        Restart = lib.mkOverride 500 "\"no\"";
+        Restart = lib.mkOverride 500 "\"never\"";
       };
       after = [
         "podman-network-akhq_default.service"
