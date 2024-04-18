@@ -13,6 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    networking.firewall.interfaces."podman-+".allowedUDPPorts = [ 53 ];
     # Runtime
     virtualisation.podman = {
       enable = true;
@@ -34,6 +35,7 @@ in {
         ${cfg.connection-name}:
           properties:
             bootstrap.servers: ${cfg.bootstrap-server}
+
     ";
       };
       ports = [
