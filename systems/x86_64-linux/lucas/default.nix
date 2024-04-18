@@ -29,6 +29,7 @@ with lib.campground;
       };
       kafka = { 
         enable = true; 
+        ui-server = true;
         zookeeper-id = 4;
         servers = ''
           server.1=chesty:2888:3888

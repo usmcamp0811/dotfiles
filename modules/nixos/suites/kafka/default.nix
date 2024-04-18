@@ -11,6 +11,10 @@ in {
       default = pkgs.postgresql16Packages.timescaledb;
       description = "TimescaleDB package to use.";
     };
+    ui-server = mkBoolOpt false "Wheather or not to enable AKHQ on this server.";
+    ui-port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
+    ui-bootstrap-server = mkOpt str "kafka.lan.aicampground.com"
+        "Kafka server address";
     servers = mkOption {
       description = lib.mdDoc "All Zookeeper Servers.";
       type = types.lines;
@@ -31,6 +35,11 @@ in {
 
     campground = {
       services = {
+        ahkq = {
+          enable = cfg.ui-server;
+          port = cfg.ui-port;
+          bootstrap-server = cfg.ui-bootstrap-server;
+        };
         postgresql = {
           enable = true;
           extraPlugins = [ cfg.timescalePackage ];

@@ -48,6 +48,17 @@ in
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.akhq = {
+              rule = "Host(`akhq.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "akhq";
+            };
+
+            http.services.akhq = {
+              loadBalancer.servers = [
+                { url = "http://lucas:8435"; }
+              ];
+            };
             http.routers.kafka = {
               rule = "Host(`kafka.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
