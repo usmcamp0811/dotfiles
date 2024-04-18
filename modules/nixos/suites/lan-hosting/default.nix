@@ -55,7 +55,12 @@ in
             };
 
             http.services.kafka = {
-              loadBalancer.servers = [{ url = "http://lucas:9092"; }];
+              loadBalancer.servers = [
+                { url = "http://lucas:9092"; }
+                { url = "http://webb:9092"; }
+                { url = "http://chest:9092"; }
+                { url = "http://daly:9092"; }
+              ];
             };
 
             http.routers.grafana = {
