@@ -19,6 +19,7 @@ with lib.campground; {
       kafka = {
         enable = true;
         zookeeper-id = 3;
+        ui-server = true;
         servers = ''
           server.1=chesty:2888:3888
           server.2=webb:2888:3888
