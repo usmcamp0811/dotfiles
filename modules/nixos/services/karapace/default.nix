@@ -36,6 +36,8 @@ in {
         '';
         ExecStart = "${pkgs.campground.karapace}/bin/karapace /var/lib/apache-kafka/config.json";
         Restart = "always";
+        User = "apache-kafka"; 
+        Group = "apache-kafka";  
       };
     };
 
