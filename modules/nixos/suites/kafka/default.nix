@@ -12,6 +12,7 @@ in {
       description = "TimescaleDB package to use.";
     };
     ui-server = mkBoolOpt false "Wheather or not to enable AKHQ on this server.";
+    schema-server = mkBoolOpt false "Wheather or not to enable Karapace on this server.";
     ui-port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
     ui-bootstrap-server = mkOpt str "${host}:9092"
         "Kafka server address";
@@ -35,6 +36,9 @@ in {
 
     campground = {
       services = {
+        karapace = {
+          enable = cfg.schema-server;
+        };
         akhq = {
           enable = cfg.ui-server;
           settings = {
