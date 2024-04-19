@@ -25,42 +25,23 @@
     accept-types = ["setuptools"];
   };
 
-# accept-types = "^0.4.1"
-# aiohttp = "^3.9.5"
-# aiokafka = "^0.10.0"
-# avro = "^1.11.3"
-# jsonschema = "^4.21.1"
-# kafka-python = "^2.0.2"
-# networkx = "^3.3"
-# protobuf = "^5.26.1"
-# pyjwt = "^2.8.0"
-# python-dateutil = "^2.9.0.post0"
-# lz4 = "^4.3.3"
-# python-snappy = "^0.7.1"
-# zstandard = "^0.22.0"
-# sentry-sdk = "^1.45.0"
-# ujson = "^5.9.0"
+  accept-types = pkgs.python3Packages.buildPythonPackage {
+    pname = "accept-types";
+    version = "0.4.1";
 
-  p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super:
-    builtins.mapAttrs (package: build-requirements:
-      (builtins.getAttr package super).overridePythonAttrs (old: {
-        buildInputs =
-          (old.buildInputs or [])
-          ++ (builtins.map (pkg:
-            if builtins.isString pkg
-            then builtins.getAttr pkg super
-            else pkg)
-          build-requirements);
-      }))
-    pypkgs-build-requirements);
+    src = pkgs.fetchPypi {
+      pname = "accept-types";
+      version = "0.4.1";
+      sha256 = "sha256-+ycJlxbY8DYECMjKhtadv+1ERVg0tw0VBiUKvlIbU1o="; 
+    };
+    doCheck = false;
 
-
-  python-env = pkgs.poetry2nix.mkPoetryEnv {
-    projectDir = ./.;
-    overrides = p2n-overrides;
-    python = pkgs.python311;
+    meta = {
+      description = "accept-types";
+      license = lib.licenses.mit;
+      maintainers = with lib.maintainers; [ mattcamp ];
+    };
   };
-
 
   karapace = pkgs.python3Packages.buildPythonApplication {
     inherit pname;
@@ -77,26 +58,26 @@
       export KARAPACE_VERSION="${version}"
     '';
 
-    propagatedBuildInputs = [
-      python-env
-      pkgs.python311Packages.zstandard
-      pkgs.python311Packages.python-snappy
-      pkgs.python311Packages.typing-extensions
-      pkgs.python311Packages.cachetools
-      pkgs.python311Packages.confluent-kafka
-      pkgs.python311Packages.aiohttp
-      pkgs.python311Packages.aiokafka
-      pkgs.python311Packages.avro
-      pkgs.python311Packages.aiohttp
-      pkgs.python311Packages.jsonschema
-      pkgs.python311Packages.networkx
-      pkgs.python311Packages.protobuf
-      pkgs.python311Packages.pyjwt
-      pkgs.python311Packages.ujson
-      pkgs.python311Packages.sentry-sdk
-      pkgs.python311Packages.python-dateutil
-      pkgs.python311Packages.kafka-python
-    ];
+    propagatedBuildInputs = with pkgs.python311Packages; [
+      zstandard
+      python-snappy
+      typing-extensions
+      cachetools
+      confluent-kafka
+      aiohttp
+      aiokafka
+      avro
+      aiohttp
+      jsonschema
+      networkx
+      protobuf
+      pyjwt
+      ujson
+      sentry-sdk
+      python-dateutil
+      kafka-python
+      lz4
+    ] ++ [ accept-types ];
     doCheck = false;
 
     meta = with lib; {
