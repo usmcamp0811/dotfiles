@@ -21,11 +21,7 @@
   pname = "karapace";
   version = "3.12.0"; 
 
-  pypkgs-build-requirements = {
-    accept-types = ["setuptools"];
-  };
-
-  accept-types = pkgs.python3Packages.buildPythonPackage {
+  accept-types = pkgs.nix-unstable.python3Packages.buildPythonPackage {
     pname = "accept-types";
     version = "0.4.1";
 
@@ -43,7 +39,7 @@
     };
   };
 
-  karapace = pkgs.python3Packages.buildPythonApplication {
+  karapace = pkgs.nix-unstable.python3Packages.buildPythonApplication {
     inherit pname;
     inherit version;
 
@@ -58,7 +54,7 @@
       export KARAPACE_VERSION="${version}"
     '';
 
-    propagatedBuildInputs = with pkgs.python311Packages; [
+    propagatedBuildInputs = with pkgs.nix-unstable.python311Packages; [
       zstandard
       python-snappy
       typing-extensions
@@ -77,6 +73,7 @@
       python-dateutil
       kafka-python
       lz4
+      watchfiles
     ] ++ [ accept-types ];
     doCheck = false;
 
