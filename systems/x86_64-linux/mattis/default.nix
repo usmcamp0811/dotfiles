@@ -1,12 +1,7 @@
-{
-  pkgs,
-  lib,
-  nixos-hardware,
-  nixosModules,
-  ...
-}:
+{ pkgs, lib, nixos-hardware, nixosModules, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -14,9 +9,9 @@ with lib.campground; let
     shell = pkgs.zsh;
   };
 in {
-  imports = [./hardware.nix];
+  imports = [ ./hardware.nix ];
 
-  boot.initrd.availableKernelModules = ["thunderbolt" "xhci_hcd"];
+  boot.initrd.availableKernelModules = [ "thunderbolt" "xhci_hcd" ];
 
   services.logind.lidSwitch = "ignore";
   campground = {
@@ -24,7 +19,7 @@ in {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
 
@@ -62,23 +57,19 @@ in {
         enableTCPIP = true;
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        authentication = ''
-          # Allow only local connections for the root user
-          local all root trust
-          local all postgres peer
-          local vaultwarden vaultwarden trust
-          # Deny other remote connections
-          host  all  all  0.0.0.0/0  reject
-          host  all  all  ::0/0  reject
-        '';
-        databases = [
-          {
-            name = "vaultwarden";
-            user = "vaultwarden";
-          }
+        authentication = [
+          "local all root trust"
+          "local all postgres peer"
+          "local vaultwarden vaultwarden trust"
+          "host  all  all  0.0.0.0/0  reject"
+          "host  all  all  ::0/0  reject"
         ];
+        databases = [{
+          name = "vaultwarden";
+          user = "vaultwarden";
+        }];
       };
-      vaultwarden = {enable = true;};
+      vaultwarden = { enable = true; };
       syncthing = enabled;
       tang = enabled;
       zfs-key-server = {
@@ -94,7 +85,7 @@ in {
       };
       user-secrets = {
         enable = true;
-        users = {mcamp = {files = ["id_ed25519" "passwords"];};};
+        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
       };
       vault-agent = {
         enable = true;
