@@ -32,7 +32,7 @@ with lib.campground;
         interface = "enp7s0";
       };
       kafka = {
-        enable = true;
+        # enable = true;
         interface = "enp7s0";
         zookeeper-id = 1;
         servers = ''

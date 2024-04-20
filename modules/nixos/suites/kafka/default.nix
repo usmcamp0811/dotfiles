@@ -60,32 +60,32 @@ in {
 
     campground = {
       services = {
-        # keepalived = {
-        #   enable = true;
-        #   instances = {
-        #     "kafka" = {
-        #       interface = cfg.kafka-interface;
-        #       ips = [ cfg.kafka-lan-ip ];
-        #       state = "MASTER";
-        #       priority = 50;
-        #       virtualRouterId = 53;
-        #     };
-        #     "kafka-connect" = mkIf cfg.connect-server {
-        #       interface = cfg.kc-interface;
-        #       ips = [ cfg.kc-lan-ip ];
-        #       state = "MASTER";
-        #       priority = 50;
-        #       virtualRouterId = 54;
-        #     };
-        #     "karapace" = mkIf cfg.schema-server {
-        #       interface = cfg.karapace-interface;
-        #       ips = [ cfg.karapace-lan-ip ];
-        #       state = "MASTER";
-        #       priority = 50;
-        #       virtualRouterId = 55;
-        #     };
-        #   };
-        # };
+        keepalived = {
+          enable = true;
+          instances = {
+            "kafka" = {
+              interface = cfg.kafka-interface;
+              ips = [ cfg.kafka-lan-ip ];
+              state = "MASTER";
+              priority = 50;
+              virtualRouterId = 53;
+            };
+            "kafka-connect" = mkIf cfg.connect-server {
+              interface = cfg.kc-interface;
+              ips = [ cfg.kc-lan-ip ];
+              state = "MASTER";
+              priority = 50;
+              virtualRouterId = 54;
+            };
+            "karapace" = mkIf cfg.schema-server {
+              interface = cfg.karapace-interface;
+              ips = [ cfg.karapace-lan-ip ];
+              state = "MASTER";
+              priority = 50;
+              virtualRouterId = 55;
+            };
+          };
+        };
         kafka-connect = { enable = cfg.connect-server; };
         karapace = {
           enable = cfg.schema-server;
