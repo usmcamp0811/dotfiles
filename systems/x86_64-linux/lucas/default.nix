@@ -31,6 +31,7 @@ with lib.campground;
         enable = true; 
         ui-server = true;
         zookeeper-id = 4;
+        schema-server = true;
         servers = ''
           server.1=chesty:2888:3888
           server.2=webb:2888:3888

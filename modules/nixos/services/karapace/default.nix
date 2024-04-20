@@ -11,6 +11,18 @@ in {
       type = lib.types.attrs;
       default = {};
       description = "Karapace configuration settings as a Nix attribute set.";
+      example = literalExpression ''
+      {
+        advertised_hostname = "lucas";
+        bootstrap_uri = "kafka://lucas:9092";
+        registry_host = "schema-registry.lan.aicampground.com";
+        registry_port = 8081;
+        host = "0.0.0.0";
+        port = 8082;
+        admin_metadata_max_age = 600;
+        log_level = "INFO";
+      }
+      '';
     };
   };
 
@@ -31,14 +43,14 @@ in {
 
       # Pre-start script to convert Nix configuration to JSON
       serviceConfig = {
-        ExecStartPre = lib.mkIf (cfg.config != {}) ''
-          ${pkgs.jq}/bin/jq -n '${builtins.toJSON cfg.config}' > /var/lib/apache-kafka/config.json
-        '';
         ExecStart = "${pkgs.campground.karapace}/bin/karapace /var/lib/apache-kafka/config.json";
         Restart = "always";
         User = "apache-kafka"; 
         Group = "apache-kafka";  
       };
+      preStart = ''
+        ${pkgs.jq}/bin/jq -n '${builtins.toJSON cfg.config}' > /var/lib/apache-kafka/config.json
+      '';
     };
 
   };
