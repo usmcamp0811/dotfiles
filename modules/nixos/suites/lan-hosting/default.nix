@@ -51,7 +51,7 @@ in
             http.routers.schema-registry = {
               rule = "Host(`schema-registry.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "akhq";
+              service = "schema-registry";
             };
 
             http.services.schema-registry = {
