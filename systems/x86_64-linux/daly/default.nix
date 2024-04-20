@@ -18,10 +18,9 @@ with lib.campground; {
       };
       kafka = {
         enable = true;
+        interface = "enp3s0f1";
         zookeeper-id = 3;
         ui-server = true;
-        kc-interface = "enp3s0f1";
-        karapace-interface = "enp3s0f1";
         servers = ''
           server.1=chesty:2888:3888
           server.2=webb:2888:3888

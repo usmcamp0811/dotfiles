@@ -31,8 +31,9 @@ with lib.campground;
         enable = true;
         interface = "enp7s0";
       };
-      kafka = { 
-        enable = true; 
+      kafka = {
+        enable = true;
+        interface = "enp7s0";
         zookeeper-id = 1;
         servers = ''
           server.1=127.0.0.1:2888:3888
