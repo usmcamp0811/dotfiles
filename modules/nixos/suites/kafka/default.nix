@@ -5,7 +5,9 @@ let cfg = config.campground.suites.kafka;
 in {
   options.campground.suites.kafka = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
-    kafka-interface = mkOpt str "eno1"
+    interface = mkOpt str "eno1"
+      "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
+    kafka-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
     kafka-lan-ip = mkOpt str "10.8.0.72"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka";
@@ -21,7 +23,7 @@ in {
       mkBoolOpt false "Wheather or not to enable Karapace on this server.";
     ui-port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
     ui-bootstrap-server = mkOpt str "${host}:9092" "Kafka server address";
-    kc-interface = mkOpt str "eno1"
+    kc-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka Connect";
     kc-lan-ip = mkOpt str "10.8.0.70"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
