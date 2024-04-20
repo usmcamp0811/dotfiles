@@ -100,7 +100,7 @@ in {
             "status.storage.topic" = "connect-status";
             "status.storage.replication.factor" = 1;
             "offset.flush.interval.ms" = "10000";
-            "listeners" = "HTTP://:8323";
+            "listeners" = "HTTP://:${builtins.toString cfg.kc-port}";
           };
         };
         karapace = {
