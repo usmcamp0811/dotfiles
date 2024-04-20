@@ -133,11 +133,12 @@ in {
                         builtins.toString cfg.karapace-port
                       }";
                   };
-                  connect = {
+                  connect = [{
+                    name = "campground";
                     url = "http://${cfg.kc-lan-ip}:${
                         builtins.toString cfg.kc-port
                       }";
-                  };
+                  }];
                 };
               };
             };
