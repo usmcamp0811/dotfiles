@@ -1,41 +1,34 @@
-{ options
-, config
-, lib
-, ...
-}:
+{ options, config, lib, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.suites.lan-hosting;
-  jsonValue = with types; let
-    valueType =
-      nullOr
-        (oneOf [
-          bool
-          int
-          float
-          str
-          (lazyAttrsOf valueType)
-          (listOf valueType)
-        ])
-      // {
+  jsonValue = with types;
+    let
+      valueType = nullOr (oneOf [
+        bool
+        int
+        float
+        str
+        (lazyAttrsOf valueType)
+        (listOf valueType)
+      ]) // {
         description = "JSON value";
         emptyValue.value = { };
       };
-  in
-  valueType;
-in
-{
+    in valueType;
+in {
   options.campground.suites.lan-hosting = with types; {
-    enable =
-      mkBoolOpt false
-        "Whether or not to enable common lan-hosting configuration.";
+    enable = mkBoolOpt false
+      "Whether or not to enable common lan-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     entrypoints = mkOption {
       type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description = "List of entrypoints for Traefik, mapping names to their address.";
+      description =
+        "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
@@ -55,9 +48,7 @@ in
             };
 
             http.services.schema-registry = {
-              loadBalancer.servers = [
-                { url = "http://lucas:8436"; }
-              ];
+              loadBalancer.servers = [{ url = "http://10.8.0.70:8436"; }];
             };
             http.routers.akhq = {
               rule = "Host(`akhq.lan.aicampground.com`)";
@@ -66,9 +57,7 @@ in
             };
 
             http.services.akhq = {
-              loadBalancer.servers = [
-                { url = "http://lucas:8435"; }
-              ];
+              loadBalancer.servers = [{ url = "http://lucas:8435"; }];
             };
             http.routers.kafka = {
               rule = "Host(`kafka.lan.aicampground.com`)";
