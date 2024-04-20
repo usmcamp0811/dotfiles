@@ -36,6 +36,7 @@ with lib.campground;
       kafka = {
         enable = true;
         connect-server = true;
+        timescale-server = true;
         schema-server = true;
         zookeeper-id = 2;
         servers = ''

@@ -17,6 +17,8 @@ in {
       default = pkgs.postgresql16Packages.timescaledb;
       description = "TimescaleDB package to use.";
     };
+    timescale-server = mkBoolOpt false
+      "Wheather or not to enable Postgres with Timescale on this server.";
     ui-server =
       mkBoolOpt false "Wheather or not to enable AKHQ on this server.";
     schema-server =
@@ -115,7 +117,7 @@ in {
           };
         };
         postgresql = {
-          enable = true;
+          enable = cfg.timescale-server;
           extraPlugins = [ cfg.timescalePackage ];
           authentication = [ "local kafka kafka trust" ];
           databases = [{
