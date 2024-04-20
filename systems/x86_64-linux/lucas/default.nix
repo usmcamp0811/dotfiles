@@ -1,7 +1,6 @@
 { lib, ... }:
 with lib;
-with lib.campground;
-{
+with lib.campground; {
   imports = [ ./hardware.nix ];
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -27,10 +26,11 @@ with lib.campground;
         enable = true;
         interface = "eno1";
       };
-      kafka = { 
-        enable = true; 
+      kafka = {
+        enable = true;
         ui-server = true;
         zookeeper-id = 4;
+        coonect-server = true;
         schema-server = true;
         servers = ''
           server.1=chesty:2888:3888
