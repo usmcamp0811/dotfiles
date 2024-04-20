@@ -5,7 +5,7 @@ with lib.campground;
 let 
   cfg = config.campground.services.kafka-connect;
   kafka-connect-config = builtins.concatStringsSep "\n" (
-    builtins.mapAttrsToList (name: value: "${name}=${toString value}") cfg.config
+    lib.mapAttrsToList (name: value: "${name}=${builtins.toString value}") cfg.config
   );
 in {
   options.campground.services.kafka-connect = with types; {
@@ -49,7 +49,7 @@ in {
       wantedBy = [ "multi-user.target" ];
       script = ''
         # Write the Kafka Connect configuration file
-        echo ${kafka-connect-config} > /var/lib/apache-kafka/kafka-connect.cfg
+        echo '${kafka-connect-config}' > /var/lib/apache-kafka/kafka-connect.cfg
         export KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
         export KAFKA_LOG_DIR="/var/log/apache-kafka"
         ${pkgs.apacheKafka}/bin/connect-distributed.sh /var/lib/apache-kafka/kafka-connect.cfg

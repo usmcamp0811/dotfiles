@@ -1,7 +1,9 @@
 { host ? "", options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.suites.kafka;
+let 
+  cfg = config.campground.suites.kafka;
+  bootstrap-server = "${cfg.kafka-lan-ip}:${cfg.kakfa-port}"
 in {
   options.campground.suites.kafka = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
@@ -9,9 +11,8 @@ in {
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
     kafka-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
-    # kafka-lan-ip = mkOpt str "10.8.0.72"
-    #   "IP to use for the LAN Instance when setting up Keepalived for Kafka";
-    kafka-lan-ip = mkOpt str "lucas"
+    kafka-port = mkOpt int 9092 "Port to Host the Apache Kafka server.";
+    kafka-lan-ip = mkOpt str "10.8.0.72"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka";
     zookeeper-id = mkOpt int 0 "Zookeeper Server ID";
     timescalePackage = lib.mkOption {
@@ -29,15 +30,11 @@ in {
     ui-bootstrap-server = mkOpt str "webb:9092" "Kafka server address";
     kc-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka Connect";
-    # kc-lan-ip = mkOpt str "10.8.0.70"
-    #   "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
-    kc-lan-ip = mkOpt str "lucas"
+    kc-lan-ip = mkOpt str "10.8.0.70"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
     karapace-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Karapace";
-    # karapace-lan-ip = mkOpt str "10.8.0.71"
-    #   "IP to use for the LAN Instance when setting up Keepalived for Karapace";
-    karapace-lan-ip = mkOpt str "lucas"
+    karapace-lan-ip = mkOpt str "10.8.0.71"
       "IP to use for the LAN Instance when setting up Keepalived for Karapace";
     karapace-port = mkOpt int 8436 "Port to Host the Apache Kafka HQ server.";
     connect-server =
@@ -86,11 +83,29 @@ in {
             };
           };
         };
-        kafka-connect = { enable = cfg.connect-server; };
+        kafka-connect = { 
+          enable = cfg.connect-server;
+          config = {
+            "bootstrap.servers" = bootstrap-server;
+            "group.id" = "connect-cluster";
+            "key.converter" = "org.apache.kafka.connect.json.JsonConverter";
+            "value.converter" = "org.apache.kafka.connect.json.JsonConverter";
+            "key.converter.schemas.enable" = true;
+            "value.converter.schemas.enable" = true;
+            "offset.storage.topic" = "connect-offsets";
+            "offset.storage.replication.factor" = 1;
+            "config.storage.topic" = "connect-configs";
+            "config.storage.replication.factor" = 1;
+            "status.storage.topic" = "connect-status";
+            "status.storage.replication.factor" = 1;
+            "offset.flush.interval.ms" = "10000";
+            "listeners" = "HTTP://:8323";
+          };
+        };
         karapace = {
           enable = cfg.schema-server;
           config = {
-            bootstrap_uri = "lucas:9092";
+            bootstrap_uri = bootstrap-server;
             host = "0.0.0.0";
             port = cfg.karapace-port;
             karapace_registry = true;
@@ -110,7 +125,7 @@ in {
               connections = {
                 campground = {
                   properties = {
-                    "bootstrap.servers" = "${cfg.kafka-lan-ip}:9092";
+                    "bootstrap.servers" = bootstrap-server;
                   };
                   schema-registry = {
                     url = "http://${cfg.karapace-lan-ip}:${
@@ -142,7 +157,7 @@ in {
           enable = true;
           settings = {
             "log.dirs" = [ "/var/lib/apache-kafka/logs" ];
-            "listeners" = [ "PLAINTEXT://:9092" ];
+            "listeners" = [ "PLAINTEXT://:${cfg.kafka-port}" ];
             "num.network.threads" = 3;
             "num.io.threads" = 8;
             "socket.send.buffer.bytes" = 102400;
