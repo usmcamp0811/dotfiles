@@ -30,7 +30,7 @@ with lib.campground; {
         enable = true;
         ui-server = true;
         zookeeper-id = 4;
-        coonect-server = true;
+        conect-server = true;
         schema-server = true;
         servers = ''
           server.1=chesty:2888:3888
