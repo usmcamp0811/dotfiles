@@ -131,6 +131,11 @@ reckless_deploy:
   variables:
     SYSTEM: "reckless"
 
+reckless_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "mattis"
+
 .deploy_hosting_template: &deploy_hosting_template
   stage: deploy
   script:

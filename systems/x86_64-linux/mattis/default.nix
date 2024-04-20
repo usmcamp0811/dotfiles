@@ -23,16 +23,13 @@ in {
       uid = 10000;
     };
 
-    # suites = {
-    #   hosting = {
-    #     enable = true;
-    #     lan-interface = "eno1";
-    #     pub-interface = "enp7s0";
-    #     entrypoints = {
-    #       web = { address = "mattis:80"; };
-    #     };
-    #   };
-    # };
+    suites = {
+      lan-hosting = {
+        enable = true;
+        interface = "enp0s20f0u1";
+      };
+    };
+
     archetypes = {
       laptop = enabled;
       server = {
