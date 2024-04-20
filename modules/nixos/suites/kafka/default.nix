@@ -1,47 +1,53 @@
 { host ? "", options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
-let 
+let
   cfg = config.campground.suites.kafka;
   bootstrap-server = "${cfg.kafka-lan-ip}:${builtins.toString cfg.kafka-port}";
 in {
   options.campground.suites.kafka = with types; {
-    enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
-    interface = mkOpt str "eno1"
-      "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
-    kafka-interface = mkOpt str cfg.interface
-      "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
-    kafka-port = mkOpt int 9092 "Port to Host the Apache Kafka server.";
-    kafka-lan-ip = mkOpt str "10.8.0.72"
-      "IP to use for the LAN Instance when setting up Keepalived for Kafka";
-    zookeeper-id = mkOpt int 0 "Zookeeper Server ID";
+    enable = mkBoolOpt false "Enable Kafka configurations.";
+
+    # Kafka specific options
+    kafka-interface =
+      mkOpt str cfg.interface "Network interface used by Kafka.";
+    kafka-port = mkOpt int 9092 "Network port for the Apache Kafka server.";
+    kafka-lan-ip = mkOpt str "10.8.0.72" "LAN IP address for Kafka instances.";
+
+    # Kafka Connect specific options
+    connect-server = mkBoolOpt false "Enable Kafka Connect on this server.";
+    kc-interface =
+      mkOpt str cfg.interface "Network interface used by Kafka Connect.";
+    kc-lan-ip =
+      mkOpt str "10.8.0.70" "LAN IP address for Kafka Connect instances.";
+    kc-port = mkOpt int 8323 "Network port for the Kafka Connect server.";
+
+    # Karapace specific options
+    schema-server = mkBoolOpt false "Enable Karapace on this server.";
+    karapace-interface =
+      mkOpt str cfg.interface "Network interface used by Karapace.";
+    karapace-lan-ip =
+      mkOpt str "10.8.0.71" "LAN IP address for Karapace instances.";
+    karapace-port = mkOpt int 8436 "Network port for the Karapace server.";
+
+    # AKHQ UI specific options
+    ui-server = mkBoolOpt false "Enable AKHQ (Apache Kafka HQ) on this server.";
+    ui-port = mkOpt int 8435 "Network port for the AKHQ server.";
+    ui-bootstrap-server =
+      mkOpt str "webb:9092" "Bootstrap server address for AKHQ.";
+
+    # TimescaleDB specific options
+    timescale-server =
+      mkBoolOpt false "Enable PostgreSQL with TimescaleDB on this server.";
     timescalePackage = lib.mkOption {
       type = lib.types.package;
       default = pkgs.postgresql16Packages.timescaledb;
-      description = "TimescaleDB package to use.";
+      description = "TimescaleDB package for PostgreSQL.";
     };
-    timescale-server = mkBoolOpt false
-      "Wheather or not to enable Postgres with Timescale on this server.";
-    ui-server =
-      mkBoolOpt false "Wheather or not to enable AKHQ on this server.";
-    schema-server =
-      mkBoolOpt false "Wheather or not to enable Karapace on this server.";
-    ui-port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
-    ui-bootstrap-server = mkOpt str "webb:9092" "Kafka server address";
-    kc-interface = mkOpt str cfg.interface
-      "Interface to use for the LAN Instance when setting up Keepalived for Kafka Connect";
-    kc-lan-ip = mkOpt str "10.8.0.70"
-      "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
-    kc-port = mkOpt int 8323 "Port to Host the Kafka Connect server.";
-    karapace-interface = mkOpt str cfg.interface
-      "Interface to use for the LAN Instance when setting up Keepalived for Karapace";
-    karapace-lan-ip = mkOpt str "10.8.0.71"
-      "IP to use for the LAN Instance when setting up Keepalived for Karapace";
-    karapace-port = mkOpt int 8436 "Port to Host the Apache Kafka HQ server.";
-    connect-server =
-      mkBoolOpt false "Wheather or not to enable Kafka Connect on this server.";
+
+    # Zookeeper specific options
+    zookeeper-id = mkOpt int 0 "Zookeeper server ID.";
     servers = mkOption {
-      description = lib.mdDoc "All Zookeeper Servers.";
       type = types.lines;
       default = ''
         server.1=chesty:2888:3888
@@ -49,6 +55,7 @@ in {
         server.3=daly:2888:3888
         server.4=lucas:2888:3888
       '';
+      description = "Configuration lines for all Zookeeper servers.";
     };
   };
 
@@ -84,7 +91,7 @@ in {
             };
           };
         };
-        kafka-connect = { 
+        kafka-connect = {
           enable = cfg.connect-server;
           config = {
             "bootstrap.servers" = bootstrap-server;
@@ -125,9 +132,7 @@ in {
             akhq = {
               connections = {
                 campground = {
-                  properties = {
-                    "bootstrap.servers" = bootstrap-server;
-                  };
+                  properties = { "bootstrap.servers" = bootstrap-server; };
                   schema-registry = {
                     url = "http://${cfg.karapace-lan-ip}:${
                         builtins.toString cfg.karapace-port
@@ -164,7 +169,8 @@ in {
           enable = true;
           settings = {
             "log.dirs" = [ "/var/lib/apache-kafka/logs" ];
-            "listeners" = [ "PLAINTEXT://:${builtins.toString cfg.kafka-port}" ];
+            "listeners" =
+              [ "PLAINTEXT://:${builtins.toString cfg.kafka-port}" ];
             "num.network.threads" = 3;
             "num.io.threads" = 8;
             "socket.send.buffer.bytes" = 102400;
