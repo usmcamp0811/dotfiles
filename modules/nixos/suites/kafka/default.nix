@@ -39,14 +39,11 @@ in {
         karapace = {
           enable = cfg.schema-server;
           config = {
-            advertised_hostname = "lucas";
-            bootstrap_uri = "kafka://lucas:9092";
-            registry_host = "schema-registry.lan.aicampground.com";
-            registry_port = 8437;
+            bootstrap_uri = "lucas:9092";
             host = "0.0.0.0";
             port = 8436;
-            admin_metadata_max_age = 600;
-            log_level = "INFO";
+            karapace_registry = true;
+            registry_user = false;
           };
         };
         akhq = {
