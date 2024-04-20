@@ -27,7 +27,7 @@ with lib.campground; {
         interface = "eno1";
       };
       kafka = {
-        # enable = true;
+        enable = true;
         ui-server = true;
         ui-bootstrap-server = "lucas:9092";
         zookeeper-id = 4;

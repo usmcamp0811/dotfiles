@@ -17,7 +17,7 @@ with lib.campground; {
         interface = "enp3s0f1";
       };
       kafka = {
-        # enable = true;
+        enable = true;
         interface = "enp3s0f1";
         zookeeper-id = 3;
         ui-server = true;

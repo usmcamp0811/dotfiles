@@ -34,7 +34,7 @@ with lib.campground;
         interface = "eno1";
       };
       kafka = {
-        # enable = true;
+        enable = true;
         connect-server = true;
         timescale-server = true;
         schema-server = true;
