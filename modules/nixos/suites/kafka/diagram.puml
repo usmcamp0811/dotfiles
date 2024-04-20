@@ -1,0 +1,94 @@
+@startuml
+skinparam rectangle {
+  BorderColor Black
+  Shadowing true
+}
+
+' Actors
+skinparam actor {
+  BackgroundColor Wheat
+  BorderColor Black
+}
+
+' Kafka Brokers
+skinparam node {
+  BackgroundColor DodgerBlue
+  BorderColor Black
+}
+
+' External Services (ZooKeeper, Karapace, AKHQ)
+skinparam database {
+  BackgroundColor MediumSeaGreen
+  BorderColor Black
+}
+
+' Monitoring Tools (Prometheus/Grafana)
+skinparam component {
+  BackgroundColor Tomato
+  BorderColor Black
+}
+
+' Data Integration Tools (Kafka Connect, Apache Flink)
+skinparam cloud {
+  BackgroundColor Thistle
+  BorderColor Black
+}
+
+actor "Data Producers" as DP
+actor "Data Consumers" as DC
+
+package "Kafka Ecosystem" {
+  rectangle "Kafka Cluster" as KB {
+    node "Kafka Broker 1" as KB1
+    node "Kafka Broker 2" as KB2
+    node "Kafka Broker 3" as KB3
+    node "Kafka Broker 4" as KB4
+  }
+  
+  rectangle "ZooKeeper Cluster" as ZK {
+    database "ZooKeeper 1" as ZK1
+    database "ZooKeeper 2" as ZK2
+    database "ZooKeeper 3" as ZK3
+    database "ZooKeeper 4" as ZK4
+  }
+
+  rectangle "Schema Registry" as Karapace {
+    database "Karapace 1" as K1
+    database "Karapace 2" as K2
+    database "Karapace 3" as K3
+    database "Karapace 4" as K4
+  }
+
+  database "AKHQ" as AKHQ
+
+  component "Prometheus/Grafana" as PG
+
+  rectangle "Kafka Connect" as KC {
+    cloud "Kafka Connect 1" as KC1
+    cloud "Kafka Connect 2" as KC2
+    cloud "Kafka Connect 3" as KC3
+    cloud "Kafka Connect 4" as KC4
+  }
+
+  cloud "Apache Flink" as Flink
+
+  DP --> KB
+  DC <-- KB
+
+  KB --> ZK
+
+  KB <--> Karapace
+
+  KB --> AKHQ
+
+  KB1 --> PG
+  KB2 --> PG
+  KB3 --> PG
+
+  KC --> KB
+  KB --> KC
+
+  Flink --> KB
+  KB --> Flink
+}
+@enduml
