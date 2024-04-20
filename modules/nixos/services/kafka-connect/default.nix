@@ -21,13 +21,13 @@ in {
 
     systemd.services.kafka-connect = {
       description = "Kafka Connect";
-      after = [ "network.target" "kafka.service" ];
-      requires = [ "kafka.service" ];
+      after = [ "network.target" "apache-kafka.service" ];
+      requires = [ "apache-kafka.service" ];
       wantedBy = [ "multi-user.target" ];
       script = ''
         export KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
         export KAFKA_LOG_DIR="/var/log/apache-kafka"
-        ${pkgs.apacheKafka}/bin/connect-distributed.sh ${pkgs.apacheKafka}/share/java/kafka/config/connect-distributed.properties
+        ${pkgs.apacheKafka}/bin/connect-distributed.sh ${pkgs.apacheKafka}/config/connect-distributed.properties
       '';
       serviceConfig = {
         Restart = "always";
