@@ -32,6 +32,7 @@ in {
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka Connect";
     kc-lan-ip = mkOpt str "10.8.0.70"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
+    kc-port = mkOpt int 8323 "Port to Host the Kafka Connect server.";
     karapace-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Karapace";
     karapace-lan-ip = mkOpt str "10.8.0.71"
@@ -130,6 +131,11 @@ in {
                   schema-registry = {
                     url = "http://${cfg.karapace-lan-ip}:${
                         builtins.toString cfg.karapace-port
+                      }";
+                  };
+                  connect = {
+                    url = "http://${cfg.kc-lan-ip}:${
+                        builtins.toString cfg.kc-port
                       }";
                   };
                 };
