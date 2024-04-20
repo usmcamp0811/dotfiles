@@ -61,6 +61,9 @@ in {
                   properties = {
                     "bootstrap.servers" = cfg.ui-bootstrap-server;
                   };
+                  schema-registry = {
+                    url = "https://schema-registry.lan.aicampground.com";
+                  };
                 };
               };
             };
