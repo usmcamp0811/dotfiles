@@ -68,7 +68,7 @@ in {
               virtualRouterId = 54;
             };
             "karapace" = mkIf cfg.schema-server {
-              interface = cfg.k-interface;
+              interface = cfg.karapace-interface;
               ips = [ cfg.karapace-lan-ip ];
               state = "MASTER";
               priority = 50;
@@ -103,7 +103,9 @@ in {
                     "bootstrap.servers" = cfg.ui-bootstrap-server;
                   };
                   schema-registry = {
-                    url = "http://${cfg.karapace-lan-ip}:${cfg.karapace-port}";
+                    url = "http://${cfg.karapace-lan-ip}:${
+                        builtins.toString cfg.karapace-port
+                      }";
                   };
                 };
               };
