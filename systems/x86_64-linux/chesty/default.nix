@@ -55,7 +55,7 @@ with lib.campground;
     services = {
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
-      hydra = enabled;
+      # hydra = enabled;
       jellyfin = enabled;
       searx = {
         enable = true;

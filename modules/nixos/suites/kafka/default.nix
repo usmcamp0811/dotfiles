@@ -27,7 +27,7 @@ in {
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka Connect";
     kc-lan-ip = mkOpt str "10.8.0.70"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
-    karapace-interface = mkOpt str "eno1"
+    karapace-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Karapace";
     karapace-lan-ip = mkOpt str "10.8.0.71"
       "IP to use for the LAN Instance when setting up Keepalived for Karapace";
