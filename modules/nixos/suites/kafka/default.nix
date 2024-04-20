@@ -9,7 +9,9 @@ in {
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
     kafka-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka";
-    kafka-lan-ip = mkOpt str "10.8.0.72"
+    # kafka-lan-ip = mkOpt str "10.8.0.72"
+    #   "IP to use for the LAN Instance when setting up Keepalived for Kafka";
+    kafka-lan-ip = mkOpt str "lucas"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka";
     zookeeper-id = mkOpt int 0 "Zookeeper Server ID";
     timescalePackage = lib.mkOption {
@@ -24,14 +26,18 @@ in {
     schema-server =
       mkBoolOpt false "Wheather or not to enable Karapace on this server.";
     ui-port = mkOpt int 8435 "Port to Host the Apache Kafka HQ server.";
-    ui-bootstrap-server = mkOpt str "${host}:9092" "Kafka server address";
+    ui-bootstrap-server = mkOpt str "webb:9092" "Kafka server address";
     kc-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Kafka Connect";
-    kc-lan-ip = mkOpt str "10.8.0.70"
+    # kc-lan-ip = mkOpt str "10.8.0.70"
+    #   "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
+    kc-lan-ip = mkOpt str "lucas"
       "IP to use for the LAN Instance when setting up Keepalived for Kafka Connect";
     karapace-interface = mkOpt str cfg.interface
       "Interface to use for the LAN Instance when setting up Keepalived for Karapace";
-    karapace-lan-ip = mkOpt str "10.8.0.71"
+    # karapace-lan-ip = mkOpt str "10.8.0.71"
+    #   "IP to use for the LAN Instance when setting up Keepalived for Karapace";
+    karapace-lan-ip = mkOpt str "lucas"
       "IP to use for the LAN Instance when setting up Keepalived for Karapace";
     karapace-port = mkOpt int 8436 "Port to Host the Apache Kafka HQ server.";
     connect-server =
@@ -54,32 +60,32 @@ in {
 
     campground = {
       services = {
-        keepalived = {
-          enable = true;
-          instances = {
-            "kafka" = {
-              interface = cfg.kafka-interface;
-              ips = [ cfg.kafka-lan-ip ];
-              state = "MASTER";
-              priority = 50;
-              virtualRouterId = 53;
-            };
-            "kafka-connect" = mkIf cfg.connect-server {
-              interface = cfg.kc-interface;
-              ips = [ cfg.kc-lan-ip ];
-              state = "MASTER";
-              priority = 50;
-              virtualRouterId = 54;
-            };
-            "karapace" = mkIf cfg.schema-server {
-              interface = cfg.karapace-interface;
-              ips = [ cfg.karapace-lan-ip ];
-              state = "MASTER";
-              priority = 50;
-              virtualRouterId = 55;
-            };
-          };
-        };
+        # keepalived = {
+        #   enable = true;
+        #   instances = {
+        #     "kafka" = {
+        #       interface = cfg.kafka-interface;
+        #       ips = [ cfg.kafka-lan-ip ];
+        #       state = "MASTER";
+        #       priority = 50;
+        #       virtualRouterId = 53;
+        #     };
+        #     "kafka-connect" = mkIf cfg.connect-server {
+        #       interface = cfg.kc-interface;
+        #       ips = [ cfg.kc-lan-ip ];
+        #       state = "MASTER";
+        #       priority = 50;
+        #       virtualRouterId = 54;
+        #     };
+        #     "karapace" = mkIf cfg.schema-server {
+        #       interface = cfg.karapace-interface;
+        #       ips = [ cfg.karapace-lan-ip ];
+        #       state = "MASTER";
+        #       priority = 50;
+        #       virtualRouterId = 55;
+        #     };
+        #   };
+        # };
         kafka-connect = { enable = cfg.connect-server; };
         karapace = {
           enable = cfg.schema-server;
@@ -104,7 +110,7 @@ in {
               connections = {
                 campground = {
                   properties = {
-                    "bootstrap.servers" = cfg.ui-bootstrap-server;
+                    "bootstrap.servers" = "${cfg.kafka-lan-ip}:9092";
                   };
                   schema-registry = {
                     url = "http://${cfg.karapace-lan-ip}:${
