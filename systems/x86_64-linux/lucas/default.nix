@@ -29,6 +29,7 @@ with lib.campground; {
       kafka = {
         enable = true;
         ui-server = true;
+        ui-bootstrap-server = "lucas:9092";
         zookeeper-id = 4;
         connect-server = true;
         schema-server = true;
