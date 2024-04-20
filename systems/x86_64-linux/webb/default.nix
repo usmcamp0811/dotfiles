@@ -33,8 +33,10 @@ with lib.campground;
         enable = true;
         interface = "eno1";
       };
-      kafka = { 
-        enable = true; 
+      kafka = {
+        enable = true;
+        connect-server = true;
+        schema-server = true;
         zookeeper-id = 2;
         servers = ''
           server.1=chesty:2888:3888
