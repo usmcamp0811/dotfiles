@@ -36,6 +36,9 @@ in {
 
     campground = {
       services = {
+        kafka-connect = {
+          enable = true;
+        };
         karapace = {
           enable = cfg.schema-server;
           config = {
@@ -62,6 +65,7 @@ in {
                     "bootstrap.servers" = cfg.ui-bootstrap-server;
                   };
                   schema-registry = {
+                    # TODO: Infer the some how maybe?
                     url = "https://schema-registry.lan.aicampground.com";
                   };
                 };
