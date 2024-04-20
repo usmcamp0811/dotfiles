@@ -3,7 +3,7 @@ with lib;
 with lib.campground;
 let 
   cfg = config.campground.suites.kafka;
-  bootstrap-server = "${cfg.kafka-lan-ip}:${cfg.kakfa-port}"
+  bootstrap-server = "${cfg.kafka-lan-ip}:${builtins.toString cfg.kafka-port}";
 in {
   options.campground.suites.kafka = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
@@ -163,7 +163,7 @@ in {
           enable = true;
           settings = {
             "log.dirs" = [ "/var/lib/apache-kafka/logs" ];
-            "listeners" = [ "PLAINTEXT://:${cfg.kafka-port}" ];
+            "listeners" = [ "PLAINTEXT://:${builtins.toString cfg.kafka-port}" ];
             "num.network.threads" = 3;
             "num.io.threads" = 8;
             "socket.send.buffer.bytes" = 102400;
