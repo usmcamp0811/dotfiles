@@ -81,7 +81,7 @@ in {
         };
 
         accessLog = {
-          filePath = "/var/lib/traefik/access.log";
+          filePath = cfg.log-path;
           format = "json";
         };
 
