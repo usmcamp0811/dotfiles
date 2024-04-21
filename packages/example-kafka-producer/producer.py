@@ -19,7 +19,7 @@ def main():
 
     try:
         while True:
-            message = input("Enter message to send: ")
+            message = input("Enter message to send (Ctr+C to stop): ")
             send_message(producer, topic, message)
     except KeyboardInterrupt:
         print("Exiting...")
