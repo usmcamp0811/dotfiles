@@ -27,8 +27,10 @@ in {
         TRAEFIK_LOG = config.campground.services.traefik.log-path;
       };
       script = ''
-        ${pkgs.inotify-tools}/bin/inotifywait -m $TRAEFIK_LOG -e modify --format '%w%f' | while read path; do
-          (tail -n 1 $TRAEFIK_LOG | ${pkgs.kt}/bin/kt produce -literal) && (sed -i '$d' $TRAEFIK_LOG >/dev/null)
+        while true; do
+          ${pkgs.inotify-tools}/bin/inotifywait -m $TRAEFIK_LOG -e modify --format '%w%f' | while read path; do
+            (tail -n 1 $TRAEFIK_LOG | ${pkgs.kt}/bin/kt produce -literal) && (sed -i '$d' $TRAEFIK_LOG >/dev/null)
+          done
         done
       '';
     };
