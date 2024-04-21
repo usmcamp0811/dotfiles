@@ -74,7 +74,7 @@ in {
         experimental = {
           localPlugins = {
             cloudflarewarp = {
-              modulename = "github.com/Amadeus331/cloudflarewarp";
+              modulename = "github.com/BilikoX/cloudflarewarp";
             };
           };
         };
