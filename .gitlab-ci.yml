@@ -75,6 +75,11 @@ reckless:
   variables:
     SYSTEM: "reckless"
 
+mattis:
+  <<: *build_job_template
+  variables:
+    SYSTEM: "mattis"
+
 .deploy_job_template: &deploy_job_template
   stage: deploy
   tags:
@@ -131,7 +136,7 @@ reckless_deploy:
   variables:
     SYSTEM: "reckless"
 
-reckless_deploy:
+mattis_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "mattis"
