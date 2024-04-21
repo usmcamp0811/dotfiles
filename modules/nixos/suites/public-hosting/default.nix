@@ -49,7 +49,7 @@ in {
           domains = [ "aicampground.com" "matt-camp.com" ];
           dynamicConfigOptions = {
             https.middlewares.cloudflarewarp = {
-              plugin = { cloudflarewarp = { trustip = [ "1.1.1.1/24" ]; }; };
+              plugin = { cloudflarewarp.disableDefault = false; };
             };
 
             # http.routers.adhoc = {
