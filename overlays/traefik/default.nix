@@ -5,10 +5,10 @@ final: prev: {
       mkdir -p $out/bin/plugins-local/src/github.com/Amadeus331/
       cp -r ${
         prev.fetchFromGitHub {
-          owner = "Amadeus331";
+          owner = "BilikoX";
           repo = "cloudflarewarp";
-          rev = "d48521728cfb97c59d14dc2958d99c8949e2beba";
-          sha256 = "sha256-vIWHWwsXSuuETUerOBLxzHWkx1Q0Onw4SgvOw4GCCck=";
+          rev = "94ed32a45dcd5656e9b5539e8cd564bd3d7babaa";
+          sha256 = "sha256-AU/AgeYLi1e5CaIcXaDoDRWSRyfKHZYfIsp4lPOqnTI=";
         }
       } $out/bin/plugins-local/src/github.com/Amadeus331/cloudflarewarp
     '';
