@@ -25,6 +25,7 @@ with lib.campground; {
       public-hosting = {
         enable = true;
         interface = "eno1";
+        log-to-kafka = true;
       };
       kafka = {
         enable = true;

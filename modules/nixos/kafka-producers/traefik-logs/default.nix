@@ -8,7 +8,7 @@ in {
     kafkaBroker = mkOpt str "${config.campground.suites.kafka.kafka-lan-ip}:${
         builtins.toString config.campground.suites.kafka.kafka-port
       }" "Kafka broker address.";
-    kafkaTopic = str "traefik-logs" "Kafka topic to which logs are sent.";
+    kafkaTopic = mkOpt str "traefik-logs" "Kafka topic to which logs are sent.";
   };
 
   config = mkIf cfg.enable {

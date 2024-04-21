@@ -26,6 +26,7 @@ in {
       public-hosting = {
         enable = true;
         interface = "eno1";
+        log-to-kafka = true;
       };
     };
     desktop.addons.rkvm = {

@@ -36,7 +36,7 @@ in {
 
   config = mkIf cfg.enable {
     campground = {
-      kafka-producer = { traefik-logs = { enable = cfg.log-to-kafka; }; };
+      kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
       services = {
         searx = {
           enable = true;
