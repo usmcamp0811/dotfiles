@@ -2,7 +2,7 @@
 final: prev: {
   traefik = prev.traefik.overrideAttrs (oldAttrs: {
     postInstall = oldAttrs.postInstall or ''
-      mkdir -p $out/bin/plugins-local/src/github.com/Amadeus331/
+      mkdir -p $out/bin/plugins-local/src/github.com/BilikoX/
       cp -r ${
         prev.fetchFromGitHub {
           owner = "BilikoX";
@@ -10,7 +10,7 @@ final: prev: {
           rev = "94ed32a45dcd5656e9b5539e8cd564bd3d7babaa";
           sha256 = "sha256-AU/AgeYLi1e5CaIcXaDoDRWSRyfKHZYfIsp4lPOqnTI=";
         }
-      } $out/bin/plugins-local/src/github.com/Amadeus331/cloudflarewarp
+      } $out/bin/plugins-local/src/github.com/BilikoX/cloudflarewarp
     '';
   });
 }
