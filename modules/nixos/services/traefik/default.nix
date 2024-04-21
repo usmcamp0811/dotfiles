@@ -1,29 +1,23 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.services.traefik;
-  jsonValue = with types; let
-    valueType =
-      nullOr
-        (oneOf [
-          bool
-          int
-          float
-          str
-          (lazyAttrsOf valueType)
-          (listOf valueType)
-        ])
-      // {
+  jsonValue = with types;
+    let
+      valueType = nullOr (oneOf [
+        bool
+        int
+        float
+        str
+        (lazyAttrsOf valueType)
+        (listOf valueType)
+      ]) // {
         description = "JSON value";
         emptyValue.value = { };
       };
-  in
-  valueType;
-in
-{
+    in valueType;
+in {
   options.campground.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     email = mkOpt str config.campground.user.email "The email to use.";
@@ -44,17 +38,17 @@ in
       type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description = "List of entrypoints for Traefik, mapping names to their address.";
+      description =
+        "List of entrypoints for Traefik, mapping names to their address.";
     };
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt str "secret/campground/cloudflare"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/cloudflare"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -80,38 +74,33 @@ in
         };
 
         log = {
-          level = "DEBUG";  
+          level = "DEBUG";
           format = "json";
         };
 
         accessLog = {
-          filePath = "/var/log/traefik/access.log";
+          filePath = "/var/lib/traefik/access.log";
           format = "json";
         };
 
-        entryPoints =
-          {
-            web = {
-              http.redirections.entryPoint = {
-                to = "websecure";
-                scheme = "https";
-              };
+        entryPoints = {
+          web = {
+            http.redirections.entryPoint = {
+              to = "websecure";
+              scheme = "https";
             };
-            websecure = {
-              address = "0.0.0.0:443";
-              http.tls = {
-                certResolver = "cloudflare";
-                domains =
-                  map
-                    (domain: {
-                      main = domain;
-                      sans = [ "*.${domain}" "*.lan.${domain}" ];
-                    })
-                    cfg.domains;
-              };
+          };
+          websecure = {
+            address = "0.0.0.0:443";
+            http.tls = {
+              certResolver = "cloudflare";
+              domains = map (domain: {
+                main = domain;
+                sans = [ "*.${domain}" "*.lan.${domain}" ];
+              }) cfg.domains;
             };
-          }
-          // cfg.entrypoints;
+          };
+        } // cfg.entrypoints;
 
         api = {
           dashboard = true;
@@ -140,16 +129,14 @@ in
               settings = {
                 vault.address = cfg.vault-address;
                 auto_auth = {
-                  method = [
-                    {
-                      type = "approle";
-                      config = {
-                        role_id_file_path = cfg.role-id;
-                        secret_id_file_path = cfg.secret-id;
-                        remove_secret_id_file_after_reading = false;
-                      };
-                    }
-                  ];
+                  method = [{
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }];
                 };
               };
               secrets.environment.templates = {
