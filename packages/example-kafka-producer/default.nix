@@ -4,15 +4,15 @@ let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
-  producer = ./produceer.py;
-  python-env = python311.buildEnv.override {
-    extraLibs = [ python311Packages.kafka-python ];
+  producer = ./producer.py;
+  python-env = pkgs.python311.buildEnv.override {
+    extraLibs = [ pkgs.python311Packages.kafka-python ];
     ignoreCollisions = true;
   };
 
 in writeShellApplication {
-  name = "julia-kafka-producer";
-  meta = { mainProgram = "kafka-publish"; };
+  name = "example-kafka-producer";
+  meta = { mainProgram = "example-kafka-producer"; };
   text = ''
     HOST="10.8.0.72" # Default host
     PORT=9092      # Default port
@@ -28,6 +28,6 @@ in writeShellApplication {
         shift
     done
 
-    ${python-env}/bin/python ${producer} $HOST $PORT $TOPIC"
+    ${python-env}/bin/python3 ${producer} "$HOST" "$PORT" "$TOPIC"
   '';
 }
