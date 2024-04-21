@@ -28,7 +28,7 @@ in {
       };
       script = ''
         ${pkgs.inotify-tools}/bin/inotifywait -m $TRAEFIK_LOG -e modify --format '%w%f' | while read path; do
-          (tail -n 1 $TRAEFIK_LOG | ${pkgs.kt}/bin/kt produce ) && (sed -i '$d' testlog >/dev/null)
+          (tail -n 1 $TRAEFIK_LOG | ${pkgs.kt}/bin/kt produce ) && (sed -i '$d' $TRAEFIK_LOG >/dev/null)
           echo "Logged"
         done
       '';
