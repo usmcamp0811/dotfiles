@@ -80,7 +80,7 @@ in
         };
 
         log = {
-          level = "INFO";  
+          level = "DEBUG";  
           format = "json";
         };
 
