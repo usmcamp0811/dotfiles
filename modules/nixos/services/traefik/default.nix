@@ -74,7 +74,7 @@ in {
         };
 
         log = {
-          level = "DEBUG";
+          level = "INFO";
           format = "json";
         };
 
