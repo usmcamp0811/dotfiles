@@ -48,6 +48,11 @@ in {
           entrypoints = cfg.entrypoints;
           domains = [ "aicampground.com" "matt-camp.com" ];
           dynamicConfigOptions = {
+            middlewares = {
+              cloudflarewarp = {
+                plugin = { cloudflarewarp = { trustip = [ "1.1.1.1/24" ]; }; };
+              };
+            };
             # http.routers.adhoc = {
             #   rule = "Host(`adhoc.aicampground.com`)";
             #   entryPoints = [ "websecure" ];
@@ -104,6 +109,7 @@ in {
               rule = "Host(`photos.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "photoprism";
+              middlewares = [ "cloudflarewarp" ];
             };
 
             http.services.photoprism = {

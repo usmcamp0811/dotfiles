@@ -65,11 +65,19 @@ in {
 
   config = mkIf cfg.enable {
     users.users.traefik = { extraGroups = [ "docker" ]; };
-
+    systemd.services.traefik.serviceConfig.WorkingDirectory =
+      "${config.services.traefik.package}/bin";
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
       staticConfigOptions = {
+        experimental = {
+          localPlugins = {
+            cloudflarewarp = {
+              modulename = "github.com/Amadeus331/cloudflarewarp";
+            };
+          };
+        };
         global = {
           checkNewVersion = false;
           sendAnonymousUsage = false;
