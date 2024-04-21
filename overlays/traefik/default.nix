@@ -11,6 +11,16 @@ final: prev: {
           sha256 = "sha256-AU/AgeYLi1e5CaIcXaDoDRWSRyfKHZYfIsp4lPOqnTI=";
         }
       } $out/bin/plugins-local/src/github.com/BilikoX/cloudflarewarp
+
+      mkdir -p $out/bin/plugins-local/src/github.com/tomMoulard/fail2ban
+      cp -r ${
+        prev.fetchFromGitHub {
+          owner = "tomMoulard";
+          repo = "fail2ban";
+          rev = "46c5b4c694c0338676d2e22e754620291551e174";
+          sha256 = "sha256-vYbhUOS5TWTrBPcp2CESopfXphzK5jky+0oRrMlo9jE=";
+        }
+      } $out/bin/plugins-local/src/github.com/tomMoulard/fail2ban
     '';
   });
 }
