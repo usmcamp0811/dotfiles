@@ -1,46 +1,42 @@
-{ options
-, config
-, lib
-, ...
-}:
+{ options, config, lib, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.suites.public-hosting;
-  jsonValue = with types; let
-    valueType =
-      nullOr
-        (oneOf [
-          bool
-          int
-          float
-          str
-          (lazyAttrsOf valueType)
-          (listOf valueType)
-        ])
-      // {
+  jsonValue = with types;
+    let
+      valueType = nullOr (oneOf [
+        bool
+        int
+        float
+        str
+        (lazyAttrsOf valueType)
+        (listOf valueType)
+      ]) // {
         description = "JSON value";
         emptyValue.value = { };
       };
-  in
-  valueType;
-in
-{
+    in valueType;
+in {
   options.campground.suites.public-hosting = with types; {
-    enable =
-      mkBoolOpt false
-        "Whether or not to enable common public-hosting configuration.";
+    enable = mkBoolOpt false
+      "Whether or not to enable common public-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.42" "IP to use for the Public Instance";
+    log-to-kafka =
+      mkBoolOpt false "Enables the Traefik log Kafka Producer service";
     entrypoints = mkOption {
       type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description = "List of entrypoints for Traefik, mapping names to their address.";
+      description =
+        "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
   config = mkIf cfg.enable {
     campground = {
+      kafka-producer = { traefik-logs = { enable = cfg.log-to-kafka; }; };
       services = {
         searx = {
           enable = true;
