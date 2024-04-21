@@ -48,8 +48,8 @@ in {
           entrypoints = cfg.entrypoints;
           domains = [ "aicampground.com" "matt-camp.com" ];
           dynamicConfigOptions = {
-            https.middlewares.cloudflarewarp = {
-              plugin = { cloudflarewarp.disableDefault = false; };
+            http.middlewares.cloudflarewarp = {
+              plugin = { cloudflarewarp = { disableDefault = false; }; };
             };
 
             # http.routers.adhoc = {
