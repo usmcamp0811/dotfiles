@@ -7,6 +7,8 @@ let
 in {
   options.campground.suites.kafka = with types; {
     enable = mkBoolOpt false "Enable Kafka configurations.";
+    interface =
+      mkOpt str "eno1" "Network interface used for all Kafka services.";
 
     # Kafka specific options
     kafka-interface =
