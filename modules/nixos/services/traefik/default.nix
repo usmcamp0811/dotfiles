@@ -79,6 +79,16 @@ in
           sendAnonymousUsage = false;
         };
 
+        log = {
+          level = "INFO";  
+          format = "json";
+        };
+
+        accessLog = {
+          filePath = "/var/log/traefik/access.log";
+          format = "json";
+        };
+
         entryPoints =
           {
             web = {
