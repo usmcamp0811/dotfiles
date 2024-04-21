@@ -1,4 +1,4 @@
-{ traefik, ... }:
+{ nixpkgs, ... }:
 final: prev: {
   traefik = prev.traefik.overrideAttrs (oldAttrs: {
     postInstall = oldAttrs.postInstall or ''
