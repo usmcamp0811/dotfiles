@@ -28,7 +28,7 @@ in {
       example = [ "example.com" "example.org" ];
       description = "List of domains.";
     };
-    log-path = mkOpt str "/var/log/traefik/access.log"
+    log-path = mkOpt str "/var/lib/traefik/access.log"
       "The location to store the access log.";
     insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
