@@ -1,9 +1,9 @@
 # See https://github.com/NixOS/nixpkgs/issues/265496
-{ pkgs, ... }:
+{ nixpkgs, ... }:
 
 let plugins = builtins.fromJSON (builtins.readFile ./plugins.json);
 in
-with pkgs.lib;
+with nixpkgs.lib;
 (final: prev: {
   traefik-custom = prev.traefik.overrideAttrs (oldAttrs: {
     postInstall = (oldAttrs.postInstall or "") + strings.concatMapStrings
