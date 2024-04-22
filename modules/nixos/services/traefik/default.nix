@@ -71,9 +71,10 @@ in {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
       staticConfigOptions = {
+
         experimental.localPlugins = {
           # bouncer.moduleName = "github.com/tomMoulard/fail2ban";
-          cloudflarewarp.modulename = "github.com/BilikoX/cloudflarewarp";
+          cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
         };
         global = {
           checkNewVersion = false;
