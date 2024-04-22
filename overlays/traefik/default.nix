@@ -12,7 +12,7 @@ final: prev: {
         }
       } $out/bin/plugins-local/src/github.com/BilikoX/cloudflarewarp
 
-      mkdir -p $out/bin/plugins-local/src/github.com/tomMoulard/fail2ban
+      mkdir -p $out/bin/plugins-local/src/github.com/tomMoulard/
       cp -r ${
         prev.fetchFromGitHub {
           owner = "tomMoulard";
