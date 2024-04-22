@@ -137,7 +137,7 @@ in {
               rule = "Host(`bw.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "bitwarden";
-              middlewares = [ "cloudflarewarp" "fail2ban" ];
+              middlewares = [ "cloudflarewarp" ];
             };
 
             http.services.bitwarden = {
