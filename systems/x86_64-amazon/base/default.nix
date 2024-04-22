@@ -1,13 +1,7 @@
-{
-  pkgs,
-  inputs,
-  lib,
-  nixos-hardware,
-  nixosModules,
-  ...
-}:
+{ pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -20,12 +14,12 @@ in {
   virtualisation.amazon-init = enabled;
   campground = {
     nix = enabled;
-    cli-apps = {flake = enabled;};
+    cli-apps = { flake = enabled; };
     tools = {
       git = enabled;
       misc = enabled;
     };
-    services = {openssh = enabled;};
+    services = { openssh = enabled; };
     system = {
       # boot = enabled;
       fonts = enabled;
@@ -37,7 +31,7 @@ in {
       name = "ec2-user";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
   };
 

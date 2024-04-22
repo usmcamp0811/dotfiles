@@ -1,3 +1,1 @@
-{channels, ...}: final: prev: {
-  inherit (channels.nixpkgs-julia) julia;
-}
+{ channels, ... }: final: prev: { inherit (channels.nixpkgs-julia) julia; }

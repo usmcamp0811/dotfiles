@@ -1,9 +1,5 @@
-{
-  channels,
-  unstable,
-  nixpkgs,
-  ...
-}: final: prev: {
+{ channels, unstable, nixpkgs, ... }:
+final: prev: {
   # inherit (channels.unstable) python311Packages;
   python3-11 = unstable.legacyPackages.${prev.system}.python311;
   mlflow-unstable =

@@ -1,3 +1,4 @@
-{nixpkgs, ...}: final: prev: {
+{ nixpkgs, ... }:
+final: prev: {
   qemu = nixpkgs.legacyPackages.${prev.system}.qemu;
 }

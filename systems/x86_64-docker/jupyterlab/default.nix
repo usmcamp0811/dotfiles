@@ -1,13 +1,7 @@
-{
-  pkgs,
-  inputs,
-  lib,
-  nixos-hardware,
-  nixosModules,
-  ...
-}:
+{ pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -46,7 +40,7 @@ in {
       name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
   };
 

@@ -51,13 +51,25 @@ in {
             http.middlewares.cloudflarewarp = {
               plugin = { cloudflarewarp = { disableDefault = false; }; };
             };
+            # http.middlewares.fail2ban = {
+            #   plugin = {
+            #     fail2ban = {
+            #       rules = {
+            #         bantime = "3h";
+            #         enabled = true;
+            #         findtime = "10m";
+            #         maxretry = "4";
+            #       };
+            #     };
+            #   };
+            # };
 
             # http.routers.adhoc = {
             #   rule = "Host(`adhoc.aicampground.com`)";
             #   entryPoints = [ "websecure" ];
             #   service = "adhoc";
             # };
-            #
+
             # http.services.adhoc = {
             #   loadBalancer.servers = [{ url = "http://reckless:5000"; }];
             # };
@@ -68,12 +80,6 @@ in {
               service = "aicampground";
               middlewares = [ "cloudflarewarp" ];
             };
-
-            # http.routers.matt-camp = {
-            #   rule = "Host(`matt-camp.com`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "matt-camp";
-            # };
 
             http.services.matt-camp = {
               loadBalancer.servers = [{ url = "http://lucas:4356"; }];

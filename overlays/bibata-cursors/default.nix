@@ -1,3 +1,1 @@
-{channels, ...}: final: prev: {
-  inherit (channels.unstable) bibata-cursors;
-}
+{ channels, ... }: final: prev: { inherit (channels.unstable) bibata-cursors; }

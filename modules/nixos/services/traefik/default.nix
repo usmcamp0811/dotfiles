@@ -73,8 +73,8 @@ in {
       staticConfigOptions = {
 
         experimental.localPlugins = {
-          # fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
           cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
+          # fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
         };
         global = {
           checkNewVersion = false;

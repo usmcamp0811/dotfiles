@@ -1,3 +1,1 @@
-{channels, ...}: final: prev: {
-  inherit (channels.unstable) rkvm;
-}
+{ channels, ... }: final: prev: { inherit (channels.unstable) rkvm; }

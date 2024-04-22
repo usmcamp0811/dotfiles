@@ -1,14 +1,7 @@
-{
-  pkgs,
-  lib,
-  nixos-hardware,
-  nixosModules,
-  agenix,
-  config,
-  ...
-}:
+{ pkgs, lib, nixos-hardware, nixosModules, agenix, config, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -16,18 +9,18 @@ with lib.campground; let
     shell = pkgs.zsh;
   };
 in {
-  imports = [./hardware.nix];
+  imports = [ ./hardware.nix ];
 
-  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
     user = {
       name = "mboterf";
       fullName = "Michael Boterf";
       email = "michaelboterf@gmail.com";
       initialPassword = "password";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
     };
-    archetypes = {gaming-platform = enabled;};
+    archetypes = { gaming-platform = enabled; };
 
     hardware = {
       nvidia = {
@@ -36,9 +29,9 @@ in {
       };
     };
 
-    apps = {onepass = enabled;};
+    apps = { onepass = enabled; };
 
-    system = {boot = enabled;};
+    system = { boot = enabled; };
   };
 
   campground.tools = {
@@ -46,7 +39,7 @@ in {
     noisetorch = enabled;
   };
 
-  campground.services = {};
+  campground.services = { };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

@@ -1,12 +1,5 @@
 [
 	{
-		"name": "crowdsec-bouncer",
-		"owner": "maxlerebourg",
-		"repo": "crowdsec-bouncer-traefik-plugin",
-		"rev": "fc3da2fc2d24626eb1be956882e185abef048cb8",
-		"sha256": "sha256-3164ANmCaxf6bbmdij5eL+N+TGTtRnFJ2gnkS5+5blc="
-	},
-	{
 		"name": "cloudflarewarp",
 		"owner": "BilikoX",
 		"repo": "cloudflarewarp",

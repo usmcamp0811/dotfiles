@@ -1,9 +1,6 @@
-{
-  nixery-flake,
-  nixpkgs,
-  ...
-}: final: prev: {
+{ nixery-flake, nixpkgs, ... }:
+final: prev: {
   nixery-pkgs = import nixery-flake.outPath {
-    pkgs = import nixpkgs {system = "${prev.system}";};
+    pkgs = import nixpkgs { system = "${prev.system}"; };
   };
 }

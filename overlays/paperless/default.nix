@@ -1,3 +1,1 @@
-{channels, ...}: final: prev: {
-  inherit (channels.unstable) paperless;
-}
+{ channels, ... }: final: prev: { inherit (channels.unstable) paperless; }
