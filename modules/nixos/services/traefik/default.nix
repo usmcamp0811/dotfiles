@@ -74,7 +74,7 @@ in {
 
         experimental.localPlugins = {
           cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
-          # fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
+          fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
         };
         global = {
           checkNewVersion = false;
