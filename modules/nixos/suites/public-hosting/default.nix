@@ -153,14 +153,14 @@ in {
               rule = "Host(`mattermost.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "mattermost";
-              middlewares = [ "cloudflarewarp" "fail2ban" ];
+              middlewares = [ "cloudflarewarp" ];
             };
 
             http.routers.mm = {
               rule = "Host(`mm.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "mattermost";
-              middlewares = [ "cloudflarewarp" "fail2ban" ];
+              middlewares = [ "cloudflarewarp" ];
             };
 
             http.services.mattermost = {
