@@ -78,7 +78,7 @@ in {
               rule = "Host(`aicampground.com`) || Host(`matt-camp.com`)";
               entryPoints = [ "websecure" ];
               service = "aicampground";
-              middlewares = [ "cloudflarewarp" ];
+              middlewares = [ "cloudflarewarp" "fail2ban" ];
             };
 
             http.services.matt-camp = {
@@ -116,7 +116,7 @@ in {
               rule = "Host(`photos.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "photoprism";
-              middlewares = [ "cloudflarewarp" ];
+              middlewares = [ "cloudflarewarp" "fail2ban" ];
             };
 
             http.services.photoprism = {
@@ -137,7 +137,7 @@ in {
               rule = "Host(`bw.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "bitwarden";
-              middlewares = [ "cloudflarewarp" ];
+              middlewares = [ "cloudflarewarp" "fail2ban" ];
             };
 
             http.services.bitwarden = {
@@ -153,14 +153,14 @@ in {
               rule = "Host(`mattermost.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "mattermost";
-              middlewares = [ "cloudflarewarp" ];
+              middlewares = [ "cloudflarewarp" "fail2ban" ];
             };
 
             http.routers.mm = {
               rule = "Host(`mm.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "mattermost";
-              middlewares = [ "cloudflarewarp" ];
+              middlewares = [ "cloudflarewarp" "fail2ban" ];
             };
 
             http.services.mattermost = {
