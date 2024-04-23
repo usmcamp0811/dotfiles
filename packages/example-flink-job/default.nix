@@ -36,7 +36,7 @@ let
   src = ./.;
 
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    ${python-env}/bin/python ${src}/${job-name}/job.py
+    ${python-env}/bin/python ${src}/job/job.py
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''

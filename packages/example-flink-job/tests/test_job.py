@@ -1,4 +1,4 @@
-from example_job.job import *
+from job.job import *
 
 def test_hello():
     assert hello() == "hello"
