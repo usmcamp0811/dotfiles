@@ -80,3 +80,6 @@ if __name__ == '__main__':
         help='Input topic to process.')
     parser.add_argument(
         '--outputtopic',
+        dest='outputtopic',
+        required=False,
+        help='Output topic to publish to.')
