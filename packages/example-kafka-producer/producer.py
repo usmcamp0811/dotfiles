@@ -6,8 +6,8 @@ def send_message(producer, topic, message):
     producer.flush()
 
 def main():
-    if len(sys.argv) != 4:
-        print("Usage: python script.py <host> <port> <topic>")
+    if len(sys.argv) not in [4, 5]:
+        print("Usage: python script.py <host> <port> <topic> [message]")
         sys.exit(1)
     
     host = sys.argv[1]
@@ -17,14 +17,20 @@ def main():
 
     producer = KafkaProducer(bootstrap_servers=[server])
 
-    try:
-        while True:
-            message = input("Enter message to send (Ctr+C to stop): ")
-            send_message(producer, topic, message)
-    except KeyboardInterrupt:
-        print("Exiting...")
-    finally:
-        producer.close()
+    if len(sys.argv) == 5:
+        # If message is provided as an argument, send it and exit
+        message = sys.argv[4]
+        send_message(producer, topic, message)
+    else:
+        # Interactive mode: repeatedly ask for messages to send
+        try:
+            while True:
+                message = input("Enter message to send (Ctrl+C to stop): ")
+                send_message(producer, topic, message)
+        except KeyboardInterrupt:
+            print("Exiting...")
+        finally:
+            producer.close()
 
 if __name__ == "__main__":
     main()

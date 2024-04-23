@@ -17,17 +17,25 @@ in writeShellApplication {
     HOST="10.8.0.72" # Default host
     PORT=9092      # Default port
     TOPIC="example-topic"
+    MESSAGE=""
 
-    # Parse command-line arguments for --host and --port
+    # Parse command-line arguments for --host, --port, and --message
     while [[ "$#" -gt 0 ]]; do
         case $1 in
             --host) HOST="$2"; shift ;;
             --port) PORT="$2"; shift ;;
+            --message) MESSAGE="$2"; shift ;;
             *) echo "Unknown parameter passed: $1"; exit 1 ;;
         esac
         shift
     done
 
-    ${python-env}/bin/python3 ${producer} "$HOST" "$PORT" "$TOPIC"
+    # Execute the producer script with or without message
+    if [[ -n "$MESSAGE" ]]; then
+      ${python-env}/bin/python3 ${producer} "$HOST" "$PORT" "$TOPIC" "$MESSAGE"
+      exit 0
+    else
+      ${python-env}/bin/python3 ${producer} "$HOST" "$PORT" "$TOPIC"
+    fi
   '';
 }
