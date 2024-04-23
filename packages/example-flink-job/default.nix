@@ -11,8 +11,6 @@ let
     mainProgram = "run-tests";
   };
 
-  job-name = "example_job";
-
   pypkgs-build-requirements = {
     avro = [ "setuptools" ];
     avro-python3 =
@@ -38,7 +36,7 @@ let
   src = ./.;
 
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    ${python-env}/bin/python ${src}/example_job/example_job.py
+    ${python-env}/bin/python ${src}/${job-name}/job.py
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
