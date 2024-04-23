@@ -8,7 +8,7 @@ let
     description = "An Example Flink Job";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
-    mainProgram = "run-tests";
+    mainProgram = "flink-job";
   };
 
   pypkgs-build-requirements = {
