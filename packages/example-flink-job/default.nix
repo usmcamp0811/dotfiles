@@ -56,6 +56,20 @@ let
     preferWheels = true; # Prefer wheels to speed up the build process
   };
 
+  test-flink-job = pkgs.stdenv.mkDerivation {
+    name = "test-flink-job";
+    src = src;
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/bin
+      ln -s ${example-flink-job}/src/run-tests $out/bin/run-tests
+    '';
+    meta = {
+      description = "Test for Example Flink Job";
+      mainProgram = "run-tests";
+    };
+  };
+
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
     src = src;
@@ -69,6 +83,9 @@ let
       cp -r ${python-env}/bin/* $out/bin
       ln -s $out/src/run-tests $out/bin/run-tests
     '';
-    passthru = { python = python-env; };
+    passthru = {
+      python = python-env;
+      test = test-flink-job;
+    };
   };
 in override-meta new-meta example-flink-job

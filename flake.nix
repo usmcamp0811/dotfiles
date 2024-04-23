@@ -254,6 +254,10 @@
               # deadnix.enable = true;
             };
           };
+        packages = {
+          test-example-flink-job =
+            channels.nixpkgs.campground.example-flink-job.passthru.test;
+        };
         # checks.mlflow-test = channels.nixpkgs.nixosTest {
         #   name = "mlflow-test";
         #   nodes = {
