@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "example-flink-job"
+version = "0.1.0"
+description = ""
+authors = ["Matt Camp <matt@aicampground.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+kafka-python = "^2.0.2"
+schema = "^0.7.5"
+python-dateutil = "^2.9.0.post0"
+simplejson = "^3.19.2"
+confluent-kafka = "^2.3.0"
+pytest = "^8.1.1"
+google-api-python-client = "^2.124.0"
+boto3 = "^1.34.75"
+pillow = "^10.3.0"
+apache-flink = "^1.19.0"
+apache-flink-libraries = "^1.19.0"
+psycopg2-binary = "^2.9.9"
+
+[tool.poetry.group.dev.dependencies]
+pytest-mock = "^3.14.0"
+pytest = "^8.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
