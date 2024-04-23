@@ -1,7 +1,6 @@
 import argparse
 import sys
 import simplejson
-
 from pyflink.common.typeinfo import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer, FlinkKafkaProducer
@@ -33,41 +32,25 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
     # Setup the Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()
 
-    # If Kafka is being used as a data source or sink, add the kafka connector
-    env.add_jars("file://{}".format(hadooppath + "/flink-sql-connector-kafka_2.11-1.14.3.jar"))
-
-    #########################
-    # Define the Data Source
-    #########################
-    # Create Kafka Data Source
     kafka_consumer = FlinkKafkaConsumer(topics=input_topic, deserialization_schema=SimpleStringSchema(),
-                                        properties={'bootstrap.servers': kafka_server,
-                                                    'group.id': 'flink-generic',
-                                                    'security.protocol': 'SASL_SSL',
-                                                    'sasl.mechanism': 'PLAIN',
-                                                    "sasl.jaas.config": f"org.apache.kafka.common.security.plain.PlainLoginModule required username=\"{kafka_sasl_username}\" password=\"{kafka_sasl_password}\";"
-                                                    })
+                                        properties={
+                                            'bootstrap.servers': kafka_server,
+                                            'group.id': 'flink-generic'
+                                        })
     ds = env.add_source(kafka_consumer)
 
-    ######################
     # Define the Pipeline
-    ######################
     ds = ds.flat_map(generic_flat_map, output_type=Types.STRING())
     ds_filtered = ds.flat_map(remove_error_messages, output_type=Types.STRING())
     ds_errors = ds.flat_map(keep_error_messages, output_type=Types.STRING())
    
-    #######################
-    # Define the Data Sink
-    #######################
     # Create Kafka Data Sink
     producer_config = {
                     'bootstrap.servers': kafka_server,
                     'group.id': 'flink-generic',
-                    'security.protocol': 'SASL_SSL',
-                    'sasl.mechanism': 'PLAIN',
-                    "sasl.jaas.config": f"org.apache.kafka.common.security.plain.PlainLoginModule required username=\"{kafka_sasl_username}\" password=\"{kafka_sasl_password}\";"
-
+                    'security.protocol': 'SASL_SSL'
     }
+
     kafka_producer1 = FlinkKafkaProducer(topic=output_topic, serialization_schema=SimpleStringSchema(),
                                          producer_config=producer_config)
     ds_filtered.add_sink(kafka_producer1)
@@ -78,9 +61,7 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
                                              producer_config=producer_config)
         ds_errors.add_sink(kafka_producer2)
 
-    ###########################
     # Submit Job For Execution
-    ###########################
     env.execute(pipeline_name)
 
 
