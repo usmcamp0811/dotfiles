@@ -21,6 +21,7 @@ def main():
         # If message is provided as an argument, send it and exit
         message = sys.argv[4]
         send_message(producer, topic, message)
+        print("Message Sent")
     else:
         # Interactive mode: repeatedly ask for messages to send
         try:

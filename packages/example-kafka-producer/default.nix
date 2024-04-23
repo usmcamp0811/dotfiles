@@ -17,10 +17,15 @@ in writeShellApplication {
     HOST="10.8.0.72" # Default host
     PORT=9092      # Default port
     TOPIC="example-topic"
-    MESSAGE="$1"   # Default to first command-line argument
+    MESSAGE=""
+
+    # Check if there are any arguments and the first argument is not a flag
+    if [[ $# -gt 0 && "$1" != --* ]]; then
+      MESSAGE="$1"
+      shift
+    fi
 
     # Parse command-line arguments for --host and --port
-    shift
     while [[ "$#" -gt 0 ]]; do
         case $1 in
             --host) HOST="$2"; shift ;;
@@ -29,7 +34,7 @@ in writeShellApplication {
         esac
         shift
     done
-
+    [[ -z "$MESSAGE" ]] && ${python-env}/bin/python3 ${producer} "$HOST" "$PORT" "$TOPIC"
     # Execute the producer script
     ${python-env}/bin/python3 ${producer} "$HOST" "$PORT" "$TOPIC" "$MESSAGE"
   '';
