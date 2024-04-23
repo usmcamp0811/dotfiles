@@ -8,8 +8,10 @@ let
     description = "An Example Flink Job";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
-    # mainProgram = "ct";
+    mainProgram = "run-tests";
   };
+
+  job-name = "example_job";
 
   pypkgs-build-requirements = {
     avro = [ "setuptools" ];
@@ -33,10 +35,20 @@ let
           oldAttrs.postInstall or "";
       })) pypkgs-build-requirements);
 
-  src = ./example_job/.;
+  src = ./.;
 
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
     ${python-env}/bin/python ${src}/example_job/example_job.py
+  '';
+
+  run-tests = pkgs.writeShellScriptBin "run-tests" ''
+    # Resolves the symlink to find the actual path of the script
+    SCRIPT=$(readlink -f "$0" || realpath "$0")
+    SCRIPT_DIR=$(dirname "$SCRIPT")
+
+    # Adjusted to ensure it works regardless of where it's called from
+    BASE_DIR=$(dirname "$SCRIPT_DIR")
+    ${python-env}/bin/pytest $SCRIPT_DIR/tests/test_job.py "$@"
   '';
 
   python-env = pkgs.poetry2nix.mkPoetryEnv {
@@ -50,13 +62,14 @@ let
     name = "example-flink-job";
     src = src;
     phases = [ "installPhase" ];
-    # buildInputs = [ chromaterm-env ];
     installPhase = ''
       mkdir -p $out/bin
-      mkdir -p $out/src
-      cp -r $src/* $out/src
-      cp -r ${python-env}/bin/* $out/bin
+      mkdir -p $out/src/
+      cp -r $src/* $out/src/
+      cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${flink-job}/bin/flink-job $out/bin
+      cp -r ${python-env}/bin/* $out/bin
+      ln -s $out/src/run-tests $out/bin/run-tests
     '';
     passthru = { python = python-env; };
   };
