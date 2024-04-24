@@ -78,7 +78,7 @@ in {
               rule = "Host(`aicampground.com`) || Host(`matt-camp.com`)";
               entryPoints = [ "websecure" ];
               service = "aicampground";
-              middlewares = [ "cloudflarewarp" "fail2ban" ];
+              middlewares = [ "cloudflarewarp" ];
             };
 
             http.services.matt-camp = {
@@ -116,7 +116,7 @@ in {
               rule = "Host(`photos.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "photoprism";
-              middlewares = [ "cloudflarewarp" "fail2ban" ];
+              middlewares = [ "cloudflarewarp" ];
             };
 
             http.services.photoprism = {
