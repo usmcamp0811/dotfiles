@@ -28,7 +28,7 @@ def keep_error_messages(message):
         yield message
 
 
-def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server, hadooppath):
+def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server):
     # Setup the Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()
 
@@ -110,4 +110,12 @@ if __name__ == '__main__':
 
     known_args, _ = parser.parse_known_args(sys.argv[1:])
 
-    run(known_args.jobname, known_args.inputtopic, known_args.outputtopic, known_args.errortopic, known_args.kafka_sasl_username, known_args.kafka_sasl_password, known_args.kafka_server, known_args.hadooppath)
+    jobname="example-flink-job" 
+    inputtopic="example-topic" 
+    outputtopic="example-output" 
+    errortopic="example-error" 
+    kafka_server="10.8.0.70:9092"
+    kafka_sasl_username=None
+    kafka_sasl_password=None
+    run(jobname, inputtopic, outputtopic, errortopic, kafka_sasl_username, kafka_sasl_password, kafka_server)
+    # run(known_args.jobname, known_args.inputtopic, known_args.outputtopic, known_args.errortopic, known_args.kafka_sasl_username, known_args.kafka_sasl_password, known_args.kafka_server, known_args.hadooppath)
