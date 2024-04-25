@@ -40,7 +40,7 @@ def test_run_flink_job(flink_env, mocker):
     mocker.patch('pyflink.datastream.connectors.FlinkKafkaProducer', return_value=mocked_producer)
 
     # Run the job
-    run('test_job', 'input_topic', 'output_topic', 'error_topic', 'user', 'pass', 'server', 'hadooppath')
+    run('test_job', 'input_topic', 'output_topic', 'error_topic', 'user', 'pass', 'server')
 
     # Assertions can be made here about how the Kafka consumer and producers were called
     mocked_consumer.assert_called()
