@@ -3,22 +3,24 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  pname = "flink-kafka-connector";
-  version = "1.18.0";
+  pname = "flink-connector-kafka";
+  version = "3.1.0";
 
-  flink-kafka-connector = pkgs.stdenv.mkDerivation rec {
+  flink-connector-kafka = pkgs.stdenv.mkDerivation rec {
     inherit pname;
     inherit version;
 
     src = pkgs.fetchurl {
       url =
-        "https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka_${version}/flink-connector-kafka_${version}.jar";
-      sha256 = ""; # Replace with the actual SHA256 of the JAR file
+        "https://dlcdn.apache.org/flink/flink-connector-kafka-${version}/flink-connector-kafka-${version}-src.tgz";
+      sha256 = "sha256-QXl2qPaatvOZEwNCc3THKYcBAuEu2W5FAEy5PBuTwAk=";
     };
+
+    buildInputs = [ pkgs.gnutar ];
 
     installPhase = ''
       mkdir -p $out/lib
-      cp $src $out/lib/
+      tar -xzf $src -C $out/lib
     '';
 
   };
@@ -29,4 +31,4 @@ let
     license = licenses.asl20;
     maintainers = with maintainers; [ mattcamp ];
   };
-in override-meta new-meta flink-kafka-connector
+in override-meta new-meta flink-connector-kafka
