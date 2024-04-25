@@ -20,7 +20,7 @@ let
 
     installPhase = ''
       mkdir -p $out/lib
-      tar -xzf $src -C $out/lib
+      tar -xzf $src -C $out
     '';
 
   };

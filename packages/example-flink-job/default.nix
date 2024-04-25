@@ -63,7 +63,8 @@ let
     name = "test-flink-job";
     src = src;
     phases = [ "installPhase" ];
-    propagatedBuildInputs = [ python-env ];
+    propagatedBuildInputs =
+      [ python-env pkgs.campground.flink-kafka-connector ];
     installPhase = ''
       mkdir -p $out/bin
       ln -s ${example-flink-job}/src/run-tests $out/bin/run-tests
@@ -77,7 +78,12 @@ let
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
     src = src;
-    propagatedBuildInputs = [ pkgs.openjdk11 pkgs.flink python-env ];
+    propagatedBuildInputs = [
+      pkgs.openjdk11
+      pkgs.flink
+      python-env
+      pkgs.campground.flink-kafka-connector
+    ];
     phases = [ "installPhase" ];
     installPhase = ''
       mkdir -p $out/bin
