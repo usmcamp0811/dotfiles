@@ -42,7 +42,7 @@ let
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
     export JAVA_HOME=${pkgs.jdk11.home}
-    export FLINK_HOME=${pkgs.flink}/opt/flink
+    export FLINK_HOME=${pkgs.campground.flink-kafka-connector}/opt/flink
     # Resolves the symlink to find the actual path of the script
     SCRIPT=$(readlink -f "$0" || realpath "$0")
     SCRIPT_DIR=$(dirname "$SCRIPT")
