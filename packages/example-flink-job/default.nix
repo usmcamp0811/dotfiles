@@ -36,7 +36,7 @@ let
   src = ./.;
 
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    ${python-env}/bin/python ${src}/job/job.py
+    ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
