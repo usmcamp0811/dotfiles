@@ -36,17 +36,16 @@ let
   src = ./.;
 
   # ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python
-  # ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
+  # ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyexec ${python-env}/bin/python3 --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    export JAVA_HOME=${pkgs.jdk11.home}
-    export FLINK_HOME=${pkgs.flink}
-    export CLASSPATH="${pkgs.campground.flink-connector-kafka}:$CLASSPATH"
-    ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python -j ${pkgs.campground.flink-connector-kafka}/lib --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
+      export JAVA_HOME=${pkgs.jdk11.home}
+      export CLASSPATH=${pkgs.campground.flink-connector-kafka}/lib
+    ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
     export JAVA_HOME=${pkgs.jdk11.home}
-    export FLINK_HOME=${pkgs.campground.flink-connector-kafka}/lib
+    export CLASSPATH=${pkgs.campground.flink-connector-kafka}/lib
     # Resolves the symlink to find the actual path of the script
     SCRIPT=$(readlink -f "$0" || realpath "$0")
     SCRIPT_DIR=$(dirname "$SCRIPT")
@@ -82,12 +81,12 @@ let
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
     src = src;
-    propagatedBuildInputs = [
-      pkgs.openjdk11
-      pkgs.flink
-      python-env
-      pkgs.campground.flink-connector-kafka
-    ];
+    # propagatedBuildInputs = [
+    #   pkgs.openjdk11
+    #   pkgs.flink
+    #   python-env
+    #   pkgs.campground.flink-connector-kafka
+    # ];
     phases = [ "installPhase" ];
     installPhase = ''
       mkdir -p $out/bin
