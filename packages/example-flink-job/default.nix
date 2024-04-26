@@ -35,12 +35,11 @@ let
 
   src = ./.;
 
+  # ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
   # ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python
-  # ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyexec ${python-env}/bin/python3 --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
-      export JAVA_HOME=${pkgs.jdk11.home}
-      export CLASSPATH=${pkgs.campground.flink-connector-kafka}/lib
-    ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
+    ${pkgs.campground.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python --classpath "${pkgs.campground.flink}/opt/flink/opt/*"
+
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''

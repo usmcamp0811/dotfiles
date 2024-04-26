@@ -66,49 +66,49 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--jobname',
-        dest='jobname',
-        required=False,
-        help='Name of the flink job.')
-    parser.add_argument(
-        '--inputtopic',
-        dest='inputtopic',
-        required=False,
-        help='Input topic to process.')
-    parser.add_argument(
-        '--outputtopic',
-        dest='outputtopic',
-        required=False,
-        help='Output topic to publish results to.')
-    parser.add_argument(
-        '--errortopic',
-        dest='errortopic',
-        required=False,
-        help='Output topic to publish errors to.')
-    parser.add_argument(
-        '--kafka_username',
-        dest='kafka_sasl_username',
-        required=False,
-        help='Kafka SASL Username.')
-    parser.add_argument(
-        '--kafka_password',
-        dest='kafka_sasl_password',
-        required=False,
-        help='Output file to write results to.')
-    parser.add_argument(
-        '--kafka_server',
-        dest='kafka_server',
-        required=False,
-        help='URL of Kafka bootstrap server.')
-    parser.add_argument(
-        '--hadooppath',
-        dest='hadooppath',
-        required=False,
-        help='The path on the hadoop server where the job files are located')
-
-    known_args, _ = parser.parse_known_args(sys.argv[1:])
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument(
+    #     '--jobname',
+    #     dest='jobname',
+    #     required=False,
+    #     help='Name of the flink job.')
+    # parser.add_argument(
+    #     '--inputtopic',
+    #     dest='inputtopic',
+    #     required=False,
+    #     help='Input topic to process.')
+    # parser.add_argument(
+    #     '--outputtopic',
+    #     dest='outputtopic',
+    #     required=False,
+    #     help='Output topic to publish results to.')
+    # parser.add_argument(
+    #     '--errortopic',
+    #     dest='errortopic',
+    #     required=False,
+    #     help='Output topic to publish errors to.')
+    # parser.add_argument(
+    #     '--kafka_username',
+    #     dest='kafka_sasl_username',
+    #     required=False,
+    #     help='Kafka SASL Username.')
+    # parser.add_argument(
+    #     '--kafka_password',
+    #     dest='kafka_sasl_password',
+    #     required=False,
+    #     help='Output file to write results to.')
+    # parser.add_argument(
+    #     '--kafka_server',
+    #     dest='kafka_server',
+    #     required=False,
+    #     help='URL of Kafka bootstrap server.')
+    # parser.add_argument(
+    #     '--hadooppath',
+    #     dest='hadooppath',
+    #     required=False,
+    #     help='The path on the hadoop server where the job files are located')
+    #
+    # known_args, _ = parser.parse_known_args(sys.argv[1:])
 
     jobname="example-flink-job" 
     inputtopic="example-topic" 
