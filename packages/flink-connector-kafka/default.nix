@@ -19,8 +19,11 @@ let
     buildInputs = [ pkgs.gnutar ];
 
     installPhase = ''
+      mkdir -p $out/tmp
       mkdir -p $out/lib
-      tar -xzf $src -C $out
+      tar -xzf $src -C $out/tmp
+      mv $out/tmp/${pname}-${version}/* $out/lib
+      rm -rf $out/tmp
     '';
 
   };
