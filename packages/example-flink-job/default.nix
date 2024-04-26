@@ -8,7 +8,7 @@ let
     description = "An Example Flink Job";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
-    mainProgram = "flink-job";
+    mainProgram = "run-flink-job";
   };
 
   pypkgs-build-requirements = {
@@ -35,12 +35,13 @@ let
 
   src = ./.;
 
-  # ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
   # ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python
   # ${pkgs.campground.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python --classpath "${pkgs.campground.flink}/opt/flink/opt/*"
-  flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    ${pkgs.campground.flink}/bin/flink run -py ${pkgs.campground.flink}/opt/flink/examples/python/datastream/process_json_data.py -pyclientexec ${python-env}/bin/python --classpath "${pkgs.campground.flink}/opt/flink/opt/*"
-  '';
+  # ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
+  # flink-job = pkgs.writeShellScriptBin "flink-job" ''
+  # export PYFLINK_PYTHON=${python-env}/bin/python
+  #   ${pkgs.campground.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec --configDir ${test-flink-job}/conf
+  # '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
     export JAVA_HOME=${pkgs.jdk11.home}
@@ -80,25 +81,39 @@ let
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
     src = src;
-    # propagatedBuildInputs = [
-    #   pkgs.openjdk11
-    #   pkgs.flink
-    #   python-env
-    #   pkgs.campground.flink-connector-kafka
-    # ];
-    phases = [ "installPhase" ];
+    propagatedBuildInputs = [ pkgs.openjdk11 python-env pkgs.campground.flink ];
+
+    # Removed `phases` to avoid overriding default phases unintentionally,
+    # unless you specifically need to skip phases like patchPhase, configurePhase, etc.
+
     installPhase = ''
       mkdir -p $out/bin
-      mkdir -p $out/src/
+      mkdir -p $out/src
+      mkdir -p $out/conf
+
       cp -r $src/* $out/src/
-      cp ${run-tests}/bin/run-tests $out/src/run-tests
-      cp ${flink-job}/bin/flink-job $out/bin
-      cp -r ${python-env}/bin/* $out/bin
-      ln -s $out/src/run-tests $out/bin/run-tests
+      cp -r ${python-env}/bin/* $out/bin/
+      cp -r ${pkgs.campground.flink}/opt/flink/conf $out/conf
+
+      # Fixing the echo to flink-conf.yaml
+      echo "python.client.executable: ${python-env}/bin/python3" >> $out/conf/flink-conf.yaml
+
+      # Creating a shell script to run the flink job
+      cat > $out/bin/run-flink-job <<EOF
+      #!/usr/bin/env bash
+      export PYFLINK_PYTHON="${python-env}/bin/python"
+      ${pkgs.campground.flink}/bin/flink run -py $out/src/job/job.py --configDir $out/conf
+      EOF
+
+      chmod +x $out/bin/run-flink-job
     '';
+
+    # Added passthru to provide easy access to specific attributes from the package.
     passthru = {
-      python = python-env;
-      test = test-flink-job;
+      python =
+        python-env; # Assuming python-env is a nix derivation for Python environment
+      test =
+        test-flink-job; # Assuming test-flink-job is defined somewhere else in your nix files
     };
   };
 in override-meta new-meta example-flink-job

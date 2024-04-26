@@ -1,10 +1,11 @@
 import argparse
 import sys
-import simplejson
 from pyflink.common.typeinfo import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer, FlinkKafkaProducer
 from pyflink.common.serialization import SimpleStringSchema
+print("FUCKYES")
+import simplejson
 
 
 def generic_flat_map(message):
@@ -31,6 +32,7 @@ def keep_error_messages(message):
 def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server):
     # Setup the Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()
+    env.add_jars("file:///@nix/store/q49mir0xy7r9j6nb88xsjc90vrc5gxvs-flink-sql-connector-kafka-3.0.2-1.18/opt/flink/opt/flink-sql-connector-kafka-3.0.2-1.18.jar ")
 
     kafka_consumer = FlinkKafkaConsumer(topics=input_topic, deserialization_schema=SimpleStringSchema(),
                                         properties={

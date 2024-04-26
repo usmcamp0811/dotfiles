@@ -18,8 +18,10 @@ let
 
     installPhase = ''
       mkdir -p $out/opt/flink/opt
+      mkdir -p $out/opt/flink/lib
       cp -r $src/* $out/
-      cp ${kafkaPlugin} $out/opt/flink/opt/${pname}-${version}.jar
+      ls -lah ${kafkaPlugin}
+      cp ${kafkaPlugin} $out/opt/flink/lib/${pname}-${version}.jar
     '';
   };
 

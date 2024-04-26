@@ -1404,6 +1404,16 @@ files = [
 pyparsing = ">=2.1.4"
 
 [[package]]
+name = "pyflink"
+version = "1.0"
+description = "Flink Python API"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyflink-1.0-py3-none-any.whl", hash = "sha256:382dfa476a0bbdee2220639a0782aeafe41163748d077e57cb2206fbb4868b0d"},
+]
+
+[[package]]
 name = "pymongo"
 version = "4.6.3"
 description = "Python driver for MongoDB <http://www.mongodb.org>"
@@ -2075,4 +2085,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "c65e0f82e1c0d2768deb85e2e9074f862f1bfe819798b5d414434ea4c41c101c"
+content-hash = "dae0e73dd9bd5c547faf13132c1d5722f8293886833289f79ff3dd35dbc73e5a"
