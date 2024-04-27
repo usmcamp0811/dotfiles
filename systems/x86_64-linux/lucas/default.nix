@@ -47,6 +47,7 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      flink = enabled;
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
