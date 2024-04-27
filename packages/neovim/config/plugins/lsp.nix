@@ -1,4 +1,4 @@
-{ ... }: {
+{ pkgs, ... }: {
   plugins = {
     magma-nvim = {
       enable = true;
@@ -43,7 +43,7 @@
         java-language-server = { enable = true; };
         cmake = { enable = true; };
         dockerls = { enable = true; };
-        rnix-lsp = { enable = true; };
+        nixd = { enable = true; };
       };
     };
   };
