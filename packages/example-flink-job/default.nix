@@ -40,8 +40,6 @@ let
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
-    export JAVA_HOME=${pkgs.jdk11.home}
-    export CLASSPATH=${pkgs.campground.flink-connector-kafka}/lib
     # Resolves the symlink to find the actual path of the script
     SCRIPT=$(readlink -f "$0" || realpath "$0")
     SCRIPT_DIR=$(dirname "$SCRIPT")
@@ -76,10 +74,6 @@ let
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
     src = src;
-    propagatedBuildInputs = [ pkgs.openjdk11 python-env ];
-
-    # Removed `phases` to avoid overriding default phases unintentionally,
-    # unless you specifically need to skip phases like patchPhase, configurePhase, etc.
 
     installPhase = ''
       mkdir -p $out/bin
@@ -89,14 +83,12 @@ let
       cp -r $src/* $out/src/
       cp -r ${python-env}/bin/* $out/bin/
       cp ${flink-job}/bin/flink-job $out/bin/
+      cp ${run-tests}/bin/run-tests $out/src/run-tests
     '';
 
-    # Added passthru to provide easy access to specific attributes from the package.
     passthru = {
-      python =
-        python-env; # Assuming python-env is a nix derivation for Python environment
-      test =
-        test-flink-job; # Assuming test-flink-job is defined somewhere else in your nix files
+      python = python-env;
+      test = test-flink-job;
     };
   };
 in override-meta new-meta example-flink-job
