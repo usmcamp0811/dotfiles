@@ -1,1 +1,1 @@
-{ channels, ... }: final: prev: { inherit (channels.unstable) vault; }
+{ channels, ... }: final: prev: { inherit (channels.unstable) vault-bin vault; }
