@@ -4,6 +4,7 @@ from pyflink.common.typeinfo import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer, FlinkKafkaProducer
 from pyflink.common.serialization import SimpleStringSchema
+import logging
 
 import sys
 print("===================================================")
@@ -12,6 +13,7 @@ print("===================================================")
 
 import simplejson
 def generic_flat_map(message):
+    logging.info("Starting Flat Map")
     try:
         # Do nothing if the message has caused an error
         if message.startswith('ERROR in Flink job'):
@@ -33,7 +35,8 @@ def keep_error_messages(message):
 
 
 def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server):
-    print(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server)
+    logging.info("Starting Run")
+    print("Starting Run...")
     # Setup the Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()
 
@@ -42,9 +45,12 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
                                             'bootstrap.servers': kafka_server,
                                             'group.id': 'flink-generic'
                                         })
+                                            
+    print("Adding Source...")
     ds = env.add_source(kafka_consumer)
 
     # Define the Pipeline
+    print("Doing Flat Map Things...")
     ds = ds.flat_map(generic_flat_map, output_type=Types.STRING())
     ds_filtered = ds.flat_map(remove_error_messages, output_type=Types.STRING())
     ds_errors = ds.flat_map(keep_error_messages, output_type=Types.STRING())
@@ -55,9 +61,10 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
                     'group.id': 'flink-generic'
     }
 
-    kafka_producer1 = FlinkKafkaProducer(topic=output_topic, serialization_schema=SimpleStringSchema(),
+    kafka_producer = FlinkKafkaProducer(topic=output_topic, serialization_schema=SimpleStringSchema(),
                                          producer_config=producer_config)
-    ds_filtered.add_sink(kafka_producer1)
+    print("add Producer Sing...")
+    ds_filtered.add_sink(kafka_producer)
 
     if error_topic is not None:
         # Create Kafka Data Sink for Error Messages
@@ -66,6 +73,7 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
         ds_errors.add_sink(kafka_producer2)
 
     # Submit Job For Execution
+    print("Gonna do it now")
     env.execute(pipeline_name)
 
 
@@ -119,7 +127,8 @@ if __name__ == '__main__':
     inputtopic="example-topic" 
     outputtopic="example-output" 
     errortopic="example-error" 
-    kafka_server="10.8.0.70:9092"
+    # kafka_server="10.8.0.70:9092"
+    kafka_server="lucas:9092"
     kafka_sasl_username=None
     kafka_sasl_password=None
     run(jobname, inputtopic, outputtopic, errortopic, kafka_sasl_username, kafka_sasl_password, kafka_server)
