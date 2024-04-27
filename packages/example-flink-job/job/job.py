@@ -4,10 +4,13 @@ from pyflink.common.typeinfo import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer, FlinkKafkaProducer
 from pyflink.common.serialization import SimpleStringSchema
-print("FUCKYES")
+
+import sys
+print("===================================================")
+print("THIS IS THE PYTHON RUNNING THIS =>", sys.executable)
+print("===================================================")
+
 import simplejson
-
-
 def generic_flat_map(message):
     try:
         # Do nothing if the message has caused an error
@@ -32,7 +35,8 @@ def keep_error_messages(message):
 def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server):
     # Setup the Flink execution environment
     env = StreamExecutionEnvironment.get_execution_environment()
-    env.add_jars("file:///@nix/store/q49mir0xy7r9j6nb88xsjc90vrc5gxvs-flink-sql-connector-kafka-3.0.2-1.18/opt/flink/opt/flink-sql-connector-kafka-3.0.2-1.18.jar ")
+    # env.get_config().set_python_executable("/nix/store/6xaqzx5ad5kybpb796aygpx249d6aplb-python3-3.11.8-env/bin/python")
+    # env.add_jars("file:///@nix/store/q49mir0xy7r9j6nb88xsjc90vrc5gxvs-flink-sql-connector-kafka-3.0.2-1.18/opt/flink/opt/flink-sql-connector-kafka-3.0.2-1.18.jar ")
 
     kafka_consumer = FlinkKafkaConsumer(topics=input_topic, deserialization_schema=SimpleStringSchema(),
                                         properties={
