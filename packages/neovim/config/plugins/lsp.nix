@@ -27,7 +27,9 @@
         julials = { enable = true; };
         jsonls = { enable = true; };
         cssls = { enable = true; };
-        # pylsp = {enable = true;};
+        graphql = { enable = true; };
+
+        pyright = { enable = true; };
         yamlls = { enable = true; };
         vuels = { enable = true; };
         html = { enable = true; };
@@ -36,6 +38,12 @@
         bashls = { enable = true; };
         ccls = { enable = true; };
         terraformls = { enable = true; };
+        texlab = { enable = true; };
+        sqls = { enable = true; };
+        java-language-server = { enable = true; };
+        cmake = { enable = true; };
+        dockerls = { enable = true; };
+        rnix-lsp = { enable = true; };
       };
     };
   };
