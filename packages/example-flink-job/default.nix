@@ -36,7 +36,7 @@ let
   src = ./.;
 
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python --jarfile ${pkgs.campground.flink}/opt/flink/lib/flink-sql-connector-kafka-3.0.2-1.18.jar
+    ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python --jarfile ${pkgs.campground.flink-connector-kafka}
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
@@ -62,8 +62,7 @@ let
     name = "test-flink-job";
     src = src;
     phases = [ "installPhase" ];
-    propagatedBuildInputs =
-      [ pkgs.openjdk11 python-env pkgs.campground.flink-connector-kafka ];
+    propagatedBuildInputs = [ pkgs.openjdk11 python-env ];
     installPhase = ''
       mkdir -p $out/bin
       ln -s ${example-flink-job}/src/run-tests $out/bin/run-tests
@@ -77,7 +76,7 @@ let
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
     src = src;
-    propagatedBuildInputs = [ pkgs.openjdk11 python-env pkgs.campground.flink ];
+    propagatedBuildInputs = [ pkgs.openjdk11 python-env ];
 
     # Removed `phases` to avoid overriding default phases unintentionally,
     # unless you specifically need to skip phases like patchPhase, configurePhase, etc.
