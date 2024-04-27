@@ -102,10 +102,7 @@ let
       # Creating a shell script to run the flink job
       cat > $out/bin/run-flink-job <<EOF
       #!/usr/bin/env bash
-      export PATH="${python-env}/bin:$PATH"
-      export PYTHONHOME="${python-env}"
-      echo "The python I think that should be running my job ==> ${python-env}/bin/python"
-      ${pkgs.campground.flink}/bin/flink run -py $out/src/job/job.py -pyclientexec ${python-env}/bin/python -pyexec ${python-env}/bin/python --jarfile ${pkgs.campground.flink}/opt/flink/lib/flink-sql-connector-kafka-3.0.2-1.18.jar
+      ${pkgs.campground.flink}/bin/flink run -py $out/src/job/job.py -pyclientexec ${python-env}/bin/python --jarfile ${pkgs.campground.flink}/opt/flink/lib/flink-sql-connector-kafka-3.0.2-1.18.jar
       EOF
 
       chmod +x $out/bin/run-flink-job
