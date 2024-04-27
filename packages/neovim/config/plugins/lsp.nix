@@ -27,7 +27,7 @@
         julials = { enable = true; };
         jsonls = { enable = true; };
         cssls = { enable = true; };
-        pylsp = {enable = true;};
+        # pylsp = {enable = true;};
         yamlls = { enable = true; };
         vuels = { enable = true; };
         html = { enable = true; };
