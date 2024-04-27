@@ -48,7 +48,7 @@ in {
       preStart = ''
         mkdir -p /var/lib/flink/conf
         cp -r ${pkgs.flink}/opt/flink/conf/* /var/lib/flink/conf/
-        cp ${flink-conf} /var/lib/flink/conf/flink-conf.yaml
+        echo ${flink-conf} > /var/lib/flink/conf/flink-conf.yaml
       '';
     };
   };
