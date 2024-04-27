@@ -38,8 +38,8 @@ in {
       wantedBy = [ "multi-user.target" ];
       environment = { FLINK_CONF_DIR = "/var/lib/flink/conf"; };
       serviceConfig = {
-        User = cfg.user;
-        Group = cfg.group;
+        User = "flink";
+        Group = "flink";
         ExecStart = "${cfg.package}/bin/start-cluster.sh";
         ExecStop = "${cfg.package}/bin/stop-cluster.sh";
         Restart = "on-failure";
