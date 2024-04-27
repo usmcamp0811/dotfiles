@@ -8,7 +8,7 @@ let
     description = "An Example Flink Job";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
-    mainProgram = "run-flink-job";
+    mainProgram = "flink-job";
   };
 
   pypkgs-build-requirements = {
@@ -35,13 +35,9 @@ let
 
   src = ./.;
 
-  # ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python
-  # ${pkgs.campground.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python --classpath "${pkgs.campground.flink}/opt/flink/opt/*"
-  # ${python-env}/bin/python ${src}/job/job.py --jobname "example-flink-job" --inputtopic "example-topic" --outputtopic "example-output" --errortopic "example-error" --kafka_server "10.8.0.70:9092"
-  # flink-job = pkgs.writeShellScriptBin "flink-job" ''
-  # export PYFLINK_PYTHON=${python-env}/bin/python
-  #   ${pkgs.campground.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec --configDir ${test-flink-job}/conf
-  # '';
+  flink-job = pkgs.writeShellScriptBin "flink-job" ''
+    ${pkgs.flink}/bin/flink run -py ${src}/job/job.py -pyclientexec ${python-env}/bin/python --jarfile ${pkgs.campground.flink}/opt/flink/lib/flink-sql-connector-kafka-3.0.2-1.18.jar
+  '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
     export JAVA_HOME=${pkgs.jdk11.home}
@@ -93,13 +89,7 @@ let
 
       cp -r $src/* $out/src/
       cp -r ${python-env}/bin/* $out/bin/
-      # Creating a shell script to run the flink job
-      cat > $out/bin/run-flink-job <<EOF
-      #!/usr/bin/env bash
-      ${pkgs.campground.flink}/bin/flink run -py $out/src/job/job.py -pyclientexec ${python-env}/bin/python --jarfile ${pkgs.campground.flink}/opt/flink/lib/flink-sql-connector-kafka-3.0.2-1.18.jar
-      EOF
-
-      chmod +x $out/bin/run-flink-job
+      cp ${flink-job}/bin/flink-job $out/bin/
     '';
 
     # Added passthru to provide easy access to specific attributes from the package.
