@@ -93,12 +93,6 @@ let
 
       cp -r $src/* $out/src/
       cp -r ${python-env}/bin/* $out/bin/
-      find ${pkgs.campground.flink}/opt/flink/conf -type f ! -name 'flink-conf.yaml' -exec cp {} $out/opt/flink \;
-
-      # Fixing the echo to flink-conf.yaml
-      echo "python.client.executable: ${python-env}/bin/python" > $out/opt/flink/flink-conf.yaml
-      cat ${pkgs.campground.flink}/opt/flink/conf/flink-conf.yaml >> $out/opt/flink/flink-conf.yaml
-
       # Creating a shell script to run the flink job
       cat > $out/bin/run-flink-job <<EOF
       #!/usr/bin/env bash
