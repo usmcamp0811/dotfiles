@@ -1,1 +1,1 @@
-{ channels, ... }: final: prev: { inherit (channels.unstable) logseq vault; }
+{ channels, ... }: final: prev: { inherit (channels.unstable) logseq; }
