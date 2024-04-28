@@ -87,6 +87,7 @@ in {
       _JAVA_AWT_WM_NONEREPARENTING = "1";
       __GL_GSYNC_ALLOWED = "0";
       __GL_VRR_ALLOWED = "0";
+      GTK_USE_PORTAL = "1";
     };
     xdg.portal = {
       enable = true;
@@ -97,6 +98,7 @@ in {
       config.common.default = "*";
     };
 
+    # For GTK applications, if needed
     environment.systemPackages = with pkgs; [
       hyprpaper
       cliphist
