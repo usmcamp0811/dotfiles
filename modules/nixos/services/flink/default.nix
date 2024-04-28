@@ -48,7 +48,7 @@ in {
       wantedBy = [ "multi-user.target" ];
       environment = { 
         FLINK_CONF_DIR = "/var/lib/flink/conf";
-        JAVA_HOME = pkgs.openjdk11;
+        JAVA_HOME = pkgs.jre;
       };
       serviceConfig = {
         User = "flink";
