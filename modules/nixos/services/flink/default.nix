@@ -8,7 +8,7 @@ in {
     package = mkOpt package pkgs.flink "The Flink package to use.";
     masters = mkOpt (lib.types.listOf lib.types.str)  [ "lucas" ] "Mast Flink Node";
     workers = mkOpt (lib.types.listOf lib.types.str) [
-      "lucas:8081"
+      "lucas"
     ] "Worker Nodes";
     flink-conf = mkOpt str ''
       env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
@@ -27,6 +27,7 @@ in {
       rest.bind-port: 8080-8090
       rest.bind-address: 0.0.0.0
       env.log.dir: /var/lib/flink/flink-logs
+      python.tmpdir: /tmp/pyflink
     '' "Additional configuration attributes for Flink.";
   };
 
@@ -51,15 +52,28 @@ in {
       environment = {
         FLINK_CONF_DIR = "/var/lib/flink/conf";
         JAVA_HOME = pkgs.openjdk11;
+        # PATH = lib.makeBinPath [ pkgs.openssh ]; # Add ssh to the PATH for this service
       };
       serviceConfig = {
-        User = "flink";
-        Group = "flink";
-        ExecStart = "${cfg.package}/opt/flink/bin/start-cluster.sh";
-        ExecStop = "${cfg.package}/opt/flink/bin/stop-cluster.sh";
+        # User = "flink";
+        # Group = "flink";
+        # ExecStart = "${cfg.package}/opt/flink/bin/start-cluster.sh";
+        # ExecStop = "${cfg.package}/opt/flink/bin/stop-cluster.sh";
         Restart = "on-failure";
         PermissionsStartOnly = true;
       };
+        # "${cfg.package}/opt/flink/bin/standalone-job.sh start-foreground";
+      script = ''
+        export PATH=${pkgs.openssh}/bin:$PATH
+        cp ${pkgs.campground.example-flink-job}/src/job/job.py /tmp/pyflink/
+        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+        ${pkgs.flink}/bin/flink run \
+          -py ${pkgs.campground.example-flink-job}/src/job/job.py \
+          -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python \
+          -pypath ${pkgs.campground.example-flink-job.python} \
+          --jarfile ${pkgs.campground.flink-connector-kafka} \
+          --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
+      '';
       preStart = ''
         mkdir -p /var/lib/flink/conf
         mkdir -p /var/lib/flink/flink-logs

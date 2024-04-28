@@ -17,10 +17,15 @@ def generic_flat_map(message):
     try:
         # Do nothing if the message has caused an error
         if message.startswith('ERROR in Flink job'):
+            print("This was an error")
+            logging.info("Error happend")
             return [message]
+        print("Shit should be here")
+        logging.info("Check kafka")
         return [simplejson.dumps({'payload': message})]
 
     except Exception as e:
+        print("Nope")
         return ['ERROR in Flink job | Error Message: {} | Data Stream Record: {}'.format(e, message)]
 
 
@@ -74,7 +79,7 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
         ds_errors.add_sink(kafka_producer2)
 
     # Submit Job For Execution
-    print("Gonna do it now")
+    print(f"Executing: {pipeline_name}")
     env.execute(pipeline_name)
 
 
@@ -124,13 +129,13 @@ if __name__ == '__main__':
 
     known_args, _ = parser.parse_known_args(sys.argv[1:])
 
-    # jobname="example-flink-job" 
-    # inputtopic="example-topic" 
-    # outputtopic="example-output" 
-    # errortopic="example-error" 
-    # # kafka_server="10.8.0.70:9092"
-    # kafka_server="lucas:9092"
-    # kafka_sasl_username=None
-    # kafka_sasl_password=None
-    # run(jobname, inputtopic, outputtopic, errortopic, kafka_sasl_username, kafka_sasl_password, kafka_server)
-    run(known_args.jobname, known_args.inputtopic, known_args.outputtopic, known_args.errortopic, known_args.kafka_sasl_username, known_args.kafka_sasl_password, known_args.kafka_server)
+    jobname="example-flink-job" 
+    inputtopic="example-topic" 
+    outputtopic="example-output" 
+    errortopic="example-error" 
+    # kafka_server="10.8.0.70:9092"
+    kafka_server="lucas:9092"
+    kafka_sasl_username=None
+    kafka_sasl_password=None
+    run(jobname, inputtopic, outputtopic, errortopic, kafka_sasl_username, kafka_sasl_password, kafka_server)
+    # run(known_args.jobname, known_args.inputtopic, known_args.outputtopic, known_args.errortopic, known_args.kafka_sasl_username, known_args.kafka_sasl_password, known_args.kafka_server)
