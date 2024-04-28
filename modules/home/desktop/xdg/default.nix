@@ -7,9 +7,9 @@ let
   browser = [ "firefox.desktop" ];
   editor = [ "nvim.desktop" ];
   excel = [ "libreoffice-calc.desktop" ];
-  # fileManager = [ "ranger.desktop" ];
+  fileManager = [ "ranger.desktop" ];
   image = [ "feh.desktop" ];
-  # mail = [ "thunderbird.desktop" ];
+  mail = [ "thunderbird.desktop" ];
   powerpoint = [ "libreoffice-impress.desktop" ];
   terminal = [ "kitty.desktop" ];
   video = [ "vlc.desktop" ];
@@ -159,7 +159,7 @@ in {
   config = mkIf cfg.enable {
     xdg = {
       enable = true;
-      cacheHome = config.home.homeDirectory + "/.local/cache";
+      # cacheHome = config.home.homeDirectory + "/.local/cache";
 
       mimeApps = {
         enable = true;

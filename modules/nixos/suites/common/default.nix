@@ -50,7 +50,6 @@ in {
         locale = enabled;
         time = enabled;
         xkb = enabled;
-        xdg = enabled;
       };
     };
   };
