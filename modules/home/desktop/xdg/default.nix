@@ -150,6 +150,7 @@ let
     "x-scheme-handler/x-github-client" = [ "github-desktop.desktop" ];
     "x-scheme-handler/x-github-desktop-auth" = [ "github-desktop.desktop" ];
     "x-www-browser" = browser;
+    "text/x-sql" = editor;
     # "x-scheme-handler/chrome" = ["chromium-browser.desktop"];
   };
 in {

@@ -1,13 +1,8 @@
-{ options
-, config
-, lib
-, ...
-}:
+{ options, config, lib, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.common;
-in
-{
+with lib.campground;
+let cfg = config.campground.suites.common;
+in {
   options.campground.suites.common = with types; {
     enable = mkBoolOpt false "Whether or not to enable common configuration.";
   };
@@ -55,6 +50,7 @@ in
         locale = enabled;
         time = enabled;
         xkb = enabled;
+        xdg = enabled;
       };
     };
   };
