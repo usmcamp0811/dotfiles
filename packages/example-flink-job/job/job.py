@@ -130,7 +130,7 @@ if __name__ == '__main__':
     known_args, _ = parser.parse_known_args(sys.argv[1:])
 
     jobname="example-flink-job" 
-    inputtopic="example-topic" 
+    inputtopic="traefik-logs" 
     outputtopic="example-output" 
     errortopic="example-error" 
     # kafka_server="10.8.0.70:9092"
