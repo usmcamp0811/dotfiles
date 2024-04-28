@@ -70,7 +70,7 @@ in {
           -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python \
           -pypath ${pkgs.campground.example-flink-job.python} \
           --jarfile ${pkgs.campground.flink-connector-kafka} \
-          --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
+          --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server 10.8.0.70:9092
       '';
       preStart = ''
         mkdir -p /var/lib/flink/conf
