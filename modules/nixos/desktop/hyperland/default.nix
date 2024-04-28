@@ -89,6 +89,7 @@ in {
       __GL_VRR_ALLOWED = "0";
       GTK_USE_PORTAL = "1";
     };
+
     xdg.portal = {
       enable = true;
       wlr.enable = true;

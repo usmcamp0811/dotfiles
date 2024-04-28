@@ -27,11 +27,10 @@ in {
 
   config = {
     home.sessionVariables = {
-      # XDG_CACHE_HOME = "${home-directory}/.cache";
       KUBECONFIG = "/etc/k8s/config";
       EDITOR = "nvim";
       TERMINAL = "kitty";
-      BROWSER = "qutebrowser";
+      BROWSER = "firefox";
       READER = "zathura";
       XDG_CONFIG_HOME = "${home-directory}/.config";
       DOCKER = "/var/run/docker.sock";

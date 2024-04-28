@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
 
@@ -7,7 +7,6 @@ let
   browser = [ "firefox.desktop" ];
   editor = [ "nvim.desktop" ];
   excel = [ "libreoffice-calc.desktop" ];
-  fileManager = [ "ranger.desktop" ];
   image = [ "feh.desktop" ];
   mail = [ "thunderbird.desktop" ];
   powerpoint = [ "libreoffice-impress.desktop" ];
@@ -124,7 +123,6 @@ let
     "image/x-xcf" = [ "gimp.desktop" ];
     "image/x-xpixmap" = [ "org.kde.gwenview.desktop" ];
     "image/x-xwindowdump" = [ "org.kde.gwenview.desktop" ];
-    "inode/directory" = fileManager;
     "message/rfc822" = mail;
     "text/*" = editor;
     "text/calendar" = mail;
@@ -159,7 +157,7 @@ in {
   config = mkIf cfg.enable {
     xdg = {
       enable = true;
-      # cacheHome = config.home.homeDirectory + "/.local/cache";
+      cacheHome = config.home.homeDirectory + "/.local/cache";
 
       mimeApps = {
         enable = true;
