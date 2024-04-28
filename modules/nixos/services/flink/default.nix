@@ -61,16 +61,13 @@ in {
         PermissionsStartOnly = true;
       };
       # "${cfg.package}/opt/flink/bin/standalone-job.sh start-foreground";
+        # cp ${pkgs.campground.example-flink-job}/src/job/job.py /tmp/pyflink/
       script = ''
-        export PATH=${pkgs.openssh}/bin:$PATH
-        cp ${pkgs.campground.example-flink-job}/src/job/job.py /tmp/pyflink/
-        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
         ${pkgs.flink}/bin/flink run \
           -py ${pkgs.campground.example-flink-job}/src/job/job.py \
           -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python \
           -pypath ${pkgs.campground.example-flink-job.python} \
-          --jarfile ${pkgs.campground.flink-connector-kafka} \
-          --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server 10.8.0.70:9092
+          --jarfile ${pkgs.campground.flink-connector-kafka}
       '';
       preStart = ''
         mkdir -p /var/lib/flink/conf
@@ -83,6 +80,7 @@ in {
           lib.concatStringsSep "\n" cfg.workers
         }" > /var/lib/flink/conf/workers
         echo "${cfg.flink-conf}" > /var/lib/flink/conf/flink-conf.yaml
+        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
       '';
     };
   };
