@@ -6,7 +6,11 @@ in {
   options.campground.services.flink = with types; {
     enable = mkBoolOpt false "Apache Flink service";
     package = mkOpt package pkgs.flink "The Flink package to use.";
-    config = mkOpt str ''
+    masters = mkOpt (lib.types.listOf lib.types.str)  [ "lucas" ] "Mast Flink Node";
+    workers = mkOpt (lib.types.listOf lib.types.str) [
+      "lucas:8081"
+    ] "Worker Nodes";
+    flink-conf = mkOpt str ''
       env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
       jobmanager.rpc.address: lucas
       jobmanager.rpc.port: 6123
@@ -60,7 +64,9 @@ in {
         mkdir -p /var/lib/flink/conf
         mkdir -p /var/lib/flink/flink-logs
         cp -r ${pkgs.flink}/opt/flink/conf/* /var/lib/flink/conf/
-        echo "${cfg.config}" > /var/lib/flink/conf/flink-conf.yaml
+        echo "${ lib.concatStringsSep "\n" cfg.masters }" > /var/lib/flink/conf/masters
+        echo "${ lib.concatStringsSep "\n" cfg.workers }" > /var/lib/flink/conf/workers
+        echo "${cfg.flink-conf}" > /var/lib/flink/conf/flink-conf.yaml
       '';
     };
   };
