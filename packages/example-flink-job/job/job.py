@@ -5,27 +5,19 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors import FlinkKafkaConsumer, FlinkKafkaProducer
 from pyflink.common.serialization import SimpleStringSchema
 import logging
-
 import sys
-print("===================================================")
-print("THIS IS THE PYTHON RUNNING THIS =>", sys.executable)
-print("===================================================")
-
 import simplejson
+
+
 def generic_flat_map(message):
     logging.info("Starting Flat Map")
     try:
         # Do nothing if the message has caused an error
         if message.startswith('ERROR in Flink job'):
-            print("This was an error")
-            logging.info("Error happend")
             return [message]
-        print("Shit should be here")
-        logging.info("Check kafka")
         return [simplejson.dumps({'payload': message})]
 
     except Exception as e:
-        print("Nope")
         return ['ERROR in Flink job | Error Message: {} | Data Stream Record: {}'.format(e, message)]
 
 
@@ -78,8 +70,6 @@ def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_userna
                                              producer_config=producer_config)
         ds_errors.add_sink(kafka_producer2)
 
-    # Submit Job For Execution
-    print(f"Executing: {pipeline_name}")
     env.execute(pipeline_name)
 
 

@@ -50,13 +50,10 @@ in {
       environment = {
         FLINK_CONF_DIR = "/var/lib/flink/conf";
         JAVA_HOME = pkgs.openjdk11;
-        # PATH = lib.makeBinPath [ pkgs.openssh ]; # Add ssh to the PATH for this service
       };
       serviceConfig = {
-        # User = "flink";
-        # Group = "flink";
-        # ExecStart = "${cfg.package}/opt/flink/bin/start-cluster.sh";
-        ExecStop = "${pkgs.flink}/opt/flink/bin/jobmanager.sh stop";
+        User = "flink";
+        Group = "flink";
         Restart = "on-failure";
         PermissionsStartOnly = true;
       };
@@ -64,8 +61,6 @@ in {
       script = ''
         export PATH=${pkgs.openssh}/bin:$PATH
         cp ${pkgs.campground.example-flink-job}/src/job/job.py /tmp/pyflink/
-        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
-        ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
         ${pkgs.flink}/bin/flink run \
           -py ${pkgs.campground.example-flink-job}/src/job/job.py \
           -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python \
@@ -84,6 +79,12 @@ in {
           lib.concatStringsSep "\n" cfg.workers
         }" > /var/lib/flink/conf/workers
         echo "${cfg.flink-conf}" > /var/lib/flink/conf/flink-conf.yaml
+        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+        ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
+      '';
+      postStop = ''
+        ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop
+        ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop
       '';
     };
   };
