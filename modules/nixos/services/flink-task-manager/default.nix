@@ -39,8 +39,6 @@ in {
 
     users.groups.flink = { };
 
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
-
     systemd.services.flink-task-manager = {
       description = "Apache Flink service";
       after = [ "network.target" ];
