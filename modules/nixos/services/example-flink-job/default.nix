@@ -35,7 +35,7 @@ in {
           --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
       '';
       preStart = ''
-        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start-foreground
       '';
       postStop = ''
         ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop

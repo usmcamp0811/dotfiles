@@ -57,7 +57,7 @@ in {
       # "${cfg.package}/opt/flink/bin/standalone-job.sh start-foreground";
       script = ''
         export PATH=${pkgs.openssh}/bin:$PATH
-        ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
+        ${pkgs.flink}/opt/flink/bin/taskmanager.sh start-foreground
       '';
       preStart = ''
         mkdir -p /var/lib/flink/conf
