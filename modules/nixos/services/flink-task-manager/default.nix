@@ -54,7 +54,6 @@ in {
         Restart = "on-failure";
         PermissionsStartOnly = true;
       };
-      # "${cfg.package}/opt/flink/bin/standalone-job.sh start-foreground";
       script = ''
         export PATH=${pkgs.openssh}/bin:$PATH
         ${pkgs.flink}/opt/flink/bin/taskmanager.sh start-foreground

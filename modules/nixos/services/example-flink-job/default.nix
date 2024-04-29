@@ -11,10 +11,28 @@ in {
 
     campground.services.flink-task-manager = enabled;
 
+    # systemd.services.flink-jobmanager = {
+    #   description = "Flink JobManager";
+    #   after = [ "network.target" ];
+    #   wants = [ "network.target" ];
+    #   wantedBy = [ "multi-user.target" ];
+    #   environment = {
+    #     FLINK_CONF_DIR = "/var/lib/flink/conf";
+    #     JAVA_HOME = pkgs.openjdk11;
+    #   };
+    #   serviceConfig = {
+    #     User = "flink";
+    #     Group = "flink";
+    #     Restart = "on-failure";
+    #     ExecStart = "${pkgs.flink}/opt/flink/bin/jobmanager.sh start-foreground";
+    #     ExecStop = "${pkgs.flink}/opt/flink/bin/jobmanager.sh stop";
+    #   };
+    # };
+
     systemd.services.example-flink-job = {
       description = "Example Flink Job";
-      after = [ "network.target" "flink-task-manager.service" ];
-      wants = [ "network.target" "flink-task-manager.service" ];
+      after = [ "flink-jobmanager.service" ];
+      wants = [ "flink-jobmanager.service" ];
       wantedBy = [ "multi-user.target" ];
       environment = {
         FLINK_CONF_DIR = "/var/lib/flink/conf";
@@ -23,23 +41,52 @@ in {
       serviceConfig = {
         User = "flink";
         Group = "flink";
+        Type = "simple";
+        # RemainAfterExit = true;
+        ExecStop = "${pkgs.flink}/opt/flink/bin/jobmanager.sh stop";
         Restart = "on-failure";
-        PermissionsStartOnly = true;
       };
       script = ''
+        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
         ${pkgs.flink}/bin/flink run \
-          -py ${pkgs.campground.example-flink-job}/src/job/job.py \
-          -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python \
-          -pypath ${pkgs.campground.example-flink-job.python} \
-          --jarfile ${pkgs.campground.flink-connector-kafka} \
-          --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
-      '';
-      preStart = ''
-        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start-foreground
-      '';
-      postStop = ''
-        ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop
+        -py ${pkgs.campground.example-flink-job}/src/job/job.py \
+        -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python3 \
+        -pypath ${pkgs.campground.example-flink-job.python} \
+        --jarfile ${pkgs.campground.flink-connector-kafka} \
+        --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
       '';
     };
+
+
+    # systemd.services.example-flink-job = {
+    #   description = "Example Flink Job";
+    #   after = [ "network.target" "flink-task-manager.service" ];
+    #   wants = [ "network.target" "flink-task-manager.service" ];
+    #   wantedBy = [ "multi-user.target" ];
+    #   environment = {
+    #     FLINK_CONF_DIR = "/var/lib/flink/conf";
+    #     JAVA_HOME = pkgs.openjdk11;
+    #   };
+    #   serviceConfig = {
+    #     User = "flink";
+    #     Group = "flink";
+    #     Restart = "on-failure";
+    #     PermissionsStartOnly = true;
+    #   };
+    #   script = ''
+    #     ${pkgs.flink}/bin/flink run \
+    #       -py ${pkgs.campground.example-flink-job}/src/job/job.py \
+    #       -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python \
+    #       -pypath ${pkgs.campground.example-flink-job.python} \
+    #       --jarfile ${pkgs.campground.flink-connector-kafka} \
+    #       --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
+    #   '';
+    #   preStart = ''
+    #     ${pkgs.flink}/opt/flink/bin/jobmanager.sh start-foreground
+    #   '';
+    #   postStop = ''
+    #     ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop
+    #   '';
+    # };
   };
 }
