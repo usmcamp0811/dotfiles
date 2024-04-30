@@ -31,16 +31,16 @@ in {
 
     systemd.services.example-flink-job = {
       description = "Example Flink Job";
-      after = [ "flink-jobmanager.service" ];
-      wants = [ "flink-jobmanager.service" ];
       wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
+      wants = [ "network.target" ];
       environment = {
         FLINK_CONF_DIR = "/var/lib/flink/conf";
         JAVA_HOME = pkgs.openjdk11;
       };
       serviceConfig = {
-        User = "flink";
-        Group = "flink";
+        # User = "flink";
+        # Group = "flink";
         Type = "simple";
         # RemainAfterExit = true;
         ExecStop = "${pkgs.flink}/opt/flink/bin/jobmanager.sh stop";
@@ -53,7 +53,7 @@ in {
         -pyclientexec ${pkgs.campground.example-flink-job.python}/bin/python3 \
         -pypath ${pkgs.campground.example-flink-job.python} \
         --jarfile ${pkgs.campground.flink-connector-kafka} \
-        --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
+        --jobname example_job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server webb:9092
       '';
     };
 

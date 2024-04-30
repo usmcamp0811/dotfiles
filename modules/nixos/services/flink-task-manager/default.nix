@@ -41,24 +41,22 @@ in {
 
     systemd.services.flink-task-manager = {
       description = "Apache Flink service";
-      after = [ "network.target" ];
-      wants = [ "network.target" ];
+      after = [ "example-flink-job.service" ];
+      wants = [ "example-flink-job.service" ];
       wantedBy = [ "multi-user.target" ];
       environment = {
         FLINK_CONF_DIR = "/var/lib/flink/conf";
         JAVA_HOME = pkgs.openjdk11;
+        # PYTHONPATH = "${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages";  
       };
+
       serviceConfig = {
-        User = "flink";
-        Group = "flink";
+        # User = "flink";
+        # Group = "flink";
         Restart = "on-failure";
         PermissionsStartOnly = true;
       };
       script = ''
-        export PATH=${pkgs.openssh}/bin:$PATH
-        ${pkgs.flink}/opt/flink/bin/taskmanager.sh start-foreground
-      '';
-      preStart = ''
         mkdir -p /var/lib/flink/conf
         mkdir -p /var/lib/flink/flink-logs
         cp -r ${pkgs.flink}/opt/flink/conf/* /var/lib/flink/conf/
@@ -69,6 +67,7 @@ in {
           lib.concatStringsSep "\n" cfg.workers
         }" > /var/lib/flink/conf/workers
         echo "${cfg.flink-conf}" > /var/lib/flink/conf/flink-conf.yaml
+        ${pkgs.flink}/opt/flink/bin/taskmanager.sh start-foreground
       '';
       postStop = ''
         ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop
