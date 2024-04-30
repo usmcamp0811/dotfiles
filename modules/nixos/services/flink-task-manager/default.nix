@@ -39,10 +39,29 @@ in {
 
     users.groups.flink = { };
 
+    systemd.services.flink-jobmanager = {
+      description = "Flink JobManager";
+      after = [ "network.target" ];
+      wants = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+      environment = {
+        FLINK_CONF_DIR = "/var/lib/flink/conf";
+        JAVA_HOME = pkgs.openjdk11;
+      };
+      serviceConfig = {
+        WorkingDirectory = "/var/lib/flink";
+        User = "flink";
+        Group = "flink";
+        Restart = "on-failure";
+        ExecStart = "${pkgs.flink}/opt/flink/bin/jobmanager.sh start-foreground";
+        ExecStop = "${pkgs.flink}/opt/flink/bin/jobmanager.sh stop";
+      };
+    };
+
     systemd.services.flink-task-manager = {
       description = "Apache Flink service";
-      after = [ "example-flink-job.service" ];
-      wants = [ "example-flink-job.service" ];
+      after = [ "network.target" ];
+      wants = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       environment = {
         FLINK_CONF_DIR = "/var/lib/flink/conf";
@@ -51,8 +70,9 @@ in {
       };
 
       serviceConfig = {
-        # User = "flink";
-        # Group = "flink";
+        WorkingDirectory = "/var/lib/flink";
+        User = "flink";
+        Group = "flink";
         Restart = "on-failure";
         PermissionsStartOnly = true;
       };
