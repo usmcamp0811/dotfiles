@@ -35,15 +35,15 @@ let
 
   src = ./.;
 
-  # --jobname example-flink-job --inputtopic example-topic --outputtopic example-output --errortopic example-error --kafka_server lucas:9092
   flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    # ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+    export FLINK_CONF_DIR="/var/lib/flink/conf";
+
+    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/job.py \
       -pyclientexec ${python-env}/bin/python \
-      -pypath ${python-env} \
       --jarfile ${pkgs.campground.flink-connector-kafka}
-    # ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''

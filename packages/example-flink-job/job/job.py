@@ -1,131 +1,76 @@
-import argparse
-import sys
-from pyflink.common.typeinfo import Types
-from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.datastream.connectors import FlinkKafkaConsumer, FlinkKafkaProducer
-from pyflink.common.serialization import SimpleStringSchema
+################################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
 import logging
 import sys
-import simplejson
+
+from pyflink.common import Types
+from pyflink.datastream import StreamExecutionEnvironment
+from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
+from pyflink.datastream.formats.json import JsonRowSerializationSchema, JsonRowDeserializationSchema
+from pyflink.common.serialization import SimpleStringSchema
 
 
-def generic_flat_map(message):
-    logging.info("Starting Flat Map")
-    try:
-        # Do nothing if the message has caused an error
-        if message.startswith('ERROR in Flink job'):
-            return [message]
-        return [simplejson.dumps({'payload': message})]
+# Make sure that the Kafka cluster is started and the topic 'test_json_topic' is
+# created before executing this job.
+def write_to_kafka(env):
+    type_info = Types.ROW([Types.INT(), Types.STRING()])
+    ds = env.from_collection(
+        [(1, 'hi'), (2, 'hello'), (3, 'hi'), (4, 'hello'), (5, 'hi'), (6, 'hello'), (6, 'hello')],
+        type_info=type_info)
 
-    except Exception as e:
-        return ['ERROR in Flink job | Error Message: {} | Data Stream Record: {}'.format(e, message)]
+    serialization_schema = JsonRowSerializationSchema.Builder() \
+        .with_type_info(type_info) \
+        .build()
+    kafka_producer = FlinkKafkaProducer(
+        topic='test_json_topic',
+        serialization_schema=serialization_schema,
+        producer_config={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group'}
+    )
+
+    # note that the output type of ds must be RowTypeInfo
+    ds.add_sink(kafka_producer)
+    env.execute("WriteShit")
 
 
-def remove_error_messages(message):
-    if not message.startswith('ERROR in Flink job'):
-        yield message
+def read_from_kafka(env):
+    deserialization_schema = JsonRowDeserializationSchema.Builder() \
+        .type_info(Types.ROW([Types.INT(), Types.STRING()])) \
+        .build()
+        # deserialization_schema=SimpleStringSchema(),
+    kafka_consumer = FlinkKafkaConsumer(
+        topics='test_json_topic',
+        deserialization_schema = deserialization_schema,
+        properties={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group_1'}
+    )
+    kafka_consumer.set_start_from_earliest()
 
-
-def keep_error_messages(message):
-    if message.startswith('ERROR in Flink job'):
-        yield message
-
-
-def run(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server):
-    logging.info("Starting Run")
-    print("Starting Run...")
-    print(pipeline_name, input_topic, output_topic, error_topic, kafka_sasl_username, kafka_sasl_password, kafka_server)
-    # Setup the Flink execution environment
-    env = StreamExecutionEnvironment.get_execution_environment()
-
-    kafka_consumer = FlinkKafkaConsumer(topics=input_topic, deserialization_schema=SimpleStringSchema(),
-                                        properties={
-                                            'bootstrap.servers': kafka_server,
-                                            'group.id': 'flink-generic'
-                                        })
-                                            
-    print("Adding Source...")
-    ds = env.add_source(kafka_consumer)
-
-    # Define the Pipeline
-    print("Doing Flat Map Things...")
-    ds = ds.flat_map(generic_flat_map, output_type=Types.STRING())
-    ds_filtered = ds.flat_map(remove_error_messages, output_type=Types.STRING())
-    ds_errors = ds.flat_map(keep_error_messages, output_type=Types.STRING())
-   
-    # Create Kafka Data Sink
-    producer_config = {
-                    'bootstrap.servers': kafka_server,
-                    'group.id': 'flink-generic'
-    }
-
-    kafka_producer = FlinkKafkaProducer(topic=output_topic, serialization_schema=SimpleStringSchema(),
-                                         producer_config=producer_config)
-    print("add Producer Sing...")
-    ds_filtered.add_sink(kafka_producer)
-
-    if error_topic is not None:
-        # Create Kafka Data Sink for Error Messages
-        kafka_producer2 = FlinkKafkaProducer(topic=error_topic, serialization_schema=SimpleStringSchema(),
-                                             producer_config=producer_config)
-        ds_errors.add_sink(kafka_producer2)
-
-    env.execute(pipeline_name)
+    env.add_source(kafka_consumer)
+    env.execute("ReadShit")
 
 
 if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--jobname',
-        dest='jobname',
-        required=False,
-        help='Name of the flink job.')
-    parser.add_argument(
-        '--inputtopic',
-        dest='inputtopic',
-        required=False,
-        help='Input topic to process.')
-    parser.add_argument(
-        '--outputtopic',
-        dest='outputtopic',
-        required=False,
-        help='Output topic to publish results to.')
-    parser.add_argument(
-        '--errortopic',
-        dest='errortopic',
-        required=False,
-        help='Output topic to publish errors to.')
-    parser.add_argument(
-        '--kafka_username',
-        dest='kafka_sasl_username',
-        required=False,
-        help='Kafka SASL Username.')
-    parser.add_argument(
-        '--kafka_password',
-        dest='kafka_sasl_password',
-        required=False,
-        help='Output file to write results to.')
-    parser.add_argument(
-        '--kafka_server',
-        dest='kafka_server',
-        required=False,
-        help='URL of Kafka bootstrap server.')
-    parser.add_argument(
-        '--hadooppath',
-        dest='hadooppath',
-        required=False,
-        help='The path on the hadoop server where the job files are located')
+    env = StreamExecutionEnvironment.get_execution_environment()
 
-    known_args, _ = parser.parse_known_args(sys.argv[1:])
+    # print("start reading data from kafka")
+    # read_from_kafka(env)
 
-    jobname="example-flink-job" 
-    inputtopic="traefik-logs" 
-    outputtopic="example-output" 
-    errortopic="example-error" 
-    # kafka_server="10.8.0.70:9092"
-    kafka_server="lucas:9092"
-    kafka_sasl_username=None
-    kafka_sasl_password=None
-    run(jobname, inputtopic, outputtopic, errortopic, kafka_sasl_username, kafka_sasl_password, kafka_server)
-    # run(known_args.jobname, known_args.inputtopic, known_args.outputtopic, known_args.errortopic, known_args.kafka_sasl_username, known_args.kafka_sasl_password, known_args.kafka_server)
+    print("start writing data to kafka")
+    write_to_kafka(env)
+
