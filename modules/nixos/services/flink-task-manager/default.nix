@@ -12,10 +12,10 @@ in {
       jobmanager.rpc.address: ${host}
       jobmanager.rpc.port: 6123
       jobmanager.bind-host: 0.0.0.0
-      jobmanager.memory.process.size: 1600m
+      jobmanager.memory.process.size: 10600m
       taskmanager.bind-host: 0.0.0.0
       taskmanager.host: ${host}
-      taskmanager.memory.process.size: 1728m
+      taskmanager.memory.process.size: 11728m
       taskmanager.numberOfTaskSlots: 4
       parallelism.default: 1
       jobmanager.execution.failover-strategy: region
@@ -53,7 +53,8 @@ in {
         User = "flink";
         Group = "flink";
         Restart = "on-failure";
-        ExecStart = "${pkgs.flink}/opt/flink/bin/jobmanager.sh start-foreground";
+        ExecStart =
+          "${pkgs.flink}/opt/flink/bin/jobmanager.sh start-foreground";
         ExecStop = "${pkgs.flink}/opt/flink/bin/jobmanager.sh stop";
       };
     };
