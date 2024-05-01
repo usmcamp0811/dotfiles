@@ -1,32 +1,15 @@
-################################################################################
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-# limitations under the License.
-################################################################################
 import logging
 import sys
 
 from pyflink.common import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
-from pyflink.datastream.formats.json import JsonRowSerializationSchema, JsonRowDeserializationSchema
+from pyflink.datastream.formats.json import JsonRowSerializationSchema
 from pyflink.common.serialization import SimpleStringSchema
 
+# Initialize logging
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format="%(message)s")
 
-# Make sure that the Kafka cluster is started and the topic 'test_json_topic' is
-# created before executing this job.
 def write_to_kafka(env):
     type_info = Types.ROW([Types.INT(), Types.STRING()])
     ds = env.from_collection(
@@ -42,35 +25,27 @@ def write_to_kafka(env):
         producer_config={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group'}
     )
 
-    # note that the output type of ds must be RowTypeInfo
     ds.add_sink(kafka_producer)
-    env.execute("WriteShit")
-
+    env.execute("Write to Kafka")
 
 def read_from_kafka(env):
-    deserialization_schema = JsonRowDeserializationSchema.Builder() \
-        .type_info(Types.ROW([Types.INT(), Types.STRING()])) \
-        .build()
-        # deserialization_schema=SimpleStringSchema(),
+    deserialization_schema = SimpleStringSchema()
     kafka_consumer = FlinkKafkaConsumer(
         topics='test_json_topic',
-        deserialization_schema = deserialization_schema,
+        deserialization_schema=deserialization_schema,
         properties={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group_1'}
     )
     kafka_consumer.set_start_from_earliest()
 
-    env.add_source(kafka_consumer)
-    env.execute("ReadShit")
-
+    env.add_source(kafka_consumer).print()
+    env.execute("Read from Kafka")
 
 if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
-
     env = StreamExecutionEnvironment.get_execution_environment()
 
-    # print("start reading data from kafka")
-    # read_from_kafka(env)
-
-    print("start writing data to kafka")
-    write_to_kafka(env)
-
+    if len(sys.argv) > 1 and sys.argv[1] == 'read':
+        logging.info("Starting to read data from Kafka")
+        read_from_kafka(env)
+    else:
+        logging.info("Starting to write data to Kafka")
+        write_to_kafka(env)
