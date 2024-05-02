@@ -36,6 +36,8 @@ in {
       DOCKER = "/var/run/docker.sock";
       DOCKER_CONFIG = "${config.home.sessionVariables.XDG_CONFIG_HOME}/docker";
       XDG_DATA_HOME = "${home-directory}/.local/share";
+      XDG_CACHE_HOME = "$HOME/.cache";
+      XDG_BIN_HOME = "$HOME/.local/bin";
       TMUX_TMPDIR = "$XDG_RUNTIME_DIR";
       NODE_REPL_HISTORY =
         "${config.home.sessionVariables.XDG_DATA_HOME}/node_repl_history";
