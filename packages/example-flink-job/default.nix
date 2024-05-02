@@ -58,7 +58,7 @@ let
 
   python-env = pkgs.poetry2nix.mkPoetryEnv {
     projectDir = src;
-    python = pkgs.python311;
+    python = pkgs.python39;
     overrides = p2n-overrides;
     preferWheels = true; # Prefer wheels to speed up the build process
   };
