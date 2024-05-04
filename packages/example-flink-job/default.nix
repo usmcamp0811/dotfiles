@@ -43,6 +43,12 @@ let
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
+    if [ -z "$TOPIC" ]; then
+        export TOPIC="example-topic";
+        echo "TOPIC set to $TOPIC"
+    else
+        echo "TOPIC already set to $TOPIC"
+    fi
 
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
@@ -59,6 +65,12 @@ let
         echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
+    if [ -z "$TOPIC" ]; then
+        export TOPIC="example-topic";
+        echo "TOPIC set to $TOPIC"
+    else
+        echo "TOPIC already set to $TOPIC"
     fi
 
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"

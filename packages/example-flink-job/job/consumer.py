@@ -12,7 +12,7 @@ def read_from_kafka(env, topic, broker):
     kafka_consumer = FlinkKafkaConsumer(
         topics=topic,
         deserialization_schema=deserialization_schema,
-        properties={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group_1'}
+        properties={'bootstrap.servers': broker, 'group.id': 'test_group_1'}
     )
     kafka_consumer.set_start_from_earliest()
 

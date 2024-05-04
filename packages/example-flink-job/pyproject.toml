@@ -6,7 +6,7 @@ authors = ["Matt Camp <matt@aicampground.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
 kafka-python = "^2.0.2"
 schema = "^0.7.5"
 python-dateutil = "^2.9.0.post0"
