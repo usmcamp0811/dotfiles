@@ -35,13 +35,32 @@ let
 
   src = ./.;
 
-  flink-job = pkgs.writeShellScriptBin "flink-job" ''
-    export FLINK_CONF_DIR="/var/lib/flink/conf";
+  consumer = pkgs.writeShellScriptBin "consumer" ''
+    # Check if FLINK_CONF_DIR is unset or empty
+    if [ -z "$FLINK_CONF_DIR" ]; then
+        export FLINK_CONF_DIR="/var/lib/flink/conf";
+        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+    else
+        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
 
-    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     ${pkgs.flink}/bin/flink run \
-      -py ${src}/job/job.py \
+      -py ${src}/job/consumer.py \
+      -pyclientexec ${python-env}/bin/python \
+      --jarfile ${pkgs.campground.flink-connector-kafka}
+  '';
+
+  producer = pkgs.writeShellScriptBin "producer" ''
+    # Check if FLINK_CONF_DIR is unset or empty
+    if [ -z "$FLINK_CONF_DIR" ]; then
+        export FLINK_CONF_DIR="/var/lib/flink/conf";
+        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+    else
+        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
+
+    ${pkgs.flink}/bin/flink run \
+      -py ${src}/job/producer.py \
       -pyclientexec ${python-env}/bin/python \
       --jarfile ${pkgs.campground.flink-connector-kafka}
   '';
@@ -89,13 +108,16 @@ let
 
       cp -r $src/* $out/src/
       cp -r ${python-env}/bin/* $out/bin/
-      cp ${flink-job}/bin/flink-job $out/bin/
+      cp ${consumer}/bin/consumer $out/bin/
+      cp ${producer}/bin/producer $out/bin/
       cp ${run-tests}/bin/run-tests $out/src/run-tests
     '';
 
     passthru = {
       python = python-env;
       test = test-flink-job;
+      producer = producer;
+      consumer = consumer;
     };
   };
 in override-meta new-meta example-flink-job
