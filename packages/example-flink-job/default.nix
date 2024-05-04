@@ -44,6 +44,8 @@ let
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
 
+    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/consumer.py \
       -pyclientexec ${python-env}/bin/python \
@@ -59,6 +61,8 @@ let
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
 
+    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/producer.py \
       -pyclientexec ${python-env}/bin/python \
@@ -77,7 +81,7 @@ let
 
   python-env = pkgs.poetry2nix.mkPoetryEnv {
     projectDir = src;
-    python = pkgs.python39;
+    python = pkgs.python311;
     overrides = p2n-overrides;
     preferWheels = true; # Prefer wheels to speed up the build process
   };
