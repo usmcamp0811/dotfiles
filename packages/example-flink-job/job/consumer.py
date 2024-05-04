@@ -1,11 +1,12 @@
-import logging
-import sys
 import os
 from pyflink.common import Types
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
-from pyflink.datastream.formats.json import JsonRowSerializationSchema
+from pyflink.datastream.connectors import FlinkKafkaConsumer
 from pyflink.common.serialization import SimpleStringSchema
+
+def process_message(message):
+    # Your custom processing logic here
+    return "Processed: " + message
 
 def read_from_kafka(env, topic, broker):
     deserialization_schema = SimpleStringSchema()
@@ -16,16 +17,14 @@ def read_from_kafka(env, topic, broker):
     )
     kafka_consumer.set_start_from_earliest()
 
-    env.add_source(kafka_consumer).print()
+    # Apply the process_message function to each message
+    env.add_source(kafka_consumer).flat_map(lambda x: [(process_message(x),)], output_type=Types.TUPLE([Types.STRING()]))
+    # Start the environment
     env.execute("Read from Kafka")
 
 if __name__ == '__main__':
-    if not os.getenv('TOPIC') or not os.getenv('BROKER'):
-        logging.error("Environment variables TOPIC or BROKER are not set correctly.")
-        sys.exit(1)
     env = StreamExecutionEnvironment.get_execution_environment()
-
     topic = os.getenv("TOPIC")
     broker = os.getenv("BROKER")
-    logging.info("Starting to read data from Kafka")
     read_from_kafka(env, topic, broker)
+

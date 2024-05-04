@@ -49,6 +49,12 @@ let
     else
         echo "TOPIC already set to $TOPIC"
     fi
+    if [ -z "$BROKER" ]; then
+        export BROKER="localhost:9092";
+        echo "BROKER set to $BROKER"
+    else
+        echo "BROKER already set to $BROKER"
+    fi
 
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
@@ -71,6 +77,12 @@ let
         echo "TOPIC set to $TOPIC"
     else
         echo "TOPIC already set to $TOPIC"
+    fi
+    if [ -z "$BROKER" ]; then
+        export BROKER="localhost:9092";
+        echo "BROKER set to $BROKER"
+    else
+        echo "BROKER already set to $BROKER"
     fi
 
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
