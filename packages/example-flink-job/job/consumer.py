@@ -7,9 +7,6 @@ from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaCo
 from pyflink.datastream.formats.json import JsonRowSerializationSchema
 from pyflink.common.serialization import SimpleStringSchema
 
-# Initialize logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format="%(message)s")
-
 def read_from_kafka(env, topic, broker):
     deserialization_schema = SimpleStringSchema()
     kafka_consumer = FlinkKafkaConsumer(
