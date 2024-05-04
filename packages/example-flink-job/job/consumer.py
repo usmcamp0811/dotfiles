@@ -23,6 +23,9 @@ def read_from_kafka(env, topic, broker):
     env.execute("Read from Kafka")
 
 if __name__ == '__main__':
+    if not os.getenv('TOPIC') or not os.getenv('BROKER'):
+        logging.error("Environment variables TOPIC or BROKER are not set correctly.")
+        sys.exit(1)
     env = StreamExecutionEnvironment.get_execution_environment()
 
     topic = os.getenv("TOPIC")
