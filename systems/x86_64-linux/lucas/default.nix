@@ -47,8 +47,21 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
-      flink-task-manager = enabled;
-      example-flink-job = enabled;
+      flink-task-manager = {
+        enable = true;
+        flink-conf = ''
+          jobmanager.rpc.address: lucas
+          jobmanager.rpc.port: 6123
+          jobmanager.memory.process.size: 1600m
+          taskmanager.memory.process.size: 1728m
+          taskmanager.numberOfTaskSlots: 20
+          parallelism.default: 1
+          jobmanager.execution.failover-strategy: region
+          blob.server.port: 6124
+          query.server.port: 6125
+        '';
+      };
+      example-flink-job = { enable = true; };
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
