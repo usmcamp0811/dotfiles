@@ -56,6 +56,7 @@ let
         echo "BROKER already set to $BROKER"
     fi
 
+    export PATH=${pkgs.campground.example-flink-job.python}/bin/python:$PATH
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     ${pkgs.flink}/bin/flink run \
@@ -85,6 +86,7 @@ let
         echo "BROKER already set to $BROKER"
     fi
 
+    export PATH=${pkgs.campground.example-flink-job.python}/bin/python:$PATH
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     ${pkgs.flink}/bin/flink run \
