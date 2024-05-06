@@ -1,127 +1,71 @@
-# import os
-# from pyflink.table import DataTypes
-# from pyflink.datastream import StreamExecutionEnvironment
-# from pyflink.datastream.connectors import FlinkKafkaConsumer
-# from pyflink.common.serialization import SimpleStringSchema
+################################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
 #
-# def process_message(message):
-#     # Your custom processing logic here
-#     return "Processed: " + message
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
-# def read_from_kafka(env, topic, broker):
-#     deserialization_schema = SimpleStringSchema()
-#     kafka_consumer = FlinkKafkaConsumer(
-#         topics=[topic],
-#         deserialization_schema=deserialization_schema,
-#         properties={'bootstrap.servers': broker, 'group.id': 'test_group_1'}
-#     )
-#     kafka_consumer.set_start_from_earliest()
-#
-#     # Apply the process_message function to each message
-#     env.add_source(kafka_consumer).flat_map(lambda x: [process_message(x)])
-#     # Start the environment
-#     env.execute("Read from Kafka")
-#
-# if __name__ == '__main__':
-#     env = StreamExecutionEnvironment.get_execution_environment()
-#     # topic = os.getenv("TOPIC")
-#     # broker = os.getenv("BROKER")
-#     topic = "Rides"
-#     broker = "webb:9092"
-#     read_from_kafka(env, topic, broker)
-from pyflink.datastream import StreamExecutionEnvironment, TimeCharacteristic
-from pyflink.table import StreamTableEnvironment, DataTypes, EnvironmentSettings
-from pyflink.table.descriptors import Schema, Kafka, Json
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+import logging
+import sys
+
+from pyflink.common import Types
+from pyflink.datastream import StreamExecutionEnvironment
+from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
+from pyflink.datastream.formats.csv import CsvRowSerializationSchema, CsvRowDeserializationSchema
 
 
-def from_kafka_to_kafka_demo():
-    s_env = StreamExecutionEnvironment.get_execution_environment()
-    s_env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
-    s_env.set_parallelism(1)
+# Make sure that the Kafka cluster is started and the topic 'test_csv_topic' is
+# created before executing this job.
+def write_to_kafka(env):
+    type_info = Types.ROW([Types.INT(), Types.STRING()])
+    ds = env.from_collection([
+        (1, 'hi'), (2, 'hello'), (3, 'hi'), (4, 'hello'), (5, 'hi'), (6, 'hello'), (6, 'hello')],
+        type_info=type_info)
 
-    # use blink table planner
-    st_env = StreamTableEnvironment \
-        .create(s_env, environment_settings=EnvironmentSettings
-                .new_instance()
-                .in_streaming_mode()
-                .use_blink_planner().build())
+    serialization_schema = CsvRowSerializationSchema.Builder(type_info).build()
+    kafka_producer = FlinkKafkaProducer(
+        topic='test_csv_topic',
+        serialization_schema=serialization_schema,
+        producer_config={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group'}
+    )
 
-    # register source and sink
-    register_rides_source(st_env)
-    register_rides_sink(st_env)
-
-    # query
-    st_env.from_path("source").insert_into("sink")
-
-    # execute
-    st_env.execute("2-from_kafka_to_kafka")
+    ds.add_sink(kafka_producer)
+    env.execute()
 
 
-def register_rides_source(st_env):
-    st_env \
-        .connect(  # declare the external system to connect to
-        Kafka()
-            .version("universal")
-            .topic("Rides")
-            .start_from_earliest()
-            .property("zookeeper.connect", "webb:2181")
-            .property("bootstrap.servers", "webb:9092")) \
-        .with_format(  # declare a format for this system
-        Json()
-            .fail_on_missing_field(True)
-            .schema(DataTypes.ROW([
-            DataTypes.FIELD("rideId", DataTypes.BIGINT()),
-            DataTypes.FIELD("isStart", DataTypes.BOOLEAN()),
-            DataTypes.FIELD("eventTime", DataTypes.STRING()),
-            DataTypes.FIELD("lon", DataTypes.FLOAT()),
-            DataTypes.FIELD("lat", DataTypes.FLOAT()),
-            DataTypes.FIELD("psgCnt", DataTypes.INT()),
-            DataTypes.FIELD("taxiId", DataTypes.BIGINT())]))) \
-        .with_schema(  # declare the schema of the table
-        Schema()
-            .field("rideId", DataTypes.BIGINT())
-            .field("taxiId", DataTypes.BIGINT())
-            .field("isStart", DataTypes.BOOLEAN())
-            .field("lon", DataTypes.FLOAT())
-            .field("lat", DataTypes.FLOAT())
-            .field("psgCnt", DataTypes.INT())
-            .field("eventTime", DataTypes.STRING())) \
-        .in_append_mode() \
-        .create_temporary_table("source")
+def read_from_kafka(env):
+    type_info = Types.ROW([Types.INT(), Types.STRING()])
+    deserialization_schema = CsvRowDeserializationSchema.Builder(type_info).build()
 
+    kafka_consumer = FlinkKafkaConsumer(
+        topics='test_csv_topic',
+        deserialization_schema=deserialization_schema,
+        properties={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group_1'}
+    )
+    kafka_consumer.set_start_from_earliest()
 
-def register_rides_sink(st_env):
-    st_env \
-        .connect(  # declare the external system to connect to
-        Kafka()
-            .version("universal")
-            .topic("TempResults")
-            .property("zookeeper.connect", "webb:2181")
-            .property("bootstrap.servers", "webb:9092")) \
-        .with_format(  # declare a format for this system
-        Json()
-            .fail_on_missing_field(True)
-            .schema(DataTypes.ROW([
-            DataTypes.FIELD("rideId", DataTypes.BIGINT()),
-            DataTypes.FIELD("taxiId", DataTypes.BIGINT()),
-            DataTypes.FIELD("isStart", DataTypes.BOOLEAN()),
-            DataTypes.FIELD("lon", DataTypes.FLOAT()),
-            DataTypes.FIELD("lat", DataTypes.FLOAT()),
-            DataTypes.FIELD("psgCnt", DataTypes.INT()),
-            DataTypes.FIELD("rideTime", DataTypes.STRING())
-        ]))) \
-        .with_schema(  # declare the schema of the table
-        Schema()
-            .field("rideId", DataTypes.BIGINT())
-            .field("taxiId", DataTypes.BIGINT())
-            .field("isStart", DataTypes.BOOLEAN())
-            .field("lon", DataTypes.FLOAT())
-            .field("lat", DataTypes.FLOAT())
-            .field("psgCnt", DataTypes.INT())
-            .field("rideTime", DataTypes.STRING())) \
-        .in_append_mode() \
-        .create_temporary_table("sink")
+    env.add_source(kafka_consumer).print()
+    env.execute()
 
 
 if __name__ == '__main__':
-    from_kafka_to_kafka_demo()
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
+
+    env = StreamExecutionEnvironment.get_execution_environment()
+    # env.add_jars("file:///path/to/flink-sql-connector-kafka-1.15.0.jar")
+
+    print("start writing data to kafka")
+    write_to_kafka(env)
+
+    print("start reading data from kafka")
+    read_from_kafka(env)
