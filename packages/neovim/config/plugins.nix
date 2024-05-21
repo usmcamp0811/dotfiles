@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   imports = [
     ./plugins/alpha.nix
     ./plugins/molten.nix
@@ -45,7 +45,7 @@
     vim-sexp
     vim-sexp-mappings-for-regular-people
     tabular
-    suda-vim
+    vim-suda
     plantuml-syntax
     lsp-colors-nvim
     vim-table-mode
@@ -108,15 +108,15 @@
     auto-save.enable = true;
     diffview.enable = true;
     mini.enable = true;
-    wilder = {enable = true;};
+    wilder = { enable = true; };
 
     # Neorg Configuration
     neorg = {
       enable = true;
       modules = {
-        "core.defaults" = {__empty = null;};
-        "core.summary" = {__empty = null;};
-        "core.concealer" = {__empty = null;};
+        "core.defaults" = { __empty = null; };
+        "core.summary" = { __empty = null; };
+        "core.concealer" = { __empty = null; };
         # "core.completion".config.engine = "nvim-cmp";
         "core.dirman" = {
           config = {

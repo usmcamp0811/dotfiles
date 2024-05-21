@@ -65,17 +65,18 @@ in {
       ups.cp1500 = { enable = true; };
       nvidia = {
         enable = true;
-        driverType = "custom";
-        customDriverPackage =
-          config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
-            version = "550.40.07";
-            # the new driver
-            src = pkgs.fetchurl {
-              url =
-                "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
-              sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
-            };
-          };
+        driverType = "stable";
+        # driverType = "custom";
+        # customDriverPackage =
+        #   config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
+        #     version = "550.40.07";
+        #     # the new driver
+        #     src = pkgs.fetchurl {
+        #       url =
+        #         "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
+        #       sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
+        #     };
+        #   };
       };
       bluetooth = enabled;
     };
