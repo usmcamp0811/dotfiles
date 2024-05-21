@@ -70,7 +70,7 @@ with lib.campground; {
           "http://webb:1234"
           "http://chesty:1234"
           "http://lucas:1234"
-          "http://ermy:1234"
+          # "http://ermy:1234"
           "http://reckless:1234"
         ];
         port = 8123;

@@ -65,9 +65,9 @@ with lib.campground;
         enable = true;
         port = 8123;
         tang-servers = [
-          # "http://daly:1234"
+          "http://daly:1234"
           "http://lucas:1234"
-          "http://ermy:1234"
+          # "http://ermy:1234"
           "http://webb:1234"
           "http://reckless:1234"
         ];
