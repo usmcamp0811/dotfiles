@@ -31,7 +31,7 @@
       "key_accomplishments": [
         "Deployed a JupyterHub instance on enterprise Kubernetes clusters and modified Zero-to-JupyterHub Helm Chart to support Istio service mesh. Created custom JupyterLab Docker images to support Julia, Python, and R workflows.",
         "Led the full-cycle development of a UNet-based image segmentation model in Julia, encompassing dataset creation via Label Studio and performance tracking with MLFlow.",
-        "Lead the implimentation of Hashicorp Vault into organizational project in order to streamline the management of secrets and reduce the amount of code required in deployment pipelines.",
+        "Led the implimentation of Hashicorp Vault into organizational project in order to streamline the management of secrets and reduce the amount of code required in deployment pipelines.",
         "Wrote custom shell scripts and created project templates for best practices. Customized Airflow Helm Chart for DAG development and automated architecture diagram deployment using PlantUML and Gitlab CICD.",
         "Developed a reproducible and highly auditable deployment strategy for cross-architecture Linux systems using Nix and NixOS. Modified and developed Ansible playbooks for AWS EC2 and EKS deployment, and worked with Terraform to create AWS infrastructure.",
         "Led training of junior associates in various technologies, including Julia, Nix, Docker, and Kubernetes. Regularly led brown bag knowledge-sharing sessions to foster team collaboration.",
