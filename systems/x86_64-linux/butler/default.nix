@@ -21,6 +21,8 @@ in {
       uid = 10000;
     };
 
+    apps = { steam = enabled; };
+
     archetypes = {
       laptop = enabled;
       workstation = enabled;
