@@ -41,7 +41,7 @@ in {
       zfs-key-server = {
         enable = false;
         tang-servers =
-          [ "http://webb:1234" "http://lucas:1234" "http://ermy:1234" ];
+          [ "http://webb:1234" "http://lucas:1234" "http://chesty:1234" ];
       };
       wireguard-client = {
         enable = true;
