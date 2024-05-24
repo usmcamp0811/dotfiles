@@ -13,6 +13,15 @@ in {
   # cause ASUS sucks and the ethernet port dies
   boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+    version = "555.42.02";
+    sha256_64bit = "sha256-k7cI3ZDlKp4mT46jMkLaIrc2YUx1lh1wj/J4SVSHWyk=";
+    sha256_aarch64 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    openSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    settingsSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    persistencedSha256 = lib.fakeSha256;
+  };
+  # boot.kernelPackages = mkDefault pkgs.linuxPackages_6_8_10;
   campground = {
     user = {
       name = "mcamp";
@@ -67,7 +76,7 @@ in {
         enable = true;
         # driverType = "stable";
         # driverType = "production";
-        driverType = "custom";
+        # # driverType = "custom";
         # customDriverPackage =
         #   config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
         #     version = "550.78";
@@ -78,16 +87,16 @@ in {
         #       sha256 = "sha256-NAcENFJ+ydV1SD5/EcoHjkZ+c/be/FQ2bs+9z+Sjv3M=";
         #     };
         #   };
-        customDriverPackage =
-          config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
-            version = "550.40.07";
-            # the new driver
-            src = pkgs.fetchurl {
-              url =
-                "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
-              sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
-            };
-          };
+        # customDriverPackage =
+        #   config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
+        #     version = "550.40.07";
+        #     # the new driver
+        #     src = pkgs.fetchurl {
+        #       url =
+        #         "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
+        #       sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
+        #     };
+        #   };
       };
       bluetooth = enabled;
     };
