@@ -1,4 +1,4 @@
-{ unstable, channels, ... }:
+{ channels, ... }:
 final: prev: {
-  inherit (channels.unstable) nvidia_x11;
+  inherit (channels.unstable) nvidia_x11 nvidia_prime;
 }
