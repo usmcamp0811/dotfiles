@@ -1,10 +1,6 @@
-{ options
-, config
-, pkgs
-, lib
-, ...
-}:
-with lib; let
+{ options, config, pkgs, lib, ... }:
+with lib;
+let
   cfg = config.campground.hardware.nvidia-prime;
   nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
     export __NV_PRIME_RENDER_OFFLOAD=1
@@ -13,8 +9,7 @@ with lib; let
     export __VK_LAYER_NV_optimus=NVIDIA_only
     exec -a "$0" "$@"
   '';
-in
-{
+in {
   options.campground.hardware.nvidia-prime = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
@@ -29,13 +24,15 @@ in
         "custom"
       ];
       default = "stable";
-      description = "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
+      description =
+        "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
     };
 
     customDriverPackage = mkOption {
       type = types.nullOr types.package;
       default = null;
-      description = "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
+      description =
+        "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
     };
   };
 
@@ -51,7 +48,7 @@ in
 
     # Load nvidia driver for Xorg and Wayland
     services.xserver.videoDrivers = [ "nvidia" ];
-
+    boot.blacklistedKernelModules = [ "nouveau" ];
     hardware.nvidia = {
       # Modesetting is required.
       modesetting.enable = true;
@@ -76,10 +73,10 @@ in
       nvidiaSettings = true;
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package =
-        if cfg.driverType == "custom"
-        then cfg.customDriverPackage
-        else config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      package = if cfg.driverType == "custom" then
+        cfg.customDriverPackage
+      else
+        config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
 
       prime = {
         sync.enable = true;
