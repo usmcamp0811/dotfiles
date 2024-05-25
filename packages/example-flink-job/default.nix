@@ -61,7 +61,7 @@ let
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/consumer.py \
-      -pyclientexec ${python-env}/bin/python \
+      -pyclientexec python \
       --jarfile ${pkgs.campground.flink-connector-kafka}
   '';
 
