@@ -59,6 +59,7 @@ let
     export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
+    export JAVA_HOME=${pkgs.openjdk11};
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/consumer.py \
       -pyclientexec python \
@@ -89,7 +90,7 @@ let
     export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
-    export JAVA_HOME = ${pkgs.openjdk11};
+    export JAVA_HOME=${pkgs.openjdk11};
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/producer.py \
       -pyclientexec ${python-env}/bin/python \
