@@ -25,19 +25,31 @@ from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaCo
 from pyflink.datastream.formats.csv import CsvRowSerializationSchema, CsvRowDeserializationSchema
 from pyflink.common.serialization import SimpleStringSchema
 
-def read_from_kafka(env):
-    type_info = Types.ROW([Types.INT(), Types.STRING()])
+
+def read_from_kafka(env: StreamExecutionEnvironment):
+    # Define the deserialization schema for the consumer
     deserialization_schema = SimpleStringSchema()
+    
+    # Define Kafka consumer
     kafka_consumer = FlinkKafkaConsumer(
-        topics=topic,
+        topics='example-input-topic',
         deserialization_schema=deserialization_schema,
         properties={'bootstrap.servers': broker, 'group.id': 'test_group_1'}
     )
     kafka_consumer.set_start_from_earliest()
 
-    env.add_source(kafka_consumer).print()
+    # Define Kafka producer
+    kafka_producer = FlinkKafkaProducer(
+        topic='example-output-topic',
+        serialization_schema=SimpleStringSchema(),
+        producer_config={'bootstrap.servers': broker}
+    )
+    
+    # Consume from 'example-topic' and produce to 'example-out'
+    env.add_source(kafka_consumer).add_sink(kafka_producer)
+    
+    # Execute the Flink job
     env.execute()
-
 
 if __name__ == '__main__':
     topic = os.getenv("TOPIC")

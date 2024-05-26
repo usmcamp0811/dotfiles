@@ -8,7 +8,7 @@ let
     description = "An Example Flink Job";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
-    mainProgram = "flink-job";
+    mainProgram = "example-flink-job";
   };
 
   pypkgs-build-requirements = {
@@ -44,7 +44,7 @@ let
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
     if [ -z "$TOPIC" ]; then
-        export TOPIC="example-topic";
+        export TOPIC="example-input-topic";
         echo "TOPIC set to $TOPIC"
     else
         echo "TOPIC already set to $TOPIC"
@@ -75,7 +75,7 @@ let
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
     if [ -z "$TOPIC" ]; then
-        export TOPIC="example-topic";
+        export TOPIC="example-input-topic";
         echo "TOPIC set to $TOPIC"
     else
         echo "TOPIC already set to $TOPIC"
@@ -143,8 +143,12 @@ let
       cp ${consumer}/bin/consumer $out/bin/
       cp ${producer}/bin/producer $out/bin/
       cp ${run-tests}/bin/run-tests $out/src/run-tests
+      cp ${producer}/bin/producer $out/bin/example-flink-job
     '';
 
+    meta = {
+      description = "An Example Flink Job";
+    };
     passthru = {
       python = python-env;
       test = test-flink-job;
