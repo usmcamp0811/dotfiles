@@ -25,16 +25,13 @@ in {
         # Group = "flink";
         Type = "simple";
         # RemainAfterExit = true;
-        ExecStop = "${pkgs.flink}/opt/flink/bin/jobmanager.sh stop";
+        ExecStop = "${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh stop";
         Restart = "on-failure";
       };
       script = ''
         export PATH=${pkgs.campground.example-flink-job.python}/bin:$PATH
-        ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
-        ${pkgs.flink}/bin/flink run \
-        -py ${pkgs.campground.example-flink-job}/src/job/job.py \
-        --jarfile ${pkgs.campground.flink-connector-kafka} \
-        --jobname example_job
+        ${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh start
+        ${pkgs.campground.example-flink-job}/bin/consumer
       '';
     };
 

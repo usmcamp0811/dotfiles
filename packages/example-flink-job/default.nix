@@ -65,6 +65,30 @@ let
       -pyclientexec python \
       --jarfile ${pkgs.campground.flink-connector-kafka}
   '';
+  flink-conf = pkgs.writeTextFile {
+    name = "flink-conf.yaml";
+    text = ''
+      env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
+      jobmanager.rpc.address: localhost
+      jobmanager.rpc.port: 6123
+      jobmanager.bind-host: localhost
+      jobmanager.memory.process.size: 1600m
+      taskmanager.bind-host: localhost
+      taskmanager.host: localhost
+      taskmanager.memory.process.size: 1728m
+      taskmanager.numberOfTaskSlots: 1
+      parallelism.default: 1
+      jobmanager.execution.failover-strategy: region
+      rest.address: localhost
+      rest.bind-address: localhost
+      env.log.dir: /tmp/flink-logs
+      env.java.home: ${pkgs.openjdk11}
+      env.path: ${pkgs.campground.example-flink-job.python}/bin/:$PATH
+      python.path: ${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages
+      python.executable: ${pkgs.campground.example-flink-job.python}/bin/python
+      python.client.executable: ${python-env}/bin/python
+    '';
+  };
 
   producer = pkgs.writeShellScriptBin "producer" ''
     # Check if FLINK_CONF_DIR is unset or empty
@@ -136,14 +160,17 @@ let
     installPhase = ''
       mkdir -p $out/bin
       mkdir -p $out/src
-      mkdir -p $out/opt/flink
+      mkdir -p $out/opt/flink/conf
 
       cp -r $src/* $out/src/
+      cp -r ${pkgs.flink}/opt/flink/bin $out/opt/flink/bin
       cp -r ${python-env}/bin/* $out/bin/
       cp ${consumer}/bin/consumer $out/bin/
       cp ${producer}/bin/producer $out/bin/
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${producer}/bin/producer $out/bin/example-flink-job
+      cp ${flink-conf} $out/opt/flink/conf/flink-conf.yaml
+      
     '';
 
     meta = {

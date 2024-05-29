@@ -26,6 +26,9 @@ from pyflink.datastream.formats.csv import CsvRowSerializationSchema, CsvRowDese
 from pyflink.common.serialization import SimpleStringSchema
 
 
+def reverse_text(text):
+    return text[::-1]
+
 def read_from_kafka(env: StreamExecutionEnvironment):
     # Define the deserialization schema for the consumer
     deserialization_schema = SimpleStringSchema()
@@ -46,8 +49,8 @@ def read_from_kafka(env: StreamExecutionEnvironment):
     )
     
     # Consume from 'example-topic' and produce to 'example-out'
-    env.add_source(kafka_consumer).add_sink(kafka_producer)
-    
+    # env.add_source(kafka_consumer).add_sink(kafka_producer)
+    env.add_source(kafka_consumer).map(reverse_text).add_sink(kafka_producer)
     # Execute the Flink job
     env.execute()
 
