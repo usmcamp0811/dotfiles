@@ -19,6 +19,7 @@ in {
       environment = {
         FLINK_CONF_DIR = "/var/lib/flink/conf";
         JAVA_HOME = pkgs.openjdk11;
+        FLINK_PYTHON = "${pkgs.campground.example-flink-job.python}/bin/python";
       };
       serviceConfig = {
         # User = "flink";
@@ -29,9 +30,9 @@ in {
         Restart = "on-failure";
       };
       script = ''
-        export PATH=${pkgs.campground.example-flink-job.python}/bin:$PATH
+        cp ${pkgs.campground.example-flink-job}/flink-conf.yaml /var/lib/flink/conf/
+        cp ${pkgs.campground.example-flink-job}/flink-conf.yaml /var/lib/flink/conf/config.yaml
         ${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh start
-        ${pkgs.campground.example-flink-job}/bin/consumer
       '';
     };
 
