@@ -27,7 +27,18 @@ from pyflink.common.serialization import SimpleStringSchema
 
 
 def reverse_text(text):
-    return text[::-1]
+    print(f"TEXT==> {text}")
+    try:
+        return text[::-1]
+    except ValueError:
+        return text
+    # return text[::-1]
+
+def add_constant(value):
+    try:
+        return str(int(value) + 10)
+    except ValueError:
+        return value
 
 def read_from_kafka(env: StreamExecutionEnvironment):
     # Define the deserialization schema for the consumer
@@ -50,9 +61,11 @@ def read_from_kafka(env: StreamExecutionEnvironment):
     
     # Consume from 'example-topic' and produce to 'example-out'
     # env.add_source(kafka_consumer).add_sink(kafka_producer)
-    env.add_source(kafka_consumer).map(reverse_text).add_sink(kafka_producer)
+    datastream = env.add_source(kafka_consumer).get_type()
+    # datastream = datastream.add_sink(kafka_producer)
     # Execute the Flink job
     env.execute()
+    return datastream
 
 if __name__ == '__main__':
     topic = os.getenv("TOPIC")
@@ -63,5 +76,6 @@ if __name__ == '__main__':
     env = StreamExecutionEnvironment.get_execution_environment()
     # env.add_jars("file:///path/to/flink-sql-connector-kafka-1.15.0.jar")
     print("start reading data from kafka")
-    read_from_kafka(env)
+    ds = read_from_kafka(env)
+    print(ds)
 
