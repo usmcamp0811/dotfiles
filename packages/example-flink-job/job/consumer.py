@@ -27,12 +27,10 @@ from pyflink.common.serialization import SimpleStringSchema
 
 
 def reverse_text(text):
-    print(f"TEXT==> {text}")
     try:
-        return text[::-1]
+        return [text[::-1]]
     except ValueError:
-        return text
-    # return text[::-1]
+        return [text]
 
 def add_constant(value):
     try:
@@ -61,10 +59,12 @@ def read_from_kafka(env: StreamExecutionEnvironment):
     
     # Consume from 'example-topic' and produce to 'example-out'
     # env.add_source(kafka_consumer).add_sink(kafka_producer)
-    datastream = env.add_source(kafka_consumer).get_type()
-    # datastream = datastream.add_sink(kafka_producer)
+    datastream = env.add_source(kafka_consumer)
+    datastream.print()
+    datastream = datastream.flat_map(reverse_text, output_type=Types.STRING())
+    datastream = datastream.add_sink(kafka_producer)
     # Execute the Flink job
-    env.execute()
+    env.execute("Example Flink Job")
     return datastream
 
 if __name__ == '__main__':
