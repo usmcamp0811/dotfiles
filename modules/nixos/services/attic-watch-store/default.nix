@@ -1,12 +1,17 @@
-{ lib, config, pkgs, ... }:
-
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.attic-watch-store;
+with lib.campground; let
+  cfg = config.campground.services.attic-watch-store;
 in {
   options.campground.services.attic-watch-store = {
     enable = mkEnableOption "Attic";
-    cache-name = mkOpt types.str "campground"
+    cache-name =
+      mkOpt types.str "campground"
       "Name of the Attic Cache that we want to push things to";
     endpoint =
       mkOpt types.str "https://attic.aicampground.com" "URL of the Cache";
@@ -14,16 +19,19 @@ in {
     user = mkOpt types.str "atticd" "The user under which attic runs.";
     group = mkOpt types.str "atticd" "The group under which attic runs.";
 
-    role-id = mkOpt types.str
+    role-id =
+      mkOpt types.str
       config.campground.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
-    secret-id = mkOpt types.str
+    secret-id =
+      mkOpt types.str
       config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt types.str "secret/campground/attic"
+    vault-path =
+      mkOpt types.str "secret/campground/attic"
       "The Vault path to the KV containing the KVs that are for the attic cache token";
     kvVersion = mkOption {
-      type = types.enum [ "v1" "v2" ];
+      type = types.enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -43,13 +51,13 @@ in {
           isSystemUser = true;
         };
       };
-      groups = optionalAttrs (cfg.group == "atticd") { atticd = { }; };
+      groups = optionalAttrs (cfg.group == "atticd") {atticd = {};};
     };
 
     systemd.services.attic-watch-store = {
-      wantedBy = [ "multi-user.target" ];
-      after = [ "atticd.service" ];
-      environment = { HOME = "/var/lib/atticd"; };
+      wantedBy = ["multi-user.target"];
+      after = ["atticd.service"];
+      environment = {HOME = "/var/lib/atticd";};
       serviceConfig = {
         ExecStart = "${pkgs.attic}/bin/attic watch-store ${cfg.cache-name}";
         User = cfg.user;
@@ -70,17 +78,20 @@ in {
         vault-agent = {
           services = {
             "attic-watch-store" = {
-              settings = { # replace with the address of your vault
+              settings = {
+                # replace with the address of your vault
                 vault.address = cfg.vault-address;
                 auto_auth = {
-                  method = [{
-                    type = "approle";
-                    config = {
-                      role_id_file_path = cfg.role-id;
-                      secret_id_file_path = cfg.secret-id;
-                      remove_secret_id_file_after_reading = false;
-                    };
-                  }];
+                  method = [
+                    {
+                      type = "approle";
+                      config = {
+                        role_id_file_path = cfg.role-id;
+                        secret_id_file_path = cfg.secret-id;
+                        remove_secret_id_file_after_reading = false;
+                      };
+                    }
+                  ];
                 };
               };
               secrets = {

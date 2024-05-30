@@ -1,9 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{ options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.nfs.server;
-in {
+with lib.campground; let
+  cfg = config.campground.nfs.server;
+in
+{
   options.campground.nfs.server = with types; {
     enable = mkBoolOpt false "Whether or not to mount server.";
   };

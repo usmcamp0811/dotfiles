@@ -1,7 +1,14 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "example-flask-app";
@@ -29,15 +36,15 @@ let
         app.run()
   '';
 
-  uwsgiWithPython3 = pkgs.uwsgi.override { plugins = [ "python3" ]; };
+  uwsgiWithPython3 = pkgs.uwsgi.override {plugins = ["python3"];};
 
-  pythonWithFlask = pkgs.python3.withPackages (ps: [ ps.flask ]);
+  pythonWithFlask = pkgs.python3.withPackages (ps: [ps.flask]);
 
   example-flask-app = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     src = flaskApp;
-    phases = [ "installPhase" ];
-    buildInputs = [ pythonWithFlask uwsgiWithPython3 ];
+    phases = ["installPhase"];
+    buildInputs = [pythonWithFlask uwsgiWithPython3];
 
     # Build a derivation for the Flask app
     installPhase = ''
@@ -71,7 +78,7 @@ let
   new-meta = with lib; {
     description = "A Simple Flask App";
     license = licenses.mit;
-    maintainers = with maintainers; [ mattcamp ];
+    maintainers = with maintainers; [mattcamp];
   };
-
-in override-meta new-meta example-flask-app
+in
+  override-meta new-meta example-flask-app

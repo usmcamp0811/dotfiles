@@ -1,18 +1,21 @@
-{ options, config, pkgs, lib, inputs, ... }:
-
+{ options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.home;
-in {
+with lib.campground; {
   # imports = with inputs; [
   #   home-manager.darwinModules.home-manager
   # ];
 
   options.campground.home = with types; {
-    file = mkOpt attrs { }
-      "A set of files to be managed by home-manager's <option>home.file</option>.";
-    configFile = mkOpt attrs { }
-      "A set of files to be managed by home-manager's <option>xdg.configFile</option>.";
+    file =
+      mkOpt attrs { }
+        "A set of files to be managed by home-manager's <option>home.file</option>.";
+    configFile =
+      mkOpt attrs { }
+        "A set of files to be managed by home-manager's <option>xdg.configFile</option>.";
     extraOptions = mkOpt attrs { } "Options to pass directly to home-manager.";
     homeConfig = mkOpt attrs { } "Final config for home-manager.";
   };

@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ distant-nvim ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [distant-nvim];
 
   extraConfigLua = ''
     require("distant"):setup({

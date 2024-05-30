@@ -36,6 +36,8 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    nix-topology.url = "github:oddlama/nix-topology";
+
     hyprpaper = {
       url = "github:hyprwm/hyprpaper";
       inputs.nixpkgs.follows = "unstable";
@@ -86,23 +88,23 @@
     home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Vault Integration 
+    # Vault Integration
 
     vault-service = {
       url = "github:DeterminateSystems/nixos-vault-service";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # System Deployment 
+    # System Deployment
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
-    # Flake Hygiene 
+    # Flake Hygiene
     flake-checker = {
       url = "github:DeterminateSystems/flake-checker";
       inputs.nixpkgs.follows = "unstable";
     };
-    # Run unpatched dynamically compiled binaries 
+    # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:Mic92/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
@@ -155,7 +157,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    julia2nix.url = "github:JuliaCN/Julia2Nix.jl";
     dream2nix.url = "github:nix-community/dream2nix";
     scientific-fhs = {
       url = "github:usmcamp0811/scientific-fhs/add-poetry";
@@ -168,6 +169,11 @@
     dataflow2nix.url = "github:GTrunSec/dataflow2nix";
 
     nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
+
+    compose2nix.url = "github:aksiksi/compose2nix";
+    compose2nix.inputs.nixpkgs.follows = "nixpkgs";
+    catppuccin.url = "github:catppuccin/nix";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
   outputs = inputs:
@@ -189,7 +195,6 @@
       # pkgs = import nixpkgs {
       #   inherit system;
       # };
-
     in lib.mkFlake {
       channels-config = {
         allowUnfree = true;
@@ -203,11 +208,11 @@
         attic.overlays.default
         devshell.overlays.default
         nix-ld-rs.overlays.default
-        julia2nix.overlays.default
         nuenv.overlays.default
         nur.overlay
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
+        nix-topology.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
@@ -215,6 +220,8 @@
         nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
         dataflow2nix.nixosModules.airflow
+        nix-topology.nixosModules.default
+        catppuccin.nixosModules.catppuccin
         # scientific-fhs.nixosModules.default
       ];
 
@@ -229,31 +236,39 @@
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks = let
-  # Assuming `mlflow` is available through your flake's package set,
-  # we directly use `inputs.nixpkgs.legacyPackages.x86_64-linux` to access it.
-  # This assumes your flake's packages are made available to `nixpkgs` package set,
-  # which might involve using overlays or similar mechanisms.
-  pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-in builtins.mapAttrs
-        (_system: deploy-lib:
-          deploy-lib.deployChecks inputs.self.deploy)
+      checks = builtins.mapAttrs
+        (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
         deploy-rs.lib;
-        # // {
-        #   x86_64-linux.mlflow-test = pkgs.nixosTest {
-        #     name = "mlflow-test";
-        #     nodes = {
-        #       machine = { config, pkgs, ... }: {
-        #         environment.systemPackages = [ pkgs.mlflow-server ];
+
+      outputs-builder = channels: {
+        # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and 
+        # which will break `deploy`. 
+        hooks.pre-commit-check =
+          inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+            src = ./.;
+            hooks = {
+              nixfmt.enable = true;
+              # flake8.enable = true;
+              # markdownlint.enable = true;
+              # yamllint.enable = true;
+              # deadnix.enable = true;
+            };
+          };
+        # checks.mlflow-test = channels.nixpkgs.nixosTest {
+        #   name = "mlflow-test";
+        #   nodes = {
+        #     machine =
+        #       { inputs, ... }: {
+        #         environment.systemPackages = [ inputs.self.mlflow-server ];
         #       };
-        #     };
-        #     testScript = ''
-        #       startAll;
-        #       machine.waitUntilSucceeds("mlflow --help");
-        #       machine.succeed("mlflow --help");
-        #     '';
         #   };
+        #   testScript = ''
+        #     startAll;
+        #     machine.waitUntilSucceeds("mlflow --help");
+        #     machine.succeed("mlflow --help");
+        #   '';
         # };
+      };
 
       templates = {
         basic = {
@@ -269,8 +284,5 @@ in builtins.mapAttrs
           description = "A new system config to get things started.";
         };
       };
-
     };
-
 }
-

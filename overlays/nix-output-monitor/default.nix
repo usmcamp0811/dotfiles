@@ -1,7 +1,4 @@
 { nix-output-monitor, ... }:
-
-final: prev:
-
-{
+final: prev: {
   output-monitor = nix-output-monitor.packages.${prev.system}.default;
 }

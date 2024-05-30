@@ -1,9 +1,9 @@
 { inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
-
 with lib;
 with lib.campground; {
-
   campground = {
+
+    system.xdg = enabled;
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
@@ -90,6 +90,7 @@ with lib.campground; {
       ckb-next = enabled;
       mattermost-desktop = enabled;
       slack = enabled;
+      compose2nix = enabled;
     };
     tools = {
       git = enabled;
@@ -99,6 +100,7 @@ with lib.campground; {
       emoji-picker = enabled;
       scientific-fhs = enabled;
       jupyter = enabled;
+      node = enabled;
     };
   };
 

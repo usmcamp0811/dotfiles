@@ -1,20 +1,20 @@
-{ options, config, lib, pkgs, ... }:
-
+{ options
+, config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.qtile;
 
   # TODO: Look at renaming.. figure this oculd be used to put gui apps that make qtile config pretty and what not
   defaultExtensions = with pkgs; [
     networkmanagerapplet
     arc-theme
-
   ];
-
-  default-attrs = mapAttrs (key: mkDefault);
-  nested-default-attrs = mapAttrs (key: default-attrs);
-in {
+in
+{
   options.campground.desktop.qtile = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Qtile as the desktop environment.";
@@ -37,7 +37,8 @@ in {
         arandr
         go-sct
         brightnessctl
-      ] ++ defaultExtensions;
+      ]
+      ++ defaultExtensions;
 
     services.udev.packages = with pkgs; [ ];
     services.picom.enable = true;
@@ -45,11 +46,16 @@ in {
       [org.gnome.desktop.interface]
       gtk-theme='Arc-Dark'
     '';
-    environment.etc = let rofiThemes = "${pkgs.rofi}/share/rofi/themes";
-    in mapAttrs' (name: _: {
-      name = "rofi/themes/${name}";
-      value = { source = "${rofiThemes}/${name}"; };
-    }) (builtins.readDir rofiThemes);
+    environment.etc =
+      let
+        rofiThemes = "${pkgs.rofi}/share/rofi/themes";
+      in
+      mapAttrs'
+        (name: _: {
+          name = "rofi/themes/${name}";
+          value = { source = "${rofiThemes}/${name}"; };
+        })
+        (builtins.readDir rofiThemes);
 
     services.xserver = {
       enable = true;
@@ -61,9 +67,7 @@ in {
         # ];
       };
     };
-    campground.home.extraOptions = {
-
-    };
+    campground.home.extraOptions = { };
 
     # Open firewall for samba connections to work.
     # networking.firewall.extraCommands =

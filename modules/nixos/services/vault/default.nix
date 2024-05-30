@@ -1,19 +1,25 @@
-{ lib, config, pkgs, ... }:
-
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.vault;
 
-  package = if cfg.ui then pkgs.vault-bin else pkgs.vault;
+  package =
+    if cfg.ui
+    then pkgs.vault-bin
+    else pkgs.vault;
 
   has-policies = (builtins.length (builtins.attrNames cfg.policies)) != 0;
 
   format-policy = name: file:
-    pkgs.runCommandNoCC "formatted-vault-policy" {
-      inherit file;
-      buildInputs = [ package ];
-    } ''
+    pkgs.runCommandNoCC "formatted-vault-policy"
+      {
+        inherit file;
+        buildInputs = [ package ];
+      } ''
       name="$(basename "$file")"
 
       cp "$file" "./$name"
@@ -42,12 +48,14 @@ let
       mv "./$name" $out
     '';
 
-  policies = mapAttrs (name: value:
-    if builtins.isPath value then
-      format-policy name value
-    else
-      format-policy name (pkgs.writeText "${name}.hcl" value)) cfg.policies;
-in {
+  policies = mapAttrs
+    (name: value:
+      if builtins.isPath value
+      then format-policy name value
+      else format-policy name (pkgs.writeText "${name}.hcl" value))
+    cfg.policies;
+in
+{
   options.campground.services.vault = {
     enable = mkEnableOption "Vault";
 
@@ -55,28 +63,31 @@ in {
     storage = {
       backend = mkOpt types.str "file" "The storage backend for Vault.";
       path = mkOpt types.str "/persist/vault" "Path";
-
     };
 
     address = mkOpt types.str "0.0.0.0:8200" "Where to access vault UI at";
 
     settings = mkOpt types.str "" "Configuration for Vault's config file.";
 
-    mutable-policies = mkBoolOpt false
-      "Whether policies not specified in Nix should be removed.";
+    mutable-policies =
+      mkBoolOpt false
+        "Whether policies not specified in Nix should be removed.";
 
-    policies = mkOpt (types.attrsOf (types.either types.str types.path)) { }
-      "Policies to install when Vault runs.";
+    policies =
+      mkOpt (types.attrsOf (types.either types.str types.path)) { }
+        "Policies to install when Vault runs.";
 
     policy-agent = {
       user = mkOpt types.str "root" "The user to run the Vault Agent as.";
       group = mkOpt types.str "root" "The group to run the Vault Agent as.";
 
       auth = {
-        roleIdFilePath = mkOpt types.str "/var/lib/vault/vault/role-id"
-          "The file to read the role-id from.";
-        secretIdFilePath = mkOpt types.str "/var/lib/vault/vault/secret-id"
-          "The file to read the secret-id from.";
+        roleIdFilePath =
+          mkOpt types.str "/var/lib/vault/vault/role-id"
+            "The file to read the role-id from.";
+        secretIdFilePath =
+          mkOpt types.str "/var/lib/vault/vault/secret-id"
+            "The file to read the secret-id from.";
       };
     };
   };
@@ -89,51 +100,57 @@ in {
       storageBackend = cfg.storage.backend;
       storagePath = cfg.storage.path;
       extraConfig = ''
-        ui = ${if cfg.ui then "true" else "false"}
+        ui = ${
+          if cfg.ui
+          then "true"
+          else "false"
+        }
 
         ${cfg.settings}
       '';
-
     };
 
     systemd.services.vault = { };
 
-    # systemd.tmpfiles.rules = 
+    # systemd.tmpfiles.rules =
     #   if cfg.storage.backend == "file" then [
     #     "d ${cfg.storage.path} 0750 vault vault -"
     #   ] else [];
 
-    systemd.services.vault-policies =
-      mkIf (has-policies || !cfg.mutable-policies) {
-        wantedBy = [ "vault.service" ];
-        after = [ "vault.service" ];
+    systemd.services.vault-policies = mkIf (has-policies || !cfg.mutable-policies) {
+      wantedBy = [ "vault.service" ];
+      after = [ "vault.service" ];
 
-        serviceConfig = {
-          Type = "oneshot";
-          User = cfg.policy-agent.user;
-          Group = cfg.policy-agent.group;
-          Restart = "on-failure";
-          RestartSec = 30;
-          RemainAfterExit = "yes";
-        };
+      serviceConfig = {
+        Type = "oneshot";
+        User = cfg.policy-agent.user;
+        Group = cfg.policy-agent.group;
+        Restart = "on-failure";
+        RestartSec = 30;
+        RemainAfterExit = "yes";
+      };
 
-        restartTriggers =
-          (mapAttrsToList (name: value: "${name}=${value}") policies);
+      restartTriggers =
+        mapAttrsToList (name: value: "${name}=${value}") policies;
 
-        path = [ package pkgs.curl pkgs.jq ];
+      path = [ package pkgs.curl pkgs.jq ];
 
-        environment = {
-          VAULT_ADDR = "http://${config.services.vault.address}";
-        };
+      environment = {
+        VAULT_ADDR = "http://${config.services.vault.address}";
+      };
 
-        script = let
-          write-policies-commands = mapAttrsToList (name: policy: ''
-            echo Writing policy '${name}': '${policy}'
-            vault policy write '${name}' '${policy}'
-          '') policies;
+      script =
+        let
+          write-policies-commands =
+            mapAttrsToList
+              (name: policy: ''
+                echo Writing policy '${name}': '${policy}'
+                vault policy write '${name}' '${policy}'
+              '')
+              policies;
           write-policies = concatStringsSep "\n" write-policies-commands;
 
-          known-policies = mapAttrsToList (name: value: name) policies;
+          known-policies = mapAttrsToList (name: _value: name) policies;
 
           remove-unknown-policies = ''
             current_policies=$(vault policy list -format=json | jq -r '.[]')
@@ -160,7 +177,8 @@ in {
               fi
             done <<< "$current_policies"
           '';
-        in ''
+        in
+        ''
           if ! [ -f '${cfg.policy-agent.auth.roleIdFilePath}' ]; then
             echo 'role-id file not found: ${cfg.policy-agent.auth.roleIdFilePath}'
             exit 0
@@ -201,7 +219,6 @@ in {
           ${optionalString (!cfg.mutable-policies) remove-unknown-policies}
           exit 0
         '';
-
-      };
+    };
   };
 }

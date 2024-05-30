@@ -1,5 +1,5 @@
 # {pkgs,lib, fetchurl, buildPythonPackage, ...}:
-{ pkgs, ... }: {
+{pkgs, ...}: {
   # Import all your configuration modules here
   imports = [
     ./theme.nix
@@ -116,5 +116,4 @@
     #     })
     #   ]))
   ];
-
 }

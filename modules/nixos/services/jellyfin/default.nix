@@ -1,12 +1,15 @@
-{ lib, config, pkgs, ... }:
-
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.jellyfin;
+with lib.campground; let
+  cfg = config.campground.services.jellyfin;
 in {
   options.campground.services.jellyfin = {
     enable = mkEnableOption "Jellyfin";
-
   };
 
   config = mkIf cfg.enable {
@@ -16,7 +19,7 @@ in {
 
     users.users.jellyfin = {
       isSystemUser = true;
-      extraGroups = [ "users" ]; # TODO: change to a different group
+      extraGroups = ["users"]; # TODO: change to a different group
     };
 
     # users.groups.ldap-user = {

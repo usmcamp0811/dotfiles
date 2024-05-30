@@ -1,13 +1,7 @@
-{ options, config, inputs, pkgs, lib, ... }:
-
+{ options, config, pkgs, lib, ... }:
 with lib;
 let
   cfg = config.campground.hardware.nvidia-prime;
-  displaySetupScript = pkgs.writeShellScript "display_setup.sh" ''
-    #!/bin/sh
-    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource NVIDIA-G0
-    ${pkgs.xorg.xrandr}/bin/xrandr --auto
-  '';
   nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
     export __NV_PRIME_RENDER_OFFLOAD=1
     export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
@@ -43,7 +37,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     environment.systemPackages = with pkgs; [ nvidia-offload pciutils ];
 
     # Enable OpenGL
@@ -55,9 +48,8 @@ in {
 
     # Load nvidia driver for Xorg and Wayland
     services.xserver.videoDrivers = [ "nvidia" ];
-
+    boot.blacklistedKernelModules = [ "nouveau" ];
     hardware.nvidia = {
-
       # Modesetting is required.
       modesetting.enable = true;
 
@@ -69,9 +61,9 @@ in {
 
       # Use the NVidia open source kernel module (not to be confused with the
       # independent third-party "nouveau" open source driver).
-      # Support is limited to the Turing and later architectures. Full list of 
-      # supported GPUs is at: 
-      # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+      # Support is limited to the Turing and later architectures. Full list of
+      # supported GPUs is at:
+      # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
       # Only available from driver 515.43.04+
       # Currently alpha-quality/buggy, so false is currently the recommended setting.
       open = false;
@@ -94,4 +86,3 @@ in {
     };
   };
 }
-

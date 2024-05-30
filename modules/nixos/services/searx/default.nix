@@ -1,14 +1,17 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.searx;
   # Assuming the definition of `findEnabledServices` is correct and placed appropriately
   #
   # Assuming `self` is correctly defined in your broader context
   #
   # # Generate URLs for each enabled service
-
 in {
   options.campground.services.searx = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
@@ -19,10 +22,11 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/searx"
+    vault-path =
+      mkOpt str "secret/campground/searx"
       "The Vault path to the KV containing the Searx Secrets.";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -34,7 +38,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     # campground.services = {
     #   traefik = {
     #     dynamicConfigOptions = {
@@ -50,7 +53,7 @@ in {
     #     };
     #   };
     # };
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
+    networking.firewall.allowedTCPPorts = [cfg.port];
     services = {
       searx = {
         enable = true;
@@ -67,28 +70,30 @@ in {
 
     systemd.services.copy-searx-env = {
       description = "Copy Searx environment variables";
-      serviceConfig = { Type = "oneshot"; };
+      serviceConfig = {Type = "oneshot";};
       script = ''
         cp /tmp/detsys-vault/searx.env /var/lib/vault/searx.env
         chmod 600 /var/lib/vault/searx.env
         chown searx:searx /var/lib/vault/searx.env
       '';
-      wantedBy = [ "multi-user.target" ];
-      before = [ "searx.service" ];
+      wantedBy = ["multi-user.target"];
+      before = ["searx.service"];
     };
 
     campground.services.vault-agent.services.copy-searx-env = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {

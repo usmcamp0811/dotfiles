@@ -1,10 +1,15 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.ldap-server;
 
-  user-template = pkgs.writeText "user-template.xml"
+  user-template =
+    pkgs.writeText "user-template.xml"
     (builtins.readFile ./openldap/user-template.xml);
   entrypoint = pkgs.writeText "run" (builtins.readFile ./openldap/run);
 
@@ -23,16 +28,20 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-pki-path = mkOpt str "campground-pki/issue/ldap-server-role"
+    vault-pki-path =
+      mkOpt str "campground-pki/issue/ldap-server-role"
       "The Vault path to the Server Cert in Vault";
-    vault-path = mkOpt str "secret/campground/ldap"
+    vault-path =
+      mkOpt str "secret/campground/ldap"
       "The Vault path to the KV containing the LDAP Secrets.";
-    common-name = mkOpt str "server.ldap.lan.aicampground.com"
+    common-name =
+      mkOpt str "server.ldap.lan.aicampground.com"
       "Common Name for Server Certs";
-    ldap_uri = mkOpt str "ldap://ldap.campground.lan"
+    ldap_uri =
+      mkOpt str "ldap://ldap.campground.lan"
       "The url of hte server.. should be the hostname or ip or dns name";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -44,8 +53,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts =
-      [ 389 636 8080 8081 ]; # OpenLDAP and phpLDAPadmin ports
+    networking.firewall.allowedTCPPorts = [389 636 8080 8081]; # OpenLDAP and phpLDAPadmin ports
 
     system.activationScripts.copyLdapFiles = {
       text = ''
@@ -61,14 +69,11 @@ in {
       phpldapadmin = {
         # image = "docker.io/osixia/phplpdapadmin:latest";
         # some stupid shit is going on with podman not getting the image.. need to hurry up making my phpldapadmin config thing  below
-        image =
-          "dbb580facde30c5698bdc8945399de0709b75a5606182180f1d3da991c6c356d";
-        ports = [ "8080:80" ];
+        image = "dbb580facde30c5698bdc8945399de0709b75a5606182180f1d3da991c6c356d";
+        ports = ["8080:80"];
         environment = {
-          PHPLDAPADMIN_LDAP_HOSTS =
-            "${cfg.ldap_uri}"; # Replace with your LDAP server address
+          PHPLDAPADMIN_LDAP_HOSTS = "${cfg.ldap_uri}"; # Replace with your LDAP server address
           PHPLDAPADMIN_HTTPS = "false";
-
         };
         volumes = [
           "/var/lib/ldap/customUser.xml:/templates/customUser.xml"
@@ -77,7 +82,7 @@ in {
         ];
       };
     };
-    environment.systemPackages = [ phpLDAPadmin ];
+    environment.systemPackages = [phpLDAPadmin];
 
     # TODO: Move to nix package over oci-contianer for phpldapadmin
     # services.nginx = {
@@ -131,7 +136,7 @@ in {
       # settings.attrs.olcLogLevel = "0";
 
       # enable plain and secure connections
-      urlList = [ "ldap:///" "ldaps:///" ];
+      urlList = ["ldap:///" "ldaps:///"];
 
       settings.children = {
         "cn=schema".includes = [
@@ -141,7 +146,7 @@ in {
           "${pkgs.openldap}/etc/schema/nis.ldif"
         ];
         "olcDatabase={1}mdb".attrs = {
-          objectClass = [ "olcDatabaseConfig" "olcMdbConfig" ];
+          objectClass = ["olcDatabaseConfig" "olcMdbConfig"];
           olcDatabase = "{1}mdb";
           olcDbDirectory = "/var/lib/openldap/data";
           olcRootPW.path = "/tmp/detsys-vault/olcRootPW.secret";
@@ -167,17 +172,19 @@ in {
           ];
         };
         "olcOverlay=syncprov,olcDatabase={1}mdb".attrs = {
-          objectClass = [ "olcOverlayConfig" "olcSyncProvConfig" ];
+          objectClass = ["olcOverlayConfig" "olcSyncProvConfig"];
           olcOverlay = "syncprov";
           olcSpSessionLog = "100";
         };
         "olcDatabase={2}monitor".attrs = {
           olcDatabase = "{2}monitor";
-          objectClass = [ "olcDatabaseConfig" "olcMonitorConfig" ];
-          olcAccess = [''
-            {0}to *
-                           by dn.exact="cn=netdata,ou=system,ou=users,${cfg.ldapBaseDN}" read
-                           by * none''];
+          objectClass = ["olcDatabaseConfig" "olcMonitorConfig"];
+          olcAccess = [
+            ''
+              {0}to *
+                             by dn.exact="cn=netdata,ou=system,ou=users,${cfg.ldapBaseDN}" read
+                             by * none''
+          ];
         };
 
         "cn={1}bitwarden,cn=schema" = {
@@ -213,22 +220,26 @@ in {
         "cn={1}squid,cn=schema".attrs = {
           cn = "{1}squid";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            (1.3.6.1.4.1.16548.1.2.4 NAME 'proxyUser'
-                          SUP top AUXILIARY
-                          DESC 'Account to allow a user to use the Squid proxy'
-                          MUST ( mail $ userPassword ))
-          ''];
+          olcObjectClasses = [
+            ''
+              (1.3.6.1.4.1.16548.1.2.4 NAME 'proxyUser'
+                            SUP top AUXILIARY
+                            DESC 'Account to allow a user to use the Squid proxy'
+                            MUST ( mail $ userPassword ))
+            ''
+          ];
         };
         "cn={1}grafana,cn=schema".attrs = {
           cn = "{1}grafana";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            (1.3.6.1.4.1.28293.1.2.5 NAME 'grafana'
-                           SUP uidObject AUXILIARY
-                           DESC 'Added to an account to allow grafana access'
-                           MUST (mail))
-          ''];
+          olcObjectClasses = [
+            ''
+              (1.3.6.1.4.1.28293.1.2.5 NAME 'grafana'
+                             SUP uidObject AUXILIARY
+                             DESC 'Added to an account to allow grafana access'
+                             MUST (mail))
+            ''
+          ];
         };
         "cn={2}postfix,cn=schema".attrs = {
           cn = "{2}postfix";
@@ -285,88 +296,106 @@ in {
         "cn={1}openssh,cn=schema".attrs = {
           cn = "{1}openssh";
           objectClass = "olcSchemaConfig";
-          olcAttributeTypes = [''
-            (1.3.6.1.4.1.24552.500.1.1.1.13
-                        NAME 'sshPublicKey'
-                        DESC 'MANDATORY: OpenSSH Public key'
-                        EQUALITY octetStringMatch
-                        SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )''];
-          olcObjectClasses = [''
-            (1.3.6.1.4.1.24552.500.1.1.2.0
-                        NAME 'ldapPublicKey'
-                        SUP top AUXILIARY
-                        DESC 'MANDATORY: OpenSSH LPK objectclass'
-                        MUST ( sshPublicKey $ uid ))
-          ''];
+          olcAttributeTypes = [
+            ''
+              (1.3.6.1.4.1.24552.500.1.1.1.13
+                          NAME 'sshPublicKey'
+                          DESC 'MANDATORY: OpenSSH Public key'
+                          EQUALITY octetStringMatch
+                          SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )''
+          ];
+          olcObjectClasses = [
+            ''
+              (1.3.6.1.4.1.24552.500.1.1.2.0
+                          NAME 'ldapPublicKey'
+                          SUP top AUXILIARY
+                          DESC 'MANDATORY: OpenSSH LPK objectclass'
+                          MUST ( sshPublicKey $ uid ))
+            ''
+          ];
         };
         "cn={1}nginx,cn=schema".attrs = {
           cn = "{1}nginx";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            (1.3.6.1.4.1.28295.1.2.4 NAME 'nginx'
-                           SUP top AUXILIARY
-                           DESC 'Added to an account to allow nginx access'
-                           MUST ( mail $ userPassword ))
-          ''];
+          olcObjectClasses = [
+            ''
+              (1.3.6.1.4.1.28295.1.2.4 NAME 'nginx'
+                             SUP top AUXILIARY
+                             DESC 'Added to an account to allow nginx access'
+                             MUST ( mail $ userPassword ))
+            ''
+          ];
         };
 
         "cn={1}nextcloud,cn=schema".attrs = {
           cn = "{1}nextcloud";
           objectClass = "olcSchemaConfig";
-          olcAttributeTypes = [''
-            (1.3.6.1.4.1.39430.1.1.1
-                         NAME 'ownCloudQuota'
-                         DESC 'User Quota (e.g. 15 GB)'
-                         SYNTAX '1.3.6.1.4.1.1466.115.121.1.15')''];
-          olcObjectClasses = [''
-            (1.3.6.1.4.1.39430.1.2.1
-                         NAME 'ownCloud'
-                         DESC 'ownCloud LDAP Schema'
-                         AUXILIARY
-                         MUST ( mail $ userPassword )
-                         MAY ( ownCloudQuota ))''];
+          olcAttributeTypes = [
+            ''
+              (1.3.6.1.4.1.39430.1.1.1
+                           NAME 'ownCloudQuota'
+                           DESC 'User Quota (e.g. 15 GB)'
+                           SYNTAX '1.3.6.1.4.1.1466.115.121.1.15')''
+          ];
+          olcObjectClasses = [
+            ''
+              (1.3.6.1.4.1.39430.1.2.1
+                           NAME 'ownCloud'
+                           DESC 'ownCloud LDAP Schema'
+                           AUXILIARY
+                           MUST ( mail $ userPassword )
+                           MAY ( ownCloudQuota ))''
+          ];
         };
         "cn={1}gitlab,cn=schema".attrs = {
           cn = "{1}gitlab";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            ( 1.3.6.1.4.1.28293.1.2.4 NAME 'gitlab'
-                        SUP uidObject AUXILIARY
-                        DESC 'Added to an account to allow gitlab access'
-                        MUST (mail))
-          ''];
+          olcObjectClasses = [
+            ''
+              ( 1.3.6.1.4.1.28293.1.2.4 NAME 'gitlab'
+                          SUP uidObject AUXILIARY
+                          DESC 'Added to an account to allow gitlab access'
+                          MUST (mail))
+            ''
+          ];
         };
         "cn={1}ejabberd,cn=schema".attrs = {
           cn = "{1}ejabberd";
           objectClass = "olcSchemaConfig";
-          olcAttributeTypes = [''
-            (1.2.752.43.9.1.1
-                        NAME 'jabberID'
-                        DESC 'The Jabber ID(s) associated with this object. Used to map a JID to an LDAP account.'
-                        EQUALITY caseIgnoreMatch
-                        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15)
-          ''];
+          olcAttributeTypes = [
+            ''
+              (1.2.752.43.9.1.1
+                          NAME 'jabberID'
+                          DESC 'The Jabber ID(s) associated with this object. Used to map a JID to an LDAP account.'
+                          EQUALITY caseIgnoreMatch
+                          SYNTAX 1.3.6.1.4.1.1466.115.121.1.15)
+            ''
+          ];
         };
         "cn={2}ejabberd,cn=schema".attrs = {
           cn = "{2}ejabberd";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            (1.2.752.43.9.2.1
-                        NAME 'jabberUser'
-                        DESC 'A jabber user'
-                        AUXILIARY
-                        MUST ( jabberID ))
-          ''];
+          olcObjectClasses = [
+            ''
+              (1.2.752.43.9.2.1
+                          NAME 'jabberUser'
+                          DESC 'A jabber user'
+                          AUXILIARY
+                          MUST ( jabberID ))
+            ''
+          ];
         };
         "cn={1}homeAssistant,cn=schema".attrs = {
           cn = "{1}homeAssistant";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            (1.3.6.1.4.1.28297.1.2.4 NAME 'homeAssistant'
-                         SUP uidObject AUXILIARY
-                         DESC 'Added to an account to allow home-assistant access'
-                         MUST (mail) )
-          ''];
+          olcObjectClasses = [
+            ''
+              (1.3.6.1.4.1.28297.1.2.4 NAME 'homeAssistant'
+                           SUP uidObject AUXILIARY
+                           DESC 'Added to an account to allow home-assistant access'
+                           MUST (mail) )
+            ''
+          ];
         };
         "cn={1}ttrss,cn=schema".attrs = {
           cn = "{1}ttrss";
@@ -380,35 +409,41 @@ in {
         "cn={1}prometheus,cn=schema".attrs = {
           cn = "{1}prometheus";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            ( 1.3.6.1.4.1.28296.1.2.4
-                        NAME 'prometheus'
-                        SUP uidObject AUXILIARY
-                        DESC 'Added to an account to allow prometheus access'
-                        MUST (mail))
-          ''];
+          olcObjectClasses = [
+            ''
+              ( 1.3.6.1.4.1.28296.1.2.4
+                          NAME 'prometheus'
+                          SUP uidObject AUXILIARY
+                          DESC 'Added to an account to allow prometheus access'
+                          MUST (mail))
+            ''
+          ];
         };
         "cn={1}loki,cn=schema".attrs = {
           cn = "{1}loki";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            ( 1.3.6.1.4.1.28299.1.2.4
-                        NAME 'loki'
-                        SUP uidObject AUXILIARY
-                        DESC 'Added to an account to allow loki access'
-                        MUST (mail))
-          ''];
+          olcObjectClasses = [
+            ''
+              ( 1.3.6.1.4.1.28299.1.2.4
+                          NAME 'loki'
+                          SUP uidObject AUXILIARY
+                          DESC 'Added to an account to allow loki access'
+                          MUST (mail))
+            ''
+          ];
         };
 
         "cn={1}flood,cn=schema".attrs = {
           cn = "{1}flood";
           objectClass = "olcSchemaConfig";
-          olcObjectClasses = [''
-            (1.3.6.1.4.1.28300.1.2.4 NAME 'flood'
-                           SUP uidObject AUXILIARY
-                           DESC 'Added to an account to allow flood access'
-                           MUST (mail))
-          ''];
+          olcObjectClasses = [
+            ''
+              (1.3.6.1.4.1.28300.1.2.4 NAME 'flood'
+                             SUP uidObject AUXILIARY
+                             DESC 'Added to an account to allow flood access'
+                             MUST (mail))
+            ''
+          ];
         };
       };
       # declarativeContents = {
@@ -549,21 +584,22 @@ in {
       # #
       # #   '';
       # };
-
     };
 
     campground.services.vault-agent.services.openldap = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {

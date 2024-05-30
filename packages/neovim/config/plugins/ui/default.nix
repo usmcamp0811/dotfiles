@@ -1,5 +1,5 @@
-{ ... }: {
-  imports = [ ./lualine.nix ./toggleterm.nix ];
+{...}: {
+  imports = [./lualine.nix ./toggleterm.nix];
 
   plugins = {
     # UI Enhancements
@@ -11,8 +11,8 @@
       highlightUnlabeledPhaseOneTargets = false;
       maxHighlightedTraversalTargets = 10;
       caseSensitive = false;
-      equivalenceClasses = [ " 	\r\n" ];
-      substituteChars = { };
+      equivalenceClasses = [" 	\r\n"];
+      substituteChars = {};
       # safeLabels and labels can be defined if needed
       specialKeys = {
         nextTarget = "<enter>";
@@ -28,7 +28,7 @@
       plugins.marks = true;
       plugins.registers = true;
       triggers = "auto";
-      operators = { " " = "Comments"; };
+      operators = {" " = "Comments";};
       window = {
         border = "rounded";
         position = "bottom";
@@ -488,4 +488,3 @@
 
   '';
 }
-

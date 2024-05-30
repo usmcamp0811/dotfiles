@@ -1,7 +1,14 @@
-{ config, inputs, system, lib, options, pkgs, ... }:
+{
+  config,
+  inputs,
+  system,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   inherit (inputs) nixpkgs-wayland;
 
   cfg = config.campground.suites.wlroots;

@@ -1,7 +1,14 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellScriptBin,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "vault-scripts";
@@ -9,12 +16,12 @@ let
   description = "A package for all of the Vault things...";
 
   version = "0.1.0";
-  checkVaultPath = import ./checkVaultPath.nix { inherit pkgs; };
-  getVaultPaths = import ./getVaultPaths.nix { inherit pkgs checkVaultPath; };
+  checkVaultPath = import ./checkVaultPath.nix {inherit pkgs;};
+  getVaultPaths = import ./getVaultPaths.nix {inherit pkgs checkVaultPath;};
   # devshell-python = import ./python-env.nix  { inherit pkgs; };
-  new-approle = import ./new-approle.nix { inherit pkgs; };
+  new-approle = import ./new-approle.nix {inherit pkgs;};
   save-approle-secrets =
-    import ./save-approle.nix { inherit pkgs new-approle; };
+    import ./save-approle.nix {inherit pkgs new-approle;};
 
   vault-scripts = pkgs.stdenv.mkDerivation {
     name = "vault-report";
@@ -36,9 +43,23 @@ let
       chmod +x $out/bin/check-vault-paths
     '';
   };
+
+  run-script = writeShellScriptBin "run-script" ''
+    #!/usr/bin/env sh
+    if [ $# -lt 1 ]; then
+      echo "Usage: $0 <script> [args]"
+      exit 1
+    fi
+    SCRIPT=$1
+    shift
+    echo "Running: $SCRIPT"
+    sh ${vault-scripts}/bin/$SCRIPT "$@"
+  '';
   new-meta = with lib; {
     description = description;
     license = licenses.mit;
-    maintainers = with maintainers; [ mattcamp ];
+    maintainers = with maintainers; [mattcamp];
+    mainProgram = "run-script";
   };
-in override-meta new-meta vault-scripts
+in
+  override-meta new-meta run-script

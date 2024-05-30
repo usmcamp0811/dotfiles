@@ -1,9 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{ options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.nfs.client;
-in {
+with lib.campground; let
+  cfg = config.campground.nfs.client;
+in
+{
   options.campground.nfs.client = with types; {
     enable = mkBoolOpt false "NFS";
     webb = mkBoolOpt false "Whether or not to Webb mount.";
@@ -11,39 +15,42 @@ in {
     chestyfs = mkBoolOpt false "Whether or not to chestyfs mount.";
     k8s = mkBoolOpt false "Whether or not to k8s mount.";
     media = mkBoolOpt false "Whether or not to media mount.";
-
   };
 
   config = mkIf cfg.enable {
     services.rpcbind.enable = true; # needed for NFS
-    systemd.mounts = let
-      commonMountOptions = {
-        type = "nfs";
-        mountConfig = { Options = "noatime"; };
-      };
+    systemd.mounts =
+      let
+        commonMountOptions = {
+          type = "nfs";
+          mountConfig = { Options = "noatime"; };
+        };
+      in
+      [
+        (commonMountOptions
+          // {
+          what = "reckless:/export/media";
+          where = "/mnt/media";
+        })
 
-    in [
-      (commonMountOptions // {
-        what = "reckless:/export/media";
-        where = "/mnt/media";
-      })
+        (commonMountOptions
+          // {
+          what = "webb:/export/webb";
+          where = "/mnt/webb";
+        })
+      ];
 
-      (commonMountOptions // {
-        what = "webb:/export/webb";
-        where = "/mnt/webb";
-      })
-    ];
-
-    systemd.automounts = let
-      commonAutoMountOptions = {
-        wantedBy = [ "multi-user.target" ];
-        automountConfig = { TimeoutIdleSec = "600"; };
-      };
-
-    in [
-      (commonAutoMountOptions // { where = "/mnt/media"; })
-      (commonAutoMountOptions // { where = "/mnt/webb"; })
-    ];
+    systemd.automounts =
+      let
+        commonAutoMountOptions = {
+          wantedBy = [ "multi-user.target" ];
+          automountConfig = { TimeoutIdleSec = "600"; };
+        };
+      in
+      [
+        (commonAutoMountOptions // { where = "/mnt/media"; })
+        (commonAutoMountOptions // { where = "/mnt/webb"; })
+      ];
     #   fileSystems."/mnt/webb" = {
     #     device = "webb:/webb";
     #     fsType = "nfs";
@@ -75,4 +82,3 @@ in {
     #   };
   };
 }
-

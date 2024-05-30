@@ -1,17 +1,9 @@
-{ pkgs, config, lib, nixos-hardware, nixosModules, ... }:
-
+{ lib, ... }:
 with lib;
-with lib.campground;
-
-let
-  newUser = name: {
-    isNormalUser = true;
-    createHome = true;
-    home = "/home/${name}";
-    shell = pkgs.zsh;
-  };
-in {
+with lib.campground; {
   imports = [ ./hardware.nix ];
+
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   campground = {
     user = {
       name = "mcamp";
@@ -20,8 +12,6 @@ in {
       extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
-
-    # deploy-user = enabled;
     archetypes = {
       workstation = enabled;
       server = {
@@ -31,42 +21,50 @@ in {
         hostId = "930864f0";
       };
     };
-    # security.acme = enabled;
     suites = {
       public-hosting = {
         enable = true;
         interface = "eno1";
+        log-to-kafka = true;
+      };
+      kafka = {
+        enable = true;
+        ui-server = true;
+        ui-bootstrap-server = "lucas:9092";
+        zookeeper-id = 4;
+        connect-server = true;
+        schema-server = true;
+        servers = ''
+          server.1=chesty:2888:3888
+          server.2=webb:2888:3888
+          server.3=daly:2888:3888
+          server.4=0.0.0.0:2888:3888
+        '';
       };
     };
     nfs.client.enable = true;
     tools.attic = enabled;
 
     hardware = { nvidia = enabled; };
-
-    # security = {
-    #   doas = enabled;
-    # };
     services = {
+      # flink-task-manager = {
+      #   enable = true;
+      #   flink-conf = ''
+      #     jobmanager.rpc.address: lucas
+      #     jobmanager.rpc.port: 6123
+      #     jobmanager.memory.process.size: 1600m
+      #     taskmanager.memory.process.size: 1728m
+      #     taskmanager.numberOfTaskSlots: 20
+      #     parallelism.default: 1
+      #     jobmanager.execution.failover-strategy: region
+      #     blob.server.port: 6124
+      #     query.server.port: 6125
+      #   '';
+      # };
+      example-flink-job = { enable = true; };
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
-      # netmaker = {
-      #   enable = true;
-      # };
-      # postgresql = {
-      #   enable = true;
-      #   enableTCPIP = true;
-      #   backupEnable = true;
-      #   backupLocation = "/persist/postgresqlBackups/";
-      #   authentication = ''
-      #     local all root trust
-      #     local all postgres peer
-      #     local netmaker netmaker trust
-      #     host  netmaker  netmaker  127.0.0.1/32 trust
-      #     host  all  all  0.0.0.0/0  reject
-      #     host  all  all  ::0/0  reject
-      #   '';
-      # };
       searx = {
         enable = true;
         port = 3249;
@@ -75,10 +73,10 @@ in {
         enable = true;
         port = 8123;
         tang-servers = [
-          # "http://daly:1234" 
-          # "http://mattis:1234" 
+          # "http://daly:1234"
+          # "http://mattis:1234"
           "http://chesty:1234"
-          "http://ermy:1234"
+          # "http://ermy:1234"
           "http://webb:1234"
           "http://reckless:1234"
         ];

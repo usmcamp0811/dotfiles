@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.addons.kitty;
+with lib.campground; let
+  cfg = config.campground.desktop.addons.kitty;
 in {
   options.campground.desktop.addons.kitty = with types; {
     enable =
@@ -10,6 +15,5 @@ in {
   };
 
   config =
-    mkIf cfg.enable { environment.systemPackages = with pkgs; [ kitty ]; };
+    mkIf cfg.enable {environment.systemPackages = with pkgs; [kitty];};
 }
-

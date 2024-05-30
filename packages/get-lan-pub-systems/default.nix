@@ -1,8 +1,13 @@
-{ inputs, lib, writeShellApplication, pkgs, ... }:
-
+{
+  inputs,
+  lib,
+  writeShellApplication,
+  pkgs,
+  ...
+}:
 writeShellApplication {
   name = "get-lan-pub-systems";
-  meta = { mainProgram = "get-lan-pub-systems"; };
+  meta = {mainProgram = "get-lan-pub-systems";};
   text = ''
     # The first argument passed to the script
     TYPE="$1"
@@ -18,7 +23,7 @@ writeShellApplication {
     fi
 
     ${pkgs.nix}/bin/nix eval --json '.#nixosConfigurations' --apply "
-      configurations: (builtins.filter (name: 
+      configurations: (builtins.filter (name:
         configurations.\''${name}$ENABLED_PATH == true
       ) (builtins.attrNames configurations))
     " | ${pkgs.jq}/bin/jq -r '.[]'

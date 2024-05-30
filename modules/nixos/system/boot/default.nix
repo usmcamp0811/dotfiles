@@ -1,9 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{ options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.system.boot;
-in {
+with lib.campground; let
+  cfg = config.campground.system.boot;
+in
+{
   options.campground.system.boot = with types; {
     enable = mkBoolOpt false "Whether or not to enable booting.";
   };

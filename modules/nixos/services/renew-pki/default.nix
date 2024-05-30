@@ -1,7 +1,11 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.renew-pki;
 
   gen-server = pkgs.writeShellScriptBin "generate-server-pki" ''
@@ -67,9 +71,11 @@ in {
     enable =
       mkBoolOpt false "Enable an AWS VPN Certificate Generation Service;";
     vpn-name = mkOpt str "vault" "VPN Name? might not be needed";
-    cert-serial-nbr = mkOpt (listOf str) [ "1234545678890" ]
+    cert-serial-nbr =
+      mkOpt (listOf str) ["1234545678890"]
       "The Serial Numbers of the Certificates to Renew..";
-    domain-name = mkOpt str "aicampground.com"
+    domain-name =
+      mkOpt str "aicampground.com"
       "the domain name used in the PKI cert creation";
     vault-address = mkOption {
       type = str;
@@ -82,25 +88,26 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "campground-pki/issue/vpn-server-role"
+    vault-path =
+      mkOpt str "campground-pki/issue/vpn-server-role"
       "The Vault path to the Client Cert in Vault";
-    vault-tls-path = mkOpt str "secret/campground/vpn"
+    vault-tls-path =
+      mkOpt str "secret/campground/vpn"
       "The Vault path to the TLS Key in Vault";
     common-name =
       mkOpt str "vpn.${cfg.domain-name}" "Common Name for Server Certs";
   };
 
   config = mkIf cfg.enable {
-
-    environment.systemPackages = with pkgs; [ gen-server ];
+    environment.systemPackages = with pkgs; [gen-server];
 
     systemd.timers.genVPNserver-cert = {
       description = "Timer for Generate VPN Client Certs";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "daily"; # Runs every day at midnight
       };
-      unitConfig = { PartOf = [ "genVPNserver-cert.service" ]; };
+      unitConfig = {PartOf = ["genVPNserver-cert.service"];};
     };
 
     systemd.services.genVPNserver-cert = {
@@ -109,8 +116,8 @@ in {
         Type = "oneshot";
         User = "root";
         # ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
-        after = [ "vault-agent.service" ];
-        before = [ "openvpn-campground.service" ];
+        after = ["vault-agent.service"];
+        before = ["openvpn-campground.service"];
       };
       script = ''
         # Generate the server certificate
@@ -124,8 +131,7 @@ in {
 
 
       '';
-      wantedBy = [ "multi-user.target" ];
+      wantedBy = ["multi-user.target"];
     };
-
   };
 }

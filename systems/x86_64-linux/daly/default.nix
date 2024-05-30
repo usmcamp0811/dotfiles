@@ -1,15 +1,6 @@
-{ pkgs, config, lib, nixos-hardware, nixosModules, agenix, ... }:
-
+{ lib, ... }:
 with lib;
-with lib.campground;
-let
-  newUser = name: {
-    isNormalUser = true;
-    createHome = true;
-    home = "/home/${name}";
-    shell = pkgs.zsh;
-  };
-in {
+with lib.campground; {
   imports = [ ./hardware.nix ];
   campground = {
     user = {
@@ -24,6 +15,18 @@ in {
       lan-hosting = {
         enable = true;
         interface = "enp3s0f1";
+      };
+      kafka = {
+        enable = true;
+        interface = "enp3s0f1";
+        zookeeper-id = 3;
+        ui-server = true;
+        servers = ''
+          server.1=chesty:2888:3888
+          server.2=webb:2888:3888
+          server.3=0.0.0.0:2888:3888
+          server.4=lucas:2888:3888
+        '';
       };
     };
     archetypes = {
@@ -42,19 +45,6 @@ in {
 
     services = {
       ldap-client = { enable = mkForce false; };
-      # attic-watch-store = enabled;
-      # ldap-server = enabled;
-      # k0s = {
-      #   enable = true;
-      #   package = pkgs.campground.k0s; 
-      #   role = "controller"; # Options: "controller", "worker", "controller+worker", "single"
-      #   apiAddress = "10.8.0.1";
-      #   # apiSans = [ "daly" "ermy" "campnet" ];
-      #   apiSans = [ "10.8.0.1" ];
-      #   clusterName = "campground";
-      #   isLeader = false; # Set this to true on the initial controller node
-      #   dataDir = "/var/lib/k0s";
-      # };
       borgbackup = {
         enable = true;
         jobs = {
@@ -80,7 +70,7 @@ in {
           "http://webb:1234"
           "http://chesty:1234"
           "http://lucas:1234"
-          "http://ermy:1234"
+          # "http://ermy:1234"
           "http://reckless:1234"
         ];
         port = 8123;
@@ -111,7 +101,7 @@ in {
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            # address = "https://vault.lan"; 
+            # address = "https://vault.lan";
             role-id = "/var/lib/vault/daly/role-id";
             secret-id = "/var/lib/vault/daly/secret-id";
           };
@@ -119,15 +109,6 @@ in {
       };
     };
   };
-
-  # services.nginx = {
-  #   enable = true;
-  #   recommendedProxySettings = true;
-  #   virtualHosts = {
-  #     "vault.lan" = network.create-proxy
-  #       ((network.get-address-parts config.services.vault.address));
-  #   };
-  # };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -137,4 +118,3 @@ in {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
 }
-

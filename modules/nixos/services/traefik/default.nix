@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 with lib;
 with lib.campground;
 let
@@ -22,7 +22,14 @@ in {
     enable = mkBoolOpt false "Enable an Tang;";
     email = mkOpt str config.campground.user.email "The email to use.";
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
-    domain = mkOpt str "aicampground.com" "Default domain name";
+    domains = mkOption {
+      type = listOf str;
+      default = [ "aicampground.com" ];
+      example = [ "example.com" "example.org" ];
+      description = "List of domains.";
+    };
+    log-path = mkOpt str "/var/lib/traefik/access.log"
+      "The location to store the access log.";
     insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
@@ -36,7 +43,6 @@ in {
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
     };
-
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
@@ -59,14 +65,30 @@ in {
 
   config = mkIf cfg.enable {
     users.users.traefik = { extraGroups = [ "docker" ]; };
-
+    systemd.services.traefik.serviceConfig.WorkingDirectory =
+      "${config.services.traefik.package}/bin";
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
       staticConfigOptions = {
+
+        experimental.localPlugins = {
+          cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
+          fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
+        };
         global = {
           checkNewVersion = false;
           sendAnonymousUsage = false;
+        };
+
+        log = {
+          level = "INFO";
+          format = "json";
+        };
+
+        accessLog = {
+          filePath = cfg.log-path;
+          format = "json";
         };
 
         entryPoints = {
@@ -80,10 +102,10 @@ in {
             address = "0.0.0.0:443";
             http.tls = {
               certResolver = "cloudflare";
-              domains = [{
-                main = cfg.domain;
-                sans = [ "*.${cfg.domain}" "*.lan.${cfg.domain}" ];
-              }];
+              domains = map (domain: {
+                main = domain;
+                sans = [ "*.${domain}" "*.lan.${domain}" ];
+              }) cfg.domains;
             };
           };
         } // cfg.entrypoints;
@@ -146,3 +168,4 @@ in {
 # CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
 # CF_API_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
 # CF_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+

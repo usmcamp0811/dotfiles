@@ -1,5 +1,11 @@
-{ lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
-
+{
+  lib,
+  pkgs,
+  config,
+  osConfig ? {},
+  format ? "unknown",
+  ...
+}:
 with lib.campground; {
   campground = {
     user = {

@@ -1,12 +1,8 @@
 { inputs, options, config, pkgs, lib, ... }:
-
 with lib;
 with lib.campground;
 let
-  cfg = config.campground.cli.env;
   cfg-user = config.campground.user;
-
-  is-linux = pkgs.stdenv.isLinux;
   is-darwin = pkgs.stdenv.isDarwin;
 
   aliases = ./aliases.shrc;
@@ -20,7 +16,7 @@ in {
   options.campground.cli.env = with types;
     mkOption {
       type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
-      apply = mapAttrs (n: v:
+      apply = mapAttrs (_n: v:
         if isList v then
           concatMapStringsSep ":" (x: toString x) v
         else
@@ -30,18 +26,17 @@ in {
     };
 
   config = {
-
     home.sessionVariables = {
-      XDG_CACHE_HOME = "${home-directory}/.cache";
       KUBECONFIG = "/etc/k8s/config";
       EDITOR = "nvim";
       TERMINAL = "kitty";
-      BROWSER = "qutebrowser";
+      BROWSER = "firefox";
       READER = "zathura";
       XDG_CONFIG_HOME = "${home-directory}/.config";
       DOCKER = "/var/run/docker.sock";
       DOCKER_CONFIG = "${config.home.sessionVariables.XDG_CONFIG_HOME}/docker";
       XDG_DATA_HOME = "${home-directory}/.local/share";
+      XDG_BIN_HOME = "$HOME/.local/bin";
       TMUX_TMPDIR = "$XDG_RUNTIME_DIR";
       NODE_REPL_HISTORY =
         "${config.home.sessionVariables.XDG_DATA_HOME}/node_repl_history";
@@ -79,6 +74,5 @@ in {
     programs.zsh.initExtra = lib.mkAfter ''
       source ${aliases}
     '';
-
   };
 }

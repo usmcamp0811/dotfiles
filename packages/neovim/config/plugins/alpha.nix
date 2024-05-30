@@ -57,7 +57,7 @@
                 keymap = [
                   "n"
                   "f"
-                  "" 
+                  ""
                   {
                     noremap = true;
                     # silent = true;
@@ -75,11 +75,11 @@
               val = "  New file";
               on_press.__raw = "function() vim.cmd[[ene]] end";
               opts = {
-                shortcut = "e"; 
+                shortcut = "e";
                 keymap = [
                   "n"
                   "e"
-                  "" 
+                  ""
                   {
                     noremap = true;
                     silent = true;
@@ -96,11 +96,11 @@
               val = "󰶂  Recently used files";
               on_press.__raw = "function() vim.cmd('Telescope oldfiles') end";
               opts = {
-                shortcut = "r"; 
+                shortcut = "r";
                 keymap = [
                   "n"
                   "r"
-                  "" 
+                  ""
                   {
                     noremap = true;
                     silent = true;
@@ -117,11 +117,11 @@
               val = "󰇊  Find text";
               on_press.__raw = "function() vim.cmd('Telescope live_grep') end";
               opts = {
-                shortcut = "t"; 
+                shortcut = "t";
                 keymap = [
                   "n"
                   "t"
-                  "" 
+                  ""
                   {
                     noremap = true;
                     silent = true;
@@ -136,14 +136,13 @@
             {
               type = "button";
               val = "󱔚 Neorg Home";
-              on_press.__raw =
-                "function() vim.cmd(':e ~/vimwiki/home/index.norg<CR>') end";
+              on_press.__raw = "function() vim.cmd(':e ~/vimwiki/home/index.norg<CR>') end";
               opts = {
-                shortcut = "N"; 
+                shortcut = "N";
                 keymap = [
                   "n"
                   "N"
-                  "" 
+                  ""
                   {
                     noremap = true;
                     silent = true;
@@ -160,11 +159,11 @@
               val = "󰇊  Quit Neovim";
               on_press.__raw = "function() vim.cmd[[qa]] end";
               opts = {
-                shortcut = "q"; 
+                shortcut = "q";
                 keymap = [
                   "n"
                   "q"
-                  "" 
+                  ""
                   {
                     noremap = true;
                     silent = true;
@@ -194,4 +193,3 @@
     };
   };
 }
-

@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ codewindow-nvim ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [codewindow-nvim];
 
   extraConfigLua = ''
     codewindow = require("codewindow")

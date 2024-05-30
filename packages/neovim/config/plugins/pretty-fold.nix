@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ pretty-fold-nvim ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [pretty-fold-nvim];
 
   extraConfigLua = ''
     local pretty_fold = require('pretty-fold')

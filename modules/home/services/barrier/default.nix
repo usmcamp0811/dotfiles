@@ -1,5 +1,8 @@
-{ lib, config, ... }:
-let
+{
+  lib,
+  config,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf types;
   inherit (lib.internal) mkOpt;
 

@@ -1,11 +1,15 @@
-{ inputs, options, config, lib, pkgs, ... }:
-
+{ inputs
+, options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.addons.gbar;
   inherit (inputs) gBar;
-in {
+in
+{
   options.campground.desktop.addons.gbar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
@@ -26,4 +30,3 @@ in {
     };
   };
 }
-

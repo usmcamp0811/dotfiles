@@ -1,5 +1,9 @@
-{ lib, pkgs, ... }:
-let inherit (lib) getExe getExe';
+{
+  lib,
+  pkgs,
+  ...
+}: let
+  inherit (lib) getExe getExe';
 in {
   "clock" = {
     "tooltip-format" = ''
@@ -16,7 +20,7 @@ in {
     "tooltip" = true;
   };
 
-  "disk" = { "format" = " {percentage_used}%"; };
+  "disk" = {"format" = " {percentage_used}%";};
 
   "idle_inhibitor" = {
     "format" = "{icon} ";
@@ -36,7 +40,7 @@ in {
     };
   };
 
-  "memory" = { "format" = "󰍛 {}%"; };
+  "memory" = {"format" = "󰍛 {}%";};
 
   "battery" = {
     "format" = "{icon} {capacity}%";
@@ -73,20 +77,18 @@ in {
   };
 
   "mpd" = {
-    "format" =
-      "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ";
+    "format" = "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ";
     "format-disconnected" = "Disconnected ";
-    "format-stopped" =
-      "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ";
+    "format-stopped" = "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ";
     "unknown-tag" = "N/A";
     "interval" = 2;
-    "consume-icons" = { "on" = " "; };
+    "consume-icons" = {"on" = " ";};
     "random-icons" = {
       "off" = ''<span color="#f53c3c"></span> '';
       "on" = " ";
     };
-    "repeat-icons" = { "on" = " "; };
-    "single-icons" = { "on" = "1 "; };
+    "repeat-icons" = {"on" = " ";};
+    "single-icons" = {"on" = "1 ";};
     "state-icons" = {
       "paused" = "";
       "playing" = "";
@@ -116,11 +118,11 @@ in {
       "phone" = "";
       "portable" = "";
       "car" = "";
-      "default" = [ "" "" ];
+      "default" = ["" ""];
     };
     "scroll-step" = 1;
     "on-click" = "pavucontrol";
-    "ignored-sinks" = [ "Easy Effects Sink" ];
+    "ignored-sinks" = ["Easy Effects Sink"];
   };
 
   "pulseaudio/slider" = {
@@ -134,11 +136,11 @@ in {
     "critical-threshold" = 80;
     "format-critical" = "{temperatureC}°C {icon}";
     "format" = "{icon} {temperatureC}°C";
-    "format-icons" = [ "" "" "" ];
+    "format-icons" = ["" "" ""];
     "interval" = "5";
   };
 
-  "tray" = { "spacing" = 10; };
+  "tray" = {"spacing" = 10;};
 
   "user" = {
     "format" = "{user}";
@@ -151,8 +153,7 @@ in {
   "wireplumber" = {
     "format" = "{volume}% {icon}";
     "format-muted" = "";
-    "on-click" =
-      "${getExe' pkgs.coreutils "sleep"} 0.1 && ${getExe pkgs.helvum}";
-    "format-icons" = [ "" "" "" ];
+    "on-click" = "${getExe' pkgs.coreutils "sleep"} 0.1 && ${getExe pkgs.helvum}";
+    "format-icons" = ["" "" ""];
   };
 }

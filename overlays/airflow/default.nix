@@ -1,7 +1,4 @@
 { campground-packages, ... }:
-
-final: prev:
-
-{
+final: prev: {
   apache-airflow = campground-packages.packages.${prev.system}.airflow;
 }

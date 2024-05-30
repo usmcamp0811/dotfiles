@@ -1,10 +1,12 @@
-{ config, lib, pkgs, ... }:
-
+{ config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.nixery;
-  nixery = pkgs.nixery-pkgs.nixery.overrideAttrs (old: {
+  nixery = pkgs.nixery-pkgs.nixery.overrideAttrs (_old: {
     # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
     postInstall = ''
       wrapProgram $out/bin/server \
@@ -12,7 +14,8 @@ let
         --prefix PATH : ${pkgs.nix}/bin
     '';
   });
-in {
+in
+{
   options.campground.services.nixery = with types; {
     enable = mkBoolOpt false "Whether or not to enable nixery.";
     port = mkOpt str "4567" "Port to listen on";
@@ -21,14 +24,12 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     users.users.nixery = {
       isNormalUser = false;
       isSystemUser = true;
       description = "Nixery System User";
       group = "nixery";
-      extraGroups =
-        [ "nixery" ]; # Optional if you want the user to be in additional groups
+      extraGroups = [ "nixery" ]; # Optional if you want the user to be in additional groups
       home = "/var/lib/nixery";
     };
 
@@ -56,4 +57,3 @@ in {
     };
   };
 }
-

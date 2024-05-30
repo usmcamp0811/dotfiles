@@ -1,4 +1,4 @@
-{ options, config, lib, pkgs, ... }:
+{ options, config, lib, ... }:
 with lib;
 with lib.campground;
 let
@@ -30,7 +30,6 @@ in {
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
     };
-
   };
 
   config = mkIf cfg.enable {
@@ -42,6 +41,39 @@ in {
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.schema-registry = {
+              rule = "Host(`schema-registry.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "schema-registry";
+            };
+
+            http.services.schema-registry = {
+              loadBalancer.servers = [{ url = "http://10.8.0.70:8436"; }];
+            };
+            http.routers.akhq = {
+              rule = "Host(`akhq.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "akhq";
+            };
+
+            http.services.akhq = {
+              loadBalancer.servers = [{ url = "http://lucas:8435"; }];
+            };
+            http.routers.kafka = {
+              rule = "Host(`kafka.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "kafka";
+            };
+
+            http.services.kafka = {
+              loadBalancer.servers = [
+                { url = "http://lucas:9092"; }
+                { url = "http://webb:9092"; }
+                { url = "http://chest:9092"; }
+                { url = "http://daly:9092"; }
+              ];
+            };
+
             http.routers.grafana = {
               rule = "Host(`grafana.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];

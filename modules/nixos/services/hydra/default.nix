@@ -1,8 +1,12 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.hydra;
-in {
+with lib.campground; let
+  cfg = config.campground.services.hydra;
+in
+{
   options.campground.services.hydra = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
     port = mkOpt int 6956 "Port to Host the hydra server on.";

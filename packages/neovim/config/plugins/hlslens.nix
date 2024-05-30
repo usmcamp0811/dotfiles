@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ nvim-hlslens ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [nvim-hlslens];
 
   extraConfigLua = ''
     local kopts = {noremap = true, silent = true}

@@ -1,12 +1,14 @@
-{ options, config, pkgs, lib, ... }:
-
+{ options
+, config
+, pkgs
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.system.nic-teaming;
-  allNICs = lib.attrNames config.networking.interfaces;
-
-in {
+in
+{
   options.campground.system.nic-teaming = with types; {
     enable = mkBoolOpt false "Enable NIC Teaming";
     ip = mkOpt str "192.168.1.123" "IP to bind team to";
@@ -42,4 +44,3 @@ in {
     environment.systemPackages = with pkgs; [ networkmanager ];
   };
 }
-

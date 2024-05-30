@@ -1,7 +1,13 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, hosts ? { }
-, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  gum,
+  inputs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
@@ -22,18 +28,21 @@ let
       src = ./nixos-hosts.sh;
 
       help = ./help;
-      hosts = if hosts == { } then "" else hosts-csv;
+      hosts =
+        if hosts == {}
+        then ""
+        else hosts-csv;
     };
 
     checkPhase = "";
 
-    runtimeInputs = [ gum ];
+    runtimeInputs = [gum];
   };
   #TODO: replace jakehamilton
   new-meta = with lib; {
-    description =
-      "A helper to list all of the NixOS hosts available from your flake.";
+    description = "A helper to list all of the NixOS hosts available from your flake.";
     license = licenses.asl20;
-    maintainers = with maintainers; [ jakehamilton ];
+    maintainers = with maintainers; [jakehamilton];
   };
-in override-meta new-meta nixos-hosts
+in
+  override-meta new-meta nixos-hosts

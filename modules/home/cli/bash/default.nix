@@ -1,7 +1,11 @@
-{ lib, config, pkgs, ... }:
-
-let cfg = config.campground.cli.bash;
-in {
+{ lib
+, config
+, ...
+}:
+let
+  cfg = config.campground.cli.bash;
+in
+{
   options.campground.cli.bash = {
     enable = lib.mkEnableOption "Bash";
     extraSource = lib.mkOption {
@@ -26,7 +30,8 @@ in {
 
       # Source extra files
       ${lib.concatMapStringsSep "\n"
-      (file: ''[ -r "${file}" ] && source "${file}"'') cfg.extraSource}
+        (file: ''[ -r "${file}" ] && source "${file}"'')
+        cfg.extraSource}
       source $HOME/.config/shell/aliases.shrc
       [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
     '';

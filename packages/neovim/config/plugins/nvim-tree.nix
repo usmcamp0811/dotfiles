@@ -1,5 +1,5 @@
-{ ... }: {
-  plugins = { nvim-tree.enable = true; };
+{...}: {
+  plugins = {nvim-tree.enable = true;};
   # TODO: Move lua into nix
   # something here is broke
   extraConfigLua = ''

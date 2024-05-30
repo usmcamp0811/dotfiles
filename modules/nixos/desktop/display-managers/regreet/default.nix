@@ -1,7 +1,12 @@
-{ config, lib, options, pkgs, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.display-manager.regreet;
   greetdSwayConfig = pkgs.writeText "greetd-sway-config" ''
     exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
@@ -36,7 +41,6 @@ in {
     enable = mkBoolOpt false "Whether or not to enable greetd.";
     swayOutput = mkOpt lines "" "Sway Outputs config.";
     font = mkOpt types.str "MonaspiceNe Nerd Font" "Default font name";
-
   };
 
   config = mkIf cfg.enable {
@@ -58,8 +62,7 @@ in {
 
         GTK = {
           application_prefer_dark_theme = true;
-          cursor_theme_name =
-            "${config.campground.desktop.addons.gtk.cursor.name}";
+          cursor_theme_name = "${config.campground.desktop.addons.gtk.cursor.name}";
           font_name = "${config.campground.system.fonts.default} * 12";
           icon_theme_name = "${config.campground.desktop.addons.gtk.icon.name}";
           theme_name = "${config.campground.desktop.addons.gtk.theme.name}";
@@ -68,8 +71,7 @@ in {
     };
 
     services.greetd.settings.default_session = {
-      command =
-        "env GTK_USE_PORTAL=0 ${getExe pkgs.sway} --config ${greetdSwayConfig}";
+      command = "env GTK_USE_PORTAL=0 ${getExe pkgs.sway} --config ${greetdSwayConfig}";
     };
 
     security.pam.services.greetd = {

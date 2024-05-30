@@ -1,8 +1,12 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.tang;
-in {
+with lib.campground; let
+  cfg = config.campground.services.tang;
+in
+{
   options.campground.services.tang = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     port = mkOption {

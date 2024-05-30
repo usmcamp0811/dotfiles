@@ -1,18 +1,24 @@
-{ config, lib, pkgs, ... }:
-
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.netmaker;
+with lib.campground; let
+  cfg = config.campground.services.netmaker;
 in {
   options.campground.services.netmaker = with types; {
     enable = mkBoolOpt false "Netmaker";
-    server_name = mkOpt str "campground"
+    server_name =
+      mkOpt str "campground"
       "This is the public, resolvable DNS name of the MQ Broker.";
     server_host =
       mkOpt str "" "The public IP of the server where the machine is running.";
     coredns_addr = mkOpt str "" "The public IP of the CoreDNS server.";
     api_port = mkOpt int 8081 "Sets the port for the API on the server.";
-    stun_list = mkOpt str
+    stun_list =
+      mkOpt str
       "stun1.netmaker.io:3478,stun2.netmaker.io:3478,stun1.l.google.com:19302,stun2.l.google.com:19302"
       "Stun list";
     nm_domain = mkOpt str "nm.lucas.lan" "toplevel domain";
@@ -20,7 +26,8 @@ in {
     broker_endpoint = mkOpt str "wss://localhost" "broker endpoint url";
     server_api_conn_string =
       mkOpt str "api.${cfg.nm_domain}:443" "server api con string";
-    server_http_host = mkOpt str "api.${cfg.nm_domain}"
+    server_http_host =
+      mkOpt str "api.${cfg.nm_domain}"
       "Should be the same as SERVER_API_CONN_STRING minus the port.";
     master_key =
       mkOpt str "secretkey" "The admin master key for accessing the API.";
@@ -31,11 +38,12 @@ in {
     dns_mode = mkBoolOpt false "Enables DNS Mode.";
 
     database = mkOption {
-      type = enum [ "postgres" "sqlite" "rqlite" ];
+      type = enum ["postgres" "sqlite" "rqlite"];
       default = "postgres";
       description = "Specify db type to connect with.";
     };
-    sql_conn = mkOpt str "postgres://netmaker@/netmaker?host=/run/postgresql/"
+    sql_conn =
+      mkOpt str "postgres://netmaker@/netmaker?host=/run/postgresql/"
       "Specify the necessary string to connect with your SQL database.";
     sql_host = mkOpt str "127.0.0.1" "Host where the SQL database is running.";
     sql_port = mkOpt int 5432 "Port the SQL database is running on.";
@@ -61,7 +69,8 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/netmaker"
+    vault-path =
+      mkOpt str "secret/campground/netmaker"
       "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = str;
@@ -69,7 +78,7 @@ in {
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -94,7 +103,7 @@ in {
     #       listen = [{ addr = "0.0.0.0"; port = 80; }];
     #       extraConfig = ''
     #         location / {
-    #           root ${pkgs.campground.netmaker-ui}; 
+    #           root ${pkgs.campground.netmaker-ui};
     #           add_header Access-Control-Allow-Origin *.$baseDomain;
     #           add_header X-XSS-Protection "1; mode=block";
     #           add_header X-Frame-Options "SAMEORIGIN";
@@ -164,16 +173,23 @@ in {
       ]; # Optional if you want the user to be in additional groups
       home = "/var/lib/netmaker";
     };
-    users.groups.netmaker = { };
+    users.groups.netmaker = {};
 
-    systemd.tmpfiles.rules = [ "d /var/lib/netmaker 0755 netmaker netmaker -" ];
+    systemd.tmpfiles.rules = ["d /var/lib/netmaker 0755 netmaker netmaker -"];
 
     campground.services.postgresql = {
       enable = true;
-      databases = [{
-        name = "netmaker";
-        user = "netmaker";
-      }];
+      authentication = [
+        "local netmaker netmaker trust"
+        "local postgres netmaker trust"
+        "host netmaker netmaker 127.0.0.1/32 trust"
+      ];
+      databases = [
+        {
+          name = "netmaker";
+          user = "netmaker";
+        }
+      ];
     };
 
     networking.firewall = {
@@ -215,8 +231,8 @@ in {
 
     systemd.services.netmaker = {
       description = "Netmaker Wireguard Mesh Network";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
+      wantedBy = ["multi-user.target"];
+      after = ["network.target"];
       serviceConfig = {
         Restart = "always";
         User = "root";
@@ -255,7 +271,7 @@ in {
         Type = "oneshot";
         User = "root";
       };
-      wantedBy = [ "mosquitto.service" ];
+      wantedBy = ["mosquitto.service"];
       script = ''
         ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/passwordFile /var/lib/vault/mq.pass
         chown mosquitto:mosquitto /var/lib/vault/mq.pass
@@ -266,14 +282,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {
@@ -294,14 +312,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {
@@ -319,4 +339,3 @@ in {
     };
   };
 }
-

@@ -1,14 +1,18 @@
-{ options, config, lib, pkgs, ... }:
+{ options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.archetypes.laptop;
-in {
+with lib.campground; let
+  cfg = config.campground.archetypes.laptop;
+in
+{
   options.campground.archetypes.laptop = with types; {
     enable = mkBoolOpt false "Whether or not to enable the laptop archetype.";
   };
 
   config = mkIf cfg.enable {
-
     services.logind.lidSwitch = "ignore";
 
     services.tlp = {

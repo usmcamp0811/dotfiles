@@ -1,7 +1,4 @@
 { channels, comma, ... }:
-
-final: prev:
-
-{
+final: prev: {
   inherit (comma.packages.${final.system}) comma;
 }

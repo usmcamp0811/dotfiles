@@ -1,5 +1,4 @@
-{ options, config, lib, pkgs, ... }:
-
+{ options, config, lib, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.suites.common;

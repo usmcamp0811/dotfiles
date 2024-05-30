@@ -1,21 +1,30 @@
-{ options, config, pkgs, lib, ... }:
-
+{ options
+, config
+, pkgs
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let
-  cfg = config.campground.desktop.wallpapers;
+with lib.campground; let
   inherit (pkgs.campground) wallpapers;
-in {
+in
+{
   options.campground.desktop.wallpapers = with types; {
-    enable = mkBoolOpt false
-      "Whether or not to add wallpapers to ~/Pictures/wallpapers.";
+    enable =
+      mkBoolOpt false
+        "Whether or not to add wallpapers to ~/Pictures/wallpapers.";
   };
   config = {
-    home.file = lib.foldl (acc: name:
-      let wallpaper = wallpapers.${name};
-      in acc // {
-        "Pictures/wallpapers/${wallpaper.fileName}".source = wallpaper;
-      }) { } (wallpapers.names);
+    home.file = lib.foldl
+      (acc: name:
+        let
+          wallpaper = wallpapers.${name};
+        in
+        acc
+        // {
+          "Pictures/wallpapers/${wallpaper.fileName}".source = wallpaper;
+        })
+      { }
+      (wallpapers.names);
   };
 }
-

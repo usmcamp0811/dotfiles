@@ -1,25 +1,20 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.mlflow;
   inherit (pkgs.campground) mlflow;
-  pythonEnv = pkgs.python3.withPackages (ps:
-    with ps; [
-      mlflow
-      boto3
-      gunicorn
-      mysqlclient
-      psycopg2
-      # add any other Python packages your MLflow server requires
-    ]);
-in {
+in
+{
   options.campground.services.mlflow = with types; {
     enable = mkBoolOpt false "Enable an MLFlow;";
     port = mkOpt int 8000 "Port to Host the mlflow server on.";
     dbURI =
       mkOpt str "postgresql+psycopg2://mlflow:@/mlflow?host=/var/run/postgresql"
-      "Backend DB URI";
+        "Backend DB URI";
     # dbURI = mkOpt str "mysql://mlflow:lflow@localhost/mlflow?unix_socket=/run/mysqld/mysqld.sock" "Backend DB URI";
     artifactRoot = mkOpt str "s3://mlflow" "Artifact Root Location";
     s3EndpointURL =
@@ -28,12 +23,13 @@ in {
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/mlflow"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/mlflow"
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -47,42 +43,36 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     users.users.mlflow = {
       isNormalUser = false;
       isSystemUser = true;
       description = "MLflow system user";
       group = "mlflow";
-      extraGroups =
-        [ "mlflow" ]; # Optional if you want the user to be in additional groups
+      extraGroups = [ "mlflow" ]; # Optional if you want the user to be in additional groups
     };
 
     users.groups.mlflow = { };
 
     campground.services.postgresql = {
       enable = true;
-      # TODO: configure authentication in a way that its set here and doesn't break other places
-      # authentication = ''
-      #   local all root trust
-      #   local all postgres peer
-      #   local vaultwarden vaultwarden trust
-      #   local mattermost mattermost trust
-      #   host  all  all  0.0.0.0/0  reject
-      #   host  all  all  ::0/0  reject
-      # '';
-      databases = [{
-        name = "mlflow";
-        user = "mlflow";
-      }];
+      authentication = [
+        "local mlflow mlflow trust"
+      ];
+      databases = [
+        {
+          name = "mlflow";
+          user = "mlflow";
+        }
+      ];
     };
 
     # campground.services.mysql = {
     #   enable = true;
     #   databases = [
-    #     { 
-    #       name = "mlflow"; 
-    #       user = "mlflow"; 
-    #     } 
+    #     {
+    #       name = "mlflow";
+    #       user = "mlflow";
+    #     }
     #   ];
     # };
 
@@ -91,10 +81,12 @@ in {
       virtualHosts = {
         "mlflow.lan" = {
           http2 = true;
-          listen = [{
-            addr = "0.0.0.0";
-            port = cfg.port;
-          }]; # Specify the port here
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = cfg.port;
+            }
+          ]; # Specify the port here
           locations."/" = {
             proxyPass = "http://127.0.0.1:5000";
             proxyWebsockets = true;
@@ -142,14 +134,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets.environment.templates = {
@@ -164,5 +158,4 @@ in {
       };
     };
   };
-
 }

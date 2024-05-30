@@ -1,5 +1,7 @@
-{ pkgs, new-approle }:
-
+{
+  pkgs,
+  new-approle,
+}:
 pkgs.writeShellScriptBin "save-approle-secrets" ''
   set -e
   # Check that an approle name was provided

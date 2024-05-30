@@ -1,14 +1,19 @@
-{ config, lib, options, pkgs, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.display-manager.lightdm;
+with lib.campground; let
+  cfg = config.campground.desktop.display-manager.lightdm;
 in {
   options.campground.desktop.display-manager.lightdm = with types; {
     enable = mkBoolOpt false "Whether or not to enable lightdm.";
     greeter = lib.mkOption {
       type = lib.types.attrs;
-      description =
-        "Configuration for the LightDM greeter, mirroring the LightDM module options.";
+      description = "Configuration for the LightDM greeter, mirroring the LightDM module options.";
       default = {
         enable = true;
         package = pkgs.lightdm-gtk-greeter;
@@ -32,10 +37,11 @@ in {
     };
 
     systemd.services.campground-user-icon = {
-      before = [ "display-manager.service" ];
-      wantedBy = [ "display-manager.service" ];
+      before = ["display-manager.service"];
+      wantedBy = ["display-manager.service"];
 
-      script = # bash
+      script =
+        # bash
         ''
           config_file=/var/lib/AccountsService/users/${config.campground.user.name}
           icon_file=/run/current-system/sw/share/icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}

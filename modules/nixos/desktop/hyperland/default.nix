@@ -1,4 +1,4 @@
-{ config, lib, options, pkgs, inputs, system, ... }:
+{ config, lib, options, pkgs, system, ... }:
 with lib;
 with lib.campground;
 let
@@ -44,7 +44,8 @@ in {
     campground.desktop.addons.swaylock.enable = true;
     campground.apps = {
       gamemode = {
-        startscript = # bash
+        startscript =
+          # bash
           ''
             ${getExe pkgs.libnotify} 'GameMode started'
             export PATH=$PATH:${programs}
@@ -54,7 +55,8 @@ in {
             } --batch 'keyword decoration:blur 0 ; keyword animations:enabled 0 ; keyword misc:no_vfr 1'
           '';
 
-        endscript = # bash
+        endscript =
+          # bash
           ''
             ${getExe pkgs.libnotify} 'GameMode stopped'
             export PATH=$PATH:${programs}
@@ -85,12 +87,19 @@ in {
       _JAVA_AWT_WM_NONEREPARENTING = "1";
       __GL_GSYNC_ALLOWED = "0";
       __GL_VRR_ALLOWED = "0";
+      GTK_USE_PORTAL = "1";
     };
+
     xdg.portal = {
       enable = true;
       wlr.enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+      # extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+      extraPortals =
+        [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gnome ];
+      config.common.default = "*";
     };
+
+    # For GTK applications, if needed
     environment.systemPackages = with pkgs; [
       hyprpaper
       cliphist

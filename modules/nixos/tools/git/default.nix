@@ -1,12 +1,15 @@
-{ options, config, pkgs, lib, ... }:
-
+{ options
+, config
+, pkgs
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.tools.git;
-  gpg = config.campground.security.gpg;
   user = config.campground.user;
-in {
+in
+{
   options.campground.tools.git = with types; {
     enable = mkBoolOpt false "Whether or not to install and configure git.";
     userName = mkOpt types.str user.fullName "The name to configure git with.";

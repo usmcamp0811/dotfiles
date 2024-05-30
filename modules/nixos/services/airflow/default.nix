@@ -1,10 +1,12 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, ...
+}:
 with lib;
-with lib.campground;
-let
-  labelStudioSocket = "/run/airflow.sock";
+with lib.campground; let
   cfg = config.campground.services.airflow;
-in {
+in
+{
   options.campground.services.airflow = with types; {
     enable = mkBoolOpt false "Enable airflow;";
     port = mkOpt int 8888 "Where the airflow port number";
@@ -12,12 +14,13 @@ in {
     path = mkOpt str "/var/lib/airflow" "Where to put the airflow directory.";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/mlflow"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/mlflow"
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -31,7 +34,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     services.airflow = {
       enable = true;
       path = cfg.path;

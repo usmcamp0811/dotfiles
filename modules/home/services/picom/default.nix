@@ -1,9 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{ options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.picom;
-in {
+with lib.campground; let
+  cfg = config.campground.services.picom;
+in
+{
   options.campground.services.picom = with types; {
     enable = mkBoolOpt false "Whether or not to enable picom.";
   };
@@ -12,4 +16,3 @@ in {
     # programs.picom.enable = true;
   };
 }
-

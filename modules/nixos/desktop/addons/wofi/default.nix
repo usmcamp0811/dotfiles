@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.addons.wofi;
+with lib.campground; let
+  cfg = config.campground.desktop.addons.wofi;
 in {
   options.campground.desktop.addons.wofi = with types; {
     enable =
@@ -10,12 +15,11 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ wofi wofi-emoji ];
+    environment.systemPackages = with pkgs; [wofi wofi-emoji];
 
     campground.home.configFile = {
       "wofi/config".source = ./config;
       "wofi/style.css".source = ./style.css;
     };
-
   };
 }

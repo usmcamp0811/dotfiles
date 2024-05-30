@@ -1,7 +1,11 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.openwrt-backup;
   filelist = builtins.readFile ./filelist.txt;
   backup = pkgs.writeShellScriptBin "backup.sh" ''
@@ -55,23 +59,21 @@ let
 in {
   options.campground.services.openwrt-backup = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
-    backupPath = mkOpt str "/webb/backups/openwrt-backups/campnet-backup"
+    backupPath =
+      mkOpt str "/webb/backups/openwrt-backups/campnet-backup"
       "Place to backup OpenWRT to.";
-
   };
 
   config = mkIf cfg.enable {
-
     systemd.services.backupOpenWRT = {
       description = "Get ZFS Passphrase from Vault and Encrypt with Clevis";
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart =
-          "${pkgs.bash}/bin/bash ${backup}/bin/backup.sh ${filelist} ${cfg.backupPath}";
+        ExecStart = "${pkgs.bash}/bin/bash ${backup}/bin/backup.sh ${filelist} ${cfg.backupPath}";
         # ExecStart = "${pkgs.bash}/bin/bash /config/test.sh";
       };
-      wantedBy = [ "multi-user.target" ];
+      wantedBy = ["multi-user.target"];
     };
   };
 }

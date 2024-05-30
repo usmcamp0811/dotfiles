@@ -1,5 +1,4 @@
 { pkgs, config, lib, inputs, ... }:
-
 with lib;
 with lib.campground;
 let
@@ -13,6 +12,16 @@ in {
   imports = [ ./hardware.nix ];
   # cause ASUS sucks and the ethernet port dies
   boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+    version = "555.42.02";
+    sha256_64bit = "sha256-k7cI3ZDlKp4mT46jMkLaIrc2YUx1lh1wj/J4SVSHWyk=";
+    sha256_aarch64 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    openSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    settingsSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    persistencedSha256 = lib.fakeSha256;
+  };
+  # boot.kernelPackages = mkDefault pkgs.linuxPackages_6_8_10;
   campground = {
     user = {
       name = "mcamp";
@@ -26,11 +35,12 @@ in {
       public-hosting = {
         enable = true;
         interface = "eno1";
+        log-to-kafka = true;
       };
     };
     desktop.addons.rkvm = {
       enableServer = true;
-      # enableClient = true; 
+      # enableClient = true;
       # address = "ata-nuc:5258";
     };
 
@@ -64,17 +74,29 @@ in {
       ups.cp1500 = { enable = true; };
       nvidia = {
         enable = true;
-        driverType = "custom";
-        customDriverPackage =
-          config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
-            version = "550.40.07";
-            # the new driver
-            src = pkgs.fetchurl {
-              url =
-                "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
-              sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
-            };
-          };
+        # driverType = "stable";
+        # driverType = "production";
+        # # driverType = "custom";
+        # customDriverPackage =
+        #   config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
+        #     version = "550.78";
+        #     # the new driver
+        #     src = pkgs.fetchurl {
+        #       url =
+        #         "https://us.download.nvidia.com/XFree86/Linux-x86_64/550.78/NVIDIA-Linux-x86_64-550.78.run";
+        #       sha256 = "sha256-NAcENFJ+ydV1SD5/EcoHjkZ+c/be/FQ2bs+9z+Sjv3M=";
+        #     };
+        #   };
+        # customDriverPackage =
+        #   config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
+        #     version = "550.40.07";
+        #     # the new driver
+        #     src = pkgs.fetchurl {
+        #       url =
+        #         "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
+        #       sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
+        #     };
+        #   };
       };
       bluetooth = enabled;
     };
@@ -113,13 +135,13 @@ in {
         enableTCPIP = true;
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        authentication = ''
-          local all root trust
-          local all postgres peer
-          local atticd atticd trust
-          host  all  all  0.0.0.0/0  reject
-          host  all  all  ::0/0  reject
-        '';
+        authentication = [
+          "local all root trust"
+          "local all postgres peer"
+          "local atticd atticd trust"
+          "host  all  all  0.0.0.0/0  reject"
+          "host  all  all  ::0/0  reject"
+        ];
       };
       nix-snapshotter = enabled;
       zfs-key-server = {
@@ -161,6 +183,4 @@ in {
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
-
 }
-

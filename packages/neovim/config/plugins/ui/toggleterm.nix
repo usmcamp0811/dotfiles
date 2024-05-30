@@ -1,5 +1,5 @@
-{ ... }: {
-  plugins = { toggleterm.enable = true; };
+{...}: {
+  plugins = {toggleterm.enable = true;};
   extraConfigLua = ''
     local status_ok, toggleterm = pcall(require, "toggleterm")
     if not status_ok then
@@ -207,7 +207,7 @@
       on_close = function()
     		vim.g.julia_job_id = nil
     	end,
-        
+
     })
 
     function _JULIA_TOGGLE()

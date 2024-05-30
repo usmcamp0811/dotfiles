@@ -1,7 +1,12 @@
-{ config, lib, options, pkgs, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.desktop.display-manager.gdm;
   gdmHome = config.users.users.gdm.home;
 in {
@@ -15,11 +20,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [ "d ${gdmHome}/.config 0711 gdm gdm" ] ++ (
-      # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
-      # display information is updated.
-      lib.optional (cfg.monitors != null)
-      "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}");
+    systemd.tmpfiles.rules =
+      ["d ${gdmHome}/.config 0711 gdm gdm"]
+      ++ (
+        # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
+        # display information is updated.
+        lib.optional (cfg.monitors != null)
+        "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}"
+      );
 
     services.xserver = {
       enable = true;
@@ -27,17 +35,18 @@ in {
       displayManager = {
         inherit (cfg) defaultSession;
 
-        gdm = { inherit (cfg) enable wayland autoSuspend; };
+        gdm = {inherit (cfg) enable wayland autoSuspend;};
       };
 
       libinput.enable = true;
     };
 
     systemd.services.campground-user-icon = {
-      before = [ "display-manager.service" ];
-      wantedBy = [ "display-manager.service" ];
+      before = ["display-manager.service"];
+      wantedBy = ["display-manager.service"];
 
-      script = # bash
+      script =
+        # bash
         ''
           config_file=/var/lib/AccountsService/users/${config.campground.user.name}
           icon_file=/run/current-system/sw/share/icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
@@ -69,7 +78,9 @@ in {
       };
     };
 
-    system.activationScripts.postInstallGdm = stringAfter [ "users" ] # bash
+    system.activationScripts.postInstallGdm =
+      stringAfter ["users"] # bash
+      
       ''
         echo "Setting gdm permissions for user icon"
         ${

@@ -1,7 +1,4 @@
 { campground-packages, ... }:
-
-final: prev:
-
-{
+final: prev: {
   label_studio = campground-packages.packages.${prev.system}.label-studio;
 }

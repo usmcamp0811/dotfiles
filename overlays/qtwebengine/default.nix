@@ -1,8 +1,4 @@
 { nixpkgs, ... }:
-
-final: prev:
-
-{
-
+final: prev: {
   qtwebengine = nixpkgs.legacyPackages.${prev.system}.qtwebengine;
 }

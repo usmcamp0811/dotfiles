@@ -1,5 +1,4 @@
-{ pkgs, lib, inputs, ... }:
-
+{ pkgs, config, lib, inputs, ... }:
 with lib;
 with lib.campground;
 let
@@ -9,11 +8,18 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-
 in {
   imports = [ ./hardware.nix ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+    version = "555.42.02";
+    sha256_64bit = "sha256-k7cI3ZDlKp4mT46jMkLaIrc2YUx1lh1wj/J4SVSHWyk=";
+    sha256_aarch64 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    openSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    settingsSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+    persistencedSha256 = lib.fakeSha256;
+  };
   campground = {
     user = {
       name = "mcamp";
@@ -22,6 +28,8 @@ in {
       extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
+
+    apps = { steam = enabled; };
 
     archetypes = {
       laptop = enabled;
@@ -41,7 +49,7 @@ in {
       zfs-key-server = {
         enable = false;
         tang-servers =
-          [ "http://webb:1234" "http://lucas:1234" "http://ermy:1234" ];
+          [ "http://webb:1234" "http://lucas:1234" "http://chesty:1234" ];
       };
       wireguard-client = {
         enable = true;
@@ -76,6 +84,4 @@ in {
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
-
 }
-

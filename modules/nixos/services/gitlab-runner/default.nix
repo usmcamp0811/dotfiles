@@ -1,5 +1,4 @@
 { lib, config, pkgs, ... }:
-
 with lib;
 with lib.campground;
 let
@@ -34,7 +33,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     boot.kernel.sysctl."net.ipv4.ip_forward" = true; # 1
     virtualisation.docker.enable = true;
     services.gitlab-runner = {
@@ -42,6 +40,7 @@ in {
       services = {
         # runner for building in docker via host's nix-daemon
         # nix store will be readable in runner, might be insecure
+
         nix = with lib; {
           # File should contain at least these two variables:
           # `CI_SERVER_URL`
@@ -86,7 +85,7 @@ in {
             mkdir -p -m 0755 /etc/nix
             echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
             echo "allow-unfree = true" >> /etc/nix/nix.conf
-            chmod 644 /etc/nix/nix.conf 
+            chmod 644 /etc/nix/nix.conf
           '';
           environmentVariables = {
             ENV = "/etc/profile";
@@ -107,7 +106,8 @@ in {
         vault-agent = {
           services = {
             "gitlab-runner" = {
-              settings = { # replace with the address of your vault
+              settings = {
+                # replace with the address of your vault
                 vault.address = cfg.vault-address;
                 auto_auth = {
                   method = [{

@@ -1,8 +1,11 @@
-{ lib, config, pkgs, ... }:
-
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.ldap-client;
   # This script fixes the problem I encountered using home-manager as a random LDAP user
   # LDAP users don't get `/nix/var/nix/profiles` created so we just watch /home
@@ -32,26 +35,28 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-pki-path = mkOpt str "campground-pki/issue/ldap-server-role"
+    vault-pki-path =
+      mkOpt str "campground-pki/issue/ldap-server-role"
       "The Vault path to the Server Cert in Vault";
-    common-name = mkOpt str "client.ldap.lan.aicampground.com"
+    common-name =
+      mkOpt str "client.ldap.lan.aicampground.com"
       "Common Name for Server Certs";
-    vault-path = mkOpt str "secret/campground/ldap"
+    vault-path =
+      mkOpt str "secret/campground/ldap"
       "The Vault path to the KV containing the LDAP Secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
-    trusted_group = mkOpt str "ldap_user"
+    trusted_group =
+      mkOpt str "ldap_user"
       "The LDAP Group of users who can user home-manager on the system.";
   };
 
   config = mkIf cfg.enable {
-
-    # NOTE! This is super duper important or else you wont be able to login as an LDAP user!!!! 
-    system.activationScripts.binzsh =
-      "ln -sf /run/current-system/sw/bin/zsh /usr/bin/zsh";
+    # NOTE! This is super duper important or else you wont be able to login as an LDAP user!!!!
+    system.activationScripts.binzsh = "ln -sf /run/current-system/sw/bin/zsh /usr/bin/zsh";
     environment.systemPackages = with pkgs; [
       sssd
       openldap
@@ -66,8 +71,7 @@ in {
 
     # TODO: Test if this is needed... also is there a better place to put the tempated home dir?
     security.pam = {
-      makeHomeDir = { skelDirectory = "/etc/skel"; };
-
+      makeHomeDir = {skelDirectory = "/etc/skel";};
     };
     services.sssd = {
       enable = true;
@@ -111,13 +115,13 @@ in {
         RestartSec = "15s";
       };
       # wantedBy = [ "multi-user.target" "nscd.service" ];
-      after = [ "nscd.service" "sssd-after-dns.service" ];
-      requires = [ "sssd-after-dns.service" ];
+      after = ["nscd.service" "sssd-after-dns.service"];
+      requires = ["sssd-after-dns.service"];
     };
 
     systemd.services.sssd-after-dns = {
-      requires = [ "NetworkManager.service" ];
-      after = [ "NetworkManager.service" ];
+      requires = ["NetworkManager.service"];
+      after = ["NetworkManager.service"];
       script = ''
         while ! grep -q '^nameserver' /etc/resolv.conf; do
           sleep 1;
@@ -126,20 +130,18 @@ in {
       serviceConfig.Type = "oneshot";
     };
     systemd.services.nscd = {
-
-      wantedBy = [ "multi-user.target" ];
-      partOf = [ "sssd.service" ];
-      bindsTo = [ "sssd.service" ];
-      after = [ "nscd.service" "sssd-after-dns.service" ];
-      requires = [ "sssd-after-dns.service" ];
-      restartTriggers = [ "sssd.service" ];
+      wantedBy = ["multi-user.target"];
+      partOf = ["sssd.service"];
+      bindsTo = ["sssd.service"];
+      after = ["nscd.service" "sssd-after-dns.service"];
+      requires = ["sssd-after-dns.service"];
+      restartTriggers = ["sssd.service"];
     };
     # Chad says this should let all ldap users in the `ldap_user` group to use home-manager
-    nix.settings.trusted-users = [ "@${cfg.trusted_group}" ];
+    nix.settings.trusted-users = ["@${cfg.trusted_group}"];
 
     systemd.services.userDirectoryWatcher = {
-      description =
-        "Watch for new user directories in /home because LDAP users seem to break home-manager.";
+      description = "Watch for new user directories in /home because LDAP users seem to break home-manager.";
       serviceConfig = {
         Type = "simple";
         User = "root";
@@ -147,19 +149,17 @@ in {
         RestartSec = "5s";
         ExecStart = "${scriptPath}";
       };
-      wantedBy = [ "multi-user.target" ];
+      wantedBy = ["multi-user.target"];
     };
 
     systemd.services.copyCAcert = {
-      description =
-        "Copy LDAP CA Cert somewhere to avoid SSSD shitting the bed randomly";
+      description = "Copy LDAP CA Cert somewhere to avoid SSSD shitting the bed randomly";
       serviceConfig = {
         Type = "oneshot";
         User = "root";
-        ExecStart =
-          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/ca.crt /var/lib/vault/ca.crt";
+        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/ca.crt /var/lib/vault/ca.crt";
       };
-      wantedBy = [ "nss-lookup.target" ];
+      wantedBy = ["nss-lookup.target"];
       # before = [ "nscd.service" ];
     };
 
@@ -167,14 +167,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {
@@ -195,4 +197,3 @@ in {
     };
   };
 }
-

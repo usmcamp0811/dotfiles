@@ -1,7 +1,9 @@
-{ mkShell, pkgs, config, lib, ... }:
+{ mkShell, inputs, system, pkgs, lib, ... }:
 with lib;
 with lib.campground;
-let inherit (lib.campground) override-meta;
+let
+  # inherit (lib.campground) override-meta;
+  inherit (inputs.self.hooks.${system}.pre-commit-check) shellHook;
 in mkShell {
   buildInputs = [
     pkgs.deadnix
@@ -15,9 +17,11 @@ in mkShell {
     pkgs.snowfallorg.flake
     pkgs.statix
     pkgs.campground.vault-scripts
-  ];
+    pkgs.vault
+  ] ++ inputs.self.hooks.${system}.pre-commit-check.enabledPackages;
 
   shellHook = ''
+    ${shellHook}
     echo 🏕️ Welcome to the Campground
     # Additional setup can go here
 

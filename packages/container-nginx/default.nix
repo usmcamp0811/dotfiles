@@ -1,8 +1,15 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
-, hosts ? { }, ... }:
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  inputs,
+  pkgs,
+  hosts ? {},
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
@@ -11,7 +18,7 @@ let
   new-meta = with lib; {
     description = "nginx container";
     license = licenses.asl20;
-    maintainers = with maintainers; [ bboterf ];
+    maintainers = with maintainers; [bboterf];
   };
 
   nginxConfContent = pkgs.writeText "nginx.conf" ''
@@ -53,8 +60,8 @@ let
     tag = "latest";
     copyToRoot = pkgs.buildEnv {
       name = "image-root";
-      pathsToLink = [ "/bin" ];
-      paths = [ pkgs.coreutils pkgs.nginx ];
+      pathsToLink = ["/bin"];
+      paths = [pkgs.coreutils pkgs.nginx];
     };
     runAsRoot = ''
       mkdir -p www/data
@@ -64,8 +71,8 @@ let
       cat ${nginxConfContent} > etc/nginx/nginx.conf '';
     config = {
       WorkingDir = "/www/data";
-      Cmd = [ "${pkgs.nginx}/bin/nginx" ];
+      Cmd = ["${pkgs.nginx}/bin/nginx"];
     };
   };
-
-in override-meta new-meta nginx-image
+in
+  override-meta new-meta nginx-image

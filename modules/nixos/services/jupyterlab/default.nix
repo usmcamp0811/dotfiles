@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.jupyter;
+with lib.campground; let
+  cfg = config.campground.services.jupyter;
 in {
   options.campground.services.jupyter = with types; {
     enable = mkBoolOpt false "Enable Docker;";
@@ -17,24 +22,22 @@ in {
       group = cfg.group;
     };
 
-    users.groups."${cfg.group}" = { };
+    users.groups."${cfg.group}" = {};
 
-    environment.systemPackages = with pkgs; [ jupyterlab ];
+    environment.systemPackages = with pkgs; [jupyterlab];
 
-    systemd.tmpfiles.rules =
-      [ "d ${cfg.workDir} 0755 ${cfg.user} ${cfg.group} -" ];
+    systemd.tmpfiles.rules = ["d ${cfg.workDir} 0755 ${cfg.user} ${cfg.group} -"];
 
     systemd.services.jupyterlab = {
       description = "Jupyter Lab";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
+      wantedBy = ["multi-user.target"];
+      after = ["network.target"];
       serviceConfig = {
         Type = "oneshot";
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.workDir;
-        ExecStart =
-          "/bin/sh -c '${pkgs.jupyterlab}/bin/jupyter-lab --ip=${cfg.ip}'";
+        ExecStart = "/bin/sh -c '${pkgs.jupyterlab}/bin/jupyter-lab --ip=${cfg.ip}'";
       };
     };
   };

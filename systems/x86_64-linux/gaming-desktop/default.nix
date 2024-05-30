@@ -1,5 +1,4 @@
 { pkgs, lib, nixos-hardware, nixosModules, agenix, config, ... }:
-
 with lib;
 with lib.campground;
 let
@@ -9,7 +8,6 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-
 in {
   imports = [ ./hardware.nix ];
 

@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ nvim-navic ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [nvim-navic];
 
   extraConfigLua = ''
     local navic = require("nvim-navic")

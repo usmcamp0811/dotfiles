@@ -1,5 +1,4 @@
 { pkgs, lib, nixos-hardware, nixosModules, ... }:
-
 with lib;
 with lib.campground;
 let
@@ -24,16 +23,13 @@ in {
       uid = 10000;
     };
 
-    # suites = {
-    #   hosting = {
-    #     enable = true;
-    #     lan-interface = "eno1";
-    #     pub-interface = "enp7s0";
-    #     entrypoints = { 
-    #       web = { address = "mattis:80"; }; 
-    #     };
-    #   };
-    # };
+    suites = {
+      lan-hosting = {
+        enable = true;
+        interface = "enp0s20f0u1";
+      };
+    };
+
     archetypes = {
       laptop = enabled;
       server = {
@@ -58,15 +54,13 @@ in {
         enableTCPIP = true;
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        authentication = ''
-          # Allow only local connections for the root user
-          local all root trust 
-          local all postgres peer
-          local vaultwarden vaultwarden trust
-          # Deny other remote connections
-          host  all  all  0.0.0.0/0  reject
-          host  all  all  ::0/0  reject
-        '';
+        authentication = [
+          "local all root trust"
+          "local all postgres peer"
+          "local vaultwarden vaultwarden trust"
+          "host  all  all  0.0.0.0/0  reject"
+          "host  all  all  ::0/0  reject"
+        ];
         databases = [{
           name = "vaultwarden";
           user = "vaultwarden";
@@ -80,7 +74,7 @@ in {
         port = 8123;
         tang-servers = [
           "http://webb:1234"
-          # "http://daly:1234" 
+          # "http://daly:1234"
           "http://ermy:1234"
           "http://reckless:1234"
           "http://lucas:1234"
@@ -111,4 +105,3 @@ in {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
 }
-

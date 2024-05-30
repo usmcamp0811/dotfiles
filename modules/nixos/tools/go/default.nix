@@ -1,8 +1,13 @@
-{ options, config, pkgs, lib, ... }:
-
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.go;
+with lib.campground; let
+  cfg = config.campground.tools.go;
 in {
   options.campground.tools.go = with types; {
     enable = mkBoolOpt false "Whether or not to enable Go support.";
@@ -10,8 +15,8 @@ in {
 
   config = mkIf cfg.enable {
     environment = {
-      systemPackages = with pkgs; [ go gopls ];
-      sessionVariables = { GOPATH = "$HOME/work/go"; };
+      systemPackages = with pkgs; [go gopls];
+      sessionVariables = {GOPATH = "$HOME/work/go";};
     };
   };
 }

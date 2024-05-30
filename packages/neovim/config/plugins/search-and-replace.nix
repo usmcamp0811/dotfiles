@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  extraPlugins = with pkgs.vimPlugins; [ nvim-search-and-replace ];
+{pkgs, ...}: {
+  extraPlugins = with pkgs.vimPlugins; [nvim-search-and-replace];
 
   extraConfigLua = ''
     require('nvim-search-and-replace').setup{

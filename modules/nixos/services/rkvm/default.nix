@@ -1,26 +1,33 @@
-{ inputs, options, config, lib, pkgs, ... }:
-
+{ options
+, config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.addons.rkvm;
-in {
+with lib.campground; let
+  cfg = config.campground.desktop.addons.rkvm;
+in
+{
   options.campground.desktop.addons.rkvm = with types; {
     enableServer =
       mkBoolOpt false "Whether to enable rkvm in the desktop environment.";
     enableClient =
       mkBoolOpt false "Whether to enable rkvm in the desktop environment.";
-    address = mkOpt str "0.0.0.0:5258"
-      "What IP and Port to listen on or the IP:Port of the server";
+    address =
+      mkOpt str "0.0.0.0:5258"
+        "What IP and Port to listen on or the IP:Port of the server";
     switch-keys = mkOpt str ''["left-alt", "left-ctrl"]'' "Switch Keys";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/rkvm"
-      "The Vault path to the KV containing the rkvm secrets.";
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/rkvm"
+        "The Vault path to the KV containing the rkvm secrets.";
     vault-address = mkOption {
       type = str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -105,21 +112,24 @@ in {
         '';
       };
     })
-    ({
+    {
       campground.services.vault-agent = {
         services = {
           "rkvm" = {
-            settings = { # replace with the address of your vault
+            settings = {
+              # replace with the address of your vault
               vault.address = cfg.vault-address;
               auto_auth = {
-                method = [{
-                  type = "approle";
-                  config = {
-                    role_id_file_path = cfg.role-id;
-                    secret_id_file_path = cfg.secret-id;
-                    remove_secret_id_file_after_reading = false;
-                  };
-                }];
+                method = [
+                  {
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }
+                ];
               };
             };
             secrets = {
@@ -152,7 +162,6 @@ in {
           };
         };
       };
-    })
+    }
   ];
 }
-

@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.jupyter;
+with lib.campground; let
+  cfg = config.campground.tools.jupyter;
 in {
   options.campground.tools.jupyter = with types; {
     enable = mkBoolOpt false "Jupyter QtConsole";
@@ -12,7 +17,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     home.file.".config/jupyter/jupyter_qtconsole_config.py".text = ''
       c = get_config()  # noqa
       c.JupyterWidget.syntax_style = "${cfg.syntaxStyle}"  # specify color theme
@@ -41,6 +45,5 @@ in {
       qt5.qtbase
       qt5.qtwebengine
     ];
-
   };
 }

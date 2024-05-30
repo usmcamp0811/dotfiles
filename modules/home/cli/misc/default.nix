@@ -1,8 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.cli.misc;
+with lib.campground; let
+  cfg = config.campground.cli.misc;
 in {
   options.campground.cli.misc = with types; {
     enable = mkBoolOpt false "Whether or not to misc cli programs.";
@@ -32,4 +37,3 @@ in {
     ];
   };
 }
-

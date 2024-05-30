@@ -45,7 +45,7 @@
     vim-sexp
     vim-sexp-mappings-for-regular-people
     tabular
-    suda-vim
+    vim-suda
     plantuml-syntax
     lsp-colors-nvim
     vim-table-mode
@@ -130,4 +130,3 @@
     };
   };
 }
-

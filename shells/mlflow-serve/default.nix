@@ -25,7 +25,6 @@ let
         buildInputs = (old.buildInputs or [ ]) ++ (builtins.map (pkg:
           if builtins.isString pkg then builtins.getAttr pkg super else pkg)
           build-requirements);
-
       })) pypkgs-build-requirements);
   python-env = pkgs.poetry2nix.mkPoetryEnv {
     projectDir = ./.;

@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.wireguard;
+with lib.campground; let
+  cfg = config.campground.services.wireguard;
 in {
   options.campground.services.wireguard = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
@@ -9,9 +14,11 @@ in {
     publicKey = mkOpt str "123456789" "The server's public key";
     endpoint = mkOpt str "vpn.aicampground.com" "VPN Domain Name / IP address.";
     port = mkOpt int 1149 "Port to use for the VPN";
-    ips = mkOpt (listOf str) [ "10.100.0.2/24" "fc10:100:0::1/64" ]
+    ips =
+      mkOpt (listOf str) ["10.100.0.2/24" "fc10:100:0::1/64"]
       "List of IPs of the server end of the tunner interface.";
-    allowedIPs = mkOpt (listOf str) [ "10.100.0.5/32" "fc10:100:0::5/128" ]
+    allowedIPs =
+      mkOpt (listOf str) ["10.100.0.5/32" "fc10:100:0::5/128"]
       "List of IPs of the client IPs supported.";
     postRoutCIDR = mkOpt str "10.100.0.0/24" "CIDR to route traffic to..";
     peers = mkOption {
@@ -23,7 +30,7 @@ in {
           };
           allowedIPs = mkOption {
             type = types.listOf types.str;
-            default = [ ];
+            default = [];
             description = "IPs allowed for this peer.";
           };
           presharedKeyFile = mkOption {
@@ -32,18 +39,18 @@ in {
           };
         };
       });
-      default = [ ];
+      default = [];
       description = "Configuration for WireGuard peers.";
       example = [
         {
           publicKey = "public1";
           presharedKeyFile = "/var/lib/wireguard/preshared-keyfile";
-          allowedIPs = [ "10.100.0.2/32" ];
+          allowedIPs = ["10.100.0.2/32"];
         }
         {
           publicKey = "public2";
           presharedKeyFile = "/var/lib/wireguard/preshared-keyfile";
-          allowedIPs = [ "10.100.0.3/32" ];
+          allowedIPs = ["10.100.0.3/32"];
         }
       ];
     };
@@ -53,10 +60,11 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/wireguard"
+    vault-path =
+      mkOpt str "secret/campground/wireguard"
       "The Vault path to the Server Cert in Vault";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version used for tls key";
     };
@@ -72,15 +80,15 @@ in {
       enable = true;
       enableIPv6 = true;
       externalInterface = "eth0";
-      internalInterfaces = [ "wg0" ];
+      internalInterfaces = ["wg0"];
     };
     services.dnsmasq = {
       enable = true;
-      settings = { interface = "wg0"; };
+      settings = {interface = "wg0";};
     };
 
-    boot.kernel.sysctl = { "net.ipv4.ip_forward" = 1; };
-    networking.firewall.allowedUDPPorts = [ cfg.port 53 ];
+    boot.kernel.sysctl = {"net.ipv4.ip_forward" = 1;};
+    networking.firewall.allowedUDPPorts = [cfg.port 53];
     # networking.firewall.allowedTCPPorts = [ 53 ];
 
     networking.wireguard.enable = true;
@@ -119,14 +127,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {

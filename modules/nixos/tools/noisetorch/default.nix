@@ -1,9 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{ options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.noisetorch;
-in {
+with lib.campground; let
+  cfg = config.campground.tools.noisetorch;
+in
+{
   options.campground.tools.noisetorch = with types; {
     enable = mkBoolOpt false "Whether or not to enable noisetorch.";
   };

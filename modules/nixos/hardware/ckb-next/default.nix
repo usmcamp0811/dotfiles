@@ -1,7 +1,12 @@
-{ options, config, pkgs, lib, ... }:
-
-with lib;
-let cfg = config.campground.hardware.ckb-next;
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
+  cfg = config.campground.hardware.ckb-next;
 in {
   options.campground.hardware.ckb-next = with types; {
     enable = mkEnableOption "Corsair Keyboards & Mice";

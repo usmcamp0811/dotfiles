@@ -1,16 +1,18 @@
-{ lib, config, pkgs, ... }:
-
-let
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.apps.alacritty;
 in {
-  options.campground.apps.alacritty = { enable = mkEnableOption "Alacritty"; };
+  options.campground.apps.alacritty = {enable = mkEnableOption "Alacritty";};
 
   config = mkIf cfg.enable {
     fonts.fontconfig.enable = true;
-    home.packages =
-      [ (pkgs.nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; }) ];
+    home.packages = [(pkgs.nerdfonts.override {fonts = ["FiraCode" "DroidSansMono"];})];
     programs.alacritty = {
       enable = true;
       settings = {
@@ -96,10 +98,10 @@ in {
           unfocused_hollow = true;
         };
         live_config_reload = true;
-        shell = { program = "zsh"; };
+        shell = {program = "zsh";};
         hints = {
-          double_click = { threshold = 300; };
-          url = { launcher = { program = "firefox"; }; };
+          double_click = {threshold = 300;};
+          url = {launcher = {program = "firefox";};};
         };
         key_bindings = [
           {

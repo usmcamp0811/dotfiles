@@ -203,6 +203,5 @@
     };
   };
 }
-
 # sudo nix run github:nix-community/disko -- --mode disko ./disko.nix --arg disks '[ "/dev/nvme0n1" ]'
 

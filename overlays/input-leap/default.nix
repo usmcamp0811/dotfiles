@@ -1,7 +1,1 @@
-{ channels, ... }:
-
-final: prev:
-
-{
-  inherit (channels.unstable) input-leap;
-}
+{ channels, ... }: final: prev: { inherit (channels.unstable) input-leap; }

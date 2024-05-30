@@ -1,6 +1,5 @@
 {
-
-  plugins = { nvim-autopairs.enable = true; };
+  plugins = {nvim-autopairs.enable = true;};
 
   extraConfigLua = ''
     -- Setup nvim-cmp.

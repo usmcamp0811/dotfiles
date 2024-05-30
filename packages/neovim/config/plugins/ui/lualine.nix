@@ -1,4 +1,4 @@
-{ ... }: {
+{...}: {
   plugins = {
     lualine = {
       enable = true;
@@ -6,9 +6,8 @@
       theme = "auto";
       alwaysDivideMiddle = true;
       globalstatus = true;
-      disabledFiletypes.statusline =
-        [ "alpha" "dashboard" "NvimTree" "Outline" ];
-      extensions = [ ];
+      disabledFiletypes.statusline = ["alpha" "dashboard" "NvimTree" "Outline"];
+      extensions = [];
 
       sectionSeparators = {
         left = "";
@@ -127,4 +126,5 @@
     })
   '';
 }
-# TODO: Impliment these lualine sections 
+# TODO: Impliment these lualine sections
+

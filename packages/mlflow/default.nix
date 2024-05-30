@@ -1,7 +1,15 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, system, hosts ? { }, ... }:
-
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  substituteAll,
+  gum,
+  inputs,
+  pkgs,
+  system,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   inherit system;
@@ -11,15 +19,17 @@ let
 
   version = "2.3.2";
 
-  mlflow = pkgs.python311Packages.toPythonApplication
+  mlflow =
+    pkgs.python311Packages.toPythonApplication
     (pkgs.mlflow-unstable.overridePythonAttrs (old: rec {
-
-      propagatedBuildInputs = old.propagatedBuildInputs ++ [
-        pkgs.boto3-unstable
-        pkgs.psycopg2-unstable
-        pkgs.mysqlclient-unstable
-        pkgs.gunicorn-unstable
-      ];
+      propagatedBuildInputs =
+        old.propagatedBuildInputs
+        ++ [
+          pkgs.boto3-unstable
+          pkgs.psycopg2-unstable
+          pkgs.mysqlclient-unstable
+          pkgs.gunicorn-unstable
+        ];
 
       postPatch = ''
         substituteInPlace mlflow/utils/process.py --replace \
@@ -52,7 +62,8 @@ let
   new-meta = with lib; {
     description = description;
     license = licenses.asl20;
-    maintainers = with maintainers; [ mattcamp ];
+    maintainers = with maintainers; [mattcamp];
     mainProgram = "mlflow-server";
   };
-in override-meta new-meta mlflow
+in
+  override-meta new-meta mlflow

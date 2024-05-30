@@ -1,33 +1,34 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.mattermost;
-in {
+with lib.campground; let
+  cfg = config.campground.services.mattermost;
+in
+{
   options.campground.services.mattermost = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
   };
 
   config = mkIf cfg.enable {
-
     campground.services.postgresql = {
       enable = true;
-      # TODO: configure authentication in a way that its set here and doesn't break other places
-      # authentication = ''
-      #   local all root trust
-      #   local all postgres peer
-      #   local vaultwarden vaultwarden trust
-      #   local mattermost mattermost trust
-      #   host  all  all  0.0.0.0/0  reject
-      #   host  all  all  ::0/0  reject
-      # '';
-      databases = [{
-        name = "mattermost";
-        user = "mattermost";
-      }];
+      authentication = [
+        "local mattermost mattermost trust"
+      ];
+      databases = [
+        {
+          name = "mattermost";
+          user = "mattermost";
+        }
+      ];
     };
 
     # have to force this since we create the db elsewhere
-    services.postgresql.enable = lib.mkForce true;
+    services.postgresql = {
+      enable = lib.mkForce true;
+    };
     # open ports for calls
     networking.firewall.allowedTCPPorts = [ 3478 8443 8045 ];
     networking.firewall.allowedUDPPorts = [ 3478 8443 8045 ];
@@ -59,13 +60,10 @@ in {
     };
 
     systemd.services.mattermost = {
-
       serviceConfig = {
-
         # EnvironmentFile = "/tmp/detsys-";
 
         Environment = [
-
           # TODO Check syntax for header
           "MM_SQLSETTINGS_DRIVERNAME=postgres"
           "MM_SQLSETTINGS_DATASOURCE=postgres://mattermost@/mattermost?host=/run/postgresql/"
@@ -89,6 +87,5 @@ in {
         ];
       };
     };
-
   };
 }

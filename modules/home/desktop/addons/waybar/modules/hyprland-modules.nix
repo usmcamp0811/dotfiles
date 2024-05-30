@@ -1,12 +1,16 @@
-{ config, lib, ... }:
-let inherit (lib) getExe';
+{
+  config,
+  lib,
+  ...
+}: let
+  inherit (lib) getExe';
 in {
   "custom/quit" = {
     "format" = "󰗼";
     "tooltip" = false;
     "on-click" = "${
-        getExe' config.wayland.windowManager.hyprland.package "hyprctl"
-      } dispatch exit";
+      getExe' config.wayland.windowManager.hyprland.package "hyprctl"
+    } dispatch exit";
   };
 
   "hyprland/submap" = {
@@ -24,11 +28,11 @@ in {
     "all-outputs" = false;
     "active-only" = "false";
     "on-scroll-up" = "${
-        getExe' config.wayland.windowManager.hyprland.package "hyprctl"
-      } dispatch workspace e+1";
+      getExe' config.wayland.windowManager.hyprland.package "hyprctl"
+    } dispatch workspace e+1";
     "on-scroll-down" = "${
-        getExe' config.wayland.windowManager.hyprland.package "hyprctl"
-      } dispatch workspace e-1";
+      getExe' config.wayland.windowManager.hyprland.package "hyprctl"
+    } dispatch workspace e-1";
     "format" = "{icon} {windows}";
     "format-icons" = {
       "1" = "󰎤";
@@ -56,8 +60,8 @@ in {
       "empty" = "󱓼";
     };
     "persistent-workspaces" = {
-      "*" = [ 1 2 3 4 5 6 7 8 ];
-      "DP-3" = [ 1 ];
+      "*" = [1 2 3 4 5 6 7 8];
+      "DP-3" = [1];
     };
     # "format-window-separator" = "->";
     "window-rewrite-default" = "";
@@ -75,8 +79,7 @@ in {
       "class<brave.*> title<Mattermost.*>" = "󰰑";
       "class<brave.*> title<.*Slack.*>" = "󰒱";
       "class<firefox> title<.*github.*>" = "";
-      "class<firefox> title<.*twitch|youtube|plex|tntdrama|bally sports.*>" =
-        "";
+      "class<firefox> title<.*twitch|youtube|plex|tntdrama|bally sports.*>" = "";
       "class<kitty>" = "";
       "class<mediainfo-gui>" = "󱂷";
       "class<org.kde.digikam>" = "󰄄";
@@ -96,5 +99,4 @@ in {
       "class<libreoffice-impress>" = "󱎐";
     };
   };
-
 }

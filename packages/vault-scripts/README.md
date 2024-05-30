@@ -6,9 +6,8 @@ The Vault Path Checker is a diagnostic tool designed for the Nix Flake ecosystem
 **Usage:**
 
 ```bash
-nix build .\#check-vault-paths
 vault login
-./result/bin/check-vault-paths
+nix run .#vault-scripts -- <script name>
 ```
 
 The expected output table format:

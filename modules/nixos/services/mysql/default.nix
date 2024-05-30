@@ -1,8 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.mysql;
-
+with lib.campground; let
+  cfg = config.campground.services.mysql;
 in {
   options.campground.services.mysql = with types; {
     enable = mkBoolOpt false "Enable MySQL on a server";
@@ -13,10 +17,11 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/database-users"
+    vault-path =
+      mkOpt str "secret/campground/database-users"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -39,8 +44,7 @@ in {
           };
         };
       });
-      description =
-        "Databases to initialize, along with a privileged user for each.";
+      description = "Databases to initialize, along with a privileged user for each.";
     };
 
     package = mkOpt package pkgs.mariadb "What MySQL to use";
@@ -52,15 +56,17 @@ in {
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = [ 3306 ]; # Open MySQL port
+    networking.firewall.allowedTCPPorts = [3306]; # Open MySQL port
     services.mysql = {
       enable = true;
       package = cfg.package;
       ensureDatabases = map (db: db.name) cfg.databases;
-      ensureUsers = map (db: {
-        name = db.user;
-        ensurePermissions = { "${db.name}.*" = "ALL PRIVILEGES"; };
-      }) cfg.databases;
+      ensureUsers =
+        map (db: {
+          name = db.user;
+          ensurePermissions = {"${db.name}.*" = "ALL PRIVILEGES";};
+        })
+        cfg.databases;
     };
 
     services.mysqlBackup = {

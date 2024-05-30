@@ -1,5 +1,4 @@
 { options, config, pkgs, lib, ... }:
-
 with lib;
 with lib.campground;
 let cfg = config.campground.system.zfs;
@@ -16,7 +15,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     environment.systemPackages = with pkgs; [ clevis ];
 
     boot.supportedFilesystems = [ "zfs" ];
@@ -31,14 +29,14 @@ in {
     boot.initrd.network = {
       enable = true;
       postCommands = ''
-        sleep 2
-        export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:$PATH"
-        zpool import -a;
+                sleep 2
+                export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:$PATH"
+                zpool import -a;
 
-        # Retrieve and decrypt the passphrase
-        export PASSPHRASE="$(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt)"
+                # Retrieve and decrypt the passphrase
+                export PASSPHRASE="$(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt)"
 
-        # Load the key for each encrypted ZFS dataset
+                # Load the key for each encrypted ZFS dataset
         for dataset in $(zfs get keystatus -H -o name,value -t filesystem,volume | grep "unavailable" | awk '{print $1}')
         do
             echo -n $PASSPHRASE | zfs load-key $dataset
@@ -68,5 +66,4 @@ in {
 
     services.zfs.autoSnapshot = { enable = true; };
   };
-
 }

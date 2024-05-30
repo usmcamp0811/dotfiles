@@ -1,9 +1,12 @@
-{ lib, config, pkgs, host ? null, format ? "unknown", ... }:
-
+{ lib
+, host ? null
+, ...
+}:
 let
   inherit (lib) types;
   inherit (lib.campground) mkOpt;
-in {
+in
+{
   options.campground.host = {
     name = mkOpt (types.nullOr types.str) host "The host name.";
   };

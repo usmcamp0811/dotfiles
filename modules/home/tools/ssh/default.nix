@@ -1,9 +1,12 @@
-{ lib, config, pkgs, ... }:
-
+{ lib
+, config
+, ...
+}:
 let
-  inherit (lib) types mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkIf;
   cfg = config.campground.tools.ssh;
-in {
+in
+{
   options.campground.tools.ssh = { enable = mkEnableOption "SSH"; };
 
   config = mkIf cfg.enable {
