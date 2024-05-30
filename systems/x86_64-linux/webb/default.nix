@@ -62,6 +62,7 @@ with lib.campground;
 
     services = {
       ldap-client = { enable = mkForce false; };
+      netbird = enabled;
       uptime-kuma = enabled;
       grafana = enabled;
       # keycloak = {
