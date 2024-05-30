@@ -7,5 +7,5 @@ in {
     enable = mkBoolOpt false "Enable Netbird;";
   };
 
-  config = mkIf cfg.enable { netbird.enable = true; };
+  config = mkIf cfg.enable { services.netbird.enable = true; };
 }
