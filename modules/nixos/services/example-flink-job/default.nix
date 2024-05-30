@@ -26,13 +26,15 @@ in {
         # Group = "flink";
         Type = "simple";
         # RemainAfterExit = true;
-        ExecStop = "${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh stop";
+        ExecStop = "${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.campground.example-flink-job}/opt/flink/bin/taskmanager.sh stop-all";
         Restart = "on-failure";
       };
       script = ''
         cp ${pkgs.campground.example-flink-job}/flink-conf.yaml /var/lib/flink/conf/
         cp ${pkgs.campground.example-flink-job}/flink-conf.yaml /var/lib/flink/conf/config.yaml
-        ${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh start
+        ${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh start &
+        ${pkgs.campground.example-flink-job}/opt/flink/bin/taskmanager.sh start &
+        ${pkgs.campground.example-flink-job}/bin/consumer
       '';
     };
 
