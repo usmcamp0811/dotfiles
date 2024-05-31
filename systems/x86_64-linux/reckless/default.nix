@@ -145,7 +145,7 @@ in {
       };
       nix-snapshotter = enabled;
       zfs-key-server = {
-        enable = false;
+        enable = true;
         tang-servers = [
           "http://webb:1234"
           "http://lucas:1234"
