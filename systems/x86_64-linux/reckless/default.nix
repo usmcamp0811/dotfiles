@@ -152,7 +152,6 @@ in {
           "http://chesty:1234"
           "http://mattis:1234"
           "http://daly:1234"
-          "http://ermy:1234"
         ];
       };
 
