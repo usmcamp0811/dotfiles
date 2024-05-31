@@ -103,7 +103,7 @@ let
   producer = pkgs.writeShellScriptBin "producer" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="/var/lib/flink/conf";
+        export FLINK_CONF_DIR="${flink-conf}";
         echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
