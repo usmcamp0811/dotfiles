@@ -48,7 +48,7 @@ def read_from_kafka(env: StreamExecutionEnvironment):
         deserialization_schema=deserialization_schema,
         properties={'bootstrap.servers': broker, 'group.id': 'test_group_1'}
     )
-    kafka_consumer.set_start_from_earliest()
+    # kafka_consumer.set_start_from_earliest()
 
     # Define Kafka producer
     kafka_producer = FlinkKafkaProducer(
@@ -64,7 +64,7 @@ def read_from_kafka(env: StreamExecutionEnvironment):
     datastream = datastream.flat_map(reverse_text, output_type=Types.STRING())
     datastream = datastream.add_sink(kafka_producer)
     # Execute the Flink job
-    env.execute("Example Flink Job")
+    env.execute("Read and Write to Kafka")
     return datastream
 
 if __name__ == '__main__':

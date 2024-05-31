@@ -66,33 +66,11 @@ let
       --jarfile ${pkgs.campground.flink-connector-kafka}
   '';
 
-  flink-conf = pkgs.writeTextFile {
-    name = "flink-conf.yaml";
-    text = ''
-      env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
-      jobmanager.rpc.address: localhost
-      jobmanager.rpc.port: 6123
-      jobmanager.bind-host: 0.0.0.0
-      jobmanager.memory.process.size: 1600m
-      taskmanager.bind-host: 0.0.0.0
-      taskmanager.host: localhost
-      taskmanager.memory.process.size: 1728m
-      taskmanager.numberOfTaskSlots: 1
-      parallelism.default: 1
-      jobmanager.execution.failover-strategy: region
-      rest.address: lucas
-      rest.port: 8081
-      rest.bind-address: 0.0.0.0
-      env.log.dir: /var/lib/flink/logs
-      env.java.home: ${pkgs.openjdk11}
-      env.path: ${pkgs.campground.example-flink-job.python}/bin/:$PATH
-      python.path: ${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages
-      python.executable: ${pkgs.campground.example-flink-job.python}/bin/python
-      python.client.executable: ${python-env}/bin/python
-    '';
-  };
+  stop-all = pkgs.writeShellScriptBin "stop-all" ''
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
+  '';
 
-  producer = pkgs.writeShellScriptBin "producer" ''
+  start-consumer-job = pkgs.writeShellScriptBin "start-consumer-job" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
         export FLINK_CONF_DIR="/var/lib/flink/conf";
@@ -113,6 +91,66 @@ let
         echo "BROKER already set to $BROKER"
     fi
 
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
+    sleep 2
+    ${consumer}/bin/consumer
+  '';
+
+  start-producer-job = pkgs.writeShellScriptBin "start-producer-job" ''
+    # Check if FLINK_CONF_DIR is unset or empty
+    if [ -z "$FLINK_CONF_DIR" ]; then
+        export FLINK_CONF_DIR="/var/lib/flink/conf";
+        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+    else
+        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
+    if [ -z "$TOPIC" ]; then
+        export TOPIC="example-input-topic";
+        echo "TOPIC set to $TOPIC"
+    else
+        echo "TOPIC already set to $TOPIC"
+    fi
+    if [ -z "$BROKER" ]; then
+        export BROKER="localhost:9092";
+        echo "BROKER set to $BROKER"
+    else
+        echo "BROKER already set to $BROKER"
+    fi
+
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
+    sleep 2
+    ${producer}/bin/producer
+  '';
+
+  flink-conf = pkgs.writeTextFile {
+    name = "flink-conf.yaml";
+    text = ''
+      env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
+      jobmanager.rpc.address: localhost
+      jobmanager.rpc.port: 6123
+      jobmanager.bind-host: 0.0.0.0
+      jobmanager.memory.process.size: 1600m
+      taskmanager.bind-host: 0.0.0.0
+      taskmanager.host: localhost
+      taskmanager.memory.process.size: 1728m
+      taskmanager.numberOfTaskSlots: 1
+      parallelism.default: 1
+      jobmanager.execution.failover-strategy: region
+      rest.address: localhost
+      rest.port: 8081
+      rest.bind-address: 0.0.0.0
+      env.log.dir: /var/lib/flink/logs
+      env.java.home: ${pkgs.openjdk11}
+      env.path: ${pkgs.campground.example-flink-job.python}/bin/:$PATH
+      python.path: ${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages
+      python.executable: ${pkgs.campground.example-flink-job.python}/bin/python
+      python.client.executable: ${python-env}/bin/python
+    '';
+  };
+
+  producer = pkgs.writeShellScriptBin "producer" ''
     export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
@@ -171,8 +209,10 @@ let
       cp ${producer}/bin/producer $out/bin/
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${producer}/bin/producer $out/bin/example-flink-job
+      cp ${stop-all}/bin/stop-all $out/bin/stop-all
+      cp ${start-consumer-job}/bin/start-consumer-job $out/bin/
+      cp ${start-producer-job}/bin/start-producer-job $out/bin/
       cp ${flink-conf} $out/flink-conf.yaml
-      
     '';
 
     meta = {
@@ -183,6 +223,9 @@ let
       test = test-flink-job;
       producer = producer;
       consumer = consumer;
+      start-consumer-job = start-consumer-job;
+      start-producer-job = start-producer-job;
+      stop-all = stop-all;
     };
   };
 in override-meta new-meta example-flink-job
