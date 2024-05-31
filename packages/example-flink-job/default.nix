@@ -101,10 +101,34 @@ let
   };
 
   producer = pkgs.writeShellScriptBin "producer" ''
+    # Check if FLINK_CONF_DIR is unset or empty
+    if [ -z "$FLINK_CONF_DIR" ]; then
+        export FLINK_CONF_DIR="/var/lib/flink/conf";
+        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+    else
+        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
+    if [ -z "$TOPIC" ]; then
+        export TOPIC="example-input-topic";
+        echo "TOPIC set to $TOPIC"
+    else
+        echo "TOPIC already set to $TOPIC"
+    fi
+    if [ -z "$BROKER" ]; then
+        export BROKER="localhost:9092";
+        echo "BROKER set to $BROKER"
+    else
+        echo "BROKER already set to $BROKER"
+    fi
+
     export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
+
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
+
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/producer.py \
       -pyclientexec ${python-env}/bin/python \
@@ -157,8 +181,8 @@ let
       cp -r ${python-env}/bin/* $out/bin/
       cp ${consumer}/bin/consumer $out/bin/
       cp ${producer}/bin/producer $out/bin/
+      cp ${consumer}/bin/producer $out/bin/example-flink-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
-      cp ${producer}/bin/producer $out/bin/example-flink-job
       cp ${stop-all}/bin/stop-all $out/bin/stop-all
       cp ${flink-conf} $out/flink-conf.yaml
     '';
