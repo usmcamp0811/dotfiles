@@ -208,7 +208,7 @@ let
       cp ${consumer}/bin/consumer $out/bin/example-flink-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${stop-all}/bin/stop-all $out/bin/stop-all
-      cp ${flink-conf} $out/flink-conf.yaml
+      cp -r ${flink-conf-dir}/conf $out/
     '';
 
     meta = { description = "An Example Flink Job"; };
