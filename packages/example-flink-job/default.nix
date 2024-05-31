@@ -60,6 +60,10 @@ let
     export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
+
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
+
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/consumer.py \
       -pyclientexec python \
@@ -68,60 +72,6 @@ let
 
   stop-all = pkgs.writeShellScriptBin "stop-all" ''
     ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
-  '';
-
-  start-consumer-job = pkgs.writeShellScriptBin "start-consumer-job" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="/var/lib/flink/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
-    if [ -z "$TOPIC" ]; then
-        export TOPIC="example-input-topic";
-        echo "TOPIC set to $TOPIC"
-    else
-        echo "TOPIC already set to $TOPIC"
-    fi
-    if [ -z "$BROKER" ]; then
-        export BROKER="localhost:9092";
-        echo "BROKER set to $BROKER"
-    else
-        echo "BROKER already set to $BROKER"
-    fi
-
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
-    sleep 2
-    ${consumer}/bin/consumer
-  '';
-
-  start-producer-job = pkgs.writeShellScriptBin "start-producer-job" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="/var/lib/flink/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
-    if [ -z "$TOPIC" ]; then
-        export TOPIC="example-input-topic";
-        echo "TOPIC set to $TOPIC"
-    else
-        echo "TOPIC already set to $TOPIC"
-    fi
-    if [ -z "$BROKER" ]; then
-        export BROKER="localhost:9092";
-        echo "BROKER set to $BROKER"
-    else
-        echo "BROKER already set to $BROKER"
-    fi
-
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
-    sleep 2
-    ${producer}/bin/producer
   '';
 
   flink-conf = pkgs.writeTextFile {
@@ -210,8 +160,6 @@ let
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${producer}/bin/producer $out/bin/example-flink-job
       cp ${stop-all}/bin/stop-all $out/bin/stop-all
-      cp ${start-consumer-job}/bin/start-consumer-job $out/bin/
-      cp ${start-producer-job}/bin/start-producer-job $out/bin/
       cp ${flink-conf} $out/flink-conf.yaml
     '';
 
@@ -223,8 +171,6 @@ let
       test = test-flink-job;
       producer = producer;
       consumer = consumer;
-      start-consumer-job = start-consumer-job;
-      start-producer-job = start-producer-job;
       stop-all = stop-all;
     };
   };
