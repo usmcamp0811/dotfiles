@@ -9,9 +9,9 @@ in {
 
   config = mkIf cfg.enable {
 
-    campground.services.flink-task-manager = enabled;
+    # campground.services.flink-task-manager = enabled;
 
-    systemd.services.example-flink-job = {
+    systemd.services.flink-jobmanager = {
       description = "Example Flink Job";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
@@ -26,11 +26,14 @@ in {
         # Group = "flink";
         Type = "simple";
         # RemainAfterExit = true;
-        ExecStop = "${pkgs.campground.example-flink-job}/bin/stop-all}";
+        ExecStop = "${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.campground.example-flink-job}/opt/flink/bin/taskmanager.sh stop-all";
         Restart = "on-failure";
       };
       script = ''
-        ${pkgs.campground.example-flink-job}/bin/start-consumer-job
+        cp ${pkgs.campground.example-flink-job}/flink-conf.yaml /var/lib/flink/conf/
+        cp ${pkgs.campground.example-flink-job}/flink-conf.yaml /var/lib/flink/conf/config.yaml
+        ${pkgs.campground.example-flink-job}/opt/flink/bin/jobmanager.sh start &
+        ${pkgs.campground.example-flink-job}/opt/flink/bin/taskmanager.sh start &
       '';
     };
 

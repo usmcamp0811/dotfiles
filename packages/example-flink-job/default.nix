@@ -91,8 +91,8 @@ let
         echo "BROKER already set to $BROKER"
     fi
 
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
     sleep 2
     ${consumer}/bin/consumer
   '';
@@ -118,8 +118,8 @@ let
         echo "BROKER already set to $BROKER"
     fi
 
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
     sleep 2
     ${producer}/bin/producer
   '';

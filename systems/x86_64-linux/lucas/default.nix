@@ -61,7 +61,7 @@ with lib.campground; {
       #     query.server.port: 6125
       #   '';
       # };
-      # example-flink-job = { enable = true; };
+      example-flink-job = { enable = true; };
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
