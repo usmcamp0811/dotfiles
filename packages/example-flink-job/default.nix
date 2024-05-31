@@ -35,10 +35,34 @@ let
 
   src = ./.;
 
+  flink-conf-dir = pkgs.stdenv.mkDerivation {
+    name = "flink-conf-drv";
+    src = src;
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/conf
+      # Iterate over each file in the source directory
+      for file in "${pkgs.flink}/opt/flink/conf"/*; do
+          # Get the basename of the file
+          basefile=$(basename "$file")
+          if [ "$basefile" == "flink-conf.yaml" ]; then
+              continue
+          fi
+          if [ "$basefile" == "config.yaml" ]; then
+              continue
+          fi
+          # Create the symbolic link in the destination directory
+          ln -s "$file" "$out/conf/$basefile"
+      done
+      cp ${flink-conf} $out/conf/flink-conf.yaml
+      cp ${flink-conf} $out/conf/config.yaml
+    '';
+  };
+
   consumer = pkgs.writeShellScriptBin "consumer" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="/var/lib/flink/conf";
+        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
         echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
@@ -91,7 +115,7 @@ let
       rest.address: localhost
       rest.port: 8081
       rest.bind-address: 0.0.0.0
-      env.log.dir: /var/lib/flink/logs
+      env.log.dir: /tmp/flink-logs
       env.java.home: ${pkgs.openjdk11}
       env.path: ${pkgs.campground.example-flink-job.python}/bin/:$PATH
       python.path: ${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages
@@ -103,7 +127,7 @@ let
   producer = pkgs.writeShellScriptBin "producer" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="${flink-conf}";
+        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
         echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
@@ -181,15 +205,13 @@ let
       cp -r ${python-env}/bin/* $out/bin/
       cp ${consumer}/bin/consumer $out/bin/
       cp ${producer}/bin/producer $out/bin/
-      cp ${consumer}/bin/producer $out/bin/example-flink-job
+      cp ${consumer}/bin/consumer $out/bin/example-flink-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${stop-all}/bin/stop-all $out/bin/stop-all
       cp ${flink-conf} $out/flink-conf.yaml
     '';
 
-    meta = {
-      description = "An Example Flink Job";
-    };
+    meta = { description = "An Example Flink Job"; };
     passthru = {
       python = python-env;
       test = test-flink-job;
