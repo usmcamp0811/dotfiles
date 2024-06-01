@@ -6,7 +6,7 @@ in {
   options.campground.system.zfs = with types; {
     enable = mkBoolOpt false "Whether or not to configure zfs.";
     hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
-    keyfile-url = mkOpt str "http://key-server:8080/zfs-keyfile"
+    keyfile-url = mkOpt str "http://10.8.0.55:8123/zfs-keyfile"
       "The URL for the Clevis encrypted Keyfile";
     public_keys = mkOpt (lib.types.listOf lib.types.str) [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler"
