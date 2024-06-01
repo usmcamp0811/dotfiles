@@ -16,7 +16,7 @@ I know super exciting!
 *Starts both a `jobmanager` and a `taskmanager`, then submits the job to be run.*
 
 ```
-export BROKER="my-kafka-server:9092"
+export BROKER="my-kafka-broker:9092"
 nix run gitlab:usmcamp0811/dotfiles#example-flink-job
 ```
 
