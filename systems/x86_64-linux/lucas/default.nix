@@ -72,6 +72,7 @@ with lib.campground; {
       zfs-key-server = {
         enable = true;
         port = 8123;
+        interface = "eno1";
         tang-servers = [
           # "http://daly:1234"
           # "http://mattis:1234"

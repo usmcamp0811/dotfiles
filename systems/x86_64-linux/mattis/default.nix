@@ -72,6 +72,7 @@ in {
       zfs-key-server = {
         enable = true;
         port = 8123;
+        interface = "enp0s20f0u1";
         tang-servers = [
           "http://webb:1234"
           # "http://daly:1234"
