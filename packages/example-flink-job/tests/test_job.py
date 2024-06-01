@@ -5,7 +5,7 @@ from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import DataTypes, StreamTableEnvironment, EnvironmentSettings
 from pyflink.testing.test_case_utils import PyFlinkTestCase, exec_insert_table
 from pyflink.util.java_utils import get_j_env_configuration
-from job.job import run, reverse_text
+from job.job import run_example_flink_job, reverse_text
 
 
 @pytest.mark.parametrize("message,expected", [

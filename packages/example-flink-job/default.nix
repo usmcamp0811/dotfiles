@@ -5,7 +5,7 @@ let
   inherit (lib.campground) override-meta;
 
   new-meta = with lib; {
-    description = "An Example Flink Job";
+    description = "An Example PyFlink Job";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
     mainProgram = "example-flink-job";
@@ -33,7 +33,41 @@ let
           oldAttrs.postInstall or "";
       })) pypkgs-build-requirements);
 
+  python-env = pkgs.poetry2nix.mkPoetryEnv {
+    projectDir = src;
+    python = pkgs.python311;
+    overrides = p2n-overrides;
+    preferWheels = true; # Prefer wheels to speed up the build process
+  };
+
   src = ./.;
+
+  # TODO: Figure out what is not needed
+  flink-conf = pkgs.writeTextFile {
+    name = "flink-conf.yaml";
+    text = ''
+      env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
+      jobmanager.rpc.address: localhost
+      jobmanager.rpc.port: 6123
+      jobmanager.bind-host: 0.0.0.0
+      jobmanager.memory.process.size: 1600m
+      taskmanager.bind-host: 0.0.0.0
+      taskmanager.host: localhost
+      taskmanager.memory.process.size: 1728m
+      taskmanager.numberOfTaskSlots: 1
+      parallelism.default: 1
+      jobmanager.execution.failover-strategy: region
+      rest.address: localhost
+      rest.port: 8081
+      rest.bind-address: 0.0.0.0
+      env.log.dir: /tmp/flink-logs
+      env.java.home: ${pkgs.openjdk11}
+      env.path: ${python-env}/bin/:$PATH
+      python.path: ${python-env}/lib/python3.11/site-packages
+      python.executable: ${python-env}/bin/python
+      python.client.executable: ${python-env}/bin/python
+    '';
+  };
 
   flink-conf-dir = pkgs.stdenv.mkDerivation {
     name = "flink-conf-drv";
@@ -67,12 +101,6 @@ let
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
-    if [ -z "$TOPIC" ]; then
-        export TOPIC="example-input-topic";
-        echo "TOPIC set to $TOPIC"
-    else
-        echo "TOPIC already set to $TOPIC"
-    fi
     if [ -z "$KAFKA_BROKER" ]; then
         export KAFKA_BROKER="localhost:9092";
         echo "KAFKA_BROKER set to $KAFKA_BROKER"
@@ -99,67 +127,6 @@ let
     ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
   '';
 
-  flink-conf = pkgs.writeTextFile {
-    name = "flink-conf.yaml";
-    text = ''
-      env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
-      jobmanager.rpc.address: localhost
-      jobmanager.rpc.port: 6123
-      jobmanager.bind-host: 0.0.0.0
-      jobmanager.memory.process.size: 1600m
-      taskmanager.bind-host: 0.0.0.0
-      taskmanager.host: localhost
-      taskmanager.memory.process.size: 1728m
-      taskmanager.numberOfTaskSlots: 1
-      parallelism.default: 1
-      jobmanager.execution.failover-strategy: region
-      rest.address: localhost
-      rest.port: 8081
-      rest.bind-address: 0.0.0.0
-      env.log.dir: /tmp/flink-logs
-      env.java.home: ${pkgs.openjdk11}
-      env.path: ${pkgs.campground.example-flink-job.python}/bin/:$PATH
-      python.path: ${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages
-      python.executable: ${pkgs.campground.example-flink-job.python}/bin/python
-      python.client.executable: ${python-env}/bin/python
-    '';
-  };
-
-  producer = pkgs.writeShellScriptBin "producer" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
-    if [ -z "$TOPIC" ]; then
-        export TOPIC="example-input-topic";
-        echo "TOPIC set to $TOPIC"
-    else
-        echo "TOPIC already set to $TOPIC"
-    fi
-    if [ -z "$BROKER" ]; then
-        export BROKER="localhost:9092";
-        echo "BROKER set to $BROKER"
-    else
-        echo "BROKER already set to $BROKER"
-    fi
-
-    export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
-    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
-    export JAVA_HOME=${pkgs.openjdk11};
-
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
-
-    ${pkgs.flink}/bin/flink run \
-      -py ${src}/job/producer.py \
-      -pyclientexec ${python-env}/bin/python \
-      --jarfile ${pkgs.campground.flink-connector-kafka}
-  '';
-
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
     # Resolves the symlink to find the actual path of the script
     SCRIPT=$(readlink -f "$0" || realpath "$0")
@@ -180,13 +147,6 @@ let
     ${python-env}/bin/pytest $SCRIPT_DIR/tests/test_job.py "$@"
   '';
 
-  python-env = pkgs.poetry2nix.mkPoetryEnv {
-    projectDir = src;
-    python = pkgs.python311;
-    overrides = p2n-overrides;
-    preferWheels = true; # Prefer wheels to speed up the build process
-  };
-
   test-flink-job = pkgs.stdenv.mkDerivation {
     name = "test-flink-job";
     src = src;
@@ -197,7 +157,7 @@ let
       ln -s ${example-flink-job}/src/run-tests $out/bin/run-tests
     '';
     meta = {
-      description = "Test for Example Flink Job";
+      description = "Tests for Example Flink Job";
       mainProgram = "run-tests";
     };
   };
@@ -214,15 +174,12 @@ let
       cp -r $src/* $out/src/
       cp -r ${pkgs.flink}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
-      cp ${job}/bin/job $out/bin/
-      cp ${producer}/bin/producer $out/bin/
       cp ${job}/bin/job $out/bin/example-flink-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${stop-all}/bin/stop-all $out/bin/stop-all
       cp -r ${flink-conf-dir}/conf $out/
     '';
 
-    meta = { description = "An Example Flink Job"; };
     passthru = {
       python = python-env;
       test = test-flink-job;
