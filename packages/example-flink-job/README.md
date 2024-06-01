@@ -27,13 +27,21 @@ nix run gitlab:usmcamp0811/dotfiles#example-flink-job
 nix run gitlab:usmcamp0811/dotfiles#example-flink-job.stop-all
 ```
 
-**Run Tests**
 
-*This runs the PyTests*
+## Testing with PyTest
+
+This example job always demonstrates how PyTest can be used to run unit tests of your
+Flink job. At the time of writing this I have yet to determine how to test the `run_example_flink_job`
+function. This is due to some Java issues. If you know how please open an Issue or make a MR. 
+The tests can be run with the following command. 
 
 ```
-nix run gitlab:usmcamp0811/dotfiles#example-flink-job.test
+nix run gitlab:usmcamp0811/dotfiles#example-flink-job.test -- -vvv
 ```
 
 
+## TODO's
 
+- Additional Example Jobs
+- Use Schema's
+- Write to Timescale
