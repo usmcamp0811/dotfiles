@@ -80,10 +80,11 @@ let
         echo "KAFKA_BROKER already set to $KAFKA_BROKER"
     fi
 
-    export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
-    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
+    export PATH=${python-env}/bin/:$PATH
+    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
+    export FLINK_HOME=${pkgs.flink}/opt/flink
 
     ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
     ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
