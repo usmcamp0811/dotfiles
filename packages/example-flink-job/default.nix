@@ -165,10 +165,15 @@ let
     SCRIPT=$(readlink -f "$0" || realpath "$0")
     SCRIPT_DIR=$(dirname "$SCRIPT")
 
-    export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
-    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
+    export PATH=${python-env}/bin/:$PATH
+    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
+    export FLINK_TESTING=1;
+    export FLINK_CONF_DIR="${flink-conf-dir}/conf";
+    export CLASSPATH=$(find ${pkgs.flink}/opt/flink/lib -name '*.jar' | tr '\n' ':'):${pkgs.campground.flink-connector-kafka}
+    export FLINK_HOME=${pkgs.flink}/opt/flink
+    export FLINK_CONNECTOR_JAR="file://${pkgs.campground.flink-connector-kafka}"
 
     # Adjusted to ensure it works regardless of where it's called from
     BASE_DIR=$(dirname "$SCRIPT_DIR")

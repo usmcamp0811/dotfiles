@@ -14,10 +14,13 @@ def reverse_text(message):
     This is just meant to be an example
     Simple Map function that reverses any text that its given. 
     """
-    logging.info("Reversing Text")
+    logging.info(f"Reversing Text: {message}")
     return [message[::-1]]
 
-def run(env: StreamExecutionEnvironment):
+def run_example_flink_job(env: StreamExecutionEnvironment, broker: str):
+    """
+    The main function that defines and run the Flink Job
+    """
     # Define the deserialization schema for the consumer
     deserialization_schema = SimpleStringSchema()
     
@@ -45,8 +48,8 @@ def run(env: StreamExecutionEnvironment):
     return datastream
 
 if __name__ == '__main__':
-    broker = os.getenv("KAFKA_BROKER")
+    broker = os.getenv("KAFKA_BROKER", "localhost:9092")
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
     env = StreamExecutionEnvironment.get_execution_environment()
-    run(env)
+    run_example_flink_job(env, broker)
 
