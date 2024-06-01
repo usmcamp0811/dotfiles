@@ -1,47 +1,70 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from pyflink.datastream import StreamExecutionEnvironment
-from job.job import run, generic_flat_map, remove_error_messages, keep_error_messages
+from job.job import run, reverse_text
 
 @pytest.fixture(scope='module')
 def flink_env():
     return StreamExecutionEnvironment.get_execution_environment()
 
 @pytest.mark.parametrize("message,expected", [
-    ("Simple message", ['{"payload": "Simple message"}']),
-    ("ERROR in Flink job: Something went wrong", ['ERROR in Flink job: Something went wrong'])
+    ("Simple message", ['egassem elpmiS']),
+    ("Another test", ['tset rehtonA']),
 ])
-def test_generic_flat_map(message, expected):
-    result = generic_flat_map(message)
-    print(result, expected)
+def test_reverse_text(message, expected):
+    result = reverse_text(message)
     assert result == expected
 
-@pytest.mark.parametrize("message,expected", [
-    ("ERROR in Flink job: Something went wrong", []),
-    ("Valid message", ["Valid message"])
-])
-def test_remove_error_messages(message, expected):
-    result = list(remove_error_messages(message))
-    assert result == expected
-
-@pytest.mark.parametrize("message,expected", [
-    ("ERROR in Flink job: Something went wrong", ["ERROR in Flink job: Something went wrong"]),
-    ("Valid message", [])
-])
-def test_keep_error_messages(message, expected):
-    result = list(keep_error_messages(message))
-    assert result == expected
-
-def test_run_flink_job(flink_env, mocker):
+def test_run_flink_job(flink_env):
     # Mock the Kafka consumer and producer
-    mocked_consumer = MagicMock()
-    mocked_producer = MagicMock()
-    mocker.patch('pyflink.datastream.connectors.FlinkKafkaConsumer', return_value=mocked_consumer)
-    mocker.patch('pyflink.datastream.connectors.FlinkKafkaProducer', return_value=mocked_producer)
+    with patch('pyflink.datastream.connectors.kafka.FlinkKafkaConsumer') as MockConsumer, \
+         patch('pyflink.datastream.connectors.kafka.FlinkKafkaProducer') as MockProducer:
+        
+        mocked_consumer = MockConsumer.return_value
+        mocked_producer = MockProducer.return_value
 
-    # Run the job
-    run('test_job', 'input_topic', 'output_topic', 'error_topic', 'user', 'pass', 'server')
+        # Mock the environment and the execution
+        with patch('pyflink.datastream.StreamExecutionEnvironment.add_source', return_value=MagicMock()) as mock_add_source, \
+             patch('pyflink.datastream.DataStream.flat_map', return_value=MagicMock()) as mock_flat_map, \
+             patch('pyflink.datastream.DataStream.add_sink') as mock_add_sink, \
+             patch('pyflink.datastream.StreamExecutionEnvironment.execute') as mock_execute:
 
-    # Assertions can be made here about how the Kafka consumer and producers were called
-    mocked_consumer.assert_called()
-    mocked_producer.assert_called()
+            # Run the job
+            run(flink_env)
+
+            # Assertions can be made here about how the Kafka consumer and producers were called
+            mock_add_source.assert_called_with(mocked_consumer)
+            mock_flat_map.assert_called()
+            mock_add_sink.assert_called_with(mocked_producer)
+            mock_execute.assert_called_once_with("Read and Write to Kafka")
+
+def test_kafka_consumer_configuration(flink_env):
+    with patch('pyflink.datastream.connectors.kafka.FlinkKafkaConsumer') as MockConsumer:
+        mocked_consumer = MockConsumer.return_value
+        
+        # Run the job
+        run(flink_env)
+        
+        # Check that the Kafka consumer was created with the correct topic and properties
+        MockConsumer.assert_called_with(
+            topics='example-input-topic',
+            deserialization_schema=MagicMock(),  # SimpleStringSchema instance
+            properties={'bootstrap.servers': 'test_broker', 'group.id': 'test_group_1'}
+        )
+
+def test_kafka_producer_configuration(flink_env):
+    with patch('pyflink.datastream.connectors.kafka.FlinkKafkaProducer') as MockProducer:
+        mocked_producer = MockProducer.return_value
+        
+        # Run the job
+        run(flink_env)
+        
+        # Check that the Kafka producer was created with the correct topic and properties
+        MockProducer.assert_called_with(
+            topic='example-output-topic',
+            serialization_schema=MagicMock(),  # SimpleStringSchema instance
+            producer_config={'bootstrap.servers': 'test_broker'}
+        )
+
+if __name__ == '__main__':
+    pytest.main()

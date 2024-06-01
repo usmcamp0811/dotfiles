@@ -59,7 +59,7 @@ let
     '';
   };
 
-  consumer = pkgs.writeShellScriptBin "consumer" ''
+  job = pkgs.writeShellScriptBin "job" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
         export FLINK_CONF_DIR="${flink-conf-dir}/conf";
@@ -73,11 +73,11 @@ let
     else
         echo "TOPIC already set to $TOPIC"
     fi
-    if [ -z "$BROKER" ]; then
-        export BROKER="localhost:9092";
-        echo "BROKER set to $BROKER"
+    if [ -z "$KAFKA_BROKER" ]; then
+        export KAFKA_BROKER="localhost:9092";
+        echo "KAFKA_BROKER set to $KAFKA_BROKER"
     else
-        echo "BROKER already set to $BROKER"
+        echo "KAFKA_BROKER already set to $KAFKA_BROKER"
     fi
 
     export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
@@ -89,9 +89,9 @@ let
     ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
 
     ${pkgs.flink}/bin/flink run \
-      -py ${src}/job/consumer.py \
+      -py ${src}/job/job.py \
       -pyclientexec python \
-      --jarfile ${pkgs.campground.flink-connector-kafka}
+      --jarfile ${pkgs.campground.flink-connector-kafka} &
   '';
 
   stop-all = pkgs.writeShellScriptBin "stop-all" ''
@@ -164,6 +164,11 @@ let
     SCRIPT=$(readlink -f "$0" || realpath "$0")
     SCRIPT_DIR=$(dirname "$SCRIPT")
 
+    export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
+    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
+    export JAVA_HOME=${pkgs.openjdk11};
+
     # Adjusted to ensure it works regardless of where it's called from
     BASE_DIR=$(dirname "$SCRIPT_DIR")
     ${python-env}/bin/pytest $SCRIPT_DIR/tests/test_job.py "$@"
@@ -203,9 +208,9 @@ let
       cp -r $src/* $out/src/
       cp -r ${pkgs.flink}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
-      cp ${consumer}/bin/consumer $out/bin/
+      cp ${job}/bin/job $out/bin/
       cp ${producer}/bin/producer $out/bin/
-      cp ${consumer}/bin/consumer $out/bin/example-flink-job
+      cp ${job}/bin/job $out/bin/example-flink-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${stop-all}/bin/stop-all $out/bin/stop-all
       cp -r ${flink-conf-dir}/conf $out/
@@ -215,8 +220,6 @@ let
     passthru = {
       python = python-env;
       test = test-flink-job;
-      producer = producer;
-      consumer = consumer;
       stop-all = stop-all;
     };
   };
