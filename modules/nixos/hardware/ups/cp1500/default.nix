@@ -1,14 +1,10 @@
-{ options
-, config
-, lib
-, ...
-}:
+{ options, config, lib, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.hardware.ups.cp1500;
   password = "TODO";
-in
-{
+in {
   options.campground.hardware.ups.cp1500 = with types; {
     enable = mkEnableOption "Enable the management of CP1500 UPS";
     vid = mkOpt str "0764" "Set the vid";
@@ -20,11 +16,12 @@ in
     # chown that to nut:
     # $ sudo chown nut:nut /var/state/ups
     power.ups = {
-      enable = true;
+      # enable = true;
       mode = "standalone";
       # debug by calling the driver:
       # $ sudo NUT_CONFPATH=/etc/nut/ usbhid-ups -u nut -D -a cyberpower
       ups.cyberpower = {
+        upsmon = 2;
         # find your driver here:
         # https://networkupstools.org/docs/man/usbhid-ups.html
         driver = "usbhid-ups";
@@ -92,7 +89,6 @@ in
         text = ''
           RUN_AS_USER nut
 
-          MINSUPPLIES 1
           SHUTDOWNCMD "shutdown -h 0"
           POLLFREQ 5
           POLLFREQALERT 5
@@ -101,7 +97,7 @@ in
           RBWARNTIME 43200
           NOCOMMWARNTIME 300
           FINALDELAY 5
-          MONITOR cyberpower@localhost 1 upsmon ${password} master
+          MONITOR cyberpower@localhost 1 upsmon ${password} primary
         '';
         target = "nut/upsmon.conf";
         mode = "0444";
