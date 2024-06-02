@@ -41,6 +41,17 @@ in {
     };
   };
 
+  users.users.mboterf = {
+  packages = with pkgs; [
+    gns3-gui
+    emacs29
+    logseq
+    calc
+    foliate
+    azure-cli
+  ];
+
+  };
   campground.cache.campground = enabled;
   campground.services = { };
 
