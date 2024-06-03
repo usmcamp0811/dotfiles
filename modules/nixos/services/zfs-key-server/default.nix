@@ -10,7 +10,15 @@ let
 in {
   options.campground.services.zfs-key-server = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
-    port = mkOpt int 8082 "Port to Host the NGINX porxy on.";
+    port = mkOpt int 8084 "Port to Host the NGINX porxy on.";
+    interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
+    lan-ip = mkOpt str "10.8.0.55" "IP to use for the LAN Instance";
+    tang-servers = mkOption {
+      type = listOf str;
+      default = [ ];
+      example = [ "http://10.8.0.140:1234" "http://10.8.0.127:1234" ];
+      description = "List of Tang servers.";
+    };
     threshold = mkOpt int 1 "Number of tanger serveres required to unlock";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
