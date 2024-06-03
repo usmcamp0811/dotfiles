@@ -9,14 +9,12 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      python312
+      campground.python
       libstdcxx5
       zlib
       gcc
       glib
       poetry
-      python312Packages.pandas
-      python312Packages.bpython
     ];
 
     home.sessionVariables = {
