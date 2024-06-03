@@ -100,6 +100,7 @@ with lib.campground; {
       emoji-picker = enabled;
       scientific-fhs = enabled;
       jupyter = enabled;
+      python = enabled;
       node = enabled;
     };
   };
