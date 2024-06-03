@@ -10,7 +10,7 @@ let
 in {
   options.campground.services.zfs-key-server = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
-    port = mkOpt int 8082 "Port to Host the NGINX porxy on.";
+    port = mkOpt int 8084 "Port to Host the NGINX porxy on.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     lan-ip = mkOpt str "10.8.0.55" "IP to use for the LAN Instance";
     tang-servers = mkOption {
