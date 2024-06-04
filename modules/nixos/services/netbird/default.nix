@@ -7,5 +7,9 @@ in {
     enable = mkBoolOpt false "Enable Netbird;";
   };
 
-  config = mkIf cfg.enable { services.netbird.enable = true; };
+  config = mkIf cfg.enable {
+    services.netbird.enable = true;
+    environment.systemPackages = [ pkgs.netbird-ui ];
+
+  };
 }
