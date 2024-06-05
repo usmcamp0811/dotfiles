@@ -1,49 +1,36 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 with lib;
-with lib.campground;
 let cfg = config.campground.services.prometheus;
 in {
   options.campground.services.prometheus = {
     enable = mkEnableOption "Prometheus";
+    port = mkOpt int 9001 "Port to Host the Prometheus server on.";
+    exporter-port = mkOpt int 9002 "Port to Host the Prometheus exporter on.";
+    host = mkOpt str config.networking.hostName
+      "The hostname or ip to use for Prometheus.";
   };
 
   config = mkIf cfg.enable {
     services.prometheus = {
       enable = true;
-      scrapeConfigs = [{
-        job_name = "systemd";
-        static_configs = [{
-          targets = [ "localhost:9100" ]; # Add all your machine addresses here
-        }];
-      }];
-    };
-
-    services.grafana = {
-      enable = true;
-      datasources = [{
-        name = "Prometheus";
-        type = "prometheus";
-        url = "http://localhost:9090"; # Address of your Prometheus server
-        access = "proxy";
-      }];
-      dashboards.default = {
-        systemd = {
-          title = "Systemd Services";
-          panels = [{
-            title = "Service Status";
-            type = "table";
-            targets = [{ expr = "up{job='systemd'}"; }];
-          }];
+      port = cfg.port;
+      exporters = {
+        node = {
+          enable = true;
+          enabledCollectors = [ "systemd" ];
+          port = cfg.exporter-port;
         };
       };
-    };
-
-    services.node_exporter = {
-      enable = true;
-      textfileCollector = {
-        enable = true;
-        files = "/var/lib/node_exporter/*.prom";
-      };
+      scrapeConfigs = [{
+        job_name = "${cfg.host}-system-monitor";
+        static_configs = [{
+          targets = [
+            "${cfg.host}:${
+              toString config.services.prometheus.exporters.node.port
+            }"
+          ];
+        }];
+      }];
     };
   };
 }
