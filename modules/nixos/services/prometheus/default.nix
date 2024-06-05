@@ -19,9 +19,9 @@ in {
       port = cfg.port;
       exporters = {
         node = {
-          enable = cfg.systemd-exporter;
+          enable = cfg.exporter-enable;
           enabledCollectors = [ "systemd" ];
-          port = cfg.exporter-enable;
+          port = cfg.exporter-port;
         };
       };
       scrapeConfigs = [{
