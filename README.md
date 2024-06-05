@@ -79,6 +79,8 @@ Leveraging the SnowfallOrg lib architecture, my Nix setup offers a streamlined a
 
 - **Home Environment Configs**: Similarly, the `homes/` folder arranges configurations by architecture, which is particularly handy for managing home environments via Nix.
 
+- **System Observability & Monitoring**: Integrate Prometheus, Grafana, and Loki to achieve comprehensive monitoring of all systems, including Systemd services.
+
 This methodology fosters a user-friendly approach to Nix configuration, balancing both flexibility and modularity for better manageability.
     
 ## Credits
