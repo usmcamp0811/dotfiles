@@ -5,8 +5,8 @@ let cfg = config.campground.services.prometheus;
 in {
   options.campground.services.prometheus = with types; {
     enable = mkBoolOpt false "Enable an Prometheus";
-    port = mkOpt int 9001 "Port to Host the Prometheus server on.";
-    exporter-port = mkOpt int 9002 "Port to Host the Prometheus exporter on.";
+    port = mkOpt int 9011 "Port to Host the Prometheus server on.";
+    exporter-port = mkOpt int 9012 "Port to Host the Prometheus exporter on.";
     hostName = mkOpt str config.networking.hostName
       "The hostname or ip to use for Prometheus.";
   };
@@ -19,7 +19,7 @@ in {
         node = {
           enable = true;
           enabledCollectors = [ "systemd" ];
-          port = 9002;
+          port = cfg.exporter-port;
         };
       };
       scrapeConfigs = [{
