@@ -33,7 +33,7 @@ in {
         docker = enabled;
         ldap-client = enabled;
         tang = enabled;
-        prometheus = enabled;
+        prometheus = { exporter-enable = true; };
         k0s = {
           enable = cfg.k8s;
           package = pkgs.campground.k0s;
