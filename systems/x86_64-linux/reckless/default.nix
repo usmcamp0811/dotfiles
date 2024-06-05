@@ -107,6 +107,7 @@ in {
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
+      netbird = enabled;
       attic = {
         enable = true;
         settings = {
