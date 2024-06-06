@@ -66,23 +66,20 @@ with lib.campground;
       uptime-kuma = enabled;
       grafana = {
         enable = true;
-        provision = {
-          enable = true;
-          datasources = [
-            {
-              name = "Prometheus";
-              type = "prometheus";
-              access = "proxy";
-              url = "http://webb:9011";
-            }
-            {
-              name = "Loki";
-              type = "loki";
-              access = "proxy";
-              url = "http://webb:3030";
-            }
-          ];
-        };
+        datasources = [
+          {
+            name = "Prometheus";
+            type = "prometheus";
+            access = "proxy";
+            url = "http://webb:9011";
+          }
+          {
+            name = "Loki";
+            type = "loki";
+            access = "proxy";
+            url = "http://webb:3030";
+          }
+        ];
       };
       prometheus = enabled;
       loki = enabled;

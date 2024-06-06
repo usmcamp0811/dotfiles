@@ -1,18 +1,36 @@
 { lib, config, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.grafana;
+let 
+  cfg = config.campground.services.grafana;
+  datasourceType = types.attrsOf (types.submodule {
+    options = {
+      name = mkOption {
+        type = types.str;
+        description = "The name of the datasource.";
+      };
+      type = mkOption {
+        type = types.str;
+        description = "The type of the datasource.";
+      };
+      access = mkOption {
+        type = types.str;
+        description = "The access mode of the datasource.";
+      };
+      url = mkOption {
+        type = types.str;
+        description = "The URL of the datasource.";
+      };
+    };
+  });
 in {
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
-    provision = mkOption {
-      type = attrs;
-      default = {
-        enable = false;
-        datasources = [ ];
-      };
-      description = "Grafana provisioning configuration";
+    datasources = mkOption {
+      type = types.listOf datasourceType;
+      description = "A list of datasources.";
+      default = [];
     };
     domain = mkOpt str "grafana.lan.aicampground.com"
       "Domain to Host the grafana server on.";
@@ -42,7 +60,7 @@ in {
       enable = true;
       provision = {
         enable = true;
-        datasources = cfg.provision.datasources;
+        datasources = cfg.datasources;
       };
       settings = {
         security = {
