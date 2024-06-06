@@ -66,6 +66,7 @@ with lib.campground;
       uptime-kuma = enabled;
       grafana = enabled;
       prometheus = enabled;
+      loki = enabled;
       # keycloak = {
       #   enable = true;
       #   port = 43852;
