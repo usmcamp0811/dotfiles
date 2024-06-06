@@ -41,7 +41,7 @@ in {
           from = "2022-06-06";
           store = "boltdb-shipper";
           object_store = "filesystem";
-          schema = "v11";
+          schema = "v13";
           index = {
             prefix = "index_";
             period = "24h";
@@ -67,6 +67,7 @@ in {
       default = {
         reject_old_samples = true;
         reject_old_samples_max_age = "168h";
+        allow_structured_metadata = false;
       };
       description = "Limits configuration";
     };
