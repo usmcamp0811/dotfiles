@@ -1,16 +1,15 @@
 { lib, config, ... }:
 with lib;
 with lib.campground;
-let 
-  cfg = config.campground.services.grafana;
+let cfg = config.campground.services.grafana;
 in {
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
     datasources = mkOption {
-      type = types.listOf types.attrs;
+      type = types.listOf (types.attrsOf types.str);
       description = "A list of datasources.";
-      default = [];
+      default = [ ];
     };
     domain = mkOpt str "grafana.lan.aicampground.com"
       "Domain to Host the grafana server on.";
