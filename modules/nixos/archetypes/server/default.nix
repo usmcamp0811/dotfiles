@@ -34,7 +34,10 @@ in {
         ldap-client = enabled;
         tang = enabled;
         prometheus = { exporter-enable = true; };
-        promtail = enabled;
+        promtail = {
+          enable = true;
+          loki-uri = "webb:3030";
+        };
         k0s = {
           enable = cfg.k8s;
           package = pkgs.campground.k0s;

@@ -5,8 +5,9 @@ let cfg = config.campground.services.promtail;
 in {
   options.campground.services.promtail = with types; {
     enable = mkBoolOpt false "Enable an Promtail";
-    port = mkOpt int 3031 "Port to Host the Promtail server on.";
-    loki-host = mkOpt str config.networking.hostName
+    port = mkOpt int 3031 "Port to listen on";
+    loki-uri = mkOpt str "localhost:3030" "loki host:port";
+    hostName = mkOpt str config.networking.hostName
       "The hostname or ip to use for Promtail to scrape.";
 
   };
@@ -20,11 +21,7 @@ in {
           grpc_listen_port = 0;
         };
         positions = { filename = "/tmp/positions.yaml"; };
-        clients = [{
-          url = "http://${cfg.loki-host}:${
-              toString cfg.loki-port
-            }/loki/api/v1/push";
-        }];
+        clients = [{ url = "http://${cfg.loki-uri}/loki/api/v1/push"; }];
         scrape_configs = [{
           job_name = "journal";
           journal = {
