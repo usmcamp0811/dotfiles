@@ -39,7 +39,12 @@ in {
       enable = true;
       provision = {
         enable = true;
-        datasources = cfg.datasources;
+        datasources = {
+          settings = {
+            apiVersion = 1;
+            datasources = cfg.datasources;
+          };
+        };
       };
       settings = {
         security = {
