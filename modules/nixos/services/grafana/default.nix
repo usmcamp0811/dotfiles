@@ -40,7 +40,10 @@ in {
   config = mkIf cfg.enable {
     services.grafana = {
       enable = true;
-      provision = cfg.provision;
+      provision = {
+        enable = true;
+        datasources = cfg.provision.datasources;
+      };
       settings = {
         security = {
           admin_user = "$__env{ADMIN_USER}";
