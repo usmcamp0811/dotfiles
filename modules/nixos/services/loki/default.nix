@@ -16,10 +16,7 @@ in {
       description =
         "The IP address or hostname Loki listens on for HTTP requests";
     };
-    authEnabled = mkBoolOption {
-      default = false;
-      description = "Enable authentication";
-    };
+    authEnabled = mkBoolOpt false "Enable authentication";
     ingester = mkOption {
       type = attrs;
       default = {
@@ -34,7 +31,6 @@ in {
         max_chunk_age = "1h";
         chunk_target_size = 999999;
         chunk_retain_period = "30s";
-        max_transfer_retries = 0;
       };
       description = "Configuration for the ingester";
     };
@@ -61,7 +57,6 @@ in {
           active_index_directory = "/var/lib/loki/boltdb-shipper-active";
           cache_location = "/var/lib/loki/boltdb-shipper-cache";
           cache_ttl = "24h";
-          shared_store = "filesystem";
         };
         filesystem = { directory = "/var/lib/loki/chunks"; };
       };
@@ -75,11 +70,6 @@ in {
       };
       description = "Limits configuration";
     };
-    chunkStoreConfig = mkOption {
-      type = attrs;
-      default = { max_look_back_period = "0s"; };
-      description = "Chunk store configuration";
-    };
     tableManager = mkOption {
       type = attrs;
       default = {
@@ -90,11 +80,7 @@ in {
     };
     compactor = mkOption {
       type = attrs;
-      default = {
-        working_directory = "/var/lib/loki";
-        shared_store = "filesystem";
-        compactor_ring = { kvstore = { store = "inmemory"; }; };
-      };
+      default = { working_directory = "/var/lib/loki"; };
       description = "Compactor configuration";
     };
   };
@@ -103,8 +89,8 @@ in {
     services.loki = {
       enable = true;
       configuration = {
-        server.http_listen_address = cfg.httpListenAddress;
         server.http_listen_port = cfg.httpListenPort;
+        server.http_listen_address = cfg.httpListenAddress;
         auth_enabled = cfg.authEnabled;
 
         ingester = cfg.ingester;
@@ -115,8 +101,6 @@ in {
 
         limits_config = cfg.limitsConfig;
 
-        chunk_store_config = cfg.chunkStoreConfig;
-
         table_manager = cfg.tableManager;
 
         compactor = cfg.compactor;
@@ -125,3 +109,4 @@ in {
     };
   };
 }
+
