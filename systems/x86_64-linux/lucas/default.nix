@@ -61,7 +61,7 @@ with lib.campground; {
       #     query.server.port: 6125
       #   '';
       # };
-      example-flink-job = { enable = true; };
+      # example-flink-job = { enable = true; };
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
@@ -72,6 +72,7 @@ with lib.campground; {
       zfs-key-server = {
         enable = true;
         port = 8123;
+        interface = "eno1";
         tang-servers = [
           # "http://daly:1234"
           # "http://mattis:1234"

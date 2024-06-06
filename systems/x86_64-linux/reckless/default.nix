@@ -102,11 +102,13 @@ in {
     };
 
     services = {
+      prometheus = enabled;
       openllm = enabled;
       file-share = enabled;
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
+      netbird = enabled;
       attic = {
         enable = true;
         settings = {
@@ -145,14 +147,14 @@ in {
       };
       nix-snapshotter = enabled;
       zfs-key-server = {
-        enable = false;
+        enable = true;
+        interface = "eno1";
         tang-servers = [
           "http://webb:1234"
           "http://lucas:1234"
           "http://chesty:1234"
           "http://mattis:1234"
           "http://daly:1234"
-          "http://ermy:1234"
         ];
       };
 

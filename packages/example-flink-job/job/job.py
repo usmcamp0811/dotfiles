@@ -1,51 +1,55 @@
 import logging
 import sys
+import os
 
 from pyflink.common import Types
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.datastream.connectors.kafka import FlinkKafkaProducer, FlinkKafkaConsumer
-from pyflink.datastream.formats.json import JsonRowSerializationSchema
+from pyflink.datastream.formats.csv import CsvRowSerializationSchema, CsvRowDeserializationSchema
 from pyflink.common.serialization import SimpleStringSchema
 
-# Initialize logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format="%(message)s")
 
-def write_to_kafka(env):
-    type_info = Types.ROW([Types.INT(), Types.STRING()])
-    ds = env.from_collection(
-        [(1, 'hi'), (2, 'hello'), (3, 'hi'), (4, 'hello'), (5, 'hi'), (6, 'hello'), (6, 'hello')],
-        type_info=type_info)
+def reverse_text(message):
+    """
+    This is just meant to be an example
+    Simple Map function that reverses any text that its given. 
+    """
+    logging.info(f"Reversing Text: {message}")
+    return [message[::-1]]
 
-    serialization_schema = JsonRowSerializationSchema.Builder() \
-        .with_type_info(type_info) \
-        .build()
-    kafka_producer = FlinkKafkaProducer(
-        topic='test_json_topic',
-        serialization_schema=serialization_schema,
-        producer_config={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group'}
-    )
-
-    ds.add_sink(kafka_producer)
-    env.execute("Write to Kafka")
-
-def read_from_kafka(env):
+def run_example_flink_job(env: StreamExecutionEnvironment, broker: str):
+    """
+    The main function that defines and run the Flink Job
+    """
+    # Define the deserialization schema for the consumer
     deserialization_schema = SimpleStringSchema()
+    
+    # Define Kafka consumer
     kafka_consumer = FlinkKafkaConsumer(
-        topics='test_json_topic',
+        topics='example-input-topic',
         deserialization_schema=deserialization_schema,
-        properties={'bootstrap.servers': 'webb:9092', 'group.id': 'test_group_1'}
+        properties={'bootstrap.servers': broker, 'group.id': 'test_group_1'}
     )
-    kafka_consumer.set_start_from_earliest()
+    
+    # Define Kafka producer
+    kafka_producer = FlinkKafkaProducer(
+        topic='example-output-topic',
+        serialization_schema=SimpleStringSchema(),
+        producer_config={'bootstrap.servers': broker}
+    )
+    
+    # Consume from 'example-topic' and produce to 'example-out'
+    datastream = env.add_source(kafka_consumer)
+    datastream = datastream.flat_map(reverse_text, output_type=Types.STRING())
+    datastream = datastream.add_sink(kafka_producer)
 
-    env.add_source(kafka_consumer).print()
-    env.execute("Read from Kafka")
+    # Execute the Flink job
+    env.execute("Read and Write to Kafka")
+    return datastream
 
 if __name__ == '__main__':
+    broker = os.getenv("KAFKA_BROKER", "localhost:9092")
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
     env = StreamExecutionEnvironment.get_execution_environment()
+    run_example_flink_job(env, broker)
 
-    if len(sys.argv) > 1 and sys.argv[1] == 'read':
-        logging.info("Starting to read data from Kafka")
-        read_from_kafka(env)
-    else:
-        logging.info("Starting to write data to Kafka")
-        write_to_kafka(env)

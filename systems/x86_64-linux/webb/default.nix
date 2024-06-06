@@ -65,6 +65,7 @@ with lib.campground;
       netbird = enabled;
       uptime-kuma = enabled;
       grafana = enabled;
+      prometheus = enabled;
       # keycloak = {
       #   enable = true;
       #   port = 43852;

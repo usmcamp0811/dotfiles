@@ -5,7 +5,7 @@ let
   inherit (lib.campground) override-meta;
 
   new-meta = with lib; {
-    description = "An Example Flink Job";
+    description = "An Example PyFlink Job";
     license = licenses.asl20;
     maintainers = with maintainers; [ matt-camp ];
     mainProgram = "example-flink-job";
@@ -33,39 +33,16 @@ let
           oldAttrs.postInstall or "";
       })) pypkgs-build-requirements);
 
+  python-env = pkgs.poetry2nix.mkPoetryEnv {
+    projectDir = src;
+    python = pkgs.python311;
+    overrides = p2n-overrides;
+    preferWheels = true; # Prefer wheels to speed up the build process
+  };
+
   src = ./.;
 
-  consumer = pkgs.writeShellScriptBin "consumer" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="/var/lib/flink/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
-    if [ -z "$TOPIC" ]; then
-        export TOPIC="example-input-topic";
-        echo "TOPIC set to $TOPIC"
-    else
-        echo "TOPIC already set to $TOPIC"
-    fi
-    if [ -z "$BROKER" ]; then
-        export BROKER="localhost:9092";
-        echo "BROKER set to $BROKER"
-    else
-        echo "BROKER already set to $BROKER"
-    fi
-
-    export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
-    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
-    export JAVA_HOME=${pkgs.openjdk11};
-    ${pkgs.flink}/bin/flink run \
-      -py ${src}/job/consumer.py \
-      -pyclientexec python \
-      --jarfile ${pkgs.campground.flink-connector-kafka}
-  '';
-
+  # TODO: Figure out what is not needed
   flink-conf = pkgs.writeTextFile {
     name = "flink-conf.yaml";
     text = ''
@@ -80,47 +57,74 @@ let
       taskmanager.numberOfTaskSlots: 1
       parallelism.default: 1
       jobmanager.execution.failover-strategy: region
-      rest.address: lucas
+      rest.address: localhost
       rest.port: 8081
       rest.bind-address: 0.0.0.0
-      env.log.dir: /var/lib/flink/logs
+      env.log.dir: /tmp/flink-logs
       env.java.home: ${pkgs.openjdk11}
-      env.path: ${pkgs.campground.example-flink-job.python}/bin/:$PATH
-      python.path: ${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages
-      python.executable: ${pkgs.campground.example-flink-job.python}/bin/python
+      env.path: ${python-env}/bin/:$PATH
+      python.path: ${python-env}/lib/python3.11/site-packages
+      python.executable: ${python-env}/bin/python
       python.client.executable: ${python-env}/bin/python
     '';
   };
 
-  producer = pkgs.writeShellScriptBin "producer" ''
+  flink-conf-dir = pkgs.stdenv.mkDerivation {
+    name = "flink-conf-drv";
+    src = src;
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/conf
+      # Iterate over each file in the source directory
+      for file in "${pkgs.flink}/opt/flink/conf"/*; do
+          # Get the basename of the file
+          basefile=$(basename "$file")
+          if [ "$basefile" == "flink-conf.yaml" ]; then
+              continue
+          fi
+          if [ "$basefile" == "config.yaml" ]; then
+              continue
+          fi
+          # Create the symbolic link in the destination directory
+          ln -s "$file" "$out/conf/$basefile"
+      done
+      cp ${flink-conf} $out/conf/flink-conf.yaml
+      cp ${flink-conf} $out/conf/config.yaml
+    '';
+  };
+
+  job = pkgs.writeShellScriptBin "job" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="/var/lib/flink/conf";
+        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
         echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
-    if [ -z "$TOPIC" ]; then
-        export TOPIC="example-input-topic";
-        echo "TOPIC set to $TOPIC"
+    if [ -z "$KAFKA_BROKER" ]; then
+        export KAFKA_BROKER="localhost:9092";
+        echo "KAFKA_BROKER set to $KAFKA_BROKER"
     else
-        echo "TOPIC already set to $TOPIC"
-    fi
-    if [ -z "$BROKER" ]; then
-        export BROKER="localhost:9092";
-        echo "BROKER set to $BROKER"
-    else
-        echo "BROKER already set to $BROKER"
+        echo "KAFKA_BROKER already set to $KAFKA_BROKER"
     fi
 
-    export PATH=${pkgs.campground.example-flink-job.python}/bin/:$PATH
-    export PYTHONPATH="${pkgs.campground.example-flink-job.python}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${pkgs.campground.example-flink-job.python}/bin/python"
+    export PATH=${python-env}/bin/:$PATH
+    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
+    export FLINK_HOME=${pkgs.flink}/opt/flink
+
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
+
     ${pkgs.flink}/bin/flink run \
-      -py ${src}/job/producer.py \
-      -pyclientexec ${python-env}/bin/python \
-      --jarfile ${pkgs.campground.flink-connector-kafka}
+      -py ${src}/job/job.py \
+      -pyclientexec python \
+      --jarfile ${pkgs.campground.flink-connector-kafka} &
+  '';
+
+  stop-all = pkgs.writeShellScriptBin "stop-all" ''
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
@@ -128,17 +132,20 @@ let
     SCRIPT=$(readlink -f "$0" || realpath "$0")
     SCRIPT_DIR=$(dirname "$SCRIPT")
 
+    export PATH=${python-env}/bin/:$PATH
+    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${python-env}/bin/python"
+    export JAVA_HOME=${pkgs.openjdk11};
+    export FLINK_TESTING=1;
+    export FLINK_CONF_DIR="${flink-conf-dir}/conf";
+    export CLASSPATH=$(find ${pkgs.flink}/opt/flink/lib -name '*.jar' | tr '\n' ':'):${pkgs.campground.flink-connector-kafka}
+    export FLINK_HOME=${pkgs.flink}/opt/flink
+    export FLINK_CONNECTOR_JAR="file://${pkgs.campground.flink-connector-kafka}"
+
     # Adjusted to ensure it works regardless of where it's called from
     BASE_DIR=$(dirname "$SCRIPT_DIR")
     ${python-env}/bin/pytest $SCRIPT_DIR/tests/test_job.py "$@"
   '';
-
-  python-env = pkgs.poetry2nix.mkPoetryEnv {
-    projectDir = src;
-    python = pkgs.python311;
-    overrides = p2n-overrides;
-    preferWheels = true; # Prefer wheels to speed up the build process
-  };
 
   test-flink-job = pkgs.stdenv.mkDerivation {
     name = "test-flink-job";
@@ -150,7 +157,7 @@ let
       ln -s ${example-flink-job}/src/run-tests $out/bin/run-tests
     '';
     meta = {
-      description = "Test for Example Flink Job";
+      description = "Tests for Example Flink Job";
       mainProgram = "run-tests";
     };
   };
@@ -167,22 +174,16 @@ let
       cp -r $src/* $out/src/
       cp -r ${pkgs.flink}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
-      cp ${consumer}/bin/consumer $out/bin/
-      cp ${producer}/bin/producer $out/bin/
+      cp ${job}/bin/job $out/bin/example-flink-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
-      cp ${producer}/bin/producer $out/bin/example-flink-job
-      cp ${flink-conf} $out/flink-conf.yaml
-      
+      cp ${stop-all}/bin/stop-all $out/bin/stop-all
+      cp -r ${flink-conf-dir}/conf $out/
     '';
 
-    meta = {
-      description = "An Example Flink Job";
-    };
     passthru = {
       python = python-env;
       test = test-flink-job;
-      producer = producer;
-      consumer = consumer;
+      stop-all = stop-all;
     };
   };
 in override-meta new-meta example-flink-job

@@ -66,6 +66,7 @@ with lib.campground; {
       };
       zfs-key-server = {
         enable = true;
+        interface = "enp3s0f1";
         tang-servers = [
           "http://webb:1234"
           "http://chesty:1234"

@@ -82,14 +82,14 @@ in {
               ips = [ cfg.kc-lan-ip ];
               state = "MASTER";
               priority = 50;
-              virtualRouterId = 54;
+              virtualRouterId = 55;
             };
             "karapace" = mkIf cfg.schema-server {
               interface = cfg.karapace-interface;
               ips = [ cfg.karapace-lan-ip ];
               state = "MASTER";
               priority = 50;
-              virtualRouterId = 55;
+              virtualRouterId = 56;
             };
           };
         };
