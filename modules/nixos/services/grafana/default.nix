@@ -3,32 +3,12 @@ with lib;
 with lib.campground;
 let 
   cfg = config.campground.services.grafana;
-  datasourceType = types.attrsOf (types.submodule {
-    options = {
-      name = mkOption {
-        type = types.str;
-        description = "The name of the datasource.";
-      };
-      type = mkOption {
-        type = types.str;
-        description = "The type of the datasource.";
-      };
-      access = mkOption {
-        type = types.str;
-        description = "The access mode of the datasource.";
-      };
-      url = mkOption {
-        type = types.str;
-        description = "The URL of the datasource.";
-      };
-    };
-  });
 in {
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
     datasources = mkOption {
-      type = types.listOf datasourceType;
+      type = types.listOf types.attrs;
       description = "A list of datasources.";
       default = [];
     };
