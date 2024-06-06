@@ -1,5 +1,6 @@
 { options, config, lib, ... }:
 with lib;
+with lib.campground;
 let cfg = config.campground.services.loki;
 in {
   options.campground.services.loki = with types; {
@@ -8,6 +9,12 @@ in {
       type = int;
       default = 3030;
       description = "The port Loki listens on for HTTP requests";
+    };
+    httpListenAddress = mkOption {
+      type = str;
+      default = "0.0.0.0";
+      description =
+        "The IP address or hostname Loki listens on for HTTP requests";
     };
     authEnabled = mkBoolOption {
       default = false;
@@ -96,6 +103,7 @@ in {
     services.loki = {
       enable = true;
       configuration = {
+        server.http_listen_address = cfg.httpListenAddress;
         server.http_listen_port = cfg.httpListenPort;
         auth_enabled = cfg.authEnabled;
 
