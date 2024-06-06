@@ -34,6 +34,7 @@ in {
         ldap-client = enabled;
         tang = enabled;
         prometheus = { exporter-enable = true; };
+        promtail = enabled;
         k0s = {
           enable = cfg.k8s;
           package = pkgs.campground.k0s;
