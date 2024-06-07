@@ -80,7 +80,16 @@ in {
           }
         ];
       };
-      prometheus = enabled;
+      prometheus = {
+        enable = true;
+        additionalStaticConfigTargets = [
+          "mattis"
+          "lucas"
+          "chesty"
+          "daly"
+          "reckless"
+        ];
+      };
       loki = enabled;
       # keycloak = {
       #   enable = true;
