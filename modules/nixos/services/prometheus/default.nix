@@ -8,8 +8,8 @@ in {
     exporter-enable = mkBoolOpt false "Enable Prometheus Systemd Exporter";
     port = mkOpt int 9011 "Port to Host the Prometheus server on.";
     exporter-port = mkOpt int 9012 "Port to Host the Prometheus exporter on.";
-    exporter-host = mkOpt str config.networking.hostName 
-      "The hostname or IP to use for Prometheus.";
+    exporter-host = mkOpt str "webb"
+      "The hostname or IP running Prometheus.";
     hostName = mkOpt str config.networking.hostName
       "The hostname or IP to use for Prometheus.";
     additionalStaticConfigTargets =
