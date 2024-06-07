@@ -15,7 +15,8 @@ in {
         prometheus = {
           exporter-enable = true;
           additionalStaticConfigTargets =
-            [ "${config.networking.hostName}:58082" ];
+            [ "10.8.0.42:58082" "10.8.0.69:58082" ];
+            # [ "${config.networking.hostName}:58082" ];
 
         };
         promtail = {
