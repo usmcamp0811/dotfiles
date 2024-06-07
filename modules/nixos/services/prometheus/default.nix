@@ -29,9 +29,7 @@ in {
         job_name = "${cfg.hostName}-system-monitor";
         static_configs = [{
           targets = [
-            "${cfg.hostName}:${
-              toString config.services.prometheus.exporters.node.port
-            }"
+            "prometheus.lan.aicampground.com"
           ] ++ cfg.additionalStaticConfigTargets;
         }];
       }];
