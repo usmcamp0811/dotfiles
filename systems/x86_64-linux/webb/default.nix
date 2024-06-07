@@ -16,21 +16,6 @@ let
   #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
   #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
   # }) searxEnabledSystems;
-  createDatasource = hostname: [
-    {
-      name = "Prometheus - ${hostname}";
-      type = "prometheus";
-      access = "proxy";
-      url = "http://${hostname}:9011";
-    }
-    {
-      name = "Loki - ${hostname}";
-      type = "loki";
-      access = "proxy";
-      url = "http://${hostname}:3030";
-    }
-  ];
-  hostnames = [ "webb" "lucas" "chesty" "daly" "reckless" "mattis" ];
 in {
   imports = [ ./hardware.nix ];
 
@@ -80,7 +65,20 @@ in {
       uptime-kuma = enabled;
       grafana = {
         enable = true;
-        datasources = lib.concatMap createDatasource hostnames;
+        datasources = [
+          {
+            name = "Prometheus";
+            type = "prometheus";
+            access = "proxy";
+            url = "http://webb:9011";
+          }
+          {
+            name = "Loki";
+            type = "loki";
+            access = "proxy";
+            url = "http://webb:3030";
+          }
+        ];
       };
       prometheus = enabled;
       loki = enabled;
