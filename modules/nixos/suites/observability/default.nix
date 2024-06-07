@@ -16,6 +16,7 @@ in {
           exporter-enable = true;
           additionalStaticConfigTargets =
             [ "${config.networking.hostName}:58082" ];
+
         };
         promtail = {
           enable = true;
