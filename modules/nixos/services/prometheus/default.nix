@@ -1,7 +1,17 @@
 { options, config, lib, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.prometheus;
+
+let
+  cfg = config.campground.services.prometheus;
+
+  generateScrapeConfigs = hostnames:
+    lib.concatMap (hostname: [{
+      job_name = "${hostname}-system-monitor";
+      static_configs =
+        [{ targets = [ "${hostname}:${toString cfg.exporter-port}" ]; }];
+    }]) hostnames;
+
 in {
   options.campground.services.prometheus = with types; {
     enable = mkBoolOpt false "Enable Prometheus";
@@ -13,6 +23,8 @@ in {
       "The hostname or IP to use for Prometheus.";
     additionalScrapeConfigs =
       mkOpt (listOf str) [ ] "Additional scrape configs for Prometheus.";
+    hostnames = mkOpt (listOf str) [ config.networking.hostName ]
+      "List of hostnames for scrape configs.";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
@@ -26,16 +38,8 @@ in {
           port = cfg.exporter-port;
         };
       };
-      scrapeConfigs = [{
-        job_name = "${cfg.hostName}-system-monitor";
-        static_configs = [{
-          targets = [
-            "${cfg.exporter-host}:${
-              toString config.services.prometheus.exporters.node.port
-            }"
-          ];
-        }];
-      }] ++ cfg.additionalScrapeConfigs;
+      scrapeConfigs = generateScrapeConfigs cfg.hostnames
+        ++ cfg.additionalScrapeConfigs;
     };
   };
 }
