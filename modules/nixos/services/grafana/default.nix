@@ -13,7 +13,7 @@ in {
     };
     dashboards = mkOption {
       type = types.listOf (types.attrsOf types.str);
-      description = "A list of dashboards to preload.";
+      description = "A list of dashboard providers";
       default = [ ];
     };
     domain = mkOpt str "grafana.lan.aicampground.com"
@@ -51,9 +51,9 @@ in {
           };
         };
         dashboards = {
-          local = {
+          settings = {
             apiVersion = 1;
-            dashboards = cfg.dashboards;
+            providers = cfg.dashboards;
           };
         };
       };
