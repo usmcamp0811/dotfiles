@@ -77,6 +77,16 @@ in {
               ];
             };
 
+            http.routers.prometheus = {
+              rule = "Host(`prometheus.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "prometheus";
+            };
+
+            http.services.prometheus = {
+              loadBalancer.servers = [{ url = "http://webb:9011"; }];
+            };
+
             http.routers.grafana = {
               rule = "Host(`grafana.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
