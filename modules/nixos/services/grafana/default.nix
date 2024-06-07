@@ -11,6 +11,11 @@ in {
       description = "A list of datasources.";
       default = [ ];
     };
+    dashboards = mkOption {
+      type = types.listOf (types.attrsOf types.str);
+      description = "A list of dashboards to preload.";
+      default = [ ];
+    };
     domain = mkOpt str "grafana.lan.aicampground.com"
       "Domain to Host the grafana server on.";
 
@@ -43,6 +48,12 @@ in {
           settings = {
             apiVersion = 1;
             datasources = cfg.datasources;
+          };
+        };
+        dashboards = {
+          local = {
+            apiVersion = 1;
+            dashboards = cfg.dashboards;
           };
         };
       };

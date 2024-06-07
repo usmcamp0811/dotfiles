@@ -146,6 +146,13 @@ in {
           };
         };
         providers.docker.exposedByDefault = cfg.docker-provider;
+        metrics = {
+          prometheus = {
+            entryPoint = "metrics";
+            addEntryPointsLabels = true;
+            addServicesLabels = true;
+          };
+        };
       };
     };
     campground = {
