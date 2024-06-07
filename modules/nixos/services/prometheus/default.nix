@@ -4,13 +4,14 @@ with lib.campground;
 let cfg = config.campground.services.prometheus;
 in {
   options.campground.services.prometheus = with types; {
-    enable = mkBoolOpt false "Enable an Prometheus";
-    exporter-enable = mkBoolOpt false "Enable an Prometheus Systemd Exporter";
+    enable = mkBoolOpt false "Enable Prometheus";
+    exporter-enable = mkBoolOpt false "Enable Prometheus Systemd Exporter";
     port = mkOpt int 9011 "Port to Host the Prometheus server on.";
     exporter-port = mkOpt int 9012 "Port to Host the Prometheus exporter on.";
     hostName = mkOpt str config.networking.hostName
-      "The hostname or ip to use for Prometheus.";
-
+      "The hostname or IP to use for Prometheus.";
+    additionalStaticConfigTargets =
+      mkList str [ ] "Additional static config targets for Prometheus.";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
@@ -31,7 +32,7 @@ in {
             "${cfg.hostName}:${
               toString config.services.prometheus.exporters.node.port
             }"
-          ];
+          ] ++ cfg.additionalStaticConfigTargets;
         }];
       }];
     };
