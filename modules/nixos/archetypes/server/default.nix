@@ -19,7 +19,10 @@ in {
 
   config = mkIf cfg.enable {
     campground = {
-      suites = { common = enabled; };
+      suites = {
+        common = enabled;
+        observability = enabled;
+      };
       system = {
         zfs = {
           enable = true;
