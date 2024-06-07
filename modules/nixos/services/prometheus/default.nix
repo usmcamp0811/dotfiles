@@ -8,12 +8,11 @@ in {
     exporter-enable = mkBoolOpt false "Enable Prometheus Systemd Exporter";
     port = mkOpt int 9011 "Port to Host the Prometheus server on.";
     exporter-port = mkOpt int 9012 "Port to Host the Prometheus exporter on.";
-    exporter-host = mkOpt str "webb"
-      "The hostname or IP running Prometheus.";
+    exporter-host = mkOpt str "webb" "The hostname or IP running Prometheus.";
     hostName = mkOpt str config.networking.hostName
       "The hostname or IP to use for Prometheus.";
-    additionalStaticConfigTargets =
-      mkOpt (listOf str) [ ] "Additional static config targets for Prometheus.";
+    additionalScrapeConfigs =
+      mkOpt (listOf str) [ ] "Additional scrape configs for Prometheus.";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
@@ -31,10 +30,13 @@ in {
         job_name = "${cfg.hostName}-system-monitor";
         static_configs = [{
           targets = [
-            "${cfg.exporter-host}:${ toString config.services.prometheus.exporters.node.port }"
-          ] ++ cfg.additionalStaticConfigTargets;
+            "${cfg.exporter-host}:${
+              toString config.services.prometheus.exporters.node.port
+            }"
+          ];
         }];
-      }];
+      }] ++ cfg.additionalScrapeConfigs;
     };
   };
 }
+
