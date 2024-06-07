@@ -83,11 +83,11 @@ in {
       prometheus = {
         enable = true;
         additionalStaticConfigTargets = [
-          "mattis"
-          "lucas"
-          "chesty"
-          "daly"
-          "reckless"
+          "mattis:9012"
+          "lucas:9012"
+          "chesty:9012"
+          "daly:9012"
+          "reckless:9012"
         ];
       };
       loki = enabled;
