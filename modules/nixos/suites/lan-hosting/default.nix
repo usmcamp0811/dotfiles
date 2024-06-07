@@ -25,7 +25,10 @@ in {
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; };
+      default = {
+        web = { address = "0.0.0.0:80"; };
+        metrics = { address = "0.0.0.0:58082"; };
+      };
       example = { web = { address = "0.0.0.0:80"; }; };
       description =
         "List of entrypoints for Traefik, mapping names to their address.";

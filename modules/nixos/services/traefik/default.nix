@@ -127,7 +127,6 @@ in {
               }) cfg.domains;
             };
           };
-          metrics = { address = "0.0.0.0:8082"; };
         } // cfg.entrypoints;
 
         api = {
