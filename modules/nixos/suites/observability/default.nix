@@ -12,7 +12,11 @@ in {
   config = mkIf cfg.enable {
     campground = {
       services = {
-        prometheus = { exporter-enable = true; };
+        prometheus = {
+          exporter-enable = true;
+          additionalStaticConfigTargets =
+            [ "${config.networking.hostName}:8082" ];
+        };
         promtail = {
           enable = true;
           loki-uri = cfg.loki-uri;

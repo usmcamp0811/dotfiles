@@ -11,7 +11,7 @@ in {
     hostName = mkOpt str config.networking.hostName
       "The hostname or IP to use for Prometheus.";
     additionalStaticConfigTargets =
-      mkList str [ ] "Additional static config targets for Prometheus.";
+      mkOpt (listOf str) [ ] "Additional static config targets for Prometheus.";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
