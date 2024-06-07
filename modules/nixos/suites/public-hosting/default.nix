@@ -27,7 +27,7 @@ in {
       mkBoolOpt false "Enables the Traefik log Kafka Producer service";
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; };
+      default = { web = { address = "0.0.0.0:80"; }; metrics = { address = "0.0.0.0:58082"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
