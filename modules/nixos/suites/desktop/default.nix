@@ -19,16 +19,16 @@ in {
         };
         display-manager = {
           gdm = {
-            # enable = true;
+            enable = true;
             # wayland = true;
           };
-          sddm = {
-            enable = true;
-            wayland = true;
-          };
+          # sddm = {
+          #   enable = true;
+          #   wayland = true;
+          # };
         };
-        hyprland = enabled;
-        # qtile = enabled;
+        # hyprland = enabled;
+        qtile = enabled;
       };
       apps = {
         # _1password = enabled;
