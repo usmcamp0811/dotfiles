@@ -7,22 +7,20 @@ let
 in {
   options.campground.desktop.display-manager.sddm = with types; {
     enable = mkBoolOpt false "Whether or not to enable sddm.";
-    autoSuspend =
-      mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
-    defaultSession = mkOpt (nullOr str) null "The default session to use.";
-    theme = mkOpt (nullOr str) null "The theme to use.";
+    wayland = mkBoolOpt true "Whether or not to use Wayland.";
+    theme = mkOpt str "" "The theme to use.";
   };
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [ "d ${sddmHome}/.config 0711 sddm sddm" ];
 
-    services.xserver = {
-      enable = true;
-
+    services = {
       displayManager = {
-        inherit (cfg) defaultSession;
-
-        sddm = { inherit (cfg) enable autoSuspend theme; };
+        sddm = {
+          enable = true;
+          wayland.enable = cfg.wayland;
+          theme = cfg.theme;
+        };
       };
 
       libinput.enable = true;
