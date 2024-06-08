@@ -39,7 +39,7 @@ in {
     campground = {
       services = {
         prometheus.additionalScrapeConfigs = [{
-          job_name = "traefik-monitor";
+          job_name = "lan-traefik-monitor";
           static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
         }];
         traefik = mkIf cfg.enable {

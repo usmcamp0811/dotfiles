@@ -42,7 +42,7 @@ in {
       # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
       services = {
         prometheus.additionalScrapeConfigs = [{
-          job_name = "traefik-monitor";
+          job_name = "pub-traefik-monitor";
           static_configs = [{ targets = [ "${cfg.pub-ip}:58082" ]; }];
         }];
         searx = mkIf cfg.enable {
