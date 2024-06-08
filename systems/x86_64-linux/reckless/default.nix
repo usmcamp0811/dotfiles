@@ -102,7 +102,6 @@ in {
     };
 
     services = {
-      prometheus = enabled;
       openllm = enabled;
       file-share = enabled;
       ldap-client = { enable = mkForce false; };
