@@ -37,19 +37,19 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = {
     campground = {
-      kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
+      # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
       services = {
         prometheus.additionalScrapeConfigs = [{
           job_name = "traefik-monitor";
           static_configs = [{ targets = [ "${cfg.pub-ip}:58082" ]; }];
         }];
-        searx = {
+        searx = mkIf cfg.enable {
           enable = true;
           port = 3249;
         };
-        traefik = {
+        traefik = mkIf cfg.enable {
           enable = true;
           insecure = true;
           entrypoints = cfg.entrypoints;
@@ -175,7 +175,7 @@ in {
             };
           };
         };
-        keepalived = {
+        keepalived = mkIf cfg.enable {
           enable = true;
           instances = {
             "pub-campground" = {

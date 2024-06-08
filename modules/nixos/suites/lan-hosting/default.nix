@@ -35,14 +35,14 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = {
     campground = {
       services = {
         prometheus.additionalScrapeConfigs = [{
           job_name = "traefik-monitor";
           static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
         }];
-        traefik = {
+        traefik = mkIf cfg.enable {
           enable = true;
           insecure = true;
           entrypoints =
@@ -293,7 +293,7 @@ in {
           };
         };
 
-        keepalived = {
+        keepalived = mkIf cfg.enable {
           enable = true;
           instances = {
             "lan-campground" = {
