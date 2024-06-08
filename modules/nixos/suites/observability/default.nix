@@ -9,18 +9,22 @@ in {
     enable =
       mkBoolOpt false "Whether or not to enable observability reporters.";
     loki-uri = mkOpt str "webb:3030" "The <host>:<port> of the Loki server";
+    prometheus = mkBoolOpt false "Whether or not to enable Prometheus server.";
+    loki = mkBoolOpt false "Whether or not to enable Loki server.";
+    grafana = mkBoolOpt false "Whether or not to enable Grafana server.";
+    hostnames =
+      mkOpt (listOf str) [ "mattis" "lucas" "chesty" "daly" "reckless" ]
+      "List of hostnames for scrape configs.";
   };
 
   config = mkIf cfg.enable {
     campground = {
       services = {
+        loki = { enable = cfg.loki; };
         prometheus = {
+          enable = cfg.prometheus;
           exporter-enable = true;
-          additionalScrapeConfigs = [{
-            job_name = "traefik-monitor";
-            static_configs =
-              [{ targets = [ "10.8.0.42:58082" "10.8.0.69:58082" ]; }];
-          }];
+          hostnames = cfg.hostnames;
         };
         promtail = {
           enable = true;

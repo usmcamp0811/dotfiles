@@ -1,13 +1,8 @@
-{ options
-, config
-, lib
-, ...
-}:
+{ options, config, lib, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.desktop;
-in
-{
+with lib.campground;
+let cfg = config.campground.suites.desktop;
+in {
   options.campground.suites.desktop = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common desktop configuration.";
@@ -25,10 +20,11 @@ in
         display-manager = {
           gdm = {
             enable = true;
-            wayland = true;
+            # wayland = true;
           };
         };
-        hyprland = enabled;
+        # hyprland = enabled;
+        qtile = enabled;
       };
       apps = {
         # _1password = enabled;

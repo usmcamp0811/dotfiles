@@ -27,7 +27,10 @@ in {
       mkBoolOpt false "Enables the Traefik log Kafka Producer service";
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; metrics = { address = "0.0.0.0:58082"; }; };
+      default = {
+        web = { address = "0.0.0.0:80"; };
+        metrics = { address = "0.0.0.0:58082"; };
+      };
       example = { web = { address = "0.0.0.0:80"; }; };
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
@@ -38,6 +41,10 @@ in {
     campground = {
       kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
       services = {
+        prometheus.additionalScrapeConfigs = [{
+          job_name = "traefik-monitor";
+          static_configs = [{ targets = [ "${pub-ip}:58082" ]; }];
+        }];
         searx = {
           enable = true;
           port = 3249;
