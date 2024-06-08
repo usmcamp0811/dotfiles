@@ -13,7 +13,7 @@ in {
     loki = mkBoolOpt false "Whether or not to enable Loki server.";
     grafana = mkBoolOpt false "Whether or not to enable Grafana server.";
     hostnames =
-      mkOpt (listOf str) [ "mattis" "lucas" "chesty" "daly" "reckless" ]
+      mkOpt (listOf str) [ "mattis" "lucas" "chesty" "daly" "reckless" "webb" ]
       "List of hostnames for scrape configs.";
   };
 
