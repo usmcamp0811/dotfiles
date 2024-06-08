@@ -33,6 +33,11 @@ in {
         interface = "eno1";
         log-to-kafka = true;
       };
+      observability = {
+        enable = true;
+        loki = true;
+        prometheus = true;
+      };
       kafka = {
         enable = true;
         connect-server = true;
@@ -80,17 +85,6 @@ in {
           }
         ];
       };
-      prometheus = {
-        enable = true;
-        hostnames = [
-          "mattis"
-          "lucas"
-          "chesty"
-          "daly"
-          "reckless"
-        ];
-      };
-      loki = enabled;
       # keycloak = {
       #   enable = true;
       #   port = 43852;
