@@ -1,12 +1,7 @@
-{
-  config,
-  lib,
-  options,
-  pkgs,
-  ...
-}:
+{ config, lib, options, pkgs, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.desktop.display-manager.gdm;
   gdmHome = config.users.users.gdm.home;
 in {
@@ -20,30 +15,28 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules =
-      ["d ${gdmHome}/.config 0711 gdm gdm"]
-      ++ (
-        # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
-        # display information is updated.
-        lib.optional (cfg.monitors != null)
-        "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}"
-      );
+    systemd.tmpfiles.rules = [ "d ${gdmHome}/.config 0711 gdm gdm" ] ++ (
+      # "./monitors.xml" comes from ~/.config/monitors.xml when GNOME
+      # display information is updated.
+      lib.optional (cfg.monitors != null)
+      "L+ ${gdmHome}/.config/monitors.xml - - - - ${cfg.monitors}");
 
     services.xserver = {
       enable = true;
-
       displayManager = {
-        inherit (cfg) defaultSession;
-
-        gdm = {inherit (cfg) enable wayland autoSuspend;};
+        defaultSession = cfg.defaultSession;
+        gdm = {
+          enable = cfg.enable;
+          wayland = cfg.wayland;
+          autoSuspend = cfg.autoSuspend;
+        };
       };
-
-      libinput.enable = true;
     };
+    services.libinput.enable = true;
 
     systemd.services.campground-user-icon = {
-      before = ["display-manager.service"];
-      wantedBy = ["display-manager.service"];
+      before = [ "display-manager.service" ];
+      wantedBy = [ "display-manager.service" ];
 
       script =
         # bash
@@ -78,9 +71,8 @@ in {
       };
     };
 
-    system.activationScripts.postInstallGdm =
-      stringAfter ["users"] # bash
-      
+    system.activationScripts.postInstallGdm = stringAfter [ "users" ] # bash
+
       ''
         echo "Setting gdm permissions for user icon"
         ${
