@@ -10,6 +10,12 @@ let
       job_name = "${hostname}-system-monitor";
       static_configs =
         [{ targets = [ "${hostname}:${toString cfg.exporter-port}" ]; }];
+      relabel_configs = [{
+        source_labels = [ "__address__" ];
+        regex = "([^:]+):.*";
+        target_label = "instance";
+        replacement = "$1";
+      }];
     }]) hostnames;
 
 in {
