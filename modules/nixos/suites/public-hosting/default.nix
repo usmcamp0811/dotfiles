@@ -43,7 +43,7 @@ in {
       services = {
         prometheus.additionalScrapeConfigs = [{
           job_name = "traefik-monitor";
-          static_configs = [{ targets = [ "${pub-ip}:58082" ]; }];
+          static_configs = [{ targets = [ "${cfg.pub-ip}:58082" ]; }];
         }];
         searx = {
           enable = true;

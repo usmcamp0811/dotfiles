@@ -40,7 +40,7 @@ in {
       services = {
         prometheus.additionalScrapeConfigs = [{
           job_name = "traefik-monitor";
-          static_configs = [{ targets = [ "${lan-ip}:58082" ]; }];
+          static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
         }];
         traefik = {
           enable = true;
