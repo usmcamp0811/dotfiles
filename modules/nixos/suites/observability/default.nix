@@ -1,7 +1,9 @@
 { options, config, lib, ... }:
 with lib;
 with lib.campground;
+
 let cfg = config.campground.suites.observability;
+
 in {
   options.campground.suites.observability = with types; {
     enable =
@@ -19,7 +21,6 @@ in {
             static_configs =
               [{ targets = [ "10.8.0.42:58082" "10.8.0.69:58082" ]; }];
           }];
-
         };
         promtail = {
           enable = true;

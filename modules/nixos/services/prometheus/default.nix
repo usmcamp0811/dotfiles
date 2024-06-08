@@ -21,10 +21,9 @@ in {
     exporter-host = mkOpt str "webb" "The hostname or IP running Prometheus.";
     hostName = mkOpt str config.networking.hostName
       "The hostname or IP to use for Prometheus.";
-    additionalScrapeConfigs =
-      mkOpt (listOf str) [ ] "Additional scrape configs for Prometheus.";
-    hostnames = mkOpt (listOf str) [ config.networking.hostName ]
-      "List of hostnames for scrape configs.";
+    additionalScrapeConfigs = mkOpt (listOf (attrsOf anything)) [ ]
+      "Additional scrape configs for Prometheus.";
+    hostnames = mkOpt (listOf str) [ ] "List of hostnames for scrape configs.";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
@@ -43,4 +42,3 @@ in {
     };
   };
 }
-
