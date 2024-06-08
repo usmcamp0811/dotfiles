@@ -29,6 +29,21 @@ in {
         promtail = {
           enable = true;
           loki-uri = cfg.loki-uri;
+          additionalScrapeConfigs = [{
+            job_name = "traefik";
+            journal = {
+              max_age = "12h";
+              path = "/var/log/journal";
+              labels = {
+                job = "traefik";
+                host = config.networking.hostName;
+              };
+            };
+            relabel_configs = [{
+              source_labels = [ "__journal__systemd_unit" ];
+              target_label = "unit";
+            }];
+          }];
         };
       };
     };

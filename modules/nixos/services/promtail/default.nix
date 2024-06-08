@@ -9,6 +9,8 @@ in {
     loki-uri = mkOpt str "localhost:3030" "loki host:port";
     hostName = mkOpt str config.networking.hostName
       "The hostname or ip to use for Promtail to scrape.";
+    additionalScrapeConfigs = mkOpt (listOf (attrsOf anything)) [ ]
+      "Additional scrape configs for Loki/Promtail.";
 
   };
 
@@ -35,9 +37,8 @@ in {
             source_labels = [ "__journal__systemd_unit" ];
             target_label = "unit";
           }];
-        }];
+        }] ++ cfg.additionalScrapeConfigs;
       };
-      # extraFlags
     };
   };
 }
