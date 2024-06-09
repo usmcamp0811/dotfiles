@@ -1,1 +1,4 @@
-{ nix-ai, ... }: final: prev: { inherit (nix-ai.unstable) textgen-nvidia; }
+{ nix-ai, ... }:
+final: prev: {
+  textgen-nvidia = nix-ai.outputs.packages.${prev.system}.textgen-nvidia;
+}
