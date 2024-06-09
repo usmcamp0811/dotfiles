@@ -174,6 +174,9 @@
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+
+    nix-ai.url = "github:hauskens/nix-ai";
+    neorg-overlay.url = "github:nvim-neorg/nixpkgs-neorg-overlay";
   };
 
   outputs = inputs:
@@ -213,6 +216,7 @@
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
+        neorg-overlay.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
