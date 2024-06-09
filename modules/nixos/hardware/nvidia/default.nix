@@ -31,6 +31,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       nvidia-docker
+      nvidia-container-toolkit
       nvtopPackages.full
     ];
     # Load nvidia driver for Xorg and Wayland
