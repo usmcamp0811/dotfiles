@@ -19,7 +19,7 @@ in {
         };
         display-manager = {
           gdm = {
-            enable = true;
+            # enable = true;
             # wayland = true;
           };
           # sddm = {
