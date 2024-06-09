@@ -102,7 +102,7 @@ in {
     };
 
     services = {
-      openllm = enabled;
+      llama-cpp = enabled;
       file-share = enabled;
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
