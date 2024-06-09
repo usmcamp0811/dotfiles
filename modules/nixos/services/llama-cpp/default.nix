@@ -6,15 +6,9 @@ in {
   options.campground.services.llama-cpp = with types; {
     enable = mkBoolOpt false "Enable llama-cpp;";
 
-    package = mkOption {
-      type = types.package;
-      default = pkgs.llama-cpp;
-      description = "The llama-cpp package to use.";
-    };
-
     port = mkOption {
       type = types.int;
-      default = 8080;
+      default = 18080;
       description = "The port for llama-cpp service.";
     };
 
@@ -26,7 +20,7 @@ in {
 
     host = mkOption {
       type = types.str;
-      default = "localhost";
+      default = "0.0.0.0";
       description = "The host for llama-cpp service.";
     };
 
@@ -38,20 +32,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.services.llama-cpp = {
-      description = "llama-cpp service";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        ExecStart =
-          "${cfg.package}/bin/llama-cpp --port ${cfg.port} --host ${cfg.host} ${
-            concatStringsSep " " cfg.extraFlags
-          }";
-        Restart = "always";
-      };
+    services.llama-cpp = {
+      enable = true;
+      extraFlags = cfg.extraFlags;
+      model = cfg.model;
+      host = cfg.host;
+      port = cfg.port;
+      openFirewall = cfg.openFirewall;
     };
-
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.port ];
   };
 
 }
