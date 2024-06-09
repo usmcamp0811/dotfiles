@@ -53,6 +53,7 @@ in {
       wantedBy = [ "multi-user.target" ];
       environment = { LOCALAI_CONFIG_PATH = "/var/lib/local-ai"; };
       serviceConfig = {
+        User = "localai";
         WorkingDirectory = "/var/lib/local-ai";
         Restart = "always";
       };
@@ -61,7 +62,7 @@ in {
         chown -R localai:localai /var/lib/local-ai
       '';
       script = ''
-        ${pkg.local-ai}/bin/local-ai run --address "${cfg.host}:${
+        ${pkgs.local-ai}/bin/local-ai run --address "${cfg.host}:${
           toString cfg.port
         }" ${extraFlagsString};
       '';
