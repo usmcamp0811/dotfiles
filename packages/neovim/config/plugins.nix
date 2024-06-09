@@ -16,7 +16,7 @@
     ./plugins/cmp.nix
     ./plugins/knap.nix
     # ./plugins/fold-preview.nix
-    ./plugins/distant.nix
+    # ./plugins/distant.nix
     ./plugins/search-and-replace.nix
     ./plugins/code-window.nix
     ./plugins/conjure.nix
