@@ -24,6 +24,12 @@ in {
       description = "The host for llama-cpp service.";
     };
 
+    model = mkOption {
+      type = types.str;
+      default = "${pkgs.campground.mistral-7b-instruct}";
+      description = "The host for llama-cpp service.";
+    };
+
     extraFlags = mkOption {
       type = types.listOf types.str;
       default = [ ];
