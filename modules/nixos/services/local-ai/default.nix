@@ -35,6 +35,8 @@ in {
 
   config = mkIf cfg.enable {
 
+    environment.systemPackages = with pkgs; [ cudaPackages.cudnn ];
+
     users.users.localai = {
       isNormalUser = false;
       isSystemUser = true;

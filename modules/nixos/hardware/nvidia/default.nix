@@ -29,7 +29,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ nvtopPackages.full ];
+    environment.systemPackages = with pkgs; [
+      nvidia-docker
+      nvtopPackages.full
+    ];
     # Load nvidia driver for Xorg and Wayland
     services.xserver.videoDrivers = [ "nvidia" ];
 
