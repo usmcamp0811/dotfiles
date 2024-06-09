@@ -40,9 +40,7 @@ in {
       isSystemUser = true;
       description = "LocalAI System User";
       group = "localai";
-      extraGroups = [
-        "localai"
-      ]; # Optional if you want the user to be in additional groups
+      extraGroups = [ "localai" ];
       home = "/var/lib/local-ai";
     };
 
