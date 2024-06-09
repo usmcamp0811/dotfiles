@@ -97,6 +97,7 @@
   # TODO:
   # "bytesnake/vim-graphical-preview"
   plugins = {
+    lazy.enable = true;
     # Git Integration
     gitsigns.enable = true;
 
