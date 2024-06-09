@@ -45,26 +45,37 @@ in {
     };
 
     users.groups.localai = { };
+
     systemd.services.local-ai = {
       description = "Local AI Service";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      environment = { LOCALAI_CONFIG_PATH = "/var/lib/local-ai"; };
-      serviceConfig = {
-        User = "localai";
-        WorkingDirectory = "/var/lib/local-ai";
-        Restart = "always";
+      environment = {
+        LOCALAI_MODELS_PATH = "/var/lib/local-ai/models";
+        LOCALAI_BACKEND_ASSETS_PATH = "/var/lib/local-ai";
+        LOCALAI_IMAGE_PATH = "/var/lib/local-ai/image";
+        LOCALAI_AUDIO_PATH = "/var/lib/local-ai/audio";
+        LOCALAI_UPLOAD_PATH = "/var/lib/local-ai/upload";
+        LOCALAI_CONFIG_PATH = "/var/lib/local-ai";
+        LOCALAI_CONFIG_DIR = "/var/lib/local-ai/config";
       };
-      preStart = ''
-        mkdir -p /var/lib/local-ai
-        chown -R localai:localai /var/lib/local-ai
-      '';
-      script = ''
-        ${pkgs.local-ai}/bin/local-ai run --address "${cfg.host}:${
-          toString cfg.port
-        }" ${extraFlagsString};
-      '';
+      serviceConfig = {
+        Restart = "always";
+        User = "localai";
+        Group = "localai";
+        WorkingDirectory = "/var/lib/local-ai";
+        ExecStart = ''
+          ${pkgs.local-ai}/bin/local-ai run --address "${cfg.host}:${
+            toString cfg.port
+          }" ${extraFlagsString}
+        '';
+      };
     };
+    system.activationScripts.createMyAppDir = ''
+      mkdir -p /var/lib/local-ai
+      chown localai:localai /var/lib/local-ai
+    '';
+
   };
 
 }
