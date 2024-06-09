@@ -48,6 +48,16 @@ in {
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.local-ai = {
+              rule = "Host(`ai.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "local-ai";
+            };
+
+            http.services.local-ai = {
+              loadBalancer.servers = [{ url = "http://reckless:18080"; }];
+            };
+
             http.routers.schema-registry = {
               rule = "Host(`schema-registry.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -57,6 +67,7 @@ in {
             http.services.schema-registry = {
               loadBalancer.servers = [{ url = "http://10.8.0.70:8436"; }];
             };
+
             http.routers.akhq = {
               rule = "Host(`akhq.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];

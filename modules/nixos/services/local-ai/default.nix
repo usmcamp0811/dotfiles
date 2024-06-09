@@ -73,7 +73,8 @@ in {
     };
     system.activationScripts.createMyAppDir = ''
       mkdir -p /var/lib/local-ai
-      chown localai:localai /var/lib/local-ai
+      cp ${cfg.model} /var/lib/local-ai/models/mistral-7b-instruct.gguf
+      chown -R localai:localai /var/lib/local-ai
     '';
 
   };
