@@ -60,6 +60,8 @@ in {
         LOCALAI_UPLOAD_PATH = "/var/lib/local-ai/upload";
         LOCALAI_CONFIG_PATH = "/var/lib/local-ai";
         LOCALAI_CONFIG_DIR = "/var/lib/local-ai/config";
+        LD_LIBRARY_PATH =
+          "/run/opengl-driver/lib:${pkgs.cudaPackages.cudatoolkit}/lib";
       };
       serviceConfig = {
         Restart = "always";
