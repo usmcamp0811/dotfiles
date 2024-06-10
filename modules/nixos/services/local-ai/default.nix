@@ -35,7 +35,10 @@ in {
 
   config = mkIf cfg.enable {
 
-    environment.systemPackages = with pkgs; [ cudaPackages.cudnn ];
+    environment.systemPackages = with pkgs; [
+      cudaPackages.cudnn
+      cudaPackages.cuda_nvcc
+    ];
 
     users.users.localai = {
       isNormalUser = false;
@@ -61,7 +64,7 @@ in {
         LOCALAI_CONFIG_PATH = "/var/lib/local-ai";
         LOCALAI_CONFIG_DIR = "/var/lib/local-ai/config";
         LD_LIBRARY_PATH =
-          "/run/opengl-driver/lib:${pkgs.cudaPackages.cudatoolkit}/lib";
+          "${pkgs.cudaPackages.cudatoolkit}/lib:${pkgs.cudaPackages.cudnn}/lib:${pkgs.cudaPackages.cuda_nvcc}/lib:/run/opengl-driver/lib";
       };
       serviceConfig = {
         Restart = "always";
