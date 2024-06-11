@@ -72,7 +72,7 @@ in {
         Group = "localai";
         WorkingDirectory = "/var/lib/local-ai";
         ExecStart = ''
-          ${pkgs.local-ai}/bin/local-ai run --address "${cfg.host}:${
+          ${pkgs.local-ai}/bin/local-ai run --f16 --address "${cfg.host}:${
             toString cfg.port
           }" ${extraFlagsString}
         '';
