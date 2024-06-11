@@ -70,12 +70,13 @@ in {
         User = "nixai";
         Group = "nixai";
         WorkingDirectory = "/var/lib/nix-ai";
-        ExecStart = ''
-          ${cfg.package}/bin/textgen --model-dir /var/lib/nix-ai/models --listen --api --listen-port ${
-            toString cfg.port
-          } ${extraFlagsString}
-        '';
       };
+      script = ''
+        source /tmp/detsys-vault/hf_token
+        ${cfg.package}/bin/textgen --model-dir /var/lib/nix-ai/models --listen --api --listen-port ${
+          toString cfg.port
+        } ${extraFlagsString}
+      '';
     };
     system.activationScripts.createNixAI = ''
       mkdir -p /var/lib/nix-ai/models
@@ -96,13 +97,20 @@ in {
           }];
         };
       };
-      secrets.environment.templates = {
-        nix-ai = {
-          text = ''
-            {{ with secret "${cfg.vault-path}" }}
-            HF_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.HF_TOKEN }}{{ else }}{{ .Data.data.HF_TOKEN }}{{ end }}'
-            {{ end }}
-          '';
+
+      secrets = {
+        file = {
+          files = {
+            "hf_token" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}
+                export HF_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.HF_TOKEN }}{{ else }}{{ .Data.data.HF_TOKEN }}{{ end }}'
+                {{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+          };
         };
       };
     };
