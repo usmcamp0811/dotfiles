@@ -16,14 +16,8 @@ in {
 
     port = mkOption {
       type = types.int;
-      default = 18080;
+      default = 18084;
       description = "The port for nix-ai service.";
-    };
-
-    host = mkOption {
-      type = types.str;
-      default = "0.0.0.0";
-      description = "The host for nix-ai service.";
     };
 
     extraFlags = mkOption {
@@ -40,7 +34,7 @@ in {
     users.users.localai = {
       isNormalUser = false;
       isSystemUser = true;
-      description = "LocalAI System User";
+      description = "NixAI System User";
       group = "nixai";
       extraGroups = [ "nixai" ];
       home = "/var/lib/nix-ai";
@@ -49,7 +43,7 @@ in {
     users.groups.localai = { };
 
     systemd.services.nix-ai = {
-      description = "Local AI Service";
+      description = "NixAI Service";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
@@ -58,7 +52,6 @@ in {
         Group = "nixai";
         WorkingDirectory = "/var/lib/nix-ai";
         ExecStart = ''
-
           ${pkgs.nix-ai}/bin/textgen --model-dir /var/lib/nix-ai/models --listen --api --listen-port ${
             toString cfg.port
           } ${extraFlagsString}
