@@ -59,7 +59,7 @@ in {
       };
     };
     system.activationScripts.createNixAI = ''
-      mkdir -p /var/lib/nix-ai
+      mkdir -p /var/lib/nix-ai/models
       chown -R nixai:nixai /var/lib/nix-ai
     '';
 
