@@ -31,7 +31,7 @@ in {
 
     environment.systemPackages = with pkgs; [ textgen-nvidia ];
 
-    users.users.localai = {
+    users.users.nixai = {
       isNormalUser = false;
       isSystemUser = true;
       description = "NixAI System User";
