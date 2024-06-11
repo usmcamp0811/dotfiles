@@ -40,7 +40,7 @@ in {
       home = "/var/lib/nix-ai";
     };
 
-    users.groups.localai = { };
+    users.groups.nixai = { };
 
     systemd.services.nix-ai = {
       description = "NixAI Service";
@@ -52,13 +52,13 @@ in {
         Group = "nixai";
         WorkingDirectory = "/var/lib/nix-ai";
         ExecStart = ''
-          ${pkgs.nix-ai}/bin/textgen --model-dir /var/lib/nix-ai/models --listen --api --listen-port ${
+          ${cfg.package}/bin/textgen --model-dir /var/lib/nix-ai/models --listen --api --listen-port ${
             toString cfg.port
           } ${extraFlagsString}
         '';
       };
     };
-    system.activationScripts.createMyAppDir = ''
+    system.activationScripts.createNixAI = ''
       mkdir -p /var/lib/nix-ai
       chown -R nixai:nixai /var/lib/nix-ai
     '';
