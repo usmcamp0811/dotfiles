@@ -60,6 +60,8 @@ Here's an overview of what my Nix configuration offers:
 
 - **Git Pre-Commit Hooks**: Seamless integration of git hooks with Nix. To enable the hooks just activate the default shell. `nix develop`
 
+- **System Observability & Monitoring**: Integrate Prometheus, Grafana, and Loki to achieve comprehensive monitoring of all systems, including Systemd services.
+
 
 ## Customization
 
@@ -78,8 +80,6 @@ Leveraging the SnowfallOrg lib architecture, my Nix setup offers a streamlined a
 - **System-Centric Configurations**: The `systems/` folder helps you organize your system setups by architecture and format, enabling configurations for multiple platforms like `x86_64-linux` or `aarch64-darwin`.
 
 - **Home Environment Configs**: Similarly, the `homes/` folder arranges configurations by architecture, which is particularly handy for managing home environments via Nix.
-
-- **System Observability & Monitoring**: Integrate Prometheus, Grafana, and Loki to achieve comprehensive monitoring of all systems, including Systemd services.
 
 This methodology fosters a user-friendly approach to Nix configuration, balancing both flexibility and modularity for better manageability.
     
