@@ -25,6 +25,25 @@ in {
       default = [ ];
       description = "Extra flags for the nix-ai service.";
     };
+
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/nix-ai"
+      "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -62,6 +81,31 @@ in {
       mkdir -p /var/lib/nix-ai/models
       chown -R nixai:nixai /var/lib/nix-ai
     '';
+
+    campground.services.vault-agent.services.nix-ai = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets.environment.templates = {
+        nix-ai = {
+          text = ''
+            {{ with secret "${cfg.vault-path}" }}
+            HF_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.HF_TOKEN }}{{ else }}{{ .Data.data.HF_TOKEN }}{{ end }}'
+            {{ end }}
+          '';
+        };
+      };
+    };
 
   };
 
