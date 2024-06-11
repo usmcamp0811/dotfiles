@@ -175,7 +175,7 @@
     catppuccin.url = "github:catppuccin/nix";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
 
-    nix-ai.url = "github:hauskens/nix-ai";
+    nix-ai.url = "github:nixified-ai/flake";
     neorg-overlay.url = "github:nvim-neorg/nixpkgs-neorg-overlay";
   };
 
