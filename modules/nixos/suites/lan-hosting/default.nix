@@ -61,7 +61,7 @@ in {
             http.routers.nix-ai = {
               rule = "Host(`ai.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "nix-a";
+              service = "nix-ai";
             };
 
             http.services.nix-ai = {
