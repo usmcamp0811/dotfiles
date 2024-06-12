@@ -44,6 +44,7 @@ in {
     in [
       (commonAutoMountOptions // { where = "/mnt/media"; })
       (commonAutoMountOptions // { where = "/mnt/webb"; })
+      (commonAutoMountOptions // { where = "/mnt/nextcloud"; })
     ];
     #   fileSystems."/mnt/webb" = {
     #     device = "webb:/webb";
