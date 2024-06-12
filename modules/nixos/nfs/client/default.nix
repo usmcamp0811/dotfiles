@@ -1,13 +1,8 @@
-{ options
-, config
-, lib
-, ...
-}:
+{ options, config, lib, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.nfs.client;
-in
-{
+with lib.campground;
+let cfg = config.campground.nfs.client;
+in {
   options.campground.nfs.client = with types; {
     enable = mkBoolOpt false "NFS";
     webb = mkBoolOpt false "Whether or not to Webb mount.";
@@ -19,38 +14,37 @@ in
 
   config = mkIf cfg.enable {
     services.rpcbind.enable = true; # needed for NFS
-    systemd.mounts =
-      let
-        commonMountOptions = {
-          type = "nfs";
-          mountConfig = { Options = "noatime"; };
-        };
-      in
-      [
-        (commonMountOptions
-          // {
-          what = "reckless:/export/media";
-          where = "/mnt/media";
-        })
+    systemd.mounts = let
+      commonMountOptions = {
+        type = "nfs";
+        mountConfig = { Options = "noatime"; };
+      };
+    in [
+      (commonMountOptions // {
+        what = "reckless:/export/media";
+        where = "/mnt/media";
+      })
 
-        (commonMountOptions
-          // {
-          what = "webb:/export/webb";
-          where = "/mnt/webb";
-        })
-      ];
+      (commonMountOptions // {
+        what = "webb:/export/webb";
+        where = "/mnt/webb";
+      })
 
-    systemd.automounts =
-      let
-        commonAutoMountOptions = {
-          wantedBy = [ "multi-user.target" ];
-          automountConfig = { TimeoutIdleSec = "600"; };
-        };
-      in
-      [
-        (commonAutoMountOptions // { where = "/mnt/media"; })
-        (commonAutoMountOptions // { where = "/mnt/webb"; })
-      ];
+      (commonMountOptions // {
+        what = "reckless:/export/nextcloud";
+        where = "/mnt/nextcloud";
+      })
+    ];
+
+    systemd.automounts = let
+      commonAutoMountOptions = {
+        wantedBy = [ "multi-user.target" ];
+        automountConfig = { TimeoutIdleSec = "600"; };
+      };
+    in [
+      (commonAutoMountOptions // { where = "/mnt/media"; })
+      (commonAutoMountOptions // { where = "/mnt/webb"; })
+    ];
     #   fileSystems."/mnt/webb" = {
     #     device = "webb:/webb";
     #     fsType = "nfs";

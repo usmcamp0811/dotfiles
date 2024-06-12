@@ -75,6 +75,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/export/nextcloud" = {
+    device = "ChestyPoolr/nextcloud";
+    fsType = "zfs";
+  };
+
   fileSystems."/var/lib/atticd" = {
     device = "MotorPool/attic";
     fsType = "zfs";

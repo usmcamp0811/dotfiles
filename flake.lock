@@ -2393,16 +2393,16 @@
         "textgen-src": "textgen-src"
       },
       "locked": {
-        "lastModified": 1716398113,
-        "narHash": "sha256-iB/AQpgnjv5mZzbnQ3eqbyLJZhOmQApO8oBDzeefrz4=",
-        "owner": "hauskens",
-        "repo": "nix-ai",
-        "rev": "eff57c83d0732bc09f91f6d23b9f0bd943d6ebdf",
+        "lastModified": 1701304375,
+        "narHash": "sha256-WI/SimUvHPIWFhQTY04+1yCVjZzVjVb28pSE4S2yhFA=",
+        "owner": "nixified-ai",
+        "repo": "flake",
+        "rev": "63339e4c8727578a0fe0f2c63865f60b6e800079",
         "type": "github"
       },
       "original": {
-        "owner": "hauskens",
-        "repo": "nix-ai",
+        "owner": "nixified-ai",
+        "repo": "flake",
         "type": "github"
       }
     },
