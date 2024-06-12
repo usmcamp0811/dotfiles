@@ -66,21 +66,6 @@ in {
           "172.16.0.0/12" # docker network
           "100.64.0.0/10" # vpn network
         ];
-        trusted_domains = [ "birne.wireguard" ];
-        enabledPreviewProviders = [
-          "OC\\Preview\\BMP"
-          "OC\\Preview\\GIF"
-          "OC\\Preview\\JPEG"
-          "OC\\Preview\\Krita"
-          "OC\\Preview\\MarkDown"
-          "OC\\Preview\\MP3"
-          "OC\\Preview\\OpenDocument"
-          "OC\\Preview\\PNG"
-          "OC\\Preview\\TXT"
-          "OC\\Preview\\XBitmap"
-          "OC\\Preview\\HEIC"
-          "OC\\Preview\\Movie"
-        ];
       };
     };
 
