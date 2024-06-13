@@ -2519,6 +2519,23 @@
         "type": "github"
       }
     },
+    "nix-health": {
+      "locked": {
+        "dir": "module",
+        "lastModified": 1717084565,
+        "narHash": "sha256-zB6eDFFecSHEm6JKXeMDFIzsPICODAsUas/nHWOedkY=",
+        "owner": "juspay",
+        "repo": "nix-health",
+        "rev": "d83c80c022034b646e84df08b4d591b1f8af7832",
+        "type": "github"
+      },
+      "original": {
+        "dir": "module",
+        "owner": "juspay",
+        "repo": "nix-health",
+        "type": "github"
+      }
+    },
     "nix-ld": {
       "inputs": {
         "nixpkgs": [
@@ -3930,6 +3947,7 @@
         "icehouse": "icehouse",
         "neorg-overlay": "neorg-overlay",
         "nix-ai": "nix-ai",
+        "nix-health": "nix-health",
         "nix-ld": "nix-ld",
         "nix-ld-rs": "nix-ld-rs",
         "nix-output-monitor": "nix-output-monitor",

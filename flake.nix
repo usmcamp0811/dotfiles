@@ -177,6 +177,8 @@
 
     nix-ai.url = "github:nixified-ai/flake";
     neorg-overlay.url = "github:nvim-neorg/nixpkgs-neorg-overlay";
+
+    nix-health.url = "github:juspay/nix-health?dir=module";
   };
 
   outputs = inputs:
@@ -226,6 +228,7 @@
         dataflow2nix.nixosModules.airflow
         nix-topology.nixosModules.default
         catppuccin.nixosModules.catppuccin
+        nix-health.flakeModule
         # scientific-fhs.nixosModules.default
       ];
 
