@@ -19,15 +19,15 @@ in {
         };
         display-manager = {
           gdm = {
-            # enable = true;
-            # wayland = true;
+            enable = true;
+            wayland = true;
           };
           # sddm = {
           #   enable = true;
           #   wayland = true;
           # };
         };
-        # hyprland = enabled;
+        hyprland = enabled;
         qtile = enabled;
       };
       apps = {
