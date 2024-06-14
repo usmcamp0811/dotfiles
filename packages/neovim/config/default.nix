@@ -40,6 +40,7 @@
     bo.tabstop = 2
     vim.cmd("set expandtab ts=2 sw=2 ai")
     vim.opt.guifont = { "Source Code Pro", ":h8" }
+
   '';
 
   extraPackages = [

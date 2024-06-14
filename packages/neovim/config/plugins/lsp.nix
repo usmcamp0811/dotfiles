@@ -21,6 +21,7 @@
         opleader = { line = "<BS>"; };
       };
     };
+    lsp-lines.currentLine = true;
     lsp = {
       enable = true;
       servers = {
