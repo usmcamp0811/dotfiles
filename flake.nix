@@ -228,7 +228,7 @@
         dataflow2nix.nixosModules.airflow
         nix-topology.nixosModules.default
         catppuccin.nixosModules.catppuccin
-        nix-health.flakeModule
+        # nix-health.flakeModule
         # scientific-fhs.nixosModules.default
       ];
 
