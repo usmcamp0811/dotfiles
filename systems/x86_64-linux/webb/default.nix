@@ -65,9 +65,9 @@ in {
     tools = { attic = enabled; };
 
     services = {
-      openoffice = {
+      onlyoffice = {
         enable = true;
-      }
+      };
       nextcloud = {
         enable = true;
       };
