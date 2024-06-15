@@ -7,7 +7,8 @@ in {
     enable = mkBoolOpt false "Enable Nextcloud";
     port = mkOpt int 7443 "Port to host the Nextcloud server on";
     adminuser = mkOpt str "mcamp" "Absolute path to the Vault role-id";
-    dataDir = mkOpt str "/var/lib/nextcloud" "Storage path of nextcloud.";
+    home = mkOpt str "/var/lib/nextcloud" "App Storage path of nextcloud.";
+    dataDir = mkOpt str "/mnt/nextcloud" "Data Storage path of nextcloud.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -34,7 +35,8 @@ in {
     services.nextcloud = {
       enable = true;
       hostName = "webb";
-      home = cfg.dataDir;
+      home = cfg.home;
+      datadir = cfg.dataDir;  # Path for user data
       package = pkgs.nextcloud29; # Use the patched version
       autoUpdateApps.enable = true;
       autoUpdateApps.startAt = "03:00:00";
