@@ -56,14 +56,37 @@ in {
         "pm.start_servers" = "40";
       };
       extraApps = {
-  inherit (pkgs.nextcloud25Packages.apps) mail calendar contact;
-  phonetrack = pkgs.fetchNextcloudApp {
-    name = "phonetrack";
-    sha256 = "0qf366vbahyl27p9mshfma1as4nvql6w75zy2zk5xwwbp343vsbc";
-    url = "https://gitlab.com/eneiluj/phonetrack-oc/-/wikis/uploads/931aaaf8dca24bf31a7e169a83c17235/phonetrack-0.6.9.tar.gz";
-    version = "0.6.9";
-  };
-};
+        # spreed = pkgs.fetchNextcloudApp {
+        #   url = "https://github.com/nextcloud/spreed/archive/refs/tags/v19.0.2.tar.gz";
+        #   sha256 = "sha256-KZyVOTnfUR5j2b3Jtl/CBzNBEjwsxsd94C5t9Cz+1Qo=";
+        #   license = pkgs.lib.licenses.mit.shortName;
+        # };
+        cookbook = pkgs.fetchNextcloudApp {
+          url = "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
+          sha256 = "sha256-XgBwUr26qW6wvqhrnhhhhcN4wkI+eXDHnNSm1HDbP6M=";
+          license = pkgs.lib.licenses.mit.shortName;
+        };
+        mattermost = pkgs.fetchNextcloudApp {
+          url = "https://github.com/nextcloud/integration_mattermost/archive/refs/tags/v1.0.7.tar.gz";
+          sha256 = "sha256-GhXhoWClI0ER8mXBehsZL/m22382fptlSLSisasGeTA=";
+          license = pkgs.lib.licenses.mit.shortName;
+        };
+        calendar = pkgs.fetchNextcloudApp {
+          url = "https://github.com/nextcloud/calendar/archive/refs/tags/v4.7.6.tar.gz";
+          license = pkgs.lib.licenses.mit.shortName;
+          sha256 = "sha256-YO+j4FGri+8rQfvRreUIr4Q57bP8bQzYE6T98W/sQlA=";
+        };
+        # mindmap = pkgs.fetchNextcloudApp {
+        #   url = "https://github.com/ACTom/files_mindmap/releases/download/v0.0.30/files_mindmap-0.0.30.tar.gz";
+        #   sha256 = "sha256-4rAgjDxEH7lXVEoXXKwQRnTi+be0cwl/Uxn2ZRCN6do=";
+        #   license = pkgs.lib.licenses.mit.shortName;
+        # };
+        cospend = pkgs.fetchNextcloudApp {
+          url = "https://github.com/julien-nc/cospend-nc/releases/download/v1.6.1/cospend-1.6.1.tar.gz";
+          sha256 = "sha256-QHIxS5uubutiD9Abm/Bzv1RWG7TgL/tvixVdNEzTlxE=";
+          license = pkgs.lib.licenses.mit.shortName;
+        };
+      };
       config = {
         adminuser = cfg.adminuser;
         # NOTE: Having issues with Nextcloud getting this file or something so I have to manually reset the password
