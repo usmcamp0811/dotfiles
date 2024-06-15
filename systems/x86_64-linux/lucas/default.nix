@@ -62,6 +62,9 @@ with lib.campground; {
       #   '';
       # };
       # example-flink-job = { enable = true; };
+      nextcloud = {
+        enable = true;
+      }
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
