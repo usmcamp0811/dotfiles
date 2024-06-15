@@ -9,7 +9,8 @@ in {
     adminuser = mkOpt str "mcamp" "Absolute path to the Vault role-id";
     home = mkOpt str "/var/lib/nextcloud" "App Storage path of nextcloud.";
     dataDir = mkOpt str "/var/lib/nextcloud" "Data Storage path of nextcloud.";
-    domain = mkOpt str "cloud.aicampground.com" "Trusted Domain to serve Nextcloud On";
+    domain =
+      mkOpt str "cloud.aicampground.com" "Trusted Domain to serve Nextcloud On";
     # OnlyOffice configuration
     onlyoffice = mkBoolOpt true "Enable OnlyOffice integration";
     role-id =
@@ -18,6 +19,8 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
+    onlyoffice-vault-path = mkOpt str "secret/campground/onlyoffice"
+      "The Vault path to the KV containing the OnlyOffice JWT Token";
     vault-path = mkOpt str "secret/campground/nextcloud"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
@@ -38,7 +41,8 @@ in {
       enable = true;
       hostName = cfg.domain;
       home = cfg.home;
-      datadir = cfg.dataDir;  # Path for user data
+      datadir = cfg.dataDir; # Path for user data
+      #TODO: Refactor this so we can keep versions of this inline easier
       package = pkgs.nextcloud29; # Use the patched version
       enableImagemagick = true;
       autoUpdateApps.enable = true;
@@ -63,17 +67,20 @@ in {
         #   license = pkgs.lib.licenses.mit.shortName;
         # };
         cookbook = pkgs.fetchNextcloudApp {
-          url = "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
+          url =
+            "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
           sha256 = "sha256-XgBwUr26qW6wvqhrnhhhhcN4wkI+eXDHnNSm1HDbP6M=";
           license = pkgs.lib.licenses.mit.shortName;
         };
         mattermost = pkgs.fetchNextcloudApp {
-          url = "https://github.com/nextcloud/integration_mattermost/archive/refs/tags/v1.0.7.tar.gz";
+          url =
+            "https://github.com/nextcloud/integration_mattermost/archive/refs/tags/v1.0.7.tar.gz";
           sha256 = "sha256-GhXhoWClI0ER8mXBehsZL/m22382fptlSLSisasGeTA=";
           license = pkgs.lib.licenses.mit.shortName;
         };
         calendar = pkgs.fetchNextcloudApp {
-          url = "https://github.com/nextcloud/calendar/archive/refs/tags/v4.7.6.tar.gz";
+          url =
+            "https://github.com/nextcloud/calendar/archive/refs/tags/v4.7.6.tar.gz";
           license = pkgs.lib.licenses.mit.shortName;
           sha256 = "sha256-YO+j4FGri+8rQfvRreUIr4Q57bP8bQzYE6T98W/sQlA=";
         };
@@ -83,14 +90,10 @@ in {
         #   license = pkgs.lib.licenses.mit.shortName;
         # };
         cospend = pkgs.fetchNextcloudApp {
-          url = "https://github.com/julien-nc/cospend-nc/releases/download/v1.6.1/cospend-1.6.1.tar.gz";
+          url =
+            "https://github.com/julien-nc/cospend-nc/releases/download/v1.6.1/cospend-1.6.1.tar.gz";
           sha256 = "sha256-QHIxS5uubutiD9Abm/Bzv1RWG7TgL/tvixVdNEzTlxE=";
           license = pkgs.lib.licenses.mit.shortName;
-        };
-        onlyoffice = pkgs.fetchNextcloudApp {
-          url = "https://github.com/ONLYOFFICE/onlyoffice-nextcloud/archive/refs/tags/v6.4.1.tar.gz";
-          sha256 = ""; # replace with the actual sha256
-          license = pkgs.lib.licenses.gpl3.shortName;
         };
       };
       config = {
@@ -117,22 +120,18 @@ in {
     campground.services.postgresql = {
       enable = true;
       authentication = [ "local nextcloud nextcloud trust" ];
-      databases = [
-      {
+      databases = [{
         name = "nextcloud";
         user = "nextcloud";
-      }
-      ];
+      }];
     };
 
     services.nginx.virtualHosts = {
       "${cfg.domain}" = {
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = 13244;
-          }
-        ];
+        listen = [{
+          addr = "0.0.0.0";
+          port = 13244;
+        }];
       };
     };
 
