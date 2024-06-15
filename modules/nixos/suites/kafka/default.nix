@@ -151,8 +151,8 @@ in {
             };
           };
         };
-        postgresql = {
-          enable = cfg.timescale-server;
+        postgresql = mkIf cfg.timescale-server {
+          enable = true;
           extraPlugins = [ cfg.timescalePackage ];
           authentication = [ "local kafka kafka trust" ];
           databases = [{
