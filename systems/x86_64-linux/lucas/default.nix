@@ -21,6 +21,11 @@ with lib.campground; {
         hostId = "930864f0";
       };
     };
+    desktop.addons.rkvm = {
+      # enableServer = true;
+      enableClient = true;
+      address = "reckless:5258";
+    };
     suites = {
       public-hosting = {
         enable = true;
