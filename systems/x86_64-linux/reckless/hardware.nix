@@ -108,6 +108,6 @@
     /export/media/tv-shows 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
     /export/media/audiobooks 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
     /export/media/music 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
-    /export/nextcloud 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
+    /export/nextcloud 10.8.0.1/24(rw,nohide,insecure,no_subtree_check,no_root_squash,sync) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
   '';
 }
