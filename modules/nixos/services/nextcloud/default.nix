@@ -106,6 +106,8 @@ in {
         dbuser = "nextcloud";
         dbname = "nextcloud";
         dbhost = "/run/postgresql";
+      };
+      settings = {
         defaultPhoneRegion = "US";
         trustedProxies = [
           "127.0.0.1/32" # local host

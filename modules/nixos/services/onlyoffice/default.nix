@@ -32,7 +32,7 @@ in {
 
   config = mkIf cfg.enable {
 
-    services.onlyoffice.extraApps = {
+    services.nextcloud.extraApps = {
       onlyoffice = pkgs.fetchNextcloudApp {
         url =
           "https://github.com/ONLYOFFICE/onlyoffice-onlyoffice/archive/refs/tags/v6.4.1.tar.gz";
