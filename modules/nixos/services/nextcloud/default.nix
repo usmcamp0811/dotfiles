@@ -33,9 +33,9 @@ in {
 
     services.nextcloud = {
       enable = true;
-      hostName = "${cfg.name}.${config.networking.domain}";
+      hostName = "lucas";
       home = cfg.dataDir;
-      package = pkgs.nextcloud-patched; # Use the patched version
+      package = pkgs.nextcloud27; # Use the patched version
       autoUpdateApps.enable = true;
       autoUpdateApps.startAt = "03:00:00";
       caching.apcu = true;
