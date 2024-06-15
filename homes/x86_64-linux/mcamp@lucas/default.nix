@@ -76,16 +76,16 @@ with lib.campground; {
       syncthing = enabled;
     };
 
-    # apps = {
-    #   firefox = enabled;
-    #   brave = enabled;
-    #   libreoffice = enabled;
-    #   alacritty = enabled;
-    #   kitty = enabled;
-    #   rofi = enabled;
-    #   mpv = enabled;
-    #   #TODO: Add Qutebrowser
-    # };
+    apps = {
+      firefox = enabled;
+      brave = enabled;
+      # libreoffice = enabled;
+      # alacritty = enabled;
+      # kitty = enabled;
+      # rofi = enabled;
+      mpv = enabled;
+      #TODO: Add Qutebrowser
+    };
     tools = {
       git = enabled;
       direnv = enabled;
