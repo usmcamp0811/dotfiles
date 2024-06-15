@@ -91,7 +91,7 @@ in {
             "onlyoffice-jwt" = {
               text = ''
                 {{ with secret "${cfg.vault-path}" }}
-                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.jwt-token }}{{ else }}{{ .Data.data.jwt-token }}{{ end }}
+                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.jwttoken }}{{ else }}{{ .Data.data.jwttoken }}{{ end }}
                 {{ end }}
               '';
               permissions = "0600";

@@ -71,6 +71,16 @@ in {
               };
             };
 
+            http.routers.onlyoffice = {
+              rule = "Host(`office.cloud.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "onlyoffice";
+            };
+
+            http.services.onlyoffice = {
+              loadBalancer.servers = [{ url = "http://webb:13249"; }];
+            };
+
             http.routers.nextcloud = {
               rule = "Host(`cloud.aicampground.com`)";
               entryPoints = [ "websecure" ];

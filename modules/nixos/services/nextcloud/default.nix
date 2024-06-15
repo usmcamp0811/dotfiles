@@ -78,12 +78,12 @@ in {
           sha256 = "sha256-GhXhoWClI0ER8mXBehsZL/m22382fptlSLSisasGeTA=";
           license = pkgs.lib.licenses.mit.shortName;
         };
-        calendar = pkgs.fetchNextcloudApp {
-          url =
-            "https://github.com/nextcloud/calendar/archive/refs/tags/v4.7.6.tar.gz";
-          license = pkgs.lib.licenses.mit.shortName;
-          sha256 = "sha256-YO+j4FGri+8rQfvRreUIr4Q57bP8bQzYE6T98W/sQlA=";
-        };
+        # calendar = pkgs.fetchNextcloudApp {
+        #   url =
+        #     "https://github.com/nextcloud/calendar/archive/refs/tags/v4.7.6.tar.gz";
+        #   license = pkgs.lib.licenses.mit.shortName;
+        #   sha256 = "sha256-YO+j4FGri+8rQfvRreUIr4Q57bP8bQzYE6T98W/sQlA=";
+        # };
         # mindmap = pkgs.fetchNextcloudApp {
         #   url = "https://github.com/ACTom/files_mindmap/releases/download/v0.0.30/files_mindmap-0.0.30.tar.gz";
         #   sha256 = "sha256-4rAgjDxEH7lXVEoXXKwQRnTi+be0cwl/Uxn2ZRCN6do=";
