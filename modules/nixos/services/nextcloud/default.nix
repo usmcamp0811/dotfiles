@@ -33,15 +33,15 @@ in {
 
     services.nextcloud = {
       enable = true;
-      hostName = "lucas";
+      hostName = "webb";
       home = cfg.dataDir;
-      package = pkgs.nextcloud27; # Use the patched version
+      package = pkgs.nextcloud29; # Use the patched version
       autoUpdateApps.enable = true;
       autoUpdateApps.startAt = "03:00:00";
       caching.apcu = true;
       caching.redis = true;
       configureRedis = true;
-      https = true;
+      # https = true;
       phpOptions = { "opcache.interned_strings_buffer" = "64"; };
       poolSettings = {
         pm = "dynamic";
@@ -71,11 +71,22 @@ in {
 
     campground.services.postgresql = {
       enable = true;
-      authentication = [ "local mlflow mlflow trust" ];
+      authentication = [ "local nextcloud nextcloud trust" ];
       databases = [{
         name = "nextcloud";
         user = "nextcloud";
       }];
+    };
+
+    services.nginx.virtualHosts = {
+      "webb" = {
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = 13244;
+          }
+        ];
+      };
     };
 
     services.redis = {
@@ -85,7 +96,7 @@ in {
 
     environment.systemPackages = with pkgs; [ exiftool ffmpeg ];
 
-    campground.services.vault-agent.services.nextcloud = {
+    campground.services.vault-agent.services.nextcloud-setup = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
