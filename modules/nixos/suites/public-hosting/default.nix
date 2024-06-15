@@ -71,6 +71,16 @@ in {
               };
             };
 
+            http.routers.nextcloud = {
+              rule = "Host(`cloud.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "nextcloud";
+            };
+
+            http.services.nextcloud = {
+              loadBalancer.servers = [{ url = "http://webb:13244"; }];
+            };
+
             # http.routers.adhoc = {
             #   rule = "Host(`adhoc.aicampground.com`)";
             #   entryPoints = [ "websecure" ];

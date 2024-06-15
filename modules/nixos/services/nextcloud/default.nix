@@ -8,7 +8,7 @@ in {
     port = mkOpt int 7443 "Port to host the Nextcloud server on";
     adminuser = mkOpt str "mcamp" "Absolute path to the Vault role-id";
     home = mkOpt str "/var/lib/nextcloud" "App Storage path of nextcloud.";
-    dataDir = mkOpt str "/mnt/nextcloud" "Data Storage path of nextcloud.";
+    dataDir = mkOpt str "/var/lib/nextcloud" "Data Storage path of nextcloud.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -55,6 +55,9 @@ in {
       };
       config = {
         adminuser = cfg.adminuser;
+        # NOTE: Having issues with Nextcloud getting this file or something so I have to manually reset the password
+        # export OC_PASS=new_password_here
+        # /nix/store/45488dk2sh0v31shz999v0p0i5d21zh9-nextcloud-occ/bin/nextcloud-occ user:resetpassword --password-from-env mcamp
         adminpassFile = "/tmp/detsys-vault/nextcloud-adminpassFile";
         dbtype = "pgsql";
         dbuser = "nextcloud";
