@@ -10,7 +10,8 @@ in {
     home = mkOpt str "/var/lib/nextcloud" "App Storage path of nextcloud.";
     dataDir = mkOpt str "/var/lib/nextcloud" "Data Storage path of nextcloud.";
     domain = mkOpt str "cloud.aicampground.com" "Trusted Domain to serve Nextcloud On";
-
+    # OnlyOffice configuration
+    onlyoffice = mkBoolOpt true "Enable OnlyOffice integration";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
@@ -86,6 +87,11 @@ in {
           sha256 = "sha256-QHIxS5uubutiD9Abm/Bzv1RWG7TgL/tvixVdNEzTlxE=";
           license = pkgs.lib.licenses.mit.shortName;
         };
+        onlyoffice = pkgs.fetchNextcloudApp {
+          url = "https://github.com/ONLYOFFICE/onlyoffice-nextcloud/archive/refs/tags/v6.4.1.tar.gz";
+          sha256 = ""; # replace with the actual sha256
+          license = pkgs.lib.licenses.gpl3.shortName;
+        };
       };
       config = {
         adminuser = cfg.adminuser;
@@ -111,10 +117,12 @@ in {
     campground.services.postgresql = {
       enable = true;
       authentication = [ "local nextcloud nextcloud trust" ];
-      databases = [{
+      databases = [
+      {
         name = "nextcloud";
         user = "nextcloud";
-      }];
+      }
+      ];
     };
 
     services.nginx.virtualHosts = {
@@ -132,6 +140,8 @@ in {
       enable = true;
       package = pkgs.redis;
     };
+
+    # OnlyOffice service configuration
 
     environment.systemPackages = with pkgs; [ exiftool ffmpeg ];
 
