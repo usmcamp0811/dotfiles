@@ -9,6 +9,7 @@ in {
     adminuser = mkOpt str "mcamp" "Absolute path to the Vault role-id";
     home = mkOpt str "/var/lib/nextcloud" "App Storage path of nextcloud.";
     dataDir = mkOpt str "/var/lib/nextcloud" "Data Storage path of nextcloud.";
+    domain = mkOpt str "cloud.aicampground.com" "Trusted Domain to serve Nextcloud On";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -34,10 +35,11 @@ in {
 
     services.nextcloud = {
       enable = true;
-      hostName = "webb";
+      hostName = cfg.domain;
       home = cfg.home;
       datadir = cfg.dataDir;  # Path for user data
       package = pkgs.nextcloud29; # Use the patched version
+      enableImagemagick = true;
       autoUpdateApps.enable = true;
       autoUpdateApps.startAt = "03:00:00";
       caching.apcu = true;
@@ -53,6 +55,15 @@ in {
         "pm.min_spare_servers" = "40";
         "pm.start_servers" = "40";
       };
+      extraApps = {
+  inherit (pkgs.nextcloud25Packages.apps) mail calendar contact;
+  phonetrack = pkgs.fetchNextcloudApp {
+    name = "phonetrack";
+    sha256 = "0qf366vbahyl27p9mshfma1as4nvql6w75zy2zk5xwwbp343vsbc";
+    url = "https://gitlab.com/eneiluj/phonetrack-oc/-/wikis/uploads/931aaaf8dca24bf31a7e169a83c17235/phonetrack-0.6.9.tar.gz";
+    version = "0.6.9";
+  };
+};
       config = {
         adminuser = cfg.adminuser;
         # NOTE: Having issues with Nextcloud getting this file or something so I have to manually reset the password
@@ -84,7 +95,7 @@ in {
     };
 
     services.nginx.virtualHosts = {
-      "webb" = {
+      "${cfg.domain}" = {
         listen = [
           {
             addr = "0.0.0.0";
