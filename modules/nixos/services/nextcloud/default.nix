@@ -6,7 +6,7 @@ in {
   options.campground.services.nextcloud = with types; {
     enable = mkBoolOpt false "Enable Nextcloud";
     port = mkOpt int 7443 "Port to host the Nextcloud server on";
-    adminuser = mkOpt str "mcmap" "Absolute path to the Vault role-id";
+    adminuser = mkOpt str "mcamp" "Absolute path to the Vault role-id";
     dataDir = mkOpt str "/var/lib/nextcloud" "Storage path of nextcloud.";
 
     role-id =
@@ -116,8 +116,7 @@ in {
             "nextcloud-adminpassFile" = {
               text = ''
                 {{ with secret "${cfg.vault-path}" }}
-                ADMIN_USER='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_USER }}{{ else }}{{ .Data.data.ADMIN_USER }}{{ end }}'
-                ADMIN_PASSWORD='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}'
+                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}
                 {{ end }}
               '';
               permissions = "0600";
