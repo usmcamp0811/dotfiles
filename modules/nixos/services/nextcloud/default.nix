@@ -164,11 +164,7 @@ in {
         file = {
           files = {
             "nextcloud-adminpassFile" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}
-                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}
-                {{ end }}
-              '';
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}{{ end }}'';
               permissions = "0600";
               change-action = "restart";
             };

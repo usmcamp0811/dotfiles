@@ -41,7 +41,7 @@ in {
 
     services.onlyoffice = {
       enable = true;
-      hostname = "office.${cfg.domain}";
+      hostname = "office.aicampground.com";
       port = 13449;
 
       postgresHost = "/run/postgresql";
@@ -49,10 +49,10 @@ in {
       jwtSecretFile = "/tmp/detsys-vault/onlyoffice-jwt";
     };
 
-    services.nginx.virtualHosts."office.${cfg.domain}" = {
+    services.nginx.virtualHosts."office.aicampground.com" = {
       listen = [{
         addr = "0.0.0.0";
-        port = 13449;
+        port = 13450;
       }];
     };
 
@@ -89,11 +89,7 @@ in {
         file = {
           files = {
             "onlyoffice-jwt" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}
-                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.jwttoken }}{{ else }}{{ .Data.data.jwttoken }}{{ end }}
-                {{ end }}
-              '';
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.jwttoken }}{{ else }}{{ .Data.data.jwttoken }}{{ end }}{{ end }}'';
               permissions = "0600";
               change-action = "restart";
             };
