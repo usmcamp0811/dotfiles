@@ -77,7 +77,7 @@ in {
               service = "onlyoffice";
             };
 
-            http.routers.nextcloud = {
+            http.routers.onlyoffice-office = {
               rule = "Host(`office.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "onlyoffice";
