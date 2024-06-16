@@ -61,11 +61,12 @@ in {
         "pm.start_servers" = "40";
       };
       extraApps = {
-        # spreed = pkgs.fetchNextcloudApp {
-        #   url = "https://github.com/nextcloud/spreed/archive/refs/tags/v19.0.2.tar.gz";
-        #   sha256 = "sha256-KZyVOTnfUR5j2b3Jtl/CBzNBEjwsxsd94C5t9Cz+1Qo=";
-        #   license = pkgs.lib.licenses.mit.shortName;
-        # };
+        spreed = pkgs.fetchNextcloudApp {
+          url =
+            "https://github.com/nextcloud/spreed/archive/refs/tags/v19.0.2.tar.gz";
+          sha256 = "sha256-KZyVOTnfUR5j2b3Jtl/CBzNBEjwsxsd94C5t9Cz+1Qo=";
+          license = pkgs.lib.licenses.mit.shortName;
+        };
         cookbook = pkgs.fetchNextcloudApp {
           url =
             "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
