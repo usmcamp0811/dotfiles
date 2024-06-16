@@ -42,7 +42,7 @@ in {
     services.onlyoffice = {
       enable = true;
       hostname = "office.${cfg.domain}";
-      port = 13444;
+      port = 13449;
 
       postgresHost = "/run/postgresql";
 
