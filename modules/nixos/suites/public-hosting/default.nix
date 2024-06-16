@@ -77,6 +77,12 @@ in {
               service = "onlyoffice";
             };
 
+            http.routers.nextcloud = {
+              rule = "Host(`office.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "onlyoffice";
+            };
+
             http.services.onlyoffice = {
               loadBalancer.servers = [{ url = "http://webb:13249"; }];
             };
