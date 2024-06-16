@@ -30,14 +30,14 @@ in {
 
   config = mkIf cfg.enable {
 
-    # services.nextcloud.extraApps = {
-    #   onlyoffice = pkgs.fetchNextcloudApp {
-    #     url =
-    #       "https://github.com/ONLYOFFICE/onlyoffice-onlyoffice/archive/refs/tags/v6.4.1.tar.gz";
-    #     sha256 = ""; # replace with the actual sha256
-    #     license = pkgs.lib.licenses.gpl3.shortName;
-    #   };
-    # };
+    services.nextcloud.extraApps = {
+      onlyoffice = pkgs.fetchNextcloudApp {
+        url =
+          "https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.2.2/onlyoffice.tar.gz";
+        sha256 = "sha256-8Eyt3dyL2qqwIv3JP2C7Dw2FyQy0sDSZyxA0hMGR1O0="; # replace with the actual sha256
+        license = pkgs.lib.licenses.gpl3.shortName;
+      };
+    };
 
     services.onlyoffice = {
       enable = true;
