@@ -1,4 +1,4 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
+{ lib, pkgs
 , hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
