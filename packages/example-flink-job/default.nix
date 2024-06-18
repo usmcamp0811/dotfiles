@@ -33,17 +33,17 @@ let
       })) pypkgs-build-requirements);
 
   python-env = pkgs.poetry2nix.mkPoetryEnv {
-    projectDir = src;
+    projectDir = ./.;
     python = pkgs.python311;
     overrides = p2n-overrides;
     preferWheels = true; # Prefer wheels to speed up the build process
   };
 
-  src = ./.;
+  # src = ./.;
 
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
-    src = src;
+    src = ./.;
 
     installPhase = ''
       mkdir -p $out/bin
