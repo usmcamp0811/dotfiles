@@ -174,8 +174,8 @@ let
       cp -r ${pkgs.flink}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
       cp ${job}/bin/job $out/bin/example-flink-job
-      cp ${run-tests}/bin/run-tests $out/src/run-tests
-      cp ${stop-all}/bin/stop-all $out/bin/stop-all
+      # cp ${run-tests}/bin/run-tests $out/src/run-tests
+      # cp ${stop-all}/bin/stop-all $out/bin/stop-all
       cp -r ${flink-conf-dir}/conf $out/
     '';
 
