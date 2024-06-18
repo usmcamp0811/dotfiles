@@ -42,7 +42,6 @@ in
           env = HYPRLAND_TRACE,1
           ${cfg.appendConfig}
         '';
-      # package = hyprland.packages.${system}.hyprland;
       package = pkgs.hyprland;
 
       settings = {

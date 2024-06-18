@@ -93,10 +93,12 @@ in {
     xdg.portal = {
       enable = true;
       wlr.enable = true;
-      # extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
       extraPortals =
         [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gnome  pkgs.xdg-desktop-portal-gtk ];
-      config.common.default = "*";
+      config.common.default = [
+        "gtk"
+        "hyprland"
+      ];
     };
 
     # For GTK applications, if needed
@@ -122,11 +124,7 @@ in {
       enable = true;
       xwayland.enable = true;
       package = pkgs.hyprland;
-      # credits to IceDBorn and fufexan for this patch <3
-      ### Add `dbus-hyprland-environment` and `configure-gtk` to your autostart
       portalPackage = pkgs.xdg-desktop-portal-hyprland;
-      # package = hyprland.packages.${system}.hyprland;
-      # portalPackage = hyprland.packages.${system}.xdg-desktop-portal-hyprland;
     };
   };
 }
