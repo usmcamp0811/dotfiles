@@ -1,4 +1,4 @@
-{ lib, pkgs, hosts ? { }, ... }:
+{ lib, pkgs, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
