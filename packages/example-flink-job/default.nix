@@ -180,11 +180,11 @@ let
       cp -r ${flink-conf-dir}/conf $out/
     '';
 
-    passthru = {
-      python = python-env;
-      test = test-flink-job;
-      stop-all = stop-all;
-      conf = flink-conf-dir;
-    };
+    # passthru = {
+    #   python = python-env;
+    #   test = test-flink-job;
+    #   stop-all = stop-all;
+    #   conf = flink-conf-dir;
+    # };
   };
 in override-meta new-meta example-flink-job
