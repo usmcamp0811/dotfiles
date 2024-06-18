@@ -39,11 +39,8 @@ let
     preferWheels = true; # Prefer wheels to speed up the build process
   };
 
-  # src = ./.;
-
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
-    src = ./.;
 
     installPhase = ''
       mkdir -p $out/bin
