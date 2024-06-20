@@ -76,6 +76,7 @@ with lib.campground; {
     services = {
       openssh = enabled;
       syncthing = enabled;
+      protonmail-bridge = enabled;
     };
 
     apps = {
