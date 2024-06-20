@@ -170,7 +170,7 @@ let
       mkdir -p $out/src
       mkdir -p $out/opt/flink/conf
 
-      cp -r $src/* $out/src/
+      cp -r ${src}/* $out/src/
       cp -r ${pkgs.flink}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
       cp ${job}/bin/job $out/bin/example-flink-job
