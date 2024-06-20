@@ -16,6 +16,12 @@ in {
       description = "Start Bridge entirely noninteractively";
     };
 
+    pass-package = mkOption {
+      type = types.package;
+      default = pkgs.pass-wayland;
+      description = "Whether to enable the Bridge.";
+    };
+
     logLevel = mkOption {
       type = types.enum [
         "panic"
@@ -33,7 +39,7 @@ in {
 
   };
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.protonmail-bridge pkgs.pass-wayland ];
+    home.packages = [ pkgs.protonmail-bridge cfg.pass-package ];
 
     services.pass-secret-service.enable = true;
 
@@ -45,7 +51,7 @@ in {
       Service = {
         Restart = "always";
         Environment =
-          "PATH=${pkgs.pass-wayland}/bin:${pkgs.protonmail-bridge}/bin:/run/current-system/sw/bin";
+          "PATH=${cfg.pass-package}/bin:${pkgs.protonmail-bridge}/bin:/run/current-system/sw/bin";
         ExecStart =
           "${pkgs.protonmail-bridge}/bin/protonmail-bridge --no-window --log-level ${cfg.logLevel}"
           + optionalString (cfg.nonInteractive) " --noninteractive";
