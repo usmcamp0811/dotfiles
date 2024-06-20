@@ -80,6 +80,7 @@ with lib.campground; {
     };
 
     apps = {
+      thunderbird = enabled;
       barrier = enabled;
       firefox = enabled;
       brave = enabled;
