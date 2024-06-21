@@ -36,7 +36,7 @@
         html = { enable = true; };
         eslint = { enable = true; };
         lua-ls = { enable = true; };
-        bashls = { enable = true; };
+        # bashls = { enable = true; };
         ccls = { enable = true; };
         terraformls = { enable = true; };
         texlab = { enable = true; };
