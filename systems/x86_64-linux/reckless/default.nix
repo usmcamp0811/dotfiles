@@ -102,7 +102,6 @@ in {
     };
 
     services = {
-      nix-ai = enabled;
       local-ai = enabled;
       file-share = enabled;
       ldap-client = { enable = mkForce false; };

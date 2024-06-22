@@ -65,7 +65,7 @@ in {
             };
 
             http.services.nix-ai = {
-              loadBalancer.servers = [{ url = "http://reckless:18084"; }];
+              loadBalancer.servers = [{ url = "http://lucas:18084"; }];
             };
 
             http.routers.schema-registry = {
