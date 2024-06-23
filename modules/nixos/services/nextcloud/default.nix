@@ -152,9 +152,8 @@ in {
       };
     };
 
-    services.redis = {
+    services.redis.servers = {
       enable = true;
-      package = pkgs.redis;
     };
 
     # OnlyOffice service configuration
