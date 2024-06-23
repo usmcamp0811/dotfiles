@@ -115,16 +115,6 @@ in {
       enable = true;
       virtualHosts = {
         "${cfg.domain}" = {
-          # extraConfig = ''
-          #   types {
-          #     application/javascript js mjs;
-          #   }
-          #   default_type application/octet-stream;
-          # '';
-          # extraConfig = ''
-          #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          #   proxy_set_header X-Forwarded-Proto $scheme;
-          # '';
           listen = [{
             addr = "0.0.0.0";
             port = 13244;
