@@ -96,6 +96,12 @@ in {
           sha256 = "sha256-QHIxS5uubutiD9Abm/Bzv1RWG7TgL/tvixVdNEzTlxE=";
           license = pkgs.lib.licenses.mit.shortName;
         };
+        forms = pkgs.fetchNextcloudApp {
+          url =
+            "https://github.com/nextcloud/forms/archive/refs/tags/v4.2.4.tar.gz";
+          sha256 = "sha256-dmKpV4f6t6hNZfdxDJRm/Ch6MvftSZTMhHdatBJD0aI=";
+          license = pkgs.lib.licenses.mit.shortName;
+        };
       };
       config = {
         adminuser = cfg.adminuser;
