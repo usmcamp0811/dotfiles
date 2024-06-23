@@ -61,7 +61,18 @@ in {
         "pm.start_servers" = "40";
       };
       extraApps = with config.services.nextcloud.package.packages.apps; {
-        inherit onlyoffice impersonate tasks memories twofactor_webauthn user_oidc groupfolders deck contacts polls maps spreed cookbook cospend calendar end_to_end_encryption forms notes notify_push richdocuments;
+
+        # Office and document management
+        inherit onlyoffice richdocuments;
+
+        # Task and project management, scheduling, and forms
+        inherit tasks deck calendar contacts forms notes polls;
+
+        # Security and authentication
+        inherit impersonate twofactor_webauthn user_oidc end_to_end_encryption notify_push;
+
+        # Group management, media, and collaboration tools
+        inherit groupfolders memories maps spreed cookbook cospend;
       };
       # extraApps = {
       #   # spreed = pkgs.fetchNextcloudApp {
