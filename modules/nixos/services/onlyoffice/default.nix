@@ -51,16 +51,6 @@ in {
 
     services.nginx = {
       enable = true;
-      appendHttpConfig = ''
-        types {
-          application/javascript js mjs;
-        }
-      '';
-      commonHttpConfig = ''
-        types {
-          application/javascript js mjs;
-        }
-      '';
       virtualHosts = {
         "office.aicampground.com" = {
           listen = [{

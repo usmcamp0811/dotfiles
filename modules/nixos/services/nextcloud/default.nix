@@ -38,7 +38,7 @@ in {
   config = mkIf cfg.enable {
 
     services.nextcloud = {
-      enable = true;
+      enable = cfg.enable;
       hostName = cfg.domain;
       home = cfg.home;
       datadir = cfg.dataDir; # Path for user data
@@ -60,49 +60,52 @@ in {
         "pm.min_spare_servers" = "40";
         "pm.start_servers" = "40";
       };
-      extraApps = {
-        # spreed = pkgs.fetchNextcloudApp {
-        #   url =
-        #     "https://github.com/nextcloud/spreed/archive/refs/tags/v19.0.2.tar.gz";
-        #   sha256 = "sha256-KZyVOTnfUR5j2b3Jtl/CBzNBEjwsxsd94C5t9Cz+1Qo=";
-        #   license = pkgs.lib.licenses.mit.shortName;
-        # };
-        cookbook = pkgs.fetchNextcloudApp {
-          url =
-            "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
-          sha256 = "sha256-XgBwUr26qW6wvqhrnhhhhcN4wkI+eXDHnNSm1HDbP6M=";
-          license = pkgs.lib.licenses.mit.shortName;
-        };
-        # mattermost = pkgs.fetchNextcloudApp {
-        #   url =
-        #     "https://github.com/nextcloud/integration_mattermost/archive/refs/tags/v1.0.7.tar.gz";
-        #   sha256 = "sha256-GhXhoWClI0ER8mXBehsZL/m22382fptlSLSisasGeTA=";
-        #   license = pkgs.lib.licenses.mit.shortName;
-        # };
-        # calendar = pkgs.fetchNextcloudApp {
-        #   url =
-        #     "https://github.com/nextcloud/calendar/archive/refs/tags/v4.7.6.tar.gz";
-        #   license = pkgs.lib.licenses.mit.shortName;
-        #   sha256 = "sha256-YO+j4FGri+8rQfvRreUIr4Q57bP8bQzYE6T98W/sQlA=";
-        # };
-        # mindmap = pkgs.fetchNextcloudApp {
-        #   url = "https://github.com/ACTom/files_mindmap/releases/download/v0.0.30/files_mindmap-0.0.30.tar.gz";
-        #   sha256 = "sha256-4rAgjDxEH7lXVEoXXKwQRnTi+be0cwl/Uxn2ZRCN6do=";
-        #   license = pkgs.lib.licenses.mit.shortName;
-        # };
-        cospend = pkgs.fetchNextcloudApp {
-          url =
-            "https://github.com/julien-nc/cospend-nc/releases/download/v1.6.1/cospend-1.6.1.tar.gz";
-          sha256 = "sha256-QHIxS5uubutiD9Abm/Bzv1RWG7TgL/tvixVdNEzTlxE=";
-          license = pkgs.lib.licenses.mit.shortName;
-        };
-        forms = pkgs.fetchNextcloudApp {
-          url =
-            "https://github.com/nextcloud/forms/archive/refs/tags/v4.2.4.tar.gz";
-          sha256 = "sha256-dmKpV4f6t6hNZfdxDJRm/Ch6MvftSZTMhHdatBJD0aI=";
-          license = pkgs.lib.licenses.mit.shortName;
-        };
+      extraApps = with config.services.nextcloud.package.packages.apps; {
+        inherit spreed cookbook cospend calendar end_to_end_encryption forms notes notify_push richdocuments;
       };
+      # extraApps = {
+      #   # spreed = pkgs.fetchNextcloudApp {
+      #   #   url =
+      #   #     "https://github.com/nextcloud/spreed/archive/refs/tags/v19.0.2.tar.gz";
+      #   #   sha256 = "sha256-KZyVOTnfUR5j2b3Jtl/CBzNBEjwsxsd94C5t9Cz+1Qo=";
+      #   #   license = pkgs.lib.licenses.mit.shortName;
+      #   # };
+      #   cookbook = pkgs.fetchNextcloudApp {
+      #     url =
+      #       "https://github.com/nextcloud/cookbook/releases/download/v0.10.2/Cookbook-0.10.2.tar.gz";
+      #     sha256 = "sha256-XgBwUr26qW6wvqhrnhhhhcN4wkI+eXDHnNSm1HDbP6M=";
+      #     license = pkgs.lib.licenses.mit.shortName;
+      #   };
+      #   # mattermost = pkgs.fetchNextcloudApp {
+      #   #   url =
+      #   #     "https://github.com/nextcloud/integration_mattermost/archive/refs/tags/v1.0.7.tar.gz";
+      #   #   sha256 = "sha256-GhXhoWClI0ER8mXBehsZL/m22382fptlSLSisasGeTA=";
+      #   #   license = pkgs.lib.licenses.mit.shortName;
+      #   # };
+      #   # calendar = pkgs.fetchNextcloudApp {
+      #   #   url =
+      #   #     "https://github.com/nextcloud/calendar/archive/refs/tags/v4.7.6.tar.gz";
+      #   #   license = pkgs.lib.licenses.mit.shortName;
+      #   #   sha256 = "sha256-YO+j4FGri+8rQfvRreUIr4Q57bP8bQzYE6T98W/sQlA=";
+      #   # };
+      #   # mindmap = pkgs.fetchNextcloudApp {
+      #   #   url = "https://github.com/ACTom/files_mindmap/releases/download/v0.0.30/files_mindmap-0.0.30.tar.gz";
+      #   #   sha256 = "sha256-4rAgjDxEH7lXVEoXXKwQRnTi+be0cwl/Uxn2ZRCN6do=";
+      #   #   license = pkgs.lib.licenses.mit.shortName;
+      #   # };
+      #   cospend = pkgs.fetchNextcloudApp {
+      #     url =
+      #       "https://github.com/julien-nc/cospend-nc/releases/download/v1.6.1/cospend-1.6.1.tar.gz";
+      #     sha256 = "sha256-QHIxS5uubutiD9Abm/Bzv1RWG7TgL/tvixVdNEzTlxE=";
+      #     license = pkgs.lib.licenses.mit.shortName;
+      #   };
+      #   forms = pkgs.fetchNextcloudApp {
+      #     url =
+      #       "https://github.com/nextcloud/forms/archive/refs/tags/v4.2.4.tar.gz";
+      #     sha256 = "sha256-dmKpV4f6t6hNZfdxDJRm/Ch6MvftSZTMhHdatBJD0aI=";
+      #     license = pkgs.lib.licenses.mit.shortName;
+      #   };
+      # };
       config = {
         adminuser = cfg.adminuser;
         # NOTE: Having issues with Nextcloud getting this file or something so I have to manually reset the password
@@ -137,18 +140,18 @@ in {
 
     services.nginx = {
       enable = true;
-      appendHttpConfig = ''
-        types {
-          application/javascript js mjs;
-        }
-      '';
-      commonHttpConfig = ''
-        types {
-          application/javascript js mjs;
-        }
-      '';
       virtualHosts = {
         "${cfg.domain}" = {
+          # extraConfig = ''
+          #   types {
+          #     application/javascript js mjs;
+          #   }
+          #   default_type application/octet-stream;
+          # '';
+          extraConfig = ''
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+          '';
           listen = [{
             addr = "0.0.0.0";
             port = 13244;
@@ -157,7 +160,20 @@ in {
       };
     };
 
-    services.redis.servers."".enable = true;
+    # systemd.services.nextcloud-setup.serviceConfig.ExecStartPost = pkgs.writeScript "nextcloud-redis.sh" ''
+    #     #!${pkgs.runtimeShell}
+    #     nextcloud-occ config:system:set filelocking.enabled --value true --type bool
+    #     nextcloud-occ config:system:set redis 'host' --value '/var/run/redis-nextcloud/redis.sock' --type string
+    #     nextcloud-occ config:system:set redis 'port' --value 0 --type integer
+    #     nextcloud-occ config:system:set memcache.local --value '\OC\Memcache\Redis' --type string
+    #     nextcloud-occ config:system:set memcache.locking --value '\OC\Memcache\Redis' --type string
+    # '';
+
+    services.redis.servers.nextcloud = {
+      enable = true;
+      user = "nextcloud";
+      unixSocket = "/var/run/redis-nextcloud/redis.sock";
+    };
 
     # OnlyOffice service configuration
 
