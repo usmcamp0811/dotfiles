@@ -6,7 +6,7 @@ in {
   options.campground.services.onlyoffice = with types; {
     enable = mkBoolOpt false "Enable Nextcloud";
     domain =
-      mkOpt str "cloud.aicampground.com" "Trusted Domain to serve Nextcloud On";
+      mkOpt str "office.aicampground.com" "Trusted Domain to serve Nextcloud On";
     # OnlyOffice configuration
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -41,7 +41,7 @@ in {
 
     services.onlyoffice = {
       enable = true;
-      hostname = "office.aicampground.com";
+      hostname = cfg.domain;
       port = 13449;
 
       postgresHost = "/run/postgresql";
@@ -49,11 +49,21 @@ in {
       jwtSecretFile = "/tmp/detsys-vault/onlyoffice-jwt";
     };
 
-    services.nginx.virtualHosts."office.aicampground.com" = {
-      listen = [{
-        addr = "0.0.0.0";
-        port = 13450;
-      }];
+    services.nginx = {
+      enable = true;
+      commonHttpConfig = ''
+        types {
+          application/javascript mjs;
+        }
+      '';
+      virtualHosts = {
+        "office.aicampground.com" = {
+          listen = [{
+            addr = "0.0.0.0";
+            port = 13450;
+          }];
+        };
+      };
     };
 
     campground.services.postgresql = {
@@ -65,7 +75,7 @@ in {
       }];
     };
 
-    services.redis = { enable = true; };
+    services.redis.servers."".enable = true;
 
     services.rabbitmq = { enable = true; };
 
