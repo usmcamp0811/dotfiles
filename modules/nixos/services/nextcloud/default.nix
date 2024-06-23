@@ -61,7 +61,7 @@ in {
         "pm.start_servers" = "40";
       };
       extraApps = with config.services.nextcloud.package.packages.apps; {
-        inherit spreed cookbook cospend calendar end_to_end_encryption forms notes notify_push richdocuments;
+        inherit onlyoffice impersonate tasks memories twofactor_webauthn user_oidc groupfolders deck contacts polls maps spreed cookbook cospend calendar end_to_end_encryption forms notes notify_push richdocuments;
       };
       # extraApps = {
       #   # spreed = pkgs.fetchNextcloudApp {
@@ -129,6 +129,10 @@ in {
       };
     };
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/nextcloud 700 nextcloud nextcloud -"
+      "d /var/lib/nextcloud/data 700 nextcloud nextcloud -"
+    ];
     campground.services.postgresql = {
       enable = true;
       authentication = [ "local nextcloud nextcloud trust" ];
@@ -148,10 +152,10 @@ in {
           #   }
           #   default_type application/octet-stream;
           # '';
-          extraConfig = ''
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-          '';
+          # extraConfig = ''
+          #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          #   proxy_set_header X-Forwarded-Proto $scheme;
+          # '';
           listen = [{
             addr = "0.0.0.0";
             port = 13244;
@@ -160,14 +164,14 @@ in {
       };
     };
 
-    # systemd.services.nextcloud-setup.serviceConfig.ExecStartPost = pkgs.writeScript "nextcloud-redis.sh" ''
-    #     #!${pkgs.runtimeShell}
-    #     nextcloud-occ config:system:set filelocking.enabled --value true --type bool
-    #     nextcloud-occ config:system:set redis 'host' --value '/var/run/redis-nextcloud/redis.sock' --type string
-    #     nextcloud-occ config:system:set redis 'port' --value 0 --type integer
-    #     nextcloud-occ config:system:set memcache.local --value '\OC\Memcache\Redis' --type string
-    #     nextcloud-occ config:system:set memcache.locking --value '\OC\Memcache\Redis' --type string
-    # '';
+    systemd.services.nextcloud-setup.serviceConfig.ExecStartPost = pkgs.writeScript "nextcloud-redis.sh" ''
+        #!${pkgs.runtimeShell}
+        nextcloud-occ config:system:set filelocking.enabled --value true --type bool
+        nextcloud-occ config:system:set redis 'host' --value '/var/run/redis-nextcloud/redis.sock' --type string
+        nextcloud-occ config:system:set redis 'port' --value 0 --type integer
+        nextcloud-occ config:system:set memcache.local --value '\OC\Memcache\Redis' --type string
+        nextcloud-occ config:system:set memcache.locking --value '\OC\Memcache\Redis' --type string
+    '';
 
     services.redis.servers.nextcloud = {
       enable = true;
