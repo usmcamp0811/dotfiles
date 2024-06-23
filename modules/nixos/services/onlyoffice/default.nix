@@ -51,9 +51,14 @@ in {
 
     services.nginx = {
       enable = true;
+      appendHttpConfig = ''
+        types {
+          application/javascript js mjs;
+        }
+      '';
       commonHttpConfig = ''
         types {
-          application/javascript mjs;
+          application/javascript js mjs;
         }
       '';
       virtualHosts = {
