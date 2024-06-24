@@ -42,20 +42,20 @@ in {
       enable = true;
 
       virtualHosts = {
-        "keycloak.lan" = {
+        "keycloak.lan.aicampground.com" = {
           listen = [
             {
               addr = "0.0.0.0";
               port = cfg.port;
             }
           ]; # Specify the port here
-          locations = {
-            "/cloak/" = {
-              proxyPass = "http://localhost:${
-                toString config.services.keycloak.settings.http-port
-              }/cloak/";
-            };
-          };
+          # locations = {
+          #   "/cloak/" = {
+          #     proxyPass = "http://localhost:${
+          #       toString config.services.keycloak.settings.http-port
+          #     }/cloak/";
+          #   };
+          # };
         };
       };
     };
@@ -84,10 +84,10 @@ in {
       };
 
       settings = {
-        hostname = cfg.hostname;
-        http-relative-path = "/cloak";
+        hostname = "keycloak.lan.aicampground.com";
+        # http-relative-path = "/cloak";
         http-port = 9323;
-        proxy = "passthrough";
+        proxy = "none";
         http-enabled = true;
       };
     };
