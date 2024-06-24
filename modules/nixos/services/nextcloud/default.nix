@@ -66,7 +66,7 @@ in {
         inherit onlyoffice richdocuments;
 
         # Task and project management, scheduling, and forms
-        inherit tasks deck calendar contacts forms notes polls;
+        inherit tasks deck calendar contacts forms notes polls phonetrack;
 
         # Security and authentication
         inherit impersonate twofactor_webauthn user_oidc end_to_end_encryption notify_push;
