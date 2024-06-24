@@ -10,10 +10,10 @@ with lib.campground; let
 in {
   options.campground.services.keycloak = with types; {
     enable = mkBoolOpt false "Whether or not to enable keycloak.";
-    port = mkOpt int 22547 "Port to listen on";
-    hostname =
-      mkOpt str "aicampground.com"
-      "The hostname part of the public URL used as base for all frontend requests.";
+    port = mkOpt int 19323 "Port to listen on";
+    domain =
+      mkOpt str "keycloak.lan.aicampground.com"
+      "The domain part of the public URL used as base for all frontend requests.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -37,12 +37,15 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [pkgs.docker];
+    # environment.systemPackages = [pkgs.docker];
+    # systemd.services.keycloak.serviceConfig.Environment = [
+    #   "KC_HOSTNAME_ADMIN_URL=http://webb:9323/auth/"
+    # ];
     services.nginx = {
       enable = true;
 
       virtualHosts = {
-        "keycloak.lan.aicampground.com" = {
+        "${cfg.domain}" = {
           listen = [
             {
               addr = "0.0.0.0";
@@ -58,6 +61,16 @@ in {
           # };
         };
       };
+    };
+
+    users = {
+      users = {
+        keycloak = {
+          group = "keycloak";
+          isSystemUser = true;
+        };
+      };
+      groups = {keycloak = {};};
     };
 
     systemd.services.keycloakPasswordFile = {
@@ -84,9 +97,10 @@ in {
       };
 
       settings = {
-        hostname = "keycloak.lan.aicampground.com";
+        hostname = cfg.domain;
+        hostname-admin-url = "https://${cfg.domain}";
         # http-relative-path = "/cloak";
-        http-port = 9323;
+        http-port = cfg.port;
         proxy = "none";
         http-enabled = true;
       };
