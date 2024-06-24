@@ -129,7 +129,7 @@ in {
             };
 
             http.services.keycloak = {
-              loadBalancer.servers = [{ url = "http://webb:22547"; }];
+              loadBalancer.servers = [{ url = "http://webb:9323"; }];
             };
 
             http.routers.hydra = {
