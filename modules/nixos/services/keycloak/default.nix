@@ -37,29 +37,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # environment.systemPackages = [pkgs.docker];
-    # services.nginx = {
-    #   enable = true;
-    #
-    #   virtualHosts = {
-    #     "${cfg.domain}" = {
-    #       listen = [
-    #         {
-    #           addr = "0.0.0.0";
-    #           port = cfg.port;
-    #         }
-    #       ]; # Specify the port here
-    #       # locations = {
-    #       #   "/cloak/" = {
-    #       #     proxyPass = "http://localhost:${
-    #       #       toString config.services.keycloak.settings.http-port
-    #       #     }/cloak/";
-    #       #   };
-    #       # };
-    #     };
-    #   };
-    # };
-
     users = {
       users = {
         keycloak = {
@@ -96,7 +73,6 @@ in {
       settings = {
         hostname = "keycloak.lan.aicampground.com";
         hostname-admin-url = "https://keycloak.lan.aicampground.com";
-        # http-relative-path = "/cloak";
         http-port = cfg.port;
         http-host = "0.0.0.0";
         # hostname-strict-backchannel = true;
@@ -107,18 +83,6 @@ in {
       # };
     };
 
-    # services.nginx.virtualHosts."keycloak.lan.aicampground.com" = {
-    #   # forceSSL = true;
-    #   # enableACME = true;
-    #   locations."/" = {
-    #     proxyPass = "http://127.0.0.1:${toString cfg.port}";
-    #     extraConfig = ''
-    #       proxy_buffer_size   128k;
-    #       proxy_buffers   4 256k;
-    #       proxy_busy_buffers_size   256k;
-    #     '';
-    #   };
-    # };
     campground.services.postgresql = {
       enable = true;
       authentication = [
