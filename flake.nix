@@ -3,7 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
+    hyprland-works-here.url =
+      "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     #nuenv
@@ -38,6 +39,7 @@
     };
 
     nix-topology.url = "github:oddlama/nix-topology";
+    nixpkgs-python.url = "github:cachix/nixpkgs-python";
 
     hyprpaper = {
       url = "github:hyprwm/hyprpaper";
