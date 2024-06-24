@@ -38,7 +38,6 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = [pkgs.docker];
-
     services.nginx = {
       enable = true;
 
@@ -71,7 +70,7 @@ in {
         ExecStartPost = "${pkgs.coreutils}/bin/chown keycloak:keycloak /var/lib/vault/keycloak-db.pass"; # Change file ownership to vaultwarden
       };
       wantedBy = ["multi-user.target"];
-      before = ["keycloak.service"];
+      before = ["keycloakPostgreSQLInit.service" "keycloak.service"];
     };
 
     services.keycloak = {
