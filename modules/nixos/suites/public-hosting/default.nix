@@ -71,6 +71,16 @@ in {
               };
             };
 
+            http.routers.keycloak = {
+              rule = "Host(`keycloak.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "keycloak";
+            };
+
+            http.services.keycloak = {
+              loadBalancer.servers = [{ url = "http://webb:43852"; }];
+            };
+
             http.routers.onlyoffice = {
               rule = "Host(`office.cloud.aicampground.com`)";
               entryPoints = [ "websecure" ];
