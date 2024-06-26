@@ -123,7 +123,7 @@ in {
       generateNixPathFromInputs = true;
       linkInputs = true;
     };
-    campground.services.vault-agent.services.nix-daemon = {
+    campground.services.vault-agent.services.copyNETRC = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
