@@ -13,14 +13,14 @@ in {
   # cause ASUS sucks and the ethernet port dies
   boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
-    version = "555.42.02";
-    sha256_64bit = "sha256-k7cI3ZDlKp4mT46jMkLaIrc2YUx1lh1wj/J4SVSHWyk=";
-    sha256_aarch64 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
-    openSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
-    settingsSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
-    persistencedSha256 = lib.fakeSha256;
-  };
+  # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+  #   version = "555.42.02";
+  #   sha256_64bit = "sha256-k7cI3ZDlKp4mT46jMkLaIrc2YUx1lh1wj/J4SVSHWyk=";
+  #   sha256_aarch64 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+  #   openSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+  #   settingsSha256 = "sha256-rtDxQjClJ+gyrCLvdZlT56YyHQ4sbaL+d5tL4L4VfkA=";
+  #   persistencedSha256 = lib.fakeSha256;
+  # };
   # boot.kernelPackages = mkDefault pkgs.linuxPackages_6_8_10;
   campground = {
     user = {
