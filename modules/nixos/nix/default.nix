@@ -31,7 +31,7 @@ in {
       config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path = mkOpt types.str "secret/campground/netrc"
-      "The Vault path to the KV containing the KVs that are for each netrc";
+      "The Vault path to the KV containing the KVs that are for a properly formated netrc file text";
     kvVersion = mkOption {
       type = types.enum [ "v1" "v2" ];
       default = "v2";
