@@ -25,19 +25,18 @@ with lib.campground; let
         remote-user-id =
           builtins.toString remote.config.users.users.${remote-user-name}.uid;
 
-        forward-gpg = optionalString
-          (config.programs.gnupg.agent.enable
-            && remote.config.programs.gnupg.agent.enable) ''
-          RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
-          RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
-        '';
+        # forward-gpg = optionalString
+        #   (config.programs.gnupg.agent.enable
+        #     && remote.config.programs.gnupg.agent.enable) ''
+        #   RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
+        #   RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
+        # '';
       in
       ''
         Host ${name}
           User ${remote-user-name}
           ForwardAgent yes
           Port ${builtins.toString cfg.port}
-          ${forward-gpg}
       '')
     (builtins.attrNames other-hosts);
 in
@@ -68,13 +67,16 @@ in
   };
 
   config = mkIf cfg.enable {
-    programs.ssh.extraConfig = ''
-      Host *
-        HostKeyAlgorithms +ssh-rsa
+    programs.ssh ={ 
+      enable = true;
+      extraConfig = ''
+        Host *
+          HostKeyAlgorithms +ssh-rsa
 
-      ${optionalString cfg.manage-other-hosts other-hosts-config}
-      ${cfg.extraConfigs}
-    '';
+        ${optionalString cfg.manage-other-hosts other-hosts-config}
+        ${cfg.extraConfigs}
+      '';
+    };
 
     home.activation.authorizedKeys = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       mkdir -p "${config.home.homeDirectory}/.ssh"
