@@ -75,14 +75,12 @@ with lib.campground; {
       openssh = {
         enable = true;
         extraConfigs = ''
-          # GitHub account: usmcamp0811
           Host github.com-usmcamp0811
             HostName github.com
             User git
             IdentityFile ~/.ssh/id_ed25519
             IdentitiesOnly yes
 
-          # GitHub account: mcamp-ata
           Host github.com-mcamp-ata
             HostName github.com
             User git
