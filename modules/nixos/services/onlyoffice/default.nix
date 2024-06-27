@@ -63,7 +63,11 @@ in {
 
     campground.services.postgresql = {
       enable = true;
-      authentication = [ "local onlyoffice onlyoffice trust" ];
+      enableTCPIP = true;
+      backupEnable = true;
+      authentication = [
+        "local onlyoffice onlyoffice trust" 
+      ];
       databases = [{
         name = "onlyoffice";
         user = "onlyoffice";
