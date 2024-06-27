@@ -21,7 +21,7 @@
       flake = false;
     };
 
-    # macOS Support (master)
+    # macOS Support (master)!!
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";
 
