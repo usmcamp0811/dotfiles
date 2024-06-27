@@ -65,12 +65,8 @@ in {
     tools = { attic = enabled; };
 
     services = {
-      onlyoffice = {
-        enable = true;
-      };
-      nextcloud = {
-        enable = true;
-      };
+      onlyoffice = { enable = true; };
+      nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
       netbird = enabled;
       uptime-kuma = enabled;
@@ -91,6 +87,7 @@ in {
           }
         ];
       };
+      collabora = enabled;
       keycloak = {
         enable = true;
         port = 43852;
