@@ -52,6 +52,7 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      onlyoffice = { enable = true; };
       nix-ai = enabled;
       # flink-task-manager = {
       #   enable = true;

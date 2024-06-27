@@ -98,7 +98,7 @@ in {
             };
 
             http.services.onlyoffice = {
-              loadBalancer.servers = [{ url = "http://webb:13449"; }];
+              loadBalancer.servers = [{ url = "http://lucas:13449"; }];
             };
 
             http.routers.nextcloud = {

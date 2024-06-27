@@ -65,7 +65,7 @@ in {
     tools = { attic = enabled; };
 
     services = {
-      onlyoffice = { enable = true; };
+      # onlyoffice = { enable = true; };
       nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
       netbird = enabled;
