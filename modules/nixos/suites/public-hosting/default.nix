@@ -81,7 +81,7 @@ in {
               loadBalancer.servers = [{ url = "http://webb:43852"; }];
             };
 
-            http.routers.collabora = {
+            http.routers.collabora-office = {
               rule = "Host(`office.cloud.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "collabora";
