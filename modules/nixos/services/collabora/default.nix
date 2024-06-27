@@ -1,19 +1,12 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.collabora;
+with lib.campground;
+let cfg = config.campground.services.collabora;
 in {
   options.campground.services.collabora = with types; {
     enable = mkBoolOpt false "Enable collabora;";
   };
-
-  config =
-    mkIf cfg.enable {
+  config = mkIf cfg.enable {
     virtualisation.oci-containers.containers.collabora = {
       image = "docker.io/collabora/code";
       ports = [ "9980:9980" ];
