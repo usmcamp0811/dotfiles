@@ -14,7 +14,8 @@ in {
       autoStart = true;
       environment = {
         # This limits it to this NC instance AFAICT
-        aliasgroup1 = "https://${campground.services.nextcloud.domain}:443";
+        aliasgroup1 =
+          "https://${config.campground.services.nextcloud.domain}:443";
         # Must disable SSL as it's behind a reverse proxy
         extra_params = "--o:ssl.enable=false";
       };
