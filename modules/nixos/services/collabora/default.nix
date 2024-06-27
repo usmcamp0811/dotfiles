@@ -8,6 +8,7 @@ in {
     port = mkOpt int 19980 "Port to Host the Collabora server.";
   };
   config = mkIf cfg.enable {
+    campground.services.docker.enable = true;
     virtualisation.oci-containers.containers.collabora = {
       image = "docker.io/collabora/code";
       ports = [ "${toString cfg.port}:9980" ];

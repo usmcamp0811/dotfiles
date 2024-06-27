@@ -81,14 +81,8 @@ in {
               loadBalancer.servers = [{ url = "http://webb:43852"; }];
             };
 
-            http.routers.collabora-office = {
-              rule = "Host(`office.cloud.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "collabora";
-            };
-
             http.routers.collabora = {
-              rule = "Host(`office.aicampground.com`)";
+              rule = "Host(`collabora.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "collabora";
             };
@@ -97,25 +91,15 @@ in {
               loadBalancer.servers = [{ url = "http://webb:19980"; }];
             };
 
-            # http.routers.onlyoffice = {
-            #   rule = "Host(`office.cloud.aicampground.com`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "onlyoffice";
-            # };
-            #
-            # http.routers.onlyoffice-office = {
-            #   rule = "Host(`office.aicampground.com`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "onlyoffice";
-            # };
+            http.routers.onlyoffice-office = {
+              rule = "Host(`office.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "onlyoffice";
+            };
 
-            # http.services.onlyoffice-office = {
-            #   loadBalancer.servers = [{ url = "http://webb:13449"; }];
-            # };
-            #
-            # http.services.onlyoffice = {
-            #   loadBalancer.servers = [{ url = "http://webb:13449"; }];
-            # };
+            http.services.onlyoffice = {
+              loadBalancer.servers = [{ url = "http://webb:13449"; }];
+            };
 
             http.routers.nextcloud = {
               rule = "Host(`cloud.aicampground.com`)";
