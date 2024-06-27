@@ -25,5 +25,5 @@ in {
         extra_params = "--o:ssl.enable=false";
       };
     };
-    };
+  };
 }
