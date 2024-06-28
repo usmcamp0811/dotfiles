@@ -18,4 +18,17 @@ let
       jupyter console --kernel "$JULIA_VERSION" "$@"
     '';
   };
-in startJupyterWithJulia
+in pkgs.stdenv.mkDerivation rec {
+  pname = "julia";
+  version = pkgs.julia.version;
+
+  buildInputs = [ python julia-env ];
+
+  installPhase = ''
+    mkdir $out/bin
+    cp ${julia-env}/bin/julia $out/bin/julia
+  '';
+  mainProgram = "julia";
+
+  passthru = { jj = startJupyterWithJulia; };
+}
