@@ -18,17 +18,33 @@ let
       jupyter console --kernel "$JULIA_VERSION" "$@"
     '';
   };
+  startQtJupyterWithJulia = writeShellApplication {
+    name = "start-jupyter-with-julia";
+    runtimeInputs = [ python julia-env ];
+    text = ''
+      #!${pkgs.runtimeShell}
+      # Ensure Julia kernel is installed
+      # # Start Jupyter console with Julia kernel
+      JULIA_VERSION="myjulia-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
+      ${julia-env}/bin/julia -e 'using IJulia; installkernel("myjulia")'
+      jupyter qtconsole --kernel "$JULIA_VERSION" "$@"
+    '';
+  };
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";
   version = pkgs.julia.version;
+  src = ./.;
 
   buildInputs = [ python julia-env ];
 
   installPhase = ''
-    mkdir $out/bin
-    cp ${julia-env}/bin/julia $out/bin/julia
+    mkdir -p $out/bin
+    cp -r ${julia-env}/bin/julia $out/bin/julia
   '';
   mainProgram = "julia";
 
-  passthru = { jj = startJupyterWithJulia; };
+  passthru = {
+    jupyter-qtconsole = startQtJupyterWithJulia;
+    jupyter-console = startJupyterWithJulia;
+  };
 }

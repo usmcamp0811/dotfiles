@@ -3,8 +3,7 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  julia-env = pkgs.julia.withPackages
-    (juliaPackages: with juliaPackages; [ IJulia DataFrames CSV ]);
+  julia-env = pkgs.julia.withPackages [ "IJulia" "CSV" "DataFrames" ];
   python = pkgs.python311.withPackages
     (pythonPackages: with pythonPackages; [ jupyter qtconsole ]);
   startJupyterWithJulia = writeShellApplication {
@@ -12,7 +11,11 @@ let
     runtimeInputs = [ python julia-env ];
     text = ''
       #!${pkgs.runtimeShell}
-      jupyter console --kernel julia-1.7
+      # Ensure Julia kernel is installed
+      # # Start Jupyter console with Julia kernel
+      JULIA_VERSION="myjulia-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
+      ${julia-env}/bin/julia -e 'using IJulia; installkernel("myjulia")'
+      jupyter console --kernel "$JULIA_VERSION" "$@"
     '';
   };
 in pkgs.stdenv.mkDerivation rec {
@@ -20,11 +23,9 @@ in pkgs.stdenv.mkDerivation rec {
   version = "1.0.0";
 
   src = ./.;
+  # installPhase = ''
+  # '';
   buildInputs = [ python julia-env startJupyterWithJulia ];
 
-  passthru = {
-    jupyter = ''
-      ${startJupyterWithJulia}/bin/start-jupyter-with-julia
-    '';
-  };
+  passthru = { jj = startJupyterWithJulia; };
 }
