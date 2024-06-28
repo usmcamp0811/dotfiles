@@ -1,5 +1,5 @@
 # {pkgs,lib, fetchurl, buildPythonPackage, ...}:
-{pkgs, ...}: {
+{ pkgs, ... }: {
   # Import all your configuration modules here
   imports = [
     ./theme.nix
@@ -74,7 +74,9 @@
     pkgs.lua54Packages.luarocks
     pkgs.luajitPackages.luarocks
     pkgs.gtk4
-    pkgs.julia
+    pkgs.campground.julia
+    pkgs.campground.julia.jupyter-console
+    pkgs.campground.julia.jupyter-qtconsole
 
     # python-env
     # (
