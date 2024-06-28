@@ -42,6 +42,7 @@ in {
         "${config.home.sessionVariables.XDG_DATA_HOME}/node_repl_history";
       NVM_DIR = "${config.home.sessionVariables.XDG_DATA_HOME}/nvm";
       PYLINTHOME = "$XDG_CACHE_HOME/pylint";
+      XDG_CACHE_HOME = "$HOME/.cahce";
       PYTHON_EGG_CACHE =
         "${config.home.sessionVariables.XDG_CACHE_HOME}/python-eggs";
       WGETRC = "${config.home.sessionVariables.XDG_CONFIG_HOME}/wgetrc";
