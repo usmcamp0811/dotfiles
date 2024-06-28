@@ -7,7 +7,7 @@ let
   python = pkgs.python311.withPackages
     (pythonPackages: with pythonPackages; [ jupyter qtconsole ]);
   startJupyterWithJulia = writeShellApplication {
-    name = "start-jupyter-with-julia";
+    name = "julia-qtconsole";
     runtimeInputs = [ python julia-env ];
     text = ''
       #!${pkgs.runtimeShell}
@@ -19,7 +19,7 @@ let
     '';
   };
   startQtJupyterWithJulia = writeShellApplication {
-    name = "start-jupyter-with-julia";
+    name = "julia-console";
     runtimeInputs = [ python julia-env ];
     text = ''
       #!${pkgs.runtimeShell}
