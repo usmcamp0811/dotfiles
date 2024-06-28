@@ -113,6 +113,7 @@ with lib.campground; {
       emoji-picker = enabled;
       scientific-fhs = enabled;
       jupyter = enabled;
+      julia = enabled;
       node = enabled;
     };
   };
