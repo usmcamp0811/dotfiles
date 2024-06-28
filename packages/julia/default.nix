@@ -14,7 +14,7 @@ let
       # Ensure Julia kernel is installed
       # # Start Jupyter console with Julia kernel
       JULIA_VERSION="myjulia-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
-      ${julia-env}/bin/julia -e 'using IJulia; installkernel("myjulia")'
+      ${julia-env}/bin/julia -e 'using IJulia; installkernel("campground-julia")'
       jupyter console --kernel "$JULIA_VERSION" "$@"
     '';
   };
@@ -26,7 +26,7 @@ let
       # Ensure Julia kernel is installed
       # # Start Jupyter console with Julia kernel
       JULIA_VERSION="myjulia-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
-      ${julia-env}/bin/julia -e 'using IJulia; installkernel("myjulia")'
+      ${julia-env}/bin/julia -e 'using IJulia; installkernel("campground-julia")'
       jupyter qtconsole --kernel "$JULIA_VERSION" "$@"
     '';
   };
