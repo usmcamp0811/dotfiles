@@ -9,9 +9,9 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      pkgs.campground.julia
-      pkgs.campground.julia.jupyter-console
-      pkgs.campground.julia.jupyter-qtconsole
+      campground.julia
+      campground.julia.jupyter-console
+      campground.julia.jupyter-qtconsole
     ];
   };
 }
