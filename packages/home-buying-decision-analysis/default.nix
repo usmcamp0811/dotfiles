@@ -5,7 +5,7 @@ let
   inherit (lib.campground) override-meta;
   julia-env = pkgs.julia.withPackages [ "IJulia" "CSV" "DataFrames" ];
 
-  pypkgs-build-requirements = { chromaterm = [ "setuptools" ]; };
+  pypkgs-build-requirements = { redfin = [ "setuptools" ]; };
 
   p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super:
     builtins.mapAttrs (package: build-requirements:
