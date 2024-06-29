@@ -7,11 +7,5 @@ in {
     enable = mkBoolOpt false "Whether or not to enable common Julia.";
   };
 
-  config = mkIf cfg.enable {
-    home.packages = with pkgs; [
-      campground.julia
-      campground.julia.jupyter-console
-      campground.julia.jupyter-qtconsole
-    ];
-  };
+  config = mkIf cfg.enable { home.packages = with pkgs; [ campground.julia ]; };
 }

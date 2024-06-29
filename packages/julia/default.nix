@@ -3,7 +3,15 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  julia-env = pkgs.julia.withPackages [ "IJulia" "CSV" "DataFrames" ];
+  julia-env = pkgs.julia.withPackages [
+    "FileIO"
+    "JLD2"
+    "DataFrames"
+    "MLJ"
+    "PyCall"
+    "Ijulia"
+    "CSV"
+  ];
   python = pkgs.python311.withPackages
     (pythonPackages: with pythonPackages; [ jupyter qtconsole ]);
   startJupyterWithJulia = writeShellApplication {
@@ -40,6 +48,8 @@ in pkgs.stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/bin
     cp -r ${julia-env}/bin/julia $out/bin/julia
+    cp ${startQtJupyterWithJulia} $out/bin/
+    cp ${startJupyterWithJulia} $out/bin/
   '';
   mainProgram = "julia";
 

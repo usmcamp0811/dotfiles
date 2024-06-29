@@ -1,22 +1,18 @@
-{ options
-, config
-, lib
-, pkgs
-, ...
-}:
+{ options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.julia;
-in
-{
+with lib.campground;
+let cfg = config.campground.tools.julia;
+in {
   options.campground.tools.julia = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Julia.";
   };
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      julia.withPackages
-      [ "CUDA" "FileIO" "Flux" "JLD2" "cuDNN" "DataFrames" "MLJ" "PyCall" ]
+
+      campground.julia
+      campground.julia.jupyter-console
+      campground.julia.jupyter-qtconsole
     ];
   };
 }
