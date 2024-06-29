@@ -8,11 +8,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
+    environment.systemPackages = with pkgs;
+      [
 
-      campground.julia
-      campground.julia.jupyter-console
-      campground.julia.jupyter-qtconsole
-    ];
+        campground.julia
+      ];
   };
 }
