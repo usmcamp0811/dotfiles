@@ -1,12 +1,5 @@
 { pkgs, ... }: {
   plugins = {
-    # magma-nvim = {
-    #   enable = true;
-    #   settings = {
-    #     image_provider = "kitty";
-    #     wrap_output = true;
-    #   };
-    # };
     vim-slime = { enable = true; };
     conjure = { enable = true; };
     vimtex = { enable = true; };
