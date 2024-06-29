@@ -9,7 +9,7 @@ let
     "DataFrames"
     "MLJ"
     "PyCall"
-    "Ijulia"
+    "IJulia"
     "CSV"
   ];
   python = pkgs.python311.withPackages
@@ -48,8 +48,8 @@ in pkgs.stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/bin
     cp -r ${julia-env}/bin/julia $out/bin/julia
-    cp ${startQtJupyterWithJulia} $out/bin/
-    cp ${startJupyterWithJulia} $out/bin/
+    cp -r ${startQtJupyterWithJulia}/bin/* $out/bin/
+    cp -r ${startJupyterWithJulia}/bin/* $out/bin/
   '';
   mainProgram = "julia";
 
