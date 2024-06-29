@@ -12,7 +12,7 @@ let
     maintainers = with maintainers; [ matt-camp ];
   };
 
-  redfin = pkgs.nix-unstable.python3Packages.buildPythonPackage {
+  redfin = pkgs.nix-unstable.python311Packages.buildPythonPackage {
     pname = "redfin";
     version = "0.1.1";
 
