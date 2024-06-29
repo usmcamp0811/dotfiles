@@ -19,7 +19,7 @@ let
     src = pkgs.fetchPypi {
       pname = "redfin";
       version = "0.1.1";
-      sha256 = "sha256-+ycJlxbY8DYECMjKhtadv+1ERVg0tw0VBiUKvlIbU1o=";
+      sha256 = "sha256-C8lmhvpcBDzIhh5A5y23DU4gKcPWrhEWEEnsF+Pn7EI=";
     };
     doCheck = false;
 
