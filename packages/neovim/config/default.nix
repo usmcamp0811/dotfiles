@@ -75,8 +75,6 @@
     pkgs.luajitPackages.luarocks
     pkgs.gtk4
     pkgs.campground.julia
-    pkgs.campground.julia.jupyter-console
-    pkgs.campground.julia.jupyter-qtconsole
 
     # python-env
     # (
