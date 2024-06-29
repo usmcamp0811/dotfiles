@@ -1,26 +1,26 @@
 { pkgs, ... }: {
   plugins.molten = {
     enable = true; # Whether to enable molten-nvim
-    package = pkgs.vimUtils.buildVimPlugin {
-      pname = "molten-nvim";
-      version = "2024-02-23";
-      src = pkgs.fetchFromGitHub {
-        owner = "benlubas";
-        repo = "molten-nvim";
-        rev = "8346bba69e0de96278dad2038e9be74605908b7d";
-        # sha256 = lib.fakeSha256;
-        sha256 = "08f3zxzka43f87fks56594476h57yq01x7a1zdsn4acc278xg1nb";
-      };
-      passthru.python3Dependencies = ps:
-        with ps; [
-          pynvim
-          jupyter-client
-          cairosvg
-          ipython
-          nbformat
-        ];
-      meta.homepage = "https://github.com/benlubas/molten-nvim/";
-    };
+    # package = pkgs.vimUtils.buildVimPlugin {
+    #   pname = "molten-nvim";
+    #   version = "v1.8.3";
+    #   src = pkgs.fetchFromGitHub {
+    #     owner = "benlubas";
+    #     repo = "molten-nvim";
+    #     rev = "df5ccef3b6fda3582f7746e45327ee031f668826";
+    #     # sha256 = lib.fakeSha256;
+    #     sha256 = "08f3zxzka43f87fks56594476h57yq01x7a1zdsn4acc278xg1nb";
+    #   };
+    #   passthru.python3Dependencies = ps:
+    #     with ps; [
+    #       pynvim
+    #       jupyter-client
+    #       cairosvg
+    #       ipython
+    #       nbformat
+    #     ];
+    #   meta.homepage = "https://github.com/benlubas/molten-nvim/";
+    # };
     settings = {
       auto_open_output =
         false; # Automatically open the output window when your cursor moves over a cell

@@ -25,6 +25,7 @@
   ];
 
   extraPlugins = with pkgs.vimPlugins; [
+
     # Treesitter
     nvim-treesitter-textobjects
 
@@ -97,6 +98,13 @@
   # TODO:
   # "bytesnake/vim-graphical-preview"
   plugins = {
+    magma-nvim = {
+      enable = true;
+      settings = {
+        image_provider = "kitty";
+        wrap_output = true;
+      };
+    };
     lazy.enable = true;
     # Git Integration
     gitsigns.enable = true;
