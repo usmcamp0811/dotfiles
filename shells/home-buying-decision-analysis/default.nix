@@ -8,7 +8,7 @@ let
     "IJulia"
     "CSV"
     "DataFrames"
-    "PythonCall"
+    "PyCall"
   ];
 
   pypkgs-build-requirements = { redfin = [ "setuptools" ]; };
@@ -26,34 +26,26 @@ let
     overrides = p2n-overrides;
     python = pkgs.python311;
   };
-  # python = pkgs.python311.withPackages
-  #   (pythonPackages: with pythonPackages; [ jupyter qtconsole redfin numpy ]);
   startJupyterWithJulia = writeShellApplication {
     name = "start-jupyter-with-julia";
     runtimeInputs = [ python-env julia-env ];
     text = ''
       # Ensure Julia kernel is installed
       # Start Jupyter console with Julia kernel
-      JULIA_VERSION="home-project-julia-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
-      export PYTHON=${python-env}/bin/python 
-      ${pkgs.poetry}/bin/poetry    
-      ${julia-env}/bin/julia -e 'using Pkg; Pkg.build("PythonCall")'
-      ${julia-env}/bin/julia -e 'using IJulia; installkernel("home-project-julia")' jupyter console --kernel "$JULIA_VERSION" "$@"
+      export KERNEL_NAME="home-project-julia"
+      JULIA_VERSION="$KERNEL_NAME-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
+      export PYTHONPATH="${python-env}/lib/python3.11/site-packages:${python-env}/lib/site-packages"
+      ${julia-env}/bin/julia -e 'using IJulia; installkernel(ENV["KERNEL_NAME"])' 
+      ${python-env}/bin/jupyter console --kernel "$JULIA_VERSION" "$@"
     '';
   };
 in pkgs.mkShell {
-  buildInputs = [
-    pkgs.poetry
-    pkgs.julia
-    python-env
-    # pkgs.python3
-  ];
-
+  buildInputs = [ pkgs.poetry julia-env python-env startJupyterWithJulia ];
+  env = {
+    PYTHONPATH =
+      "${python-env}/lib/python3.11/site-packages:${python-env}/lib/site-packages";
+  };
   shellHook = ''
-    # Create Poetry environment
-    # Activate Julia project
-    julia --project=. -e 'using Pkg; Pkg.build("PyCall"); ENV["PYTHON"] = "$PYTHON"; Pkg.build("PyCall")'
-
     echo "Poetry environment and Julia project set up."
   '';
 }
