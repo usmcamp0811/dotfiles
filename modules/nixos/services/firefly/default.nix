@@ -5,18 +5,18 @@ let cfg = config.campground.services.firefly;
 in {
   options.campground.services.firefly = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
-    dataDir = mkStrOpt "/var/lib/firefly" "Data directory for Firefly III.";
+    dataDir = mkOpt str "/var/lib/firefly" "Data directory for Firefly III.";
     APP_URL =
-      mkStrOpt "https://${cfg.domain}" "Application URL for Firefly III.";
-    DB_HOST = mkStrOpt "localhost" "Database host for Firefly III.";
-    DB_PORT = mkIntOpt 5432 "Database port for Firefly III.";
+      mkOpt str "https://${cfg.domain}" "Application URL for Firefly III.";
+    DB_HOST = mkOpt str "localhost" "Database host for Firefly III.";
+    DB_PORT = mkOpt int 5432 "Database port for Firefly III.";
     DB_CONNECTION =
-      mkStrOpt "pgsql" "Database connection type for Firefly III.";
-    APP_ENV = mkStrOpt "production" "Application environment for Firefly III.";
+      mkOpt str "pgsql" "Database connection type for Firefly III.";
+    APP_ENV = mkOpt str "production" "Application environment for Firefly III.";
     virtualHost =
-      mkStrOpt "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
+      mkOpt str "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
     package = mkOpt types.package pkgs.firefly-iii "Package for Firefly III.";
-    poolConfig = mkAttrsOpt { max_connections = 10; }
+    poolConfig = mkOpt attrs { max_connections = 10; }
       "Pool configuration for Firefly III.";
 
     role-id =
