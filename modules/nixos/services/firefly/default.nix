@@ -77,34 +77,32 @@ in {
       package = cfg.package;
       poolConfig = cfg.poolConfig;
     };
-    campground = {
-      services = {
-        vault-agent = {
-          services = {
-            "firefly-iii-setup" = {
-              settings = {
-                # replace with the address of your vault
-                vault.address = cfg.vault-address;
-                auto_auth = {
-                  method = [{
-                    type = "approle";
-                    config = {
-                      role_id_file_path = cfg.role-id;
-                      secret_id_file_path = cfg.secret-id;
-                      remove_secret_id_file_after_reading = false;
-                    };
-                  }];
-                };
+    campground.services = {
+      vault-agent = {
+        services = {
+          "firefly-iii-setup" = {
+            settings = {
+              # replace with the address of your vault
+              vault.address = cfg.vault-address;
+              auto_auth = {
+                method = [{
+                  type = "approle";
+                  config = {
+                    role_id_file_path = cfg.role-id;
+                    secret_id_file_path = cfg.secret-id;
+                    remove_secret_id_file_after_reading = false;
+                  };
+                }];
               };
-              secrets = {
-                file = {
-                  files = {
-                    "key.file" = {
-                      text = ''
-                        {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }} '';
-                      permissions = "0600";
-                      change-action = "restart";
-                    };
+            };
+            secrets = {
+              file = {
+                files = {
+                  "key.file" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }} '';
+                    permissions = "0600";
+                    change-action = "restart";
                   };
                 };
               };
