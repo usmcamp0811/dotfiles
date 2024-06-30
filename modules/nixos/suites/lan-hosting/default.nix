@@ -48,6 +48,16 @@ in {
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.firefly = {
+              rule = "Host(`firefly.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "firefly";
+            };
+
+            http.services.firefly = {
+              loadBalancer.servers = [{ url = "http://webb:16244"; }];
+            };
+
             http.routers.local-ai = {
               rule = "Host(`local-ai.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -87,6 +97,7 @@ in {
             http.services.akhq = {
               loadBalancer.servers = [{ url = "http://lucas:8435"; }];
             };
+
             http.routers.kafka = {
               rule = "Host(`kafka.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
