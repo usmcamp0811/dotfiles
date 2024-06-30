@@ -36,7 +36,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     services.nextcloud = {
       enable = cfg.enable;
       hostName = cfg.domain;
@@ -88,6 +87,7 @@ in {
       };
       settings = {
         defaultPhoneRegion = "US";
+        overwriteprotocol = "https";
         trustedProxies = [
           "127.0.0.1/32" # local host
           "192.168.0.0/16" # local network
