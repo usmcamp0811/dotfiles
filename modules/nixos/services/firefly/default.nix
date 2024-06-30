@@ -7,7 +7,7 @@ in {
     enable = mkBoolOpt false "Enable Firefly III.";
     dataDir = mkOpt str "/var/lib/firefly" "Data directory for Firefly III.";
     APP_URL =
-      mkOpt str "https://${cfg.domain}" "Application URL for Firefly III.";
+      mkOpt str "https://${cfg.virtualHost}" "Application URL for Firefly III.";
     DB_HOST = mkOpt str "localhost" "Database host for Firefly III.";
     DB_PORT = mkOpt int 5432 "Database port for Firefly III.";
     DB_CONNECTION =
@@ -52,6 +52,17 @@ in {
         };
       };
     };
+
+    systemd.services.get-firefly-key = {
+      description = "My Example Secret Service";
+      wantedBy = [ "multi-user.target" ];
+      before = [ "firefly-iii-setup.service" ];
+      script = ''
+        cat /tmp/detsys-vault/key.file > /var/lib/firefly/key.file
+        chown firefly:firefly /var/lib/firefly/key.file
+      '';
+      serviceConfig = { Type = "oneshot"; };
+    };
     campground.services.postgresql = {
       enable = true;
       authentication = [ "local firefly firefly trust" ];
@@ -70,7 +81,7 @@ in {
         DB_HOST = cfg.DB_HOST;
         DB_PORT = cfg.DB_PORT;
         DB_CONNECTION = cfg.DB_CONNECTION;
-        APP_KEY_FILE = "/tmp/detsys-vault/key.file";
+        APP_KEY_FILE = "/var/lib/firefly/key.file";
         APP_ENV = cfg.APP_ENV;
       };
       virtualHost = cfg.virtualHost;
@@ -80,7 +91,7 @@ in {
     campground.services = {
       vault-agent = {
         services = {
-          "firefly-iii-setup" = {
+          "get-firefly-key" = {
             settings = {
               # replace with the address of your vault
               vault.address = cfg.vault-address;
