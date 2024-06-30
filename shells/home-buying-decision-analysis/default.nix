@@ -8,7 +8,7 @@ let
     "IJulia"
     "CSV"
     "DataFrames"
-    "PyCall"
+    "PythonCall"
   ];
 
   pypkgs-build-requirements = { redfin = [ "setuptools" ]; };
@@ -36,32 +36,24 @@ let
       # Start Jupyter console with Julia kernel
       JULIA_VERSION="home-project-julia-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
       export PYTHON=${python-env}/bin/python 
-
-      ${julia-env}/bin/julia -e '
-      using Pkg;
-      ENV["PYTHON"] = "${python-env}/bin/python";
-      Pkg.build("PyCall");
-      using PyCall;
-      try
-          @pyimport redfin
-      catch
-          println("Error: The Python package redfin could not be imported.")
-      end
-      using IJulia;
-      installkernel("home-project-julia")'
-      jupyter console --kernel "$JULIA_VERSION" "$@"
+      ${pkgs.poetry}/bin/poetry    
+      ${julia-env}/bin/julia -e 'using Pkg; Pkg.build("PythonCall")'
+      ${julia-env}/bin/julia -e 'using IJulia; installkernel("home-project-julia")' jupyter console --kernel "$JULIA_VERSION" "$@"
     '';
   };
 in pkgs.mkShell {
-  propogatedBuildInputs = [ python-env julia-env startJupyterWithJulia ];
-  shellHook = ''
-    echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
-    echo -e "\e[32m|🏕️  Welcome to the Campground                              |\e[0m"
-    echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
-    echo -e "\e[34m| run-flask-app  \e[0m - \e[37mTo start Flask with uWSGI               |\e[0m"
-    echo -e "\e[34m| dev-flask-app  \e[0m - \e[37mTo run the Flask dev server.            |\e[0m"
-    echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
+  buildInputs = [
+    pkgs.poetry
+    pkgs.julia
+    python-env
+    # pkgs.python3
+  ];
 
-    # Additional setup can go here
+  shellHook = ''
+    # Create Poetry environment
+    # Activate Julia project
+    julia --project=. -e 'using Pkg; Pkg.build("PyCall"); ENV["PYTHON"] = "$PYTHON"; Pkg.build("PyCall")'
+
+    echo "Poetry environment and Julia project set up."
   '';
 }
