@@ -16,7 +16,14 @@ in {
     virtualHost =
       mkOpt str "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
     package = mkOpt types.package pkgs.firefly-iii "Package for Firefly III.";
-    poolConfig = mkOpt attrs { max_connections = 10; }
+    poolConfig = mkOpt attrs {
+  pm = "dynamic";
+  "pm.max_children" = 32;
+  "pm.max_requests" = 500;
+  "pm.max_spare_servers" = 4;
+  "pm.min_spare_servers" = 2;
+  "pm.start_servers" = 2;
+}
       "Pool configuration for Firefly III.";
 
     role-id =
@@ -53,13 +60,26 @@ in {
       };
     };
 
+    users.users.firefly = {
+      isNormalUser = false;
+      isSystemUser = true;
+      description = "Firefly III System User";
+      group = "firefly";
+      extraGroups = [
+        "firefly"
+      ]; # Optional if you want the user to be in additional groups
+      home = "/var/lib/firefly";
+    };
+    users.groups.firefly = { };
+
     systemd.services.get-firefly-key = {
-      description = "My Example Secret Service";
+      description = "Gets the Firefly Key File";
       wantedBy = [ "multi-user.target" ];
       before = [ "firefly-iii-setup.service" ];
       script = ''
+        mkdir -p /var/lib/firefly
         cat /tmp/detsys-vault/key.file > /var/lib/firefly/key.file
-        chown firefly:firefly /var/lib/firefly/key.file
+        chown -R firefly:firefly /var/lib/firefly
       '';
       serviceConfig = { Type = "oneshot"; };
     };
@@ -77,15 +97,17 @@ in {
       group = "firefly";
       dataDir = cfg.dataDir;
       settings = {
+        SITE_OWNER = "matt@aicampground.com";
         APP_URL = cfg.APP_URL;
-        DB_HOST = cfg.DB_HOST;
         DB_PORT = cfg.DB_PORT;
+        DB_SOCKET = "/run/postgresql";
         DB_CONNECTION = cfg.DB_CONNECTION;
         APP_KEY_FILE = "/var/lib/firefly/key.file";
         APP_ENV = cfg.APP_ENV;
       };
       virtualHost = cfg.virtualHost;
       package = cfg.package;
+      enableNginx = false;
       poolConfig = cfg.poolConfig;
     };
     campground.services = {
@@ -110,8 +132,7 @@ in {
               file = {
                 files = {
                   "key.file" = {
-                    text = ''
-                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }} '';
+                    text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }}'';
                     permissions = "0600";
                     change-action = "restart";
                   };
