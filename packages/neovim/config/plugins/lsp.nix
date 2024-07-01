@@ -14,7 +14,9 @@
         opleader = { line = "<BS>"; };
       };
     };
-    diagnostics.virtual_lines.only_current_line = true;
+
+    # lsp-lines.currentLine = true;
+    lsp-lines.diagnostics.virtual_lines.only_current_line = true;
     lsp = {
       enable = true;
       servers = {
