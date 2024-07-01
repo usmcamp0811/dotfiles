@@ -89,7 +89,7 @@ in {
     };
     campground.services.postgresql = {
       enable = true;
-      authentication = [ "local firefly firefly-iii trust" ];
+      authentication = [ "local firefly nginx trust" ];
       databases = [{
         name = "firefly";
         user = "firefly";
@@ -97,8 +97,8 @@ in {
     };
     services.firefly-iii = {
       enable = true;
-      user = "firefly-iii";
-      group = "firefly-iii";
+      user = "nginx";
+      group = "nginx";
       dataDir = cfg.dataDir;
       settings = {
         SITE_OWNER = "matt@aicampground.com";
