@@ -1,4 +1,5 @@
 { pkgs, ... }: {
+  diagnostics.virtual_lines = { only_current_line = true; };
   plugins = {
     vim-slime = { enable = true; };
     conjure = { enable = true; };
@@ -15,8 +16,6 @@
       };
     };
 
-    # lsp-lines.currentLine = true;
-    lsp-lines.diagnostics.virtual_lines.only_current_line = true;
     lsp = {
       enable = true;
       servers = {
