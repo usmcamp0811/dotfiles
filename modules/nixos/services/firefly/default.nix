@@ -17,14 +17,13 @@ in {
       mkOpt str "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
     package = mkOpt types.package pkgs.firefly-iii "Package for Firefly III.";
     poolConfig = mkOpt attrs {
-  pm = "dynamic";
-  "pm.max_children" = 32;
-  "pm.max_requests" = 500;
-  "pm.max_spare_servers" = 4;
-  "pm.min_spare_servers" = 2;
-  "pm.start_servers" = 2;
-}
-      "Pool configuration for Firefly III.";
+      pm = "dynamic";
+      "pm.max_children" = 32;
+      "pm.max_requests" = 500;
+      "pm.max_spare_servers" = 4;
+      "pm.min_spare_servers" = 2;
+      "pm.start_servers" = 2;
+    } "Pool configuration for Firefly III.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -53,22 +52,22 @@ in {
       virtualHosts = {
         "${cfg.virtualHost}" = {
           root = "${cfg.package}/public";
-        locations = {
-          "/" = {
-            tryFiles = "$uri $uri/ /index.php?$query_string";
-            index = "index.php";
-            extraConfig = ''
-              sendfile off;
-            '';
-          };
-          "~ \.php$" = {
-            extraConfig = ''
-              include ${config.services.nginx.package}/conf/fastcgi_params ;
-              fastcgi_param SCRIPT_FILENAME $request_filename;
-              fastcgi_param modHeadersAvailable true; #Avoid sending the security headers twice
-              fastcgi_pass unix:${config.services.phpfpm.pools.firefly-iii.socket};
-            '';
-          };
+          locations = {
+            "/" = {
+              tryFiles = "$uri $uri/ /index.php?$query_string";
+              index = "index.php";
+              extraConfig = ''
+                sendfile off;
+              '';
+            };
+            "~ .php$" = {
+              extraConfig = ''
+                include ${config.services.nginx.package}/conf/fastcgi_params ;
+                fastcgi_param SCRIPT_FILENAME $request_filename;
+                fastcgi_param modHeadersAvailable true; #Avoid sending the security headers twice
+                fastcgi_pass unix:${config.services.phpfpm.pools.firefly-iii.socket};
+              '';
+            };
           };
           listen = [{
             addr = "0.0.0.0";
@@ -77,18 +76,6 @@ in {
         };
       };
     };
-
-    # users.users.firefly = {
-    #   isNormalUser = false;
-    #   isSystemUser = true;
-    #   description = "Firefly III System User";
-    #   group = "firefly";
-    #   extraGroups = [
-    #     "firefly"
-    #   ]; # Optional if you want the user to be in additional groups
-    #   home = "/var/lib/firefly";
-    # };
-    # users.groups.firefly = { };
 
     systemd.services.get-firefly-key = {
       description = "Gets the Firefly Key File";
@@ -149,7 +136,8 @@ in {
               file = {
                 files = {
                   "key.file" = {
-                    text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }}'';
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }}'';
                     permissions = "0600";
                     change-action = "restart";
                   };
