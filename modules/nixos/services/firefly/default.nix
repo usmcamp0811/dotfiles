@@ -5,7 +5,8 @@ let cfg = config.campground.services.firefly;
 in {
   options.campground.services.firefly = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
-    dataDir = mkOpt str "/var/lib/firefly" "Data directory for Firefly III.";
+    dataDir =
+      mkOpt str "/var/lib/firefly-iii" "Data directory for Firefly III.";
     APP_URL =
       mkOpt str "https://${cfg.virtualHost}" "Application URL for Firefly III.";
     DB_HOST = mkOpt str "localhost" "Database host for Firefly III.";
@@ -13,8 +14,7 @@ in {
     DB_CONNECTION =
       mkOpt str "pgsql" "Database connection type for Firefly III.";
     APP_ENV = mkOpt str "production" "Application environment for Firefly III.";
-    virtualHost =
-      mkOpt str "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
+    virtualHost = mkOpt str "webb" "Virtual host for Firefly III.";
     package = mkOpt types.package pkgs.firefly-iii "Package for Firefly III.";
     poolConfig = mkOpt attrs {
       pm = "dynamic";
@@ -48,27 +48,8 @@ in {
   config = mkIf cfg.enable {
 
     services.nginx = {
-      enable = true;
       virtualHosts = {
         "${cfg.virtualHost}" = {
-          root = "${cfg.package}/public";
-          locations = {
-            "/" = {
-              tryFiles = "$uri $uri/ /index.php?$query_string";
-              index = "index.php";
-              extraConfig = ''
-                sendfile off;
-              '';
-            };
-            "~ .php$" = {
-              extraConfig = ''
-                include ${config.services.nginx.package}/conf/fastcgi_params ;
-                fastcgi_param SCRIPT_FILENAME $request_filename;
-                fastcgi_param modHeadersAvailable true; #Avoid sending the security headers twice
-                fastcgi_pass unix:${config.services.phpfpm.pools.firefly-iii.socket};
-              '';
-            };
-          };
           listen = [{
             addr = "0.0.0.0";
             port = 16244;
@@ -76,7 +57,31 @@ in {
         };
       };
     };
-
+    # services.nginx.virtualHosts = {
+    #   "firefly-iii-internal" = {
+    #     listen = [
+    #       {
+    #         addr = "0.0.0.0";
+    #         port = 16244;
+    #       }
+    #     ];
+    #     root = "${cfg.package}/public";
+    #     locations = {
+    #       "/" = {
+    #         index = "index.php";
+    #         tryFiles = "$uri $uri/ /index.php?$query_string";
+    #       };
+    #       "~ \.php".extraConfig = ''
+    #         include ${pkgs.nginx}/conf/fastcgi_params;
+    #         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    #         fastcgi_pass unix:${config.services.phpfpm.pools."firefly-iii".socket};
+    #       '';
+    #       "~ \.(js|css|gif|png|ico|jpg|jpeg)$" = {
+    #         extraConfig = "expires 365d;";
+    #       };
+    #     };
+    #   };
+    #   };
     systemd.services.get-firefly-key = {
       description = "Gets the Firefly Key File";
       wantedBy = [ "multi-user.target" ];
@@ -87,31 +92,48 @@ in {
       '';
       serviceConfig = { Type = "oneshot"; };
     };
+
+    # services.phpfpm.pools.firefly-iii = {
+    #   user = "firefly-iii";
+    #   group = "firefly-iii";
+    #   settings = {
+    #     "listen.owner" = "firefly-iii";
+    #     "listen.group" = "firefly-iii";
+    #   };
+    # };
     campground.services.postgresql = {
       enable = true;
-      authentication = [ "local firefly nginx trust" ];
+      authentication = [
+        "local firefly-iii firefly-iii trust"
+        "local firefly-iii nginx trust"
+      ];
       databases = [{
-        name = "firefly";
-        user = "firefly";
+        name = "firefly-iii";
+        user = "firefly-iii";
       }];
     };
     services.firefly-iii = {
       enable = true;
-      user = "nginx";
-      group = "nginx";
+      user = "firefly-iii";
+      group = "firefly-iii";
       dataDir = cfg.dataDir;
       settings = {
         SITE_OWNER = "matt@aicampground.com";
         APP_URL = cfg.APP_URL;
+        APP_DEBUG = true;
         DB_PORT = cfg.DB_PORT;
         DB_SOCKET = "/run/postgresql";
+        DB_USERNAME = "firefly-iii";
+        DB_PASSWORD = "firefly";
+        # USE_PROXIES = "127.0.0.1";
+        TRUSTED_PROXIES = "**";
         DB_CONNECTION = cfg.DB_CONNECTION;
         APP_KEY_FILE = "/var/lib/firefly-iii/key.file";
         APP_ENV = cfg.APP_ENV;
       };
       virtualHost = cfg.virtualHost;
       package = cfg.package;
-      enableNginx = false;
+      enableNginx = true;
       poolConfig = cfg.poolConfig;
     };
     campground.services = {
