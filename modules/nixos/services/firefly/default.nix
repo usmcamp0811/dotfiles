@@ -52,6 +52,24 @@ in {
       enable = true;
       virtualHosts = {
         "${cfg.virtualHost}" = {
+          root = "${cfg.package}/public";
+        locations = {
+          "/" = {
+            tryFiles = "$uri $uri/ /index.php?$query_string";
+            index = "index.php";
+            extraConfig = ''
+              sendfile off;
+            '';
+          };
+          "~ \.php$" = {
+            extraConfig = ''
+              include ${config.services.nginx.package}/conf/fastcgi_params ;
+              fastcgi_param SCRIPT_FILENAME $request_filename;
+              fastcgi_param modHeadersAvailable true; #Avoid sending the security headers twice
+              fastcgi_pass unix:${config.services.phpfpm.pools.firefly-iii.socket};
+            '';
+          };
+          };
           listen = [{
             addr = "0.0.0.0";
             port = 16244;
@@ -60,32 +78,31 @@ in {
       };
     };
 
-    users.users.firefly = {
-      isNormalUser = false;
-      isSystemUser = true;
-      description = "Firefly III System User";
-      group = "firefly";
-      extraGroups = [
-        "firefly"
-      ]; # Optional if you want the user to be in additional groups
-      home = "/var/lib/firefly";
-    };
-    users.groups.firefly = { };
+    # users.users.firefly = {
+    #   isNormalUser = false;
+    #   isSystemUser = true;
+    #   description = "Firefly III System User";
+    #   group = "firefly";
+    #   extraGroups = [
+    #     "firefly"
+    #   ]; # Optional if you want the user to be in additional groups
+    #   home = "/var/lib/firefly";
+    # };
+    # users.groups.firefly = { };
 
     systemd.services.get-firefly-key = {
       description = "Gets the Firefly Key File";
       wantedBy = [ "multi-user.target" ];
       before = [ "firefly-iii-setup.service" ];
       script = ''
-        mkdir -p /var/lib/firefly
-        cat /tmp/detsys-vault/key.file > /var/lib/firefly/key.file
-        chown -R firefly:firefly /var/lib/firefly
+        mkdir -p /var/lib/firefly-iii
+        cat /tmp/detsys-vault/key.file > /var/lib/firefly-iii/key.file
       '';
       serviceConfig = { Type = "oneshot"; };
     };
     campground.services.postgresql = {
       enable = true;
-      authentication = [ "local firefly firefly trust" ];
+      authentication = [ "local firefly firefly-iii trust" ];
       databases = [{
         name = "firefly";
         user = "firefly";
@@ -93,8 +110,8 @@ in {
     };
     services.firefly-iii = {
       enable = true;
-      user = "firefly";
-      group = "firefly";
+      user = "firefly-iii";
+      group = "firefly-iii";
       dataDir = cfg.dataDir;
       settings = {
         SITE_OWNER = "matt@aicampground.com";
@@ -102,7 +119,7 @@ in {
         DB_PORT = cfg.DB_PORT;
         DB_SOCKET = "/run/postgresql";
         DB_CONNECTION = cfg.DB_CONNECTION;
-        APP_KEY_FILE = "/var/lib/firefly/key.file";
+        APP_KEY_FILE = "/var/lib/firefly-iii/key.file";
         APP_ENV = cfg.APP_ENV;
       };
       virtualHost = cfg.virtualHost;
