@@ -5,8 +5,8 @@ let cfg = config.campground.services.firefly;
 in {
   options.campground.services.firefly = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
-    user = mkOpt str "firefly-iii" "user for Firefly III.";
-    group = mkOpt str "firefly-iii" "user for Firefly III.";
+    firefly-user = mkOpt str "firefly" "user for Firefly III.";
+    firefly-group = mkOpt str "firefly" "user for Firefly III.";
     dataDir =
       mkOpt str "/var/lib/firefly-iii" "Data directory for Firefly III.";
     APP_URL =
@@ -51,7 +51,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-
+    services.phpfpm.pools.firefly-iii = {
+      user = mkDefault cfg.firefly-user;
+      group = mkDefault cfg.firefly-group;
+    };
     services.nginx = {
       virtualHosts = {
         "${cfg.virtualHost}" = {
@@ -67,8 +70,8 @@ in {
       wantedBy = [ "multi-user.target" ];
       before = [ "firefly-iii-setup.service" ];
       script = ''
-        mkdir -p /var/lib/${cfg.user}
-        cat /tmp/detsys-vault/key.file > /var/lib/${cfg.user}/key.file
+        mkdir -p /var/lib/${cfg.firefly-user}
+        cat /tmp/detsys-vault/key.file > /var/lib/${cfg.firefly-user}/key.file
       '';
       serviceConfig = { Type = "oneshot"; };
     };
@@ -77,9 +80,7 @@ in {
       enable = true;
       authentication = [
         "local firefly firefly trust"
-        "local firefly firefly peer"
         "local firefly nginx trust"
-        "local firefly nginx peer"
         "host  firefly firefly  127.0.0.1/32  md5"
       ];
       databases = [{
@@ -89,19 +90,20 @@ in {
     };
     services.firefly-iii = {
       enable = true;
-      user = cfg.user;
-      group = cfg.group;
+      user = cfg.firefly-user;
+      group = cfg.firefly-group;
       dataDir = cfg.dataDir;
       settings = {
         SITE_OWNER = "matt@aicampground.com";
         APP_URL = cfg.APP_URL;
         APP_DEBUG = true;
-        DB_PORT = cfg.DB_PORT;
-        DB_HOST = "localhost";
+        # DB_PORT = cfg.DB_PORT;
+        # DB_HOST = "localhost";
         DB_SOCKET = "/run/postgresql";
-        DB_USERNAME = "firefly";
+        DB_NAME = "firefly";
+        # DB_USERNAME = "firefly";
         DB_CONNECTION = cfg.DB_CONNECTION;
-        APP_KEY_FILE = "/var/lib/${cfg.user}/key.file";
+        APP_KEY_FILE = "/var/lib/${cfg.firefly-user}/key.file";
         APP_ENV = cfg.APP_ENV;
       };
       virtualHost = cfg.virtualHost;
