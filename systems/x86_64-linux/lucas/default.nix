@@ -54,6 +54,8 @@ with lib.campground; {
     services = {
       onlyoffice = { enable = true; };
       nix-ai = enabled;
+
+      firefly = enabled;
       # flink-task-manager = {
       #   enable = true;
       #   flink-conf = ''

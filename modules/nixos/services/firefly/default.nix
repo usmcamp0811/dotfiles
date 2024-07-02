@@ -65,9 +65,8 @@ in {
       wantedBy = [ "multi-user.target" ];
       before = [ "firefly-iii-setup.service" ];
       script = ''
-        mkdir -p /var/lib/firefly-iii
+        mkdir -p /var/lib/firefly
         cat /tmp/detsys-vault/key.file > /var/lib/firefly-iii/key.file
-        cat /tmp/detsys-vault/db.pass > /var/lib/firefly-iii/db.pass
       '';
       serviceConfig = { Type = "oneshot"; };
     };
@@ -75,8 +74,8 @@ in {
     campground.services.postgresql = {
       enable = true;
       authentication = [
-        "local firefly firefly-iii trust"
-        "local firefly firefly-iii peer"
+        "local firefly firefly trust"
+        "local firefly firefly peer"
         "local firefly nginx trust"
         "local firefly nginx peer"
         "host  firefly firefly  127.0.0.1/32  md5"
@@ -88,22 +87,18 @@ in {
     };
     services.firefly-iii = {
       enable = true;
-      user = "firefly-iii";
-      group = "firefly-iii";
+      user = "firefly";
+      group = "firefly";
       dataDir = cfg.dataDir;
       settings = {
         SITE_OWNER = "matt@aicampground.com";
         APP_URL = cfg.APP_URL;
         APP_DEBUG = true;
-        # DB_PORT = cfg.DB_PORT;
-        # DB_HOST = "localhost";
+        DB_PORT = cfg.DB_PORT;
+        DB_HOST = "localhost";
         DB_SOCKET = "/run/postgresql";
         DB_USERNAME = "firefly";
-        DB_PASSWORD = "firefly";
-        # USE_PROXIES = "127.0.0.1";
-        # TRUSTED_PROXIES = "**";
         DB_CONNECTION = cfg.DB_CONNECTION;
-        # DB_PASSWORD_FILE = "/var/lib/firefly-iii/db.pass";  # Ensure this file contains the password
         APP_KEY_FILE = "/var/lib/firefly-iii/key.file";
         APP_ENV = cfg.APP_ENV;
       };
@@ -133,12 +128,6 @@ in {
             secrets = {
               file = {
                 files = {
-                  "db.pass" = {
-                    text = ''
-                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.dbpass }}{{ else }}{{ .Data.data.dbpass }}{{ end }}{{ end }}'';
-                    permissions = "0600";
-                    change-action = "restart";
-                  };
                   "key.file" = {
                     text = ''
                       {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }}'';
