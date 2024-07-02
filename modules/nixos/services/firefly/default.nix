@@ -5,6 +5,8 @@ let cfg = config.campground.services.firefly;
 in {
   options.campground.services.firefly = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
+    user = mkOpt str "firefly-iii" "user for Firefly III.";
+    group = mkOpt str "firefly-iii" "user for Firefly III.";
     dataDir =
       mkOpt str "/var/lib/firefly-iii" "Data directory for Firefly III.";
     APP_URL =
@@ -65,8 +67,8 @@ in {
       wantedBy = [ "multi-user.target" ];
       before = [ "firefly-iii-setup.service" ];
       script = ''
-        mkdir -p /var/lib/firefly
-        cat /tmp/detsys-vault/key.file > /var/lib/firefly-iii/key.file
+        mkdir -p /var/lib/${cfg.user}
+        cat /tmp/detsys-vault/key.file > /var/lib/${cfg.user}/key.file
       '';
       serviceConfig = { Type = "oneshot"; };
     };
@@ -87,8 +89,8 @@ in {
     };
     services.firefly-iii = {
       enable = true;
-      user = "firefly";
-      group = "firefly";
+      user = cfg.user;
+      group = cfg.group;
       dataDir = cfg.dataDir;
       settings = {
         SITE_OWNER = "matt@aicampground.com";
@@ -99,7 +101,7 @@ in {
         DB_SOCKET = "/run/postgresql";
         DB_USERNAME = "firefly";
         DB_CONNECTION = cfg.DB_CONNECTION;
-        APP_KEY_FILE = "/var/lib/firefly-iii/key.file";
+        APP_KEY_FILE = "/var/lib/${cfg.user}/key.file";
         APP_ENV = cfg.APP_ENV;
       };
       virtualHost = cfg.virtualHost;
