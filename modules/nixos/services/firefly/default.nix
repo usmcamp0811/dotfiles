@@ -7,8 +7,8 @@ in {
     enable = mkBoolOpt false "Enable Firefly III.";
     firefly-user = mkOpt str "firefly" "user for Firefly III.";
     firefly-group = mkOpt str "firefly" "user for Firefly III.";
-    dataDir =
-      mkOpt str "/var/lib/firefly-iii" "Data directory for Firefly III.";
+    dataDir = mkOpt str "/var/lib/${cfg.firefly-user}"
+      "Data directory for Firefly III.";
     APP_URL =
       mkOpt str "https://${cfg.virtualHost}" "Application URL for Firefly III.";
     DB_HOST = mkOpt str "localhost" "Database host for Firefly III.";
@@ -62,6 +62,23 @@ in {
             addr = "0.0.0.0";
             port = 16244;
           }];
+          # locations = {
+          #   "/" = {
+          #     index = "index.php";
+          #     extraConfig = ''
+          #       try_files $uri $uri/ /index.php?$query_string;
+          #       sendfile off;
+          #     '';
+          #   };
+          #   "~ \\.php$" = {
+          #     extraConfig = ''
+          #       include ${pkgs.nginx}/conf/fastcgi_params;
+          #       fastcgi_param SCRIPT_FILENAME $request_filename;
+          #       fastcgi_param modHeadersAvailable true;
+          #       fastcgi_pass unix:/run/phpfpm/firefly-iii.sock;
+          #     '';
+          #   };
+          # };
         };
       };
     };
@@ -91,8 +108,8 @@ in {
       enable = true;
       authentication = [
         "local firefly firefly trust"
-        "local firefly nginx trust"
-        "host  firefly firefly  127.0.0.1/32  md5"
+        # "local firefly nginx trust"
+        # "host  firefly firefly  127.0.0.1/32  md5"
       ];
       databases = [{
         name = "firefly";
@@ -108,11 +125,8 @@ in {
         SITE_OWNER = "matt@aicampground.com";
         APP_URL = cfg.APP_URL;
         APP_DEBUG = true;
-        # DB_PORT = cfg.DB_PORT;
-        # DB_HOST = "localhost";
         DB_SOCKET = "/run/postgresql";
         DB_NAME = "firefly";
-        # DB_USERNAME = "firefly";
         DB_CONNECTION = cfg.DB_CONNECTION;
         APP_KEY_FILE = "/var/lib/${cfg.firefly-user}/key.file";
         APP_ENV = cfg.APP_ENV;
