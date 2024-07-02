@@ -20,7 +20,7 @@ in {
         DB_CONNECTION = "pgsql";
         APP_KEY_FILE = "/var/lib/firefly/key.file";
         APP_ENV = "production";
-        TRUSTED_PROXIES = "10.8.0.69/32";
+        TRUSTED_PROXIES = "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12";
       };
       description = "Settings for Firefly III.";
     };
