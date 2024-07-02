@@ -66,7 +66,7 @@ in {
 
     services = {
       # onlyoffice = { enable = true; };
-      firefly = enabled;
+      # firefly = enabled;
       nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
       netbird = enabled;
