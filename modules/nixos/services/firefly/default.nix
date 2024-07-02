@@ -56,32 +56,15 @@ in {
       group = mkDefault cfg.firefly-group;
     };
     services.nginx = {
-      virtualHosts = {
-        "${cfg.virtualHost}" = {
-          listen = [{
-            addr = "0.0.0.0";
-            port = 16244;
-          }];
-          # locations = {
-          #   "/" = {
-          #     index = "index.php";
-          #     extraConfig = ''
-          #       try_files $uri $uri/ /index.php?$query_string;
-          #       sendfile off;
-          #     '';
-          #   };
-          #   "~ \\.php$" = {
-          #     extraConfig = ''
-          #       include ${pkgs.nginx}/conf/fastcgi_params;
-          #       fastcgi_param SCRIPT_FILENAME $request_filename;
-          #       fastcgi_param modHeadersAvailable true;
-          #       fastcgi_pass unix:/run/phpfpm/firefly-iii.sock;
-          #     '';
-          #   };
-          # };
-        };
+      enable = true;
+      virtualHosts.${cfg.virtualHost} = {
+        listen = [{
+          addr = "0.0.0.0";
+          port = 16244;
+        }];
       };
     };
+
     systemd.services.get-firefly-key = {
       description = "Gets the Firefly Key File";
       wantedBy = [ "multi-user.target" ];
@@ -130,6 +113,8 @@ in {
         DB_CONNECTION = cfg.DB_CONNECTION;
         APP_KEY_FILE = "/var/lib/${cfg.firefly-user}/key.file";
         APP_ENV = cfg.APP_ENV;
+        TRUSTED_PROXIES = "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12";
+
       };
       virtualHost = cfg.virtualHost;
       package = cfg.package;
