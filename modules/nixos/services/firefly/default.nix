@@ -9,13 +9,21 @@ in {
     firefly-group = mkOpt str "firefly" "user for Firefly III.";
     dataDir = mkOpt str "/var/lib/${cfg.firefly-user}"
       "Data directory for Firefly III.";
-    APP_URL =
-      mkOpt str "https://${cfg.virtualHost}" "Application URL for Firefly III.";
-    DB_HOST = mkOpt str "localhost" "Database host for Firefly III.";
-    DB_PORT = mkOpt int 5432 "Database port for Firefly III.";
-    DB_CONNECTION =
-      mkOpt str "pgsql" "Database connection type for Firefly III.";
-    APP_ENV = mkOpt str "production" "Application environment for Firefly III.";
+    settings = mkOption {
+      type = attrs;
+      default = {
+        SITE_OWNER = "matt@aicampground.com";
+        APP_URL = "https://${cfg.virtualHost}";
+        APP_DEBUG = true;
+        DB_SOCKET = "/run/postgresql";
+        DB_NAME = "firefly";
+        DB_CONNECTION = "pgsql";
+        APP_KEY_FILE = "/var/lib/firefly/key.file";
+        APP_ENV = "production";
+        TRUSTED_PROXIES = "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12";
+      };
+      description = "Settings for Firefly III.";
+    };
     virtualHost =
       mkOpt str "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
     package = mkOpt types.package pkgs.firefly-iii "Package for Firefly III.";
@@ -104,18 +112,7 @@ in {
       user = cfg.firefly-user;
       group = cfg.firefly-group;
       dataDir = cfg.dataDir;
-      settings = {
-        SITE_OWNER = "matt@aicampground.com";
-        APP_URL = cfg.APP_URL;
-        APP_DEBUG = true;
-        DB_SOCKET = "/run/postgresql";
-        DB_NAME = "firefly";
-        DB_CONNECTION = cfg.DB_CONNECTION;
-        APP_KEY_FILE = "/var/lib/${cfg.firefly-user}/key.file";
-        APP_ENV = cfg.APP_ENV;
-        TRUSTED_PROXIES = "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12";
-
-      };
+      settings = cfg.settings;
       virtualHost = cfg.virtualHost;
       package = cfg.package;
       enableNginx = true;
