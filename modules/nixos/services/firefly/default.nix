@@ -75,9 +75,11 @@ in {
     campground.services.postgresql = {
       enable = true;
       authentication = [
-        "local firefly firefly trust"
+        "local firefly firefly-iii trust"
+        "local firefly firefly-iii peer"
         "local firefly nginx trust"
-        "host    firefly    firefly    127.0.0.1/32    md5"
+        "local firefly nginx peer"
+        "host  firefly firefly  127.0.0.1/32  md5"
       ];
       databases = [{
         name = "firefly";
@@ -86,14 +88,14 @@ in {
     };
     services.firefly-iii = {
       enable = true;
-      user = "firefly";
-      group = "firefly";
+      user = "firefly-iii";
+      group = "firefly-iii";
       dataDir = cfg.dataDir;
       settings = {
         SITE_OWNER = "matt@aicampground.com";
         APP_URL = cfg.APP_URL;
         APP_DEBUG = true;
-        DB_PORT = cfg.DB_PORT;
+        # DB_PORT = cfg.DB_PORT;
         # DB_HOST = "localhost";
         DB_SOCKET = "/run/postgresql";
         DB_USERNAME = "firefly";
