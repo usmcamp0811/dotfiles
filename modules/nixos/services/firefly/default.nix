@@ -52,7 +52,7 @@ in {
         "${cfg.virtualHost}" = {
           listen = [{
             addr = "0.0.0.0";
-            port = 16244;
+            port = 4567;
           }];
         };
       };
@@ -103,13 +103,11 @@ in {
     # };
     campground.services.postgresql = {
       enable = true;
-      authentication = [
-        "local firefly-iii firefly-iii trust"
-        "local firefly-iii nginx trust"
-      ];
+      authentication =
+        [ "local firefly firefly-iii trust" "local firefly nginx trust" ];
       databases = [{
-        name = "firefly-iii";
-        user = "firefly-iii";
+        name = "firefly";
+        user = "firefly";
       }];
     };
     services.firefly-iii = {
@@ -123,10 +121,10 @@ in {
         APP_DEBUG = true;
         DB_PORT = cfg.DB_PORT;
         DB_SOCKET = "/run/postgresql";
-        DB_USERNAME = "firefly-iii";
+        DB_USERNAME = "firefly";
         DB_PASSWORD = "firefly";
         # USE_PROXIES = "127.0.0.1";
-        TRUSTED_PROXIES = "**";
+        # TRUSTED_PROXIES = "**";
         DB_CONNECTION = cfg.DB_CONNECTION;
         APP_KEY_FILE = "/var/lib/firefly-iii/key.file";
         APP_ENV = cfg.APP_ENV;
