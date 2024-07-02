@@ -72,10 +72,21 @@ in {
       script = ''
         mkdir -p /var/lib/${cfg.firefly-user}
         cat /tmp/detsys-vault/key.file > /var/lib/${cfg.firefly-user}/key.file
+        chown -R ${cfg.firefly-user}:${cfg.firefly-group} /var/lib/${cfg.firefly-user}/key.file
       '';
       serviceConfig = { Type = "oneshot"; };
     };
-
+    users = {
+      users = {
+        ${cfg.firefly-user} = {
+          description = "Firefly-iii service user";
+          group = cfg.firefly-group;
+          isSystemUser = true;
+          home = cfg.dataDir;
+        };
+      };
+      groups = { ${cfg.firefly-group} = { }; };
+    };
     campground.services.postgresql = {
       enable = true;
       authentication = [
