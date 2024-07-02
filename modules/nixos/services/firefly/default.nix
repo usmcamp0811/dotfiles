@@ -97,11 +97,7 @@ in {
     };
     campground.services.postgresql = {
       enable = true;
-      authentication = [
-        "local firefly firefly trust"
-        # "local firefly nginx trust"
-        # "host  firefly firefly  127.0.0.1/32  md5"
-      ];
+      authentication = [ "local firefly firefly trust" ];
       databases = [{
         name = "firefly";
         user = "firefly";
