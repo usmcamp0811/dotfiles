@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    hyprland-works-here.url =
+      "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     #nuenv
@@ -37,6 +39,7 @@
     };
 
     nix-topology.url = "github:oddlama/nix-topology";
+    nixpkgs-python.url = "github:cachix/nixpkgs-python";
 
     hyprpaper = {
       url = "github:hyprwm/hyprpaper";
@@ -174,6 +177,11 @@
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+
+    nix-ai.url = "github:nixified-ai/flake";
+    neorg-overlay.url = "github:nvim-neorg/nixpkgs-neorg-overlay";
+
+    nix-health.url = "github:juspay/nix-health?dir=module";
   };
 
   outputs = inputs:
@@ -213,6 +221,7 @@
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
+        neorg-overlay.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
@@ -222,6 +231,7 @@
         dataflow2nix.nixosModules.airflow
         nix-topology.nixosModules.default
         catppuccin.nixosModules.catppuccin
+        # nix-health.flakeModule
         # scientific-fhs.nixosModules.default
       ];
 

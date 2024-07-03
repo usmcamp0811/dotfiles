@@ -19,7 +19,10 @@ in {
 
   config = mkIf cfg.enable {
     campground = {
-      suites = { common = enabled; };
+      suites = {
+        common = enabled;
+        observability = enabled;
+      };
       system = {
         zfs = {
           enable = true;
@@ -33,7 +36,6 @@ in {
         docker = enabled;
         ldap-client = enabled;
         tang = enabled;
-        prometheus = { exporter-enable = true; };
         k0s = {
           enable = cfg.k8s;
           package = pkgs.campground.k0s;

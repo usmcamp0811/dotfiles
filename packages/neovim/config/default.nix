@@ -1,5 +1,6 @@
 # {pkgs,lib, fetchurl, buildPythonPackage, ...}:
-{pkgs, ...}: {
+{ pkgs, ... }: {
+
   # Import all your configuration modules here
   imports = [
     ./theme.nix
@@ -40,6 +41,7 @@
     bo.tabstop = 2
     vim.cmd("set expandtab ts=2 sw=2 ai")
     vim.opt.guifont = { "Source Code Pro", ":h8" }
+
   '';
 
   extraPackages = [
@@ -73,7 +75,7 @@
     pkgs.lua54Packages.luarocks
     pkgs.luajitPackages.luarocks
     pkgs.gtk4
-    pkgs.julia
+    # pkgs.campground.julia
 
     # python-env
     # (

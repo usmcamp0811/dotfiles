@@ -21,6 +21,11 @@ with lib.campground; {
         hostId = "930864f0";
       };
     };
+    desktop.addons.rkvm = {
+      # enableServer = true;
+      enableClient = true;
+      address = "reckless:5258";
+    };
     suites = {
       public-hosting = {
         enable = true;
@@ -47,6 +52,10 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      onlyoffice = { enable = true; };
+      nix-ai = enabled;
+
+      firefly = enabled;
       # flink-task-manager = {
       #   enable = true;
       #   flink-conf = ''

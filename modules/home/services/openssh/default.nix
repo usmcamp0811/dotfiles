@@ -1,10 +1,4 @@
-{ options
-, config
-, lib
-, host ? ""
-, inputs ? { }
-, ...
-}:
+{ options, config, lib, host ? "", inputs ? { }, ... }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.openssh;
@@ -12,9 +6,7 @@ with lib.campground; let
   user = config.users.users.${config.campground.user.name};
   user-id = builtins.toString user.uid;
 
-  # @TODO(jakehamilton): This is a hold-over from an earlier Snowfall Lib version which used
-  # the specialArg `name` to provide the host name.
-  name = host;
+  name = host;  # Use the provided hostname or default if not specified.
 
   default-key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler";
 
@@ -33,46 +25,62 @@ with lib.campground; let
         remote-user-id =
           builtins.toString remote.config.users.users.${remote-user-name}.uid;
 
-        forward-gpg = optionalString
-          (config.programs.gnupg.agent.enable
-            && remote.config.programs.gnupg.agent.enable) ''
-          RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
-          RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
-        '';
+        # forward-gpg = optionalString
+        #   (config.programs.gnupg.agent.enable
+        #     && remote.config.programs.gnupg.agent.enable) ''
+        #   RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent /run/user/${user-id}/gnupg/S.gpg-agent.extra
+        #   RemoteForward /run/user/${remote-user-id}/gnupg/S.gpg-agent.ssh /run/user/${user-id}/gnupg/S.gpg-agent.ssh
+        # '';
       in
       ''
         Host ${name}
           User ${remote-user-name}
           ForwardAgent yes
           Port ${builtins.toString cfg.port}
-          ${forward-gpg}
       '')
     (builtins.attrNames other-hosts);
 in
 {
   options.campground.services.openssh = with types; {
-    enable = mkBoolOpt false "Whether or not to configure OpenSSH support.";
+    enable = mkEnableOption "OpenSSH support";
     authorizedKeys =
-      mkOpt (listOf str) [ default-key ] "The public keys to apply.";
-    port = mkOpt port 2222 "The port to listen on (in addition to 22).";
-    manage-other-hosts =
-      mkOpt bool true
-        "Whether or not to add other host configurations to SSH config.";
+      mkOption {
+        type = listOf str;
+        default = [ default-key ];
+        description = "The public keys to apply.";
+      };
+    port = mkOption {
+      type = port;
+      default = 2222;
+      description = "The port to listen on (in addition to 22).";
+    };
+    manage-other-hosts = mkOption {
+      type = bool;
+      default = true;
+      description = "Whether to add other host configurations to SSH config.";
+    };
+    extraConfigs = mkOption {
+      type = lines;
+      default = "";
+      description = "Additional SSH configurations.";
+    };
   };
 
   config = mkIf cfg.enable {
-    programs.ssh.extraConfig = ''
-      Host *
-        HostKeyAlgorithms +ssh-rsa
+    programs.ssh ={ 
+      enable = true;
+      extraConfig = ''
+        Host *
+          HostKeyAlgorithms +ssh-rsa
 
-      ${optionalString cfg.manage-other-hosts other-hosts-config}
-    '';
+        ${optionalString cfg.manage-other-hosts other-hosts-config}
+        ${cfg.extraConfigs}
+      '';
+    };
 
     home.activation.authorizedKeys = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       mkdir -p "${config.home.homeDirectory}/.ssh"
-      echo "${
-        concatStringsSep "\n" cfg.authorizedKeys
-      }" > "${config.home.homeDirectory}/.ssh/authorized_keys"
+      echo "${concatStringsSep "\n" cfg.authorizedKeys}" > "${config.home.homeDirectory}/.ssh/authorized_keys"
       chmod 600 "${config.home.homeDirectory}/.ssh/authorized_keys"
     '';
 

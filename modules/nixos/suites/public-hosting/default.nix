@@ -27,22 +27,29 @@ in {
       mkBoolOpt false "Enables the Traefik log Kafka Producer service";
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; };
+      default = {
+        web = { address = "0.0.0.0:80"; };
+        metrics = { address = "0.0.0.0:58082"; };
+      };
       example = { web = { address = "0.0.0.0:80"; }; };
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
-  config = mkIf cfg.enable {
+  config = {
     campground = {
-      kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
+      # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
       services = {
-        searx = {
+        prometheus.additionalScrapeConfigs = [{
+          job_name = "pub-traefik-monitor";
+          static_configs = [{ targets = [ "${cfg.pub-ip}:58082" ]; }];
+        }];
+        searx = mkIf cfg.enable {
           enable = true;
           port = 3249;
         };
-        traefik = {
+        traefik = mkIf cfg.enable {
           enable = true;
           insecure = true;
           entrypoints = cfg.entrypoints;
@@ -62,6 +69,46 @@ in {
                   };
                 };
               };
+            };
+
+            http.routers.keycloak = {
+              rule = "Host(`keycloak.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "keycloak";
+            };
+
+            http.services.keycloak = {
+              loadBalancer.servers = [{ url = "http://webb:43852"; }];
+            };
+
+            http.routers.collabora = {
+              rule = "Host(`collabora.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "collabora";
+            };
+
+            http.services.collabora = {
+              loadBalancer.servers = [{ url = "http://webb:19980"; }];
+            };
+
+            http.routers.onlyoffice-office = {
+              rule = "Host(`office.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "onlyoffice";
+            };
+
+            http.services.onlyoffice = {
+              loadBalancer.servers = [{ url = "http://lucas:13449"; }];
+            };
+
+            http.routers.nextcloud = {
+              rule = "Host(`cloud.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "nextcloud";
+            };
+
+            http.services.nextcloud = {
+              loadBalancer.servers = [{ url = "http://webb:13244"; }];
             };
 
             # http.routers.adhoc = {
@@ -168,7 +215,7 @@ in {
             };
           };
         };
-        keepalived = {
+        keepalived = mkIf cfg.enable {
           enable = true;
           instances = {
             "pub-campground" = {

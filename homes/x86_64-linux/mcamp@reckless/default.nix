@@ -76,9 +76,11 @@ with lib.campground; {
     services = {
       openssh = enabled;
       syncthing = enabled;
+      protonmail-bridge = enabled;
     };
 
     apps = {
+      thunderbird = enabled;
       barrier = enabled;
       firefox = enabled;
       brave = enabled;
@@ -98,7 +100,8 @@ with lib.campground; {
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
       emoji-picker = enabled;
-      scientific-fhs = enabled;
+      # scientific-fhs = enabled;
+      julia = enabled;
       jupyter = enabled;
       python = enabled;
       node = enabled;

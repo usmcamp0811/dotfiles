@@ -1,12 +1,4 @@
-{
-  inputs,
-  lib,
-  pkgs,
-  config,
-  osConfig ? {},
-  format ? "unknown",
-  ...
-}:
+{ inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib;
 with lib.campground; {
   campground = {
@@ -36,15 +28,18 @@ with lib.campground; {
           monitors = [
             {
               name = "HDMI-A-3";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-2";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "eDP-1";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
           ];
 
@@ -62,7 +57,7 @@ with lib.campground; {
       };
       hyprland = {
         enable = true;
-        startup = ["${getExe pkgs.networkmanagerapplet}"];
+        startup = [ "${getExe pkgs.networkmanagerapplet}" ];
       };
     };
 
@@ -77,7 +72,22 @@ with lib.campground; {
       neovim = enabled;
     };
     services = {
-      openssh = enabled;
+      openssh = {
+        enable = true;
+        extraConfigs = ''
+          Host github.com-usmcamp0811
+            HostName github.com
+            User git
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+
+          Host github.com-mcamp-ata
+            HostName github.com
+            User git
+            IdentityFile ~/.ssh/id_rsa.ata
+            IdentitiesOnly yes
+        '';
+      };
       syncthing = enabled;
     };
 
@@ -101,8 +111,9 @@ with lib.campground; {
       direnv = enabled;
       virtmanager = enabled; # don't forget to add to libvirtd group
       emoji-picker = enabled;
-      scientific-fhs = enabled;
+      # scientific-fhs = enabled;
       jupyter = enabled;
+      julia = enabled;
       node = enabled;
     };
   };

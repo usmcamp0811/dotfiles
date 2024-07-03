@@ -1,13 +1,34 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   plugins.molten = {
     enable = true; # Whether to enable molten-nvim
+    # package = pkgs.vimUtils.buildVimPlugin {
+    #   pname = "molten-nvim";
+    #   version = "v1.8.3";
+    #   src = pkgs.fetchFromGitHub {
+    #     owner = "benlubas";
+    #     repo = "molten-nvim";
+    #     rev = "df5ccef3b6fda3582f7746e45327ee031f668826";
+    #     # sha256 = lib.fakeSha256;
+    #     sha256 = "08f3zxzka43f87fks56594476h57yq01x7a1zdsn4acc278xg1nb";
+    #   };
+    #   passthru.python3Dependencies = ps:
+    #     with ps; [
+    #       pynvim
+    #       jupyter-client
+    #       cairosvg
+    #       ipython
+    #       nbformat
+    #     ];
+    #   meta.homepage = "https://github.com/benlubas/molten-nvim/";
+    # };
     settings = {
       auto_open_output =
         false; # Automatically open the output window when your cursor moves over a cell
       copy_output =
         true; # Copy evaluation output to clipboard automatically (requires pyperclip)
-      enter_output_behavior = "open_then_enter"; # The behavior of MoltenEnterOutput
-      image_provider = "image.nvim"; # How images are displayed
+      enter_output_behavior =
+        "open_then_enter"; # The behavior of MoltenEnterOutput
+      # image_provider = "image.nvim"; # How images are displayed
       output_crop_border =
         true; # ‘crops’ the bottom border of the output window
       output_show_more =

@@ -1,23 +1,22 @@
 { lib, pkgs, ... }:
 with lib;
 with lib.campground;
-# let
-# newUser = name: {
-#   isNormalUser = true;
-#   createHome = true;
-#   home = "/home/${name}";
-#   shell = pkgs.zsh;
-# };
-# findEnabledServices = { serviceName }: builtins.filter (name: let
-#   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
-#   in cfg) (builtins.attrNames self.nixosConfigurations);
-# searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
-# searxURLs = map (host: {
-#   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
-#   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
-# }) searxEnabledSystems;
-# in 
-{
+let
+  # newUser = name: {
+  #   isNormalUser = true;
+  #   createHome = true;
+  #   home = "/home/${name}";
+  #   shell = pkgs.zsh;
+  # };
+  # findEnabledServices = { serviceName }: builtins.filter (name: let
+  #   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
+  #   in cfg) (builtins.attrNames self.nixosConfigurations);
+  # searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
+  # searxURLs = map (host: {
+  #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
+  #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
+  # }) searxEnabledSystems;
+in {
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -33,6 +32,11 @@ with lib.campground;
         enable = true;
         interface = "eno1";
         log-to-kafka = true;
+      };
+      observability = {
+        enable = true;
+        loki = true;
+        prometheus = true;
       };
       kafka = {
         enable = true;
@@ -61,15 +65,34 @@ with lib.campground;
     tools = { attic = enabled; };
 
     services = {
+      # onlyoffice = { enable = true; };
+      firefly = enabled;
+      nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
       netbird = enabled;
       uptime-kuma = enabled;
-      grafana = enabled;
-      prometheus = enabled;
-      # keycloak = {
-      #   enable = true;
-      #   port = 43852;
-      # };
+      grafana = {
+        enable = true;
+        datasources = [
+          {
+            name = "Prometheus";
+            type = "prometheus";
+            access = "proxy";
+            url = "http://webb:9011";
+          }
+          {
+            name = "Loki";
+            type = "loki";
+            access = "proxy";
+            url = "http://webb:3030";
+          }
+        ];
+      };
+      collabora = enabled;
+      keycloak = {
+        enable = true;
+        port = 43852;
+      };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;

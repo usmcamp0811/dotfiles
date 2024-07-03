@@ -1,13 +1,7 @@
-{ options
-, config
-, pkgs
-, lib
-, ...
-}:
-with lib; let
-  cfg = config.campground.hardware.nvidia;
-in
-{
+{ options, config, pkgs, lib, ... }:
+with lib;
+let cfg = config.campground.hardware.nvidia;
+in {
   options.campground.hardware.nvidia = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
@@ -22,19 +16,23 @@ in
         "custom"
       ];
       default = "stable";
-      description = "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
+      description =
+        "Type of NVIDIA driver to use. Use 'custom' to specify a custom driver package.";
     };
 
     customDriverPackage = mkOption {
       type = types.nullOr types.package;
       default = null;
-      description = "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
+      description =
+        "Custom NVIDIA driver package. This option is used when 'driverType' is set to 'custom'.";
     };
   };
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      nvtop
+      nvidia-docker
+      nvidia-container-toolkit
+      nvtopPackages.full
     ];
     # Load nvidia driver for Xorg and Wayland
     services.xserver.videoDrivers = [ "nvidia" ];
@@ -65,10 +63,10 @@ in
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
       # package = config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
-      package =
-        if cfg.driverType == "custom"
-        then cfg.customDriverPackage
-        else config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      package = if cfg.driverType == "custom" then
+        cfg.customDriverPackage
+      else
+        config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
       # package = config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
       #   version = "550.40.07";
       #   # the new driver

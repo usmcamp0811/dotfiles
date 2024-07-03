@@ -10,10 +10,10 @@ with lib.campground; let
 in {
   options.campground.services.keycloak = with types; {
     enable = mkBoolOpt false "Whether or not to enable keycloak.";
-    port = mkOpt int 22547 "Port to listen on";
-    hostname =
-      mkOpt str "aicampground.com"
-      "The hostname part of the public URL used as base for all frontend requests.";
+    port = mkOpt int 19323 "Port to listen on";
+    domain =
+      mkOpt str "keycloak.lan.aicampground.com"
+      "The domain part of the public URL used as base for all frontend requests.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -37,28 +37,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [pkgs.docker];
-
-    services.nginx = {
-      enable = true;
-
-      virtualHosts = {
-        "keycloak.lan" = {
-          listen = [
-            {
-              addr = "0.0.0.0";
-              port = cfg.port;
-            }
-          ]; # Specify the port here
-          locations = {
-            "/cloak/" = {
-              proxyPass = "http://localhost:${
-                toString config.services.keycloak.settings.http-port
-              }/cloak/";
-            };
-          };
+    users = {
+      users = {
+        keycloak = {
+          group = "keycloak";
+          isSystemUser = true;
         };
       };
+      groups = {keycloak = {};};
     };
 
     systemd.services.keycloakPasswordFile = {
@@ -71,7 +57,7 @@ in {
         ExecStartPost = "${pkgs.coreutils}/bin/chown keycloak:keycloak /var/lib/vault/keycloak-db.pass"; # Change file ownership to vaultwarden
       };
       wantedBy = ["multi-user.target"];
-      before = ["keycloak.service"];
+      before = ["keycloakPostgreSQLInit.service" "keycloak.service"];
     };
 
     services.keycloak = {
@@ -85,12 +71,16 @@ in {
       };
 
       settings = {
-        hostname = cfg.hostname;
-        http-relative-path = "/cloak";
-        http-port = 9323;
-        proxy = "passthrough";
-        http-enabled = true;
+        hostname = "keycloak.lan.aicampground.com";
+        hostname-admin-url = "https://keycloak.lan.aicampground.com";
+        http-port = cfg.port;
+        http-host = "0.0.0.0";
+        # hostname-strict-backchannel = true;
+        proxy = "edge";
       };
+      # themes = {
+      #   keywind = pkgs.keycloak-keywind;
+      # };
     };
 
     campground.services.postgresql = {
@@ -120,8 +110,7 @@ in {
         file = {
           files = {
             "keycloak-db.pass" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.dbpass }}{{ else }}{{ .Data.data.dbpass }}{{ end }}{{ end }}'';
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.dbpass }}{{ else }}{{ .Data.data.dbpass }}{{ end }}{{ end }}'';
               permissions = "0600";
               change-action = "restart";
             };

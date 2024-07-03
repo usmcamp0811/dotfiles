@@ -25,22 +25,59 @@ in {
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; };
+      default = {
+        web = { address = "0.0.0.0:80"; };
+        metrics = { address = "0.0.0.0:58082"; };
+      };
       example = { web = { address = "0.0.0.0:80"; }; };
       description =
         "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
-  config = mkIf cfg.enable {
+  config = {
     campground = {
       services = {
-        traefik = {
+        prometheus.additionalScrapeConfigs = [{
+          job_name = "lan-traefik-monitor";
+          static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
+        }];
+        traefik = mkIf cfg.enable {
           enable = true;
           insecure = true;
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.firefly = {
+              rule = "Host(`firefly.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "firefly";
+            };
+
+            http.services.firefly = {
+              loadBalancer.servers = [{ url = "http://webb:16244"; }];
+            };
+
+            http.routers.local-ai = {
+              rule = "Host(`local-ai.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "local-ai";
+            };
+
+            http.services.local-ai = {
+              loadBalancer.servers = [{ url = "http://reckless:18080"; }];
+            };
+
+            http.routers.nix-ai = {
+              rule = "Host(`ai.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "nix-ai";
+            };
+
+            http.services.nix-ai = {
+              loadBalancer.servers = [{ url = "http://lucas:18084"; }];
+            };
+
             http.routers.schema-registry = {
               rule = "Host(`schema-registry.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -50,6 +87,7 @@ in {
             http.services.schema-registry = {
               loadBalancer.servers = [{ url = "http://10.8.0.70:8436"; }];
             };
+
             http.routers.akhq = {
               rule = "Host(`akhq.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -59,6 +97,7 @@ in {
             http.services.akhq = {
               loadBalancer.servers = [{ url = "http://lucas:8435"; }];
             };
+
             http.routers.kafka = {
               rule = "Host(`kafka.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -72,6 +111,16 @@ in {
                 { url = "http://chest:9092"; }
                 { url = "http://daly:9092"; }
               ];
+            };
+
+            http.routers.prometheus = {
+              rule = "Host(`prometheus.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "prometheus";
+            };
+
+            http.services.prometheus = {
+              loadBalancer.servers = [{ url = "http://webb:9011"; }];
             };
 
             http.routers.grafana = {
@@ -91,7 +140,7 @@ in {
             };
 
             http.services.keycloak = {
-              loadBalancer.servers = [{ url = "http://webb:22547"; }];
+              loadBalancer.servers = [{ url = "http://webb:43852"; }];
             };
 
             http.routers.hydra = {
@@ -276,7 +325,7 @@ in {
           };
         };
 
-        keepalived = {
+        keepalived = mkIf cfg.enable {
           enable = true;
           instances = {
             "lan-campground" = {

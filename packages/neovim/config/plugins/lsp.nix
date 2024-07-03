@@ -1,12 +1,6 @@
 { pkgs, ... }: {
+  diagnostics.virtual_lines = { only_current_line = true; };
   plugins = {
-    magma-nvim = {
-      enable = true;
-      settings = {
-        image_provider = "kitty";
-        wrap_output = true;
-      };
-    };
     vim-slime = { enable = true; };
     conjure = { enable = true; };
     vimtex = { enable = true; };
@@ -21,6 +15,7 @@
         opleader = { line = "<BS>"; };
       };
     };
+
     lsp = {
       enable = true;
       servers = {
@@ -35,7 +30,7 @@
         html = { enable = true; };
         eslint = { enable = true; };
         lua-ls = { enable = true; };
-        bashls = { enable = true; };
+        # bashls = { enable = true; };
         ccls = { enable = true; };
         terraformls = { enable = true; };
         texlab = { enable = true; };

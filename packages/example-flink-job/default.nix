@@ -1,5 +1,4 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib, pkgs, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -171,7 +170,7 @@ let
       mkdir -p $out/src
       mkdir -p $out/opt/flink/conf
 
-      cp -r $src/* $out/src/
+      cp -r ${src}/* $out/src/
       cp -r ${pkgs.flink}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
       cp ${job}/bin/job $out/bin/example-flink-job
@@ -184,6 +183,7 @@ let
       python = python-env;
       test = test-flink-job;
       stop-all = stop-all;
+      conf = flink-conf-dir;
     };
   };
 in override-meta new-meta example-flink-job

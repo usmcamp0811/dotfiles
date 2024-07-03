@@ -67,6 +67,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/var/lib/nextcloud" = {
+    device = "NIXROOT/persist/nextcloud";
+    fsType = "zfs";
+  };
+
   fileSystems."/var/lib/minio" = {
     device = "NIXROOT/persist/minio";
     fsType = "zfs";

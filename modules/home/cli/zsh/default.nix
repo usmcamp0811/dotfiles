@@ -1,13 +1,9 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli.zsh;
-in
-{
+in {
   options.campground.cli.zsh = {
     enable = mkEnableOption "ZSH";
     extraSource = lib.mkOption {
@@ -22,7 +18,7 @@ in
     programs.zsh = {
       enable = true;
       enableCompletion = true;
-      enableAutosuggestions = true;
+      autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
 
       oh-my-zsh = {
@@ -33,8 +29,7 @@ in
         source $HOME/.config/shell/zsh/fino.zsh-theme
         source $HOME/.config/shell/aliases.shrc
         ${lib.concatMapStringsSep "\n"
-          (file: ''[ -r "${file}" ] && source "${file}"'')
-          cfg.extraSource}
+        (file: ''[ -r "${file}" ] && source "${file}"'') cfg.extraSource}
         [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
         bindkey -v
 

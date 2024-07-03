@@ -23,6 +23,25 @@ in {
 
     extra-substituters = mkOpt (attrsOf substituters-submodule) { }
       "Extra substituters to configure.";
+
+    role-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt types.str "secret/campground/netrc"
+      "The Vault path to the KV containing the KVs that are for a properly formated netrc file text";
+    kvVersion = mkOption {
+      type = types.enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = types.str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -44,6 +63,23 @@ in {
       flake-checker
     ];
 
+    systemd.services.nix-daemon = {
+      serviceConfig.Environment = "NETRC=/etc/netrc";
+    };
+
+    # TODO: Figure out if I can just use it straigh from the /tmp/detsys-vault/netrc location
+    systemd.services.copyNETRC = {
+      description = "Copy the NETRC file to the correct spot";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart =
+          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /etc/netrc";
+        before = [ "nix-daemon.service" ];
+      };
+      wantedBy = [ "multi-user.target" ];
+    };
+
     nix = let
       users = [ "root" config.campground.user.name ]
         ++ (optional config.services.hydra.enable "hydra")
@@ -61,6 +97,7 @@ in {
         auto-optimise-store = true;
         trusted-users = users;
         allowed-users = users;
+        extra-sandbox-paths = [ "/etc/netrc" ];
 
         substituters =
           # [ cfg.default-substituter.url ]
@@ -85,6 +122,33 @@ in {
       generateRegistryFromInputs = true;
       generateNixPathFromInputs = true;
       linkInputs = true;
+    };
+    campground.services.vault-agent.services.copyNETRC = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = {
+            "netrc" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.netrc }}{{ else }}{{ .Data.data.netrc }}{{ end }}{{ end }} '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+          };
+        };
+      };
     };
   };
 }

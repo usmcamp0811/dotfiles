@@ -41,6 +41,7 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
+
       assertions = [
         {
           assertion = cfg.name != null;
@@ -56,7 +57,6 @@ in
         username = mkDefault cfg.name;
         homeDirectory = mkDefault cfg.home;
       };
-
       home.activation.sshKeys = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         if [ -e "/var/lib/vault/users/${cfg-user.name}/id_ed25519" ]; then
           rm -rf /home/${cfg-user.name}/.ssh/id_ed25519

@@ -16,7 +16,7 @@
     ./plugins/cmp.nix
     ./plugins/knap.nix
     # ./plugins/fold-preview.nix
-    ./plugins/distant.nix
+    # ./plugins/distant.nix
     ./plugins/search-and-replace.nix
     ./plugins/code-window.nix
     ./plugins/conjure.nix
@@ -25,6 +25,7 @@
   ];
 
   extraPlugins = with pkgs.vimPlugins; [
+
     # Treesitter
     nvim-treesitter-textobjects
 
@@ -97,6 +98,14 @@
   # TODO:
   # "bytesnake/vim-graphical-preview"
   plugins = {
+    magma-nvim = {
+      enable = true;
+      settings = {
+        image_provider = "kitty";
+        wrap_output = true;
+      };
+    };
+    lazy.enable = true;
     # Git Integration
     gitsigns.enable = true;
 

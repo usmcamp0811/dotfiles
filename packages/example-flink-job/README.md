@@ -3,7 +3,7 @@
 This is an example of how one might go about making a PyFlink Job as a Nix package. 
 The package will create a Flink job that uses PyFlink to define the job. The Python
 environment is defined using Poetry and built with nix using `poetry2nix`. The package
-should run on any machine, it just expect the environment variable `BROKER` to be
+should run on any machine, it just expect the environment variable `KAFKA_BROKER` to be
 set to the `hostname:port` of your Kafka cluster. The job is nothing to write home
 about. It simply watches a topic called `example-input-topic` and for every new message
 published it will reverse the text and publish the message to `example-output-topic`. 
@@ -16,7 +16,7 @@ I know super exciting!
 *Starts both a `jobmanager` and a `taskmanager`, then submits the job to be run.*
 
 ```
-export BROKER="my-kafka-broker:9092"
+export KAFKA_BROKER="my-kafka-broker:9092"
 nix run gitlab:usmcamp0811/dotfiles#example-flink-job
 ```
 
