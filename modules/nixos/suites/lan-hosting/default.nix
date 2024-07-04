@@ -48,6 +48,16 @@ in {
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.plaid = {
+              rule = "Host(`plaid.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "plaid";
+            };
+
+            http.services.plaid = {
+              loadBalancer.servers = [{ url = "http://reckless:3000"; }];
+            };
+
             http.routers.firefly = {
               rule = "Host(`firefly.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
