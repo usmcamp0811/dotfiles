@@ -1,13 +1,15 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.firefly;
+let cfg = config.campground.services.firefly-plaid-connector;
 in {
-  options.campground.services.firefly = with types; {
+  options.campground.services.firefly-plaid-connector = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
-    firefly-user = mkOpt str "firefly" "user for Firefly III.";
-    firefly-group = mkOpt str "firefly" "user for Firefly III.";
-    dataDir = mkOpt str "/var/lib/${cfg.firefly-user}"
+    firefly-plaid-connector-user =
+      mkOpt str "firefly-plaid-connector" "user for Firefly III.";
+    firefly-plaid-connector-group =
+      mkOpt str "firefly-plaid-connector" "user for Firefly III.";
+    dataDir = mkOpt str "/var/lib/${cfg.firefly-plaid-connector-user}"
       "Data directory for Firefly III.";
     settings = mkOption {
       type = attrs;
@@ -16,17 +18,18 @@ in {
         APP_URL = "https://${cfg.virtualHost}";
         APP_DEBUG = true;
         DB_SOCKET = "/run/postgresql";
-        DB_NAME = "firefly";
+        DB_NAME = "firefly-plaid-connector";
         DB_CONNECTION = "pgsql";
-        APP_KEY_FILE = "/var/lib/firefly/key.file";
+        APP_KEY_FILE = "/var/lib/firefly-plaid-connector/key.file";
         APP_ENV = "production";
         TRUSTED_PROXIES = "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12";
       };
       description = "Settings for Firefly III.";
     };
-    virtualHost =
-      mkOpt str "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
-    package = mkOpt types.package pkgs.firefly-iii "Package for Firefly III.";
+    virtualHost = mkOpt str "firefly-plaid-connector.lan.aicampground.com"
+      "Virtual host for Firefly III.";
+    package = mkOpt types.package pkgs.firefly-plaid-connector-iii
+      "Package for Firefly III.";
     poolConfig = mkOpt attrs {
       "listen.owner" = mkDefault "nginx";
       "listen.group" = mkDefault "nginx";
@@ -44,7 +47,7 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/firefly"
+    vault-path = mkOpt str "secret/campground/firefly-plaid-connector"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
@@ -62,7 +65,7 @@ in {
     # campground.services = {
     #   vault-agent = {
     #     services = {
-    #       "get-firefly-key" = {
+    #       "get-firefly-plaid-connector-key" = {
     #         settings = {
     #           # replace with the address of your vault
     #           vault.address = cfg.vault-address;
