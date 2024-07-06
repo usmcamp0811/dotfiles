@@ -4,7 +4,7 @@ with lib.campground;
 let
   cfg = config.campground.services.firefly-plaid-connector;
   ff = config.campground.services.firefly;
-  application_yaml = ./application_yaml;
+  application_yaml = ./application.yml;
 in {
   options.campground.services.firefly-plaid-connector = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
@@ -30,8 +30,6 @@ in {
 
   config = mkIf cfg.enable {
 
-    services.docker.enable = true;
-
     # Define the oneshot service (if needed)
     systemd.services.setup-firefly-paid-connector = {
       description = "Setup for Firefly Paid Connector";
@@ -43,6 +41,7 @@ in {
         USAA_FIREFLY_ACCOUT_ID = "1";
       };
       after = [ "network.target" ];
+      before = [ "podman-firefly-plaid-connector.service" ];
       serviceConfig = {
         Type = "oneshot";
         ExecStart = ''
@@ -56,24 +55,16 @@ in {
 
     # Define the container
     virtualisation.oci-containers = {
-      containers.firefly-paid-connector = {
+      containers.firefly-plaid-connector = {
         image = "ghcr.io/dvankley/firefly-plaid-connector-2:latest";
         hostname = "plaidconnector";
-        volumes = [{
-          source = "${ff.dataDir}/application.yaml";
-          target = "/opt/fpc-config/application.yml";
-          type = "bind";
-          readOnly = true;
-        }];
+        volumes =
+          [ "${ff.dataDir}/application.yaml:/opt/fpc-config/application.yml" ];
         environment = {
           SPRING_CONFIG_LOCATION = "/opt/fpc-config/application.yml";
         };
         autoStart = true;
-        restartPolicy = "always";
-        startTimeout = 90;
-        after = [
-          "setup-firefly-paid-connector.service"
-        ]; # Make container service depend on oneshot service
+        extraOptions = [ "--restart=always" ];
       };
     };
 
