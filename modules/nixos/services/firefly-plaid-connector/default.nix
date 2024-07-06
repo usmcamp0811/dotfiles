@@ -31,7 +31,7 @@ in {
   config = mkIf cfg.enable {
 
     # Define the oneshot service (if needed)
-    systemd.services.setup-firefly-plaid-connector = {
+    systemd.services.setup-firefly-plaid-connector2 = {
       description = "Setup for Firefly Paid Connector";
       wantedBy = [ "multi-user.target" ];
       environment = {
@@ -40,6 +40,7 @@ in {
         AMEX_FIREFLY_ACCOUT_ID = "8";
         USAA_FIREFLY_CHECKING_ACCOUT_ID = "1";
         USAA_FIREFLY_SAVING_ACCOUT_ID = "3";
+
       };
       after = [ "network.target" ];
       before = [ "podman-firefly-plaid-connector.service" ];
@@ -67,7 +68,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.setup-firefly-plaid-connector = {
+    campground.services.vault-agent.services.setup-firefly-plaid-connector2 = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
