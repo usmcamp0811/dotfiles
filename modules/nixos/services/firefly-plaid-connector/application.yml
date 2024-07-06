@@ -49,9 +49,9 @@ fireflyPlaidConnector2:
   firefly:
    url: $FIREFLY_URL
     # Can be created in Firefly in Options->Profile->Oauth->Personal Access Tokens
-   personalAccessToken: $PERSONAL_ACCESS_TOKEN
+   personalAccessToken: $FIREFLY_PERSONAL_ACCESS_TOKEN
   plaid:
-   url: https://development.plaid.com
+   url: https://productions.plaid.com
    clientId: $PLAID_CLIENT_ID
    secret: $PLAID_SECRET
    # The number of transactions to fetch from Plaid at a time.
@@ -107,9 +107,12 @@ fireflyPlaidConnector2:
       #   Item's access token after you've set it up.
      plaidAccountId: $AMEX_ACCOUNT_ID
 
-   - fireflyAccountId: $USAA_FIREFLY_ACCOUT_ID
+   - fireflyAccountId: $USAA_FIREFLY_CHECKING_ACCOUT_ID
      plaidItemAccessToken: $USAA_ACCESS_TOKEN
-     plaidAccountId: $USAA_ACCOUNT_ID
+     plaidAccountId: $USAA_CHECKING_ACCOUNT_ID
+   - fireflyAccountId: $USAA_FIREFLY_SAVING_ACCOUT_ID
+     plaidItemAccessToken: $USAA_ACCESS_TOKEN
+     plaidAccountId: $USAA_SAVINGS_ACCOUNT_ID
   product:
     name: Firefly Plaid Connector 2
 logging:

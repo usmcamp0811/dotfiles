@@ -31,21 +31,23 @@ in {
   config = mkIf cfg.enable {
 
     # Define the oneshot service (if needed)
-    systemd.services.setup-firefly-paid-connector = {
+    systemd.services.setup-firefly-plaid-connector = {
       description = "Setup for Firefly Paid Connector";
       wantedBy = [ "multi-user.target" ];
       environment = {
         TIMEZONE = "US/Central";
-        FIREFLY_URL = ff.virtualHost;
+        FIREFLY_URL = "https://${ff.virtualHost}";
         AMEX_FIREFLY_ACCOUT_ID = "8";
-        USAA_FIREFLY_ACCOUT_ID = "1";
+        USAA_FIREFLY_CHECKING_ACCOUT_ID = "1";
+        USAA_FIREFLY_SAVING_ACCOUT_ID = "3";
       };
       after = [ "network.target" ];
       before = [ "podman-firefly-plaid-connector.service" ];
       script = ''
         echo "Running setup script for Firefly Paid Connector..."
         cat ${application_yaml} | ${pkgs.envsubst}/bin/envsubst > ${ff.dataDir}/application.yaml
-        chown ${ff.firefly-user}:${ff.firefly-group} ${ff.dataDir}/application.yaml
+        chown 1002:1000 ${ff.dataDir}/application.yaml
+        chmod 600 ${ff.dataDir}/application.yaml
       '';
       serviceConfig = { Type = "oneshot"; };
     };
@@ -61,11 +63,11 @@ in {
           SPRING_CONFIG_LOCATION = "/opt/fpc-config/application.yml";
         };
         autoStart = true;
-        extraOptions = [ "--restart=always" ];
+        # extraOptions = [ "--restart=always" ];
       };
     };
 
-    campground.services.vault-agent.services.setup-firefly-paid-connector = {
+    campground.services.vault-agent.services.setup-firefly-plaid-connector = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -83,12 +85,14 @@ in {
         plaid = {
           text = ''
             {{ with secret "${cfg.vault-path}" }}
-            PLAID_CLIENT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.plaid_client_id  }}{{ else }}{{ .Data.data.plaid_client_id }}{{ end }}'
-            PLAID_SECRET='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.plaid_secret }}{{ else }}{{ .Data.data.plaid_secret }}{{ end }}'
-            USAA_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_item_id }}{{ else }}{{ .Data.data.usaa_item_id  }}{{ end }}'
+            USAA_CHECKING_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_checking_id  }}{{ else }}{{ .Data.data.usaa_checking_id  }}{{ end }}'
+            USAA_SAVINGS_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_savings_id }}{{ else }}{{ .Data.data.usaa_savings_id  }}{{ end }}'
             USAA_ACCESS_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_access_token  }}{{ else }}{{ .Data.data.usaa_access_token }}{{ end }}'
-            AMEX_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.amex_item_id }}{{ else }}{{ .Data.data.amex_item_id  }}{{ end }}'
+            AMEX_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.amex_account_id  }}{{ else }}{{ .Data.data.amex_account_id  }}{{ end }}'
             AMEX_ACCESS_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.amex_access_token  }}{{ else }}{{ .Data.data.amex_access_token }}{{ end }}'
+            FIREFLY_PERSONAL_ACCESS_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.firefly_personal_access_token  }}{{ else }}{{ .Data.data.firefly_personal_access_token }}{{ end }}'
+            PLAID_SECRET='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.plaid_secret }}{{ else }}{{ .Data.data.plaid_secret }}{{ end }}'
+            PLAID_CLIENT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.plaid_client_id   }}{{ else }}{{ .Data.data.plaid_client_id }}{{ end }}'
             {{ end }}
           '';
         };
