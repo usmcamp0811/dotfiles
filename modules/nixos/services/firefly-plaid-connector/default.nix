@@ -42,15 +42,12 @@ in {
       };
       after = [ "network.target" ];
       before = [ "podman-firefly-plaid-connector.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = ''
-          #!/bin/bash
-          echo "Running setup script for Firefly Paid Connector..."
-          cat ${application_yaml} | ${pkgs.envsubst}/bin/envsubst > ${ff.dataDir}/application.yaml
-          chown ${ff.firefly-user}:${ff.firefly-group} ${ff.dataDir}/application.yaml
-        '';
-      };
+      script = ''
+        echo "Running setup script for Firefly Paid Connector..."
+        cat ${application_yaml} | ${pkgs.envsubst}/bin/envsubst > ${ff.dataDir}/application.yaml
+        chown ${ff.firefly-user}:${ff.firefly-group} ${ff.dataDir}/application.yaml
+      '';
+      serviceConfig = { Type = "oneshot"; };
     };
 
     # Define the container
@@ -86,11 +83,11 @@ in {
         plaid = {
           text = ''
             {{ with secret "${cfg.vault-path}" }}
-            PLAID_CLIENT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.plaid_clinet_id }}{{ else }}{{ .Data.data.plaid_clinet_id }}{{ end }}'
+            PLAID_CLIENT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.plaid_client_id  }}{{ else }}{{ .Data.data.plaid_client_id }}{{ end }}'
             PLAID_SECRET='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.plaid_secret }}{{ else }}{{ .Data.data.plaid_secret }}{{ end }}'
-            USAA_ACCOUT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_item_id }}{{ else }}{{ .Data.data.usaa_item_id  }}{{ end }}'
+            USAA_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_item_id }}{{ else }}{{ .Data.data.usaa_item_id  }}{{ end }}'
             USAA_ACCESS_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_access_token  }}{{ else }}{{ .Data.data.usaa_access_token }}{{ end }}'
-            AMEX_ACCOUT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.amex_item_id }}{{ else }}{{ .Data.data.amex_item_id  }}{{ end }}'
+            AMEX_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.amex_item_id }}{{ else }}{{ .Data.data.amex_item_id  }}{{ end }}'
             AMEX_ACCESS_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.amex_access_token  }}{{ else }}{{ .Data.data.amex_access_token }}{{ end }}'
             {{ end }}
           '';
