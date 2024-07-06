@@ -39,6 +39,8 @@ in {
       environment = {
         TIMEZONE = "US/Central";
         FIREFLY_URL = ff.virtualHost;
+        AMEX_FIREFLY_ACCOUT_ID = "8";
+        USAA_FIREFLY_ACCOUT_ID = "1";
       };
       after = [ "network.target" ];
       serviceConfig = {
