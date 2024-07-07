@@ -29,31 +29,11 @@ let
     };
   };
 
-  mini-nvim = pkgs.vimUtils.buildVimPlugin {
-    name = "mini-nvim";
-    src = pkgs.fetchFromGitHub {
-      owner = "echasnovski";
-      repo = "mini.nvim";
-      rev = "main";
-      sha256 = "sha256-2wRRP+RnN726nUZ2kbpMRCPiNxPhn8vrrbY7is+u3Ug=";
-    };
-  };
-
-  nvim-web-devicons = pkgs.vimUtils.buildVimPlugin {
-    name = "nvim-web-devicons";
-    src = pkgs.fetchFromGitHub {
-      owner = "nvim-tree";
-      repo = "nvim-web-devicons";
-      rev = "master";
-      sha256 = "sha256-j/B/E1VltJ/QpVFtDKAdVC4+KZ5Mz8dQP5kd8HIHjLs=";
-    };
-  };
-
 in {
   extraPlugins = [
     tree-sitter-latex
-    mini-nvim
-    nvim-web-devicons
+    pkgs.vimPlugins.mini-nvim
+    pkgs.vimPlugins.nvim-web-devicons
     tree-sitter-markdown
     markdown-nvim
   ];
