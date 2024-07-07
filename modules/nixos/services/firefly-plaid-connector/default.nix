@@ -48,9 +48,9 @@ in {
       script = ''
         echo "Running setup script for Firefly Paid Connector..."
         cat ${application_yaml} | ${pkgs.envsubst}/bin/envsubst > ${ff.dataDir}/application.yaml
-        touch ${ff.dataDir}/fpc-cursors
+        mkdir -p ${ff.dataDir}/fpc-cursors
         chown 1002:1000 ${ff.dataDir}/application.yaml
-        chown 1002:1000 ${ff.dataDir}/fpc-cursors
+        chown -R 1002:1000 ${ff.dataDir}/fpc-cursors
         chmod 600 ${ff.dataDir}/application.yaml
       '';
       serviceConfig = { Type = "oneshot"; };
