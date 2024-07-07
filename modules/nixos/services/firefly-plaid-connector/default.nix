@@ -31,7 +31,7 @@ in {
   config = mkIf cfg.enable {
 
     # Define the oneshot service (if needed)
-    systemd.services.setup-firefly-plaid-connector2 = {
+    systemd.services.setup-firefly-plaid-connector3 = {
       description = "Setup for Firefly Paid Connector";
       wantedBy = [ "multi-user.target" ];
       environment = {
@@ -48,7 +48,9 @@ in {
       script = ''
         echo "Running setup script for Firefly Paid Connector..."
         cat ${application_yaml} | ${pkgs.envsubst}/bin/envsubst > ${ff.dataDir}/application.yaml
+        touch ${ff.dataDir}/fpc-cursors
         chown 1002:1000 ${ff.dataDir}/application.yaml
+        chown 1002:1000 ${ff.dataDir}/fpc-cursors
         chmod 600 ${ff.dataDir}/application.yaml
       '';
       serviceConfig = { Type = "oneshot"; };
@@ -73,7 +75,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.setup-firefly-plaid-connector2 = {
+    campground.services.vault-agent.services.setup-firefly-plaid-connector3 = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
