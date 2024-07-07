@@ -37,9 +37,10 @@ in {
       environment = {
         TIMEZONE = "US/Central";
         FIREFLY_URL = "https://${ff.virtualHost}";
-        AMEX_FIREFLY_ACCOUT_ID = "8";
-        USAA_FIREFLY_CHECKING_ACCOUT_ID = "1";
-        USAA_FIREFLY_SAVING_ACCOUT_ID = "3";
+        AMEX_FIREFLY_ACCOUT_ID = "424";
+        USAA_FIREFLY_CHECKING_ACCOUT_ID = "418";
+        USAA_FIREFLY_SAVING_ACCOUT_ID = "420";
+        USAA_FIREFLY_SHARED_CHECKING_ACCOUT_ID = "422";
 
       };
       after = [ "network.target" ];
@@ -58,10 +59,14 @@ in {
       containers.firefly-plaid-connector = {
         image = "ghcr.io/dvankley/firefly-plaid-connector-2:latest";
         hostname = "plaidconnector";
-        volumes =
-          [ "${ff.dataDir}/application.yaml:/opt/fpc-config/application.yml" ];
+        volumes = [
+          "${ff.dataDir}/application.yaml:/opt/fpc-config/application.yml"
+          "${ff.dataDir}/fpc-cursors:/opt/fpc-cursors"
+        ];
         environment = {
           SPRING_CONFIG_LOCATION = "/opt/fpc-config/application.yml";
+          FIREFLYPLAIDCONNECTOR2_POLLED_CURSORFILEDIRECTORYPATH =
+            "/opt/fpc-cursors";
         };
         autoStart = true;
         # extraOptions = [ "--restart=always" ];
@@ -86,6 +91,7 @@ in {
         plaid = {
           text = ''
             {{ with secret "${cfg.vault-path}" }}
+            USAA_SHARED_CHECKING_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_shared_checking_id }}{{ else }}{{ .Data.data.usaa_shared_checking_id  }}{{ end }}'
             USAA_CHECKING_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_checking_id  }}{{ else }}{{ .Data.data.usaa_checking_id  }}{{ end }}'
             USAA_SAVINGS_ACCOUNT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_savings_id }}{{ else }}{{ .Data.data.usaa_savings_id  }}{{ end }}'
             USAA_ACCESS_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.usaa_access_token  }}{{ else }}{{ .Data.data.usaa_access_token }}{{ end }}'

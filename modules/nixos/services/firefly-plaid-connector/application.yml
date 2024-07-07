@@ -4,7 +4,7 @@ fireflyPlaidConnector2:
   #   - "polled" runs forever, syncing all new data every "syncFrequencyMinutes", storing
   #     its current state in persistence/plaid_sync_cursors.txt. On first run, it will only pull
   #     transactions that occurred after the run started.
-  syncMode: batch
+  syncMode: polled
   # PlaidTransaction.merchantName will always be used, if available, as the name of a transaction's
   #   destination (or source, for some transfers) account in Firefly.
   # If this is set to true and PlaidTransaction.merchantName is null, then PlaidTransaction.name will
@@ -113,6 +113,9 @@ fireflyPlaidConnector2:
    - fireflyAccountId: $USAA_FIREFLY_SAVING_ACCOUT_ID
      plaidItemAccessToken: $USAA_ACCESS_TOKEN
      plaidAccountId: $USAA_SAVINGS_ACCOUNT_ID
+   - fireflyAccountId: $USAA_FIREFLY_SHARED_CHECKING_ACCOUT_ID
+     plaidItemAccessToken: $USAA_ACCESS_TOKEN
+     plaidAccountId: $USAA_SHARED_CHECKING_ACCOUNT_ID
   product:
     name: Firefly Plaid Connector 2
 logging:
