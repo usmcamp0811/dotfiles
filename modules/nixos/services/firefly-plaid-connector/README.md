@@ -18,7 +18,7 @@ This guide will walk you through setting up the Plaid Connector 2 for Firefly II
 1. At a minimum, you need access to the Transactions product in Plaid. Ensure this is enabled in your Plaid account.
 
 ### Step 3: Fill Out the OAuth Linking Forms
-1. Complete the forms for OAuth linking in your Plaid dashboard.
+1. Complete the [forms for OAuth linking](https://dashboard.plaid.com/settings/compliance/us-oauth-institutions) in your Plaid dashboard.
 2. Note that this process may take a day or two for approval.
 
 ### Step 4: Run the Plaid Quickstart Docker Stack
