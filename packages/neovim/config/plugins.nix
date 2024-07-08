@@ -22,6 +22,7 @@
     ./plugins/conjure.nix
     ./plugins/scrollbars.nix
     ./plugins/navic.nix
+    ./plugins/markdown.nix
   ];
 
   extraPlugins = with pkgs.vimPlugins; [

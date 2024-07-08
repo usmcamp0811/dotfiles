@@ -1,0 +1,125 @@
+fireflyPlaidConnector2:
+  # "batch" or "polled"
+  #   - "batch" runs once, attempting to sync all data up to maxSyncDays, and then exits
+  #   - "polled" runs forever, syncing all new data every "syncFrequencyMinutes", storing
+  #     its current state in persistence/plaid_sync_cursors.txt. On first run, it will only pull
+  #     transactions that occurred after the run started.
+  syncMode: polled
+  # PlaidTransaction.merchantName will always be used, if available, as the name of a transaction's
+  #   destination (or source, for some transfers) account in Firefly.
+  # If this is set to true and PlaidTransaction.merchantName is null, then PlaidTransaction.name will
+  #   be used instead.
+  # If this is set to false and PlaidTransaction.merchantName is null, then the account will be given
+  #   a generic "Unknown" name.
+  # Defaults to true.
+  useNameForDestination: true
+  # Firefly uses a timestamp for when transactions occurred, but Plaid does not always provide a timestamp
+  #   for transactions; often it only provides a date. In those cases, we need a time zone to apply so that
+  #   the timestamp that shows up in Firefly properly spans the specified date in the user's timezone.
+  # Acceptable values are any time zone name from https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  timeZone: $TIMEZONE
+  # The maximum number of days apart transactions can be and still be candidates for matching up as a Firefly transfer.
+  # Must be less than fireflyPlaidConnector2.polled.existingFireflyPullWindowDays.
+  transferMatchWindowDays: 3
+  polled:
+    # How often to run the poll sync process
+    syncFrequencyMinutes: 10
+    # How many days in the past we should pull existing Firefly transactions for.
+    # These Firefly transactions are used for searching for targets for Plaid updates and deletes, as well as for
+    #   searching for transfer matches.
+    # Must be more than fireflyPlaidConnector2.transferMatchWindowDays
+    existingFireflyPullWindowDays: 5
+    # Path to a directory that the application can use to store a file that tracks the state of the Plaid sync cursors.
+    # This path needs to be writeable by the application's user and needs to be persistent. If you're using Docker,
+    #   you may want to use a volume or bind mount for this so that cursor state is persisted between runs.
+    cursorFileDirectoryPath: persistence/
+    # Configuration element specifying whether the remainder of the poll sync session should continue if one item
+    # has failed to fetch from Plaid for any reason.
+    allowItemToFail: false
+  batch:
+    # The number of days in the past to pull data for.
+    maxSyncDays: 5
+    # If set to true, we will insert an offsetting transaction at the beginning of the batch pull window so
+    #   that the total amount of all transactions pulled plus the offsetting transaction equals the current
+    #   balance in the account as reported by Plaid.
+    # This is useful for ensuring the current balance in your accounts is accurate even if you don't
+    #   pull every transaction from the beginning of time.
+    # Defaults to false.
+    setInitialBalance: true
+  firefly:
+   url: $FIREFLY_URL
+    # Can be created in Firefly in Options->Profile->Oauth->Personal Access Tokens
+   personalAccessToken: $FIREFLY_PERSONAL_ACCESS_TOKEN
+  plaid:
+   url: https://production.plaid.com
+   clientId: $PLAID_CLIENT_ID
+   secret: $PLAID_SECRET
+   # The number of transactions to fetch from Plaid at a time.
+   # This doesn't have a major effect as in both batch and sync mode we have to retain data sets larger
+   #   than just the Plaid transaction batch in memory to try to match up transfers.
+   # Larger batch sizes can reduce rate limiting issues.
+   batchSize: 100
+   # The number of times to retry a failed API call.
+   maxRetries: 3
+  # Transaction categorization configuration (optional, defaults to disable categorization)
+  # Plaid currently supplies two types of categorization information https://plaid.com/blog/transactions-categorization-taxonomy/
+  # The current plan is to ignore the old categorization type because the new type (transaction.personalFinanceCategory)
+  #   is fully rolled out and seems superior across the board.
+  # If categorization is enabled, the category strings provided by Plaid for a given transaction
+  #   will be added as tags to the Firefly transaction using the prefixes below.
+  # This is intended to allow you to use Firefly's rule engine to use the tags as triggers to add the transaction to
+  #   a budget or category or whatever, rather than trying to squeeze all that logic in here.
+  # See https://plaid.com/documents/transactions-personal-finance-category-taxonomy.csv for a list of categories
+  categorization:
+    # Controls tagging for a Plaid transaction's primary personal finance category
+    # If enabled, the prefix below will be used to create a tag with the transaction's primary personal finance category.
+    # For instance, consider a transaction with primary category INCOME.
+    #   With the default prefix, that transaction would be tagged in Firefly with "plaid-primary-cat-income"
+    # Optional, defaults to disabled
+    primary:
+      # Set to true to enable tags for a Plaid transaction's primary personal finance category
+      # Optional, defaults to false
+      enable: true
+      # Optional, defaults to "plaid-primary-cat-"
+      prefix: "plaid-primary-cat-"
+    # Controls tagging for a Plaid transaction's detailed personal finance category
+    # Same as primary above, but using the detailed personal finance category field.
+    # For instance, consider a transaction with detailed category INCOME_DIVIDENDS.
+    #   With the default prefix, that transaction would be tagged in Firefly with "plaid-detailed-cat-dividends"
+    # Optional, defaults to disabled
+    detailed:
+      # Set to true to enable tags for a Plaid transaction's detailed personal finance category
+      # Optional, defaults to false
+      enable: true
+      prefix: "plaid-detailed-cat-"
+  # An array of accounts to sync from Plaid to Firefly
+  accounts:
+      # The account id in Firefly to sync this data to.
+      # For instance, an account you view at https://localhost/accounts/show/1 will be id 1
+   - fireflyAccountId: $AMEX_FIREFLY_ACCOUT_ID
+      # The access token for the Plaid item that contains the account
+      # You can set up Plaid Items using Plaid Quickstart https://github.com/plaid/quickstart
+      # Note that Items can contain multiple Accounts, so you may re-use this access token in
+      #   other entries in this YAML array
+     plaidItemAccessToken: $AMEX_ACCESS_TOKEN
+      # The Plaid id for the account you want to sync.
+      # You can retrieve this id from https://plaid.com/docs/api/accounts/#accountsget using an
+      #   Item's access token after you've set it up.
+     plaidAccountId: $AMEX_ACCOUNT_ID
+
+   - fireflyAccountId: $USAA_FIREFLY_CHECKING_ACCOUT_ID
+     plaidItemAccessToken: $USAA_ACCESS_TOKEN
+     plaidAccountId: $USAA_CHECKING_ACCOUNT_ID
+   - fireflyAccountId: $USAA_FIREFLY_SAVING_ACCOUT_ID
+     plaidItemAccessToken: $USAA_ACCESS_TOKEN
+     plaidAccountId: $USAA_SAVINGS_ACCOUNT_ID
+   - fireflyAccountId: $USAA_FIREFLY_SHARED_CHECKING_ACCOUT_ID
+     plaidItemAccessToken: $USAA_ACCESS_TOKEN
+     plaidAccountId: $USAA_SHARED_CHECKING_ACCOUNT_ID
+  product:
+    name: Firefly Plaid Connector 2
+logging:
+  level:
+    root: INFO
+    net:
+      djvk: DEBUG
