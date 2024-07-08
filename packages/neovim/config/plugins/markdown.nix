@@ -6,8 +6,8 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "MeanderingProgrammer";
       repo = "markdown.nvim";
-      rev = "main";
-      sha256 = "sha256-wziuBuHP8ks+9I/T6W149+MMEPKtPnxgyLqjT0Q/W50=";
+      rev = "v3.3.1";
+      sha256 = "sha256-r615Iug6Nv8svduRqyEjEuzW/lIwaY2zbZGuNfYjmj0=";
     };
   };
   tree-sitter-markdown = pkgs.vimUtils.buildVimPlugin {
@@ -15,8 +15,8 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "tree-sitter-grammars";
       repo = "tree-sitter-markdown";
-      rev = "main";
-      sha256 = "sha256-wt10tW+PS3LfgKhvgOAX9IDFpyKAe3AIoGbXFhYFnw8=";
+      rev = "v0.2.3";
+      sha256 = "sha256-B6aBF3T/9zunRSUNRgCyMjcp/slXWimiWTWmJI5qvqE=";
     };
   };
   tree-sitter-latex = pkgs.vimUtils.buildVimPlugin {
@@ -24,8 +24,8 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "latex-lsp";
       repo = "tree-sitter-latex";
-      rev = "master";
-      sha256 = "sha256-QOlnE5JnJHdupL12YMT6cIRcP/2GKsewPkRuWwAwliI=";
+      rev = "v0.4.0";
+      sha256 = "sha256-B6aBF3T/9zunRSUNRgCyMjcp/slXWimiWTWmJI5qvqE=";
     };
   };
 

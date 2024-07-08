@@ -46,7 +46,7 @@
     vim-dispatch
     vim-sexp
     vim-sexp-mappings-for-regular-people
-    tabular
+    # tabular
     vim-suda
     plantuml-syntax
     lsp-colors-nvim
