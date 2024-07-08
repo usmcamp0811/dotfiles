@@ -25,61 +25,61 @@
     ./plugins/markdown.nix
   ];
 
-  extraPlugins = with pkgs.vimPlugins; [
+  extraPlugins = with pkgs.vimPlugins;
+    [
 
-    # Treesitter
-    nvim-treesitter-textobjects
+      # Treesitter
+      nvim-treesitter-textobjects
 
-    # Markdown
-    vim-pandoc-syntax
+      # Markdown
+      vim-pandoc-syntax
 
-    # Calendar
-    calendar-vim
+      # Calendar
+      calendar-vim
 
-    # UI
-    hologram-nvim
+      # UI
+      hologram-nvim
 
-    # Code Interaction
-    codi-vim
-    vim-dispatch-neovim
-    vim-jack-in
-    vim-dispatch
-    vim-sexp
-    vim-sexp-mappings-for-regular-people
-    # tabular
-    vim-suda
-    plantuml-syntax
-    lsp-colors-nvim
-    vim-table-mode
-    csv-vim
-    nvim-notify
-    rnvimr
-    vim-snippets
-    SchemaStore-nvim
-    git-blame-nvim
-    ansible-vim
-    popup-nvim
-    plenary-nvim
-    nvim-ts-autotag
+      # Code Interaction
+      codi-vim
+      vim-dispatch-neovim
+      vim-jack-in
+      vim-dispatch
+      vim-sexp
+      vim-sexp-mappings-for-regular-people
+      vim-suda
+      plantuml-syntax
+      lsp-colors-nvim
+      vim-table-mode
+      csv-vim
+      nvim-notify
+      rnvimr
+      vim-snippets
+      SchemaStore-nvim
+      git-blame-nvim
+      ansible-vim
+      popup-nvim
+      plenary-nvim
+      nvim-ts-autotag
 
-    # Language and Completion
-    impatient-nvim
-    flit-nvim
-    nvim-FeMaco-lua
-    vim-smoothie
-    aniseed
+      # Language and Completion
+      impatient-nvim
+      flit-nvim
+      nvim-FeMaco-lua
+      vim-smoothie
+      aniseed
 
-    # vim-pluto
-    nvim-treesitter-textsubjects
-    plantuml-previewer-vim
-    open-browser-vim
-    nvim-unception
-    mind-nvim
-    nabla-nvim
-    image-nvim
-    neorepl-nvim
-    nvim-julia-autotest
-  ];
+      # vim-pluto
+      nvim-treesitter-textsubjects
+      plantuml-previewer-vim
+      open-browser-vim
+      nvim-unception
+      mind-nvim
+      nabla-nvim
+      image-nvim
+      neorepl-nvim
+      nvim-julia-autotest
+    ] ++ [ pkgs.stable-vimPlugins.tabular ];
 
   # "frabjous/knap" --
   # "David-Kunz/markid"
