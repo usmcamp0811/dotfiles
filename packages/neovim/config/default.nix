@@ -1,4 +1,3 @@
-# {pkgs,lib, fetchurl, buildPythonPackage, ...}:
 { pkgs, ... }: {
 
   # Import all your configuration modules here
