@@ -99,6 +99,10 @@
   # TODO:
   # "bytesnake/vim-graphical-preview"
   plugins = {
+    ccc.enable = true;
+    direnv.enable = true;
+    helm.enable = true;
+    plantuml-syntax.enable = true;
     magma-nvim = {
       enable = false;
       settings = {
