@@ -5,10 +5,8 @@
       enable = true;
       extensions = {
         fzf-native.enable = true; # so fzf gets in teh path
-        fzy-native.enable = true;
-        media-files.enable = true;
-        undo.enable = true;
-        frecency.enable = true;
+        # media-files.enable = true;
+        # undo.enable = true;
       };
     };
   };

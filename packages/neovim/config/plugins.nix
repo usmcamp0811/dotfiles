@@ -100,7 +100,7 @@
   # "bytesnake/vim-graphical-preview"
   plugins = {
     magma-nvim = {
-      enable = true;
+      enable = false;
       settings = {
         image_provider = "kitty";
         wrap_output = true;
