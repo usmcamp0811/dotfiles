@@ -1,10 +1,14 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   plugins = {
     # Telescope
     telescope = {
       enable = true;
       extensions = {
         fzf-native.enable = true; # so fzf gets in teh path
+        fzy-native.enable = true;
+        media-files.enable = true;
+        undo.enable = true;
+        frecency.enable = true;
       };
     };
   };
@@ -12,6 +16,7 @@
   extraPlugins = with pkgs.vimPlugins; [
     telescope-symbols-nvim
     telescope-media-files-nvim
+    telescope-live-grep-args-nvim
   ];
 
   extraConfigLua = ''
@@ -22,6 +27,7 @@
 
     local actions = require "telescope.actions"
 
+    telescope.load_extension("live_grep_args")
     telescope.setup {
       defaults = {
 
