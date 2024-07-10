@@ -1,10 +1,9 @@
-{pkgs, ...}: {
-  extraPlugins = with pkgs.vimPlugins; [rnvimr markid];
-
+{ pkgs, ... }: {
+  extraPlugins = with pkgs.vimPlugins; [ rnvimr markid ];
   plugins = {
     treesitter = {
       enable = true;
-      indent = false;
+      settings = { indent.enable = true; };
       nixvimInjections = true;
     };
     treesitter-context.enable = true;

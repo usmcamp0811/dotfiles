@@ -15,7 +15,7 @@
     ./plugins/telescope.nix
     ./plugins/cmp.nix
     ./plugins/knap.nix
-    # ./plugins/fold-preview.nix
+    ./plugins/fold-preview.nix
     # ./plugins/distant.nix
     ./plugins/search-and-replace.nix
     ./plugins/code-window.nix

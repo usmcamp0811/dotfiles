@@ -75,7 +75,6 @@
     pkgs.lua54Packages.luarocks
     pkgs.luajitPackages.luarocks
     pkgs.gtk4
-    # pkgs.campground.julia
 
     # python-env
     # (
