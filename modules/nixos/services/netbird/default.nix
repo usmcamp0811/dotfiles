@@ -24,8 +24,8 @@ in {
       management = {
         disableAnonymousMetrics = lib.mkForce true;
         logLevel = "INFO";
-        dnsDomain = "netbird.local";
-        singleAccountModeDomain = "netbird.local";
+        dnsDomain = "netbird.lan";
+        singleAccountModeDomain = "netbird.lan";
         oidcConfigEndpoint = "${issuer}/.well-known/openid-configuration";
 
         turnDomain = config.services.coturn.realm;
@@ -81,7 +81,7 @@ in {
             };
           };
           TURNConfig = {
-            Secret._secret = config.sops.secrets.auth-secret.path;
+            Secret._secret = "TBD";
             TimeBasedCredentials = true;
             # Not used, supress nix warnind about world-readable password
             # Password._secret = config.sops.secrets.auth-secret.path;

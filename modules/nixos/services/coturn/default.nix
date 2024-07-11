@@ -12,7 +12,7 @@ in {
       enable = true;
       use-auth-secret = true;
       static-auth-secret-file = config.sops.secrets.auth-secret.path;
-      realm = "turn.ataraxiadev.com";
+      realm = "turn.aicampground.com";
       min-port = 49152;
       max-port = 49262;
       no-cli = true;
