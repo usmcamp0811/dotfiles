@@ -41,6 +41,8 @@
     vim.cmd("set expandtab ts=2 sw=2 ai")
     vim.opt.guifont = { "Source Code Pro", ":h8" }
 
+    vim.api.nvim_set_keymap('v', '$', 'g_', { noremap = true, silent = true })
+
   '';
 
   extraPackages = [
