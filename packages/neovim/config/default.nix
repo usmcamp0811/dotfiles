@@ -46,6 +46,7 @@
   '';
 
   extraPackages = [
+    pkgs.fd
     pkgs.graphviz
     pkgs.jdk19
     pkgs.jdk
