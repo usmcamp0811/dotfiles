@@ -23,6 +23,7 @@
     ./plugins/scrollbars.nix
     ./plugins/navic.nix
     ./plugins/markdown.nix
+    ./plugins/remote-nvim.nix
   ];
 
   extraPlugins = with pkgs.vimPlugins;

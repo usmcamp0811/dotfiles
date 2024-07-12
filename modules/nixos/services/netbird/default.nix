@@ -90,7 +90,7 @@ in {
       };
     };
 
-    persist.state.directories = [ "/var/lib/netbird-mgmt" ];
+    # persist.state.directories = [ "/var/lib/netbird-mgmt" ];
 
   };
 }
