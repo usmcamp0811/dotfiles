@@ -16,11 +16,11 @@ in {
       enableNginx = true;
       coturn.enable = false;
       signal.logLevel = "INFO";
-      dashboard.settings = {
-        AUTH_AUTHORITY = issuer;
-        AUTH_CLIENT_ID = client-id;
-        AUTH_SUPPORTED_SCOPES = scopes;
-      };
+      # dashboard.settings = {
+      #   AUTH_AUTHORITY = issuer;
+      #   AUTH_CLIENT_ID = client-id;
+      #   AUTH_SUPPORTED_SCOPES = scopes;
+      # };
       management = {
         disableAnonymousMetrics = lib.mkForce true;
         logLevel = "INFO";
@@ -31,26 +31,26 @@ in {
         turnDomain = config.services.coturn.realm;
         turnPort = config.services.coturn.listening-port;
         settings = {
-          DataStoreEncryptionKey._secret = store-key;
+          # DataStoreEncryptionKey._secret = store-key;
           DeviceAuthorizationFlow = {
             Provider = "hosted";
             ProviderConfig = {
-              Audience = client-id;
-              ClientID = client-id;
-              DeviceAuthEndpoint =
-                "https://auth.ataraxiadev.com/application/o/device/";
+              # Audience = client-id;
+              # ClientID = client-id;
+              # DeviceAuthEndpoint =
+              #   "https://auth.ataraxiadev.com/application/o/device/";
               RedirectURLs = null;
               Scope = "openid";
-              TokenEndpoint =
-                "https://auth.ataraxiadev.com/application/o/token/";
+              # TokenEndpoint =
+              #   "https://auth.ataraxiadev.com/application/o/token/";
               UseIDToken = false;
             };
           };
           HttpConfig = {
-            AuthAudience = client-id;
-            AuthIssuer = "https://auth.ataraxiadev.com/application/o/netbird/";
-            AuthKeysLocation =
-              "https://auth.ataraxiadev.com/application/o/netbird/jwks/";
+            # AuthAudience = client-id;
+            # AuthIssuer = "https://auth.ataraxiadev.com/application/o/netbird/";
+            # AuthKeysLocation =
+            #   "https://auth.ataraxiadev.com/application/o/netbird/jwks/";
             # AuthUserIDClaim = "";
             IdpSignKeyRefreshEnabled = false;
           };
@@ -59,24 +59,24 @@ in {
             ClientConfig = {
               ClientID = client-id;
               GrantType = "client_credentials";
-              Issuer = "https://auth.ataraxiadev.com/application/o/netbird/";
-              TokenEndpoint =
-                "https://auth.ataraxiadev.com/application/o/token/";
+              # Issuer = "https://auth.ataraxiadev.com/application/o/netbird/";
+              # TokenEndpoint =
+              #   "https://auth.ataraxiadev.com/application/o/token/";
             };
             ExtraConfig = {
-              Password._secret = svc-pass;
+              # Password._secret = svc-pass;
               Username = "Netbird";
             };
           };
           PKCEAuthorizationFlow = {
             ProviderConfig = {
-              Audience = client-id;
-              AuthorizationEndpoint =
-                "https://auth.ataraxiadev.com/application/o/authorize/";
-              ClientID = client-id;
-              Scope = scopes;
-              TokenEndpoint =
-                "https://auth.ataraxiadev.com/application/o/token/";
+              # Audience = client-id;
+              # AuthorizationEndpoint =
+              #   "https://auth.ataraxiadev.com/application/o/authorize/";
+              # ClientID = client-id;
+              # Scope = scopes;
+              # TokenEndpoint =
+              #   "https://auth.ataraxiadev.com/application/o/token/";
               UseIDToken = false;
             };
           };
@@ -88,11 +88,6 @@ in {
           };
         };
       };
-    };
-    services.nginx.virtualHosts.${domain} = {
-      useACMEHost = "ataraxiadev.com";
-      enableACME = false;
-      forceSSL = true;
     };
 
     persist.state.directories = [ "/var/lib/netbird-mgmt" ];
