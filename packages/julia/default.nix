@@ -23,7 +23,7 @@ let
       # Ensure Julia kernel is installed
       export PATH=${pkgs.jupyter-all}/bin:$PATH
       export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
-      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:$PYTHONPATH
+      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages
       ${julia-env}/bin/julia "$@"
     '';
   };
@@ -35,7 +35,7 @@ let
       # Ensure Julia kernel is installed
       export PATH=${pkgs.jupyter-all}/bin:$PATH
       export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
-      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:$PYTHONPATH
+      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages
       JULIA_VERSION=$(${julia-env}/bin/julia -e 'println("campground-julia-" * string(VERSION.major) * "." * string(VERSION.minor))')
       ${julia-env}/bin/julia -e "using IJulia; installkernel(\"campground-julia\", julia=\`${julia-env}/bin/julia\`)"
       ${pkgs.jupyter-all}/bin/jupyter console --kernel "$JULIA_VERSION" "$@"
