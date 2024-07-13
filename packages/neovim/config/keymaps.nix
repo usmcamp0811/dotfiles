@@ -98,7 +98,7 @@
     {
       mode = "n";
       key = "F";
-      action = "<cmd>Telescope live_grep theme=ivy<cr>";
+      action = "<cmd>Telescope git_files theme=ivy<cr>";
     }
     {
       mode = "v";
