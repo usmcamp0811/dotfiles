@@ -2921,22 +2921,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-julia": {
-      "locked": {
-        "lastModified": 1702623635,
-        "narHash": "sha256-YCDF4BhEujkviTxZr6y+CEALlY5ASm2m7ZWOhgdL7+4=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "c8f0d302c1a8cd893bb7a6e11f9176b54127239a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "refs/pull/225513/head",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1720313561,
@@ -4091,7 +4075,6 @@
         "nixos-generators": "nixos-generators",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_18",
-        "nixpkgs-julia": "nixpkgs-julia",
         "nixpkgs-python": "nixpkgs-python",
         "nixpkgs-wayland": "nixpkgs-wayland",
         "nuenv": "nuenv",

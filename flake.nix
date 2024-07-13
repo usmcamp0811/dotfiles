@@ -171,7 +171,7 @@
 
     dataflow2nix.url = "github:GTrunSec/dataflow2nix";
 
-    nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
+    # nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
 
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
