@@ -41,30 +41,6 @@ let
       ${pkgs.jupyter-all}/bin/jupyter qtconsole --kernel "$JULIA_VERSION" "$@"
     '';
   };
-  jupyter = pkgs.stdenv.mkDerivation rec {
-    pname = "jupyter-console-launcher";
-    version = "1.0.0";
-
-    src = pkgs.runCommandNoCC "empty" { } "mkdir $out";
-
-    buildInputs = [ pkgs.jupyter-all ];
-
-    installPhase = ''
-          mkdir -p $out/bin
-          cat > $out/bin/jupyter-console <<EOF
-      #!/usr/bin/env bash
-      jupyter console
-      EOF
-          chmod +x $out/bin/jupyter-console
-    '';
-
-    meta = with pkgs.lib; {
-      description =
-        "A script to launch Jupyter console with all required dependencies";
-      license = licenses.mit;
-      maintainers = with maintainers; [ yourname ];
-    };
-  };
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";
   version = pkgs.julia.version;
