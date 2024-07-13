@@ -3,7 +3,9 @@
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  julia-env = pkgs.julia.withPackages [
+  julia-env = pkgs.julia.withPackages.override {
+    extraLibs = [ pkgs.libxcrypt pkgs.openssl pkgs.cyrus_sasl ];
+  } [
     "FileIO"
     "JLD2"
     "DataFrames"
@@ -11,15 +13,28 @@ let
     "PyCall"
     "IJulia"
     "CSV"
+    "LanguageServer"
   ];
-  startJupyterWithJulia = writeShellApplication {
-    name = "julia-console";
-    runtimeInputs = [ pkgs.jupyter-all julia-env ];
+  wrapped-julia = writeShellApplication {
+    name = "julia";
+    runtimeInputs = [ pkgs.openssl pkgs.jupyter-all julia-env ];
     text = ''
       #!${pkgs.runtimeShell}
       # Ensure Julia kernel is installed
-      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
       export PATH=${pkgs.jupyter-all}/bin:$PATH
+      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
+      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:$PYTHONPATH
+      ${julia-env}/bin/julia "$@"
+    '';
+  };
+  startJupyterWithJulia = writeShellApplication {
+    name = "julia-console";
+    runtimeInputs = [ pkgs.openssl pkgs.jupyter-all julia-env ];
+    text = ''
+      #!${pkgs.runtimeShell}
+      # Ensure Julia kernel is installed
+      export PATH=${pkgs.jupyter-all}/bin:$PATH
+      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
       export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:$PYTHONPATH
       JULIA_VERSION=$(${julia-env}/bin/julia -e 'println("campground-julia-" * string(VERSION.major) * "." * string(VERSION.minor))')
       ${julia-env}/bin/julia -e "using IJulia; installkernel(\"campground-julia\", julia=\`${julia-env}/bin/julia\`)"
@@ -28,13 +43,13 @@ let
   };
   startQtJupyterWithJulia = writeShellApplication {
     name = "julia-qtconsole";
-    runtimeInputs = [ pkgs.jupyter-all julia-env ];
+    runtimeInputs = [ pkgs.openssl pkgs.jupyter-all julia-env ];
     text = ''
       #!${pkgs.runtimeShell}
       # Ensure Julia kernel is installed
       # # Start Jupyter console with Julia kernel
-      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
       export PATH=${pkgs.jupyter-all}/bin:$PATH
+      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
       export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:$PYTHONPATH
       JULIA_VERSION=$(${julia-env}/bin/julia -e 'println("campground-julia-" * string(VERSION.major) * "." * string(VERSION.minor))')
       ${julia-env}/bin/julia -e "using IJulia; installkernel(\"campground-julia\", julia=\`${julia-env}/bin/julia\`)"
@@ -50,7 +65,7 @@ in pkgs.stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out/bin
-    cp -r ${julia-env}/bin/julia $out/bin/julia
+    cp -r ${wrapped-julia}/bin/julia $out/bin/julia
     cp -r ${startJupyterWithJulia}/bin/* $out/bin/
     cp -r ${startQtJupyterWithJulia}/bin/* $out/bin/
   '';
