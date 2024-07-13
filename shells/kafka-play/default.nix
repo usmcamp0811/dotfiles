@@ -18,6 +18,7 @@ in mkShell {
   ];
 
   shellHook = ''
+    export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
     echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
     echo -e "\e[32m|🏕️  Welcome to the Campground                              |\e[0m"
     echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
