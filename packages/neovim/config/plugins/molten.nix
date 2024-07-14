@@ -1,29 +1,40 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
+
+  extraPython3Packages = ps:
+    with ps; [
+      pynvim
+      jupyter-client
+      cairosvg # for image rendering
+      pnglatex # for image rendering
+      plotly # for image rendering
+      pyperclip
+    ];
+
   plugins.molten = {
     enable = true; # Whether to enable molten-nvim
     # package = pkgs.vimUtils.buildVimPlugin {
     #   pname = "molten-nvim";
-    #   version = "v1.8.3";
+    #   version = "v1.8.4";
     #   src = pkgs.fetchFromGitHub {
     #     owner = "benlubas";
     #     repo = "molten-nvim";
-    #     rev = "df5ccef3b6fda3582f7746e45327ee031f668826";
-    #     # sha256 = lib.fakeSha256;
-    #     sha256 = "08f3zxzka43f87fks56594476h57yq01x7a1zdsn4acc278xg1nb";
+    #     rev = "v1.8.4";
+    #     sha256 = "sha256-TkHiUItTSjjSeGU92dzKEKgCrE426TTbc4sW6kg8NV8=";
     #   };
-    #   passthru.python3Dependencies = ps:
+    #   passthru.python311Dependencies = ps:
     #     with ps; [
     #       pynvim
     #       jupyter-client
     #       cairosvg
     #       ipython
     #       nbformat
+    #       plotly
     #     ];
     #   meta.homepage = "https://github.com/benlubas/molten-nvim/";
     # };
     settings = {
       auto_open_output =
-        false; # Automatically open the output window when your cursor moves over a cell
+        true; # Automatically open the output window when your cursor moves over a cell
       copy_output =
         true; # Copy evaluation output to clipboard automatically (requires pyperclip)
       enter_output_behavior =
@@ -43,10 +54,10 @@
       output_win_style = false; # Style of the output window
       show_mimetype_debug = false; # Show mime-type for each output chunk
       use_border_highlights =
-        false; # Uses different highlights for output border
+        true; # Uses different highlights for output border
       virt_lines_off_by1 =
-        false; # Allows the output window to cover exactly one line
-      wrap_output = false; # Wrap text in output windows
+        true; # Allows the output window to cover exactly one line
+      wrap_output = true; # Wrap text in output windows
     };
   };
 }
