@@ -4,7 +4,8 @@ let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   julia-env = pkgs.julia.withPackages.override {
-    extraLibs = [ pkgs.libxcrypt pkgs.openssl pkgs.cyrus_sasl ];
+    extraLibs =
+      [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
   } [
     "FileIO"
     "JLD2"
@@ -15,16 +16,22 @@ let
     "CSV"
     "LanguageServer"
   ];
-  wrapped-julia = writeShellApplication {
+  wrapped-julia = pkgs.writeShellApplication {
     name = "julia";
-    runtimeInputs = [ pkgs.openssl pkgs.jupyter-all julia-env ];
+    runtimeInputs = [
+      pkgs.openssl
+      pkgs.jupyter-all
+      pkgs.libxcrypt
+      pkgs.cyrus_sasl
+      julia-env
+    ];
     text = ''
       #!${pkgs.runtimeShell}
       # Ensure Julia kernel is installed
       export PATH=${pkgs.jupyter-all}/bin:$PATH
-      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
       export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages
-      ${julia-env}/bin/julia "$@"
+      export LD_LIBRARY_PATH=${pkgs.libxcrypt-legacy}/lib:${pkgs.openssl.out}/lib:${pkgs.libxcrypt.out}/lib:${pkgs.cyrus_sasl.out}/lib:$LD_LIBRARY_PATH
+      exec ${julia-env}/bin/julia "$@"
     '';
   };
   startJupyterWithJulia = writeShellApplication {
