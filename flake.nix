@@ -11,7 +11,8 @@
     nuenv.url = "github:DeterminateSystems/nuenv";
 
     # nixvim
-    nix-vim.url = "github:nix-community/nixvim";
+    nix-vim.url =
+      "github:nix-community/nixvim/123c102a13d1aad053984af08ecc34e807e1f69d";
 
     # Nixery
     nixery-flake = {
