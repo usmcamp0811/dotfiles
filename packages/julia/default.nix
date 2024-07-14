@@ -16,24 +16,6 @@ let
     "CSV"
     "LanguageServer"
   ];
-  wrapped-julia = pkgs.writeShellApplication {
-    name = "julia";
-    runtimeInputs = [
-      pkgs.openssl
-      pkgs.jupyter-all
-      pkgs.libxcrypt
-      pkgs.cyrus_sasl
-      julia-env
-    ];
-    text = ''
-      #!${pkgs.runtimeShell}
-      # Ensure Julia kernel is installed
-      export PATH=${pkgs.jupyter-all}/bin:$PATH
-      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages
-      export LD_LIBRARY_PATH=${pkgs.libxcrypt-legacy}/lib:${pkgs.openssl.out}/lib:${pkgs.libxcrypt.out}/lib:${pkgs.cyrus_sasl.out}/lib:$LD_LIBRARY_PATH
-      exec ${julia-env}/bin/julia "$@"
-    '';
-  };
   startJupyterWithJulia = writeShellApplication {
     name = "julia-console";
     runtimeInputs = [ pkgs.openssl pkgs.jupyter-all julia-env ];
@@ -72,7 +54,7 @@ in pkgs.stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out/bin
-    cp -r ${wrapped-julia}/bin/julia $out/bin/julia
+    cp -r ${julia-env}/bin/julia $out/bin/julia
     cp -r ${startJupyterWithJulia}/bin/* $out/bin/
     cp -r ${startQtJupyterWithJulia}/bin/* $out/bin/
   '';
