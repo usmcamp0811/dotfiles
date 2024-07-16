@@ -5,7 +5,7 @@ let
   julia-env = pkgs.julia.withPackages.override {
     extraLibs =
       [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
-  } [ "FileIO" "JLD2" "DataFrames" "MLJ" "PyCall" "IJulia" "CSV" "RDKafka" ];
+  } [ "FileIO" "DataFrames" "PyCall" "IJulia" "CSV" "RDKafka" ];
 
   startJupyterWithJulia =
     createJupyterApp "julia-console" "${pkgs.jupyter-all}/bin/jupyter console" {
