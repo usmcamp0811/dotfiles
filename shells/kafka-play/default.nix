@@ -31,8 +31,7 @@ in mkShell {
     pkgs.cyrus_sasl
     pkgs.openssl
     startJupyterWithJulia
-    # startQtJupyterWithJulia
-    # startJupyterWithJulia
+    startQtJupyterWithJulia
   ];
 
   shellHook = ''
