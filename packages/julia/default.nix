@@ -19,13 +19,13 @@ let
     "LanguageServer"
   ];
 
-  startJupyterWithJulia =
-    createJupyterApp "julia-console" "${pkgs.jupyter-all}/bin/jupyter console" {
+  startJupyterWithJulia = createJuliaConsole "julia-console"
+    "${pkgs.jupyter-all}/bin/jupyter console" {
       pkgs = pkgs;
       juliaEnv = julia-env;
       kernelName = "campground";
     };
-  startQtJupyterWithJulia = createJupyterApp "julia-qtconsole"
+  startQtJupyterWithJulia = createJuliaConsole "julia-qtconsole"
     "${pkgs.jupyter-all}/bin/jupyter qtconsole" {
       pkgs = pkgs;
       juliaEnv = julia-env;

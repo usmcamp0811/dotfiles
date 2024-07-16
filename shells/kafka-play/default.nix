@@ -7,13 +7,13 @@ let
       [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
   } [ "FileIO" "DataFrames" "PyCall" "IJulia" "CSV" "RDKafka" ];
 
-  startJupyterWithJulia =
-    createJupyterApp "julia-console" "${pkgs.jupyter-all}/bin/jupyter console" {
+  startJupyterWithJulia = createJuliaConsole "julia-console"
+    "${pkgs.jupyter-all}/bin/jupyter console" {
       pkgs = pkgs;
       juliaEnv = julia-env;
       kernelName = "kafka-play";
     };
-  startQtJupyterWithJulia = createJupyterApp "julia-qtconsole"
+  startQtJupyterWithJulia = createJuliaConsole "julia-qtconsole"
     "${pkgs.jupyter-all}/bin/jupyter qtconsole" {
       pkgs = pkgs;
       juliaEnv = julia-env;

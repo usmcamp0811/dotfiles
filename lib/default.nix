@@ -14,7 +14,26 @@
   override-meta = meta: package:
     package.overrideAttrs (attrs: { meta = (attrs.meta or { }) // meta; });
 
-  createJupyterApp = name: command:
+  ## Create a Julia Jupyter Console
+  ##
+  ## This function generates a shell script that sets up the environment and runs a specified command with the Jupyter kernel.
+  ##
+  ## Parameters:
+  ## - `name`: The name of the application.
+  ## - `command`: The command to be executed within the Jupyter environment.
+  ## - `pkgs`: The Nixpkgs package set.
+  ## - `juliaEnv`: The Julia environment to be used.
+  ## - `kernelName`: The name to be used for the Julia kernel.
+  ##
+  ## Example usage:
+  ## ```nix
+  ## createJuliaConsole "my-jupyter-app" "jupyter notebook" {
+  ##   pkgs = import <nixpkgs> {};
+  ##   juliaEnv = pkgs.julia.withPackages (ps: with ps; [ IJulia ]);
+  ##   kernelName = "my-kernel";
+  ## }
+  ## ```
+  createJuliaConsole = name: command:
     { pkgs, juliaEnv, kernelName }:
     pkgs.writeShellApplication {
       inherit name;
