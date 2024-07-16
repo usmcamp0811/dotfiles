@@ -1,5 +1,7 @@
 { lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
 , hosts ? { }, ... }:
+with lib;
+with lib.campground;
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -16,35 +18,19 @@ let
     "CSV"
     "LanguageServer"
   ];
-  startJupyterWithJulia = writeShellApplication {
-    name = "julia-console";
-    runtimeInputs = [ pkgs.openssl pkgs.jupyter-all julia-env ];
-    text = ''
-      #!${pkgs.runtimeShell}
-      # Ensure Julia kernel is installed
-      export PATH=${pkgs.jupyter-all}/bin:$PATH
-      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
-      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages
-      JULIA_VERSION=$(${julia-env}/bin/julia -e 'println("campground-julia-" * string(VERSION.major) * "." * string(VERSION.minor))')
-      ${julia-env}/bin/julia -e "using IJulia; installkernel(\"campground-julia\", julia=\`${julia-env}/bin/julia\`)"
-      ${pkgs.jupyter-all}/bin/jupyter console --kernel "$JULIA_VERSION" "$@"
-    '';
-  };
-  startQtJupyterWithJulia = writeShellApplication {
-    name = "julia-qtconsole";
-    runtimeInputs = [ pkgs.openssl pkgs.jupyter-all julia-env ];
-    text = ''
-      #!${pkgs.runtimeShell}
-      # Ensure Julia kernel is installed
-      # # Start Jupyter console with Julia kernel
-      export PATH=${pkgs.jupyter-all}/bin:$PATH
-      export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
-      export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:$PYTHONPATH
-      JULIA_VERSION=$(${julia-env}/bin/julia -e 'println("campground-julia-" * string(VERSION.major) * "." * string(VERSION.minor))')
-      ${julia-env}/bin/julia -e "using IJulia; installkernel(\"campground-julia\", julia=\`${julia-env}/bin/julia\`)"
-      ${pkgs.jupyter-all}/bin/jupyter qtconsole --kernel "$JULIA_VERSION" "$@"
-    '';
-  };
+
+  startJupyterWithJulia =
+    createJupyterApp "julia-console" "${pkgs.jupyter-all}/bin/jupyter console" {
+      pkgs = pkgs;
+      juliaEnv = julia-env;
+      kernelName = "campground";
+    };
+  startQtJupyterWithJulia = createJupyterApp "julia-qtconsole"
+    "${pkgs.jupyter-all}/bin/jupyter qtconsole" {
+      pkgs = pkgs;
+      juliaEnv = julia-env;
+      kernelName = "campground";
+    };
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";
   version = pkgs.julia.version;

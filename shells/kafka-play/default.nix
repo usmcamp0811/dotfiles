@@ -1,10 +1,25 @@
-{ mkShell, pkgs, ... }:
+{ mkShell, lib, pkgs, ... }:
+with lib;
+with lib.campground;
 let
-  julia-env = (pkgs.julia.withPackages.override {
-    precompile = false;
+  julia-env = pkgs.julia.withPackages.override {
     extraLibs =
-      [ pkgs.openssl pkgs.cyrus_sasl pkgs.zlib pkgs.rdkafka pkgs.apacheKafka ];
-  }) [ "librdkafka_jll" ];
+      [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
+  } [ "FileIO" "JLD2" "DataFrames" "MLJ" "PyCall" "IJulia" "CSV" "RDKafka" ];
+
+  startJupyterWithJulia =
+    createJupyterApp "julia-console" "${pkgs.jupyter-all}/bin/jupyter console" {
+      pkgs = pkgs;
+      juliaEnv = julia-env;
+      kernelName = "kafka-play";
+    };
+  startQtJupyterWithJulia = createJupyterApp "julia-qtconsole"
+    "${pkgs.jupyter-all}/bin/jupyter qtconsole" {
+      pkgs = pkgs;
+      juliaEnv = julia-env;
+      kernelName = "kafka-play";
+    };
+
 in mkShell {
   buildInputs = [
     julia-env
@@ -15,14 +30,14 @@ in mkShell {
     pkgs.glibc
     pkgs.cyrus_sasl
     pkgs.openssl
+    startJupyterWithJulia
+    # startQtJupyterWithJulia
+    # startJupyterWithJulia
   ];
 
   shellHook = ''
-    export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
     echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
     echo -e "\e[32m|🏕️  Welcome to the Campground                              |\e[0m"
     echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
-
-    # Additional setup can go here
   '';
 }
