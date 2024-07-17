@@ -64,7 +64,8 @@ in {
     ];
 
     systemd.services.nix-daemon = {
-      serviceConfig.Environment = "NETRC=/etc/netrc";
+      serviceConfig.Environment =
+        [ "NETRC=/etc/nix/netrc" "NETRC_FILE=/etc/nix/netrc" ];
     };
 
     # TODO: Figure out if I can just use it straigh from the /tmp/detsys-vault/netrc location
@@ -97,7 +98,8 @@ in {
         auto-optimise-store = true;
         trusted-users = users;
         allowed-users = users;
-        extra-sandbox-paths = [ "/etc/netrc" ];
+        netrc-file = "/etc/nix/netrc";
+        extra-sandbox-paths = [ "/etc/nix/netrc" ];
 
         substituters =
           # [ cfg.default-substituter.url ]
