@@ -68,6 +68,7 @@ in {
       # onlyoffice = { enable = true; };
       firefly = enabled;
       firefly-plaid-connector = enabled;
+      campground-blog = enabled;
       nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
       netbird = enabled;

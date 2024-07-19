@@ -64,6 +64,7 @@ with lib.campground; {
         enable = true;
         port = 8181;
       };
+      campground-blog = enabled;
       zfs-key-server = {
         enable = true;
         interface = "enp3s0f1";

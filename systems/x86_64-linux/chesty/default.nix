@@ -57,6 +57,7 @@ with lib.campground;
       attic-watch-store = enabled;
       # hydra = enabled;
       jellyfin = enabled;
+      campground-blog = enabled;
       searx = {
         enable = true;
         port = 3249;
