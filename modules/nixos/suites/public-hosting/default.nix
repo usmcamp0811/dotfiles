@@ -77,7 +77,12 @@ in {
             };
 
             http.services.blog = {
-              loadBalancer.servers = [{ url = "http://lucas:28345"; }];
+              loadBalancer.servers = [
+                { url = "http://webb:28345"; }
+                { url = "http://daly:28345"; }
+                { url = "http://chesty:28345"; }
+                { url = "http://lucas:28345"; }
+              ];
             };
 
             http.routers.keycloak = {
