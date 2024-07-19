@@ -20,7 +20,12 @@ in {
         }];
         root = "${pkgs.campground.blog}/public";
         extraConfig = ''
+          access_log /var/log/nginx/${cfg.domain}-access.log;
+          error_log /var/log/nginx/${cfg.domain}-error.log;
           location / {
+            try_files $uri $uri/ /index.html;
+          }
+          location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf)$ {
             try_files $uri $uri/ =404;
           }
         '';
