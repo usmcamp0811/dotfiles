@@ -74,6 +74,7 @@ with lib.campground; {
       matt-camp-website = enabled;
       attic-watch-store = enabled;
       gitlab-runner = enabled;
+      campground-blog = enabled;
       searx = {
         enable = true;
         port = 3249;
