@@ -195,12 +195,12 @@ params:
 menu:
     main: []
 
-    social:
-        - identifier: github
-          name: GitHub
-          url: https://gitlab.com/usmcamp0811
-          params:
-              icon: brand-github
+    social: []
+        # - identifier: github
+        #   name: GitHub
+        #   url: https://gitlab.com/usmcamp0811
+        #   params:
+        #       icon: brand-github
 
         # - identifier: twitter
         #   name: Twitter
