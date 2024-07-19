@@ -102,6 +102,7 @@ in {
     };
 
     services = {
+      campground-blog = enabled;
       local-ai = enabled;
       file-share = enabled;
       ldap-client = { enable = mkForce false; };
