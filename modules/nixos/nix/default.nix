@@ -64,8 +64,7 @@ in {
     ];
 
     systemd.services.nix-daemon = {
-      serviceConfig.Environment =
-        [ "NETRC=/etc/nix/netrc" "NETRC_FILE=/etc/nix/netrc" ];
+      serviceConfig.Environment = [ "NETRC=/var/lib/nixos/netrc" ];
     };
 
     # TODO: Figure out if I can just use it straigh from the /tmp/detsys-vault/netrc location
@@ -75,7 +74,7 @@ in {
         Type = "oneshot";
         User = "root";
         ExecStart =
-          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /etc/netrc";
+          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /var/lib/nixos/netrc";
         before = [ "nix-daemon.service" ];
       };
       wantedBy = [ "multi-user.target" ];
@@ -98,8 +97,8 @@ in {
         auto-optimise-store = true;
         trusted-users = users;
         allowed-users = users;
-        netrc-file = "/etc/nix/netrc";
-        extra-sandbox-paths = [ "/etc/nix/netrc" ];
+        netrc-file = "/var/lib/nixos/netrc";
+        extra-sandbox-paths = [ "/var/lib/nixos/netrc" ];
 
         substituters =
           # [ cfg.default-substituter.url ]
