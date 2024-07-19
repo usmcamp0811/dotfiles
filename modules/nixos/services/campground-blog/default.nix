@@ -10,13 +10,20 @@ in {
   };
 
   config = mkIf cfg.enable {
+
     services.nginx = {
       enable = true;
       virtualHosts."${cfg.domain}" = {
-        listen = [ cfg.port ];
-        root = "/var/www/myblog";
-        index = "index.html";
-        locations."/" = { tryFiles = "$uri $uri/ =404"; };
+        listen = [{
+          addr = "0.0.0.0";
+          port = cfg.port;
+        }];
+        root = "${pkgs.campground.blog}/public";
+        extraConfig = ''
+          location / {
+            try_files $uri $uri/ =404;
+          }
+        '';
       };
     };
   };
