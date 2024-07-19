@@ -70,6 +70,15 @@ in {
                 };
               };
             };
+            http.routers.blog = {
+              rule = "Host(`blog.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "blog";
+            };
+
+            http.services.blog = {
+              loadBalancer.servers = [{ url = "http://lucas:28345"; }];
+            };
 
             http.routers.keycloak = {
               rule = "Host(`keycloak.aicampground.com`)";
