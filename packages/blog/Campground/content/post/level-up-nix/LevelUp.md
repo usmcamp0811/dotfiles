@@ -1,8 +1,8 @@
----
++++
 author = "Matt Camp"
-title = "LevelUp Your Nix"
+title = "Level Up Your Nix"
 date = "2024-06-13"
-description = "A "
+description = "Learn how to enhance your Nix skills by setting up, configuring, and using Nix Flakes to streamline your development environment and containerization process."
 tags = [
     "level-up",
     "Nix",
@@ -19,7 +19,7 @@ categories = [
     "Programming"
 ]
 series = ["Intro to Nix"]
----
++++
 
 # LevelUp Your Nix
 

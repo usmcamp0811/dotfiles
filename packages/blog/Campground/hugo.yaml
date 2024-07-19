@@ -19,7 +19,7 @@ languages:
         title: The Campground Blog
         weight: 1
         params:
-            description: Example description
+            description: This is English?
 
 services:
     # Change it to your Disqus shortname before using
@@ -41,7 +41,7 @@ params:
     favicon: # e.g.: favicon placed in `static/favicon.ico` of your site folder, then set this field to `/favicon.ico` (`/` is necessary)
 
     footer:
-        since: 2020
+        since: 2024
         customText:
 
     dateFormat:
@@ -54,11 +54,11 @@ params:
         avatar:
             enabled: true
             local: true
-            src: img/avatar.png
+            src: camp-gumby.png
 
     article:
-        math: false
-        toc: true
+        math: true
+        toc: false
         readingTime: true
         license:
             enabled: false
@@ -225,7 +225,7 @@ markup:
             ## Set to true if you have HTML content inside Markdown
             unsafe: true
     tableOfContents:
-        endLevel: 4
+        endLevel: 3
         ordered: true
         startLevel: 2
     highlight:
