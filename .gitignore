@@ -7,3 +7,7 @@ nixos-amazon-image-23.05.20230912.e5f018c-x86_64-linux.vhd
 .jupyter
 .ipynb_checkpoints
 .pre-commit-config.yaml
+packages/blog/Campground/public
+packages/blog/Campground/themes/hugo-theme-stack
+packages/blog/Campground/.hugo_build.lock
+packages/blog/Campground/resources/_gen
