@@ -16,7 +16,7 @@ menu:
 
 Welcome to The Campground Blog!
 
-I'm Matthew, a senior data scientist and developer with a passion for strategy, history, and tactical warfare games. This blog is a space where I share my thoughts, insights, and experiences on various topics, including technology, data science, and gaming.
+I'm Matthew, a senior data scientist and developer with a passion for technology and open source software. This blog is a space where I share my thoughts, insights, and experiences on various tech topics.
 
 ## About Me
 
