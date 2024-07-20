@@ -9,6 +9,17 @@ let
     sha256 = "sha256-IMbEgE2+mCxwCpbvUnbnm7oED5+PkyRQlxbB+Oxl7yQ=";
   };
 
+  hugo-server = pkgs.writeShellScriptBin "hugo-server" ''
+    cd ${blog}
+    umask 022
+    tmp_dir=$(mktemp -d)
+    cp -r ${blog}/* $tmp_dir
+    chmod -R 777 $tmp_dir
+    cd $tmp_dir
+    echo $tmp_dir
+    ${pkgs.hugo}/bin/hugo server 
+  '';
+
   blog = pkgs.stdenv.mkDerivation rec {
     name = "blog";
     version = "0.1.0";
@@ -23,6 +34,7 @@ let
       cd $out
       ${pkgs.hugo}/bin/hugo
     '';
+    passthru = { server = hugo-server; };
 
   };
 in blog
