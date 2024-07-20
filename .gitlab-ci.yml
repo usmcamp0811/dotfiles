@@ -134,12 +134,164 @@ webb_deploy:
 reckless_deploy:
   <<: *deploy_job_template
   variables:
+stages:
+  - build
+  - update_flake
+  - build_systems
+  - deploy
+
+update-flake:
+  stage: update_flake
+  tags:
+    - nix
+  script:
+    - |
+      [ "$CI_PIPELINE_SOURCE" = "schedule" ] && git rm flake.lock && nix flake update || true;
+  artifacts:
+    paths:
+      - flake.lock
+    expire_in: 1 hour
+  rules:
+    - if: '$BUILD_SYSTEMS == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+      allow_failure: false
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+
+.build_job_template: &build_job_template
+  stage: build_systems
+  tags:
+    - nix
+  script:
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID" > /dev/null
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+      eval "$(ssh-agent -s)"
+      echo "$sshkey" | ssh-add -
+      ssh-keyscan ${SYSTEM} >> ~/.ssh/known_hosts
+      nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
+      nix-copy-closure --to root@${SYSTEM} ./result
+  needs:
+    - job: update-flake
+  resource_group: build_sequential
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+      allow_failure: false
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+
+butler:
+  <<: *build_job_template
+  variables:
+    SYSTEM: "butler"
+
+daly:
+  <<: *build_job_template
+  variables:
+    SYSTEM: "daly"
+
+lucas:
+  <<: *build_job_template
+  variables:
+    SYSTEM: "lucas"
+
+chesty:
+  <<: *build_job_template
+  variables:
+    SYSTEM: "chesty"
+
+webb:
+  <<: *build_job_template
+  variables:
+    SYSTEM: "webb"
+
+reckless:
+  <<: *build_job_template
+  variables:
     SYSTEM: "reckless"
+
+mattis:
+  <<: *build_job_template
+  variables:
+    SYSTEM: "mattis"
+
+.deploy_job_template: &deploy_job_template
+  stage: deploy
+  tags:
+    - nix
+  script:
+    - |
+      echo "Authenticating with Vault..."
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID" > /dev/null
+      export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      eval "$(ssh-agent -s)"
+      vault kv get -field="lucas_CI_SERVER_URL" "secret/campground/gitlab-runner"
+      sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      mkdir -p ~/.ssh
+      echo "$sshkey" | ssh-add -
+    - |
+      ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+      nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
+      deploy --hostname $SYSTEM .#$SYSTEM --skip-checks
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+      allow_failure: false
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+
+butler_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "butler"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+      allow_failure: true
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+daly_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "daly"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+
+lucas_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "lucas"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+
+chesty_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "chesty"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+
+webb_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "webb"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+
+reckless_deploy:
+  <<: *deploy_job_template
+  variables:
+    SYSTEM: "reckless"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
 
 mattis_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "mattis"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
 
 .deploy_hosting_template: &deploy_hosting_template
   stage: deploy
@@ -172,6 +324,7 @@ deploy_public_hosting:
     - changes:
         - "**/public-hosting/default.nix"
       allow_failure: false
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
 
 deploy_lan_hosting:
   <<: *deploy_hosting_template
@@ -181,6 +334,7 @@ deploy_lan_hosting:
     - changes:
         - "**/lan-hosting/default.nix"
       allow_failure: false
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
 
 build_resume:
   stage: build
@@ -196,3 +350,4 @@ build_resume:
     - changes:
       - "package/matt-camp-website/src/assets/resume/resume.json"
       when: always
+    - if: '$CI_COMMIT_REF_NAME == "nixos"'
