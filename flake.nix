@@ -178,6 +178,8 @@
 
     # nixpkgs-julia.url = "github:NixOS/nixpkgs/?ref=refs/pull/225513/head";
 
+    myvim.url =
+      "gitlab:usmcamp0811/dotfiles/f4396a97aa954e72c403c122fa4cc02d38b29d7f";
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
