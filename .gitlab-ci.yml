@@ -156,6 +156,7 @@ update-flake:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
       when: always
       allow_failure: false
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 .build_job_template: &build_job_template
   stage: build_systems
@@ -332,7 +333,7 @@ deploy_lan_hosting:
   rules:
     - if: '$CI_COMMIT_BRANCH == "nixos"'
       changes:
-          - "**/lan-hosting/default.nix"
+        - "**/lan-hosting/default.nix"
       allow_failure: false
 
 build_resume:
