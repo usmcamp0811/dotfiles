@@ -16,8 +16,7 @@ update-flake:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '$BUILD_SYSTEMS == "true"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$BUILD_SYSTEMS == "true" && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule")'
       when: always
       allow_failure: false
 
