@@ -71,16 +71,17 @@ in {
               };
             };
             http.routers.blog = {
-              rule = "Host(`blog.aicampground.com`)";
+              rule =
+                "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "blog";
             };
 
             http.services.blog = {
               loadBalancer.servers = [
-                # { url = "http://reckless:28345"; }
-                # { url = "http://daly:28345"; }
-                # { url = "http://chesty:28345"; }
+                { url = "http://reckless:28345"; }
+                { url = "http://daly:28345"; }
+                { url = "http://chesty:28345"; }
                 { url = "http://lucas:28345"; }
               ];
             };
@@ -136,7 +137,7 @@ in {
             # };
 
             http.routers.aicampground = {
-              rule = "Host(`aicampground.com`) || Host(`matt-camp.com`)";
+              rule = "Host(`matt-camp.com`)";
               entryPoints = [ "websecure" ];
               service = "aicampground";
               middlewares = [ "cloudflarewarp" ];
