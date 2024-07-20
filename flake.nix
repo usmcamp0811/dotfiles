@@ -11,8 +11,12 @@
     nuenv.url = "github:DeterminateSystems/nuenv";
 
     # nixvim
-    nix-vim.url =
-      "github:nix-community/nixvim/123c102a13d1aad053984af08ecc34e807e1f69d";
+    # nix-vim.url =
+    #   "github:nix-community/nixvim/123c102a13d1aad053984af08ecc34e807e1f69d";
+    nix-vim = {
+      url = "github:nix-community/nixvim/main";
+      inputs.nixpkgs.follows = "unstable";
+    };
 
     # Nixery
     nixery-flake = {
@@ -180,7 +184,10 @@
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
 
     nix-ai.url = "github:nixified-ai/flake";
-    neorg-overlay.url = "github:nvim-neorg/nixpkgs-neorg-overlay";
+    neorg-overlay = {
+      url = "github:nvim-neorg/nixpkgs-neorg-overlay";
+      inputs.nixpkgs.follows = "unstable";
+    };
 
     nix-health.url = "github:juspay/nix-health?dir=module";
   };
@@ -222,7 +229,7 @@
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
-        neorg-overlay.overlays.default
+        # neorg-overlay.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [

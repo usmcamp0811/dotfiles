@@ -31,6 +31,16 @@
 
       # Treesitter
       nvim-treesitter-textobjects
+      nvim-treesitter-refactor
+      nvim-treesitter-pyfold
+      nvim-treesitter-parsers.yaml
+      nvim-treesitter-parsers.markdown
+      nvim-treesitter-parsers.sql
+      nvim-treesitter-parsers.python
+      nvim-treesitter-parsers.norg
+      nvim-treesitter-parsers.julia
+      nvim-treesitter-parsers.dockerfile
+      nvim-treesitter
 
       # Markdown
       vim-pandoc-syntax
@@ -126,22 +136,22 @@
     wilder = { enable = true; };
 
     # Neorg Configuration
-    neorg = {
-      enable = true;
-      modules = {
-        "core.defaults" = { __empty = null; };
-        "core.summary" = { __empty = null; };
-        "core.concealer" = { __empty = null; };
-        # "core.completion".config.engine = "nvim-cmp";
-        "core.dirman" = {
-          config = {
-            workspaces = {
-              home = "~/notes/home";
-              work = "~/notes/work";
-            };
-          };
-        };
-      };
-    };
+    # neorg = {
+    #   enable = true;
+    #   modules = {
+    #     "core.defaults" = { __empty = null; };
+    #     "core.summary" = { __empty = null; };
+    #     "core.concealer" = { __empty = null; };
+    #     # "core.completion".config.engine = "nvim-cmp";
+    #     "core.dirman" = {
+    #       config = {
+    #         workspaces = {
+    #           home = "~/notes/home";
+    #           work = "~/notes/work";
+    #         };
+    #       };
+    #     };
+    #   };
+    # };
   };
 }

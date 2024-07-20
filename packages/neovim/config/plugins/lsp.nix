@@ -1,5 +1,5 @@
 { pkgs, ... }: {
-  diagnostics.virtual_lines = { only_current_line = true; };
+  # diagnostics.virtual_lines = { only_current_line = true; };
   plugins = {
     vim-slime = { enable = true; };
     conjure = { enable = true; };

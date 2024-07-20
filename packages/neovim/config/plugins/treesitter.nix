@@ -2,12 +2,12 @@
   extraPlugins = with pkgs.vimPlugins; [ rnvimr markid ];
   plugins = {
     treesitter = {
-      enable = true;
+      # enable = true;
       settings = { indent.enable = true; };
       nixvimInjections = true;
     };
-    treesitter-context.enable = true;
-    treesitter-refactor.enable = true;
+    # treesitter-context.enable = true;
+    # treesitter-refactor.enable = true;
     #    rainbow-delimiters = {
     #      enable = true; # Enable the plugin
 
