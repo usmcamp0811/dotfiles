@@ -156,7 +156,7 @@ update-flake:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
       when: always
       allow_failure: false
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 .build_job_template: &build_job_template
   stage: build_systems
@@ -181,7 +181,7 @@ update-flake:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
       when: always
       allow_failure: false
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 butler:
   <<: *build_job_template
@@ -240,7 +240,7 @@ mattis:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
       allow_failure: false
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 butler_deploy:
   <<: *deploy_job_template
@@ -250,48 +250,48 @@ butler_deploy:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
       allow_failure: true
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 daly_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "daly"
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 lucas_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "lucas"
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 chesty_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "chesty"
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 webb_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "webb"
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 reckless_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "reckless"
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 mattis_deploy:
   <<: *deploy_job_template
   variables:
     SYSTEM: "mattis"
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 .deploy_hosting_template: &deploy_hosting_template
   stage: deploy
@@ -350,4 +350,4 @@ build_resume:
     - changes:
       - "package/matt-camp-website/src/assets/resume/resume.json"
       when: always
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
