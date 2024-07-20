@@ -348,6 +348,6 @@ build_resume:
     expire_in: 1 week
   rules:
     - changes:
-      - "package/matt-camp-website/src/assets/resume/resume.json"
+        - "package/matt-camp-website/src/assets/resume/resume.json"
+    - if: '$CI_COMMIT_BRANCH == "nixos" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "nixos" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "nixos" && changes["package/matt-camp-website/src/assets/resume/resume.json"]'
       when: always
-    - if: '$CI_COMMIT_BRANCH == "nixos"'
