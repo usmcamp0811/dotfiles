@@ -1,5 +1,30 @@
-{...}: {
-  plugins = {toggleterm.enable = true;};
+{ ... }: {
+
+  plugins = {
+    toggleterm.enable = true;
+    which-key = {
+      enable = true;
+      registrations = {
+        "<leader>t" = {
+          name = "Terminal";
+          j = "<cmd>lua _JULIA_TOGGLE()<cr>";
+          c = "<cmd>lua _CLOJURE_TOGGLE()<cr>";
+          p = "<cmd>lua _PYTHON_TOGGLE()<cr>";
+          n = "<cmd>lua _NODE_TOGGLE()<cr>";
+          l = "<cmd>lua _LUA_TOGGLE()<cr>";
+          g = "<cmd>lua _LAZYGIT_TOGGLE()<CR>";
+          u = "<cmd>lua _NCDU_TOGGLE()<cr>";
+          t = "<cmd>lua _HTOP_TOGGLE()<cr>";
+          k = "<cmd>lua _K9S_TOGGLE()<cr>";
+          f = "<cmd>ToggleTerm direction=float<cr>";
+          h = "<cmd>lua _HSHELL_TOGGLE()<cr>";
+          v = "<cmd>lua _VSHELL_TOGGLE()<cr>";
+          r = ":RnvimrToggle<CR>";
+        };
+      };
+    };
+  };
+
   extraConfigLua = ''
     local status_ok, toggleterm = pcall(require, "toggleterm")
     if not status_ok then
@@ -252,23 +277,5 @@
     	return
     end
 
-    which_key.register({
-    	t = {
-    		name = "Terminal",
-    		j = { "<cmd>lua _JULIA_TOGGLE()<cr>", "Julia" },
-    		c = { "<cmd>lua _CLOJURE_TOGGLE()<cr>", "Clojure" },
-    		p = { "<cmd>lua _PYTHON_TOGGLE()<cr>", "Python" },
-    		n = { "<cmd>lua _NODE_TOGGLE()<cr>", "Node" },
-    		l = { "<cmd>lua _LUA_TOGGLE()<cr>", "Lua" },
-    		g = { "<cmd>lua _LAZYGIT_TOGGLE()<CR>", "Lazygit" },
-    		u = { "<cmd>lua _NCDU_TOGGLE()<cr>", "NCDU" },
-    		t = { "<cmd>lua _HTOP_TOGGLE()<cr>", "Htop" },
-    		k = { "<cmd>lua _K9S_TOGGLE()<cr>", "K9s" },
-    		f = { "<cmd>ToggleTerm direction=float<cr>", "Float" },
-    		h = { "<cmd>lua _HSHELL_TOGGLE()<cr>", "Horizontal" },
-    		v = { "<cmd>lua _VSHELL_TOGGLE()<cr>", "Vertical" },
-    		r = { ":RnvimrToggle<CR>", "Ranger" },
-    	},
-    }, { prefix = "<leader>" })
   '';
 }
