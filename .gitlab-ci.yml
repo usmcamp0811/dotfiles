@@ -324,7 +324,7 @@ deploy_public_hosting:
     - changes:
         - "**/public-hosting/default.nix"
       allow_failure: false
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 deploy_lan_hosting:
   <<: *deploy_hosting_template
@@ -334,7 +334,7 @@ deploy_lan_hosting:
     - changes:
         - "**/lan-hosting/default.nix"
       allow_failure: false
-    - if: '$CI_COMMIT_REF_NAME == "nixos"'
+    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 build_resume:
   stage: build
