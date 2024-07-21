@@ -59,11 +59,15 @@
   ##   - run-tests: Runs pytest on the tests directory.
   ##   - run-bpython: Starts a bpython REPL with the source code in PYTHONPATH.
   ##   - run-jupyter: Starts a Jupyter console with the source code in PYTHONPATH.
-  mkPythonDevScripts = { pkgs, python-env, src }:
+  mkPythonDevScripts = { pkgs, python-env, project-drv }:
     let
       # Extend the given python environment with additional packages
       extended-python-env = python-env.withPackages
         (ps: with ps; [ bpython pytest jupyter ipykernel ]);
+      pythonVersion = builtins.substring 0 4
+        python-env.python.version; # Extract the major and minor version (e.g., "3.11")
+      jupyterPythonVersion = builtins.substring 0 4
+        pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
     in {
       run-tests = pkgs.writeShellScriptBin "run-tests" ''
         # Resolves the symlink to find the actual path of the script
@@ -72,27 +76,28 @@
 
         # Adjusted to ensure it works regardless of where it's called from
         BASE_DIR=$(dirname "$SCRIPT_DIR")
+        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages
         ${extended-python-env}/bin/pytest $SCRIPT_DIR/tests/ "$@"
       '';
 
       run-bpython = pkgs.writeShellScriptBin "run-bpython" ''
-        export PYTHONPATH=${src}:$PYTHONPATH
+        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages
         ${extended-python-env}/bin/bpython "$@"
       '';
 
       run-jupyter = pkgs.writeShellScriptBin "run-jupyter" ''
-        export PYTHONPATH=${src}:${pkgs.jupyter-all}/lib/python3.11/site-packages
+        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages:${pkgs.jupyter-all}/lib/python${jupyterPythonVersion}/site-packages
         ${pkgs.jupyter-all}/bin/jupyter console "$@"
       '';
 
-      test-access-window-flink-job = pkgs.stdenv.mkDerivation {
-        name = "test-access-window-flink-job";
+      test = pkgs.stdenv.mkDerivation {
+        name = "pytest";
         src = src;
-        phases = [ "installPhase" ];
+        phases = [ ];
         propagatedBuildInputs = [ python-env ];
         installPhase = ''
           mkdir -p $out/bin
-          ln -s ${src}/src/run-tests $out/bin/run-tests
+          ln -s ${project-drv}/src/run-tests $out/bin/run-tests
         '';
         meta = {
           description = "Tests for TLE Utils";
