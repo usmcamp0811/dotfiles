@@ -92,7 +92,7 @@
 
       test = pkgs.stdenv.mkDerivation {
         name = "pytest";
-        src = src;
+        src = project-drv.src;
         phases = [ ];
         propagatedBuildInputs = [ python-env ];
         installPhase = ''
