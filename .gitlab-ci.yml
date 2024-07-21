@@ -148,7 +148,7 @@ update-flake:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
       allow_failure: false
 
 .build_job_template: &build_job_template
@@ -171,7 +171,7 @@ update-flake:
     - job: update-flake
   resource_group: build_sequential
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $BUILD_SYSTEMS == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
       allow_failure: false
 
 butler:
