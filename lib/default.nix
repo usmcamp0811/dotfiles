@@ -86,7 +86,7 @@
       '';
 
       run-jupyter = pkgs.writeShellScriptBin "run-jupyter" ''
-        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages:${pkgs.jupyter-all}/lib/python${jupyterPythonVersion}/site-packages
+        export PYTHONPATH=${pkgs.jupyter-all}/lib/python${jupyterPythonVersion}/site-packages:${python-env}/lib/python${pythonVersion}/site-packages
         ${pkgs.jupyter-all}/bin/jupyter console "$@"
       '';
 
