@@ -148,7 +148,7 @@ update-flake:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '"$FLAKE_UPDATE" = "true"'
+    - if: '"$FLAKE_UPDATE" == "true"'
       allow_failure: false
 
 .build_job_template: &build_job_template
