@@ -10,13 +10,13 @@ update-flake:
     - nix
   script:
     - |
-      [ "$CI_PIPELINE_SOURCE" = "schedule" ] && git rm flake.lock && nix flake update || true;
+      [ "$FLAKE_UPDATE" = "true" ] && git rm flake.lock && nix flake update || true;
   artifacts:
     paths:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '"$FLAKE_UPDATE" = "true"'
       allow_failure: false
 
 .build_job_template: &build_job_template
@@ -148,7 +148,7 @@ update-flake:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '"$FLAKE_UPDATE" = "true"'
       allow_failure: false
 
 .build_job_template: &build_job_template
@@ -171,7 +171,7 @@ update-flake:
     - job: update-flake
   resource_group: build_sequential
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || "$FLAKE_UPDATE" = "true"'
       allow_failure: false
 
 butler:
@@ -228,7 +228,7 @@ mattis:
       nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
       deploy --hostname $SYSTEM .#$SYSTEM --skip-checks
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && "$FLAKE_UPDATE" != "true"'
       when: always
       allow_failure: false
     - if: '$CI_COMMIT_BRANCH == "nixos"'
