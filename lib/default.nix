@@ -49,4 +49,49 @@
         ${command} --kernel "$JULIA_VERSION" "$@"
       '';
     };
+
+  ## Creates a set of shell scripts for interacting with a Python environment.
+  ##
+  ## @param python-env The Python environment to use for running Python scripts.
+  ## @param src The source code directory to set in PYTHONPATH.
+  ##
+  ## @returns A set of shell scripts:
+  ##   - run-tests: Runs pytest on the tests directory.
+  ##   - run-bpython: Starts a bpython REPL with the source code in PYTHONPATH.
+  ##   - run-jupyter: Starts a Jupyter console with the source code in PYTHONPATH.
+  mkPythonDevScripts = { pkgs, python-env, src }:
+    let
+      pythonVersion = builtins.parseDrvName
+        (builtins.unsafeGetAttrPos "name" python-env).name;
+      pythonPackages = builtins.attrValues pkgs."${pythonVersion}Packages";
+
+      # Add necessary packages based on the Python version
+      extended-python-env = python-env.override (old: {
+        extraPackages = (old.extraPackages or [ ]) ++ [
+          pythonPackages.bpython
+          pythonPackages.jupyter_console
+          pythonPackages.pytest
+        ];
+      });
+    in {
+      run-tests = pkgs.writeShellScriptBin "run-tests" ''
+        # Resolves the symlink to find the actual path of the script
+        SCRIPT=$(readlink -f "$0" || realpath "$0")
+        SCRIPT_DIR=$(dirname "$SCRIPT")
+
+        # Adjusted to ensure it works regardless of where it's called from
+        BASE_DIR=$(dirname "$SCRIPT_DIR")
+        ${extended-python-env}/bin/pytest $SCRIPT_DIR/tests/ "$@"
+      '';
+
+      run-bpython = pkgs.writeShellScriptBin "run-bpython" ''
+        export PYTHONPATH=${src}:$PYTHONPATH
+        ${extended-python-env}/bin/bpython "$@"
+      '';
+
+      run-jupyter = pkgs.writeShellScriptBin "run-jupyter" ''
+        export PYTHONPATH=${src}:$PYTHONPATH
+        ${extended-python-env}/bin/jupyter-console "$@"
+      '';
+    };
 }
