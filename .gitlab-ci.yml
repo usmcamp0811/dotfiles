@@ -97,7 +97,6 @@ mattis:
       deploy --hostname $SYSTEM .#$SYSTEM --skip-checks
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: always
       allow_failure: false
 
 butler_deploy:
@@ -149,11 +148,8 @@ update-flake:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '$BUILD_SYSTEMS == "true"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
-      when: always
       allow_failure: false
-    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 .build_job_template: &build_job_template
   stage: build_systems
@@ -176,9 +172,7 @@ update-flake:
   resource_group: build_sequential
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $BUILD_SYSTEMS == "true"'
-      when: always
       allow_failure: false
-    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 butler:
   <<: *build_job_template
