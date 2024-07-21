@@ -96,7 +96,7 @@ mattis:
       nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
       deploy --hostname $SYSTEM .#$SYSTEM --skip-checks
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_TYPE != "public" && $DEPLOY_TYPE != "lan"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_TYPE != "public" && $DEPLOY_TYPE != "lan" && $FLAKE_UPDATE != "true"'
       when: always
       allow_failure: false
 
