@@ -61,18 +61,9 @@
   ##   - run-jupyter: Starts a Jupyter console with the source code in PYTHONPATH.
   mkPythonDevScripts = { pkgs, python-env, src }:
     let
-      pythonVersion = builtins.parseDrvName
-        (builtins.unsafeGetAttrPos "name" python-env).name;
-      pythonPackages = builtins.attrValues pkgs."${pythonVersion}Packages";
-
-      # Add necessary packages based on the Python version
-      extended-python-env = python-env.override (old: {
-        extraPackages = (old.extraPackages or [ ]) ++ [
-          pythonPackages.bpython
-          pythonPackages.jupyter_console
-          pythonPackages.pytest
-        ];
-      });
+      # Extend the given python environment with additional packages
+      extended-python-env = python-env.withPackages
+        (ps: with ps; [ bpython pytest jupyter ipykernel ]);
     in {
       run-tests = pkgs.writeShellScriptBin "run-tests" ''
         # Resolves the symlink to find the actual path of the script
@@ -90,8 +81,8 @@
       '';
 
       run-jupyter = pkgs.writeShellScriptBin "run-jupyter" ''
-        export PYTHONPATH=${src}:$PYTHONPATH
-        ${extended-python-env}/bin/jupyter-console "$@"
+        export PYTHONPATH=${src}:${pkgs.jupyter-all}/lib/python3.11/site-packages
+        ${pkgs.jupyter-all}/bin/jupyter console "$@"
       '';
     };
 }
