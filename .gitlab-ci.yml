@@ -240,7 +240,7 @@ butler_deploy:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
       allow_failure: true
-    - if: '$CI_COMMIT_BRANCH == "nixos"'
+
 daly_deploy:
   <<: *deploy_job_template
   variables:
