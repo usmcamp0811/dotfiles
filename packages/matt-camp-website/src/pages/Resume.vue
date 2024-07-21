@@ -17,7 +17,7 @@
                         <a href="https://www.linkedin.com/in/matthewjcamp/"><q-icon name="fab fa-linkedin-in" /></a>
                         <a href="https://github.com/usmcamp0811"><q-icon name="fab fa-github" /></a>
                         <a href="https://gitlab.com/usmcamp0811"><q-icon name="fab fa-gitlab" /></a>
-                        <a href="https://blog.aicampground.com/post/index.xml"><q-icon name="fas square-rss" /></a>
+                        <a href="https://blog.aicampground.com/post/index.xml"><q-icon name="fas fa-rss" /></a>
                     </span>
                 </div>
 
@@ -230,6 +230,19 @@ section.resume-section {
 }
 
 .social [class*="fab fa-"] {
+    background-color: #333;
+    border-radius: 30px;
+    color: #fff;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    margin: auto 3px;
+    width: 30px;
+    font-size: 15px;
+    text-align: center;
+}
+
+.social [class*="fas fa-"] {
     background-color: #333;
     border-radius: 30px;
     color: #fff;
