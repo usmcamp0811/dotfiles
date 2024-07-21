@@ -17,7 +17,6 @@ update-flake:
     expire_in: 1 hour
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
       allow_failure: false
 
 .build_job_template: &build_job_template
