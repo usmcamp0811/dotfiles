@@ -17,7 +17,7 @@
                         <a href="https://www.linkedin.com/in/matthewjcamp/"><q-icon name="fab fa-linkedin-in" /></a>
                         <a href="https://github.com/usmcamp0811"><q-icon name="fab fa-github" /></a>
                         <a href="https://gitlab.com/usmcamp0811"><q-icon name="fab fa-gitlab" /></a>
-                        <a href="https://blog.aicampground.com/post/index.xml"><q-icon name="fa-solid fa-rss" /></a>
+                        <a href="https://blog.aicampground.com/post/index.xml"><q-icon name="fas square-rss" /></a>
                     </span>
                 </div>
 
