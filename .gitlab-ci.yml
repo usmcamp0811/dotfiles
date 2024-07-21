@@ -177,7 +177,7 @@ update-flake:
     - job: update-flake
   resource_group: build_sequential
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $BUILD_SYSTEMS == "true"'
       when: always
       allow_failure: false
     - if: '$CI_COMMIT_BRANCH == "nixos"'
