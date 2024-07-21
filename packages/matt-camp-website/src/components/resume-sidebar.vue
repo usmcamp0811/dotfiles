@@ -65,6 +65,12 @@ export default {
           label: 'Awards',
           link: '/#awards',
           separator: false
+        },
+        {
+          icon: 'blog',
+          label: 'Blog',
+          link: 'https://blog.aicampground.com',
+          separator: false
         }
       ]
     }
