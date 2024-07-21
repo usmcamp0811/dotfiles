@@ -84,5 +84,20 @@
         export PYTHONPATH=${src}:${pkgs.jupyter-all}/lib/python3.11/site-packages
         ${pkgs.jupyter-all}/bin/jupyter console "$@"
       '';
+
+      test-access-window-flink-job = pkgs.stdenv.mkDerivation {
+        name = "test-access-window-flink-job";
+        src = src;
+        phases = [ "installPhase" ];
+        propagatedBuildInputs = [ python-env ];
+        installPhase = ''
+          mkdir -p $out/bin
+          ln -s ${src}/src/run-tests $out/bin/run-tests
+        '';
+        meta = {
+          description = "Tests for TLE Utils";
+          mainProgram = "run-tests";
+        };
+      };
     };
 }
