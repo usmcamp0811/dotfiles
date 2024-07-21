@@ -142,13 +142,13 @@ update-flake:
     - nix
   script:
     - |
-      [ "$CI_PIPELINE_SOURCE" = "schedule" ] && git rm flake.lock && nix flake update || true;
+      [ "$FLAKE_UPDATE" == "true" ] && git rm flake.lock && nix flake update || true;
   artifacts:
     paths:
       - flake.lock
     expire_in: 1 hour
   rules:
-    - if: '"$FLAKE_UPDATE" == "true"'
+    - if: '$FLAKE_UPDATE == "true"'
       allow_failure: false
 
 .build_job_template: &build_job_template
