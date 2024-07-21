@@ -231,7 +231,6 @@ mattis:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && "$FLAKE_UPDATE" != "true"'
       when: always
       allow_failure: false
-    - if: '$CI_COMMIT_BRANCH == "nixos"'
 
 butler_deploy:
   <<: *deploy_job_template
