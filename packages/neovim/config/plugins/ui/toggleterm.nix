@@ -1,28 +1,94 @@
 { ... }: {
 
+  keymaps = [
+    {
+      mode = "n";
+      key = "<leader>tj";
+      options.desc = "Julia Terminal";
+      action = "<cmd>lua _JULIA_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>z";
+      options.desc = "Julia Terminal";
+      action = "<cmd>lua _JULIA_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tc";
+      options.desc = "Clojure Terminal";
+      action = "<cmd>lua _CLOJURE_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tp";
+      options.desc = "Python Terminal";
+      action = "<cmd>lua _PYTHON_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tn";
+      options.desc = "Node Terminal";
+      action = "<cmd>lua _NODE_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tl";
+      options.desc = "Lua Terminal";
+      action = "<cmd>lua _LUA_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tg";
+      options.desc = "Lazygit Terminal";
+      action = "<cmd>lua _LAZYGIT_TOGGLE()<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tu";
+      options.desc = "NCDU Terminal";
+      action = "<cmd>lua _NCDU_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tt";
+      options.desc = "HTOP Terminal";
+      action = "<cmd>lua _HTOP_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tk";
+      options.desc = "K9s Terminal";
+      action = "<cmd>lua _K9S_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tf";
+      options.desc = "Float Terminal";
+      action = "<cmd>ToggleTerm direction=float<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>th";
+      options.desc = "HShell Terminal";
+      action = "<cmd>lua _HSHELL_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tv";
+      options.desc = "VShell Terminal";
+      action = "<cmd>lua _VSHELL_TOGGLE()<cr>";
+    }
+    {
+      mode = "n";
+      key = "<leader>tr";
+      options.desc = "Rnvimr Toggle";
+      action = ":RnvimrToggle<CR>";
+    }
+  ];
   plugins = {
     toggleterm.enable = true;
-    which-key = {
-      enable = true;
-      registrations = {
-        "<leader>t" = {
-          name = "Terminal";
-          j = "<cmd>lua _JULIA_TOGGLE()<cr>";
-          c = "<cmd>lua _CLOJURE_TOGGLE()<cr>";
-          p = "<cmd>lua _PYTHON_TOGGLE()<cr>";
-          n = "<cmd>lua _NODE_TOGGLE()<cr>";
-          l = "<cmd>lua _LUA_TOGGLE()<cr>";
-          g = "<cmd>lua _LAZYGIT_TOGGLE()<CR>";
-          u = "<cmd>lua _NCDU_TOGGLE()<cr>";
-          t = "<cmd>lua _HTOP_TOGGLE()<cr>";
-          k = "<cmd>lua _K9S_TOGGLE()<cr>";
-          f = "<cmd>ToggleTerm direction=float<cr>";
-          h = "<cmd>lua _HSHELL_TOGGLE()<cr>";
-          v = "<cmd>lua _VSHELL_TOGGLE()<cr>";
-          r = ":RnvimrToggle<CR>";
-        };
-      };
-    };
+    which-key = { enable = true; };
   };
 
   extraConfigLua = ''
