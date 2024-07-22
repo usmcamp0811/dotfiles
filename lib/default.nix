@@ -105,4 +105,25 @@
         };
       };
     };
+
+  containerShadowSetup = { pkgs, user, uid, gid ? uid, homeDir ? "/home/${user}"
+    , runtimeShell ? "/bin/bash" }:
+    with pkgs; [
+      (writeTextDir "etc/shadow" ''
+        root:!x:::::::
+        ${user}:!:::::::
+      '')
+      (writeTextDir "etc/passwd" ''
+        root:x:0:0::/root:${runtimeShell}
+        ${user}:x:${toString uid}:${toString gid}::${homeDir}:
+      '')
+      (writeTextDir "etc/group" ''
+        root:x:0:
+        ${user}:x:${toString gid}:
+      '')
+      (writeTextDir "etc/gshadow" ''
+        root:x::
+        ${user}:x::
+      '')
+    ];
 }
