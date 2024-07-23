@@ -248,37 +248,37 @@
       options = { desc = "Open Side Calendar"; };
       action = "<cmd>Calendar -view=year -split=vertical -width=25<CR>";
     }
-    {
-      mode = "n";
-      key = "h";
-      options = { desc = "No Highlight"; };
-      action = "<cmd>nohlsearch<CR>";
-    }
-    {
-      mode = "n";
-      key = "f";
-      options = { desc = "Find files"; };
-      action =
-        "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>";
-    }
+    # {
+    #   mode = "n";
+    #   key = "h";
+    #   options = { desc = "No Highlight"; };
+    #   action = "<cmd>nohlsearch<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "f";
+    #   options = { desc = "Find files"; };
+    #   action =
+    #     "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{previewer = false})<cr>";
+    # }
     {
       mode = "n";
       key = "F";
       options = { desc = "Find Text"; };
       action = "<cmd>Telescope live_grep theme=ivy<cr>";
     }
-    {
-      mode = "n";
-      key = "r";
-      options = { desc = "Search Recent Files"; };
-      action = ":Telescope oldfiles <CR>";
-    }
-    {
-      mode = "n";
-      key = "w";
-      options = { desc = "Search Neorg Wiki"; };
-      action = "<cmd>cd ~/vimwiki/home | :Telescope live_grep theme=ivy<cr>";
-    }
+    # {
+    #   mode = "n";
+    #   key = "r";
+    #   options = { desc = "Search Recent Files"; };
+    #   action = ":Telescope oldfiles <CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "w";
+    #   options = { desc = "Search Neorg Wiki"; };
+    #   action = "<cmd>cd ~/vimwiki/home | :Telescope live_grep theme=ivy<cr>";
+    # }
   ];
   plugins = {
     # UI Enhancements
