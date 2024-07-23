@@ -1,4 +1,4 @@
-{ nix-vim, nixpkgs, myvim, unstable, ... }:
+{ nix-vim, nixpkgs, unstable, ... }:
 final: prev: {
   nixvim = nix-vim.legacyPackages.${prev.system};
   vimPlugins = unstable.legacyPackages.${prev.system}.vimPlugins;
