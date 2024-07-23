@@ -100,7 +100,7 @@
           ln -s ${project-drv}/src/run-tests $out/bin/run-tests
         '';
         meta = {
-          description = "Tests for TLE Utils";
+          description = "PyTest";
           mainProgram = "run-tests";
         };
       };

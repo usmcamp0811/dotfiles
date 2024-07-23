@@ -433,7 +433,7 @@
     };
     vim-bbye.enable = true;
     bufferline.enable = true;
-    lsp-lines.enable = true;
+    # lsp-lines.enable = true;
     lspsaga.enable = true;
     trouble.enable = true;
     mark-radar.enable = true;

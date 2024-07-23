@@ -10,7 +10,7 @@
       collapse = "⊟";
       codeAction = "💡";
       actionfix = "";
-      kind = {};
+      kind = { };
       impSign = "󰳛 ";
     };
 
@@ -64,11 +64,11 @@
       maxHeight = 0.5;
       leftWidth = 0.3;
       rightWidth = 0.3;
-      methods = {};
+      methods = { };
       default = "ref+imp";
       layout = "float";
       silent = false;
-      filter = {};
+      filter = { };
       keys = {
         shuttle = "[w";
         toggleOrOpen = "o";
@@ -159,28 +159,70 @@
       frequency = 7;
     };
   };
-  extraConfigLua = ''
-    local wk = require("which-key")
 
-    wk.register({
-      g = {
-        name = "LSPSaga",
-        h = { ":Lspsaga lsp_finder<CR>", "Finder" },
-        a = { ":Lspsaga code_action<CR>", "Code Action" },
-        s = { ":Lspsaga signature_help<CR>", "Signature Help" },
-        r = { ":Lspsaga rename<CR>", "Rename" },
-        d = { ":Lspsaga preview_definition<CR>", "Preview Definition" },
-      },
-      ["<leader>"] = {
-        c = {
-          name = "LSPSaga Diagnostics",
-          d = { ":Lspsaga show_line_diagnostics<CR>", "Line Diagnostics" },
-          c = { ":Lspsaga show_cursor_diagnostics<CR>", "Cursor Diagnostics" },
-        },
-      },
-      K = { ":Lspsaga hover_doc<CR>", "Hover Doc" },
-      ["<C-f>"] = { "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(1)<CR>", "Scroll Doc Down" },
-      ["<C-b>"] = { "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>", "Scroll Doc Up" },
-    })
-  '';
+  keymaps = [
+    # LSPSaga mappings
+    {
+      mode = "n";
+      key = "gh";
+      options = { desc = "Finder"; };
+      action = ":Lspsaga lsp_finder<CR>";
+    }
+    {
+      mode = "n";
+      key = "ga";
+      options = { desc = "Code Action"; };
+      action = ":Lspsaga code_action<CR>";
+    }
+    {
+      mode = "n";
+      key = "gs";
+      options = { desc = "Signature Help"; };
+      action = ":Lspsaga signature_help<CR>";
+    }
+    {
+      mode = "n";
+      key = "gr";
+      options = { desc = "Rename"; };
+      action = ":Lspsaga rename<CR>";
+    }
+    {
+      mode = "n";
+      key = "gd";
+      options = { desc = "Preview Definition"; };
+      action = ":Lspsaga preview_definition<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cd";
+      options = { desc = "Line Diagnostics"; };
+      action = ":Lspsaga show_line_diagnostics<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc";
+      options = { desc = "Cursor Diagnostics"; };
+      action = ":Lspsaga show_cursor_diagnostics<CR>";
+    }
+    {
+      mode = "n";
+      key = "K";
+      options = { desc = "Hover Doc"; };
+      action = ":Lspsaga hover_doc<CR>";
+    }
+    {
+      mode = "n";
+      key = "<C-f>";
+      options = { desc = "Scroll Doc Down"; };
+      action =
+        "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(1)<CR>";
+    }
+    {
+      mode = "n";
+      key = "<C-b>";
+      options = { desc = "Scroll Doc Up"; };
+      action =
+        "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>";
+    }
+  ];
 }

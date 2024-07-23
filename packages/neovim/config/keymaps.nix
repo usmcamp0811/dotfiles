@@ -141,4 +141,122 @@
       action = "<C-o>:set list!<CR>";
     }
   ];
+
+  files."after/ftplugin/python.lua".keymaps = [
+    {
+      mode = "n";
+      key = "<leader>cc?";
+      options = { desc = "LSP Hover Definition"; };
+      action = ":lua vim.lsp.buf.hover()<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cct";
+      options = { desc = "Get Python REPL"; };
+      action = ":lua vim.b.slime_config = {jobid=vim.g.python_job_id}<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc<CR>";
+      options = { desc = "Execute Code Cell <marks>"; };
+      action = ":MoltenEvaluateLine<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc<S-CR>";
+      options = { desc = "Run Whole File"; };
+      action = "ggvG :'<,'>SlimeSend<CR>";
+    }
+    {
+      mode = "v";
+      key = "<leader>cc<CR>";
+      options = { desc = "Run Code w/ Conjure"; };
+      action = ":'<,'>ConjureEval<CR>";
+    }
+    {
+      mode = "v";
+      key = "<leader>cc?";
+      options = { desc = "LSP Hover Definition"; };
+      action = ":lua vim.lsp.buf.hover()<CR>";
+    }
+  ];
+
+  files."after/ftplugin/julia.lua".keymaps = [
+    {
+      mode = "n";
+      key = "<leader>cc?";
+      options = { desc = "LSP Hover Definition"; };
+      action = ":lua vim.lsp.buf.hover()<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cct";
+      options = { desc = "Get Julia REPL"; };
+      action = ":lua vim.b.slime_config = {jobid=vim.g.julia_job_id}<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc<CR>";
+      options = { desc = "Run w/ Julia Cell / Slime"; };
+      action = ":JuliaCellExecuteCell<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc<S-CR>";
+      options = { desc = "Run Whole File"; };
+      action = "ggvG :'<,'>SlimeSend<CR>";
+    }
+    {
+      mode = "v";
+      key = "<leader>cc<CR>";
+      options = { desc = "Run Code w/ Slime"; };
+      action = ":'<,'>SlimeSend<CR>";
+    }
+    {
+      mode = "v";
+      key = "<leader>cc?";
+      options = { desc = "LSP Hover Definition"; };
+      action = ":lua vim.lsp.buf.hover()<CR>";
+    }
+  ];
+
+  files."after/ftplugin/clojure.lua".keymaps = [
+    {
+      mode = "n";
+      key = "<leader>cc?";
+      options = { desc = "LSP Hover Definition"; };
+      action = ":lua vim.lsp.buf.hover()<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cct";
+      options = { desc = "Get Clojure REPL"; };
+      action = ":lua vim.b.slime_config = {jobid=vim.g.clojure_job_id}<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc<CR>";
+      options = { desc = "Execute Code"; };
+      action =
+        ":ConjureEvalCurrentForm<CR>:silent! call repeat#set(' ee', 1)<CR>";
+    }
+    {
+      mode = "n";
+      key = "<leader>cc<S-CR>";
+      options = { desc = "Run Whole File"; };
+      action = "ggvG :'<,'>SlimeSend<CR>";
+    }
+    {
+      mode = "v";
+      key = "<leader>cc<CR>";
+      options = { desc = "Run Code w/ Slime"; };
+      action = ":'<,'>SlimeSend<CR>";
+    }
+    {
+      mode = "v";
+      key = "<leader>cc?";
+      options = { desc = "LSP Hover Definition"; };
+      action = ":lua vim.lsp.buf.hover()<CR>";
+    }
+  ];
 }
