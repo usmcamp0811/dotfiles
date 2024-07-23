@@ -54,7 +54,16 @@ in {
   };
   campground.cache.campground = enabled;
   campground.services = { };
-
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-27.3.11"
+  ];
+  environment.systemPackages = with pkgs; [
+    glibc
+    glibc_multi
+    gcc
+    gcc_multi
+    openssl
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

@@ -10,7 +10,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = [
       # pkgs.lutris
-      pkgs.minecraft
+      # pkgs.minecraft
       pkgs.discord
       pkgs.steam
       pkgs.prismlauncher

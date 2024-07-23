@@ -88,7 +88,7 @@ with lib.campground; {
       zoom = enabled;
       #webcord = enabled;
       lutris = enabled;
-      minecraft = enabled;
+      # minecraft = enabled;
       signal = enabled;
       prismlauncher = enabled;
      # mattermost-desktop = enabled;
