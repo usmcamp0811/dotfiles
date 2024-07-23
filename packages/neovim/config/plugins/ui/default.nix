@@ -140,114 +140,114 @@
       options.desc = "Search Neorg Wiki";
       action = "<cmd>cd ~/vimwiki/home | :Telescope live_grep theme=ivy<cr>";
     }
-    {
-      mode = "n";
-      key = "m";
-      options = { desc = "Open your Mind"; };
-      action = ":MindOpenMain<CR>";
-    }
-    {
-      mode = "n";
-      key = ",";
-      options = { desc = "Alpha"; };
-      action = "<cmd>Alpha<cr>";
-    }
-    {
-      mode = "n";
-      key = "b";
-      options = { desc = "Buffers"; };
-      action = "<cmd>BufferLinePick<cr>";
-    }
-    {
-      mode = "n";
-      key = "q";
-      options = { desc = "Quit"; };
-      action = "<cmd>q!<CR>";
-    }
-    {
-      mode = "n";
-      key = "cx";
-      options = { desc = "Switch Slime to X11"; };
-      action = "<cmd>lua SlimeXSwitch()<CR>";
-    }
-    {
-      mode = "n";
-      key = "cr";
-      options = { desc = "Restart Jupyter"; };
-      action = ":MoltenRestart!<CR>";
-    }
-    {
-      mode = "n";
-      key = "cs";
-      options = { desc = "Start Jupyter"; };
-      action = ":MoltenInit<CR>";
-    }
-    {
-      mode = "n";
-      key = "cD";
-      options = { desc = "Stop Jupyter"; };
-      action = ":MoltenDeinit<CR>";
-    }
-    {
-      mode = "n";
-      key = "cd";
-      options = { desc = "Delete Current Cell"; };
-      action = ":MoltenDelete<CR>";
-    }
-    {
-      mode = "n";
-      key = "co";
-      options = { desc = "Show Output"; };
-      action = ":MoltenShowOutput<CR>";
-    }
-    {
-      mode = "n";
-      key = "ci";
-      options = { desc = "Interrupt Jupyter"; };
-      action = ":MoltenInterrupt<CR>";
-    }
-    {
-      mode = "n";
-      key = "c<CR>";
-      options = { desc = "Run Cell"; };
-      action = ":MoltenReevaluateCell<CR>";
-    }
-    {
-      mode = "n";
-      key = "Cc";
-      options = { desc = "Open Calendar"; };
-      action = "<cmd>Calendar<CR>";
-    }
-    {
-      mode = "n";
-      key = "Cw";
-      options = { desc = "Week View"; };
-      action = "<cmd>Calendar -view=week<CR>";
-    }
-    {
-      mode = "n";
-      key = "Cd";
-      options = { desc = "Day View"; };
-      action = "<cmd>Calendar -view=day<CR>";
-    }
-    {
-      mode = "n";
-      key = "Cs";
-      options = { desc = "Day View"; };
-      action = "<cmd>Calendar -view=days<CR>";
-    }
-    {
-      mode = "n";
-      key = "Co";
-      options = { desc = "Clock"; };
-      action = "<cmd>Calendar -view=clock<CR>";
-    }
-    {
-      mode = "n";
-      key = "Cf";
-      options = { desc = "Open Side Calendar"; };
-      action = "<cmd>Calendar -view=year -split=vertical -width=25<CR>";
-    }
+    # {
+    #   mode = "n";
+    #   key = "m";
+    #   options = { desc = "Open your Mind"; };
+    #   action = ":MindOpenMain<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = ",";
+    #   options = { desc = "Alpha"; };
+    #   action = "<cmd>Alpha<cr>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "b";
+    #   options = { desc = "Buffers"; };
+    #   action = "<cmd>BufferLinePick<cr>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "q";
+    #   options = { desc = "Quit"; };
+    #   action = "<cmd>q!<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "cx";
+    #   options = { desc = "Switch Slime to X11"; };
+    #   action = "<cmd>lua SlimeXSwitch()<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "cr";
+    #   options = { desc = "Restart Jupyter"; };
+    #   action = ":MoltenRestart!<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "cs";
+    #   options = { desc = "Start Jupyter"; };
+    #   action = ":MoltenInit<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "cD";
+    #   options = { desc = "Stop Jupyter"; };
+    #   action = ":MoltenDeinit<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "cd";
+    #   options = { desc = "Delete Current Cell"; };
+    #   action = ":MoltenDelete<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "co";
+    #   options = { desc = "Show Output"; };
+    #   action = ":MoltenShowOutput<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "ci";
+    #   options = { desc = "Interrupt Jupyter"; };
+    #   action = ":MoltenInterrupt<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "c<CR>";
+    #   options = { desc = "Run Cell"; };
+    #   action = ":MoltenReevaluateCell<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "Cc";
+    #   options = { desc = "Open Calendar"; };
+    #   action = "<cmd>Calendar<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "Cw";
+    #   options = { desc = "Week View"; };
+    #   action = "<cmd>Calendar -view=week<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "Cd";
+    #   options = { desc = "Day View"; };
+    #   action = "<cmd>Calendar -view=day<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "Cs";
+    #   options = { desc = "Day View"; };
+    #   action = "<cmd>Calendar -view=days<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "Co";
+    #   options = { desc = "Clock"; };
+    #   action = "<cmd>Calendar -view=clock<CR>";
+    # }
+    # {
+    #   mode = "n";
+    #   key = "Cf";
+    #   options = { desc = "Open Side Calendar"; };
+    #   action = "<cmd>Calendar -view=year -split=vertical -width=25<CR>";
+    # }
     # {
     #   mode = "n";
     #   key = "h";
