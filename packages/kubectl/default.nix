@@ -34,13 +34,11 @@ in stdenv.mkDerivation rec {
   nativeBuildInputs = [ installShellFiles ];
 
   installPhase = ''
-    for src in $srcs; do
-      local name=$(stripHash $src)
-      install -m755 -D $src $out/bin/$name
-      installShellCompletion --cmd $name \
-      --zsh <($out/bin/kubectl completion zsh)
-    done
+    local name=$(stripHash $src)
+    install -m755 -D $src $out/bin/$name
+    installShellCompletion --cmd $name \
+    --zsh <($out/bin/kubectl completion zsh)
   '';
 
-  platforms = [ "x86_64-linux" "x86_64-darwin" ];
+  platforms = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
 }
