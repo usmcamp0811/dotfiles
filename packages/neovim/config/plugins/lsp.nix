@@ -1,4 +1,32 @@
 { pkgs, ... }: {
+  extraConfigLuaPost = ''
+    vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+  '';
+
+  extraPackages = with pkgs; [
+    alejandra
+    black
+    clang-tools
+    isort
+    nixfmt-rfc-style
+    nixpkgs-fmt
+    pgformatter
+    prettierd
+    shfmt
+    sqlfluff
+    stylua
+  ];
+
+  keymaps = [{
+    key = "<leader>cf";
+    action.__raw = "function() require('conform').format() end";
+    mode = [ "n" "v" ];
+    options = {
+      silent = true;
+      noremap = true;
+      desc = "[C]onform: [F]ormat current buffer";
+    };
+  }];
   # diagnostics.virtual_lines = { only_current_line = true; };
   plugins = {
     vim-slime = { enable = true; };
@@ -7,19 +35,26 @@
     ts-context-commentstring = { enable = true; };
     conform-nvim = {
       enable = true;
+      formatOnSave = {
+        lspFallback = true;
+        timeoutMs = 500;
+      };
+      notifyOnError = true;
       formattersByFt = {
-        lua = [ "stylua" ];
-        # Conform will run multiple formatters sequentially
+        c = [ "clang-format" ];
+        cpp = [ "clang-format" ];
+        json = [[ "prettierd" "prettier" ]];
+        lua = [ "stylua " ];
+        markdown = [[ "prettierd" "prettier" ]];
+        nix = [[ "alejandra" "nixfmt" "nixpkgs_fmt" ]];
         python = [ "isort" "black" ];
-        # Use a sub-list to run only the first available formatter
-        javascript = [[ "prettierd" "prettier" ]];
-        # Use the "*" filetype to run formatters on all filetypes.
-        "*" = [ "codespell" ];
-        # Use the "_" filetype to run formatters on filetypes that don't
-        # have other formatters configured.
-        "_" = [ "trim_whitespace" ];
+        rust = [ "rustfmt" ];
+        sh = [ "shfmt " ];
+        sql = [[ "pg_format" "sql_formatter" "sqlfluff" ]];
+        yaml = [ "prettierd" ];
       };
     };
+
     comment = {
       enable = true;
       settings = {

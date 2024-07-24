@@ -1,14 +1,10 @@
 # LevelUp Your Nix
 
-
-
 ## Installing Nix
-
 
 ```bash
 sh <(curl -L https://nixos.org/nix/install) --daemon
 ```
-
 
 ### Enable Flakes
 
@@ -18,39 +14,32 @@ Add the following to `~/.config/nix/nix.conf or /etc/nix/nix.conf`:
 experimental-features = nix-command flakes
 ```
 
-
 ## Nix Templates
 
-
-You don't have to start from zero, you can start with a template. 
+You don't have to start from zero, you can start with a template.
 
 ```bash
-mkdir project-dir 
+mkdir project-dir
 cd project-dir
 nix flake init --template gitlab:usmcamp0811/dotfiles#shell-container
 ```
 
-
 ### Important Files
 
-
 - `flake.nix`: The `main` file for your Nix Flake.
-- `flake.lock`: The lock file that tells Nix what commits/dependencies to use for each of your `inputs`. 
+- `flake.lock`: The lock file that tells Nix what commits/dependencies to use for each of your `inputs`.
 - `.direnv`: An optional file that allows you to automatically switch to your Shell when you enter the directory; requires `direnv` be installed.
-- `.gitignore`: Every Flake ~~should~~ needs to be a `git` repository; so we might want to have a `.gitignore`. 
+- `.gitignore`: Every Flake ~~should~~ needs to be a `git` repository; so we might want to have a `.gitignore`.
 
 _**NOTE:** Nix can only see files that have been added to the `git` repo._
 
-
 ## Parts of a `flake.nix`
 
-
-There are really only two parts to a `flake.nix`. 
-
+There are really only two parts to a `flake.nix`.
 
 ### `inputs`
 
-This section contains other Flakes you want to use or have available in your Flake. Each is assigned a local name that can be referenced in the Flake. 
+This section contains other Flakes you want to use or have available in your Flake. Each is assigned a local name that can be referenced in the Flake.
 
 All three of the following are the same, just different styles of Nix code.
 
@@ -97,29 +86,23 @@ inputs.flakeA.url = "gitlab:owner/repoA/branch";
 inputs.flakeB.url = "gitlab:owner/repoB";
 ```
 
-
 ### `outputs`
 
-
-This is the section the as the name implies is the output of your Flake. For the purpose of this tutorial session lets break the `outputs` section into two parts. 
-
+This is the section the as the name implies is the output of your Flake. For the purpose of this tutorial session lets break the `outputs` section into two parts.
 
 #### `let`... `in` block
 
 This section is where you can create Nix variables that are the outputs of Nix functions. The functions can do things like create packages or create shells. General programming concepts can apply here, after all it is a programming language.
 
-
 #### `[` ... `](` ... `)` block
 
-This section is part of the `flake.nix` that is a little more strucutred. There are some standardized outputs that most all Flakes should have, such as `packages` or `devShells`. 
-
+This section is part of the `flake.nix` that is a little more strucutred. There are some standardized outputs that most all Flakes should have, such as `packages` or `devShells`.
 
 ## Make an Executable Shell Script
 
-
 A simple example of creating an executable shell script follows. It is a simple script that allows for running the Julia
 package `Pluto.jl` from the command line without having to launch the Julia REPL. It gets saved as a Nix variable `pluto`
-so we can use it elsewhere in our Flake. Below we also define the `julia` environment that will have the `Pluto` and `PythonCall` packages included. We call that Julia environment `julia-env` and notice how we used it in the `pluto` shell script. Finally notice that Nix lazily evaluates all of its code, so the order of defining things generally does not matter.  
+so we can use it elsewhere in our Flake. Below we also define the `julia` environment that will have the `Pluto` and `PythonCall` packages included. We call that Julia environment `julia-env` and notice how we used it in the `pluto` shell script. Finally notice that Nix lazily evaluates all of its code, so the order of defining things generally does not matter.
 
 ```nix
 
@@ -144,23 +127,22 @@ so we can use it elsewhere in our Flake. Below we also define the `julia` enviro
  julia-env = pkgs.julia.withPackages [ "Pluto" "PythonCall"];
 ```
 
-
 ## Making a Shell Environment
 
-The following should generally go in the `let` `in` block of the `outputs` section of your flake or in something that gets imported into it. It is a function call that returns a `buildEnv` that we call `shell-env`. This isn't 100% necessary that we do it seperate like we are, but it will allow us to define our environment once, and use it in both a `devShell` and a OCI compliant container. The function takes a couple of named arguments, the first being `name` which we just give it a descriptive name. The second argument is `paths` which is effectively a list of packages to include. For our example we include `julia-env` which we defined above. 
+The following should generally go in the `let` `in` block of the `outputs` section of your flake or in something that gets imported into it. It is a function call that returns a `buildEnv` that we call `shell-env`. This isn't 100% necessary that we do it seperate like we are, but it will allow us to define our environment once, and use it in both a `devShell` and a OCI compliant container. The function takes a couple of named arguments, the first being `name` which we just give it a descriptive name. The second argument is `paths` which is effectively a list of packages to include. For our example we include `julia-env` which we defined above.
 
 ```nix
- shell-env = pkgs.buildEnv rec { 
-   name = "shell-env";       
+ shell-env = pkgs.buildEnv rec {
+   name = "shell-env";
    paths = [
        julia-env
      ];
  };
 ```
 
-Below is the actual definition of our shell. There are two arguments (that we have defined here) to pass into the `mkShell` function, `buildInputs` and `shellHook`. The `buildInputs` is the packages you want to have in your shell environment. Normally you could just place your packages you want inside the list, but because we don't want to repeat our selves we broke out the above `buildEnv` and just use that in the `buildInput` section. 
+Below is the actual definition of our shell. There are two arguments (that we have defined here) to pass into the `mkShell` function, `buildInputs` and `shellHook`. The `buildInputs` is the packages you want to have in your shell environment. Normally you could just place your packages you want inside the list, but because we don't want to repeat our selves we broke out the above `buildEnv` and just use that in the `buildInput` section.
 
-The `shellHook` can be thought of as your shell's entrypoint script. It will execute when you enter your shell everytime. For our example we are just echoing some text into the `figlet` program. 
+The `shellHook` can be thought of as your shell's entrypoint script. It will execute when you enter your shell everytime. For our example we are just echoing some text into the `figlet` program.
 
 ```nix
  shell = pkgs.mkShell {
@@ -171,11 +153,9 @@ The `shellHook` can be thought of as your shell's entrypoint script. It will exe
  };
 ```
 
-
 ## Making an OCI Image
 
-
-You spent all that time getting your environment just right to be able to run your application and now it needs to be containerized so it can run in Kubernetes somewhere. In the traditional Docker workflow you would have to create a `Dockerfile` and spend a lot of time making sure you included all the dependencies of your application, and their dependencies...and you would have to make sure that the version of the dependency in your base image's package manager was the correct version (looking at you Debian and Redhat)... several hours later you finally have a Docker image. 
+You spent all that time getting your environment just right to be able to run your application and now it needs to be containerized so it can run in Kubernetes somewhere. In the traditional Docker workflow you would have to create a `Dockerfile` and spend a lot of time making sure you included all the dependencies of your application, and their dependencies...and you would have to make sure that the version of the dependency in your base image's package manager was the correct version (looking at you Debian and Redhat)... several hours later you finally have a Docker image.
 
 With Nix and this way of making your development environment all you have to do to build a container image is the following:
 
@@ -190,16 +170,14 @@ shell-img = pkgs.dockerTools.buildNixShellImage {
 
 This is just a single function call that we assign to the variable `shell-img`. The function takes four arguments, a `name`, a`tag`, a `drv`, and a `command` which is akin to an entrypoint.
 
-Take note of the `drv` argument. We are passing `shell` which is our shell derivation. We also provide a `command` that is our `pluto` script we wrote above. So what this will do is create a container image that the only things that exist in it are the things we included in our `shell` and their dependencies. The `entrypoint` for the container will be our `pluto` script. 
-
+Take note of the `drv` argument. We are passing `shell` which is our shell derivation. We also provide a `command` that is our `pluto` script we wrote above. So what this will do is create a container image that the only things that exist in it are the things we included in our `shell` and their dependencies. The `entrypoint` for the container will be our `pluto` script.
 
 ## The Outputs
 
-
-All the above was in the `let` ... `in` section of the `outputs` of our Flake, but now we need to actually export those things that we want to make public by defining some common Flake output variables. 
+All the above was in the `let` ... `in` section of the `outputs` of our Flake, but now we need to actually export those things that we want to make public by defining some common Flake output variables.
 
 ```nix
-let   
+let
 # ...
 in
 {
@@ -211,11 +189,9 @@ in
 
 _NOTE: You can define as many shells and packages as it makes sense for your flake._
 
-
 ## Using the Flake
 
-
-Flakes don't necessarily get installed. You can use any flake directly from the remote `git` repository that it resides or from within the local repository on your computer. 
+Flakes don't necessarily get installed. You can use any flake directly from the remote `git` repository that it resides or from within the local repository on your computer.
 
 If this flake was in our current directory and it also resided on Gitlab (because GitHub is the devil!) then we could get a shell in our environment we defined either of these two ways.
 
