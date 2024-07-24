@@ -35,8 +35,6 @@ update-flake:
       ssh-keyscan ${SYSTEM} >> ~/.ssh/known_hosts
       nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
       nix-copy-closure --to root@${SYSTEM} ./result
-  needs:
-    - job: update-flake
   resource_group: build_sequential
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $FLAKE_UPDATE == "true"'
