@@ -15,6 +15,7 @@
     shfmt
     sqlfluff
     stylua
+    nodePackages.prettier
   ];
 
   keymaps = [{
