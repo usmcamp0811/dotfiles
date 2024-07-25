@@ -92,7 +92,7 @@ let
     '';
   };
 
-  tablejob = pkgs.writeShellScriptBin "job" ''
+  start-managers = pkgs.writeShellScriptBin "job" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
         export FLINK_CONF_DIR="${flink-conf-dir}/conf";
@@ -113,8 +113,38 @@ let
     export JAVA_HOME=${pkgs.openjdk11};
     export FLINK_HOME=${pkgs.flink}/opt/flink
 
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
+    # Set log directories
+    export FLINK_LOG_DIR="/tmp/flink/log"
+    export FLINK_JOBMANAGER_LOG="$FLINK_LOG_DIR/jobmanager.log"
+    export FLINK_TASKMANAGER_LOG="$FLINK_LOG_DIR/taskmanager.log"
+
+    rm -rf $FLINK_LOG_DIR
+    mkdir -p $FLINK_LOG_DIR
+
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &> $FLINK_JOBMANAGER_LOG &
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &> $FLINK_TASKMANAGER_LOG &
+  '';
+
+  tablejob = pkgs.writeShellScriptBin "job" ''
+    # Check if FLINK_CONF_DIR is unset or empty
+    if [ -z "$FLINK_CONF_DIR" ]; then
+        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
+        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+    else
+        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
+    if [ -z "$KAFKA_BROKER" ]; then
+        export KAFKA_BROKER="localhost:9092";
+        echo "KAFKA_BROKER set to $KAFKA_BROKER"
+    else
+        echo "KAFKA_BROKER already set to $KAFKA_BROKER"
+    fi
+
+    export PATH=${python-env}/bin/:$PATH
+    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${python-env}/bin/python"
+    export JAVA_HOME=${pkgs.openjdk11};
+    export FLINK_HOME=${pkgs.flink}/opt/flink
 
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/tablejob.py \
@@ -142,9 +172,6 @@ let
     export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
     export FLINK_HOME=${pkgs.flink}/opt/flink
-
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start
 
     ${pkgs.flink}/bin/flink run \
       -py ${src}/job/job.py \
@@ -214,6 +241,9 @@ let
       test = test-flink-job;
       stop-all = stop-all;
       conf = flink-conf-dir;
+      tablejob = tablejob;
+      start-managers = start-managers;
+      flink = pkgs.flink;
     };
   };
 in override-meta new-meta example-flink-job

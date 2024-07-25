@@ -3,6 +3,7 @@ import os
 import sys
 
 from pyflink.table import EnvironmentSettings, TableEnvironment
+from pyflink.table.expressions import call, col, lit
 from pyflink.table.window import Tumble
 
 
@@ -19,11 +20,12 @@ def run_example_flink_job(t_env: TableEnvironment, broker: str):
             'topic' = 'example-input-topic',
             'properties.bootstrap.servers' = '{broker}',
             'properties.group.id' = 'test_group_1',
+            'scan.startup.mode' = 'earliest-offset',
             'format' = 'json',
             'json.fail-on-missing-field' = 'false',
             'json.ignore-parse-errors' = 'true'
         )
-    """
+        """
     )
 
     # Define Kafka sink
@@ -38,7 +40,7 @@ def run_example_flink_job(t_env: TableEnvironment, broker: str):
             'properties.bootstrap.servers' = '{broker}',
             'format' = 'json'
         )
-    """
+        """
     )
 
     # Read from Kafka source
@@ -46,13 +48,15 @@ def run_example_flink_job(t_env: TableEnvironment, broker: str):
 
     # Define Tumble Window
     result_table = (
-        source_table.window(Tumble.over("10.minutes").on("timestamp").alias("w"))
-        .group_by("username, w")
-        .select("username, COUNT(username) as login_count")
+        source_table.window(
+            Tumble.over(lit(10).minutes).on(col("timestamp")).alias("w")
+        )
+        .group_by(col("username"), col("w"))
+        .select(col("username"), call("COUNT", col("username")).alias("login_count"))
     )
 
     # Write result to Kafka sink
-    result_table.execute_insert("kafka_sink").wait()
+    result_table.execute_insert("kafka_sink")
 
 
 if __name__ == "__main__":
