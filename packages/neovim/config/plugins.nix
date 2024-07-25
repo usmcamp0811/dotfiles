@@ -16,6 +16,7 @@
     ./plugins/cmp.nix
     ./plugins/knap.nix
     ./plugins/fold-preview.nix
+    ./plugins/kubectl.nix
     # ./plugins/distant.nix
     ./plugins/search-and-replace.nix
     ./plugins/code-window.nix
@@ -28,7 +29,6 @@
 
   extraPlugins = with pkgs.vimPlugins;
     [
-
       # Treesitter
       nvim-treesitter-textobjects
       nvim-treesitter-refactor
