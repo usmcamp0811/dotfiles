@@ -17,7 +17,7 @@ def run_example_flink_job(t_env: TableEnvironment, broker: str):
             WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '1' SECOND
         ) WITH (
             'connector' = 'kafka',
-            'topic' = 'example-input-topic',
+            'topic' = 'example-table-topic-in',
             'properties.bootstrap.servers' = '{broker}',
             'properties.group.id' = 'test_group_1',
             'scan.startup.mode' = 'earliest-offset',
@@ -36,7 +36,7 @@ def run_example_flink_job(t_env: TableEnvironment, broker: str):
             login_count BIGINT
         ) WITH (
             'connector' = 'kafka',
-            'topic' = 'example-output-topic',
+            'topic' = 'example-table-topic-out',
             'properties.bootstrap.servers' = '{broker}',
             'format' = 'json'
         )
@@ -48,15 +48,17 @@ def run_example_flink_job(t_env: TableEnvironment, broker: str):
 
     # Define Tumble Window
     result_table = (
-        source_table.window(
-            Tumble.over(lit(10).minutes).on(col("timestamp")).alias("w")
-        )
+        source_table.window(Tumble.over(lit(1).minutes).on(col("timestamp")).alias("w"))
         .group_by(col("username"), col("w"))
         .select(col("username"), call("COUNT", col("username")).alias("login_count"))
     )
 
     # Write result to Kafka sink
-    result_table.execute_insert("kafka_sink")
+    table_result = result_table.execute_insert("kafka_sink")
+    table_result.wait()
+    logging.info(
+        f"Job Status: {table_result.get_job_client().get_job_status().result()}"
+    )
 
 
 if __name__ == "__main__":
