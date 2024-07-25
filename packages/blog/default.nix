@@ -17,7 +17,7 @@ let
     chmod -R 777 $tmp_dir
     cd $tmp_dir
     echo $tmp_dir
-    ${pkgs.hugo}/bin/hugo server 
+    ${pkgs.hugo}/bin/hugo server
   '';
 
   blog = pkgs.stdenv.mkDerivation rec {
@@ -34,7 +34,9 @@ let
       cd $out
       ${pkgs.hugo}/bin/hugo
     '';
-    passthru = { server = hugo-server; };
-
+    passthru = {
+      server = hugo-server;
+      hugo = pkgs.hugo;
+    };
   };
 in blog
