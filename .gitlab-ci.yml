@@ -97,6 +97,9 @@ mattis:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_TYPE != "public" && $DEPLOY_TYPE != "lan" && $FLAKE_UPDATE != "true"'
       when: always
       allow_failure: false
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_TYPE != "public" && $DEPLOY_TYPE != "lan" && $FLAKE_UPDATE != "true" && $SYSTEM == "butler"'
+      when: always
+      allow_failure: true
 
 butler_deploy:
   <<: *deploy_job_template
