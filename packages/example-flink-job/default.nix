@@ -201,11 +201,9 @@ let
     export JAVA_HOME=${pkgs.openjdk11}
     export FLINK_HOME=${pkgs.flink}/opt/flink
 
+    # Start the SQL client
     ${pkgs.flink}/opt/flink/bin/sql-client.sh \
       --jarfile ${pkgs.campground.flink-connector-kafka}
-
-    # Keep the script running to prevent the shell from exiting
-    tail -f /dev/null
   '';
 
   stop-all = pkgs.writeShellScriptBin "stop-all" ''
