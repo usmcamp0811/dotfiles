@@ -179,6 +179,35 @@ let
       --jarfile ${pkgs.campground.flink-connector-kafka} &
   '';
 
+  sql-cli = pkgs.writeShellScriptBin "job" ''
+    # Check if FLINK_CONF_DIR is unset or empty
+    if [ -z "$FLINK_CONF_DIR" ]; then
+        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
+        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+    else
+        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
+
+    if [ -z "$KAFKA_BROKER" ]; then
+        export KAFKA_BROKER="localhost:9092";
+        echo "KAFKA_BROKER set to $KAFKA_BROKER"
+    else
+        echo "KAFKA_BROKER already set to $KAFKA_BROKER"
+    fi
+
+    export PATH=${python-env}/bin/:$PATH
+    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
+    export PYFLINK_PYTHON="${python-env}/bin/python"
+    export JAVA_HOME=${pkgs.openjdk11}
+    export FLINK_HOME=${pkgs.flink}/opt/flink
+
+    ${pkgs.flink}/opt/flink/bin/sql-client.sh \
+      --jarfile ${pkgs.campground.flink-connector-kafka}
+
+    # Keep the script running to prevent the shell from exiting
+    tail -f /dev/null
+  '';
+
   stop-all = pkgs.writeShellScriptBin "stop-all" ''
     ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
   '';
@@ -244,6 +273,7 @@ let
       tablejob = tablejob;
       start-managers = start-managers;
       flink = pkgs.flink;
+      sql-client = sql-cli;
     };
   };
 in override-meta new-meta example-flink-job

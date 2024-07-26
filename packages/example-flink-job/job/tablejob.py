@@ -2,19 +2,34 @@ import logging
 import os
 import sys
 
-from pyflink.table import EnvironmentSettings, TableEnvironment
-from pyflink.table.expressions import call, col, lit
-from pyflink.table.window import Tumble
+from pyflink.datastream import StreamExecutionEnvironment
+from pyflink.table import DataTypes, EnvironmentSettings, StreamTableEnvironment
+from pyflink.table.udf import udf
 
 
-def run_example_flink_job(t_env: TableEnvironment, broker: str):
+# Define a UDF to print the messages
+@udf(
+    input_types=[DataTypes.STRING(), DataTypes.TIMESTAMP(3)],
+    result_type=DataTypes.STRING(),
+)
+def print_message(username, event):
+    message = f"Received message: {{'username': {username}, 'event': {event}}}"
+    print(message)
+    return username
+
+
+def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
+    # Register the UDF
+    t_env.create_temporary_system_function("print_message", print_message)
+
     # Define Kafka source
     t_env.execute_sql(
         f"""
         CREATE TABLE kafka_source (
             username STRING,
-            `timestamp` TIMESTAMP(3),
-            WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '1' SECOND
+            event_str STRING,
+            event AS TO_TIMESTAMP(event_str, 'yyyy-MM-ddTHH:mm:ssZ'),
+            WATERMARK FOR event AS event - INTERVAL '1' SECOND
         ) WITH (
             'connector' = 'kafka',
             'topic' = 'example-table-topic-in',
@@ -28,42 +43,57 @@ def run_example_flink_job(t_env: TableEnvironment, broker: str):
         """
     )
 
-    # Define Kafka sink
+    # Define Kafka sink with upsert-kafka connector
     t_env.execute_sql(
         f"""
         CREATE TABLE kafka_sink (
             username STRING,
-            login_count BIGINT
+            login_count BIGINT,
+            PRIMARY KEY (username) NOT ENFORCED
         ) WITH (
-            'connector' = 'kafka',
+            'connector' = 'upsert-kafka',
             'topic' = 'example-table-topic-out',
             'properties.bootstrap.servers' = '{broker}',
-            'format' = 'json'
+            'key.format' = 'json',
+            'value.format' = 'json'
         )
         """
     )
 
-    # Read from Kafka source
-    source_table = t_env.from_path("kafka_source")
-
-    # Define Tumble Window
-    result_table = (
-        source_table.window(Tumble.over(lit(1).minutes).on(col("timestamp")).alias("w"))
-        .group_by(col("username"), col("w"))
-        .select(col("username"), call("COUNT", col("username")).alias("login_count"))
-    )
-
-    # Write result to Kafka sink
-    table_result = result_table.execute_insert("kafka_sink")
-    table_result.wait()
-    logging.info(
-        f"Job Status: {table_result.get_job_client().get_job_status().result()}"
+    # Insert query with timestamp conversion and watermarking
+    t_env.execute_sql(
+        """
+        INSERT INTO kafka_sink
+        SELECT
+            username,
+            COUNT(username) AS login_count
+        FROM TABLE(
+            TUMBLE(TABLE kafka_source, DESCRIPTOR(event), INTERVAL '10' SECOND)
+        )
+        GROUP BY
+            username
+        """
     )
 
 
 if __name__ == "__main__":
-    broker = os.getenv("KAFKA_BROKER", "localhost:9092")
+    broker = os.getenv("KAFKA_BROKER", "webb:9092")
     logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
+
     env_settings = EnvironmentSettings.new_instance().in_streaming_mode().build()
-    t_env = TableEnvironment.create(env_settings)
-    run_example_flink_job(t_env, broker)
+
+    # Create streaming environment
+    env = StreamExecutionEnvironment.get_execution_environment()
+
+    # Set parallelism
+    env.set_parallelism(1)
+
+    # Enable checkpointing (optional, but useful for production)
+    env.enable_checkpointing(10000)  # Checkpoint every 10 seconds
+
+    # Create table environment
+    tbl_env = StreamTableEnvironment.create(
+        stream_execution_environment=env, environment_settings=env_settings
+    )
+
+    run_example_flink_job(tbl_env, broker)
