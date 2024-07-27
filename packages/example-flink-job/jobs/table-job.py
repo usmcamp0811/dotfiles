@@ -8,10 +8,11 @@ from pyflink.table.udf import udf
 
 
 def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
+    t_env.execute_sql(f"SET 'properties.bootstrap.servers' = '{broker}';")
 
     # Define Kafka source
     t_env.execute_sql(
-        f"""
+        """
         CREATE TABLE kafka_source (
             username STRING,
             event STRING,
@@ -20,7 +21,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         ) WITH (
             'connector' = 'kafka',
             'topic' = 'example-table-topic-in',
-            'properties.bootstrap.servers' = '{broker}',
+            'properties.bootstrap.servers' = '${properties.bootstrap.servers}',
             'properties.group.id' = 'test_group_1',
             'scan.startup.mode' = 'earliest-offset',
             'format' = 'json',
@@ -32,7 +33,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
 
     # Define Kafka sink with upsert-kafka connector
     t_env.execute_sql(
-        f"""
+        """
         CREATE TABLE kafka_sink (
             username STRING,
             login_count BIGINT,
@@ -42,7 +43,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         ) WITH (
             'connector' = 'upsert-kafka',
             'topic' = 'example-table-topic-out',
-            'properties.bootstrap.servers' = '{broker}',
+            'properties.bootstrap.servers' = '${properties.bootstrap.servers}',
             'key.format' = 'json',
             'value.format' = 'json'
         )
