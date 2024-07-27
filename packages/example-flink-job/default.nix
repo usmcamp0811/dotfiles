@@ -126,14 +126,14 @@ let
   # export JAVA_HOME=${pkgs.openjdk11};
   # export FLINK_HOME=${pkgs.flink}/opt/flink
 
+  # # Check if FLINK_CONF_DIR is unset or empty
+  # if [ -z "$FLINK_CONF_DIR" ]; then
+  #     export FLINK_CONF_DIR="${flink-conf-dir}/conf";
+  #     echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+  # else
+  #     echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+  # fi
   table-job = pkgs.writeShellScriptBin "job" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
 
     ${pkgs.flink}/bin/flink run \
       -py ${src}/jobs/table-job.py \
