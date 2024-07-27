@@ -1,7 +1,7 @@
 { lib, pkgs, ... }:
 with lib.campground;
 let
-  buildFlinkContainer = { name, tag, poetry-env, flink-job, }:
+  buildFlinkContainer = { name, tag, python-env, flink-job, }:
     let
       docker-entrypoint = pkgs.fetchurl {
         url =
@@ -21,7 +21,7 @@ let
           pkgs.su-exec
           pkgs.gosu
           pkgs.jemalloc
-          poetry-env
+          python-env
           pkgs.bash
           flink-job
           pkgs.findutils
@@ -39,8 +39,8 @@ let
         config = {
           Entrypoint = [ "/docker-entrypoint.sh" ];
           Env = [
-            "PYTHONPATH=${poetry-env}/lib/python3.11/site-packages"
-            "PYFLINK_PYTHON=${poetry-env}/bin/python"
+            "PYTHONPATH=${python-env}/lib/python3.11/site-packages"
+            "PYFLINK_PYTHON=${python-env}/bin/python"
             "JAVA_HOME=${pkgs.openjdk11}"
             "FLINK_HOME=/opt/flink"
             "FLINK_BIN_DIR=/opt/flink/bin"

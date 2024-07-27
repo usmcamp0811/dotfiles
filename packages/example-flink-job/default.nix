@@ -1,7 +1,7 @@
 { lib, pkgs, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.campground) override-meta buildFlinkContainer;
 
   #TODO Move to Lib
   flink-conf-dir = pkgs.stdenv.mkDerivation {
@@ -176,14 +176,16 @@ let
     };
   };
 
-  container = import ./container.nix {
+  container = buildFlinkContainer {
     inherit lib pkgs python-env;
+    name = "example-flink-job";
+    tag = "1.0.0";
     flink-job = example-flink-job;
   };
 
   dev-scripts = mkPythonDevScripts {
     inherit pkgs;
-    project-drv = access-window-flink-job;
+    project-drv = example-flink-job;
     poetry-env = python-env;
   };
 
@@ -218,6 +220,7 @@ let
       start-managers = start-managers;
       flink = pkgs.flink;
       sql-client = sql-cli;
+      container = container;
     };
   };
 in override-meta new-meta example-flink-job
