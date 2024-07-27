@@ -10,7 +10,7 @@ update-flake:
     - nix
   script:
     - |
-      git rm flake.lock && nix flake update || true;
+      git rm flake.lock && nix flake update
   artifacts:
     paths:
       - flake.lock
