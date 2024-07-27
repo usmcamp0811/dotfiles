@@ -76,7 +76,7 @@ let
     installPhase = ''
       mkdir -p $out/conf
       # Iterate over each file in the source directory
-      for file in "${flink-with-kafka-connetor}/opt/flink/conf"/*; do
+      for file in "${flink-with-kafka-connector}/opt/flink/conf"/*; do
           # Get the basename of the file
           basefile=$(basename "$file")
           if [ "$basefile" == "flink-conf.yaml" ]; then
@@ -106,7 +106,7 @@ let
     export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
-    export FLINK_HOME=${flink-with-kafka-connetor}/opt/flink
+    export FLINK_HOME=${flink-with-kafka-connector}/opt/flink
 
     # Set log directories
     export FLINK_LOG_DIR="/tmp/flink/log"
@@ -116,8 +116,8 @@ let
     rm -rf $FLINK_LOG_DIR
     mkdir -p $FLINK_LOG_DIR
 
-    ${flink-with-kafka-connetor}/opt/flink/bin/jobmanager.sh start &> $FLINK_JOBMANAGER_LOG &
-    ${flink-with-kafka-connetor}/opt/flink/bin/taskmanager.sh start &> $FLINK_TASKMANAGER_LOG &
+    ${flink-with-kafka-connector}/opt/flink/bin/jobmanager.sh start &> $FLINK_JOBMANAGER_LOG &
+    ${flink-with-kafka-connector}/opt/flink/bin/taskmanager.sh start &> $FLINK_TASKMANAGER_LOG &
   '';
 
   table-job = pkgs.writeShellScriptBin "job" ''
@@ -139,9 +139,9 @@ let
     export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
-    export FLINK_HOME=${flink-with-kafka-connetor}/opt/flink
+    export FLINK_HOME=${flink-with-kafka-connector}/opt/flink
 
-    ${flink-with-kafka-connetor}/bin/flink run \
+    ${flink-with-kafka-connector}/bin/flink run \
       -py ${src}/job/tablejob.py \
       -pyclientexec python \
       --jarfile ${pkgs.campground.flink-connector-kafka} &
@@ -166,9 +166,9 @@ let
     export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11};
-    export FLINK_HOME=${flink-with-kafka-connetor}/opt/flink
+    export FLINK_HOME=${flink-with-kafka-connector}/opt/flink
 
-    ${flink-with-kafka-connetor}/bin/flink run \
+    ${flink-with-kafka-connector}/bin/flink run \
       -py ${src}/job/job.py \
       -pyclientexec python \
       --jarfile ${pkgs.campground.flink-connector-kafka} &
@@ -187,15 +187,15 @@ let
     export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
     export PYFLINK_PYTHON="${python-env}/bin/python"
     export JAVA_HOME=${pkgs.openjdk11}
-    export FLINK_HOME=${flink-with-kafka-connetor}/opt/flink
+    export FLINK_HOME=${flink-with-kafka-connector}/opt/flink
 
     # Start the SQL client
-    ${flink-with-kafka-connetor}/opt/flink/bin/sql-client.sh $@
+    ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh $@
 
   '';
 
   stop-all = pkgs.writeShellScriptBin "stop-all" ''
-    ${flink-with-kafka-connetor}/opt/flink/bin/jobmanager.sh stop-all && ${flink-with-kafka-connetor}/opt/flink/bin/taskmanager.sh stop-all
+    ${flink-with-kafka-connector}/opt/flink/bin/jobmanager.sh stop-all && ${flink-with-kafka-connector}/opt/flink/bin/taskmanager.sh stop-all
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''
@@ -209,8 +209,8 @@ let
     export JAVA_HOME=${pkgs.openjdk11};
     export FLINK_TESTING=1;
     export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-    export CLASSPATH=$(find ${flink-with-kafka-connetor}/opt/flink/lib -name '*.jar' | tr '\n' ':'):${pkgs.campground.flink-connector-kafka}
-    export FLINK_HOME=${flink-with-kafka-connetor}/opt/flink
+    export CLASSPATH=$(find ${flink-with-kafka-connector}/opt/flink/lib -name '*.jar' | tr '\n' ':'):${pkgs.campground.flink-connector-kafka}
+    export FLINK_HOME=${flink-with-kafka-connector}/opt/flink
 
     # Adjusted to ensure it works regardless of where it's called from
     BASE_DIR=$(dirname "$SCRIPT_DIR")
@@ -248,7 +248,7 @@ let
       mkdir -p $out/opt/flink/conf
 
       cp -r ${src}/* $out/src/
-      cp -r ${flink-with-kafka-connetor}/opt/flink $out/opt/
+      cp -r ${flink-with-kafka-connector}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
       cp ${job}/bin/job $out/bin/example-flink-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
@@ -263,7 +263,7 @@ let
       conf = flink-conf-dir;
       run-table-job = table-job;
       start-managers = start-managers;
-      flink = flink-with-kafka-connetor;
+      flink = flink-with-kafka-connector;
       sql-client = sql-cli;
     };
   };
