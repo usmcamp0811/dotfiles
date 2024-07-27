@@ -4,11 +4,11 @@
   '';
 
   extraPackages = with pkgs; [
-    alejandra
     black
     clang-tools
     isort
     nixfmt-rfc-style
+    nixfmt-classic
     nixpkgs-fmt
     pgformatter
     prettierd
@@ -47,7 +47,7 @@
         json = [[ "prettierd" "prettier" ]];
         lua = [ "stylua " ];
         markdown = [[ "prettierd" "prettier" ]];
-        nix = [[ "alejandra" "nixfmt" "nixpkgs_fmt" ]];
+        nix = [ [ "nixfmt" ] ];
         python = [ "isort" "black" ];
         rust = [ "rustfmt" ];
         sh = [ "shfmt " ];
