@@ -1,11 +1,14 @@
-import pytest
 import os
 from unittest.mock import MagicMock, patch
+
+import pytest
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.table import DataTypes, StreamTableEnvironment, EnvironmentSettings
+from pyflink.table import (DataTypes, EnvironmentSettings,
+                           StreamTableEnvironment)
 from pyflink.testing.test_case_utils import PyFlinkTestCase, exec_insert_table
 from pyflink.util.java_utils import get_j_env_configuration
-from job.job import run_example_flink_job, reverse_text
+
+from jobs.stream-job import reverse_text, run_example_flink_job
 
 
 @pytest.mark.parametrize("message,expected", [
