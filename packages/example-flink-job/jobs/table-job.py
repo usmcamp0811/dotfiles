@@ -8,8 +8,6 @@ from pyflink.table.udf import udf
 
 
 def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
-    # Register the UDF
-    t_env.create_temporary_system_function("print_message", print_message)
 
     # Define Kafka source
     t_env.execute_sql(
