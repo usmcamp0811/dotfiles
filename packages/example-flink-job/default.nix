@@ -142,7 +142,7 @@ let
     export FLINK_HOME=${flink-with-kafka-connector}/opt/flink
 
     ${flink-with-kafka-connector}/bin/flink run \
-      -py ${src}/job/table-job.py \
+      -py ${src}/jobs/table-job.py \
       -pyclientexec python \
       --jarfile ${pkgs.campground.flink-connector-kafka} &
   '';
@@ -169,7 +169,7 @@ let
     export FLINK_HOME=${flink-with-kafka-connector}/opt/flink
 
     ${flink-with-kafka-connector}/bin/flink run \
-      -py ${src}/job/stream-job.py \
+      -py ${src}/jobs/stream-job.py \
       -pyclientexec python \
       --jarfile ${pkgs.campground.flink-connector-kafka} &
   '';
