@@ -129,9 +129,7 @@ let
   sql-cli = pkgs.writeShellScriptBin "job" ''
     source ${set-flink-conf}
 
-    # Start the SQL client
     ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
-
   '';
 
   stop-all = pkgs.writeShellScriptBin "stop-all" ''
