@@ -36,7 +36,9 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         CREATE TABLE kafka_sink (
             username STRING,
             login_count BIGINT,
-            PRIMARY KEY (username) NOT ENFORCED
+            window_start TIMESTAMP(3),
+            window_end TIMESTAMP(3),
+            PRIMARY KEY (username, window_start, window_end) NOT ENFORCED
         ) WITH (
             'connector' = 'upsert-kafka',
             'topic' = 'example-table-topic-out',
@@ -53,12 +55,16 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         INSERT INTO kafka_sink
         SELECT
             username,
-            COUNT(username) AS login_count
+            COUNT(username) AS login_count,
+            window_start,
+            window_end
         FROM TABLE(
-            TUMBLE(TABLE kafka_source, DESCRIPTOR(event_ts), INTERVAL '10' SECOND)
+            TUMBLE(TABLE kafka_source, DESCRIPTOR(event_ts), INTERVAL '30' SECOND)
         )
         GROUP BY
-            username
+            username,
+            window_start,
+            window_end
         """
     )
 
