@@ -1,9 +1,8 @@
-{ lib, inputs, snowfall-inputs, }: rec {
+{ pkgs, lib, inputs, snowfall-inputs, }: rec {
   # Function to create the flink-conf-dir derivation
   createFlinkConfDir = flinkConf:
     pkgs.stdenv.mkDerivation {
       name = "flink-conf-drv";
-      src = src;
       phases = [ "installPhase" ];
       installPhase = ''
         mkdir -p $out/conf
