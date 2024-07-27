@@ -40,7 +40,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         ) WITH (
             'connector' = 'upsert-kafka',
             'topic' = 'example-table-topic-out',
-            'properties.bootstrap.servers' = '{broker}',
+            'properties.bootstrap.servers' = 'webb:9092',
             'key.format' = 'json',
             'value.format' = 'json'
         )
