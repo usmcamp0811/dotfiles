@@ -8,9 +8,6 @@ from pyflink.table.udf import udf
 
 
 def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
-    t_env.get_config().get_configuration().set_string(
-        "properties.bootstrap.servers", broker
-    )
     # Define Kafka source
     t_env.execute_sql(
         """
@@ -32,27 +29,8 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         """
     )
 
-    # Define Kafka sink with upsert-kafka connector
     t_env.execute_sql(
-        """
-        CREATE TABLE kafka_sink (
-            username STRING,
-            login_count BIGINT,
-            window_start TIMESTAMP(3),
-            window_end TIMESTAMP(3),
-            PRIMARY KEY (username, window_start, window_end) NOT ENFORCED
-        ) WITH (
-            'connector' = 'upsert-kafka',
-            'topic' = 'example-table-topic-out',
-            'properties.bootstrap.servers' = 'webb:9092',
-            'key.format' = 'json',
-            'value.format' = 'json'
-        )
-        """
-    )
-
-    t_env.execute_sql(
-        """
+        f"""
         CREATE TABLE agg_count (
             aggregated_counts VARCHAR(2000),
             window_time TIMESTAMP(3),
@@ -60,7 +38,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         ) WITH (
             'connector' = 'upsert-kafka',
             'topic' = 'example-table-topic-out',
-            'properties.bootstrap.servers' = 'webb:9092',
+            'properties.bootstrap.servers' = '{broker}',
             'key.format' = 'json',
             'value.format' = 'json'
         )
