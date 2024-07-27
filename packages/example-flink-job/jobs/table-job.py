@@ -16,13 +16,13 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         f"""
         CREATE TABLE kafka_source (
             username STRING,
-            event_str STRING,
-            event AS TO_TIMESTAMP(event_str, 'yyyy-MM-dd''T''HH:mm:ss''Z'''),
-            WATERMARK FOR event AS event - INTERVAL '1' SECOND
+            event STRING,
+            event_ts AS TO_TIMESTAMP(event, 'yyyy-MM-dd''T''HH:mm:ss''Z'''),
+            WATERMARK FOR event_ts AS event_ts - INTERVAL '1' SECOND
         ) WITH (
             'connector' = 'kafka',
             'topic' = 'example-table-topic-in',
-            'properties.bootstrap.servers' = '{broker}',
+            'properties.bootstrap.servers' = 'webb:9092',
             'properties.group.id' = 'test_group_1',
             'scan.startup.mode' = 'earliest-offset',
             'format' = 'json',
@@ -57,7 +57,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
             username,
             COUNT(username) AS login_count
         FROM TABLE(
-            TUMBLE(TABLE kafka_source, DESCRIPTOR(event), INTERVAL '10' SECOND)
+            TUMBLE(TABLE kafka_source, DESCRIPTOR(event_ts), INTERVAL '10' SECOND)
         )
         GROUP BY
             username
