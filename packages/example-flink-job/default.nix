@@ -119,12 +119,6 @@ let
     ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &> $FLINK_JOBMANAGER_LOG &
     ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &> $FLINK_TASKMANAGER_LOG &
   '';
-  #
-  # export PATH=${python-env}/bin/:$PATH
-  # export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
-  # export PYFLINK_PYTHON="${python-env}/bin/python"
-  # export JAVA_HOME=${pkgs.openjdk11};
-  # export FLINK_HOME=${pkgs.flink}/opt/flink
 
   table-job = pkgs.writeShellScriptBin "job" ''
 
@@ -149,12 +143,6 @@ let
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
-
-    export PATH=${python-env}/bin/:$PATH
-    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${python-env}/bin/python"
-    export JAVA_HOME=${pkgs.openjdk11};
-    export FLINK_HOME=${pkgs.flink}/opt/flink
 
     ${pkgs.flink}/bin/flink run \
       -py ${src}/jobs/stream-job.py \
