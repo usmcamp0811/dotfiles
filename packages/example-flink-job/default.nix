@@ -1,49 +1,50 @@
-{ lib, nixpkgs, hosts ? { }, ... }:
-with lib.campground;
+{ lib, pkgs, hosts ? { }, ... }:
 let
-  # inherit (lib) mapAttrsToList concatStringsSep;
-  # inherit (lib.campground) override-meta;
+  inherit (lib) mapAttrsToList concatStringsSep;
+  inherit (lib.campground) override-meta;
+
   #TODO Move to Lib
-  # flink-conf-dir = pkgs.stdenv.mkDerivation {
-  #   name = "flink-conf-drv";
-  #   src = src;
-  #   phases = [ "installPhase" ];
-  #   installPhase = ''
-  #     mkdir -p $out/conf
-  #     # Iterate over each file in the source directory
-  #     for file in "${pkgs.flink}/opt/flink/conf"/*; do
-  #         # Get the basename of the file
-  #         basefile=$(basename "$file")
-  #         if [ "$basefile" == "flink-conf.yaml" ]; then
-  #             continue
-  #         fi
-  #         if [ "$basefile" == "config.yaml" ]; then
-  #             continue
-  #         fi
-  #         # Create the symbolic link in the destination directory
-  #         ln -s "$file" "$out/conf/$basefile"
-  #     done
-  #     cp ${flink-conf} $out/conf/flink-conf.yaml
-  #     cp ${flink-conf} $out/conf/config.yaml
-  #   '';
-  # };
-  #
-  # setFlinkConf = pkgs.writeScript "set-flink-conf" ''
-  #   # Check if FLINK_CONF_DIR is unset or empty
-  #   if [ -z "$FLINK_CONF_DIR" ]; then
-  #       export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-  #       echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-  #   else
-  #       echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-  #   fi
-  # '';
-  #
-  # writeFlinkShellScriptBin = name: script:
-  #   pkgs.writeShellScriptBin name ''
-  #     source ${setFlinkConf}
-  #     ${script}
-  #   '';
-  # # / end TODO
+  flink-conf-dir = pkgs.stdenv.mkDerivation {
+    name = "flink-conf-drv";
+    src = src;
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/conf
+      # Iterate over each file in the source directory
+      for file in "${pkgs.flink}/opt/flink/conf"/*; do
+          # Get the basename of the file
+          basefile=$(basename "$file")
+          if [ "$basefile" == "flink-conf.yaml" ]; then
+              continue
+          fi
+          if [ "$basefile" == "config.yaml" ]; then
+              continue
+          fi
+          # Create the symbolic link in the destination directory
+          ln -s "$file" "$out/conf/$basefile"
+      done
+      cp ${flink-conf} $out/conf/flink-conf.yaml
+      cp ${flink-conf} $out/conf/config.yaml
+    '';
+  };
+
+  set-flink-conf = pkgs.writeScript "set-flink-conf" ''
+    # Check if FLINK_CONF_DIR is unset or empty
+    if [ -z "$FLINK_CONF_DIR" ]; then
+        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
+        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+    else
+        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+    fi
+  '';
+
+  writeFlinkShellScriptBin = name: script:
+    pkgs.writeShellScriptBin name ''
+      source ${set-flink-conf}
+      ${script}
+    '';
+  # / end TODO
+
   new-meta = with lib; {
     description = "An Example PyFlink Job";
     license = licenses.asl20;
@@ -116,6 +117,7 @@ let
   '';
 
   run-job = writeFlinkShellScriptBin "run-job" ''
+    source ${set-flink-conf}
     ${pkgs.flink}/bin/flink run \
       -py $1 \
       -pyclientexec python \
@@ -130,7 +132,9 @@ let
     ${run-job}/bin/run-job ${src}/jobs/stream-job.py
   '';
 
-  sql-cli = writeFlinkShellScriptBin "sql-cli" ''
+  sql-cli = pkgs.writeShellScriptBin "job" ''
+    source ${set-flink-conf}
+
     ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
   '';
 
@@ -172,30 +176,45 @@ let
     };
   };
 
+  container = import ./container.nix {
+    inherit lib pkgs python-env;
+    flink-job = example-flink-job;
+  };
+
+  dev-scripts = mkPythonDevScripts {
+    inherit pkgs;
+    project-drv = access-window-flink-job;
+    poetry-env = python-env;
+  };
+
   example-flink-job = pkgs.stdenv.mkDerivation {
     name = "example-flink-job";
     src = src;
 
-    # installPhase = ''
-    #   mkdir -p $out/bin
-    #   mkdir -p $out/src
-    #   mkdir -p $out/opt/flink/conf
-    #
-    #   cp -r ${src}/* $out/src/
-    #   cp -r ${pkgs.flink}/opt/flink $out/opt/
-    #   cp -r ${python-env}/bin/* $out/bin/
-    #   cp ${job}/bin/job $out/bin/example-flink-job
-    #   cp ${run-tests}/bin/run-tests $out/src/run-tests
-    #   cp ${stop-all}/bin/stop-all $out/bin/stop-all
-    #   cp -r ${flink-conf-dir}/conf $out/
-    # '';
+    installPhase = ''
+      mkdir -p $out/src/tests
+      mkdir -p $out/src/tle_utils
+      mkdir -p $out/bin
+      mkdir -p $out/opt/flink/usrlib
+
+      cp -r ${src}/* $out/src/
+      cp -r ${pkgs.flink}/opt/flink $out/opt/
+      cp -r ${python-env}/bin/* $out/bin/
+      cp ${job}/bin/job $out/bin/example-flink-job
+      cp ${run-tests}/bin/run-tests $out/src/run-tests
+      cp ${stop-all}/bin/stop-all $out/bin/stop-all
+      cp -r ${flink-conf-dir}/conf $out/
+    '';
 
     passthru = {
       python = python-env;
-      test = test-flink-job;
+      bpython = dev-scripts.run-bpython;
+      jupyter = dev-scripts.run-jupyter;
+      test = dev-scripts.test;
       stop-all = stop-all;
       conf = flink-conf-dir;
       run-table-job = table-job;
+      run-stream-job = stream-job;
       start-managers = start-managers;
       flink = pkgs.flink;
       sql-client = sql-cli;

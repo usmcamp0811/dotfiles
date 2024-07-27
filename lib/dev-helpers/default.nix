@@ -19,7 +19,7 @@
   ## }
   ## ```
   createJuliaConsole = name: command:
-    { pkgs, juliaEnv, kernelName }:
+    { pkgs, juliaEnv, kernelName, }:
     pkgs.writeShellApplication {
       inherit name;
       runtimeInputs = [ pkgs.openssl pkgs.jupyter-all juliaEnv ];
@@ -44,7 +44,7 @@
   ##   - run-tests: Runs pytest on the tests directory.
   ##   - run-bpython: Starts a bpython REPL with the source code in PYTHONPATH.
   ##   - run-jupyter: Starts a Jupyter console with the source code in PYTHONPATH.
-  mkPythonDevScripts = { pkgs, python-env, project-drv }:
+  mkPythonDevScripts = { pkgs, python-env, project-drv, }:
     let
       # Extend the given python environment with additional packages
       extended-python-env = python-env.withPackages
@@ -92,7 +92,7 @@
     };
 
   containerShadowSetup = { pkgs, user, uid, gid ? uid, homeDir ? "/home/${user}"
-    , runtimeShell ? "/bin/bash" }:
+    , runtimeShell ? "/bin/bash", }:
     with pkgs; [
       (writeTextDir "etc/shadow" ''
         root:!x:::::::
