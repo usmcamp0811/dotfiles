@@ -117,7 +117,6 @@ let
   '';
 
   run-job = writeFlinkShellScriptBin "run-job" ''
-    source ${set-flink-conf}
     ${pkgs.flink}/bin/flink run \
       -py $1 \
       -pyclientexec python \
@@ -132,9 +131,7 @@ let
     ${run-job}/bin/run-job ${src}/jobs/stream-job.py
   '';
 
-  sql-cli = pkgs.writeShellScriptBin "job" ''
-    source ${set-flink-conf}
-
+  sql-cli = writeFlinkShellScriptBin "sql-cli" ''
     ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
   '';
 
