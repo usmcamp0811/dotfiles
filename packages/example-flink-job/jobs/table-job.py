@@ -8,8 +8,9 @@ from pyflink.table.udf import udf
 
 
 def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
-    t_env.execute_sql(f"SET 'properties.bootstrap.servers' = '{broker}';")
-
+    t_env.get_config().get_configuration().set_string(
+        "properties.bootstrap.servers", broker
+    )
     # Define Kafka source
     t_env.execute_sql(
         """
