@@ -22,7 +22,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         ) WITH (
             'connector' = 'kafka',
             'topic' = 'example-table-topic-in',
-            'properties.bootstrap.servers' = '${properties.bootstrap.servers}',
+            'properties.bootstrap.servers' = 'webb:9092',
             'properties.group.id' = 'test_group_1',
             'scan.startup.mode' = 'earliest-offset',
             'format' = 'json',
@@ -44,7 +44,23 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         ) WITH (
             'connector' = 'upsert-kafka',
             'topic' = 'example-table-topic-out',
-            'properties.bootstrap.servers' = '${properties.bootstrap.servers}',
+            'properties.bootstrap.servers' = 'webb:9092',
+            'key.format' = 'json',
+            'value.format' = 'json'
+        )
+        """
+    )
+
+    t_env.execute_sql(
+        """
+        CREATE TABLE agg_count (
+            aggregated_counts VARCHAR(2000),
+            window_time TIMESTAMP(3),
+            PRIMARY KEY (window_time) NOT ENFORCED
+        ) WITH (
+            'connector' = 'upsert-kafka',
+            'topic' = 'example-table-topic-out',
+            'properties.bootstrap.servers' = 'webb:9092',
             'key.format' = 'json',
             'value.format' = 'json'
         )
@@ -54,19 +70,32 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
     # Insert query with timestamp conversion and watermarking
     t_env.execute_sql(
         """
-        INSERT INTO kafka_sink
+        INSERT INTO agg_count
         SELECT
-            username,
-            COUNT(username) AS login_count,
-            window_start,
-            window_end
-        FROM TABLE(
-            TUMBLE(TABLE kafka_source, DESCRIPTOR(event_ts), INTERVAL '30' SECOND)
+            JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'username' VALUE username,
+                    'login_count' VALUE login_count
+                )
+            ) AS aggregated_counts,
+            window_start AS window_time
+        FROM (
+            SELECT
+                username,
+                COUNT(username) AS login_count,
+                window_start,
+                window_end
+            FROM TABLE(
+                TUMBLE(TABLE kafka_source, DESCRIPTOR(event_ts), INTERVAL '30' SECOND)
+            )
+            GROUP BY
+                username,
+                window_start,
+                window_end
         )
         GROUP BY
-            username,
-            window_start,
-            window_end
+            window_start
+        ;
         """
     )
 
