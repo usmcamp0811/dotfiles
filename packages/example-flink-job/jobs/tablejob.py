@@ -3,20 +3,8 @@ import os
 import sys
 
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.table import (DataTypes, EnvironmentSettings,
-                           StreamTableEnvironment)
+from pyflink.table import DataTypes, EnvironmentSettings, StreamTableEnvironment
 from pyflink.table.udf import udf
-
-
-# Define a UDF to print the messages
-@udf(
-    input_types=[DataTypes.STRING(), DataTypes.TIMESTAMP(3)],
-    result_type=DataTypes.STRING(),
-)
-def print_message(username, event):
-    message = f"Received message: {{'username': {username}, 'event': {event}}}"
-    print(message)
-    return username
 
 
 def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
@@ -29,7 +17,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         CREATE TABLE kafka_source (
             username STRING,
             event_str STRING,
-            event AS TO_TIMESTAMP(event_str, 'yyyy-MM-ddTHH:mm:ssZ'),
+            event AS TO_TIMESTAMP(event_str, 'yyyy-MM-dd''T''HH:mm:ss''Z'''),
             WATERMARK FOR event AS event - INTERVAL '1' SECOND
         ) WITH (
             'connector' = 'kafka',
@@ -44,20 +32,6 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         """
     )
 
-        CREATE TABLE kafka_source (
-            username STRING,
-            event TIMESTAMP(3),
-            WATERMARK FOR event AS event - INTERVAL '1' SECOND
-        ) WITH (
-            'connector' = 'kafka',
-            'topic' = 'example-table-topic-in',
-            'properties.bootstrap.servers' = 'webb:9092',
-            'properties.group.id' = 'test_group_1',
-            'scan.startup.mode' = 'earliest-offset',
-            'format' = 'json',
-            'json.fail-on-missing-field' = 'false',
-            'json.ignore-parse-errors' = 'true'
-        )
     # Define Kafka sink with upsert-kafka connector
     t_env.execute_sql(
         f"""
