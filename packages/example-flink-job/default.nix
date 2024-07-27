@@ -94,20 +94,13 @@ let
   };
 
   start-managers = pkgs.writeShellScriptBin "job" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
+    source $(${set-flink-conf})
 
     ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
     ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
   '';
 
-  table-job = pkgs.writeShellScriptBin "job" ''
-
+  set-flink-conf = pkgs.writeScript "set-flink-conf" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
         export FLINK_CONF_DIR="${flink-conf-dir}/conf";
@@ -115,35 +108,25 @@ let
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
-      ${pkgs.flink}/bin/flink run \
-        -py ${src}/jobs/table-job.py \
-        -pyclientexec python \
-        --jarfile ${pkgs.campground.flink-connector-kafka} &
   '';
 
-  job = pkgs.writeShellScriptBin "job" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
-
+  run-job = pkgs.writeShellScriptBin "run-job" ''
     ${pkgs.flink}/bin/flink run \
-      -py ${src}/jobs/stream-job.py \
+      -py $1 \
       -pyclientexec python \
-      --jarfile ${pkgs.campground.flink-connector-kafka} &
+      --jarfile ${pkgs.campground.flink-connector-kafka}
+  '';
+
+  table-job = pkgs.writeShellScriptBin "job" ''
+    ${run-job}/bin/run-job ${src}/jobs/table-job.py
+  '';
+
+  stream-job = pkgs.writeShellScriptBin "job" ''
+    ${run-job}/bin/run-job ${src}/jobs/stream-job.py
   '';
 
   sql-cli = pkgs.writeShellScriptBin "job" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
+    source $(${set-flink-conf})
 
     # Start the SQL client
     ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
