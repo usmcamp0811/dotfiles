@@ -28,7 +28,7 @@ let
     '';
   };
 
-  set-flink-conf = pkgs.writeScript "set-flink-conf" ''
+  setFlinkConf = pkgs.writeScript "set-flink-conf" ''
     # Check if FLINK_CONF_DIR is unset or empty
     if [ -z "$FLINK_CONF_DIR" ]; then
         export FLINK_CONF_DIR="${flink-conf-dir}/conf";
