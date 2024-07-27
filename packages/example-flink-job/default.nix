@@ -102,22 +102,8 @@ let
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
 
-    export PATH=${python-env}/bin/:$PATH
-    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${python-env}/bin/python"
-    export JAVA_HOME=${pkgs.openjdk11};
-    export FLINK_HOME=${pkgs.flink}/opt/flink
-
-    # Set log directories
-    export FLINK_LOG_DIR="/tmp/flink/log"
-    export FLINK_JOBMANAGER_LOG="$FLINK_LOG_DIR/jobmanager.log"
-    export FLINK_TASKMANAGER_LOG="$FLINK_LOG_DIR/taskmanager.log"
-
-    rm -rf $FLINK_LOG_DIR
-    mkdir -p $FLINK_LOG_DIR
-
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &> $FLINK_JOBMANAGER_LOG &
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &> $FLINK_TASKMANAGER_LOG &
+    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
+    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
   '';
 
   table-job = pkgs.writeShellScriptBin "job" ''
@@ -158,12 +144,6 @@ let
     else
         echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
     fi
-
-    export PATH=${python-env}/bin/:$PATH
-    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${python-env}/bin/python"
-    export JAVA_HOME=${pkgs.openjdk11}
-    export FLINK_HOME=${pkgs.flink}/opt/flink
 
     # Start the SQL client
     ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
