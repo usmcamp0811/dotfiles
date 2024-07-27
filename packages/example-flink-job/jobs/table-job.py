@@ -10,7 +10,7 @@ from pyflink.table.udf import udf
 def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
     # Define Kafka source
     t_env.execute_sql(
-        """
+        f"""
         CREATE TABLE kafka_source (
             username STRING,
             event STRING,
@@ -19,7 +19,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         ) WITH (
             'connector' = 'kafka',
             'topic' = 'example-table-topic-in',
-            'properties.bootstrap.servers' = 'webb:9092',
+            'properties.bootstrap.servers' = '{broker}',
             'properties.group.id' = 'test_group_1',
             'scan.startup.mode' = 'earliest-offset',
             'format' = 'json',
