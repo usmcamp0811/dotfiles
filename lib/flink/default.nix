@@ -47,8 +47,7 @@
   ## Create a Flink derivation
   mkFlinkDerivation = { pkgs, name, flinkConf, python-env, src
     , flink-job-script ? "jobs/job.py", additionalInstallPhase ? ""
-    , additionalPassThru ? { }, dev-scripts ? dev-scripts, container ? container
-    , }:
+    , additionalPassThru ? { }, }:
     let
       start-managers = writeFlinkShellScriptBin {
         inherit pkgs flinkConf;
@@ -81,35 +80,47 @@
       job = pkgs.writeShellScriptBin "job" ''
         ${run-job}/bin/run-job ${src}/${flink-job-script}
       '';
-    in pkgs.stdenv.mkDerivation {
-      inherit name src;
 
-      installPhase = ''
-        mkdir -p $out/src/tests
-        mkdir -p $out/src/tle_utils
-        mkdir -p $out/bin
-        mkdir -p $out/opt/flink/usrlib
+      dev-scripts = lib.campground.mkPythonDevScripts {
+        inherit pkgs;
+        project-drv = flink-job;
+        python-env = python-env;
+      };
+      container = lib.campground.buildFlinkContainer {
+        inherit pkgs python-env name;
+        tag = "latest";
+        flink-job = flink-job;
+      };
+      flink-job = pkgs.stdenv.mkDerivation {
+        inherit name src;
 
-        cp -r ${src}/* $out/src/
-        cp -r ${pkgs.flink}/opt/flink $out/opt/
-        cp -r ${python-env}/bin/* $out/bin/
-        cp ${stop-all}/bin/stop-all $out/bin/stop-all
-        cp -r ${flinkConf}/conf $out/
-        ${additionalInstallPhase}
-      '';
+        installPhase = ''
+          mkdir -p $out/src/tests
+          mkdir -p $out/src/tle_utils
+          mkdir -p $out/bin
+          mkdir -p $out/opt/flink/usrlib
 
-      passthru = {
-        python = python-env;
-        bpython = dev-scripts.run-bpython;
-        jupyter = dev-scripts.run-jupyter;
-        test = dev-scripts.test;
-        stop-all = stop-all;
-        run-job = job;
-        start-managers = start-managers;
-        flink = pkgs.flink;
-        sql-client = sql-client;
-        container = container;
-      } // additionalPassThru;
-    };
+          cp -r ${src}/* $out/src/
+          cp -r ${pkgs.flink}/opt/flink $out/opt/
+          cp -r ${python-env}/bin/* $out/bin/
+          cp ${stop-all}/bin/stop-all $out/bin/stop-all
+          cp -r ${flinkConf}/conf $out/
+          ${additionalInstallPhase}
+        '';
+
+        passthru = {
+          python = python-env;
+          bpython = dev-scripts.run-bpython;
+          jupyter = dev-scripts.run-jupyter;
+          test = dev-scripts.test;
+          stop-all = stop-all;
+          run-job = job;
+          start-managers = start-managers;
+          flink = pkgs.flink;
+          sql-client = sql-client;
+          container = container;
+        } // additionalPassThru;
+      };
+    in flink-job;
 
 }
