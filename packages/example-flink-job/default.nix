@@ -49,6 +49,7 @@ let
     name = "example-flink-job";
     src = src;
     flinkConf = flink-conf;
+    additionalPassThru = { stream-job = stream-job; };
   };
 
 in example-flink-job
