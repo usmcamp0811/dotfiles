@@ -157,4 +157,4 @@ let
   #     container = container;
   #   };
   # };
-in override-meta new-meta example-flink-job
+in example-flink-job
