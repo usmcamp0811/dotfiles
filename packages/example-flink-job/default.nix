@@ -44,11 +44,19 @@ let
     ${run-job}/bin/run-job ${src}/jobs/stream-job.py
   '';
 
+  table-job = pkgs.writeShellScriptBin "table-job" ''
+    ${run-job}/bin/run-job ${src}/jobs/table-job.py
+  '';
+
   example-flink-job = mkFlinkDerivation {
     inherit pkgs python-env;
     name = "example-flink-job";
     src = src;
-    additionalPassThru = { stream-job = stream-job; };
+    flink-job-script = "jobs/stream-job.py";
+    additionalPassThru = {
+      stream-job = stream-job;
+      table-job = table-job;
+    };
   };
 
 in example-flink-job
