@@ -2,53 +2,6 @@
 with lib;
 with lib.campground;
 let
-  #TODO Move to Lib
-  # flink-conf-dir = createFlinkConfDir {
-  #   inherit pkgs;
-  #   flinkConf = flink-conf;
-  # };
-  # flink-conf-dir = pkgs.stdenv.mkDerivation {
-  #   name = "flink-conf-drv";
-  #   src = src;
-  #   phases = [ "installPhase" ];
-  #   installPhase = ''
-  #     mkdir -p $out/conf
-  #     # Iterate over each file in the source directory
-  #     for file in "${pkgs.flink}/opt/flink/conf"/*; do
-  #         # Get the basename of the file
-  #         basefile=$(basename "$file")
-  #         if [ "$basefile" == "flink-conf.yaml" ]; then
-  #             continue
-  #         fi
-  #         if [ "$basefile" == "config.yaml" ]; then
-  #             continue
-  #         fi
-  #         # Create the symbolic link in the destination directory
-  #         ln -s "$file" "$out/conf/$basefile"
-  #     done
-  #     cp ${flink-conf} $out/conf/flink-conf.yaml
-  #     cp ${flink-conf} $out/conf/config.yaml
-  #   '';
-  # };
-
-  # set-flink-conf = pkgs.writeScript "set-flink-conf" ''
-  #   # Check if FLINK_CONF_DIR is unset or empty
-  #   if [ -z "$FLINK_CONF_DIR" ]; then
-  #       export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-  #       echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-  #   else
-  #       echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-  #   fi
-  # '';
-
-  # writeFlinkShellScriptBin =
-  #   name: script:
-  #   pkgs.writeShellScriptBin name ''
-  #     source ${set-flink-conf}
-  #     ${script}
-  #   '';
-  # / end TODO
-
   new-meta = with lib; {
     description = "An Example PyFlink Job";
     license = licenses.asl20;
@@ -124,50 +77,6 @@ let
     name = "example-flink-job";
     src = src;
     flinkConf = flink-conf;
-    # container = container;
-    # dev-scripts = dev-scripts;
   };
 
-  # dev-scripts = mkPythonDevScripts {
-  #   inherit pkgs;
-  #   project-drv = flink-job;
-  #   python-env = python-env;
-  # };
-  # container = buildFlinkContainer {
-  #   inherit pkgs python-env name;
-  #   tag = "latest";
-  #   flink-job = flink-job;
-  # };
-  # example-flink-job = pkgs.stdenv.mkDerivation {
-  #
-  #   installPhase = ''
-  #     mkdir -p $out/src/tests
-  #     mkdir -p $out/src/tle_utils
-  #     mkdir -p $out/bin
-  #     mkdir -p $out/opt/flink/usrlib
-  #
-  #     cp -r ${src}/* $out/src/
-  #     cp -r ${pkgs.flink}/opt/flink $out/opt/
-  #     cp -r ${python-env}/bin/* $out/bin/
-  #     cp ${table-job}/bin/table-job $out/bin/table-job
-  #     cp ${run-tests}/bin/run-tests $out/src/run-tests
-  #     cp ${stop-all}/bin/stop-all $out/bin/stop-all
-  #     cp -r ${flink-conf-dir}/conf $out/
-  #   '';
-  #
-  #   passthru = {
-  #     python = python-env;
-  #     bpython = dev-scripts.run-bpython;
-  #     jupyter = dev-scripts.run-jupyter;
-  #     test = dev-scripts.test;
-  #     stop-all = stop-all;
-  #     conf = flink-conf-dir;
-  #     run-table-job = table-job;
-  #     run-stream-job = stream-job;
-  #     start-managers = start-managers;
-  #     flink = pkgs.flink;
-  #     sql-client = sql-cli;
-  #     container = container;
-  #   };
-  # };
 in example-flink-job
