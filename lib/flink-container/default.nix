@@ -1,6 +1,18 @@
 { lib, ... }:
 with lib.campground;
 let
+  /* *
+     Function to build a Flink container image that is compatible with
+     Kubernetes Flink Operator.
+
+     @param pkgs - A set of Nix packages.
+     @param name - The name of the Docker image.
+     @param tag - The tag of the Docker image.
+     @param python-env - The Python environment to include in the image.
+     @param flink-job - A Derivation containing the PyFlink Job source.
+
+     @return A Docker container image.
+  */
   buildFlinkContainer = { pkgs, name, tag, python-env, flink-job, }:
     let
       docker-entrypoint = pkgs.fetchurl {
