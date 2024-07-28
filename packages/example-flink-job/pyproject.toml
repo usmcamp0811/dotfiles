@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 apache-flink = "^1.19.0"
 setuptools = "^70.0.0"
+google = "^3.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
