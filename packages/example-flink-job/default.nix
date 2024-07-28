@@ -3,45 +3,50 @@ with lib;
 with lib.campground;
 let
   #TODO Move to Lib
-  flink-conf-dir = pkgs.stdenv.mkDerivation {
-    name = "flink-conf-drv";
-    src = src;
-    phases = [ "installPhase" ];
-    installPhase = ''
-      mkdir -p $out/conf
-      # Iterate over each file in the source directory
-      for file in "${pkgs.flink}/opt/flink/conf"/*; do
-          # Get the basename of the file
-          basefile=$(basename "$file")
-          if [ "$basefile" == "flink-conf.yaml" ]; then
-              continue
-          fi
-          if [ "$basefile" == "config.yaml" ]; then
-              continue
-          fi
-          # Create the symbolic link in the destination directory
-          ln -s "$file" "$out/conf/$basefile"
-      done
-      cp ${flink-conf} $out/conf/flink-conf.yaml
-      cp ${flink-conf} $out/conf/config.yaml
-    '';
-  };
+  # flink-conf-dir = createFlinkConfDir {
+  #   inherit pkgs;
+  #   flinkConf = flink-conf;
+  # };
+  # flink-conf-dir = pkgs.stdenv.mkDerivation {
+  #   name = "flink-conf-drv";
+  #   src = src;
+  #   phases = [ "installPhase" ];
+  #   installPhase = ''
+  #     mkdir -p $out/conf
+  #     # Iterate over each file in the source directory
+  #     for file in "${pkgs.flink}/opt/flink/conf"/*; do
+  #         # Get the basename of the file
+  #         basefile=$(basename "$file")
+  #         if [ "$basefile" == "flink-conf.yaml" ]; then
+  #             continue
+  #         fi
+  #         if [ "$basefile" == "config.yaml" ]; then
+  #             continue
+  #         fi
+  #         # Create the symbolic link in the destination directory
+  #         ln -s "$file" "$out/conf/$basefile"
+  #     done
+  #     cp ${flink-conf} $out/conf/flink-conf.yaml
+  #     cp ${flink-conf} $out/conf/config.yaml
+  #   '';
+  # };
 
-  set-flink-conf = pkgs.writeScript "set-flink-conf" ''
-    # Check if FLINK_CONF_DIR is unset or empty
-    if [ -z "$FLINK_CONF_DIR" ]; then
-        export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-        echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
-    else
-        echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
-    fi
-  '';
+  # set-flink-conf = pkgs.writeScript "set-flink-conf" ''
+  #   # Check if FLINK_CONF_DIR is unset or empty
+  #   if [ -z "$FLINK_CONF_DIR" ]; then
+  #       export FLINK_CONF_DIR="${flink-conf-dir}/conf";
+  #       echo "FLINK_CONF_DIR set to $FLINK_CONF_DIR"
+  #   else
+  #       echo "FLINK_CONF_DIR already set to $FLINK_CONF_DIR"
+  #   fi
+  # '';
 
-  writeFlinkShellScriptBin = name: script:
-    pkgs.writeShellScriptBin name ''
-      source ${set-flink-conf}
-      ${script}
-    '';
+  # writeFlinkShellScriptBin =
+  #   name: script:
+  #   pkgs.writeShellScriptBin name ''
+  #     source ${set-flink-conf}
+  #     ${script}
+  #   '';
   # / end TODO
 
   new-meta = with lib; {
@@ -110,18 +115,27 @@ let
     '';
   };
 
-  start-managers = writeFlinkShellScriptBin "start-managers" ''
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
-    ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
-  '';
+  start-managers = writeFlinkShellScriptBin {
+    inherit pkgs;
+    flinkConf = flink-conf;
+    name = "start-managers";
+    script = ''
+      ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
+      ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
+    '';
+  };
 
-  run-job = writeFlinkShellScriptBin "run-job" ''
-    source ${set-flink-conf}
-    ${pkgs.flink}/bin/flink run \
-      -py $1 \
-      -pyclientexec python \
-      --jarfile ${pkgs.campground.flink-connector-kafka}
-  '';
+  run-job = writeFlinkShellScriptBin {
+    inherit pkgs;
+    flinkConf = flink-conf;
+    name = "run-job";
+    script = ''
+      ${pkgs.flink}/bin/flink run \
+        -py $1 \
+        -pyclientexec python \
+        --jarfile ${pkgs.campground.flink-connector-kafka}
+    '';
+  };
 
   table-job = pkgs.writeShellScriptBin "table-job" ''
     ${run-job}/bin/run-job ${src}/jobs/table-job.py
