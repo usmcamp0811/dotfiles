@@ -1,8 +1,7 @@
 { lib, pkgs, hosts ? { }, ... }:
+with lib;
+with lib.campground;
 let
-  inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta buildFlinkContainer;
-
   #TODO Move to Lib
   flink-conf-dir = pkgs.stdenv.mkDerivation {
     name = "flink-conf-drv";
@@ -124,15 +123,15 @@ let
       --jarfile ${pkgs.campground.flink-connector-kafka}
   '';
 
-  table-job = pkgs.writeShellScriptBin "job" ''
+  table-job = pkgs.writeShellScriptBin "table-job" ''
     ${run-job}/bin/run-job ${src}/jobs/table-job.py
   '';
 
-  stream-job = pkgs.writeShellScriptBin "job" ''
+  stream-job = pkgs.writeShellScriptBin "stream-job" ''
     ${run-job}/bin/run-job ${src}/jobs/stream-job.py
   '';
 
-  sql-cli = pkgs.writeShellScriptBin "job" ''
+  sql-cli = pkgs.writeShellScriptBin "sql-cli" ''
     source ${set-flink-conf}
 
     ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
@@ -177,7 +176,7 @@ let
   };
 
   container = buildFlinkContainer {
-    inherit lib pkgs python-env;
+    inherit pkgs python-env;
     name = "example-flink-job";
     tag = "1.0.0";
     flink-job = example-flink-job;
@@ -202,7 +201,7 @@ let
       cp -r ${src}/* $out/src/
       cp -r ${pkgs.flink}/opt/flink $out/opt/
       cp -r ${python-env}/bin/* $out/bin/
-      cp ${job}/bin/job $out/bin/example-flink-job
+      cp ${table-job}/bin/table-job $out/bin/table-job
       cp ${run-tests}/bin/run-tests $out/src/run-tests
       cp ${stop-all}/bin/stop-all $out/bin/stop-all
       cp -r ${flink-conf-dir}/conf $out/

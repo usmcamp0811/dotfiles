@@ -1,8 +1,7 @@
-{ lib, inputs, system, ... }:
+{ lib, ... }:
 with lib.campground;
 let
-  pkgs = inputs.nixpkgs.legacyPackages.${system};
-  buildFlinkContainer = { name, tag, python-env, flink-job, }:
+  buildFlinkContainer = { pkgs, name, tag, python-env, flink-job, }:
     let
       docker-entrypoint = pkgs.fetchurl {
         url =
