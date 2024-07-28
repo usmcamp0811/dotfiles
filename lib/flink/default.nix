@@ -138,7 +138,8 @@
           jupyter = dev-scripts.run-jupyter;
           test = dev-scripts.test;
           stop-all = stop-all;
-          run-job = job;
+          run-job = run-job;
+          job = job;
           start-managers = start-managers;
           flink = pkgs.flink;
           sql-client = sql-client;

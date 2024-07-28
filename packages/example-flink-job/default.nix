@@ -41,11 +41,11 @@ let
   src = ./.;
 
   stream-job = pkgs.writeShellScriptBin "stream-job" ''
-    ${run-job}/bin/run-job ${src}/jobs/stream-job.py
+    ${example-flink-job.run-job}/bin/run-job ${src}/jobs/stream-job.py
   '';
 
   table-job = pkgs.writeShellScriptBin "table-job" ''
-    ${run-job}/bin/run-job ${src}/jobs/table-job.py
+    ${example-flink-job.run-job}/bin/run-job ${src}/jobs/table-job.py
   '';
 
   example-flink-job = mkFlinkDerivation {
