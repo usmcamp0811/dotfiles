@@ -115,125 +115,46 @@ let
     '';
   };
 
-  start-managers = writeFlinkShellScriptBin {
-    inherit pkgs;
-    flinkConf = flink-conf;
-    name = "start-managers";
-    script = ''
-      ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
-      ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
-    '';
-  };
-
-  run-job = writeFlinkShellScriptBin {
-    inherit pkgs;
-    flinkConf = flink-conf;
-    name = "run-job";
-    script = ''
-      ${pkgs.flink}/bin/flink run \
-        -py $1 \
-        -pyclientexec python \
-        --jarfile ${pkgs.campground.flink-connector-kafka}
-    '';
-  };
-
-  table-job = pkgs.writeShellScriptBin "table-job" ''
-    ${run-job}/bin/run-job ${src}/jobs/table-job.py
-  '';
-
   stream-job = pkgs.writeShellScriptBin "stream-job" ''
     ${run-job}/bin/run-job ${src}/jobs/stream-job.py
   '';
 
-  sql-cli = pkgs.writeShellScriptBin "sql-cli" ''
-    source ${set-flink-conf}
-
-    ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
-  '';
-
-  stop-all = pkgs.writeShellScriptBin "stop-all" ''
-    ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
-  '';
-
-  run-tests = pkgs.writeShellScriptBin "run-tests" ''
-    # Resolves the symlink to find the actual path of the script
-    SCRIPT=$(readlink -f "$0" || realpath "$0")
-    SCRIPT_DIR=$(dirname "$SCRIPT")
-
-    export PATH=${python-env}/bin/:$PATH
-    export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
-    export PYFLINK_PYTHON="${python-env}/bin/python"
-    export JAVA_HOME=${pkgs.openjdk11};
-    export FLINK_TESTING=1;
-    export FLINK_CONF_DIR="${flink-conf-dir}/conf";
-    export CLASSPATH=$(find ${pkgs.flink}/opt/flink/lib -name '*.jar' | tr '\n' ':'):${pkgs.campground.flink-connector-kafka}
-    export FLINK_HOME=${pkgs.flink}/opt/flink
-
-    # Adjusted to ensure it works regardless of where it's called from
-    BASE_DIR=$(dirname "$SCRIPT_DIR")
-    ${python-env}/bin/pytest $SCRIPT_DIR/tests/test_job.py "$@"
-  '';
-
-  test-flink-job = pkgs.stdenv.mkDerivation {
-    name = "test-flink-job";
-    src = src;
-    phases = [ "installPhase" ];
-    propagatedBuildInputs = [ pkgs.openjdk11 python-env ];
-    installPhase = ''
-      mkdir -p $out/bin
-      ln -s ${example-flink-job}/src/run-tests $out/bin/run-tests
-    '';
-    meta = {
-      description = "Tests for Example Flink Job";
-      mainProgram = "run-tests";
-    };
-  };
-
-  container = buildFlinkContainer {
+  example-flink-job = mkFlinkDerivation {
     inherit pkgs python-env;
     name = "example-flink-job";
-    tag = "1.0.0";
-    flink-job = example-flink-job;
-  };
-
-  dev-scripts = mkPythonDevScripts {
-    inherit pkgs;
-    project-drv = example-flink-job;
-    poetry-env = python-env;
-  };
-
-  example-flink-job = pkgs.stdenv.mkDerivation {
-    name = "example-flink-job";
     src = src;
-
-    installPhase = ''
-      mkdir -p $out/src/tests
-      mkdir -p $out/src/tle_utils
-      mkdir -p $out/bin
-      mkdir -p $out/opt/flink/usrlib
-
-      cp -r ${src}/* $out/src/
-      cp -r ${pkgs.flink}/opt/flink $out/opt/
-      cp -r ${python-env}/bin/* $out/bin/
-      cp ${table-job}/bin/table-job $out/bin/table-job
-      cp ${run-tests}/bin/run-tests $out/src/run-tests
-      cp ${stop-all}/bin/stop-all $out/bin/stop-all
-      cp -r ${flink-conf-dir}/conf $out/
-    '';
-
-    passthru = {
-      python = python-env;
-      bpython = dev-scripts.run-bpython;
-      jupyter = dev-scripts.run-jupyter;
-      test = dev-scripts.test;
-      stop-all = stop-all;
-      conf = flink-conf-dir;
-      run-table-job = table-job;
-      run-stream-job = stream-job;
-      start-managers = start-managers;
-      flink = pkgs.flink;
-      sql-client = sql-cli;
-      container = container;
-    };
+    flinkConf = flink-conf;
   };
+  # example-flink-job = pkgs.stdenv.mkDerivation {
+  #
+  #   installPhase = ''
+  #     mkdir -p $out/src/tests
+  #     mkdir -p $out/src/tle_utils
+  #     mkdir -p $out/bin
+  #     mkdir -p $out/opt/flink/usrlib
+  #
+  #     cp -r ${src}/* $out/src/
+  #     cp -r ${pkgs.flink}/opt/flink $out/opt/
+  #     cp -r ${python-env}/bin/* $out/bin/
+  #     cp ${table-job}/bin/table-job $out/bin/table-job
+  #     cp ${run-tests}/bin/run-tests $out/src/run-tests
+  #     cp ${stop-all}/bin/stop-all $out/bin/stop-all
+  #     cp -r ${flink-conf-dir}/conf $out/
+  #   '';
+  #
+  #   passthru = {
+  #     python = python-env;
+  #     bpython = dev-scripts.run-bpython;
+  #     jupyter = dev-scripts.run-jupyter;
+  #     test = dev-scripts.test;
+  #     stop-all = stop-all;
+  #     conf = flink-conf-dir;
+  #     run-table-job = table-job;
+  #     run-stream-job = stream-job;
+  #     start-managers = start-managers;
+  #     flink = pkgs.flink;
+  #     sql-client = sql-cli;
+  #     container = container;
+  #   };
+  # };
 in override-meta new-meta example-flink-job

@@ -13,7 +13,7 @@
   ##   flinkConf = ./flink-conf.yaml;
   ## }
   ## ```
-  createFlinkConfDir = { pkgs, flinkConf, }:
+  createFlinkConfDir = { pkgs, flinkConf }:
     pkgs.stdenv.mkDerivation {
       name = "flink-conf-drv";
       phases = [ "installPhase" ];
@@ -44,7 +44,7 @@
   ##   flinkConfDir = ./flink-conf-dir;
   ## }
   ## ```
-  createSetFlinkConf = { pkgs, flinkConfDir, }:
+  createSetFlinkConf = { pkgs, flinkConfDir }:
     pkgs.writeScript "set-flink-conf" ''
       if [ -z "$FLINK_CONF_DIR" ]; then
           export FLINK_CONF_DIR="${flinkConfDir}/conf";
@@ -86,4 +86,86 @@
       source ${setFlinkConf}
       ${script}
     '';
+
+  mkFlinkDerivation = { pkgs, name, flinkConf, python-env, src
+    , flink-job-script ? "jobs/job.py", additionalInstallPhase ? ""
+    , additionalPassThru ? { }, }:
+    let
+      start-managers = writeFlinkShellScriptBin {
+        inherit pkgs;
+        flinkConf = flink-conf;
+        name = "start-managers";
+        script = ''
+          ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
+          ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
+        '';
+      };
+      stop-all = pkgs.writeShellScriptBin "stop-all" ''
+        ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
+      '';
+      sql-client = writeFlinkShellScriptBin {
+        inherit pkgs;
+        flinkConf = flink-conf;
+        name = "sql-client";
+        script = ''
+          ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
+        '';
+      };
+      run-job = writeFlinkShellScriptBin {
+        inherit pkgs;
+        flinkConf = flink-conf;
+        name = "run-job";
+        script = ''
+          ${pkgs.flink}/bin/flink run \
+            -py $1 \
+            -pyclientexec python \
+            --jarfile ${pkgs.campground.flink-connector-kafka}
+        '';
+      };
+      job = pkgs.writeShellScriptBin "job" ''
+        ${run-job}/bin/run-job ${src}/jobs/table-job.py
+      '';
+      dev-scripts = mkPythonDevScripts {
+        inherit pkgs;
+        project-drv = example-flink-job;
+        poetry-env = python-env;
+      };
+      container = buildFlinkContainer {
+        inherit pkgs python-env name;
+        tag = "latest";
+        flink-job = example-flink-job;
+      };
+
+    in pkgs.stdenv.mkDerivation {
+      inherit name src;
+
+      installPhase = ''
+        mkdir -p $out/src/tests
+        mkdir -p $out/src/tle_utils
+        mkdir -p $out/bin
+        mkdir -p $out/opt/flink/usrlib
+
+        cp -r ${src}/* $out/src/
+        cp -r ${pkgs.flink}/opt/flink $out/opt/
+        cp -r ${python-env}/bin/* $out/bin/
+        cp ${run-tests}/bin/run-tests $out/src/run-tests
+        cp ${stop-all}/bin/stop-all $out/bin/stop-all
+        cp -r ${flinkConf}/conf $out/
+      '';
+
+      passthru = {
+        python = python-env;
+        bpython = dev-scripts.run-bpython;
+        jupyter = dev-scripts.run-jupyter;
+        test = dev-scripts.test;
+        stop-all = stop-all;
+        conf = flink-conf-dir;
+        run-table-job = table-job;
+        run-stream-job = stream-job;
+        start-managers = start-managers;
+        flink = pkgs.flink;
+        sql-client = sql-cli;
+        container = container;
+      };
+    };
 }
