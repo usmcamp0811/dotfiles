@@ -95,9 +95,10 @@
         inherit pkgs flinkConf;
         name = "run-job";
         script = ''
+          export PYTHONPATH=${python-env}/lib/python${python-env.python.version}/site-packages
           ${pkgs.flink}/bin/flink run \
             -py $1 \
-            -pyclientexec python \
+            -pyclientexec ${python-env}/bin/python \
             --jarfile ${pkgs.campground.flink-connector-kafka}
         '';
       };

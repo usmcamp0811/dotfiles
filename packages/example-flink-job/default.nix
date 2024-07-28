@@ -15,7 +15,7 @@ let
       [ "setuptools" "python-snappy" "zstandard" "isort" "pycodestyle" ];
     apache-flink = [ "setuptools" ];
     mocker = [ "setuptools" ];
-    apache-flink-libraries = [ "setuptools" "google" ];
+    apache-flink-libraries = [ "setuptools" ];
   };
 
   p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super:

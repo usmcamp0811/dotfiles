@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 
+import google
 from pyflink.common import Types
 from pyflink.common.serialization import SimpleStringSchema
 from pyflink.datastream import StreamExecutionEnvironment
