@@ -48,7 +48,6 @@ let
     inherit pkgs python-env;
     name = "example-flink-job";
     src = src;
-    flinkConf = flink-conf;
     additionalPassThru = { stream-job = stream-job; };
   };
 
