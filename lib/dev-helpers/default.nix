@@ -47,8 +47,8 @@
   mkPythonDevScripts = { pkgs, python-env, project-drv, }:
     let
       # Extend the given python environment with additional packages
-      extended-python-env = python-env.withPackages
-        (ps: with ps; [ bpython pytest jupyter ipykernel ]);
+      extended-python-env =
+        python-env.withPackages (ps: with ps; [ bpython pytest ipykernel ]);
       pythonVersion = builtins.substring 0 4
         python-env.python.version; # Extract the major and minor version (e.g., "3.11")
       jupyterPythonVersion = builtins.substring 0 4
