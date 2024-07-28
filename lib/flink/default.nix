@@ -1,18 +1,5 @@
 { lib, inputs, snowfall-inputs, }: rec {
-  ## Create a flink-conf-dir derivation
-  ##
-  ## This function generates a derivation that sets up the Flink configuration directory.
-  ##
-  ## Parameters:
-  ## - `flinkConf`: The Flink configuration to be used.
-  ##
-  ## Example usage:
-  ## ```nix
-  ## createFlinkConfDir {
-  ##   pkgs = import <nixpkgs> {};
-  ##   flinkConf = ./flink-conf.yaml;
-  ## }
-  ## ```
+  ## Create a Flink configuration directory derivation
   createFlinkConfDir = { pkgs, flinkConf }:
     pkgs.stdenv.mkDerivation {
       name = "flink-conf-drv";
@@ -31,19 +18,6 @@
     };
 
   ## Create a set-flink-conf script
-  ##
-  ## This function generates a script that sets the FLINK_CONF_DIR environment variable.
-  ##
-  ## Parameters:
-  ## - `flinkConfDir`: The directory containing Flink configuration files.
-  ##
-  ## Example usage:
-  ## ```nix
-  ## createSetFlinkConf {
-  ##   pkgs = import <nixpkgs> {};
-  ##   flinkConfDir = ./flink-conf-dir;
-  ## }
-  ## ```
   createSetFlinkConf = { pkgs, flinkConfDir }:
     pkgs.writeScript "set-flink-conf" ''
       if [ -z "$FLINK_CONF_DIR" ]; then
@@ -54,24 +28,7 @@
       fi
     '';
 
-  ## Create shell scripts with flink configuration
-  ##
-  ## This function generates shell scripts that set up the Flink configuration environment.
-  ##
-  ## Parameters:
-  ## - `flinkConf`: The Flink configuration to be used.
-  ## - `name`: The name of the script.
-  ## - `script`: The script to be executed with the Flink configuration.
-  ##
-  ## Example usage:
-  ## ```nix
-  ## writeFlinkShellScriptBin {
-  ##   pkgs = import <nixpkgs> {};
-  ##   flinkConf = ./flink-conf.yaml;
-  ##   name = "flink-job";
-  ##   script = "flink run my-job.jar";
-  ## }
-  ## ```
+  ## Create shell scripts with Flink configuration
   writeFlinkShellScriptBin = { pkgs, flinkConf, name, script, }:
     let
       flinkConfDir = createFlinkConfDir {
@@ -87,9 +44,11 @@
       ${script}
     '';
 
+  ## Create a Flink derivation
   mkFlinkDerivation = { pkgs, name, flinkConf, python-env, src
     , flink-job-script ? "jobs/job.py", additionalInstallPhase ? ""
-    , additionalPassThru ? { }, }:
+    , additionalPassThru ? { }, dev-scripts ? dev-scripts, container ? container
+    , }:
     let
       start-managers = writeFlinkShellScriptBin {
         inherit pkgs flinkConf;
@@ -120,49 +79,37 @@
         '';
       };
       job = pkgs.writeShellScriptBin "job" ''
-        ${run-job}/bin/run-job ${src}/jobs/table-job.py
+        ${run-job}/bin/run-job ${src}/${flink-job-script}
       '';
-      dev-scripts = lib.mkPythonDevScripts {
-        inherit pkgs;
-        project-drv = flink-job;
-        poetry-env = python-env;
-      };
-      container = lib.buildFlinkContainer {
-        inherit pkgs python-env name;
-        tag = "latest";
-        flink-job = flink-job;
-      };
-      flink-job = pkgs.stdenv.mkDerivation {
-        inherit name src;
+    in pkgs.stdenv.mkDerivation {
+      inherit name src;
 
-        installPhase = ''
-          mkdir -p $out/src/tests
-          mkdir -p $out/src/tle_utils
-          mkdir -p $out/bin
-          mkdir -p $out/opt/flink/usrlib
+      installPhase = ''
+        mkdir -p $out/src/tests
+        mkdir -p $out/src/tle_utils
+        mkdir -p $out/bin
+        mkdir -p $out/opt/flink/usrlib
 
-          cp -r ${src}/* $out/src/
-          cp -r ${pkgs.flink}/opt/flink $out/opt/
-          cp -r ${python-env}/bin/* $out/bin/
-          cp ${stop-all}/bin/stop-all $out/bin/stop-all
-          cp -r ${flinkConf}/conf $out/
-        '';
+        cp -r ${src}/* $out/src/
+        cp -r ${pkgs.flink}/opt/flink $out/opt/
+        cp -r ${python-env}/bin/* $out/bin/
+        cp ${stop-all}/bin/stop-all $out/bin/stop-all
+        cp -r ${flinkConf}/conf $out/
+        ${additionalInstallPhase}
+      '';
 
-        passthru = {
-          python = python-env;
-          bpython = dev-scripts.run-bpython;
-          jupyter = dev-scripts.run-jupyter;
-          test = dev-scripts.test;
-          stop-all = stop-all;
-          # conf = flink-conf-dir;
-          # run-table-job = table-job;
-          # run-stream-job = stream-job;
-          run-job = job;
-          start-managers = start-managers;
-          flink = pkgs.flink;
-          sql-client = sql-client;
-          container = container;
-        };
-      };
-    in { inherit flink-job; };
+      passthru = {
+        python = python-env;
+        bpython = dev-scripts.run-bpython;
+        jupyter = dev-scripts.run-jupyter;
+        test = dev-scripts.test;
+        stop-all = stop-all;
+        run-job = job;
+        start-managers = start-managers;
+        flink = pkgs.flink;
+        sql-client = sql-client;
+        container = container;
+      } // additionalPassThru;
+    };
+
 }

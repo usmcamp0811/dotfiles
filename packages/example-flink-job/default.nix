@@ -124,6 +124,19 @@ let
     name = "example-flink-job";
     src = src;
     flinkConf = flink-conf;
+    container = container;
+    dev-scripts = dev-scripts;
+  };
+
+  dev-scripts = mkPythonDevScripts {
+    inherit pkgs;
+    project-drv = flink-job;
+    python-env = python-env;
+  };
+  container = buildFlinkContainer {
+    inherit pkgs python-env name;
+    tag = "latest";
+    flink-job = flink-job;
   };
   # example-flink-job = pkgs.stdenv.mkDerivation {
   #
