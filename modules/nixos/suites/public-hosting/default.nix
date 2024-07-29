@@ -70,6 +70,16 @@ in {
                 };
               };
             };
+            http.routers.blog-comments = {
+              rule = "Host(`remark.blog.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "blog-comments";
+            };
+
+            http.services.blog-comments = {
+              loadBalancer.servers = [{ url = "http://webb:11842"; }];
+            };
+
             http.routers.blog = {
               rule =
                 "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
