@@ -42,7 +42,6 @@ in {
 
     systemd.services.remark42-blog-comments = {
       enable = true;
-      package = pkgs.campground.remark42;
       description = "Comment engine for ${cfg.site}";
       environment = {
         REMARK_URL = cfg.remark-url;
@@ -54,7 +53,7 @@ in {
         AUTH_EMAIL_FROM = "blot-auth-no-reply@aicampground.com";
       };
       serviceConfig = {
-        ExecStart = "${pkgs.remark42}/bin/remark42 server";
+        ExecStart = "${pkgs.campground.remark42}/bin/remark42 server";
         Restart = "always";
         RestartSec = 30;
         StandardOutput = "syslog";
