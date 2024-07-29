@@ -50,7 +50,7 @@ in {
         STORE_BOLT_PATH = "/var/lib/remark42/db";
         REMARK_PORT = cfg.port;
         SITE = cfg.site;
-        EMOJI = cfg.emoji;
+        EMOJI = "${toString cfg.emoji}";
         NOTIFY_EMAIL_FROM = "blog-notify-no-reply@aicampground.com";
         AUTH_EMAIL_FROM = "blot-auth-no-reply@aicampground.com";
       };
