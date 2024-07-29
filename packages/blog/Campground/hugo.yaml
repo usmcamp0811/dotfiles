@@ -66,7 +66,7 @@ params:
 
   comments:
     enabled: true
-    provider: disqus
+    provider: remark42
 
     disqusjs:
       shortname:
