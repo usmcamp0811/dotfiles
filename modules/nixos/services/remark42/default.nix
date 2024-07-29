@@ -52,6 +52,8 @@ in {
         REMARK_PORT = "12381";
         SITE = "blog.aicampground.com";
         EMOJI = "true";
+        NOTIFY_EMAIL_FROM = "blog-notify-no-reply@aicampground.com";
+        AUTH_EMAIL_FROM = "blot-auth-no-reply@aicampground.com";
       };
       serviceConfig = {
         ExecStart = "${pkgs.remark42}/bin/remark42 server";
@@ -64,7 +66,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.copy-remark42-env = {
+    campground.services.vault-agent.services.remark42-campground-blog = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -82,8 +84,13 @@ in {
         environment.templates = {
           secret-service-env = {
             text = ''
-              {{ with secret "secret/campground" }}
-              YANKEE_WHITE="{{ .Data.value }}"
+              {{ with secret "${cfg.vault-path}" }}
+              SECRET="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SECRET }}{{ else }}{{ .Data.data.SECRET }}{{ end }}"
+              SMTP_HOST="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_HOST }}{{ else }}{{ .Data.data.SMTP_HOST }}{{ end }}"
+              SMTP_PORT="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_PORT }}{{ else }}{{ .Data.data.SMTP_PORT }}{{ end }}"
+              SMTP_TLS="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_TLS }}{{ else }}{{ .Data.data.SMTP_TLS }}{{ end }}"
+              SMTP_USERNAME="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_USERNAME }}{{ else }}{{ .Data.data.SMTP_USERNAME }}{{ end }}"
+              SMTP_PASSWORD="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_PASSWORD }}{{ else }}{{ .Data.data.SMTP_PASSWORD }}{{ end }}"
               {{ end }}
             '';
           };
