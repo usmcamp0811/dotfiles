@@ -1,25 +1,19 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+{ options, config, pkgs, lib, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.cli.ranger;
+with lib.campground;
+let cfg = config.campground.cli.ranger;
 in {
-  options.campground.cli.ranger = {enable = mkEnableOption "Ranger";};
+  options.campground.cli.ranger = { enable = mkEnableOption "Ranger"; };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ranger ueberzug];
+    home.packages = with pkgs; [ ranger ueberzug ];
     # TODO: Look at moving some of the shell sripts into Nix Shell Scripts
     # TODO: Make Kitty and ueberzug options for how to display images. Maybe set ueberzug if Alacitty is true
     home.file = {
-      ".config/ranger/rc.conf" = {source = ./configs/rc.conf;};
-      ".config/ranger/rifle.conf" = {source = ./configs/rifle.conf;};
-      ".config/ranger/devicons.py" = {source = ./configs/devicons.py;};
-      ".config/ranger/scope.sh" = {source = ./configs/scope.sh;};
+      ".config/ranger/rc.conf" = { source = ./configs/rc.conf; };
+      ".config/ranger/rifle.conf" = { source = ./configs/rifle.conf; };
+      ".config/ranger/devicons.py" = { source = ./configs/devicons.py; };
+      ".config/ranger/scope.sh" = { source = ./configs/scope.sh; };
       ".config/ranger/plugins/__init__.py" = {
         source = ./configs/plugins/__init__.py;
       };
