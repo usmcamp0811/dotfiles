@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "flink-job-template"
+version = "0.1.0"
+description = ""
+authors = ["Add Author <author@domain.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+apache-flink = "^1.19.1"
+setuptools = "^65.5.0"  # Add this line
+
+[tool.poetry.group.dev.dependencies]
+pytest-mock = "^3.14.0"
+pytest = "^8.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
