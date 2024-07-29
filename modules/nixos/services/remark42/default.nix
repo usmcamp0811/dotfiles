@@ -1,17 +1,15 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.remark42;
-  # Assuming the definition of `findEnabledServices` is correct and placed appropriately
-  #
-  # Assuming `self` is correctly defined in your broader context
-  #
-  # # Generate URLs for each enabled service
+let cfg = config.campground.services.remark42;
 in {
   options.campground.services.remark42 = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
-    port = mkOpt int 8081 "Port to Host the remark42 server on.";
+    port = mkOpt int 11845 "Port to Host the remark42 server on.";
+    remark-url =
+      mkOpt str "https://remarks.blog.aicampground.com" "URL for Remark server";
+    site = mkOpt str "blog.aicampground.com" "Remark Site";
+    emoji = mkOpt bool true "Enable Emoji support or not";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
@@ -42,16 +40,16 @@ in {
       createHome = true;
     };
 
-    systemd.services.remark42-campground-blog = {
+    systemd.services.remark42-blog-comments = {
       enable = true;
       package = pkgs.remark42;
-      description = "Comment engine for blog.aicampground.com";
+      description = "Comment engine for ${cfg.site}";
       environment = {
-        REMARK_URL = "https://blog.aicampground.com";
+        REMARK_URL = cfg.remark-url;
         STORE_BOLT_PATH = "/var/lib/remark42/db";
-        REMARK_PORT = "12381";
-        SITE = "blog.aicampground.com";
-        EMOJI = "true";
+        REMARK_PORT = cfg.port;
+        SITE = cfg.site;
+        EMOJI = cfg.emoji;
         NOTIFY_EMAIL_FROM = "blog-notify-no-reply@aicampground.com";
         AUTH_EMAIL_FROM = "blot-auth-no-reply@aicampground.com";
       };
@@ -66,7 +64,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.remark42-campground-blog = {
+    campground.services.vault-agent.services.remark42-blog-comments = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -91,6 +89,8 @@ in {
               SMTP_TLS="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_TLS }}{{ else }}{{ .Data.data.SMTP_TLS }}{{ end }}"
               SMTP_USERNAME="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_USERNAME }}{{ else }}{{ .Data.data.SMTP_USERNAME }}{{ end }}"
               SMTP_PASSWORD="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_PASSWORD }}{{ else }}{{ .Data.data.SMTP_PASSWORD }}{{ end }}"
+              AUTH_GITHUB_CID="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTH_GITHUB_CID }}{{ else }}{{ .Data.data.AUTH_GITHUB_CID }}{{ end }}"
+              AUTH_GITHUB_CSEC="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTH_GITHUB_CSEC }}{{ else }}{{ .Data.data.AUTH_GITHUB_CSEC  }}{{ end }}"
               {{ end }}
             '';
           };
