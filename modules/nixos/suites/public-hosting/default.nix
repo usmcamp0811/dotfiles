@@ -40,6 +40,7 @@ in {
   config = {
     campground = {
       # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
+
       services = {
         prometheus.additionalScrapeConfigs = [{
           job_name = "pub-traefik-monitor";
