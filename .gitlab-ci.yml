@@ -100,6 +100,16 @@ mattis:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_TYPE != "public" && $DEPLOY_TYPE != "lan" && $FLAKE_UPDATE != "true" && $SYSTEM == "butler"'
       when: always
       allow_failure: true
+    - if: '$CI_COMMIT_BRANCH == "nixos" && $FLAKE_UPDATE != "true"'
+      when: never
+      changes:
+        - "**/public-hosting/default.nix"
+      allow_failure: false
+    - if: '$CI_COMMIT_BRANCH == "nixos" && $FLAKE_UPDATE != "true"'
+      when: never
+      changes:
+        - "**/lan-hosting/default.nix"
+      allow_failure: false
 
 butler_deploy:
   <<: *deploy_job_template
