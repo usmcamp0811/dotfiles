@@ -88,7 +88,12 @@
         inherit pkgs flinkConf;
         name = "sql-client";
         script = ''
-          ${pkgs.flink}/opt/flink/bin/sql-client.sh $@
+          export PATH=${python-env}/bin/:$PATH
+          export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
+          export PYFLINK_PYTHON="${python-env}/bin/python"
+          export JAVA_HOME=${pkgs.openjdk11}
+          export FLINK_HOME=${pkgs.flink}/opt/flink
+          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j ${pkgs.campground.flink-connector-kafka} $@
         '';
       };
       run-job = writeFlinkShellScriptBin {
@@ -120,12 +125,13 @@
 
         installPhase = ''
           mkdir -p $out/src/tests
-          mkdir -p $out/src/tle_utils
           mkdir -p $out/bin
           mkdir -p $out/opt/flink/usrlib
+          mkdir -p $out/opt/flink/lib
 
           cp -r ${src}/* $out/src/
           cp -r ${pkgs.flink}/opt/flink $out/opt/
+          ln -s ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-kafka-connector.jar
           cp -r ${python-env}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
           cp -r ${flinkConf}/conf $out/
