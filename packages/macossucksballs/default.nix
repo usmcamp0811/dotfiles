@@ -26,10 +26,6 @@ let
       rest.bind-address: 0.0.0.0
       env.log.dir: /tmp/flink-logs
       env.java.home: ${pkgs.openjdk11}
-      env.path: ${python-env}/bin/:$PATH
-      python.path: ${python-env}/lib/python3.11/site-packages
-      python.executable: ${python-env}/bin/python
-      python.client.executable: ${python-env}/bin/python
       pipeline.jars: ${pkgs.campground.flink-connector-kafka}
     '';
   };
