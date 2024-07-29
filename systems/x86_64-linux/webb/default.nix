@@ -66,6 +66,10 @@ in {
 
     services = {
       # onlyoffice = { enable = true; };
+      remark42 = {
+        enable = true;
+        port = 11842;
+      };
       firefly = enabled;
       firefly-plaid-connector = enabled;
       campground-blog = enabled;
