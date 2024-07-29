@@ -48,7 +48,7 @@ in {
       environment = {
         REMARK_URL = cfg.remark-url;
         STORE_BOLT_PATH = "/var/lib/remark42/db";
-        REMARK_PORT = cfg.port;
+        REMARK_PORT = "${toString cfg.port}";
         SITE = cfg.site;
         EMOJI = "${toString cfg.emoji}";
         NOTIFY_EMAIL_FROM = "blog-notify-no-reply@aicampground.com";
