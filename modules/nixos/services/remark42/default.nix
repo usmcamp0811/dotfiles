@@ -40,6 +40,8 @@ in {
       createHome = true;
     };
 
+    users.groups.remark42 = { };
+
     systemd.services.remark42-blog-comments = {
       enable = true;
       description = "Comment engine for ${cfg.site}";
