@@ -42,7 +42,7 @@ in {
 
     systemd.services.remark42-blog-comments = {
       enable = true;
-      package = pkgs.remark42;
+      package = pkgs.campground.remark42;
       description = "Comment engine for ${cfg.site}";
       environment = {
         REMARK_URL = cfg.remark-url;
