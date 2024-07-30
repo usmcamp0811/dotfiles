@@ -109,7 +109,7 @@
               echo "$pyFiles"
           }
           PYFILES=$(generate_pyFiles_path "${src}")
-          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j ${pkgs.campground.flink-connector-kafka} -pyclientexec ${python-env}/bin/python -pyfs $PYFILES $@
+          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles=$PYFILES $@
         '';
       };
       run-job = writeFlinkShellScriptBin {
