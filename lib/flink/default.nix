@@ -65,7 +65,7 @@
       env.log.dir: /tmp/flink-logs
       env.java.home: ${pkgs.openjdk11}
       env.path: ${python-env}/bin/:$PATH
-      python.path: ${python-env}/lib/python3.11/site-packages:${python-env.src}
+      python.path: ${python-env}/lib/python3.11/site-packages:${src}
       python.executable: ${python-env}/bin/python
       python.client.executable: ${python-env}/bin/python
       pipeline.jars: ${pkgs.campground.flink-connector-kafka}
