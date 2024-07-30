@@ -1,6 +1,12 @@
-{ lib, inputs, snowfall-inputs, }: rec {
+{
+  lib,
+  inputs,
+  snowfall-inputs,
+}:
+rec {
   ## Create a Flink configuration directory derivation
-  createFlinkConfDir = { pkgs, flinkConf }:
+  createFlinkConfDir =
+    { pkgs, flinkConf }:
     pkgs.stdenv.mkDerivation {
       name = "flink-conf-drv";
       phases = [ "installPhase" ];
@@ -18,7 +24,8 @@
     };
 
   ## Create a set-flink-conf script
-  createSetFlinkConf = { pkgs, flinkConfDir }:
+  createSetFlinkConf =
+    { pkgs, flinkConfDir }:
     pkgs.writeScript "set-flink-conf" ''
       if [ -z "$FLINK_CONF_DIR" ]; then
           export FLINK_CONF_DIR="${flinkConfDir}/conf";
@@ -29,7 +36,13 @@
     '';
 
   ## Create shell scripts with Flink configuration
-  writeFlinkShellScriptBin = { pkgs, flinkConf, name, script, }:
+  writeFlinkShellScriptBin =
+    {
+      pkgs,
+      flinkConf,
+      name,
+      script,
+    }:
     let
       flinkConfDir = createFlinkConfDir {
         pkgs = pkgs;
@@ -39,50 +52,68 @@
         pkgs = pkgs;
         flinkConfDir = flinkConfDir;
       };
-    in pkgs.writeShellScriptBin name ''
+    in
+    pkgs.writeShellScriptBin name ''
       source ${setFlinkConf}
       ${script}
     '';
 
   ## Create a Flink derivation
-  mkFlinkDerivation = { pkgs, name, flinkConf ? pkgs.writeTextFile {
-    name = "flink-conf.yaml";
-    text = ''
-      env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
-      jobmanager.rpc.address: localhost
-      jobmanager.rpc.port: 6123
-      jobmanager.bind-host: 0.0.0.0
-      jobmanager.memory.process.size: 1600m
-      taskmanager.bind-host: 0.0.0.0
-      taskmanager.host: localhost
-      taskmanager.memory.process.size: 1728m
-      taskmanager.numberOfTaskSlots: 3
-      parallelism.default:
-      jobmanager.execution.failover-strategy: region
-      rest.address: localhost
-      rest.port: 8081
-      rest.bind-address: 0.0.0.0
-      env.log.dir: /tmp/flink-logs
-      env.java.home: ${pkgs.openjdk11}
-      env.path: ${python-env}/bin/:$PATH
-      python.path: ${python-env}/lib/python3.11/site-packages:${src}
-      python.executable: ${python-env}/bin/python
-      python.client.executable: ${python-env}/bin/python
-      pipeline.jars: ${pkgs.campground.flink-connector-kafka}
-    '';
-  }, python-env, src, flink-job-script ? "jobs/job.py"
-    , additionalInstallPhase ? "", additionalPassThru ? { }, }:
+  mkFlinkDerivation =
+    {
+      pkgs,
+      name,
+      flinkConf ? pkgs.writeTextFile {
+        name = "flink-conf.yaml";
+        text = ''
+          env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
+          jobmanager.rpc.address: localhost
+          jobmanager.rpc.port: 6123
+          jobmanager.bind-host: 0.0.0.0
+          jobmanager.memory.process.size: 1600m
+          taskmanager.bind-host: 0.0.0.0
+          taskmanager.host: localhost
+          taskmanager.memory.process.size: 1728m
+          taskmanager.numberOfTaskSlots: 3
+          parallelism.default:
+          jobmanager.execution.failover-strategy: region
+          rest.address: localhost
+          rest.port: 8081
+          rest.bind-address: 0.0.0.0
+          env.log.dir: /tmp/flink-logs
+          env.java.home: ${pkgs.openjdk11}
+          env.path: ${python-env}/bin/:$PATH
+          python.path: ${python-env}/lib/python3.11/site-packages:${src}
+          python.executable: ${python-env}/bin/python
+          python.client.executable: ${python-env}/bin/python
+          pipeline.jars: ${pkgs.campground.flink-connector-kafka}
+        '';
+      },
+      python-env,
+      src,
+      flink-job-script ? "jobs/job.py",
+      additionalInstallPhase ? "",
+      additionalPassThru ? { },
+    }:
     let
+      flink-with-kafka-connector = pkgs.flink.overrideAttrs (oldAttrs: {
+        installPhase =
+          oldAttrs.installPhase
+          + ''
+            mkdir -p $out/opt/flink/lib
+            cp -r ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-sql-connector-kafka.jar
+          '';
+      });
       start-managers = writeFlinkShellScriptBin {
         inherit pkgs flinkConf;
         name = "start-managers";
         script = ''
-          ${pkgs.flink}/opt/flink/bin/jobmanager.sh start &
-          ${pkgs.flink}/opt/flink/bin/taskmanager.sh start &
+          ${flink-with-kafka-connector}/opt/flink/bin/jobmanager.sh start &
+          ${flink-with-kafka-connector}/opt/flink/bin/taskmanager.sh start &
         '';
       };
       stop-all = pkgs.writeShellScriptBin "stop-all" ''
-        ${pkgs.flink}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
+        ${flink-with-kafka-connector}/opt/flink/bin/jobmanager.sh stop-all && ${pkgs.flink}/opt/flink/bin/taskmanager.sh stop-all
       '';
       sql-client = writeFlinkShellScriptBin {
         inherit pkgs flinkConf;
@@ -107,14 +138,14 @@
           echo "PYFILES: $PYFILES"
           echo "PYTHONPATH: $PYTHONPATH"
 
-          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" $@
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" $@
         '';
       };
       run-job = writeFlinkShellScriptBin {
         inherit pkgs flinkConf;
         name = "run-job";
         script = ''
-          ${pkgs.flink}/bin/flink run \
+          ${flink-with-kafka-connector}/bin/flink run \
             -py $1 \
             -pyclientexec ${python-env}/bin/python \
             --jarfile ${pkgs.campground.flink-connector-kafka}
@@ -145,7 +176,7 @@
           mkdir -p $out/conf
 
           cp -r ${src}/* $out/src/
-          cp -r ${pkgs.flink}/opt/flink $out/opt/
+          cp -r ${flink-with-kafka-connector}/opt/flink $out/opt/
           ln -s ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-kafka-connector.jar
           cp -r ${python-env}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
@@ -161,11 +192,12 @@
           run-job = run-job;
           job = job;
           start-managers = start-managers;
-          flink = pkgs.flink;
+          flink = flink-with-kafka-connector;
           sql-client = sql-client;
           container = container;
         } // additionalPassThru;
       };
-    in flink-job;
+    in
+    flink-job;
 
 }
