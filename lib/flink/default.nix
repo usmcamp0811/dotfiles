@@ -105,7 +105,7 @@
           }
           export PYFILES=$(generate_pyFiles_path "${src}")
           export PATH=${python-env}/bin/:$PATH
-          export PYTHONPATH="${python-env}/lib/python3.11/site-packages:${src}"
+          export PYTHONPATH="${python-env}/lib/python3.11/site-packages:${flink-job.src}"
           export PYFLINK_PYTHON="${python-env}/bin/python"
           export JAVA_HOME=${pkgs.openjdk11}
           export FLINK_HOME=${pkgs.flink}/opt/flink
