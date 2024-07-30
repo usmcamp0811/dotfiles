@@ -15,6 +15,7 @@ let
   */
   buildFlinkContainer = { pkgs, name, tag, python-env, flink-job, }:
     let
+
       docker-entrypoint = pkgs.fetchurl {
         url =
           "https://raw.githubusercontent.com/apache/flink-docker/master/1.19/scala_2.12-java11-ubuntu/docker-entrypoint.sh";
@@ -51,7 +52,7 @@ let
         config = {
           Entrypoint = [ "/docker-entrypoint.sh" ];
           Env = [
-            "PYTHONPATH=${python-env}/lib/python3.11/site-packages"
+            "PYTHONPATH=${python-env}/lib/python3.11/site-packages:${flink-job.src}"
             "PYFLINK_PYTHON=${python-env}/bin/python"
             "JAVA_HOME=${pkgs.openjdk11}"
             "FLINK_HOME=/opt/flink"
