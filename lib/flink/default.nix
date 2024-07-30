@@ -149,7 +149,6 @@
           ln -s ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-kafka-connector.jar
           cp -r ${python-env}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
-          cp -r ${flinkConf}/conf/* $out/conf
           ${additionalInstallPhase}
         '';
 
