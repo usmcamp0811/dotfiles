@@ -97,7 +97,7 @@
           generate_pyFiles_path() {
               local dir_path=$1
               local pyFiles=""
-              while IFS= read -r -d ''''''' file; do
+              while IFS= read -r -d "" file; do
                   if [ -f "$file" ]; then
                       if [ -z "$pyFiles" ]; then
                           pyFiles="$file"
