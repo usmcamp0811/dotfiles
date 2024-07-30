@@ -33,6 +33,8 @@ in {
   config = mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ cfg.port ];
 
+    systemd.tmpfiles.rules =
+      [ "d /var/lib/remark42/assets 700 remark42 remark42 -" ];
     users.users.remark42 = {
       isSystemUser = true;
       group = "remark42";
