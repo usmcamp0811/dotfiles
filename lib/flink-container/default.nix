@@ -58,6 +58,7 @@ let
             "FLINK_BIN_DIR=/opt/flink/bin"
             "PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/flink/bin"
             "CLASSPATH=/opt/flink/lib"
+            "FLINK_CONF_DIR=/opt/flink/conf"
           ];
         };
         fakeRootCommands = ''
