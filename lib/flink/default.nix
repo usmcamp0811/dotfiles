@@ -97,7 +97,7 @@
           generate_pyFiles_path() {
               local dir_path=$1
               local pyFiles=""
-              for file in "$dir_path"/*.{py,egg,zip,whl}; do
+              while IFS= read -r -d '''' file; do
                   if [ -f "$file" ]; then
                       if [ -z "$pyFiles" ]; then
                           pyFiles="$file"
@@ -105,11 +105,11 @@
                           pyFiles="$pyFiles,$file"
                       fi
                   fi
-              done
+              done < <(${pkgs.findutils}/bin/find "$dir_path" -type f \( -name "*.py" -o -name "*.egg" -o -name "*.zip" -o -name "*.whl" \) -print0)
               echo "$pyFiles"
           }
-          PYFILES=$(generate_pyFiles_path "${src}/${flink-job-script}")
-          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles=${src}/${flink-job-script} $@
+          PYFILES=$(generate_pyFiles_path "${src}")
+          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" $@
         '';
       };
       run-job = writeFlinkShellScriptBin {
