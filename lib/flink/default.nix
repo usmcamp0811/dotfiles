@@ -93,7 +93,23 @@
           export PYFLINK_PYTHON="${python-env}/bin/python"
           export JAVA_HOME=${pkgs.openjdk11}
           export FLINK_HOME=${pkgs.flink}/opt/flink
-          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j ${pkgs.campground.flink-connector-kafka} $@
+
+          generate_pyFiles_path() {
+              local dir_path=$1
+              local pyFiles=""
+              for file in "$dir_path"/*.{py,egg,zip,whl}; do
+                  if [ -f "$file" ]; then
+                      if [ -z "$pyFiles" ]; then
+                          pyFiles="$file"
+                      else
+                          pyFiles="$pyFiles,$file"
+                      fi
+                  fi
+              done
+              echo "$pyFiles"
+          }
+          PYFILES=$(generate_pyFiles_path "${src}")
+          ${pkgs.flink}/opt/flink/bin/sql-client.sh -j ${pkgs.campground.flink-connector-kafka} -pyclientexec ${python-env}/bin/python -pyfs $PYFILES $@
         '';
       };
       run-job = writeFlinkShellScriptBin {
