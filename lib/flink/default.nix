@@ -88,11 +88,6 @@
         inherit pkgs flinkConf;
         name = "sql-client";
         script = ''
-          export PATH=${python-env}/bin/:$PATH
-          export PYTHONPATH="${python-env}/lib/python3.11/site-packages"
-          export PYFLINK_PYTHON="${python-env}/bin/python"
-          export JAVA_HOME=${pkgs.openjdk11}
-          export FLINK_HOME=${pkgs.flink}/opt/flink
 
           generate_pyFiles_path() {
               local dir_path=$1
@@ -108,7 +103,15 @@
               done < <(${pkgs.findutils}/bin/find "$dir_path" -type f \( -name "*.py" -o -name "*.egg" -o -name "*.zip" -o -name "*.whl" \) -print0)
               echo "$pyFiles"
           }
-          PYFILES=$(generate_pyFiles_path "${src}")
+          export PYFILES=$(generate_pyFiles_path "${src}")
+          export PATH=${python-env}/bin/:$PATH
+          export PYTHONPATH="${python-env}/lib/python3.11/site-packages:${src}"
+          export PYFLINK_PYTHON="${python-env}/bin/python"
+          export JAVA_HOME=${pkgs.openjdk11}
+          export FLINK_HOME=${pkgs.flink}/opt/flink
+
+          echo "PYFILES: $PYFILES"
+
           ${pkgs.flink}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" $@
         '';
       };
