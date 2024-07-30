@@ -111,6 +111,7 @@
           export FLINK_HOME=${pkgs.flink}/opt/flink
 
           echo "PYFILES: $PYFILES"
+          echo "PYTHONPATH: $PYTHONPATH"
 
           ${pkgs.flink}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" $@
         '';

@@ -61,17 +61,17 @@
 
         # Adjusted to ensure it works regardless of where it's called from
         BASE_DIR=$(dirname "$SCRIPT_DIR")
-        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages
+        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages:${project-drv.src}
         ${extended-python-env}/bin/pytest $SCRIPT_DIR/tests/ "$@"
       '';
 
       run-bpython = pkgs.writeShellScriptBin "run-bpython" ''
-        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages
+        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages:${project-drv.src}
         ${extended-python-env}/bin/bpython "$@"
       '';
 
       run-jupyter = pkgs.writeShellScriptBin "run-jupyter" ''
-        export PYTHONPATH=${pkgs.jupyter-all}/lib/python${jupyterPythonVersion}/site-packages:${python-env}/lib/python${pythonVersion}/site-packages
+        export PYTHONPATH=${pkgs.jupyter-all}/lib/python${jupyterPythonVersion}/site-packages:${python-env}/lib/python${pythonVersion}/site-packages:${project-drv.src}
         ${pkgs.jupyter-all}/bin/jupyter console "$@"
       '';
 
