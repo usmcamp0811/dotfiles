@@ -55,6 +55,7 @@ in {
         EMOJI = "${toString cfg.emoji}";
         NOTIFY_EMAIL_FROM = "blog-notify-no-reply@aicampground.com";
         AUTH_EMAIL_FROM = "blot-auth-no-reply@aicampground.com";
+        CORS_ALLOWED_ORIGINS = "https://${cfg.site}";
       };
       serviceConfig = {
         ExecStart = "${pkgs.campground.remark42}/bin/remark42 server";
