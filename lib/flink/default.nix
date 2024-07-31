@@ -108,15 +108,7 @@
         name = "sql-client";
         text = ''
           export PYTHONPATH="${python-env}/lib/python3.11/site-packages:${src}"
-          convert_pythonpath_to_pyfiles() {
-              local pyFiles
-
-              # Replace commas with colons
-              pyFiles=$(echo "$PYTHONPATH" | tr ':' ',')
-
-              echo "$pyFiles"
-          }
-          export PYFILES="$(convert_pythonpath_to_pyfiles)"
+          PYFILES="$(echo "$PYTHONPATH" | tr ':' ',')"
           export PATH="${python-env}/bin/:$PATH"
           export PYFLINK_PYTHON="${python-env}/bin/python"
           export JAVA_HOME="${pkgs.openjdk11}"
@@ -125,7 +117,7 @@
           echo "PYFILES: $PYFILES"
           echo "PYTHONPATH: $PYTHONPATH"
 
-          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" $@
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" "$@"
         '';
       };
       run-job = writeFlinkApplication {
