@@ -87,7 +87,7 @@ params:
       theme:
 
     remark42:
-      host: https://remark.blog.aicampground.com
+      host: https://remark.aicampground.com
       site: blog.aicampground.com
       locale: en
 

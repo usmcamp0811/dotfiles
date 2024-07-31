@@ -72,7 +72,7 @@ in {
               };
             };
             http.routers.blog-comments = {
-              rule = "Host(`remark.blog.aicampground.com`)";
+              rule = "Host(`remark.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "blog-comments";
             };

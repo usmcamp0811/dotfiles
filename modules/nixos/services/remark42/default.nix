@@ -7,8 +7,8 @@ in {
     enable = mkBoolOpt false "Enable an Searx;";
     port = mkOpt int 11845 "Port to Host the remark42 server on.";
     remark-url =
-      mkOpt str "https://remarks.blog.aicampground.com" "URL for Remark server";
-    site = mkOpt str "https://blog.aicampground.com" "Remark Site";
+      mkOpt str "https://remark.aicampground.com" "URL for Remark server";
+    site = mkOpt str "blog.aicampground.com" "Remark Site";
     emoji = mkOpt bool true "Enable Emoji support or not";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -60,7 +60,7 @@ in {
         ExecStart = "${pkgs.campground.remark42}/bin/remark42 server";
         Restart = "always";
         RestartSec = 30;
-        StandardOutput = "journal";
+        # StandardOutput = "journal";
         WorkingDirectory = "/var/lib/remark42/assets";
         User = "remark42";
         Group = "remark42";
