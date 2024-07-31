@@ -55,7 +55,7 @@ in {
         EMOJI = "${toString cfg.emoji}";
         NOTIFY_EMAIL_FROM = "blog-notify-no-reply@aicampground.com";
         AUTH_EMAIL_FROM = "blot-auth-no-reply@aicampground.com";
-        CORS_ALLOWED_ORIGINS = "https://${cfg.site}";
+        CORS_ALLOWED_ORIGINS = "https://${cfg.site}:remark.aicampgroud.com";
       };
       serviceConfig = {
         ExecStart = "${pkgs.campground.remark42}/bin/remark42 server";
@@ -95,6 +95,8 @@ in {
               SMTP_PASSWORD="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_PASSWORD }}{{ else }}{{ .Data.data.SMTP_PASSWORD }}{{ end }}"
               AUTH_GITHUB_CID="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTH_GITHUB_CID }}{{ else }}{{ .Data.data.AUTH_GITHUB_CID }}{{ end }}"
               AUTH_GITHUB_CSEC="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTH_GITHUB_CSEC }}{{ else }}{{ .Data.data.AUTH_GITHUB_CSEC  }}{{ end }}"
+              AUTH_GOOGLE_CID="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTH_GOOGLE_CID }}{{ else }}{{ .Data.data.AUTH_GOOGLE_CID }}{{ end }}"
+              AUTH_GOOGLE_CSEC="{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTH_GOOGLE_CSEC }}{{ else }}{{ .Data.data.AUTH_GOOGLE_CSEC  }}{{ end }}"
               {{ end }}
             '';
           };
