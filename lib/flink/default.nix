@@ -32,9 +32,9 @@
         pkgs.gnused
         pkgs.gawk
         (if pkgs.stdenv.isDarwin then pkgs.darwin.Libsystem else pkgs.glibc)
+        (if pkgs.stdenv.isDarwin then pkgs.darwin.sudo else pkgs.su-exec)
+        (if pkgs.stdenv.isDarwin then null else pkgs.gosu)
         pkgs.hostname
-        pkgs.su-exec
-        pkgs.gosu
         pkgs.jemalloc
         pkgs.bash
         pkgs.findutils
