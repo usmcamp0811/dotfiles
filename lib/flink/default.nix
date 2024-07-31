@@ -31,7 +31,7 @@
         pkgs.gnugrep
         pkgs.gnused
         pkgs.gawk
-        (if pkgs.stdenv.isDarwin then pkgs.libc else pkgs.glibc)
+        (if pkgs.stdenv.isDarwin then pkgs.darwin.Libsystem else pkgs.glibc)
         pkgs.hostname
         pkgs.su-exec
         pkgs.gosu
