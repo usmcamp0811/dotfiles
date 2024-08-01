@@ -1,5 +1,4 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib, inputs, pkgs, ... }:
 let
   src = ./.;
   pypkgs-build-requirements = {
@@ -18,10 +17,13 @@ let
           ++ (builtins.map (req: super."${req}") build-requirements);
 
         # Additional override for apache-flink-libraries to avoid collision
-        installPhase = if package == "apache-flink-libraries" then ''
-          rm -rf $out/lib/python3.11/site-packages/pyflink/__pycache__/version.cpython-311.pyc
-        '' else
-          oldAttrs.postInstall or "";
+        # installPhase =
+        #   if package == "apache-flink-libraries" then
+        #     ''
+        #       rm -rf $out/lib/python3.11/site-packages/pyflink/__pycache__/version.cpython-311.pyc
+        #     ''
+        #   else
+        #     oldAttrs.postInstall or "";
       })) pypkgs-build-requirements);
 
   python-env = pkgs.poetry2nix.mkPoetryEnv {
