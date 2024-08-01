@@ -7,9 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-apache-flink = "^1.19.1"
 setuptools = "^65.5.0"  # Add this line
-pyarrow = { version = "^11.0.0", platform = "macos" }
 
 [tool.poetry.group.dev.dependencies]
 pytest-mock = "^3.14.0"
