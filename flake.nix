@@ -155,7 +155,7 @@
     };
 
     poetry2nix = {
-      url = "github:nix-community/poetry2nix";
+      url = "github:TyberiusPrime/poetry2nix/pyarrow_fix";
       inputs.nixpkgs.follows = "unstable";
     };
 

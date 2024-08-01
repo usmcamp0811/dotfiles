@@ -3851,15 +3851,16 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1721039874,
-        "narHash": "sha256-XANsG9GYHip8pxZpbqKf/YGv8tIa0xTh289Y+WNBNfw=",
-        "owner": "nix-community",
+        "lastModified": 1721125334,
+        "narHash": "sha256-fgQ5105l8P8IWjfg7XAtkoMUtnmvK58xF4HtyOGs850=",
+        "owner": "TyberiusPrime",
         "repo": "poetry2nix",
-        "rev": "d11c01e58587e5f21037ed6477465a7f26a32e27",
+        "rev": "9f782b87a29b1f85d427f413c3cdc3eb29deb2cf",
         "type": "github"
       },
       "original": {
-        "owner": "nix-community",
+        "owner": "TyberiusPrime",
+        "ref": "pyarrow_fix",
         "repo": "poetry2nix",
         "type": "github"
       }
