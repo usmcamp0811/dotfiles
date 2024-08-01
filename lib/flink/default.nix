@@ -140,9 +140,7 @@
         python-env = python-env;
       };
       container = lib.campground.buildFlinkContainer {
-        inherit pkgs python-env name;
-        tag = tag;
-        flink-job = flink-job;
+        inherit pkgs python-env name tag flink-job;
       };
       flink-job = pkgs.stdenv.mkDerivation {
         inherit name src;
