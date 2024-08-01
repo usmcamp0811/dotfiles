@@ -19,7 +19,7 @@
 
   ## Create shell scripts with Flink configuration
   writeFlinkApplication =
-    { pkgs, flinkConf, name, text, extraRuntimeInputs ? [ ], }:
+    { pkgs, flinkConf, name, tag ? "latest", text, extraRuntimeInputs ? [ ], }:
     let
       flinkConfDir = createFlinkConfDir {
         pkgs = pkgs;
@@ -141,7 +141,7 @@
       };
       container = lib.campground.buildFlinkContainer {
         inherit pkgs python-env name;
-        tag = "latest";
+        tag = tag;
         flink-job = flink-job;
       };
       flink-job = pkgs.stdenv.mkDerivation {
