@@ -1,6 +1,7 @@
 { lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
 , hosts ? { }, ... }:
 let
+  src = ./.;
   pypkgs-build-requirements = {
     avro = [ "setuptools" ];
     avro-python3 =
