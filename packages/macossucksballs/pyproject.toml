@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 setuptools = "^65.5.0"  # Add this line
+pyarrow = "^17.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest-mock = "^3.14.0"
