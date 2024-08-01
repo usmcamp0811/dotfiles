@@ -101,7 +101,7 @@ nix --version
 
 You should see the version number of Nix displayed, confirming that the installation was successful.
 
-### Conclusion
+## Conclusion
 
 In this post, we introduced the foundational concepts of using Nix to standardize and streamline project management
 within an organization. We explored why Nix is essential for overcoming the limitations of traditional templates and
