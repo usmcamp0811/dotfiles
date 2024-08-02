@@ -82,7 +82,7 @@
         propagatedBuildInputs = [ python-env ];
         installPhase = ''
           mkdir -p $out/bin
-          cp ${run-tests} $out/bin/run-tests
+          cp -r ${run-tests}/bin/run-tests $out/bin/run-tests
         '';
         meta = {
           description = "PyTest";
