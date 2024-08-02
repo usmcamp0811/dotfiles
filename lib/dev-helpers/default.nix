@@ -53,7 +53,7 @@
         python-env.python.version; # Extract the major and minor version (e.g., "3.11")
       jupyterPythonVersion = builtins.substring 0 4
         pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
-    in {
+    in rec {
       run-tests = pkgs.writeShellScriptBin "run-tests" ''
         # Resolves the symlink to find the actual path of the script
         SCRIPT=$(readlink -f "$0" || realpath "$0")
