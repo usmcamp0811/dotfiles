@@ -78,11 +78,11 @@
       test = pkgs.stdenv.mkDerivation {
         name = "pytest";
         src = project-drv.src;
-        phases = [ ];
+        phases = [ "installPhase" ];
         propagatedBuildInputs = [ python-env ];
         installPhase = ''
           mkdir -p $out/bin
-          ln -s ${run-tests}/bin/run-tests $out/bin/run-tests
+          ln -s ${project-drv}/src/run-tests $out/bin/run-tests
         '';
         meta = {
           description = "PyTest";
