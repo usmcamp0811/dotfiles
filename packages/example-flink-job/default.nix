@@ -20,16 +20,25 @@ let
 
   p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super:
     builtins.mapAttrs (package: build-requirements:
-      super."${package}".overridePythonAttrs (oldAttrs: {
-        buildInputs = (oldAttrs.buildInputs or [ ])
-          ++ (builtins.map (req: super."${req}") build-requirements);
-
-        # Additional override for apache-flink-libraries to avoid collision
-        installPhase = if package == "apache-flink-libraries" then ''
-          rm -rf $out/lib/python3.11/site-packages/pyflink/__pycache__/version.cpython-311.pyc
-        '' else
-          oldAttrs.postInstall or "";
-      })) pypkgs-build-requirements);
+      let
+        override = super."${package}".overridePythonAttrs (oldAttrs: {
+          buildInputs = (oldAttrs.buildInputs or [ ])
+            ++ (builtins.map (req: super."${req}") build-requirements);
+        });
+      in if package == "pyarrow" then
+        override.overrideAttrs (oldAttrs: {
+          buildInputs = (oldAttrs.buildInputs or [ ])
+            ++ [ pkgs.arrow-cpp_11 ]; # Ensure correct version of arrow-cpp
+        })
+      else if package == "apache-flink-libraries" then
+        override.overrideAttrs (oldAttrs: {
+          postInstall = ''
+            ${oldAttrs.postInstall or ""}
+            rm -rf $out/lib/python3.11/site-packages/pyflink/__pycache__/version.cpython-311.pyc
+          '';
+        })
+      else
+        override) pypkgs-build-requirements);
 
   python-env = pkgs.poetry2nix.mkPoetryEnv {
     projectDir = src;
