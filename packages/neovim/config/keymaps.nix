@@ -142,6 +142,12 @@
     }
   ];
 
+  files."after/ftplugin/markdown.lua".keymaps = [{
+    mode = "n";
+    key = "<leader>f";
+    options = { desc = "Reformat lines to 110 chars"; };
+    action = ":%!fmt -w 110 -s<CR>";
+  }];
   files."after/ftplugin/python.lua".keymaps = [
     {
       mode = "n";
