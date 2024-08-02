@@ -79,7 +79,7 @@
         name = "pytest";
         src = project-drv.src;
         phases = [ ];
-        propagatedBuildInputs = [ python-env ];
+        propagatedBuildInputs = [ python-env run-tests ];
         installPhase = ''
           mkdir -p $out/bin
           ln -s ${project-drv}/src/run-tests $out/bin/run-tests
