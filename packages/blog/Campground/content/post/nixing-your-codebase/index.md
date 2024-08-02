@@ -17,11 +17,13 @@ series = ["Nix in the wild"]
 
 # Nix in the Wild: Nixing your Codebase
 
-Welcome back to the 'Nix in the Wild' series, this post focuses on the practical steps to
-integrate Nix into your existing codebase. Today, we'll set up the foundational elements, including
-a `flake.nix` file, a structured directory for Snowfall, and a default development shell. Let's
-dive
-in and start 'nixing' our codebase.
+Welcome back to the 'Nix in the Wild' series. In this post, we'll dive into the practical steps of
+integrating Nix into your existing codebase. We'll establish the foundational elements, including
+creating a `flake.nix` file and setting up the directory structure necessary for the [Snowfall
+library](https://snowfall.org/guides/lib/quickstart/). Additionally, we'll create our first Nix shell
+to help teams standardize their development environments. I'll also share some lessons learned from my
+experience with Nix, discussing why I chose Snowfall, what I appreciate about it, and what I'd like to
+see improved. Let's dive in and start 'nixing' our codebase.
 
 ## Setting Up Nix with Flakes
 
