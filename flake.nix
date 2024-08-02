@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    pyarrow.url =
+      "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     hyprland-works-here.url =
       "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";

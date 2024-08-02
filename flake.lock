@@ -4060,6 +4060,22 @@
         "type": "github"
       }
     },
+    "pyarrow": {
+      "locked": {
+        "lastModified": 1677686947,
+        "narHash": "sha256-HGvfsvx2HJ9MDxl+Tm2ax7PfGwMtyc3kuX+Y/NDkk3M=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "e8b4c13b8d206f4b01e95499aa7425765a79513e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "e8b4c13b8d206f4b01e95499aa7425765a79513e",
+        "type": "github"
+      }
+    },
     "pyproject-nix": {
       "flake": false,
       "locked": {
@@ -4137,6 +4153,7 @@
         "nur": "nur",
         "poetry2nix": "poetry2nix_2",
         "pre-commit-hooks": "pre-commit-hooks_5",
+        "pyarrow": "pyarrow",
         "sbomnix": "sbomnix",
         "scientific-fhs": "scientific-fhs",
         "snowfall-lib": "snowfall-lib_3",
