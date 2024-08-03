@@ -458,13 +458,144 @@ set up new projects with a predefined structure.
 
 ## Creating a Default Shell Environment
 
-- Overview of the importance of a consistent development environment.
-- Instructions on creating a default shell.
+Earlier, I provided a snippet of a basic Nix development shell, which is perfectly sufficient
+for many needs. However, I've had great success using a specialized development shell by
+[Numtide](https://numtide.github.io/devshell/getting_started.html). This shell uses TOML files to define
+the entire environment, which is especially appealing to those who are still hesitant about adopting
+Nix. The TOML configuration is straightforward, and you can easily extend it with pure Nix code for more
+advanced functionality. In this section, I'll show you how to set up a simple default Nix development
+shell using the Numtide dev shell.
+
+### Update the `flake.nix`
+
+#### Add the Numtide Devshell Flake to the `inputs`
+
+```nix
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+
+    snowfall-lib = {
+        url = "github:snowfallorg/lib";
+        inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    devshell.url = "github:numtide/devshell"; # <-- We added this right here
+  };
+```
+
+#### Add the Numtide Devshell to the `mkFlake` Function's `overlays` Argument
+
+Using the `overlays` argument in `mkFlake` is a bit different from adding overlays to the
+`/overlays` directory. This approach is good for quickly adding predefined functionality, like
+`devshell.overlays.default`, which brings in default features from the `devshell` flake with minimal fuss.
+On the other hand, using the `/overlays` directory is more about allowing you to tweak how packages from
+`nixpkgs` are modified or added.
+
+```nix
+outputs = inputs:
+    inputs.snowfall-lib.mkFlake {
+        inherit inputs;
+        src = ./.;
+        snowfall = {
+            root = ./.;
+            namespace = "initech";
+            meta = {
+                name = "initech";
+                title = "Initech Demo Codebase";
+            };
+        };
+        overlays = with inputs; [
+            devshell.overlays.default
+        ];
+    };
+```
+
+#### Make a Devshell
+
+Now that you've added the overlay, the next step is to create the devshell. In the `/shells` folder,
+create a new folder named `default` and place a `default.nix` file inside it.
+
+```nix
+{ pkgs,
+  config,
+  lib,
+  system,
+  ...
+}:
+pkgs.devshell.mkShell {
+  imports = [ (pkgs.devshell.importTOML ./devshell.toml) ];
+
+  name = "initech";
+  motd = ''
+           {214}⮺  Is it good for the company? ⮺{reset}
+           $(type -p menu &>/dev/null && menu)
+         '';
+
+  commands = [
+    {
+      name = "nix-tutor";
+      command = "${pkgs.nix_tutor}/bin/tutor-menu";
+    }
+  ];
+}
+```
+
+Next, add a `devshell.toml` file to the same directory. **Note:** You can name the file anything you
+like, just remember to update the `default.nix` with the correct path and filename. The simple `toml`
+file below demonstrates adding Hashicorp's Vault to an environment and a custom shell alias called
+`git-root`, which returns the path to the root of a Git project.
+
+```toml
+[[commands]]
+package = "vault"
+
+[[commands]]
+name = "git-root"
+help = "Print the root directory of the Git project."
+category = "shell tools"
+command = """
+#!/bin/sh
+
+# Function to get Git root directory
+get_git_root() {
+    git rev-parse --show-toplevel
+}
+
+# Print the Git root directory
+echo $(get_git_root)
+"""
+```
+
+This setup not only adds the Vault package to your environment but also defines a custom command to
+easily find the root of your Git project, showcasing the flexibility and power of using a devshell with Nix.
+
+You probably already tried running this and got an error and are wondering what the hell you did wrong!?
+You forgot to
+
+```bash
+git add shells/default/default.nix
+git add shells/default/devshell.toml
+```
+
+Once you do that you can activate the shell by simply doing:
+
+```bash
+nix develop
+
+# above is the same as this because the shell is named `default`
+# if you named the folder anything else you would need to use it below
+nix develop .#default
+```
 
 ## Conclusion
 
 - Recap of what was accomplished.
 - Teaser for the next post in the series.
+
+```
+
+```
 
 ```
 
