@@ -210,7 +210,7 @@ add Snowfall and Nix.
   - `default.nix`: If you choose to add additional library functions, they would go here. This file
     defines an attribute set that merges with the existing `lib`.
 
-#### Packages
+#### Package Definitions
 
 - **packages/** (optional): This directory is where we define the packages that our flake can export. These
   packages don't have to be large or complex; they can be as simple as a script that performs a specific
@@ -225,7 +225,7 @@ add Snowfall and Nix.
   nix run <local or remote path to flake>#<package-name>
   ```
 
-#### Modules
+#### NixOS and Home Manager Modules
 
 - **modules/** (optional): This directory is used for managing one or more computer systems with
   NixOS or configuring user environments, such as dotfiles. It provides a central location for your
@@ -259,7 +259,7 @@ add Snowfall and Nix.
   }
   ```
 
-#### Systems
+#### System Configurations
 
 - **systems/** (optional): This directory is for configurations of your NixOS systems, virtual machines,
   or AMIs for cloud platforms like Azure or AWS. The system configurations here generally don't contain
@@ -324,7 +324,7 @@ add Snowfall and Nix.
   In this configuration, various modules and services are specified, such as SSH keys and NTP services,
   ensuring a consistent setup across the system.
 
-#### Homes
+#### User Home Configurations
 
 - **homes/** (optional): This directory is used for home environment configurations, which are similar to
   system configurations but tailored for individual users rather than entire systems. These configurations
@@ -389,7 +389,7 @@ nix run <path to flake>#homeConfigurations.<user-name>@<system-name>.activationP
 This setup allows for defining a variety of user-specific settings and applications, which can be easily
 deployed and managed across different systems.
 
-#### Shells
+#### Development Shells
 
 - **shells/** (optional): This directory is where you can define various Nix shells. Think of these
   shells as being similar to Docker containers but with less isolation. When you activate a Nix shell, it
