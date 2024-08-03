@@ -389,6 +389,54 @@ nix run <path to flake>#homeConfigurations.<user-name>@<system-name>.activationP
 This setup allows for defining a variety of user-specific settings and applications, which can be easily
 deployed and managed across different systems.
 
+#### Shells
+
+- **shells/** (optional): This directory is where you can define various Nix shells. Think of these
+  shells as being similar to Docker containers but with less isolation. When you activate a Nix shell, it
+  makes all the specified programs and environment variables available, allowing users to easily set up a
+  consistent environment across different systems. This is particularly useful for organizations adopting
+  Nix, as it simplifies the onboarding process by providing a pre-configured development environment. No
+  more spending days or weeks setting up; a well-defined shell can get new team members up and running quickly.
+
+  However, be cautious about the temptation to include everything your team uses in a single shell. While
+  possible, this can lead to long load times and a less efficient setup. A better strategy is to create
+  shells tailored to specific tasks—one for building projects, another for testing, etc. This way,
+  you load only what you need, when you need it, but you still have the option to include everything if
+  that's what you prefer.
+
+  - `<shell-name>/default.nix`: This file contains a function that defines the Nix shell.
+
+  Here's an example of a simple shell:
+
+  ```nix
+  { mkShell, pkgs, ... }:
+  mkShell {
+    buildInputs = with pkgs; [
+      neovim
+      k3d
+      podman
+      kubernetes
+      k9s
+    ];
+
+    shellHook = ''
+      echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
+      echo -e "\e[32m|⮺  Initech: Is it good for the company?                    |\e[0m"
+      echo -e "\e[32m+-----------------------------------------------------------+\e[0m"
+
+      # Additional setup can go here
+    '';
+  }
+  ```
+
+To activate the shell defined here, you can use the following command:
+
+```bash
+nix develop <local or remote path to flake>#<shell-name>
+```
+
+This setup ensures a reproducible and efficient development environment tailored to your team's needs.
+
 ## Creating a Default Shell Environment
 
 - Overview of the importance of a consistent development environment.
