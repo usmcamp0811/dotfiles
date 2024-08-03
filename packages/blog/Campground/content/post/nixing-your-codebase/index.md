@@ -261,62 +261,68 @@ add Snowfall and Nix.
 
 #### Systems
 
-- **systems/** (optional): This is the section that you add configurations for your NixOS systems, VMs, or
-  AMIs for use in Azure or AWS. The system configs in this folder generally are not doing anything but
-  enabling modules defined in the `modules/` directory. This means you can have very highly standardized systems (or VMs)
-  that can be reconfigured and updated on the fly with high assurances that everything is the way it should be.
-  In my personal [dotfiles repo](https://gitlab.com/usmcamp0811/dotfiles.git) I have configured Gitlab CI/CD to
-  automatically build all my systems on commit and deploy all my systems on merge. This greatly changes how
-  you can think about managing systems because with Nix any system can build any other and then ship the built
-  system to any other. Just think about the possabilityies!!
-- `<architecture>-<format>/<system-name>/default.nix`: Configuration for specific systems (e.g.,
+- **systems/** (optional): This directory is for configurations of your NixOS systems, virtual machines,
+  or AMIs for cloud platforms like Azure or AWS. The system configurations here generally don't contain
+  extensive logic; instead, they primarily enable modules defined in the `modules/` directory. This setup
+  allows for highly standardized systems or VMs that can be reconfigured and updated dynamically, ensuring
+  consistency across deployments.
+
+  For instance, in my personal [dotfiles repo](https://gitlab.com/usmcamp0811/dotfiles.git), I've set
+  up GitLab CI/CD to automatically build all my systems upon commit and deploy them upon merge. This
+  approach transforms system management, as any system can build another and then deploy the resulting
+  configuration, opening up numerous possibilities!
+
+- `<architecture>-<format>/<system-name>/default.nix`: Configuration files for specific systems (e.g.,
   `x86_64-linux`, `aarch64-darwin`).
 
-  An example system config might look something like this where the things nested in `campground` are just modules defined in
-  the modules directroy:
+  Here's an example configuration, where `initech` includes modules defined in the `modules` directory:
 
   ```nix
   {
-  pkgs,
-  config,
-  lib,
-  ...
+    pkgs,
+    config,
+    lib,
+    ...
   }:
   with lib;
   in {
-  imports = [./hardware.nix];
+    imports = [ ./hardware.nix ];
 
-  campground = {
-    archetypes.developer = enabled;
+    initech = {
+      archetypes.developer = enabled;
 
-    system = {
-      boot = enabled;
-      passwds = enabled;
-    };
-
-    user = {
-      name = "abe";
-      fullName = "Matt Camp";
-      email = "matt@aicampground.com";
-      extraGroups = ["wheel"];
-    };
-
-    services = {
-      openssh = {
-        enable = true;
-        authorizedKeys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGw+o+9F4kz+dYyI2I4WudgKjyFOK+L0QW4LhxkG4sMt gitlab-runner@aicampground.com"
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdMWMFyi7Lvjm78KOX3tKZ5bkEZ7bHA56ZKKtTb9wIo mcamp@aicampground.com"
-        ];
+      system = {
+        boot = enabled;
+        passwds = enabled;
       };
-      ntp = enabled;
+
+      user = {
+        name = "gumby";
+        fullName = "Matt Camp";
+        email = "matt@aicampground.com";
+        extraGroups = [ "wheel" ];
+      };
+
+      services = {
+        openssh = {
+          enable = true;
+          authorizedKeys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGw+o+9F4kz+dYyI2I4WudgKjyFOK+L0QW4LhxkG4sMt
+            gitlab-runner@aicampground.com"
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdMWMFyi7Lvjm78KOX3tKZ5bkEZ7bHA56ZKKtTb9wIo
+            mcamp@aicampground.com"
+          ];
+        };
+        ntp = enabled;
+      };
     };
-  };
 
-  system.stateVersion = "23.05";
+    system.stateVersion = "23.05";
   }
-
   ```
+
+  In this configuration, various modules and services are specified, such as SSH keys and NTP services,
+  ensuring a consistent setup across the system.
 
 #### Homes
 
