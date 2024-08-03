@@ -396,7 +396,8 @@ deployed and managed across different systems.
   makes all the specified programs and environment variables available, allowing users to easily set up a
   consistent environment across different systems. This is particularly useful for organizations adopting
   Nix, as it simplifies the onboarding process by providing a pre-configured development environment. No
-  more spending days or weeks setting up; a well-defined shell can get new team members up and running quickly.
+  more spending days or weeks setting up; a well-defined shell can get new team members up and running
+  quickly.
 
   However, be cautious about the temptation to include everything your team uses in a single shell. While
   possible, this can lead to long load times and a less efficient setup. A better strategy is to create
@@ -436,6 +437,24 @@ nix develop <local or remote path to flake>#<shell-name>
 ```
 
 This setup ensures a reproducible and efficient development environment tailored to your team's needs.
+
+#### Templates
+
+- **templates/** (optional): This directory is used for storing directories of templated files that you
+  want to reuse. These templates are basic and don't support automatic modification but can be a helpful
+  starting point for writing new modules or flakes.
+
+  - `<template-name>/`: Files and folders placed here will be created wherever the template is deployed.
+
+To deploy a template, use the following command in the directory where you want the templated files to
+be generated:
+
+```bash
+nix flake init --template <local or remote path to flake>#<template-name>
+```
+
+This command will create the template's files and folders at the specified location, making it easy to
+set up new projects with a predefined structure.
 
 ## Creating a Default Shell Environment
 
