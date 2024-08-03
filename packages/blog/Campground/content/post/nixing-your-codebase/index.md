@@ -51,12 +51,16 @@ are added to Git. Remember, you don't need to commit changes immediately—just 
 
 ### Why Use a Monorepo?
 
-For the Initech demo, I've opted for a monorepo setup, both for convenience and because it offers several
+For the Initech demo, I've opted a monorepo setup, both for convenience and because it offers several
 benefits for managing multiple small projects. Monorepos are especially useful when working with platforms
 or handling numerous systems, as they facilitate code reuse without the need for frequent updates to
 lock files. While the decision between using a monorepo or polyrepo often depends on specific project
 needs and personal preference, I've found that monorepos simplify management, particularly in scenarios
-with multiple systems and smaller projects.
+with multiple systems and smaller projects. Something to concisder if a monorepo doesn't make sense for
+your organization, but you have many different moving pieces and you want to make a versioned release
+of your platform, you might concider making a flake that is simply an agregator of all your organizations
+flakes. This way you can exactly version how all of the sub projects work together and you can easily 
+do you integration checks in CI.
 
 ### Setting Up `flake.nix`
 
