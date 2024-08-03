@@ -326,8 +326,68 @@ add Snowfall and Nix.
 
 #### Homes
 
-- **homes/** (optional): Home configurations.
-- `<architecture>-<format>/<home-name>/default.nix`: Configuration for individual user home environments.
+- **homes/** (optional): This directory is used for home environment configurations, which are similar to
+  system configurations but tailored for individual users rather than entire systems. These configurations
+  can be applied across various operating systems, not just NixOS. For example, you might want to provide
+  standardized yet customizable user environments for everyone in your organization. Each user could have
+  a configuration in this directory, allowing them to enable specific modules with customized options.
+
+- `<architecture>-<format>/<home-name>/default.nix`: Configuration file for individual user home
+  environments.
+
+Here's an example user configuration file:
+
+```nix
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+{
+  initech = {
+    user = {
+      enable = true;
+      name = "gumby";
+      fullName = "Matt Camp";
+      email = "matt@aicampground.com";
+    };
+
+    cli = {
+      zsh = enabled;
+      bash = enabled;
+      env = enabled;
+      home-manager = enabled;
+      k9s = enabled;
+      broot = enabled;
+      ranger = enabled;
+      neovim = enabled;
+    };
+
+    services = {
+      openssh = enabled;
+      syncthing = enabled;
+    };
+
+    tools = {
+      git = enabled;
+      direnv = enabled;
+      vault = enabled;
+    };
+  };
+
+  home.stateVersion = "23.05";
+}
+```
+
+A user could activate this configuration with the following command:
+
+```bash
+nix run <path to flake>#homeConfigurations.<user-name>@<system-name>.activationPackage
+```
+
+This setup allows for defining a variety of user-specific settings and applications, which can be easily
+deployed and managed across different systems.
 
 ## Creating a Default Shell Environment
 
