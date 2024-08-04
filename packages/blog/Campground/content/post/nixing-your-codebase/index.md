@@ -660,6 +660,7 @@ our workflows. In upcoming posts, we'll explore how we can leverage Nix to fully
 testing, packaging, and deployment processes for the Initech repo. With these tools, we're well on our
 way to a more efficient and reliable development pipeline. The changes made to the Initech repo can be
 seen in [this MR](https://gitlab.com/initech-project/main-codebase/-/merge_requests/1/diffs). Stay tuned
-for more insights and practical applications as we continue this journey!
+for more insights and practical applications as we continue this journey! Feel free to comment if you
+have questions or if anything needs more explanation.
 
 [![](mr.png)](https://gitlab.com/initech-project/main-codebase/-/merge_requests/1/diffs)
