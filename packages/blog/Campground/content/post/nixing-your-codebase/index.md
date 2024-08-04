@@ -661,3 +661,5 @@ testing, packaging, and deployment processes for the Initech repo. With these to
 way to a more efficient and reliable development pipeline. The changes made to the Initech repo can be
 seen in [this MR](https://gitlab.com/initech-project/main-codebase/-/merge_requests/1/diffs). Stay tuned
 for more insights and practical applications as we continue this journey!
+
+[![](mr.png)](https://gitlab.com/initech-project/main-codebase/-/merge_requests/1/diffs)
