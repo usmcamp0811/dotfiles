@@ -542,9 +542,9 @@ pkgs.devshell.mkShell {
 ```
 
 Next, add a `devshell.toml` file to the same directory. **Note:** You can name the file anything you
-like, just remember to update the `default.nix` with the correct path and filename. The simple `toml`
-file below demonstrates adding Hashicorp's Vault to an environment and a custom shell alias called
-`git-root`, which returns the path to the root of a Git project.
+like; just remember to update `default.nix` with the correct path and filename. The simple `toml` file
+below demonstrates adding Hashicorp's Vault to an environment and a custom shell alias called `git-root`,
+which returns the path to the root of a Git project.
 
 ```toml
 [[commands]]
@@ -570,33 +570,73 @@ echo $(get_git_root)
 This setup not only adds the Vault package to your environment but also defines a custom command to
 easily find the root of your Git project, showcasing the flexibility and power of using a devshell with Nix.
 
-You probably already tried running this and got an error and are wondering what the hell you did wrong!?
-You forgot to
+One last step: you may have noticed I added a command `nix-tutor` in the `default.nix`, which comes
+from a package of the same name. This is a small project I started to provide simple Nix lessons, mainly
+included here for illustrative purposes. You won't find `nix-tutor` on [Nixpkgs](https://search.nixos.org),
+as it's not included there. To use it, you'll need to create an overlay.
+
+Go ahead and create a folder in the `/overlays` directory and name it `nix-tutor` (feel free to use any
+name that makes sense to you). Inside that folder, create a `default.nix` file and add the following overlay:
+
+```nix
+{ channels, nix-tutor, nixpkgs, ... }:
+
+final: prev: {
+  nix_tutor = nix-tutor.packages.${prev.system}.menu;
+}
+```
+
+Also, ensure `nix-tutor` is included in your flake's `inputs`:
+
+```nix
+nix-tutor.url = "gitlab:usmcamp0811/nix-tutor";
+```
+
+And because we are using Vault, which has a "non-free" license, we need to enable it in the `mkFlake`
+function like this:
+
+```nix
+inputs.snowfall-lib.mkFlake {
+  inherit inputs;
+  src = ./.;
+  snowfall = {
+    root = ./.;
+    namespace = "initech";
+    meta = {
+      name = "initech";
+      title = "Initech Demo Codebase";
+    };
+  };
+  channels-config.allowUnfree = true; # <- Add this to allow unfree packages like Vault
+  overlays = with inputs; [ devshell.overlays.default ];
+};
+```
+
+If you tried running this and encountered an error, you might have forgotten to add the necessary files
+to Git. Make sure to run:
 
 ```bash
 git add shells/default/default.nix
 git add shells/default/devshell.toml
 ```
 
-Once you do that you can activate the shell by simply doing:
+Once you've done that, you can activate the shell by simply running:
 
 ```bash
 nix develop
 
-# above is the same as this because the shell is named `default`
-# if you named the folder anything else you would need to use it below
+# The above is the same as this because the shell is named `default`.
+# If you named the folder anything else, you would need to use that name here.
 nix develop .#default
+```
+
+One more thing that might not be clear is that you don't have to clone this repository down in order to
+activate the devshell.
+
+```bash
+nix develop gitlab.com:initech-project/main-codebase
 ```
 
 ## Conclusion
 
-- Recap of what was accomplished.
-- Teaser for the next post in the series.
-
-```
-
-```
-
-```
-
-```
+In this post, we've taken significant steps toward integrating Nix into our codebase, converting our initial Git project into a Nix flake with the help of Snowfall Lib. We set up a Nix devshell configurable with a straightforward TOML file—an approach our team is already comfortable with—and demonstrated how to add overlays to incorporate packages from other flakes. These initial steps provide a solid foundation for creating reproducible and consistent development environments, which can significantly streamline our workflows. In the upcoming posts, we'll delve deeper into how we can leverage Nix to fully manage the development, testing, packaging, and deployment processes for the Initech repo. With these tools in hand, we're well on our way to a more efficient and reliable development pipeline. Stay tuned for more insights and practical applications as we continue this journey!
