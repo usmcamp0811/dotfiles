@@ -33,7 +33,7 @@ see improved. Let's dive in and start 'nixing' our codebase.
 
 ## Setting Up Nix with Flakes
 
-To follow along, ensure you have Nix installed from the previous post. If you haven't already, you need
+To follow along, ensure you have Nix installed from the previous [post](https://blog.aicampground.com/p/nix-in-the-wild-exploring-the-power-of-nix-for-organizational-codebases/). If you haven't already, you need
 to enable Flakes by adding the following line to your Nix configuration file:
 
 ```
