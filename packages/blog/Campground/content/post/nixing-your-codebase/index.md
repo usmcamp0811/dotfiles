@@ -456,9 +456,7 @@ To deploy a template, use the following command in the directory where you want 
 be generated:
 
 ```bash
-nix flake init --template <local or remote path to flake
-
->#<template-name>
+nix flake init --template <local or remote path to flake>#<template-name>
 ```
 
 This command will create the template's files and folders at the specified location, making it easy to
