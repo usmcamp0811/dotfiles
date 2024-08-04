@@ -2,10 +2,8 @@
 author = "Matt Camp"
 title = "Nix in the Wild: Nixing Your Codebase"
 date = "2024-08-03"
-image = "nix-in-the-wild.png"
-description = "This post dives into integrating Nix into your existing codebase, setting up a Nix shell,
-and leveraging the Snowfall library for streamlined project management. Explore practical steps to create
-reproducible and consistent development environments, making your workflows more efficient and reliable."
+image = "nixinthewild3.webp"
+description = "This post dives into integrating Nix into your existing codebase, setting up a Nix shell, and leveraging the Snowfall library for streamlined project management. Explore practical steps to create reproducible and consistent development environments, making your workflows more efficient and reliable." 
 tags = [
 "Nix",
 "Flakes"
