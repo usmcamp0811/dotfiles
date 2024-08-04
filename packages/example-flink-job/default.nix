@@ -25,12 +25,7 @@ let
           buildInputs = (oldAttrs.buildInputs or [ ])
             ++ (builtins.map (req: super."${req}") build-requirements);
         });
-      in if package == "pyarrow" then
-        override.overrideAttrs (oldAttrs: {
-          buildInputs = (oldAttrs.buildInputs or [ ])
-            ++ [ pkgs.arrow-cpp_11 ]; # Ensure correct version of arrow-cpp
-        })
-      else if package == "apache-flink-libraries" then
+      in if package == "apache-flink-libraries" then
         override.overrideAttrs (oldAttrs: {
           postInstall = ''
             ${oldAttrs.postInstall or ""}
