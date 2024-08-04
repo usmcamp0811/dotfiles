@@ -25,7 +25,7 @@ in {
           location / {
             try_files $uri $uri/ /index.html;
           }
-          location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf)$ {
+          location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf|webp)$ {
             try_files $uri $uri/ =404;
           }
         '';
