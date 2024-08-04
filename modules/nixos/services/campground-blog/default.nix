@@ -1,8 +1,15 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.campground-blog;
-in {
+let
+  cfg = config.campground.services.campground-blog;
+in
+{
   options.campground.services.campground-blog = with types; {
     enable = mkBoolOpt false "Enable the Campground Blog";
     port = mkOpt int 28345 "Port to host the Blog on";
@@ -14,10 +21,12 @@ in {
     services.nginx = {
       enable = true;
       virtualHosts."${cfg.domain}" = {
-        listen = [{
-          addr = "0.0.0.0";
-          port = cfg.port;
-        }];
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }
+        ];
         root = "${pkgs.campground.blog}/public";
         extraConfig = ''
           access_log /var/log/nginx/${cfg.domain}-access.log;
@@ -25,7 +34,7 @@ in {
           location / {
             try_files $uri $uri/ /index.html;
           }
-          location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf|webp)$ {
+          location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf)$ {
             try_files $uri $uri/ =404;
           }
         '';
