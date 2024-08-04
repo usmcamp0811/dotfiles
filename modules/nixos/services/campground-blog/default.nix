@@ -28,9 +28,6 @@ in {
           location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf|webp)$ {
             try_files $uri $uri/ =404;
           }
-          types {
-            image/webp webp;
-          }
         '';
       };
     };
