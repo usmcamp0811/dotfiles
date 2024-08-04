@@ -478,7 +478,7 @@ shell using the Numtide dev shell.
 
 #### Add the Numtide Devshell Flake to the `inputs`
 
-![](numtide.png)
+[![](numtide.png)](https://numtide.github.io/devshell/getting_started.html)
 
 ```nix
 inputs = {
