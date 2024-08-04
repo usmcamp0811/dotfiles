@@ -3,7 +3,9 @@ author = "Matt Camp"
 title = "Nix in the Wild: Nixing Your Codebase"
 date = "2024-08-03"
 image = "nixinthewild3.webp"
-description = "This post dives into integrating Nix into your existing codebase, setting up a Nix shell, and leveraging the Snowfall library for streamlined project management. Explore practical steps to create reproducible and consistent development environments, making your workflows more efficient and reliable." 
+description = "This post dives into integrating Nix into your existing codebase, setting up a Nix shell,
+and leveraging the Snowfall library for streamlined project management. Explore practical steps to create
+reproducible and consistent development environments, making your workflows more efficient and reliable."
 tags = [
 "Nix",
 "Flakes"
@@ -645,12 +647,13 @@ nix develop gitlab.com:initech-project/main-codebase
 
 ## Conclusion
 
-In this post, we've taken significant steps toward integrating Nix into our codebase, converting our initial
-Git project into a Nix Flake with the help of Snowfall Lib. We set up a Nix devshell configurable with a
-straightforward TOML file—an approach our team is already comfortable with—and demonstrated how to
-add overlays to incorporate packages from other Flakes. These initial steps provide a solid foundation
-for creating reproducible and consistent development environments, which can significantly streamline
-our workflows. In the upcoming posts, we'll delve deeper into how we can leverage Nix to fully manage
-the development, testing, packaging, and deployment processes for the Initech repo. With these tools in
-hand, we're well on our way to a more efficient and reliable development pipeline. Stay tuned for more
-insights and practical applications as we continue this journey!
+In this post, we've taken significant steps toward integrating Nix into our codebase, transforming
+our initial Git project into a Nix Flake with the assistance of Snowfall Lib. We set up a Nix devshell
+configured with a straightforward TOML file—an approach our team is already comfortable with—and
+demonstrated how to add overlays to incorporate packages from other Flakes. These initial steps lay a solid
+foundation for creating reproducible and consistent development environments, significantly streamlining
+our workflows. In upcoming posts, we'll explore how we can leverage Nix to fully manage the development,
+testing, packaging, and deployment processes for the Initech repo. With these tools, we're well on our
+way to a more efficient and reliable development pipeline. The changes made to the Initech repo can be
+seen in [this MR](https://gitlab.com/initech-project/main-codebase/-/merge_requests/1/diffs). Stay tuned
+for more insights and practical applications as we continue this journey!
