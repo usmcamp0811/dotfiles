@@ -49,6 +49,8 @@ expected to become a standard part of Nix due to how useful they are. Flakes sim
 for Nix packages and make it easier to utilize external resources. For a more detailed explanation,
 check out [Jake Hamilton's YouTube video](https://www.youtube.com/watch?v=cw4wJjjQYMU).
 
+{{< youtube  cw4wJjjQYMU>}}
+
 In this series, I'm using the [Initech demo repo](https://gitlab.com/initech-project/main-codebase), a
 monorepo designed to simulate a full organizational codebase. When working with Flakes, it's important
 to note that there's a one-to-one mapping between a Flake and a Git repository. Nix can only recognize
