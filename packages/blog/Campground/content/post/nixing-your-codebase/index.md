@@ -1,21 +1,21 @@
 +++
 author = "Matt Camp"
-title = "Nix in the Wild: Nixing your Codebase"
+title = "Nix in the Wild: Nixing Your Codebase"
 date = "2024-08-01"
 image = "nix-in-the-wild.png"
 description = ""
 tags = [
-    "Nix",
-    "Flakes"
+"Nix",
+"Flakes"
 ]
 categories = [
-    "Nix",
-    "DevOps",
+"Nix",
+"DevOps",
 ]
-series = ["Nix in the wild"]
+series = ["Nix in the Wild"]
 +++
 
-# Nix in the Wild: Nixing your Codebase
+# Nix in the Wild: Nixing Your Codebase
 
 Welcome back to the 'Nix in the Wild' series. In this post, we'll dive into the practical steps of
 integrating Nix into your existing codebase. We'll establish the foundational elements, including
@@ -34,14 +34,14 @@ to enable Flakes by adding the following line to your Nix configuration file:
 experimental-features = nix-command flakes
 ```
 
-This can be done in `~/.config/nix/nix.conf` or `/etc/nix/nix.conf`
+This can be done in `~/.config/nix/nix.conf` or `/etc/nix/nix.conf`.
 
 ### What Are Flakes?
 
 Flakes are a relatively new feature in Nix, currently classified as experimental. Despite this, they're
-expected to become a standard part of Nix due to how useful they are. Flakes simplify version
-management for Nix packages and make it easier to utilize external resources. For a more detailed
-explanation, check out [Jake Hamilton's YouTube video](https://www.youtube.com/watch?v=cw4wJjjQYMU).
+expected to become a standard part of Nix due to how useful they are. Flakes simplify version management
+for Nix packages and make it easier to utilize external resources. For a more detailed explanation,
+check out [Jake Hamilton's YouTube video](https://www.youtube.com/watch?v=cw4wJjjQYMU).
 
 In this series, I'm using the [Initech demo repo](https://gitlab.com/initech-project/main-codebase), a
 monorepo designed to simulate a full organizational codebase. When working with Flakes, it's important
@@ -51,17 +51,17 @@ are added to Git. Remember, you don't need to commit changes immediately—just 
 
 ### Why Use a Monorepo?
 
-For the Initech demo, I've chosen a monorepo setup for its convenience and its numerous benefits in
-managing multiple small projects. Monorepos are particularly advantageous when dealing with platforms or
-a large number of systems, as they streamline code reuse and eliminate the need for frequent updates to
-lock files. The choice between a monorepo and a polyrepo depends on specific project needs and personal
+For the Initech demo, I've chosen a monorepo setup for its convenience and numerous benefits in managing
+multiple small projects. Monorepos are particularly advantageous when dealing with platforms or a large
+number of systems, as they streamline code reuse and eliminate the need for frequent updates to lock
+files. The choice between a monorepo and a polyrepo depends on specific project needs and personal
 preference. However, I've found that monorepos greatly simplify management, especially in scenarios
 involving multiple systems and smaller projects.
 
 If a monorepo doesn't suit your organization but you have several interconnected components, consider
-creating a flake that acts as an aggregator for all your organization's flakes. This approach allows you
-to precisely version the interaction of sub-projects and this easily facilitates integration checks
-in your CI pipeline with very few commands.
+creating a Flake that acts as an aggregator for all your organization's Flakes. This approach allows
+you to precisely version the interaction of sub-projects and facilitates integration checks in your CI
+pipeline with minimal commands.
 
 ### Setting Up `flake.nix`
 
@@ -75,13 +75,12 @@ nix flake init
 
 #### Why Use Snowfall Lib?
 
-While it's not mandatory to use Snowfall Lib for structuring your flakes, I've found it to be incredibly
+While it's not mandatory to use Snowfall Lib for structuring your Flakes, I've found it to be incredibly
 helpful. Snowfall is an opinionated library designed for Nix Flakes, which can be particularly advantageous
-when you're starting out. By providing a recommended folder structure, it minimizes the complexity
-of setting up your project and reduces the number of decisions you need to make. Snowfall handles the
-"glue code" required for importing modules into your flake and overal just makes it easier to manage your
-setup. I've successfully used Snowfall to manage a range of systems in my homelab and in various work
-projects.
+when you're starting out. By providing a recommended folder structure, it minimizes the complexity of
+setting up your project and reduces the number of decisions you need to make. Snowfall handles the "glue
+code" required for importing modules into your Flake and overall just makes it easier to manage your
+setup. I've successfully used Snowfall to manage a range of systems in my homelab and various work projects.
 
 Here’s an example of a basic `flake.nix` with no configuration that you get from the above command:
 
@@ -94,11 +93,8 @@ Here’s an example of a basic `flake.nix` with no configuration that you get fr
   };
 
   outputs = { self, nixpkgs }: {
-
     packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
-
     packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
-
   };
 }
 ```
@@ -111,25 +107,25 @@ branch for flexibility in choosing packages. You can manage this selection using
 cover later. Here's an example of what your `inputs` might look like:
 
 ```nix
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+inputs = {
+  nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+  unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
-    snowfall-lib = {
-        url = "github:snowfallorg/lib";
-        inputs.nixpkgs.follows = "nixpkgs";
-    };
+  snowfall-lib = {
+    url = "github:snowfallorg/lib";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
+};
 ```
 
 ### Defining Outputs
 
-Earlier in this post, we introduced a basic example of defining outputs in a Nix flake:
+Earlier in this post, we introduced a basic example of defining outputs in a Nix Flake:
 
 ```nix
 outputs = { self, nixpkgs }: {
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+  packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+  packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
 };
 ```
 
@@ -147,34 +143,34 @@ Here’s how we use Snowfall Lib to define our outputs:
 
 ```nix
 outputs = inputs:
-    inputs.snowfall-lib.mkFlake {
-        inherit inputs;
-        src = ./.;
+  inputs.snowfall-lib.mkFlake {
+    inherit inputs;
+    src = ./.;
 
-        # Configure Snowfall Lib. All settings are optional.
-        snowfall = {
-            # Specify the directory for your Nix files.
-            root = ./.;
+    # Configure Snowfall Lib. All settings are optional.
+    snowfall = {
+      # Specify the directory for your Nix files.
+      root = ./.;
 
-            # Define a namespace for your flake's packages, libraries, and overlays.
-            namespace = "initech";
+      # Define a namespace for your flake's packages, libraries, and overlays.
+      namespace = "initech";
 
-            # Add metadata that can be utilized by tools like Snowfall Frost.
-            meta = {
-                # A slug for documentation, typically used in file paths.
-                name = "initech";
+      # Add metadata that can be utilized by tools like Snowfall Frost.
+      meta = {
+        # A slug for documentation, typically used in file paths.
+        name = "initech";
 
-                # The title for your flake, often the project's name.
-                title = "Initech Demo Codebase";
-            };
-        };
+        # The title for your flake, often the project's name.
+        title = "Initech Demo Codebase";
+      };
     };
+  };
 ```
 
 In this setup, the `outputs` function uses the `inputs` to call `mkFlake`, a utility function provided by
 Snowfall Lib. The `mkFlake` function simplifies configuration by managing common tasks and structures,
 allowing you to focus on higher-level configurations. It generates outputs based on the provided
-`inputs`, such as Nix packages and any additional input flakes. Because `mkFlake` is opinionated about
+`inputs`, such as Nix packages and any additional input Flakes. Because `mkFlake` is opinionated about
 the folder structure, it can automatically stitch everything together. This results in outputs that
 export all packages, define multiple computer systems, and set up user profiles—all without the need
 for custom plumbing. This approach not only reduces boilerplate but also ensures consistency across
@@ -183,39 +179,41 @@ in environments with multiple systems and components.
 
 ## Organizing the Project with Snowfall
 
-In this section, I'll give a quick rundown of the various directories. I've noticed that when introducing
-Nix to an existing codebase, people often wonder why these new directories suddenly appear and what
-they're for, especially if they're only vaguely familiar with the reasons for adopting Nix in the first
-place. Understanding the role of each directory will help make the structure and purpose of the setup
-clearer. For more details, the Snowfall documentation is excellent and can be found
+In this section, I'll give a quick rundown of the various directories. I've noticed that when
+introducing Nix to an existing codebase, people often wonder why these new directories suddenly appear
+and what they're for, especially if they're only vaguely familiar with the reasons for adopting Nix
+in the first place. Understanding the role of each directory will help make the structure and purpose
+of the setup clearer. For more details, the Snowfall documentation is excellent and can be found
 [here](https://snowfall.org/guides/lib/quickstart/).
 
 ### Snowfall Directory Structure
 
 This structure for me has generally gone at the root of the git project but it is possible to
-move it elsewhere in the project. The Snowfall docs have `./nix` as being their example location.
+move it elsewhere in the project. The Snowfall docs have ./nix as being their example location.
 Below is a high level overveiw of what the structure of our projects will look like once we
 add Snowfall and Nix.
 
 #### Root Directory
 
-- **flake.nix**: Your Nix flake definition.
-- **flake.lock**: The lock file that tells Nix what versions of `nixpkgs`, and other flakes to use.
+- **flake.nix**: Your Nix Flake definition.
+- **flake.lock**: The lock file that tells Nix what versions of `nixpkgs` and other Flakes to use.
 
 #### Library Functions
 
 - **lib/** (optional): This directory is designated for custom library functions. It can contain helper
   functions to standardize common tasks or reduce boilerplate code. With Nix being a programming language,
   the possibilities are extensive.
+
   - `default.nix`: If you choose to add additional library functions, they would go here. This file
-    defines an attribute set that merges with the existing `lib`.
+    defines an attribute set that merges with the existing lib.
 
 #### Package Definitions
 
-- **packages/** (optional): This directory is where we define the packages that our flake can export. These
+- **packages/** (optional): This directory is where we define the packages that our Flake can export. These
   packages don't have to be large or complex; they can be as simple as a script that performs a specific
   task and needs to be easily accessible to others. Alternatively, you can use this space to repackage
-  existing software that isn't already available in the Nix ecosystem. We'll cover more on this topic later.
+  existing software that isn't already available in the Nix ecosystem. We'll cover more on this topic
+  in later blog posts.
 
   - `<package-name>/default.nix`: This file contains a function that returns a derivation for the package.
 
@@ -232,9 +230,8 @@ add Snowfall and Nix.
   [Nix modules](https://nixos.org/manual/nixos/stable/#sec-writing-modules). When I mention dotfiles, you
   might think of configuration files for various software, and you're not far off. However, with Snowfall,
   we can create reusable modules that can be imported into other configurations. For example, you could
-  define how an LDAP server should be configured when deployed to a system, or specify which plugins should
-  automatically be available in Firefox when setting up a home environment. We'll dive deeper into
-  this later.
+  define how an Apache Kafka server should be configured when deployed to a system or specify which plugins should
+  automatically be available in Firefox when setting up a home environment. We'll dive deeper into this with later Posts.
   - `<platform>/<module-name>/default.nix`: Platform-specific modules, such as for `nixos` or `darwin`.
 
 #### Overlays
@@ -242,14 +239,14 @@ add Snowfall and Nix.
 - **overlays/** (optional): Overlays are a powerful feature in Nix that allow you to customize or
   extend the `pkgs` namespace from your chosen `nixpkgs` version. For instance, you can use an overlay
   to select the latest version of Firefox from the unstable branch or to replace the default Neovim with
-  your own customized version whenever Neovim is added. Think of overlays as a way to "overlay" additional
+  your customized version whenever Neovim is added. Think of overlays as a way to "overlay" additional
   packages or configurations onto the existing package set. You can use them to override existing packages
   or introduce new ones.
 
   - `<overlay-name>/default.nix`: This file contains a function to modify the set of packages (`pkgs`).
 
   For example, here's what `nix-tutor/default.nix` might look like, providing `pkgs.nix_tutor` as an
-  installable package elsewhere in the flake:
+  installable package elsewhere in the Flake:
 
   ```nix
   { channels, nix-tutor, nixpkgs, ... }:
@@ -396,11 +393,10 @@ deployed and managed across different systems.
   makes all the specified programs and environment variables available, allowing users to easily set up a
   consistent environment across different systems. This is particularly useful for organizations adopting
   Nix, as it simplifies the onboarding process by providing a pre-configured development environment. No
-  more spending days or weeks setting up; a well-defined shell can get new team members up and running
-  quickly.
+  more spending days or weeks setting up; a well-defined shell can get new team members up and running quickly.
 
   However, be cautious about the temptation to include everything your team uses in a single shell. While
-  possible, this can lead to long load times and a less efficient setup. A better strategy is to create
+  possible, this can lead to long initial load times and a less efficient setup. A better strategy is to create
   shells tailored to specific tasks—one for building projects, another for testing, etc. This way,
   you load only what you need, when you need it, but you still have the option to include everything if
   that's what you prefer.
@@ -442,7 +438,7 @@ This setup ensures a reproducible and efficient development environment tailored
 
 - **templates/** (optional): This directory is used for storing directories of templated files that you
   want to reuse. These templates are basic and don't support automatic modification but can be a helpful
-  starting point for writing new modules or flakes.
+  starting point for writing new modules or Flakes.
 
   - `<template-name>/`: Files and folders placed here will be created wherever the template is deployed.
 
@@ -450,7 +446,9 @@ To deploy a template, use the following command in the directory where you want 
 be generated:
 
 ```bash
-nix flake init --template <local or remote path to flake>#<template-name>
+nix flake init --template <local or remote path to flake
+
+>#<template-name>
 ```
 
 This command will create the template's files and folders at the specified location, making it easy to
@@ -471,44 +469,44 @@ shell using the Numtide dev shell.
 #### Add the Numtide Devshell Flake to the `inputs`
 
 ```nix
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+inputs = {
+  nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+  unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
-    snowfall-lib = {
-        url = "github:snowfallorg/lib";
-        inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    devshell.url = "github:numtide/devshell"; # <-- We added this right here
+  snowfall-lib = {
+    url = "github:snowfallorg/lib";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
+
+  devshell.url = "github:numtide/devshell"; # <-- We added this right here
+};
 ```
 
 #### Add the Numtide Devshell to the `mkFlake` Function's `overlays` Argument
 
 Using the `overlays` argument in `mkFlake` is a bit different from adding overlays to the
 `/overlays` directory. This approach is good for quickly adding predefined functionality, like
-`devshell.overlays.default`, which brings in default features from the `devshell` flake with minimal fuss.
-On the other hand, using the `/overlays` directory is more about allowing you to tweak how packages from
-`nixpkgs` are modified or added.
+`devshell.overlays.default`, which brings in default features from the `devshell` Flake with minimal
+fuss. On the other hand, using the `/overlays` directory is more about allowing you to tweak how packages
+from `nixpkgs` are modified or added.
 
 ```nix
 outputs = inputs:
-    inputs.snowfall-lib.mkFlake {
-        inherit inputs;
-        src = ./.;
-        snowfall = {
-            root = ./.;
-            namespace = "initech";
-            meta = {
-                name = "initech";
-                title = "Initech Demo Codebase";
-            };
-        };
-        overlays = with inputs; [
-            devshell.overlays.default
-        ];
+  inputs.snowfall-lib.mkFlake {
+    inherit inputs;
+    src = ./.;
+    snowfall = {
+      root = ./.;
+      namespace = "initech";
+      meta = {
+        name = "initech";
+        title = "Initech Demo Codebase";
+      };
     };
+    overlays = with inputs; [
+      devshell.overlays.default
+    ];
+  };
 ```
 
 #### Make a Devshell
@@ -528,9 +526,9 @@ pkgs.devshell.mkShell {
 
   name = "initech";
   motd = ''
-           {214}⮺  Is it good for the company? ⮺{reset}
-           $(type -p menu &>/dev/null && menu)
-         '';
+         {214}⮺  Is it good for the company? ⮺{reset}
+         $(type -p menu &>/dev/null && menu)
+       '';
 
   commands = [
     {
@@ -586,7 +584,7 @@ final: prev: {
 }
 ```
 
-Also, ensure `nix-tutor` is included in your flake's `inputs`:
+Also, ensure `nix-tutor` is included in your Flake's `inputs`:
 
 ```nix
 nix-tutor.url = "gitlab:usmcamp0811/nix-tutor";
@@ -630,6 +628,7 @@ nix develop
 nix develop .#default
 ```
 
+![devshell](devshell-menu.png)
 One more thing that might not be clear is that you don't have to clone this repository down in order to
 activate the devshell.
 
@@ -639,4 +638,12 @@ nix develop gitlab.com:initech-project/main-codebase
 
 ## Conclusion
 
-In this post, we've taken significant steps toward integrating Nix into our codebase, converting our initial Git project into a Nix flake with the help of Snowfall Lib. We set up a Nix devshell configurable with a straightforward TOML file—an approach our team is already comfortable with—and demonstrated how to add overlays to incorporate packages from other flakes. These initial steps provide a solid foundation for creating reproducible and consistent development environments, which can significantly streamline our workflows. In the upcoming posts, we'll delve deeper into how we can leverage Nix to fully manage the development, testing, packaging, and deployment processes for the Initech repo. With these tools in hand, we're well on our way to a more efficient and reliable development pipeline. Stay tuned for more insights and practical applications as we continue this journey!
+In this post, we've taken significant steps toward integrating Nix into our codebase, converting our initial
+Git project into a Nix Flake with the help of Snowfall Lib. We set up a Nix devshell configurable with a
+straightforward TOML file—an approach our team is already comfortable with—and demonstrated how to
+add overlays to incorporate packages from other Flakes. These initial steps provide a solid foundation
+for creating reproducible and consistent development environments, which can significantly streamline
+our workflows. In the upcoming posts, we'll delve deeper into how we can leverage Nix to fully manage
+the development, testing, packaging, and deployment processes for the Initech repo. With these tools in
+hand, we're well on our way to a more efficient and reliable development pipeline. Stay tuned for more
+insights and practical applications as we continue this journey!
