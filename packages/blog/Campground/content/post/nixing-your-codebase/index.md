@@ -1,9 +1,11 @@
 +++
 author = "Matt Camp"
 title = "Nix in the Wild: Nixing Your Codebase"
-date = "2024-08-01"
+date = "2024-08-03"
 image = "nix-in-the-wild.png"
-description = ""
+description = "This post dives into integrating Nix into your existing codebase, setting up a Nix shell,
+and leveraging the Snowfall library for streamlined project management. Explore practical steps to create
+reproducible and consistent development environments, making your workflows more efficient and reliable."
 tags = [
 "Nix",
 "Flakes"
@@ -230,8 +232,10 @@ add Snowfall and Nix.
   [Nix modules](https://nixos.org/manual/nixos/stable/#sec-writing-modules). When I mention dotfiles, you
   might think of configuration files for various software, and you're not far off. However, with Snowfall,
   we can create reusable modules that can be imported into other configurations. For example, you could
-  define how an Apache Kafka server should be configured when deployed to a system or specify which plugins should
-  automatically be available in Firefox when setting up a home environment. We'll dive deeper into this with later Posts.
+  define how an Apache Kafka server should be configured when deployed to a system or specify which
+  plugins should
+  automatically be available in Firefox when setting up a home environment. We'll dive deeper into this
+  with later Posts.
   - `<platform>/<module-name>/default.nix`: Platform-specific modules, such as for `nixos` or `darwin`.
 
 #### Overlays
@@ -393,10 +397,12 @@ deployed and managed across different systems.
   makes all the specified programs and environment variables available, allowing users to easily set up a
   consistent environment across different systems. This is particularly useful for organizations adopting
   Nix, as it simplifies the onboarding process by providing a pre-configured development environment. No
-  more spending days or weeks setting up; a well-defined shell can get new team members up and running quickly.
+  more spending days or weeks setting up; a well-defined shell can get new team members up and running
+  quickly.
 
   However, be cautious about the temptation to include everything your team uses in a single shell. While
-  possible, this can lead to long initial load times and a less efficient setup. A better strategy is to create
+  possible, this can lead to long initial load times and a less efficient setup. A better strategy is
+  to create
   shells tailored to specific tasks—one for building projects, another for testing, etc. This way,
   you load only what you need, when you need it, but you still have the option to include everything if
   that's what you prefer.
@@ -468,6 +474,8 @@ shell using the Numtide dev shell.
 
 #### Add the Numtide Devshell Flake to the `inputs`
 
+![](numtide.png)
+
 ```nix
 inputs = {
   nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
@@ -509,7 +517,7 @@ outputs = inputs:
   };
 ```
 
-#### Make a Devshell
+### Make a Devshell
 
 Now that you've added the overlay, the next step is to create the devshell. In the `/shells` folder,
 create a new folder named `default` and place a `default.nix` file inside it.
@@ -629,6 +637,7 @@ nix develop .#default
 ```
 
 ![devshell](devshell-menu.png)
+
 One more thing that might not be clear is that you don't have to clone this repository down in order to
 activate the devshell.
 
