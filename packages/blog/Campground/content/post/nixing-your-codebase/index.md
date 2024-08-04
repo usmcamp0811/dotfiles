@@ -7,12 +7,18 @@ description = "This post dives into integrating Nix into your existing codebase,
 and leveraging the Snowfall library for streamlined project management. Explore practical steps to create
 reproducible and consistent development environments, making your workflows more efficient and reliable."
 tags = [
-"Nix",
-"Flakes"
+  "Nix",
+  "Flakes",
+  "Development Environment",
+  "CI/CD",
+  "Infrastructure as Code",
+  "Home Manager"
 ]
 categories = [
-"Nix",
-"DevOps",
+  "Nix",
+  "DevOps",
+  "Software Development",
+  "Programming"
 ]
 series = ["Nix in the Wild"]
 +++
