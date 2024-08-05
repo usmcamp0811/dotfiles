@@ -6,8 +6,8 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "MeanderingProgrammer";
       repo = "markdown.nvim";
-      rev = "v3.3.1";
-      sha256 = "sha256-r615Iug6Nv8svduRqyEjEuzW/lIwaY2zbZGuNfYjmj0=";
+      rev = "v5.0.0";
+      sha256 = "sha256-LJ+QzAZejj6E0lwlq1vlo9Y4sCzPVWfWojPwj584f1U=";
     };
   };
   tree-sitter-markdown = pkgs.vimUtils.buildVimPlugin {
