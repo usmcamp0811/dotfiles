@@ -21,8 +21,7 @@ categories = [
     "Nix",
     "DevOps",
     "Software Engineering",
-    "Continuous Integration",
-    "Continuous Deployment"
+    "CI/CD"
 ]
 series = ["Nix in the Wild"]
 +++
