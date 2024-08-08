@@ -1,16 +1,8 @@
-{
-  lib,
-  writeText,
-  writeShellApplication,
-  substituteAll,
-  gum,
-  inputs,
-  pkgs,
-  hosts ? {},
-  ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   # allows us to just use the app/package
@@ -19,13 +11,13 @@ with lib.campground; let
   new-meta = with lib; {
     description = "A Simple Flask App Container Image";
     license = licenses.mit;
-    maintainers = with maintainers; [mattcamp];
+    maintainers = with maintainers; [ mattcamp ];
   };
 
   example-flask-image = pkgs.dockerTools.buildLayeredImage {
     name = "example-flask-app";
     tag = "latest";
-    contents = [pkgs.campground.example-flask-app pkgs.bash pkgs.coreutils];
+    contents = [ pkgs.campground.example-flask-app pkgs.bash pkgs.coreutils ];
     extraCommands = ''
       mkdir -p usr/bin
       cat ${pkgs.campground.example-flask-app}/bin/run-flask-app > usr/bin/run-flask-app
@@ -33,10 +25,9 @@ with lib.campground; let
     '';
     config = {
       # WorkingDir = "/www/data";
-      Entrypoint = ["run-flask-app"];
-      ExposedPorts = {"8081/tcp" = {};};
-      Env = ["PATH=${pkgs.coreutils}/bin/:/usr/bin/"];
+      Entrypoint = [ "run-flask-app" ];
+      ExposedPorts = { "8081/tcp" = { }; };
+      Env = [ "PATH=${pkgs.coreutils}/bin/:/usr/bin/" ];
     };
   };
-in
-  override-meta new-meta example-flask-image
+in override-meta new-meta example-flask-image
