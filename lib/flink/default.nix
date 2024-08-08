@@ -165,7 +165,7 @@
           python = python-env;
           bpython = dev-scripts.run-bpython;
           jupyter = dev-scripts.run-jupyter;
-          test = dev-scripts.test;
+          test = dev-scripts.run-tests;
           stop-all = stop-all;
           run-job = run-job;
           job = job;
