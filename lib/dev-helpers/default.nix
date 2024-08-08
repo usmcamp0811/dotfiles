@@ -58,7 +58,7 @@
       run-tests = pkgs.writeShellScriptBin "run-tests" ''
         export PYTHONPATH="${python-env}/lib/python${
           builtins.substring 0 4 python-env.python.version
-        }/site-packages:${src}"
+        }/site-packages:${project-drv.src}"
         ${extended-python-env}/bin/pytest ${project-drv.src}/tests/ "$@"
       '';
 
