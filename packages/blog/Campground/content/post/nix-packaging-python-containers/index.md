@@ -18,6 +18,7 @@ tags = [
     "Software Development"
 ]
 categories = [
+    "Nix",
     "DevOps",
     "Software Engineering",
     "Continuous Integration",
