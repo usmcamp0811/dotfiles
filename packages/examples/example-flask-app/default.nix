@@ -1,5 +1,4 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib, pkgs, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -47,42 +46,39 @@ let
     installPhase = ''
       mkdir -p $out/src
       mkdir -p $out/bin
-      mkdir -p $out/etc
-      cp -r ${flaskApp}/app.py $out/src/app.py
-      cp ${app_ini} $out/etc/api.ini
-      cp ${run-with-wsgi}/bin/run-app $out/bin/run-app-with-wsgi
+      cp -r ${flaskApp} $out/src/app.py
+      cp ${run-with-wsgi}/bin/run-app $out/bin/example-flask-app
     '';
     passthru = { container = container; };
 
-    uwsgi = pkgs.uwsgi.override {
-      python3 = python-env;
-      plugins = [ "python3" ];
-    };
-
-    run-with-wsgi = pkgs.writeShellApplication {
-      name = "run-app";
-      text = ''
-        export PYTHONPATH="${python-env}/lib/python${
-          builtins.substring 0 4 python-env.python.version
-        }/site-packages"
-        ${uwsgi}/bin/uwsgi --ini ${app_ini}
-      '';
-    };
-
-    app_ini = pkgs.writeText "api.ini" ''
-      [uwsgi]
-      wsgi-file = ${flaskApp}/app.py
-      callable = app
-      http = :8080
-      processes = 4
-      threads = 2
-      master = true
-      chmod-socket = 660
-      vacuum = true
-      plugins = python3
-      die-on-term = true
-    '';
-
   };
+  uwsgi = pkgs.uwsgi.override {
+    python3 = python-env;
+    plugins = [ "python3" ];
+  };
+
+  run-with-wsgi = pkgs.writeShellApplication {
+    name = "run-app";
+    text = ''
+      export PYTHONPATH="${python-env}/lib/python${
+        builtins.substring 0 4 python-env.python.version
+      }/site-packages"
+      ${uwsgi}/bin/uwsgi --ini ${app_ini}
+    '';
+  };
+
+  app_ini = pkgs.writeText "api.ini" ''
+    [uwsgi]
+    wsgi-file = ${flaskApp}
+    callable = app
+    http = :8080
+    processes = 4
+    threads = 2
+    master = true
+    chmod-socket = 660
+    vacuum = true
+    plugins = python3
+    die-on-term = true
+  '';
 
 in example-flask-app
