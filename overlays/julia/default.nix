@@ -1,5 +1,1 @@
-{ channels, ... }:
-final: prev:
-{
-  # inherit (channels.unstable) julia;
-}
+{ channels, ... }: final: prev: { inherit (channels.unstable) julia; }
