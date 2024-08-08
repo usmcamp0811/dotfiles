@@ -54,15 +54,12 @@
       jupyterPythonVersion = builtins.substring 0 4
         pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
     in rec {
+
       run-tests = pkgs.writeShellScriptBin "run-tests" ''
-        # Resolves the symlink to find the actual path of the script
-        SCRIPT=$(readlink -f "$0" || realpath "$0")
-        SCRIPT_DIR=$(dirname "$SCRIPT")
-        echo "SCRIPT_DIR => $SCRIPT_DIR"
-        # Adjusted to ensure it works regardless of where it's called from
-        BASE_DIR=$(dirname "$SCRIPT_DIR")
-        export PYTHONPATH=${python-env}/lib/python${pythonVersion}/site-packages:${project-drv.src}
-        ${extended-python-env}/bin/pytest $SCRIPT_DIR/tests/ "$@"
+        export PYTHONPATH="${python-env}/lib/python${
+          builtins.substring 0 4 python-env.python.version
+        }/site-packages:${src}"
+        ${extended-python-env}/bin/pytest ${project-drv.src}/tests/ "$@"
       '';
 
       run-bpython = pkgs.writeShellScriptBin "run-bpython" ''
@@ -75,24 +72,6 @@
         ${pkgs.jupyter-all}/bin/jupyter console "$@"
       '';
 
-      test = pkgs.stdenv.mkDerivation {
-        name = "pytest";
-        src = project-drv.src;
-        phases = [ ];
-        propagatedBuildInputs = [ python-env ];
-        installPhase = ''
-          mkdir -p $out/bin
-          mkdir -p $out/src
-          cp -r ${project-drv.src}/* $out/src
-
-          cp -r ${run-tests}/bin/run-tests $out/src/
-          ln -s $out/src/run-tests $out/bin/run-tests
-        '';
-        meta = {
-          description = "PyTest";
-          mainProgram = "run-tests";
-        };
-      };
     };
 
   containerShadowSetup = { pkgs, user, uid, gid ? uid, homeDir ? "/home/${user}"
