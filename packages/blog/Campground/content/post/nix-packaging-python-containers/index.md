@@ -6,18 +6,22 @@ image = "nix-in-the-wild.png"
 description = "In this post, we dive into the powerful combination of Nix and Python to streamline packaging and containerization. Learn how to package your Python projects with Nix for consistent builds and create Docker images for reliable deployments. Discover the steps to ensure reproducibility, eliminate 'works on my machine' issues, and enhance your DevOps practices. From setting up Nix packages with poetry2nix to building secure Docker containers, this guide provides everything you need to improve your development and deployment workflows."
 slug = "nix-packaging-python-containers"
 tags = [
-  "Nix",
-  "Python",
-  "Containers",
-  "Docker",
-  "DevOps",
-  "Software Development"
+    "Nix",
+    "Python",
+    "Docker",
+    "Poetry",
+    "DevOps",
+    "Reproducible Builds",
+    "Packaging",
+    "Containerization",
+    "CI/CD",
+    "Software Development"
 ]
 categories = [
-  "Nix",
-  "DevOps",
-  "Software Development",
-  "Programming"
+    "DevOps",
+    "Software Engineering",
+    "Continuous Integration",
+    "Continuous Deployment"
 ]
 series = ["Nix in the Wild"]
 +++
