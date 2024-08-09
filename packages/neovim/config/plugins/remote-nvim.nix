@@ -7,7 +7,7 @@ let
       owner = "MunifTanjim";
       repo = "nui.nvim";
       rev = "v0.3.0";
-      sha256 = "sha256-ado876vs1D1tEQu+Q3jDUaJA9hf/9Y5JLCWu3rf219s=";
+      sha256 = "sha256-1/Uo8Bk7QPiQqAWL9jgYLtq6JNj1dnNDBSHn15FHlCM=";
     };
   };
   remote-nvim = pkgs.vimUtils.buildVimPlugin {

@@ -16,7 +16,7 @@ let
       owner = "tree-sitter-grammars";
       repo = "tree-sitter-markdown";
       rev = "v0.2.3";
-      sha256 = "sha256-B6aBF3T/9zunRSUNRgCyMjcp/slXWimiWTWmJI5qvqE=";
+      sha256 = "sha256-1/Uo8Bk7QPiQqAWL9jgYLtq6JNj1dnNDBSHn15FHlCM=";
     };
   };
   tree-sitter-latex = pkgs.vimUtils.buildVimPlugin {
