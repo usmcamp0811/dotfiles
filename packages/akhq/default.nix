@@ -6,17 +6,17 @@
   gum,
   inputs,
   pkgs,
-  hosts ? {},
+  hosts ? { },
   ...
-}: 
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "akhq";
-  version = "0.24.0";
+  version = "0.25.1";
   jar = pkgs.fetchurl {
     url = "https://github.com/tchiotludo/akhq/releases/download/${version}/akhq-${version}-all.jar";
-    sha256 = "sha256-yNc+u/vk1gz29KbnKdHXPvWVqmywuhsxAZkE+8kkkWk=";  # Replace with actual SHA256 of the jar file
+    sha256 = "sha256-WuxCDfiQ44it6JxplebtRaN9PLH/IvXZg3sRVv9Or3I="; # Replace with actual SHA256 of the jar file
   };
 
   akhq = pkgs.stdenv.mkDerivation rec {
@@ -41,7 +41,7 @@ let
     description = "A Kafka Headquarters";
     homepage = "https://github.com/tchiotludo/akhq";
     license = pkgs.lib.licenses.mit;
-    maintainers = with maintainers; [mattcamp];
+    maintainers = with maintainers; [ mattcamp ];
   };
 in
 override-meta new-meta akhq
