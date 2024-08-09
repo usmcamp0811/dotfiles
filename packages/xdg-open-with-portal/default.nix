@@ -5,13 +5,14 @@
   writeShellScriptBin,
   glib,
   ...
-}: let
+}:
+let
   inherit (lib.campground) override-meta;
 
   new-meta = with lib; {
     description = "A replacement for the default xdg-open program which correctly handles portals.";
     license = licenses.asl20;
-    maintainers = with maintainers; [jakehamilton];
+    maintainers = with maintainers; [ mattcamp ];
   };
 
   # TODO can this maybe suck less
@@ -53,4 +54,4 @@
     fi
   '';
 in
-  override-meta new-meta package
+override-meta new-meta package
