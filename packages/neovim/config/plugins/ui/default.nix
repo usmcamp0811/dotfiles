@@ -165,41 +165,41 @@
     which-key = {
       enable = true;
 
-      settings = {
-        layout = {
-          height = {
-            min = 4;
-            max = 25;
-          };
-          width = {
-            min = 20;
-            max = 50;
-          };
-          spacing = 3;
-          align = "left";
-        };
-        triggers = null; # or specify a list of triggers if needed
-        operators = { " " = "Comments"; };
-        triggersBlackList = {
-          i = [ "j" "k" ];
-          v = [ "j" "k" ];
-        };
-        icons = {
-          breadcrumb = "»";
-          separator = "➜";
-          group = "+";
-        };
-        popupMappings = {
-          scrollDown = "<c-d>";
-          scrollUp = "<c-u>";
-        };
-        win = {
-          border = "rounded";
-          title_pos = "bottom";
-          padding = [ 2 2 ]; # Horizontal and vertical padding
-          winblend = 0;
-        };
-      };
+      # settings = {
+      #   layout = {
+      #     height = {
+      #       min = 4;
+      #       max = 25;
+      #     };
+      #     width = {
+      #       min = 20;
+      #       max = 50;
+      #     };
+      #     spacing = 3;
+      #     align = "left";
+      #   };
+      #   triggers = null; # or specify a list of triggers if needed
+      #   operators = { " " = "Comments"; };
+      #   triggersBlackList = {
+      #     i = [ "j" "k" ];
+      #     v = [ "j" "k" ];
+      #   };
+      #   icons = {
+      #     breadcrumb = "»";
+      #     separator = "➜";
+      #     group = "+";
+      #   };
+      #   popupMappings = {
+      #     scrollDown = "<c-d>";
+      #     scrollUp = "<c-u>";
+      #   };
+      #   win = {
+      #     border = "rounded";
+      #     title_pos = "bottom";
+      #     padding = [ 2 2 ]; # Horizontal and vertical padding
+      #     winblend = 0;
+      #   };
+      # };
     };
     vim-bbye.enable = true;
     bufferline.enable = true;
