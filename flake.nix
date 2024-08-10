@@ -2,7 +2,8 @@
   description = "Campground Config";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/release-24.05";
     pyarrow.url =
       "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     hyprland-works-here.url =
@@ -130,7 +131,8 @@
     };
 
     nix-snapshotter = {
-      url = "github:pdtpartners/nix-snapshotter";
+      url = "github:yu-re-ka/nix-snapshotter/update";
+      # url = "github:pdtpartners/nix-snapshotter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -226,7 +228,7 @@
         nix-ld-rs.overlays.default
         nuenv.overlays.default
         nur.overlay
-        nix-snapshotter.overlays.default
+        # nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
         # neorg-overlay.overlays.default
