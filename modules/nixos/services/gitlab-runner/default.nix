@@ -129,7 +129,7 @@ in {
                       text = ''
                         {{ with secret "${cfg.vault-path}" }}
                         CI_SERVER_URL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${CI_SERVER_URL} }}{{ else }}{{ .Data.data.${CI_SERVER_URL} }}{{ end }}'
-                        REGISTRATION_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${REGISTRATION_TOKEN} }}{{ else }}{{ .Data.data.${REGISTRATION_TOKEN} }}{{ end }}'
+                        CI_SERVER_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${REGISTRATION_TOKEN} }}{{ else }}{{ .Data.data.${REGISTRATION_TOKEN} }}{{ end }}'
                         {{ end }}
                       '';
                       permissions = "0600";
