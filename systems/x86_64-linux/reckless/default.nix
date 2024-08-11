@@ -106,31 +106,31 @@ in {
       local-ai = enabled;
       file-share = enabled;
       ldap-client = { enable = mkForce false; };
-      # attic-watch-store = enabled;
+      attic-watch-store = enabled;
       gitlab-runner = enabled;
       netbird = enabled;
-      # attic = {
-      #   enable = true;
-      #   settings = {
-      #     listen = "[::]:8082";
-      #     database = {
-      #       url = "postgres://atticd@localhost/atticd?host=/run/postgresql/";
-      #     };
-      #     storage = {
-      #       type = "local";
-      #       path = "/var/lib/atticd";
-      #     };
-      #     chunking = {
-      #       "nar-size-threshold" =
-      #         65536; # chunk files that are 64 KiB or larger
-      #       "min-size" = 16384; # 16 KiB
-      #       "avg-size" = 65536; # 64 KiB
-      #       "max-size" = 262144; # 256 KiB
-      #     };
-      #     compression = { type = "zstd"; };
-      #     garbage-collection = { interval = "144 hours"; };
-      #   };
-      # };
+      attic = {
+        enable = true;
+        settings = {
+          listen = "[::]:8082";
+          database = {
+            url = "postgres://atticd@localhost/atticd?host=/run/postgresql/";
+          };
+          storage = {
+            type = "local";
+            path = "/var/lib/atticd";
+          };
+          chunking = {
+            "nar-size-threshold" =
+              65536; # chunk files that are 64 KiB or larger
+            "min-size" = 16384; # 16 KiB
+            "avg-size" = 65536; # 64 KiB
+            "max-size" = 262144; # 256 KiB
+          };
+          compression = { type = "zstd"; };
+          garbage-collection = { interval = "144 hours"; };
+        };
+      };
 
       postgresql = {
         enable = true;
