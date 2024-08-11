@@ -135,6 +135,10 @@ in {
       postgresql = {
         enable = true;
         enableTCPIP = true;
+        databases = [{
+          name = "atticd";
+          user = "atticd";
+        }];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
         authentication = [
