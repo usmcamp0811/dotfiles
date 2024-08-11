@@ -73,6 +73,7 @@ in {
       serviceConfig = {
         Type = "oneshot";
         User = "root";
+        ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /var/lib/nixos";
         ExecStart =
           "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /var/lib/nixos/netrc";
         before = [ "nix-daemon.service" ];
