@@ -42,10 +42,12 @@ in {
         # nix store will be readable in runner, might be insecure
 
         nix = with lib; {
+          authenticationTokenConfigFile =
+            toString /tmp/detsys-vault/config.toml; # 2
           # File should contain at least these two variables:
           # `CI_SERVER_URL`
           # `REGISTRATION_TOKEN`
-          registrationConfigFile = toString /tmp/detsys-vault/config.toml; # 2
+          # registrationConfigFile = 
           dockerImage = "alpine";
           dockerVolumes = [
             "/nix/store:/nix/store:ro"
