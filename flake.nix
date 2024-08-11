@@ -228,7 +228,7 @@
         nix-ld-rs.overlays.default
         nuenv.overlays.default
         nur.overlay
-        # nix-snapshotter.overlays.default
+        nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
         # neorg-overlay.overlays.default
