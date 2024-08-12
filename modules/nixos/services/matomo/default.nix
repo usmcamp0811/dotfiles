@@ -11,6 +11,7 @@ in
   };
 
   config = mkIf cfg.enable {
+    # TODO: Do better configign of this shit
     campground.services.mysql = {
       enable = true;
       databases = [
@@ -23,6 +24,7 @@ in
 
     services.matomo = {
       enable = true;
+      package = pkgs.matomo_5;
       hostname = cfg.rootDomain;
       nginx = {
         serverAliases = [
