@@ -36,8 +36,24 @@ Happy reading!
 
 Matt Camp
 
-<!-- Matomo Image Tracker-->
+<!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+  _paq.push(["setCookieDomain", "*.blog.aicampground.com"]);
+  _paq.push(["setDomains", ["*.blog.aicampground.com"]]);
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//matomo.aicampground.com/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '2']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
 
-![](https://matomo.aicampground.com/matomo.php?idsite=2&rec=1&action_name=blog)
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="//matomo.aicampground.com/matomo.php?idsite=2&amp;rec=1" style="border:0;" alt="" /></p></noscript>
 
-<!-- End Matomo -->
+<!-- End Matomo Code -->
