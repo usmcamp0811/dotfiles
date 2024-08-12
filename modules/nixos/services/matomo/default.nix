@@ -11,16 +11,15 @@ in
   };
 
   config = mkIf cfg.enable {
-    # campground.services.postgresql = {
-    #   enable = true;
-    #   authentication = [ "local matomo matomo trust" ];
-    #   databases = [
-    #     {
-    #       name = "matomo";
-    #       user = "matomo";
-    #     }
-    #   ];
-    # };
+    campground.services.mysql = {
+      enable = true;
+      databases = [
+        {
+          name = "matomo";
+          user = "matomo";
+        }
+      ];
+    };
 
     services.matomo = {
       enable = true;
