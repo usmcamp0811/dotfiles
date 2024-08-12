@@ -38,6 +38,7 @@ in
           }
         ];
         enableACME = false;
+        forceSSL = false;
 
       };
 
