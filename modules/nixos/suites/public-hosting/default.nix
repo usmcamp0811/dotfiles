@@ -1,39 +1,54 @@
-{ options, config, lib, ... }:
+{
+  options,
+  config,
+  lib,
+  ...
+}:
 with lib;
 with lib.campground;
 let
   cfg = config.campground.suites.public-hosting;
-  jsonValue = with types;
+  jsonValue =
+    with types;
     let
-      valueType = nullOr (oneOf [
-        bool
-        int
-        float
-        str
-        (lazyAttrsOf valueType)
-        (listOf valueType)
-      ]) // {
-        description = "JSON value";
-        emptyValue.value = { };
-      };
-    in valueType;
-in {
+      valueType =
+        nullOr (oneOf [
+          bool
+          int
+          float
+          str
+          (lazyAttrsOf valueType)
+          (listOf valueType)
+        ])
+        // {
+          description = "JSON value";
+          emptyValue.value = { };
+        };
+    in
+    valueType;
+in
+{
   options.campground.suites.public-hosting = with types; {
-    enable = mkBoolOpt false
-      "Whether or not to enable common public-hosting configuration.";
+    enable = mkBoolOpt false "Whether or not to enable common public-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.42" "IP to use for the Public Instance";
-    log-to-kafka =
-      mkBoolOpt false "Enables the Traefik log Kafka Producer service";
+    log-to-kafka = mkBoolOpt false "Enables the Traefik log Kafka Producer service";
     entrypoints = mkOption {
       type = jsonValue;
       default = {
-        web = { address = "0.0.0.0:80"; };
-        metrics = { address = "0.0.0.0:58082"; };
+        web = {
+          address = "0.0.0.0:80";
+        };
+        metrics = {
+          address = "0.0.0.0:58082";
+        };
       };
-      example = { web = { address = "0.0.0.0:80"; }; };
-      description =
-        "List of entrypoints for Traefik, mapping names to their address.";
+      example = {
+        web = {
+          address = "0.0.0.0:80";
+        };
+      };
+      description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
@@ -42,10 +57,12 @@ in {
       # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
 
       services = {
-        prometheus.additionalScrapeConfigs = [{
-          job_name = "pub-traefik-monitor";
-          static_configs = [{ targets = [ "${cfg.pub-ip}:58082" ]; }];
-        }];
+        prometheus.additionalScrapeConfigs = [
+          {
+            job_name = "pub-traefik-monitor";
+            static_configs = [ { targets = [ "${cfg.pub-ip}:58082" ]; } ];
+          }
+        ];
         searx = mkIf cfg.enable {
           enable = true;
           port = 3249;
@@ -54,10 +71,17 @@ in {
           enable = true;
           insecure = true;
           entrypoints = cfg.entrypoints;
-          domains = [ "aicampground.com" "matt-camp.com" ];
+          domains = [
+            "aicampground.com"
+            "matt-camp.com"
+          ];
           dynamicConfigOptions = {
             http.middlewares.cloudflarewarp = {
-              plugin = { cloudflarewarp = { disableDefault = false; }; };
+              plugin = {
+                cloudflarewarp = {
+                  disableDefault = false;
+                };
+              };
             };
             http.middlewares.fail2ban = {
               plugin = {
@@ -71,6 +95,15 @@ in {
                 };
               };
             };
+            http.routers.matomo = {
+              rule = "Host(`matomo.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "matomo";
+            };
+
+            http.services.matomo = {
+              loadBalancer.servers = [ { url = "http://webb:16969"; } ];
+            };
             http.routers.blog-comments = {
               rule = "Host(`remark.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -78,12 +111,11 @@ in {
             };
 
             http.services.blog-comments = {
-              loadBalancer.servers = [{ url = "http://webb:11842"; }];
+              loadBalancer.servers = [ { url = "http://webb:11842"; } ];
             };
 
             http.routers.blog = {
-              rule =
-                "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
+              rule = "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "blog";
             };
@@ -104,7 +136,7 @@ in {
             };
 
             http.services.keycloak = {
-              loadBalancer.servers = [{ url = "http://webb:43852"; }];
+              loadBalancer.servers = [ { url = "http://webb:43852"; } ];
             };
 
             http.routers.collabora = {
@@ -114,7 +146,7 @@ in {
             };
 
             http.services.collabora = {
-              loadBalancer.servers = [{ url = "http://webb:19980"; }];
+              loadBalancer.servers = [ { url = "http://webb:19980"; } ];
             };
 
             http.routers.onlyoffice-office = {
@@ -124,7 +156,7 @@ in {
             };
 
             http.services.onlyoffice = {
-              loadBalancer.servers = [{ url = "http://lucas:13449"; }];
+              loadBalancer.servers = [ { url = "http://lucas:13449"; } ];
             };
 
             http.routers.nextcloud = {
@@ -134,7 +166,7 @@ in {
             };
 
             http.services.nextcloud = {
-              loadBalancer.servers = [{ url = "http://webb:13244"; }];
+              loadBalancer.servers = [ { url = "http://webb:13244"; } ];
             };
 
             # http.routers.adhoc = {
@@ -155,11 +187,11 @@ in {
             };
 
             http.services.matt-camp = {
-              loadBalancer.servers = [{ url = "http://lucas:4356"; }];
+              loadBalancer.servers = [ { url = "http://lucas:4356"; } ];
             };
 
             http.services.aicampground = {
-              loadBalancer.servers = [{ url = "http://lucas:4356"; }];
+              loadBalancer.servers = [ { url = "http://lucas:4356"; } ];
             };
 
             http.routers.searx = {
@@ -193,7 +225,7 @@ in {
             };
 
             http.services.photoprism = {
-              loadBalancer.servers = [{ url = "http://webb:9080"; }];
+              loadBalancer.servers = [ { url = "http://webb:9080"; } ];
             };
 
             http.routers.attic = {
@@ -203,7 +235,7 @@ in {
             };
 
             http.services.attic = {
-              loadBalancer.servers = [{ url = "http://reckless:8082"; }];
+              loadBalancer.servers = [ { url = "http://reckless:8082"; } ];
             };
 
             http.routers.bitwarden = {
@@ -214,7 +246,7 @@ in {
             };
 
             http.services.bitwarden = {
-              loadBalancer.servers = [{ url = "http://webb:8989"; }];
+              loadBalancer.servers = [ { url = "http://webb:8989"; } ];
               loadBalancer.healthCheck = {
                 path = "/alive";
                 interval = "10s";
@@ -237,7 +269,7 @@ in {
             };
 
             http.services.mattermost = {
-              loadBalancer.servers = [{ url = "http://webb:8065"; }];
+              loadBalancer.servers = [ { url = "http://webb:8065"; } ];
             };
           };
         };

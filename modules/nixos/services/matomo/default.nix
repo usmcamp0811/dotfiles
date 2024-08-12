@@ -1,4 +1,9 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
 with lib.campground;
 let
@@ -7,7 +12,7 @@ in
 {
   options.campground.services.matomo = with types; {
     enable = mkBoolOpt false "Enable Matomo;";
-    rootDomain = mkOpt str "lan.aicampground.com" "Root domain to use for Matomo";
+    rootDomain = mkOpt str "aicampground.com" "Root domain to use for Matomo";
   };
 
   config = mkIf cfg.enable {
