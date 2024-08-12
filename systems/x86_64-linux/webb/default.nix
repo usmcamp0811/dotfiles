@@ -196,6 +196,7 @@ in
           }
         ];
       };
+      matomo = enabled;
       zfs-key-server = {
         enable = true;
         port = 8123;
