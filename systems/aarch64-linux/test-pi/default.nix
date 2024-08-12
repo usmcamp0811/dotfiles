@@ -8,8 +8,10 @@ with lib.campground; {
   # sdImage.compressImage = false;
   # nixpkgs.config.allowUnsupportedSystem = true;
   # nixpkgs.crossSystem.system = "aarch64-linux";
-
-  boot = { kernelPackages = pkgs.linuxKernel.packages.linux_rpi3; };
+  # boot = {
+  #   kernelPackages = pkgs.linuxKernel.packages.linux_rpi3;
+  #   kernelModules = [ "ahci" ];
+  # };
 
   campground = {
     user = {
