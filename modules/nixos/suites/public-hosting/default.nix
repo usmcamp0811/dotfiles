@@ -96,7 +96,7 @@ in
               };
             };
             http.routers.matomo = {
-              rule = "Host(`matomo.lan.aicampground.com`)";
+              rule = "Host(`matomo.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "matomo";
             };
