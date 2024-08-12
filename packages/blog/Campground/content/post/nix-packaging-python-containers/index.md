@@ -588,5 +588,7 @@ advanced packaging techniques, and more. Happy hacking!
 [![](mr.png)](https://gitlab.com/initech-project/main-codebase/-/merge_requests/2)
 
 <!-- Matomo Image Tracker-->
-<img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.aicampground.com/matomo.php?idsite=2&amp;rec=1&amp;action_name=blog" style="border:0" alt="" />
+
+![](https://matomo.aicampground.com/matomo.php?idsite=2&rec=1&action_name=blog)
+
 <!-- End Matomo -->

@@ -1,17 +1,17 @@
 ---
 title: About
 description: Learn more about The Campground Blog
-date: '2024-07-18'
+date: "2024-07-18"
 aliases:
   - about-us
   - about-the-campground
   - contact
-lastmod: '2024-07-18'
+lastmod: "2024-07-18"
 menu:
-    main: 
-        weight: -90
-        params:
-            icon: user
+  main:
+    weight: -90
+    params:
+      icon: user
 ---
 
 Welcome to The Campground Blog!
@@ -35,3 +35,9 @@ Thank you for visiting The Campground Blog. I hope you find the content informat
 Happy reading!
 
 Matt Camp
+
+<!-- Matomo Image Tracker-->
+
+![](https://matomo.aicampground.com/matomo.php?idsite=2&rec=1&action_name=blog)
+
+<!-- End Matomo -->
