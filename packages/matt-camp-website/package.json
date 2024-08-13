@@ -22,7 +22,8 @@
     "axios": "^1.2.2",
     "node-gyp": "^9.3.1",
     "node-sass": "^8.0.0",
-    "quasar": "^1.0.0"
+    "quasar": "^1.0.0",
+    "vue-matomo": "^4.2.0"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0",
