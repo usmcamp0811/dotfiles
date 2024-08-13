@@ -120,24 +120,3 @@ feedback in the comments below.
 Thank you for joining me on this exploration of Nix in the wild. Together, we can simplify and enhance our development
 environments, ensuring consistency and reliability across all projects.
 
-<!-- Matomo -->
-<script>
-  var _paq = window._paq = window._paq || [];
-  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-  _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-  _paq.push(["setCookieDomain", "*.blog.aicampground.com"]);
-  _paq.push(["setDomains", ["*.blog.aicampground.com"]]);
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//matomo.aicampground.com/";
-    _paq.push(['setTrackerUrl', u+'matomo.php']);
-    _paq.push(['setSiteId', '2']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="//matomo.aicampground.com/matomo.php?idsite=2&amp;rec=1" style="border:0;" alt="" /></p></noscript>
-
-<!-- End Matomo Code -->
