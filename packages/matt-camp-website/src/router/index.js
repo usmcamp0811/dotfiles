@@ -5,29 +5,6 @@ import routes from './routes'
 
 Vue.use(VueRouter)
 
-// Configure VueMatomo
-Vue.use(VueMatomo, {
-  // Configure your matomo server and site by providing
-  host: 'https://matomo.aicampground.com/',
-  siteId: 1,
-
-  // Enable router integration
-  router: Router,
-
-  // Enable link tracking (optional)
-  enableLinkTracking: true,
-
-  // Other optional options
-  requireConsent: false, // if you require users to consent to tracking
-  trackInitialView: true, // tracks the initial view
-  disableCookies: false,  // disable cookies
-
-  // Custom tracking methods if needed
-  trackerFileName: 'matomo', // If you renamed the matomo.js file, adjust this setting
-  enableHeartBeatTimer: true, // recommended: activates the heartbeat of the tracker
-  heartBeatTimerInterval: 15 // in seconds
-})
-
 export default function (/* { store, ssrContext } */) {
   const Router = new VueRouter({
     scrollBehavior: () => ({ x: 0, y: 0 }),
@@ -38,6 +15,20 @@ export default function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
+  })
+
+  // Configure VueMatomo after Router is defined
+  Vue.use(VueMatomo, {
+    host: 'https://matomo.aicampground.com/',
+    siteId: 1,
+    router: Router,
+    enableLinkTracking: true,
+    requireConsent: false,
+    trackInitialView: true,
+    disableCookies: false,
+    trackerFileName: 'matomo',
+    enableHeartBeatTimer: true,
+    heartBeatTimerInterval: 15
   })
 
   return Router
