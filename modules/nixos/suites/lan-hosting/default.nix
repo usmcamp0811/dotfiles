@@ -1,69 +1,52 @@
-{
-  options,
-  config,
-  lib,
-  ...
-}:
+{ options, config, lib, ... }:
 with lib;
 with lib.campground;
 let
   cfg = config.campground.suites.lan-hosting;
-  jsonValue =
-    with types;
+  jsonValue = with types;
     let
-      valueType =
-        nullOr (oneOf [
-          bool
-          int
-          float
-          str
-          (lazyAttrsOf valueType)
-          (listOf valueType)
-        ])
-        // {
-          description = "JSON value";
-          emptyValue.value = { };
-        };
-    in
-    valueType;
-in
-{
+      valueType = nullOr (oneOf [
+        bool
+        int
+        float
+        str
+        (lazyAttrsOf valueType)
+        (listOf valueType)
+      ]) // {
+        description = "JSON value";
+        emptyValue.value = { };
+      };
+    in valueType;
+in {
   options.campground.suites.lan-hosting = with types; {
-    enable = mkBoolOpt false "Whether or not to enable common lan-hosting configuration.";
+    enable = mkBoolOpt false
+      "Whether or not to enable common lan-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     entrypoints = mkOption {
       type = jsonValue;
       default = {
-        web = {
-          address = "0.0.0.0:80";
-        };
-        metrics = {
-          address = "0.0.0.0:58082";
-        };
+        web = { address = "0.0.0.0:80"; };
+        metrics = { address = "0.0.0.0:58082"; };
       };
-      example = {
-        web = {
-          address = "0.0.0.0:80";
-        };
-      };
-      description = "List of entrypoints for Traefik, mapping names to their address.";
+      example = { web = { address = "0.0.0.0:80"; }; };
+      description =
+        "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
   config = {
     campground = {
       services = {
-        prometheus.additionalScrapeConfigs = [
-          {
-            job_name = "lan-traefik-monitor";
-            static_configs = [ { targets = [ "${cfg.lan-ip}:58082" ]; } ];
-          }
-        ];
+        prometheus.additionalScrapeConfigs = [{
+          job_name = "lan-traefik-monitor";
+          static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
+        }];
         traefik = mkIf cfg.enable {
           enable = true;
           insecure = true;
-          entrypoints = cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
+          entrypoints =
+            cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
             http.routers.matomo = {
               rule = "Host(`matomo.lan.aicampground.com`)";
@@ -72,7 +55,7 @@ in
             };
 
             http.services.matomo = {
-              loadBalancer.servers = [ { url = "http://webb:16969"; } ];
+              loadBalancer.servers = [{ url = "http://webb:16969"; }];
             };
 
             http.routers.plaid = {
@@ -82,7 +65,7 @@ in
             };
 
             http.services.plaid = {
-              loadBalancer.servers = [ { url = "http://reckless:3000"; } ];
+              loadBalancer.servers = [{ url = "http://reckless:3000"; }];
             };
 
             http.routers.firefly = {
@@ -92,7 +75,7 @@ in
             };
 
             http.services.firefly = {
-              loadBalancer.servers = [ { url = "http://webb:16244"; } ];
+              loadBalancer.servers = [{ url = "http://webb:16244"; }];
             };
 
             http.routers.local-ai = {
@@ -102,7 +85,7 @@ in
             };
 
             http.services.local-ai = {
-              loadBalancer.servers = [ { url = "http://reckless:18080"; } ];
+              loadBalancer.servers = [{ url = "http://reckless:18080"; }];
             };
 
             http.routers.nix-ai = {
@@ -112,7 +95,7 @@ in
             };
 
             http.services.nix-ai = {
-              loadBalancer.servers = [ { url = "http://lucas:18084"; } ];
+              loadBalancer.servers = [{ url = "http://lucas:18084"; }];
             };
 
             http.routers.schema-registry = {
@@ -122,7 +105,7 @@ in
             };
 
             http.services.schema-registry = {
-              loadBalancer.servers = [ { url = "http://10.8.0.70:8436"; } ];
+              loadBalancer.servers = [{ url = "http://10.8.0.70:8436"; }];
             };
 
             http.routers.akhq = {
@@ -132,7 +115,7 @@ in
             };
 
             http.services.akhq = {
-              loadBalancer.servers = [ { url = "http://lucas:8435"; } ];
+              loadBalancer.servers = [{ url = "http://lucas:8435"; }];
             };
 
             http.routers.kafka = {
@@ -157,7 +140,7 @@ in
             };
 
             http.services.prometheus = {
-              loadBalancer.servers = [ { url = "http://webb:9011"; } ];
+              loadBalancer.servers = [{ url = "http://webb:9011"; }];
             };
 
             http.routers.grafana = {
@@ -167,7 +150,7 @@ in
             };
 
             http.services.grafana = {
-              loadBalancer.servers = [ { url = "http://webb:7443"; } ];
+              loadBalancer.servers = [{ url = "http://webb:7443"; }];
             };
 
             http.routers.keycloak = {
@@ -177,7 +160,7 @@ in
             };
 
             http.services.keycloak = {
-              loadBalancer.servers = [ { url = "http://webb:43852"; } ];
+              loadBalancer.servers = [{ url = "http://webb:43852"; }];
             };
 
             http.routers.hydra = {
@@ -187,7 +170,7 @@ in
             };
 
             http.services.hydra = {
-              loadBalancer.servers = [ { url = "http://chesty:6956"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:6956"; }];
             };
 
             http.routers.uptime-kuma = {
@@ -197,7 +180,7 @@ in
             };
 
             http.services.uptime-kuma = {
-              loadBalancer.servers = [ { url = "http://webb:4000"; } ];
+              loadBalancer.servers = [{ url = "http://webb:4000"; }];
             };
 
             http.routers.pub-traefik = {
@@ -207,7 +190,7 @@ in
             };
 
             http.services.pub-traefik = {
-              loadBalancer.servers = [ { url = "http://10.8.0.42:8080"; } ];
+              loadBalancer.servers = [{ url = "http://10.8.0.42:8080"; }];
             };
 
             http.routers.sonar = {
@@ -217,7 +200,7 @@ in
             };
 
             http.services.sonar = {
-              loadBalancer.servers = [ { url = "http://chesty:8989"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:8989"; }];
             };
 
             http.routers.reiverr = {
@@ -227,7 +210,7 @@ in
             };
 
             http.services.reiverr = {
-              loadBalancer.servers = [ { url = "http://chesty:9494"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:9494"; }];
             };
 
             http.routers.radar = {
@@ -237,7 +220,7 @@ in
             };
 
             http.services.radar = {
-              loadBalancer.servers = [ { url = "http://chesty:7878"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:7878"; }];
             };
 
             http.routers.prowlarr = {
@@ -247,7 +230,7 @@ in
             };
 
             http.services.prowlarr = {
-              loadBalancer.servers = [ { url = "http://chesty:9696"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:9696"; }];
             };
 
             http.routers.jacket = {
@@ -257,7 +240,7 @@ in
             };
 
             http.services.jacket = {
-              loadBalancer.servers = [ { url = "http://chesty:9117"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:9117"; }];
             };
 
             http.routers.deluge = {
@@ -267,7 +250,7 @@ in
             };
 
             http.services.deluge = {
-              loadBalancer.servers = [ { url = "http://chesty:8112"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:8112"; }];
             };
 
             http.routers.minio = {
@@ -277,7 +260,7 @@ in
             };
 
             http.services.minio = {
-              loadBalancer.servers = [ { url = "http://webb:9001"; } ];
+              loadBalancer.servers = [{ url = "http://webb:9001"; }];
               loadBalancer.healthCheck = {
                 path = "/health";
                 interval = "10s";
@@ -292,12 +275,7 @@ in
             };
 
             http.services.minio-api = {
-              loadBalancer.servers = [ { url = "http://webb:9000"; } ];
-              loadBalancer.healthCheck = {
-                path = "/health";
-                interval = "10s";
-                timeout = "5s";
-              };
+              loadBalancer.servers = [{ url = "http://webb:9000"; }];
             };
 
             http.routers.mlflow = {
@@ -307,7 +285,7 @@ in
             };
 
             http.services.mlflow = {
-              loadBalancer.servers = [ { url = "http://webb:8000"; } ];
+              loadBalancer.servers = [{ url = "http://webb:8000"; }];
               loadBalancer.healthCheck = {
                 path = "/health";
                 interval = "10s";
@@ -322,7 +300,7 @@ in
             };
 
             http.services.vault = {
-              loadBalancer.servers = [ { url = "http://daly:8200"; } ];
+              loadBalancer.servers = [{ url = "http://daly:8200"; }];
             };
 
             http.routers.nixery = {
@@ -332,7 +310,7 @@ in
             };
 
             http.services.nixery = {
-              loadBalancer.servers = [ { url = "http://webb:4567"; } ];
+              loadBalancer.servers = [{ url = "http://webb:4567"; }];
             };
 
             http.routers.paperless = {
@@ -342,7 +320,7 @@ in
             };
 
             http.services.paperless = {
-              loadBalancer.servers = [ { url = "http://webb:28981"; } ];
+              loadBalancer.servers = [{ url = "http://webb:28981"; }];
             };
 
             http.routers.jellyfin = {
@@ -352,7 +330,7 @@ in
             };
 
             http.services.jellyfin = {
-              loadBalancer.servers = [ { url = "http://chesty:8096"; } ];
+              loadBalancer.servers = [{ url = "http://chesty:8096"; }];
               loadBalancer.healthCheck = {
                 path = "/health";
                 interval = "10s";
