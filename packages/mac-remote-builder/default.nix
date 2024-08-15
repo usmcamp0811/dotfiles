@@ -11,10 +11,6 @@ let
     AUTHORIZED_KEY=''${1:-"$(cat $HOME/.ssh/*.pub)"}
     ${pkgs.docker}/bin/docker build -f ${src}/Dockerfile -t nix-builder --build-arg AUTHORIZED_KEY="$AUTHORIZED_KEY" .
   '';
-  nix_conf = ''
-    accept-flake-config = true
-    experimental-features = nix-command flakes
-  '';
 
   start-builder = pkgs.writeShellScriptBin "start-builder" ''
     ACCESS_TOKENS=${1}
