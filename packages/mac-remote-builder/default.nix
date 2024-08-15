@@ -8,7 +8,7 @@ let
   '';
 
   build-image = pkgs.writeShellScriptBin "build" ''
-    AUTHORIZED_KEY=''${"1:-" 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler'}
+    AUTHORIZED_KEY=''${1:-"$(cat $HOME/.ssh/*.pub)"}
     ${pkgs.docker}/bin/docker build -f ${src}/Dockerfile -t nix-builder --build-arg AUTHORIZED_KEY="$AUTHORIZED_KEY" .
   '';
   nix_conf = ''
@@ -42,9 +42,7 @@ let
   readme = pkgs.writeShellScriptBin "readme" ''
     ${pkgs.bat}/bin/bat ${src}/README.md
   '';
-in
-readme
-// {
+in readme // {
   build = build-image;
   start = start-builder;
   stop = stop-builder;
