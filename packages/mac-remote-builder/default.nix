@@ -41,7 +41,7 @@ let
 
   readme = pkgs.writeShellScriptBin "readme" ''
     ${pkgs.bat}/bin/bat ${src}/README.md
-  ''
+  '';
 in
 readme
 // {
