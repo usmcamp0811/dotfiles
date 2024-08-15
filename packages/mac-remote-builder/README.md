@@ -17,7 +17,7 @@ This script builds the Docker image that will be used as the Nix remote builder.
 #### Usage:
 
 ```bash
-./result/bin/build "your_ssh_authorized_key"
+nix run .#mac-remote-builder.build -- "your_ssh_authorized_key"
 ```
 
 - **`your_ssh_authorized_key`**: (Optional) Your SSH public key that will be authorized for SSH access to the Docker container. If not provided, a default key will be used.
@@ -29,7 +29,7 @@ This script starts the Docker container as the Nix remote builder. It allows you
 #### Usage:
 
 ```bash
-./result/bin/start "your_access_tokens" 2222 "/path/to/your/.netrc"
+nix run .#mac-remote-builder.start -- "your_access_tokens" 2222 "/path/to/your/.netrc"
 ```
 
 - **`your_access_tokens`**: (Optional) Access tokens to be included in the `nix.conf` file. If not provided, this line will be omitted from the `nix.conf`.
@@ -43,7 +43,7 @@ This script stops the Docker container running the Nix remote builder.
 #### Usage:
 
 ```bash
-./result/bin/stop
+nix run .#mac-remote-builder.stop
 ```
 
 ### 4. `readme`
@@ -53,7 +53,7 @@ This script prints out this README file to help you understand the usage of the 
 #### Usage:
 
 ```bash
-./result/bin/readme
+nix run .#mac-remote-builder
 ```
 
 ## How to Get Started
