@@ -32,16 +32,19 @@ let
       echo "access-tokens = $ACCESS_TOKENS" >> $NIC_CONF
     fi
 
-
-
     ${pkgs.docker}/bin/docker run -it -p $PORT:22 \
       -n ${docker-image-name} \
       -v $NIX_CONF:/etc/nix/nix.conf:ro \
       -v $NETRC_FILE:/root/.netrc:ro \
       nix-builder
   '';
+
+  readme = pkgs.writeShellScriptBin "readme" ''
+    ${pkgs.bat}/bin/bat ${src}/README.md
+  ''
 in
-{
+readme
+// {
   build = build-image;
   start = start-builder;
   stop = stop-builder;
