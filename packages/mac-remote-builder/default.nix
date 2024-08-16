@@ -66,15 +66,12 @@ let
     fi
 
     # Run the Docker container with all specified options
-    ${pkgs.docker}/bin/docker run -it -p $PORT:22 \
+    ${pkgs.docker}/bin/docker run -it -d -p $PORT:22 \
       $PORT_OPTIONS \
       --name ${docker-image-name} \
       -v $NIX_CONF:/etc/nix/nix.conf:ro \
       -v $NETRC_FILE:/root/.netrc:ro \
       nix-builder
-
-    # Cleanup
-    rm -rf $TEMP_DIR
   '';
 
   readme = pkgs.writeShellScriptBin "readme" ''
