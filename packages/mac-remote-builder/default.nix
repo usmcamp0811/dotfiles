@@ -72,10 +72,36 @@ let
       -v $NIX_CONF:/etc/nix/nix.conf:ro \
       -v $NETRC_FILE:/root/.netrc:ro \
       nix-builder
+
+    ${host-config}/bin/config $PORT
   '';
 
   readme = pkgs.writeShellScriptBin "readme" ''
     ${pkgs.bat}/bin/bat ${src}/README.md
+  '';
+
+  host-config = pkgs.writeShellScriptBin "config" ''
+    # Set the IP address or hostname of the running Docker container
+    BUILDER_HOST="localhost"
+    BUILDER_PORT=$1
+
+    # Define the builder configuration string
+    NIX_BUILDERS_CONFIG="builders = ssh://root@$BUILDER_HOST:$BUILDER_PORT;"
+
+    # Create the Nix configuration directory if it doesn't exist
+    mkdir -p ~/.config/nix
+
+    # Path to the nix.conf file
+    NIX_CONF_PATH="$HOME/.config/nix/nix.conf"
+
+    # Check if the configuration is already present
+    if grep -qF "$NIX_BUILDERS_CONFIG" "$NIX_CONF_PATH"; then
+      echo "Remote builder configuration is already present in nix.conf."
+    else
+      # Append the configuration if it isn't already there
+      echo "$NIX_BUILDERS_CONFIG" >> "$NIX_CONF_PATH"
+      echo "Remote builder configuration added to nix.conf."
+    fi
   '';
 in
 readme
