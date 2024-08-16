@@ -31,6 +31,13 @@ let
       juliaEnv = julia-env;
       kernelName = "campground";
     };
+  run-example =
+    (inputs.scientific-fhs.packages.x86_64-linux.scientific-fhs.override
+      (oldAttrs: {
+        commandScript = "julia";
+        # poetryEnv = pkgs.monocle.python-env;
+        juliaEnv = julia-env;
+      }));
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";
   version = pkgs.julia.version;
@@ -49,5 +56,6 @@ in pkgs.stdenv.mkDerivation rec {
   passthru = {
     jupyter-qtconsole = startQtJupyterWithJulia;
     jupyter-console = startJupyterWithJulia;
+    fhs = run-example;
   };
 }
