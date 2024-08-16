@@ -13,32 +13,76 @@ let
   '';
 
   start-builder = pkgs.writeShellScriptBin "start-builder" ''
-    ACCESS_TOKENS=${1}
-    PORT=${"2:-2222"}
-    NETRC_FILE=${"3:-" "$HOME/.netrc"}
+    # Default values
+    ACCESS_TOKENS=""
+    PORT=2222
+    NETRC_FILE="$HOME/.netrc"
+    ADDITIONAL_PORTS=""
+
+    # Parse named arguments
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --access-tokens=*)
+          ACCESS_TOKENS="''${1#*=}"
+          shift
+          ;;
+        --port=*)
+          PORT="''${1#*=}"
+          shift
+          ;;
+        --netrc-file=*)
+          NETRC_FILE="''${1#*=}"
+          shift
+          ;;
+        --additional-ports=*)
+          ADDITIONAL_PORTS="''${1#*=}"
+          shift
+          ;;
+        *)
+          echo "Unknown option: $1"
+          exit 1
+          ;;
+      esac
+    done
 
     # Create a temporary directory for the nix.conf file
     TEMP_DIR=$(mktemp -d)
     NIX_CONF="$TEMP_DIR/nix.conf"
 
-    echo "accept-flake-config = true" > $NIC_CONF
-    echo "experimental-features = nix-command flakes" >> $NIC_CONF
+    echo "accept-flake-config = true" > $NIX_CONF
+    echo "experimental-features = nix-command flakes" >> $NIX_CONF
 
     if [ -n "$ACCESS_TOKENS" ]; then
-      echo "access-tokens = $ACCESS_TOKENS" >> $NIC_CONF
+      echo "access-tokens = $ACCESS_TOKENS" >> $NIX_CONF
     fi
 
+    # Build the additional ports option
+    PORT_OPTIONS=""
+    if [ -n "$ADDITIONAL_PORTS" ]; then
+      IFS=',' read -ra PORT_ARRAY <<< "$ADDITIONAL_PORTS"
+      for port in "''${PORT_ARRAY[@]}"; do
+        PORT_OPTIONS="$PORT_OPTIONS -p $port"
+      done
+    fi
+
+    # Run the Docker container with all specified options
     ${pkgs.docker}/bin/docker run -it -p $PORT:22 \
-      -n ${docker-image-name} \
+      $PORT_OPTIONS \
+      --name ${docker-image-name} \
       -v $NIX_CONF:/etc/nix/nix.conf:ro \
       -v $NETRC_FILE:/root/.netrc:ro \
       nix-builder
+
+    # Cleanup
+    rm -rf $TEMP_DIR
   '';
 
   readme = pkgs.writeShellScriptBin "readme" ''
     ${pkgs.bat}/bin/bat ${src}/README.md
   '';
-in readme // {
+in
+readme
+// {
   build = build-image;
   start = start-builder;
   stop = stop-builder;
