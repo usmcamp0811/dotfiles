@@ -171,7 +171,7 @@
 
     dream2nix.url = "github:nix-community/dream2nix";
     scientific-fhs = {
-      url = "github:usmcamp0811/scientific-fhs/add-poetry";
+      url = "github:usmcamp0811/scientific-fhs/pass-python-env-in";
       # url = "path:/home/mcamp/code/scientific-fhs";
       inputs.nixpkgs.follows = "unstable";
     };
