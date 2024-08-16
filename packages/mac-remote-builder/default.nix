@@ -5,6 +5,7 @@ let
 
   stop-builder = pkgs.writeShellScriptBin "stop" ''
     ${pkgs.docker}/bin/docker stop ${docker-image-name}
+    ${pkgs.docker}/bin/docker rm ${docker-image-name}
   '';
 
   build-image = pkgs.writeShellScriptBin "build" ''
@@ -103,9 +104,7 @@ let
       echo "Remote builder configuration added to nix.conf."
     fi
   '';
-in
-readme
-// {
+in readme // {
   build = build-image;
   start = start-builder;
   stop = stop-builder;
