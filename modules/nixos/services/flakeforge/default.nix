@@ -1,9 +1,17 @@
-{ inputs, lib, config, pkgs, ... }:
+{
+  inputs,
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.flakeforge;
+let
+  cfg = config.campground.services.flakeforge;
 
-in {
+in
+{
   options.campground.services.flakeforge = with types; {
     enable = mkBoolOpt false "Enable Flake Forge";
     listenAddress = mkOption {
@@ -29,6 +37,22 @@ in {
   };
 
   config = mkIf cfg.enable {
+    users.users.flakeforge = {
+      isSystemUser = true;
+      group = "apache-kafka";
+      home = "/var/cache/flakeforge";
+      createHome = true;
+    };
+
+    users.groups.flakeforge = { };
+
+    systemd.services.flakeforge = {
+      serviceConfig = {
+        Restart = "always";
+        User = "flakeforge";
+        Group = "flakeforge";
+      };
+    };
     services.flakeforge = {
       enable = cfg.enable;
       listenAddress = cfg.listenAddress;
