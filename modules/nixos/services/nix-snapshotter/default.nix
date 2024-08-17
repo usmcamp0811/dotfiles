@@ -1,16 +1,11 @@
-{ inputs
-, lib
-, config
-, pkgs
-, ...
-}:
+{ inputs, lib, config, pkgs, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.services.nix-snapshotter;
 
   # preloadContainerdImages = [pkgs.campground.containers];
-in
-{
+in {
   imports = [ inputs.nix-snapshotter.nixosModules.default ];
 
   options.campground.services.nix-snapshotter = with types; {
