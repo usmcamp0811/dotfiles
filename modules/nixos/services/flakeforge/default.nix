@@ -39,7 +39,7 @@ in
   config = mkIf cfg.enable {
     users.users.flakeforge = {
       isSystemUser = true;
-      group = "apache-kafka";
+      group = "flakeforge";
       home = "/var/cache/flakeforge";
       createHome = true;
     };
