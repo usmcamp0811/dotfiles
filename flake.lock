@@ -3356,6 +3356,19 @@
     },
     "nixpkgs_20": {
       "locked": {
+        "lastModified": 1723826197,
+        "narHash": "sha256-pSZiNWyEvLLrUPeiulHIDPBydCwFuROKuJaOYnFs+qY=",
+        "path": "/nix/store/170y7b1j2dsbb2bqvb2yld1isz3qq3ig-source",
+        "rev": "4d1c4bd3344067aa841dec1ca3c332f6fc6dd93b",
+        "type": "path"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_21": {
+      "locked": {
         "lastModified": 1685012353,
         "narHash": "sha256-U3oOge4cHnav8OLGdRVhL45xoRj4Ppd+It6nPC9nNIU=",
         "owner": "NixOS",
@@ -4268,16 +4281,14 @@
     },
     "scientific-fhs": {
       "inputs": {
-        "nixpkgs": [
-          "unstable"
-        ]
+        "nixpkgs": "nixpkgs_20"
       },
       "locked": {
-        "lastModified": 1723908867,
-        "narHash": "sha256-AWWg85QIDhhym0xfFaKpK38XJfamSHqyasn1hWAGlHk=",
+        "lastModified": 1723910010,
+        "narHash": "sha256-RWerB//JMvELEDG3JVlW/kNzVAfzG4UwbyIjk2AdGfg=",
         "owner": "usmcamp0811",
         "repo": "scientific-fhs",
-        "rev": "978981aff28186038904c391849c5c705726d2b0",
+        "rev": "38291a98edd418953c22abfbf2597e31f39bc956",
         "type": "github"
       },
       "original": {
@@ -4773,7 +4784,7 @@
     },
     "technofab": {
       "inputs": {
-        "nixpkgs": "nixpkgs_20"
+        "nixpkgs": "nixpkgs_21"
       },
       "locked": {
         "lastModified": 1692352367,

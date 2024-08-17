@@ -173,7 +173,7 @@
     scientific-fhs = {
       url = "github:usmcamp0811/scientific-fhs/pass-python-env-in";
       # url = "path:/home/mcamp/code/scientific-fhs";
-      inputs.nixpkgs.follows = "unstable";
+      # inputs.nixpkgs.follows = "unstable";
     };
 
     nix-output-monitor.url = "github:maralorn/nix-output-monitor";
