@@ -30,7 +30,7 @@
     };
 
     flakeforge = {
-      url = "github:elohmeier/flakeforge";
+      url = "github:usmcamp0811/flakeforge";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -246,7 +246,7 @@
         dataflow2nix.nixosModules.airflow
         nix-topology.nixosModules.default
         catppuccin.nixosModules.catppuccin
-        flakeforge.nixosModules.default
+        flakeforge.nixosModules.flakeforge
         # nix-health.flakeModule
         # scientific-fhs.nixosModules.default
       ];

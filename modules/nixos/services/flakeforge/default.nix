@@ -18,7 +18,7 @@ in {
     };
     flakeRoot = mkOption {
       type = str;
-      example = "gitlab:usmcamp0811/dotfiles";
+      default = "gitlab:usmcamp0811/dotfiles";
       description = "The flake root to serve images from.";
     };
     extraFlags = mkOption {
