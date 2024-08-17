@@ -48,6 +48,16 @@ in {
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.flake-forge = {
+              rule = "Host(`flakeforge.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "flake-forge";
+            };
+
+            http.services.flake-forge = {
+              loadBalancer.servers = [{ url = "http://reckless:15000"; }];
+            };
+
             http.routers.matomo = {
               rule = "Host(`matomo.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
