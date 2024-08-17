@@ -1,9 +1,18 @@
-{ lib, inputs, pkgs, ... }:
+{
+  lib,
+  inputs,
+  pkgs,
+  ...
+}:
 let
 
-  pluto =
-    inputs.flakeforge.packages.x86_64-linux.flakeforgeTools.streamLayeredImageConf {
-      name = "bash-stream-layered";
-      contents = [ pkgs.campground.pluto ];
+  flask-app = pkgs.streamLayeredImageConf {
+    name = "flakeforge-example-flask-app";
+    tag = "latest";
+    contents = [ pkgs.campground.example-flask-app ];
+    config = {
+      Entrypoint = [ "run-app" ];
     };
-in pluto
+  };
+in
+flask-app
