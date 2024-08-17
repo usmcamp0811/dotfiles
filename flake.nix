@@ -235,7 +235,6 @@
         nur.overlay
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
-        flakeforge.overlays.default
         nix-topology.overlays.default
         # neorg-overlay.overlays.default
       ];
