@@ -42,9 +42,11 @@ in
       group = "flakeforge";
       home = "/var/cache/flakeforge";
       createHome = true;
+      extraGroups = [ "docker" ];
     };
 
     users.groups.flakeforge = { };
+    users.groups.docker = { };
 
     systemd.services.flakeforge = {
       serviceConfig = {
