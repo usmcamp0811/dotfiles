@@ -1,12 +1,4 @@
-{
-  inputs,
-  lib,
-  pkgs,
-  config,
-  osConfig ? {},
-  format ? "unknown",
-  ...
-}:
+{ inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib;
 with lib.campground; {
   campground = {
@@ -34,15 +26,18 @@ with lib.campground; {
           monitors = [
             {
               name = "DP-1";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png";
             }
             {
               name = "DP-2";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png";
             }
           ];
 
-          wallpapers = ["${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png"];
+          wallpapers =
+            [ "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png" ];
         };
         gbar = enabled;
         wofi = enabled;
@@ -113,7 +108,6 @@ with lib.campground; {
       liquidctl = enabled;
       mangohud = enabled;
       emoji-picker = enabled;
-      scientific-fhs = enabled;
       # noisetorch = enabled;
     };
   };

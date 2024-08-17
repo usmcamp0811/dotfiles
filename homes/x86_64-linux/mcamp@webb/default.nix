@@ -1,11 +1,4 @@
-{
-  lib,
-  pkgs,
-  config,
-  osConfig ? {},
-  format ? "unknown",
-  ...
-}:
+{ lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib.campground; {
   campground = {
     user = {
@@ -44,7 +37,6 @@ with lib.campground; {
     tools = {
       git = enabled;
       direnv = enabled;
-      scientific-fhs = enabled;
       # julia = enabled;
       # python = enabled;
       vault = enabled;
