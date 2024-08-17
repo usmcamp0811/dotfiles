@@ -30,7 +30,7 @@ in {
 
   config = mkIf cfg.enable {
     services.flakeforge = {
-      enable = true;
+      enable = cfg.enable;
       listenAddress = cfg.listenAddress;
       listenPort = cfg.listenPort;
       flakeRoot = cfg.flakeRoot;
