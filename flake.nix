@@ -29,6 +29,11 @@
       flake = false;
     };
 
+    flakeforge = {
+      url = "github:elohmeier/flakeforge";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # macOS Support (master)
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "nixpkgs";

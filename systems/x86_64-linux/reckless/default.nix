@@ -150,6 +150,7 @@ in {
         ];
       };
       nix-snapshotter = enabled;
+      flakeforge = enabled;
       zfs-key-server = {
         enable = true;
         interface = "eno1";
