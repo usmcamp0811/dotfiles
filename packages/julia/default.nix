@@ -31,8 +31,16 @@ let
       kernelName = "campground";
     };
   juliaInFHS = (pkgs.scientific-fhs.override (oldAttrs: {
-    commandScript = "bash";
-    # juliaEnv = julia-env;
+    commandScript = "julia";
+    juliaEnv = julia-env;
+  }));
+  startJupyterWithJuliaFHS = (pkgs.scientific-fhs.override (oldAttrs: {
+    commandScript = "julia-console";
+    juliaEnv = startJupyterWithJulia;
+  }));
+  startQtJupyterWithJuliaFHS = (pkgs.scientific-fhs.override (oldAttrs: {
+    commandScript = "julia-qtconsole";
+    juliaEnv = startQtJupyterWithJulia;
   }));
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";
@@ -52,6 +60,9 @@ in pkgs.stdenv.mkDerivation rec {
   passthru = {
     jupyter-qtconsole = startQtJupyterWithJulia;
     jupyter-console = startJupyterWithJulia;
-    fhs = juliaInFHS;
+    fhs = juliaInFHS // {
+      jupyter-qtconsole = startQtJupyterWithJuliaFHS;
+      jupyter-console = startJupyterWithJuliaFHS;
+    };
   };
 }
