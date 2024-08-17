@@ -1,5 +1,4 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib, pkgs, inputs, ... }:
 with lib;
 with lib.campground;
 let
@@ -31,12 +30,10 @@ let
       juliaEnv = julia-env;
       kernelName = "campground";
     };
-  juliaInFHS =
-    (inputs.scientific-fhs.packages.x86_64-linux.scientific-fhs.override
-      (oldAttrs: {
-        commandScript = "julia";
-        juliaEnv = julia-env;
-      }));
+  juliaInFHS = (pkgs.scientific-fhs.override (oldAttrs: {
+    commandScript = "bash";
+    # juliaEnv = julia-env;
+  }));
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";
   version = pkgs.julia.version;
