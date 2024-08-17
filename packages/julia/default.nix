@@ -42,6 +42,13 @@ let
     commandScript = "julia-qtconsole";
     juliaEnv = pkgs.campground.julia;
   }));
+
+  container = pkgs.dockerTools.buildLayeredImage {
+    name = "julia";
+    tag = "latest";
+    contents = [ juliaInFHS ];
+    config = { Entrypoint = [ "julia" ]; };
+  };
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";
   version = pkgs.julia.version;
@@ -63,6 +70,7 @@ in pkgs.stdenv.mkDerivation rec {
     fhs = juliaInFHS // {
       jupyter-qtconsole = startQtJupyterWithJuliaFHS;
       jupyter-console = startJupyterWithJuliaFHS;
+      container = container;
     };
   };
 }
