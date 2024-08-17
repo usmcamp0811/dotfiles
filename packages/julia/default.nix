@@ -32,15 +32,15 @@ let
     };
   juliaInFHS = (pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "julia";
-    juliaEnv = julia-env;
+    juliaEnv = pkgs.campground.julia;
   }));
   startJupyterWithJuliaFHS = (pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "julia-console";
-    juliaEnv = startJupyterWithJulia;
+    juliaEnv = pkgs.campground.julia;
   }));
   startQtJupyterWithJuliaFHS = (pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "julia-qtconsole";
-    juliaEnv = startQtJupyterWithJulia;
+    juliaEnv = pkgs.campground.julia;
   }));
 in pkgs.stdenv.mkDerivation rec {
   pname = "julia";

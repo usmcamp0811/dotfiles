@@ -7,5 +7,6 @@ in {
     enable = mkBoolOpt false "Whether or not to enable common Julia.";
   };
 
-  config = mkIf cfg.enable { home.packages = with pkgs; [ campground.julia ]; };
+  config =
+    mkIf cfg.enable { home.packages = with pkgs; [ campground.julia.fhs ]; };
 }
