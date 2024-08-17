@@ -4273,11 +4273,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1723781980,
+        "lastModified": 1723908867,
         "narHash": "sha256-AWWg85QIDhhym0xfFaKpK38XJfamSHqyasn1hWAGlHk=",
         "owner": "usmcamp0811",
         "repo": "scientific-fhs",
-        "rev": "ca873f4df26d52a0eca3d36a16794d04a173fe0d",
+        "rev": "978981aff28186038904c391849c5c705726d2b0",
         "type": "github"
       },
       "original": {
