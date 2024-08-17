@@ -7,22 +7,22 @@ in {
   options.campground.services.flakeforge = with types; {
     enable = mkBoolOpt false "Enable Flake Forge";
     listenAddress = mkOption {
-      type = types.str;
+      type = str;
       default = "0.0.0.0";
       description = "The address to listen on.";
     };
     listenPort = mkOption {
-      type = types.port;
+      type = port;
       default = 15000;
       description = "The port to listen on.";
     };
     flakeRoot = mkOption {
-      type = types.str;
+      type = str;
       example = "gitlab:usmcamp0811/dotfiles";
       description = "The flake root to serve images from.";
     };
     extraFlags = mkOption {
-      type = types.listOf types.str;
+      type = listOf types.str;
       default = [ ];
       description = "Extra flags to pass to flakeforge.";
     };
