@@ -37,24 +37,24 @@ in
   };
 
   config = mkIf cfg.enable {
-    users.users.flakeforge = {
-      isSystemUser = true;
-      group = "flakeforge";
-      home = "/var/cache/flakeforge";
-      createHome = true;
-      extraGroups = [ "docker" ];
-    };
+    # users.users.flakeforge = {
+    #   isSystemUser = true;
+    #   group = "flakeforge";
+    #   home = "/var/cache/flakeforge";
+    #   createHome = true;
+    #   extraGroups = [ "docker" ];
+    # };
+    #
+    # users.groups.flakeforge = { };
+    # users.groups.docker = { };
 
-    users.groups.flakeforge = { };
-    users.groups.docker = { };
-
-    systemd.services.flakeforge = {
-      serviceConfig = {
-        Restart = "always";
-        User = "flakeforge";
-        Group = "flakeforge";
-      };
-    };
+    # systemd.services.flakeforge = {
+    #   serviceConfig = {
+    #     Restart = "always";
+    #     User = "flakeforge";
+    #     Group = "flakeforge";
+    #   };
+    # };
     services.flakeforge = {
       enable = cfg.enable;
       listenAddress = cfg.listenAddress;
