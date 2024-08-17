@@ -11,7 +11,7 @@ let
     tag = "latest";
     contents = [ pkgs.campground.example-flask-app ];
     config = {
-      Entrypoint = [ "run-app" ];
+      Entrypoint = [ "${pkgs.campground.example-flask-app}/bin/run-app" ];
     };
   };
 in
