@@ -87,12 +87,8 @@ let
   '';
 
   flakeforge-container = pkgs.streamLayeredImageConf {
-    name = "flakeforge-example-flask-app";
-    tag = "latest";
-    contents = [ pkgs.campground.example-flask-app ];
-    config = {
-      Entrypoint = [ "example-flask-app" ];
-    };
+    fromImage = container;
+    config = container.config;
   };
 in
 example-flask-app
