@@ -14,7 +14,7 @@ let
       pkgs.bashInteractive
     ];
     config = {
-      Entrypoint = [ "${pkgs.campground.example-flask-app}/bin/run-app" ];
+      Entrypoint = [ "example-flask-app" ];
     };
   };
 in
