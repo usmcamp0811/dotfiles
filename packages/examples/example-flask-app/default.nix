@@ -88,6 +88,7 @@ let
 
   flakeforge-container = pkgs.streamLayeredImageConf {
     name = "example-flask-app";
+    maxLayers = 101;
     fromImage = container;
   };
 in
