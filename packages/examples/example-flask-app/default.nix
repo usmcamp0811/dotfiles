@@ -33,9 +33,7 @@ let
     name = "example-flask-app";
     tag = "latest";
     contents = [ run-with-wsgi ];
-    config = {
-      Entrypoint = [ "run-app" ];
-    };
+    config = { Entrypoint = [ "run-app" ]; };
   };
 
   example-flask-app = pkgs.stdenv.mkDerivation {
@@ -90,9 +88,6 @@ let
     name = "flakeforge-example-flask-app";
     tag = "latest";
     contents = [ pkgs.campground.example-flask-app ];
-    config = {
-      Entrypoint = [ "example-flask-app" ];
-    };
+    config = { Entrypoint = [ "example-flask-app" ]; };
   };
-in
-example-flask-app
+in example-flask-app
