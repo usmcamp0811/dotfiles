@@ -49,7 +49,6 @@ in {
       assertion = value.key != null;
       message = "campground.nix.extra-substituters.${name}.key must be set";
     }) cfg.extra-substituters;
-
     environment.systemPackages = with pkgs; [
       campground.nixos-revision
       (campground.nixos-hosts.override {

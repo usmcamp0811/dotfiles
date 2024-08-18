@@ -249,7 +249,7 @@
         nix-topology.nixosModules.default
         catppuccin.nixosModules.catppuccin
         flakeforge.nixosModules.flakeforge
-        nixos-cli.nixosModules.nixos-cli
+        # nixos-cli.nixosModules.nixos-cli
         # nix-health.flakeModule
         # scientific-fhs.nixosModules.default
       ];
