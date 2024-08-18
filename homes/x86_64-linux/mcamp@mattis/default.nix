@@ -1,16 +1,9 @@
-{
-  lib,
-  pkgs,
-  config,
-  osConfig ? {},
-  format ? "unknown",
-  ...
-}:
+{ lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib.campground; {
   campground = {
     user = {
       enable = true;
-      name = config.snowfallorg.user.name;
+      name = "mcamp";
     };
 
     cli = {

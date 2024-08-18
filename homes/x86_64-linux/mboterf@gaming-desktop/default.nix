@@ -4,7 +4,7 @@ with lib.campground; {
   campground = {
     user = {
       enable = true;
-      name = config.snowfallorg.user.name;
+      name = "mboterf";
     };
     desktop = {
       addons = {
