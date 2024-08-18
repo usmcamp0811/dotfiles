@@ -37,13 +37,13 @@ in {
       extraGroups = [ "nixbld" ];
     };
 
-    users.groups.nixbld = { };
-
+    users.groups.flakeforge = { };
+    nix.settings.trusted-users = [ "flakeforge" ];
     systemd.services.flakeforge = {
       serviceConfig = {
         Restart = "always";
         User = "flakeforge";
-        # Group = "nixbld";
+        Group = "flakeforge";
       };
     };
     services.flakeforge = {
