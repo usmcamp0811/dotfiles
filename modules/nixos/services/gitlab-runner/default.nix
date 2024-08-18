@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, inputs, ... }:
 with lib;
 with lib.campground;
 let
@@ -6,6 +6,9 @@ let
 
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
+  nixChannelUrl =
+    builtins.replaceStrings [ "github:" ] [ "https://github.com/" ]
+    inputs.nixpkgs.url;
 in {
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
@@ -98,7 +101,7 @@ in {
             NIX_SSL_CERT_FILE =
               "/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt";
           };
-          tagList = [ "nix" ];
+          # tagList = [ "nix" ];
         };
       };
     };
