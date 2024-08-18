@@ -9,7 +9,7 @@ let
     shell = pkgs.zsh;
   };
 in {
-  home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
+  # home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
 
   ###### REQUIRED FOR EC2 SYSTEMS #######
   boot.loader.grub = { device = "nodev"; };
