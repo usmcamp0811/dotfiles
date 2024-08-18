@@ -1605,11 +1605,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1723938532,
-        "narHash": "sha256-QustIpWsAdF2Nw86R+KCWk3yrABPQtUdiGNp+uvuwr4=",
+        "lastModified": 1723941453,
+        "narHash": "sha256-jyZvouKTybxMLF/DFIEuN3K+bOg/l7/JTOD2G0h4AKw=",
         "owner": "usmcamp0811",
         "repo": "flakeforge",
-        "rev": "12f5857d01c4911edce948a275e2bbe777fde549",
+        "rev": "f79c6aeff92934890f5f3fada3cae3a8445e5233",
         "type": "github"
       },
       "original": {
