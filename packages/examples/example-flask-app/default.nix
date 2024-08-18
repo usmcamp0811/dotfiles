@@ -87,8 +87,8 @@ let
   '';
 
   flakeforge-container = pkgs.streamLayeredImageConf {
+    name = "example-flask-app";
     fromImage = container;
-    config = container.config;
   };
 in
 example-flask-app
