@@ -33,7 +33,9 @@ let
     name = "example-flask-app";
     tag = "latest";
     contents = [ run-with-wsgi ];
-    config = { Entrypoint = [ "run-app" ]; };
+    config = {
+      Entrypoint = [ "run-app" ];
+    };
   };
 
   example-flask-app = pkgs.stdenv.mkDerivation {
@@ -49,7 +51,10 @@ let
       cp -r ${flaskApp} $out/src/app.py
       cp ${run-with-wsgi}/bin/run-app $out/bin/example-flask-app
     '';
-    passthru = { container = container; };
+    passthru = {
+      container = container;
+      flakeforge = flakeforge-container;
+    };
 
   };
   uwsgi = pkgs.uwsgi.override {
@@ -81,4 +86,13 @@ let
     die-on-term = true
   '';
 
-in example-flask-app
+  flakeforge-container = pkgs.streamLayeredImageConf {
+    name = "flakeforge-example-flask-app";
+    tag = "latest";
+    contents = [ pkgs.campground.example-flask-app ];
+    config = {
+      Entrypoint = [ "example-flask-app" ];
+    };
+  };
+in
+example-flask-app
