@@ -137,7 +137,7 @@
 
       pythonVersion = builtins.substring 0 4 python-env.python.python.version;
 
-      python-env = lib.initech.mkPythonDerivation {
+      python-env = lib.campground.mkPythonDerivation {
         inherit pkgs name src pypkgs-build-requirements;
       };
 
