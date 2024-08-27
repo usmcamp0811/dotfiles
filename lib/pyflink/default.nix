@@ -160,7 +160,7 @@
         flinkConf = flinkConf';
         name = "sql-client";
         text = ''
-          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}:${src}/${pyFolderName}
+          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}/${pyFolderName}
           PYFILES="$(echo "$PYTHONPATH" | tr ':' ',')"
           export PATH="${python-env.python}/bin/:$PATH"
           export PYFLINK_PYTHON="${python-env.python}/bin/python"
