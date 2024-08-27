@@ -160,8 +160,8 @@
         flinkConf = flinkConf';
         name = "sql-client";
         text = ''
-          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}
-          PYFILES="$(echo "$PYTHONPATH" | tr ':' ','),${src}/${pyFolderName}"
+          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}:${src}/${pyFolderName}
+          PYFILES="$(echo "$PYTHONPATH" | tr ':' ',')"
           export PATH="${python-env.python}/bin/:$PATH"
           export PYFLINK_PYTHON="${python-env.python}/bin/python"
           export JAVA_HOME="${pkgs.openjdk11}"
@@ -215,7 +215,7 @@
           Entrypoint = [ "/docker-entrypoint.sh" ];
           Env = [
             "PYFILES=${src},${src}/${pyFolderName}"
-            "PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}"
+            "PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}:${src}/${pyFolderName}"
             "PYFLINK_PYTHON=${python-env.python}/bin/python"
             "JAVA_HOME=${pkgs.openjdk11}"
             "FLINK_HOME=/opt/flink"
