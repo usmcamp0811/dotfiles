@@ -1,4 +1,9 @@
-{ lib, inputs, snowfall-inputs, }: rec {
+{
+  lib,
+  inputs,
+  snowfall-inputs,
+}:
+rec {
   ## Create a Julia Jupyter Console
   ##
   ## This function generates a shell script that sets up the environment and runs a specified command with the Jupyter kernel.
@@ -18,11 +23,20 @@
   ##   kernelName = "my-kernel";
   ## }
   ## ```
-  createJuliaConsole = name: command:
-    { pkgs, juliaEnv, kernelName, }:
+  createJuliaConsole =
+    name: command:
+    {
+      pkgs,
+      juliaEnv,
+      kernelName,
+    }:
     pkgs.writeShellApplication {
       inherit name;
-      runtimeInputs = [ pkgs.openssl pkgs.jupyter-all juliaEnv ];
+      runtimeInputs = [
+        pkgs.openssl
+        pkgs.jupyter-all
+        juliaEnv
+      ];
       text = ''
         #!${pkgs.runtimeShell}
         # Ensure Julia kernel is installed
@@ -44,16 +58,25 @@
   ##   - run-tests: Runs pytest on the tests directory.
   ##   - run-bpython: Starts a bpython REPL with the source code in PYTHONPATH.
   ##   - run-jupyter: Starts a Jupyter console with the source code in PYTHONPATH.
-  mkPythonDevScripts = { pkgs, python-env, project-drv, }:
+  mkPythonDevScripts =
+    {
+      pkgs,
+      python-env,
+      project-drv,
+    }:
     let
       # Extend the given python environment with additional packages
-      extended-python-env =
-        python-env.withPackages (ps: with ps; [ bpython pytest ipykernel ]);
-      pythonVersion = builtins.substring 0 4
-        python-env.python.version; # Extract the major and minor version (e.g., "3.11")
-      jupyterPythonVersion = builtins.substring 0 4
-        pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
-    in rec {
+      extended-python-env = python-env.withPackages (
+        ps: with ps; [
+          bpython
+          pytest
+          ipykernel
+        ]
+      );
+      pythonVersion = builtins.substring 0 4 python-env.python.version; # Extract the major and minor version (e.g., "3.11")
+      jupyterPythonVersion = builtins.substring 0 4 pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
+    in
+    rec {
 
       run-tests = pkgs.writeShellScriptBin "run-tests" ''
         export PYTHONPATH="${python-env}/lib/python${
@@ -74,9 +97,17 @@
 
     };
 
-  containerShadowSetup = { pkgs, user, uid, gid ? uid, homeDir ? "/home/${user}"
-    , runtimeShell ? "/bin/bash", }:
-    with pkgs; [
+  containerShadowSetup =
+    {
+      pkgs,
+      user,
+      uid,
+      gid ? uid,
+      homeDir ? "/home/${user}",
+      runtimeShell ? "/bin/bash",
+    }:
+    with pkgs;
+    [
       (writeTextDir "etc/shadow" ''
         root:!x:::::::
         ${user}:!:::::::

@@ -19,7 +19,7 @@ languages:
     title: The Campground Blog
     weight: 1
     params:
-      description: This is English?
+      description: This blog delves into advanced software development topics with a focus on functional programming, reproducible builds, and infrastructure as code using Nix. It offers practical insights and detailed guides on streamlining workflows, standardizing environments, and adopting best practices in DevOps, Python packaging, and containerization. Posts feature hands-on examples, emphasizing clarity and organization to benefit both seasoned developers and those new to these concepts. The content reflects a commitment to simplifying complex processes and leveraging declarative programming to achieve consistency and efficiency in real-world projects.
 
 services:
   # Change it to your Disqus shortname before using
