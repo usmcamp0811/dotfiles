@@ -193,6 +193,12 @@ rec {
         flinkConf = flinkConf';
         name = "sql-client";
         text = ''
+          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}/${pyFolderName}:${src}]
+          export PATH="${python-env.python}/bin/:$PATH"
+          export PYFLINK_PYTHON="${python-env.python}/bin/python"
+          export JAVA_HOME="${pkgs.openjdk11}"
+          export FLINK_HOME="${pkgs.flink}/opt/flink"
+
           echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
 
