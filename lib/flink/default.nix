@@ -118,7 +118,7 @@
           echo "PYFILES: $PYFILES"
           echo "PYTHONPATH: $PYTHONPATH"
 
-          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh --jar=${pkgs.campground.flink-connector-kafka} --pyClientExecutable=${python-env}/bin/python --pyFiles="$PYFILES" "$@"
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" "$@"
         '';
       };
       run-job = writeFlinkApplication {
