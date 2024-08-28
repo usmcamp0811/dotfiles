@@ -202,7 +202,7 @@ rec {
           echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
 
-          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh --jar=${getFlinkKafkaConnector pkgs} --pyClientExecutable=${python-env.python}/bin/python --pyFiles=${src},${src}/${pyFolderName} "$@"
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -pyfs=${src} -j=${getFlinkKafkaConnector pkgs} -pyclientexec=${python-env}/bin/python "$@"
         '';
       };
 
