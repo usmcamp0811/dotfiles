@@ -7,6 +7,12 @@ from pyflink.table import DataTypes, EnvironmentSettings, StreamTableEnvironment
 from pyflink.table.udf import udf
 
 
+# Define the UDF to convert username to uppercase
+@udf(result_type=DataTypes.STRING())
+def wtf() -> str:
+    return "what-the-fuck-over"
+
+
 def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
     # Define Kafka source
     t_env.execute_sql(
@@ -44,7 +50,7 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
         )
         """
     )
-
+    t_env.create_temporary_system_function("wtf", wtf)
     # Insert query with timestamp conversion and watermarking
     t_env.execute_sql(
         """
@@ -53,7 +59,8 @@ def run_example_flink_job(t_env: StreamTableEnvironment, broker: str):
             JSON_ARRAYAGG(
                 JSON_OBJECT(
                     'username' VALUE username,
-                    'login_count' VALUE login_count
+                    'login_count' VALUE login_count,
+                    'flink' VALUE wtf()
                 )
             ) AS aggregated_counts,
             window_start AS window_time
@@ -88,10 +95,10 @@ if __name__ == "__main__":
     env = StreamExecutionEnvironment.get_execution_environment()
 
     # Set parallelism
-    env.set_parallelism(1)
+    # env.set_parallelism(1)
 
     # Enable checkpointing (optional, but useful for production)
-    env.enable_checkpointing(10000)  # Checkpoint every 10 seconds
+    # env.enable_checkpointing(10000)  # Checkpoint every 10 seconds
 
     # Create table environment
     tbl_env = StreamTableEnvironment.create(
