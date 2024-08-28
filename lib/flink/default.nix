@@ -1,6 +1,12 @@
-{ lib, inputs, snowfall-inputs, }: rec {
+{
+  lib,
+  inputs,
+  snowfall-inputs,
+}:
+rec {
   ## Create a Flink configuration directory derivation
-  createFlinkConfDir = { pkgs, flinkConf }:
+  createFlinkConfDir =
+    { pkgs, flinkConf }:
     pkgs.stdenv.mkDerivation {
       name = "flink-conf-drv";
       phases = [ "installPhase" ];
@@ -19,13 +25,20 @@
 
   ## Create shell scripts with Flink configuration
   writeFlinkApplication =
-    { pkgs, flinkConf, name, text, extraRuntimeInputs ? [ ], }:
+    {
+      pkgs,
+      flinkConf,
+      name,
+      text,
+      extraRuntimeInputs ? [ ],
+    }:
     let
       flinkConfDir = createFlinkConfDir {
         pkgs = pkgs;
         flinkConf = flinkConf;
       };
-    in pkgs.writeShellApplication {
+    in
+    pkgs.writeShellApplication {
       inherit name;
       runtimeInputs = [
         pkgs.gnugrep
@@ -57,8 +70,12 @@
     };
 
   ## Create a Flink derivation
-  mkFlinkDerivation = { pkgs, name, tag ? "latest", flinkConf ?
-      pkgs.writeTextFile {
+  mkFlinkDerivation =
+    {
+      pkgs,
+      name,
+      tag ? "latest",
+      flinkConf ? pkgs.writeTextFile {
         name = "flink-conf.yaml";
         text = ''
           env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
@@ -83,14 +100,21 @@
           python.client.executable: ${python-env}/bin/python
           pipeline.jars: ${pkgs.campground.flink-connector-kafka}
         '';
-      }, python-env, src, flink-job-script ? "jobs/job.py"
-    , additionalInstallPhase ? "", additionalPassThru ? { }, }:
+      },
+      python-env,
+      src,
+      flink-job-script ? "jobs/job.py",
+      additionalInstallPhase ? "",
+      additionalPassThru ? { },
+    }:
     let
       flink-with-kafka-connector = pkgs.flink.overrideAttrs (oldAttrs: {
-        installPhase = oldAttrs.installPhase + ''
-          mkdir -p $out/opt/flink/lib
-          cp -r ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-sql-connector-kafka.jar
-        '';
+        installPhase =
+          oldAttrs.installPhase
+          + ''
+            mkdir -p $out/opt/flink/lib
+            cp -r ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-sql-connector-kafka.jar
+          '';
       });
 
       start-managers = writeFlinkApplication {
@@ -109,16 +133,12 @@
         name = "sql-client";
         text = ''
           export PYTHONPATH="${python-env}/lib/python3.11/site-packages:${src}"
-          PYFILES="$(echo "$PYTHONPATH" | tr ':' ',')"
           export PATH="${python-env}/bin/:$PATH"
           export PYFLINK_PYTHON="${python-env}/bin/python"
           export JAVA_HOME="${pkgs.openjdk11}"
           export FLINK_HOME="${pkgs.flink}/opt/flink"
 
-          echo "PYFILES: $PYFILES"
-          echo "PYTHONPATH: $PYTHONPATH"
-
-          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python --pyFiles="$PYFILES" "$@"
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -pyfs=${src} -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python "$@"
         '';
       };
       run-job = writeFlinkApplication {
@@ -141,7 +161,13 @@
         python-env = python-env;
       };
       container = lib.campground.buildFlinkContainer {
-        inherit pkgs python-env name tag flink-job;
+        inherit
+          pkgs
+          python-env
+          name
+          tag
+          flink-job
+          ;
       };
       flink-job = pkgs.stdenv.mkDerivation {
         inherit name src;
@@ -175,6 +201,7 @@
           container = container;
         } // additionalPassThru;
       };
-    in flink-job;
+    in
+    flink-job;
 
 }
