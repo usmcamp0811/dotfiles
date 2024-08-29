@@ -50,7 +50,7 @@
     let
       # pkgs = import <nixpkgs> { };
       kafka-jar = "flink-sql-connector-kafka";
-      jar-version = "3.2.0-${pkgs.flink.version}";
+      jar-version = "3.2.0-1.19";
     in pkgs.fetchurl {
       url =
         "https://repo.maven.apache.org/maven2/org/apache/flink/${kafka-jar}/${jar-version}/${kafka-jar}-${jar-version}.jar";
@@ -164,12 +164,13 @@
           export PATH="${python-env.python}/bin/:$PATH"
           export PYFLINK_PYTHON="${python-env.python}/bin/python"
           export JAVA_HOME="${pkgs.openjdk11}"
-          export FLINK_HOME="${pkgs.flink}/opt/flink"
+          export FLINK_HOME="${flink-with-kafka-connector}/opt/flink"
 
           echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
 
           ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" -pyfs=${src} -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python
+
         '';
       };
 
