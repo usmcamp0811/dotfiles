@@ -36,23 +36,35 @@
     ts-context-commentstring = { enable = true; };
     conform-nvim = {
       enable = true;
-      formatOnSave = {
-        lspFallback = true;
-        timeoutMs = 500;
-      };
-      notifyOnError = true;
-      formattersByFt = {
-        c = [ "clang-format" ];
-        cpp = [ "clang-format" ];
-        json = [[ "prettierd" "prettier" ]];
-        lua = [ "stylua " ];
-        markdown = [[ "prettierd" "prettier" ]];
-        nix = [ [ "nixfmt" ] ];
-        python = [ "isort" "black" ];
-        rust = [ "rustfmt" ];
-        sh = [ "shfmt " ];
-        sql = [[ "pg_format" "sql_formatter" "sqlfluff" ]];
-        yaml = [ "prettierd" ];
+      settings = {
+        format_on_save = {
+          timeout_ms = 500;
+          lsp_format = "fallback";
+        };
+        notify_on_error = true;
+        formatters_by_ft = {
+          c = [ "clang-format" ];
+          cpp = [ "clang-format" ];
+          json = {
+            __unkeyed-1 = "prettierd";
+            __unkeyed-2 = "prettier";
+          };
+          lua = [ "stylua" ];
+          markdown = {
+            __unkeyed-1 = "prettierd";
+            __unkeyed-2 = "prettier";
+          };
+          nix = [ "nixfmt" ];
+          python = [ "isort" "black" ];
+          rust = [ "rustfmt" ];
+          sh = [ "shfmt" ];
+          sql = {
+            __unkeyed-1 = "pg_format";
+            __unkeyed-2 = "sql_formatter";
+            # __unkeyed-3 = "sqlfluff"; # breaks flink sql
+          };
+          yaml = [ "prettierd" ];
+        };
       };
     };
 
