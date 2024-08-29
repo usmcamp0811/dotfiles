@@ -357,12 +357,12 @@ function to simplify Python development at our organization. Let’s dive into w
    ```
    Finally, the derivation is returned, completing the function. The complete code for this
    function can be found
-   [here](https://gitlab.com/initech-project/main-codebase/-/blob/blog-nix-in-the-wild-drying-out-your-codebase-with-reusable-library-functions/lib/python/default.nix?ref_type=heads)
+   [here](https://gitlab.com/initech-project/main-codebase/-/blob/main/lib/python/default.nix?ref_type=heads)
 
 ### Using `mkPythonDerivation` in our Codebase
 
 If we take a look at the [`pc-load-letter`
-project](https://gitlab.com/initech-project/main-codebase/-/blob/3-blog-nix-in-the-wild-drying-out-your-codebase-with-reusable-library-functions/packages/projects/pc_load_letter/default.nix?ref_type=heads),
+project](https://gitlab.com/initech-project/main-codebase/-/blob/main/packages/projects/pc_load_letter/default.nix?ref_type=heads),
 you’ll notice the configuration is much cleaner now, even though this is the more complex of the two
 example Python projects since it needs to run using uWSGI. Let’s focus on what has changed in the
 `default.nix` file:
@@ -423,7 +423,7 @@ This is a prime example of how Nix’s functional programming capabilities can s
 codebase while still offering flexibility and control. This approach isn't limited to just Python projects;
 it can be applied to any type of software. For instance, I created a similar function for the Flink jobs
 in [our
-repository](https://gitlab.com/initech-project/main-codebase/-/blob/3-blog-nix-in-the-wild-drying-out-your-codebase-with-reusable-library-functions/lib/flink/default.nix?ref_type=heads#L115).
+repository](https://gitlab.com/initech-project/main-codebase/-/blob/385fe2c96259818cf30d9b563f10972fc5bdd919/lib/flink/default.nix).
 Although that function ended up being a bit lengthy—over 100 lines—due to the
 complexity it abstracts, developers now only need to write 4 lines of Nix code to develop and package
 a Flink job. By encapsulating common patterns into reusable functions, we achieve both simplicity and
