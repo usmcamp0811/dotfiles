@@ -168,7 +168,7 @@
 
           echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
-
+          # fuck flink so fucking hard!! the order of the args matters! why!??!
           ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" -j=${
             getFlinkKafkaConnector pkgs
           } -pyfs=${src} -pyclientexec=${python-env}/bin/python
