@@ -169,9 +169,7 @@
           echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
 
-          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" -pyfs=${src} -j=${
-            getFlinkKafkaConnector pkgs
-          } -pyclientexec=${python-env}/bin/python
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" -pyfs=${src} -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python
         '';
       };
 
