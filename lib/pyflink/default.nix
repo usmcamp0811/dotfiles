@@ -50,7 +50,7 @@
     let
       # pkgs = import <nixpkgs> { };
       kafka-jar = "flink-sql-connector-kafka";
-      jar-version = "3.2.0-1.19";
+      jar-version = "3.2.0-${pkgs.flink.version}";
     in pkgs.fetchurl {
       url =
         "https://repo.maven.apache.org/maven2/org/apache/flink/${kafka-jar}/${jar-version}/${kafka-jar}-${jar-version}.jar";
