@@ -1,71 +1,93 @@
-{ config, pkgs, lib, ... }:
+{ lib, config, ... }:
 
+with lib;
 let
   cfg = config.campground.services.hadoop;
-  # Define the available roles
-  roles = [ "leader" "worker" "both" ];
-in {
-  options.campground.services.hadoop = {
-    type = lib.types.enum roles;
-    default = "both";
-    description = ''
-      Define the role of the Hadoop service. 
-      Possible values: "leader" (NameNode + ResourceManager), 
-                       "worker" (DataNode + NodeManager), 
-                       "both" (All services).
-    '';
+in
+{
+  options.campground.services.hadoop = with types; {
+    enable = mkBoolOpt false "Enable Hadoop services.";
+
+    coreSite = mkOption {
+      description = lib.mdDoc "Hadoop core-site.xml definition.";
+      default = {
+        "fs.defaultFS" = "hdfs://localhost";
+      };
+      type = types.attrsOf anything;
+      example = {
+        "fs.defaultFS" = "hdfs://localhost";
+      };
+    };
+
+    hdfsSite = mkOption {
+      description = lib.mdDoc "Hadoop hdfs-site.xml definition.";
+      default = {
+        "dfs.replication" = "1";
+        "dfs.namenode.name.dir" = "/var/lib/hadoop/hdfs/namenode";
+        "dfs.datanode.data.dir" = "/var/lib/hadoop/hdfs/datanode";
+      };
+      type = types.attrsOf anything;
+    };
+
+    yarnSite = mkOption {
+      description = lib.mdDoc "Hadoop yarn-site.xml definition.";
+      default = {
+        "yarn.resourcemanager.hostname" = "localhost";
+        "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
+      };
+      type = types.attrsOf anything;
+    };
+
+    mapredSite = mkOption {
+      description = lib.mdDoc "Hadoop mapred-site.xml definition.";
+      default = {
+        "mapreduce.framework.name" = "yarn";
+      };
+      type = types.attrsOf anything;
+    };
+
+    logging = mkOption {
+      description = lib.mdDoc "Hadoop logging configuration.";
+      default = ''
+        log4j.rootLogger=INFO, console
+        log4j.appender.console=org.apache.log4j.ConsoleAppender
+        log4j.appender.console.target=System.err
+        log4j.appender.console.layout=org.apache.log4j.PatternLayout
+        log4j.appender.console.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} - %m%n
+      '';
+      type = types.lines;
+    };
+
+    dataDir = mkOption {
+      type = types.path;
+      default = "/var/lib/hadoop";
+      description = lib.mdDoc "Data directory for Hadoop.";
+    };
+
+    extraFlags = mkOption {
+      description = lib.mdDoc "Additional flags for Hadoop services.";
+      default = "";
+      type = types.str;
+    };
+
+    extraEnv = mkOption {
+      description = lib.mdDoc "Additional environment variables for Hadoop services.";
+      default = "";
+      type = types.attrsOf types.str;
+    };
   };
 
   config = mkIf cfg.enable {
     services.hadoop = {
+      coreSite = cfg.coreSite;
+      hdfsSite = cfg.hdfsSite;
+      yarnSite = cfg.yarnSite;
+      mapredSite = cfg.mapredSite;
+      logging = cfg.logging;
+      dataDir = cfg.dataDir;
+      extraFlags = cfg.extraFlags;
+      extraEnv = cfg.extraEnv;
       enable = true;
-
-      coreSite = {
-        "fs.defaultFS" = "hdfs://localhost:9000";
-        "hadoop.tmp.dir" = "/var/hadoop/tmp";
-      };
-
-      hdfsSite = {
-        "dfs.replication" = "1";
-        "dfs.namenode.name.dir" = "/var/hadoop/hdfs/namenode";
-        "dfs.datanode.data.dir" = "/var/hadoop/hdfs/datanode";
-      };
-
-      yarnSite = {
-        "yarn.resourcemanager.hostname" = "localhost";
-        "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
-      };
-
-      # Enable services based on the selected role
-      hdfs.namenode.enable = lib.mkIf (config.services.hadoop.role == "leader"
-        || config.services.hadoop.role == "both") true;
-      hdfs.namenode.formatOnInit = lib.mkIf (config.services.hadoop.role
-        == "leader" || config.services.hadoop.role == "both") true;
-      hdfs.namenode.restartIfChanged = lib.mkIf (config.services.hadoop.role
-        == "leader" || config.services.hadoop.role == "both") true;
-
-      hdfs.datanode.enable = lib.mkIf (config.services.hadoop.role == "worker"
-        || config.services.hadoop.role == "both") true;
-
-      yarn.resourcemanager.enable = lib.mkIf (config.services.hadoop.role
-        == "leader" || config.services.hadoop.role == "both") true;
-      yarn.resourcemanager.restartIfChanged = lib.mkIf
-        (config.services.hadoop.role == "leader" || config.services.hadoop.role
-          == "both") true;
-      yarn.resourcemanager.openFirewall = lib.mkIf (config.services.hadoop.role
-        == "leader" || config.services.hadoop.role == "both") true;
-
-      yarn.nodemanager.enable = lib.mkIf (config.services.hadoop.role
-        == "worker" || config.services.hadoop.role == "both") true;
-      yarn.nodemanager.restartIfChanged = lib.mkIf (config.services.hadoop.role
-        == "worker" || config.services.hadoop.role == "both") true;
-      yarn.nodemanager.resource.memoryMB = lib.mkIf (config.services.hadoop.role
-        == "worker" || config.services.hadoop.role == "both") 4096;
-      yarn.nodemanager.resource.cpuVCores = lib.mkIf
-        (config.services.hadoop.role == "worker" || config.services.hadoop.role
-          == "both") 2;
     };
-
-    environment.systemPackages = with pkgs; [ config.services.hadoop.package ];
   };
 }

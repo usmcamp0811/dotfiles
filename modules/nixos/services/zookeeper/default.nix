@@ -1,9 +1,7 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.services.zookeeper;
 in
 {
