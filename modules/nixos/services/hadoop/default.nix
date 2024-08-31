@@ -1,6 +1,7 @@
 { lib, config, ... }:
-
 with lib;
+with lib.campground;
+
 let
   cfg = config.campground.services.hadoop;
 in
@@ -8,14 +9,8 @@ in
   options.campground.services.hadoop = with types; {
     enable = mkBoolOpt false "Enable Hadoop services.";
 
-    hostname = mkOption {
-      description = "Hostname for the Hadoop services (e.g., for the NameNode, ResourceManager).";
-      default = "localhost";
-      type = types.str;
-    };
-
     role = mkOption {
-      description = "Role of the Hadoop node. Can be 'namenode', 'datanode', 'resourcemanager', 'nodemanager', or 'master-worker'.";
+      description = lib.mdDoc "The role of the node in the Hadoop cluster.";
       default = "master-worker";
       type = types.enum [
         "namenode"
@@ -27,71 +22,109 @@ in
     };
 
     coreSite = mkOption {
-      description = lib.mdDoc "Hadoop core-site.xml definition.";
+      description = lib.mdDoc "Hadoop core-site.xml configuration.";
       default = {
-        "fs.defaultFS" = "hdfs://${cfg.hostname}";
+        "fs.defaultFS" = "hdfs://localhost";
       };
       type = types.attrsOf anything;
-      example = {
-        "fs.defaultFS" = "hdfs://${cfg.hostname}";
-      };
     };
 
     hdfsSite = mkOption {
-      description = lib.mdDoc "Hadoop hdfs-site.xml definition.";
-      default = {
-        "dfs.replication" = "1";
-        "dfs.namenode.name.dir" = "/var/lib/hadoop/hdfs/namenode";
-        "dfs.datanode.data.dir" = "/var/lib/hadoop/hdfs/datanode";
-      };
+      description = lib.mdDoc "Hadoop hdfs-site.xml configuration.";
+      default = { };
       type = types.attrsOf anything;
     };
 
     yarnSite = mkOption {
-      description = lib.mdDoc "Hadoop yarn-site.xml definition.";
-      default = {
-        "yarn.resourcemanager.hostname" = cfg.hostname;
-        "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
-      };
+      description = lib.mdDoc "Hadoop yarn-site.xml configuration.";
+      default = { };
       type = types.attrsOf anything;
     };
 
     mapredSite = mkOption {
-      description = lib.mdDoc "Hadoop mapred-site.xml definition.";
-      default = {
-        "mapreduce.framework.name" = "yarn";
-      };
+      description = lib.mdDoc "Hadoop mapred-site.xml configuration.";
+      default = { };
       type = types.attrsOf anything;
     };
 
-    logging = mkOption {
-      description = lib.mdDoc "Hadoop logging configuration.";
+    log4jProperties = mkOption {
+      description = lib.mdDoc "Hadoop log4j.properties configuration.";
       default = ''
         log4j.rootLogger=INFO, console
         log4j.appender.console=org.apache.log4j.ConsoleAppender
-        log4j.appender.console.target=System.err
+        log4j.appender.console.target=System.out
         log4j.appender.console.layout=org.apache.log4j.PatternLayout
-        log4j.appender.console.layout.ConversionPattern=%d{ISO8601} %-5p %c{2} - %m%n
+        log4j.appender.console.layout.ConversionPattern=%d [%t] %-5p %c - %m%n
       '';
       type = types.lines;
     };
 
-    dataDir = mkOption {
-      type = types.path;
-      default = "/var/lib/hadoop";
-      description = lib.mdDoc "Data directory for Hadoop.";
+    extraConfDirs = mkOption {
+      description = lib.mdDoc "Extra configuration directories for Hadoop.";
+      default = [ ];
+      type = types.listOf types.path;
     };
 
-    extraFlags = mkOption {
-      description = lib.mdDoc "Additional flags for Hadoop services.";
-      default = "";
-      type = types.str;
+    hdfs = mkOption {
+      type = types.attrsOf types.anything;
+      default = {
+        namenode.enable = cfg.role == "namenode" || cfg.role == "master-worker";
+        namenode.restartIfChanged = false;
+        namenode.openFirewall = false;
+        namenode.extraFlags = [ ];
+        namenode.extraEnv = { };
+
+        datanode.enable = cfg.role == "datanode" || cfg.role == "master-worker";
+        datanode.restartIfChanged = false;
+        datanode.openFirewall = false;
+        datanode.extraFlags = [ ];
+        datanode.extraEnv = { };
+        datanode.dataDirs = [ ];
+
+        journalnode.enable = false;
+        journalnode.restartIfChanged = false;
+        journalnode.openFirewall = false;
+        journalnode.extraFlags = [ ];
+        journalnode.extraEnv = { };
+
+        zkfc.enable = false;
+        zkfc.restartIfChanged = false;
+        zkfc.extraFlags = [ ];
+        zkfc.extraEnv = { };
+
+        httpfs.enable = false;
+        httpfs.tempPath = "/tmp/hadoop/httpfs";
+        httpfs.restartIfChanged = false;
+        httpfs.openFirewall = false;
+        httpfs.extraFlags = [ ];
+        httpfs.extraEnv = { };
+      };
+      description = "Configuration for Hadoop HDFS service, including NameNode, DataNode, JournalNode, ZKFC, and HTTPFS options.";
     };
 
-    extraEnv = mkOption {
-      description = lib.mdDoc "Additional environment variables for Hadoop services.";
-      default = "";
-      type = types.attrsOf types.str;
+    yarn = mkOption {
+      type = types.attrsOf types.anything;
+      default = {
+        resourcemanager.enable = cfg.role == "resourcemanager" || cfg.role == "master-worker";
+        resourcemanager.restartIfChanged = false;
+        resourcemanager.openFirewall = false;
+        resourcemanager.extraFlags = [ ];
+        resourcemanager.extraEnv = { };
+
+        nodemanager.enable = cfg.role == "nodemanager" || cfg.role == "master-worker";
+        nodemanager.useCGroups = true;
+        nodemanager.restartIfChanged = false;
+        nodemanager.resource.memoryMB = null;
+        nodemanager.resource.maximumAllocationVCores = null;
+        nodemanager.resource.maximumAllocationMB = null;
+        nodemanager.resource.cpuVCores = null;
+        nodemanager.openFirewall = false;
+        nodemanager.localDir = null;
+        nodemanager.extraFlags = [ ];
+        nodemanager.extraEnv = { };
+        nodemanager.addBinBash = true;
+      };
+      description = "Configuration for Hadoop YARN service, including ResourceManager and NodeManager options.";
     };
   };
 
@@ -101,21 +134,13 @@ in
       hdfsSite = cfg.hdfsSite;
       yarnSite = cfg.yarnSite;
       mapredSite = cfg.mapredSite;
-      logging = cfg.logging;
-      dataDir = cfg.dataDir;
-      extraFlags = cfg.extraFlags;
-      extraEnv = cfg.extraEnv;
-      enable = true;
+      log4jProperties = cfg.log4jProperties;
 
-      # Role-based configuration
-      hdfs = {
-        namenode.enable = cfg.role == "namenode" || cfg.role == "master-worker";
-        datanode.enable = cfg.role == "datanode" || cfg.role == "master-worker";
-      };
-      yarn = {
-        resourcemanager.enable = cfg.role == "resourcemanager" || cfg.role == "master-worker";
-        nodemanager.enable = cfg.role == "nodemanager" || cfg.role == "master-worker";
-      };
+      hdfs = cfg.hdfs;
+
+      yarn = cfg.yarn;
+
+      extraConfDirs = cfg.extraConfDirs;
     };
   };
 }
