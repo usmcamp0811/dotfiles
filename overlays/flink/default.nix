@@ -1,5 +1,4 @@
 { unstable, channels, ... }:
-final: prev:
-{
-  #   inherit (channels.unstable) flink;
+final: prev: {
+  # inherit (channels.unstable) flink;
 }

@@ -59,16 +59,16 @@ rec {
   getFlinkKafkaConnector =
     pkgs:
     let
-      # pkgs = import <nixpkgs> { };
       kafka-jar = "flink-sql-connector-kafka";
       flink-version = builtins.concatStringsSep "." (
         pkgs.lib.take 2 (pkgs.lib.splitString "." pkgs.flink.version)
       );
       jar-version = "3.2.0-${flink-version}";
+      url = "https://repo.maven.apache.org/maven2/org/apache/flink/${kafka-jar}/${jar-version}/${kafka-jar}-${jar-version}.jar";
     in
     pkgs.fetchurl {
-      url = "https://repo.maven.apache.org/maven2/org/apache/flink/${kafka-jar}/${jar-version}/${kafka-jar}-${jar-version}.jar";
-      sha256 = "sha256-w+2jzSlcHN+x3Lrk4P0xjYLi3W8HMyjjDNefHZqZB3U=";
+      inherit url;
+      sha256 = builtins.trace "Expected SHA256:" "sha256-w+2jzSlcHN+x3Lrk4P0xjYLi3W8HMyjjDNefHZqZB3U=";
     };
 
   ## Create shell scripts with Flink configuration
@@ -196,7 +196,7 @@ rec {
         flinkConf = flinkConf';
         name = "sql-client";
         text = ''
-          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}/${pyFolderName}:${src}]
+          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}/${pyFolderName}:${src}
           export PATH="${python-env.python}/bin/:$PATH"
           export PYFLINK_PYTHON="${python-env.python}/bin/python"
           export JAVA_HOME="${pkgs.openjdk11}"
