@@ -8,14 +8,32 @@ in
   options.campground.services.hadoop = with types; {
     enable = mkBoolOpt false "Enable Hadoop services.";
 
+    hostname = mkOption {
+      description = "Hostname for the Hadoop services (e.g., for the NameNode, ResourceManager).";
+      default = "localhost";
+      type = types.str;
+    };
+
+    role = mkOption {
+      description = "Role of the Hadoop node. Can be 'namenode', 'datanode', 'resourcemanager', 'nodemanager', or 'master-worker'.";
+      default = "master-worker";
+      type = types.enum [
+        "namenode"
+        "datanode"
+        "resourcemanager"
+        "nodemanager"
+        "master-worker"
+      ];
+    };
+
     coreSite = mkOption {
       description = lib.mdDoc "Hadoop core-site.xml definition.";
       default = {
-        "fs.defaultFS" = "hdfs://localhost";
+        "fs.defaultFS" = "hdfs://${cfg.hostname}";
       };
       type = types.attrsOf anything;
       example = {
-        "fs.defaultFS" = "hdfs://localhost";
+        "fs.defaultFS" = "hdfs://${cfg.hostname}";
       };
     };
 
@@ -32,7 +50,7 @@ in
     yarnSite = mkOption {
       description = lib.mdDoc "Hadoop yarn-site.xml definition.";
       default = {
-        "yarn.resourcemanager.hostname" = "localhost";
+        "yarn.resourcemanager.hostname" = cfg.hostname;
         "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
       };
       type = types.attrsOf anything;
@@ -88,6 +106,16 @@ in
       extraFlags = cfg.extraFlags;
       extraEnv = cfg.extraEnv;
       enable = true;
+
+      # Role-based configuration
+      hdfs = {
+        namenode.enable = cfg.role == "namenode" || cfg.role == "master-worker";
+        datanode.enable = cfg.role == "datanode" || cfg.role == "master-worker";
+      };
+      yarn = {
+        resourcemanager.enable = cfg.role == "resourcemanager" || cfg.role == "master-worker";
+        nodemanager.enable = cfg.role == "nodemanager" || cfg.role == "master-worker";
+      };
     };
   };
 }
