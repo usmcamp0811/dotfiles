@@ -75,7 +75,7 @@ in {
         role = "master-worker";
         coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
         yarnSite = {
-          "yarn.resourcemanager.hostname" = "${config.networking.hostName}";
+          "yarn.resourcemanager.hostname" = "webb";
           "yarn.nodemanager.linux-container-executor.group" = "yarn";
         };
         hdfs = {
