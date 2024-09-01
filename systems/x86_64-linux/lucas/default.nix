@@ -66,7 +66,7 @@ with lib.campground; {
           "yarn.scheduler.capacity.root.default.capacity" = 100;
         };
         yarnSite = {
-          "yarn.nodemanager.hostname" = "reckless";
+          "yarn.nodemanager.hostname" = "lucas";
           "yarn.resourcemanager.hostname" = "reckless";
           "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
           "yarn.acl.enable" = 0;
