@@ -83,7 +83,7 @@ in {
           httpfs.enable = true;
           zkfc.enable = true;
         };
-        yarns = {
+        yarn = {
           resourcemanager.enable = true;
           resourcemanager.openFirewall = true;
           nodemanager.enable = true;
