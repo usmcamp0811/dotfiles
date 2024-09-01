@@ -73,10 +73,7 @@ in {
       hadoop = {
         enable = true;
         role = "master-worker";
-        coreSite = {
-          "fs.default.name" = "hdfs://webb:10001";
-          "hadoop.tmp.dir" = "/var/lib/hadoop/hdfs";
-        };
+        coreSite = { "fs.default.name" = "hdfs://webb:10001"; };
         mapredSite = { "mapred.job.tracker" = "hdfs://webb:10002"; };
         hdfsSite = { "dfs.replication" = "2"; };
         hdfs = {
@@ -90,7 +87,6 @@ in {
           resourcemanager.enable = true;
           nodemanager.enable = true;
         };
-        extraConfDirs = [ "/var/lib/hadoop/conf" ];
       };
       firefly = enabled;
       firefly-plaid-connector = enabled;

@@ -114,7 +114,6 @@ in {
         role = "datanode"; # Specific to datanode role
         coreSite = {
           "fs.default.name" = "hdfs://webb:10001"; # Pointing to the master node
-          "hadoop.tmp.dir" = "/var/lib/hadoop/hdfs";
         };
         mapredSite = {
           "mapred.job.tracker" =
@@ -132,7 +131,6 @@ in {
           resourcemanager.enable = false; # No resourcemanager on this node
           nodemanager.enable = true; # This node is a nodemanager
         };
-        extraConfDirs = [ "/var/lib/hadoop/conf" ];
       };
       attic = {
         enable = true;
