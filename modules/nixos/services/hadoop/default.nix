@@ -52,15 +52,9 @@ in
     };
 
     log4jProperties = mkOption {
-      description = lib.mdDoc "Hadoop log4j.properties configuration.";
-      default = ''
-        log4j.rootLogger=INFO, console
-        log4j.appender.console=org.apache.log4j.ConsoleAppender
-        log4j.appender.console.target=System.out
-        log4j.appender.console.layout=org.apache.log4j.PatternLayout
-        log4j.appender.console.layout.ConversionPattern=%d [%t] %-5p %c - %m%n
-      '';
-      type = types.lines;
+      description = lib.mdDoc "Path to Hadoop log4j.properties configuration file.";
+      default = "${config.services.hadoop.package}/etc/hadoop/log4j.properties";
+      type = types.path;
     };
 
     extraConfDirs = mkOption {
