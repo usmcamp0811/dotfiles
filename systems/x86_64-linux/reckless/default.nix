@@ -115,6 +115,17 @@ in {
         coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
         yarnSite = { "yarn.resourcemanager.hostname" = "webb"; };
         hdfsSite = { "dfs.replication" = "3"; };
+        hdfs = {
+          journalnode.enable = true;
+          httpfs.enable = true;
+          zkfc.enable = true;
+        };
+        yarns = {
+          resourcemanager.enable = true;
+          resourcemanager.openFirewall = true;
+          nodemanager.enable = true;
+          nodemanager.openFirewall = true;
+        };
       };
       attic = {
         enable = true;

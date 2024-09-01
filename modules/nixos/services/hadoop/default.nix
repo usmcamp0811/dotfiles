@@ -2,10 +2,8 @@
 with lib;
 with lib.campground;
 
-let
-  cfg = config.campground.services.hadoop;
-in
-{
+let cfg = config.campground.services.hadoop;
+in {
   options.campground.services.hadoop = with types; {
     enable = mkBoolOpt false "Enable Hadoop services.";
 
@@ -23,17 +21,13 @@ in
 
     coreSite = mkOption {
       description = lib.mdDoc "Hadoop core-site.xml configuration.";
-      default = {
-        "fs.defaultFS" = "hdfs://${config.networking.hostName}";
-      };
+      default = { "fs.defaultFS" = "hdfs://${config.networking.hostName}"; };
       type = types.attrsOf anything;
     };
 
     hdfsSite = mkOption {
       description = lib.mdDoc "Hadoop hdfs-site.xml configuration.";
-      default = {
-        "dfs.replication" = "3";
-      };
+      default = { "dfs.replication" = "3"; };
       type = types.attrsOf anything;
     };
 
@@ -52,7 +46,8 @@ in
     };
 
     log4jProperties = mkOption {
-      description = lib.mdDoc "Path to Hadoop log4j.properties configuration file.";
+      description =
+        lib.mdDoc "Path to Hadoop log4j.properties configuration file.";
       default = "${config.services.hadoop.package}/etc/hadoop/log4j.properties";
       type = types.path;
     };
@@ -74,14 +69,14 @@ in
 
         datanode.enable = cfg.role == "datanode" || cfg.role == "master-worker";
         datanode.restartIfChanged = false;
-        datanode.openFirewall = false;
+        datanode.openFirewall = true;
         datanode.extraFlags = [ ];
         datanode.extraEnv = { };
         datanode.dataDirs = [ ];
 
         journalnode.enable = false;
         journalnode.restartIfChanged = false;
-        journalnode.openFirewall = false;
+        journalnode.openFirewall = true;
         journalnode.extraFlags = [ ];
         journalnode.extraEnv = { };
 
@@ -97,19 +92,22 @@ in
         httpfs.extraFlags = [ ];
         httpfs.extraEnv = { };
       };
-      description = "Configuration for Hadoop HDFS service, including NameNode, DataNode, JournalNode, ZKFC, and HTTPFS options.";
+      description =
+        "Configuration for Hadoop HDFS service, including NameNode, DataNode, JournalNode, ZKFC, and HTTPFS options.";
     };
 
     yarn = mkOption {
       type = types.attrsOf types.anything;
       default = {
-        resourcemanager.enable = cfg.role == "resourcemanager" || cfg.role == "master-worker";
+        resourcemanager.enable = cfg.role == "resourcemanager" || cfg.role
+          == "master-worker";
         resourcemanager.restartIfChanged = false;
         resourcemanager.openFirewall = false;
         resourcemanager.extraFlags = [ ];
         resourcemanager.extraEnv = { };
 
-        nodemanager.enable = cfg.role == "nodemanager" || cfg.role == "master-worker";
+        nodemanager.enable = cfg.role == "nodemanager" || cfg.role
+          == "master-worker";
         nodemanager.useCGroups = true;
         nodemanager.restartIfChanged = false;
         nodemanager.resource.memoryMB = null;
@@ -122,7 +120,8 @@ in
         nodemanager.extraEnv = { };
         nodemanager.addBinBash = true;
       };
-      description = "Configuration for Hadoop YARN service, including ResourceManager and NodeManager options.";
+      description =
+        "Configuration for Hadoop YARN service, including ResourceManager and NodeManager options.";
     };
   };
 
