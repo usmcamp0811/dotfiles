@@ -24,20 +24,24 @@ in
     coreSite = mkOption {
       description = lib.mdDoc "Hadoop core-site.xml configuration.";
       default = {
-        "fs.defaultFS" = "hdfs://localhost";
+        "fs.defaultFS" = "hdfs://${config.networking.hostName}";
       };
       type = types.attrsOf anything;
     };
 
     hdfsSite = mkOption {
       description = lib.mdDoc "Hadoop hdfs-site.xml configuration.";
-      default = { };
+      default = {
+        "dfs.replication" = "3";
+      };
       type = types.attrsOf anything;
     };
 
     yarnSite = mkOption {
       description = lib.mdDoc "Hadoop yarn-site.xml configuration.";
-      default = { };
+      default = {
+        "yarn.resourcemanager.hostname" = config.networking.hostName;
+      };
       type = types.attrsOf anything;
     };
 
