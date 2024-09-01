@@ -111,21 +111,28 @@ in {
       netbird = enabled;
       hadoop = {
         enable = true;
-        role = "master-worker";
-        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
-        yarnSite = { "yarn.resourcemanager.hostname" = "webb"; };
-        hdfsSite = { "dfs.replication" = "3"; };
+        role = "datanode"; # Specific to datanode role
+        coreSite = {
+          "fs.default.name" = "hdfs://webb:10001"; # Pointing to the master node
+          "hadoop.tmp.dir" = "/var/lib/hadoop/hdfs";
+        };
+        mapredSite = {
+          "mapred.job.tracker" =
+            "hdfs://webb:10002"; # Pointing to the master node
+        };
+        hdfsSite = { "dfs.replication" = "2"; };
         hdfs = {
-          journalnode.enable = true;
-          httpfs.enable = true;
-          zkfc.enable = true;
+          namenode.enable = false; # Not a namenode
+          datanode.enable = true; # This node is a datanode
+          journalnode.enable = false;
+          zkfc.enable = false;
+          httpfs.enable = false;
         };
         yarn = {
-          resourcemanager.enable = true;
-          resourcemanager.openFirewall = true;
-          nodemanager.enable = true;
-          nodemanager.openFirewall = true;
+          resourcemanager.enable = false; # No resourcemanager on this node
+          nodemanager.enable = true; # This node is a nodemanager
         };
+        extraConfDirs = [ "/var/lib/hadoop/conf" ];
       };
       attic = {
         enable = true;

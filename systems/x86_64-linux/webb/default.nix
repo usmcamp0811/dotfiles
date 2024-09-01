@@ -73,22 +73,24 @@ in {
       hadoop = {
         enable = true;
         role = "master-worker";
-        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
-        yarnSite = {
-          "yarn.resourcemanager.hostname" = "webb";
-          "yarn.nodemanager.linux-container-executor.group" = "yarn";
+        coreSite = {
+          "fs.default.name" = "hdfs://webb:10001";
+          "hadoop.tmp.dir" = "/var/lib/hadoop/hdfs";
         };
+        mapredSite = { "mapred.job.tracker" = "hdfs://webb:10002"; };
+        hdfsSite = { "dfs.replication" = "2"; };
         hdfs = {
-          journalnode.enable = true;
-          httpfs.enable = true;
-          zkfc.enable = true;
+          namenode.enable = true;
+          datanode.enable = true;
+          journalnode.enable = false;
+          zkfc.enable = false;
+          httpfs.enable = false;
         };
         yarn = {
           resourcemanager.enable = true;
-          resourcemanager.openFirewall = true;
           nodemanager.enable = true;
-          nodemanager.openFirewall = true;
         };
+        extraConfDirs = [ "/var/lib/hadoop/conf" ];
       };
       firefly = enabled;
       firefly-plaid-connector = enabled;
