@@ -112,9 +112,19 @@ in {
       hadoop = {
         enable = true;
         role = "master-worker";
-        coreSite = { "fs.defaultFS" = "hdfs://reckless:8020"; };
-        yarnSite = { "yarn.resourcemanager.hostname" = "reckless"; };
-        hdfsSite = { "dfs.replication" = "3"; };
+        coreSite = {
+          "fs.defaultFS" = "hdfs://reckless:8020";
+          "yarn.scheduler.capacity.root.queues" = "default";
+          "yarn.scheduler.capacity.root.default.capacity" = 100;
+        };
+        yarnSite = {
+          "yarn.nodemanager.hostname" = "reckless";
+          "yarn.resourcemanager.hostname" = "reckless";
+          "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
+          "yarn.acl.enable" = 0;
+        };
+        mapredSite = { "mapreduce.framework.name" = "yarn"; };
+        hdfsSite = { "dfs.replication" = "1"; };
         hdfs = {
           namenode.enable = true;
           namenode.restartIfChanged = true;
