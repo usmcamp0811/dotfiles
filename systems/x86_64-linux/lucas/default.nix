@@ -56,6 +56,14 @@ with lib.campground; {
       nix-ai = enabled;
 
       firefly = enabled;
+
+      hadoop = {
+        enable = true;
+        role = "master-worker";
+        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
+        yarnSite = { "yarn.resourcemanager.hostname" = "webb"; };
+        hdfsSite = { "dfs.replication" = "3"; };
+      };
       # flink-task-manager = {
       #   enable = true;
       #   flink-conf = ''

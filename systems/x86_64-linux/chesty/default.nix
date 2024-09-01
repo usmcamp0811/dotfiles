@@ -55,6 +55,12 @@ with lib.campground;
     services = {
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
+
+      hadoop = {
+        enable = true;
+        role = "nodemanager";
+        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
+      };
       # hydra = enabled;
       jellyfin = enabled;
       campground-blog = enabled;

@@ -60,6 +60,11 @@ with lib.campground; {
           };
         };
       };
+      hadoop = {
+        enable = true;
+        role = "namenode";
+        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
+      };
       searx = {
         enable = true;
         port = 8181;
