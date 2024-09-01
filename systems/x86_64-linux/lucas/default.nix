@@ -60,8 +60,8 @@ with lib.campground; {
       hadoop = {
         enable = true;
         role = "master-worker";
-        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
-        yarnSite = { "yarn.resourcemanager.hostname" = "webb"; };
+        coreSite = { "fs.defaultFS" = "hdfs://reckless:8020"; };
+        yarnSite = { "yarn.resourcemanager.hostname" = "reckless"; };
         hdfsSite = { "dfs.replication" = "3"; };
       };
       # flink-task-manager = {

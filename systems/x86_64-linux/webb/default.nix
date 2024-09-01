@@ -72,7 +72,6 @@ in {
       };
       hadoop = {
         enable = true;
-        role = "master-worker";
         coreSite = { "fs.default.name" = "hdfs://webb:10001"; };
         mapredSite = { "mapred.job.tracker" = "hdfs://webb:10002"; };
         hdfsSite = { "dfs.replication" = "2"; };

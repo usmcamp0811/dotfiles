@@ -111,25 +111,62 @@ in {
       netbird = enabled;
       hadoop = {
         enable = true;
-        role = "datanode"; # Specific to datanode role
-        coreSite = {
-          "fs.default.name" = "hdfs://webb:10001"; # Pointing to the master node
-        };
-        mapredSite = {
-          "mapred.job.tracker" =
-            "hdfs://webb:10002"; # Pointing to the master node
-        };
-        hdfsSite = { "dfs.replication" = "2"; };
+        role = "master-worker";
+        coreSite = { "fs.defaultFS" = "hdfs://reckless:8020"; };
+        yarnSite = { "yarn.resourcemanager.hostname" = "reckless"; };
+        hdfsSite = { "dfs.replication" = "3"; };
         hdfs = {
-          namenode.enable = false; # Not a namenode
-          datanode.enable = true; # This node is a datanode
-          journalnode.enable = false;
-          zkfc.enable = false;
-          httpfs.enable = false;
+          namenode.enable = true;
+          namenode.restartIfChanged = true;
+          namenode.openFirewall = true;
+          namenode.extraFlags = [ ];
+          namenode.extraEnv = { };
+
+          datanode.enable = true;
+          datanode.restartIfChanged = true;
+          datanode.openFirewall = true;
+          datanode.extraFlags = [ ];
+          datanode.extraEnv = { };
+          datanode.dataDirs = [ ];
+
+          journalnode.enable = true;
+          journalnode.restartIfChanged = true;
+          journalnode.openFirewall = true;
+          journalnode.extraFlags = [ ];
+          journalnode.extraEnv = { };
+
+          zkfc.enable = true;
+          zkfc.restartIfChanged = true;
+          zkfc.extraFlags = [ ];
+          zkfc.extraEnv = { };
+
+          httpfs.enable = true;
+          httpfs.tempPath = "/tmp/hadoop/httpfs";
+          httpfs.restartIfChanged = true;
+          httpfs.openFirewall = true;
+          httpfs.extraFlags = [ ];
+          httpfs.extraEnv = { };
         };
         yarn = {
-          resourcemanager.enable = false; # No resourcemanager on this node
-          nodemanager.enable = true; # This node is a nodemanager
+
+          resourcemanager.enable = true;
+          resourcemanager.restartIfChanged = true;
+          resourcemanager.openFirewall = true;
+          resourcemanager.extraFlags = [ ];
+          resourcemanager.extraEnv = { };
+
+          nodemanager.enable = true;
+          nodemanager.useCGroups = true;
+          nodemanager.restartIfChanged = true;
+          nodemanager.resource.memoryMB = null;
+          nodemanager.resource.maximumAllocationVCores = null;
+          nodemanager.resource.maximumAllocationMB = null;
+          nodemanager.resource.cpuVCores = null;
+          nodemanager.openFirewall = true;
+          nodemanager.localDir = null;
+          nodemanager.extraFlags = [ ];
+          nodemanager.extraEnv = { };
+          nodemanager.addBinBash = true;
         };
       };
       attic = {
