@@ -76,6 +76,10 @@ in
         enable = true;
         port = 11842;
       };
+      hadoop = {
+        enable = true;
+        role = "master-worker";
+      };
       firefly = enabled;
       firefly-plaid-connector = enabled;
       campground-blog = enabled;
