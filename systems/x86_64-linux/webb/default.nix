@@ -79,6 +79,9 @@ in
       hadoop = {
         enable = true;
         role = "master-worker";
+        coreSite = {
+          "fs.defaultFS" = "hdfs://webb:8020";
+        };
       };
       firefly = enabled;
       firefly-plaid-connector = enabled;

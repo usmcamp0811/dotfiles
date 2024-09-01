@@ -134,6 +134,23 @@ in
       hadoop = {
         enable = true;
         role = "datanode";
+        coreSite = {
+          "fs.defaultFS" = "hdfs://webb:8020";
+        };
+
+        # hdfsSite = {
+        #   "dfs.namenode.rpc-address" = "namenode-host:8020";
+        #   "dfs.datanode.address" = "datanode-host:50010";
+        #   "dfs.datanode.http.address" = "datanode-host:50075";
+        #   "dfs.datanode.ipc.address" = "datanode-host:8010";
+        #   "dfs.namenode.datanode.registration.ip-hostname-check" = "false";
+        # };
+
+        # yarnSite = {
+        #   "yarn.resourcemanager.hostname" = "resourcemanager-host";
+        #   "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
+        #   "yarn.nodemanager.aux-services.mapreduce_shuffle.class" = "org.apache.hadoop.mapred.ShuffleHandler";
+        # };
       };
       attic = {
         enable = true;
