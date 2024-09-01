@@ -58,8 +58,73 @@ with lib.campground;
 
       hadoop = {
         enable = true;
-        role = "nodemanager";
-        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
+        role = "master-worker";
+        coreSite = {
+          "fs.defaultFS" = "hdfs://reckless:8020";
+          "yarn.scheduler.capacity.root.queues" = "default";
+          "yarn.scheduler.capacity.root.default.capacity" = 100;
+        };
+        yarnSite = {
+          "yarn.nodemanager.hostname" = "reckless";
+          "yarn.resourcemanager.hostname" = "reckless";
+          "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
+          "yarn.acl.enable" = 0;
+        };
+        mapredSite = { "mapreduce.framework.name" = "yarn"; };
+        hdfsSite = { "dfs.replication" = "1"; };
+        hdfs = {
+          namenode.enable = true;
+          namenode.restartIfChanged = true;
+          namenode.openFirewall = true;
+          namenode.extraFlags = [ ];
+          namenode.extraEnv = { };
+
+          datanode.enable = true;
+          datanode.restartIfChanged = true;
+          datanode.openFirewall = true;
+          datanode.extraFlags = [ ];
+          datanode.extraEnv = { };
+          datanode.dataDirs = [ ];
+
+          journalnode.enable = true;
+          journalnode.restartIfChanged = true;
+          journalnode.openFirewall = true;
+          journalnode.extraFlags = [ ];
+          journalnode.extraEnv = { };
+
+          zkfc.enable = true;
+          zkfc.restartIfChanged = true;
+          zkfc.extraFlags = [ ];
+          zkfc.extraEnv = { };
+
+          httpfs.enable = true;
+          httpfs.tempPath = "/tmp/hadoop/httpfs";
+          httpfs.restartIfChanged = true;
+          httpfs.openFirewall = true;
+          httpfs.extraFlags = [ ];
+          httpfs.extraEnv = { };
+        };
+        yarn = {
+
+          resourcemanager.enable = false;
+          resourcemanager.restartIfChanged = true;
+          resourcemanager.openFirewall = true;
+          resourcemanager.extraFlags = [ ];
+          resourcemanager.extraEnv = { };
+
+          nodemanager.enable = true;
+          nodemanager.useCGroups = false;
+          nodemanager.restartIfChanged = true;
+          nodemanager.resource.memoryMB = null;
+          nodemanager.resource.maximumAllocationVCores = null;
+          nodemanager.resource.maximumAllocationMB = null;
+          nodemanager.resource.cpuVCores = null;
+          nodemanager.openFirewall = true;
+          nodemanager.localDir = null;
+          nodemanager.extraFlags = [ ];
+          nodemanager.extraEnv = { };
+          nodemanager.addBinBash = true;
+        };
       };
       # hydra = enabled;
       jellyfin = enabled;
