@@ -63,6 +63,59 @@ with lib.campground; {
         coreSite = { "fs.defaultFS" = "hdfs://reckless:8020"; };
         yarnSite = { "yarn.resourcemanager.hostname" = "reckless"; };
         hdfsSite = { "dfs.replication" = "3"; };
+        hdfs = {
+          namenode.enable = true;
+          namenode.restartIfChanged = true;
+          namenode.openFirewall = true;
+          namenode.extraFlags = [ ];
+          namenode.extraEnv = { };
+
+          datanode.enable = true;
+          datanode.restartIfChanged = true;
+          datanode.openFirewall = true;
+          datanode.extraFlags = [ ];
+          datanode.extraEnv = { };
+          datanode.dataDirs = [ ];
+
+          journalnode.enable = true;
+          journalnode.restartIfChanged = true;
+          journalnode.openFirewall = true;
+          journalnode.extraFlags = [ ];
+          journalnode.extraEnv = { };
+
+          zkfc.enable = true;
+          zkfc.restartIfChanged = true;
+          zkfc.extraFlags = [ ];
+          zkfc.extraEnv = { };
+
+          httpfs.enable = true;
+          httpfs.tempPath = "/tmp/hadoop/httpfs";
+          httpfs.restartIfChanged = true;
+          httpfs.openFirewall = true;
+          httpfs.extraFlags = [ ];
+          httpfs.extraEnv = { };
+        };
+        yarn = {
+
+          resourcemanager.enable = true;
+          resourcemanager.restartIfChanged = true;
+          resourcemanager.openFirewall = true;
+          resourcemanager.extraFlags = [ ];
+          resourcemanager.extraEnv = { };
+
+          nodemanager.enable = true;
+          nodemanager.useCGroups = true;
+          nodemanager.restartIfChanged = true;
+          nodemanager.resource.memoryMB = null;
+          nodemanager.resource.maximumAllocationVCores = null;
+          nodemanager.resource.maximumAllocationMB = null;
+          nodemanager.resource.cpuVCores = null;
+          nodemanager.openFirewall = true;
+          nodemanager.localDir = null;
+          nodemanager.extraFlags = [ ];
+          nodemanager.extraEnv = { };
+          nodemanager.addBinBash = true;
+        };
       };
       # flink-task-manager = {
       #   enable = true;
