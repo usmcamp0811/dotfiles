@@ -104,7 +104,7 @@ with lib.campground; {
           resourcemanager.extraEnv = { };
 
           nodemanager.enable = true;
-          nodemanager.useCGroups = true;
+          nodemanager.useCGroups = false;
           nodemanager.restartIfChanged = true;
           nodemanager.resource.memoryMB = null;
           nodemanager.resource.maximumAllocationVCores = null;
