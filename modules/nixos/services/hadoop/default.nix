@@ -40,7 +40,7 @@ in
     yarnSite = mkOption {
       description = lib.mdDoc "Hadoop yarn-site.xml configuration.";
       default = {
-        "yarn.resourcemanager.hostname" = config.networking.hostName;
+        "yarn.resourcemanager.hostname" = "${config.networking.hostName}";
       };
       type = types.attrsOf anything;
     };
