@@ -1,7 +1,8 @@
 { lib, config, ... }:
 with lib;
 with lib.campground;
-
+# If this is the first time or you still don't know what to do with Hadoop 
+# I had to do `sudo hdfs namenode -format` to format the storage
 let cfg = config.campground.services.hadoop;
 in {
   options.campground.services.hadoop = with types; {
@@ -23,7 +24,7 @@ in {
       description = lib.mdDoc "Hadoop core-site.xml configuration.";
       default = {
         # Specify the default filesystem
-        "fs.defaultFS" = "hdfs://daly:8020";
+        "fs.defaultFS" = "hdfs://campground";
 
         # Configuration for HA and failover
         "ha.zookeeper.quorum" =
@@ -149,6 +150,7 @@ in {
       "d /var/lib/hadoop/tmp 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/tmp/dfs/name 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/tmp/dfs/name/current 2775 hdfs hadoop - -"
+      "d /var/lib/hadoop/tmp/dfs 2775 hdfs hadoop - -"
     ];
     services.hadoop = {
       coreSite = cfg.coreSite;
@@ -176,6 +178,7 @@ in {
         # JournalNode settings (optional, but recommended in an HA setup)
         "dfs.namenode.shared.edits.dir" =
           "qjournal://webb:8485;reckless:8485;lucas:8485/campground";
+        "dfs.journalnode.edits.dir" = "/var/lib/hadoop/dfs";
 
         # Automatic failover configurations (optional)
         "dfs.client.failover.proxy.provider.campground" =
