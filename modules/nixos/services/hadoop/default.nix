@@ -146,10 +146,6 @@ in {
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      sudo
-      chmod
-      700
-      /var/lib/hadoop/dfs/name
       "d /var/lib/hadoop 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/tmp 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/httpfs 2775 hdfs hadoop - -"
