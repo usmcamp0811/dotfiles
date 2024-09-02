@@ -149,6 +149,7 @@ in {
       "d /var/lib/hadoop 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/tmp 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/httpfs 2775 hdfs hadoop - -"
+      "d /var/lib/hadoop/dfs 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/dfs/name 2700 hdfs hadoop - -"
       "d /var/lib/hadoop/dfs/data 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/dfs/edits 2775 hdfs hadoop - -"
