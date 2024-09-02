@@ -106,7 +106,7 @@ in {
         zkfc.extraEnv = { };
 
         httpfs.enable = false;
-        httpfs.tempPath = "/tmp/hadoop/httpfs";
+        httpfs.tempPath = "/var/lib/hadoop/httpfs";
         httpfs.restartIfChanged = false;
         httpfs.openFirewall = false;
         httpfs.extraFlags = [ ];
