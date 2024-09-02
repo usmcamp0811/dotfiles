@@ -151,6 +151,7 @@ in {
       "d /var/lib/hadoop/tmp/dfs/name 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/tmp/dfs/name/current 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/tmp/dfs 2775 hdfs hadoop - -"
+      "d /var/lib/hadoop/dfs/campground 2775 hdfs hadoop - -"
     ];
     services.hadoop = {
       coreSite = cfg.coreSite;
