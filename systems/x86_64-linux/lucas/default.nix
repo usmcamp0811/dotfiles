@@ -58,7 +58,7 @@ with lib.campground; {
       firefly = enabled;
 
       hadoop = {
-        enable = true;
+        # enable = true;
         yarnSite = { "yarn.nodemanager.hostname" = "lucas"; };
         hdfs = {
           namenode.enable = true;

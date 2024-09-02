@@ -1,10 +1,4 @@
-{
-  pkgs,
-  config,
-  lib,
-  inputs,
-  ...
-}:
+{ pkgs, config, lib, inputs, ... }:
 with lib;
 with lib.campground;
 let
@@ -14,14 +8,10 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+in {
   imports = [ ./hardware.nix ];
   # cause ASUS sucks and the ethernet port dies
-  boot.kernelParams = [
-    "pcie_port_pm=off"
-    "pcie_aspm.policy=performance"
-  ];
+  boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
   #   version = "555.42.02";
@@ -37,10 +27,7 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [
-        "wheel"
-        "docker"
-      ];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
 
@@ -65,33 +52,26 @@ in
       };
     };
 
-    suites = {
-      development = enabled;
-    };
+    suites = { development = enabled; };
 
     nix = {
       extra-substituters = {
         "https://nix-gaming.cachix.org" = {
-          key = "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
+          key =
+            "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
         };
       };
     };
 
-    apps = {
-      steam = enabled;
-    };
+    apps = { steam = enabled; };
 
     # tools = { nix-doc = enabled; };
 
-    nfs.client = {
-      enable = true;
-    };
+    nfs.client = { enable = true; };
 
     hardware = {
       ckb-next = enabled;
-      ups.cp1500 = {
-        enable = true;
-      };
+      ups.cp1500 = { enable = true; };
       nvidia = {
         enable = true;
         # driverType = "stable";
@@ -125,17 +105,13 @@ in
       campground-blog = enabled;
       local-ai = enabled;
       file-share = enabled;
-      ldap-client = {
-        enable = mkForce false;
-      };
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       netbird = enabled;
       hadoop = {
-        enable = true;
-        yarnSite = {
-          "yarn.nodemanager.hostname" = "reckless";
-        };
+        # enable = true;
+        yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
         hdfs = {
           datanode.enable = true;
           datanode.restartIfChanged = true;
@@ -179,29 +155,24 @@ in
             path = "/var/lib/atticd";
           };
           chunking = {
-            "nar-size-threshold" = 65536; # chunk files that are 64 KiB or larger
+            "nar-size-threshold" =
+              65536; # chunk files that are 64 KiB or larger
             "min-size" = 16384; # 16 KiB
             "avg-size" = 65536; # 64 KiB
             "max-size" = 262144; # 256 KiB
           };
-          compression = {
-            type = "zstd";
-          };
-          garbage-collection = {
-            interval = "144 hours";
-          };
+          compression = { type = "zstd"; };
+          garbage-collection = { interval = "144 hours"; };
         };
       };
 
       postgresql = {
         enable = true;
         enableTCPIP = true;
-        databases = [
-          {
-            name = "atticd";
-            user = "atticd";
-          }
-        ];
+        databases = [{
+          name = "atticd";
+          user = "atticd";
+        }];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
         authentication = [
@@ -229,13 +200,7 @@ in
       user-secrets = {
         enable = true;
         users = {
-          mcamp = {
-            files = [
-              "id_ed25519"
-              "passwords"
-              "kubeconfig"
-            ];
-          };
+          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
         };
       };
 

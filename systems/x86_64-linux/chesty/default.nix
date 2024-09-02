@@ -57,7 +57,7 @@ with lib.campground;
       attic-watch-store = enabled;
 
       hadoop = {
-        enable = true;
+        # enable = true;
         yarnSite = {
           "yarn.nodemanager.hostname" = "chesty";
           "yarn.scheduler.capacity.root.queues" = "default";
