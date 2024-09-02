@@ -146,6 +146,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [ "d /var/lib/hadoop/tmp 0755 hdfs hadoop - -" ];
     services.hadoop = {
       coreSite = cfg.coreSite;
       hdfsSite = cfg.hdfsSite;
