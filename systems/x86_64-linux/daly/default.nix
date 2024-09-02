@@ -67,7 +67,7 @@ with lib.campground; {
       campground-blog = enabled;
 
       hadoop = {
-        # enable = true;
+        enable = true;
         yarnSite = {
           "yarn.nodemanager.hostname" = "daly";
           "yarn.scheduler.capacity.root.queues" = "default";

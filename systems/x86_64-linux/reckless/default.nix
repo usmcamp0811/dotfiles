@@ -110,7 +110,7 @@ in {
       gitlab-runner = enabled;
       netbird = enabled;
       hadoop = {
-        # enable = true;
+        enable = true;
         yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
         hdfs = {
           datanode.enable = true;

@@ -71,7 +71,7 @@ in {
         port = 11842;
       };
       hadoop = {
-        # enable = true;
+        enable = true;
         yarnSite = { "yarn.nodemanager.hostname" = "webb"; };
         hdfs = {
           datanode.enable = true;
