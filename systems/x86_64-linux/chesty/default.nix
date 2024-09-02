@@ -51,27 +51,20 @@ with lib.campground;
         hostId = "13ec383b";
       };
     };
-    hardware = { nvidia = enabled; };
+    hardware = {
+      nvidia = enabled;
+    };
     services = {
-      ldap-client = { enable = mkForce false; };
+      ldap-client = {
+        enable = mkForce false;
+      };
       attic-watch-store = enabled;
 
       hadoop = {
         enable = true;
-        role = "master-worker";
-        coreSite = {
-          "fs.defaultFS" = "hdfs://reckless:8020";
-          "yarn.scheduler.capacity.root.queues" = "default";
-          "yarn.scheduler.capacity.root.default.capacity" = 100;
-        };
         yarnSite = {
           "yarn.nodemanager.hostname" = "chesty";
-          "yarn.resourcemanager.hostname" = "reckless";
-          "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
-          "yarn.acl.enable" = 0;
         };
-        mapredSite = { "mapreduce.framework.name" = "yarn"; };
-        hdfsSite = { "dfs.replication" = "1"; };
         hdfs = {
           namenode.enable = true;
           namenode.restartIfChanged = true;
@@ -86,12 +79,6 @@ with lib.campground;
           datanode.extraEnv = { };
           datanode.dataDirs = [ ];
 
-          journalnode.enable = true;
-          journalnode.restartIfChanged = true;
-          journalnode.openFirewall = true;
-          journalnode.extraFlags = [ ];
-          journalnode.extraEnv = { };
-
           zkfc.enable = true;
           zkfc.restartIfChanged = true;
           zkfc.extraFlags = [ ];
@@ -105,8 +92,7 @@ with lib.campground;
           httpfs.extraEnv = { };
         };
         yarn = {
-
-          resourcemanager.enable = false;
+          resourcemanager.enable = true;
           resourcemanager.restartIfChanged = true;
           resourcemanager.openFirewall = true;
           resourcemanager.extraFlags = [ ];
@@ -147,7 +133,12 @@ with lib.campground;
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
+        users.mcamp = {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
       };
       vault-agent = {
         enable = true;

@@ -2,21 +2,22 @@
 with lib;
 with lib.campground;
 let
-  # newUser = name: {
-  #   isNormalUser = true;
-  #   createHome = true;
-  #   home = "/home/${name}";
-  #   shell = pkgs.zsh;
-  # };
-  # findEnabledServices = { serviceName }: builtins.filter (name: let
-  #   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
-  #   in cfg) (builtins.attrNames self.nixosConfigurations);
-  # searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
-  # searxURLs = map (host: {
-  #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
-  #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
-  # }) searxEnabledSystems;
-in {
+in
+# newUser = name: {
+#   isNormalUser = true;
+#   createHome = true;
+#   home = "/home/${name}";
+#   shell = pkgs.zsh;
+# };
+# findEnabledServices = { serviceName }: builtins.filter (name: let
+#   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
+#   in cfg) (builtins.attrNames self.nixosConfigurations);
+# searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
+# searxURLs = map (host: {
+#   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
+#   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
+# }) searxEnabledSystems;
+{
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -24,7 +25,10 @@ in {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = [
+        "wheel"
+        "docker"
+      ];
       uid = 10000;
     };
     suites = {
@@ -62,7 +66,9 @@ in {
       };
     };
 
-    tools = { attic = enabled; };
+    tools = {
+      attic = enabled;
+    };
 
     services = {
       # onlyoffice = { enable = true; };
@@ -72,26 +78,55 @@ in {
       };
       hadoop = {
         enable = true;
-        coreSite = { "fs.default.name" = "hdfs://webb:10001"; };
-        mapredSite = { "mapred.job.tracker" = "hdfs://webb:10002"; };
-        hdfsSite = { "dfs.replication" = "2"; };
+        yarnSite = {
+          "yarn.nodemanager.hostname" = "webb";
+        };
         hdfs = {
-          namenode.enable = true;
           datanode.enable = true;
-          journalnode.enable = false;
-          zkfc.enable = false;
-          httpfs.enable = false;
+          datanode.restartIfChanged = true;
+          datanode.openFirewall = true;
+          datanode.extraFlags = [ ];
+          datanode.extraEnv = { };
+          datanode.dataDirs = [ ];
+
+          journalnode.enable = true;
+          journalnode.restartIfChanged = true;
+          journalnode.openFirewall = true;
+          journalnode.extraFlags = [ ];
+          journalnode.extraEnv = { };
+
+          httpfs.enable = true;
         };
         yarn = {
           resourcemanager.enable = true;
+          resourcemanager.restartIfChanged = false;
+          resourcemanager.openFirewall = true;
+          resourcemanager.extraFlags = [ ];
+          resourcemanager.extraEnv = { };
+
           nodemanager.enable = true;
+          nodemanager.useCGroups = false;
+          nodemanager.restartIfChanged = true;
+          nodemanager.resource.memoryMB = null;
+          nodemanager.resource.maximumAllocationVCores = null;
+          nodemanager.resource.maximumAllocationMB = null;
+          nodemanager.resource.cpuVCores = null;
+          nodemanager.openFirewall = true;
+          nodemanager.localDir = null;
+          nodemanager.extraFlags = [ ];
+          nodemanager.extraEnv = { };
+          nodemanager.addBinBash = true;
         };
       };
       firefly = enabled;
       firefly-plaid-connector = enabled;
       campground-blog = enabled;
-      nextcloud = { enable = true; };
-      ldap-client = { enable = mkForce false; };
+      nextcloud = {
+        enable = true;
+      };
+      ldap-client = {
+        enable = mkForce false;
+      };
       netbird = enabled;
       uptime-kuma = enabled;
       grafana = {
@@ -217,7 +252,12 @@ in {
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
+        users.mcamp = {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
       };
 
       vault-agent = {

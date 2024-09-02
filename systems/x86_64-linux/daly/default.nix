@@ -1,13 +1,17 @@
 { lib, ... }:
 with lib;
-with lib.campground; {
+with lib.campground;
+{
   imports = [ ./hardware.nix ];
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = [
+        "wheel"
+        "docker"
+      ];
       uid = 10000;
     };
     suites = {
@@ -41,10 +45,14 @@ with lib.campground; {
     # security = {
     #   acme = enabled;
     # };
-    nfs.client = { enable = true; };
+    nfs.client = {
+      enable = true;
+    };
 
     services = {
-      ldap-client = { enable = mkForce false; };
+      ldap-client = {
+        enable = mkForce false;
+      };
       borgbackup = {
         enable = true;
         jobs = {
@@ -63,13 +71,57 @@ with lib.campground; {
       hadoop = {
         enable = true;
         role = "namenode";
-        coreSite = { "fs.defaultFS" = "hdfs://webb:8020"; };
+        coreSite = {
+          "fs.defaultFS" = "hdfs://webb:8020";
+        };
       };
       searx = {
         enable = true;
         port = 8181;
       };
       campground-blog = enabled;
+
+      hadoop = {
+        enable = true;
+        yarnSite = {
+          "yarn.nodemanager.hostname" = "daly";
+        };
+        hdfs = {
+          namenode.enable = true;
+
+          datanode.enable = true;
+          datanode.restartIfChanged = true;
+          datanode.openFirewall = true;
+          datanode.extraFlags = [ ];
+          datanode.extraEnv = { };
+          datanode.dataDirs = [ ];
+
+          journalnode.enable = true;
+          journalnode.restartIfChanged = true;
+          journalnode.openFirewall = true;
+          journalnode.extraFlags = [ ];
+          journalnode.extraEnv = { };
+
+          httpfs.enable = true;
+        };
+        yarn = {
+          resourcemanager.enable = true;
+          resourcemanager.openFirewall = true;
+
+          nodemanager.enable = true;
+          nodemanager.useCGroups = false;
+          nodemanager.restartIfChanged = true;
+          nodemanager.resource.memoryMB = null;
+          nodemanager.resource.maximumAllocationVCores = null;
+          nodemanager.resource.maximumAllocationMB = null;
+          nodemanager.resource.cpuVCores = null;
+          nodemanager.openFirewall = true;
+          nodemanager.localDir = null;
+          nodemanager.extraFlags = [ ];
+          nodemanager.extraEnv = { };
+          nodemanager.addBinBash = true;
+        };
+      };
       zfs-key-server = {
         enable = true;
         interface = "enp3s0f1";
@@ -84,7 +136,14 @@ with lib.campground; {
       };
       user-secrets = {
         enable = true;
-        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
+        users = {
+          mcamp = {
+            files = [
+              "id_ed25519"
+              "passwords"
+            ];
+          };
+        };
       };
       vault = {
         enable = true;
@@ -94,14 +153,17 @@ with lib.campground; {
           path = "/persist/vault";
         };
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ./vault/policies + "/${
-                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ./vault/policies)));
+        policies =
+          builtins.foldl'
+            (policies: file: policies // { "${snowfall.path.get-file-name-without-extension file}" = file; })
+            { }
+            (
+              builtins.filter (snowfall.path.has-file-extension "hcl") (
+                builtins.map (
+                  path: ./vault/policies + "/${builtins.baseNameOf (builtins.unsafeDiscardStringContext path)}"
+                ) (snowfall.fs.get-files ./vault/policies)
+              )
+            );
       };
       vault-agent = {
         enable = true;

@@ -1,6 +1,7 @@
 { lib, ... }:
 with lib;
-with lib.campground; {
+with lib.campground;
+{
   imports = [ ./hardware.nix ];
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -9,7 +10,10 @@ with lib.campground; {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = [
+        "wheel"
+        "docker"
+      ];
       uid = 10000;
     };
     archetypes = {
@@ -50,36 +54,23 @@ with lib.campground; {
     nfs.client.enable = true;
     tools.attic = enabled;
 
-    hardware = { nvidia = enabled; };
+    hardware = {
+      nvidia = enabled;
+    };
     services = {
-      onlyoffice = { enable = true; };
+      onlyoffice = {
+        enable = true;
+      };
       nix-ai = enabled;
 
       firefly = enabled;
 
       hadoop = {
         enable = true;
-        role = "master-worker";
-        coreSite = {
-          "fs.defaultFS" = "hdfs://reckless:8020";
-          "yarn.scheduler.capacity.root.queues" = "default";
-          "yarn.scheduler.capacity.root.default.capacity" = 100;
-        };
         yarnSite = {
           "yarn.nodemanager.hostname" = "lucas";
-          "yarn.resourcemanager.hostname" = "reckless";
-          "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
-          "yarn.acl.enable" = 0;
         };
-        mapredSite = { "mapreduce.framework.name" = "yarn"; };
-        hdfsSite = { "dfs.replication" = "1"; };
         hdfs = {
-          namenode.enable = true;
-          namenode.restartIfChanged = true;
-          namenode.openFirewall = true;
-          namenode.extraFlags = [ ];
-          namenode.extraEnv = { };
-
           datanode.enable = true;
           datanode.restartIfChanged = true;
           datanode.openFirewall = true;
@@ -93,26 +84,9 @@ with lib.campground; {
           journalnode.extraFlags = [ ];
           journalnode.extraEnv = { };
 
-          zkfc.enable = true;
-          zkfc.restartIfChanged = true;
-          zkfc.extraFlags = [ ];
-          zkfc.extraEnv = { };
-
           httpfs.enable = true;
-          httpfs.tempPath = "/tmp/hadoop/httpfs";
-          httpfs.restartIfChanged = true;
-          httpfs.openFirewall = true;
-          httpfs.extraFlags = [ ];
-          httpfs.extraEnv = { };
         };
         yarn = {
-
-          resourcemanager.enable = false;
-          resourcemanager.restartIfChanged = true;
-          resourcemanager.openFirewall = true;
-          resourcemanager.extraFlags = [ ];
-          resourcemanager.extraEnv = { };
-
           nodemanager.enable = true;
           nodemanager.useCGroups = false;
           nodemanager.restartIfChanged = true;
@@ -165,7 +139,12 @@ with lib.campground; {
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
+        users.mcamp = {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
       };
       vault-agent = {
         enable = true;
