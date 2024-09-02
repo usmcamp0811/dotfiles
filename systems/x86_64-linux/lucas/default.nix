@@ -1,7 +1,6 @@
 { lib, ... }:
 with lib;
-with lib.campground;
-{
+with lib.campground; {
   imports = [ ./hardware.nix ];
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -10,10 +9,7 @@ with lib.campground;
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [
-        "wheel"
-        "docker"
-      ];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
     archetypes = {
@@ -54,23 +50,23 @@ with lib.campground;
     nfs.client.enable = true;
     tools.attic = enabled;
 
-    hardware = {
-      nvidia = enabled;
-    };
+    hardware = { nvidia = enabled; };
     services = {
-      onlyoffice = {
-        enable = true;
-      };
+      onlyoffice = { enable = true; };
       nix-ai = enabled;
 
       firefly = enabled;
 
       hadoop = {
         enable = true;
-        yarnSite = {
-          "yarn.nodemanager.hostname" = "lucas";
-        };
+        yarnSite = { "yarn.nodemanager.hostname" = "lucas"; };
         hdfs = {
+          namenode.enable = true;
+          namenode.restartIfChanged = true;
+          namenode.openFirewall = true;
+          namenode.extraFlags = [ ];
+          namenode.extraEnv = { };
+
           datanode.enable = true;
           datanode.restartIfChanged = true;
           datanode.openFirewall = true;
@@ -140,12 +136,7 @@ with lib.campground;
       };
       user-secrets = {
         enable = true;
-        users.mcamp = {
-          files = [
-            "id_ed25519"
-            "passwords"
-          ];
-        };
+        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
       };
       vault-agent = {
         enable = true;

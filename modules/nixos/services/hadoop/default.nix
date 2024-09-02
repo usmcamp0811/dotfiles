@@ -156,7 +156,7 @@ in {
       coreSite = cfg.coreSite;
       hdfsSite = cfg.hdfsSite;
       hdfsSiteDefault = {
-        "dfs.namenode.http-address" = "0.0.0.0:50070";
+        "dfs.namenode.http-address" = "0.0.0.0:9870";
         "dfs.namenode.http-bind-host" = "0.0.0.0";
         "dfs.namenode.rpc-bind-host" = "0.0.0.0";
         "dfs.namenode.servicerpc-bind-host" = "0.0.0.0";
@@ -168,11 +168,11 @@ in {
         "dfs.ha.namenodes.campground" = "nn1,nn2";
 
         # RPC addresses for each NameNode in HA setup
-        "dfs.namenode.rpc-address.campground.nn1" = "daly:8020";
+        "dfs.namenode.rpc-address.campground.nn1" = "lucas:8020";
         "dfs.namenode.rpc-address.campground.nn2" = "chesty:8020";
 
         # HTTP addresses for each NameNode (for web UI, optional)
-        "dfs.namenode.http-address.campground.nn1" = "daly:50070";
+        "dfs.namenode.http-address.campground.nn1" = "lucas:50070";
         "dfs.namenode.http-address.campground.nn2" = "chesty:50070";
 
         # JournalNode settings (optional, but recommended in an HA setup)

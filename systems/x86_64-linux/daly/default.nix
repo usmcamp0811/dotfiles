@@ -75,12 +75,6 @@ with lib.campground; {
 
         };
         hdfs = {
-          namenode.enable = true;
-          namenode.restartIfChanged = true;
-          namenode.openFirewall = true;
-          namenode.extraFlags = [ ];
-          namenode.extraEnv = { };
-
           datanode.enable = true;
           datanode.restartIfChanged = true;
           datanode.openFirewall = true;
