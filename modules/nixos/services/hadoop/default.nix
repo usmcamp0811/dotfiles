@@ -25,9 +25,6 @@ in {
         # Specify the default filesystem
         "fs.defaultFS" = "hdfs://daly:8020";
 
-        # Specify the HA cluster's nameservice ID
-        "fs.default.name" = "hdfs://daly:8020";
-
         # Configuration for HA and failover
         "ha.zookeeper.quorum" =
           "webb:2181,chesty:2181,reckless:2181,lucas:2181";
