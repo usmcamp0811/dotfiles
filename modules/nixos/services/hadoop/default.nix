@@ -31,7 +31,8 @@ in
         "fs.default.name" = "hdfs://campground";
 
         # Configuration for HA and failover
-        "ha.zookeeper.quorum" = "webb:2181,reckless:2181,lucas:2181";
+        "ha.zookeeper.quorum" =
+          "webb:2181,chesty:2181,reckless:2181,lucas:2181";
 
         # Retry settings (optional but recommended for robustness)
         "ipc.client.connect.max.retries" = "10";

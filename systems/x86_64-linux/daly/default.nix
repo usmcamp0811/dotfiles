@@ -98,6 +98,9 @@ with lib.campground;
         yarn = {
           resourcemanager.enable = true;
           resourcemanager.openFirewall = true;
+          resourcemanager.restartIfChanged = true;
+          resourcemanager.extraFlags = [ ];
+          resourcemanager.extraEnv = { };
 
           nodemanager.enable = true;
           nodemanager.useCGroups = false;
