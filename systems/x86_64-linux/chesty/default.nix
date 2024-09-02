@@ -51,19 +51,18 @@ with lib.campground;
         hostId = "13ec383b";
       };
     };
-    hardware = {
-      nvidia = enabled;
-    };
+    hardware = { nvidia = enabled; };
     services = {
-      ldap-client = {
-        enable = mkForce false;
-      };
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
 
       hadoop = {
         enable = true;
         yarnSite = {
           "yarn.nodemanager.hostname" = "chesty";
+          "yarn.scheduler.capacity.root.queues" = "default";
+          "yarn.scheduler.capacity.root.default.capacity" = "100";
+
         };
         hdfs = {
           namenode.enable = true;
@@ -133,12 +132,7 @@ with lib.campground;
       };
       user-secrets = {
         enable = true;
-        users.mcamp = {
-          files = [
-            "id_ed25519"
-            "passwords"
-          ];
-        };
+        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
       };
       vault-agent = {
         enable = true;

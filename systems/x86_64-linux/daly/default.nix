@@ -1,17 +1,13 @@
 { lib, ... }:
 with lib;
-with lib.campground;
-{
+with lib.campground; {
   imports = [ ./hardware.nix ];
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [
-        "wheel"
-        "docker"
-      ];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
     suites = {
@@ -45,14 +41,10 @@ with lib.campground;
     # security = {
     #   acme = enabled;
     # };
-    nfs.client = {
-      enable = true;
-    };
+    nfs.client = { enable = true; };
 
     services = {
-      ldap-client = {
-        enable = mkForce false;
-      };
+      ldap-client = { enable = mkForce false; };
       borgbackup = {
         enable = true;
         jobs = {
@@ -78,6 +70,9 @@ with lib.campground;
         enable = true;
         yarnSite = {
           "yarn.nodemanager.hostname" = "daly";
+          "yarn.scheduler.capacity.root.queues" = "default";
+          "yarn.scheduler.capacity.root.default.capacity" = "100";
+
         };
         hdfs = {
           namenode.enable = true;
@@ -130,14 +125,7 @@ with lib.campground;
       };
       user-secrets = {
         enable = true;
-        users = {
-          mcamp = {
-            files = [
-              "id_ed25519"
-              "passwords"
-            ];
-          };
-        };
+        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
       };
       vault = {
         enable = true;
@@ -147,17 +135,14 @@ with lib.campground;
           path = "/persist/vault";
         };
 
-        policies =
-          builtins.foldl'
-            (policies: file: policies // { "${snowfall.path.get-file-name-without-extension file}" = file; })
-            { }
-            (
-              builtins.filter (snowfall.path.has-file-extension "hcl") (
-                builtins.map (
-                  path: ./vault/policies + "/${builtins.baseNameOf (builtins.unsafeDiscardStringContext path)}"
-                ) (snowfall.fs.get-files ./vault/policies)
-              )
-            );
+        policies = builtins.foldl' (policies: file:
+          policies // {
+            "${snowfall.path.get-file-name-without-extension file}" = file;
+          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map (path:
+              ./vault/policies + "/${
+                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+              }") (snowfall.fs.get-files ./vault/policies)));
       };
       vault-agent = {
         enable = true;
