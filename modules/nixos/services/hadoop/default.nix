@@ -175,7 +175,6 @@ in
       yarnSite = cfg.yarnSite;
       yarnSiteDefault = {
         "yarn.nodemanager.admin-env" = "PATH=$PATH";
-        "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
         "yarn.nodemanager.aux-services.mapreduce_shuffle.class" = "org.apache.hadoop.mapred.ShuffleHandler";
         "yarn.nodemanager.bind-host" = "0.0.0.0";
         "yarn.nodemanager.container-executor.class" = "org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor";
