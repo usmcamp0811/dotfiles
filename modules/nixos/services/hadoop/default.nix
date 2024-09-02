@@ -148,14 +148,15 @@ in {
     systemd.tmpfiles.rules = [
       "d /var/lib/hadoop 2775 hdfs hadoop - -"
       "d /var/lib/hadoop/tmp 2775 hdfs hadoop - -"
-      "d /var/lib/hadoop/tmp/dfs/name 2775 hdfs hadoop - -"
-      "d /var/lib/hadoop/tmp/dfs/name/current 2775 hdfs hadoop - -"
-      "d /var/lib/hadoop/tmp/dfs 2775 hdfs hadoop - -"
-      "d /var/lib/hadoop/dfs/campground 2775 hdfs hadoop - -"
+      "d /var/lib/hadoop/httpfs 2775 hdfs hadoop - -"
+      "d /var/lib/hadoop/dfs/name 2775 hdfs hadoop - -"
+      "d /var/lib/hadoop/dfs/data 2775 hdfs hadoop - -"
+      "d /var/lib/hadoop/dfs/edits 2775 hdfs hadoop - -"
     ];
     services.hadoop = {
       coreSite = cfg.coreSite;
       hdfsSite = cfg.hdfsSite;
+
       hdfsSiteDefault = {
         "dfs.namenode.http-address" = "0.0.0.0:9870";
         "dfs.namenode.http-bind-host" = "0.0.0.0";
@@ -179,8 +180,9 @@ in {
         # JournalNode settings (optional, but recommended in an HA setup)
         "dfs.namenode.shared.edits.dir" =
           "qjournal://webb:8485;reckless:8485;lucas:8485/campground";
-        "dfs.journalnode.edits.dir" = "/var/lib/hadoop/dfs";
-
+        "dfs.namenode.name.dir" = "/var/lib/hadoop/dfs/name";
+        "dfs.datanode.data.dir" = "/var/lib/hadoop/dfs/data";
+        "dfs.journalnode.edits.dir" = "/var/lib/hadoop/dfs/edits";
         # Automatic failover configurations (optional)
         "dfs.client.failover.proxy.provider.campground" =
           "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider";
