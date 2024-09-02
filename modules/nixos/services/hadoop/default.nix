@@ -156,7 +156,7 @@ in {
       coreSite = cfg.coreSite;
       hdfsSite = cfg.hdfsSite;
       hdfsSiteDefault = {
-        "dfs.namenode.http-address" = "0.0.0.0:9870";
+        "dfs.namenode.http-address" = "0.0.0.0:50070";
         "dfs.namenode.http-bind-host" = "0.0.0.0";
         "dfs.namenode.rpc-bind-host" = "0.0.0.0";
         "dfs.namenode.servicerpc-bind-host" = "0.0.0.0";
