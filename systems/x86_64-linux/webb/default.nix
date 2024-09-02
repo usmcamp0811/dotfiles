@@ -94,8 +94,6 @@ in
           journalnode.openFirewall = true;
           journalnode.extraFlags = [ ];
           journalnode.extraEnv = { };
-
-          httpfs.enable = true;
         };
         yarn = {
           resourcemanager.enable = true;
