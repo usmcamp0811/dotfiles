@@ -85,6 +85,7 @@ with lib.campground;
           journalnode.extraEnv = { };
 
           httpfs.enable = true;
+          httpfs.tempPath = "/var/lib/hadoop/httpfs";
         };
         yarn = {
           nodemanager.enable = true;

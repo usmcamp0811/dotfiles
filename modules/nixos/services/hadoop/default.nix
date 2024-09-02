@@ -2,8 +2,10 @@
 with lib;
 with lib.campground;
 
-let cfg = config.campground.services.hadoop;
-in {
+let
+  cfg = config.campground.services.hadoop;
+in
+{
   options.campground.services.hadoop = with types; {
     enable = mkBoolOpt false "Enable Hadoop services.";
 
@@ -66,8 +68,7 @@ in {
     };
 
     log4jProperties = mkOption {
-      description =
-        lib.mdDoc "Path to Hadoop log4j.properties configuration file.";
+      description = lib.mdDoc "Path to Hadoop log4j.properties configuration file.";
       default = "${config.services.hadoop.package}/etc/hadoop/log4j.properties";
       type = types.path;
     };
@@ -112,22 +113,19 @@ in {
         httpfs.extraFlags = [ ];
         httpfs.extraEnv = { };
       };
-      description =
-        "Configuration for Hadoop HDFS service, including NameNode, DataNode, JournalNode, ZKFC, and HTTPFS options.";
+      description = "Configuration for Hadoop HDFS service, including NameNode, DataNode, JournalNode, ZKFC, and HTTPFS options.";
     };
 
     yarn = mkOption {
       type = types.attrsOf types.anything;
       default = {
-        resourcemanager.enable = cfg.role == "resourcemanager" || cfg.role
-          == "master-worker";
+        resourcemanager.enable = cfg.role == "resourcemanager" || cfg.role == "master-worker";
         resourcemanager.restartIfChanged = false;
         resourcemanager.openFirewall = false;
         resourcemanager.extraFlags = [ ];
         resourcemanager.extraEnv = { };
 
-        nodemanager.enable = cfg.role == "nodemanager" || cfg.role
-          == "master-worker";
+        nodemanager.enable = cfg.role == "nodemanager" || cfg.role == "master-worker";
         nodemanager.useCGroups = true;
         nodemanager.restartIfChanged = false;
         nodemanager.resource.memoryMB = null;
@@ -140,13 +138,15 @@ in {
         nodemanager.extraEnv = { };
         nodemanager.addBinBash = true;
       };
-      description =
-        "Configuration for Hadoop YARN service, including ResourceManager and NodeManager options.";
+      description = "Configuration for Hadoop YARN service, including ResourceManager and NodeManager options.";
     };
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [ "d /var/lib/hadoop/tmp 0755 hdfs hadoop - -" ];
+    systemd.tmpfiles.rules = [
+      "d /var/lib/hadoop/httpfs 0755 hdfs hadoop - -"
+      "d /var/lib/hadoop/tmp 0755 hdfs hadoop - -"
+    ];
     services.hadoop = {
       coreSite = cfg.coreSite;
       hdfsSite = cfg.hdfsSite;
@@ -171,26 +171,20 @@ in {
         "dfs.namenode.http-address.campground.nn2" = "chesty:50070";
 
         # JournalNode settings (optional, but recommended in an HA setup)
-        "dfs.namenode.shared.edits.dir" =
-          "qjournal://webb:8485;reckless:8485;lucas:8485/campground";
+        "dfs.namenode.shared.edits.dir" = "qjournal://webb:8485;reckless:8485;lucas:8485/campground";
 
         # Automatic failover configurations (optional)
-        "dfs.client.failover.proxy.provider.campground" =
-          "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider";
+        "dfs.client.failover.proxy.provider.campground" = "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider";
       };
       yarnSite = cfg.yarnSite;
       yarnSiteDefault = {
         "yarn.nodemanager.admin-env" = "PATH=$PATH";
-        "yarn.nodemanager.aux-services.mapreduce_shuffle.class" =
-          "org.apache.hadoop.mapred.ShuffleHandler";
+        "yarn.nodemanager.aux-services.mapreduce_shuffle.class" = "org.apache.hadoop.mapred.ShuffleHandler";
         "yarn.nodemanager.bind-host" = "0.0.0.0";
-        "yarn.nodemanager.container-executor.class" =
-          "org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor";
-        "yarn.nodemanager.env-whitelist" =
-          "JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_HOME,LANG,TZ";
+        "yarn.nodemanager.container-executor.class" = "org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor";
+        "yarn.nodemanager.env-whitelist" = "JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_HOME,LANG,TZ";
         "yarn.nodemanager.linux-container-executor.group" = "hadoop";
-        "yarn.nodemanager.linux-container-executor.path" =
-          "/run/wrappers/yarn-nodemanager/bin/container-executor";
+        "yarn.nodemanager.linux-container-executor.path" = "/run/wrappers/yarn-nodemanager/bin/container-executor";
         "yarn.nodemanager.log-dirs" = "/var/log/hadoop/yarn/nodemanager";
         "yarn.resourcemanager.bind-host" = "0.0.0.0";
 
@@ -216,26 +210,20 @@ in {
         # Automatic failover configurations
         "yarn.resourcemanager.zk-address" = "webb:2181,chesty:2181,daly:2181";
         "yarn.resourcemanager.ha.automatic-failover.enabled" = "true";
-        "yarn.resourcemanager.ha.automatic-failover.zk-base-path" =
-          "/yarn-leader-election";
+        "yarn.resourcemanager.ha.automatic-failover.zk-base-path" = "/yarn-leader-election";
 
         # NodeManager configuration (assuming NodeManagers are running on all nodes)
         "yarn.nodemanager.aux-services" = "mapreduce_shuffle";
-        "yarn.nodemanager.aux-services.mapreduce.shuffle.class" =
-          "org.apache.hadoop.mapred.ShuffleHandler";
+        "yarn.nodemanager.aux-services.mapreduce.shuffle.class" = "org.apache.hadoop.mapred.ShuffleHandler";
 
         # Application Master configuration
-        "yarn.resourcemanager.scheduler.class" =
-          "org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler";
+        "yarn.resourcemanager.scheduler.class" = "org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler";
       };
       mapredSite = cfg.mapredSite;
       mapredSiteDefault = {
-        "yarn.app.mapreduce.am.env" =
-          "HADOOP_MAPRED_HOME=${config.services.hadoop.package}";
-        "mapreduce.map.env" =
-          "HADOOP_MAPRED_HOME=${config.services.hadoop.package}";
-        "mapreduce.reduce.env" =
-          "HADOOP_MAPRED_HOME=${config.services.hadoop.package}";
+        "yarn.app.mapreduce.am.env" = "HADOOP_MAPRED_HOME=${config.services.hadoop.package}";
+        "mapreduce.map.env" = "HADOOP_MAPRED_HOME=${config.services.hadoop.package}";
+        "mapreduce.reduce.env" = "HADOOP_MAPRED_HOME=${config.services.hadoop.package}";
 
         # Specify the framework for MapReduce
         "mapreduce.framework.name" = "yarn";
@@ -259,10 +247,8 @@ in {
         "mapreduce.client.submit.file.replication" = "10";
 
         # (Optional) History server configurations
-        "mapreduce.jobhistory.intermediate-done-dir" =
-          "/tmp/hadoop-yarn/staging/history/done_intermediate";
-        "mapreduce.jobhistory.done-dir" =
-          "/tmp/hadoop-yarn/staging/history/done";
+        "mapreduce.jobhistory.intermediate-done-dir" = "/tmp/hadoop-yarn/staging/history/done_intermediate";
+        "mapreduce.jobhistory.done-dir" = "/tmp/hadoop-yarn/staging/history/done";
       };
       log4jProperties = cfg.log4jProperties;
 
