@@ -23,10 +23,10 @@ in {
       description = lib.mdDoc "Hadoop core-site.xml configuration.";
       default = {
         # Specify the default filesystem
-        "fs.defaultFS" = "hdfs://campground";
+        "fs.defaultFS" = "hdfs://daly:8020";
 
         # Specify the HA cluster's nameservice ID
-        "fs.default.name" = "hdfs://campground";
+        "fs.default.name" = "hdfs://daly:8020";
 
         # Configuration for HA and failover
         "ha.zookeeper.quorum" =
