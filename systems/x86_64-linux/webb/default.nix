@@ -2,21 +2,22 @@
 with lib;
 with lib.campground;
 let
-  # newUser = name: {
-  #   isNormalUser = true;
-  #   createHome = true;
-  #   home = "/home/${name}";
-  #   shell = pkgs.zsh;
-  # };
-  # findEnabledServices = { serviceName }: builtins.filter (name: let
-  #   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
-  #   in cfg) (builtins.attrNames self.nixosConfigurations);
-  # searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
-  # searxURLs = map (host: {
-  #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
-  #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
-  # }) searxEnabledSystems;
-in {
+in
+# newUser = name: {
+#   isNormalUser = true;
+#   createHome = true;
+#   home = "/home/${name}";
+#   shell = pkgs.zsh;
+# };
+# findEnabledServices = { serviceName }: builtins.filter (name: let
+#   cfg = self.nixosConfigurations.${name}.config.services.${serviceName}.enable;
+#   in cfg) (builtins.attrNames self.nixosConfigurations);
+# searxEnabledSystems = findEnabledServices { serviceName = "searx"; };
+# searxURLs = map (host: {
+#   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
+#   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
+# }) searxEnabledSystems;
+{
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -24,7 +25,10 @@ in {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = [
+        "wheel"
+        "docker"
+      ];
       uid = 10000;
     };
     suites = {
@@ -62,7 +66,9 @@ in {
       };
     };
 
-    tools = { attic = enabled; };
+    tools = {
+      attic = enabled;
+    };
 
     services = {
       # onlyoffice = { enable = true; };
@@ -72,7 +78,9 @@ in {
       };
       hadoop = {
         enable = true;
-        yarnSite = { "yarn.nodemanager.hostname" = "webb"; };
+        yarnSite = {
+          "yarn.nodemanager.hostname" = "webb";
+        };
         hdfs = {
           datanode.enable = true;
           datanode.restartIfChanged = true;
@@ -111,8 +119,12 @@ in {
       firefly = enabled;
       firefly-plaid-connector = enabled;
       campground-blog = enabled;
-      nextcloud = { enable = true; };
-      ldap-client = { enable = mkForce false; };
+      nextcloud = {
+        enable = true;
+      };
+      ldap-client = {
+        enable = mkForce false;
+      };
       netbird = enabled;
       uptime-kuma = enabled;
       grafana = {
@@ -137,9 +149,6 @@ in {
             url = "localhost:5432"; # Connect via TCP instead of using a socket
             user = "firefly"; # The correct user
             database = "firefly"; # The firefly database
-            jsonData = {
-              sslmode = "disable"; # Disable SSL for local connections
-            };
           }
         ];
       };
@@ -254,7 +263,12 @@ in {
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
+        users.mcamp = {
+          files = [
+            "id_ed25519"
+            "passwords"
+          ];
+        };
       };
 
       vault-agent = {
