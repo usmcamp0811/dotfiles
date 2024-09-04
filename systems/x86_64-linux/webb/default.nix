@@ -130,6 +130,17 @@ in {
             access = "proxy";
             url = "http://webb:3030";
           }
+          {
+            name = "Firefly Postgres";
+            type = "postgres";
+            access = "proxy"; # Grafana handles the queries via the proxy
+            url = "localhost:5432"; # Connect via TCP instead of using a socket
+            user = "firefly"; # The correct user
+            database = "firefly"; # The firefly database
+            jsonData = {
+              sslmode = "disable"; # Disable SSL for local connections
+            };
+          }
         ];
       };
       collabora = enabled;
@@ -199,10 +210,15 @@ in {
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
         authentication = [
-          "local all root trust"
-          "local all postgres peer"
-          "host all all 127.0.0.1/0 reject"
-          "host all all ::0/0 reject"
+          "local   all        root      trust" # Allow trusted local connections for root
+          "local   all        postgres  peer" # Use peer authentication for postgres user locally
+
+          "local   firefly    firefly   trust" # Allow trusted local connections for firefly user to firefly DB
+          "host    firefly    firefly   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
+          "host    firefly    firefly   ::1/128 trust" # Allow trusted connections from localhost (IPv6) for firefly user to firefly DB
+
+          "host    all        all       0.0.0.0/0 reject" # Reject all other IPv4 connections
+          "host    all        all       ::/0 reject" # Reject all other IPv6 connections
         ];
       };
       wireguard = {
