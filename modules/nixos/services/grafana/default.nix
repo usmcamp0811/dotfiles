@@ -7,7 +7,7 @@ in {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
     datasources = mkOption {
-      type = types.listOf (types.attrsOf types.str);
+      type = types.listOf (types.attrsOf types.anything);
       description = "A list of datasources.";
       default = [ ];
     };
