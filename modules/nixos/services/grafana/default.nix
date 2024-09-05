@@ -1,8 +1,10 @@
 { lib, config, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.grafana;
-in {
+let
+  cfg = config.campground.services.grafana;
+in
+{
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
@@ -16,19 +18,22 @@ in {
       description = "A list of dashboard providers";
       default = [ ];
     };
-    domain = mkOpt str "grafana.lan.aicampground.com"
-      "Domain to Host the grafana server on.";
+    domain = mkOpt str "grafana.lan.aicampground.com" "Domain to Host the grafana server on.";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/grafana"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/grafana"
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum [
+        "v1"
+        "v2"
+      ];
       default = "v2";
       description = "KV store version";
     };
@@ -58,6 +63,13 @@ in {
         };
       };
       settings = {
+        smtp = {
+          enabled = true;
+          host = "$__env{SMTP_HOST}";
+          user = "$__env{SMTP_USER}";
+          password = "$__env{SMTP_PASS}";
+          fromAddress = "no-reply@grafana.aicampground.com";
+        };
         security = {
           admin_user = "$__env{ADMIN_USER}";
           admin_password = "$__env{ADMIN_PASSWORD}";
@@ -80,14 +92,16 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets.environment.templates = {
@@ -96,6 +110,9 @@ in {
             {{ with secret "${cfg.vault-path}" }}
             ADMIN_USER='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_USER }}{{ else }}{{ .Data.data.ADMIN_USER }}{{ end }}'
             ADMIN_PASSWORD='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}'
+            SMTP_USER='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_USER }}{{ else }}{{ .Data.data.SMTP_USER }}{{ end }}'
+            SMTP_HOST='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_HOST }}{{ else }}{{ .Data.data.SMTP_HOST }}{{ end }}'
+            SMTP_PASS='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_PASS }}{{ else }}{{ .Data.data.SMTP_PASS }}{{ end }}'
 
             {{ end }}
           '';
