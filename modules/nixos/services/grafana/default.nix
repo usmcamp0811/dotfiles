@@ -71,6 +71,7 @@ in {
           admin_password = "$__env{ADMIN_PASSWORD}";
         };
         server = {
+          root_url = "https://${cfg.domain}";
           # Listening Address
           http_addr = "0.0.0.0";
           # and Port
