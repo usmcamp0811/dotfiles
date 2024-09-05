@@ -151,7 +151,7 @@ in
             database = "firefly"; # The firefly database
             jsonData =
               {
-                "sslmode": "disable"
+                sslmode = "disable"
               };
           }
         ];
