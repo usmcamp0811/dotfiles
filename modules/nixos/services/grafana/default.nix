@@ -69,6 +69,7 @@ in
           user = "$__env{SMTP_USER}";
           password = "$__env{SMTP_PASS}";
           fromAddress = "no-reply@grafana.aicampground.com";
+          startTLS_policy = "RequireTLS";
         };
         security = {
           admin_user = "$__env{ADMIN_USER}";
