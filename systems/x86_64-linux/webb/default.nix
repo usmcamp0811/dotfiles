@@ -149,10 +149,9 @@ in
             url = "localhost:5432"; # Connect via TCP instead of using a socket
             user = "firefly"; # The correct user
             database = "firefly"; # The firefly database
-            jsonData =
-              {
-                sslmode = "disable"
-              };
+            jsonData = {
+              sslmode = "disable";
+            };
           }
         ];
       };
