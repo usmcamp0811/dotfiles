@@ -13,5 +13,4 @@ let
 
     meta = { mainProgram = "ct"; };
   };
-
 in chromaterm
