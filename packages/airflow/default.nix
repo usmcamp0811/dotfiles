@@ -1,34 +1,35 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  writeText,
+}:
+
 let
-
   airflowVersion = "2.10.0";
-  pythonVersion = builtins.substring 0 3 (
-    builtins.stringAfter "Python " (pkgs.python3.interpreter.python.version)
-  );
-  constraintUrl = "https://raw.githubusercontent.com/apache/airflow/constraints-${airflowVersion}/constraints-${pythonVersion}.txt";
+
+  airflow = pkgs.python311Packages.buildPythonPackage {
+    pname = "apache-airflow";
+    version = airflowVersion;
+
+    src = pkgs.fetchPypi {
+      pname = "apache-airflow";
+      version = airflowVersion;
+      sha256 = "sha256-+ycJlxbY8DYECMjKhtadv+1ERVg0tw0VBiUKvlIbU1o=";
+    };
+    doCheck = false;
+
+    propagatedBuildInputs = with pkgs.python311Packages; [
+      requests
+      click
+      flask
+    ];
+
+    meta = with lib; {
+      description = "Apache Airflow workflow management platform";
+      homepage = "https://airflow.apache.org/";
+      maintainers = with maintainers; [ matt-camp ]; # Add your maintainer info
+    };
+  };
+
 in
-pkgs.python3Packages.buildPythonPackage rec {
-  pname = "apache-airflow";
-  version = airflowVersion;
-
-  src = pkgs.fetchPypi {
-    inherit pname version;
-    sha256 = "<insert-correct-sha256>";
-  };
-
-  propagatedBuildInputs = [
-    pkgs.python3
-    pkgs.requests # or any other dependencies
-  ];
-
-  meta = with pkgs.lib; {
-    description = "Apache Airflow workflow management platform";
-    homepage = "https://airflow.apache.org/";
-    license = licenses.apache20;
-  };
-
-  # The installation phase where you pass the constraint file.
-  postInstall = ''
-    pip install . --constraint ${constraintUrl}
-  '';
-}
+airflow
