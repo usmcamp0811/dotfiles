@@ -1,13 +1,6 @@
 { lib, pkgs, ... }:
 with lib.campground;
 let
-  inherit (lib) mapAttrsToList concatStringsSep;
-  pname = "example-flask-app";
-
-  description = "A Simple Flask App";
-
-  version = "1.0.0";
-
   # Create a simple Flask app
   flaskApp = pkgs.writeText "app.py" ''
     from flask import Flask
@@ -31,7 +24,7 @@ let
 
   example-flask-app = mkPythonDerivation {
     inherit pkgs;
-    name = "${pname}-${version}";
+    name = "example-flask-app-1.0.0";
     src = flaskApp;
     python = python-env;
     installPhase = ''
