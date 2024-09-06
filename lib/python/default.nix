@@ -1,7 +1,7 @@
 { lib, inputs, ... }: rec {
   mkPythonDerivation = { pkgs, name, src, phases ? [ "installPhase" ]
     , pypkgs-build-requirements ? { }, container ? { }, buildPhase ? ""
-    , installPhase ? "", meta ? { }, }:
+    , installPhase ? "", meta ? { }, python ? pkgs.python311, }:
     let
       defaultContainer = {
         tag = "latest";
@@ -20,12 +20,18 @@
               });
             in override) pypkgs-build-requirements);
 
-      python-env = pkgs.poetry2nix.mkPoetryEnv {
-        projectDir = src;
-        python = pkgs.python311;
-        overrides = p2n-overrides;
-        preferWheels = true;
-      };
+      pyprojectExists = builtins.pathExists "${src}/pyproject.toml";
+
+      # If pyproject.toml exists, use poetry2nix, otherwise use customPythonEnv
+      python-env = if pyprojectExists then
+        pkgs.poetry2nix.mkPoetryEnv {
+          projectDir = src;
+          python = python;
+          overrides = p2n-overrides;
+          preferWheels = true;
+        }
+      else
+        python;
 
       extended-python-env =
         python-env.withPackages (ps: with ps; [ bpython pytest ipykernel ]);
@@ -62,12 +68,20 @@
         src = src;
         phases = phases;
         buildPhase = buildPhase;
-        installPhase = ''
+        installPhase = if installPhase == null || installPhase == "" then ''
           mkdir -p $out/src
           mkdir -p $out/bin
-          cp -r $src/* $out/src
+          if [ -d "$src" ]; then
+            cp -r $src/* $out/src
+          elif [ -f "$src" ]; then
+            cp $src $out/src/
+          else
+            echo "Error: $src is not a valid file or directory"
+            exit 1
+          fi
           cp ${run-tests}/bin/run-tests $out/src/run-tests
-        '' + installPhase;
+        '' else
+          installPhase;
         passthru = {
           python = python-env;
           bpython = run-bpython;
