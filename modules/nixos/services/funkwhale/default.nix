@@ -1,9 +1,4 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
 let
@@ -15,9 +10,8 @@ let
     EMAIL_CONFIG='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.email_config }}{{ else }}{{ .Data.data.email_config }}{{ end }}'
     {{ end }}
   '';
-in
-{
-  options.campground.services.funkwhale = {
+in {
+  options.campground.services.funkwhale = with types; {
     enable = mkEnableOption "Funkwhale";
 
     apiIp = mkOpt str "0.0.0.0" "IP to access the API on";
@@ -31,18 +25,17 @@ in
     campground.services.postgresql = {
       enable = true;
       authentication = [ "local funkwhale funkwhale trust" ];
-      databases = [
-        {
-          name = "funkwhale";
-          user = "funkwhale";
-        }
-      ];
+      databases = [{
+        name = "funkwhale";
+        user = "funkwhale";
+      }];
     };
     services.funkwhale = {
       enable = true;
       user = "funkwhale";
       group = "funkwhale";
       database = {
+        createLocally = false;
         name = "funkwhale";
         user = "funkwhale";
         socket = "/run/postgresql";
@@ -78,34 +71,115 @@ in
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
-            method = [
-              {
-                type = "approle";
-                config = {
-                  role_id_file_path = cfg.role-id;
-                  secret_id_file_path = cfg.secret-id;
-                  remove_secret_id_file_after_reading = false;
-                };
-              }
-            ];
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
           };
         };
         secrets.environment.templates = {
-          funkwhale = {
-            text = funkwhaleEnvTemplate;
-          };
+          funkwhale = { text = funkwhaleEnvTemplate; };
         };
       };
 
-      funkwhale-psql-init = campground.services.vault-agent.services.funkwhale;
+      funkwhale-psql-init = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets.environment.templates = {
+          funkwhale = { text = funkwhaleEnvTemplate; };
+        };
+      };
 
-      funkwhale-init = campground.services.vault-agent.services.funkwhale;
+      funkwhale-init = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets.environment.templates = {
+          funkwhale = { text = funkwhaleEnvTemplate; };
+        };
+      };
 
-      funkwhale-server = campground.services.vault-agent.services.funkwhale;
+      funkwhale-server = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets.environment.templates = {
+          funkwhale = { text = funkwhaleEnvTemplate; };
+        };
+      };
 
-      funkwhale-worker = campground.services.vault-agent.services.funkwhale;
+      funkwhale-worker = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets.environment.templates = {
+          funkwhale = { text = funkwhaleEnvTemplate; };
+        };
+      };
 
-      funkwhale-beat = campground.services.vault-agent.services.funkwhale;
+      funkwhale-beat = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets.environment.templates = {
+          funkwhale = { text = funkwhaleEnvTemplate; };
+        };
+      };
     };
   };
 }
