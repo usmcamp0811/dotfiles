@@ -1,3 +1,5 @@
+{pkgs, ...}:
+pkgs.writeText "aliases.nix"  ''
 # Nix Did this!!
 # Easier navigation: .., ..., ~ and -
 alias ..="cd .."
@@ -12,9 +14,9 @@ alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir
 
 # ls -al Alh
 
-alias ls="lsd --group-dirs first"
-alias la="lsd -laF --group-dirs first"
-alias lt='lsd --tree --depth 3'                              
+alias ls="${pkgs.lsd}/bin/lsd --group-dirs first"
+alias la="${pkgs.lsd}/bin/lsd -laF --group-dirs first"
+alias lt='${pkgs.lsd}/bin/lsd --tree --depth 3'                              
 alias lr="ranger"
 
 
@@ -29,33 +31,32 @@ copy(){
 
 
 alias chmox='chmod -x'
-alias cat='bat'
-alias pcat='bat -p'
-alias vim='nvim'
+alias cat='${pkgs.bat}/bin/bat'
+alias pcat='${pkgs.bat}/bin/bat -p'
+alias vim='${pkgs.campground.neovim}/bin/nvim'
 
 alias df='df -h'
 
 alias grep='grep --color=auto'
 
-alias zathura='devour zathura'
+alias zathura='${pkgs.devour}/bin/devour ${pkgs.zathura}/bin/zathura'
 # alias feh='devour feh'
-alias mpv='devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js -ao=pipewire'
-alias weather='devour weather'
-alias radar='devour weather -r'
-alias neovide='devour neovide'
-alias jupyterqt='devour jupyter qtconsole'
+alias mpv='${pkgs.devour}/bin/devour mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js -ao=pipewire'
+alias weather='${pkgs.devour}/bin/devour weather'
+alias radar='${pkgs.devour}/bin/devour weather -r'
+alias neovide='${pkgs.devour}/bin/devour ${pkgs.neovide}/bin/neovide'
 
 ##########################################################
 ####################### GIT STUFF ########################
 
-alias push="git push"
-alias gs="git status"
+alias push="${pkgs.git}/bin/git push"
+alias gs="${pkgs.git}/bin/git status"
 # Undo a `git push`
-alias undopush="git push -f origin HEAD^:master"
+alias undopush="${pkgs.git}/bin/git push -f origin HEAD^:master"
 
 # git root
-alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup || pwd`'
-alias master="git checkout master"
+alias gr='[ ! -z `${pkgs.git}/bin/git rev-parse --show-cdup` ] && cd `${pkgs.git}/bin/git rev-parse --show-cdup || pwd`'
+alias master="${pkgs.git}/bin/git checkout master"
 
 ##########################################################
 ####################### CONFIG STUFF ########################
@@ -69,32 +70,11 @@ alias aliases='nvim ~/.config/shell/aliases.shrc'
 #bash export
 alias exports='nvim ~/.config/shell/exports.shrc'
 
-#vim plugins
-alias vplug='nvim ~/.config/nvim/load_plugins.vim'
-alias vplug2='nvim ~/.config/nvim/config_plugins.vim'
-alias vkeys='nvim ~/.config/nvim/key-mappings.vim'
-alias vgen='nvim ~/.config/nvim/general.vim'
-alias vinit='nvim ~/.config/nvim/init.vim'
-
 ##########################################################
-# Empty the Trash on all mounted volumes and the main HDD. then clear the useless sleepimage
-alias emptytrash=" \
-    sudo rm -rfv /Volumes/*/.Trashes; \
-    rm -rfv ~/.Trash/*; \
-    sudo rm -v /private/var/vm/sleepimage; \
-    rm -rv \"/Users/paulirish/Library/Application Support/stremio/Cache\";  \
-    rm -rv \"/Users/paulirish/Library/Application Support/stremio/stremio-cache\" \
-"
-alias org="nvim ~/vimwiki/home/index.norg"
-alias nn="nvim -c 'Neorg journal today'"
-alias tmux="tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
-# yea i am sick of typing allthat.. 
-alias update="sudo pacman -Syu"
-# fix pacman when it doesn't finish installing
-alias fix-pacman="sudo rm /var/lib/pacman/db.lck"
-alias wget='wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'
+alias tmux="${pkgs.tmux}/bin/tmux -f ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
+alias wget='${pkgs.wget}/bin/wget --hsts-file="$XDG_CACHE_HOME/wget-hsts"'
 alias nvidia-settings='nvidia-settings --config="$XDG_CONFIG_HOME"/nvidia/settings'
-alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
+alias gpg2='${pkgs.gpg2}/bin/gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
 alias freecad='freecad -u "$XDG_CONFIG_HOME"/FreeCAD/user.cfg -s "$XDG_CONFIG_HOME"/FreeCAD/system.cfg'
 alias gpg2='gpg2 --homedir "$XDG_DATA_HOME"/gnupg'
 alias weechat='weechat -d "$XDG_CONFIG_HOME"/weechat'
@@ -124,38 +104,19 @@ function clone() {
 }
 
 function dkill() {
-    docker stop $1 && docker rm $1
+    ${pkgs.docker}/bin/docker stop $1 && ${pkgs.docker}/bin/docker rm $1
 }
 
 function docker-login() {
-    docker login -u $DHUB_USER -p $DHUB_PASS
-}
-
-# fix pulseadudio
-function fix-audio(){
-    pulseaudio -k
-    sleep 2
-    pulseaudio
-}
-
-save-gnome(){
-    # saves gnome settings to file
-    echo "Saving gnome settings to ~/.config/dconf/dconf-settings.ini"
-    dconf dump / > ~/.config/dconf/dconf-settings.ini
-}
-
-load-gnome(){
-    # load gnome settings from file
-    echo "Loading gnome settings from ~/.config/dconf/dconf-settings.ini"
-    dconf load / < ~/.config/dconf/dconf-settings.ini
+    ${pkgs.docker}/bin/docker login -u $DHUB_USER -p $DHUB_PASS
 }
 
 new_tmux () {
-    tmux new -s $1
+    ${pkgs.tmux}/bin/tmux new -s $1
 }
 
 a_tmux () {
-    tmux a -t $1
+    ${pkgs.tmux}/bin/tmux a -t $1
 }
 
 fetch() {
@@ -167,35 +128,6 @@ kill () {
     /usr/bin/kill $@
 }
 
-function pacsearch(){
-    pacman -Slq | fzf -m --preview 'cat <(pacman -Si {1}) <(pacman -Fl {1} | awk "{print \$2}")' | xargs -ro sudo pacman -S
-}
-
-function yaysearch(){
-    yay -Slq | fzf -m --preview 'cat <(yay -Si {1}) <(yay -Fl {1} | awk "{print \$2}")' | xargs -ro  yay -S
-}
-
-function pac-backup(){
-    pacman -Qqen > ~/pkglist.txt
-    pacman -Qqm > ~/pkglist-aur.txt
-    dotfiles add ~/pkglist.txt
-    dotfiles add ~/pkglist-aur.txt
-    dotfiles commit -m "Backing-up installed packages"
-}
-
-# Codi
-# Usage: codi [filetype] [filename]
-codi() {
-  local syntax="${1:-python}"
-  shift
-  nvim -c \
-    "let g:startify_disable_at_vimenter = 1 |\
-    set bt=nofile ls=0 noru nonu nornu |\
-    hi ColorColumn ctermbg=NONE |\
-    hi VertSplit ctermbg=NONE |\
-    hi NonText ctermfg=0 |\
-    Codi $syntax" "$@"
-}
 
 gpu-hybrid(){
     supergfxctl --mode hybrid
@@ -207,10 +139,6 @@ gpu-dedicated(){
     sudo pkill -9 -u $USER
 }
 
-
-update-all(){
-    ansible-playbook ~/code-home/ansible_playbooks/syu.yml --become --ask-become-pass
-}
 
 # convert "Channel Name" "https://youtube.com/@somechannel" to ytdl-sub yaml
 function subscribe(){
@@ -265,3 +193,6 @@ zsh-unlock() {
   HOST=$1
   ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
 }
+
+''
+
