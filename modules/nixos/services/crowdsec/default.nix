@@ -3,26 +3,27 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.crowdsec;
-in
-{
+  yaml = (pkgs.formats.yaml { }).generate;
+  acquisitions_file = yaml "acquisitions.yaml" {
+    source = "journalctl";
+    journalctl_filter = [ "_SYSTEMD_UNIT=sshd.service" ];
+    labels.type = "syslog";
+  };
+in {
   options.campground.services.crowdsec = with types; {
     enable = mkBoolOpt false "Enable file-share;";
     listen_uri = mkOpt str "0.0.0.0:10808" "URI to listen on";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt str "secret/campground/crowdsec"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/crowdsec"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [
-        "v1"
-        "v2"
-      ];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -37,26 +38,24 @@ in
     services.crowdsec = {
       enable = true;
       enrollKeyFile = "/tmp/detsys-vault/crowdsec_key";
+      allowLocalJournalAccess = true;
       settings = {
-        api.server = {
-          listen_uri = cfg.listen_uri;
-        };
+        crowdsec_service.acquisition_path = acquisitions_file;
+        api.server = { listen_uri = cfg.listen_uri; };
       };
     };
     campground.services.vault-agent.services.crowdsec = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [
-            {
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }
-          ];
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
         };
       };
       secrets = {
