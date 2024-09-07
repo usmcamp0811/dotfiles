@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, pkgs, config, ... }:
 with lib;
 with lib.campground;
 let
@@ -39,8 +39,13 @@ in {
       enable = true;
       enrollKeyFile = "/tmp/detsys-vault/crowdsec_key";
       allowLocalJournalAccess = true;
+      acquisitions = [{
+        source = "journalctl";
+        journalctl_filter = [ "_SYSTEMD_UNIT=sshd.service" ];
+        labels.type = "syslog";
+      }];
       settings = {
-        crowdsec_service.acquisition_path = acquisitions_file;
+        # crowdsec_service.acquisition_path = acquisitions_file;
         api.server = { listen_uri = cfg.listen_uri; };
       };
     };
