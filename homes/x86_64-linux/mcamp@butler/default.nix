@@ -104,6 +104,7 @@ with lib.campground; {
       ckb-next = enabled;
       slack = enabled;
       compose2nix = enabled;
+      freetube = enabled;
     };
     tools = {
       git = enabled;
