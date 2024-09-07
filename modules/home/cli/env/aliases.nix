@@ -10,7 +10,7 @@ pkgs.writeText "aliases.nix" ''
   alias ~="cd ~" # `cd` is probably faster to type though
   alias -- -="cd -"
 
-  alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
+  alias ranger='${pkgs.ranger}/bin/ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 
   # ls -al Alh
 
