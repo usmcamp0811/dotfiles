@@ -4,10 +4,8 @@
   inputs = {
     # nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs.url = "github:nixos/nixpkgs/release-24.05";
-    pyarrow.url =
-      "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
-    hyprland-works-here.url =
-      "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
+    pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
+    hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     # TODO: Switch back to unstable branch when the node fix gets merged
     unstable.url = "github:nixos/nixpkgs/master";
 
@@ -200,9 +198,14 @@
     };
 
     nix-health.url = "github:juspay/nix-health?dir=module";
+    crowdsec = {
+      url = "git+https://codeberg.org/kampka/nix-flake-crowdsec.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     let
       inherit (inputs) deploy-rs;
       lib = inputs.snowfall-lib.mkLib {
@@ -217,15 +220,19 @@
           namespace = "campground";
         };
       };
-      # system = "x86_64-linux";
-      # pkgs = import nixpkgs {
-      #   inherit system;
-      # };
-    in lib.mkFlake {
+    in
+    # system = "x86_64-linux";
+    # pkgs = import nixpkgs {
+    #   inherit system;
+    # };
+    lib.mkFlake {
       channels-config = {
         allowUnfree = true;
-        permittedInsecurePackages =
-          [ "python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4" ];
+        permittedInsecurePackages = [
+          "python-2.7.18.6"
+          "python-2.7.18.7"
+          "qtwebkit-5.212.0-alpha4"
+        ];
       };
 
       overlays = with inputs; [
@@ -250,6 +257,7 @@
         nix-topology.nixosModules.default
         catppuccin.nixosModules.catppuccin
         flakeforge.nixosModules.flakeforge
+        crowdsec.nixosModules.crowdsec
         # nixos-cli.nixosModules.nixos-cli
         # nix-health.flakeModule
         # scientific-fhs.nixosModules.default
@@ -261,29 +269,34 @@
       ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
-      systems.hosts.base.modules =
-        [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
+      systems.hosts.base.modules = [
+        (
+          { ... }:
+          {
+            amazonImage.sizeMB = 32 * 1024;
+          }
+        )
+      ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks = builtins.mapAttrs
-        (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
-        deploy-rs.lib;
+      checks = builtins.mapAttrs (
+        _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+      ) deploy-rs.lib;
 
       outputs-builder = channels: {
         # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and 
         # which will break `deploy`. 
-        hooks.pre-commit-check =
-          inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-            src = ./.;
-            hooks = {
-              nixfmt.enable = true;
-              # flake8.enable = true;
-              # markdownlint.enable = true;
-              # yamllint.enable = true;
-              # deadnix.enable = true;
-            };
+        hooks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+          src = ./.;
+          hooks = {
+            nixfmt.enable = true;
+            # flake8.enable = true;
+            # markdownlint.enable = true;
+            # yamllint.enable = true;
+            # deadnix.enable = true;
           };
+        };
         # checks.mlflow-test = channels.nixpkgs.nixosTest {
         #   name = "mlflow-test";
         #   nodes = {
