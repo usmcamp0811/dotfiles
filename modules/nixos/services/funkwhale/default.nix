@@ -1,6 +1,10 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
+# THIS IS BORKED
+# Think the problem is with the version of Python but not certain.. 
+# do know starting with version 1.4.0 they switch to Poetry so 
+# the package will need to be reworked to support poetry. 
 let
   cfg = config.campground.services.funkwhale;
 

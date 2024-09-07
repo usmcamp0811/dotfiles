@@ -1,1 +1,1 @@
-{ inputs, ... }: final: prev: { inherit (inputs.funkwhale) ; }
+{ inputs, ... }: final: prev: { inherit (inputs.funkwhale.overlay) ; }
