@@ -156,6 +156,7 @@ in {
       vaultwarden = enabled;
       mattermost = enabled;
       paperless = enabled;
+      crowdsec = enabled;
 
       mysql = {
         backupEnable = true;
