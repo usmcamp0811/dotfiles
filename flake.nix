@@ -202,6 +202,7 @@
       url = "git+https://codeberg.org/kampka/nix-flake-crowdsec.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    funkwhale.url = "github:mmai/funkwhale-flake";
   };
 
   outputs =
@@ -246,6 +247,7 @@
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
+        funkwhale.overlay.default
         # neorg-overlay.overlays.default
       ];
 
@@ -258,6 +260,7 @@
         catppuccin.nixosModules.catppuccin
         flakeforge.nixosModules.flakeforge
         crowdsec.nixosModules.crowdsec
+        funkwhale.nixosModule.default
         # nixos-cli.nixosModules.nixos-cli
         # nix-health.flakeModule
         # scientific-fhs.nixosModules.default

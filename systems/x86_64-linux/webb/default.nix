@@ -151,6 +151,7 @@ in {
       docker = enabled;
       minio = enabled;
       mlflow = enabled;
+      funkwhale = enabled;
       # airflow = enabled;
       # label-studio = enabled;
       vaultwarden = enabled;
