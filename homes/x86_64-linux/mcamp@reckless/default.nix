@@ -1,15 +1,6 @@
-{
-  inputs,
-  lib,
-  pkgs,
-  config,
-  osConfig ? { },
-  format ? "unknown",
-  ...
-}:
+{ inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib;
-with lib.campground;
-{
+with lib.campground; {
   campground = {
 
     system.xdg = enabled;
@@ -39,19 +30,24 @@ with lib.campground;
           monitors = [
             {
               name = "HDMI-A-1";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-2";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-3";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
           ];
 
-          wallpapers = [ "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg" ];
+          wallpapers = [
+            "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
+          ];
         };
         gbar = enabled;
         wofi = enabled;
@@ -79,7 +75,42 @@ with lib.campground;
     };
     services = {
       openssh = enabled;
-      syncthing = enabled;
+      syncthing = {
+        enable = true;
+
+        settings = {
+          gui = {
+            user = "mcamp";
+            password = "password";
+            address = "0.0.0.0:8384";
+          };
+          devices = {
+            "webb" = {
+              id =
+                "CDYQGNY-J456EPJ-FRWJ4RS-CLETCLG-7L6QC4K-KP3HO7L-IY62FMD-ZTJFKQT";
+            };
+            "pixel" = {
+              id =
+                "AQYP35O-7TCNUMN-HM2KOQF-U4RSGNM-C7SNIEM-TGES2ZC-XRJXO2H-7FOWWAB";
+            };
+          };
+          folders = {
+            #   "Documents" = {
+            #     # Name of folder in Syncthing, also the folder ID
+            #     path = "/home/myusername/Documents"; # Which folder to add to Syncthing
+            #     devices = [
+            #       "device1"
+            #       "device2"
+            #     ]; # Which devices to share the folder with
+            #   };
+            #   "Example" = {
+            #     path = "/home/myusername/Example";
+            #     devices = [ "device1" ];
+            #     ignorePerms = false; # By default, Syncthing doesn't sync file permissions. This line enables it for this folder.
+            #   };
+          };
+        };
+      };
       protonmail-bridge = enabled;
     };
 
