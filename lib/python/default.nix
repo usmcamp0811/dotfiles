@@ -2,7 +2,7 @@
   mkPythonDerivation = { pkgs, name, src, phases ? [ "installPhase" ]
     , pypkgs-build-requirements ? { }, container ? { }, buildPhase ? ""
     , installPhase ? "", meta ? { }, python ? pkgs.python311
-    , extraPackages ? null, }:
+    , extraPackages ? [ ], }:
     let
       defaultContainer = {
         tag = "latest";
@@ -40,6 +40,7 @@
 
       pythonVersion = builtins.substring 0 4
         python-env.python.version; # Extract the major and minor version (e.g., "3.11")
+
       jupyterPythonVersion = builtins.substring 0 4
         pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
 
