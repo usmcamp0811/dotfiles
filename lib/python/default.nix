@@ -2,7 +2,7 @@
   mkPythonDerivation = { pkgs, name, src, phases ? [ "installPhase" ]
     , pypkgs-build-requirements ? { }, container ? { }, buildPhase ? ""
     , installPhase ? "", meta ? { }, python ? pkgs.python311
-    , extraPackages ? [ ], }:
+    , extraPackages ? null, }:
     let
       defaultContainer = {
         tag = "latest";
@@ -26,7 +26,7 @@
       # If pyproject.toml exists, use poetry2nix, otherwise use customPythonEnv
       python-env = if pyprojectExists then
         pkgs.poetry2nix.mkPoetryEnv {
-          inherit extraPackages;
+          # inherit extraPackages;
           projectDir = src;
           python = python;
           overrides = p2n-overrides;
