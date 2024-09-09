@@ -5,6 +5,7 @@
     , extraPackages ? (ps: [ ]), }:
     let
       defaultContainer = {
+        name = name;
         tag = "latest";
         contents = [ python-env ];
         config = { Entrypoint = [ "${python-env}/bin/python" ]; };
@@ -61,10 +62,7 @@
         ${extended-python-env}/bin/pytest ${src}/tests/ "$@"
       '';
 
-      container = pkgs.dockerTools.buildLayeredImage {
-        name = pyDerivation.name;
-        inherit (finalContainer) tag contents config;
-      };
+      container-img = pkgs.dockerTools.buildLayeredImage finalContainer;
 
       pyDerivation = pkgs.stdenv.mkDerivation {
         name = name;
@@ -90,7 +88,7 @@
           bpython = run-bpython;
           jupyter = run-jupyter;
           test = run-tests;
-          container = container;
+          container = container-img;
         };
         meta = meta;
       };

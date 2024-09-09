@@ -24,7 +24,7 @@ let
 
   example-flask-app = mkPythonDerivation {
     inherit pkgs;
-    name = "example-flask-app-1.0.0";
+    name = "example-flask-app";
     src = flaskApp;
     python = python-env;
     installPhase = ''
@@ -34,8 +34,8 @@ let
       cp -r ${run-with-wsgi}/bin/run-app $out/bin/example-flask-app
     '';
     container = {
-      inherit name;
-      tag = "latest";
+      name = "example-flask-app";
+      tag = "1.0.0";
       contents = [ run-with-wsgi ];
       config = { Entrypoint = [ "run-app" ]; };
     };
