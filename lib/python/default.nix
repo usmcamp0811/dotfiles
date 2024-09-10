@@ -2,7 +2,14 @@
   mkPythonDerivation = { pkgs, name, src, phases ? [ "installPhase" ]
     , pypkgs-build-requirements ? { }, container ? { }, buildPhase ? ""
     , installPhase ? "", meta ? { }, python ? pkgs.python311
-    , extraPackages ? (ps: [ ]), }:
+    , extraPackages ? (ps: [ ]), p2n-overrides ? (self: super:
+      builtins.mapAttrs (package: build-requirements:
+        let
+          override = super.${package}.overridePythonAttrs (oldAttrs: {
+            buildInputs = (oldAttrs.buildInputs or [ ])
+              ++ (builtins.map (req: super.${req}) build-requirements);
+          });
+        in override) pypkgs-build-requirements), }:
     let
       defaultContainer = {
         name = name;
@@ -11,16 +18,21 @@
         config = { Entrypoint = [ "${python-env}/bin/python" ]; };
       };
       finalContainer = defaultContainer // container;
-
-      p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend
-        (self: super:
-          builtins.mapAttrs (package: build-requirements:
-            let
-              override = super.${package}.overridePythonAttrs (oldAttrs: {
-                buildInputs = (oldAttrs.buildInputs or [ ])
-                  ++ (builtins.map (req: super.${req}) build-requirements);
-              });
-            in override) pypkgs-build-requirements);
+      final-p2n-overrides =
+        pkgs.poetry2nix.defaultPoetryOverrides.extend p2n-overrides;
+      # p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (
+      #   self: super:
+      #   builtins.mapAttrs (
+      #     package: build-requirements:
+      #     let
+      #       override = super.${package}.overridePythonAttrs (oldAttrs: {
+      #         buildInputs =
+      #           (oldAttrs.buildInputs or [ ]) ++ (builtins.map (req: super.${req}) build-requirements);
+      #       });
+      #     in
+      #     override
+      #   ) pypkgs-build-requirements
+      # );
 
       pyprojectExists = builtins.pathExists "${src}/pyproject.toml";
 
@@ -30,7 +42,7 @@
           inherit extraPackages;
           projectDir = src;
           python = python;
-          overrides = p2n-overrides;
+          overrides = final-p2n-overrides;
           preferWheels = true;
         }
       else
