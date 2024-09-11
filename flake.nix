@@ -9,7 +9,7 @@
     hyprland-works-here.url =
       "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     # TODO: Switch back to unstable branch when the node fix gets merged
-    unstable.url = "github:nixos/nixpkgs/master";
+    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
