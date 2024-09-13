@@ -33,6 +33,18 @@ let
           oldAttrs.postInstall or "";
       })) pypkgs-build-requirements);
 
+  pythonInFHS = (pkgs.scientific-fhs.override (oldAttrs: {
+    commandScript = "python";
+    juliaEnv = pkgs.campground.julia;
+    poetryEnv = python-env;
+  }));
+
+  bashInFHS = (pkgs.scientific-fhs.override (oldAttrs: {
+    commandScript = "bash";
+    juliaEnv = pkgs.campground.julia;
+    poetryEnv = python-env;
+  }));
+
   python-env = pkgs.poetry2nix.mkPoetryEnv {
     projectDir = src;
     python = pkgs.python312;
@@ -42,4 +54,9 @@ let
 
   src = ./.;
 
-in override-meta new-meta python-env
+in python-env // {
+  FHS = {
+    python = pythonInFHS;
+    bash = bashInFHS;
+  };
+}
