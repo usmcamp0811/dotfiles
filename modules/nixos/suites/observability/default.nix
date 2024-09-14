@@ -46,7 +46,7 @@ in
             {
               job_name = "borgbackup-jobs";
               journal = {
-                max_age = "12h";
+                max_age = "48h";
                 labels = {
                   job = "systemd-journal";
                   host = config.networking.hostName;
