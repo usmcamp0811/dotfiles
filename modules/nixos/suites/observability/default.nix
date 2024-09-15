@@ -38,15 +38,11 @@ in
           enable = cfg.prometheus;
           exporter-enable = true;
           hostnames = cfg.hostnames;
-        };
-        promtail = {
-          enable = true;
-          loki-uri = cfg.loki-uri;
           additionalScrapeConfigs = [
             {
               job_name = "borgbackup-jobs";
               journal = {
-                max_age = "48h";
+                max_age = "12h";
                 labels = {
                   job = "systemd-journal";
                   host = config.networking.hostName;
@@ -72,6 +68,10 @@ in
               ];
             }
           ];
+        };
+        promtail = {
+          enable = true;
+          loki-uri = cfg.loki-uri;
 
         };
       };
