@@ -48,7 +48,7 @@ in
       enable = cfg.enable;
       port = cfg.port;
       exporters = {
-        systemd = enable;
+        systemd.enable = true;
         node = {
           enable = cfg.exporter-enable;
           enabledCollectors = [ "systemd" ] ++ additionalCollectors;
