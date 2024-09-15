@@ -51,7 +51,7 @@ in
         systemd.enable = true;
         node = {
           enable = cfg.exporter-enable;
-          enabledCollectors = [ "systemd" ] ++ cfg.additionalCollectors;
+          enabledCollectors = [ "systemd" ]; # ++ cfg.additionalCollectors;
           port = cfg.exporter-port;
         };
       };
