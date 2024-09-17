@@ -177,12 +177,6 @@
           echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
 
-          # fuck flink so fucking hard!! the order of the args matters! why!??!
-          # Construct the -j arguments from additionalJars
-          JAR_ARGS=$(
-
-          )
-
           # Execute the sql-client.sh with the additional JARs
           ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" \
             -j=${getFlinkKafkaConnector pkgs} \
