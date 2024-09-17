@@ -26,27 +26,10 @@ in {
           exporter-enable = true;
           hostnames = cfg.hostnames;
           scriptFiles = {
-            # Using pkgs.writeShellScript
-            # myScript = pkgs.writeShellScript "myScript" ''
-            #   #!/bin/bash
-            #   echo "metric_name 1"
-            # '';
-
             # Using pkgs.writeShellScriptBin
             anotherScript = pkgs.writeShellScriptBin "anotherScript" ''
-              #!/bin/bash
               echo "another_metric 2"
             '';
-
-            # Using pkgs.writeShellApplication
-            # shellAppScript = pkgs.writeShellApplication {
-            #   name = "shellAppScript";
-            #   runtimeDeps = [ ]; # Add any runtime dependencies if needed
-            #   text = ''
-            #     #!/bin/bash
-            #     echo "shell_app_metric 3"
-            #   '';
-            # };
           };
           additionalScrapeConfigs = [{
             job_name = "borgbackup-job-${config.networking.hostName}_rsync";

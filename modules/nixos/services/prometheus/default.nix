@@ -31,8 +31,7 @@ in {
       "Additional scrape configs for Prometheus.";
     hostnames = mkOpt (listOf str) [ ] "List of hostnames for scrape configs.";
     additionalCollectors =
-      mkOpt (listOf str) [ "zfs" "sysctl" "powersupplyclass" "nfs" ]
-      "List of additional Collectors";
+      mkOpt (listOf str) [ ] "List of additional Collectors";
     scriptFiles = mkOption {
       type = types.attrsOf types.package;
       default = { };
@@ -68,13 +67,13 @@ in {
               in {
                 name = name;
                 script = scriptPath;
-                # timeout = scriptAttrs.timeout or "5s";
+                timeout = scriptAttrs.timeout or 5;
               }) cfg.scriptFiles;
           };
         };
         node = {
           enable = cfg.exporter-enable;
-          enabledCollectors = [ "systemd" ] ++ cfg.additionalCollectors;
+          enabledCollectors = [ "systemd" ]; # ++ cfg.additionalCollectors;
           port = cfg.exporter-port;
         };
       };
