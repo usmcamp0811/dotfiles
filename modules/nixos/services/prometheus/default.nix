@@ -40,7 +40,7 @@ in
       attrsOf anything
     )) [ ] "Additional scrape configs for Prometheus.";
     hostnames = mkOpt (listOf str) [ ] "List of hostnames for scrape configs.";
-    additionalCollectors = mkOpt (listOf str) [ ] "List of additional Collectors";
+    additionalCollectors = mkOpt (listOf str) [ "script" ] "List of additional Collectors";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
@@ -51,7 +51,7 @@ in
         systemd.enable = true;
         node = {
           enable = cfg.exporter-enable;
-          enabledCollectors = [ "systemd" ]; # ++ cfg.additionalCollectors;
+          enabledCollectors = [ "systemd" ] ++ cfg.additionalCollectors;
           port = cfg.exporter-port;
         };
       };
