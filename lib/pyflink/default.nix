@@ -182,7 +182,7 @@
           JAR_ARGS=$(
             ${
               builtins.concatStringsSep " " (map (jar: ''
-                echo "-j=${jar}"
+                "-j=${jar}"
               '') additionalJars)
             }
           )
