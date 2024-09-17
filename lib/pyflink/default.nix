@@ -37,12 +37,12 @@
   ];
 
   getFlinkWithAdditionalJars = { pkgs, additionalJars ? [ ], }:
-    pkgs.flink.overrideAttrs (oldAttrs: rec {
+    pkgs.flink.overrideAttrs (oldAttrs: {
       installPhase = ''
         ${oldAttrs.installPhase}
         mkdir -p $out/opt/flink/lib
         ${builtins.concatStringsSep "\n" (map (jar: ''
-          cp ${jar} $out/opt/flink/lib/
+          cp ${jar} $out/opt/flink/lib/$(basename ${jar})
         '') additionalJars)}
       '';
     });
