@@ -259,6 +259,10 @@
           ln -s ${
             getFlinkKafkaConnector pkgs
           } $out/opt/flink/lib/flink-kafka-connector.jar
+          # Copy all additional JARs to $out/opt/flink/lib
+          ${builtins.concatStringsSep "\n" (map (jar: ''
+            ln -s ${jar} $out/opt/flink/lib/
+          '') additionalJars)}
           cp -r ${python-env.python}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
           ${additionalInstallPhase}
