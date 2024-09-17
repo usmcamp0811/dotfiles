@@ -71,13 +71,7 @@ in
           enable = true;
           port = cfg.scriptExporterPort;
           openFirewall = true;
-
           scriptFiles = cfg.scriptFiles;
-
-          endpoints = lib.mapAttrs (name: _: {
-            script = name;
-            timeout = "5s"; # You can make this configurable if needed
-          }) cfg.scriptFiles;
         };
         node = {
           enable = cfg.exporter-enable;
