@@ -27,10 +27,10 @@ in {
           hostnames = cfg.hostnames;
           scriptFiles = {
             # Using pkgs.writeShellScript
-            myScript = pkgs.writeShellScript "myScript" ''
-              #!/bin/bash
-              echo "metric_name 1"
-            '';
+            # myScript = pkgs.writeShellScript "myScript" ''
+            #   #!/bin/bash
+            #   echo "metric_name 1"
+            # '';
 
             # Using pkgs.writeShellScriptBin
             anotherScript = pkgs.writeShellScriptBin "anotherScript" ''

@@ -54,9 +54,9 @@ in {
 
           # Define scripts under settings.scripts
           settings = {
-            scripts = lib.mapAttrs (name: scriptDerivation:
-              # Get the script file path from the derivation
+            scripts = lib.mapAttrsToList (name: scriptAttrs:
               let
+                scriptDerivation = scriptAttrs;
                 scriptPath =
                   if builtins.pathExists "${scriptDerivation}/bin/${name}" then
                     "${scriptDerivation}/bin/${name}"
@@ -66,8 +66,9 @@ in {
                     (throw
                       "Cannot find script file for '${name}' in derivation '${scriptDerivation}'");
               in {
+                name = name;
                 script = scriptPath;
-                timeout = "5s"; # You can make this configurable if needed
+                # timeout = scriptAttrs.timeout or "5s";
               }) cfg.scriptFiles;
           };
         };
