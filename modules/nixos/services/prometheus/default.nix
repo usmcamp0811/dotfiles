@@ -47,15 +47,7 @@ in
       "nfs"
     ] "List of additional Collectors";
     scriptFiles = mkOption {
-      type = types.attrsOf (
-        types.submodule ({
-          options = {
-            text = types.str;
-            source = types.path;
-            # You can add more script-related options if needed
-          };
-        })
-      );
+      type = types.attrsOf types.package;
       default = { };
       description = "Script files for the Prometheus Script Exporter.";
     };
@@ -71,7 +63,26 @@ in
           enable = true;
           port = cfg.scriptExporterPort;
           openFirewall = true;
-          scriptFiles = cfg.scriptFiles;
+
+          # Process scriptFiles into a list of script paths
+          scriptFiles = builtins.mapAttrsToList (name: scriptDerivation:
+            # Get the script file path from the derivation
+            let
+              scriptPath = if (builtins.pathExists (scriptDerivation + "/bin/${name}")) then
+                scriptDerivation + "/bin/${name}"
+              else if (builtins.pathExists (scriptDerivation + "/${name}")) then
+                scriptDerivation + "/${name}"
+              else
+                throw "Cannot find script file for '${name}' in derivation '${scriptDerivation}'"
+            in
+            scriptPath
+          ) cfg.scriptFiles;
+
+          # Set up endpoints for each script
+          endpoints = lib.mapAttrs (name: _: {
+            script = name;
+            timeout = "5s"; # You can make this configurable if needed
+          }) cfg.scriptFiles;
         };
         node = {
           enable = cfg.exporter-enable;

@@ -39,14 +39,27 @@ in
           exporter-enable = true;
           hostnames = cfg.hostnames;
           scriptFiles = {
-            "borgbackup_metrics.sh".text = ''
+            # Using pkgs.writeShellScript
+            myScript = pkgs.writeShellScript "myScript" ''
               #!/bin/bash
-
-              # Your script content here
-              echo '# HELP my_custom_metric A custom metric'
-              echo '# TYPE my_custom_metric gauge'
-              echo "my_custom_metric 42"
+              echo "metric_name 1"
             '';
+
+            # Using pkgs.writeShellScriptBin
+            anotherScript = pkgs.writeShellScriptBin "anotherScript" ''
+              #!/bin/bash
+              echo "another_metric 2"
+            '';
+
+            # Using pkgs.writeShellApplication
+            shellAppScript = pkgs.writeShellApplication {
+              name = "shellAppScript";
+              runtimeDeps = [ ]; # Add any runtime dependencies if needed
+              text = ''
+                #!/bin/bash
+                echo "shell_app_metric 3"
+              '';
+            };
           };
           additionalScrapeConfigs = [
             {
