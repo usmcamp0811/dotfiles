@@ -190,7 +190,7 @@
           # Execute the sql-client.sh with the additional JARs
           ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" \
             -j=${getFlinkKafkaConnector pkgs} \
-            $JAR_ARGS \
+            "$JAR_ARGS" \
             -pyfs=${src} -pyclientexec=${python-env}/bin/python
         '';
       };
