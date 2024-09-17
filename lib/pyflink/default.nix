@@ -1,16 +1,7 @@
-{ lib, inputs }:
-rec {
-  containerShadowSetup =
-    {
-      pkgs,
-      user,
-      uid,
-      gid ? uid,
-      homeDir ? "/home/${user}",
-      runtimeShell ? "/bin/bash",
-    }:
-    with pkgs;
-    [
+{ lib, inputs }: rec {
+  containerShadowSetup = { pkgs, user, uid, gid ? uid, homeDir ? "/home/${user}"
+    , runtimeShell ? "/bin/bash", }:
+    with pkgs; [
       (writeTextDir "etc/shadow" ''
         root:!x:::::::
         ${user}:!:::::::
@@ -45,41 +36,34 @@ rec {
     pkgs.openjdk11
   ];
 
-  getFlinkWithKafkaConnector =
-    pkgs:
-    pkgs.flink.overrideAttrs (oldAttrs: {
-      installPhase =
-        oldAttrs.installPhase
-        + ''
-          mkdir -p $out/opt/flink/lib
-          cp -r ${getFlinkKafkaConnector pkgs} $out/opt/flink/lib/flink-sql-connector-kafka.jar
-        '';
+  getFlinkWithAdditionalJars = { pkgs, additionalJars ? [ ], }:
+    pkgs.flink.overrideAttrs (oldAttrs: rec {
+      installPhase = ''
+        ${oldAttrs.installPhase}
+        mkdir -p $out/opt/flink/lib
+        ${builtins.concatStringsSep "\n" (map (jar: ''
+          cp ${jar} $out/opt/flink/lib/
+        '') additionalJars)}
+      '';
     });
 
-  getFlinkKafkaConnector =
-    pkgs:
+  getFlinkKafkaConnector = pkgs:
     let
       kafka-jar = "flink-sql-connector-kafka";
-      flink-version = builtins.concatStringsSep "." (
-        pkgs.lib.take 2 (pkgs.lib.splitString "." pkgs.flink.version)
-      );
+      flink-version = builtins.concatStringsSep "."
+        (pkgs.lib.take 2 (pkgs.lib.splitString "." pkgs.flink.version));
       jar-version = "3.2.0-${flink-version}";
-      url = "https://repo.maven.apache.org/maven2/org/apache/flink/${kafka-jar}/${jar-version}/${kafka-jar}-${jar-version}.jar";
-    in
-    pkgs.fetchurl {
+      url =
+        "https://repo.maven.apache.org/maven2/org/apache/flink/${kafka-jar}/${jar-version}/${kafka-jar}-${jar-version}.jar";
+    in pkgs.fetchurl {
       inherit url;
-      sha256 = builtins.trace "Expected SHA256:" "sha256-w+2jzSlcHN+x3Lrk4P0xjYLi3W8HMyjjDNefHZqZB3U=";
+      sha256 = builtins.trace "Expected SHA256:"
+        "sha256-w+2jzSlcHN+x3Lrk4P0xjYLi3W8HMyjjDNefHZqZB3U=";
     };
 
   ## Create shell scripts with Flink configuration
   writeFlinkApplication =
-    {
-      pkgs,
-      flinkConf,
-      name,
-      text,
-      extraRuntimeInputs ? [ ],
-    }:
+    { pkgs, flinkConf, name, text, extraRuntimeInputs ? [ ], }:
     let
       flinkConfDir = pkgs.stdenv.mkDerivation {
         name = "flink-conf-drv";
@@ -96,8 +80,7 @@ rec {
           cp "${flinkConf}" "$out/conf/config.yaml"
         '';
       };
-    in
-    pkgs.writeShellApplication {
+    in pkgs.writeShellApplication {
       inherit name;
       runtimeInputs = (commonFlinkRuntimeInputs pkgs) ++ extraRuntimeInputs;
       text = ''
@@ -115,66 +98,53 @@ rec {
     };
 
   ## Create a Flink derivation
-  mkPyFlinkDerivation =
-    {
-      pkgs,
-      name,
-      tag ? "latest",
-      flinkConf ? null,
-      src,
-      pypkgs-build-requirements ? { },
-      flink-job-script ? "jobs/job.py",
-      additionalInstallPhase ? "",
-      additionalPassThru ? { },
-    }:
+  mkPyFlinkDerivation = { pkgs, name, tag ? "latest", flinkConf ? null, src
+    , pypkgs-build-requirements ? { }, flink-job-script ? "jobs/job.py"
+    , additionalInstallPhase ? "", additionalPassThru ? { }
+    , additionalJars ? [ ], }:
     let
       # Extract the folder name (first element)
       # this is used in PYFILES so Flink can get submodules if you use them
       splitPath = lib.strings.split "/" flink-job-script;
       pyFolderName = builtins.head splitPath;
 
-      flinkConf' =
-        if flinkConf == null then
-          pkgs.writeTextFile {
-            name = "flink-conf.yaml";
-            text = ''
-              env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
-              jobmanager.rpc.address: localhost
-              jobmanager.rpc.port: 6123
-              jobmanager.bind-host: 0.0.0.0
-              jobmanager.memory.process.size: 1600m
-              taskmanager.bind-host: 0.0.0.0
-              taskmanager.host: localhost
-              taskmanager.memory.process.size: 1728m
-              taskmanager.numberOfTaskSlots: 3
-              parallelism.default: 1
-              jobmanager.execution.failover-strategy: region
-              rest.address: localhost
-              rest.port: 8081
-              rest.bind-address: 0.0.0.0
-              env.log.dir: /tmp/flink-logs
-              env.java.home: ${pkgs.openjdk11}
-              env.path: ${python-env.python}/bin/:$PATH
-              python.path: ${python-env.python}/lib/python${pythonVersion}/site-packages:${src}
-              python.executable: ${python-env.python}/bin/python
-              python.client.executable: ${python-env.python}/bin/python
-              pipeline.jars: ${getFlinkKafkaConnector pkgs}
-            '';
-          }
-        else
-          flinkConf;
+      flinkConf' = if flinkConf == null then
+        pkgs.writeTextFile {
+          name = "flink-conf.yaml";
+          text = ''
+            env.java.opts.all: --add-exports=java.base/sun.net.util=ALL-UNNAMED --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED
+            jobmanager.rpc.address: localhost
+            jobmanager.rpc.port: 6123
+            jobmanager.bind-host: 0.0.0.0
+            jobmanager.memory.process.size: 1600m
+            taskmanager.bind-host: 0.0.0.0
+            taskmanager.host: localhost
+            taskmanager.memory.process.size: 1728m
+            taskmanager.numberOfTaskSlots: 3
+            parallelism.default: 1
+            jobmanager.execution.failover-strategy: region
+            rest.address: localhost
+            rest.port: 8081
+            rest.bind-address: 0.0.0.0
+            env.log.dir: /tmp/flink-logs
+            env.java.home: ${pkgs.openjdk11}
+            env.path: ${python-env.python}/bin/:$PATH
+            python.path: ${python-env.python}/lib/python${pythonVersion}/site-packages:${src}
+            python.executable: ${python-env.python}/bin/python
+            python.client.executable: ${python-env.python}/bin/python
+            pipeline.jars: ${getFlinkKafkaConnector pkgs}
+          '';
+        }
+      else
+        flinkConf;
 
-      flink-with-kafka-connector = getFlinkWithKafkaConnector pkgs;
+      flink-with-kafka-connector =
+        getFlinkWithKafkaConnector { inherit pkgs additionalJars; };
 
       pythonVersion = builtins.substring 0 4 python-env.python.python.version;
 
       python-env = lib.campground.mkPythonDerivation {
-        inherit
-          pkgs
-          name
-          src
-          pypkgs-build-requirements
-          ;
+        inherit pkgs name src pypkgs-build-requirements;
       };
 
       start-managers = writeFlinkApplication {
@@ -205,7 +175,9 @@ rec {
           echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
           # fuck flink so fucking hard!! the order of the args matters! why!??!
-          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" -j=${getFlinkKafkaConnector pkgs} -pyfs=${src} -pyclientexec=${python-env}/bin/python
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" -j=${
+            getFlinkKafkaConnector pkgs
+          } -pyfs=${src} -pyclientexec=${python-env}/bin/python
 
         '';
       };
@@ -229,20 +201,16 @@ rec {
       '';
 
       docker-entrypoint = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/apache/flink-docker/master/1.19/scala_2.12-java11-ubuntu/docker-entrypoint.sh";
+        url =
+          "https://raw.githubusercontent.com/apache/flink-docker/master/1.19/scala_2.12-java11-ubuntu/docker-entrypoint.sh";
         sha256 = "sha256-P6nhTzKGgrsGKppaWMWDlQ3JzSjEW+ECJVFqRtTeC/k=";
       };
 
       container = pkgs.dockerTools.buildLayeredImage {
         name = name;
         tag = tag;
-        contents =
-          commonFlinkRuntimeInputs pkgs
-          ++ [
-            python-env.python
-            flink-job
-          ]
-          ++ containerShadowSetup {
+        contents = commonFlinkRuntimeInputs pkgs
+          ++ [ python-env.python flink-job ] ++ containerShadowSetup {
             inherit pkgs;
             uid = 9999;
             gid = 9999;
@@ -269,7 +237,9 @@ rec {
           chmod -R 777 ./tmp
           cp -r ${pkgs.flink}/opt/flink ./opt/
           cp  ${pkgs.flink}/bin/flink ./bin/
-          cp -r ${getFlinkKafkaConnector pkgs} ./opt/flink/lib/flink-sql-connector-kafka.jar
+          cp -r ${
+            getFlinkKafkaConnector pkgs
+          } ./opt/flink/lib/flink-sql-connector-kafka.jar
           cp ${docker-entrypoint} ./docker-entrypoint.sh
           cp -r ${pkgs.coreutils}/bin/* ./usr/bin/
           chmod +x ./docker-entrypoint.sh
@@ -284,7 +254,9 @@ rec {
           mkdir -p "$out/src/tests" "$out/bin" "$out/opt/flink/usrlib" "$out/opt/flink/lib" "$out/conf"
           cp -r ${src}/* $out/src/
           cp -r ${flink-with-kafka-connector}/opt/flink $out/opt/
-          ln -s ${getFlinkKafkaConnector pkgs} $out/opt/flink/lib/flink-kafka-connector.jar
+          ln -s ${
+            getFlinkKafkaConnector pkgs
+          } $out/opt/flink/lib/flink-kafka-connector.jar
           cp -r ${python-env.python}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
           ${additionalInstallPhase}
@@ -304,7 +276,6 @@ rec {
           container = container;
         } // additionalPassThru;
       };
-    in
-    flink-job;
+    in flink-job;
 
 }
