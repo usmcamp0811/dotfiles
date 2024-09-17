@@ -140,7 +140,7 @@
 
       flink-with-kafka-connector = getFlinkWithAdditionalJars {
         inherit pkgs;
-        additionalJars = additionalJars ++ [ getFlinkKafkaConnector pkgs ];
+        additionalJars = additionalJars ++ [ (getFlinkKafkaConnector pkgs) ];
       };
 
       pythonVersion = builtins.substring 0 4 python-env.python.python.version;
