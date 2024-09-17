@@ -181,7 +181,7 @@
           ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" \
             -j=${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " " (map (jar: ''
-                "-j=${jar}"
+                -j=${jar}
               '') additionalJars)
             } -pyfs="${src} -pyclientexec=${python-env}/bin/python
         '';
