@@ -51,6 +51,7 @@ in
       default = { };
       description = "Script files for the Prometheus Script Exporter.";
     };
+    scriptExporterPort = mkOpt int 9105 "Port for the script exporter.";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
@@ -65,15 +66,17 @@ in
           openFirewall = true;
 
           # Process scriptFiles into a list of script paths
-          scriptFiles = builtins.mapAttrsToList (name: scriptDerivation:
+          scriptFiles = builtins.mapAttrsToList (
+            name: scriptDerivation:
             # Get the script file path from the derivation
             let
-              scriptPath = if (builtins.pathExists (scriptDerivation + "/bin/${name}")) then
-                scriptDerivation + "/bin/${name}"
-              else if (builtins.pathExists (scriptDerivation + "/${name}")) then
-                scriptDerivation + "/${name}"
-              else
-                throw "Cannot find script file for '${name}' in derivation '${scriptDerivation}'"
+              scriptPath =
+                if builtins.pathExists (scriptDerivation + "/bin/${name}") then
+                  scriptDerivation + "/bin/${name}"
+                else if builtins.pathExists (scriptDerivation + "/${name}") then
+                  scriptDerivation + "/${name}"
+                else
+                  (throw "Cannot find script file for '${name}' in derivation '${scriptDerivation}'");
             in
             scriptPath
           ) cfg.scriptFiles;
