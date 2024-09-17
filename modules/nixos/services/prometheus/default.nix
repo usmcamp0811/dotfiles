@@ -47,7 +47,7 @@ in {
     additionalCollectors =
       mkOpt (listOf str) [ ] "List of additional Collectors";
     scriptFiles = mkOption {
-      type = types.attrsOf types.package;
+      type = types.attrsOf types.str;
       default = { };
       description = "Script files for the Prometheus Script Exporter.";
     };
@@ -67,22 +67,11 @@ in {
 
           # Define scripts under settings.scripts
           settings = {
-            scripts = lib.mapAttrsToList (name: scriptAttrs:
-              let
-                scriptDerivation = scriptAttrs;
-                scriptPath =
-                  if builtins.pathExists "${scriptDerivation}/bin/${name}" then
-                    "${scriptDerivation}/bin/${name}"
-                  else if builtins.pathExists "${scriptDerivation}/${name}" then
-                    "${scriptDerivation}/${name}"
-                  else
-                    (throw
-                      "Cannot find script file for '${name}' in derivation '${scriptDerivation}'");
-              in {
-                name = name;
-                script = scriptPath;
-                timeout = scriptAttrs.timeout or 5;
-              }) cfg.scriptFiles;
+            scripts = lib.mapAttrsToList (name: scriptAttrs: {
+              name = name;
+              script = scriptAttrs;
+              timeout = scriptAttrs.timeout or 5;
+            }) cfg.scriptFiles;
           };
         };
         node = {

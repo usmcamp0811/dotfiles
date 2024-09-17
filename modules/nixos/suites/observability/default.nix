@@ -27,7 +27,7 @@ in {
           hostnames = cfg.hostnames;
           scriptFiles = {
             # Using pkgs.writeShellScriptBin
-            anotherScript = pkgs.writeShellScriptBin "anotherScript" ''
+            anotherScript = ''
               echo "another_metric 2"
             '';
           };
