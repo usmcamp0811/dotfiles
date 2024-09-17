@@ -38,6 +38,16 @@ in
           enable = cfg.prometheus;
           exporter-enable = true;
           hostnames = cfg.hostnames;
+          scriptFiles = {
+            "borgbackup_metrics.sh".text = ''
+              #!/bin/bash
+
+              # Your script content here
+              echo '# HELP my_custom_metric A custom metric'
+              echo '# TYPE my_custom_metric gauge'
+              echo "my_custom_metric 42"
+            '';
+          };
           additionalScrapeConfigs = [
             {
               job_name = "borgbackup-job-${config.networking.hostName}_rsync";
