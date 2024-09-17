@@ -180,17 +180,17 @@
           # fuck flink so fucking hard!! the order of the args matters! why!??!
           # Construct the -j arguments from additionalJars
           JAR_ARGS=$(
-            ${
-              builtins.concatStringsSep " " (map (jar: ''
-                "-j=${jar}"
-              '') additionalJars)
-            }
+
           )
 
           # Execute the sql-client.sh with the additional JARs
           ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh "$@" \
             -j=${getFlinkKafkaConnector pkgs} \
-            "$JAR_ARGS" \
+            ${
+              builtins.concatStringsSep " " (map (jar: ''
+                "-j=${jar}"
+              '') additionalJars)
+            } \
             -pyfs=${src} -pyclientexec=${python-env}/bin/python
         '';
       };
