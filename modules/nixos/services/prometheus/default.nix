@@ -4,19 +4,33 @@ with lib.campground;
 
 let
   cfg = config.campground.services.prometheus;
-
   generateScrapeConfigs = hostnames:
-    lib.concatMap (hostname: [{
-      job_name = "${hostname}-system-monitor";
-      static_configs =
-        [{ targets = [ "${hostname}:${toString cfg.exporter-port}" ]; }];
-      relabel_configs = [{
-        source_labels = [ "__address__" ];
-        regex = "([^:]+):.*";
-        target_label = "instance";
-        replacement = "$1";
-      }];
-    }]) hostnames;
+    lib.concatMap (hostname: [
+      # Existing node exporter scrape config
+      {
+        job_name = "${hostname}-system-monitor";
+        static_configs =
+          [{ targets = [ "${hostname}:${toString cfg.exporter-port}" ]; }];
+        relabel_configs = [{
+          source_labels = [ "__address__" ];
+          regex = "([^:]+):.*";
+          target_label = "instance";
+          replacement = "$1";
+        }];
+      }
+      # New script exporter scrape config
+      {
+        job_name = "${hostname}-script-exporter";
+        static_configs =
+          [{ targets = [ "${hostname}:${toString cfg.scriptExporterPort}" ]; }];
+        relabel_configs = [{
+          source_labels = [ "__address__" ];
+          regex = "([^:]+):.*";
+          target_label = "instance";
+          replacement = "$1";
+        }];
+      }
+    ]) hostnames;
 
 in {
   options.campground.services.prometheus = with types; {
