@@ -1,4 +1,4 @@
-{ options, config, lib, ... }:
+{ options, config, pkgs, lib, ... }:
 with lib;
 with lib.campground;
 
@@ -31,6 +31,16 @@ let
         }];
       }
     ]) hostnames;
+  test-script = pkgs.writeShellScriptBin "test-script" ''
+    echo "# HELP test_first_test"
+    echo "# TYPE test_first_test gauge"
+    echo "first_test{label1=\"test_1_label_1\"} 1"
+  '';
+  test-script2 = pkgs.writeShellScriptBin "test-script2" ''
+    echo "# HELP test_second_test"
+    echo "# TYPE test_second_test gauge"
+    echo "second_test{label2=\"test_2_label_1\"} 1"
+  '';
 
 in {
   options.campground.services.prometheus = with types; {
@@ -67,11 +77,21 @@ in {
 
           # Define scripts under settings.scripts
           settings = {
-            scripts = lib.mapAttrsToList (name: scriptAttrs: {
-              name = name;
-              script = scriptAttrs;
-              timeout = scriptAttrs.timeout or 5;
-            }) cfg.scriptFiles;
+            scripts = [
+              {
+                name = "campground_test_script";
+                script = "${test-script}/bin/test-script";
+              }
+              {
+                name = "test_script_2";
+                script = "${test-script2}/bin/test-script2";
+              }
+            ];
+            # scripts = lib.mapAttrsToList (name: scriptAttrs: {
+            #   name = name;
+            #   script = scriptAttrs;
+            #   timeout = scriptAttrs.timeout or 5;
+            # }) cfg.scriptFiles;
           };
         };
         node = {
