@@ -41,9 +41,32 @@ let
     echo "first_test{label1=\"test_1_label_1\"} 1"
   '';
   test-script2 = pkgs.writeShellScriptBin "test-script2" ''
-    echo "# HELP test_second_test"
-    echo "# TYPE test_second_test gauge"
-    echo "second_test{label2=\"test_2_label_1\"} 1"
+
+    # Function to generate random bit
+    generate_random_bit() {
+      echo $(( RANDOM % 2 ))
+    }
+
+    # Main execution
+    main() {
+      # Generate random number
+      local rand_num
+      rand_num=$(generate_random_bit)
+
+      # Validate the random number
+      if [[ "$rand_num" != "0" && "$rand_num" != "1" ]]; then
+        echo "Error: Generated number is not 0 or 1" >&2
+        exit 1
+      fi
+
+      # Output in Prometheus format
+      echo "# HELP random_bit A random bit, either 0 or 1"
+      echo "# TYPE random_bit gauge"
+      echo "random_bit $rand_num"
+    }
+
+    # Execute main function
+    main
   '';
 
 in {
