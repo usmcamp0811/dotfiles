@@ -87,11 +87,11 @@ in
             scripts = [
               {
                 name = "campground_test_script";
-                script = "${test-script}/bin/test-script";
+                command = "${test-script}/bin/test-script";
               }
               {
                 name = "test_script_2";
-                script = "${test-script2}/bin/test-script2";
+                command = "${test-script2}/bin/test-script2";
               }
             ];
             # scripts = lib.mapAttrsToList (name: scriptAttrs: {
