@@ -30,7 +30,10 @@ let
       {
         job_name = "${hostname}-script-exporter";
         static_configs = [ { targets = [ "${hostname}:${toString cfg.scriptExporterPort}" ]; } ];
-        metrics_path = "/probe?pattern=.*";
+        metrics_path = "/probe";
+        params = {
+          pattern = [ ".*" ]; # Pass pattern as a query parameter
+        };
         relabel_configs = [
           {
             source_labels = [ "__address__" ];
