@@ -1,40 +1,47 @@
-{ options, config, pkgs, lib, ... }:
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
 with lib.campground;
 
 let
   cfg = config.campground.services.prometheus;
-  generateScrapeConfigs = hostnames:
+  generateScrapeConfigs =
+    hostnames:
     lib.concatMap (hostname: [
       # Existing node exporter scrape config
       {
         job_name = "${hostname}-system-monitor";
-        static_configs =
-          [{ targets = [ "${hostname}:${toString cfg.exporter-port}" ]; }];
-        relabel_configs = [{
-          source_labels = [ "__address__" ];
-          regex = "([^:]+):.*";
-          target_label = "instance";
-          replacement = "$1";
-        }];
+        static_configs = [ { targets = [ "${hostname}:${toString cfg.exporter-port}" ]; } ];
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            regex = "([^:]+):.*";
+            target_label = "instance";
+            replacement = "$1";
+          }
+        ];
       }
       # New script exporter scrape config
       {
         job_name = "${hostname}-script-exporter";
-        static_configs =
-          [{ targets = [ "${hostname}:${toString cfg.scriptExporterPort}" ]; }];
-        relabel_configs = [{
-          source_labels = [ "__address__" ];
-          regex = "([^:]+):.*";
-          target_label = "instance";
-          replacement = "$1";
-        }];
+        static_configs = [ { targets = [ "${hostname}:${toString cfg.scriptExporterPort}" ]; } ];
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            regex = "([^:]+):.*";
+            target_label = "instance";
+            replacement = "$1";
+          }
+        ];
       }
     ]) hostnames;
   test-script = pkgs.writeShellScriptBin "test-script" ''
-    echo "# HELP test_first_test"
-    echo "# TYPE test_first_test gauge"
-    echo "first_test{label1=\"test_1_label_1\"} 1"
+    sleep 3
   '';
   test-script2 = pkgs.writeShellScriptBin "test-script2" ''
     echo "# HELP test_second_test"
@@ -42,20 +49,20 @@ let
     echo "second_test{label2=\"test_2_label_1\"} 1"
   '';
 
-in {
+in
+{
   options.campground.services.prometheus = with types; {
     enable = mkBoolOpt false "Enable Prometheus";
     exporter-enable = mkBoolOpt false "Enable Prometheus Systemd Exporter";
     port = mkOpt int 9011 "Port to Host the Prometheus server on.";
     exporter-port = mkOpt int 9012 "Port to Host the Prometheus exporter on.";
     exporter-host = mkOpt str "webb" "The hostname or IP running Prometheus.";
-    hostName = mkOpt str config.networking.hostName
-      "The hostname or IP to use for Prometheus.";
-    additionalScrapeConfigs = mkOpt (listOf (attrsOf anything)) [ ]
-      "Additional scrape configs for Prometheus.";
+    hostName = mkOpt str config.networking.hostName "The hostname or IP to use for Prometheus.";
+    additionalScrapeConfigs = mkOpt (listOf (
+      attrsOf anything
+    )) [ ] "Additional scrape configs for Prometheus.";
     hostnames = mkOpt (listOf str) [ ] "List of hostnames for scrape configs.";
-    additionalCollectors =
-      mkOpt (listOf str) [ ] "List of additional Collectors";
+    additionalCollectors = mkOpt (listOf str) [ ] "List of additional Collectors";
     scriptFiles = mkOption {
       type = types.attrsOf types.str;
       default = { };
@@ -100,8 +107,7 @@ in {
           port = cfg.exporter-port;
         };
       };
-      scrapeConfigs = generateScrapeConfigs cfg.hostnames
-        ++ cfg.additionalScrapeConfigs;
+      scrapeConfigs = generateScrapeConfigs cfg.hostnames ++ cfg.additionalScrapeConfigs;
     };
   };
 }
