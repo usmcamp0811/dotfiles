@@ -30,6 +30,7 @@ let
       {
         job_name = "${hostname}-script-exporter";
         static_configs = [ { targets = [ "${hostname}:${toString cfg.scriptExporterPort}" ]; } ];
+        metrics_path = "/probe";
         relabel_configs = [
           {
             source_labels = [ "__address__" ];

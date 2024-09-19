@@ -53,7 +53,7 @@ in
                   targets = [ "${config.networking.hostName}:9012" ]; # Assuming the node exporter runs on port 9012
                 }
               ];
-              metrics_path = "/probe";
+              metrics_path = "/metrics";
               relabel_configs = [
                 {
                   source_labels = [ "__meta_systemd_service" ];
