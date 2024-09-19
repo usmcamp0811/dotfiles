@@ -41,7 +41,9 @@ let
       }
     ]) hostnames;
   test-script = pkgs.writeShellScriptBin "test-script" ''
-    sleep 3
+    echo "# HELP test_second_test"
+    echo "# TYPE test_second_test gauge"
+    echo "first_test{label1=\"test_1_label_1\"} 1"
   '';
   test-script2 = pkgs.writeShellScriptBin "test-script2" ''
     echo "# HELP test_second_test"
@@ -87,11 +89,11 @@ in
             scripts = [
               {
                 name = "campground_test_script";
-                command = "${test-script}/bin/test-script";
+                script = "${test-script}/bin/test-script";
               }
               {
                 name = "test_script_2";
-                command = "${test-script2}/bin/test-script2";
+                script = "${test-script2}/bin/test-script2";
               }
             ];
             # scripts = lib.mapAttrsToList (name: scriptAttrs: {
