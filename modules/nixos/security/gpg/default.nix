@@ -91,7 +91,7 @@ in {
         enable = true;
         enableSSHSupport = true;
         enableExtraSocket = true;
-        pinentryFlavor = "gnome3";
+        # pinentryFlavor = "gnome3";
       };
     };
 
