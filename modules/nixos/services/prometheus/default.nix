@@ -31,6 +31,19 @@ let
         job_name = "${hostname}-script-exporter";
         static_configs = [ { targets = [ "${hostname}:${toString cfg.scriptExporterPort}" ]; } ];
         metrics_path = "/probe";
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            regex = "([^:]+):.*";
+            target_label = "instance";
+            replacement = "$1";
+          }
+        ];
+      }
+      {
+        job_name = "${hostname}-systemd-exporter";
+        static_configs = [ { targets = [ "${hostname}:${toString cfg.systemdExporterPort}" ]; } ];
+        metrics_path = "/metrics";
         params = {
           pattern = [ ".*" ]; # Pass pattern as a query parameter
         };
@@ -74,6 +87,7 @@ in
       description = "Script files for the Prometheus Script Exporter.";
     };
     scriptExporterPort = mkOpt int 9105 "Port for the script exporter.";
+    systemdExporterPort = mkOpt int 9558 "Port for the systemd exporter.";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
