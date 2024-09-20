@@ -244,6 +244,9 @@
           cp -r ${
             getFlinkKafkaConnector pkgs
           } ./opt/flink/lib/flink-sql-connector-kafka.jar
+          ${builtins.concatStringsSep "\n" (map (jar: ''
+            cp -r ${jar} $out/opt/flink/lib/
+          '') additionalJars)}
           cp ${docker-entrypoint} ./docker-entrypoint.sh
           cp -r ${pkgs.coreutils}/bin/* ./usr/bin/
           chmod +x ./docker-entrypoint.sh
@@ -263,7 +266,7 @@
           } $out/opt/flink/lib/flink-kafka-connector.jar
           # Copy all additional JARs to $out/opt/flink/lib
           ${builtins.concatStringsSep "\n" (map (jar: ''
-            cp ${jar} $out/opt/flink/lib/
+            ln -s ${jar} $out/opt/flink/lib/
           '') additionalJars)}
           cp -r ${python-env.python}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
