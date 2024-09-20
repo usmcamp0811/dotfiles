@@ -196,6 +196,7 @@
           ${flink-with-kafka-connector}/bin/flink run \
             -py "$1" \
             -pyclientexec ${python-env}/bin/python \
+            --pyFiles="$PYFILES" \
             --jarfile ${pkgs.campground.flink-connector-kafka} ${
               builtins.concatStringsSep " "
               (map (jar: "--jarfile=${jar}") additionalJars)
