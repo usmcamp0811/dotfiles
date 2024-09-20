@@ -103,6 +103,7 @@ in {
     };
 
     services = {
+      cac = enabled;
       campground-blog = enabled;
       local-ai = enabled;
       file-share = enabled;
