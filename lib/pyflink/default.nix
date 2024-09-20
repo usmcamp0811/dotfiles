@@ -192,12 +192,14 @@
         name = "run-job";
         text = ''
           PYFILES="${src},${src}/${pyFolderName}"
+
           ${flink-with-kafka-connector}/bin/flink run \
-            -j=${getFlinkKafkaConnector pkgs} ${
+            -py "$1" \
+            -pyclientexec ${python-env}/bin/python \
+            --jarfile ${pkgs.campground.flink-connector-kafka} ${
               builtins.concatStringsSep " "
-              (map (jar: "-j=${jar}") additionalJars)
-            } -py="$1" -pyclientexec=${python-env}/bin/python \
-            -pyfs="$PYFILES"
+              (map (jar: "--jarfile=${jar}") additionalJars)
+            }
         '';
       };
 
