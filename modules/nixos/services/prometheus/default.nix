@@ -58,7 +58,7 @@ let
       }
     ]) hostnames;
   test-script = pkgs.writeShellScriptBin "test-script" ''
-    exit 1
+    exit 0
   '';
   borg-backup-probe = pkgs.writeShellScriptBin "borg-backup-probe" ''
     echo "borg_last_exit $(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
