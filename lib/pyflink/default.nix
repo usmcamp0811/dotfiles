@@ -196,11 +196,10 @@
             -py "$1" \
             -pyclientexec ${python-env.python}/bin/python \
             --pyFiles="$PYFILES" \
-            --classpath="file://${flink-with-kafka-connector}/opt/flink/lib" \
             --jarfile ${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
               (map (jar: "--jarfile=${jar}") additionalJars)
-            }
+            } --jarfile ${getFlinkKafkaConnector pkgs} 
         '';
       };
 
