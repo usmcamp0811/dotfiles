@@ -156,9 +156,12 @@ in
         };
         node = {
           enable = cfg.exporter-enable;
-          enabledCollectors = [ "systemd" ]; # ++ cfg.additionalCollectors;
+          enabledCollectors = [
+            "textfile"
+            "systemd"
+          ]; # ++ cfg.additionalCollectors;
           port = cfg.exporter-port;
-          extraArgs = [ "--collector.textfile.directory=/var/lib/node_exporter/textfile_collector" ];
+          extraFlags = [ "--collector.textfile.directory=/var/lib/node_exporter/textfile_collector" ];
         };
       };
       scrapeConfigs = generateScrapeConfigs cfg.hostnames ++ cfg.additionalScrapeConfigs;
