@@ -50,8 +50,8 @@ let
     echo "first_test{label1=\"test_1_label_1\"} 1"
   '';
   borg-backup-probe = pkgs.writeShellScriptBin "borg-backup-probe" ''
-    echo "borg_last_exit $(systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
-    echo "borg_last_run_timestamp $(systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
+    echo "borg_last_exit $(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
+    echo "borg_last_run_timestamp $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
   '';
 
 in
@@ -83,11 +83,11 @@ in
         groups = [ "script-exporter" ];
         commands = [
           {
-            command = "systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync";
+            command = "/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync";
             options = [ "NOPASSWD" ];
           }
           {
-            command = "systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync";
+            command = "/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync";
             options = [ "NOPASSWD" ];
           }
         ];
