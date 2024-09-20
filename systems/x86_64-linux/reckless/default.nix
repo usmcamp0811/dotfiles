@@ -31,6 +31,7 @@ in {
       uid = 10000;
     };
 
+    security.gpg = enabled;
     suites = {
       public-hosting = {
         enable = true;
