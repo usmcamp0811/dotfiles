@@ -192,6 +192,7 @@
         name = "run-job";
         text = ''
           PYFILES="${src},${src}/${pyFolderName}"
+          echo "Classpath: $(echo $CLASSPATH | tr ':' '\n')"
 
           ${flink-with-kafka-connector}/bin/flink run \
             -py "$1" \
