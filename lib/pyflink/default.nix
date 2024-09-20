@@ -196,7 +196,10 @@
             -py "$1" \
             -pyclientexec ${python-env.python}/bin/python \
             --pyFiles="$PYFILES" \
-            --jarfile ${getFlinkKafkaConnector pkgs}
+            --jarfile=${getFlinkKafkaConnector pkgs} ${
+              builtins.concatStringsSep " "
+              (map (jar: "--jarfile=${jar}") additionalJars)
+            } 
         '';
       };
 
@@ -244,9 +247,6 @@
           cp -r ${
             getFlinkKafkaConnector pkgs
           } ./opt/flink/lib/flink-sql-connector-kafka.jar
-          ${builtins.concatStringsSep "\n" (map (jar: ''
-            cp -r ${jar} $out/opt/flink/lib/
-          '') additionalJars)}
           cp ${docker-entrypoint} ./docker-entrypoint.sh
           cp -r ${pkgs.coreutils}/bin/* ./usr/bin/
           chmod +x ./docker-entrypoint.sh
@@ -264,6 +264,10 @@
           ln -s ${
             getFlinkKafkaConnector pkgs
           } $out/opt/flink/lib/flink-kafka-connector.jar
+          # Copy all additional JARs to $out/opt/flink/lib
+          ${builtins.concatStringsSep "\n" (map (jar: ''
+            ln -s ${jar} $out/opt/flink/lib/
+          '') additionalJars)}
           cp -r ${python-env.python}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
           ${additionalInstallPhase}
