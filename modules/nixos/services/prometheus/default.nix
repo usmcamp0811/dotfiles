@@ -58,11 +58,14 @@ let
       }
     ]) hostnames;
   test-script = pkgs.writeShellScriptBin "test-script" ''
-    exit 0
+    echo "shit" >> /tmp/shitfile
+    echo "test{name=\"shit\"} 69"
   '';
-  borg-backup-probe = pkgs.writeShellScriptBin "borg-backup-probe" ''
-    echo "borg_last_exit $(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
+  borg-backup-probe-time = pkgs.writeShellScriptBin "borg-backup-probe" ''
     echo "borg_last_run_timestamp{name=\"webb\"} $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
+  '';
+  borg-backup-probe-status = pkgs.writeShellScriptBin "borg-backup-probe" ''
+    echo "borg_last_exit $(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
   '';
 
 in
@@ -119,11 +122,15 @@ in
           settings = {
             scripts = [
               {
-                name = "campground_test_script";
+                name = "shit-script";
                 script = "${test-script}/bin/test-script";
               }
               {
-                name = "borg-backup-probe";
+                name = "borg-backup-probe-time";
+                script = "${borg-backup-probe}/bin/borg-backup-probe";
+              }
+              {
+                name = "borg-backup-probe-status";
                 script = "${borg-backup-probe}/bin/borg-backup-probe";
               }
             ];
