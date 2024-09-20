@@ -193,8 +193,10 @@
         text = ''
           PYFILES="${src},${src}/${pyFolderName}"
           ${flink-with-kafka-connector}/bin/flink run \
-            -py "$1" \
-            -pyclientexec ${python-env.python}/bin/python \
+            -j=${getFlinkKafkaConnector pkgs} ${
+              builtins.concatStringsSep " "
+              (map (jar: "-j=${jar}") additionalJars)
+            } -py="$1" -pyclientexec=${python-env}/bin/python
             --pyFiles="$PYFILES" \
             --jarfile=${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
