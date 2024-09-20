@@ -64,8 +64,10 @@ let
   borg-backup-probe-time = pkgs.writeShellScriptBin "borg-backup-probe" ''
     echo "borg_last_run_timestamp{name=\"webb\"} $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
   '';
+
   borg-backup-probe-status = pkgs.writeShellScriptBin "borg-backup-probe" ''
-    echo "borg_last_exit $(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
+    borg_last_exit=$(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)
+    echo "borg_last_exit{name=\"webb\"} $borg_last_exit" > /var/lib/node_exporter/textfile_collector/borg-backup-probe-status.prom
   '';
 
 in
@@ -108,6 +110,17 @@ in
         ];
       }
     ];
+    # Create the textfile collector directory
+    environment.etc."node_exporter/textfile_collector" = {
+      source = null; # Creates an empty directory
+      mode = "0755"; # Permissions: readable and writable
+    };
+
+    # Ensure the directory has the correct owner and permissions
+    systemd.tmpfiles.rules = [
+      "d /var/lib/node_exporter 0755 prometheus prometheus -"
+      "d /var/lib/node_exporter/textfile_collector 0755 prometheus prometheus -"
+    ];
     services.prometheus = {
       enable = cfg.enable;
       port = cfg.port;
@@ -145,6 +158,7 @@ in
           enable = cfg.exporter-enable;
           enabledCollectors = [ "systemd" ]; # ++ cfg.additionalCollectors;
           port = cfg.exporter-port;
+          extraArgs = [ "--collector.textfile.directory=/var/lib/node_exporter/textfile_collector" ];
         };
       };
       scrapeConfigs = generateScrapeConfigs cfg.hostnames ++ cfg.additionalScrapeConfigs;
