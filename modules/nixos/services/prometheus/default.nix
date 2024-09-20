@@ -49,27 +49,9 @@ let
     echo "# TYPE test_second_test gauge"
     echo "first_test{label1=\"test_1_label_1\"} 1"
   '';
-  test-script2 = pkgs.writeShellScriptBin "test-script2" ''
-
-    # Function to generate random bit
-    generate_random_bit() {
-      echo $(( RANDOM % 2 ))
-    }
-
-    # Generate random number
-    local rand_num
-    rand_num=$(generate_random_bit)
-
-    # Validate the random number
-    if [[ "$rand_num" != "0" && "$rand_num" != "1" ]]; then
-      echo "Error: Generated number is not 0 or 1" >&2
-      exit 1
-    fi
-
-    # Output in Prometheus format
-    echo "# HELP random_bit_test A random bit, either 0 or 1"
-    echo "# TYPE random_bit_test gauge"
-    echo "random_bit_test $rand_num"
+  borg-backup-probe = pkgs.writeShellScriptBin "borg-backup-probe" ''
+    echo "borg_last_exit $(systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
+    echo "borg_last_run_timestamp $(systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
   '';
 
 in
@@ -95,6 +77,22 @@ in
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
+    # Allow 'script-exporter' group to run specific systemctl commands without password
+    security.sudo.extraRules = [
+      {
+        groups = [ "script-exporter" ];
+        commands = [
+          {
+            command = "systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync";
+            options = [ "NOPASSWD" ];
+          }
+        ];
+      }
+    ];
     services.prometheus = {
       enable = cfg.enable;
       port = cfg.port;
@@ -113,8 +111,8 @@ in
                 script = "${test-script}/bin/test-script";
               }
               {
-                name = "test_script_2";
-                script = "${test-script2}/bin/test-script2";
+                name = "borg-backup-probe";
+                script = "${borg-backup-probe}/bin/borg-backup-probe";
               }
             ];
             # scripts = lib.mapAttrsToList (name: scriptAttrs: {
