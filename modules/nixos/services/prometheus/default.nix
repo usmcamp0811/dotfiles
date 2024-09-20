@@ -110,8 +110,13 @@ in
         ];
       }
     ];
+    # Create the textfile collector directory under /var/lib/node_exporter
+    environment.etc."node_exporter/textfile_collector" = {
+      source = null; # Creates an empty directory
+      mode = "0755"; # Permissions: readable and writable
+    };
 
-    # Ensure the directory has the correct owner and permissions
+    # Ensure the /var/lib/node_exporter directory and textfile_collector have the correct owner and permissions
     systemd.tmpfiles.rules = [
       "d /var/lib/node_exporter 0755 prometheus prometheus -"
       "d /var/lib/node_exporter/textfile_collector 0755 prometheus prometheus -"
