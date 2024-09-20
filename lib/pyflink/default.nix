@@ -199,7 +199,7 @@
             --jarfile ${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
               (map (jar: "--jarfile=${jar}") additionalJars)
-            } --jarfile ${getFlinkKafkaConnector pkgs} 
+            } 
         '';
       };
 
