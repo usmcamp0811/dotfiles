@@ -58,13 +58,11 @@ let
       }
     ]) hostnames;
   test-script = pkgs.writeShellScriptBin "test-script" ''
-    echo "# HELP test_second_test"
-    echo "# TYPE test_second_test gauge"
-    echo "first_test{label1=\"test_1_label_1\"} 1"
+    exit 1
   '';
   borg-backup-probe = pkgs.writeShellScriptBin "borg-backup-probe" ''
     echo "borg_last_exit $(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)"
-    echo "borg_last_run_timestamp $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
+    echo "borg_last_run_timestamp{name=\"webb\"} $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
   '';
 
 in
