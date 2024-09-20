@@ -80,8 +80,8 @@ in {
       pinentry-curses
       pinentry-qt
       paperkey
-      guideDesktopItem
-      reload-yubikey
+      # guideDesktopItem
+      # reload-yubikey
     ];
 
     programs = {
