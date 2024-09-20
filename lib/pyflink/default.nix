@@ -196,7 +196,7 @@
             -j=${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
               (map (jar: "-j=${jar}") additionalJars)
-            } -py="$1" -pyclientexec=${python-env}/bin/python \
+            } --python="$1" -pyclientexec=${python-env}/bin/python \
             --pyFiles="$PYFILES" \
             --jarfile=${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
