@@ -31,6 +31,9 @@ let
         job_name = "${hostname}-script-exporter";
         static_configs = [ { targets = [ "${hostname}:${toString cfg.scriptExporterPort}" ]; } ];
         metrics_path = "/probe";
+        params = {
+          pattern = [ ".*" ]; # Pass pattern as a query parameter
+        };
         relabel_configs = [
           {
             source_labels = [ "__address__" ];
@@ -44,9 +47,6 @@ let
         job_name = "${hostname}-systemd-exporter";
         static_configs = [ { targets = [ "${hostname}:${toString cfg.systemdExporterPort}" ]; } ];
         metrics_path = "/metrics";
-        params = {
-          pattern = [ ".*" ]; # Pass pattern as a query parameter
-        };
         relabel_configs = [
           {
             source_labels = [ "__address__" ];
