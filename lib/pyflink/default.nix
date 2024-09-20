@@ -192,12 +192,11 @@
         name = "run-job";
         text = ''
           PYFILES="${src},${src}/${pyFolderName}"
-          export CLASSPATH="${flink-with-kafka-connector}/opt/flink/lib"
-
           ${flink-with-kafka-connector}/bin/flink run \
             -py "$1" \
             -pyclientexec ${python-env.python}/bin/python \
             --pyFiles="$PYFILES" \
+            --classpath="file://${flink-with-kafka-connector}/opt/flink/lib" \
             --jarfile ${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
               (map (jar: "--jarfile=${jar}") additionalJars)
