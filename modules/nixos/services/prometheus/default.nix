@@ -127,11 +127,11 @@ in
               }
               {
                 name = "borg-backup-probe-time";
-                script = "${borg-backup-probe}/bin/borg-backup-probe";
+                script = "${borg-backup-probe-time}/bin/borg-backup-probe";
               }
               {
                 name = "borg-backup-probe-status";
-                script = "${borg-backup-probe}/bin/borg-backup-probe";
+                script = "${borg-backup-probe-status}/bin/borg-backup-probe";
               }
             ];
             # scripts = lib.mapAttrsToList (name: scriptAttrs: {
