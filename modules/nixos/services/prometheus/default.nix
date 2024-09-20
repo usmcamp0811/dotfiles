@@ -110,11 +110,6 @@ in
         ];
       }
     ];
-    # Create the textfile collector directory
-    environment.etc."node_exporter/textfile_collector" = {
-      source = null; # Creates an empty directory
-      mode = "0755"; # Permissions: readable and writable
-    };
 
     # Ensure the directory has the correct owner and permissions
     systemd.tmpfiles.rules = [
