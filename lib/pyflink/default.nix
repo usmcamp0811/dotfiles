@@ -192,7 +192,11 @@
         name = "run-job";
         text = ''
           PYFILES="${src},${src}/${pyFolderName}"
-          echo "Classpath: $(echo "$CLASSPATH" | tr ':' '\n')"
+          export PYTHONPATH=${python-env.python}/lib/python${pythonVersion}/site-packages:${src}/${pyFolderName}:${src}
+          export PATH="${python-env.python}/bin/:$PATH"
+          export PYFLINK_PYTHON="${python-env.python}/bin/python"
+          export JAVA_HOME="${pkgs.openjdk11}"
+          export FLINK_HOME="${flink-with-kafka-connector}/opt/flink"
 
           ${flink-with-kafka-connector}/bin/flink run \
             -py "$1" \
