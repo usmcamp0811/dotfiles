@@ -106,6 +106,7 @@ in
         wantedBy = [ "multi-user.target" ];
       })
       // lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+        name = "borgbackup-job-${name}";
         # Define the ExecStartPost for the Borg job
         serviceConfig.ExecStartPost = ''
           mkdir -p /var/lib/node_exporter/textfile_collector
