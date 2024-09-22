@@ -93,30 +93,30 @@ in
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
-    systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
-      description = "Copy the passphrase for ${name} Borg Backup job";
-      serviceConfig.Type = "oneshot";
-      serviceConfig.User = "root";
-      script = ''
-        mkdir -p /var/lib/vault
-        cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
-      '';
-      wantedBy = [ "multi-user.target" ];
-    });
-
-    systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (jobname: {
-      name = "borgbackup-job-${jobname}";
-      ExecStartPost = ''
-        mkdir -p /var/lib/node_exporter/textfile_collector
-        if [ $? -eq 0 ]; then
-          echo "borg_backup_success{job=\"${jobname}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobname}.prom
-          echo "borg_backup_last_run{job=\"${jobname}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${jobname}.prom
-        else
-          echo "borg_backup_success{job=\"${jobname}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobname}.prom
-        fi
-      '';
-      wantedBy = [ "multi-user.target" ];
-    });
+    # Define the passphrase copy service
+    systemd.services =
+      lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+        description = "Copy the passphrase for ${name} Borg Backup job";
+        serviceConfig.Type = "oneshot";
+        serviceConfig.User = "root";
+        script = ''
+          mkdir -p /var/lib/vault
+          cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
+        '';
+        wantedBy = [ "multi-user.target" ];
+      })
+      // lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+        # Define the ExecStartPost for the Borg job
+        serviceConfig.ExecStartPost = ''
+          mkdir -p /var/lib/node_exporter/textfile_collector
+          if [ $? -eq 0 ]; then
+            echo "borg_backup_success{job=\"${name}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+            echo "borg_backup_last_run{job=\"${name}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+          else
+            echo "borg_backup_success{job=\"${name}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+          fi
+        '';
+      });
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       settings = {
         vault.address = cfg.vault-address;
