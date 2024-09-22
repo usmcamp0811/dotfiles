@@ -108,14 +108,14 @@ in
       })
       # Second service: Borg backup with ExecStartPost appended
       // lib.genAttrs (lib.attrNames cfg.jobs) (name: {
-        name = "borgbackup-job-${name}";
-        serviceConfig.ExecStartPost = ''
+        # Extend the existing Borg service by appending ExecStartPost
+        "borgbackup-job-${name}".serviceConfig.ExecStartPost = ''
           mkdir -p /var/lib/node_exporter/textfile_collector
           if [ $? -eq 0 ]; then
             echo "borg_backup_success{job=\"${name}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
             echo "borg_backup_last_run{job=\"${name}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
           else
-            echo "borg_backup_success{job=\"${name}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+            echo "borg_backup_success{job=\"${name}\"} 0" > /var/lib/node_exporter.textfile_collector/borg-backup-${name}.prom
           fi
         '';
       });
