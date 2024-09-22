@@ -95,6 +95,7 @@ in
 
     # Define the passphrase copy service
     systemd.services =
+      # First service: Copy passphrase
       lib.genAttrs (lib.attrNames cfg.jobs) (name: {
         description = "Copy the passphrase for ${name} Borg Backup job";
         serviceConfig.Type = "oneshot";
@@ -105,9 +106,9 @@ in
         '';
         wantedBy = [ "multi-user.target" ];
       })
+      # Second service: Borg backup with ExecStartPost appended
       // lib.genAttrs (lib.attrNames cfg.jobs) (name: {
         name = "borgbackup-job-${name}";
-        # Define the ExecStartPost for the Borg job
         serviceConfig.ExecStartPost = ''
           mkdir -p /var/lib/node_exporter/textfile_collector
           if [ $? -eq 0 ]; then
