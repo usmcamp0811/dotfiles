@@ -104,16 +104,18 @@ in
       wantedBy = [ "multi-user.target" ];
     });
 
-    systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+    systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (jobname: {
+      name = "borgbackup-job-${jobname}";
       ExecStartPost = ''
         mkdir -p /var/lib/node_exporter/textfile_collector
         if [ $? -eq 0 ]; then
-          echo "borg_backup_success{job=\"${name}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
-          echo "borg_backup_last_run{job=\"${name}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+          echo "borg_backup_success{job=\"${jobname}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobname}.prom
+          echo "borg_backup_last_run{job=\"${jobname}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${jobname}.prom
         else
-          echo "borg_backup_success{job=\"${name}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+          echo "borg_backup_success{job=\"${jobname}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobname}.prom
         fi
       '';
+      wantedBy = [ "multi-user.target" ];
     });
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       settings = {
