@@ -64,12 +64,18 @@ let
     echo "END TEST"
   '';
   borg-backup-probe-time = pkgs.writeShellScriptBin "borg-backup-probe" ''
+    set -x  # Enable debugging output
+    echo "STARTING TEST"
     echo "borg_last_run_timestamp{name=\"webb\"} $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)" > /var/lib/node_exporter/textfile_collector/borg-backup-probe.prom
+    echo "DONE"
   '';
 
   borg-backup-probe-status = pkgs.writeShellScriptBin "borg-backup-probe" ''
+    set -x  # Enable debugging output
+    echo "STARTING TEST"
     borg_last_exit=$(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)
     echo "borg_last_exit{name=\"webb\"} $borg_last_exit" > /var/lib/node_exporter/textfile_collector/borg-backup-probe-status.prom
+    echo "DONE"
   '';
 
 in
