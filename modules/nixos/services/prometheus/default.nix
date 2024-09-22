@@ -60,7 +60,7 @@ let
   test-script = pkgs.writeShellScriptBin "test-script" ''
     set -x  # Enable debugging output
     echo "STARTING TEST"
-    echo "test{name=\"shit\"} 69" > /var/lib/node_exporter/textfile_collector/test.prom
+    echo "test{name=\"shit\"} 42" > /var/lib/node_exporter/textfile_collector/test.prom
     echo "END TEST"
   '';
   borg-backup-probe-time = pkgs.writeShellScriptBin "borg-backup-probe" ''
