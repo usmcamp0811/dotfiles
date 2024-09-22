@@ -58,11 +58,10 @@ let
       }
     ]) hostnames;
   test-script = pkgs.writeShellScriptBin "test-script" ''
-    echo "shit" >> /tmp/shitfile
-    echo "test{name=\"shit\"} 69"
+    echo "test{name=\"shit\"} 69" > /var/lib/node_exporter/textfile_collector/test.prom
   '';
   borg-backup-probe-time = pkgs.writeShellScriptBin "borg-backup-probe" ''
-    echo "borg_last_run_timestamp{name=\"webb\"} $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)"
+    echo "borg_last_run_timestamp{name=\"webb\"} $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)" > /var/lib/node_exporter/textfile_collector/borg-backup-probe.prom
   '';
 
   borg-backup-probe-status = pkgs.writeShellScriptBin "borg-backup-probe" ''
