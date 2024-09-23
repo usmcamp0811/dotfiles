@@ -10,11 +10,11 @@ let
   cfg = config.campground.services.borgbackup;
 
   generateBorgService = jobName: jobConfig: {
-    serviceConfig.ExecStartPost = "${pkgs.writeShellScriptBin "borg-backup-metric" ''
-      mkdir -p /var/lib/node_exporter/textfile_collector
-      echo "borg_backup_success{job=\"${jobName}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
-      echo "borg_backup_last_run{job=\"${jobName}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
-    ''}/bin/borg-backup-metric";
+    serviceConfig.ExecStart = jobConfig.serviceConfig.ExecStart ++ ''
+      && echo "borg_backup_success{job=\"${jobName}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom \
+      && echo "borg_backup_success{job=\"${jobName}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom \
+      || echo "borg_backup_last_run{job=\"${jobName}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
+    '';
   };
 in
 {
