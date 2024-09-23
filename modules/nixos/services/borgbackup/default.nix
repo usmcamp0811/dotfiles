@@ -3,6 +3,17 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.borgbackup;
+  generateBorgService = jobName: jobConfig: {
+    serviceConfig.ExecStartPost = ''
+      mkdir -p /var/lib/node_exporter/textfile_collector
+      if [ $? -eq 0 ]; then
+        echo "borg_backup_success{job=\"${name}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+        echo "borg_backup_last_run{job=\"${name}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+      else
+        echo "borg_backup_success{job=\"${name}\"} 0" > /var/lib/node_exporter.textfile_collector/borg-backup-${name}.prom
+      fi
+    '';
+  };
 in
 {
   options.campground.services.borgbackup = with types; {
@@ -93,32 +104,24 @@ in
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
-    # Define the passphrase copy service
     systemd.services =
-      # First service: Copy passphrase
+      # Merge both service definitions
       lib.genAttrs (lib.attrNames cfg.jobs) (name: {
         description = "Copy the passphrase for ${name} Borg Backup job";
-        serviceConfig.Type = "oneshot";
-        serviceConfig.User = "root";
-        script = ''
-          mkdir -p /var/lib/vault
-          cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
-        '';
+        serviceConfig = {
+          Type = "oneshot";
+          User = "root";
+          ExecStart = ''
+            mkdir -p /var/lib/vault
+            cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
+          '';
+        };
         wantedBy = [ "multi-user.target" ];
       })
-      # Second service: Borg backup with ExecStartPost appended
-      // lib.genAttrs (lib.attrNames cfg.jobs) (name: {
-        # Extend the existing Borg service by appending ExecStartPost
-        "borgbackup-job-${name}".serviceConfig.ExecStartPost = ''
-          mkdir -p /var/lib/node_exporter/textfile_collector
-          if [ $? -eq 0 ]; then
-            echo "borg_backup_success{job=\"${name}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
-            echo "borg_backup_last_run{job=\"${name}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
-          else
-            echo "borg_backup_success{job=\"${name}\"} 0" > /var/lib/node_exporter.textfile_collector/borg-backup-${name}.prom
-          fi
-        '';
-      });
+      # Merge the other systemd.services for the Borg backup jobs
+      // lib.genAttrs (builtins.attrNames cfg.jobs) (
+        jobName: generateBorgService jobName (cfg.jobs.${jobName})
+      );
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       settings = {
         vault.address = cfg.vault-address;
