@@ -119,7 +119,7 @@ in
         wantedBy = [ "multi-user.target" ];
       })
       # Merge the other systemd.services for the Borg backup jobs
-      // lib.genAttrs (builtins.attrNames cfg.jobs) (
+      // lib.genAttrs ("borgbackup-job-${builtins.attrNames cfg.jobs}") (
         jobName: generateBorgService jobName (cfg.jobs.${jobName})
       );
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
