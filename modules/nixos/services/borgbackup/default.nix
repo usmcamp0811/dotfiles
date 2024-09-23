@@ -8,17 +8,17 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.borgbackup;
-  backup-metric = pkgs.writeShellScriptBin "borg-backup-metric" ''
-    mkdir -p /var/lib/node_exporter/textfile_collector
-    if [ $? -eq 0 ]; then
-      echo "borg_backup_success{job=\"${jobName}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
-      echo "borg_backup_last_run{job=\"${jobName}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
-    else
-      echo "borg_backup_success{job=\"${jobName}\"} 0" > /var/lib/node_exporter.textfile_collector/borg-backup-${jobName}.prom
-    fi
-  '';
+
   generateBorgService = jobName: jobConfig: {
-    serviceConfig.ExecStartPost = "${backup-metric}/borg-backup-metric";
+    serviceConfig.ExecStartPost = pkgs.writeShellScriptBin "borg-backup-metric" ''
+      mkdir -p /var/lib/node_exporter/textfile_collector
+      if [ $? -eq 0 ]; then
+        echo "borg_backup_success{job=\"${jobName}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
+        echo "borg_backup_last_run{job=\"${jobName}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
+      else
+        echo "borg_backup_success{job=\"${jobName}\"} 0" > /var/lib/node_exporter.textfile_collector/borg-backup-${jobName}.prom
+      fi
+    '';
   };
 in
 {
