@@ -105,8 +105,7 @@ in
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
     systemd.services =
-      # Merge both service definitions
-      lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+      (lib.genAttrs (lib.attrNames cfg.jobs) (name: {
         description = "Copy the passphrase for ${name} Borg Backup job";
         serviceConfig = {
           Type = "oneshot";
@@ -117,9 +116,8 @@ in
           '';
         };
         wantedBy = [ "multi-user.target" ];
-      })
-      # Merge the other systemd.services for the Borg backup jobs
-      // lib.genAttrs ("borgbackup-job-${builtins.attrNames cfg.jobs}") (
+      }))
+      // lib.genAttrs (map (jobName: "borgbackup-job-${jobName}") (builtins.attrNames cfg.jobs)) (
         jobName: generateBorgService jobName (cfg.jobs.${jobName})
       );
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
