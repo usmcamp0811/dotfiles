@@ -9,17 +9,6 @@ with lib.campground;
 let
   cfg = config.campground.services.borgbackup;
 
-  generateBorgService = jobName: jobConfig: {
-    serviceConfig.ExecStart = (jobConfig.serviceConfig.ExecStart or "") ++ ''
-      if [ $? -eq 0 ]; then
-        mkdir -p /var/lib/node_exporter/textfile_collector
-        echo "borg_backup_success{job=\"${jobName}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
-      else
-        echo "borg_backup_success{job=\"${jobName}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
-      fi
-      echo "borg_backup_last_run{job=\"${jobName}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
-    '';
-  };
 in
 {
   options.campground.services.borgbackup = with types; {
@@ -66,6 +55,23 @@ in
                 type = lib.types.str;
                 description = "Schedule for the backup job.";
               };
+              postHook = lib.mkOption {
+                type = lib.types.lines;
+                description = ''
+                  Shell commands to run just before exit. They are executed
+                  even if a previous command exits with a non-zero exit code.
+                  The latter is available as `$exitStatus`.
+                '';
+                default = ''
+                  mkdir -p /var/lib/node_exporter/textfile_collector
+                  if [ $exitStatus -eq 0 ]; then
+                    echo "borg_backup_success{job=\"${name}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+                  else
+                    echo "borg_backup_success{job=\"${name}\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+                  fi
+                  echo "borg_backup_last_run{job=\"${name}\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-${name}.prom
+                '';
+              };
               extraArgs = mkOption {
                 type = with types; coercedTo (listOf str) escapeShellArgs str;
                 description = lib.mdDoc ''
@@ -110,8 +116,8 @@ in
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
-    systemd.services =
-      (lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+    systemd.services = (
+      lib.genAttrs (lib.attrNames cfg.jobs) (name: {
         description = "Copy the passphrase for ${name} Borg Backup job";
         serviceConfig = {
           Type = "oneshot";
@@ -122,10 +128,8 @@ in
           '';
         };
         wantedBy = [ "multi-user.target" ];
-      }))
-      // lib.genAttrs (map (jobName: "borgbackup-job-${jobName}") (builtins.attrNames cfg.jobs)) (
-        jobName: generateBorgService jobName (cfg.jobs.${jobName})
-      );
+      })
+    );
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       settings = {
         vault.address = cfg.vault-address;
