@@ -10,7 +10,7 @@ let
   cfg = config.campground.services.borgbackup;
 
   generateBorgService = jobName: jobConfig: {
-    serviceConfig.ExecStart = config.systemd.services."borgbackup-job-${jobName}".serviceConfig.ExecStart ++ ''
+    serviceConfig.ExecStart = config.systemd.services."${jobName}".serviceConfig.ExecStart ++ ''
       if [ $? -eq 0 ]; then
         mkdir -p /var/lib/node_exporter/textfile_collector
         echo "borg_backup_success{job=\"${jobName}\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-${jobName}.prom
