@@ -56,6 +56,7 @@ in
                 description = "Schedule for the backup job.";
               };
               postHook = lib.mkOption {
+                #TODO: Think about adding hte default prom script outside of the options so it always happens
                 type = lib.types.lines;
                 description = ''
                   Shell commands to run just before exit. They are executed
@@ -66,11 +67,11 @@ in
                   jobName="${config._module.args.name}"
                   mkdir -p /var/lib/borgbackup
                   if [ $exitStatus -eq 0 ]; then
-                    echo "borg_backup_success{job=\"$jobName\"} 1" > /var/lib/borgbackup/borg-backup-$jobName.prom
+                    echo "borg_backup_success{job=\"$jobName\"} 1" > ${config.campground.services.prometheus.fileExporterDir}/borg-backup-$jobName.prom
                   else
-                    echo "borg_backup_success{job=\"$jobName\"} 0" > /var/lib/borgbackup/borg-backup-$jobName.prom
+                    echo "borg_backup_success{job=\"$jobName\"} 0" > ${config.campground.services.prometheus.fileExporterDir}/borg-backup-$jobName.prom
                   fi
-                  echo "borg_backup_last_run{job=\"$jobName\"} $(date +%s)" >> /var/lib/borgbackup/borg-backup-$jobName.prom
+                  echo "borg_backup_last_run{job=\"$jobName\"} $(date +%s)" >> ${config.campground.services.prometheus.fileExporterDir}/borg-backup-$jobName.prom
                 '';
               };
               readWritePaths = lib.mkOption {

@@ -58,24 +58,9 @@ let
       }
     ]) hostnames;
   test-script = pkgs.writeShellScriptBin "test-script" ''
-    set -x  # Enable debugging output
     echo "STARTING TEST"
-    echo "test{name=\"shit\"} 42" > /var/lib/node_exporter/textfile_collector/test.prom
+    echo "test{name=\"shit\"} 42" > ${cfg.fileExporterDir}/test.prom
     echo "END TEST"
-  '';
-  borg-backup-probe-time = pkgs.writeShellScriptBin "borg-backup-probe" ''
-    set -x  # Enable debugging output
-    echo "STARTING TEST"
-    echo "borg_last_run_timestamp{name=\"webb\"} $(/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync)" > /var/lib/node_exporter/textfile_collector/borg-backup-probe.prom
-    echo "DONE"
-  '';
-
-  borg-backup-probe-status = pkgs.writeShellScriptBin "borg-backup-probe" ''
-    set -x  # Enable debugging output
-    echo "STARTING TEST"
-    borg_last_exit=$(/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync)
-    echo "borg_last_exit{name=\"webb\"} $borg_last_exit" > /var/lib/node_exporter/textfile_collector/borg-backup-probe-status.prom
-    echo "DONE"
   '';
 
 in
@@ -99,31 +84,12 @@ in
     };
     scriptExporterPort = mkOpt int 9105 "Port for the script exporter.";
     systemdExporterPort = mkOpt int 9558 "Port for the systemd exporter.";
+    fileExporterDir = mkOpt str "/var/lib/node_exporter" "Place to the file exporter will look";
   };
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
-    # Allow 'script-exporter' group to run specific systemctl commands without password
-    security.sudo.extraRules = [
-      {
-        groups = [ "script-exporter" ];
-        commands = [
-          {
-            command = "/run/current-system/sw/bin/systemctl show -p ExecMainStatus --value borgbackup-job-webb_rsync";
-            options = [ "NOPASSWD" ];
-          }
-          {
-            command = "/run/current-system/sw/bin/systemctl show -p ExecMainExitTimestampMonotonic --value borgbackup-job-webb_rsync";
-            options = [ "NOPASSWD" ];
-          }
-        ];
-      }
-    ];
-
     # Ensure the directory has the correct owner and permissions
-    systemd.tmpfiles.rules = [
-      "d /var/lib/node_exporter 0755 prometheus prometheus -"
-      "d /var/lib/node_exporter/textfile_collector 0755 prometheus prometheus -"
-    ];
+    systemd.tmpfiles.rules = [ "d ${cfg.fileExporterDir} 0755 prometheus prometheus -" ];
     services.prometheus = {
       enable = cfg.enable;
       port = cfg.port;
@@ -141,20 +107,7 @@ in
                 name = "shit-script";
                 script = "${test-script}/bin/test-script";
               }
-              {
-                name = "borg-backup-probe-time";
-                script = "${borg-backup-probe-time}/bin/borg-backup-probe";
-              }
-              {
-                name = "borg-backup-probe-status";
-                script = "${borg-backup-probe-status}/bin/borg-backup-probe";
-              }
             ];
-            # scripts = lib.mapAttrsToList (name: scriptAttrs: {
-            #   name = name;
-            #   script = scriptAttrs;
-            #   timeout = scriptAttrs.timeout or 5;
-            # }) cfg.scriptFiles;
           };
         };
         node = {
@@ -162,9 +115,9 @@ in
           enabledCollectors = [
             "textfile"
             "systemd"
-          ]; # ++ cfg.additionalCollectors;
+          ];
           port = cfg.exporter-port;
-          extraFlags = [ "--collector.textfile.directory=/var/lib/borgbackup" ];
+          extraFlags = [ "--collector.textfile.directory=${cfg.fileExporterDir}" ];
         };
       };
       scrapeConfigs = generateScrapeConfigs cfg.hostnames ++ cfg.additionalScrapeConfigs;
