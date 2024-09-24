@@ -83,7 +83,7 @@ in
                   If, for example, your preHook script needs to dump files
                   somewhere, put those directories here.
                 '';
-                default = [ cfg.fileExporterDir ];
+                default = [ fileExporterDir ];
                 example = [ "/var/backup/mysqldump" ];
               };
               extraArgs = mkOption {
