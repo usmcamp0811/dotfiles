@@ -62,9 +62,7 @@ in
                   Shell commands to run before the backup.
                   This can for example be used to mount file systems.
                 '';
-                default = ''
-                  mkdir -p ${fileExporterDir}
-                '';
+                default = '''';
                 example = ''
                   # To add excluded paths at runtime
                   extraCreateArgs="$extraCreateArgs --exclude /some/path"
@@ -142,7 +140,7 @@ in
 
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
-
+    systemd.tmpfiles.rules = [ "d ${cfg.fileExporterDir} 0755 prometheus prometheus -" ];
     systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       description = "Copy the passphrase for ${name} Borg Backup job";
       serviceConfig.Type = "oneshot";
