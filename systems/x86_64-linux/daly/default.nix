@@ -48,7 +48,7 @@ with lib.campground; {
       borgbackup = {
         enable = true;
         jobs = {
-          "campground" = {
+          "daly_campground" = {
             paths = [ "/persist" ];
             repo = "mcamp@reckless:/mnt/backups/daly";
             startAt = "daily";
