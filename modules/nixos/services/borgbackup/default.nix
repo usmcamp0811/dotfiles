@@ -77,6 +77,7 @@ in
                   The latter is available as `$exitStatus`.
                 '';
                 default = ''
+                  mkdir -p ${fileExporterDir}
                   jobName="${config._module.args.name}"
                   if [ $exitStatus -eq 0 ]; then
                     echo "borg_backup_success{job=\"$jobName\"} 1" > ${fileExporterDir}/borg-backup-$jobName.prom
@@ -140,7 +141,6 @@ in
 
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
-    systemd.tmpfiles.rules = [ "d ${fileExporterDir} 0755 prometheus prometheus -" ];
     systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       description = "Copy the passphrase for ${name} Borg Backup job";
       serviceConfig.Type = "oneshot";
