@@ -8,6 +8,7 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.services.borgbackup;
+  fileExporterDir = config.campground.services.prometheus.fileExporterDir;
 
 in
 {
@@ -67,11 +68,11 @@ in
                   jobName="${config._module.args.name}"
                   mkdir -p /var/lib/borgbackup
                   if [ $exitStatus -eq 0 ]; then
-                    echo "borg_backup_success{job=\"$jobName\"} 1" > ${config.campground.services.prometheus.fileExporterDir}/borg-backup-$jobName.prom
+                    echo "borg_backup_success{job=\"$jobName\"} 1" > ${fileExporterDir}/borg-backup-$jobName.prom
                   else
-                    echo "borg_backup_success{job=\"$jobName\"} 0" > ${config.campground.services.prometheus.fileExporterDir}/borg-backup-$jobName.prom
+                    echo "borg_backup_success{job=\"$jobName\"} 0" > ${fileExporterDir}/borg-backup-$jobName.prom
                   fi
-                  echo "borg_backup_last_run{job=\"$jobName\"} $(date +%s)" >> ${config.campground.services.prometheus.fileExporterDir}/borg-backup-$jobName.prom
+                  echo "borg_backup_last_run{job=\"$jobName\"} $(date +%s)" >> ${fileExporterDir}/borg-backup-$jobName.prom
                 '';
               };
               readWritePaths = lib.mkOption {
