@@ -89,6 +89,12 @@ in
 
   config = mkIf (cfg.enable || cfg.exporter-enable) {
     # Ensure the directory has the correct owner and permissions
+    users.groups.prometheus.gid = config.ids.gids.prometheus;
+    users.users.prometheus = {
+      description = "Prometheus daemon user";
+      uid = config.ids.uids.prometheus;
+      group = "prometheus";
+    };
     systemd.tmpfiles.rules = [ "d ${cfg.fileExporterDir} 0755 prometheus prometheus -" ];
     services.prometheus = {
       enable = cfg.enable;
