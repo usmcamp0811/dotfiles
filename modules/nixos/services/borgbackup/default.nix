@@ -64,14 +64,25 @@ in
                 '';
                 default = ''
                   jobName="${config._module.args.name}"
-                  mkdir -p /var/lib/node_exporter/textfile_collector
+                  mkdir -p /var/lib/borgbackup
                   if [ $exitStatus -eq 0 ]; then
-                    echo "borg_backup_success{job=\"$jobName\"} 1" > /var/lib/node_exporter/textfile_collector/borg-backup-$jobName.prom
+                    echo "borg_backup_success{job=\"$jobName\"} 1" > /var/lib/borgbackup/borg-backup-$jobName.prom
                   else
-                    echo "borg_backup_success{job=\"$jobName\"} 0" > /var/lib/node_exporter/textfile_collector/borg-backup-$jobName.prom
+                    echo "borg_backup_success{job=\"$jobName\"} 0" > /var/lib/borgbackup/borg-backup-$jobName.prom
                   fi
-                  echo "borg_backup_last_run{job=\"$jobName\"} $(date +%s)" >> /var/lib/node_exporter/textfile_collector/borg-backup-$jobName.prom
+                  echo "borg_backup_last_run{job=\"$jobName\"} $(date +%s)" >> /var/lib/borgbackup/borg-backup-$jobName.prom
                 '';
+              };
+              readWritePaths = lib.mkOption {
+                type = with lib.types; listOf path;
+                description = ''
+                  By default, borg cannot write anywhere on the system but
+                  `$HOME/.config/borg` and `$HOME/.cache/borg`.
+                  If, for example, your preHook script needs to dump files
+                  somewhere, put those directories here.
+                '';
+                default = [ "/var/lib/borgbackup" ];
+                example = [ "/var/backup/mysqldump" ];
               };
               extraArgs = mkOption {
                 type = with types; coercedTo (listOf str) escapeShellArgs str;

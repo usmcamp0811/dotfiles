@@ -164,7 +164,7 @@ in
             "systemd"
           ]; # ++ cfg.additionalCollectors;
           port = cfg.exporter-port;
-          extraFlags = [ "--collector.textfile.directory=/var/lib/node_exporter/textfile_collector" ];
+          extraFlags = [ "--collector.textfile.directory=/var/lib/borgbackup" ];
         };
       };
       scrapeConfigs = generateScrapeConfigs cfg.hostnames ++ cfg.additionalScrapeConfigs;
