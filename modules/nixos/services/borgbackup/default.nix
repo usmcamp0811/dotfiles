@@ -130,18 +130,16 @@ in
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
-    systemd.services = (
-      lib.genAttrs (lib.attrNames cfg.jobs) (name: {
-        description = "Copy the passphrase for ${name} Borg Backup job";
-        serviceConfig = {
-          Type = "oneshot";
-          User = "root";
-          ExecStart = ''if [ -f /tmp/detsys-vault/${name}-borg-passphrase ]; then cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase; fi'';
-
-        };
-        wantedBy = [ "multi-user.target" ];
-      })
-    );
+    systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+      description = "Copy the passphrase for ${name} Borg Backup job";
+      serviceConfig.Type = "oneshot";
+      serviceConfig.User = "root";
+      script = ''
+        mkdir -p /var/lib/vault
+        cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
+      '';
+      wantedBy = [ "multi-user.target" ];
+    });
     campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       settings = {
         vault.address = cfg.vault-address;
