@@ -56,6 +56,20 @@ in
                 type = lib.types.str;
                 description = "Schedule for the backup job.";
               };
+              preHook = lib.mkOption {
+                type = lib.types.lines;
+                description = ''
+                  Shell commands to run before the backup.
+                  This can for example be used to mount file systems.
+                '';
+                default = ''
+                  mkdir -p ${fileExporterDir}
+                '';
+                example = ''
+                  # To add excluded paths at runtime
+                  extraCreateArgs="$extraCreateArgs --exclude /some/path"
+                '';
+              };
               postHook = lib.mkOption {
                 #TODO: Think about adding hte default prom script outside of the options so it always happens
                 type = lib.types.lines;
@@ -66,7 +80,6 @@ in
                 '';
                 default = ''
                   jobName="${config._module.args.name}"
-                  mkdir -p ${fileExporterDir}
                   if [ $exitStatus -eq 0 ]; then
                     echo "borg_backup_success{job=\"$jobName\"} 1" > ${fileExporterDir}/borg-backup-$jobName.prom
                   else
@@ -130,7 +143,6 @@ in
   config = lib.mkIf cfg.enable {
     services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
 
-    systemd.tmpfiles.rules = [ "d ${fileExporterDir} 0755 prometheus prometheus -" ];
     systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       description = "Copy the passphrase for ${name} Borg Backup job";
       serviceConfig.Type = "oneshot";
