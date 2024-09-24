@@ -138,6 +138,7 @@ in
           User = "root";
           ExecStart = ''
             mkdir -p /var/lib/vault
+
             cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase
           '';
         };
