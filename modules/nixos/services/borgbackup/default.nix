@@ -136,8 +136,7 @@ in
         serviceConfig = {
           Type = "oneshot";
           User = "root";
-          ExecStart = ''cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase'';
-          ExecStart=/bin/sh -c 'if [ -f /tmp/detsys-vault/${name}-borg-passphrase ]; then cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase; fi'
+          ExecStart = ''if [ -f /tmp/detsys-vault/${name}-borg-passphrase ]; then cp /tmp/detsys-vault/${name}-borg-passphrase /var/lib/vault/${name}-borg-passphrase; fi'';
 
         };
         wantedBy = [ "multi-user.target" ];
