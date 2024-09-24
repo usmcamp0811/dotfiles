@@ -66,7 +66,7 @@ in
                 '';
                 default = ''
                   jobName="${config._module.args.name}"
-                  mkdir -p /var/lib/borgbackup
+                  mkdir -p ${fileExporterDir}
                   if [ $exitStatus -eq 0 ]; then
                     echo "borg_backup_success{job=\"$jobName\"} 1" > ${fileExporterDir}/borg-backup-$jobName.prom
                   else
