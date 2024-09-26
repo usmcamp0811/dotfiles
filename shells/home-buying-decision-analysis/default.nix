@@ -20,12 +20,21 @@ let
     "PyCall"
   ];
 
-  # builtins.mapAttrs (package: build-requirements:
-  #   (builtins.getAttr package super).overridePythonAttrs (old: {
-  #     buildInputs = (old.buildInputs or [ ]) ++ (builtins.map (pkg:
-  #       if builtins.isString pkg then builtins.getAttr pkg super else pkg)
-  #       build-requirements);
-  #   })) pypkgs-build-requirements);
+  startJupyterWithJulia =
+    createJuliaConsole "julia-console" "${pkgs.jupyter-all}/bin/jupyter console"
+      {
+        pkgs = pkgs;
+        juliaEnv = julia-env;
+        kernelName = "homeSearch";
+      };
+
+  startQtJupyterWithJulia =
+    createJuliaConsole "julia-qtconsole" "${pkgs.jupyter-all}/bin/jupyter qtconsole"
+      {
+        pkgs = pkgs;
+        juliaEnv = julia-env;
+        kernelName = "homeSearch";
+      };
 
   python-env = mkPythonDerivation {
     inherit pkgs;
@@ -36,22 +45,6 @@ let
     };
   };
 
-  startJupyterWithJulia = writeShellApplication {
-    name = "start-jupyter-with-julia";
-    runtimeInputs = [
-      python-env
-      julia-env
-    ];
-    text = ''
-      # Ensure Julia kernel is installed
-      # Start Jupyter console with Julia kernel
-      export KERNEL_NAME="home-project-julia"
-      JULIA_VERSION="$KERNEL_NAME-$(julia -e 'println(string(VERSION.major) * "." * string(VERSION.minor))')"
-      export PYTHONPATH="${python-env.python}/lib/python3.11/site-packages:${python-env}/lib/site-packages"
-      ${julia-env}/bin/julia -e 'using IJulia; installkernel(ENV["KERNEL_NAME"])' 
-      ${python-env.python}/bin/jupyter console --kernel "$JULIA_VERSION" "$@"
-    '';
-  };
 in
 pkgs.mkShell {
   buildInputs = [
@@ -59,6 +52,7 @@ pkgs.mkShell {
     julia-env
     python-env.python
     python-env.bpython
+    startQtJupyterWithJulia
     startJupyterWithJulia
   ];
   env = {
