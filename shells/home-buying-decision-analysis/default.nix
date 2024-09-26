@@ -58,10 +58,11 @@ pkgs.mkShell {
     pkgs.poetry
     julia-env
     python-env.python
+    python-env.bpython
     startJupyterWithJulia
   ];
   env = {
-    PYTHONPATH = "${python-env.python}/lib/python3.11/site-packages:${python-env}/lib/site-packages";
+    PYTHONPATH = "${python-env.python}/lib/python3.11/site-packages:${python-env.python}/lib/site-packages";
   };
   shellHook = ''
     echo "Poetry environment and Julia project set up."
