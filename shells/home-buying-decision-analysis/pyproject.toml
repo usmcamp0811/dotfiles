@@ -7,10 +7,10 @@ readme = "README.md"
 package-mode = false 
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "<3.13,>=3.9"
 redfin = "^0.1.1"
-jupyter = "^1.0.0"
-qtconsole = "^5.5.2"
+homeharvest = "^0.4.3"
+walkscore-api = "^1.0.1"
 
 
 [build-system]
