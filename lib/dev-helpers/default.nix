@@ -29,6 +29,7 @@ rec {
       pkgs,
       juliaEnv,
       kernelName,
+      pythonPath ? "",
     }:
     pkgs.writeShellApplication {
       inherit name;
@@ -42,7 +43,7 @@ rec {
         # Ensure Julia kernel is installed
         export PATH=${pkgs.jupyter-all}/bin:$PATH
         export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
-        export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages
+        export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:${pythonPath}
         JULIA_VERSION=$(${juliaEnv}/bin/julia -e 'println("${kernelName}-" * string(VERSION.major) * "." * string(VERSION.minor))')
         ${juliaEnv}/bin/julia -e "using IJulia; installkernel(\"${kernelName}\", julia=\`${juliaEnv}/bin/julia\`)"
         ${command} --kernel "$JULIA_VERSION" "$@"

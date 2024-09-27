@@ -26,8 +26,8 @@ let
         pkgs = pkgs;
         juliaEnv = julia-env;
         kernelName = "homeSearch";
+        pythonPath = "${python-env.python}/lib/python3.11/site-packages:${python-env}/lib/site-packages";
       };
-
   startQtJupyterWithJulia =
     createJuliaConsole "julia-qtconsole" "${pkgs.jupyter-all}/bin/jupyter qtconsole"
       {
