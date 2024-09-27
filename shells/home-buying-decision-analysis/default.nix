@@ -18,6 +18,7 @@ let
     "CSV"
     "DataFrames"
     "PyCall"
+    "Missings"
   ];
 
   startJupyterWithJulia =
