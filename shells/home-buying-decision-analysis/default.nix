@@ -19,6 +19,9 @@ let
     "DataFrames"
     "PyCall"
     "Missings"
+    "OpenStreetMapX"
+    "HTTP"
+    "JSON"
   ];
 
   startJupyterWithJulia =
