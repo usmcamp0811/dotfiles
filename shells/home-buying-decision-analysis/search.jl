@@ -32,9 +32,13 @@ function get_properties(city::String; listing_type::String="for_sale", past_days
     return df
 end
 
-cities = ["Louisville, KY", "St. Louis, MO", "Baltimore, MD", "Philadelphia, PA", "Lancaster, PA", "Washington, DC"]
+cities = ["Louisville, KY", "St. Louis, MO", "Baltimore, MD", 
+          "Indianapolis, IN", "Philadelphia, PA", "Lancaster, PA", 
+          "Washington, DC", "Seatle, WA", "Denver, CO", "Portsmouth, VA"]
+city = cities[4]
 properties = Dict()
 max_price = 600_000
+test = get_properties(city; max_price=max_price)
 for city in cities
   properties[city] = get_properties(city; max_price=max_price)
 end
