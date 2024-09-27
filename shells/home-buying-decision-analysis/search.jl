@@ -32,13 +32,12 @@ function get_properties(city::String; listing_type::String="for_sale", past_days
     return df
 end
 
-louisville = get_properties("Louisville, KY"; max_price=600_000)
-stlouis = get_properties("St. Louis, MO"; max_price=600_000)
-baltimore = get_properties("Baltimore, MD"; max_price=600_000)
-philly = get_properties("Philadelphia, PA"; max_price=600_000)
-lancaster = get_properties("Lancaster, PA"; max_price=600_000)
-washington = get_properties("Washington, DC"; max_price=600_000)
-  # past_days=30,  # sold in last 30 days - listed in last 30 days if (for_sale, for_rent)
+cities = ["Louisville, KY", "St. Louis, MO", "Baltimore, MD", "Philadelphia, PA", "Lancaster, PA", "Washington, DC"]
+properties = Dict()
+max_price = 600_000
+for city in cities
+  properties[city] = get_properties(city; max_price=max_price)
+end
 
   # date_from="2023-05-01", # alternative to past_days
   # date_to="2023-05-28",
