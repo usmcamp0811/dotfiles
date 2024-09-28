@@ -1,9 +1,22 @@
 using PyCall
-using DataFrames, Missings
+using DataFrames, Missings, CSV
 @pyimport redfin
 @pyimport homeharvest as hh
 
 Redfin = redfin.Redfin()
+
+# Function to convert PyObjects to appropriate Julia types
+function coerce_column(column)
+    return [isa(v, PyObject) ? convert(PyAny, v) : v for v in column]
+end
+
+# Apply coercion to all columns of the DataFrame
+function coerce_dataframe(df::DataFrame)
+    for col in names(df)
+        df[!, col] = coerce_column(df[!, col])
+    end
+    return df
+end
 
 function get_properties(city::String; listing_type::String="for_sale", past_days::Int=30, min_price::Int=300_000, max_price::Int=560_000)
 
@@ -24,71 +37,88 @@ function get_properties(city::String; listing_type::String="for_sale", past_days
 
     # Convert Python NAType to Julia `missing` and convert to correct types
     df = DataFrame(properties.values, Symbol.(properties.columns))
+    df = coerce_dataframe(df)
 
     # Convert fields while allowing for `missing` values
-    df[!,"list_price"] = allowmissing(df[!,"list_price"])  # Allow missing
-    df[!,"list_price"] = map(x -> isnothing(x) ? missing : convert(Int, x), df[!,"list_price"])
     df = filter(x -> x["list_price"] in min_price:max_price, df)
     return df
 end
 
-cities = ["Louisville, KY", "St. Louis, MO", "Baltimore, MD", 
-          "Indianapolis, IN", "Philadelphia, PA", "Lancaster, PA", 
-          "Washington, DC", "Seatle, WA", "Denver, CO", "Portsmouth, VA"]
-city = cities[4]
-properties = Dict()
-max_price = 600_000
-test = get_properties(city; max_price=max_price)
-for city in cities
-  properties[city] = get_properties(city; max_price=max_price)
+function get_properties(cities::Array; listing_type::String="for_sale", past_days::Int=30, min_price::Int=300_000, max_price::Int=560_000, save_csv::Bool=true, csv_name::String="properties.csv")
+  all_properties = DataFrame()  # Initialize an empty DataFrame to collect all properties
+  
+  for city in cities
+    properties = get_properties(city; max_price=max_price)  # Get properties for the city
+    
+    if save_csv
+      CSV.write(csv_name, properties, append=true)  # Append to CSV if save_csv is true
+    else
+      all_properties = vcat(all_properties, properties)  # Concatenate properties DataFrame if not saving to CSV
+    end
+  end
+  
+  if !save_csv
+    return all_properties  # Return the collected properties if not saving to CSV
+  end
 end
 
-  # date_from="2023-05-01", # alternative to past_days
-  # date_to="2023-05-28",
-  # foreclosure=True
-  # mls_only=True,  # only fetch MLS listings
+cities = ["Louisville, KY", "St. Louis, MO", "Baltimore, MD", 
+          "Indianapolis, IN", "Philadelphia, PA", "Lancaster, PA", 
+          "Washington, DC", "Seattle, WA", "Denver, CO", "Portsmouth, VA",
+          "Cleveland, OH", "Pittsburgh, PA", "Milwaukee, WI", 
+          "Buffalo, NY", "New Orleans, LA", "Minneapolis, MN", 
+          "Cincinnati, OH", "Kansas City, MO", "Richmond, VA", 
+          "Omaha, NE", "Providence, RI", "Rochester, NY", 
+          "Columbus, OH", "Detroit, MI", "Madison, WI", 
+          "Chattanooga, TN", "Salt Lake City, UT", "Worcester, MA", 
+          "Grand Rapids, MI", "Albany, NY", "Hartford, CT", 
+          "Knoxville, TN", "Dayton, OH", "Durham, NC", 
+          "Asheville, NC", "Greenville, SC", "Boise, ID", 
+          "Spokane, WA", "Fort Wayne, IN", "Toledo, OH", 
+          "Little Rock, AR", "Birmingham, AL", "Springfield, MA", 
+          "Augusta, GA", "Mobile, AL", "Tucson, AZ", 
+          "Fayetteville, AR", "Des Moines, IA", "Syracuse, NY", 
+          "Winston-Salem, NC", "Memphis, TN"]
 
-city = "Louisville, KY"
-min_price = 300_000
-max_price = 600_000
-min_walk_score = 70
-listing_type = "for_sale"
-past_days = 180
-parse.(Int, String.(louisville[!,"list_price"]))
 
-louisville[1,"list_price"].attribute
-
-
+properties = get_properties(cities; max_price=600_000)
 
 
 using OpenStreetMapX, HTTP, JSON
 
-function get_nearby_grocery_stores(address::String)
+function get_nearby_places(address::String; walking_distance_minutes::Int=15, place_type::String="grocery")
+    # Approximate walking distance based on time (15 minutes ≈ 1.2 km)
+    distance_meters = walking_distance_minutes * 80  # Rough estimate of walking speed: 80 meters per minute
+
     # Geocode the address using OpenStreetMap Nominatim API
     query_url = "https://nominatim.openstreetmap.org/search?q=$(replace(address, ' ' => '+'))&format=json&limit=1"
     response = HTTP.get(query_url)
     location = JSON.parse(String(response.body))[1]
     lat, lon = location["lat"], location["lon"]
 
-    # Overpass API query to find nearby grocery stores within 15-minute walk (approx 1.2 km)
+    # Set Overpass API query depending on the place type
+    query_type = place_type == "restaurant" ? "amenity=\"restaurant\"" : "shop=\"supermarket\""
+
+    # Overpass API query to find places within the defined walking distance
     overpass_url = """
     [out:json];
-    node["shop"="supermarket"](around:1200,$lat,$lon);
+    node[$query_type](around:$distance_meters,$lat,$lon);
     out body;
     """
-    overpass_url = replace(overpass_url, "\$lat" => lat, "\$lon" => lon)
+    overpass_url = replace(overpass_url, "\$lat" => lat, "\$lon" => lon, "\$distance_meters" => string(distance_meters))
 
     # Send the query
     overpass_api_url = "http://overpass-api.de/api/interpreter"
     overpass_response = HTTP.post(overpass_api_url, [], overpass_url)
-    stores = JSON.parse(String(overpass_response.body))["elements"]
+    places = JSON.parse(String(overpass_response.body))["elements"]
 
-    # Return store details
-    grocery_stores = [(store["tags"]["name"], store["lat"], store["lon"]) for store in stores if "name" in store["tags"]]
-    return grocery_stores
+    # Return place details (name, lat, lon)
+    nearby_places = [(place["tags"]["name"], place["lat"], place["lon"]) for place in places if haskey(place["tags"], "name")]
+    return nearby_places
 end
 
 # Example usage
 address = "1513 Morton Ave, Louisville, KY 40204"
-grocery_stores = get_nearby_grocery_stores(address)
-println(grocery_stores)
+grocery_stores = get_nearby_places(address, walking_distance_minutes=15, place_type="grocery")
+restaurants = get_nearby_places(address, walking_distance_minutes=15, place_type="restaurant")
+
