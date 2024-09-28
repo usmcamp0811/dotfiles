@@ -119,6 +119,16 @@ end
 
 # Example usage
 address = "1513 Morton Ave, Louisville, KY 40204"
+address = "4166 Orchid St, Colorado Springs, CO 80917"
+address = "817 Yuma St, Colorado Springs, CO 80909"
+address = "2449 Ranch Ln, Colorado Springs, CO 80918"
+address = "2315 W 46th Ave, Denver, CO 80211"
+address = "1343 Mirrillion Heights, Colorado Springs, CO 80904"
+address = "253 Marcus St, Walla Walla, WA 99362"
+address = "5501 S Fawcett Ave, Tacoma, WA 98408"
+address = "4504 SE 65th Ave, Portland, OR 97206"
+address = "580 5th St, Lakeport, CA 95453"
+address = "211 Beech Street, Trinidad, CO 81082"
 grocery_stores = get_nearby_places(address, walking_distance_minutes=15, place_type="grocery")
-restaurants = get_nearby_places(address, walking_distance_minutes=15, place_type="restaurant")
+restaurants = get_nearby_places(address, walking_distance_minutes=17, place_type="restaurant")
 
