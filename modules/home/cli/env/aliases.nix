@@ -33,7 +33,7 @@ pkgs.writeText "aliases.nix" ''
   alias chmox='chmod -x'
   alias cat='${pkgs.bat}/bin/bat'
   alias pcat='${pkgs.bat}/bin/bat -p'
-  alias vim='${pkgs.campground.neovim}/bin/nvim'
+  alias vim='${pkgs.campground-nvim}/bin/nvim'
 
   alias df='df -h'
 
