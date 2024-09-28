@@ -5,7 +5,8 @@ let
   theme = pkgs.fetchFromGitHub {
     owner = "CaiJimmy";
     repo = "hugo-theme-stack";
-    rev = "master";
+    rev = "v3.27.0";
+    # sha256 = "sha256-XlD469WutiSQ+P1pDFU66Skeo+7OPJVd7zpPxAZl09Q=";
     sha256 = "sha256-XlD469WutiSQ+P1pDFU66Skeo+7OPJVd7zpPxAZl09Q=";
   };
 
