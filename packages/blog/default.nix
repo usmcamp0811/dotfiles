@@ -6,7 +6,7 @@ let
     owner = "CaiJimmy";
     repo = "hugo-theme-stack";
     rev = "master";
-    sha256 = "sha256-IMbEgE2+mCxwCpbvUnbnm7oED5+PkyRQlxbB+Oxl7yQ=";
+    sha256 = "sha256-XlD469WutiSQ+P1pDFU66Skeo+7OPJVd7zpPxAZl09Q=";
   };
 
   hugo-server = pkgs.writeShellScriptBin "hugo-server" ''
