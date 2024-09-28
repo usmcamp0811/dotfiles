@@ -142,47 +142,63 @@
     }
   ];
 
-  files."after/ftplugin/markdown.lua".keymaps = [{
-    mode = "n";
-    key = "<leader>f";
-    options = { desc = "Reformat lines to 110 chars"; };
-    action = ":%!fmt -w 110 -s<CR>";
-  }];
+  files."after/ftplugin/markdown.lua".keymaps = [
+    {
+      mode = "n";
+      key = "<leader>f";
+      options = {
+        desc = "Reformat lines to 110 chars";
+      };
+      action = ":%!fmt -w 110 -s<CR>";
+    }
+  ];
   files."after/ftplugin/python.lua".keymaps = [
     {
       mode = "n";
       key = "<leader>cc?";
-      options = { desc = "LSP Hover Definition"; };
+      options = {
+        desc = "LSP Hover Definition";
+      };
       action = ":lua vim.lsp.buf.hover()<CR>";
     }
     {
       mode = "n";
       key = "<leader>cct";
-      options = { desc = "Get Python REPL"; };
+      options = {
+        desc = "Get Python REPL";
+      };
       action = ":lua vim.b.slime_config = {jobid=vim.g.python_job_id}<CR>";
     }
     {
       mode = "n";
       key = "<leader>cc<CR>";
-      options = { desc = "Execute Code Cell <marks>"; };
+      options = {
+        desc = "Execute Code Cell <marks>";
+      };
       action = ":MoltenEvaluateLine<CR>";
     }
     {
       mode = "n";
       key = "<leader>cc<S-CR>";
-      options = { desc = "Run Whole File"; };
+      options = {
+        desc = "Run Whole File";
+      };
       action = "ggvG :'<,'>SlimeSend<CR>";
     }
     {
       mode = "v";
       key = "<leader>cc<CR>";
-      options = { desc = "Run Code w/ Conjure"; };
+      options = {
+        desc = "Run Code w/ Conjure";
+      };
       action = ":'<,'>ConjureEval<CR>";
     }
     {
       mode = "v";
       key = "<leader>cc?";
-      options = { desc = "LSP Hover Definition"; };
+      options = {
+        desc = "LSP Hover Definition";
+      };
       action = ":lua vim.lsp.buf.hover()<CR>";
     }
   ];
@@ -191,25 +207,33 @@
     {
       mode = "n";
       key = "<leader>cc?";
-      options = { desc = "LSP Hover Definition"; };
+      options = {
+        desc = "LSP Hover Definition";
+      };
       action = ":lua vim.lsp.buf.hover()<CR>";
     }
     {
       mode = "n";
       key = "<leader><CR>";
-      options = { desc = "Execute Code Cell"; };
+      options = {
+        desc = "Execute Code Cell";
+      };
       action = ":MoltenEvaluateLine<CR>";
     }
     {
       mode = "v";
       key = "<leader><CR>";
-      options = { desc = "Run Code"; };
-      action = ":<C-u>MoltenEvaluateVisual<CR>gv";
+      options = {
+        desc = "Run Code";
+      };
+      action = ":<C-u>MoltenEvaluateVisual<CR>";
     }
     {
       mode = "v";
       key = "<leader>cc?";
-      options = { desc = "LSP Hover Definition"; };
+      options = {
+        desc = "LSP Hover Definition";
+      };
       action = ":lua vim.lsp.buf.hover()<CR>";
     }
   ];
@@ -218,38 +242,49 @@
     {
       mode = "n";
       key = "<leader>cc?";
-      options = { desc = "LSP Hover Definition"; };
+      options = {
+        desc = "LSP Hover Definition";
+      };
       action = ":lua vim.lsp.buf.hover()<CR>";
     }
     {
       mode = "n";
       key = "<leader>cct";
-      options = { desc = "Get Clojure REPL"; };
+      options = {
+        desc = "Get Clojure REPL";
+      };
       action = ":lua vim.b.slime_config = {jobid=vim.g.clojure_job_id}<CR>";
     }
     {
       mode = "n";
       key = "<leader>cc<CR>";
-      options = { desc = "Execute Code"; };
-      action =
-        ":ConjureEvalCurrentForm<CR>:silent! call repeat#set(' ee', 1)<CR>";
+      options = {
+        desc = "Execute Code";
+      };
+      action = ":ConjureEvalCurrentForm<CR>:silent! call repeat#set(' ee', 1)<CR>";
     }
     {
       mode = "n";
       key = "<leader>cc<S-CR>";
-      options = { desc = "Run Whole File"; };
+      options = {
+        desc = "Run Whole File";
+      };
       action = "ggvG :'<,'>SlimeSend<CR>";
     }
     {
       mode = "v";
       key = "<leader>cc<CR>";
-      options = { desc = "Run Code w/ Slime"; };
+      options = {
+        desc = "Run Code w/ Slime";
+      };
       action = ":'<,'>SlimeSend<CR>";
     }
     {
       mode = "v";
       key = "<leader>cc?";
-      options = { desc = "LSP Hover Definition"; };
+      options = {
+        desc = "LSP Hover Definition";
+      };
       action = ":lua vim.lsp.buf.hover()<CR>";
     }
   ];
