@@ -1,32 +1,26 @@
-{...}: {
+{ ... }: {
   plugins = {
     lualine = {
       enable = true;
-      iconsEnabled = true;
-      theme = "auto";
-      alwaysDivideMiddle = true;
-      globalstatus = true;
-      disabledFiletypes.statusline = ["alpha" "dashboard" "NvimTree" "Outline"];
-      extensions = [];
+      settings = {
 
-      sectionSeparators = {
-        left = "";
-        right = "";
+        options = {
+          always_divide_middle = true;
+          disabled_filetypes = [ "alpha" "dashboard" "NvimTree" "Outline" ];
+          section_separators = {
+            left = "";
+            right = "";
+          };
+          component_separators = {
+            left = "";
+            right = "";
+          };
+          icons_enabled = true;
+          globalstatus = true;
+          theme = "auto";
+
+        };
       };
-
-      componentSeparators = {
-        left = "";
-        right = "";
-      };
-
-      # sections = {
-      #   lualine_a = [{ name = "mode"; }];
-      #   lualine_b = [{ name = "branch"; }];
-      #   lualine_c = [{ name = "filename"; }];
-      #   lualine_x = [{ name = "encoding"; }];
-      #   lualine_y = [{ name = "progress"; }];
-      #   lualine_z = [{ name = "location"; }];
-      # };
     };
   };
   # TODO: Move what i can into the above nix stuff
@@ -127,4 +121,3 @@
   '';
 }
 # TODO: Impliment these lualine sections
-

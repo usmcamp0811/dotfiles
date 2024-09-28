@@ -1,30 +1,6 @@
-{ pkgs, ... }:
-{
-  extraPlugins = with pkgs.vimPlugins; [
-    rnvimr
-    markid
-  ];
+{ pkgs, ... }: {
+  extraPlugins = with pkgs.vimPlugins; [ rnvimr markid ];
   plugins = {
-    treesitter = {
-      # enable = true;
-      ensureInstalled = [
-        "bash"
-        "c"
-        "diff"
-        "html"
-        "lua"
-        "luadoc"
-        "markdown"
-        "vim"
-        "vimdoc"
-        "julia"
-        "python"
-      ];
-      settings = {
-        indent.enable = true;
-      };
-      nixvimInjections = true;
-    };
     treesitter-textobjects = {
       enable = true;
       select = {

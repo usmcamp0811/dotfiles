@@ -110,6 +110,7 @@
   # TODO:
   # "bytesnake/vim-graphical-preview"
   plugins = {
+    web-devicons.enable = true;
     ccc.enable = true;
     direnv.enable = true;
     helm.enable = true;
@@ -127,7 +128,7 @@
 
     # Markdown and Preview
     markdown-preview.enable = true;
-    surround.enable = true;
+    vim-surround.enable = true;
 
     # Other Utilities
     auto-save.enable = true;
