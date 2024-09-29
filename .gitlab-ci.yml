@@ -217,8 +217,6 @@ nvim_update:
     - "git add flake.lock"
     - "git commit -m 'CI: Update campground-nvim'"
     - "git push origin HEAD:${CI_DEFAULT_BRANCH}"
-  only:
-    - schedules
-    - triggers
   rules:
-    - allow_failure: false
+    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "trigger"'
+      allow_failure: false
