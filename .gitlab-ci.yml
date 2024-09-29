@@ -111,6 +111,8 @@ mattis:
       changes:
         - "**/lan-hosting/default.nix"
       allow_failure: false
+    - if: '$FLAKE_UPDATE == "true"'
+      when: never
 
 butler_deploy:
   <<: *deploy_job_template
@@ -218,3 +220,5 @@ nvim_update:
   only:
     - schedules
     - triggers
+  rules:
+    - allow_failure: false
