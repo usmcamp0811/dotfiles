@@ -192,11 +192,11 @@
         "poetry2nix": "poetry2nix_2"
       },
       "locked": {
-        "lastModified": 1727546091,
-        "narHash": "sha256-NVv75YsaahOKtsmL0xl/Jr3otDFysGZXPAHvU0vPl1A=",
+        "lastModified": 1727579328,
+        "narHash": "sha256-eWsd8m89TvYbfl/7fmqunVS8dEau+IFm8oO91QzbA4I=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "d38afa839d731e8a25e8a3a6e37c8b6fde28a1a5",
+        "rev": "17d766f725e1a14e9bd95b7fc0594bc3e6009f77",
         "type": "gitlab"
       },
       "original": {
