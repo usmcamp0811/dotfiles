@@ -211,6 +211,7 @@ nvim_update:
     - "nix flake lock --update-input campground-nvim"
     - "git config --global user.email 'ci-bot@gitlab.com'"
     - "git config --global user.name 'CI Bot'"
+    - "git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/dotfiles.git"
     - "git add flake.lock"
     - "git commit -m 'CI: Update campground-nvim'"
     - "git push origin HEAD:${CI_DEFAULT_BRANCH}"
