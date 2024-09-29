@@ -194,11 +194,11 @@
         "pre-commit-hooks": "pre-commit-hooks_3"
       },
       "locked": {
-        "lastModified": 1727636797,
-        "narHash": "sha256-NhHwkYoPPVvHN89fU/P6ESaYQS1hz5Ru0ShK+GUSNDs=",
+        "lastModified": 1727638170,
+        "narHash": "sha256-/J/llQ/Jn+U+tfa+EGhMbCKyZarslHT4Cd5v3bE23Zw=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "dbe014b97d278e1a3a0eeb97ea9a37e94e245fd8",
+        "rev": "fbac66c762133cef0596f22e328e1ffe8ec9bf02",
         "type": "gitlab"
       },
       "original": {
