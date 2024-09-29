@@ -207,6 +207,8 @@ build_resume:
 
 nvim_update:
   stage: nvim_update
+  variables:
+    FLAKE_UPDATE: "true"
   script:
     - "nix flake lock --update-input campground-nvim"
     - "git config --global user.email 'ci-bot@gitlab.com'"
@@ -218,3 +220,5 @@ nvim_update:
   only:
     - schedules
     - triggers
+  rules:
+    - allow_failure: false
