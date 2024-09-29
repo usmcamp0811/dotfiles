@@ -218,5 +218,3 @@ nvim_update:
   only:
     - schedules
     - triggers
-  rules:
-    - allow_failure: false
