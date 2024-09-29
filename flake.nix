@@ -155,6 +155,7 @@
       flake = false;
     };
 
+    campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
     campground-jupyterlab.url = "gitlab:usmcamp0811/campground-jupyter-lab";
     campground-jupyterlab.inputs.nixpkgs.follows = "unstable";
 
