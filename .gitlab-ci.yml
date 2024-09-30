@@ -208,7 +208,7 @@ build_resume:
 nvim_update:
   stage: nvim_update
   script:
-    - "nix flake check gitlab:usmcamp0811/campground-nvim"
+    # - "nix flake check gitlab:usmcamp0811/campground-nvim"
     - "nix flake lock --update-input campground-nvim"
     - "git config --global user.email 'ci-bot@gitlab.com'"
     - "git config --global user.name 'CI Bot'"
