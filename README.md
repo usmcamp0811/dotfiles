@@ -50,7 +50,7 @@ dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 
 Here's an overview of what my Nix configuration offers:
 
-- **[Campground Nvim](https://gitlab.com/usmcamp0811/dotfiles/-/tree/nixos/packages/neovim?ref_type=heads)**: I configured my Neovim config using [NixVim](https://github.com/nix-community/nixvim) and export it as a package.
+- **[Campground Nvim](https://gitlab.com/usmcamp0811/campground-nvim)**: I configured my Neovim config using [NixVim](https://github.com/nix-community/nixvim) and export it as a package.
 
 - **Home Manager**: Manage your dotfiles, home environment, and user-specific configurations with Home Manager.
 
