@@ -7,6 +7,7 @@ let
   julia-env = pkgs.julia.withPackages.override {
     extraLibs =
       [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
+    setDefaultDepot = true;
   } [
     "FileIO"
     "JLD2"
