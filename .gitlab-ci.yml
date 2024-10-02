@@ -217,5 +217,5 @@ nvim_update:
     - "git commit -m 'CI: Update campground-nvim'"
     - "git push origin HEAD:${CI_DEFAULT_BRANCH}"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "trigger"'
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
       allow_failure: false
