@@ -7,7 +7,7 @@ Redfin = redfin.Redfin()
 
 # Function to convert PyObjects to appropriate Julia types
 function coerce_column(column)
-    return [isa(v, PyObject) ? convert(PyAny, v) : v for v in column]
+    return [isa(v, PyObject) ? (string(v) == "<NA>" ? missing : convert(PyAny, v)) : v for v in column]
 end
 
 # Apply coercion to all columns of the DataFrame
@@ -27,14 +27,6 @@ function get_properties(city::String; listing_type::String="for_sale", past_days
         past_days=past_days
     )
 
-    # Define the columns you want to select
-
-    # Define the columns you want to select
-    selected_columns = ["city", "days_on_mls", "full_baths", "full_street_line", 
-                        "beds", "list_date", "list_price", "lot_sqft", "mls", 
-                        "price_per_sqft", "primary_photo", "property_url", "sqft",
-                        "year_built", "zip_code"]
-
     # Convert Python NAType to Julia `missing` and convert to correct types
     df = DataFrame(properties.values, Symbol.(properties.columns))
     df = coerce_dataframe(df)
@@ -44,14 +36,20 @@ function get_properties(city::String; listing_type::String="for_sale", past_days
     return df
 end
 
+
 function get_properties(cities::Array; listing_type::String="for_sale", past_days::Int=30, min_price::Int=300_000, max_price::Int=560_000, save_csv::Bool=true, csv_name::String="properties.csv")
   all_properties = DataFrame()  # Initialize an empty DataFrame to collect all properties
+  
+  # Check if file exists to avoid writing the header multiple times
+  file_exists = isfile(csv_name)
   
   for city in cities
     properties = get_properties(city; max_price=max_price)  # Get properties for the city
     
     if save_csv
-      CSV.write(csv_name, properties, append=true)  # Append to CSV if save_csv is true
+      # Write the header only if the file doesn't exist yet
+      CSV.write(csv_name, properties, append=file_exists, writeheader=!file_exists)
+      file_exists = true  # Set file exists to true after first write
     else
       all_properties = vcat(all_properties, properties)  # Concatenate properties DataFrame if not saving to CSV
     end
@@ -62,6 +60,8 @@ function get_properties(cities::Array; listing_type::String="for_sale", past_day
   end
 end
 
+
+cities = ["Pittsburgh, PA", "Louisville, KY", "Chattanooga, TN"]
 cities = ["Louisville, KY", "St. Louis, MO", "Baltimore, MD", 
           "Indianapolis, IN", "Philadelphia, PA", "Lancaster, PA", 
           "Washington, DC", "Seattle, WA", "Denver, CO", "Portsmouth, VA",
@@ -81,7 +81,7 @@ cities = ["Louisville, KY", "St. Louis, MO", "Baltimore, MD",
           "Winston-Salem, NC", "Memphis, TN"]
 
 
-properties = get_properties(cities; max_price=600_000)
+properties = get_properties(cities; max_price=600_000, csv_name="properties.csv")
 
 
 using OpenStreetMapX, HTTP, JSON
