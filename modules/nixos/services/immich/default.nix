@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, inputs, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.services.immich;
@@ -54,7 +54,6 @@ in {
     # };
   };
 
-  imports = [ inputs.unstable.nixosModules.immich ];
   config = mkIf cfg.enable {
     # Enable services.immich using the upstream service module
     services.immich = {
@@ -67,11 +66,11 @@ in {
       openFirewall = cfg.openFirewall;
       database = {
         enable = cfg.database.enable;
-        createDB = cfg.database.createDB;
-        name = cfg.database.name;
-        host = cfg.database.host;
-        port = cfg.database.port;
-        user = cfg.database.user;
+        # createDB = cfg.database.createDB;
+        # name = cfg.database.name;
+        # host = cfg.database.host;
+        # port = cfg.database.port;
+        # user = cfg.database.user;
       };
       redis = {
         enable = cfg.redis.enable;
