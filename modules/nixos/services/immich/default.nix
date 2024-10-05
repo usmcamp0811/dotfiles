@@ -54,6 +54,7 @@ in {
     # };
   };
 
+  imports = [ inputs.unstable.nixosModules.immich ];
   config = mkIf cfg.enable {
     # Enable services.immich using the upstream service module
     services.immich = {
