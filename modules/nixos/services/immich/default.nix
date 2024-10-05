@@ -68,7 +68,7 @@ in {
         enable = cfg.database.enable;
         # createDB = cfg.database.createDB;
         # name = cfg.database.name;
-        # host = cfg.database.host;
+        host = cfg.database.host;
         # port = cfg.database.port;
         # user = cfg.database.user;
       };
