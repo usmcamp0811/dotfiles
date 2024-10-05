@@ -87,9 +87,6 @@ in {
       # secretsFile = cfg.secretsFile;
     };
 
-    # Firewall configuration
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.port ];
-
     # # User and group setup
     # users.users.immich = mkIf (cfg.user == "immich") {
     #   isSystemUser = true;
