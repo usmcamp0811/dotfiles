@@ -141,6 +141,9 @@ address = "98 Ruth Street Pittsburgh, PA 15211"
 address = "3914 Howley Street Pittsburgh, PA 15224"
 address = "3423 Denny Street Pittsburgh, PA 15201"
 address = "1206 Linden Place Pittsburgh, PA 15212"
+address = "5415 Black Street Pittsburgh, PA 15206"
+address = "257 38th Street Pittsburgh, PA 15201"
+address = "1612 Buena Vista Street Pittsburgh, PA 15212"
 grocery_stores = get_nearby_places(address, walking_distance_minutes=15, place_type="grocery")
 restaurants = get_nearby_places(address, walking_distance_minutes=15, place_type="restaurant")
 
