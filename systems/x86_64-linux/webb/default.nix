@@ -167,6 +167,11 @@ in {
         enable = true;
         originalsPath = "/webb/media/photos";
       };
+      immich = {
+        enable = true;
+        mediaLocation = "/webb/media/photos";
+
+      };
 
       borgbackup = {
         enable = true;

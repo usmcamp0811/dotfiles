@@ -7,8 +7,8 @@ in {
     enable = mkBoolOpt false "Enable Immich;";
     mediaLocation =
       mkOpt path "/var/lib/immich" "Directory used to store media files.";
-    port = mkOpt int 3001 "Port to expose Immich on";
-    host = mkOpt str "localhost" "Host for Immich to listen on";
+    port = mkOpt int 13001 "Port to expose Immich on";
+    host = mkOpt str "0.0.0.0" "Host for Immich to listen on";
     user = mkOpt str "immich" "User to run Immich as";
     group = mkOpt str "immich" "Group to run Immich as";
     openFirewall =
@@ -34,24 +34,24 @@ in {
       modelTTL = mkOpt str "600" "TTL for machine learning models";
     };
 
-    role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
-    secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/immich"
-      "The Vault path to the KV containing the KVs that are for each database";
-    kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
-      default = "v2";
-      description = "KV store version";
-    };
-    vault-address = mkOption {
-      type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
-      description = "The address of your Vault";
-    };
+    # role-id =
+    #   mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+    #   "Absolute path to the Vault role-id";
+    # secret-id =
+    #   mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+    #   "Absolute path to the Vault secret-id";
+    # vault-path = mkOpt str "secret/campground/immich"
+    #   "The Vault path to the KV containing the KVs that are for each database";
+    # kvVersion = mkOption {
+    #   type = enum [ "v1" "v2" ];
+    #   default = "v2";
+    #   description = "KV store version";
+    # };
+    # vault-address = mkOption {
+    #   type = str;
+    #   default = config.campground.services.vault-agent.settings.vault.address;
+    #   description = "The address of your Vault";
+    # };
   };
 
   config = mkIf cfg.enable {
