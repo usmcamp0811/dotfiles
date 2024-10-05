@@ -71,13 +71,13 @@ in {
                 };
               };
             };
-            http.routers.immitch = {
-              rule = "Host(`immitch.aicampground.com`)";
+            http.routers.immich = {
+              rule = "Host(`immich.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "immitch";
+              service = "immich";
             };
 
-            http.services.immitch = {
+            http.services.immich = {
               loadBalancer.servers = [{ url = "http://webb:13001"; }];
             };
             http.routers.matomo = {
