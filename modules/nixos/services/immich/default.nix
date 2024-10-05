@@ -61,8 +61,8 @@ in {
       mediaLocation = cfg.mediaLocation;
       port = cfg.port;
       host = cfg.host;
-      user = cfg.user;
-      group = cfg.group;
+      # user = cfg.user;
+      # group = cfg.group;
       openFirewall = cfg.openFirewall;
       database = {
         enable = cfg.database.enable;
@@ -74,8 +74,8 @@ in {
       };
       redis = {
         enable = cfg.redis.enable;
-        host = cfg.redis.host;
-        port = cfg.redis.port;
+        # host = cfg.redis.host;
+        # port = cfg.redis.port;
       };
       machine-learning = {
         enable = cfg.machineLearning.enable;
