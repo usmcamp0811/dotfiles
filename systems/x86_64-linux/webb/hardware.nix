@@ -62,6 +62,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/webb/media/immich" = {
+    device = "NIXROOT/persist/immich";
+    fsType = "zfs";
+  };
+
   fileSystems."/var/lib/mlflow" = {
     device = "NIXROOT/persist/mlflow";
     fsType = "zfs";
