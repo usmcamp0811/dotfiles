@@ -180,6 +180,7 @@ in {
             paths = [
               "/persist"
               "/webb/media/photos"
+              "/webb/media/immich"
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
               "/var/lib/paperless"
@@ -195,6 +196,7 @@ in {
             paths = [
               "/persist"
               "/webb/media/photos"
+              "/webb/media/immich"
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
               "/var/lib/paperless"
