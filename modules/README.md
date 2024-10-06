@@ -2,7 +2,7 @@
 
 Organize your Nix configurations with ease using the following directory structure:
 
-```
+```sh
 .
 ├── darwin
 ├── home

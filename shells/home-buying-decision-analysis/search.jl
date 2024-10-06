@@ -144,6 +144,7 @@ address = "1206 Linden Place Pittsburgh, PA 15212"
 address = "5415 Black Street Pittsburgh, PA 15206"
 address = "257 38th Street Pittsburgh, PA 15201"
 address = "1612 Buena Vista Street Pittsburgh, PA 15212"
+address = "1304 Debree Ave, Norfolk, VA 23517"
 grocery_stores = get_nearby_places(address, walking_distance_minutes=15, place_type="grocery")
 restaurants = get_nearby_places(address, walking_distance_minutes=15, place_type="restaurant")
 
