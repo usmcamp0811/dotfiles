@@ -80,6 +80,16 @@ in {
             http.services.immich = {
               loadBalancer.servers = [{ url = "http://webb:13001"; }];
             };
+
+            http.routers.photos = {
+              rule = "Host(`photos.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "photos";
+            };
+
+            http.services.photos = {
+              loadBalancer.servers = [{ url = "http://webb:13001"; }];
+            };
             http.routers.matomo = {
               rule = "Host(`matomo.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -201,17 +211,6 @@ in {
                 interval = "10s";
                 timeout = "5s";
               };
-            };
-
-            http.routers.photoprism = {
-              rule = "Host(`photos.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "photoprism";
-              middlewares = [ "cloudflarewarp" ];
-            };
-
-            http.services.photoprism = {
-              loadBalancer.servers = [{ url = "http://webb:9080"; }];
             };
 
             http.routers.attic = {

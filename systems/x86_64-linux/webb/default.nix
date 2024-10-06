@@ -163,10 +163,10 @@ in {
         backupLocation = "/persist/mysqlBackups/";
       };
 
-      photoprism = {
-        enable = true;
-        originalsPath = "/webb/media/photos";
-      };
+      # photoprism = {
+      #   enable = true;
+      #   originalsPath = "/webb/media/photos";
+      # };
       immich = {
         enable = true;
         mediaLocation = "/webb/media/photos";
