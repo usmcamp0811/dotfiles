@@ -1,6 +1,10 @@
 { lib, inputs, pkgs, ... }:
 with lib.campground;
 let
+
+  ppim = pkgs.writeShellScriptBin "ppim-migrator" ''
+    ${ppim-migrator.python}/bin/python -m ppim-migrator $@
+  '';
   ppim-migrator = mkPythonDerivation {
     inherit pkgs;
     name = "ppim-migrator";
@@ -8,6 +12,7 @@ let
     installPhase = ''
       mkdir -p $out/bin
       cp -r ${ppim-migrator.python}/bin/* $out/bin
+      cp ${ppim}/bin/ppim-migrator $out/bin
     '';
     # pypkgs-build-requirements = { chromaterm = [ "setuptools" ]; };
 
