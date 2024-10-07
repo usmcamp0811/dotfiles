@@ -12,7 +12,7 @@ let
   cfg-user = config.campground.user;
   is-darwin = pkgs.stdenv.isDarwin;
 
-  default-key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler";
+  default-key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler";
 
   home-directory =
     if cfg.name == null
