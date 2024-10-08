@@ -78,7 +78,7 @@
 
     # Binary Cache
     attic = {
-      url = "github:zhaofengli/attic";
+      url = "github:zhaofengli/attic/416687e59c4f0b32742423458cab2c5ff8fe748a";
       inputs.nixpkgs.follows = "unstable";
       # inputs.nixpkgs-stable.follows = "nixpkgs";
     };
