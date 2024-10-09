@@ -54,9 +54,6 @@ with lib.campground; {
     services = {
       onlyoffice = { enable = true; };
       nix-ai = enabled;
-
-      firefly = enabled;
-
       hadoop = {
         enable = true;
         yarnSite = { "yarn.nodemanager.hostname" = "lucas"; };
