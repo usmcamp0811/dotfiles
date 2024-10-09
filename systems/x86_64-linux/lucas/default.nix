@@ -52,6 +52,7 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      n8n = { enable = true; };
       onlyoffice = { enable = true; };
       nix-ai = enabled;
       hadoop = {
