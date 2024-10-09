@@ -58,6 +58,16 @@ in {
               loadBalancer.servers = [{ url = "http://reckless:15000"; }];
             };
 
+            http.routers.n8n = {
+              rule = "Host(`n8n.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "n8n";
+            };
+
+            http.services.n8n = {
+              loadBalancer.servers = [{ url = "http://lucas:5678"; }];
+            };
+
             http.routers.matomo = {
               rule = "Host(`matomo.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
