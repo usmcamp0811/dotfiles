@@ -287,7 +287,7 @@
           inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
             src = ./.;
             hooks = {
-              nixfmt.enable = true;
+              nixpkgs-fmt.enable = true;
               # flake8.enable = true;
               # markdownlint.enable = true;
               # yamllint.enable = true;
