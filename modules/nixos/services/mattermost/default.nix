@@ -1,12 +1,8 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.mattermost;
-in
-{
+with lib.campground;
+let cfg = config.campground.services.mattermost;
+in {
   options.campground.services.mattermost = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
   };
@@ -14,21 +10,15 @@ in
   config = mkIf cfg.enable {
     campground.services.postgresql = {
       enable = true;
-      authentication = [
-        "local mattermost mattermost trust"
-      ];
-      databases = [
-        {
-          name = "mattermost";
-          user = "mattermost";
-        }
-      ];
+      authentication = [ "local mattermost mattermost trust" ];
+      databases = [{
+        name = "mattermost";
+        user = "mattermost";
+      }];
     };
 
     # have to force this since we create the db elsewhere
-    services.postgresql = {
-      enable = lib.mkForce true;
-    };
+    services.postgresql = { enable = lib.mkForce true; };
     # open ports for calls
     networking.firewall.allowedTCPPorts = [ 3478 8443 8045 ];
     networking.firewall.allowedUDPPorts = [ 3478 8443 8045 ];
@@ -67,6 +57,7 @@ in
           # TODO Check syntax for header
           "MM_SQLSETTINGS_DRIVERNAME=postgres"
           "MM_SQLSETTINGS_DATASOURCE=postgres://mattermost@/mattermost?host=/run/postgresql/"
+          "MM_SERVICESETTINGS_ALLOWEDUNTRUSTEDINTERNALCONNECTIONS=n8n.lan.aicampground.com"
 
           # Secret envfile contains:
           # MM_EMAILSETTINGS_CONNECTIONSECURITY=
