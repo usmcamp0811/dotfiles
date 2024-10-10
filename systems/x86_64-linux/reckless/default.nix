@@ -8,7 +8,8 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   imports = [ ./hardware.nix ];
   # cause ASUS sucks and the ethernet port dies
   boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
@@ -22,6 +23,25 @@ in {
   #   persistencedSha256 = lib.fakeSha256;
   # };
   # boot.kernelPackages = mkDefault pkgs.linuxPackages_6_8_10;
+  config.services.nginx = {
+    enable = true;
+    virtualHosts."mail.aicampground.com" = {
+      enableACME = false;
+      locations = {
+        # IMAP Proxy
+        "/imap" = {
+          proxyPass = "http://127.0.0.1:1143";
+          proxyPassRequestHeaders = true;
+        };
+        # SMTP Proxy
+        "/smtp" = {
+          proxyPass = "http://127.0.0.1:1025";
+          proxyPassRequestHeaders = true;
+        };
+      };
+    };
+  };
+
   campground = {
     user = {
       name = "mcamp";
