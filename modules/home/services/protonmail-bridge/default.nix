@@ -53,7 +53,7 @@ in {
         Environment =
           "PATH=${cfg.pass-package}/bin:${pkgs.protonmail-bridge}/bin:/run/current-system/sw/bin";
         ExecStart =
-          "${pkgs.protonmail-bridge}/bin/protonmail-bridge --no-window --log-level ${cfg.logLevel}"
+          "${pkgs.protonmail-bridge}/bin/protonmail-bridge --no-window --log-level ${cfg.logLevel} --bind-address 0.0.0.0"
           + optionalString (cfg.nonInteractive) " --noninteractive";
       };
 
