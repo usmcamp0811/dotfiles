@@ -23,23 +23,26 @@ in
   #   persistencedSha256 = lib.fakeSha256;
   # };
   # boot.kernelPackages = mkDefault pkgs.linuxPackages_6_8_10;
-  config.services.nginx = {
-    enable = true;
-    virtualHosts."mail.aicampground.com" = {
-      enableACME = false;
-      locations = {
-        # IMAP Proxy
-        "/imap" = {
-          proxyPass = "http://127.0.0.1:1143";
-          proxyPassRequestHeaders = true;
-        };
-        # SMTP Proxy
-        "/smtp" = {
-          proxyPass = "http://127.0.0.1:1025";
-          proxyPassRequestHeaders = true;
-        };
-      };
+  systemd.services.proton-socat-smtp = {
+    description = "Socat Service for Proton Bridge SMTP Port Forwarding";
+    after = [ "network.target" ];
+    serviceConfig = {
+      ExecStart =
+        "${pkgs.socat}/bin/socat TCP4-LISTEN:587,fork TCP4:127.0.0.1:1025";
+      Restart = "always";
     };
+    wantedBy = [ "multi-user.target" ];
+  };
+
+  systemd.services.proton-socat-imap = {
+    description = "Socat Service for Proton Bridge IMAP Port Forwarding";
+    after = [ "network.target" ];
+    serviceConfig = {
+      ExecStart =
+        "${pkgs.socat}/bin/socat TCP4-LISTEN:143,fork TCP4:127.0.0.1:1143";
+      Restart = "always";
+    };
+    wantedBy = [ "multi-user.target" ];
   };
 
   campground = {
