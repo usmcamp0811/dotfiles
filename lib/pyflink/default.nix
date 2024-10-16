@@ -203,7 +203,7 @@
             -j=${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
               (map (jar: "-j=${jar}") additionalJars)
-            } -pyfs=$PYFILES -pyclientexec=${python-env}/bin/python
+            } -pyfs=${src},${src}/${pyFolderName},${src}/${flink-job-script} -pyclientexec=${python-env}/bin/python
         '';
       };
 
