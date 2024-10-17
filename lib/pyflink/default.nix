@@ -194,8 +194,7 @@
           export JAVA_HOME="${pkgs.openjdk11}"
           export FLINK_HOME="${flink-with-kafka-connector}/opt/flink"
 
-          PYFILES="${src},${src}/${pyFolderName},${src}/${flink-job-script}"
-          echo "PYFILES: $PYFILES"
+          echo "PYFILES: ${src}/${pyFolderName}"
           echo "PYTHONPATH: $PYTHONPATH"
 
           # Execute the sql-client.sh with the additional JARs
@@ -203,7 +202,7 @@
             -j=${getFlinkKafkaConnector pkgs} ${
               builtins.concatStringsSep " "
               (map (jar: "-j=${jar}") additionalJars)
-            } -pyfs=${src},${src}/${pyFolderName},${src}/${flink-job-script} -pyclientexec=${python-env}/bin/python
+            } -pyfs=${src} -pyclientexec=${python-env}/bin/python
         '';
       };
 
