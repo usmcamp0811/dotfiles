@@ -39,12 +39,13 @@ with lib.campground; {
             {
               name = "eDP-1";
               wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+                "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
             }
           ];
 
           wallpapers = [
             "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
+            "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg"
           ];
         };
         gbar = enabled;
