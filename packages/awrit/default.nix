@@ -1,13 +1,4 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, inputs, pkgs, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -16,11 +7,11 @@ let
     pname = "awrit";
     version = "main"; # Change this to a specific version if needed
 
-    src = fetchFromGitHub {
+    src = pkgs.fetchFromGitHub {
       owner = "chase";
       repo = "awrit";
       rev = "main";
-      sha256 = "";
+      sha256 = "sha256-9OlH5qx1zxulwQmNoaX3eLtw1MFEsTh/DUaK43xqDSM=";
     };
 
     buildInputs = [ pkgs.cmake pkgs.ninja ];
@@ -32,9 +23,6 @@ let
 
     installPhase = ''
       cmake --install build --prefix $out
-      wrapProgram $out/bin/awrit --prefix PATH : ${
-        stdenv.lib.makeBinPath buildInputs
-      }
     '';
 
     meta = with lib; {
