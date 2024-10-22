@@ -1,8 +1,37 @@
 { pkgs, stdenv, lib, cmake, fetchFromGitHub }:
+let
+  CEF_VERSION = "120.1.10+g3ce3184+chromium-120.0.6099.129";
+  CEF_PLATFORM =
+    if stdenv.isDarwin then
+      "macosx64"
+    else if stdenv.isLinux then
+      "linux64"
+    else
+      "windows64";
 
-stdenv.mkDerivation {
+  fetchTarballWithSHA = { name, url, sha1 }:
+    pkgs.fetchurl {
+      inherit name url;
+      sha1 = sha1;
+    };
+
+  cefFile = pkgs.fetchurl {
+    url =
+      "https://cef-builds.spotifycdn.com/cef_binary_${CEF_VERSION}_${CEF_PLATFORM}.tar.bz2";
+    sha256 = "sha256-o7A080YgJu0CcyRJ2hgjVOOaPa+Wm6EDJS7TcR6rd/g=";
+  };
+
+  googletestFile = pkgs.fetchurl {
+    url =
+      "https://github.com/google/googletest/archive/refs/tags/v1.13.0.tar.gz";
+    sha256 = "sha256-rX/boR6gEcHZJbMonPSvLGajUuGNTHJkOS/q116Rk2M=";
+  };
+
+in
+pkgs.stdenv.mkDerivation rec {
   pname = "awrit";
-  version = "1.0.0";
+  version = "0.0.1";
+
   src = fetchFromGitHub {
     owner = "Chase";
     repo = "awrit";
@@ -10,37 +39,29 @@ stdenv.mkDerivation {
     sha256 = "sha256-9OlH5qx1zxulwQmNoaX3eLtw1MFEsTh/DUaK43xqDSM=";
   };
 
-  buildInputs = [ cmake ];
+  nativeBuildInputs = [ pkgs.cmake ];
 
-  patchPhase = ''
-    substituteInPlace CMakeLists.txt \
-      --replace-fail "GetCEFFileInfoForVesion" "GetCEFFileInfoForVersion"
-    substituteInPlace CMakeLists.txt \
-      --replace-fail "file(READ "''${CMAKE_BINARY_DIR}/index.json" INDEX_CONTENT)" \
-                "file(READ "''${CMAKE_BINARY_DIR}/index.json" INDEX_CONTENT)\nif(INDEX_CONTENT STREQUAL "")\n  message(FATAL_ERROR "Failed to download index.json or it is empty.")\nendif()"
-    substituteInPlace CMakeLists.txt \
-      --replace-fail "string(JSON SHA GET ''${CEF_FILE_INFO} "''${CEF_VERSIONS}" ''${VERSION_IDX} files ''${FILE_IDX} sha1)" \
-                "string(JSON SHA GET "''${FILES}" ''${FILE_IDX} sha1)"
-    substituteInPlace CMakeLists.txt \
-      --replace-fail "string(JSON NAME GET ''${CEF_FILE_INFO} "''${CEF_VERSIONS}" ''${VERSION_IDX} files ''${FILE_IDX} name)" \
-                "string(JSON NAME GET "''${FILES}" ''${FILE_IDX} name)"
-    substituteInPlace CMakeLists.txt \
-      --replace-fail "FetchContent_Declare(cef_src" \
-                "if(DEFINED CEF_FILE_NAME AND DEFINED CEF_FILE_SHA)\n  FetchContent_Declare(cef_src"
-    substituteInPlace CMakeLists.txt \
-      --replace-fail "SOURCE_SUBDIR cmake)" \
-                "SOURCE_SUBDIR cmake)\nelse()\n  message(FATAL_ERROR "CEF file name or SHA is not defined. Cannot proceed with download.")\nendif()"
+  buildInputs = [ pkgs.libstdcxx5 ];
+
+  unpackPhase = ''
+    runHook preUnpack
+    cp -r ${src}/* .
+    runHook postUnpack
   '';
 
-  cmakeFlags = [ "-DCMAKE_BUILD_TYPE=Release" ];
   installPhase = ''
+    runHook preInstall
     mkdir -p $out/bin
-    cp awrit $out/bin/
+    # Use the downloaded CEF and GTest files.
+    cp -r ${cefFile} ./cef
+    cp -r ${googletestFile} ./googletest
+    runHook postInstall
   '';
 
-  meta = with lib; {
-    description = "Awrit project with patched CMakeLists.txt";
+  meta = with pkgs.lib; {
+    description =
+      "Package awrit without CMakeLists.txt dependencies, fetched via Nix";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ your_github_username ];
+    platforms = platforms.linux ++ platforms.darwin;
   };
 }
