@@ -9,12 +9,6 @@ let
     else
       "windows64";
 
-  fetchTarballWithSHA = { name, url, sha1 }:
-    pkgs.fetchurl {
-      inherit name url;
-      sha1 = sha1;
-    };
-
   cefFile = pkgs.fetchurl {
     url =
       "https://cef-builds.spotifycdn.com/cef_binary_${CEF_VERSION}_${CEF_PLATFORM}.tar.bz2";
