@@ -1710,11 +1710,11 @@
         "stable-nixpkgs": "stable-nixpkgs"
       },
       "locked": {
-        "lastModified": 1729301702,
-        "narHash": "sha256-HluQ1IVEvUD2NYVuQeU4bawi4VQi5PrWcfWkVwDhhyU=",
+        "lastModified": 1729650180,
+        "narHash": "sha256-RPhKQZ3TiZac2ADqfrBJk6OwbizElHOZY2yuaFfz/1A=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "2e910c36be9c0b3856f708d2a74b5fb57ef930df",
+        "rev": "d85fe8bd909a54422a80e0d0834bd4a6e017bd6c",
         "type": "gitlab"
       },
       "original": {
