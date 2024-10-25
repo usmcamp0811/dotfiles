@@ -1,15 +1,6 @@
-{
-  inputs,
-  lib,
-  pkgs,
-  config,
-  osConfig ? { },
-  format ? "unknown",
-  ...
-}:
+{ inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib;
-with lib.campground;
-{
+with lib.campground; {
   campground = {
 
     system.xdg = enabled;
@@ -39,19 +30,25 @@ with lib.campground;
           monitors = [
             {
               name = "HDMI-A-1";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
             }
             {
               name = "HDMI-A-2";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
             }
             {
               name = "HDMI-A-3";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper =
+                "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
             }
           ];
 
-          wallpapers = [ "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg" ];
+          wallpapers = [
+            "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
+            "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg"
+          ];
         };
         gbar = enabled;
         wofi = enabled;
