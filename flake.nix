@@ -227,7 +227,8 @@
       # pkgs = import nixpkgs {
       #   inherit system;
       # };
-    in lib.mkFlake {
+    in
+    lib.mkFlake {
       channels-config = {
         allowUnfree = true;
         permittedInsecurePackages =
@@ -323,6 +324,10 @@
         new-system = {
           path = ./templates/new-system;
           description = "A new system config to get things started.";
+        };
+        flink-job = {
+          path = ./templates/flink-job;
+          description = "An example of how to use my mkPyFlinkDerivation";
         };
       };
     };
