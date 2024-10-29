@@ -231,8 +231,12 @@
     lib.mkFlake {
       channels-config = {
         allowUnfree = true;
-        permittedInsecurePackages =
-          [ "python-2.7.18.6" "python-2.7.18.7" "qtwebkit-5.212.0-alpha4" ];
+        permittedInsecurePackages = [
+          "python-2.7.18.6"
+          "python-2.7.18.7"
+          "qtwebkit-5.212.0-alpha4"
+          "python3.11-apache-airflow-2.7.3"
+        ];
       };
 
       overlays = with inputs; [
