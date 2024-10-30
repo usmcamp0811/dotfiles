@@ -126,6 +126,7 @@ in
     };
 
     services = {
+      airflow = enabled;
       cac = enabled;
       campground-blog = enabled;
       local-ai = enabled;

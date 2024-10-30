@@ -1,12 +1,8 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.airflow;
-in
-{
+with lib.campground;
+let cfg = config.campground.services.airflow;
+in {
   options.campground.services.airflow = with types; {
     enable = mkBoolOpt false "Enable airflow;";
     port = mkOpt int 8888 "Where the airflow port number";
@@ -18,9 +14,8 @@ in
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt str "secret/campground/mlflow"
-        "The Vault path to the KV containing the KVs that are for each database";
+    vault-path = mkOpt str "secret/campground/mlflow"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -34,13 +29,35 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.airflow = {
-      enable = true;
-      path = cfg.path;
-      port = cfg.port;
-      ip = cfg.ip;
-      postgresql = true;
-    };
+
+    environment.systemPackages = with pkgs; [ apache-airflow ];
+
+    # systemd.services.apache-airflow = {
+    #   wantedBy = [ "multi-user.target" ];
+    #   after = [ "network.target" ];
+    #   serviceConfig = {
+    #     ExecStart = "${pkgs.apache-airflow}/bin/airflow";
+    #     Restart = "always";
+    #     User = "apache-kafka";
+    #     Group = "apache-kafka";
+    #   };
+    #   environment = {
+    #     MICRONAUT_CONFIG_FILES = "/var/lib/apache-kafka/config.yml";
+    #   };
+    #   preStart = ''
+    #             mkdir -p /var/lib/apache-kafka
+    #             cat > /var/lib/apache-kafka/config.yml <<EOF
+    #             ${generators.toYAML { } cfg.settings}
+    #     EOF
+    #   '';
+    # };
+    # services.airflow = {
+    #   enable = true;
+    #   path = cfg.path;
+    #   port = cfg.port;
+    #   ip = cfg.ip;
+    #   postgresql = true;
+    # };
 
     # campground.services.vault-agent.services.airflow = {
     #   settings = {
