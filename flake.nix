@@ -265,6 +265,7 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         "${unstable.outPath}/nixos/modules/services/web-apps/immich.nix"
+        "${unstable.outPath}/nixos/modules/services/misc/ollama.nix"
         # nixos-cli.nixosModules.nixos-cli
         # nix-health.flakeModule
         # scientific-fhs.nixosModules.default
