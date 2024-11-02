@@ -126,11 +126,20 @@ in
     };
 
     services = {
-      # airflow = enabled;
       cac = enabled;
       campground-blog = enabled;
-      local-ai = enabled;
-      file-share = enabled;
+      qdrant = {
+        enable = true;
+        settings.service.host = "0.0.0.0";
+      };
+      ollama = {
+        enable = true;
+        host = "0.0.0.0";
+        accelleration = "cuda";
+
+      };
+      # local-ai = enabled;
+      # file-share = enabled;
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
