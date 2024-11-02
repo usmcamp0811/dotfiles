@@ -135,7 +135,7 @@ in
       ollama = {
         enable = true;
         host = "0.0.0.0";
-        accelleration = "cuda";
+        acceleration = "cuda";
 
       };
       # local-ai = enabled;
