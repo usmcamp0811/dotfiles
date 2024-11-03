@@ -9,10 +9,10 @@ in {
       "WEBHOOK_URL for n8n, in case we’re running behind a reverse proxy. This cannot be set through configuration and must reside in an environment variable.";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/mlflow"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
@@ -29,6 +29,8 @@ in {
 
   config = mkIf cfg.enable {
     services.n8n = { enable = true; };
+    systemd.services.n8n.runtimeDependencies =
+      [ pkgs.nodejs pkgs.nodePackages.npm ];
 
     # campground.services.vault-agent.services.n8n = {
     #   settings = {
