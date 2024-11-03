@@ -29,6 +29,11 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.services.n8n.path = [
+      pkgs.nodejs
+      pkgs.nodePackages.npm
+    ]; # Add Node.js and npm to the system path for this service
+
     services.n8n = {
       enable = true;
       webhookUrl = cfg.webhookUrl;
