@@ -7,7 +7,8 @@ in {
     enable = mkBoolOpt false "Enable Qdrant.";
 
     settings = mkOption {
-      type = types.yaml;
+      type =
+        attrsOf (attrsOf str); # Update type to match nested attribute structure
       default = {
         storage = {
           storage_path = "/var/lib/qdrant/storage";
@@ -16,10 +17,11 @@ in {
         hsnw_index = { on_disk = true; };
         service = {
           host = "127.0.0.1";
-          http_port = 6333;
-          grpc_port = 6334;
+          http_port = "6333"; # Change ports to strings to match type definition
+          grpc_port = "6334";
         };
-        telemetry_disabled = true;
+        telemetry_disabled =
+          "true"; # Change boolean to string to match type definition
       };
       description = ''
         Configuration for Qdrant. Refer to https://github.com/qdrant/qdrant/blob/master/config/config.yaml for details on supported values.

@@ -24,7 +24,7 @@ in {
 
     listenAddress = mkOption {
       type = types.str;
-      default = "127.0.0.1:11434";
+      default = "0.0.0.0:11434";
       description = ''
         The address on which the Ollama server listens.
       '';
@@ -39,8 +39,8 @@ in {
     };
 
     models = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
+      type = types.str;
+      default = "%S/ollama/models";
       description = ''
         List of models to load at startup. These will be downloaded using `ollama pull`.
       '';
@@ -73,7 +73,7 @@ in {
     services.ollama = {
       enable = true;
       environmentVariables = cfg.environmentVariables;
-      package = cfg.package;
+      # package = cfg.package;
       listenAddress = cfg.listenAddress;
       home = cfg.home;
       models = cfg.models;
