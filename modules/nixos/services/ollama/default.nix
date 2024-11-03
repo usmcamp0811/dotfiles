@@ -14,19 +14,19 @@ in {
       '';
     };
 
-    port = mkOption {
-      type = types.intRange 0 65535;
-      default = 11434;
+    package = mkOption {
+      type = types.str;
+      default = "ollama";
       description = ''
-        The port on which the Ollama server listens.
+        The package to be used for Ollama service.
       '';
     };
 
-    host = mkOption {
+    listenAddress = mkOption {
       type = types.str;
-      default = "127.0.0.1";
+      default = "127.0.0.1:11434";
       description = ''
-        The host address that the Ollama server HTTP interface listens to.
+        The address on which the Ollama server listens.
       '';
     };
 
@@ -38,17 +38,23 @@ in {
       '';
     };
 
-    loadModels = mkOption {
+    models = mkOption {
       type = types.listOf types.str;
       default = [ ];
       description = ''
-        Download these models using `ollama pull` as soon as the Ollama service has started.
-        Search for models from: https://ollama.com/library
+        List of models to load at startup. These will be downloaded using `ollama pull`.
       '';
     };
 
-    openFirewall = mkBoolOpt false
-      "Whether to open the firewall for Ollama, adding its port to allowed TCP ports.";
+    writablePaths = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = ''
+        Additional paths that the Ollama service has write access to.
+      '';
+    };
+
+    sandbox = mkBoolOpt true "Enable sandboxing for the Ollama service.";
 
     acceleration = mkOption {
       type = types.nullOr (types.enum [ false "rocm" "cuda" ]);
@@ -67,11 +73,12 @@ in {
     services.ollama = {
       enable = true;
       environmentVariables = cfg.environmentVariables;
-      port = cfg.port;
-      host = cfg.host;
+      package = cfg.package;
+      listenAddress = cfg.listenAddress;
       home = cfg.home;
-      loadModels = cfg.loadModels;
-      openFirewall = cfg.openFirewall;
+      models = cfg.models;
+      writablePaths = cfg.writablePaths;
+      sandbox = cfg.sandbox;
       acceleration = cfg.acceleration;
     };
   };
