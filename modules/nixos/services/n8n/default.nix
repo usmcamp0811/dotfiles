@@ -29,9 +29,7 @@ in {
 
   config = mkIf cfg.enable {
     services.n8n = { enable = true; };
-    systemd.services.n8n.runtimeDependencies =
-      [ pkgs.nodejs pkgs.nodePackages.npm ];
-
+    environment.systemPackages = with pkgs; [ nodejs nodePackages.npm ];
     # campground.services.vault-agent.services.n8n = {
     #   settings = {
     #     vault.address = cfg.vault-address;
