@@ -73,7 +73,6 @@ in {
     services.ollama = {
       enable = true;
       environmentVariables = cfg.environmentVariables;
-      # package = cfg.package;
       listenAddress = cfg.listenAddress;
       home = cfg.home;
       models = cfg.models;

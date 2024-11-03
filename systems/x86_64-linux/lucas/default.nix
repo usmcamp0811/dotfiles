@@ -54,7 +54,12 @@ with lib.campground; {
     services = {
       n8n = { enable = true; };
       onlyoffice = { enable = true; };
-      nix-ai = enabled;
+      ollama = {
+        enable = true;
+        # host = "0.0.0.0";
+        acceleration = "cuda";
+
+      };
       hadoop = {
         enable = true;
         yarnSite = { "yarn.nodemanager.hostname" = "lucas"; };
