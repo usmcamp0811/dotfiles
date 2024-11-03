@@ -1,10 +1,12 @@
 { pkgs, lib, config, ... }:
 with lib;
-# TODO: One day maybe pass credentials automatically into n8n via Vault
-let cfg = config.campground.services.n8n;
+with lib.campground;
+let
+  # TODO: One day maybe pass credentials automatically into n8n via Vault
+  cfg = config.campground.services.n8n;
 in {
   options.campground.services.n8n = with types; {
-    enable = mkBoolOption false "Enable n8n.";
+    enable = mkBoolOpt false "Enable n8n.";
 
     webhookUrl = mkOption {
       type = str;
