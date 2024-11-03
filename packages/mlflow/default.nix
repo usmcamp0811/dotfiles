@@ -11,11 +11,7 @@ let
   container = pkgs.dockerTools.buildLayeredImage {
     name = "mlflow-app";
     tag = "latest";
-    contents = [
-      mlflow
-      pkgs.bash
-      pkgs.coreutils
-    ];
+    contents = [ mlflow pkgs.bash pkgs.coreutils ];
     extraCommands = ''
       mkdir -p usr/bin
       cat ${mlflow}/bin/mlflow-server > usr/bin/mlflow-server
@@ -23,9 +19,7 @@ let
     '';
     config = {
       Entrypoint = [ "mlflow-server" ];
-      ExposedPorts = {
-        "5000/tcp" = { };
-      };
+      ExposedPorts = { "5000/tcp" = { }; };
       Env = [
         "PATH=${pkgs.coreutils}/bin/:/usr/bin/"
         "MLFLOW_S3_IGNORE_TLS=true"
@@ -35,13 +29,13 @@ let
     };
   };
 
-  mlflow = pkgs.python311Packages.toPythonApplication (
-    pkgs.mlflow-unstable.overridePythonAttrs (old: rec {
+  mlflow = pkgs.python311Packages.toPythonApplication
+    (pkgs.python311Packages.mlflow.overridePythonAttrs (old: rec {
       propagatedBuildInputs = old.propagatedBuildInputs ++ [
-        pkgs.boto3-unstable
-        pkgs.psycopg2-unstable
-        pkgs.mysqlclient-unstable
-        pkgs.gunicorn-unstable
+        pkgs.python311Packages.boto3
+        pkgs.python311Packages.psycopg2
+        pkgs.python311Packages.mysqlclient
+        pkgs.python311Packages.gunicorn
       ];
 
       postPatch = ''
@@ -51,7 +45,7 @@ let
       '';
 
       gunicornScript = pkgs.writeText "gunicornMlflow" ''
-        #!${pkgs.python3-11}/bin/python
+        #!${pkgs.python311}/bin/python
         import re
         import sys
         from gunicorn.app.wsgiapp import run
@@ -72,11 +66,8 @@ let
         chmod 555 $out/bin/mlflow-server
       '';
 
-      passthru = {
-        container = container;
-      };
-    })
-  );
+      passthru = { container = container; };
+    }));
   new-meta = with lib; {
     description = description;
     license = licenses.asl20;

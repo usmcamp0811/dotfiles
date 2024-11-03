@@ -2,6 +2,8 @@
 final: prev: {
   # inherit (channels.unstable) python311Packages;
   python3-11 = unstable.legacyPackages.${prev.system}.python311;
+  python311Packages-unstable =
+    unstable.legacyPackages.${prev.system}.python311Packages.mlflow;
   mlflow-unstable =
     unstable.legacyPackages.${prev.system}.python311Packages.mlflow;
   boto3-unstable =
