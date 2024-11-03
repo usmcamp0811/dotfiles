@@ -132,12 +132,12 @@ in
         enable = true;
         settings.service.host = "0.0.0.0";
       };
-      ollama = {
-        enable = true;
-        host = "0.0.0.0";
-        acceleration = "cuda";
-
-      };
+      # ollama = {
+      #   enable = true;
+      #   host = "0.0.0.0";
+      #   acceleration = "cuda";
+      #
+      # };
       # local-ai = enabled;
       # file-share = enabled;
       ldap-client = { enable = mkForce false; };
