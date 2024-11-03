@@ -1,59 +1,40 @@
 { pkgs, lib, config, ... }:
 with lib;
-with lib.campground;
+# TODO: One day maybe pass credentials automatically into n8n via Vault
 let cfg = config.campground.services.n8n;
 in {
   options.campground.services.n8n = with types; {
-    enable = mkBoolOpt false "Enable n8n;";
-    webhookUrl = mkOpt str "n8n.lan.aicampground.com"
-      "WEBHOOK_URL for n8n, in case we’re running behind a reverse proxy. This cannot be set through configuration and must reside in an environment variable.";
-    role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
-    secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/mlflow"
-      "The Vault path to the KV containing the KVs that are for each database";
-    kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
-      default = "v2";
-      description = "KV store version";
-    };
-    vault-address = mkOption {
+    enable = mkBoolOption false "Enable n8n.";
+
+    webhookUrl = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
-      description = "The address of your Vault";
+      default = "";
+      description =
+        "WEBHOOK_URL for n8n, in case we’re running behind a reverse proxy. This cannot be set through configuration and must reside in an environment variable.";
+    };
+    settings = mkOption {
+      type = attrsOf str;
+      default = {
+        N8N_COMMUNITY_NODES_ENABLED = "true"; # Enables community nodes
+        N8N_NODES_EXCLUDE = ""; # Leave blank to include all nodes
+        N8N_NODES_INCLUDE = ""; # Leave blank to include all nodes
+        N8N_DEFAULT_TIMEOUT =
+          "120"; # Default timeout for node operations in seconds
+        N8N_PERSONALIZATION_ENABLED =
+          "false"; # Disables personalization analytics (optional)
+      };
+      description =
+        "Additional configuration settings for n8n, passed as environment variables. For supported values, see https://docs.n8n.io/hosting/environment-variables/configuration-methods/";
     };
   };
 
   config = mkIf cfg.enable {
-    services.n8n = { enable = true; };
+    services.n8n = {
+      enable = true;
+      webhookUrl = cfg.webhookUrl;
+      settings = cfg.settings;
+    };
+
     environment.systemPackages = with pkgs; [ nodejs nodePackages.npm ];
-    # campground.services.vault-agent.services.n8n = {
-    #   settings = {
-    #     vault.address = cfg.vault-address;
-    #     auto_auth = {
-    #       method = [{
-    #         type = "approle";
-    #         config = {
-    #           role_id_file_path = cfg.role-id;
-    #           secret_id_file_path = cfg.secret-id;
-    #           remove_secret_id_file_after_reading = false;
-    #         };
-    #       }];
-    #     };
-    #   };
-    #   secrets.environment.templates = {
-    #     mlflow = {
-    #       text = ''
-    #         {{ with secret "${cfg.vault-path}" }}
-    #         AWS_ACCESS_KEY_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AWS_ACCESS_KEY_ID }}{{ else }}{{ .Data.data.AWS_ACCESS_KEY_ID }}{{ end }}'
-    #         AWS_SECRET_ACCESS_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AWS_SECRET_ACCESS_KEY }}{{ else }}{{ .Data.data.AWS_SECRET_ACCESS_KEY }}{{ end }}'
-    #         {{ end }}
-    #       '';
-    #     };
-    #   };
-    # };
   };
 }
