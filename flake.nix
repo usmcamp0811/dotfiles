@@ -2,8 +2,10 @@
   description = "Campground Config";
 
   inputs = {
-    # nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    nixpkgs.url = "github:nixos/nixpkgs/release-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    # nixpkgs.url =
+    #   "github:nixos/nixpkgs/4df12be7ffc4c8d2d4e5e3d62854462aaab9bf81";
+    # "github:nixos/nixpkgs/release-24.05/797f7dc49e0bc7fab4b57c021cdf68f595e47841";
     pyarrow.url =
       "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     hyprland-works-here.url =
@@ -264,13 +266,24 @@
         flakeforge.nixosModules.flakeforge
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
-        "${unstable.outPath}/nixos/modules/services/web-apps/immich.nix"
-        # "${unstable.outPath}/nixos/modules/services/misc/ollama.nix"
+        "${unstable}/nixos/modules/services/web-apps/immich.nix"
+        # unstable.nixosModules.redis
         # nixos-cli.nixosModules.nixos-cli
         # nix-health.flakeModule
         # scientific-fhs.nixosModules.default
       ];
 
+      # Temporary, immich is not in 24.05
+      systems.hosts.webb.modules = with inputs;
+        [
+          ({ ... }: {
+            disabledModules = [ "services/databases/redis.nix" ];
+            imports = [
+              "${unstable}/nixos/modules/services/web-apps/immich.nix"
+              "${unstable}/nixos/modules/services/databases/redis.nix"
+            ];
+          })
+        ];
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53
