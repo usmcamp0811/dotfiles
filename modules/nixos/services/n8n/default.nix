@@ -29,9 +29,30 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.services.n8n.environment.N8N_COMMUNITY_NODES_ENABLED = "true";
+    systemd.services.n8n.environment.NPM_CONFIG_PREFIX =
+      "/var/lib/n8n/.npm-global";
+    systemd.services.n8n.environment.NPM_CONFIG_CACHE = "/var/lib/n8n/.npm";
+    systemd.services.n8n.environment.HOME = "/var/lib/n8n";
+    systemd.services.n8n.environment.N8N_LOG_LEVEL = "debug";
+    systemd.services.n8n.environment.NODE_FUNCTION_ALLOW_EXTERNAL = "*";
+    systemd.services.n8n.environment.NODES_INCLUDE = ''["n8n-nodes-ai"]'';
+    systemd.services.n8n.serviceConfig = { User = "n8n"; };
+
+    # users.users.n8n = {
+    #   isNormalUser = false;
+    #   isSystemUser = true;
+    #   description = "N8N System User";
+    #   group = "n8n";
+    #   extraGroups =
+    #     [ "n8n" ]; # Optional if you want the user to be in additional groups
+    #   home = "/var/lib/n8n";
+    # };
+    # users.groups.labelstudio = { };
     systemd.services.n8n.path = [
       pkgs.nodejs
       pkgs.nodePackages.npm
+      pkgs.coreutils
     ]; # Add Node.js and npm to the system path for this service
 
     services.n8n = {
