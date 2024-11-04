@@ -5,8 +5,8 @@ let
   # TODO: One day maybe pass credentials automatically into n8n via Vault
   cfg = config.campground.services.n8n;
   format = pkgs.formats.json { };
-in
-{
+  configFile = format.generate "n8n.json" cfg.settings;
+in {
   options.campground.services.n8n = with types; {
     enable = mkBoolOpt false "Enable n8n.";
 
@@ -30,25 +30,20 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.n8n.settings = {
-      # We use this to open the firewall, so we need to know about the default at eval time
-      port = lib.mkDefault 5678;
-    };
+    # services.n8n.settings = {
+    #   # We use this to open the firewall, so we need to know about the default at eval time
+    #   port = lib.mkDefault 5678;
+    # };
 
     systemd.services.n8n = {
       description = "N8N service";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      path = [
-        pkgs.nodejs
-        pkgs.nodePackages.npm
-        pkgs.coreutils
-      ]; # Add Node.js and npm to the system path for this service
+      path = [ pkgs.nodejs pkgs.nodePackages.npm pkgs.coreutils pkgs.bash ];
       environment = {
         # This folder must be writeable as the application is storing
         # its data in it, so the StateDirectory is a good choice
         N8N_USER_FOLDER = "/var/lib/n8n";
-        HOME = "/var/lib/n8n";
         N8N_CONFIG_FILES = "${configFile}";
         N8N_COMMUNITY_NODES_ENABLED = "true";
         NPM_CONFIG_PREFIX = "/var/lib/n8n/.npm-global";
@@ -58,9 +53,19 @@ in
         NODE_FUNCTION_ALLOW_EXTERNAL = "*";
         NODES_INCLUDE = ''["n8n-nodes-ai"]'';
       };
+      script = ''
+        export NPM_CONFIG_CACHE=/var/lib/n8n/.npm
+        export NPM_CONFIG_PREFIX=/var/lib/n8n/.npm-global
+        export HOME=/var/lib/n8n
+        export NODE_ENV=production
+        mkdir -p /var/lib/n8n/.npm-global
+        mkdir -p /var/lib/n8n/.npm
+        mkdir -p /var/lib/n8n/.n8n
+
+        exec ${pkgs.n8n}/bin/n8n
+      '';
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.n8n}/bin/n8n";
         Restart = "on-failure";
         StateDirectory = "n8n";
 
