@@ -5,7 +5,8 @@ let
   # TODO: One day maybe pass credentials automatically into n8n via Vault
   cfg = config.campground.services.n8n;
   format = pkgs.formats.json { };
-in {
+in
+{
   options.campground.services.n8n = with types; {
     enable = mkBoolOpt false "Enable n8n.";
 
@@ -29,15 +30,63 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.services.n8n.environment.N8N_COMMUNITY_NODES_ENABLED = "true";
-    systemd.services.n8n.environment.NPM_CONFIG_PREFIX =
-      "/var/lib/n8n/.npm-global";
-    systemd.services.n8n.environment.NPM_CONFIG_CACHE = "/var/lib/n8n/.npm";
-    systemd.services.n8n.environment.HOME = "/var/lib/n8n";
-    systemd.services.n8n.environment.N8N_LOG_LEVEL = "debug";
-    systemd.services.n8n.environment.NODE_FUNCTION_ALLOW_EXTERNAL = "*";
-    systemd.services.n8n.environment.NODES_INCLUDE = ''["n8n-nodes-ai"]'';
-    systemd.services.n8n.serviceConfig = { User = "n8n"; };
+    services.n8n.settings = {
+      # We use this to open the firewall, so we need to know about the default at eval time
+      port = lib.mkDefault 5678;
+    };
+
+    systemd.services.n8n = {
+      description = "N8N service";
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+      path = [
+        pkgs.nodejs
+        pkgs.nodePackages.npm
+        pkgs.coreutils
+      ]; # Add Node.js and npm to the system path for this service
+      environment = {
+        # This folder must be writeable as the application is storing
+        # its data in it, so the StateDirectory is a good choice
+        N8N_USER_FOLDER = "/var/lib/n8n";
+        HOME = "/var/lib/n8n";
+        N8N_CONFIG_FILES = "${configFile}";
+        N8N_COMMUNITY_NODES_ENABLED = "true";
+        NPM_CONFIG_PREFIX = "/var/lib/n8n/.npm-global";
+        NPM_CONFIG_CACHE = "/var/lib/n8n/.npm";
+        HOME = "/var/lib/n8n";
+        N8N_LOG_LEVEL = "debug";
+        NODE_FUNCTION_ALLOW_EXTERNAL = "*";
+        NODES_INCLUDE = ''["n8n-nodes-ai"]'';
+      };
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.n8n}/bin/n8n";
+        Restart = "on-failure";
+        StateDirectory = "n8n";
+
+        # # Basic Hardening
+        # NoNewPrivileges = "yes";
+        # PrivateTmp = "yes";
+        # PrivateDevices = "yes";
+        # DevicePolicy = "closed";
+        # DynamicUser = "true";
+        # ProtectSystem = "strict";
+        # ProtectHome = "read-only";
+        # ProtectControlGroups = "yes";
+        # ProtectKernelModules = "yes";
+        # ProtectKernelTunables = "yes";
+        # RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6 AF_NETLINK";
+        # RestrictNamespaces = "yes";
+        # RestrictRealtime = "yes";
+        # RestrictSUIDSGID = "yes";
+        # MemoryDenyWriteExecute =
+        #   "no"; # v8 JIT requires memory segments to be Writable-Executable.
+        # LockPersonality = "yes";
+      };
+    };
+
+    networking.firewall =
+      mkIf cfg.openFirewall { allowedTCPPorts = [ cfg.settings.port ]; };
 
     # users.users.n8n = {
     #   isNormalUser = false;
@@ -49,17 +98,12 @@ in {
     #   home = "/var/lib/n8n";
     # };
     # users.groups.labelstudio = { };
-    systemd.services.n8n.path = [
-      pkgs.nodejs
-      pkgs.nodePackages.npm
-      pkgs.coreutils
-    ]; # Add Node.js and npm to the system path for this service
 
-    services.n8n = {
-      enable = true;
-      webhookUrl = cfg.webhookUrl;
-      settings = cfg.settings;
-    };
+    # services.n8n = {
+    #   enable = true;
+    #   webhookUrl = cfg.webhookUrl;
+    #   settings = cfg.settings;
+    # };
 
     environment.systemPackages = with pkgs; [ nodejs nodePackages.npm ];
   };
