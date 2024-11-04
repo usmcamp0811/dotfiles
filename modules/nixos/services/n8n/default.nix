@@ -30,68 +30,64 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # services.n8n.settings = {
-    #   # We use this to open the firewall, so we need to know about the default at eval time
-    #   port = lib.mkDefault 5678;
+
+    # systemd.services.n8n = {
+    #   description = "N8N service";
+    #   after = [ "network.target" ];
+    #   wantedBy = [ "multi-user.target" ];
+    #   path = [ pkgs.nodejs pkgs.nodePackages.npm pkgs.coreutils pkgs.bash ];
+    #   environment = {
+    #     # This folder must be writeable as the application is storing
+    #     # its data in it, so the StateDirectory is a good choice
+    #     N8N_USER_FOLDER = "/var/lib/n8n";
+    #     N8N_CONFIG_FILES = "${configFile}";
+    #     N8N_COMMUNITY_NODES_ENABLED = "true";
+    #     NPM_CONFIG_PREFIX = "/var/lib/n8n/.npm-global";
+    #     NPM_CONFIG_CACHE = "/var/lib/n8n/.npm";
+    #     HOME = "/var/lib/n8n";
+    #     N8N_LOG_LEVEL = "debug";
+    #     NODE_FUNCTION_ALLOW_EXTERNAL = "*";
+    #     NODES_INCLUDE = ''["n8n-nodes-ai"]'';
+    #   };
+    #   script = ''
+    #     export NPM_CONFIG_CACHE=/var/lib/n8n/.npm
+    #     export NPM_CONFIG_PREFIX=/var/lib/n8n/.npm-global
+    #     export HOME=/var/lib/n8n
+    #     export NODE_ENV=production
+    #     mkdir -p /var/lib/n8n/.npm-global
+    #     mkdir -p /var/lib/n8n/.npm
+    #     mkdir -p /var/lib/n8n/.n8n
+    #
+    #     exec ${pkgs.n8n}/bin/n8n
+    #   '';
+    #   serviceConfig = {
+    #     Type = "simple";
+    #     Restart = "on-failure";
+    #     StateDirectory = "n8n";
+    #
+    #     # # Basic Hardening
+    #     # NoNewPrivileges = "yes";
+    #     # PrivateTmp = "yes";
+    #     # PrivateDevices = "yes";
+    #     # DevicePolicy = "closed";
+    #     # DynamicUser = "true";
+    #     # ProtectSystem = "strict";
+    #     # ProtectHome = "read-only";
+    #     # ProtectControlGroups = "yes";
+    #     # ProtectKernelModules = "yes";
+    #     # ProtectKernelTunables = "yes";
+    #     # RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6 AF_NETLINK";
+    #     # RestrictNamespaces = "yes";
+    #     # RestrictRealtime = "yes";
+    #     # RestrictSUIDSGID = "yes";
+    #     # MemoryDenyWriteExecute =
+    #     #   "no"; # v8 JIT requires memory segments to be Writable-Executable.
+    #     # LockPersonality = "yes";
+    #   };
     # };
 
-    systemd.services.n8n = {
-      description = "N8N service";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-      path = [ pkgs.nodejs pkgs.nodePackages.npm pkgs.coreutils pkgs.bash ];
-      environment = {
-        # This folder must be writeable as the application is storing
-        # its data in it, so the StateDirectory is a good choice
-        N8N_USER_FOLDER = "/var/lib/n8n";
-        N8N_CONFIG_FILES = "${configFile}";
-        N8N_COMMUNITY_NODES_ENABLED = "true";
-        NPM_CONFIG_PREFIX = "/var/lib/n8n/.npm-global";
-        NPM_CONFIG_CACHE = "/var/lib/n8n/.npm";
-        HOME = "/var/lib/n8n";
-        N8N_LOG_LEVEL = "debug";
-        NODE_FUNCTION_ALLOW_EXTERNAL = "*";
-        NODES_INCLUDE = ''["n8n-nodes-ai"]'';
-      };
-      script = ''
-        export NPM_CONFIG_CACHE=/var/lib/n8n/.npm
-        export NPM_CONFIG_PREFIX=/var/lib/n8n/.npm-global
-        export HOME=/var/lib/n8n
-        export NODE_ENV=production
-        mkdir -p /var/lib/n8n/.npm-global
-        mkdir -p /var/lib/n8n/.npm
-        mkdir -p /var/lib/n8n/.n8n
-
-        exec ${pkgs.n8n}/bin/n8n
-      '';
-      serviceConfig = {
-        Type = "simple";
-        Restart = "on-failure";
-        StateDirectory = "n8n";
-
-        # # Basic Hardening
-        # NoNewPrivileges = "yes";
-        # PrivateTmp = "yes";
-        # PrivateDevices = "yes";
-        # DevicePolicy = "closed";
-        # DynamicUser = "true";
-        # ProtectSystem = "strict";
-        # ProtectHome = "read-only";
-        # ProtectControlGroups = "yes";
-        # ProtectKernelModules = "yes";
-        # ProtectKernelTunables = "yes";
-        # RestrictAddressFamilies = "AF_UNIX AF_INET AF_INET6 AF_NETLINK";
-        # RestrictNamespaces = "yes";
-        # RestrictRealtime = "yes";
-        # RestrictSUIDSGID = "yes";
-        # MemoryDenyWriteExecute =
-        #   "no"; # v8 JIT requires memory segments to be Writable-Executable.
-        # LockPersonality = "yes";
-      };
-    };
-
-    networking.firewall =
-      mkIf cfg.openFirewall { allowedTCPPorts = [ cfg.settings.port ]; };
+    # networking.firewall =
+    #   mkIf cfg.openFirewall { allowedTCPPorts = [ cfg.settings.port ]; };
 
     # users.users.n8n = {
     #   isNormalUser = false;
@@ -104,11 +100,11 @@ in {
     # };
     # users.groups.labelstudio = { };
 
-    # services.n8n = {
-    #   enable = true;
-    #   webhookUrl = cfg.webhookUrl;
-    #   settings = cfg.settings;
-    # };
+    services.n8n = {
+      enable = true;
+      webhookUrl = cfg.webhookUrl;
+      settings = cfg.settings;
+    };
 
     environment.systemPackages = with pkgs; [ nodejs nodePackages.npm ];
   };
