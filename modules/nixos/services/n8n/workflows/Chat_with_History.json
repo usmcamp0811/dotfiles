@@ -1,0 +1,350 @@
+{
+  "name": "Chat with History",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2a2babca-812c-4b36-a90a-0d0ce2143610",
+      "name": "Chat Memory Manager",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "position": [
+        680,
+        240
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "user",
+              "message": "={{ $('Chat Trigger').item.json.chatInput }}"
+            },
+            {
+              "type": "ai",
+              "message": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "id": "769a5bc2-52d3-4033-b3ef-2d1ce1d6e681",
+      "name": "Chat Memory Manager1",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "position": [
+        1640,
+        240
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "messages",
+        "options": {}
+      },
+      "id": "98d4440f-0e12-4862-b3ac-8862c1b6c980",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1060,
+        240
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "output",
+              "stringValue": "={{ $('Basic LLM Chain').item.json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6ded7290-0d18-42a6-803e-c9c0172f2d01",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2240,
+        240
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {},
+      "id": "cd215eac-725a-455f-b47f-daba3210083a",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        2020,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Read contents of the chat from memory",
+        "height": 196.64941360686112,
+        "width": 514.8706020514577,
+        "color": 7
+      },
+      "id": "f8b05b28-4bef-4e12-9527-5619aaa14514",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Call the assistant, passing in the previous chat messages",
+        "height": 196.64941360686112,
+        "width": 298.02823821086326,
+        "color": 7
+      },
+      "id": "d9193257-f36e-4b5e-9624-6b34cd1ca3c4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1240,
+        180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Add the latest chat messages to the memory",
+        "height": 196.64941360686112,
+        "width": 298.02823821086326,
+        "color": 7
+      },
+      "id": "a76e652a-93ef-434d-a881-7a825c29d304",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1620,
+        180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Return the model output",
+        "height": 196.64941360686112,
+        "width": 356.0564764217267,
+        "color": 7
+      },
+      "id": "a306a7bf-1e5a-4108-b130-751efdc8acf3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Try me out\n1. In the OpenAI Assistant node, make sure your OpenAI credentials are set and choose an assistant to use (you'll need to create one if you don't have one already)\n2. Click the 'Chat' button below\n\n  - In the first message, tell the AI what your name is\n  - In a second message, ask the AI what your name is",
+        "height": 300.48941882630095
+      },
+      "id": "7dc87d4b-9dad-4e2b-9199-030f883650de",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        420
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $('Chat Trigger').item.json.sessionId }}123",
+        "contextWindowLength": 20
+      },
+      "id": "37fed03c-7f4a-49b6-8bea-5e4a765d1e01",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1200,
+        660
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:latest",
+        "options": {}
+      },
+      "id": "80517943-aaa9-44c1-b28f-53ed716bcbc8",
+      "name": "Ollama Model",
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        1220,
+        440
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "J2O6dYDoq7xvVjXu",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## Our Previous Conversation:\n{{ $json[\"messages\"].map(m => `\nHuman: ${m.human}\nAI Assistant: ${m.ai}\n`) }}\n## Current message:\n{{ $('Chat Trigger').item.json.chatInput }}"
+      },
+      "id": "ada6ac06-9d75-4940-ae43-f9d2def78709",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        1260,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is Chad. How can I assist you today?",
+        "options": {
+          "loadPreviousSession": "memory"
+        }
+      },
+      "id": "02660093-428b-471d-ad00-77211b275963",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        380,
+        240
+      ],
+      "webhookId": "1e33e175-695e-44c0-a407-93f1733fa8c9",
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager1": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chat Trigger",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6c03d58b-0c07-4a4e-b0c6-518a10c595fe",
+  "meta": {
+    "templateId": "2098",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d62fcce1cde6367a7a1da342a184f4a4406a10e00469906654bba630c3f1f5a5"
+  },
+  "id": "28HiO2oDRFwqFUed",
+  "tags": []
+}
