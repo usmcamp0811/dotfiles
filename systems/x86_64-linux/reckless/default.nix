@@ -216,7 +216,6 @@ in
         ];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        databases = [{ }];
         authentication = [
           "local all root trust"
           "local all postgres peer"
