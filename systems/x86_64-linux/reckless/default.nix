@@ -204,16 +204,19 @@ in
       postgresql = {
         enable = true;
         enableTCPIP = true;
-        databases = [{
-          name = "atticd";
-          user = "atticd";
-        }];
+        databases = [
+          {
+            name = "atticd";
+            user = "atticd";
+          }
+          {
+            name = "campgroundai";
+            user = "campgroundai";
+          }
+        ];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        databases = [{
-          name = "labelstudio";
-          user = "labelstudio";
-        }];
+        databases = [{ }];
         authentication = [
           "local all root trust"
           "local all postgres peer"
