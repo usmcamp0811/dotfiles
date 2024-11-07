@@ -204,15 +204,14 @@ in
       postgresql = {
         enable = true;
         enableTCPIP = true;
-        databases = [
-          {
-            name = "atticd";
-            user = "atticd";
-          }
-          {
-            name = "campgroundai";
-            user = "campgroundai";
-          }
+        databases = [{
+          name = "atticd";
+          user = "atticd";
+        }
+          # {
+          #   name = "campgroundai";
+          #   user = "campgroundai";
+          # }
         ];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
@@ -220,7 +219,7 @@ in
           "local all root trust"
           "local all postgres peer"
           "local atticd atticd trust"
-          "host  campgroundai  campgroundai  0.0.0.0/0 md5"
+          # "host  campgroundai  campgroundai  0.0.0.0/0 md5"
           "host  all  all  0.0.0.0/0  reject"
           "host  all  all  ::0/0  reject"
 
