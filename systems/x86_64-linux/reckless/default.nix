@@ -207,12 +207,7 @@ in
         databases = [{
           name = "atticd";
           user = "atticd";
-        }
-          # {
-          #   name = "campgroundai";
-          #   user = "campgroundai";
-          # }
-        ];
+        }];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
         authentication = [
