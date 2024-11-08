@@ -5,19 +5,22 @@ let
   cfg = config.campground.suites.lan-hosting;
   jsonValue = with types;
     let
-      valueType = nullOr (oneOf [
-        bool
-        int
-        float
-        str
-        (lazyAttrsOf valueType)
-        (listOf valueType)
-      ]) // {
+      valueType = nullOr
+        (oneOf [
+          bool
+          int
+          float
+          str
+          (lazyAttrsOf valueType)
+          (listOf valueType)
+        ]) // {
         description = "JSON value";
         emptyValue.value = { };
       };
-    in valueType;
-in {
+    in
+    valueType;
+in
+{
   options.campground.suites.lan-hosting = with types; {
     enable = mkBoolOpt false
       "Whether or not to enable common lan-hosting configuration.";
@@ -108,14 +111,14 @@ in {
               loadBalancer.servers = [{ url = "http://reckless:18080"; }];
             };
 
-            http.routers.nix-ai = {
-              rule = "Host(`ai.lan.aicampground.com`)";
+            http.routers.open-webui = {
+              rule = "Host(`chad.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "nix-ai";
+              service = "open-webui";
             };
 
-            http.services.nix-ai = {
-              loadBalancer.servers = [{ url = "http://lucas:18084"; }];
+            http.services.open-webui = {
+              loadBalancer.servers = [{ url = "http://reckless:18580"; }];
             };
 
             http.routers.schema-registry = {

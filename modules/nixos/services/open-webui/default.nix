@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.services.open-webui;
@@ -23,8 +23,8 @@ in {
     };
 
     package = mkOption {
-      type = types.str;
-      default = "open-webui";
+      type = types.package;
+      default = pkgs.open-webui;
       description = ''
         The package to be used for Open-WebUI service.
       '';
@@ -69,7 +69,7 @@ in {
       package = cfg.package;
       openFirewall = cfg.openFirewall;
       host = cfg.host;
-      environmentFile = cfg.environmentFile;
+      # environmentFile = cfg.environmentFile;
       environment = cfg.environment;
     };
   };
