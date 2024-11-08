@@ -16,7 +16,8 @@ let
   #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
   #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
   # }) searxEnabledSystems;
-in {
+in
+{
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -215,6 +216,10 @@ in {
         enableTCPIP = true;
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
+        databases = [{
+          name = "campgroundai";
+          user = "campgroundai";
+        }];
         authentication = [
           "local   all        root      trust" # Allow trusted local connections for root
           "local   all        postgres  peer" # Use peer authentication for postgres user locally
@@ -222,6 +227,8 @@ in {
           "local   firefly    firefly   trust" # Allow trusted local connections for firefly user to firefly DB
           "host    firefly    firefly   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
           "host    firefly    firefly   ::1/128 trust" # Allow trusted connections from localhost (IPv6) for firefly user to firefly DB
+
+          "host  campgroundai  campgroundai  0.0.0.0/0 md5"
 
           "host    all        all       0.0.0.0/0 reject" # Reject all other IPv4 connections
           "host    all        all       ::/0 reject" # Reject all other IPv6 connections
