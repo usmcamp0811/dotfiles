@@ -132,6 +132,7 @@ in
         enable = true;
         settings.service.host = "0.0.0.0";
       };
+      open-webui = enabled;
       ollama = {
         enable = true;
         # host = "0.0.0.0";

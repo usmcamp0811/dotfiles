@@ -16,7 +16,7 @@ in {
 
     port = mkOption {
       type = types.int;
-      default = 8080;
+      default = 18580;
       description = ''
         The port on which Open-WebUI listens.
       '';
@@ -50,7 +50,11 @@ in {
 
     environment = mkOption {
       type = types.attrsOf types.str;
-      default = { };
+      default = {
+        ANONYMIZED_TELEMETRY = "False";
+        DO_NOT_TRACK = "True";
+        SCARF_NO_ANALYTICS = "True";
+      };
       description = ''
         Additional environment variables for the Open-WebUI service.
       '';
