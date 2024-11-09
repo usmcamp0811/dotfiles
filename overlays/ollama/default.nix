@@ -1,1 +1,1 @@
-{ channels, ... }: final: prev: { inherit (channels.unstable) ollama; }
+{ channels, ... }: final: prev: { inherit (channels.unstable) ollama ollama-cuda; }

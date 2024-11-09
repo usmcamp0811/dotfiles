@@ -15,8 +15,8 @@ in {
     };
 
     package = mkOption {
-      type = types.str;
-      default = "ollama";
+      type = types.package;
+      default = pkgs.ollama-cuda;
       description = ''
         The package to be used for Ollama service.
       '';
