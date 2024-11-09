@@ -60,7 +60,7 @@ in
           server.port = cfg.port;
           server.bind_address = "0.0.0.0";
           server.secret_key = "@SEARX_SECRET_KEY@";
-          formats = [ "json" "html" ];
+          search.formats = [ "json" "html" ];
         };
       };
     };
