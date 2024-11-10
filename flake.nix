@@ -267,6 +267,7 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         "${unstable}/nixos/modules/services/web-apps/immich.nix"
+        "${unstable}/nixos/modules/services/databases/chromadb.nix"
         # unstable.nixosModules.redis
         # nixos-cli.nixosModules.nixos-cli
         # nix-health.flakeModule
