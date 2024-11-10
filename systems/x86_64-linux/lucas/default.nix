@@ -53,6 +53,7 @@ with lib.campground; {
     hardware = { nvidia = enabled; };
     services = {
       n8n = { enable = true; };
+      chromadb = { enable = true; };
       onlyoffice = { enable = true; };
       ollama = {
         enable = true;

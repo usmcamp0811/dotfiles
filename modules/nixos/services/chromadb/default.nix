@@ -17,7 +17,7 @@ in {
       Defines the IP address by which ChromaDB will be accessible.
     '';
 
-    port = mkOpt int 8000 ''
+    port = mkOpt int 18000 ''
       Defines the port number to listen on.
     '';
 
