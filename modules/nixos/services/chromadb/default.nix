@@ -28,7 +28,7 @@ in {
     };
 
     dbpath =
-      mkStrOpt "/var/lib/chromadb" "Location where ChromaDB stores its files";
+      mkOpt str "/var/lib/chromadb" "Location where ChromaDB stores its files";
 
     openFirewall = mkBoolOpt false ''
       Whether to automatically open the specified TCP port in the firewall.
