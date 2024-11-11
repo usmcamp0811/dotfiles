@@ -54,6 +54,15 @@ in {
         ANONYMIZED_TELEMETRY = "False";
         DO_NOT_TRACK = "True";
         SCARF_NO_ANALYTICS = "True";
+        VECTOR_DB = "chroma";
+        CHROMA_TENANT = "campground";
+        CHROMA_DATABASE = "campground";
+        CHROMA_HTTP_HOST = "lucas";
+        CHROMA_HTTP_PORT = 18000;
+        RAG_TOP_K = 5;
+        RAG_RELEVANCE_THRESHOLD = 0;
+        ENABLE_RAG_HYBRID_SEARCH = true;
+        RAG_EMBEDDING_ENGINE = "ollama";
       };
       description = ''
         Additional environment variables for the Open-WebUI service.
