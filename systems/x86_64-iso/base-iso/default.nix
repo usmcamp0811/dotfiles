@@ -19,7 +19,7 @@ in
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
       extraGroups = [ "wheel" ];
-      password = "nixos";
+      initialPassword = "nixos";
     };
 
     archetypes = { barebones = enabled; };
