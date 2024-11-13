@@ -22,6 +22,7 @@ in {
 
     archetypes = { barebones = enabled; };
 
+    suites = { desktop = enabled; };
   };
 
   # This value determines the NixOS release from which the default
