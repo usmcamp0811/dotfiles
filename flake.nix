@@ -102,7 +102,8 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     # Generate System Images
-    nixos-generators.url = "github:nix-community/nixos-generators";
+    nixos-generators.url =
+      "github:nix-community/nixos-generators/7c60ba4bc8d6aa2ba3e5b0f6ceb9fc07bc261565";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
 
     # Home Manager (release-23.05)
