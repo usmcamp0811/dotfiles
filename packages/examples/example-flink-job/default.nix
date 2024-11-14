@@ -22,7 +22,6 @@ let
       avro = [ "setuptools" ];
       avro-python3 =
         [ "setuptools" "python-snappy" "zstandard" "isort" "pycodestyle" ];
-      pemja = [ "setuptools" ];
       apache-flink = [ "setuptools" ];
       mocker = [ "setuptools" ];
       apache-flink-libraries = [ "setuptools" ];
