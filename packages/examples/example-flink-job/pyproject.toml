@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 apache-flink = "^1.19.1"
 setuptools = "^65.5.0"  # Add this line
+pemja = "^0.4.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest-mock = "^3.14.0"
