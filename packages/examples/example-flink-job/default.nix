@@ -20,13 +20,9 @@ let
     flink-job-script = "jobs/stream_job.py";
     pypkgs-build-requirements = {
       avro = [ "setuptools" ];
-      avro-python3 = [
-        "setuptools"
-        "python-snappy"
-        "zstandard"
-        "isort"
-        "pycodestyle"
-      ];
+      avro-python3 =
+        [ "setuptools" "python-snappy" "zstandard" "isort" "pycodestyle" ];
+      pemja = [ "setuptools" ];
       apache-flink = [ "setuptools" ];
       mocker = [ "setuptools" ];
       apache-flink-libraries = [ "setuptools" ];
