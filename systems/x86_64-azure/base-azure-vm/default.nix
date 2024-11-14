@@ -13,8 +13,6 @@ in
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
-  config.hardware.networking.networkmanager.enable = mkDefault false;
-
   campground = {
     user = {
       name = "nixos";
@@ -24,7 +22,7 @@ in
       initialPassword = "nixos";
     };
 
-    archetypes = { barebones = enabled; };
+    suites = { azure-common = enabled; };
 
   };
 
