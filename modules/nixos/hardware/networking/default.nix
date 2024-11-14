@@ -1,29 +1,21 @@
-{ options
-, config
-, lib
-, ...
-}:
+{ options, config, lib, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.hardware.networking;
-in
-{
+with lib.campground;
+let cfg = config.campground.hardware.networking;
+in {
   options.campground.hardware.networking = with types; {
     enable = mkBoolOpt false "Whether or not to enable networking support";
-    hosts =
-      mkOpt attrs { }
-        "An attribute set to merge with <option>networking.hosts</option>";
+    hosts = mkOpt attrs { }
+      "An attribute set to merge with <option>networking.hosts</option>";
   };
 
   config = mkIf cfg.enable {
     campground.user.extraGroups = [ "networkmanager" ];
 
     networking = {
-      hosts =
-        {
-          "127.0.0.1" = [ "local.test" ] ++ (cfg.hosts."127.0.0.1" or [ ]);
-        }
-        // cfg.hosts;
+      hosts = {
+        "127.0.0.1" = [ "local.test" ] ++ (cfg.hosts."127.0.0.1" or [ ]);
+      } // cfg.hosts;
 
       networkmanager = {
         enable = true;
