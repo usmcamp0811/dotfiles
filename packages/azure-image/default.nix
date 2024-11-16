@@ -14,8 +14,8 @@ let
 
 in
 writeShellApplication {
-  name = "azure-image";
-  meta = { mainProgram = "azure-image"; };
+  name = "upload-azure-image";
+  meta = { mainProgram = "upload-azure-image"; };
   runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.nix ];
   text = ''
     # Credit to: https://github.com/rudesome/nixos-on-azure
@@ -30,7 +30,7 @@ writeShellApplication {
       echo
       echo '********************************************************'
       echo '* Please log  in to  Azure by  typing "az  login", and *'
-      echo '* repeat the "./upload-image.sh" command.              *'
+      echo '* repeat the command.              *'
       echo '********************************************************'
       exit 1
     fi
