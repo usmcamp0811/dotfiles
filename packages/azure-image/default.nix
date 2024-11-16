@@ -18,6 +18,7 @@ writeShellApplication {
   meta = { mainProgram = "azure-image"; };
   runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.nix ];
   text = ''
+    # Credit to: https://github.com/rudesome/nixos-on-azure
     ####################################################
     # AZ LOGIN CHECK                                   #
     ####################################################
