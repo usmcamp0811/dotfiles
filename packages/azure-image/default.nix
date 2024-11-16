@@ -1,21 +1,12 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
+, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
-in
-writeShellApplication {
-  name = "upload-azure-image";
-  meta = { mainProgram = "upload-azure-image"; };
+in writeShellApplication {
+  name = "azure-image";
+  meta = { mainProgram = "azure-image"; };
   runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.nix ];
   text = ''
     # Credit to: https://github.com/rudesome/nixos-on-azure
@@ -25,7 +16,7 @@ writeShellApplication {
 
     # Making  sure  that  one   is  logged  in  (to  avoid
     # surprises down the line).
-    if [ $(${pkgs.azure-cli}/bin/az account list | ${pkgs.jq}/bin/jq -r 'length') -eq 0 ]
+    if [ "$(${pkgs.azure-cli}/bin/az account list | ${pkgs.jq}/bin/jq -r 'length')" -eq 0 ]
     then
       echo
       echo '********************************************************'
