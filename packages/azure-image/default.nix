@@ -1,5 +1,13 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib
+, writeText
+, writeShellApplication
+, substituteAll
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -22,10 +30,11 @@ let
     fi
   '';
 
-in writeShellApplication {
+in
+writeShellApplication {
   name = "azure-image";
   meta = { mainProgram = "azure-image"; };
-  runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.azcopy pkgs.nix ];
+  runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.nix ];
   text = ''
 
     ####################################################
@@ -33,7 +42,7 @@ in writeShellApplication {
     ####################################################
 
     show_id() {
-      az $1 show \
+      az "$1" show \
         --resource-group "''${resource_group}" \
         --name "''${img_name}"        \
         --query "[id]"              \
@@ -50,7 +59,7 @@ in writeShellApplication {
       echo "-n --image-name     REQUIRED The name of the image created"
       echo " (and also of the new disk)."
       echo ""
-      echo "-l --location       Values from `az account list-locations`."
+      echo "-l --location       Values from $(az account list-locations)."
       echo " Default value: 'westus2'."
     }
 
@@ -98,7 +107,7 @@ in writeShellApplication {
     # DEFAULTS                                         #
     ####################################################
 
-    location_d="${"location:-" "westeurope"}"
+    location_d=${"$location:-useast1"}
 
     ####################################################
     # PUT IMAGE INTO AZURE CLOUD                       #
@@ -125,8 +134,7 @@ in writeShellApplication {
     # but allows us to upload direct to a disk image
     # thereby avoid storage accounts (and naming them) entirely!
     if ! az disk show -g "''${resource_group}" -n "''${img_name}" &>/dev/null; then
-      bytes="$(stat -c %s ''${img_file})"
-      size="30"
+      bytes="$(stat -c %s "''${img_file}")"
       az disk create \
         --resource-group "''${resource_group}" \
         --name "''${img_name}" \
