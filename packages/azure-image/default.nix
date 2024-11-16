@@ -12,7 +12,12 @@ let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
-  az-login-check = pkgs.writeShellScriptBin "az-login-check" ''
+in
+writeShellApplication {
+  name = "azure-image";
+  meta = { mainProgram = "azure-image"; };
+  runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.nix ];
+  text = ''
     ####################################################
     # AZ LOGIN CHECK                                   #
     ####################################################
@@ -28,14 +33,6 @@ let
       echo '********************************************************'
       exit 1
     fi
-  '';
-
-in
-writeShellApplication {
-  name = "azure-image";
-  meta = { mainProgram = "azure-image"; };
-  runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.nix ];
-  text = ''
 
     ####################################################
     # HELPERS                                          #
@@ -119,7 +116,7 @@ writeShellApplication {
 
     # build image and set img file
     # we set impure cause of the ssh key file
-    nix build --out-link "azure" .#azure-image --impure
+    nix build --out-link "azure" .#azureConfigurations.base-azure-vm 
     img_file="$(readlink -f ./azure/nixos.vhd)"
 
     # Make resource group exists
