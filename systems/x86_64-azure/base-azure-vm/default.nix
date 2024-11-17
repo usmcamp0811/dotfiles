@@ -1,4 +1,4 @@
-{ pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
+{ pkgs, modulesPath, inputs, lib, nixos-hardware, nixosModules, ... }:
 with lib;
 with lib.campground;
 let
@@ -8,11 +8,28 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+
+in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
+  imports = [ "${modulesPath}/virtualisation/azure-common.nix" ];
 
+  i18n.defaultLocale = "en_US.UTF-8";
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.growPartition = true;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-label/ESP";
+    fsType = "vfat";
+  };
+
+  virtualisation.azure.agent.enable = true;
+
+  services.cloud-init.enable = true;
+  systemd.services.cloud-config.serviceConfig = { Restart = "on-failure"; };
+  services.cloud-init.network.enable = true;
   campground = {
     user = {
       name = "nixos";
