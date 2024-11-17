@@ -96,7 +96,8 @@ in writeShellApplication {
     # DEFAULTS                                         #
     ####################################################
 
-    location_d=${"$location:-useast1"}
+    location_d="''${location:-useast1}"
+
 
     ####################################################
     # PUT IMAGE INTO AZURE CLOUD                       #

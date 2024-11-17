@@ -1,4 +1,4 @@
-{ options, config, lib, ... }:
+{ pkgs, options, config, lib, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.suites.azure-common;
@@ -8,15 +8,26 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ ];
+    i18n.defaultLocale = "en_US.UTF-8";
 
+    boot.loader.systemd-boot.enable = true;
+    boot.loader.efi.canTouchEfiVariables = true;
+    boot.growPartition = true;
+    boot.kernelPackages = pkgs.linuxPackages_latest;
+
+    # fileSystems."/boot" = {
+    #   device = "/dev/disk/by-label/ESP";
+    #   fsType = "vfat";
+    # };
+
+    # virtualisation.azure.agent.enable = true;
+    services.cloud-init.enable = true;
+    systemd.services.cloud-config.serviceConfig = { Restart = "on-failure"; };
+    services.cloud-init.network.enable = true;
     campground = {
       nix = { enable = true; };
 
-      cache = {
-        public = enabled;
-        campground = enabled;
-      };
+      cache = { public = enabled; };
 
       cli-apps = { flake = enabled; };
 
@@ -24,7 +35,6 @@ in {
         git = enabled;
         misc = enabled;
         nix-output-monitor = enabled;
-        pluto = enabled;
       };
 
       hardware = {
