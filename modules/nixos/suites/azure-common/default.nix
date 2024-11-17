@@ -7,7 +7,8 @@ in {
     enable = mkBoolOpt false "Whether or not to enable common configuration.";
   };
   config = mkIf cfg.enable {
-
+    boot.loader.systemd-boot.enable = false;
+    boot.loader.grub = enabled;
     campground = {
       nix = { enable = true; };
 
@@ -41,7 +42,7 @@ in {
       security = { keyring = enabled; };
 
       system = {
-        boot = enabled;
+        # boot = enabled;
         fonts = enabled;
         locale = enabled;
         time = enabled;

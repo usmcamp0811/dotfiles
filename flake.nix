@@ -309,7 +309,7 @@
             src = ./.;
             hooks = {
               nixpkgs-fmt.enable = true;
-              flake8.enable = true;
+              # flake8.enable = true;
               # markdownlint.enable = true;
               # yamllint.enable = true;
               # deadnix.enable = true;
