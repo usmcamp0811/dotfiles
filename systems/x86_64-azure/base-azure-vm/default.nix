@@ -8,10 +8,9 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
-  # boot.loader.grub = enabled;
+  boot.loader.grub = enabled;
 
   campground = {
     user = {
