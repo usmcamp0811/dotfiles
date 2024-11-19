@@ -61,6 +61,16 @@ in
               loadBalancer.servers = [{ url = "http://reckless:15000"; }];
             };
 
+            http.routers.file-share = {
+              rule = "Host(`files.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "file-share";
+            };
+
+            http.services.file-share = {
+              loadBalancer.servers = [{ url = "http://reckless:8380"; }];
+            };
+
             http.routers.n8n = {
               rule = "Host(`n8n.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
