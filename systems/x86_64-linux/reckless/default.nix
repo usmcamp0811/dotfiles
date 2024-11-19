@@ -140,7 +140,7 @@ in
 
       };
       # local-ai = enabled;
-      # file-share = enabled;
+      file-share = enabled;
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
