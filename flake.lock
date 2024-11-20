@@ -2320,11 +2320,11 @@
         "stable-nixpkgs": "stable-nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1731457058,
-        "narHash": "sha256-z1en5l4ywmsJIQ0xZctHysI1i9WlNSeKNv0xnOQFnDk=",
+        "lastModified": 1732078108,
+        "narHash": "sha256-IT7N1iwLSVmQ89cOyaxXex7bwzdiZz8XhjsZ4FaHrVE=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "62c730d301ff33ec02d3f147d3fbb7c2cc54e7f1",
+        "rev": "e4ddd8e8e2c5be6b87b618f463bef750c7683ac9",
         "type": "gitlab"
       },
       "original": {
@@ -57486,16 +57486,16 @@
     },
     "stable-nixpkgs_3": {
       "locked": {
-        "lastModified": 1731019898,
-        "narHash": "sha256-9nwf99qvvRqdkpAE0E/vrHnthsMP1Rk4xkrWzGgyYUg=",
+        "lastModified": 1732068522,
+        "narHash": "sha256-YAPSGnKxKm636fUdWJElNwgYQ1EDxACPcwf/s83JYc4=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "4b8426014a22a9933dfa112a2def887c130d872e",
+        "rev": "fe807c021bdcbba00b685f193bd096964131397d",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "release-24.05",
+        "ref": "release-24.11",
         "repo": "nixpkgs",
         "type": "github"
       }
