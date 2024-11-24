@@ -2,10 +2,10 @@
 with lib;
 with lib.campground;
 let cfg = config.campground.services.ollama;
+
 in {
   options.campground.services.ollama = with types; {
     enable = mkBoolOpt false "Enable Ollama.";
-
     environmentVariables = mkOption {
       type = types.attrsOf types.str;
       default = { };
@@ -13,7 +13,6 @@ in {
         Set arbitrary environment variables for the Ollama service. These are only seen by the Ollama server (systemd service), not normal invocations like ollama run.
       '';
     };
-
     package = mkOption {
       type = types.package;
       default = pkgs.ollama-cuda;
@@ -21,41 +20,59 @@ in {
         The package to be used for Ollama service.
       '';
     };
-
-    listenAddress = mkOption {
+    host = mkOption {
       type = types.str;
-      default = "0.0.0.0:11434";
+      default = "0.0.0.0";
       description = ''
         The address on which the Ollama server listens.
       '';
     };
-
-    home = mkOption {
-      type = types.str;
-      default = "/var/lib/ollama";
+    port = mkOption {
+      type = types.int;
+      default = 11434;
       description = ''
-        The home directory that the Ollama service is started in.
+        The port on which the Ollama server listens.
       '';
     };
-
-    models = mkOption {
+    user = mkOption {
       type = types.str;
-      default = "%S/ollama/models";
+      default = "ollama";
       description = ''
-        List of models to load at startup. These will be downloaded using `ollama pull`.
+        The user that runs the Ollama service.
       '';
     };
-
-    writablePaths = mkOption {
-      type = types.listOf types.str;
+    group = mkOption {
+      type = types.str;
+      default = "ollama";
+      description = ''
+        The group that runs the Ollama service.
+      '';
+    };
+    loadModels = mkOption {
+      type = types.listOf str;
       default = [ ];
       description = ''
-        Additional paths that the Ollama service has write access to.
+        Download these models using ollama pull as soon as ollama.service has started.
+
+        This creates a systemd unit ollama-model-loader.service.
+
+        Search for models of your choice from: https://ollama.com/library
       '';
     };
-
-    sandbox = mkBoolOpt true "Enable sandboxing for the Ollama service.";
-
+    modelsDir = mkOption {
+      type = types.path;
+      default = "/var/lib/ollama/models";
+      description = ''
+        The directory where the Ollama models are stored.
+      '';
+    };
+    home = mkOption {
+      type = types.path;
+      default = "/var/lib/ollama";
+      description = ''
+        The home directory that the ollama service is started in.
+      '';
+    };
     acceleration = mkOption {
       type = types.nullOr (types.enum [ false "rocm" "cuda" ]);
       default = null;
@@ -72,12 +89,14 @@ in {
   config = mkIf cfg.enable {
     services.ollama = {
       enable = true;
-      environmentVariables = cfg.environmentVariables;
-      listenAddress = cfg.listenAddress;
       home = cfg.home;
-      models = cfg.models;
-      writablePaths = cfg.writablePaths;
-      sandbox = cfg.sandbox;
+      environmentVariables = cfg.environmentVariables;
+      host = cfg.host;
+      port = cfg.port;
+      user = cfg.user;
+      group = cfg.group;
+      models = cfg.modelsDir;
+      loadModels = cfg.loadModels;
       acceleration = cfg.acceleration;
     };
   };

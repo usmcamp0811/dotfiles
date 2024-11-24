@@ -6,7 +6,8 @@ let
 
   # TODO: Look at renaming.. figure this oculd be used to put gui apps that make qtile config pretty and what not
   defaultExtensions = with pkgs; [ networkmanagerapplet arc-theme ];
-in {
+in
+{
   options.campground.desktop.qtile = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Qtile as the desktop environment.";
@@ -19,7 +20,7 @@ in {
     environment.systemPackages = with pkgs;
       [
         gtk4
-        qtile
+        python312Packages.qtile
         rofi
         xclip
         xsel
@@ -37,11 +38,14 @@ in {
       [org.gnome.desktop.interface]
       gtk-theme='Arc-Dark'
     '';
-    environment.etc = let rofiThemes = "${pkgs.rofi}/share/rofi/themes";
-    in mapAttrs' (name: _: {
-      name = "rofi/themes/${name}";
-      value = { source = "${rofiThemes}/${name}"; };
-    }) (builtins.readDir rofiThemes);
+    environment.etc =
+      let rofiThemes = "${pkgs.rofi}/share/rofi/themes";
+      in mapAttrs'
+        (name: _: {
+          name = "rofi/themes/${name}";
+          value = { source = "${rofiThemes}/${name}"; };
+        })
+        (builtins.readDir rofiThemes);
 
     services.libinput.enable = true;
     services.xserver = {

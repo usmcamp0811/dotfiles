@@ -1,23 +1,21 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}: let
+{ lib, config, pkgs, ... }:
+let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.desktop.addons.kitty;
-in {
+in
+{
   options.campground.desktop.addons.kitty = {
     enable = mkEnableOption "Kitty";
   };
 
   config = mkIf cfg.enable {
     fonts.fontconfig.enable = true;
-    home.packages = [(pkgs.nerdfonts.override {fonts = ["FiraCode" "SourceCodePro"];})];
+    home.packages =
+      [ (pkgs.nerdfonts.override { fonts = [ "FiraCode" "SourceCodePro" ]; }) ];
     programs.kitty = {
       enable = true;
-      theme = "Alabaster Dark";
+      themeFile = "Alabaster_Dark";
       font = {
         name = "FiraCode Nerd Font Mono";
         size = 11;

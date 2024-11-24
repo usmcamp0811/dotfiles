@@ -63,10 +63,11 @@ in {
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
       # package = config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
-      package = if cfg.driverType == "custom" then
-        cfg.customDriverPackage
-      else
-        config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
+      package =
+        if cfg.driverType == "custom" then
+          cfg.customDriverPackage
+        else
+          config.boot.kernelPackages.nvidiaPackages.${cfg.driverType};
       # package = config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
       #   version = "550.40.07";
       #   # the new driver
@@ -78,11 +79,7 @@ in {
       # };
     };
     # Enable OpenGL
-    hardware.opengl = {
-      enable = true;
-      driSupport = true;
-      driSupport32Bit = true;
-    };
+    hardware.graphics = { enable = true; };
     #  hardware.opengl.enable = true;
   };
 }

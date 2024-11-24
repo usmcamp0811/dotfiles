@@ -1,13 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
+{ config, lib, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.hyprland;
-in
-{
+with lib.campground;
+let cfg = config.campground.desktop.hyprland;
+in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -45,12 +40,12 @@ in
             size = 5;
           };
 
-          drop_shadow = true;
-          shadow_ignore_window = true;
-          shadow_range = 20;
-          shadow_render_power = 3;
-          "col.shadow" = "0x55161925";
-          "col.shadow_inactive" = "0x22161925";
+          # drop_shadow = true;
+          # shadow_ignore_window = true;
+          # shadow_range = 20;
+          # shadow_render_power = 3;
+          # "col.shadow" = "0x55161925";
+          # "col.shadow_inactive" = "0x22161925";
         };
 
         dwindle = {
@@ -69,7 +64,7 @@ in
           gaps_in = 5;
           gaps_out = 20;
           layout = "master";
-          no_cursor_warps = true;
+          # no_cursor_warps = true;
         };
 
         xwayland = { force_zero_scaling = true; };
@@ -97,11 +92,11 @@ in
 
         master = {
           # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
-          new_is_master = true;
+          # new_is_master = true;
           special_scale_factor = 0.8;
           mfact = 0.55;
           new_on_top = false;
-          no_gaps_when_only = false;
+          # no_gaps_when_only = false;
           orientation = "left";
           inherit_fullscreen = true;
           always_center_master = true;
@@ -127,10 +122,11 @@ in
         "$music" = "${getExe pkgs.spotify}";
         "$launcher" = "${getExe config.programs.rofi.package} -show drun -n";
         "$launcher_alt" = "${getExe config.programs.rofi.package} -show calc";
-        "$launcher_shift" = "${getExe config.programs.rofi.package} -show run -n";
+        "$launcher_shift" =
+          "${getExe config.programs.rofi.package} -show run -n";
         "$launchpad" = "${
-          getExe config.programs.rofi.package
-        } -show drun -config '~/.config/rofi/appmenu/rofi.rasi'";
+            getExe config.programs.rofi.package
+          } -show drun -config '~/.config/rofi/appmenu/rofi.rasi'";
         "$looking-glass" = "${getExe pkgs.looking-glass-client}";
       };
     };

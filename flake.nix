@@ -2,9 +2,8 @@
   description = "Campground Config";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    # nixpkgs.url =
-    #   "github:nixos/nixpkgs/4df12be7ffc4c8d2d4e5e3d62854462aaab9bf81";
+    old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     # "github:nixos/nixpkgs/release-24.05/797f7dc49e0bc7fab4b57c021cdf68f595e47841";
     pyarrow.url =
       "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
@@ -41,7 +40,7 @@
 
     # macOS Support (master)
     darwin.url = "github:lnl7/nix-darwin";
-    darwin.inputs.nixpkgs.follows = "nixpkgs";
+    darwin.inputs.nixpkgs.follows = "unstable";
 
     devshell.url = "github:numtide/devshell";
 
@@ -80,7 +79,7 @@
 
     # Binary Cache
     attic = {
-      url = "github:zhaofengli/attic/416687e59c4f0b32742423458cab2c5ff8fe748a";
+      url = "github:zhaofengli/attic";
       inputs.nixpkgs.follows = "unstable";
       # inputs.nixpkgs-stable.follows = "nixpkgs";
     };
@@ -102,12 +101,11 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     # Generate System Images
-    nixos-generators.url =
-      "github:nix-community/nixos-generators/7c60ba4bc8d6aa2ba3e5b0f6ceb9fc07bc261565";
+    nixos-generators.url = "github:nix-community/nixos-generators";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
 
     # Home Manager (release-23.05)
-    home-manager.url = "github:nix-community/home-manager/release-24.05";
+    home-manager.url = "github:nix-community/home-manager/release-24.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # Vault Integration
@@ -121,13 +119,14 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
+    updated-ollama.url = "github:kaleocheng/nixpkgs/upgrade-ollama";
     # Flake Hygiene
-    flake-checker = {
-      url = "github:DeterminateSystems/flake-checker";
-      inputs.nixpkgs.follows = "unstable";
-    };
+    # flake-checker = {
+    #   url = "github:usmcamp0811/flake-checker";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
     # Run unpatched dynamically compiled binaries
-    nix-ld.url = "github:Mic92/nix-ld";
+    nix-ld.url = "github:nix-community/nix-ld";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     nur.url = "github:nix-community/NUR";
@@ -140,6 +139,9 @@
       url = "github:tiiuae/sbomnix";
       inputs.nixpkgs.follows = "unstable";
     };
+
+    mlflow-works.url =
+      "gitlab:usmcamp0811/dotfiles/38739f362e9c8e27880c0835f8db4a4866a61337";
 
     nix-snapshotter = {
       url = "github:yu-re-ka/nix-snapshotter/update";
@@ -159,17 +161,12 @@
     };
 
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
-    campground-jupyterlab.url = "gitlab:usmcamp0811/campground-jupyter-lab";
-    campground-jupyterlab.inputs.nixpkgs.follows = "unstable";
+    # campground-jupyterlab.url = "gitlab:usmcamp0811/campground-jupyter-lab";
+    # campground-jupyterlab.inputs.nixpkgs.follows = "unstable";
 
     campground-packages.url = "gitlab:usmcamp0811/campground-packages";
 
     # Backup management
-    icehouse = {
-      url = "github:snowfallorg/icehouse";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     poetry2nix = {
       url = "github:TyberiusPrime/poetry2nix/pyarrow_fix";
       inputs.nixpkgs.follows = "unstable";
@@ -203,7 +200,7 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
-    nix-health.url = "github:juspay/nix-health?dir=module";
+    # nix-health.url = "github:juspay/nix-health?dir=module";
     crowdsec = {
       url = "git+https://codeberg.org/kampka/nix-flake-crowdsec.git";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -243,7 +240,6 @@
       };
 
       overlays = with inputs; [
-        icehouse.overlays."package/icehouse"
         flake.overlays."package/flake"
         attic.overlays.default
         devshell.overlays.default
@@ -267,8 +263,8 @@
         flakeforge.nixosModules.flakeforge
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
-        "${unstable}/nixos/modules/services/web-apps/immich.nix"
-        "${unstable}/nixos/modules/services/databases/chromadb.nix"
+        # "${unstable}/nixos/modules/services/web-apps/immich.nix"
+        # "${unstable}/nixos/modules/services/databases/chromadb.nix"
         # unstable.nixosModules.redis
         # nixos-cli.nixosModules.nixos-cli
         # nix-health.flakeModule
@@ -276,16 +272,16 @@
       ];
 
       # Temporary, immich is not in 24.05
-      systems.hosts.webb.modules = with inputs;
-        [
-          ({ ... }: {
-            disabledModules = [ "services/databases/redis.nix" ];
-            imports = [
-              "${unstable}/nixos/modules/services/web-apps/immich.nix"
-              "${unstable}/nixos/modules/services/databases/redis.nix"
-            ];
-          })
-        ];
+      # systems.hosts.webb.modules = with inputs;
+      #   [
+      #     ({ ... }: {
+      #       disabledModules = [ "services/databases/redis.nix" ];
+      #       imports = [
+      #         "${unstable}/nixos/modules/services/web-apps/immich.nix"
+      #         "${unstable}/nixos/modules/services/databases/redis.nix"
+      #       ];
+      #     })
+      #   ];
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53

@@ -8,8 +8,9 @@ let
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
   nixChannelUrl =
     builtins.replaceStrings [ "github:" ] [ "https://github.com/" ]
-    inputs.nixpkgs.url;
-in {
+      inputs.nixpkgs.url;
+in
+{
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
     runner-name = mkOpt types.str config.networking.hostName
@@ -71,7 +72,7 @@ in {
             mkdir -p -m 0700 "$HOME/.nix-defexpr"
             . ${pkgs.nix}/etc/profile.d/nix-daemon.sh
             # TODO: link to inputs.nixpkgs
-            ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs # 3
+            ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-24.11 nixpkgs # 3
             ${pkgs.nix}/bin/nix-channel --update nixpkgs
             ${pkgs.nix}/bin/nix-env -i ${
               concatStringsSep " " (with pkgs; [

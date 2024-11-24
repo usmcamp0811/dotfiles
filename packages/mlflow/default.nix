@@ -5,7 +5,7 @@ let
   pname = "mlflow";
 
   description = "MLFlow hack job";
-
+  # this is broken as of 11/23/2024
   version = "2.3.2";
 
   container = pkgs.dockerTools.buildLayeredImage {
@@ -31,7 +31,7 @@ let
 
   mlflow = pkgs.python311Packages.toPythonApplication
     (pkgs.python311Packages.mlflow.overridePythonAttrs (old: rec {
-      propagatedBuildInputs = old.propagatedBuildInputs ++ [
+      propagatedBuildInputs = (old.propagatedBuildInputs or [ ]) ++ [
         pkgs.python311Packages.boto3
         pkgs.python311Packages.psycopg2
         pkgs.python311Packages.mysqlclient
