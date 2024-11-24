@@ -1,13 +1,13 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.hyprland;
-in {
+in
+{
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -116,7 +116,7 @@ in {
           # ░░█░░█▀▀░█▀█░█▀▄░░█░░█░█░█░█
           # ░░▀░░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀▀
           ##
-          "immediate, class:^(gamescope|steam_app).*"
+          # "immediate, class:^(gamescope|steam_app).*"
 
           # screen sharing
           "opacity 0.0 override 0.0 override,class:^(${
