@@ -63,6 +63,7 @@ in {
 
         xwayland = { force_zero_scaling = true; };
 
+        cursor.no_hardware_cursors = 1;
         gestures = {
           workspace_swipe = true;
           workspace_swipe_fingers = 3;
