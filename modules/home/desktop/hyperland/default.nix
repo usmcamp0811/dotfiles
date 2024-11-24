@@ -1,11 +1,7 @@
-{ options
-, config
-, lib
-, pkgs
-, ...
-}:
+{ options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   # inherit (inputs) hyprland;
   cfg = config.campground.desktop.hyprland;
 in
@@ -45,14 +41,13 @@ in
       package = pkgs.hyprland;
 
       settings = {
-        exec =
-          [
-            ''
-              ${
-                getExe pkgs.libnotify
-              } --icon ~/.face -u normal "Hello $(whoami)"''
-          ]
-          ++ cfg.startup;
+
+        exec = [
+          ''
+            ${
+              getExe pkgs.libnotify
+            } --icon ~/.face -u normal "Hello $(whoami)"''
+        ] ++ cfg.startup;
       };
 
       systemd = { enable = true; };

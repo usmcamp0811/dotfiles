@@ -40,12 +40,6 @@ in {
             size = 5;
           };
 
-          # drop_shadow = true;
-          # shadow_ignore_window = true;
-          # shadow_range = 20;
-          # shadow_render_power = 3;
-          # "col.shadow" = "0x55161925";
-          # "col.shadow_inactive" = "0x22161925";
         };
 
         dwindle = {
