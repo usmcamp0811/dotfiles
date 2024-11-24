@@ -44,37 +44,37 @@ update-flake:
 butler:
   <<: *build_job_template
   variables:
-    SYSTEM: "butler"
+    SYSTEM: 'butler'
 
 daly:
   <<: *build_job_template
   variables:
-    SYSTEM: "daly"
+    SYSTEM: 'daly'
 
 lucas:
   <<: *build_job_template
   variables:
-    SYSTEM: "lucas"
+    SYSTEM: 'lucas'
 
 chesty:
   <<: *build_job_template
   variables:
-    SYSTEM: "chesty"
+    SYSTEM: 'chesty'
 
 webb:
   <<: *build_job_template
   variables:
-    SYSTEM: "webb"
+    SYSTEM: 'webb'
 
 reckless:
   <<: *build_job_template
   variables:
-    SYSTEM: "reckless"
+    SYSTEM: 'reckless'
 
 mattis:
   <<: *build_job_template
   variables:
-    SYSTEM: "mattis"
+    SYSTEM: 'mattis'
 
 .deploy_job_template: &deploy_job_template
   stage: deploy
@@ -92,6 +92,11 @@ mattis:
       echo "$sshkey" | ssh-add -
     - |
       ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
+    - |
+      # Set a unique cache directory for this job
+      export NIX_CACHE_DIR="/builds/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/cache/nix/$CI_JOB_ID"
+      mkdir -p "$NIX_CACHE_DIR"
+      export NIX_REMOTE="file://$NIX_CACHE_DIR"
       nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
       deploy --hostname $SYSTEM .#$SYSTEM --skip-checks
   rules:
@@ -104,48 +109,48 @@ mattis:
     - if: '$CI_COMMIT_BRANCH == "nixos" && $FLAKE_UPDATE != "true"'
       when: never
       changes:
-        - "**/public-hosting/default.nix"
+        - '**/public-hosting/default.nix'
       allow_failure: false
     - if: '$CI_COMMIT_BRANCH == "nixos" && $FLAKE_UPDATE != "true"'
       when: never
       changes:
-        - "**/lan-hosting/default.nix"
+        - '**/lan-hosting/default.nix'
       allow_failure: false
 
 butler_deploy:
   <<: *deploy_job_template
   variables:
-    SYSTEM: "butler"
+    SYSTEM: 'butler'
 
 daly_deploy:
   <<: *deploy_job_template
   variables:
-    SYSTEM: "daly"
+    SYSTEM: 'daly'
 
 lucas_deploy:
   <<: *deploy_job_template
   variables:
-    SYSTEM: "lucas"
+    SYSTEM: 'lucas'
 
 chesty_deploy:
   <<: *deploy_job_template
   variables:
-    SYSTEM: "chesty"
+    SYSTEM: 'chesty'
 
 webb_deploy:
   <<: *deploy_job_template
   variables:
-    SYSTEM: "webb"
+    SYSTEM: 'webb'
 
 reckless_deploy:
   <<: *deploy_job_template
   variables:
-    SYSTEM: "reckless"
+    SYSTEM: 'reckless'
 
 mattis_deploy:
   <<: *deploy_job_template
   variables:
-    SYSTEM: "mattis"
+    SYSTEM: 'mattis'
 
 .deploy_hosting_template: &deploy_hosting_template
   stage: deploy
@@ -173,21 +178,21 @@ mattis_deploy:
 deploy_public_hosting:
   <<: *deploy_hosting_template
   variables:
-    DEPLOY_TYPE: "public"
+    DEPLOY_TYPE: 'public'
   rules:
     - if: '$CI_COMMIT_BRANCH == "nixos" && $FLAKE_UPDATE != "true"'
       changes:
-        - "**/public-hosting/default.nix"
+        - '**/public-hosting/default.nix'
       allow_failure: false
 
 deploy_lan_hosting:
   <<: *deploy_hosting_template
   variables:
-    DEPLOY_TYPE: "lan"
+    DEPLOY_TYPE: 'lan'
   rules:
     - if: '$CI_COMMIT_BRANCH == "nixos" && $FLAKE_UPDATE != "true"'
       changes:
-        - "**/lan-hosting/default.nix"
+        - '**/lan-hosting/default.nix'
       allow_failure: false
 
 build_resume:
@@ -203,19 +208,19 @@ build_resume:
   rules:
     - if: '$CI_COMMIT_BRANCH == "nixos" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "nixos" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "nixos"'
       changes:
-        - "package/matt-camp-website/src/assets/resume/resume.json"
+        - 'package/matt-camp-website/src/assets/resume/resume.json'
 
 nvim_update:
   stage: nvim_update
   script:
     # - "nix flake check gitlab:usmcamp0811/campground-nvim"
-    - "nix flake lock --update-input campground-nvim"
+    - 'nix flake lock --update-input campground-nvim'
     - "git config --global user.email 'ci-bot@gitlab.com'"
     - "git config --global user.name 'CI Bot'"
-    - "git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/dotfiles.git"
-    - "git add flake.lock"
+    - 'git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/dotfiles.git'
+    - 'git add flake.lock'
     - "git commit -m 'CI: Update campground-nvim'"
-    - "git push origin HEAD:${CI_DEFAULT_BRANCH}"
+    - 'git push origin HEAD:${CI_DEFAULT_BRANCH}'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "trigger"'
       allow_failure: false
