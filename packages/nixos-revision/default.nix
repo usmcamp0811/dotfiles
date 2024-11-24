@@ -1,15 +1,16 @@
-{
-  pkgs,
-  lib,
-  gitHostCommitUrl ? "https://github.com/jakehamilton/config/commit",
-  ...
-}: let
+{ pkgs
+, lib
+, gitHostCommitUrl ? "https://gitlab.com/usmcamp0811/dotfiles/commit"
+, ...
+}:
+let
   inherit (lib.campground) override-meta;
 
   new-meta = with lib; {
-    description = "A helper show the current git revision of the system configuration.";
+    description =
+      "A helper show the current git revision of the system configuration.";
     license = licenses.asl20;
-    maintainers = with maintainers; [jakehamilton];
+    maintainers = with maintainers; [ mattcamp ];
   };
 
   package = pkgs.writeShellScriptBin "nixos-revision" ''
@@ -68,4 +69,4 @@
     fi
   '';
 in
-  override-meta new-meta package
+override-meta new-meta package

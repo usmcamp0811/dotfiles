@@ -136,7 +136,6 @@ in
       ollama = {
         enable = true;
         # host = "0.0.0.0";
-        acceleration = "cuda";
 
       };
       # local-ai = enabled;
@@ -230,7 +229,7 @@ in
           "http://webb:1234"
           "http://lucas:1234"
           "http://chesty:1234"
-          "http://mattis:1234"
+          # "http://mattis:1234"
           "http://daly:1234"
         ];
       };

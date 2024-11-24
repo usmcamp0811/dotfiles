@@ -71,44 +71,44 @@ in
         enable = true;
         port = 11842;
       };
-      hadoop = {
-        enable = true;
-        yarnSite = { "yarn.nodemanager.hostname" = "webb"; };
-        hdfs = {
-          datanode.enable = true;
-          datanode.restartIfChanged = true;
-          datanode.openFirewall = true;
-          datanode.extraFlags = [ ];
-          datanode.extraEnv = { };
-          datanode.dataDirs = [ ];
-
-          journalnode.enable = true;
-          journalnode.restartIfChanged = true;
-          journalnode.openFirewall = true;
-          journalnode.extraFlags = [ ];
-          journalnode.extraEnv = { };
-        };
-        yarn = {
-          resourcemanager.enable = true;
-          resourcemanager.restartIfChanged = false;
-          resourcemanager.openFirewall = true;
-          resourcemanager.extraFlags = [ ];
-          resourcemanager.extraEnv = { };
-
-          nodemanager.enable = true;
-          nodemanager.useCGroups = false;
-          nodemanager.restartIfChanged = true;
-          nodemanager.resource.memoryMB = null;
-          nodemanager.resource.maximumAllocationVCores = null;
-          nodemanager.resource.maximumAllocationMB = null;
-          nodemanager.resource.cpuVCores = null;
-          nodemanager.openFirewall = true;
-          nodemanager.localDir = null;
-          nodemanager.extraFlags = [ ];
-          nodemanager.extraEnv = { };
-          nodemanager.addBinBash = true;
-        };
-      };
+      # hadoop = {
+      #   enable = true;
+      #   yarnSite = { "yarn.nodemanager.hostname" = "webb"; };
+      #   hdfs = {
+      #     datanode.enable = true;
+      #     datanode.restartIfChanged = true;
+      #     datanode.openFirewall = true;
+      #     datanode.extraFlags = [ ];
+      #     datanode.extraEnv = { };
+      #     datanode.dataDirs = [ ];
+      #
+      #     journalnode.enable = true;
+      #     journalnode.restartIfChanged = true;
+      #     journalnode.openFirewall = true;
+      #     journalnode.extraFlags = [ ];
+      #     journalnode.extraEnv = { };
+      #   };
+      #   yarn = {
+      #     resourcemanager.enable = true;
+      #     resourcemanager.restartIfChanged = false;
+      #     resourcemanager.openFirewall = true;
+      #     resourcemanager.extraFlags = [ ];
+      #     resourcemanager.extraEnv = { };
+      #
+      #     nodemanager.enable = true;
+      #     nodemanager.useCGroups = false;
+      #     nodemanager.restartIfChanged = true;
+      #     nodemanager.resource.memoryMB = null;
+      #     nodemanager.resource.maximumAllocationVCores = null;
+      #     nodemanager.resource.maximumAllocationMB = null;
+      #     nodemanager.resource.cpuVCores = null;
+      #     nodemanager.openFirewall = true;
+      #     nodemanager.localDir = null;
+      #     nodemanager.extraFlags = [ ];
+      #     nodemanager.extraEnv = { };
+      #     nodemanager.addBinBash = true;
+      #   };
+      # };
       firefly = enabled;
       firefly-plaid-connector = enabled;
       campground-blog = enabled;
@@ -143,10 +143,10 @@ in
         ];
       };
       collabora = enabled;
-      keycloak = {
-        enable = true;
-        port = 43852;
-      };
+      # keycloak = {
+      #   enable = true;
+      #   port = 43852;
+      # };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;

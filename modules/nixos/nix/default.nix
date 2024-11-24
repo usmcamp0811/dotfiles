@@ -9,10 +9,11 @@ let
         mkOpt (nullOr str) null "The trusted public key for this substituter.";
     };
   });
-in {
+in
+{
   options.campground.nix = with types; {
     enable = mkBoolOpt true "Whether or not to manage nix configuration.";
-    package = mkOpt package pkgs.nixFlakes "Which nix package to use.";
+    package = mkOpt package pkgs.nixVersions.stable "Which nix package to use.";
 
     default-substituter = {
       url = mkOpt str "https://cache.nixos.org" "The url for the substituter.";
@@ -45,17 +46,19 @@ in {
   };
 
   config = mkIf cfg.enable {
-    assertions = mapAttrsToList (name: value: {
-      assertion = value.key != null;
-      message = "campground.nix.extra-substituters.${name}.key must be set";
-    }) cfg.extra-substituters;
+    assertions = mapAttrsToList
+      (name: value: {
+        assertion = value.key != null;
+        message = "campground.nix.extra-substituters.${name}.key must be set";
+      })
+      cfg.extra-substituters;
     environment.systemPackages = with pkgs; [
       campground.nixos-revision
       (campground.nixos-hosts.override {
         hosts = inputs.self.nixosConfigurations;
       })
       deploy-rs
-      nixfmt
+      nixfmt-classic
       nix-index
       nix-prefetch-git
       nix-output-monitor
@@ -80,50 +83,52 @@ in {
       wantedBy = [ "multi-user.target" ];
     };
 
-    nix = let
-      users = [ "root" config.campground.user.name ]
-        ++ (optional config.services.hydra.enable "hydra")
-        ++ (optional config.campground.services.nixery.enable "nixery");
-    in {
-      package = cfg.package;
+    nix =
+      let
+        users = [ "root" config.campground.user.name ]
+          ++ (optional config.services.hydra.enable "hydra")
+          ++ (optional config.campground.services.nixery.enable "nixery");
+      in
+      {
+        package = cfg.package;
 
-      settings = {
-        experimental-features = "nix-command flakes";
-        fallback = true;
-        http-connections = 50;
-        warn-dirty = false;
-        log-lines = 50;
-        sandbox = "relaxed";
-        auto-optimise-store = true;
-        trusted-users = users;
-        allowed-users = users;
-        netrc-file = "/var/lib/nixos/netrc";
-        extra-sandbox-paths = [ "/var/lib/nixos/netrc" ];
+        settings = {
+          experimental-features = "nix-command flakes";
+          fallback = true;
+          http-connections = 50;
+          warn-dirty = false;
+          log-lines = 50;
+          sandbox = "relaxed";
+          auto-optimise-store = true;
+          trusted-users = users;
+          allowed-users = users;
+          netrc-file = "/var/lib/nixos/netrc";
+          extra-sandbox-paths = [ "/var/lib/nixos/netrc" ];
 
-        substituters =
-          # [ cfg.default-substituter.url ]
-          # ++
-          mapAttrsToList (name: _value: name) cfg.extra-substituters;
-        trusted-public-keys =
-          # [ cfg.default-substituter.key ]
-          # ++
-          mapAttrsToList (_name: value: value.key) cfg.extra-substituters;
-      } // (lib.optionalAttrs config.campground.tools.direnv.enable {
-        keep-outputs = true;
-        keep-derivations = true;
-      });
+          substituters =
+            # [ cfg.default-substituter.url ]
+            # ++
+            mapAttrsToList (name: _value: name) cfg.extra-substituters;
+          trusted-public-keys =
+            # [ cfg.default-substituter.key ]
+            # ++
+            mapAttrsToList (_name: value: value.key) cfg.extra-substituters;
+        } // (lib.optionalAttrs config.campground.tools.direnv.enable {
+          keep-outputs = true;
+          keep-derivations = true;
+        });
 
-      gc = {
-        automatic = true;
-        dates = "weekly";
-        options = "--delete-older-than 30d";
+        gc = {
+          automatic = true;
+          dates = "weekly";
+          options = "--delete-older-than 30d";
+        };
+
+        # flake-utils-plus
+        generateRegistryFromInputs = true;
+        generateNixPathFromInputs = true;
+        linkInputs = true;
       };
-
-      # flake-utils-plus
-      generateRegistryFromInputs = true;
-      generateNixPathFromInputs = true;
-      linkInputs = true;
-    };
     campground.services.vault-agent.services.copyNETRC = {
       settings = {
         vault.address = cfg.vault-address;

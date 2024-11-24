@@ -1,10 +1,7 @@
-{ lib
-, config
-, pkgs
-, ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.services.mlflow;
   inherit (pkgs.campground) mlflow;
 in
@@ -27,9 +24,8 @@ in
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt str "secret/campground/mlflow"
-        "The Vault path to the KV containing the KVs that are for each database";
+    vault-path = mkOpt str "secret/campground/mlflow"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -48,22 +44,19 @@ in
       isSystemUser = true;
       description = "MLflow system user";
       group = "mlflow";
-      extraGroups = [ "mlflow" ]; # Optional if you want the user to be in additional groups
+      extraGroups =
+        [ "mlflow" ]; # Optional if you want the user to be in additional groups
     };
 
     users.groups.mlflow = { };
 
     campground.services.postgresql = {
       enable = true;
-      authentication = [
-        "local mlflow mlflow trust"
-      ];
-      databases = [
-        {
-          name = "mlflow";
-          user = "mlflow";
-        }
-      ];
+      authentication = [ "local mlflow mlflow trust" ];
+      databases = [{
+        name = "mlflow";
+        user = "mlflow";
+      }];
     };
 
     # campground.services.mysql = {
@@ -81,12 +74,10 @@ in
       virtualHosts = {
         "mlflow.lan" = {
           http2 = true;
-          listen = [
-            {
-              addr = "0.0.0.0";
-              port = cfg.port;
-            }
-          ]; # Specify the port here
+          listen = [{
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }]; # Specify the port here
           locations."/" = {
             proxyPass = "http://127.0.0.1:5000";
             proxyWebsockets = true;
@@ -114,7 +105,7 @@ in
       #   ${pkgs.campground.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}'
       # '';
       script = ''
-        ${pkgs.campground.mlflow}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
+        ${pkgs.mlflow-server}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
       '';
       serviceConfig = {
         User = "mlflow";
@@ -134,16 +125,14 @@ in
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [
-            {
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }
-          ];
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
         };
       };
       secrets.environment.templates = {
