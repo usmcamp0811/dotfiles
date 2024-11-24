@@ -92,11 +92,6 @@ mattis:
       echo "$sshkey" | ssh-add -
     - |
       ssh-keyscan $SYSTEM >> ~/.ssh/known_hosts
-    - |
-      # Set a unique cache directory for this job
-      export NIX_CACHE_DIR="/builds/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/cache/nix/$CI_JOB_ID"
-      mkdir -p "$NIX_CACHE_DIR"
-      export NIX_REMOTE="file://$NIX_CACHE_DIR"
       nix run nixpkgs#figlet -- -t -c "$SYSTEM" | nix run nixpkgs#lolcat
       deploy --hostname $SYSTEM .#$SYSTEM --skip-checks
   rules:
