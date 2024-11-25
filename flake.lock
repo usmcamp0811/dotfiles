@@ -58143,7 +58143,6 @@
         "snowfall-lib": "snowfall-lib_29",
         "technofab": "technofab_10",
         "unstable": "unstable_10",
-        "updated-ollama": "updated-ollama",
         "vault-service": "vault-service_10"
       }
     },
@@ -68412,22 +68411,6 @@
       "original": {
         "owner": "nixos",
         "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "updated-ollama": {
-      "locked": {
-        "lastModified": 1732344301,
-        "narHash": "sha256-6aLupPPxIGMGUncQyzOzGGvp6kKr+12O6qGojQCfKW4=",
-        "owner": "kaleocheng",
-        "repo": "nixpkgs",
-        "rev": "adf8d41065034228fd4ca22ba5dab62e6f29ee10",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kaleocheng",
-        "ref": "upgrade-ollama",
         "repo": "nixpkgs",
         "type": "github"
       }

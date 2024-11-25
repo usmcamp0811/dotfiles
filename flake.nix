@@ -119,7 +119,7 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
-    updated-ollama.url = "github:kaleocheng/nixpkgs/upgrade-ollama";
+    # updated-ollama.url = "github:kaleocheng/nixpkgs/upgrade-ollama";
     # Flake Hygiene
     # flake-checker = {
     #   url = "github:usmcamp0811/flake-checker";
