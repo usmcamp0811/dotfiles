@@ -2,7 +2,7 @@
 , hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.cyclops) override-meta;
+  inherit (lib.campground) override-meta;
   pname = "vault-scripts";
 
   description = "A package for all of the Vault things...";
