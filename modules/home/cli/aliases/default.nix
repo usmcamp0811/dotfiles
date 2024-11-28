@@ -35,6 +35,7 @@ let
     restart = "sudo systemctl restart";
     disable = "sudo systemctl disable";
     enable = "sudo systemctl enable";
+    deploy = "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
     dkill =
       "${pkgs.docker}/bin/docker stop $1 && ${pkgs.docker}/bin/docker rm $1";
     kill = ''
