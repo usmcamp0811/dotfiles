@@ -6,12 +6,6 @@ pkgs.writeText "aliases.nix" ''
   }
 
 
-  alias vim='${pkgs.campground-nvim}/bin/nvim'
-
-  alias df='df -h'
-
-
-  alias zathura='${pkgs.devour}/bin/devour ${pkgs.zathura}/bin/zathura'
   # alias feh='devour feh'
   alias weather='${pkgs.devour}/bin/devour weather'
   alias radar='${pkgs.devour}/bin/devour weather -r'
@@ -28,7 +22,6 @@ pkgs.writeText "aliases.nix" ''
   alias cura="QT_SCALE_FACTOR=1 cura"
   alias weather='~/.local/bin/weather'
   alias outdoor='xcalib -invert -alter'
-  alias diff='vim -d'
 
   ## Functions
 

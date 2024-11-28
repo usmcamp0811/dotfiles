@@ -27,6 +27,7 @@ let
     "mv" = "mv -v";
     "rm" = "rm -i -v";
     "cp" = "cp -v";
+    df = "df -h";
     chmox = "chmod -x";
     status = "sudo systemctl status";
     start = "sudo systemctl start";
