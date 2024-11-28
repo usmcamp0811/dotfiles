@@ -17,7 +17,7 @@ let
 
 in
 {
-  options.campground.cli.alias = with types;
+  options.campground.cli.aliases = with types;
     mkOption {
       type = attrsOf str;
       default = { };
