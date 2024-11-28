@@ -11,10 +11,10 @@ in {
     campground.cli.aliases = {
 
       k = ''
-        ${pkgs.kubernetes}/bin/kubectl
+        ${pkgs.kubectl}/bin/kubectl
       '';
       kwatch = ''
-        watch ${pkgs.kubernetes}/bin/kubectl
+        watch ${pkgs.kubectl}/bin/kubectl
       '';
 
     };

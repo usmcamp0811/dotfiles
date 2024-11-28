@@ -1,13 +1,7 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.misc;
+with lib.campground;
+let cfg = config.campground.tools.misc;
 in {
   options.campground.tools.misc = with types; {
     enable = mkBoolOpt false "Whether or not to enable common utilities.";
@@ -36,7 +30,6 @@ in {
       zig
       btop
       deno
-      zathura
       flameshot
       neovim
       devour
