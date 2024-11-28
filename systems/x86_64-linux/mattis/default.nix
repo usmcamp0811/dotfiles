@@ -41,11 +41,11 @@ in
       };
     };
 
-    nfs.client = {
-      campfs = enabled;
-      webb = enabled;
-      chestyfs = enabled;
-    };
+    # nfs.client = {
+    #   campfs = enabled;
+    #   webb = enabled;
+    #   chestyfs = enabled;
+    # };
 
     services = {
       # ldap-client = enabled;
@@ -69,18 +69,18 @@ in
       };
       syncthing = enabled;
       tang = enabled;
-      zfs-key-server = {
-        enable = true;
-        port = 8123;
-        interface = "enp0s20f0u1";
-        tang-servers = [
-          "http://webb:1234"
-          "http://daly:1234"
-          "http://ermy:1234"
-          "http://reckless:1234"
-          "http://lucas:1234"
-        ];
-      };
+      # zfs-key-server = {
+      #   enable = true;
+      #   port = 8123;
+      #   interface = "enp0s20f0u1";
+      #   tang-servers = [
+      #     "http://webb:1234"
+      #     # "http://daly:1234"
+      #     "http://ermy:1234"
+      #     "http://reckless:1234"
+      #     "http://lucas:1234"
+      #   ];
+      # };
       user-secrets = {
         enable = true;
         users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
@@ -89,7 +89,7 @@ in
         enable = true;
         settings = {
           vault = {
-            address = "http://vault.lan.aicampground.com";
+            address = "https://vault.lan.aicampground.com";
             role-id = "/var/lib/vault/mattis/role-id";
             secret-id = "/var/lib/vault/mattis/secret-id";
           };
