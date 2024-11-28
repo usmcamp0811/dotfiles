@@ -8,7 +8,8 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   imports = [ ./hardware.nix ];
 
   boot.initrd.availableKernelModules = [ "thunderbolt" "xhci_hcd" ];
@@ -34,7 +35,7 @@ in {
       laptop = enabled;
       server = {
         enable = true;
-        k8s = true;
+        k8s = false;
         role = "worker";
         hostId = "5ae58e7a";
       };
@@ -47,7 +48,7 @@ in {
     };
 
     services = {
-      ldap-client = enabled;
+      # ldap-client = enabled;
       label-studio = enabled;
       postgresql = {
         enable = true;
@@ -66,7 +67,6 @@ in {
           user = "vaultwarden";
         }];
       };
-      vaultwarden = { enable = true; };
       syncthing = enabled;
       tang = enabled;
       zfs-key-server = {
@@ -75,7 +75,7 @@ in {
         interface = "enp0s20f0u1";
         tang-servers = [
           "http://webb:1234"
-          # "http://daly:1234"
+          "http://daly:1234"
           "http://ermy:1234"
           "http://reckless:1234"
           "http://lucas:1234"
