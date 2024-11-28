@@ -34,6 +34,24 @@ let
     restart = "sudo systemctl restart";
     disable = "sudo systemctl disable";
     enable = "sudo systemctl enable";
+    dkill =
+      "${pkgs.docker}/bin/docker stop $1 && ${pkgs.docker}/bin/docker rm $1";
+    kill = ''
+      [ $# -eq 0 ] && echo 'You need to specify whom to kill.' && return
+            /usr/bin/kill $@'';
+    update-user =
+      "nix run /config/#homeConfigurations.''${USER}@ldap.activationPackage";
+    update-sys =
+      "sudo sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'";
+    get-approle = ''
+      local role_id=$(sudo cat /var/lib/vault/$(hostname)/role-id)
+      local secret_id=$(sudo cat /var/lib/vault/$(hostname)/secret-id)
+      export VAULT_TOKEN=$(${pkgs.vault-bin}/bin/vault write -field=token auth/approle/login role_id="$role_id" secret_id="$secret_id")
+    '';
+    zfs-unlock = ''
+      HOST=$1
+      ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
+    '';
   });
 in
 {

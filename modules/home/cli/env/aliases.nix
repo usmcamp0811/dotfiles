@@ -28,12 +28,7 @@ pkgs.writeText "aliases.nix" ''
   alias cura="QT_SCALE_FACTOR=1 cura"
   alias weather='~/.local/bin/weather'
   alias outdoor='xcalib -invert -alter'
-  alias night='rogauracore black'
-  alias code='cd ~/code'
   alias diff='vim -d'
-  alias nvim-dir="cd ~/.config/nvim/"
-  alias vimconfig="vim ~/.config/nvim/init.lua"
-  alias vimplug="vim ~/.config/nvim/lua/user/plugins.lua"
 
   ## Functions
 
@@ -58,14 +53,7 @@ pkgs.writeText "aliases.nix" ''
       ${pkgs.tmux}/bin/tmux a -t $1
   }
 
-  fetch() {
-      git fetch --all && git pull --all && git branch -r | grep -v '\->' | while read remote; do git branch --track "''${ remote # origin/}" "$remote"; done
-      }
 
-  kill () {
-      [ $# -eq 0 ] && echo "You need to specify whom to kill." && return
-      /usr/bin/kill $@
-  }
 
 
   gpu-hybrid(){
@@ -109,28 +97,7 @@ pkgs.writeText "aliases.nix" ''
     yt-dlp -x --audio-format mp3 $1 --write-thumbnail --add-metadata --embed-thumbnail --cookies-from-browser brave
   }
 
-  fix-pipewire(){
-    systemctl --user restart pipewire-pulse.service
-    systemctl --user restart wireplumber.service
-  }
 
-  update-user(){
-    nix run /config/\#homeConfigurations.''${USER}@ldap.activationPackage
-  }
 
-  update-sys(){
-    sudo sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'
-  }
-
-  get-approle() {          
-    local role_id=$(sudo cat /var/lib/vault/$(hostname)/role-id)
-    local secret_id=$(sudo cat /var/lib/vault/$(hostname)/secret-id)
-    export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$role_id" secret_id="$secret_id")
-  }
-
-  zsh-unlock() {
-    HOST=$1
-    ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
-  }
 
 ''

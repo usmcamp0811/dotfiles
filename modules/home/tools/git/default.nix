@@ -21,6 +21,9 @@ in
       gr =
         "[ ! -z `${pkgs.git}/bin/git rev-parse --show-cdup` ] && cd `${pkgs.git}/bin/git rev-parse --show-cdup || pwd`";
       master = "${pkgs.git}/bin/git checkout master";
+      fetch = ''
+        git fetch --all && git pull --all && git branch -r | grep -v '\->' | while read remote; do git branch --track "''${ remote # origin/}" "$remote"; done
+      '';
 
     };
     programs.git = {
