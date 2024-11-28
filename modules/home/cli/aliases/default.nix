@@ -41,7 +41,7 @@ let
       [ $# -eq 0 ] && echo 'You need to specify whom to kill.' && return
             /usr/bin/kill $@'';
     update-user =
-      "nix run /config/#homeConfigurations.''${USER}@ldap.activationPackage";
+      "nix run /config/#homeConfigurations.${config.home.username}@ldap.activationPackage";
     update-sys =
       "sudo sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'";
     get-approle = ''
