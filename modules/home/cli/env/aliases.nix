@@ -81,8 +81,6 @@ pkgs.writeText "aliases.nix" ''
   alias outdoor='xcalib -invert -alter'
   alias night='rogauracore black'
   alias code='cd ~/code'
-  alias k='kubectl'
-  alias kwatch='watch kubectl'
   alias diff='vim -d'
   alias nvim-dir="cd ~/.config/nvim/"
   alias vimconfig="vim ~/.config/nvim/init.lua"

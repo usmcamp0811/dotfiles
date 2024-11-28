@@ -8,8 +8,10 @@ in {
   config = mkIf cfg.enable {
     campground.cli.aliases = {
 
-      lr = "ranger";
       ranger = ''
+        ${pkgs.ranger}/bin/ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"
+      '';
+      lr = ''
         ${pkgs.ranger}/bin/ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"
       '';
 
