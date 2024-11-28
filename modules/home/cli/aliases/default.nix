@@ -2,36 +2,32 @@
 with lib;
 with lib.campground;
 let
-  cfg-user = config.campground.user;
-  is-darwin = pkgs.stdenv.isDarwin;
+  # Function to convert alias definitions into shell functions
+  convertAlias = aliasAttrs:
+    builtins.concatStringsSep "\n" (mapAttrsToList
+      (name: value: ''
+        ${name}() {
+          ${value}
+        }
+      '')
+      aliasAttrs);
 
-  home-directory =
-    if cfg-user.name == null then
-      null
-    else if is-darwin then
-      "/Users/${cfg-user.name}"
-    else
-      "/home/${cfg-user.name}";
+  # Generated file content for aliases
+  aliasesContent = convertAlias config.campground.cli.aliases;
+
 in
 {
-  options.campground.cli.aliases = with types;
+  options.campground.cli.alias = with types;
     mkOption {
-      type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
-      apply = mapAttrs (_n: v:
-        if isList v then
-          concatMapStringsSep ":" (x: toString x) v
-        else
-          (toString v));
+      type = attrsOf str;
       default = { };
-      description = "A set of environment variables to set.";
+      description = "A set of command aliases to set.";
     };
 
   config = {
-    # aliases are in a seperate file because we can't do shell functions in Nix
-    home.file = { ".config/shell/aliases.shrc".source = aliases; };
-
+    # Source the alias file in the shell configuration
     programs.zsh.initExtra = lib.mkAfter ''
-      source ${aliases}
+      source ${aliasesFilePath}
     '';
   };
 }
