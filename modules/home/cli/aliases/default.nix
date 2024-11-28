@@ -13,7 +13,8 @@ let
       aliasAttrs);
 
   # Generated file content for aliases
-  aliasesContent = convertAlias config.campground.cli.aliases;
+  aliasesFile = pkgs.writeText "aliases.shrc"
+    "${convertAlias config.campground.cli.aliases}";
 
 in
 {
@@ -27,7 +28,7 @@ in
   config = {
     # Source the alias file in the shell configuration
     programs.zsh.initExtra = lib.mkAfter ''
-      ${aliasesContent}
+      source ${aliasesFile}
     '';
   };
 }
