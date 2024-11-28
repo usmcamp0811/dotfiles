@@ -27,7 +27,7 @@ in
   config = {
     # Source the alias file in the shell configuration
     programs.zsh.initExtra = lib.mkAfter ''
-      source ${aliasesFilePath}
+      ${aliasesContent}
     '';
   };
 }
