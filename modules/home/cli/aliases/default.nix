@@ -6,7 +6,7 @@ let
   convertAlias = aliasAttrs:
     builtins.concatStringsSep "\n" (mapAttrsToList
       (name: value: ''
-        ${name}() {
+        function ${name}() {
           ${value}
         }
       '')
