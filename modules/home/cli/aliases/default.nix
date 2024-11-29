@@ -2,21 +2,7 @@
 with lib;
 with lib.campground;
 let
-  # Function to convert alias definitions into shell functions
-  convertAlias = aliasAttrs:
-    builtins.concatStringsSep "\n" (mapAttrsToList
-      (name: value: ''
-        function ${name}() {
-          ${value}
-        }
-      '')
-      aliasAttrs);
-
-  # Generated file content for aliases
-  aliasesFile = pkgs.writeText "aliases.shrc"
-    "${convertAlias config.campground.cli.aliases}";
-
-  default-aliases = pkgs.writeText "default-aliases.shrc" (convertAlias {
+  default-aliases = {
     ".." = "cd ..";
     "cd.." = "cd ..";
     "..." = "cd ../..";
@@ -53,7 +39,7 @@ let
       HOST=$1
       ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
     '';
-  });
+  };
 in
 {
   options.campground.cli.aliases = with types;
@@ -64,10 +50,6 @@ in
     };
 
   config = {
-    # Source the alias file in the shell configuration
-    programs.zsh.initExtra = lib.mkAfter ''
-      source ${default-aliases}
-      source ${aliasesFile}
-    '';
+    home.shellAliases = config.campground.cli.aliases // default-aliases;
   };
 }
