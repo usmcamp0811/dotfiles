@@ -79,34 +79,34 @@ in
       };
     };
 
-    # campground.home = {
-    #   file = {
-    #     "Desktop/.keep".text = "";
-    #     "Documents/.keep".text = "";
-    #     "Downloads/.keep".text = "";
-    #     "Music/.keep".text = "";
-    #     "Pictures/.keep".text = "";
-    #     "Videos/.keep".text = "";
-    #     "work/.keep".text = "";
-    #     ".face".source = cfg.icon;
-    #     "Pictures/${
-    #       cfg.icon.fileName or (builtins.baseNameOf cfg.icon)
-    #     }".source = cfg.icon;
-    #   };
-    #
-    #   configFile = { "sddm/faces/.${cfg.name}".source = cfg.icon; };
-    #
-    #   extraOptions = {
-    #     home.shellAliases = { la = "lsd -lah --group-dirs first"; };
-    #
-    #     programs.zsh.enable = true;
-    #
-    #     programs.zsh.history = {
-    #       size = 10000;
-    #       path = "$XDG_CACHE_HOME/zsh/history";
-    #     };
-    #   };
-    # };
+    campground.home = {
+      file = {
+        "Desktop/.keep".text = "";
+        "Documents/.keep".text = "";
+        "Downloads/.keep".text = "";
+        "Music/.keep".text = "";
+        "Pictures/.keep".text = "";
+        "Videos/.keep".text = "";
+        "work/.keep".text = "";
+        ".face".source = cfg.icon;
+        "Pictures/${
+          cfg.icon.fileName or (builtins.baseNameOf cfg.icon)
+        }".source = cfg.icon;
+      };
+
+      configFile = { "sddm/faces/.${cfg.name}".source = cfg.icon; };
+
+      extraOptions = {
+        home.shellAliases = { la = "lsd -lah --group-dirs first"; };
+
+        programs.zsh.enable = true;
+
+        programs.zsh.history = {
+          size = 10000;
+          path = "$XDG_CACHE_HOME/zsh/history";
+        };
+      };
+    };
 
     users.groups =
       mapAttrs' (name: id: nameValuePair name { gid = mkForce id; })
