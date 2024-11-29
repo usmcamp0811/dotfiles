@@ -9,8 +9,8 @@ in
 
   config = mkIf cfg.enable {
     campground.cli.aliases = {
-      vim = "${pkgs.campground-nvim}/bin/nvim";
-      diff = "${pkgs.campground-nvim}/bin/nvim -d";
+      vim = "${pkgs.campground-nvim}/bin/nvim $1";
+      diff = "${pkgs.campground-nvim}/bin/nvim -d $1";
     };
     home = { packages = with pkgs; [ less campground-nvim ]; };
   };

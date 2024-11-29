@@ -24,17 +24,17 @@ let
     "....." = "cd ../../../..";
     "~" = "cd ~"; # `cd` is probably faster to type though
     "--" = "cd -";
-    "mv" = "mv -v";
-    "rm" = "rm -i -v";
-    "cp" = "cp -v";
+    "mv" = "mv -v $@";
+    "rm" = "rm -i -v $@";
+    "cp" = "cp -v $@";
     df = "df -h";
-    chmox = "chmod -x";
-    status = "sudo systemctl status";
-    start = "sudo systemctl start";
-    stop = "sudo systemctl stop";
-    restart = "sudo systemctl restart";
-    disable = "sudo systemctl disable";
-    enable = "sudo systemctl enable";
+    chmox = "chmod -x $@";
+    status = "sudo systemctl status $@";
+    start = "sudo systemctl start $@";
+    stop = "sudo systemctl stop $@";
+    restart = "sudo systemctl restart $@";
+    disable = "sudo systemctl disable $@";
+    enable = "sudo systemctl enable $@";
     deploy = "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
     dkill =
       "${pkgs.docker}/bin/docker stop $1 && ${pkgs.docker}/bin/docker rm $1";

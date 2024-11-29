@@ -11,14 +11,14 @@ in {
 
     campground.cli.aliases = {
 
-      ls = "${pkgs.lsd}/bin/lsd --group-dirs first";
-      la = "${pkgs.lsd}/bin/lsd -laF --group-dirs first";
-      lt = "${pkgs.lsd}/bin/lsd --tree --depth 3";
-      cat = "${pkgs.bat}/bin/bat";
-      pcat = "${pkgs.bat}/bin/bat -p";
-      grep = "${pkgs.gnugrep}/bin/grep --color=auto";
+      ls = "${pkgs.lsd}/bin/lsd --group-dirs first $@";
+      la = "${pkgs.lsd}/bin/lsd -laF --group-dirs first $@";
+      lt = "${pkgs.lsd}/bin/lsd --tree --depth 3 $@";
+      cat = "${pkgs.bat}/bin/bat $@";
+      pcat = "${pkgs.bat}/bin/bat -p $@";
+      grep = "${pkgs.gnugrep}/bin/grep --color=auto $@";
 
-      zathura = "${pkgs.devour}/bin/devour ${pkgs.zathura}/bin/zathura";
+      zathura = "${pkgs.devour}/bin/devour ${pkgs.zathura}/bin/zathura $@";
 
     };
     home.packages = with pkgs; [
