@@ -1,12 +1,7 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.docker;
+with lib.campground;
+let cfg = config.campground.services.docker;
 in {
   options.campground.services.docker = with types; {
     enable = mkBoolOpt false "Enable Docker;";
@@ -14,7 +9,10 @@ in {
 
   config = mkIf cfg.enable {
     virtualisation.docker.enable = true;
-
-    environment.systemPackages = with pkgs; [docker-compose];
+    campground.system.aliases = {
+      dkill =
+        "${pkgs.docker}/bin/docker stop $1 && ${pkgs.docker}/bin/docker rm $1";
+    };
+    environment.systemPackages = with pkgs; [ docker-compose ];
   };
 }

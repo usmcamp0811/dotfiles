@@ -37,8 +37,6 @@ let
     enable = "sudo systemctl enable $@";
     deploy-sys =
       "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
-    dkill =
-      "${pkgs.docker}/bin/docker stop $1 && ${pkgs.docker}/bin/docker rm $1";
     kill = ''
       [ $# -eq 0 ] && echo 'You need to specify whom to kill.' && return
             /usr/bin/kill $@'';

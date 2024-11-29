@@ -1,10 +1,9 @@
-{
-  inputs,
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
+{ inputs
+, options
+, config
+, pkgs
+, lib
+, ...
 }:
 with lib;
 with lib.campground;
@@ -39,6 +38,7 @@ in
 
   config = {
     home.sessionVariables = {
+      NIXOS_CONFIG = "/config";
       KUBECONFIG = "/etc/k8s/config";
       EDITOR = "nvim";
       TERMINAL = "kitty";
