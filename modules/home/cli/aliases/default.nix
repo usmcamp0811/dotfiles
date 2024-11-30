@@ -2,19 +2,6 @@
 with lib;
 with lib.campground;
 let
-  # Function to convert alias definitions into shell functions
-  convertAlias = aliasAttrs:
-    builtins.concatStringsSep "\n" (mapAttrsToList (name: value:
-      if builtins.stringLength value > 0 && (builtins.substring 0 1 value == "$"
-        || builtins.elem "\n" (lib.splitString "" value)) then ''
-          function '${name}'() {
-            ${value}
-          }
-        '' else
-        let
-          # Escape single quotes in the alias value
-          escapedValue = builtins.replaceStrings [ "'" ] [ "'\\''" ] value;
-        in "alias -- '${name}'='${escapedValue}'") aliasAttrs);
 
   # Generated file content for aliases
   aliasesFile = pkgs.writeText "aliases.shrc"
@@ -58,7 +45,8 @@ let
       ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
     '';
   });
-in {
+in
+{
   options.campground.cli.aliases = with types;
     mkOption {
       type = attrsOf str;

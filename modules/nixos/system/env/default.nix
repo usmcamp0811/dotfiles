@@ -4,15 +4,6 @@ with lib.campground;
 let
   cfg = config.campground.system.env;
 
-  convertAlias = aliasAttrs:
-    builtins.concatStringsSep "\n" (mapAttrsToList
-      (name: value: ''
-        function ${name}() {
-          ${value}
-        }
-      '')
-      aliasAttrs);
-
   # Generated file content for aliases
   aliasesFile = pkgs.writeText "aliases.shrc"
     "${convertAlias config.campground.system.aliases}";
