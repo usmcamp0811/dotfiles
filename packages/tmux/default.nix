@@ -1,5 +1,12 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib
+, writeText
+, writeShellApplication
+, substituteAll
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 with lib;
 with lib.campground;
 let
@@ -8,8 +15,9 @@ let
     name = "campground-tmux";
     runtimeInputs = [ pkgs.tmux ];
     text = ''
-      ${pkgs.tmux}/bin/tmux -f ${conf}
+      ${pkgs.tmux}/bin/tmux -f ${conf} $@
     '';
   };
 
-in tmux
+in
+tmux
