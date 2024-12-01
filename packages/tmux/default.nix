@@ -8,7 +8,7 @@ let
     name = "campground-tmux";
     runtimeInputs = [ pkgs.tmux ];
     text = ''
-      ${pkgs.tmux} -f ${conf}
+      ${pkgs.tmux}/bin/tmux -f ${conf}
     '';
   };
 
