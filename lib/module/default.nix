@@ -70,33 +70,27 @@ with lib; rec {
           in if res.success then res.value else [ ];
         getSecretPaths = attr:
           if builtins.hasAttr "user-secrets" attr
-            && attr.user-secrets.enable then
+          && attr.user-secrets.enable then
             let
               baseVaultPath = attr.user-secrets.vault-path or "";
               userNames = builtins.attrNames attr.user-secrets.users or [ ];
-            in
-            builtins.map (username: "${baseVaultPath}/${username}") userNames
+            in builtins.map (username: "${baseVaultPath}/${username}") userNames
           else
             [ ];
-      in
-      if isAttrs cfg then
-        builtins.foldl'
-          (acc: key:
-            let
-              value = cfg.${key};
-              res = builtins.tryEval value;
-            in
-            if res.success then
-              if isAttrs res.value then
-                acc ++ (tryRecurse res.value)
-              else if key == "vault-path" && cfg.enable or false then
-                acc ++ [ res.value ]
-              else
-                acc
+      in if isAttrs cfg then
+        builtins.foldl' (acc: key:
+          let
+            value = cfg.${key};
+            res = builtins.tryEval value;
+          in if res.success then
+            if isAttrs res.value then
+              acc ++ (tryRecurse res.value)
+            else if key == "vault-path" && cfg.enable or false then
+              acc ++ [ res.value ]
             else
-              acc)
-          (getSecretPaths cfg)
-          (builtins.attrNames cfg)
+              acc
+          else
+            acc) (getSecretPaths cfg) (builtins.attrNames cfg)
       else
         [ ];
 
@@ -105,18 +99,18 @@ with lib; rec {
   ## both simple aliases and things that should be functions.. aka things that require 
   ## inputs 
   convertAlias = aliasAttrs:
-    builtins.concatStringsSep "\n" (mapAttrsToList
-      (name: value:
-        if builtins.stringLength value > 0 && (builtins.substring 0 1 value == "$"
-          || builtins.elem "\n" (lib.splitString "" value)) then ''
-          function '${name}'() {
-            ${value}
-          }
-        '' else
-          let
-            # Escape single quotes in the alias value
-            escapedValue = builtins.replaceStrings [ "'" ] [ "'\\''" ] value;
-          in
-          "alias -- '${name}'='${escapedValue}'")
-      aliasAttrs);
+    builtins.concatStringsSep "\n" (mapAttrsToList (name: value:
+      let
+        containsDollar = builtins.elem "$" (lib.splitString "" value);
+        containsNewline = builtins.elem "\n" (lib.splitString "" value);
+      in if containsDollar || containsNewline then ''
+        function '${name}'() {
+          ${value}
+        }
+      '' else
+        let
+          # Escape single quotes in the alias value
+          escapedValue = builtins.replaceStrings [ "'" ] [ "'\\''" ] value;
+        in "alias -- '${name}'='${escapedValue}'") aliasAttrs);
+
 }
