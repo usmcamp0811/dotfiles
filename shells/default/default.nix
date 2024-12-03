@@ -34,23 +34,11 @@ in mkShell {
 
     # Bind Ctrl-R to fzf for history search
     # This replaces the default reverse-i-search with fzf
-    if [ -n "$BASH_VERSION" ]; then
-      # Load fzf keybindings and history search setup
-      . ${pkgs.fzf}/share/fzf/key-bindings.bash
+    # Load fzf keybindings and history search setup
+    . ${pkgs.fzf}/share/fzf/key-bindings.bash
 
-      # Customizing history search using fzf
-      bind '"\C-r": "\C-e\fuzzy_search_history\n"'
-      fuzzy_search_history() {
-        local selected
-        selected=$(HISTTIMEFORMAT= fzf --height 40% --reverse --tac --border --preview 'echo {}' < <(history))
-        if [[ -n $selected ]]; then
-          READLINE_LINE=$(echo "$selected" | sed 's/^[ ]*[0-9]*[ ]*//')
-          READLINE_POINT=''${ # READLINE_LINE}
-          fi
-        }
-    fi
 
     # Include fzf completion (optional, helps with tab completion enhancements)
-    [ -f ${pkgs.fzf}/share/fzf/completion.bash ] && . ${pkgs.fzf}/share/fzf/completion.bash
+    . ${pkgs.fzf}/share/fzf/completion.bash
   '';
 }
