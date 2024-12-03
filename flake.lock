@@ -3407,11 +3407,11 @@
         "stable-nixpkgs": "stable-nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1733023985,
-        "narHash": "sha256-RzTUvMmXd/ksdddXxnF9nIt17uz6fn9bvcbJbhcTt+s=",
+        "lastModified": 1733253562,
+        "narHash": "sha256-IzZrztPL0TXK00BHz7jzIW9mBVgruqqbSRQy5nVMN4s=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "cffc1a2e603e5741dcb29c8a5f33a58b6ae19f7b",
+        "rev": "1727efb4f18146a84b971d0638b1a87065481ceb",
         "type": "gitlab"
       },
       "original": {
