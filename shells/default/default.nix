@@ -14,8 +14,8 @@ in mkShell {
     pkgs.nixpkgs-lint
     pkgs.snowfallorg.flake
     pkgs.statix
-    pkgs.campground.vault-scripts
-    pkgs.vault
+    # pkgs.campground.vault-scripts
+    pkgs.vault-bin
     pkgs.zsh
     pkgs.oh-my-zsh
     pkgs.campground-nvim
