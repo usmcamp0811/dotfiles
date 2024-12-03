@@ -1,15 +1,15 @@
-{pkgs}:
+{ pkgs }:
 pkgs.writeShellScriptBin "create-approle" ''
 
 
   # Check if already logged into Vault
-  vault_status=$(${pkgs.vault}/bin/vault status -format=json 2>/dev/null)
+  vault_status=$(${pkgs.vault-bin}/bin/vault status -format=json 2>/dev/null)
 
   if [ $? -eq 0 ]; then
     echo "Already logged into Vault."
   else
     echo "Please login to Vault..."
-    ${pkgs.vault}/bin/vault login || { echo "Vault login failed."; exit 1; }
+    ${pkgs.vault-bin}/bin/vault login || { echo "Vault login failed."; exit 1; }
   fi
 
   # Check that login was successful
@@ -28,7 +28,7 @@ pkgs.writeShellScriptBin "create-approle" ''
   POLICY=''${2:-campground}
 
   # Create new approle with provided name and policy
-  ${pkgs.vault}/bin/vault write auth/approle/role/$1 policies=$POLICY
+  ${pkgs.vault-bin}/bin/vault write auth/approle/role/$1 policies=$POLICY
 
   echo "Approle $1 created with policy $POLICY."
 ''
