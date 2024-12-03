@@ -97,7 +97,9 @@ in
       configFile = { "sddm/faces/.${cfg.name}".source = cfg.icon; };
 
       extraOptions = {
-        home.shellAliases = { la = "lsd -lah --group-dirs first"; };
+        home.shellAliases = {
+          la = "${pkgs.lsd}/bin/lsd -lah --group-dirs first";
+        };
 
         programs.zsh.enable = true;
 
