@@ -2,7 +2,6 @@
 with lib;
 with lib.campground;
 let inherit (inputs.self.hooks.${system}.pre-commit-check) shellHook;
-
 in mkShell {
   buildInputs = [
     pkgs.deadnix
@@ -16,11 +15,11 @@ in mkShell {
     pkgs.snowfallorg.flake
     pkgs.statix
     pkgs.campground.vault-scripts
-    pkgs.vault-bin
-    pkgs.bashInteractive # Use an interactive version of bash
-    pkgs.fzf
-    pkgs.util-linux # Provides `ps` and other standard utilities
-    pkgs.coreutils # General Unix utilities
+    pkgs.vault
+    pkgs.zsh
+    pkgs.oh-my-zsh
+    pkgs.campground-nvim
+    pkgs.campground.tmux
   ] ++ inputs.self.hooks.${system}.pre-commit-check.enabledPackages;
 
   pure = true;
@@ -28,6 +27,10 @@ in mkShell {
   shellHook = ''
     ${shellHook}
     echo 🏕️ Welcome to the Campground
+    export ZSH=$HOME/.oh-my-zsh
+    export ZSH_THEME="fito"  # Replace with your desired theme
+    export ZDOTDIR=$PWD/.zshrc  # Use a project-specific .zshrc
+    exec zsh
 
     # Set up fzf for bash history search
     export FZF_DEFAULT_OPTS="--height 40% --reverse --border"
