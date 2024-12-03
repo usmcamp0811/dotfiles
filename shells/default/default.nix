@@ -36,7 +36,7 @@ mkShell {
 
     # Initialize fzf keybindings for shell history
     export FZF_DEFAULT_OPTS="--height 40% --reverse --border"
-
+    source $ZSH/oh-my-zsh.sh
     source ${pkgs.fzf}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     ZSH_AUTOSUGGEST_STRATEGY=(history)
     exec zsh
