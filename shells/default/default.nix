@@ -27,11 +27,11 @@ in mkShell {
   shellHook = ''
     ${shellHook}
     echo 🏕️ Welcome to the Campground
-    export ZSH=$HOME/.oh-my-zsh
-    export ZSH_THEME="fito"  # Replace with your desired theme
-    export ZDOTDIR=$PWD/.zshrc  # Use a project-specific .zshrc
-    exec zsh
-
+    # export ZSH=$HOME/.oh-my-zsh
+    # export ZSH_THEME="fito"  # Replace with your desired theme
+    # export ZDOTDIR=$PWD/.zshrc  # Use a project-specific .zshrc
+    # exec zsh
+    #
     # Set up fzf for bash history search
     export FZF_DEFAULT_OPTS="--height 40% --reverse --border"
 
