@@ -45,8 +45,9 @@ in mkShell {
         selected=$(HISTTIMEFORMAT= fzf --height 40% --reverse --tac --border --preview 'echo {}' < <(history))
         if [[ -n $selected ]]; then
           READLINE_LINE=$(echo "$selected" | sed 's/^[ ]*[0-9]*[ ]*//')
-          READLINE_POINT=${ # READLINE_LINE}
-          fi}
+          READLINE_POINT=''${ # READLINE_LINE}
+          fi
+        }
     fi
 
     # Include fzf completion (optional, helps with tab completion enhancements)
