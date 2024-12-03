@@ -1,12 +1,9 @@
 { mkShell, inputs, system, pkgs, lib, ... }:
 with lib;
 with lib.campground;
-let
-  # inherit (lib.campground) override-meta;
-  inherit (inputs.self.hooks.${system}.pre-commit-check) shellHook;
+let inherit (inputs.self.hooks.${system}.pre-commit-check) shellHook;
 
-in
-mkShell {
+in mkShell {
   buildInputs = [
     pkgs.deadnix
     pkgs.hydra-check
@@ -23,9 +20,13 @@ mkShell {
     pkgs.zsh
     pkgs.oh-my-zsh
     pkgs.fzf
+    pkgs.util-linux # Provides `ps` and other standard utilities
+    pkgs.coreutils # General Unix utilities
   ] ++ inputs.self.hooks.${system}.pre-commit-check.enabledPackages;
+
   pure = true;
 
+  # Set Zsh as the default shell for this nix-shell environment
   shellHook = ''
     ${shellHook}
     echo 🏕️ Welcome to the Campground
@@ -37,24 +38,27 @@ mkShell {
     export ZSH_THEME="fino"
 
     # Source oh-my-zsh
-    . $ZSH/oh-my-zsh.sh
-
-    # Source fzf keybindings and other settings
-    export FZF_DEFAULT_OPTS="--height 40% --reverse --border"
-
-    # Source fzf zsh keybindings and completion scripts
-    . ${pkgs.fzf}/share/fzf/completion.zsh
-    . ${pkgs.fzf}/share/fzf/key-bindings.zsh
-
-    # Source zsh-autosuggestions if available
-    . ${pkgs.fzf}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    ZSH_AUTOSUGGEST_STRATEGY=(history)
-
-    # Finally, switch to zsh
     if [ -n "$ZSH_VERSION" ]; then
       echo "You are already in zsh"
     else
-      zsh
+      echo "Starting zsh..."
+      exec zsh
+    fi
+
+    # Only source fzf and zsh settings if we're in zsh
+    if [ -n "$ZSH_VERSION" ]; then
+      # Source fzf keybindings and completion
+      export FZF_DEFAULT_OPTS="--height 40% --reverse --border"
+      . ${pkgs.fzf}/share/fzf/completion.zsh
+      . ${pkgs.fzf}/share/fzf/key-bindings.zsh
+
+      # Source zsh-autosuggestions if available
+      if [ -f ${pkgs.fzf}/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+        . ${pkgs.fzf}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+        ZSH_AUTOSUGGEST_STRATEGY=(history)
+      else
+        echo "Warning: zsh-autosuggestions not found"
+      fi
     fi
   '';
 }
