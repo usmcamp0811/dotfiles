@@ -4,6 +4,7 @@ with lib.campground;
 let
   # inherit (lib.campground) override-meta;
   inherit (inputs.self.hooks.${system}.pre-commit-check) shellHook;
+
 in
 mkShell {
   buildInputs = [
@@ -18,25 +19,26 @@ mkShell {
     pkgs.snowfallorg.flake
     pkgs.statix
     pkgs.campground.vault-scripts
-    pkgs.vault
+    pkgs.vault-bin
     pkgs.zsh
     pkgs.oh-my-zsh
-    # pkgs.fzf
+    pkgs.fzf
   ] ++ inputs.self.hooks.${system}.pre-commit-check.enabledPackages;
   pure = true;
   shellHook = ''
     ${shellHook}
     echo 🏕️ Welcome to the Campground
+
+    export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
+
     # Additional setup can go here
-    export ZSH=$HOME/.oh-my-zsh
     export ZSH_THEME="fino"  # Replace with your desired theme
-    export ZDOTDIR=$PWD/.zshrc  # Use a project-specific .zshrc
 
     # Initialize fzf keybindings for shell history
     export FZF_DEFAULT_OPTS="--height 40% --reverse --border"
 
-
-
+    source ${pkgs.fzf}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    ZSH_AUTOSUGGEST_STRATEGY=(history)
     exec zsh
 
   '';
