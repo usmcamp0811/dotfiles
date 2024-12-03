@@ -36,8 +36,6 @@ in mkShell {
     # This replaces the default reverse-i-search with fzf
     # Load fzf keybindings and history search setup
     . ${pkgs.fzf}/share/fzf/key-bindings.bash
-
-
     # Include fzf completion (optional, helps with tab completion enhancements)
     . ${pkgs.fzf}/share/fzf/completion.bash
   '';
