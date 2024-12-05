@@ -59,7 +59,7 @@
   # This function is particularly useful for injecting secrets into
   # Helm `values.yaml` files, but it can be used for any YAML that
   # requires secrets or dynamic values.
-  mkSecretYaml = { name, env, secrets, inputYaml }:
+  mkSecretYaml = { pkgs, name, env, secrets, inputYaml }:
     pkgs.writeShellScriptBin name ''
       # fail fast!
       set -e
