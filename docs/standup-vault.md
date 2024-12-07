@@ -114,6 +114,55 @@ vault kv put secret/mydomain/mysecret key1=value1 key2=value2
 
 ### Adding Policies
 
-## Step 4. Configuring NixOS system to use Vault
+Adding policies to your running Vault is effortless if you use the `policy-agent` option
+and you place all your policies into a folder in the system config directory. Doing this
+will run a simple script to add all the policies whenever you update the config. I suggest
+the following settings when enabling `vault`:
 
-Great
+```nix
+campground.services.vault = {
+  enable = true;
+  ui = true;
+  storage = {
+    backend = "file";
+    path = "/persist/vault";
+  };
+  # This is the secret sauce to get all `*.hcl` files in the `./vault/policies` folder
+  # The path is relative to the system's `default.nix`.
+  policies = builtins.foldl' (policies: file:
+    policies // {
+      "${snowfall.path.get-file-name-without-extension file}" = file;
+    }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
+      (builtins.map (path:
+        ./vault/policies + "/${
+          builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+        }") (snowfall.fs.get-files ./vault/policies)));
+};
+```
+
+The `admin.hcl` files should look something like the following:
+
+```hcl
+path "*" {
+	capabilities = [ "create", "list", "read", "update", "delete", "patch", "sudo" ]
+}
+```
+
+> NOTE: The filename becomes the policy name.
+
+You can still add policies through the UI or CLI but depending how you set `campground.services.vault.mutable-policies`
+these may be overwritten whenever you redeploy the system. I recommend disabling the `mutable-policies` and simply relying
+on the `policy-agent` to manage your policies because this means you can version your policies along side your system config.
+
+## Step 4. Creating Approles
+
+At this point we should have Vault running, secrets created and policies define for those secrets.
+Now we need to create some approles so that we can have unattended processes/systems
+get secrets from our Vault in a secure manner. Hashi Corps has good [documentation](https://developer.hashicorp.com/vault/docs/auth/approle)
+explaining how to create approles, but I have some helper scripts I use to do pretty simply.
+
+```sh
+# in nix develop gitlab:usmcamp0811/dotfiles#deploy-shell
+
+create-approle
+```

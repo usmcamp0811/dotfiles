@@ -1,25 +1,25 @@
 { pkgs }:
 pkgs.writeShellScriptBin "create-approle" ''
     # Function to display help
-    show_help() {
-      cat <<EOF
-  Usage: create-approle <approle-name> [policy]
+  show_help() {
+    cat <<EOF
+  $(tput bold)$(tput setaf 3)Usage:$(tput sgr0) create-approle <$(tput setaf 2)approle-name$(tput sgr0)> [$(tput setaf 2)policy$(tput sgr0)]
 
-  This script creates a new AppRole in HashiCorp Vault with the specified policy.
+  $(tput bold)$(tput setaf 6)This script creates a new AppRole in HashiCorp Vault with the specified policy.$(tput sgr0)
 
-  Options:
-    approle-name  The name of the AppRole to create (required).
-    policy        The Vault policy to associate with the AppRole. Defaults to "campground".
+  $(tput bold)$(tput setaf 3)Options:$(tput sgr0)
+    $(tput setaf 2)approle-name$(tput sgr0)  The name of the AppRole to create $(tput bold)$(tput setaf 1)(required)$(tput sgr0).
+    $(tput setaf 2)policy$(tput sgr0)        The Vault policy to associate with the AppRole. Defaults to $(tput bold)campground$(tput sgr0).
 
-  Examples:
-    create-approle my-approle
-    create-approle my-approle my-custom-policy
+  $(tput bold)$(tput setaf 3)Examples:$(tput sgr0)
+    $(tput setaf 4)create-approle my-approle$(tput sgr0)
+    $(tput setaf 4)create-approle my-approle my-custom-policy$(tput sgr0)
 
-  Notes:
-    - You must be logged into Vault before running this script.
-    - If not logged in, the script will prompt you to log in.
+  $(tput bold)$(tput setaf 3)Notes:$(tput sgr0)
+    $(tput setaf 1)- You must be logged into Vault before running this script.$(tput sgr0)
+    $(tput setaf 1)- If not logged in, the script will prompt you to log in.$(tput sgr0)
   EOF
-    }
+  }
 
     # Check if --help or -h is passed
     if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then

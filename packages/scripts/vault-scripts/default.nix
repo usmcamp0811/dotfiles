@@ -11,7 +11,7 @@ let
   initVaultScript = import ./scripts/init-vault.nix { inherit pkgs; };
   getVaultPaths =
     import ./scripts/get-vault-paths.nix { inherit pkgs checkVaultPath; };
-  newAppRole = import ./scripts/new-approle.nix { inherit pkgs; };
+  newAppRole = import ./scripts/create-approle.nix { inherit pkgs; };
   saveAppRoleSecrets = import ./scripts/save-approle.nix { inherit pkgs; };
   README = ./README.md;
 
@@ -46,7 +46,7 @@ let
   };
 in
 vaultScripts // {
-  new-approle = newAppRole;
+  create-approle = newAppRole;
   get-vault-paths = getVaultPaths;
   save-approle-secrets = saveAppRoleSecrets;
   init-vault = initVaultScript;
