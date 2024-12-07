@@ -218,6 +218,6 @@ campground.services.vault-agent = {
 };
 ```
 
-> WARNING: Make sure you put the correct `address`, `role-id` and `secret-id`! If you don't
+> **⚠️ WARNING:** Make sure you put the correct `address`, `role-id` and `secret-id`! If you don't
 > it's not entirely obvious it could take a long time trying to authenticate before
 > finally failing
