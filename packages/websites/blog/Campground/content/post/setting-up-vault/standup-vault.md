@@ -1,3 +1,18 @@
++++
+author = "Matt Camp"
+title = "How to stand-up Vault with NixOS"
+date = "2024-12-07"
+description = "This is a simple tutorial to teach how to stand up a new system with Vault using my dotfiles."
+tags = [
+    "Nix",
+    "Vault"
+]
+categories = [
+    "Nix",
+    "DevOps",
+]
++++
+
 # How to stand-up Vault in a New Environment
 
 This tutorial is how to create a new system and install Vault on it so that
@@ -179,5 +194,29 @@ the new approle.
 ```sh
 # in nix develop gitlab:usmcamp0811/dotfiles#deploy-shell
 
-save-approle-secrets
+save-approle-secrets my-new-system
 ```
+
+Now that we have our approle saved to our system we can begin to enable the `campground.services.vault-agent` service
+on any and all of our systems. The `vault-agent` service is a simple service that patches SystemD services
+with secrets retrieved from Vault. This allows us to enable things on our system that might require passwords
+or sensitive files without hard coding them in our git repo or have them get saved in our world readable Nix store.
+
+```nix
+# in your new system config
+
+campground.services.vault-agent = {
+  enable = true;
+  settings = {
+    vault = {
+      address = "http://my-vault-ip-or-hostname:8200";
+      role-id = "/var/lib/vault/<my-approle-name>/role-id";
+      secret-id = "/var/lib/vault/<my-approle-name/secret-id";
+    };
+  };
+};
+```
+
+> WARNING: Make sure you put the correct `address`, `role-id` and `secret-id`! If you don't
+> it's not entirely obvious it could take a long time trying to authenticate before
+> finally failing
