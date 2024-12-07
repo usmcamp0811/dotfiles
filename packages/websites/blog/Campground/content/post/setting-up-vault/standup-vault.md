@@ -2,6 +2,7 @@
 author = "Matt Camp"
 title = "How to stand-up Vault with NixOS"
 date = "2024-12-07"
+image = "vault-login.png"
 description = "This is a simple tutorial to teach how to stand up a new system with Vault using my dotfiles."
 tags = [
     "Nix",
@@ -97,7 +98,7 @@ can use more human readable addresses.
 everything went well you should be presented with the Vault Login page that looks something
 like this:
 
-![Vault Login](./vault-login.png)
+![Vault Login](vault-login.png)
 
 Use your root token, found by default at `/var/lib/vault/root-token`, to login.
 Once in you can create your KV stores how ever you would like. I have mine setup
