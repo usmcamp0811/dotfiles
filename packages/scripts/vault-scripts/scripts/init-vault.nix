@@ -4,7 +4,7 @@ pkgs.writeShellScriptBin "init-vault" ''
     set -e
 
     show_help() {
-      cat <<EOF
+      ${pkgs.bat}/bin/bat -p -l markdown <<'EOF'
   init-vault: Initialize and unseal a HashiCorp Vault server.
   Usage:
     init-vault [--key-file <path>] [--token-file <path>] [--help]
