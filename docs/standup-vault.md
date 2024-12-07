@@ -160,9 +160,24 @@ At this point we should have Vault running, secrets created and policies define 
 Now we need to create some approles so that we can have unattended processes/systems
 get secrets from our Vault in a secure manner. Hashi Corps has good [documentation](https://developer.hashicorp.com/vault/docs/auth/approle)
 explaining how to create approles, but I have some helper scripts I use to do pretty simply.
+I suggest naming your approles the same as your system, but how you name your approles is
+up to you.
 
 ```sh
 # in nix develop gitlab:usmcamp0811/dotfiles#deploy-shell
 
-create-approle
+create-approle my-new-system my-policy
+```
+
+## Step 5. Configure NixOS to use an Approle
+
+We now have create an approle for our new system and assigned it a policy appropriate for the role
+the server is going to serve. We just need to save the secrets somewhere on the new system
+and tell our NixOS system config about them. The follow must be done on the server assigned
+the new approle.
+
+```sh
+# in nix develop gitlab:usmcamp0811/dotfiles#deploy-shell
+
+save-approle-secrets
 ```

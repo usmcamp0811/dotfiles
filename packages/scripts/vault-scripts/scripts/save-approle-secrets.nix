@@ -39,7 +39,7 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
 
   # Check that an AppRole name was provided
   if [ -z "$1" ]; then
-    echo "Error: AppRole name not provided. Use --help for usage information."
+    echo "$(tput bold)$(tput setaf 1)Error: AppRole name not provided.$(tput sgr0) $(tput setaf 3)Use --help for usage information.$(tput sgr0)"
     exit 1
   fi
 
@@ -48,10 +48,10 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
 
   # Verify if the AppRole exists in Vault
   if ${pkgs.vault-bin}/bin/vault read auth/approle/role/$approle_name > /dev/null 2>&1; then
-    echo "AppRole $approle_name exists."
+    echo "$(tput bold)$(tput setaf 2)AppRole $approle_name exists.$(tput sgr0)"
   else
-    echo "AppRole $approle_name does not exist."
-    echo "Please run 'create-approle "$approle_name"' to create it."
+    echo "$(tput bold)$(tput setaf 1)AppRole $approle_name does not exist.$(tput sgr0)"
+    echo "$(tput setaf 3)Please run '$(tput bold)create-approle $approle_name$(tput sgr0)$(tput setaf 3)' to create it.$(tput sgr0)"
     exit 1
   fi
 
@@ -59,15 +59,18 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
   vault_status=$(${pkgs.vault-bin}/bin/vault status -format=json 2>/dev/null)
 
   if [ $? -eq 0 ]; then
-    echo "Already logged into Vault."
+    echo "$(tput bold)$(tput setaf 2)Already logged into Vault.$(tput sgr0)"
   else
-    echo "Please log in to Vault..."
-    ${pkgs.vault-bin}/bin/vault login || { echo "Vault login failed."; exit 1; }
+    echo "$(tput bold)$(tput setaf 3)Please log in to Vault...$(tput sgr0)"
+    ${pkgs.vault-bin}/bin/vault login || { 
+      echo "$(tput bold)$(tput setaf 1)Vault login failed.$(tput sgr0)"; 
+      exit 1; 
+    }
   fi
 
   # Verify that login was successful
   if [ $? -ne 0 ]; then
-    echo "Vault login failed."
+    echo "$(tput bold)$(tput setaf 1)Vault login failed.$(tput sgr0)"
     exit 1
   fi
 
