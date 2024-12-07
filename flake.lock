@@ -3918,11 +3918,11 @@
         "stable-nixpkgs": "stable-nixpkgs_6"
       },
       "locked": {
-        "lastModified": 1733426549,
-        "narHash": "sha256-X8wpmRnIUBmrdR/tLUsjdJu81TrVfG+qiDYppjktdkw=",
+        "lastModified": 1733542871,
+        "narHash": "sha256-2NgT64htlolD/gQGtFB/SGF/PzogBOVT6fxMxPig5oI=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "0d55f218d77f5ad9dc6b732fee1c3594e020d5cf",
+        "rev": "c6e9a171aed68eecd912812c95ccb4d83f410da3",
         "type": "gitlab"
       },
       "original": {
