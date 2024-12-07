@@ -74,9 +74,16 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
     exit 1
   fi
 
-  # Ensure the target directory exists with correct permissions
-  sudo mkdir -p /var/lib/vault/$approle_name
-  sudo chmod -R 777 /var/lib/vault/$approle_name
+  # Check and ensure write permissions to /var/lib/vault
+  if [ ! -w /var/lib/vault ]; then
+    echo "$(tput bold)$(tput setaf 3)Insufficient permissions to write to /var/lib/vault.$(tput sgr0)"
+    echo "$(tput bold)$(tput setaf 3)Elevating permissions with sudo...$(tput sgr0)"
+    sudo mkdir -p /var/lib/vault/$approle_name
+    sudo chmod 700 /var/lib/vault/$approle_name
+  else
+    mkdir -p /var/lib/vault/$approle_name
+    chmod 700 /var/lib/vault/$approle_name
+  fi
 
   # Retrieve and save the role ID
   role_id=$(${pkgs.vault-bin}/bin/vault read -field=role_id auth/approle/role/$approle_name/role-id)
@@ -89,5 +96,5 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
   # Secure the saved credentials
   sudo chmod -R 0400 /var/lib/vault/$approle_name
 
-  echo "AppRole credentials saved to /var/lib/vault/$approle_name/role-id and /var/lib/vault/$approle_name/secret-id."
+  echo "$(tput bold)$(tput setaf 2)AppRole credentials saved to /var/lib/vault/$approle_name/role-id and /var/lib/vault/$approle_name/secret-id.$(tput sgr0)"
 ''
