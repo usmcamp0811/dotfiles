@@ -48,9 +48,19 @@ pkgs.writeShellScriptBin "init-vault" ''
       esac
     done
 
-    # Ensure the directory for the files exists
+    # Ensure the directories for the files exist
     mkdir -p "$(dirname "$KEY_FILE")"
     mkdir -p "$(dirname "$TOKEN_FILE")"
+
+    # Check write permissions for the files
+    if ! touch "$KEY_FILE" 2>/dev/null; then
+      echo "Error: Cannot write to $KEY_FILE. Ensure the directory is writable."
+      exit 1
+    fi
+    if ! touch "$TOKEN_FILE" 2>/dev/null; then
+      echo "Error: Cannot write to $TOKEN_FILE. Ensure the directory is writable."
+      exit 1
+    fi
 
     # Check if Vault is already initialized
     if ${pkgs.vault-bin}/bin/vault status | grep -q "Initialized.*true"; then
