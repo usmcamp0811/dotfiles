@@ -67,8 +67,8 @@ in the `deploy-shell` anywhere that can reach the newly deployed Vault.
 
 ```sh
 # to see options pass
-# vault-init --help
-vault-init
+# init-vault --help
+init-vault
 ```
 
 > NOTE: If you are running this anywhere other than on the system that has Vault
