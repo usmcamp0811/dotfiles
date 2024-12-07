@@ -1,4 +1,4 @@
-{ pkgs, new-approle }:
+{ pkgs }:
 pkgs.writeShellScriptBin "save-approle-secrets" ''
     # Function to display help
     show_help() {

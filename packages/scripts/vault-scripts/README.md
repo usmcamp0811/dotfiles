@@ -1,28 +1,38 @@
-# **Vault Path Checker**
+# Vault Scripts Usage Guide
 
-**Overview:**
-The Vault Path Checker is a diagnostic tool designed for the Nix Flake ecosystem. If you're working with Vault and encounter long delays or unclear error messages, this tool helps you quickly inspect whether you've configured the correct KV engines. By producing an insightful table output, you can instantly identify any missing `vault-path`.
+This package provides the following Vault-related scripts:
 
-**Usage:**
+1. **init-vault**
+   Initializes and unseals a HashiCorp Vault server.
+   **Usage:** `init-vault [--help]`
 
-```bash
-vault login
-nix run .#vault-scripts -- <script name>
-```
+2. **create-approle**
+   Creates a new AppRole in HashiCorp Vault with an optional policy.
+   **Usage:** `create-approle <approle-name> [policy]`
 
-The expected output table format:
+3. **save-approle-secrets**
+   Retrieves and securely saves the role ID and secret ID for an AppRole.
+   **Usage:** `save-approle-secrets <approle-name>`
 
-![Script Output](table.png)
+4. **check-vault-path**
+   Checks the existence of a specific path in HashiCorp Vault.
+   **Usage:** `check-vault-path <vault-path>`
 
-## **Mechanism**
+### Recommended Usage
 
-1. **Nix Function (`findVaultPaths`)**: This function delves recursively into all modules to identify `vault-path` attributes. When a module is activated, it returns the corresponding `vault-path`.
-2. **Shell Scripts**: Composed in Nix, these scripts process the output of the aforementioned Nix function, converting it into a structured JSON format—grouped by system.
-3. **Python Script**: This script transforms the JSON data into a visually appealing table for easier inspection.
+#### Scenario 1: Brand New System with a Brand New Vault
 
-## **Known Issues & Future Enhancements**
+If you have a brand-new system with a freshly installed Vault instance, run the scripts in the following order:
 
-- **Vault-Path Handling**: Currently, the tool returns the `user-secrets` `vault-path` without appending the username. Given Nix's intricacies and the nature of our implementation, rectifying this is a bit challenging.
-- **Performance**: The tool's execution time is longer than desired due to the recursive looping over `campground` to detect all modules containing `vault-path`. The goal is to automate the process without resorting to manual updates.
-- **Feature Request**: In future versions, we aim to introduce an argument to the script, enabling users to input a specific host name. This would tailor the table output for that specific host.
+1. `init-vault` to initialize and unseal the Vault server.
+2. `create-approle` to create AppRoles as needed.
+3. `save-approle-secrets` to securely save AppRole secrets for later use.
 
+#### Scenario 2: New System with an Already Configured Vault
+
+If the Vault instance is already initialized and configured, run:
+
+1. `create-approle` to create additional AppRoles as needed.
+2. `save-approle-secrets` to securely save AppRole secrets for later use.
+
+Each script is independently callable. Use `--help` with any script for additional details.
