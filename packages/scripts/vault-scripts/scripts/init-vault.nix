@@ -1,7 +1,5 @@
 { pkgs, }:
 pkgs.writeShellScriptBin "init-vault" ''
-    #!/usr/bin/env sh
-
     # Exit on any error
     set -e
 
@@ -9,33 +7,50 @@ pkgs.writeShellScriptBin "init-vault" ''
       cat <<EOF
   init-vault: Initialize and unseal a HashiCorp Vault server.
   Usage:
-    init-vault [--help]
+    init-vault [--key-file <path>] [--token-file <path>] [--help]
+
   Description:
     - Initializes a HashiCorp Vault server with one unseal key and one root token.
-    - Saves the unseal key and root token securely to predefined files.
+    - Saves the unseal key and root token to specified files or defaults.
     - Automatically unseals the Vault after initialization.
 
-  Files:
-    - Unseal key is saved to: /var/lib/vault/unseal-key
-    - Root token is saved to: /var/lib/vault/root-token
-
   Options:
-    --help  Show this help message and exit.
+    --key-file <path>    Specify the path to save the unseal key. Default: /var/lib/vault/unseal-key
+    --token-file <path>  Specify the path to save the root token. Default: /var/lib/vault/root-token
+    --help               Show this help message and exit.
   EOF
     }
 
-    if [ "$1" = "--help" ]; then
-      show_help
-      exit 0
-    fi
-
-    # Define where to save the keys and token securely
+    # Default file locations
     KEY_FILE="/var/lib/vault/unseal-key"
     TOKEN_FILE="/var/lib/vault/root-token"
 
-    # Ensure the directory exists with correct permissions
-    ${pkgs.sudo}/bin/sudo mkdir -p /var/lib/${pkgs.vault-bin}/bin/vault
-    ${pkgs.sudo}/bin/sudo chmod 700 /var/lib/${pkgs.vault-bin}/bin/vault
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --key-file)
+          KEY_FILE="$2"
+          shift 2
+          ;;
+        --token-file)
+          TOKEN_FILE="$2"
+          shift 2
+          ;;
+        --help)
+          show_help
+          exit 0
+          ;;
+        *)
+          echo "Unknown option: $1"
+          show_help
+          exit 1
+          ;;
+      esac
+    done
+
+    # Ensure the directory for the files exists
+    mkdir -p "$(dirname "$KEY_FILE")"
+    mkdir -p "$(dirname "$TOKEN_FILE")"
 
     # Check if Vault is already initialized
     if ${pkgs.vault-bin}/bin/vault status | grep -q "Initialized.*true"; then
@@ -51,9 +66,9 @@ pkgs.writeShellScriptBin "init-vault" ''
     root_token=$(echo "$init_output" | ${pkgs.jq}/bin/jq -r ".root_token")
 
     # Save the unseal key and root token securely
-    echo "$unseal_key" | ${pkgs.sudo}/bin/sudo tee "$KEY_FILE" > /dev/null
-    echo "$root_token" | ${pkgs.sudo}/bin/sudo tee "$TOKEN_FILE" > /dev/null
-    ${pkgs.sudo}/bin/sudo chmod 600 "$KEY_FILE" "$TOKEN_FILE"
+    echo "$unseal_key" > "$KEY_FILE"
+    echo "$root_token" > "$TOKEN_FILE"
+    chmod 600 "$KEY_FILE" "$TOKEN_FILE"
 
     # Unseal Vault
     ${pkgs.vault-bin}/bin/vault operator unseal "$unseal_key"
