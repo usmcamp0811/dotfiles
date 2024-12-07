@@ -1,6 +1,6 @@
-{
-  pkgs,
-  checkVaultPath,
+{ pkgs
+, checkVaultPath
+,
 }:
 pkgs.writeShellScriptBin "get-vault-paths" ''
   # Create empty JSON object
