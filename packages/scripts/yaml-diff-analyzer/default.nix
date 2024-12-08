@@ -63,8 +63,8 @@ let
                     )  # Use list format for traversing
                     diff_entry = {
                         "path": ".".join(map(str, path)),  # Reconstruct path as a string
-                        "old_value": change.t1,
-                        "new_value": change.t2,
+                        "file1": change.t1,
+                        "file2": change.t2,
                     }
                     if env_file:  # Add env_var_value only if env-vars.yaml is provided
                         diff_entry["env_var_value"] = get_env_var_value(env_vars, path)
