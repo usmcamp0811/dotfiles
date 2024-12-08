@@ -5,7 +5,7 @@ let
 
   python-env =
     pkgs.python3.withPackages (ps: [ ps.pyyaml ps.deepdiff ps.configargparse ]);
-  yaml-diff-analyzer-script = ./yaml-diff-analyzer;
+  yaml-diff-analyzer-script = ./yaml-diff-analyzer.py;
 
 in
 pkgs.writeShellApplication {
