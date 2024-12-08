@@ -11,6 +11,7 @@ tags = [
 categories = [
     "Nix",
     "DevOps",
+    "Tutorial"
 ]
 +++
 

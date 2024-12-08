@@ -1,3 +1,18 @@
++++
+author = "Matt Camp"
+title = "HashiCorp Vault with Database Engine on NixOS"
+date = "2023-10-15"
+description = "Learn how to securely manage PostgreSQL credentials on NixOS with HashiCorp Vault's Database Secrets Engine. This guide walks you through setting up PostgreSQL, enabling Vault’s database engine, and dynamically generating time-limited credentials for enhanced security."
+tags = [
+    "Nix",
+    "Vault"
+]
+categories = [
+    "Nix",
+    "DevOps",
+    "Tutorial"
+]
++++
 
 # HashiCorp Vault with Database Engine on NixOS: A Quick Guide
 
@@ -29,7 +44,7 @@ Read [this](https://yuweisung.medium.com/postgresql-pg-hba-conf-explained-part1-
         # Allow only local connections for the root user
         local all postgres peer
         # Require password for Vault-generated users over the network
-        host  all  all  10.8.0.1/24  md5  
+        host  all  all  10.8.0.1/24  md5
         # Deny other remote connections
         host  all  all  0.0.0.0/0  reject
         host  all  all  ::0/0  reject
@@ -105,4 +120,3 @@ vault read campground-dbs/creds/mydb-app
 ## Additional DB Types
 
 Vault also supports other databases like MySQL, MongoDB, etc. The setup is similar; you just have to change the plugin name and connection parameters.
-
