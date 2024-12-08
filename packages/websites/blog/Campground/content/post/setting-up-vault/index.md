@@ -3,7 +3,7 @@ author = "Matt Camp"
 title = "How to stand-up Vault with NixOS"
 date = "2024-12-07"
 image = "vault-login.png"
-description = "This is a simple tutorial to teach how to stand up a new system with Vault using my dotfiles."
+description = "Learn how to set up Vault on a NixOS system from scratch using my dotfiles. This step-by-step guide covers everything from deploying a new system configuration to securely managing secrets with Vault's CLI and UI, making it easier to integrate Vault into your infrastructure."
 tags = [
     "Nix",
     "Vault"
