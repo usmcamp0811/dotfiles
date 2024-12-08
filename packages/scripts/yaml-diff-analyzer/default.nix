@@ -4,7 +4,7 @@ with lib.campground;
 let
 
   python-env =
-    pkgs.python3.withPackages (ps: [ ps.pyyaml ps.deepdif ps.configargparse ]);
+    pkgs.python3.withPackages (ps: [ ps.pyyaml ps.deepdiff ps.configargparse ]);
   yaml-diff-analyzer-script = pkgs.writeText "yaml-diff-analyzer.py" ''
     import yaml
     import argparse
@@ -97,6 +97,6 @@ in
 pkgs.writeShellApplication {
   name = "yaml-diff-analyzer";
   text = ''
-    ${python-env} ${yaml-diff-analyzer-script}
+    ${python-env}/bin/python ${yaml-diff-analyzer-script} "$@"
   '';
 }
