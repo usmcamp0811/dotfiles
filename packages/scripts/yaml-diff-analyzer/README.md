@@ -69,7 +69,7 @@ The output is a list of differences in YAML format, with each entry showing:
 - path: app.config.replicas
   file1: 3
   file2: 5
-  env_var_value: replica_count
+  env_var_value: $REPLICAS
 
 - path: app.secrets.api_key
   file1: secret123
