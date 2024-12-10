@@ -10,15 +10,13 @@ let
   default-key =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler";
 
-  home-directory =
-    if cfg.name == null then
-      null
-    else if is-darwin then
-      "/Users/${cfg.name}"
-    else
-      "/home/${cfg.name}";
-in
-{
+  home-directory = if cfg.name == null then
+    null
+  else if is-darwin then
+    "/Users/${cfg.name}"
+  else
+    "/home/${cfg.name}";
+in {
   options.campground.user = {
     enable = mkOpt types.bool false "Whether to configure the user account.";
     name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name
@@ -50,18 +48,18 @@ in
     home = {
       username = mkDefault cfg.name;
       homeDirectory = mkDefault cfg.home;
-      extraOptions = {
-        home.shellAliases = {
-          la = "${pkgs.lsd}/bin/lsd -lah --group-dirs first";
-        };
-
-        programs.zsh.enable = true;
-
-        programs.zsh.history = {
-          size = 10000;
-          path = "$XDG_CACHE_HOME/zsh/history";
-        };
-      };
+      # extraOptions = {
+      #   home.shellAliases = {
+      #     la = "${pkgs.lsd}/bin/lsd -lah --group-dirs first";
+      #   };
+      #
+      #   programs.zsh.enable = true;
+      #
+      #   programs.zsh.history = {
+      #     size = 10000;
+      #     path = "$XDG_CACHE_HOME/zsh/history";
+      #   };
+      # };
     };
     home.activation.sshKeys =
       inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
