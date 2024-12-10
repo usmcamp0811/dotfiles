@@ -112,6 +112,7 @@ with lib.campground; {
       slack = enabled;
       compose2nix = enabled;
       freetube = enabled;
+      misc = enabled;
     };
     tools = {
       git = enabled;
