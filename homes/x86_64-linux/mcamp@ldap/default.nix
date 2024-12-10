@@ -75,6 +75,7 @@ with lib.campground; {
       broot = enabled;
       ranger = enabled;
       neovim = enabled;
+      misc = enabled;
     };
     services = {
       openssh = {
