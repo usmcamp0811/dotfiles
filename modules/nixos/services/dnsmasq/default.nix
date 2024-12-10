@@ -9,8 +9,8 @@ in {
     settings = mkOption {
       type = attrsOf (attrsOf str);
       default = {
-        listenAddress = "127.0.0.1"; # Default to localhost
-        interface = ""; # Optional interface binding
+        listenAddress = "0.0.0.0"; # Default to localhost
+        interface = "wg0"; # Optional interface binding
         extraConfig = "";
       };
       description = ''
