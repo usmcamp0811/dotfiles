@@ -23,10 +23,11 @@ in {
     services.dnsmasq = {
       enable = true;
       extraConfig = cfg.settings.extraConfig;
+      settings = cfg.settings;
 
       # Optional interface binding and listen address
-      listenAddress = cfg.settings.listenAddress;
-      interface = cfg.settings.interface;
+      # listenAddress = cfg.settings.listenAddress;
+      # interface = cfg.settings.interface;
     };
   };
 }
