@@ -62,6 +62,7 @@ in
       JULIA_DEPOT_PATH =
         "${config.home.sessionVariables.XDG_CONFIG_HOME}/julia:$julia_depot_path";
       SSB_HOME = "${config.home.sessionVariables.XDG_DATA_HOME}/zoom";
+      POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD = "true";
       CONDARC = "${config.home.sessionVariables.XDG_CONFIG_HOME}/conda/condarc";
     };
     home.activation.privateDir =
