@@ -71,6 +71,7 @@ with lib.campground; {
       broot = enabled;
       ranger = enabled;
       neovim = enabled;
+      misc = enabled;
     };
     services = {
       openssh = {
@@ -112,7 +113,6 @@ with lib.campground; {
       slack = enabled;
       compose2nix = enabled;
       freetube = enabled;
-      misc = enabled;
     };
     tools = {
       git = enabled;
