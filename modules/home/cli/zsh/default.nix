@@ -29,6 +29,7 @@ in {
 
       oh-my-zsh = {
         enable = true;
+        theme = "fino";
         plugins = [ "fzf" ];
       };
       initExtra = lib.mkBefore ''
