@@ -15,9 +15,11 @@ let
     "....." = "cd ../../../..";
     "~" = "cd ~"; # `cd` is probably faster to type though
     "--" = "cd -";
-    "mv" = "mv -v";
-    "rm" = "rm -i -v";
-    "cp" = "cp -v";
+    mv = "mv -v";
+    rm = "rm -i -v";
+    cp = "cp -v";
+    la = "${pkgs.lsd}/bin/lsd -laF --group-dirs first";
+    ls = "${pkgs.lsd}/bin/lsd --tree --depth 3";
     df = "df -h";
     chmox = "chmod -x";
     status = "sudo systemctl status";
@@ -45,8 +47,7 @@ let
       ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
     '';
   });
-in
-{
+in {
   options.campground.cli.aliases = with types;
     mkOption {
       type = attrsOf str;
