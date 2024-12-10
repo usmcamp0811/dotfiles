@@ -35,7 +35,6 @@ in {
       rsync
       tldr
       gcc
-      clang
       zig
       btop
       deno
