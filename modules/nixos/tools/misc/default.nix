@@ -51,7 +51,6 @@ in {
       lshw
       borgbackup
       yt-dlp
-      oh-my-zsh
     ];
   };
 }
