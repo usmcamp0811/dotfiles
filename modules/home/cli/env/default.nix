@@ -6,15 +6,13 @@ let
   is-darwin = pkgs.stdenv.isDarwin;
 
   # aliases = import ./aliases.nix { inherit pkgs; };
-  home-directory =
-    if cfg-user.name == null then
-      null
-    else if is-darwin then
-      "/Users/${cfg-user.name}"
-    else
-      "/home/${cfg-user.name}";
-in
-{
+  home-directory = if cfg-user.name == null then
+    null
+  else if is-darwin then
+    "/Users/${cfg-user.name}"
+  else
+    "/home/${cfg-user.name}";
+in {
   options.campground.cli.env = with types;
     mkOption {
       type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
@@ -31,10 +29,10 @@ in
     home.sessionVariables = {
       NIXOS_CONFIG = "/config";
       KUBECONFIG = "/etc/k8s/config";
-      EDITOR = "nvim";
+      EDITOR = "${pkgs.campground-nvim}/bin/nvim";
       TERMINAL = "kitty";
       BROWSER = "firefox";
-      READER = "zathura";
+      READER = "${pkgs.zathura}/bin/zathura";
       XDG_CONFIG_HOME = "${home-directory}/.config";
       DOCKER = "/var/run/docker.sock";
       DOCKER_CONFIG = "${config.home.sessionVariables.XDG_CONFIG_HOME}/docker";
