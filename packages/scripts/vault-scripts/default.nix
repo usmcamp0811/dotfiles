@@ -51,5 +51,5 @@ vaultScripts // {
   get-vault-paths = getVaultPaths;
   save-approle-secrets = saveAppRoleSecrets;
   init-vault = initVaultScript;
-  vault = pkgs.vault;
+  vault = pkgs.vault-bin;
 }
