@@ -3,7 +3,8 @@ let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli.zsh;
-in {
+in
+{
   options.campground.cli.zsh = {
     enable = mkEnableOption "ZSH";
     extraSource = lib.mkOption {
@@ -22,11 +23,7 @@ in {
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
 
-      shellAliases = {
-        la = "${pkgs.lsd}/bin/lsd -laF --group-dirs first";
-        ls = "${pkgs.lsd}/bin/lsd --tree --depth 3";
-        update = "sudo nixos-rebuild switch";
-      };
+      shellAliases = { update = "sudo nixos-rebuild switch"; };
 
       oh-my-zsh = {
         enable = true;
