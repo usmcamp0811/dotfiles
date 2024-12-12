@@ -1,11 +1,4 @@
-{
-  lib,
-  pkgs,
-  config,
-  osConfig ? {},
-  format ? "unknown",
-  ...
-}:
+{ lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib.campground; {
   campground = {
     user = {
@@ -17,18 +10,18 @@ with lib.campground; {
 
     cli = {
       zsh = enabled;
-      bash = enabled;
+      # bash = enabled;
       env = enabled;
       home-manager = enabled;
-      k9s = enabled;
-      broot = enabled;
+      # k9s = enabled;
+      # broot = enabled;
       ranger = enabled;
-      neovim = enabled;
+      # neovim = enabled;
     };
     services = {
       # picom = enabled;
-      openssh = enabled;
-      syncthing = enabled;
+      # openssh = enabled;
+      # syncthing = enabled;
     };
 
     # apps = {
@@ -43,10 +36,10 @@ with lib.campground; {
     # };
     tools = {
       git = enabled;
-      direnv = enabled;
+      # direnv = enabled;
       # julia = enabled;
       # python = enabled;
-      vault = enabled;
+      # vault = enabled;
     };
   };
 
