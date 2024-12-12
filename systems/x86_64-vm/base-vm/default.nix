@@ -22,7 +22,7 @@ in
       initialPassword = "nixos";
     };
 
-    archetypes = { barebones = enabled; };
+    # archetypes = { barebones = enabled; };
 
   };
 
