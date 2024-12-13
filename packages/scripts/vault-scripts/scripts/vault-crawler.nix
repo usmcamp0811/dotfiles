@@ -1,4 +1,4 @@
-{ pkgs, }:
+{ pkgs, ... }:
 pkgs.writeShellScriptBin "${pkgs.vault-bin}/bin/vault-crawler" ''
 
   # Colors for output
@@ -64,7 +64,8 @@ pkgs.writeShellScriptBin "${pkgs.vault-bin}/bin/vault-crawler" ''
                   data_keys=$(echo "$secret" | jq -r '.data.data | keys[]')
                   command="vault kv put $full_path"
                   for data_key in $data_keys; do
-                      command+=" $data_key=$RED{PLACEHOLDER}$NC"
+                      env_var_name=$(echo "$data_key" | tr '[:lower:]' '[:upper:]')
+                      command+=" $data_key=\''${$env_var_name}"
                   done
                   echo -e "$command $NC"
               else
