@@ -3,29 +3,27 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
   # Function to display help
   show_help() {
     cat <<EOF
-  $(tput bold)$(tput setaf 3)Usage:$(tput sgr0) save-approle-secrets $(tput setaf 2)<approle_name>$(tput sgr0)
+  $(tput bold)$(tput setaf 3)Usage:$(tput sgr0) save-approle-secrets $(tput setaf 2)<approle_name> [--remote <user@host:path>]$(tput sgr0)
 
   $(tput bold)$(tput setaf 6)This script retrieves the role ID and secret ID for a specified AppRole in HashiCorp Vault$(tput sgr0)
-  $(tput bold)$(tput setaf 6)and saves them securely to /var/lib/vault/<approle_name>.$(tput sgr0)
+  $(tput bold)$(tput setaf 6)and saves them securely locally or to a remote machine.$(tput sgr0)
 
   $(tput bold)$(tput setaf 3)Options:$(tput sgr0)
-    $(tput setaf 2)<approle_name>$(tput sgr0)  The name of the AppRole whose secrets are to be retrieved $(tput bold)$(tput setaf 1)(required)$(tput sgr0).
+    $(tput setaf 2)<approle_name>$(tput sgr0)         The name of the AppRole whose secrets are to be retrieved $(tput bold)$(tput setaf 1)(required)$(tput sgr0).
+    $(tput setaf 2)--remote <user@host:path>$(tput sgr0) Save secrets to a remote machine via SCP.
 
   $(tput bold)$(tput setaf 3)Behavior:$(tput sgr0)
     $(tput setaf 6)- Checks if the specified AppRole exists in Vault.$(tput sgr0)
     $(tput setaf 6)- Prompts for Vault login if not already authenticated.$(tput sgr0)
     $(tput setaf 6)- Retrieves the AppRole's role ID and secret ID.$(tput sgr0)
-    $(tput setaf 6)- Saves the credentials to the following files:$(tput sgr0)
+    $(tput setaf 6)- Saves the credentials to:
         $(tput setaf 2)- /var/lib/vault/<approle_name>/role-id$(tput sgr0)
         $(tput setaf 2)- /var/lib/vault/<approle_name>/secret-id$(tput sgr0)
-    $(tput setaf 6)- Ensures the credentials are saved with secure file permissions.$(tput sgr0)
+      $(tput setaf 6)or to a specified remote location.$(tput sgr0)
 
   $(tput bold)$(tput setaf 3)Examples:$(tput sgr0)
     $(tput setaf 4)save-approle-secrets my-approle$(tput sgr0)
-
-  $(tput bold)$(tput setaf 3)Notes:$(tput sgr0)
-    $(tput setaf 1)- You must have appropriate permissions in Vault to access the AppRole and its secrets.$(tput sgr0)
-    $(tput setaf 1)- The target directory (/var/lib/vault/<approle_name>) will be created if it does not exist.$(tput sgr0)
+    $(tput setaf 4)save-approle-secrets my-approle --remote user@host:/path/to/secrets$(tput sgr0)
   EOF
   }
 
@@ -43,58 +41,58 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
     exit 1
   fi
 
-  # Set the AppRole name
   approle_name=$1
+  shift
+
+  # Check for remote option
+  remote_path=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --remote)
+        if [ -n "$2" ]; then
+          remote_path="$2"
+          shift
+        else
+          echo "$(tput bold)$(tput setaf 1)Error: --remote option requires an argument.$(tput sgr0)"
+          exit 1
+        fi
+        ;;
+      *)
+        echo "$(tput bold)$(tput setaf 1)Error: Unknown option $1.$(tput sgr0)"
+        exit 1
+        ;;
+    esac
+    shift
+  done
 
   # Verify if the AppRole exists in Vault
   if ${pkgs.vault-bin}/bin/vault read auth/approle/role/$approle_name > /dev/null 2>&1; then
     echo "$(tput bold)$(tput setaf 2)AppRole $approle_name exists.$(tput sgr0)"
   else
     echo "$(tput bold)$(tput setaf 1)AppRole $approle_name does not exist.$(tput sgr0)"
-    echo "$(tput setaf 3)Please run '$(tput bold)create-approle $approle_name$(tput sgr0)$(tput setaf 3)' to create it.$(tput sgr0)"
     exit 1
   fi
 
-  # Check if already logged into Vault
-  vault_status=$(${pkgs.vault-bin}/bin/vault status -format=json 2>/dev/null)
-
-  if [ $? -eq 0 ]; then
-    echo "$(tput bold)$(tput setaf 2)Already logged into Vault.$(tput sgr0)"
-  else
-    echo "$(tput bold)$(tput setaf 3)Please log in to Vault...$(tput sgr0)"
-    ${pkgs.vault-bin}/bin/vault login || { 
-      echo "$(tput bold)$(tput setaf 1)Vault login failed.$(tput sgr0)"; 
-      exit 1; 
-    }
-  fi
-
-  # Verify that login was successful
-  if [ $? -ne 0 ]; then
-    echo "$(tput bold)$(tput setaf 1)Vault login failed.$(tput sgr0)"
-    exit 1
-  fi
-
-  # Check and ensure write permissions to /var/lib/vault
-  if [ ! -w /var/lib/vault ]; then
-    echo "$(tput bold)$(tput setaf 3)Insufficient permissions to write to /var/lib/vault.$(tput sgr0)"
-    echo "$(tput bold)$(tput setaf 3)Elevating permissions with sudo...$(tput sgr0)"
-    sudo mkdir -p /var/lib/vault/$approle_name
-    sudo chmod 700 /var/lib/vault/$approle_name
-  else
-    mkdir -p /var/lib/vault/$approle_name
-    chmod 700 /var/lib/vault/$approle_name
-  fi
-
-  # Retrieve and save the role ID
+  # Retrieve the role ID and secret ID
   role_id=$(${pkgs.vault-bin}/bin/vault read -field=role_id auth/approle/role/$approle_name/role-id)
-  echo $role_id | sudo tee /var/lib/vault/$approle_name/role-id > /dev/null
-
-  # Retrieve and save the secret ID
   secret_id=$(${pkgs.vault-bin}/bin/vault write -f -field=secret_id auth/approle/role/$approle_name/secret-id)
-  echo $secret_id | sudo tee /var/lib/vault/$approle_name/secret-id > /dev/null
 
-  # Secure the saved credentials
-  sudo chmod -R 0400 /var/lib/vault/$approle_name
-
-  echo "$(tput bold)$(tput setaf 2)AppRole credentials saved to /var/lib/vault/$approle_name/role-id and /var/lib/vault/$approle_name/secret-id.$(tput sgr0)"
+  if [ -n "$remote_path" ]; then
+    # Save to remote machine
+    echo "$(tput bold)$(tput setaf 3)Saving secrets to remote machine at $remote_path$(tput sgr0)"
+    echo $role_id | ssh ''${remote_path%:*} "mkdir -p ''${remote_path#*:}/$approle_name && tee ''${remote_path#*:}/$approle_name/role-id" > /dev/null
+    echo $secret_id | ssh ''${remote_path%:*} "tee ''${remote_path#*:}/$approle_name/secret-id" > /dev/null
+    ssh ''${remote_path%:*} "chmod -R 0400 ''${remote_path#*:}/$approle_name"
+    echo "$(tput bold)$(tput setaf 2)AppRole credentials saved to $remote_path/$approle_name.$(tput sgr0)"
+  else
+    # Save locally
+    local_path="/var/lib/vault/$approle_name"
+    echo "$(tput bold)$(tput setaf 3)Saving secrets locally to $local_path$(tput sgr0)"
+    sudo mkdir -p $local_path
+    sudo chmod 700 $local_path
+    echo $role_id | sudo tee $local_path/role-id > /dev/null
+    echo $secret_id | sudo tee $local_path/secret-id > /dev/null
+    sudo chmod -R 0400 $local_path
+    echo "$(tput bold)$(tput setaf 2)AppRole credentials saved to $local_path.$(tput sgr0)"
+  fi
 ''
