@@ -1,15 +1,42 @@
 { pkgs, }:
 pkgs.writeShellScriptBin "${pkgs.vault}/bin/vault-crawler" ''
 
+  # Colors for output
+  RED="\\033[0;31m"
+  GREEN="\\033[0;32m"
+  BLUE="\\033[0;34m"
+  YELLOW="\\033[1;33m"
+  NC="\\033[0m" # No Color
+
+  # Function to display help
+  show_help() {
+      echo -e "''${BLUE}Vault Crawler''${NC}"
+      echo -e "''${GREEN}Description:''${NC} This script recursively crawls a Vault path and generates commands to recreate secrets."
+      echo -e "''${GREEN}Usage:''${NC}"
+      echo -e "  ''${YELLOW}vault-crawler <base_path>''${NC}"
+      echo -e "''${GREEN}Options:''${NC}"
+      echo -e "  ''${YELLOW}--help''${NC}     Show this help message."
+      echo -e "''${GREEN}Examples:''${NC}"
+      echo -e "  ''${YELLOW}vault-crawler secret/campground/''${NC}"
+      echo -e "  ''${YELLOW}vault-crawler secret/application/''${NC}"
+      exit 0
+  }
+
+  # Check for --help flag
+  if [[ "$1" == "--help" ]]; then
+      show_help
+  fi
+
   # Ensure Vault CLI is authenticated and ready
   if ! ${pkgs.vault}/bin/vault status >/dev/null 2>&1; then
-      echo "Vault CLI is not authenticated or configured properly."
+      echo -e "''${RED}Vault CLI is not authenticated or configured properly.''${NC}"
       exit 1
   fi
 
   # Validate input
   if [ $# -ne 1 ]; then
-      echo "Usage: $0 <base_path>"
+      echo -e "''${RED}Usage: 'vault-crawler' <base_path>''${NC}"
+      echo -e "Run $YELLOW'vault-crawler --help' ''${NC} for more information."
       exit 1
   fi
 
@@ -37,16 +64,19 @@ pkgs.writeShellScriptBin "${pkgs.vault}/bin/vault-crawler" ''
                   data_keys=$(echo "$secret" | jq -r '.data.data | keys[]')
                   command="vault kv put $full_path"
                   for data_key in $data_keys; do
-                      command+=" $data_key={PLACEHOLDER}"
+                      command+=" $data_key=$RED{PLACEHOLDER}$NC"
                   done
-                  echo "$command"
+                  echo -e "$command $NC"
               else
-                  echo "Error reading secret: $full_path" >&2
+                  echo -e "''${RED}Error reading secret: $full_path''${NC}" >&2
               fi
           fi
       done
   }
 
+  echo -e "''${BLUE}Starting Vault Crawler for path: ''${YELLOW}$BASE_PATH''${NC}"
   # Start the recursion
   generate_kv_put_commands "$BASE_PATH"
+  echo -e "''${GREEN}Vault Crawler completed.''${NC}"
 ''
+ 
