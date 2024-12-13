@@ -228,6 +228,8 @@ campground.services.vault-agent = {
 If you have deployed your Vault with a `file` storage backend and you decided that you want to use a `raft` backend
 all is not lost! The migration is pretty simple. You just need to make a `hcl` file that looks like this:
 
+> **⚠️ WARNING:** Make sure you backup your Vault to avoid losing secrets
+
 ```hcl
 # migrate.hcl
 storage_source "file" {
@@ -250,10 +252,10 @@ When the system finishes switching, stop Vault with `systemctl stop vault`. Fina
 vault operator migrate --config migrate.hcl
 ```
 
-When this finishes start the Vault `systemctl start vault` then you should be able to `unseal` the Vault 
-with your previous key(s) and login. 
+When this finishes start the Vault `systemctl start vault` then you should be able to `unseal` the Vault
+with your previous key(s) and login.
 
-> NOTE: As I was figuring this out I had to blow away the `/persist/vault-raft` directory a couple times and 
-> when I recreated it there were some permissions issues that had to be addressed so Vault could write a log 
-> file. With any luck you wont have this problem but if you do just check `journactl` it should give good 
-> enough clues that can get you going. 
+> NOTE: As I was figuring this out I had to blow away the `/persist/vault-raft` directory a couple times and
+> when I recreated it there were some permissions issues that had to be addressed so Vault could write a log
+> file. With any luck you wont have this problem but if you do just check `journactl` it should give good
+> enough clues that can get you going.
