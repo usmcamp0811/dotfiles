@@ -58,7 +58,7 @@ in
     storage = {
       backend = mkOpt types.str "file" "The storage backend for Vault.";
       path = mkOpt types.str "/persist/vault" "Path";
-      config = mkOpt types.str "" "Config";
+      config = mkOpt types.str null "Config";
     };
 
     address = mkOpt types.str "0.0.0.0:8200" "Where to access vault UI at";
