@@ -52,6 +52,28 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      vault = {
+        enable = true;
+        ui = true;
+        storage = {
+          backend = "raft";
+          path = "/persist/vault-raft";
+        };
+
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies + "/${
+                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+              }")
+              (snowfall.fs.get-files ../daly/vault/policies)));
+      };
       n8n = { enable = true; };
       chromadb = { enable = true; };
       onlyoffice = { enable = true; };
