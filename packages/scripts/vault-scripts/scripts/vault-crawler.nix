@@ -64,8 +64,8 @@ pkgs.writeShellScriptBin "${pkgs.vault-bin}/bin/vault-crawler" ''
                   data_keys=$(echo "$secret" | jq -r '.data.data | keys[]')
                   command="vault kv put $full_path"
                   for data_key in $data_keys; do
-                      env_var_name=$(echo "$data_key" | tr '[:lower:]' '[:upper:]')
-                      command+=" $data_key=\''${$env_var_name}"
+                      unique_env_var_name=$(echo "''${full_path}_''${data_key}" | tr '[:lower:]' '[:upper:]' | tr '/' '_')
+                      command+=" $data_key=\''${$unique_env_var_name}"
                   done
                   echo -e "$command $NC"
               else
