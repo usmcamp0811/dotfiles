@@ -22,6 +22,29 @@ This package provides the following Vault-related scripts:
    Checks the existence of a specific path in HashiCorp Vault.  
    **Usage:** `check-vault-path <vault-path>`
 
+5. **vault-crawler**  
+   Recursively crawls a Vault path and generates commands to recreate secrets with placeholders for their values.  
+   **Usage:** `vault-crawler <base_path> [--help]`
+
+   - **Options:**
+
+     - `<base_path>`: The Vault path to crawl (required).
+     - `--help`: Show detailed usage instructions for the script.
+
+   - **Example Output:**  
+     When run, the script generates `vault kv put` commands for each secret it finds:
+
+     ```bash
+     vault kv put secret/campground/mlflow key1={PLACEHOLDER} key2={PLACEHOLDER}
+     vault kv put secret/campground/github token={PLACEHOLDER}
+     ```
+
+   - **Features:**
+     - Handles both KV v1 and KV v2 secret engines.
+     - Provides helpful color-coded outputs for errors, commands, and general information.
+
+---
+
 ### Recommended Usage
 
 #### Scenario 1: Brand New System with a Brand New Vault
@@ -39,6 +62,15 @@ If the Vault instance is already initialized and configured, run:
 1. `create-approle` to create additional AppRoles as needed.
 2. `save-approle-secrets` to securely save AppRole secrets for later use.
 
+#### Scenario 3: Recreating Vault Secrets in a Different Environment
+
+If you need to migrate or recreate Vault secrets in another environment:
+
+1. Use `vault-crawler` to generate `vault kv put` commands for a specific Vault path.
+2. Run the generated commands in the new environment to recreate the secrets.
+
+---
+
 ### Remote Saving of AppRole Secrets
 
 The `save-approle-secrets` script now supports saving AppRole secrets to a remote machine. Use the `--remote` option to specify the target machine and path. For example:
@@ -46,4 +78,12 @@ The `save-approle-secrets` script now supports saving AppRole secrets to a remot
 - **Command:** `save-approle-secrets my-approle --remote user@host:/path/to/secrets`
 - **Behavior:** Saves the `role-id` and `secret-id` files to the specified remote location.
 
-Each script is independently callable. Use `--help` with any script for additional details.
+---
+
+### Detailed Help for Each Script
+
+Each script is independently callable. Use `--help` with any script for additional details. For example:
+
+```bash
+vault-crawler --help
+```
