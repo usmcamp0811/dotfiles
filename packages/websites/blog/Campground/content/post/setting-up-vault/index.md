@@ -222,3 +222,38 @@ campground.services.vault-agent = {
 > **⚠️ WARNING:** Make sure you put the correct `address`, `role-id` and `secret-id`! If you don't
 > it's not entirely obvious it could take a long time trying to authenticate before
 > finally failing
+
+## Migrating from `file` backend to `raft`
+
+If you have deployed your Vault with a `file` storage backend and you decided that you want to use a `raft` backend
+all is not lost! The migration is pretty simple. You just need to make a `hcl` file that looks like this:
+
+```hcl
+# migrate.hcl
+storage_source "file" {
+  path = "/persist/vault/"
+}
+
+storage_destination "raft" {
+  path = "/persist/vault-raft/"
+  node_id = "vault-node-0"
+}
+
+cluster_addr = "http://127.0.0.1:8200"
+
+```
+
+Then just make sure to redeploy your NixOS config with the Vault having `raft` enabled as the backend storage.
+When the system finishes switching, stop Vault with `systemctl stop vault`. Finally you can run:
+
+```sh
+vault operator migrate --config migrate.hcl
+```
+
+When this finishes start the Vault `systemctl start vault` then you should be able to `unseal` the Vault 
+with your previous key(s) and login. 
+
+> NOTE: As I was figuring this out I had to blow away the `/persist/vault-raft` directory a couple times and 
+> when I recreated it there were some permissions issues that had to be addressed so Vault could write a log 
+> file. With any luck you wont have this problem but if you do just check `journactl` it should give good 
+> enough clues that can get you going. 
