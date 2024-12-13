@@ -1,13 +1,7 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.vault;
+with lib.campground;
+let cfg = config.campground.tools.vault;
 in {
   options.campground.tools.vault = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Vault CLI.";
@@ -16,7 +10,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [vault];
-    home.sessionVariables = {VAULT_ADDR = cfg.vault-addr;};
+    home.packages = with pkgs; [ vault consul ];
+    home.sessionVariables = { VAULT_ADDR = cfg.vault-addr; };
   };
 }
