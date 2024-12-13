@@ -15,6 +15,7 @@ let
   saveAppRoleSecrets =
     import ./scripts/save-approle-secrets.nix { inherit pkgs; };
   README = ./README.md;
+  vault-crawler = import ./scripts/vault-crawler.nix { inherit pkgs; };
 
   # Create a helper script for running commands
   runScripts = writeShellScriptBin "vault-scripts" ''
@@ -51,5 +52,6 @@ vaultScripts // {
   get-vault-paths = getVaultPaths;
   save-approle-secrets = saveAppRoleSecrets;
   init-vault = initVaultScript;
+  vault-crawler = vault-crawler;
   vault = pkgs.vault-bin;
 }
