@@ -1,8 +1,8 @@
 { pkgs, }:
-pkgs.writeShellScriptBin "vault-crawler" ''
+pkgs.writeShellScriptBin "${pkgs.vault}/bin/vault-crawler" ''
 
   # Ensure Vault CLI is authenticated and ready
-  if ! vault status >/dev/null 2>&1; then
+  if ! ${pkgs.vault}/bin/vault status >/dev/null 2>&1; then
       echo "Vault CLI is not authenticated or configured properly."
       exit 1
   fi
@@ -20,7 +20,7 @@ pkgs.writeShellScriptBin "vault-crawler" ''
       local path=$1
 
       # List keys at the current path
-      keys=$(vault kv list -format=json "$path" 2>/dev/null | jq -r '.[]')
+      keys=$(${pkgs.vault}/bin/vault kv list -format=json "$path" 2>/dev/null | jq -r '.[]')
 
       for key in $keys; do
           # Check if it's a folder (ends with '/')
@@ -30,8 +30,8 @@ pkgs.writeShellScriptBin "vault-crawler" ''
           else
               # Properly concatenate path and key
               full_path="''${path%/}/$key"
-              # Read the secret and generate a `vault kv put` command
-              secret=$(vault kv get -format=json "$full_path" 2>/dev/null)
+              # Read the secret and generate a `${pkgs.vault}/bin/vault kv put` command
+              secret=$(${pkgs.vault}/bin/vault kv get -format=json "$full_path" 2>/dev/null)
               if [ $? -eq 0 ]; then
                   # Extract key names from the JSON
                   data_keys=$(echo "$secret" | jq -r '.data.data | keys[]')
