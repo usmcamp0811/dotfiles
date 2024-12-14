@@ -8,14 +8,16 @@ let
     name = "configure-gtk";
     destination = "/bin/configure-gtk";
     executable = true;
-    text = let
-      schema = pkgs.gsettings-desktop-schemas;
-      datadir = "${schema}/share/gesettings/schemas/${schema.name}";
-    in ''
-      export XDG_DATA_DIRS=${datadir}:$XDG_DATA_DIRS
-      gnome_schema=org.gnome.desktop.interface
-      gesettings set $gnome_schema gtk-theme 'Adwaita'
-    '';
+    text =
+      let
+        schema = pkgs.gsettings-desktop-schemas;
+        datadir = "${schema}/share/gesettings/schemas/${schema.name}";
+      in
+      ''
+        export XDG_DATA_DIRS=${datadir}:$XDG_DATA_DIRS
+        gnome_schema=org.gnome.desktop.interface
+        gesettings set $gnome_schema gtk-theme 'Adwaita'
+      '';
   };
   dbus-hyprland-environment = pkgs.writeTextFile {
     name = "dbus-hyprland-environment";
@@ -30,7 +32,8 @@ let
   };
   cfg = config.campground.desktop.hyprland;
   programs = lib.makeBinPath [ config.programs.hyprland.package ];
-in {
+in
+{
   options.campground.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to enable Hyprland.";
     customConfigFiles = mkOpt attrs { }
@@ -51,7 +54,7 @@ in {
             export PATH=$PATH:${programs}
             export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
             ${
-              getExe' hyprland.packages.${system}.hyprland "hyprctl"
+              getExe' pkgs.hyprland "hyprctl"
             } --batch 'keyword decoration:blur 0 ; keyword animations:enabled 0 ; keyword misc:no_vfr 1'
           '';
 
@@ -62,7 +65,7 @@ in {
             export PATH=$PATH:${programs}
             export HYPRLAND_INSTANCE_SIGNATURE=$(ls -1 /tmp/hypr | tail -1)
             ${
-              getExe' hyprland.packages.${system}.hyprland "hyprctl"
+              getExe' pkgs.hyprland "hyprctl"
             } --batch 'keyword decoration:blur 1 ; keyword animations:enabled 1 ; keyword misc:no_vfr 0'
           '';
       };
@@ -95,10 +98,7 @@ in {
       wlr.enable = true;
       extraPortals =
         [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gtk ];
-      config.common.default = [
-        "gtk"
-        "hyprland"
-      ];
+      config.common.default = [ "gtk" "hyprland" ];
     };
 
     # For GTK applications, if needed
