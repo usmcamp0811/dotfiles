@@ -41,6 +41,8 @@ pkgs.writeShellScriptBin "${pkgs.vault-bin}/bin/vault-crawler" ''
   fi
 
   BASE_PATH=$1
+  ENV_VARS=""
+  KV_COMMANDS=""
 
   # Function to recursively list keys and generate commands
   generate_kv_put_commands() {
@@ -62,12 +64,13 @@ pkgs.writeShellScriptBin "${pkgs.vault-bin}/bin/vault-crawler" ''
               if [ $? -eq 0 ]; then
                   # Extract key names from the JSON
                   data_keys=$(echo "$secret" | jq -r '.data.data | keys[]')
-                  command="vault kv put $full_path"
+                  kv_command="vault kv put $full_path"
                   for data_key in $data_keys; do
                       unique_env_var_name=$(echo "''${full_path}_''${data_key}" | tr '[:lower:]' '[:upper:]' | tr '/' '_')
-                      command+=" $data_key=\''${$unique_env_var_name}"
+                      ENV_VARS+="export $unique_env_var_name='placeholder text'\n"
+                      kv_command+=" $data_key=\''${$unique_env_var_name}"
                   done
-                  echo -e "$command $NC"
+                  KV_COMMANDS+="$kv_command\n"
               else
                   echo -e "''${RED}Error reading secret: $full_path''${NC}" >&2
               fi
@@ -78,5 +81,12 @@ pkgs.writeShellScriptBin "${pkgs.vault-bin}/bin/vault-crawler" ''
   echo -e "''${BLUE}Starting Vault Crawler for path: ''${YELLOW}$BASE_PATH''${NC}"
   # Start the recursion
   generate_kv_put_commands "$BASE_PATH"
+
+  # Print environment variables and commands
+  echo -e "''${GREEN}Export the following environment variables:''${NC}"
+  echo -e "$ENV_VARS"
+  echo -e "''${GREEN}Vault KV Put Commands:''${NC}"
+  echo -e "$KV_COMMANDS"
+
   echo -e "''${GREEN}Vault Crawler completed.''${NC}"
 ''
