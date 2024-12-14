@@ -1,5 +1,6 @@
 { pkgs, checkVaultPath, }:
-pkgs.writeShellScriptBin "get-vault-paths" ''
+let flake-src = ../../../../.;
+in pkgs.writeShellScriptBin "get-vault-paths" ''
     # Define colors
     RED="\033[31m"
     GREEN="\033[32m"
@@ -51,7 +52,7 @@ pkgs.writeShellScriptBin "get-vault-paths" ''
     # Fetch list of systems
     if [ -z "$SYSTEM" ]; then
       systems=$(nix repl 2>/dev/null <<EOF
-      :lf .
+      :lf ${flake-src}
       builtins.attrNames outputs.nixosConfigurations
   EOF
       )
@@ -66,7 +67,7 @@ pkgs.writeShellScriptBin "get-vault-paths" ''
       pathChecks=()
 
       result=$(nix repl 2>/dev/null <<EOF
-      :lf .
+      :lf ${flake-src}
       lib.findVaultPaths 3 outputs.nixosConfigurations.$system.config.campground
   EOF
       )
