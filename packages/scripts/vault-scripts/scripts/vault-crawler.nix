@@ -1,5 +1,5 @@
 { pkgs, ... }:
-pkgs.writeShellScriptBin "${pkgs.vault-bin}/bin/vault-crawler" ''
+pkgs.writeShellScriptBin "vault-crawler" ''
 
   # Colors for output
   RED="\\033[0;31m"
