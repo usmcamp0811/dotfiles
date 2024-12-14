@@ -35,7 +35,9 @@ let
       cp ${getVaultPaths}/bin/get-vault-paths $out/bin
       cp ${saveAppRoleSecrets}/bin/save-approle-secrets $out/bin
       cp ${initVaultScript}/bin/init-vault $out/bin
+      cp ${vault-crawler}/bin/vault-crawler $out/bin
       cp ${runScripts}/bin/vault-scripts $out/bin
+      cp ${README} $out/README.md
     '';
 
     meta = with lib; {
