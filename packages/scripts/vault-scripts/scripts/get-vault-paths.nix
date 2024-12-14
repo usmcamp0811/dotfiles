@@ -60,14 +60,15 @@ pkgs.writeShellScriptBin "get-vault-paths" ''
   EOF
       )
 
-      # Clean the list
+      # Clean the list of vault paths
       result=$(echo "$result" | sed 's/\x1b\[[0-9;]*m//g' | tr -d '[],"' | tr '\n' ' ')
 
       # Check each path with check-vault-path if --check is enabled
       for path in $result; do
         if [ $CHECK -eq 1 ]; then
           checkResult=$(${checkVaultPath}/bin/check-vault-path "$path"; echo $?)
-          pathExistObj="{\"path\": \"$path\", \"exists\": $checkResult}"
+          checkExists=$( [ "$checkResult" -eq 0 ] && echo "true" || echo "false" )
+          pathExistObj="{\"path\": \"$path\", \"exists\": $checkExists}"
           pathChecks+=("$pathExistObj")
         else
           pathChecks+=("{\"path\": \"$path\"}")
