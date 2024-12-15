@@ -54,11 +54,12 @@ in pkgs.writeShellScriptBin "system-vault-check" ''
       fi
 
       # Initialize error tracking
-      ERROR_FOUND=0
+      export ERROR_FOUND=0
       MISSING_ITEMS=()
+      export MISSING_FIELD_COUNT=0
 
       # Process JSON result
-      echo "$RESULT" | ${pkgs.jq}/bin/jq -c '.[]' | while read -r item; do
+      while read -r item; do
         VAULT_PATH=$(echo "$item" | ${pkgs.jq}/bin/jq -r '.path')
         FIELDS=$(echo "$item" | ${pkgs.jq}/bin/jq -r '.fields[]')
 
@@ -66,7 +67,7 @@ in pkgs.writeShellScriptBin "system-vault-check" ''
         vault kv get "$VAULT_PATH" &>/dev/null
         if [[ $? -ne 0 ]]; then
           echo -e "''${RED}✗ Vault path does not exist: $VAULT_PATH''${RESET}"
-          ERROR_FOUND=1
+          export ERROR_FOUND=1
           MISSING_ITEMS+=("{\"path\": \"$VAULT_PATH\", \"fields\": null}")
           continue
         else
@@ -74,13 +75,14 @@ in pkgs.writeShellScriptBin "system-vault-check" ''
             echo -e "''${GREEN}✓ Vault path exists: $VAULT_PATH''${RESET}"
           fi
         fi
-
+        
         # Check each field in the Vault path
-        echo "$FIELDS" | while read -r FIELD; do
+        while read -r FIELD; do
           vault kv get -field="$FIELD" "$VAULT_PATH" &>/dev/null
           if [[ $? -ne 0 ]]; then
-            export ERROR_FOUND=1
             if [[ $JSON_OUTPUT -eq 0 ]]; then
+              export ERROR_FOUND=1
+              MISSING_FIELD_COUNT=$((MISSING_FIELD_COUNT + 1))
               echo -e "''${RED}✗ Field does not exist: $FIELD in $VAULT_PATH''${RESET}"
             fi
             MISSING_ITEMS+=("{\"path\": \"$VAULT_PATH\", \"field\": \"$FIELD\"}")
@@ -89,9 +91,8 @@ in pkgs.writeShellScriptBin "system-vault-check" ''
               echo -e "''${GREEN}✓ Field exists: $FIELD''${RESET}"
             fi
           fi
-        done
-      done
-      echo "ERRORS => $ERROR_FOUND"
+        done <<< "$FIELDS"
+      done <<< "$(echo "$RESULT" | ${pkgs.jq}/bin/jq -c '.[]')"
       # Report missing items if any
       if [[ $ERROR_FOUND -eq 1 ]]; then
         if [[ $JSON_OUTPUT -eq 1 ]]; then
