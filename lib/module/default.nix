@@ -115,10 +115,7 @@ with lib; rec {
                 let fileConfig = service.secrets.file.files.${key};
                 in if builtins.hasAttr "text" fileConfig then
                   let template = fileConfig.text;
-                  in acc ++ [{
-                    path = service.settings.vault."vault-path" or null;
-                    fields = [ template ];
-                  }]
+                  in acc ++ [ (extractVaultPathAndFields template) ]
                 else
                   acc) [ ]
               (builtins.attrNames service.secrets.file.files)
@@ -135,10 +132,7 @@ with lib; rec {
                 let envConfig = service.secrets.environment.templates.${key};
                 in if builtins.hasAttr "text" envConfig then
                   let template = envConfig.text;
-                  in acc ++ [{
-                    path = service.settings.vault."vault-path" or null;
-                    fields = [ template ];
-                  }]
+                  in acc ++ [ (extractVaultPathAndFields template) ]
                 else
                   acc) [ ]
               (builtins.attrNames service.secrets.environment.templates)
