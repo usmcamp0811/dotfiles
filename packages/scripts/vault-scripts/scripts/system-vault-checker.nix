@@ -1,6 +1,6 @@
 { pkgs, lib, checkVaultPath, }:
 let flake-src = ../../../../.;
-in pkgs.writeShellScriptBin "system-vault-check" ''
+in pkgs.writeShellScriptBin "system-check" ''
       # Define colors for output
       RED="\033[31m"
       GREEN="\033[32m"

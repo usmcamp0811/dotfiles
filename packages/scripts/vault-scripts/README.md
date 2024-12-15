@@ -45,7 +45,7 @@ This package provides the following Vault-related scripts:
 
 6. **system-vault-check**  
    Checks the Vault KV paths and fields required by a specific system configuration in my NixOS dotfiles.  
-   **Usage:** `system-vault-check <system-name>`
+   **Usage:** `system-check <system-name>`
 
    - **Options:**
 
@@ -66,7 +66,7 @@ This package provides the following Vault-related scripts:
 
    - **Example:**
      ```bash
-     system-vault-check my-system
+     system-check my-system
      ```
 
 ---
