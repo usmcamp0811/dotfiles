@@ -10,7 +10,7 @@ let
   checkVaultPath = import ./scripts/check-vault-paths.nix { inherit pkgs; };
   initVaultScript = import ./scripts/init-vault.nix { inherit pkgs; };
   systemChecker =
-    import ./scripts/system-vault-checker.nix { inherit pkgs checkVaultPath; };
+    import ./scripts/system-vault-checker.nix { inherit pkgs checkVaultPath lib; };
   getVaultPaths =
     import ./scripts/get-vault-paths.nix { inherit pkgs checkVaultPath; };
   newAppRole = import ./scripts/create-approle.nix { inherit pkgs; };
