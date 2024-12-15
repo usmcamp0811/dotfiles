@@ -9,6 +9,8 @@ let
   # Import individual scripts
   checkVaultPath = import ./scripts/check-vault-paths.nix { inherit pkgs; };
   initVaultScript = import ./scripts/init-vault.nix { inherit pkgs; };
+  systemChecker =
+    import ./scripts/system-vault-checker.nix { inherit pkgs checkVaultPath; };
   getVaultPaths =
     import ./scripts/get-vault-paths.nix { inherit pkgs checkVaultPath; };
   newAppRole = import ./scripts/create-approle.nix { inherit pkgs; };
@@ -55,5 +57,6 @@ vaultScripts // {
   save-approle-secrets = saveAppRoleSecrets;
   init-vault = initVaultScript;
   vault-crawler = vault-crawler;
+  system-checker = systemChecker;
   vault = pkgs.vault-bin;
 }
