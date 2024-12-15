@@ -99,7 +99,7 @@ If you need to migrate or recreate Vault secrets in another environment:
 
 Before deploying a NixOS system configuration, run:
 
-1. `system-vault-check <system-name>` to validate that all required Vault paths and fields exist.
+1. `system-check <system-name>` to validate that all required Vault paths and fields exist.
 2. Proceed with the deployment if the check passes.
 
 ---
