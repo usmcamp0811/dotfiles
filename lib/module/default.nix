@@ -73,12 +73,7 @@ with lib; rec {
         else
           "";
 
-      # Debug function for tracing matches
-      debugMatch = regex: text:
-        let match = builtins.match regex text;
-        in if match == null then "No match found" else match;
-
-      # Recursive helper to extract all matches for fields
+      # Helper to extract all matches for fields
       extractAllMatches = regex: text:
         let
           loop = text: acc:
@@ -88,12 +83,11 @@ with lib; rec {
             else
               let
                 fieldName =
-                  builtins.elemAt match 0; # Extract the first capture group
-                remainingText = builtins.substring
-                  (builtins.stringLength (builtins.elemAt match 0))
-                  (builtins.stringLength text
-                    - builtins.stringLength (builtins.elemAt match 0))
-                  text;
+                  builtins.elemAt match 0
+                    remainingText = builtins.substring
+                (builtins.stringLength (builtins.elemAt match 0))
+                (builtins.stringLength text
+                - builtins.stringLength (builtins.elemAt match 0)) text;
               in
               loop remainingText (acc ++ [ fieldName ]);
         in
@@ -103,13 +97,6 @@ with lib; rec {
       fields = extractAllMatches fieldRegex template;
     in
     {
-      # Debug Vault path and fields
-      debug = {
-        vaultPath = debugMatch vaultPathRegex template;
-        fields = debugMatch fieldRegex template;
-      };
-
-      # Ensure path and fields are properly formatted
       path = { value = vaultPath; };
       fields = fields;
     };
