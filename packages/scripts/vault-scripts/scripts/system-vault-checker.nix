@@ -71,36 +71,25 @@ in pkgs.writeShellScriptBin "system-vault-check" ''
           MISSING_ITEMS+=("{\"path\": \"$VAULT_PATH\", \"fields\": null}")
           continue
         else
-          if [[ $JSON_OUTPUT -eq 0 ]]; then
-            echo -e "''${GREEN}✓ Vault path exists: $VAULT_PATH''${RESET}"
-          fi
+          echo -e "''${GREEN}✓ Vault path exists: $VAULT_PATH''${RESET}"
         fi
         
         # Check each field in the Vault path
         while read -r FIELD; do
           vault kv get -field="$FIELD" "$VAULT_PATH" &>/dev/null
           if [[ $? -ne 0 ]]; then
-            if [[ $JSON_OUTPUT -eq 0 ]]; then
-              export ERROR_FOUND=1
-              MISSING_FIELD_COUNT=$((MISSING_FIELD_COUNT + 1))
-              echo -e "''${RED}✗ Field does not exist: $FIELD in $VAULT_PATH''${RESET}"
-            fi
+            export ERROR_FOUND=1
+            MISSING_FIELD_COUNT=$((MISSING_FIELD_COUNT + 1))
+            echo -e "''${RED}✗ Field does not exist: $FIELD in $VAULT_PATH''${RESET}"
             MISSING_ITEMS+=("{\"path\": \"$VAULT_PATH\", \"field\": \"$FIELD\"}")
           else
-            if [[ $JSON_OUTPUT -eq 0 ]]; then
-              echo -e "''${GREEN}✓ Field exists: $FIELD''${RESET}"
-            fi
+            echo -e "''${GREEN}✓ Field exists: $FIELD''${RESET}"
           fi
         done <<< "$FIELDS"
       done <<< "$(echo "$RESULT" | ${pkgs.jq}/bin/jq -c '.[]')"
       # Report missing items if any
       if [[ $ERROR_FOUND -eq 1 ]]; then
-        if [[ $JSON_OUTPUT -eq 1 ]]; then
-          echo "''${MISSING_ITEMS[@]}" | ${pkgs.jq}/bin/jq
-        else
-          echo -e "''${RED}Some paths or fields are missing:''${RESET}"
-          printf '%s\n' "''${MISSING_ITEMS[@]}"
-        fi
+        echo -e "''${RED}Some paths or fields are missing:''${RESET}"
         exit 1
       else
         echo -e "''${GREEN}All Vault paths and fields exist.''${RESET}"
