@@ -43,6 +43,32 @@ This package provides the following Vault-related scripts:
      - Handles both KV v1 and KV v2 secret engines.
      - Provides helpful color-coded outputs for errors, commands, and general information.
 
+6. **system-vault-check**  
+   Checks the Vault KV paths and fields required by a specific system configuration in your NixOS dotfiles.  
+   **Usage:** `system-vault-check <system-name>`
+
+   - **Options:**
+
+     - `<system-name>`: The name of the system to check (required).
+     - `--help`: Display detailed usage instructions.
+
+   - **Features:**
+
+     - Validates the existence of all required Vault KV paths and their fields.
+     - Outputs errors for missing paths or fields with helpful color-coded messages.
+     - Returns `exit 0` if all paths and fields exist, or `exit 1` if any are missing.
+     - Reduces deployment timeouts and failures by pre-checking Vault configurations.
+
+   - **Requirements:**
+
+     - The `VAULT_ADDR` environment variable must be set.
+     - You must be logged into Vault before running the script.
+
+   - **Example:**
+     ```bash
+     system-vault-check my-system
+     ```
+
 ---
 
 ### Recommended Usage
@@ -69,11 +95,18 @@ If you need to migrate or recreate Vault secrets in another environment:
 1. Use `vault-crawler` to generate `vault kv put` commands for a specific Vault path.
 2. Run the generated commands in the new environment to recreate the secrets.
 
+#### Scenario 4: Validating Vault Configurations for System Deployments
+
+Before deploying a NixOS system configuration, run:
+
+1. `system-vault-check <system-name>` to validate that all required Vault paths and fields exist.
+2. Proceed with the deployment if the check passes.
+
 ---
 
 ### Remote Saving of AppRole Secrets
 
-The `save-approle-secrets` script now supports saving AppRole secrets to a remote machine. Use the `--remote` option to specify the target machine and path. For example:
+The `save-approle-secrets` script supports saving AppRole secrets to a remote machine. Use the `--remote` option to specify the target machine and path. For example:
 
 - **Command:** `save-approle-secrets my-approle --remote user@host:/path/to/secrets`
 - **Behavior:** Saves the `role-id` and `secret-id` files to the specified remote location.

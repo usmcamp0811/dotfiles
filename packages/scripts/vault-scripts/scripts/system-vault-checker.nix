@@ -14,7 +14,6 @@ in pkgs.writeShellScriptBin "system-vault-check" ''
         echo
         echo -e "''${YELLOW}Options:''${RESET}"
         echo -e "  -h, --help          Show this help message."
-        echo -e "  --json              Output results in JSON format."
       }
 
       # Parse arguments
@@ -24,7 +23,6 @@ in pkgs.writeShellScriptBin "system-vault-check" ''
       while [[ $# -gt 0 ]]; do
         case "$1" in
           -h|--help) show_help; exit 0 ;;
-          --json) JSON_OUTPUT=1; shift ;;
           *) SYSTEM="$1"; shift ;;
         esac
       done
