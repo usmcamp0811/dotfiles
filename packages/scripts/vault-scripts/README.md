@@ -44,7 +44,7 @@ This package provides the following Vault-related scripts:
      - Provides helpful color-coded outputs for errors, commands, and general information.
 
 6. **system-vault-check**  
-   Checks the Vault KV paths and fields required by a specific system configuration in your NixOS dotfiles.  
+   Checks the Vault KV paths and fields required by a specific system configuration in my NixOS dotfiles.  
    **Usage:** `system-vault-check <system-name>`
 
    - **Options:**
