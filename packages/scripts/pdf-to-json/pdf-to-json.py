@@ -4,12 +4,13 @@ from PyPDF2 import PdfReader
 import argparse
 
 
-def extract_pdf_fields(pdf_path):
+def extract_pdf_fields(pdf_path, include_nulls=False):
     """
     Extract form fields from a fillable PDF and return them as a dictionary.
 
     Args:
         pdf_path (str): Path to the PDF file.
+        include_nulls (bool): Whether to include fields with null or empty values.
 
     Returns:
         dict: A dictionary containing field names as keys and their values as values.
@@ -22,10 +23,15 @@ def extract_pdf_fields(pdf_path):
             if "/Annots" in page:
                 for annotation in page["/Annots"]:
                     annot = annotation.get_object()
-                    if "/T" in annot and "/V" in annot:
+                    if "/T" in annot:  # Field name exists
                         field_name = annot["/T"]  # Field name
-                        field_value = annot.get("/V", "")  # Field value
-                        fields[field_name] = field_value
+                        field_value = annot.get(
+                            "/V", ""
+                        )  # Default to empty string if no value
+
+                        # Include field only if not null or if include_nulls is True
+                        if field_value or include_nulls:
+                            fields[field_name] = field_value
 
     return fields
 
@@ -34,13 +40,20 @@ def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Extract form fields from a PDF.")
     parser.add_argument("pdf_path", help="Path to the PDF file")
+    parser.add_argument(
+        "--include-nulls",
+        action="store_true",
+        help="Include fields with null or empty values in the output",
+    )
 
     # Parse arguments
     args = parser.parse_args()
 
     # Extract form fields
     try:
-        form_fields = extract_pdf_fields(args.pdf_path)
+        form_fields = extract_pdf_fields(
+            args.pdf_path, include_nulls=args.include_nulls
+        )
         # Print form fields as valid JSON
         print(json.dumps(form_fields, indent=4))
     except Exception as e:

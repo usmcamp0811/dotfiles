@@ -3,7 +3,7 @@ with lib;
 with lib.campground;
 let
 
-  python-env = pkgs.python3.withPackages (ps: [ ps.pypdf2 ]);
+  python-env = pkgs.python3.withPackages (ps: [ ps.pypdf2 ps.configargparse ]);
   pdf-to-json = ./pdf-to-json.py;
 
 in

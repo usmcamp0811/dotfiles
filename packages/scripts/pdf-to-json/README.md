@@ -15,16 +15,18 @@ Working with fillable PDFs can be challenging, especially when you need to extra
 - **Form field extraction**: Extracts field names and their values from fillable PDFs.
 - **JSON output**: Converts the extracted data into a valid and easy-to-use JSON format.
 - **Command-line arguments**: Specify the PDF file path for seamless integration into scripts and automation.
+- **Optional inclusion of null fields**: Choose whether to include fields with null or empty values using a command-line flag.
 
 ## Usage
 
 ### Command-line Arguments
 
 ```bash
-nix run gitlab:usmcamp0811/dotfiles#pdf-to-json <pdf_path>
+nix run gitlab:usmcamp0811/dotfiles#pdf-to-json <pdf_path> [--include-nulls]
 ```
 
 - `<pdf_path>`: Path to the fillable PDF file.
+- `--include-nulls`: Optional flag to include fields with null or empty values in the output.
 
 ### Examples
 
@@ -37,6 +39,23 @@ nix run gitlab:usmcamp0811/dotfiles#pdf-to-json -- my_form.pdf
 ```
 
 The output will display the form fields in JSON format:
+
+```json
+{
+  "Field1": "Value1",
+  "Field2": "Value2"
+}
+```
+
+#### Include Null Fields in Output
+
+Extract form fields, including those with null or empty values:
+
+```bash
+nix run gitlab:usmcamp0811/dotfiles#pdf-to-json -- my_form.pdf --include-nulls
+```
+
+The output will display null or empty fields:
 
 ```json
 {
