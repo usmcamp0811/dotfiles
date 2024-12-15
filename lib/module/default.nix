@@ -58,6 +58,46 @@ with lib; rec {
     #@ false
     enable = false;
   };
+
+  #
+  # Extracts the Vault path and field names from a Vault-client template.
+  #
+  # This function processes a Vault-client template and extracts:
+  # 1. The Vault path specified in the `with secret` block.
+  # 2. All field names referenced as `.Data.data.<field>` within the template.
+  #
+  # @param template (string): The Vault-client template containing `with secret`
+  #        and field references.
+  #
+  # @returns { path: string, fields: list of strings }:
+  #          - `path`: The Vault path specified in the template (e.g., `"secret/campground/example"`).
+  #          - `fields`: A list of all field names extracted from `.Data.data.<field>` patterns
+  #            in the template.
+  #
+  # Example:
+  # ```
+  # let
+  #   template = ''
+  #     {{ with secret "secret/campground/example" }}
+  #     {{ .Data.data.field1 }}
+  #     {{ .Data.data.field2 }}
+  #     {{ end }}
+  #   '';
+  #   result = extractVaultPathAndFields template;
+  # in
+  #   result;
+  # ```
+  # Result:
+  # ```
+  # {
+  #   path = "secret/campground/example";
+  #   fields = [ "field1" "field2" ];
+  # }
+  # ```
+  #
+  # Notes:
+  # - If no `with secret` block is found, `path` will be an empty string.
+  # - If no fields are found, `fields` will be an empty list.
   extractVaultPathAndFields = template:
     let
       extractVaultPath = text:
@@ -97,66 +137,104 @@ with lib; rec {
       fields = fieldResults;
     };
 
-  findVaultPathsAndFields = depth: systemConfig:
+  # Finds all instances of `vault-agent` in the given system configuration and retrieves
+  # the Vault paths and fields used in their configurations.
+  #
+  # This function processes a system configuration to locate all `vault-agent` services
+  # and extracts:
+  # 1. Vault paths specified in file templates and environment variable templates.
+  # 2. All field names referenced in the Vault-client templates.
+  #
+  # @param systemConfig (attribute set): The NixOS system configuration containing
+  #        definitions for `vault-agent` services.
+  #
+  # @returns list of attribute sets:
+  #          Each item contains:
+  #          - `path`: The Vault path specified in the template.
+  #          - `fields`: A list of all field names extracted from `.Data.data.<field>` patterns
+  #            in the template.
+  #
+  # Example:
+  # ```
+  # let
+  #   result = lib.findVaultPathsAndFields outputs.nixosConfigurations.butler.config.campground;
+  # in
+  #   result;
+  # ```
+  #
+  # Result:
+  # ```
+  # [
+  #   { path = "secret/campground/example"; fields = [ "field1" "field2" ]; }
+  #   { path = "secret/another/example"; fields = [ "fieldA" "fieldB" ]; }
+  # ]
+  # ```
+  #
+  # Notes:
+  # - The function checks both file templates (`service.secrets.file`) and environment
+  #   variable templates (`service.secrets.environment`).
+  # - If `vault-agent` is not enabled or no templates are found, the function returns an empty list.
+  findVaultPathsAndFields = systemConfig:
+    let
+      # Constant depth value for recursion
+      depth = 3;
+
+      # The `vault-agent` configuration path
+      vaultAgentConfig = systemConfig.services."vault-agent";
+
+      # Collect paths and templates for files
+      processFileTemplates = service:
+        if builtins.hasAttr "secrets" service
+          && builtins.hasAttr "file" service.secrets
+          && builtins.hasAttr "files" service.secrets.file then
+          builtins.foldl'
+            (acc: key:
+              let fileConfig = service.secrets.file.files.${key};
+              in if builtins.hasAttr "text" fileConfig then
+                let template = fileConfig.text;
+                in acc ++ [ (extractVaultPathAndFields template) ]
+              else
+                acc) [ ]
+            (builtins.attrNames service.secrets.file.files)
+        else
+          [ ];
+
+      # Collect paths and templates for environment variables
+      processEnvironmentTemplates = service:
+        if builtins.hasAttr "secrets" service
+          && builtins.hasAttr "environment" service.secrets
+          && builtins.hasAttr "templates" service.secrets.environment then
+          builtins.foldl'
+            (acc: key:
+              let envConfig = service.secrets.environment.templates.${key};
+              in if builtins.hasAttr "text" envConfig then
+                let template = envConfig.text;
+                in acc ++ [ (extractVaultPathAndFields template) ]
+              else
+                acc) [ ]
+            (builtins.attrNames service.secrets.environment.templates)
+        else
+          [ ];
+
+      # Process a single service for both files and environment templates
+      processService = service:
+        processFileTemplates service ++ processEnvironmentTemplates service;
+
+      # Process all `vault-agent` services
+      processVaultAgentServices = services:
+        builtins.foldl'
+          (acc: serviceName:
+            let service = services.${serviceName};
+            in acc ++ processService service) [ ]
+          (builtins.attrNames services);
+    in
     if depth <= 0 then
       [ ]
+    else if builtins.hasAttr "enable" vaultAgentConfig
+      && vaultAgentConfig.enable or false then
+      processVaultAgentServices vaultAgentConfig.services
     else
-      let
-        # The `vault-agent` configuration path
-        vaultAgentConfig = systemConfig.services."vault-agent";
-
-        # Collect paths and templates for files
-        processFileTemplates = service:
-          if builtins.hasAttr "secrets" service
-            && builtins.hasAttr "file" service.secrets
-            && builtins.hasAttr "files" service.secrets.file then
-            builtins.foldl'
-              (acc: key:
-                let fileConfig = service.secrets.file.files.${key};
-                in if builtins.hasAttr "text" fileConfig then
-                  let template = fileConfig.text;
-                  in acc ++ [ (extractVaultPathAndFields template) ]
-                else
-                  acc) [ ]
-              (builtins.attrNames service.secrets.file.files)
-          else
-            [ ];
-
-        # Collect paths and templates for environment variables
-        processEnvironmentTemplates = service:
-          if builtins.hasAttr "secrets" service
-            && builtins.hasAttr "environment" service.secrets
-            && builtins.hasAttr "templates" service.secrets.environment then
-            builtins.foldl'
-              (acc: key:
-                let envConfig = service.secrets.environment.templates.${key};
-                in if builtins.hasAttr "text" envConfig then
-                  let template = envConfig.text;
-                  in acc ++ [ (extractVaultPathAndFields template) ]
-                else
-                  acc) [ ]
-              (builtins.attrNames service.secrets.environment.templates)
-          else
-            [ ];
-
-        # Process a single service for both files and environment templates
-        processService = service:
-          processFileTemplates service ++ processEnvironmentTemplates service;
-
-        # Process all `vault-agent` services
-        processVaultAgentServices = services:
-          builtins.foldl'
-            (acc: serviceName:
-              let service = services.${serviceName};
-              in acc ++ processService service) [ ]
-            (builtins.attrNames services);
-
-      in
-      if builtins.hasAttr "enable" vaultAgentConfig
-        && vaultAgentConfig.enable or false then
-        processVaultAgentServices vaultAgentConfig.services
-      else
-        [ ];
+      [ ];
 
   findVaultPaths = depth: cfg:
     if depth <= 0 then
