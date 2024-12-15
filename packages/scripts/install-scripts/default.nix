@@ -7,7 +7,19 @@ let
 
   # Import individual scripts
   partitionScript = import ./scripts/partition.nix { inherit pkgs; };
+  btrfsScript = import ./scripts/format-btrfs.nix { inherit pkgs; };
+  zfsScript = import ./scripts/format-zfs.nix { inherit pkgs; };
   README = ./README.md;
+
+  zfs-setup = writeShellScriptBin "zfs-setup" ''
+    ${partitionScript}/bin/partition
+    ${zfsScript}/bin/format-zfs
+  '';
+
+  btrfs-setup = writeShellScriptBin "btrfs-setup" ''
+    ${partitionScript}/bin/partition
+    ${btrfsScript}/bin/format-btrfs
+  '';
 
   # Create a helper script for running commands
   runScripts = writeShellScriptBin "install-scripts" ''
@@ -36,4 +48,10 @@ let
     };
   };
 in
-installScripts // { partition = partitionScript; }
+installScripts // {
+  partition = partitionScript;
+  format-zfs = zfsScript;
+  format-btrfs = btrfsScript;
+  setup-zfs = zfs-setup;
+  setup-btrfs = btrfs-setup;
+}
