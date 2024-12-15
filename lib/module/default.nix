@@ -58,47 +58,52 @@ with lib; rec {
     #@ false
     enable = false;
   };
+  extractVaultPath = text:
+    let
+      vaultPathRegex =
+        ''.*with secret "([^"]+)".*''; # Regular expression for Vault path
+      match = builtins.match vaultPathRegex text;
+    in
+    if match != null && builtins.length match > 0 then
+      builtins.elemAt match 0
+    else
+      "";
+
+  extractAllFields = text:
+    let
+      # Simplified regex for testing purposes
+      fieldRegex = ".*[{]{2}[ ]*\\.Data\\.data\\.([^ }]+)[ ]*[}]{2}.*";
+      loop = text: acc:
+        let
+          match = builtins.match fieldRegex text;
+          debugMatch = builtins.trace "Match result: ${match}" match;
+        in
+        if match == null || builtins.length match == 0 then
+          acc # Stop when no matches are found
+        else
+          let
+            fullMatch = builtins.elemAt debugMatch 0;
+            fieldName =
+              if builtins.length match > 1 then builtins.elemAt match 1 else "";
+            remainingText = builtins.substring (builtins.stringLength fullMatch)
+              (builtins.stringLength text - builtins.stringLength fullMatch)
+              text;
+            debugRemaining =
+              builtins.trace "Remaining text: ${remainingText}" remainingText;
+          in
+          loop debugRemaining (acc ++ [ fieldName ]);
+    in
+    loop text [ ];
 
   extractVaultPathAndFields = template:
     let
-      # Regular expressions
-      vaultPathRegex = ''.*with secret "([^"]+)".*'';
-      fieldRegex = ".*[{]{2}[ ]*\\.Data\\.data\\.([^ }]+)[ ]*[}]{2}.*";
-
-      # Extract the Vault path (first match)
-      extractVaultPath = builtins.match vaultPathRegex template;
-      vaultPath =
-        if extractVaultPath != null && builtins.length extractVaultPath > 0 then
-          builtins.elemAt extractVaultPath 0
-        else
-          "";
-
-      # Helper to extract all matches for fields
-      extractAllMatches = regex: text:
-        let
-          loop = text: acc:
-            let match = builtins.match regex text;
-            in if match == null || builtins.length match == 0 then
-              acc
-            else
-              let
-                fieldName =
-                  builtins.elemAt match 0
-                    remainingText = builtins.substring
-                (builtins.stringLength (builtins.elemAt match 0))
-                (builtins.stringLength text
-                - builtins.stringLength (builtins.elemAt match 0)) text;
-              in
-              loop remainingText (acc ++ [ fieldName ]);
-        in
-        loop text [ ];
-
-      # Extract all fields into a list of strings
-      fields = extractAllMatches fieldRegex template;
+      vaultPath = extractVaultPath template; # Call Vault path extraction
+      fieldResults = extractAllFields template; # Call field extraction
     in
     {
       path = { value = vaultPath; };
-      fields = fields;
+      fields = fieldResults.fields; # List of extracted fields
+      debug = fieldResults.debug; # Debug info for removed matches
     };
 
   findVaultPathsAndFields = depth: systemConfig:
