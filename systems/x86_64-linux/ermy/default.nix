@@ -20,7 +20,7 @@ in
       boot = enabled;
       zfs = {
         enable = true;
-        hostId = "13ec383b"; # run -> head -c 8 /dev/machine-id
+        hostId = "eb2d6e11"; # run -> head -c 8 /dev/machine-id
         keyfile-url =
           "http://10.8.0.1:1234/zfs-keyfile"; # optional for autounlocking
       };
@@ -28,7 +28,7 @@ in
     };
 
     user = {
-      name = "abe";
+      name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
       extraGroups = [ "wheel" ];
