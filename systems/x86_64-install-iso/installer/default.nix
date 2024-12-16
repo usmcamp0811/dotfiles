@@ -8,12 +8,15 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
   boot.kernelModules = [ "igb" ];
 
+  environment.systemPackages = with pkgs; [ pkgs.campground.install-scripts ];
+  networking.wireless.enable = false;
   campground = {
     nix = enabled;
     archetypes = { barebones = enabled; };
@@ -23,6 +26,7 @@ in {
       misc = enabled;
     };
     services = { openssh = enabled; };
+
     system = {
       fonts = enabled;
       locale = enabled;
