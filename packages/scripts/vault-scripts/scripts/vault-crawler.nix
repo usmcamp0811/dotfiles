@@ -68,7 +68,7 @@ pkgs.writeShellScriptBin "vault-crawler" ''
                   for data_key in $data_keys; do
                       unique_env_var_name=$(echo "''${full_path}_''${data_key}" | tr '[:lower:]' '[:upper:]' | tr '/' '_')
                       ENV_VARS+="export $unique_env_var_name='placeholder text'\n"
-                      kv_command+=" $data_key=\''${$unique_env_var_name}"
+                      kv_command+=" $data_key=\"\''${$unique_env_var_name}\""
                   done
                   KV_COMMANDS+="$kv_command\n"
               else
