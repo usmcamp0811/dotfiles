@@ -14,19 +14,24 @@ in
   imports = [ ./hardware.nix ];
 
   campground = {
-    archetypes.barebones = enabled;
-
-    system = {
-      boot = enabled;
-      zfs = {
+    archetypes = {
+      laptop = enabled;
+      server = {
         enable = true;
-        hostId = "eb2d6e11"; # run -> head -c 8 /dev/machine-id
+        hostId = "eb2d6e11";
         keyfile-url =
           "http://10.8.0.1:1234/zfs-keyfile"; # optional for autounlocking
       };
-      passwds = enabled;
     };
-
+    nfs.client = { enable = true; };
+    suites = {
+      common = enabled;
+      desktop.enable = mkForce false;
+      lan-hosting = {
+        enable = true;
+        interface = "enp7s0";
+      };
+    };
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
@@ -35,14 +40,70 @@ in
     };
 
     services = {
-      openssh = {
+      ldap-client = { enable = mkForce false; };
+      # borgbackup = {
+      #   enable = true;
+      #   jobs = {
+      #     "daly_campground" = {
+      #       paths = [ "/persist" ];
+      #       repo = "mcamp@reckless:/mnt/backups/daly";
+      #       startAt = "daily";
+      #     };
+      #     "daly_rsync" = {
+      #       paths = [ "/persist" ];
+      #       repo = "de3288@de3288.rsync.net:/data2/home/de3288/backups/daly";
+      #       startAt = "daily";
+      #     };
+      #   };
+      # };
+      searx = {
         enable = true;
-        authorizedKeys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGw+o+9F4kz+dYyI2I4WudgKjyFOK+L0QW4LhxkG4sMt gitlab-runner@aicampground.com"
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKdMWMFyi7Lvjm78KOX3tKZ5bkEZ7bHA56ZKKtTb9wIo mcamp@aicampground.com"
-        ];
+        port = 8181;
       };
-      ntp = enabled;
+      campground-blog = enabled;
+
+      zfs-key-server = {
+        enable = true;
+        interface = "enp7s0";
+        tang-servers = [
+          "http://webb:1234"
+          "http://chesty:1234"
+          "http://lucas:1234"
+          "http://reckless:1234"
+        ];
+        port = 8123;
+      };
+      user-secrets = {
+        enable = true;
+        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
+      };
+      # vault = {
+      #   enable = true;
+      #   ui = true;
+      #   storage = {
+      #     backend = "file";
+      #     path = "/persist/vault";
+      #   };
+      #
+      #   policies = builtins.foldl' (policies: file:
+      #     policies // {
+      #       "${snowfall.path.get-file-name-without-extension file}" = file;
+      #     }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
+      #       (builtins.map (path:
+      #         ./vault/policies + "/${
+      #           builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+      #         }") (snowfall.fs.get-files ./vault/policies)));
+      # };
+      vault-agent = {
+        enable = true;
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            role-id = "/var/lib/vault/ermy/role-id";
+            secret-id = "/var/lib/vault/ermy/secret-id";
+          };
+        };
+      };
     };
   };
 

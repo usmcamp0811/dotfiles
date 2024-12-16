@@ -14,28 +14,13 @@ with lib.campground; {
       home-manager = enabled;
       ranger = enabled;
     };
-    services = {
-      # picom = enabled;
-      # openssh = enabled;
-      # syncthing = enabled;
-    };
+    services = { openssh = enabled; };
 
-    # apps = {
-    #   firefox = enabled;
-    #   brave = enabled;
-    #   libreoffice = enabled;
-    #   alacritty = enabled;
-    #   kitty = enabled;
-    #   rofi = enabled;
-    #   mpv = enabled;
-    #   #TODO: Add Qutebrowser
-    # };
     tools = {
       git = enabled;
-      # direnv = enabled;
-      # julia = enabled;
-      # python = enabled;
-      # vault = enabled;
+      direnv = enabled;
+      python = enabled;
+      vault = enabled;
     };
   };
 

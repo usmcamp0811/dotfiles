@@ -13,6 +13,8 @@ in {
         K8s role.
       '';
     };
+    keyfile-url =
+      mkOpt str "http://10.8.0.55:8123/zfs-keyfile" "URL to get zfs keyfile";
     hostId = mkOpt str "" "ZFS Host ID";
     isLeader = mkBoolOpt false "Whether or not k0s leader";
   };
@@ -27,7 +29,7 @@ in {
         zfs = {
           enable = true;
           hostId = cfg.hostId;
-          keyfile-url = "http://10.8.0.55:8123/zfs-keyfile";
+          keyfile-url = cfg.keyfile-url;
         };
         passwds = enabled;
       };
