@@ -10,7 +10,7 @@ in pkgs.writeShellScriptBin "system-check" ''
       # Function to display help
       show_help() {
         echo -e "''${YELLOW}Usage:''${RESET}"
-        echo -e "  system-vault-check <system-name> [--json]"
+        echo -e "  system-check <system-name> [--json]"
         echo
         echo -e "''${YELLOW}Options:''${RESET}"
         echo -e "  -h, --help          Show this help message."
