@@ -150,10 +150,10 @@ with lib.campground; {
         #     }
         #   '';
         # };
-        settings = ''
-          cluster_addr = "http://daly:8201" 
-          api_addr = "http://daly:8200"
-        '';
+        # settings = ''
+        #   cluster_addr = "http://daly:8201" 
+        #   api_addr = "http://daly:8200"
+        # '';
 
         policies = builtins.foldl'
           (policies: file:
