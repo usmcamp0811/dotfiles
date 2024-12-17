@@ -85,13 +85,13 @@ in
           config = ''
             node_id = "vault-node-ermy"
             retry_join {
-              leader_api_addr = "https://chesty:8200"
+              leader_api_addr = "http://chesty:8200"
             }
             retry_join {
-              leader_api_addr = "https://mattis:8200"
+              leader_api_addr = "http://mattis:8200"
             }
             retry_join {
-              leader_api_addr = "https://lucas:8200"
+              leader_api_addr = "http://lucas:8200"
             }
           '';
         };
