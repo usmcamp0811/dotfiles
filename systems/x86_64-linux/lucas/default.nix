@@ -59,7 +59,7 @@ with lib.campground; {
           backend = "raft";
           path = "/persist/vault-raft";
           config = ''
-            node_id = "vault-node-lucas"
+            node_id = "lucas"
             retry_join {
               leader_api_addr = "https://chesty:8200"
             }
@@ -93,7 +93,7 @@ with lib.campground; {
       };
       n8n = { enable = true; };
       chromadb = { enable = true; };
-      onlyoffice = { enable = true; };
+      # onlyoffice = { enable = true; };
       ollama = { enable = true; };
       hadoop = {
         enable = true;
@@ -180,7 +180,7 @@ with lib.campground; {
         enable = true;
         settings = {
           vault = {
-            address = "https://vault.lan.aicampground.com";
+            address = "http://lucas:8200";
             role-id = "/var/lib/vault/lucas/role-id";
             secret-id = "/var/lib/vault/lucas/secret-id";
           };

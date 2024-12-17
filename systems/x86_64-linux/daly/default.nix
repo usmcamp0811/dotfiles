@@ -128,24 +128,24 @@ with lib.campground; {
       vault = {
         enable = true;
         ui = true;
-        storage = {
-          backend = "raft";
-          config = ''
-            node_id = "vault-node-daly"
-            retry_join {
-              leader_api_addr = "http://chesty:8200"
-            }
-            retry_join {
-              leader_api_addr = "http://mattis:8200"
-            }
-            retry_join {
-              leader_api_addr = "http://lucas:8200"
-            }
-            retry_join {
-              leader_api_addr = "http://ermy:8200"
-            }
-          '';
-        };
+        # storage = {
+        #   backend = "raft";
+        #   config = ''
+        #     node_id = "vault-node-daly"
+        #     retry_join {
+        #       leader_api_addr = "http://chesty:8200"
+        #     }
+        #     retry_join {
+        #       leader_api_addr = "http://mattis:8200"
+        #     }
+        #     retry_join {
+        #       leader_api_addr = "http://lucas:8200"
+        #     }
+        #     retry_join {
+        #       leader_api_addr = "http://ermy:8200"
+        #     }
+        #   '';
+        # };
         settings = ''
           cluster_addr = "http://daly:8201" 
           api_addr = "http://daly:8200"
