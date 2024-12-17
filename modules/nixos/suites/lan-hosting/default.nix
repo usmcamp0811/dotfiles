@@ -340,6 +340,11 @@ in
                 { url = "http://lucas:8200"; }
                 { url = "http://mattis:8200"; }
               ];
+              loadBalancer.healthCheck = {
+                path = "/v1/sys/health";
+                interval = "10s";
+                timeout = "5s";
+              };
             };
 
             http.routers.nixery = {
