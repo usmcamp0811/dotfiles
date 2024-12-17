@@ -128,6 +128,10 @@ with lib.campground; {
       vault = {
         enable = true;
         ui = true;
+        storage = {
+          backend = "file";
+          path = "/persist/vault";
+        };
         # storage = {
         #   backend = "raft";
         #   config = ''
