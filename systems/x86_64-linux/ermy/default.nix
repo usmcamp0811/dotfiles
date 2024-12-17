@@ -97,7 +97,7 @@ in
         };
         settings = ''
           cluster_addr = "http://ermy:8201" 
-          api_addr = "https://vault.lan.aicampground.com"
+          api_addr = "http://ermy:8200"
         '';
 
         policies = builtins.foldl'

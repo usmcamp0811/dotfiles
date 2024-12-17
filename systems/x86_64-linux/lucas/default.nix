@@ -74,7 +74,7 @@ with lib.campground; {
         };
         settings = ''
           cluster_addr = "http://lucas:8201" 
-          api_addr = "https://vault.lan.aicampground.com"
+          api_addr = "http://lucas:8200"
         '';
 
         policies = builtins.foldl'
