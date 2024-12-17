@@ -118,7 +118,8 @@ in
         enable = true;
         settings = {
           vault = {
-            address = "https://vault.lan.aicampground.com";
+            # address = "https://vault.lan.aicampground.com";
+            address = "http://lucas:8200";
             role-id = "/var/lib/vault/ermy/role-id";
             secret-id = "/var/lib/vault/ermy/secret-id";
           };

@@ -133,7 +133,7 @@ with lib.campground;
           '';
         };
         settings = ''
-          cluster_addr = "http://ermy:8201" 
+          cluster_addr = "http://chesty:8201" 
           api_addr = "https://vault.lan.aicampground.com"
         '';
 
@@ -175,7 +175,8 @@ with lib.campground;
         enable = true;
         settings = {
           vault = {
-            address = "https://vault.lan.aicampground.com";
+            # address = "https://vault.lan.aicampground.com";
+            address = "http://lucas:8200";
             role-id = "/var/lib/vault/chesty/role-id";
             secret-id = "/var/lib/vault/chesty/secret-id";
           };
