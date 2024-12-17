@@ -129,18 +129,41 @@ with lib.campground; {
         enable = true;
         ui = true;
         storage = {
-          backend = "file";
-          path = "/persist/vault";
+          backend = "raft";
+          config = ''
+            node_id = "vault-node-daly"
+            retry_join {
+              leader_api_addr = "https://chesty:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://mattis:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://lucas:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://ermy:8200"
+            }
+          '';
         };
+        settings = ''
+          cluster_addr = "http://daly:8201" 
+          api_addr = "http://daly:8200"
+        '';
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ./vault/policies + "/${
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ./vault/policies)));
+              }")
+              (snowfall.fs.get-files ./vault/policies)));
       };
       vault-agent = {
         enable = true;
