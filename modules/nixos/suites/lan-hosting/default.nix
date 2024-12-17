@@ -333,7 +333,13 @@ in
             };
 
             http.services.vault = {
-              loadBalancer.servers = [{ url = "http://daly:8200"; }];
+              loadBalancer.servers = [
+                { url = "http://daly:8200"; }
+                { url = "http://ermy:8200"; }
+                { url = "http://chesty:8200"; }
+                { url = "http://lucas:8200"; }
+                { url = "http://mattis:8200"; }
+              ];
             };
 
             http.routers.nixery = {

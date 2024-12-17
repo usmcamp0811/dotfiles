@@ -57,7 +57,7 @@ in
     ui = mkBoolOpt true "Whether the UI should be enabled.";
     storage = {
       backend = mkOpt types.str "file" "The storage backend for Vault.";
-      path = mkOpt types.str "/persist/vault" "Path";
+      path = mkOpt types.str "/var/lib/vault/data" "Path";
       config = mkOpt types.str null "Config";
     };
 

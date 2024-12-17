@@ -85,6 +85,44 @@ in
         enable = true;
         users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
       };
+
+      vault = {
+        enable = true;
+        ui = true;
+        storage = {
+          backend = "raft";
+          config = ''
+            node_id = "vault-node-mattis"
+            retry_join {
+              leader_api_addr = "https://chesty:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://ermy:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://lucas:8200"
+            }
+          '';
+        };
+        settings = ''
+          cluster_addr = "http://mattis:8201" 
+          api_addr = "https://vault.lan.aicampground.com"
+        '';
+
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies + "/${
+                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+              }")
+              (snowfall.fs.get-files ../daly/vault/policies)));
+      };
       vault-agent = {
         enable = true;
         settings = {
