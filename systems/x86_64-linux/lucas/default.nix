@@ -52,40 +52,45 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
-      # vault = {
-      #   enable = true;
-      #   ui = true;
-      #   storage = {
-      #     backend = "raft";
-      #     path = "/persist/vault-raft";
-      #     config = ''
-      #       node_id = "lucas"
-      #       retry_join {
-      #         leader_api_addr = "https://chesty:8200"
-      #       }
-      #       retry_join {
-      #         leader_api_addr = "https://ermy:8200"
-      #       }
-      #       retry_join {
-      #         leader_api_addr = "https://mattis:8200"
-      #       }
-      #     '';
-      #
-      #   };
-      #   settings = ''
-      #     cluster_addr = "http://lucas:8201" 
-      #     api_addr = "http://lucas:8200"
-      #   '';
-      #
-      #   policies = builtins.foldl' (policies: file:
-      #     policies // {
-      #       "${snowfall.path.get-file-name-without-extension file}" = file;
-      #     }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-      #       (builtins.map (path:
-      #         ../daly/vault/policies + "/${
-      #           builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-      #         }") (snowfall.fs.get-files ../daly/vault/policies)));
-      # };
+      vault = {
+        enable = true;
+        ui = true;
+        storage = {
+          backend = "raft";
+          path = "/persist/vault-raft";
+          config = ''
+            node_id = "vault-node-lucas"
+            retry_join {
+              leader_api_addr = "https://chesty:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://ermy:8200"
+            }
+            retry_join {
+              leader_api_addr = "https://mattis:8200"
+            }
+          '';
+
+        };
+        settings = ''
+          cluster_addr = "http://lucas:8201" 
+          api_addr = "http://lucas:8200"
+        '';
+
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies + "/${
+                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+              }")
+              (snowfall.fs.get-files ../daly/vault/policies)));
+      };
       n8n = { enable = true; };
       chromadb = { enable = true; };
       # onlyoffice = { enable = true; };
