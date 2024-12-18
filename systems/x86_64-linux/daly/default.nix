@@ -128,32 +128,29 @@ with lib.campground; {
       vault = {
         enable = true;
         ui = true;
-        storage = {
-          backend = "file";
-          path = "/persist/vault";
-        };
         # storage = {
-        #   backend = "raft";
-        #   config = ''
-        #     node_id = "vault-node-daly"
-        #     retry_join {
-        #       leader_api_addr = "http://chesty:8200"
-        #     }
-        #     retry_join {
-        #       leader_api_addr = "http://mattis:8200"
-        #     }
-        #     retry_join {
-        #       leader_api_addr = "http://lucas:8200"
-        #     }
-        #     retry_join {
-        #       leader_api_addr = "http://ermy:8200"
-        #     }
-        #   '';
+        #   backend = "file";
+        #   path = "/persist/vault";
         # };
-        # settings = ''
-        #   cluster_addr = "http://daly:8201" 
-        #   api_addr = "http://daly:8200"
-        # '';
+        storage = {
+          backend = "raft";
+          config = ''
+            node_id = "vault-node-daly"
+            retry_join {
+              leader_api_addr = "http://chesty:8200"
+            }
+            retry_join {
+              leader_api_addr = "http://lucas:8200"
+            }
+            retry_join {
+              leader_api_addr = "http://ermy:8200"
+            }
+          '';
+        };
+        settings = ''
+          cluster_addr = "http://daly:8201" 
+          api_addr = "http://daly:8200"
+        '';
 
         policies = builtins.foldl'
           (policies: file:
@@ -173,8 +170,8 @@ with lib.campground; {
         enable = true;
         settings = {
           vault = {
-            # address = "https://vault.lan.aicampground.com";
-            address = "http://lucas:8200";
+            address = "https://vault.lan.aicampground.com";
+            # address = "http://lucas:8200";
             role-id = "/var/lib/vault/daly/role-id";
             secret-id = "/var/lib/vault/daly/secret-id";
           };
