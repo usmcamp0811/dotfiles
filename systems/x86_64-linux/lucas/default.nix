@@ -180,7 +180,7 @@ with lib.campground; {
         enable = true;
         settings = {
           vault = {
-            address = "http://lucas:8200";
+            # address = "http://lucas:8200";
             address = "https://vault.lan.aicampground.com";
             role-id = "/var/lib/vault/lucas/role-id";
             secret-id = "/var/lib/vault/lucas/secret-id";
