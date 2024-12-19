@@ -49,6 +49,46 @@ let
       else
         format-policy name (pkgs.writeText "${name}.hcl" value))
     cfg.policies;
+
+  unseal-script = pkgs.writeShellScriptBin "clevis-unseal-vault" ''
+    # Path to the encrypted file containing the unseal key
+    encrypted_file="/path/to/encrypted/unseal-key.jwe"
+
+    # Vault address (e.g., local or cluster address)
+    vault_addr="http://127.0.0.1:8200"
+
+    # Check if Vault is sealed
+    is_sealed() {
+        vault status -address="$vault_addr" 2>/dev/null | grep -q "Sealed.*true"
+        return $?
+    }
+
+    # Unseal Vault using the key from the encrypted file
+    unseal_vault() {
+        echo "Attempting to unseal Vault..."
+        unseal_key=$(clevis decrypt < "$encrypted_file")
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to decrypt the unseal key."
+            exit 1
+        fi
+
+        vault operator unseal -address="$vault_addr" "$unseal_key"
+        if [ $? -eq 0 ]; then
+            echo "Vault successfully unsealed."
+        else
+            echo "Error: Failed to unseal Vault."
+            exit 1
+        fi
+    }
+
+    # Main logic
+    if is_sealed; then
+        echo "Vault is sealed. Proceeding to unseal."
+        unseal_vault
+    else
+        echo "Vault is already unsealed. No action required."
+    fi
+  '';
 in
 {
   options.campground.services.vault = {
