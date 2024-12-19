@@ -68,10 +68,9 @@ with lib.campground; {
               leader_api_addr = "https://ermy:8200"
             }
             retry_join {
-              leader_api_addr = "https://mattis:8200"
+              leader_api_addr = "https://daly:8200"
             }
           '';
-
         };
         settings = ''
           cluster_addr = "http://lucas:8201" 

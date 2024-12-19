@@ -180,6 +180,7 @@ in
           "Run when Vault service restarts and needs to be unsealed";
         wants = [ "vault.service" ]; # Ensures dependency on the Vault service
         after = [ "vault.service" ]; # Ensures this runs after the Vault service
+        partOf = [ "vault.service" ]; # Ties this service to Vault's lifecycle
         serviceConfig = {
           Type = "oneshot";
           ExecStart = "${unseal-script}/bin/clevis-unseal-vault";
