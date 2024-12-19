@@ -52,7 +52,7 @@ let
 
   unseal-script = pkgs.writeShellScriptBin "clevis-unseal-vault" ''
     # Path to the encrypted file containing the unseal key
-    encrypted_file="${cfg.tang-useal-key}"
+    encrypted_file="${cfg.tang-unseal-key}"
 
     # Vault address (e.g., local or cluster address)
     vault_addr="http://127.0.0.1:8200"
@@ -132,9 +132,8 @@ in
     ui = mkBoolOpt true "Whether the UI should be enabled.";
     auto-unseal =
       mkBoolOpt false "Whether or not to auto unseal with Clevis & Tang";
-    tang-unseal-key =
-      mkOpt (types.nullOr types.str) "/var/lib/vault/unsealkey.enc"
-        "Location of a Tang encrypted unseal key";
+    tang-unseal-key = mkOpt types.str "/var/lib/vault/unsealkey.enc"
+      "Location of a Tang encrypted unseal key";
     storage = {
       backend = mkOpt types.str "file" "The storage backend for Vault.";
       path = mkOpt types.str "/var/lib/vault/data" "Path";
@@ -176,7 +175,7 @@ in
     systemd.services.vault = { };
 
     systemd.services.vault-unseal =
-      mkIf (cfg.auto-unseal && cfg.unseal-key != null) {
+      mkIf (cfg.auto-unseal && cfg.tang-unseal-key != null) {
         description =
           "Run when Vault service restarts and needs to be unsealed";
         wants = [ "vault.service" ]; # Ensures dependency on the Vault service
@@ -185,7 +184,6 @@ in
           Type = "oneshot";
           ExecStart = "${unseal-script}/bin/clevis-unseal-vault";
         };
-        startWhen = "Vault service restarts";
       };
 
     systemd.services.vault-policies =
