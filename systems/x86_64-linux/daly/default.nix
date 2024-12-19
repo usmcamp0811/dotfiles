@@ -131,58 +131,57 @@ with lib.campground; {
         auto-unseal = true;
         storage = {
           backend = "raft";
+          config = ''
+            node_id = "vault-node-daly"
+            retry_join {
+              leader_api_addr = "http://chesty:8200"
+            }
+            retry_join {
+              leader_api_addr = "http://lucas:8200"
+            }
+            retry_join {
+              leader_api_addr = "http://ermy:8200"
+            }
+          '';
         };
-        config = ''
-          node_id = "vault-node-daly"
-          retry_join {
-            leader_api_addr = "http://chesty:8200"
-          }
-          retry_join {
-            leader_api_addr = "http://lucas:8200"
-          }
-          retry_join {
-            leader_api_addr = "http://ermy:8200"
-          }
+        settings = ''
+          cluster_addr = "http://daly:8201" 
+          api_addr = "http://daly:8200"
         '';
-      };
-      settings = ''
-        cluster_addr = "http://daly:8201" 
-        api_addr = "http://daly:8200"
-      '';
 
-      policies = builtins.foldl'
-        (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          })
-        { }
-        (builtins.filter (snowfall.path.has-file-extension "hcl")
-          (builtins.map
-            (path:
-              ./vault/policies + "/${
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
               }")
-            (snowfall.fs.get-files ./vault/policies)));
-    };
-    vault-agent = {
-      enable = true;
-      settings = {
-        vault = {
-          address = "https://vault.lan.aicampground.com";
-          # address = "http://lucas:8200";
-          role-id = "/var/lib/vault/daly/role-id";
-          secret-id = "/var/lib/vault/daly/secret-id";
+              (snowfall.fs.get-files ./vault/policies)));
+      };
+      vault-agent = {
+        enable = true;
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            # address = "http://lucas:8200";
+            role-id = "/var/lib/vault/daly/role-id";
+            secret-id = "/var/lib/vault/daly/secret-id";
+          };
         };
       };
     };
   };
-};
 
-# This value determines the NixOS release from which the default
-# settings for stateful data, like file locations and database versions
-# on your system were taken. It‘s perfectly fine and recommended to leave
-# this value at the release version of the first install of this system.
-# Before changing this value read the documentation for this option
-# (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-system.stateVersion = "23.05"; # Did you read the comment?
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "23.05"; # Did you read the comment?
 }
