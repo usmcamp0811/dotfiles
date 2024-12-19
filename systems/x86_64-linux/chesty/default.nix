@@ -117,6 +117,7 @@ with lib.campground;
       vault = {
         enable = true;
         ui = true;
+        auto-unseal = true;
         storage = {
           backend = "raft";
           config = ''

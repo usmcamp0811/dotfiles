@@ -30,6 +30,46 @@ If you enable the `auto-unseal` feature, ensure that:
 
 2. The unseal key is encrypted using Tang and stored in a path accessible to the configuration.
 
+#### Encrypting the Unseal Key with Clevis and Tang
+
+To secure your Vault unseal key with Clevis and Tang, follow these steps. This setup requires the key
+to be unlocked using a TPM chip and at least 4 Tang servers.
+
+1. **Store the unseal key in a file:**
+
+   ```bash
+   echo "your-unseal-key" > /var/lib/vault/unseal-key.txt
+   chmod 600 /etc/vault/unseal-key.txt
+   ```
+
+2. **Encrypt the unseal key using Clevis and Tang:**
+
+   ```bash
+   clevis encrypt sss '{"t":4,"servers":["http://tang1:80","http://tang2:80","http://tang3:80","http://tang4:80"]}' \
+   < /etc/vault/unseal-key.txt \
+   > /etc/vault/unseal-key.enc
+   ```
+
+3. **Verify the encrypted key file:**
+
+   ```bash
+   clevis decrypt < /etc/vault/unseal-key.enc
+   ```
+
+   If the decryption works, the original unseal key should be displayed.
+
+4. **Secure the original unseal key file (optional but recommended):**
+   ```bash
+   shred -u /etc/vault/unseal-key.txt
+   ```
+
+This configuration ensures the unseal key is secured with:
+
+- **TPM-based security**: Uses the TPM chip on your machine.
+- **Tang-based Shamir Secret Sharing (SSS)**: Requires a minimum of 4 Tang servers to decrypt the key.
+
+Make sure to distribute the Tang servers across independent, secure systems to avoid a single point of failure.
+
 ---
 
 ## Example Configuration
@@ -154,3 +194,7 @@ policies = {
 - **Auto-Unseal Issues**: Ensure the unseal key is correctly encrypted with Tang and accessible at the specified path.
 - **Policy Errors**: Verify that the HCL files are correctly formatted and pass Vault's syntax checks.
 - **Service Logs**: Use `journalctl -u vault` to view logs and debug service issues.
+
+```
+
+```

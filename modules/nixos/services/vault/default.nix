@@ -132,8 +132,9 @@ in
     ui = mkBoolOpt true "Whether the UI should be enabled.";
     auto-unseal =
       mkBoolOpt false "Whether or not to auto unseal with Clevis & Tang";
-    tang-unseal-key = mkOpt (types.nullOr types.str) null
-      "Location of a Tang encrypted unseal key";
+    tang-unseal-key =
+      mkOpt (types.nullOr types.str) "/var/lib/vault/unsealkey.enc"
+        "Location of a Tang encrypted unseal key";
     storage = {
       backend = mkOpt types.str "file" "The storage backend for Vault.";
       path = mkOpt types.str "/var/lib/vault/data" "Path";
@@ -182,7 +183,7 @@ in
         after = [ "vault.service" ]; # Ensures this runs after the Vault service
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = unseal-script;
+          ExecStart = "${unseal-script}/bin/clevis-unseal-vault";
         };
         startWhen = "Vault service restarts";
       };

@@ -89,6 +89,7 @@ in
       vault = {
         enable = true;
         ui = true;
+        auto-unseal = true;
         storage = {
           backend = "raft";
           config = ''
