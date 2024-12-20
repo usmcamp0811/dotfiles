@@ -212,7 +212,7 @@ in
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
           # Perform the login using the AppRole login endpoint
-          LOGIN_RESPONSE=$(vault login -method=approle role_id="$ROLE_ID" secret_id="$SECRET_ID" -format=json)
+          LOGIN_RESPONSE=$(${package}/bin/vault login -method=approle role_id="$ROLE_ID" secret_id="$SECRET_ID" -format=json)
 
           # Extract the client token
           CLIENT_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.auth.client_token')
