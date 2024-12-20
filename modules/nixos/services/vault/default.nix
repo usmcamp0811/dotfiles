@@ -54,10 +54,8 @@ let
     name = "celvis-unseal-vault";
     runtimeInputs = [ package pkgs.clevis pkgs.curl ];
     text = ''
-      # Enable debugging for troubleshooting
-      set -x
-      # TODO: make sure this exists
-      export HOME="/var/lib/vault"
+      # TODO: make sure this exists? 
+      export HOME="/var/lib/vault" # Needed or Vault cli shits the bed
       # Path to the encrypted file containing the unseal key
       encrypted_file="${cfg.tang-unseal-key}"
 
@@ -68,6 +66,7 @@ let
           echo "Error: Failed to decrypt the unseal key. Proceeding anyway might not work."
       fi
 
+      # TODO: This seems to be a simple solution but it doesn't seem to be robust.. might be a betterway
       ${pkgs.curl}/bin/curl "$VAULT_ADDR" && echo "Attempting to unseal Vault..." || echo "waiting a second for Vault to start..." && sleep 5
 
       if ${package}/bin/vault operator unseal "$unseal_key"; then
