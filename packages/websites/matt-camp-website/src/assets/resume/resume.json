@@ -27,20 +27,15 @@
       "job_title": "Senior Data Scientist / Full Stack MLOps/DevOps Engineer",
       "company": "Advanced Technology Applications (ATA) LLC",
       "company_location": "Great Falls, VA (Remote)",
-      "description": "As a core member of the platform team, I led the adoption of cutting-edge technologies like Nix and NixOS, transforming ATA's software pipelines to be secure, scalable, and reproducible. My initiatives enhanced operational efficiency, security, and compliance with NIST standards, while reducing onboarding time and simplifying CI/CD workflows. I played a pivotal role in ensuring consistency across development and production environments, particularly in air-gapped systems, through declarative, cryptographically validated configurations. I also focused on mentoring junior developers and fostering a culture of knowledge-sharing within the team.",
+      "description": "As a core member of the platform team, I led the adoption of cutting-edge technologies like Nix and NixOS, transforming ATA's software pipelines to be secure, scalable, and reproducible. My initiatives spanned software engineering, DevSecOps, and data science, positioning me to contribute across diverse roles. I focused on enhancing operational efficiency, building scalable solutions, and mentoring junior developers, while driving innovation through advanced data science methodologies.",
       "key_accomplishments": [
-        "Spearheaded the adoption of Nix and NixOS as the foundation of ATA's DevSecOps framework, addressing challenges like configuration drift, dependency conflicts, and software supply chain security.",
-        "Deployed a JupyterHub instance on enterprise Kubernetes clusters and modified Zero-to-JupyterHub Helm Chart to support Istio service mesh. Created custom JupyterLab Docker images to support Julia, Python, and R workflows.",
-        "Led the full-cycle development of a UNet-based image segmentation model in Julia, encompassing dataset creation via Label Studio and performance tracking with MLFlow.",
-        "Designed modular, immutable infrastructure solutions for systems like Kafka and MLFlow, allowing seamless integration, rapid deployment, and secure updates.",
-        "Enhanced CI/CD workflows by integrating Nix for building Docker images, testing Kubernetes deployments, and ensuring reproducibility across local and cloud environments.",
-        "Pioneered secure air-gapped deployments by utilizing Nix's content-addressable storage to create portable, self-contained configurations free of traditional repository dependencies.",
-        "Led the implementation of Hashicorp Vault into organizational projects to streamline the management of secrets and reduce the amount of code required in deployment pipelines.",
-        "Customized Airflow Helm Chart for DAG development and automated architecture diagram deployment using PlantUML and GitLab CI/CD.",
-        "Developed a reproducible and highly auditable deployment strategy for cross-architecture Linux systems using Nix and NixOS, replacing unreliable Ansible playbooks.",
-        "Established a hardened repository of Nix packages and modules to meet the rigorous security requirements of mission-critical operations.",
-        "Trained junior associates in various technologies, including Julia, Nix, Docker, and Kubernetes, and led knowledge-sharing sessions to foster team collaboration.",
-        "Pioneered the integration of Nix Dev Shells to establish a highly reproducible development environment, significantly streamlining the onboarding of new DevOps personnel."
+        "Spearheaded the adoption of Nix and NixOS, creating a secure and reproducible DevSecOps framework and addressing challenges like configuration drift and dependency conflicts.",
+        "Developed a UNet-based image segmentation model in Julia, including dataset creation with Label Studio and performance tracking with MLFlow.",
+        "Mentored junior associates in emerging technologies, fostering team collaboration and streamlining onboarding with Nix development shells.",
+        "Streamlined Flink job deployment for both local and Kubernetes environments by leveraging Nix for reproducible configurations and consistent runtime environments.",
+        "Built a local development cluster with K3D and Nix, enabling developers to spin up Kubernetes environments with a single command for testing and debugging.",
+        "Deployed JupyterHub on enterprise Kubernetes clusters, customized Helm charts, and developed Docker images supporting Julia, Python, and R workflows.",
+        "Designed modular infrastructure solutions for systems like Kafka and MLFlow, simplifying deployment, improving scalability, and enhancing security."
       ],
       "dt_from": "November 2021",
       "dt_to": "Present"
