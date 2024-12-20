@@ -76,21 +76,6 @@ let
       fi
     '';
   };
-  vault-snapshot = pkgs.writeShellApplication {
-    name = "snapshot";
-    runtimeInputs = [ package ];
-    text = ''
-      # TODO: make sure this exists? 
-      export HOME="/var/lib/vault" # Needed or Vault cli shits the bed
-      # Vault address (e.g., local or cluster address)
-      export VAULT_ADDR="${cfg.domain}"
-
-      # take snapshot
-      ${package}/bin/vault operator raft snapshot save ${cfg.snapshot-location}
-      # make sure snapshot is good
-      ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot-location}
-    '';
-  };
 
   write-policies-commands = mapAttrsToList
     (name: policy: ''
@@ -212,10 +197,7 @@ in
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
           # Login to Vault using AppRole
-          VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login \
-              role_id="$ROLE_ID" \
-              secret_id="$SECRET_ID")
-          export VAULT_TOKEN
+          VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           echo "Successfully logged in to Vault."
 
           mkdir -p ${cfg.snapshot.location}
