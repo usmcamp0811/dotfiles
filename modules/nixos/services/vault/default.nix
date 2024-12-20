@@ -64,7 +64,7 @@ let
     # Check if Vault is ready by querying the UI endpoint
     is_vault_ready() {
         for i in $(seq 1 $max_retries); do
-            if curl -s "$vault_addr/ui/" | grep -q .; then
+            if ${pkgs.curl}/bin/curl -s "$vault_addr/ui/" | grep -q .; then
                 return 0
             fi
             echo "Waiting for Vault to be ready... ($i/$max_retries)"
