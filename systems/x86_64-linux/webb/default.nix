@@ -211,6 +211,21 @@ in
         mediaLocation = "/webb/media/photos";
 
       };
+      spark = {
+        enable = true;
+        port = 8081;
+        worker = {
+          master = "spark://reckless:7077";
+          workDir = "/var/lib/spark";
+          enable = true;
+          extraEnvironment = {
+            SPARK_WORKER_CORES = "4";
+            SPARK_WORKER_MEMORY = "4g";
+          };
+          restartIfChanged = true;
+        };
+        logDir = "/var/log/spark";
+      };
 
       borgbackup = {
         enable = true;
