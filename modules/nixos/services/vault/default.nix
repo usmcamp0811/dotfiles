@@ -76,6 +76,29 @@ let
       fi
     '';
   };
+  vault-snapshot = pkgs.writeShellApplication {
+    name = "snapshot";
+    runtimeInputs = [ package ];
+    text = ''
+      # TODO: make sure this exists? 
+      export HOME="/var/lib/vault" # Needed or Vault cli shits the bed
+      # Vault address (e.g., local or cluster address)
+      export VAULT_ADDR="http://127.0.0.1:8200"
+      unseal_key=$(${pkgs.clevis}/bin/clevis decrypt < "$encrypted_file")
+      if [ -z "$unseal_key" ]; then
+          echo "Error: Failed to decrypt the unseal key. Proceeding anyway might not work."
+      fi
+
+      # TODO: This seems to be a simple solution but it doesn't seem to be robust.. might be a betterway
+      ${pkgs.curl}/bin/curl "$VAULT_ADDR" && echo "Attempting to unseal Vault..." || echo "waiting a second for Vault to start..." && sleep 5
+
+      if ${package}/bin/vault operator unseal "$unseal_key"; then
+          echo "Vault successfully unsealed."
+      else
+          echo "Error: Failed to unseal Vault, but the attempt was made."
+      fi
+    '';
+  };
 
   write-policies-commands = mapAttrsToList
     (name: policy: ''
