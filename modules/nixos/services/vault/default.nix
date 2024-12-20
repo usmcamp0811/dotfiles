@@ -197,7 +197,38 @@ in
         };
 
         script = ''
+          # Paths to the AppRole credentials
+          ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
+          SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
+
+          # Check if the credential files exist
+          if [[ ! -f "$ROLE_ID_FILE" || ! -f "$SECRET_ID_FILE" ]]; then
+              echo "Error: AppRole credential files not found."
+              exit 1
+          fi
+
+          # Read the credentials
+          ROLE_ID=$(cat "$ROLE_ID_FILE")
+          SECRET_ID=$(cat "$SECRET_ID_FILE")
+
+          # Perform the login using the AppRole login endpoint
+          LOGIN_RESPONSE=$(vault login -method=approle role_id="$ROLE_ID" secret_id="$SECRET_ID" -format=json)
+
+          # Extract the client token
+          CLIENT_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.auth.client_token')
+
+          if [[ -z "$CLIENT_TOKEN" || "$CLIENT_TOKEN" == "null" ]]; then
+              echo "Error: Failed to authenticate with Vault."
+              exit 1
+          fi
+
+          # Export the client token for subsequent Vault commands
+          export VAULT_TOKEN="$CLIENT_TOKEN"
+
+          echo "Successfully logged in to Vault."
+
           mkdir -p ${cfg.snapshot.location}
+          echo "Creating Vault Raft Snapshot."
           # take snapshot
           ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}/vault-snapshot.backup
           # make sure snapshot is good
@@ -205,6 +236,8 @@ in
 
           chown -R ${cfg.policy-agent.user}:${cfg.policy-agent.group} ${cfg.snapshot.location}
           chmod 400 ${cfg.policy-agent.user}:${cfg.policy-agent.group} ${cfg.snapshot.location}/vault-snapshot.backup
+
+          echo "Vault Snapshot verified..."
 
         '';
       };
