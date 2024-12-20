@@ -161,7 +161,7 @@ in
       enable = mkBoolOpt false "Should we make regular snapshots";
       vault-domain = mkOpt types.str "vault.lan.aicampground.com"
         "The domain name of the Vault";
-      location = mkOpt types.str "/persist/campground-vault-raft.backup";
+      location = mkOpt types.str "/persist/vault";
       schedule =
         mkOpt types.str "23:50" "The schedule the snapshots should be run on";
     };
@@ -200,10 +200,15 @@ in
         };
 
         script = ''
+          mkdir -p ${cfg.snapshot.location}
           # take snapshot
-          ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}
+          ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}/vault-snapshot.backup
           # make sure snapshot is good
-          ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}
+          ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}/vault-snapshot.backup
+
+          chown -R ${cfg.policy-agent.user}:${cfg.policy-agent.group} ${cfg.snapshot.location}
+          chmod 400 ${cfg.policy-agent.user}:${cfg.policy-agent.group} ${cfg.snapshot.location}/vault-snapshot.backup
+
         '';
       };
 
