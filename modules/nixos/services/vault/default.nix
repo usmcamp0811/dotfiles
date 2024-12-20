@@ -211,7 +211,11 @@ in
           ROLE_ID=$(cat "$ROLE_ID_FILE")
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
-          ${package}/bin/vault login -method=approle role_id="$ROLE_ID" secret_id="$SECRET_ID"
+          # Login to Vault using AppRole
+          VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login \
+              role_id="$ROLE_ID" \
+              secret_id="$SECRET_ID")
+          export VAULT_TOKEN
           echo "Successfully logged in to Vault."
 
           mkdir -p ${cfg.snapshot.location}
