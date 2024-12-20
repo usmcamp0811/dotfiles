@@ -187,6 +187,7 @@ in
 
     systemd.services.vault-snapshot =
       mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
+        description = "Vault Raft Snapshot Service";
         serviceConfig = {
           Type = "oneshot";
           User = cfg.policy-agent.user;
@@ -206,13 +207,12 @@ in
         '';
       };
 
-    systemd.timers = {
-      name = "vault-snapshot.timer";
-      value = {
-        description = "Take regular snapshots of the Vault Raft DB";
-        partOf = [ "vault-snapshot.service" ];
-        timerConfig.OnCalendar = "${cfg.snapshot.schedule}";
-        timerConfig.Persistent = true;
+    systemd.timers."vault-snapshot" = {
+      description = "Take regular snapshots of the Vault Raft DB";
+      partOf = [ "vault-snapshot.service" ];
+      timerConfig = {
+        OnCalendar = cfg.snapshot.schedule;
+        Persistent = true;
       };
     };
 
