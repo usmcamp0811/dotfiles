@@ -161,7 +161,8 @@ in
       enable = mkBoolOpt false "Should we make regular snapshots";
       vault-domain = mkOpt types.str "vault.lan.aicampground.com"
         "The domain name of the Vault";
-      location = mkOpt types.str "/persist/vault";
+      location =
+        mkOpt types.str "/persist/vault" "The place to store the snapshot";
       schedule =
         mkOpt types.str "23:50" "The schedule the snapshots should be run on";
     };
