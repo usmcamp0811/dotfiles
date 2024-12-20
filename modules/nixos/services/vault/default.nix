@@ -83,20 +83,12 @@ let
       # TODO: make sure this exists? 
       export HOME="/var/lib/vault" # Needed or Vault cli shits the bed
       # Vault address (e.g., local or cluster address)
-      export VAULT_ADDR="http://127.0.0.1:8200"
-      unseal_key=$(${pkgs.clevis}/bin/clevis decrypt < "$encrypted_file")
-      if [ -z "$unseal_key" ]; then
-          echo "Error: Failed to decrypt the unseal key. Proceeding anyway might not work."
-      fi
+      export VAULT_ADDR="${cfg.domain}"
 
-      # TODO: This seems to be a simple solution but it doesn't seem to be robust.. might be a betterway
-      ${pkgs.curl}/bin/curl "$VAULT_ADDR" && echo "Attempting to unseal Vault..." || echo "waiting a second for Vault to start..." && sleep 5
-
-      if ${package}/bin/vault operator unseal "$unseal_key"; then
-          echo "Vault successfully unsealed."
-      else
-          echo "Error: Failed to unseal Vault, but the attempt was made."
-      fi
+      # take snapshot
+      ${package}/bin/vault operator raft snapshot save ${cfg.snapshot-location}
+      # make sure snapshot is good
+      ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot-location}
     '';
   };
 
@@ -165,6 +157,14 @@ in
           "The file to read the secret-id from.";
       };
     };
+    snapshot = {
+      enable = mkBoolOpt false "Should we make regular snapshots";
+      vault-domain = mkOpt types.str "vault.lan.aicampground.com"
+        "The domain name of the Vault";
+      location = mkOpt types.str "/persist/campground-vault-raft.backup";
+      schedule =
+        mkOpt types.str "23:50" "The schedule the snapshots should be run on";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -184,6 +184,37 @@ in
 
     systemd.services.vault.postStart =
       "${unseal-script}/bin/celvis-unseal-vault";
+
+    systemd.services.vault-snapshot =
+      mkIf (cfg.vault-snapshot.enable && cfg.storage.backend == "raft") {
+        serviceConfig = {
+          Type = "oneshot";
+          User = cfg.policy-agent.user;
+          Group = cfg.policy-agent.group;
+        };
+
+        environment = {
+          HOME = "/var/lib/vault";
+          VAULT_ADDR = "${cfg.snapshot.vault-domain}";
+        };
+
+        script = ''
+          # take snapshot
+          ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}
+          # make sure snapshot is good
+          ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}
+        '';
+      };
+
+    systemd.timers = {
+      name = "vault-snapshot.timer";
+      value = {
+        description = "Take regular snapshots of the Vault Raft DB";
+        partOf = [ "vault-snapshot.service" ];
+        timerConfig.OnCalendar = "${cfg.snapshot.schedule}";
+        timerConfig.Persistent = true;
+      };
+    };
 
     systemd.services.vault-policies =
       mkIf (has-policies || !cfg.mutable-policies) {
