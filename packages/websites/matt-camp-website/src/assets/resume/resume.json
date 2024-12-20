@@ -27,15 +27,20 @@
       "job_title": "Senior Data Scientist / Full Stack MLOps/DevOps Engineer",
       "company": "Advanced Technology Applications (ATA) LLC",
       "company_location": "Great Falls, VA (Remote)",
-      "description": "As a key figure on the platform team, I spearheaded the deployment and management of intricate technological solutions. Leveraging expertise in JupyterHub, Kubernetes, Docker, and Nix, I facilitated seamless tool integration and customization to optimize workflow efficiency. Recognizing areas for improvement, I proactively mastered Nix and designed a robust solution that superseded faulty Ansible playbooks, effectively streamlining the deployment of numerous applications. My dedication to mentorship and knowledge-sharing has cultivated a collaborative team culture, reinforced by daily coaching sessions for junior developers. My innovative strategies in both deployment and development have significantly enhanced organizational processes.",
+      "description": "As a core member of the platform team, I led the adoption of cutting-edge technologies like Nix and NixOS, transforming ATA's software pipelines to be secure, scalable, and reproducible. My initiatives enhanced operational efficiency, security, and compliance with NIST standards, while reducing onboarding time and simplifying CI/CD workflows. I played a pivotal role in ensuring consistency across development and production environments, particularly in air-gapped systems, through declarative, cryptographically validated configurations. I also focused on mentoring junior developers and fostering a culture of knowledge-sharing within the team.",
       "key_accomplishments": [
+        "Spearheaded the adoption of Nix and NixOS as the foundation of ATA's DevSecOps framework, addressing challenges like configuration drift, dependency conflicts, and software supply chain security.",
         "Deployed a JupyterHub instance on enterprise Kubernetes clusters and modified Zero-to-JupyterHub Helm Chart to support Istio service mesh. Created custom JupyterLab Docker images to support Julia, Python, and R workflows.",
         "Led the full-cycle development of a UNet-based image segmentation model in Julia, encompassing dataset creation via Label Studio and performance tracking with MLFlow.",
-        "Led the implimentation of Hashicorp Vault into organizational project in order to streamline the management of secrets and reduce the amount of code required in deployment pipelines.",
-        "Wrote custom shell scripts and created project templates for best practices. Customized Airflow Helm Chart for DAG development and automated architecture diagram deployment using PlantUML and Gitlab CICD.",
-        "Developed a reproducible and highly auditable deployment strategy for cross-architecture Linux systems using Nix and NixOS. Modified and developed Ansible playbooks for AWS EC2 and EKS deployment, and worked with Terraform to create AWS infrastructure.",
-        "Led training of junior associates in various technologies, including Julia, Nix, Docker, and Kubernetes. Regularly led brown bag knowledge-sharing sessions to foster team collaboration.",
-        "Pioneered the integration of Nix Dev Shells to establish a highly reproducible development environment, significantly streamlining the onboarding of new DevOps personnel. Advanced project capabilities by configuring and deploying infrastructure, prioritizing Nix's flexibility and efficiency over traditional Docker setups."
+        "Designed modular, immutable infrastructure solutions for systems like Kafka and MLFlow, allowing seamless integration, rapid deployment, and secure updates.",
+        "Enhanced CI/CD workflows by integrating Nix for building Docker images, testing Kubernetes deployments, and ensuring reproducibility across local and cloud environments.",
+        "Pioneered secure air-gapped deployments by utilizing Nix's content-addressable storage to create portable, self-contained configurations free of traditional repository dependencies.",
+        "Led the implementation of Hashicorp Vault into organizational projects to streamline the management of secrets and reduce the amount of code required in deployment pipelines.",
+        "Customized Airflow Helm Chart for DAG development and automated architecture diagram deployment using PlantUML and GitLab CI/CD.",
+        "Developed a reproducible and highly auditable deployment strategy for cross-architecture Linux systems using Nix and NixOS, replacing unreliable Ansible playbooks.",
+        "Established a hardened repository of Nix packages and modules to meet the rigorous security requirements of mission-critical operations.",
+        "Trained junior associates in various technologies, including Julia, Nix, Docker, and Kubernetes, and led knowledge-sharing sessions to foster team collaboration.",
+        "Pioneered the integration of Nix Dev Shells to establish a highly reproducible development environment, significantly streamlining the onboarding of new DevOps personnel."
       ],
       "dt_from": "November 2021",
       "dt_to": "Present"
@@ -179,6 +184,5 @@
     "Docker",
     "Kubernetes"
   ],
-
   "interest": "I have many interests from history and firearms to cooking and coding. I consider myself a life long learner and am always trying to better understand a concept or figure out how something works. I really enjoy problem solving and programming. My goals are to increase my knowledge of both Machine Learning and Artificial Intelligence to further the automation of route tasks in our daily lives."
 }
