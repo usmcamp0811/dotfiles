@@ -63,12 +63,12 @@ let
 
       # Vault address (e.g., local or cluster address)
       export VAULT_ADDR="http://127.0.0.1:8200"
-
-      echo "Attempting to unseal Vault..."
       unseal_key=$(${pkgs.clevis}/bin/clevis decrypt < "$encrypted_file")
       if [ -z "$unseal_key" ]; then
           echo "Error: Failed to decrypt the unseal key. Proceeding anyway might not work."
       fi
+
+      ${pkgs.curl}/bin/curl "$VAULT_ADDR" && echo "Attempting to unseal Vault..." || echo "waiting a second for Vault to start..." && sleep 5
 
       if ${package}/bin/vault operator unseal "$unseal_key"; then
           echo "Vault successfully unsealed."
