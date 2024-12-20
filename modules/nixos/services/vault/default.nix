@@ -52,69 +52,28 @@ let
 
   unseal-script = pkgs.writeShellApplication {
     name = "celvis-unseal-vault";
-    runtimeInputs = [ package pkgs.clevis ];
+    runtimeInputs = [ package pkgs.clevis pkgs.curl ];
     text = ''
+      # Enable debugging for troubleshooting
+      set -x
+      # TODO: make sure this exists
+      export HOME="/var/lib/vault"
       # Path to the encrypted file containing the unseal key
       encrypted_file="${cfg.tang-unseal-key}"
 
       # Vault address (e.g., local or cluster address)
-      VAULT_ADDR="http://127.0.0.1:8200"
+      export VAULT_ADDR="http://127.0.0.1:8200"
 
-      # Max retries and delay for checking readiness
-      max_retries=30
-      delay=2
+      echo "Attempting to unseal Vault..."
+      unseal_key=$(${pkgs.clevis}/bin/clevis decrypt < "$encrypted_file")
+      if [ -z "$unseal_key" ]; then
+          echo "Error: Failed to decrypt the unseal key. Proceeding anyway might not work."
+      fi
 
-      # Check if Vault is ready by querying vault status
-      is_vault_ready() {
-          for i in $(seq 1 $max_retries); do
-              if ${package}/bin/vault status -address="$VAULT_ADDR" &>/dev/null; then
-                  return 0
-              fi
-              echo "Waiting for Vault to be ready... ($i/$max_retries)"
-              sleep $delay
-          done
-          return 0
-      }
-
-      # Check if Vault is sealed
-      is_sealed() {
-          if ${package}/bin/vault status -address="$VAULT_ADDR" 2>/dev/null | grep -q "Sealed.*true"; then
-              return 0
-          else
-              return 1
-          fi
-      }
-
-      # Unseal Vault using the key from the encrypted file
-      unseal_vault() {
-          echo "Attempting to unseal Vault..."
-          unseal_key=$(${pkgs.clevis}/bin/clevis decrypt < "$encrypted_file")
-          if [ -z "$unseal_key" ]; then
-              echo "Error: Failed to decrypt the unseal key."
-              exit 1
-          fi
-
-          if ${package}/bin/vault operator unseal -address="$VAULT_ADDR" "$unseal_key"; then
-              echo "Vault successfully unsealed."
-          else
-              echo "Error: Failed to unseal Vault."
-              exit 1
-          fi
-      }
-
-      # Main logic
-      echo "Checking if Vault is ready..."
-      if is_vault_ready; then
-          echo "Vault is ready."
-          if is_sealed; then
-              echo "Vault is sealed. Proceeding to unseal."
-              unseal_vault
-          else
-              echo "Vault is already unsealed. No action required."
-          fi
+      if ${package}/bin/vault operator unseal "$unseal_key"; then
+          echo "Vault successfully unsealed."
       else
-          echo "Vault did not become ready within the allotted time. Exiting."
-          exit 0
+          echo "Error: Failed to unseal Vault, but the attempt was made."
       fi
     '';
   };
@@ -205,12 +164,14 @@ in
       mkIf (cfg.auto-unseal && cfg.tang-unseal-key != null) {
         description = "Vault Auto Unseal";
 
-        # Specify the script to run
         serviceConfig = {
-          ExecStart = "${unseal-script}/bin/celvis-unseal-vault";
-
-          # Restart if it fails
+          Type = "oneshot";
           Restart = "on-failure";
+          User = "root";
+          Group = "root";
+          ExecStart = "${unseal-script}/bin/celvis-unseal-vault";
+          RestartSec = 30;
+          RemainAfterExit = "yes";
         };
 
         # Make this service depend on the Vault service
