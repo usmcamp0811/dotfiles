@@ -188,11 +188,7 @@ in
     systemd.services.vault-snapshot =
       mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
         description = "Vault Raft Snapshot Service";
-        serviceConfig = {
-          Type = "oneshot";
-          User = cfg.policy-agent.user;
-          Group = cfg.policy-agent.group;
-        };
+        serviceConfig = { Type = "oneshot"; };
 
         environment = {
           HOME = "/var/lib/vault";
