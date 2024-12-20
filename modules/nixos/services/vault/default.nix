@@ -211,20 +211,7 @@ in
           ROLE_ID=$(cat "$ROLE_ID_FILE")
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
-          # Perform the login using the AppRole login endpoint
-          LOGIN_RESPONSE=$(${package}/bin/vault login -method=approle role_id="$ROLE_ID" secret_id="$SECRET_ID" -format=json)
-
-          # Extract the client token
-          CLIENT_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.auth.client_token')
-
-          if [[ -z "$CLIENT_TOKEN" || "$CLIENT_TOKEN" == "null" ]]; then
-              echo "Error: Failed to authenticate with Vault."
-              exit 1
-          fi
-
-          # Export the client token for subsequent Vault commands
-          export VAULT_TOKEN="$CLIENT_TOKEN"
-
+          ${package}/bin/vault login -method=approle role_id="$ROLE_ID" secret_id="$SECRET_ID"
           echo "Successfully logged in to Vault."
 
           mkdir -p ${cfg.snapshot.location}
