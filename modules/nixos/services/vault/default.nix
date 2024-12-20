@@ -186,7 +186,7 @@ in
       "${unseal-script}/bin/celvis-unseal-vault";
 
     systemd.services.vault-snapshot =
-      mkIf (cfg.vault-snapshot.enable && cfg.storage.backend == "raft") {
+      mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
         serviceConfig = {
           Type = "oneshot";
           User = cfg.policy-agent.user;
