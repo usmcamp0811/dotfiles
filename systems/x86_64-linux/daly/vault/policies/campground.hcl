@@ -47,3 +47,6 @@ path "auth/approle/login" {
   capabilities = ["create", "read"]
 }
 
+path "sys/storage/raft/snapshot" {
+    capabilities = ["read"]
+}
