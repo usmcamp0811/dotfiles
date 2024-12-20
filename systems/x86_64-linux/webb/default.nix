@@ -67,6 +67,44 @@ in
 
     services = {
       # onlyoffice = { enable = true; };
+      vault = {
+        enable = true;
+        ui = true;
+        auto-unseal = true;
+        storage = {
+          backend = "raft";
+          config = ''
+            node_id = "vault-node-webb"
+            retry_join {
+              leader_api_addr = "http://chesty:8200"
+            }
+            retry_join {
+              leader_api_addr = "http://ermy:8200"
+            }
+            retry_join {
+              leader_api_addr = "http://daly:8200"
+            }
+          '';
+        };
+        settings = ''
+          cluster_addr = "http://webb:8201" 
+          api_addr = "http://webb:8200"
+        '';
+
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies + "/${
+                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+              }")
+              (snowfall.fs.get-files ./vault/policies)));
+      };
       remark42 = {
         enable = true;
         port = 11842;
