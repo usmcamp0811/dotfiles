@@ -199,6 +199,9 @@ in
           # Login to Vault using AppRole
           VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           echo "Successfully logged in to Vault."
+          echo wtf 
+          ${package}/bin/vault kv get -field=HF_PASS secret/campground/nix-ai
+          echo over
 
           mkdir -p ${cfg.snapshot.location}
           echo "Creating Vault Raft Snapshot."
