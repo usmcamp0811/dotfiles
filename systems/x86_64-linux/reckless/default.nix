@@ -8,8 +8,7 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+in {
   imports = [ ./hardware.nix ];
   boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -114,6 +113,36 @@ in
 
     services = {
       cac = enabled;
+
+      spark = {
+        enable = true;
+        port = 8081;
+        master = {
+          extraEnvironment = {
+            SPARK_MASTER_OPTS = "-Dspark.deploy.defaultCores=5";
+            SPARK_MASTER_WEBUI_PORT = 8181;
+          };
+          bind = "0.0.0.0";
+          enable = true;
+          restartIfChanged = true;
+        };
+        worker = {
+
+          master = "spark://reckless:7077";
+          workDir = "/var/lib/spark";
+          enable = true;
+          extraEnvironment = {
+            SPARK_WORKER_CORES = "4";
+            SPARK_WORKER_MEMORY = "4g";
+          };
+          worker.restartIfChanged = true;
+        };
+        package = pkgs.spark.overrideAttrs (super: {
+          pname = "spark";
+          version = "3.3.1";
+        });
+        logDir = "/var/log/spark";
+      };
       campground-blog = enabled;
       qdrant = {
         enable = true;
