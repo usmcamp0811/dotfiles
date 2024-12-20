@@ -12,7 +12,7 @@ in {
       "Extra environment variables to pass to spark master. See spark-standalone documentation.";
     worker.master = mkOpt str "spark://localhost:7077"
       "Address of the Spark master for the worker.";
-    package = mkOpt str pkgs.spark "The spark package to use.";
+    package = mkOpt package pkgs.spark "The spark package to use.";
     logDir = mkOpt str "/var/log/spark" "Spark log directory.";
     worker.workDir = mkOpt str "/var/lib/spark" "Spark worker work dir.";
     master.bind = mkOpt str "0.0.0.0" "Address to bind the Spark master.";

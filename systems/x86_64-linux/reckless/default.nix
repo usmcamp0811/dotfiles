@@ -8,7 +8,8 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   imports = [ ./hardware.nix ];
   boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
@@ -120,7 +121,7 @@ in {
         master = {
           extraEnvironment = {
             SPARK_MASTER_OPTS = "-Dspark.deploy.defaultCores=5";
-            SPARK_MASTER_WEBUI_PORT = 8181;
+            SPARK_MASTER_WEBUI_PORT = "8181";
           };
           bind = "0.0.0.0";
           enable = true;
@@ -135,7 +136,7 @@ in {
             SPARK_WORKER_CORES = "4";
             SPARK_WORKER_MEMORY = "4g";
           };
-          worker.restartIfChanged = true;
+          restartIfChanged = true;
         };
         package = pkgs.spark.overrideAttrs (super: {
           pname = "spark";
