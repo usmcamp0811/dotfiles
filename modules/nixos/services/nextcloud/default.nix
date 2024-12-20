@@ -9,16 +9,17 @@ in {
     adminuser = mkOpt str "mcamp" "Absolute path to the Vault role-id";
     home = mkOpt str "/var/lib/nextcloud" "App Storage path of nextcloud.";
     dataDir = mkOpt str "/var/lib/nextcloud" "Data Storage path of nextcloud.";
+    package = mkOpt package pkgs.nextcloud30 "The nextcloud package to use.";
     domain =
       mkOpt str "cloud.aicampground.com" "Trusted Domain to serve Nextcloud On";
     # OnlyOffice configuration
     onlyoffice = mkBoolOpt true "Enable OnlyOffice integration";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     onlyoffice-vault-path = mkOpt str "secret/campground/onlyoffice"
       "The Vault path to the KV containing the OnlyOffice JWT Token";
     vault-path = mkOpt str "secret/campground/nextcloud"
@@ -42,7 +43,7 @@ in {
       home = cfg.home;
       datadir = cfg.dataDir; # Path for user data
       #TODO: Refactor this so we can keep versions of this inline easier
-      package = pkgs.nextcloud29; # Use the patched version
+      package = cfg.package;
       enableImagemagick = true;
       autoUpdateApps.enable = true;
       autoUpdateApps.startAt = "03:00:00";
@@ -68,7 +69,8 @@ in {
         inherit tasks deck calendar contacts forms notes polls phonetrack;
 
         # Security and authentication
-        inherit impersonate twofactor_webauthn user_oidc end_to_end_encryption notify_push;
+        inherit impersonate twofactor_webauthn user_oidc end_to_end_encryption
+          notify_push;
 
         # Group management, media, and collaboration tools
         inherit groupfolders memories maps spreed cookbook cospend;
@@ -123,14 +125,15 @@ in {
       };
     };
 
-    systemd.services.nextcloud-setup.serviceConfig.ExecStartPost = pkgs.writeScript "nextcloud-redis.sh" ''
+    systemd.services.nextcloud-setup.serviceConfig.ExecStartPost =
+      pkgs.writeScript "nextcloud-redis.sh" ''
         #!${pkgs.runtimeShell}
         nextcloud-occ config:system:set filelocking.enabled --value true --type bool
         nextcloud-occ config:system:set redis 'host' --value '/var/run/redis-nextcloud/redis.sock' --type string
         nextcloud-occ config:system:set redis 'port' --value 0 --type integer
         nextcloud-occ config:system:set memcache.local --value '\OC\Memcache\Redis' --type string
         nextcloud-occ config:system:set memcache.locking --value '\OC\Memcache\Redis' --type string
-    '';
+      '';
 
     services.redis.servers.nextcloud = {
       enable = true;
@@ -160,7 +163,8 @@ in {
         file = {
           files = {
             "nextcloud-adminpassFile" = {
-              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}{{ end }}'';
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}{{ end }}'';
               permissions = "0600";
               change-action = "restart";
             };
