@@ -138,10 +138,6 @@ in
           };
           restartIfChanged = true;
         };
-        package = pkgs.spark.overrideAttrs (super: {
-          pname = "spark";
-          version = "3.3.1";
-        });
         logDir = "/var/log/spark";
       };
       campground-blog = enabled;
