@@ -12,7 +12,7 @@ in pkgs.writeShellApplication {
   text = ''
     if [ "$#" -lt 3 ]; then
       echo "Usage: example-pyspark-job --master <master_url> --input <input_path> --output <output_path>"
-      echo "\nArguments:"
+      echo "Arguments:"
       echo "  --master <master_url>   URL of the Spark master (e.g., spark://reckless:7070)"
       echo "  --input <input_path>    Path to the input file (e.g., hdfs://reckless:9000/path/to/input.txt)"
       echo "  --output <output_path>  Path to the output directory (e.g., hdfs://reckless:9000/path/to/output)"
