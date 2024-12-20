@@ -137,9 +137,6 @@ with lib.campground; {
               leader_api_addr = "http://chesty:8200"
             }
             retry_join {
-              leader_api_addr = "http://lucas:8200"
-            }
-            retry_join {
               leader_api_addr = "http://ermy:8200"
             }
           '';

@@ -57,6 +57,22 @@ let
     # Vault address (e.g., local or cluster address)
     vault_addr="http://127.0.0.1:8200"
 
+    # Max retries and delay for checking readiness
+    max_retries=30
+    delay=2
+
+    # Check if Vault is ready by querying the UI endpoint
+    is_vault_ready() {
+        for i in $(seq 1 $max_retries); do
+            if curl -s "$vault_addr/ui/" | grep -q .; then
+                return 0
+            fi
+            echo "Waiting for Vault to be ready... ($i/$max_retries)"
+            sleep $delay
+        done
+        return 1
+    }
+
     # Check if Vault is sealed
     is_sealed() {
         ${package}/bin/vault status -address="$vault_addr" 2>/dev/null | grep -q "Sealed.*true"
@@ -82,11 +98,18 @@ let
     }
 
     # Main logic
-    if is_sealed; then
-        echo "Vault is sealed. Proceeding to unseal."
-        unseal_vault
+    echo "Checking if Vault is ready..."
+    if is_vault_ready; then
+        echo "Vault is ready."
+        if is_sealed; then
+            echo "Vault is sealed. Proceeding to unseal."
+            unseal_vault
+        else
+            echo "Vault is already unsealed. No action required."
+        fi
     else
-        echo "Vault is already unsealed. No action required."
+        echo "Vault did not become ready within the allotted time. Exiting."
+        exit 0
     fi
   '';
 
@@ -172,20 +195,9 @@ in
       '';
     };
 
-    systemd.services.vault = { };
-
-    systemd.services.vault-unseal =
-      mkIf (cfg.auto-unseal && cfg.tang-unseal-key != null) {
-        description =
-          "Run when Vault service restarts and needs to be unsealed";
-        wants = [ "vault.service" ]; # Ensures dependency on the Vault service
-        after = [ "vault.service" ]; # Ensures this runs after the Vault service
-        partOf = [ "vault.service" ]; # Ties this service to Vault's lifecycle
-        serviceConfig = {
-          Type = "oneshot";
-          ExecStart = "${unseal-script}/bin/clevis-unseal-vault";
-        };
-      };
+    systemd.services.vault.postStart =
+      mkIf (cfg.auto-unseal && cfg.tang-unseal-key != null)
+        "${unseal-script}/bin/clevis-unseal-vault";
 
     systemd.services.vault-policies =
       mkIf (has-policies || !cfg.mutable-policies) {

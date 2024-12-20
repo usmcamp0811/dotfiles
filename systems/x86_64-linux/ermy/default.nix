@@ -88,10 +88,7 @@ in
               leader_api_addr = "http://chesty:8200"
             }
             retry_join {
-              leader_api_addr = "http://mattis:8200"
-            }
-            retry_join {
-              leader_api_addr = "http://lucas:8200"
+              leader_api_addr = "http://daly:8200"
             }
           '';
         };
