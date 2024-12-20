@@ -50,68 +50,74 @@ let
         format-policy name (pkgs.writeText "${name}.hcl" value))
     cfg.policies;
 
-  unseal-script = pkgs.writeShellScriptBin "clevis-unseal-vault" ''
-    # Path to the encrypted file containing the unseal key
-    encrypted_file="${cfg.tang-unseal-key}"
+  unseal-script = pkgs.writeShellApplication {
+    name = "celvis-unseal-vault";
+    runtimeInputs = [ package pkgs.clevis ];
+    text = ''
+      # Path to the encrypted file containing the unseal key
+      encrypted_file="${cfg.tang-unseal-key}"
 
-    # Vault address (e.g., local or cluster address)
-    vault_addr="http://127.0.0.1:8200"
+      # Vault address (e.g., local or cluster address)
+      VAULT_ADDR="http://127.0.0.1:8200"
 
-    # Max retries and delay for checking readiness
-    max_retries=30
-    delay=2
+      # Max retries and delay for checking readiness
+      max_retries=30
+      delay=2
 
-    # Check if Vault is ready by querying the UI endpoint
-    is_vault_ready() {
-        for i in $(seq 1 $max_retries); do
-            if ${pkgs.curl}/bin/curl -s "$vault_addr/ui/" | grep -q .; then
-                return 0
-            fi
-            echo "Waiting for Vault to be ready... ($i/$max_retries)"
-            sleep $delay
-        done
-        return 1
-    }
+      # Check if Vault is ready by querying vault status
+      is_vault_ready() {
+          for i in $(seq 1 $max_retries); do
+              if ${package}/bin/vault status -address="$VAULT_ADDR" &>/dev/null; then
+                  return 0
+              fi
+              echo "Waiting for Vault to be ready... ($i/$max_retries)"
+              sleep $delay
+          done
+          return 0
+      }
 
-    # Check if Vault is sealed
-    is_sealed() {
-        ${package}/bin/vault status -address="$vault_addr" 2>/dev/null | grep -q "Sealed.*true"
-        return $?
-    }
+      # Check if Vault is sealed
+      is_sealed() {
+          if ${package}/bin/vault status -address="$VAULT_ADDR" 2>/dev/null | grep -q "Sealed.*true"; then
+              return 0
+          else
+              return 1
+          fi
+      }
 
-    # Unseal Vault using the key from the encrypted file
-    unseal_vault() {
-        echo "Attempting to unseal Vault..."
-        unseal_key=$(${pkgs.clevis}/bin/clevis decrypt < "$encrypted_file")
-        if [ $? -ne 0 ]; then
-            echo "Error: Failed to decrypt the unseal key."
-            exit 1
-        fi
+      # Unseal Vault using the key from the encrypted file
+      unseal_vault() {
+          echo "Attempting to unseal Vault..."
+          unseal_key=$(${pkgs.clevis}/bin/clevis decrypt < "$encrypted_file")
+          if [ -z "$unseal_key" ]; then
+              echo "Error: Failed to decrypt the unseal key."
+              exit 1
+          fi
 
-        ${package}/bin/vault operator unseal -address="$vault_addr" "$unseal_key"
-        if [ $? -eq 0 ]; then
-            echo "Vault successfully unsealed."
-        else
-            echo "Error: Failed to unseal Vault."
-            exit 1
-        fi
-    }
+          if ${package}/bin/vault operator unseal -address="$VAULT_ADDR" "$unseal_key"; then
+              echo "Vault successfully unsealed."
+          else
+              echo "Error: Failed to unseal Vault."
+              exit 1
+          fi
+      }
 
-    # Main logic
-    echo "Checking if Vault is ready..."
-    if is_vault_ready; then
-        echo "Vault is ready."
-        if is_sealed; then
-            echo "Vault is sealed. Proceeding to unseal."
-            unseal_vault
-        else
-            echo "Vault is already unsealed. No action required."
-        fi
-    else
-        echo "Vault did not become ready within the allotted time. Exiting."
-        exit 0
-    fi
-  '';
+      # Main logic
+      echo "Checking if Vault is ready..."
+      if is_vault_ready; then
+          echo "Vault is ready."
+          if is_sealed; then
+              echo "Vault is sealed. Proceeding to unseal."
+              unseal_vault
+          else
+              echo "Vault is already unsealed. No action required."
+          fi
+      else
+          echo "Vault did not become ready within the allotted time. Exiting."
+          exit 0
+      fi
+    '';
+  };
 
   write-policies-commands = mapAttrsToList
     (name: policy: ''
@@ -195,9 +201,25 @@ in
       '';
     };
 
-    systemd.services.vault.postStart =
-      mkIf (cfg.auto-unseal && cfg.tang-unseal-key != null)
-        "${unseal-script}/bin/clevis-unseal-vault";
+    systemd.services.vault-auto-unseal =
+      mkIf (cfg.auto-unseal && cfg.tang-unseal-key != null) {
+        description = "Vault Auto Unseal";
+
+        # Specify the script to run
+        serviceConfig = {
+          ExecStart = "${unseal-script}/bin/celvis-unseal-vault";
+
+          # Restart if it fails
+          Restart = "on-failure";
+        };
+
+        # Make this service depend on the Vault service
+        after = [ "vault.service" ];
+        requires = [ "vault.service" ];
+
+        # Optionally, stop/start with the Vault service
+        partOf = [ "vault.service" ];
+      };
 
     systemd.services.vault-policies =
       mkIf (has-policies || !cfg.mutable-policies) {
@@ -236,7 +258,7 @@ in
           role_id="$(cat '${cfg.policy-agent.auth.roleIdFilePath}')"
           secret_id="$(cat '${cfg.policy-agent.auth.secretIdFilePath}')"
 
-          seal_status=$(curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
+          seal_status=$(${pkgs.curl}/bin/curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
 
           echo "Seal Status: $seal_status"
 
