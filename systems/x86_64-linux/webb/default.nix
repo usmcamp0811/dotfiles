@@ -71,7 +71,7 @@ in
         enable = true;
         ui = true;
         auto-unseal = true;
-        snapshot = enabled;
+        snapshot = { enable = true; };
         storage = {
           backend = "raft";
           config = ''
