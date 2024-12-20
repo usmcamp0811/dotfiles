@@ -160,27 +160,8 @@ in
       '';
     };
 
-    systemd.services.vault-auto-unseal =
-      mkIf (cfg.auto-unseal && cfg.tang-unseal-key != null) {
-        description = "Vault Auto Unseal";
-
-        serviceConfig = {
-          Type = "oneshot";
-          Restart = "on-failure";
-          User = "root";
-          Group = "root";
-          ExecStart = "${unseal-script}/bin/celvis-unseal-vault";
-          RestartSec = 30;
-          RemainAfterExit = "yes";
-        };
-
-        # Make this service depend on the Vault service
-        after = [ "vault.service" ];
-        requires = [ "vault.service" ];
-
-        # Optionally, stop/start with the Vault service
-        partOf = [ "vault.service" ];
-      };
+    systemd.services.vault.postStart =
+      "${unseal-script}/bin/celvis-unseal-vault";
 
     systemd.services.vault-policies =
       mkIf (has-policies || !cfg.mutable-policies) {
