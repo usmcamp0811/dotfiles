@@ -206,7 +206,7 @@ in
           ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}/vault-snapshot.backup
 
           chown -R root:root ${cfg.snapshot.location}
-          chmod 400 root:root ${cfg.snapshot.location}/vault-snapshot.backup
+          chmod 400 ${cfg.snapshot.location}/vault-snapshot.backup
 
           echo "Vault Snapshot verified..."
 
