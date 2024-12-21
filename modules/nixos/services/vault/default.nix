@@ -153,8 +153,8 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
-    services.vault = {
+  config = {
+    services.vault = mkIf cfg.enable {
       enable = true;
       address = cfg.address;
       inherit package;
@@ -169,61 +169,10 @@ in
     };
 
     systemd.services.vault.postStart =
-      "${unseal-script}/bin/celvis-unseal-vault";
-
-    systemd.services.vault-snapshot =
-      mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
-        description = "Vault Raft Snapshot Service";
-        serviceConfig = { Type = "oneshot"; };
-
-        environment = { HOME = "/var/lib/vault"; };
-
-        script = ''
-          # Paths to the AppRole credentials
-          export VAULT_ADDR="${cfg.snapshot.vault-domain}"
-          ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
-          SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
-
-          # Check if the credential files exist
-          if [[ ! -f "$ROLE_ID_FILE" || ! -f "$SECRET_ID_FILE" ]]; then
-              echo "Error: AppRole credential files not found."
-              exit 1
-          fi
-
-          # Read the credentials
-          ROLE_ID=$(cat "$ROLE_ID_FILE")
-          SECRET_ID=$(cat "$SECRET_ID_FILE")
-
-          # Login to Vault using AppRole
-          export VAULT_TOKEN=$(${package}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID") 
-          echo "Successfully logged in to Vault."
-
-          mkdir -p ${cfg.snapshot.location}
-          echo "Creating Vault Raft Snapshot."
-          # take snapshot
-          ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}/vault-snapshot.backup
-          # make sure snapshot is good
-          ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}/vault-snapshot.backup
-
-          chown -R root:root ${cfg.snapshot.location}
-          chmod 400 ${cfg.snapshot.location}/vault-snapshot.backup
-
-          echo "Vault Snapshot verified..."
-
-        '';
-      };
-
-    systemd.timers."vault-snapshot" = {
-      description = "Take regular snapshots of the Vault Raft DB";
-      partOf = [ "vault-snapshot.service" ];
-      timerConfig = {
-        OnCalendar = cfg.snapshot.schedule;
-        Persistent = true;
-      };
-    };
+      mkIf cfg.enable "${unseal-script}/bin/celvis-unseal-vault";
 
     systemd.services.vault-policies =
-      mkIf (has-policies || !cfg.mutable-policies) {
+      mkIf (cfg.enable && (has-policies || !cfg.mutable-policies)) {
         wantedBy = [ "vault.service" ];
         after = [ "vault.service" ];
 
@@ -287,5 +236,56 @@ in
           exit 0
         '';
       };
+
+    systemd.services.vault-snapshot =
+      mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
+        description = "Vault Raft Snapshot Service";
+        serviceConfig = { Type = "oneshot"; };
+
+        environment = { HOME = "/var/lib/vault"; };
+
+        script = ''
+          # Paths to the AppRole credentials
+          export VAULT_ADDR="${cfg.snapshot.vault-domain}"
+          ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
+          SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
+
+          # Check if the credential files exist
+          if [[ ! -f "$ROLE_ID_FILE" || ! -f "$SECRET_ID_FILE" ]]; then
+              echo "Error: AppRole credential files not found."
+              exit 1
+          fi
+
+          # Read the credentials
+          ROLE_ID=$(cat "$ROLE_ID_FILE")
+          SECRET_ID=$(cat "$SECRET_ID_FILE")
+
+          # Login to Vault using AppRole
+          export VAULT_TOKEN=$(${package}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID") 
+          echo "Successfully logged in to Vault."
+
+          mkdir -p ${cfg.snapshot.location}
+          echo "Creating Vault Raft Snapshot."
+          # take snapshot
+          ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}/vault-snapshot.backup
+          # make sure snapshot is good
+          ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}/vault-snapshot.backup
+
+          chown -R root:root ${cfg.snapshot.location}
+          chmod 400 ${cfg.snapshot.location}/vault-snapshot.backup
+
+          echo "Vault Snapshot verified..."
+
+        '';
+      };
+
+    systemd.timers."vault-snapshot" = mkIf cfg.snapshot.enable {
+      description = "Take regular snapshots of the Vault Raft DB";
+      partOf = [ "vault-snapshot.service" ];
+      timerConfig = {
+        OnCalendar = cfg.snapshot.schedule;
+        Persistent = true;
+      };
+    };
   };
 }
