@@ -176,13 +176,11 @@ in
         description = "Vault Raft Snapshot Service";
         serviceConfig = { Type = "oneshot"; };
 
-        environment = {
-          HOME = "/var/lib/vault";
-          VAULT_ADDR = "${cfg.snapshot.vault-domain}";
-        };
+        environment = { HOME = "/var/lib/vault"; };
 
         script = ''
           # Paths to the AppRole credentials
+          export VAULT_ADDR = "${cfg.snapshot.vault-domain}";
           ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
           SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
 
@@ -197,7 +195,7 @@ in
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
           # Login to Vault using AppRole
-          VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          export VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           echo "Successfully logged in to Vault."
           echo wtf 
           ${package}/bin/vault kv get -field=HF_PASS secret/campground/nix-ai
