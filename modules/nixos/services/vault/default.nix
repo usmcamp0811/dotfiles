@@ -195,7 +195,7 @@ in
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
           # Login to Vault using AppRole
-          VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID" | ${pkgs.jq}/bin/jq -r '.auth.client_token')
+          VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           echo "Successfully logged in to Vault."
 
           mkdir -p ${cfg.snapshot.location}
