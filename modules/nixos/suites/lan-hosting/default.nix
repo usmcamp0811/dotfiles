@@ -337,8 +337,7 @@ in
                 { url = "http://daly:8200"; }
                 { url = "http://ermy:8200"; }
                 { url = "http://chesty:8200"; }
-                { url = "http://lucas:8200"; }
-                { url = "http://mattis:8200"; }
+                { url = "http://webb:8200"; }
               ];
               loadBalancer.healthCheck = {
                 path = "/v1/sys/health";
