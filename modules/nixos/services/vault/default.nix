@@ -180,7 +180,7 @@ in
 
         script = ''
           # Paths to the AppRole credentials
-          export VAULT_ADDR = "${cfg.snapshot.vault-domain}";
+          export VAULT_ADDR="${cfg.snapshot.vault-domain}"
           ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
           SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
 
