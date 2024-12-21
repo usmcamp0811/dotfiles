@@ -13,3 +13,4 @@ packages/blog/Campground/.hugo_build.lock
 packages/blog/Campground/resources/_gen
 packages/blog/Campground/assets/jsconfig.json
 node_modules
+**.qcow2
