@@ -180,7 +180,7 @@ in
 
         script = ''
           # Paths to the AppRole credentials
-          export VAULT_ADDR="${cfg.snapshot.vault-domain}"
+          VAULT_ADDR="${cfg.snapshot.vault-domain}"
           ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
           SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
 
@@ -195,11 +195,8 @@ in
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
           # Login to Vault using AppRole
-          export VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID" | ${pkgs.jq}/bin/jq -r '.auth.client_token')
+          VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID" | ${pkgs.jq}/bin/jq -r '.auth.client_token')
           echo "Successfully logged in to Vault."
-          echo wtf 
-          ${package}/bin/vault kv get -field=HF_PASS secret/campground/nix-ai
-          echo over
 
           mkdir -p ${cfg.snapshot.location}
           echo "Creating Vault Raft Snapshot."
@@ -208,8 +205,8 @@ in
           # make sure snapshot is good
           ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}/vault-snapshot.backup
 
-          chown -R ${cfg.policy-agent.user}:${cfg.policy-agent.group} ${cfg.snapshot.location}
-          chmod 400 ${cfg.policy-agent.user}:${cfg.policy-agent.group} ${cfg.snapshot.location}/vault-snapshot.backup
+          chown -R root:root ${cfg.snapshot.location}
+          chmod 400 root:root ${cfg.snapshot.location}/vault-snapshot.backup
 
           echo "Vault Snapshot verified..."
 
