@@ -148,8 +148,8 @@ in
         "The domain name of the Vault";
       location =
         mkOpt types.str "/persist/vault" "The place to store the snapshot";
-      schedule =
-        mkOpt types.str "23:50" "The schedule the snapshots should be run on";
+      schedule = mkOpt types.str "*-*-* 23:50:00 America/Chicago"
+        "The schedule the snapshots should be run on";
     };
   };
 
@@ -286,6 +286,7 @@ in
         OnCalendar = cfg.snapshot.schedule;
         Persistent = true;
       };
+      install.WantedBy = [ "timers.target" ];
     };
   };
 }
