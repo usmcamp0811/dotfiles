@@ -195,7 +195,7 @@ in
           SECRET_ID=$(cat "$SECRET_ID_FILE")
 
           # Login to Vault using AppRole
-          export VAULT_TOKEN=$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          export VAULT_TOKEN="$(${package}/bin/vault write -f auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
           echo "Successfully logged in to Vault."
           echo wtf 
           ${package}/bin/vault kv get -field=HF_PASS secret/campground/nix-ai
