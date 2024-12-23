@@ -87,7 +87,7 @@ in {
 
     networking.wireguard.enable = true;
     # TODO: Support multiple vpns
-    networking.wireguard.interfaces."${interface-name}" = {
+    networking.wireguard.interfaces."${cfg.interface-name}" = {
       privateKeyFile = "/var/lib/wireguard/${cfg.interface-name}-private-key";
       # The port that WireGuard listens to. Must be accessible by the client.
       listenPort = cfg.port;
