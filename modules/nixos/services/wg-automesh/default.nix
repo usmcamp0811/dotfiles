@@ -4,7 +4,8 @@ with lib.campground;
 let
   cfg = config.campground.services.wgautomesh;
   inherit (pkgs) wgautomesh;
-in {
+in
+{
   options.campground.services.wgautomesh = with types; {
     enable = mkBoolOpt false "Enable the wgautomesh service.";
     logLevel = mkOption {
@@ -15,7 +16,7 @@ in {
     enableGossipEncryption =
       mkBoolOpt true "Enable encryption of gossip traffic.";
     enablePersistence = mkBoolOpt true "Enable persistence of peer info.";
-    interface = mkOpt str "wg0" "Wireguard interface to manage.";
+    interface = mkOpt str "campnet" "Wireguard interface to manage.";
     gossipPort = mkOpt int 1666 "Gossip port used for peer discovery.";
     peers = mkOption {
       type = listOf (attrsOf str);
@@ -37,10 +38,10 @@ in {
     };
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Path to the Vault role-id.";
+        "Path to the Vault role-id.";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Path to the Vault secret-id.";
+        "Path to the Vault secret-id.";
   };
 
   config = mkIf cfg.enable {
@@ -48,7 +49,7 @@ in {
       enable = true;
       logLevel = cfg.logLevel;
       enableGossipEncryption = cfg.enableGossipEncryption;
-      gossipSecretFile = "/run/secrets/wgautomesh/gossip_secret";
+      gossipSecretFile = "/var/lib/wireguard/gossip_secret";
       enablePersistence = cfg.enablePersistence;
       openFirewall = true;
       settings = {
