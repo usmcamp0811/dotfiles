@@ -293,6 +293,7 @@ in
         port = 1149;
         interface-name = "campnet";
         ips = [ "10.100.0.1/24" ];
+        fetchWireguardKeys = true;
         peers = [
           {
             # butler

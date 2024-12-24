@@ -46,7 +46,7 @@ in {
         }
       ];
     };
-    fetchWireguardKeys = mkBoolOpt true "Should we get the Keys from Vault?";
+    fetchWireguardKeys = mkBoolOpt false "Should we get the Keys from Vault?";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
