@@ -7,9 +7,6 @@ in {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     interface-name = mkOpt str "wg0" "Name of WG interface";
     nic = mkOpt str "eno1" "Name of the NIC to use";
-    server = mkBoolOpt true "Is a Wireguard Server";
-    publicKey = mkOpt str "123456789" "The server's public key";
-    endpoint = mkOpt str "vpn.aicampground.com" "VPN Domain Name / IP address.";
     port = mkOpt int 1149 "Port to use for the VPN";
     ips = mkOpt (listOf str) [ "10.100.0.2/24" "fc10:100:0::1/64" ]
       "List of IPs of the server end of the tunner interface.";
