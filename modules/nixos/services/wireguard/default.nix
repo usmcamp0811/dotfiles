@@ -107,7 +107,7 @@ in {
         peers = cfg.peers;
       };
     };
-    systemd.services.getWireguardKeys = mkIf cfg.fetchWireguardKeys {
+    systemd.services.fetchWireguardKeys = mkIf cfg.fetchWireguardKeys {
       description = "Fetch Private Key from Vault";
       serviceConfig = {
         Type = "oneshot";
@@ -117,7 +117,7 @@ in {
       wantedBy = [ "multi-user.target" ];
     };
 
-    campground.services.vault-agent.services.getWireguardKeys = {
+    campground.services.vault-agent.services.fetchWireguardKeys = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
