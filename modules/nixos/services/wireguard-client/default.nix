@@ -1,37 +1,29 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.wireguard-client;
+with lib.campground;
+let cfg = config.campground.services.wireguard-client;
 in {
   options.campground.services.wireguard-client = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     publicKey = mkOpt str "123456789" "The client's public key";
     endpoint = mkOpt str "vpn.aicampground.com" "VPN Domain Name / IP address.";
     port = mkOpt int "1149" "Port to use for the VPN";
-    ips =
-      mkOpt (listOf str) ["10.100.0.5/32"]
+    ips = mkOpt (listOf str) [ "10.100.0.5/32" ]
       "List of IPs of the client's end of the tunner interface.";
-    ip =
-      mkOpt str "10.100.0.5/32"
+    ip = mkOpt str "10.100.0.5/32"
       "List of IPs of the client's end of the tunner interface.";
     vpn-name = mkOpt str "campnet" "Name of the VPN";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt str "secret/campground/wireguard"
+        "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/wireguard"
       "The Vault path to the Server Cert in Vault";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version used for tls key";
     };
@@ -45,7 +37,8 @@ in {
   config = mkIf cfg.enable {
     networking.firewall = {
       checkReversePath = false;
-      allowedUDPPorts = [cfg.port]; # Clients and peers can use the same port, see listenport
+      allowedUDPPorts =
+        [ cfg.port ]; # Clients and peers can use the same port, see listenport
     };
 
     systemd.services.getWireguardConf = {
@@ -55,7 +48,7 @@ in {
         Type = "oneshot";
       };
       # TODO: maybe change wantedBy to something else
-      wantedBy = ["graphical.target"];
+      wantedBy = [ "graphical.target" ];
       script = ''
         # Add the certificate to nmcli
         if ${pkgs.networkmanager}/bin/nmcli con show | grep -q ${cfg.vpn-name}; then
@@ -70,16 +63,14 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [
-            {
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }
-          ];
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
         };
       };
       secrets = {

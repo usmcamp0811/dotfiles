@@ -18,30 +18,15 @@ in
     enablePersistence = mkBoolOpt true "Enable persistence of peer info.";
     interface = mkOpt str "campnet" "Wireguard interface to manage.";
     gossipPort = mkOpt int 1666 "Gossip port used for peer discovery.";
+    gossipSecretFile = mkOpt str "/var/lib/wireguard/gossip-secret"
+      "Location of the Gossip Secret";
+    fetchGossipSecret =
+      mkBoolOpt true "Should you get the gossip secret file from Vault?";
     peers = mkOption {
       type = listOf (attrsOf str);
       default = [ ];
       description = "List of peer configurations.";
     };
-
-    vault-path = mkOpt str "secret/wgautomesh"
-      "The Vault path to the KV containing gossip secrets.";
-    kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
-      default = "v2";
-      description = "Vault KV store version.";
-    };
-    vault-address = mkOption {
-      type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
-      description = "The address of your Vault.";
-    };
-    role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Path to the Vault role-id.";
-    secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Path to the Vault secret-id.";
   };
 
   config = mkIf cfg.enable {
@@ -49,7 +34,7 @@ in
       enable = true;
       logLevel = cfg.logLevel;
       enableGossipEncryption = cfg.enableGossipEncryption;
-      gossipSecretFile = "/var/lib/wireguard/gossip_secret";
+      gossipSecretFile = cfg.gossipSecretFile;
       enablePersistence = cfg.enablePersistence;
       openFirewall = true;
       settings = {
@@ -58,9 +43,6 @@ in
         peers = cfg.peers;
       };
     };
-
-    systemd.tmpfiles.rules =
-      [ "d /run/secrets/wgautomesh 0700 wgautomesh wgautomesh -" ];
 
     campground.services.vault-agent.services.wgautomesh = {
       settings = {

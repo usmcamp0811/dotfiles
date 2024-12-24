@@ -49,6 +49,7 @@ in {
         }
       ];
     };
+    fetchWireguardKeys = mkBoolOpt true "Should we get the Keys from Vault?";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
@@ -85,29 +86,28 @@ in {
     networking.firewall.allowedUDPPorts = [ cfg.port 53 ];
     # networking.firewall.allowedTCPPorts = [ 53 ];
 
-    networking.wireguard.enable = true;
-    # TODO: Support multiple vpns
-    networking.wireguard.interfaces."${cfg.interface-name}" = {
-      privateKeyFile = "/var/lib/wireguard/${cfg.interface-name}-private-key";
-      # The port that WireGuard listens to. Must be accessible by the client.
-      listenPort = cfg.port;
-      # Determines the IP address and subnet of the server's end of the tunnel interface.
-      ips = cfg.ips;
-
-      # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
-      # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
-      postSetup = ''
-        ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s ${cfg.postRoutCIDR} -o ${cfg.nic} -j MASQUERADE;
-      '';
-
-      # This undoes the above command
-      postShutdown = ''
-        ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s ${cfg.postRoutCIDR} -o ${cfg.nic} -j MASQUERADE
-      '';
-      peers = cfg.peers;
+    networking.wireguard = {
+      enable = true;
+      # TODO: Support multiple vpns
+      interfaces."${cfg.interface-name}" = {
+        privateKeyFile = "/var/lib/wireguard/${cfg.interface-name}/private-key";
+        # The port that WireGuard listens to. Must be accessible by the client.
+        listenPort = cfg.port;
+        # Determines the IP address and subnet of the server's end of the tunnel interface.
+        ips = cfg.ips;
+        # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
+        # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
+        postSetup = ''
+          ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s ${cfg.postRoutCIDR} -o ${cfg.nic} -j MASQUERADE;
+        '';
+        # This undoes the above command
+        postShutdown = ''
+          ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s ${cfg.postRoutCIDR} -o ${cfg.nic} -j MASQUERADE
+        '';
+        peers = cfg.peers;
+      };
     };
-
-    systemd.services.getWireguardKeys = {
+    systemd.services.getWireguardKeys = mkIf cfg.fetchWireguardKeys {
       description = "Fetch Private Key from Vault";
       serviceConfig = {
         Type = "oneshot";
@@ -137,21 +137,20 @@ in {
             "getWireguardKeys.sh" = {
               text = ''
                 #!/bin/sh
-                set -e  # exit immediately on error
 
                 # Create directory for VPN certificates
-                mkdir -p /var/lib/wireguard
+                mkdir -p /var/lib/wireguard/${cfg.interface-name}
 
-                cat <<EOL > /var/lib/wireguard/${cfg.interface-name}-private-key
+                cat <<EOL > /var/lib/wireguard/${cfg.interface-name}/private-key
                 {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.privateKey }}{{ else }}{{ .Data.data.privateKey }}{{ end }}{{ end }}
                 EOL
 
-                cat <<EOL > /var/lib/wireguard/${cfg.interface-name}-preshared-key
+                cat <<EOL > /var/lib/wireguard/${cfg.interface-name}/preshared-key
                 {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.presharedKey }}{{ else }}{{ .Data.data.presharedKey }}{{ end }}{{ end }}
                 EOL
 
                 # Fix permissions
-                chmod -R 0600 /var/lib/wireguard
+                chmod -R 0600 /var/lib/wireguard/${cfg.interface-name}
               '';
               permissions = "0400";
               change-action = "restart";
