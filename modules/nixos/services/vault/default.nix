@@ -286,7 +286,7 @@ in
         OnCalendar = cfg.snapshot.schedule;
         Persistent = true;
       };
-      WantedBy = [ "timers.target" ];
+      wantedBy = [ "timers.target" ];
     };
   };
 }
