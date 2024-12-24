@@ -24,7 +24,7 @@ in
       mkBoolOpt true "Should you get the gossip secret file from Vault?";
     peers = mkOption {
       type = listOf (attrsOf str);
-      default = [ ];
+      default = config.campground.services.wireguard.peers;
       description = "List of peer configurations.";
     };
   };
