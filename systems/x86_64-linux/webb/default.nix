@@ -296,6 +296,11 @@ in
         fetchWireguardKeys = true;
         peers = [
           {
+            # daly
+            publicKey = "qUnW//Iq8eq2D5dKMfsIa0zCewUSOSVaLtpO7AxWXAE=";
+            allowedIPs = [ "10.100.0.10/32" ];
+          }
+          {
             # butler
             publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
             presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
