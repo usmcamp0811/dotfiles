@@ -286,7 +286,7 @@ in
         OnCalendar = cfg.snapshot.schedule;
         Persistent = true;
       };
-      install.WantedBy = [ "timers.target" ];
+      WantedBy = [ "timers.target" ];
     };
   };
 }

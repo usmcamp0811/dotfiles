@@ -291,6 +291,7 @@ in
       wireguard = {
         enable = true;
         port = 1149;
+        interface-name = "campnet";
         ips = [ "10.100.0.1/24" ];
         peers = [
           {
