@@ -112,7 +112,8 @@ in {
         User = "root";
         ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
       };
-      wantedBy = [ "multi-user.target" "wireguard-${cfg.interface-name}" ];
+      wantedBy =
+        [ "multi-user.target" "wireguard-${cfg.interface-name}.target" ];
       after = [ "network-online.target" ];
       requires = [ "network-online.target" ];
     };
@@ -131,7 +132,8 @@ in {
           ${pkgs.wireguard-tools}/bin/wg pubkey < /var/lib/wireguard/${cfg.interface-name}/private-key > /var/lib/wireguard/${cfg.interface-name}/public-key
         fi
       '';
-      wantedBy = [ "multi-user.target" "wireguard-${cfg.interface-name}" ];
+      wantedBy =
+        [ "multi-user.target" "wireguard-${cfg.interface-name}.target" ];
       after = [ "network-online.target" ];
       requires = [ "network-online.target" ];
     };
