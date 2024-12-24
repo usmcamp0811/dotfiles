@@ -113,6 +113,8 @@ in {
         ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
       };
       wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      requires = [ "network-online.target" ];
     };
 
     systemd.services.mkWireguardKey = mkIf (!cfg.fetchWireguardKeys) {
@@ -130,6 +132,8 @@ in {
         fi
       '';
       wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      requires = [ "network-online.target" ];
     };
 
     campground.services.vault-agent.services.fetchWireguardKeys = {
