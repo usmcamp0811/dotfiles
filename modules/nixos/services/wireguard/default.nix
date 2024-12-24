@@ -1,7 +1,38 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.wireguard;
+let
+  cfg = config.campground.services.wireguard;
+  killswitch-on = ''
+    # Mark packets on the wg0 interface
+    wg set ${cfg.interface-name} fwmark 51820
+
+    # Forbid anything else which doesn't go through wireguard VPN on
+    # ipV4 and ipV6
+    ${pkgs.iptables}/bin/iptables -A OUTPUT \
+      ! -d 192.168.0.0/16 \
+      ! -o ${cfg.interface-name} \
+      -m mark ! --mark $(wg show ${cfg.interface-name} fwmark) \
+      -m addrtype ! --dst-type LOCAL \
+      -j REJECT
+    ${pkgs.iptables}/bin/ip6tables -A OUTPUT \
+      ! -o ${cfg.interface-name} \
+      -m mark ! --mark $(wg show ${cfg.interface-name} fwmark) \
+      -m addrtype ! --dst-type LOCAL \
+      -j REJECT
+  '';
+  killswitch-off = ''
+    ${pkgs.iptables}/bin/iptables -D OUTPUT \
+      ! -o ${cfg.interface-name} \
+      -m mark ! --mark $(wg show ${cfg.interface-name} fwmark) \
+      -m addrtype ! --dst-type LOCAL \
+      -j REJECT
+    ${pkgs.iptables}/bin/ip6tables -D OUTPUT \
+      ! -o ${cfg.interface-name} -m mark \
+      ! --mark $(wg show ${cfg.interface-name} fwmark) \
+      -m addrtype ! --dst-type LOCAL \
+      -j REJECT
+  '';
 in {
   options.campground.services.wireguard = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
@@ -13,9 +44,14 @@ in {
     allowedIPs = mkOpt (listOf str) [ "10.100.0.5/32" "fc10:100:0::5/128" ]
       "List of IPs of the client IPs supported.";
     postRoutCIDR = mkOpt str "10.100.0.0/24" "CIDR to route traffic to..";
+    killswitch = mkBoolOpt false "keep all traffici n VPN";
     peers = mkOption {
       type = types.listOf (types.submodule {
         options = {
+          name = mkOption {
+            type = types.str;
+            description = "name of the peer.";
+          };
           publicKey = mkOption {
             type = types.str;
             description = "Public key of the peer.";
@@ -28,6 +64,11 @@ in {
           presharedKeyFile = mkOption {
             type = types.str;
             description = "PreShared key of the peer.";
+          };
+          endpoint = mkOption {
+            type = (types.nullOr types.str);
+            default = null;
+            description = "endpoint for this peer.";
           };
         };
       });
@@ -49,10 +90,10 @@ in {
     fetchWireguardKeys = mkBoolOpt false "Should we get the Keys from Vault?";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/wireguard"
       "The Vault path to the Server Cert in Vault";
     kvVersion = mkOption {
@@ -81,6 +122,7 @@ in {
 
     boot.kernel.sysctl = { "net.ipv4.ip_forward" = 1; };
     networking.firewall.allowedUDPPorts = [ cfg.port 53 ];
+    systemd.network.netdevs.cyclops.wireguardPeers = cfg.peers;
     # networking.firewall.allowedTCPPorts = [ 53 ];
 
     networking.wireguard = {
@@ -96,10 +138,14 @@ in {
         # For this to work you have to set the dnsserver IP of your router (or dnsserver of choice) in your clients
         postSetup = ''
           ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s ${cfg.postRoutCIDR} -o ${cfg.nic} -j MASQUERADE;
+          ${if cfg.killswitch then killswitch-on else ""}
+
         '';
         # This undoes the above command
         postShutdown = ''
           ${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s ${cfg.postRoutCIDR} -o ${cfg.nic} -j MASQUERADE
+          ${if cfg.killswitch then killswitch-off else ""}
+
         '';
         peers = cfg.peers;
       };
