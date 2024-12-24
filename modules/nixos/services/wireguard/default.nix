@@ -107,6 +107,7 @@ in {
         peers = cfg.peers;
       };
     };
+
     systemd.services.fetchWireguardKeys = mkIf cfg.fetchWireguardKeys {
       description = "Fetch Private Key from Vault";
       serviceConfig = {
@@ -114,6 +115,23 @@ in {
         User = "root";
         ExecStart = "/bin/sh /tmp/detsys-vault/getWireguardKeys.sh";
       };
+      wantedBy = [ "multi-user.target" ];
+    };
+
+    systemd.services.mkWireguardKey = mkIf (!cfg.fetchWireguardKeys) {
+      description = "Create WireGuard Private Key if not exists";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+      };
+      script = ''
+        mkdir -p /var/lib/wireguard/${cfg.interface-name}
+        if [ ! -f /var/lib/wireguard/${cfg.interface-name}/private-key ]; then
+          umask 077
+          ${pkgs.wireguard-tools}/bin/wg genkey > /var/lib/wireguard/${cfg.interface-name}/private-key
+          ${pkgs.wireguard-tools}/bin/wg pubkey < /var/lib/wireguard/${cfg.interface-name}/private-key > /var/lib/wireguard/${cfg.interface-name}/public-key
+        fi
+      '';
       wantedBy = [ "multi-user.target" ];
     };
 
