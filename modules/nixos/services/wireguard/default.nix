@@ -33,7 +33,8 @@ let
       -m addrtype ! --dst-type LOCAL \
       -j REJECT
   '';
-in {
+in
+{
   options.campground.services.wireguard = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     interface-name = mkOpt str "wg0" "Name of WG interface";
@@ -45,55 +46,14 @@ in {
       "List of IPs of the client IPs supported.";
     postRoutCIDR = mkOpt str "10.100.0.0/24" "CIDR to route traffic to..";
     killswitch = mkBoolOpt false "keep all traffici n VPN";
-    peers = mkOption {
-      type = types.listOf (types.submodule {
-        options = {
-          name = mkOption {
-            type = types.str;
-            description = "name of the peer.";
-          };
-          publicKey = mkOption {
-            type = types.str;
-            description = "Public key of the peer.";
-          };
-          allowedIPs = mkOption {
-            type = types.listOf types.str;
-            default = [ ];
-            description = "IPs allowed for this peer.";
-          };
-          presharedKeyFile = mkOption {
-            type = types.str;
-            description = "PreShared key of the peer.";
-          };
-          endpoint = mkOption {
-            type = (types.nullOr types.str);
-            default = null;
-            description = "endpoint for this peer.";
-          };
-        };
-      });
-      default = [ ];
-      description = "Configuration for WireGuard peers.";
-      example = [
-        {
-          publicKey = "public1";
-          presharedKeyFile = "/var/lib/wireguard/preshared-keyfile";
-          allowedIPs = [ "10.100.0.2/32" ];
-        }
-        {
-          publicKey = "public2";
-          presharedKeyFile = "/var/lib/wireguard/preshared-keyfile";
-          allowedIPs = [ "10.100.0.3/32" ];
-        }
-      ];
-    };
+    peers = mkOpt (listOf { }) [ ] "Configuration for WireGuard peers.";
     fetchWireguardKeys = mkBoolOpt false "Should we get the Keys from Vault?";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/wireguard"
       "The Vault path to the Server Cert in Vault";
     kvVersion = mkOption {
