@@ -6,12 +6,12 @@ let
   cfg = config.campground.services.n8n;
   format = pkgs.formats.json { };
   configFile = format.generate "n8n.json" cfg.settings;
-  cfg.setting.port = mkForce cfg.port;
+  cfg.port = cfg.setting.port;
 in
 {
   options.campground.services.n8n = with types; {
     enable = mkBoolOpt false "Enable n8n.";
-    port = mkOpt int 5678 "Port for n8n";
+    # port = mkOpt int 5678 "Port for n8n";
     webhookUrl = mkOption {
       type = str;
       default = "";
