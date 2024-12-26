@@ -92,15 +92,15 @@ in
               loadBalancer.servers = [{ url = "http://webb:16969"; }];
             };
 
-            http.routers.plaid = {
-              rule = "Host(`plaid.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "plaid";
-            };
-
-            http.services.plaid = {
-              loadBalancer.servers = [{ url = "http://reckless:3000"; }];
-            };
+            # http.routers.plaid = {
+            #   rule = "Host(`plaid.lan.aicampground.com`)";
+            #   entryPoints = [ "websecure" ];
+            #   service = "plaid";
+            # };
+            #
+            # http.services.plaid = {
+            #   loadBalancer.servers = [{ url = "http://reckless:3000"; }];
+            # };
 
             http.routers.firefly = {
               rule = "Host(`firefly.lan.aicampground.com`)";

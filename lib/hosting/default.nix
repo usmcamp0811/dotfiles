@@ -1,7 +1,7 @@
 { lib, inputs, ... }:
 with lib; rec {
 
-  lookupServiceEndpoint = { nixosConfigurations, serviceName }:
+  lookupServiceEndpoint = { serviceName }:
 
     let
       # Helper function to construct the URL for a service
@@ -14,9 +14,10 @@ with lib; rec {
 
       # Collect all URLs for hosts with the service enabled
       serviceUrls = builtins.filter (url: url != null)
-        (map (host: getServiceUrl host nixosConfigurations.${host})
-          (builtins.attrNames nixosConfigurations));
-    in serviceUrls;
+        (map (host: getServiceUrl host inputs.self.nixosConfigurations.${host})
+          (builtins.attrNames inputs.self.nixosConfigurations));
+    in
+    serviceUrls;
 
   getWireGuardPeers = { nixosConfigurations, interfaceName }:
 
