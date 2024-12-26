@@ -106,7 +106,6 @@ with lib.campground; {
 
     apps = {
       barrier = enabled;
-      element-desktop = enabled;
       firefox = enabled;
       brave = enabled;
       libreoffice = enabled;
