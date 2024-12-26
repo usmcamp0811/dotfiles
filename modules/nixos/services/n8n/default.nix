@@ -5,13 +5,12 @@ let
   # TODO: One day maybe pass credentials automatically into n8n via Vault
   cfg = config.campground.services.n8n;
   format = pkgs.formats.json { };
-  configFile = format.generate "n8n.json" cfg.settings;
-  cfg.port = cfg.setting.port;
+  configFile = format.generate "n8n.json" cfg.settings // { port = cfg.port; };
 in
 {
   options.campground.services.n8n = with types; {
     enable = mkBoolOpt false "Enable n8n.";
-    # port = mkOpt int 5678 "Port for n8n";
+    port = mkOpt int 5678 "Port for n8n";
     webhookUrl = mkOption {
       type = str;
       default = "";
