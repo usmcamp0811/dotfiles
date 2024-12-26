@@ -1,17 +1,9 @@
-{
-  inputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ inputs, lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let
-  cfg = config.campground.services.flakeforge;
+let cfg = config.campground.services.flakeforge;
 
-in
-{
+in {
   options.campground.services.flakeforge = with types; {
     enable = mkBoolOpt false "Enable Flake Forge";
     listenAddress = mkOption {
@@ -19,7 +11,7 @@ in
       default = "0.0.0.0";
       description = "The address to listen on.";
     };
-    listenPort = mkOption {
+    port = mkOption {
       type = port;
       default = 15000;
       description = "The port to listen on.";
@@ -40,7 +32,7 @@ in
     services.flakeforge = {
       enable = cfg.enable;
       listenAddress = cfg.listenAddress;
-      listenPort = cfg.listenPort;
+      listenPort = cfg.port;
       flakeRoot = cfg.flakeRoot;
       extraFlags = cfg.extraFlags;
     };
