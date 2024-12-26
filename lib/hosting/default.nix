@@ -16,7 +16,29 @@ with lib; rec {
       serviceUrls = builtins.filter (url: url != null)
         (map (host: getServiceUrl host nixosConfigurations.${host})
           (builtins.attrNames nixosConfigurations));
-    in
-    serviceUrls;
+    in serviceUrls;
 
+  getWireGuardPeers = { nixosConfigurations, interfaceName }:
+
+    let
+      # Helper function to construct the peer configuration
+      getPeerConfig = host: cfg:
+        let
+          wgConfig =
+            cfg.config.networking.wireguard.interfaces.${interfaceName} or { };
+          publicKey = wgConfig.publicKey or null;
+          presharedKeyFile = wgConfig.presharedKeyFile or null;
+          allowedIPs = wgConfig.allowedIPs or [ ];
+        in if publicKey != null then {
+          publicKey = publicKey;
+          presharedKeyFile = presharedKeyFile;
+          allowedIPs = allowedIPs;
+        } else
+          null;
+
+      # Collect all peer configurations for hosts with the interface defined
+      peerConfigs = builtins.filter (peer: peer != null)
+        (map (host: getPeerConfig host nixosConfigurations.${host})
+          (builtins.attrNames nixosConfigurations));
+    in peerConfigs;
 }
