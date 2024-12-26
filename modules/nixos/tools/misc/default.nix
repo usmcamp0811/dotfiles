@@ -4,8 +4,6 @@ with lib.campground;
 let
   cfg = config.campground.tools.misc;
   flake-src = ../../../..;
-  configs = inputs.self.nixosConfigurations;
-  sys = lib.campground.findVaultPathsAndFields configs.butler.config.campground;
 in
 {
   options.campground.tools.misc = with types; {
@@ -14,7 +12,6 @@ in
 
   config = mkIf cfg.enable {
     campground.home.configFile."wgetrc".text = "";
-    campground.home.configFile."tst.json".text = builtins.toJSON sys;
 
     environment.systemPackages = with pkgs; [
       fzf
