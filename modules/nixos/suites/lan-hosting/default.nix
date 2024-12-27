@@ -52,18 +52,6 @@ in
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
-            http.routers.test = {
-              rule = "Host(`test.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "test";
-            };
-
-            http.services.test = {
-              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
-                nixosConfigurations = inputs.self.nixosConfigurations;
-                serviceName = "n8n";
-              };
-            };
 
             http.routers.flake-forge = {
               rule = "Host(`flakeforge.lan.aicampground.com`)";
@@ -72,7 +60,10 @@ in
             };
 
             http.services.flake-forge = {
-              loadBalancer.servers = [{ url = "http://reckless:15000"; }];
+              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+                nixosConfigurations = inputs.self.nixosConfigurations;
+                serviceName = "flake-forge";
+              };
             };
 
             http.routers.file-share = {
@@ -82,7 +73,10 @@ in
             };
 
             http.services.file-share = {
-              loadBalancer.servers = [{ url = "http://reckless:8380"; }];
+              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+                nixosConfigurations = inputs.self.nixosConfigurations;
+                serviceName = "file-share";
+              };
             };
 
             http.routers.n8n = {
@@ -92,7 +86,10 @@ in
             };
 
             http.services.n8n = {
-              loadBalancer.servers = [{ url = "http://lucas:5678"; }];
+              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+                nixosConfigurations = inputs.self.nixosConfigurations;
+                serviceName = "n8n";
+              };
             };
 
             http.routers.matomo = {
@@ -102,7 +99,10 @@ in
             };
 
             http.services.matomo = {
-              loadBalancer.servers = [{ url = "http://webb:16969"; }];
+              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+                nixosConfigurations = inputs.self.nixosConfigurations;
+                serviceName = "matomo";
+              };
             };
 
             # http.routers.plaid = {
@@ -122,7 +122,10 @@ in
             };
 
             http.services.firefly = {
-              loadBalancer.servers = [{ url = "http://webb:16244"; }];
+              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+                nixosConfigurations = inputs.self.nixosConfigurations;
+                serviceName = "firefly";
+              };
             };
 
             http.routers.local-ai = {

@@ -8,7 +8,10 @@ with lib; rec {
       getServiceUrl = host: cfg:
         if cfg.config.campground.services.${serviceName}.enable or false then
           let port = cfg.config.campground.services.${serviceName}.port or null;
-          in if port != null then "http://${host}:${toString port}" else null
+          in if port != null then {
+            url = "http://${host}:${toString port}";
+          } else
+            null
         else
           null;
 
