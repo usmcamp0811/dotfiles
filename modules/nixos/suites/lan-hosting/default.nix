@@ -52,6 +52,16 @@ in
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.test = {
+              rule = "Host(`test.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "test";
+            };
+
+            http.services.test = {
+              loadBalancer.servers = [ lib.lookupServiceEndpoint "n8n" ];
+            };
+
             http.routers.flake-forge = {
               rule = "Host(`flakeforge.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
