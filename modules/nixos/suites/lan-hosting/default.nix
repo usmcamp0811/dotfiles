@@ -81,12 +81,7 @@ in
               service = "file-share";
             };
 
-            http.services.file-share = {
-              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
-                nixosConfigurations = inputs.self.nixosConfigurations;
-                serviceName = "file-share";
-              };
-            };
+            http.services.file-share = generateServiceConfig "file-share";
 
             http.routers.n8n = {
               rule = "Host(`n8n.lan.aicampground.com`)";
@@ -94,12 +89,7 @@ in
               service = "n8n";
             };
 
-            http.services.n8n = {
-              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
-                nixosConfigurations = inputs.self.nixosConfigurations;
-                serviceName = "n8n";
-              };
-            };
+            http.services.n8n = generateServiceConfig "n8n";
 
             http.routers.matomo = {
               rule = "Host(`matomo.lan.aicampground.com`)";
@@ -107,12 +97,7 @@ in
               service = "matomo";
             };
 
-            http.services.matomo = {
-              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
-                nixosConfigurations = inputs.self.nixosConfigurations;
-                serviceName = "matomo";
-              };
-            };
+            http.services.matomo = generateServiceConfig "matomo";
 
             # http.routers.plaid = {
             #   rule = "Host(`plaid.lan.aicampground.com`)";
@@ -130,12 +115,7 @@ in
               service = "firefly";
             };
 
-            http.services.firefly = {
-              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
-                nixosConfigurations = inputs.self.nixosConfigurations;
-                serviceName = "firefly";
-              };
-            };
+            http.services.firefly = generateServiceConfig "firefly";
 
             http.routers.local-ai = {
               rule = "Host(`local-ai.lan.aicampground.com`)";
@@ -143,9 +123,7 @@ in
               service = "local-ai";
             };
 
-            http.services.local-ai = {
-              loadBalancer.servers = [{ url = "http://reckless:18080"; }];
-            };
+            http.services.local-ai = generateServiceConfig "local-ai";
 
             http.routers.open-webui = {
               rule = "Host(`chad.lan.aicampground.com`)";
@@ -153,9 +131,7 @@ in
               service = "open-webui";
             };
 
-            http.services.open-webui = {
-              loadBalancer.servers = [{ url = "http://reckless:18580"; }];
-            };
+            http.services.open-webui = generateServiceConfig "open-webui";
 
             http.routers.schema-registry = {
               rule = "Host(`schema-registry.lan.aicampground.com`)";
@@ -163,9 +139,8 @@ in
               service = "schema-registry";
             };
 
-            http.services.schema-registry = {
-              loadBalancer.servers = [{ url = "http://10.8.0.70:8436"; }];
-            };
+            http.services.schema-registry =
+              generateServiceConfig "schema-registry";
 
             http.routers.akhq = {
               rule = "Host(`akhq.lan.aicampground.com`)";
@@ -173,9 +148,7 @@ in
               service = "akhq";
             };
 
-            http.services.akhq = {
-              loadBalancer.servers = [{ url = "http://lucas:8435"; }];
-            };
+            http.services.akhq = generateServiceConfig "akhq";
 
             http.routers.kafka = {
               rule = "Host(`kafka.lan.aicampground.com`)";
@@ -183,14 +156,7 @@ in
               service = "kafka";
             };
 
-            http.services.kafka = {
-              loadBalancer.servers = [
-                { url = "http://lucas:9092"; }
-                { url = "http://webb:9092"; }
-                { url = "http://chest:9092"; }
-                { url = "http://daly:9092"; }
-              ];
-            };
+            http.services.kafka = generateServiceConfig "kafka";
 
             http.routers.prometheus = {
               rule = "Host(`prometheus.lan.aicampground.com`)";
@@ -198,9 +164,7 @@ in
               service = "prometheus";
             };
 
-            http.services.prometheus = {
-              loadBalancer.servers = [{ url = "http://webb:9011"; }];
-            };
+            http.services.prometheus = generateServiceConfig "prometheus";
 
             http.routers.grafana = {
               rule = "Host(`grafana.lan.aicampground.com`)";
@@ -208,9 +172,7 @@ in
               service = "grafana";
             };
 
-            http.services.grafana = {
-              loadBalancer.servers = [{ url = "http://webb:7443"; }];
-            };
+            http.services.grafana = generateServiceConfig "grafana";
 
             http.routers.keycloak = {
               rule = "Host(`keycloak.lan.aicampground.com`)";
@@ -218,9 +180,7 @@ in
               service = "keycloak";
             };
 
-            http.services.keycloak = {
-              loadBalancer.servers = [{ url = "http://webb:43852"; }];
-            };
+            http.services.keycloak = generateServiceConfig "keycloak";
 
             http.routers.hydra = {
               rule = "Host(`hydra.lan.aicampground.com`)";
@@ -228,9 +188,7 @@ in
               service = "hydra";
             };
 
-            http.services.hydra = {
-              loadBalancer.servers = [{ url = "http://chesty:6956"; }];
-            };
+            http.services.hydra = generateServiceConfig "hydra";
 
             http.routers.uptime-kuma = {
               rule = "Host(`uptime.lan.aicampground.com`)";
@@ -238,9 +196,7 @@ in
               service = "uptime-kuma";
             };
 
-            http.services.uptime-kuma = {
-              loadBalancer.servers = [{ url = "http://webb:4000"; }];
-            };
+            http.services.uptime-kuma = generateServiceConfig "uptime-kuma";
 
             http.routers.pub-traefik = {
               rule = "Host(`public-traefik.lan.aicampground.com`)";
@@ -258,9 +214,7 @@ in
               service = "sonar";
             };
 
-            http.services.sonar = {
-              loadBalancer.servers = [{ url = "http://chesty:8989"; }];
-            };
+            http.services.sonar = generateServiceConfig "sonar";
 
             http.routers.reiverr = {
               rule = "Host(`reiverr.lan.aicampground.com`)";
@@ -268,9 +222,7 @@ in
               service = "reiverr";
             };
 
-            http.services.reiverr = {
-              loadBalancer.servers = [{ url = "http://chesty:9494"; }];
-            };
+            http.services.sonar = generateServiceConfig "sonar";
 
             http.routers.radar = {
               rule = "Host(`radar.lan.aicampground.com`)";
