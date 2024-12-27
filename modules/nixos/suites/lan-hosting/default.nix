@@ -322,12 +322,16 @@ in
             };
 
             http.services.vault = {
-              loadBalancer.servers = [
-                { url = "http://daly:8200"; }
-                { url = "http://ermy:8200"; }
-                { url = "http://chesty:8200"; }
-                { url = "http://webb:8200"; }
-              ];
+              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+                nixosConfigurations = inputs.self.nixosConfigurations;
+                serviceName = "vault";
+              };
+              # loadBalancer.servers = [
+              #   { url = "http://daly:8200"; }
+              #   { url = "http://ermy:8200"; }
+              #   { url = "http://chesty:8200"; }
+              #   { url = "http://webb:8200"; }
+              # ];
               loadBalancer.healthCheck = {
                 path = "/v1/sys/health";
                 interval = "10s";
@@ -341,9 +345,7 @@ in
               service = "nixery";
             };
 
-            http.services.nixery = {
-              loadBalancer.servers = [{ url = "http://webb:4567"; }];
-            };
+            http.services.nixery = generateServiceConfig "nixery";
 
             http.routers.paperless = {
               rule = "Host(`docs.lan.aicampground.com`)";

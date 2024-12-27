@@ -126,7 +126,9 @@ in
       path = mkOpt types.str "/var/lib/vault/data" "Path";
       config = mkOpt (types.nullOr types.str) null "Config";
     };
-    address = mkOpt types.str "0.0.0.0:8200" "Where to access vault UI at";
+    address =
+      mkOpt types.str "0.0.0.0:${cfg.port}" "Where to access vault UI at";
+    port = mkOpt types.int 8200 "Port for UI";
     settings = mkOpt types.str "" "Configuration for Vault's config file.";
     mutable-policies = mkBoolOpt false
       "Whether policies not specified in Nix should be removed.";
