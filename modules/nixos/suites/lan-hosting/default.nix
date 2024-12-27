@@ -13,11 +13,7 @@ let
         serviceName = serviceName;
       };
     in
-    {
-      http.services.${serviceName} = {
-        loadBalancer.servers = serviceEndpoints;
-      };
-    };
+    { loadBalancer.servers = serviceEndpoints; };
   jsonValue = with types;
     let
       valueType = nullOr
