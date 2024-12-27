@@ -73,7 +73,7 @@ in
               service = "flake-forge";
             };
 
-            generateServiceConfig "flake-forge";
+            http.services.flake-forge = generateServiceConfig "flake-forge";
 
             http.routers.file-share = {
               rule = "Host(`files.lan.aicampground.com`)";
