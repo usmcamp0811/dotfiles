@@ -46,8 +46,29 @@ let
       HOST=$1
       ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
     '';
+    ssh = ''
+      local target_host="$1"
+      local known_hosts_file="''${HOME}/.ssh/known_hosts"
+      local allowed_hosts=("10.8.0.69" "10.8.0.42")
+
+      if [[ " ''${allowed_hosts[*]} " =~ " ''${target_host} " ]]; then
+          echo "Handling special case for $target_host..."
+          # Remove the existing key if it exists
+          ssh-keygen -R "$target_host" > /dev/null 2>&1
+          echo "Removed existing key for $target_host (if it existed)."
+          
+          # Add the new host key to known_hosts
+          ssh-keyscan -H "$target_host" >> "$known_hosts_file" 2>/dev/null
+          echo "Added new key for $target_host to known_hosts."
+      fi
+
+      # Pass all arguments to the regular ssh command
+      command ssh "$@"
+    '';
+
   });
-in {
+in
+{
   options.campground.cli.aliases = with types;
     mkOption {
       type = attrsOf str;
