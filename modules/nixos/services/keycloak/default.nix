@@ -68,8 +68,8 @@ in {
       };
 
       settings = {
-        hostname = "keycloak.lan.aicampground.com";
-        hostname-admin-url = "https://keycloak.lan.aicampground.com";
+        hostname = cfg.domain;
+        hostname-admin-url = "https://${cfg.domain}";
         http-port = cfg.port;
         http-host = "0.0.0.0";
         # hostname-strict-backchannel = true;

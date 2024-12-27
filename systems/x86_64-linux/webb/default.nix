@@ -182,10 +182,10 @@ in
         ];
       };
       collabora = enabled;
-      # keycloak = {
-      #   enable = true;
-      #   port = 43852;
-      # };
+      keycloak = {
+        enable = true;
+        port = 43852;
+      };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
