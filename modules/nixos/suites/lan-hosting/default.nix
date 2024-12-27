@@ -222,7 +222,7 @@ in
               service = "reiverr";
             };
 
-            http.services.sonar = generateServiceConfig "sonar";
+            http.services.reiverr = generateServiceConfig "reiverr";
 
             http.routers.radar = {
               rule = "Host(`radar.lan.aicampground.com`)";
