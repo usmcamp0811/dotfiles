@@ -345,6 +345,10 @@
           path = ./templates/flink-job;
           description = "An example of how to use my mkPyFlinkDerivation";
         };
+        new-azure-vm = {
+          path = ./templates/new-azure-vm;
+          description = "A template for a new azure vm";
+        };
       };
     };
 }
