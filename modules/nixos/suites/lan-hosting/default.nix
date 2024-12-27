@@ -4,6 +4,20 @@ with lib.campground;
 let
 
   cfg = config.campground.suites.lan-hosting;
+
+  generateServiceConfig = serviceName:
+    let
+      # Use the existing `lookupServiceEndpoint` function
+      serviceEndpoints = lib.campground.lookupServiceEndpoint {
+        nixosConfigurations = inputs.self.nixosConfigurations;
+        serviceName = serviceName;
+      };
+    in
+    {
+      http.services.${serviceName} = {
+        loadBalancer.servers = serviceEndpoints;
+      };
+    };
   jsonValue = with types;
     let
       valueType = nullOr
@@ -59,12 +73,7 @@ in
               service = "flake-forge";
             };
 
-            http.services.flake-forge = {
-              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
-                nixosConfigurations = inputs.self.nixosConfigurations;
-                serviceName = "flake-forge";
-              };
-            };
+            generateServiceConfig "flake-forge";
 
             http.routers.file-share = {
               rule = "Host(`files.lan.aicampground.com`)";
