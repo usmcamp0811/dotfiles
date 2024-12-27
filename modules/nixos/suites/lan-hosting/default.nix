@@ -214,7 +214,9 @@ in
               service = "sonar";
             };
 
-            http.services.sonar = generateServiceConfig "sonar";
+            http.services.sonar = {
+              loadBalancer.servers = [{ url = "http://chesty:8989"; }];
+            };
 
             http.routers.reiverr = {
               rule = "Host(`reiverr.lan.aicampground.com`)";
@@ -222,7 +224,9 @@ in
               service = "reiverr";
             };
 
-            http.services.reiverr = generateServiceConfig "reiverr";
+            http.services.reiverr = {
+              loadBalancer.servers = [{ url = "http://chesty:9494"; }];
+            };
 
             http.routers.radar = {
               rule = "Host(`radar.lan.aicampground.com`)";
@@ -270,8 +274,14 @@ in
               service = "minio";
             };
 
+            # TODO: make this work with my function
             http.services.minio = {
               loadBalancer.servers = [{ url = "http://webb:9001"; }];
+
+              # loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+              #   nixosConfigurations = inputs.self.nixosConfigurations;
+              #   serviceName = "minio";
+              # };
               loadBalancer.healthCheck = {
                 path = "/health";
                 interval = "10s";
@@ -279,6 +289,7 @@ in
               };
             };
 
+            # TODO: make this work with my function
             http.routers.minio-api = {
               rule = "Host(`s3-api.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -340,9 +351,7 @@ in
               service = "paperless";
             };
 
-            http.services.paperless = {
-              loadBalancer.servers = [{ url = "http://webb:28981"; }];
-            };
+            http.services.paperless = generateServiceConfig "paperless";
 
             http.routers.jellyfin = {
               rule = "Host(`jellyfin.lan.aicampground.com`)";

@@ -7,6 +7,7 @@ in {
     enable = mkBoolOpt false "Enable Mattermost;";
     dataDir = mkOpt str "/var/lib/paperless" "Location to store data";
     mediaDir = mkOpt str "/var/lib/paperless/media" "Location to store media";
+    port = mkOpt int 28981 "Port for https access";
     consumptionDir =
       mkOpt str "/var/lib/paperless/consume" "Place to import files from";
     address = mkOpt str "localhost" "Host address";
@@ -15,10 +16,10 @@ in {
     domainName = mkOpt str "https://docs.lan.aicampground.com" "domain to use";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/paperless"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
@@ -53,7 +54,7 @@ in {
       consumptionDir = cfg.consumptionDir;
       passwordFile = "/var/lib/vault/paperless.pass";
       address = "0.0.0.0";
-      port = 28981;
+      port = cfg.port;
       user = "paperless";
       package = pkgs.paperless-ngx;
       settings = {
