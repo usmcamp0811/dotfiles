@@ -1,4 +1,4 @@
-{ options, config, lib, ... }:
+{ options, config, lib, inputs, ... }:
 with lib;
 with lib.campground;
 let
@@ -59,7 +59,10 @@ in
             };
 
             http.services.test = {
-              loadBalancer.servers = [ lib.lookupServiceEndpoint "n8n" ];
+              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+                nixosConfigurations = inputs.self.nixosConfigurations;
+                serviceName = "n8n";
+              };
             };
 
             http.routers.flake-forge = {
