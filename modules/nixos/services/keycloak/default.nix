@@ -17,6 +17,8 @@ in {
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/keycloak"
       "The Vault path to the KV containing the KVs that are for each database";
+    vault-path-cert =
+      mkOpt str "secret/campground/data/cloudflare/aicampground.com";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -30,6 +32,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+
     users = {
       users = {
         keycloak = {
@@ -40,19 +43,20 @@ in {
       groups = { keycloak = { }; };
     };
 
-    systemd.services.keycloakPasswordFile = {
-      description = "Create Keycloak db password file";
+    systemd.services.keycloakSecrets = {
+      description = "Get Keycloak Secrets";
       serviceConfig = {
         Type = "oneshot";
         User =
           "root"; # Use the root user to create the folder and set permissions
-        ExecStartPre =
-          "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
-        ExecStart =
-          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/keycloak-db.pass /var/lib/vault/keycloak-db.pass";
-        ExecStartPost =
-          "${pkgs.coreutils}/bin/chown keycloak:keycloak /var/lib/vault/keycloak-db.pass"; # Change file ownership to vaultwarden
       };
+      script = ''
+        mkdir -p /var/lib/keycloak
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/keycloak-db.pass /var/lib/keycloak/keycloak-db.pass
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/${cfg.domain}.key /var/lib/keycloak/${cfg.domain}.key
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/${cfg.domain}.cert /var/lib/keycloak/${cfg.domain}.cert
+        chown -R keycloak:keycloak /var/lib/keycloak
+      '';
       wantedBy = [ "multi-user.target" ];
       before = [ "keycloakPostgreSQLInit.service" "keycloak.service" ];
     };
@@ -69,7 +73,7 @@ in {
 
       settings = {
         hostname = cfg.domain;
-        hostname-admin-url = "https://${cfg.domain}";
+        # hostname-admin-url = "https://${cfg.domain}";
         http-port = cfg.port;
         http-host = "0.0.0.0";
         # hostname-strict-backchannel = true;
@@ -89,28 +93,42 @@ in {
       }];
     };
 
-    campground.services.vault-agent.services.keycloakPasswordFile = {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+    campground.services.vault-agent.services = {
+      keycloakSecrets = {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
         };
-      };
-      secrets = {
-        file = {
-          files = {
-            "keycloak-db.pass" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.dbpass }}{{ else }}{{ .Data.data.dbpass }}{{ end }}{{ end }}'';
-              permissions = "0600";
-              change-action = "restart";
+        secrets = {
+          file = {
+            files = {
+              "${cfg.domain}.key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path-cert}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }}'';
+                permissions = "0600";
+                change-action = "restart";
+              };
+              "${cfg.domain}.cert" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path-cert}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cert }}{{ else }}{{ .Data.data.cert }}{{ end }}{{ end }}'';
+                permissions = "0600";
+                change-action = "restart";
+              };
+              "keycloak-db.pass" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.dbpass }}{{ else }}{{ .Data.data.dbpass }}{{ end }}{{ end }}'';
+                permissions = "0600";
+                change-action = "restart";
+              };
             };
           };
         };
