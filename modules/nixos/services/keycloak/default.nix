@@ -83,6 +83,10 @@ in {
     campground.services.postgresql = {
       enable = true;
       authentication = [ "host keycloak keycloak 127.0.0.1/32 trust" ];
+      databases = [{
+        name = "keycloak";
+        user = "keycloak";
+      }];
     };
 
     campground.services.vault-agent.services.keycloakPasswordFile = {
