@@ -26,7 +26,7 @@ let
 
     ROLE_ID=$(cat "${cfg.role-id}")
     SECRET_ID=$(cat "${cfg.secret-id}")
-    VAULT_TOKEN=$(${pkgs.curl}/bin/curl -s --request POST --data '{"role_id":"'$ROLE_ID'","secret_id":"'$SECRET_ID'"}' "$VAULT_ADDR/v1/auth/approle/login" | jq -r '.auth.client_token')
+    VAULT_TOKEN=$(${pkgs.curl}/bin/curl -s --request POST --data '{"role_id":"'$ROLE_ID'","secret_id":"'$SECRET_ID'"}' "$VAULT_ADDR/v1/auth/approle/login" | ${pkgs.jq}/bin/jq -r '.auth.client_token')
 
       # Check if acme.json exists
     if [[ ! -f "$ACME_JSON" ]]; then
@@ -34,16 +34,16 @@ let
         exit 1
     fi
     # Parse acme.json and extract certificates and keys
-    certificates=$(jq -c '.cloudflare.Certificates[]' "$ACME_JSON")
+    certificates=$(${pkgs.jq}/bin/jq -c '.cloudflare.Certificates[]' "$ACME_JSON")
     if [[ -z "$certificates" ]]; then
         echo "Error: No certificates found in $ACME_JSON."
         exit 1
     fi
     # Loop through each certificate entry
     while IFS= read -r cert_entry; do
-        domain=$(echo "$cert_entry" | jq -r '.domain.main')
-        cert=$(echo "$cert_entry" | jq -r '.certificate')
-        key=$(echo "$cert_entry" | jq -r '.key')
+        domain=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.domain.main')
+        cert=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.certificate')
+        key=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.key')
 
         if [[ -z "$domain" || -z "$cert" || -z "$key" ]]; then
             echo "Warning: Incomplete data for a certificate, skipping."
