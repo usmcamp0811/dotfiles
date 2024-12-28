@@ -26,6 +26,7 @@ let
 
     ROLE_ID=$(cat "${cfg.role-id}")
     SECRET_ID=$(cat "${cfg.secret-id}")
+    VAULT_ADDR="${cfg.vault-address}"
     VAULT_TOKEN=$(${pkgs.curl}/bin/curl -s --request POST --data '{"role_id":"'$ROLE_ID'","secret_id":"'$SECRET_ID'"}' "$VAULT_ADDR/v1/auth/approle/login" | ${pkgs.jq}/bin/jq -r '.auth.client_token')
 
       # Check if acme.json exists
