@@ -1,7 +1,6 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-#TODO: Refactor to be more like wg-quick
 let
   cfg = config.campground.services.wireguard;
   killswitch-on = ''
@@ -34,25 +33,6 @@ let
       -m addrtype ! --dst-type LOCAL \
       -j REJECT
   '';
-
-  # removeNameField = options: removeAttrs options [ "name" ];
-  # importedPeers = import ../wg-quick/peers.nix { };
-  #
-  # # Function to extract peers for a specific interface and merge them
-  # combinePeers = interfaces: importedPeers:
-  #   mapAttrs (interfaceName: interfaceConfig:
-  #     let
-  #       importedPeersForInterface = importedPeers.${interfaceName}.peers or [ ];
-  #       cleanedPeers =
-  #         # Remove the peer with the same publicKey as cfg.publicKey
-  #         filter (peer: peer.publicKey != cfg.publicKey)
-  #         importedPeersForInterface;
-  #     in interfaceConfig // {
-  #       peers = (interfaceConfig.peers or [ ]) ++ cleanedPeers;
-  #     }) interfaces;
-  #
-  # # Combine the inline interface peers with the imported peers
-  # combinedInterfaces = combinePeers cfg.interfaces importedPeers;
 in
 {
   options.campground.services.wireguard = with types; {
@@ -66,7 +46,41 @@ in
       "List of IPs of the client IPs supported.";
     postRoutCIDR = mkOpt str "10.100.0.0/24" "CIDR to route traffic to..";
     killswitch = mkBoolOpt false "keep all traffici n VPN";
-    peers = mkOpt (listOf { }) [ ] "Configuration for WireGuard peers.";
+
+    peers = mkOption {
+      type = types.listOf (types.submodule {
+        options = {
+          publicKey = mkOption {
+            type = types.str;
+            description = "Public key of the peer.";
+          };
+          allowedIPs = mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+            description = "IPs allowed for this peer.";
+          };
+          presharedKeyFile = mkOption {
+            type = types.str;
+            description = "PreShared key of the peer.";
+          };
+        };
+      });
+      default = [ ];
+      description = "Configuration for WireGuard peers.";
+      example = [
+        {
+          publicKey = "public1";
+          presharedKeyFile = "/var/lib/wireguard/preshared-keyfile";
+          allowedIPs = [ "10.100.0.2/32" ];
+        }
+        {
+          publicKey = "public2";
+          presharedKeyFile = "/var/lib/wireguard/preshared-keyfile";
+          allowedIPs = [ "10.100.0.3/32" ];
+        }
+      ];
+    };
+
     fetchWireguardKeys = mkBoolOpt false "Should we get the Keys from Vault?";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
