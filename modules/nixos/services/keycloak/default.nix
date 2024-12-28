@@ -18,7 +18,8 @@ in {
     vault-path = mkOpt str "secret/campground/keycloak"
       "The Vault path to the KV containing the KVs that are for each database";
     vault-path-cert =
-      mkOpt str "secret/campground/data/cloudflare/aicampground.com";
+      mkOpt str "secret/campground/data/cloudflare/aicampground.com"
+        "Vault path to the place the correct cert/key exist for TLS";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";

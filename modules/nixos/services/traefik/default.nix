@@ -56,8 +56,8 @@ let
         echo "Saving certificate for $domain to Vault at $vault_path..."
 
         # Store in Vault using CLI
-        echo "$cert" > cert.pem
-        echo "$key" > key.pem 
+        echo "$cert" | base64 -d > cert.pem
+        echo "$key" | base64 -d > key.pem 
         ${pkgs.vault-bin}/bin/vault kv put "$vault_path" cert=@cert.pem key=@key.pem
 
         if [[ $? -ne 0 ]]; then
