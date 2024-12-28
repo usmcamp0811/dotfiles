@@ -44,6 +44,10 @@ with lib.campground; {
     nfs.client = { enable = true; };
 
     services = {
+      keycloak = {
+        enable = true;
+        port = 43852;
+      };
       ldap-client = { enable = mkForce false; };
       borgbackup = {
         enable = true;
@@ -125,27 +129,27 @@ with lib.campground; {
         enable = true;
         users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
       };
-      wireguard = {
-        enable = true;
-        port = 1149;
-        nic = "enp3s0f1";
-        interface-name = "campnet";
-        ips = [ "10.100.0.10/24" ];
-        peers = [
-          {
-            # butler
-            publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
-            presharedKeyFile = "/var/lib/wireguard/campnet/preshared-key";
-            allowedIPs = [ "10.100.0.2/32" ];
-          }
-          {
-            # phone
-            publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
-            presharedKeyFile = "/var/lib/wireguard/campnet/preshared-key";
-            allowedIPs = [ "10.100.0.3/32" ];
-          }
-        ];
-      };
+      # wireguard = {
+      #   enable = true;
+      #   port = 1149;
+      #   nic = "enp3s0f1";
+      #   interface-name = "campnet";
+      #   ips = [ "10.100.0.10/24" ];
+      #   peers = [
+      #     {
+      #       # butler
+      #       publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
+      #       presharedKeyFile = "/var/lib/wireguard/campnet/preshared-key";
+      #       allowedIPs = [ "10.100.0.2/32" ];
+      #     }
+      #     {
+      #       # phone
+      #       publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
+      #       presharedKeyFile = "/var/lib/wireguard/campnet/preshared-key";
+      #       allowedIPs = [ "10.100.0.3/32" ];
+      #     }
+      #   ];
+      # };
       vault = {
         enable = true;
         ui = true;

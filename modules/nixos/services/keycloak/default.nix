@@ -7,6 +7,9 @@ let
   sslCertificate = "${keycloakDir}/${cfg.domain}.cert";
   sslCertificateKey = "${keycloakDir}/${cfg.domain}.key";
   keycloak-db-pass = "${keycloakDir}/keycloak-db.pass";
+  # TODO: Fix this thing.. it deploys but I can't login I get:
+  # Danger alert:somethingWentWrong
+
 in
 {
   options.campground.services.keycloak = with types; {
@@ -72,6 +75,8 @@ in
       enable = true;
       sslCertificateKey = sslCertificateKey;
       sslCertificate = sslCertificate;
+      initialAdminPassword = "strongpassword";
+
       database = {
         type = "postgresql";
         createLocally = true;
@@ -80,13 +85,13 @@ in
       };
       settings = {
         hostname = cfg.domain;
-        hostname-admin-url = "https://${cfg.domain}";
-        http-port = 15256;
+        http-enabled = true;
+        health-enabled = true;
+        hostname-admin-url = "${cfg.domain}";
         http-host = "0.0.0.0";
-        https-port = cfg.port;
+        http-port = cfg.port;
+        https-port = cfg.port + 1;
         # hostname-strict-backchannel = true;
-        proxy-headers =
-          "forwarded"; # Change 'edge' to 'forwarded' or 'xforwarded'
       };
       # themes = {
       #   keywind = pkgs.keycloak-keywind;
@@ -95,7 +100,11 @@ in
 
     campground.services.postgresql = {
       enable = true;
-      authentication = [ "host keycloak keycloak 127.0.0.1/32 trust" ];
+      authentication = [
+        "local keycloak keycloak peer"
+        "host keycloak keycloak 127.0.0.1/32 trust"
+        "host keycloak keycloak 127.0.0.1/32 md5"
+      ];
       databases = [{
         name = "keycloak";
         user = "keycloak";

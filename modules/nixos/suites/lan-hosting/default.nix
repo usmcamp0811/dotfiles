@@ -176,6 +176,9 @@ in
               service = "keycloak";
             };
 
+            # http.services.keycloak = {
+            #   loadBalancer.servers = [{ url = "http://ermy:43852"; }];
+            # };
             http.services.keycloak = generateServiceConfig "keycloak";
 
             http.routers.hydra = {

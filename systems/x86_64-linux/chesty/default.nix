@@ -156,10 +156,10 @@ with lib.campground;
         enable = true;
         port = 3249;
       };
-      keycloak = {
-        enable = true;
-        port = 43852;
-      };
+      # keycloak = {
+      #   enable = true;
+      #   port = 43852;
+      # };
       zfs-key-server = {
         enable = true;
         interface = "enp7s0";
