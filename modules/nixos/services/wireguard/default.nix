@@ -35,25 +35,26 @@ let
       -j REJECT
   '';
 
-  removeNameField = options: removeAttrs options [ "name" ];
-  importedPeers = import ../wg-quick/peers.nix { };
-
-  # Function to extract peers for a specific interface and merge them
-  combinePeers = interfaces: importedPeers:
-    mapAttrs (interfaceName: interfaceConfig:
-      let
-        importedPeersForInterface = importedPeers.${interfaceName}.peers or [ ];
-        cleanedPeers =
-          # Remove the peer with the same publicKey as cfg.publicKey
-          filter (peer: peer.publicKey != cfg.publicKey)
-          importedPeersForInterface;
-      in interfaceConfig // {
-        peers = (interfaceConfig.peers or [ ]) ++ cleanedPeers;
-      }) interfaces;
-
-  # Combine the inline interface peers with the imported peers
-  combinedInterfaces = combinePeers cfg.interfaces importedPeers;
-in {
+  # removeNameField = options: removeAttrs options [ "name" ];
+  # importedPeers = import ../wg-quick/peers.nix { };
+  #
+  # # Function to extract peers for a specific interface and merge them
+  # combinePeers = interfaces: importedPeers:
+  #   mapAttrs (interfaceName: interfaceConfig:
+  #     let
+  #       importedPeersForInterface = importedPeers.${interfaceName}.peers or [ ];
+  #       cleanedPeers =
+  #         # Remove the peer with the same publicKey as cfg.publicKey
+  #         filter (peer: peer.publicKey != cfg.publicKey)
+  #         importedPeersForInterface;
+  #     in interfaceConfig // {
+  #       peers = (interfaceConfig.peers or [ ]) ++ cleanedPeers;
+  #     }) interfaces;
+  #
+  # # Combine the inline interface peers with the imported peers
+  # combinedInterfaces = combinePeers cfg.interfaces importedPeers;
+in
+{
   options.campground.services.wireguard = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     interface-name = mkOpt str "wg0" "Name of WG interface";
@@ -69,10 +70,10 @@ in {
     fetchWireguardKeys = mkBoolOpt false "Should we get the Keys from Vault?";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/wireguard"
       "The Vault path to the Server Cert in Vault";
     kvVersion = mkOption {
