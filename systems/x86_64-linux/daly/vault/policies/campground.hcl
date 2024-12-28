@@ -7,8 +7,9 @@ path "secret/data/campground/*" {
 }
 
 path "secret/campground/data/cloudflare/*" {
-  capabilities = ["write", "create", "read", "update", "delete", "list"]
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
+
 path "secret/campground/data/*" {
   capabilities = ["read", "list"]
 }
