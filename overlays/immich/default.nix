@@ -1,1 +1,1 @@
-{ channels, ... }: final: prev: { inherit (channels.unstable) immich; }
+{ channels, ... }: final: prev: { inherit (channels.immich-fix) immich; }
