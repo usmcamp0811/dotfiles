@@ -84,7 +84,8 @@ in
         http-port = cfg.port;
         http-host = "0.0.0.0";
         # hostname-strict-backchannel = true;
-        proxy-headers = "edge";
+        proxy-headers =
+          "forwarded"; # Change 'edge' to 'forwarded' or 'xforwarded'
       };
       # themes = {
       #   keywind = pkgs.keycloak-keywind;
