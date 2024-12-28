@@ -1,8 +1,14 @@
 { config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.keycloak;
-in {
+let
+  cfg = config.campground.services.keycloak;
+  keycloakDir = "/var/lib/keycloak";
+  sslCertificate = "${keycloakDir}/${cfg.domain}.cert";
+  sslCertificateKey = "${keycloakDir}/${cfg.domain}.key";
+  keycloak-db-pass = "${keycloakDir}/keycloak-db.pass";
+in
+{
   options.campground.services.keycloak = with types; {
     enable = mkBoolOpt false "Whether or not to enable keycloak.";
     port = mkOpt int 19323 "Port to listen on";
@@ -52,11 +58,11 @@ in {
           "root"; # Use the root user to create the folder and set permissions
       };
       script = ''
-        mkdir -p /var/lib/keycloak
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/keycloak-db.pass /var/lib/keycloak/keycloak-db.pass
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/${cfg.domain}.key /var/lib/keycloak/${cfg.domain}.key
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/${cfg.domain}.cert /var/lib/keycloak/${cfg.domain}.cert
-        chown -R keycloak:keycloak /var/lib/keycloak
+        mkdir -p ${keycloakDir}
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/keycloak-db.pass ${keycloak-db-pass}
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/${cfg.domain}.cert ${sslCertificate}
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/${cfg.domain}.key ${sslCertificateKey}
+        chown -R keycloak:keycloak ${keycloakDir}
       '';
       wantedBy = [ "multi-user.target" ];
       before = [ "keycloakPostgreSQLInit.service" "keycloak.service" ];
@@ -64,17 +70,17 @@ in {
 
     services.keycloak = {
       enable = true;
-
+      sslCertificateKey = sslCertificateKey;
+      sslCertificate = sslCertificate;
       database = {
         type = "postgresql";
         createLocally = true;
         username = "keycloak";
-        passwordFile = "/var/lib/vault/keycloak-db.pass";
+        passwordFile = "${keycloak-db-pass}";
       };
-
       settings = {
         hostname = cfg.domain;
-        # hostname-admin-url = "https://${cfg.domain}";
+        hostname-admin-url = "https://${cfg.domain}";
         http-port = cfg.port;
         http-host = "0.0.0.0";
         # hostname-strict-backchannel = true;
