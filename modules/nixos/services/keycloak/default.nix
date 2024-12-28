@@ -81,9 +81,9 @@ in
       settings = {
         hostname = cfg.domain;
         hostname-admin-url = "https://${cfg.domain}";
-        http-port = cfg.port;
+        http-port = 15256;
         http-host = "0.0.0.0";
-        https-port = 8443; # Change HTTPS port
+        https-port = cfg.port;
         # hostname-strict-backchannel = true;
         proxy-headers =
           "forwarded"; # Change 'edge' to 'forwarded' or 'xforwarded'
