@@ -54,3 +54,18 @@ path "auth/approle/login" {
 path "sys/storage/raft/snapshot" {
     capabilities = ["read"]
 }
+
+# Allow listing all secrets under the `secret` mount
+path "secret/*" {
+  capabilities = ["list"]
+}
+
+# Allow listing and reading all secrets under the `secret/data` path
+path "secret/data/*" {
+  capabilities = ["read", "list"]
+}
+
+# Specific policy for `campground` secrets (already present but kept for clarity)
+path "secret/data/campground/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
