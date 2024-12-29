@@ -12,6 +12,25 @@ in
       mkBoolOpt false "Whether or not to enable Authentik configuration.";
     port = mkOpt int 8435 "Port to Host the Authentik server.";
     avatars = mkOpt str "initials" "Avatars to use?";
+
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/authentik"
+      "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -66,7 +85,7 @@ in
             files = {
               "environmentFile" = {
                 text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.dbpass }}{{ else }}{{ .Data.data.dbpass }}{{ end }}{{ end }}'';
+                  AUTHENTIK_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}'';
                 permissions = "0600";
                 change-action = "restart";
               };
