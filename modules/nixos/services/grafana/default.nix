@@ -63,21 +63,18 @@ in {
         auth.oauth_auto_login = true;
         auth.signout_redirect_url =
           "https://${cfg.oidc-domain}/application/o/grafana/end-session/";
+
         "auth.generic_oauth" = {
           name = "authentik";
           enabled = true;
-          use_refresh_token = true;
           client_id = "$__env{CLIENT_ID}";
           client_secret = "$__env{CLIENT_SECRET}";
-          scopes =
-            "openid email profile offline_access goauthentik.io/application/loki";
-          auth_url = "${cfg.oidc-domain}/application/o/authorize/";
-          token_url = "${cfg.oidc-domain}/application/o/token/";
-          api_url = "${cfg.oidc-domain}/application/o/userinfo/";
-          login_attribute_path = "preferred_username";
-          role_attribute_path =
-            "contains(groups, 'Grafana Admins') && 'Admin' || contains(groups, 'Grafana Editors') && 'Editor' || 'Viewer'";
-          allow_assign_grafana_admin = true;
+          scopes = "openid profile email";
+          auth_url = "https://${cfg.oidc-domain}/application/o/authorize/";
+          token_url = "https://${cfg.oidc-domain}/application/o/token/";
+          api_url = "https://${cfg.oidc-domain}/application/o/userinfo/";
+          # role_attribute_path =
+          #   "contains(groups, 'Grafana Admins') && 'Admin' || contains(groups, 'Grafana Editors') && 'Editor' || 'Viewer'";
         };
         smtp = {
           enabled = true;

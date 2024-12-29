@@ -115,6 +115,32 @@ in
     services = {
       cac = enabled;
 
+      # grafana = {
+      #   enable = true;
+      #   datasources = [
+      #     {
+      #       name = "Prometheus";
+      #       type = "prometheus";
+      #       access = "proxy";
+      #       url = "http://webb:9011";
+      #     }
+      #     {
+      #       name = "Loki";
+      #       type = "loki";
+      #       access = "proxy";
+      #       url = "http://webb:3030";
+      #     }
+      #     {
+      #       name = "Firefly Postgres";
+      #       type = "postgres";
+      #       access = "proxy"; # Grafana handles the queries via the proxy
+      #       host = "/run/postgresql";
+      #       user = "firefly"; # The correct user
+      #       database = "firefly"; # The firefly database
+      #       jsonData.sslmode = "disable";
+      #     }
+      #   ];
+      # };
       spark = {
         enable = true;
         port = 8081;
@@ -156,7 +182,7 @@ in
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
-      netbird = enabled;
+      # netbird = enabled;
       hadoop = {
         enable = true;
         yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
@@ -240,10 +266,11 @@ in
         interface = "eno1";
         tang-servers = [
           "http://webb:1234"
-          "http://lucas:1234"
+          # "http://lucas:1234"
           "http://chesty:1234"
           # "http://mattis:1234"
           "http://daly:1234"
+          "http://ermy:1234"
         ];
       };
 

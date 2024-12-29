@@ -153,7 +153,7 @@ in
       campground-blog = enabled;
       nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
-      netbird = enabled;
+      # netbird = enabled;
       uptime-kuma = enabled;
       grafana = {
         enable = true;
@@ -212,21 +212,21 @@ in
         mediaLocation = "/webb/media/photos";
 
       };
-      spark = {
-        enable = true;
-        port = 8081;
-        worker = {
-          master = "spark://reckless:7077";
-          workDir = "/var/lib/spark";
-          enable = true;
-          extraEnvironment = {
-            SPARK_WORKER_CORES = "4";
-            SPARK_WORKER_MEMORY = "4g";
-          };
-          restartIfChanged = true;
-        };
-        logDir = "/var/log/spark";
-      };
+      # spark = {
+      #   enable = true;
+      #   port = 8081;
+      #   worker = {
+      #     master = "spark://reckless:7077";
+      #     workDir = "/var/lib/spark";
+      #     enable = true;
+      #     extraEnvironment = {
+      #       SPARK_WORKER_CORES = "4";
+      #       SPARK_WORKER_MEMORY = "4g";
+      #     };
+      #     restartIfChanged = true;
+      #   };
+      #   logDir = "/var/log/spark";
+      # };
 
       borgbackup = {
         enable = true;
@@ -321,10 +321,10 @@ in
         port = 8123;
         tang-servers = [
           "http://daly:1234"
-          "http://lucas:1234"
-          "http://reckless:1234"
+          # "http://lucas:1234"
+          # "http://reckless:1234"
           "http://chesty:1234"
-          # "http://ermy:1234"
+          "http://ermy:1234"
         ];
       };
       user-secrets = {
