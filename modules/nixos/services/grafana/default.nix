@@ -56,10 +56,72 @@ in
   };
 
   config = mkIf cfg.enable {
+
     services.grafana = {
       enable = true;
       provision = {
         enable = true;
+        alerting = {
+          rules = {
+            settings = {
+              apiVersion = 1;
+              groups = [{
+                orgId = 1;
+                name = "backups";
+                folder = "backup_alerts";
+                interval = "5m";
+                rules = [{
+                  uid = "adxql03nljqwwa";
+                  title = "Borg Backup Alert";
+                  condition = "A";
+                  data = [{
+                    refId = "A";
+                    relativeTimeRange = {
+                      from = 86400;
+                      to = 0;
+                    };
+                    datasourceUid = "PBFA97CFB590B2093";
+                    model = {
+                      datasource = {
+                        type = "prometheus";
+                        uid = "PBFA97CFB590B2093";
+                      };
+                      editorMode = "code";
+                      expr = ''
+                        (
+                          borg_backup_success{exported_job=~"webb_rsync|webb_campground|daly_rsync|daly_campground"} == 0
+                        )
+                        or
+                        (
+                          (time() - borg_backup_last_run{exported_job=~"webb_rsync|webb_campground|daly_rsync|daly_campground"}) > 86400
+                        )
+                      '';
+                      instant = true;
+                      intervalMs = 1000;
+                      legendFormat = "__auto";
+                      maxDataPoints = 43200;
+                      range = false;
+                      refId = "A";
+                    };
+                  }];
+                  dashboardUid = "fdxl9e1g0zaiod";
+                  panelId = 1;
+                  noDataState = "OK";
+                  execErrState = "Error";
+                  for = "5m";
+                  annotations = {
+                    __dashboardUid__ = "fdxl9e1g0zaiod";
+                    __panelId__ = "1";
+                    summary =
+                      "One or more of your backups did not run successfully.";
+                  };
+                  labels = { };
+                  isPaused = false;
+                }];
+              }];
+            };
+          };
+        };
         datasources = {
           settings = {
             apiVersion = 1;
