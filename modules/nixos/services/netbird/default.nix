@@ -45,8 +45,8 @@ in {
             "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
           domain = cfg.netbird-domain;
           turnDomain = cfg.netbird-domain;
-          dnsDomain = "net.${domain}";
-          singleAccountModeDomain = "net.${domain}";
+          dnsDomain = "net.${cfg.netbird-domain}";
+          singleAccountModeDomain = "net.${cfg.netbird-domain}";
 
           settings = {
             TURNConfig = {
