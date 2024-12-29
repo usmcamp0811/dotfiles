@@ -44,10 +44,6 @@ with lib.campground; {
     nfs.client = { enable = true; };
 
     services = {
-      keycloak = {
-        enable = true;
-        port = 43852;
-      };
       ldap-client = { enable = mkForce false; };
       borgbackup = {
         enable = true;

@@ -2,6 +2,7 @@
   description = "Campground Config";
 
   inputs = {
+    authentik-nix.url = "github:nix-community/authentik-nix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     # "github:nixos/nixpkgs/release-24.05/797f7dc49e0bc7fab4b57c021cdf68f595e47841";
@@ -265,6 +266,7 @@
         flakeforge.nixosModules.flakeforge
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
+        authentik-nix.nixosModules.default
         # "${unstable}/nixos/modules/services/web-apps/immich.nix"
         # "${unstable}/nixos/modules/services/databases/chromadb.nix"
         # unstable.nixosModules.redis
