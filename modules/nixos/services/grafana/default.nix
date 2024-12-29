@@ -18,13 +18,14 @@ in {
     };
     domain = mkOpt str "grafana.lan.aicampground.com"
       "Domain to Host the grafana server on.";
+    oidc-domain = mkOpt str "authentik.lan.aicampground.com" "ODIC Domain";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/grafana"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
@@ -58,6 +59,26 @@ in {
         };
       };
       settings = {
+
+        auth.oauth_auto_login = true;
+        auth.signout_redirect_url =
+          "https://${cfg.oidc-domain}/application/o/grafana/end-session/";
+        "auth.generic_oauth" = {
+          name = "authentik";
+          enabled = true;
+          use_refresh_token = true;
+          client_id = "$__env{CLIENT_ID}";
+          client_secret = "$__env{CLIENT_SECRET}";
+          scopes =
+            "openid email profile offline_access goauthentik.io/application/loki";
+          auth_url = "${cfg.oidc-domain}/application/o/authorize/";
+          token_url = "${cfg.oidc-domain}/application/o/token/";
+          api_url = "${cfg.oidc-domain}/application/o/userinfo/";
+          login_attribute_path = "preferred_username";
+          role_attribute_path =
+            "contains(groups, 'Grafana Admins') && 'Admin' || contains(groups, 'Grafana Editors') && 'Editor' || 'Viewer'";
+          allow_assign_grafana_admin = true;
+        };
         smtp = {
           enabled = true;
           host = "$__env{SMTP_HOST}";
@@ -108,7 +129,8 @@ in {
             SMTP_USER='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_USER }}{{ else }}{{ .Data.data.SMTP_USER }}{{ end }}'
             SMTP_HOST='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_HOST }}{{ else }}{{ .Data.data.SMTP_HOST }}{{ end }}'
             SMTP_PASS='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_PASS }}{{ else }}{{ .Data.data.SMTP_PASS }}{{ end }}'
-
+            CLIENT_ID='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLIENT_ID }}{{ else }}{{ .Data.data.CLIENT_ID }}{{ end }}'
+            CLIENT_SECRET='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLIENT_SECRET }}{{ else }}{{ .Data.data.CLIENT_SECRET }}{{ end }}'
             {{ end }}
           '';
         };
