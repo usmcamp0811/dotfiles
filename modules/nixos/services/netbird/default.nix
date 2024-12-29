@@ -45,7 +45,7 @@ in
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/authentik"
+    vault-path = mkOpt str "secret/campground/netbird"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
@@ -105,7 +105,7 @@ in
               ExtraConfig = {
                 Password._secret =
                   "/tmp/detsys-vault/netbird_authentik_password";
-                Username = "netbird";
+                Username = "NetBird";
               };
             };
 
@@ -200,21 +200,21 @@ in
             files = {
               "netbird_authentik_password" = {
                 text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.authentik_user_password  }}{{ else }}{{ .Data.data.authentik_user_password }}{{ end }}{{ end }}
                 '';
                 permissions = "0600";
                 change-action = "restart";
               };
               "coturn" = {
                 text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.coturn }}{{ else }}{{ .Data.data.coturn }}{{ end }}{{ end }}
                 '';
                 permissions = "0600";
                 change-action = "restart";
               };
               "turn_secret" = {
                 text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.turn }}{{ else }}{{ .Data.data.turn }}{{ end }}{{ end }}
                 '';
                 permissions = "0600";
                 change-action = "restart";
