@@ -53,7 +53,6 @@ in
       script = ''
         mkdir -p ${authentikDir}
         ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/environmentFile ${authentikDir}/environmentFile
-        chown -R authentik:authentik ${authentikDir}
       '';
       wantedBy = [ "multi-user.target" ];
       before = [
