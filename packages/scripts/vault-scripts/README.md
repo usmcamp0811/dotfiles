@@ -69,6 +69,43 @@ This package provides the following Vault-related scripts:
      system-check my-system
      ```
 
+7. **raft-recovery**  
+   Recovers a Vault Raft cluster node by creating a `peers.json` file in the Raft storage directory and restarting the Vault service.  
+   **Usage:** `raft-recovery`
+
+   - **Steps Performed:**
+
+     - Stops the Vault service.
+     - Creates a `peers.json` file with the current node's information based on hostname and IP.
+     - Restarts the Vault service to initiate recovery.
+     - Provides instructions for verifying recovery and rejoining additional nodes to the cluster.
+
+   - **Example:**
+     ```bash
+     raft-recovery
+     ```
+
+8. **delete-rejoin-raft**  
+   Deletes all Vault data and reinitializes the current node to rejoin a Vault Raft cluster.  
+   **Usage:** `delete-rejoin-raft`
+
+   - **Steps Performed:**
+
+     - Confirms if you want to proceed with deleting existing Vault data.
+     - Stops the Vault service.
+     - Deletes all Vault data in `/var/lib/vault/data`.
+     - Restarts the Vault service.
+     - Sets the `VAULT_ADDR` environment variable.
+     - Prompts for the Raft leader's hostname to join the cluster.
+     - Checks if Vault is unsealed and unseals it if necessary.
+     - Joins the Raft cluster using the leader's address.
+     - Lists the current peers in the Raft cluster.
+
+   - **Example:**
+     ```bash
+     delete-rejoin-raft
+     ```
+
 ---
 
 ### Recommended Usage
@@ -101,6 +138,11 @@ Before deploying a NixOS system configuration, run:
 
 1. `system-check <system-name>` to validate that all required Vault paths and fields exist.
 2. Proceed with the deployment if the check passes.
+
+#### Scenario 5: Recovering or Rejoining a Vault Raft Cluster
+
+1. If the Vault Raft cluster requires recovery, use `raft-recovery` to recover a single node.
+2. If a node needs to rejoin the cluster, use `delete-rejoin-raft` to reset and rejoin it.
 
 ---
 
