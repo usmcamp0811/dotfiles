@@ -20,6 +20,8 @@ let
   README = ./README.md;
   vault-crawler = import ./scripts/vault-crawler.nix { inherit pkgs; };
   raft-recovery = import ./scripts/raft-recovery.nix { inherit pkgs; };
+  delete-rejoin-raft =
+    import ./scripts/delete-rejoin-raft.nix { inherit pkgs; };
 
   # Create a helper script for running commands
   runScripts = writeShellScriptBin "vault-scripts" ''
@@ -41,6 +43,7 @@ let
       cp ${initVaultScript}/bin/init-vault $out/bin
       cp ${vault-crawler}/bin/vault-crawler $out/bin
       cp ${raft-recovery}/bin/raft-recovery $out/bin
+      cp ${delete-rejoin-raft}/bin/delete-rejoin-raft $out/bin
       cp ${runScripts}/bin/vault-scripts $out/bin
       cp ${README} $out/README.md
     '';
@@ -62,5 +65,6 @@ vaultScripts // {
   vault-crawler = vault-crawler;
   system-check = systemChecker;
   raft-recovery = raft-recovery;
+  delete-rejoin-raft = delete-rejoin-raft;
   vault = pkgs.vault-bin;
 }
