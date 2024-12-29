@@ -63,7 +63,7 @@ in {
             DataStoreEncryptionKey = null;
 
             HttpConfig = {
-              AuthAudience = cfg.client_id;
+              AuthAudience = cfg.client-id;
               AuthUserIDClaim = "sub";
             };
 
@@ -71,7 +71,7 @@ in {
               ManagerType = "authentik";
               ClientConfig = {
                 Issuer = "https://${cfg.oidc-domain}/application/o/netbird/";
-                ClientID = cfg.client_id;
+                ClientID = cfg.client-id;
                 TokenEndpoint =
                   "https://${cfg.oidc-domain}/application/o/token/";
                 ClientSecret = "";
@@ -84,8 +84,8 @@ in {
             };
 
             PKCEAuthorizationFlow.ProviderConfig = {
-              Audience = cfg.client_id;
-              ClientID = cfg.client_id;
+              Audience = cfg.client-id;
+              ClientID = cfg.client-id;
               ClientSecret = "";
               AuthorizationEndpoint =
                 "https://${cfg.oidc-domain}/application/o/authorize/";
@@ -110,8 +110,8 @@ in {
             AUTH_AUTHORITY =
               "https://${cfg.oidc-domain}/application/o/netbird/";
             AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
-            AUTH_AUDIENCE = cfg.client_id;
-            AUTH_CLIENT_ID = cfg.client_id;
+            AUTH_AUDIENCE = cfg.client-id;
+            AUTH_CLIENT_ID = cfg.client-id;
           };
         };
 
