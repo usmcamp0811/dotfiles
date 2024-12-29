@@ -5,92 +5,133 @@ let cfg = config.campground.services.netbird;
 in {
   options.campground.services.netbird = with types; {
     enable = mkBoolOpt false "Enable Netbird;";
-    domain = mkOpt str "netbird.aicampground.com" "Domain for Netbird to use";
+    oidc-domain =
+      mkOpt str "authentik.lan.aicampground.com" "Domain for Netbird to use";
+    netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
+    port = mkOpt int 10001 "Port to use";
+    turn-port = mkOpt int 3478 "Port for turn";
+    client-id =
+      mkOpt str "kLVxL9B0tZNwR8VYWWE8DHoXpvjLDnErpkgTEQDa" "Client ID";
+
   };
 
   config = mkIf cfg.enable {
+    services.netbird = {
+      enable = true;
 
-    # services.netbird.server = {
-    #   enable = true;
-    #   domain = cfg.domain;
-    #   enableNginx = true;
-    #   coturn.enable = false;
-    #   signal.logLevel = "INFO";
-    #   # dashboard.settings = {
-    #   #   AUTH_AUTHORITY = issuer;
-    #   #   AUTH_CLIENT_ID = client-id;
-    #   #   AUTH_SUPPORTED_SCOPES = scopes;
-    #   # };
-    #   management = {
-    #     disableAnonymousMetrics = lib.mkForce true;
-    #     logLevel = "INFO";
-    #     dnsDomain = "netbird.lan";
-    #     singleAccountModeDomain = "netbird.lan";
-    #     oidcConfigEndpoint = "${issuer}/.well-known/openid-configuration";
-    #
-    #     turnDomain = config.services.coturn.realm;
-    #     turnPort = config.services.coturn.listening-port;
-    #     settings = {
-    #       # DataStoreEncryptionKey._secret = store-key;
-    #       DeviceAuthorizationFlow = {
-    #         Provider = "hosted";
-    #         ProviderConfig = {
-    #           # Audience = client-id;
-    #           # ClientID = client-id;
-    #           # DeviceAuthEndpoint =
-    #           #   "https://auth.ataraxiadev.com/application/o/device/";
-    #           RedirectURLs = null;
-    #           Scope = "openid";
-    #           # TokenEndpoint =
-    #           #   "https://auth.ataraxiadev.com/application/o/token/";
-    #           UseIDToken = false;
-    #         };
-    #       };
-    #       HttpConfig = {
-    #         # AuthAudience = client-id;
-    #         # AuthIssuer = "https://auth.ataraxiadev.com/application/o/netbird/";
-    #         # AuthKeysLocation =
-    #         #   "https://auth.ataraxiadev.com/application/o/netbird/jwks/";
-    #         # AuthUserIDClaim = "";
-    #         IdpSignKeyRefreshEnabled = false;
-    #       };
-    #       IdpManagerConfig = {
-    #         ManagerType = "authentik";
-    #         ClientConfig = {
-    #           ClientID = client-id;
-    #           GrantType = "client_credentials";
-    #           # Issuer = "https://auth.ataraxiadev.com/application/o/netbird/";
-    #           # TokenEndpoint =
-    #           #   "https://auth.ataraxiadev.com/application/o/token/";
-    #         };
-    #         ExtraConfig = {
-    #           # Password._secret = svc-pass;
-    #           Username = "Netbird";
-    #         };
-    #       };
-    #       PKCEAuthorizationFlow = {
-    #         ProviderConfig = {
-    #           # Audience = client-id;
-    #           # AuthorizationEndpoint =
-    #           #   "https://auth.ataraxiadev.com/application/o/authorize/";
-    #           # ClientID = client-id;
-    #           # Scope = scopes;
-    #           # TokenEndpoint =
-    #           #   "https://auth.ataraxiadev.com/application/o/token/";
-    #           UseIDToken = false;
-    #         };
-    #       };
-    #       TURNConfig = {
-    #         Secret._secret = "TBD";
-    #         TimeBasedCredentials = true;
-    #         # Not used, supress nix warnind about world-readable password
-    #         # Password._secret = config.sops.secrets.auth-secret.path;
-    #       };
-    #     };
-    #   };
-    # };
+      server = {
+        management = {
+          enable = true;
+          port = cfg.port;
+          oidcConfigEndpoint =
+            "https://${oidc-domain}/application/o/netbird/.well-known/openid-configuration";
+          domain = netbird-domain;
+          turnDomain = netbird-domain;
+          dnsDomain = "net.${domain}";
+          singleAccountModeDomain = "net.${domain}";
 
-    # persist.state.directories = [ "/var/lib/netbird-mgmt" ];
+          settings = {
+            TURNConfig = {
+              Turns = [{
+                Proto = "udp";
+                URI = "turn:${netbird-domain}:${toString cfg.turn-port}";
+                Username = "netbird";
+                Password._secret = "/var/lib/netbird/coturn";
+              }];
 
+              Secret._secret = "/var/lib/netbird/turn_secret";
+            };
+
+            DataStoreEncryptionKey = null;
+
+            HttpConfig = {
+              AuthAudience = cfg.client_id;
+              AuthUserIDClaim = "sub";
+            };
+
+            IdpManagerConfig = {
+              ManagerType = "authentik";
+              ClientConfig = {
+                Issuer = "https://${oidc-domain}/application/o/netbird/";
+                ClientID = client_id;
+                TokenEndpoint = "https://${oidc-domain}/application/o/token/";
+                ClientSecret = "";
+              };
+              ExtraConfig = {
+                Password._secret =
+                  "/var/lib/netbird/netbird_authentik_password";
+                Username = "netbird";
+              };
+            };
+
+            PKCEAuthorizationFlow.ProviderConfig = {
+              Audience = client_id;
+              ClientID = client_id;
+              ClientSecret = "";
+              AuthorizationEndpoint =
+                "https://${oidc-domain}/application/o/authorize/";
+              TokenEndpoint = "https://${oidc-domain}/application/o/token/";
+              RedirectURLs = [ "http://localhost:53000" ];
+            };
+          };
+        };
+
+        signal = {
+          enable = true;
+          port = 10000;
+          domain = netbird-domain;
+        };
+
+        dashboard = {
+          enable = true;
+          enableNginx = lib.mkForce true;
+          domain = netbird-domain;
+          managementServer = "https://${netbird-domain}";
+          settings = {
+            AUTH_AUTHORITY = "https://${oidc-domain}/application/o/netbird/";
+            AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
+            AUTH_AUDIENCE = client_id;
+            AUTH_CLIENT_ID = client_id;
+          };
+        };
+
+        coturn = {
+          enable = true;
+          passwordFile = "/var/lib/netbird/coturn";
+          domain = netbird-domain;
+        };
+      };
+    };
+
+    users.users.netbird = {
+      name = "netbird";
+      group = "netbird";
+      isSystemUser = true;
+    };
+    users.groups.netbird = { };
+
+    systemd.services.netbird-management.serviceConfig = {
+      User = "netbird";
+      Group = "netbird";
+    };
+    systemd.services.netbird-signal.serviceConfig = {
+      User = "netbird";
+      Group = "netbird";
+      ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
+        (lib.getExe' pkgs.netbird "netbird-signal")
+        "run"
+        # Port to listen on
+        "--port"
+        "10000"
+        # Log to stdout
+        "--log-file"
+        "console"
+        # Log level
+        "--log-level"
+        "INFO"
+        "--metrics-port"
+        "9091"
+      ]);
+    };
   };
 }
