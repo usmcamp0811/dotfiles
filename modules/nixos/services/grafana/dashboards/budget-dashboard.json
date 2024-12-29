@@ -66,7 +66,9 @@
         "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": true
         },
@@ -75,7 +77,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "10.4.8",
+      "pluginVersion": "11.3.2",
       "targets": [
         {
           "datasource": {
@@ -106,6 +108,7 @@
           }
         }
       ],
+      "title": "",
       "transformations": [
         {
           "id": "configFromData",
@@ -127,94 +130,16 @@
           "id": "filterFieldsByName",
           "options": {
             "include": {
-              "names": ["budget_name", "amount_spent"]
+              "names": [
+                "budget_name",
+                "amount_spent"
+              ]
             }
           }
         }
       ],
       "transparent": true,
       "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "P428ABEA7BD9582B5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [],
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 5,
-        "x": 1,
-        "y": 9
-      },
-      "id": 3,
-      "options": {
-        "displayLabels": [],
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "values": []
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.4.8",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "P428ABEA7BD9582B5"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n    c.name AS category_name,\n    COALESCE(SUM(t.amount), 0) AS amount_spent\nFROM\n    categories c\n    LEFT JOIN category_transaction_journal ctj ON c.id = ctj.category_id\n    LEFT JOIN transaction_journals tj ON ctj.transaction_journal_id = tj.id\n    LEFT JOIN transactions t ON t.transaction_journal_id = tj.id\n        AND t.amount > 0\n        AND tj.date >= date_trunc('month', CURRENT_DATE) -- Filter transactions to be within the current month\n        AND tj.date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'\nWHERE\n    c.name IN ('Groceries', 'Eating Out') -- Filter for specific categories\nGROUP BY\n    c.name\nHAVING\n    SUM(t.amount) > 0 -- Exclude categories with a 0 balance\nORDER BY\n    c.name;\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "type": "piechart"
     },
     {
       "datasource": {
@@ -250,7 +175,7 @@
       "gridPos": {
         "h": 10,
         "w": 5,
-        "x": 6,
+        "x": 1,
         "y": 9
       },
       "id": 4,
@@ -259,7 +184,9 @@
         "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -267,7 +194,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.4.8",
+      "pluginVersion": "11.3.2",
       "targets": [
         {
           "datasource": {
@@ -277,7 +204,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n    COALESCE(SUM(t.amount), 0) AS \"IN+OUT\"\nFROM\n    transactions t\nLEFT JOIN transaction_journals tj ON t.transaction_journal_id = tj.id\nLEFT JOIN accounts a ON t.account_id = a.id\nLEFT JOIN account_types at ON a.account_type_id = at.id\nWHERE\n    at.type = 'Asset account' -- Only include transactions related to 'Asset account'\n    AND tj.date >= date_trunc('month', CURRENT_DATE) -- Filter transactions to be within the current month\n    AND tj.date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'\n    AND tj.deleted_at IS NULL\n",
+          "rawSql": "SELECT\n    COALESCE(SUM(t.amount)-2000, 0) AS \"IN+OUT\"\nFROM\n    transactions t\nLEFT JOIN transaction_journals tj ON t.transaction_journal_id = tj.id\nLEFT JOIN accounts a ON t.account_id = a.id\nLEFT JOIN account_types at ON a.account_type_id = at.id\nWHERE\n    at.type = 'Asset account' -- Only include transactions related to 'Asset account'\n    AND tj.date >= date_trunc('month', CURRENT_DATE) -- Filter transactions to be within the current month\n    AND tj.date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'\n    AND tj.deleted_at IS NULL\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -298,6 +225,7 @@
           }
         }
       ],
+      "title": "",
       "type": "gauge"
     },
     {
@@ -333,12 +261,18 @@
       "gridPos": {
         "h": 10,
         "w": 12,
-        "x": 11,
+        "x": 6,
         "y": 9
       },
       "id": 1,
       "options": {
         "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
         "maxVizHeight": 300,
         "minVizHeight": 16,
         "minVizWidth": 8,
@@ -353,7 +287,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "10.4.8",
+      "pluginVersion": "11.3.2",
       "targets": [
         {
           "datasource": {
@@ -363,7 +297,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n    c.name AS category_name,\n    COALESCE(SUM(t.amount), 0) AS amount_spent\nFROM\n    categories c\n    LEFT JOIN category_transaction_journal ctj ON c.id = ctj.category_id\n    LEFT JOIN transaction_journals tj ON ctj.transaction_journal_id = tj.id\n    LEFT JOIN transactions t ON t.transaction_journal_id = tj.id\n        AND t.amount > 0\n        AND tj.date >= date_trunc('month', CURRENT_DATE) -- Filter transactions to be within the current month\n        AND tj.date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'\nGROUP BY\n    c.name\nHAVING\n    SUM(t.amount) > 0 -- Exclude categories with a 0 balance\nORDER BY\n    c.name;\n",
+          "rawSql": "SELECT\n    c.name AS category_name,\n    COALESCE(SUM(t.amount), 0) AS amount_spent\nFROM\n    categories c\n    LEFT JOIN category_transaction_journal ctj ON c.id = ctj.category_id\n    LEFT JOIN transaction_journals tj ON ctj.transaction_journal_id = tj.id\n    LEFT JOIN transactions t ON t.transaction_journal_id = tj.id\n        AND t.amount > 0\n        AND tj.date >= date_trunc('month', CURRENT_DATE) -- Filter transactions to be within the current month\n        AND tj.date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'\nWHERE\n    c.name != 'Paycheck'\nGROUP BY\n    c.name\nHAVING\n    SUM(t.amount) > 0 -- Exclude categories with a 0 balance\nORDER BY\n    c.name;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -384,6 +318,7 @@
           }
         }
       ],
+      "title": "",
       "type": "bargauge"
     },
     {
@@ -391,9 +326,97 @@
         "type": "grafana-postgresql-datasource",
         "uid": "P428ABEA7BD9582B5"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
       "gridPos": {
-        "h": 5,
-        "w": 22,
+        "h": 10,
+        "w": 5,
+        "x": 18,
+        "y": 9
+      },
+      "id": 3,
+      "options": {
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "P428ABEA7BD9582B5"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n    c.name AS category_name,\n    COALESCE(SUM(t.amount), 0) AS amount_spent\nFROM\n    categories c\n    LEFT JOIN category_transaction_journal ctj ON c.id = ctj.category_id\n    LEFT JOIN transaction_journals tj ON ctj.transaction_journal_id = tj.id\n    LEFT JOIN transactions t ON t.transaction_journal_id = tj.id\n        AND t.amount > 0\n        AND tj.date >= date_trunc('month', CURRENT_DATE) -- Filter transactions to be within the current month\n        AND tj.date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'\nWHERE\n    c.name IN ('Groceries', 'Eating Out') -- Filter for specific categories\nGROUP BY\n    c.name\nHAVING\n    SUM(t.amount) > 0 -- Exclude categories with a 0 balance\nORDER BY\n    c.name;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "P428ABEA7BD9582B5"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
         "x": 1,
         "y": 19
       },
@@ -408,7 +431,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": true
       },
-      "pluginVersion": "10.4.8",
+      "pluginVersion": "11.3.2",
       "targets": [
         {
           "datasource": {
@@ -418,7 +441,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n    tj.description AS description,\n    t.amount AS amount,\n    tj.date AS date,\n    c.name AS category\nFROM\n    transactions t\nLEFT JOIN transaction_journals tj ON t.transaction_journal_id = tj.id\nLEFT JOIN accounts a ON t.account_id = a.id\nLEFT JOIN account_types at ON a.account_type_id = at.id\nLEFT JOIN category_transaction_journal ctj ON tj.id = ctj.transaction_journal_id\nLEFT JOIN categories c ON ctj.category_id = c.id\nWHERE\n    at.type = 'Asset account' -- Only include transactions from 'Asset accounts'\nORDER BY\n    tj.date DESC\nLIMIT 20;\n",
+          "rawSql": "SELECT\n    CASE\n        WHEN c.name IS NULL THEN CONCAT(tj.description, '         ==UNCATEGORIZED==')\n        ELSE tj.description\n    END AS description,\n    t.amount AS amount,\n    tj.date AS date,\n    c.name AS category\nFROM\n    transactions t\nLEFT JOIN transaction_journals tj ON t.transaction_journal_id = tj.id\nLEFT JOIN accounts a ON t.account_id = a.id\nLEFT JOIN account_types at ON a.account_type_id = at.id\nLEFT JOIN category_transaction_journal ctj ON tj.id = ctj.transaction_journal_id\nLEFT JOIN categories c ON ctj.category_id = c.id\nWHERE\n    at.type = 'Asset account' -- Only include transactions from 'Asset accounts'\nORDER BY\n    tj.date DESC\nLIMIT 20;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -441,10 +464,98 @@
       ],
       "title": "Latest Transactions",
       "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "P428ABEA7BD9582B5"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "Cape Money",
+          "mappings": [],
+          "max": 1500,
+          "min": -100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 17,
+        "y": 19
+      },
+      "id": 6,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "P428ABEA7BD9582B5"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n    ab.balance AS current_balance\nFROM\n    account_balances ab\nJOIN\n    accounts a ON ab.account_id = a.id\nJOIN\n    account_types at ON a.account_type_id = at.id\nWHERE\n    a.name = 'USAA - Shared Checking'\n    AND at.type = 'Asset account'\n    AND a.deleted_at IS NULL\nORDER BY\n    ab.date DESC;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "type": "gauge"
     }
   ],
-  "schemaVersion": 39,
-  "tags": [],
+  "preload": false,
+  "refresh": "",
+  "schemaVersion": 40,
+  "tags": [
+    "Budget"
+  ],
   "templating": {
     "list": []
   },
@@ -456,6 +567,6 @@
   "timezone": "browser",
   "title": "Campground Budget",
   "uid": "edwu64ln4lrswb",
-  "version": 18,
+  "version": 31,
   "weekStart": ""
 }

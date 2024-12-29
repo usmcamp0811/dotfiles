@@ -281,6 +281,7 @@ in
           "local   firefly    firefly   trust" # Allow trusted local connections for firefly user to firefly DB
           "host    firefly    firefly   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
           "host    firefly    firefly   ::1/128 trust" # Allow trusted connections from localhost (IPv6) for firefly user to firefly DB
+          "host    firefly    firefly   0.0.0.0/0 md5"
 
           "host  campgroundai  campgroundai  0.0.0.0/0 md5"
 

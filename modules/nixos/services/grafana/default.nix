@@ -1,8 +1,23 @@
 { lib, config, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.grafana;
-in {
+let
+  cfg = config.campground.services.grafana;
+  dashboards = ./dashboards;
+  dashboardProviders = [
+    {
+      name = "Backup Monitor";
+      type = "file";
+      options = { path = ./dashboards/backup-monitor.json; };
+    }
+    {
+      name = "Campground Budget";
+      type = "file";
+      options = { path = ./dashboards/budget-dashboard.json; };
+    }
+  ];
+in
+{
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
@@ -54,7 +69,8 @@ in {
         dashboards = {
           settings = {
             apiVersion = 1;
-            providers = cfg.dashboards;
+            providers = cfg.dashboards
+              ++ dashboardProviders; # Combine dashboards
           };
         };
       };
