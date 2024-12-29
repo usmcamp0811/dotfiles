@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, utils, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.services.netbird;
