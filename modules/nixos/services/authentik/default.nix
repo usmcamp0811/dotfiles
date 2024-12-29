@@ -86,6 +86,14 @@ in
                 text = ''
                   AUTHENTIK_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
                   AUTHENTIK_LISTEN__HTTP=0.0.0.0:${toString cfg.port}
+                  AUTHENTIK_EMAIL__HOST={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__HOST }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__HOST }}{{ end }}{{ end }}
+                  AUTHENTIK_EMAIL__PORT={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__PORT }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__PORT }}{{ end }}{{ end }}
+                  AUTHENTIK_EMAIL__USERNAME={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__USERNAME }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__USERNAME }}{{ end }}{{ end }}
+                  AUTHENTIK_EMAIL__PASSWORD={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__PASSWORD }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__PASSWORD }}{{ end }}{{ end }}
+                  AUTHENTIK_EMAIL__USE_TLS={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__USE_TLS }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__USE_TLS }}{{ end }}{{ end }}
+                  AUTHENTIK_EMAIL__USE_SSL={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__USE_SSL }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__USE_SSL }}{{ end }}{{ end }}
+                  AUTHENTIK_EMAIL__TIMEOUT={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__TIMEOUT }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__TIMEOUT }}{{ end }}{{ end }}
+                  AUTHENTIK_EMAIL__FROM={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__FROM }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__FROM }}{{ end }}{{ end }}
                 '';
                 permissions = "0600";
                 change-action = "restart";
