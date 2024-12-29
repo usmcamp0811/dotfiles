@@ -54,10 +54,10 @@ in {
                 Proto = "udp";
                 URI = "turn:${netbird-domain}:${toString cfg.turn-port}";
                 Username = "netbird";
-                Password._secret = "/var/lib/netbird/coturn";
+                Password._secret = "/tmp/detsys-vault/coturn";
               }];
 
-              Secret._secret = "/var/lib/netbird/turn_secret";
+              Secret._secret = "/tmp/detsys-vault/turn_secret";
             };
 
             DataStoreEncryptionKey = null;
@@ -77,7 +77,7 @@ in {
               };
               ExtraConfig = {
                 Password._secret =
-                  "/var/lib/netbird/netbird_authentik_password";
+                  "/tmp/detsys-vault/netbird_authentik_password";
                 Username = "netbird";
               };
             };
@@ -115,7 +115,7 @@ in {
 
         coturn = {
           enable = true;
-          passwordFile = "/var/lib/netbird/coturn";
+          passwordFile = "/tmp/detsys-vault/coturn";
           domain = netbird-domain;
         };
       };
