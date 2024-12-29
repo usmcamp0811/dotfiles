@@ -45,6 +45,10 @@ with lib.campground; {
 
     services = {
       ldap-client = { enable = mkForce false; };
+      authentik = {
+        enable = true;
+
+      };
       borgbackup = {
         enable = true;
         jobs = {
