@@ -10,7 +10,7 @@ in
   options.campground.services.authentik = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable Authentik configuration.";
-    port = mkOpt int 8435 "Port to Host the Authentik server.";
+    port = mkOpt int 8434 "Port to Host the Authentik server.";
     avatars = mkOpt str "initials" "Avatars to use?";
 
     role-id =
