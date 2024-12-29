@@ -1,8 +1,34 @@
-{ lib, config, pkgs, utils, ... }:
+{ lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.services.netbird;
-in {
+let
+  cfg = config.campground.services.netbird;
+  # Quotes an argument for use in Exec* service lines.
+  # systemd accepts "-quoted strings with escape sequences, toJSON produces
+  # a subset of these.
+  # Additionally we escape % to disallow expansion of % specifiers. Any lone ;
+  # in the input will be turned it ";" and thus lose its special meaning.
+  # Every $ is escaped to $$, this makes it unnecessary to disable environment
+  # substitution for the directive.
+  escapeSystemdExecArg = arg:
+    let
+      s =
+        if builtins.isPath arg then
+          "${arg}"
+        else if builtins.isString arg then
+          arg
+        else if builtins.isInt arg || builtins.isFloat arg then
+          toString arg
+        else
+          throw "escapeSystemdExecArg only allows strings, paths and numbers";
+    in
+    replaceStrings [ "%" "$" ] [ "%%" "$$" ] (builtins.toJSON s);
+
+  # Quotes a list of arguments into a single string for use in a Exec*
+  # line.
+  escapeSystemdExecArgs = concatMapStringsSep " " escapeSystemdExecArg;
+in
+{
   options.campground.services.netbird = with types; {
     enable = mkBoolOpt false "Enable Netbird;";
     oidc-domain =
@@ -137,7 +163,7 @@ in {
     systemd.services.netbird-signal.serviceConfig = {
       User = "netbird";
       Group = "netbird";
-      ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
+      ExecStart = lib.mkForce (escapeSystemdExecArgs [
         (lib.getExe' pkgs.netbird "netbird-signal")
         "run"
         # Port to listen on
