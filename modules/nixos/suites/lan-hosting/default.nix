@@ -62,6 +62,13 @@ in
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.routers.authentik = {
+              rule = "Host(`authentik.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "authentik";
+            };
+
+            http.services.authentik = generateServiceConfig "authentik";
 
             http.routers.flake-forge = {
               rule = "Host(`flakeforge.lan.aicampground.com`)";
