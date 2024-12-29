@@ -19,6 +19,7 @@ let
     import ./scripts/save-approle-secrets.nix { inherit pkgs; };
   README = ./README.md;
   vault-crawler = import ./scripts/vault-crawler.nix { inherit pkgs; };
+  raft-recovery = import ./scripts/raft-recovery.nix { inherit pkgs; };
 
   # Create a helper script for running commands
   runScripts = writeShellScriptBin "vault-scripts" ''
@@ -39,6 +40,7 @@ let
       cp ${saveAppRoleSecrets}/bin/save-approle-secrets $out/bin
       cp ${initVaultScript}/bin/init-vault $out/bin
       cp ${vault-crawler}/bin/vault-crawler $out/bin
+      cp ${raft-recovery}/bin/raft-recovery $out/bin
       cp ${runScripts}/bin/vault-scripts $out/bin
       cp ${README} $out/README.md
     '';
@@ -59,5 +61,6 @@ vaultScripts // {
   init-vault = initVaultScript;
   vault-crawler = vault-crawler;
   system-check = systemChecker;
+  raft-recovery = raft-recovery;
   vault = pkgs.vault-bin;
 }
