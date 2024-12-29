@@ -42,9 +42,9 @@ in {
           enable = true;
           port = cfg.port;
           oidcConfigEndpoint =
-            "https://${oidc-domain}/application/o/netbird/.well-known/openid-configuration";
-          domain = netbird-domain;
-          turnDomain = netbird-domain;
+            "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
+          domain = cfg.netbird-domain;
+          turnDomain = cfg.netbird-domain;
           dnsDomain = "net.${domain}";
           singleAccountModeDomain = "net.${domain}";
 
@@ -52,7 +52,7 @@ in {
             TURNConfig = {
               Turns = [{
                 Proto = "udp";
-                URI = "turn:${netbird-domain}:${toString cfg.turn-port}";
+                URI = "turn:${cfg.netbird-domain}:${toString cfg.turn-port}";
                 Username = "netbird";
                 Password._secret = "/tmp/detsys-vault/coturn";
               }];
@@ -70,9 +70,10 @@ in {
             IdpManagerConfig = {
               ManagerType = "authentik";
               ClientConfig = {
-                Issuer = "https://${oidc-domain}/application/o/netbird/";
-                ClientID = client_id;
-                TokenEndpoint = "https://${oidc-domain}/application/o/token/";
+                Issuer = "https://${cfg.oidc-domain}/application/o/netbird/";
+                ClientID = cfg.client_id;
+                TokenEndpoint =
+                  "https://${cfg.oidc-domain}/application/o/token/";
                 ClientSecret = "";
               };
               ExtraConfig = {
@@ -83,12 +84,12 @@ in {
             };
 
             PKCEAuthorizationFlow.ProviderConfig = {
-              Audience = client_id;
-              ClientID = client_id;
+              Audience = cfg.client_id;
+              ClientID = cfg.client_id;
               ClientSecret = "";
               AuthorizationEndpoint =
-                "https://${oidc-domain}/application/o/authorize/";
-              TokenEndpoint = "https://${oidc-domain}/application/o/token/";
+                "https://${cfg.oidc-domain}/application/o/authorize/";
+              TokenEndpoint = "https://${cfg.oidc-domain}/application/o/token/";
               RedirectURLs = [ "http://localhost:53000" ];
             };
           };
@@ -97,26 +98,27 @@ in {
         signal = {
           enable = true;
           port = 10000;
-          domain = netbird-domain;
+          domain = cfg.netbird-domain;
         };
 
         dashboard = {
           enable = true;
           enableNginx = lib.mkForce true;
-          domain = netbird-domain;
-          managementServer = "https://${netbird-domain}";
+          domain = cfg.netbird-domain;
+          managementServer = "https://${cfg.netbird-domain}";
           settings = {
-            AUTH_AUTHORITY = "https://${oidc-domain}/application/o/netbird/";
+            AUTH_AUTHORITY =
+              "https://${cfg.oidc-domain}/application/o/netbird/";
             AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
-            AUTH_AUDIENCE = client_id;
-            AUTH_CLIENT_ID = client_id;
+            AUTH_AUDIENCE = cfg.client_id;
+            AUTH_CLIENT_ID = cfg.client_id;
           };
         };
 
         coturn = {
           enable = true;
           passwordFile = "/tmp/detsys-vault/coturn";
-          domain = netbird-domain;
+          domain = cfg.netbird-domain;
         };
       };
     };
