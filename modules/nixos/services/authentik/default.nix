@@ -86,7 +86,7 @@ in
               "environmentFile" = {
                 text = ''
                   AUTHENTIK_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
-                  AUTHENTIK_LISTEN__HTTP=0.0.0.0:${cfg.port}
+                  AUTHENTIK_LISTEN__HTTP=0.0.0.0:${toString cfg.port}
                 '';
                 permissions = "0600";
                 change-action = "restart";
