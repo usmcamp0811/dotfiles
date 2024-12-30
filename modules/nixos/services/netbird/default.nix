@@ -117,10 +117,14 @@ in
           oidcConfigEndpoint =
             "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
           # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
-          domain = cfg.netbird-domain;
-          turnDomain = cfg.netbird-domain;
-          dnsDomain = "net.${cfg.netbird-domain}";
-          singleAccountModeDomain = "net.${cfg.netbird-domain}";
+          domain = "aicampground.com";
+          # turnDomain = cfg.netbird-domain;
+          turnDomain = "turn.aicampground.com";
+          # dnsDomain = "netbird.${cfg.netbird-domain}";
+          dnsDomain = "dns.netbird.aicampground.com";
+          singleAccountModeDomain = "netbird.aicampground.com";
+
+          # singleAccountModeDomain = "netbird.${cfg.netbird-domain}";
 
           settings = {
             TURNConfig = {
@@ -144,10 +148,12 @@ in
             IdpManagerConfig = {
               ManagerType = "authentik";
               ClientConfig = {
-                Issuer = "https://${cfg.oidc-domain}/application/o/netbird/";
+                Issuer = "https://auth.aicampground.com/application/o/netbird/";
+                # "https://${cfg.oidc-domain}/application/o/netbird/";
                 ClientID = cfg.client-id;
                 TokenEndpoint =
-                  "https://${cfg.oidc-domain}/application/o/token/";
+                  "https://auth.aicampground.com/application/o/token/";
+                # "https://${cfg.oidc-domain}/application/o/token/";
                 ClientSecret = "";
               };
               ExtraConfig = {
@@ -164,7 +170,9 @@ in
               AuthorizationEndpoint =
                 "https://auth.aicampground.com/application/o/authorize/";
               # "https://${cfg.oidc-domain}/application/o/authorize/";
-              TokenEndpoint = "https://${cfg.oidc-domain}/application/o/token/";
+              TokenEndpoint =
+                "https://auth.aicampground.com/application/o/token/";
+              # "https://${cfg.oidc-domain}/application/o/token/";
               RedirectURLs = [ "http://localhost:53000" ];
             };
           };
@@ -183,7 +191,8 @@ in
           managementServer = "https://${cfg.netbird-domain}";
           settings = {
             AUTH_AUTHORITY =
-              "https://${cfg.oidc-domain}/application/o/netbird/";
+              "https://auth.aicampground.com/application/o/netbird/";
+            # "https://${cfg.oidc-domain}/application/o/netbird/";
             AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
             AUTH_AUDIENCE = cfg.client-id;
             AUTH_CLIENT_ID = cfg.client-id;
@@ -197,15 +206,12 @@ in
         };
       };
     };
-    services.nginx = {
-      enable = true;
-      virtualHosts.${cfg.netbird-domain} = {
-        listen = [{
-          addr = "0.0.0.0";
-          port = cfg.ui-port;
-          ssl = false;
-        }];
-      };
+    services.nginx.virtualHosts.${cfg.netbird-domain} = {
+      listen = [{
+        addr = "0.0.0.0";
+        port = cfg.ui-port;
+        ssl = false;
+      }];
     };
 
     users.users.netbird = {
@@ -219,6 +225,7 @@ in
       User = "netbird";
       Group = "netbird";
     };
+
     systemd.services.netbird-signal.serviceConfig = {
       User = "netbird";
       Group = "netbird";
@@ -233,7 +240,7 @@ in
         "console"
         # Log level
         "--log-level"
-        "INFO"
+        "DEBUG"
         "--metrics-port"
         "9091"
       ]);
