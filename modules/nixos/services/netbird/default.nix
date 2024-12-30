@@ -62,32 +62,40 @@ in
   config = mkIf cfg.enable {
 
     systemd.services.netbirdSecrets = {
-      description = "Get Netbird Secrets";
+      description = "Set up Netbird Secrets with Correct Permissions";
       serviceConfig = {
         Type = "oneshot";
         User = "root";
       };
       script = ''
-        mkdir -p /var/lib/netbird/
+        # Ensure /var/lib/netbird exists with correct permissions
+        mkdir -p /var/lib/netbird
         chmod 750 /var/lib/netbird
+        chown -R netbird:netbird /var/lib/netbird
 
+        # Update the "turn" secret
         if ! cmp -s /tmp/detsys-vault/turn /var/lib/netbird/turn; then
           ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
         fi
+        chmod 640 /var/lib/netbird/turn
+        chown netbird:netbird /var/lib/netbird/turn
 
+        # Update the "coturn" secret
         if ! cmp -s /tmp/detsys-vault/coturn /var/lib/netbird/coturn; then
           ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn
         fi
+        chmod 640 /var/lib/netbird/coturn
+        chown netbird:netbird /var/lib/netbird/coturn
 
-        chown turnserver:turnserver /var/lib/netbird/coturn
-        chown netbird:netbird /var/lib/netbird/turn
-        chmod 700 /var/lib/netbird/turn
-
-
-
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird-mgmt/netbird_authentik_password
+        # Ensure /var/lib/netbird-mgmt exists with correct permissions
+        mkdir -p /var/lib/netbird-mgmt
+        chmod 750 /var/lib/netbird-mgmt
         chown -R netbird:netbird /var/lib/netbird-mgmt
-        chmod -R 700 /var/lib/netbird-mgmt
+
+        # Update the "netbird_authentik_password" secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird-mgmt/netbird_authentik_password
+        chmod 600 /var/lib/netbird-mgmt/netbird_authentik_password
+        chown netbird:netbird /var/lib/netbird-mgmt/netbird_authentik_password
       '';
 
       wantedBy = [ "multi-user.target" ];
@@ -97,7 +105,6 @@ in
         "netbird-dashboard.service"
         "coturn.service"
       ];
-
     };
     services.netbird = {
       enable = true;
