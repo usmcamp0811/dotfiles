@@ -32,7 +32,7 @@ in
   options.campground.services.netbird = with types; {
     enable = mkBoolOpt false "Enable Netbird;";
     oidc-domain =
-      mkOpt str "authentik.lan.aicampground.com" "Domain for Netbird to use";
+      mkOpt str "authentik.aicampground.com" "Domain for Netbird to use";
     netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
     port = mkOpt int 10001 "Port to use";
     ui-port = mkOpt int 10031 "Port to use";
