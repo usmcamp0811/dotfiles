@@ -1,24 +1,8 @@
-{ options, config, lib, ... }:
+{ inputs, options, config, lib, ... }:
 with lib;
 with lib.campground;
 let
   cfg = config.campground.suites.public-hosting;
-  jsonValue = with types;
-    let
-      valueType = nullOr
-        (oneOf [
-          bool
-          int
-          float
-          str
-          (lazyAttrsOf valueType)
-          (listOf valueType)
-        ]) // {
-        description = "JSON value";
-        emptyValue.value = { };
-      };
-    in
-    valueType;
   generateServiceConfig = serviceName:
     let
       # Use the existing `lookupServiceEndpoint` function
