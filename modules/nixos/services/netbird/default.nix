@@ -69,15 +69,24 @@ in
       };
       script = ''
         mkdir -p /var/lib/netbird/
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn
-        chown turnserver:turnserver /var/lib/netbird/coturn
-        chown turnserver:turnserver /var/lib/netbird/turn
 
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password /var/lib/netbird/netbird_authentik_password
+        if ! cmp -s /tmp/detsys-vault/turn /var/lib/netbird/turn; then
+          ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
+        fi
+
+        if ! cmp -s /tmp/detsys-vault/coturn /var/lib/netbird/coturn; then
+          ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn
+        fi
+
+        chown turnserver:turnserver /var/lib/netbird/turn
+        chown turnserver:turnserver /var/lib/netbird/coturn
+        chmod 600 /var/lib/netbird/coturn
+        chmod 600 /var/lib/netbird/turn
+
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird/netbird_authentik_password
         chown netbird:netbird /var/lib/netbird/netbird_authentik_password
-        chmod -R 600 /var/lib/netbird
       '';
+
       wantedBy = [ "multi-user.target" ];
       before = [
         "netbird-management.service"
