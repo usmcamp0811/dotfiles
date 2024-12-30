@@ -117,7 +117,7 @@ in
           oidcConfigEndpoint =
             "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
           # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
-          domain = "aicampground.com";
+          domain = "netbird.aicampground.com";
           # turnDomain = cfg.netbird-domain;
           turnDomain = "turn.aicampground.com";
           # dnsDomain = "netbird.${cfg.netbird-domain}";
@@ -132,7 +132,7 @@ in
                 Proto = "udp";
                 URI = "turn:${cfg.netbird-domain}:${toString cfg.turn-port}";
                 Username = "NetBird";
-                Password._secret = "/var/lib/netbird/coturn";
+                Password._secret = "/var/lib/netbird/coturn_nb";
               }];
 
               Secret._secret = "/var/lib/netbird/turn";
@@ -143,6 +143,12 @@ in
             HttpConfig = {
               AuthAudience = cfg.client-id;
               AuthUserIDClaim = "sub";
+              AuthIssuer =
+                "https://auth.aicampground.com/application/o/netbird/";
+              AuthKeysLocation =
+                "https://auth.aicampground.com/application/o/netbird/jwks/";
+              # AuthUserIDClaim = "";
+              IdpSignKeyRefreshEnabled = false;
             };
 
             IdpManagerConfig = {
@@ -162,18 +168,19 @@ in
                 Username = "NetBird";
               };
             };
-
             PKCEAuthorizationFlow.ProviderConfig = {
               Audience = cfg.client-id;
               ClientID = cfg.client-id;
               ClientSecret = "";
+              Scope = "openid profile email offline_access api";
+              UseIDToken = false;
               AuthorizationEndpoint =
                 "https://auth.aicampground.com/application/o/authorize/";
               # "https://${cfg.oidc-domain}/application/o/authorize/";
               TokenEndpoint =
                 "https://auth.aicampground.com/application/o/token/";
               # "https://${cfg.oidc-domain}/application/o/token/";
-              RedirectURLs = [ "http://localhost:53000" ];
+              # RedirectURLs = [ "https://netbird.aicampground.com/callback" ];
             };
           };
         };
@@ -181,7 +188,7 @@ in
         signal = {
           enable = true;
           port = 10000;
-          domain = cfg.netbird-domain;
+          domain = "netbird.aicampground.com";
         };
 
         dashboard = {
@@ -196,6 +203,7 @@ in
             AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
             AUTH_AUDIENCE = cfg.client-id;
             AUTH_CLIENT_ID = cfg.client-id;
+            USE_AUTH0 = "false";
           };
         };
 

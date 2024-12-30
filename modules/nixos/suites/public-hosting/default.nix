@@ -147,6 +147,17 @@ in
               loadBalancer.servers = [{ url = "http://webb:10001"; }];
             };
 
+            grpc.routers.netbird-callback = {
+              rule =
+                "Host(`netbird.aicampground.com`) && Path(`/management.ManagementService`)";
+              entryPoints = [ "websecure" ];
+              service = "netbird-callback";
+            };
+
+            http.services.netbird-callback = {
+              loadBalancer.servers = [{ url = "http://webb:10001"; }];
+            };
+
             http.routers.netbird = {
               rule = "Host(`netbird.aicampground.com`)";
               entryPoints = [ "websecure" ];
