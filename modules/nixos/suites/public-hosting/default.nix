@@ -19,6 +19,31 @@ let
       };
     in
     valueType;
+  generateServiceConfig = serviceName:
+    let
+      # Use the existing `lookupServiceEndpoint` function
+      serviceEndpoints = lib.campground.lookupServiceEndpoint {
+        nixosConfigurations = inputs.self.nixosConfigurations;
+        serviceName = serviceName;
+      };
+    in
+    { loadBalancer.servers = serviceEndpoints; };
+  jsonValue = with types;
+    let
+      valueType = nullOr
+        (oneOf [
+          bool
+          int
+          float
+          str
+          (lazyAttrsOf valueType)
+          (listOf valueType)
+        ]) // {
+        description = "JSON value";
+        emptyValue.value = { };
+      };
+    in
+    valueType;
 in
 {
   options.campground.suites.public-hosting = with types; {
