@@ -115,7 +115,8 @@ in
           enable = true;
           port = cfg.port;
           oidcConfigEndpoint =
-            "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
+            "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
+          # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
           domain = cfg.netbird-domain;
           turnDomain = cfg.netbird-domain;
           dnsDomain = "net.${cfg.netbird-domain}";
@@ -152,7 +153,7 @@ in
               ExtraConfig = {
                 Password._secret =
                   "/var/lib/netbird-mgmt/netbird_authentik_password";
-                Username = "Netbird";
+                Username = "NetBird";
               };
             };
 
@@ -161,7 +162,8 @@ in
               ClientID = cfg.client-id;
               ClientSecret = "";
               AuthorizationEndpoint =
-                "https://${cfg.oidc-domain}/application/o/authorize/";
+                "https://auth.aicampground.com/application/o/authorize/";
+              # "https://${cfg.oidc-domain}/application/o/authorize/";
               TokenEndpoint = "https://${cfg.oidc-domain}/application/o/token/";
               RedirectURLs = [ "http://localhost:53000" ];
             };
