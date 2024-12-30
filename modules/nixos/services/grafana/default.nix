@@ -33,7 +33,7 @@ in
     };
     domain = mkOpt str "grafana.lan.aicampground.com"
       "Domain to Host the grafana server on.";
-    oidc-domain = mkOpt str "authentik.lan.aicampground.com" "ODIC Domain";
+    oidc-domain = mkOpt str "auth.aicampground.com" "ODIC Domain";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
