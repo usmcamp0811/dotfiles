@@ -69,6 +69,7 @@ in
       };
       script = ''
         mkdir -p /var/lib/netbird/
+        chmod 750 /var/lib/netbird
 
         if ! cmp -s /tmp/detsys-vault/turn /var/lib/netbird/turn; then
           ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
@@ -78,13 +79,15 @@ in
           ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn
         fi
 
-        chown turnserver:turnserver /var/lib/netbird/turn
         chown turnserver:turnserver /var/lib/netbird/coturn
-        chmod 600 /var/lib/netbird/coturn
-        chmod 600 /var/lib/netbird/turn
+        chown netbird:netbird /var/lib/netbird/turn
+        chmod 700 /var/lib/netbird/turn
 
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird/netbird_authentik_password
-        chown netbird:netbird /var/lib/netbird/netbird_authentik_password
+
+
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird-mgmt/netbird_authentik_password
+        chown -R netbird:netbird /var/lib/netbird-mgmt
+        chmod -R 700 /var/lib/netbird-mgmt
       '';
 
       wantedBy = [ "multi-user.target" ];
@@ -115,11 +118,11 @@ in
               Turns = [{
                 Proto = "udp";
                 URI = "turn:${cfg.netbird-domain}:${toString cfg.turn-port}";
-                Username = "netbird";
+                Username = "NetBird";
                 Password._secret = "/var/lib/netbird/coturn";
               }];
 
-              Secret._secret = "/var/lib/netbird/turn_secret";
+              Secret._secret = "/var/lib/netbird/turn";
             };
 
             DataStoreEncryptionKey = null;
@@ -140,7 +143,7 @@ in
               };
               ExtraConfig = {
                 Password._secret =
-                  "/var/lib/netbird/netbird_authentik_password";
+                  "/var/lib/netbird-mgmt/netbird_authentik_password";
                 Username = "NetBird";
               };
             };
