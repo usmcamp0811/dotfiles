@@ -152,7 +152,7 @@ in
               ExtraConfig = {
                 Password._secret =
                   "/var/lib/netbird-mgmt/netbird_authentik_password";
-                Username = "NetBird";
+                Username = "Netbird";
               };
             };
 
