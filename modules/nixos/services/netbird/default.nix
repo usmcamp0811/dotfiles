@@ -31,14 +31,13 @@ in
 {
   options.campground.services.netbird = with types; {
     enable = mkBoolOpt false "Enable Netbird;";
-    oidc-domain =
-      mkOpt str "authentik.aicampground.com" "Domain for Netbird to use";
+    oidc-domain = mkOpt str "auth.aicampground.com" "Domain for Netbird to use";
     netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
     port = mkOpt int 10001 "Port to use";
     ui-port = mkOpt int 10031 "Port to use";
     turn-port = mkOpt int 3478 "Port for turn";
     client-id =
-      mkOpt str "kLVxL9B0tZNwR8VYWWE8DHoXpvjLDnErpkgTEQDa" "Client ID";
+      mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id

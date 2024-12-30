@@ -148,7 +148,7 @@ in
             };
 
             http.routers.authentik = {
-              rule = "Host(`authentik.aicampground.com`)";
+              rule = "Host(`auth.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "authentik";
             };

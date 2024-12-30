@@ -63,7 +63,7 @@ in
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
             http.routers.authentik = {
-              rule = "Host(`authentik.lan.aicampground.com`)";
+              rule = "Host(`auth.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "authentik";
             };
