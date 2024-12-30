@@ -11,7 +11,7 @@ in
     enable =
       mkBoolOpt false "Whether or not to enable Authentik configuration.";
     port = mkOpt int 8434 "Port to Host the Authentik server.";
-    avatars = mkOpt str "initials" "Avatars to use?";
+    avatars = mkOpt str "gravatar" "Avatars to use?";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
