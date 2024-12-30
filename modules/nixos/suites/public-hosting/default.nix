@@ -5,19 +5,22 @@ let
   cfg = config.campground.suites.public-hosting;
   jsonValue = with types;
     let
-      valueType = nullOr (oneOf [
-        bool
-        int
-        float
-        str
-        (lazyAttrsOf valueType)
-        (listOf valueType)
-      ]) // {
+      valueType = nullOr
+        (oneOf [
+          bool
+          int
+          float
+          str
+          (lazyAttrsOf valueType)
+          (listOf valueType)
+        ]) // {
         description = "JSON value";
         emptyValue.value = { };
       };
-    in valueType;
-in {
+    in
+    valueType;
+in
+{
   options.campground.suites.public-hosting = with types; {
     enable = mkBoolOpt false
       "Whether or not to enable common public-hosting configuration.";
@@ -125,14 +128,14 @@ in {
               ];
             };
 
-            http.routers.keycloak = {
-              rule = "Host(`keycloak.aicampground.com`)";
+            http.routers.netbird = {
+              rule = "Host(`netbird.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "keycloak";
+              service = "netbird";
             };
 
-            http.services.keycloak = {
-              loadBalancer.servers = [{ url = "http://webb:43852"; }];
+            http.services.netbird = {
+              loadBalancer.servers = [{ url = "http://webb:10001"; }];
             };
 
             http.routers.collabora = {

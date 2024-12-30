@@ -69,9 +69,14 @@ in
       };
       script = ''
         mkdir -p /var/lib/netbird/
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/turn /var/lib/netbird/turn
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/coturn /var/lib/netbird/coturn
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netbird_authentik_password /var/lib/netbird/netbird_authentik_password
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn
+        chown turnserver:turnserver /var/lib/netbird/coturn
+        chown turnserver:turnserver /var/lib/netbird/turn
+
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password /var/lib/netbird/netbird_authentik_password
+        chown netbird:netbird /var/lib/netbird/netbird_authentik_password
+        chmod -R 600 /var/lib/netbird
       '';
       wantedBy = [ "multi-user.target" ];
       before = [
@@ -102,10 +107,10 @@ in
                 Proto = "udp";
                 URI = "turn:${cfg.netbird-domain}:${toString cfg.turn-port}";
                 Username = "netbird";
-                Password._secret = "/tmp/detsys-vault/coturn";
+                Password._secret = "/var/lib/netbird/coturn";
               }];
 
-              Secret._secret = "/tmp/detsys-vault/turn_secret";
+              Secret._secret = "/var/lib/netbird/turn_secret";
             };
 
             DataStoreEncryptionKey = null;
@@ -126,7 +131,7 @@ in
               };
               ExtraConfig = {
                 Password._secret =
-                  "/tmp/detsys-vault/netbird_authentik_password";
+                  "/var/lib/netbird/netbird_authentik_password";
                 Username = "NetBird";
               };
             };
@@ -165,7 +170,7 @@ in
 
         coturn = {
           enable = true;
-          passwordFile = "/tmp/detsys-vault/coturn";
+          passwordFile = "/var/lib/netbird/coturn";
           domain = cfg.netbird-domain;
         };
       };
@@ -203,7 +208,7 @@ in
     };
 
     campground.services.vault-agent.services = {
-      netbird = {
+      netbirdSecrets = {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
@@ -234,7 +239,7 @@ in
                 permissions = "0600";
                 change-action = "restart";
               };
-              "turn_secret" = {
+              "turn" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.turn }}{{ else }}{{ .Data.data.turn }}{{ end }}{{ end }}
                 '';
