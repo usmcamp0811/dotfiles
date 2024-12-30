@@ -78,7 +78,7 @@ in
           ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
         fi
         chmod 640 /var/lib/netbird/turn
-        chown netbird:netbird /var/lib/netbird/turn
+        chown turnserver:turnserver /var/lib/netbird/turn
 
         # Update the "coturn" secret
         if ! cmp -s /tmp/detsys-vault/coturn /var/lib/netbird/coturn; then
@@ -175,7 +175,7 @@ in
 
         dashboard = {
           enable = true;
-          enableNginx = lib.mkForce true;
+          # enableNginx = lib.mkForce true;
           domain = cfg.netbird-domain;
           managementServer = "https://${cfg.netbird-domain}";
           settings = {
