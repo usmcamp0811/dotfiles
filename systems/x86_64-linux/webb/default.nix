@@ -67,6 +67,7 @@ in
 
     services = {
       # onlyoffice = { enable = true; };
+      netbird = enabled;
       vault = {
         enable = true;
         ui = true;
@@ -153,7 +154,6 @@ in
       campground-blog = enabled;
       nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
-      # netbird = enabled;
       uptime-kuma = enabled;
       grafana = {
         enable = true;
