@@ -113,7 +113,7 @@ in
       server = {
         management = {
           enable = true;
-          port = cfg.port;
+          port = 33073;
           oidcConfigEndpoint =
             "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
           # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";

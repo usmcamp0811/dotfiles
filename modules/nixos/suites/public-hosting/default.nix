@@ -144,7 +144,7 @@ in
             };
 
             http.services.api-netbird = {
-              loadBalancer.servers = [{ url = "http://webb:10001"; }];
+              loadBalancer.servers = [{ url = "http://webb:33073"; }];
             };
 
             grpc.routers.netbird-callback = {
@@ -155,7 +155,7 @@ in
             };
 
             http.services.netbird-callback = {
-              loadBalancer.servers = [{ url = "http://webb:10001"; }];
+              loadBalancer.servers = [{ url = "http://webb:33073"; }];
             };
 
             http.routers.netbird = {
