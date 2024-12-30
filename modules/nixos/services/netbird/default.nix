@@ -69,23 +69,24 @@ in
       };
       script = ''
         # Ensure /var/lib/netbird exists with correct permissions
-        mkdir -p /var/lib/netbird
+        mkdir -p /var/lib/netbird/coturn
+        mkdir -p /var/lib/coturn
         chmod 750 /var/lib/netbird
-        chown -R netbird:netbird /var/lib/netbird
+        chmod 750 /var/lib/coturn
 
         # Update the "turn" secret
-        if ! cmp -s /tmp/detsys-vault/turn /var/lib/netbird/turn; then
-          ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
-        fi
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
         chmod 640 /var/lib/netbird/turn
-        chown turnserver:turnserver /var/lib/netbird/turn
+        chown netbird:netbird /var/lib/netbird/turn
 
         # Update the "coturn" secret
-        if ! cmp -s /tmp/detsys-vault/coturn /var/lib/netbird/coturn; then
-          ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn
-        fi
-        chmod 640 /var/lib/netbird/coturn
-        chown netbird:netbird /var/lib/netbird/coturn
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/coturn/secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn_nb
+        chown -R turnserver:turnserver /var/lib/coturn/
+        chown netbird:netbird /var/lib/netbird/coturn_nb
+        chmod 640 /var/lib/netbird/coturn_nb
+        chmod 640 /var/lib/coturn/secret
+        chown turnserver:turnserver /var/lib/coturn/secret
 
         # Ensure /var/lib/netbird-mgmt exists with correct permissions
         mkdir -p /var/lib/netbird-mgmt
@@ -189,7 +190,7 @@ in
 
         coturn = {
           enable = true;
-          passwordFile = "/var/lib/netbird/coturn";
+          passwordFile = "/var/lib/coturn/secret";
           domain = cfg.netbird-domain;
         };
       };
