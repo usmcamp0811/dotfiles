@@ -147,15 +147,26 @@ in
               loadBalancer.servers = [{ url = "http://webb:33073"; }];
             };
 
-            grpc.routers.netbird-callback = {
+            http.routers.netbird-management = {
               rule =
-                "Host(`netbird.aicampground.com`) && Path(`/management.ManagementService`)";
+                "Host(`netbird.aicampground.com`) && PathPrefix(`/management.ManagementService/`)";
               entryPoints = [ "websecure" ];
-              service = "netbird-callback";
+              service = "netbird-management";
             };
 
-            http.services.netbird-callback = {
+            http.services.netbird-management = {
               loadBalancer.servers = [{ url = "http://webb:33073"; }];
+            };
+
+            http.routers.netbird-signal = {
+              rule =
+                "Host(`netbird.aicampground.com`) && PathPrefix(`/signalexchange.SignalExchange/`)";
+              entryPoints = [ "websecure" ];
+              service = "netbird-signal";
+            };
+
+            http.services.netbird-signal = {
+              loadBalancer.servers = [{ url = "http://webb:10000"; }];
             };
 
             http.routers.netbird = {
