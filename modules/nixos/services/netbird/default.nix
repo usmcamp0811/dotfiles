@@ -35,6 +35,7 @@ in
       mkOpt str "authentik.lan.aicampground.com" "Domain for Netbird to use";
     netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
     port = mkOpt int 10001 "Port to use";
+    ui-port = mkOpt int 10031 "Port to use";
     turn-port = mkOpt int 3478 "Port for turn";
     client-id =
       mkOpt str "kLVxL9B0tZNwR8VYWWE8DHoXpvjLDnErpkgTEQDa" "Client ID";
@@ -176,7 +177,7 @@ in
 
         dashboard = {
           enable = true;
-          # enableNginx = lib.mkForce true;
+          enableNginx = lib.mkForce true;
           domain = cfg.netbird-domain;
           managementServer = "https://${cfg.netbird-domain}";
           settings = {
@@ -193,6 +194,16 @@ in
           passwordFile = "/var/lib/coturn/secret";
           domain = cfg.netbird-domain;
         };
+      };
+    };
+    services.nginx = {
+      enable = true;
+      virtualHosts.${cfg.netbird-domain} = {
+        listen = [{
+          addr = "0.0.0.0";
+          port = cfg.ui-port;
+          ssl = false;
+        }];
       };
     };
 

@@ -135,8 +135,16 @@ in
             };
 
             http.services.netbird = {
-              loadBalancer.servers = [{ url = "http://webb:10001"; }];
+              loadBalancer.servers = [{ url = "http://webb:10031"; }];
             };
+
+            http.routers.authentik = {
+              rule = "Host(`authentik.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "authentik";
+            };
+
+            http.services.authentik = generateServiceConfig "authentik";
 
             http.routers.collabora = {
               rule = "Host(`collabora.aicampground.com`)";
