@@ -60,6 +60,28 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    systemd.services.netbirdSecrets = {
+      description = "Get Netbird Secrets";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+      };
+      script = ''
+        mkdir -p /var/lib/netbird/
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/turn /var/lib/netbird/turn
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/coturn /var/lib/netbird/coturn
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netbird_authentik_password /var/lib/netbird/netbird_authentik_password
+      '';
+      wantedBy = [ "multi-user.target" ];
+      before = [
+        "netbird-management.service"
+        "netbird-signal.service"
+        "netbird-dashboard.service"
+        "coturn.service"
+      ];
+
+    };
     services.netbird = {
       enable = true;
 
