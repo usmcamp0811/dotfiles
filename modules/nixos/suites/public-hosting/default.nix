@@ -137,15 +137,15 @@ in
               ];
             };
 
-            # http.routers.api-netbird = {
-            #   rule = "Host(`netbird.aicampground.com`) && PathPrefix(`/api`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "api-netbird";
-            # };
-            #
-            # http.services.api-netbird = {
-            #   loadBalancer.servers = [{ url = "http://webb:33073"; }];
-            # };
+            http.routers.api-netbird = {
+              rule = "Host(`netbird.aicampground.com`) && PathPrefix(`/api`)";
+              entryPoints = [ "websecure" ];
+              service = "api-netbird";
+            };
+
+            http.services.api-netbird = {
+              loadBalancer.servers = [{ url = "http://webb:10031"; }];
+            };
             #
             # http.routers.netbird-management = {
             #   rule =
