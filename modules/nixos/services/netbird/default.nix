@@ -27,43 +27,8 @@ let
   # Quotes a list of arguments into a single string for use in a Exec*
   # line.
   escapeSystemdExecArgs = concatMapStringsSep " " escapeSystemdExecArg;
-in
-{
-  options.campground.services.netbird = with types; {
-    enable = mkBoolOpt false "Enable Netbird;";
-    client = mkBoolOpt false "If we just need the client";
-    client = mkBoolOpt false "If we just need the client";
-
-    oidc-domain = mkOpt str "auth.aicampground.com" "Domain for Netbird to use";
-    netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
-    port = mkOpt int 10001 "Port to use";
-    ui-port = mkOpt int 10031 "Port to use";
-    signal-port = mkOpt int 10000 "Port to use";
-    turn-port = mkOpt int 3478 "Port for turn";
-    client-id =
-      mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
-
-    role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
-    secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/netbird"
-      "The Vault path to the KV containing the KVs that are for each database";
-    kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
-      default = "v2";
-      description = "KV store version";
-    };
-    vault-address = mkOption {
-      type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
-      description = "The address of your Vault";
-    };
-  };
-
-  config = mkIf cfg.enable (if !cfg.client then {
+  clientMode = { services.netbird.enable = true; };
+  serverMode = mkIf (!cfg.client) {
     systemd.services.netbirdSecrets = {
       description = "Set up Netbird Secrets with Correct Permissions";
       serviceConfig = {
@@ -304,9 +269,42 @@ in
         };
       };
     };
-  } else {
-    services.netbird.enable = true;
-  }
+  };
+in
+{
+  options.campground.services.netbird = with types; {
+    enable = mkBoolOpt false "Enable Netbird;";
+    client = mkBoolOpt false "If we just need the client";
+    client = mkBoolOpt false "If we just need the client";
 
-  );
+    oidc-domain = mkOpt str "auth.aicampground.com" "Domain for Netbird to use";
+    netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
+    port = mkOpt int 10001 "Port to use";
+    ui-port = mkOpt int 10031 "Port to use";
+    signal-port = mkOpt int 10000 "Port to use";
+    turn-port = mkOpt int 3478 "Port for turn";
+    client-id =
+      mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
+
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/netbird"
+      "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
+  };
+
+  config = mkIf cfg.enable { services.netbird.enable = true; } // serverMode;
 }
