@@ -275,7 +275,6 @@ in
   options.campground.services.netbird = with types; {
     enable = mkBoolOpt false "Enable Netbird;";
     client = mkBoolOpt false "If we just need the client";
-    client = mkBoolOpt false "If we just need the client";
 
     oidc-domain = mkOpt str "auth.aicampground.com" "Domain for Netbird to use";
     netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
