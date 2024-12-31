@@ -149,7 +149,7 @@ in
               AuthKeysLocation =
                 "https://auth.aicampground.com/application/o/netbird/jwks/";
               # AuthUserIDClaim = "";
-              IdpSignKeyRefreshEnabled = false;
+              # IdpSignKeyRefreshEnabled = false;
             };
 
             IdpManagerConfig = {
@@ -174,7 +174,7 @@ in
               ClientID = cfg.client-id;
               ClientSecret = "";
               Scope = "openid profile email offline_access api";
-              UseIDToken = false;
+              # UseIDToken = false;
               AuthorizationEndpoint =
                 "https://auth.aicampground.com/application/o/authorize/";
               # "https://${cfg.oidc-domain}/application/o/authorize/";
@@ -190,6 +190,7 @@ in
           enable = true;
           port = 10000;
           domain = "netbird.aicampground.com";
+          enableNginx = lib.mkForce true;
         };
 
         dashboard = {
