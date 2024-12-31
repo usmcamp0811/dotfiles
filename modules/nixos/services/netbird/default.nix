@@ -36,6 +36,7 @@ in
     netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
     port = mkOpt int 10001 "Port to use";
     ui-port = mkOpt int 10031 "Port to use";
+    signal-port = mkOpt int 10000 "Port to use";
     turn-port = mkOpt int 3478 "Port for turn";
     client-id =
       mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
@@ -190,7 +191,7 @@ in
 
         signal = {
           enable = true;
-          port = 10000;
+          port = cfg.signal-port;
           domain = "netbird.aicampground.com";
           enableNginx = lib.mkForce true;
         };
@@ -227,38 +228,38 @@ in
         }];
       };
 
-    # users.users.netbird = mkIf (!cfg.client-only) {
-    #   name = "netbird";
-    #   group = "netbird";
-    #   isSystemUser = true;
-    # };
-    # users.groups.netbird = { };
+    users.users.netbird = mkIf (!cfg.client-only) {
+      name = "netbird";
+      group = "netbird";
+      isSystemUser = true;
+    };
+    users.groups.netbird = { };
 
-    # systemd.services.netbird-management.serviceConfig =
-    #   mkIf (!cfg.client-only) {
-    #     User = "netbird";
-    #     Group = "netbird";
-    #   };
+    systemd.services.netbird-management.serviceConfig =
+      mkIf (!cfg.client-only) {
+        User = "netbird";
+        Group = "netbird";
+      };
 
-    # systemd.services.netbird-signal.serviceConfig = mkIf (!cfg.client-only) {
-    #   User = "netbird";
-    #   Group = "netbird";
-    #   ExecStart = lib.mkForce (escapeSystemdExecArgs [
-    #     (lib.getExe' pkgs.netbird "netbird-signal")
-    #     "run"
-    #     # Port to listen on
-    #     "--port"
-    #     "10000"
-    #     # Log to stdout
-    #     "--log-file"
-    #     "console"
-    #     # Log level
-    #     "--log-level"
-    #     "DEBUG"
-    #     "--metrics-port"
-    #     "9091"
-    #   ]);
-    # };
+    systemd.services.netbird-signal.serviceConfig = mkIf (!cfg.client-only) {
+      User = "netbird";
+      Group = "netbird";
+      ExecStart = lib.mkForce (escapeSystemdExecArgs [
+        (lib.getExe' pkgs.netbird "netbird-signal")
+        "run"
+        # Port to listen on
+        "--port"
+        "${toString cfg.signal-port}"
+        # Log to stdout
+        "--log-file"
+        "console"
+        # Log level
+        "--log-level"
+        "DEBUG"
+        "--metrics-port"
+        "9091"
+      ]);
+    };
 
     campground.services.vault-agent.services = mkIf (!cfg.client-only) {
       netbirdSecrets = {
