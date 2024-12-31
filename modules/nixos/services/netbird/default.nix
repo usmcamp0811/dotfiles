@@ -227,38 +227,38 @@ in
         }];
       };
 
-    users.users.netbird = mkIf (!cfg.client-only) {
-      name = "netbird";
-      group = "netbird";
-      isSystemUser = true;
-    };
-    users.groups.netbird = { };
+    # users.users.netbird = mkIf (!cfg.client-only) {
+    #   name = "netbird";
+    #   group = "netbird";
+    #   isSystemUser = true;
+    # };
+    # users.groups.netbird = { };
 
-    systemd.services.netbird-management.serviceConfig =
-      mkIf (!cfg.client-only) {
-        User = "netbird";
-        Group = "netbird";
-      };
+    # systemd.services.netbird-management.serviceConfig =
+    #   mkIf (!cfg.client-only) {
+    #     User = "netbird";
+    #     Group = "netbird";
+    #   };
 
-    systemd.services.netbird-signal.serviceConfig = mkIf (!cfg.client-only) {
-      User = "netbird";
-      Group = "netbird";
-      ExecStart = lib.mkForce (escapeSystemdExecArgs [
-        (lib.getExe' pkgs.netbird "netbird-signal")
-        "run"
-        # Port to listen on
-        "--port"
-        "10000"
-        # Log to stdout
-        "--log-file"
-        "console"
-        # Log level
-        "--log-level"
-        "DEBUG"
-        "--metrics-port"
-        "9091"
-      ]);
-    };
+    # systemd.services.netbird-signal.serviceConfig = mkIf (!cfg.client-only) {
+    #   User = "netbird";
+    #   Group = "netbird";
+    #   ExecStart = lib.mkForce (escapeSystemdExecArgs [
+    #     (lib.getExe' pkgs.netbird "netbird-signal")
+    #     "run"
+    #     # Port to listen on
+    #     "--port"
+    #     "10000"
+    #     # Log to stdout
+    #     "--log-file"
+    #     "console"
+    #     # Log level
+    #     "--log-level"
+    #     "DEBUG"
+    #     "--metrics-port"
+    #     "9091"
+    #   ]);
+    # };
 
     campground.services.vault-agent.services = mkIf (!cfg.client-only) {
       netbirdSecrets = {
