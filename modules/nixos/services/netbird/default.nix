@@ -31,6 +31,7 @@ in
 {
   options.campground.services.netbird = with types; {
     enable = mkBoolOpt false "Enable Netbird;";
+    client-only = mkBoolOpt false "If we just need the client";
     oidc-domain = mkOpt str "auth.aicampground.com" "Domain for Netbird to use";
     netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
     port = mkOpt int 10001 "Port to use";
@@ -110,7 +111,7 @@ in
     services.netbird = {
       enable = true;
 
-      server = {
+      server = mkIf (!cfg.client-only) {
         management = {
           enable = true;
           port = 33073;
@@ -121,7 +122,7 @@ in
           # turnDomain = cfg.netbird-domain;
           turnDomain = "turn.aicampground.com";
           # dnsDomain = "netbird.${cfg.netbird-domain}";
-          dnsDomain = "dns.netbird.aicampground.com";
+          dnsDomain = "netbird.aicampground.com";
           singleAccountModeDomain = "netbird.aicampground.com";
 
           # singleAccountModeDomain = "netbird.${cfg.netbird-domain}";
@@ -214,27 +215,29 @@ in
         };
       };
     };
-    services.nginx.virtualHosts.${cfg.netbird-domain} = {
-      listen = [{
-        addr = "0.0.0.0";
-        port = cfg.ui-port;
-        ssl = false;
-      }];
-    };
+    services.nginx.virtualHosts.${cfg.netbird-domain} =
+      mkIf (!cfg.client-only) {
+        listen = [{
+          addr = "0.0.0.0";
+          port = cfg.ui-port;
+          ssl = false;
+        }];
+      };
 
-    users.users.netbird = {
+    users.users.netbird = mkIf (!cfg.client-only) {
       name = "netbird";
       group = "netbird";
       isSystemUser = true;
     };
     users.groups.netbird = { };
 
-    systemd.services.netbird-management.serviceConfig = {
-      User = "netbird";
-      Group = "netbird";
-    };
+    systemd.services.netbird-management.serviceConfig =
+      mkIf (!cfg.client-only) {
+        User = "netbird";
+        Group = "netbird";
+      };
 
-    systemd.services.netbird-signal.serviceConfig = {
+    systemd.services.netbird-signal.serviceConfig = mkIf (!cfg.client-only) {
       User = "netbird";
       Group = "netbird";
       ExecStart = lib.mkForce (escapeSystemdExecArgs [
@@ -254,7 +257,7 @@ in
       ]);
     };
 
-    campground.services.vault-agent.services = {
+    campground.services.vault-agent.services = mkIf (!cfg.client-only) {
       netbirdSecrets = {
         settings = {
           vault.address = cfg.vault-address;
