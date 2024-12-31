@@ -79,11 +79,11 @@ let
       enable = true;
 
       server = {
-        enableNginx = lib.mkForce true;
+        # enableNginx = lib.mkForce true;
         management = {
           enable = true;
           port = 33073;
-          enableNginx = lib.mkForce true;
+          # enableNginx = lib.mkForce true;
           oidcConfigEndpoint =
             "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
           # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
@@ -159,12 +159,12 @@ let
           enable = true;
           port = cfg.signal-port;
           domain = "netbird.aicampground.com";
-          enableNginx = lib.mkForce true;
+          # enableNginx = lib.mkForce true;
         };
 
         dashboard = {
           enable = true;
-          enableNginx = lib.mkForce true;
+          # enableNginx = lib.mkForce true;
           domain = cfg.netbird-domain;
           managementServer = "https://${cfg.netbird-domain}";
           settings = {
@@ -185,13 +185,13 @@ let
         };
       };
     };
-    services.nginx.virtualHosts.${cfg.netbird-domain} = {
-      listen = [{
-        addr = "0.0.0.0";
-        port = cfg.ui-port;
-        ssl = false;
-      }];
-    };
+    # services.nginx.virtualHosts.${cfg.netbird-domain} = {
+    #   listen = [{
+    #     addr = "0.0.0.0";
+    #     port = cfg.ui-port;
+    #     ssl = false;
+    #   }];
+    # };
 
     users.users.netbird = {
       name = "netbird";
