@@ -63,8 +63,7 @@ in
     };
   };
 
-  config = mkIf (cfg.enable && !cfg.client) {
-
+  config = mkIf cfg.enable (if !cfg.client then {
     systemd.services.netbirdSecrets = {
       description = "Set up Netbird Secrets with Correct Permissions";
       serviceConfig = {
@@ -305,5 +304,9 @@ in
         };
       };
     };
-  };
+  } else {
+    services.netbird.enable = true;
+  }
+
+  );
 }
