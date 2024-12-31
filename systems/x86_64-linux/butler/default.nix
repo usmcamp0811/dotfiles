@@ -8,7 +8,8 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   imports = [ ./hardware.nix ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -51,13 +52,17 @@ in {
         tang-servers =
           [ "http://webb:1234" "http://lucas:1234" "http://chesty:1234" ];
       };
-      wireguard-client = {
+      netbird = {
         enable = true;
-        port = 1149;
-        ips = [ "10.100.0.2/32" ];
-        ip = "10.100.0.2/32";
-        publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
+        client-only = true;
       };
+      # wireguard-client = {
+      #   enable = true;
+      #   port = 1149;
+      #   ips = [ "10.100.0.2/32" ];
+      #   ip = "10.100.0.2/32";
+      #   publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
+      # };
       user-secrets = {
         enable = true;
         users = {
