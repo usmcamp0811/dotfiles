@@ -54,7 +54,7 @@ in
       };
       netbird = {
         enable = true;
-        client-only = true;
+        client = true;
       };
       # wireguard-client = {
       #   enable = true;

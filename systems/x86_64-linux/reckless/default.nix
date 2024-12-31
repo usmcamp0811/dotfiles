@@ -116,7 +116,7 @@ in
       cac = enabled;
       netbird = {
         enable = true;
-        client-only = true;
+        client = true;
       };
 
       # grafana = {

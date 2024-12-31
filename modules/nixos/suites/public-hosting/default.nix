@@ -146,29 +146,29 @@ in
             http.services.api-netbird = {
               loadBalancer.servers = [{ url = "http://webb:10031"; }];
             };
-            #
-            # http.routers.netbird-management = {
-            #   rule =
-            #     "Host(`netbird.aicampground.com`) && PathPrefix(`/management.ManagementService/`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "netbird-management";
-            # };
-            #
-            # http.services.netbird-management = {
-            #   loadBalancer.servers = [{ url = "http://webb:33073"; }];
-            # };
-            #
-            # http.routers.netbird-signal = {
-            #   rule =
-            #     "Host(`netbird.aicampground.com`) && PathPrefix(`/signalexchange.SignalExchange/`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "netbird-signal";
-            # };
-            #
-            # http.services.netbird-signal = {
-            #   loadBalancer.servers = [{ url = "http://webb:10000"; }];
-            # };
-            #
+
+            http.routers.netbird-management = {
+              rule =
+                "Host(`netbird.aicampground.com`) && PathPrefix(`/management.ManagementService/`)";
+              entryPoints = [ "websecure" ];
+              service = "netbird-management";
+            };
+
+            http.services.netbird-management = {
+              loadBalancer.servers = [{ url = "http://webb:33073"; }];
+            };
+
+            http.routers.netbird-signal = {
+              rule =
+                "Host(`netbird.aicampground.com`) && PathPrefix(`/signalexchange.SignalExchange/`)";
+              entryPoints = [ "websecure" ];
+              service = "netbird-signal";
+            };
+
+            http.services.netbird-signal = {
+              loadBalancer.servers = [{ url = "http://webb:10000"; }];
+            };
+
             http.routers.netbird = {
               rule = "Host(`netbird.aicampground.com`)";
               entryPoints = [ "websecure" ];

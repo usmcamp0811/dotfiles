@@ -29,6 +29,9 @@ let
   escapeSystemdExecArgs = concatMapStringsSep " " escapeSystemdExecArg;
   clientMode = { services.netbird.enable = true; };
   serverMode = mkIf (!cfg.client) {
+    networking.firewall.allowedTCPPorts =
+      [ cfg.port cfg.signal-port cfg.ui-port cfg.turn-port ];
+
     systemd.services.netbirdSecrets = {
       description = "Set up Netbird Secrets with Correct Permissions";
       serviceConfig = {
