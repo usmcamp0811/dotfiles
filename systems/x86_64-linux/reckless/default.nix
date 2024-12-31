@@ -114,6 +114,10 @@ in
 
     services = {
       cac = enabled;
+      netbird = {
+        enable = true;
+        client-only = true;
+      };
 
       # grafana = {
       #   enable = true;
