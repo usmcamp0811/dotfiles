@@ -116,6 +116,7 @@ in
         management = {
           enable = true;
           port = 33073;
+          enableNginx = lib.mkForce true;
           oidcConfigEndpoint =
             "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
           # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
