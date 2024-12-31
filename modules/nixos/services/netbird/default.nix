@@ -112,6 +112,7 @@ in
       enable = true;
 
       server = mkIf (!cfg.client-only) {
+        enableNginx = lib.mkForce true;
         management = {
           enable = true;
           port = 33073;
