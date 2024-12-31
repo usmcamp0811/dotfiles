@@ -67,7 +67,7 @@ in
 
     services = {
       # onlyoffice = { enable = true; };
-      netbird = enabled;
+      # netbird = enabled;
       vault = {
         enable = true;
         ui = true;

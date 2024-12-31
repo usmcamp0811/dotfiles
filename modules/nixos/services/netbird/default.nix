@@ -45,22 +45,22 @@ let
         chmod 750 /var/lib/netbird
         chmod 750 /var/lib/coturn
 
-        # Update the "turn" secret
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird/turn
-        chmod 640 /var/lib/netbird/turn
-        chown netbird:netbird /var/lib/netbird/turn
 
         # Update the "coturn" secret
         ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/coturn/secret
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird/coturn_nb
         chown -R turnserver:turnserver /var/lib/coturn/
-        chown netbird:netbird /var/lib/netbird/coturn_nb
-        chmod 640 /var/lib/netbird/coturn_nb
         chmod 640 /var/lib/coturn/secret
         chown turnserver:turnserver /var/lib/coturn/secret
 
         # Ensure /var/lib/netbird-mgmt exists with correct permissions
         mkdir -p /var/lib/netbird-mgmt
+        # Update the "turn" secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird-mgmt/turn
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird-mgmt/coturn_nb
+        chown netbird:netbird /var/lib/netbird-mgmt/coturn_nb
+        chmod 640 /var/lib/netbird-mgmt/turn
+        chmod 640 /var/lib/netbird-mgmt/coturn_nb
+        chown turnserver:netbird /var/lib/netbird-mgmt/turn
         chmod 750 /var/lib/netbird-mgmt
         chown -R netbird:netbird /var/lib/netbird-mgmt
 
@@ -82,11 +82,11 @@ let
       enable = true;
 
       server = {
-        # enableNginx = lib.mkForce true;
+        enableNginx = lib.mkForce true;
         management = {
           enable = true;
           port = 33073;
-          # enableNginx = lib.mkForce true;
+          enableNginx = lib.mkForce true;
           oidcConfigEndpoint =
             "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
           # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
@@ -105,10 +105,10 @@ let
                 Proto = "udp";
                 URI = "turn:${cfg.netbird-domain}:${toString cfg.turn-port}";
                 Username = "NetBird";
-                Password._secret = "/var/lib/netbird/coturn_nb";
+                Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
               }];
 
-              Secret._secret = "/var/lib/netbird/turn";
+              Secret._secret = "/var/lib/netbird-mgmt/turn";
             };
 
             DataStoreEncryptionKey = null;
@@ -162,12 +162,12 @@ let
           enable = true;
           port = cfg.signal-port;
           domain = "netbird.aicampground.com";
-          # enableNginx = lib.mkForce true;
+          enableNginx = lib.mkForce true;
         };
 
         dashboard = {
           enable = true;
-          # enableNginx = lib.mkForce true;
+          enableNginx = true;
           domain = cfg.netbird-domain;
           managementServer = "https://${cfg.netbird-domain}";
           settings = {
@@ -188,18 +188,19 @@ let
         };
       };
     };
-    # services.nginx.virtualHosts.${cfg.netbird-domain} = {
-    #   listen = [{
-    #     addr = "0.0.0.0";
-    #     port = cfg.ui-port;
-    #     ssl = false;
-    #   }];
-    # };
+    services.nginx.virtualHosts.${cfg.netbird-domain} = {
+      listen = [{
+        addr = "0.0.0.0";
+        port = 10031;
+        ssl = false;
+      }];
+    };
 
     users.users.netbird = {
       name = "netbird";
       group = "netbird";
       isSystemUser = true;
+      extraGroups = [ "turnserver" ];
     };
     users.groups.netbird = { };
 
