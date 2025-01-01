@@ -30,15 +30,57 @@ let
   # Quotes a list of arguments into a single string for use in a Exec*
   # line.
   escapeSystemdExecArgs = concatMapStringsSep " " escapeSystemdExecArg;
-  # TODO: Clean this up i dont like how i am doing client mode
-  clientMode = { services.netbird.enable = true; };
-  serverMode = mkIf (!cfg.client) {
-    networking.firewall.allowedTCPPorts =
-      [ cfg.port cfg.signal-port cfg.ui-port cfg.turn-port ];
-    networking.firewall.allowedUDPPorts =
-      [ cfg.port cfg.signal-port cfg.ui-port cfg.turn-port ];
+in
+{
+  options.campground.services.netbird = with types; {
+    client = { enable = mkBoolOpt false "Enable Netbird Client Only"; };
+    server = {
+      enable = mkBoolOpt false "Enable Netbird;";
+      domain =
+        mkOpt str "aicampground.com" "Top level domain used for all theings";
+      oidc-domain =
+        mkOpt str "auth.${cfg.server.domain}" "Domain for Netbird to use";
+      netbird-domain =
+        mkOpt str "netbird.${cfg.server.domain}" "Netbird Domain";
+      listen-addr =
+        mkOpt str "0.0.0.0" "The Hostname/IP that NGINX will listen on.";
+      port = mkOpt int 10031 "Port to use";
+      turn-port = mkOpt int 3478 "TURN Port -- UDP";
+      management-port =
+        mkOpt int 33073 "Management Port -- Think its UDP & TCP";
+      signal-port = mkOpt int 10000 "Signal Port -- TCP";
+      metrics-port = mkOpt int 9091 "Metrics Port -- TCP";
+      client-id =
+        mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
+    };
 
-    systemd.services.netbirdSecrets = {
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/netbird"
+      "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
+  };
+
+  config = mkIf (cfg.server.enable || cfg.client.enable) {
+    # networking.firewall.allowedTCPPorts =
+    #   [ cfg.server.port cfg.server.signal-port cfg.server.ui-port cfg.server.turn-port ];
+    # networking.firewall.allowedUDPPorts =
+    #   [ cfg.server.port cfg.server.signal-port cfg.server.ui-port cfg.server.turn-port ];
+
+    systemd.services.netbirdSecrets = mkIf cfg.server.enable {
       description = "Set up Netbird Secrets with Correct Permissions";
       serviceConfig = {
         Type = "oneshot";
@@ -88,26 +130,27 @@ let
     services.netbird = {
       enable = true;
 
-      server = {
+      server = mkIf cfg.server.enable {
         enableNginx = lib.mkForce true;
-        domain = cfg.netbird-domain;
+        domain = cfg.server.netbird-domain;
         management = {
           enable = true;
-          port = cfg.management-port;
+          port = cfg.server.management-port;
           enableNginx = lib.mkForce true;
           oidcConfigEndpoint =
-            "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
-          domain = cfg.netbird-domain;
-          turnDomain = "turn.${cfg.netbird-domain}";
-          dnsDomain = cfg.netbird-domain;
-          singleAccountModeDomain = cfg.netbird-domain;
+            "https://${cfg.server.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
+          domain = cfg.server.netbird-domain;
+          turnDomain = "turn.${cfg.server.netbird-domain}";
+          dnsDomain = cfg.server.netbird-domain;
+          singleAccountModeDomain = cfg.server.netbird-domain;
 
           settings = {
             TURNConfig = {
               Turns = [{
                 Proto = "udp";
-                URI =
-                  "turn:turn.${cfg.netbird-domain}:${toString cfg.turn-port}";
+                URI = "turn:turn.${cfg.server.netbird-domain}:${
+                    toString cfg.server.turn-port
+                  }";
                 Username = "NetBird";
                 Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
               }];
@@ -118,20 +161,22 @@ let
             DataStoreEncryptionKey = null;
 
             HttpConfig = {
-              AuthAudience = cfg.client-id;
+              AuthAudience = cfg.server.client-id;
               AuthUserIDClaim = "sub";
-              AuthIssuer = "https://${cfg.oidc-domain}/application/o/netbird/";
+              AuthIssuer =
+                "https://${cfg.server.oidc-domain}/application/o/netbird/";
               AuthKeysLocation =
-                "https://${cfg.oidc-domain}/application/o/netbird/jwks/";
+                "https://${cfg.server.oidc-domain}/application/o/netbird/jwks/";
             };
 
             IdpManagerConfig = {
               ManagerType = "authentik";
               ClientConfig = {
-                Issuer = "https://${cfg.oidc-domain}/application/o/netbird/";
-                ClientID = cfg.client-id;
+                Issuer =
+                  "https://${cfg.server.oidc-domain}/application/o/netbird/";
+                ClientID = cfg.server.client-id;
                 TokenEndpoint =
-                  "https://${cfg.oidc-domain}/application/o/token/";
+                  "https://${cfg.server.oidc-domain}/application/o/token/";
                 ClientSecret = "";
               };
               ExtraConfig = {
@@ -141,35 +186,36 @@ let
               };
             };
             PKCEAuthorizationFlow.ProviderConfig = {
-              Audience = cfg.client-id;
-              ClientID = cfg.client-id;
+              Audience = cfg.server.client-id;
+              ClientID = cfg.server.client-id;
               ClientSecret = "";
               Scope = "openid profile email offline_access api";
               AuthorizationEndpoint =
-                "https://${cfg.oidc-domain}/application/o/authorize/";
-              TokenEndpoint = "https://${cfg.oidc-domain}/application/o/token/";
+                "https://${cfg.server.oidc-domain}/application/o/authorize/";
+              TokenEndpoint =
+                "https://${cfg.server.oidc-domain}/application/o/token/";
             };
           };
         };
 
         signal = {
           enable = true;
-          port = cfg.signal-port;
-          domain = cfg.netbird-domain;
+          port = cfg.server.signal-port;
+          domain = cfg.server.netbird-domain;
           enableNginx = lib.mkForce true;
         };
 
         dashboard = {
           enable = true;
           enableNginx = true;
-          domain = cfg.netbird-domain;
-          managementServer = "https://${cfg.netbird-domain}";
+          domain = cfg.server.netbird-domain;
+          managementServer = "https://${cfg.server.netbird-domain}";
           settings = {
             AUTH_AUTHORITY =
-              "https://${cfg.oidc-domain}/application/o/netbird/";
+              "https://${cfg.server.oidc-domain}/application/o/netbird/";
             AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
-            AUTH_AUDIENCE = cfg.client-id;
-            AUTH_CLIENT_ID = cfg.client-id;
+            AUTH_AUDIENCE = cfg.server.client-id;
+            AUTH_CLIENT_ID = cfg.server.client-id;
             USE_AUTH0 = "false";
           };
         };
@@ -177,17 +223,18 @@ let
         coturn = {
           enable = true;
           passwordFile = "/var/lib/coturn/secret";
-          domain = cfg.netbird-domain;
+          domain = cfg.server.netbird-domain;
         };
       };
     };
-    services.nginx.virtualHosts.${cfg.netbird-domain} = {
-      listen = [{
-        addr = cfg.listen-addr;
-        port = cfg.port;
-        ssl = false;
-      }];
-    };
+    services.nginx.virtualHosts.${cfg.server.netbird-domain} =
+      mkIf cfg.server.enable {
+        listen = [{
+          addr = cfg.server.listen-addr;
+          port = cfg.server.port;
+          ssl = false;
+        }];
+      };
 
     users.users.netbird = {
       name = "netbird";
@@ -242,44 +289,4 @@ let
       };
     };
   };
-in
-{
-  options.campground.services.netbird = with types; {
-    enable = mkBoolOpt false "Enable Netbird;";
-    client = mkBoolOpt false "If we just need the client";
-    domain =
-      mkOpt str "aicampground.com" "Top level domain used for all theings";
-    oidc-domain = mkOpt str "auth.${cfg.domain}" "Domain for Netbird to use";
-    netbird-domain = mkOpt str "netbird.${cfg.domain}" "Netbird Domain";
-    listen-addr =
-      mkOpt str "0.0.0.0" "The Hostname/IP that NGINX will listen on.";
-    port = mkOpt int 10031 "Port to use";
-    turn-port = mkOpt int 3478 "TURN Port -- UDP";
-    management-port = mkOpt int 33073 "Management Port -- Think its UDP & TCP";
-    signal-port = mkOpt int 10000 "Signal Port -- TCP";
-    metrics-port = mkOpt int 9091 "Metrics Port -- TCP";
-    client-id =
-      mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
-
-    role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
-    secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/netbird"
-      "The Vault path to the KV containing the KVs that are for each database";
-    kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
-      default = "v2";
-      description = "KV store version";
-    };
-    vault-address = mkOption {
-      type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
-      description = "The address of your Vault";
-    };
-  };
-
-  config = mkIf cfg.enable { services.netbird.enable = true; } // serverMode;
 }

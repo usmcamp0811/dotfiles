@@ -52,10 +52,7 @@ in
         tang-servers =
           [ "http://webb:1234" "http://lucas:1234" "http://chesty:1234" ];
       };
-      netbird = {
-        enable = true;
-        client = true;
-      };
+      netbird.client = enabled;
       # wireguard-client = {
       #   enable = true;
       #   port = 1149;
