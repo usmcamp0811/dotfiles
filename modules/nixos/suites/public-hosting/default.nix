@@ -144,7 +144,7 @@ in
             };
 
             http.services.netbird = {
-              loadBalancer.servers = [{ url = "http://daly:10031"; }];
+              loadBalancer.servers = [{ url = "http://webb:10031"; }];
               loadBalancer.healthCheck = {
                 path = "/";
                 interval = "10s";

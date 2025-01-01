@@ -44,7 +44,7 @@ with lib.campground; {
     nfs.client = { enable = true; };
 
     services = {
-      netbird.server = enabled;
+      # netbird.server = enabled;
       ldap-client = { enable = mkForce false; };
       authentik = {
         enable = true;
