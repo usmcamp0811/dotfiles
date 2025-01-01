@@ -116,7 +116,10 @@ in {
                 "https://${cfg.server.oidc-domain}/application/o/authorize/";
               TokenEndpoint =
                 "https://${cfg.server.oidc-domain}/application/o/token/";
-              RedirectURLs = [ "https://${cfg.server.netbird-domain}" ];
+              RedirectURLs = [
+                "https://${cfg.server.netbird-domain}"
+                "http://localhost:53000"
+              ];
             };
           };
         };
