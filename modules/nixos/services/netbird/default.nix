@@ -73,7 +73,7 @@ in {
                 URI = "turn:turn.${cfg.server.netbird-domain}:${
                     toString cfg.server.turn-port
                   }";
-                Username = "NetBird";
+                Username = "netbird";
                 Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
               }];
 
