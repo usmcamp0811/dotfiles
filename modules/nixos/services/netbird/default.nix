@@ -86,34 +86,30 @@ in
         Type = "oneshot";
         User = "root";
       };
-      # TODO: Clean this up
       script = ''
-        # Ensure /var/lib/netbird exists with correct permissions
-        mkdir -p /var/lib/netbird/coturn
-        mkdir -p /var/lib/coturn
-        chmod 750 /var/lib/netbird
-        chmod 750 /var/lib/coturn
+        # Create necessary directories with correct permissions
+        mkdir -p /var/lib/netbird/coturn /var/lib/coturn /var/lib/netbird-mgmt
+        chmod 750 /var/lib/netbird /var/lib/coturn /var/lib/netbird-mgmt
+        chown -R netbird:netbird /var/lib/netbird
+        chown -R netbird:netbird /var/lib/netbird-mgmt
+        chown -R turnserver:turnserver /var/lib/coturn
 
-
-        # Update the "coturn" secret
+        # Set up coturn secret
         ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/coturn/secret
-        chown -R turnserver:turnserver /var/lib/coturn/
         chmod 640 /var/lib/coturn/secret
         chown turnserver:turnserver /var/lib/coturn/secret
 
-        # Ensure /var/lib/netbird-mgmt exists with correct permissions
-        mkdir -p /var/lib/netbird-mgmt
-        # Update the "turn" secret
+        # Set up turn secret
         ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird-mgmt/turn
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird-mgmt/coturn_nb
-        chown netbird:netbird /var/lib/netbird-mgmt/coturn_nb
         chmod 640 /var/lib/netbird-mgmt/turn
-        chmod 640 /var/lib/netbird-mgmt/coturn_nb
         chown turnserver:netbird /var/lib/netbird-mgmt/turn
-        chmod 750 /var/lib/netbird-mgmt
-        chown -R netbird:netbird /var/lib/netbird-mgmt
 
-        # Update the "netbird_authentik_password" secret
+        # Set up coturn_nb secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird-mgmt/coturn_nb
+        chmod 640 /var/lib/netbird-mgmt/coturn_nb
+        chown netbird:netbird /var/lib/netbird-mgmt/coturn_nb
+
+        # Set up netbird_authentik_password secret
         ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird-mgmt/netbird_authentik_password
         chmod 600 /var/lib/netbird-mgmt/netbird_authentik_password
         chown netbird:netbird /var/lib/netbird-mgmt/netbird_authentik_password
