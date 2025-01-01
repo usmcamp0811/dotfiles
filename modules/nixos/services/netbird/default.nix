@@ -30,6 +30,7 @@ let
   # Quotes a list of arguments into a single string for use in a Exec*
   # line.
   escapeSystemdExecArgs = concatMapStringsSep " " escapeSystemdExecArg;
+  # TODO: Clean this up i dont like how i am doing client mode
   clientMode = { services.netbird.enable = true; };
   serverMode = mkIf (!cfg.client) {
     networking.firewall.allowedTCPPorts =
