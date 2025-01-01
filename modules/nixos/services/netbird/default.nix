@@ -31,6 +31,8 @@ let
   serverMode = mkIf (!cfg.client) {
     networking.firewall.allowedTCPPorts =
       [ cfg.port cfg.signal-port cfg.ui-port cfg.turn-port ];
+    networking.firewall.allowedUDPPorts =
+      [ cfg.port cfg.signal-port cfg.ui-port cfg.turn-port ];
 
     systemd.services.netbirdSecrets = {
       description = "Set up Netbird Secrets with Correct Permissions";
@@ -83,6 +85,7 @@ let
 
       server = {
         enableNginx = lib.mkForce true;
+        domain = "netbird.aicampground.com";
         management = {
           enable = true;
           port = 33073;
@@ -100,12 +103,12 @@ let
           # singleAccountModeDomain = "netbird.${cfg.netbird-domain}";
 
           settings = {
-            Signal = {
-              Proto = "https";
-              URI = "netbird.aicampground.com:443";
-              Username = "";
-              Password = null;
-            };
+            # Signal = {
+            #   Proto = "https";
+            #   # URI = "netbird.aicampground.com:443";
+            #   # Username = "";
+            #   # Password = null;
+            # };
             TURNConfig = {
               Turns = [{
                 Proto = "udp";
@@ -223,7 +226,7 @@ let
         "run"
         # Port to listen on
         "--port"
-        "${toString cfg.signal-port}"
+        "10000"
         # Log to stdout
         "--log-file"
         "console"
