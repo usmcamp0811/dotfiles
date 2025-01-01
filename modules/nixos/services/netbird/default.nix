@@ -1,6 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
+# PIRs: 
+# 1. What ports must be open?
+# 2. How to make Turn Server work correctly
 let
   cfg = config.campground.services.netbird;
   # Quotes an argument for use in Exec* service lines.
@@ -89,7 +92,7 @@ let
         domain = cfg.netbird-domain;
         management = {
           enable = true;
-          port = 33073;
+          port = cfg.management-port;
           enableNginx = lib.mkForce true;
           oidcConfigEndpoint =
             "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
@@ -150,7 +153,7 @@ let
 
         signal = {
           enable = true;
-          port = 10000;
+          port = cfg.signal-port;
           domain = cfg.netbird-domain;
           enableNginx = lib.mkForce true;
         };
@@ -179,7 +182,7 @@ let
     };
     services.nginx.virtualHosts.${cfg.netbird-domain} = {
       listen = [{
-        addr = "0.0.0.0";
+        addr = cfg.listen-addr;
         port = cfg.port;
         ssl = false;
       }];
@@ -193,11 +196,13 @@ let
     };
     users.groups.netbird = { };
 
+    # TODO: Can I do away with this and leave the defaults?
     systemd.services.netbird-management.serviceConfig = {
       User = "netbird";
       Group = "netbird";
     };
 
+    # TODO: Can I do away with this and leave the defaults?
     systemd.services.netbird-signal.serviceConfig = {
       User = "netbird";
       Group = "netbird";
@@ -206,15 +211,15 @@ let
         "run"
         # Port to listen on
         "--port"
-        "10000"
+        "${toString cfg.signal-port}"
         # Log to stdout
         "--log-file"
         "console"
         # Log level
         "--log-level"
-        "DEBUG"
+        "INFO"
         "--metrics-port"
-        "9091"
+        "${toString cfg.metrics-port}"
       ]);
     };
 
@@ -272,8 +277,13 @@ in
       mkOpt str "aicampground.com" "Top level domain used for all theings";
     oidc-domain = mkOpt str "auth.${cfg.domain}" "Domain for Netbird to use";
     netbird-domain = mkOpt str "netbird.${cfg.domain}" "Netbird Domain";
+    listen-addr =
+      mkOpt str "0.0.0.0" "The Hostname/IP that NGINX will listen on.";
     port = mkOpt int 10031 "Port to use";
-    turn-port = mkOpt int 3478 "TURN Port";
+    turn-port = mkOpt int 3478 "TURN Port -- UDP";
+    management-port = mkOpt int 33073 "Management Port -- Think its UDP & TCP";
+    signal-port = mkOpt int 10000 "Signal Port -- TCP";
+    metrics-port = mkOpt int 9091 "Metrics Port -- TCP";
     client-id =
       mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
 
