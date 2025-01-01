@@ -40,6 +40,7 @@ let
         Type = "oneshot";
         User = "root";
       };
+      # TODO: Clean this up
       script = ''
         # Ensure /var/lib/netbird exists with correct permissions
         mkdir -p /var/lib/netbird/coturn
@@ -85,34 +86,24 @@ let
 
       server = {
         enableNginx = lib.mkForce true;
-        domain = "netbird.aicampground.com";
+        domain = cfg.netbird-domain;
         management = {
           enable = true;
           port = 33073;
           enableNginx = lib.mkForce true;
           oidcConfigEndpoint =
-            "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration";
-          # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
-          domain = "netbird.aicampground.com";
-          # turnDomain = cfg.netbird-domain;
-          turnDomain = "turn.netbird.aicampground.com";
-          # dnsDomain = "netbird.${cfg.netbird-domain}";
-          dnsDomain = "netbird.aicampground.com";
-          singleAccountModeDomain = "netbird.aicampground.com";
-
-          # singleAccountModeDomain = "netbird.${cfg.netbird-domain}";
+            "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
+          domain = cfg.netbird-domain;
+          turnDomain = "turn.${cfg.netbird-domain}";
+          dnsDomain = cfg.netbird-domain;
+          singleAccountModeDomain = cfg.netbird-domain;
 
           settings = {
-            # Signal = {
-            #   Proto = "https";
-            #   # URI = "netbird.aicampground.com:443";
-            #   # Username = "";
-            #   # Password = null;
-            # };
             TURNConfig = {
               Turns = [{
                 Proto = "udp";
-                URI = "turn:turn.netbird.aicampground.com:3478";
+                URI =
+                  "turn:turn.${cfg.netbird-domain}:${toString cfg.turn-port}";
                 Username = "NetBird";
                 Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
               }];
@@ -125,23 +116,18 @@ let
             HttpConfig = {
               AuthAudience = cfg.client-id;
               AuthUserIDClaim = "sub";
-              AuthIssuer =
-                "https://auth.aicampground.com/application/o/netbird/";
+              AuthIssuer = "https://${cfg.oidc-domain}/application/o/netbird/";
               AuthKeysLocation =
-                "https://auth.aicampground.com/application/o/netbird/jwks/";
-              # AuthUserIDClaim = "";
-              # IdpSignKeyRefreshEnabled = false;
+                "https://${cfg.oidc-domain}/application/o/netbird/jwks/";
             };
 
             IdpManagerConfig = {
               ManagerType = "authentik";
               ClientConfig = {
-                Issuer = "https://auth.aicampground.com/application/o/netbird/";
-                # "https://${cfg.oidc-domain}/application/o/netbird/";
+                Issuer = "https://${cfg.oidc-domain}/application/o/netbird/";
                 ClientID = cfg.client-id;
                 TokenEndpoint =
-                  "https://auth.aicampground.com/application/o/token/";
-                # "https://${cfg.oidc-domain}/application/o/token/";
+                  "https://${cfg.oidc-domain}/application/o/token/";
                 ClientSecret = "";
               };
               ExtraConfig = {
@@ -155,14 +141,9 @@ let
               ClientID = cfg.client-id;
               ClientSecret = "";
               Scope = "openid profile email offline_access api";
-              # UseIDToken = false;
               AuthorizationEndpoint =
-                "https://auth.aicampground.com/application/o/authorize/";
-              # "https://${cfg.oidc-domain}/application/o/authorize/";
-              TokenEndpoint =
-                "https://auth.aicampground.com/application/o/token/";
-              # "https://${cfg.oidc-domain}/application/o/token/";
-              # RedirectURLs = [ "https://netbird.aicampground.com/callback" ];
+                "https://${cfg.oidc-domain}/application/o/authorize/";
+              TokenEndpoint = "https://${cfg.oidc-domain}/application/o/token/";
             };
           };
         };
@@ -170,19 +151,18 @@ let
         signal = {
           enable = true;
           port = 10000;
-          domain = "netbird.aicampground.com";
+          domain = cfg.netbird-domain;
           enableNginx = lib.mkForce true;
         };
 
         dashboard = {
           enable = true;
           enableNginx = true;
-          domain = "netbird.aicampground.com";
-          managementServer = "https://netbird.aicampground.com";
+          domain = cfg.netbird-domain;
+          managementServer = "https://${cfg.netbird-domain}";
           settings = {
             AUTH_AUTHORITY =
-              "https://auth.aicampground.com/application/o/netbird/";
-            # "https://${cfg.oidc-domain}/application/o/netbird/";
+              "https://${cfg.oidc-domain}/application/o/netbird/";
             AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
             AUTH_AUDIENCE = cfg.client-id;
             AUTH_CLIENT_ID = cfg.client-id;
@@ -200,7 +180,7 @@ let
     services.nginx.virtualHosts.${cfg.netbird-domain} = {
       listen = [{
         addr = "0.0.0.0";
-        port = 10031;
+        port = cfg.port;
         ssl = false;
       }];
     };
@@ -288,13 +268,12 @@ in
   options.campground.services.netbird = with types; {
     enable = mkBoolOpt false "Enable Netbird;";
     client = mkBoolOpt false "If we just need the client";
-
-    oidc-domain = mkOpt str "auth.aicampground.com" "Domain for Netbird to use";
-    netbird-domain = mkOpt str "netbird.aicampground.com" "Netbird Domain";
-    port = mkOpt int 10001 "Port to use";
-    ui-port = mkOpt int 10031 "Port to use";
-    signal-port = mkOpt int 10000 "Port to use";
-    turn-port = mkOpt int 3478 "Port for turn";
+    domain =
+      mkOpt str "aicampground.com" "Top level domain used for all theings";
+    oidc-domain = mkOpt str "auth.${cfg.domain}" "Domain for Netbird to use";
+    netbird-domain = mkOpt str "netbird.${cfg.domain}" "Netbird Domain";
+    port = mkOpt int 10031 "Port to use";
+    turn-port = mkOpt int 3478 "TURN Port";
     client-id =
       mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
 

@@ -152,26 +152,6 @@ in
               };
             };
 
-            # http.routers.netbird-signal = {
-            #   rule = "Host(`signal.netbird.aicampground.com`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "netbird-signal";
-            # };
-            #
-            # http.services.netbird-signal = {
-            #   loadBalancer.servers = [{ url = "http://daly:10000"; }];
-            # };
-
-            # http.routers.netbird = {
-            #   rule = "Host(`netbird.aicampground.com`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "netbird";
-            # };
-            #
-            # http.services.netbird = {
-            #   loadBalancer.servers = [{ url = "http://daly:33073"; }];
-            # };
-
             http.routers.authentik = {
               rule = "Host(`auth.aicampground.com`)";
               entryPoints = [ "websecure" ];
