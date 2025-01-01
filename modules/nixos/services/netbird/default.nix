@@ -75,54 +75,6 @@ in
   };
 
   config = mkIf (cfg.server.enable || cfg.client.enable) {
-    # networking.firewall.allowedTCPPorts =
-    #   [ cfg.server.port cfg.server.signal-port cfg.server.ui-port cfg.server.turn-port ];
-    # networking.firewall.allowedUDPPorts =
-    #   [ cfg.server.port cfg.server.signal-port cfg.server.ui-port cfg.server.turn-port ];
-
-    systemd.services.netbirdSecrets = mkIf cfg.server.enable {
-      description = "Set up Netbird Secrets with Correct Permissions";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-      };
-      script = ''
-        # Create necessary directories with correct permissions
-        mkdir -p /var/lib/netbird/coturn /var/lib/coturn /var/lib/netbird-mgmt
-        chmod 750 /var/lib/netbird /var/lib/coturn /var/lib/netbird-mgmt
-        chown -R netbird:netbird /var/lib/netbird
-        chown -R netbird:netbird /var/lib/netbird-mgmt
-        chown -R turnserver:turnserver /var/lib/coturn
-
-        # Set up coturn secret
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/coturn/secret
-        chmod 640 /var/lib/coturn/secret
-        chown turnserver:turnserver /var/lib/coturn/secret
-
-        # Set up turn secret
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird-mgmt/turn
-        chmod 640 /var/lib/netbird-mgmt/turn
-        chown turnserver:netbird /var/lib/netbird-mgmt/turn
-
-        # Set up coturn_nb secret
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird-mgmt/coturn_nb
-        chmod 640 /var/lib/netbird-mgmt/coturn_nb
-        chown netbird:netbird /var/lib/netbird-mgmt/coturn_nb
-
-        # Set up netbird_authentik_password secret
-        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird-mgmt/netbird_authentik_password
-        chmod 600 /var/lib/netbird-mgmt/netbird_authentik_password
-        chown netbird:netbird /var/lib/netbird-mgmt/netbird_authentik_password
-      '';
-
-      wantedBy = [ "multi-user.target" ];
-      before = [
-        "netbird-management.service"
-        "netbird-signal.service"
-        "netbird-dashboard.service"
-        "coturn.service"
-      ];
-    };
     services.netbird = {
       enable = true;
 
@@ -232,6 +184,49 @@ in
         }];
       };
 
+    systemd.services.netbirdSecrets = mkIf cfg.server.enable {
+      description = "Set up Netbird Secrets with Correct Permissions";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+      };
+      script = ''
+        # Create necessary directories with correct permissions
+        mkdir -p /var/lib/netbird/coturn /var/lib/coturn /var/lib/netbird-mgmt
+        chmod 750 /var/lib/netbird /var/lib/coturn /var/lib/netbird-mgmt
+        chown -R netbird:netbird /var/lib/netbird
+        chown -R netbird:netbird /var/lib/netbird-mgmt
+        chown -R turnserver:turnserver /var/lib/coturn
+
+        # Set up coturn secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/coturn/secret
+        chmod 640 /var/lib/coturn/secret
+        chown turnserver:turnserver /var/lib/coturn/secret
+
+        # Set up turn secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/turn > /var/lib/netbird-mgmt/turn
+        chmod 640 /var/lib/netbird-mgmt/turn
+        chown turnserver:netbird /var/lib/netbird-mgmt/turn
+
+        # Set up coturn_nb secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/coturn > /var/lib/netbird-mgmt/coturn_nb
+        chmod 640 /var/lib/netbird-mgmt/coturn_nb
+        chown netbird:netbird /var/lib/netbird-mgmt/coturn_nb
+
+        # Set up netbird_authentik_password secret
+        ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird-mgmt/netbird_authentik_password
+        chmod 600 /var/lib/netbird-mgmt/netbird_authentik_password
+        chown netbird:netbird /var/lib/netbird-mgmt/netbird_authentik_password
+      '';
+
+      wantedBy = [ "multi-user.target" ];
+      before = [
+        "netbird-management.service"
+        "netbird-signal.service"
+        "netbird-dashboard.service"
+        "coturn.service"
+      ];
+    };
     users.users.netbird = {
       name = "netbird";
       group = "netbird";
