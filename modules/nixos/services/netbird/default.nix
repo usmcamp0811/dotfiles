@@ -197,7 +197,7 @@ let
     services.nginx.virtualHosts.${cfg.netbird-domain} = {
       listen = [{
         addr = "0.0.0.0";
-        port = 33073;
+        port = 10031;
         ssl = false;
       }];
     };
