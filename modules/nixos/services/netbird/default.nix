@@ -197,33 +197,6 @@ let
     };
     users.groups.netbird = { };
 
-    # TODO: Can I do away with this and leave the defaults?
-    systemd.services.netbird-management.serviceConfig = {
-      User = "netbird";
-      Group = "netbird";
-    };
-
-    # TODO: Can I do away with this and leave the defaults?
-    systemd.services.netbird-signal.serviceConfig = {
-      User = "netbird";
-      Group = "netbird";
-      ExecStart = lib.mkForce (escapeSystemdExecArgs [
-        (lib.getExe' pkgs.netbird "netbird-signal")
-        "run"
-        # Port to listen on
-        "--port"
-        "${toString cfg.signal-port}"
-        # Log to stdout
-        "--log-file"
-        "console"
-        # Log level
-        "--log-level"
-        "INFO"
-        "--metrics-port"
-        "${toString cfg.metrics-port}"
-      ]);
-    };
-
     campground.services.vault-agent.services = {
       netbirdSecrets = {
         settings = {
