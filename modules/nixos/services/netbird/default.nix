@@ -31,7 +31,7 @@ let
   # line.
   escapeSystemdExecArgs = concatMapStringsSep " " escapeSystemdExecArg;
   clientMode = { services.netbird.enable = true; };
-  serverMode = mkIf (!cfg.client) {
+  serverMode = {
     networking.firewall.allowedTCPPorts =
       [ cfg.port cfg.signal-port cfg.ui-port cfg.turn-port ];
     networking.firewall.allowedUDPPorts =
@@ -268,6 +268,7 @@ let
       };
     };
   };
+  netbirdConfig = if cfg.client then clientMode else serverMode;
 in
 {
   options.campground.services.netbird = with types; {
@@ -307,5 +308,5 @@ in
     };
   };
 
-  config = mkIf cfg.enable { services.netbird.enable = true; } // serverMode;
+  config = mkIf cfg.enable netbirdConfig;
 }
