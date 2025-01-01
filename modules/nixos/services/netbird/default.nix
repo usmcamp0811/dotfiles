@@ -92,18 +92,24 @@ let
           # "https://${cfg.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
           domain = "netbird.aicampground.com";
           # turnDomain = cfg.netbird-domain;
-          turnDomain = "turn.aicampground.com";
+          turnDomain = "turn.netbird.aicampground.com";
           # dnsDomain = "netbird.${cfg.netbird-domain}";
-          dnsDomain = "netbird.aicampground.com";
+          dnsDomain = "dns.netbird.aicampground.com";
           singleAccountModeDomain = "netbird.aicampground.com";
 
           # singleAccountModeDomain = "netbird.${cfg.netbird-domain}";
 
           settings = {
+            Signal = {
+              Proto = "https";
+              URI = "netbird.aicampground.com:443";
+              Username = "";
+              Password = null;
+            };
             TURNConfig = {
               Turns = [{
                 Proto = "udp";
-                URI = "turn:${cfg.netbird-domain}:${toString cfg.turn-port}";
+                URI = "turn:turn.netbird.aicampground.com:3478";
                 Username = "NetBird";
                 Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
               }];
@@ -160,7 +166,7 @@ let
 
         signal = {
           enable = true;
-          port = cfg.signal-port;
+          port = 10000;
           domain = "netbird.aicampground.com";
           enableNginx = lib.mkForce true;
         };
@@ -168,8 +174,8 @@ let
         dashboard = {
           enable = true;
           enableNginx = true;
-          domain = cfg.netbird-domain;
-          managementServer = "https://${cfg.netbird-domain}";
+          domain = "netbird.aicampground.com";
+          managementServer = "https://netbird.aicampground.com";
           settings = {
             AUTH_AUTHORITY =
               "https://auth.aicampground.com/application/o/netbird/";
@@ -191,7 +197,7 @@ let
     services.nginx.virtualHosts.${cfg.netbird-domain} = {
       listen = [{
         addr = "0.0.0.0";
-        port = 10031;
+        port = 33073;
         ssl = false;
       }];
     };

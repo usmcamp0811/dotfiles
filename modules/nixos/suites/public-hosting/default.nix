@@ -71,18 +71,18 @@ in
             http.middlewares.cloudflarewarp = {
               plugin = { cloudflarewarp = { disableDefault = false; }; };
             };
-            http.middlewares.fail2ban = {
-              plugin = {
-                fail2ban = {
-                  rules = {
-                    bantime = "3h";
-                    enabled = true;
-                    findtime = "10m";
-                    maxretry = 4;
-                  };
-                };
-              };
-            };
+            # http.middlewares.fail2ban = {
+            #   plugin = {
+            #     fail2ban = {
+            #       rules = {
+            #         bantime = "3h";
+            #         enabled = true;
+            #         findtime = "10m";
+            #         maxretry = 4;
+            #       };
+            #     };
+            #   };
+            # };
             http.routers.immich = {
               rule = "Host(`immich.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -137,16 +137,16 @@ in
               ];
             };
 
-            # http.routers.api-netbird = {
-            #   rule = "Host(`netbird.aicampground.com`) && PathPrefix(`/api`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "api-netbird";
-            # };
-            #
-            # http.services.api-netbird = {
-            #   loadBalancer.servers = [{ url = "http://webb:33073"; }];
-            # };
-            #
+            http.routers.api-netbird = {
+              rule = "Host(`api.netbird.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "api-netbird";
+            };
+
+            http.services.api-netbird = {
+              loadBalancer.servers = [{ url = "http://daly:33073"; }];
+            };
+
             # http.routers.netbird-management = {
             #   rule =
             #     "Host(`netbird.aicampground.com`) && PathPrefix(`/management.ManagementService/`)";
@@ -158,16 +158,20 @@ in
             #   loadBalancer.servers = [{ url = "http://webb:33073"; }];
             # };
             #
-            # http.routers.netbird-signal = {
-            #   rule =
-            #     "Host(`netbird.aicampground.com`) && PathPrefix(`/management.ManagementService/`)";
-            #   entryPoints = [ "websecure" ];
-            #   service = "netbird-callback";
-            # };
-            #
-            # http.services.netbird-signal = {
-            #   loadBalancer.servers = [{ url = "http://webb:33073"; }];
-            # };
+            http.routers.netbird-signal = {
+              rule = "Host(`signal.netbird.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "netbird-signal";
+            };
+
+            http.services.netbird-signal = {
+              loadBalancer.servers = [{ url = "http://daly:10000"; }];
+              loadBalancer.healthCheck = {
+                path = "/";
+                interval = "10s";
+                timeout = "5s";
+              };
+            };
 
             http.routers.netbird = {
               rule = "Host(`netbird.aicampground.com`)";
@@ -176,7 +180,7 @@ in
             };
 
             http.services.netbird = {
-              loadBalancer.servers = [{ url = "http://daly:10031"; }];
+              loadBalancer.servers = [{ url = "http://daly:33073"; }];
             };
 
             http.routers.authentik = {
