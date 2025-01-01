@@ -97,8 +97,8 @@ let
           # turnDomain = cfg.netbird-domain;
           turnDomain = "turn.netbird.aicampground.com";
           # dnsDomain = "netbird.${cfg.netbird-domain}";
-          dnsDomain = "dns.netbird.aicampground.com";
-          # singleAccountModeDomain = "netbird.aicampground.com";
+          dnsDomain = "netbird.aicampground.com";
+          singleAccountModeDomain = "netbird.aicampground.com";
 
           # singleAccountModeDomain = "netbird.${cfg.netbird-domain}";
 
