@@ -52,6 +52,7 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      netbird.client.enable = true;
       # vault = {
       #   enable = true;
       #   ui = true;
