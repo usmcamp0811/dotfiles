@@ -40,6 +40,7 @@ in
     };
 
     services = {
+      netbird.client.enable = true;
       # keycloak = {
       #   enable = true;
       #   port = 43852;
