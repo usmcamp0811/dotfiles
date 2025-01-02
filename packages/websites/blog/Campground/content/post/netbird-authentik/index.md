@@ -84,7 +84,7 @@ As noted earlier, configuring Authentik is a relatively straightforward process,
 to the complexities of Keycloak. To establish the foundational setup, start by creating a user in the
 admin interface under `Directory` → `Users`. Next, navigate to the `Applications` section to define applications
 , ensuring the correct provider and credentials are configured. For integrating with NetBird, I followed
-[AuthentiK's official documentation](https://docs.goauthentik.io/integrations/services/netbird/), which
+[AuthentiK's official documentation](https://docs.goauthentik.io/integrations/services/netbird/) and [Netbird's official documentation](https://docs.netbird.io/selfhosted/identity-providers#authentik), which
 was clear and easy to follow. To manage secrets, such as the service account password, I store them in
 Vault under the NetBird KV, as they are currently only used for this integration.
 
