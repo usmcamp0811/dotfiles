@@ -63,21 +63,23 @@ in {
             "https://${cfg.server.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
           domain = cfg.server.netbird-domain;
           turnDomain = "turn.${cfg.server.netbird-domain}";
-          dnsDomain = cfg.server.netbird-domain;
+          dnsDomain = "dns.${cfg.server.netbird-domain}";
           singleAccountModeDomain = cfg.server.netbird-domain;
 
           settings = {
-            Stuns = [{
-              Proto = "udp";
-              URI._secret = "/var/lib/netbird-mgmt/stun-domain";
-              Username = "";
-              Password = null;
-            }];
+            # Stuns = [{
+            #   Proto = "udp";
+            #   URI._secret = "/var/lib/netbird-mgmt/stun-domain";
+            #   Username = "";
+            #   Password = null;
+            # }];
             TURNConfig = {
               Turns = [{
                 Proto = "udp";
-                # URI = "turn:turn.${cfg.server.netbird-domain}:${
-                URI._secret = "/var/lib/netbird-mgmt/turn-domain";
+                URI = "turn:turn.${cfg.server.netbird-domain}:${
+                    toString cfg.server.turn-port
+                  }";
+                # URI._secret = "/var/lib/netbird-mgmt/turn-domain";
                 Username = "netbird";
                 Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
               }];
