@@ -81,6 +81,8 @@ in {
             };
 
             DataStoreEncryptionKey = null;
+            # TODO: Change to Postgres
+            # StoreConfig = { Engine = "sqlite"; };
 
             HttpConfig = {
               AuthAudience = cfg.server.client-id;
