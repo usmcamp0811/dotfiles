@@ -67,19 +67,12 @@ in {
           singleAccountModeDomain = cfg.server.netbird-domain;
 
           settings = {
-            # Stuns = [{
-            #   Proto = "udp";
-            #   URI._secret = "/var/lib/netbird-mgmt/stun-domain";
-            #   Username = "";
-            #   Password = null;
-            # }];
             TURNConfig = {
               Turns = [{
                 Proto = "udp";
                 URI = "turn:turn.${cfg.server.netbird-domain}:${
                     toString cfg.server.turn-port
                   }";
-                # URI._secret = "/var/lib/netbird-mgmt/turn-domain";
                 Username = "netbird";
                 Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
               }];
@@ -202,13 +195,6 @@ in {
         ${pkgs.coreutils}/bin/cat /tmp/detsys-vault/netbird_authentik_password > /var/lib/netbird-mgmt/netbird_authentik_password
         chmod 600 /var/lib/netbird-mgmt/netbird_authentik_password
         chown netbird:netbird /var/lib/netbird-mgmt/netbird_authentik_password
-
-        echo "stun:$(curl ifconfig.me):3478" > /var/lib/netbird-mgmt/stun-domain
-        echo "turn:$(curl ifconfig.me):3478" > /var/lib/netbird-mgmt/turn-domain
-        chmod 600 /var/lib/netbird-mgmt/stun-domain
-        chmod 600 /var/lib/netbird-mgmt/turn-domain
-        chown netbird:netbird /var/lib/netbird-mgmt/stun-domain
-        chown netbird:netbird /var/lib/netbird-mgmt/turn-domain
       '';
 
       wantedBy = [ "multi-user.target" ];
