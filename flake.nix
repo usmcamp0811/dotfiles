@@ -3,6 +3,7 @@
 
   inputs = {
     authentik-nix.url = "github:nix-community/authentik-nix";
+    terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     # "github:nixos/nixpkgs/release-24.05/797f7dc49e0bc7fab4b57c021cdf68f595e47841";
