@@ -88,7 +88,7 @@ in
               rule =
                 "Host(`akhq.lan.aicampground.com`) && PathPrefix(`/outpost.goauthentik.io/`)";
               priority = 15;
-              service = "authentik";
+              service = "akhq-auth";
             };
 
             # Define the IP whitelist middleware
@@ -104,6 +104,11 @@ in
               entryPoints = [ "websecure" ];
               service = "authentik";
               middlewares = [ "ip-whitelist" ];
+            };
+
+            http.services.akhq-auth = {
+              loadBalancer.servers =
+                [{ url = "http://daly:9000/outpost.goauthentik.io"; }];
             };
 
             http.services.authentik = generateServiceConfig "authentik";
