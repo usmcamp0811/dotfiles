@@ -42,6 +42,10 @@ in
         avatars = cfg.avatars;
       };
     };
+    services.authentik-ldap = {
+      enable = true;
+      environmentFile = "${authentikDir}/environmentFile";
+    };
     systemd.services.authentikSecrets = {
       description = "Get Authentik Secrets";
       serviceConfig = {
