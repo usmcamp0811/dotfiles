@@ -62,6 +62,35 @@ in
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.middlewares.authentik = {
+              forwardAuth = {
+                address =
+                  "https://auth.aicampground.com/outpost.goauthentik.io/auth/traefik";
+                trustForwardHeader = true;
+                authResponseHeaders = [
+                  "X-authentik-username"
+                  "X-authentik-groups"
+                  "X-authentik-entitlements"
+                  "X-authentik-email"
+                  "X-authentik-name"
+                  "X-authentik-uid"
+                  "X-authentik-jwt"
+                  "X-authentik-meta-jwks"
+                  "X-authentik-meta-outpost"
+                  "X-authentik-meta-provider"
+                  "X-authentik-meta-app"
+                  "X-authentik-meta-version"
+                ];
+              };
+            };
+
+            http.routers.akhq-auth = {
+              rule =
+                "Host(`akhq.lan.aicampground.com`) && PathPrefix(`/outpost.goauthentik.io/`)";
+              priority = 15;
+              service = "authentik";
+            };
+
             # Define the IP whitelist middleware
             http.middlewares.ip-whitelist = {
               ipWhiteList = {
@@ -166,7 +195,7 @@ in
               rule = "Host(`akhq.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "akhq";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = [ "authentik" "ip-whitelist" ];
             };
 
             http.services.akhq = generateServiceConfig "akhq";
