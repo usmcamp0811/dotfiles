@@ -98,7 +98,7 @@ with lib; rec {
         BUCKET_NAME=''${1:-"state-bucket"}
         AWS_REGION=''${2:-"us-east-1"}
 
-        echo "Creating S3 bucket '$BUCKET_NAME' in region '$AWS_REGION'..."
+        echo "Creating S3 bucket $BUCKET_NAME in region $AWS_REGION..."
 
         ${pkgs.awscli}/bin/aws s3api create-bucket \
           --bucket "$BUCKET_NAME" \
