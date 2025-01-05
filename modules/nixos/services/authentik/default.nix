@@ -34,6 +34,23 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    campground.services.postgresql = {
+      enable = true;
+      enableTCPIP = true;
+      backupEnable = true;
+      backupLocation = "/persist/postgresqlBackups/";
+      databases = [{
+        name = "authentik";
+        user = "authentik";
+      }];
+      authentication = [
+        "local   all        root      trust" # Allow trusted local connections for root
+        "local   all        postgres  peer" # Use peer authentication for postgres user locally
+        "host    all        all       0.0.0.0/0 reject" # Reject all other IPv4 connections
+        "host    all        all       ::/0 reject" # Reject all other IPv6 connections
+      ];
+    };
     services.authentik = {
       enable = true;
       environmentFile = "${authentikDir}/environmentFile";
@@ -42,10 +59,10 @@ in
         avatars = cfg.avatars;
       };
     };
-    # services.authentik-ldap = {
-    #   enable = true;
-    #   environmentFile = "${authentikDir}/environmentFile";
-    # };
+    services.authentik-ldap = {
+      enable = true;
+      environmentFile = "${authentikDir}/environmentFile";
+    };
     systemd.services.authentikSecrets = {
       description = "Get Authentik Secrets";
       serviceConfig = {
@@ -86,6 +103,8 @@ in
             files = {
               "environmentFile" = {
                 text = ''
+                  AUTHENTIK_HOST=https://auth.aicampground.com
+                  AUTHENTIK_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_TOKEN }}{{ else }}{{ .Data.data.AUTHENTIK_TOKEN }}{{ end }}{{ end }}
                   AUTHENTIK_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
                   AUTHENTIK_LISTEN__HTTP=0.0.0.0:${toString cfg.port}
                   AUTHENTIK_EMAIL__HOST={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__HOST }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__HOST }}{{ end }}{{ end }}
