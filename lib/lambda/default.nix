@@ -93,12 +93,9 @@ with lib; rec {
         done
 
         # Set default lambda-handler if not provided
-        if [ $# -eq 0 ]; then
-          LAMBDA_HANDLER="lambda_function.handler"  # Set your default handler name
-        else
-          LAMBDA_HANDLER="$1"
-        fi
         LAMBDA_HANDLER="$1"
+        echo "------------------"
+        echo $LAMBDA_HANDLER
 
         LAMBDA_DIR=$(realpath "$LAMBDA_DIR")
         if [ ! -d "$LAMBDA_DIR" ]; then
@@ -108,9 +105,16 @@ with lib; rec {
         # Run the AWS Lambda RIE
         cd "$LAMBDA_DIR" || (echo "Directory $LAMBDA_DIR does not exist" && exit 1)
 
-        ${pkgs.aws-lambda-rie}/bin/aws-lambda-rie \
-          --runtime-interface-emulator-address "''${LAMBDA_HOST}:''${LAMBDA_PORT}" \
-          ${pythonEnv}/bin/python -m awslambdaric "''${LAMBDA_HANDLER}"
+        if [ -z "$LAMBDA_HANDLER" ]; then 
+          echo "No lambda handler provided. Using default handler: lambda_function.handler"
+          ${pkgs.aws-lambda-rie}/bin/aws-lambda-rie \
+            --runtime-interface-emulator-address "''${LAMBDA_HOST}:''${LAMBDA_PORT}" \
+            ${pythonEnv}/bin/python -m awslambdaric lambda_function.handler
+        else
+          ${pkgs.aws-lambda-rie}/bin/aws-lambda-rie \
+            --runtime-interface-emulator-address "''${LAMBDA_HOST}:''${LAMBDA_PORT}" \
+            ${pythonEnv}/bin/python -m awslambdaric "$LAMBDA_HANDLER"
+        fi
       '';
 
       devServer = pkgs.writeShellScriptBin "devserver" ''
@@ -165,13 +169,11 @@ with lib; rec {
         done
 
         # Check for lambda-handler
-        if [ $# -lt 1 ]; then
-          echo "Error: lambda-handler is required."
-          usage
-        fi
-
+        # if [ $# -lt 1 ]; then
+        #   echo "Error: lambda-handler is required."
+        #   usage
+        # fi
         LAMBDA_HANDLER="$1"
-        shift
 
         LAMBDA_DIR=$(realpath "$LAMBDA_DIR")
         if [ ! -d "$LAMBDA_DIR" ]; then
@@ -192,8 +194,13 @@ with lib; rec {
         fi
 
         # Monitor the directory and restart aws-lambda-rie on changes
-        echo "$FILES" | ${pkgs.entr}/bin/entr -r ${awsLambdaRie}/bin/aws-lambda-rie \
-          -d "$LAMBDA_DIR" -p "$LAMBDA_PORT" -h "$LAMBDA_HOST" "$LAMBDA_HANDLER"
+        if [ -z "$LAMBDA_HANDLER" ]; then
+          echo "$FILES" | ${pkgs.entr}/bin/entr -r ${awsLambdaRie}/bin/aws-lambda-rie \
+            -d "$LAMBDA_DIR" -p "$LAMBDA_PORT" -h "$LAMBDA_HOST"
+        else
+          echo "$FILES" | ${pkgs.entr}/bin/entr -r ${awsLambdaRie}/bin/aws-lambda-rie \
+            -d "$LAMBDA_DIR" -p "$LAMBDA_PORT" -h "$LAMBDA_HOST" "$LAMBDA_HANDLER"
+        fi
       '';
 
     in
