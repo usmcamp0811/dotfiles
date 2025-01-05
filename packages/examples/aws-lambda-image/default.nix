@@ -4,6 +4,8 @@ with lib.campground;
 mkAWSLambdaPythonImage {
   inherit pkgs system;
   name = "github-api-lambda";
-  pythonSrc = ./simple-lambda-function.py;
-  pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ps.json ]);
+  handler = "handler";
+  pythonSrc = ./simple_lambda_function.py;
+  pythonEnv =
+    pkgs.python3.withPackages (ps: [ ps.awslambdaric ps.requests ps.jsons ]);
 }

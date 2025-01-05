@@ -27,6 +27,7 @@ with lib; rec {
   #     these components for further customization or integration.
   mkAWSLambdaPythonImage =
     { name ? "aws-lambda-with-nix"
+    , handler
     , system
     , pkgs
     , pythonSrc
@@ -35,19 +36,164 @@ with lib; rec {
     let
       appSource = pkgs.runCommand "buildApp" { inherit pythonSrc; } ''
         mkdir -p $out
-        cp $pythonSrc $out/$(basename $pythonSrc)
+        cp $pythonSrc $out/lambda_function.py
       '';
 
-      handler = getLambdaHandler pythonSrc;
+      lambda-handler = "lambda_function.${handler}";
 
-      awsLambdaRie = pkgs.writeShellScript "aws-lambda-rie" ''
+      awsLambdaRie = pkgs.writeShellScriptBin "aws-lambda-rie" ''
+        set -e
+        usage() {
+          echo "Usage: aws-lambda-rie [-d DIRECTORY] [-p PORT] [-h HOST] lambda-handler"
+          echo "  -d DIRECTORY   Path to the Lambda function directory (default: current directory)"
+          echo "  -p PORT        Port for the runtime interface emulator (default: 9001)"
+          echo "  -h HOST        Host for the runtime interface emulator (default: 0.0.0.0)"
+          exit 1
+        }
+
+        # Default values
+        LAMBDA_DIR="."
+        LAMBDA_PORT=9001
+        LAMBDA_HOST="0.0.0.0"
+
+        # Parse arguments
+        while [ $# -gt 0 ]; do
+          case "$1" in
+            -d)
+              if [ -n "$2" ]; then
+                LAMBDA_DIR="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
+            -p)
+              if [ -n "$2" ]; then
+                LAMBDA_PORT="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
+            -h)
+              if [ -n "$2" ]; then
+                LAMBDA_HOST="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
+            -*)
+              usage
+              ;;
+            *)
+              break
+              ;;
+          esac
+        done
+
+        # Set default lambda-handler if not provided
+        if [ $# -eq 0 ]; then
+          LAMBDA_HANDLER="lambda_function.handler"  # Set your default handler name
+        else
+          LAMBDA_HANDLER="$1"
+        fi
+        LAMBDA_HANDLER="$1"
+
+        LAMBDA_DIR=$(realpath "$LAMBDA_DIR")
+        if [ ! -d "$LAMBDA_DIR" ]; then
+            echo "Error: Directory $LAMBDA_DIR does not exist."
+            exit 1
+        fi
+        # Run the AWS Lambda RIE
+        cd "$LAMBDA_DIR" || (echo "Directory $LAMBDA_DIR does not exist" && exit 1)
+
         ${pkgs.aws-lambda-rie}/bin/aws-lambda-rie \
-          --runtime-interface-emulator-address 0.0.0.0:''${LAMBDA_PORT:-9001} \
-          ${pythonEnv}/bin/python -m awslambdaric ${handler}
+          --runtime-interface-emulator-address "''${LAMBDA_HOST}:''${LAMBDA_PORT}" \
+          ${pythonEnv}/bin/python -m awslambdaric "''${LAMBDA_HANDLER}"
       '';
 
-      devServer = pkgs.writeShellScript "devserver" ''
-        ls *.py flake.nix | ${pkgs.entr}/bin/entr -r ${awsLambdaRie}
+      devServer = pkgs.writeShellScriptBin "devserver" ''
+        set -e
+        usage() {
+          echo "Usage: devserver [-d DIRECTORY] [-p PORT] [-h HOST] lambda-handler"
+          echo "  -d DIRECTORY   Path to the Lambda function directory (default: current directory)"
+          echo "  -p PORT        Port for the runtime interface emulator (default: 9001)"
+          echo "  -h HOST        Host for the runtime interface emulator (default: 0.0.0.0)"
+          exit 1
+        }
+
+        # Default values
+        LAMBDA_DIR="."
+        LAMBDA_PORT=9001
+        LAMBDA_HOST="0.0.0.0"
+
+        # Parse arguments
+        while [ $# -gt 0 ]; do
+          case "$1" in
+            -d)
+              if [ -n "$2" ]; then
+                LAMBDA_DIR="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
+            -p)
+              if [ -n "$2" ]; then
+                LAMBDA_PORT="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
+            -h)
+              if [ -n "$2" ]; then
+                LAMBDA_HOST="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
+            -*)
+              usage
+              ;;
+            *)
+              break
+              ;;
+          esac
+        done
+
+        # Check for lambda-handler
+        if [ $# -lt 1 ]; then
+          echo "Error: lambda-handler is required."
+          usage
+        fi
+
+        LAMBDA_HANDLER="$1"
+        shift
+
+        LAMBDA_DIR=$(realpath "$LAMBDA_DIR")
+        if [ ! -d "$LAMBDA_DIR" ]; then
+            echo "Error: Directory $LAMBDA_DIR does not exist."
+            exit 1
+        fi
+
+        # Navigate to the specified directory
+        if ! cd "$LAMBDA_DIR"; then
+          echo "Error: Directory $LAMBDA_DIR does not exist."
+          exit 1
+        fi
+
+        FILES=$(find "$LAMBDA_DIR" -maxdepth 1 \( -name "*.py" -o -name "flake.nix" \))
+        if [ -z "$FILES" ]; then
+          echo "Error: No files found to monitor in $LAMBDA_DIR."
+          exit 1
+        fi
+
+        # Monitor the directory and restart aws-lambda-rie on changes
+        echo "$FILES" | ${pkgs.entr}/bin/entr -r ${awsLambdaRie}/bin/aws-lambda-rie \
+          -d "$LAMBDA_DIR" -p "$LAMBDA_PORT" -h "$LAMBDA_HOST" "$LAMBDA_HANDLER"
       '';
 
     in
@@ -62,6 +208,6 @@ with lib; rec {
           Cmd = [ "app.handler" ];
         };
       } // {
-      inherit devServer appSource;
+      inherit devServer appSource awsLambdaRie;
     };
 }
