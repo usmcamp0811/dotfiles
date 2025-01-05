@@ -31,7 +31,7 @@ with lib; rec {
     in
     pkgs.dockerTools.buildLayeredImage
       {
-        name = name;
+        inherit name;
         config = {
           EntryPoint = [ "${pythonEnv}/bin/python" "-m" "awslambdaric" ];
 
