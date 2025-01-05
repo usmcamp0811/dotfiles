@@ -44,12 +44,7 @@ in
         name = "authentik";
         user = "authentik";
       }];
-      authentication = [
-        "local   all        root      trust" # Allow trusted local connections for root
-        "local   all        postgres  peer" # Use peer authentication for postgres user locally
-        "host    all        all       0.0.0.0/0 reject" # Reject all other IPv4 connections
-        "host    all        all       ::/0 reject" # Reject all other IPv6 connections
-      ];
+      package = pkgs.postgresql_14; # Ensure compatibility with Authentik
     };
     services.authentik = {
       enable = true;
