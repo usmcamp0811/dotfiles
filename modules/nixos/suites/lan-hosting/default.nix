@@ -62,7 +62,15 @@ in
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
-            http.middlewares.authentik = {
+            # Define the IP whitelist middleware
+            http.middlewares.ip-whitelist = {
+              ipWhiteList = { sourceRange = [ "10.8.0.0/24" "172.16.0.0/8" ]; };
+            };
+
+            ############################################################################
+            #                       AKHQ                                               #
+            ############################################################################
+            http.middlewares.akhq-auth = {
               forwardAuth = {
                 address =
                   "https://auth.aicampground.com/outpost.goauthentik.io/auth/traefik";
@@ -91,14 +99,17 @@ in
               service = "akhq-auth";
             };
 
-            # Define the IP whitelist middleware
-            http.middlewares.ip-whitelist = {
-              ipWhiteList = {
-                sourceRange = [ "10.8.0.0/24" "172.16.0.0/8" ];
-                # Optionally, you can configure a forwarded headers
-                # trustedIPs = [ "127.0.0.1" ];
-              };
+            http.routers.akhq = {
+              rule = "Host(`akhq.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "akhq";
+              middlewares = [ "akhq-auth" "ip-whitelist" ];
             };
+
+            http.services.akhq = generateServiceConfig "akhq";
+
+            ############################################################################
+
             http.routers.authentik = {
               rule = "Host(`auth.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
@@ -195,15 +206,6 @@ in
 
             http.services.schema-registry =
               generateServiceConfig "schema-registry";
-
-            http.routers.akhq = {
-              rule = "Host(`akhq.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "akhq";
-              middlewares = [ "authentik" "ip-whitelist" ];
-            };
-
-            http.services.akhq = generateServiceConfig "akhq";
 
             http.routers.kafka = {
               rule = "Host(`kafka.lan.aicampground.com`)";
