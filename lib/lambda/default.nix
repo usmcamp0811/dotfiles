@@ -15,7 +15,7 @@ with lib; rec {
   # @param name - (Optional) The name of the Docker image. Defaults to "aws-lambda-with-nix".
   # @param system - The target system for the build, e.g., "x86_64-linux".
   # @param pkgs - The Nixpkgs set used to define dependencies.
-  # @param pythonSrc - The source path of the Python file containing the Lambda handler.
+  # @param src - The source path of the Python code containing the Lambda Function.
   # @param pythonEnv - (Optional) A Python environment with required packages.
   #                    Defaults to an environment with the `awslambdaric` package.
   #
@@ -34,7 +34,7 @@ with lib; rec {
     , pythonEnv ? pkgs.python3.withPackages (ps: [ ps.awslambdaric ])
     }:
     let
-      appSource = pkgs.runCommand "buildApp" { inherit pythonSrc; } ''
+      appSource = pkgs.runCommand "buildApp" { inherit src; } ''
         mkdir -p $out
         cp -r $src/* $out/
       '';
