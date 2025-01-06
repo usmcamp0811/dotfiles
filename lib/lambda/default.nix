@@ -1,14 +1,5 @@
 { lib, ... }:
 with lib; rec {
-  getDirPath = path:
-    let
-      parts = builtins.split "/" path;
-      dirParts = builtins.tail (builtins.removeSuffix "/" parts);
-    in
-    if builtins.length dirParts == 0 then
-      "/"
-    else
-      builtins.concatStringsSep "/" dirParts;
   #
   # Extracts the Lambda handler name from the given Python source file path.
   #
@@ -48,8 +39,6 @@ with lib; rec {
         cp -r $src/* $out/
       '';
 
-      lambda-handler = "lambda_function.${handler}";
-
       awsLambdaRie = pkgs.writeShellScriptBin "aws-lambda-rie" ''
         set -e
         usage() {
@@ -57,6 +46,7 @@ with lib; rec {
           echo "  -d DIRECTORY   Path to the Lambda function directory (default: ${src})"
           echo "  -p PORT        Port for the runtime interface emulator (default: 9001)"
           echo "  -h HOST        Host for the runtime interface emulator (default: 0.0.0.0)"
+          echo "  -f FUNCTION    Lambda Function to Run (default: ${handler})"
           exit 1
         }
 
@@ -64,6 +54,7 @@ with lib; rec {
         LAMBDA_DIR="${src}"
         LAMBDA_PORT=9001
         LAMBDA_HOST="0.0.0.0"
+        LAMBDA_HANDLER="${handler}"
 
         # Parse arguments
         while [ $# -gt 0 ]; do
@@ -92,6 +83,14 @@ with lib; rec {
                 usage
               fi
               ;;
+            -f)
+              if [ -n "$2" ]; then
+                LAMBDA_HANDLER="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
             -*)
               usage
               ;;
@@ -101,9 +100,6 @@ with lib; rec {
           esac
         done
 
-        # Set default lambda-handler if not provided
-        LAMBDA_HANDLER="$1"
-
         LAMBDA_DIR=$(realpath "$LAMBDA_DIR")
         if [ ! -d "$LAMBDA_DIR" ]; then
             echo "Error: Directory $LAMBDA_DIR does not exist."
@@ -112,6 +108,7 @@ with lib; rec {
         # Run the AWS Lambda RIE
         cd "$LAMBDA_DIR" || (echo "Directory $LAMBDA_DIR does not exist" && exit 1)
 
+        printf "Running AWS Lambda Server: SRC: $LAMBDA_DIR \tFUNCTION: $LAMBDA_HANDLER\n"
         if [ -z "$LAMBDA_HANDLER" ]; then 
           echo "No lambda handler provided. Using default handler: lambda_function.handler"
           ${pkgs.aws-lambda-rie}/bin/aws-lambda-rie \
@@ -131,6 +128,7 @@ with lib; rec {
           echo "  -d DIRECTORY   Path to the Lambda function directory (default: ${src})"
           echo "  -p PORT        Port for the runtime interface emulator (default: 9001)"
           echo "  -h HOST        Host for the runtime interface emulator (default: 0.0.0.0)"
+          echo "  -f FUNCTION    Lambda Function to Run (default: ${handler})"
           exit 1
         }
 
@@ -138,6 +136,7 @@ with lib; rec {
         LAMBDA_DIR="${src}"
         LAMBDA_PORT=9001
         LAMBDA_HOST="0.0.0.0"
+        LAMBDA_HANDLER="${handler}"
 
         # Parse arguments
         while [ $# -gt 0 ]; do
@@ -161,6 +160,14 @@ with lib; rec {
             -h)
               if [ -n "$2" ]; then
                 LAMBDA_HOST="$2"
+                shift 2
+              else
+                usage
+              fi
+              ;;
+            -f)
+              if [ -n "$2" ]; then
+                LAMBDA_HANDLER="$2"
                 shift 2
               else
                 usage
