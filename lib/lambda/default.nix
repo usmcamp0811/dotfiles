@@ -1,5 +1,14 @@
 { lib, ... }:
 with lib; rec {
+  getDirPath = path:
+    let
+      parts = builtins.split "/" path;
+      dirParts = builtins.tail (builtins.removeSuffix "/" parts);
+    in
+    if builtins.length dirParts == 0 then
+      "/"
+    else
+      builtins.concatStringsSep "/" dirParts;
   #
   # Extracts the Lambda handler name from the given Python source file path.
   #
@@ -40,6 +49,7 @@ with lib; rec {
       '';
 
       lambda-handler = "lambda_function.${handler}";
+      src-dir = getDirPath pythonSrc;
 
       awsLambdaRie = pkgs.writeShellScriptBin "aws-lambda-rie" ''
         set -e
@@ -94,8 +104,6 @@ with lib; rec {
 
         # Set default lambda-handler if not provided
         LAMBDA_HANDLER="$1"
-        echo "------------------"
-        echo $LAMBDA_HANDLER
 
         LAMBDA_DIR=$(realpath "$LAMBDA_DIR")
         if [ ! -d "$LAMBDA_DIR" ]; then
@@ -128,7 +136,7 @@ with lib; rec {
         }
 
         # Default values
-        LAMBDA_DIR="."
+        LAMBDA_DIR="${src-dir}"
         LAMBDA_PORT=9001
         LAMBDA_HOST="0.0.0.0"
 
