@@ -9,12 +9,12 @@ how to use Nix to define and package a Python-based AWS Lambda function, inspire
 This example includes:
 
 - A reusable function, `mkAWSLambdaPythonImage`, to create AWS Lambda-compatible Docker images.
-- An example Lambda function (`github-api-lambda`) showcasing how to use the `mkAWSLambdaPythonImage` function.
+- An example Lambda function (`wttr-lambda`) showcasing how to use the `mkAWSLambdaPythonImage` function.
 - Preconfigured scripts for local testing (`aws-lambda-rie`) and hot-reload development (`devserver`).
 
 ## Example Lambda Function Definition
 
-Here is how the `github-api-lambda` example Lambda function is defined:
+Here is how the `wttr-lambda` example Lambda function is defined:
 
 ```nix
 { lib, pkgs, inputs, system, ... }:
@@ -22,7 +22,7 @@ with lib;
 with lib.campground;
 mkAWSLambdaPythonImage {
   inherit pkgs system;
-  name = "github-api-lambda";
+  name = "wttr-lambda";
   handler = "simple_lambda_function.handler";
   src = ./.;
   pythonEnv =
@@ -71,27 +71,15 @@ Two scripts are included for streamlined development and testing:
 
 ## How to Use
 
-1. **Clone the repository**:
+1. **Build the Docker image**:
 
    ```bash
-   git clone <repo-url>
-   cd <repo-directory>
+   nix build gitlab:usmcamp0811/dotfiles#aws-lambda-image
    ```
 
-2. **Build the Docker image**:
+> TODO: Show how to use Terranix 2. **Run the Lambda locally**: 3. **Deploy to AWS**:
 
-   ```bash
-   nix build .#github-api-lambda
-   ```
-
-3. **Run the Lambda locally**:
-
-   ```bash
-   ./result/bin/aws-lambda-rie
-   ```
-
-4. **Deploy to AWS**:
-   Use the built Docker image with AWS Lambda by uploading it to Amazon ECR and configuring it as the Lambda runtime.
+Use the built Docker image with AWS Lambda by uploading it to Amazon ECR and configuring it as the Lambda runtime.
 
 ## Customization
 

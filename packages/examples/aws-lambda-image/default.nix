@@ -3,7 +3,7 @@ with lib;
 with lib.campground;
 mkAWSLambdaPythonImage {
   inherit pkgs system;
-  name = "github-api-lambda";
+  name = "wttr-lambda";
   handler = "simple_lambda_function.handler";
   src = ./.;
   pythonEnv =
