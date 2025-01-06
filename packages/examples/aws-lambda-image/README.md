@@ -77,7 +77,11 @@ Two scripts are included for streamlined development and testing:
    nix build gitlab:usmcamp0811/dotfiles#aws-lambda-image
    ```
 
-> TODO: Show how to use Terranix 2. **Run the Lambda locally**: 3. **Deploy to AWS**:
+   2. **Run Devserver**:
+
+   ```bash
+   nix run gitlab:usmcamp0811dotfiles#aws-lambda-image.devServer -- -d ./path/to/code my_python_file.hanlder
+   ```
 
 Use the built Docker image with AWS Lambda by uploading it to Amazon ECR and configuring it as the Lambda runtime.
 
