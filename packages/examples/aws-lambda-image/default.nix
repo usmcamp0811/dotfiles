@@ -5,7 +5,7 @@ mkAWSLambdaPythonImage {
   inherit pkgs system;
   name = "github-api-lambda";
   handler = "handler";
-  pythonSrc = ./simple_lambda_function.py;
+  src = ./.;
   pythonEnv =
     pkgs.python3.withPackages (ps: [ ps.awslambdaric ps.requests ps.jsons ]);
 }

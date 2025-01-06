@@ -39,30 +39,29 @@ with lib; rec {
     , handler
     , system
     , pkgs
-    , pythonSrc
+    , src ? ./.
     , pythonEnv ? pkgs.python3.withPackages (ps: [ ps.awslambdaric ])
     }:
     let
       appSource = pkgs.runCommand "buildApp" { inherit pythonSrc; } ''
         mkdir -p $out
-        cp $pythonSrc $out/lambda_function.py
+        cp -r $src/* $out/
       '';
 
       lambda-handler = "lambda_function.${handler}";
-      src-dir = getDirPath pythonSrc;
 
       awsLambdaRie = pkgs.writeShellScriptBin "aws-lambda-rie" ''
         set -e
         usage() {
-          echo "Usage: aws-lambda-rie [-d DIRECTORY] [-p PORT] [-h HOST] lambda-handler"
-          echo "  -d DIRECTORY   Path to the Lambda function directory (default: current directory)"
+          echo "Usage: aws-lambda-rie [-d DIRECTORY] [-p PORT] [-h HOST] lambda_file.handler"
+          echo "  -d DIRECTORY   Path to the Lambda function directory (default: ${src})"
           echo "  -p PORT        Port for the runtime interface emulator (default: 9001)"
           echo "  -h HOST        Host for the runtime interface emulator (default: 0.0.0.0)"
           exit 1
         }
 
         # Default values
-        LAMBDA_DIR="."
+        LAMBDA_DIR="${src}"
         LAMBDA_PORT=9001
         LAMBDA_HOST="0.0.0.0"
 
@@ -128,15 +127,15 @@ with lib; rec {
       devServer = pkgs.writeShellScriptBin "devserver" ''
         set -e
         usage() {
-          echo "Usage: devserver [-d DIRECTORY] [-p PORT] [-h HOST] lambda-handler"
-          echo "  -d DIRECTORY   Path to the Lambda function directory (default: current directory)"
+          echo "Usage: devserver [-d DIRECTORY] [-p PORT] [-h HOST] lambda_code.handler"
+          echo "  -d DIRECTORY   Path to the Lambda function directory (default: ${src})"
           echo "  -p PORT        Port for the runtime interface emulator (default: 9001)"
           echo "  -h HOST        Host for the runtime interface emulator (default: 0.0.0.0)"
           exit 1
         }
 
         # Default values
-        LAMBDA_DIR="${src-dir}"
+        LAMBDA_DIR="${src}"
         LAMBDA_PORT=9001
         LAMBDA_HOST="0.0.0.0"
 
@@ -176,11 +175,6 @@ with lib; rec {
           esac
         done
 
-        # Check for lambda-handler
-        # if [ $# -lt 1 ]; then
-        #   echo "Error: lambda-handler is required."
-        #   usage
-        # fi
         LAMBDA_HANDLER="$1"
 
         LAMBDA_DIR=$(realpath "$LAMBDA_DIR")
