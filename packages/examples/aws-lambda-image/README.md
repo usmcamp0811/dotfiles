@@ -77,7 +77,7 @@ Two scripts are included for streamlined development and testing:
    nix build gitlab:usmcamp0811/dotfiles#aws-lambda-image
    ```
 
-   2. **Run Devserver**:
+2. **Run Devserver**:
 
    ```bash
    nix run gitlab:usmcamp0811dotfiles#aws-lambda-image.devServer -- -d ./path/to/code my_python_file.hanlder
