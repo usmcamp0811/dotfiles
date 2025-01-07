@@ -302,6 +302,10 @@
           flink = flink-with-kafka-connector;
           sql-client = sql-client;
           container = container;
+          push-img = lib.campground.pushDockerImage {
+            inherit pkgs;
+            dockerImage = container;
+          };
         } // additionalPassThru;
       };
     in
