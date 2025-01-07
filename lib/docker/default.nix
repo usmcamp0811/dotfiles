@@ -3,8 +3,6 @@ with lib; rec {
   pushDockerImage = { pkgs, dockerImage }:
     let
       pushDockerImageScript = pkgs.writeShellScriptBin "push-docker-image" ''
-        #!/usr/bin/env bash
-
         # Default image name and tag from provided dockerImage metadata
         defaultImageName="${dockerImage.imageName}"
         defaultTag="${dockerImage.imageTag}"
@@ -32,18 +30,18 @@ with lib; rec {
         # Set defaults if arguments were not provided
         imageName="''${imageName:-$defaultImageName}"
         imageTag="''${imageTag:-$defaultTag}"
-        repoUrl="''${repoUrl:-default-repo-url}"
+        repoUrl="''${repoUrl:+$repoUrl/}"  
 
         # Full image reference
-        fullImage="$repoUrl/$imageName:$imageTag"
+        fullImage="$repoUrl$imageName:$imageTag"
 
         # Load the Docker image
-        echo "Loading Docker image from $dockerImage.path..."
+        echo "Loading Docker image from ${dockerImage}..."
         ${pkgs.docker}/bin/docker load < "${dockerImage}"
 
         # Tag the Docker image
         echo "Tagging Docker image as $fullImage..."
-        ${pkgs.docker}/bin/docker tag "$repoUrl/$defaultImageName:$defaultTag" "$fullImage"
+        ${pkgs.docker}/bin/docker tag "$defaultImageName:$defaultImageTag" "$fullImage"
 
         # Push the Docker image to the specified repository
         echo "Pushing Docker image to $fullImage..."

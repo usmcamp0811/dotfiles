@@ -1,15 +1,30 @@
 { lib, inputs, ... }: rec {
-  mkPythonDerivation = { pkgs, name, src, phases ? [ "installPhase" ]
-    , pypkgs-build-requirements ? { }, container ? { }, buildPhase ? ""
-    , installPhase ? "", meta ? { }, python ? pkgs.python311
-    , extraPackages ? (ps: [ ]), p2n-overrides ? (self: super:
-      builtins.mapAttrs (package: build-requirements:
-        let
-          override = super.${package}.overridePythonAttrs (oldAttrs: {
-            buildInputs = (oldAttrs.buildInputs or [ ])
-              ++ (builtins.map (req: super.${req}) build-requirements);
-          });
-        in override) pypkgs-build-requirements), }:
+
+  mkPythonDerivation =
+    { pkgs
+    , name
+    , src
+    , phases ? [ "installPhase" ]
+    , pypkgs-build-requirements ? { }
+    , container ? { }
+    , buildPhase ? ""
+    , installPhase ? ""
+    , meta ? { }
+    , python ? pkgs.python311
+    , extraPackages ? (ps: [ ])
+    , p2n-overrides ? (self: super:
+        builtins.mapAttrs
+          (package: build-requirements:
+            let
+              override = super.${package}.overridePythonAttrs (oldAttrs: {
+                buildInputs = (oldAttrs.buildInputs or [ ])
+                  ++ (builtins.map (req: super.${req}) build-requirements);
+              });
+            in
+            override)
+          pypkgs-build-requirements)
+    ,
+    }:
     let
       defaultContainer = {
         name = name;
@@ -37,16 +52,18 @@
       pyprojectExists = builtins.pathExists "${src}/pyproject.toml";
 
       # If pyproject.toml exists, use poetry2nix, otherwise use customPythonEnv
-      python-env = if pyprojectExists then
-        pkgs.poetry2nix.mkPoetryEnv {
-          inherit extraPackages;
-          projectDir = src;
-          python = python;
-          overrides = final-p2n-overrides;
-          preferWheels = true;
-        }
-      else
-        python;
+      python-env =
+        if pyprojectExists then
+          pkgs.poetry2nix.mkPoetryEnv
+            {
+              inherit extraPackages;
+              projectDir = src;
+              python = python;
+              overrides = final-p2n-overrides;
+              preferWheels = true;
+            }
+        else
+          python;
 
       extended-python-env =
         python-env.withPackages (ps: with ps; [ bpython pytest ipykernel ]);
@@ -81,29 +98,35 @@
         src = src;
         phases = phases;
         buildPhase = buildPhase;
-        installPhase = if installPhase == null || installPhase == "" then ''
-          mkdir -p $out/src
-          mkdir -p $out/bin
-          if [ -d "$src" ]; then
-            cp -r $src/* $out/src
-          elif [ -f "$src" ]; then
-            cp $src $out/src/
-          else
-            echo "Error: $src is not a valid file or directory"
-            exit 1
-          fi
-          cp ${run-tests}/bin/run-tests $out/src/run-tests
-        '' else
-          installPhase;
+        installPhase =
+          if installPhase == null || installPhase == "" then ''
+            mkdir -p $out/src
+            mkdir -p $out/bin
+            if [ -d "$src" ]; then
+              cp -r $src/* $out/src
+            elif [ -f "$src" ]; then
+              cp $src $out/src/
+            else
+              echo "Error: $src is not a valid file or directory"
+              exit 1
+            fi
+            cp ${run-tests}/bin/run-tests $out/src/run-tests
+          '' else
+            installPhase;
         passthru = {
           python = python-env;
           bpython = run-bpython;
           jupyter = run-jupyter;
           test = run-tests;
           container = container-img;
+          push-img = lib.campground.pushDockerImage {
+            inherit pkgs;
+            dockerImage = container-img;
+          };
         };
         meta = meta;
       };
-    in pyDerivation;
+    in
+    pyDerivation;
 
 }
