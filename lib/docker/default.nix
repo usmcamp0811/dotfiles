@@ -11,13 +11,13 @@ with lib; rec {
         while [ $# -gt 0 ]; do
           case "$1" in
             --image-name=*)
-              imageName="$1"
+              imageName="''${1#*=}"
               ;;
             --tag=*)
-              imageTag="$1"
+              imageTag="''${1#*=}"
               ;;
             --repo-url=*)
-              repoUrl="$1"
+              repoUrl="''${1#*=}" 
               ;;
             *)
               echo "Unknown option: $1"
@@ -26,6 +26,7 @@ with lib; rec {
           esac
           shift
         done
+
 
         # Set defaults if arguments were not provided
         imageName="''${imageName:-$defaultImageName}"
@@ -40,8 +41,8 @@ with lib; rec {
         ${pkgs.docker}/bin/docker load < "${dockerImage}"
 
         # Tag the Docker image
-        echo "Tagging Docker image as $fullImage..."
-        ${pkgs.docker}/bin/docker tag "$defaultImageName:$defaultImageTag" "$fullImage"
+        echo "Tagging Docker image as $defaultImageName:$defaultTag -> $fullImage..."
+        ${pkgs.docker}/bin/docker tag "$defaultImageName:$defaultTag" "$fullImage"
 
         # Push the Docker image to the specified repository
         echo "Pushing Docker image to $fullImage..."
