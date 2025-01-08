@@ -130,7 +130,7 @@
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
     # Run unpatched dynamically compiled binaries
-    nix-ld.url = "github:nix-community/nix-ld";
+    nix-ld.url = "github:nix-community/nix-ld/";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     nur.url = "github:nix-community/NUR";
@@ -178,7 +178,8 @@
 
     # Run unpatched dynamically compiled binaries
     nix-ld-rs = {
-      url = "github:nix-community/nix-ld-rs";
+      url =
+        "github:nix-community/nix-ld-rs/8af5fc9add315c251edea8f659b56fc7836a163f";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -259,7 +260,7 @@
 
       systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
-        nix-ld.nixosModules.nix-ld
+        # nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
         dataflow2nix.nixosModules.airflow
         nix-topology.nixosModules.default
