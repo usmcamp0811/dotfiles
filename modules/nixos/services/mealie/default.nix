@@ -15,7 +15,7 @@ in {
     group = mkOpt types.str "mealie" "The group under which mealie runs.";
 
     additional_settings =
-      mkOpt tpye.attr { } "Settings for the mealied config file.";
+      mkOpt tpyes.attr { } "Settings for the mealied config file.";
 
     port = mkOpt types.int 49452 "Port to use";
     listenAddress = mkOpt types.str "0.0.0.0" "Listen Address";
