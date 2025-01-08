@@ -74,10 +74,25 @@ in {
         BACKUP_DIR = "/var/lib/mealie/backup";
       };
       enable = true;
-      credentialsFile = "/tmp/detsys-vault/mealie-creds";
+      credentialsFile = "/var/lib/mealie/creds";
       listenAddress = cfg.listenAddress;
     };
 
+    systemd.services.mealieSecrets = {
+      description = "Get mealie Secrets";
+      serviceConfig = {
+        Type = "oneshot";
+        User = cfg.user;
+        Group = cfg.group;
+      };
+      script = ''
+        mkdir -p /var/lib/mealie
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/mealie-creds /var/lib/mealie/creds
+      '';
+      wantedBy = [ "multi-user.target" ];
+      before = [ "mealie.service" ];
+
+    };
     campground.services.vault-agent.services.mealie = {
       settings = {
         # replace with the address of your vault
