@@ -82,12 +82,12 @@ in {
       description = "Get mealie Secrets";
       serviceConfig = {
         Type = "oneshot";
-        User = cfg.user;
-        Group = cfg.group;
+        User = "root";
       };
       script = ''
         mkdir -p /var/lib/mealie
         ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/mealie-creds /var/lib/mealie/creds
+        chown ${cfg.user}:${cfg.group} /var/lib/mealie/creds
       '';
       wantedBy = [ "multi-user.target" ];
       before = [ "mealie.service" ];
