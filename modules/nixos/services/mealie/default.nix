@@ -17,6 +17,9 @@ in {
     additional_settings =
       mkOpt toml-format.type { } "Settings for the mealied config file.";
 
+    port = mkOpt types.int 49452 "Port to use";
+    listenAddress = mkOpt types.str "0.0.0.0" "Listen Address";
+
     role-id = mkOpt types.str
       config.campground.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";

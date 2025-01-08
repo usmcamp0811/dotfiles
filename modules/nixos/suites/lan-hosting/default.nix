@@ -124,6 +124,15 @@ in
 
             http.services.authentik = generateServiceConfig "authentik";
 
+            http.routers.mealie = {
+              rule = "Host(`mealie.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "flake-forge";
+              middlewares = [ ];
+            };
+
+            http.services.mealie = generateServiceConfig "mealie";
+
             http.routers.flake-forge = {
               rule = "Host(`flakeforge.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
