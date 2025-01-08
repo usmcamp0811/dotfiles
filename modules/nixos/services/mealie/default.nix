@@ -14,9 +14,9 @@ in {
     user = mkOpt types.str "mealie" "The user under which mealie runs.";
     group = mkOpt types.str "mealie" "The group under which mealie runs.";
 
-    additional_settings =
-      mkOpt types.attr { } "Settings for the mealied config file.";
-
+    # additional_settings =
+    #   mkOpt attr { } "Settings for the mealied config file.";
+    #
     port = mkOpt types.int 49452 "Port to use";
     listenAddress = mkOpt types.str "0.0.0.0" "Listen Address";
 
@@ -72,7 +72,7 @@ in {
         DB_PASS = "";
         MEDIA_DIR = "/var/lib/mealie/media";
         BACKUP_DIR = "/var/lib/mealie/backup";
-      } // cfg.additional_settings;
+      };
       enable = true;
       credentialsFile = "/tmp/detsys-vault/mealie-creds";
       listenAddress = cfg.listenAddress;
