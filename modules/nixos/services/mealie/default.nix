@@ -64,7 +64,7 @@ in {
       port = cfg.port;
       settings = {
         DB_ENGINE = "postgres";
-        DB_HOST =
+        DB_SERVER =
           "/var/run/postgresql"; # Path to the PostgreSQL socket directory
         DB_PORT = ""; # Leave empty to use the socket
         DB_NAME = cfg.dbname;
