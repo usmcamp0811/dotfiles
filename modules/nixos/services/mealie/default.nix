@@ -93,7 +93,7 @@ in {
       before = [ "mealie.service" ];
 
     };
-    campground.services.vault-agent.services.mealie = {
+    campground.services.vault-agent.services.mealieSecrets = {
       settings = {
         # replace with the address of your vault
         vault.address = cfg.vault-address;
