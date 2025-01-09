@@ -130,6 +130,7 @@ in {
                 WEB_CONCURRENCY=1
                 OIDC_AUTH_ENABLED=true
                 OIDC_SIGNUP_ENABLED=true
+                OPENAI_BASE_URL=http://reckless:11434/v1
                 OIDC_CONFIGURATION_URL={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CONFIGURATION_URL }}{{ else }}{{ .Data.data.OIDC_CONFIGURATION_URL }}{{ end }}{{ end }}
                 OIDC_CLIENT_ID={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CLIENT_ID }}{{ else }}{{ .Data.data.OIDC_CLIENT_ID }}{{ end }}{{ end }}
                 OIDC_CLIENT_SECRET={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CLIENT_SECRET }}{{ else }}{{ .Data.data.OIDC_CLIENT_SECRET }}{{ end }}{{ end }}
