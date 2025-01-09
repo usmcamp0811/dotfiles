@@ -57,6 +57,12 @@ in {
         name = "mealie";
         user = cfg.user;
       }];
+      authentication = [
+        "local   mealie    mealie   trust" # Allow trusted local connections for firefly user to firefly DB
+        "host    mealie    mealie   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
+        "host    mealie    mealie   ::1/128 trust" # Allow trusted connections from localhost (IPv6) for firefly user to firefly DB
+        "host    mealie    mealie   0.0.0.0/0 md5"
+      ];
     };
     systemd.services.mealie.serviceConfig.User = cfg.user;
     systemd.services.mealie.serviceConfig.Group = cfg.user;
@@ -70,8 +76,12 @@ in {
         DB_NAME = cfg.dbname;
         DB_USER = cfg.user;
         DB_PASS = "";
+        ALLOW_SIGNUP = "true";
+        BASE_URL = "https://mealie.lan.aicampground.com";
         MEDIA_DIR = "/var/lib/mealie/media";
         BACKUP_DIR = "/var/lib/mealie/backup";
+        POSTGRES_URL_OVERRIDE =
+          "postgresql://${cfg.user}:@/mealie?host=/run/postgresql";
       };
       enable = true;
       credentialsFile = "/var/lib/mealie/creds";
@@ -87,6 +97,7 @@ in {
       script = ''
         mkdir -p /var/lib/mealie
         ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/mealie-creds /var/lib/mealie/creds
+        chown ${cfg.user}:${cfg.group} /var/lib/mealie/
         chown ${cfg.user}:${cfg.group} /var/lib/mealie/creds
       '';
       wantedBy = [ "multi-user.target" ];
@@ -113,12 +124,15 @@ in {
           files = {
             "mealie-creds" = {
               text = ''
-                OIDC_AUTH_ENABLED=True
+                OIDC_AUTH_ENABLED=true
                 OIDC_CONFIGURATION_URL={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CONFIGURATION_URL }}{{ else }}{{ .Data.data.OIDC_CONFIGURATION_URL }}{{ end }}{{ end }}
                 OIDC_CLIENT_ID={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CLIENT_ID }}{{ else }}{{ .Data.data.OIDC_CLIENT_ID }}{{ end }}{{ end }}
                 OIDC_CLIENT_SECRET={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CLIENT_SECRET }}{{ else }}{{ .Data.data.OIDC_CLIENT_SECRET }}{{ end }}{{ end }}
-                OIDC_AUTO_REDIRECT=True
+                OIDC_AUTO_REDIRECT=true
                 OIDC_PROVIDER_NAME=Campground
+                OIDC_ADMIN_GROUP=mealie-admins
+                OIDC_USER_GROUP=mealie-users
+                OIDC_SIGNUP_ENABLED=true
                 SMTP_HOST={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_HOST }}{{ else }}{{ .Data.data.SMTP_HOST }}{{ end }}{{ end }}
                 SMTP_PORT={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_PORT }}{{ else }}{{ .Data.data.SMTP_PORT }}{{ end }}{{ end }}
                 SMTP_FROM_NAME={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.SMTP_FROM_NAME }}{{ else }}{{ .Data.data.SMTP_FROM_NAME }}{{ end }}{{ end }}

@@ -127,7 +127,7 @@ in
             http.routers.mealie = {
               rule = "Host(`mealie.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
-              service = "flake-forge";
+              service = "mealie";
               middlewares = [ ];
             };
 
