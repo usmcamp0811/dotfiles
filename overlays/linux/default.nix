@@ -1,4 +1,4 @@
 { unstable, channels, ... }:
 final: prev: {
-  inherit (channels.unstable) linuxPackages_latest;
+  inherit (channels.unstable) linuxPackages_latest mealie;
 }
