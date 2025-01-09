@@ -62,6 +62,14 @@ in
           entrypoints =
             cfg.entrypoints; # // { dashboard = { address = "lucas:9090"; }; };
           dynamicConfigOptions = {
+            http.middlewares = {
+              redirect-to-https = {
+                redirectScheme = {
+                  scheme = "https";
+                  permanent = true;
+                };
+              };
+            };
             # Define the IP whitelist middleware
             http.middlewares.ip-whitelist = {
               ipWhiteList = { sourceRange = [ "10.8.0.0/24" "172.16.0.0/8" ]; };
@@ -128,7 +136,7 @@ in
               rule = "Host(`mealie.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "mealie";
-              middlewares = [ ];
+              middlewares = [ "redirect-to-https" "ip-whitelist" ];
             };
 
             http.services.mealie = generateServiceConfig "mealie";
@@ -183,7 +191,7 @@ in
               rule = "Host(`firefly.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "firefly";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = [ "redirect-to-https" "ip-whitelist" ];
             };
 
             http.services.firefly = generateServiceConfig "firefly";
@@ -238,7 +246,7 @@ in
               rule = "Host(`grafana.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "grafana";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = [ "redirect-to-https" "ip-whitelist" ];
             };
 
             http.services.grafana = generateServiceConfig "grafana";

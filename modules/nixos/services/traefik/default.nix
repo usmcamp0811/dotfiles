@@ -170,6 +170,7 @@ in
             http.redirections.entryPoint = {
               to = "websecure";
               scheme = "https";
+              permanent = true;
             };
           };
           websecure = {
