@@ -19,6 +19,7 @@ in {
     #
     port = mkOpt types.int 49452 "Port to use";
     listenAddress = mkOpt types.str "0.0.0.0" "Listen Address";
+    base-url = mkOpt str "https://mealie.lan.aicampground.com" "base url";
 
     role-id = mkOpt types.str
       config.campground.services.vault-agent.settings.vault.role-id
@@ -77,7 +78,7 @@ in {
         DB_USER = cfg.user;
         DB_PASS = "";
         ALLOW_SIGNUP = "true";
-        BASE_URL = "https://mealie.lan.aicampground.com";
+        BASE_URL = cfg.base-url;
         MEDIA_DIR = "/var/lib/mealie/media";
         BACKUP_DIR = "/var/lib/mealie/backup";
         POSTGRES_URL_OVERRIDE =
@@ -127,7 +128,6 @@ in {
                 ALLOW_SIGNUP=true
                 MAX_WORKERS=1
                 WEB_CONCURRENCY=1
-                BASE_URL=https://mealie.lan.aicampground.com.
                 OIDC_AUTH_ENABLED=true
                 OIDC_SIGNUP_ENABLED=true
                 OIDC_CONFIGURATION_URL={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CONFIGURATION_URL }}{{ else }}{{ .Data.data.OIDC_CONFIGURATION_URL }}{{ end }}{{ end }}
