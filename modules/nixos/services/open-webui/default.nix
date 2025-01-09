@@ -42,7 +42,7 @@ in {
 
     environmentFile = mkOption {
       type = types.nullOr types.str;
-      default = null;
+      default = "/var/lib/open-webui/creds";
       description = ''
         Path to a file containing environment variables for the Open-WebUI service.
       '';
@@ -68,10 +68,44 @@ in {
       description = ''
         Additional environment variables for the Open-WebUI service.
       '';
+
+    };
+    role-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id = mkOpt types.str
+      config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt types.str "secret/campground/open-webui"
+      "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = types.enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = types.str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
     };
   };
 
   config = mkIf cfg.enable {
+    systemd.services.open-webuiSecrets = {
+      description = "Get open-webui Secrets";
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+      };
+      script = ''
+        mkdir -p /var/lib/open-webui
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/open-webui-creds /var/lib/open-webui/creds
+        chmod 600 /var/lib/open-webui/creds
+      '';
+      wantedBy = [ "multi-user.target" ];
+      before = [ "open-webui.service" ];
+
+    };
     services.open-webui = {
       enable = true;
       stateDir = cfg.stateDir;
@@ -79,8 +113,44 @@ in {
       package = cfg.package;
       openFirewall = cfg.openFirewall;
       host = cfg.host;
-      # environmentFile = cfg.environmentFile;
+      environmentFile = cfg.environmentFile;
       environment = cfg.environment;
+    };
+    campground.services.vault-agent.services.open-webuiSecrets = {
+      settings = {
+        # replace with the address of your vault
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets = {
+        file = {
+          files = {
+            "open-webui-creds" = {
+              text = ''
+                ENABLE_OAUTH_SIGNUP=true
+                OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true
+                OAUTH_PROVIDER_NAME=Campground
+                OPENID_PROVIDER_URL={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OPENID_PROVIDER_URL }}{{ else }}{{ .Data.data.OPENID_PROVIDER_URL }}{{ end }}{{ end }}
+                OAUTH_CLIENT_ID={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OAUTH_CLIENT_ID }}{{ else }}{{ .Data.data.OAUTH_CLIENT_ID }}{{ end }}{{ end }}
+                OAUTH_CLIENT_SECRET={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OAUTH_CLIENT_SECRET }}{{ else }}{{ .Data.data.OAUTH_CLIENT_SECRET }}{{ end }}{{ end }}
+                OAUTH_SCOPES='openid email profile'
+                OPENID_REDIRECT_URI={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OPENID_REDIRECT_URI }}{{ else }}{{ .Data.data.OPENID_REDIRECT_URI }}{{ end }}{{ end }}
+              '';
+              permissions = "0600";
+              change-action = "restart";
+            };
+          };
+        };
+      };
     };
   };
 }
