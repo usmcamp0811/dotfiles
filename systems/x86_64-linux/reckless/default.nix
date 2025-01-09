@@ -115,6 +115,7 @@ in
     services = {
       cac = enabled;
       netbird.client = enabled;
+      mealie = enabled;
 
       # grafana = {
       #   enable = true;

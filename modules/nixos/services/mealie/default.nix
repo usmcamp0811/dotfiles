@@ -55,13 +55,13 @@ in {
       enable = true;
       databases = [{
         name = "mealie";
-        user = cfg.user;
+        user = "${cfg.user}";
       }];
       authentication = [
         "local   mealie    mealie   trust" # Allow trusted local connections for firefly user to firefly DB
-        "host    mealie    mealie   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
-        "host    mealie    mealie   ::1/128 trust" # Allow trusted connections from localhost (IPv6) for firefly user to firefly DB
-        "host    mealie    mealie   0.0.0.0/0 md5"
+        # "host    mealie    mealie   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
+        # "host    mealie    mealie   ::1/128 trust" # Allow trusted connections from localhost (IPv6) for firefly user to firefly DB
+        # "host    mealie    mealie   0.0.0.0/0 md5"
       ];
     };
     systemd.services.mealie.serviceConfig.User = cfg.user;
