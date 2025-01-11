@@ -25,13 +25,8 @@ with lib; rec {
   #   - Development scripts (`aws-lambda-rie` for local testing, and a `devserver` for hot reload).
   #   - Pass-through attributes for `devServer` and `appSource`, allowing direct access to
   #     these components for further customization or integration.
-  mkAWSLambdaPythonImage =
-    { name ? "aws-lambda-with-nix"
-    , handler
-    , system
-    , pkgs
-    , src ? ./.
-    , pythonEnv ? pkgs.python3.withPackages (ps: [ ps.awslambdaric ])
+  mkAWSLambdaPythonImage = { name ? "aws-lambda-with-nix", handler, system, pkgs
+    , src ? ./., pythonEnv ? pkgs.python3.withPackages (ps: [ ps.awslambdaric ])
     }:
     let
       appSource = pkgs.runCommand "buildApp" { inherit src; } ''
@@ -212,18 +207,37 @@ with lib; rec {
         fi
       '';
 
-    in
-    pkgs.dockerTools.buildLayeredImage
-      {
-        inherit name;
-        config = {
-          EntryPoint = [ "${pythonEnv}/bin/python" "-m" "awslambdaric" ];
+    in pkgs.dockerTools.buildLayeredImage {
+      inherit name;
+      config = {
+        EntryPoint = [ "${pythonEnv}/bin/python" "-m" "awslambdaric" ];
 
-          WorkingDir = "${appSource}";
+        WorkingDir = "${appSource}";
 
-          Cmd = [ "app.handler" ];
-        };
-      } // {
+        Cmd = [ handler ];
+      };
+    } // {
       inherit devServer appSource awsLambdaRie;
     };
+
+  # NOTE: The registry url has to be passed in and can not be done here becaue of context things wiht terranix
+  pushLambdaToAWS =
+    { pkgs, config, lambdaImg, registryName, oci-program ? pkgs.docker }:
+    let
+      awsRegion = config.provider.aws.region;
+      buildPushScript = pkgs.writeShellScriptBin "build-push" ''
+        echo "Logging in to ${registryName}"
+        # Authenticate Docker with AWS ECR
+        ${pkgs.awscli}/bin/aws ecr get-login-password --region ${awsRegion} | \
+        ${pkgs.docker}/bin/docker login --username AWS --password-stdin "$1"
+
+        # Tag and push the Docker image
+        ${
+          lib.cyclops.pushDockerImage {
+            inherit pkgs;
+            dockerImage = lambdaImg;
+          }
+        }/bin/push-docker-image --image-name="$1" --tag="${lambdaImg.imageName}"
+      '';
+    in buildPushScript;
 }
