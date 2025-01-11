@@ -24,7 +24,16 @@
     };
     lambda = {
       enable = true;
-      registry-name = "lambda-ecr";
+      jobs = {
+        my-first-lambda = {
+          lambda-image = pkgs.campground.aws-lambda-image;
+          registry-name = "lambda-ecr";
+          environment.variables = {
+            KEY1 = "VALUE1";
+            KEY2 = "VALUE2";
+          };
+        };
+      };
     };
   };
 }

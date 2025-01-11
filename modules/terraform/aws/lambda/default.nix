@@ -5,44 +5,57 @@ with types;
 
 let
   cfg = config.aws.lambda;
-  build-push-lambda-image = lib.campground.pushLambdaToAWS {
-    inherit pkgs config;
-    registryName = cfg.registry-name;
-    lambdaImg = pkgs.campground.aws-lambda-image;
-  };
 
-  repoUrl =
-    config.resource.aws_ecr_repository."${cfg.registry-name}" "repository_url";
+  build-push-lambda-image = lambdaConfig:
+    lib.campground.pushLambdaToAWS {
+      inherit pkgs config;
+      registryName = lambdaConfig.registry-name;
+      lambdaImg = lambdaConfig.lambda-image;
+    };
+
 in {
   options.aws.lambda = {
     enable = mkBoolOpt false "Enable AWS Lambda Jobs";
-    lambda-name = mkOpt str "${cfg.lambda-image.imageName}" "Lambda Job Name";
-    lambda-image = mkOpt package pkgs.campground.aws-lambda-image
-      "The lambda image to use for the job";
-    registry-name = mkOpt str "ata-ecr" "The name of the registry to use";
-    environment.variables = mkOpt (types.attrsOf types.str) { foo = "bar"; }
-      "Environment Variables for the Lambda Function";
+    jobs = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          lambda-image = mkOpt package pkgs.campground.aws-lambda-image
+            "The lambda image to use for the job";
+          registry-name = mkOpt str "ata-ecr" "The name of the registry to use";
+          environment.variables =
+            mkOpt (types.attrsOf types.str) { foo = "bar"; }
+            "Environment Variables for the Lambda Function";
+        };
+      });
+      default = { };
+      description = "Configuration for multiple AWS Lambda jobs";
+    };
   };
 
   config = mkIf cfg.enable {
     aws.storage.ecr.enable = true;
-    aws.storage.ecr.registeries = [{ name = cfg.registry-name; }];
 
-    resource.null_resource.docker_build_and_push = {
+    aws.storage.ecr.registeries = mapAttrsToList
+      (name: lambdaConfig: { name = lambdaConfig.registry-name; }) cfg.jobs;
+
+    resource.null_resource = mapAttrs (name: lambdaConfig: {
       provisioner = {
         local-exec = {
-          command = "${build-push-lambda-image}/bin/build-push ${repoUrl}";
+          command = "${build-push-lambda-image lambdaConfig}/bin/build-push ${
+              config.resource.aws_ecr_repository."${lambdaConfig.registry-name}"
+              "repository_url"
+            }";
         };
       };
-      depends_on = [ "resource.aws_ecr_repository.${cfg.registry-name}" ];
+      depends_on = [ "aws_ecr_repository.${lambdaConfig.registry-name}" ];
       triggers = {
-        # Force rerun by adding a timestamp or hash of related inputs
-        # TODO: Only triger if the image changes
         always_run = true;
-        registry_url = repoUrl;
-        lambda_name = cfg.lambda-name;
+        registry_url =
+          config.resource.aws_ecr_repository."${lambdaConfig.registry-name}"
+          "repository_url";
+        lambda_name = name;
       };
-    };
+    }) cfg.jobs;
 
     data.aws_iam_policy_document.assume_role = {
       statement = {
@@ -63,16 +76,19 @@ in {
         config.data.aws_iam_policy_document.assume_role "json";
     };
 
-    resource.aws_lambda_function."${cfg.lambda-name}" = {
+    resource.aws_lambda_function = mapAttrs (name: lambdaConfig: {
       package_type = "Image";
-      image_uri = "${repoUrl}:${cfg.lambda-image.imageName}";
-      function_name = "lambda_function_name";
+      image_uri = "${
+          config.resource.aws_ecr_repository."${lambdaConfig.registry-name}"
+          "repository_url"
+        }:${lambdaConfig.lambda-image.imageName}";
+      function_name = name;
       role = config.resource.aws_iam_role.iam_for_lambda "arn";
-      environment = { variables = cfg.environment.variables; };
+      environment = { variables = lambdaConfig.environment.variables; };
       depends_on = [
-        "resource.null_resource.docker_build_and_push"
+        "resource.null_resource.${name}"
         "resource.aws_iam_role.iam_for_lambda"
       ];
-    };
+    }) cfg.jobs;
   };
 }
