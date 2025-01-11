@@ -1,13 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
+{ config, lib, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.hyprland;
-in
-{
+with lib.campground;
+let cfg = config.campground.desktop.hyprland;
+in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
