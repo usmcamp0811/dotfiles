@@ -16,12 +16,15 @@ let
 in {
   options.aws.lambda = {
     enable = mkBoolOpt false "Enable AWS Lambda Jobs";
+    default-registry =
+      mkOpt str "campground-ecr" "The default ecr to use for lambda images";
     jobs = mkOption {
       type = types.attrsOf (types.submodule {
         options = {
           lambda-image = mkOpt package pkgs.campground.aws-lambda-image
             "The lambda image to use for the job";
-          registry-name = mkOpt str "ata-ecr" "The name of the registry to use";
+          registry-name =
+            mkOpt str cfg.default-registry "The name of the registry to use";
           environment.variables =
             mkOpt (types.attrsOf types.str) { foo = "bar"; }
             "Environment Variables for the Lambda Function";
