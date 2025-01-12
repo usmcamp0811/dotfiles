@@ -22,11 +22,12 @@ in
         options = {
           lambda-image = mkOpt package pkgs.campground.aws-lambda-image
             "The lambda image to use for the job";
-          registry-name =
-            mkOpt str "lambda-ecr" "The name of the registry to use";
+          registry-name = mkOpt str "ata-ecr" "The name of the registry to use";
           environment.variables =
             mkOpt (types.attrsOf types.str) { foo = "bar"; }
               "Environment Variables for the Lambda Function";
+          depends_on =
+            mkOpt (listOf str) [ ] "List of things the lambda job depends on";
         };
       });
       default = { };
@@ -94,7 +95,7 @@ in
         depends_on = [
           "resource.null_resource.${name}"
           "resource.aws_iam_role.iam_for_lambda"
-        ];
+        ] ++ lambdaConfig.depends_on;
       })
       cfg.jobs;
   };
