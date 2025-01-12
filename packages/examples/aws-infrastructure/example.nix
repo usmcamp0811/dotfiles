@@ -9,13 +9,8 @@
     storage = {
       s3buckets = {
         enable = true;
-        region = config.backend.s3.region;
-        ip-white-list = [ "0.0.0.0/0" ];
-        tags = {
-          terranix = "true";
-          project = "example-infrastructure";
-        };
-        buckets = [ "weather-data" "another-bucket" ];
+        defaultIpWhiteList = [ "0.0.0.0/0" ];
+        buckets = { another-bucket = { enable = true; }; };
       };
       ecr = {
         enable = true;
