@@ -65,32 +65,32 @@ with lib.campground;
           "yarn.scheduler.capacity.root.default.capacity" = "100";
 
         };
-        hdfs = {
-          namenode.enable = true;
-          namenode.restartIfChanged = true;
-          namenode.openFirewall = true;
-          namenode.extraFlags = [ ];
-          namenode.extraEnv = { };
-
-          datanode.enable = true;
-          datanode.restartIfChanged = true;
-          datanode.openFirewall = true;
-          datanode.extraFlags = [ ];
-          datanode.extraEnv = { };
-          datanode.dataDirs = [ ];
-
-          zkfc.enable = true;
-          zkfc.restartIfChanged = true;
-          zkfc.extraFlags = [ ];
-          zkfc.extraEnv = { };
-
-          httpfs.enable = true;
-          httpfs.tempPath = "/tmp/hadoop/httpfs";
-          httpfs.restartIfChanged = true;
-          httpfs.openFirewall = true;
-          httpfs.extraFlags = [ ];
-          httpfs.extraEnv = { };
-        };
+        # hdfs = {
+        #   namenode.enable = true;
+        #   namenode.restartIfChanged = true;
+        #   namenode.openFirewall = true;
+        #   namenode.extraFlags = [ ];
+        #   namenode.extraEnv = { };
+        #
+        #   datanode.enable = true;
+        #   datanode.restartIfChanged = true;
+        #   datanode.openFirewall = true;
+        #   datanode.extraFlags = [ ];
+        #   datanode.extraEnv = { };
+        #   datanode.dataDirs = [ ];
+        #
+        #   zkfc.enable = true;
+        #   zkfc.restartIfChanged = true;
+        #   zkfc.extraFlags = [ ];
+        #   zkfc.extraEnv = { };
+        #
+        #   httpfs.enable = true;
+        #   httpfs.tempPath = "/tmp/hadoop/httpfs";
+        #   httpfs.restartIfChanged = true;
+        #   httpfs.openFirewall = true;
+        #   httpfs.extraFlags = [ ];
+        #   httpfs.extraEnv = { };
+        # };
         yarn = {
           resourcemanager.enable = true;
           resourcemanager.restartIfChanged = true;

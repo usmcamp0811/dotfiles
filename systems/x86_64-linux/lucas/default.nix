@@ -71,6 +71,9 @@ with lib.campground; {
             retry_join {
               leader_api_addr = "https://daly:8200"
             }
+            retry_join {
+              leader_api_addr = "https://webb:8200"
+            }
           '';
         };
         settings = ''
@@ -96,47 +99,47 @@ with lib.campground; {
       chromadb = { enable = true; };
       # onlyoffice = { enable = true; };
       ollama = { enable = true; };
-      hadoop = {
-        enable = true;
-        yarnSite = { "yarn.nodemanager.hostname" = "lucas"; };
-        hdfs = {
-          namenode.enable = true;
-          namenode.restartIfChanged = true;
-          namenode.openFirewall = true;
-          namenode.extraFlags = [ ];
-          namenode.extraEnv = { };
-
-          datanode.enable = true;
-          datanode.restartIfChanged = true;
-          datanode.openFirewall = true;
-          datanode.extraFlags = [ ];
-          datanode.extraEnv = { };
-          datanode.dataDirs = [ ];
-
-          journalnode.enable = true;
-          journalnode.restartIfChanged = true;
-          journalnode.openFirewall = true;
-          journalnode.extraFlags = [ ];
-          journalnode.extraEnv = { };
-
-          httpfs.enable = true;
-          httpfs.tempPath = "/var/lib/hadoop/httpfs";
-        };
-        yarn = {
-          nodemanager.enable = true;
-          nodemanager.useCGroups = false;
-          nodemanager.restartIfChanged = true;
-          nodemanager.resource.memoryMB = null;
-          nodemanager.resource.maximumAllocationVCores = null;
-          nodemanager.resource.maximumAllocationMB = null;
-          nodemanager.resource.cpuVCores = null;
-          nodemanager.openFirewall = true;
-          nodemanager.localDir = null;
-          nodemanager.extraFlags = [ ];
-          nodemanager.extraEnv = { };
-          nodemanager.addBinBash = true;
-        };
-      };
+      # hadoop = {
+      #   enable = true;
+      #   yarnSite = { "yarn.nodemanager.hostname" = "lucas"; };
+      #   hdfs = {
+      #     namenode.enable = true;
+      #     namenode.restartIfChanged = true;
+      #     namenode.openFirewall = true;
+      #     namenode.extraFlags = [ ];
+      #     namenode.extraEnv = { };
+      #
+      #     datanode.enable = true;
+      #     datanode.restartIfChanged = true;
+      #     datanode.openFirewall = true;
+      #     datanode.extraFlags = [ ];
+      #     datanode.extraEnv = { };
+      #     datanode.dataDirs = [ ];
+      #
+      #     journalnode.enable = true;
+      #     journalnode.restartIfChanged = true;
+      #     journalnode.openFirewall = true;
+      #     journalnode.extraFlags = [ ];
+      #     journalnode.extraEnv = { };
+      #
+      #     httpfs.enable = true;
+      #     httpfs.tempPath = "/var/lib/hadoop/httpfs";
+      #   };
+      #   yarn = {
+      #     nodemanager.enable = true;
+      #     nodemanager.useCGroups = false;
+      #     nodemanager.restartIfChanged = true;
+      #     nodemanager.resource.memoryMB = null;
+      #     nodemanager.resource.maximumAllocationVCores = null;
+      #     nodemanager.resource.maximumAllocationMB = null;
+      #     nodemanager.resource.cpuVCores = null;
+      #     nodemanager.openFirewall = true;
+      #     nodemanager.localDir = null;
+      #     nodemanager.extraFlags = [ ];
+      #     nodemanager.extraEnv = { };
+      #     nodemanager.addBinBash = true;
+      #   };
+      # };
       # flink-task-manager = {
       #   enable = true;
       #   flink-conf = ''

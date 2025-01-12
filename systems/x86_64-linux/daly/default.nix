@@ -168,6 +168,9 @@ with lib.campground; {
             retry_join {
               leader_api_addr = "http://webb:8200"
             }
+            retry_join {
+              leader_api_addr = "http://lucas:8200"
+            }
           '';
         };
         settings = ''
