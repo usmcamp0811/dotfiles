@@ -3,10 +3,10 @@ with lib;
 with lib.campground;
 with types;
 
-let cfg = config.aws.lambda.example-job;
+let cfg = config.aws.lambda.weather-job;
 
 in {
-  options.aws.lambda.example-job = {
+  options.aws.lambda.weather-job = {
     enable = mkBoolOpt false "Enable the Example Lambda Job";
     registry-name = mkOpt str config.aws.lambda.default-registry
       "The name of the registry to use";
