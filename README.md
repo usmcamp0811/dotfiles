@@ -62,6 +62,8 @@ Here's an overview of what my Nix configuration offers:
 
 - **System Observability & Monitoring**: Integrate Prometheus, Grafana, and Loki to achieve comprehensive monitoring of all systems, including Systemd services.
 
+- **Terraform Modules**: Various modules for deploying infrastructure in the cloud with Terraform.
+
 
 ## Customization
 
