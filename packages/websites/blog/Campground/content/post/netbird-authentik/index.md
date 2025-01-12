@@ -104,6 +104,20 @@ on the Management service.
 Lastly, there’s the **Coturn** service, which appears to be optional but is recommended for better connectivity.
 I haven’t managed to get this fully functional yet, likely due to a configuration issue with my router.
 
+**Update**:
+It turns out that the `coturn` server is required for things to be able to successfully connect. These are the ports you
+need to make happen on your router unless you modified your server to listen on different ports.
+
+| **Port**        | **Protocol** | **Purpose**                                              | **Required**           |
+| --------------- | ------------ | -------------------------------------------------------- | ---------------------- |
+| **443**         | TCP          | NetBird Management Plane (HTTPS communication)           | Yes                    |
+| **51820**       | UDP          | WireGuard (Peer-to-Peer Data Communication)              | Yes                    |
+| **3478**        | UDP/TCP      | STUN/TURN (Primary communication for NAT traversal)      | Yes (CoTURN)           |
+| **3479**        | UDP/TCP      | STUN/TURN (Alternate communication for redundancy)       | Optional (CoTURN)      |
+| **5349**        | UDP/TCP      | TURN (Secure communication with TLS)                     | Yes (CoTURN)           |
+| **49152–65535** | UDP          | Ephemeral Ports (Peer-to-Peer Communication via NAT)     | Yes (Dynamic Use Case) |
+| **5350**        | UDP          | NAT-PMP (Dynamic Port Mapping on routers, if applicable) | Optional (if enabled)  |
+
 ### Cloudflare Proxy Considerations
 
 If you are using Cloudflare as a proxy, you need to enable the **gRPC passthrough** option for the Management
