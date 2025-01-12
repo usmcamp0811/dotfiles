@@ -21,7 +21,7 @@
     };
 
     lambda = {
-      another-example-job = {
+      jobs.another-example-job = {
         lambda-image = pkgs.campground.aws-lambda-image;
         environment.variables = {
           LATITUDE = "38.9072";

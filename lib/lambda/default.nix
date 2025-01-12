@@ -25,8 +25,13 @@ with lib; rec {
   #   - Development scripts (`aws-lambda-rie` for local testing, and a `devserver` for hot reload).
   #   - Pass-through attributes for `devServer` and `appSource`, allowing direct access to
   #     these components for further customization or integration.
-  mkAWSLambdaPythonImage = { name ? "aws-lambda-with-nix", handler, system, pkgs
-    , src ? ./., pythonEnv ? pkgs.python3.withPackages (ps: [ ps.awslambdaric ])
+  mkAWSLambdaPythonImage =
+    { name ? "aws-lambda-with-nix"
+    , handler
+    , system
+    , pkgs
+    , src ? ./.
+    , pythonEnv ? pkgs.python3.withPackages (ps: [ ps.awslambdaric ])
     }:
     let
       appSource = pkgs.runCommand "buildApp" { inherit src; } ''
@@ -207,16 +212,18 @@ with lib; rec {
         fi
       '';
 
-    in pkgs.dockerTools.buildLayeredImage {
-      inherit name;
-      config = {
-        EntryPoint = [ "${pythonEnv}/bin/python" "-m" "awslambdaric" ];
+    in
+    pkgs.dockerTools.buildLayeredImage
+      {
+        inherit name;
+        config = {
+          EntryPoint = [ "${pythonEnv}/bin/python" "-m" "awslambdaric" ];
 
-        WorkingDir = "${appSource}";
+          WorkingDir = "${appSource}";
 
-        Cmd = [ handler ];
-      };
-    } // {
+          Cmd = [ handler ];
+        };
+      } // {
       inherit devServer appSource awsLambdaRie;
     };
 
@@ -233,11 +240,12 @@ with lib; rec {
 
         # Tag and push the Docker image
         ${
-          lib.cyclops.pushDockerImage {
+          lib.campground.pushDockerImage {
             inherit pkgs;
             dockerImage = lambdaImg;
           }
         }/bin/push-docker-image --image-name="$1" --tag="${lambdaImg.imageName}"
       '';
-    in buildPushScript;
+    in
+    buildPushScript;
 }

@@ -3,6 +3,6 @@ with lib;
 with lib.campground;
 mkTerranixDerivation {
   inherit pkgs system;
-  extraArgs = { };
+  extraArgs = { inherit pkgs; };
   modules = [ ./example.nix ];
 }
