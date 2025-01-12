@@ -25,7 +25,7 @@
 
     lambda = {
       enable = true;
-      example-job = { enable = true; };
+      weather-job = { enable = true; };
     };
   };
 }
