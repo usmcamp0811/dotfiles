@@ -3,57 +3,84 @@ with lib;
 with lib.campground;
 with types;
 
-let cfg = config.aws.storage.s3;
-in {
-  options.aws.storage.s3 = {
-    enable = mkBoolOpt false "Enable S3Buckets";
-    region = mkOpt str "us-east-1" "Region for all buckets";
-    ip-white-list = mkOpt (listOf str) [ "0.0.0.0/0" ] "Allowed IPs";
-    tags = mkOpt (attrsOf str)
+let
+  cfg = config.aws.storage.s3buckets;
+  loggingOptions = types.submodule {
+    options = {
+      target_bucket = mkOpt str null "Target bucket for logging";
+      target_prefix = mkOpt str null "Prefix for logging";
+    };
+  };
+  bucketOptions = types.submodule {
+    options = {
+      enable = mkBoolOpt true "Enable or disable the bucket";
+      tags = mkOpt (attrsOf str) { } "Custom tags for the bucket";
+      force_destroy = mkBoolOpt false "Force destroy on deletion";
+
+      logging = mkOpt (nullOr loggingOptions) null "Logging configuration";
+      ipWhiteList = mkOpt (listOf str) cfg.defaultIpWhiteList
+        "IPs to whitelist for the bucket";
+    };
+  };
+in
+{
+  options.aws.storage.s3buckets = {
+    enable = mkBoolOpt false "Enable S3 Buckets management";
+    buckets = mkOpt (attrsOf bucketOptions) { }
+      "Attribute set of S3 Buckets, keyed by bucket name";
+    defaultIpWhiteList =
+      mkOpt (listOf str) [ "0.0.0.0/0" ] "List of IPs to whitelist";
+    defaultTags = mkOpt (attrsOf str)
       {
-        project = "Campground";
+        project = "Campground-DefaultAWS";
         environment = "dev";
-        "created-by" = "Terranix";
+        createdBy = "Terranix";
       } "Default tags for all buckets";
-    buckets = mkOpt (listOf str) [ ] "A list of bucket names.";
   };
 
   config = mkIf cfg.enable {
-    provider.aws.region = cfg.region;
-    provider.aws.default_tags.tags = cfg.tags;
 
-    # Manage S3 buckets
     resource.aws_s3_bucket = builtins.listToAttrs (map
-      (bucket: {
-        name = bucket;
+      (bucketName: {
+        name = bucketName;
         value = {
-          bucket = bucket;
-          tags = cfg.tags;
+          bucket = bucketName;
+          tags = cfg.defaultTags // (cfg.buckets.${bucketName}.tags or { });
+          force_destroy = cfg.buckets.${bucketName}.force_destroy or false;
+
+          # Assign logging configuration only when explicitly defined
+          logging =
+            if cfg.buckets.${bucketName}.logging != null then {
+              inherit (cfg.buckets.${bucketName}.logging)
+                target_bucket target_prefix;
+            } else
+              null;
         };
       })
-      cfg.buckets);
+      (attrNames cfg.buckets));
 
-    # Add bucket policies
     resource.aws_s3_bucket_policy = builtins.listToAttrs (map
-      (bucket: {
-        name = "${bucket}_policy";
+      (bucketName: {
+        name = "${bucketName}_policy";
         value = {
-          bucket = bucket;
+          bucket = bucketName;
           policy = builtins.toJSON {
             Version = "2012-10-17";
             Statement = [{
               Effect = "Allow";
               Principal = "*";
               Action = "s3:GetObject";
-              Resource = "arn:aws-us:s3:::${bucket}/*";
+              Resource = "arn:aws-us:s3:::${bucketName}/*";
               Condition = {
-                IpAddress = { "aws:SourceIp" = cfg.ip-white-list; };
+                IpAddress = {
+                  "aws:SourceIp" = cfg.buckets.${bucketName}.ipWhiteList or [ ];
+                };
               };
             }];
           };
-          depends_on = [ "aws_s3_bucket.${bucket}" ];
+          depends_on = [ "aws_s3_bucket.${bucketName}" ];
         };
       })
-      cfg.buckets);
+      (attrNames cfg.buckets));
   };
 }
