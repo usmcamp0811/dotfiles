@@ -15,7 +15,7 @@
           terranix = "true";
           project = "example-infrastructure";
         };
-        buckets = [ "my-test-bucket" "another-bucket" ];
+        buckets = [ "weather-data" "another-bucket" ];
       };
       ecr = {
         enable = true;
@@ -24,8 +24,24 @@
     };
 
     lambda = {
-      enable = true;
-      weather-job = { enable = true; };
+      another-example-job = {
+        lambda-image = pkgs.campground.aws-lambda-image;
+        environment.variables = {
+          LATITUDE = "38.9072";
+          LONGITUDE = "-77.0369";
+          S3_BUCKET = "weather-data";
+          S3_KEY = "forecasts/washington_dc_forecast.json";
+        };
+      };
+      weather-job = {
+        enable = true;
+        variables = {
+          LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
+          LONGITUDE = "-79.9959"; # Longitude for Pittsburgh, PA
+          S3_BUCKET = "weather-data";
+          S3_KEY = "forecasts/pittsburgh_forecast.json";
+        };
+      };
     };
   };
 }
