@@ -9,7 +9,7 @@ in {
     keyfile-url = mkOpt str "http://10.8.0.55:8123/zfs-keyfile"
       "The URL for the Clevis encrypted Keyfile";
     public_keys = mkOpt (lib.types.listOf lib.types.str) [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler"
     ]
       "List of public ssh keys to access the Phase 1 Boot for remote unlocking of ZFS";
   };
@@ -29,14 +29,14 @@ in {
     boot.initrd.network = {
       enable = true;
       postCommands = ''
-                sleep 2
-                export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:$PATH"
-                zpool import -a;
+        sleep 2
+        export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:$PATH"
+        zpool import -a;
 
-                # Retrieve and decrypt the passphrase
-                export PASSPHRASE="$(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt)"
+        # Retrieve and decrypt the passphrase
+        export PASSPHRASE="$(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt)"
 
-                # Load the key for each encrypted ZFS dataset
+        # Load the key for each encrypted ZFS dataset
         for dataset in $(zfs get keystatus -H -o name,value -t filesystem,volume | grep "unavailable" | awk '{print $1}')
         do
             echo -n $PASSPHRASE | zfs load-key $dataset
