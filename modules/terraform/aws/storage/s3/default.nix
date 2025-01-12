@@ -4,7 +4,7 @@ with lib.campground;
 with types;
 
 let
-  cfg = config.aws.storage.s3buckets;
+  cfg = config.aws.storage.s3;
   loggingOptions = types.submodule {
     options = {
       target_bucket = mkOpt str null "Target bucket for logging";
@@ -24,7 +24,7 @@ let
   };
 in
 {
-  options.aws.storage.s3buckets = {
+  options.aws.storage.s3 = {
     enable = mkBoolOpt false "Enable S3 Buckets management";
     buckets = mkOpt (attrsOf bucketOptions) { }
       "Attribute set of S3 Buckets, keyed by bucket name";

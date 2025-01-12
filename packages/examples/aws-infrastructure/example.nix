@@ -9,7 +9,7 @@
   };
   config.aws = {
     storage = {
-      s3buckets = {
+      s3 = {
         enable = true;
         defaultIpWhiteList = [ "0.0.0.0/0" ];
         buckets = { another-bucket = { enable = true; }; };

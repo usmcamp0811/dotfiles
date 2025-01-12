@@ -20,7 +20,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    aws.storage.s3buckets = {
+    aws.storage.s3 = {
       enable = true;
       buckets."${cfg.variables.S3_BUCKET}" = { enable = true; };
     };
