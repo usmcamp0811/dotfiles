@@ -8,8 +8,7 @@ let cfg = config.aws.lambda.weather-job;
 in {
   options.aws.lambda.weather-job = {
     enable = mkBoolOpt false "Enable the Example Lambda Job";
-    registry-name = mkOpt str config.aws.lambda.default-registry
-      "The name of the registry to use";
+    registry-name = mkOpt str "ata-ecr" "The name of the registry to use";
     variables = mkOpt (types.attrsOf types.str)
       {
         LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
@@ -21,13 +20,19 @@ in {
   };
 
   config = mkIf cfg.enable {
+    aws.storage.s3buckets = {
+      enable = true;
+      buckets."${cfg.variables.S3_BUCKET}" = { enable = true; };
+    };
     aws.lambda.enable = true;
     aws.lambda.jobs = {
-      example-job = {
+      weather-job = {
         lambda-image = pkgs.campground.aws-lambda-image;
         registry-name = cfg.registry-name;
         environment.variables = cfg.variables;
+        depends_on = [ "resource.aws_s3_bucket.${cfg.variables.S3_BUCKET}" ];
       };
     };
   };
+
 }
