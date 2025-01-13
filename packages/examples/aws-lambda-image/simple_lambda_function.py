@@ -23,7 +23,6 @@ def handler(event, context):
         return {"statusCode": 400, "body": "S3_BUCKET environment variable is required"}
 
     url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true"
-    print(f"Getting weather from {url}")
 
     try:
         data = fetch_weather_data(url)
