@@ -7,5 +7,5 @@ mkAWSLambdaPythonImage {
   handler = "simple_lambda_function.handler";
   src = ./.;
   pythonEnv = pkgs.python3.withPackages
-    (ps: [ ps.awslambdaric ps.requests ps.jsons ps.boto3 ]);
+    (ps: [ ps.awslambdaric ps.requests ps.jsons ps.boto3 ps.tenacity ]);
 }

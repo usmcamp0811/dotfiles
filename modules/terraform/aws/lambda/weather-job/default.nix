@@ -24,6 +24,7 @@ in {
       enable = true;
       buckets."${cfg.variables.S3_BUCKET}" = { enable = true; };
     };
+
     aws.lambda.enable = true;
     aws.lambda.jobs = {
       weather-job = {
@@ -33,6 +34,26 @@ in {
         depends_on = [ "resource.aws_s3_bucket.${cfg.variables.S3_BUCKET}" ];
       };
     };
-  };
 
+    # IAM Policy for Lambda Role
+    data.aws_iam_policy_document.s3_policy = {
+      statement = [{
+        effect = "Allow";
+        actions = [ "s3:PutObject" ];
+        resources = [ "arn:aws:s3:::${cfg.variables.S3_BUCKET}/*" ];
+      }];
+    };
+
+    # IAM Role for Lambda
+    resource.aws_iam_role.iam_for_lambda = {
+      name = "iam_for_lambda";
+      assume_role_policy =
+        config.data.aws_iam_policy_document.assume_role "json";
+
+      inline_policy = [{
+        name = "s3_access_policy";
+        policy = config.data.aws_iam_policy_document.s3_policy "json";
+      }];
+    };
+  };
 }
