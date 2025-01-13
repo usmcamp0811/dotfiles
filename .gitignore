@@ -15,3 +15,5 @@ packages/blog/Campground/assets/jsconfig.json
 node_modules
 **.qcow2
 test.json
+.terraform/providers/registry.terraform.io/hashicorp
+.terraform
