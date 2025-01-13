@@ -70,7 +70,7 @@ in
               Effect = "Allow";
               Principal = "*";
               Action = "s3:GetObject";
-              Resource = "arn:aws-us:s3:::${bucketName}/*";
+              Resource = "arn:aws:s3:::${bucketName}/*";
               Condition = {
                 IpAddress = {
                   "aws:SourceIp" = cfg.buckets.${bucketName}.ipWhiteList or [ ];
