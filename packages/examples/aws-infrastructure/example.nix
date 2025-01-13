@@ -3,7 +3,7 @@
   config.provider.aws.region = "us-east-1";
   # Backend S3 configuration (requires a single bucket/key pair)
   config.backend.s3 = {
-    bucket = "state-bucket"; # Use a single bucket for state storage
+    bucket = "campground-state-bucket"; # Use a single bucket for state storage
     key = "state/terraform.tfstate";
     region = "us-east-1";
   };

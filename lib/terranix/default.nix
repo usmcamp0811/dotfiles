@@ -15,18 +15,22 @@ with lib; rec {
       scanDir = dir:
         let
           entries = builtins.readDir dir;
-          files = builtins.filter (name:
-            let entry = entries.${name};
-            in entry == "regular" && builtins.match ".*default\\.nix$" name
-            != null) (builtins.attrNames entries);
+          files = builtins.filter
+            (name:
+              let entry = entries.${name};
+              in entry == "regular" && builtins.match ".*default\\.nix$" name
+                != null)
+            (builtins.attrNames entries);
           filePaths = builtins.map (file: "${dir}/${file}") files;
           subDirs = builtins.filter
             (name: let entry = entries.${name}; in entry == "directory")
             (builtins.attrNames entries);
           subDirPaths = builtins.concatLists
             (builtins.map (subDir: scanDir "${dir}/${subDir}") subDirs);
-        in filePaths ++ subDirPaths;
-    in scanDir path;
+        in
+        filePaths ++ subDirPaths;
+    in
+    scanDir path;
 
   # Generates a Terranix configuration.
   #
@@ -95,7 +99,7 @@ with lib; rec {
       create-state-bucket = pkgs.writeShellScriptBin "create-state-bucket" ''
         set -euo pipefail
 
-        BUCKET_NAME=''${1:-"state-bucket"}
+        BUCKET_NAME=''${1:-"campground-state-bucket"}
         AWS_REGION=''${2:-"us-east-1"}
 
         echo "Creating S3 bucket $BUCKET_NAME in region $AWS_REGION..."
@@ -123,5 +127,6 @@ with lib; rec {
 
         echo "Bucket $BUCKET_NAME setup is complete."
       '';
-    in tf-json // { inherit apply destroy create-state-bucket; };
+    in
+    tf-json // { inherit apply destroy create-state-bucket; };
 }
