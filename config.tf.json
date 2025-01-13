@@ -1,0 +1,184 @@
+{
+  "data": {
+    "aws_iam_policy_document": {
+      "assume_role": {
+        "statement": {
+          "actions": [
+            "sts:AssumeRole"
+          ],
+          "effect": "Allow",
+          "principals": {
+            "identifiers": [
+              "lambda.amazonaws.com"
+            ],
+            "type": "Service"
+          }
+        }
+      }
+    }
+  },
+  "provider": {
+    "aws": {
+      "region": "us-east-1"
+    }
+  },
+  "resource": {
+    "aws_ecr_lifecycle_policy": {
+      "ata-ecr": {
+        "depends_on": [
+          "resource.aws_ecr_repository.ata-ecr",
+          "resource.aws_ecr_repository.ata-ecr"
+        ],
+        "policy": "{\"rules\":[{\"action\":{\"type\":\"expire\"},\"description\":\"Keep only 10 images\",\"rulePriority\":1,\"selection\":{\"countNumber\":10,\"countType\":\"imageCountMoreThan\",\"tagPrefixList\":[\"prod\"],\"tagStatus\":\"tagged\"}}]}",
+        "repository": "ata-ecr"
+      },
+      "my-main-ecr": {
+        "depends_on": [
+          "resource.aws_ecr_repository.my-main-ecr"
+        ],
+        "policy": "{\"rules\":[{\"action\":{\"type\":\"expire\"},\"description\":\"Keep only 10 images\",\"rulePriority\":1,\"selection\":{\"countNumber\":10,\"countType\":\"imageCountMoreThan\",\"tagPrefixList\":[\"prod\"],\"tagStatus\":\"tagged\"}}]}",
+        "repository": "my-main-ecr"
+      }
+    },
+    "aws_ecr_repository": {
+      "ata-ecr": {
+        "force_delete": true,
+        "image_scanning_configuration": {
+          "scan_on_push": true
+        },
+        "image_tag_mutability": "MUTABLE",
+        "name": "ata-ecr"
+      },
+      "my-main-ecr": {
+        "force_delete": true,
+        "image_scanning_configuration": {
+          "scan_on_push": true
+        },
+        "image_tag_mutability": "MUTABLE",
+        "name": "my-main-ecr"
+      }
+    },
+    "aws_iam_role": {
+      "iam_for_lambda": {
+        "assume_role_policy": "${data.aws_iam_policy_document.assume_role.json}",
+        "name": "iam_for_lambda"
+      }
+    },
+    "aws_lambda_function": {
+      "another-example-job": {
+        "depends_on": [
+          "resource.null_resource.another-example-job",
+          "resource.aws_iam_role.iam_for_lambda"
+        ],
+        "environment": {
+          "variables": {
+            "LATITUDE": "38.9072",
+            "LONGITUDE": "-77.0369",
+            "S3_BUCKET": "weather-data",
+            "S3_KEY": "forecasts/washington_dc_forecast.json"
+          }
+        },
+        "function_name": "another-example-job",
+        "image_uri": "${aws_ecr_repository.ata-ecr.repository_url}:weather-example",
+        "package_type": "Image",
+        "role": "${aws_iam_role.iam_for_lambda.arn}"
+      },
+      "weather-job": {
+        "depends_on": [
+          "resource.null_resource.weather-job",
+          "resource.aws_iam_role.iam_for_lambda",
+          "resource.aws_s3_bucket.weather-data"
+        ],
+        "environment": {
+          "variables": {
+            "LATITUDE": "40.4406",
+            "LONGITUDE": "-79.9959",
+            "S3_BUCKET": "weather-data",
+            "S3_KEY": "forecasts/pittsburgh_forecast.json"
+          }
+        },
+        "function_name": "weather-job",
+        "image_uri": "${aws_ecr_repository.ata-ecr.repository_url}:weather-example",
+        "package_type": "Image",
+        "role": "${aws_iam_role.iam_for_lambda.arn}"
+      }
+    },
+    "aws_s3_bucket": {
+      "another-bucket": {
+        "bucket": "another-bucket",
+        "force_destroy": false,
+        "tags": {
+          "createdBy": "Terranix",
+          "environment": "dev",
+          "project": "Campground-DefaultAWS"
+        }
+      },
+      "weather-data": {
+        "bucket": "weather-data",
+        "force_destroy": false,
+        "tags": {
+          "createdBy": "Terranix",
+          "environment": "dev",
+          "project": "Campground-DefaultAWS"
+        }
+      }
+    },
+    "aws_s3_bucket_policy": {
+      "another-bucket_policy": {
+        "bucket": "another-bucket",
+        "depends_on": [
+          "aws_s3_bucket.another-bucket"
+        ],
+        "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Condition\":{\"IpAddress\":{\"aws:SourceIp\":[\"0.0.0.0/0\"]}},\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws-us:s3:::another-bucket/*\"}],\"Version\":\"2012-10-17\"}"
+      },
+      "weather-data_policy": {
+        "bucket": "weather-data",
+        "depends_on": [
+          "aws_s3_bucket.weather-data"
+        ],
+        "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Condition\":{\"IpAddress\":{\"aws:SourceIp\":[\"0.0.0.0/0\"]}},\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws-us:s3:::weather-data/*\"}],\"Version\":\"2012-10-17\"}"
+      }
+    },
+    "null_resource": {
+      "another-example-job": {
+        "depends_on": [
+          "aws_ecr_repository.ata-ecr"
+        ],
+        "provisioner": {
+          "local-exec": {
+            "command": "/nix/store/gnia02c07fnsfvgw258qm67s7n05rnq1-build-push/bin/build-push ${aws_ecr_repository.ata-ecr.repository_url}"
+          }
+        },
+        "triggers": {
+          "always_run": true,
+          "lambda_name": "another-example-job",
+          "registry_url": "${aws_ecr_repository.ata-ecr.repository_url}"
+        }
+      },
+      "weather-job": {
+        "depends_on": [
+          "aws_ecr_repository.ata-ecr"
+        ],
+        "provisioner": {
+          "local-exec": {
+            "command": "/nix/store/gnia02c07fnsfvgw258qm67s7n05rnq1-build-push/bin/build-push ${aws_ecr_repository.ata-ecr.repository_url}"
+          }
+        },
+        "triggers": {
+          "always_run": true,
+          "lambda_name": "weather-job",
+          "registry_url": "${aws_ecr_repository.ata-ecr.repository_url}"
+        }
+      }
+    }
+  },
+  "terraform": {
+    "backend": {
+      "s3": {
+        "bucket": "campground-state-bucket",
+        "key": "state/terraform.tfstate",
+        "region": "us-east-1"
+      }
+    }
+  }
+}

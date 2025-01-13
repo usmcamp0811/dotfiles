@@ -1,0 +1,24 @@
+{
+  "bound_audiences": "yPJj5p82hnPIiFIQ2PXsRXy7XlaDPF93vQ5l06i2",
+  "allowed_redirect_uris": [
+    "https://vault.lan.aicampground.com/ui/vault/auth/oidc/oidc/callback",
+    "https://vault.lan.aicampground.com/oidc/callback",
+    "http://localhost:8250/oidc/callback"
+  ],
+  "user_claim": "sub",
+  "groups_claim": "groups",
+  "bound_claims": {
+    "groups": [
+      "authentik Admins"
+    ]
+  },
+  "ttl": "1h",
+  "policies": [
+    "admin"
+  ],
+  "oidc_scopes": [
+    "openid",
+    "profile",
+    "email"
+  ]
+}
