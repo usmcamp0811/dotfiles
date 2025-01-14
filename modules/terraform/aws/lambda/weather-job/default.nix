@@ -21,21 +21,24 @@ in {
   };
 
   config = mkIf cfg.enable {
-    aws.storage.s3 = {
-      enable = true;
-      buckets."${cfg.variables.S3_BUCKET}" = { enable = true; };
-    };
-
-    aws.lambda.enable = true;
-    aws.lambda.jobs = {
-      weather-job = {
-        lambda-image = pkgs.campground.aws-lambda-image;
-        registry-name = cfg.registry-name;
-        environment.variables = cfg.variables;
-        depends_on = [ "resource.aws_s3_bucket.${cfg.variables.S3_BUCKET}" ];
+    aws = {
+      storage.s3 = {
+        enable = true;
+        buckets."${cfg.variables.S3_BUCKET}" = { enable = true; };
+      };
+      lambda = {
+        enable = true;
+        jobs = {
+          weather-job = {
+            lambda-image = pkgs.campground.aws-lambda-image;
+            registry-name = cfg.registry-name;
+            environment.variables = cfg.variables;
+            depends_on =
+              [ "resource.aws_s3_bucket.${cfg.variables.S3_BUCKET}" ];
+          };
+        };
       };
     };
-
     # IAM Policy for Lambda Role
     data.aws_iam_policy_document.s3_policy = {
       statement = [{
@@ -44,17 +47,18 @@ in {
         resources = [ "arn:aws:s3:::${cfg.variables.S3_BUCKET}/*" ];
       }];
     };
-
     # IAM Role for Lambda
-    resource.aws_iam_role.iam_for_lambda = {
-      name = "iam_for_lambda";
-      assume_role_policy =
-        config.data.aws_iam_policy_document.assume_role "json";
-
-      inline_policy = [{
+    resource = {
+      aws_iam_role.iam_for_lambda = {
+        name = "iam_for_lambda";
+        assume_role_policy =
+          config.data.aws_iam_policy_document.assume_role "json";
+      };
+      aws_iam_role_policy.s3_access_policy = {
         name = "s3_access_policy";
+        role = config.resource.aws_iam_role.iam_for_lambda.name;
         policy = config.data.aws_iam_policy_document.s3_policy "json";
-      }];
+      };
     };
   };
 }

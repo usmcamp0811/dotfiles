@@ -123,7 +123,6 @@ in {
           config.data.aws_iam_policy_document.assume_role "json";
       };
 
-      # Define the Inline Policy as a Separate Resource
       aws_iam_role_policy = {
         s3_access_policy = {
           name = "s3_access_policy";
