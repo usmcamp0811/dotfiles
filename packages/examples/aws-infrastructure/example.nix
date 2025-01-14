@@ -12,7 +12,7 @@
       s3 = {
         enable = true;
         defaultIpWhiteList = [ ];
-        buckets = { campground-bucket = { enable = true; }; };
+        buckets = { campground-input-bucket = { enable = true; }; };
       };
       ecr = {
         enable = true;
@@ -26,8 +26,15 @@
         environment.variables = {
           LATITUDE = "38.9072";
           LONGITUDE = "-77.0369";
-          S3_BUCKET = "campground-weather-data";
+          S3_BUCKET = "campground-output-bucket";
           S3_KEY = "forecasts/washington_dc_forecast.json";
+        };
+      };
+      pdf-ocr = {
+        enable = true;
+        variables = {
+          INPUT_BUCKET = "campground-input-bucket";
+          OUTPUT_BUCKET = "campground-output-bucket";
         };
       };
       weather-job = {
@@ -35,7 +42,7 @@
         variables = {
           LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
           LONGITUDE = "-79.9959"; # Longitude for Pittsburgh, PA
-          S3_BUCKET = "campground-weather-data";
+          S3_BUCKET = "campground-output-bucket";
           S3_KEY = "forecasts/pittsburgh_forecast.json";
         };
       };
