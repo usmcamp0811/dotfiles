@@ -26,7 +26,8 @@ in
         options = {
           lambda-image = mkOpt package pkgs.cyclops.aws-lambda-image
             "The lambda image to use for the job";
-          registry-name = mkOpt str "ata_ecr" "The name of the registry to use";
+          registry-name =
+            mkOpt str "campground_ecr" "The name of the registry to use";
           environment.variables =
             mkOpt (types.attrsOf types.str) { foo = "bar"; }
               "Environment Variables for the Lambda Function";

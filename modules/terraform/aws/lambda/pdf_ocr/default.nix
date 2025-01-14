@@ -8,7 +8,7 @@ let cfg = config.aws.lambda.pdf_ocr;
 in {
   options.aws.lambda.pdf_ocr = {
     enable = mkBoolOpt false "Enable the Example Lambda Job";
-    registry-name = mkOpt str "ata_ecr" "The name of the registry to use";
+    registry-name = mkOpt str "campground_ecr" "The name of the registry to use";
     variables = mkOpt (types.attrsOf types.str)
       {
         INPUT_BUCKET = "input-bucket-name";
