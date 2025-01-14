@@ -26,3 +26,70 @@ categories:
 series:
   - Nix in the Wild
 ---
+
+### **General Outline for the Blog Post**
+
+#### **Introduction**
+
+- Briefly introduce the challenges of managing Terraform configurations.
+- Highlight the benefits of integrating Terranix with Nix Flakes.
+- Overview of what the post will cover.
+
+#### **What is Terranix?**
+
+- Explain Terranix and its role in managing Terraform configurations.
+- Benefits of using Terranix over standard Terraform workflows.
+
+#### **Why Use Terranix with Nix Flakes?**
+
+- Advantages of combining Terranix with Nix Flakes.
+- Key features of the Snowfall approach for modular organization.
+
+#### **Setting Up Your Flake for Terranix**
+
+1. Overview of prerequisites (e.g., Nix, Terranix, Terraform).
+2. Example `flake.nix` snippet showing how to include Terranix.
+3. Explanation of directory structure for Terraform modules.
+
+#### **Key Functions for Terranix Integration**
+
+- Detailed walkthrough of each function:
+  1. **`findDefaultNixFiles`**: What it does and usage example.
+  2. **`terranixConfiguration`**: Simplifying configuration management.
+  3. **`mkTerranixDerivation`**: Generating and managing Terraform configurations.
+- Include practical examples for each function.
+
+#### **Building and Organizing Terraform Modules**
+
+- Demonstrate how to create a basic Terraform module (`default.nix` example).
+- Best practices for organizing modules in `./modules/terraform`.
+
+#### **Applying and Managing Terraform Configurations**
+
+- Step-by-step guide to running the following commands:
+  1. Generating JSON (`nix run .#aws-infrastructure`).
+  2. Applying configurations (`nix run .#aws-infrastructure.apply`).
+  3. Destroying resources (`nix run .#aws-infrastructure.destroy`).
+
+#### **Example: Managing AWS Infrastructure**
+
+- Walk through the example module (`example.nix`).
+- Show how to use the configuration to create S3 buckets and Lambda functions.
+- Discuss additional customization options.
+
+#### **Best Practices**
+
+- Tips for keeping your Terraform configurations maintainable and modular.
+- Using `extraArgs` and `modules` effectively.
+- Testing configurations before applying.
+
+#### **Conclusion**
+
+- Recap the benefits of using Terranix with Nix Flakes.
+- Encourage readers to explore the possibilities with their own projects.
+- Link to the official Terranix documentation for further reading.
+
+#### **Call to Action**
+
+- Invite readers to try out the example code.
+- Suggest sharing their experiences or questions in the comments or via social media.

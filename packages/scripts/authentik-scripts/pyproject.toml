@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "authentik-scripts"
+version = "0.1.0"
+description = "Scripts to be able to configure Authentik"
+authors = ["Matt Camp <matt@aicampground.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

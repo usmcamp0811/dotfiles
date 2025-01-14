@@ -16,4 +16,7 @@ node_modules
 **.qcow2
 test.json
 .terraform
-packages/examples/aws-lambda-image/__pycache__
+packages/examples/aws-lambda-image/.terraform.lock.hcl
+packages/scripts/vault-scripts/vault
+.terraform.lock.hcl
+config.tf.json
