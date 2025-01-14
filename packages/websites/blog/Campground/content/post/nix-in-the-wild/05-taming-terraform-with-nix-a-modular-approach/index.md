@@ -31,6 +31,28 @@ series:
 
 #### **Introduction**
 
+Welcome back to my ongoing series, Nix in the Wild, where I delve into the practical applications of
+Nix within organizational contexts, using the fictional company Initech as a narrative framework. In
+this installment, I will explore the integration of Terraform into Snowfall-lib-based Nix flakes, offering
+a comprehensive guide to adopting this approach in your own workflows. By leveraging the Terranix library
+in conjunction with custom functions I have developed, this post demonstrates how these tools can be
+effectively harmonized with the Snowfall library.
+
+Before proceeding, I must acknowledge that I do not position myself as a Terraform expert. My reservations
+about "the cloud" stem largely from its potential for high costs and the simplicity of achieving similar
+outcomes using personal hardware, where I prefer to learn and experiment on my own systems. Nevertheless
+, the utility of cloud infrastructure in certain scenarios cannot be dismissed, and it is imperative
+to equip ourselves with tools that enable efficient and secure interaction with such environments. This
+post assumes a perspective rooted in organizational DevSecOps practices, aiming to enhance both operational
+efficiency and security posture.
+
+The primary advantage of employing Nix in conjunction with Terraform lies in its capacity to significantly
+reduce the volume of code required while simultaneously enhancing reusability. By modularizing configurations
+and embracing Nix’s declarative paradigm, Terraform can be transformed into a streamlined and maintainable
+component of your infrastructure management strategy. This integration not only minimizes complexity
+but also fosters a more robust and scalable approach to infrastructure as code. Let us embark on this
+exploration together.
+
 - Briefly introduce the challenges of managing Terraform configurations.
 - Highlight the benefits of integrating Terranix with Nix Flakes.
 - Overview of what the post will cover.
