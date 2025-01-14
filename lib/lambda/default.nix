@@ -240,7 +240,7 @@ with lib; rec {
 
         # Tag and push the Docker image
         ${
-          lib.cyclops.pushDockerImage {
+          lib.campground.pushDockerImage {
             inherit pkgs;
             dockerImage = lambdaImg;
           }
