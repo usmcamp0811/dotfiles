@@ -8,7 +8,8 @@ let cfg = config.aws.lambda.weather-job;
 in {
   options.aws.lambda.weather-job = {
     enable = mkBoolOpt false "Enable the Example Lambda Job";
-    registry-name = mkOpt str "ata-ecr" "The name of the registry to use";
+    registry-name =
+      mkOpt str "campground_ecr" "The name of the registry to use";
     variables = mkOpt (types.attrsOf types.str)
       {
         LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
