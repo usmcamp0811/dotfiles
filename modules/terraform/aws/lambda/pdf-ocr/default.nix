@@ -3,12 +3,13 @@ with lib;
 with lib.campground;
 with types;
 
-let cfg = config.aws.lambda.pdf_ocr;
+let cfg = config.aws.lambda.pdf-ocr;
 
 in {
-  options.aws.lambda.pdf_ocr = {
+  options.aws.lambda.pdf-ocr = {
     enable = mkBoolOpt false "Enable the Example Lambda Job";
-    registry-name = mkOpt str "campground_ecr" "The name of the registry to use";
+    registry-name =
+      mkOpt str "campground_ecr" "The name of the registry to use";
     variables = mkOpt (types.attrsOf types.str)
       {
         INPUT_BUCKET = "input-bucket-name";
@@ -28,7 +29,7 @@ in {
       lambda = {
         enable = true;
         jobs = {
-          pdf_ocr = {
+          pdf-ocr = {
             lambda-image = pkgs.campground.aws_textract_job;
             registry-name = cfg.registry-name;
             environment.variables = cfg.variables;
@@ -101,7 +102,7 @@ in {
         bucket = cfg.variables.INPUT_BUCKET;
         lambda_function = [{
           lambda_function_arn =
-            config.resource.aws_lambda_function.pdf_ocr "arn";
+            config.resource.aws_lambda_function.pdf-ocr "arn";
           events = [ "s3:ObjectCreated:*" ];
         }];
         depends_on = [ "aws_lambda_permission.allow_s3_trigger" ];
@@ -112,7 +113,7 @@ in {
         statement_id = "AllowS3Trigger";
         action = "lambda:InvokeFunction";
         function_name =
-          config.resource.aws_lambda_function.pdf_ocr.function_name;
+          config.resource.aws_lambda_function.pdf-ocr.function_name;
         principal = "s3.amazonaws.com";
         source_arn = "arn:aws:s3:::${cfg.variables.INPUT_BUCKET}";
       };
