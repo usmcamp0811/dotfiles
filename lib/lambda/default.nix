@@ -240,11 +240,11 @@ with lib; rec {
 
         # Tag and push the Docker image
         ${
-          lib.campground.pushDockerImage {
+          lib.cyclops.pushDockerImage {
             inherit pkgs;
             dockerImage = lambdaImg;
           }
-        }/bin/push-docker-image --image-name="$1" --tag="${lambdaImg.imageName}"
+        }/bin/push-docker-image --image-name="$1" --tag="${lambdaImg.imageName}-latest"
       '';
     in
     buildPushScript;

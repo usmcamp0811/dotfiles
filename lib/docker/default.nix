@@ -3,6 +3,7 @@ with lib; rec {
   pushDockerImage = { pkgs, dockerImage }:
     let
       pushDockerImageScript = pkgs.writeShellScriptBin "push-docker-image" ''
+        set -x
         # Default image name and tag from provided dockerImage metadata
         defaultImageName="${dockerImage.imageName}"
         defaultTag="${dockerImage.imageTag}"
