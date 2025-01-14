@@ -121,6 +121,7 @@ in {
         name = "iam_for_lambda";
         assume_role_policy =
           config.data.aws_iam_policy_document.assume_role "json";
+        depends_on = [ "resource.aws_iam_role.iam_for_lambda" ];
       };
 
       aws_iam_role_policy = {
@@ -128,6 +129,7 @@ in {
           name = "s3_access_policy";
           role = config.resource.aws_iam_role.iam_for_lambda.name;
           policy = config.data.aws_iam_policy_document.s3_policy "json";
+          depends_on = [ "resource.aws_iam_role.iam_for_lambda" ];
         };
 
         logging_policy = {
@@ -135,12 +137,14 @@ in {
           role = config.resource.aws_iam_role.iam_for_lambda.name;
           policy =
             config.data.aws_iam_policy_document.lambda_logging_policy "json";
+          depends_on = [ "resource.aws_iam_role.iam_for_lambda" ];
         };
 
         lambda_policy = {
           name = "lambda_policy";
           role = config.resource.aws_iam_role.iam_for_lambda.name;
           policy = config.data.aws_iam_policy_document.lambda_policy "json";
+          depends_on = [ "resource.aws_iam_role.iam_for_lambda" ];
         };
       };
     };

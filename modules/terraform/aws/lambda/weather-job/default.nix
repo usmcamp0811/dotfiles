@@ -58,6 +58,7 @@ in {
         name = "s3_access_policy";
         role = config.resource.aws_iam_role.iam_for_lambda.name;
         policy = config.data.aws_iam_policy_document.s3_policy "json";
+        depends_on = [ "resource.aws_iam_role.iam_for_lambda" ];
       };
     };
   };
