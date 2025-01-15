@@ -272,6 +272,91 @@ in Terraform. The advantage lies in Nix's powerful abstraction capabilities, whi
 sharing, and reusing configurations. The other parts of this file consist of custom modules that I have
 created and integrated here; I will discuss these modules in greater detail later.
 
+If you wanted to organize all of your Terranix in this package folder you could and you wouldn't need
+my wrapper functions but it might be a little more complex to import them into other Flakes.
+
+### Library Functions Explained
+
+A quick refresher: all library functions for Snowfall-based flakes go in the `./lib` folder. I put the
+functions for Terranix in `./lib/terranix/default.nix`.
+
+**`findDefaultNixFiles`**
+
+I created this function to find nested `default.nix` files in a directory structure, similar to how Snowfall
+organizes its NixOS modules. While there may already be a Snowfall function for this, I decided to write
+my own after a brief search didn’t yield results. This function takes a folder path and returns a list
+of paths to all `default.nix` files within it. This is particularly useful for organizing Terraform/Terranix
+modules under the `./modules/terraform` folder, mirroring Snowfall’s conventions for `nixos`, `home`,
+and `darwin` modules. As I refine my ideas around using Terranix, I may eventually propose incorporating
+them into Snowfall proper.
+
+```nix
+findDefaultNixFiles = path:
+  let
+    scanDir = dir:
+      let
+        entries = builtins.readDir dir;
+        files = builtins.filter
+          (name:
+            let entry = entries.${name};
+            in entry == "regular" && builtins.match ".*default\\.nix$" name != null)
+          (builtins.attrNames entries);
+        filePaths = builtins.map (file: "${dir}/${file}") files;
+        subDirs = builtins.filter
+          (name: let entry = entries.${name}; in entry == "directory")
+          (builtins.attrNames entries);
+        subDirPaths = builtins.concatLists
+          (builtins.map (subDir: scanDir "${dir}/${subDir}") subDirs);
+      in
+      filePaths ++ subDirPaths;
+  in
+  scanDir path;
+```
+
+Currently I export the modules discovered with this function as a list of file paths that
+can easily be imported into other flakes. I would like to be able load them and have them
+indexable like `nixosConfigurations` but I haven't figured out how to correctly do that yet.
+
+```nix
+outputs = inputs:
+  let
+    inherit (inputs) deploy-rs;
+    lib = inputs.snowfall-lib.mkLib {
+      inherit inputs;
+      src = ./.;
+      snowfall = {
+        meta = {
+          name = "initech";
+          title = "Initech Demo Codebase";
+        };
+
+        namespace = "initech";
+      };
+    };
+  in lib.mkFlake {
+    channels-config = { allowUnfree = true; };
+
+    terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
+    overlays = with inputs; [
+      poetry2nix.overlays.default
+      devshell.overlays.default
+    ];
+  };
+```
+
+**`terranixConfiguration`**
+
+This is a
+
+```nix
+  terranixConfiguration = { pkgs, system, extraArgs ? { }, modules }:
+    inputs.terranix.lib.terranixConfiguration {
+      inherit system;
+      extraArgs = { inherit lib pkgs; } // extraArgs;
+      modules = findDefaultNixFiles ../../modules/terraform ++ modules;
+    };
+```
+
 #### **Setting Up Your Flake for Terranix**
 
 1. Overview of prerequisites (e.g., Nix, Terranix, Terraform).

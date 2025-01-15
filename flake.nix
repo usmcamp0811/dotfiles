@@ -333,6 +333,7 @@
         # };
 
       };
+      terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
 
       templates = {
         basic = {
