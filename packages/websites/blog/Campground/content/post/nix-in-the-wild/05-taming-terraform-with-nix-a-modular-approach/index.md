@@ -27,10 +27,6 @@ series:
   - Nix in the Wild
 ---
 
-### **General Outline for the Blog Post**
-
-#### **Introduction**
-
 Welcome back to my ongoing series, _Nix in the Wild_, where I delve into the practical applications of
 Nix within organizational contexts, using the fictional company Initech as a narrative framework. In
 this installment, I will explore the integration of Terraform into Snowfall-lib-based Nix flakes, offering
@@ -66,7 +62,7 @@ component of your infrastructure management strategy. This integration not only 
 but also fosters a more robust and scalable approach to infrastructure as code. Let us embark on this
 exploration together.
 
-#### **What is Terranix?**
+# What is Terranix?
 
 My discovery of Terranix began when I started a new project requiring deeper engagement with cloud infrastructure.
 Up to that point, my experience with Terraform was limited to minor adjustments in existing projects,
@@ -93,12 +89,188 @@ to experimenting with Terranix and exploring its potential to streamline my work
 not only addressed my initial concerns but also opened new possibilities for simplifying and enhancing
 Terraform projects. Let’s dive into what makes Terranix such a compelling tool.
 
+### Addressing Terraform’s Verbosity
 
+One of the most immediate benefits of Terranix is its ability to reduce Terraform's verbosity.
+Instead of defining variables in multiple places within Terraform, you can leverage Nix variables directly.
+Additionally, Terranix allows you to utilize Nix functions and modules to further streamline and simplify
+Terraform configurations, making them more concise and easier to manage.
 
-#### **Why Use Terranix with Nix Flakes?**
+### Enhancing Reusability
 
-- Advantages of combining Terranix with Nix Flakes.
-- Key features of the Snowfall approach for modular organization.
+Terranix makes it straightforward to create reusable modules, eliminating the need to copy and paste
+code across projects. With Terranix, you can define and share modules as part of your Nix configuration,
+enabling better modularity and reducing redundancy across projects.
+
+### Seamless Integration into Nix Workflows
+
+Terranix integrates naturally into Nix-based workflows, aligning with the declarative and reproducible
+philosophy of Nix. This integration allows for seamless transitions between managing Nix and Terraform
+configurations, providing a unified approach to infrastructure management.
+
+## How to Use Terranix
+
+Reading through the Terranix [documentation](https://terranix.org/documentation/getting-started.html)
+helped me get up to speed with writing basic, non-module configurations quickly. However, I found myself
+questioning whether this approach truly offered an improvement over standard Terraform workflows. While
+the [documentation](https://terranix.org/documentation/modules.html) emphasized modules as a key feature, the process for effectively utilizing them wasn’t
+immediately clear. In this section, I will clarify how to work with modules in Terranix, explaining
+it in simpler terms based on my own experiences.
+
+**Update `flake.nix`**
+
+The first thing we need to do is add `"github:terranix/terranix"` to the `inputs` section of our `flake.nix`
+
+```nix
+inputs = {
+  nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+  unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+
+  snowfall-lib = {
+    url = "github:snowfallorg/lib";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  devshell.url = "github:numtide/devshell";
+
+  nix-tutor.url = "gitlab:usmcamp0811/nix-tutor";
+
+  poetry2nix.url = "github:nix-community/poetry2nix";
+
+  terranix.url = "github:terranix/terranix"; # <-- We added this right here
+};
+```
+
+### Create a Terraform Package
+
+The way that we use Terranix is as just another Nix "package". This means that we create a
+new folder in the `./packages` directory. I am going to call this `cloud-infrastructure`
+you can call it whatever makes the most sense to you. In this folder we add out standard
+`default.nix` file and at least one additional Nix file, in this case I am calling it `terranix.nix`.
+In this file is going to be your Terranix configuration.
+
+```nix
+├──  packages
+│   ├──  cloud-infrastructure
+│   │   ├──  default.nix
+│   │   └──  terranix.nix
+```
+
+I am going to show what goes in your `default.nix` and `terranix.nix` files and work backwards
+from there explaining why I did certain things.
+
+**`default.nix`**
+
+```nix
+{ lib, pkgs, system, ... }:
+with lib.initech;
+mkTerranixDerivation {
+  inherit pkgs system;
+  modules = [ ./terranix.nix ];
+}
+```
+
+What this is, is simply a helper function I created that wraps the Terranix function `terranixConfiguration`
+and adds to it a couple of pass through things for creating a state s3 bucket for managing Terraform state,
+applying and destroying your Terraform. This is because all the `terranixConfiguration` function really does
+for us is convert Nix configurations into Terraform `json`. The main thing that this function takes in as
+an argument is a list of Nix files that contain our Terranix configurations.
+
+**`terranix.nix`**
+
+```nix
+{ config, pkgs, ... }: {
+  config.data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
+  config.provider.aws.region = "us-east-1";
+  config.backend.s3 = {
+    bucket = "initech-state-bucket";
+    key = "state/terraform.tfstate";
+    region = "us-east-1";
+  };
+  config.aws = {
+    storage = {
+      s3 = {
+        enable = true;
+        defaultIpWhiteList = [ ];
+        buckets = { initech-input-bucket = { enable = true; }; };
+      };
+      ecr = {
+        enable = true;
+        registeries = [{ name = "my-main-ecr"; }];
+      };
+    };
+
+    lambda = {
+      jobs.another-example-job = {
+        lambda-image = pkgs.initech.aws-lambda-image;
+        environment.variables = {
+          LATITUDE = "38.9072";
+          LONGITUDE = "-77.0369";
+          S3_BUCKET = "initech-output-bucket";
+          S3_KEY = "forecasts/washington_dc_forecast.json";
+        };
+      };
+      pdf-ocr = {
+        enable = true;
+        variables = {
+          INPUT_BUCKET = "initech-input-bucket";
+          OUTPUT_BUCKET = "initech-output-bucket";
+        };
+      };
+      weather-job = {
+        enable = true;
+        variables = {
+          LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
+          LONGITUDE = "-79.9959"; # Longitude for Pittsburgh, PA
+          S3_BUCKET = "initech-output-bucket";
+          S3_KEY = "forecasts/pittsburgh_forecast.json";
+        };
+      };
+    };
+  };
+}
+```
+
+This file introduces more complexity compared to our `default.nix`, but when broken down, it becomes
+manageable. The key takeaway here is that this file serves as the central location for defining Terranix
+configurations, enabling Terranix modules, or doing both, as demonstrated in this example.
+
+By examining the following Nix snippet, we can begin to understand how Terranix simplifies Terraform workflows:
+
+```nix
+config.data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
+config.provider.aws.region = "us-east-1";
+config.backend.s3 = {
+  bucket = "initech-state-bucket";
+  key = "state/terraform.tfstate";
+  region = "us-east-1";
+};
+```
+
+If you are familiar with Terraform, the corresponding HCL equivalent may look familiar:
+
+```hcl
+data "http" "public_ip" {
+  url = "http://checkip.amazonaws.com/"
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+terraform {
+  backend "s3" {
+    bucket = "initech-state-bucket"
+    key    = "state/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+```
+
+This comparison illustrates how Terranix leverages Nix to represent configurations typically written
+in Terraform. The advantage lies in Nix's powerful abstraction capabilities, which simplify managing,
+sharing, and reusing configurations. The other parts of this file consist of custom modules that I have
+created and integrated here; I will discuss these modules in greater detail later.
 
 #### **Setting Up Your Flake for Terranix**
 
