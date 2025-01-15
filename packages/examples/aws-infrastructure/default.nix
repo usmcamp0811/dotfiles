@@ -1,8 +1,6 @@
-{ lib, pkgs, inputs, system, ... }:
-with lib;
+{ lib, pkgs, system, ... }:
 with lib.campground;
 mkTerranixDerivation {
   inherit pkgs system;
-  extraArgs = { inherit pkgs; };
   modules = [ ./example.nix ];
 }

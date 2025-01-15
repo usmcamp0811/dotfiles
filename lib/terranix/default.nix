@@ -42,10 +42,10 @@ with lib; rec {
   # ```nix
   # terranixConfiguration { system = "x86_64-linux"; modules = ["./myModule.nix"]; }
   # ```
-  terranixConfiguration = { system, extraArgs ? { }, modules }:
+  terranixConfiguration = { pkgs, system, extraArgs ? { }, modules }:
     inputs.terranix.lib.terranixConfiguration {
       inherit system;
-      extraArgs = { inherit lib; } // extraArgs;
+      extraArgs = { inherit lib pkgs; } // extraArgs;
       modules = findDefaultNixFiles ../../modules/terraform ++ modules;
     };
 
@@ -72,7 +72,7 @@ with lib; rec {
   mkTerranixDerivation = { pkgs, system, extraArgs ? { }, modules }:
     let
       terraformConfiguration =
-        terranixConfiguration { inherit system extraArgs modules; };
+        terranixConfiguration { inherit pkgs system extraArgs modules; };
 
       # Generates the Terraform JSON configuration.
       tf-json = pkgs.writeShellScriptBin "default" ''
