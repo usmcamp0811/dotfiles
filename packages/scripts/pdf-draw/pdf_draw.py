@@ -20,21 +20,37 @@ def parse_args():
         type=str,
         help="Path to the output JSON file to save the labeled boxes.",
     )
+    parser.add_argument(
+        "--page", type=int, default=1, help="Page number to display (default is 1)."
+    )
     return parser.parse_args()
 
 
 # Function to save labeled boxes as JSON
-def save_boxes_incrementally(boxes, output_json):
+def save_boxes_incrementally(boxes, output_json, page_number):
+    # Create a dictionary for all pages if it doesn't exist yet
+    if os.path.exists(output_json):
+        with open(output_json, "r") as f:
+            all_boxes = json.load(f)
+    else:
+        all_boxes = {}
+
+    # Add the boxes for the current page
+    all_boxes[page_number] = boxes
+
+    # Save all boxes to the JSON file
     with open(output_json, "w") as f:
-        json.dump(boxes, f, indent=4)
-    print(f"Saved the boxes and labels to {output_json}.")
+        json.dump(all_boxes, f, indent=4)
+    print(f"Saved the boxes and labels to {output_json} for page {page_number}.")
 
 
 # Function to load the JSON file if it exists
-def load_boxes_from_json(output_json):
+def load_boxes_from_json(output_json, page_number):
     if os.path.exists(output_json):
         with open(output_json, "r") as f:
-            return json.load(f)
+            all_boxes = json.load(f)
+        # Return the boxes for the specified page number, default to empty if not found
+        return all_boxes.get(str(page_number), [])
     return []  # Return an empty list if the file doesn't exist
 
 
@@ -44,7 +60,7 @@ def convert_pdf_to_images(pdf_path):
 
 
 # Function to finish drawing the box (capture label and store)
-def finish_draw(event):
+def finish_draw(event, page_number):
     global current_box, current_label, boxes, output_json
     if current_box:
         current_label = simpledialog.askstring("Input", "Label for the box:")
@@ -65,8 +81,8 @@ def finish_draw(event):
                 }
             )
             save_boxes_incrementally(
-                boxes, output_json
-            )  # Save after every box is added
+                boxes, output_json, page_number
+            )  # Pass the page_number to save the boxes for the correct page
 
             # Draw the label immediately after the new box is added
             draw_label(current_label, polygon)  # Pass the polygon as coordinates
@@ -195,24 +211,36 @@ def stop_drawing():
 
 
 # Function to exit the program gracefully
-def exit_program():
-    save_boxes_incrementally(boxes, output_json)  # Save the labels before exiting
+def exit_program(output_json, page_number):
+    save_boxes_incrementally(
+        boxes, output_json, page_number
+    )  # Save the labels for the current page
     sys.exit()  # Exit the program
 
 
 # Main function for interactive labeling
-def interactive_labeling(pdf_path, output_json):
+def interactive_labeling(pdf_path, output_json, page_number):
     images = convert_pdf_to_images(pdf_path)
-    image = images[0]  # For example, process the first page
+
+    # Ensure that the specified page exists in the PDF
+    if page_number <= len(images):
+        image = images[
+            page_number - 1
+        ]  # Convert the 1-based page number to 0-based index
+    else:
+        print(f"Error: Page {page_number} does not exist in the PDF.")
+        return
 
     # Initialize Tkinter for the GUI
     global canvas, current_box, boxes, drawing_active
-    boxes = load_boxes_from_json(output_json)  # Load existing boxes from JSON file
+    boxes = load_boxes_from_json(
+        output_json, page_number
+    )  # Load boxes for the specific page
     current_box = []
     drawing_active = True  # Initially, drawing mode is active
 
     root = Tk()
-    root.title("Interactive Labeling")
+    root.title(f"Interactive Labeling - Page {page_number}")
 
     # Create a scrollable canvas frame
     canvas_frame = Frame(root)
@@ -229,7 +257,7 @@ def interactive_labeling(pdf_path, output_json):
     # Display the image on the canvas
     display_image(image)
 
-    # Draw existing boxes from the loaded JSON
+    # Draw existing boxes from the loaded JSON for the current page
     draw_existing_boxes(boxes)
 
     # Bind mouse events for drawing boxes only if drawing is active
@@ -243,7 +271,7 @@ def interactive_labeling(pdf_path, output_json):
 
     def finish_draw_conditional(event):
         if drawing_active:
-            finish_draw(event)
+            finish_draw(event, page_number)  # Pass page_number to finish_draw
 
     canvas.bind("<ButtonPress-1>", start_draw_conditional)
     canvas.bind("<B1-Motion>", update_draw_conditional)
@@ -257,7 +285,7 @@ def interactive_labeling(pdf_path, output_json):
     save_button = Button(
         button_frame,
         text="Save Labels",
-        command=lambda: save_boxes_incrementally(boxes, output_json),
+        command=lambda: save_boxes_incrementally(boxes, output_json, page_number),
     )
     save_button.pack(side="left", padx=10)
 
@@ -266,7 +294,11 @@ def interactive_labeling(pdf_path, output_json):
     finish_button.pack(side="left", padx=10)
 
     # Add Exit button to quit the program
-    exit_button = Button(button_frame, text="Exit", command=exit_program)
+    exit_button = Button(
+        button_frame,
+        text="Exit",
+        command=lambda: exit_program(output_json, page_number),
+    )
     exit_button.pack(side="right", padx=10)
 
     # Run the Tkinter event loop
@@ -277,4 +309,5 @@ def interactive_labeling(pdf_path, output_json):
 if __name__ == "__main__":
     args = parse_args()
     output_json = args.output_json  # Get output JSON from command-line argument
-    interactive_labeling(args.pdf_path, output_json)
+    page_number = args.page  # Get the page number from the command-line argument
+    interactive_labeling(args.pdf_path, output_json, page_number)
