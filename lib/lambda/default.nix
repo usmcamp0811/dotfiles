@@ -30,6 +30,7 @@ with lib; rec {
     , handler
     , system
     , pkgs
+    , content ? [ ]
     , src ? ./.
     , pythonEnv ? pkgs.python3.withPackages (ps: [ ps.awslambdaric ])
     }:
@@ -215,7 +216,7 @@ with lib; rec {
     in
     pkgs.dockerTools.buildLayeredImage
       {
-        inherit name;
+        inherit name content;
         config = {
           EntryPoint = [ "${pythonEnv}/bin/python" "-m" "awslambdaric" ];
 
