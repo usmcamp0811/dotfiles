@@ -32,23 +32,6 @@ with lib; rec {
     in
     scanDir path;
 
-  # Generates a Terranix configuration.
-  #
-  # @param system The system identifier (e.g., "x86_64-linux").
-  # @param extraArgs Optional additional arguments to pass to the configuration.
-  # @param modules A list of module paths to include in the configuration.
-  #
-  # Example:
-  # ```nix
-  # terranixConfiguration { system = "x86_64-linux"; modules = ["./myModule.nix"]; }
-  # ```
-  terranixConfiguration = { pkgs, system, extraArgs ? { }, modules }:
-    inputs.terranix.lib.terranixConfiguration {
-      inherit system;
-      extraArgs = { inherit lib pkgs; } // extraArgs;
-      modules = findDefaultNixFiles ../../modules/terraform ++ modules;
-    };
-
   # Creates a derivation to manage Terraform configurations via Terranix.
   #
   # @param pkgs The package set to use for dependencies.
@@ -71,8 +54,11 @@ with lib; rec {
   # ```
   mkTerranixDerivation = { pkgs, system, extraArgs ? { }, modules }:
     let
-      terraformConfiguration =
-        terranixConfiguration { inherit pkgs system extraArgs modules; };
+      terraformConfiguration = inputs.terranix.lib.terranixConfiguration {
+        inherit system;
+        extraArgs = { inherit lib pkgs; } // extraArgs;
+        modules = findDefaultNixFiles ../../modules/terraform ++ modules;
+      };
 
       # Generates the Terraform JSON configuration.
       tf-json = pkgs.writeShellScriptBin "default" ''

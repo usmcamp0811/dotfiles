@@ -344,34 +344,88 @@ outputs = inputs:
   };
 ```
 
-**`terranixConfiguration`**
+If you wanted to use modules exported from a flake like this you can use it like this with the vanilla Terranix function:
 
-This is a
+```
+inputs.terranix.lib.terranixConfiguration {
+        inherit system;
+        modules = [ ./config.nix ] ++ inputs.campground.terranixModule.modules;
+      };
+```
+
+And you would enable/configure the modules from the `campground` input flake the same way you would as we are about to cover.
+
+**`mkTerranixDerivation`**
+
+As I mentioned earlier this is just a wrapper around the main Terranix function for creating a Terraform configuration.
+It also provides the compiled Terraform `json` and passthrus for running Terraform.
 
 ```nix
-  terranixConfiguration = { pkgs, system, extraArgs ? { }, modules }:
-    inputs.terranix.lib.terranixConfiguration {
+mkTerranixDerivation = { pkgs, system, extraArgs ? { }, modules }:
+  let
+    terraformConfiguration = inputs.terranix.lib.terranixConfiguration {
       inherit system;
       extraArgs = { inherit lib pkgs; } // extraArgs;
       modules = findDefaultNixFiles ../../modules/terraform ++ modules;
     };
+
+    # Generates the Terraform JSON configuration.
+    tf-json = pkgs.writeShellScriptBin "default" ''
+      cat ${terraformConfiguration} | ${pkgs.jq}/bin/jq
+    '';
+
+    # Applies the Terraform configuration.
+    apply = pkgs.writeShellScriptBin "apply" ''
+      if [[ -e config.tf.json ]]; then rm -f config.tf.json; fi
+      cp ${terraformConfiguration} config.tf.json \
+        && ${pkgs.terraform}/bin/terraform init \
+        && ${pkgs.terraform}/bin/terraform apply
+    '';
+
+    # Destroys the Terraform-managed resources.
+    destroy = pkgs.writeShellScriptBin "destroy" ''
+      if [[ -e config.tf.json ]]; then rm -f config.tf.json; fi
+      cp ${terraformConfiguration} config.tf.json \
+        && ${pkgs.terraform}/bin/terraform init \
+        && ${pkgs.terraform}/bin/terraform destroy
+    '';
+
+    # Creates an S3 bucket for Terraform state storage.
+    create-state-bucket = pkgs.writeShellScriptBin "create-state-bucket" ''
+      set -euo pipefail
+
+      BUCKET_NAME=''${1:-"campground-state-bucket"}
+      AWS_REGION=''${2:-"us-east-1"}
+
+      echo "Creating S3 bucket $BUCKET_NAME in region $AWS_REGION..."
+
+      ${pkgs.awscli}/bin/aws s3api create-bucket \
+        --bucket "$BUCKET_NAME" \
+        --region "$AWS_REGION" \
+        $(if [ "$AWS_REGION" != "us-east-1" ]; then echo "--create-bucket-configuration LocationConstraint=$AWS_REGION"; fi)
+
+      echo "Enabling versioning on the bucket $BUCKET_NAME..."
+      ${pkgs.awscli}/bin/aws s3api put-bucket-versioning \
+        --bucket "$BUCKET_NAME" \
+        --versioning-configuration Status=Enabled
+
+      echo "Setting default encryption on the bucket $BUCKET_NAME..."
+      ${pkgs.awscli}/bin/aws s3api put-bucket-encryption \
+        --bucket "$BUCKET_NAME" \
+        --server-side-encryption-configuration '{
+          "Rules": [{
+            "ApplyServerSideEncryptionByDefault": {
+              "SSEAlgorithm": "AES256"
+            }
+          }]
+        }'
+
+      echo "Bucket $BUCKET_NAME setup is complete."
+    '';
+  in tf-json // { inherit apply destroy create-state-bucket; };
 ```
 
-#### **Setting Up Your Flake for Terranix**
-
-1. Overview of prerequisites (e.g., Nix, Terranix, Terraform).
-2. Example `flake.nix` snippet showing how to include Terranix.
-3. Explanation of directory structure for Terraform modules.
-
-#### **Key Functions for Terranix Integration**
-
-- Detailed walkthrough of each function:
-  1. **`findDefaultNixFiles`**: What it does and usage example.
-  2. **`terranixConfiguration`**: Simplifying configuration management.
-  3. **`mkTerranixDerivation`**: Generating and managing Terraform configurations.
-- Include practical examples for each function.
-
-#### **Building and Organizing Terraform Modules**
+### **Building and Organizing Terraform Modules**
 
 - Demonstrate how to create a basic Terraform module (`default.nix` example).
 - Best practices for organizing modules in `./modules/terraform`.
