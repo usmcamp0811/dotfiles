@@ -1,7 +1,7 @@
 ---
 author: Matt Camp
 title: 'Nix in the Wild: Taming Terraform with Nix: A Modular Approach'
-date: 2025-01-20
+date: 2025-01-11
 image: taming-terraform-nix-sm.png
 description: 'Explore how to simplify and modularize your Terraform configurations using Terranix and Nix Flakes. This post covers essential functions, directory structures, and practical examples to streamline your Infrastructure as Code workflow.'
 slug: taming-terraform-with-nix-a-modular-approach
@@ -652,24 +652,11 @@ This configuration demonstrates how to customize the module by:
 
 ---
 
-With this structure, your Terraform modules become modular, reusable, and easy to integrate. In the next
-section, we’ll explore how to run and test your Terranix configurations effectively.
+### Deploying Cloud Infrastructure
 
-#### **Why Use Options?**
-
-Using options provides several benefits:
-
-1. **Consistency**: Ensures that module configuration follows a clear, predictable pattern.
-2. **Reusability**: Allows modules to be used in different projects with minimal changes.
-3. **Validation**: Automatically validates input values against the specified types.
-4. **Clarity**: The metadata (e.g., descriptions) makes it easier to understand what each option does.
-
----
-
-By leveraging options, you can make your Terraform modules more user-friendly and adaptable, empowering teams to build infrastructure configurations with confidence. In the next section, we’ll explore how to integrate these modules into a real-world setup.
-
-- Demonstrate how to create a basic Terraform module (`default.nix` example).
-- Best practices for organizing modules in `./modules/terraform`.
+When using the `mkTerranixDerivation` function you can use the `create-state-bucket` passthru to easily create a S3 bucket.
+The bucket is where you can store the state of your Terraform. To be clear, the utilization of the bucket is not automatic, you will need
+to reference it in your Terraform/Terranix config. The
 
 #### **Applying and Managing Terraform Configurations**
 
