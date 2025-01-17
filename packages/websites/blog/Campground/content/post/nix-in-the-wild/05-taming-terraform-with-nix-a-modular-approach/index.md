@@ -427,6 +427,247 @@ mkTerranixDerivation = { pkgs, system, extraArgs ? { }, modules }:
 
 ### **Building and Organizing Terraform Modules**
 
+In this blog series, I haven’t yet covered [NixOS modules in the Snowfall library](https://www.youtube.com/watch?v=ARjAsEJ9WVY&list=PLCNla0W4k0xtpObkpw2xOwWVS24-e3kvL&index=2), but that’s coming soon—consider
+this a gentle introduction. Since NixOS and Home Manager modules are stored in the
+`./modules` directory, it felt natural to use the same directory for Terraform modules. Given that
+Terraform supports multiple providers, I’ve chosen a structure like `./modules/<provider>/...`
+to keep things organized and scalable for multi-cloud environments. For the purpose of this post, I’ll
+focus on building a couple of AWS modules to illustrate the approach.
+
+### **NixOS Module System Explained**
+
+The NixOS module system is relatively straightforward once you understand one key concept about the Nix
+language: **attribute sets can be merged together to create a superset**. This means that if you have
+multiple files, each defining an attribute set (e.g., `config`), and you import them all into your `flake.nix`,
+Nix will automatically merge them into a single, combined set. Let’s break it down with an example:
+
+---
+
+**File A** defines the following attribute set:
+
+```nix
+{
+  config = {
+    a = "something";
+    w = {
+      something = "in file A";
+    };
+  };
+}
+```
+
+**File B** defines a different attribute set but also includes some overlapping structure:
+
+```nix
+{
+  config = {
+    s = "more stuff";
+    w.somethingelse = "in file B";
+  };
+}
+```
+
+When both files are imported into your `flake.nix` or another Nix module, Nix will merge them into a
+single `config` attribute set. The result would look like this:
+
+```nix
+{
+  config = {
+    a = "something";
+    s = "more stuff";
+    w = {
+      something = "in file A";
+      somethingelse = "in file B";
+    };
+  };
+}
+```
+
+Notice how the values are combined—Nix doesn’t overwrite existing values unless explicitly told to. Instead,
+it intelligently merges the structure, appending new attributes wherever necessary.
+
+---
+
+This merging behavior is the foundation of the NixOS module system. It allows you to split configuration
+across multiple files, keeping things modular and organized. For example, you could have separate files
+for system services, user configurations, and application-specific settings, and Nix will seamlessly combine them.
+
+Now that you understand how the module system works, let’s see how we can apply a similar approach to Terraform modules.
+
+---
+
+### **Creating a Basic Terraform Module**
+
+A Terraform module in Nix is essentially a `default.nix` file that defines the configuration for a specific
+resource or group of resources. Here’s an example of a basic Terraform module for creating an S3 bucket:
+
+**`default.nix`**
+
+```nix
+{ config, pkgs, ... }: {
+  config.aws.storage.s3 = {
+    enable = true;
+    region = "us-east-1";
+    buckets = [ "example-bucket" "logs-bucket" ];
+    tags = {
+      project = "example-project";
+      environment = "production";
+    };
+  };
+}
+```
+
+This file defines a module for configuring S3 buckets, specifying attributes like the region, bucket
+names, and tags. When this module is imported into a larger configuration, it will seamlessly integrate
+with other modules using the same merging mechanism explained above.
+
+By organizing your Terraform modules like this, you can reuse and combine them to build more complex
+infrastructure configurations while keeping things clean and maintainable.
+
+### **Using Options to Customize Modules**
+
+One of the most powerful features of the NixOS module system is the ability to define **options**. Options
+provide a consistent interface for configuring modules, making it easier to customize behavior without
+editing the module’s internals. Let’s explore how options work and how to use them effectively in your
+Terraform modules.
+
+---
+
+#### **What Are Options?**
+
+Options are configuration parameters enriched with metadata that define how a module behaves. They specify:
+
+- **Name**: The key used to set the value in your configuration.
+- **Type**: The expected data type (e.g., string, boolean, list).
+- **Default Value**: A fallback value applied if none is explicitly provided.
+- **Description**: A brief explanation of the option’s purpose.
+
+By defining options, you provide a clear and consistent interface for users, making modules easier to
+configure and integrate into projects.
+
+> **Note:** You can set the `default` value of an option to depend on other parts of your configuration.
+> This allows modules to work seamlessly together by default while still enabling customization for scenarios
+> that require deviations from the standard setup. Additionally, modules can enable dependent modules automatically,
+> ensuring that all necessary dependencies are configured without manual intervention.
+
+---
+
+#### **Defining Options in a Terraform Module**
+
+Here’s an example of how to define options in a Terraform module for managing S3 buckets:
+
+**`default.nix`**
+
+```nix
+{ config, lib, ... }: with lib;
+
+{
+  options.aws.storage.s3 = {
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable or disable S3 bucket creation.";
+    };
+
+    region = mkOption {
+      type = types.str;
+      default = "us-east-1";
+      description = "The AWS region for the S3 buckets.";
+    };
+
+    buckets = mkOption {
+      type = types.listOf types.str;
+      default = [];
+      description = "List of S3 bucket names to create.";
+    };
+
+    tags = mkOption {
+      type = types.attrsOf types.str;
+      default = {};
+      description = "Tags to apply to all S3 buckets.";
+    };
+  };
+}
+```
+
+This example defines several options:
+
+- `enable`: A boolean to toggle bucket creation.
+- `region`: A string specifying the AWS region.
+- `buckets`: A list of bucket names.
+- `tags`: A set of key-value pairs for tagging the buckets.
+
+---
+
+#### **Using the Options**
+
+To use these options, create a configuration file in your Terranix package directory and include it in
+the `modules` list of your `mkTerranixDerivation` function. Here's an example configuration:
+
+**`./packages/cloud-infrastructure/terranix.nix`**
+
+```nix
+{ config, pkgs, ... }: {
+  config = {
+    data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
+    provider.aws.region = "us-east-1";
+    backend.s3 = {
+      bucket = "initech-state-bucket"; # Use a single bucket for state storage
+      key = "state/terraform.tfstate";
+      region = "us-east-1";
+    };
+    aws = {
+      storage = {
+        s3 = {
+          enable = true;
+          defaultIpWhiteList = [ ];
+          buckets = {
+            TPS-reports-bucket = { enable = true; };
+          };
+        };
+      };
+      lambda = {
+        pdf-ocr = {
+          enable = true;
+          variables = {
+            INPUT_BUCKET = "TPS-reports-bucket";
+            OUTPUT_BUCKET = "initech-output-bucket";
+          };
+        };
+      };
+    };
+  };
+}
+```
+
+This configuration demonstrates how to customize the module by:
+
+- Enabling S3 bucket creation.
+- Specifying `us-east-1` as the AWS region.
+- Creating an S3 bucket named `TPS-reports-bucket`.
+- Defining Lambda functions with bucket-related environment variables.
+
+> **Note:** If you examine the `./modules/terraform/aws/lambda/pdf-ocr` module, you’ll see that the `initech-output-bucket` is
+> created automatically because the `s3` module is invoked within the `pdf-ocr` module.
+
+---
+
+With this structure, your Terraform modules become modular, reusable, and easy to integrate. In the next
+section, we’ll explore how to run and test your Terranix configurations effectively.
+
+#### **Why Use Options?**
+
+Using options provides several benefits:
+
+1. **Consistency**: Ensures that module configuration follows a clear, predictable pattern.
+2. **Reusability**: Allows modules to be used in different projects with minimal changes.
+3. **Validation**: Automatically validates input values against the specified types.
+4. **Clarity**: The metadata (e.g., descriptions) makes it easier to understand what each option does.
+
+---
+
+By leveraging options, you can make your Terraform modules more user-friendly and adaptable, empowering teams to build infrastructure configurations with confidence. In the next section, we’ll explore how to integrate these modules into a real-world setup.
+
 - Demonstrate how to create a basic Terraform module (`default.nix` example).
 - Best practices for organizing modules in `./modules/terraform`.
 
