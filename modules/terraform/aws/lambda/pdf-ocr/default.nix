@@ -30,7 +30,7 @@ in {
         enable = true;
         jobs = {
           pdf-ocr = {
-            lambda-image = pkgs.campground.aws_textract_job;
+            lambda-image = pkgs.campground.aws-textract-job;
             registry-name = cfg.registry-name;
             environment.variables = cfg.variables;
             timeout = 600;
