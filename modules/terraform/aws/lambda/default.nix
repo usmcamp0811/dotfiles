@@ -24,7 +24,7 @@ in
     jobs = mkOption {
       type = types.attrsOf (types.submodule {
         options = {
-          lambda-image = mkOpt package pkgs.cyclops.aws-lambda-image
+          lambda-image = mkOpt package pkgs.campground.aws-lambda-image
             "The lambda image to use for the job";
           registry-name =
             mkOpt str "campground_ecr" "The name of the registry to use";
