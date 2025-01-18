@@ -29,24 +29,23 @@ series:
 
 # Taming Terraform with Nix
 
-Welcome back to _Nix in the Wild_, a series exploring real-world applications of Nix within organizations.,
+Welcome back to _Nix in the Wild_, a series exploring real-world applications of Nix within organizations,
 using the fictional company Initech as a narrative framework. In this installment, I will explore the integration
-of Terraform into Snowfall-lib-based Nix flakes, offering a comprehensive guide to adopting this approach in
-your own workflows. By leveraging the [Terranix](https://terranix.org/) library alongside custom functions
-I’ve written, I'll demonstrate how I was able to integrate Terraform seamlessly with the
-[Snowfall library](https://snowfall.org/guides/lib/quickstart/) to create a unified,
-efficient workflow for managing infrastructure as code.
+of Terraform into the Initech Snowfall-lib-based flake, offering a comprehensive guide to adopting this approach in
+your own workflows. By integrating the [Terranix](https://terranix.org/) library with custom functions, I have established
+a foundation for a unified software and infrastructure framework. This framework enables organizations
+to seamlessly develop, test, and deploy both applications and the infrastructure they depend on.
 
-Before proceeding, I want to share that I am relatively inexperienced with Terraform, so take what I
-say on it with a grain of salt. I have historically avoided cloud things due to there potential for high
-costs and the simplicity of hacking away on my home lab, but I recognize the necessity to have cloud
-capabilities in your toolbox.
+Before we dive in, a quick disclaimer: I’m relatively new to Terraform, so take my thoughts on it with
+a grain of salt. I’ve mostly avoided cloud-related tools in the past because of the potential for high
+costs and the simplicity of working in my home lab. That said, I recognize the importance of having cloud
+skills in any business or large organization.
 
-I will provide a brief introduction to the NixOS module system for those unfamiliar with it. This will
-set the stage to demonstrate how I seamlessly integrated Terranix into the Snowfall structure for organizing
-flakes. By defining resources such as Lambda functions or EC2 images directly within Nix configurations,
-we can seamlessly integrate these definitions into Terraform workflows, bridging the gap between declarative
-configuration and practical cloud resource management.
+I’ll start with a quick intro to the NixOS module system for anyone who’s not familiar with it. From
+there, I’ll show how I integrated Terranix into the Snowfall structure for organizing flakes. By defining
+resources like Lambda functions or EC2 images directly in Nix configurations, we can tie these definitions
+into Terraform workflows, making it easier to connect declarative configuration with practical cloud
+resource management.
 
 Using Nix with Terraform introduces an opportunity to simplify cloud infrastructure management while
 improving reusability and consistency. By leveraging modular configurations and Nix’s declarative paradigm,
@@ -57,7 +56,7 @@ how these tools can work together effectively to streamline your approach to inf
 
 My discovery of Terranix began when I started a new project requiring deeper engagement with cloud infrastructure.
 Up to that point, my experience with Terraform was limited to minor adjustments in existing projects,
-where I often felt constrained by its repetitive and fragmented nature. Even in what I’d consider a
+where I often felt annoyed by its repetitive and fragmented nature. Even in what I’d consider a
 well-organized Terraform project—complete with proper modules—making a seemingly simple change often
 required navigating through multiple layers, declaring variables in several places, and painstakingly
 ensuring consistency. Additionally, running Terraform required working within the correct directory structure,
@@ -94,22 +93,16 @@ Terranix makes it straightforward to create reusable modules, eliminating the ne
 code across projects. With Terranix, you can define and share modules as part of your Nix configuration,
 enabling better modularity and reducing redundancy across projects.
 
-### Seamless Integration into Nix Workflows
-
-Terranix integrates naturally into Nix-based workflows, aligning with the declarative and reproducible
-philosophy of Nix. This integration allows for seamless transitions between managing Nix and Terraform
-configurations, providing a unified approach to infrastructure management.
-
 ## How to Use Terranix
 
 Reading through the Terranix [documentation](https://terranix.org/documentation/getting-started.html)
 helped me get up to speed with writing basic, non-module configurations quickly. However, I found myself
-questioning whether this approach truly offered an improvement over standard Terraform workflows. While
-the [documentation](https://terranix.org/documentation/modules.html) emphasized modules as a key feature, the process for effectively utilizing them wasn’t
-immediately clear. In this section, I will clarify how to work with modules in Terranix, explaining
-it in simpler terms based on my own experiences.
+questioning whether this approach truly offered an improvement over standard Terraform workflows.
+While the [documentation](https://terranix.org/documentation/modules.html) emphasized modules as a key feature, the process for effectively
+utilizing them wasn’t immediately clear. In this section, I will clarify how to work with modules
+in Terranix, explaining it in simpler terms based on my own experiences.
 
-**Update `flake.nix`**
+#### **Update `flake.nix`**
 
 The first thing we need to do is add `"github:terranix/terranix"` to the `inputs` section of our `flake.nix`
 
@@ -133,13 +126,12 @@ inputs = {
 };
 ```
 
-### Create a Terraform Package
+### Create a Terraform Configuration
 
 The way that we use Terranix is as just another Nix "package". This means that we create a
 new folder in the `./packages` directory. I am going to call this `cloud-infrastructure`
-you can call it whatever makes the most sense to you. In this folder we add out standard
+you can call it whatever makes the most sense to you. In this folder we add our standard
 `default.nix` file and at least one additional Nix file, in this case I am calling it `terranix.nix`.
-In this file is going to be your Terranix configuration.
 
 ```nix
 ├──  packages
@@ -148,8 +140,8 @@ In this file is going to be your Terranix configuration.
 │   │   └──  terranix.nix
 ```
 
-I am going to show what goes in your `default.nix` and `terranix.nix` files and work backwards
-from there explaining why I did certain things.
+Here’s what you’ll need to include in your `default.nix` and `terranix.nix` files. I’ll start with these
+and then work backward to explain the reasoning behind each step.
 
 **`default.nix`**
 
@@ -162,60 +154,39 @@ mkTerranixDerivation {
 }
 ```
 
-What this is, is simply a helper function I created that wraps the Terranix function `terranixConfiguration`
-and adds to it a couple of pass through things for creating a state s3 bucket for managing Terraform state,
-applying and destroying your Terraform. This is because all the `terranixConfiguration` function really does
-for us is convert Nix configurations into Terraform `json`. The main thing that this function takes in as
-an argument is a list of Nix files that contain our Terranix configurations.
+This is a helper function I created to wrap the [`terranixConfiguration` function from Terranix](https://terranix.org/documentation/flakes.html#import-terranix-modules). It adds
+a few extras, like passthru support for creating an S3 bucket to manage Terraform state and handling Terraform
+apply and destroy actions. The `terranixConfiguration` function itself only converts Nix configurations
+into Terraform JSON, so this wrapper streamlines the process. The key argument it takes is a list of
+Nix files containing the Terranix configurations.
 
 **`terranix.nix`**
 
 ```nix
 { config, pkgs, ... }: {
-  config.data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
-  config.provider.aws.region = "us-east-1";
-  config.backend.s3 = {
-    bucket = "initech-state-bucket";
-    key = "state/terraform.tfstate";
-    region = "us-east-1";
-  };
-  config.aws = {
-    storage = {
-      s3 = {
-        enable = true;
-        defaultIpWhiteList = [ ];
-        buckets = { initech-input-bucket = { enable = true; }; };
-      };
-      ecr = {
-        enable = true;
-        registeries = [{ name = "my-main-ecr"; }];
-      };
+  config = {
+    data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
+    provider.aws.region = "us-east-1";
+    backend.s3 = {
+      bucket = "initech-state-bucket"; # Use a single bucket for state storage
+      key = "state/terraform.tfstate";
+      region = "us-east-1";
     };
-
-    lambda = {
-      jobs.another-example-job = {
-        lambda-image = pkgs.initech.aws-lambda-image;
-        environment.variables = {
-          LATITUDE = "38.9072";
-          LONGITUDE = "-77.0369";
-          S3_BUCKET = "initech-output-bucket";
-          S3_KEY = "forecasts/washington_dc_forecast.json";
+    aws = {
+      storage = {
+        s3 = {
+          enable = true;
+          defaultIpWhiteList = [ ];
+          buckets = { TPS-reports-bucket = { enable = true; }; };
         };
       };
-      pdf-ocr = {
-        enable = true;
-        variables = {
-          INPUT_BUCKET = "initech-input-bucket";
-          OUTPUT_BUCKET = "initech-output-bucket";
-        };
-      };
-      weather-job = {
-        enable = true;
-        variables = {
-          LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
-          LONGITUDE = "-79.9959"; # Longitude for Pittsburgh, PA
-          S3_BUCKET = "initech-output-bucket";
-          S3_KEY = "forecasts/pittsburgh_forecast.json";
+      lambda = {
+        pdf-ocr = {
+          enable = true;
+          variables = {
+            INPUT_BUCKET = "TPS-reports-bucket";
+            OUTPUT_BUCKET = "initech-output-bucket";
+          };
         };
       };
     };
@@ -223,23 +194,26 @@ an argument is a list of Nix files that contain our Terranix configurations.
 }
 ```
 
-This file introduces more complexity compared to our `default.nix`, but when broken down, it becomes
-manageable. The key takeaway here is that this file serves as the central location for defining Terranix
-configurations, enabling Terranix modules, or doing both, as demonstrated in this example.
+This file is more complex than our `default.nix`, but it’s manageable when broken down. You’re not limited
+to just one `terranix.nix` file—you can create multiple files and name them however you like. The content
+of this file combines two elements: Terraform converted into Nix syntax and calls to the custom Terranix
+modules we’ve created. I will cover modules in a little bit but take a second and see if you can discern
+whats happening.
 
-By examining the following Nix snippet, we can begin to understand how Terranix simplifies Terraform workflows:
+Here’s how Terranix and Terraform compare when defining configurations. The following Nix snippet shows
+how Terranix expresses these configurations:
 
 ```nix
-config.data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
-config.provider.aws.region = "us-east-1";
-config.backend.s3 = {
+data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
+provider.aws.region = "us-east-1";
+backend.s3 = {
   bucket = "initech-state-bucket";
   key = "state/terraform.tfstate";
   region = "us-east-1";
 };
 ```
 
-If you are familiar with Terraform, the corresponding HCL equivalent may look familiar:
+If you’re familiar with Terraform, the equivalent HCL might look like this:
 
 ```hcl
 data "http" "public_ip" {
@@ -259,165 +233,73 @@ terraform {
 }
 ```
 
-This comparison illustrates how Terranix leverages Nix to represent configurations typically written
-in Terraform. The advantage lies in Nix's powerful abstraction capabilities, which simplify managing,
-sharing, and reusing configurations. The other parts of this file consist of custom modules that I have
-created and integrated here; I will discuss these modules in greater detail later.
+The similarity between the two makes Terranix approachable, even for those who aren’t yet familiar with
+Nix. This allows teams with Terraform experience to get started with Terranix more easily while benefiting
+from its integration into Nix ecosystems.
 
-If you wanted to organize all of your Terranix in this package folder you could and you wouldn't need
-my wrapper functions but it might be a little more complex to import them into other Flakes.
-
-### My Terranix Library Functions Explained
-
-A quick refresher: all library functions for Snowfall-based flakes go in the `./lib` folder. I put the
-functions for Terranix in `./lib/terranix/default.nix`.
-
-**`findDefaultNixFiles`**
-
-I created this function to find nested `default.nix` files in a directory structure, similar to how Snowfall
-organizes its NixOS modules. While there may already be a Snowfall function for this, I decided to write
-my own after a brief search didn’t yield results. This function takes a folder path and returns a list
-of paths to all `default.nix` files within it. This is particularly useful for organizing Terraform/Terranix
-modules under the `./modules/terraform` folder, mirroring Snowfall’s conventions for `nixos`, `home`,
-and `darwin` modules. As I refine my ideas around using Terranix, I may eventually propose incorporating
-them into Snowfall proper.
+The other part of the `terranix.nix` file above is the declaration and configuration of Terranix modules
+for creating S3 buckets and a Lambda function. I’ll dive deeper into Nix modules and how we create them
+in the following sections. For now, take a moment to review how we’re calling these modules:
 
 ```nix
-findDefaultNixFiles = path:
-  let
-    scanDir = dir:
-      let
-        entries = builtins.readDir dir;
-        files = builtins.filter
-          (name:
-            let entry = entries.${name};
-            in entry == "regular" && builtins.match ".*default\\.nix$" name != null)
-          (builtins.attrNames entries);
-        filePaths = builtins.map (file: "${dir}/${file}") files;
-        subDirs = builtins.filter
-          (name: let entry = entries.${name}; in entry == "directory")
-          (builtins.attrNames entries);
-        subDirPaths = builtins.concatLists
-          (builtins.map (subDir: scanDir "${dir}/${subDir}") subDirs);
-      in
-      filePaths ++ subDirPaths;
-  in
-  scanDir path;
-```
-
-Currently I export the modules discovered with this function as a list of file paths that
-can easily be imported into other flakes. I would like to be able load them and have them
-indexable like `nixosConfigurations` but I haven't figured out how to correctly do that yet.
-
-```nix
-outputs = inputs:
-  let
-    inherit (inputs) deploy-rs;
-    lib = inputs.snowfall-lib.mkLib {
-      inherit inputs;
-      src = ./.;
-      snowfall = {
-        meta = {
-          name = "initech";
-          title = "Initech Demo Codebase";
-        };
-
-        namespace = "initech";
-      };
+aws = {
+  storage = {
+    s3 = {
+      enable = true;
+      defaultIpWhiteList = [ ];
+      buckets = { TPS-reports-bucket = { enable = true; }; };
     };
-  in lib.mkFlake {
-    channels-config = { allowUnfree = true; };
-
-    terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
-    overlays = with inputs; [
-      poetry2nix.overlays.default
-      devshell.overlays.default
-    ];
   };
-```
-
-If you wanted to use modules exported from a flake like this you can use it like this with the vanilla Terranix function:
-
-```
-inputs.terranix.lib.terranixConfiguration {
-        inherit system;
-        modules = [ ./config.nix ] ++ inputs.campground.terranixModule.modules;
+  lambda = {
+    pdf-ocr = {
+      enable = true;
+      variables = {
+        INPUT_BUCKET = "TPS-reports-bucket";
+        OUTPUT_BUCKET = "initech-output-bucket";
       };
-```
-
-And you would enable/configure the modules from the `campground` input flake the same way you would as we are about to cover.
-
-**`mkTerranixDerivation`**
-
-As I mentioned earlier this is just a wrapper around the main Terranix function for creating a Terraform configuration.
-It also provides the compiled Terraform `json` and passthrus for running Terraform.
-
-```nix
-mkTerranixDerivation = { pkgs, system, extraArgs ? { }, modules }:
-  let
-    terraformConfiguration = inputs.terranix.lib.terranixConfiguration {
-      inherit system;
-      extraArgs = { inherit lib pkgs; } // extraArgs;
-      modules = findDefaultNixFiles ../../modules/terraform ++ modules;
     };
-
-    # Generates the Terraform JSON configuration.
-    tf-json = pkgs.writeShellScriptBin "default" ''
-      cat ${terraformConfiguration} | ${pkgs.jq}/bin/jq
-    '';
-
-    # Applies the Terraform configuration.
-    apply = pkgs.writeShellScriptBin "apply" ''
-      if [[ -e config.tf.json ]]; then rm -f config.tf.json; fi
-      cp ${terraformConfiguration} config.tf.json \
-        && ${pkgs.terraform}/bin/terraform init \
-        && ${pkgs.terraform}/bin/terraform apply
-    '';
-
-    # Destroys the Terraform-managed resources.
-    destroy = pkgs.writeShellScriptBin "destroy" ''
-      if [[ -e config.tf.json ]]; then rm -f config.tf.json; fi
-      cp ${terraformConfiguration} config.tf.json \
-        && ${pkgs.terraform}/bin/terraform init \
-        && ${pkgs.terraform}/bin/terraform destroy
-    '';
-
-    # Creates an S3 bucket for Terraform state storage.
-    create-state-bucket = pkgs.writeShellScriptBin "create-state-bucket" ''
-      set -euo pipefail
-
-      BUCKET_NAME=''${1:-"campground-state-bucket"}
-      AWS_REGION=''${2:-"us-east-1"}
-
-      echo "Creating S3 bucket $BUCKET_NAME in region $AWS_REGION..."
-
-      ${pkgs.awscli}/bin/aws s3api create-bucket \
-        --bucket "$BUCKET_NAME" \
-        --region "$AWS_REGION" \
-        $(if [ "$AWS_REGION" != "us-east-1" ]; then echo "--create-bucket-configuration LocationConstraint=$AWS_REGION"; fi)
-
-      echo "Enabling versioning on the bucket $BUCKET_NAME..."
-      ${pkgs.awscli}/bin/aws s3api put-bucket-versioning \
-        --bucket "$BUCKET_NAME" \
-        --versioning-configuration Status=Enabled
-
-      echo "Setting default encryption on the bucket $BUCKET_NAME..."
-      ${pkgs.awscli}/bin/aws s3api put-bucket-encryption \
-        --bucket "$BUCKET_NAME" \
-        --server-side-encryption-configuration '{
-          "Rules": [{
-            "ApplyServerSideEncryptionByDefault": {
-              "SSEAlgorithm": "AES256"
-            }
-          }]
-        }'
-
-      echo "Bucket $BUCKET_NAME setup is complete."
-    '';
-  in tf-json // { inherit apply destroy create-state-bucket; };
+  };
+};
 ```
 
-### **Building and Organizing Terraform Modules**
+This structure showcases how Terranix simplifies and organizes the configuration of cloud resources,
+keeping everything declarative and easy to manage.
+
+Finally, I want to clarify that this setup represents just a single Terraform configuration. If our requirements
+call for multiple configurations, we can easily add them within the same repo. All we need to do is replicate
+the `cloud-infrastructure` folder under a different name. From Nix's perspective, each of these is simply
+a Nix package, making it straightforward to manage multiple configurations.
+
+### Deploying our Cloud Infrastructure with Terranix
+
+Now that we’ve walked through how to define your infrastructure using Terranix, let’s discuss how to deploy
+it. The process involves leveraging passthru attributes provided by the `mkTerranixDerivation` function
+to interact with your Terraform configuration.
+
+```sh
+# Display the Terraform JSON configuration
+nix run .#cloud-infrastructure
+
+# Equivalent to `tf apply`
+nix run .#cloud-infrastructure.apply
+
+# Equivalent to `tf destroy`
+nix run .#cloud-infrastructure.destroy
+```
+
+If you need to manage your Terraform state in an S3 bucket, you can use the `create-state-bucket` passthru.
+This passthru simplifies the creation of a bucket to store the state, but you must explicitly reference
+the bucket in your Terranix configuration—Terranix does not automatically link it to your Terraform setup.
+
+---
+
+With this setup, it should be relatively straightforward for non-Nix and non-Terraform users to contribute
+to the Nix ecosystem you’re building in your organization. Developers with strong Terraform skills could
+create modules that less experienced Terraform users can easily deploy. And this is just the beginning—I
+haven’t even touched on how custom Nix packages can seamlessly integrate with the resources we deploy
+using Terraform. That’s coming up, but first, let’s dive into the Nix module system.
+
+## **Building and Organizing Modules**
 
 In this blog series, I haven’t yet covered [NixOS modules in the Snowfall library](https://www.youtube.com/watch?v=ARjAsEJ9WVY&list=PLCNla0W4k0xtpObkpw2xOwWVS24-e3kvL&index=2), but that’s coming soon—consider
 this a gentle introduction. Since NixOS and Home Manager modules are stored in the
@@ -642,22 +524,155 @@ This configuration demonstrates how to customize the module by:
 > **Note:** If you examine the `./modules/terraform/aws/lambda/pdf-ocr` module, you’ll see that the `initech-output-bucket` is
 > created automatically because the `s3` module is invoked within the `pdf-ocr` module.
 
----
+### My Terranix Library Functions Explained
 
-### Deploying Cloud Infrastructure with Terranix
+A quick refresher: all library functions for Snowfall-based flakes go in the `./lib` folder. I put the
+functions for Terranix in `./lib/terranix/default.nix`.
 
-Now that we’ve walked through how to define your infrastructure using Terranix, let’s discuss how to deploy
-it. The process involves leveraging passthru attributes provided by the `mkTerranixDerivation` function
-to interact with your Terraform configuration.
+**`findDefaultNixFiles`**
 
-If you need to manage your Terraform state in an S3 bucket, you can use the `create-state-bucket` passthru.
-This passthru simplifies the creation of a bucket to store the state, but you must explicitly reference
-the bucket in your Terranix configuration—Terranix does not automatically link it to your Terraform setup.
+I created this function to find nested `default.nix` files in a directory structure, similar to how Snowfall
+organizes its NixOS modules. While there may already be a Snowfall function for this, I decided to write
+my own after a brief search didn’t yield results. This function takes a folder path and returns a list
+of paths to all `default.nix` files within it. This is particularly useful for organizing Terraform/Terranix
+modules under the `./modules/terraform` folder, mirroring Snowfall’s conventions for `nixos`, `home`,
+and `darwin` modules. As I refine my ideas around using Terranix, I may eventually propose incorporating
+them into Snowfall proper.
 
-By default, the derivation outputs the compiled Terraform `json` to `stdout`. This allows you to inspect
-the generated configuration before applying it. Once you are ready to deploy, use the `apply` passthru,
-which applies the Terraform configuration and provisions the infrastructure. If you need to tear down
-the infrastructure, the `destroy` passthru handles the cleanup process.
+```nix
+findDefaultNixFiles = path:
+  let
+    scanDir = dir:
+      let
+        entries = builtins.readDir dir;
+        files = builtins.filter
+          (name:
+            let entry = entries.${name};
+            in entry == "regular" && builtins.match ".*default\\.nix$" name != null)
+          (builtins.attrNames entries);
+        filePaths = builtins.map (file: "${dir}/${file}") files;
+        subDirs = builtins.filter
+          (name: let entry = entries.${name}; in entry == "directory")
+          (builtins.attrNames entries);
+        subDirPaths = builtins.concatLists
+          (builtins.map (subDir: scanDir "${dir}/${subDir}") subDirs);
+      in
+      filePaths ++ subDirPaths;
+  in
+  scanDir path;
+```
+
+Currently I export the modules discovered with this function as a list of file paths that
+can easily be imported into other flakes. I would like to be able load them and have them
+indexable like `nixosConfigurations` but I haven't figured out how to correctly do that yet.
+
+```nix
+outputs = inputs:
+  let
+    inherit (inputs) deploy-rs;
+    lib = inputs.snowfall-lib.mkLib {
+      inherit inputs;
+      src = ./.;
+      snowfall = {
+        meta = {
+          name = "initech";
+          title = "Initech Demo Codebase";
+        };
+
+        namespace = "initech";
+      };
+    };
+  in lib.mkFlake {
+    channels-config = { allowUnfree = true; };
+
+    terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
+    overlays = with inputs; [
+      poetry2nix.overlays.default
+      devshell.overlays.default
+    ];
+  };
+```
+
+If you wanted to use modules exported from a flake like this you can use it like this with the vanilla Terranix function:
+
+```
+inputs.terranix.lib.terranixConfiguration {
+        inherit system;
+        modules = [ ./config.nix ] ++ inputs.campground.terranixModule.modules;
+      };
+```
+
+And you would enable/configure the modules from the `campground` input flake the same way you would as we are about to cover.
+
+**`mkTerranixDerivation`**
+
+As I mentioned earlier this is just a wrapper around the main Terranix function for creating a Terraform configuration.
+It also provides the compiled Terraform `json` and passthrus for running Terraform.
+
+```nix
+mkTerranixDerivation = { pkgs, system, extraArgs ? { }, modules }:
+  let
+    terraformConfiguration = inputs.terranix.lib.terranixConfiguration {
+      inherit system;
+      extraArgs = { inherit lib pkgs; } // extraArgs;
+      modules = findDefaultNixFiles ../../modules/terraform ++ modules;
+    };
+
+    # Generates the Terraform JSON configuration.
+    tf-json = pkgs.writeShellScriptBin "default" ''
+      cat ${terraformConfiguration} | ${pkgs.jq}/bin/jq
+    '';
+
+    # Applies the Terraform configuration.
+    apply = pkgs.writeShellScriptBin "apply" ''
+      if [[ -e config.tf.json ]]; then rm -f config.tf.json; fi
+      cp ${terraformConfiguration} config.tf.json \
+        && ${pkgs.terraform}/bin/terraform init \
+        && ${pkgs.terraform}/bin/terraform apply
+    '';
+
+    # Destroys the Terraform-managed resources.
+    destroy = pkgs.writeShellScriptBin "destroy" ''
+      if [[ -e config.tf.json ]]; then rm -f config.tf.json; fi
+      cp ${terraformConfiguration} config.tf.json \
+        && ${pkgs.terraform}/bin/terraform init \
+        && ${pkgs.terraform}/bin/terraform destroy
+    '';
+
+    # Creates an S3 bucket for Terraform state storage.
+    create-state-bucket = pkgs.writeShellScriptBin "create-state-bucket" ''
+      set -euo pipefail
+
+      BUCKET_NAME=''${1:-"campground-state-bucket"}
+      AWS_REGION=''${2:-"us-east-1"}
+
+      echo "Creating S3 bucket $BUCKET_NAME in region $AWS_REGION..."
+
+      ${pkgs.awscli}/bin/aws s3api create-bucket \
+        --bucket "$BUCKET_NAME" \
+        --region "$AWS_REGION" \
+        $(if [ "$AWS_REGION" != "us-east-1" ]; then echo "--create-bucket-configuration LocationConstraint=$AWS_REGION"; fi)
+
+      echo "Enabling versioning on the bucket $BUCKET_NAME..."
+      ${pkgs.awscli}/bin/aws s3api put-bucket-versioning \
+        --bucket "$BUCKET_NAME" \
+        --versioning-configuration Status=Enabled
+
+      echo "Setting default encryption on the bucket $BUCKET_NAME..."
+      ${pkgs.awscli}/bin/aws s3api put-bucket-encryption \
+        --bucket "$BUCKET_NAME" \
+        --server-side-encryption-configuration '{
+          "Rules": [{
+            "ApplyServerSideEncryptionByDefault": {
+              "SSEAlgorithm": "AES256"
+            }
+          }]
+        }'
+
+      echo "Bucket $BUCKET_NAME setup is complete."
+    '';
+  in tf-json // { inherit apply destroy create-state-bucket; };
+```
 
 ---
 
