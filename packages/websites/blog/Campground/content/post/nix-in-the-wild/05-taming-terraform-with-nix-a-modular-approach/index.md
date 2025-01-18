@@ -4,7 +4,7 @@ title: 'Nix in the Wild: Taming Terraform with Nix'
 date: 2025-01-18
 image: terraflake.png
 description: 'Explore how to simplify and modularize your Terraform configurations using Terranix and Nix Flakes. This post covers essential functions, directory structures, and practical examples to streamline your Infrastructure as Code workflow.'
-slug: taming-terraform-with-nix-a-modular-approach
+slug: taming-terraform-with-nix
 tags:
   - Nix
   - Terraform
