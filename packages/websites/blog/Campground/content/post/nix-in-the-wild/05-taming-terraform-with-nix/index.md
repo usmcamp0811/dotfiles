@@ -607,7 +607,7 @@ This will fail when called elsewhere. This limitation is why the functions I use
 are structured as they are, rather than being abstracted into simple wrapper functions. While this
 may seem less tidy, it ensures compatibility with how Terranix handles configurations and attributes.
 
-### **Breaking Down My Terranix Library Functions**
+### Breaking Down My Terranix Library Functions
 
 This section provides an overview of the custom library functions I created for integrating Terranix
 with a Snowfall-based flake. These functions help streamline the process of discovering and using Terraform
