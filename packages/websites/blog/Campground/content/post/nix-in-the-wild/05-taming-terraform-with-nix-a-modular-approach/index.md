@@ -2,7 +2,7 @@
 author: Matt Camp
 title: 'Nix in the Wild: Taming Terraform with Nix: A Modular Approach'
 date: 2025-01-18
-image: taming-terraform-nix-sm.png
+image: terraflake.png
 description: 'Explore how to simplify and modularize your Terraform configurations using Terranix and Nix Flakes. This post covers essential functions, directory structures, and practical examples to streamline your Infrastructure as Code workflow.'
 slug: taming-terraform-with-nix-a-modular-approach
 tags:
@@ -100,7 +100,7 @@ While the [documentation](https://terranix.org/documentation/modules.html) empha
 utilizing them wasn’t immediately clear. In this section, I will clarify how to work with modules
 in Terranix, explaining it in simpler terms based on my own experiences.
 
-### **Update `flake.nix`**
+### Update `flake.nix`
 
 The first thing we need to do is add `"github:terranix/terranix"` to the `inputs` section of our `flake.nix`
 
@@ -298,7 +298,7 @@ create modules that less experienced Terraform users can easily deploy. And this
 haven’t even touched on how custom Nix packages can seamlessly integrate with the resources we deploy
 using Terraform. That’s coming up, but first, let’s dive into the Nix module system.
 
-## **Building and Organizing Modules**
+## Building and Organizing Modules
 
 In this blog series, I haven’t yet covered [NixOS modules in the Snowfall library](https://www.youtube.com/watch?v=ARjAsEJ9WVY&list=PLCNla0W4k0xtpObkpw2xOwWVS24-e3kvL&index=2),
 but that’s coming up now—or at least the concepts of modules as they relate to Terranix. NixOS and
@@ -309,6 +309,8 @@ it felt natural to use the same directory for Terraform modules. Since Terraform
 I’ve adopted a structure like `./modules/<provider>/...` to keep things organized and scalable for
 multi-cloud environments. For this post, I’ll focus on building a couple of AWS modules to demonstrate
 the approach.
+
+![](multi-cloud.png)
 
 ### A Brief Explanation of the NixOS Module System
 
@@ -366,7 +368,7 @@ for system services, user configurations, and application-specific settings, and
 
 Now that you understand how the module system works, let’s see how we can apply a similar approach to Terraform modules.
 
-### **Creating a Basic Terraform Module**
+### Creating a Basic Terraform Module
 
 A Terraform module in Nix is essentially a `default.nix` file that defines the configuration for a specific
 resource or group of resources. Here’s an example of a basic Terraform module for creating S3 buckets:
@@ -402,7 +404,7 @@ in your `cloud-infrastructure` package discussed earlier, simply add them to the
 While this approach is effective, there’s room for improvement. In the next section, I’ll show how we
 can refine and enhance this process.
 
-### **Using Options to Customize Modules**
+### Using Options to Customize Modules
 
 One drawback of the simple module above is that it doesn't allow customization—every time we use it,
 the bucket name would always be `example-bucket`. Wouldn’t it be great if we could parameterize the name?
@@ -416,7 +418,7 @@ use cases.
 Let’s dive into how options work and how you can use them to make your Terraform modules more customizable
 and user-friendly.
 
-#### **How do I create Options?**
+#### How do I create Options?
 
 Options are configuration parameters enriched with metadata that define how a module behaves. They specify:
 
@@ -433,7 +435,7 @@ configure and integrate into projects.
 > that require deviations from the standard setup. Additionally, modules can enable dependent modules automatically,
 > ensuring that all necessary dependencies are configured without manual intervention.
 
-#### **Defining Options in a Terraform Module**
+#### Defining Options in a Terraform Module
 
 Here’s an example of how to define options in a Terraform module for managing S3 buckets:
 
