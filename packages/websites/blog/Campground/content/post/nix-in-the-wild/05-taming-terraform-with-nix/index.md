@@ -312,7 +312,9 @@ I’ve adopted a structure like `./modules/<provider>/...` to keep things organi
 multi-cloud environments. For this post, I’ll focus on building a couple of AWS modules to demonstrate
 the approach.
 
-![](multi-cloud.png)
+<div style="text-align: center;">
+    <img src="multi-cloud.png" alt="Multi-Cloud" style="width:35%;">
+</div>
 
 ### A Brief Explanation of the NixOS Module System
 
@@ -760,3 +762,5 @@ managing cloud infrastructure more approachable and powerful.
 Looking ahead, I’ll continue exploring how Nix can further enhance cloud infrastructure management. In
 future posts, we’ll delve into extending these concepts to EC2 deployments and other real-world scenarios.
 Stay tuned for more insights in the _Nix in the Wild_ series!
+
+[![](mr.png)](https://gitlab.com/initech-project/main-codebase/-/merge_requests/5)
