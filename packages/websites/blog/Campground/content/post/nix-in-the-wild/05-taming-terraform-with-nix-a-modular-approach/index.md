@@ -1,7 +1,7 @@
 ---
 author: Matt Camp
 title: 'Nix in the Wild: Taming Terraform with Nix: A Modular Approach'
-date: 2025-01-22
+date: 2025-01-21
 image: taming-terraform-nix-sm.png
 description: 'Explore how to simplify and modularize your Terraform configurations using Terranix and Nix Flakes. This post covers essential functions, directory structures, and practical examples to streamline your Infrastructure as Code workflow.'
 slug: taming-terraform-with-nix-a-modular-approach
@@ -27,40 +27,31 @@ series:
   - Nix in the Wild
 ---
 
-Welcome back to my ongoing series, _Nix in the Wild_, where I delve into the practical applications of
-Nix within organizational contexts, using the fictional company Initech as a narrative framework. In
-this installment, I will explore the integration of Terraform into Snowfall-lib-based Nix flakes, offering
-a comprehensive guide to adopting this approach in your own workflows. By using the
-[Terranix](https://terranix.org/) library together with custom functions I’ve written, this post showcases how these tools
-integrate seamlessly with the [Snowfall library](https://snowfall.org/guides/lib/quickstart/), creating
-a cohesive and efficient workflow.
+# Taming Terraform with Nix
 
-Before proceeding, I must acknowledge that I do not position myself as a Terraform expert. I have historically
-had reservations about "the cloud" which are rooted in its tendency to incur high costs and my preference
-for the hands-on experience of learning and experimenting on personal hardware, which often offers a
-more straightforward and transparent approach to problem-solving. Nevertheless, the utility of cloud
-infrastructure in certain scenarios cannot be dismissed, and it is imperative to equip ourselves with
-tools that enable efficient and secure interaction with such environments.
+Welcome back to _Nix in the Wild_, a series exploring real-world applications of Nix within organizations.,
+using the fictional company Initech as a narrative framework. In this installment, I will explore the integration
+of Terraform into Snowfall-lib-based Nix flakes, offering a comprehensive guide to adopting this approach in
+your own workflows. By leveraging the [Terranix](https://terranix.org/) library alongside custom functions
+I’ve written, I'll demonstrate how I was able to integrate Terraform seamlessly with the
+[Snowfall library](https://snowfall.org/guides/lib/quickstart/) to create a unified,
+efficient workflow for managing infrastructure as code.
 
-This post will introduce Terranix, a library that simplifies Terraform configuration management by enabling
-developers to write less code while improving reusability. I will demonstrate how I’ve integrated Terranix
-modules into the modular structure provided by the Snowfall library, making it easier to organize and
-manage infrastructure as code. By defining resources such as Lambda functions or EC2 images directly
-within Nix configurations, we can seamlessly integrate these definitions into Terraform workflows, bridging
-the gap between declarative configuration and practical cloud resource management.
+Before proceeding, I want to share that I am relatively inexperienced with Terraform, so take what I
+say on it with a grain of salt. I have historically avoided cloud things due to there potential for high
+costs and the simplicity of hacking away on my home lab, but I recognize the necessity to have cloud
+capabilities in your toolbox.
 
-The discussion will also cover the custom functions I developed to adapt Terranix to the Snowfall library’s
-conventions. These functions simplify workflows, ensure better compatibility with existing tools,
-and make ongoing maintenance more straightforward. Additionally, I will demonstrate how to incorporate
-modules from external flakes, providing a scalable and efficient method for sharing and reusing infrastructure
-components across various projects.
+I will provide a brief introduction to the NixOS module system for those unfamiliar with it. This will
+set the stage to demonstrate how I seamlessly integrated Terranix into the Snowfall structure for organizing
+flakes. By defining resources such as Lambda functions or EC2 images directly within Nix configurations,
+we can seamlessly integrate these definitions into Terraform workflows, bridging the gap between declarative
+configuration and practical cloud resource management.
 
-The primary advantage of employing Nix in conjunction with Terraform lies in its capacity to significantly
-reduce the volume of code required while simultaneously enhancing reusability. By modularizing configurations
-and embracing Nix’s declarative paradigm, Terraform can be transformed into a streamlined and maintainable
-component of your infrastructure management strategy. This integration not only minimizes complexity
-but also fosters a more robust and scalable approach to infrastructure as code. Let us embark on this
-exploration together.
+Using Nix with Terraform introduces an opportunity to simplify cloud infrastructure management while
+improving reusability and consistency. By leveraging modular configurations and Nix’s declarative paradigm,
+you can create workflows that are both maintainable and scalable. Throughout this post, I will demonstrate
+how these tools can work together effectively to streamline your approach to infrastructure as code.
 
 # What is Terranix?
 
