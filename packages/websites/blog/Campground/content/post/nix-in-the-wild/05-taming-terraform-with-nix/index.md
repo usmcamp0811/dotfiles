@@ -312,10 +312,6 @@ I’ve adopted a structure like `./modules/<provider>/...` to keep things organi
 multi-cloud environments. For this post, I’ll focus on building a couple of AWS modules to demonstrate
 the approach.
 
-<div style="text-align: center;">
-    <img src="multi-cloud.png" alt="Multi-Cloud" style="width:35%;">
-</div>
-
 ### A Brief Explanation of the NixOS Module System
 
 The NixOS module system is relatively straightforward once you understand one key concept about the Nix
