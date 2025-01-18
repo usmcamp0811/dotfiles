@@ -116,7 +116,7 @@ in
 
     boot.kernel.sysctl = { "net.ipv4.ip_forward" = 1; };
     networking.firewall.allowedUDPPorts = [ cfg.port 53 ];
-    systemd.network.netdevs.cyclops.wireguardPeers = cfg.peers;
+    systemd.network.netdevs.campground.wireguardPeers = cfg.peers;
     # networking.firewall.allowedTCPPorts = [ 53 ];
 
     networking.wireguard = {
