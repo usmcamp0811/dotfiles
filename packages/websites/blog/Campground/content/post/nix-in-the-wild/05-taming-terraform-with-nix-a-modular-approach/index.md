@@ -1,6 +1,6 @@
 ---
 author: Matt Camp
-title: 'Nix in the Wild: Taming Terraform with Nix: A Modular Approach'
+title: 'Nix in the Wild: Taming Terraform with Nix'
 date: 2025-01-18
 image: terraflake.png
 description: 'Explore how to simplify and modularize your Terraform configurations using Terranix and Nix Flakes. This post covers essential functions, directory structures, and practical examples to streamline your Infrastructure as Code workflow.'
@@ -176,14 +176,14 @@ Nix files containing the Terranix configurations.
       storage = {
         s3 = {
           enable = true;
-          buckets = { TPS-reports-bucket = { enable = true; }; };
+          buckets = { initech-tps-reports-bucket = { enable = true; }; };
         };
       };
       lambda = {
         pdf-ocr = {
           enable = true;
           variables = {
-            INPUT_BUCKET = "TPS-reports-bucket";
+            INPUT_BUCKET = "initech-tps-reports-bucket";
             OUTPUT_BUCKET = "initech-output-bucket";
           };
         };
@@ -246,14 +246,14 @@ aws = {
     s3 = {
       enable = true;
       defaultIpWhiteList = [ ];
-      buckets = { TPS-reports-bucket = { enable = true; }; };
+      buckets = { initech-tps-reports-bucket = { enable = true; }; };
     };
   };
   lambda = {
     pdf-ocr = {
       enable = true;
       variables = {
-        INPUT_BUCKET = "TPS-reports-bucket";
+        INPUT_BUCKET = "initech-tps-reports-bucket";
         OUTPUT_BUCKET = "initech-output-bucket";
       };
     };
@@ -490,7 +490,7 @@ a folder structure consistent with the module path is helpful for organization a
 This configuration allows us to customize the module by:
 
 - Enabling S3 bucket creation.
-- Creating an S3 bucket named `TPS-reports-bucket`.
+- Creating an S3 bucket named `initech-tps-reports-bucket`.
 - Defining Lambda functions with environment variables linked to the S3 buckets.
 
 > **Note:** If you examine the `./modules/terraform/aws/lambda/pdf-ocr` module, you’ll notice that the
