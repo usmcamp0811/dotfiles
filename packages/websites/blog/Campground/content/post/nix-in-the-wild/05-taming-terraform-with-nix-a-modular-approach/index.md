@@ -1,7 +1,7 @@
 ---
 author: Matt Camp
 title: 'Nix in the Wild: Taming Terraform with Nix: A Modular Approach'
-date: 2025-01-21
+date: 2025-01-22
 image: taming-terraform-nix-sm.png
 description: 'Explore how to simplify and modularize your Terraform configurations using Terranix and Nix Flakes. This post covers essential functions, directory structures, and practical examples to streamline your Infrastructure as Code workflow.'
 slug: taming-terraform-with-nix-a-modular-approach
@@ -75,7 +75,8 @@ for its own sake, or whether there was genuine value to be gained. While I’m a
 prioritize practicality—the solutions I build must remain accessible to others who may not share my enthusiasm
 for Nix.
 
-After exploring examples on [GitHub](https://github.com/search?q=terranix+language%3ANix&type=repositories&l=Nix) and finding limited resources, my skepticism remained. Nonetheless, I decided to dedicate a weekend
+After exploring examples on [GitHub](https://github.com/search?q=terranix+language%3ANix&type=repositories&l=Nix) and
+finding limited resources, my skepticism remained. Nonetheless, I decided to dedicate a weekend
 to experimenting with Terranix and exploring its potential to streamline my workflow. What I discovered
 not only addressed my initial concerns but also opened new possibilities for simplifying and enhancing
 Terraform projects. Let’s dive into what makes Terranix such a compelling tool.
