@@ -162,13 +162,15 @@ Nix files containing the Terranix configurations.
 
 **`terranix.nix`**
 
+<p id="terranix-nix"><strong>`terranix.nix`</strong></p>
+
 ```nix
 { config, pkgs, ... }: {
   config = {
     data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
     provider.aws.region = "us-east-1";
     backend.s3 = {
-      bucket = "initech-state-bucket"; # Use a single bucket for state storage
+      bucket = "initech-state-bucket";
       key = "state/terraform.tfstate";
       region = "us-east-1";
     };
@@ -176,7 +178,6 @@ Nix files containing the Terranix configurations.
       storage = {
         s3 = {
           enable = true;
-          defaultIpWhiteList = [ ];
           buckets = { TPS-reports-bucket = { enable = true; }; };
         };
       };
@@ -301,21 +302,22 @@ using Terraform. That’s coming up, but first, let’s dive into the Nix module
 
 ## **Building and Organizing Modules**
 
-In this blog series, I haven’t yet covered [NixOS modules in the Snowfall library](https://www.youtube.com/watch?v=ARjAsEJ9WVY&list=PLCNla0W4k0xtpObkpw2xOwWVS24-e3kvL&index=2), but that’s coming soon—consider
-this a gentle introduction. Since NixOS and Home Manager modules are stored in the
-`./modules` directory, it felt natural to use the same directory for Terraform modules. Given that
-Terraform supports multiple providers, I’ve chosen a structure like `./modules/<provider>/...`
-to keep things organized and scalable for multi-cloud environments. For the purpose of this post, I’ll
-focus on building a couple of AWS modules to illustrate the approach.
+In this blog series, I haven’t yet covered [NixOS modules in the Snowfall library](https://www.youtube.com/watch?v=ARjAsEJ9WVY&list=PLCNla0W4k0xtpObkpw2xOwWVS24-e3kvL&index=2),
+but that’s coming up now—or at least the concepts of modules as they relate to Terranix. NixOS and
+Home Manager modules will be covered in a later post.
 
-### **NixOS Module System Explained**
+In the Snowfall structure, NixOS and Home Manager modules are stored in the `./modules` directory, so
+it felt natural to use the same directory for Terraform modules. Since Terraform supports multiple providers,
+I’ve adopted a structure like `./modules/<provider>/...` to keep things organized and scalable for
+multi-cloud environments. For this post, I’ll focus on building a couple of AWS modules to demonstrate
+the approach.
+
+### A Brief Explanation of the NixOS Module System
 
 The NixOS module system is relatively straightforward once you understand one key concept about the Nix
 language: **attribute sets can be merged together to create a superset**. This means that if you have
 multiple files, each defining an attribute set (e.g., `config`), and you import them all into your `flake.nix`,
 Nix will automatically merge them into a single, combined set. Let’s break it down with an example:
-
----
 
 **File A** defines the following attribute set:
 
@@ -360,54 +362,63 @@ single `config` attribute set. The result would look like this:
 Notice how the values are combined—Nix doesn’t overwrite existing values unless explicitly told to. Instead,
 it intelligently merges the structure, appending new attributes wherever necessary.
 
----
-
-This merging behavior is the foundation of the NixOS module system. It allows you to split configuration
+This merging behavior is the foundation of the NixOS module system that Terranix leverages. It allows you to split configuration
 across multiple files, keeping things modular and organized. For example, you could have separate files
 for system services, user configurations, and application-specific settings, and Nix will seamlessly combine them.
 
 Now that you understand how the module system works, let’s see how we can apply a similar approach to Terraform modules.
 
----
-
 ### **Creating a Basic Terraform Module**
 
 A Terraform module in Nix is essentially a `default.nix` file that defines the configuration for a specific
-resource or group of resources. Here’s an example of a basic Terraform module for creating an S3 bucket:
+resource or group of resources. Here’s an example of a basic Terraform module for creating S3 buckets:
 
 **`default.nix`**
 
 ```nix
 { config, pkgs, ... }: {
-  config.aws.storage.s3 = {
-    enable = true;
+  provider.aws = {
     region = "us-east-1";
-    buckets = [ "example-bucket" "logs-bucket" ];
+  };
+
+  resource.aws_s3_bucket.example = {
+    bucket = "example-bucket";
+    acl = "private";
+
     tags = {
-      project = "example-project";
-      environment = "production";
+      Name = "example-bucket";
+      Environment = "production";
     };
   };
 }
 ```
 
 This file defines a module for configuring S3 buckets, specifying attributes like the region, bucket
-names, and tags. When this module is imported into a larger configuration, it will seamlessly integrate
-with other modules using the same merging mechanism explained above.
+name, and tags. When imported into a larger configuration, this module integrates seamlessly with others,
+leveraging Nix's merging mechanism to ensure consistency and flexibility.
 
-By organizing your Terraform modules like this, you can reuse and combine them to build more complex
-infrastructure configurations while keeping things clean and maintainable.
+By structuring Terraform modules like this, you can easily reuse and combine them to create more complex
+infrastructure configurations while keeping everything clean and maintainable. To include these modules
+in your `cloud-infrastructure` package discussed earlier, simply add them to the `modules` list.
+
+While this approach is effective, there’s room for improvement. In the next section, I’ll show how we
+can refine and enhance this process.
 
 ### **Using Options to Customize Modules**
 
+One drawback of the simple module above is that it doesn't allow customization—every time we use it,
+the bucket name would always be `example-bucket`. Wouldn’t it be great if we could parameterize the name?
+Well, we can!
+
 One of the most powerful features of the NixOS module system is the ability to define **options**. Options
-provide a consistent interface for configuring modules, making it easier to customize behavior without
-editing the module’s internals. Let’s explore how options work and how to use them effectively in your
-Terraform modules.
+provide a consistent interface for configuring modules, allowing users to customize behavior without
+modifying the module’s internals. This flexibility makes modules reusable and adaptable to different
+use cases.
 
----
+Let’s dive into how options work and how you can use them to make your Terraform modules more customizable
+and user-friendly.
 
-#### **What Are Options?**
+#### **How do I create Options?**
 
 Options are configuration parameters enriched with metadata that define how a module behaves. They specify:
 
@@ -423,8 +434,6 @@ configure and integrate into projects.
 > This allows modules to work seamlessly together by default while still enabling customization for scenarios
 > that require deviations from the standard setup. Additionally, modules can enable dependent modules automatically,
 > ensuring that all necessary dependencies are configured without manual intervention.
-
----
 
 #### **Defining Options in a Terraform Module**
 
@@ -471,58 +480,22 @@ This example defines several options:
 - `buckets`: A list of bucket names.
 - `tags`: A set of key-value pairs for tagging the buckets.
 
----
+#### Using Options to Customize Modules
 
-#### **Using the Options**
+To use the option, we can refer back to [our example above](#terranix-nix), where we defined an S3 bucket
+and a Lambda job. It's important to note that the option path `options.aws.storage.s3` maps to the module
+`aws.storage.s3`. While this mapping has no hard relationship to the file’s physical location, maintaining
+a folder structure consistent with the module path is helpful for organization and clarity.
 
-To use these options, create a configuration file in your Terranix package directory and include it in
-the `modules` list of your `mkTerranixDerivation` function. Here's an example configuration:
-
-**`./packages/cloud-infrastructure/terranix.nix`**
-
-```nix
-{ config, pkgs, ... }: {
-  config = {
-    data.http.public_ip = { url = "http://checkip.amazonaws.com/"; };
-    provider.aws.region = "us-east-1";
-    backend.s3 = {
-      bucket = "initech-state-bucket"; # Use a single bucket for state storage
-      key = "state/terraform.tfstate";
-      region = "us-east-1";
-    };
-    aws = {
-      storage = {
-        s3 = {
-          enable = true;
-          defaultIpWhiteList = [ ];
-          buckets = {
-            TPS-reports-bucket = { enable = true; };
-          };
-        };
-      };
-      lambda = {
-        pdf-ocr = {
-          enable = true;
-          variables = {
-            INPUT_BUCKET = "TPS-reports-bucket";
-            OUTPUT_BUCKET = "initech-output-bucket";
-          };
-        };
-      };
-    };
-  };
-}
-```
-
-This configuration demonstrates how to customize the module by:
+This configuration allows us to customize the module by:
 
 - Enabling S3 bucket creation.
-- Specifying `us-east-1` as the AWS region.
 - Creating an S3 bucket named `TPS-reports-bucket`.
-- Defining Lambda functions with bucket-related environment variables.
+- Defining Lambda functions with environment variables linked to the S3 buckets.
 
-> **Note:** If you examine the `./modules/terraform/aws/lambda/pdf-ocr` module, you’ll see that the `initech-output-bucket` is
-> created automatically because the `s3` module is invoked within the `pdf-ocr` module.
+> **Note:** If you examine the `./modules/terraform/aws/lambda/pdf-ocr` module, you’ll notice that the
+> `initech-output-bucket` is automatically created because the `s3` module is invoked within the `pdf-ocr
+` module. This modular design keeps related configurations interconnected and manageable.
 
 ### My Terranix Library Functions Explained
 
