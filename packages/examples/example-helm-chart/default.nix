@@ -13,7 +13,7 @@ let
       mkdir -p $out/src/data
       cp -r $src/data/* $out/src/data
     '';
-    meta = { mainProgram = "Cyclops"; };
+    meta = { mainProgram = "Campround"; };
   }; # // subCharts;
 in
 example-chart

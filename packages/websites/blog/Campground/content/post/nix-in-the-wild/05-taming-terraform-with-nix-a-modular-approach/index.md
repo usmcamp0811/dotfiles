@@ -1,7 +1,7 @@
 ---
 author: Matt Camp
 title: 'Nix in the Wild: Taming Terraform with Nix: A Modular Approach'
-date: 2025-01-21
+date: 2025-01-22
 image: taming-terraform-nix-sm.png
 description: 'Explore how to simplify and modularize your Terraform configurations using Terranix and Nix Flakes. This post covers essential functions, directory structures, and practical examples to streamline your Infrastructure as Code workflow.'
 slug: taming-terraform-with-nix-a-modular-approach
@@ -275,7 +275,7 @@ created and integrated here; I will discuss these modules in greater detail late
 If you wanted to organize all of your Terranix in this package folder you could and you wouldn't need
 my wrapper functions but it might be a little more complex to import them into other Flakes.
 
-### Library Functions Explained
+### My Terranix Library Functions Explained
 
 A quick refresher: all library functions for Snowfall-based flakes go in the `./lib` folder. I put the
 functions for Terranix in `./lib/terranix/default.nix`.
@@ -652,38 +652,40 @@ This configuration demonstrates how to customize the module by:
 
 ---
 
-### Deploying Cloud Infrastructure
+### Deploying Cloud Infrastructure with Terranix
 
-When using the `mkTerranixDerivation` function you can use the `create-state-bucket` passthru to easily create a S3 bucket.
-The bucket is where you can store the state of your Terraform. To be clear, the utilization of the bucket is not automatic, you will need
-to reference it in your Terraform/Terranix config. The
+Now that we’ve walked through how to define your infrastructure using Terranix, let’s discuss how to deploy
+it. The process involves leveraging passthru attributes provided by the `mkTerranixDerivation` function
+to interact with your Terraform configuration.
 
-#### **Applying and Managing Terraform Configurations**
+If you need to manage your Terraform state in an S3 bucket, you can use the `create-state-bucket` passthru.
+This passthru simplifies the creation of a bucket to store the state, but you must explicitly reference
+the bucket in your Terranix configuration—Terranix does not automatically link it to your Terraform setup.
 
-- Step-by-step guide to running the following commands:
-  1. Generating JSON (`nix run .#aws-infrastructure`).
-  2. Applying configurations (`nix run .#aws-infrastructure.apply`).
-  3. Destroying resources (`nix run .#aws-infrastructure.destroy`).
+By default, the derivation outputs the compiled Terraform `json` to `stdout`. This allows you to inspect
+the generated configuration before applying it. Once you are ready to deploy, use the `apply` passthru,
+which applies the Terraform configuration and provisions the infrastructure. If you need to tear down
+the infrastructure, the `destroy` passthru handles the cleanup process.
 
-#### **Example: Managing AWS Infrastructure**
+---
 
-- Walk through the example module (`example.nix`).
-- Show how to use the configuration to create S3 buckets and Lambda functions.
-- Discuss additional customization options.
+### Understanding Terranix's Nuances
 
-#### **Best Practices**
+For the most part, translating Terraform configurations into Terranix expressions is straightforward.
+However, one area that may initially seem unclear is how to access attributes from Terraform resources
+or data sources within Terranix.
 
-- Tips for keeping your Terraform configurations maintainable and modular.
-- Using `extraArgs` and `modules` effectively.
-- Testing configurations before applying.
+This issue is discussed in an [open issue on the Terranix GitHub repository](https://github.com/terranix/terranix/issues/7), as well as in a [pull request](https://github.com/terranix/terranix/pull/59).
+While this process is simple, it is not really documented, which can lead to confusion.
 
-#### **Conclusion**
+To access an attribute, you call it as a function. Here's an example:
 
-- Recap the benefits of using Terranix with Nix Flakes.
-- Encourage readers to explore the possibilities with their own projects.
-- Link to the official Terranix documentation for further reading.
+```nix
+config.data.aws_iam_policy_document.assume_role "json";
+```
 
-#### **Call to Action**
+In this example, the `json` attribute is retrieved from the `aws_iam_policy_document.assume_role` data
+source. The syntax makes it easy to extract specific details from a resource, but understanding this
+pattern is key to effectively using Terranix.
 
-- Invite readers to try out the example code.
-- Suggest sharing their experiences or questions in the comments or via social media.
+## Integration with the Nix Ecosystem
