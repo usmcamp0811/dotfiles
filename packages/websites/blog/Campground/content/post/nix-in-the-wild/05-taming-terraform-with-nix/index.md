@@ -52,7 +52,7 @@ how these tools can work together effectively to streamline your approach to inf
 
 ## What is Terranix?
 
-![terranix](terranix-logo.png)
+![](terranix-logo.png)
 
 My discovery of Terranix began when I started a new project requiring deeper engagement with cloud infrastructure.
 Up to that point, my experience with Terraform was limited to minor adjustments in existing projects,
