@@ -5,6 +5,7 @@
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
   <img src="https://nixos.org/logo/nixos-logo-only-hires.png" height="20" /> NixOS Config for <a href="https://matt-camp.com">Matt Camp</a>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
+  <img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.aicampground.com/matomo.php?idsite=3&amp;rec=1" style="border:0" alt="" />
 </h3>
 
   <p>
@@ -45,7 +46,6 @@ dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 
 #### [New System Install](./docs/Install.md)
 
-
 ## Features
 
 Here's an overview of what my Nix configuration offers:
@@ -63,7 +63,6 @@ Here's an overview of what my Nix configuration offers:
 - **System Observability & Monitoring**: Integrate Prometheus, Grafana, and Loki to achieve comprehensive monitoring of all systems, including Systemd services.
 
 - **Terraform Modules**: Various modules for deploying infrastructure in the cloud with Terraform.
-
 
 ## Customization
 
@@ -84,8 +83,7 @@ Leveraging the SnowfallOrg lib architecture, my Nix setup offers a streamlined a
 - **Home Environment Configs**: Similarly, the `homes/` folder arranges configurations by architecture, which is particularly handy for managing home environments via Nix.
 
 This methodology fosters a user-friendly approach to Nix configuration, balancing both flexibility and modularity for better manageability.
-    
+
 ## Credits
 
 Inspiration and code snippets have been sourced from various corners of the internet. I'll endeavor to document these contributions whenever memory and circumstances permit.
-
