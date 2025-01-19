@@ -279,6 +279,7 @@ in
           "local   all        root      trust" # Allow trusted local connections for root
           "local   all        postgres  peer" # Use peer authentication for postgres user locally
 
+          "local   immich    immich   trust" # Allow trusted local connections for immich user to immich DB
           "local   firefly    firefly   trust" # Allow trusted local connections for firefly user to firefly DB
           "host    firefly    firefly   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
           "host    firefly    firefly   ::1/128 trust" # Allow trusted connections from localhost (IPv6) for firefly user to firefly DB

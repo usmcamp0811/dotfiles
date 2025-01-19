@@ -55,6 +55,16 @@ in {
   };
 
   config = mkIf cfg.enable {
+    campground.services.postgresql = {
+      enable = true;
+      enableTCPIP = true;
+      backupEnable = true;
+      backupLocation = "/persist/postgresqlBackups/";
+      databases = [{
+        name = "immich";
+        user = "immich";
+      }];
+    };
     # Enable services.immich using the upstream service module
     services.immich = {
       enable = true;
