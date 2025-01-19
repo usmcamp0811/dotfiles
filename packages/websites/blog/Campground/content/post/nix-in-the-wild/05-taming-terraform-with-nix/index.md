@@ -50,6 +50,8 @@ improving reusability and consistency. By leveraging modular configurations and 
 you can create workflows that are both maintainable and scalable. Throughout this post, I will demonstrate
 how these tools can work together effectively to streamline your approach to infrastructure as code.
 
+> Code for this post can be found [here](https://gitlab.com/initech-project/main-codebase)
+
 ## What is Terranix?
 
 ![](terranix-logo.png)
