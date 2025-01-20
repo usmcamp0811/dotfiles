@@ -14,8 +14,8 @@
     # TODO: Switch back to unstable branch when the node fix gets merged
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    immich-fix.url =
-      "github:nixos/nixpkgs/1925c603f17fc89f4c8f6bf6f631a802ad85d784";
+    # immich-fix.url =
+    #   "github:nixos/nixpkgs/1925c603f17fc89f4c8f6bf6f631a802ad85d784";
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
 

@@ -78662,22 +78662,6 @@
         "type": "github"
       }
     },
-    "immich-fix_2": {
-      "locked": {
-        "lastModified": 1727348695,
-        "narHash": "sha256-J+PeFKSDV+pHL7ukkfpVzCOO7mBSrrpJ3svwBFABbhI=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "1925c603f17fc89f4c8f6bf6f631a802ad85d784",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "1925c603f17fc89f4c8f6bf6f631a802ad85d784",
-        "type": "github"
-      }
-    },
     "incl": {
       "inputs": {
         "nixlib": [
@@ -133661,7 +133645,6 @@
         "hyprland-contrib": "hyprland-contrib_21",
         "hyprland-works-here": "hyprland-works-here_21",
         "hyprpaper": "hyprpaper_21",
-        "immich-fix": "immich-fix_2",
         "mlflow-works": "mlflow-works_7",
         "neorg-overlay": "neorg-overlay_22",
         "nix-ai": "nix-ai_22",
