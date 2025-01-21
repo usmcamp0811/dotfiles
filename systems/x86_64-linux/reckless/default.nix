@@ -113,6 +113,7 @@ in
     };
 
     services = {
+      matt-camp-website = enabled;
       cac = enabled;
       netbird.client = enabled;
       mealie = enabled;

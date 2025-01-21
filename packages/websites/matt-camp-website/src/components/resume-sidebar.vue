@@ -10,7 +10,7 @@
       <a href="#about">
         <q-avatar size="160px" class="avatar-border">
           <q-avatar size="145px">
-            <img src="../assets/resume/new_headshot.jpg">
+            <img src="../assets/resume/newprofilepic.jpg">
           </q-avatar>
         </q-avatar>
       </a>
