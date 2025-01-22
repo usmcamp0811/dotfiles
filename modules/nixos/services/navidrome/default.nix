@@ -3,7 +3,7 @@ with lib;
 with lib.campground;
 let cfg = config.campground.services.navidrome;
 in {
-  options.campground.services.navidrome = {
+  options.campground.services.navidrome = with types; {
     enable = mkEnableOption "Navidrome Music Server";
 
     package =
