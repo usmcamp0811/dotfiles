@@ -9,6 +9,7 @@ in {
     package =
       mkOpt types.package pkgs.navidrome "The Navidrome package to use.";
 
+    music-folder = mkOpt types.str "/export/media/music" "Music Folder";
     port = mkOpt types.int 4533 "Port to use for Navidrome.";
     address = mkOpt types.str "0.0.0.0" "Listen address for Navidrome.";
     user = mkOpt types.str "navidrome" "The user under which Navidrome runs.";
@@ -28,6 +29,7 @@ in {
         Port = cfg.port;
         Address = cfg.address;
         EnableInsightsCollector = cfg.enableInsightsCollector;
+        MusicFolder = cfg.music-folder;
       };
       user = cfg.user;
       group = cfg.group;
@@ -42,6 +44,34 @@ in {
         };
       };
       groups = { "${cfg.group}" = { }; };
+    };
+    campground.services.vault-agent.services.navidrome = {
+      settings = {
+        vault.address =
+          cfg.vault-address; # Replace with your Vault server address
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets.environment.templates = {
+        navidrome = {
+          text = ''
+            ND_AUTHBACKEND=oidc
+            ND_OIDC_CLIENTID={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CLIENTID }}{{ else }}{{ .Data.data.OIDC_CLIENTID }}{{ end }}{{ end }}
+            ND_OIDC_CLIENTSECRET={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_CLIENTSECRET }}{{ else }}{{ .Data.data.OIDC_CLIENTSECRET }}{{ end }}{{ end }}
+            ND_OIDC_ENDPOINT={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_ENDPOINT }}{{ else }}{{ .Data.data.OIDC_ENDPOINT }}{{ end }}{{ end }}
+            ND_OIDC_REDIRECTURI={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_REDIRECTURI }}{{ else }}{{ .Data.data.OIDC_REDIRECTURI }}{{ end }}{{ end }}
+            ND_OIDC_SCOPES={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.OIDC_SCOPES }}{{ else }}{{ .Data.data.OIDC_SCOPES }}{{ end }}{{ end }}
+          '';
+        };
+      };
     };
   };
 }
