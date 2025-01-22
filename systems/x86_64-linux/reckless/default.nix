@@ -113,6 +113,7 @@ in
     };
 
     services = {
+      navidrome = enabled;
       matt-camp-website = enabled;
       cac = enabled;
       netbird.client = enabled;
