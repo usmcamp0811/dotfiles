@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 with lib;
-with lib.cyclops;
+with lib.campground;
 with types;
 
 let

@@ -1,0 +1,30 @@
+@startuml
+!define RECTANGLE RECTANGLE
+
+title Secure Multi-stage Docker Build for JFrog Dependency Installation
+
+rectangle "Dockerfile" {
+    node "Stage 1: Build Stage" {
+        [Base Image: cyclops-flink/base:1.0.0]
+        [Set Build-time Arguments] --> [ARG JFROG_USERNAME, JFROG_PASSWORD, PIPE_PATH]
+        [Create Directories] --> [RUN mkdir -p /opt/flink/usrlib]
+        [Copy Pipeline Scripts] --> [COPY ./$PIPE_PATH/pipeline.py /opt/flink/usrlib/]
+        [Copy Requirements File] --> [COPY ./$PIPE_PATH/requirements.txt /opt/flink/usrlib/]
+        [Configure pip] --> [RUN printf "[global]\nextra-index-url = https://${JFROG_USERNAME}:${JFROG_PASSWORD}@beehivesupply.jfrog.io/artifactory/api/pypi/cyclops-pypi/simple" > /root/.pip/pip.conf]
+        [Install Dependencies] --> [RUN pip3 install -r requirements.txt]
+        [Remove pip Config] --> [RUN rm /root/.pip/pip.conf]
+    }
+
+    node "Stage 2: Final Stage" {
+        [Base Image: cyclops-flink/base:1.0.0]
+        [Create Directories] --> [RUN mkdir /opt/flink/usrlib]
+        [Download Kafka Connector] --> [RUN wget -P /opt/flink/usrlib https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka/3.0.2-1.18/flink-sql-connector-kafka-3.0.2-1.18.jar]
+        [Copy from Builder Stage] --> [COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages]
+        [Copy from Builder Stage] --> [COPY --from=builder /usr/local/bin /usr/local/bin]
+        [Copy from Builder Stage] --> [COPY --from=builder /opt/flink/usrlib /opt/flink/usrlib]
+        [Set Working Directory] --> [WORKDIR /opt/flink/usrlib]
+        [Run Pipeline Script] --> [CMD ["python3", "./pipeline.py"]]
+    }
+}
+
+@enduml
