@@ -11,7 +11,7 @@ let
 in
 {
   imports = [ ./hardware.nix ];
-
+  programs.adb.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
     version = "555.42.02";
@@ -26,7 +26,7 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
 
