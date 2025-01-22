@@ -18,6 +18,25 @@ in {
       mkOpt types.bool false "Whether to open the firewall for Navidrome.";
     enableInsightsCollector = mkOpt types.bool true
       "Enable anonymous insights collection for Navidrome.";
+
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/navidrome"
+      "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
