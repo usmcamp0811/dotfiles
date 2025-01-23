@@ -150,7 +150,7 @@
         "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Condition\":{\"IpAddress\":{\"aws:SourceIp\":[]}},\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws:s3:::campground-input-bucket/*\"}],\"Version\":\"2012-10-17\"}"
       }
     },
-    "aws_step_function": {
+    "aws_sfn_state_machine": {
       "pdf_ocr_workflow": {
         "definition": "{\n  \"Comment\": \"A simple Step Function for PDF OCR\",\n  \"StartAt\": \"OCRProcessing\",\n  \"States\": {\n    \"OCRProcessing\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"${aws_lambda_function.pdf_ocr.arn}\",\n      \"End\": true\n    }\n  }\n}\n",
         "depends_on": [

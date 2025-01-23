@@ -70,7 +70,7 @@ in {
       })
       (concatMapAttrs (name: wf: wf.lambda-functions) cfg.workflows);
 
-    resource.aws_step_function = mapAttrs
+    resource.aws_sfn_state_machine = mapAttrs
       (name: wf: {
         name = name;
         role_arn = config.resource.aws_iam_role.iam_for_step_function "arn";
