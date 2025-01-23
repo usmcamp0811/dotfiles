@@ -11,21 +11,17 @@
     step_function = {
       enable = true;
       workflows.pdf_ocr_workflow = {
-        definition = ''
-          {
-            "Comment": "A simple Step Function for PDF OCR",
-            "StartAt": "OCRProcessing",
-            "States": {
-              "OCRProcessing": {
-                "Type": "Task",
-                "Resource": "${
-                  config.resource.aws_lambda_function.pdf_ocr "arn"
-                }",
-                "End": true
-              }
-            }
-          }
-        '';
+        definition = builtins.toJSON {
+          Comment = "A simple Step Function for PDF OCR";
+          StartAt = "OCRProcessing";
+          States = {
+            OCRProcessing = {
+              Type = "Task";
+              Resource = config.resource.aws_lambda_function.pdf_ocr "arn";
+              End = true;
+            };
+          };
+        };
         lambda-functions.pdf_ocr = {
           lambda-image = pkgs.campground.aws-lambda-image;
           registry-name = "campground_ecr";

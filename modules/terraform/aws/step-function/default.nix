@@ -74,12 +74,10 @@ in {
       (name: wf: {
         name = name;
         role_arn = config.resource.aws_iam_role.iam_for_step_function "arn";
-        definition = wf.definition;
-        depends_on = builtins.concatLists [
-          (map (lambdaName: "aws_lambda_function.${lambdaName}")
-            (builtins.attrNames wf.lambda-functions))
-          [ "aws_iam_role.iam_for_step_function" ]
-        ];
+        definition = builtins.toJSON wf.definition;
+        depends_on = map (lambdaName: "aws_lambda_function.${lambdaName}")
+          (builtins.attrNames wf.lambda-functions)
+        ++ [ "aws_iam_role.iam_for_step_function" ];
       })
       cfg.workflows;
 
@@ -87,29 +85,17 @@ in {
       statement = [{
         effect = "Allow";
         actions = [ "lambda:InvokeFunction" ];
-        resources = concatLists
-          (map (name: [ config.resource.aws_lambda_function.${name} "arn" ])
+        resources =
+          map (name: config.resource.aws_lambda_function.${name} "arn")
             (builtins.attrNames
-              (concatMapAttrs (_: wf: wf.lambda-functions) cfg.workflows)));
+              (concatMapAttrs (_: wf: wf.lambda-functions) cfg.workflows));
       }];
     };
 
     resource.aws_iam_role.iam_for_step_function = {
       name = "iam_for_step_function";
-      assume_role_policy = ''
-        {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "states.amazonaws.com"
-              },
-              "Action": "sts:AssumeRole"
-            }
-          ]
-        }
-      '';
+      assume_role_policy =
+        config.data.aws_iam_policy_document.assume_role "json";
     };
 
     resource.aws_iam_role_policy.step_function_execution_policy = {
