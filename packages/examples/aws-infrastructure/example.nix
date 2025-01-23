@@ -11,7 +11,7 @@
     step_function = {
       enable = true;
       workflows.pdf_ocr_workflow = {
-        definition = builtins.toJSON {
+        definition = {
           Comment = "A simple Step Function for PDF OCR";
           StartAt = "OCRProcessing";
           States = {

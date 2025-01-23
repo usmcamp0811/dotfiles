@@ -13,7 +13,7 @@ in {
       type = types.attrsOf (types.submodule {
         options = {
           definition = mkOption {
-            type = types.str;
+            type = types.attrs;
             description = "The JSON definition of the Step Function workflow";
           };
 
@@ -68,16 +68,17 @@ in {
         timeout = lambdaConfig.timeout;
         memory_size = lambdaConfig.memory_size;
       })
-      (concatMapAttrs (name: wf: wf.lambda-functions) cfg.workflows);
+      (concatMapAttrs (_: wf: wf.lambda-functions) cfg.workflows);
 
     resource.aws_sfn_state_machine = mapAttrs
       (name: wf: {
         name = name;
         role_arn = config.resource.aws_iam_role.iam_for_step_function "arn";
         definition = builtins.toJSON wf.definition;
-        depends_on = map (lambdaName: "aws_lambda_function.${lambdaName}")
-          (builtins.attrNames wf.lambda-functions)
-        ++ [ "aws_iam_role.iam_for_step_function" ];
+        depends_on =
+          map (lambdaName: "resource.aws_lambda_function.${lambdaName}")
+            (builtins.attrNames wf.lambda-functions)
+          ++ [ "resource.aws_iam_role.iam_for_step_function" ];
       })
       cfg.workflows;
 

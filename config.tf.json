@@ -23,25 +23,7 @@
             ],
             "effect": "Allow",
             "resources": [
-              {
-                "depends_on": [
-                  "resource.null_resource.pdf_ocr",
-                  "resource.aws_iam_role.iam_for_lambda"
-                ],
-                "environment": {
-                  "variables": {
-                    "INPUT_BUCKET": "initech-tps-reports-bucket",
-                    "OUTPUT_BUCKET": "initech-output-bucket"
-                  }
-                },
-                "function_name": "pdf_ocr",
-                "image_uri": "${aws_ecr_repository.campground_ecr.repository_url}:weather-example-latest",
-                "memory_size": 512,
-                "package_type": "Image",
-                "role": "${aws_iam_role.iam_for_lambda.arn}",
-                "timeout": 120
-              },
-              "arn"
+              "${aws_lambda_function.pdf_ocr.arn}"
             ]
           }
         ]
@@ -99,7 +81,7 @@
         "name": "iam_for_lambda"
       },
       "iam_for_step_function": {
-        "assume_role_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"Service\": \"states.amazonaws.com\"\n      },\n      \"Action\": \"sts:AssumeRole\"\n    }\n  ]\n}\n",
+        "assume_role_policy": "${data.aws_iam_policy_document.assume_role.json}",
         "name": "iam_for_step_function"
       }
     },
@@ -152,10 +134,10 @@
     },
     "aws_sfn_state_machine": {
       "pdf_ocr_workflow": {
-        "definition": "{\n  \"Comment\": \"A simple Step Function for PDF OCR\",\n  \"StartAt\": \"OCRProcessing\",\n  \"States\": {\n    \"OCRProcessing\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"${aws_lambda_function.pdf_ocr.arn}\",\n      \"End\": true\n    }\n  }\n}\n",
+        "definition": "{\"Comment\":\"A simple Step Function for PDF OCR\",\"StartAt\":\"OCRProcessing\",\"States\":{\"OCRProcessing\":{\"End\":true,\"Resource\":\"${aws_lambda_function.pdf_ocr.arn}\",\"Type\":\"Task\"}}}",
         "depends_on": [
-          "aws_lambda_function.pdf_ocr",
-          "aws_iam_role.iam_for_step_function"
+          "resource.aws_lambda_function.pdf_ocr",
+          "resource.aws_iam_role.iam_for_step_function"
         ],
         "name": "pdf_ocr_workflow",
         "role_arn": "${aws_iam_role.iam_for_step_function.arn}"
