@@ -1,5 +1,7 @@
 { config, lib, pkgs, ... }:
 with lib;
+with lib.campground;
+with types;
 
 let cfg = config.aws.step_function;
 
@@ -19,7 +21,7 @@ in {
             type = types.attrsOf (types.submodule {
               options = {
                 lambda-image = mkOption {
-                  type = package pkgs.campground.aws-lambda-image;
+                  type = package;
                   description = "The Lambda image to use";
                 };
                 registry-name = mkOption {
@@ -112,7 +114,7 @@ in {
 
     resource.aws_iam_role_policy.step_function_execution_policy = {
       name = "step_function_execution_policy";
-      role = config.resource.aws_iam_role.iam_for_step_function.id;
+      role = config.resource.aws_iam_role.iam_for_step_function "id";
       policy =
         config.data.aws_iam_policy_document.step_function_execution "json";
     };

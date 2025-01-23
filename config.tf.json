@@ -14,6 +14,42 @@
             "type": "Service"
           }
         }
+      },
+      "step_function_execution": {
+        "statement": [
+          {
+            "actions": [
+              "lambda:InvokeFunction"
+            ],
+            "effect": "Allow",
+            "resources": [
+              {
+                "depends_on": [
+                  "resource.null_resource.pdf_ocr",
+                  "resource.aws_iam_role.iam_for_lambda"
+                ],
+                "environment": {
+                  "variables": {
+                    "INPUT_BUCKET": "initech-tps-reports-bucket",
+                    "OUTPUT_BUCKET": "initech-output-bucket"
+                  }
+                },
+                "function_name": "pdf_ocr",
+                "image_uri": "${aws_ecr_repository.campground_ecr.repository_url}:weather-example-latest",
+                "memory_size": 512,
+                "package_type": "Image",
+                "role": "${aws_iam_role.iam_for_lambda.arn}",
+                "timeout": 120
+              },
+              "arn"
+            ]
+          }
+        ]
+      }
+    },
+    "http": {
+      "public_ip": {
+        "url": "http://checkip.amazonaws.com/"
       }
     }
   },
@@ -24,13 +60,12 @@
   },
   "resource": {
     "aws_ecr_lifecycle_policy": {
-      "ata-ecr": {
+      "campground_ecr": {
         "depends_on": [
-          "resource.aws_ecr_repository.ata-ecr",
-          "resource.aws_ecr_repository.ata-ecr"
+          "resource.aws_ecr_repository.campground_ecr"
         ],
         "policy": "{\"rules\":[{\"action\":{\"type\":\"expire\"},\"description\":\"Keep only 10 images\",\"rulePriority\":1,\"selection\":{\"countNumber\":10,\"countType\":\"imageCountMoreThan\",\"tagPrefixList\":[\"prod\"],\"tagStatus\":\"tagged\"}}]}",
-        "repository": "ata-ecr"
+        "repository": "campground_ecr"
       },
       "my-main-ecr": {
         "depends_on": [
@@ -41,13 +76,13 @@
       }
     },
     "aws_ecr_repository": {
-      "ata-ecr": {
+      "campground_ecr": {
         "force_delete": true,
         "image_scanning_configuration": {
           "scan_on_push": true
         },
         "image_tag_mutability": "MUTABLE",
-        "name": "ata-ecr"
+        "name": "campground_ecr"
       },
       "my-main-ecr": {
         "force_delete": true,
@@ -62,59 +97,42 @@
       "iam_for_lambda": {
         "assume_role_policy": "${data.aws_iam_policy_document.assume_role.json}",
         "name": "iam_for_lambda"
+      },
+      "iam_for_step_function": {
+        "assume_role_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"Service\": \"states.amazonaws.com\"\n      },\n      \"Action\": \"sts:AssumeRole\"\n    }\n  ]\n}\n",
+        "name": "iam_for_step_function"
+      }
+    },
+    "aws_iam_role_policy": {
+      "step_function_execution_policy": {
+        "name": "step_function_execution_policy",
+        "policy": "${data.aws_iam_policy_document.step_function_execution.json}",
+        "role": "${aws_iam_role.iam_for_step_function.id}"
       }
     },
     "aws_lambda_function": {
-      "another-example-job": {
+      "pdf_ocr": {
         "depends_on": [
-          "resource.null_resource.another-example-job",
+          "resource.null_resource.pdf_ocr",
           "resource.aws_iam_role.iam_for_lambda"
         ],
         "environment": {
           "variables": {
-            "LATITUDE": "38.9072",
-            "LONGITUDE": "-77.0369",
-            "S3_BUCKET": "weather-data",
-            "S3_KEY": "forecasts/washington_dc_forecast.json"
+            "INPUT_BUCKET": "initech-tps-reports-bucket",
+            "OUTPUT_BUCKET": "initech-output-bucket"
           }
         },
-        "function_name": "another-example-job",
-        "image_uri": "${aws_ecr_repository.ata-ecr.repository_url}:weather-example",
+        "function_name": "pdf_ocr",
+        "image_uri": "${aws_ecr_repository.campground_ecr.repository_url}:weather-example-latest",
+        "memory_size": 512,
         "package_type": "Image",
-        "role": "${aws_iam_role.iam_for_lambda.arn}"
-      },
-      "weather-job": {
-        "depends_on": [
-          "resource.null_resource.weather-job",
-          "resource.aws_iam_role.iam_for_lambda",
-          "resource.aws_s3_bucket.weather-data"
-        ],
-        "environment": {
-          "variables": {
-            "LATITUDE": "40.4406",
-            "LONGITUDE": "-79.9959",
-            "S3_BUCKET": "weather-data",
-            "S3_KEY": "forecasts/pittsburgh_forecast.json"
-          }
-        },
-        "function_name": "weather-job",
-        "image_uri": "${aws_ecr_repository.ata-ecr.repository_url}:weather-example",
-        "package_type": "Image",
-        "role": "${aws_iam_role.iam_for_lambda.arn}"
+        "role": "${aws_iam_role.iam_for_lambda.arn}",
+        "timeout": 120
       }
     },
     "aws_s3_bucket": {
-      "another-bucket": {
-        "bucket": "another-bucket",
-        "force_destroy": false,
-        "tags": {
-          "createdBy": "Terranix",
-          "environment": "dev",
-          "project": "Campground-DefaultAWS"
-        }
-      },
-      "weather-data": {
-        "bucket": "weather-data",
+      "campground-input-bucket": {
+        "bucket": "campground-input-bucket",
         "force_destroy": false,
         "tags": {
           "createdBy": "Terranix",
@@ -124,50 +142,39 @@
       }
     },
     "aws_s3_bucket_policy": {
-      "another-bucket_policy": {
-        "bucket": "another-bucket",
+      "campground-input-bucket_policy": {
+        "bucket": "campground-input-bucket",
         "depends_on": [
-          "aws_s3_bucket.another-bucket"
+          "aws_s3_bucket.campground-input-bucket"
         ],
-        "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Condition\":{\"IpAddress\":{\"aws:SourceIp\":[\"0.0.0.0/0\"]}},\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws-us:s3:::another-bucket/*\"}],\"Version\":\"2012-10-17\"}"
-      },
-      "weather-data_policy": {
-        "bucket": "weather-data",
+        "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Condition\":{\"IpAddress\":{\"aws:SourceIp\":[]}},\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws:s3:::campground-input-bucket/*\"}],\"Version\":\"2012-10-17\"}"
+      }
+    },
+    "aws_step_function": {
+      "pdf_ocr_workflow": {
+        "definition": "{\n  \"Comment\": \"A simple Step Function for PDF OCR\",\n  \"StartAt\": \"OCRProcessing\",\n  \"States\": {\n    \"OCRProcessing\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"${aws_lambda_function.pdf_ocr.arn}\",\n      \"End\": true\n    }\n  }\n}\n",
         "depends_on": [
-          "aws_s3_bucket.weather-data"
+          "aws_lambda_function.pdf_ocr",
+          "aws_iam_role.iam_for_step_function"
         ],
-        "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Condition\":{\"IpAddress\":{\"aws:SourceIp\":[\"0.0.0.0/0\"]}},\"Effect\":\"Allow\",\"Principal\":\"*\",\"Resource\":\"arn:aws-us:s3:::weather-data/*\"}],\"Version\":\"2012-10-17\"}"
+        "name": "pdf_ocr_workflow",
+        "role_arn": "${aws_iam_role.iam_for_step_function.arn}"
       }
     },
     "null_resource": {
-      "another-example-job": {
+      "pdf_ocr": {
         "depends_on": [
-          "aws_ecr_repository.ata-ecr"
+          "aws_ecr_repository.campground_ecr"
         ],
         "provisioner": {
           "local-exec": {
-            "command": "/nix/store/gnia02c07fnsfvgw258qm67s7n05rnq1-build-push/bin/build-push ${aws_ecr_repository.ata-ecr.repository_url}"
+            "command": "/nix/store/54bjr8wlfsdsnswbnjxyf5dd0095ak52-build-push/bin/build-push ${aws_ecr_repository.campground_ecr.repository_url}"
           }
         },
         "triggers": {
           "always_run": true,
-          "lambda_name": "another-example-job",
-          "registry_url": "${aws_ecr_repository.ata-ecr.repository_url}"
-        }
-      },
-      "weather-job": {
-        "depends_on": [
-          "aws_ecr_repository.ata-ecr"
-        ],
-        "provisioner": {
-          "local-exec": {
-            "command": "/nix/store/gnia02c07fnsfvgw258qm67s7n05rnq1-build-push/bin/build-push ${aws_ecr_repository.ata-ecr.repository_url}"
-          }
-        },
-        "triggers": {
-          "always_run": true,
-          "lambda_name": "weather-job",
-          "registry_url": "${aws_ecr_repository.ata-ecr.repository_url}"
+          "package_hash": "b607890e9d3d5b3818413e64666b601f49ea0cb64bac0136ca683c444105fd71",
+          "registry_url": "${aws_ecr_repository.campground_ecr.repository_url}"
         }
       }
     }
