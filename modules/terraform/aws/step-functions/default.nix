@@ -3,10 +3,10 @@ with lib;
 with lib.campground;
 with types;
 
-let cfg = config.aws.step_function;
+let cfg = config.aws.step_functions;
 
 in {
-  options.aws.step_function = {
+  options.aws.step_functions = {
     enable = mkBoolOpt false "Enable AWS Step Functions";
 
     workflows = mkOption {
@@ -60,27 +60,23 @@ in {
     # Enable Lambda module since Step Functions depend on Lambda
     aws.lambda.enable = true;
 
-    aws.lambda.jobs = mapAttrs
-      (name: lambdaConfig: {
-        lambda-image = lambdaConfig.lambda-image;
-        registry-name = lambdaConfig.registry-name;
-        environment.variables = lambdaConfig.environment;
-        timeout = lambdaConfig.timeout;
-        memory_size = lambdaConfig.memory_size;
-      })
-      (concatMapAttrs (_: wf: wf.lambda-functions) cfg.workflows);
+    aws.lambda.jobs = mapAttrs (name: lambdaConfig: {
+      lambda-image = lambdaConfig.lambda-image;
+      registry-name = lambdaConfig.registry-name;
+      environment.variables = lambdaConfig.environment;
+      timeout = lambdaConfig.timeout;
+      memory_size = lambdaConfig.memory_size;
+    }) (concatMapAttrs (_: wf: wf.lambda-functions) cfg.workflows);
 
-    resource.aws_sfn_state_machine = mapAttrs
-      (name: wf: {
-        name = name;
-        role_arn = config.resource.aws_iam_role.iam_for_step_function "arn";
-        definition = builtins.toJSON wf.definition;
-        depends_on =
-          map (lambdaName: "resource.aws_lambda_function.${lambdaName}")
-            (builtins.attrNames wf.lambda-functions)
-          ++ [ "resource.aws_iam_role.iam_for_step_function" ];
-      })
-      cfg.workflows;
+    resource.aws_sfn_state_machine = mapAttrs (name: wf: {
+      name = name;
+      role_arn = config.resource.aws_iam_role.iam_for_step_function "arn";
+      definition = builtins.toJSON wf.definition;
+      depends_on =
+        map (lambdaName: "resource.aws_lambda_function.${lambdaName}")
+        (builtins.attrNames wf.lambda-functions)
+        ++ [ "resource.aws_iam_role.iam_for_step_function" ];
+    }) cfg.workflows;
 
     data.aws_iam_policy_document.step_function_execution = {
       statement = [{
@@ -88,8 +84,8 @@ in {
         actions = [ "lambda:InvokeFunction" ];
         resources =
           map (name: config.resource.aws_lambda_function.${name} "arn")
-            (builtins.attrNames
-              (concatMapAttrs (_: wf: wf.lambda-functions) cfg.workflows));
+          (builtins.attrNames
+            (concatMapAttrs (_: wf: wf.lambda-functions) cfg.workflows));
       }];
     };
 

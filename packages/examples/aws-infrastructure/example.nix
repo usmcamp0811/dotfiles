@@ -8,7 +8,7 @@
     region = "us-east-1";
   };
   config.aws = {
-    step_function = {
+    step_functions = {
       enable = true;
       workflows.pdf_ocr_workflow = {
         definition = {
@@ -45,33 +45,25 @@
         registeries = [{ name = "my-main-ecr"; }];
       };
     };
-
-    # lambda = {
-    #   jobs.another-example-job = {
-    #     lambda-image = pkgs.campground.aws-lambda-image;
-    #     environment.variables = {
-    #       LATITUDE = "38.9072";
-    #       LONGITUDE = "-77.0369";
-    #       S3_BUCKET = "campground-output-bucket";
-    #       S3_KEY = "forecasts/washington_dc_forecast.json";
-    #     };
-    #   };
-    #   pdf-ocr = {
-    #     enable = true;
-    #     variables = {
-    #       INPUT_BUCKET = "campground-input-bucket";
-    #       OUTPUT_BUCKET = "campground-output-bucket";
-    #     };
-    #   };
-    #   weather-job = {
-    #     enable = true;
-    #     variables = {
-    #       LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
-    #       LONGITUDE = "-79.9959"; # Longitude for Pittsburgh, PA
-    #       S3_BUCKET = "campground-output-bucket";
-    #       S3_KEY = "forecasts/pittsburgh_forecast.json";
-    #     };
-    #   };
-    # };
+    lambda = {
+      jobs.another-example-job = {
+        lambda-image = pkgs.campground.aws-lambda-image;
+        environment.variables = {
+          LATITUDE = "38.9072";
+          LONGITUDE = "-77.0369";
+          S3_BUCKET = "campground-output-bucket";
+          S3_KEY = "forecasts/washington_dc_forecast.json";
+        };
+      };
+      weather-job = {
+        enable = true;
+        variables = {
+          LATITUDE = "40.4406"; # Latitude for Pittsburgh, PA
+          LONGITUDE = "-79.9959"; # Longitude for Pittsburgh, PA
+          S3_BUCKET = "campground-output-bucket";
+          S3_KEY = "forecasts/pittsburgh_forecast.json";
+        };
+      };
+    };
   };
 }
