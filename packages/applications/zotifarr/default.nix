@@ -1,6 +1,16 @@
 { pkgs, ... }:
 
-pkgs.mkShell {
+pkgs.stdenv.mkDerivation {
+  pname = "zotifarr";
+  version = "1.0.0"; # Replace with the actual version if known
+
+  src = pkgs.fetchFromGitHub {
+    owner = "Xoconoch";
+    repo = "zotifarr";
+    rev = "main";
+    sha256 = "sha256-aVAnvcolmKw2DMGu5ptgQiwDSFUy6JtbPPrV7FzDCW8=";
+  };
+
   buildInputs = [
     (pkgs.python311.withPackages (ps: [
       ps.APScheduler
@@ -22,27 +32,9 @@ pkgs.mkShell {
     pkgs.lsb-release
   ];
 
-  src = pkgs.fetchFromGitHub {
-    owner = "Xoconoch";
-    repo = "zotifarr";
-    rev = "main";
-    sha256 = "";
-  };
-
-  shellHook = ''
-    echo "Setting up environment..."
-
-    # Create necessary directories
-    mkdir -p /var/log
-    touch /var/log/dockerd.log
-    mkdir -p ./credentials
-    mkdir -p ./downloads
-
-    # Export environment variables
-    export FLASK_APP=app.py
-    export FLASK_RUN_HOST=0.0.0.0
-
-    echo "Environment setup complete."
+  installPhase = ''
+    mkdir -p $out/app
+    cp -r * $out/app
   '';
 
   meta = {
