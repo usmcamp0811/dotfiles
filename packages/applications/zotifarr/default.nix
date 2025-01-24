@@ -20,7 +20,7 @@ let
     sha256 = "sha256-aVAnvcolmKw2DMGu5ptgQiwDSFUy6JtbPPrV7FzDCW8=";
   };
   run_app = pkgs.writeShellScriptBin "zotifarr" ''
-    ${python-env}/bin/python ${src}/app.py
+    ${python-env}/bin/python ${src}/app.py $@
   '';
 in
 pkgs.stdenv.mkDerivation {
