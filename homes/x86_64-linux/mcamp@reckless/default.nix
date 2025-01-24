@@ -107,6 +107,7 @@ with lib.campground; {
       jupyter = enabled;
       python = enabled;
       node = enabled;
+      yt-dlp = enabled;
     };
   };
 
