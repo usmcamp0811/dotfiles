@@ -7,7 +7,7 @@ let
   cfg = config.campground.archetypes.desktop;
 in
 {
-  options.campground.archetypes.desktop = {
+  options.campground.archetypes.desktop = with types; {
     enable = mkEnableOption "desktop home enviornment";
     display-name = mkOpt str "HDMI-A-3" "The name of the primary display";
   };
