@@ -1,4 +1,4 @@
-{ lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
+{ lib, ... }:
 with lib.campground; {
   campground = {
     user = {
@@ -7,21 +7,7 @@ with lib.campground; {
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
     };
-
-    cli = {
-      zsh = enabled;
-      env = enabled;
-      home-manager = enabled;
-      ranger = enabled;
-    };
-    services = { openssh = enabled; };
-
-    tools = {
-      git = enabled;
-      direnv = enabled;
-      python = enabled;
-      vault = enabled;
-    };
+    archetypes.headless = enabled;
   };
 
   home.stateVersion = "23.05";
