@@ -1,4 +1,6 @@
 { lib, config, pkgs, ... }:
+with lib;
+with lib.campground;
 let
   inherit (lib) mkEnableOption mkIf;
 
