@@ -7,20 +7,30 @@ in {
     enable = mkEnableOption "Lemmy";
     ui.port = mkOpt types.int 19536 "Port for the Lemmy UI.";
     server.port = mkOpt types.int 18537 "Port for the Lemmy server.";
-    smtpPasswordFile = mkOpt types.path "/var/lib/lemmy/smtp-password"
-      "Path to the SMTP password file.";
-    adminPasswordFile = mkOpt types.path "/var/lib/lemmy/admin-password"
-      "Path to the admin password file.";
-
-    hostname =
-      mkOpt types.str "lemmy.lan.aicampground.com" "Hostname for Lemmy.";
+    hostname = mkOpt types.str "lemmy.aicampground.com" "Hostname for Lemmy.";
     captcha = {
       enabled = mkOpt types.bool false "Enable captcha for Lemmy.";
       difficulty = mkOpt types.str "easy" "Captcha difficulty level.";
     };
 
-    pictrsApiKeyFile = mkOpt types.path "/var/lib/lemmy/pictrs-api-key"
-      "Path to the Pictrs API key file.";
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/lemmy"
+      "The Vault path to the KV containing the KVs that are for each database";
+    kvVersion = mkOption {
+      type = enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -45,8 +55,6 @@ in {
 
     services.lemmy = {
       enable = true;
-      ui.package = cfg.ui.package;
-      server.package = cfg.server.package;
       ui.port = cfg.ui.port;
       database = {
         createLocally = true;
@@ -61,31 +69,27 @@ in {
         };
         email = { tls_type = "starttls"; };
       };
-      smtpPasswordFile = cfg.smtpPasswordFile;
-      adminPasswordFile = cfg.adminPasswordFile;
-      pictrsApiKeyFile = cfg.pictrsApiKeyFile;
     };
 
-    systemd.services.lemmySecrets = {
-      description = "Manage Lemmy Secrets";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-      };
-      script = ''
-        mkdir -p /var/lib/lemmy
-        echo "smtp_password" > ${cfg.smtpPasswordFile}
-        echo "admin_password" > ${cfg.adminPasswordFile}
-        echo "pictrs_api_key" > ${cfg.pictrsApiKeyFile}
-        chown ${cfg.user}:${cfg.group} /var/lib/lemmy/*
-      '';
-      wantedBy = [ "multi-user.target" ];
-      before = [ "lemmy.service" ];
-    };
+    # systemd.services.lemmySecrets = {
+    #   description = "Manage Lemmy Secrets";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     User = "root";
+    #   };
+    #   script = ''
+    #     mkdir -p /var/lib/lemmy
+    #     echo "smtp_password" > ${cfg.smtpPasswordFile}
+    #     echo "admin_password" > ${cfg.adminPasswordFile}
+    #     echo "pictrs_api_key" > ${cfg.pictrsApiKeyFile}
+    #     chown ${cfg.user}:${cfg.group} /var/lib/lemmy/*
+    #   '';
+    #   wantedBy = [ "multi-user.target" ];
+    #   before = [ "lemmy.service" ];
+    # };
 
-    campground.services.vault-agent.services.lemmySecrets = {
+    campground.services.vault-agent.services.lemmy = {
       settings = {
-        # replace with the address of your vault
         vault.address = cfg.vault-address;
         auto_auth = {
           method = [{
@@ -98,34 +102,48 @@ in {
           }];
         };
       };
-      secrets = {
-        file = {
-          files = {
-            "mealie-creds" = {
-              text = ''
-                # SMTP Configuration
-                LEMMY_SMTP_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}{{ end }}
-                LEMMY_SMTP_SERVER={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}{{ end }}
-                LEMMY_SMTP_LOGIN={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}{{ end }}
-                LEMMY_SMTP_FROM_ADDRESS={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_FROM_ADDRESS }}{{ else }}{{ .Data.data.LEMMY_SMTP_FROM_ADDRESS }}{{ end }}{{ end }}
+      secrets.environment.templates = {
+        mlflow = {
+          text = ''
+            # SMTP Configuration
+            LEMMY_SMTP_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}{{ end }}
+            LEMMY_SMTP_SERVER={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}{{ end }}
+            LEMMY_SMTP_LOGIN={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}{{ end }}
+            LEMMY_SMTP_FROM_ADDRESS={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_FROM_ADDRESS }}{{ else }}{{ .Data.data.LEMMY_SMTP_FROM_ADDRESS }}{{ end }}{{ end }}
 
-                # Pictrs Configuration
-                LEMMY_PICTRS_API_KEY={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}{{ end }}
+            # Pictrs Configuration
+            LEMMY_PICTRS_API_KEY={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}{{ end }}
 
-                # Admin Setup Configuration
-                LEMMY_ADMIN_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}{{ end }}
-                LEMMY_ADMIN_EMAIL={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_EMAIL }}{{ else }}{{ .Data.data.LEMMY_ADMIN_EMAIL }}{{ end }}{{ end }}
-
-                # General Configuration
-                LEMMY_HOSTNAME={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_HOSTNAME }}{{ else }}{{ .Data.data.LEMMY_HOSTNAME }}{{ end }}{{ end }}
-                EOF
-              '';
-              permissions = "0600";
-              change-action = "restart";
-            };
-          };
+            # Admin Setup Configuration
+            LEMMY_ADMIN_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}{{ end }}
+            LEMMY_ADMIN_EMAIL={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_EMAIL }}{{ else }}{{ .Data.data.LEMMY_ADMIN_EMAIL }}{{ end }}{{ end }}
+          '';
         };
       };
+      # secrets = {
+      #   file = {
+      #     files = {
+      #       "mealie-creds" = {
+      #         text = ''
+      #           # SMTP Configuration
+      #           LEMMY_SMTP_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}{{ end }}
+      #           LEMMY_SMTP_SERVER={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}{{ end }}
+      #           LEMMY_SMTP_LOGIN={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}{{ end }}
+      #           LEMMY_SMTP_FROM_ADDRESS={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_FROM_ADDRESS }}{{ else }}{{ .Data.data.LEMMY_SMTP_FROM_ADDRESS }}{{ end }}{{ end }}
+      #
+      #           # Pictrs Configuration
+      #           LEMMY_PICTRS_API_KEY={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}{{ end }}
+      #
+      #           # Admin Setup Configuration
+      #           LEMMY_ADMIN_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}{{ end }}
+      #           LEMMY_ADMIN_EMAIL={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_EMAIL }}{{ else }}{{ .Data.data.LEMMY_ADMIN_EMAIL }}{{ end }}{{ end }}
+      #         '';
+      #         permissions = "0600";
+      #         change-action = "restart";
+      #       };
+      #     };
+      #   };
+      # };
     };
   };
 }
