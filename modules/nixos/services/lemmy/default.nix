@@ -84,9 +84,10 @@ in {
       };
       script = ''
         mkdir -p /var/lib/lemmy
-        cp /tmp/detsys-vault/stmpPasswordFile  > /var/lib/lemmy/smtpPasswordFile
-        cp /tmp/detsys-vault/adminPasswordFile  > /var/lib/lemmy/adminPasswordFile
-        cp /tmp/detsys-vault/pictrsApiKeyFile  > /var/lib/lemmy/pictrsApiKeyFile
+        mkdir -p /run/lemmy
+        cp /tmp/detsys-vault/smtpPasswordFile /var/lib/lemmy/smtpPasswordFile
+        cp /tmp/detsys-vault/adminPasswordFile /var/lib/lemmy/adminPasswordFile
+        cp /tmp/detsys-vault/pictrsApiKeyFile /var/lib/lemmy/pictrsApiKeyFile
         chown ${cfg.user}:${cfg.group} /var/lib/lemmy/*
       '';
       wantedBy = [ "multi-user.target" ];
