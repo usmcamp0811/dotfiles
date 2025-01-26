@@ -8,6 +8,7 @@ in {
     user = mkOpt types.str "lemmy" "The user under which lemmy runs.";
     group = mkOpt types.str "lemmy" "The group under which lemmy runs.";
     site_name = mkOpt types.str "Campground" "Site Name";
+    port = mkOpt types.int 19533 "Port for the Lemmy UI.";
     ui.port = mkOpt types.int 19536 "Port for the Lemmy UI.";
     server.port = mkOpt types.int 18537 "Port for the Lemmy server.";
     hostname = mkOpt types.str "lemmy.aicampground.com" "Hostname for Lemmy.";
@@ -56,10 +57,15 @@ in {
       }];
       authentication = [ "local   lemmy    lemmy   trust" ];
     };
+    services.nginx.virtualHosts."${cfg.hostname}".listen = [{
+      addr = "0.0.0.0";
+      port = cfg.port;
+    }];
 
     services.lemmy = {
       enable = true;
       ui.port = cfg.ui.port;
+      nginx.enable = true;
       database = {
         createLocally = true;
         uri = "postgres:///lemmy?host=/run/postgresql&user=lemmy";

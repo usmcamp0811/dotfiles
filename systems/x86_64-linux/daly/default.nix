@@ -44,12 +44,12 @@ with lib.campground; {
     nfs.client = { enable = true; };
 
     services = {
+
+      lemmy = enabled;
+      # lynis = enabled;
       # netbird.server = enabled;
       ldap-client = { enable = mkForce false; };
-      authentik = {
-        enable = true;
-
-      };
+      authentik = { enable = true; };
       borgbackup = {
         enable = true;
         jobs = {
@@ -77,7 +77,6 @@ with lib.campground; {
           "yarn.nodemanager.hostname" = "daly";
           "yarn.scheduler.capacity.root.queues" = "default";
           "yarn.scheduler.capacity.root.default.capacity" = "100";
-
         };
         hdfs = {
           datanode.enable = true;

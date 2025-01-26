@@ -152,6 +152,14 @@ in
               };
             };
 
+            http.routers.lemmy = {
+              rule = "Host(`lemmy.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "lemmy";
+            };
+
+            http.services.lemmy = generateServiceConfig "lemmy";
+
             http.routers.authentik = {
               rule = "Host(`auth.aicampground.com`)";
               entryPoints = [ "websecure" ];
