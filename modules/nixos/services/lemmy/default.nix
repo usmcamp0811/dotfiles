@@ -107,45 +107,18 @@ in {
       secrets.environment.templates = {
         lemmy = {
           text = ''
-            # SMTP Configuration
-            LEMMY_SMTP_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}{{ end }}
-            LEMMY_SMTP_SERVER={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}{{ end }}
-            LEMMY_SMTP_LOGIN={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}{{ end }}
-            LEMMY_SMTP_FROM_ADDRESS={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_FROM_ADDRESS }}{{ else }}{{ .Data.data.LEMMY_SMTP_FROM_ADDRESS }}{{ end }}{{ end }}
-
-            # Pictrs Configuration
-            LEMMY_PICTRS_API_KEY={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}{{ end }}
-
-            # Admin Setup Configuration
-            LEMMY_ADMIN_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}{{ end }}
-            LEMMY_ADMIN_EMAIL={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_EMAIL }}{{ else }}{{ .Data.data.LEMMY_ADMIN_EMAIL }}{{ end }}{{ end }}
+            {{ with secret "${cfg.vault-path}" }}
+            LEMMY_SMTP_PASSWORD={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}
+            LEMMY_SMTP_SERVER={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}
+            LEMMY_SMTP_LOGIN={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}
+            LEMMY_SMTP_FROM_ADDRESS={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_FROM_ADDRESS }}{{ else }}{{ .Data.data.LEMMY_SMTP_FROM_ADDRESS }}{{ end }}
+            LEMMY_PICTRS_API_KEY={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}
+            LEMMY_ADMIN_PASSWORD={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}
+            LEMMY_ADMIN_EMAIL={{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_ADMIN_EMAIL }}{{ else }}{{ .Data.data.LEMMY_ADMIN_EMAIL }}{{ end }}
+            {{ end }}
           '';
         };
       };
-      # secrets = {
-      #   file = {
-      #     files = {
-      #       "mealie-creds" = {
-      #         text = ''
-      #           # SMTP Configuration
-      #           LEMMY_SMTP_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}{{ end }}
-      #           LEMMY_SMTP_SERVER={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}{{ end }}
-      #           LEMMY_SMTP_LOGIN={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}{{ end }}
-      #           LEMMY_SMTP_FROM_ADDRESS={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_FROM_ADDRESS }}{{ else }}{{ .Data.data.LEMMY_SMTP_FROM_ADDRESS }}{{ end }}{{ end }}
-      #
-      #           # Pictrs Configuration
-      #           LEMMY_PICTRS_API_KEY={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}{{ end }}
-      #
-      #           # Admin Setup Configuration
-      #           LEMMY_ADMIN_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}{{ end }}
-      #           LEMMY_ADMIN_EMAIL={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_ADMIN_EMAIL }}{{ else }}{{ .Data.data.LEMMY_ADMIN_EMAIL }}{{ end }}{{ end }}
-      #         '';
-      #         permissions = "0600";
-      #         change-action = "restart";
-      #       };
-      #     };
-      #   };
-      # };
     };
   };
 }
