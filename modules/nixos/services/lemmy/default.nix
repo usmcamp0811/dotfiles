@@ -3,8 +3,10 @@ with lib;
 with lib.campground;
 let cfg = config.campground.services.lemmy;
 in {
-  options.campground.services.lemmy = {
+  options.campground.services.lemmy = with types; {
     enable = mkEnableOption "Lemmy";
+    user = mkOpt types.str "lemmy" "The user under which lemmy runs.";
+    group = mkOpt types.str "lemmy" "The group under which lemmy runs.";
     ui.port = mkOpt types.int 19536 "Port for the Lemmy UI.";
     server.port = mkOpt types.int 18537 "Port for the Lemmy server.";
     hostname = mkOpt types.str "lemmy.aicampground.com" "Hostname for Lemmy.";
@@ -44,7 +46,7 @@ in {
       groups = { "${cfg.group}" = { }; };
     };
 
-    campground.services.postgresql = mkIf cfg.database.createLocally {
+    campground.services.postgresql = {
       enable = true;
       databases = [{
         name = "lemmy";
@@ -87,7 +89,7 @@ in {
     #   wantedBy = [ "multi-user.target" ];
     #   before = [ "lemmy.service" ];
     # };
-
+    services.pict-rs.package = pkgs.pict-rs;
     campground.services.vault-agent.services.lemmy = {
       settings = {
         vault.address = cfg.vault-address;
@@ -103,7 +105,7 @@ in {
         };
       };
       secrets.environment.templates = {
-        mlflow = {
+        lemmy = {
           text = ''
             # SMTP Configuration
             LEMMY_SMTP_PASSWORD={{ with secret "{{ .vault-path }}" }}{{ if eq "{{ .kvVersion }}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}{{ end }}
