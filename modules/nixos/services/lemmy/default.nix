@@ -7,6 +7,7 @@ in {
     enable = mkEnableOption "Lemmy";
     user = mkOpt types.str "lemmy" "The user under which lemmy runs.";
     group = mkOpt types.str "lemmy" "The group under which lemmy runs.";
+    site_name = mkOpt types.str "Campground" "Site Name";
     ui.port = mkOpt types.int 19536 "Port for the Lemmy UI.";
     server.port = mkOpt types.int 18537 "Port for the Lemmy server.";
     hostname = mkOpt types.str "lemmy.aicampground.com" "Hostname for Lemmy.";
@@ -63,11 +64,12 @@ in {
         createLocally = true;
         uri = "postgres:///lemmy?host=/run/postgresql&user=lemmy";
       };
-      pictrsApiKeyFile = "/tmp/detsys-vault/pictrsApiKeyFile";
+      # pictrsApiKeyFile = "/run/lemmy/pictrs_api_key";
 
       settings = {
         port = cfg.server.port;
         hostname = cfg.hostname;
+        site_name = cfg.site_name;
         captcha = {
           enabled = cfg.captcha.enabled;
           difficulty = cfg.captcha.difficulty;
@@ -76,26 +78,75 @@ in {
       };
     };
 
-    systemd.services.lemmySecrets = {
-      description = "Manage Lemmy Secrets";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
+    systemd.services.lemmy = {
+      # Replace serviceConfig to customize the systemd service
+      environment = {
+        LEMMY_CONFIG_LOCATION = mkForce "/run/lemmy/config.hjson";
       };
-      script = ''
-        mkdir -p /var/lib/lemmy
-        mkdir -p /run/lemmy
-        cp /tmp/detsys-vault/smtpPasswordFile /var/lib/lemmy/smtpPasswordFile
-        cp /tmp/detsys-vault/adminPasswordFile /var/lib/lemmy/adminPasswordFile
-        cp /tmp/detsys-vault/pictrsApiKeyFile /var/lib/lemmy/pictrsApiKeyFile
-        chown ${cfg.user}:${cfg.group} /var/lib/lemmy/*
+      preStart = ''
+        ${pkgs.coreutils}/bin/mkdir -p /run/lemmy/
+        ${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' \
+          /tmp/detsys-vault/lemmySecretConfig.json \
+          <<< '${builtins.toJSON config.services.lemmy.settings}' \
+          > /run/lemmy/config.hjson
+        cp /tmp/detsys-vault/pictrs_api_key /run/lemmy/
+        ${pkgs.coreutils}/bin/chmod 600 /run/lemmy/config.hjson
       '';
-      wantedBy = [ "multi-user.target" ];
-      before = [ "lemmy.service" ];
+      # script = "cat /run/lemmy/config.hjson";
+      # ${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' \
+      #   /tmp/detsys-vault/lemmySecretConfig.json \
+      #   <<< '${builtins.toJSON config.services.lemmy.settings}' \
+      #   > /run/lemmy/config.hjson
+      # ${pkgs.coreutils}/bin/chmod 600 /run/lemmy/config.hjson
+      path = with pkgs; [ ps busybox coreutils ];
+      # after = [ "network.target" ];
+      # wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        # Type = "oneshot";
+        # DynamicUser = false;
+        # RuntimeDirectory = "/var/lib/lemmy";
+        User = "root";
+        # Group = "root";
+        # ExecStartPre = "";
+        # ExecStartPre = ''
+        #   ${pkgs.coreutils}/bin/mkdir -p /run/lemmy/
+        #   cp /tmp/detsys-vault/lemmySecretConfig.json /run/lemmy/wtf
+        #   ${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' \
+        #     /tmp/detsys-vault/lemmySecretConfig.json \
+        #     <<< '${builtins.toJSON config.services.lemmy.settings}' \
+        #     > /run/lemmy/config.hjson
+        #   ${pkgs.coreutils}/bin/chmod 600 /run/lemmy/config.hjson
+        # '';
+        # ExecStart = "${pkgs.lemmy-server}/bin/lemmy_server";
+        # ExecStart =
+        #   "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/lemmySecretConfig.json /run/lemmy/wtf2";
+      };
+
+      # Other necessary overrides or options
+      # wantedBy =
+      #   mkForce [ "multi-user.target" ]; # Ensure the service starts on boot
+      # after = mkForce [ "network.target" ]; # Adjust dependencies as needed
+      # before = [ "lemmy.service" ];
     };
+    # systemd.services.lemmySecrets = {
+    #   description = "Manage Lemmy Secrets";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     User = "root";
+    #   };
+    #   script = ''
+    #     ${pkgs.install}/bin/install -m 600 \
+    #       <(${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' /tmp/detsys-vault/lemmySecretConfig.json - <<< '${
+    #         builtins.toJSON config.services.lemmy.settings
+    #       }') \
+    #       /run/lemmy/config.hjson
+    #   '';
+    #   wantedBy = [ "multi-user.target" ];
+    #   before = [ "lemmy.service" ];
+    # };
     services.pict-rs.package = pkgs.pict-rs;
     services.pict-rs.port = cfg.pict-rs-port;
-    campground.services.vault-agent.services.lemmySecrets = {
+    campground.services.vault-agent.services.lemmy = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -112,23 +163,35 @@ in {
       secrets = {
         file = {
           files = {
-            "smtpPasswordFile" = {
+            "pictrs_api_key" = {
               text = ''
-                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}{{ end }}
               '';
               permissions = "0600";
               change-action = "restart";
             };
-            "adminPasswordFile" = {
+            "lemmySecretConfig.json" = {
               text = ''
-                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}
-              '';
-              permissions = "0600";
-              change-action = "restart";
-            };
-            "pictrsApiKeyFile" = {
-              text = ''
-                {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}
+                {{ with secret "${cfg.vault-path}" }}
+                {
+                  "email": {
+                    "smtp_server": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}",
+                    "smtp_login": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}",
+                    "smtp_password": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}",
+                    "smtp_from_address": "noreply@lemmy.aicampground.com",
+                    "tls_type": "starttls"
+                  },
+                  "setup": {
+                    "admin_username": "admin",
+                    "admin_password": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}",
+                    "site_name": "Campground"
+                  },
+                 "pictrs": {
+                   "api_key": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}"
+                 },
+                  "hostname": "lemmy.campground.com"
+                }
+                {{ end }}
               '';
               permissions = "0600";
               change-action = "restart";
