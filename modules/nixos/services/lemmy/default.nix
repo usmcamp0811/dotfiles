@@ -71,10 +71,10 @@ in {
         uri = "postgres:///lemmy?host=/run/postgresql&user=lemmy";
       };
       # pictrsApiKeyFile = "/run/lemmy/pictrs_api_key";
-
       settings = {
         port = cfg.server.port;
         hostname = cfg.hostname;
+        bind = "0.0.0.0";
         site_name = cfg.site_name;
         captcha = {
           enabled = cfg.captcha.enabled;
@@ -85,7 +85,6 @@ in {
     };
 
     systemd.services.lemmy = {
-      # Replace serviceConfig to customize the systemd service
       environment = {
         LEMMY_CONFIG_LOCATION = mkForce "/run/lemmy/config.hjson";
       };
@@ -97,59 +96,17 @@ in {
           > /run/lemmy/config.hjson
         cp /tmp/detsys-vault/pictrs_api_key /run/lemmy/
         ${pkgs.coreutils}/bin/chmod 600 /run/lemmy/config.hjson
+        ${pkgs.coreutils}/bin/chown ${cfg.user}:${cfg.group} /run/lemmy/config.hjson 
+        ${pkgs.coreutils}/bin/chown ${cfg.user}:${cfg.group} /run/lemmy/pictrs_api_key
       '';
-      # script = "cat /run/lemmy/config.hjson";
-      # ${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' \
-      #   /tmp/detsys-vault/lemmySecretConfig.json \
-      #   <<< '${builtins.toJSON config.services.lemmy.settings}' \
-      #   > /run/lemmy/config.hjson
-      # ${pkgs.coreutils}/bin/chmod 600 /run/lemmy/config.hjson
       path = with pkgs; [ ps busybox coreutils ];
-      # after = [ "network.target" ];
-      # wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        # Type = "oneshot";
-        # DynamicUser = false;
-        # RuntimeDirectory = "/var/lib/lemmy";
+        ExecStart = mkForce
+          "${pkgs.su}/bin/su -s /bin/sh -c '${config.services.lemmy.server.package}/bin/lemmy_server' - lemmy";
         User = "root";
-        # Group = "root";
-        # ExecStartPre = "";
-        # ExecStartPre = ''
-        #   ${pkgs.coreutils}/bin/mkdir -p /run/lemmy/
-        #   cp /tmp/detsys-vault/lemmySecretConfig.json /run/lemmy/wtf
-        #   ${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' \
-        #     /tmp/detsys-vault/lemmySecretConfig.json \
-        #     <<< '${builtins.toJSON config.services.lemmy.settings}' \
-        #     > /run/lemmy/config.hjson
-        #   ${pkgs.coreutils}/bin/chmod 600 /run/lemmy/config.hjson
-        # '';
-        # ExecStart = "${pkgs.lemmy-server}/bin/lemmy_server";
-        # ExecStart =
-        #   "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/lemmySecretConfig.json /run/lemmy/wtf2";
       };
 
-      # Other necessary overrides or options
-      # wantedBy =
-      #   mkForce [ "multi-user.target" ]; # Ensure the service starts on boot
-      # after = mkForce [ "network.target" ]; # Adjust dependencies as needed
-      # before = [ "lemmy.service" ];
     };
-    # systemd.services.lemmySecrets = {
-    #   description = "Manage Lemmy Secrets";
-    #   serviceConfig = {
-    #     Type = "oneshot";
-    #     User = "root";
-    #   };
-    #   script = ''
-    #     ${pkgs.install}/bin/install -m 600 \
-    #       <(${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' /tmp/detsys-vault/lemmySecretConfig.json - <<< '${
-    #         builtins.toJSON config.services.lemmy.settings
-    #       }') \
-    #       /run/lemmy/config.hjson
-    #   '';
-    #   wantedBy = [ "multi-user.target" ];
-    #   before = [ "lemmy.service" ];
-    # };
     services.pict-rs.package = pkgs.pict-rs;
     services.pict-rs.port = cfg.pict-rs-port;
     campground.services.vault-agent.services.lemmy = {
@@ -195,7 +152,8 @@ in {
                  "pictrs": {
                    "api_key": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}"
                  },
-                  "hostname": "lemmy.campground.com"
+                  "hostname": "lemmy.campground.com",
+                  "bind": "0.0.0.0"
                 }
                 {{ end }}
               '';
