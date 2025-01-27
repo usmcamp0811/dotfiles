@@ -135,7 +135,7 @@ in
                     "tls_type": "starttls"
                   },
                   "setup": {
-                    "admin_username": "admin",
+                    "admin_username": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_ADMIN_USERNAME }}{{ else }}{{ .Data.data.LEMMY_ADMIN_USERNAME }}{{ end }}",
                     "admin_password": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}",
                     "site_name": "Campground"
                   },
