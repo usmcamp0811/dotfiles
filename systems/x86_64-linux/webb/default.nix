@@ -67,7 +67,7 @@ in
 
     services = {
       # onlyoffice = { enable = true; };
-      # lemmy = enabled;
+      lemmy = enabled;
       netbird.server = enabled;
       vault = {
         enable = true;
@@ -182,7 +182,7 @@ in
           }
         ];
       };
-      collabora = enabled;
+      # collabora = enabled;
       # keycloak = {
       #   enable = true;
       #   port = 43852;

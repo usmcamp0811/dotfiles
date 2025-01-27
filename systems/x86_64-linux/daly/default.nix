@@ -45,7 +45,7 @@ with lib.campground; {
 
     services = {
 
-      lemmy = enabled;
+      # lemmy = enabled;
       # lynis = enabled;
       # netbird.server = enabled;
       ldap-client = { enable = mkForce false; };
