@@ -74,7 +74,6 @@ in
         createLocally = true;
         uri = "postgres:///lemmy?host=/run/postgresql&user=lemmy";
       };
-      # pictrsApiKeyFile = "/run/lemmy/pictrs_api_key";
       settings = {
         port = cfg.server.port;
         hostname = cfg.hostname;
@@ -90,27 +89,21 @@ in
 
     systemd.services.lemmy = {
       environment = {
-        LEMMY_CONFIG_LOCATION = mkForce "/var/lib/lemmy/config.hjson";
+        LEMMY_CONFIG_LOCATION = mkForce "/run/lemmy/config.hjson";
       };
       preStart = ''
         ${pkgs.coreutils}/bin/mkdir -p /run/lemmy/
-        echo "$LEMMY_CONFIG_JSON" | ${pkgs.jq}/bin/jq > /var/lib/lemmy/secret.json 
+        echo "$LEMMY_CONFIG_JSON" | ${pkgs.jq}/bin/jq > /run/lemmy/secret.json 
         cp ${
           settingsFormat.generate "config.hjson" config.services.lemmy.settings
-        } /var/lib/lemmy/defaults.json
+        } /run/lemmy/defaults.json
         ${pkgs.jq}/bin/jq -s 'reduce .[] as $item ({}; . * $item)' \
-          /var/lib/lemmy/secret.json /var/lib/lemmy/defaults.json \
-          > /var/lib/lemmy/config.hjson
-        echo "$LEMMY_PICTRS_API_KEY" > /var/lib/lemmy/pictrs_api_key
-        ${pkgs.coreutils}/bin/chmod 600 /var/lib/lemmy/config.hjson
+          /run/lemmy/secret.json /run/lemmy/defaults.json \
+          > /run/lemmy/config.hjson
+        echo "$LEMMY_PICTRS_API_KEY" > /run/lemmy/pictrs_api_key
+        ${pkgs.coreutils}/bin/chmod 600 /run/lemmy/config.hjson
       '';
       path = with pkgs; [ ps busybox coreutils ];
-      serviceConfig = {
-        # ExecStart = mkForce
-        #   "${pkgs.su}/bin/su -s /bin/sh -c '${config.services.lemmy.server.package}/bin/lemmy_server' - lemmy";
-        # User = "root";
-        ReadWritePaths = [ "/var/lib/lemmy" ];
-      };
 
     };
     services.pict-rs.package = pkgs.pict-rs;
@@ -130,44 +123,6 @@ in
         };
       };
       secrets = {
-        file = {
-          files = {
-            "pictrs_api_key" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}{{ end }}
-              '';
-              permissions = "0600";
-              change-action = "restart";
-            };
-            "lemmySecretConfig.json" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}
-                {
-                  "email": {
-                    "smtp_server": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_SERVER }}{{ else }}{{ .Data.data.LEMMY_SMTP_SERVER }}{{ end }}",
-                    "smtp_login": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_LOGIN }}{{ else }}{{ .Data.data.LEMMY_SMTP_LOGIN }}{{ end }}",
-                    "smtp_password": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_SMTP_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_SMTP_PASSWORD }}{{ end }}",
-                    "smtp_from_address": "noreply@lemmy.aicampground.com",
-                    "tls_type": "starttls"
-                  },
-                  "setup": {
-                    "admin_username": "admin",
-                    "admin_password": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.LEMMY_ADMIN_PASSWORD }}{{ end }}",
-                    "site_name": "Campground"
-                  },
-                 "pictrs": {
-                   "api_key": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}"
-                 },
-                  "hostname": "lemmy.campground.com",
-                  "bind": "0.0.0.0"
-                }
-                {{ end }}
-              '';
-              permissions = "0600";
-              change-action = "restart";
-            };
-          };
-        };
         environment.templates = {
           lemmy = {
             text = ''
