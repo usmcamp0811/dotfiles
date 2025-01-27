@@ -58,8 +58,7 @@ in
         name = "lemmy";
         user = "${cfg.user}";
       }];
-      authentication =
-        [ "local   root    lemmy   trust" "local   lemmy    lemmy   trust" ];
+      authentication = [ "local   lemmy    lemmy   trust" ];
     };
     services.nginx.virtualHosts."${cfg.hostname}".listen = [{
       addr = "0.0.0.0";
