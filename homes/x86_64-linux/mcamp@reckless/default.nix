@@ -12,7 +12,7 @@ with lib.campground; {
     };
     archetypes.desktop = {
       enable = true;
-      display-name = "HDMI-A-3";
+      display-name = "HDMI-A-2";
     };
     services.protonmail-bridge = enabled;
     apps.thunderbird = enabled;
