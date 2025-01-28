@@ -6,7 +6,6 @@
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
-    # "github:nixos/nixpkgs/release-24.05/797f7dc49e0bc7fab4b57c021cdf68f595e47841";
     pyarrow.url =
       "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     hyprland-works-here.url =
@@ -14,14 +13,10 @@
     # TODO: Switch back to unstable branch when the node fix gets merged
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    # immich-fix.url =
-    #   "github:nixos/nixpkgs/1925c603f17fc89f4c8f6bf6f631a802ad85d784";
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
 
     # nixvim
-    # nix-vim.url =
-    #   "github:nix-community/nixvim/123c102a13d1aad053984af08ecc34e807e1f69d";
     nix-vim = {
       url = "github:nix-community/nixvim/main";
       inputs.nixpkgs.follows = "unstable";
@@ -90,7 +85,6 @@
 
     # Snowfall Lib
     snowfall-lib.url = "github:snowfallorg/lib";
-    # snowfall-lib.url = "path:/home/mcamp/code/lib";
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
     # Snowfall Flake
@@ -108,7 +102,7 @@
     nixos-generators.url = "github:nix-community/nixos-generators";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Home Manager (release-23.05)
+    # Home Manager (release-24.11)
     home-manager.url = "github:nix-community/home-manager/release-24.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -124,18 +118,13 @@
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
     updated-ollama.url = "github:nixos/nixpkgs";
-    # Flake Hygiene
-    # flake-checker = {
-    #   url = "github:usmcamp0811/flake-checker";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:nix-community/nix-ld/";
     nix-ld.inputs.nixpkgs.follows = "unstable";
 
     nur.url = "github:nix-community/NUR";
 
-    # nix2sbom.url = "https://flakehub.com/f/louib/nix2sbom/0.1.97.tar.gz";
     nix2sbom.url = "github:louib/nix2sbom";
     nix2sbom.inputs.nixpkgs.follows = "unstable";
 
@@ -149,14 +138,10 @@
 
     nix-snapshotter = {
       url = "github:yu-re-ka/nix-snapshotter/update";
-      # url = "github:pdtpartners/nix-snapshotter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    technofab = {
-      url = "gitlab:TECHNOFAB/nix-packages";
-      # inputs.nixpkgs.follows = "unstable";
-    };
+    technofab = { url = "gitlab:TECHNOFAB/nix-packages"; };
 
     # GPG default configuration
     gpg-base-conf = {
@@ -165,8 +150,6 @@
     };
 
     campground-nvim.url = "gitlab:usmcamp0811/campground-nvim";
-    # campground-jupyterlab.url = "gitlab:usmcamp0811/campground-jupyter-lab";
-    # campground-jupyterlab.inputs.nixpkgs.follows = "unstable";
 
     campground-packages.url = "gitlab:usmcamp0811/campground-packages";
 
@@ -186,8 +169,6 @@
     dream2nix.url = "github:nix-community/dream2nix";
     scientific-fhs = {
       url = "github:usmcamp0811/scientific-fhs/pass-python-env-in";
-      # url = "path:/home/mcamp/code/scientific-fhs";
-      # inputs.nixpkgs.follows = "unstable";
     };
 
     nix-output-monitor.url = "github:maralorn/nix-output-monitor";
@@ -205,7 +186,6 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
-    # nix-health.url = "github:juspay/nix-health?dir=module";
     crowdsec = {
       url = "git+https://codeberg.org/kampka/nix-flake-crowdsec.git";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -228,10 +208,6 @@
           namespace = "campground";
         };
       };
-      # system = "x86_64-linux";
-      # pkgs = import nixpkgs {
-      #   inherit system;
-      # };
     in
     lib.mkFlake {
       channels-config = {
@@ -255,7 +231,6 @@
         poetry2nix.overlays.default
         nix-topology.overlays.default
         funkwhale.overlays.default
-        # neorg-overlay.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
@@ -269,25 +244,8 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
-        # "${unstable}/nixos/modules/services/web-apps/immich.nix"
-        # "${unstable}/nixos/modules/services/databases/chromadb.nix"
-        # unstable.nixosModules.redis
-        # nixos-cli.nixosModules.nixos-cli
-        # nix-health.flakeModule
-        # scientific-fhs.nixosModules.default
       ];
 
-      # Temporary, immich is not in 24.05
-      # systems.hosts.webb.modules = with inputs;
-      #   [
-      #     ({ ... }: {
-      #       disabledModules = [ "services/databases/redis.nix" ];
-      #       imports = [
-      #         "${unstable}/nixos/modules/services/web-apps/immich.nix"
-      #         "${unstable}/nixos/modules/services/databases/redis.nix"
-      #       ];
-      #     })
-      #   ];
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53
@@ -314,24 +272,9 @@
               # flake8.enable = true;
               # markdownlint.enable = true;
               # yamllint.enable = true;
-              # deadnix.enable = true;
+              deadnix.enable = true;
             };
           };
-        # checks.mlflow-test = channels.nixpkgs.nixosTest {
-        #   name = "mlflow-test";
-        #   nodes = {
-        #     machine =
-        #       { inputs, ... }: {
-        #         environment.systemPackages = [ inputs.self.mlflow-server ];
-        #       };
-        #   };
-        #   testScript = ''
-        #     startAll;
-        #     machine.waitUntilSucceeds("mlflow --help");
-        #     machine.succeed("mlflow --help");
-        #   '';
-        # };
-
       };
       terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
 
