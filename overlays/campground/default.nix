@@ -1,5 +1,5 @@
-{ campground-nvim, old-nixpkgs, ... }:
-final: prev: {
+{ campground-nvim, old-nixpkgs, channels, ... }: {
+  inherit (channels.unstable) lemmy-server lemmy-help;
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
 
   neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
