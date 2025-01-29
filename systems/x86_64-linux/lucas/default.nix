@@ -98,7 +98,10 @@ with lib.campground; {
       n8n = { enable = true; };
       chromadb = { enable = true; };
       # onlyoffice = { enable = true; };
-      ollama = { enable = true; };
+      ollama = {
+        enable = true;
+        acceleration = "cuda";
+      };
       # hadoop = {
       #   enable = true;
       #   yarnSite = { "yarn.nodemanager.hostname" = "lucas"; };
