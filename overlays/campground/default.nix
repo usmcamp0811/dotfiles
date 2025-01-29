@@ -1,5 +1,6 @@
-{ campground-nvim, old-nixpkgs, channels, ... }: {
-  inherit (channels.unstable) lemmy-server lemmy-help;
+{ campground-nvim, old-nixpkgs, channels, ... }:
+final: prev:
+{
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
 
   neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
@@ -19,4 +20,6 @@
       cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
     '';
   });
+} // {
+  inherit (channels.unstable) lemmy-server lemmy-help;
 }

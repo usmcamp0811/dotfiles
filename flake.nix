@@ -272,7 +272,7 @@
               # flake8.enable = true;
               # markdownlint.enable = true;
               # yamllint.enable = true;
-              deadnix.enable = true;
+              # deadnix.enable = true;
             };
           };
       };
