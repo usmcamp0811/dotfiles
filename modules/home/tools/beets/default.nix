@@ -31,8 +31,19 @@ let
       "\\s+$" = "";
       "\\s+" = "_";
     };
-    plugins =
-      [ "fetchart" "embedart" "scrub" "replaygain" "lastgenre" "chroma" ];
+    plugins = [
+      "spotify"
+      "info"
+      "ftintitle"
+      "edit"
+      "fetchart"
+      "embedart"
+      "scrub"
+      "replaygain"
+      "lastgenre"
+      "chroma"
+      "duplicates"
+    ];
     fetchart = {
       auto = true;
       sources = [ "coverart" "itunes" "amazon" "google" "albumart" ];
@@ -62,6 +73,6 @@ in
   config = mkIf cfg.enable {
     # campground.cli.aliases = { };
     home.packages = with pkgs; [ beets chromaprint ];
-    home.file = { ".config/beets/config.yaml".source = beets-config; };
+    home.file = { ".config/beets/config.yaml".text = beets-config; };
   };
 }
