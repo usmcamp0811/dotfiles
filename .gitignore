@@ -20,3 +20,4 @@ packages/examples/aws-lambda-image/.terraform.lock.hcl
 packages/scripts/vault-scripts/vault
 .terraform.lock.hcl
 config.tf.json
+result-man
