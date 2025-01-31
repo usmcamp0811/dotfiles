@@ -21,6 +21,7 @@ let
       quiet_fallback = "asis";
       group_albums = true;
       strong_rec_thresh = "0.4";
+      default_action = "apply";
     };
     paths = {
       default =
