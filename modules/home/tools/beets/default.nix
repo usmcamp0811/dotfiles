@@ -8,11 +8,19 @@ let
     library = "~/.config/beets/library.db";
     ignore = [ ".jpg" ".jpeg" ".png" ".webp" ".gif" ".txt" ".pdf" ];
     ui = { color = true; };
+
     import = {
       move = true;
       write = true;
       autotag = true;
       log = "~/.config/beets/import.log";
+      duplicate_action = "merge";
+      incremental = true;
+      timit = false;
+      resume = true;
+      quiet_fallback = "asis";
+      group_albums = true;
+      strong_rec_thresh = "0.4";
     };
     paths = {
       default =
@@ -53,8 +61,10 @@ let
       auto = true;
       ifempty = true;
     };
+    match = { strong_rec_thresh = 0.4; };
     replaygain = { auto = true; };
     scrub = { auto = true; };
+
     lastgenre = {
       auto = true;
       canonical = true;
