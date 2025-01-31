@@ -244,6 +244,7 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
+        "${unstable}/nixos/modules/services/web-apps/pds.nix"
       ];
 
       systems.hosts.butler.modules = with inputs; [
