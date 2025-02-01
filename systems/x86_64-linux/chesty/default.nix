@@ -55,7 +55,7 @@ with lib.campground;
     services = {
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
-      netbird.client.enable = true;
+      # netbird.client.enable = true;
 
       hadoop = {
         enable = true;
