@@ -188,40 +188,40 @@ in
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       # netbird = enabled;
-      hadoop = {
-        enable = true;
-        yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
-        hdfs = {
-          datanode.enable = true;
-          datanode.restartIfChanged = true;
-          datanode.openFirewall = true;
-          datanode.extraFlags = [ ];
-          datanode.extraEnv = { };
-          datanode.dataDirs = [ ];
-
-          journalnode.enable = true;
-          journalnode.restartIfChanged = true;
-          journalnode.openFirewall = true;
-          journalnode.extraFlags = [ ];
-          journalnode.extraEnv = { };
-
-          httpfs.enable = true;
-        };
-        yarn = {
-          nodemanager.enable = true;
-          nodemanager.useCGroups = false;
-          nodemanager.restartIfChanged = true;
-          nodemanager.resource.memoryMB = null;
-          nodemanager.resource.maximumAllocationVCores = null;
-          nodemanager.resource.maximumAllocationMB = null;
-          nodemanager.resource.cpuVCores = null;
-          nodemanager.openFirewall = true;
-          nodemanager.localDir = null;
-          nodemanager.extraFlags = [ ];
-          nodemanager.extraEnv = { };
-          nodemanager.addBinBash = true;
-        };
-      };
+      # hadoop = {
+      #   enable = true;
+      #   yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
+      #   # hdfs = {
+      #   #   datanode.enable = true;
+      #   #   datanode.restartIfChanged = true;
+      #   #   datanode.openFirewall = true;
+      #   #   datanode.extraFlags = [ ];
+      #   #   datanode.extraEnv = { };
+      #   #   datanode.dataDirs = [ ];
+      #   #
+      #   #   journalnode.enable = true;
+      #   #   journalnode.restartIfChanged = true;
+      #   #   journalnode.openFirewall = true;
+      #   #   journalnode.extraFlags = [ ];
+      #   #   journalnode.extraEnv = { };
+      #   #
+      #   #   httpfs.enable = true;
+      #   # };
+      #   yarn = {
+      #     nodemanager.enable = true;
+      #     nodemanager.useCGroups = false;
+      #     nodemanager.restartIfChanged = true;
+      #     nodemanager.resource.memoryMB = null;
+      #     nodemanager.resource.maximumAllocationVCores = null;
+      #     nodemanager.resource.maximumAllocationMB = null;
+      #     nodemanager.resource.cpuVCores = null;
+      #     nodemanager.openFirewall = true;
+      #     nodemanager.localDir = null;
+      #     nodemanager.extraFlags = [ ];
+      #     nodemanager.extraEnv = { };
+      #     nodemanager.addBinBash = true;
+      #   };
+      # };
       attic = {
         enable = true;
         settings = {
