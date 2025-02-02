@@ -152,6 +152,15 @@ in
               };
             };
 
+            http.routers.mealie = {
+              rule = "Host(`mealie.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "mealie";
+              middlewares = [ "redirect-to-https" ];
+            };
+
+            http.services.mealie = generateServiceConfig "mealie";
+
             http.routers.lemmy = {
               rule = "Host(`lemmy.aicampground.com`)";
               entryPoints = [ "websecure" ];
