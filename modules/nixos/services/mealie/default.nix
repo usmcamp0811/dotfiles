@@ -125,7 +125,7 @@ in {
           files = {
             "mealie-creds" = {
               text = ''
-                ALLOW_SIGNUP=true
+                ALLOW_SIGNUP=false
                 MAX_WORKERS=1
                 WEB_CONCURRENCY=1
                 OIDC_AUTH_ENABLED=true
