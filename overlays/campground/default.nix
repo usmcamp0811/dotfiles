@@ -21,5 +21,5 @@ final: prev:
     '';
   });
 } // {
-  inherit (channels.unstable) lemmy-server lemmy-help;
+  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin;
 }
