@@ -55,6 +55,9 @@ in {
             text = ''
               PDS_EMAIL_SMTP_URL='{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_EMAIL_SMTP_URL }}{{ else }}{{ .Data.data.PDS_EMAIL_SMTP_URL }}{{ end }}{{ end }}'
               PDS_EMAIL_FROM_ADDRESS={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_EMAIL_FROM_ADDRESS }}{{ else }}{{ .Data.data.PDS_EMAIL_FROM_ADDRESS }}{{ end }}{{ end }}
+              PDS_ADMIN_PASSWORD='{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.PDS_ADMIN_PASSWORD }}{{ end }}{{ end }}'
+              PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX='{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX }}{{ else }}{{ .Data.data.PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX }}{{ end }}{{ end }}'
+              PDS_JWT_SECRET='{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_JWT_SECRET }}{{ else }}{{ .Data.data.PDS_JWT_SECRET }}{{ end }}{{ end }}'
             '';
           };
         };
@@ -62,7 +65,3 @@ in {
     };
   };
 }
-
-# PDS_JWT_SECRET='{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_JWT_SECRET }}{{ else }}{{ .Data.data.PDS_JWT_SECRET }}{{ end }}{{ end }}'
-# PDS_ADMIN_PASSWORD='{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_ADMIN_PASSWORD }}{{ else }}{{ .Data.data.PDS_ADMIN_PASSWORD }}{{ end }}{{ end }}'
-# PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX='{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX }}{{ else }}{{ .Data.data.PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX }}{{ end }}{{ end }}'
