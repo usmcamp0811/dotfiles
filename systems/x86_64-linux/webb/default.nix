@@ -67,6 +67,7 @@ in
 
     services = {
       # onlyoffice = { enable = true; };
+      pds = enabled;
       lemmy = enabled;
       netbird.server = enabled;
       vault = {
