@@ -5,7 +5,7 @@ let cfg = config.campground.services.pds;
 in {
   options.campground.services.pds = with types; {
     enable = mkEnableOption "PDS";
-    hostname = mkOpt types.str "pds.aicampground.com" "Hostname for PDS.";
+    hostname = mkOpt types.str "bsky.aicampground.com" "Hostname for PDS.";
     port = mkOpt types.int 3000 "Port for PDS service.";
     vault-path = mkOpt str "secret/campground/pds"
       "Vault path containing secrets for PDS.";

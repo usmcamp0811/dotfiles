@@ -152,6 +152,14 @@ in
               };
             };
 
+            http.routers.bsky = {
+              rule = "Host(`bsky.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "bsky";
+            };
+
+            http.services.mealie = generateServiceConfig "bsky";
+
             http.routers.mealie = {
               rule = "Host(`mealie.aicampground.com`)";
               entryPoints = [ "websecure" ];
