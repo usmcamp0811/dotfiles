@@ -156,7 +156,6 @@ in
               rule = "Host(`mealie.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "mealie";
-              middlewares = [ "redirect-to-https" ];
             };
 
             http.services.mealie = generateServiceConfig "mealie";
