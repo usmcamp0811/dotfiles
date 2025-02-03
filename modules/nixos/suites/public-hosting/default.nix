@@ -158,7 +158,7 @@ in
               service = "bsky";
             };
 
-            http.services.mealie = generateServiceConfig "bsky";
+            http.services.bsky = generateServiceConfig "bsky";
 
             http.routers.mealie = {
               rule = "Host(`mealie.aicampground.com`)";
