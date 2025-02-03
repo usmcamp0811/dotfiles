@@ -153,12 +153,13 @@ in
             };
 
             http.routers.bsky = {
-              rule = "Host(`bsky.aicampground.com`)";
+              rule =
+                "Host(`bsky.aicampground.com`) || HostRegexp(`{subdomain:[a-z0-9]+}.bsky.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "bsky";
             };
 
-            http.services.bsky = generateServiceConfig "bsky";
+            http.services.bsky = generateServiceConfig "pds";
 
             http.routers.mealie = {
               rule = "Host(`mealie.aicampground.com`)";
