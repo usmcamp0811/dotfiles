@@ -49,7 +49,7 @@ pkgs.writeShellScriptBin "vault-crawler" ''
       local path=$1
 
       # List keys at the current path
-      keys=$(${pkgs.vault-bin}/bin/vault kv list -format=json "$path" 2>/dev/null | jq -r '.[]')
+      keys=$(${pkgs.vault-bin}/bin/vault kv list -format=json "$path" 2>/dev/null | ${pkgs.jq}/bin/jq -r '.[]')
 
       for key in $keys; do
           # Check if it's a folder (ends with '/')
@@ -63,7 +63,7 @@ pkgs.writeShellScriptBin "vault-crawler" ''
               secret=$(${pkgs.vault-bin}/bin/vault kv get -format=json "$full_path" 2>/dev/null)
               if [ $? -eq 0 ]; then
                   # Extract key names from the JSON
-                  data_keys=$(echo "$secret" | jq -r '.data.data | keys[]')
+                  data_keys=$(echo "$secret" | ${pkgs.jq}/bin/jq -r '.data.data | keys[]')
                   kv_command="vault kv put $full_path"
                   for data_key in $data_keys; do
                       unique_env_var_name=$(echo "''${full_path}_''${data_key}" | tr '[:lower:]' '[:upper:]' | tr '/' '_')
