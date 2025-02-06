@@ -25,6 +25,11 @@ in {
         message =
           "You must provide a justification if audit enforcement is disabled.";
       }
+      {
+        assertion = !cfg.login_attempts.enable -> cfg.justification != null;
+        message =
+          "You must provide a justification if login attempt restrictions are disabled.";
+      }
     ];
   };
 }
