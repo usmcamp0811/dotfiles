@@ -292,6 +292,17 @@ in
               loadBalancer.servers = [{ url = "http://10.8.0.42:8080"; }];
             };
 
+            http.routers.pikvm = {
+              rule = "Host(`pikvm.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "pikvm";
+              middlewares = [ "ip-whitelist" ];
+            };
+
+            http.services.pikvm = {
+              loadBalancer.servers = [{ url = "http://pivm"; }];
+            };
+
             http.routers.sonar = {
               rule = "Host(`sonar.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
