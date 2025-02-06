@@ -24,21 +24,22 @@ let
       default_action = "apply";
     };
     paths = {
-      default =
+      default = > -
         "%asciify{$albumartist}/%asciify{$album}/%asciify{$track}_%asciify{$artist}-%asciify{$title}.mp3";
-      singleton =
-        "%asciify{$artist}/Singles/%asciify{$artist}-%asciify{$title}.mp3";
-      comp =
-        "%asciify{$artist}/Compilations/%asciify{$album}/%asciify{$track}_%asciify{$artist}-%asciify{$title}.mp3";
+      singleton = > -
+        "Singles/%asciify{$artist}-%asciify{$title}.mp3";
+      comp = > -
+        "Compilations/%asciify{$album}/%asciify{$track}_%asciify{$artist}-%asciify{$title}.mp3";
     };
     replace = {
-      "[\\/]" = "_";
+      "[\\/" ]" = "_";
       "^\\." = "_";
-      "[x00-x1f]" = "_";
-      "[:]" = "_";
-      "[*?\"<>|]" = "_";
+      "[\x00-\x1f]" = "_";
+      "[:"]" = "_";
+      "[*?<>|]" = "_";
       "\\s+$" = "";
       "\\s+" = "_";
+      "[^\w\d\-_]" = "_";
     };
     plugins = [
       "spotify"
