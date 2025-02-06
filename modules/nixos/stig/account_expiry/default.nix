@@ -4,7 +4,8 @@ with lib.campground;
 let cfg = config.campground.stig.account_expiry;
 in {
   options.campground.stig.account_expiry = with types; {
-    enable = mkBoolOpt false "Enable STIG account expiration enforcement";
+    enable = mkBoolOpt config.campground.stig.enable
+      "Enable STIG account expiration enforcement";
     justification = mkOpt (nullOr str) null "Why you didn't enable this";
   };
 

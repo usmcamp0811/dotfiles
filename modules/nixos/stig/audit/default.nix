@@ -4,7 +4,8 @@ with lib.campground;
 let auditCfg = config.campground.stig.audit;
 in {
   options.campground.stig.audit = with types; {
-    enable = mkBoolOpt false "Enable STIG Audit Enforcement";
+    enable =
+      mkBoolOpt config.campground.stig.enable "Enable STIG Audit Enforcement";
     justification = mkOpt (nullOr str) null "Why you didn't enable this";
   };
 
