@@ -30,15 +30,15 @@ let
       comp =
         "Compilations/%asciify{$album}/%asciify{$track}_%asciify{$artist}-%asciify{$title}.mp3";
     };
-    replace = {
-      "[\\/]" = "_";
-      "^\\." = "_";
-      "[x00-x1f]" = "_";
-      "[:]" = "_";
-      "[*?\"<>|]" = "_";
-      "\\s+$" = "";
-      "\\s+" = "_";
-    };
+    # replace = {
+    #   "[\\/]" = "_";
+    #   "^\\." = "_";
+    #   "[x00-x1f]" = "_";
+    #   "[:]" = "_";
+    #   "[*?\"<>|]" = "_";
+    #   "\\s+$" = "";
+    #   "\\s+" = "_";
+    # };
     plugins = [
       "spotify"
       "info"
