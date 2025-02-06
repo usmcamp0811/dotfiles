@@ -4,6 +4,7 @@ with lib.campground;
 let cfg = config.campground.stig;
 in {
   options.campground.stig = with types; {
+    enale = mkBoolOpt false "Stig the machine";
     srg = mkOpt (listOf str) [ ] "SRGs that are enabled";
     cci = mkOpt (listOf str) [ ] "CCIs that are enabled";
   };
@@ -29,6 +30,16 @@ in {
         assertion = !cfg.login_attempts.enable -> cfg.justification != null;
         message =
           "You must provide a justification if login attempt restrictions are disabled.";
+      }
+      {
+        assertion = !cfg.banner.enable -> cfg.justification != null;
+        message =
+          "You must provide a justification if the graphical login banner is disabled.";
+      }
+      {
+        assertion = !cfg.session_limit.enable -> cfg.justification != null;
+        message =
+          "You must provide a justification if session limit enforcement is disabled.";
       }
     ];
   };
