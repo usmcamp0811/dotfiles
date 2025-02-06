@@ -3,7 +3,7 @@ with lib;
 with lib.campground;
 let
   cfg = config.campground.tools.beets;
-  beets-config = lib.generators.toYAML { } {
+  rawConfig = lib.generators.toYAML { } {
     directory = cfg.music-dir;
     library = "~/.config/beets/library.db";
     ignore = [ ".jpg" ".jpeg" ".png" ".webp" ".gif" ".txt" ".pdf" ];
@@ -16,30 +16,28 @@ let
       log = "~/.config/beets/import.log";
       duplicate_action = "merge";
       incremental = true;
-      timit = false;
+      timid = false;
       resume = true;
       quiet_fallback = "asis";
       group_albums = true;
-      strong_rec_thresh = "0.4";
+      strong_rec_thresh = 0.4;
       default_action = "apply";
     };
     paths = {
-      default = > -
+      default =
         "%asciify{$albumartist}/%asciify{$album}/%asciify{$track}_%asciify{$artist}-%asciify{$title}.mp3";
-      singleton = > -
-        "Singles/%asciify{$artist}-%asciify{$title}.mp3";
-      comp = > -
+      singleton = "Singles/%asciify{$artist}-%asciify{$title}.mp3";
+      comp =
         "Compilations/%asciify{$album}/%asciify{$track}_%asciify{$artist}-%asciify{$title}.mp3";
     };
     replace = {
-      "[\\/" ]" = "_";
+      "[\\/]" = "_";
       "^\\." = "_";
-      "[\x00-\x1f]" = "_";
-      "[:"]" = "_";
-      "[*?<>|]" = "_";
+      "[x00-x1f]" = "_";
+      "[:]" = "_";
+      "[*?\"<>|]" = "_";
       "\\s+$" = "";
       "\\s+" = "_";
-      "[^\w\d\-_]" = "_";
     };
     plugins = [
       "spotify"
@@ -75,6 +73,11 @@ let
     chroma = { auto = true; };
   };
 
+  formattedConfig =
+    pkgs.runCommand "beets-config.yaml" { buildInputs = [ pkgs.yq ]; } ''
+      echo '${rawConfig}' | ${pkgs.yq}/bin/yq --yaml-output > $out
+    '';
+
 in
 {
   options.campground.tools.beets = with types; {
@@ -83,8 +86,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    # campground.cli.aliases = { };
-    home.packages = with pkgs; [ beets chromaprint ];
-    home.file = { ".config/beets/config.yaml".text = beets-config; };
+    home.packages = with pkgs; [ beets chromaprint yq ];
+
+    home.file.".config/beets/config.yaml".text = rawConfig;
   };
 }
