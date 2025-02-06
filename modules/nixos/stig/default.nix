@@ -41,6 +41,11 @@ in {
         message =
           "You must provide a justification if session limit enforcement is disabled.";
       }
+      {
+        assertion = !cfg.session_lock.enable -> cfg.justification != null;
+        message =
+          "You must provide a justification if session lock enforcement is disabled.";
+      }
     ];
   };
 }
