@@ -15,9 +15,15 @@ in {
           "You must provide a justification if the firewall is disabled.";
       }
       {
-        assertion = !cfg.account_expiry.enable -> cfg.justification != null;
+        assertion = !cfg.account_expiry.enable
+          -> cfg.account_expiry.justification != null;
         message =
           "You must provide a justification if account expiration enforcement is disabled.";
+      }
+      {
+        assertion = !cfg.audit.enable -> cfg.audit.justification != null;
+        message =
+          "You must provide a justification if audit enforcement is disabled.";
       }
     ];
   };
