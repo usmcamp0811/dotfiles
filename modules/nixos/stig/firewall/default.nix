@@ -13,6 +13,5 @@ in {
       [ "SRG-OS-000298-GPOS-00116" "SRG-OS-000096-GPOS-00050" ];
     campground.stig.cci = [ "CCI-002322" "CCI-000382" ];
     networking.firewall.enable = mkForce true;
-
   };
 }

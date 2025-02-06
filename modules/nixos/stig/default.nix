@@ -8,9 +8,17 @@ in {
     cci = mkOpt (listOf str) [ ] "CCIs that are enabled";
   };
   config = {
-    assertions = [{
-      assertion = !cfg.firewall.enable -> cfg.justification != null;
-      message = "You must provide a justification if the firewall is disabled.";
-    }];
+    assertions = [
+      {
+        assertion = !cfg.firewall.enable -> cfg.firewall.justification != null;
+        message =
+          "You must provide a justification if the firewall is disabled.";
+      }
+      {
+        assertion = !cfg.account_expiry.enable -> cfg.justification != null;
+        message =
+          "You must provide a justification if account expiration enforcement is disabled.";
+      }
+    ];
   };
 }
