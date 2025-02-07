@@ -1,0 +1,190 @@
+Satisfies: SRG-OS-000021-GPOS-00005, SRG-OS-000329-GPOS-00128, SRG-OS-000470-GPOS-00214</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000044CCI-002238CCI-000172Configure NixOS to lock an account when three unsuccessful login attempts occur within 15 minutes. 
+
+Modify /etc/nixos/configuration.nix to include the following lines:
+
+ security.pam.services = let pamfile = ''
+  auth required pam_faillock.so preauth silent audit deny=3 fail_interval=900 unlock_time=0
+  auth sufficient pam_unix.so nullok try_first_pass
+  auth [default=die] pam_faillock.so authfail audit deny=3 fail_interval=900 unlock_time=0
+  auth sufficient pam_faillock.so authsucc
+
+  account required pam_faillock.so
+ '';
+ in {
+  login.text = pkgs.lib.mkDefault pamfile;
+  sshd.text = pkgs.lib.mkDefault pamfile;
+ };
+
+Note that the entire pam file must be entered as this pamfile string.
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify that NixOS locks an account after three unsuccessful login attempts within 15 minutes with the following commands:
+
+$ cat /etc/pam.d/login
+
+auth required pam_faillock.so preauth deny=3 even_deny_root fail_interval=900 unlock_time=0 dir=/var/log/faillock
+
+If the "fail_interval" option is not set to "900" or less (but not "0") on the "preauth" lines with the "pam_faillock" module, or is missing from this line, this is a finding.SRG-OS-000023-GPOS-00006<GroupDescription></GroupDescription>ANIX-00-000050NixOS must be configured to display the Standard Mandatory DOD Notice and Consent Banner before granting local or remote access to the system via a command line user login.<VulnDiscussion>Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via login interfaces with human users and are not required when such human interfaces do not exist.
+
+The banner must be formatted in accordance with applicable DOD policy. Use the following verbiage for operating systems that can accommodate banners of 1300 characters:
+
+"You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details."
+
+Use the following verbiage for operating systems that have severe limitations on the number of characters that can be displayed in the banner:
+
+"I've read & consent to terms in IS user agreement."
+
+2) Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via login interfaces with human users and are not required when such human interfaces do not exist.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000048Configure NixOS to display the Standard Mandatory DOD Notice and Consent Banner before granting access to the system via a command line.
+
+Add the following to the /etc/nix/configuration.nix file:
+
+services.getty.helpLine = ''
+ You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+ By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+ -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+ -At any time, the USG may inspect and seize data stored on this IS.
+
+ -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+ -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+ -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+'';
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify that NixOS displays the Standard Mandatory DOD Notice and Consent Banner before granting access to the system via a command line user login. Check /etc/nixos/configuration.nix and any files imported from it to ensure the attribute "services.getty.helpLine" is defined to the following value with the following command:
+
+$ grep -R helpLine /etc/nixos
+
+ /etc/nixos/configuration.nix:services.getty.helpLine = ''
+ You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+ By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+ -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+ -At any time, the USG may inspect and seize data stored on this IS.
+
+ -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+ -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+ -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+'';
+
+If the "services.getty.helpLine" service is not configured with a banner, or the banner does not match the Standard Mandatory DOD Notice and Consent Banner, this is a finding.SRG-OS-000023-GPOS-00006<GroupDescription></GroupDescription>ANIX-00-000060NixOS must be configured to display the Standard Mandatory DOD Notice and Consent Banner before granting local or remote access to the system via an SSH login.<VulnDiscussion>Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via login interfaces with human users and are not required when such human interfaces do not exist.
+
+The banner must be formatted in accordance with applicable DOD policy. Use the following verbiage for operating systems that can accommodate banners of 1300 characters:
+
+"You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details."
+
+Use the following verbiage for operating systems that have severe limitations on the number of characters that can be displayed in the banner:
+
+"I've read & consent to terms in IS user agreement."
+
+2) Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via login interfaces with human users and are not required when such human interfaces do not exist.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000048Configure NixOS to display the Standard Mandatory DOD Notice and Consent Banner before granting access to the system via openssh.
+
+Add the following to the /etc/nix/configuration.nix file:
+
+services.openssh.banner = ''
+ You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+ By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+ -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+ -At any time, the USG may inspect and seize data stored on this IS.
+
+ -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+ -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+ -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+'';
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify the operating system displays the Standard Mandatory DOD Notice and Consent Banner before granting access to the system via an SSH login. Check /etc/nixos/configuration.nix and any files imported from it to ensure the attribute "services.openssh.banner" is defined with the following value with the following command:
+
+$ grep -R openssh.banner /etc/nixos
+
+ /etc/nixos/configuration.nix:services.openssh.banner = 
+''
+ You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+ By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+ -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+ -At any time, the USG may inspect and seize data stored on this IS.
+
+ -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+ -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+ -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+'';
+
+If the "services.openssh.banner" service is not configured with a banner, or the banner does not match the Standard Mandatory DOD Notice and Consent Banner, this is a finding.SRG-OS-000023-GPOS-00006<GroupDescription></GroupDescription>ANIX-00-000070NixOS must be configured to display the Standard Mandatory DOD Notice and Consent Banner before granting local or remote access to the system via a graphical user login.<VulnDiscussion>Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via login interfaces with human users and are not required when such human interfaces do not exist.
+
+The banner must be formatted in accordance with applicable DOD policy. Use the following verbiage for operating systems that can accommodate banners of 1300 characters:
+
+"You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details."
+
+Use the following verbiage for operating systems that have severe limitations on the number of characters that can be displayed in the banner:
+
+"I've read & consent to terms in IS user agreement."
+
+2) Display of a standardized and approved use notification before granting access to the operating system ensures privacy and security notification verbiage used is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+System use notifications are required only for access via login interfaces with human users and are not required when such human interfaces do not exist.
+

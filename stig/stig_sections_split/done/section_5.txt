@@ -1,0 +1,83 @@
+Satisfies: SRG-OS-000023-GPOS-00006, SRG-OS-000228-GPOS-00088</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000048CCI-001384CCI-001385CCI-001386CCI-001387CCI-001388Configure NixOS to display the Standard Mandatory DOD Notice and Consent Banner before granting access to the system via a graphical user login.
+
+Add the following to the NixOS configuration:
+
+services.xserver.displayManager.gdm.banner = "You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only. By using this IS (which includes any device attached to this IS), you consent to the following conditions:\n-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.\n-At any time, the USG may inspect and seize data stored on this IS.\n-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.\n-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.\n-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.";
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS displays the Standard Mandatory DOD Notice and Consent Banner before granting access to the system via the graphical user login with the following command:
+
+$ grep -R gdm.banner /etc/nixos
+
+ /etc/nixos/configuration.nix:services.xserver.displayManager.gdm.banner = "You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+
+By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.";
+
+If the "services.xserver.displayManager.gdm.banner" service is not configured with a banner, or the banner does not match the Standard Mandatory DOD Notice and Consent Banner, this is a finding.SRG-OS-000027-GPOS-00008<GroupDescription></GroupDescription>ANIX-00-000090NixOS must be configured to limit the number of concurrent sessions to ten for all accounts and/or account types.<VulnDiscussion>Operating system management includes the ability to control the number of users and user sessions that use an operating system. Limiting the number of allowed users and sessions per user is helpful in reducing the risks related to denial-of-service (DoS) attacks.
+
+This requirement addresses concurrent sessions for information system accounts and does not address concurrent sessions by single users via multiple system accounts. The maximum number of concurrent sessions should be defined based upon mission needs and the operational environment for each system.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000054Configure the NixOS to limit the number of concurrent sessions to ten for all accounts and/or account types.
+
+Add the following to the NixOS configuration: /etc/nixos/configuration.nix
+
+security.pam.loginLimits = [
+ {
+  domain = "*";
+  item = "maxlogins";
+  type = "hard";
+  value = "10";
+ }
+];
+
+Note: Security.pam.loginLimits can be set as a global domain (with the * wildcard) but may be set differently for multiple domains.
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS limits the number of concurrent sessions to ten for all accounts and/or account types.
+
+Check /etc/nixos/configuration.nix and any files imported from it to ensure the attribute "security.pam.loginLimits" is defined to include the following value with the following command:
+
+$ grep -R -A 5 pam.loginLimits /etc/nixos
+
+/etc/nixos/configuration.nix:security.pam.loginLimits = [
+/etc/nixos/configuration.nix:{
+/etc/nixos/configuration.nix:domain = "*";
+/etc/nixos/configuration.nix:item = "maxlogins";
+/etc/nixos/configuration.nix:type = "hard";
+/etc/nixos/configuration.nix:value = "10";
+
+If the "maxlogins" item is missing, commented out, or the value is set greater than "10" and is not documented with the information system security officer (ISSO) as an operational requirement, this is a finding.SRG-OS-000029-GPOS-00010<GroupDescription></GroupDescription>ANIX-00-000110NixOS must initiate a session lock after a 10-minute period of inactivity for graphical user login.<VulnDiscussion>A session time-out lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not log out because of the temporary nature of the absence. Rather than relying on the user to manually lock their operating system session prior to vacating the vicinity, operating systems need to be able to identify when a user's session has idled and take action to initiate the session lock.
+
+The session lock is implemented at the point where session activity can be determined and/or controlled.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000057Configure NixOS to initiate a session lock after a 10-minute period of inactivity for graphical user login.
+
+Add the following Nix code to the NixOS Configuration, usually located in /etc/nixos/configuration.nix:
+
+programs.dconf.profiles.user.databases = with lib.gvariant; [
+     {
+          settings."org/gnome/desktop/session".idle-delay = mkUint32 600;
+          locks = [ "org/gnome/desktop/session/idle-delay" ];
+     }
+];
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS initiates a session lock after a 10-minute period of inactivity for graphical user login with the following command: 
+
+$ sudo gsettings get org.gnome.desktop.session idle-delay
+
+uint32 600
+
+If "idle-delay" is set to "0" or a value greater than "600", this is a finding.SRG-OS-000030-GPOS-00011<GroupDescription></GroupDescription>ANIX-00-000120NixOS must provide the capability for users to directly initiate a session lock for all connection types.<VulnDiscussion>A session lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not want to log out because of the temporary nature of the absence.
+
+The session lock is implemented at the point where session activity can be determined. Rather than be forced to wait for a period of time to expire before the user session can be locked, operating systems need to provide users with the ability to manually invoke a session lock so users may secure their session should the need arise for them to temporarily vacate the immediate physical vicinity.
+

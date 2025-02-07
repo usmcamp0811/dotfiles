@@ -1,0 +1,76 @@
+Satisfies: SRG-OS-000480-GPOS-00230, SRG-OS-000368-GPOS-00154</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000366CCI-001764Add the following Nix code to the NixOS Configuration, usually located in /etc/nixos/configuration.nix.
+
+ security.apparmor.enable = true;
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switch && rebootVerify NixOS is configured to use AppArmor with the following command:
+
+$ sudo systemctl status apparmor.service
+
+apparmor.service - Load AppArmor policies
+  Loaded: loaded (/etc/systemd/system/apparmor.service; enabled; present: enabled)
+  Active: active (running) since Sat 2022-06-04 02:51:43 UTC; 13min ago
+
+ If the "apparmor.service" is not enabled and active, this is a finding.SRG-OS-000118-GPOS-00060<GroupDescription></GroupDescription>ANIX-00-001930NixOS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity.<VulnDiscussion>Inactive identifiers pose a risk to systems and applications because attackers may exploit an inactive identifier and potentially obtain undetected access to the system. Owners of inactive accounts will not notice if unauthorized access to their user account has been obtained.
+
+Operating systems need to track periods of inactivity and disable application identifiers after 35 days of inactivity.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-003627Configure the NixOS operating system to disable inactive users.
+
+Add the following Nix code to the NixOS Configuration usually located in /etc/nixos/configuration.nix.
+
+Ensure that utils and lib modules are available
+ { config, pkgs, lib, utils, ... }:
+
+ environment.etc."/default/useradd".text = pkgs.lib.mkForce
+   ''
+    INACTIVE=35
+   '';
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS disables account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity with the following command:
+
+$ grep -i inactive /etc/default/useradd
+
+    INACTIVE=35
+
+If INACTIVE is not set to 35 or less, or is missing or commented out, this is a finding.SRG-OS-000120-GPOS-00061<GroupDescription></GroupDescription>ANIX-00-001940NixOS must employ approved cryptographic hashing algorithms for all stored passwords.<VulnDiscussion>Unapproved mechanisms that are used for authentication to the cryptographic module are not verified and therefore cannot be relied upon to provide confidentiality or integrity, and DOD data may be compromised.
+
+Operating systems using encryption are required to use FIPS-compliant mechanisms for authenticating to cryptographic modules. 
+
+FIPS 140-3 is the current standard for validating that mechanisms used to access cryptographic modules use authentication that meets DOD requirements. This allows for Security Levels 1, 2, 3, or 4 for use on a general purpose computing system.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000803Lock all interactive user accounts not using SHA-512 hashing until the passwords can be regenerated with SHA-512.Verify NixOS uses employs approved cryptographic hashing algorithms for all stored passwords with the following command:
+
+(Change <unique-username> to the desired user to verify.)
+
+$ sudo cat /etc/shadow | grep "<unique-username>" | cut -d'$' -f2
+
+If the command does not return 6 for SHA512, this is a finding.SRG-OS-000125-GPOS-00065<GroupDescription></GroupDescription>ANIX-00-001960NixOS must employ strong authenticators in the establishment of nonlocal maintenance and diagnostic sessions.<VulnDiscussion>If maintenance tools are used by unauthorized personnel, they may accidentally or intentionally damage or compromise the system. The act of managing systems and applications includes the ability to access sensitive application information, such as system configuration details, diagnostic information, user information, and potentially sensitive application data.
+
+Some maintenance and test tools are either standalone devices with their own operating systems or are applications bundled with an operating system.
+
+Nonlocal maintenance and diagnostic activities are those activities conducted by individuals communicating through a network, either an external network (e.g., the internet) or an internal network. Local maintenance and diagnostic activities are those activities carried out by individuals physically present at the information system or information system component and not communicating across a network connection. Typically, strong authentication requires authenticators that are resistant to replay attacks and employ multifactor authentication. Strong authenticators include, for example, PKI where certificates are stored on a token protected by a password, passphrase, or biometric.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000877Configure the NixOS operating system to use strong authentication when establishing nonlocal maintenance and diagnostic sessions.
+
+Add or modify the following line to /etc/nixos/configuration.nix: 
+
+openssh.settings.UsePAM = ''yes'';
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS employs strong authentication in the establishment of nonlocal sessions with SSH by the following command:
+
+$ sudo /run/current-system/sw/bin/sshd -G | grep pam
+
+usepam yes
+
+If usepam is not yes, this is a finding.SRG-OS-000375-GPOS-00160<GroupDescription></GroupDescription>ANIX-00-002010NixOS must implement multifactor authentication for remote access to privileged accounts in such a way that one of the factors is provided by a device separate from the system gaining access.<VulnDiscussion>Using an authentication device, such as a CAC or token that is separate from the information system, ensures that even if the information system is compromised, that compromise will not affect credentials stored on the authentication device.
+
+Multifactor solutions that require devices separate from information systems gaining access include, for example, hardware tokens providing time-based or challenge-response authenticators and smart cards such as the U.S. Government Personal Identity Verification (PIV) card and the DOD Common Access Card (CAC).
+
+A privileged account is defined as an information system account with authorizations of a privileged user.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network. Remote access methods include, for example, dial-up, broadband, and wireless.
+
+This requirement only applies to components where this is specific to the function of the device or has the concept of an organizational user (e.g., VPN, proxy capability). This does not apply to authentication for the purpose of configuring the device itself (management).
+
+This requires further clarification from NIST.
+

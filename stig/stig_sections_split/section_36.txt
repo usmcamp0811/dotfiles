@@ -1,0 +1,59 @@
+Satisfies: SRG-OS-000463-GPOS-00207, SRG-OS-000042-GPOS-00020, SRG-OS-000458-GPOS-00203, SRG-OS-000474-GPOS-00219</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000172CCI-000135Configure /etc/nixos/configuration.nix to log attempts to modify security objects by adding the following configuration settings:
+
+ security.audit.rules = [
+  "-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=-1 -k perm_mod"
+  "-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod"
+  "-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=-1 -k perm_mod"
+  "-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod"
+ ];
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify the NixOS generates audit records when successful/unsuccessful attempts to modify security objects occur with the following command:
+
+$ sudo auditctl -l | grep xattr
+
+-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=-1 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=-1 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod
+
+If the command does not return an audit rule for "setxattr", "fsetxattr", "lsetxattr", "removexattr", "fremovexattr", and "lremovexattr", this is a finding.SRG-OS-000466-GPOS-00210<GroupDescription></GroupDescription>ANIX-00-001730NixOS must generate audit records when successful/unsuccessful attempts to delete privileges occur.<VulnDiscussion>Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter).</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000172Configure /etc/nixos/configuration.nix to record attempts to delete privileges by adding the following configuration settings:
+
+ security.audit.rules = [
+  "-a always,exit -F path=/run/current-system/sw/bin/usermod -F perm=x -F auid>=1000 -F auid!=unset -k privileged-usermod"
+ ];
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS generates audit records when attempts to delete privileges occur with the following command:
+
+$ sudo auditctl -l | grep usermod
+
+-a always,exit -S all -F path=/run/current-system/sw/bin/usermod -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-usermod
+
+If the command does not return an audit rule for "usermod", this is a finding.SRG-OS-000468-GPOS-00212<GroupDescription></GroupDescription>ANIX-00-001740NixOS must generate audit records when successful/unsuccessful attempts to delete security objects occur.<VulnDiscussion>Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter).</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000172Configure /etc/nixos/configuration.nix to audit attempts to delete security objects by adding the following configuration settings:
+
+ security.audit.rules = [
+  "-a always,exit -F path=/run/current-system/sw/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-chage"
+  "-a always,exit -F path=/run/current-system/sw/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -k perm_mod"
+ ];
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify that NixOS generates audit records when successful/unsuccessful attempts to delete security objects occur with the following command:
+
+ $ sudo auditctl -l | grep /bin/ch
+
+-a always,exit -S all -F path=/run/current-system/sw/bin/chage -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-chage
+-a always,exit -S all -F path=/run/current-system/sw/bin/chcon -F perm=x -F auid>=1000 -F auid!=-1 -k perm_mod
+
+
+If the command does not return an audit rule for "chage" and "chcon", this is a finding.SRG-OS-000473-GPOS-00218<GroupDescription></GroupDescription>ANIX-00-001790NixOS must generate audit records when concurrent logins to the same account occur from different sources.<VulnDiscussion>Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter).
+

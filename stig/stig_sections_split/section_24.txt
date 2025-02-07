@@ -1,0 +1,77 @@
+Satisfies: SRG-OS-000058-GPOS-00028, SRG-OS-000059-GPOS-00029</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000163CCI-000164Configure NixOS to prevent unauthorized changes to login UIDs.
+
+Add or update the "security.audit.rules" configuration in /etc/nixos/configuration.nix to include the following rule:
+
+ security.audit.rules = [
+  "--loginuid-immutable"
+ ];
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify the audit system prevents unauthorized changes to login UIDs with the following command:
+
+$ sudo auditctl -s | grep -i immutable
+
+loginuid_immutable 1 locked
+
+If the command does not return "loginuid_immutable 1 locked", this is a finding.SRG-OS-000063-GPOS-00032<GroupDescription></GroupDescription>ANIX-00-000660NixOS system configuration files must have a mode of "0644" or less permissive.<VulnDiscussion>Without the capability to restrict the roles and individuals that can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000171Configure the NixOS system configuration files to have a mode of "0644" or less permissive by using the following command:
+
+$ sudo find /etc/nixos -type f -exec chmod -R 644 {} \;
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify that the NixOS system configuration files have a mode of "0644" or less permissive with the following command:
+
+$ sudo find /etc/nixos -type f -exec stat -c "%a %n" {} \;
+
+644 /etc/nixos/configuration.nix
+644 /etc/nixos/hardware-configuration.nix
+
+If the system configuration files have a mode more permissive than "0644", this is a finding.SRG-OS-000063-GPOS-00032<GroupDescription></GroupDescription>ANIX-00-000670NixOS system configuration file directories must have a mode of "0755" or less permissive.<VulnDiscussion>Without the capability to restrict the roles and individuals that can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000171Configure the NixOS system configuration file directories to have a mode of "0755" or less permissive by using the following commands:
+
+$ sudo find /etc/nixos -type d -exec chmod -R 755 {} \;
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify that the NixOS system configuration file directories have a mode of "0755" or less permissive with the following command:
+
+$ sudo find /etc/nixos -type d -exec stat -c "%a %n" {} \;
+
+755 /etc/nixos
+
+If the system configuration file directories have a mode more permissive than "0755", this is a finding.SRG-OS-000063-GPOS-00032<GroupDescription></GroupDescription>ANIX-00-000680NixOS system configuration files and directories must be owned by root.<VulnDiscussion>Without the capability to restrict the roles and individuals that can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000171Configure the NixOS system configuration files and directories to be owned by root by using the following command:
+
+$ sudo find /etc/nixos -exec chown -R root {} \;
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify that the NixOS system configuration files and directories are owned by root with the following command:
+
+$ sudo find /etc/nixos -exec stat -c "%U %n" {} \;
+
+root /etc/nixos
+root /etc/nixos/configuration.nix
+root /etc/nixos/hardware-configuration.nix
+
+If the system configuration files and directories are not owned by root, this is a finding.SRG-OS-000063-GPOS-00032<GroupDescription></GroupDescription>ANIX-00-000690NixOS system configuration files and directories must be group-owned by root.<VulnDiscussion>Without the capability to restrict the roles and individuals that can select which events are audited, unauthorized personnel may be able to prevent the auditing of critical events. Misconfigured audits may degrade the system's performance by overwhelming the audit log. Misconfigured audits may also make it more difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000171Configure the NixOS system configuration files and directories to be group-owned by root by using the following command:
+
+$ sudo find /etc/nixos -exec chown -R :root {} \;
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify that the NixOS system configuration files and directories are group-owned by root with the following command:
+
+$ sudo find /etc/nixos -exec stat -c "%G %n" {} \;
+
+root /etc/nixos
+root /etc/nixos/configuration.nix
+root /etc/nixos/hardware-configuration.nix
+
+If the system configuration files and directories are not group-owned by root, this is a finding.SRG-OS-000066-GPOS-00034<GroupDescription></GroupDescription>ANIX-00-000710NixOS, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.<VulnDiscussion>Without path validation, an informed trust decision by the relying party cannot be made when presented with any certificate not already explicitly trusted.
+
+A trust anchor is an authoritative entity represented via a public key and associated data. It is used in the context of public key infrastructures, X.509 digital certificates, and DNSSEC.
+
+When there is a chain of trust, usually the top entity to be trusted becomes the trust anchor; it can be, for example, a Certification Authority (CA). A certification path starts with the subject certificate and proceeds through a number of intermediate certificates up to a trusted root certificate, typically issued by a trusted CA.
+
+This requirement verifies that a certification path to an accepted trust anchor is used for certificate validation and that the path includes status information. Path validation is necessary for a relying party to make an informed trust decision when presented with any certificate not already explicitly trusted. Status information for certification paths includes certificate revocation lists or online certificate status protocol responses. Validation of the certificate status information is out of scope for this requirement.
+

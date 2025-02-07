@@ -1,0 +1,82 @@
+Satisfies: SRG-OS-000042-GPOS-00020, SRG-OS-000341-GPOS-00132</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000135CCI-001849Configure NixOS to allocate sufficient audit_backlog_limit to capture processes that start prior to the audit daemon.
+
+Add or update the "boot.kernelParams" configuration in /etc/nixos/configuration.nix to include the following rule:
+
+ boot.kernelParams = [
+  "audit_backlog_limit=8192"
+ ];
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS allocates a sufficient audit_backlog_limit to capture processes that start prior to the audit daemon with the following command:
+
+$ grep backlog_limit /proc/cmdline
+
+BOOT_IMAGE=(hd0,msdos1)/nix/store/glc0midc78caq9sc7pzciymx4c3in7kn-linux-6.1.64/bzImage init=/nix/store/grl4baymr9q60mbcz3sidm4agckn3bx5-nixos-system-nixos-23.1.1.20231129.057f9ae/init audit=1 audit_backlog_limit=8192 loglevel=4
+
+If the "audit_backlog_limit" entry does not equal "8192" or greater or is missing, this is a finding.SRG-OS-000042-GPOS-00020<GroupDescription></GroupDescription>ANIX-00-000270Successful/unsuccessful uses of the mount syscall in NixOS must generate an audit record.<VulnDiscussion>Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter). The "mount" syscall is used to mount a filesystem.
+
+When a user logs in, the AUID is set to the UID of the account that is being authenticated. Daemons are not user sessions and have the loginuid set to "-1". The AUID representation is an unsigned 32-bit integer, which equals "4294967295". The audit system interprets "-1", "4294967295", and "unset" in the same way.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000135Configure NixOS to generate audit records for any successful/unsuccessful use of the "mount" syscall.
+
+Add or update the "security.audit.rules" configuration in /etc/nixos/configuration.nix to include the following rule:
+
+ security.audit.rules = [
+  "-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=unset -k privileged-mount"
+  "-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=unset -k privileged-mount"
+ ];
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS generates an audit record for any successful/unsuccessful use of the "mount" syscall with the following command:
+
+$ sudo auditctl -l | grep -w "\-S mount"
+
+-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=-1 -k privileged-mount
+-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=-1 -k privileged-mount
+
+If the command does not return the example output, this is a finding.
+
+Note: The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.SRG-OS-000042-GPOS-00020<GroupDescription></GroupDescription>ANIX-00-000280Successful/unsuccessful uses of the rename, unlink, rmdir, renameat, and unlinkat system calls in NixOS must generate an audit record.<VulnDiscussion>Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter). The "rename" system call will rename the specified files by replacing the first occurrence of expression in their name by replacement.
+
+The "unlink" system call deletes a name from the filesystem. If that name was the last link to a file and no processes have the file open, the file is deleted and the space it was using is made available for reuse.
+
+The "rmdir" system call removes empty directories.
+
+The "renameat" system call renames a file, moving it between directories if required.
+
+The "unlinkat" system call operates in exactly the same way as either "unlink" or "rmdir" except for the differences described in the manual page.
+
+When a user logs in, the AUID is set to the UID of the account that is being authenticated. Daemons are not user sessions and have the loginuid set to "-1". The AUID representation is an unsigned 32-bit integer, which equals "4294967295". The audit system interprets "-1", "4294967295", and "unset" in the same way.
+
+The system call rules are loaded into a matching engine that intercepts each syscall made by all programs on the system. Therefore, it is very important to use syscall rules only when absolutely necessary since these affect performance. The more rules, the bigger the performance hit. Performance can be helped, however, by combining syscalls into one rule whenever possible.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000135Configure NixOS to generate audit records for any successful/unsuccessful attempts to use the "rename", "unlink", "rmdir", "renameat", and "unlinkat" system calls.
+
+Add or update the "security.audit.rules" configuration in /etc/nixos/configuration.nix to include the following rule:
+
+ security.audit.rules = [
+  "-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete"
+  "-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=unset -k delete"
+ ];
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS generates an audit record upon successful/unsuccessful attempts to use the "rename", "unlink", "rmdir", "renameat", and "unlinkat" system calls with the following command:
+
+$ sudo auditctl -l | grep -w 'rename\|unlink\|rmdir'
+
+-a always,exit -F arch=b32 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=-1 -k delete
+-a always,exit -F arch=b64 -S rename,unlink,rmdir,renameat,unlinkat -F auid>=1000 -F auid!=-1 -k delete
+
+If the command does not return an audit rule for "rename", "unlink", "rmdir", "renameat", and "unlinkat", this is a finding.
+
+Note: The "-k" allows for specifying an arbitrary identifier. The string following "-k" does not need to match the example output above.SRG-OS-000042-GPOS-00020<GroupDescription></GroupDescription>ANIX-00-000290Successful/unsuccessful uses of the init_module, finit_module, and delete_module system calls in NixOS must generate an audit record.<VulnDiscussion>Without generating audit records that are specific to the security and mission needs of the organization, it would be difficult to establish, correlate, and investigate the events relating to an incident or identify those responsible for one.
+
+Audit records can be generated from various components within the information system (e.g., module or policy filter). The "init_module" and "finit_module" system calls are used to load a kernel module, and the "delete_module" is used to unload a kernel module.
+
+When a user logs in, the AUID is set to the UID of the account that is being authenticated. Daemons are not user sessions and have the loginuid set to "-1". The AUID representation is an unsigned 32-bit integer, which equals "4294967295". The audit system interprets "-1", "4294967295", and "unset" in the same way.
+
+The system call rules are loaded into a matching engine that intercepts each syscall made by all programs on the system. Therefore, it is very important to use syscall rules only when absolutely necessary since these affect performance. The more rules, the bigger the performance hit. The performance can be helped, however, by combining syscalls into one rule whenever possible.
+

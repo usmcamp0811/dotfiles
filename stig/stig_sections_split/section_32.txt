@@ -1,0 +1,72 @@
+Satisfies: SRG-OS-000355-GPOS-00143, SRG-OS-000359-GPOS-00146, SRG-OS-000785-GPOS-00250</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004923CCI-001890CCI-004922Configure /etc/nixos/configuration.nix to use approved timeservers by adding the following configuration settings:
+
+ networking.timeServers = [
+  "tick.usnogps.navy.mil"
+  "tock.usnogps.navy.mil"
+ ];
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS is configured with an approved time server with the following command:
+
+$ timedatectl show-timesync | grep NTPServers
+
+SystemNTPServers=tick.usnogps.navy.mil
+FallbackNTPServers=tock.usnogps.navy.mil
+
+If the output of the command does not list authorized time servers, this is a finding.SRG-OS-000356-GPOS-00144<GroupDescription></GroupDescription>ANIX-00-001430NixOS must synchronize internal information system clocks to the authoritative time source when the time difference is greater than one second.<VulnDiscussion>Inaccurate time stamps make it more difficult to correlate events and can lead to an inaccurate analysis. Determining the correct time a particular event occurred on a system is critical when conducting forensic analysis and investigating system events.
+
+Synchronizing internal information system clocks provides uniformity of time stamps for information systems with multiple system clocks and systems connected over a network. Organizations should consider setting time periods for different types of systems (e.g., financial, legal, or mission-critical systems).
+
+Organizations should also consider endpoints that may not have regular access to the authoritative time server (e.g., mobile, teleworking, and tactical endpoints). This requirement is related to the comparison done every 24 hours in SRG-OS-000355 because a comparison must be done to determine the time difference.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004926Configure /etc/nixos/configuration.nix to regularly synchronize the system clock by adding the following configuration settings:
+
+services.timesyncd.extraConfig = ''
+PollIntervalMaxSec=60
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS synchronizes internal information system clocks to the authoritative time source when the time difference is greater than one second with the following command:
+
+$ grep -iR pollinterval /etc/nixos/
+
+services.timesyncd.extraConfig = "PollIntervalMaxSec=60";
+
+If "PollIntervalMaxSec" is greater than "60", is commented out, or is missing, this is a finding.SRG-OS-000356-GPOS-00144<GroupDescription></GroupDescription>ANIX-00-001440NixOS must have time synchronization enabled.<VulnDiscussion>Inaccurate time stamps make it more difficult to correlate events and can lead to an inaccurate analysis. Determining the correct time a particular event occurred on a system is critical when conducting forensic analysis and investigating system events.
+
+Synchronizing internal information system clocks provides uniformity of time stamps for information systems with multiple system clocks and systems connected over a network. Organizations should consider setting time periods for different types of systems (e.g., financial, legal, or mission-critical systems).
+
+Organizations should also consider endpoints that may not have regular access to the authoritative time server (e.g., mobile, teleworking, and tactical endpoints). This requirement is related to the comparison done every 24 hours in SRG-OS-000355 because a comparison must be done to determine the time difference.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004926Configure /etc/nixos/configuration.nix to regularly synchronize the system clock by adding the following configuration settings:
+
+ services.timesyncd.enable = true;
+
+ Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS synchronizes internal information system clocks to the authoritative time source when the time difference is greater than one second with the following command:
+
+$ grep -iR timesyncd.enable /etc/nixos/
+
+services.timesyncd.enable = true;
+
+If "services.timesyncd.enable" is not set to "true", is commented out, or is missing, this is a finding.SRG-OS-000362-GPOS-00149<GroupDescription></GroupDescription>ANIX-00-001450NixOS must prohibit user installation of system software without explicit privileged status.<VulnDiscussion>Allowing regular users to install software, without explicit privileges, creates the risk that untested or potentially malicious software will be installed on the system. Explicit privileges (escalated or administrative privileges) provide the regular user with explicit capabilities and control that exceeds the rights of a regular user.
+
+Operating system functionality will vary, and while users are not permitted to install unapproved software, there may be instances where the organization allows the user to install approved software packages, such as from an approved software repository.
+
+The operating system or software configuration management utility must enforce control of software installation by users based upon what types of software installations are permitted (e.g., updates and security patches to existing software) and what types of installations are prohibited (e.g., software whose pedigree with regard to being potentially malicious is unknown or suspect) by the organization.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-003980Configure /etc/nixos/configuration.nix to prevent unauthorized users from using nix by adding the following configuration settings:
+
+ nix.settings.allowed-users = [ "root" "@wheel" ];
+
+Note: extra usergroups may be permitted by adding them with the format "@group" (e.g.: "@users").
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS prevents unauthorized users from using nix with the following command:
+
+$ grep -R allowed-users /etc/nixos/
+
+/etc/nixos/configuration.nix:nix.settings.allowed-users = [ "root" "@wheel" ];
+
+If any other groups or users are included in "nix.settings.allowed-users" other than "root" and "wheel", or the configuration setting does not exist, this is a finding.SRG-OS-000363-GPOS-00150<GroupDescription></GroupDescription>ANIX-00-001460NixOS must notify designated personnel if baseline configurations are changed in an unauthorized manner.<VulnDiscussion>Unauthorized changes to the baseline configuration could make the system vulnerable to various attacks or allow unauthorized access to the operating system. Changes to operating system configurations can have unintended side effects, some of which may be relevant to security.
+
+Detecting such changes and providing an automated response can help avoid unintended, negative consequences that could ultimately affect the security state of the operating system. The operating system's IMO/ISSO and SAs must be notified via email and/or monitoring system trap when there is an unauthorized modification of a configuration item.
+

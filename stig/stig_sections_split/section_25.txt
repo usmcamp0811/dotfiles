@@ -1,0 +1,191 @@
+Satisfies: SRG-OS-000066-GPOS-00034, SRG-OS-000403-GPOS-00182, SRG-OS-000775-GPOS-00230</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000185CCI-002470CCI-004909Configure /etc/nixos/configuration.nix to authenticate using DOD's root CA by adding the following configuration settings:
+
+ services.sssd.enable = true;
+ environment.etc."sssd/pki/sssd_auth_ca_db.pem".source = let
+  certzip = pkgs.fetchzip {
+   url = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_v5-6_dod.zip";
+   sha256 = "sha256-iwwJRXCnONk/LFddQlwy8KX9e9kVXW/QWDnX5qZFZjc=";
+  };
+ in "${certzip}/DOD_PKE_CA_chain.pem";
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS only allows the use of DOD PKI-established certificate authorities by running the following:
+
+$ nix-env -iA nixos.openssl
+$ openssl x509 -text -in /etc/sssd/pki/sssd_auth_ca_db.pem
+Certificate:
+Data:
+Version: 3 (0x2)
+Serial Number: 1 (0x1)
+Signature Algorithm: sha256WithRSAEncryption
+Issuer: C = US, O = U.S. Government, OU = DOD, OU = PKI, CN = DOD Root CA 3
+Validity
+Not Before: Mar 20 18:46:41 2012 GMT
+Not After : Dec 30 18:46:41 2029 GMT
+Subject: C = US, O = U.S. Government, OU = DOD, OU = PKI, CN = DOD Root CA 3
+Subject Public Key Info:
+Public Key Algorithm: rsaEncryption
+
+If the root CA file is not a DOD-issued certificate with a valid date and installed in the /etc/sssd/pki/sssd_auth_ca_db.pem location, this is a finding.SRG-OS-000067-GPOS-00035<GroupDescription></GroupDescription>ANIX-00-000720NixOS must enforce authorized access to the corresponding private key for PKI-based authentication.<VulnDiscussion>If the private key is discovered, an attacker can use the key to authenticate as an authorized user and gain access to the network infrastructure.
+
+The cornerstone of the PKI is the private key used to encrypt or digitally sign information.
+
+If the private key is stolen, this will lead to the compromise of the authentication and nonrepudiation gained through PKI because the attacker can use the private key to digitally sign documents and pretend to be the authorized user.
+
+Both the holders of a digital certificate and the issuing authority must protect the computers, storage devices, or whatever they use to keep the private keys.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000186Create new private/public key pairs that use a passcode using the following command:
+
+$ sudo ssh-keygen -n [passphrase]Verify the SSH private key files have a passcode.
+
+For each private key stored on the system, use the following command:
+
+$ sudo ssh-keygen -y -f /path/to/file
+
+If the contents of the key are displayed, this is a finding.SRG-OS-000069-GPOS-00037<GroupDescription></GroupDescription>ANIX-00-000730NixOS must enforce password complexity by requiring that at least one uppercase character be used.<VulnDiscussion>Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS to enforce password complexity. 
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."/security/pwquality.conf".text = ''
+ucredit=-1
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces password complexity by requiring at least one uppercase character with the following command:
+
+$ grep ucredit /etc/security/pwquality.conf
+
+ ucredit=-1
+
+If the value of "ucredit" is a positive number or is commented out, this is a finding.SRG-OS-000070-GPOS-00038<GroupDescription></GroupDescription>ANIX-00-000740NixOS must enforce password complexity by requiring that at least one lowercase character be used.<VulnDiscussion>Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS to enforce password complexity. 
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."/security/pwquality.conf".text = ''
+lcredit=-1
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces password complexity by requiring at least one lowercase character with the following command:
+
+$ grep lcredit /etc/security/pwquality.conf
+
+ lcredit=-1
+
+If the value of "lcredit" is a positive number or is commented out, this is a finding.SRG-OS-000071-GPOS-00039<GroupDescription></GroupDescription>ANIX-00-000750NixOS must enforce password complexity by requiring that at least one numeric character be used.<VulnDiscussion>Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS to enforce password complexity. 
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."/security/pwquality.conf".text = ''
+dcredit=-1
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces password complexity by requiring at least one numeric character with the following command:
+
+$ grep dcredit /etc/security/pwquality.conf
+
+ dcredit=-1
+
+If the value of "dcredit" is a positive number or is commented out, this is a finding.SRG-OS-000072-GPOS-00040<GroupDescription></GroupDescription>ANIX-00-000760NixOS must require the change of at least 50 percent of the total number of characters when passwords are changed.<VulnDiscussion>Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS to enforce password complexity. 
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."/security/pwquality.conf".text = ''
+difok=8
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces password complexity by requiring that at least 50 percent of the characters are changed with the following command:
+
+$ grep difok /etc/security/pwquality.conf
+
+ difok=8
+
+If the value of "difok" is set to less than "8", or is commented out, this is a finding.SRG-OS-000073-GPOS-00041<GroupDescription></GroupDescription>ANIX-00-000770NixOS must store only encrypted representations of passwords.<VulnDiscussion>Passwords need to be protected at all times, and encryption is the standard method for protecting passwords. If passwords are not encrypted, they can be plainly read (i.e., clear text) and easily compromised.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004062Configure NixOS to store only encrypted representations of passwords. 
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."login.defs".text = pkgs.lib.mkForce ''
+ENCRYPT_METHOD SHA256
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS stores only encrypted representations of passwords with the following command: 
+
+$ grep ENCRYPT_METHOD /etc/login.defs
+
+ENCRYPT_METHOD SHA512
+
+If "ENCRYPT_METHOD" does not equal SHA512 or greater, is commented out, or is missing, this is a finding.SRG-OS-000074-GPOS-00042<GroupDescription></GroupDescription>ANIX-00-000780NixOS must not have the telnet package installed.<VulnDiscussion>Passwords need to be protected at all times, and encryption is the standard method for protecting passwords. If passwords are not encrypted, they can be plainly read (i.e., clear text) and easily compromised.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000197Edit the NixOS Configuration file with "nano /etc/nixos/configuration.nix" and remove any references to pkgs.libtelnet, pkgs.busybox, or pkgs.inetutils from the environment.systemPackages list.
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchEnsure the telnet package is not installed and available with the following command:
+
+$ whereis telnet
+
+telnet:
+
+If there is a path, and the output looks like "telnet: /nix/store/sqiphymcpky1yysgdc1aj4lr9jg9n53a-inetutils-2.2/bin/telnet", this is a finding.SRG-OS-000075-GPOS-00043<GroupDescription></GroupDescription>ANIX-00-000790NixOS must enforce 24 hours/one day as the minimum password lifetime.<VulnDiscussion>Enforcing a minimum password lifetime helps to prevent repeated password changes to defeat the password reuse or history enforcement requirement. If users are allowed to immediately and continually change their password, then the password could be repeatedly changed in a short period of time to defeat the organization's policy regarding password reuse.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS operating system to enforce 24 hours/one day as the minimum password lifetime. 
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."login.defs".text = pkgs.lib.mkForce ''
+PASS_MIN_DAYS 1
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces 24 hours/one day as the minimum password lifetime with the following command: 
+
+$ grep PASS_MIN_DAYS /etc/login.defs 
+
+PASS_MIN_DAYS 1
+
+If PASS_MIN_DAYS_1 is not present, is commented out, or is a value different from 1, this is a finding.SRG-OS-000076-GPOS-00044<GroupDescription></GroupDescription>ANIX-00-000800NixOS must enforce a 60-day maximum password lifetime restriction.<VulnDiscussion>Any password, no matter how complex, can eventually be cracked. Therefore, passwords need to be changed periodically. If the operating system does not limit the lifetime of passwords and force users to change their passwords, there is the risk that the operating system passwords could be compromised.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS operating system to enforce a 60-day maximum password lifetime.
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."login.defs".text = pkgs.lib.mkForce ''
+PASS_MAX_DAYS 60
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces a 60-day maximum password lifetime for new user accounts by running the following command:
+
+$ grep PASS_MAX_DAYS /etc/login.defs
+
+PASS_MAX_DAYS 60
+
+If the "PASS_MAX_DAYS" parameter value is less than 60 or commented out, this is a finding.SRG-OS-000078-GPOS-00046<GroupDescription></GroupDescription>ANIX-00-000810NixOS must enforce a minimum 15-character password length.<VulnDiscussion>The shorter the password, the lower the number of possible combinations that need to be tested before the password is compromised.
+
+Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks. Password length is one factor of several that helps to determine strength and how long it takes to crack a password. Use of more characters in a password helps to exponentially increase the time and/or resources required to compromise the password.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS to enforce password complexity. 
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."/security/pwquality.conf".text = ''
+minlen=15
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces a minimum 15-character password length with the following command:
+
+$ grep minlen /etc/security/pwquality.conf
+
+ minlen=15
+
+If the value of "minlen" is set to less than "15", or is commented out, this is a finding.SRG-OS-000104-GPOS-00051<GroupDescription></GroupDescription>ANIX-00-000840NixOS must uniquely identify and must authenticate organizational users (or processes acting on behalf of organizational users).<VulnDiscussion>To ensure accountability and prevent unauthenticated access, organizational users must be identified and authenticated to prevent potential misuse and compromise of the system.
+
+Organizational users include organizational employees or individuals the organization deems to have equivalent status of employees (e.g., contractors). Organizational users (and processes acting on behalf of users) must be uniquely identified and authenticated to all accesses, except for the following: 
+
+1) Accesses explicitly identified and documented by the organization. Organizations document specific user actions that can be performed on the information system without identification or authentication; and
+
+2) Accesses that occur through authorized use of group authenticators without individual authentication. Organizations may require unique identification of individuals in group accounts (e.g., shared privilege accounts) or for detailed accountability of individual activity.
+

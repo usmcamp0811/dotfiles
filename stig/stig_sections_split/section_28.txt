@@ -1,0 +1,68 @@
+Satisfies: SRG-OS-000114-GPOS-00059, SRG-OS-000378-GPOS-00163, SRG-OS-000690-GPOS-00140</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000778CCI-001958CCI-003959Configure NixOS to enable USBGuard and generate a USBGuard ruleset.
+
+Edit /etc/nixos/configuration.nix and add the following:
+
+ services.usbguard.enable = true;
+
+Rebuild the system configuration by running the following command:
+
+$ sudo nixos-rebuild switch
+
+Then, as root, generate a usbguard configuration. Using the "usbguard" command, use "usbguard list-devices" to list connected USB devices, "usbguard block-device" to block a device, and "usbguard allow-device" to allow a device. Note that the default behavior is to block devices.
+
+When all connected USB devices have been permitted, generate a ruleset by running the following command as root:
+
+# usbguard generate-policy
+
+Then, edit /etc/nixos/configuration.nix to add the policy:
+
+ services.usbguard.rules = ''
+  allow id 1d6b:0001 serial "0000:00:01.2" name "UHCI Host Controller" hash "FRDEjz7OhdJbNjmJ8zityiNX/LuO+ovKC07I0bOFjao=" parent-hash "9+Zsfvo9IR/AEQ/Fn4mzdoPGk0rqpjku6uErfS09K4c=" with-interface 09:00:00 with-connect-type ""
+
+  allow id 0627:0001 serial "28754-0000:00:01.2-1" name "QEMU USB Tablet" hash "5TyVK8wyL5GmiIbZV2Sf/ehIRMCP83miy4kOzG6O+2M=" parent-hash "FRDEjz7OhdJbNjmJ8zityiNX/LuO+ovKC07I0bOFjao=" with-interface 03:00:00 with-connect-type "unknown"
+ '';
+
+Note: This ruleset is only an example; generate a policy using the process described above.
+
+Rebuild the system configuration by running the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS had enabled the use of the USBGuard with the following command:
+
+$ systemctl status usbguard
+
+ usbguard.service - USBGuard daemon
+Loaded: loaded (/etc/systemd/system/usbguard.service; enabled; present: enabled)
+Active: active (running) since Sat 2022-06-04 02:51:43 UTC; 13min ago
+
+If the usbguard.service is not "active" and "running", this is a finding.SRG-OS-000138-GPOS-00069<GroupDescription></GroupDescription>ANIX-00-000970A sticky bit must be set on all NixOS public directories to prevent unauthorized and unintended information transferred via shared system resources.<VulnDiscussion>Preventing unauthorized information transfers mitigates the risk of information, including encrypted representations of information, produced by the actions of prior users/roles (or the actions of processes acting on behalf of prior users/roles) from being available to any current users/roles (or current processes) that obtain access to shared system resources (e.g., registers, main memory, hard disks) after those resources have been released back to information systems. The control of information in shared resources is also commonly referred to as object reuse and residual information protection.
+
+This requirement generally applies to the design of an information technology product, but it can also apply to the configuration of particular information system components that are, or use, such products. This can be verified by acceptance/validation processes in DOD or other government agencies.
+
+There may be shared resources with configurable protections (e.g., files in storage) that may be assessed on specific information system components.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-001090Configure all public directories to have the sticky bit set to prevent unauthorized and unintended information transferred via shared system resources. 
+ 
+Set the sticky bit on all public directories using the following command, replacing "[Public Directory]" with any directory path missing the sticky bit: 
+ 
+$ sudo chmod +t [Public Directory]Verify NixOS is configured with the sticky bit on world-writable directories with the following command:
+
+$ sudo find / -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null
+
+If any of the returned directories are world-writable and do not have the sticky bit set, this is a finding.SRG-OS-000142-GPOS-00071<GroupDescription></GroupDescription>ANIX-00-000980NixOS must manage excess capacity, bandwidth, or other redundancy to limit the effects of information flooding types of denial-of-service (DoS) attacks.<VulnDiscussion>DoS is a condition when a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded capacity. 
+
+Managing excess capacity ensures that sufficient capacity is available to counter flooding attacks. Employing increased capacity and service redundancy may reduce the susceptibility to some DoS attacks. Managing excess capacity may include, for example, establishing selected usage priorities, quotas, or partitioning.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-001095Configure NixOS to use IPv4 TCP syncookies by editing the following in the NixOS configuration /etc/nixos/configuration.nix:
+
+boot.kernel.sysctl = { 
+"net.ipv4.tcp_syncookies"=1;
+};
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS is configured to use IPv4 TCP syncookies with the following command:
+
+$ sudo sysctl net.ipv4.tcp_syncookies
+
+net.ipv4.tcp_syncookies = 1
+
+If the network parameter "ipv4.tcp_syncookies" is not equal to "1" or nothing is returned, this is a finding.SRG-OS-000163-GPOS-00072<GroupDescription></GroupDescription>ANIX-00-000990NixOS must terminate all SSH connections after 10 minutes of becoming unresponsive.<VulnDiscussion>Terminating an idle session within a short time period reduces the window of opportunity for unauthorized personnel to take control of a management session enabled on the console or console port that has been left unattended. In addition, quickly terminating an idle session will also free up resources committed by the managed network element. 
+
+Terminating network connections associated with communications sessions includes, for example, de-allocating associated TCP/IP address/port pairs at the operating system level, and de-allocating networking assignments at the application level if multiple application sessions are using a single operating system-level network connection. This does not mean that the operating system terminates all sessions or network access; it only ends the inactive session and releases the resources associated with that session.
+

@@ -1,0 +1,40 @@
+Satisfies: SRG-OS-000185-GPOS-00079, SRG-OS-000404-GPOS-00183, SRG-OS-000405-GPOS-00184, SRG-OS-000780-GPOS-00240</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-001199CCI-002475CCI-002476CCI-004910Configure NixOS to prevent unauthorized modification of all information at rest by using disk encryption. 
+
+Encrypting a partition in an already installed system is more difficult, because existing partitions will need to be resized and changed. To encrypt an entire partition, dedicate a partition for encryption in the partition layout.
+
+Refer to the NixOS manual Section 8.1 "LUKS-Encrypted File Systems" for further details.
+
+NixOS Wiki: https://nixos.wiki/wiki/Full_Disk_EncryptionVerify NixOS prevents unauthorized disclosure or modification of all information requiring at-rest protection by using disk encryption. 
+
+Verify all system partitions are encrypted with the following command:
+
+$ sudo blkid
+
+/dev/sda1: LABEL="nixos" UUID="67b7d7fe-de60-6fd0-befb-e6748cf97743" TYPE="crypto_LUKS"
+
+Every persistent disk partition present must be of type "crypto_LUKS". If any partitions other than the boot partition or pseudo file systems (such as /proc or /sys) are not type "crypto_LUKS", ask the administrator to indicate how the partitions are encrypted. If there is no evidence that these partitions are encrypted, this is a finding.SRG-OS-000266-GPOS-00101<GroupDescription></GroupDescription>ANIX-00-001160NixOS must enforce password complexity by requiring that at least one special character be used.<VulnDiscussion>Use of a complex password helps to increase the time and resources required to compromise the password. Password complexity or strength is a measure of the effectiveness of a password in resisting attempts at guessing and brute-force attacks.
+
+Password complexity is one factor in determining how long it takes to crack a password. The more complex the password, the greater the number of possible combinations that need to be tested before the password is compromised.
+
+Special characters are those characters that are not alphanumeric. Examples include: ~ ! @ # $ % ^ *.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-004066Configure NixOS to enforce password complexity.
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."/security/pwquality.conf".text = ''
+ocredit=-1
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS enforces the use of at least one special character in passwords with the following command:
+
+$ grep minlen /etc/security/pwquality.conf
+
+ ocredit=-1
+
+If the value of "ocredit" is a positive number or is commented out, this is a finding.SRG-OS-000299-GPOS-00117<GroupDescription></GroupDescription>ANIX-00-001250NixOS must protect wireless access to and from the system using encryption.<VulnDiscussion>Allowing devices and users to connect to or from the system without first authenticating them allows untrusted access and can lead to a compromise or attack. Since wireless communications can be intercepted, it is necessary to use encryption to protect the confidentiality of information in transit.
+
+Wireless technologies include, for example, microwave, packet radio (UHF/VHF), 802.11x, and Bluetooth. Wireless networks use authentication protocols (e.g., EAP/TLS, PEAP), which provide credential protection and mutual authentication.
+
+This requirement applies to those operating systems that control wireless devices.
+

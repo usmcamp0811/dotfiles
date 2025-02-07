@@ -1,0 +1,38 @@
+Satisfies: SRG-OS-000030-GPOS-00011, SRG-OS-000028-GPOS-00009, SRG-OS-000031-GPOS-00012</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000057CCI-000056CCI-000060Configure NixOS to have a package that allows user to lock session.
+
+Add the following Nix code to the NixOS Configuration, usually located in /etc/nixos/configuration.nix:
+
+ environment.systemPackages = [
+  pkgs.vlock
+ ];
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify the NixOS operating system has the "vlock" package installed by running the following command: 
+
+$ nix-store --query --requisites /run/current-system | cut -d- -f2- | sort | uniq | grep vlock
+
+ vlock-2.2.2
+
+If the "vlock" package is not installed, this is a finding.SRG-OS-000032-GPOS-00013<GroupDescription></GroupDescription>ANIX-00-000140NixOS must monitor remote access methods.<VulnDiscussion>Remote access services, such as those providing remote access to network devices and information systems, which lack automated monitoring capabilities, increase risk and make remote user access management difficult at best.
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, non-organization-controlled network. Remote access methods include, for example, dial-up, broadband, and wireless.
+
+Automated monitoring of remote access sessions allows organizations to detect cyberattacks and also ensure ongoing compliance with remote access policies by auditing connection activities of remote access capabilities, such as Remote Desktop Protocol (RDP), on a variety of information system components (e.g., servers, workstations, notebook computers, smartphones, and tablets).</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000067Configure the NixOS to monitor remote access methods by adding the following configuration to the /etc/nixos/configuration.nix:
+
+services.openssh.logLevel = "VERBOSE";
+
+Rebuild NixOS with the following command:
+
+$ sudo nixos-rebuild switchConfigure the NixOS to monitors remote access methods with the following command:
+
+$ grep -R openssh.logLevel /etc/nixos
+
+/etc/nixos/configuration.nix:services.openssh.logLevel = "VERBOSE";
+
+If services.openssh.logLevel does not equal VERBOSE, is missing, or is commented out, this is a finding.SRG-OS-000033-GPOS-00014<GroupDescription></GroupDescription>ANIX-00-000150NixOS must implement DOD-approved encryption to protect the confidentiality of remote access sessions.<VulnDiscussion>Without confidentiality protection mechanisms, unauthorized individuals may gain access to sensitive information via a remote access session. 
+
+Remote access is access to DOD nonpublic information systems by an authorized user (or an information system) communicating through an external, nonorganization-controlled network. Remote access methods include, for example, dial-up, broadband, and wireless.
+
+Encryption provides a means to secure the remote connection to prevent unauthorized access to the data traversing the remote access connection (e.g., RDP), thereby providing a degree of confidentiality. The encryption strength of a mechanism is selected based on the security categorization of the information.
+

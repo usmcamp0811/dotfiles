@@ -1,0 +1,21 @@
+Satisfies: SRG-OS-000057-GPOS-00027, SRG-OS-000206-GPOS-00084</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000162CCI-001314Configure the audit directory and logs to be protected from unauthorized read access, by setting the correct owner as "root".
+
+Using the path of the directory containing the audit logs (if not specified, the default location is "/var/log/audit/audit.log"), configure the audit directory and log files to be owned by "root" by using the following command:
+
+$ sudo chown -R root /var/log/auditVerify the audit directory and logs are owned by "root". First, determine where the audit logs are stored with the following command:
+
+$ sudo grep log_file /etc/audit/auditd.conf
+
+log_file = /var/log/audit/audit.log
+
+Using the location of the audit log file (if not specified, the default location is "/var/log/audit/audit.log"), determine if the audit log is owned by "root" using the following command:
+
+$ sudo find /var/log/audit -exec stat -c "%U %n" {} \;
+
+root /var/log/audit
+root /var/log/audit/audit.log
+
+If the audit directory and logs are not owned by "root", this is a finding.SRG-OS-000057-GPOS-00027<GroupDescription></GroupDescription>ANIX-00-000540NixOS audit directory and logs must be group-owned by root to prevent unauthorized read access.<VulnDiscussion>Only authorized personnel should be aware of errors and the details of the errors. Error messages are an indicator of an organization's operational state or can identify the NixOS system or platform. Additionally, Personally Identifiable Information (PII) and operational information must not be revealed through error messages to unauthorized personnel or their designated representatives.
+
+The structure and content of error messages must be carefully considered by the organization and development team. The extent to which the information system is able to identify and handle error conditions is guided by organizational policy and operational requirements.
+

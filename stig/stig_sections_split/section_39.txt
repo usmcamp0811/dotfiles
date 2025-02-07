@@ -1,0 +1,80 @@
+Satisfies: SRG-OS-000478-GPOS-00223, SRG-OS-000396-GPOS-00176</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-002450Configure NixOS to run in FIPS mode. Add "fips=1" to the kernel parameters by adding to the boot.kernelParams option in /etc/nixos/configuration.nix:
+
+ boot.kernelParams = [ "fips=1" ];
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switch
+
+A reboot is required for the changes to take effect.Verify NixOS is configured to operate in FIPS mode with the following command:
+
+$ grep fips /proc/cmdline
+
+BOOT_IMAGE=(hd0,msdos1)/nix/store/glc0midc78caq9sc7pzciymx4c3in7kn-linux-6.1.64/bzImage init=/nix/store/grl4baymr9q60mbcz3sidm4agckn3bx5-nixos-system-nixos-23.1.1.20231129.057f9ae/init audit=1 audit_backlog_limit=8192 fips=1 loglevel=4
+
+If the "fips" entry does not equal "1" or is missing, this is a finding.SRG-OS-000480-GPOS-00225<GroupDescription></GroupDescription>ANIX-00-001860NixOS must prevent the use of dictionary words for passwords.<VulnDiscussion>If the operating system allows the user to select passwords based on dictionary words, then this increases the chances of password compromise by increasing the opportunity for successful guesses and brute-force attacks.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000366Configure NixOS to check password change attempts against a dictionary.
+
+Add/modify /etc/nixos/configuration.nix to include the following lines:
+
+environment.etc."/security/pwquality.conf".text = ''
+dictcheck=1
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS prevents the use of dictionary words for passwords with the following command:
+
+$ grep dict /etc/security/pwquality.conf
+
+ dictcheck=1
+
+If the value of "ocredit" is a positive number or is commented out, this is a finding.SRG-OS-000480-GPOS-00227<GroupDescription></GroupDescription>ANIX-00-001861NixOS must enable the use of pwquality.<VulnDiscussion>If the operating system allows the user to select passwords based on dictionary words, then this increases the chances of password compromise by increasing the opportunity for successful guesses and brute-force attacks.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000366Configure NixOS to check password change attempts against a dictionary.
+
+Add the following Nix code to the NixOS Configuration usually located in /etc/nixos/configuration.nix
+
+security.pam.services.passwd.text = pkgs.lib.mkDefault (pkgs.lib.mkBefore "password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so");
+security.pam.services.chpasswd.text = pkgs.lib.mkDefault (pkgs.lib.mkBefore "password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so");
+security.pam.services.sudo.text = pkgs.lib.mkDefault (pkgs.lib.mkBefore "password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so");
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS prevents the use of dictionary words for passwords with the following command:
+
+$ grep -i pam_pwquality /etc/pam.d/passwd /etc/pam.d/chpasswd /etc/pam.d/sudo
+
+/etc/pam.d/passwd:password requisite /nix/store/db96zr26w71dzx0bzf47d88kw19fr0l7-libpwquality-1.4.5.-lib/lib/security/pam_pwquality.so
+/etc/pam.d/chpasswd:password requisite /nix/store/db96zr26w71dzx0bzf47d88kw19fr0l7-libpwquality-1.4.5.-lib/lib/security/pam_pwquality.so
+/etc/pam.d/sudo:password requisite /nix/store/db96zr26w71dzx0bzf47d88kw19fr0l7-libpwquality-1.4.5.-lib/lib/security/pam_pwquality.so
+
+If the pam_pwquality.so module is not present in the passwd, chpasswd, and sudo pam files, this is a finding.SRG-OS-000480-GPOS-00226<GroupDescription></GroupDescription>ANIX-00-001870NixOS must enforce a delay of at least four seconds between login prompts following a failed login attempt.<VulnDiscussion>Limiting the number of login attempts over a certain time interval reduces the chances that an unauthorized user may gain access to an account.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000366Configure NixOS operating system to enforce a four-second delay between login attempts.
+
+Add the following Nix code to the NixOS Configuration usually located in /etc/nixos/configuration.nix
+
+environment.etc."login.defs".text = pkgs.lib.mkForce ''
+FAIL_DELAY 4
+'';
+
+Rebuild the system with the following command:
+
+$ sudo nixos-rebuild switchVerify the NixOS operating system enforces a four-second delay between login attempts with the following command:
+ 
+$ grep -I delay /etc/login.defs
+
+FAIL_DELAY 4
+
+If "FAIL_DELAY" is not set to "4" or greater, is commented out, or is missing, this is a finding.SRG-OS-000480-GPOS-00229<GroupDescription></GroupDescription>ANIX-00-001880NixOS must not allow an unattended or automatic login to the system via the console.<VulnDiscussion>Failure to restrict system access via the console to authenticated users negatively impacts operating system security.</VulnDiscussion><FalsePositives></FalsePositives><FalseNegatives></FalseNegatives><Documentable>false</Documentable><Mitigations></Mitigations><SeverityOverrideGuidance></SeverityOverrideGuidance><PotentialImpacts></PotentialImpacts><ThirdPartyTools></ThirdPartyTools><MitigationControl></MitigationControl><Responsibility></Responsibility><IAControls></IAControls>DPMS Target Anduril NixOSDISADPMS TargetAnduril NixOS5658CCI-000366Configure the operating system to not allow an unattended or automatic login to the system via the console.
+
+Note: Once set, the system must be rebooted for any changes to apply.
+
+Add or update the following configuration in /etc/nixos/configuration.nix:
+
+services.xserver.displayManager.autoLogin.user = null;
+
+Rebuild the NixOS configuration with the following command:
+
+$ sudo nixos-rebuild switchVerify NixOS does not allow an unattended or automatic login to the system via the console with the following command:
+
+$ grep -iR autologin.user /etc/nixos
+
+If "services.xserver.displayManager.autoLogin.user" is defined and is not "null", this is a finding.SRG-OS-000480-GPOS-00230<GroupDescription></GroupDescription>ANIX-00-001890NixOS must be configured to use AppArmor.<VulnDiscussion>Users' home directories/folders may contain information of a sensitive nature. Nonprivileged users should coordinate any sharing of information with a system administrator (SA) through shared resources.
+
