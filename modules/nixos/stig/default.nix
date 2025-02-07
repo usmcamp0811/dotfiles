@@ -6,59 +6,16 @@ with lib.campground;
 let
   cfg = config.campground.stig;
 
-  # List of known submodules
-  submodules = [
-    "account_expiry"
-    "audit"
-    "banner"
-    "firewall"
-    "login_attempts"
-    "session_limit"
-    "session_lock"
-  ];
+  # Collect all active submodule configs
+  activeModules = attrValues cfg.active;
 
-  # Function to get the source of a module
-  getModuleSource = name:
-    let
-      moduleFiles = sourceFilesBySuffices (toString ./.)
-        [ "${name}.nix" ]; # Find module files
-    in
-    if moduleFiles != [ ] then
-      builtins.readFile (builtins.head moduleFiles)
-    else
-      "<source unavailable>";
+  # Aggregate all SRGs and CCIs from active modules
+  allSRGs = concatLists (map (m: m.srg or [ ]) activeModules);
+  allCCIs = concatLists (map (m: m.cci or [ ]) activeModules);
 
-  # Collect only the enabled modules and their individual SRGs/CCIs + source code
-  enabledModules = builtins.listToAttrs (map
-    (name:
-      let subCfg = getAttr name config.campground.stig;
-      in {
-        name = name;
-        value =
-          if subCfg.enable then {
-            srg = subCfg.srg or [ ];
-            cci = subCfg.cci or [ ];
-            source = getModuleSource name;
-          } else
-            null;
-      })
-    submodules);
-
-  # Remove null entries from enabledModules
-  filteredModules = filterAttrs (_: v: v != null) enabledModules;
-
-  # Aggregate **only enabled modules'** SRGs and CCIs at the top level
-  allSRGs = concatLists (map
-    (name:
-      let subCfg = getAttr name config.campground.stig;
-      in if subCfg.enable then (subCfg.srg or [ ]) else [ ])
-    submodules);
-
-  allCCIs = concatLists (map
-    (name:
-      let subCfg = getAttr name config.campground.stig;
-      in if subCfg.enable then (subCfg.cci or [ ]) else [ ])
-    submodules);
+  # Merge all active configurations
+  mergedConfig =
+    foldl' recursiveUpdate { } (map (m: m.config or { }) activeModules);
 
 in
 {
@@ -73,19 +30,28 @@ in
         options = {
           srg = listOf str;
           cci = listOf str;
-          source = str;
+          config = attrs;
         };
       }))
-      { } "Enabled submodules with their SRGs, CCIs, and source code";
+      { } "Enabled submodules with their SRGs, CCIs, and configurations.";
+    inactive = mkOpt
+      (attrsOf (submodule {
+        options = {
+          srg = listOf str;
+          cci = listOf str;
+          config = attrs;
+        };
+      }))
+      { } "Disabled submodules with their SRGs, CCIs, and justifications.";
   };
 
-  config = mkIf cfg.enable {
-    # Set modules-enabled dynamically, ensuring each module only lists its own SRGs/CCIs + source code
-    campground.stig.modules-enabled = filteredModules;
-
-    # Set aggregated SRGs and CCIs
-    campground.stig.srg = allSRGs;
-    campground.stig.cci = allCCIs;
-
-  };
+  config = mkIf cfg.enable (recursiveUpdate
+    {
+      campground.stig = {
+        active = activeModules;
+        srg = allSRGs;
+        cci = allCCIs;
+      };
+    }
+    mergedConfig);
 }
