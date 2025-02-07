@@ -68,7 +68,7 @@ in
       mkOpt (listOf str) [ ] "Aggregated list of SRGs from enabled submodules";
     cci =
       mkOpt (listOf str) [ ] "Aggregated list of CCIs from enabled submodules";
-    modules-enabled = mkOpt
+    active = mkOpt
       (attrsOf (submodule {
         options = {
           srg = listOf str;
@@ -87,46 +87,5 @@ in
     campground.stig.srg = allSRGs;
     campground.stig.cci = allCCIs;
 
-    assertions = [
-      {
-        assertion = !cfg.firewall.enable -> cfg.firewall.justification != null;
-        message =
-          "You must provide a justification if the firewall is disabled.";
-      }
-      {
-        assertion = !cfg.account_expiry.enable
-          -> cfg.account_expiry.justification != null;
-        message =
-          "You must provide a justification if account expiration enforcement is disabled.";
-      }
-      {
-        assertion = !cfg.audit.enable -> cfg.audit.justification != null;
-        message =
-          "You must provide a justification if audit enforcement is disabled.";
-      }
-      {
-        assertion = !cfg.login_attempts.enable
-          -> cfg.login_attempts.justification != null;
-        message =
-          "You must provide a justification if login attempt restrictions are disabled.";
-      }
-      {
-        assertion = !cfg.banner.enable -> cfg.banner.justification != null;
-        message =
-          "You must provide a justification if the graphical login banner is disabled.";
-      }
-      {
-        assertion = !cfg.session_limit.enable -> cfg.session_limit.justification
-          != null;
-        message =
-          "You must provide a justification if session limit enforcement is disabled.";
-      }
-      {
-        assertion = !cfg.session_lock.enable -> cfg.session_lock.justification
-          != null;
-        message =
-          "You must provide a justification if session lock enforcement is disabled.";
-      }
-    ];
   };
 }

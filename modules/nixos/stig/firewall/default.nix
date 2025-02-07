@@ -8,10 +8,15 @@ in {
     justification = mkOpt (nullOr str) null "Why you didn't enable this";
   };
 
-  config = mkIf cfg.enable {
-    campground.stig.srg =
-      [ "SRG-OS-000298-GPOS-00116" "SRG-OS-000096-GPOS-00050" ];
-    campground.stig.cci = [ "CCI-002322" "CCI-000382" ];
-    networking.firewall.enable = mkForce true;
+  config = {
+    campground.stig.active.firewall = mkIf cfg.enable {
+      srg = [ "SRG-OS-000298-GPOS-00116" "SRG-OS-000096-GPOS-00050" ];
+      cci = [ "CCI-002322" "CCI-000382" ];
+      config = { networking.firewall.enable = mkForce true; };
+    };
+    assertions = [{
+      assertion = !cfg.enable -> cfg.justification != null;
+      message = "You must provide a justification if the firewall is disabled.";
+    }];
   };
 }
