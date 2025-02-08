@@ -1,81 +1,56 @@
-{ lib, config, pkgs, ... }:
-
+{ lib, config, ... }:
 with lib;
 with lib.campground;
-
 let
   cfg = config.campground.stig;
+  allStigs = removeAttrs cfg [ "enable" ];
+  activeStigs = filterAttrs (_: v: v.enable or false) allStigs;
+  inactiveStigs = filterAttrs (_: v: !(v.enable or false)) allStigs;
 
-  # Extract values from `active` and `inactive`
-  activeModules = attrValues (cfg.active or { });
-  inactiveModules = attrValues (cfg.inactive or { });
+  aggregateValues = key:
+    unique
+      (concatLists (map (stig: stig.${key} or [ ]) (attrValues activeStigs)));
 
-  # Aggregate SRGs and CCIs separately for active and inactive modules
-  activeSRGs = flatten (map (m: m.srg or [ ]) activeModules);
-  activeCCIs = flatten (map (m: m.cci or [ ]) activeModules);
-  inactiveSRGs = flatten (map (m: m.srg or [ ]) inactiveModules);
-  inactiveCCIs = flatten (map (m: m.cci or [ ]) inactiveModules);
+  # Collect values but DO NOT merge yet
+  aggregatedConfigs = map (stig: stig.config or { }) (attrValues activeStigs);
 
-  # Extract and merge all active configurations
-  mergedConfig =
-    foldl' recursiveUpdate { } (map (m: m.config or { }) activeModules);
-
+  # Lazy merging function - only executes when needed
+  mergedConfig = mkMerge aggregatedConfigs;
 in
 {
-  options.campground.stig = with types; {
-    enable = mkBoolOpt false "STIG the machine";
-    active = mkOpt
-      (submodule {
-        options = {
-          srg = mkOpt (listOf str) [ ]
-            "Aggregated list of SRGs from enabled submodules";
-          cci = mkOpt (listOf str) [ ]
-            "Aggregated list of CCIs from enabled submodules";
-          modules = mkOpt
-            (attrsOf (submodule {
-              options = {
-                srg = listOf str;
-                cci = listOf str;
-                config = attrs;
-              };
-            }))
-            { } "Enabled submodules with their SRGs, CCIs, and configurations.";
-        };
-      })
-      { } "Aggregated details of active STIG submodules.";
 
-    inactive = mkOpt
-      (submodule {
-        options = {
-          srg = mkOpt (listOf str) [ ]
-            "Aggregated list of SRGs from disabled submodules";
-          cci = mkOpt (listOf str) [ ]
-            "Aggregated list of CCIs from disabled submodules";
-          modules = mkOpt
-            (attrsOf (submodule {
-              options = {
-                srg = listOf str;
-                cci = listOf str;
-                justification = nullOr str;
-              };
-            }))
-            { }
-            "Disabled submodules with their SRGs, CCIs, and justifications.";
-        };
-      })
-      { } "Aggregated details of inactive STIG submodules.";
-  };
-
-  config = mkIf cfg.enable {
-    campground.stig = {
-      active = {
-        srg = activeSRGs;
-        cci = activeCCIs;
-      };
-      inactive = {
-        srg = inactiveSRGs;
-        cci = inactiveCCIs;
-      };
+  options.campground.stig = {
+    enable = mkEnableOption "Campground STIG aggregation";
+    active = mkOption {
+      type = types.attrsOf types.attrs;
+      default = { };
+      description = "Aggregated active STIGs.";
+      internal = true;
+    };
+    inactive = mkOption {
+      type = types.attrsOf types.attrs;
+      default = { };
+      description = "Aggregated inactive STIGs.";
+      internal = true;
+    };
+    srgs = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "Aggregated list of SRGs from all active STIGs.";
+      internal = true;
+    };
+    ccis = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "Aggregated list of CCIs from all active STIGs.";
+      internal = true;
+    };
+    config = mkOption {
+      type = types.attrs;
+      default = { };
+      description = "Merged configuration from all active STIGs.";
+      internal = true;
     };
   };
+  config = { };
 }
