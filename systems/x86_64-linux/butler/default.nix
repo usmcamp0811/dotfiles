@@ -29,6 +29,9 @@ in
       extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
+    stig.enable = true;
+    stig.banner.enable = true;
+    stig.account_expiry.enable = true;
 
     apps = { steam = enabled; };
 
