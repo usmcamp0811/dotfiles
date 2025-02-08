@@ -21,7 +21,7 @@ mkStigModule {
     "SRG-OS-000470-GPOS-00214"
   ];
   cciList = [ "CCI-000044" "CCI-002238" "CCI-000172" ];
-  extraConfig = {
+  stigConfig = {
     security.pam.services = {
       login.text = pkgs.lib.mkDefault pamfile;
       sshd.text = pkgs.lib.mkDefault pamfile;

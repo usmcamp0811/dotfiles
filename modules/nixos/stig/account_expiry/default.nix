@@ -6,7 +6,7 @@ mkStigModule {
   name = "account_expiry";
   srgList = [ "SRG-OS-000002-GPOS-00002" "SRG-OS-000123-GPOS-00064" ];
   cciList = [ "CCI-000016" "CCI-001682" ];
-  extraConfig = {
+  stigConfig = {
     systemd.services.expire-accounts = {
       description =
         "Ensure emergency and temporary accounts expire within 72 hours";

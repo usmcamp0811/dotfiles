@@ -32,7 +32,7 @@ mkStigModule {
     "CCI-001876"
     "CCI-001889"
   ];
-  extraConfig = {
+  stigConfig = {
     security.auditd.enable = mkForce true;
     security.audit.enable = mkForce true;
   };

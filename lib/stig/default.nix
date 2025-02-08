@@ -1,20 +1,20 @@
 { lib, inputs, ... }:
 with lib; rec {
-  mkStigModule = { name, srgList, cciList, config, extraConfig }:
+  mkStigModule = { name, srgList, cciList, config, stigConfig }:
     let cfg = config.campground.stig.${name};
     in {
       options.campground.stig.${name} = with types; {
-        enable =
-          lib.campground.mkBoolOpt config.campground.stig.enable "Enable/Disable ${name}";
+        enable = lib.campground.mkBoolOpt config.campground.stig.enable
+          "Enable/Disable ${name}";
         justification =
-          lib.campground.mkOpt (nullOr str) null "Why you didn't enable this";
+          lib.campground.mkOpt (listOf str) [ ] "Reasons why this is disabled.";
       };
 
       config = {
         campground.stig.active.${name} = mkIf cfg.enable {
           srg = srgList;
           cci = cciList;
-          config = extraConfig;
+          config = stigConfig;
         };
 
         campground.stig.inactive.${name} = mkIf (!cfg.enable) {
@@ -24,9 +24,9 @@ with lib; rec {
         };
 
         assertions = [{
-          assertion = cfg.enable != true -> cfg.justification != null;
+          assertion = cfg.enable != true -> (cfg.justification != [ ]);
           message =
-            "You must provide a justification if campground.stig.${name} is disabled.";
+            "You must provide at least one justification if campground.stig.${name} is disabled.";
         }];
       };
     };
