@@ -33,24 +33,6 @@ in
       description = "Aggregated inactive STIGs.";
       internal = true;
     };
-    srgs = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      description = "Aggregated list of SRGs from all active STIGs.";
-      internal = true;
-    };
-    ccis = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      description = "Aggregated list of CCIs from all active STIGs.";
-      internal = true;
-    };
-    config = mkOption {
-      type = types.attrs;
-      default = { };
-      description = "Merged configuration from all active STIGs.";
-      internal = true;
-    };
   };
   config = { };
 }
