@@ -1,8 +1,16 @@
+{ lib, config, pkgs, ... }:
+with lib;
+with lib.campground;
+# TODO: add options for remote-loggin-server and port
 mkStigModule {
   inherit config;
   name = "audit_remote_authentication";
-  srgList = [ "SRG-OS-000051-GPOS-00024" ];
-  cciList = [ "CCI-000154" ];
+  srgList = [
+    "SRG-OS-000051-GPOS-00024"
+    "SRG-OS-000342-GPOS-00133"
+    "SRG-OS-000479-GPOS-00224"
+  ];
+  cciList = [ "CCI-000154" "CCI-001851" ];
   stigConfig = {
     services.syslog-ng.extraConfig = ''
       destination d_network {
