@@ -1,12 +1,13 @@
-{ lib, inputs, ... }: rec {
-
-  mkStigModule = name: desc: defaultEnable: srgList: cciList: extraConfig:
-    { lib, config, pkgs, ... }:
+{ lib, inputs, ... }:
+with lib; rec {
+  mkStigModule = { name, srgList, cciList, config, extraConfig }:
     let cfg = config.campground.stig.${name};
     in {
       options.campground.stig.${name} = with types; {
-        enable = mkBoolOpt defaultEnable desc;
-        justification = mkOpt (nullOr str) null "Why you didn't enable this";
+        enable =
+          lib.campground.mkBoolOpt config.campground.stig.enable "Enable/Disable ${name}";
+        justification =
+          lib.campground.mkOpt (nullOr str) null "Why you didn't enable this";
       };
 
       config = {
@@ -24,7 +25,8 @@
 
         assertions = [{
           assertion = cfg.enable != true -> cfg.justification != null;
-          message = "You must provide a justification if ${desc} is disabled.";
+          message =
+            "You must provide a justification if campground.stig.${name} is disabled.";
         }];
       };
     };
