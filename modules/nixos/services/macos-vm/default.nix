@@ -11,6 +11,14 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    users.users.macos-ventura = {
+      isSystemUser = true;
+      group = "macos-ventura";
+    };
+    users.groups.macos-ventura = { };
+
+    campground.nix.additional-authorized-users = [ "macos-ventura" ];
     services.macos-ventura = {
       enable = true;
       openFirewall = true;

@@ -4,7 +4,8 @@ with lib; rec {
     let cfg = config.campground.stig.${name};
     in {
       options.campground.stig.${name} = with types; {
-        enable = lib.campground.mkBoolOpt true "Enable/Disable ${name}";
+        enable = lib.campground.mkBoolOpt config.campground.stig.enable
+          "Enable/Disable ${name}";
         justification =
           lib.campground.mkOpt (listOf str) [ ] "Reasons why this is disabled.";
       };

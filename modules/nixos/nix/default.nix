@@ -9,11 +9,14 @@ let
         mkOpt (nullOr str) null "The trusted public key for this substituter.";
     };
   });
+
 in
 {
   options.campground.nix = with types; {
     enable = mkBoolOpt true "Whether or not to manage nix configuration.";
     package = mkOpt package pkgs.nixVersions.stable "Which nix package to use.";
+    additional-authorized-users =
+      mkOpt (listOf str) [ ] "List of authorized users";
 
     default-substituter = {
       url = mkOpt str "https://cache.nixos.org" "The url for the substituter.";
@@ -86,7 +89,8 @@ in
     nix =
       let
         users = [ "root" config.campground.user.name ]
-          ++ (optional config.services.hydra.enable "hydra")
+          ++ cfg.additional-authorized-users
+          ++ (optional config.campground.services.hydra.enable "hydra")
           ++ (optional config.campground.services.nixery.enable "nixery");
       in
       {
