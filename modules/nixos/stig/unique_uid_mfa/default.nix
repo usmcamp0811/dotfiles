@@ -15,7 +15,6 @@ mkStigModule {
     systemd.tmpfiles.rules = [ "f /etc/passwd 0644 root root -" ];
 
     # Require MFA for privileged network access (DoD CAC + PKI)
-    security.pam.enable = true;
     security.pam.services.sudo.text = ''
       auth required pam_tally2.so deny=5 unlock_time=900
       auth required pam_pkcs11.so
