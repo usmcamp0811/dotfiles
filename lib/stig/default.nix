@@ -1,6 +1,6 @@
 { lib, inputs, ... }:
 with lib; rec {
-  mkStigModule = { name, srgList, cciList, config, stigConfig }:
+  mkStigModule = { name, srgList ? [ ], cciList ? [ ], config, stigConfig }:
     let cfg = config.campground.stig.${name};
     in {
       options.campground.stig.${name} = with types; {
