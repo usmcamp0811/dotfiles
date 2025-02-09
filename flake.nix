@@ -2,6 +2,7 @@
   description = "Campground Config";
 
   inputs = {
+    nixtheplanet.url = "github:matthewcroughan/nixtheplanet";
     authentik-nix.url = "github:nix-community/authentik-nix";
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
@@ -234,6 +235,7 @@
       ];
 
       systems.modules.nixos = with inputs; [
+        nixtheplanet.nixosModules.macos-ventura
         home-manager.nixosModules.home-manager
         # nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
