@@ -1,8 +1,12 @@
 { lib, inputs, ... }:
 with lib; rec {
   mkStigModule = { name, srgList ? [ ], cciList ? [ ], config, stigConfig }:
-    let cfg = config.campground.stig.${name};
-    in {
+    let
+      cfg = config.campground.stig.${name};
+      forceAttrs = attrs: mapAttrsRecursive (_: v: mkForce v) attrs;
+
+    in
+    {
       options.campground.stig.${name} = with types; {
         enable = lib.campground.mkBoolOpt config.campground.stig.enable
           "Enable/Disable ${name}";
@@ -11,7 +15,7 @@ with lib; rec {
       };
 
       config = mkMerge [
-        (mkIf cfg.enable stigConfig)
+        (mkIf cfg.enable (forceAttrs stigConfig))
 
         {
           campground.stig = {
