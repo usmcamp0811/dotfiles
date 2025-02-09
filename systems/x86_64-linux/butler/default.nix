@@ -31,7 +31,7 @@ in
     };
     stig.enable = true;
     stig.banner.enable = true;
-    stig.account_expiry.enable = true;
+    stig.account_expiry.enable = false;
 
     apps = { steam = enabled; };
 
