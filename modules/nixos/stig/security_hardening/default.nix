@@ -50,7 +50,7 @@ mkStigModule {
       pkgs.lib.mkBefore "password required pam_unix.so sha512";
 
     # Enforce strong authentication for SSH
-    services.openssh.settings.UsePAM = "yes";
+    services.openssh.settings.UsePAM = true;
 
     # Enforce multifactor authentication for remote privileged access & secure SSH authentication
     security.pam.services.sshd.text = pkgs.lib.mkBefore ''
