@@ -113,7 +113,6 @@ in
     };
 
     services = {
-      macos-vm = enabled;
       navidrome = enabled;
       matt-camp-website = enabled;
       cac = enabled;

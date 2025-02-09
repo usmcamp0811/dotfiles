@@ -2,7 +2,7 @@
   description = "Campground Config";
 
   inputs = {
-    nixtheplanet.url = "github:matthewcroughan/nixtheplanet";
+    nixtheplanet.url = "github:usmcamp0811/nixtheplanet/update-macos-url";
     authentik-nix.url = "github:nix-community/authentik-nix";
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
