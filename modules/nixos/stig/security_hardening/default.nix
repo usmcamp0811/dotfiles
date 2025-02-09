@@ -53,16 +53,16 @@ mkStigModule {
     services.openssh.settings.UsePAM = "yes";
 
     # Enforce multifactor authentication for remote privileged access
-    security.pam.services.sshd.text =
-      pkgs.lib.mkBefore "auth required pam_tally2.so deny=5 unlock_time=900";
-    security.pam.services.sshd.text = pkgs.lib.mkAfter ''
+    security.pam.services.sshd.text = pkgs.lib.mkBefore ''
+      auth required pam_tally2.so deny=5 unlock_time=900
       auth required pam_faillock.so preauth silent audit deny=5 unlock_time=900
       auth required pam_faillock.so authfail audit deny=5 unlock_time=900
     '';
 
     # Enforce secure SSH authentication with hardware tokens (CAC/PIV)
-    security.pam.services.sshd.text =
-      pkgs.lib.mkAfter "auth required pam_pkcs11.so";
+    security.pam.services.sshd.text = pkgs.lib.mkAfter ''
+      auth required pam_pkcs11.so
+    '';
 
     # Enable strong authentication via PAM PKCS#11
     security.pam.p11.enable = true;
