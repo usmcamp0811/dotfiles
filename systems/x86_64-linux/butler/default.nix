@@ -33,17 +33,66 @@ in
       enable = true;
       time_sync_security = {
         enable = false;
-        justification = "Shit is broke";
+        justification = [ "Shit is broke" ];
       };
       remote_access_encryption = {
         enable = false;
-        justification = "Shit also broke";
+        justification = [ "Shit also broke" ];
       };
       mfa_root_restrictions_usbguard = {
         enable = false;
-        justification = "Needs mkforce";
+        justification = [ "Needs mkforce" ];
+      };
+      fips_crypto_compliance = {
+        enable = false;
+        justification = [ "shit borke" ];
       };
 
+      audit = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+
+      audit_log_offloading = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+
+      audit_storage_monitoring = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+      audit_storage_notification = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+
+      config_security = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+      fips_password_security = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+
+      login_attempts = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+      pki_auth_password_complexity = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+      security_hardening = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
+
+      unique_uid_mfa = {
+        enable = false;
+        justification = [ "Shit also broke" ];
+      };
     };
 
     apps = { steam = enabled; };

@@ -34,9 +34,9 @@ with lib; rec {
           };
 
           assertions = [{
-            assertion = cfg.enable -> (cfg.justification != [ ]);
+            assertion = (!cfg.enable) -> (cfg.justification != [ ]);
             message =
-              "You must provide at least one justification if campground.stig.${name} is disabled.";
+              "You must provide at least one justification if config.campground.stig.${name} is disabled.";
           }];
         }
       ];
