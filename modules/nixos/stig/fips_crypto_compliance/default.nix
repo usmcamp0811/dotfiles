@@ -30,7 +30,7 @@ mkStigModule {
 
     # Enforce FIPS for system-wide crypto
     security.apparmor.enable = true;
-    security.apparmor.profiles."system-wide-fips" = ''
+    security.apparmor.policies."system-wide-fips" = ''
       # Deny non-FIPS crypto
       deny /proc/sys/crypto/fips_enabled rw,
       deny /sys/module/fips_mode rw,

@@ -19,6 +19,7 @@ mkStigModule {
     environment.systemPackages = [ pkgs.opencryptoki ];
 
     # Disable direct root login via SSH
+    # TODO: Mkforce this some how
     services.openssh.permitRootLogin = "no";
 
     # Lock root user to prevent direct login

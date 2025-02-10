@@ -1,12 +1,8 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.ntp;
-in
-{
+with lib.campground;
+let cfg = config.campground.services.ntp;
+in {
   options.campground.services.ntp = with types; {
     enable = mkBoolOpt false "Enable CAC Support;";
   };

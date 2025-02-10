@@ -29,9 +29,22 @@ in
       extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
-    stig.enable = true;
-    stig.banner.enable = true;
-    stig.account_expiry.enable = false;
+    stig = {
+      enable = true;
+      time_sync_security = {
+        enable = false;
+        justification = "Shit is broke";
+      };
+      remote_access_encryption = {
+        enable = false;
+        justification = "Shit also broke";
+      };
+      mfa_root_restrictions_usbguard = {
+        enable = false;
+        justification = "Needs mkforce";
+      };
+
+    };
 
     apps = { steam = enabled; };
 

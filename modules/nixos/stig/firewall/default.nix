@@ -6,5 +6,5 @@ mkStigModule {
   name = "firewall";
   srgList = [ "SRG-OS-000298-GPOS-00116" "SRG-OS-000096-GPOS-00050" ];
   cciList = [ "CCI-002322" "CCI-000382" ];
-  stigConfig = { networking.firewall.enable = mkForce true; };
+  stigConfig = { networking.firewall.enable = true; };
 }

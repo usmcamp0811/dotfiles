@@ -20,6 +20,7 @@ mkStigModule {
       [ "tick.usnogps.navy.mil" "tock.usnogps.navy.mil" ];
 
     # Enable System Time Sync
+    # TODO: Put this back figure out how to override
     services.timesyncd.enable = true;
 
     # Enforce Regular Time Sync (Max Poll Interval: 60 sec)
