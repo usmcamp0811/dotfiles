@@ -30,6 +30,8 @@ with lib; rec {
               srg = srgList;
               cci = cciList;
               justification = cfg.justification;
+              config =
+                stigConfig; # Ensure `active.${name}.config = stigConfig` when enabled
             };
           };
 
