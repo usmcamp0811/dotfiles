@@ -41,11 +41,13 @@ in
       };
       mfa_root_restrictions_usbguard = {
         enable = false;
-        fips_crypto_compliance = { justification = [ "Needs mkforce" ]; };
-        enable = false;
         justification = [ "shit borke" ];
       };
 
+      fips_crypto_compliance = {
+        enable = false;
+        justification = [ "Needs mkforce" ];
+      };
       audit = {
         enable = false;
         justification = [ "Shit also broke" ];
