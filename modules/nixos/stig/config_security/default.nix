@@ -26,14 +26,15 @@ mkStigModule {
   ];
   stigConfig = {
     # Install & Configure AIDE for Baseline Monitoring
-    nixpkgs.overlays = [
-      (final: prev: {
-        aide = prev.aide.overrideAttrs (old: {
-          configureFlags = (old.configureFlags or [ ])
-            ++ [ "--sysconfdir=/etc" ];
-        });
-      })
-    ];
+    # TODO: Do  I need this?
+    # nixpkgs.overlays = [
+    #   (final: prev: {
+    #     aide = prev.aide.overrideAttrs (old: {
+    #       configureFlags = (old.configureFlags or [ ])
+    #         ++ [ "--sysconfdir=/etc" ];
+    #     });
+    #   })
+    # ];
     environment.systemPackages = [ pkgs.aide ];
     # TODO: This seems like it might need a real email
     environment.etc."aide.conf".text = ''

@@ -22,16 +22,14 @@ with lib; rec {
             active.${name} = mkIf cfg.enable {
               srg = srgList;
               cci = cciList;
-              config =
-                stigConfig; # Ensure `active.${name}.config = stigConfig` when enabled
+              config = stigConfig;
             };
 
             inactive.${name} = mkIf (!cfg.enable) {
               srg = srgList;
               cci = cciList;
               justification = cfg.justification;
-              config =
-                stigConfig; # Ensure `active.${name}.config = stigConfig` when enabled
+              config = stigConfig;
             };
           };
 

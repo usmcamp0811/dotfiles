@@ -53,11 +53,6 @@ in
         justification = [ "Shit also broke" ];
       };
 
-      audit_log_offloading = {
-        enable = false;
-        justification = [ "Shit also broke" ];
-      };
-
       audit_storage_monitoring = {
         enable = false;
         justification = [ "Shit also broke" ];
