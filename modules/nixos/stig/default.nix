@@ -34,7 +34,7 @@ in
       internal = true;
     };
   };
-  config = {
+  config = mkIf cfg.enable {
     campground.stig = {
       account_expiry.enable = mkDefault true;
       audit.enable = mkDefault true;
