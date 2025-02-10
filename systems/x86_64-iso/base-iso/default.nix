@@ -22,6 +22,7 @@ in
       initialPassword = "nixos";
     };
 
+    stig.enable = false;
     archetypes = { barebones = enabled; };
 
   };

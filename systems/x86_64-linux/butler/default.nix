@@ -30,7 +30,7 @@ in
       uid = 10000;
     };
     stig = {
-      enable = true;
+      enable = false;
       time_sync_security = {
         enable = false;
         justification = [ "Shit is broke" ];
@@ -41,9 +41,7 @@ in
       };
       mfa_root_restrictions_usbguard = {
         enable = false;
-        justification = [ "Needs mkforce" ];
-      };
-      fips_crypto_compliance = {
+        fips_crypto_compliance = { justification = [ "Needs mkforce" ]; };
         enable = false;
         justification = [ "shit borke" ];
       };
