@@ -44,3 +44,7 @@ quotes in Marine Corps history.
 Despite his small stature, Daly was known for his ferocity in combat and unwavering courage. His legacy
 continues to inspire Marines, and he is widely considered one of the greatest warriors the Corps has
 ever produced.
+
+## Video Tribute
+
+[![Dan Daly - Video Tribute](https://img.youtube.com/vi/neuqN6MgsyI/0.jpg)](https://www.youtube.com/watch?v=neuqN6MgsyI)
