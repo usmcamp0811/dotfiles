@@ -8,7 +8,10 @@ with lib.campground; {
       email = "matt@aicampground.com";
       uid = 10000;
     };
-    archetypes.desktop = enabled;
+    archetypes.desktop = {
+      enable = true;
+      display-name = "eDP-1";
+    };
   };
 
   home.stateVersion = "23.05";
