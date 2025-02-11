@@ -174854,19 +174854,11 @@
     },
     "updated-ollama_8": {
       "locked": {
-<<<<<<< Updated upstream
         "lastModified": 1738288575,
         "narHash": "sha256-JKr9J957Mi49301WefoIJjgc4IkFopMfjRKosD4yitg=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "5f6f520c921a4c4d69943b059bc37a940b33bdeb",
-=======
-        "lastModified": 1739244429,
-        "narHash": "sha256-mzUI5SjzzkveHqvdBYXD879J/40enHx8IpmIOrair2s=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "7c3f4d158bfe75750456635f11fb95d54ecc805d",
->>>>>>> Stashed changes
         "type": "github"
       },
       "original": {
