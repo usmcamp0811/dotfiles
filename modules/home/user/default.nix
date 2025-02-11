@@ -10,15 +10,13 @@ let
   default-key =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler";
 
-  home-directory =
-    if cfg.name == null then
-      null
-    else if is-darwin then
-      "/Users/${cfg.name}"
-    else
-      "/home/${cfg.name}";
-in
-{
+  home-directory = if cfg.name == null then
+    null
+  else if is-darwin then
+    "/Users/${cfg.name}"
+  else
+    "/home/${cfg.name}";
+in {
   options.campground.user = {
     enable = mkOpt types.bool false "Whether to configure the user account.";
     name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name
