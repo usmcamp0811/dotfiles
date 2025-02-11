@@ -12,6 +12,8 @@ in {
   imports = [ ./hardware.nix ];
   programs.adb.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  services.tlp = { enable = mkForce false; };
   campground = {
     user = {
       name = "mcamp";

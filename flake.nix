@@ -209,8 +209,7 @@
           namespace = "campground";
         };
       };
-    in
-    lib.mkFlake {
+    in lib.mkFlake {
       channels-config = {
         allowUnfree = true;
         permittedInsecurePackages = [
@@ -253,6 +252,8 @@
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53
       ];
+      systems.hosts.gray.modules = with inputs;
+        [ nixos-hardware.nixosModules.framework-16-7040-amd ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules =
