@@ -54,8 +54,8 @@ in {
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/basilone/role-id";
-            secret-id = "/var/lib/vault/basilone/secret-id";
+            role-id = "/var/lib/vault/gray/role-id";
+            secret-id = "/var/lib/vault/gray/secret-id";
           };
         };
       };
