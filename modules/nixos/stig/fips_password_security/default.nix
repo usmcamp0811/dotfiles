@@ -24,15 +24,20 @@ mkStigModule {
     '';
 
     # Enforce password complexity rules
-    security.pam.services.passwd.text = pkgs.lib.mkDefault (pkgs.lib.mkBefore
-      "password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so");
-    security.pam.services.chpasswd.text = pkgs.lib.mkDefault (pkgs.lib.mkBefore
-      "password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so");
-    security.pam.services.sudo.text = pkgs.lib.mkDefault (pkgs.lib.mkBefore
-      "password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so");
+    security.pam.services.passwd.text = ''
+      password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so
+    '';
+
+    security.pam.services.chpasswd.text = ''
+      password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so
+    '';
+
+    security.pam.services.sudo.text = ''
+      password requisite ${pkgs.libpwquality.lib}/lib/security/pam_pwquality.so
+    '';
 
     # Enforce a four-second delay between failed login attempts
-    environment.etc."login.defs".text = pkgs.lib.mkForce ''
+    environment.etc."login.defs".text = ''
       FAIL_DELAY 4
     '';
 
