@@ -20,7 +20,7 @@ mkStigModule {
 
     # Disable direct root login via SSH
     # TODO: Mkforce this some how
-    services.openssh.permitRootLogin = "no";
+    services.openssh.permitRootLogin = mkForce "no";
 
     # Lock root user to prevent direct login
     users.mutableUsers = false;
