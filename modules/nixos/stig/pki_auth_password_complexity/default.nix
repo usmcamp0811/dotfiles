@@ -32,15 +32,13 @@ mkStigModule {
   stigConfig = {
     # Enable SSSD and configure it to use the DOD root CA
     services.sssd.enable = true;
-    environment.etc."sssd/pki/sssd_auth_ca_db.pem".source =
-      let
-        certzip = pkgs.fetchzip {
-          url =
-            "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_v5-6_dod.zip";
-          sha256 = "sha256-iwwJRXCnONk/LFddQlwy8KX9e9kVXW/QWDnX5qZFZjc=";
-        };
-      in
-      "${certzip}/DOD_PKE_CA_chain.pem";
+    environment.etc."sssd/pki/sssd_auth_ca_db.pem".source = let
+      certzip = pkgs.fetchzip {
+        url =
+          "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_v5-6_dod.zip";
+        sha256 = "sha256-iwwJRXCnONk/LFddQlwy8KX9e9kVXW/QWDnX5qZFZJc=";
+      };
+    in "${certzip}/DOD_PKE_CA_chain.pem";
 
     # Require passphrases for SSH keys
     systemd.tmpfiles.rules = [
@@ -65,9 +63,8 @@ mkStigModule {
     '';
 
     # Ensure Telnet is not installed
-    environment.systemPackages = pkgs.lib.mkForce (builtins.filter
-      (pkg:
-        pkg != pkgs.inetutils && pkg != pkgs.busybox && pkg != pkgs.libtelnet)
+    environment.systemPackages = pkgs.lib.mkForce (builtins.filter (pkg:
+      pkg != pkgs.inetutils && pkg != pkgs.busybox && pkg != pkgs.libtelnet)
       config.environment.systemPackages);
   };
 }
