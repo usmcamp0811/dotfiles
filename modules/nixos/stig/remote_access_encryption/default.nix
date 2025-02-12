@@ -10,8 +10,8 @@ mkStigModule {
     services.openssh.settings = {
       Ciphers = [ "aes256-gcm@openssh.com" "aes256-ctr" ];
       KexAlgorithms = [ "curve25519-sha256" "curve25519-sha256@libssh.org" ];
-      MACs =
-        [ "hmac-sha2-512-etm@openssh.com" "hmac-sha2-256-etm@openssh.com" ];
+      # MACs =
+      #   [ "hmac-sha2-512-etm@openssh.com" "hmac-sha2-256-etm@openssh.com" ];
     };
   };
 }
