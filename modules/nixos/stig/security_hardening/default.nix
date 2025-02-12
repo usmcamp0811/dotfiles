@@ -41,7 +41,7 @@ mkStigModule {
     security.apparmor.enable = true;
 
     # Disable inactive accounts after 35 days
-    environment.etc."/default/useradd".text = pkgs.lib.mkForce ''
+    environment.etc."/default/useradd".text = ''
       INACTIVE=35
     '';
 
