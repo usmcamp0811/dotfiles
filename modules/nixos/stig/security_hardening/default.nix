@@ -77,7 +77,7 @@ mkStigModule {
     # Enforce NixOS to run on a supported version
     system.activationScripts.checkNixOSVersion = {
       text = ''
-        if [[ "$(nixos-version | awk '{print $1}')" < "23.11" ]]; then
+        if [[ "echo ${config.system.nixos.version} | ${pkgs.gawk}/bin/awk '{print $1}')" < "25.05" ]]; then
           echo "Unsupported NixOS version. Upgrade required."
           exit 1
         fi
