@@ -21,7 +21,7 @@ mkStigModule {
 
     # Enable System Time Sync
     # TODO: Put this back figure out how to override
-    services.timesyncd.enable = true;
+    services.timesyncd.enable = mkForce true;
 
     # Enforce Regular Time Sync (Max Poll Interval: 60 sec)
     services.timesyncd.extraConfig = ''
