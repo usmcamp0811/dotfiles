@@ -20,6 +20,7 @@ mkStigModule {
       auth required pam_pkcs11.so
     '';
     services.sssd.enable = true;
-    security.pki.certificateFiles = [ "/etc/sssd/pki/sssd_auth_ca_db.pem" ];
+    # TODO: Need to make option to pass in the path to the ca
+    # security.pki.certificateFiles = [ "/etc/sssd/pki/sssd_auth_ca_db.pem" ];
   };
 }
