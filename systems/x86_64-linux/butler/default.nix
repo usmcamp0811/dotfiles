@@ -30,7 +30,7 @@ in
       uid = 10000;
     };
     stig = {
-      enable = false;
+      enable = true;
       time_sync_security = {
         enable = false;
         justification = [ "Shit is broke" ];
