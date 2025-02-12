@@ -11,8 +11,7 @@ let
 
     account required pam_faillock.so
   '';
-in
-mkStigModule {
+in mkStigModule {
   inherit config;
   name = "login_attempts";
   srgList = [
@@ -23,8 +22,8 @@ mkStigModule {
   cciList = [ "CCI-000044" "CCI-002238" "CCI-000172" ];
   stigConfig = {
     security.pam.services = {
-      login.text = pkgs.lib.mkDefault pamfile;
-      sshd.text = pkgs.lib.mkDefault pamfile;
+      login.text = pamfile;
+      sshd.text = pamfile;
     };
   };
 }
