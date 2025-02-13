@@ -8,6 +8,7 @@ in
 {
   options.campground.services.macos-vm = with types; {
     enable = mkBoolOpt false "Enable an MacOS VM;";
+    sshPort = mkOpt int 2233 "ssh Port to use for VM";
   };
 
   config = mkIf cfg.enable {
@@ -22,6 +23,7 @@ in
     services.macos-ventura = {
       enable = true;
       openFirewall = true;
+      sshPort = cfg.sshPort;
       vncListenAddr = "0.0.0.0";
     };
   };
