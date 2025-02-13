@@ -20,18 +20,18 @@ mkStigModule {
     '';
 
     # Ensure data at rest protection
-    fileSystems."/".options = [ "defaults" "noatime" "nodiratime" "discard" ];
+    # fileSystems."/".options = [ "defaults" "noatime" "nodiratime" "discard" ];
 
     # Ensure swap is encrypted if used
-    swapDevices = [{ device = "/dev/mapper/swap"; }];
+    # swapDevices = [{ device = "/dev/mapper/swap"; }];
     # TODO: Feel like this needs more attention
     # TODO: Update with actual devices
-    boot.initrd.luks.devices = {
-      swap = {
-        device = "/dev/sdx"; # Replace with actual swap partition
-        allowDiscards = true;
-        keyFile = "/etc/keys/swap.key";
-      };
-    };
+    # boot.initrd.luks.devices = {
+    #   swap = {
+    #     device = "/dev/sdx"; # Replace with actual swap partition
+    #     allowDiscards = true;
+    #     keyFile = "/etc/keys/swap.key";
+    #   };
+    # };
   };
 }
