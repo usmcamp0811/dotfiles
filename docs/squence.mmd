@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant User
+    participant Nix
+    participant /nix/store
+    participant config.nix
+    participant ShellScript
+    participant Program(s)
+
+    User ->> config.nix: Defines configuration
+    Nix ->> config.nix: Evaluates and compiles
+    config.nix ->> ShellScript: Generates
+    Nix ->> ShellScript: Evaluates and compiles
+    Nix ->> Program(s): Builds and compiles
+    ShellScript -->> Program(s): Executes
+    config.nix -->> /nix/store: Outputs stored
+    Program(s) -->> /nix/store: Binaries stored
+    ShellScript -->> /nix/store: Scripts stored

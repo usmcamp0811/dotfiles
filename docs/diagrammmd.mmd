@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant User
+    participant LocalHost
+    participant Terraform
+    participant SSH
+    participant AWS
+    
+    
+    User ->> LocalHost: Get a remote shell
+    critical Get RemoteHost Creds
+    LocalHost ->> Terraform: Get RemoteHost Creds
+    option No Host Present
+    Terraform ->> AWS: Get RemoteHost Creds
+    AWS -->> LocalHost: 404 Computer Not Found 
+    create participant RemoteHost
+    AWS ->> RemoteHost: Creates
+    option Host Exists
+    LocalHost -->> AWS: Create RemoteHost
+    AWS -->> LocalHost: Returns Creds
+    end
+    LocalHost ->> RemoteHost: Login
+
