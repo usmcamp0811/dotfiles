@@ -17,6 +17,7 @@ with lib.campground; {
     services.protonmail-bridge = enabled;
     apps.thunderbird = enabled;
     tools.beets = enabled;
+    tools.spotdl = enabled;
   };
 
   home.stateVersion = "23.05";
