@@ -58,6 +58,15 @@ let
       playlist_dir = "/export/media/music/playlists";
       playlists = [
         {
+          name = "Phil_Collins_Vibes.m3u";
+          query = [
+            ''"genre::(Pop|Soft Rock|Adult Contemporary|Synthpop)"''
+            "year:1980..1999"
+            "mood_melodic:0.8.."
+            "mood_acoustic:..0.5"
+          ];
+        }
+        {
           name = "Never_Listened.m3u";
           query = "play_count: ";
         }
