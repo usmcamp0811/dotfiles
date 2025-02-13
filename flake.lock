@@ -126138,17 +126138,16 @@
         "osx-kvm": "osx-kvm"
       },
       "locked": {
-        "lastModified": 1739123519,
-        "narHash": "sha256-lKmUjxMkHnxFIzrl6tLdn0Uvxp6WQxCxmGSDIOOmfcA=",
-        "owner": "usmcamp0811",
-        "repo": "nixtheplanet",
-        "rev": "1832532a3d35ace75664704dda3936bdd91a969e",
+        "lastModified": 1739389250,
+        "narHash": "sha256-X7BvCkW6QQFOmjBgrpdayOR+pv7gz7a/0wl/p+mTxt4=",
+        "owner": "Doc-Steve",
+        "repo": "NixThePlanet",
+        "rev": "eac8e3bab2a0d3be42df774116c74235401be30e",
         "type": "github"
       },
       "original": {
-        "owner": "usmcamp0811",
-        "ref": "update-macos-url",
-        "repo": "nixtheplanet",
+        "owner": "Doc-Steve",
+        "repo": "NixThePlanet",
         "type": "github"
       }
     },
