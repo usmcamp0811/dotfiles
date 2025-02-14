@@ -55,8 +55,71 @@ let
     ];
     smartplaylist = {
       relative_to = "/export/media/music";
-      playlist_dir = "/export/media/music/playlists";
+      playlist_dir = "/export/media/music";
       playlists = [
+        {
+          name = "80s_New_Wave.m3u";
+          query = [
+            ''"genre::(New Wave|Synthpop|Post-Punk)"''
+            "year:1978..1992"
+            "mood_energetic:0.7.."
+            "mood_dark:..0.4"
+          ];
+        }
+
+        {
+          name = "Jazz_Night.m3u";
+          query = [
+            ''"genre::(Jazz|Smooth Jazz|Bebop|Swing)"''
+            "year:1950..1980"
+            "mood_acoustic:0.8.."
+            "mood_melodic:0.7.."
+            "mood_dark:..0.3"
+          ];
+        }
+
+        {
+          name = "Road_Trip_Rock.m3u";
+          query = [
+            ''"genre::(Classic Rock|Hard Rock|Blues Rock)"''
+            "year:1965..1995"
+            "mood_energetic:0.8.."
+            "mood_melodic:0.5.."
+          ];
+        }
+
+        {
+          name = "Chillwave_Beats.m3u";
+          query = [
+            ''"genre::(Chillwave|Lo-Fi|Downtempo|Ambient)"''
+            "year:2000.."
+            "mood_melodic:0.7.."
+            "mood_acoustic:..0.4"
+            "mood_energetic:..0.6"
+          ];
+        }
+
+        {
+          name = "Funky_Grooves.m3u";
+          query = [
+            ''"genre::(Funk|Soul|R&B|Disco)"''
+            "year:1960..1990"
+            "mood_energetic:0.7.."
+            "mood_melodic:0.6.."
+            "mood_acoustic:..0.5"
+          ];
+        }
+
+        {
+          name = "Darkwave_Moods.m3u";
+          query = [
+            ''"genre::(Darkwave|Gothic Rock|Industrial)"''
+            "year:1980.."
+            "mood_dark:0.7.."
+            "mood_melodic:0.5.."
+            "mood_energetic:..0.6"
+          ];
+        }
         {
           name = "Phil_Collins_Vibes.m3u";
           query = [
@@ -73,104 +136,6 @@ let
         {
           name = "Top_Rated.m3u";
           query = "rating:1";
-        }
-        {
-          name = "Popular_Chill.m3u";
-          query = [ ''"genre::(Ambient|Chillout)" play_count:5..'' ];
-        }
-        {
-          name = "UnPlayed_Chill.m3u";
-          query = [ ''"genre::(Ambient|Chillout)" play_count: '' ];
-        }
-        {
-          name = "Popular_DrumBass.m3u";
-          query = [ ''genre:"Drum & Bass" play_count:5..'' ];
-        }
-        {
-          name = "UnPlayed_DrumBass.m3u";
-          query = [ ''genre:"Drum & Bass" play_count: '' ];
-        }
-        {
-          name = "Popular_ProgHouseTrance.m3u";
-          query = [ ''"genre::(Progressive House|Trance)" play_count:12..'' ];
-        }
-        {
-          name = "UnPlayed_ProgHouseTrance.m3u";
-          query = [ ''"genre::(Progressive House|Trance)" play_count:..0'' ];
-        }
-        {
-          name = "UnPlayedAAgressive.m3u";
-          query = [ "mood_aggressive:0.90.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedHappy.m3u";
-          query = [ "mood_happy:0.95.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedReallyHappy.m3u";
-          query = [ "mood_happy:0.99.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedSad.m3u";
-          query = [ "mood_sad:0.95.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedParty.m3u";
-          query = [ "mood_party:0.95.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedReallyParty.m3u";
-          query = [ "mood_party:0.99.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedRelaxed.m3u";
-          query = [ "mood_relaxed:0.95.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedDanceable.m3u";
-          query = [ "danceable:0.95.. play_count:..0 ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedHarmonicA.m3u";
-          query =
-            [ ''"chords_key::(A|D|E|F#)" play_count:..0 ^genre:Christmas'' ];
-        }
-        {
-          name = "UnPlayedHarmonicF.m3u";
-          query =
-            [ ''"chords_key::(F|C|Bb|D)" play_count:..0 ^genre:Christmas'' ];
-        }
-        {
-          name = "TopRatedNotPlayedRecently.m3u";
-          query = [ "rating:0.8.. last_played:..-6m ^genre:Christmas" ];
-        }
-        {
-          name = "UnPlayedAcousticLady.m3u";
-          query = [
-            ''
-              gender:"female" mood_acoustic:0.95.. play_count:..0 ^genre:Christmas''
-          ];
-        }
-        {
-          name = "UnPlayedAcousticGuy.m3u";
-          query = [
-            ''
-              gender:"male" ^gender:"fe" mood_acoustic:0.95.. play_count:..0 ^genre:Christmas''
-          ];
-        }
-        {
-          name = "UnPlayedElectronicLady.m3u";
-          query = [
-            ''
-              gender:"female" mood_electronic:0.95.. play_count:..0 ^genre:Christmas''
-          ];
-        }
-        {
-          name = "UnPlayedElectronicGuy.m3u";
-          query = [
-            ''
-              gender:"male" ^gender:"fe" mood_electronic:0.95.. play_count:..0 ^genre:Christmas''
-          ];
         }
       ];
     };
