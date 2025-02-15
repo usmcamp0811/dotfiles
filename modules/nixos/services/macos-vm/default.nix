@@ -4,11 +4,11 @@ with lib.campground;
 let
   cfg = config.campground.services.macos-vm;
   inherit (pkgs.campground) mlflow;
-in
-{
+in {
   options.campground.services.macos-vm = with types; {
     enable = mkBoolOpt false "Enable an MacOS VM;";
     sshPort = mkOpt int 2233 "ssh Port to use for VM";
+    extraQemuFlags = mkOpt (listOf str) [ ] "Extra Flags for QEMU";
   };
 
   config = mkIf cfg.enable {
@@ -25,6 +25,7 @@ in
       openFirewall = true;
       sshPort = cfg.sshPort;
       vncListenAddr = "0.0.0.0";
+      extraQemuFlags = [ "-device usb-host,vendorid=0x05ac,productid=0x12a8" ];
     };
   };
 }
