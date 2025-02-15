@@ -137,6 +137,28 @@ let
           name = "Top_Rated.m3u";
           query = "rating:1";
         }
+        {
+          name = "90s_Pop_Hits.m3u";
+          query = [
+            ''"genre::(Pop|Teen Pop|Dance Pop|Bubblegum Pop)"''
+            "year:1990..1999"
+            "mood_melodic:0.8.."
+            "mood_energetic:0.6.."
+            "mood_acoustic:..0.4"
+          ];
+        }
+
+        {
+          name = "Chill_Pop.m3u";
+          query = [
+            ''"genre::(Pop|Indie Pop|Soft Pop|Dream Pop)"''
+            "year:2000.."
+            "mood_melodic:0.7.."
+            "mood_energetic:..0.5"
+            "mood_acoustic:0.4..0.8"
+          ];
+        }
+
       ];
     };
     fetchart = {
