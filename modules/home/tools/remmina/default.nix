@@ -1,10 +1,10 @@
 { options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.tools.beets;
+let cfg = config.campground.tools.remmina;
 
 in {
-  options.campground.tools.beets = with types; {
+  options.campground.tools.remmina = with types; {
     enable = mkBoolOpt false "Whether or not to enable Remmina.";
   };
 
