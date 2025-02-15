@@ -34,6 +34,7 @@ in {
         passwds = enabled;
       };
       services = {
+        netbird.client = enabled;
         ntp = enabled;
         docker = enabled;
         ldap-client = enabled;
