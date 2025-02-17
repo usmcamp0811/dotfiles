@@ -1,9 +1,4 @@
-{
-  lib,
-  inputs,
-  snowfall-inputs,
-}:
-rec {
+{ lib, inputs, snowfall-inputs, }: rec {
   ## Create a Julia Jupyter Console
   ##
   ## This function generates a shell script that sets up the environment and runs a specified command with the Jupyter kernel.
@@ -23,21 +18,11 @@ rec {
   ##   kernelName = "my-kernel";
   ## }
   ## ```
-  createJuliaConsole =
-    name: command:
-    {
-      pkgs,
-      juliaEnv,
-      kernelName,
-      pythonPath ? "",
-    }:
+  createJuliaConsole = name: command:
+    { pkgs, juliaEnv, kernelName, pythonPath ? "", }:
     pkgs.writeShellApplication {
       inherit name;
-      runtimeInputs = [
-        pkgs.openssl
-        pkgs.jupyter-all
-        juliaEnv
-      ];
+      runtimeInputs = [ pkgs.openssl pkgs.jupyter-all juliaEnv ];
       text = ''
         #!${pkgs.runtimeShell}
         # Ensure Julia kernel is installed
@@ -59,23 +44,15 @@ rec {
   ##   - run-tests: Runs pytest on the tests directory.
   ##   - run-bpython: Starts a bpython REPL with the source code in PYTHONPATH.
   ##   - run-jupyter: Starts a Jupyter console with the source code in PYTHONPATH.
-  mkPythonDevScripts =
-    {
-      pkgs,
-      python-env,
-      project-drv,
-    }:
+  mkPythonDevScripts = { pkgs, python-env, project-drv, }:
     let
       # Extend the given python environment with additional packages
-      extended-python-env = python-env.withPackages (
-        ps: with ps; [
-          bpython
-          pytest
-          ipykernel
-        ]
-      );
-      pythonVersion = builtins.substring 0 4 python-env.python.version; # Extract the major and minor version (e.g., "3.11")
-      jupyterPythonVersion = builtins.substring 0 4 pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
+      extended-python-env =
+        python-env.withPackages (ps: with ps; [ bpython pytest ipykernel ]);
+      pythonVersion = builtins.substring 0 4
+        python-env.python.version; # Extract the major and minor version (e.g., "3.11")
+      jupyterPythonVersion = builtins.substring 0 4
+        pkgs.jupyter-all.python.version; # Extract the major and minor version (e.g., "3.11")
     in
     rec {
 
@@ -99,31 +76,69 @@ rec {
     };
 
   containerShadowSetup =
-    {
-      pkgs,
-      user,
-      uid,
-      gid ? uid,
-      homeDir ? "/home/${user}",
-      runtimeShell ? "/bin/bash",
+    { pkgs
+    , user
+    , uid
+    , gid ? uid
+    , homeDir ? "/home/${user}"
+    , runtimeShell ? "/bin/bash"
+    ,
     }:
-    with pkgs;
-    [
-      (writeTextDir "etc/shadow" ''
-        root:!x:::::::
-        ${user}:!:::::::
-      '')
-      (writeTextDir "etc/passwd" ''
-        root:x:0:0::/root:${runtimeShell}
-        ${user}:x:${toString uid}:${toString gid}::${homeDir}:
-      '')
-      (writeTextDir "etc/group" ''
-        root:x:0:
-        ${user}:x:${toString gid}:
-      '')
-      (writeTextDir "etc/gshadow" ''
-        root:x::
-        ${user}:x::
-      '')
-    ];
+      with pkgs; [
+        (writeTextDir "etc/shadow" ''
+          root:!x:::::::
+          ${user}:!:::::::
+        '')
+        (writeTextDir "etc/passwd" ''
+          root:x:0:0::/root:${runtimeShell}
+          ${user}:x:${toString uid}:${toString gid}::${homeDir}:
+        '')
+        (writeTextDir "etc/group" ''
+          root:x:0:
+          ${user}:x:${toString gid}:
+        '')
+        (writeTextDir "etc/gshadow" ''
+          root:x::
+          ${user}:x::
+        '')
+      ];
+
+  ## Create a Haskell Jupyter Console
+  ##
+  ## This function generates a shell script that sets up the environment and runs a specified command with the Jupyter kernel.
+  ##
+  ## Parameters:
+  ## - `name`: The name of the application.
+  ## - `command`: The command to be executed within the Jupyter environment.
+  ## - `pkgs`: The Nixpkgs package set.
+  ## - `haskellEnv`: The Haskell environment to be used.
+  ## - `kernelName`: The name to be used for the Haskell kernel.
+  ##
+  ## Example usage:
+  ## ```nix
+  ## createHaskellConsole "my-haskell-jupyter" "jupyter console" {
+  ##   pkgs = import <nixpkgs> {};
+  ##   haskellEnv = pkgs.haskellPackages.ghcWithPackages (p: with p; [ ihaskell ]);
+  ##   kernelName = "haskell";
+  ## }
+  ## ```
+  createHaskellConsole = name: command:
+    { pkgs, haskellEnv, kernelName, pythonPath ? "", }:
+    pkgs.writeShellApplication {
+      inherit name;
+      runtimeInputs = [ pkgs.openssl pkgs.jupyter-all haskellEnv ];
+      text = ''
+        #!${pkgs.runtimeShell}
+        # Ensure Jupyter and Haskell kernel are installed
+        export PATH=${pkgs.jupyter-all}/bin:$PATH
+        export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
+        export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:${pythonPath}
+
+        # Register Haskell kernel if not already installed
+        ${haskellEnv}/bin/ihaskell install --prefix ${pkgs.jupyter-all}/share/jupyter/kernels
+
+        # Start Jupyter with Haskell kernel
+        ${command} --kernel "${kernelName}" "$@"
+      '';
+    };
 }
