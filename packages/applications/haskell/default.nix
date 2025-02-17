@@ -10,4 +10,4 @@ let
     kernelName = "haskell";
   };
 in
-haskellEnv // { jupyter = juptyterConsole; }
+haskellEnv // { jupyter = jupyterConsole; }
