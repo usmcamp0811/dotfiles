@@ -123,22 +123,24 @@
   ## }
   ## ```
   createHaskellConsole = name: command:
-    { pkgs, haskellEnv, kernelName, pythonPath ? "", }:
+    { pkgs
+    , haskellEnv
+    , kernelName ? "haskell"
+    , pythonPath ? ""
+    , jupyterPath ? "$HOME/.local/share/jupyter/kernels"
+    }:
     pkgs.writeShellApplication {
-      inherit name;
-      runtimeInputs = [ pkgs.openssl pkgs.jupyter-all haskellEnv ];
+      name = "start-jupyter-haskell";
+      runtimeInputs = with pkgs; [ jupyter ihaskell ghc cabal-install ];
       text = ''
-        #!${pkgs.runtimeShell}
-        # Ensure Jupyter and Haskell kernel are installed
-        export PATH=${pkgs.jupyter-all}/bin:$PATH
-        export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
-        export PYTHONPATH=${pkgs.jupyter-all}/lib/python3.11/site-packages:${pythonPath}
+        # Ensure IHaskell is installed in Jupyter
+        if [ ! -d "${jupyterPath}/${kernelName}" ]; then
+          echo "Installing IHaskell kernel..."
+          "${haskellEnv}/bin/ihaskell" install --prefix "${jupyterPath}"
+        fi
 
-        # Register Haskell kernel if not already installed
-        ${haskellEnv}/bin/ihaskell install --prefix ${pkgs.jupyter-all}/share/jupyter/kernels
-
-        # Start Jupyter with Haskell kernel
-        ${command} --kernel "${kernelName}" "$@"
+        # Start Jupyter Console with Haskell kernel
+        exec jupyter console --kernel="${kernelName}" "$@"
       '';
     };
 }
