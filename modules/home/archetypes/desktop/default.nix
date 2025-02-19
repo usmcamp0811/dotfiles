@@ -5,7 +5,8 @@ let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.archetypes.desktop;
-in {
+in
+{
   options.campground.archetypes.desktop = with types; {
     enable = mkEnableOption "desktop home enviornment";
     display-name = mkOpt str "HDMI-A-3" "The name of the primary display";
@@ -103,6 +104,7 @@ in {
         freetube = enabled;
       };
       tools = {
+        wlsunset = enabled;
         remmina = enabled;
         git = enabled;
         vault = enabled;
