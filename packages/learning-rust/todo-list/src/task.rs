@@ -17,11 +17,12 @@ impl Task {
             completed: false,
         }
     }
-
+    // make task competet p
     fn mark_complete(&mut self) {
         self.completed = true;
     }
 
+    // check if task is done
     fn is_done(&self) -> bool {
         self.completed
     }

@@ -22,3 +22,4 @@ packages/scripts/vault-scripts/vault
 config.tf.json
 result-man
 packages/examples/hello-zig/.zig-cache
+packages/learning-rust/todo-list/target
