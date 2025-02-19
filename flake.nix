@@ -3,6 +3,7 @@
 
   inputs = {
 
+    zig2nix.url = "github:Cloudef/zig2nix";
     nixtheplanet.url = "github:Doc-Steve/NixThePlanet";
     # nixtheplanet.url = "github:usmcamp0811/nixtheplanet/update-macos-url";
     authentik-nix.url = "github:nix-community/authentik-nix";
@@ -211,7 +212,8 @@
           namespace = "campground";
         };
       };
-    in lib.mkFlake {
+    in
+    lib.mkFlake {
       channels-config = {
         allowUnfree = true;
         permittedInsecurePackages = [
