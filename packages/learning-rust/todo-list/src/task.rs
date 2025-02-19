@@ -11,6 +11,7 @@ pub struct Task {
 impl Task {
     // Constructor method
     pub fn new(title: String) -> Self {
+        println!("\nCreated: {}\n", title);
         Self {
             id: Uuid::new_v4(),
             title,
