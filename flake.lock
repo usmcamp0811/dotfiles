@@ -7102,11 +7102,11 @@
         "stable-nixpkgs": "stable-nixpkgs_11"
       },
       "locked": {
-        "lastModified": 1739499184,
-        "narHash": "sha256-E/wBOV19uOjqDJhbwviG8rgvfjcpXAvxzirC6VLmFtI=",
+        "lastModified": 1739935548,
+        "narHash": "sha256-xs1hH9gkZU45xJTLcyHFpoG09Zx5sQ5n7AuTZjh7yTs=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "38565388e06ab0077b3f9d1fa762edc783de1d9c",
+        "rev": "9cc5c4cec8ee805e8208151a0cd306bf0034dc73",
         "type": "gitlab"
       },
       "original": {
@@ -57163,6 +57163,24 @@
         "owner": "numtide",
         "repo": "flake-utils",
         "rev": "ff7b65b44d01cf9ba6a71320833626af21126384",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_619": {
+      "inputs": {
+        "systems": "systems_606"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
@@ -138317,6 +138335,21 @@
         "type": "github"
       }
     },
+    "nixpkgs_660": {
+      "locked": {
+        "lastModified": 1736817698,
+        "narHash": "sha256-1m+JP9RUsbeLVv/tF1DX3Ew9Vl/fatXnlh/g5k3jcSk=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2b1fca3296ddd1602d2c4f104a4050e006f4b0cb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_67": {
       "locked": {
         "lastModified": 1719253556,
@@ -163068,7 +163101,8 @@
         "terranix": "terranix_4",
         "unstable": "unstable_26",
         "updated-ollama": "updated-ollama_9",
-        "vault-service": "vault-service_26"
+        "vault-service": "vault-service_26",
+        "zig2nix": "zig2nix"
       }
     },
     "rust-analyzer-src": {
@@ -185235,6 +185269,21 @@
         "type": "github"
       }
     },
+    "systems_606": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "systems_61": {
       "locked": {
         "lastModified": 1681028828,
@@ -199077,6 +199126,25 @@
       "original": {
         "owner": "water-sucks",
         "repo": "zig-deps-fod",
+        "type": "github"
+      }
+    },
+    "zig2nix": {
+      "inputs": {
+        "flake-utils": "flake-utils_619",
+        "nixpkgs": "nixpkgs_660"
+      },
+      "locked": {
+        "lastModified": 1739928588,
+        "narHash": "sha256-u43U8ZMQ/AIndRz4M4opta2GzIN8xHEzRrWPsnYmgjQ=",
+        "owner": "Cloudef",
+        "repo": "zig2nix",
+        "rev": "b7a274c03e1fa5e38201ffbc5695b5db074c773b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Cloudef",
+        "repo": "zig2nix",
         "type": "github"
       }
     }
