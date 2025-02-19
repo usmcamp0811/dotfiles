@@ -1,7 +1,8 @@
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 pub struct Task {
-    pub id: u32,
+    pub id: Uuid,
     pub title: String,
     pub completed: bool,
     pub created_at: DateTime<Utc>,
@@ -9,21 +10,21 @@ pub struct Task {
 
 impl Task {
     // Constructor method
-    fn new(id: u32, title: String) -> Self {
+    pub fn new(title: String) -> Self {
         Self {
-            id,
+            id: Uuid::new_v4(),
             title,
             completed: false,
             created_at: Utc::now(),
         }
     }
     // make task competet
-    fn mark_complete(&mut self) {
+    pub fn mark_complete(&mut self) {
         self.completed = true;
     }
 
     // check if task is done
-    fn is_done(&self) -> bool {
+    pub fn is_done(&self) -> bool {
         self.completed
     }
 }
