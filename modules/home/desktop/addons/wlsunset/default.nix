@@ -1,4 +1,4 @@
-{ inputs, options, config, lib, ... }:
+{ inputs, pkgs, options, config, lib, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.desktop.addons.wlsunset;
