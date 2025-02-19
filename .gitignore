@@ -21,3 +21,4 @@ packages/scripts/vault-scripts/vault
 .terraform.lock.hcl
 config.tf.json
 result-man
+packages/examples/hello-zig/.zig-cache
