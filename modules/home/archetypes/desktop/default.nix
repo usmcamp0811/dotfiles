@@ -16,6 +16,7 @@ in
     campground = {
       desktop = {
         addons = {
+          wlsunset = enabled;
           waynergy = enabled;
           rofi = enabled;
           swaynotificationcenter = enabled;
@@ -104,7 +105,6 @@ in
         freetube = enabled;
       };
       tools = {
-        wlsunset = enabled;
         remmina = enabled;
         git = enabled;
         vault = enabled;
