@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 
 pub struct Task {
     pub id: u32,
@@ -15,9 +14,10 @@ impl Task {
             id,
             title,
             completed: false,
+            created_at: Utc::now(),
         }
     }
-    // make task competet p
+    // make task competet
     fn mark_complete(&mut self) {
         self.completed = true;
     }
