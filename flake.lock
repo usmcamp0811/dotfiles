@@ -7102,11 +7102,11 @@
         "stable-nixpkgs": "stable-nixpkgs_11"
       },
       "locked": {
-        "lastModified": 1739936658,
-        "narHash": "sha256-Y2s9mRl7zlbzBoX2BwP4em2E32vCcxy0tKU2VTlR2xI=",
+        "lastModified": 1739937847,
+        "narHash": "sha256-xE3FSAF6I4foMI27CrawpXc9BcBCdFoag/QKirSTF7U=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "ac0dac6b04e08d9cda85fbfdf8be36e2c4830ed5",
+        "rev": "3455a1c1048858994d00c03a7bd6cab68720c9c7",
         "type": "gitlab"
       },
       "original": {
