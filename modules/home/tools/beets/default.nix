@@ -19,7 +19,6 @@ in {
         library = "~/.config/beets/library.db";
         ignore = [ ".jpg" ".jpeg" ".png" ".webp" ".gif" ".txt" ".pdf" ];
         ui = { color = true; };
-
         import = {
           move = true;
           write = true;
@@ -27,6 +26,7 @@ in {
           log = "~/.config/beets/import.log";
           duplicate_action = "merge";
           incremental = true;
+          singleton = true;
           timid = false;
           resume = true;
           quiet_fallback = "asis";
