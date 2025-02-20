@@ -14,11 +14,27 @@ impl TaskManager {
     }
 
     // add new tasks to the task manager
-    pub fn add_task(&mut self, title: String) {
+    pub fn add_task(&mut self, title: String) -> Uuid {
         let task = Task::new(title);
-        self.tasks.insert(task.id, task);
+        let id = task.id;
+        self.tasks.insert(id, task);
+        id
     }
 
     // complete a task
-    pub fn complete_task(&mut self, id: Uuid) {}
+    pub fn complete_task(&mut self, id: &Uuid) {
+        if let Some(task) = self.tasks.get_mut(&id) {
+            println!("Completing task {:?}", task);
+            task.mark_complete();
+        } else {
+            println!("Task not found");
+        }
+    }
+
+    // list all tasks
+    pub fn list_tasks(&mut self) {
+        for task in self.tasks.values() {
+            println!("{}", task.title);
+        }
+    }
 }
