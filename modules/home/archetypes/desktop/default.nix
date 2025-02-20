@@ -105,6 +105,7 @@ in
         freetube = enabled;
       };
       tools = {
+        rust = enabled;
         remmina = enabled;
         git = enabled;
         vault = enabled;
