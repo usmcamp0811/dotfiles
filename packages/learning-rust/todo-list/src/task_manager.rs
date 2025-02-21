@@ -31,6 +31,15 @@ impl TaskManager {
         }
     }
 
+    // remove the task
+    pub fn remove_task(&mut self, id: &Uuid) {
+        if self.tasks.remove(id).is_some() {
+            println!("Task {} was deleted...", id);
+        } else {
+            println!("Task not found...");
+        }
+    }
+
     // list all tasks
     pub fn list_tasks(&mut self) {
         for task in self.tasks.values() {
