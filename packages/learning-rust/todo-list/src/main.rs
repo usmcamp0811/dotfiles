@@ -4,6 +4,7 @@ use crate::task_manager::TaskManager;
 use clap::{CommandFactory, Parser};
 use dirs::home_dir;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -21,6 +22,9 @@ struct Args {
 
     #[arg(long, short, help = "List all Tasks")]
     list: bool,
+
+    #[arg(long, short, help = "Remove a Task by UUID")]
+    remove: Option<String>,
 }
 
 // Handle tildes in file paths
@@ -45,6 +49,13 @@ fn main() {
 
     if let Some(title) = &args.title {
         manager.add_task(title.to_string());
+    }
+
+    if let Some(remove) = &args.remove {
+        match Uuid::parse_str(remove) {
+            Ok(uuid) => manager.remove_task(&uuid),
+            Err(e) => eprintln!("Invalid UUID Provided: {}", e),
+        }
     }
 
     if args.list {
