@@ -1,7 +1,8 @@
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Task {
     pub id: Uuid,
     pub title: String,

@@ -1,7 +1,9 @@
 use crate::task::Task;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TaskManager {
     tasks: HashMap<Uuid, Task>,
 }
@@ -41,9 +43,18 @@ impl TaskManager {
     }
 
     // list all tasks
-    pub fn list_tasks(&mut self) {
+    pub fn list_tasks(&self) {
         for task in self.tasks.values() {
-            println!("{}", task.title);
+            println!(
+                "ID: {} \t Title: {} \t Complete: {}",
+                task.id, task.title, task.completed,
+            );
         }
+    }
+
+    pub fn save_to_file(&self, filename: &str) -> std::io::Result<()> {
+        let json = serde_json::to_string_pretty(&self)?;
+        std::fs::write(filename, json)?;
+        Ok(())
     }
 }

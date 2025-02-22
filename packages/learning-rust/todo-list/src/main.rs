@@ -1,6 +1,7 @@
 mod task;
 mod task_manager;
 use crate::task_manager::TaskManager;
+use serde::{Deserialize, Serialize};
 
 fn main() {
     let mut manager = TaskManager::new();
@@ -18,5 +19,7 @@ fn main() {
 
     manager.remove_task(&id3);
 
-    manager.list_tasks();
+    if let Err(e) = manager.save_to_file("test.json") {
+        eprintln!("Error saving tasks: {}", e);
+    }
 }
