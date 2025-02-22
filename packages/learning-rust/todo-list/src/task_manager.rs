@@ -1,6 +1,8 @@
 use crate::task::Task;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::{self, Read};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -56,5 +58,11 @@ impl TaskManager {
         let json = serde_json::to_string_pretty(&self)?;
         std::fs::write(filename, json)?;
         Ok(())
+    }
+
+    pub fn load_from_file(filename: &str) -> std::io::Result<Self> {
+        let json = std::fs::read_to_string(filename)?;
+        let task_manager: TaskManager = serde_json::from_str(&json)?;
+        Ok(task_manager)
     }
 }
