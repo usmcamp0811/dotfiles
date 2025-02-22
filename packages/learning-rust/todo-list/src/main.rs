@@ -1,7 +1,7 @@
 mod task;
 mod task_manager;
 use crate::task_manager::TaskManager;
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use dirs::home_dir;
 use serde::{Deserialize, Serialize};
 
@@ -16,10 +16,14 @@ struct Args {
     )]
     filename: String,
 
-    #[arg(long, short, help = "Text for the Task Title", required = true)]
-    title: String,
+    #[arg(long, short, help = "Text for the Task Title")]
+    title: Option<String>,
+
+    #[arg(long, short, help = "List all Tasks")]
+    list: bool,
 }
 
+// Handle tildes in file paths
 fn expand_tilde(path: String) -> String {
     if path.starts_with("~") {
         if let Some(home) = home_dir() {
@@ -32,12 +36,21 @@ fn expand_tilde(path: String) -> String {
 fn main() {
     let args = Args::parse();
     let filename = expand_tilde(args.filename);
-    let title = args.title;
     let mut manager = TaskManager::load_from_file(&filename).unwrap_or_else(|_| TaskManager::new());
-    manager.add_task(title);
 
-    println!("\nListing Tasks...");
-    manager.list_tasks();
+    if std::env::args().len() == 1 {
+        Args::command().print_help().unwrap();
+        std::process::exit(1);
+    }
+
+    if let Some(title) = &args.title {
+        manager.add_task(title.to_string());
+    }
+
+    if args.list {
+        println!("\nListing Tasks...");
+        manager.list_tasks();
+    }
 
     if let Err(e) = manager.save_to_file(&filename) {
         eprintln!("Error saving tasks: {}", e);
