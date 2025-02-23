@@ -1,7 +1,8 @@
 mod task;
 mod task_manager;
+use crate::task::TaskStatus;
 use crate::task_manager::TaskManager;
-use clap::{CommandFactory, Parser};
+use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use dirs::home_dir;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -17,20 +18,31 @@ struct Args {
     )]
     filename: String,
 
-    #[arg(long, short, help = "Task UUID")]
-    id: Option<String>,
+    #[command(subcommand)]
+    action: Option<TaskAction>,
+}
 
-    #[arg(long, short, help = "Text for the Task Title")]
-    title: Option<String>,
+#[derive(Debug, Subcommand)]
+enum TaskAction {
+    Add {
+        title: String,
+    },
+    List,
+    Update {
+        #[arg(value_parser = clap::value_parser!(Uuid))]
+        id: Uuid,
 
-    #[arg(long, short, help = "List all Tasks")]
-    list: bool,
-
-    #[arg(long, short, help = "Remove a Task by UUID")]
-    remove: bool,
-
-    #[arg(long, short, help = "Complete task")]
-    complete: bool,
+        #[arg(value_enum)]
+        status: TaskStatus,
+    },
+    Delete {
+        #[arg(value_parser = clap::value_parser!(Uuid))]
+        id: Uuid,
+    },
+    Finish {
+        #[arg(value_parser = clap::value_parser!(Uuid))]
+        id: Uuid,
+    },
 }
 
 // Handle tildes in file paths
@@ -53,29 +65,27 @@ fn main() {
         std::process::exit(1);
     }
 
-    if let Some(title) = &args.title {
-        let id = manager.add_task(title.to_string());
-        println!("Created Task: {}", id);
-    }
+    match args.action {
+        Some(TaskAction::Update { id, status }) => match manager.task_action(&id, status) {
+            Ok(_) => println!("Task updated successfully."),
+            Err(e) => eprintln!("{}", e),
+        },
+        Some(TaskAction::List) => {
+            manager.list_tasks();
+        }
 
-    if let Some(id) = &args.id {
-        match Uuid::parse_str(id) {
-            Ok(uuid) => {
-                if args.remove {
-                    manager.remove_task(&uuid);
-                }
-                if args.complete {
-                    manager.complete_task(&uuid);
-                }
-            }
-            Err(e) => eprintln!("Invalid UUID Provided {}", e),
+        Some(TaskAction::Add { title }) => {
+            _ = manager.add_task(title);
+            println!("Task added succesfully!")
+        }
+        Some(TaskAction::Delete { id }) => manager.remove_task(&id),
+        Some(TaskAction::Finish { id }) => manager.complete_task(&id),
+
+        None => {
+            Args::command().print_help().unwrap();
+            std::process::exit(1);
         }
     }
-
-    if args.list {
-        manager.list_tasks();
-    }
-
     if let Err(e) = manager.save_to_file(&filename) {
         eprintln!("Error saving tasks: {}", e);
     }

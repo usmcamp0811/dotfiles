@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::str::FromStr;
 use tabled::{Table, Tabled};
 use uuid::Uuid;
 
@@ -13,7 +14,7 @@ pub struct Task {
 }
 
 #[derive(PartialEq, Serialize, Deserialize, Debug, Clone)]
-enum TaskStatus {
+pub enum TaskStatus {
     ToDo,
     Doing,
     Review,
@@ -37,6 +38,20 @@ impl fmt::Display for TaskStatus {
     }
 }
 
+impl FromStr for TaskStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "todo" => Ok(TaskStatus::ToDo),
+            "doing" => Ok(TaskStatus::Doing),
+            "review" => Ok(TaskStatus::Review),
+            "done" => Ok(TaskStatus::Done),
+            _ => Err(format!("Invalid status: {}", s)),
+        }
+    }
+}
+
 impl Task {
     // Constructor method
     pub fn new(title: String) -> Self {
@@ -49,16 +64,8 @@ impl Task {
     }
 
     // make task competet
-    pub fn mark_complete(&mut self) {
-        self.status = TaskStatus::Done;
-    }
-
-    // check if task is done
-    pub fn is_done(&self) -> bool {
-        if self.status == TaskStatus::Done {
-            true
-        } else {
-            false
-        }
+    pub fn set_status(&mut self, status: TaskStatus) -> &mut Self {
+        self.status = status;
+        self
     }
 }

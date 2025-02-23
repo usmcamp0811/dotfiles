@@ -1,4 +1,4 @@
-use crate::task::Task;
+use crate::task::{Task, TaskStatus};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{self, Read};
@@ -31,10 +31,19 @@ impl TaskManager {
     pub fn complete_task(&mut self, id: &Uuid) {
         if let Some(task) = self.tasks.get_mut(&id) {
             println!("Completing task {:?}", task);
-            task.mark_complete();
+            task.set_status(TaskStatus::Done);
         } else {
             println!("Task not found");
         }
+    }
+
+    pub fn task_action(&mut self, id: &Uuid, action: TaskStatus) -> Result<(), String> {
+        self.tasks
+            .get_mut(id)
+            .map(|task| {
+                task.set_status(action);
+            })
+            .ok_or_else(|| format!("Task with ID {} not found.", id))
     }
 
     // remove the task
@@ -49,9 +58,7 @@ impl TaskManager {
     // list all tasks
     pub fn list_tasks(&self) {
         let tasks: Vec<Task> = self.tasks.values().cloned().collect();
-        let table = Table::new(tasks)
-            .with(Style::modern_rounded())
-            .to_string();
+        let table = Table::new(tasks).with(Style::modern_rounded()).to_string();
 
         println!("{}", table);
     }
