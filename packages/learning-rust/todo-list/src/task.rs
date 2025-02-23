@@ -1,8 +1,9 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use tabled::{Table, Tabled};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Tabled, Clone, Debug, Serialize, Deserialize)]
 pub struct Task {
     pub id: Uuid,
     pub title: String,
@@ -13,7 +14,6 @@ pub struct Task {
 impl Task {
     // Constructor method
     pub fn new(title: String) -> Self {
-        println!("\nCreated: {}\n", title);
         Self {
             id: Uuid::new_v4(),
             title,

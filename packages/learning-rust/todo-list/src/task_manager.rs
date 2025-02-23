@@ -1,8 +1,10 @@
 use crate::task::Task;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, Read};
+use std::{collections::HashMap, ops::AddAssign};
+use tabled::{builder::Builder, settings::Style};
+use tabled::{Table, Tabled};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,12 +48,12 @@ impl TaskManager {
 
     // list all tasks
     pub fn list_tasks(&self) {
-        for task in self.tasks.values() {
-            println!(
-                "ID: {} \t Title: {} \t Complete: {}",
-                task.id, task.title, task.completed,
-            );
-        }
+        let tasks: Vec<Task> = self.tasks.values().cloned().collect();
+        let table = Table::new(tasks)
+            .with(Style::modern_rounded())
+            .to_string();
+
+        println!("{}", table);
     }
 
     pub fn save_to_file(&self, filename: &str) -> std::io::Result<()> {

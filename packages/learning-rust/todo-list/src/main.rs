@@ -48,7 +48,8 @@ fn main() {
     }
 
     if let Some(title) = &args.title {
-        manager.add_task(title.to_string());
+        let id = manager.add_task(title.to_string());
+        println!("Created Task: {}", id);
     }
 
     if let Some(remove) = &args.remove {
@@ -59,7 +60,6 @@ fn main() {
     }
 
     if args.list {
-        println!("\nListing Tasks...");
         manager.list_tasks();
     }
 
