@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use tabled::{Table, Tabled};
 use uuid::Uuid;
 
@@ -11,6 +12,7 @@ pub struct Task {
     pub created_at: DateTime<Utc>,
 }
 
+#[derive(PartialEq, Serialize, Deserialize, Debug, Clone)]
 enum TaskStatus {
     ToDo,
     Doing,
@@ -26,6 +28,12 @@ impl TaskStatus {
             TaskStatus::Review => "🟪",
             TaskStatus::Done => "✅",
         }
+    }
+}
+
+impl fmt::Display for TaskStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_emoji())
     }
 }
 
