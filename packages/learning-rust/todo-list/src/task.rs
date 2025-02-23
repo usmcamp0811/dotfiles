@@ -7,35 +7,50 @@ use uuid::Uuid;
 pub struct Task {
     pub id: Uuid,
     pub title: String,
-    #[tabled(display = "format_completed")]
-    pub completed: bool,
+    pub status: TaskStatus,
     pub created_at: DateTime<Utc>,
 }
 
-fn format_completed(completed: &bool) -> String {
-    if *completed {
-        "✅".into()
-    } else {
-        "🟥".into()
+enum TaskStatus {
+    ToDo,
+    Doing,
+    Review,
+    Done,
+}
+
+impl TaskStatus {
+    fn as_emoji(&self) -> &str {
+        match self {
+            TaskStatus::ToDo => "🟥",
+            TaskStatus::Doing => "🟧",
+            TaskStatus::Review => "🟪",
+            TaskStatus::Done => "✅",
+        }
     }
 }
+
 impl Task {
     // Constructor method
     pub fn new(title: String) -> Self {
         Self {
             id: Uuid::new_v4(),
             title,
-            completed: false,
+            status: TaskStatus::ToDo,
             created_at: Utc::now(),
         }
     }
+
     // make task competet
     pub fn mark_complete(&mut self) {
-        self.completed = true;
+        self.status = TaskStatus::Done;
     }
 
     // check if task is done
     pub fn is_done(&self) -> bool {
-        self.completed
+        if self.status == TaskStatus::Done {
+            true
+        } else {
+            false
+        }
     }
 }
