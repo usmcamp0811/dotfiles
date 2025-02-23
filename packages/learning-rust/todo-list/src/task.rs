@@ -7,10 +7,18 @@ use uuid::Uuid;
 pub struct Task {
     pub id: Uuid,
     pub title: String,
+    #[tabled(display = "format_completed")]
     pub completed: bool,
     pub created_at: DateTime<Utc>,
 }
 
+fn format_completed(completed: &bool) -> String {
+    if *completed {
+        "✅".into()
+    } else {
+        "🟥".into()
+    }
+}
 impl Task {
     // Constructor method
     pub fn new(title: String) -> Self {

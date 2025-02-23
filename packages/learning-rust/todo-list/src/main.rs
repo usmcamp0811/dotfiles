@@ -17,6 +17,9 @@ struct Args {
     )]
     filename: String,
 
+    #[arg(long, short, help = "Task UUID")]
+    id: Option<String>,
+
     #[arg(long, short, help = "Text for the Task Title")]
     title: Option<String>,
 
@@ -24,7 +27,10 @@ struct Args {
     list: bool,
 
     #[arg(long, short, help = "Remove a Task by UUID")]
-    remove: Option<String>,
+    remove: bool,
+
+    #[arg(long, short, help = "Complete task")]
+    complete: bool,
 }
 
 // Handle tildes in file paths
@@ -52,10 +58,17 @@ fn main() {
         println!("Created Task: {}", id);
     }
 
-    if let Some(remove) = &args.remove {
-        match Uuid::parse_str(remove) {
-            Ok(uuid) => manager.remove_task(&uuid),
-            Err(e) => eprintln!("Invalid UUID Provided: {}", e),
+    if let Some(id) = &args.id {
+        match Uuid::parse_str(id) {
+            Ok(uuid) => {
+                if args.remove {
+                    manager.remove_task(&uuid);
+                }
+                if args.complete {
+                    manager.complete_task(&uuid);
+                }
+            }
+            Err(e) => eprintln!("Invalid UUID Provided {}", e),
         }
     }
 
