@@ -6,7 +6,7 @@ mod tests {
     #[test]
     fn test_add_task() {
         let mut manager = TaskManager::new();
-        let id = manager.add_task("Test task".to_string());
-        assert!(manager.tasks.contains_key(&id));
+        let _id = manager.add_task("Test task".to_string());
+        assert_eq!(manager.task_count(), 1);
     }
 }

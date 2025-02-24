@@ -46,6 +46,10 @@ impl TaskManager {
             .ok_or_else(|| format!("Task with ID {} not found.", id))
     }
 
+    pub fn task_count(&self) -> usize {
+        self.tasks.len()
+    }
+
     // remove the task
     pub fn remove_task(&mut self, id: &Uuid) {
         if self.tasks.remove(id).is_some() {
