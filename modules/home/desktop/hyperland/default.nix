@@ -36,6 +36,7 @@ in
           ${cfg.prependConfig}
           env = XDG_DATA_DIRS,'${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}':$XDG_DATA_DIRS
           env = HYPRLAND_TRACE,1
+          monitor=eDP-1, 2560x1600@165.04Hz, 0x0,2.0
           ${cfg.appendConfig}
         '';
       package = pkgs.hyprland;

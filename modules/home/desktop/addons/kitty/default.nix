@@ -15,7 +15,9 @@ in
       [ (pkgs.nerdfonts.override { fonts = [ "FiraCode" "SourceCodePro" ]; }) ];
     programs.kitty = {
       enable = true;
-      themeFile = "Alabaster_Dark";
+      # themeFile = "Alabaster_Dark";
+      # themeFile = "ayu_light";
+      themeFile = "Seti";
       font = {
         name = "FiraCode Nerd Font Mono";
         size = 11;
