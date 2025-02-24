@@ -70,6 +70,7 @@ fn main() {
             Ok(_) => println!("Task updated successfully."),
             Err(e) => eprintln!("{}", e),
         },
+
         Some(TaskAction::List) => {
             manager.list_tasks();
         }
@@ -78,6 +79,7 @@ fn main() {
             _ = manager.add_task(title);
             println!("Task added succesfully!")
         }
+
         Some(TaskAction::Delete { id }) => manager.remove_task(&id),
         Some(TaskAction::Finish { id }) => manager.complete_task(&id),
 
