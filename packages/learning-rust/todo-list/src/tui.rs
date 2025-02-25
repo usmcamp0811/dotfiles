@@ -79,7 +79,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                             selected_index -= 1;
                         }
                     }
-                    KeyCode::Down | KeyCode::Char('l') => {
+                    KeyCode::Down | KeyCode::Char('j') => {
                         if selected_index < manager.get_tasks().len().saturating_sub(1) {
                             selected_index += 1;
                         }
