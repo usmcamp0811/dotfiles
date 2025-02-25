@@ -36,9 +36,10 @@ pub fn run_tui(mut manager: TaskManager) -> io::Result<()> {
 
 fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -> io::Result<()> {
     let mut selected_index = 0;
+    let mut input_mode = false;
+    let mut input_text = String::new();
 
     loop {
-        // Draw the UI
         terminal.draw(|frame| {
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
@@ -63,33 +64,80 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
             let list =
                 List::new(tasks).block(Block::default().title("Todo List").borders(Borders::ALL));
 
-            let instructions = Paragraph::new("↑↓: Move | →: Change Status | q: Quit")
-                .block(Block::default().borders(Borders::ALL));
+            let instructions =
+                Paragraph::new("↑↓: Move | →: Change Status | i: Add Task | q: Quit")
+                    .block(Block::default().borders(Borders::ALL));
 
             frame.render_widget(list, chunks[0]);
             frame.render_widget(instructions, chunks[1]);
+
+            // Render input popup if active
+            if input_mode {
+                let popup_area = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(5)
+                    .constraints([
+                        Constraint::Percentage(30),
+                        Constraint::Percentage(40),
+                        Constraint::Percentage(30),
+                    ])
+                    .split(frame.size());
+
+                let input_box = Paragraph::new(format!("> {}", input_text))
+                    .block(Block::default().title("Enter Task").borders(Borders::ALL));
+
+                frame.render_widget(input_box, popup_area[1]);
+            }
         })?;
 
+        // Handle user input
         if event::poll(std::time::Duration::from_millis(200))? {
             if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char('q') => return Ok(()),
-                    KeyCode::Up | KeyCode::Char('k') => {
-                        if selected_index > 0 {
-                            selected_index -= 1;
+                if input_mode {
+                    match key.code {
+                        KeyCode::Enter => {
+                            if !input_text.trim().is_empty() {
+                                manager.add_task(input_text.clone()); // Save task
+                                input_text.clear();
+                            }
+                            input_mode = false; // Close popup
                         }
-                    }
-                    KeyCode::Down | KeyCode::Char('j') => {
-                        if selected_index < manager.get_tasks().len().saturating_sub(1) {
-                            selected_index += 1;
+                        KeyCode::Esc => {
+                            input_mode = false; // Close popup without saving
+                            input_text.clear();
                         }
-                    }
-                    KeyCode::Right | KeyCode::Char('l') => {
-                        if let Some(task) = manager.get_tasks_mut().get_mut(selected_index) {
-                            task.set_status(next_status(&task.status));
+                        KeyCode::Backspace => {
+                            input_text.pop(); // Remove last character
                         }
+                        KeyCode::Char(c) => {
+                            input_text.push(c); // Append typed character
+                        }
+                        _ => {}
                     }
-                    _ => {}
+                } else {
+                    match key.code {
+                        KeyCode::Char('q') => return Ok(()),
+                        KeyCode::Char('i') => {
+                            input_mode = true;
+                            input_text.clear();
+                        }
+                        KeyCode::Up | KeyCode::Char('k') => {
+                            if selected_index > 0 {
+                                selected_index -= 1;
+                            }
+                        }
+                        KeyCode::Down | KeyCode::Char('j') => {
+                            if selected_index < manager.get_tasks().len().saturating_sub(1) {
+                                selected_index += 1;
+                            }
+                        }
+                        KeyCode::Right | KeyCode::Char('l') => {
+                            if let Some(task) = manager.get_tasks_mut().get_mut(selected_index) {
+                                task.set_status(next_status(&task.status));
+                            }
+                        }
+                        _ => {}
+                    }
                 }
             }
         }
