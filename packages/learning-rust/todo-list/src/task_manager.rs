@@ -85,4 +85,12 @@ impl TaskManager {
         let task_manager: TaskManager = serde_json::from_str(&json)?;
         Ok(task_manager)
     }
+
+    pub fn get_tasks(&self) -> Vec<&Task> {
+        self.tasks.values().collect()
+    }
+
+    pub fn get_tasks_mut(&mut self) -> Vec<&mut Task> {
+        self.tasks.values_mut().collect()
+    }
 }
