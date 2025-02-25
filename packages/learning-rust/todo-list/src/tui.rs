@@ -14,7 +14,7 @@ use ratatui::{
 use std::io;
 use uuid::Uuid;
 
-pub fn run_tui(mut manager: TaskManager) -> io::Result<()> {
+pub fn run_tui(manager: &mut TaskManager) -> io::Result<()> {
     enable_raw_mode()?;
     let mut stdout = io::stdout();
     // enter fullscreen
@@ -22,7 +22,7 @@ pub fn run_tui(mut manager: TaskManager) -> io::Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let result = app_loop(&mut terminal, &mut manager);
+    let result = app_loop(&mut terminal, manager);
     disable_raw_mode()?;
     execute!(
         terminal.backend_mut(),
@@ -81,7 +81,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                         Constraint::Percentage(40),
                         Constraint::Percentage(30),
                     ])
-                    .split(frame.size());
+                    .split(frame.area());
 
                 let input_box = Paragraph::new(format!("> {}", input_text))
                     .block(Block::default().title("Enter Task").borders(Borders::ALL));
