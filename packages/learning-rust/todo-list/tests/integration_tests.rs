@@ -21,4 +21,25 @@ mod tests {
         assert_eq!(manager.count(TaskStatus::ToDo), 0);
         assert_eq!(manager.count(TaskStatus::Done), 1);
     }
+
+    #[test]
+    fn test_task_action() {
+        let mut manager = TaskManager::new();
+        let _id = manager.add_task("Test task".to_string());
+        assert_eq!(manager.count(TaskStatus::ToDo), 1);
+        manager.task_action(&_id, TaskStatus::Doing);
+        assert_eq!(manager.count(TaskStatus::ToDo), 0);
+        assert_eq!(manager.count(TaskStatus::Doing), 1);
+        assert_eq!(manager.count(TaskStatus::Review), 0);
+        assert_eq!(manager.count(TaskStatus::Done), 0);
+        manager.task_action(&_id, TaskStatus::Review);
+        assert_eq!(manager.count(TaskStatus::ToDo), 0);
+        assert_eq!(manager.count(TaskStatus::Doing), 0);
+        assert_eq!(manager.count(TaskStatus::Review), 1);
+        manager.task_action(&_id, TaskStatus::Done);
+        assert_eq!(manager.count(TaskStatus::ToDo), 0);
+        assert_eq!(manager.count(TaskStatus::Doing), 0);
+        assert_eq!(manager.count(TaskStatus::Review), 0);
+        assert_eq!(manager.count(TaskStatus::Done), 1);
+    }
 }
