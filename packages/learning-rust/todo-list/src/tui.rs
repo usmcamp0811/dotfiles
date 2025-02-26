@@ -5,6 +5,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use ratatui::style::{Color, Style}; // Import Color and Style
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Direction, Layout},
@@ -35,41 +36,86 @@ pub fn run_tui(manager: &mut TaskManager) -> io::Result<()> {
 }
 
 fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -> io::Result<()> {
-    let mut selected_index = 0;
+    let mut selected_column = 0; // 0 = ToDo, 1 = Doing, 2 = Review, 3 = Done
+    let mut selected_task_indices = vec![0, 0, 0, 0]; // Track selected task in each column
     let mut input_mode = false;
     let mut input_text = String::new();
 
+    let statuses = [
+        TaskStatus::ToDo,
+        TaskStatus::Doing,
+        TaskStatus::Review,
+        TaskStatus::Done,
+    ];
     loop {
         terminal.draw(|frame| {
             let chunks = Layout::default()
-                .direction(Direction::Vertical)
+                .direction(Direction::Horizontal)
                 .margin(2)
                 .constraints([
-                    Constraint::Percentage(80), // Task List
-                    Constraint::Percentage(20), // Instructions
+                    Constraint::Percentage(25), // ToDo Column
+                    Constraint::Percentage(25), // Doing Column
+                    Constraint::Percentage(25), // Review Column
+                    Constraint::Percentage(25), // Done Column
                 ])
-                .split(frame.size());
+                .split(frame.area());
 
-            // Convert tasks into selectable list
-            let tasks: Vec<ListItem> = manager
-                .get_tasks()
+            let task_lists: Vec<Vec<ListItem>> = statuses
                 .iter()
                 .enumerate()
-                .map(|(i, task)| {
-                    let marker = if i == selected_index { "▶" } else { " " };
-                    ListItem::new(format!("{} [{}] {}", marker, task.status, task.title))
+                .map(|(col, &ref status)| {
+                    manager
+                        .get_tasks()
+                        .iter()
+                        .filter(|task| task.status == *status)
+                        .enumerate()
+                        .map(|(idx, task)| {
+                            let marker =
+                                if col == selected_column && idx == selected_task_indices[col] {
+                                    "▶"
+                                } else {
+                                    " "
+                                };
+                            ListItem::new(format!("{}{}", marker, task.title))
+                        })
+                        .collect()
                 })
                 .collect();
 
-            let list =
-                List::new(tasks).block(Block::default().title("Todo List").borders(Borders::ALL));
+            let column_colors = [
+                Color::Yellow, // ToDo
+                Color::Green,  // Doing
+                Color::Blue,   // Review
+                Color::Red,    // Done
+            ];
 
             let instructions =
                 Paragraph::new("↑↓: Move | →: Change Status | i: Add Task | q: Quit")
                     .block(Block::default().borders(Borders::ALL));
 
-            frame.render_widget(list, chunks[0]);
-            frame.render_widget(instructions, chunks[1]);
+            for (col, task_item) in task_lists.iter().enumerate() {
+                let list =
+                    List::new(task_item.clone()).block(
+                        Block::default()
+                            .title(match col {
+                                0 => "To Do",
+                                1 => "Doing",
+                                2 => "Review",
+                                3 => "Done",
+                                _ => unreachable!(),
+                            })
+                            .borders(Borders::ALL)
+                            .style(Style::default().fg(Color::White).bg(
+                                if col == selected_column {
+                                    column_colors[col]
+                                } else {
+                                    Color::Reset
+                                },
+                            )),
+                    );
+                frame.render_widget(list, chunks[col]);
+            }
+            // frame.render_widget(instructions, chunks[1]);
 
             // Render input popup if active
             if input_mode {
@@ -121,21 +167,48 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                             input_mode = true;
                             input_text.clear();
                         }
-                        KeyCode::Up | KeyCode::Char('k') => {
-                            if selected_index > 0 {
-                                selected_index -= 1;
-                            }
-                        }
-                        KeyCode::Down | KeyCode::Char('j') => {
-                            if selected_index < manager.get_tasks().len().saturating_sub(1) {
-                                selected_index += 1;
+                        KeyCode::Left | KeyCode::Char('h') => {
+                            if selected_column > 0 {
+                                selected_column -= 1;
                             }
                         }
                         KeyCode::Right | KeyCode::Char('l') => {
-                            if let Some(task) = manager.get_tasks_mut().get_mut(selected_index) {
+                            if selected_column < 3 {
+                                selected_column += 1;
+                            }
+                        }
+                        KeyCode::Up | KeyCode::Char('k') => {
+                            if selected_task_indices[selected_column] > 0 {
+                                selected_task_indices[selected_column] -= 1;
+                            }
+                        }
+                        KeyCode::Down | KeyCode::Char('j') => {
+                            let num_tasks = manager
+                                .get_tasks()
+                                .iter()
+                                .filter(|task| task.status == statuses[selected_column])
+                                .count();
+                            if selected_task_indices[selected_column] < num_tasks.saturating_sub(1)
+                            {
+                                selected_task_indices[selected_column] += 1;
+                            }
+                        }
+                        KeyCode::Enter => {
+                            let current_status = &statuses[selected_column];
+                            if let Some(task) = manager
+                                .get_tasks_mut()
+                                .iter_mut()
+                                .filter(|task| task.status == *current_status)
+                                .nth(selected_task_indices[selected_column])
+                            {
                                 task.set_status(next_status(&task.status));
                             }
                         }
+
+                        // KeyCode::Char('i') => {
+                        //     input_mode = true;
+                        //     input_text.clear();
+                        // }
                         _ => {}
                     }
                 }
