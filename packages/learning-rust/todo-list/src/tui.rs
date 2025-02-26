@@ -49,7 +49,16 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
     ];
     loop {
         terminal.draw(|frame| {
-            let chunks = Layout::default()
+            let outer_layout = Layout::default()
+                .direction(Direction::Vertical)
+                .margin(1)
+                .constraints([
+                    Constraint::Min(10),   // Main task board
+                    Constraint::Length(3), // Bottom section
+                ])
+                .split(frame.area());
+
+            let kanban = Layout::default()
                 .direction(Direction::Horizontal)
                 .margin(2)
                 .constraints([
@@ -58,7 +67,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                     Constraint::Percentage(25), // Review Column
                     Constraint::Percentage(25), // Done Column
                 ])
-                .split(frame.area());
+                .split(outer_layout[0]);
 
             let task_lists: Vec<Vec<ListItem>> = statuses
                 .iter()
@@ -88,10 +97,9 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                 Color::Blue,   // Review
                 Color::Red,    // Done
             ];
-
             let instructions =
                 Paragraph::new("↑↓: Move | →: Change Status | i: Add Task | q: Quit")
-                    .block(Block::default().borders(Borders::ALL));
+                    .block(Block::default().title("Bottom").borders(Borders::ALL));
 
             for (col, task_item) in task_lists.iter().enumerate() {
                 let list =
@@ -113,9 +121,9 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                                 },
                             )),
                     );
-                frame.render_widget(list, chunks[col]);
+                frame.render_widget(list, kanban[col]);
             }
-            // frame.render_widget(instructions, chunks[1]);
+            frame.render_widget(instructions, outer_layout[1]);
 
             // Render input popup if active
             if input_mode {
