@@ -6,6 +6,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::style::{Color, Style}; // Import Color and Style
+use ratatui::widgets::Clear; // Import Clear widget
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Direction, Layout},
@@ -136,9 +137,13 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                         Constraint::Percentage(30),
                     ])
                     .split(frame.area());
-
-                let input_box = Paragraph::new(format!("> {}", input_text))
-                    .block(Block::default().title("Enter Task").borders(Borders::ALL));
+                frame.render_widget(Clear, popup_area[1]);
+                let input_box = Paragraph::new(format!("> {}", input_text)).block(
+                    Block::default()
+                        .title("Enter Task")
+                        .borders(Borders::ALL)
+                        .style(Style::default().fg(Color::White).bg(Color::Black)),
+                );
 
                 frame.render_widget(input_box, popup_area[1]);
             }
