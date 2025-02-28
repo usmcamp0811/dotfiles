@@ -9,6 +9,7 @@ use uuid::Uuid;
 pub struct Task {
     pub id: Uuid,
     pub title: String,
+    pub body: String,
     pub status: TaskStatus,
     pub created_at: DateTime<Utc>,
 }
@@ -54,10 +55,11 @@ impl FromStr for TaskStatus {
 
 impl Task {
     // Constructor method
-    pub fn new(title: String) -> Self {
+    pub fn new(title: String, body: String) -> Self {
         Self {
             id: Uuid::new_v4(),
             title,
+            body,
             status: TaskStatus::ToDo,
             created_at: Utc::now(),
         }

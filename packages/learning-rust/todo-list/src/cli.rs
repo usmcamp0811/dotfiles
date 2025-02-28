@@ -74,7 +74,7 @@ pub fn run() {
         }
 
         Some(TaskAction::Add { title }) => {
-            _ = manager.add_task(title);
+            _ = manager.add_task(title, None);
             println!("Task added succesfully!")
         }
 

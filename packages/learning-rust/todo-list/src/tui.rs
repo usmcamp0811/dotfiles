@@ -40,7 +40,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
     let mut selected_column = 0; // 0 = ToDo, 1 = Doing, 2 = Review, 3 = Done
     let mut selected_task_indices = vec![0, 0, 0, 0]; // Track selected task in each column
     let mut input_mode = false;
-    let mut input_text = String::new();
+    let mut input_title = String::new();
 
     let statuses = [
         TaskStatus::ToDo,
@@ -138,7 +138,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                     ])
                     .split(frame.area());
                 frame.render_widget(Clear, popup_area[1]);
-                let input_box = Paragraph::new(format!("> {}", input_text)).block(
+                let input_box = Paragraph::new(format!("> {}", input_title)).block(
                     Block::default()
                         .title("Enter Task")
                         .borders(Borders::ALL)
@@ -155,21 +155,21 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                 if input_mode {
                     match key.code {
                         KeyCode::Enter => {
-                            if !input_text.trim().is_empty() {
-                                manager.add_task(input_text.clone()); // Save task
-                                input_text.clear();
+                            if !input_title.trim().is_empty() {
+                                manager.add_task(input_title.clone(), None); // Save task
+                                input_title.clear();
                             }
                             input_mode = false; // Close popup
                         }
                         KeyCode::Esc => {
                             input_mode = false; // Close popup without saving
-                            input_text.clear();
+                            input_title.clear();
                         }
                         KeyCode::Backspace => {
-                            input_text.pop(); // Remove last character
+                            input_title.pop(); // Remove last character
                         }
                         KeyCode::Char(c) => {
-                            input_text.push(c); // Append typed character
+                            input_title.push(c); // Append typed character
                         }
                         _ => {}
                     }
@@ -178,7 +178,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                         KeyCode::Char('q') => return Ok(()),
                         KeyCode::Char('i') => {
                             input_mode = true;
-                            input_text.clear();
+                            input_title.clear();
                         }
                         KeyCode::Left | KeyCode::Char('h') => {
                             if selected_column > 0 {
@@ -220,7 +220,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
 
                         // KeyCode::Char('i') => {
                         //     input_mode = true;
-                        //     input_text.clear();
+                        //     input_title.clear();
                         // }
                         _ => {}
                     }

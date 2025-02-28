@@ -20,8 +20,8 @@ impl TaskManager {
     }
 
     // add new tasks to the task manager
-    pub fn add_task(&mut self, title: String) -> Uuid {
-        let task = Task::new(title);
+    pub fn add_task(&mut self, title: String, body: Option<String>) -> Uuid {
+        let task = Task::new(title, body.unwrap_or_default());
         let id = task.id;
         self.tasks.insert(id, task);
         id

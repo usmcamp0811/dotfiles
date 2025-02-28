@@ -6,7 +6,10 @@ mod tests {
     #[test]
     fn test_add_task() {
         let mut manager = TaskManager::new();
-        let _id = manager.add_task("Test task".to_string());
+        let _id = manager.add_task(
+            "Test task".to_string(),
+            Some("Test body code stuff things words here".to_string()),
+        );
         assert_eq!(manager.count_all_tasks(), 1);
         assert_eq!(manager.count(TaskStatus::ToDo), 1);
         assert_eq!(manager.count(TaskStatus::Done), 0);
@@ -15,7 +18,7 @@ mod tests {
     #[test]
     fn test_complete_task() {
         let mut manager = TaskManager::new();
-        let _id = manager.add_task("Test task".to_string());
+        let _id = manager.add_task("Test task".to_string(), None);
         assert_eq!(manager.count(TaskStatus::ToDo), 1);
         manager.complete_task(&_id);
         assert_eq!(manager.count(TaskStatus::ToDo), 0);
@@ -25,7 +28,7 @@ mod tests {
     #[test]
     fn test_task_action() {
         let mut manager = TaskManager::new();
-        let _id = manager.add_task("Test task".to_string());
+        let _id = manager.add_task("Test task".to_string(), None);
         assert_eq!(manager.count(TaskStatus::ToDo), 1);
 
         // Doing
