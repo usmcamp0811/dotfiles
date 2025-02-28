@@ -1,8 +1,10 @@
 use crate::task::TaskStatus;
 use crate::task_manager::TaskManager;
+use crate::tui;
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use dirs::home_dir;
 use serde::{Deserialize, Serialize};
+use std::env;
 use uuid::Uuid;
 
 #[derive(Parser, Debug)]
@@ -59,8 +61,16 @@ pub fn run() {
     let mut manager = TaskManager::load_from_file(&filename).unwrap_or_else(|_| TaskManager::new());
 
     if std::env::args().len() == 1 {
-        Args::command().print_help().unwrap();
-        std::process::exit(1);
+        let filename =
+            env::var("TODO_FILE").unwrap_or_else(|_| "/home/mcamp/.todo.json".to_string());
+        let mut manager =
+            TaskManager::load_from_file(&filename).unwrap_or_else(|_| TaskManager::new());
+        if let Err(err) = tui::run_tui(&mut manager) {
+            eprintln!("TUI Error: {}", err);
+        }
+        if let Err(e) = manager.save_to_file(&filename) {
+            eprintln!("Error saving tasks: {}", e);
+        }
     }
 
     match args.action {
@@ -82,8 +92,7 @@ pub fn run() {
         Some(TaskAction::Finish { id }) => manager.complete_task(&id),
 
         None => {
-            Args::command().print_help().unwrap();
-            std::process::exit(1);
+            std::process::exit(0);
         }
     }
     if let Err(e) = manager.save_to_file(&filename) {
