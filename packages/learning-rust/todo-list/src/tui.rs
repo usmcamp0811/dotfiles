@@ -41,6 +41,8 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
     let mut selected_task_indices = vec![0, 0, 0, 0]; // Track selected task in each column
     let mut input_mode = false;
     let mut input_title = String::new();
+    let mut input_body = String::new();
+    let mut current_field = 0; // 0 = title, 1 = body
 
     let statuses = [
         TaskStatus::ToDo,
@@ -128,6 +130,26 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
 
             // Render input popup if active
             if input_mode {
+                let title_style = if current_field == 0 {
+                    Style::default().fg(Color::White).bg(Color::Blue)
+                } else {
+                    Style::default().fg(Color::White).bg(Color::Black)
+                };
+
+                let body_style = if current_field == 1 {
+                    Style::default().fg(Color::White).bg(Color::Blue)
+                } else {
+                    Style::default().fg(Color::White).bg(Color::Black)
+                };
+
+                let title_input = Paragraph::new(format!("> {}", input_title))
+                    .block(Block::default().title("Title").borders(Borders::ALL))
+                    .style(title_style);
+
+                let body_input = Paragraph::new(format!("> {}", input_body))
+                    .block(Block::default().title("Body").borders(Borders::ALL))
+                    .style(body_style);
+
                 let popup_area = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(5)
@@ -138,14 +160,10 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                     ])
                     .split(frame.area());
                 frame.render_widget(Clear, popup_area[1]);
-                let input_box = Paragraph::new(format!("> {}", input_title)).block(
-                    Block::default()
-                        .title("Enter Task")
-                        .borders(Borders::ALL)
-                        .style(Style::default().fg(Color::White).bg(Color::Black)),
-                );
 
-                frame.render_widget(input_box, popup_area[1]);
+                frame.render_widget(Clear, popup_area[1]);
+                frame.render_widget(title_input, popup_area[1]);
+                frame.render_widget(body_input, popup_area[2]);
             }
         })?;
 
@@ -154,11 +172,25 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
             if let Event::Key(key) = event::read()? {
                 if input_mode {
                     match key.code {
+                        KeyCode::Tab | KeyCode::Down => {
+                            // Move to the next field
+                            current_field = 1;
+                        }
+                        KeyCode::Up => {
+                            // Move back to the previous field
+                            current_field = 0;
+                        }
                         KeyCode::Enter => {
-                            if !input_title.trim().is_empty() {
-                                manager.add_task(input_title.clone(), None); // Save task
-                                input_title.clear();
+                            if current_field == 0 {
+                                current_field = 1;
+                            } else if current_field == 1 {
+                                if !input_title.trim().is_empty() {
+                                    manager.add_task(input_title.clone(), Some(input_body.clone()));
+                                    input_body.clear();
+                                    input_title.clear();
+                                }
                             }
+
                             input_mode = false; // Close popup
                         }
                         KeyCode::Esc => {
@@ -166,10 +198,18 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                             input_title.clear();
                         }
                         KeyCode::Backspace => {
-                            input_title.pop(); // Remove last character
+                            if current_field == 0 {
+                                input_title.pop(); // Remove last character
+                            } else if current_field == 1 {
+                                input_body.pop(); // Remove last character
+                            }
                         }
                         KeyCode::Char(c) => {
-                            input_title.push(c); // Append typed character
+                            if current_field == 0 {
+                                input_title.push(c); // Append typed character
+                            } else if current_field == 1 {
+                                input_body.push(c); // Append typed character
+                            }
                         }
                         _ => {}
                     }
@@ -218,10 +258,6 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                             }
                         }
 
-                        // KeyCode::Char('i') => {
-                        //     input_mode = true;
-                        //     input_title.clear();
-                        // }
                         _ => {}
                     }
                 }
