@@ -110,7 +110,7 @@ in {
 
         # default applications
         "$term" = "${getExe pkgs.kitty}";
-        "$browser" = "${getExe pkgs.firefox}";
+        "$browser" = "${getExe pkgs.brave}";
         "$mail" = "${getExe pkgs.thunderbird}";
         "$editor" = "${getExe pkgs.neovim}";
         "$explorer" = "${getExe pkgs.xfce.thunar}";
