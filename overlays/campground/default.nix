@@ -1,9 +1,11 @@
-{ campground-nvim, old-nixpkgs, channels, ... }:
+{ campground-nvim, old-nixpkgs, channels, unstable, ... }:
 final: prev:
 {
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
 
   neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
+  wasm-bindgen-cli =
+    unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
 
   matomo_5 = prev.matomo_5.overrideAttrs (old: rec {
     # Fetch the plugin using fetchFromGitHub

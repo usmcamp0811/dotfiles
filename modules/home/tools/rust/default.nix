@@ -15,6 +15,9 @@ in {
       rustfmt
       clippy
       rustc
+      dioxus-cli
+      wasm-bindgen-cli
+      lld
     ];
   };
 }
