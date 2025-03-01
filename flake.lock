@@ -8559,11 +8559,11 @@
         "stable-nixpkgs": "stable-nixpkgs_13"
       },
       "locked": {
-        "lastModified": 1740322994,
-        "narHash": "sha256-TFiqlKKM7zdpwYPkFl+getiCAb1BahjOJwQtqMdoLJk=",
+        "lastModified": 1740838798,
+        "narHash": "sha256-2jtivTPkzu3aqhOtd8jYntz9z4rMUXD8tYDPyoHFAYA=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "04d68ae6110f8d950b152bcf38b8a5f793c0d0ac",
+        "rev": "14b142206f3f41e6a8c032ee93e4654a0844726e",
         "type": "gitlab"
       },
       "original": {
