@@ -190,7 +190,6 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                                     input_title.clear();
                                 }
                             }
-
                             input_mode = false; // Close popup
                         }
                         KeyCode::Esc => {
