@@ -155,13 +155,13 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                     .margin(5)
                     .constraints([
                         Constraint::Percentage(30),
-                        Constraint::Percentage(40),
+                        Constraint::Percentage(5),
                         Constraint::Percentage(30),
                     ])
                     .split(frame.area());
                 frame.render_widget(Clear, popup_area[1]);
 
-                frame.render_widget(Clear, popup_area[1]);
+                frame.render_widget(Clear, popup_area[2]);
                 frame.render_widget(title_input, popup_area[1]);
                 frame.render_widget(body_input, popup_area[2]);
             }
@@ -191,6 +191,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                                 }
                             }
                             input_mode = false; // Close popup
+                            current_field = 0; // reset to title for next input
                         }
                         KeyCode::Esc => {
                             input_mode = false; // Close popup without saving
