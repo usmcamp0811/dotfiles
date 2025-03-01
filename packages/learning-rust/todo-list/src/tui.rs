@@ -39,10 +39,10 @@ impl UIState {
 }
 
 fn draw_ui<B: Backend>(
-    frame: &mut ratatui::Frame<B>,
+    frame: &mut ratatui::Frame,
     manager: &TaskManager,
     state: &UIState,
-    statuses: &Vec<TaskStatus>,
+    statuses: &[TaskStatus],
 ) {
     let outer_layout = Layout::default()
         .direction(Direction::Vertical)
@@ -75,7 +75,7 @@ fn draw_ui<B: Backend>(
                 .enumerate()
                 .map(|(idx, task)| {
                     let marker = if col == state.selected_column
-                        && idx == state.selected_task_indices[col]
+                        && idx == state.selected_task_indicies[col]
                     {
                         "▶"
                     } else {
@@ -98,7 +98,7 @@ fn draw_ui<B: Backend>(
         .block(Block::default().title("Instructions").borders(Borders::ALL));
 
     if state.input_mode {
-        draw_input_popup(frame, state);
+        draw_input_popup::<CrosstermBackend<std::io::Stdout>>(frame, state);
     }
 
     for (col, task_item) in task_lists.iter().enumerate() {
@@ -128,7 +128,7 @@ fn draw_ui<B: Backend>(
     frame.render_widget(instructions, outer_layout[1]);
 }
 
-fn draw_input_popup<B: Backend>(frame: &mut ratatui::Frame<B>, state: &UIState) {
+fn draw_input_popup<B: Backend>(frame: &mut ratatui::Frame, state: &UIState) {
     let title_style = if state.current_field == 0 {
         Style::default().fg(Color::White).bg(Color::Blue)
     } else {
@@ -165,15 +165,21 @@ fn draw_input_popup<B: Backend>(frame: &mut ratatui::Frame<B>, state: &UIState) 
     frame.render_widget(body_input, popup_area[2]);
 }
 
-fn handle_input_event(key: KeyCode, state: &mut UIState, manager: &mut TaskManager) {
+fn handle_input_event(
+    key: KeyCode,
+    state: &mut UIState,
+    manager: &mut TaskManager,
+) -> Result<(), io::Error> {
     match key {
         KeyCode::Tab | KeyCode::Down => {
             // Move to the next field
             state.current_field = 1;
+            Ok(())
         }
         KeyCode::Up => {
             // Move back to the previous field
             state.current_field = 0;
+            Ok(())
         }
         KeyCode::Enter => {
             if state.current_field == 0 {
@@ -187,10 +193,12 @@ fn handle_input_event(key: KeyCode, state: &mut UIState, manager: &mut TaskManag
             }
             state.input_mode = false; // Close popup
             state.current_field = 0; // reset to title for next input
+            Ok(())
         }
         KeyCode::Esc => {
             state.input_mode = false; // Close popup without saving
             state.input_title.clear();
+            Ok(())
         }
         KeyCode::Backspace => {
             if state.current_field == 0 {
@@ -198,6 +206,7 @@ fn handle_input_event(key: KeyCode, state: &mut UIState, manager: &mut TaskManag
             } else if state.current_field == 1 {
                 state.input_body.pop(); // Remove last character
             }
+            Ok(())
         }
         KeyCode::Char(c) => {
             if state.current_field == 0 {
@@ -205,32 +214,42 @@ fn handle_input_event(key: KeyCode, state: &mut UIState, manager: &mut TaskManag
             } else if state.current_field == 1 {
                 state.input_body.push(c); // Append typed character
             }
+            Ok(())
         }
-        _ => {}
+        _ => Ok(()),
     }
 }
 
-fn handle_nav_input_event(key: KeyCode, state: &mut UIState, manager: &mut TaskManager) {
+fn handle_nav_input_event(
+    key: KeyCode,
+    state: &mut UIState,
+    manager: &mut TaskManager,
+    statuses: &[TaskStatus],
+) -> Result<(), io::Error> {
     match key {
         KeyCode::Char('q') => return Ok(()),
         KeyCode::Char('i') => {
             state.input_mode = true;
             state.input_title.clear();
+            Ok(())
         }
         KeyCode::Left | KeyCode::Char('h') => {
             if state.selected_column > 0 {
                 state.selected_column -= 1;
             }
+            Ok(())
         }
         KeyCode::Right | KeyCode::Char('l') => {
             if state.selected_column < 3 {
                 state.selected_column += 1;
             }
+            Ok(())
         }
         KeyCode::Up | KeyCode::Char('k') => {
             if state.selected_task_indicies[state.selected_column] > 0 {
                 state.selected_task_indicies[state.selected_column] -= 1;
             }
+            Ok(())
         }
         KeyCode::Down | KeyCode::Char('j') => {
             let num_tasks = manager
@@ -241,6 +260,7 @@ fn handle_nav_input_event(key: KeyCode, state: &mut UIState, manager: &mut TaskM
             if state.selected_task_indicies[state.selected_column] < num_tasks.saturating_sub(1) {
                 state.selected_task_indicies[state.selected_column] += 1;
             }
+            Ok(())
         }
         KeyCode::Enter => {
             let current_status = &statuses[state.selected_column];
@@ -252,9 +272,10 @@ fn handle_nav_input_event(key: KeyCode, state: &mut UIState, manager: &mut TaskM
             {
                 task.set_status(next_status(&task.status));
             }
+            Ok(())
         }
 
-        _ => {}
+        _ => Ok(()),
     }
 }
 
@@ -287,7 +308,9 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
         TaskStatus::Done,
     ];
     loop {
-        terminal.draw(|frame| draw_ui(frame, manager, &state, &statuses))?;
+        terminal.draw(|frame| {
+            draw_ui::<CrosstermBackend<std::io::Stdout>>(frame, manager, &state, &statuses)
+        })?;
 
         // Handle user input
         if event::poll(std::time::Duration::from_millis(200))? {
@@ -295,7 +318,7 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
                 if state.input_mode {
                     handle_input_event(key.code, &mut state, manager);
                 } else {
-                    handle_nav_input_event(key.code, &mut state, manager);
+                    handle_nav_input_event(key.code, &mut state, manager, &statuses);
                 }
             }
         }
