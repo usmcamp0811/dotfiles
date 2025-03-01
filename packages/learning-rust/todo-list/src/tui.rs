@@ -98,7 +98,7 @@ fn draw_ui<B: Backend>(
         .block(Block::default().title("Instructions").borders(Borders::ALL));
 
     if state.input_mode {
-        draw_input_popup::<CrosstermBackend<std::io::Stdout>>(frame, state);
+        draw_input_popup(frame, state);
     }
 
     for (col, task_item) in task_lists.iter().enumerate() {
@@ -128,7 +128,28 @@ fn draw_ui<B: Backend>(
     frame.render_widget(instructions, outer_layout[1]);
 }
 
-fn draw_input_popup<B: Backend>(frame: &mut ratatui::Frame, state: &UIState) {
+fn draw_input_popup(frame: &mut ratatui::Frame, state: &UIState) {
+    let area = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(5)
+        .constraints([
+            Constraint::Percentage(30),
+            Constraint::Percentage(15),
+            Constraint::Percentage(30),
+        ])
+        .split(frame.area());
+
+    // Clear the area before rendering (prevents transparency)
+    frame.render_widget(Clear, area[1]);
+    frame.render_widget(Clear, area[2]);
+
+    let block = Block::default()
+        .title("New Task")
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black)); // Add a background color
+
+    frame.render_widget(block, area[1]);
+
     let title_style = if state.current_field == 0 {
         Style::default().fg(Color::White).bg(Color::Blue)
     } else {
@@ -149,20 +170,8 @@ fn draw_input_popup<B: Backend>(frame: &mut ratatui::Frame, state: &UIState) {
         .block(Block::default().title("Body").borders(Borders::ALL))
         .style(body_style);
 
-    let popup_area = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(5)
-        .constraints([
-            Constraint::Percentage(30),
-            Constraint::Percentage(5),
-            Constraint::Percentage(30),
-        ])
-        .split(frame.area());
-    frame.render_widget(Clear, popup_area[1]);
-
-    frame.render_widget(Clear, popup_area[2]);
-    frame.render_widget(title_input, popup_area[1]);
-    frame.render_widget(body_input, popup_area[2]);
+    frame.render_widget(title_input, area[1]);
+    frame.render_widget(body_input, area[2]);
 }
 
 fn handle_input_event(
@@ -172,52 +181,45 @@ fn handle_input_event(
 ) -> Result<(), io::Error> {
     match key {
         KeyCode::Tab | KeyCode::Down => {
-            // Move to the next field
-            state.current_field = 1;
-            Ok(())
+            state.current_field = 1; // Move to body field
         }
         KeyCode::Up => {
-            // Move back to the previous field
-            state.current_field = 0;
-            Ok(())
+            state.current_field = 0; // Move to title field
         }
         KeyCode::Enter => {
             if state.current_field == 0 {
-                state.current_field = 1;
+                state.current_field = 1; // Switch to body input
             } else if state.current_field == 1 {
                 if !state.input_title.trim().is_empty() {
                     manager.add_task(state.input_title.clone(), Some(state.input_body.clone()));
                     state.input_body.clear();
                     state.input_title.clear();
+                    state.input_mode = false; // Close popup after adding task
                 }
             }
-            state.input_mode = false; // Close popup
-            state.current_field = 0; // reset to title for next input
-            Ok(())
         }
         KeyCode::Esc => {
             state.input_mode = false; // Close popup without saving
             state.input_title.clear();
-            Ok(())
+            state.input_body.clear();
         }
         KeyCode::Backspace => {
             if state.current_field == 0 {
-                state.input_title.pop(); // Remove last character
-            } else if state.current_field == 1 {
-                state.input_body.pop(); // Remove last character
+                state.input_title.pop();
+            } else {
+                state.input_body.pop();
             }
-            Ok(())
         }
         KeyCode::Char(c) => {
             if state.current_field == 0 {
-                state.input_title.push(c); // Append typed character
-            } else if state.current_field == 1 {
-                state.input_body.push(c); // Append typed character
+                state.input_title.push(c);
+            } else {
+                state.input_body.push(c);
             }
-            Ok(())
         }
-        _ => Ok(()),
+        _ => {}
     }
+    Ok(())
 }
 
 fn handle_nav_input_event(
@@ -227,7 +229,9 @@ fn handle_nav_input_event(
     statuses: &[TaskStatus],
 ) -> Result<(), io::Error> {
     match key {
-        KeyCode::Char('q') => return Ok(()),
+        KeyCode::Char('q') => {
+            return Err(io::Error::new(io::ErrorKind::Other, "Exit"));
+        }
         KeyCode::Char('i') => {
             state.input_mode = true;
             state.input_title.clear();
@@ -274,7 +278,6 @@ fn handle_nav_input_event(
             }
             Ok(())
         }
-
         _ => Ok(()),
     }
 }
@@ -307,22 +310,26 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
         TaskStatus::Review,
         TaskStatus::Done,
     ];
+
     loop {
         terminal.draw(|frame| {
-            draw_ui::<CrosstermBackend<std::io::Stdout>>(frame, manager, &state, &statuses)
+            draw_input_popup(frame, &state);
         })?;
 
-        // Handle user input
         if event::poll(std::time::Duration::from_millis(200))? {
             if let Event::Key(key) = event::read()? {
                 if state.input_mode {
-                    handle_input_event(key.code, &mut state, manager);
+                    handle_input_event(key.code, &mut state, manager)?;
                 } else {
-                    handle_nav_input_event(key.code, &mut state, manager, &statuses);
+                    if let Err(_) = handle_nav_input_event(key.code, &mut state, manager, &statuses)
+                    {
+                        break;
+                    }
                 }
             }
         }
     }
+    Ok(())
 }
 
 fn next_status(current: &TaskStatus) -> TaskStatus {
