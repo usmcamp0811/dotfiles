@@ -31,6 +31,7 @@ in pkgs.mkShell {
     stdenv.cc.cc.lib
     cudatoolkit
     poetry
+    dioxus-cli
   ];
   propagatedBuildInputs = with pkgs; [ python3Packages.pip ];
   shellHook = ''
