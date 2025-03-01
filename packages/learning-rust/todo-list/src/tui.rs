@@ -139,16 +139,14 @@ fn draw_input_popup(frame: &mut ratatui::Frame, state: &UIState) {
         ])
         .split(frame.area());
 
-    // Clear the area before rendering (prevents transparency)
-    frame.render_widget(Clear, area[1]);
-    frame.render_widget(Clear, area[2]);
-
-    let block = Block::default()
+    // Ensure the input popup has a background
+    let popup_block = Block::default()
         .title("New Task")
         .borders(Borders::ALL)
-        .style(Style::default().bg(Color::Black)); // Add a background color
+        .style(Style::default().bg(Color::Black));
 
-    frame.render_widget(block, area[1]);
+    frame.render_widget(Clear, area[1]);
+    frame.render_widget(popup_block, area[1]);
 
     let title_style = if state.current_field == 0 {
         Style::default().fg(Color::White).bg(Color::Blue)
@@ -313,7 +311,11 @@ fn app_loop<B: Backend>(terminal: &mut Terminal<B>, manager: &mut TaskManager) -
 
     loop {
         terminal.draw(|frame| {
-            draw_input_popup(frame, &state);
+            if state.input_mode {
+                draw_input_popup(frame, &state);
+            } else {
+                draw_ui::<B>(frame, manager, &state, &statuses);
+            }
         })?;
 
         if event::poll(std::time::Duration::from_millis(200))? {
