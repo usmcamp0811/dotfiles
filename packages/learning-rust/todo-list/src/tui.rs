@@ -14,7 +14,6 @@ use ratatui::{
     Terminal,
 };
 use std::io;
-use uuid::Uuid;
 
 struct UIState {
     selected_column: usize,

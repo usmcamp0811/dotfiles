@@ -18,6 +18,7 @@ in {
       dioxus-cli
       wasm-bindgen-cli
       lld
+      rustlings
     ];
   };
 }
