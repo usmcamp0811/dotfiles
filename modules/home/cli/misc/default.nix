@@ -22,6 +22,8 @@ in {
 
     };
     home.packages = with pkgs; [
+      ripgrep-all
+      ripgrep
       fzf
       killall
       unzip
