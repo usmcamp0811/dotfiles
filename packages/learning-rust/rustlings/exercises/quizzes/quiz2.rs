@@ -33,11 +33,11 @@ mod my_module {
         for (x, y) in input {
             match y {
                 Command::Uppercase => output.push(x.to_owned().to_uppercase()),
-                Command::Trim => output.push(x.to_owned().trim()),
-                Command::Append(i) => output.push(x.to_owned().push(i)),
+                Command::Trim => output.push(x.trim().to_string()),
+                Command::Append(i) => output.push(format!("{}{}", x, "bar".repeat(i))),
             }
         }
-        return output;
+        output
     }
 }
 
