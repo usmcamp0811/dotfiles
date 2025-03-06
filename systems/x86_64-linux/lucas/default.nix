@@ -53,6 +53,21 @@ with lib.campground; {
     hardware = { nvidia = enabled; };
     services = {
       netbird.client.enable = true;
+      haproxy = {
+        enable = true;
+        frontend-ip = "10.8.0.88";
+        frontend-port = "6443"; # Kubernetes API server port
+        defaults = {
+          mode = "tcp";
+          "timeout connect" = "5s";
+          "timeout client" = "50s";
+          "timeout server" = "50s";
+        };
+        backendServers = {
+          "lucas" = { port = 6443; };
+          "chesty" = { port = 6443; };
+        };
+      };
       vault = {
         enable = true;
         ui = true;
@@ -162,6 +177,11 @@ with lib.campground; {
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       campground-blog = enabled;
+      # kubernetes = {
+      #   enable = true;
+      #   roles = [ "master" "node" ];
+      #
+      # };
       searx = {
         enable = true;
         port = 3249;
