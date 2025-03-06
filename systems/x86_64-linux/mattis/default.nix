@@ -49,7 +49,10 @@ in
 
     services = {
       # ldap-client = enabled;
-      label-studio = enabled;
+      label-studio = {
+        enable = true;
+        port = 19823;
+      };
       postgresql = {
         enable = true;
         enableTCPIP = true;
