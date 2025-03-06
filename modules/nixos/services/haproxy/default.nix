@@ -1,12 +1,8 @@
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.haproxy;
-in
-{
+with lib.campground;
+let cfg = config.campground.services.haproxy;
+in {
   options.campground.services.haproxy = with types; {
     enable = mkBoolOpt false "Enable HAProxy;";
     defaults = mkOption {
@@ -48,9 +44,9 @@ in
 
         defaults
           ${
-          lib.concatStringsSep "\n"
-          (lib.mapAttrsToList (name: value: "${name} ${value}") cfg.defaults)
-        }
+            lib.concatStringsSep "\n"
+            (lib.mapAttrsToList (name: value: "${name} ${value}") cfg.defaults)
+          }
 
         frontend http-in
           bind ${cfg.frontend-ip}:${cfg.frontend-port}
@@ -59,10 +55,10 @@ in
         backend servers
           balance roundrobin
           ${
-          lib.concatStringsSep "\n" (lib.mapAttrsToList
-            (name: value: "server ${name} ${name}:${value.port} check")
-            cfg.backendServers)
-        }
+            lib.concatStringsSep "\n" (lib.mapAttrsToList (name: value:
+              "server ${name} ${name}:${toString value.port} check")
+              cfg.backendServers)
+          }
       '';
     };
   };
