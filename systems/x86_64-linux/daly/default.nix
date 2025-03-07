@@ -16,18 +16,18 @@ with lib.campground; {
         enable = true;
         interface = "enp3s0f1";
       };
-      kafka = {
-        enable = true;
-        interface = "enp3s0f1";
-        zookeeper-id = 3;
-        ui-server = true;
-        servers = ''
-          server.1=chesty:2888:3888
-          server.2=webb:2888:3888
-          server.3=0.0.0.0:2888:3888
-          server.4=lucas:2888:3888
-        '';
-      };
+      # kafka = {
+      #   enable = true;
+      #   interface = "enp3s0f1";
+      #   zookeeper-id = 3;
+      #   ui-server = true;
+      #   servers = ''
+      #     server.1=chesty:2888:3888
+      #     server.2=webb:2888:3888
+      #     server.3=0.0.0.0:2888:3888
+      #     server.4=lucas:2888:3888
+      #   '';
+      # };
     };
     archetypes = {
       laptop = enabled;
