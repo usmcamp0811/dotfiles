@@ -1,3 +1,3 @@
 { pkgs, ... }:
 
-pkgs.testers ./test.nix
+pkgs.campground.ping-test.driverInteractive
