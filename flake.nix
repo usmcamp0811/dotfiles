@@ -307,6 +307,10 @@
           path = ./templates/new-azure-vm;
           description = "A template for a new azure vm";
         };
+        julia-project = {
+          path = ./templates/julia-project;
+          description = "An example of how to setup Julia Projects WIP";
+        };
       };
     };
 }
