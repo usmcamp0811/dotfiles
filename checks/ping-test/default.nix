@@ -1,1 +1,3 @@
-{ pkgs, ... }: { } # pkgs.testers.nixosTest ./test.nix
+{ pkgs, ... }:
+
+pkgs.callPackage ./test.nix { inherit pkgs; }
