@@ -1,12 +1,12 @@
 { lib, pkgs, ... }:
 
 let
-  version = "0.2.9";
+  version = "v0.2.9";
   src = pkgs.fetchFromGitHub {
     owner = "cxreiff";
     repo = "lifecycler";
     tag = version;
-    sha256 = "sha256-wZR49XC24xcXsbMoJAMF2GZj0ocNL1myGoEqa9B9FTQ=";
+    sha256 = "sha256-VYP3BfA9GdlnCf4F4h//NJG4FMoLG7OpPfZfeP2RFMM=";
   };
 
   lifecycler = pkgs.rustPlatform.buildRustPackage {
