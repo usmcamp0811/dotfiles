@@ -232,9 +232,10 @@ in
               middlewares = [ "cloudflarewarp" ];
             };
 
-            http.services.matt-camp = {
-              loadBalancer.servers = [{ url = "http://lucas:4356"; }];
-            };
+            http.services.matt-camp = generateServiceConfig "matt-camp-website";
+            # http.services.matt-camp = {
+            #   loadBalancer.servers = [{ url = "http://lucas:4356"; }];
+            # };
 
             http.services.aicampground = {
               loadBalancer.servers = [{ url = "http://lucas:4356"; }];
