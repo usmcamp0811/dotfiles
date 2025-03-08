@@ -24,6 +24,7 @@ in {
         git = enabled;
         misc = enabled;
         nix-output-monitor = enabled;
+        comma = enabled;
       };
 
       hardware = {
