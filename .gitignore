@@ -127,3 +127,4 @@ flake.lock
 /default.nix
 
 # Before adding new lines, see the comment at the top.
+packages/learning-rust/oci-interface/target
