@@ -1,10 +1,16 @@
-use oci_distribution::client::{Client, ClientConfig, Config, ImageLayer};
+use oci_distribution::client::{Client, ClientConfig, ClientProtocol, Config, ImageLayer};
 use oci_distribution::{secrets::RegistryAuth, Reference};
 use std::{collections::HashMap, error::Error, fs};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let mut client = Client::new(ClientConfig::default());
+    let mut client = Client::new(ClientConfig {
+        protocol: ClientProtocol::Http, // No `Some()`
+        accept_invalid_hostnames: false,
+        accept_invalid_certificates: false,
+        extra_root_certificates: vec![],
+        platform_resolver: None,
+    });
 
     let registry = "localhost:5000";
     let image_name = "test-artifact";
