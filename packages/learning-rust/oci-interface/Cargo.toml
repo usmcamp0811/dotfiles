@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 oci-distribution = "0.9"
 tokio = { version = "1", features = ["full"] }
+anyhow = "1"

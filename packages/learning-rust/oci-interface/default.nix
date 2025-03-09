@@ -8,9 +8,8 @@ let
     src = ./.;
 
     cargoLock = { lockFile = ./Cargo.lock; };
-
-    nativeBuildInputs = [ pkgs.pkg-config ];
-    buildInputs = [ ];
+    nativeBuildInputs = with pkgs; [ pkg-config ];
+    buildInputs = with pkgs; [ openssl ];
   };
 in
 oci-interface
