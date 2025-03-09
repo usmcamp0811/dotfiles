@@ -5,7 +5,7 @@ use std::{collections::HashMap, error::Error, fs};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let mut client = Client::new(ClientConfig {
-        protocol: ClientProtocol::Http, // No `Some()`
+        protocol: ClientProtocol::Http,
         accept_invalid_hostnames: false,
         accept_invalid_certificates: false,
         extra_root_certificates: vec![],
@@ -26,7 +26,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let file_path = "example.txt";
     fs::write(file_path, "Hello, OCI!")?; // Create the file if it doesn't exist
     let content = fs::read(file_path)?;
-
+    if content.is_empty() {
+        return Err("File is empty!".into());
+    }
     // Create an ImageLayer
     let layer = ImageLayer::new(
         content,
@@ -34,21 +36,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
         None,
     );
 
-    // Push artifact
-    println!("Pushing to OCI registry...");
+    use oci_distribution::client::Config;
+    use oci_distribution::manifest::OciImageManifest;
+
+    println!("Pushing to OCI registry!");
+
     client
         .push(
             &reference,
-            &[layer], // Image layers
+            &[layer.clone()],
             Config::new(
                 vec![],
                 "application/vnd.oci.image.config.v1+json".to_string(),
                 None,
             ), // Empty image config
             &RegistryAuth::Anonymous,
-            None,
+            Some(OciImageManifest::default()), // Provide a default manifest
         )
         .await?;
+
     println!("Pushed successfully!");
 
     // Fetch metadata
