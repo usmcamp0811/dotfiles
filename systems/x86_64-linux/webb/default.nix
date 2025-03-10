@@ -16,7 +16,8 @@ let
   #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
   #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
   # }) searxEnabledSystems;
-in {
+in
+{
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -94,14 +95,19 @@ in {
           api_addr = "http://webb:8200"
         '';
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ./vault/policies + "/${
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ./vault/policies)));
+              }")
+              (snowfall.fs.get-files ./vault/policies)));
       };
       remark42 = {
         enable = true;
@@ -178,10 +184,6 @@ in {
         ];
       };
       # collabora = enabled;
-      # keycloak = {
-      #   enable = true;
-      #   port = 43852;
-      # };
       attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
@@ -199,10 +201,6 @@ in {
         backupLocation = "/persist/mysqlBackups/";
       };
 
-      # photoprism = {
-      #   enable = true;
-      #   originalsPath = "/webb/media/photos";
-      # };
       immich = {
         enable = true;
         mediaLocation = "/webb/media/photos";
@@ -286,33 +284,6 @@ in {
           "host    all        all       ::/0 reject" # Reject all other IPv6 connections
         ];
       };
-      # wireguard = {
-      #   enable = true;
-      #   port = 1149;
-      #   interface-name = "campnet";
-      #   ips = [ "10.100.0.1/24" ];
-      #   fetchWireguardKeys = true;
-      #   # peers = [
-      #   #   {
-      #   #     # daly
-      #   #     publicKey = "qUnW//Iq8eq2D5dKMfsIa0zCewUSOSVaLtpO7AxWXAE=";
-      #   #     allowedIPs = [ "10.100.0.10/32" ];
-      #   #   }
-      #   #   {
-      #   #     # butler
-      #   #     publicKey = "Thdtm9iUmcZFgFMiJUm0T0EaBe/gvfmcBHrSi5Gvfm8=";
-      #   #     presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-      #   #     allowedIPs = [ "10.100.0.2/32" ];
-      #   #   }
-      #   #   {
-      #   #     # phone
-      #   #     publicKey = "cq5+lO9tjEom1pUuXtb9rfAfSN6DZxDZkKWdVQ6Cokw=";
-      #   #     presharedKeyFile = "/var/lib/wireguard/wg0-preshared-key";
-      #   #     allowedIPs = [ "10.100.0.3/32" ];
-      #   #   }
-      #
-      #   # ];
-      # };
       matomo = enabled;
       zfs-key-server = {
         enable = true;
