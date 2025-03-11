@@ -177,10 +177,7 @@
 
     nix-output-monitor.url = "github:maralorn/nix-output-monitor";
 
-    dataflow2nix = {
-      url = "github:dataflow2nix/std";
-      follows = "dataflow2nix/omnibusStd/std";
-    };
+    dataflow2nix.url = "github:GTrunSec/dataflow2nix";
 
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
