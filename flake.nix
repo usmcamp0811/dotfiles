@@ -212,7 +212,8 @@
           namespace = "campground";
         };
       };
-    in lib.mkFlake {
+    in
+    lib.mkFlake {
       channels-config = {
         allowUnfree = true;
         permittedInsecurePackages = [
@@ -241,7 +242,7 @@
         home-manager.nixosModules.home-manager
         # nix-ld.nixosModules.nix-ld
         vault-service.nixosModules.nixos-vault-service
-        dataflow2nix.nixosModules.airflow
+        # dataflow2nix.nixosModules.airflow
         nix-topology.nixosModules.default
         catppuccin.nixosModules.catppuccin
         flakeforge.nixosModules.flakeforge

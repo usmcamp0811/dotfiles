@@ -115,9 +115,7 @@ in
     services = {
       macos-vm = {
         enable = true;
-        extraQemuFlags = [
-          "-drive file=${config.services.macos-ventura.dataDir}/macos.qcow2,if=virtio,format=qcow2,size=250G"
-        ];
+        diskSizeBytes = 161061273600;
       };
       navidrome = enabled;
       matt-camp-website = enabled;
