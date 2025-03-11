@@ -113,7 +113,12 @@ in
     };
 
     services = {
-      macos-vm = enabled;
+      macos-vm = {
+        enable = true;
+        extraQemuFlags = [
+          "-drive file=${config.services.macos-ventura.dataDir}/macos.qcow2,if=virtio,format=qcow2,size=250G"
+        ];
+      };
       navidrome = enabled;
       matt-camp-website = enabled;
       cac = enabled;
