@@ -71,7 +71,6 @@ with lib.campground; {
       neovim = enabled;
     };
     services = {
-      # picom = enabled;
       openssh = enabled;
       syncthing = enabled;
     };
@@ -79,18 +78,11 @@ with lib.campground; {
     apps = {
       firefox = enabled;
       brave = enabled;
-      # libreoffice = enabled;
-      # alacritty = enabled;
-      # kitty = enabled;
-      # rofi = enabled;
       mpv = enabled;
-      #TODO: Add Qutebrowser
     };
     tools = {
       git = enabled;
       direnv = enabled;
-      # julia = enabled;
-      # python = enabled;
       vault = enabled;
     };
   };
