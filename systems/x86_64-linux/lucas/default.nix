@@ -54,9 +54,9 @@ with lib.campground; {
     services = {
       netbird.client.enable = true;
       haproxy = {
-        enable = true;
+        # enable = true;
         frontend-ip = "10.8.0.88";
-        frontend-port = "6443"; # Kubernetes API server port
+        frontend-port = "6443";
         defaults = {
           mode = "tcp";
           "timeout connect" = "5s";
@@ -65,7 +65,7 @@ with lib.campground; {
         };
         backendServers = {
           "lucas" = { port = 6443; };
-          "chesty" = { port = 6443; };
+          # "chesty" = { port = 6443; };
         };
       };
       vault = {
@@ -96,19 +96,14 @@ with lib.campground; {
           api_addr = "http://lucas:8200"
         '';
 
-        policies = builtins.foldl'
-          (policies: file:
-            policies // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ../daly/vault/policies + "/${
+        policies = builtins.foldl' (policies: file:
+          policies // {
+            "${snowfall.path.get-file-name-without-extension file}" = file;
+          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map (path:
+              ../daly/vault/policies + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }")
-              (snowfall.fs.get-files ../daly/vault/policies)));
+              }") (snowfall.fs.get-files ../daly/vault/policies)));
       };
       n8n = { enable = true; };
       chromadb = { enable = true; };
