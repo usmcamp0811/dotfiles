@@ -5,7 +5,7 @@ let
   cfg = config.campground.services.k0s;
   inherit (pkgs.campground) k0s;
   subcommand = if (cfg.role == "worker") then "worker" else "controller";
-  unitName = "k0s" + subcommand;
+  unitName = "k0s-" + subcommand;
   configFile =
     if cfg.configText != "" then
       pkgs.writeText "k0s.yaml" cfg.configText
