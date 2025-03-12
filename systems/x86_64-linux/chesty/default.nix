@@ -46,8 +46,6 @@ with lib.campground;
     archetypes = {
       server = {
         enable = true;
-        k8s = false;
-        role = "worker";
         hostId = "13ec383b";
       };
     };

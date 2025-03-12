@@ -35,8 +35,6 @@ in
       laptop = enabled;
       server = {
         enable = true;
-        k8s = false;
-        role = "worker";
         hostId = "5ae58e7a";
       };
     };

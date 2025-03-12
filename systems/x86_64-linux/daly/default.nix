@@ -33,8 +33,6 @@ with lib.campground; {
       laptop = enabled;
       server = {
         enable = true;
-        # k8s = true;
-        role = "controller";
         hostId = "65c8b2d7";
       };
     };
