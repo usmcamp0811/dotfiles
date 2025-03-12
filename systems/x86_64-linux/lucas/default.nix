@@ -52,14 +52,6 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
-      kubernetes = {
-        enable = true;
-        haMode = false; # No HA, single master
-        roles = [ "master" ];
-        kubeMasterHostname = "lucas"; # Change to your hostname
-        kubeMasterAPIServerPort = 6443;
-        kubeMasterIPs = [ "10.8.0.88" ]; # Change to the master node's actual IP
-      };
       keepalived = {
         enable = true;
         instances = {
@@ -85,7 +77,7 @@ with lib.campground; {
         };
         backendServers = {
           "lucas" = { port = 6443; };
-          # "chesty" = { port = 6443; };
+          "chesty" = { port = 6443; };
         };
       };
       vault = {

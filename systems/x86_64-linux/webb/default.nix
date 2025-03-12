@@ -57,8 +57,6 @@ in
     archetypes = {
       server = {
         enable = true;
-        k8s = false;
-        role = "worker";
         hostId = "119db424";
       };
     };
