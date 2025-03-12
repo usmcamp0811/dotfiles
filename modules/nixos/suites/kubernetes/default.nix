@@ -13,6 +13,7 @@ in {
         K8s role.
       '';
     };
+    interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
   };
 
   config = mkIf cfg.enable {
@@ -26,6 +27,34 @@ in {
         clusterName = "campground";
         isLeader = false; # Set this to true on the initial controller node
         dataDir = "/var/lib/k0s";
+      };
+      keepalived = {
+        enable = true;
+        instances = {
+          "k8s-proxy" = {
+            interface = cfg.interface;
+            ips = [ "10.8.0.88" ];
+            state = "MASTER";
+            priority = 50;
+            virtualRouterId = 52;
+          };
+        };
+      };
+      haproxy = {
+        enable = true;
+        frontend-ip = "0.0.0.0";
+        frontend-port = "6443";
+        defaults = {
+          mode = "tcp";
+          "timeout connect" = "5s";
+          "timeout client" = "50s";
+          "timeout server" = "50s";
+        };
+        # TODO: make function to get the host names
+        backendServers = {
+          "lucas" = { port = 6443; };
+          "daly" = { port = 6443; };
+        };
       };
     };
   };

@@ -43,33 +43,6 @@ with lib.campground; {
 
     services = {
 
-      keepalived = {
-        enable = true;
-        instances = {
-          "k8s-proxy" = {
-            interface = "eno1";
-            ips = [ "10.8.0.88" ];
-            state = "MASTER";
-            priority = 50;
-            virtualRouterId = 52;
-          };
-        };
-      };
-      haproxy = {
-        enable = true;
-        frontend-ip = "10.8.0.88";
-        frontend-port = "6443";
-        defaults = {
-          mode = "tcp";
-          "timeout connect" = "5s";
-          "timeout client" = "50s";
-          "timeout server" = "50s";
-        };
-        backendServers = {
-          "lucas" = { port = 6443; };
-          "chesty" = { port = 6443; };
-        };
-      };
       # lemmy = enabled;
       # lynis = enabled;
       # netbird.server = enabled;
