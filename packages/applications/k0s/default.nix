@@ -1,14 +1,14 @@
-{
-  lib,
-  writeText,
-  writeShellApplication,
-  substituteAll,
-  gum,
-  inputs,
-  pkgs,
-  hosts ? {},
-  ...
-}: let
+{ lib
+, writeText
+, writeShellApplication
+, substituteAll
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
+let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "k0s";
@@ -19,8 +19,8 @@
 
   # version = "1.28.5+k0s.0";
   # hash = "sha256-9XJAHnPeMGFpQwesVf5r3VKp8mLufbj9uBzltMIQVl4=";
-  version = "1.27.4+k0s.0";
-  hash = "sha256-JmaCRTMU3qsVu/AzyDHpSwv0j9NPxs11WiRbZYqAPHs=";
+  version = "1.32.2+k0s.0";
+  hash = "sha256-pMYqtOrjvDa/LPpDH56pkH7dMDQ+MltKmkJhCqfkPy8=";
   # version = "1.26.3+k0s.0";
   # hash = "sha256-JmaCRTMU3qsVu/AzyDHpSwv0j9NPxs11WiRbZYqAPHs=";
 
@@ -28,10 +28,11 @@
   k0s = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
     src = pkgs.fetchurl {
-      url = "https://github.com/${owner}/${repo}/releases/download/v${version}/${repo}-v${version}-amd64";
+      url =
+        "https://github.com/${owner}/${repo}/releases/download/v${version}/${repo}-v${version}-amd64";
       inherit hash;
     };
-    phases = ["installPhase"];
+    phases = [ "installPhase" ];
     installPhase = ''
       install -m 555 -D -- "$src" "$out"/bin/'${pname}'
     ''; # Shell completions could be added here.
@@ -40,7 +41,7 @@
   new-meta = with lib; {
     description = "k0s - The Zero Friction Kubernetes";
     license = licenses.asl20;
-    maintainers = with maintainers; [jakehamilton];
+    maintainers = with maintainers; [ jakehamilton ];
   };
 in
-  override-meta new-meta k0s
+override-meta new-meta k0s
