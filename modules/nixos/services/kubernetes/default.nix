@@ -67,39 +67,39 @@ in {
       kubelet.extraOpts = "--fail-swap-on=false";
     };
 
-    campground.services.vault-agent.services.k0scontroller = {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
-        };
-      };
-      secrets = {
-        file = {
-          files = {
-            "controller-token" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
-              permissions = "0600";
-              change-action = "restart";
-            };
-            "k0s.yaml" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
-              permissions = "0600";
-              change-action = "restart";
-            };
-          };
-        };
-      };
-    };
+    # campground.services.vault-agent.services.k0scontroller = {
+    #   settings = {
+    #     vault.address = cfg.vault-address;
+    #     auto_auth = {
+    #       method = [{
+    #         type = "approle";
+    #         config = {
+    #           role_id_file_path = cfg.role-id;
+    #           secret_id_file_path = cfg.secret-id;
+    #           remove_secret_id_file_after_reading = false;
+    #         };
+    #       }];
+    #     };
+    #   };
+    #   secrets = {
+    #     file = {
+    #       files = {
+    #         "controller-token" = {
+    #           text = ''
+    #             {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
+    #           permissions = "0600";
+    #           change-action = "restart";
+    #         };
+    #         "k0s.yaml" = {
+    #           text = ''
+    #             {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
+    #           permissions = "0600";
+    #           change-action = "restart";
+    #         };
+    #       };
+    #     };
+    #   };
+    # };
 
     # Enable HAProxy for HA mode
     campground.services.haproxy = mkIf cfg.haMode {
