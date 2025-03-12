@@ -13,6 +13,13 @@ in {
         K8s role.
       '';
     };
+    isLeader = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        The leader is used to generate the join tokens.
+      '';
+    };
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
   };
 
@@ -21,6 +28,7 @@ in {
       k0s = {
         enable = true;
         package = pkgs.campground.k0s;
+        isLeader = cfg.isLeader;
         role = cfg.role;
         apiAddress = "10.8.0.88";
         apiSans = [ "lucas" "daly" ];

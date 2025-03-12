@@ -29,6 +29,7 @@ with lib.campground; {
         enable = true;
         role = "controller";
         interface = "eno1";
+        isLeader = true;
       };
       public-hosting = {
         enable = true;
