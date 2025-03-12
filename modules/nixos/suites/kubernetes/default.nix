@@ -28,7 +28,7 @@ in {
         isLeader = false; # Set this to true on the initial controller node
         dataDir = "/var/lib/k0s";
       };
-      keepalived = {
+      keepalived = mkIf (cfg.role == "controller") {
         enable = true;
         instances = {
           "k8s-proxy" = {
@@ -40,7 +40,7 @@ in {
           };
         };
       };
-      haproxy = {
+      haproxy = mkIf (cfg.role == "controller") {
         enable = true;
         frontend-ip = "0.0.0.0";
         frontend-port = "6443";
