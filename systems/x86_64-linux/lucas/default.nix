@@ -52,9 +52,21 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      keepalived = {
+        enable = true;
+        instances = {
+          "k8s-proxy" = {
+            interface = "eno1";
+            ips = [ "10.8.0.88" ];
+            state = "MASTER";
+            priority = 50;
+            virtualRouterId = 52;
+          };
+        };
+      };
       netbird.client.enable = true;
       haproxy = {
-        # enable = true;
+        enable = true;
         frontend-ip = "10.8.0.88";
         frontend-port = "6443";
         defaults = {
