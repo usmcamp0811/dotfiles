@@ -22,8 +22,8 @@ in {
         enable = true;
         package = pkgs.campground.k0s;
         role = cfg.role;
-        apiAddress = "10.8.0.1";
-        apiSans = [ "lucas" "campnet" ];
+        apiAddress = "10.8.0.88";
+        apiSans = [ "lucas" "daly" ];
         clusterName = "campground";
         isLeader = false; # Set this to true on the initial controller node
         dataDir = "/var/lib/k0s";

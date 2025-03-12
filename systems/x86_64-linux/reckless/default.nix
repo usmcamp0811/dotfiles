@@ -51,6 +51,12 @@ in
         interface = "eno1";
         log-to-kafka = true;
       };
+      kubernetes = {
+        enable = true;
+        role = "controller";
+        interface = "enp3s0f1";
+      };
+      development = enabled;
     };
     desktop.addons.rkvm = {
       enableServer = true;
@@ -65,8 +71,6 @@ in
         hostId = "13ec383b";
       };
     };
-
-    suites = { development = enabled; };
 
     nix = {
       extra-substituters = {
