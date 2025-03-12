@@ -4,32 +4,36 @@ with lib.campground;
 let cfg = config.campground.services.kubernetes;
 in {
   options.campground.services.kubernetes = with types; {
-    enable = mkBoolOpt false "Enable k0scontroller;";
+    enable = mkBoolOpt false "Enable Kubernetes cluster.";
+    haMode = mkBoolOpt false "Enable high availability mode.";
     roles = mkOption {
-      type = types.listOf (types.enum [ "master" "node" ]);
-      default = "stable";
-      description = "What type of role?";
+      type = listOf (enum [ "master" "node" ]);
+      default = [ "node" ];
+      description = "The role of the node in the cluster.";
     };
     kubeMasterHostname =
-      mkOpt str "campnet" "The host name of the master node or your HA Proxy";
+      mkOpt str "haproxy" "The hostname of the HAProxy server.";
     kubeMasterAPIServerPort =
-      mkOpt int 6443 "The port your master node or your HA Proxy listens on";
-    kubeMasterIP =
-      mkOpt str "10.8.0.1" "The IP of the master node or your HA Proxy";
+      mkOpt int 6443 "The port HAProxy listens on for the Kubernetes API.";
+    kubeMasterIPs = mkOption {
+      type = listOf str;
+      default = [ "10.8.0.1" ];
+      description = "List of actual Kubernetes master node IPs.";
+    };
     apiserverAddress = mkOption {
-      type = lib.types.str;
-      default = "https://${toString cfg.kubeMasterHostname}:${
+      type = str;
+      default = "https://${cfg.kubeMasterHostname}:${
           toString cfg.kubeMasterAPIServerPort
         }";
-      description = "The API Server Address";
+      description = "The Kubernetes API server address.";
     };
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/kubernetes"
       "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
@@ -40,7 +44,7 @@ in {
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
-      description = "KV store version";
+      description = "KV store version.";
     };
   };
 
@@ -55,81 +59,59 @@ in {
       easyCerts = true;
       apiserver = {
         securePort = cfg.kubeMasterAPIServerPort;
-        advertiseAddress = cfg.kubeMasterIP;
+        advertiseAddress = builtins.elemAt cfg.kubeMasterIPs
+          0; # First master IP used for advertising
       };
       addons.dns.enable = true;
 
       kubelet.extraOpts = "--fail-swap-on=false";
     };
 
-    systemd.services.UploadK8sAPIToken = {
-      after = [ "kubernetes.service" ]; # Ensure it runs after Kubernetes
-      requires = [ "kubernetes.service" ];
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root"; # Run as root, adjust if necessary
+    campground.services.vault-agent.services.k0scontroller = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
       };
-      script = ''
-        # Define your configuration variables
-        roleID=$(cat ${cfg.role-id})
-        secretID=$(cat ${cfg.secret-id})
-        vaultPath=${cfg.vault-path}
-        vaultAddress=${cfg.vault-address}
-
-        # Export Vault address
-        export VAULT_ADDR=$vaultAddress
-
-        # Login to Vault using role-id and secret-id
-        ${pkgs.vault}/bin/vault login -method=approle role_id="$roleID" secret_id="$secretID"
-
-        # Path where you want to store your secrets in Vault
-        vaultKvPath="$vaultPath/apitoken"
-
-        # The file containing the secret you want to store
-        secretFile="/var/lib/kubernetes/secrets/apitoken.secret"
-
-        # Read the secret value
-        secretValue=$(cat $secretFile)
-
-        # Store the secret in Vault
-        ${pkgs.vault}/bin/vault kv put $vaultKvPath secret="$secretValue"
-
-        echo "Secret stored successfully in Vault at $vaultKvPath"
-      '';
+      secrets = {
+        file = {
+          files = {
+            "controller-token" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
+              permissions = "0600";
+              change-action = "restart";
+            };
+            "k0s.yaml" = {
+              text = ''
+                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
+              permissions = "0600";
+              change-action = "restart";
+            };
+          };
+        };
+      };
     };
 
-    # campground.services.vault-agent.services.k0scontroller = {
-    #   settings = {
-    #     vault.address = cfg.vault-address;
-    #     auto_auth = {
-    #       method = [{
-    #         type = "approle";
-    #         config = {
-    #           role_id_file_path = cfg.role-id;
-    #           secret_id_file_path = cfg.secret-id;
-    #           remove_secret_id_file_after_reading = false;
-    #         };
-    #       }];
-    #     };
-    #   };
-    #   secrets = {
-    #     file = {
-    #       files = {
-    #         "controller-token" = {
-    #           # text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
-    #           text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
-    #           permissions = "0600";  # Make the script executable
-    #           change-action = "restart";
-    #         };
-    #         "k0s.yaml" = {
-    #           text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k0s }}{{ else }}{{ .Data.data.k0s }}{{ end }}{{ end }}'';
-    #           permissions = "0600";  # Make the script executable
-    #           change-action = "restart";
-    #         };
-    #       };
-    #     };
-    #   };
-    # };
+    # Enable HAProxy for HA mode
+    campground.services.haproxy = mkIf cfg.haMode {
+      enable = true;
+      frontend-ip = "*";
+      frontend-port = toString cfg.kubeMasterAPIServerPort;
+      backendServers = builtins.listToAttrs (map
+        (ip: {
+          name = ip;
+          value = { port = cfg.kubeMasterAPIServerPort; };
+        })
+        cfg.kubeMasterIPs);
+    };
   };
 }
