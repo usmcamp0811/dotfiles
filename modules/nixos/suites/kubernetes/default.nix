@@ -18,7 +18,7 @@ in {
   config = mkIf cfg.enable {
     campground.services = {
       k0s = {
-        enable = cfg.k8s;
+        enable = true;
         package = pkgs.campground.k0s;
         role = cfg.role;
         apiAddress = "10.8.0.1";
