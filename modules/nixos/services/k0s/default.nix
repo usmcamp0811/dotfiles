@@ -199,7 +199,9 @@ in
           + optionalString (cfg.role != "worker") " --config=${configFile}"
           + optionalString (cfg.role == "single") " --single"
           + optionalString (cfg.role == "controller+worker") " --enable-worker"
-          + optionalString (cfg.role != "single" && !cfg.isLeader)
+          + optionalString
+            (cfg.role != "single" && !cfg.isLeader
+            && (builtins.pathExists cfg.tokenFile))
             " --token-file=${cfg.tokenFile}";
         Environment = "PATH=${pkgs.openiscsi}/bin:/run/wrappers/bin:$PATH";
       };
