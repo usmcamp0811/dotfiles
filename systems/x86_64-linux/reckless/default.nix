@@ -53,8 +53,8 @@ in
       };
       kubernetes = {
         enable = true;
-        role = "controller";
-        interface = "enp3s0f1";
+        role = "worker";
+        interface = "eno1";
       };
       development = enabled;
     };
