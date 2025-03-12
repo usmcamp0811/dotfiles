@@ -52,6 +52,14 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      kubernetes = {
+        enable = true;
+        haMode = false; # No HA, single master
+        roles = [ "master" ];
+        kubeMasterHostname = "lucas"; # Change to your hostname
+        kubeMasterAPIServerPort = 6443;
+        kubeMasterIPs = [ "10.8.0.88" ]; # Change to the master node's actual IP
+      };
       keepalived = {
         enable = true;
         instances = {
@@ -108,14 +116,19 @@ with lib.campground; {
           api_addr = "http://lucas:8200"
         '';
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ../daly/vault/policies + "/${
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ../daly/vault/policies)));
+              }")
+              (snowfall.fs.get-files ../daly/vault/policies)));
       };
       n8n = { enable = true; };
       chromadb = { enable = true; };
