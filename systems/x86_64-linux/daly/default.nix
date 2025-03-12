@@ -16,6 +16,11 @@ with lib.campground; {
         enable = true;
         interface = "enp3s0f1";
       };
+      kubernetes = {
+        enable = true;
+        role = "controller";
+        interface = "enp3s0f1";
+      };
       # kafka = {
       #   enable = true;
       #   interface = "enp3s0f1";
