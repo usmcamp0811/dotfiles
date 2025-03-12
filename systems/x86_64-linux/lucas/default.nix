@@ -16,8 +16,6 @@ with lib.campground; {
       workstation = enabled;
       server = {
         enable = true;
-        k8s = true;
-        role = "worker";
         hostId = "930864f0";
       };
     };
@@ -27,6 +25,10 @@ with lib.campground; {
       address = "reckless:5258";
     };
     suites = {
+      kubernetes = {
+        enable = true;
+        role = "controller";
+      };
       public-hosting = {
         enable = true;
         interface = "eno1";
@@ -189,11 +191,6 @@ with lib.campground; {
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       campground-blog = enabled;
-      # kubernetes = {
-      #   enable = true;
-      #   roles = [ "master" "node" ];
-      #
-      # };
       searx = {
         enable = true;
         port = 3249;
