@@ -178,7 +178,8 @@ in
       };
       wantedBy = [ "${unitName}.service" ];
       script = ''
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token /var/lib/k0s/k0s-token
+        mkdir -p ${cfg.dataDir}
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
       '';
     };
     environment.etc."k0s/k0s.yaml".source = configFile;
