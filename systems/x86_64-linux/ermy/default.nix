@@ -27,6 +27,11 @@ in
     suites = {
       common = enabled;
       desktop.enable = mkForce false;
+      kubernetes = {
+        enable = true;
+        role = "controller";
+        interface = "enp7s0";
+      };
       lan-hosting = {
         enable = true;
         interface = "enp7s0";

@@ -61,6 +61,7 @@ in {
         backendServers = {
           "lucas" = { port = 6443; };
           "daly" = { port = 6443; };
+          "ermy" = { port = 6443; };
         };
       };
     };

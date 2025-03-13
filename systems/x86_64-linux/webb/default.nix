@@ -34,6 +34,11 @@ in
         interface = "eno1";
         log-to-kafka = true;
       };
+      kubernetes = {
+        enable = true;
+        role = "worker";
+        interface = "eno1";
+      };
       observability = {
         enable = true;
         loki = true;
