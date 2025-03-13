@@ -170,6 +170,7 @@ in {
       cni-plugin-flannel
       calico-cni-plugin
       nfs-utils
+      campground.k0s
     ];
 
     environment.etc."k0s/k0s.yaml".source = configFile;

@@ -31,7 +31,7 @@ in {
         isLeader = cfg.isLeader;
         role = cfg.role;
         apiAddress = "10.8.0.88";
-        apiSans = [ "lucas" "daly" ];
+        apiSans = [ "lucas" "daly" "10.8.0.88" "k8s-controller" ];
         clusterName = "campground";
         dataDir = "/var/lib/k0s";
       };
@@ -42,8 +42,8 @@ in {
             interface = cfg.interface;
             ips = [ "10.8.0.88" ];
             state = "MASTER";
-            priority = 50;
-            virtualRouterId = 52;
+            priority = 35;
+            virtualRouterId = 59;
           };
         };
       };
