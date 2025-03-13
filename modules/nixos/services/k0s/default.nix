@@ -178,18 +178,19 @@ in
       campground.k0s
     ];
 
-    systemd.services.copyK0sToken = {
-      description = "Copy k0s-token to /var/lib/k0s";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
+    systemd.services.copyK0sToken =
+      mkIf (cfg.role != "single" && !cfg.isLeader) {
+        description = "Copy k0s-token to /var/lib/k0s";
+        serviceConfig = {
+          Type = "oneshot";
+          User = "root";
+        };
+        wantedBy = [ "${unitName}.service" ];
+        script = ''
+          mkdir -p ${cfg.dataDir}
+          ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
+        '';
       };
-      wantedBy = [ "${unitName}.service" ];
-      script = ''
-        mkdir -p ${cfg.dataDir}
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
-      '';
-    };
     environment.etc."k0s/k0s.yaml".source = configFile;
     systemd.services.${unitName} = {
       description = "k0s - Zero Friction Kubernetes";
