@@ -50,7 +50,7 @@ in {
       haproxy = mkIf (cfg.role == "controller") {
         enable = true;
         frontend-ip = "0.0.0.0";
-        frontend-port = "6443";
+        frontend-port = "8443";
         defaults = {
           mode = "tcp";
           "timeout connect" = "5s";
