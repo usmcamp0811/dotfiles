@@ -176,6 +176,8 @@ in
       calico-cni-plugin
       nfs-utils
       campground.k0s
+      bridge-utils # Ensure networking tools are installed
+      iproute2
     ];
 
     systemd.services.copyK0sToken =
