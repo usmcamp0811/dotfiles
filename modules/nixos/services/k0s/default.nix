@@ -39,25 +39,35 @@ let
           konnectivity:
             adminPort: 8133
             agentPort: 8132
-
           network:
+            clusterDomain: cluster.local
+            dualStack:
+              enabled: false
             kubeProxy:
+              iptables:
+                minSyncPeriod: 0s
+                syncPeriod: 0s
+              ipvs:
+                minSyncPeriod: 0s
+                syncPeriod: 0s
+                tcpFinTimeout: 0s
+                tcpTimeout: 0s
+                udpTimeout: 0s
+              metricsBindAddress: 0.0.0.0:10249
               mode: iptables
             kuberouter:
               autoMTU: true
-              mtu: 0
-              peerRouterASNs: ""
-              peerRouterIPs: ""
+              hairpin: Enabled
+              metricsPort: 8080
+            nodeLocalLoadBalancing:
+              enabled: false
+              envoyProxy:
+                apiServerBindPort: 7443
+                konnectivityServerBindPort: 7132
+              type: EnvoyProxy
             podCIDR: 10.244.0.0/16
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
-            calico:
-              mode: "vxlan"  # Or "bird" for BGP mode
-              vxlanMode: "Always"
-              mtu: 1450
-              ipAutoDetectionMethod: "can-reach=8.8.8.8"
-              typha:
-                enabled: false
           podSecurityPolicy:
             defaultPolicy: 00-k0s-privileged
           storage:
