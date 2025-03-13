@@ -109,11 +109,6 @@ in
       default = "/var/lib/k0s";
     };
 
-    tokenFile = mkOption {
-      type = types.path;
-      default = "/tmp/detsys-vault/k0s-token";
-    };
-
     configText = mkOption {
       default = "";
       type = types.str;
