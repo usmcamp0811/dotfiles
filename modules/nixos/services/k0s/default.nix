@@ -40,27 +40,13 @@ let
             adminPort: 8133
             agentPort: 8132
           network:
-            clusterDomain: cluster.local
-            provider: flannel
-            podCIDR: 10.244.0.0/16
-            serviceCIDR: 10.96.0.0/12
-            flannel:
-              backend: vxlan
             kubeProxy:
-              disabled: false
-              mode: ipvs
-            dualStack:
-              enabled: false
+              mode: iptables
             kuberouter:
               autoMTU: true
-              hairpin: Enabled
-              metricsPort: 8429
-            nodeLocalLoadBalancing:
-              enabled: false
-              envoyProxy:
-                apiServerBindPort: 7443
-                konnectivityServerBindPort: 7132
-              type: EnvoyProxy
+              mtu: 0
+              peerRouterASNs: ""
+              peerRouterIPs: ""
             podCIDR: 10.244.0.0/16
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
