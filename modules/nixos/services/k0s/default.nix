@@ -58,7 +58,7 @@ let
             kuberouter:
               autoMTU: true
               hairpin: Enabled
-              metricsPort: 8080
+              metricsPort: 8429
             nodeLocalLoadBalancing:
               enabled: false
               envoyProxy:
