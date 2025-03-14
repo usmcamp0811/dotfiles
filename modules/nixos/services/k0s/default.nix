@@ -29,20 +29,6 @@ let
             storage:
               create_default_storage_class: true
               type: openebs_local_storage
-            helm:
-              repositories:
-              - name: stable
-                url: https://charts.helm.sh/stable
-              - name: prometheus-community
-                url: https://prometheus-community.github.io/helm-charts
-              charts:
-              - name: prometheus-stack
-                chartname: prometheus-community/prometheus
-                version: "11.16.8"
-                values: |
-                  storageSpec:
-                    emptyDir:
-                      medium: Memory
         namespace: default
           installConfig:
             users:
