@@ -179,11 +179,10 @@ in
     };
   };
   config = mkIf cfg.enable {
+
     environment.systemPackages = with pkgs; [
       openiscsi
       cni-plugins
-      cni-plugin-flannel
-      calico-cni-plugin
       nfs-utils
       campground.k0s
       bridge-utils # Ensure networking tools are installed
