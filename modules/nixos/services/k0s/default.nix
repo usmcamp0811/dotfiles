@@ -165,7 +165,7 @@ in
 
     environment.systemPackages = with pkgs; [
       openiscsi
-      # cni-plugins
+      cni-plugins
       nfs-utils
       campground.k0s
       cni-plugin-flannel
