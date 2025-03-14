@@ -41,20 +41,11 @@ let
             agentPort: 8132
           network:
             clusterDomain: cluster.local
+            kubeProxy:
+              disabled: false
+              mode: ipvs
             dualStack:
               enabled: false
-            kubeProxy:
-              iptables:
-                minSyncPeriod: 0s
-                syncPeriod: 0s
-              ipvs:
-                minSyncPeriod: 0s
-                syncPeriod: 0s
-                tcpFinTimeout: 0s
-                tcpTimeout: 0s
-                udpTimeout: 0s
-              metricsBindAddress: 0.0.0.0:10249
-              mode: iptables
             kuberouter:
               autoMTU: true
               hairpin: Enabled
