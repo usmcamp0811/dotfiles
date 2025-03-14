@@ -195,8 +195,9 @@ in
         serviceConfig = {
           Type = "oneshot";
           User = "root";
+          before = [ "${unitName}.service" ];
         };
-        wantedBy = [ "${unitName}.service" ];
+        wantedBy = [ "${unitName}.service" "multi-user.target" ];
         script = ''
           mkdir -p ${cfg.dataDir}
           ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
