@@ -41,6 +41,11 @@ let
             agentPort: 8132
           network:
             clusterDomain: cluster.local
+            provider: flannel
+            podCIDR: 10.244.0.0/16
+            serviceCIDR: 10.96.0.0/12
+            flannel:
+              backend: vxlan
             kubeProxy:
               disabled: false
               mode: ipvs
@@ -176,6 +181,7 @@ in
       cni-plugins
       nfs-utils
       campground.k0s
+      cni-plugin-flannel
       bridge-utils # Ensure networking tools are installed
       iproute2
     ];
