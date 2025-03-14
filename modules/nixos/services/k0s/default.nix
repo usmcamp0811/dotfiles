@@ -188,6 +188,7 @@ in
           ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
         '';
       };
+
     environment.etc."k0s/k0s.yaml".source = configFile;
     systemd.services.${unitName} = {
       description = "k0s - Zero Friction Kubernetes";
