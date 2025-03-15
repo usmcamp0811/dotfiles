@@ -29,7 +29,6 @@ let
             storage:
               create_default_storage_class: true
               type: openebs_local_storage
-        namespace: default
           installConfig:
             users:
               etcdUser: ${cfg.users.etcdUser}
@@ -43,8 +42,11 @@ let
           network:
             kubeProxy:
               mode: iptables
-            flannel:
-              backend: vxlan
+            kuberouter:
+              autoMTU: true
+              mtu: 0
+              peerRouterASNs: ""
+              peerRouterIPs: ""
             podCIDR: 10.244.0.0/16
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
