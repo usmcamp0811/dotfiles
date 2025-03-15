@@ -234,19 +234,55 @@ in
       };
     };
 
-    users.users = concatMapAttrs
-      (_name: value:
-        if _name == "etcd" then
-          { } # Exclude etcd to prevent conflict
-        else {
-          "${value}" = {
-            isSystemUser = true;
-            group = mkDefault _name;
-            home = "${cfg.dataDir}";
-          };
-        })
-      cfg.users;
+    # users.users = concatMapAttrs
+    #   (_name: value:
+    #     if _name == "etcd" then
+    #       { } # Exclude etcd to prevent conflict
+    #     else {
+    #       "${value}" = {
+    #         isSystemUser = true;
+    #         group = mkDefault _name;
+    #         home = "${cfg.dataDir}";
+    #       };
+    #     })
+    #   cfg.users;
 
+    users.users = {
+      etcd = {
+        isSystemUser = true;
+        group = "etcd";
+        home = "/var/lib/etcd";
+        description = "etcd system user";
+      };
+
+      kube-apiserver = {
+        isSystemUser = true;
+        group = "kube-apiserver";
+        home = "/var/lib/k0s";
+        description = "Kubernetes API server user";
+      };
+
+      konnectivity-server = {
+        isSystemUser = true;
+        group = "konnectivity-server";
+        home = "/var/lib/k0s";
+        description = "Konnectivity server user";
+      };
+
+      kube-scheduler = {
+        isSystemUser = true;
+        group = "kube-scheduler";
+        home = "/var/lib/k0s";
+        description = "Kubernetes scheduler user";
+      };
+    };
+
+    users.groups = {
+      etcd = { };
+      kube-apiserver = { };
+      konnectivity-server = { };
+      kube-scheduler = { };
+    };
     campground.services.vault-agent.services.copyK0sToken =
       mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
