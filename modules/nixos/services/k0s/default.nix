@@ -29,6 +29,7 @@ let
             storage:
               create_default_storage_class: true
               type: openebs_local_storage
+        namespace: default
           installConfig:
             users:
               etcdUser: ${cfg.users.etcdUser}
@@ -40,7 +41,8 @@ let
             adminPort: 8133
             agentPort: 8132
           network:
-            provider: flannel
+            kubeProxy:
+              mode: iptables
             flannel:
               backend: vxlan
             podCIDR: 10.244.0.0/16
@@ -53,7 +55,6 @@ let
           telemetry:
             enabled: true
       '';
-
 in
 {
   options.campground.services.k0s = {
@@ -82,13 +83,6 @@ in
       type = types.listOf types.str;
       description = ''
         Required. List of additional addresses to push to API servers serving the certificate.
-      '';
-    };
-    network = mkOption {
-      type = types.str;
-      default = "10.244.0.0/16";
-      description = ''
-        The network for flannel and things.
       '';
     };
 
@@ -166,18 +160,14 @@ in
   };
   config = mkIf cfg.enable {
 
-    services.flannel = {
-      enable = true;
-      network = cfg.network;
-    };
     environment.systemPackages = with pkgs; [
       openiscsi
-      cni-plugins
+      # cni-plugins
       nfs-utils
       campground.k0s
       cni-plugin-flannel
-      bridge-utils # Ensure networking tools are installed
-      iproute2
+      # bridge-utils # Ensure networking tools are installed
+      # iproute2
     ];
 
     systemd.services.copyK0sToken =
@@ -194,18 +184,11 @@ in
           ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
         '';
       };
-
     environment.etc."k0s/k0s.yaml".source = configFile;
     systemd.services.${unitName} = {
       description = "k0s - Zero Friction Kubernetes";
       documentation = [ "https://docs.k0sproject.io" ];
-      path = with pkgs; [
-        kmod
-        util-linux
-        mount
-        cni-plugin-flannel
-        cni-plugins
-      ];
+      path = with pkgs; [ kmod util-linux mount ];
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
@@ -237,57 +220,15 @@ in
       };
     };
 
-    # users.users = concatMapAttrs
-    #   (_name: value:
-    #     if _name == "etcd" then
-    #       { } # Exclude etcd to prevent conflict
-    #     else {
-    #       "${value}" = {
-    #         isSystemUser = true;
-    #         group = mkDefault _name;
-    #         home = "${cfg.dataDir}";
-    #       };
-    #     })
-    #   cfg.users;
-
-    users.users = {
-
-      etcd = {
-        isSystemUser = true;
-        group = "etcd";
-        home = "/var/lib/etcd";
-        description =
-          lib.mkDefault "Etcd daemon user"; # Uses default if already defined
-      };
-
-      kube-apiserver = {
-        isSystemUser = true;
-        group = "kube-apiserver";
-        home = "/var/lib/k0s";
-        description = "Kubernetes API server user";
-      };
-
-      konnectivity-server = {
-        isSystemUser = true;
-        group = "konnectivity-server";
-        home = "/var/lib/k0s";
-        description = "Konnectivity server user";
-      };
-
-      kube-scheduler = {
-        isSystemUser = true;
-        group = "kube-scheduler";
-        home = "/var/lib/k0s";
-        description = "Kubernetes scheduler user";
-      };
-    };
-
-    users.groups = {
-      etcd = { };
-      kube-apiserver = { };
-      konnectivity-server = { };
-      kube-scheduler = { };
-    };
+    users.users = concatMapAttrs
+      (_name: value: {
+        ${value} = {
+          isSystemUser = true;
+          group = "users";
+          home = "${cfg.dataDir}";
+        };
+      })
+      cfg.users;
     campground.services.vault-agent.services.copyK0sToken =
       mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
