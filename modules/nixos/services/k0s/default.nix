@@ -45,7 +45,7 @@ let
               mtu: 0
               peerRouterASNs: ""
               peerRouterIPs: ""
-            podCIDR: 10.244.0.0/16
+            podCIDR: ${cfg.network}
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
           podSecurityPolicy:
@@ -83,6 +83,13 @@ in
       type = types.listOf types.str;
       description = ''
         Required. List of additional addresses to push to API servers serving the certificate.
+      '';
+    };
+    network = mkOption {
+      type = types.str;
+      default = "10.244.0.0/16";
+      description = ''
+        The network for flannel and things.
       '';
     };
 
@@ -162,7 +169,7 @@ in
 
     services.flannel = {
       enable = true;
-      network = "10.244.0.0/16"; # Ensure this matches podCIDR in k0s config
+      network = cfg.network;
     };
     environment.systemPackages = with pkgs; [
       openiscsi
