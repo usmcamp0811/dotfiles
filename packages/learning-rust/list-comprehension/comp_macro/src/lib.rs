@@ -33,8 +33,7 @@ impl ToTokens for Comprehension {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let all_for_if_clauses =
             std::iter::once(&self.for_if_clause).chain(&self.additional_for_if_clauses);
-        let mut innermost_to_outermost: Vec<_> = all_for_if_clauses.collect();
-        innermost_to_outermost.reverse();
+        let mut innermost_to_outermost = all_for_if_clauses.rev();
 
         let mut output = {
             // innermost is a special case--here we do the mapping
@@ -58,7 +57,7 @@ impl ToTokens for Comprehension {
 
         // Now we walk through the rest of the ForIfClauses, wrapping the current `output` in a new layer of iteration each time.
         // We also add an extra call to '.flatten()'.
-        output = innermost_to_outermost.into_iter(output, |current_output, next_layer| {
+        output = innermost_to_outermost.fold(output, |current_output, next_layer| {
             let ForIfClause {
                 pattern,
                 sequence,
@@ -80,7 +79,7 @@ struct Mapping(Expr);
 
 impl Parse for Mapping {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        Ok(Self(input.parse()?))
+        input.parse().map(Self)
     }
 }
 
