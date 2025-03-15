@@ -36,20 +36,20 @@ with lib.campground; {
         interface = "eno1";
         log-to-kafka = true;
       };
-      kafka = {
-        enable = true;
-        ui-server = true;
-        ui-bootstrap-server = "lucas:9092";
-        zookeeper-id = 4;
-        connect-server = true;
-        schema-server = true;
-        servers = ''
-          server.1=chesty:2888:3888
-          server.2=webb:2888:3888
-          server.3=daly:2888:3888
-          server.4=0.0.0.0:2888:3888
-        '';
-      };
+      # kafka = {
+      #   enable = true;
+      #   ui-server = true;
+      #   ui-bootstrap-server = "lucas:9092";
+      #   zookeeper-id = 4;
+      #   connect-server = true;
+      #   schema-server = true;
+      #   servers = ''
+      #     server.1=chesty:2888:3888
+      #     server.2=webb:2888:3888
+      #     server.3=daly:2888:3888
+      #     server.4=0.0.0.0:2888:3888
+      #   '';
+      # };
     };
     nfs.client.enable = true;
     tools.attic = enabled;
