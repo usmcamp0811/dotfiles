@@ -248,11 +248,13 @@ in
     #   cfg.users;
 
     users.users = {
-      etcd = {
+
+      users.users.etcd = {
         isSystemUser = true;
         group = "etcd";
         home = "/var/lib/etcd";
-        description = "etcd system user";
+        description =
+          lib.mkDefault "Etcd daemon user"; # Uses default if already defined
       };
 
       kube-apiserver = {
