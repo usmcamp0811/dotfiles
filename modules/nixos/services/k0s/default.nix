@@ -40,11 +40,9 @@ let
             adminPort: 8133
             agentPort: 8132
           network:
-            kuberouter:
-              autoMTU: true
-              mtu: 0
-              peerRouterASNs: ""
-              peerRouterIPs: ""
+            provider: flannel
+            flannel:
+              backend: vxlan
             podCIDR: 10.244.0.0/16
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
