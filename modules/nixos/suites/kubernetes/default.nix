@@ -24,7 +24,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    services.flannel.enable = true;
     campground.services = {
       k0s = {
         enable = true;

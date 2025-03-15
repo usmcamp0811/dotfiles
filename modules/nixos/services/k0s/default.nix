@@ -160,6 +160,10 @@ in
   };
   config = mkIf cfg.enable {
 
+    services.flannel = {
+      enable = true;
+      network = "10.244.0.0/16"; # Ensure this matches podCIDR in k0s config
+    };
     environment.systemPackages = with pkgs; [
       openiscsi
       cni-plugins
