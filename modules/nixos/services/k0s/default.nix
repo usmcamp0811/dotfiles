@@ -252,7 +252,7 @@ in
 
     users.users = {
 
-      users.users.etcd = {
+      etcd = {
         isSystemUser = true;
         group = "etcd";
         home = "/var/lib/etcd";
