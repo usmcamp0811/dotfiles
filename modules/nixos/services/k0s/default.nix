@@ -27,16 +27,8 @@ let
         }      - 127.0.0.1
           extensions:
             storage:
-              type: etcd
-              etcd:
-                peerAddress: ${cfg.apiAddress}
-                advertise-peer-urls:
-                  - "https://${cfg.apiAddress}:2380"
-                advertise-client-urls:
-                  - "https://0.0.0.0:2379"
-                extraArgs:
-                  listen-client-urls: "https://0.0.0.0:2379"
-                  listen-peer-urls: "https://${cfg.apiAddress}:2380"
+              create_default_storage_class: true
+              type: openebs_local_storage
           installConfig:
             users:
               etcdUser: ${cfg.users.etcdUser}
@@ -51,7 +43,7 @@ let
             flannel:
               backend: vxlan 
             kubeProxy:
-              mode: iptables
+              disabled: true
             podCIDR: ${cfg.network}
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
