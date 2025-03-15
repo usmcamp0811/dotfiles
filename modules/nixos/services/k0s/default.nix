@@ -40,11 +40,12 @@ let
             adminPort: 8133
             agentPort: 8132
           network:
-            flannel:
-              backend: vxlan 
-            kubeProxy:
-              disabled: true
-            podCIDR: ${cfg.network}
+            kuberouter:
+              autoMTU: true
+              mtu: 0
+              peerRouterASNs: ""
+              peerRouterIPs: ""
+            podCIDR: 10.244.0.0/16
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
           podSecurityPolicy:
@@ -54,6 +55,7 @@ let
           telemetry:
             enabled: true
       '';
+
 in
 {
   options.campground.services.k0s = {
