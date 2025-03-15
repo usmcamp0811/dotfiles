@@ -222,14 +222,18 @@ in
     };
 
     users.users = concatMapAttrs
-      (_name: value: {
-        ${value} = {
-          isSystemUser = true;
-          group = _name; # No `${}` needed here
-          home = "${cfg.dataDir}";
-        };
-      })
+      (_name: value:
+        if _name == "etcd" then
+          { } # Exclude etcd to prevent conflict
+        else {
+          "${value}" = {
+            isSystemUser = true;
+            group = mkDefault _name;
+            home = "${cfg.dataDir}";
+          };
+        })
       cfg.users;
+
     campground.services.vault-agent.services.copyK0sToken =
       mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
