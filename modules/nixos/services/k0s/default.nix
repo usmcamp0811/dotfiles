@@ -225,7 +225,7 @@ in
       (_name: value: {
         ${value} = {
           isSystemUser = true;
-          group = ${_name};
+          group = _name; # No `${}` needed here
           home = "${cfg.dataDir}";
         };
       })
