@@ -27,8 +27,16 @@ let
         }      - 127.0.0.1
           extensions:
             storage:
-              create_default_storage_class: true
-              type: openebs_local_storage
+              type: etcd
+              etcd:
+                peerAddress: ${cfg.apiAddress}
+                advertise-peer-urls:
+                  - "https://${cfg.apiAddress}:2380"
+                advertise-client-urls:
+                  - "https://0.0.0.0:2379"
+                extraArgs:
+                  listen-client-urls: "https://0.0.0.0:2379"
+                  listen-peer-urls: "https://${cfg.apiAddress}:2380"
           installConfig:
             users:
               etcdUser: ${cfg.users.etcdUser}
