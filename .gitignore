@@ -128,3 +128,5 @@ flake.lock
 
 # Before adding new lines, see the comment at the top.
 packages/learning-rust/oci-interface/target
+packages/learning-rust/list-comprehension/comp_macro/target
+packages/learning-rust/list-comprehension/target
