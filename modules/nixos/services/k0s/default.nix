@@ -43,7 +43,7 @@ let
             agentPort: 8132
           network:
             kubeProxy:
-              mode: iptables
+              mode: disabled
             kuberouter:
               autoMTU: true
               mtu: 0
