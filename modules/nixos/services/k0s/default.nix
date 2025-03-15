@@ -40,13 +40,10 @@ let
             adminPort: 8133
             agentPort: 8132
           network:
+            flannel:
+              backend: vxlan 
             kubeProxy:
               mode: iptables
-            kuberouter:
-              autoMTU: true
-              mtu: 0
-              peerRouterASNs: ""
-              peerRouterIPs: ""
             podCIDR: ${cfg.network}
             provider: kuberouter
             serviceCIDR: 10.96.0.0/12
