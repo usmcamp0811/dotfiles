@@ -40,8 +40,6 @@ let
             adminPort: 8133
             agentPort: 8132
           network:
-            kubeProxy:
-              mode: disabled
             kuberouter:
               autoMTU: true
               mtu: 0
