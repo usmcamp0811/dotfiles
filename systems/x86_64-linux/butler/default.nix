@@ -8,7 +8,8 @@ let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   imports = [ ./hardware.nix ];
   programs.adb.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -28,7 +29,7 @@ in {
       extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
-    stig = { enable = true; };
+    # stig = { enable = true; };
 
     apps = { steam = enabled; };
 
