@@ -1,4 +1,4 @@
-{ options, config, lib, pkgs, inputs, ... }:
+{ options, config, lib, pkgs, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.suites.kubernetes;
@@ -61,6 +61,11 @@ in {
         backendServers = lookupK0sControllers {
           nixosConfigurations = inputs.self.nixosConfigurations;
         };
+        # {
+        #   "lucas" = { port = 6443; };
+        #   "daly" = { port = 6443; };
+        #   "ermy" = { port = 6443; };
+        # };
       };
     };
   };
