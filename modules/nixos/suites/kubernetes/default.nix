@@ -1,8 +1,14 @@
 { options, config, lib, pkgs, inputs, ... }:
 with lib;
 with lib.campground;
-let cfg = config.campground.suites.kubernetes;
-in {
+let
+  cfg = config.campground.suites.kubernetes;
+  controllers = lookupK0sControllers {
+    nixosConfigurations = inputs.self.nixosConfigurations;
+  };
+
+in
+{
   options.campground.suites.kubernetes = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable kubernetes configuration.";
@@ -31,7 +37,8 @@ in {
         isLeader = cfg.isLeader;
         role = cfg.role;
         apiAddress = "10.8.0.88";
-        apiSans = [ "lucas" "daly" "10.8.0.88" "k8s-controller" ];
+        apiSans = [ "10.8.0.88" "k8s-controller" ]
+          ++ builtins.attrNames controllers;
         clusterName = "campground";
         dataDir = "/var/lib/k0s";
       };
@@ -57,9 +64,7 @@ in {
           "timeout client" = "50s";
           "timeout server" = "50s";
         };
-        backendServers = lookupK0sControllers {
-          nixosConfigurations = inputs.self.nixosConfigurations;
-        };
+        backendServers = controllers;
       };
     };
   };
