@@ -1,4 +1,4 @@
-{ options, config, lib, pkgs, ... }:
+{ options, config, lib, pkgs, inputs, ... }:
 with lib;
 with lib.campground;
 let cfg = config.campground.suites.kubernetes;
@@ -58,10 +58,8 @@ in {
           "timeout server" = "50s";
         };
         # TODO: make function to get the host names
-        backendServers = {
-          "lucas" = { port = 6443; };
-          "daly" = { port = 6443; };
-          "ermy" = { port = 6443; };
+        backendServers = lookupK0sControllers {
+          nixosConfigurations = inputs.self.nixosConfigurations;
         };
       };
     };
