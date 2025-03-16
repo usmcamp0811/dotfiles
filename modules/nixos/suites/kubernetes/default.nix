@@ -42,29 +42,32 @@ in
         clusterName = "campground";
         dataDir = "/var/lib/k0s";
       };
-      keepalived = mkIf (cfg.role == "controller") {
+
+      # Move HAProxy and Keepalived to worker nodes
+      keepalived = mkIf (cfg.role == "worker") {
         enable = true;
         instances = {
           "k8s-proxy" = {
             interface = cfg.interface;
-            ips = [ "10.8.0.88" ];
+            ips = [ "10.8.0.88" ]; # Virtual IP for HA
             state = "MASTER";
             priority = 35;
             virtualRouterId = 59;
           };
         };
       };
-      haproxy = mkIf (cfg.role == "controller") {
+
+      haproxy = mkIf (cfg.role == "worker") {
         enable = true;
         frontend-ip = "0.0.0.0";
-        frontend-port = "8443";
+        frontend-port = "6443"; # Match the k8s API port
         defaults = {
           mode = "tcp";
           "timeout connect" = "5s";
           "timeout client" = "50s";
           "timeout server" = "50s";
         };
-        backendServers = controllers;
+        backendServers = controllers; # Route API traffic to controllers
       };
     };
   };

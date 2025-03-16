@@ -172,12 +172,9 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       openiscsi
-      # cni-plugins
       nfs-utils
       campground.k0s
       cni-plugin-flannel
-      # bridge-utils # Ensure networking tools are installed
-      # iproute2
     ];
 
     systemd.services.copyK0sToken =
