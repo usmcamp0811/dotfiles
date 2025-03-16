@@ -57,15 +57,9 @@ in {
           "timeout client" = "50s";
           "timeout server" = "50s";
         };
-        # TODO: make function to get the host names
         backendServers = lookupK0sControllers {
           nixosConfigurations = inputs.self.nixosConfigurations;
         };
-        # {
-        #   "lucas" = { port = 6443; };
-        #   "daly" = { port = 6443; };
-        #   "ermy" = { port = 6443; };
-        # };
       };
     };
   };
