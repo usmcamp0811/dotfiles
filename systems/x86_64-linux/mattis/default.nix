@@ -29,6 +29,11 @@ in
         enable = true;
         interface = "enp0s20f0u1";
       };
+      kubernetes = {
+        enable = true;
+        role = "worker";
+        interface = "enp0s20f0u1";
+      };
     };
 
     archetypes = {
