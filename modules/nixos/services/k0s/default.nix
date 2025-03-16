@@ -225,6 +225,7 @@ in
 
           # Path where the Vault agent expects k0s-token
           VAULT_PATH="${cfg.vault-path}"
+          export VAULT_ADDR="${cfg.vault-address}"
 
           echo "Storing k0s tokens and kubeconfig in Vault..."
 
