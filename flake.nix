@@ -195,6 +195,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     funkwhale.url = "github:usmcamp0811/funkwhale-flake";
+
+    nixhelm.url = "github:farcaller/nixhelm";
+    kube-gen.url = "github:farcaller/nix-kube-generators";
   };
 
   outputs = inputs:
