@@ -57,17 +57,43 @@ in
         };
       };
 
-      haproxy = mkIf (cfg.role == "worker") {
+      haproxy = mkif (cfg.role == "worker") {
         enable = true;
-        frontend-ip = "0.0.0.0";
-        frontend-port = "6443"; # Match the k8s API port
         defaults = {
           mode = "tcp";
           "timeout connect" = "5s";
           "timeout client" = "50s";
           "timeout server" = "50s";
         };
-        backendServers = controllers; # Route API traffic to controllers
+        frontends = {
+          "k8s-api" = {
+            bind = [ "*:6443" ];
+            backend = "kube-masters";
+            options = [ "option tcplog" ];
+          };
+        };
+        backends = {
+          "kube-masters" = {
+            balance = "leastconn";
+            servers = {
+              "daly" = {
+                ip = "daly";
+                port = 6443;
+                options = [ "check" ];
+              };
+              "ermy" = {
+                ip = "ermy";
+                port = 6443;
+                options = [ "check" ];
+              };
+              "lucas" = {
+                ip = "lucas";
+                port = 6443;
+                options = [ "check" ];
+              };
+            };
+          };
+        };
       };
     };
   };
