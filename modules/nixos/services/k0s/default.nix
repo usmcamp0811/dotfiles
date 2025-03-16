@@ -229,7 +229,7 @@ in
           echo "Storing k0s tokens and kubeconfig in Vault..."
 
           # Write tokens and kubeconfig to Vault
-          ${pkgs.vault}/bin/vault kv put ${VAULT_PATH} \
+          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
             controller="$CONTROLLER_TOKEN" \
             worker="$WORKER_TOKEN" \
             admin_kubeconfig="$ADMIN_KUBECONFIG"
