@@ -203,6 +203,7 @@
   outputs = inputs:
     let
       inherit (inputs) deploy-rs;
+
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
