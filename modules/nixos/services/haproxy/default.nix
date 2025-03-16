@@ -6,15 +6,6 @@ in {
   options.campground.services.haproxy = with types; {
     enable = mkBoolOpt false "Enable HAProxy.";
 
-    globalSettings = mkOption {
-      type = attrsOf str;
-      default = {
-        "stats socket" =
-          "/run/haproxy/haproxy.sock mode 600 expose-fd listeners level user";
-      };
-      description = "Global HAProxy settings.";
-    };
-
     defaults = mkOption {
       type = attrsOf str;
       default = {
@@ -90,13 +81,6 @@ in {
     services.haproxy = {
       enable = true;
       config = ''
-        global
-          ${
-            lib.concatStringsSep "\n  "
-            (mapAttrsToList (name: value: "${name} ${value}")
-              cfg.globalSettings)
-          }
-
         defaults
           ${
             lib.concatStringsSep "\n  "
