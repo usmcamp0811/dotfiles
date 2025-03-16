@@ -1,6 +1,14 @@
 { lib, config, pkgs, ... }:
 with lib;
 with lib.campground;
+# Issues with Flannel when running this but this fixes it:
+# ╭─mcamp on lucas in ~
+# ╰─ kubectl delete ds -n kube-system kube-router
+#
+# daemonset.apps "kube-router" deleted
+# ╭─mcamp on lucas in ~
+# ╰─ kubectl rollout restart ds kube-flannel-ds -n kube-flannel
+# kubectl rollout restart ds kube-flannel-ds -n kube-flannel
 let
   cfg = config.campground.services.k0s;
   inherit (pkgs.campground) k0s;
@@ -161,7 +169,6 @@ in
     };
   };
   config = mkIf cfg.enable {
-
     environment.systemPackages = with pkgs; [
       openiscsi
       # cni-plugins
