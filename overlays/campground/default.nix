@@ -1,9 +1,18 @@
-{ campground-nvim, nixtheplanet, old-nixpkgs, channels, unstable, ... }:
+{ kube-gen
+, campground-nvim
+, nixhelm
+, nixtheplanet
+, old-nixpkgs
+, nixpkgs
+, channels
+, unstable
+, ...
+}:
 final: prev:
 {
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
   makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
-
+  nixhelm = nixhelm;
   neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
   wasm-bindgen-cli =
     unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;

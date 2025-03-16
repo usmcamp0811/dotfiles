@@ -18,4 +18,5 @@ with lib; rec {
           (builtins.attrNames nixosConfigurations)));
     in
     controllers;
+
 }
