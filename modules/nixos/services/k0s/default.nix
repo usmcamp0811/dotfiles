@@ -234,7 +234,7 @@ in
             worker="$WORKER_TOKEN" \
             admin_kubeconfig="$ADMIN_KUBECONFIG"
 
-          echo "Stored k0s tokens and kubeconfig in Vault at ${VAULT_PATH}"
+          echo "Stored k0s tokens and kubeconfig in Vault at $VAULT_PATH"
         '';
         RemainAfterExit = true;
       };
