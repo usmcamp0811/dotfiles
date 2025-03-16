@@ -199,7 +199,7 @@ in
       description = "Generate k0s join tokens and store in Vault";
       after =
         [ "${unitName}.service" "vault-agent.service" "network-online.target" ];
-      requires = [ "${unitName}.service" "vault-agent.service" ];
+      requires = [ "${unitName}.service" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
