@@ -14,6 +14,14 @@ path "secret/campground/data/*" {
   capabilities = ["read", "list"]
 }
 
+path "secret/campground/k0s" {
+  capabilities = ["create", "update", "read", "delete", "list"]
+}
+
+path "secret/campground/data/k0s" {
+  capabilities = ["create", "update", "read", "delete", "list"]
+}
+
 # TODO: Move all vpn policies to a seperate policy
 # Allow reading from the PKI secrets engine to issue server certificates
 path "campground-pki/issue/vpn-server-role" {
@@ -69,3 +77,4 @@ path "secret/data/*" {
 path "secret/data/campground/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
+
