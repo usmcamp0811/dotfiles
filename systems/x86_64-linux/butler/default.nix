@@ -31,6 +31,12 @@ in
     };
     # stig = { enable = true; };
 
+    suites = {
+      kubernetes = {
+        enable = true;
+        role = "worker";
+      };
+    };
     apps = { steam = enabled; };
 
     archetypes = {
