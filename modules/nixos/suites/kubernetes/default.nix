@@ -57,7 +57,7 @@ in
         };
       };
 
-      haproxy = mkif (cfg.role == "worker") {
+      haproxy = mkIf (cfg.role == "worker") {
         enable = true;
         defaults = {
           mode = "tcp";
