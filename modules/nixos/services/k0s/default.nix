@@ -57,7 +57,7 @@ let
               peerRouterIPs: ""
               metricsPort: 9090  
             podCIDR: 10.244.0.0/16
-            provider: flannel
+            provider: calico
             serviceCIDR: 10.96.0.0/12
           podSecurityPolicy:
             defaultPolicy: 00-k0s-privileged
