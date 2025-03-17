@@ -26,7 +26,7 @@ let
           name: ${cfg.clusterName}
         spec:
           api:
-            address: ${cfg.apiAddress}
+            externalAddress: ${cfg.apiAddress}
             k0sApiPort: 9443
             port: 6443
             sans:
