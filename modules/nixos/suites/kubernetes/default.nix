@@ -73,7 +73,7 @@ in
           "timeout server" = "50s";
         };
         frontends = {
-          "k8s-api" = {
+          "kubeAPI" = {
             bind = [ "*:6443" ];
             backend = "kube-masters";
             options = [ "option tcplog" ];
@@ -83,22 +83,22 @@ in
             backend = "konnectivity-masters";
             options = [ "option tcplog" ];
           };
-          "k0sApiPort" = {
+          "controllerJoinAPI" = {
             bind = [ "*:9443" ];
             backend = "k0s-masters";
             options = [ "option tcplog" ];
           };
         };
         backends = {
-          "kube-masters" = {
+          "kubeAPI_backend" = {
             balance = "leastconn";
             servers = controllers;
           };
-          "konnectivity-masters" = {
+          "konnectivity_backend" = {
             balance = "leastconn";
             servers = konnectivity;
           };
-          "k0s-masters" = {
+          "controllerJoinAPI_backend" = {
             balance = "leastconn";
             servers = k0scontrollers;
           };

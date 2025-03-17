@@ -12,7 +12,7 @@ with lib; rec {
           value = {
             ip = cfg.config.networking.hostName or host;
             inherit port;
-            options = [ "check" ];
+            options = [ "check" "check-ssl" "verify" "none" ];
           };
         } else
           null;
