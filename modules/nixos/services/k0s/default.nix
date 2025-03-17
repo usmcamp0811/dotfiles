@@ -27,7 +27,7 @@ let
         spec:
           api:
             address: ${cfg.apiAddress}
-            k0sApiPort: 6443
+            k0sApiPort: 9443
             port: 6443
             sans:
         ${
