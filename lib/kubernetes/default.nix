@@ -1,6 +1,6 @@
 { lib, ... }:
 with lib; rec {
-  lookupK0sControllers = { nixosConfigurations }:
+  lookupK0sControllers = { nixosConfigurations, port ? 6443 }:
     let
       getK0sController = host: cfg:
         let
@@ -11,7 +11,7 @@ with lib; rec {
           name = host;
           value = {
             ip = cfg.config.networking.hostName or host;
-            port = 6443;
+            inherit port;
             options = [ "check" ];
           };
         } else

@@ -6,6 +6,10 @@ let
   controllers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
   };
+  k0scontrollers = lookupK0sControllers {
+    nixosConfigurations = inputs.self.nixosConfigurations;
+    port = 9443;
+  };
 
 in
 {
@@ -71,11 +75,20 @@ in
             backend = "kube-masters";
             options = [ "option tcplog" ];
           };
+          "k0sApiPort" = {
+            bind = [ "*:9443" ];
+            backend = "kube-masters";
+            options = [ "option tcplog" ];
+          };
         };
         backends = {
           "kube-masters" = {
             balance = "leastconn";
             servers = controllers;
+          };
+          "k0s-masters" = {
+            balance = "leastconn";
+            servers = k0scontrollers;
           };
         };
       };
