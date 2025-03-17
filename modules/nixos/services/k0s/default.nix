@@ -185,12 +185,27 @@ in
           serviceConfig = {
             Type = "oneshot";
             User = "root";
-            Before = [ "${unitName}.service" ];
+            Before =
+              [ "${unitName}-controller.service" "${unitName}-worker.service" ];
           };
-          wantedBy = [ "${unitName}.service" "multi-user.target" ];
+          wantedBy = [
+            "${unitName}-controller.service"
+            "${unitName}-worker.service"
+            "multi-user.target"
+          ];
           script = ''
             mkdir -p ${cfg.dataDir}
-            ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
+
+            # Handle different roles
+            ${optionalString
+            (cfg.role == "controller" || cfg.role == "controller+worker") ''
+              ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token-controller
+            ''}
+
+            ${optionalString
+            (cfg.role == "worker" || cfg.role == "controller+worker") ''
+              ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token-worker
+            ''}
           '';
         };
       })
