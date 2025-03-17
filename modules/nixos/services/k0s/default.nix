@@ -180,7 +180,7 @@ in
     environment.etc."k0s/k0s.yaml".source = configFile;
     systemd.services = mkMerge [
       (mkIf (cfg.role != "single" && !cfg.isLeader) {
-        "${unitName}-copy-k0s-token" = {
+        "copy-k0s-token" = {
           description = "Copy k0s-token to /var/lib/k0s";
           serviceConfig = {
             Type = "oneshot";
@@ -331,7 +331,7 @@ in
         };
       })
       cfg.users;
-    campground.services.vault-agent.services.copyK0sToken =
+    campground.services.vault-agent.services.copy-k0s-token =
       mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
           vault.address = cfg.vault-address;
