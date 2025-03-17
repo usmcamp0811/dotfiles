@@ -34,7 +34,8 @@ in
     suites = {
       kubernetes = {
         enable = true;
-        role = "worker";
+        role = "controller+worker";
+        interface = "enp0s13f0u3";
       };
     };
     apps = { steam = enabled; };
