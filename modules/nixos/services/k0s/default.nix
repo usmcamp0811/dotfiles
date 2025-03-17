@@ -262,7 +262,7 @@ in
       })
 
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
-        "${unitName}-controller" = {
+        "${unitName}" = {
           description = "k0s Controller - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
@@ -292,7 +292,7 @@ in
       })
 
       (mkIf (cfg.role == "worker" || cfg.role == "controller+worker") {
-        "${unitName}-worker" = {
+        "${unitName}" = {
           description = "k0s Worker - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
