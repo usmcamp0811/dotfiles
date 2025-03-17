@@ -77,7 +77,7 @@ in
           };
           "k0sApiPort" = {
             bind = [ "*:9443" ];
-            backend = "kube-masters";
+            backend = "k0s-masters";
             options = [ "option tcplog" ];
           };
         };
