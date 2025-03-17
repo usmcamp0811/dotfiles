@@ -75,7 +75,7 @@ in
     package = mkPackageOption pkgs "k0s" { };
 
     role = mkOption {
-      type = types.enum [ "controller" "controller+worker" "worker" "single" ];
+      type = types.enum [ "controller" "controller_worker" "worker" "single" ];
       default = "single";
       description = ''
         The role of the node.
@@ -216,6 +216,7 @@ in
           # Generate k0s controller and worker tokens
           CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller)"
           WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker)"
+          CONTROLLER_WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller+worker)"
 
           echo "Fetching admin kubeconfig..."
           ADMIN_KUBECONFIG="$(${cfg.package}/bin/k0s kubeconfig admin)"
@@ -230,6 +231,7 @@ in
           ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
             controller="$CONTROLLER_TOKEN" \
             worker="$WORKER_TOKEN" \
+            controler_worker="$CONTROLLER_WORKER_TOKEN" \
             admin_kubeconfig="$ADMIN_KUBECONFIG"
 
           echo "Stored k0s tokens and kubeconfig in Vault at $VAULT_PATH"
@@ -264,7 +266,7 @@ in
           "${cfg.package}/bin/k0s ${subcommand} --data-dir=${cfg.dataDir}"
           + optionalString (cfg.role != "worker") " --config=${configFile}"
           + optionalString (cfg.role == "single") " --single"
-          + optionalString (cfg.role == "controller+worker")
+          + optionalString (cfg.role == "controller_worker")
             " --enable-worker --no-taints"
           + optionalString (cfg.role != "single" && !cfg.isLeader)
             " --token-file=/var/lib/k0s/k0s-token";
@@ -301,7 +303,7 @@ in
         secrets = {
           file = {
             files = {
-              "k0s-token" = {
+              "k0s-token-controller" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${cfg.role} }}{{ else }}{{ .Data.data.${cfg.role} }}{{ end }}{{ end }}'';
                 permissions = "0400"; # Make the script executable
