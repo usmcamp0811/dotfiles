@@ -4,15 +4,15 @@ with lib; rec {
     let
       getK0sController = host: cfg:
         let
-          enabled = cfg.config.campground.services.k0s.enable or false;
-          role = cfg.config.campground.services.k0s.role or null;
+          enabled = cfg.config.campground.suites.kubernetes.enable or false;
+          role = cfg.config.campground.suites.kubernetes.role or null;
         in
         if enabled && elem role [ "controller" "controller+worker" ] then {
           name = host;
           value = {
-            ip = host;
+            ip = cfg.config.networking.hostName or host;
             port = 6443;
-            option = [ "check" ];
+            options = [ "check" ];
           };
         } else
           null;
