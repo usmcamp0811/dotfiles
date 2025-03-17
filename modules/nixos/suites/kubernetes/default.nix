@@ -75,23 +75,7 @@ in
         backends = {
           "kube-masters" = {
             balance = "leastconn";
-            servers = {
-              "daly" = {
-                ip = "daly";
-                port = 6443;
-                options = [ "check" ];
-              };
-              "ermy" = {
-                ip = "ermy";
-                port = 6443;
-                options = [ "check" ];
-              };
-              "lucas" = {
-                ip = "lucas";
-                port = 6443;
-                options = [ "check" ];
-              };
-            };
+            servers = controllers;
           };
         };
       };

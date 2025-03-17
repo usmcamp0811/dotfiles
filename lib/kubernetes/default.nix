@@ -9,7 +9,11 @@ with lib; rec {
         in
         if enabled && elem role [ "controller" "controller+worker" ] then {
           name = host;
-          value = { port = 6443; };
+          value = {
+            ip = host;
+            port = 6443;
+            option = [ "check" ];
+          };
         } else
           null;
 
