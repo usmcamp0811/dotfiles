@@ -239,40 +239,67 @@ in
     };
 
     environment.etc."k0s/k0s.yaml".source = configFile;
-    systemd.services.${unitName} = {
-      description = "k0s - Zero Friction Kubernetes";
-      documentation = [ "https://docs.k0sproject.io" ];
-      path = with pkgs; [ kmod util-linux mount ];
-      after = [ "network-online.target" ];
-      wants = [ "network-online.target" ];
-      wantedBy = [ "multi-user.target" ];
-      startLimitIntervalSec = 5;
-      startLimitBurst = 10;
-      serviceConfig = {
-        RestartSec = 120;
-        Delegate = "yes";
-        KillMode = "process";
-        LimitCORE = "infinity";
-        TasksMax = "infinity";
-        TimeoutStartSec = 0;
-        LimitNOFILE = 999999;
-        Restart = "always";
-        # preStart = ''
-        #   cp ${cfg.tokenFile} /var/lib/k0s/k0s-token
-        # '';
-        ExecStart =
-          "${cfg.package}/bin/k0s ${subcommand} --data-dir=${cfg.dataDir}"
-          + optionalString (cfg.role != "worker") " --config=${configFile}"
-          + optionalString (cfg.role == "single") " --single"
-          + optionalString (cfg.role == "controller+worker")
-            " --enable-worker --no-taints"
-          + optionalString (cfg.role != "single" && !cfg.isLeader)
-            " --token-file=/var/lib/k0s/k0s-token";
-      };
-      unitConfig = mkIf (cfg.role != "single" && !cfg.isLeader) {
-        ConditionPathExists = "/var/lib/k0s/k0s-token";
-      };
-    };
+    systemd.services = mkMerge [
+      (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
+        "${unitName}-controller" = {
+          description = "k0s Controller - Zero Friction Kubernetes";
+          documentation = [ "https://docs.k0sproject.io" ];
+          path = with pkgs; [ kmod util-linux mount ];
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
+          wantedBy = [ "multi-user.target" ];
+          startLimitIntervalSec = 5;
+          startLimitBurst = 10;
+          serviceConfig = {
+            RestartSec = 120;
+            Delegate = "yes";
+            KillMode = "process";
+            LimitCORE = "infinity";
+            TasksMax = "infinity";
+            TimeoutStartSec = 0;
+            LimitNOFILE = 999999;
+            Restart = "always";
+            ExecStart =
+              "${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=${configFile}"
+              + optionalString (!cfg.isLeader)
+                " --token-file=/var/lib/k0s/k0s-token-controller";
+          };
+          unitConfig = mkIf (!cfg.isLeader) {
+            ConditionPathExists = "/var/lib/k0s/k0s-token-controller";
+          };
+        };
+      })
+
+      (mkIf (cfg.role == "worker" || cfg.role == "controller+worker") {
+        "${unitName}-worker" = {
+          description = "k0s Worker - Zero Friction Kubernetes";
+          documentation = [ "https://docs.k0sproject.io" ];
+          path = with pkgs; [ kmod util-linux mount ];
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
+          wantedBy = [ "multi-user.target" ];
+          startLimitIntervalSec = 5;
+          startLimitBurst = 10;
+          serviceConfig = {
+            RestartSec = 120;
+            Delegate = "yes";
+            KillMode = "process";
+            LimitCORE = "infinity";
+            TasksMax = "infinity";
+            TimeoutStartSec = 0;
+            LimitNOFILE = 999999;
+            Restart = "always";
+            ExecStart =
+              "${cfg.package}/bin/k0s worker --data-dir=${cfg.dataDir}"
+              + optionalString (!cfg.isLeader)
+                " --token-file=/var/lib/k0s/k0s-token-worker";
+          };
+          unitConfig = mkIf (!cfg.isLeader) {
+            ConditionPathExists = "/var/lib/k0s/k0s-token-worker";
+          };
+        };
+      })
+    ];
 
     users.users = concatMapAttrs
       (_name: value: {
@@ -301,12 +328,21 @@ in
         secrets = {
           file = {
             files = {
-              "k0s-token" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${cfg.role} }}{{ else }}{{ .Data.data.${cfg.role} }}{{ end }}{{ end }}'';
-                permissions = "0400"; # Make the script executable
-                change-action = "restart";
-              };
+              "k0s-token-controller" = mkIf
+                (cfg.role == "controller" || cfg.role == "controller+worker")
+                {
+                  text = ''
+                    {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
+                  permissions = "0400"; # Make the script executable
+                  change-action = "restart";
+                };
+              "k0s-token-worker" =
+                mkIf (cfg.role == "worker" || cfg.role == "controller+worker") {
+                  text = ''
+                    {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.worker }}{{ else }}{{ .Data.data.worker }}{{ end }}{{ end }}'';
+                  permissions = "0400"; # Make the script executable
+                  change-action = "restart";
+                };
             };
           };
         };
