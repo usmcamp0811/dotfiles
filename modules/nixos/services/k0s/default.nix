@@ -177,69 +177,75 @@ in
       cni-plugin-flannel
     ];
 
-    systemd.services.copyK0sToken =
-      mkIf (cfg.role != "single" && !cfg.isLeader) {
-        description = "Copy k0s-token to /var/lib/k0s";
-        serviceConfig = {
-          Type = "oneshot";
-          User = "root";
-          before = [ "${unitName}.service" ];
-        };
-        wantedBy = [ "${unitName}.service" "multi-user.target" ];
-        script = ''
-          mkdir -p ${cfg.dataDir}
-          ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
-        '';
-      };
-
-    systemd.services.k0s-store-tokens = mkIf cfg.isLeader {
-      description = "Generate k0s join tokens and store in Vault";
-      after =
-        [ "${unitName}.service" "vault-agent.service" "network-online.target" ];
-      requires = [ "${unitName}.service" ];
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = pkgs.writeShellScript "store-k0s-tokens" ''
-          set -e
-
-          echo "Waiting for k0s to be fully running..."
-
-          # Wait for k0s API to become available
-          until ${cfg.package}/bin/k0s status &>/dev/null; do
-            sleep 5
-          done
-
-          echo "k0s is up, generating join tokens..."
-
-          # Generate k0s controller and worker tokens
-          CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller)"
-          WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker)"
-
-          echo "Fetching admin kubeconfig..."
-          ADMIN_KUBECONFIG="$(${cfg.package}/bin/k0s kubeconfig admin)"
-
-          # Path where the Vault agent expects k0s-token
-          VAULT_PATH="${cfg.vault-path}"
-          export VAULT_ADDR="${cfg.vault-address}"
-
-          echo "Storing k0s tokens and kubeconfig in Vault..."
-
-          # Write tokens and kubeconfig to Vault
-          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
-            controller="$CONTROLLER_TOKEN" \
-            worker="$WORKER_TOKEN" \
-            admin_kubeconfig="$ADMIN_KUBECONFIG"
-
-          echo "Stored k0s tokens and kubeconfig in Vault at $VAULT_PATH"
-        '';
-        RemainAfterExit = true;
-      };
-    };
-
     environment.etc."k0s/k0s.yaml".source = configFile;
     systemd.services = mkMerge [
+      (mkIf (cfg.role != "single" && !cfg.isLeader) {
+        "${unitName}-copy-k0s-token" = {
+          description = "Copy k0s-token to /var/lib/k0s";
+          serviceConfig = {
+            Type = "oneshot";
+            User = "root";
+            Before = [ "${unitName}.service" ];
+          };
+          wantedBy = [ "${unitName}.service" "multi-user.target" ];
+          script = ''
+            mkdir -p ${cfg.dataDir}
+            ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token
+          '';
+        };
+      })
+
+      (mkIf cfg.isLeader {
+        "${unitName}-store-tokens" = {
+          description = "Generate k0s join tokens and store in Vault";
+          after = [
+            "${unitName}.service"
+            "vault-agent.service"
+            "network-online.target"
+          ];
+          requires = [ "${unitName}.service" ];
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = {
+            Type = "oneshot";
+            User = "root";
+            ExecStart = pkgs.writeShellScript "store-k0s-tokens" ''
+              set -e
+
+              echo "Waiting for k0s to be fully running..."
+
+              # Wait for k0s API to become available
+              until ${cfg.package}/bin/k0s status &>/dev/null; do
+                sleep 5
+              done
+
+              echo "k0s is up, generating join tokens..."
+
+              # Generate k0s controller and worker tokens
+              CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller)"
+              WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker)"
+
+              echo "Fetching admin kubeconfig..."
+              ADMIN_KUBECONFIG="$(${cfg.package}/bin/k0s kubeconfig admin)"
+
+              # Path where the Vault agent expects k0s-token
+              VAULT_PATH="${cfg.vault-path}"
+              export VAULT_ADDR="${cfg.vault-address}"
+
+              echo "Storing k0s tokens and kubeconfig in Vault..."
+
+              # Write tokens and kubeconfig to Vault
+              ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
+                controller="$CONTROLLER_TOKEN" \
+                worker="$WORKER_TOKEN" \
+                admin_kubeconfig="$ADMIN_KUBECONFIG"
+
+              echo "Stored k0s tokens and kubeconfig in Vault at $VAULT_PATH"
+            '';
+            RemainAfterExit = true;
+          };
+        };
+      })
+
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
         "${unitName}-controller" = {
           description = "k0s Controller - Zero Friction Kubernetes";
