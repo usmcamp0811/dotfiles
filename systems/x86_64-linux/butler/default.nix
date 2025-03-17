@@ -34,7 +34,7 @@ in
     suites = {
       kubernetes = {
         enable = true;
-        role = "controller+worker";
+        role = "controller";
         interface = "enp0s13f0u3";
       };
     };
