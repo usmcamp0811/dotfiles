@@ -75,17 +75,17 @@ in
         frontends = {
           "kubeAPI" = {
             bind = [ "*:6443" ];
-            backend = "kube-masters";
+            backend = "kubeAPI_backend";
             options = [ "option tcplog" ];
           };
           "konnectivity" = {
             bind = [ "*:8132" ];
-            backend = "konnectivity-masters";
+            backend = "konnectivity_backend";
             options = [ "option tcplog" ];
           };
           "controllerJoinAPI" = {
             bind = [ "*:9443" ];
-            backend = "k0s-masters";
+            backend = "controllerJoinAPI_backend";
             options = [ "option tcplog" ];
           };
         };
