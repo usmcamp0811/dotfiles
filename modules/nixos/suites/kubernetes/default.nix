@@ -10,7 +10,10 @@ let
     nixosConfigurations = inputs.self.nixosConfigurations;
     port = 9443;
   };
-
+  konnectivity = lookupK0sControllers {
+    nixosConfigurations = inputs.self.nixosConfigurations;
+    port = 8132;
+  };
 in
 {
   options.campground.suites.kubernetes = with types; {
@@ -75,6 +78,11 @@ in
             backend = "kube-masters";
             options = [ "option tcplog" ];
           };
+          "konnectivity" = {
+            bind = [ "*:8132" ];
+            backend = "konnectivity-masters";
+            options = [ "option tcplog" ];
+          };
           "k0sApiPort" = {
             bind = [ "*:9443" ];
             backend = "k0s-masters";
@@ -85,6 +93,10 @@ in
           "kube-masters" = {
             balance = "leastconn";
             servers = controllers;
+          };
+          "konnectivity-masters" = {
+            balance = "leastconn";
+            servers = konnectivity;
           };
           "k0s-masters" = {
             balance = "leastconn";
