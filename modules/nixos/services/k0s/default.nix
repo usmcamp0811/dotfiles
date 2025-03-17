@@ -199,12 +199,12 @@ in
             # Handle different roles
             ${optionalString
             (cfg.role == "controller" || cfg.role == "controller+worker") ''
-              ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token-controller
+              ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token-controller ${cfg.dataDir}/k0s-token-controller
             ''}
 
             ${optionalString
             (cfg.role == "worker" || cfg.role == "controller+worker") ''
-              ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token ${cfg.dataDir}/k0s-token-worker
+              ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k0s-token-worker ${cfg.dataDir}/k0s-token-worker
             ''}
           '';
         };
