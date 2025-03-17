@@ -12,8 +12,6 @@ with lib.campground;
 let
   cfg = config.campground.services.k0s;
   inherit (pkgs.campground) k0s;
-  subcommand = replaceStrings [ "+" ] [ "_" ] cfg.role;
-  unitName = "k0s-" + subcommand;
   configFile =
     if cfg.configText != "" then
       pkgs.writeText "k0s.yaml" cfg.configText
@@ -185,10 +183,13 @@ in
           serviceConfig = {
             Type = "oneshot";
             User = "root";
-            Before = [ "${unitName}.service" "${unitName}.service" ];
+            Before = [ "k0s-controller.service" "k0s-worker.service" ];
           };
-          wantedBy =
-            [ "${unitName}.service" "${unitName}.service" "multi-user.target" ];
+          wantedBy = [
+            "k0s-worker.service"
+            "k0s-controller.service"
+            "multi-user.target"
+          ];
           script = ''
             mkdir -p ${cfg.dataDir}
 
@@ -207,14 +208,14 @@ in
       })
 
       (mkIf cfg.isLeader {
-        "${unitName}-store-tokens" = {
+        "k0s-controller-store-tokens" = {
           description = "Generate k0s join tokens and store in Vault";
           after = [
-            "${unitName}.service"
+            "k0s-controller.service"
             "vault-agent.service"
             "network-online.target"
           ];
-          requires = [ "${unitName}.service" ];
+          requires = [ "k0s-controller.service" ];
           wantedBy = [ "multi-user.target" ];
           serviceConfig = {
             Type = "oneshot";
@@ -258,7 +259,7 @@ in
       })
 
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
-        "${unitName}" = {
+        "k0s-controller" = {
           description = "k0s Controller - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
@@ -288,7 +289,7 @@ in
       })
 
       (mkIf (cfg.role == "worker" || cfg.role == "controller+worker") {
-        "${unitName}" = {
+        "k0s-worker" = {
           description = "k0s Worker - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
