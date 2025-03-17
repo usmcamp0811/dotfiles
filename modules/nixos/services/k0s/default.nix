@@ -267,7 +267,9 @@ in
           + optionalString (cfg.role == "controller+worker")
             " --enable-worker --no-taints"
           + optionalString (cfg.role != "single" && !cfg.isLeader)
-            " --token-file=/var/lib/k0s/k0s-token";
+            " --token-file=/var/lib/k0s/k0s-token" + optionalString
+            (cfg.role == "controller" || cfg.role == "controller+worker")
+            " --api-server=https://10.8.0.88:6443";
       };
       unitConfig = mkIf (cfg.role != "single" && !cfg.isLeader) {
         ConditionPathExists = "/var/lib/k0s/k0s-token";
