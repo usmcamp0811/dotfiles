@@ -32,12 +32,12 @@ with lib.campground;
         interface = "enp7s0";
       };
       kubernetes = {
-        # enable = true;
+        enable = true;
         role = "worker";
         interface = "enp7s0";
       };
       kafka = {
-        enable = true;
+        # enable = true;
         interface = "enp7s0";
         zookeeper-id = 1;
         servers = ''
@@ -142,19 +142,14 @@ with lib.campground;
           api_addr = "http://chesty:8200"
         '';
 
-        policies = builtins.foldl'
-          (policies: file:
-            policies // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ../daly/vault/policies + "/${
+        policies = builtins.foldl' (policies: file:
+          policies // {
+            "${snowfall.path.get-file-name-without-extension file}" = file;
+          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map (path:
+              ../daly/vault/policies + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }")
-              (snowfall.fs.get-files ../daly/vault/policies)));
+              }") (snowfall.fs.get-files ../daly/vault/policies)));
       };
       searx = {
         enable = true;
