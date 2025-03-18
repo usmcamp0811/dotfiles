@@ -60,7 +60,7 @@ let
           storage:
             type: etcd
             etcd:
-              peerAddress: 10.8.0.88
+              peerAddress: ${cfg.apiAddress}
           telemetry:
             enabled: true
       '';
