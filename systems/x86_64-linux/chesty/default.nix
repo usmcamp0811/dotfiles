@@ -61,13 +61,13 @@ with lib.campground;
       # netbird.client.enable = true;
 
       hadoop = {
-        enable = true;
-        yarnSite = {
-          "yarn.nodemanager.hostname" = "chesty";
-          "yarn.scheduler.capacity.root.queues" = "default";
-          "yarn.scheduler.capacity.root.default.capacity" = "100";
-
-        };
+        # enable = true;
+        # yarnSite = {
+        #   "yarn.nodemanager.hostname" = "chesty";
+        #   "yarn.scheduler.capacity.root.queues" = "default";
+        #   "yarn.scheduler.capacity.root.default.capacity" = "100";
+        #
+        # };
         # hdfs = {
         #   namenode.enable = true;
         #   namenode.restartIfChanged = true;
