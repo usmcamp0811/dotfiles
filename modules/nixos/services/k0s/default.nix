@@ -61,7 +61,7 @@ let
             type: etcd
             etcd:
               peerAddress:
-        ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
+              ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
           telemetry:
             enabled: true
       '';
