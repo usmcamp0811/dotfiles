@@ -60,7 +60,7 @@ let
           storage:
             type: etcd
             etcd:
-              peerAddress: lucas
+              peerAddress: 10.8.0.88
           telemetry:
             enabled: true
       '';
