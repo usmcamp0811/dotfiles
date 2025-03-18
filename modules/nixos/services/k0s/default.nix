@@ -62,7 +62,7 @@ let
           storage:
             type: etcd
             etcd:
-              peerAddress: ${cfg.apiAddress}
+              peerAddress: ${config.networking.hostName}
           telemetry:
             enabled: true
       '';
