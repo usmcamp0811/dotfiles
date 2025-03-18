@@ -26,7 +26,7 @@ with lib.campground; {
     };
     suites = {
       kubernetes = {
-        enable = true;
+        # enable = true;
         role = "controller";
         interface = "eno1";
         isLeader = true;

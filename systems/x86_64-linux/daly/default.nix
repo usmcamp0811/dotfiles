@@ -17,7 +17,7 @@ with lib.campground; {
         interface = "enp3s0f1";
       };
       kubernetes = {
-        enable = true;
+        # enable = true;
         role = "controller";
         interface = "enp3s0f1";
       };

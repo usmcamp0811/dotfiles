@@ -28,7 +28,7 @@ in
       common = enabled;
       desktop.enable = mkForce false;
       kubernetes = {
-        enable = true;
+        # enable = true;
         role = "controller";
         interface = "enp7s0";
       };
