@@ -59,6 +59,8 @@ let
             defaultPolicy: 00-k0s-privileged
           storage:
             type: etcd
+            etcd:
+              peerAddress: ${cfg.apiAddress}
           telemetry:
             enabled: true
       '';
