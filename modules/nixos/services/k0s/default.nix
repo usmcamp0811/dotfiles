@@ -28,9 +28,7 @@ let
             k0sApiPort: 9443
             port: 6443
             sans:
-        ${
-          concatLines (forEach cfg.apiSans (value: "      - ${value}"))
-        }      - 127.0.0.1
+        ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
           extensions:
             storage:
               create_default_storage_class: true
@@ -62,10 +60,8 @@ let
           storage:
             type: etcd
             etcd:
-              peerAddress: 
-        ${
-          concatLines (forEach cfg.apiSans (value: "      - ${value}"))
-        }      - 127.0.0.1
+              peerAddress:
+        ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
           telemetry:
             enabled: true
       '';
