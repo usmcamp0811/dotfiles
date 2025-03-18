@@ -60,11 +60,7 @@ let
           storage:
             type: etcd
             etcd:
-              peerAddress:
-                - butler
-                - daly
-                - ermy
-                - lucas
+              peerAddress: lucas
           telemetry:
             enabled: true
       '';
