@@ -16,7 +16,8 @@ let
   #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
   #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
   # }) searxEnabledSystems;
-in {
+in
+{
   imports = [ ./hardware.nix ];
 
   campground = {
@@ -43,19 +44,19 @@ in {
         loki = true;
         prometheus = true;
       };
-      kafka = {
-        enable = true;
-        connect-server = true;
-        timescale-server = true;
-        schema-server = true;
-        zookeeper-id = 2;
-        servers = ''
-          server.1=chesty:2888:3888
-          server.2=0.0.0.0:2888:3888
-          server.3=daly:2888:3888
-          server.4=lucas:2888:3888
-        '';
-      };
+      # kafka = {
+      #   enable = true;
+      #   connect-server = true;
+      #   timescale-server = true;
+      #   schema-server = true;
+      #   zookeeper-id = 2;
+      #   servers = ''
+      #     server.1=chesty:2888:3888
+      #     server.2=0.0.0.0:2888:3888
+      #     server.3=daly:2888:3888
+      #     server.4=lucas:2888:3888
+      #   '';
+      # };
     };
 
     archetypes = {
@@ -97,14 +98,19 @@ in {
           api_addr = "http://webb:8200"
         '';
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ./vault/policies + "/${
+        policies = builtins.foldl'
+          (policies: file:
+            policies // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ./vault/policies)));
+              }")
+              (snowfall.fs.get-files ./vault/policies)));
       };
       remark42 = {
         enable = true;
