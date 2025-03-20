@@ -8,7 +8,7 @@ let
   };
   k0scontrollers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
-    port = 9443;
+    port = 9445;
   };
   konnectivity = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
