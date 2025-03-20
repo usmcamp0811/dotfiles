@@ -35,7 +35,7 @@ in
         log-to-kafka = true;
       };
       kubernetes = {
-        # enable = true;
+        enable = true;
         role = "worker";
         interface = "eno1";
       };
