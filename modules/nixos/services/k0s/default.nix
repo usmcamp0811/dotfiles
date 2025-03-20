@@ -27,7 +27,7 @@ let
         spec:
           api:
             externalAddress: ${cfg.apiAddress}
-            k0sApiPort: 9443
+            k0sApiPort: 9445
             port: 6443
             sans:
         ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
