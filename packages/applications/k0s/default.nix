@@ -19,10 +19,10 @@ let
 
   # version = "1.28.5+k0s.0";
   # hash = "sha256-9XJAHnPeMGFpQwesVf5r3VKp8mLufbj9uBzltMIQVl4=";
-  # version = "1.32.2+k0s.0";
-  # hash = "sha256-pMYqtOrjvDa/LPpDH56pkH7dMDQ+MltKmkJhCqfkPy8=";
-  version = "1.31.6+k0s.0";
-  hash = "sha256-By3zQuQmBDqglTc4j+LFZfFEMLioJEa1mReuvxAnRXQ=";
+  version = "1.32.2+k0s.0";
+  hash = "sha256-pMYqtOrjvDa/LPpDH56pkH7dMDQ+MltKmkJhCqfkPy8=";
+  # version = "1.31.6+k0s.0";
+  # hash = "sha256-By3zQuQmBDqglTc4j+LFZfFEMLioJEa1mReuvxAnRXQ=";
   # version = "1.26.3+k0s.0";
   # hash = "sha256-JmaCRTMU3qsVu/AzyDHpSwv0j9NPxs11WiRbZYqAPHs=";
 
