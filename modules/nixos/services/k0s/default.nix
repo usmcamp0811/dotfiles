@@ -254,14 +254,15 @@ in
             LimitNOFILE = 999999;
             Restart = "always";
             ExecStart = ''
-              ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=/var/lib/k0s/k0s.yaml
+              ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=${cfg.dataDir}/k0s.yaml
             '' + optionalString (!cfg.isLeader)
               " --token-file=/tmp/detsys-vault/k0s-token-controller";
           };
           preStart = ''
             HOST_IP=$(${pkgs.iproute2}/bin/ip -4 addr show ${cfg.interface} | ${pkgs.gawk}/bin/awk '/inet / {print $2}' | ${pkgs.coreutils}/bin/cut -d/ -f1 | ${pkgs.coreutils}/bin/head -n1)
             export HOST_IP
-            ${pkgs.envsubst}/bin/envsubst < ${configFile} > /var/lib/k0s/k0s.yaml
+            mkdir -p ${cfg.dataDir}
+            ${pkgs.envsubst}/bin/envsubst < ${configFile} > ${cfg.dataDir}/k0s.yaml
           '';
 
           # unitConfig = mkIf (!cfg.isLeader) {
