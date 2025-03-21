@@ -27,10 +27,12 @@ let
           name: ${cfg.clusterName}
         spec:
           api:
+            address: ''${HOST_IP}
             externalAddress: ${cfg.apiAddress}
             k0sApiPort: 9445
             port: 6443
             sans:
+              - ''${HOST_IP}
         ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
           extensions:
             storage:
@@ -178,8 +180,6 @@ in
       campground.k0s
       cni-plugin-flannel
     ];
-
-    environment.etc."k0s/k0s.yaml".source = configFile;
 
     systemd.services = mkMerge [
 
