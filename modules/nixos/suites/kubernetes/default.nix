@@ -41,6 +41,7 @@ in
       k0s = {
         enable = true;
         package = pkgs.campground.k0s;
+        interface = cfg.interface;
         isLeader = cfg.isLeader;
         role = cfg.role;
         apiAddress = "10.8.0.88";

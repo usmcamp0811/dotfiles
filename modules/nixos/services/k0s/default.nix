@@ -16,7 +16,7 @@ let
 
   configFile =
     if cfg.configText != "" then
-      pkgs.writeText "k0s.yaml" cfg.configText
+      pkgs.writeText "k0s.template.yaml" cfg.configText
     else
     # TODO: make the ports a variable that is sync between modules
       pkgs.writeText "k0s.yaml" ''
@@ -63,7 +63,7 @@ let
           storage:
             type: etcd
             etcd:
-              peerAddress: ${config.networking.hostName}
+              peerAddress: ''${HOST_IP}
           telemetry:
             enabled: true
       '';
@@ -91,6 +91,7 @@ in
       '';
     };
 
+    interface = mkOpt types.str "eno1" "Interface to use for the LAN Instance";
     apiSans = mkOption {
       type = types.listOf types.str;
       description = ''
@@ -179,6 +180,7 @@ in
     ];
 
     environment.etc."k0s/k0s.yaml".source = configFile;
+
     systemd.services = mkMerge [
 
       (mkIf cfg.isLeader {
@@ -251,11 +253,17 @@ in
             TimeoutStartSec = 0;
             LimitNOFILE = 999999;
             Restart = "always";
-            ExecStart =
-              "${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=${configFile}"
-              + optionalString (!cfg.isLeader)
-                " --token-file=/tmp/detsys-vault/k0s-token-controller";
+            ExecStart = ''
+              ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=/var/lib/k0s/k0s.yaml
+            '' + optionalString (!cfg.isLeader)
+              " --token-file=/tmp/detsys-vault/k0s-token-controller";
           };
+          preStart = ''
+            HOST_IP=$(${pkgs.iproute2}/bin/ip -4 addr show ${cfg.interface} | ${pkgs.gawk}/bin/awk '/inet / {print $2}' | ${pkgs.coreutils}/bin/cut -d/ -f1 | ${pkgs.coreutils}/bin/head -n1)
+            export HOST_IP
+            ${pkgs.envsubst}/bin/envsubst < ${configFile} > /var/lib/k0s/k0s.yaml
+          '';
+
           # unitConfig = mkIf (!cfg.isLeader) {
           #   ConditionPathExists = "/tmp/detsys-vault/k0s-token-controller";
           # };
