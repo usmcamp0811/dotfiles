@@ -9232,11 +9232,11 @@
         "stable-nixpkgs": "stable-nixpkgs_14"
       },
       "locked": {
-        "lastModified": 1741133003,
-        "narHash": "sha256-pdvGxwFgvC0aEXrq6TlfrmdnpHxkK/k3jNsHY+IU7zo=",
+        "lastModified": 1742653079,
+        "narHash": "sha256-8HHw6lCvNmG/TVl0JRxNlvK4GWHWOrI7LMuP2jI3U6o=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "90688183357d86aa7a892d5fc484bb5e84a37cc1",
+        "rev": "a822b5bf4b8ff23005d6b348d79a444589010176",
         "type": "gitlab"
       },
       "original": {
