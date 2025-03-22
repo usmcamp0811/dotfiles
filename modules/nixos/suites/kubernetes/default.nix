@@ -85,7 +85,7 @@ in
             options = [ "option tcplog" ];
           };
           "controllerJoinAPI" = {
-            bind = [ "*:9445" ];
+            bind = [ ":9445" ];
             backend = "controllerJoinAPI_backend";
             options = [ "option tcplog" ];
           };

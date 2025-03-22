@@ -49,16 +49,40 @@ let
             adminPort: 8133
             agentPort: 8132
           network:
+
+            calico: null
+            clusterDomain: cluster.local
+            dualStack: {}
             kubeProxy:
+              iptables:
+                minSyncPeriod: 0s
+                syncPeriod: 0s
+              ipvs:
+                minSyncPeriod: 0s
+                syncPeriod: 0s
+                tcpFinTimeout: 0s
+                tcpTimeout: 0s
+                udpTimeout: 0s
+              metricsBindAddress: 0.0.0.0:10249
               mode: iptables
             kuberouter:
               autoMTU: true
+              hairpin: Enabled
+              ipMasq: false
+              metricsPort: 8080
               mtu: 0
               peerRouterASNs: ""
               peerRouterIPs: ""
-              metricsPort: 9090  
+            nodeLocalLoadBalancing:
+              envoyProxy:
+                apiServerBindPort: 7443
+                image:
+                  image: docker.io/envoyproxy/envoy-distroless
+                  version: v1.24.1
+                konnectivityServerBindPort: 7132
+              type: EnvoyProxy
             podCIDR: 10.244.0.0/16
-            provider: calico
+            provider: kuberouter
             serviceCIDR: 10.96.0.0/12
           podSecurityPolicy:
             defaultPolicy: 00-k0s-privileged
@@ -293,10 +317,14 @@ in
             ExecStart =
               "${cfg.package}/bin/k0s worker --data-dir=${cfg.dataDir}"
               + optionalString (!cfg.isLeader)
-                " --token-file=/tmp/detsys-vault/k0s-token-worker";
+                " --token-file=${cfg.dataDir}/k0s-token-worker";
           };
+          preStart = ''
+            mkdir -p ${cfg.dataDir}
+            cp /tmp/detsys-vault/k0s-token-worker ${cfg.dataDir}/k0s-token-worker
+          '';
           # unitConfig = mkIf (!cfg.isLeader) {
-          #   ConditionPathExists = "/tmp/detsys-vault/k0s-token-worker";
+          #   ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
           # };
         };
       })
