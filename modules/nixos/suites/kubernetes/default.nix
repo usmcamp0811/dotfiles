@@ -75,12 +75,12 @@ in
         };
         frontends = {
           "kubeAPI" = {
-            bind = [ "*:6443" ];
+            bind = [ ":6443" ];
             backend = "kubeAPI_backend";
             options = [ "option tcplog" ];
           };
           "konnectivity" = {
-            bind = [ "*:8132" ];
+            bind = [ ":8132" ];
             backend = "konnectivity_backend";
             options = [ "option tcplog" ];
           };
