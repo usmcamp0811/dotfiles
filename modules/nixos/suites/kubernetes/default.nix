@@ -44,8 +44,8 @@ in
         interface = cfg.interface;
         isLeader = cfg.isLeader;
         role = cfg.role;
-        apiAddress = "10.8.0.1";
-        apiSans = [ "10.8.0.1" "k8s-controller" ]
+        apiAddress = "10.8.0.88";
+        apiSans = [ "10.8.0.88" "k8s-controller" ]
           ++ builtins.attrNames controllers;
         clusterName = "campground";
         dataDir = "/var/lib/k0s";
