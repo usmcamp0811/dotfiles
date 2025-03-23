@@ -1,7 +1,9 @@
 { lib, pkgs, ... }:
 let
+
+  pname = "example-rust-web-app";
   web-app = pkgs.rustPlatform.buildRustPackage {
-    pname = "example-rust-web-app";
+    inherit pname;
     version = "0.1.0";
     src = ./.;
     cargoLock.lockFile = ./Cargo.lock;
@@ -20,12 +22,19 @@ let
       mkdir -p $XDG_DATA_HOME/dioxus/wasm-bindgen
       ln -s ${pkgs.wasm-bindgen-cli}/bin/wasm-bindgen $XDG_DATA_HOME/dioxus/wasm-bindgen/wasm-bindgen-0.2.100
 
-      dx bundle --platform web 
+      dx bundle --platform web --release
     '';
 
     installPhase = ''
-      mkdir -p $out
-      cp -r target/dx/*/release/web/public $out/public
+      mkdir -p $out/public
+      cp -r target/dx/*/release/web/public/* $out/public/
+
+      mkdir -p $out/bin
+      cat > $out/bin/${pname} <<EOF
+      #!${pkgs.bash}/bin/bash
+      exec ${pkgs.python3}/bin/python3 -m http.server 8080 --directory "$out/public"
+      EOF
+      chmod +x $out/bin/${pname}
     '';
   };
 in
