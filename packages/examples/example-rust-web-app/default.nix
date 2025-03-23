@@ -32,7 +32,20 @@ let
       mkdir -p $out/bin
       cat > $out/bin/${pname} <<EOF
       #!${pkgs.bash}/bin/bash
-      exec ${pkgs.python3}/bin/python3 -m http.server 8080 --directory "$out/public"
+      PORT=8080
+      while [[ \$# -gt 0 ]]; do
+        case "\$1" in
+          -p|--port)
+            PORT="\$2"
+            shift 2
+            ;;
+          *)
+            shift
+            ;;
+        esac
+      done
+      echo "Running test server on Port: \$PORT" >&2
+      exec ${pkgs.python3}/bin/python3 -m http.server "\$PORT" --directory "$out/public"
       EOF
       chmod +x $out/bin/${pname}
     '';
