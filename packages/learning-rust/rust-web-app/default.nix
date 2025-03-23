@@ -20,7 +20,7 @@ let
       mkdir -p $XDG_DATA_HOME/dioxus/wasm-bindgen
       ln -s ${pkgs.wasm-bindgen-cli}/bin/wasm-bindgen $XDG_DATA_HOME/dioxus/wasm-bindgen/wasm-bindgen-0.2.100
 
-      dx bundle --platform web --release
+      dx bundle --platform web 
     '';
 
     installPhase = ''
