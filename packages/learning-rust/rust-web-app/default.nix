@@ -1,16 +1,32 @@
 { lib, pkgs, ... }:
 let
-
-  webb-app = pkgs.rustPlatform.buildRustPackage {
-    pname = "webb-app";
+  web-app = pkgs.rustPlatform.buildRustPackage {
+    pname = "homefinder-web";
     version = "0.1.0";
-
     src = ./.;
+    cargoLock.lockFile = ./Cargo.lock;
 
-    cargoLock = { lockFile = ./Cargo.lock; };
+    nativeBuildInputs = [
+      pkgs.lld
+      pkgs.openssl
+      pkgs.pkg-config
+      pkgs.dioxus-cli
+      pkgs.wasm-bindgen-cli
+    ];
 
-    nativeBuildInputs = [ pkgs.pkg-config ];
-    buildInputs = [ ];
+    buildInputs = [ pkgs.openssl.dev pkgs.zlib ];
+    buildPhase = ''
+      export XDG_DATA_HOME=$PWD
+      mkdir -p $XDG_DATA_HOME/dioxus/wasm-bindgen
+      ln -s ${pkgs.wasm-bindgen-cli}/bin/wasm-bindgen $XDG_DATA_HOME/dioxus/wasm-bindgen/wasm-bindgen-0.2.100
+
+      dx bundle --platform web --release
+    '';
+
+    installPhase = ''
+      mkdir -p $out
+      cp -r target/* $out/
+    '';
   };
 in
-webb-app
+web-app

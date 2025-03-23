@@ -60,12 +60,8 @@ pub fn Blog(id: i32) -> Element {
     rsx! {
         div {
             id: "blog",
-
-            // Content
             h1 { "This is blog #{id}!" }
             p { "In blog #{id}, we show how the Dioxus router works and how URL parameters can be passed as props to our route components." }
-
-            // Navigation links
             Link {
                 to: Route::Blog { id: id - 1 },
                 "Previous"
@@ -126,8 +122,25 @@ fn Echo() -> Element {
     }
 }
 
-/// Echo the user input on the server.
-#[server(EchoServer)]
-async fn echo_server(input: String) -> Result<String, ServerFnError> {
-    Ok(input)
+#[cfg(not(target_arch = "wasm32"))]
+mod server {
+    use dioxus_fullstack::prelude::*;
+
+    #[server(EchoServer)]
+    pub async fn echo_server(input: String) -> Result<String, ServerFnError> {
+        Ok(input)
+    }
 }
+
+#[cfg(target_arch = "wasm32")]
+mod client {
+    pub async fn echo_server(input: String) -> Result<String, ()> {
+        Ok(input)
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+use server::echo_server;
+
+#[cfg(target_arch = "wasm32")]
+use client::echo_server;

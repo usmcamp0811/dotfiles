@@ -6,8 +6,26 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# [dependencies]
+# dioxus = { version = "0.6.3", features = ["router", "web"] }
+# axum = "^0.7.0"
+# axum-macros = "^0.4.2"
+# dioxus-fullstack = "0.6.3"
+# dioxus-isrg = "0.6.2"
+# dioxus-liveview = "0.6.2"
+# dioxus-ssr = "0.6.2"
+# http-range-header = "0.4.2"
+# hyper-tls = "0.6.0"
+# inventory = "0.3.20"
+# multer = "3.1.0"
+# rustls-pemfile = "2.2.0"
+# tokio-tungstenite = "^0.24.0"
+# tower = "^0.4.13"
+# tower-http = "^0.5.2"
+# tracing-futures = "0.2.5"
+
 [dependencies]
-dioxus = { version = "0.6.0", features = ["router", "fullstack"] }
+dioxus = { version = "0.6.3", features = ["router", "web"] }
 
 [features]
 default = ["web"]
@@ -26,3 +44,20 @@ inherits = "dev"
 
 [profile.android-dev]
 inherits = "dev"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+axum = "^0.7.0"
+axum-macros = "^0.4.2"
+dioxus-fullstack = "0.6.3"
+dioxus-isrg = "0.6.2"
+dioxus-liveview = "0.6.2"
+dioxus-ssr = "0.6.2"
+http-range-header = "0.4.2"
+hyper-tls = "0.6.0"
+inventory = "0.3.20"
+multer = "3.1.0"
+rustls-pemfile = "2.2.0"
+tokio-tungstenite = "^0.24.0"
+tower = "^0.4.13"
+tower-http = "^0.5.2"
+tracing-futures = "0.2.5"
