@@ -1,7 +1,7 @@
 { lib, pkgs, ... }:
 let
   web-app = pkgs.rustPlatform.buildRustPackage {
-    pname = "homefinder-web";
+    pname = "example-rust-web-app";
     version = "0.1.0";
     src = ./.;
     cargoLock.lockFile = ./Cargo.lock;
@@ -25,7 +25,7 @@ let
 
     installPhase = ''
       mkdir -p $out
-      cp -r target/* $out/
+      cp -r target/dx/*/release/web/public $out/public
     '';
   };
 in
