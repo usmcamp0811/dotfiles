@@ -9,6 +9,7 @@ edition = "2021"
 
 [dependencies]
 dioxus = { version = "0.6.3", features = ["router", "web"] }
+pango-sys = "0.20.9"
 
 [features]
 default = ["web"]
