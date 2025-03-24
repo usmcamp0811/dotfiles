@@ -1,3 +1,9 @@
+mod command;
+mod parser;
+mod repl;
+mod table;
+// mod vm;
+
 fn main() {
-    println!("Hello, world!");
+    repl::Repl::new().run();
 }
