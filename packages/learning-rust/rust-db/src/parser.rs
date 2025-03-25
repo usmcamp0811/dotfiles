@@ -4,7 +4,7 @@ lalrpop_mod!(select);
 
 use crate::command::Command;
 
-pub enum PraseError {
+pub enum ParseError {
     Error(String),
 }
 

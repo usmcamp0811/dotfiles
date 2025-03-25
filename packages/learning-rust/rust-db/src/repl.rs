@@ -1,5 +1,5 @@
 use crate::command::CommandResult;
-use crate::praser::{parse, ParseError};
+use crate::parser::{parse, ParseError};
 use crate::vm::VirtualMachine;
 use std::io::{self, Write};
 // use std::string::ParseError;
