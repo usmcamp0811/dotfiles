@@ -21,8 +21,7 @@ impl Table {
         Ok(())
     }
 
-    pub fn load(&self, path: Vec<String>) -> Result<Self, String> {
-        // todo
-        Err("Not implimented".into())
+    pub fn load(table_name: &str, selected_columns: Vec<String>) -> Result<Self, String> {
+        Err("Table::load not implemented yet".into())
     }
 }

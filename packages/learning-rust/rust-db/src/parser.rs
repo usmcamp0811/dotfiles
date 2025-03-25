@@ -4,12 +4,10 @@ lalrpop_mod!(select);
 
 use crate::command::Command;
 
-#[derive(Debug)]
 pub enum PraseError {
     Error(String),
 }
 
-#[derive(Debug)]
 pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
     let mut result = vec![];
     let parser = select::SelectParser::new();
