@@ -1,3 +1,5 @@
+use std::{collections::HashMap, ops::AddAssign};
+
 #[derive(Debug, Clone)]
 pub enum DataType {
     String(String),
@@ -5,6 +7,7 @@ pub enum DataType {
     Float32(f32),
 }
 
+#[derive(Debug, Clone)]
 pub struct Table {
     pub name: String,
     pub fields: HashMap<String, DataType>,

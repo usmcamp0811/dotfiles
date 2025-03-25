@@ -1,5 +1,5 @@
 pub enum Command {
-    SelectFrom(Vec<String>, String) // (Columns, table_name)
+    SelectFrom(Vec<String>, String), // (Columns, table_name)
     Stub,
 }
 

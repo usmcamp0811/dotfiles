@@ -1,20 +1,20 @@
-use crate::command::Command;
 use lalrpop_util::lalrpop_mod;
 
-lalrpop!(pub select);
+lalrpop_mod!(select);
 
+use crate::command::Command;
+
+#[derive(Debug)]
 pub enum PraseError {
     Error(String),
 }
 
+#[derive(Debug)]
 pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
     let mut result = vec![];
     let parser = select::SelectParser::new();
-    match parser.parse(&mut result, &input){
-        Ok(vec![Command::SelectFrom(
-            vec!["*".into()],
-            "my_table".into(),
-        )]),
-        Err(e) => Err(ParseError::Error(format!("{:?}", e)))
-    }
+    parser
+        .parse(&mut result, &input)
+        .map(|_| vec![Command::SelectFrom(result, "my_table".into())])
+        .map_err(|e| ParseError::Error(format!("{:?}", e)))
 }

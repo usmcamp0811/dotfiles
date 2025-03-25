@@ -4,4 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-lalrpop = "0.22.1"
+lalrpop-util = { version = "0.20.0", features = ["lexer", "unicode"] }
+
+# Add a build-time dependency on the lalrpop library:
+[build-dependencies]
+lalrpop = { version = "0.20.0", features = ["lexer", "unicode"] }
