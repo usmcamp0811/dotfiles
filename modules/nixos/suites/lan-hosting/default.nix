@@ -281,6 +281,15 @@ in
 
             http.services.uptime-kuma = generateServiceConfig "uptime-kuma";
 
+            http.routers.crowdsec = {
+              rule = "Host(`crowdsec.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "crowdsec";
+              middlewares = [ "ip-whitelist" ];
+            };
+
+            http.services.crowdsec = generateServiceConfig "crowdsec";
+
             http.routers.pub-traefik = {
               rule = "Host(`public-traefik.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];

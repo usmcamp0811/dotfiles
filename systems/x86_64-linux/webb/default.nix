@@ -197,7 +197,7 @@ in
       vaultwarden = enabled;
       mattermost = enabled;
       paperless = enabled;
-      crowdsec = enabled;
+      # crowdsec = enabled;
 
       mysql = {
         backupEnable = true;
