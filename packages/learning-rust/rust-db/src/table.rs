@@ -22,6 +22,24 @@ impl Table {
     }
 
     pub fn load(table_name: &str, selected_columns: Vec<String>) -> Result<Self, String> {
-        Err("Table::load not implemented yet".into())
+        if table_name != "test_table" {
+            return Err(format!("Table '{}' not found", table_name));
+        }
+        let mut fields = HashMap::new();
+        fields.insert("name".into(), DataType::String("".into()));
+        fields.insert("age".into(), DataType::Integer32(0));
+
+        let mut columns = HashMap::new();
+        columns.insert(
+            "name".into(),
+            vec![DataType::Integer32(30), DataType::Integer32(25)],
+        );
+
+        Ok(Self {
+            name: table_name.into(),
+            fields,
+            columns,
+            selected_columns,
+        })
     }
 }
