@@ -1,0 +1,34 @@
+{
+  "tasks": {
+    "6989477f-b902-401e-8604-a6934422b678": {
+      "id": "6989477f-b902-401e-8604-a6934422b678",
+      "title": "Fix my fucking eyes",
+      "status": "ToDo",
+      "created_at": "2025-02-24T04:09:43.217338920Z"
+    },
+    "70efcce6-ec98-471f-9b0c-9ea847207103": {
+      "id": "70efcce6-ec98-471f-9b0c-9ea847207103",
+      "title": "something new",
+      "status": "Done",
+      "created_at": "2025-02-23T21:51:59.917174094Z"
+    },
+    "2a855f0e-5527-4470-9967-ba3456e6f961": {
+      "id": "2a855f0e-5527-4470-9967-ba3456e6f961",
+      "title": "make a tui",
+      "status": "ToDo",
+      "created_at": "2025-02-25T01:06:54.397950409Z"
+    },
+    "671461e1-4c22-4134-a50c-b1c38d5d90d1": {
+      "id": "671461e1-4c22-4134-a50c-b1c38d5d90d1",
+      "title": "Learn rust",
+      "status": "Review",
+      "created_at": "2025-02-23T20:43:35.496518077Z"
+    },
+    "d2fa66f0-ae2f-4f91-8124-31351ca86ee1": {
+      "id": "d2fa66f0-ae2f-4f91-8124-31351ca86ee1",
+      "title": "Fuck me",
+      "status": "Done",
+      "created_at": "2025-02-23T19:28:52.860132549Z"
+    }
+  }
+}
