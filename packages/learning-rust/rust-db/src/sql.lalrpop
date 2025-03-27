@@ -1,0 +1,65 @@
+grammar(cs: &mut Vec<String>, tn: &mut String, schema: &mut HashMap<String, crate::table::DataType>);
+
+pub Statement: () = {
+  SelectStmt,
+  CreateStmt,
+};
+
+SelectStmt: () = {
+  SELECT <cols:Columns> FROM <tbl:TableName> SEMICOLON => {
+    cs.extend(cols);
+    *tn = tbl;
+  }
+};
+
+CreateStmt: () = {
+  CREATE TABLE <tbl:TableName> LPAREN <fields:Schema> RPAREN SEMICOLON => {
+    *tn = tbl;
+    schema.extend(fields);
+  }
+};
+
+Columns: Vec<String> = {
+  <c:LITERAL> => vec![c],
+  Columns "," <c:LITERAL> => {
+    let mut v = Columns; 
+    v.push(c);
+    v
+  }
+};
+
+Schema: HashMap<String, crate::table::DataType> = {
+  <f:Field> => {
+    let mut map = HashMap::new();
+    map.insert(f.0,f.1);
+    map 
+  },
+  Schema "," <f:Field> => {
+    let mut map = Schema;
+    map.insert(f.0, f.1);
+    map
+  }
+};
+
+Field: (String, crate::table::DataType) = {
+  <name:LITERAL> <dtype:Type> => (name, dtype),
+};
+
+Type: crate::table::DataType = {
+  "STRING" => crate::table::DataType::String(String::new()),
+  "INT" => crate::table::DataType::Integer32(0),
+  "FLOAT" => crate::table::DataType::Float32(0.0)
+}
+
+TableName: String = <s:LITERAL> => s;
+
+
+SELECT: String = <s:r"select\s+"> => s.to_string();
+FROM: String = <s:r"\s+from\s+"> => s.to_string();
+CREATE: String = <s:r"create\s+"> => s.to_string();
+TABLE: String = <s:r"table\s+"> => s.to_string();
+LITERAL: String = <s:r"[a-zA-Z_][a-zA-Z0-9_]*"> => s.to_string();
+SEMICOLON: String = <s:r";"> => s.to_string();
+LPAREN: String = <s:r"\("> => s;
+RPAREN: String = <s:r"\)"> => s;
+

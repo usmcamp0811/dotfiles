@@ -20,6 +20,20 @@ impl Table {
         // todo
         Ok(())
     }
+    pub fn select(&self, selected_columns: Vec<String>) -> Result<Self, String> {
+        for col in &selected_columns {
+            if !self.columns.contains_key(col) {
+                return Err(format!("Column '{}' not found", col));
+            }
+        }
+
+        Ok(Self {
+            name: self.name.clone(),
+            fields: self.fields.clone(),
+            columns: self.columns.clone(),
+            selected_columns,
+        })
+    }
 
     pub fn load(table_name: &str, selected_columns: Vec<String>) -> Result<Self, String> {
         if table_name != "test_table" {
@@ -31,8 +45,16 @@ impl Table {
         fields.insert("age".into(), DataType::Integer32(0));
 
         let mut columns = HashMap::new();
+
         columns.insert(
             "name".into(),
+            vec![
+                DataType::String("Alice".into()),
+                DataType::String("Bob".into()),
+            ],
+        );
+        columns.insert(
+            "age".into(),
             vec![DataType::Integer32(30), DataType::Integer32(25)],
         );
         for col in &selected_columns {
