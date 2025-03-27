@@ -19,15 +19,10 @@ impl VirtualMachine {
     pub fn execute(&self, commands: Vec<Command>) -> CommandResult {
         for command in commands {
             match command {
-                Command::SelectFrom(cols, table_name) => {
-                    if let Some(table) = self.tables.get(&table_name) {
-                        return table
-                            .select(cols)
-                            .map(CommandResult::RetrievedDataSuccess)
-                            .unwrap_or_else(|e| CommandResult::Error(e));
-                    } else {
-                        return CommandResult::Error(format!("Unknown table '{}'", table_name));
-                    }
+                Command::SelectFrom(cols, table_name) => { /* existing code */ }
+                Command::CreateTable(table_name, schema) => {
+                    // For now, return a placeholder error message.
+                    return CommandResult::Error("CREATE TABLE not implemented yet".into());
                 }
                 Command::Stub => return CommandResult::VoidSuccess,
             }

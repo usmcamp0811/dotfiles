@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 grammar(cs: &mut Vec<String>, tn: &mut String, schema: &mut HashMap<String, crate::table::DataType>);
 
 pub Statement: () = {
@@ -21,8 +22,7 @@ CreateStmt: () = {
 
 Columns: Vec<String> = {
   <c:LITERAL> => vec![c],
-  Columns "," <c:LITERAL> => {
-    let mut v = Columns; 
+  <mut v: Columns> "," <c:LITERAL> => {
     v.push(c);
     v
   }
@@ -31,11 +31,10 @@ Columns: Vec<String> = {
 Schema: HashMap<String, crate::table::DataType> = {
   <f:Field> => {
     let mut map = HashMap::new();
-    map.insert(f.0,f.1);
-    map 
+    map.insert(f.0, f.1);
+    map
   },
-  Schema "," <f:Field> => {
-    let mut map = Schema;
+  <mut map: Schema> "," <f:Field> => {
     map.insert(f.0, f.1);
     map
   }
@@ -60,6 +59,6 @@ CREATE: String = <s:r"create\s+"> => s.to_string();
 TABLE: String = <s:r"table\s+"> => s.to_string();
 LITERAL: String = <s:r"[a-zA-Z_][a-zA-Z0-9_]*"> => s.to_string();
 SEMICOLON: String = <s:r";"> => s.to_string();
-LPAREN: String = <s:r"\("> => s;
-RPAREN: String = <s:r"\)"> => s;
+LPAREN: String = <s:r"\("> => s.to_string();
+RPAREN: String = <s:r"\)"> => s.to_string();
 
