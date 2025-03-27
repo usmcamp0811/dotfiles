@@ -1,16 +1,19 @@
-grammar(v: &mut Vec<String>);
+grammar(v: &mut Vec<String>, t: &mut String);
 
 pub Select: () = {
-    SELECT <c:Columns> SEMICOLON => {}
+    SELECT <c:Columns> FROM <tbl:TableName> SEMICOLON => {}
 };
 
 Columns: () = {
     <l:LITERAL> => v.push(l),
-    Columns "," <l:LITERAL> => {
-        v.push(l);
-    }
-}
+    Columns "," <l:LITERAL> => v.push(l),
+};
 
-SELECT: String = <s:r"select "> => s.to_string();
-LITERAL: String = <s:r"[a-z\*_0-9]+"> => s.to_string();
+TableName: () = {
+    <l:LITERAL> => *t = l,
+};
+
+SELECT: String = <s:r"select\s+"> => s.to_string();
+FROM: String = <s:r"\s+from\s+"> => s.to_string();
+LITERAL: String = <s:r"[a-zA-Z_][a-zA-Z0-9_]*"> => s.to_string();
 SEMICOLON: String = <s:r";"> => s.to_string();

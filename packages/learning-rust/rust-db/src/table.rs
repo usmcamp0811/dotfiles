@@ -25,6 +25,7 @@ impl Table {
         if table_name != "test_table" {
             return Err(format!("Table '{}' not found", table_name));
         }
+
         let mut fields = HashMap::new();
         fields.insert("name".into(), DataType::String("".into()));
         fields.insert("age".into(), DataType::Integer32(0));
@@ -34,6 +35,14 @@ impl Table {
             "name".into(),
             vec![DataType::Integer32(30), DataType::Integer32(25)],
         );
+        for col in &selected_columns {
+            if !columns.contains_key(col) {
+                return Err(format!(
+                    "Column '{}' not found in table '{}'",
+                    col, table_name
+                ));
+            }
+        }
 
         Ok(Self {
             name: table_name.into(),

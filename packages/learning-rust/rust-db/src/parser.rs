@@ -9,10 +9,11 @@ pub enum ParseError {
 }
 
 pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
-    let mut result = vec![];
+    let mut columns = vec![];
+    let mut table = String::new();
     let parser = select::SelectParser::new();
-    parser
-        .parse(&mut result, &input)
-        .map(|_| vec![Command::SelectFrom(result, "test_table".into())])
-        .map_err(|e| ParseError::Error(format!("{:?}", e)))
+    match parser.parse(&mut columns, &mut table, &input) {
+        Ok(_) => Ok(vec![Command::SelectFrom(columns, table)]),
+        Err(e) => Err(ParseError::Error(format!("{:?}", e))),
+    }
 }
