@@ -1,4 +1,8 @@
 use std::{collections::HashMap, ops::AddAssign};
+use std::{
+    fs::File,
+    io::{BufWriter, Write},
+};
 
 #[derive(Debug, Clone)]
 pub enum DataType {
@@ -16,10 +20,6 @@ pub struct Table {
 }
 
 impl Table {
-    pub fn save(&self, path: &str) -> Result<(), String> {
-        // todo
-        Ok(())
-    }
     pub fn select(&self, selected_columns: Vec<String>) -> Result<Self, String> {
         for col in &selected_columns {
             if !self.columns.contains_key(col) {
@@ -33,6 +33,21 @@ impl Table {
             columns: self.columns.clone(),
             selected_columns,
         })
+    }
+
+    pub fn save(&self) -> Result<(), String> {
+        let filename = format!("{}.db", self.name);
+        let file = File::create(&filename).map_err(|e| e.to_string())?;
+        let mut writer = BufWriter::new(file);
+
+        for (col, values) in &self.columns {
+            writeln!(writer, "COLUMN {}", col).map_err(|e| e.to_string())?;
+            for val in values {
+                writeln!(writer, "{:?}", val).map_err(|e| e.to_string())?;
+            }
+        }
+
+        Ok(())
     }
 
     pub fn load(table_name: &str, selected_columns: Vec<String>) -> Result<Self, String> {

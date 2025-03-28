@@ -43,6 +43,13 @@ impl VirtualMachine {
                     };
 
                     self.tables.insert(name, table);
+
+                    self.tables.insert(name.clone(), table);
+                    self.tables
+                        .get(&name)
+                        .unwrap()
+                        .save()
+                        .unwrap_or_else(|e| eprintln!("Failed to save: {}", e));
                     return CommandResult::VoidSuccess;
                 }
 
@@ -50,6 +57,8 @@ impl VirtualMachine {
                     if let Some(t) = self.tables.get_mut(&table) {
                         for (col, val) in columns.into_iter().zip(values.into_iter()) {
                             t.columns.entry(col).or_insert_with(Vec::new).push(val);
+                            t.save()
+                                .unwrap_or_else(|e| eprintln!("Failed to save table: {}", e));
                         }
                         return CommandResult::VoidSuccess;
                     } else {
