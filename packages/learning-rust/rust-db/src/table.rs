@@ -1,7 +1,8 @@
-use std::{collections::HashMap, ops::AddAssign};
 use std::{
+    collections::HashMap,
+    fs,
     fs::File,
-    io::{BufWriter, Write},
+    io::{BufRead, BufReader, BufWriter, Write},
 };
 
 #[derive(Debug, Clone)]
@@ -87,5 +88,84 @@ impl Table {
             columns,
             selected_columns,
         })
+    }
+    pub fn load_all() -> HashMap<String, Table> {
+        let mut tables = HashMap::new();
+
+        for entry in fs::read_dir(".").unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+
+            if path.extension().map(|ext| ext == "db").unwrap_or(false) {
+                if let Some(name) = path.file_stem().and_then(|s| s.to_str()) {
+                    if let Ok(table) = Table::load_from_file(name) {
+                        tables.insert(name.to_string(), table);
+                    }
+                }
+            }
+        }
+
+        tables
+    }
+
+    pub fn load_from_file(name: &str) -> Result<Self, String> {
+        let filename = format!("{}.db", name);
+        let file = File::open(&filename).map_err(|e| e.to_string())?;
+        let reader = BufReader::new(file);
+
+        let mut columns = HashMap::new();
+        let mut current_col = None;
+
+        for line in reader.lines() {
+            let line = line.map_err(|e| e.to_string())?;
+            if line.starts_with("COLUMN ") {
+                let col = line.trim_start_matches("COLUMN ").to_string();
+                current_col = Some(col.clone());
+                columns.insert(col, vec![]);
+            } else if let Some(col) = &current_col {
+                let val = parse_value(&line)?;
+                columns.get_mut(col).unwrap().push(val);
+            }
+        }
+
+        let mut fields = HashMap::new();
+        for (k, v) in &columns {
+            if let Some(first) = v.first() {
+                fields.insert(
+                    k.clone(),
+                    match first {
+                        DataType::String(_) => DataType::String("".into()),
+                        DataType::Integer32(_) => DataType::Integer32(0),
+                        DataType::Float32(_) => DataType::Float32(0.0),
+                    },
+                );
+            }
+        }
+
+        Ok(Table {
+            name: name.into(),
+            fields,
+            columns,
+            selected_columns: vec![],
+        })
+    }
+}
+
+fn parse_value(s: &str) -> Result<DataType, String> {
+    if let Some(stripped) = s.strip_prefix("String(").and_then(|s| s.strip_suffix(")")) {
+        Ok(DataType::String(stripped.trim_matches('"').to_string()))
+    } else if let Some(int) = s
+        .strip_prefix("Integer32(")
+        .and_then(|s| s.strip_suffix(")"))
+    {
+        Ok(DataType::Integer32(
+            int.parse::<i32>().map_err(|e| e.to_string())?,
+        ))
+    } else if let Some(flt) = s.strip_prefix("Float32(").and_then(|s| s.strip_suffix(")")) {
+        Ok(DataType::Float32(
+            flt.parse::<f32>().map_err(|e| e.to_string())?,
+        ))
+    } else {
+        Err(format!("Unknown value: {}", s))
     }
 }

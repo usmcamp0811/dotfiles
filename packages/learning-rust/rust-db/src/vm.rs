@@ -9,10 +9,7 @@ pub struct VirtualMachine {
 
 impl VirtualMachine {
     pub fn new() -> Self {
-        let mut tables = HashMap::new();
-        let table = Table::load("test_table", vec!["name".into(), "age".into()])
-            .unwrap_or_else(|_| panic!("Failed to preload 'test_table'"));
-        tables.insert("test_table".into(), table);
+        let tables = Table::load_all();
         Self { tables }
     }
 
@@ -41,8 +38,6 @@ impl VirtualMachine {
                         columns: schema.keys().map(|k| (k.clone(), vec![])).collect(),
                         selected_columns: schema.keys().cloned().collect(),
                     };
-
-                    self.tables.insert(name, table);
 
                     self.tables.insert(name.clone(), table);
                     self.tables
