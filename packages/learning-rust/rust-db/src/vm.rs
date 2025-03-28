@@ -43,6 +43,7 @@ impl VirtualMachine {
                     };
 
                     self.tables.insert(name, table);
+                    return CommandResult::VoidSuccess;
                 }
 
                 Command::InsertInto(table, columns, values) => {
