@@ -137,7 +137,10 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [ "traefik.service" ];
     };
-
+    systemd.services.traefik.serviceConfig = {
+      Restart = "always";
+      RestartSec = 5;
+    };
     users.users.traefik = { extraGroups = [ "docker" ]; };
     systemd.services.traefik.serviceConfig.WorkingDirectory =
       "${config.services.traefik.package}/bin";

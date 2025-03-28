@@ -486,6 +486,14 @@ in
             };
           };
         };
+        systemd.services.keepalived = {
+          bindsTo = [ "traefik.service" ];
+          after = [ "traefik.service" ];
+          serviceConfig = {
+            Restart = "always";
+            RestartSec = 5;
+          };
+        };
 
         keepalived = mkIf cfg.enable {
           enable = true;

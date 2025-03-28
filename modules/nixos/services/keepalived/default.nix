@@ -1,12 +1,7 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.keepalived;
+with lib.campground;
+let cfg = config.campground.services.keepalived;
 in {
   options.campground.services.keepalived = {
     enable = lib.mkEnableOption "Enable KeepAliveD";
@@ -20,7 +15,7 @@ in {
           };
           ips = lib.mkOption {
             type = lib.types.listOf lib.types.str;
-            default = [];
+            default = [ ];
             description = "The IPs to bind to";
           };
           state = lib.mkOption {
@@ -40,7 +35,7 @@ in {
           };
         };
       });
-      default = {};
+      default = { };
       description = "KeepAliveD instances configuration.";
     };
   };
@@ -48,15 +43,16 @@ in {
   config = lib.mkIf cfg.enable {
     networking.firewall.extraCommands = "iptables -A INPUT -p vrrp -j ACCEPT";
     services.keepalived.enable = true;
-    services.keepalived.vrrpInstances = lib.mapAttrs' (name: instanceCfg:
-      lib.nameValuePair name {
-        interface = instanceCfg.interface;
-        state = instanceCfg.state;
-        priority = instanceCfg.priority;
-        virtualIps = map (ip: {addr = ip;}) instanceCfg.ips;
-        virtualRouterId = instanceCfg.virtualRouterId;
-      })
-    cfg.instances;
-    environment.systemPackages = [pkgs.tcpdump];
+    services.keepalived.vrrpInstances = lib.mapAttrs'
+      (name: instanceCfg:
+        lib.nameValuePair name {
+          interface = instanceCfg.interface;
+          state = instanceCfg.state;
+          priority = instanceCfg.priority;
+          virtualIps = map (ip: { addr = ip; }) instanceCfg.ips;
+          virtualRouterId = instanceCfg.virtualRouterId;
+        })
+      cfg.instances;
+    environment.systemPackages = [ pkgs.tcpdump ];
   };
 }
