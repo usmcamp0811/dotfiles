@@ -50,6 +50,12 @@ in
   };
 
   config = {
+
+    systemd.services.keepalived = {
+      bindsTo = [ "traefik.service" ];
+      after = [ "traefik.service" ];
+      serviceConfig = { Restart = "always"; };
+    };
     campground = {
       services = {
         prometheus.additionalScrapeConfigs = [{
@@ -484,14 +490,6 @@ in
                 timeout = "5s";
               };
             };
-          };
-        };
-        systemd.services.keepalived = {
-          bindsTo = [ "traefik.service" ];
-          after = [ "traefik.service" ];
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = 5;
           };
         };
 

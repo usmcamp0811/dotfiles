@@ -138,7 +138,7 @@ in
       after = [ "traefik.service" ];
     };
     systemd.services.traefik.serviceConfig = {
-      Restart = "always";
+      Restart = mkDefault "always";
       RestartSec = 5;
     };
     users.users.traefik = { extraGroups = [ "docker" ]; };
