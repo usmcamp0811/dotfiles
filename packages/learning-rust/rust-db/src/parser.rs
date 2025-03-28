@@ -11,15 +11,24 @@ pub enum ParseError {
 
 pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
     let mut columns = vec![];
+    let mut values = vec![];
     let mut table = String::new();
     let mut schema = HashMap::new();
     let parser = sql::StatementParser::new();
-    let result = parser.parse(&mut columns, &mut table, &mut schema, &input);
+    let result = sql::StatementParser::new().parse(
+        &mut columns,
+        &mut table,
+        &mut schema,
+        &mut values,
+        &input,
+    );
 
     match result {
         Ok(_) => {
             if !schema.is_empty() {
                 Ok(vec![Command::CreateTable(table, schema)])
+            } else if !values.is_empty() {
+                Ok(vec![Command::InsertInto(table, columns, values)])
             } else {
                 Ok(vec![Command::SelectFrom(columns, table)])
             }

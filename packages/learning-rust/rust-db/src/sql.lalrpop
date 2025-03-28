@@ -1,9 +1,10 @@
 use std::collections::HashMap;
-grammar(cs: &mut Vec<String>, tn: &mut String, schema: &mut HashMap<String, crate::table::DataType>);
+grammar(cs: &mut Vec<String>, tn: &mut String, schema: &mut HashMap<String, crate::table::DataType>, vs: &mut Vec<crate::table::DataType>);
 
 pub Statement: () = {
   SelectStmt,
   CreateStmt,
+  InsertStmt,
 };
 
 SelectStmt: () = {
@@ -53,12 +54,41 @@ Type: crate::table::DataType = {
 TableName: String = <s:LITERAL> => s;
 
 
-SELECT: String = <s:r"select\s+"> => s.to_string();
-FROM: String = <s:r"\s+from\s+"> => s.to_string();
-CREATE: String = <s:r"create\s+"> => s.to_string();
-TABLE: String = <s:r"table\s+"> => s.to_string();
+CREATE: String = "create" => "create".to_string();
+TABLE: String = "table" => "table".to_string();
+SELECT: String = "select" => "select".to_string();
+FROM: String = "from" => "from".to_string();
 LITERAL: String = <s:r"[a-zA-Z_][a-zA-Z0-9_]*"> => s.to_string();
 SEMICOLON: String = <s:r";"> => s.to_string();
 LPAREN: String = <s:r"\("> => s.to_string();
 RPAREN: String = <s:r"\)"> => s.to_string();
 
+
+InsertStmt: () = {
+  INSERT INTO <tbl:TableName> LPAREN <cols:Columns> RPAREN VALUES LPAREN <vals:Values> RPAREN SEMICOLON => {
+    cs.extend(cols);
+    *tn = tbl;
+    vs.extend(vals);
+  }
+};
+
+Values: Vec<crate::table::DataType> = {
+  <v:Value> => vec![v],
+  <mut acc: Values> "," <v:Value> => {
+    acc.push(v);
+    acc
+  }
+};
+
+Value: crate::table::DataType = {
+  <s:STRING_LITERAL> => crate::table::DataType::String(s),
+  <n:INT_LITERAL> => crate::table::DataType::Integer32(n),
+  <f:FLOAT_LITERAL> => crate::table::DataType::Float32(f),
+};
+
+STRING_LITERAL: String = <s:r#""[^"]*""#> => s[1..s.len()-1].to_string();
+INT_LITERAL: i32 = <s:r"[0-9]+"> => s.parse().unwrap();
+FLOAT_LITERAL: f32 = <s:r"[0-9]+\.[0-9]+"> => s.parse().unwrap();
+VALUES: String = "values" => "values".to_string();
+INSERT: String = "insert" => "insert".to_string();
+INTO: String = "into" => "into".to_string();

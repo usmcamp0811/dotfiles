@@ -16,17 +16,50 @@ impl VirtualMachine {
         Self { tables }
     }
 
-    pub fn execute(&self, commands: Vec<Command>) -> CommandResult {
+    pub fn execute(&mut self, commands: Vec<Command>) -> CommandResult {
         for command in commands {
             match command {
-                Command::SelectFrom(cols, table_name) => { /* existing code */ }
-                Command::CreateTable(table_name, schema) => {
-                    // For now, return a placeholder error message.
-                    return CommandResult::Error("CREATE TABLE not implemented yet".into());
+                Command::SelectFrom(cols, table_name) => {
+                    if let Some(table) = self.tables.get(&table_name) {
+                        return table
+                            .select(cols)
+                            .map(CommandResult::RetrievedDataSuccess)
+                            .unwrap_or_else(|e| CommandResult::Error(e));
+                    } else {
+                        return CommandResult::Error(format!("Unknown table '{}'", table_name));
+                    }
                 }
+
+                Command::CreateTable(name, schema) => {
+                    if self.tables.contains_key(&name) {
+                        return CommandResult::Error(format!("Table '{}' already exists", name));
+                    }
+
+                    let table = Table {
+                        name: name.clone(),
+                        fields: schema.clone(),
+                        columns: schema.keys().map(|k| (k.clone(), vec![])).collect(),
+                        selected_columns: schema.keys().cloned().collect(),
+                    };
+
+                    self.tables.insert(name, table);
+                }
+
+                Command::InsertInto(table, columns, values) => {
+                    if let Some(t) = self.tables.get_mut(&table) {
+                        for (col, val) in columns.into_iter().zip(values.into_iter()) {
+                            t.columns.entry(col).or_insert_with(Vec::new).push(val);
+                        }
+                        return CommandResult::VoidSuccess;
+                    } else {
+                        return CommandResult::Error(format!("Table '{}' not found", table));
+                    }
+                }
+
                 Command::Stub => return CommandResult::VoidSuccess,
             }
         }
+
         CommandResult::Error("No command executed".into())
     }
 }
