@@ -1,12 +1,4 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, pkgs, ... }:
 with lib;
 with lib.campground;
 let
