@@ -61,6 +61,34 @@ impl VirtualMachine {
                     }
                 }
 
+                Command::DeleteWhere(table, column, value) => {
+                    if let Some(t) = self.tables.get_mut(&table) {
+                        if let Some(vec) = t.columns.get_mut(&column) {
+                            let mut indices_to_remove = vec
+                                .iter()
+                                .enumerate()
+                                .filter(|(_, v)| *v == &value)
+                                .map(|(i, _)| i)
+                                .collect::<Vec<_>>();
+                            indices_to_remove.sort_by(|a, b| b.cmp(a));
+                            for idx in indices_to_remove {
+                                for col_vals in t.columns.values_mut() {
+                                    if idx < col_vals.len() {
+                                        col_vals.remove(idx);
+                                    }
+                                }
+                            }
+                            t.save()
+                                .unwrap_or_else(|e| eprint!("Failed to save after delete: {}", e));
+                            return CommandResult::VoidSuccess;
+                        }
+                    }
+                    return CommandResult::Error(format!(
+                        "Table or column not found: {}.{}",
+                        table, column
+                    ));
+                }
+
                 Command::Stub => return CommandResult::VoidSuccess,
             }
         }

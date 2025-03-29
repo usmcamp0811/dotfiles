@@ -5,7 +5,7 @@ use std::{
     io::{BufRead, BufReader, BufWriter, Write},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum DataType {
     String(String),
     Integer32(i32),

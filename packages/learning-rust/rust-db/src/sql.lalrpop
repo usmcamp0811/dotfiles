@@ -5,6 +5,7 @@ pub Statement: () = {
   SelectStmt,
   CreateStmt,
   InsertStmt,
+  DeleteStmt,
 };
 
 SelectStmt: () = {
@@ -20,6 +21,17 @@ CreateStmt: () = {
     schema.extend(fields);
   }
 };
+
+DeleteStmt: () = {
+  DELETE FROM <tbl:TableName> WHERE <col:LITERAL> "=" <val:Value> SEMICOLON => {
+    *tn = tbl;
+    cs.push(col);
+    vs.push(val);
+  }
+};
+
+DELETE: String = "delete" => "delete".to_string();
+WHERE: String = "where" => "where".to_string();
 
 Columns: Vec<String> = {
   <c:LITERAL> => vec![c],
@@ -92,3 +104,6 @@ FLOAT_LITERAL: f32 = <s:r"[0-9]+\.[0-9]+"> => s.parse().unwrap();
 VALUES: String = "values" => "values".to_string();
 INSERT: String = "insert" => "insert".to_string();
 INTO: String = "into" => "into".to_string();
+
+
+

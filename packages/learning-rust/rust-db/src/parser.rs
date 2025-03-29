@@ -27,8 +27,14 @@ pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
         Ok(_) => {
             if !schema.is_empty() {
                 Ok(vec![Command::CreateTable(table, schema)])
-            } else if !values.is_empty() {
+            } else if !values.is_empty() && columns.len() > 0 {
                 Ok(vec![Command::InsertInto(table, columns, values)])
+            } else if !values.is_empty() && columns.len() == 1 {
+                Ok(vec![Command::DeleteWhere(
+                    table,
+                    columns[0].clone(),
+                    values[0].clone(),
+                )])
             } else {
                 Ok(vec![Command::SelectFrom(columns, table)])
             }
