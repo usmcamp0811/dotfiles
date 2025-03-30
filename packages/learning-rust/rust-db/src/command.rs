@@ -1,6 +1,7 @@
 use crate::table::DataType;
 use std::{collections::HashMap, ops::AddAssign};
 
+#[derive(Debug, PartialEq)]
 pub enum Command {
     SelectFrom(Vec<String>, String, Option<(String, DataType)>),
     CreateTable(String, HashMap<String, crate::table::DataType>),
