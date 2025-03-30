@@ -16,14 +16,35 @@ impl VirtualMachine {
     pub fn execute(&mut self, commands: Vec<Command>) -> CommandResult {
         for command in commands {
             match command {
-                Command::SelectFrom(cols, table_name) => {
+                Command::SelectFrom(cols, table_name, where_clause) => {
                     if let Some(table) = self.tables.get(&table_name) {
-                        return table
+                        let filtered = match where_clause {
+                            Some((col, val)) => table.filter_rows(&col, &val),
+                            None => table.clone(),
+                        };
+                        return filtered
                             .select(cols)
                             .map(CommandResult::RetrievedDataSuccess)
                             .unwrap_or_else(|e| CommandResult::Error(e));
                     } else {
                         return CommandResult::Error(format!("Unknown table '{}'", table_name));
+                    }
+                }
+
+                Command::SelectFrom(cols, table_name, maybe_filter) => {
+                    if let Some(table) = self.tables.get(&table_name) {
+                        let table = table.select(cols.clone())?;
+                        let table = if let Some((col, val)) = maybe_filter {
+                            table.filter_rows(&col, &val)
+                        } else {
+                            table
+                        };
+                        return Ok(CommandResult::RetrievedDataSuccess(table));
+                    } else {
+                        return Err(CommandResult::Error(format!(
+                            "Unknown table '{}'",
+                            table_name
+                        )));
                     }
                 }
 

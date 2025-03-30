@@ -10,6 +10,13 @@ pub Statement: () = {
 };
 
 SelectStmt: () = {
+  SELECT <cols:Columns> FROM <tbl:TableName> WHERE <col:LITERAL> "=" <val:Value> SEMICOLON => {
+    cs.extend(cols);
+    *tn = tbl;
+    vs.push(val);
+    cs.push(col);
+  },
+
   SELECT <cols:Columns> FROM <tbl:TableName> SEMICOLON => {
     cs.extend(cols);
     *tn = tbl;

@@ -2,9 +2,9 @@ use crate::table::DataType;
 use std::{collections::HashMap, ops::AddAssign};
 
 pub enum Command {
-    SelectFrom(Vec<String>, String), // (Columns, table_name)
+    SelectFrom(Vec<String>, String, Option<(String, DataType)>),
     CreateTable(String, HashMap<String, crate::table::DataType>),
-    InsertInto(String, Vec<String>, Vec<crate::table::DataType>), // table, columns, values
+    InsertInto(String, Vec<String>, Vec<crate::table::DataType>),
     DeleteWhere(String, String, DataType),
     UpdateWhere {
         table: String,

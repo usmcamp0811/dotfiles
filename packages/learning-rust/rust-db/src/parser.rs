@@ -14,7 +14,6 @@ pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
     let mut values = vec![];
     let mut table = String::new();
     let mut schema = HashMap::new();
-    let parser = sql::StatementParser::new();
     let result = sql::StatementParser::new().parse(
         &mut columns,
         &mut table,
@@ -43,8 +42,18 @@ pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
                     where_column: columns[1].clone(),
                     where_value: values[1].clone(),
                 }])
+            } else if columns.len() == 1 || columns.len() > 1 && values.is_empty() {
+                Ok(vec![Command::SelectFrom(columns, table, None)])
+            } else if columns.len() > 1 && values.len() > 1 {
+                let where_col = columns.pop().unwrap();
+                let where_val = values.pop().unwrap();
+                Ok(vec![Command::SelectFrom(
+                    columns,
+                    table,
+                    Some((where_col, where_val)),
+                )])
             } else {
-                Ok(vec![Command::SelectFrom(columns, table)])
+                Err(ParseError::Error("Unrecognized command structure".into()))
             }
         }
         Err(e) => Err(ParseError::Error(format!("{:?}", e))),

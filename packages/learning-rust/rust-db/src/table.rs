@@ -36,6 +36,37 @@ impl Table {
         })
     }
 
+    pub fn filter_rows(&self, column: &str, value: &DataType) -> Table {
+        let mut columns = HashMap::new();
+        let indices: Vec<usize> = self
+            .columns
+            .get(column)
+            .map(|col_data| {
+                col_data
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, v)| *v == value)
+                    .map(|(i, _)| i)
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        for (col, val) in &self.columns {
+            let filtered = indices
+                .iter()
+                .filter_map(|&i| val.get(i).cloned())
+                .collect();
+            columns.insert(col.clone(), filtered);
+        }
+
+        Table {
+            name: self.name.clone(),
+            fields: self.fields.clone(),
+            columns,
+            selected_columns: self.selected_columns.clone(),
+        }
+    }
+
     pub fn save(&self) -> Result<(), String> {
         let filename = format!("{}.db", self.name);
         let file = File::create(&filename).map_err(|e| e.to_string())?;
