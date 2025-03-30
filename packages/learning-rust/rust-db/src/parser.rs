@@ -1,3 +1,4 @@
+use crate::table::DataType;
 use lalrpop_util::lalrpop_mod;
 use std::{collections::HashMap, ops::AddAssign};
 
@@ -9,53 +10,69 @@ pub enum ParseError {
     Error(String),
 }
 
-pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
-    let mut columns = vec![];
-    let mut values = vec![];
-    let mut table = String::new();
-    let mut schema = HashMap::new();
-    let result = sql::StatementParser::new().parse(
-        &mut columns,
-        &mut table,
-        &mut schema,
-        &mut values,
-        &input,
-    );
+pub enum Statement {
+    Select {
+        columns: Vec<String>,
+        table: String,
+        where_clause: Option<(String, DataType)>,
+    },
+    Insert {
+        table: String,
+        columns: Vec<String>,
+        values: Vec<DataType>,
+    },
+    Create {
+        table: String,
+        schema: HashMap<String, DataType>,
+    },
+    Update {
+        table: String,
+        set_column: String,
+        set_value: DataType,
+        where_column: String,
+        where_value: DataType,
+    },
+    Delete {
+        table: String,
+        where_column: String,
+        where_value: DataType,
+    },
+}
 
-    match result {
-        Ok(_) => {
-            if !schema.is_empty() {
-                Ok(vec![Command::CreateTable(table, schema)])
-            } else if !values.is_empty() && columns.len() > 0 {
-                Ok(vec![Command::InsertInto(table, columns, values)])
-            } else if !values.is_empty() && columns.len() == 1 {
-                Ok(vec![Command::DeleteWhere(
-                    table,
-                    columns[0].clone(),
-                    values[0].clone(),
-                )])
-            } else if values.len() == 2 && columns.len() == 2 {
-                Ok(vec![Command::UpdateWhere {
-                    table,
-                    set_column: columns[0].clone(),
-                    set_value: values[0].clone(),
-                    where_column: columns[1].clone(),
-                    where_value: values[1].clone(),
-                }])
-            } else if columns.len() == 1 || columns.len() > 1 && values.is_empty() {
-                Ok(vec![Command::SelectFrom(columns, table, None)])
-            } else if columns.len() > 1 && values.len() > 1 {
-                let where_col = columns.pop().unwrap();
-                let where_val = values.pop().unwrap();
-                Ok(vec![Command::SelectFrom(
-                    columns,
-                    table,
-                    Some((where_col, where_val)),
-                )])
-            } else {
-                Err(ParseError::Error("Unrecognized command structure".into()))
-            }
-        }
-        Err(e) => Err(ParseError::Error(format!("{:?}", e))),
+pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
+    let statement = sql::StatementParser::new()
+        .parse(&input)
+        .map_err(|e| ParseError::Error(format!("{:?}", e)))?;
+
+    match statement {
+        Statement::Select {
+            columns,
+            table,
+            where_clause,
+        } => Ok(vec![Command::SelectFrom(columns, table, where_clause)]),
+        Statement::Insert {
+            table,
+            columns,
+            values,
+        } => Ok(vec![Command::InsertInto(table, columns, values)]),
+        Statement::Create { table, schema } => Ok(vec![Command::CreateTable(table, schema)]),
+        Statement::Update {
+            table,
+            set_column,
+            set_value,
+            where_column,
+            where_value,
+        } => Ok(vec![Command::UpdateWhere {
+            table,
+            set_column,
+            set_value,
+            where_column,
+            where_value,
+        }]),
+        Statement::Delete {
+            table,
+            where_column,
+            where_value,
+        } => Ok(vec![Command::DeleteWhere(table, where_column, where_value)]),
     }
 }

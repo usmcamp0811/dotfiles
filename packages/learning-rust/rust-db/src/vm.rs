@@ -31,23 +31,6 @@ impl VirtualMachine {
                     }
                 }
 
-                Command::SelectFrom(cols, table_name, maybe_filter) => {
-                    if let Some(table) = self.tables.get(&table_name) {
-                        let table = table.select(cols.clone())?;
-                        let table = if let Some((col, val)) = maybe_filter {
-                            table.filter_rows(&col, &val)
-                        } else {
-                            table
-                        };
-                        return Ok(CommandResult::RetrievedDataSuccess(table));
-                    } else {
-                        return Err(CommandResult::Error(format!(
-                            "Unknown table '{}'",
-                            table_name
-                        )));
-                    }
-                }
-
                 Command::CreateTable(name, schema) => {
                     if self.tables.contains_key(&name) {
                         return CommandResult::Error(format!("Table '{}' already exists", name));
