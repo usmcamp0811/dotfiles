@@ -6,6 +6,7 @@ pub Statement: () = {
   CreateStmt,
   InsertStmt,
   DeleteStmt,
+  UpdateStmt,
 };
 
 SelectStmt: () = {
@@ -32,6 +33,20 @@ DeleteStmt: () = {
 
 DELETE: String = "delete" => "delete".to_string();
 WHERE: String = "where" => "where".to_string();
+
+UpdateStmt: () = {
+  UPDATE <tbl:TableName> SET <set_col:LITERAL> "=" <set_value:Value> 
+  WHERE <where_col:LITERAL> "=" <where_val:Value> SEMICOLON => {
+    *tn = tbl;
+    cs.push(set_col);
+    cs.push(where_col);
+    vs.push(set_value);
+    vs.push(where_val);
+  }
+}
+
+UPDATE: String = "update" => "update".to_string();
+SET: String = "set" => "set".to_string();
 
 Columns: Vec<String> = {
   <c:LITERAL> => vec![c],

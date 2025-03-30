@@ -35,6 +35,14 @@ pub fn parse(input: String) -> Result<Vec<Command>, ParseError> {
                     columns[0].clone(),
                     values[0].clone(),
                 )])
+            } else if values.len() == 2 && columns.len() == 2 {
+                Ok(vec![Command::UpdateWhere {
+                    table,
+                    set_column: columns[0].clone(),
+                    set_value: values[0].clone(),
+                    where_column: columns[1].clone(),
+                    where_value: values[1].clone(),
+                }])
             } else {
                 Ok(vec![Command::SelectFrom(columns, table)])
             }

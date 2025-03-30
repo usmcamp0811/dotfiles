@@ -89,7 +89,38 @@ impl VirtualMachine {
                     ));
                 }
 
-                Command::Stub => return CommandResult::VoidSuccess,
+                Command::UpdateWhere {
+                    table,
+                    set_column,
+                    set_value,
+                    where_column,
+                    where_value,
+                } => {
+                    if let Some(t) = self.tables.get_mut(&table) {
+                        let target_col = t.columns.get(&where_column);
+                        if let Some(col_vals) = target_col {
+                            let matches: Vec<_> = col_vals
+                                .iter()
+                                .enumerate()
+                                .filter(|(_, v)| *v == &where_value)
+                                .map(|(i, _)| i)
+                                .collect();
+
+                            for idx in matches {
+                                if let Some(set_col_vals) = t.columns.get_mut(&set_column) {
+                                    if idx < set_col_vals.len() {
+                                        set_col_vals[idx] = set_value.clone();
+                                    }
+                                }
+                            }
+
+                            t.save()
+                                .unwrap_or_else(|e| eprintln!("Failed to save: {}", e));
+                            return CommandResult::VoidSuccess;
+                        }
+                    }
+                    CommandResult::Error(format!("Failed to update: {}.{}", table, where_column));
+                }
             }
         }
 
