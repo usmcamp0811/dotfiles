@@ -6,8 +6,13 @@ let
   inherit (lib.campground) override-meta;
   julia-env = pkgs.julia.withPackages.override
     {
-      extraLibs =
-        [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
+      extraLibs = [
+        pkgs.stdenv.cc.cc
+        pkgs.libxcrypt
+        pkgs.libxcrypt-legacy
+        pkgs.openssl
+        pkgs.cyrus_sasl
+      ];
       setDefaultDepot = true;
     } [
     "FileIO"
@@ -21,6 +26,9 @@ let
     "GLM"
     "StatsPlots"
     "StatsModels"
+
+    # "Plotly"
+    "Plots"
   ];
 
   startJupyterWithJulia = createJuliaConsole "julia-console"

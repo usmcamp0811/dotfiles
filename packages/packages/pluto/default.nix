@@ -1,21 +1,18 @@
-{ lib
-, writeText
-, writeShellApplication
-, substituteAll
-, gum
-, inputs
-, pkgs
-, hosts ? { }
-, ...
-}:
+{ lib, pkgs, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  julia-env = pkgs.julia.withPackages [ "Pluto" "PythonCall" ];
+  julia-env = pkgs.julia.withPackages.override
+    {
+      extraLibs =
+        [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
+      setDefaultDepot = true;
+    } [ "Pluto" "PythonCall" ];
 in
-writeShellApplication {
+pkgs.writeShellApplication {
   name = "pluto";
   meta = { mainProgram = "pluto"; };
+  runtimeInputs = [ julia-env pkgs.gcc13 ];
   text = ''
     HOST="0.0.0.0" # Default host
     PORT=1234      # Default port
@@ -30,6 +27,6 @@ writeShellApplication {
         shift
     done
 
-    ${julia-env}/bin/julia -e "using Pluto; Pluto.run(host=\"$HOST\", port=$PORT)"
+    julia -e "using Pluto; Pluto.run(host=\"$HOST\", port=$PORT)"
   '';
 }
