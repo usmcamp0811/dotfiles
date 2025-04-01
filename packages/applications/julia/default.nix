@@ -4,11 +4,12 @@ with lib.campground;
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-  julia-env = pkgs.julia.withPackages.override {
-    extraLibs =
-      [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
-    setDefaultDepot = true;
-  } [
+  julia-env = pkgs.julia.withPackages.override
+    {
+      extraLibs =
+        [ pkgs.libxcrypt pkgs.libxcrypt-legacy pkgs.openssl pkgs.cyrus_sasl ];
+      setDefaultDepot = true;
+    } [
     "FileIO"
     "JLD2"
     "DataFrames"
@@ -17,16 +18,21 @@ let
     "IJulia"
     "CSV"
     "LanguageServer"
+    "GLM"
+    "StatsPlots"
+    "StatsModels"
   ];
 
   startJupyterWithJulia = createJuliaConsole "julia-console"
-    "${pkgs.jupyter-all}/bin/jupyter console" {
+    "${pkgs.jupyter-all}/bin/jupyter console"
+    {
       pkgs = pkgs;
       juliaEnv = julia-env;
       kernelName = "campground";
     };
   startQtJupyterWithJulia = createJuliaConsole "julia-qtconsole"
-    "${pkgs.jupyter-all}/bin/jupyter qtconsole" {
+    "${pkgs.jupyter-all}/bin/jupyter qtconsole"
+    {
       pkgs = pkgs;
       juliaEnv = julia-env;
       kernelName = "campground";
@@ -50,7 +56,8 @@ let
     contents = [ juliaInFHS ];
     config = { Entrypoint = [ "julia" ]; };
   };
-in pkgs.stdenv.mkDerivation rec {
+in
+pkgs.stdenv.mkDerivation rec {
   pname = "julia";
   version = pkgs.julia.version;
   src = ./.;
