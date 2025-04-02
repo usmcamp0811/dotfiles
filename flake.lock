@@ -9925,11 +9925,11 @@
         "stable-nixpkgs": "stable-nixpkgs_15"
       },
       "locked": {
-        "lastModified": 1743559071,
-        "narHash": "sha256-64PHlL9FyXl8P9v3g80Twz8usWo59c/6zAvq+h+LaXQ=",
+        "lastModified": 1743562347,
+        "narHash": "sha256-79iCrsmwYBZKSOec8vAyc+Dr+OHBApECNOYQ5eEgFmc=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "179f6fa2e83b19d61d6ea73bb88b6758e379e04d",
+        "rev": "246555eaaa7f04a79beaf1d5e5e7e554298ce07b",
         "type": "gitlab"
       },
       "original": {
