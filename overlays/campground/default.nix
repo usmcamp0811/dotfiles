@@ -7,10 +7,10 @@
 , channels
 , unstable
 , ...
-}:
-final: prev:
+}: final: prev:
 {
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
+  neovim = campground-nvim.packages.${prev.system}.nvim;
   makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
   nixhelm = nixhelm;
   neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
@@ -27,11 +27,14 @@ final: prev:
     };
 
     # Add the plugin to the installPhase
-    installPhase = old.installPhase + ''
-      echo "Including LoginOIDC plugin in Matomo package..."
-      cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
-    '';
+    installPhase =
+      old.installPhase
+      + ''
+        echo "Including LoginOIDC plugin in Matomo package..."
+        cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
+      '';
   });
-} // {
+}
+  // {
   inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin;
 }

@@ -1,17 +1,22 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli.neovim;
-in {
+in
+{
   options.campground.cli.neovim = { enable = mkEnableOption "Neovim"; };
 
   config = mkIf cfg.enable {
     campground.cli.aliases = {
       vim = "${pkgs.campground-nvim}/bin/nvim";
-      nvim = "${pkgs.campground-nvim}/bin/nvim";
-      diff = "${pkgs.campground-nvim}/bin/nvim -d $1";
+      # nvim = "${pkgs.campground-nvim}/bin/nvim";
+      diff = "${pkgs.campground-nvim}/bin/nvim -d $1 $2";
     };
-    home = { packages = with pkgs; [ less campground-nvim ]; };
+    home.packages = with pkgs; [ less campground-nvim ];
   };
 }
