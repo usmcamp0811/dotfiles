@@ -1,7 +1,10 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.archetypes.desktop;
@@ -32,11 +35,12 @@ in
           };
           hyprpaper = {
             enable = true;
-            monitors = [{
-              name = cfg.display-name;
-              wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
-            }];
+            monitors = [
+              {
+                name = cfg.display-name;
+                wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
+              }
+            ];
 
             wallpapers = [
               "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
@@ -61,6 +65,7 @@ in
         k9s = enabled;
         broot = enabled;
         ranger = enabled;
+        yazi = enabled;
         neovim = enabled;
         misc = enabled;
       };

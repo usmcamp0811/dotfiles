@@ -7,6 +7,12 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.cli.yazi;
+  yaziBookmarkSrc = pkgs.fetchFromGitHub {
+    owner = "dedukun";
+    repo = "bookmarks.yazi";
+    rev = "08b3f85c5d52656157a55e10410050b042f5b314";
+    sha256 = "sha256-t3MKmmNABMMphnfpIOQiSfn34HwNo8RkWr7+jeD7xfI=";
+  };
 in
 {
   options.campground.cli.yazi = { enable = mkEnableOption "Yazi"; };
@@ -81,5 +87,4 @@ in
       };
     };
   };
-};
 }

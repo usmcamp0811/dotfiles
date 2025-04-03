@@ -25,6 +25,7 @@ in
         { id = "iaddfgegjgjelgkanamleadckkpnjpjc"; } # Auto Quality for YouTube
         { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # Vimium
         { id = "annfbnbieaamhaimclajlajpijgkdblo"; } # Dark Theme
+        { id = "elifhakcjgalahccnjkneoccemfahfoa"; } # Markdown Here
       ];
     };
     # systemd.services.installCACerts = {
