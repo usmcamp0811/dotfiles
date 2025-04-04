@@ -1,11 +1,4 @@
 { pkgs, ... }: {
-  yaziBookmarkSrc = pkgs.fetchFromGitHub {
-    owner = "dedukun";
-    repo = "bookmarks.yazi";
-    rev = "08b3f85c5d52656157a55e10410050b042f5b314";
-    sha256 = "sha256-t3MKmmNABMMphnfpIOQiSfn34HwNo8RkWr7+jeD7xfI=";
-  };
-
   official-plugins = pkgs.fetchFromGitHub {
     owner = "yazi-rs";
     repo = "plugins";
@@ -78,9 +71,9 @@
 
   yatline = pkgs.fetchFromGitHub {
     owner = "imsi32";
-    repo = "yatline";
-    rev = "655facb7c31ddcf96a05185c65dd5b89d5954f2b";
-    hash = "sha256-fjapFEaM5ORoJJivrzKxwPM9pe6B9UkVqPfOsUPxpEg=";
+    repo = "yatline.yazi";
+    rev = "600ed1fb1d04e1292da04280a65f8deca04dc36a";
+    hash = "sha256-oHCRScbahGaX8MTVNalNXlxQ7NJN5QKvGHbTXreAWFM=";
   };
 
   lazygit = pkgs.fetchFromGitHub {

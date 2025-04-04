@@ -7,7 +7,7 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.cli.yazi;
-  plugins = import ./plugins.nix { inherit pkgs; };
+  plugin = import ./plugins.nix { inherit pkgs; };
   # millerYaziSrc = pkgs.fetchFromGitHub {
   #   owner = "Reledia";
   #   repo = "miller.yazi";
@@ -43,73 +43,197 @@ in
     #     }
     #   '';
     # };
+    home.packages = with pkgs; [
+      mediainfo
+      ouch
+      glow
+      hexyl
+      antiprism
+      fzf
+    ];
     programs.yazi = {
       enable = true;
-
       initLua = ./init.lua;
       flavors = {
-        kanagawa = "${plugins.kanagawa}";
-        material-ocean = "${plugins.material-ocean}";
+        kanagawa = "${plugin.kanagawa}";
+        material-ocean = "${plugin.material-ocean}";
       };
-      enableZshIntegration = true;
-      enableNushellIntegration = true;
-      shellWrapperName = "y";
       theme.flavor = {
         dark = "kanagawa";
       };
-      settings = {
-        keymap = {
-          manager.prepend_keymap = [
+      plugins = {
+        chmod = "${plugin.official-plugins}/chmod.yazi";
+        diff = "${plugin.official-plugins}/diff.yazi";
+        full-border = "${plugin.official-plugins}/full-border.yazi";
+        git = "${plugin.official-plugins}/git.yazi";
+        hide-preview = "${plugin.official-plugins}/hide-preview.yazi";
+        mount = "${plugin.official-plugins}/mount.yazi";
+        office = "${plugin.office}";
+        rich-preview = "${plugin.rich-preview}";
+        eza-preview = "${plugin.eza-preview}";
+        mediainfo = "${plugin.mediainfo}";
+        fg = "${plugin.fzf}";
+        glow = "${plugin.glow}";
+        hexyl = "${plugin.hexyl}";
+        ouch = "${plugin.ouch}";
+        yatline = "${plugin.yatline}";
+        lazygit = "${plugin.lazygit}";
+        githead = "${plugin.githead}";
+      };
+      keymap = {
+        manager = {
+          show_symlink = true;
+          prepend_keymap = [
             {
-              run = "close";
-              on = [ "<C-q>" ];
+              on = [ "E" ];
+              run = "plugin eza-preview";
+              desc = "Toggle tree/list dir preview";
             }
+
             {
-              run = "yank --cut";
-              on = [ "d" ];
+              on = [ "-" ];
+              run = "plugin eza-preview '--inc-level'";
+              desc = "Increment tree level";
             }
+
             {
-              run = "remove --force";
-              on = [ "D" ];
+              on = [ "_" ];
+              run = "plugin eza-preview '--dec-level'";
+              desc = "Decrement tree level";
             }
+
             {
-              run = "remove --permanently";
-              on = [ "X" ];
+              on = [ "$" ];
+              run = "plugin eza-preview '--toggle-follow-symlinks'";
+              desc = "Toggle tree follow symlinks";
             }
+
             {
-              run = "plugin bookmarks --args=save";
-              on = [ "m" ];
-              desc = "Save current position as a bookmark";
+              on = [ "<C-d>" ];
+              run = "plugin diff";
+              desc = "Diff the selected with the hovered file";
             }
+
             {
-              run = "plugin bookmarks --args=jump";
-              on = [ "'" ];
-              desc = "Jump to a bookmark";
+              on = [ "g" "i" ];
+              run = "plugin lazygit";
+              desc = "run lazygit";
             }
+
             {
-              run = "plugin bookmarks --args=delete";
-              on = [ "b" "d" ];
-              desc = "Delete a bookmark";
+              on = [ "T" ];
+              run = "plugin hide-preview";
+              desc = "Hide or show preview";
             }
+
             {
-              run = "plugin bookmarks --args=delete_all";
-              on = [ "b" "D" ];
-              desc = "Delete all bookmarks";
+              on = [ "M" ];
+              run = "plugin mount";
+            }
+
+            {
+              on = [ "<C-e>" ];
+              run = "seek 5";
+            }
+
+            {
+              on = [ "<C-y>" ];
+              run = "seek -5";
+            }
+
+            {
+              on = [ "f" "g" ];
+              run = "plugin fg";
+              desc = "find file by content";
+            }
+
+            {
+              on = [ "f" "f" ];
+              run = "plugin fg 'fzf'";
+              desc = "find file by filename";
+            }
+
+            {
+              on = [ "f" "G" ];
+              run = "plugin fg 'rg'";
+              desc = "find file by content (ripgrep match)";
+            }
+
+            {
+              on = [ "C" ];
+              run = "plugin ouch zip";
+              desc = "Compress with ouch";
             }
           ];
         };
-        yazi = {
-          manager = { show_hidden = true; };
-          opener.edit = [
+      };
+      settings = {
+        preview = {
+          image_filter = "catmull-rom";
+          image_quality = 80;
+        };
+        opener = {
+          openImage = [
             {
-              run = ''nvim "$@"'';
+              run = ''viewnior "$@" '';
               block = true;
+              for = "unix";
+            }
+          ];
+          openPdf = [
+            {
+              run = ''${pkgs.zathura}/bin/zathura "$@" '';
+              block = true;
+              for = "unix";
+            }
+          ];
+          extract = [
+            {
+              run = ''ouch d -y "$@" '';
+              desc = "Extract here with ouch";
+              for = "unix";
+            }
+          ];
+        };
+
+        open = {
+          prepend_rules = [
+            {
+              name = "*.{svg,png,jpg,jpeg,gif}";
+              use = "openImage";
+            }
+            {
+              name = "*.pdf";
+              use = "openPdf";
             }
           ];
         };
 
         plugin = {
+          prepend_fetchers = [
+            {
+              id = "git";
+              name = "*";
+              run = "git";
+            }
+
+            {
+              id = "git";
+              name = "*/";
+              run = "git";
+            }
+          ];
           prepend_preloaders = [
+            {
+              mime = "{audio,video,image}/*";
+              run = "mediainfo";
+            }
+
+            {
+              mime = "application/subrip";
+              run = "mediainfo";
+            }
+
             {
               mime = "application/openxmlformats-officedocument.*";
               run = "office";
@@ -134,35 +258,113 @@ in
               run = "office";
             }
           ];
-
           prepend_previewers = [
+            {
+              name = "*/";
+              run = "eza-preview";
+            }
+
+            {
+              mime = "{audio,video}/*";
+              run = "mediainfo";
+            }
+
+            {
+              name = "*.{jpg,png,webp}";
+              run = "mediainfo";
+            }
+
+            {
+              mime = "application/subrip";
+              run = "mediainfo";
+            }
+
+            {
+              name = "*.csv";
+              run = "rich-preview";
+            }
+
+            {
+              name = "*.md";
+              run = "rich-preview";
+            }
+
+            {
+              name = "*.rst";
+              run = "rich-preview";
+            }
+
+            {
+              name = "*.ipynb";
+              run = "rich-preview";
+            }
+
+            {
+              name = "*.json";
+              run = "rich-preview";
+            }
+
             {
               mime = "application/openxmlformats-officedocument.*";
               run = "office";
             }
+
             {
               mime = "application/oasis.opendocument.*";
               run = "office";
             }
+
             {
               mime = "application/ms-*";
               run = "office";
             }
+
             {
               mime = "application/msword";
               run = "office";
             }
+
             {
               name = "*.docx";
               run = "office";
+            }
+
+            {
+              mime = "application/*zip";
+              run = "ouch";
+            }
+
+            {
+              mime = "application/x-tar";
+              run = "ouch";
+            }
+
+            {
+              mime = "application/x-tar.gz";
+              run = "ouch";
+            }
+
+            {
+              mime = "application/x-bzip2";
+              run = "ouch";
+            }
+
+            {
+              mime = "application/x-7z-compressed";
+              run = "ouch";
+            }
+
+            {
+              mime = "application/x-rar";
+              run = "ouch";
+            }
+
+            {
+              mime = "application/x-xz";
+              run = "ouch";
             }
           ];
         };
-      };
-      plugins = {
-        bookmarks = "${plugins.yaziBookmarkSrc}";
-        office = "${plugins.office}";
-        # miller-preview = millerYaziSrc;
       };
     };
   };

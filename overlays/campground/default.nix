@@ -6,6 +6,7 @@
 , nixpkgs
 , channels
 , unstable
+, yazi
 , ...
 }: final: prev:
 {
@@ -14,6 +15,7 @@
   makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
   nixhelm = nixhelm;
   neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
+  yazi = yazi.packages.${prev.system}.yazi;
   wasm-bindgen-cli =
     unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
 
