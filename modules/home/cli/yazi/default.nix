@@ -8,23 +8,23 @@ with lib;
 with lib.campground; let
   cfg = config.campground.cli.yazi;
   plugins = import ./plugins.nix { inherit pkgs; };
-  millerYaziSrc = pkgs.fetchFromGitHub {
-    owner = "Reledia";
-    repo = "miller.yazi";
-    rev = "master";
-    sha256 = "sha256-GXZZ/vI52rSw573hoMmspnuzFoBXDLcA0fqjF76CdnY=";
-  };
-
-  officeYaziSrc = pkgs.runCommand "office.yazi-with-init" { } ''
-    mkdir -p $out
-    cp -r ${pkgs.fetchFromGitHub {
-      owner = "macydnah";
-      repo = "office.yazi";
-      rev = "master";
-      sha256 = "sha256-rZas/oMNI6H5lXOixDQcL/dQC+J9VCFrOOIIjjLDUc4=";
-    }}/* $out/
-    ln -s $out/main.lua $out/init.lua
-  '';
+  # millerYaziSrc = pkgs.fetchFromGitHub {
+  #   owner = "Reledia";
+  #   repo = "miller.yazi";
+  #   rev = "master";
+  #   sha256 = "sha256-GXZZ/vI52rSw573hoMmspnuzFoBXDLcA0fqjF76CdnY=";
+  # };
+  #
+  # officeYaziSrc = pkgs.runCommand "office.yazi-with-init" {} ''
+  #   mkdir -p $out
+  #   cp -r ${pkgs.fetchFromGitHub {
+  #     owner = "macydnah";
+  #     repo = "office.yazi";
+  #     rev = "master";
+  #     sha256 = "sha256-rZas/oMNI6H5lXOixDQcL/dQC+J9VCFrOOIIjjLDUc4=";
+  #   }}/* $out/
+  #   ln -s $out/main.lua $out/init.lua
+  # '';
 in
 {
   options.campground.cli.yazi = { enable = mkEnableOption "Yazi"; };
@@ -45,9 +45,18 @@ in
     # };
     programs.yazi = {
       enable = true;
+
+      initLua = ./init.lua;
+      flavors = {
+        kanagawa = "${plugins.kanagawa}";
+        material-ocean = "${plugins.material-ocean}";
+      };
       enableZshIntegration = true;
       enableNushellIntegration = true;
       shellWrapperName = "y";
+      theme.flavor = {
+        dark = "kanagawa";
+      };
       settings = {
         keymap = {
           manager.prepend_keymap = [
@@ -151,9 +160,9 @@ in
         };
       };
       plugins = {
-        bookmarks = plugins.yaziBookmarkSrc;
-        office = plugins.office;
-        miller-preview = millerYaziSrc;
+        bookmarks = "${plugins.yaziBookmarkSrc}";
+        office = "${plugins.office}";
+        # miller-preview = millerYaziSrc;
       };
     };
   };
