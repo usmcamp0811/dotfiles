@@ -8,41 +8,11 @@ with lib;
 with lib.campground; let
   cfg = config.campground.cli.yazi;
   plugin = import ./plugins.nix { inherit pkgs; };
-  # millerYaziSrc = pkgs.fetchFromGitHub {
-  #   owner = "Reledia";
-  #   repo = "miller.yazi";
-  #   rev = "master";
-  #   sha256 = "sha256-GXZZ/vI52rSw573hoMmspnuzFoBXDLcA0fqjF76CdnY=";
-  # };
-  #
-  # officeYaziSrc = pkgs.runCommand "office.yazi-with-init" {} ''
-  #   mkdir -p $out
-  #   cp -r ${pkgs.fetchFromGitHub {
-  #     owner = "macydnah";
-  #     repo = "office.yazi";
-  #     rev = "master";
-  #     sha256 = "sha256-rZas/oMNI6H5lXOixDQcL/dQC+J9VCFrOOIIjjLDUc4=";
-  #   }}/* $out/
-  #   ln -s $out/main.lua $out/init.lua
-  # '';
 in
 {
   options.campground.cli.yazi = { enable = mkEnableOption "Yazi"; };
 
   config = mkIf cfg.enable {
-    # campground.cli.aliases = {
-    #   y = ''
-    #     function y() {
-    #       echo "Opening yazi"
-    #     	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-    #     	${pkgs.yazi}/bin/yazi "$@" --cwd-file="$tmp"
-    #     	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-    #     		builtin cd -- "$cwd"
-    #     	fi
-    #     	rm -f -- "$tmp"
-    #     }
-    #   '';
-    # };
     home.packages = with pkgs; [
       mediainfo
       ouch
@@ -54,6 +24,9 @@ in
     programs.yazi = {
       enable = true;
       initLua = ./init.lua;
+      enableZshIntegration = true;
+      enableNushellIntegration = true;
+      shellWrapperName = "y";
       flavors = {
         kanagawa = "${plugin.kanagawa}";
         material-ocean = "${plugin.material-ocean}";
@@ -115,7 +88,7 @@ in
             }
 
             {
-              on = [ "g" "i" ];
+              on = [ "t" "g" ];
               run = "plugin lazygit";
               desc = "run lazygit";
             }
@@ -175,7 +148,7 @@ in
         opener = {
           openImage = [
             {
-              run = ''viewnior "$@" '';
+              run = ''${pkgs.feh}/bin/feh "$@" '';
               block = true;
               for = "unix";
             }
@@ -189,7 +162,7 @@ in
           ];
           extract = [
             {
-              run = ''ouch d -y "$@" '';
+              run = ''${pkgs.ouch}/bin/ouch d -y "$@" '';
               desc = "Extract here with ouch";
               for = "unix";
             }
