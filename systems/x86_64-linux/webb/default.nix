@@ -1,7 +1,9 @@
-{ lib, pkgs, ... }:
+{ lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   # newUser = name: {
   #   isNormalUser = true;
   #   createHome = true;
@@ -35,7 +37,7 @@ in
         log-to-kafka = true;
       };
       kubernetes = {
-        enable = true;
+        # enable = true;
         role = "controller+worker";
         interface = "eno1";
       };
@@ -71,7 +73,7 @@ in
     services = {
       # onlyoffice = { enable = true; };
       pds = enabled;
-      lemmy = enabled;
+      # lemmy = enabled;
       netbird.server = enabled;
       vault = {
         enable = true;
@@ -94,23 +96,26 @@ in
           '';
         };
         settings = ''
-          cluster_addr = "http://webb:8201" 
+          cluster_addr = "http://webb:8201"
           api_addr = "http://webb:8200"
         '';
 
-        policies = builtins.foldl'
-          (policies: file:
-            policies // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ./vault/policies + "/${
-                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }")
-              (snowfall.fs.get-files ./vault/policies)));
+        policies =
+          builtins.foldl'
+            (policies: file:
+              policies
+              // {
+                "${snowfall.path.get-file-name-without-extension file}" = file;
+              })
+            { }
+            (builtins.filter (snowfall.path.has-file-extension "hcl")
+              (builtins.map
+                (path:
+                  ./vault/policies
+                  + "/${
+                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+                }")
+                (snowfall.fs.get-files ./vault/policies)));
       };
       remark42 = {
         enable = true;
@@ -155,9 +160,9 @@ in
       #   };
       # };
       firefly = enabled;
-      firefly-plaid-connector = enabled;
+      # firefly-plaid-connector = enabled;
       campground-blog = enabled;
-      nextcloud = { enable = true; };
+      # nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
       uptime-kuma = enabled;
       grafana = {
@@ -207,7 +212,6 @@ in
       immich = {
         enable = true;
         mediaLocation = "/webb/media/photos";
-
       };
       # spark = {
       #   enable = true;
@@ -267,10 +271,12 @@ in
         enableTCPIP = true;
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
-        databases = [{
-          name = "campgroundai";
-          user = "campgroundai";
-        }];
+        databases = [
+          {
+            name = "campgroundai";
+            user = "campgroundai";
+          }
+        ];
         authentication = [
           "local   all        root      trust" # Allow trusted local connections for root
           "local   all        postgres  peer" # Use peer authentication for postgres user locally

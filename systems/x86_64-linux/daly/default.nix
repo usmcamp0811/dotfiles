@@ -47,7 +47,6 @@ with lib.campground; {
     nfs.client = { enable = true; };
 
     services = {
-
       # lemmy = enabled;
       # lynis = enabled;
       # netbird.server = enabled;
@@ -73,6 +72,7 @@ with lib.campground; {
         port = 8181;
       };
       campground-blog = enabled;
+      matt-camp-website = enabled;
 
       hadoop = {
         # enable = true;
@@ -176,18 +176,25 @@ with lib.campground; {
           '';
         };
         settings = ''
-          cluster_addr = "http://daly:8201" 
+          cluster_addr = "http://daly:8201"
           api_addr = "http://daly:8200"
         '';
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ./vault/policies + "/${
-                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ./vault/policies)));
+        policies = builtins.foldl'
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies
+                + "/${
+              builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+            }")
+              (snowfall.fs.get-files ./vault/policies)));
       };
       vault-agent = {
         enable = true;

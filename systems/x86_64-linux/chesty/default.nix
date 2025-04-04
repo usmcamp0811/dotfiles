@@ -8,7 +8,7 @@ with lib.campground;
 #     home = "/home/${name}";
 #     shell = pkgs.zsh;
 #   };
-# in 
+# in
 {
   imports = [ ./hardware.nix ];
   campground = {
@@ -117,6 +117,7 @@ with lib.campground;
       };
       # hydra = enabled;
       jellyfin = enabled;
+      matt-camp-website = enabled;
       campground-blog = enabled;
       vault = {
         enable = true;
@@ -138,18 +139,25 @@ with lib.campground;
           '';
         };
         settings = ''
-          cluster_addr = "http://chesty:8201" 
+          cluster_addr = "http://chesty:8201"
           api_addr = "http://chesty:8200"
         '';
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ../daly/vault/policies + "/${
+        policies = builtins.foldl'
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies
+                + "/${
                 builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ../daly/vault/policies)));
+              }")
+              (snowfall.fs.get-files ../daly/vault/policies)));
       };
       searx = {
         enable = true;

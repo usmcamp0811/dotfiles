@@ -1,7 +1,11 @@
-{ pkgs, config, lib, inputs, ... }:
+{ pkgs
+, config
+, lib
+, inputs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -29,7 +33,13 @@ in
       extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
-    # stig = { enable = true; };
+    stig = {
+      enable = true;
+      banner = {
+        enable = false;
+        justification = [ "i said so" ];
+      };
+    };
 
     suites = {
       kubernetes = {
@@ -57,8 +67,7 @@ in
       attic-watch-store = enabled;
       zfs-key-server = {
         enable = false;
-        tang-servers =
-          [ "http://webb:1234" "http://lucas:1234" "http://chesty:1234" ];
+        tang-servers = [ "http://webb:1234" "http://lucas:1234" "http://chesty:1234" ];
       };
       netbird.client = enabled;
       # wireguard-client = {
