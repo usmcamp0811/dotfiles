@@ -34,13 +34,22 @@
     hash = "sha256-rZas/oMNI6H5lXOixDQcL/dQC+J9VCFrOOIIjjLDUc4=";
   };
 
-  eza-preview = pkgs.fetchFromGitHub {
-    owner = "hfytr";
-    repo = "eza-preview.yazi";
-    rev = "63900acec5d2e1d8e8d81c57b0140d83a43faad0";
-    hash = "sha256-QaDpn9Vd9I7j35Oy1BvnT7/TH1cTpe34NUSYvMEP0Q4=";
-  };
-
+  eza-preview =
+    pkgs.runCommandLocal "eza-patched"
+      {
+        preferLocalBuild = true;
+        allowSubstitutes = false;
+        src = pkgs.fetchFromGitHub {
+          owner = "pierreay";
+          repo = "eza-preview.yazi";
+          rev = "eeed668291bdf6cf91baf5124b952dcb2a2bfc6f";
+          hash = "sha256-U2G6AHBpo6N+yphFem8u3+NQolIyAxK4V7SDSlsvzuo=";
+        };
+      } ''
+      mkdir -p "$out"
+      cp -rT "$src" "$out"
+      ln -s "$out/init.lua" "$out/main.lua"
+    '';
   # eza-preview = pkgs.fetchFromGitHub {
   #   owner = "ahkohd";
   #   repo = "eza-preview.yazi";
