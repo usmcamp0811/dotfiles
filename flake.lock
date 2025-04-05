@@ -82452,17 +82452,16 @@
     "fzf-yazi": {
       "flake": false,
       "locked": {
-        "lastModified": 1739020786,
-        "narHash": "sha256-dcidPBhc0+NvPb80hK+kUoq+PxspceFCliyEc7K3OTk=",
+        "lastModified": 1740741798,
+        "narHash": "sha256-/GApLVDpGcH2drwSNluEvoQdnjgE8AsPHdci/9eg7Lg=",
         "owner": "DreamMaoMao",
         "repo": "fg.yazi",
-        "rev": "daf696065d65e61a1b3026ab8190351203513d51",
+        "rev": "652d02a1413d2440d264667608102eb158ed0e68",
         "type": "github"
       },
       "original": {
         "owner": "DreamMaoMao",
         "repo": "fg.yazi",
-        "rev": "daf696065d65e61a1b3026ab8190351203513d51",
         "type": "github"
       }
     },
@@ -87550,7 +87549,6 @@
       "original": {
         "owner": "llanosrocas",
         "repo": "githead.yazi",
-        "rev": "23750247d59da485e4b5257ad5e83837bb86a685",
         "type": "github"
       }
     },
@@ -139018,17 +139016,16 @@
     "kanagawa-yazi": {
       "flake": false,
       "locked": {
-        "lastModified": 1736268689,
-        "narHash": "sha256-Z/lyXNCSqX0wvCQd39ZedxOGlhRzQ+M0hqzkBEcpxEE=",
+        "lastModified": 1740321321,
+        "narHash": "sha256-phwGd1i/n0mZH/7Ukf1FXwVgYRbXQEWlNRPCrmR5uNk=",
         "owner": "dangooddd",
         "repo": "kanagawa.yazi",
-        "rev": "d98f0c3e27299f86ee080294df2722c5a634495a",
+        "rev": "31167ed54c9cc935b2fa448d64d367b1e5a1105d",
         "type": "github"
       },
       "original": {
         "owner": "dangooddd",
         "repo": "kanagawa.yazi",
-        "rev": "d98f0c3e27299f86ee080294df2722c5a634495a",
         "type": "github"
       }
     },
@@ -139065,17 +139062,16 @@
     "lazygit-yazi": {
       "flake": false,
       "locked": {
-        "lastModified": 1739120746,
-        "narHash": "sha256-ns9DzIdI2H3IuCByoJjOtUWQQB9vITxmJ/QrYt+Rdao=",
+        "lastModified": 1743429988,
+        "narHash": "sha256-OJJPgpSaUHYz8a9opVLCds+VZsK1B6T+pSRJyVgYNy8=",
         "owner": "Lil-Dank",
         "repo": "lazygit.yazi",
-        "rev": "9f924e34cde61d5965d6d620698b0b15436c8e08",
+        "rev": "7a08a0988c2b7481d3f267f3bdc58080e6047e7d",
         "type": "github"
       },
       "original": {
         "owner": "Lil-Dank",
         "repo": "lazygit.yazi",
-        "rev": "9f924e34cde61d5965d6d620698b0b15436c8e08",
         "type": "github"
       }
     },
@@ -140208,17 +140204,16 @@
     "material-ocean-yazi": {
       "flake": false,
       "locked": {
-        "lastModified": 1739672825,
-        "narHash": "sha256-Hc3CmoQYWaIxob7z6bXtrxT/sL/GWxxn8E5fEV4MIKU=",
+        "lastModified": 1739673719,
+        "narHash": "sha256-5YGwMkQugoYv1TjMeZ70KLMRntFqbRnCURfekZaap2Y=",
         "owner": "myamusashi",
         "repo": "material-ocean.yazi",
-        "rev": "b0d8a53e5df7dd9935f8be108c2e6f47c208a75c",
+        "rev": "35c913c26cd477771c70933d0cf2c6edc6707c0e",
         "type": "github"
       },
       "original": {
         "owner": "myamusashi",
         "repo": "material-ocean.yazi",
-        "rev": "b0d8a53e5df7dd9935f8be108c2e6f47c208a75c",
         "type": "github"
       }
     },

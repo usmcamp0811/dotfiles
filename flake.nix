@@ -195,6 +195,7 @@
     nixhelm.url = "github:farcaller/nixhelm";
     kube-gen.url = "github:farcaller/nix-kube-generators";
     nix2container.url = "github:nlewo/nix2container";
+
     yazi.url = "github:sxyazi/yazi/v25.3.2";
     bunny-yazi = {
       url = "github:stelcodes/bunny.yazi";
@@ -267,12 +268,12 @@
     };
 
     lazygit-yazi = {
-      url = "github:Lil-Dank/lazygit.yazi?rev=9f924e34cde61d5965d6d620698b0b15436c8e08";
+      url = "github:Lil-Dank/lazygit.yazi";
       flake = false;
     };
 
     githead-yazi = {
-      url = "github:llanosrocas/githead.yazi?rev=23750247d59da485e4b5257ad5e83837bb86a685";
+      url = "github:llanosrocas/githead.yazi";
       flake = false;
     };
 
@@ -282,17 +283,17 @@
     };
 
     kanagawa-yazi = {
-      url = "github:dangooddd/kanagawa.yazi?rev=d98f0c3e27299f86ee080294df2722c5a634495a";
+      url = "github:dangooddd/kanagawa.yazi";
       flake = false;
     };
 
     material-ocean-yazi = {
-      url = "github:myamusashi/material-ocean.yazi?rev=b0d8a53e5df7dd9935f8be108c2e6f47c208a75c";
+      url = "github:myamusashi/material-ocean.yazi";
       flake = false;
     };
 
     fzf-yazi = {
-      url = "github:DreamMaoMao/fg.yazi?rev=daf696065d65e61a1b3026ab8190351203513d51";
+      url = "github:DreamMaoMao/fg.yazi";
       flake = false;
     };
   };
