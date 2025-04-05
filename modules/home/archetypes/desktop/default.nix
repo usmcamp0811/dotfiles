@@ -64,7 +64,7 @@ in
         home-manager = enabled;
         k9s = enabled;
         broot = enabled;
-        ranger = enabled;
+        # ranger = enabled;
         yazi = enabled;
         neovim = enabled;
         misc = enabled;

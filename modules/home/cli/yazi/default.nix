@@ -26,13 +26,14 @@ in
       initLua = ./init.lua;
       enableZshIntegration = true;
       enableNushellIntegration = true;
-      shellWrapperName = "y";
+      shellWrapperName = "lr";
       flavors = {
         kanagawa = "${plugin.kanagawa}";
         material-ocean = "${plugin.material-ocean}";
+        onedark = "${plugin.onedark}";
       };
       theme.flavor = {
-        dark = "kanagawa";
+        dark = "onedark";
       };
       plugins = {
         chmod = "${plugin.official-plugins}/chmod.yazi";
@@ -41,6 +42,7 @@ in
         git = "${plugin.official-plugins}/git.yazi";
         hide-preview = "${plugin.official-plugins}/hide-preview.yazi";
         mount = "${plugin.official-plugins}/mount.yazi";
+        smart-enter = "${plugin.official-plugins}/smart-enter.yazi";
         office = "${plugin.office}";
         rich-preview = "${plugin.rich-preview}";
         eza-preview = "${plugin.eza-preview}";
@@ -57,6 +59,11 @@ in
         manager = {
           show_symlink = true;
           prepend_keymap = [
+            {
+              on = [ "l" ];
+              run = "plugin smart-enter";
+              desc = "Enter the child directory, or open the file";
+            }
             {
               on = [ "E" ];
               run = "plugin eza-preview";

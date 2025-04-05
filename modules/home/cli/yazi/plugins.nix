@@ -2,7 +2,7 @@
   official-plugins = pkgs.fetchFromGitHub {
     owner = "yazi-rs";
     repo = "plugins";
-    rev = "beb586aed0d41e6fdec5bba7816337fdad905a33";
+    rev = "9a095057d698aaaedc4dd23d638285bd3fd647e9";
     hash = "sha256-enIt79UvQnKJalBtzSEdUkjNHjNJuKUWC4L6QFb3Ou4=";
   };
 
@@ -88,6 +88,13 @@
     repo = "githead.yazi";
     rev = "23750247d59da485e4b5257ad5e83837bb86a685";
     hash = "sha256-VErtv5+I3BBnfbOQrHFvvLo7GAExXwVmhHNq+84kam8=";
+  };
+
+  onedark = pkgs.fetchFromGitHub {
+    owner = "BennyOe";
+    repo = "onedark.yazi";
+    rev = "main";
+    hash = "sha256-SJdkLjF2i5/G0H/x9kTPXv/ozzMO1WhddWMjZi6+x3A=";
   };
 
   kanagawa = pkgs.fetchFromGitHub {
