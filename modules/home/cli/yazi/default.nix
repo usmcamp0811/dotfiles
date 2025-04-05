@@ -15,6 +15,7 @@ in
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
       mediainfo
+      rich-cli
       ouch
       glow
       hexyl
