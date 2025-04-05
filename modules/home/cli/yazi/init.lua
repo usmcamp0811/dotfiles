@@ -42,10 +42,10 @@ require("bunny"):setup({
 		{ key = "v", path = "/var" },
 		{ key = "t", path = "/tmp" },
 		{ key = "c", path = "/config", desc = "Nix Config" },
-		{ key = "n", path = "/nix/store", desc = "Nix store" },
+		{ key = { "N" }, path = "/nix/store", desc = "Nix store" },
 		{ key = { "h", "h" }, path = "~", desc = "Home" },
 		{ key = { "h", "c" }, path = "~/code", desc = "Code" },
-		{ key = { "n", "v" }, path = "~/code/campground-nvim", desc = "Nvim Config" },
+		{ key = { "n" }, path = "~/code/campground-nvim", desc = "Nvim Config" },
 		{ key = { "h", "w" }, path = "~/work-code", desc = "Work Code" },
 		{ key = { "h", "d" }, path = "~/Documents", desc = "Documents" },
 		-- key and path attributes are required, desc is optional
