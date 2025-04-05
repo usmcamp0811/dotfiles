@@ -34,7 +34,7 @@ in
       uid = 10000;
     };
     stig = {
-      enable = true;
+      # enable = true;
       banner = {
         enable = false;
         justification = [ "i said so" ];
