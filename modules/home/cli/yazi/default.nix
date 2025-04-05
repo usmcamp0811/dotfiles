@@ -41,7 +41,7 @@ in
         diff = "${plugin.official-plugins}/diff.yazi";
         full-border = "${plugin.official-plugins}/full-border.yazi";
         git = "${plugin.official-plugins}/git.yazi";
-        hide-preview = "${plugin.official-plugins}/hide-preview.yazi";
+        toggle-pane = "${plugin.official-plugins}/toggle-pane.yazi";
         mount = "${plugin.official-plugins}/mount.yazi";
         smart-enter = "${plugin.official-plugins}/smart-enter.yazi";
         vcs-files = "${plugin.official-plugins}/vcs-files.yazi";
@@ -67,7 +67,7 @@ in
               desc = "Enter the child directory, or open the file";
             }
             {
-              on = [ "e" ];
+              on = [ "E" ];
               run = "plugin eza-preview";
               desc = "Toggle tree/list dir preview";
             }
@@ -109,7 +109,7 @@ in
 
             {
               on = [ "T" ];
-              run = "plugin hide-preview";
+              run = "plugin toggle-pane max-preview";
               desc = "Hide or show preview";
             }
 

@@ -195,7 +195,7 @@
     nixhelm.url = "github:farcaller/nixhelm";
     kube-gen.url = "github:farcaller/nix-kube-generators";
     nix2container.url = "github:nlewo/nix2container";
-    yazi.url = "github:sxyazi/yazi";
+    yazi.url = "github:sxyazi/yazi/v25.3.2";
   };
 
   outputs = inputs:
