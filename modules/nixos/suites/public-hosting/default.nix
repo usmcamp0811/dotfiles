@@ -1,7 +1,11 @@
-{ inputs, options, config, lib, ... }:
+{ inputs
+, options
+, config
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.suites.public-hosting;
   generateServiceConfig = serviceName:
     let
@@ -12,9 +16,9 @@ let
       };
     in
     { loadBalancer.servers = serviceEndpoints; };
-  jsonValue = with types;
-    let
-      valueType = nullOr
+  jsonValue = with types; let
+    valueType =
+      nullOr
         (oneOf [
           bool
           int
@@ -22,17 +26,19 @@ let
           str
           (lazyAttrsOf valueType)
           (listOf valueType)
-        ]) // {
+        ])
+      // {
         description = "JSON value";
         emptyValue.value = { };
       };
-    in
-    valueType;
+  in
+  valueType;
 in
 {
   options.campground.suites.public-hosting = with types; {
-    enable = mkBoolOpt false
-      "Whether or not to enable common public-hosting configuration.";
+    enable =
+      mkBoolOpt false
+        "Whether or not to enable common public-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     pub-ip = mkOpt str "10.8.0.42" "IP to use for the Public Instance";
     log-to-kafka =
@@ -44,13 +50,11 @@ in
         metrics = { address = "0.0.0.0:58082"; };
       };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description =
-        "List of entrypoints for Traefik, mapping names to their address.";
+      description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
   config = {
-
     systemd.services.keepalived = {
       bindsTo = [ "traefik.service" ];
       after = [ "traefik.service" ];
@@ -60,10 +64,12 @@ in
       # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
 
       services = {
-        prometheus.additionalScrapeConfigs = [{
-          job_name = "pub-traefik-monitor";
-          static_configs = [{ targets = [ "${cfg.pub-ip}:58082" ]; }];
-        }];
+        prometheus.additionalScrapeConfigs = [
+          {
+            job_name = "pub-traefik-monitor";
+            static_configs = [{ targets = [ "${cfg.pub-ip}:58082" ]; }];
+          }
+        ];
         searx = mkIf cfg.enable {
           enable = true;
           port = 3249;
@@ -128,8 +134,7 @@ in
             };
 
             http.routers.blog = {
-              rule =
-                "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
+              rule = "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "blog";
             };
@@ -159,8 +164,7 @@ in
             };
 
             http.routers.bsky = {
-              rule =
-                "Host(`bsky.aicampground.com`) || HostRegexp(`{subdomain:[a-z0-9]+}.bsky.aicampground.com`)";
+              rule = "Host(`bsky.aicampground.com`) || HostRegexp(`{subdomain:[a-z0-9]+}.bsky.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "bsky";
             };
@@ -234,7 +238,7 @@ in
             http.routers.aicampground = {
               rule = "Host(`matt-camp.com`)";
               entryPoints = [ "websecure" ];
-              service = "aicampground";
+              service = "matt-camp";
               middlewares = [ "cloudflarewarp" ];
             };
 
