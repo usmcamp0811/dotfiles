@@ -29,7 +29,7 @@ in
     };
 
     suites = {
-      lan-hosting = {
+      public-hosting = {
         enable = true;
         interface = "enp0s20f0u1";
       };
