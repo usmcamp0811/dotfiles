@@ -7481,6 +7481,22 @@
         "type": "github"
       }
     },
+    "bunny-yazi": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1742530608,
+        "narHash": "sha256-d1FiwYPKdvN7amOWO5PJLxA3dDkPvaUNpNjwF32Ukns=",
+        "owner": "stelcodes",
+        "repo": "bunny.yazi",
+        "rev": "a64f32a30101c1a7fe27507e7880653779f54d0a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "stelcodes",
+        "repo": "bunny.yazi",
+        "type": "github"
+      }
+    },
     "call-flake": {
       "locked": {
         "lastModified": 1697332845,
@@ -226403,6 +226419,7 @@
         "attic": "attic",
         "authentik-nix": "authentik-nix",
         "bibata-cursors": "bibata-cursors",
+        "bunny-yazi": "bunny-yazi",
         "campground-nvim": "campground-nvim",
         "campground-packages": "campground-packages_33",
         "catppuccin": "catppuccin_33",

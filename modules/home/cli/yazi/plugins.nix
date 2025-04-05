@@ -85,6 +85,13 @@
     hash = "sha256-Ybmnwdhd5b4JOUJuAs1xiVu8LQmF8Sye2wPCc+OjOi0=";
   };
 
+  bunny = pkgs.fetchFromGitHub {
+    owner = "stelcodes";
+    repo = "bunny.yazi";
+    rev = "a64f32a30101c1a7fe27507e7880653779f54d0a";
+    hash = "";
+  };
+
   duckdb = pkgs.fetchFromGitHub {
     owner = "wylie102";
     repo = "duckdb.yazi";

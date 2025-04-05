@@ -2,6 +2,7 @@
 , config
 , pkgs
 , lib
+, inputs
 , ...
 }:
 with lib;
@@ -59,12 +60,18 @@ in
         lazygit = "${plugin.lazygit}";
         githead = "${plugin.githead}";
         duckdb = "${plugin.duckdb}";
+        bunny = "${inputs.bunny-yazi}";
       };
       keymap = {
         manager = {
           ratio = [ 1 2 5 ];
           show_symlink = true;
           prepend_keymap = [
+            {
+              on = ";";
+              run = "plugin bunny";
+              desc = "Start bunny.yazi";
+            }
             {
               on = [ "l" ];
               run = "plugin smart-enter";

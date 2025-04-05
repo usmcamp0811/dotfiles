@@ -35,3 +35,22 @@ require("yaziline"):setup({
 	filename_truncate_length = 6, -- leave 6 chars on both sides
 	filename_truncate_separator = "...", -- the separator of the truncated filename
 })
+
+require("bunny"):setup({
+	hops = {
+		{ key = "r", path = "/" },
+		{ key = "v", path = "/var" },
+		{ key = "t", path = "/tmp" },
+		{ key = "c", path = "/config", desc = "Nix Config" },
+		{ key = "n", path = "/nix/store", desc = "Nix store" },
+		{ key = { "h", "h" }, path = "~", desc = "Home" },
+		{ key = { "h", "c" }, path = "~/code", desc = "Code" },
+		{ key = { "n", "v" }, path = "~/code/campground-nvim", desc = "Nvim Config" },
+		{ key = { "h", "w" }, path = "~/work-code", desc = "Work Code" },
+		{ key = { "h", "d" }, path = "~/Documents", desc = "Documents" },
+		-- key and path attributes are required, desc is optional
+	},
+	desc_strategy = "path", -- If desc isn't present, use "path" or "filename", default is "path"
+	notify = false, -- Notify after hopping, default is false
+	fuzzy_cmd = "fzf", -- Fuzzy searching command, default is "fzf"
+})
