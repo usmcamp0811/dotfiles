@@ -42,6 +42,10 @@ in
     };
 
     suites = {
+      public-hosting = {
+        enable = true;
+        interface = "enp0s13f0u3";
+      };
       kubernetes = {
         enable = true;
         role = "controller";
