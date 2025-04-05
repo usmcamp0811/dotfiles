@@ -13,6 +13,13 @@ require("githead"):setup()
 
 require("git"):setup()
 
+-- DuckDB plugin configuration
+require("duckdb"):setup({
+	mode = "standard", -- Default: "summarized"
+	row_id = true, -- Default: false
+	minmax_column_width = 30, -- Default: 21
+})
+
 require("yaziline"):setup({
 	color = "#98c379", -- main theme color
 	separator_style = "angly", -- "angly" | "curvy" | "liney" | "empty"

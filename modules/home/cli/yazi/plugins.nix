@@ -79,10 +79,17 @@
   };
 
   rich-preview = pkgs.fetchFromGitHub {
-    owner = "AnirudhG07";
+    owner = "MrDwarf7";
     repo = "rich-preview.yazi";
-    rev = "2559e5fa7c1651dbe7c5615ef6f3b5291347d81a";
-    hash = "sha256-dW2gAAv173MTcQdqMV32urzfrsEX6STR+oCJoRVGGpA=";
+    rev = "6567dc7776be71bb76f96918df55c3154479da1b";
+    hash = "sha256-Ybmnwdhd5b4JOUJuAs1xiVu8LQmF8Sye2wPCc+OjOi0=";
+  };
+
+  duckdb = pkgs.fetchFromGitHub {
+    owner = "wylie102";
+    repo = "duckdb.yazi";
+    rev = "6959a9b7bcfa2b6591d6e94e9ffa08adf09bffe5";
+    hash = "sha256-JVUTSe7Rz2bta7t3ig1jxuhbHpMnykjRkVd3wm/KBqs=";
   };
 
   yaziline =

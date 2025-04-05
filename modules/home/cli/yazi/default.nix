@@ -21,6 +21,7 @@ in
       antiprism
       fzf
       eza
+      duckdb
     ];
     programs.yazi = {
       enable = true;
@@ -56,9 +57,11 @@ in
         yaziline = "${plugin.yaziline}";
         lazygit = "${plugin.lazygit}";
         githead = "${plugin.githead}";
+        duckdb = "${plugin.duckdb}";
       };
       keymap = {
         manager = {
+          ratio = [ 1 2 5 ];
           show_symlink = true;
           prepend_keymap = [
             {
@@ -244,6 +247,30 @@ in
               name = "*.docx";
               run = "office";
             }
+            # {
+            #   name = "*.csv";
+            #   run = "duckdb";
+            # }
+            {
+              name = "*.tsv";
+              run = "duckdb";
+            }
+            # {
+            #   name = "*.json";
+            #   run = "duckdb";
+            # }
+            {
+              name = "*.parquet";
+              run = "duckdb";
+            }
+            {
+              name = "*.db";
+              run = "duckdb";
+            }
+            {
+              name = "*.duckdb";
+              run = "duckdb";
+            }
           ];
           prepend_previewers = [
             {
@@ -264,6 +291,22 @@ in
             {
               mime = "application/subrip";
               run = "mediainfo";
+            }
+            # {
+            #   name = "*.csv";
+            #   run = "duckdb";
+            # }
+            {
+              name = "*.tsv";
+              run = "duckdb";
+            }
+            # {
+            #   name = "*.json";
+            #   run = "duckdb";
+            # }
+            {
+              name = "*.parquet";
+              run = "duckdb";
             }
 
             {
