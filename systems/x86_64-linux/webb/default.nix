@@ -73,7 +73,8 @@ in
     services = {
       # onlyoffice = { enable = true; };
       pds = enabled;
-      # lemmy = enabled;
+      lemmy = enabled;
+      matt-camp-website = enabled;
       netbird.server = enabled;
       vault = {
         enable = true;
@@ -160,9 +161,9 @@ in
       #   };
       # };
       firefly = enabled;
-      # firefly-plaid-connector = enabled;
+      firefly-plaid-connector = enabled;
       campground-blog = enabled;
-      # nextcloud = { enable = true; };
+      nextcloud = { enable = true; };
       ldap-client = { enable = mkForce false; };
       uptime-kuma = enabled;
       grafana = {

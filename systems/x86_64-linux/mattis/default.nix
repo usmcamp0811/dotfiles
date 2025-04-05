@@ -1,7 +1,11 @@
-{ pkgs, lib, nixos-hardware, nixosModules, ... }:
+{ pkgs
+, lib
+, nixos-hardware
+, nixosModules
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -56,6 +60,8 @@ in
         enable = true;
         port = 19823;
       };
+
+      matt-camp-website = enabled;
       postgresql = {
         enable = true;
         enableTCPIP = true;
@@ -68,10 +74,12 @@ in
           "host  all  all  0.0.0.0/0  reject"
           "host  all  all  ::0/0  reject"
         ];
-        databases = [{
-          name = "vaultwarden";
-          user = "vaultwarden";
-        }];
+        databases = [
+          {
+            name = "vaultwarden";
+            user = "vaultwarden";
+          }
+        ];
       };
       syncthing = enabled;
       tang = enabled;
@@ -115,23 +123,26 @@ in
           '';
         };
         settings = ''
-          cluster_addr = "http://mattis:8201" 
+          cluster_addr = "http://mattis:8201"
           api_addr = "https://vault.lan.aicampground.com"
         '';
 
-        policies = builtins.foldl'
-          (policies: file:
-            policies // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ../daly/vault/policies + "/${
-                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }")
-              (snowfall.fs.get-files ../daly/vault/policies)));
+        policies =
+          builtins.foldl'
+            (policies: file:
+              policies
+              // {
+                "${snowfall.path.get-file-name-without-extension file}" = file;
+              })
+            { }
+            (builtins.filter (snowfall.path.has-file-extension "hcl")
+              (builtins.map
+                (path:
+                  ../daly/vault/policies
+                  + "/${
+                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+                }")
+                (snowfall.fs.get-files ../daly/vault/policies)));
       };
       vault-agent = {
         enable = true;
