@@ -3,7 +3,7 @@
     owner = "yazi-rs";
     repo = "plugins";
     rev = "9a095057d698aaaedc4dd23d638285bd3fd647e9";
-    hash = "sha256-enIt79UvQnKJalBtzSEdUkjNHjNJuKUWC4L6QFb3Ou4=";
+    hash = "sha256-Lx+TliqMuaXpjaUtjdUac7ODg2yc3yrd1mSWJo9Mz2Q=";
   };
 
   mime-preview = pkgs.fetchFromGitHub {

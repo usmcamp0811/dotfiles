@@ -43,6 +43,7 @@ in
         hide-preview = "${plugin.official-plugins}/hide-preview.yazi";
         mount = "${plugin.official-plugins}/mount.yazi";
         smart-enter = "${plugin.official-plugins}/smart-enter.yazi";
+        vcs-files = "${plugin.official-plugins}/vcs-files.yazi";
         office = "${plugin.office}";
         rich-preview = "${plugin.rich-preview}";
         eza-preview = "${plugin.eza-preview}";
@@ -98,6 +99,11 @@ in
               on = [ "t" "g" ];
               run = "plugin lazygit";
               desc = "run lazygit";
+            }
+            {
+              on = [ "g" "c" ];
+              run = "plugin vcs-files";
+              desc = "Show Git file changes";
             }
 
             {
