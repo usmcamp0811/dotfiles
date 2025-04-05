@@ -69,6 +69,23 @@
     hash = "sha256-dW2gAAv173MTcQdqMV32urzfrsEX6STR+oCJoRVGGpA=";
   };
 
+  yaziline =
+    pkgs.runCommandLocal "yaziline-patched"
+      {
+        preferLocalBuild = true;
+        allowSubstitutes = false;
+        src = pkgs.fetchFromGitHub {
+          owner = "llanosrocas";
+          repo = "yaziline.yazi";
+          rev = "e06c47f7fc7a1c679e3935b45013108dadd09c96";
+          hash = "sha256-oHCRScbahGaX8MTVNalNXlxQ7NJN5QKvGHbTXreAWFM=";
+        };
+      } ''
+      mkdir -p "$out"
+      cp -rT "$src" "$out"
+      ln -s "$out/init.lua" "$out/main.lua"
+    '';
+
   yatline = pkgs.fetchFromGitHub {
     owner = "imsi32";
     repo = "yatline.yazi";

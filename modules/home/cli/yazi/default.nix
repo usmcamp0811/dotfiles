@@ -52,7 +52,7 @@ in
         glow = "${plugin.glow}";
         hexyl = "${plugin.hexyl}";
         ouch = "${plugin.ouch}";
-        yatline = "${plugin.yatline}";
+        yaziline = "${plugin.yaziline}";
         lazygit = "${plugin.lazygit}";
         githead = "${plugin.githead}";
       };
