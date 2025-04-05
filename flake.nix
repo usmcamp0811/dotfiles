@@ -200,6 +200,101 @@
       url = "github:stelcodes/bunny.yazi";
       flake = false;
     };
+
+    official-plugins-yazi = {
+      url = "github:yazi-rs/plugins?rev=273019910c1111a388dd20e057606016f4bd0d17";
+      flake = false;
+    };
+
+    mime-preview-yazi = {
+      url = "github:DreamMaoMao/mime-preview.yazi?rev=5ee0e78d7a46b756b77bec029722d31823869f08";
+      flake = false;
+    };
+
+    mime-ext-yazi = {
+      url = "github:DreamMaoMao/mime-ext.yazi?rev=47b5f85b0b6156f689641132eb9d29f7301b9b6a";
+      flake = false;
+    };
+
+    mediainfo-yazi = {
+      url = "github:boydaihungst/mediainfo.yazi?rev=2c3f675d3722672eb3a3422590375d1145843a40";
+      flake = false;
+    };
+
+    office-yazi = {
+      url = "github:macydnah/office.yazi?rev=bcd9e9e78835c96eb2bb8b8841e4753704b99b17";
+      flake = false;
+    };
+
+    eza-preview-yazi = {
+      url = "github:pierreay/eza-preview.yazi?rev=eeed668291bdf6cf91baf5124b952dcb2a2bfc6f";
+      flake = false;
+    };
+
+    glow-yazi = {
+      url = "github:Reledia/glow.yazi?rev=5ce76dc92ddd0dcef36e76c0986919fda3db3cf5";
+      flake = false;
+    };
+
+    hexyl-yazi = {
+      url = "github:Reledia/hexyl.yazi?rev=39d3d4e23ad7cec8888f648ddf55af4386950ce7";
+      flake = false;
+    };
+
+    ouch-yazi = {
+      url = "github:ndtoan96/ouch.yazi?rev=ce6fb75431b9d0d88efc6ae92e8a8ebb9bc1864a";
+      flake = false;
+    };
+
+    rich-preview-yazi = {
+      url = "github:MrDwarf7/rich-preview.yazi?rev=6567dc7776be71bb76f96918df55c3154479da1b";
+      flake = false;
+    };
+
+    duckdb-yazi = {
+      url = "github:wylie102/duckdb.yazi?rev=6959a9b7bcfa2b6591d6e94e9ffa08adf09bffe5";
+      flake = false;
+    };
+
+    yaziline-yazi = {
+      url = "github:llanosrocas/yaziline.yazi?rev=e06c47f7fc7a1c679e3935b45013108dadd09c96";
+      flake = false;
+    };
+
+    yatline-yazi = {
+      url = "github:imsi32/yatline.yazi?rev=600ed1fb1d04e1292da04280a65f8deca04dc36a";
+      flake = false;
+    };
+
+    lazygit-yazi = {
+      url = "github:Lil-Dank/lazygit.yazi?rev=9f924e34cde61d5965d6d620698b0b15436c8e08";
+      flake = false;
+    };
+
+    githead-yazi = {
+      url = "github:llanosrocas/githead.yazi?rev=23750247d59da485e4b5257ad5e83837bb86a685";
+      flake = false;
+    };
+
+    onedark-yazi = {
+      url = "github:BennyOe/onedark.yazi";
+      flake = false;
+    };
+
+    kanagawa-yazi = {
+      url = "github:dangooddd/kanagawa.yazi?rev=d98f0c3e27299f86ee080294df2722c5a634495a";
+      flake = false;
+    };
+
+    material-ocean-yazi = {
+      url = "github:myamusashi/material-ocean.yazi?rev=b0d8a53e5df7dd9935f8be108c2e6f47c208a75c";
+      flake = false;
+    };
+
+    fzf-yazi = {
+      url = "github:DreamMaoMao/fg.yazi?rev=daf696065d65e61a1b3026ab8190351203513d51";
+      flake = false;
+    };
   };
 
   outputs = inputs:

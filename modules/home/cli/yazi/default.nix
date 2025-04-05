@@ -8,7 +8,17 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.cli.yazi;
-  plugin = import ./plugins.nix { inherit pkgs; };
+  eza-preview =
+    pkgs.runCommandLocal "eza-patched"
+      {
+        preferLocalBuild = true;
+        allowSubstitutes = false;
+        src = inputs.eza-preview-yazi;
+      } ''
+      mkdir -p "$out"
+      cp -rT "$src" "$out"
+      ln -s "$out/init.lua" "$out/main.lua"
+    '';
 in
 {
   options.campground.cli.yazi = { enable = mkEnableOption "Yazi"; };
@@ -32,34 +42,34 @@ in
       enableNushellIntegration = true;
       shellWrapperName = "lr";
       flavors = {
-        kanagawa = "${plugin.kanagawa}";
-        material-ocean = "${plugin.material-ocean}";
-        onedark = "${plugin.onedark}";
+        kanagawa = "${inputs.kanagawa-yazi}";
+        material-ocean = "${inputs.material-ocean-yazi}";
+        onedark = "${inputs.onedark-yazi}";
       };
       theme.flavor = {
         dark = "onedark";
       };
       plugins = {
-        chmod = "${plugin.official-plugins}/chmod.yazi";
-        diff = "${plugin.official-plugins}/diff.yazi";
-        full-border = "${plugin.official-plugins}/full-border.yazi";
-        git = "${plugin.official-plugins}/git.yazi";
-        toggle-pane = "${plugin.official-plugins}/toggle-pane.yazi";
-        mount = "${plugin.official-plugins}/mount.yazi";
-        smart-enter = "${plugin.official-plugins}/smart-enter.yazi";
-        vcs-files = "${plugin.official-plugins}/vcs-files.yazi";
-        office = "${plugin.office}";
-        rich-preview = "${plugin.rich-preview}";
-        eza-preview = "${plugin.eza-preview}";
-        mediainfo = "${plugin.mediainfo}";
-        fg = "${plugin.fzf}";
-        glow = "${plugin.glow}";
-        hexyl = "${plugin.hexyl}";
-        ouch = "${plugin.ouch}";
-        yaziline = "${plugin.yaziline}";
-        lazygit = "${plugin.lazygit}";
-        githead = "${plugin.githead}";
-        duckdb = "${plugin.duckdb}";
+        chmod = "${inputs.official-plugins-yazi}/chmod.yazi";
+        diff = "${inputs.official-plugins-yazi}/diff.yazi";
+        full-border = "${inputs.official-plugins-yazi}/full-border.yazi";
+        git = "${inputs.official-plugins-yazi}/git.yazi";
+        toggle-pane = "${inputs.official-plugins-yazi}/toggle-pane.yazi";
+        mount = "${inputs.official-plugins-yazi}/mount.yazi";
+        smart-enter = "${inputs.official-plugins-yazi}/smart-enter.yazi";
+        vcs-files = "${inputs.official-plugins-yazi}/vcs-files.yazi";
+        office = "${inputs.office-yazi}";
+        rich-preview = "${inputs.rich-preview-yazi}";
+        eza-preview = "${eza-preview}";
+        mediainfo = "${inputs.mediainfo-yazi}";
+        fg = "${inputs.fzf-yazi}";
+        glow = "${inputs.glow-yazi}";
+        hexyl = "${inputs.hexyl-yazi}";
+        ouch = "${inputs.ouch-yazi}";
+        yaziline = "${inputs.yaziline-yazi}";
+        lazygit = "${inputs.lazygit-yazi}";
+        githead = "${inputs.githead-yazi}";
+        duckdb = "${inputs.duckdb-yazi}";
         bunny = "${inputs.bunny-yazi}";
       };
       keymap = {
