@@ -35,11 +35,18 @@
   };
 
   eza-preview = pkgs.fetchFromGitHub {
-    owner = "ahkohd";
+    owner = "hfytr";
     repo = "eza-preview.yazi";
-    rev = "6575a9a4806d8dc96ac75adf28791155551804fb";
-    hash = "sha256-RwJu79bjdgmKbRaDH++y8wreBKdGGwbyGOx4G/px2PE=";
+    rev = "63900acec5d2e1d8e8d81c57b0140d83a43faad0";
+    hash = "sha256-QaDpn9Vd9I7j35Oy1BvnT7/TH1cTpe34NUSYvMEP0Q4=";
   };
+
+  # eza-preview = pkgs.fetchFromGitHub {
+  #   owner = "ahkohd";
+  #   repo = "eza-preview.yazi";
+  #   rev = "7ca4c2558e17bef98cacf568f10ec065a1e5fb9b";
+  #   hash = "sha256-ncOOCj53wXPZvaPSoJ5LjaWSzw1omHadKDrXdIb7G5U=";
+  # };
 
   glow = pkgs.fetchFromGitHub {
     owner = "Reledia";

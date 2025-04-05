@@ -20,6 +20,7 @@ in
       hexyl
       antiprism
       fzf
+      eza
     ];
     programs.yazi = {
       enable = true;
@@ -66,7 +67,7 @@ in
               desc = "Enter the child directory, or open the file";
             }
             {
-              on = [ "E" ];
+              on = [ "e" ];
               run = "plugin eza-preview";
               desc = "Toggle tree/list dir preview";
             }
