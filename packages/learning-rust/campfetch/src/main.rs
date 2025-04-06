@@ -9,12 +9,8 @@ use tempfile::NamedTempFile;
 use whoami;
 
 const IMAGE_DATA: &[u8] = include_bytes!("ega.png");
-
-fn move_cursor_below_image(rows: u32) {
-    // ANSI escape to move cursor down N lines
-    write!(stdout(), "\x1b[{}B", rows).unwrap();
-    stdout().flush().unwrap();
-}
+const GREEN_BOLD: &str = "\x1b[1;32m";
+const RESET: &str = "\x1b[0m";
 
 fn display_ega() {
     // Write embedded image to a temp file
@@ -62,8 +58,11 @@ fn main() {
         username, hostname
     );
     let line = "─".repeat(username.len() + 1 + hostname.len());
-    const GREEN_BOLD: &str = "\x1b[1;32m";
-    const RESET: &str = "\x1b[0m";
+    let uptime = System::uptime();
+    let days = uptime / 86400;
+    let hours = (uptime % 86400) / 3600;
+    let minutes = (uptime % 3600) / 60;
+
     println!("");
     println!("{}", user_at_host);
     println!("{}", line);
@@ -80,11 +79,6 @@ fn main() {
         RESET,
         System::kernel_version().unwrap_or_default()
     );
-
-    let uptime = System::uptime();
-    let days = uptime / 86400;
-    let hours = (uptime % 86400) / 3600;
-    let minutes = (uptime % 3600) / 60;
 
     println!(
         "{}Uptime:{} {} days, {} hours, {} mins",
