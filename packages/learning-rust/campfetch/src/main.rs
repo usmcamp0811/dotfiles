@@ -116,6 +116,6 @@ fn main() {
                 GREEN_BOLD, RESET, percent, hours, minutes, status
             );
         }
-        Err(e) => println!(""),
+        Err(e) => (),
     }
 }
