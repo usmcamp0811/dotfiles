@@ -116,6 +116,6 @@ fn main() {
                 GREEN_BOLD, RESET, percent, hours, minutes, status
             );
         }
-        Err(e) => println!("Battery info unavailable: {}", e),
+        Err(e) => println!(""),
     }
 }
