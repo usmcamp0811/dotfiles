@@ -66,7 +66,9 @@ in
         glow = "${inputs.glow-yazi}";
         hexyl = "${inputs.hexyl-yazi}";
         ouch = "${inputs.ouch-yazi}";
-        yaziline = "${inputs.yaziline-yazi}";
+        # yaziline = "${inputs.yaziline-yazi}";
+        yatline = "${inputs.yatline-yazi}";
+        yatline-catppuccin = "${inputs.yatline-catppuccin-yazi}";
         lazygit = "${inputs.lazygit-yazi}";
         githead = "${inputs.githead-yazi}";
         duckdb = "${inputs.duckdb-yazi}";

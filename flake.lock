@@ -226765,6 +226765,7 @@
         "unstable": "unstable_34",
         "updated-ollama": "updated-ollama_13",
         "vault-service": "vault-service_34",
+        "yatline-catppuccin-yazi": "yatline-catppuccin-yazi",
         "yatline-yazi": "yatline-yazi",
         "yazi": "yazi",
         "yaziline-yazi": "yaziline-yazi",
@@ -276888,6 +276889,22 @@
         "owner": "divnix",
         "ref": "refs/pull/5/head",
         "repo": "yants",
+        "type": "github"
+      }
+    },
+    "yatline-catppuccin-yazi": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1741193477,
+        "narHash": "sha256-Wz53zjwFyflnxCIMjAv+nzcgDriJwVYBX81pFXJUzc4=",
+        "owner": "imsi32",
+        "repo": "yatline-catppuccin.yazi",
+        "rev": "8cc4773ecab8ee8995485d53897e1c46991a7fea",
+        "type": "github"
+      },
+      "original": {
+        "owner": "imsi32",
+        "repo": "yatline-catppuccin.yazi",
         "type": "github"
       }
     },

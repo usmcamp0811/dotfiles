@@ -267,6 +267,11 @@
       flake = false;
     };
 
+    yatline-catppuccin-yazi = {
+      url = "github:imsi32/yatline-catppuccin.yazi";
+      flake = false;
+    };
+
     lazygit-yazi = {
       url = "github:Lil-Dank/lazygit.yazi";
       flake = false;
