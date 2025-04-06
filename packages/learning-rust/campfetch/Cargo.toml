@@ -1,0 +1,12 @@
+[package]
+name = "campfetch"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+image = "0.25.6"
+kitty_image = "0.1.0"
+sysinfo = "0.34.2"
+systemstat = "0.2.4"
+tempfile = "3.19.1"
+whoami = "1.6.0"
