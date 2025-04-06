@@ -1,4 +1,8 @@
-{ pkgs, lib, config, ... }:
+{ pkgs
+, lib
+, config
+, ...
+}:
 let
   inherit (lib) mkEnableOption mkIf;
 
@@ -16,7 +20,9 @@ in
   };
 
   config = mkIf cfg.enable {
-
+    home.packages = with pkgs; [
+      campground.campfetch
+    ];
     programs.zsh = {
       enable = true;
       enableCompletion = true;
@@ -33,13 +39,15 @@ in
       initExtra = lib.mkBefore ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         ${lib.concatMapStringsSep "\n"
-        (file: ''[ -r "${file}" ] && source "${file}"'') cfg.extraSource}
+          (file: ''[ -r "${file}" ] && source "${file}"'')
+          cfg.extraSource}
         [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
         bindkey -v
 
         for file in ~/.config/shell/private/*.shrc(N); do
           [ -r "$file" ] && source "$file"
         done
+        ${pkgs.campground.campfetch}/bin/campfetch
       '';
     };
     # TODO: Move the aliases.shrc into a nix file so if programs are called in there they are for sure installed and have the correct path
