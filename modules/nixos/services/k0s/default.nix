@@ -239,8 +239,8 @@ in
               echo "k0s is up, generating join tokens..."
 
               # Generate k0s controller and worker tokens
-              WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker --with-ca-cert --expiry=0)"
-              CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller --with-ca-cert --expiry=0)"
+              WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker --expiry=0)"
+              CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller --expiry=0)"
 
               echo "Fetching admin kubeconfig..."
               ADMIN_KUBECONFIG="$(${cfg.package}/bin/k0s kubeconfig admin)"
