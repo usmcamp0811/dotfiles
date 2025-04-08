@@ -33,13 +33,13 @@ in
       extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
-    stig = {
-      # enable = true;
-      banner = {
-        enable = false;
-        justification = [ "i said so" ];
-      };
-    };
+    # stig = {
+    #   # enable = true;
+    #   banner = {
+    #     enable = false;
+    #     justification = [ "i said so" ];
+    #   };
+    # };
 
     suites = {
       public-hosting = {

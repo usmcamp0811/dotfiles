@@ -1,7 +1,11 @@
-{ pkgs, config, lib, inputs, ... }:
+{ pkgs
+, config
+, lib
+, inputs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -17,8 +21,7 @@ in
     description = "Socat Service for Proton Bridge SMTP Port Forwarding";
     after = [ "network.target" ];
     serviceConfig = {
-      ExecStart =
-        "${pkgs.socat}/bin/socat TCP4-LISTEN:587,fork TCP4:127.0.0.1:1025";
+      ExecStart = "${pkgs.socat}/bin/socat TCP4-LISTEN:587,fork TCP4:127.0.0.1:1025";
       Restart = "always";
     };
     wantedBy = [ "multi-user.target" ];
@@ -28,8 +31,7 @@ in
     description = "Socat Service for Proton Bridge IMAP Port Forwarding";
     after = [ "network.target" ];
     serviceConfig = {
-      ExecStart =
-        "${pkgs.socat}/bin/socat TCP4-LISTEN:143,fork TCP4:127.0.0.1:1143";
+      ExecStart = "${pkgs.socat}/bin/socat TCP4-LISTEN:143,fork TCP4:127.0.0.1:1143";
       Restart = "always";
     };
     wantedBy = [ "multi-user.target" ];
@@ -75,8 +77,7 @@ in
     nix = {
       extra-substituters = {
         "https://nix-gaming.cachix.org" = {
-          key =
-            "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
+          key = "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=";
         };
       };
     };
@@ -89,29 +90,6 @@ in
       ups.cp1500 = { enable = true; };
       nvidia = {
         enable = true;
-        # driverType = "stable";
-        # driverType = "production";
-        # # driverType = "custom";
-        # customDriverPackage =
-        #   config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
-        #     version = "550.78";
-        #     # the new driver
-        #     src = pkgs.fetchurl {
-        #       url =
-        #         "https://us.download.nvidia.com/XFree86/Linux-x86_64/550.78/NVIDIA-Linux-x86_64-550.78.run";
-        #       sha256 = "sha256-NAcENFJ+ydV1SD5/EcoHjkZ+c/be/FQ2bs+9z+Sjv3M=";
-        #     };
-        #   };
-        # customDriverPackage =
-        #   config.boot.kernelPackages.nvidiaPackages.beta.overrideAttrs {
-        #     version = "550.40.07";
-        #     # the new driver
-        #     src = pkgs.fetchurl {
-        #       url =
-        #         "https://download.nvidia.com/XFree86/Linux-x86_64/550.40.07/NVIDIA-Linux-x86_64-550.40.07.run";
-        #       sha256 = "sha256-KYk2xye37v7ZW7h+uNJM/u8fNf7KyGTZjiaU03dJpK0=";
-        #     };
-        #   };
       };
       bluetooth = enabled;
     };
@@ -166,7 +144,6 @@ in
           restartIfChanged = true;
         };
         worker = {
-
           master = "spark://reckless:7077";
           workDir = "/var/lib/spark";
           enable = true;
@@ -188,14 +165,12 @@ in
         enable = true;
         acceleration = "cuda";
         # host = "0.0.0.0";
-
       };
-      # local-ai = enabled;
       file-share = enabled;
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
-      # netbird = enabled;
+      netbird = enabled;
       # hadoop = {
       #   enable = true;
       #   yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
@@ -256,10 +231,12 @@ in
       postgresql = {
         enable = true;
         enableTCPIP = true;
-        databases = [{
-          name = "atticd";
-          user = "atticd";
-        }];
+        databases = [
+          {
+            name = "atticd";
+            user = "atticd";
+          }
+        ];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
         authentication = [
@@ -269,7 +246,6 @@ in
           # "host  campgroundai  campgroundai  0.0.0.0/0 md5"
           "host  all  all  0.0.0.0/0  reject"
           "host  all  all  ::0/0  reject"
-
         ];
       };
       nix-snapshotter = enabled;
@@ -279,9 +255,9 @@ in
         interface = "eno1";
         tang-servers = [
           "http://webb:1234"
-          # "http://lucas:1234"
+          "http://lucas:1234"
           "http://chesty:1234"
-          # "http://mattis:1234"
+          "http://mattis:1234"
           "http://daly:1234"
           "http://ermy:1234"
         ];
