@@ -170,7 +170,6 @@ in
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
-      netbird = enabled;
       # hadoop = {
       #   enable = true;
       #   yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
