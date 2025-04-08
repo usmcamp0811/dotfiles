@@ -1,4 +1,8 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
 with lib.campground;
 # Issues with Flannel when running this but this fixes it:
@@ -15,8 +19,8 @@ let
   hostIP = builtins.exec "hostname -I | awk '{print $1}'";
 
   configFile =
-    if cfg.configText != "" then
-      pkgs.writeText "k0s.template.yaml" cfg.configText
+    if cfg.configText != ""
+    then pkgs.writeText "k0s.template.yaml" cfg.configText
     else
     # TODO: make the ports a variable that is sync between modules
       pkgs.writeText "k0s.yaml" ''
@@ -178,14 +182,17 @@ in
       };
     };
 
-    role-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
-    secret-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt types.str "secret/campground/k0s"
-      "The Vault path to the KV containing the k0s secrets.";
+    role-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt types.str "secret/campground/k0s"
+        "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = types.str;
       default = config.campground.services.vault-agent.settings.vault.address;
@@ -206,7 +213,6 @@ in
     ];
 
     systemd.services = mkMerge [
-
       (mkIf cfg.isLeader {
         "k0s-controller-store-tokens" = {
           description = "Generate k0s join tokens and store in Vault";
@@ -233,8 +239,8 @@ in
               echo "k0s is up, generating join tokens..."
 
               # Generate k0s controller and worker tokens
-              CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller --expiry=0)"
-              WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker --expiry=0)"
+              WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker --with-ca-cert --expiry=0)"
+              CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller --with-ca-cert --expiry=0)"
 
               echo "Fetching admin kubeconfig..."
               ADMIN_KUBECONFIG="$(${cfg.package}/bin/k0s kubeconfig admin)"
@@ -277,10 +283,12 @@ in
             TimeoutStartSec = 0;
             LimitNOFILE = 999999;
             Restart = "always";
-            ExecStart = ''
-              ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=${cfg.dataDir}/k0s.yaml
-            '' + optionalString (!cfg.isLeader)
-              " --token-file=/tmp/detsys-vault/k0s-token-controller";
+            ExecStart =
+              ''
+                ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=${cfg.dataDir}/k0s.yaml
+              ''
+              + optionalString (!cfg.isLeader)
+                " --token-file=/tmp/detsys-vault/k0s-token-controller";
           };
           preStart = ''
             HOST_IP=$(${pkgs.iproute2}/bin/ip -4 addr show ${cfg.interface} | ${pkgs.gawk}/bin/awk '/inet / {print $2}' | ${pkgs.coreutils}/bin/cut -d/ -f1 | ${pkgs.coreutils}/bin/head -n1)
@@ -330,28 +338,31 @@ in
       })
     ];
 
-    users.users = concatMapAttrs
-      (_name: value: {
-        ${value} = {
-          isSystemUser = true;
-          group = "users";
-          home = "${cfg.dataDir}";
-        };
-      })
-      cfg.users;
+    users.users =
+      concatMapAttrs
+        (_name: value: {
+          ${value} = {
+            isSystemUser = true;
+            group = "users";
+            home = "${cfg.dataDir}";
+          };
+        })
+        cfg.users;
     campground.services.vault-agent.services = {
       k0s-worker = mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
-            method = [{
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }];
+            method = [
+              {
+                type = "approle";
+                config = {
+                  role_id_file_path = cfg.role-id;
+                  secret_id_file_path = cfg.secret-id;
+                  remove_secret_id_file_after_reading = false;
+                };
+              }
+            ];
           };
         };
         secrets = {
@@ -371,14 +382,16 @@ in
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
-            method = [{
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }];
+            method = [
+              {
+                type = "approle";
+                config = {
+                  role_id_file_path = cfg.role-id;
+                  secret_id_file_path = cfg.secret-id;
+                  remove_secret_id_file_after_reading = false;
+                };
+              }
+            ];
           };
         };
         secrets = {
@@ -398,3 +411,4 @@ in
   };
 }
 # Largely adapted from https://github.com/johbo/k0s-nix/tree/main
+
