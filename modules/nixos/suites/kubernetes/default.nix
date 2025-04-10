@@ -1,7 +1,12 @@
-{ options, config, lib, pkgs, inputs, ... }:
+{ options
+, config
+, lib
+, pkgs
+, inputs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.suites.kubernetes;
   controllers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
@@ -45,7 +50,8 @@ in
         isLeader = cfg.isLeader;
         role = cfg.role;
         apiAddress = "10.8.0.88";
-        apiSans = [ "10.8.0.88" "k8s-controller" ]
+        apiSans =
+          [ "10.8.0.88" "k8s-controller" ]
           ++ builtins.attrNames controllers;
         clusterName = "campground";
         dataDir = "/var/lib/k0s";
