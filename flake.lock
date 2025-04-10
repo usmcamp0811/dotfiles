@@ -276931,16 +276931,16 @@
         "rust-overlay": "rust-overlay_77"
       },
       "locked": {
-        "lastModified": 1740922393,
-        "narHash": "sha256-xx/SGINyvbXZh0J8LgG2/jjFT1l6krNOzM5JAsRtxGE=",
+        "lastModified": 1744112829,
+        "narHash": "sha256-oxO7nT4AZJilxA2DliYk57NETHu78xQ8nFdV+UwyKHE=",
         "owner": "sxyazi",
         "repo": "yazi",
-        "rev": "46125eda6e7ca4c5c91ecf933b5409cca232dd1c",
+        "rev": "99ea3b74c4260a724b43af812df0f68ef59395b7",
         "type": "github"
       },
       "original": {
         "owner": "sxyazi",
-        "ref": "v25.3.2",
+        "ref": "v25.4.8",
         "repo": "yazi",
         "type": "github"
       }

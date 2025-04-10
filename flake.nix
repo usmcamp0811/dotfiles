@@ -196,7 +196,7 @@
     kube-gen.url = "github:farcaller/nix-kube-generators";
     nix2container.url = "github:nlewo/nix2container";
 
-    yazi.url = "github:sxyazi/yazi/v25.3.2";
+    yazi.url = "github:sxyazi/yazi/v25.4.8";
     bunny-yazi = {
       url = "github:stelcodes/bunny.yazi";
       flake = false;
