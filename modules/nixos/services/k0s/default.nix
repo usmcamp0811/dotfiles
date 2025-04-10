@@ -231,33 +231,42 @@ in
 
               echo "Waiting for k0s to be fully running..."
 
-              # Wait for k0s API to become available
               until ${cfg.package}/bin/k0s status &>/dev/null; do
                 sleep 5
               done
 
               echo "k0s is up, generating join tokens..."
 
-              # Generate k0s controller and worker tokens
               WORKER_TOKEN="$(${cfg.package}/bin/k0s token create --role worker --expiry=0)"
               CONTROLLER_TOKEN="$(${cfg.package}/bin/k0s token create --role controller --expiry=0)"
-
-              echo "Fetching admin kubeconfig..."
               ADMIN_KUBECONFIG="$(${cfg.package}/bin/k0s kubeconfig admin)"
 
-              # Path where the Vault agent expects k0s-token
               VAULT_PATH="${cfg.vault-path}"
               export VAULT_ADDR="${cfg.vault-address}"
 
-              echo "Storing k0s tokens and kubeconfig in Vault..."
+              echo "Reading certs from ${cfg.dataDir}/pki..."
 
-              # Write tokens and kubeconfig to Vault
+              CA_KEY=$(<${cfg.dataDir}/pki/ca.key)
+              CA_CRT=$(<${cfg.dataDir}/pki/ca.crt)
+              SA_KEY=$(<${cfg.dataDir}/pki/sa.key)
+              SA_PUB=$(<${cfg.dataDir}/pki/sa.pub)
+              ETCD_CA_KEY=$(<${cfg.dataDir}/pki/etcd/ca.key)
+              ETCD_CA_CRT=$(<${cfg.dataDir}/pki/etcd/ca.crt)
+
+              echo "Storing tokens, kubeconfig, and certs in Vault..."
+
               ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
                 controller="$CONTROLLER_TOKEN" \
                 worker="$WORKER_TOKEN" \
-                admin_kubeconfig="$ADMIN_KUBECONFIG"
+                admin_kubeconfig="$ADMIN_KUBECONFIG" \
+                ca_key="$CA_KEY" \
+                ca_crt="$CA_CRT" \
+                sa_key="$SA_KEY" \
+                sa_pub="$SA_PUB" \
+                etcd_ca_key="$ETCD_CA_KEY" \
+                etcd_ca_crt="$ETCD_CA_CRT"
 
-              echo "Stored k0s tokens and kubeconfig in Vault at $VAULT_PATH"
+              echo "Stored all k0s secrets in Vault at $VAULT_PATH"
             '';
             RemainAfterExit = true;
           };
