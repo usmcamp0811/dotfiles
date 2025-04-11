@@ -274,7 +274,7 @@ in
       })
 
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
-        "k0s-worker-token" = {
+        "get-k0s-worker-token" = {
           description = "Get k0s join tokens from Vault";
           after = [
             "vault-agent.service"
@@ -386,7 +386,7 @@ in
         })
         cfg.users;
     campground.services.vault-agent.services = {
-      k0s-worker-token = mkIf (cfg.role != "single" && !cfg.isLeader) {
+      get-k0s-worker-token = mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
