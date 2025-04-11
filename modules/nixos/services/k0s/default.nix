@@ -282,7 +282,6 @@ in
           ];
           wantedBy = [
             "multi-user.target"
-            "k0s-worker.service"
           ];
           serviceConfig = {
             Type = "oneshot";
