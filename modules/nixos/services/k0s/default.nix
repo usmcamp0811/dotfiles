@@ -337,8 +337,16 @@ in
                 " --token-file=${cfg.dataDir}/k0s-token-worker";
           };
           preStart = ''
-            mkdir -p ${cfg.dataDir}
-            cp /tmp/detsys-vault/k0s-token-worker ${cfg.dataDir}/k0s-token-worker
+            mkdir -p ${cfg.dataDir}/pki/etcd
+
+            cp /tmp/detsys-vault/k0s-token-controller ${cfg.dataDir}/k0s-token-controller
+
+            cp /tmp/detsys-vault/ca.key ${cfg.dataDir}/pki/ca.key
+            cp /tmp/detsys-vault/ca.crt ${cfg.dataDir}/pki/ca.crt
+            cp /tmp/detsys-vault/sa.key ${cfg.dataDir}/pki/sa.key
+            cp /tmp/detsys-vault/sa.pub ${cfg.dataDir}/pki/sa.pub
+            cp /tmp/detsys-vault/etcd-ca.key ${cfg.dataDir}/pki/etcd/ca.key
+            cp /tmp/detsys-vault/etcd-ca.crt ${cfg.dataDir}/pki/etcd/ca.crt
           '';
           # unitConfig = mkIf (!cfg.isLeader) {
           #   ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
@@ -409,7 +417,43 @@ in
               "k0s-token-controller" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
-                permissions = "0400"; # Make the script executable
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "ca.key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_key }}{{ else }}{{ .Data.data.ca_key }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "ca.crt" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_crt }}{{ else }}{{ .Data.data.ca_crt }}{{ end }}{{ end }}'';
+                permissions = "0444";
+                change-action = "restart";
+              };
+              "sa.key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_key }}{{ else }}{{ .Data.data.sa_key }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "sa.pub" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_pub }}{{ else }}{{ .Data.data.sa_pub }}{{ end }}{{ end }}'';
+                permissions = "0444";
+                change-action = "restart";
+              };
+              "etcd-ca.key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_key }}{{ else }}{{ .Data.data.etcd_ca_key }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "etcd-ca.crt" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
+                permissions = "0444";
                 change-action = "restart";
               };
             };
