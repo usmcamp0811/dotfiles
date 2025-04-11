@@ -290,14 +290,26 @@ in
               set -e
               mkdir -p ${cfg.dataDir}/pki/etcd
 
-              cp /tmp/detsys-vault/k0s-token-worker ${cfg.dataDir}/k0s-token-worker
+              chown root:root ${cfg.dataDir}/k0s-token-worker
+              chmod 0400 ${cfg.dataDir}/k0s-token-worker
 
-              cp /tmp/detsys-vault/ca.key ${cfg.dataDir}/pki/ca.key
-              cp /tmp/detsys-vault/ca.crt ${cfg.dataDir}/pki/ca.crt
-              cp /tmp/detsys-vault/sa.key ${cfg.dataDir}/pki/sa.key
-              cp /tmp/detsys-vault/sa.pub ${cfg.dataDir}/pki/sa.pub
-              cp /tmp/detsys-vault/etcd-ca.key ${cfg.dataDir}/pki/etcd/ca.key
-              cp /tmp/detsys-vault/etcd-ca.crt ${cfg.dataDir}/pki/etcd/ca.crt
+              chown root:root ${cfg.dataDir}/pki/ca.key
+              chmod 0400 ${cfg.dataDir}/pki/ca.key
+
+              chown root:root ${cfg.dataDir}/pki/ca.crt
+              chmod 0444 ${cfg.dataDir}/pki/ca.crt
+
+              chown root:root ${cfg.dataDir}/pki/sa.key
+              chmod 0400 ${cfg.dataDir}/pki/sa.key
+
+              chown root:root ${cfg.dataDir}/pki/sa.pub
+              chmod 0444 ${cfg.dataDir}/pki/sa.pub
+
+              chown root:root ${cfg.dataDir}/pki/etcd/ca.key
+              chmod 0400 ${cfg.dataDir}/pki/etcd/ca.key
+
+              chown root:root ${cfg.dataDir}/pki/etcd/ca.crt
+              chmod 0444 ${cfg.dataDir}/pki/etcd/ca.crt
 
             '';
             RemainAfterExit = true;
