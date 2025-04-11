@@ -400,7 +400,7 @@ in
               "ca.crt" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_crt }}{{ else }}{{ .Data.data.ca_crt }}{{ end }}{{ end }}'';
-                permissions = "0444";
+                permissions = "0400";
                 change-action = "restart";
               };
               "sa.key" = {
@@ -412,7 +412,7 @@ in
               "sa.pub" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_pub }}{{ else }}{{ .Data.data.sa_pub }}{{ end }}{{ end }}'';
-                permissions = "0444";
+                permissions = "0400";
                 change-action = "restart";
               };
               "etcd-ca.key" = {
@@ -424,7 +424,7 @@ in
               "etcd-ca.crt" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
-                permissions = "0444";
+                permissions = "0400";
                 change-action = "restart";
               };
             };
