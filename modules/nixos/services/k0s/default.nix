@@ -350,7 +350,7 @@ in
           description = "k0s Worker - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
-          after = [ "network-online.target" ];
+          after = [ "network-online.target" "k0s-worker-token.service" ];
           wants = [ "network-online.target" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
