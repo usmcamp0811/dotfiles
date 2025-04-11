@@ -1,7 +1,10 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.macos-vm;
   inherit (pkgs.campground) mlflow;
 in
@@ -10,11 +13,10 @@ in
     enable = mkBoolOpt false "Enable an MacOS VM;";
     sshPort = mkOpt int 2233 "ssh Port to use for VM";
     extraQemuFlags = mkOpt (listOf str) [ ] "Extra Flags for QEMU";
-    diskSizeBytes = mkOpt int 60000000000 "Size of disk image in bytes";
+    diskSizeBytes = mkOpt int 120000000000 "Size of disk image in bytes";
   };
 
   config = mkIf cfg.enable {
-
     users.users.macos-ventura = {
       isSystemUser = true;
       group = "macos-ventura";
@@ -28,7 +30,8 @@ in
       openFirewall = true;
       sshPort = cfg.sshPort;
       vncListenAddr = "0.0.0.0";
-      extraQemuFlags = [ "-device usb-host,vendorid=0x05ac,productid=0x12a8" ]
+      extraQemuFlags =
+        [ "-device usb-host,vendorid=0x05ac,productid=0x12a8" ]
         ++ cfg.extraQemuFlags;
     };
   };
