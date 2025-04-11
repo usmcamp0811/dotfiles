@@ -34,7 +34,7 @@ in
         interface = "enp0s20f0u1";
       };
       kubernetes = {
-        # enable = true;
+        enable = true;
         role = "worker";
         interface = "enp0s20f0u1";
       };
