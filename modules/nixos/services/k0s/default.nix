@@ -304,6 +304,37 @@ in
           };
         };
       })
+      (mkIf (cfg.role == "worker" || cfg.role == "controller+worker") {
+        "k0s-worker" = {
+          description = "k0s Worker - Zero Friction Kubernetes";
+          documentation = [ "https://docs.k0sproject.io" ];
+          path = with pkgs; [ kmod util-linux mount ];
+          after = [ "network-online.target" "k0s-worker-token.service" ];
+          wants = [ "network-online.target" "k0s-worker-token.service" ];
+          wantedBy = [ "multi-user.target" ];
+          startLimitIntervalSec = 5;
+          startLimitBurst = 10;
+          serviceConfig = {
+            RestartSec = 120;
+            Delegate = "yes";
+            KillMode = "process";
+            LimitCORE = "infinity";
+            TasksMax = "infinity";
+            TimeoutStartSec = 0;
+            LimitNOFILE = 999999;
+            Restart = "always";
+            ExecStart =
+              "${cfg.package}/bin/k0s worker --data-dir=${cfg.dataDir}"
+              + optionalString (!cfg.isLeader)
+                " --token-file=${cfg.dataDir}/k0s-token-worker";
+          };
+          preStart = ''
+            '';
+          # unitConfig = mkIf (!cfg.isLeader) {
+          #   ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
+          # };
+        };
+      })
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
         "k0s-controller" = {
           description = "k0s Controller - Zero Friction Kubernetes";
@@ -339,38 +370,6 @@ in
 
           # unitConfig = mkIf (!cfg.isLeader) {
           #   ConditionPathExists = "/tmp/detsys-vault/k0s-token-controller";
-          # };
-        };
-      })
-
-      (mkIf (cfg.role == "worker" || cfg.role == "controller+worker") {
-        "k0s-worker" = {
-          description = "k0s Worker - Zero Friction Kubernetes";
-          documentation = [ "https://docs.k0sproject.io" ];
-          path = with pkgs; [ kmod util-linux mount ];
-          after = [ "network-online.target" "k0s-worker-token.service" ];
-          wants = [ "network-online.target" ];
-          wantedBy = [ "multi-user.target" ];
-          startLimitIntervalSec = 5;
-          startLimitBurst = 10;
-          serviceConfig = {
-            RestartSec = 120;
-            Delegate = "yes";
-            KillMode = "process";
-            LimitCORE = "infinity";
-            TasksMax = "infinity";
-            TimeoutStartSec = 0;
-            LimitNOFILE = 999999;
-            Restart = "always";
-            ExecStart =
-              "${cfg.package}/bin/k0s worker --data-dir=${cfg.dataDir}"
-              + optionalString (!cfg.isLeader)
-                " --token-file=${cfg.dataDir}/k0s-token-worker";
-          };
-          preStart = ''
-            '';
-          # unitConfig = mkIf (!cfg.isLeader) {
-          #   ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
           # };
         };
       })
