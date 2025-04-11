@@ -290,7 +290,7 @@ in
               set -e
               mkdir -p ${cfg.dataDir}/pki/etcd
 
-              cp /tmp/detsys-vault/k0s-token-controller ${cfg.dataDir}/k0s-token-controller
+              cp /tmp/detsys-vault/k0s-token-worker ${cfg.dataDir}/k0s-token-worker
 
               cp /tmp/detsys-vault/ca.key ${cfg.dataDir}/pki/ca.key
               cp /tmp/detsys-vault/ca.crt ${cfg.dataDir}/pki/ca.crt
@@ -309,8 +309,8 @@ in
           description = "k0s Worker - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
-          after = [ "network-online.target" "get-k0s-worker-token.service" ];
-          wants = [ "network-online.target" "get-k0s-worker-token.service" ];
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
           startLimitBurst = 10;
