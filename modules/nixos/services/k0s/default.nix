@@ -274,11 +274,44 @@ in
       })
 
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
+        "k0s-worker-token" = {
+          description = "Get k0s join tokens from Vault";
+          after = [
+            "vault-agent.service"
+            "network-online.target"
+          ];
+          requires = [ "k0s-controller.service" ];
+          wantedBy = [
+            "multi-user.target"
+            "k0s-worker.service"
+          ];
+          serviceConfig = {
+            Type = "oneshot";
+            User = "root";
+            ExecStart = pkgs.writeShellScript "get-k0s-tokens" ''
+              set -e
+              mkdir -p ${cfg.dataDir}/pki/etcd
+
+              cp /tmp/detsys-vault/k0s-token-controller ${cfg.dataDir}/k0s-token-controller
+
+              cp /tmp/detsys-vault/ca.key ${cfg.dataDir}/pki/ca.key
+              cp /tmp/detsys-vault/ca.crt ${cfg.dataDir}/pki/ca.crt
+              cp /tmp/detsys-vault/sa.key ${cfg.dataDir}/pki/sa.key
+              cp /tmp/detsys-vault/sa.pub ${cfg.dataDir}/pki/sa.pub
+              cp /tmp/detsys-vault/etcd-ca.key ${cfg.dataDir}/pki/etcd/ca.key
+              cp /tmp/detsys-vault/etcd-ca.crt ${cfg.dataDir}/pki/etcd/ca.crt
+
+            '';
+            RemainAfterExit = true;
+          };
+        };
+      })
+      (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
         "k0s-controller" = {
           description = "k0s Controller - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
-          after = [ "network-online.target" ];
+          after = [ "network-online.target" "k0s-worker-token.service" ];
           wants = [ "network-online.target" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
@@ -337,17 +370,7 @@ in
                 " --token-file=${cfg.dataDir}/k0s-token-worker";
           };
           preStart = ''
-            mkdir -p ${cfg.dataDir}/pki/etcd
-
-            cp /tmp/detsys-vault/k0s-token-controller ${cfg.dataDir}/k0s-token-controller
-
-            cp /tmp/detsys-vault/ca.key ${cfg.dataDir}/pki/ca.key
-            cp /tmp/detsys-vault/ca.crt ${cfg.dataDir}/pki/ca.crt
-            cp /tmp/detsys-vault/sa.key ${cfg.dataDir}/pki/sa.key
-            cp /tmp/detsys-vault/sa.pub ${cfg.dataDir}/pki/sa.pub
-            cp /tmp/detsys-vault/etcd-ca.key ${cfg.dataDir}/pki/etcd/ca.key
-            cp /tmp/detsys-vault/etcd-ca.crt ${cfg.dataDir}/pki/etcd/ca.crt
-          '';
+            '';
           # unitConfig = mkIf (!cfg.isLeader) {
           #   ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
           # };
