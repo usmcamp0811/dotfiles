@@ -389,7 +389,7 @@ in
         })
         cfg.users;
     campground.services.vault-agent.services = {
-      k0s-worker = mkIf (cfg.role != "single" && !cfg.isLeader) {
+      k0s-worker-token = mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
