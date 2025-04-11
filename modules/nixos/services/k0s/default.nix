@@ -273,7 +273,7 @@ in
         };
       })
 
-      (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
+      (mkIf (cfg.role == "worker" || cfg.role == "controller+worker") {
         "get-k0s-worker-token" = {
           description = "Get k0s join tokens from Vault";
           after = [
