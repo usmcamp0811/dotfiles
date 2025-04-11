@@ -280,7 +280,6 @@ in
             "vault-agent.service"
             "network-online.target"
           ];
-          requires = [ "k0s-controller.service" ];
           wantedBy = [
             "multi-user.target"
             "k0s-worker.service"
