@@ -391,35 +391,6 @@ in
                 permissions = "0400"; # Make the script executable
                 change-action = "restart";
               };
-            };
-          };
-        };
-      };
-      k0s-controller = mkIf (cfg.role != "single" && !cfg.isLeader) {
-        settings = {
-          vault.address = cfg.vault-address;
-          auto_auth = {
-            method = [
-              {
-                type = "approle";
-                config = {
-                  role_id_file_path = cfg.role-id;
-                  secret_id_file_path = cfg.secret-id;
-                  remove_secret_id_file_after_reading = false;
-                };
-              }
-            ];
-          };
-        };
-        secrets = {
-          file = {
-            files = {
-              "k0s-token-controller" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
               "ca.key" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_key }}{{ else }}{{ .Data.data.ca_key }}{{ end }}{{ end }}'';
@@ -454,6 +425,35 @@ in
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
                 permissions = "0444";
+                change-action = "restart";
+              };
+            };
+          };
+        };
+      };
+      k0s-controller = mkIf (cfg.role != "single" && !cfg.isLeader) {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [
+              {
+                type = "approle";
+                config = {
+                  role_id_file_path = cfg.role-id;
+                  secret_id_file_path = cfg.secret-id;
+                  remove_secret_id_file_after_reading = false;
+                };
+              }
+            ];
+          };
+        };
+        secrets = {
+          file = {
+            files = {
+              "k0s-token-controller" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
+                permissions = "0400";
                 change-action = "restart";
               };
             };
