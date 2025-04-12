@@ -290,7 +290,7 @@ in
 
               mkdir -p ${cfg.dataDir}/pki/etcd
 
-              cp /tmp/detsys-vault/k0s-token-worker ${cfg.dataDir}/k0s-token-controller
+              cp /tmp/detsys-vault/k0s-token-controller ${cfg.dataDir}/k0s-token-controller
               cp /tmp/detsys-vault/ca.key ${cfg.dataDir}/pki/ca.key
               cp /tmp/detsys-vault/ca.crt ${cfg.dataDir}/pki/ca.crt
               cp /tmp/detsys-vault/sa.key ${cfg.dataDir}/pki/sa.key
