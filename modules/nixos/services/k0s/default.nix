@@ -299,7 +299,7 @@ in
               cp /tmp/detsys-vault/etcd-ca.crt ${cfg.dataDir}/pki/etcd/ca.crt
 
               chown root:root ${cfg.dataDir}/k0s-token-controller
-              chmod 0400 ${cfg.dataDir}/k0s-token-worker
+              chmod 0400 ${cfg.dataDir}/k0s-token-controller
 
               chown root:root ${cfg.dataDir}/pki/ca.key
               chmod 0400 ${cfg.dataDir}/pki/ca.key
@@ -459,136 +459,148 @@ in
         })
         cfg.users;
     campground.services.vault-agent.services = {
-      get-k0s-worker-token = mkIf (cfg.role != "single" && !cfg.isLeader) {
-        settings = {
-          vault.address = cfg.vault-address;
-          auto_auth = {
-            method = [
-              {
-                type = "approle";
-                config = {
-                  role_id_file_path = cfg.role-id;
-                  secret_id_file_path = cfg.secret-id;
-                  remove_secret_id_file_after_reading = false;
+      get-k0s-worker-token =
+        mkIf
+          (
+            (cfg.role == "worker" || cfg.role == "controller+worker" || cfg.role == "single")
+            && !cfg.isLeader
+          )
+          {
+            settings = {
+              vault.address = cfg.vault-address;
+              auto_auth = {
+                method = [
+                  {
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }
+                ];
+              };
+            };
+            secrets = {
+              file = {
+                files = {
+                  "k0s-token-worker" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.worker }}{{ else }}{{ .Data.data.worker }}{{ end }}{{ end }}'';
+                    permissions = "0400"; # Make the script executable
+                    change-action = "restart";
+                  };
+                  "ca.key" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_key }}{{ else }}{{ .Data.data.ca_key }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "ca.crt" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_crt }}{{ else }}{{ .Data.data.ca_crt }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "sa.key" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_key }}{{ else }}{{ .Data.data.sa_key }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "sa.pub" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_pub }}{{ else }}{{ .Data.data.sa_pub }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "etcd-ca.key" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_key }}{{ else }}{{ .Data.data.etcd_ca_key }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "etcd-ca.crt" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
                 };
-              }
-            ];
-          };
-        };
-        secrets = {
-          file = {
-            files = {
-              "k0s-token-worker" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.worker }}{{ else }}{{ .Data.data.worker }}{{ end }}{{ end }}'';
-                permissions = "0400"; # Make the script executable
-                change-action = "restart";
-              };
-              "ca.key" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_key }}{{ else }}{{ .Data.data.ca_key }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "ca.crt" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_crt }}{{ else }}{{ .Data.data.ca_crt }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "sa.key" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_key }}{{ else }}{{ .Data.data.sa_key }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "sa.pub" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_pub }}{{ else }}{{ .Data.data.sa_pub }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "etcd-ca.key" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_key }}{{ else }}{{ .Data.data.etcd_ca_key }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "etcd-ca.crt" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
               };
             };
           };
-        };
-      };
-      get-k0s-controller-token = {
-        settings = {
-          vault.address = cfg.vault-address;
-          auto_auth = {
-            method = [
-              {
-                type = "approle";
-                config = {
-                  role_id_file_path = cfg.role-id;
-                  secret_id_file_path = cfg.secret-id;
-                  remove_secret_id_file_after_reading = false;
+      get-k0s-controller-token =
+        mkIf
+          (
+            (cfg.role == "controller" || cfg.role == "controller+worker" || cfg.role == "single")
+            && !cfg.isLeader
+          )
+          {
+            settings = {
+              vault.address = cfg.vault-address;
+              auto_auth = {
+                method = [
+                  {
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }
+                ];
+              };
+            };
+            secrets = {
+              file = {
+                files = {
+                  "k0s-token-controller" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
+                    permissions = "0400"; # Make the script executable
+                    change-action = "restart";
+                  };
+                  "ca.key" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_key }}{{ else }}{{ .Data.data.ca_key }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "ca.crt" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_crt }}{{ else }}{{ .Data.data.ca_crt }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "sa.key" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_key }}{{ else }}{{ .Data.data.sa_key }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "sa.pub" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_pub }}{{ else }}{{ .Data.data.sa_pub }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "etcd-ca.key" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_key }}{{ else }}{{ .Data.data.etcd_ca_key }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
+                  "etcd-ca.crt" = {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
+                    permissions = "0400";
+                    change-action = "restart";
+                  };
                 };
-              }
-            ];
-          };
-        };
-        secrets = {
-          file = {
-            files = {
-              "k0s-token-controller" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "ca.key" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_key }}{{ else }}{{ .Data.data.ca_key }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "ca.crt" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_crt }}{{ else }}{{ .Data.data.ca_crt }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "sa.key" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_key }}{{ else }}{{ .Data.data.sa_key }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "sa.pub" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_pub }}{{ else }}{{ .Data.data.sa_pub }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "etcd-ca.key" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_key }}{{ else }}{{ .Data.data.etcd_ca_key }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
-              };
-              "etcd-ca.crt" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
-                permissions = "0400";
-                change-action = "restart";
               };
             };
           };
-        };
-      };
     };
   };
 }
