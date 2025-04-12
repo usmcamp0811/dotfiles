@@ -38,7 +38,7 @@ in
       };
       kubernetes = {
         enable = true;
-        role = "controller+worker";
+        role = "worker";
         interface = "eno1";
       };
       observability = {

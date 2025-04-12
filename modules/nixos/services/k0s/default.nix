@@ -90,10 +90,14 @@ let
             serviceCIDR: 10.96.0.0/12
           podSecurityPolicy:
             defaultPolicy: 00-k0s-privileged
+
           storage:
             type: etcd
             etcd:
               peerAddress: ''${HOST_IP}
+              extraArgs:
+                listen-client-urls: https://''${HOST_IP}:2379
+                advertise-client-urls: https://''${HOST_IP}:2379
           telemetry:
             enabled: true
       '';
@@ -272,7 +276,7 @@ in
           };
         };
       })
-      (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
+      (mkIf ((cfg.role == "controller" || cfg.role == "controller+worker") && (!cfg.isLeader)) {
         "get-k0s-controller-token" = {
           description = "Get k0s join tokens from Vault";
           after = [
