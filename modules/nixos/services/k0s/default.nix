@@ -523,7 +523,7 @@ in
           };
         };
       };
-      k0s-controller = mkIf (cfg.role != "single" && !cfg.isLeader) {
+      get-k0s-controller-token = mkIf (cfg.role != "single" && !cfg.isLeader) {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
@@ -545,6 +545,42 @@ in
               "k0s-token-controller" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.controller }}{{ else }}{{ .Data.data.controller }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "ca.key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_key }}{{ else }}{{ .Data.data.ca_key }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "ca.crt" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ca_crt }}{{ else }}{{ .Data.data.ca_crt }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "sa.key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_key }}{{ else }}{{ .Data.data.sa_key }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "sa.pub" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.sa_pub }}{{ else }}{{ .Data.data.sa_pub }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "etcd-ca.key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_key }}{{ else }}{{ .Data.data.etcd_ca_key }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+              "etcd-ca.crt" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.etcd_ca_crt }}{{ else }}{{ .Data.data.etcd_ca_crt }}{{ end }}{{ end }}'';
                 permissions = "0400";
                 change-action = "restart";
               };
