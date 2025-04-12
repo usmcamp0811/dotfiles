@@ -1,8 +1,13 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.archetypes.headless;
-in {
+with lib.campground; let
+  cfg = config.campground.archetypes.headless;
+in
+{
   options.campground.archetypes.headless = with types; {
     enable = mkEnableOption "desktop home enviornment";
   };
@@ -16,7 +21,7 @@ in {
         home-manager = enabled;
         k9s = enabled;
         broot = enabled;
-        ranger = enabled;
+        yazi = enabled;
         neovim = enabled;
       };
       services = {
