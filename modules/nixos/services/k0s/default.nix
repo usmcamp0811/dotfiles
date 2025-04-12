@@ -433,7 +433,7 @@ in
             LimitNOFILE = 999999;
             Restart = "always";
             ExecStart = ''
-              ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} cfg.isLeader --config=${cfg.dataDir}/k0s.yaml
+              ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=${cfg.dataDir}/k0s.yaml
               ${
                 optionalString (!cfg.isLeader) " --token-file=${cfg.dataDir}/k0s-token-controller"
               }
