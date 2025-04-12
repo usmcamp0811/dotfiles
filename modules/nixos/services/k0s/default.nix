@@ -412,7 +412,7 @@ in
           description = "k0s Controller - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
-          after = [ "network-online.target" "get-k0s-controller-token.service" ];
+          after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
