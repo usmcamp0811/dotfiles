@@ -411,7 +411,7 @@ in
         "k0s-controller" = {
           description = "k0s Controller - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
-          path = with pkgs; [ kmod util-linux mount ];
+          path = with pkgs; [ kmod util-linux mount iptables ];
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
           wantedBy = [ "multi-user.target" ];
