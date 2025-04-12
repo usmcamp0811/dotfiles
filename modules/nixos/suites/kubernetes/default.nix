@@ -49,68 +49,68 @@ in
         interface = cfg.interface;
         isLeader = cfg.isLeader;
         role = cfg.role;
-        apiAddress = "10.8.0.88";
+        apiAddress = "10.8.0.1";
         apiSans =
-          [ "10.8.0.88" "k8s-controller" ]
+          [ "10.8.0.1" ]
           ++ builtins.attrNames controllers;
         clusterName = "campground";
         dataDir = "/var/lib/k0s";
       };
 
       # Move HAProxy and Keepalived to worker nodes
-      keepalived = mkIf (cfg.role == "worker") {
-        enable = true;
-        instances = {
-          "k8s-proxy" = {
-            interface = cfg.interface;
-            ips = [ "10.8.0.88" ]; # Virtual IP for HA
-            state = "MASTER";
-            priority = 35;
-            virtualRouterId = 59;
-          };
-        };
-      };
+      # keepalived = mkIf (cfg.role == "worker") {
+      #   enable = true;
+      #   instances = {
+      #     "k8s-proxy" = {
+      #       interface = cfg.interface;
+      #       ips = [ "10.8.0.88" ]; # Virtual IP for HA
+      #       state = "MASTER";
+      #       priority = 35;
+      #       virtualRouterId = 59;
+      #     };
+      #   };
+      # };
 
-      haproxy = mkIf (cfg.role == "worker") {
-        enable = true;
-        defaults = {
-          mode = "tcp";
-          "timeout connect" = "5s";
-          "timeout client" = "50s";
-          "timeout server" = "50s";
-        };
-        frontends = {
-          "kubeAPI" = {
-            bind = [ ":6443" ];
-            backend = "kubeAPI_backend";
-            options = [ "option tcplog" ];
-          };
-          "konnectivity" = {
-            bind = [ ":8132" ];
-            backend = "konnectivity_backend";
-            options = [ "option tcplog" ];
-          };
-          "controllerJoinAPI" = {
-            bind = [ ":9445" ];
-            backend = "controllerJoinAPI_backend";
-            options = [ "option tcplog" ];
-          };
-        };
-        backends = {
-          "kubeAPI_backend" = {
-            balance = "leastconn";
-            servers = controllers;
-          };
-          "konnectivity_backend" = {
-            balance = "leastconn";
-            servers = konnectivity;
-          };
-          "controllerJoinAPI_backend" = {
-            balance = "leastconn";
-            servers = k0scontrollers;
-          };
-        };
-      };
+      # haproxy = mkIf (cfg.role == "worker") {
+      #   enable = true;
+      #   defaults = {
+      #     mode = "tcp";
+      #     "timeout connect" = "5s";
+      #     "timeout client" = "50s";
+      #     "timeout server" = "50s";
+      #   };
+      #   frontends = {
+      #     "kubeAPI" = {
+      #       bind = [":6443"];
+      #       backend = "kubeAPI_backend";
+      #       options = ["option tcplog"];
+      #     };
+      #     "konnectivity" = {
+      #       bind = [":8132"];
+      #       backend = "konnectivity_backend";
+      #       options = ["option tcplog"];
+      #     };
+      #     "controllerJoinAPI" = {
+      #       bind = [":9445"];
+      #       backend = "controllerJoinAPI_backend";
+      #       options = ["option tcplog"];
+      #     };
+      #   };
+      #   backends = {
+      #     "kubeAPI_backend" = {
+      #       balance = "leastconn";
+      #       servers = controllers;
+      #     };
+      #     "konnectivity_backend" = {
+      #       balance = "leastconn";
+      #       servers = konnectivity;
+      #     };
+      #     "controllerJoinAPI_backend" = {
+      #       balance = "leastconn";
+      #       servers = k0scontrollers;
+      #     };
+      #   };
+      # };
     };
   };
 }
