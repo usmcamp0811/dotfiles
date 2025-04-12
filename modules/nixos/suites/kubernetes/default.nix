@@ -13,7 +13,7 @@ with lib.campground; let
   };
   k0scontrollers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
-    port = 9445;
+    port = 9443;
   };
   konnectivity = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
