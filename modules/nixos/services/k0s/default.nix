@@ -298,7 +298,7 @@ in
               cp /tmp/detsys-vault/etcd-ca.key ${cfg.dataDir}/pki/etcd/ca.key
               cp /tmp/detsys-vault/etcd-ca.crt ${cfg.dataDir}/pki/etcd/ca.crt
 
-              chown root:root ${cfg.dataDir}/k0s-token-worker
+              chown root:root ${cfg.dataDir}/k0s-token-controller
               chmod 0400 ${cfg.dataDir}/k0s-token-worker
 
               chown root:root ${cfg.dataDir}/pki/ca.key
