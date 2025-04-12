@@ -523,7 +523,7 @@ in
           };
         };
       };
-      get-k0s-controller-token = mkIf (cfg.role != "single" && !cfg.isLeader) {
+      get-k0s-controller-token = {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
