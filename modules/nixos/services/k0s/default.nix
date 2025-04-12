@@ -37,6 +37,7 @@ let
             port: 6443
             sans:
               - ''${HOST_IP}
+              - ${cfg.k8s-domain}
         ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
           extensions:
             storage:
@@ -119,6 +120,13 @@ in
       '';
     };
 
+    domain = mkOption {
+      default = "k8s.lan.aicampground.com";
+      type = types.str;
+      description = ''
+        Required. Domain name for the control plane
+      '';
+    };
     apiAddress = mkOption {
       # No default, has to be provided
       type = types.str;
