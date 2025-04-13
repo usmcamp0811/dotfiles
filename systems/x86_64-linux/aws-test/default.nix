@@ -1,14 +1,20 @@
-{ pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
+{ pkgs
+, inputs
+, lib
+, nixos-hardware
+, nixosModules
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   # home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
 
   ###### REQUIRED FOR EC2 SYSTEMS #######
@@ -30,7 +36,7 @@ in {
     services = {
       openssh = enabled;
       vault = {
-        enable = true;
+        # enable = true;
         ui = true;
         storage = {
           backend = "file";
