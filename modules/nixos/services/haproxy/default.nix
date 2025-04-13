@@ -9,7 +9,7 @@ in
 {
   options.campground.services.haproxy = with types; {
     enable = mkBoolOpt false "Enable HAProxy.";
-
+    haIP = mkOpt str "*" "IP to listen on";
     defaults = mkOption {
       type = attrsOf str;
       default = {
@@ -39,7 +39,7 @@ in
         options = {
           bind = mkOption {
             type = listOf str;
-            default = [ "*:80" ];
+            default = [ "${cfg.haIP}:80" ];
             description = "List of IP:port bindings for the frontend.";
           };
           backend = mkOption {
@@ -130,7 +130,7 @@ in
 
         ${optionalString cfg.stats.enable ''
           listen stats
-            bind *:${toString cfg.stats.port}
+            bind ${cfg.haIP}:${toString cfg.stats.port}
             mode http
             stats enable
             stats uri ${cfg.stats.uri}
