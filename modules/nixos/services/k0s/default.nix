@@ -33,8 +33,8 @@ let
           api:
             address: ''${HOST_IP}
             externalAddress: ${cfg.apiAddress}
-            k0sApiPort: 9445
-            port: 6443
+            k0sApiPort: ${cfg.k0sApiPort}
+            port: ${cfg.kubeAPIPort}
             sans:
               - ''${HOST_IP}
               - ${cfg.domain}
@@ -51,8 +51,8 @@ let
               kubeAPIserverUser: ${cfg.users.kubeAPIserverUser}
               kubeSchedulerUser: ${cfg.users.kubeSchedulerUser}
           konnectivity:
-            adminPort: 8133
-            agentPort: 8132
+            adminPort: ${cfg.konnectivityAdminAPIPort}
+            agentPort: ${cfg.konnectivityAgentAPIPort}
           network:
 
             calico: null
@@ -124,9 +124,40 @@ in
       default = "k8s.lan.aicampground.com";
       type = types.str;
       description = ''
-        Required. Domain name for the control plane
+        Domain name for the control plane
       '';
     };
+
+    k0sApiPort = mkOption {
+      default = 9445;
+      type = types.int;
+      description = ''
+        K0s API Port
+      '';
+    };
+
+    kubeAPIPort = mkOption {
+      default = 6443;
+      type = types.int;
+      description = ''
+        Kubernete API Port
+      '';
+    };
+    konnectivityAgentAPIPort = mkOption {
+      default = 8132;
+      type = types.int;
+      description = ''
+        Konnectivity agentPort
+      '';
+    };
+    konnectivityAdminAPIPort = mkOption {
+      default = 8133;
+      type = types.int;
+      description = ''
+        Konnectivity adminPort
+      '';
+    };
+
     apiAddress = mkOption {
       # No default, has to be provided
       type = types.str;
@@ -155,7 +186,7 @@ in
       type = types.bool;
       default = false;
       description = ''
-        The leader is used to generate the join tokens.
+        The leader is used to generate the join tokens or makes the kubernetes api accessible.
       '';
     };
 
