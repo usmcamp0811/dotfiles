@@ -53,7 +53,6 @@ let
             konnectivity:
               adminPort: ${toString cfg.konnectivityAdminAPIPort}
               agentPort: ${toString cfg.konnectivityAgentAPIPort}
-
             network:
               kubeProxy:
                 mode: iptables
@@ -62,8 +61,9 @@ let
                 mtu: 0
                 peerRouterASNs: ""
                 peerRouterIPs: ""
+                metricsPort: 9090
               podCIDR: 10.244.0.0/16
-              provider: kuberouter
+              provider: calico
               serviceCIDR: 10.96.0.0/12
             podSecurityPolicy:
               defaultPolicy: 00-k0s-privileged
@@ -77,7 +77,7 @@ let
                   initial-advertise-peer-urls: https://''${HOST_IP}:2380
                   listen-peer-urls: https://''${HOST_IP}:2380
             telemetry:
-              enabled: true
+              enabled: false
       '';
 in
 {
