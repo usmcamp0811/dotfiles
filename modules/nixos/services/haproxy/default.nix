@@ -104,13 +104,13 @@ in
       enable = true;
 
       config = ''
-                defaults
-                  ${
+        defaults
+          ${
           lib.concatStringsSep "\n  "
           (mapAttrsToList (name: value: "${name} ${value}") cfg.defaults)
         }
 
-                ${lib.concatStringsSep "\n\n" (mapAttrsToList (name: frontend: ''
+        ${lib.concatStringsSep "\n\n" (mapAttrsToList (name: frontend: ''
             frontend ${name}
               ${
               lib.concatStringsSep "\n  "
@@ -134,7 +134,7 @@ in
           '')
           cfg.backends)}
 
-                ${optionalString cfg.stats.enable ''
+        ${optionalString cfg.stats.enable ''
           listen stats
             bind ${cfg.haIP}:${toString cfg.stats.port}
             mode http
