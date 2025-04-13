@@ -48,10 +48,10 @@ in
 
     security.gpg = enabled;
     suites = {
-      public-hosting = {
+      lan-hosting = {
         enable = true;
         interface = "eno1";
-        log-to-kafka = true;
+        # log-to-kafka = true;
       };
       kubernetes = {
         enable = true;
