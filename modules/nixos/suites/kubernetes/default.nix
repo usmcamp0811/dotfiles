@@ -12,6 +12,7 @@ with lib.campground; let
   kubeAPIPort = 6443;
   konnectivityPort = 8132;
   controllerJoinAPIPort = 9445;
+  k8sIP = "10.8.0.88";
 
   controllers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
@@ -72,7 +73,7 @@ in
         instances = {
           "k8s-proxy" = {
             interface = cfg.interface;
-            ips = [ "10.8.0.88" ]; # Virtual IP for HA
+            ips = [ k8sIP ]; # Virtual IP for HA
             state = "MASTER";
             priority = 35;
             virtualRouterId = 59;
@@ -90,17 +91,17 @@ in
         };
         frontends = {
           "kubeAPI" = {
-            bind = [ ":${toString kubeAPIPort}" ];
+            bind = [ "${k8sIP}:${toString kubeAPIPort}" ];
             backend = "kubeAPI_backend";
             options = [ "option tcplog" ];
           };
           "konnectivity" = {
-            bind = [ ":${toString konnectivityPort}" ];
+            bind = [ "${k8sIP}:${toString konnectivityPort}" ];
             backend = "konnectivity_backend";
             options = [ "option tcplog" ];
           };
           "controllerJoinAPI" = {
-            bind = [ ":${toString controllerJoinAPIPort}" ];
+            bind = [ "${k8sIP}:${toString controllerJoinAPIPort}" ];
             backend = "controllerJoinAPI_backend";
             options = [ "option tcplog" ];
           };
