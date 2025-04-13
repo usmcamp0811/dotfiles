@@ -83,6 +83,7 @@ in
 
       haproxy = mkIf (cfg.role == "worker") {
         enable = true;
+        stats.enable = true;
         defaults = {
           mode = "tcp";
           "timeout connect" = "5s";
