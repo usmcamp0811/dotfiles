@@ -47,7 +47,7 @@ in
         interface = "enp0s13f0u3";
       };
       kubernetes = {
-        enable = true;
+        # enable = true;
         role = "controller";
         interface = "enp0s13f0u3";
       };

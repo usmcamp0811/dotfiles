@@ -54,8 +54,7 @@ let
             adminPort: ${toString cfg.konnectivityAdminAPIPort}
             agentPort: ${toString cfg.konnectivityAgentAPIPort}
           network:
-
-            calico: null
+            provider: flannel
             clusterDomain: cluster.local
             dualStack: {}
             kubeProxy:
@@ -70,14 +69,6 @@ let
                 udpTimeout: 0s
               metricsBindAddress: 0.0.0.0:10249
               mode: iptables
-            kuberouter:
-              autoMTU: true
-              hairpin: Enabled
-              ipMasq: false
-              metricsPort: 8080
-              mtu: 0
-              peerRouterASNs: ""
-              peerRouterIPs: ""
             nodeLocalLoadBalancing:
               envoyProxy:
                 apiServerBindPort: 7443

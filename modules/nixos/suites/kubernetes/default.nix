@@ -10,8 +10,8 @@ with lib.campground; let
   cfg = config.campground.suites.kubernetes;
 
   kubeAPIPort = 6443;
-  konnectivityPort = 8132;
-  konnectivityAgentPort = 8133;
+  konnectivityPort = 8133;
+  konnectivityAgentPort = 8132;
   controllerJoinAPIPort = 9445;
   k8sIP = "10.8.0.88";
 
