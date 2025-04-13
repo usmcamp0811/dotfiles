@@ -87,6 +87,11 @@ in
             default = { };
             description = "List of backend servers.";
           };
+          options = mkOption {
+            type = listOf str;
+            default = [ ];
+            description = "Additional backend options (e.g. mode tcp, option tcp-check).";
+          };
         };
       });
       default = { };
@@ -99,13 +104,13 @@ in
       enable = true;
 
       config = ''
-        defaults
-          ${
+                defaults
+                  ${
           lib.concatStringsSep "\n  "
           (mapAttrsToList (name: value: "${name} ${value}") cfg.defaults)
         }
 
-        ${lib.concatStringsSep "\n\n" (mapAttrsToList (name: frontend: ''
+                ${lib.concatStringsSep "\n\n" (mapAttrsToList (name: frontend: ''
             frontend ${name}
               ${
               lib.concatStringsSep "\n  "
@@ -118,6 +123,7 @@ in
 
         ${lib.concatStringsSep "\n\n" (mapAttrsToList (name: backend: ''
             backend ${name}
+              ${lib.concatStringsSep "\n  " backend.options}
               balance ${backend.balance}
               ${
               lib.concatStringsSep "\n  " (mapAttrsToList (srvName: srv: "server ${srvName} ${srv.ip}:${toString srv.port} ${
@@ -128,7 +134,7 @@ in
           '')
           cfg.backends)}
 
-        ${optionalString cfg.stats.enable ''
+                ${optionalString cfg.stats.enable ''
           listen stats
             bind ${cfg.haIP}:${toString cfg.stats.port}
             mode http
