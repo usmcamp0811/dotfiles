@@ -20,6 +20,7 @@ with lib.campground; {
         enable = true;
         role = "controller";
         interface = "enp3s0f1";
+        isLeader = true;
       };
       # kafka = {
       #   enable = true;
@@ -180,21 +181,22 @@ with lib.campground; {
           api_addr = "http://daly:8200"
         '';
 
-        policies = builtins.foldl'
-          (policies: file:
-            policies
-            // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ./vault/policies
-                + "/${
-              builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-            }")
-              (snowfall.fs.get-files ./vault/policies)));
+        policies =
+          builtins.foldl'
+            (policies: file:
+              policies
+              // {
+                "${snowfall.path.get-file-name-without-extension file}" = file;
+              })
+            { }
+            (builtins.filter (snowfall.path.has-file-extension "hcl")
+              (builtins.map
+                (path:
+                  ./vault/policies
+                  + "/${
+                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+                }")
+                (snowfall.fs.get-files ./vault/policies)));
       };
       vault-agent = {
         enable = true;

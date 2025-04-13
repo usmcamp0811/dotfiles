@@ -34,6 +34,7 @@ in
         enable = true;
         role = "controller";
         interface = "enp7s0";
+        isLeader = true;
       };
       lan-hosting = {
         enable = true;
@@ -113,21 +114,22 @@ in
           api_addr = "http://ermy:8200"
         '';
 
-        policies = builtins.foldl'
-          (policies: file:
-            policies
-            // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ../daly/vault/policies
-                + "/${
-              builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-            }")
-              (snowfall.fs.get-files ../daly/vault/policies)));
+        policies =
+          builtins.foldl'
+            (policies: file:
+              policies
+              // {
+                "${snowfall.path.get-file-name-without-extension file}" = file;
+              })
+            { }
+            (builtins.filter (snowfall.path.has-file-extension "hcl")
+              (builtins.map
+                (path:
+                  ../daly/vault/policies
+                  + "/${
+                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+                }")
+                (snowfall.fs.get-files ../daly/vault/policies)));
       };
       vault-agent = {
         enable = true;
