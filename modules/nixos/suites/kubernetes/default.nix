@@ -8,16 +8,25 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.suites.kubernetes;
+
+  kubeAPIPort = 6443;
+  konnectivityPort = 8132;
+  controllerJoinAPIPort = 9445;
+
   controllers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
   };
+  kubeApi = lookupK0sControllers {
+    nixosConfigurations = inputs.self.nixosConfigurations;
+    port = kubeAPIPort;
+  };
   k0scontrollers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
-    port = 9443;
+    port = controllerJoinAPIPort;
   };
   konnectivity = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
-    port = 8132;
+    port = konnectivityPort;
   };
 in
 {
@@ -58,59 +67,59 @@ in
       };
 
       # Move HAProxy and Keepalived to worker nodes
-      # keepalived = mkIf (cfg.role == "worker") {
-      #   enable = true;
-      #   instances = {
-      #     "k8s-proxy" = {
-      #       interface = cfg.interface;
-      #       ips = [ "10.8.0.88" ]; # Virtual IP for HA
-      #       state = "MASTER";
-      #       priority = 35;
-      #       virtualRouterId = 59;
-      #     };
-      #   };
-      # };
+      keepalived = mkIf (cfg.role == "worker") {
+        enable = true;
+        instances = {
+          "k8s-proxy" = {
+            interface = cfg.interface;
+            ips = [ "10.8.0.88" ]; # Virtual IP for HA
+            state = "MASTER";
+            priority = 35;
+            virtualRouterId = 59;
+          };
+        };
+      };
 
-      # haproxy = mkIf (cfg.role == "worker") {
-      #   enable = true;
-      #   defaults = {
-      #     mode = "tcp";
-      #     "timeout connect" = "5s";
-      #     "timeout client" = "50s";
-      #     "timeout server" = "50s";
-      #   };
-      #   frontends = {
-      #     "kubeAPI" = {
-      #       bind = [":6443"];
-      #       backend = "kubeAPI_backend";
-      #       options = ["option tcplog"];
-      #     };
-      #     "konnectivity" = {
-      #       bind = [":8132"];
-      #       backend = "konnectivity_backend";
-      #       options = ["option tcplog"];
-      #     };
-      #     "controllerJoinAPI" = {
-      #       bind = [":9445"];
-      #       backend = "controllerJoinAPI_backend";
-      #       options = ["option tcplog"];
-      #     };
-      #   };
-      #   backends = {
-      #     "kubeAPI_backend" = {
-      #       balance = "leastconn";
-      #       servers = controllers;
-      #     };
-      #     "konnectivity_backend" = {
-      #       balance = "leastconn";
-      #       servers = konnectivity;
-      #     };
-      #     "controllerJoinAPI_backend" = {
-      #       balance = "leastconn";
-      #       servers = k0scontrollers;
-      #     };
-      #   };
-      # };
+      haproxy = mkIf (cfg.role == "worker") {
+        enable = true;
+        defaults = {
+          mode = "tcp";
+          "timeout connect" = "5s";
+          "timeout client" = "50s";
+          "timeout server" = "50s";
+        };
+        frontends = {
+          "kubeAPI" = {
+            bind = [ ":${toString kubeAPIPort}" ];
+            backend = "kubeAPI_backend";
+            options = [ "option tcplog" ];
+          };
+          "konnectivity" = {
+            bind = [ ":${toString konnectivityPort}" ];
+            backend = "konnectivity_backend";
+            options = [ "option tcplog" ];
+          };
+          "controllerJoinAPI" = {
+            bind = [ ":${toString controllerJoinAPIPort}" ];
+            backend = "controllerJoinAPI_backend";
+            options = [ "option tcplog" ];
+          };
+        };
+        backends = {
+          "kubeAPI_backend" = {
+            balance = "leastconn";
+            servers = kubeApi;
+          };
+          "konnectivity_backend" = {
+            balance = "leastconn";
+            servers = konnectivity;
+          };
+          "controllerJoinAPI_backend" = {
+            balance = "leastconn";
+            servers = k0scontrollers;
+          };
+        };
+      };
     };
   };
 }
