@@ -1,8 +1,12 @@
-{ lib, config, ... }:
+{ lib
+, config
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.haproxy;
-in {
+with lib.campground; let
+  cfg = config.campground.services.haproxy;
+in
+{
   options.campground.services.haproxy = with types; {
     enable = mkBoolOpt false "Enable HAProxy.";
 
@@ -17,6 +21,19 @@ in {
       description = "Default settings for HAProxy.";
     };
 
+    stats = {
+      enable = mkBoolOpt false "Enable HAProxy stats endpoint.";
+      port = mkOption {
+        type = types.port;
+        default = 9000;
+        description = "Port to expose HAProxy stats on.";
+      };
+      uri = mkOption {
+        type = types.str;
+        default = "/";
+        description = "URI path to access the stats page.";
+      };
+    };
     frontends = mkOption {
       type = attrsOf (submodule {
         options = {
@@ -80,33 +97,44 @@ in {
   config = mkIf cfg.enable {
     services.haproxy = {
       enable = true;
+
       config = ''
         defaults
           ${
-            lib.concatStringsSep "\n  "
-            (mapAttrsToList (name: value: "${name} ${value}") cfg.defaults)
-          }
+          lib.concatStringsSep "\n  "
+          (mapAttrsToList (name: value: "${name} ${value}") cfg.defaults)
+        }
 
         ${lib.concatStringsSep "\n\n" (mapAttrsToList (name: frontend: ''
-          frontend ${name}
-            ${
+            frontend ${name}
+              ${
               lib.concatStringsSep "\n  "
               (map (bind: "bind ${bind}") frontend.bind)
             }
-            default_backend ${frontend.backend}
-            ${lib.concatStringsSep "\n  " frontend.options}
-        '') cfg.frontends)}
+              default_backend ${frontend.backend}
+              ${lib.concatStringsSep "\n  " frontend.options}
+          '')
+          cfg.frontends)}
 
         ${lib.concatStringsSep "\n\n" (mapAttrsToList (name: backend: ''
-          backend ${name}
-            balance ${backend.balance}
-            ${
-              lib.concatStringsSep "\n  " (mapAttrsToList (srvName: srv:
-                "server ${srvName} ${srv.ip}:${toString srv.port} ${
+            backend ${name}
+              balance ${backend.balance}
+              ${
+              lib.concatStringsSep "\n  " (mapAttrsToList (srvName: srv: "server ${srvName} ${srv.ip}:${toString srv.port} ${
                   lib.concatStringsSep " " srv.options
-                }") backend.servers)
+                }")
+                backend.servers)
             }
-        '') cfg.backends)}
+          '')
+          cfg.backends)}
+
+        ${optionalString cfg.stats.enable ''
+          listen stats
+            bind *:${toString cfg.stats.port}
+            mode http
+            stats enable
+            stats uri ${cfg.stats.uri}
+        ''}
       '';
     };
   };
