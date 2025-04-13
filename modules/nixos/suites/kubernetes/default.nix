@@ -11,6 +11,7 @@ with lib.campground; let
 
   kubeAPIPort = 6443;
   konnectivityPort = 8132;
+  konnectivityAgentPort = 8133;
   controllerJoinAPIPort = 9445;
   k8sIP = "10.8.0.88";
 
@@ -28,6 +29,10 @@ with lib.campground; let
   konnectivity = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
     port = konnectivityPort;
+  };
+  konnectivityAgent = lookupK0sControllers {
+    nixosConfigurations = inputs.self.nixosConfigurations;
+    port = konnectivityAgentPort;
   };
 in
 {
@@ -101,6 +106,11 @@ in
             backend = "konnectivity_backend";
             options = [ "option tcplog" ];
           };
+          "konnectivityAgent" = {
+            bind = [ "${k8sIP}:${toString konnectivityAgentPort}" ];
+            backend = "konnectivityAgent_backend";
+            options = [ "option tcplog" ];
+          };
           "controllerJoinAPI" = {
             bind = [ "${k8sIP}:${toString controllerJoinAPIPort}" ];
             backend = "controllerJoinAPI_backend";
@@ -120,6 +130,15 @@ in
           "konnectivity_backend" = {
             balance = "leastconn";
             servers = konnectivity;
+            options = [
+              "mode tcp"
+              "option tcp-check"
+              "tcp-check connect"
+            ];
+          };
+          "konnectivityAgent_backend" = {
+            balance = "leastconn";
+            servers = konnectivityAgent;
             options = [
               "mode tcp"
               "option tcp-check"
