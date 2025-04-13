@@ -1,76 +1,132 @@
-# k0s High Availability with NixOS Modules
+# k0s High Availability Kubernetes on NixOS
 
-This README documents important nuances and implementation notes when running k0s in high availability (HA) mode using a custom NixOS module and Vault-based secret distribution.
-
----
-
-## ✅ Basic Setup Flow
-
-1. **Designate one controller as the leader** using `isLeader = true;` in the module options.
-2. Boot the leader controller first.
-3. It will generate:
-   - Join tokens
-   - Cluster certificates
-   - Admin kubeconfig
-   - Then store all of it in Vault.
-4. Non-leader controllers and workers fetch these from Vault and join using the token files.
+This is a summary for bootstrapping and managing your k0s HA control plane using your NixOS system flake setup. It documents the nuanced steps required to stand up a working cluster, especially around the phased leader promotion process and networking configuration.
 
 ---
 
-## ⚠️ Required Behavior (Observed in Practice)
+## 🛠 Prerequisites
 
-> This is not clearly stated in the k0s docs, but is necessary for a successful multi-controller setup.
-
-### 🔄 Controller Boot Order
-
-- After bringing up the first controller:
-  - Boot the second controller using the token from the first.
-  - **Before booting the third controller**, you must:
-    1. Run `k0s token create --role controller` on the **second** controller.
-    2. Use that token to start the third controller.
-
-This is counterintuitive (you’d think all tokens would come from the first controller), but in practice **this chaining is required**.
+- A working NixOS flake system with the `campground` Kubernetes suite and services.
+- Vault running and preconfigured for AppRole-based secrets exchange.
+- At least 3 nodes to build the control plane.
+- A shared VIP (e.g. `10.8.0.88`) for HAProxy/Keepalived.
 
 ---
 
-## 🛑 HAProxy Backend Health Checks
+## 🚦 Deployment Process
 
-If you see backends as DOWN in HAProxy stats:
+### 1. Bootstrap the First Controller
 
-- Ensure `k0s.yaml` was loaded on that controller (some ports aren't bound otherwise)
-- Verify all controller nodes are using identical configuration
-- Check that the service is running with `--config` (not just `--token-file`)
+Deploy your first controller with:
 
----
+```nix
+isLeader = true;
+```
 
-## 🧪 Kubeconfig Fallbacks
+Then rebuild:
 
-If you want `k9s` or `kubectl` to work even if the leader is offline:
+```sh
+sudo nixos-rebuild switch --flake .#first-node
+```
 
-- All controllers must bind the API on `externalAddress` + `sans`
-- Set `isLeader = true` on all controllers if necessary (experimental workaround)
-- Future improvement: generate kubeconfigs with multiple server entries for fallback
-
----
-
-## 🔒 Vault Tokens
-
-Each node fetches token and cert material from Vault:
-
-- `k0s-token-controller` or `k0s-token-worker`
-- Required PKI: `ca.key`, `sa.key`, `etcd-ca.key`, etc.
-
-If you’re reusing the Vault secrets, ensure consistency across reboots or reinstallations.
+This controller will generate and push tokens + certs into Vault.
 
 ---
 
-## 🛠️ Module Improvements To-Do
+### 2. Add a Second Controller
 
-- [ ] Share `k0s.yaml` across all controllers automatically
-- [ ] Fix need for chaining tokens per controller
-- [ ] Support fallback HA in kubeconfig
-- [ ] Create a “first-run-only” system for the leader
+Deploy second node with:
+
+```nix
+isLeader = false;
+```
+
+Once up, confirm it joined the etcd cluster:
+
+```sh
+sudo k0s etcd member-list
+```
+
+Then **redeploy it** with:
+
+```nix
+isLeader = true;
+```
 
 ---
 
-> Inspired by the k0s docs: https://docs.k0sproject.io/v1.32.3+k0s.0/configuration/ha/
+### 3. Add More Controllers
+
+Repeat:
+
+1. Deploy each new controller as `isLeader = false;`
+2. Wait until it appears in:
+
+   ```sh
+   sudo k0s etcd member-list
+   ```
+
+3. Then redeploy it with `isLeader = true;`
+
+This ensures a clean etcd join and safe cluster state.
+
+---
+
+## 🧠 Important Notes
+
+- Use the `kubernetes` suite module to bring in **HAProxy** + **Keepalived** on **worker** nodes.
+- All `k0s` tokens and certs are managed by Vault and synced via `vault-agent` and `systemd` oneshot jobs.
+- The `k0s` config must keep this networking block **exactly**:
+
+```yaml
+network:
+  provider: calico
+  kubeProxy:
+    mode: iptables
+  kuberouter:
+    autoMTU: true
+    mtu: 0
+    metricsPort: 9090
+  podCIDR: 10.244.0.0/16
+  serviceCIDR: 10.96.0.0/12
+```
+
+Other values caused CNI failures (pods wouldn't start).
+
+---
+
+## 🔍 Cluster State Check
+
+- Control Plane Health: http://10.8.0.88:9000
+- Controllers joined?
+
+```sh
+sudo k0s etcd member-list
+```
+
+- Workers joined?
+
+```sh
+sudo k0s kubectl get nodes
+```
+
+- Admin Kubeconfig:
+
+```sh
+sudo k0s kubeconfig admin > /etc/k8s/config
+```
+
+Then use `k9s` or any kubectl tools.
+
+---
+
+## 🧩 Worker Setup
+
+After control plane is healthy, add workers using:
+
+```nix
+role = "worker";
+isLeader = false;
+```
+
+Tokens will be pulled from Vault and the worker will auto-join via systemd and `vault-agent`.
