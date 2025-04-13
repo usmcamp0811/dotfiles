@@ -37,7 +37,7 @@ let
             port: 6443
             sans:
               - ''${HOST_IP}
-              - ${cfg.k8s-domain}
+              - ${cfg.domain}
         ${concatMapStringsSep "\n" (value: "      - ${value}") cfg.apiSans}
           extensions:
             storage:
