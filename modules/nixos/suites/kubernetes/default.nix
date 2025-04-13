@@ -94,43 +94,46 @@ in
           "kubeAPI" = {
             bind = [ "${k8sIP}:${toString kubeAPIPort}" ];
             backend = "kubeAPI_backend";
-            options = [
-              "mode tcp"
-              "option tcp-check"
-              "tcp-check connect"
-            ];
+            options = [ "option tcplog" ];
           };
           "konnectivity" = {
             bind = [ "${k8sIP}:${toString konnectivityPort}" ];
             backend = "konnectivity_backend";
-            options = [
-              "mode tcp"
-              "option tcp-check"
-              "tcp-check connect"
-            ];
+            options = [ "option tcplog" ];
           };
           "controllerJoinAPI" = {
             bind = [ "${k8sIP}:${toString controllerJoinAPIPort}" ];
             backend = "controllerJoinAPI_backend";
-            options = [
-              "mode tcp"
-              "option tcp-check"
-              "tcp-check connect"
-            ];
+            options = [ "option tcplog" ];
           };
         };
         backends = {
           "kubeAPI_backend" = {
             balance = "leastconn";
             servers = kubeApi;
+            options = [
+              "mode tcp"
+              "option tcp-check"
+              "tcp-check connect"
+            ];
           };
           "konnectivity_backend" = {
             balance = "leastconn";
             servers = konnectivity;
+            options = [
+              "mode tcp"
+              "option tcp-check"
+              "tcp-check connect"
+            ];
           };
           "controllerJoinAPI_backend" = {
             balance = "leastconn";
             servers = k0scontrollers;
+            options = [
+              "mode tcp"
+              "option tcp-check"
+              "tcp-check connect"
+            ];
           };
         };
       };
