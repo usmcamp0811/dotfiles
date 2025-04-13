@@ -33,8 +33,8 @@ let
           api:
             address: ''${HOST_IP}
             externalAddress: ${cfg.apiAddress}
-            k0sApiPort: ${cfg.k0sApiPort}
-            port: ${cfg.kubeAPIPort}
+            k0sApiPort: ${toString cfg.k0sApiPort}
+            port: ${toString cfg.kubeAPIPort}
             sans:
               - ''${HOST_IP}
               - ${cfg.domain}
@@ -51,8 +51,8 @@ let
               kubeAPIserverUser: ${cfg.users.kubeAPIserverUser}
               kubeSchedulerUser: ${cfg.users.kubeSchedulerUser}
           konnectivity:
-            adminPort: ${cfg.konnectivityAdminAPIPort}
-            agentPort: ${cfg.konnectivityAgentAPIPort}
+            adminPort: ${toString cfg.konnectivityAdminAPIPort}
+            agentPort: ${toString cfg.konnectivityAgentAPIPort}
           network:
 
             calico: null
