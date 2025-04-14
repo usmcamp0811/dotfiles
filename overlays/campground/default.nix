@@ -6,10 +6,12 @@
 , nixpkgs
 , channels
 , unstable
+, kubenix
 , yazi
 , ...
 }: final: prev:
 {
+  kubenix-eval = kubenix.evalModules.${prev.system};
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
   neovim = campground-nvim.packages.${prev.system}.nvim;
   makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
