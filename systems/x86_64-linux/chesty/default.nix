@@ -36,17 +36,17 @@ with lib.campground;
         role = "worker";
         interface = "enp7s0";
       };
-      kafka = {
-        # enable = true;
-        interface = "enp7s0";
-        zookeeper-id = 1;
-        servers = ''
-          server.1=127.0.0.1:2888:3888
-          server.2=webb:2888:3888
-          server.3=daly:2888:3888
-          server.4=lucas:2888:3888
-        '';
-      };
+      # kafka = {
+      #   # enable = true;
+      #   interface = "enp7s0";
+      #   zookeeper-id = 1;
+      #   servers = ''
+      #     server.1=127.0.0.1:2888:3888
+      #     server.2=webb:2888:3888
+      #     server.3=daly:2888:3888
+      #     server.4=lucas:2888:3888
+      #   '';
+      # };
     };
     archetypes = {
       server = {
@@ -60,61 +60,61 @@ with lib.campground;
       attic-watch-store = enabled;
       # netbird.client.enable = true;
 
-      hadoop = {
-        # enable = true;
-        # yarnSite = {
-        #   "yarn.nodemanager.hostname" = "chesty";
-        #   "yarn.scheduler.capacity.root.queues" = "default";
-        #   "yarn.scheduler.capacity.root.default.capacity" = "100";
-        #
-        # };
-        # hdfs = {
-        #   namenode.enable = true;
-        #   namenode.restartIfChanged = true;
-        #   namenode.openFirewall = true;
-        #   namenode.extraFlags = [ ];
-        #   namenode.extraEnv = { };
-        #
-        #   datanode.enable = true;
-        #   datanode.restartIfChanged = true;
-        #   datanode.openFirewall = true;
-        #   datanode.extraFlags = [ ];
-        #   datanode.extraEnv = { };
-        #   datanode.dataDirs = [ ];
-        #
-        #   zkfc.enable = true;
-        #   zkfc.restartIfChanged = true;
-        #   zkfc.extraFlags = [ ];
-        #   zkfc.extraEnv = { };
-        #
-        #   httpfs.enable = true;
-        #   httpfs.tempPath = "/tmp/hadoop/httpfs";
-        #   httpfs.restartIfChanged = true;
-        #   httpfs.openFirewall = true;
-        #   httpfs.extraFlags = [ ];
-        #   httpfs.extraEnv = { };
-        # };
-        yarn = {
-          resourcemanager.enable = true;
-          resourcemanager.restartIfChanged = true;
-          resourcemanager.openFirewall = true;
-          resourcemanager.extraFlags = [ ];
-          resourcemanager.extraEnv = { };
-
-          nodemanager.enable = true;
-          nodemanager.useCGroups = false;
-          nodemanager.restartIfChanged = true;
-          nodemanager.resource.memoryMB = null;
-          nodemanager.resource.maximumAllocationVCores = null;
-          nodemanager.resource.maximumAllocationMB = null;
-          nodemanager.resource.cpuVCores = null;
-          nodemanager.openFirewall = true;
-          nodemanager.localDir = null;
-          nodemanager.extraFlags = [ ];
-          nodemanager.extraEnv = { };
-          nodemanager.addBinBash = true;
-        };
-      };
+      # hadoop = {
+      #   # enable = true;
+      #   # yarnSite = {
+      #   #   "yarn.nodemanager.hostname" = "chesty";
+      #   #   "yarn.scheduler.capacity.root.queues" = "default";
+      #   #   "yarn.scheduler.capacity.root.default.capacity" = "100";
+      #   #
+      #   # };
+      #   # hdfs = {
+      #   #   namenode.enable = true;
+      #   #   namenode.restartIfChanged = true;
+      #   #   namenode.openFirewall = true;
+      #   #   namenode.extraFlags = [ ];
+      #   #   namenode.extraEnv = { };
+      #   #
+      #   #   datanode.enable = true;
+      #   #   datanode.restartIfChanged = true;
+      #   #   datanode.openFirewall = true;
+      #   #   datanode.extraFlags = [ ];
+      #   #   datanode.extraEnv = { };
+      #   #   datanode.dataDirs = [ ];
+      #   #
+      #   #   zkfc.enable = true;
+      #   #   zkfc.restartIfChanged = true;
+      #   #   zkfc.extraFlags = [ ];
+      #   #   zkfc.extraEnv = { };
+      #   #
+      #   #   httpfs.enable = true;
+      #   #   httpfs.tempPath = "/tmp/hadoop/httpfs";
+      #   #   httpfs.restartIfChanged = true;
+      #   #   httpfs.openFirewall = true;
+      #   #   httpfs.extraFlags = [ ];
+      #   #   httpfs.extraEnv = { };
+      #   # };
+      #   yarn = {
+      #     resourcemanager.enable = true;
+      #     resourcemanager.restartIfChanged = true;
+      #     resourcemanager.openFirewall = true;
+      #     resourcemanager.extraFlags = [ ];
+      #     resourcemanager.extraEnv = { };
+      #
+      #     nodemanager.enable = true;
+      #     nodemanager.useCGroups = false;
+      #     nodemanager.restartIfChanged = true;
+      #     nodemanager.resource.memoryMB = null;
+      #     nodemanager.resource.maximumAllocationVCores = null;
+      #     nodemanager.resource.maximumAllocationMB = null;
+      #     nodemanager.resource.cpuVCores = null;
+      #     nodemanager.openFirewall = true;
+      #     nodemanager.localDir = null;
+      #     nodemanager.extraFlags = [ ];
+      #     nodemanager.extraEnv = { };
+      #     nodemanager.addBinBash = true;
+      #   };
+      # };
       # hydra = enabled;
       jellyfin = enabled;
       matt-camp-website = enabled;
@@ -143,21 +143,22 @@ with lib.campground;
           api_addr = "http://chesty:8200"
         '';
 
-        policies = builtins.foldl'
-          (policies: file:
-            policies
-            // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          { }
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ../daly/vault/policies
-                + "/${
-                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }")
-              (snowfall.fs.get-files ../daly/vault/policies)));
+        policies =
+          builtins.foldl'
+            (policies: file:
+              policies
+              // {
+                "${snowfall.path.get-file-name-without-extension file}" = file;
+              })
+            { }
+            (builtins.filter (snowfall.path.has-file-extension "hcl")
+              (builtins.map
+                (path:
+                  ../daly/vault/policies
+                  + "/${
+                    builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+                  }")
+                (snowfall.fs.get-files ../daly/vault/policies)));
       };
       searx = {
         enable = true;
