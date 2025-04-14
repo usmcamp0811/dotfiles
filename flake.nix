@@ -193,7 +193,7 @@
     funkwhale.url = "github:usmcamp0811/funkwhale-flake";
 
     nixhelm.url = "github:farcaller/nixhelm";
-    kubenix.url = "github:hall/kubenix";
+    # kubenix.url = "github:hall/kubenix";
     kube-gen.url = "github:farcaller/nix-kube-generators";
     nix2container.url = "github:nlewo/nix2container";
 
@@ -344,7 +344,7 @@
         nix-topology.overlays.default
         funkwhale.overlays.default
         yazi.overlays.default
-        kubenix.overlays.default
+        # kubenix.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
