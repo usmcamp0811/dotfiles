@@ -48,8 +48,9 @@ in
       # };
       kubernetes = {
         enable = true;
-        role = "controller";
+        role = "worker";
         interface = "enp0s13f0u3";
+        # isLeader = true;
       };
     };
     apps = { steam = enabled; };
