@@ -1,5 +1,5 @@
 {
-  # kube-gen,
+  kube-gen,
   campground-nvim,
   nixhelm,
   nixtheplanet,
@@ -7,7 +7,6 @@
   nixpkgs,
   channels,
   unstable,
-  kubenix,
   yazi,
   ...
 }: final: prev:
