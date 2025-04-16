@@ -34,7 +34,7 @@ in
         enable = true;
         role = "controller";
         interface = "enp7s0";
-        # isLeader = true;
+        isLeader = true;
       };
       lan-hosting = {
         enable = true;
