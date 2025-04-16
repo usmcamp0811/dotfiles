@@ -1,17 +1,18 @@
-{ kube-gen
-, campground-nvim
-, nixhelm
-, nixtheplanet
-, old-nixpkgs
-, nixpkgs
-, channels
-, unstable
-, kubenix
-, yazi
-, ...
+{
+  # kube-gen,
+  campground-nvim,
+  nixhelm,
+  nixtheplanet,
+  old-nixpkgs,
+  nixpkgs,
+  channels,
+  unstable,
+  kubenix,
+  yazi,
+  ...
 }: final: prev:
 {
-  kubenix-eval = kubenix.evalModules.${prev.system};
+  # kubenix-eval = kubenix.evalModules.${prev.system};
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
   neovim = campground-nvim.packages.${prev.system}.nvim;
   makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
@@ -39,6 +40,6 @@
       '';
   });
 }
-  // {
+// {
   inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin;
 }
