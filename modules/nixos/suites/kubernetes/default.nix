@@ -1,9 +1,10 @@
-{ options
-, config
-, lib
-, pkgs
-, inputs
-, ...
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -13,7 +14,7 @@ with lib.campground; let
   konnectivityPort = 8133;
   konnectivityAgentPort = 8132;
   controllerJoinAPIPort = 9445;
-  k8sIP = "10.8.0.88";
+  k8sIP = "10.8.0.1";
 
   controllers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
@@ -34,13 +35,12 @@ with lib.campground; let
     nixosConfigurations = inputs.self.nixosConfigurations;
     port = konnectivityAgentPort;
   };
-in
-{
+in {
   options.campground.suites.kubernetes = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable kubernetes configuration.";
     role = mkOption {
-      type = types.enum [ "controller" "controller+worker" "worker" "single" ];
+      type = types.enum ["controller" "controller+worker" "worker" "single"];
       default = "single";
       description = ''
         K8s role.
@@ -66,96 +66,96 @@ in
         role = cfg.role;
         apiAddress = k8sIP;
         apiSans =
-          [ k8sIP ]
+          [k8sIP]
           ++ builtins.attrNames controllers;
         clusterName = "campground";
         dataDir = "/var/lib/k0s";
       };
 
       # Move HAProxy and Keepalived to worker nodes
-      keepalived = mkIf (cfg.role == "worker") {
-        enable = true;
-        instances = {
-          "k8s-proxy" = {
-            interface = cfg.interface;
-            ips = [ k8sIP ]; # Virtual IP for HA
-            state = "MASTER";
-            priority = 35;
-            virtualRouterId = 59;
-          };
-        };
-      };
+      # keepalived = mkIf (cfg.role == "worker") {
+      #   enable = true;
+      #   instances = {
+      #     "k8s-proxy" = {
+      #       interface = cfg.interface;
+      #       ips = [k8sIP]; # Virtual IP for HA
+      #       state = "MASTER";
+      #       priority = 35;
+      #       virtualRouterId = 59;
+      #     };
+      #   };
+      # };
 
-      haproxy = mkIf (cfg.role == "worker") {
-        enable = true;
-        stats.enable = true;
-        defaults = {
-          mode = "tcp";
-          "timeout connect" = "5s";
-          "timeout client" = "50s";
-          "timeout server" = "50s";
-        };
-        frontends = {
-          "kubeAPI" = {
-            bind = [ "${k8sIP}:${toString kubeAPIPort}" ];
-            backend = "kubeAPI_backend";
-            options = [ "option tcplog" ];
-          };
-          "konnectivity" = {
-            bind = [ "${k8sIP}:${toString konnectivityPort}" ];
-            backend = "konnectivity_backend";
-            options = [ "option tcplog" ];
-          };
-          "konnectivityAgent" = {
-            bind = [ "${k8sIP}:${toString konnectivityAgentPort}" ];
-            backend = "konnectivityAgent_backend";
-            options = [ "option tcplog" ];
-          };
-          "controllerJoinAPI" = {
-            bind = [ "${k8sIP}:${toString controllerJoinAPIPort}" ];
-            backend = "controllerJoinAPI_backend";
-            options = [ "option tcplog" ];
-          };
-        };
-        backends = {
-          "kubeAPI_backend" = {
-            balance = "leastconn";
-            servers = kubeApi;
-            options = [
-              "mode tcp"
-              "option tcp-check"
-              "tcp-check connect"
-            ];
-          };
-          "konnectivity_backend" = {
-            balance = "leastconn";
-            servers = konnectivity;
-            options = [
-              "mode tcp"
-              "option tcp-check"
-              "tcp-check connect"
-            ];
-          };
-          "konnectivityAgent_backend" = {
-            balance = "leastconn";
-            servers = konnectivityAgent;
-            options = [
-              "mode tcp"
-              "option tcp-check"
-              "tcp-check connect"
-            ];
-          };
-          "controllerJoinAPI_backend" = {
-            balance = "leastconn";
-            servers = k0scontrollers;
-            options = [
-              "mode tcp"
-              "option tcp-check"
-              "tcp-check connect"
-            ];
-          };
-        };
-      };
+      # haproxy = mkIf (cfg.role == "worker") {
+      #   enable = true;
+      #   stats.enable = true;
+      #   defaults = {
+      #     mode = "tcp";
+      #     "timeout connect" = "5s";
+      #     "timeout client" = "50s";
+      #     "timeout server" = "50s";
+      #   };
+      #   frontends = {
+      #     "kubeAPI" = {
+      #       bind = ["${k8sIP}:${toString kubeAPIPort}"];
+      #       backend = "kubeAPI_backend";
+      #       options = ["option tcplog"];
+      #     };
+      #     "konnectivity" = {
+      #       bind = ["${k8sIP}:${toString konnectivityPort}"];
+      #       backend = "konnectivity_backend";
+      #       options = ["option tcplog"];
+      #     };
+      #     "konnectivityAgent" = {
+      #       bind = ["${k8sIP}:${toString konnectivityAgentPort}"];
+      #       backend = "konnectivityAgent_backend";
+      #       options = ["option tcplog"];
+      #     };
+      #     "controllerJoinAPI" = {
+      #       bind = ["${k8sIP}:${toString controllerJoinAPIPort}"];
+      #       backend = "controllerJoinAPI_backend";
+      #       options = ["option tcplog"];
+      #     };
+      #   };
+      #   backends = {
+      #     "kubeAPI_backend" = {
+      #       balance = "leastconn";
+      #       servers = kubeApi;
+      #       options = [
+      #         "mode tcp"
+      #         "option tcp-check"
+      #         "tcp-check connect"
+      #       ];
+      #     };
+      #     "konnectivity_backend" = {
+      #       balance = "leastconn";
+      #       servers = konnectivity;
+      #       options = [
+      #         "mode tcp"
+      #         "option tcp-check"
+      #         "tcp-check connect"
+      #       ];
+      #     };
+      #     "konnectivityAgent_backend" = {
+      #       balance = "leastconn";
+      #       servers = konnectivityAgent;
+      #       options = [
+      #         "mode tcp"
+      #         "option tcp-check"
+      #         "tcp-check connect"
+      #       ];
+      #     };
+      #     "controllerJoinAPI_backend" = {
+      #       balance = "leastconn";
+      #       servers = k0scontrollers;
+      #       options = [
+      #         "mode tcp"
+      #         "option tcp-check"
+      #         "tcp-check connect"
+      #       ];
+      #     };
+      #   };
+      # };
     };
   };
 }
