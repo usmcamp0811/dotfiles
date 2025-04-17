@@ -1,10 +1,9 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -14,7 +13,7 @@ with lib.campground; let
   konnectivityPort = 8133;
   konnectivityAgentPort = 8132;
   controllerJoinAPIPort = 9445;
-  k8sIP = "10.8.0.1";
+  k8sIP = "10.8.0.197";
 
   controllers = lookupK0sControllers {
     nixosConfigurations = inputs.self.nixosConfigurations;
@@ -35,12 +34,13 @@ with lib.campground; let
     nixosConfigurations = inputs.self.nixosConfigurations;
     port = konnectivityAgentPort;
   };
-in {
+in
+{
   options.campground.suites.kubernetes = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable kubernetes configuration.";
     role = mkOption {
-      type = types.enum ["controller" "controller+worker" "worker" "single"];
+      type = types.enum [ "controller" "controller+worker" "worker" "single" ];
       default = "single";
       description = ''
         K8s role.
@@ -66,7 +66,7 @@ in {
         role = cfg.role;
         apiAddress = k8sIP;
         apiSans =
-          [k8sIP]
+          [ k8sIP ]
           ++ builtins.attrNames controllers;
         clusterName = "campground";
         dataDir = "/var/lib/k0s";

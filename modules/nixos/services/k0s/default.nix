@@ -37,7 +37,6 @@ let
               port: ${toString cfg.kubeAPIPort}
               sans:
                 - ''${HOST_IP}
-                - ${cfg.domain}
         ${concatMapStringsSep "\n" (value: "        - ${value}") cfg.apiSans}
             extensions:
               storage:
@@ -62,9 +61,9 @@ let
                 peerRouterASNs: ""
                 peerRouterIPs: ""
                 metricsPort: 9090
-              podCIDR: 10.244.0.0/16
+              podCIDR: 10.243.0.0/16
               provider: kuberouter
-              serviceCIDR: 10.96.0.0/12
+              serviceCIDR: 10.95.0.0/12
             podSecurityPolicy:
               defaultPolicy: 00-k0s-privileged
             storage:
