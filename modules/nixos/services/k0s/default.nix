@@ -30,6 +30,9 @@ let
           metadata:
             name: ${cfg.clusterName}
           spec:
+            network:
+              provider: custom
+              podCIDR: 10.244.0.0/16
             api:
               address: ''${HOST_IP}
               externalAddress: ${cfg.apiAddress}
@@ -52,18 +55,6 @@ let
             konnectivity:
               adminPort: ${toString cfg.konnectivityAdminAPIPort}
               agentPort: ${toString cfg.konnectivityAgentAPIPort}
-            network:
-              kubeProxy:
-                mode: iptables
-              kuberouter:
-                autoMTU: true
-                mtu: 0
-                peerRouterASNs: ""
-                peerRouterIPs: ""
-                metricsPort: 9090
-              podCIDR: 10.244.0.0/16
-              provider: kuberouter
-              serviceCIDR: 10.96.0.0/12
             podSecurityPolicy:
               defaultPolicy: 00-k0s-privileged
             storage:
@@ -227,11 +218,23 @@ in
     environment.systemPackages = with pkgs; [
       openiscsi
       nfs-utils
+      cilium-cli
       campground.k0s
     ];
 
+    systemd.network.networks."10-${cfg.interface}" = {
+      matchConfig.Name = cfg.interface;
+      networkConfig = {
+        DHCP = "yes";
+      };
+      extraConfig = ''
+        [Network]
+        ManageForeignRoutingPolicyRules=no
+      '';
+    };
+
     systemd.services = mkMerge [
-      (mkIf ((cfg.role == "controller" || cfg.role == "controller+worker") && (!cfg.isLeader)) {
+      (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
         # (mkIf cfg.isLeader {
         "k0s-controller-store-tokens" = {
           description = "Generate k0s join tokens and store in Vault";
