@@ -195,6 +195,7 @@
     nixhelm.url = "github:farcaller/nixhelm";
     # kubenix.url = "github:hall/kubenix";
     kube-gen.url = "github:farcaller/nix-kube-generators";
+    nixidy.url = "github:arnarg/nixidy";
     nix2container.url = "github:nlewo/nix2container";
 
     yazi.url = "github:sxyazi/yazi/v25.4.8";
