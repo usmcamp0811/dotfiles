@@ -91,6 +91,7 @@ stop k0s-worker
 
 mount | grep /var/lib/k0s/kubelet | awk '{print $3}' | xargs -r sudo umount -l
 sudo rm -rf /var/lib/k0s
+start k0s-worker
 ```
 
 ---
