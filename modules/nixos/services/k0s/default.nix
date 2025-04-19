@@ -231,7 +231,8 @@ in
     ];
 
     systemd.services = mkMerge [
-      (mkIf cfg.isLeader {
+      (mkIf ((cfg.role == "controller" || cfg.role == "controller+worker") && (!cfg.isLeader)) {
+        # (mkIf cfg.isLeader {
         "k0s-controller-store-tokens" = {
           description = "Generate k0s join tokens and store in Vault";
           after = [
