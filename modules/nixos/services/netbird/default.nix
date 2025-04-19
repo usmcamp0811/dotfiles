@@ -1,11 +1,17 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
 with lib.campground;
-# PIRs: 
+# PIRs:
 # 1. What ports must be open?
 # 2. How to make Turn Server work correctly
-let cfg = config.campground.services.netbird;
-in {
+let
+  cfg = config.campground.services.netbird;
+in
+{
   options.campground.services.netbird = with types; {
     client = { enable = mkBoolOpt false "Enable Netbird Client Only"; };
     server = {
@@ -34,8 +40,9 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/netbird"
-      "The Vault path to the KV containing the KVs that are for each database";
+    vault-path =
+      mkOpt str "secret/campground/netbird"
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -57,10 +64,10 @@ in {
         domain = cfg.server.netbird-domain;
         management = {
           enable = true;
+          metricsPort = cfg.server.metrics-port;
           port = cfg.server.management-port;
           enableNginx = lib.mkForce true;
-          oidcConfigEndpoint =
-            "https://${cfg.server.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
+          oidcConfigEndpoint = "https://${cfg.server.oidc-domain}/application/o/netbird/.well-known/openid-configuration";
           domain = cfg.server.netbird-domain;
           turnDomain = "turn.${cfg.server.netbird-domain}";
           dnsDomain = "dns.${cfg.server.netbird-domain}";
@@ -68,14 +75,16 @@ in {
 
           settings = {
             TURNConfig = {
-              Turns = [{
-                Proto = "udp";
-                URI = "turn:turn.${cfg.server.netbird-domain}:${
-                    toString cfg.server.turn-port
-                  }";
-                Username = "netbird";
-                Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
-              }];
+              Turns = [
+                {
+                  Proto = "udp";
+                  URI = "turn:turn.${cfg.server.netbird-domain}:${
+                      toString cfg.server.turn-port
+                    }";
+                  Username = "netbird";
+                  Password._secret = "/var/lib/netbird-mgmt/coturn_nb";
+                }
+              ];
 
               Secret._secret = "/var/lib/netbird-mgmt/turn";
             };
@@ -87,25 +96,20 @@ in {
             HttpConfig = {
               AuthAudience = cfg.server.client-id;
               AuthUserIDClaim = "sub";
-              AuthIssuer =
-                "https://${cfg.server.oidc-domain}/application/o/netbird/";
-              AuthKeysLocation =
-                "https://${cfg.server.oidc-domain}/application/o/netbird/jwks/";
+              AuthIssuer = "https://${cfg.server.oidc-domain}/application/o/netbird/";
+              AuthKeysLocation = "https://${cfg.server.oidc-domain}/application/o/netbird/jwks/";
             };
 
             IdpManagerConfig = {
               ManagerType = "authentik";
               ClientConfig = {
-                Issuer =
-                  "https://${cfg.server.oidc-domain}/application/o/netbird/";
+                Issuer = "https://${cfg.server.oidc-domain}/application/o/netbird/";
                 ClientID = cfg.server.client-id;
-                TokenEndpoint =
-                  "https://${cfg.server.oidc-domain}/application/o/token/";
+                TokenEndpoint = "https://${cfg.server.oidc-domain}/application/o/token/";
                 ClientSecret = "";
               };
               ExtraConfig = {
-                Password._secret =
-                  "/var/lib/netbird-mgmt/netbird_authentik_password";
+                Password._secret = "/var/lib/netbird-mgmt/netbird_authentik_password";
                 Username = "NetBird";
               };
             };
@@ -114,10 +118,8 @@ in {
               ClientID = cfg.server.client-id;
               ClientSecret = "";
               Scope = "openid profile email offline_access api";
-              AuthorizationEndpoint =
-                "https://${cfg.server.oidc-domain}/application/o/authorize/";
-              TokenEndpoint =
-                "https://${cfg.server.oidc-domain}/application/o/token/";
+              AuthorizationEndpoint = "https://${cfg.server.oidc-domain}/application/o/authorize/";
+              TokenEndpoint = "https://${cfg.server.oidc-domain}/application/o/token/";
               RedirectURLs = [
                 # "https://${cfg.server.netbird-domain}"
                 "http://localhost:53000"
@@ -139,8 +141,7 @@ in {
           domain = cfg.server.netbird-domain;
           managementServer = "https://${cfg.server.netbird-domain}";
           settings = {
-            AUTH_AUTHORITY =
-              "https://${cfg.server.oidc-domain}/application/o/netbird/";
+            AUTH_AUTHORITY = "https://${cfg.server.oidc-domain}/application/o/netbird/";
             AUTH_SUPPORTED_SCOPES = "openid profile email offline_access api";
             AUTH_AUDIENCE = cfg.server.client-id;
             AUTH_CLIENT_ID = cfg.server.client-id;
@@ -155,14 +156,15 @@ in {
         };
       };
     };
-    services.nginx.virtualHosts.${cfg.server.netbird-domain} =
-      mkIf cfg.server.enable {
-        listen = [{
+    services.nginx.virtualHosts.${cfg.server.netbird-domain} = mkIf cfg.server.enable {
+      listen = [
+        {
           addr = cfg.server.listen-addr;
           port = cfg.server.port;
           ssl = false;
-        }];
-      };
+        }
+      ];
+    };
 
     systemd.services.netbirdSecrets = mkIf cfg.server.enable {
       description = "Set up Netbird Secrets with Correct Permissions";
@@ -220,14 +222,16 @@ in {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
-            method = [{
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }];
+            method = [
+              {
+                type = "approle";
+                config = {
+                  role_id_file_path = cfg.role-id;
+                  secret_id_file_path = cfg.secret-id;
+                  remove_secret_id_file_after_reading = false;
+                };
+              }
+            ];
           };
         };
         secrets = {
