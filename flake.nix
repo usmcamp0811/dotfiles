@@ -395,6 +395,12 @@
             # deadnix.enable = true;
           };
         };
+        nixidyEnvs = inputs.nixidy.lib.mkEnvs {
+          pkgs = channels.nixpkgs;
+          envs = {
+            dev.modules = [ ./kubernetes/dev.nix ];
+          };
+        };
       };
       terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
 
