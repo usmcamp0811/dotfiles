@@ -347,6 +347,7 @@
         funkwhale.overlays.default
         yazi.overlays.default
         k0s-nix.overlays.default
+
         # kubenix.overlays.default
       ];
 
