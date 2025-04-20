@@ -403,9 +403,9 @@ in
         "k0s-worker" = {
           description = "k0s Worker - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
-          path = with pkgs; [ kmod util-linux mount iptables ];
-          after = [ "network-online.target" ];
-          wants = [ "network-online.target" ];
+          path = with pkgs; [ kmod util-linux mount ];
+          after = [ "network-online.target" "get-k0s-worker-token.service" ];
+          wants = [ "network-online.target" "get-k0s-worker-token.service" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
           startLimitBurst = 10;
@@ -423,9 +423,11 @@ in
               + optionalString (!cfg.isLeader)
                 " --token-file=${cfg.dataDir}/k0s-token-worker";
           };
-          unitConfig = {
-            ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
-          };
+          preStart = ''
+            '';
+          # unitConfig = mkIf (!cfg.isLeader) {
+          #   ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
+          # };
         };
       })
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
@@ -434,8 +436,8 @@ in
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount iptables ];
 
-          after = [ "network-online.target" ];
-          wants = [ "network-online.target" ];
+          after = [ "network-online.target" "get-k0s-controller-token.service" ];
+          wants = [ "network-online.target" "get-k0s-controller-token.service" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
           startLimitBurst = 10;
@@ -448,6 +450,12 @@ in
             TimeoutStartSec = 0;
             LimitNOFILE = 999999;
             Restart = "always";
+            # ExecStart = ''
+            #   ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir} --config=${cfg.dataDir}/k0s.yaml
+            #   ${
+            #     optionalString (!cfg.isLeader) " --token-file=${cfg.dataDir}/k0s-token-controller"
+            #   }
+            # '';
             ExecStart = ''
               ${cfg.package}/bin/k0s controller --data-dir=${cfg.dataDir}${
                 optionalString cfg.isLeader " --config=${cfg.dataDir}/k0s.yaml"
@@ -456,15 +464,16 @@ in
               }
             '';
           };
-          unitConfig = mkIf (!cfg.isLeader) {
-            ConditionPathExists = "${cfg.dataDir}/k0s-token-controller";
-          };
           preStart = ''
             HOST_IP=$(${pkgs.iproute2}/bin/ip -4 addr show ${cfg.interface} | ${pkgs.gawk}/bin/awk '/inet / {print $2}' | ${pkgs.coreutils}/bin/cut -d/ -f1 | ${pkgs.coreutils}/bin/head -n1)
             export HOST_IP
             mkdir -p ${cfg.dataDir}
             ${pkgs.envsubst}/bin/envsubst < ${configFile} > ${cfg.dataDir}/k0s.yaml
           '';
+
+          # unitConfig = mkIf (!cfg.isLeader) {
+          #   ConditionPathExists = "/tmp/detsys-vault/k0s-token-controller";
+          # };
         };
       })
     ];
