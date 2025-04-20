@@ -16,7 +16,6 @@ with lib.campground;
 let
   cfg = config.campground.services.k0s;
   inherit (pkgs.campground) k0s;
-  hostIP = builtins.exec "hostname -I | awk '{print $1}'";
 
   configFile =
     if cfg.configText != ""
@@ -266,7 +265,14 @@ in
 
               VAULT_PATH="${cfg.vault-path}"
               export VAULT_ADDR="${cfg.vault-address}"
+              HOSTNAME=${config.networking.hostName}
+              echo "WHAT THE FUCK IS GOING ON HERE $HOSTNAME"
+              ROLE_ID=$(cat /var/lib/vault/$HOSTNAME/role-id)
+              SECRET_ID=$(cat /var/lib/vault/$HOSTNAME/secret-id)
 
+              echo "Logging in to Vault using AppRole..."
+              VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+              export VAULT_TOKEN
               echo "Reading certs from ${cfg.dataDir}/pki..."
 
               CA_KEY=$(<${cfg.dataDir}/pki/ca.key)
@@ -277,7 +283,6 @@ in
               ETCD_CA_CRT=$(<${cfg.dataDir}/pki/etcd/ca.crt)
 
               echo "Storing tokens, kubeconfig, and certs in Vault..."
-
               ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
                 controller="$CONTROLLER_TOKEN" \
                 worker="$WORKER_TOKEN" \
