@@ -20,7 +20,7 @@ with lib.campground; {
         enable = true;
         role = "controller";
         interface = "enp3s0f1";
-        # isLeader = true;
+        isLeader = true;
       };
       # kafka = {
       #   enable = true;
