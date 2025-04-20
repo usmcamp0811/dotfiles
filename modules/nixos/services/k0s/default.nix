@@ -60,11 +60,6 @@ let
               type: etcd
               etcd:
                 peerAddress: ''${HOST_IP}
-                extraArgs:
-                  listen-client-urls: https://127.0.0.1:2379,https://''${HOST_IP}:2379
-                  advertise-client-urls: https://''${HOST_IP}:2379
-                  initial-advertise-peer-urls: https://''${HOST_IP}:2380
-                  listen-peer-urls: https://''${HOST_IP}:2380
             telemetry:
               enabled: false
       '';
