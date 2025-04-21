@@ -233,8 +233,8 @@ in
               rm -rf /var/lib/cni /run/cni
 
               # Remove orphaned veth pairs
-              for i in $(ip -o link show | awk -F': ' '{print $2}' | grep '^veth'); do
-                ip link delete $i || true
+              for i in $(${pkgs.iproute2}/bin/ip -o link show | ${pkgs.gawk}/bin/awk -F': ' '{print $2}' | grep '^veth'); do
+                ${pkgs.iproute2}/bin/ip link delete $i || true
               done
             '';
           };
@@ -435,10 +435,10 @@ in
               "${cfg.package}/bin/k0s worker --data-dir=${cfg.dataDir}"
               + optionalString (!cfg.isLeader)
                 " --token-file=${cfg.dataDir}/k0s-token-worker";
-            # ExecStartPre = pkgs.writeShellScript "umount-k8s" ''
-            #   umount -l /var/lib/kubelet/pods/*/volumes/*/* || true
-            #   umount -l /run/k0s/containerd/io.containerd.* || true
-            # '';
+            ExecStartPre = pkgs.writeShellScript "umount-k8s" ''
+              umount -l /var/lib/kubelet/pods/*/volumes/*/* || true
+              umount -l /run/k0s/containerd/io.containerd.* || true
+            '';
           };
           # preStart = ''
           # '';
