@@ -4,16 +4,7 @@
 , ...
 }:
 with lib;
-with lib.campground;
-# Issues with Flannel when running this but this fixes it:
-# ╭─mcamp on lucas in ~
-# ╰─ kubectl delete ds -n kube-system kube-router
-#
-# daemonset.apps "kube-router" deleted
-# ╭─mcamp on lucas in ~
-# ╰─ kubectl rollout restart ds kube-flannel-ds -n kube-flannel
-# kubectl rollout restart ds kube-flannel-ds -n kube-flannel
-let
+with lib.campground; let
   cfg = config.campground.services.k0s;
   inherit (pkgs.campground) k0s;
 
@@ -227,6 +218,28 @@ in
     };
 
     systemd.services = mkMerge [
+      {
+        cleanup-cni = {
+          description = "Clean up CNI state before starting k0s";
+          before = [ "k0s-controller.service" "k0s-worker.service" ];
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = pkgs.writeShellScript "cleanup-cni" ''
+              set -e
+              echo "Cleaning up old CNI state..."
+
+              # CNI state dirs
+              rm -rf /var/lib/cni /run/cni
+
+              # Remove orphaned veth pairs
+              for i in $(ip -o link show | awk -F': ' '{print $2}' | grep '^veth'); do
+                ip link delete $i || true
+              done
+            '';
+          };
+        };
+      }
       (mkIf (cfg.role == "controller" || cfg.role == "controller+worker") {
         # (mkIf cfg.isLeader {
         "k0s-controller-store-tokens" = {
@@ -403,7 +416,7 @@ in
           description = "k0s Worker - Zero Friction Kubernetes";
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
-          after = [ "network-online.target" "get-k0s-worker-token.service" ];
+          after = [ "network-online.target" "get-k0s-worker-token.service" "cleanup-cni.service" ];
           wants = [ "network-online.target" "get-k0s-worker-token.service" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
@@ -421,9 +434,13 @@ in
               "${cfg.package}/bin/k0s worker --data-dir=${cfg.dataDir}"
               + optionalString (!cfg.isLeader)
                 " --token-file=${cfg.dataDir}/k0s-token-worker";
-          };
-          preStart = ''
+            ExecStartPre = pkgs.writeShellScript "umount-k8s" ''
+              umount -l /var/lib/kubelet/pods/*/volumes/*/* || true
+              umount -l /run/k0s/containerd/io.containerd.* || true
             '';
+          };
+          # preStart = ''
+          # '';
           # unitConfig = mkIf (!cfg.isLeader) {
           #   ConditionPathExists = "${cfg.dataDir}/k0s-token-worker";
           # };
@@ -435,7 +452,7 @@ in
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount iptables ];
 
-          after = [ "network-online.target" "get-k0s-controller-token.service" ];
+          after = [ "network-online.target" "get-k0s-controller-token.service" "cleanup-cni.service" ];
           wants = [ "network-online.target" "get-k0s-controller-token.service" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
@@ -461,6 +478,10 @@ in
               }${
                 optionalString (!cfg.isLeader) " --token-file=${cfg.dataDir}/k0s-token-controller"
               }
+            '';
+            ExecStartPre = pkgs.writeShellScript "umount-k8s" ''
+              umount -l /var/lib/kubelet/pods/*/volumes/*/* || true
+              umount -l /run/k0s/containerd/io.containerd.* || true
             '';
           };
           preStart = ''
