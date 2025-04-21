@@ -417,7 +417,7 @@ in
           documentation = [ "https://docs.k0sproject.io" ];
           path = with pkgs; [ kmod util-linux mount ];
           requires = [ "get-k0s-worker-token.service" ];
-          after = [ "network-online.target" "get-k0s-worker-token.service" "cleanup-cni.service" ];
+          after = [ "network-online.target" "get-k0s-worker-token.service" ];
           wants = [ "network-online.target" "get-k0s-worker-token.service" ];
           wantedBy = [ "multi-user.target" ];
           startLimitIntervalSec = 5;
