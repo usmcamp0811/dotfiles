@@ -29,7 +29,7 @@ in
       management-port =
         mkOpt int 33073 "Management Port -- Think its UDP & TCP";
       signal-port = mkOpt int 10000 "Signal Port -- TCP";
-      metrics-port = mkOpt int 9091 "Metrics Port -- TCP";
+      metrics-port = mkOpt int 9092 "Metrics Port -- TCP";
       client-id =
         mkOpt str "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U" "Client ID";
     };

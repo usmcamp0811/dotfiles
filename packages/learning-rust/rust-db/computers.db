@@ -1,0 +1,19 @@
+COLUMN ip
+String("127.0.0.1")
+String("10.8.0.183")
+String("10.8.0.123")
+String("172.16.0.156")
+String("gray")
+String("10.8.0.134")
+COLUMN name
+String("reckless")
+String("webb")
+String("chesty")
+String("gray")
+Integer32(64)
+String("lucas")
+COLUMN mem_gb
+Integer32(128)
+Integer32(128)
+Integer32(32)
+Integer32(64)
