@@ -435,10 +435,10 @@ in
               "${cfg.package}/bin/k0s worker --data-dir=${cfg.dataDir}"
               + optionalString (!cfg.isLeader)
                 " --token-file=${cfg.dataDir}/k0s-token-worker";
-            ExecStartPre = pkgs.writeShellScript "umount-k8s" ''
-              umount -l /var/lib/kubelet/pods/*/volumes/*/* || true
-              umount -l /run/k0s/containerd/io.containerd.* || true
-            '';
+            # ExecStartPre = pkgs.writeShellScript "umount-k8s" ''
+            #   umount -l /var/lib/kubelet/pods/*/volumes/*/* || true
+            #   umount -l /run/k0s/containerd/io.containerd.* || true
+            # '';
           };
           # preStart = ''
           # '';
