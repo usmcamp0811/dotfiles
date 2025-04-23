@@ -1,31 +1,27 @@
-import matplotlib.pyplot as plt
+import click
 import numpy as np
-import pandas as pd
+import plotext as plt
 from sklearn.linear_model import LinearRegression
 
 
-def main():
-    # Generate data
+@click.command()
+@click.option("--points", default=100, help="Number of data points.")
+def main(points):
     np.random.seed(0)
-    x = np.random.rand(100, 1) * 10
-    y = 2.5 * x + np.random.randn(100, 1) * 2
+    x = np.random.rand(points, 1) * 10
+    y = 2.5 * x + np.random.randn(points, 1) * 2
 
-    # Fit model
     model = LinearRegression()
     model.fit(x, y)
 
-    # Predict
     x_test = np.linspace(0, 10, 100).reshape(-1, 1)
     y_pred = model.predict(x_test)
 
-    # Plot
-    df = pd.DataFrame({"x": x.flatten(), "y": y.flatten()})
-    plt.scatter(df["x"], df["y"], label="Data")
-    plt.plot(x_test, y_pred, color="red", label="Prediction")
-    plt.legend()
+    plt.scatter(x.flatten(), y.flatten(), label="Data")
+    plt.plot(x_test.flatten(), y_pred.flatten(), label="Prediction")
+    plt.title("Linear Regression")
     plt.xlabel("x")
     plt.ylabel("y")
-    plt.title("Linear Regression")
     plt.show()
 
 
