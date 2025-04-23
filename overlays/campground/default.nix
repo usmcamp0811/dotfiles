@@ -15,7 +15,7 @@
   # kubenix-eval = kubenix.evalModules.${prev.system};
   nixidy-cli = nixidy.packages.${prev.system}.default;
   nixidy-lib = nixidy.lib;
-  uv-buildPythonPackage = uv2nix.lib.${final.system}.buildPythonPackage;
+  uv-buildPythonPackage = uv2nix.lib.${prev.system}.buildPythonPackage;
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
   neovim = campground-nvim.packages.${prev.system}.nvim;
   makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
