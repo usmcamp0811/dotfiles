@@ -304,6 +304,8 @@
       url = "github:DreamMaoMao/fg.yazi";
       flake = false;
     };
+    uv2nix.url = "github:pyproject-nix/uv2nix";
+    pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
   };
 
   outputs = inputs:
