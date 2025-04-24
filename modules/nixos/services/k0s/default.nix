@@ -498,6 +498,19 @@ in
         };
       })
     ];
+    boot.kernelModules = [
+      "ip_tables"
+      "ip_set"
+      "xt_set"
+      "nf_conntrack"
+      "nf_nat"
+      "nf_conntrack_ipv4"
+      "nf_nat_ipv4"
+      "nf_conntrack_ipv6"
+      "nf_nat_ipv6"
+      "bpf"
+    ];
+    boot.kernelParams = [ "cgroup_enable=memory" "cgroup_enable=cpuset" ];
 
     users.users =
       concatMapAttrs
