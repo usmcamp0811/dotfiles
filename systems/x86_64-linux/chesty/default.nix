@@ -28,11 +28,11 @@ with lib.campground;
 
     suites = {
       lan-hosting = {
-        enable = true;
+        # enable = true;
         interface = "enp7s0";
       };
       kubernetes = {
-        # enable = true;
+        enable = true;
         role = "worker";
         interface = "enp7s0";
       };
