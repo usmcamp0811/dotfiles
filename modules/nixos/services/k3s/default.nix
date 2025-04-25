@@ -11,7 +11,7 @@ in
   options.campground.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
 
-    package = mkPackageOption pkgs "k3s" { };
+    package = mkPackageOption pkgs "k3s_1_31" { };
 
     role = mkOption {
       type = types.enum [ "server" "agent" ];
@@ -57,14 +57,14 @@ in
       enable = true;
       package = cfg.package;
       role = cfg.role;
-      tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/tmp/detsys-vault/k3s-token";
+      # tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/tmp/detsys-vault/k3s-token";
       serverAddr = cfg.serverAddr;
-      extraFlags = cfg.extraFlags;
+      # extraFlags = cfg.extraFlags;
     };
 
     environment.systemPackages = [ cfg.package ];
 
-    services.get-k3s-token = mkIf (cfg.tokenFile == null && cfg.role == "agent") {
+    systemd.services.get-k3s-token = mkIf (cfg.tokenFile == null && cfg.role == "agent") {
       description = "Get kss tokens from Vault";
       after = [
         "vault-agent.service"
