@@ -25,11 +25,18 @@ with lib.campground; {
       address = "reckless:5258";
     };
     suites = {
-      kubernetes = {
+      # kubernetes = {
+      #   enable = true;
+      #   role = "controller";
+      #   interface = "eno1";
+      #   isLeader = true;
+      # };
+      k3s = {
         enable = true;
-        role = "controller";
-        interface = "eno1";
-        isLeader = true;
+        role = "server";
+        extraFlags = [
+          "--disable servicelb"
+        ];
       };
       public-hosting = {
         enable = true;
@@ -81,18 +88,25 @@ with lib.campground; {
           '';
         };
         settings = ''
-          cluster_addr = "http://lucas:8201" 
+          cluster_addr = "http://lucas:8201"
           api_addr = "http://lucas:8200"
         '';
 
-        policies = builtins.foldl' (policies: file:
-          policies // {
-            "${snowfall.path.get-file-name-without-extension file}" = file;
-          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map (path:
-              ../daly/vault/policies + "/${
-                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-              }") (snowfall.fs.get-files ../daly/vault/policies)));
+        policies = builtins.foldl'
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          { }
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies
+                + "/${
+              builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+            }")
+              (snowfall.fs.get-files ../daly/vault/policies)));
       };
       n8n = { enable = true; };
       chromadb = { enable = true; };
