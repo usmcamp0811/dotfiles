@@ -46,12 +46,12 @@ in
       #   enable = true;
       #   interface = "enp0s13f0u3";
       # };
-      kubernetes = {
-        enable = true;
-        role = "worker";
-        interface = "enp0s13f0u3";
-        # isLeader = true;
-      };
+      # kubernetes = {
+      #   enable = true;
+      #   role = "worker";
+      #   interface = "enp0s13f0u3";
+      #   # isLeader = true;
+      # };
     };
     apps = { steam = enabled; };
 

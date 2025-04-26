@@ -18,12 +18,6 @@ in
       description = "The role of this k3s node.";
     };
 
-    # tokenFile = mkOption {
-    #   type = types.nullOr types.path;
-    #   default = null;
-    #   description = "Path to the shared join token file.";
-    # };
-
     serverAddr = mkOption {
       type = types.nullOr types.str;
       default = "";
