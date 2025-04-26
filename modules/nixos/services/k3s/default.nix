@@ -120,58 +120,58 @@ in
 
     environment.systemPackages = [ cfg.package ];
 
-    systemd.services.get-k3s-token = mkIf (cfg.tokenFile == null && cfg.role == "agent") {
-      description = "Get kss tokens from Vault";
-      after = [
-        "vault-agent.service"
-        "network-online.target"
-      ];
-      before = [ "k3s" ];
-      wantedBy = [
-        "multi-user.target"
-      ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = pkgs.writeShellScript "get-k3s-tokens" ''
-          set -e
-          mkdir -p /var/lib/vault/k3s/
-          cp /tmp/detsys-vault/k3s-token /var/lib/vault/k3s/k3s-token
-        '';
+    systemd.services.get-k3s-token = mkIf !cfg.storeK3sToken {
+    description = "Get kss tokens from Vault";
+    after = [
+      "vault-agent.service"
+      "network-online.target"
+    ];
+    before = [ "k3s" ];
+    wantedBy = [
+      "multi-user.target"
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      ExecStart = pkgs.writeShellScript "get-k3s-tokens" ''
+        set -e
+        mkdir -p /var/lib/vault/k3s/
+        cp /tmp/detsys-vault/k3s-token /var/lib/vault/k3s/k3s-token
+      '';
 
-        RemainAfterExit = true;
+      RemainAfterExit = true;
+    };
+  };
+  campground.services.vault-agent.services.get-k3s-token = mkIf (cfg.tokenFile == null && cfg.role == "agent") {
+    settings = {
+      vault.address = cfg.vault-address;
+      auto_auth = {
+        method = [
+          {
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }
+        ];
       };
     };
-    campground.services.vault-agent.services.get-k3s-token = mkIf (cfg.tokenFile == null && cfg.role == "agent") {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [
-            {
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }
-          ];
-        };
-      };
 
-      secrets = {
-        file = {
-          files = {
-            "k3s-token" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k3s_token }}{{ else }}{{ .Data.data.k3s_token }}{{ end }}{{ end }}
-              '';
-              permissions = "0400";
-              change-action = "restart";
-            };
+    secrets = {
+      file = {
+        files = {
+          "k3s-token" = {
+            text = ''
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k3s_token }}{{ else }}{{ .Data.data.k3s_token }}{{ end }}{{ end }}
+            '';
+            permissions = "0400";
+            change-action = "restart";
           };
         };
       };
     };
   };
+};
 }
