@@ -143,7 +143,7 @@ in
         RemainAfterExit = true;
       };
     };
-    campground.services.vault-agent.services.get-k3s-token = {
+    campground.services.vault-agent.services.get-k3s-token = mkIf (!cfg.storeK3sToken) {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
