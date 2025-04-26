@@ -59,63 +59,62 @@ in
   };
 
   config = mkIf cfg.enable {
-
     services.k3s = {
       enable = true;
       package = cfg.package;
       role = cfg.role;
       tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/var/lib/vault/k3s/k3s-token";
       serverAddr = cfg.serverAddr;
-      extraFlags = cfg.extraFlagsG
-        };
+      extraFlags = cfg.extraFlags;
+    };
 
-      systemd.services.store-k3s-token = mkIf cfg.storeK3sToken {
-        description = "Store K3s node-token in Vault";
-        after = [
-          "k3s.service"
-          "vault-agent.service"
-          "network-online.target"
-        ];
-        requires = [ "k3s.service" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-          User = "root";
-          ExecStart = pkgs.writeShellScript "store-k3s-token" ''
-            set -e
+    systemd.services.store-k3s-token = mkIf cfg.storeK3sToken {
+      description = "Store K3s node-token in Vault";
+      after = [
+        "k3s.service"
+        "vault-agent.service"
+        "network-online.target"
+      ];
+      requires = [ "k3s.service" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = pkgs.writeShellScript "store-k3s-token" ''
+          set -e
 
-            echo "Waiting for K3s to be fully ready..."
+          echo "Waiting for K3s to be fully ready..."
 
-            until [ -f /var/lib/rancher/k3s/server/node-token ]; do
-              sleep 5
-            done
+          until [ -f /var/lib/rancher/k3s/server/node-token ]; do
+            sleep 5
+          done
 
-            echo "Reading K3s node-token..."
-            NODE_TOKEN=$(< /var/lib/rancher/k3s/server/node-token)
+          echo "Reading K3s node-token..."
+          NODE_TOKEN=$(< /var/lib/rancher/k3s/server/node-token)
 
-            VAULT_PATH="${cfg.vault-path}"
-            export VAULT_ADDR="${cfg.vault-address}"
-            HOSTNAME=${config.networking.hostName}
+          VAULT_PATH="${cfg.vault-path}"
+          export VAULT_ADDR="${cfg.vault-address}"
+          HOSTNAME=${config.networking.hostName}
 
-            ROLE_ID=$(cat /var/lib/vault/$HOSTNAME/role-id)
-            SECRET_ID=$(cat /var/lib/vault/$HOSTNAME/secret-id)
+          ROLE_ID=$(cat /var/lib/vault/$HOSTNAME/role-id)
+          SECRET_ID=$(cat /var/lib/vault/$HOSTNAME/secret-id)
 
-            echo "Logging in to Vault using AppRole..."
-            VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
-            export VAULT_TOKEN
+          echo "Logging in to Vault using AppRole..."
+          VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          export VAULT_TOKEN
 
-            echo "Storing K3s node-token in Vault at $VAULT_PATH"
-            ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" node_token="$NODE_TOKEN"
+          echo "Storing K3s node-token in Vault at $VAULT_PATH"
+          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" node_token="$NODE_TOKEN"
 
-            echo "Done storing K3s token."
-          '';
-          RemainAfterExit = true;
-        };
+          echo "Done storing K3s token."
+        '';
+        RemainAfterExit = true;
       };
+    };
 
-      environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [ cfg.package ];
 
-      systemd.services.get-k3s-token = mkIf !cfg.storeK3sToken {
+    systemd.services.get-k3s-token = mkIf (!cfg.storeK3sToken) {
       description = "Get kss tokens from Vault";
       after = [
         "vault-agent.service"
@@ -168,4 +167,5 @@ in
         };
       };
     };
-  }
+  };
+}
