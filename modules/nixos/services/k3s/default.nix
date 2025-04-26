@@ -92,10 +92,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.etc."rancher/k3s/config.yml".source = pkgs.runCommandNoCC "k3s-config.yml" { buildInputs = [ pkgs.yq-go ]; } ''
-      echo '${builtins.toJSON cfg.config}' | ${pkgs.yq-go}/bin/yq -P > $out
-    '';
-    environment.etc."kubernetes/manifests/metallb-config.yaml".text = metallbConfig;
+    # environment.etc."rancher/k3s/config.yml".source = pkgs.runCommandNoCC "k3s-config.yml" {buildInputs = [pkgs.yq-go];} ''
+    #   echo '${builtins.toJSON cfg.config}' | ${pkgs.yq-go}/bin/yq -P > $out
+    # '';
+    # environment.etc."kubernetes/manifests/metallb-config.yaml".text = metallbConfig;
     services.k3s = {
       enable = true;
       package = cfg.package;
@@ -109,6 +109,37 @@ in
         then "/etc/rancher/k3s/config.yml"
         else null;
       # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
+      manifests = {
+        metallb-native = {
+          source = pkgs.fetchurl {
+            url = "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml";
+            sha256 = "sha256-lRBl6FaSqhBvG7XVpIfZMGFUkjp5SrHYISKIHLr1iOQ=";
+          };
+        };
+        metallb-config = {
+          content = [
+            {
+              apiVersion = "metallb.io/v1beta1";
+              kind = "IPAddressPool";
+              metadata = {
+                name = "default-pool";
+                namespace = "metallb-system";
+              };
+              spec = {
+                addresses = [ "10.8.200.100-10.8.200.150" ];
+              };
+            }
+            {
+              apiVersion = "metallb.io/v1beta1";
+              kind = "L2Advertisement";
+              metadata = {
+                name = "default";
+                namespace = "metallb-system";
+              };
+            }
+          ];
+        };
+      };
     };
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
@@ -155,31 +186,31 @@ in
       };
     };
 
-    systemd.services.deploy-metallb = mkIf cfg.clusterInit {
-      description = "Deploy MetalLB on K3s init node";
-      after = [ "k3s.service" "network-online.target" ];
-      wants = [ "k3s.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        Environment = "KUBECONFIG=/etc/rancher/k3s/k3s.yaml";
-        ExecStart = pkgs.writeShellScript "deploy-metallb" ''
-          set -eux
-
-          until ${pkgs.kubectl}/bin/kubectl get nodes; do
-            echo "Waiting for Kubernetes API..."
-            sleep 2
-          done
-
-          ${pkgs.kubectl}/bin/kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
-
-          ${pkgs.kubectl}/bin/kubectl rollout status -n metallb-system deployment/controller --timeout=120s
-
-          ${pkgs.kubectl}/bin/kubectl apply -f /etc/kubernetes/manifests/metallb-config.yaml
-        '';
-      };
-      wantedBy = [ "multi-user.target" ];
-    };
+    # systemd.services.deploy-metallb = mkIf cfg.clusterInit {
+    #   description = "Deploy MetalLB on K3s init node";
+    #   after = ["k3s.service" "network-online.target"];
+    #   wants = ["k3s.service"];
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     RemainAfterExit = true;
+    #     Environment = "KUBECONFIG=/etc/rancher/k3s/k3s.yaml";
+    #     ExecStart = pkgs.writeShellScript "deploy-metallb" ''
+    #       set -eux
+    #
+    #       until ${pkgs.kubectl}/bin/kubectl get nodes; do
+    #         echo "Waiting for Kubernetes API..."
+    #         sleep 2
+    #       done
+    #
+    #       ${pkgs.kubectl}/bin/kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+    #
+    #       ${pkgs.kubectl}/bin/kubectl rollout status -n metallb-system deployment/controller --timeout=120s
+    #
+    #       ${pkgs.kubectl}/bin/kubectl apply -f /etc/kubernetes/manifests/metallb-config.yaml
+    #     '';
+    #   };
+    #   wantedBy = ["multi-user.target"];
+    # };
     environment.systemPackages = [ cfg.package ];
     systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) ''
       mkdir -p /var/lib/rancher/k3s/server
