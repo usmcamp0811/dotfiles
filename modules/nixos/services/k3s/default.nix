@@ -15,7 +15,9 @@ with lib.campground; let
           name = "default-pool";
           namespace = "metallb-system";
         };
-        spec.addresses = [ "10.8.200.100-10.8.200.150" ];
+        spec.addresses = [
+          "10.8.200.100-10.8.200.150" # <-- explicit quotes
+        ];
       }
     + "\n---\n"
     + generators.toYAML { } {
