@@ -42,15 +42,22 @@ in
       description = "Whether this node should store the k3s token into Vault.";
     };
 
-    roleId = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Vault AppRole role-id path";
-    secretId = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Vault AppRole secret-id path";
-    vaultPath = mkOpt types.str "secret/campground/k3s" "Vault path for k3s secrets";
-    vaultAddress = mkOption {
+    role-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt types.str "secret/campground/k0s"
+        "The Vault path to the KV containing the k0s secrets.";
+    vault-address = mkOption {
       type = types.str;
       default = config.campground.services.vault-agent.settings.vault.address;
-      description = "Vault address";
+      description = "The address of your Vault";
     };
-
     kvVersion = mkOption {
       type = types.enum [ "v1" "v2" ];
       default = "v2";
