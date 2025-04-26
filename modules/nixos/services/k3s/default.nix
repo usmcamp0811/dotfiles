@@ -10,12 +10,7 @@ in
 {
   options.campground.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
-
-    package = mkPackageOption {
-      packageSet = pkgs;
-      default = "k3s_1_31";
-      description = "K3s package to install";
-    };
+    package = lib.mkPackageOption pkgs "k3s_1_31" { };
 
     role = mkOption {
       type = types.enum [ "server" "agent" ];
@@ -47,14 +42,15 @@ in
       description = "Whether this node should store the k3s token into Vault.";
     };
 
-    role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Vault AppRole role-id path";
-    secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Vault AppRole secret-id path";
-    vault-path = mkOpt types.str "secret/campground/k3s" "Vault path for k3s secrets";
-    vault-address = mkOption {
+    roleId = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Vault AppRole role-id path";
+    secretId = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Vault AppRole secret-id path";
+    vaultPath = mkOpt types.str "secret/campground/k3s" "Vault path for k3s secrets";
+    vaultAddress = mkOption {
       type = types.str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "Vault address";
     };
+
     kvVersion = mkOption {
       type = types.enum [ "v1" "v2" ];
       default = "v2";
@@ -69,7 +65,7 @@ in
       role = cfg.role;
       tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/var/lib/vault/k3s/k3s-token";
       serverAddr = cfg.serverAddr;
-      extraFlags = mkDefault cfg.extraFlags ++ [ "--snapshotter overlayfs" ];
+      extraFlags = mkDefault (cfg.extraFlags ++ [ "--snapshotter overlayfs" ]);
     };
 
     systemd.services.store-k3s-token = mkIf cfg.storeK3sToken {
@@ -124,7 +120,7 @@ in
         "vault-agent.service"
         "network-online.target"
       ];
-      before = [ "k3s" ];
+      before = [ "k3s.service" ];
       wantedBy = [
         "multi-user.target"
       ];
