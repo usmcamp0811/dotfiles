@@ -10,6 +10,14 @@ path "secret/metadata/campground/k0s" {
   capabilities = ["list"]
 }
 
+path "secret/data/campground/k3s" {
+  capabilities = ["read", "update"]
+}
+
+path "secret/metadata/campground/k3s" {
+  capabilities = ["list"]
+}
+
 path "secret/data/campground/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
