@@ -18,11 +18,11 @@ in
       description = "The role of this k3s node.";
     };
 
-    tokenFile = mkOption {
-      type = types.nullOr types.path;
-      default = null;
-      description = "Path to the shared join token file.";
-    };
+    # tokenFile = mkOption {
+    #   type = types.nullOr types.path;
+    #   default = null;
+    #   description = "Path to the shared join token file.";
+    # };
 
     serverAddr = mkOption {
       type = types.nullOr types.str;
@@ -70,7 +70,7 @@ in
       enable = true;
       package = cfg.package;
       role = cfg.role;
-      tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/var/lib/vault/k3s/k3s-token";
+      tokenFile = "/var/lib/vault/k3s/k3s-token";
       serverAddr = cfg.serverAddr;
       extraFlags = mkDefault (cfg.extraFlags ++ [ "--snapshotter overlayfs" ]);
     };
