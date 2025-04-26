@@ -30,12 +30,12 @@ in
     suites = {
       common = enabled;
       desktop.enable = mkForce false;
-      kubernetes = {
-        enable = true;
-        role = "controller";
-        interface = "enp7s0";
-        isLeader = true;
-      };
+      # kubernetes = {
+      #   enable = true;
+      #   role = "controller";
+      #   interface = "enp7s0";
+      #   isLeader = true;
+      # };
       lan-hosting = {
         enable = true;
         interface = "enp7s0";
@@ -49,6 +49,15 @@ in
     };
 
     services = {
+      k3s = {
+        enable = true;
+        role = "server";
+        serverAddr = "https://10.8.0.197:6443";
+        # storeK3sToken = true;
+        # extraFlags = [
+        #   "--disable servicelb"
+        # ];
+      };
       netbird.client.enable = true;
       # keycloak = {
       #   enable = true;

@@ -16,12 +16,13 @@ with lib.campground; {
         enable = true;
         interface = "enp3s0f1";
       };
-      kubernetes = {
-        enable = true;
-        role = "controller";
-        interface = "enp3s0f1";
-        isLeader = true;
-      };
+      # kubernetes = {
+      #   enable = true;
+      #   role = "controller";
+      #   interface = "enp3s0f1";
+      #   isLeader = true;
+      # };
+
       # kafka = {
       #   enable = true;
       #   interface = "enp3s0f1";
@@ -48,6 +49,15 @@ with lib.campground; {
     nfs.client = { enable = true; };
 
     services = {
+      k3s = {
+        enable = true;
+        role = "server";
+        serverAddr = "https://10.8.0.197:6443";
+        # storeK3sToken = true;
+        # extraFlags = [
+        #   "--disable servicelb"
+        # ];
+      };
       # lemmy = enabled;
       # lynis = enabled;
       # netbird.server = enabled;

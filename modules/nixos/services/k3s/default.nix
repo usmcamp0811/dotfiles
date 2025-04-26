@@ -137,13 +137,13 @@ in
         ExecStart = pkgs.writeShellScript "get-k3s-tokens" ''
           set -e
           mkdir -p /var/lib/vault/k3s/
-          cp /tmp/detsys-vault/k3s-token /var/lib/vault/k3s/k3s-token
+          ${pkgs.coreutils}/bin/cp  /tmp/detsys-vault/k3s-token /var/lib/vault/k3s/k3s-token
         '';
 
         RemainAfterExit = true;
       };
     };
-    campground.services.vault-agent.services.get-k3s-token = mkIf (cfg.tokenFile == null && cfg.role == "agent") {
+    campground.services.vault-agent.services.get-k3s-token = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
