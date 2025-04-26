@@ -61,7 +61,6 @@ with lib.campground; {
         enable = true;
         role = "server";
         clusterInit = true;
-        serverAddr = "https://10.8.0.197:6443";
         extraFlags = [
           "--tls-san 10.8.0.197"
         ];

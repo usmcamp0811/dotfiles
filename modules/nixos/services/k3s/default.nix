@@ -51,7 +51,7 @@ in
         config.campground.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path =
-      mkOpt types.str "secret/campground/k0s"
+      mkOpt types.str "secret/campground/k3s"
         "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = types.str;
@@ -69,10 +69,12 @@ in
     services.k3s = {
       enable = true;
       package = cfg.package;
+      clusterInit = cfg.clusterInit;
       role = cfg.role;
-      tokenFile = "/var/lib/vault/k3s/k3s-token";
+      tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
-      extraFlags = mkDefault (cfg.extraFlags ++ [ "--snapshotter overlayfs" ]);
+      extraFlags = mkForce cfg.extraFlags;
+      # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
     };
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
@@ -120,27 +122,21 @@ in
     };
 
     environment.systemPackages = [ cfg.package ];
-
+    systemd.services.k3s.after = mkIf (!cfg.clusterInit) [ "get-k3s-token.service" ];
     systemd.services.get-k3s-token = mkIf (!cfg.clusterInit) {
-      description = "Get kss tokens from Vault";
-      after = [
-        "vault-agent.service"
-        "network-online.target"
-      ];
+      description = "Get k3s tokens from Vault";
       before = [ "k3s.service" ];
-      wantedBy = [
-        "multi-user.target"
-      ];
+      wantedBy = [ "multi-user.target" ];
+      script = ''
+        set -e
+        mkdir -p /var/lib/rancher/k3s/server
+        echo "HERE GO"
+        ${pkgs.bat}/bin/bat /tmp/detsys-vault/k3s-token
+        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
+        ${pkgs.bat}/bin/bat /var/lib/rancher/k3s/server/node-token
+      '';
       serviceConfig = {
         Type = "oneshot";
-        User = "root";
-        ExecStart = pkgs.writeShellScript "get-k3s-tokens" ''
-          set -e
-          mkdir -p /var/lib/vault/k3s/
-          ${pkgs.coreutils}/bin/cp  /tmp/detsys-vault/k3s-token /var/lib/vault/k3s/k3s-token
-        '';
-
-        RemainAfterExit = true;
       };
     };
     campground.services.vault-agent.services.get-k3s-token = mkIf (!cfg.clusterInit) {
@@ -164,9 +160,7 @@ in
         file = {
           files = {
             "k3s-token" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.k3s_token }}{{ else }}{{ .Data.data.k3s_token }}{{ end }}{{ end }}
-              '';
+              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.node_token }}{{ else }}{{ .Data.data.node_token }}{{ end }}{{ end }}'';
               permissions = "0400";
               change-action = "restart";
             };

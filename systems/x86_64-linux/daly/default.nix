@@ -212,7 +212,7 @@ with lib.campground; {
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            # address = "http://lucas:8200";
+            # address = "http://daly:8200";
             role-id = "/var/lib/vault/daly/role-id";
             secret-id = "/var/lib/vault/daly/secret-id";
           };
