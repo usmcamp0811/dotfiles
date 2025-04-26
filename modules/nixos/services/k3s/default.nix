@@ -6,7 +6,9 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
-  k3s-config = generators.toYAML { } cfg.config;
+  agent-pre-start = mkIf (!cfg.clusterInit) ''
+    ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
+  '';
 in
 {
   options.campground.services.k3s = {
@@ -88,7 +90,7 @@ in
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
       extraFlags = mkDefault cfg.extraFlags;
-      configPath = generators.toYAML { } cfg.config;
+      configPath = /var/lib/rancher/k3s/config.yml;
       # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
     };
 
@@ -138,20 +140,14 @@ in
 
     environment.systemPackages = [ cfg.package ];
     systemd.services.k3s.after = mkIf (!cfg.clusterInit) [ "get-k3s-token.service" ];
-    systemd.services.get-k3s-token = mkIf (!cfg.clusterInit) {
-      description = "Get k3s tokens from Vault";
-      before = [ "k3s.service" ];
-      wantedBy = [ "multi-user.target" ];
-      script = ''
-        set -e
-        mkdir -p /var/lib/rancher/k3s/server
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-      '';
-      serviceConfig = {
-        Type = "oneshot";
-      };
-    };
-    campground.services.vault-agent.services.get-k3s-token = mkIf (!cfg.clusterInit) {
+    systemd.services.k3s.preStart = ''
+      mkdir -p /var/lib/rancher/k3s/server
+      cat > /var/lib/rancher/k3s/config.yml <<EOF
+      ${generators.toYAML {} cfg.config}
+      EOF
+      ${agent-pre-start}
+    '';
+    campground.services.vault-agent.services.k3s = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
