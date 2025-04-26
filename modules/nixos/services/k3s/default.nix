@@ -19,15 +19,10 @@ in
       description = "K3s Config Yaml";
       example = literalExpression ''
         {
-            disable = ["servicelb"];
-            clusterInit = true; # only on the first control plane node
-            tlsSan = [
-              "my-lb.example.com"
-              "10.0.0.10"
-            ];
-            nodeName = "chesty"; # customize per node
-          };
-
+          disable = ["servicelb"];
+          clusterInit = true;
+          tlsSan = [ "my-lb.example.com" "10.0.0.10" ];
+          nodeName = "chesty";
         }
       '';
     };
@@ -88,7 +83,7 @@ in
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
       extraFlags = mkDefault cfg.extraFlags;
-      configPath = /var/lib/rancher/k3s/config.yml;
+      configPath = "/var/lib/rancher/k3s/config.yml";
       # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
     };
 
