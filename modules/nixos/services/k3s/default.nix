@@ -37,6 +37,12 @@ in
       description = "Extra flags passed to k3s.";
     };
 
+    storeK3sToken = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Whether this node should store the k3s token into Vault.";
+    };
+
     role-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.role-id "Vault AppRole role-id path";
     secret-id = mkOpt types.str config.campground.services.vault-agent.settings.vault.secret-id "Vault AppRole secret-id path";
     vault-path = mkOpt types.str "secret/campground/k3s" "Vault path for k3s secrets";
@@ -53,13 +59,63 @@ in
   };
 
   config = mkIf cfg.enable {
+    # boot.kernelParams = ["iptables.legacy=1"];
+    # environment.sessionVariables = {
+    #   IPTABLES_BACKEND = "legacy";
+    # };
+    # environment.etc."alternatives/iptables".source = pkgs.iptables-legacy;
+
     services.k3s = {
       enable = true;
       package = cfg.package;
       role = cfg.role;
-      # tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/tmp/detsys-vault/k3s-token";
+      tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/var/lib/vault/k3s/k3s-token";
       serverAddr = cfg.serverAddr;
-      # extraFlags = cfg.extraFlags;
+      # extraFlags = cfg.extraFlagsG
+    };
+
+    systemd.services.store-k3s-token = mkIf cfg.storeK3sToken {
+      description = "Store K3s node-token in Vault";
+      after = [
+        "k3s.service"
+        "vault-agent.service"
+        "network-online.target"
+      ];
+      requires = [ "k3s.service" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = pkgs.writeShellScript "store-k3s-token" ''
+          set -e
+
+          echo "Waiting for K3s to be fully ready..."
+
+          until [ -f /var/lib/rancher/k3s/server/node-token ]; do
+            sleep 5
+          done
+
+          echo "Reading K3s node-token..."
+          NODE_TOKEN=$(< /var/lib/rancher/k3s/server/node-token)
+
+          VAULT_PATH="${cfg.vault-path}"
+          export VAULT_ADDR="${cfg.vault-address}"
+          HOSTNAME=${config.networking.hostName}
+
+          ROLE_ID=$(cat /var/lib/vault/$HOSTNAME/role-id)
+          SECRET_ID=$(cat /var/lib/vault/$HOSTNAME/secret-id)
+
+          echo "Logging in to Vault using AppRole..."
+          VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          export VAULT_TOKEN
+
+          echo "Storing K3s node-token in Vault at $VAULT_PATH"
+          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" node_token="$NODE_TOKEN"
+
+          echo "Done storing K3s token."
+        '';
+        RemainAfterExit = true;
+      };
     };
 
     environment.systemPackages = [ cfg.package ];
@@ -79,7 +135,8 @@ in
         User = "root";
         ExecStart = pkgs.writeShellScript "get-k3s-tokens" ''
           set -e
-          echo "TODO"
+          mkdir -p /var/lib/vault/k3s/
+          cp /tmp/detsys-vault/k3s-token /var/lib/vault/k3s/k3s-token
         '';
 
         RemainAfterExit = true;
