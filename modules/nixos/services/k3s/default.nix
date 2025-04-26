@@ -79,10 +79,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d /var/lib/rancher/k3s 0755 root root -"
-      "f /var/lib/rancher/k3s/config.yml 0644 root root - ${builtins.toFile "k3s-config.yml" (generators.toYAML {} cfg.config)}"
-    ];
+    environment.etc."rancher/k3s/config.yml".text = generators.toYAML { } cfg.config;
     services.k3s = {
       enable = true;
       package = cfg.package;
