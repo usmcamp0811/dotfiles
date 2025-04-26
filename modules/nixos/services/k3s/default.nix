@@ -93,7 +93,7 @@ in
 
   config = mkIf cfg.enable {
     environment.etc."rancher/k3s/config.yml".source = pkgs.runCommandNoCC "k3s-config.yml" { buildInputs = [ pkgs.yq-go ]; } ''
-      echo '${builtins.toJSON cfg.config}' | ${pkgs.yq-go}/bin/yq eval - > $out
+      echo '${builtins.toJSON cfg.config}' | ${pkgs.yq-go}/bin/yq -P > $out
     '';
     environment.etc."kubernetes/manifests/metallb-config.yaml".text = metallbConfig;
     services.k3s = {
