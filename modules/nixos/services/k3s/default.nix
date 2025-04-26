@@ -6,9 +6,6 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
-  agent-pre-start = mkIf (!cfg.clusterInit) ''
-    ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-  '';
 in
 {
   options.campground.services.k3s = {
@@ -82,6 +79,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d /var/lib/rancher/k3s 0755 root root -"
+      "f /var/lib/rancher/k3s/config.yml 0644 root root - ${builtins.toFile "k3s-config.yml" (generators.toYAML {} cfg.config)}"
+    ];
     services.k3s = {
       enable = true;
       package = cfg.package;
@@ -140,12 +141,9 @@ in
 
     environment.systemPackages = [ cfg.package ];
     systemd.services.k3s.after = mkIf (!cfg.clusterInit) [ "get-k3s-token.service" ];
-    systemd.services.k3s.preStart = ''
+    systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) ''
       mkdir -p /var/lib/rancher/k3s/server
-      cat > /var/lib/rancher/k3s/config.yml <<EOF
-      ${generators.toYAML {} cfg.config}
-      EOF
-      ${agent-pre-start}
+      ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
     '';
     campground.services.vault-agent.services.k3s = {
       settings = {
