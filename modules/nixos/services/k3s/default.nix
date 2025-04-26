@@ -73,7 +73,7 @@ in
       role = cfg.role;
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
-      extraFlags = mkForce cfg.extraFlags;
+      extraFlags = mkDefault cfg.extraFlags;
       # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
     };
 

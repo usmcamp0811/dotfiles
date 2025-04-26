@@ -60,9 +60,6 @@ with lib.campground;
         enable = true;
         role = "agent";
         serverAddr = "https://10.8.0.197:6443";
-        # extraFlags = [
-        #   "--tls-san 10.8.0.197"
-        # ];
       };
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;

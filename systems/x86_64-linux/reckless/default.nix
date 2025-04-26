@@ -99,10 +99,6 @@ in
         enable = true;
         role = "agent";
         serverAddr = "https://10.8.0.197:6443";
-        # storeK3sToken = true;
-        # extraFlags = [
-        #   "--disable servicelb"
-        # ];
       };
       macos-vm = {
         enable = true;
