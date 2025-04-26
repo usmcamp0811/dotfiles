@@ -36,7 +36,7 @@ in
       description = "Extra flags passed to k3s.";
     };
 
-    storeK3sToken = mkOption {
+    clusterInit = mkOption {
       type = types.bool;
       default = false;
       description = "Whether this node should store the k3s token into Vault.";
@@ -75,7 +75,7 @@ in
       extraFlags = mkDefault (cfg.extraFlags ++ [ "--snapshotter overlayfs" ]);
     };
 
-    systemd.services.store-k3s-token = mkIf cfg.storeK3sToken {
+    systemd.services.store-k3s-token = mkIf cfg.clusterInit {
       description = "Store K3s node-token in Vault";
       after = [
         "k3s.service"
@@ -121,7 +121,7 @@ in
 
     environment.systemPackages = [ cfg.package ];
 
-    systemd.services.get-k3s-token = mkIf (!cfg.storeK3sToken) {
+    systemd.services.get-k3s-token = mkIf (!cfg.clusterInit) {
       description = "Get kss tokens from Vault";
       after = [
         "vault-agent.service"
@@ -143,7 +143,7 @@ in
         RemainAfterExit = true;
       };
     };
-    campground.services.vault-agent.services.get-k3s-token = mkIf (!cfg.storeK3sToken) {
+    campground.services.vault-agent.services.get-k3s-token = mkIf (!cfg.clusterInit) {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
