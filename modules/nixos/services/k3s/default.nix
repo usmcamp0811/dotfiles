@@ -6,7 +6,7 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
-  ipRanges = [ "10.8.200.100-10.8.200.150" ]; # <-- define here
+  ipRanges = [ "10.8.200.100-10.8.200.150" ]; # no quotes needed
 
   metallbConfig =
     generators.toYAML { }
@@ -17,7 +17,7 @@ with lib.campground; let
           name = "default-pool";
           namespace = "metallb-system";
         };
-        spec.addresses = map (a: "\"${a}\"") ipRanges;
+        spec.addresses = ipRanges; # <-- no map (a: "\"${a}\"") anymore
       }
     + "\n---\n"
     + generators.toYAML { } {
