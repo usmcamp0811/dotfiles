@@ -52,6 +52,7 @@ with lib.campground; {
       k3s = {
         enable = true;
         role = "server";
+        serverAddr = "https://10.8.0.197:6443";
         extraFlags = [
           "--tls-san 10.8.0.197"
         ];
