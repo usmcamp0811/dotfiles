@@ -6,12 +6,32 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
+  k3s-config = generators.toYAML { } cfg.config;
 in
 {
   options.campground.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
     package = lib.mkPackageOption pkgs "k3s_1_31" { };
+    config = mkOption {
+      type = types.attrs;
+      default = {
+        disable = [ "servicelb" ];
+      };
+      description = "K3s Config Yaml";
+      example = literalExpression ''
+        {
+            disable = ["servicelb"];
+            clusterInit = true; # only on the first control plane node
+            tlsSan = [
+              "my-lb.example.com"
+              "10.0.0.10"
+            ];
+            nodeName = "chesty"; # customize per node
+          };
 
+        }
+      '';
+    };
     role = mkOption {
       type = types.enum [ "server" "agent" ];
       default = "server";
@@ -68,6 +88,7 @@ in
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
       extraFlags = mkDefault cfg.extraFlags;
+      configPath = generators.toYAML { } cfg.config;
       # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
     };
 
