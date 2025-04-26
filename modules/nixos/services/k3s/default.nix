@@ -83,7 +83,7 @@ in
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
       extraFlags = mkDefault cfg.extraFlags;
-      configPath = "/var/lib/rancher/k3s/config.yml";
+      configPath = "/etc/rancher/k3s/config.yml";
       # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
     };
 
