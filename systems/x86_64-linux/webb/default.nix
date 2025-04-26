@@ -36,11 +36,11 @@ in
         interface = "eno1";
         log-to-kafka = true;
       };
-      kubernetes = {
-        enable = true;
-        role = "worker";
-        interface = "eno1";
-      };
+      # kubernetes = {
+      #   enable = true;
+      #   role = "worker";
+      #   interface = "eno1";
+      # };
       observability = {
         enable = true;
         loki = true;
@@ -71,6 +71,10 @@ in
     tools = { attic = enabled; };
 
     services = {
+      k3s = {
+        enable = true;
+        role = "agent";
+      };
       # onlyoffice = { enable = true; };
       pds = enabled;
       lemmy = enabled;
