@@ -8,37 +8,22 @@ with lib.campground; let
   cfg = config.campground.services.k3s;
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
 
-  # Force addresses as YAML strings
-  metallbConfig =
-    generators.toYAML
-      {
-        mkKeyValue = k: v:
-          if k == "addresses"
-          then
-          # YAML explicit string
-            "${k}:\n${concatStringsSep "\n" (map (a: "  - \"${a}\"") v)}"
-          else generators.mkKeyValueDefault k v;
-      }
-      {
-        apiVersion = "metallb.io/v1beta1";
-        kind = "IPAddressPool";
-        metadata = {
-          name = "default-pool";
-          namespace = "metallb-system";
-        };
-        spec = {
-          addresses = ipRanges;
-        };
-      }
-    + "\n---\n"
-    + generators.toYAML { } {
-      apiVersion = "metallb.io/v1beta1";
-      kind = "L2Advertisement";
-      metadata = {
-        name = "default";
-        namespace = "metallb-system";
-      };
-    };
+  metallbConfig = ''
+    apiVersion: metallb.io/v1beta1
+    kind: IPAddressPool
+    metadata:
+      name: default-pool
+      namespace: metallb-system
+    spec:
+      addresses:
+    ${lib.concatStringsSep "\n" (map (a: "    - ${a}") ipRanges)}
+    ---
+    apiVersion: metallb.io/v1beta1
+    kind: L2Advertisement
+    metadata:
+      name: default
+      namespace: metallb-system
+  '';
 in
 {
   options.campground.services.k3s = {
