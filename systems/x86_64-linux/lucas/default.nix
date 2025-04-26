@@ -60,6 +60,7 @@ with lib.campground; {
       k3s = {
         enable = true;
         role = "server";
+        storeK3sToken = true;
         extraFlags = [
           "--tls-san 10.8.0.197"
         ];

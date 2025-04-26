@@ -26,7 +26,7 @@ in
 
     serverAddr = mkOption {
       type = types.nullOr types.str;
-      default = null;
+      default = "";
       description = "K3s server URL (used by agents).";
     };
 
