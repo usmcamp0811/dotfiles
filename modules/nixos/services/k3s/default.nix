@@ -74,10 +74,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.etc."rancher/k3s/config.yml".source = pkgs.runCommand "k3s-config.yml" { buildInputs = [ pkgs.yq-go ]; } ''
-      mkdir -p $out
-      echo '${builtins.toJSON cfg.config}' > tmp.json
-      ${pkgs.yq-go}/bin/yq eval tmp.json > $out/config.yml
+    environment.etc."rancher/k3s/config.yml".source = pkgs.runCommandNoCC "k3s-config.yml" { buildInputs = [ pkgs.yq-go ]; } ''
+      echo '${builtins.toJSON cfg.config}' | ${pkgs.yq-go}/bin/yq eval - > $out
     '';
 
     services.k3s = {
