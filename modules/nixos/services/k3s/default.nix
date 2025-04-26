@@ -130,10 +130,7 @@ in
       script = ''
         set -e
         mkdir -p /var/lib/rancher/k3s/server
-        echo "HERE GO"
-        ${pkgs.bat}/bin/bat /tmp/detsys-vault/k3s-token
         ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-        ${pkgs.bat}/bin/bat /var/lib/rancher/k3s/server/node-token
       '';
       serviceConfig = {
         Type = "oneshot";
