@@ -68,6 +68,10 @@ in
     };
 
     services = {
+      k3s = {
+        enable = true;
+        role = "agent";
+      };
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       zfs-key-server = {
