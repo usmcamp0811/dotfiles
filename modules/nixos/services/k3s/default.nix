@@ -74,7 +74,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.etc."rancher/k3s/config.yml".text = generators.toYAML { } cfg.config;
+    environment.etc."rancher/k3s/config.yml".source = pkgs.runCommand "k3s-config.yml" { buildInputs = [ pkgs.yq-go ]; } ''
+      mkdir -p $out
+      ${pkgs.yq-go}/bin/yq eval --prettyPrint --yaml-output '${builtins.toJSON cfg.config}' > $out/config.yml
+    '';
     services.k3s = {
       enable = true;
       package = cfg.package;
