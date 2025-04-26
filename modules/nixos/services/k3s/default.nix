@@ -140,7 +140,6 @@ in
     };
 
     environment.systemPackages = [ cfg.package ];
-    systemd.services.k3s.after = mkIf (!cfg.clusterInit) [ "get-k3s-token.service" ];
     systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) ''
       mkdir -p /var/lib/rancher/k3s/server
       ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
