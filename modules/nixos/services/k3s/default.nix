@@ -11,7 +11,11 @@ in
   options.campground.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
 
-    package = mkPackageOption pkgs "k3s_1_31" { };
+    package = mkPackageOption {
+      packageSet = pkgs;
+      default = "k3s_1_31";
+      description = "K3s package to install";
+    };
 
     role = mkOption {
       type = types.enum [ "server" "agent" ];
@@ -65,7 +69,7 @@ in
       role = cfg.role;
       tokenFile = mkIf (cfg.tokenFile == null && cfg.role == "agent") "/var/lib/vault/k3s/k3s-token";
       serverAddr = cfg.serverAddr;
-      extraFlags = cfg.extraFlags;
+      extraFlags = mkDefault cfg.extraFlags ++ [ "--snapshotter overlayfs" ];
     };
 
     systemd.services.store-k3s-token = mkIf cfg.storeK3sToken {
