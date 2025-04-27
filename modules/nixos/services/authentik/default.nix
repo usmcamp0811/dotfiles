@@ -1,8 +1,12 @@
-{ host ? "", options, config, lib, pkgs, ... }:
-
+{ host ? ""
+, options
+, config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.authentik;
   authentikDir = "/var/lib/authentik";
 in
@@ -19,8 +23,9 @@ in
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/authentik"
-      "The Vault path to the KV containing the KVs that are for each database";
+    vault-path =
+      mkOpt str "secret/campground/authentik"
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -34,16 +39,17 @@ in
   };
 
   config = mkIf cfg.enable {
-
     campground.services.postgresql = {
       enable = true;
       enableTCPIP = true;
       backupEnable = true;
       backupLocation = "/persist/postgresqlBackups/";
-      databases = [{
-        name = "authentik";
-        user = "authentik";
-      }];
+      databases = [
+        {
+          name = "authentik";
+          user = "authentik";
+        }
+      ];
       package = pkgs.postgresql_14; # Ensure compatibility with Authentik
     };
     services.authentik = {
@@ -52,6 +58,8 @@ in
       settings = {
         disable_startup_analytics = true;
         avatars = cfg.avatars;
+        USE_X_FORWARDED_HOST = true;
+        SECURE_PROXY_SSL_HEADER = "HTTP_X_FORWARDED_PROTO,https";
       };
     };
     services.authentik-ldap = {
@@ -76,21 +84,22 @@ in
         "authentik-ldap.service"
         "authentik-radius.service"
       ];
-
     };
     campground.services.vault-agent.services = {
       authentikSecrets = {
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
-            method = [{
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }];
+            method = [
+              {
+                type = "approle";
+                config = {
+                  role_id_file_path = cfg.role-id;
+                  secret_id_file_path = cfg.secret-id;
+                  remove_secret_id_file_after_reading = false;
+                };
+              }
+            ];
           };
         };
         secrets = {
@@ -99,6 +108,9 @@ in
               "environmentFile" = {
                 text = ''
                   AUTHENTIK_HOST=https://auth.aicampground.com
+                  USE_X_FORWARDED_HOST=true
+                  SECURE_PROXY_SSL_HEADER=HTTP_X_FORWARDED_PROTO,https
+
                   AUTHENTIK_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_TOKEN }}{{ else }}{{ .Data.data.AUTHENTIK_TOKEN }}{{ end }}{{ end }}
                   AUTHENTIK_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
                   AUTHENTIK_LISTEN__HTTP=0.0.0.0:${toString cfg.port}
