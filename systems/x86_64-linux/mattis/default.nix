@@ -56,7 +56,7 @@ in
 
     services = {
       k3s = {
-        enable = true;
+        # enable = true;
         role = "agent";
         serverAddr = "https://10.8.0.197:6443";
       };
