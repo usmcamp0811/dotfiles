@@ -44,93 +44,6 @@ in
         }
       '';
     };
-    manifests = lib.mkOption {
-      type = lib.types.attrsOf manifestModule;
-      default = { };
-      example = lib.literalExpression ''
-        deployment.source = ../manifests/deployment.yaml;
-        my-service = {
-          enable = false;
-          target = "app-service.yaml";
-          content = {
-            apiVersion = "v1";
-            kind = "Service";
-            metadata = {
-              name = "app-service";
-            };
-            spec = {
-              selector = {
-                "app.kubernetes.io/name" = "MyApp";
-              };
-              ports = [
-                {
-                  name = "name-of-service-port";
-                  protocol = "TCP";
-                  port = 80;
-                  targetPort = "http-web-svc";
-                }
-              ];
-            };
-          }
-        };
-
-        nginx.content = [
-          {
-            apiVersion = "v1";
-            kind = "Pod";
-            metadata = {
-              name = "nginx";
-              labels = {
-                "app.kubernetes.io/name" = "MyApp";
-              };
-            };
-            spec = {
-              containers = [
-                {
-                  name = "nginx";
-                  image = "nginx:1.14.2";
-                  ports = [
-                    {
-                      containerPort = 80;
-                      name = "http-web-svc";
-                    }
-                  ];
-                }
-              ];
-            };
-          }
-          {
-            apiVersion = "v1";
-            kind = "Service";
-            metadata = {
-              name = "nginx-service";
-            };
-            spec = {
-              selector = {
-                "app.kubernetes.io/name" = "MyApp";
-              };
-              ports = [
-                {
-                  name = "name-of-service-port";
-                  protocol = "TCP";
-                  port = 80;
-                  targetPort = "http-web-svc";
-                }
-              ];
-            };
-          }
-        ];
-      '';
-      description = ''
-        Auto-deploying manifests that are linked to {file}`${manifestDir}` before k3s starts.
-        Note that deleting manifest files will not remove or otherwise modify the resources
-        it created. Please use the the `--disable` flag or `.skip` files to delete/disable AddOns,
-        as mentioned in the [docs](https://docs.k3s.io/installation/packaged-components#disabling-manifests).
-        This option only makes sense on server nodes (`role = server`).
-        Read the [auto-deploying manifests docs](https://docs.k3s.io/installation/packaged-components#auto-deploying-manifests-addons)
-        for further information.
-      '';
-    };
     role = mkOption {
       type = types.enum [ "server" "agent" ];
       default = "server";
@@ -196,39 +109,37 @@ in
         then "/etc/rancher/k3s/config.yml"
         else null;
       # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
-      manifests =
-        {
-          metallb-native = {
-            source = pkgs.fetchurl {
-              url = "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml";
-              sha256 = "sha256-lRBl6FaSqhBvG7XVpIfZMGFUkjp5SrHYISKIHLr1iOQ=";
-            };
+      manifests = {
+        metallb-native = {
+          source = pkgs.fetchurl {
+            url = "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml";
+            sha256 = "sha256-lRBl6FaSqhBvG7XVpIfZMGFUkjp5SrHYISKIHLr1iOQ=";
           };
-          metallb-config = {
-            content = [
-              {
-                apiVersion = "metallb.io/v1beta1";
-                kind = "IPAddressPool";
-                metadata = {
-                  name = "default-pool";
-                  namespace = "metallb-system";
-                };
-                spec = {
-                  addresses = [ "10.8.200.100-10.8.200.150" ];
-                };
-              }
-              {
-                apiVersion = "metallb.io/v1beta1";
-                kind = "L2Advertisement";
-                metadata = {
-                  name = "default";
-                  namespace = "metallb-system";
-                };
-              }
-            ];
-          };
-        }
-        // cfg.manifest;
+        };
+        metallb-config = {
+          content = [
+            {
+              apiVersion = "metallb.io/v1beta1";
+              kind = "IPAddressPool";
+              metadata = {
+                name = "default-pool";
+                namespace = "metallb-system";
+              };
+              spec = {
+                addresses = [ "10.8.200.100-10.8.200.150" ];
+              };
+            }
+            {
+              apiVersion = "metallb.io/v1beta1";
+              kind = "L2Advertisement";
+              metadata = {
+                name = "default";
+                namespace = "metallb-system";
+              };
+            }
+          ];
+        };
+      };
     };
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
