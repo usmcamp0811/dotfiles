@@ -58,6 +58,8 @@ in
       settings = {
         disable_startup_analytics = true;
         avatars = cfg.avatars;
+        AUTHENTIK_OUTPOST_URL = "https://auth.aicampground.com";
+        AUTHENTIK_DEFAULT_USER_SETTINGS__PATH = "/";
         USE_X_FORWARDED_HOST = true;
         SECURE_PROXY_SSL_HEADER = "HTTP_X_FORWARDED_PROTO,https";
       };
@@ -108,9 +110,6 @@ in
               "environmentFile" = {
                 text = ''
                   AUTHENTIK_HOST=https://auth.aicampground.com
-                  USE_X_FORWARDED_HOST=true
-                  SECURE_PROXY_SSL_HEADER=HTTP_X_FORWARDED_PROTO,https
-
                   AUTHENTIK_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_TOKEN }}{{ else }}{{ .Data.data.AUTHENTIK_TOKEN }}{{ end }}{{ end }}
                   AUTHENTIK_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
                   AUTHENTIK_LISTEN__HTTP=0.0.0.0:${toString cfg.port}
