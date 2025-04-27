@@ -47,7 +47,7 @@ in
     config = mkOption {
       type = types.attrs;
       default = {
-        disable = [ "servicelb" ];
+        disable = [ "servicelb" "traefik" ];
       };
       description = "K3s Config Yaml";
       example = literalExpression ''
