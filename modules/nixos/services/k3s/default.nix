@@ -116,11 +116,13 @@ in
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
       extraFlags = mkDefault cfg.extraFlags;
+      setKubeConfig = true;
+      snapshotter = "nix";
       configPath =
         if cfg.role == "server"
         then "/etc/rancher/k3s/config.yml"
         else null;
-      # extraFlags = mkDefault (cfg.extraFlags ++ ["--snapshotter overlayfs"]);
+      moreFlags = cfg.extraFlags;
     };
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
