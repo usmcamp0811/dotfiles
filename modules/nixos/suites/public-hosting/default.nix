@@ -97,7 +97,7 @@ in
             # };
             http.routers.immich = {
               rule = "Host(`immich.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "immich";
             };
 
@@ -107,7 +107,7 @@ in
 
             http.routers.photos = {
               rule = "Host(`photos.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "photos";
             };
 
@@ -116,7 +116,7 @@ in
             };
             http.routers.matomo = {
               rule = "Host(`matomo.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "matomo";
             };
 
@@ -125,7 +125,7 @@ in
             };
             http.routers.blog-comments = {
               rule = "Host(`remark.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "blog-comments";
             };
 
@@ -135,7 +135,7 @@ in
 
             http.routers.blog = {
               rule = "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "blog";
             };
 
@@ -150,7 +150,7 @@ in
 
             http.routers.netbird = {
               rule = "Host(`netbird.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "netbird";
             };
 
@@ -165,7 +165,7 @@ in
 
             http.routers.bsky = {
               rule = "Host(`bsky.aicampground.com`) || HostRegexp(`{subdomain:[a-z0-9]+}.bsky.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "bsky";
             };
 
@@ -173,7 +173,7 @@ in
 
             http.routers.mealie = {
               rule = "Host(`mealie.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "mealie";
             };
 
@@ -181,7 +181,7 @@ in
 
             http.routers.lemmy = {
               rule = "Host(`lemmy.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "lemmy";
             };
 
@@ -189,7 +189,7 @@ in
 
             http.routers.authentik = {
               rule = "Host(`auth.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "authentik";
             };
 
@@ -197,7 +197,7 @@ in
 
             http.routers.collabora = {
               rule = "Host(`collabora.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "collabora";
             };
 
@@ -207,7 +207,7 @@ in
 
             http.routers.onlyoffice-office = {
               rule = "Host(`office.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "onlyoffice";
             };
 
@@ -217,7 +217,7 @@ in
 
             http.routers.nextcloud = {
               rule = "Host(`cloud.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "nextcloud";
             };
 
@@ -227,7 +227,7 @@ in
 
             # http.routers.adhoc = {
             #   rule = "Host(`adhoc.aicampground.com`)";
-            #   entryPoints = [ "websecure" ];
+            #   entryPoints = [ "web" "websecure" ];
             #   service = "adhoc";
             # };
 
@@ -237,7 +237,7 @@ in
 
             http.routers.aicampground = {
               rule = "Host(`matt-camp.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "matt-camp";
               middlewares = [ "cloudflarewarp" ];
             };
@@ -253,7 +253,7 @@ in
 
             http.routers.searx = {
               rule = "Host(`searx.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "searx";
               # middlewares = [ "cloudflarewarp" ];
             };
@@ -276,7 +276,7 @@ in
 
             http.routers.attic = {
               rule = "Host(`attic.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "attic";
             };
 
@@ -286,7 +286,7 @@ in
 
             http.routers.bitwarden = {
               rule = "Host(`bw.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "bitwarden";
               middlewares = [ "cloudflarewarp" ];
             };
@@ -302,14 +302,14 @@ in
 
             http.routers.mattermost = {
               rule = "Host(`mattermost.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "mattermost";
               middlewares = [ "cloudflarewarp" ];
             };
 
             http.routers.mm = {
               rule = "Host(`mm.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
               service = "mattermost";
               middlewares = [ "cloudflarewarp" ];
             };
