@@ -255,7 +255,7 @@ in
               rule = "Host(`searx.aicampground.com`)";
               entryPoints = [ "websecure" ];
               service = "searx";
-              middlewares = [ "cloudflarewarp" ];
+              # middlewares = [ "cloudflarewarp" ];
             };
 
             http.services.searx = {
