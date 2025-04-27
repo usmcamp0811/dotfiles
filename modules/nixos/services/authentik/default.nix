@@ -60,6 +60,7 @@ in
         avatars = cfg.avatars;
         AUTHENTIK_OUTPOST_URL = "https://auth.aicampground.com";
         AUTHENTIK_DEFAULT_USER_SETTINGS__PATH = "/";
+        AUTHENTIK_INSECURE = true;
         USE_X_FORWARDED_HOST = true;
         SECURE_PROXY_SSL_HEADER = "HTTP_X_FORWARDED_PROTO,https";
       };

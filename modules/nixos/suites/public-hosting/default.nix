@@ -186,9 +186,21 @@ in
             };
 
             http.services.lemmy = generateServiceConfig "lemmy";
+            http.middlewares."authentik-headers".headers = {
+              sslRedirect = true;
+              browserXssFilter = true;
+              stsIncludeSubdomains = true;
+              stsSeconds = 31536000;
+              customRequestHeaders = {
+                "X-Forwarded-Proto" = "https";
+                "X-Forwarded-Host" = "auth.aicampground.com";
+              };
+            };
             http.routers.authentik = {
               rule = "Host(`auth.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = [ "web" "websecure" ];
+              middlewares = [ "authentik-headers" ];
+
               service = "authentik";
             };
 
