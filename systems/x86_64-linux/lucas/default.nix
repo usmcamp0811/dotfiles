@@ -32,7 +32,7 @@ with lib.campground; {
       #   isLeader = true;
       # };
       public-hosting = {
-        # enable = true;
+        enable = true;
         interface = "eno1";
         log-to-kafka = true;
       };
@@ -58,7 +58,7 @@ with lib.campground; {
     services = {
       netbird.client.enable = true;
       k3s = {
-        enable = true;
+        # enable = true;
         role = "server";
         clusterInit = true;
         extraFlags = [
