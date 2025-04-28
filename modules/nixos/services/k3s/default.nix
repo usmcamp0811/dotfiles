@@ -117,7 +117,7 @@ in
       serverAddr = cfg.serverAddr;
       extraFlags = mkDefault cfg.extraFlags;
       setKubeConfig = true;
-      snapshotter = "nix";
+      # snapshotter = "nix";
       configPath =
         if cfg.role == "server"
         then "/etc/rancher/k3s/config.yml"
