@@ -50,7 +50,7 @@ with lib.campground; {
 
     services = {
       k3s = {
-        # enable = true;
+        enable = true;
         role = "server";
         serverAddr = "https://10.8.0.197:6443";
         extraFlags = [
