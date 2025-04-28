@@ -32,7 +32,7 @@ with lib.campground; {
       #   isLeader = true;
       # };
       public-hosting = {
-        enable = true;
+        # enable = true;
         interface = "eno1";
         log-to-kafka = true;
       };
