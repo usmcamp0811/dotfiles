@@ -119,7 +119,7 @@ in
       # snapshotter = "nix";
       configPath =
         if cfg.role == "server"
-        then "/etc/rancher/k3s/config.yml"
+        then "/etc/rancher/k3s/config.yaml"
         else null;
       moreFlags = cfg.extraFlags;
     };
