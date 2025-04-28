@@ -115,8 +115,8 @@ in
       role = cfg.role;
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = cfg.serverAddr;
-      setKubeConfig = true;
-      snapshotter = "nix";
+      # setKubeConfig = true;
+      # snapshotter = "nix";
       configPath =
         if cfg.role == "server"
         then "/etc/rancher/k3s/config.yml"
