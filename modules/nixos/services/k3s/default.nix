@@ -56,7 +56,7 @@ with lib.campground; let
           namespace = "kube-system";
         };
         data = {
-          "dynamic.yaml" = config.campground.suites.public-hosting.services.traefik.dynamicConfigOptions;
+          "dynamic.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.dynamicConfigOptions;
         };
       };
     };

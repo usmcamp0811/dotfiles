@@ -52,6 +52,268 @@ in
       example = { web = { address = "0.0.0.0:80"; }; };
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
+
+    dynamicConfigOptions = mkOption {
+      type = types.attrs;
+      default = {
+        http.middlewares.cloudflarewarp = {
+          plugin = { cloudflarewarp = { disableDefault = false; }; };
+        };
+        # http.middlewares.fail2ban = {
+        #   plugin = {
+        #     fail2ban = {
+        #       rules = {
+        #         bantime = "3h";
+        #         enabled = true;
+        #         findtime = "10m";
+        #         maxretry = 4;
+        #       };
+        #     };
+        #   };
+        # };
+        http.routers.immich = {
+          rule = "Host(`immich.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "immich";
+        };
+
+        http.services.immich = {
+          loadBalancer.servers = [{ url = "http://webb:13001"; }];
+        };
+
+        http.routers.photos = {
+          rule = "Host(`photos.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "photos";
+        };
+
+        http.services.photos = {
+          loadBalancer.servers = [{ url = "http://webb:13001"; }];
+        };
+        http.routers.matomo = {
+          rule = "Host(`matomo.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "matomo";
+        };
+
+        http.services.matomo = {
+          loadBalancer.servers = [{ url = "http://webb:16969"; }];
+        };
+        http.routers.blog-comments = {
+          rule = "Host(`remark.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "blog-comments";
+        };
+
+        http.services.blog-comments = {
+          loadBalancer.servers = [{ url = "http://webb:11842"; }];
+        };
+
+        http.routers.blog = {
+          rule = "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "blog";
+        };
+
+        http.services.blog = {
+          loadBalancer.servers = [
+            { url = "http://reckless:28345"; }
+            { url = "http://daly:28345"; }
+            { url = "http://chesty:28345"; }
+            { url = "http://lucas:28345"; }
+          ];
+        };
+
+        http.routers.netbird = {
+          rule = "Host(`netbird.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "netbird";
+        };
+
+        http.services.netbird = {
+          loadBalancer.servers = [{ url = "http://webb:10031"; }];
+          loadBalancer.healthCheck = {
+            path = "/";
+            interval = "10s";
+            timeout = "5s";
+          };
+        };
+
+        http.routers.bsky = {
+          rule = "Host(`bsky.aicampground.com`) || HostRegexp(`{subdomain:[a-z0-9]+}.bsky.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "bsky";
+        };
+
+        http.services.bsky = generateServiceConfig "pds";
+
+        http.routers.mealie = {
+          rule = "Host(`mealie.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "mealie";
+        };
+
+        http.services.mealie = generateServiceConfig "mealie";
+
+        http.routers.lemmy = {
+          rule = "Host(`lemmy.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "lemmy";
+        };
+
+        http.services.lemmy = generateServiceConfig "lemmy";
+        http.middlewares."authentik-headers".headers = {
+          sslRedirect = true;
+          browserXssFilter = true;
+          stsIncludeSubdomains = true;
+          stsSeconds = 31536000;
+          customRequestHeaders = {
+            "X-Forwarded-Proto" = "https";
+            "X-Forwarded-Host" = "auth.aicampground.com";
+          };
+        };
+        http.routers.authentik = {
+          rule = "Host(`auth.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          middlewares = [ "authentik-headers" ];
+
+          service = "authentik";
+        };
+
+        http.services.authentik = generateServiceConfig "authentik";
+
+        http.routers.collabora = {
+          rule = "Host(`collabora.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "collabora";
+        };
+
+        http.services.collabora = {
+          loadBalancer.servers = [{ url = "http://webb:19980"; }];
+        };
+
+        http.routers.onlyoffice-office = {
+          rule = "Host(`office.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "onlyoffice";
+        };
+
+        http.services.onlyoffice = {
+          loadBalancer.servers = [{ url = "http://lucas:13449"; }];
+        };
+
+        http.routers.nextcloud = {
+          rule = "Host(`cloud.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "nextcloud";
+        };
+
+        http.services.nextcloud = {
+          loadBalancer.servers = [{ url = "http://webb:13244"; }];
+        };
+
+        # http.routers.adhoc = {
+        #   rule = "Host(`adhoc.aicampground.com`)";
+        #   entryPoints = [ "web" "websecure" ];
+        #   service = "adhoc";
+        # };
+
+        # http.services.adhoc = {
+        #   loadBalancer.servers = [{ url = "http://reckless:5000"; }];
+        # };
+
+        http.routers.aicampground = {
+          rule = "Host(`matt-camp.com`)";
+          entryPoints = [ "websecure" ];
+          service = "matt-camp";
+          middlewares = [ "cloudflarewarp" ];
+        };
+
+        http.services.matt-camp = generateServiceConfig "matt-camp-website";
+        # http.services.matt-camp = {
+        #   loadBalancer.servers = [{ url = "http://lucas:4356"; }];
+        # };
+
+        http.services.aicampground = {
+          loadBalancer.servers = [{ url = "http://lucas:4356"; }];
+        };
+
+        http.routers.searx = {
+          rule = "Host(`searx.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "searx";
+          # middlewares = [ "cloudflarewarp" ];
+        };
+
+        http.services.searx = {
+          loadBalancer.servers = [
+            { url = "http://10.8.0.201:3249"; }
+            { url = "http://daly:8181"; }
+            { url = "http://chesty:3249"; }
+            { url = "http://lucas:3249"; }
+            { url = "http://reckless:3249"; }
+          ];
+
+          loadBalancer.healthCheck = {
+            path = "/";
+            interval = "10s";
+            timeout = "5s";
+          };
+        };
+
+        http.routers.attic = {
+          rule = "Host(`attic.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "attic";
+        };
+
+        http.services.attic = {
+          loadBalancer.servers = [{ url = "http://reckless:8082"; }];
+        };
+
+        http.routers.bitwarden = {
+          rule = "Host(`bw.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "bitwarden";
+          middlewares = [ "cloudflarewarp" ];
+        };
+
+        http.services.bitwarden = {
+          loadBalancer.servers = [{ url = "http://webb:8989"; }];
+          loadBalancer.healthCheck = {
+            path = "/alive";
+            interval = "10s";
+            timeout = "5s";
+          };
+        };
+
+        http.routers.mattermost = {
+          rule = "Host(`mattermost.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "mattermost";
+          middlewares = [ "cloudflarewarp" ];
+        };
+
+        http.routers.mm = {
+          rule = "Host(`mm.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "mattermost";
+          middlewares = [ "cloudflarewarp" ];
+        };
+
+        http.services.mattermost = {
+          loadBalancer.servers = [{ url = "http://webb:8065"; }];
+        };
+      };
+      description = "The Traefik dynamic configuration for public services.";
+      example = literalExpression ''
+        {
+          http.middlewares.cloudflarewarp = {
+            plugin = { cloudflarewarp = { disableDefault = false; }; };
+          };
+        }
+      '';
+    };
   };
 
   config = {
@@ -79,256 +341,7 @@ in
           insecure = true;
           entrypoints = cfg.entrypoints;
           domains = [ "aicampground.com" "matt-camp.com" ];
-          dynamicConfigOptions = {
-            http.middlewares.cloudflarewarp = {
-              plugin = { cloudflarewarp = { disableDefault = false; }; };
-            };
-            # http.middlewares.fail2ban = {
-            #   plugin = {
-            #     fail2ban = {
-            #       rules = {
-            #         bantime = "3h";
-            #         enabled = true;
-            #         findtime = "10m";
-            #         maxretry = 4;
-            #       };
-            #     };
-            #   };
-            # };
-            http.routers.immich = {
-              rule = "Host(`immich.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "immich";
-            };
-
-            http.services.immich = {
-              loadBalancer.servers = [{ url = "http://webb:13001"; }];
-            };
-
-            http.routers.photos = {
-              rule = "Host(`photos.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "photos";
-            };
-
-            http.services.photos = {
-              loadBalancer.servers = [{ url = "http://webb:13001"; }];
-            };
-            http.routers.matomo = {
-              rule = "Host(`matomo.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "matomo";
-            };
-
-            http.services.matomo = {
-              loadBalancer.servers = [{ url = "http://webb:16969"; }];
-            };
-            http.routers.blog-comments = {
-              rule = "Host(`remark.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "blog-comments";
-            };
-
-            http.services.blog-comments = {
-              loadBalancer.servers = [{ url = "http://webb:11842"; }];
-            };
-
-            http.routers.blog = {
-              rule = "Host(`blog.aicampground.com`) || Host(`aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "blog";
-            };
-
-            http.services.blog = {
-              loadBalancer.servers = [
-                { url = "http://reckless:28345"; }
-                { url = "http://daly:28345"; }
-                { url = "http://chesty:28345"; }
-                { url = "http://lucas:28345"; }
-              ];
-            };
-
-            http.routers.netbird = {
-              rule = "Host(`netbird.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "netbird";
-            };
-
-            http.services.netbird = {
-              loadBalancer.servers = [{ url = "http://webb:10031"; }];
-              loadBalancer.healthCheck = {
-                path = "/";
-                interval = "10s";
-                timeout = "5s";
-              };
-            };
-
-            http.routers.bsky = {
-              rule = "Host(`bsky.aicampground.com`) || HostRegexp(`{subdomain:[a-z0-9]+}.bsky.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "bsky";
-            };
-
-            http.services.bsky = generateServiceConfig "pds";
-
-            http.routers.mealie = {
-              rule = "Host(`mealie.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "mealie";
-            };
-
-            http.services.mealie = generateServiceConfig "mealie";
-
-            http.routers.lemmy = {
-              rule = "Host(`lemmy.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "lemmy";
-            };
-
-            http.services.lemmy = generateServiceConfig "lemmy";
-            http.middlewares."authentik-headers".headers = {
-              sslRedirect = true;
-              browserXssFilter = true;
-              stsIncludeSubdomains = true;
-              stsSeconds = 31536000;
-              customRequestHeaders = {
-                "X-Forwarded-Proto" = "https";
-                "X-Forwarded-Host" = "auth.aicampground.com";
-              };
-            };
-            http.routers.authentik = {
-              rule = "Host(`auth.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              middlewares = [ "authentik-headers" ];
-
-              service = "authentik";
-            };
-
-            http.services.authentik = generateServiceConfig "authentik";
-
-            http.routers.collabora = {
-              rule = "Host(`collabora.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "collabora";
-            };
-
-            http.services.collabora = {
-              loadBalancer.servers = [{ url = "http://webb:19980"; }];
-            };
-
-            http.routers.onlyoffice-office = {
-              rule = "Host(`office.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "onlyoffice";
-            };
-
-            http.services.onlyoffice = {
-              loadBalancer.servers = [{ url = "http://lucas:13449"; }];
-            };
-
-            http.routers.nextcloud = {
-              rule = "Host(`cloud.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "nextcloud";
-            };
-
-            http.services.nextcloud = {
-              loadBalancer.servers = [{ url = "http://webb:13244"; }];
-            };
-
-            # http.routers.adhoc = {
-            #   rule = "Host(`adhoc.aicampground.com`)";
-            #   entryPoints = [ "web" "websecure" ];
-            #   service = "adhoc";
-            # };
-
-            # http.services.adhoc = {
-            #   loadBalancer.servers = [{ url = "http://reckless:5000"; }];
-            # };
-
-            http.routers.aicampground = {
-              rule = "Host(`matt-camp.com`)";
-              entryPoints = [ "websecure" ];
-              service = "matt-camp";
-              middlewares = [ "cloudflarewarp" ];
-            };
-
-            http.services.matt-camp = generateServiceConfig "matt-camp-website";
-            # http.services.matt-camp = {
-            #   loadBalancer.servers = [{ url = "http://lucas:4356"; }];
-            # };
-
-            http.services.aicampground = {
-              loadBalancer.servers = [{ url = "http://lucas:4356"; }];
-            };
-
-            http.routers.searx = {
-              rule = "Host(`searx.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "searx";
-              # middlewares = [ "cloudflarewarp" ];
-            };
-
-            http.services.searx = {
-              loadBalancer.servers = [
-                { url = "http://10.8.0.201:3249"; }
-                { url = "http://daly:8181"; }
-                { url = "http://chesty:3249"; }
-                { url = "http://lucas:3249"; }
-                { url = "http://reckless:3249"; }
-              ];
-
-              loadBalancer.healthCheck = {
-                path = "/";
-                interval = "10s";
-                timeout = "5s";
-              };
-            };
-
-            http.routers.attic = {
-              rule = "Host(`attic.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "attic";
-            };
-
-            http.services.attic = {
-              loadBalancer.servers = [{ url = "http://reckless:8082"; }];
-            };
-
-            http.routers.bitwarden = {
-              rule = "Host(`bw.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "bitwarden";
-              middlewares = [ "cloudflarewarp" ];
-            };
-
-            http.services.bitwarden = {
-              loadBalancer.servers = [{ url = "http://webb:8989"; }];
-              loadBalancer.healthCheck = {
-                path = "/alive";
-                interval = "10s";
-                timeout = "5s";
-              };
-            };
-
-            http.routers.mattermost = {
-              rule = "Host(`mattermost.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "mattermost";
-              middlewares = [ "cloudflarewarp" ];
-            };
-
-            http.routers.mm = {
-              rule = "Host(`mm.aicampground.com`)";
-              entryPoints = [ "websecure" ];
-              service = "mattermost";
-              middlewares = [ "cloudflarewarp" ];
-            };
-
-            http.services.mattermost = {
-              loadBalancer.servers = [{ url = "http://webb:8065"; }];
-            };
-          };
+          dynamicConfigOptions = cfg.dynamicConfigOptions;
         };
 
         keepalived = mkIf cfg.enable {
