@@ -9,7 +9,7 @@ with lib.campground; let
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   manifests = {
-    traefik-helmchart = {
+    traefik = {
       content = {
         apiVersion = "helm.cattle.io/v1";
         kind = "HelmChart";
