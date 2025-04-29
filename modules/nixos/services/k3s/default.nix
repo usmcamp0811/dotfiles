@@ -6,6 +6,7 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
+  serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   manifests = {
     metallb-native = {
@@ -66,8 +67,8 @@ in
 
     serverAddr = mkOption {
       type = types.nullOr types.str;
-      default = "";
-      description = "K3s server URL (used by agents).";
+      default = "10.8.0.197";
+      description = "HA Proxy IP or K3s Server IP (used by agents).";
     };
 
     extraFlags = mkOption {
@@ -113,7 +114,7 @@ in
       clusterInit = cfg.clusterInit;
       role = cfg.role;
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
-      serverAddr = cfg.serverAddr;
+      serverAddr = serverAddr;
       # setKubeConfig = true;
       # snapshotter = "nix";
       configPath = mkIf (cfg.role == "server") (pkgs.writeText "k3s-config.yaml" (lib.generators.toYAML { } cfg.config));
@@ -121,7 +122,7 @@ in
     };
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
-      description = "Store K3s node-token in Vault";
+      description = "Store K3s node-token and kubeconfig in Vault";
       after = [
         "k3s.service"
         "vault-agent.service"
@@ -137,12 +138,19 @@ in
 
           echo "Waiting for K3s to be fully ready..."
 
-          until [ -f /var/lib/rancher/k3s/server/node-token ]; do
+          until [ -f /var/lib/rancher/k3s/server/node-token ] && [ -f /etc/rancher/k3s/k3s.yaml ]; do
             sleep 5
           done
 
-          echo "Reading K3s node-token..."
+          echo "Reading K3s node-token and kubeconfig..."
           NODE_TOKEN=$(< /var/lib/rancher/k3s/server/node-token)
+          KUBECONFIG_ORIG=$(cat /etc/rancher/k3s/k3s.yaml)
+
+          # Replace 127.0.0.1 with your HAProxy IP
+
+          # Replace 127.0.0.1 with server address
+          HAPROXY_IP="${cfg.serverAddr}"
+          KUBECONFIG_FIXED=$(echo "$KUBECONFIG_ORIG" | sed "s/127.0.0.1/$HAPROXY_IP/g")
 
           VAULT_PATH="${cfg.vault-path}"
           export VAULT_ADDR="${cfg.vault-address}"
@@ -155,10 +163,12 @@ in
           VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           export VAULT_TOKEN
 
-          echo "Storing K3s node-token in Vault at $VAULT_PATH"
-          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" node_token="$NODE_TOKEN"
+          echo "Storing K3s node-token and kubeconfig in Vault at $VAULT_PATH"
+          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
+            node_token="$NODE_TOKEN" \
+            kubeconfig="$KUBECONFIG_FIXED"
 
-          echo "Done storing K3s token."
+          echo "Done storing K3s token and kubeconfig."
         '';
         RemainAfterExit = true;
       };
