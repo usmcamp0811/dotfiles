@@ -165,7 +165,7 @@ in
       clusterInit = cfg.clusterInit;
       role = cfg.role;
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
-      serverAddr = serverAddr;
+      serverAddr = mkIf (!cfg.clusterInit) serverAddr;
       # setKubeConfig = true;
       # snapshotter = "nix";
       configPath = mkIf (cfg.role == "server") (
