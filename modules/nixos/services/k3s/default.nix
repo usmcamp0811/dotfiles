@@ -181,9 +181,9 @@ in
 
     environment.systemPackages = [ cfg.package ];
 
-    systemd.services.k3s.preStart = (!cfg.clusterInit) ''
+    systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) ''
       mkdir -p /var/lib/rancher/k3s/server
-      ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
+      cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
     '';
     campground.services.vault-agent.services.k3s = {
       settings = {
