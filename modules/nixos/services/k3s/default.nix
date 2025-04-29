@@ -117,7 +117,12 @@ in
       serverAddr = serverAddr;
       # setKubeConfig = true;
       # snapshotter = "nix";
-      configPath = mkIf (cfg.role == "server") (pkgs.writeText "k3s-config.yaml" (lib.generators.toYAML { } cfg.config));
+      configPath = mkIf (cfg.role == "server") (
+        let
+          configText = lib.generators.toYAML { } cfg.config;
+        in
+        pkgs.writeText "k3s-config.yaml" configText
+      );
       moreFlags = cfg.extraFlags;
     };
 
