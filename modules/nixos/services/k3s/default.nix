@@ -181,16 +181,9 @@ in
 
     environment.systemPackages = [ cfg.package ];
 
-    systemd.services.k3s.preStart = ''
-      # always write config.yaml
-      ${pkgs.coreutils}/bin/mkdir -p /etc/rancher/k3s
-      ${pkgs.coreutils}/bin/echo '${lib.generators.toYAML {} cfg.config}' > /etc/rancher/k3s/config.yaml
-
-      # conditionally set node-token
-      ${lib.optionalString (!cfg.clusterInit) ''
-        mkdir -p /var/lib/rancher/k3s/server
-        ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-      ''}
+    systemd.services.k3s.preStart = (!cfg.clusterInit) ''
+      mkdir -p /var/lib/rancher/k3s/server
+      ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
     '';
     campground.services.vault-agent.services.k3s = {
       settings = {
