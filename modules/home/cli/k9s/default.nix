@@ -21,6 +21,9 @@ in
       kwatch = ''
         watch ${pkgs.kubectl}/bin/kubectl $@
       '';
+      get-kconfig = ''
+        ${pkgs.vault-bin}/bin/vault kv get -field=kubeconfig "secret/campground/k3s" > "KUBECONFIG"
+      '';
     };
     home.packages = with pkgs; [ k9s kubernetes-helm kubectl ];
   };
