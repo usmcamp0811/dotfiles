@@ -7,7 +7,6 @@ with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
-
   manifests = {
     metallb-native = {
       source = pkgs.fetchurl {
@@ -117,10 +116,7 @@ in
       serverAddr = cfg.serverAddr;
       # setKubeConfig = true;
       # snapshotter = "nix";
-      configPath =
-        if cfg.role == "server"
-        then "/etc/rancher/k3s/config.yaml"
-        else null;
+      configPath = mkIf (cfg.role == "server") (pkgs.writeText "k3s-config.yaml" (lib.generators.toYAML { } cfg.config));
       moreFlags = cfg.extraFlags;
     };
 

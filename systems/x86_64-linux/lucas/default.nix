@@ -58,7 +58,7 @@ with lib.campground; {
     services = {
       netbird.client.enable = true;
       k3s = {
-        # enable = true;
+        enable = true;
         role = "server";
         clusterInit = true;
         extraFlags = [
