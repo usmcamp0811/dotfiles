@@ -10,154 +10,175 @@ with lib.campground; let
   kubelib = inputs.kube-gen.lib { inherit pkgs; };
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
-  manifests = {
-    argocd-config = {
-      content = [
-        {
-          apiVersion = "v1";
-          kind = "ConfigMap";
-          metadata = {
-            name = "argocd-cm";
-            namespace = "argocd";
-          };
-          data = {
-            "application.instanceLabelKey" = "argocd.argoproj.io/instance";
-          };
-        }
+  external-secrets-chartPath = "${pkgs.nixhelmCharts.external-secrets.external-secrets}";
 
-        {
-          apiVersion = "v1";
-          kind = "Secret";
-          metadata = {
-            name = "argocd-secret";
-            namespace = "argocd";
-          };
-          type = "Opaque";
-          data = { }; # real admin password will come from Vault via ExternalSecret
-        }
+  recursiveYamlFiles = dir:
+    let
+      entries = builtins.readDir dir;
+      paths = builtins.attrValues (lib.mapAttrs'
+        (
+          name: type:
+            let
+              fullPath = "${dir}/${name}";
+            in
+            if type == "directory"
+            then lib.nameValuePair name (recursiveYamlFiles fullPath)
+            else if lib.hasSuffix ".yaml" name || lib.hasSuffix ".yml" name
+            then lib.nameValuePair name fullPath
+            else lib.nameValuePair name null
+        )
+        entries);
+    in
+    builtins.concatLists (builtins.filter (x: x != null) paths);
 
-        {
-          apiVersion = "v1";
-          kind = "ConfigMap";
-          metadata = {
-            name = "argocd-rbac-cm";
-            namespace = "argocd";
-          };
-          data = {
-            "policy.default" = "role:readonly";
-          };
-        }
+  external-secrets-yamlFiles = recursiveYamlFiles external-secrets-chartPath;
+  external-secrets-chart =
+    map
+      (path: {
+        name = baseNameOf path;
+        source = path;
+      })
+      external-secrets-yamlFiles;
+  manifests =
+    {
+      argocd-config = {
+        content = [
+          {
+            apiVersion = "v1";
+            kind = "ConfigMap";
+            metadata = {
+              name = "argocd-cm";
+              namespace = "argocd";
+            };
+            data = {
+              "application.instanceLabelKey" = "argocd.argoproj.io/instance";
+            };
+          }
 
-        {
-          apiVersion = "v1";
-          kind = "ConfigMap";
+          {
+            apiVersion = "v1";
+            kind = "Secret";
+            metadata = {
+              name = "argocd-secret";
+              namespace = "argocd";
+            };
+            type = "Opaque";
+            data = { }; # real admin password will come from Vault via ExternalSecret
+          }
+
+          {
+            apiVersion = "v1";
+            kind = "ConfigMap";
+            metadata = {
+              name = "argocd-rbac-cm";
+              namespace = "argocd";
+            };
+            data = {
+              "policy.default" = "role:readonly";
+            };
+          }
+
+          {
+            apiVersion = "v1";
+            kind = "ConfigMap";
+            metadata = {
+              name = "argocd-notifications-cm";
+              namespace = "argocd";
+            };
+            data = {
+              "config.yaml" = "service:\n  webhook: {}";
+            };
+          }
+        ];
+      };
+      argocd = {
+        source = pkgs.fetchurl {
+          url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
+          sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
+        };
+      };
+      public-traefik = {
+        content = {
+          apiVersion = "helm.cattle.io/v1";
+          kind = "HelmChart";
           metadata = {
-            name = "argocd-notifications-cm";
-            namespace = "argocd";
-          };
-          data = {
-            "config.yaml" = "service:\n  webhook: {}";
-          };
-        }
-      ];
-    };
-    external-secrets = kubelib.fromHelm {
-      name = "external-secrets";
-      chart = pkgs.nixhelmCharts.argoproj.argo-cd;
-      namespace = "external-secrets";
-      values = {
-        installCRDs = true;
-        serviceAccount.create = true;
-        certController.create = true;
-      };
-    };
-    argocd = {
-      source = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
-        sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
-      };
-    };
-    public-traefik = {
-      content = {
-        apiVersion = "helm.cattle.io/v1";
-        kind = "HelmChart";
-        metadata = {
-          name = "traefik";
-          namespace = "kube-system";
-        };
-        spec = {
-          chart = "traefik";
-          repo = "https://helm.traefik.io/traefik";
-          targetNamespace = "kube-system";
-          version = "26.1.0";
-          set = {
-            service.type = "LoadBalancer";
-            additionalArguments = [
-              "--providers.kubernetescrd"
-              "--providers.kubernetesIngress"
-              "--providers.file.filename=/config/dynamic.yaml"
-            ];
-            extraVolumeMounts = [
-              {
-                name = "dynamic-config";
-                mountPath = "/config";
-              }
-            ];
-            extraVolumes = [
-              {
-                name = "dynamic-config";
-                configMap = {
-                  name = "public-traefik-config";
-                };
-              }
-            ];
-          };
-        };
-      };
-    };
-    public-traefik-routes = {
-      content = {
-        apiVersion = "v1";
-        kind = "ConfigMap";
-        metadata = {
-          name = "public-traefik-config";
-          namespace = "kube-system";
-        };
-        data = {
-          "dynamic.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.dynamicConfigOptions;
-        };
-      };
-    };
-    metallb-native = {
-      source = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml";
-        sha256 = "sha256-lRBl6FaSqhBvG7XVpIfZMGFUkjp5SrHYISKIHLr1iOQ=";
-      };
-    };
-    metallb-config = {
-      content = [
-        {
-          apiVersion = "metallb.io/v1beta1";
-          kind = "IPAddressPool";
-          metadata = {
-            name = "default-pool";
-            namespace = "metallb-system";
+            name = "traefik";
+            namespace = "kube-system";
           };
           spec = {
-            addresses = [ "10.8.200.100-10.8.200.150" ];
+            chart = "traefik";
+            repo = "https://helm.traefik.io/traefik";
+            targetNamespace = "kube-system";
+            version = "26.1.0";
+            set = {
+              service.type = "LoadBalancer";
+              additionalArguments = [
+                "--providers.kubernetescrd"
+                "--providers.kubernetesIngress"
+                "--providers.file.filename=/config/dynamic.yaml"
+              ];
+              extraVolumeMounts = [
+                {
+                  name = "dynamic-config";
+                  mountPath = "/config";
+                }
+              ];
+              extraVolumes = [
+                {
+                  name = "dynamic-config";
+                  configMap = {
+                    name = "public-traefik-config";
+                  };
+                }
+              ];
+            };
           };
-        }
-        {
-          apiVersion = "metallb.io/v1beta1";
-          kind = "L2Advertisement";
+        };
+      };
+      public-traefik-routes = {
+        content = {
+          apiVersion = "v1";
+          kind = "ConfigMap";
           metadata = {
-            name = "default";
-            namespace = "metallb-system";
+            name = "public-traefik-config";
+            namespace = "kube-system";
           };
-        }
-      ];
-    };
-  };
+          data = {
+            "dynamic.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.dynamicConfigOptions;
+          };
+        };
+      };
+      metallb-native = {
+        source = pkgs.fetchurl {
+          url = "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml";
+          sha256 = "sha256-lRBl6FaSqhBvG7XVpIfZMGFUkjp5SrHYISKIHLr1iOQ=";
+        };
+      };
+      metallb-config = {
+        content = [
+          {
+            apiVersion = "metallb.io/v1beta1";
+            kind = "IPAddressPool";
+            metadata = {
+              name = "default-pool";
+              namespace = "metallb-system";
+            };
+            spec = {
+              addresses = [ "10.8.200.100-10.8.200.150" ];
+            };
+          }
+          {
+            apiVersion = "metallb.io/v1beta1";
+            kind = "L2Advertisement";
+            metadata = {
+              name = "default";
+              namespace = "metallb-system";
+            };
+          }
+        ];
+      };
+    }
+    // external-secrets-chart;
 in
 {
   options.campground.services.k3s = {
