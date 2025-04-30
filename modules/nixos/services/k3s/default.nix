@@ -9,6 +9,12 @@ with lib.campground; let
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   manifests = {
+    argocd = {
+      source = pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
+        sha256 = "";
+      };
+    };
     public-traefik = {
       content = {
         apiVersion = "helm.cattle.io/v1";
