@@ -9,10 +9,83 @@ with lib.campground; let
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   manifests = {
+    argocd-config = {
+      content = [
+        {
+          apiVersion = "v1";
+          kind = "ConfigMap";
+          metadata = {
+            name = "argocd-cm";
+            namespace = "argocd";
+          };
+          data = {
+            "application.instanceLabelKey" = "argocd.argoproj.io/instance";
+          };
+        }
+
+        {
+          apiVersion = "v1";
+          kind = "Secret";
+          metadata = {
+            name = "argocd-secret";
+            namespace = "argocd";
+          };
+          type = "Opaque";
+          data = { }; # real admin password will come from Vault via ExternalSecret
+        }
+
+        {
+          apiVersion = "v1";
+          kind = "ConfigMap";
+          metadata = {
+            name = "argocd-rbac-cm";
+            namespace = "argocd";
+          };
+          data = {
+            "policy.default" = "role:readonly";
+          };
+        }
+
+        {
+          apiVersion = "v1";
+          kind = "ConfigMap";
+          metadata = {
+            name = "argocd-notifications-cm";
+            namespace = "argocd";
+          };
+          data = {
+            "config.yaml" = "service:\n  webhook: {}";
+          };
+        }
+      ];
+    };
+    external-secrets = {
+      helmChart = {
+        chart = "external-secrets";
+        repo = "https://charts.external-secrets.io";
+        version = "0.9.19";
+        namespace = "external-secrets";
+        releaseName = "external-secrets";
+        values = {
+          installCRDs = true;
+
+          webhook.port = 9443;
+
+          leaderElect = true;
+
+          serviceAccount.create = true;
+          serviceAccount.name = "external-secrets";
+
+          secretStore = {
+            create = false;
+          };
+        };
+      };
+    };
     argocd = {
       source = pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
-        sha256 = "";
+        sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
       };
     };
     public-traefik = {
