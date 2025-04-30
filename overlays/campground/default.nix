@@ -8,11 +8,13 @@
 , unstable
 , nixidy
 , uv2nix
+, nixhelm
 , yazi
 , ...
 }: final: prev:
 {
   # kubenix-eval = kubenix.evalModules.${prev.system};
+  nixhelmCharts = nixhelm.chartsDerivations.${prev.system};
   nixidy-cli = nixidy.packages.${prev.system}.default;
   nixidy-lib = nixidy.lib;
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
