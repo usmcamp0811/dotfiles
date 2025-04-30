@@ -9,11 +9,21 @@
 , nixidy
 , uv2nix
 , yazi
+, lib
 , ...
 }: final: prev:
 {
   # kubenix-eval = kubenix.evalModules.${prev.system};
-  nixhelmCharts = nixhelm.chartsDerivations.${prev.system};
+  nixhelmCharts = lib.fix (
+    self:
+    lib.mapAttrs
+      (
+        repo: charts:
+          lib.mapAttrs (_chart: drv: drv)
+            charts
+      )
+      nixhelm.chartsDerivations.${prev.system}
+  );
   nixidy-cli = nixidy.packages.${prev.system}.default;
   nixidy-lib = nixidy.lib;
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
