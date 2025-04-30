@@ -9,7 +9,7 @@ with lib.campground; let
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   manifests = {
-    traefik = {
+    public-traefik = {
       content = {
         apiVersion = "helm.cattle.io/v1";
         kind = "HelmChart";
@@ -29,37 +29,37 @@ with lib.campground; let
               "--providers.kubernetesIngress"
               "--providers.file.filename=/config/dynamic.yaml"
             ];
-            # extraVolumeMounts = [
-            #   {
-            #     name = "dynamic-config";
-            #     mountPath = "/config";
-            #   }
-            # ];
-            # extraVolumes = [
-            #   {
-            #     name = "dynamic-config";
-            #     configMap = {
-            #       name = "traefik-dynamic-config";
-            #     };
-            #   }
-            # ];
+            extraVolumeMounts = [
+              {
+                name = "dynamic-config";
+                mountPath = "/config";
+              }
+            ];
+            extraVolumes = [
+              {
+                name = "dynamic-config";
+                configMap = {
+                  name = "public-traefik-config";
+                };
+              }
+            ];
           };
         };
       };
     };
-    # traefik-dynamic-config = {
-    #   content = {
-    #     apiVersion = "v1";
-    #     kind = "ConfigMap";
-    #     metadata = {
-    #       name = "traefik-dynamic-config";
-    #       namespace = "kube-system";
-    #     };
-    #     data = {
-    #       "dynamic.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.dynamicConfigOptions;
-    #     };
-    #   };
-    # };
+    traefik-dynamic-config = {
+      content = {
+        apiVersion = "v1";
+        kind = "ConfigMap";
+        metadata = {
+          name = "public-traefik-config";
+          namespace = "kube-system";
+        };
+        data = {
+          "dynamic.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.dynamicConfigOptions;
+        };
+      };
+    };
     metallb-native = {
       source = pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml";
