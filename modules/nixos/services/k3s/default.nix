@@ -47,7 +47,7 @@ with lib.campground; let
         };
       };
     };
-    traefik-dynamic-config = {
+    public-traefik-routes = {
       content = {
         apiVersion = "v1";
         kind = "ConfigMap";
