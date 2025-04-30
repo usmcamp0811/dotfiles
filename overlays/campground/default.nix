@@ -8,7 +8,6 @@
 , unstable
 , nixidy
 , uv2nix
-, nixhelm
 , yazi
 , ...
 }: final: prev:

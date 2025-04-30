@@ -1,11 +1,13 @@
 { lib
 , config
 , pkgs
+, inputs
 , ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
+  kubelib = inputs.kube-gen.lib { inherit pkgs; };
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   manifests = {
@@ -59,27 +61,14 @@ with lib.campground; let
         }
       ];
     };
-    external-secrets = {
-      helmChart = {
-        chart = "external-secrets";
-        repo = "https://charts.external-secrets.io";
-        version = "0.9.19";
-        namespace = "external-secrets";
-        releaseName = "external-secrets";
-        values = {
-          installCRDs = true;
-
-          webhook.port = 9443;
-
-          leaderElect = true;
-
-          serviceAccount.create = true;
-          serviceAccount.name = "external-secrets";
-
-          secretStore = {
-            create = false;
-          };
-        };
+    external-secrets = kubelib.fromHelm {
+      name = "external-secrets";
+      chart = pkgs.nixhelmCharts.argoproj.argo-cd;
+      namespace = "external-secrets";
+      values = {
+        installCRDs = true;
+        serviceAccount.create = true;
+        certController.create = true;
       };
     };
     argocd = {

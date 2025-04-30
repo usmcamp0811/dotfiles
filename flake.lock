@@ -169138,15 +169138,15 @@
         "poetry2nix": "poetry2nix_85"
       },
       "locked": {
-        "lastModified": 1744248300,
-        "narHash": "sha256-Y1MUwWsSn2/l802Z7H742HGmXTdZeQXiukCYDGT7wqI=",
-        "owner": "farcaller",
+        "lastModified": 1745976499,
+        "narHash": "sha256-EWFnlHbGAWDQ7neWispJRzWZC39AsFKesoOHdMdlOxY=",
+        "owner": "nix-community",
         "repo": "nixhelm",
-        "rev": "560f6d1ec125ba111b1605cd71a93d0afe5b77f8",
+        "rev": "2b8c4dfdd0ce8f1a67c7d28b4d20f3fbc5e35f6f",
         "type": "github"
       },
       "original": {
-        "owner": "farcaller",
+        "owner": "nix-community",
         "repo": "nixhelm",
         "type": "github"
       }
