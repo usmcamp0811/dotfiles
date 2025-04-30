@@ -12,33 +12,21 @@ with lib.campground; let
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   external-secrets-chartPath = "${pkgs.nixhelmCharts.external-secrets.external-secrets}";
 
-  recursiveYamlFiles = dir:
-    let
-      entries = builtins.readDir dir;
-      paths = builtins.attrValues (lib.mapAttrs'
-        (
-          name: type:
-            let
-              fullPath = "${dir}/${name}";
-            in
-            if type == "directory"
-            then lib.nameValuePair name (recursiveYamlFiles fullPath)
-            else if lib.hasSuffix ".yaml" name || lib.hasSuffix ".yml" name
-            then lib.nameValuePair name fullPath
-            else lib.nameValuePair name null
-        )
-        entries);
-    in
-    builtins.concatLists (builtins.filter (x: x != null) paths);
+  yamlManifests = builtins.filter
+    (
+      path:
+      lib.hasSuffix ".yaml" path || lib.hasSuffix ".yml" path
+    )
+    (lib.filesystem.listFilesRecursive external-secrets-chartPath);
 
-  external-secrets-yamlFiles = recursiveYamlFiles external-secrets-chartPath;
-  external-secrets-chart =
+  external-secrets-yamlFiles = yamlManifests external-secrets-chartPath;
+  external-secrets =
     map
       (path: {
         name = baseNameOf path;
         source = path;
       })
-      external-secrets-yamlFiles;
+      yamlManifests;
   manifests =
     {
       argocd-config = {
@@ -178,7 +166,7 @@ with lib.campground; let
         ];
       };
     }
-    // external-secrets-chart;
+    // external-secrets;
 in
 {
   options.campground.services.k3s = {
