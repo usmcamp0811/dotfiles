@@ -373,6 +373,7 @@
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
         "${unstable}/nixos/modules/services/web-apps/pds.nix"
+        "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
       ];
 
       systems.hosts.butler.modules = with inputs; [
