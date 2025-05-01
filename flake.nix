@@ -373,9 +373,15 @@
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
         "${unstable}/nixos/modules/services/web-apps/pds.nix"
+        { disabledModules = [ "${nixpkgs}/nixos/modules/services/cluster/k3s/default.nix" ]; }
         "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
+
+        # "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
       ];
 
+      # systemds.hosts.lucas.modules = with inputs; [
+      #   unstable.nixosModules.services.k3s
+      # ];
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53
