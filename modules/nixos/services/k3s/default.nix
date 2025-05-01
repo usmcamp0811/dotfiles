@@ -10,9 +10,18 @@ with lib.campground; let
   kubelib = inputs.kube-gen.lib { inherit pkgs; };
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
-
   charts = {
-    external-secrets = pkgs.nixhelmCharts.external-secrets.external-secrets;
+    external-secrets = {
+      name = "external-secrets";
+      targetNamespace = "external-secrets";
+      repo = "https://charts.external-secrets.io";
+      version = "0.16.1";
+      createNamespace = true;
+      hash = "sha256-hIGJ8wGxbhZ2XWLK6TzzoFqzK2dM5Hu6tYzB2w4BAtY="; # replace with real hash
+      values = {
+        installCRDs = true;
+      };
+    };
   };
   manifests = {
     argocd-config = {
@@ -69,6 +78,12 @@ with lib.campground; let
       source = pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
         sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
+      };
+    };
+    external-secrets-crds = {
+      source = pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/external-secrets/external-secrets/v0.16.1/deploy/crds/bundle.yaml";
+        sha256 = "sha256-r0qcdMuiZqOqhNEwruZdi+NI3LUw4tkFan4pLjVU00U=";
       };
     };
     public-traefik = {
@@ -221,13 +236,14 @@ in
 
   config = mkIf cfg.enable {
     services.k3s = {
-      inherit manifests charts;
+      inherit manifests;
       enable = true;
       package = cfg.package;
       clusterInit = cfg.clusterInit;
       role = cfg.role;
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = mkIf (!cfg.clusterInit) serverAddr;
+      autoDeployCharts = charts;
       # setKubeConfig = true;
       # snapshotter = "nix";
       configPath = mkIf (cfg.role == "server") (
