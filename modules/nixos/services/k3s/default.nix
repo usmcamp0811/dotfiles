@@ -15,11 +15,11 @@ with lib.campground; let
       name = "external-secrets";
       targetNamespace = "external-secrets";
       repo = "https://charts.external-secrets.io";
-      version = "0.16.1";
+      version = "v0.16.1";
       createNamespace = true;
-      hash = "sha256-hIGJ8wGxbhZ2XWLK6TzzoFqzK2dM5Hu6tYzB2w4BAtY="; # replace with real hash
+      hash = "sha256-hIGJ8wGxbhZ2XWLK6TzzoFqzK2dM5Hu6tYzB2w4BAtY=";
       values = {
-        installCRDs = true;
+        installCRDs = false;
       };
     };
   };
@@ -84,44 +84,6 @@ with lib.campground; let
       source = pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/external-secrets/external-secrets/v0.16.1/deploy/crds/bundle.yaml";
         sha256 = "sha256-r0qcdMuiZqOqhNEwruZdi+NI3LUw4tkFan4pLjVU00U=";
-      };
-    };
-    public-traefik = {
-      content = {
-        apiVersion = "helm.cattle.io/v1";
-        kind = "HelmChart";
-        metadata = {
-          name = "traefik";
-          namespace = "kube-system";
-        };
-        spec = {
-          chart = "traefik";
-          repo = "https://helm.traefik.io/traefik";
-          targetNamespace = "kube-system";
-          version = "26.1.0";
-          set = {
-            service.type = "LoadBalancer";
-            additionalArguments = [
-              "--providers.kubernetescrd"
-              "--providers.kubernetesIngress"
-              "--providers.file.filename=/config/dynamic.yaml"
-            ];
-            extraVolumeMounts = [
-              {
-                name = "dynamic-config";
-                mountPath = "/config";
-              }
-            ];
-            extraVolumes = [
-              {
-                name = "dynamic-config";
-                configMap = {
-                  name = "public-traefik-config";
-                };
-              }
-            ];
-          };
-        };
       };
     };
     public-traefik-routes = {
