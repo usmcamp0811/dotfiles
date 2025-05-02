@@ -373,8 +373,8 @@
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
         "${unstable}/nixos/modules/services/web-apps/pds.nix"
-        { disabledModules = [ "${nixpkgs}/nixos/modules/services/cluster/k3s/default.nix" ]; }
-        "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
+        # { disabledModules = [ "${nixpkgs}/nixos/modules/services/cluster/k3s/default.nix" ]; }
+        # "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
       ];
 
       # systemds.hosts.lucas.modules = with inputs; [
