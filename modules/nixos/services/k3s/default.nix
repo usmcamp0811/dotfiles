@@ -223,6 +223,7 @@ in
   };
 
   config = mkIf cfg.enable {
+
     services.k3s = {
       inherit manifests;
       enable = true;
