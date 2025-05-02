@@ -10,7 +10,63 @@ with lib.campground; let
   kubelib = inputs.kube-gen.lib { inherit pkgs; };
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
+  # image = pkgs.dockerTools.pullImage {
+  #   imageName = "nginx";
+  #   imageDigest = "sha256:4ff102c5d78d254a6f0da062b3cf39eaf07f01eec0927fd21e219d0af8bc0591";
+  #   hash = "sha256-Fh9hWQWgY4g+Cu/0iER4cXAMvCc0JNiDwGCPa+V/FvA=";
+  #   finalImageTag = "1.27.4-alpine";
+  #   arch = "amd64";
+  # };
   charts = {
+    hello-world = {
+      name = "hello-world";
+      repo = "https://helm.github.io/examples";
+      version = "0.1.0";
+      hash = "sha256-U2XjNEWE82/Q3KbBvZLckXbtjsXugUbK6KdqT5kCccM=";
+      # configure the chart values like you would do in values.yaml
+      values = {
+        # image = {
+        #   repository = image.imageName;
+        #   tag = image.imageTag;
+        # };
+        serviceAccount.create = false;
+      };
+      # Deploy additional resources that are not part of the Helm chart. This is especially useful
+      # for CRDs that shouldn't be managed by Helm.
+      extraDeploy = [
+        {
+          apiVersion = "networking.k8s.io/v1";
+          kind = "Ingress";
+          metadata = {
+            name = "hello-world";
+            annotations."traefik.ingress.kubernetes.io/router.middlewares" = "default-hello-world-strip-prefix@kubernetescrd";
+          };
+          spec = {
+            ingressClassName = "traefik";
+            rules = [
+              {
+                http.paths = [
+                  {
+                    path = "/hello";
+                    pathType = "Exact";
+                    backend.service = {
+                      name = "hello-world";
+                      port.number = 80;
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+        }
+        {
+          apiVersion = "traefik.io/v1alpha1";
+          kind = "Middleware";
+          metadata.name = "hello-world-strip-prefix";
+          spec.stripPrefix.prefixes = [ "/hello" ];
+        }
+      ];
+    };
     external-secrets = {
       name = "external-secrets";
       targetNamespace = "external-secrets";
@@ -24,62 +80,12 @@ with lib.campground; let
     };
   };
   manifests = {
-    argocd-config = {
-      content = [
-        {
-          apiVersion = "v1";
-          kind = "ConfigMap";
-          metadata = {
-            name = "argocd-cm";
-            namespace = "argocd";
-          };
-          data = {
-            "application.instanceLabelKey" = "argocd.argoproj.io/instance";
-          };
-        }
-
-        {
-          apiVersion = "v1";
-          kind = "Secret";
-          metadata = {
-            name = "argocd-secret";
-            namespace = "argocd";
-          };
-          type = "Opaque";
-          data = { }; # real admin password will come from Vault via ExternalSecret
-        }
-
-        {
-          apiVersion = "v1";
-          kind = "ConfigMap";
-          metadata = {
-            name = "argocd-rbac-cm";
-            namespace = "argocd";
-          };
-          data = {
-            "policy.default" = "role:readonly";
-          };
-        }
-
-        {
-          apiVersion = "v1";
-          kind = "ConfigMap";
-          metadata = {
-            name = "argocd-notifications-cm";
-            namespace = "argocd";
-          };
-          data = {
-            "config.yaml" = "service:\n  webhook: {}";
-          };
-        }
-      ];
-    };
-    argocd = {
-      source = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
-        sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
-      };
-    };
+    # argocd = {
+    #   source = pkgs.fetchurl {
+    #     url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
+    #     sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
+    #   };
+    # };
     external-secrets-crds = {
       source = pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/external-secrets/external-secrets/v0.16.1/deploy/crds/bundle.yaml";
@@ -133,7 +139,7 @@ in
 {
   options.campground.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
-    package = lib.mkPackageOption pkgs "k3s_1_31" { };
+    package = lib.mkPackageOption pkgs "k3s" { };
     config = mkOption {
       type = types.attrs;
       default = {

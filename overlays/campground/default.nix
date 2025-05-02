@@ -14,6 +14,7 @@
 }: final: prev:
 {
   # kubenix-eval = kubenix.evalModules.${prev.system};
+
   nixhelmCharts = lib.fix (
     self:
     lib.mapAttrs
@@ -54,5 +55,5 @@
   });
 }
   // {
-  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin;
+  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin k3s;
 }
