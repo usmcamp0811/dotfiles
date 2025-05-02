@@ -17,6 +17,25 @@ with lib.campground; let
   #   finalImageTag = "1.27.4-alpine";
   #   arch = "amd64";
   # };
+
+  # external-secrets =
+  #   pkgs.runCommand "external-secrets"
+  #   {
+  #     nativeBuildInputs = with pkgs; [
+  #       kubernetes-helm
+  #       cacert
+  #     ];
+  #     outputHashAlgo = "sha256";
+  #     outputHash = "sha256-U2XjNEWE82/Q3KbBvZLckXbtjsXugUbK6KdqT5kCccM=";
+  #   }
+  #   ''
+  #     export HOME="$PWD"
+  #
+  #     helm repo add external-secrets https://charts.external-secrets.io
+  #     helm pull external-secrets/external-secrets --version v0.16.1
+  #     mv ./*.tgz $out
+  #   '';
+
   charts = {
     external-secrets =
       pkgs.runCommand "external-secrets.tgz"
@@ -27,6 +46,15 @@ with lib.campground; let
         tar -czf $out -C external-secrets .
       '';
   };
+
+  # external-secrets =
+  #   pkgs.runCommand "external-secrets.tgz"
+  #   {
+  #     nativeBuildInputs = [pkgs.gnutar pkgs.gzip];
+  #   } ''
+  #     cp -r ${pkgs.nixhelmCharts.external-secrets.external-secrets} external-secrets
+  #     tar -czf $out -C external-secrets .
+  #   '';
   manifests = {
     external-secrets.content = {
       apiVersion = "helm.cattle.io/v1";
@@ -36,11 +64,18 @@ with lib.campground; let
         chart = "https://%{KUBERNETES_API}%/static/charts/external-secrets.tgz";
         targetNamespace = "external-secrets";
         createNamespace = true;
+        helmVersion = "v3";
+        insecureSkipTLSVerify = true;
+
         valuesContent = ''
-          installCRDs: true
+          global:
+            cacerts:
+              skipVerify: true
+          installCRDs: false
         '';
       };
     };
+
     # argocd = {
     #   source = pkgs.fetchurl {
     #     url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
@@ -165,14 +200,14 @@ in
 
   config = mkIf cfg.enable {
     services.k3s = {
-      inherit manifests;
+      inherit charts manifests;
       enable = true;
       package = cfg.package;
       clusterInit = cfg.clusterInit;
       role = cfg.role;
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = mkIf (!cfg.clusterInit) serverAddr;
-      autoDeployCharts = mkIf (cfg.role == "server") charts;
+      # autoDeployCharts = mkIf (cfg.role == "server") charts;
       configPath = mkIf (cfg.role == "server") (
         let
           configText = lib.generators.toYAML { } cfg.config;
