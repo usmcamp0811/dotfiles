@@ -18,6 +18,26 @@ with lib.campground; let
   #   arch = "amd64";
   # };
   charts = {
+    harbor = {
+      name = "harbor";
+      repo = "https://helm.goharbor.io";
+      version = "1.14.0";
+      hash = "sha256-fMP7q1MIbvzPGS9My91vbQ1d3OJMjwc+o8YE/BXZaYU=";
+      values = {
+        existingSecretAdminPassword = "harbor-admin";
+        expose = {
+          tls = {
+            enabled = true;
+            certSource = "secret";
+            secret.secretName = "my-tls-secret";
+          };
+          ingress = {
+            hosts.core = "example.com";
+            className = "nginx";
+          };
+        };
+      };
+    };
     hello-world = {
       name = "hello-world";
       repo = "https://helm.github.io/examples";
