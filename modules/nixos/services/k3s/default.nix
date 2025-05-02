@@ -212,8 +212,6 @@ in
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = mkIf (!cfg.clusterInit) serverAddr;
       autoDeployCharts = charts;
-      # setKubeConfig = true;
-      # snapshotter = "nix";
       configPath = mkIf (cfg.role == "server") (
         let
           configText = lib.generators.toYAML { } cfg.config;
@@ -277,11 +275,11 @@ in
     };
 
     environment.systemPackages = [ cfg.package ];
-
-    systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) ''
+    systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) (mkBefore ''
       mkdir -p /var/lib/rancher/k3s/server
       cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-    '';
+    '');
+
     campground.services.vault-agent.services.k3s = {
       settings = {
         vault.address = cfg.vault-address;
