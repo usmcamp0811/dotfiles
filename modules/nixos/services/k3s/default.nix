@@ -211,7 +211,7 @@ in
       role = cfg.role;
       tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
       serverAddr = mkIf (!cfg.clusterInit) serverAddr;
-      autoDeployCharts = charts;
+      autoDeployCharts = mkIf (cfg.role == "server") charts;
       configPath = mkIf (cfg.role == "server") (
         let
           configText = lib.generators.toYAML { } cfg.config;
