@@ -18,100 +18,41 @@ with lib.campground; let
   #   arch = "amd64";
   # };
   charts = {
-    harbor = {
-      name = "harbor";
-      repo = "https://helm.goharbor.io";
-      version = "1.14.0";
-      hash = "sha256-fMP7q1MIbvzPGS9My91vbQ1d3OJMjwc+o8YE/BXZaYU=";
-      values = {
-        existingSecretAdminPassword = "harbor-admin";
-        expose = {
-          tls = {
-            enabled = true;
-            certSource = "secret";
-            secret.secretName = "my-tls-secret";
-          };
-          ingress = {
-            hosts.core = "example.com";
-            className = "nginx";
-          };
-        };
-      };
-    };
-    hello-world = {
-      name = "hello-world";
-      repo = "https://helm.github.io/examples";
-      version = "0.1.0";
-      hash = "sha256-U2XjNEWE82/Q3KbBvZLckXbtjsXugUbK6KdqT5kCccM=";
-      # configure the chart values like you would do in values.yaml
-      values = {
-        # image = {
-        #   repository = image.imageName;
-        #   tag = image.imageTag;
-        # };
-        serviceAccount.create = false;
-      };
-      # Deploy additional resources that are not part of the Helm chart. This is especially useful
-      # for CRDs that shouldn't be managed by Helm.
-      extraDeploy = [
+    external-secrets =
+      pkgs.runCommand "external-secrets.tgz"
         {
-          apiVersion = "networking.k8s.io/v1";
-          kind = "Ingress";
-          metadata = {
-            name = "hello-world";
-            annotations."traefik.ingress.kubernetes.io/router.middlewares" = "default-hello-world-strip-prefix@kubernetescrd";
-          };
-          spec = {
-            ingressClassName = "traefik";
-            rules = [
-              {
-                http.paths = [
-                  {
-                    path = "/hello";
-                    pathType = "Exact";
-                    backend.service = {
-                      name = "hello-world";
-                      port.number = 80;
-                    };
-                  }
-                ];
-              }
-            ];
-          };
-        }
-        {
-          apiVersion = "traefik.io/v1alpha1";
-          kind = "Middleware";
-          metadata.name = "hello-world-strip-prefix";
-          spec.stripPrefix.prefixes = [ "/hello" ];
-        }
-      ];
-    };
-    external-secrets = {
-      name = "external-secrets";
-      targetNamespace = "external-secrets";
-      repo = "https://charts.external-secrets.io";
-      version = "v0.16.1";
-      createNamespace = true;
-      hash = "sha256-hIGJ8wGxbhZ2XWLK6TzzoFqzK2dM5Hu6tYzB2w4BAtY=";
-      values = {
-        installCRDs = false;
-      };
-    };
+          nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
+        } ''
+        cp -r ${pkgs.nixhelmCharts.external-secrets.external-secrets} external-secrets
+        tar -czf $out -C external-secrets .
+      '';
   };
   manifests = {
+    external-secrets.content = {
+      apiVersion = "helm.cattle.io/v1";
+      kind = "HelmChart";
+      metadata.name = "external-secrets";
+      spec = {
+        chart = "https://%{KUBERNETES_API}%/static/charts/external-secrets.tgz";
+        targetNamespace = "external-secrets";
+        createNamespace = true;
+        valuesContent = ''
+          installCRDs: true
+        '';
+      };
+    };
     # argocd = {
     #   source = pkgs.fetchurl {
     #     url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
     #     sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
     #   };
     # };
-    external-secrets-crds = {
-      source = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/external-secrets/external-secrets/v0.16.1/deploy/crds/bundle.yaml";
-        sha256 = "sha256-r0qcdMuiZqOqhNEwruZdi+NI3LUw4tkFan4pLjVU00U=";
-      };
-    };
+    # external-secrets-crds = {
+    #   source = pkgs.fetchurl {
+    #     url = "https://raw.githubusercontent.com/external-secrets/external-secrets/v0.16.1/deploy/crds/bundle.yaml";
+    #     sha256 = "sha256-r0qcdMuiZqOqhNEwruZdi+NI3LUw4tkFan4pLjVU00U=";
+    #   };
+    # };
     public-traefik-routes = {
       content = {
         apiVersion = "v1";
@@ -223,7 +164,6 @@ in
   };
 
   config = mkIf cfg.enable {
-
     services.k3s = {
       inherit manifests;
       enable = true;
