@@ -295,16 +295,17 @@ in
     };
 
     environment.systemPackages = [ cfg.package ];
-    systemd.services.k3s.preStart = mkIf (cfg.role == "server") (mkBefore (
-      lib.optionalString (!cfg.clusterInit) ''
+    systemd.services.k3s.preStart = mkMerge [
+      (mkIf (!cfg.clusterInit) (mkBefore ''
         mkdir -p /var/lib/rancher/k3s/server
         cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-      ''
-      + ''
+      ''))
+
+      (mkBefore ''
         cp /tmp/detsys-vault/external-secret-vault-creds.yaml /tmp/vault-creds.yaml
         ${pkgs.envsubst}/bin/envsubst < ${external-secrets-yaml} > /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
-      ''
-    ));
+      '')
+    ];
 
     campground.services.vault-agent.services.k3s = {
       settings = {
