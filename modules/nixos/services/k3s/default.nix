@@ -33,9 +33,16 @@ with lib.campground; let
           server = "${config.campground.services.k3s.vault-address}";
           path = lib.removeSuffix "/k3s" cfg.vault-path;
           version = config.campground.services.k3s.kvVersion;
-          auth.tokenSecretRef = {
-            name = "vault-auth";
-            key = "secret_id";
+          auth.appRole = {
+            path = "approle";
+            roleId = {
+              name = "vault-auth";
+              key = "role_id";
+            };
+            secretRef = {
+              name = "vault-auth";
+              key = "secret_id";
+            };
           };
         };
       };
@@ -55,7 +62,7 @@ with lib.campground; let
           global:
             cacerts:
               skipVerify: true
-          installCRDs: false
+          installCRDs: true
         '';
       };
     };
@@ -308,7 +315,7 @@ in
                 kind: Secret
                 metadata:
                   name: vault-auth
-                  namespace: external-secrets
+                  namespace: default
                 stringData:
                   role_id: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.role_id }}{{ else }}{{ .Data.data.role_id }}{{ end }}{{ end }}'
                   secret_id: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
