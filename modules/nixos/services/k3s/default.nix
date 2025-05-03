@@ -72,7 +72,7 @@ with lib.campground; let
               name = "vault-auth";
               key = "role_id";
             };
-            secretRef.secretId.secretKeyRef = {
+            secretRef = {
               name = "vault-auth";
               key = "secret_id";
             };
