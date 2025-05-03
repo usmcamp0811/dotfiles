@@ -302,9 +302,7 @@ in
       ''))
 
       (mkBefore ''
-        ROLE_ID=$(< ${config.campground.services.vault-agent.settings.vault.role-id})
-        SECRET_ID=$(< ${config.campground.services.vault-agent.settings.vault.secret-id})
-        ${pkgs.envsubst}/bin/envsubst < ${external-secrets-yaml} > /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
+        cp /tmp/detsys-vault/external-secret-vault-creds.yaml /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
       '')
     ];
 
@@ -331,6 +329,20 @@ in
             "k3s-token" = {
               text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.node_token }}{{ else }}{{ .Data.data.node_token }}{{ end }}{{ end }}'';
               permissions = "0400";
+              change-action = "restart";
+            };
+            "external-secret-vault-creds.yaml" = {
+              text = ''
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: vault-auth
+                  namespace: external-secrets
+                stringData:
+                  role_id: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.role_id }}{{ else }}{{ .Data.data.role_id }}{{ end }}{{ end }}'
+                  secret_id: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
+              '';
+              permissions = "0644";
               change-action = "restart";
             };
           };
