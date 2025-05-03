@@ -139,6 +139,37 @@ with lib.campground; let
         };
       };
     };
+
+    public-traefik-static-config = {
+      content = {
+        apiVersion = "v1";
+        kind = "ConfigMap";
+        metadata = {
+          name = "traefik-static-config";
+          namespace = "public-traefik";
+        };
+        data = {
+          "traefik.yaml" = lib.generators.toYAML { } {
+            experimental = {
+              localPlugins = {
+                cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
+                fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
+              };
+            };
+            entryPoints = config.campground.suites.public-hosting.entrypoints;
+            providers = {
+              kubernetesCRD = { };
+              kubernetesIngress = { };
+              file = {
+                filename = "/config/dynamic.yaml";
+                watch = true;
+              };
+            };
+            log.level = "INFO";
+          };
+        };
+      };
+    };
     public-traefik-routes = {
       content = {
         apiVersion = "v1";
