@@ -8,6 +8,7 @@ with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
   kubelib = inputs.kube-gen.lib { inherit pkgs; };
+  external-secrets-yaml = ./external-secrets-vault-creds.yaml;
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
   # image = pkgs.dockerTools.pullImage {
@@ -297,7 +298,8 @@ in
     systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) (mkBefore ''
       mkdir -p /var/lib/rancher/k3s/server
       cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-      cp /tmp/detsys-vault/external-secret-vault-creds.yaml /var/lib/rancher/k3s/server/manifests/
+      cp /tmp/detsys-vault/external-secret-vault-creds.yaml
+      ${pkgs.envsubst}/bin/envsubst < ${external-secrets-yaml} > /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
     '');
 
     campground.services.vault-agent.services.k3s = {
