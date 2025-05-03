@@ -38,6 +38,14 @@ with lib.campground; let
   #   '';
 
   charts = {
+    cert-manager =
+      pkgs.runCommand "cert-manager.tgz"
+        {
+          nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
+        } ''
+        cp -r ${pkgs.nixhelmCharts.jetstack.cert-manager} cert-manager
+        tar -czf $out -C cert-manager .
+      '';
     external-secrets =
       pkgs.runCommand "external-secrets.tgz"
         {
@@ -93,19 +101,19 @@ with lib.campground; let
       };
     };
 
-    argocd = {
-      source = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
-        sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
-      };
-    };
+    # argocd = {
+    #   source = pkgs.fetchurl {
+    #     url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
+    #     sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
+    #   };
+    # };
 
-    cert-manager = {
-      source = pkgs.fetchurl {
-        url = "https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml";
-        sha256 = "sha256-2rJ5QXZinYBCzpe4hfN43+Tve1vtWFnp8GYW6tmYD0s=";
-      };
-    };
+    # cert-manager = {
+    #   source = pkgs.fetchurl {
+    #     url = "https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml";
+    #     sha256 = "sha256-2rJ5QXZinYBCzpe4hfN43+Tve1vtWFnp8GYW6tmYD0s=";
+    #   };
+    # };
 
     # external-secrets-crds = {
     #   source = pkgs.fetchurl {
@@ -283,18 +291,22 @@ in
 
           echo "Fetching existing Vault values (if any)..."
           EXISTING=$(${pkgs.vault}/bin/vault kv get -format=json "$VAULT_PATH" || echo '{}')
-          EXISTING_ROLE_ID=$(echo "$EXISTING" | jq -r '.data.data.role_id // empty')
-          EXISTING_SECRET_ID=$(echo "$EXISTING" | jq -r '.data.data.secret_id // empty')
+          EXISTING_ROLE_ID=$(echo "$EXISTING" | ${pkgs.jq}/bin/jq -r '.data.data.role_id // empty')
+          EXISTING_SECRET_ID=$(echo "$EXISTING" | ${pkgs.jq}/bin/jq -r '.data.data.secret_id // empty')
+
+          ARGS=(
+            node_token="$NODE_TOKEN"
+            kubeconfig="$KUBECONFIG_FIXED"
+          )
+          [ -n "$EXISTING_ROLE_ID" ] && ARGS+=("role_id=$EXISTING_ROLE_ID")
+          [ -n "$EXISTING_SECRET_ID" ] && ARGS+=("secret_id=$EXISTING_SECRET_ID")
 
           echo "Storing K3s node-token and kubeconfig in Vault at $VAULT_PATH"
-          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
-            node_token="$NODE_TOKEN" \
-            kubeconfig="$KUBECONFIG_FIXED" \
-            ${EXISTING_ROLE_ID:+role_id= "$EXISTING_ROLE_ID"} \
-            ${EXISTING_SECRET_ID:+secret_id= "$EXISTING_SECRET_ID"}
+          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" "''${ARGS[@]}"
 
           echo "Done storing K3s token and kubeconfig."
         '';
+
         RemainAfterExit = true;
       };
     };
@@ -307,6 +319,7 @@ in
       ''))
 
       (mkBefore ''
+        mkdir -p /var/lib/rancher/k3s/server/manifests
         cp /tmp/detsys-vault/external-secret-vault-creds.yaml /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
       '')
     ];
