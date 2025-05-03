@@ -13,6 +13,14 @@ with lib.campground; let
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
 
   charts = {
+    argocd =
+      pkgs.runCommand "argocd.tgz"
+        {
+          nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
+        } ''
+        cp -r ${pkgs.nixhelmCharts.argoproj.argo-cd} argocd
+        tar -czf $out -C argocd .
+      '';
     external-secrets =
       pkgs.runCommand "external-secrets.tgz"
         {
@@ -47,6 +55,18 @@ with lib.campground; let
         };
       };
     };
+    argocd.content = {
+      apiVersion = "helm.cattle.io/v1";
+      kind = "HelmChart";
+      metadata.name = "argocd";
+      spec = {
+        chart = "https://%{KUBERNETES_API}%/static/charts/argocd.tgz";
+        targetNamespace = "argocd";
+        createNamespace = true;
+        helmVersion = "v3";
+        insecureSkipTLSVerify = true;
+      };
+    };
     external-secrets.content = {
       apiVersion = "helm.cattle.io/v1";
       kind = "HelmChart";
@@ -67,12 +87,6 @@ with lib.campground; let
       };
     };
 
-    # argocd = {
-    #   source = pkgs.fetchurl {
-    #     url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
-    #     sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
-    #   };
-    # };
 
     cert-manager = {
       source = pkgs.fetchurl {
