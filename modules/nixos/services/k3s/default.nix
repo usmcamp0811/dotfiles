@@ -113,6 +113,10 @@ with lib.campground; let
         helmVersion = "v3";
 
         valuesContent = lib.generators.toYAML { } {
+          api = {
+            dashboard = true;
+            insecure = true;
+          };
           deployment.namespace = "public-traefik";
 
           additionalArguments = [
