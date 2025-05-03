@@ -113,17 +113,29 @@ with lib.campground; let
         helmVersion = "v3";
 
         valuesContent = lib.generators.toYAML { } {
+          experimental = {
+            plugins = {
+              cloudflarewarp = {
+                moduleName = "github.com/BilikoX/cloudflarewarp";
+                version = "v1.0.5";
+              };
+            };
+          };
           api = {
             dashboard = true;
             insecure = true;
           };
-          deployment.namespace = "public-traefik";
+          deployment = {
+            namespace = "public-traefik";
+            replicas = 2;
+          };
 
           additionalArguments = [
             "--api.insecure=true"
             "--providers.kubernetescrd"
             "--providers.kubernetesingress"
             "--providers.file.filename=/dynamic/dynamic.yaml"
+            "--providers.file.filename=/static/traefik.yaml"
             "--providers.file.watch=true"
           ];
 
