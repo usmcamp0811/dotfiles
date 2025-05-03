@@ -100,12 +100,20 @@ with lib.campground; let
       };
     };
 
-    # argocd = {
-    #   source = pkgs.fetchurl {
-    #     url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
-    #     sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
-    #   };
-    # };
+    argocd = {
+      source = pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml";
+        sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
+      };
+    };
+
+    cert-manager = {
+      source = pkgs.fetchurl {
+        url = "https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml";
+        sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
+      };
+    };
+
     # external-secrets-crds = {
     #   source = pkgs.fetchurl {
     #     url = "https://raw.githubusercontent.com/external-secrets/external-secrets/v0.16.1/deploy/crds/bundle.yaml";
