@@ -40,6 +40,37 @@ with lib.campground; let
   };
 
   manifests = {
+    cloudflare-api-secret = {
+      content = {
+        apiVersion = "external-secrets.io/v1beta1";
+        kind = "ExternalSecret";
+        metadata = {
+          name = "cloudflare-api-token-secret";
+          namespace = "default";
+        };
+        spec = {
+          refreshInterval = "1h";
+          secretStoreRef = {
+            name = "vault-backend";
+            kind = "SecretStore";
+          };
+          target = {
+            name = "cloudflare-api-token-secret";
+            creationPolicy = "Owner";
+          };
+          data = [
+            {
+              secretKey = "api-token";
+              remoteRef = {
+                key = "secret/campground/cloudflare";
+                property = "CLOUDFLARE_API_KEY";
+              };
+            }
+          ];
+        };
+      };
+    };
+
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
       kind = "SecretStore";
@@ -135,7 +166,6 @@ with lib.campground; let
             "--providers.kubernetescrd"
             "--providers.kubernetesingress"
             "--providers.file.filename=/dynamic/dynamic.yaml"
-            "--providers.file.filename=/static/traefik.yaml"
             "--providers.file.watch=true"
           ];
 
@@ -145,12 +175,6 @@ with lib.campground; let
               mountPath = "/dynamic";
               type = "configMap";
               nameOverride = "public-traefik-config";
-            }
-            {
-              name = "traefik-static-config";
-              mountPath = "/static";
-              type = "configMap";
-              nameOverride = "traefik-static-config";
             }
           ];
 
@@ -168,7 +192,14 @@ with lib.campground; let
           namespace = "public-traefik";
         };
         data = {
-          "traefik.yaml" = lib.generators.toYAML { } config.services.traefik.staticConfigOptions;
+          "traefik.yaml" = lib.generators.toYAML { } (
+            config.services.traefik.staticConfigOptions
+            // {
+              experimental.localPlugins.cloudflarewarp = {
+                moduleName = "github.com/BilikoX/cloudflarewarp";
+              };
+            }
+          );
         };
       };
     };
