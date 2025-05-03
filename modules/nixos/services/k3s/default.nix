@@ -120,6 +120,7 @@ with lib.campground; let
           deployment.namespace = "public-traefik";
 
           additionalArguments = [
+            "--api.insecure=true"
             "--providers.kubernetescrd"
             "--providers.kubernetesingress"
             "--providers.file.filename=/dynamic/dynamic.yaml"
@@ -155,7 +156,7 @@ with lib.campground; let
           namespace = "public-traefik";
         };
         data = {
-          "traefik.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.staticConfigOptions;
+          "traefik.yaml" = lib.generators.toYAML { } config.services.traefik.staticConfigOptions;
         };
       };
     };
