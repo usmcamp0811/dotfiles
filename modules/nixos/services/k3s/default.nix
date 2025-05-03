@@ -302,7 +302,6 @@ in
       ''))
 
       (mkBefore ''
-        cp /tmp/detsys-vault/external-secret-vault-creds.yaml /tmp/vault-creds.yaml
         ${pkgs.envsubst}/bin/envsubst < ${external-secrets-yaml} > /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
       '')
     ];
