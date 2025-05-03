@@ -149,24 +149,7 @@ with lib.campground; let
           namespace = "public-traefik";
         };
         data = {
-          "traefik.yaml" = lib.generators.toYAML { } {
-            experimental = {
-              localPlugins = {
-                cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
-                fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
-              };
-            };
-            entryPoints = config.campground.suites.public-hosting.entrypoints;
-            providers = {
-              kubernetesCRD = { };
-              kubernetesIngress = { };
-              file = {
-                filename = "/config/dynamic.yaml";
-                watch = true;
-              };
-            };
-            log.level = "INFO";
-          };
+          "traefik.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.staticConfigOptions;
         };
       };
     };
