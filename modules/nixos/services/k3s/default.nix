@@ -267,9 +267,6 @@ in
           NODE_TOKEN=$(< /var/lib/rancher/k3s/server/node-token)
           KUBECONFIG_ORIG=$(cat /etc/rancher/k3s/k3s.yaml)
 
-          # Replace 127.0.0.1 with your HAProxy IP
-
-          # Replace 127.0.0.1 with server address
           HAPROXY_IP="${cfg.serverAddr}"
           KUBECONFIG_FIXED=$(echo "$KUBECONFIG_ORIG" | sed "s/127.0.0.1/$HAPROXY_IP/g")
 
@@ -284,10 +281,17 @@ in
           VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           export VAULT_TOKEN
 
+          echo "Fetching existing Vault values (if any)..."
+          EXISTING=$(${pkgs.vault}/bin/vault kv get -format=json "$VAULT_PATH" || echo '{}')
+          EXISTING_ROLE_ID=$(echo "$EXISTING" | jq -r '.data.data.role_id // empty')
+          EXISTING_SECRET_ID=$(echo "$EXISTING" | jq -r '.data.data.secret_id // empty')
+
           echo "Storing K3s node-token and kubeconfig in Vault at $VAULT_PATH"
           ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" \
             node_token="$NODE_TOKEN" \
-            kubeconfig="$KUBECONFIG_FIXED"
+            kubeconfig="$KUBECONFIG_FIXED" \
+            ${EXISTING_ROLE_ID:+role_id= "$EXISTING_ROLE_ID"} \
+            ${EXISTING_SECRET_ID:+secret_id= "$EXISTING_SECRET_ID"}
 
           echo "Done storing K3s token and kubeconfig."
         '';
