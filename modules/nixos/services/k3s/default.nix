@@ -103,7 +103,7 @@ with lib.campground; let
     cert-manager = {
       source = pkgs.fetchurl {
         url = "https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml";
-        sha256 = "sha256-VJ3prz/xokTlDjnvUjA0eI7cJeJox74Sr89AHpTLyRY=";
+        sha256 = "sha256-2rJ5QXZinYBCzpe4hfN43+Tve1vtWFnp8GYW6tmYD0s=";
       };
     };
 
