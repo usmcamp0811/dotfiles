@@ -133,6 +133,12 @@ with lib.campground; let
               type = "configMap";
               nameOverride = "public-traefik-config";
             }
+            {
+              name = "traefik-static-config";
+              mountPath = "/static";
+              type = "configMap";
+              nameOverride = "traefik-static-config";
+            }
           ];
 
           # ingressRoute.dashboard.enabled = true;
