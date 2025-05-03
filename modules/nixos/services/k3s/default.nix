@@ -59,23 +59,16 @@ with lib.campground; let
   manifests = {
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
-      kind = "ClusterSecretStore";
-      metadata.name = "vault-cluster-store";
+      kind = "SecretStore";
+      metadata.name = "vault-backend";
       spec = {
         provider.vault = {
-          server = "https://${config.campground.services.k3s.vault-address}";
+          server = "${config.campground.services.k3s.vault-address}";
           path = lib.removeSuffix "/k3s" cfg.vault-path;
           version = config.campground.services.k3s.kvVersion;
-          auth.appRole = {
-            path = "approle";
-            roleId.valueFrom.secretKeyRef = {
-              name = "vault-auth";
-              key = "role_id";
-            };
-            secretRef = {
-              name = "vault-auth";
-              key = "secret_id";
-            };
+          auth.tokenSecretRef = {
+            name = "vault-auth";
+            key = "secret_id";
           };
         };
       };
