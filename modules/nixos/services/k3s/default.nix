@@ -295,12 +295,16 @@ in
     };
 
     environment.systemPackages = [ cfg.package ];
-    systemd.services.k3s.preStart = mkIf (!cfg.clusterInit) (mkBefore ''
-      mkdir -p /var/lib/rancher/k3s/server
-      cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
-      cp /tmp/detsys-vault/external-secret-vault-creds.yaml
-      ${pkgs.envsubst}/bin/envsubst < ${external-secrets-yaml} > /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
-    '');
+    systemd.services.k3s.preStart = mkIf (cfg.role == "server") (mkBefore (
+      lib.optionalString (!cfg.clusterInit) ''
+        mkdir -p /var/lib/rancher/k3s/server
+        cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
+      ''
+      + ''
+        cp /tmp/detsys-vault/external-secret-vault-creds.yaml /tmp/vault-creds.yaml
+        ${pkgs.envsubst}/bin/envsubst < ${external-secrets-yaml} > /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
+      ''
+    ));
 
     campground.services.vault-agent.services.k3s = {
       settings = {
@@ -325,20 +329,6 @@ in
             "k3s-token" = {
               text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.node_token }}{{ else }}{{ .Data.data.node_token }}{{ end }}{{ end }}'';
               permissions = "0400";
-              change-action = "restart";
-            };
-            "external-secret-vault-creds.yaml" = {
-              text = ''
-                apiVersion: v1
-                kind: Secret
-                metadata:
-                  name: vault-auth
-                  namespace: external-secrets
-                stringData:
-                  role_id: '{{ with secret "secret/campground/k3s" }}{{ if eq "v2" "v1" }}{{ .Data.role_id }}{{ else }}{{ .Data.data.role_id }}{{ end }}{{ end }}'
-                  secret_id: '{{ with secret "secret/campground/k3s" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
-              '';
-              permissions = "0644";
               change-action = "restart";
             };
           };
