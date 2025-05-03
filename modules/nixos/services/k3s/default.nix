@@ -11,41 +11,8 @@ with lib.campground; let
   external-secrets-yaml = ./external-secrets-vault-creds.yaml;
   serverAddr = "https://${cfg.serverAddr}:6443";
   ipRanges = [ "10.8.200.100-10.8.200.150" ];
-  # image = pkgs.dockerTools.pullImage {
-  #   imageName = "nginx";
-  #   imageDigest = "sha256:4ff102c5d78d254a6f0da062b3cf39eaf07f01eec0927fd21e219d0af8bc0591";
-  #   hash = "sha256-Fh9hWQWgY4g+Cu/0iER4cXAMvCc0JNiDwGCPa+V/FvA=";
-  #   finalImageTag = "1.27.4-alpine";
-  #   arch = "amd64";
-  # };
-
-  # external-secrets =
-  #   pkgs.runCommand "external-secrets"
-  #   {
-  #     nativeBuildInputs = with pkgs; [
-  #       kubernetes-helm
-  #       cacert
-  #     ];
-  #     outputHashAlgo = "sha256";
-  #     outputHash = "sha256-U2XjNEWE82/Q3KbBvZLckXbtjsXugUbK6KdqT5kCccM=";
-  #   }
-  #   ''
-  #     export HOME="$PWD"
-  #
-  #     helm repo add external-secrets https://charts.external-secrets.io
-  #     helm pull external-secrets/external-secrets --version v0.16.1
-  #     mv ./*.tgz $out
-  #   '';
 
   charts = {
-    cert-manager =
-      pkgs.runCommand "cert-manager.tgz"
-        {
-          nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
-        } ''
-        cp -r ${pkgs.nixhelmCharts.jetstack.cert-manager} cert-manager
-        tar -czf $out -C cert-manager .
-      '';
     external-secrets =
       pkgs.runCommand "external-secrets.tgz"
         {
@@ -56,14 +23,6 @@ with lib.campground; let
       '';
   };
 
-  # external-secrets =
-  #   pkgs.runCommand "external-secrets.tgz"
-  #   {
-  #     nativeBuildInputs = [pkgs.gnutar pkgs.gzip];
-  #   } ''
-  #     cp -r ${pkgs.nixhelmCharts.external-secrets.external-secrets} external-secrets
-  #     tar -czf $out -C external-secrets .
-  #   '';
   manifests = {
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
@@ -108,19 +67,13 @@ with lib.campground; let
     #   };
     # };
 
-    # cert-manager = {
-    #   source = pkgs.fetchurl {
-    #     url = "https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml";
-    #     sha256 = "sha256-2rJ5QXZinYBCzpe4hfN43+Tve1vtWFnp8GYW6tmYD0s=";
-    #   };
-    # };
+    cert-manager = {
+      source = pkgs.fetchurl {
+        url = "https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml";
+        sha256 = "sha256-2rJ5QXZinYBCzpe4hfN43+Tve1vtWFnp8GYW6tmYD0s=";
+      };
+    };
 
-    # external-secrets-crds = {
-    #   source = pkgs.fetchurl {
-    #     url = "https://raw.githubusercontent.com/external-secrets/external-secrets/v0.16.1/deploy/crds/bundle.yaml";
-    #     sha256 = "sha256-r0qcdMuiZqOqhNEwruZdi+NI3LUw4tkFan4pLjVU00U=";
-    #   };
-    # };
     public-traefik-routes = {
       content = {
         apiVersion = "v1";
