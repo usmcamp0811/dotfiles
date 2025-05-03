@@ -302,6 +302,8 @@ in
       ''))
 
       (mkBefore ''
+        ROLE_ID=$(< ${config.campground.services.vault-agent.settings.vault.role-id})
+        SECRET_ID=$(< ${config.campground.services.vault-agent.settings.vault.secret-id})
         ${pkgs.envsubst}/bin/envsubst < ${external-secrets-yaml} > /var/lib/rancher/k3s/server/manifests/external-secrets-auth.yaml
       '')
     ];
