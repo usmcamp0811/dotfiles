@@ -317,8 +317,25 @@ in
                   name: vault-auth
                   namespace: default
                 stringData:
-                  role_id: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.role_id }}{{ else }}{{ .Data.data.role_id }}{{ end }}{{ end }}'
-                  secret_id: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
+                  secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
+                ---
+                apiVersion: external-secrets.io/v1beta1
+                kind: SecretStore
+                metadata:
+                  name: vault-backend
+                spec:
+                  provider:
+                    vault:
+                      server: https://vault.lan.aicampground.com
+                      path: secret/campground
+                      version: v2
+                      auth:
+                        appRole:
+                          path: approle
+                          roleId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.role_id }}{{ else }}{{ .Data.data.role_id }}{{ end }}{{ end }}'
+                          secretRef:
+                            name: vault-auth
+                            key: secretId
               '';
               permissions = "0644";
               change-action = "restart";
