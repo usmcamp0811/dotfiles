@@ -35,7 +35,8 @@
         "Built a local development cluster with K3D and Nix, enabling developers to spin up Kubernetes environments with a single command for testing and debugging.",
         "Deployed JupyterHub on enterprise Kubernetes clusters, customized Helm charts, and developed Docker images supporting Julia, Python, and R workflows.",
         "Designed modular infrastructure solutions for systems like Kafka and MLFlow, simplifying deployment, improving scalability, and enhancing security.",
-        "Mentored junior associates in emerging technologies, fostering team collaboration and streamlining onboarding with Nix development shells."
+        "Mentored junior associates in emerging technologies, fostering team collaboration and streamlining onboarding with Nix development shells.",
+        "Built a document processing pipeline for medical forms using AWS Textract and Lambda, automating OCR and structured data extraction at scale."
       ],
       "dt_from": "November 2021",
       "dt_to": "Present"

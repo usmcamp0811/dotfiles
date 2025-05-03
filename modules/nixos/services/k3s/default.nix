@@ -29,6 +29,14 @@ with lib.campground; let
         cp -r ${pkgs.nixhelmCharts.external-secrets.external-secrets} external-secrets
         tar -czf $out -C external-secrets .
       '';
+    traefik =
+      pkgs.runCommand "traefik.tgz"
+        {
+          nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
+        } ''
+        cp -r ${pkgs.nixhelmCharts.traefik.traefik} traefik
+        tar -czf $out -C traefik .
+      '';
   };
 
   manifests = {
@@ -87,7 +95,6 @@ with lib.campground; let
       };
     };
 
-
     cert-manager = {
       source = pkgs.fetchurl {
         url = "https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml";
@@ -95,13 +102,46 @@ with lib.campground; let
       };
     };
 
+    public-traefik.content = {
+      apiVersion = "helm.cattle.io/v1";
+      kind = "HelmChart";
+      metadata.name = "public-traefik";
+      spec = {
+        chart = "https://%{KUBERNETES_API}%/static/charts/traefik.tgz";
+        targetNamespace = "public-traefik";
+        createNamespace = true;
+        helmVersion = "v3";
+
+        valuesContent = lib.generators.toYAML { } {
+          deployment.namespace = "public-traefik";
+
+          additionalArguments = [
+            "--providers.kubernetescrd"
+            "--providers.kubernetesingress"
+            "--providers.file.filename=/dynamic/dynamic.yaml"
+            "--providers.file.watch=true"
+          ];
+
+          volumes = [
+            {
+              name = "public-traefik-config";
+              mountPath = "/dynamic";
+              type = "configMap";
+              nameOverride = "public-traefik-config";
+            }
+          ];
+
+          # ingressRoute.dashboard.enabled = true;
+        };
+      };
+    };
     public-traefik-routes = {
       content = {
         apiVersion = "v1";
         kind = "ConfigMap";
         metadata = {
           name = "public-traefik-config";
-          namespace = "kube-system";
+          namespace = "public-traefik";
         };
         data = {
           "dynamic.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.dynamicConfigOptions;
