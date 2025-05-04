@@ -100,14 +100,6 @@ with lib.campground; let
         };
       };
     };
-    manifests.public-traefik-ns-label = {
-      apiVersion = "v1";
-      kind = "Namespace";
-      metadata = {
-        name = "public-traefik";
-        labels.external-secrets-access = "true";
-      };
-    };
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
       kind = "ClusterSecretStore";
@@ -126,6 +118,7 @@ with lib.campground; let
             secretRef = {
               name = "vault-auth";
               key = "secret_id";
+              namespace = "external-secrets";
             };
           };
         };
@@ -581,7 +574,7 @@ in
                 kind: Secret
                 metadata:
                   name: vault-auth
-                  namespace: cert-manager
+                  namespace: external-secrets
                 stringData:
                   secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
                 ---
