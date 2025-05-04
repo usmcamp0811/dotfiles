@@ -40,6 +40,41 @@ with lib.campground; let
   };
 
   manifests = {
+    pub-traefik-vault-auth-sa.content = {
+      apiVersion = "v1";
+      kind = "ServiceAccount";
+      metadata = {
+        name = "vault-auth";
+        namespace = "public-traefik"; # change per namespace as needed
+      };
+    };
+
+    vault-auth-sa.content = {
+      apiVersion = "v1";
+      kind = "ServiceAccount";
+      metadata = {
+        name = "vault-auth";
+        namespace = "kube-system";
+      };
+    };
+
+    vault-auth-rbac.content = {
+      apiVersion = "rbac.authorization.k8s.io/v1";
+      kind = "ClusterRoleBinding";
+      metadata.name = "vault-auth-reviewer";
+      roleRef = {
+        apiGroup = "rbac.authorization.k8s.io";
+        kind = "ClusterRole";
+        name = "system:auth-delegator";
+      };
+      subjects = [
+        {
+          kind = "ServiceAccount";
+          name = "vault-auth";
+          namespace = "kube-system";
+        }
+      ];
+    };
     cloudflare-api-secret-traefik = {
       content = {
         apiVersion = "external-secrets.io/v1beta1";
@@ -110,17 +145,10 @@ with lib.campground; let
           server = "${config.campground.services.k3s.vault-address}";
           path = lib.removeSuffix "/k3s" cfg.vault-path;
           version = config.campground.services.k3s.kvVersion;
-          auth.appRole = {
-            path = "approle";
-            roleId = {
-              name = "vault-auth";
-              key = "role_id";
-            };
-            secretRef = {
-              name = "vault-auth";
-              key = "secret_id";
-              namespace = "external-secrets";
-            };
+          auth.kubernetes = {
+            mountPath = "kubernetes";
+            role = "external-secrets";
+            serviceAccountRef.name = "vault-auth";
           };
         };
       };
