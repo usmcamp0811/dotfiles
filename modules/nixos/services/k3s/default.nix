@@ -164,6 +164,26 @@ with lib.campground; let
       };
     };
 
+    wildcard-aicampground-cert.content = {
+      apiVersion = "cert-manager.io/v1";
+      kind = "Certificate";
+      metadata = {
+        name = "wildcard-aicampground-cert";
+        namespace = "public-traefik";
+      };
+      spec = {
+        secretName = "wildcard-aicampground-tls";
+        issuerRef = {
+          name = "cloudflare";
+          kind = "ClusterIssuer";
+        };
+        commonName = "aicampground.com";
+        dnsNames = [
+          "aicampground.com"
+          "*.aicampground.com"
+        ];
+      };
+    };
     public-traefik.content = {
       apiVersion = "helm.cattle.io/v1";
       kind = "HelmChart";
