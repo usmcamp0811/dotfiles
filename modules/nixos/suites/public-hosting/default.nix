@@ -227,6 +227,7 @@ in
           entryPoints = [ "websecure" ];
           service = "matt-camp";
           middlewares = [ "cloudflarewarp" ];
+          tls.certResolver = "cloudflare";
         };
 
         http.services.matt-camp = generateServiceConfig "matt-camp-website";
