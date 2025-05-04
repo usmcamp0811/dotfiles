@@ -100,7 +100,14 @@ with lib.campground; let
         };
       };
     };
-
+    manifests.public-traefik-ns-label = {
+      apiVersion = "v1";
+      kind = "Namespace";
+      metadata = {
+        name = "public-traefik";
+        labels.external-secrets-access = "true";
+      };
+    };
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
       kind = "ClusterSecretStore";
