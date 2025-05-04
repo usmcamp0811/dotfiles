@@ -46,13 +46,13 @@ with lib.campground; let
         kind = "ExternalSecret";
         metadata = {
           name = "cloudflare-api-token-secret";
-          namespace = "default";
+          namespace = "cert-manager";
         };
         spec = {
           refreshInterval = "1h";
           secretStoreRef = {
             name = "vault-backend";
-            kind = "SecretStore";
+            kind = "ClusterSecretStore";
           };
           target = {
             name = "cloudflare-api-token-secret";
@@ -73,7 +73,7 @@ with lib.campground; let
 
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
-      kind = "SecretStore";
+      kind = "ClusterSecretStore";
       metadata.name = "vault-backend";
       spec = {
         provider.vault = {
@@ -495,7 +495,7 @@ in
                   secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
                 ---
                 apiVersion: external-secrets.io/v1beta1
-                kind: SecretStore
+                kind: ClusterSecretStore
                 metadata:
                   name: vault-backend
                 spec:
