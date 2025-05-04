@@ -260,15 +260,22 @@ with lib.campground; let
             "--providers.kubernetescrd"
             "--providers.kubernetesingress"
             "--providers.file.filename=/dynamic/dynamic.yaml"
+            "--configFile=/static/static.yaml"
             "--providers.file.watch=true"
           ];
 
           volumes = [
             {
-              name = "public-traefik-config";
+              name = "public-traefik-dynamic-config";
               mountPath = "/dynamic";
               type = "configMap";
-              nameOverride = "public-traefik-config";
+              nameOverride = "public-traefik-dynamic-config";
+            }
+            {
+              name = "traefik-static-config";
+              mountPath = "/static";
+              type = "configMap";
+              nameOverride = "traefik-static-config";
             }
           ];
 
@@ -277,12 +284,25 @@ with lib.campground; let
       };
     };
 
+    traefik-satic-config = {
+      content = {
+        apiVersion = "v1";
+        kind = "ConfigMap";
+        metadata = {
+          name = "traefik-static-config";
+          namespace = "kube-system";
+        };
+        data = {
+          "static.yaml" = lib.generators.toYAML { } config.services.traefik.staticConfigOptions;
+        };
+      };
+    };
     public-traefik-routes = {
       content = {
         apiVersion = "v1";
         kind = "ConfigMap";
         metadata = {
-          name = "public-traefik-config";
+          name = "public-traefik-dynamic-config";
           namespace = "public-traefik";
         };
         data = {
