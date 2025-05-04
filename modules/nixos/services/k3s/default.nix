@@ -10,7 +10,7 @@ with lib.campground; let
   kubelib = inputs.kube-gen.lib { inherit pkgs; };
   external-secrets-yaml = ./external-secrets-vault-creds.yaml;
   serverAddr = "https://${cfg.serverAddr}:6443";
-  ipRanges = [ "10.8.200.100-10.8.200.150" ];
+  ipRanges = [ "10.8.0.70.8.200.150" ];
 
   charts = {
     argocd =
@@ -265,7 +265,7 @@ with lib.campground; let
             namespace = "metallb-system";
           };
           spec = {
-            addresses = [ "10.8.200.100-10.8.200.150" ];
+            addresses = [ "10.8.0.70-10.8.0.80" ];
           };
         }
         {

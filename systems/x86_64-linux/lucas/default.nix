@@ -175,7 +175,7 @@ with lib.campground; {
       # };
       # example-flink-job = { enable = true; };
       matt-camp-website = enabled;
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
       gitlab-runner = enabled;
       campground-blog = enabled;
       searx = {
@@ -189,8 +189,8 @@ with lib.campground; {
         tang-servers = [
           "http://daly:1234"
           # "http://mattis:1234"
-          # "http://chesty:1234"
-          "http://ermy:1234"
+          "http://chesty:1234"
+          # "http://ermy:1234"
           # "http://webb:1234"
           "http://reckless:1234"
         ];
