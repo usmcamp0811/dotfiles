@@ -132,6 +132,37 @@ with lib.campground; let
         sha256 = "sha256-2rJ5QXZinYBCzpe4hfN43+Tve1vtWFnp8GYW6tmYD0s=";
       };
     };
+    cloudflare-clusterissuer = {
+      content = {
+        apiVersion = "cert-manager.io/v1";
+        kind = "ClusterIssuer";
+        metadata = {
+          name = "cloudflare";
+        };
+        spec = {
+          acme = {
+            email = "cloudflare@aicampground.com";
+            server = "https://acme-v02.api.letsencrypt.org/directory";
+            privateKeySecretRef = {
+              name = "letsencrypt";
+            };
+            solvers = [
+              {
+                dns01 = {
+                  cloudflare = {
+                    email = "cloudflare@aicampground.com";
+                    apiTokenSecretRef = {
+                      name = "cloudflare-api-token-secret";
+                      key = "api-token";
+                    };
+                  };
+                };
+              }
+            ];
+          };
+        };
+      };
+    };
 
     public-traefik.content = {
       apiVersion = "helm.cattle.io/v1";
