@@ -490,7 +490,7 @@ in
                 kind: Secret
                 metadata:
                   name: vault-auth
-                  namespace: default
+                  namespace: cert-manager
                 stringData:
                   secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
                 ---
