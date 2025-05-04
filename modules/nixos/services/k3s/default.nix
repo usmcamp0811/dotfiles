@@ -1,16 +1,12 @@
 { lib
 , config
 , pkgs
-, inputs
 , ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
-  kubelib = inputs.kube-gen.lib { inherit pkgs; };
-  external-secrets-yaml = ./external-secrets-vault-creds.yaml;
   serverAddr = "https://${cfg.serverAddr}:6443";
-  ipRanges = [ "10.8.0.70.8.200.150" ];
 
   charts = {
     argocd =
@@ -72,6 +68,11 @@ with lib.campground; let
           kind = "ServiceAccount";
           name = "vault-auth";
           namespace = "kube-system";
+        }
+        {
+          kind = "ServiceAccount";
+          name = "vault-auth";
+          namespace = "public-traefik";
         }
       ];
     };
