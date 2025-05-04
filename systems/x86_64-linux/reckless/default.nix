@@ -95,6 +95,10 @@ in
     };
 
     services = {
+      searx = {
+        enable = true;
+        port = 3249;
+      };
       k3s = {
         enable = true;
         role = "agent";
@@ -263,7 +267,7 @@ in
           "http://chesty:1234"
           "http://mattis:1234"
           "http://daly:1234"
-          "http://ermy:1234"
+          # "http://ermy:1234"
         ];
       };
 

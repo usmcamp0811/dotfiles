@@ -164,6 +164,26 @@ with lib.campground; let
       };
     };
 
+    wildcard-matt-camp.content = {
+      apiVersion = "cert-manager.io/v1";
+      kind = "Certificate";
+      metadata = {
+        name = "wildcard-matt-camp-cert";
+        namespace = "public-traefik";
+      };
+      spec = {
+        secretName = "wildcard-matt-camp-tls";
+        issuerRef = {
+          name = "cloudflare";
+          kind = "ClusterIssuer";
+        };
+        commonName = "matt-camp.com";
+        dnsNames = [
+          "matt-camp.com"
+          "*.matt-camp.com"
+        ];
+      };
+    };
     wildcard-aicampground-cert.content = {
       apiVersion = "cert-manager.io/v1";
       kind = "Certificate";
@@ -217,6 +237,14 @@ with lib.campground; let
               };
             };
           };
+          persistence = {
+            enabled = true;
+            name = "traefik-acme";
+            accessMode = "ReadWriteOnce";
+            size = "1Gi";
+            path = "/var/lib/traefik";
+            storageClass = "local-path"; # e.g., "local-path"
+          };
 
           api = {
             dashboard = true;
@@ -241,11 +269,6 @@ with lib.campground; let
               mountPath = "/dynamic";
               type = "configMap";
               nameOverride = "public-traefik-config";
-            }
-            {
-              name = "traefik-acme";
-              mountPath = "/var/lib/traefik";
-              type = "emptyDir";
             }
           ];
 
