@@ -53,6 +53,7 @@ with lib.campground; let
           secretStoreRef = {
             name = "vault-backend";
             kind = "ClusterSecretStore";
+            namespace = "external-secrets";
           };
           target = {
             name = "cloudflare-api-token-secret";
@@ -575,6 +576,14 @@ in
                 metadata:
                   name: vault-auth
                   namespace: external-secrets
+                stringData:
+                  secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
+                ---
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: vault-auth
+                  namespace: traefik-public
                 stringData:
                   secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
                 ---
