@@ -193,10 +193,11 @@ with lib.campground; let
             plugins = {
               cloudflarewarp = {
                 moduleName = "github.com/BilikoX/cloudflarewarp";
-                version = "v1.0.5";
+                version = "v1.3.4";
               };
             };
           };
+
           api = {
             dashboard = true;
             insecure = true;
@@ -221,6 +222,11 @@ with lib.campground; let
               type = "configMap";
               nameOverride = "public-traefik-config";
             }
+            {
+              name = "traefik-acme";
+              mountPath = "/var/lib/traefik";
+              type = "emptyDir";
+            }
           ];
 
           # ingressRoute.dashboard.enabled = true;
@@ -228,26 +234,6 @@ with lib.campground; let
       };
     };
 
-    public-traefik-static-config = {
-      content = {
-        apiVersion = "v1";
-        kind = "ConfigMap";
-        metadata = {
-          name = "traefik-static-config";
-          namespace = "public-traefik";
-        };
-        data = {
-          "traefik.yaml" = lib.generators.toYAML { } (
-            config.services.traefik.staticConfigOptions
-            // {
-              experimental.localPlugins.cloudflarewarp = {
-                moduleName = "github.com/BilikoX/cloudflarewarp";
-              };
-            }
-          );
-        };
-      };
-    };
     public-traefik-routes = {
       content = {
         apiVersion = "v1";
@@ -261,12 +247,14 @@ with lib.campground; let
         };
       };
     };
+
     metallb-native = {
       source = pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml";
         sha256 = "sha256-lRBl6FaSqhBvG7XVpIfZMGFUkjp5SrHYISKIHLr1iOQ=";
       };
     };
+
     metallb-config = {
       content = [
         {
