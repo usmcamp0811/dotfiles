@@ -173,22 +173,22 @@ with lib.campground; let
         targetNamespace = "public-traefik";
         createNamespace = true;
         helmVersion = "v3";
-        certificatesResolvers = {
-          cloudflare = {
-            acme = {
-              email = "cloudflare@aicampground.com";
-              storage = "/var/lib/traefik/acme.json";
-              dnsChallenge = {
-                provider = "cloudflare";
-                resolvers = [
-                  "1.1.1.1:53"
-                  "1.0.0.1:53"
-                ];
+        valuesContent = lib.generators.toYAML { } {
+          certificatesResolvers = {
+            cloudflare = {
+              acme = {
+                email = "cloudflare@aicampground.com";
+                storage = "/var/lib/traefik/acme.json";
+                dnsChallenge = {
+                  provider = "cloudflare";
+                  resolvers = [
+                    "1.1.1.1:53"
+                    "1.0.0.1:53"
+                  ];
+                };
               };
             };
           };
-        };
-        valuesContent = lib.generators.toYAML { } {
           experimental = {
             plugins = {
               cloudflarewarp = {
