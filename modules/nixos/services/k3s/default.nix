@@ -40,6 +40,36 @@ with lib.campground; let
   };
 
   manifests = {
+    cloudflare-api-secret-traefik = {
+      content = {
+        apiVersion = "external-secrets.io/v1beta1";
+        kind = "ExternalSecret";
+        metadata = {
+          name = "cloudflare-api-token-secret";
+          namespace = "public-traefik";
+        };
+        spec = {
+          refreshInterval = "1h";
+          secretStoreRef = {
+            name = "vault-backend";
+            kind = "ClusterSecretStore";
+          };
+          target = {
+            name = "cloudflare-api-token-secret";
+            creationPolicy = "Owner";
+          };
+          data = [
+            {
+              secretKey = "api-token";
+              remoteRef = {
+                key = "secret/campground/cloudflare";
+                property = "CLOUDFLARE_API_KEY";
+              };
+            }
+          ];
+        };
+      };
+    };
     cloudflare-api-secret = {
       content = {
         apiVersion = "external-secrets.io/v1beta1";
@@ -246,6 +276,17 @@ with lib.campground; let
             storageClass = "local-path"; # e.g., "local-path"
           };
 
+          env = [
+            {
+              name = "CF_API_TOKEN";
+              valueFrom = {
+                secretKeyRef = {
+                  name = "cloudflare-api-token-secret";
+                  key = "api-token";
+                };
+              };
+            }
+          ];
           api = {
             dashboard = true;
             insecure = true;
@@ -260,7 +301,7 @@ with lib.campground; let
             "--providers.kubernetescrd"
             "--providers.kubernetesingress"
             "--providers.file.filename=/dynamic/dynamic.yaml"
-            "--configFile=/static/static.yaml"
+            "--configFile=/static/traefik.yaml"
             "--providers.file.watch=true"
           ];
 
