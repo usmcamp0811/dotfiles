@@ -123,36 +123,6 @@ with lib.campground; let
         };
       };
     };
-    # cloudflare-api-secret = {
-    #   content = {
-    #     apiVersion = "external-secrets.io/v1beta1";
-    #     kind = "ExternalSecret";
-    #     metadata = {
-    #       name = "cloudflare-api-token-secret";
-    #       namespace = "cert-manager";
-    #     };
-    #     spec = {
-    #       refreshInterval = "1h";
-    #       secretStoreRef = {
-    #         name = "vault-backend";
-    #         kind = "ClusterSecretStore";
-    #       };
-    #       target = {
-    #         name = "cloudflare-api-token-secret";
-    #         creationPolicy = "Owner";
-    #       };
-    #       data = [
-    #         {
-    #           secretKey = "api-token";
-    #           remoteRef = {
-    #             key = "secret/campground/cloudflare";
-    #             property = "CLOUDFLARE_API_KEY";
-    #           };
-    #         }
-    #       ];
-    #     };
-    #   };
-    # };
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
       kind = "ClusterSecretStore";
@@ -318,7 +288,7 @@ with lib.campground; let
             };
           };
           persistence = {
-            enabled = true;
+            enabled = false;
             name = "traefik-acme";
             accessMode = "ReadWriteOnce";
             size = "1Gi";
@@ -343,19 +313,18 @@ with lib.campground; let
           };
 
           affinity = {
-            podAntiAffinity = {
-              requiredDuringSchedulingIgnoredDuringExecution = [
-                {
-                  labelSelector = {
-                    matchLabels = {
-                      "app.kubernetes.io/name" = "traefik";
-                      "app.kubernetes.io/instance" = "public-traefik";
-                    };
-                  };
-                  topologyKey = "kubernetes.io/hostname";
-                }
-              ];
-            };
+            podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution = [
+              {
+                labelSelector.matchExpressions = [
+                  {
+                    key = "app.kubernetes.io/name";
+                    operator = "In";
+                    values = [ "traefik" ];
+                  }
+                ];
+                topologyKey = "kubernetes.io/hostname";
+              }
+            ];
           };
 
           deployment = {
@@ -391,35 +360,35 @@ with lib.campground; let
               type = "configMap";
               nameOverride = "traefik-static-config";
             }
-            {
-              name = "plugins-local";
-              type = "pvc";
-              nameOverride = "traefik-plugins";
-            }
+            # {
+            #   name = "plugins-local";
+            #   type = "pvc";
+            #   nameOverride = "traefik-plugins";
+            # }
           ];
-          additionalVolumeMounts = [
-            {
-              name = "plugins-local";
-              mountPath = "/plugins-local";
-            }
-          ];
+          # additionalVolumeMounts = [
+          #   {
+          #     name = "plugins-local";
+          #     mountPath = "/plugins-local";
+          #   }
+          # ];
           # ingressRoute.dashboard.enabled = true;
         };
       };
     };
-    traefik-pvc.content = {
-      apiVersion = "v1";
-      kind = "PersistentVolumeClaim";
-      metadata = {
-        name = "traefik-plugins";
-        namespace = "public-traefik"; # or your actual namespace
-      };
-      spec = {
-        accessModes = [ "ReadWriteOnce" ];
-        resources.requests.storage = "1Gi";
-        storageClassName = "local-path";
-      };
-    };
+    # traefik-pvc.content = {
+    #   apiVersion = "v1";
+    #   kind = "PersistentVolumeClaim";
+    #   metadata = {
+    #     name = "traefik-plugins";
+    #     namespace = "public-traefik"; # or your actual namespace
+    #   };
+    #   spec = {
+    #     accessModes = ["ReadWriteMany"];
+    #     resources.requests.storage = "1Gi";
+    #     storageClassName = "local-path";
+    #   };
+    # };
 
     traefik-static-config = {
       content = {
