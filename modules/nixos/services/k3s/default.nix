@@ -53,6 +53,9 @@ with lib.campground; let
         name = "vault-auth";
         namespace = "public-traefik"; # change per namespace as needed
       };
+      spec = {
+        automountServiceAccountToken = true;
+      };
     };
 
     vault-auth-sa.content = {
@@ -60,7 +63,10 @@ with lib.campground; let
       kind = "ServiceAccount";
       metadata = {
         name = "vault-auth";
-        namespace = "kube-system";
+        namespace = "external-secrets";
+      };
+      spec = {
+        automountServiceAccountToken = true;
       };
     };
 
@@ -77,6 +83,11 @@ with lib.campground; let
         {
           kind = "ServiceAccount";
           name = "vault-auth";
+          namespace = "external-secrets";
+        }
+        {
+          kind = "ServiceAccount";
+          name = "vault-auth";
           namespace = "kube-system";
         }
         {
@@ -86,6 +97,7 @@ with lib.campground; let
         }
       ];
     };
+
     cloudflare-api-secret-traefik = {
       content = {
         apiVersion = "external-secrets.io/v1beta1";
@@ -665,6 +677,14 @@ in
             };
             "external-secret-vault-creds.yaml" = {
               text = ''
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: vault-auth
+                  namespace: public-traefik
+                stringData:
+                  secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
+                ---
                 apiVersion: v1
                 kind: Secret
                 metadata:
