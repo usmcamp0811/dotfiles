@@ -36,6 +36,16 @@ with lib.campground; let
   };
 
   manifests = {
+    public-traefik-namespace-label.content = {
+      apiVersion = "v1";
+      kind = "Namespace";
+      metadata = {
+        name = "public-traefik";
+        labels = {
+          cloudflare-access = "true";
+        };
+      };
+    };
     pub-traefik-vault-auth-sa.content = {
       apiVersion = "v1";
       kind = "ServiceAccount";
@@ -79,31 +89,37 @@ with lib.campground; let
     cloudflare-api-secret-traefik = {
       content = {
         apiVersion = "external-secrets.io/v1beta1";
-        kind = "ExternalSecret";
+        kind = "ClusterExternalSecret";
         metadata = {
           name = "cloudflare-api-token-secret";
-          namespace = "public-traefik";
         };
+
         spec = {
-          refreshInterval = "1h";
-          secretStoreRef = {
-            name = "vault-backend";
-            kind = "ClusterSecretStore";
-            namespace = "external-secrets";
+          namespaceSelector = {
+            matchLabels = {
+              "cloudflare-access" = "true";
+            };
           };
-          target = {
-            name = "cloudflare-api-token-secret";
-            creationPolicy = "Owner";
+          externalSecretSpec = {
+            refreshInterval = "1h";
+            secretStoreRef = {
+              name = "vault-backend";
+              kind = "ClusterSecretStore";
+            };
+            target = {
+              name = "cloudflare-api-token-secret";
+              creationPolicy = "Owner";
+            };
+            data = [
+              {
+                secretKey = "api-token";
+                remoteRef = {
+                  key = "secret/campground/cloudflare";
+                  property = "CLOUDFLARE_API_KEY";
+                };
+              }
+            ];
           };
-          data = [
-            {
-              secretKey = "api-token";
-              remoteRef = {
-                key = "secret/campground/cloudflare";
-                property = "CLOUDFLARE_API_KEY";
-              };
-            }
-          ];
         };
       };
     };
@@ -146,10 +162,14 @@ with lib.campground; let
           server = "${config.campground.services.k3s.vault-address}";
           path = lib.removeSuffix "/k3s" cfg.vault-path;
           version = config.campground.services.k3s.kvVersion;
+
           auth.kubernetes = {
             mountPath = "kubernetes";
             role = "external-secrets";
-            serviceAccountRef.name = "vault-auth";
+            serviceAccountRef = {
+              name = "vault-auth";
+              namespace = "external-secrets";
+            };
           };
         };
       };
@@ -605,14 +625,6 @@ in
                 metadata:
                   name: vault-auth
                   namespace: external-secrets
-                stringData:
-                  secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
-                ---
-                apiVersion: v1
-                kind: Secret
-                metadata:
-                  name: vault-auth
-                  namespace: traefik-public
                 stringData:
                   secretId: '{{ with secret "${cfg.vault-path}" }}{{ if eq "v2" "v1" }}{{ .Data.secret_id }}{{ else }}{{ .Data.data.secret_id }}{{ end }}{{ end }}'
                 ---
