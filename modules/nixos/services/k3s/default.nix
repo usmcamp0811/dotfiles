@@ -341,11 +341,34 @@ with lib.campground; let
             dashboard = true;
             insecure = true;
           };
+
+          affinity = {
+            podAntiAffinity = {
+              requiredDuringSchedulingIgnoredDuringExecution = [
+                {
+                  labelSelector = {
+                    matchLabels = {
+                      "app.kubernetes.io/name" = "traefik";
+                      "app.kubernetes.io/instance" = "public-traefik";
+                    };
+                  };
+                  topologyKey = "kubernetes.io/hostname";
+                }
+              ];
+            };
+          };
+
           deployment = {
             namespace = "public-traefik";
             replicas = 2;
+            updateStrategy = {
+              type = "RollingUpdate";
+              rollingUpdate = {
+                maxUnavailable = 0;
+                maxSurge = 1;
+              };
+            };
           };
-
           additionalArguments = [
             "--api.insecure=true"
             "--providers.kubernetescrd"
