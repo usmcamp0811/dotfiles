@@ -397,6 +397,7 @@ with lib.campground; let
         storageClassName = "local-path";
       };
     };
+
     traefik-static-config = {
       content = {
         apiVersion = "v1";
@@ -416,6 +417,9 @@ with lib.campground; let
                   pathOverride = "kube-system/public-traefik";
                 };
               };
+              tls = {
+                certResolver = "cloudflare";
+              };
             }
           );
         };
@@ -430,7 +434,23 @@ with lib.campground; let
           namespace = "public-traefik";
         };
         data = {
-          "dynamic.yaml" = lib.generators.toYAML { } config.campground.suites.public-hosting.dynamicConfigOptions;
+          "dynamic.yaml" = lib.generators.toYAML { } {
+            http =
+              {
+                routers =
+                  lib.mapAttrs
+                    (
+                      _name: val:
+                        lib.recursiveUpdate val {
+                          tls.certResolver = "cloudflare";
+                        }
+                    )
+                    config.campground.suites.public-hosting.dynamicConfigOptions.http.routers;
+
+                # Preserve other http keys like services and middlewares
+              }
+              // (lib.removeAttrs config.campground.suites.public-hosting.dynamicConfigOptions.http [ "routers" ]);
+          };
         };
       };
     };
