@@ -56,9 +56,9 @@ in
 
     services = {
       k3s = {
-        # enable = true;
+        enable = true;
         role = "agent";
-        serverAddr = "https://10.8.0.197:6443";
+        serverAddr = "10.8.0.197";
       };
       # ldap-client = enabled;
       label-studio = {
