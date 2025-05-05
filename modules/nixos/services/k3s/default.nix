@@ -123,36 +123,36 @@ with lib.campground; let
         };
       };
     };
-    cloudflare-api-secret = {
-      content = {
-        apiVersion = "external-secrets.io/v1beta1";
-        kind = "ExternalSecret";
-        metadata = {
-          name = "cloudflare-api-token-secret";
-          namespace = "cert-manager";
-        };
-        spec = {
-          refreshInterval = "1h";
-          secretStoreRef = {
-            name = "vault-backend";
-            kind = "ClusterSecretStore";
-          };
-          target = {
-            name = "cloudflare-api-token-secret";
-            creationPolicy = "Owner";
-          };
-          data = [
-            {
-              secretKey = "api-token";
-              remoteRef = {
-                key = "secret/campground/cloudflare";
-                property = "CLOUDFLARE_API_KEY";
-              };
-            }
-          ];
-        };
-      };
-    };
+    # cloudflare-api-secret = {
+    #   content = {
+    #     apiVersion = "external-secrets.io/v1beta1";
+    #     kind = "ExternalSecret";
+    #     metadata = {
+    #       name = "cloudflare-api-token-secret";
+    #       namespace = "cert-manager";
+    #     };
+    #     spec = {
+    #       refreshInterval = "1h";
+    #       secretStoreRef = {
+    #         name = "vault-backend";
+    #         kind = "ClusterSecretStore";
+    #       };
+    #       target = {
+    #         name = "cloudflare-api-token-secret";
+    #         creationPolicy = "Owner";
+    #       };
+    #       data = [
+    #         {
+    #           secretKey = "api-token";
+    #           remoteRef = {
+    #             key = "secret/campground/cloudflare";
+    #             property = "CLOUDFLARE_API_KEY";
+    #           };
+    #         }
+    #       ];
+    #     };
+    #   };
+    # };
     external-secrets-vault-store.content = {
       apiVersion = "external-secrets.io/v1beta1";
       kind = "ClusterSecretStore";
