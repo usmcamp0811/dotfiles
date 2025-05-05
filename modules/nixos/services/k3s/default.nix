@@ -323,12 +323,12 @@ with lib.campground; let
             accessMode = "ReadWriteOnce";
             size = "1Gi";
             path = "/var/lib/traefik";
-            storageClass = "local-path"; # e.g., "local-path"
+            storageClass = "local-path";
           };
 
           env = [
             {
-              name = "CF_API_TOKEN";
+              name = "CLOUDFLARE_DNS_API_TOKEN";
               valueFrom = {
                 secretKeyRef = {
                   name = "cloudflare-api-token-secret";
@@ -368,23 +368,56 @@ with lib.campground; let
               type = "configMap";
               nameOverride = "traefik-static-config";
             }
+            {
+              name = "plugins-local";
+              type = "pvc";
+              nameOverride = "traefik-plugins";
+            }
           ];
-
+          additionalVolumeMounts = [
+            {
+              name = "plugins-local";
+              mountPath = "/plugins-local";
+            }
+          ];
           # ingressRoute.dashboard.enabled = true;
         };
       };
     };
-
-    traefik-satic-config = {
+    traefik-pvc.content = {
+      apiVersion = "v1";
+      kind = "PersistentVolumeClaim";
+      metadata = {
+        name = "traefik-plugins";
+        namespace = "public-traefik"; # or your actual namespace
+      };
+      spec = {
+        accessModes = [ "ReadWriteOnce" ];
+        resources.requests.storage = "1Gi";
+        storageClassName = "local-path";
+      };
+    };
+    traefik-static-config = {
       content = {
         apiVersion = "v1";
         kind = "ConfigMap";
         metadata = {
           name = "traefik-static-config";
-          namespace = "kube-system";
+          namespace = "public-traefik";
         };
         data = {
-          "static.yaml" = lib.generators.toYAML { } config.services.traefik.staticConfigOptions;
+          "static.yaml" = lib.generators.toYAML { } (
+            lib.recursiveUpdate config.services.traefik.staticConfigOptions {
+              providers.kubernetesCRD = { };
+              providers.kubernetesIngress = {
+                ingressClass = "traefik";
+                publishedService = {
+                  enabled = true;
+                  pathOverride = "kube-system/public-traefik";
+                };
+              };
+            }
+          );
         };
       };
     };

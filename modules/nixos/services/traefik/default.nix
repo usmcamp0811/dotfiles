@@ -1,11 +1,14 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.traefik;
-  jsonValue = with types;
-    let
-      valueType = nullOr
+  jsonValue = with types; let
+    valueType =
+      nullOr
         (oneOf [
           bool
           int
@@ -13,12 +16,13 @@ let
           str
           (lazyAttrsOf valueType)
           (listOf valueType)
-        ]) // {
+        ])
+      // {
         description = "JSON value";
         emptyValue.value = { };
       };
-    in
-    valueType;
+  in
+  valueType;
   saveCert2Vault = pkgs.writeShellScriptBin "save-certs" ''
     ACME_JSON="${cfg.acme-path}"
     # Vault base path
@@ -57,7 +61,7 @@ let
 
         # Store in Vault using CLI
         echo "$cert" | base64 -d > cert.pem
-        echo "$key" | base64 -d > key.pem 
+        echo "$key" | base64 -d > key.pem
         ${pkgs.vault-bin}/bin/vault kv put "$vault_path" cert=@cert.pem key=@key.pem
 
         if [[ $? -ne 0 ]]; then
@@ -70,7 +74,7 @@ let
         rm -f cert.pem key.pem
 
     done <<< "$certificates"
-    echo "All certificates processed." 
+    echo "All certificates processed."
   '';
 in
 {
@@ -78,16 +82,18 @@ in
     enable = mkBoolOpt false "Enable an Tang;";
     email = mkOpt str config.campground.user.email "The email to use.";
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
-    acme-path = mkOpt str "/var/lib/traefik/acme.json"
-      "The location Traefik saves the certs";
+    acme-path =
+      mkOpt str "/var/lib/traefik/acme.json"
+        "The location Traefik saves the certs";
     domains = mkOption {
       type = listOf str;
       default = [ "aicampground.com" ];
       example = [ "example.com" "example.org" ];
       description = "List of domains.";
     };
-    log-path = mkOpt str "/var/lib/traefik/access.log"
-      "The location to store the access log.";
+    log-path =
+      mkOpt str "/var/lib/traefik/access.log"
+        "The location to store the access log.";
     insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
@@ -98,8 +104,7 @@ in
       type = jsonValue;
       default = { web = { address = "0.0.0.0:80"; }; };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description =
-        "List of entrypoints for Traefik, mapping names to their address.";
+      description = "List of entrypoints for Traefik, mapping names to their address.";
     };
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
@@ -107,8 +112,9 @@ in
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/cloudflare"
-      "The Vault path to the KV containing the KVs that are for each database";
+    vault-path =
+      mkOpt str "secret/campground/cloudflare"
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
       type = enum [ "v1" "v2" ];
       default = "v2";
@@ -122,7 +128,6 @@ in
   };
 
   config = mkIf cfg.enable {
-
     systemd.services.saveCertsToVault = {
       description = "Save TLS Certs in Vault";
       serviceConfig = {
@@ -142,13 +147,11 @@ in
       RestartSec = 5;
     };
     users.users.traefik = { extraGroups = [ "docker" ]; };
-    systemd.services.traefik.serviceConfig.WorkingDirectory =
-      "${config.services.traefik.package}/bin";
+    systemd.services.traefik.serviceConfig.WorkingDirectory = "${config.services.traefik.package}/bin";
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
       staticConfigOptions = {
-
         experimental.localPlugins = {
           cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
           fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
@@ -168,46 +171,49 @@ in
           format = "json";
         };
 
-        entryPoints = {
-          web = {
-            http.redirections.entryPoint = {
-              to = "websecure";
-              scheme = "https";
-              permanent = true;
+        entryPoints =
+          {
+            web = {
+              http.redirections.entryPoint = {
+                to = "websecure";
+                scheme = "https";
+                permanent = true;
+              };
             };
-          };
-          websecure = {
-            address = "0.0.0.0:443";
-            forwardedHeaders = {
-              trustedIPs = [
-                "173.245.48.0/20"
-                "103.21.244.0/22"
-                "103.22.200.0/22"
-                "103.31.4.0/22"
-                "141.101.64.0/18"
-                "108.162.192.0/18"
-                "190.93.240.0/20"
-                "188.114.96.0/20"
-                "197.234.240.0/22"
-                "198.41.128.0/17"
-                "162.158.0.0/15"
-                "104.16.0.0/13"
-                "104.24.0.0/14"
-                "172.64.0.0/13"
-                "131.0.72.0/22"
-              ];
+            websecure = {
+              address = "0.0.0.0:443";
+              forwardedHeaders = {
+                trustedIPs = [
+                  "173.245.48.0/20"
+                  "103.21.244.0/22"
+                  "103.22.200.0/22"
+                  "103.31.4.0/22"
+                  "141.101.64.0/18"
+                  "108.162.192.0/18"
+                  "190.93.240.0/20"
+                  "188.114.96.0/20"
+                  "197.234.240.0/22"
+                  "198.41.128.0/17"
+                  "162.158.0.0/15"
+                  "104.16.0.0/13"
+                  "104.24.0.0/14"
+                  "172.64.0.0/13"
+                  "131.0.72.0/22"
+                ];
+              };
+              http.tls = {
+                certResolver = "cloudflare";
+                domains =
+                  map
+                    (domain: {
+                      main = domain;
+                      sans = [ "*.${domain}" "*.lan.${domain}" ];
+                    })
+                    cfg.domains;
+              };
             };
-            http.tls = {
-              certResolver = "cloudflare";
-              domains = map
-                (domain: {
-                  main = domain;
-                  sans = [ "*.${domain}" "*.lan.${domain}" ];
-                })
-                cfg.domains;
-            };
-          };
-        } // cfg.entrypoints;
+          }
+          // cfg.entrypoints;
 
         api = {
           dashboard = true;
@@ -243,14 +249,16 @@ in
               settings = {
                 vault.address = cfg.vault-address;
                 auto_auth = {
-                  method = [{
-                    type = "approle";
-                    config = {
-                      role_id_file_path = cfg.role-id;
-                      secret_id_file_path = cfg.secret-id;
-                      remove_secret_id_file_after_reading = false;
-                    };
-                  }];
+                  method = [
+                    {
+                      type = "approle";
+                      config = {
+                        role_id_file_path = cfg.role-id;
+                        secret_id_file_path = cfg.secret-id;
+                        remove_secret_id_file_after_reading = false;
+                      };
+                    }
+                  ];
                 };
               };
               secrets.environment.templates = {
@@ -274,3 +282,4 @@ in
 # CLOUDFLARE_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
 # CF_API_EMAIL='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_EMAIL }}{{ else }}{{ .Data.data.CLOUDFLARE_EMAIL }}{{ end }}'
 # CF_API_KEY='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+
