@@ -7,18 +7,40 @@ with lib.campground; let
   cfg = config.campground.services.glusterfs;
 in
 {
-  options.campground.services.glusterfs = with types; {
-    enable = mkBoolOpt false "Enable GlusterFS server.";
-    peers = mkOpt (listOf str) [ ] "List of GlusterFS peers.";
-    volumes = mkOpt
-      (listOf (submodule {
+  options.campground.services.glusterfs = {
+    enable = lib.mkEnableOption "GlusterFS server";
+    peers = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "GlusterFS peers.";
+    };
+    volumes = lib.mkOption {
+      type = lib.types.listOf (lib.types.submodule {
         options = {
-          name = mkOpt str "Volume name";
-          brickDirs = mkOpt (listOf str) [ ] "Bricks for this volume";
-          replicaCount = mkOpt int 2 "Replica count";
-          transport = mkOpt str "tcp" "Transport type (tcp or rdma)";
+          name = lib.mkOption {
+            type = lib.types.str;
+            description = "Volume name";
+          };
+          brickDirs = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+            description = "Bricks for this volume";
+          };
+          replicaCount = lib.mkOption {
+            type = lib.types.int;
+            default = 2;
+            description = "Replica count";
+          };
+          transport = lib.mkOption {
+            type = lib.types.str;
+            default = "tcp";
+            description = "Transport type (tcp or rdma)";
+          };
         };
-      })) [ ] "List of GlusterFS volumes to create.";
+      });
+      default = [ ];
+      description = "List of GlusterFS volumes to create.";
+    };
   };
 
   config = mkIf cfg.enable {
