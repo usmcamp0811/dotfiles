@@ -5,14 +5,15 @@
 }:
 with lib;
 with lib.campground; let
-  cfg = config.campground.kubernetes.traefik;
+  cfg = config.campground.services.modules.k3s.traefik;
 in
 {
-  options.campground.kubernetes.traefik = {
+  options.campground.services.k3s.modules.traefik = {
     enable = mkEnableOption "Enable Traefik and supporting manifests.";
   };
 
   config = mkIf cfg.enable {
+    campground.services.k3s.modules.certificates.enable = true;
     services.k3s = {
       charts.traefik =
         pkgs.runCommand "traefik.tgz"

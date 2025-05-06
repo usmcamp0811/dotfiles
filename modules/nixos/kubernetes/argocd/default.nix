@@ -4,9 +4,9 @@
 , ...
 }:
 with lib; {
-  options.campground.kubernetes.argocd.enable = mkEnableOption "Deploy ArgoCD via Helm";
+  options.campground.services.k3s.modules.argocd.enable = mkEnableOption "Deploy ArgoCD via Helm";
 
-  config = mkIf config.campground.kubernetes.argocd.enable {
+  config = mkIf config.campground.services.k3s.modules.argocd.enable {
     services.k3s.charts.argocd =
       pkgs.runCommand "argocd.tgz"
         {

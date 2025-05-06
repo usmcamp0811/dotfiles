@@ -4,9 +4,10 @@
 , ...
 }:
 with lib; {
-  options.campground.kubernetes.external-secrets.enable = mkEnableOption "Deploy External Secrets and Vault Store";
+  options.campground.services.k3s.modules.external-secrets.enable = mkEnableOption "Deploy External Secrets and Vault Store";
 
-  config = mkIf config.campground.kubernetes.external-secrets.enable {
+  config = mkIf config.campground.services.k3s.modules.external-secrets.enable {
+    campground.services.k3s.modules.certificates.enable = true;
     services.k3s.charts.external-secrets =
       pkgs.runCommand "external-secrets.tgz"
         {
