@@ -5,7 +5,7 @@
 }:
 with lib;
 with lib.campground; let
-  cfg = config.campground.services.modules.k3s.traefik;
+  cfg = config.campground.services.k3s.modules.traefik;
 in
 {
   options.campground.services.k3s.modules.traefik = {
