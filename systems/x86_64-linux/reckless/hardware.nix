@@ -79,6 +79,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/glusterfs/kubernetes" = {
+    device = "MotorPool/glusterfs/kubernetes";
+    fsType = "zfs";
+  };
+
   fileSystems."/var/lib/atticd" = {
     device = "MotorPool/attic";
     fsType = "zfs";
@@ -108,5 +113,4 @@
     /export/media/audiobooks 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
     /export/media/music 10.8.0.1/24(rw,nohide,insecure,no_subtree_check) 172.16.10.190(rw,nohide,insecure,no_subtree_check)
   '';
-
 }

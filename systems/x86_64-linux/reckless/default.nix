@@ -95,6 +95,19 @@ in
     };
 
     services = {
+      glusterfs = {
+        enable = true;
+        # peers = ["webb" ""];
+        volumes = [
+          {
+            name = "kubernetes";
+            brickDirs = [ "/glusterfs/kubernetes" ];
+            replicaCount = 2;
+            transport = "tcp";
+          }
+        ];
+      };
+
       searx = {
         enable = true;
         port = 3249;
