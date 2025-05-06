@@ -58,6 +58,12 @@ with lib.campground; {
     services = {
       netbird.client.enable = true;
       k3s = {
+        modules = {
+          certificates = enabled;
+          traefik = enabled;
+          external-secrets = enabled;
+          argocd = enabled;
+        };
         enable = true;
         role = "server";
         clusterInit = true;
