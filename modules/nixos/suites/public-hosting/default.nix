@@ -329,13 +329,13 @@ in
           restart_keepalived=0
           restart_traefik=0
 
-          if ! ip addr show dev ${interface} | grep -q '${pub-ip}'; then
-            echo "VIP ${pub-ip} missing on ${interface}"
+          if ! ip addr show dev ${cfg.interface} | grep -q '${cfg.pub-ip}'; then
+            echo "VIP ${cfg.pub-ip} missing on ${cfg.interface}"
             restart_keepalived=1
           fi
 
-          if ! ${pkgs.curl}/bin/curl --max-time 2 --silent --fail http://${pub-ip}:80/healthz >/dev/null; then
-            echo "Traefik not healthy on ${pub-ip}:80"
+          if ! ${pkgs.curl}/bin/curl --max-time 2 --silent --fail http://${cfg.pub-ip}:80/healthz >/dev/null; then
+            echo "Traefik not healthy on ${cfg.pub-ip}:80"
             restart_traefik=1
           fi
 
