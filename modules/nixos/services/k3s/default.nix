@@ -1,21 +1,21 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.k3s;
   serverAddr = "https://${cfg.serverAddr}:6443";
-in
-{
+in {
   options.campground.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
-    package = lib.mkPackageOption pkgs "k3s" { };
+    package = lib.mkPackageOption pkgs "k3s" {};
     config = mkOption {
       type = types.attrs;
       default = {
-        disable = [ "servicelb" "traefik" ];
+        disable = ["servicelb" "traefik"];
       };
       description = "K3s Config Yaml";
       example = literalExpression ''
@@ -28,7 +28,7 @@ in
       '';
     };
     role = mkOption {
-      type = types.enum [ "server" "agent" ];
+      type = types.enum ["server" "agent"];
       default = "server";
       description = "The role of this k3s node.";
     };
@@ -41,7 +41,7 @@ in
 
     extraFlags = mkOption {
       type = types.listOf types.str;
-      default = [ ];
+      default = [];
       description = "Extra flags passed to k3s.";
     };
 
@@ -53,22 +53,22 @@ in
 
     role-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/k3s"
-        "The Vault path to the KV containing the k0s secrets.";
+      "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = types.str;
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = types.enum [ "v1" "v2" ];
+      type = types.enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -84,9 +84,9 @@ in
       serverAddr = mkIf (!cfg.clusterInit) serverAddr;
       configPath = mkIf (cfg.role == "server") (
         let
-          configText = lib.generators.toYAML { } cfg.config;
+          configText = lib.generators.toYAML {} cfg.config;
         in
-        pkgs.writeText "k3s-config.yaml" configText
+          pkgs.writeText "k3s-config.yaml" configText
       );
       moreFlags = cfg.extraFlags;
     };
@@ -98,8 +98,9 @@ in
         "vault-agent.service"
         "network-online.target"
       ];
-      requires = [ "k3s.service" ];
-      wantedBy = [ "multi-user.target" ];
+      wants = ["network-online.target"];
+      requires = ["k3s.service"];
+      wantedBy = ["multi-user.target"];
       serviceConfig = {
         Type = "oneshot";
         User = "root";
@@ -152,7 +153,7 @@ in
       };
     };
 
-    environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [cfg.package];
     systemd.services.k3s.preStart = mkMerge [
       (mkIf (!cfg.clusterInit) (mkBefore ''
         mkdir -p /var/lib/rancher/k3s/server
