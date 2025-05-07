@@ -73,7 +73,7 @@ in
     services = {
       glusterfs = {
         enable = true;
-        peers = [ "reckless" ];
+        peers = [ "reckless" "lucas" ];
         volumes = [
           {
             name = "kubernetes";

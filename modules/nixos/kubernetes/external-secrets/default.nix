@@ -11,6 +11,27 @@ in
   options.campground.services.k3s.modules.external-secrets = {
     enable = mkEnableOption "Deploy External Secrets and Vault Store";
     vault-policy = mkOpt types.str "campground" "The Policy to give the `vault-auth` ServiceAccount";
+    role-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt types.str "secret/campground/k3s"
+        "The Vault path to the KV containing the k0s secrets.";
+    vault-address = mkOption {
+      type = types.str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
+    kvVersion = mkOption {
+      type = types.enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
   };
 
   config = mkIf config.campground.services.k3s.modules.external-secrets.enable {
