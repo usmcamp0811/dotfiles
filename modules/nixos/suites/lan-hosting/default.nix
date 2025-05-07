@@ -1,8 +1,11 @@
-{ options, config, lib, inputs, ... }:
+{ options
+, config
+, lib
+, inputs
+, ...
+}:
 with lib;
-with lib.campground;
-let
-
+with lib.campground; let
   cfg = config.campground.suites.lan-hosting;
 
   generateServiceConfig = serviceName:
@@ -14,9 +17,9 @@ let
       };
     in
     { loadBalancer.servers = serviceEndpoints; };
-  jsonValue = with types;
-    let
-      valueType = nullOr
+  jsonValue = with types; let
+    valueType =
+      nullOr
         (oneOf [
           bool
           int
@@ -24,17 +27,19 @@ let
           str
           (lazyAttrsOf valueType)
           (listOf valueType)
-        ]) // {
+        ])
+      // {
         description = "JSON value";
         emptyValue.value = { };
       };
-    in
-    valueType;
+  in
+  valueType;
 in
 {
   options.campground.suites.lan-hosting = with types; {
-    enable = mkBoolOpt false
-      "Whether or not to enable common lan-hosting configuration.";
+    enable =
+      mkBoolOpt false
+        "Whether or not to enable common lan-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     entrypoints = mkOption {
@@ -44,24 +49,19 @@ in
         metrics = { address = "0.0.0.0:58082"; };
       };
       example = { web = { address = "0.0.0.0:80"; }; };
-      description =
-        "List of entrypoints for Traefik, mapping names to their address.";
+      description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
 
   config = {
-
-    systemd.services.keepalived = {
-      bindsTo = [ "traefik.service" ];
-      after = [ "traefik.service" ];
-      serviceConfig = { Restart = "always"; };
-    };
     campground = {
       services = {
-        prometheus.additionalScrapeConfigs = [{
-          job_name = "lan-traefik-monitor";
-          static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
-        }];
+        prometheus.additionalScrapeConfigs = [
+          {
+            job_name = "lan-traefik-monitor";
+            static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
+          }
+        ];
         traefik = mkIf cfg.enable {
           enable = true;
           insecure = true;
@@ -86,8 +86,7 @@ in
             ############################################################################
             http.middlewares.akhq-auth = {
               forwardAuth = {
-                address =
-                  "https://auth.aicampground.com/outpost.goauthentik.io/auth/traefik";
+                address = "https://auth.aicampground.com/outpost.goauthentik.io/auth/traefik";
                 trustForwardHeader = true;
                 authResponseHeaders = [
                   "X-authentik-username"
@@ -107,8 +106,7 @@ in
             };
 
             http.routers.akhq-auth = {
-              rule =
-                "Host(`akhq.lan.aicampground.com`) && PathPrefix(`/outpost.goauthentik.io/`)";
+              rule = "Host(`akhq.lan.aicampground.com`) && PathPrefix(`/outpost.goauthentik.io/`)";
               priority = 15;
               service = "akhq-auth";
             };
@@ -132,8 +130,7 @@ in
             };
 
             http.services.akhq-auth = {
-              loadBalancer.servers =
-                [{ url = "http://daly:9000/outpost.goauthentik.io"; }];
+              loadBalancer.servers = [{ url = "http://daly:9000/outpost.goauthentik.io"; }];
             };
 
             http.services.authentik = generateServiceConfig "authentik";
