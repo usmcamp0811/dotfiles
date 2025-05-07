@@ -79,6 +79,11 @@
     fsType = "zfs";
   };
 
+  fileSystems."/glusterfs" = {
+    device = "MotorPool/glusterfs";
+    fsType = "zfs";
+  };
+
   fileSystems."/glusterfs/kubernetes" = {
     device = "MotorPool/glusterfs/kubernetes";
     fsType = "zfs";

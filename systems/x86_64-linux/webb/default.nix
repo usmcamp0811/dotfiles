@@ -71,6 +71,18 @@ in
     tools = { attic = enabled; };
 
     services = {
+      glusterfs = {
+        enable = true;
+        peers = [ "reckless" ];
+        volumes = [
+          {
+            name = "kubernetes";
+            brickDirs = [ "/glusterfs/kubernetes" ];
+            replicaCount = 2;
+            transport = "tcp";
+          }
+        ];
+      };
       k3s = {
         enable = true;
         role = "agent";
