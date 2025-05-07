@@ -4,7 +4,9 @@
 , ...
 }:
 with lib; {
+  cfg = config.campground.services.k3s.modules.external-secrets;
   options.campground.services.k3s.modules.external-secrets.enable = mkEnableOption "Deploy External Secrets and Vault Store";
+  options.campground.services.k3s.modules.external-secrets.vault-policy = mkOpt str "campground" "The Policy to give the `vault-auth` ServiceAccount";
 
   config = mkIf config.campground.services.k3s.modules.external-secrets.enable {
     campground.services.k3s.modules.certificates.enable = true;
@@ -17,6 +19,38 @@ with lib; {
         tar -czf $out -C external-secrets .
       '';
 
+    systemd.services.vault-k8s-init = {
+      description = "Configure Vault Kubernetes Auth";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" "k3s.service" ];
+      requires = [ "k3s.service" ];
+
+      serviceConfig = {
+        Type = "oneshot";
+        script = pkgs.writeShellScript "vault-k8s-init" ''
+          set -e
+
+          K8S_HOST=${config.services.k3s.serverAddr}
+          NS=external-secrets
+          SA=vault-auth
+
+          kubectl -n $NS create token $SA --duration=24h > /tmp/token.jwt
+          kubectl -n $NS get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
+
+          vault write auth/kubernetes/config \
+            token_reviewer_jwt="$(< /tmp/token.jwt)" \
+            kubernetes_host="$K8S_HOST" \
+            kubernetes_ca_cert="$(< /tmp/ca.crt)"
+
+          vault write auth/kubernetes/role/external-secrets \
+            bound_service_account_names="$SA" \
+            bound_service_account_namespaces="*" \
+            policies=${cfg.vault-policy} \
+            ttl=24h
+          rm -rf /tmp/token.jwt /tmp/ca.crt
+        '';
+      };
+    };
     services.k3s.manifests = {
       external-secrets.content = {
         apiVersion = "helm.cattle.io/v1";
