@@ -56,6 +56,18 @@ with lib.campground; {
 
     hardware = { nvidia = enabled; };
     services = {
+      glusterfs = {
+        enable = true;
+        peers = [ "reckless" "webb" ];
+        volumes = [
+          {
+            name = "kubernetes";
+            brickDirs = [ "/glusterfs/kubernetes" ];
+            replicaCount = 2;
+            transport = "tcp";
+          }
+        ];
+      };
       netbird.client.enable = true;
       k3s = {
         modules = {
