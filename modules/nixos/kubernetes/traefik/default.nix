@@ -43,7 +43,7 @@ in
             name = "vault-auth";
             namespace = "public-traefik";
           };
-          spec.automountServiceAccountToken = true;
+          automountServiceAccountToken = true;
         };
 
         vault-auth-rbac.content = {
