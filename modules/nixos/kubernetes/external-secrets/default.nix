@@ -39,15 +39,26 @@ in
           NS=external-secrets
           SA=vault-auth
 
-          kubectl -n $NS create token $SA --duration=24h > /tmp/token.jwt
-          kubectl -n $NS get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
+          VAULT_PATH="${cfg.vault-path}"
+          export VAULT_ADDR="${cfg.vault-address}"
+          HOSTNAME=${config.networking.hostName}
 
-          vault write auth/kubernetes/config \
+          ROLE_ID=$(cat /var/lib/vault/$HOSTNAME/role-id)
+          SECRET_ID=$(cat /var/lib/vault/$HOSTNAME/secret-id)
+
+          echo "Logging in to Vault using AppRole..."
+          VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          export VAULT_TOKEN
+
+          ${pkgs.k3s}/bin/k3s kubectl -n $NS create token $SA --duration=24h > /tmp/token.jwt
+          ${pkgs.k3s}/bin/k3s kubectl -n $NS get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
+
+          ${pkgs.vault-bin}/bin/vault write auth/kubernetes/config \
             token_reviewer_jwt="$(< /tmp/token.jwt)" \
             kubernetes_host="$K8S_HOST" \
             kubernetes_ca_cert="$(< /tmp/ca.crt)"
 
-          vault write auth/kubernetes/role/external-secrets \
+          ${pkgs.vault-bin}/bin/vault write auth/kubernetes/role/external-secrets \
             bound_service_account_names="$SA" \
             bound_service_account_namespaces="*" \
             policies=${cfg.vault-policy} \

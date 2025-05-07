@@ -130,9 +130,9 @@ with lib.campground; {
         enable = true;
         interface = "enp3s0f1";
         tang-servers = [
-          "http://webb:1234"
+          # "http://webb:1234"
           "http://chesty:1234"
-          # "http://lucas:1234"
+          "http://lucas:1234"
           "http://ermy:1234"
           "http://reckless:1234"
         ];
