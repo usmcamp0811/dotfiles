@@ -3,12 +3,15 @@
 , pkgs
 , ...
 }:
-with lib; let
+with lib;
+with lib.campground; let
   cfg = config.campground.services.k3s.modules.external-secrets;
 in
 {
-  options.campground.services.k3s.modules.external-secrets.enable = mkEnableOption "Deploy External Secrets and Vault Store";
-  options.campground.services.k3s.modules.external-secrets.vault-policy = mkOpt str "campground" "The Policy to give the `vault-auth` ServiceAccount";
+  options.campground.services.k3s.modules.external-secrets = {
+    enable = mkEnableOption "Deploy External Secrets and Vault Store";
+    vault-policy = mkOpt types.str "campground" "The Policy to give the `vault-auth` ServiceAccount";
+  };
 
   config = mkIf config.campground.services.k3s.modules.external-secrets.enable {
     campground.services.k3s.modules.certificates.enable = true;
@@ -29,7 +32,7 @@ in
 
       serviceConfig = {
         Type = "oneshot";
-        script = pkgs.writeShellScript "vault-k8s-init" ''
+        ExecStart = pkgs.writeShellScript "vault-k8s-init" ''
           set -e
 
           K8S_HOST=${config.services.k3s.serverAddr}
