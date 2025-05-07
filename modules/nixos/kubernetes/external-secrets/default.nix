@@ -105,7 +105,7 @@ in
           name = "vault-auth";
           namespace = "external-secrets";
         };
-        spec.automountServiceAccountToken = true;
+        automountServiceAccountToken = true;
       };
     };
   };
