@@ -45,7 +45,7 @@ in
         tar -czf $out -C external-secrets .
       '';
 
-    systemd.services.vault-k8s-init = {
+    systemd.services.vault-k8s-init = mkIf (config.services.k3s.clusterInit) {
       description = "Configure Vault Kubernetes Auth";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "k3s.service" ];
