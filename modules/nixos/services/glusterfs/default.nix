@@ -58,8 +58,6 @@ in
       serviceConfig.Type = "oneshot";
       script =
         ''
-          set -e
-
           for peer in ${lib.concatStringsSep " " cfg.peers}; do
             echo "Probing peer $peer..."
             i=1

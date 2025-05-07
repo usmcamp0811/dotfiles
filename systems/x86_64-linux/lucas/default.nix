@@ -58,7 +58,7 @@ with lib.campground; {
     services = {
       glusterfs = {
         enable = true;
-        peers = [ "reckless" "webb" ];
+        peers = [ "reckless" ];
         volumes = [
           {
             name = "kubernetes";
