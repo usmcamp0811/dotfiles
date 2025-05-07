@@ -3,8 +3,10 @@
 , pkgs
 , ...
 }:
-with lib; {
+with lib; let
   cfg = config.campground.services.k3s.modules.external-secrets;
+in
+{
   options.campground.services.k3s.modules.external-secrets.enable = mkEnableOption "Deploy External Secrets and Vault Store";
   options.campground.services.k3s.modules.external-secrets.vault-policy = mkOpt str "campground" "The Policy to give the `vault-auth` ServiceAccount";
 
