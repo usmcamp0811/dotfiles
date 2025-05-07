@@ -1,15 +1,15 @@
-{ lib, ... }:
+{lib, ...}:
 with lib;
 with lib.campground; {
-  imports = [ ./hardware.nix ];
+  imports = [./hardware.nix];
 
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
     archetypes = {
@@ -54,15 +54,15 @@ with lib.campground; {
     nfs.client.enable = true;
     tools.attic = enabled;
 
-    hardware = { nvidia = enabled; };
+    hardware = {nvidia = enabled;};
     services = {
       glusterfs = {
         enable = true;
-        peers = [ "reckless" ];
+        peers = ["reckless"];
         volumes = [
           {
             name = "kubernetes";
-            brickDirs = [ "/glusterfs/kubernetes" ];
+            brickDirs = ["/glusterfs/kubernetes"];
             replicaCount = 2;
             transport = "tcp";
           }
@@ -114,23 +114,23 @@ with lib.campground; {
 
         policies =
           builtins.foldl'
-            (policies: file:
-              policies
-              // {
-                "${snowfall.path.get-file-name-without-extension file}" = file;
-              })
-            { }
-            (builtins.filter (snowfall.path.has-file-extension "hcl")
-              (builtins.map
-                (path:
-                  ../daly/vault/policies
-                  + "/${
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          {}
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies
+                + "/${
                   builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
                 }")
-                (snowfall.fs.get-files ../daly/vault/policies)));
+              (snowfall.fs.get-files ../daly/vault/policies)));
       };
-      n8n = { enable = true; };
-      chromadb = { enable = true; };
+      n8n = {enable = true;};
+      chromadb = {enable = true;};
       # onlyoffice = { enable = true; };
       ollama = {
         enable = true;
@@ -215,7 +215,7 @@ with lib.campground; {
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
+        users.mcamp = {files = ["id_ed25519" "passwords"];};
       };
       vault-agent = {
         enable = true;
