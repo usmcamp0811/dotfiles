@@ -97,7 +97,8 @@ in
     services = {
       glusterfs = {
         enable = true;
-        peers = [ "webb" ];
+        # peers = ["webb"];
+        peers = [ ];
         volumes = [
           {
             name = "kubernetes";

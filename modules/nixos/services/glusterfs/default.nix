@@ -1,5 +1,6 @@
 { lib
 , config
+, pkgs
 , ...
 }:
 with lib;
@@ -53,31 +54,61 @@ in
       description = "Create GlusterFS Volumes";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "glusterd.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        Path = [ pkgs.glusterfs ];
-      };
+      path = [ pkgs.glusterfs ];
+      serviceConfig.Type = "oneshot";
       script =
         ''
           set -e
-          peers=(${lib.concatStringsSep " " cfg.peers})
-          for peer in "''${peers[@]}"; do
-            gluster peer probe $peer || true
+
+          for peer in ${lib.concatStringsSep " " cfg.peers}; do
+            echo "Probing peer $peer..."
+            i=1
+            while [ "$i" -le 30 ]; do
+              if ${pkgs.glusterfs}/bin/gluster peer probe "$peer" >/dev/null 2>&1; then
+                echo "Peer $peer added"
+                break
+              fi
+              echo "Waiting for peer $peer to become reachable... ($i/30)"
+              i=$((i + 1))
+              sleep 2
+            done
           done
         ''
-        + lib.concatMapStringsSep "\n"
+        + (lib.optionalString (cfg.volumes != [ ]) (lib.concatMapStringsSep "\n"
           (vol:
             let
               bricks = lib.concatMapStringsSep " " (dir: "${config.networking.hostName}:${dir}") vol.brickDirs;
             in
             ''
-              gluster volume create ${vol.name} \
-                replica ${toString vol.replicaCount} \
-                transport ${vol.transport} \
-                ${bricks} force || true
-              gluster volume start ${vol.name} || true
+              missing=0
+              for brick in ${bricks}; do
+                host="''${brick%%:*}"
+                path="''${brick#*:}"
+                if [ "$host" = "${config.networking.hostName}" ]; then
+                  if [ ! -d "$path" ]; then
+                    echo "Missing local brick path: $path"
+                    missing=1
+                  fi
+                fi
+              done
+
+              if [ "$missing" -eq 1 ]; then
+                echo "One or more local brick paths missing; skipping volume ${vol.name}"
+                exit 0
+              fi
+
+              if ! ${pkgs.glusterfs}/bin/gluster volume info ${vol.name} >/dev/null 2>&1; then
+                ${pkgs.glusterfs}/bin/gluster volume create ${vol.name} \
+                  replica ${toString vol.replicaCount} \
+                  transport ${vol.transport} \
+                  ${bricks} force
+              fi
+
+              if ! ${pkgs.glusterfs}/bin/gluster volume status ${vol.name} >/dev/null 2>&1; then
+                ${pkgs.glusterfs}/bin/gluster volume start ${vol.name}
+              fi
             '')
-          cfg.volumes;
+          cfg.volumes));
     };
 
     networking.firewall.allowedTCPPorts = [ 24007 24008 24009 49152 49153 ];
