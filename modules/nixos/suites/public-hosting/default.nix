@@ -319,45 +319,45 @@ in
   };
 
   config = {
-    systemd.services.vip-checker = {
-      description = "Check VIP and Traefik health; restart keepalived and/or traefik if needed";
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = pkgs.writeShellScript "check-vip-and-traefik" ''
-          set -euo pipefail
+    # systemd.services.vip-checker = {
+    #   description = "Check VIP and Traefik health; restart keepalived and/or traefik if needed";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     ExecStart = pkgs.writeShellScript "check-vip-and-traefik" ''
+    #       set -euo pipefail
+    #
+    #       restart_keepalived=0
+    #       restart_traefik=0
+    #
+    #       if ! ip addr show dev ${cfg.interface} | grep -q '${cfg.pub-ip}'; then
+    #         echo "VIP ${cfg.pub-ip} missing on ${cfg.interface}"
+    #         restart_keepalived=1
+    #       fi
+    #
+    #       if ! ${pkgs.curl}/bin/curl --max-time 2 --silent --fail http://${cfg.pub-ip}:80/healthz >/dev/null; then
+    #         echo "Traefik not healthy on ${cfg.pub-ip}:80"
+    #         restart_traefik=1
+    #       fi
+    #
+    #       if [ "$restart_keepalived" -eq 1 ]; then
+    #         systemctl restart keepalived
+    #       fi
+    #
+    #       if [ "$restart_traefik" -eq 1 ]; then
+    #         systemctl restart traefik
+    #       fi
+    #     '';
+    #   };
+    # };
 
-          restart_keepalived=0
-          restart_traefik=0
-
-          if ! ip addr show dev ${cfg.interface} | grep -q '${cfg.pub-ip}'; then
-            echo "VIP ${cfg.pub-ip} missing on ${cfg.interface}"
-            restart_keepalived=1
-          fi
-
-          if ! ${pkgs.curl}/bin/curl --max-time 2 --silent --fail http://${cfg.pub-ip}:80/healthz >/dev/null; then
-            echo "Traefik not healthy on ${cfg.pub-ip}:80"
-            restart_traefik=1
-          fi
-
-          if [ "$restart_keepalived" -eq 1 ]; then
-            systemctl restart keepalived
-          fi
-
-          if [ "$restart_traefik" -eq 1 ]; then
-            systemctl restart traefik
-          fi
-        '';
-      };
-    };
-
-    systemd.timers.vip-checker = {
-      description = "Periodic VIP+Traefik health checker";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnBootSec = "1min";
-        OnUnitActiveSec = "30s";
-      };
-    };
+    # systemd.timers.vip-checker = {
+    #   description = "Periodic VIP+Traefik health checker";
+    #   wantedBy = ["timers.target"];
+    #   timerConfig = {
+    #     OnBootSec = "1min";
+    #     OnUnitActiveSec = "30s";
+    #   };
+    # };
     campground = {
       # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
 
