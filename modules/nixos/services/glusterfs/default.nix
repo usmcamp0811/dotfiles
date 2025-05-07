@@ -53,7 +53,10 @@ in
       description = "Create GlusterFS Volumes";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "glusterd.service" ];
-      serviceConfig.Type = "oneshot";
+      serviceConfig = {
+        Type = "oneshot";
+        Path = [ pkgs.glusterfs ];
+      };
       script =
         ''
           set -e
