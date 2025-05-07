@@ -329,8 +329,8 @@ in
           restart_keepalived=0
           restart_traefik=0
 
-          if ! ip addr show dev ${iface} | grep -q '${pub-ip}'; then
-            echo "VIP ${pub-ip} missing on ${iface}"
+          if ! ip addr show dev ${interface} | grep -q '${pub-ip}'; then
+            echo "VIP ${pub-ip} missing on ${interface}"
             restart_keepalived=1
           fi
 
