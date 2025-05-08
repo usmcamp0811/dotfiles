@@ -439,6 +439,10 @@
           path = ./templates/new-azure-vm;
           description = "A template for a new azure vm";
         };
+        slidev = {
+          path = ./templates/slidev;
+          description = "A Template for making a flake with a devshell for running Slidev slides";
+        };
         julia-project = {
           path = ./templates/julia-project;
           description = "An example of how to setup Julia Projects WIP";
