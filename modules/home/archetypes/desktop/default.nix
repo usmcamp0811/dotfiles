@@ -96,6 +96,7 @@ in
       };
 
       apps = {
+        signal = enabled;
         barrier = enabled;
         firefox = enabled;
         brave = enabled;
