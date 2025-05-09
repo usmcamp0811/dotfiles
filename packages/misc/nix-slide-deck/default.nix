@@ -19,5 +19,22 @@ with lib.campground; let
     themes = slidev-themes;
     assets = [ ./assets ];
   };
+
+  docker-slidev-dev = pkgs.dockerTools.streamLayeredImage {
+    name = "slidev";
+    tag = "latest";
+    contents = [ pkgs.campground.slidev slidev-themes ];
+    config = {
+      Cmd = [ "${pkgs.slidev}/bin/slidev" "--remote" ];
+      ExposedPorts = { "3030/tcp" = { }; };
+    };
+  };
+
+  serve = pkgs.writeShellApplication {
+    name = "serve";
+    text = ''
+      ${pkgs.python3}/bin/python3 -m http.server 8080 --directory ${slides}
+    '';
+  };
 in
-slides
+serve
