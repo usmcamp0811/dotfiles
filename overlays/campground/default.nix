@@ -9,12 +9,15 @@
 , nixidy
 , uv2nix
 , yazi
+, npmlock2nix
 , lib
 , ...
 }: final: prev:
+let
+  npmlock2nix-lib = import npmlock2nix { pkgs = prev; };
+in
 {
-  # kubenix-eval = kubenix.evalModules.${prev.system};
-
+  # existing entries ...
   nixhelmCharts = lib.fix (
     self:
     lib.mapAttrs
@@ -25,6 +28,7 @@
       )
       nixhelm.chartsDerivations.${prev.system}
   );
+
   nixidy-cli = nixidy.packages.${prev.system}.default;
   nixidy-lib = nixidy.lib;
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;
@@ -36,8 +40,9 @@
   wasm-bindgen-cli =
     unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
 
+  npmlock2nix = npmlock2nix-lib;
+
   matomo_5 = prev.matomo_5.overrideAttrs (old: rec {
-    # Fetch the plugin using fetchFromGitHub
     loginOIDCPlugin = prev.fetchFromGitHub {
       owner = "dominik-th";
       repo = "matomo-plugin-LoginOIDC";
@@ -45,7 +50,6 @@
       sha256 = "sha256-L1ET2EoO6lm648Xf6UcpT1NR5DU4yBhlzaQyrECFjzQ=";
     };
 
-    # Add the plugin to the installPhase
     installPhase =
       old.installPhase
       + ''

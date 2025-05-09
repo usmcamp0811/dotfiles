@@ -4,6 +4,10 @@
   inputs = {
     zig2nix.url = "github:Cloudef/zig2nix";
     nixtheplanet.url = "github:Doc-Steve/NixThePlanet";
+    npmlock2nix = {
+      url = "github:nix-community/npmlock2nix";
+      flake = false;
+    };
     # nixtheplanet.url = "github:usmcamp0811/nixtheplanet/update-macos-url";
     authentik-nix.url = "github:nix-community/authentik-nix";
     terranix.url = "github:terranix/terranix";
