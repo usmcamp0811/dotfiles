@@ -1,30 +1,92 @@
 ---
 title: "Nix: Taming the Wild West of Codebases"
 theme: default
+markdown-it:
+  plugins:
+    - markdown-it-container
 ---
+
+<style>
+.bluf-box {
+  @apply bg-blue-100 text-blue-800 border-l-4 border-blue-500 p-4 my-4 rounded;
+}
+</style>
 
 ---
 
-# Intro
+# Introduction
 
 Welcome to a new way of thinking about development environments, infrastructure, and reproducibility.
 
+---
+layout: two-cols-header
 ---
 
 # What is Nix?
 
 Nix is **not** just a package manager or a build tool.
 
-It's a way to **standardize your entire codebase**.
+<div class="bluf-box clear-both mt-8">
+  <strong>BLUF:</strong> Nix isn't just a tool — it's a foundation for reproducible systems.
+</div>
 
-Historically, projects have used:
+::left::
+It's a **paradigm shift** — a way to **standardize your entire codebase**.
 
-- Style guides (but nothing enforces structure)
-- Chef / Puppet / Ansible (bandaids over traditional package managers)
+::right::
+<img src="./assets/sand-dune-house2.jpg" class="float-right max-w-[300px] ml-4 rounded shadow" />
 
-These tools **do not guarantee state**.
 
-Nix does.
+---
+
+## 🧱 Traditional Approaches
+
+Historically, projects relied on:
+
+- ✍️ Style guides
+- 🛠️ Chef / Puppet / Ansible
+
+But these tools...
+
+- Only suggest structure
+- Rely on mutable state
+- Work **on top of** traditional distros
+
+<!-- image: ./images/stack-of-tools.jpg -->
+
+<div class="bluf-box">
+  <strong>BLUF:</strong> Existing tools patch over problems without solving them.
+</div>
+
+---
+
+## 🚫 What They Don't Guarantee
+
+- No **guaranteed state**
+- No **isolated environments**
+- No **atomic upgrades/rollbacks**
+- No **determinism across teams or machines**
+
+<!-- image: ./images/frustrated-dev.jpg -->
+
+<div class="bluf-box">
+  <strong>BLUF:</strong> Most tools can’t promise your system will stay the same.
+</div>
+
+---
+
+## ✅ What Nix Brings
+
+- Declarative, reproducible environments
+- Everything from packages to infra in one config
+- Consistent behavior across dev, CI, and prod
+- Immutable, sandboxed builds
+
+<!-- image: ./images/nix-pipeline.jpg -->
+
+<div class="bluf-box">
+  <strong>BLUF:</strong> Nix provides predictable, declarative, and isolated systems.
+</div>
 
 ---
 
