@@ -9,7 +9,6 @@
     , slidev
     , markdown
     , themes
-    , slides
     , assets ? [ ]
     , urlBase ? "/"
     ,

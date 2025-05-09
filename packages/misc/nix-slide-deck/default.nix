@@ -5,7 +5,7 @@
 }:
 with lib;
 with lib.campground; let
-  slidev-themes = pkgs.${system}.fetchFromGitHub {
+  slidev-themes = pkgs.fetchFromGitHub {
     owner = "slidevjs";
     repo = "themes";
     rev = "v0.22.0";
@@ -17,7 +17,7 @@ with lib.campground; let
     slidev = pkgs.campground.slidev;
     markdown = ./slides.md;
     themes = slidev-themes;
-    assets = [ ./src/assets ];
+    assets = [ ./assets ];
   };
 in
 slides
