@@ -2,6 +2,7 @@
 , pkgs
 ,
 }:
+# adapted from https://github.com/charles-bord/nix-forest-slides/tree/master
 pkgs.stdenv.mkDerivation (finalAttrs: {
   pname = "slidev";
   version = "0.49.29";

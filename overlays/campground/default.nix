@@ -13,9 +13,6 @@
 , lib
 , ...
 }: final: prev:
-let
-  npmlock2nix-lib = import npmlock2nix { pkgs = prev; };
-in
 {
   # existing entries ...
   nixhelmCharts = lib.fix (
@@ -40,8 +37,6 @@ in
   wasm-bindgen-cli =
     unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
 
-  npmlock2nix = npmlock2nix-lib;
-
   matomo_5 = prev.matomo_5.overrideAttrs (old: rec {
     loginOIDCPlugin = prev.fetchFromGitHub {
       owner = "dominik-th";
@@ -59,5 +54,5 @@ in
   });
 }
   // {
-  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin k3s;
+  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin k3s pnpm_9;
 }
