@@ -1,63 +1,23 @@
 { pkgs
+, lib
 , inputs
 , ...
 }:
-let
-  mkSlide =
-    { lib
-    , stdenv
-    , slidev
-    , markdown
-    , themes
-    , slides
-    , assets ? [ ]
-    , urlBase ? "/"
-    ,
-    }:
-    pkgs.stdenv.mkDerivation {
-      pname = "slidev-presentation";
-      version = "0.1.0";
-      src = ./.;
-
-      nativeBuildInputs = [ slidev ];
-
-      buildInputs = [ ];
-
-      buildPhase =
-        let
-          assetsGlobsStr =
-            builtins.concatStringsSep " " (builtins.map (pkg: "${pkg}/*") assets);
-        in
-        ''
-          runHook preBuild
-
-          mkdir themes
-          cp -r ${themes}/packages/* themes/
-          chmod -R u+w themes/
-
-          mkdir public
-          ln -s ${assetsGlobsStr} public/
-
-          ln -s ${slidev}/node_modules node_modules
-
-          cp ${markdown} ./slides.md
-          slidev build --base "${urlBase}"
-
-          runHook postBuild
-        '';
-
-      installPhase = ''
-        runHook preInstall
-        cp -r dist $out
-        runHook postInstall
-      '';
-
-      meta = {
-        description = "Slidev Presentation SPA";
-        homepage = "https://sli.dev/";
-        license = lib.licenses.mit;
-        maintainers = with lib.maintainers; [ ];
-      };
-    };
+with lib;
+with lib.campground; let
+  slidev-themes = pkgs.${system}.fetchFromGitHub {
+    owner = "slidevjs";
+    repo = "themes";
+    rev = "v0.22.0";
+    hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
+  };
+  slides = mkSlide {
+    inherit lib;
+    stdenv = pkgs.stdenv;
+    slidev = pkgs.campground.slidev;
+    markdown = ./slides.md;
+    themes = slidev-themes;
+    assets = [ ./src/assets ];
+  };
 in
-pkgs.neovim
+slides
