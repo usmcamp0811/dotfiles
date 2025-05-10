@@ -144,3 +144,4 @@ target/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 .pnpm-store/v3/files
+packages/misc/nix-slide-deck/.vite/deps
