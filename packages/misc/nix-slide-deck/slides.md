@@ -19,9 +19,6 @@ markdown-it:
 Welcome to a new way of thinking about development environments, infrastructure, and reproducibility.
 
 ---
-layout: two-cols-header
----
-
 # What is Nix?
 
 Nix is **not** just a package manager or a build tool.
