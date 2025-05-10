@@ -48,6 +48,8 @@
       installPhase = ''
         runHook preInstall
         cp -r dist $out
+        mkdir -p $out/themes
+        cp -r themes $out/
         runHook postInstall
       '';
 

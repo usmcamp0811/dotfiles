@@ -1,9 +1,13 @@
 ---
 title: "Nix: Taming the Wild West of Codebases"
-theme: default
 markdown-it:
   plugins:
     - markdown-it-container
+
+theme: ./themes/theme-bricks
+lineNumbers: true
+layout: cover
+class: text-right
 ---
 
 <style>
@@ -19,6 +23,7 @@ markdown-it:
 Welcome to a new way of thinking about development environments, infrastructure, and reproducibility.
 
 ---
+
 # What is Nix?
 
 Nix is **not** just a package manager or a build tool.
@@ -31,7 +36,6 @@ Nix is **not** just a package manager or a build tool.
 It's a **paradigm shift** — a way to **standardize your entire codebase**.
 
 ::right::
-<img src="./assets/sand-dune-house2.jpg" class="float-right max-w-[300px] ml-4 rounded shadow" />
 
 
 ---
