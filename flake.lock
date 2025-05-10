@@ -10694,11 +10694,11 @@
         "stable-nixpkgs": "stable-nixpkgs_16"
       },
       "locked": {
-        "lastModified": 1746896628,
-        "narHash": "sha256-j/JnYna7VuMwTc4Cn+M8Er6nIq/HMsWe9Y5CR0n3O/k=",
+        "lastModified": 1746902233,
+        "narHash": "sha256-I5WeAl+i8pwM9PfVjMxnyZbf7jJ0O9br3Qx/qHCC5qw=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "95deaf409cd6e78ee895be34f0084739b6f36234",
+        "rev": "baa310134631d5364cf614405f3d74de3e7858be",
         "type": "gitlab"
       },
       "original": {
