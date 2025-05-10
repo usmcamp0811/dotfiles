@@ -5,11 +5,7 @@ markdown-it:
     - markdown-it-container
 
 theme: ./themes/slidev-theme-neversink
-colorSchema: dark
-color: dark
 lineNumbers: true
-layout: cover
-class: text-right
 ---
 
 <style>
@@ -78,7 +74,7 @@ Like building a house on sand, you're always one gust away from breakage.
 
 Nix builds **from the ground up** on a cryptographic, content-addressed store, ensuring:
 
-- 🪨 **A solid, reproducible base** — Every dependency, build input, and configuration is pinned. Your app builds the same today, tomorrow, and on any machine.
+- 🪨 <b>A solid, reproducible base</b> — Every dependency, build input, and configuration is pinned. Your app builds the same today, tomorrow, and on any machine.
 - 🔄 **Immutable builds** — No surprises from "latest" or system drift. A build that worked once will always work again, byte-for-byte.
 - 🧱 **Consistency across environments** — From your laptop to CI to production, Nix ensures identical environments without "it works on my machine" bugs.
 </div>
