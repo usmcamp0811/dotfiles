@@ -14,7 +14,7 @@ class: text-right
 
 <style>
 .bluf-box {
-  @apply bg-blue-100 text-blue-800 border-l-4 border-blue-500 p-4 my-4 rounded;
+  @apply text-sm bg-blue-100 text-blue-800 border-l-4 border-blue-500 p-3 my-4 rounded;
 }
 </style>
 
@@ -58,28 +58,30 @@ color: dark
 ---
 layout: two-cols-title
 color: dark
+columns: is-7
+align: l-lt-lt
 ---
 
 :: title ::
 
 # What is Nix?
 
-Nix is **not** just a package manager or a build tool.
-
 <div class="bluf-box clear-both mt-8">
-  <strong>BLUF:</strong> Nix isn’t another tool on sand — it’s the rock-solid foundation your systems need.
+  <strong>BLUF:</strong> Nix isn’t another tool on sand — it’s the rock-solid foundation your entire software ecosystem.
 </div>
 
 :: left ::
 
-Most tools build **on top** of mutable, fragile foundations.  
+<div class="text-sm leading-relaxed">
+Most tools build <b>on top</b> of mutable, fragile foundations.  
 Like building a house on sand, you're always one gust away from breakage.
 
-Nix builds **from the ground up**, ensuring:
+Nix builds **from the ground up** on a cryptographic, content-addressed store, ensuring:
 
-- 🪨 A solid, reproducible base
-- 🔄 Immutable builds
-- 🧱 Consistency across environments
+- 🪨 **A solid, reproducible base** — Every dependency, build input, and configuration is pinned. Your app builds the same today, tomorrow, and on any machine.
+- 🔄 **Immutable builds** — No surprises from "latest" or system drift. A build that worked once will always work again, byte-for-byte.
+- 🧱 **Consistency across environments** — From your laptop to CI to production, Nix ensures identical environments without "it works on my machine" bugs.
+</div>
 
 :: right ::
 
