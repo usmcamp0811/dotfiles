@@ -17,11 +17,17 @@ with lib.campground; let
     };
     depsHash = "sha256-NKQ/MISoYnQFYMfcb8vOTE+YF1/AUHYRlGU4qNQalVY=";
   };
-  slidev-mokkapps = pkgs.fetchFromGitHub {
-    owner = "Mokkapps";
-    repo = "slidev-theme-mokkapps";
-    rev = "952996ba06cd27c0d1bab9625922723baa0271dd";
-    hash = "sha256-m2RXHI+vvszYaDxO38mLdxMKZbtUgAMrdSJBCINgQSc=";
+  mokkapps-theme = buildTheme {
+    inherit pkgs;
+    pname = "slidev-theme-mokkapps";
+    version = "0.1.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "gureckis";
+      repo = "slidev-theme-neversink";
+      rev = "952996ba06cd27c0d1bab9625922723baa0271dd";
+      hash = "sha256-m2RXHI+vvszYaDxO38mLdxMKZbtUgAMrdSJBCINgQSc=";
+    };
+    depsHash = "sha256-ZJh47LQamNh1kPd8c/JTlkcQp9k2MwKLkIw+f+102DE=";
   };
   slidev-themes = pkgs.fetchFromGitHub {
     owner = "slidevjs";
@@ -35,7 +41,7 @@ with lib.campground; let
     slidev = pkgs.campground.slidev;
     markdown = ./slides.md;
     themes = slidev-themes;
-    mytheme = neversink-theme;
+    customThemes = [ neversink-theme mokkapps-theme ];
     assets = [ ./assets ];
   };
 

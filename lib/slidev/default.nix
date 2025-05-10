@@ -9,8 +9,10 @@
     , slidev
     , markdown
     , themes
-    , mytheme
-    , assets ? [ ]
+    , # official prebuilt themes
+      customThemes ? [ ]
+    , # list of custom themes (built with pnpm)
+      assets ? [ ]
     , urlBase ? "/"
     ,
     }:
@@ -27,14 +29,23 @@
         let
           assetsGlobsStr =
             builtins.concatStringsSep " " (builtins.map (pkg: "${pkg}/*") assets);
+          customThemeDirs = builtins.concatStringsSep "\n" (
+            builtins.map
+              (t: ''
+                mkdir -p themes/${t.pname}
+                cp -r ${t}/* themes/${t.pname}
+              '')
+              customThemes
+          );
         in
         ''
           runHook preBuild
 
           mkdir themes
           cp -r ${themes}/packages/* themes/
-          mkdir -p themes/slidev-theme-neversink
-          cp -r ${mytheme}/* themes/slidev-theme-neversink
+
+          ${customThemeDirs}
+
           chmod -R u+w themes/
 
           mkdir public

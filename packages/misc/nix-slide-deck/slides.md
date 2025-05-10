@@ -4,7 +4,7 @@ markdown-it:
   plugins:
     - markdown-it-container
 
-theme: ./themes/slidev-theme-neversink
+theme: ./themes/slidev-theme-mokkapps
 lineNumbers: true
 layout: cover
 class: text-right
