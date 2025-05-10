@@ -9,6 +9,7 @@
     , slidev
     , markdown
     , themes
+    , mytheme
     , assets ? [ ]
     , urlBase ? "/"
     ,
@@ -32,6 +33,8 @@
 
           mkdir themes
           cp -r ${themes}/packages/* themes/
+          mkdir -p themes/slidev-theme-neversink
+          cp -r ${mytheme}/* themes/slidev-theme-neversink
           chmod -R u+w themes/
 
           mkdir public
@@ -58,6 +61,35 @@
         homepage = "https://sli.dev/";
         license = lib.licenses.mit;
         maintainers = with lib.maintainers; [ ];
+      };
+    };
+  buildTheme =
+    { pkgs
+    , pname
+    , version
+    , src
+    , depsHash
+    ,
+    }:
+    pkgs.stdenv.mkDerivation {
+      inherit pname version src;
+
+      nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_9.configHook ];
+
+      pnpmDeps = pkgs.pnpm_9.fetchDeps {
+        inherit pname version src;
+        hash = depsHash;
+      };
+
+      installPhase = ''
+        runHook preInstall
+        cp -r . $out
+        runHook postInstall
+      '';
+
+      meta = {
+        description = "Built theme ${pname}";
+        license = lib.licenses.mit;
       };
     };
 }
