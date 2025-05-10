@@ -4,7 +4,7 @@ markdown-it:
   plugins:
     - markdown-it-container
 
-theme: ./themes/slidev-theme-mokkapps
+theme: ./themes/slidev-theme-neversink
 lineNumbers: true
 layout: cover
 class: text-right
@@ -23,6 +23,8 @@ class: text-right
 Welcome to a new way of thinking about development environments, infrastructure, and reproducibility.
 
 ---
+layout: two-cols
+---
 
 # What is Nix?
 
@@ -36,7 +38,6 @@ Nix is **not** just a package manager or a build tool.
 It's a **paradigm shift** — a way to **standardize your entire codebase**.
 
 ::right::
-
 
 ---
 
