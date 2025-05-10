@@ -9941,11 +9941,11 @@
         "stable-nixpkgs": "stable-nixpkgs_15"
       },
       "locked": {
-        "lastModified": 1743739239,
-        "narHash": "sha256-wxiogWiMU13WNX3Ku59cjg2IyxblxJrDJH6zdZmrw8Q=",
+        "lastModified": 1746891064,
+        "narHash": "sha256-ReRhA6SVMpKq9Uvy5pPskps7+yo3vBv2UvH1fCOo5jk=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "44e4b8440461975f00223d7e433a2783a146b494",
+        "rev": "0bc9a12fb6ce96fcbca92b8abf517d3359de95e4",
         "type": "gitlab"
       },
       "original": {
