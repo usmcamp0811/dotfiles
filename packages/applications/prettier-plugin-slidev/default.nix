@@ -21,10 +21,22 @@ with lib.campground; let
       hash = "sha256-EHISiqPo2hevf9ear0I7oAQs3rzagnd6M2zPrHwn0ig=";
     };
 
+    buildPhase = ''
+      pnpm build
+    '';
+
     installPhase = ''
       runHook preInstall
-      mkdir -p $out/node_modules/prettier-plugin-slidev
-      cp -r ./* $out/node_modules/prettier-plugin-slidev
+
+      mkdir -p $out/lib/node_modules/prettier-plugin-slidev
+
+      cp package.json $out/lib/node_modules/prettier-plugin-slidev/
+      cp -r dist $out/lib/node_modules/prettier-plugin-slidev/
+      cp -r node_modules $out/lib/node_modules/prettier-plugin-slidev/
+
+      # Use an ES module wrapper
+      echo "export { default } from './dist/index.js'" > $out/lib/node_modules/prettier-plugin-slidev/index.js
+
       runHook postInstall
     '';
 
@@ -34,14 +46,17 @@ with lib.campground; let
       platforms = lib.platforms.linux;
     };
   });
-  prettier-with-slidev = pkgs.symlinkJoin {
-    name = "prettier-with-slidev";
-    paths = [ pkgs.nodePackages.prettier ];
-    buildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      wrapProgram $out/bin/prettier \
-        --add-flags "--plugin-search-dir=${slidevPlugin}" \
-        --add-flags "--plugin=prettier-plugin-slidev"
+
+  prettier-with-slidev = pkgs.stdenv.mkDerivation {
+    pname = "prettier-with-slidev";
+    version = "3";
+
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+
+    buildCommand = ''
+      mkdir -p $out/bin
+      makeWrapper ${pkgs.nodePackages.prettier}/bin/prettier $out/bin/prettier \
+        --add-flags "--plugin=${slidevPlugin}/lib/node_modules/prettier-plugin-slidev/index.js"
     '';
   };
 in
