@@ -36,7 +36,10 @@ with lib.campground; let
     name = "serve-dev";
     runtimeInputs = [ pkgs.coreutils ];
     text = ''
-
+      if [ ! -f slides.md ]; then
+        echo "Error: slides.md not found in the current directory."
+        exit 1
+      fi
       [ -L themes ] || ln -s ${slides}/themes themes
       mkdir -p node_modules/.pnpm
       mkdir -p node_modules/@slidev
