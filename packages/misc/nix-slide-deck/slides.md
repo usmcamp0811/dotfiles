@@ -5,6 +5,8 @@ markdown-it:
     - markdown-it-container
 
 theme: ./themes/slidev-theme-neversink
+colorSchema: dark
+color: dark
 lineNumbers: true
 layout: cover
 class: text-right
@@ -17,27 +19,71 @@ class: text-right
 </style>
 
 ---
+layout: cover
+color: dark
+class: text-right
+---
 
-# Introduction
+# Nix
 
-Welcome to a new way of thinking about development environments, infrastructure, and reproducibility.
+## Taming the Wild West of Codebases
+
+<div class="text-sm mt-4">
+  🐍💻 Reproducible environments, declarative infra, and zero-footgun dev setups  
+</div>
+
+<div class="text-xs opacity-50 mt-2">
+  Presented by AICampground • 2025
+</div>
 
 ---
-layout: two-cols
+layout: cover
+color: dark
 ---
+
+# What We'll Cover
+
+- 🧱 Why traditional tools fall short
+- 🌀 How Nix changes the game
+- 📦 Package management with Nix
+- 📦 Container builds with Nix
+- ☸️ Kubernetes and Terraform with Nix
+- 🧠 Abstraction and reuse in infra
+- 🧪 Building reliable, testable systems
+
+<div class="bluf-box mt-10">
+  <strong>BLUF:</strong> We're going to reimagine how you manage systems, from dev to prod, using Nix.
+</div>
+
+---
+layout: two-cols-title
+color: dark
+---
+
+:: title ::
 
 # What is Nix?
 
 Nix is **not** just a package manager or a build tool.
 
 <div class="bluf-box clear-both mt-8">
-  <strong>BLUF:</strong> Nix isn't just a tool — it's a foundation for reproducible systems.
+  <strong>BLUF:</strong> Nix isn’t another tool on sand — it’s the rock-solid foundation your systems need.
 </div>
 
-::left::
-It's a **paradigm shift** — a way to **standardize your entire codebase**.
+:: left ::
 
-::right::
+Most tools build **on top** of mutable, fragile foundations.  
+Like building a house on sand, you're always one gust away from breakage.
+
+Nix builds **from the ground up**, ensuring:
+
+- 🪨 A solid, reproducible base
+- 🔄 Immutable builds
+- 🧱 Consistency across environments
+
+:: right ::
+
+<img src="./assets/house_on_rock_and_sand.jpg" class="rounded shadow-lg max-w-[300px] mx-auto" />
 
 ---
 
