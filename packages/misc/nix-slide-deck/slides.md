@@ -69,14 +69,16 @@ align: l-lt-lt
 :: left ::
 
 <div class="text-sm leading-relaxed">
-Most tools build <b>on top</b> of mutable, fragile foundations.  
-Like building a house on sand, you're always one gust away from breakage.
+<p>Most tools build <b>on top</b> of mutable, fragile foundations.<br>
+Like building a house on sand, you're always one gust away from breakage.</p>
 
-Nix builds **from the ground up** on a cryptographic, content-addressed store, ensuring:
+<p>Nix builds <b>from the ground up</b> on a cryptographic, content-addressed store, ensuring:</p>
 
-- 🪨 <b>A solid, reproducible base</b> — Every dependency, build input, and configuration is pinned. Your app builds the same today, tomorrow, and on any machine.
-- 🔄 **Immutable builds** — No surprises from "latest" or system drift. A build that worked once will always work again, byte-for-byte.
-- 🧱 **Consistency across environments** — From your laptop to CI to production, Nix ensures identical environments without "it works on my machine" bugs.
+<ul class="list-disc ml-4 mt-2">
+  <li>🪨 <b>A solid, reproducible base</b> — Every dependency, build input, and configuration is pinned. Your app builds the same today, tomorrow, and on any machine.</li>
+  <li>🔄 <b>Immutable builds</b> — No surprises from "latest" or system drift. A build that worked once will always work again, byte-for-byte.</li>
+  <li>🧱 <b>Consistency across environments</b> — From your laptop to CI to production, Nix ensures identical environments without "it works on my machine" bugs.</li>
+</ul>
 </div>
 
 :: right ::
