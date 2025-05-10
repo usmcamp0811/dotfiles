@@ -15,7 +15,7 @@ with lib.campground; let
       rev = "v0.3.6";
       hash = "sha256-JcdkZBcf059Pk5lqwGIlcTHmfIM54no98adeHe+TNBs=";
     };
-    depsHash = "sha256-NKQ/MISoYnQFYMfcb8vOTE+YF1/AUHYRlGU4qNQalVY=";
+    depsHash = "";
   };
   mokkapps-theme = buildTheme {
     inherit pkgs;
@@ -72,10 +72,11 @@ with lib.campground; let
       mkdir -p node_modules/.pnpm
       mkdir -p node_modules/@slidev
       mkdir -p node_modules/prism-theme-vars
+      mkdir -p themes
       touch pnpm-lock.yaml
       touch node_modules/prism-theme-vars/base.css
 
-      [ -L node_modules/@slidev/theme-default ] || ln -s ${slidev-themes}/packages/theme-default node_modules/@slidev/theme-default
+      [ -L themes ] || ln -s ${slidev-themes}/themes themes
 
       ${pkgs.campground.slidev}/bin/slidev --remote
 
@@ -89,4 +90,8 @@ with lib.campground; let
     '';
   };
 in
-serve // { dev = serve-dev; }
+slides
+  // {
+  inherit serve;
+  dev = serve-dev;
+}
