@@ -9,6 +9,7 @@ with lib.campground; let
     buildInputs = with pkgs; [
       pnpm
       nodejs
+      campground.slidev
     ];
   };
 in
