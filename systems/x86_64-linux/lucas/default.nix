@@ -193,6 +193,7 @@ with lib.campground; {
       # };
       # example-flink-job = { enable = true; };
       matt-camp-website = enabled;
+      nix-slide-website = enabled;
       # attic-watch-store = enabled;
       gitlab-runner = enabled;
       campground-blog = enabled;

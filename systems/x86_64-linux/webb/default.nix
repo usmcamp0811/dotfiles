@@ -71,7 +71,6 @@ in
     tools = { attic = enabled; };
 
     services = {
-      nix-slide-website = enabled;
       glusterfs = {
         enable = true;
         peers = [ "reckless" "lucas" ];
