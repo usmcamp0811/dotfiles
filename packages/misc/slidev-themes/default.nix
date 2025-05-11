@@ -28,6 +28,7 @@ with lib.campground; let
       hash = "sha256-JcdkZBcf059Pk5lqwGIlcTHmfIM54no98adeHe+TNBs=";
     };
     depsHash = "sha256-NKQ/MISoYnQFYMfcb8vOTE+YF1/AUHYRlGU4qNQalVY=";
+    pnpm = pkgs.pnpm_9;
   };
   mokkapps-theme = buildPnpmTheme {
     inherit pkgs;
@@ -40,6 +41,7 @@ with lib.campground; let
       hash = "sha256-m2RXHI+vvszYaDxO38mLdxMKZbtUgAMrdSJBCINgQSc=";
     };
     depsHash = "sha256-ZJh47LQamNh1kPd8c/JTlkcQp9k2MwKLkIw+f+102DE=";
+    pnpm = pkgs.pnpm_9;
   };
   slidev-themes = buildPnpmTheme {
     inherit pkgs;
@@ -52,6 +54,7 @@ with lib.campground; let
       hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
     };
     depsHash = "sha256-7aY8Md7Je6SEAnkhzCpkRSOG5Q4A1wHqK34qMEG8HJo=";
+    pnpm = pkgs.pnpm_8;
   };
 in
 slidev-themes

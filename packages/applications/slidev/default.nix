@@ -9,18 +9,21 @@ with lib; let
       rev = "v0.49.29";
       srcHash = "sha256-bOSIJTzPMyS+wbJsLVaMw/wicbsgQADEOyQQjU8MKWw=";
       depsHash = "sha256-18/6hNsRq0hl1UXY6cchuIEVWTbCiZJG33QHDvnXS1A=";
+      pnpm = pkgs.pnpm_9;
     };
     v0_50_0 = {
       version = "0.50.0";
       rev = "v0.50.0";
       srcHash = "sha256-8LP7bAFWJAxd17u77aqX+j0mqTw59AODlrqot8np21g=";
       depsHash = "sha256-M9wqO+V5r2+PlxRMBe47fULTyaaeDWq45rR6XtKPsBw=";
+      pnpm = pkgs.pnpm_9;
     };
     v51_6_0 = {
       version = "51.6.0";
       rev = "v51.6.0";
       srcHash = "sha256-8LP7bAFWJAxd17u77aqX+j0mqTw59AODlrqot8np21g=";
       depsHash = "sha256-M9wqO+V5r2+PlxRMBe47fULTyaaeDWq45rR6XtKPsBw=";
+      pnpm = pkgs.pnpm_8;
     };
   };
 
@@ -36,9 +39,9 @@ with lib; let
         hash = cfg.srcHash;
       };
 
-      nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_9.configHook pkgs.makeWrapper ];
+      nativeBuildInputs = [ pkgs.nodejs cfg.pnpm.configHook pkgs.makeWrapper ];
 
-      pnpmDeps = pkgs.pnpm_8.fetchDeps {
+      pnpmDeps = cfg.pnpm.fetchDeps {
         pname = "slidev";
         version = cfg.version;
         src = finalAttrs.src;

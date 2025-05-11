@@ -91,14 +91,15 @@
     , version
     , src
     , depsHash
+    , pnpm
     ,
     }:
     pkgs.stdenv.mkDerivation {
       inherit pname version src;
 
-      nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_8.configHook ];
+      nativeBuildInputs = [ pkgs.nodejs pnpm.configHook ];
 
-      pnpmDeps = pkgs.pnpm_8.fetchDeps {
+      pnpmDeps = pnpm.fetchDeps {
         inherit pname version src;
         hash = depsHash;
       };
