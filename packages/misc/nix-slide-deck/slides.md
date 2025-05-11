@@ -29,9 +29,6 @@ title: Nix
 </div>
 
 <!--
-Here’s a structured outline for your full slide deck based on your current flow and your goal of leading the audience from “What is Nix?” to “Nix is the future of software and infra”:
-
-
 ## 🔷 Slide Deck Outline: *Nix — Taming the Wild West of Codebases*
 
 ### I. **Opening: Set the Stage**
@@ -62,7 +59,7 @@ Here’s a structured outline for your full slide deck based on your current flo
    - Style guides, config management, Docker, README hell
    - StickyNote: onboarding pain and tribal knowledge
 
-6. **Why Current Tools Fail** _(new)_
+6. **Why Current Tools Fail** 
 
    - Docker and CI patch problems, don’t solve root cause
    - Composing environments is hard
@@ -335,6 +332,43 @@ color: dark
 
 <div class="flex justify-center items-center h-full">
   <img src="/assets/frustrated-developer.gif" class="max-h-[85vh] rounded shadow-lg" />
+</div>
+
+---
+layout: top-title
+color: dark
+align: c
+---
+
+:: title ::
+
+# 🧠 Nix as a Language
+
+:: content ::
+
+<div class="text-lg leading-relaxed text-center max-w-3xl mx-auto mt-6">
+Nix isn’t just a config format — it's a <b>purely functional language</b> built for reproducibility and reuse.
+</div>
+
+<div class="max-w-2xl mx-auto mt-10 space-y-5 text-base leading-relaxed">
+  <div class="flex items-start gap-3">
+    <div>🧪</div>
+    <div><b>Pure functions only depend on their inputs</b> — no hidden state, no side effects. Same inputs always produce the same outputs.</div>
+  </div>
+
+  <div class="flex items-start gap-3">
+    <div>📦</div>
+    <div><b>Your infrastructure becomes predictable code</b> — no drift, no “why is it different this time?” moments.</div>
+  </div>
+
+  <div class="flex items-start gap-3">
+    <div>🔁</div>
+    <div><b>Every build is deterministic</b>, so CI, staging, and production are truly identical — not just “close enough.”</div>
+  </div>
+</div>
+
+<div class="mt-10 text-sm text-center opacity-60">
+Purity isn’t a restriction — it’s what makes reproducibility possible.
 </div>
 
 ---
