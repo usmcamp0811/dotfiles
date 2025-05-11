@@ -126,25 +126,52 @@ Nix provides these qualities **by design**, not as bolt-ons or afterthoughts.
 </div>
 
 ---
+layout: top-title-two-cols
+color: dark
+columns: is-9
+---
+
+:: title ::
 
 ## 🧱 Traditional Approaches
 
-Historically, projects relied on:
+:: left ::
 
-- ✍️ Style guides
-- 🛠️ Chef / Puppet / Ansible
+<div class="text-sm leading-relaxed">
+Before Nix, teams used tools like:
 
-But these tools...
+<ul class="list-disc ml-4 mt-2">
+  <li>✍️ <strong>Style guides</strong> — Suggestions on folder structure and naming, but not enforced or reproducible.</li>
+  <li>🛠️ <strong>Chef / Puppet / Ansible</strong> — Automate config, but often require scripting glue and deep tribal knowledge.</li>
+  <li>🔧 <strong>Shell scripts and golden images</strong> — Fast to set up, but impossible to maintain at scale.</li>
+  <li>🪢 <strong>Manual wiki steps</strong> — "Run these 17 commands in order and hope nothing breaks."</li>
+</ul>
 
-- Only suggest structure
-- Rely on mutable state
-- Work **on top of** traditional distros
+These tools stack on top of traditional operating systems, which:
 
-<!-- image: ./images/stack-of-tools.jpg -->
+- Don’t guarantee state
+- Depend on mutable files
+- Drift over time without notice
 
-<div class="bluf-box">
-  <strong>BLUF:</strong> Existing tools patch over problems without solving them.
 </div>
+
+:: right ::
+
+<div class="flex justify-center items-end h-full pb-6">
+  <img src="/assets/stack-of-tools.jpg" class="rounded shadow-lg max-w-[300px]" />
+</div>
+
+:: default ::
+
+<StickyNote color="amber-light" textAlign="left" width="180px" v-drag="[720,370,180,180,-8]">
+<span style="font-family: 'Comic Sans MS', 'Patrick Hand', cursive;">
+Hey! You're new here.  
+Go find the README.  
+Set up your dev env.  
+It's... a journey.  
+Ping me if you survive. 😅
+</span>
+</StickyNote>
 
 ---
 
