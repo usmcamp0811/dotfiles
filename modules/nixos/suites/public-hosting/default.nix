@@ -16,7 +16,14 @@ with lib.campground; let
         serviceName = serviceName;
       };
     in
-    { loadBalancer.servers = serviceEndpoints; };
+    {
+      loadBalancer.servers = serviceEndpoints;
+      loadBalancer.healthCheck = {
+        path = "/";
+        interval = "10s";
+        timeout = "5s";
+      };
+    };
   jsonValue = with types; let
     valueType =
       nullOr
@@ -220,6 +227,7 @@ in
         };
 
         http.services.nix-slides = generateServiceConfig "nix-slide-website";
+
         # http.routers.adhoc = {
         #   rule = "Host(`adhoc.aicampground.com`)";
         #   entryPoints = [ "web" "websecure" ];
