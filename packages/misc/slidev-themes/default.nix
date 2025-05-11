@@ -41,11 +41,17 @@ with lib.campground; let
     };
     depsHash = "sha256-ZJh47LQamNh1kPd8c/JTlkcQp9k2MwKLkIw+f+102DE=";
   };
-  slidev-themes = pkgs.fetchFromGitHub {
-    owner = "slidevjs";
-    repo = "themes";
-    rev = "v0.22.0";
-    hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
+  slidev-themes = buildPnpmTheme {
+    inherit pkgs;
+    pname = "slidev-themes";
+    version = "0.22.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "slidevjs";
+      repo = "themes";
+      rev = "v0.22.0";
+      hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
+    };
+    depsHash = "sha256-7aY8Md7Je6SEAnkhzCpkRSOG5Q4A1wHqK34qMEG8HJo=";
   };
 in
 slidev-themes
