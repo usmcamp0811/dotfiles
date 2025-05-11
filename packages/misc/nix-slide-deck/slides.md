@@ -335,6 +335,33 @@ color: dark
 </div>
 
 ---
+layout: top-title-two-cols
+color: dark
+columns: is-4
+align: c-lt-lt
+---
+
+:: title ::
+
+## What Nix Brings
+
+:: left ::
+
+<div class="flex min-h-[400px] items-center justify-center">
+  <img src="/assets/Nix_Snowflake_Logo.svg" class="max-w-[250px]" />
+</div>
+
+:: right ::
+
+<div class="text-lg leading-relaxed space-y-5">
+  <div>📜 <b>Declarative environments</b> — Say what you want your system to look like, and Nix makes it so.</div>
+  <div>♻️ <b>Reproducibility</b> — Builds and environments that work the same across every machine, every time.</div>
+  <div>🧰 <b>Unified config</b> — Use one language and toolset to manage everything: packages, containers, infra, and more.</div>
+  <div>🧪 <b>Sandboxed builds</b> — Each build runs in a clean room, so nothing sneaks in or breaks unexpectedly.</div>
+  <div>🔁 <b>Immutable deployments</b> — Roll back instantly, upgrade safely. Your systems are always in a known state.</div>
+</div>
+
+---
 layout: top-title
 color: dark
 align: c
@@ -369,23 +396,6 @@ Nix isn’t just a config format — it's a <b>purely functional language</b> bu
 
 <div class="mt-10 text-sm text-center opacity-60">
 Purity isn’t a restriction — it’s what makes reproducibility possible.
-</div>
-
----
-layout: intro
----
-
-## ✅ What Nix Brings
-
-- Declarative, reproducible environments
-- Everything from packages to infra in one config
-- Consistent behavior across dev, CI, and prod
-- Immutable, sandboxed builds
-
-<!-- image: ./images/nix-pipeline.jpg -->
-
-<div class="bluf-box">
-  <strong>BLUF:</strong> Nix provides predictable, declarative, and isolated systems.
 </div>
 
 ---
