@@ -8,8 +8,8 @@
     , stdenv
     , slidev
     , markdown
-    , themes
-    , # official prebuilt themes
+    , # , themes
+      # official prebuilt themes
       customThemes ? [ ]
     , # list of custom themes (built with pnpm)
       assets ? [ ]
@@ -43,7 +43,6 @@
           runHook preBuild
 
           mkdir themes
-          cp -r ${themes}/packages/* themes/
 
           ${customThemeDirs}
 

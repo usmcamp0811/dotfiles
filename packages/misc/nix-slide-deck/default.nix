@@ -5,37 +5,20 @@
 }:
 with lib;
 with lib.campground; let
-  prismThemeVars = buildPnpmTheme {
-    inherit pkgs;
-    pname = "prism-theme-vars";
-    version = "0.2.5";
-    src = pkgs.fetchFromGitHub {
-      owner = "antfu";
-      repo = "prism-theme-vars";
-      rev = "v0.2.5";
-      hash = "sha256-G+FdQt1I2wYLvIGbnXTEAUdhDoz+KYxL42XjDQGQbmI="; # fill this in
-    };
-    depsHash = "sha256-Ius+Ne8bDmW9L7iYT2QyyXUz3WUMDdA6LKSX0q6jznw=";
-    pnpm = pkgs.pnpm_9;
-  };
   slides = mkSlide {
     inherit lib;
     stdenv = pkgs.stdenv;
-    slidev = pkgs.campground.slidev;
+    slidev = pkgs.campground.slidev.v0_50_0;
     markdown = ./slides.md;
-    themes = pkgs.campground.slidev-themes;
-    # extraNodePackages = [pkgs.campground.sass-embedded];
-    extraNodePackages = [
-      prismThemeVars
-    ];
-    # customThemes = [pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme pkgs.campground.slidev-themes.csscade-theme];
+    # themes =
+    customThemes = [ pkgs.campground.slidev-themes pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme pkgs.campground.slidev-themes.csscade-theme ];
     assets = [ ./assets ];
   };
 
   docker-slidev-dev = pkgs.dockerTools.streamLayeredImage {
     name = "slidev";
     tag = "latest";
-    contents = [ pkgs.campground.slidev pkgs.campground.slidev-themes ];
+    contents = [ pkgs.campground.slidev.v0_49_29 pkgs.campground.slidev-themes ];
     config = {
       Cmd = [ "${pkgs.campground.slidev}/bin/slidev" "--remote" ];
       ExposedPorts = { "3030/tcp" = { }; };
@@ -83,7 +66,7 @@ with lib.campground; let
       mkdir -p node_modules/prism-theme-vars
       touch pnpm-lock.yaml
 
-      ${pkgs.campground.slidev}/bin/slidev --remote
+      ${pkgs.campground.slidev.v0_50_0}/bin/slidev --remote
     '';
   };
 in
