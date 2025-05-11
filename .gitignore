@@ -145,3 +145,4 @@ target/
 #.idea/
 .pnpm-store/v3/files
 packages/misc/nix-slide-deck/.vite/deps
+packages/misc/nix-slide-deck/dist

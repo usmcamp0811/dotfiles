@@ -48,8 +48,8 @@
 
           chmod -R u+w themes/
 
-          mkdir public
-          ln -s ${assetsGlobsStr} public/
+          mkdir -p public/assets
+          ${builtins.concatStringsSep "\n" (builtins.map (pkg: "cp -r ${pkg}/* public/assets/") assets)}
 
           ln -s ${slidev}/node_modules node_modules
 
