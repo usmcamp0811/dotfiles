@@ -3,9 +3,7 @@ title: "Nix: Taming the Wild West of Codebases"
 markdown-it:
   plugins:
     - markdown-it-container
-
 theme: ./themes/slidev-theme-neversink
-# theme: neversink
 lineNumbers: true
 ---
 
