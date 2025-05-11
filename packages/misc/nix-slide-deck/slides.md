@@ -28,20 +28,107 @@ title: Nix
   Presented by Matt Camp • 2025
 </div>
 
----
-layout: intro
-color: dark
----
+<!--
+Here’s a structured outline for your full slide deck based on your current flow and your goal of leading the audience from “What is Nix?” to “Nix is the future of software and infra”:
 
-# What We'll Cover
 
-- 🧱 Why traditional tools fall short
-- 🌀 How Nix changes the game
-- 📦 Package management with Nix
-- 📦 Container builds with Nix
-- ☸️ Kubernetes and Terraform with Nix
-- 🧠 Abstraction and reuse in infra
-- 🧪 Building reliable, testable systems
+## 🔷 Slide Deck Outline: *Nix — Taming the Wild West of Codebases*
+
+### I. **Opening: Set the Stage**
+
+1. **Title Slide**
+
+   * Presentation title, subtitle, presenter info
+2. **What is Nix, Really?**
+
+   * Clarify confusion: Nix ≠ Nixpkgs ≠ NixOS
+   * Show the triangle diagram
+   * Define Nix at its core (reliable file generator)
+
+
+### II. **Motivation: Why Nix Matters**
+
+3. **Rock-Solid Infrastructure Starts Here**
+
+   - Problems with mutable infra
+   - Nix’s reproducible store
+
+4. **Critical Qualities, Critical Domains**
+
+   - Tie to high-assurance environments: defense, infra, compliance
+
+5. **Traditional Approaches**
+
+   - Style guides, config management, Docker, README hell
+   - StickyNote: onboarding pain and tribal knowledge
+
+6. **Why Current Tools Fail** _(new)_
+
+   - Docker and CI patch problems, don’t solve root cause
+   - Composing environments is hard
+   - Golden images are fragile
+
+
+### III. **What Nix Solves**
+
+7. **What Nix Brings**
+
+   - Declarative, reproducible, isolated
+   - Mention flakes, nixpkgs, language features
+
+8. **Nix for Package Management**
+
+   - mkShell, nix-env, conflict-free installs
+
+9. **Nix for Containers**
+
+   - dockerTools, buildLayeredImage, no Docker daemon
+
+10. **Nix for Kubernetes**
+
+    - Kubenix, generating manifests, templating infra
+
+11. **Nix for Cloud Infra**
+
+    - Terranix, parameterized, testable infra
+
+12. **Nix as a Language** _(new)_
+
+    - Functional, composable, abstraction-focused
+    - Why this helps scale teams
+
+
+### IV. **Architectural & Org Benefits**
+
+13. **The Power of Abstraction**
+
+    - Enabling org-wide patterns (e.g. `enable = true`)
+
+14. **Cross-Team Consistency** _(new)_
+
+    - Same tool for dev, CI, prod
+    - Reduces friction between teams
+
+15. **Security, Audit, and Compliance** _(new)_
+
+    - Repro builds, locked inputs, known state
+    - Ideal for SBOMs, reproducible research, and regulated environments
+
+
+### V. **Call to Action**
+
+16. **The Result**
+
+    - Summary of benefits: determinism, parity, testability
+    - “Welcome to the future”
+
+17. **Getting Started** _(optional)_
+
+    - Flakes, nixpkgs, devShell, etc.
+    - Link to guides/docs/org-specific onboarding
+
+Want help drafting slides for the next section, like the one about how Docker and golden images still fail?
+-->
 
 ---
 layout: top-title-two-cols
@@ -175,10 +262,10 @@ Before Nix, teams used tools like:
   <li>✍️ <strong>Style guides</strong> — Suggestions on folder structure and naming, but not enforced or reproducible.</li>
   <li>🛠️ <strong>Chef / Puppet / Ansible</strong> — Automate config, but often require scripting glue and deep tribal knowledge.</li>
   <li>🔧 <strong>Shell scripts and golden images</strong> — Fast to set up, but impossible to maintain at scale.</li>
-  <li>🪢 <strong>Manual wiki steps</strong> — "Run these 17 commands in order and hope nothing breaks."</li>
+  <li>🪢 <strong>Follow README(s)</strong> — "Run these 17 commands in order and hope nothing breaks."</li>
 </ul>
 
-These tools stack on top of traditional operating systems, which:
+These tools stack on top of traditional operating systems and their package managers, which:
 
 - Don’t guarantee state
 - Depend on mutable files
@@ -204,6 +291,54 @@ Ping me if you survive. 😅
 </span>
 </StickyNote>
 
+<!--
+This is why we have tools like Docker, we just build everything from a known state and cross our fingers. But even this is flawed because then we are dependent on golden images and its difficult to compose tools in one image with another.
+-->
+
+---
+layout: top-title-two-cols
+color: dark
+columns: is-4
+---
+
+:: title ::
+
+## Why Current Tools Still Fail
+
+:: right ::
+
+Even with "modern" tooling, we're still patching over deep structural problems:
+
+- 🐳 <b>Docker</b> — Starts from clean slates, but depends on <b>mutable golden images</b> that silently rot over time.
+- ⚙️ <b>CI Pipelines</b> — Automate builds, but rarely guarantee reproducibility. Flaky tests? Mysterious failures? That's drift.
+- 📦 <b>Package managers</b> — Resolve dependencies dynamically, not reproducibly.
+- 🧩 <b>Glue scripts & custom bootstrapping</b> — Every team invents their own fragile setup.
+
+These tools are <b>reactive</b> — built to manage breakage — not prevent it.
+
+:: left ::
+
+<div class="flex justify-center items-center h-full">
+  <img src="/assets/golden-image.png" class="max-h-[85vh] rounded shadow-lg" />
+</div>
+
+---
+layout: top-title
+color: dark
+---
+
+:: title ::
+
+# When ‘latest’ Strikes Again
+
+:: default ::
+
+<div class="flex justify-center items-center h-full">
+  <img src="/assets/frustrated-developer.gif" class="max-h-[85vh] rounded shadow-lg" />
+</div>
+
+---
+layout: intro
 ---
 
 ## ✅ What Nix Brings
