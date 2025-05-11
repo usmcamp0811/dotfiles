@@ -8,11 +8,11 @@
     , stdenv
     , slidev
     , markdown
-      themes ? [ ]
-      assets ? [ ]
-      , urlBase ? "/"
-      , extraNodePackages ? [ ]
-      ,
+    , themes ? [ ]
+    , assets ? [ ]
+    , urlBase ? "/"
+    , extraNodePackages ? [ ]
+    ,
     }:
     stdenv.mkDerivation {
       pname = "slidev-presentation";
