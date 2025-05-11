@@ -28,11 +28,11 @@ class: text-right
 </div>
 
 <div class="text-xs opacity-50 mt-2">
-  Presented by AICampground • 2025
+  Presented by Matt Camp • 2025
 </div>
 
 ---
-layout: cover
+layout: intro
 color: dark
 ---
 
@@ -45,10 +45,6 @@ color: dark
 - ☸️ Kubernetes and Terraform with Nix
 - 🧠 Abstraction and reuse in infra
 - 🧪 Building reliable, testable systems
-
-<div class="bluf-box mt-10">
-  <strong>BLUF:</strong> We're going to reimagine how you manage systems, from dev to prod, using Nix.
-</div>
 
 ---
 layout: top-title-two-cols
@@ -172,21 +168,6 @@ It's... a journey.
 Ping me if you survive. 😅
 </span>
 </StickyNote>
-
----
-
-## 🚫 What They Don't Guarantee
-
-- No **guaranteed state**
-- No **isolated environments**
-- No **atomic upgrades/rollbacks**
-- No **determinism across teams or machines**
-
-<!-- image: ./images/frustrated-dev.jpg -->
-
-<div class="bluf-box">
-  <strong>BLUF:</strong> Most tools can’t promise your system will stay the same.
-</div>
 
 ---
 
