@@ -21,7 +21,8 @@ with lib; let
     v51_6_0 = {
       version = "51.6.0";
       rev = "v51.6.0-nix-fix";
-      srcHash = "sha256-F6b2mNN9sC0TOifPWfPGmov01fULaa5EwBAoI/CI74s=";
+      # rev = "6f549e8b41e1e2d077bc1a306588fe195191c221";
+      srcHash = "sha256-nBTZl6kCpNp+AGPBdCljE6a6LSZDb8CBsyGfilWs25M=";
       depsHash = "sha256-wIYLEA8hOY/kA1KV6BFF2TBcthsVQpHWx+b5Bk6VEfs=";
       pnpm = pkgs.pnpm_9;
     };
