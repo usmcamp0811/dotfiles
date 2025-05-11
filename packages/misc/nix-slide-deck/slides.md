@@ -4,7 +4,8 @@ markdown-it:
   plugins:
     - markdown-it-container
 
-theme: ./themes/slidev-theme-neversink
+# theme: ./themes/slidev-theme-neversink
+theme: neversink
 lineNumbers: true
 ---
 
@@ -52,15 +53,16 @@ color: dark
 </div>
 
 ---
-layout: two-cols-title
+layout: top-title-two-cols
 color: dark
-columns: is-7
-align: l-lt-lt
+columns: is-9
 ---
 
 :: title ::
 
 # What is Nix?
+
+:: default ::
 
 <div class="bluf-box clear-both mt-8">
   <strong>BLUF:</strong> Nix isn’t another tool on sand — it’s the rock-solid foundation your entire software ecosystem.
@@ -68,16 +70,24 @@ align: l-lt-lt
 
 :: left ::
 
-Most tools build **on top** of mutable, fragile foundations.  
+<div class="text-sm leading-relaxed">
+Most tools build <strong>on top</strong> of mutable, fragile foundations.  
 Like building a house on sand, you're always one gust away from breakage.
 
-Nix builds **from the ground up** on a cryptographic, content-addressed store, ensuring:
+Nix builds <strong>from the ground up</strong> on a cryptographic, content-addressed store, ensuring:
 
-- 🪨 **A solid, reproducible base** — Every dependency, build input, and configuration is pinned. Your app builds the same today, tomorrow, and on any machine.
-- 🔄 **Immutable builds** — No surprises from "latest" or system drift. A build that worked once will always work again, byte-for-byte.
-- 🧱 **Consistency across environments** — From your laptop to CI to production, Nix ensures identical environments without "it works on my machine" bugs.
+<ul class="list-disc ml-4 mt-2">
+  <li>🪨 <strong>A solid, reproducible base</strong> — Every dependency, build input, and configuration is pinned. Your app builds the same today, tomorrow, and on any machine.</li>
+  <li>🔄 <strong>Immutable builds</strong> — No surprises from "latest" or system drift. A build that worked once will always work again, byte-for-byte.</li>
+  <li>🧱 <strong>Consistency across environments</strong> — From your laptop to CI to production, Nix ensures identical environments without "it works on my machine" bugs.</li>
+</ul>
+</div>
 
 :: right ::
+
+<div class="flex justify-center items-end h-full pb-6">
+  <img src="/assets/house_on_rock_and_sand.jpg" class="rounded shadow-lg max-w-[300px]" />
+</div>
 
 ---
 
