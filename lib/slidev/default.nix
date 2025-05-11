@@ -74,47 +74,61 @@
         maintainers = with lib.maintainers; [ ];
       };
     };
-  buildTheme =
+  buildPnpmTheme =
+    { pkgs
+    , pname
+    , version
+    , src
+    , depsHash
+    ,
+    }:
+    pkgs.stdenv.mkDerivation {
+      inherit pname version src;
+
+      nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_9.configHook ];
+
+      pnpmDeps = pkgs.pnpm_9.fetchDeps {
+        inherit pname version src;
+        hash = depsHash;
+      };
+
+      installPhase = ''
+        runHook preInstall
+        cp -r . $out
+        runHook postInstall
+      '';
+
+      meta = {
+        description = "Built theme ${pname}";
+        license = lib.licenses.mit;
+      };
+    };
+
+  buildNpmTheme =
     { pkgs
     , pname
     , version
     , src
     , depsHash ? null
-    , usePnpm ? true
     ,
     }:
-    let
-      base = {
-        inherit pname version src;
+    pkgs.buildNpmPackage {
+      inherit pname version src;
 
-        installPhase = ''
-          runHook preInstall
-          cp -r . $out
-          runHook postInstall
-        '';
+      npmDepsHash = depsHash;
 
-        meta = {
-          description = "Built theme ${pname}";
-          license = pkgs.lib.licenses.mit;
-        };
+      env = {
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
       };
-    in
-    if usePnpm
-    then
-      pkgs.stdenv.mkDerivation
-        (base
-          // {
-          nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_9.configHook ];
+      installPhase = ''
+        runHook preInstall
+        cp -r . $out
+        runHook postInstall
+      '';
 
-          pnpmDeps = pkgs.pnpm_9.fetchDeps {
-            inherit pname version src;
-            hash = depsHash;
-          };
-        })
-    else
-      pkgs.stdenv.mkDerivation (base
-        // {
-        nativeBuildInputs = [ pkgs.nodejs ]; # nodejs maybe not even needed
-        buildPhase = "true";
-      });
+      meta = {
+        description = "Built theme ${pname}";
+        license = pkgs.lib.licenses.mit;
+      };
+    };
 }

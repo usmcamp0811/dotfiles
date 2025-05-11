@@ -5,13 +5,7 @@
 }:
 with lib;
 with lib.campground; let
-  # csscade-theme = pkgs.fetchFromGitHub {
-  #   owner = "Csscade";
-  #   repo = "slidev-theme-csscade";
-  #   rev = "main";
-  #   hash = "sha256-4xnuRLhHqNqtD5Yu9PZ/STRptCfz8m60chvGhmkt/SU=";
-  # };
-  csscade-theme = buildTheme {
+  csscade-theme = buildNpmTheme {
     inherit pkgs;
     pname = "slidev-theme-csscade";
     version = "0.1.0";
@@ -21,9 +15,9 @@ with lib.campground; let
       rev = "2dfa4b7bd9863dac463d0b7efdbdc264a56f94ce";
       hash = "sha256-4xnuRLhHqNqtD5Yu9PZ/STRptCfz8m60chvGhmkt/SU=";
     };
-    usePnpm = false;
+    depsHash = "sha256-hpjXGy0KPOXxVS+Bo7o2p1d5lHRWU2/myRUN3ygHSz4=";
   };
-  neversink-theme = buildTheme {
+  neversink-theme = buildPnpmTheme {
     inherit pkgs;
     pname = "slidev-theme-neversink";
     version = "0.3.6";
@@ -35,7 +29,7 @@ with lib.campground; let
     };
     depsHash = "sha256-NKQ/MISoYnQFYMfcb8vOTE+YF1/AUHYRlGU4qNQalVY=";
   };
-  mokkapps-theme = buildTheme {
+  mokkapps-theme = buildPnpmTheme {
     inherit pkgs;
     pname = "slidev-theme-mokkapps";
     version = "0.1.0";
