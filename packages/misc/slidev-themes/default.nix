@@ -43,21 +43,50 @@ with lib.campground; let
     depsHash = "sha256-ZJh47LQamNh1kPd8c/JTlkcQp9k2MwKLkIw+f+102DE=";
     pnpm = pkgs.pnpm_9;
   };
-  slidev-themes = buildPnpmTheme {
-    inherit pkgs;
-    pname = "slidev-themes";
-    version = "0.22.0";
-    src = pkgs.fetchFromGitHub {
-      owner = "slidevjs";
-      repo = "themes";
-      rev = "v0.22.0";
-      hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
+
+  custom-mokkapps-theme = pkgs.stdenv.mkDerivation {
+    pname = "slidev-theme-mokkapps";
+    version = "0.1.0";
+
+    src = ./global-bottom.vue;
+
+    nativeBuildInputs = [ pkgs.rsync pkgs.nodejs ]; # probably unnecessary, but safe
+
+    unpackPhase = "true";
+
+    installPhase = ''
+      mkdir -p $out
+      rsync -a --exclude="global-bottom.vue" --chmod=+w ${mokkapps-theme}/ $out/
+      rsync -a $src $out/global-bottom.vue
+    '';
+    meta = {
+      description = "Mokkapps theme with custom global-bottom.vue";
+      license = lib.licenses.mit;
     };
-    depsHash = "sha256-7aY8Md7Je6SEAnkhzCpkRSOG5Q4A1wHqK34qMEG8HJo=";
-    pnpm = pkgs.pnpm_8;
+  };
+  # slidev-themes = buildPnpmTheme {
+  #   inherit pkgs;
+  #   pname = "slidev-themes";
+  #   version = "0.22.0";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "slidevjs";
+  #     repo = "themes";
+  #     rev = "v0.22.0";
+  #     hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
+  #   };
+  #   depsHash = "sha256-7aY8Md7Je6SEAnkhzCpkRSOG5Q4A1wHqK34qMEG8HJo=";
+  #   pnpm = pkgs.pnpm_8;
+  # };
+
+  slidev-themes = pkgs.fetchFromGitHub {
+    owner = "slidevjs";
+    repo = "themes";
+    rev = "v0.22.0";
+    hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
   };
 in
 slidev-themes
   // {
-  inherit neversink-theme mokkapps-theme csscade-theme;
+  inherit neversink-theme csscade-theme;
+  mokkapps-theme = custom-mokkapps-theme;
 }
