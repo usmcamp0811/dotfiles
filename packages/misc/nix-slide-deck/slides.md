@@ -4,8 +4,8 @@ markdown-it:
   plugins:
     - markdown-it-container
 
-# theme: ./themes/slidev-theme-neversink
-theme: neversink
+theme: ./themes/slidev-theme-neversink
+# theme: neversink
 lineNumbers: true
 ---
 
