@@ -55,6 +55,7 @@ in
     # };
 
     services = {
+      nix-slide-website = enabled;
       k3s = {
         enable = true;
         role = "agent";
