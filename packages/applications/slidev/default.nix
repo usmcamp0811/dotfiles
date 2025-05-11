@@ -20,10 +20,10 @@ with lib; let
     };
     v51_6_0 = {
       version = "51.6.0";
-      rev = "v51.6.0";
-      srcHash = "sha256-8LP7bAFWJAxd17u77aqX+j0mqTw59AODlrqot8np21g=";
-      depsHash = "sha256-M9wqO+V5r2+PlxRMBe47fULTyaaeDWq45rR6XtKPsBw=";
-      pnpm = pkgs.pnpm_8;
+      rev = "v51.6.0-nix-fix";
+      srcHash = "sha256-F6b2mNN9sC0TOifPWfPGmov01fULaa5EwBAoI/CI74s=";
+      depsHash = "sha256-wIYLEA8hOY/kA1KV6BFF2TBcthsVQpHWx+b5Bk6VEfs=";
+      pnpm = pkgs.pnpm_9;
     };
   };
 
@@ -33,7 +33,7 @@ with lib; let
       version = cfg.version;
 
       src = pkgs.fetchFromGitHub {
-        owner = "slidevjs";
+        owner = "usmcamp0811";
         repo = "slidev";
         rev = cfg.rev;
         hash = cfg.srcHash;
@@ -78,6 +78,6 @@ with lib; let
   all = lib.mapAttrs buildSlidev versions;
 
   # Choose the latest version for default
-  latest = all.v0_50_0;
+  latest = all.v51_6_0;
 in
 latest // all
