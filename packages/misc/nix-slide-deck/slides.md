@@ -78,7 +78,7 @@ But <b>Nix ≠ NixOS</b>, <b>Nix ≠ nixpkgs</b>, and <b>Nix ≠ just a language
 :: right ::
 
 <div class="flex justify-center items-end h-full pb-4">
-  <img src="/assets/whatisnix.png" class="rounded shadow-lg max-w-[300px]" />
+  <img src="/assets/whatisnix.png" class="max-w-[300px]" />
 </div>
 
 ---
