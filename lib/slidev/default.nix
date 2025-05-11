@@ -33,7 +33,7 @@
                 mkdir -p themes/${t.pname}
                 cp -r ${t}/* themes/${t.pname}
               '')
-              customThemes
+              themes
           );
         in
         ''
