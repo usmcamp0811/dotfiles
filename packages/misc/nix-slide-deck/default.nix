@@ -1,29 +1,44 @@
-{
-  pkgs,
-  lib,
-  inputs,
-  ...
+{ pkgs
+, lib
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; let
+  prismThemeVars = buildPnpmTheme {
+    inherit pkgs;
+    pname = "prism-theme-vars";
+    version = "0.2.5";
+    src = pkgs.fetchFromGitHub {
+      owner = "antfu";
+      repo = "prism-theme-vars";
+      rev = "v0.2.5";
+      hash = "sha256-G+FdQt1I2wYLvIGbnXTEAUdhDoz+KYxL42XjDQGQbmI="; # fill this in
+    };
+    depsHash = "sha256-Ius+Ne8bDmW9L7iYT2QyyXUz3WUMDdA6LKSX0q6jznw=";
+    pnpm = pkgs.pnpm_9;
+  };
   slides = mkSlide {
     inherit lib;
     stdenv = pkgs.stdenv;
     slidev = pkgs.campground.slidev;
     markdown = ./slides.md;
     themes = pkgs.campground.slidev-themes;
-    extraNodePackages = [pkgs.campground.sass-embedded];
-    customThemes = [pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme pkgs.campground.slidev-themes.csscade-theme];
-    assets = [./assets];
+    # extraNodePackages = [pkgs.campground.sass-embedded];
+    extraNodePackages = [
+      prismThemeVars
+    ];
+    # customThemes = [pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme pkgs.campground.slidev-themes.csscade-theme];
+    assets = [ ./assets ];
   };
 
   docker-slidev-dev = pkgs.dockerTools.streamLayeredImage {
     name = "slidev";
     tag = "latest";
-    contents = [pkgs.campground.slidev pkgs.campground.slidev-themes];
+    contents = [ pkgs.campground.slidev pkgs.campground.slidev-themes ];
     config = {
-      Cmd = ["${pkgs.campground.slidev}/bin/slidev" "--remote"];
-      ExposedPorts = {"3030/tcp" = {};};
+      Cmd = [ "${pkgs.campground.slidev}/bin/slidev" "--remote" ];
+      ExposedPorts = { "3030/tcp" = { }; };
     };
   };
 
@@ -36,7 +51,7 @@ with lib.campground; let
 
   serve-dev = pkgs.writeShellApplication {
     name = "serve-dev";
-    runtimeInputs = [pkgs.coreutils];
+    runtimeInputs = [ pkgs.coreutils ];
     text = ''
       if [ ! -f slides.md ]; then
         echo "Error: slides.md not found in the current directory."
@@ -72,8 +87,8 @@ with lib.campground; let
     '';
   };
 in
-  slides
+slides
   // {
-    inherit serve;
-    dev = serve-dev;
-  }
+  inherit serve;
+  dev = serve-dev;
+}
