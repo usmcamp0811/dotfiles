@@ -79,28 +79,42 @@
     , pname
     , version
     , src
-    , depsHash
+    , depsHash ? null
+    , usePnpm ? true
     ,
     }:
-    pkgs.stdenv.mkDerivation {
-      inherit pname version src;
-
-      nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_9.configHook ];
-
-      pnpmDeps = pkgs.pnpm_9.fetchDeps {
+    let
+      base = {
         inherit pname version src;
-        hash = depsHash;
-      };
 
-      installPhase = ''
-        runHook preInstall
-        cp -r . $out
-        runHook postInstall
-      '';
+        installPhase = ''
+          runHook preInstall
+          cp -r . $out
+          runHook postInstall
+        '';
 
-      meta = {
-        description = "Built theme ${pname}";
-        license = lib.licenses.mit;
+        meta = {
+          description = "Built theme ${pname}";
+          license = pkgs.lib.licenses.mit;
+        };
       };
-    };
+    in
+    if usePnpm
+    then
+      pkgs.stdenv.mkDerivation
+        (base
+          // {
+          nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_9.configHook ];
+
+          pnpmDeps = pkgs.pnpm_9.fetchDeps {
+            inherit pname version src;
+            hash = depsHash;
+          };
+        })
+    else
+      pkgs.stdenv.mkDerivation (base
+        // {
+        nativeBuildInputs = [ pkgs.nodejs ]; # nodejs maybe not even needed
+        buildPhase = "true";
+      });
 }

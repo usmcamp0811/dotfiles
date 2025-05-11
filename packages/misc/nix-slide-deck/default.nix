@@ -11,7 +11,7 @@ with lib.campground; let
     slidev = pkgs.campground.slidev;
     markdown = ./slides.md;
     themes = pkgs.campground.slidev-themes;
-    customThemes = [ pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme ];
+    customThemes = [ pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme pkgs.campground.slidev-themes.csscade-theme ];
     assets = [ ./assets ];
   };
 

@@ -5,6 +5,24 @@
 }:
 with lib;
 with lib.campground; let
+  # csscade-theme = pkgs.fetchFromGitHub {
+  #   owner = "Csscade";
+  #   repo = "slidev-theme-csscade";
+  #   rev = "main";
+  #   hash = "sha256-4xnuRLhHqNqtD5Yu9PZ/STRptCfz8m60chvGhmkt/SU=";
+  # };
+  csscade-theme = buildTheme {
+    inherit pkgs;
+    pname = "slidev-theme-csscade";
+    version = "0.1.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "Csscade";
+      repo = "slidev-theme-csscade";
+      rev = "2dfa4b7bd9863dac463d0b7efdbdc264a56f94ce";
+      hash = "sha256-4xnuRLhHqNqtD5Yu9PZ/STRptCfz8m60chvGhmkt/SU=";
+    };
+    usePnpm = false;
+  };
   neversink-theme = buildTheme {
     inherit pkgs;
     pname = "slidev-theme-neversink";
@@ -38,5 +56,5 @@ with lib.campground; let
 in
 slidev-themes
   // {
-  inherit neversink-theme mokkapps-theme;
+  inherit neversink-theme mokkapps-theme csscade-theme;
 }

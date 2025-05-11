@@ -198,8 +198,8 @@ Nix builds <strong>from the ground up</strong> on a cryptographic, content-addre
 
 :: right ::
 
-<div class="flex justify-center items-end h-full pb-6">
-  <img src="/assets/house_on_rock_and_sand.jpg" class="rounded shadow-lg max-w-[300px]" />
+<div class="flex min-h-[350px] items-center justify-center">
+  <img src="/assets/house_on_rock_and_sand.jpg" class="rounded shadow-lg max-w-[250px]" />
 </div>
 
 ---
@@ -399,36 +399,89 @@ Purity isn’t a restriction — it’s what makes reproducibility possible.
 </div>
 
 ---
-
-# Nix for Package Management
-
-- Declaratively install packages
-- Isolated, conflict-free environments
-- Reproducible builds
-- Works the same on every system
-
-Example:
-
-```nix
-{ pkgs }: pkgs.mkShell {
-  buildInputs = [ pkgs.python3 pkgs.poetry ];
-}
-```
-
+layout: default
+color: light
 ---
 
-# Nix for Containers
-
-- Build OCI images without Docker daemon
-- Use `buildLayeredImage` or `dockerTools`
-- Declarative container builds
+### 🧪 Flashy DevShell + Container (1/5)
 
 ```nix
-pkgs.dockerTools.buildLayeredImage {
-  name = "my-app";
-  contents = [ pkgs.curl myApp ];
+{
+  description = "Flashy devshell and container with figlet + lolcat";
+
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+```
+
+- 📝 Project description for clarity
+- 🌐 Pulls in Nixpkgs from `nixos-unstable` via flake input
+
+---
+layout: default
+color: dark
+---
+
+### 🧪 Flashy DevShell + Container (2/5)
+
+```nix {7|8|10}
+  outputs = {
+    self,
+    nixpkgs,
+  }: let
+    system = "x86_64-linux";
+    pkgs = import nixpkgs {inherit system;};
+
+    envPkgs = [pkgs.figlet pkgs.lolcat];
+```
+
+- 🖥️ Targets `x86_64-linux`
+- 📦 Brings in `figlet` and `lolcat` for styling terminal output
+
+---
+layout: default
+color: dark
+---
+
+### 🧪 Flashy DevShell + Container (3/5)
+
+```nix {12-14|16-17}
+    script = pkgs.writeShellScriptBin "demo" ''
+      figlet "Hello!" | lolcat
+    '';
+
+    env = pkgs.buildEnv {
+      name = "flashy-env";
+      paths = envPkgs ++ [script];
+    };
+```
+
+- 📝 Defines a named script `demo` that runs `figlet | lolcat`
+- 🧱 Combines it all into a buildable environment `flashy-env`
+
+---
+layout: default
+color: dark
+---
+
+### 🧪 Flashy DevShell + Container (4/5)
+
+```nix {20-22|24-28}
+  in {
+    devShells.${system}.default = pkgs.mkShell {
+      packages = [env];
+    };
+
+    packages.${system}.container = pkgs.dockerTools.buildImage {
+      name = "flashy-env";
+      tag = "latest";
+      contents = [env];
+      config.Cmd = ["demo"];
+    };
+  };
 }
 ```
+
+- 🧪 Devshell: enter with `nix develop`, get `demo` command preinstalled
+- 🐳 Container: build a minimal image that runs `demo` on startup
 
 ---
 
