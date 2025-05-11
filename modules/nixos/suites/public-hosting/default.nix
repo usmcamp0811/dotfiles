@@ -213,6 +213,13 @@ in
           loadBalancer.servers = [{ url = "http://webb:13244"; }];
         };
 
+        http.routers.nix-slides = {
+          rule = "Host(`nix-slides.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "nix-slides";
+        };
+
+        http.services.nix-slides = generateServiceConfig "nix-slide-website";
         # http.routers.adhoc = {
         #   rule = "Host(`adhoc.aicampground.com`)";
         #   entryPoints = [ "web" "websecure" ];
