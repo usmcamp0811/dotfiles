@@ -1,7 +1,8 @@
-{ pkgs
-, lib
-, inputs
-, ...
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -11,20 +12,18 @@ with lib.campground; let
     slidev = pkgs.campground.slidev;
     markdown = ./slides.md;
     themes = pkgs.campground.slidev-themes;
-    extraNodePackages = [
-      pkgs.campground.sass-embedded
-    ];
-    customThemes = [ pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme pkgs.campground.slidev-themes.csscade-theme ];
-    assets = [ ./assets ];
+    extraNodePackages = [pkgs.campground.sass-embedded];
+    customThemes = [pkgs.campground.slidev-themes.neversink-theme pkgs.campground.slidev-themes.mokkapps-theme pkgs.campground.slidev-themes.csscade-theme];
+    assets = [./assets];
   };
 
   docker-slidev-dev = pkgs.dockerTools.streamLayeredImage {
     name = "slidev";
     tag = "latest";
-    contents = [ pkgs.campground.slidev pkgs.campground.slidev-themes ];
+    contents = [pkgs.campground.slidev pkgs.campground.slidev-themes];
     config = {
-      Cmd = [ "${pkgs.campground.slidev}/bin/slidev" "--remote" ];
-      ExposedPorts = { "3030/tcp" = { }; };
+      Cmd = ["${pkgs.campground.slidev}/bin/slidev" "--remote"];
+      ExposedPorts = {"3030/tcp" = {};};
     };
   };
 
@@ -37,7 +36,7 @@ with lib.campground; let
 
   serve-dev = pkgs.writeShellApplication {
     name = "serve-dev";
-    runtimeInputs = [ pkgs.coreutils ];
+    runtimeInputs = [pkgs.coreutils];
     text = ''
       if [ ! -f slides.md ]; then
         echo "Error: slides.md not found in the current directory."
@@ -73,8 +72,8 @@ with lib.campground; let
     '';
   };
 in
-slides
+  slides
   // {
-  inherit serve;
-  dev = serve-dev;
-}
+    inherit serve;
+    dev = serve-dev;
+  }
