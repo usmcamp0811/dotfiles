@@ -5,6 +5,9 @@ markdown-it:
     - markdown-it-container
 theme: ./themes/slidev-theme-neversink
 lineNumbers: true
+layout: cover
+color: dark
+class: text-right
 ---
 
 <style>
@@ -12,12 +15,6 @@ lineNumbers: true
   @apply text-sm bg-blue-100 text-blue-800 border-l-4 border-blue-500 p-3 my-4 rounded;
 }
 </style>
-
----
-layout: cover
-color: dark
-class: text-right
----
 
 # Nix
 
@@ -36,7 +33,11 @@ layout: intro
 color: dark
 ---
 
+:: title ::
+
 # What We'll Cover
+
+:: content ::
 
 - 🧱 Why traditional tools fall short
 - 🌀 How Nix changes the game
@@ -129,7 +130,7 @@ columns: is-9
 
 :: title ::
 
-## 🧱 Traditional Approaches
+## Traditional Approaches
 
 :: left ::
 
