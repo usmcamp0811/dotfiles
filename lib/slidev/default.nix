@@ -14,6 +14,7 @@
     , # list of custom themes (built with pnpm)
       assets ? [ ]
     , urlBase ? "/"
+    , extraNodePackages ? [ ]
     ,
     }:
     stdenv.mkDerivation {
@@ -23,7 +24,7 @@
 
       nativeBuildInputs = [ slidev ];
 
-      buildInputs = [ ];
+      buildInputs = extraNodePackages;
 
       buildPhase =
         let
@@ -51,7 +52,17 @@
           mkdir -p public/assets
           ${builtins.concatStringsSep "\n" (builtins.map (pkg: "cp -r ${pkg}/* public/assets/") assets)}
 
-          ln -s ${slidev}/node_modules node_modules
+          mkdir -p node_modules
+
+          # Copy all top-level packages from slidev
+          cp -r ${slidev}/node_modules/* node_modules/
+
+          # Inject extra packages (like sass-embedded)
+          ${builtins.concatStringsSep "\n" (builtins.map (pkg: ''
+              mkdir -p node_modules/${pkg.pname}
+              cp -r ${pkg}/lib/node_modules/${pkg.pname}/* node_modules/${pkg.pname}/
+            '')
+            extraNodePackages)}
 
           cp ${markdown} ./slides.md
           slidev build --base "${urlBase}"
