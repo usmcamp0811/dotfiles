@@ -1,13 +1,13 @@
 ---
-title: "Nix: Taming the Wild West of Codebases"
-markdown-it:
-  plugins:
-    - markdown-it-container
 theme: ./themes/slidev-theme-neversink
 lineNumbers: true
 layout: cover
 color: dark
 class: text-right
+neversink_string: "Nix: Taming the Wild West of Codebases"
+colorSchema: light
+routerMode: hash
+title: Nix
 ---
 
 <style>
@@ -33,11 +33,8 @@ layout: intro
 color: dark
 ---
 
-:: title ::
-
 # What We'll Cover
 
-:: content ::
 
 - 🧱 Why traditional tools fall short
 - 🌀 How Nix changes the game
