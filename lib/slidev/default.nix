@@ -9,6 +9,7 @@
     , slidev
     , markdown
     , themes ? [ ]
+    , slides ? [ ]
     , assets ? [ ]
     , urlBase ? "/"
     , extraNodePackages ? [ ]
@@ -47,6 +48,9 @@
 
           mkdir -p public/assets
           ${builtins.concatStringsSep "\n" (builtins.map (pkg: "cp -r ${pkg}/* public/assets/") assets)}
+
+          mkdir -p slides
+          ${builtins.concatStringsSep "\n" (builtins.map (pkg: "cp -r ${pkg}/* slides") slides)}
 
           mkdir -p node_modules
 

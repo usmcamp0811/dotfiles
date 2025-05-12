@@ -16,6 +16,7 @@ with lib.campground; let
       # pkgs.campground.slidev-themes.mokkapps-theme
       # pkgs.campground.slidev-themes.csscade-theme
     ];
+    slides = [ ./slides ];
     assets = [ ./assets ];
     # extraNodePackages = [pkgs.campground.sass-embedded];
   };
