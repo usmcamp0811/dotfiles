@@ -29,9 +29,7 @@ title: Nix
   Presented by Matt Camp • 2025
 </div>
 
-<!-- Matomo Image Tracker-->
 <img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.aicampground.com/matomo.php?idsite=5&amp;rec=1" style="border:0" alt="" />
-<!-- End Matomo -->
 
 <!--
 
