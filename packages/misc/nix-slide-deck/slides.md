@@ -2,7 +2,7 @@
 theme: ./themes/slidev-theme-neversink
 lineNumbers: true
 layout: cover
-color: both
+color: dark
 class: text-right
 neversink_string: "Nix: Taming the Wild West of Codebases"
 colorSchema: light
