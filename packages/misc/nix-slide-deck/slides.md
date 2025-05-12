@@ -423,9 +423,9 @@ align: c-lt-lt
 
 <div class="text-lg leading-relaxed space-y-5">
   <div>📜 <b>Declarative environments</b> — Say what you want your system to look like, and Nix makes it so.</div>
+  <div><code>&gt;</code> <b>Devshells</b> — Define fully custom CLI environments that can be activated in one step with <code>nix develop</code>.</div>
   <div>♻️ <b>Reproducibility</b> — Builds and environments that work the same across every machine, every time.</div>
   <div>🧰 <b>Unified config</b> — Use one language and toolset to manage everything: packages, containers, infra, and more.</div>
-  <div>🧪 <b>Sandboxed builds</b> — Each build runs in a clean room, so nothing sneaks in or breaks unexpectedly.</div>
   <div>🔁 <b>Immutable deployments</b> — Roll back instantly, upgrade safely. Your systems are always in a known state.</div>
 </div>
 
