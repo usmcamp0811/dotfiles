@@ -469,6 +469,7 @@ Purity isn’t a restriction — it’s what makes reproducibility possible.
 ---
 layout: side-title
 align: rm-lm
+color: dark
 titlewidth: is-3
 ---
 
@@ -484,6 +485,7 @@ layout: side-title
 side: left
 titlewidth: is-4
 align: rm-lt
+color: dark
 title: Code Example
 ---
 

@@ -11,10 +11,10 @@ with lib.campground; let
     slidev = pkgs.campground.slidev.v0_50_0;
     markdown = ./slides.md;
     themes = [
-      pkgs.campground.slidev-themes
+      # pkgs.campground.slidev-themes
       pkgs.campground.slidev-themes.neversink-theme
-      pkgs.campground.slidev-themes.mokkapps-theme
-      pkgs.campground.slidev-themes.csscade-theme
+      # pkgs.campground.slidev-themes.mokkapps-theme
+      # pkgs.campground.slidev-themes.csscade-theme
     ];
     assets = [ ./assets ];
     # extraNodePackages = [pkgs.campground.sass-embedded];
