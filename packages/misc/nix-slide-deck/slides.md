@@ -614,6 +614,162 @@ align: c
   <p class="text-white text-lg">We’re just getting started with what Nix can do.</p>
 </div>
 
+
+---
+layout: top-title
+color: dark
+align: l
+title: Why Nix Changes the Game
+---
+
+:: title ::
+
+# What If You Could Trust the Files?
+
+:: content ::
+
+Nix isn't just a tool — it's a **guarantee**:
+
+- 📁 You know **what every file is**, **where it is**, and **what went into it**
+- ✍️ You **declare what you want**, not how to do it
+- 📦 Reproducibility isn't an afterthought — it's **baked in**
+- 🧬 Every artifact has a traceable input — you can derive **SBOMs**, **audits**, and **provenance** by default
+- 🏗️ If this is true… you can build *anything* — infra, dev envs, images, whole systems
+
+<AdmonitionType type="tip">
+
+Declarative systems don’t just build things — they **prove** what they built.
+
+</AdmonitionType>
+
+
+---
+layout: top-title
+color: dark
+align: l
+title: From Dev to Delivery
+---
+
+:: title ::
+
+# 🧰 From Dev to Delivery: What Nix Unlocks
+
+:: content ::
+
+- 🧪 **DevShells** — Clean, reproducible CLI environments, no setup scripts, no drift  
+- 🐳 **Containers** — Same source, same environment, delivered as OCI image  
+- 🧼 **Zero-dependency shell scripts** — Write scripts with fully isolated, declarative runtimes  
+- 🔧 **Infra as Code, as Functions** — Compose systems with code, not YAML  
+- 🔐 **SBOMs by design** — Everything is declared; provenance is automatic  
+- 📦 **Binary caching** — Share artifacts securely via Cachix or your own  
+- 🔁 **Rollback + consistency** — Immutable builds, reversible deploys
+
+<AdmonitionType type="important">
+Nix lets you go from laptop to prod — with trust, traceability, and zero config drift.
+</AdmonitionType>
+
+---
+layout: top-title-two-cols
+columns: is-6
+align: l-lt-lt
+color: dark
+style: |
+  .smaller-cols {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+---
+
+:: title ::
+
+# Binary Delivery: Cachix vs Iron Bank
+
+:: left ::
+
+<div class="smaller-cols">
+
+## Nix Binary Cache 
+
+- 🌐 Decentralized binary cache as a service  
+- ⚙️ Push or pull via `nix copy` or Flakes  
+- 🔒 Can be **public or private**  
+- 📦 Works seamlessly with **SBOMs** and provenance  
+- ⚡ Fast, scalable, supports **signed builds**  
+- 🧰 Ideal for developer workflows and CI/CD  
+- 🪜 Simple CLI tools and automation support  
+
+</div>
+
+:: right ::
+
+<div class="smaller-cols">
+
+## Iron Bank (DoD / Platform One)
+
+- 🧱 Centralized hardened container registry  
+- 🛡️ Strict vetting process with manual review  
+- 🔒 Enforces compliance policies (e.g., STIGs)  
+- 📄 Requires extensive documentation & justification  
+- 🐢 Slower to update, less developer-friendly  
+- 🎯 Tailored for mission-critical DoD deployments  
+- 🧩 Complex integration into CI/CD pipelines  
+
+</div>
+
+:: default ::
+
+<AdmonitionType type="note">
+Both aim to provide trusted binaries — but target very different ecosystems and tradeoffs.
+</AdmonitionType>
+
+
+---
+layout: top-title
+color: dark
+align: l
+title: SBOM-First Design
+---
+
+:: title ::
+
+# SBOM-First by Nature
+
+:: content ::
+
+- 🧬 With Nix, you know exactly **what went into every build** — no guesswork  
+- 📦 Every package, patch, and dependency is declared and traceable  
+- 🔄 Reproducibility means you can regenerate artifacts — and their SBOMs — anytime  
+- 🧾 SBOMs become a **byproduct**, not an afterthought  
+- 🔐 Essential for compliance, zero trust, and secure software supply chains
+
+<AdmonitionType type="tip">
+In Nix, you don’t bolt on SBOMs — you get them for free.
+</AdmonitionType>
+
+
+---
+layout: top-title
+color: dark
+align: l
+title: DoD Alignment
+---
+
+:: title ::
+
+# Trusted by Design: Nix and DoD Priorities
+
+:: content ::
+
+- 🧱 **ZTRA-aligned** — Immutable, declarative systems enable zero trust enforcement at the software layer  
+- 🧬 **RAISE 2.0–ready** — Build provenance, SBOMs, and automation are native to Nix workflows  
+- 🔁 **Reproducibility** means less reliance on post-hoc scans and hardening guides  
+- 📋 **Policy compliance** isn't a layer on top — it's part of the build process  
+- 🚀 Speeds up Authority to Operate (ATO) by making intent and artifacts auditable
+
+<AdmonitionType type="important">
+Nix brings software engineering practices into alignment with federal compliance — without sacrificing velocity.
+</AdmonitionType>
+
 ---
 
 # Nix for Kubernetes
