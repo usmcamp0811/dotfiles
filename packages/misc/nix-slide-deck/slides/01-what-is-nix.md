@@ -1,0 +1,31 @@
+:: title ::
+
+# What <i>is</i> Nix, Really?
+
+:: default ::
+
+<div class="bluf-box clear-both mt-8">
+  <b>BLUF:</b> Fundamentally, Nix is just a <b>tool for producing files in the right place</b> — reliably, repeatably, and without surprises.
+</div>
+
+:: left ::
+
+<div class="text-base leading-relaxed">
+People often confuse Nix with tools <b>built</b> using Nix:
+
+<ul class="list-disc ml-4 mt-2">
+  <li>🔧 <b>Nix the Tool</b> — a powerful build engine for reproducible environments</li>
+  <li>💻 <b>Nix the Language</b> — a DSL for describing packages, infra, and configs</li>
+  <li>📦 <b>nixpkgs</b> — a massive package repository written in Nix</li>
+  <li>🖥️ <b>NixOS</b> — a Linux distro built <i>entirely</i> with Nix</li>
+</ul>
+
+</div>
+
+But <b>Nix ≠ NixOS</b>, <b>Nix ≠ nixpkgs</b>, and <b>Nix ≠ just a language</b>.
+
+:: right ::
+
+<div class="flex justify-center items-end h-full pb-4">
+  <img src="/assets/whatisnix.png" class="max-w-[300px]" />
+</div>
