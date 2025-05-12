@@ -2,7 +2,7 @@
 theme: ./themes/slidev-theme-neversink
 lineNumbers: true
 layout: cover
-color: dark
+color: both
 class: text-right
 neversink_string: "Nix: Taming the Wild West of Codebases"
 colorSchema: light
@@ -293,6 +293,74 @@ This is why we have tools like Docker, we just build everything from a known sta
 -->
 
 ---
+layout: top-title
+color: dark
+align: l
+title: The Traditional Approach
+---
+
+:: title ::
+
+# How We Usually Do It
+
+:: content ::
+
+Before Nix, most teams relied on **containers** to define and share dev environments:
+
+- Start with a base image (Ubuntu, Alpine, etc.)
+- Use shell scripts to install dependencies
+- Manually configure the environment
+- Add a startup script
+- Pray it works the same on every machine
+
+It works... but it’s fragile, inconsistent, and often hard to maintain.
+
+---
+layout: side-title
+color: dark
+align: l
+titlewidth: is-4
+title: A Traditional Dockerfile
+---
+
+:: title ::
+
+# What It Actually Takes
+
+:: content ::
+
+Replicating our environment with Docker involves:
+
+- Picking a base image
+- Installing packages manually
+- Embedding a custom script
+- Setting up a default command
+
+```dockerfile
+FROM alpine:latest
+
+# Install system dependencies
+RUN apk add --no-cache figlet ruby && \
+    gem install lolcat
+
+# Write our custom script
+RUN echo -e '#!/bin/sh\nfiglet "Hello!" | lolcat' > /usr/local/bin/demo && \
+    chmod +x /usr/local/bin/demo
+
+# Set default command
+CMD ["demo"]
+```
+
+
+<AdmonitionType type="caution">
+It’s doable — but far more manual and brittle than Nix.
+</AdmonitionType>
+
+<!--
+Bu
+-->
+
+---
 layout: top-title-two-cols
 color: dark
 columns: is-4
@@ -399,8 +467,31 @@ Purity isn’t a restriction — it’s what makes reproducibility possible.
 </div>
 
 ---
-layout: full
+layout: side-title
+align: rm-lm
+titlewidth: is-3
 ---
+
+# Just a little code...
+
+<div class="subtle">
+  Just enough to impress — not stress.
+</div>
+
+
+---
+layout: side-title
+side: left
+titlewidth: is-4
+align: rm-lt
+title: Code Example
+---
+
+:: title ::
+
+A shell to a Container
+
+:: content ::
 
 ````md magic-move
 
@@ -445,7 +536,7 @@ packages.${system}.container = pkgs.dockerTools.buildImage {
 
 ```nix 
 {
-  description = "Flashy devshell and container with figlet + lolcat";
+  description = "Example Flake that uses the same environment in a DevShell as in a Dockt Container";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   outputs = { self, nixpkgs, }: let
     system = "x86_64-linux";
@@ -473,6 +564,29 @@ packages.${system}.container = pkgs.dockerTools.buildImage {
 ```
 
 ````
+
+---
+layout: top-title
+color: dark
+align: l
+title: Why This Matters
+---
+
+:: title ::
+# Why This Matters
+
+:: content ::
+
+We defined a full development environment — and then used it two ways:
+
+- 🧰 Built a **devshell** with custom packages and our own script  
+- ⚡ Activated instantly with a single `nix develop`  
+- 🐳 Reused the exact same setup to build a **Docker image**  
+- 🔁 One config — consistent across shell and container, no duplication
+
+<AdmonitionType type="tip">
+This is the power of declarative, composable tooling. One definition — everywhere.
+</AdmonitionType>
 
 ---
 
