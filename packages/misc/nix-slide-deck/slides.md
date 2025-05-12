@@ -353,7 +353,7 @@ CMD ["demo"]
 
 
 <AdmonitionType type="caution">
-It’s doable — but far more manual and brittle than Nix.
+This is a minimal case — real-world Dockerfiles get much more complex.
 </AdmonitionType>
 
 <!--
