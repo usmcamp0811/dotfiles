@@ -229,8 +229,10 @@ titlewidth: is-3
 
 # Just a little code...
 
-<div class="subtle">
-  Just enough to impress — not stress.
+<div class="text-sm opacity-60">
+
+_enough to impress — not stress._
+
 </div>
 
 
