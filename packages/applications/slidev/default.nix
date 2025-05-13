@@ -20,10 +20,11 @@ with lib; let
     };
     v51_6_0 = {
       version = "51.6.0";
-      rev = "v51.6.0-nix-fix";
-      # rev = "6f549e8b41e1e2d077bc1a306588fe195191c221";
-      srcHash = "sha256-nBTZl6kCpNp+AGPBdCljE6a6LSZDb8CBsyGfilWs25M=";
-      depsHash = "sha256-wIYLEA8hOY/kA1KV6BFF2TBcthsVQpHWx+b5Bk6VEfs=";
+      # rev = "v51.6.0";
+      # rev = "v51.6.0-nix-fix";
+      rev = "4e50ffdb957ebc4d65ae3fdc7a144cb1b670e9e6";
+      srcHash = "sha256-Zz+cVsPhtifR9lI6rDbm1WlYL3YYTrspb4biZG3i+PQ=";
+      depsHash = "sha256-SUah/68SjVVyCCCl90RGcScD9lKre4lfH8xM98B4MSQ=";
       pnpm = pkgs.pnpm_9;
     };
   };
@@ -34,6 +35,7 @@ with lib; let
       version = cfg.version;
 
       src = pkgs.fetchFromGitHub {
+        # owner = "slidevjs";
         owner = "usmcamp0811";
         repo = "slidev";
         rev = cfg.rev;
@@ -51,11 +53,12 @@ with lib; let
 
       buildPhase = ''
         runHook preBuild
-        pnpm --filter @slidev/cli build
-        pnpm --filter @slidev/parser build
+        pnpm build
         runHook postBuild
       '';
 
+      # pnpm --filter @slidev/cli build
+      # pnpm --filter @slidev/parser build
       installPhase = ''
         runHook preInstall
         mkdir -p $out
