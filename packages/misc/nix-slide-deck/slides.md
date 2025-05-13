@@ -64,7 +64,7 @@ Before Nix, most teams relied on **containers** to define and share dev environm
 - Add a startup script
 - Pray it works the same on every machine
 
-It works... but it’s fragile, inconsistent, and often hard to maintain.
+It works... but it’s<span v-mark.underline.orange> fragile, inconsistent, and often hard to maintain</span>.
 
 ---
 layout: side-title
@@ -518,6 +518,13 @@ Nix brings software engineering practices into alignment with federal compliance
 </AdmonitionType>
 
 ---
+layout: top-title
+color: dark
+align: l
+src: ./slides/cyber-analysis.md
+---
+
+---
 
 # Nix for Kubernetes
 
@@ -600,3 +607,10 @@ You say **what** you want. Nix handles the **how**.
 Welcome to the future of infrastructure and development environments.
 
 **Welcome to Nix.**
+
+---
+layout: top-title
+color: dark
+align: l
+src: ./slides/mkderivation.md
+---

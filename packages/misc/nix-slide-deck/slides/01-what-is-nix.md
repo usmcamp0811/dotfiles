@@ -1,6 +1,9 @@
 :: title ::
 
-# What <i>is</i> Nix, Really?
+<h1>
+  <img src="/assets/Nix_Snowflake_Logo.svg" alt="Nix Logo" style="width: 40px; height: 40px; display: inline-block; vertical-align: middle;" />
+  What <i>is</i> Nix, Really?
+</h1>
 
 :: default ::
 
