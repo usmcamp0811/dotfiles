@@ -23,7 +23,7 @@ columns: is-9
 
 <div class="bluf-box clear-both mt-4">
 
- **BLUF:** Nix replaces procedural sprawl with declarative clarity — unlocking reproducibility, scalability, and long-term maintainability.
+  Nix replaces procedural sprawl with declarative clarity — unlocking reproducibility, scalability, and long-term maintainability.
 
 </div>
 
@@ -53,7 +53,7 @@ columns: is-9
 ---
 layout: top-title-two-cols
 color: dark
-columns: is-6
+columns: is-9
 ---
 
 :: title ::
@@ -61,7 +61,6 @@ columns: is-6
 # Nix: The DevSecOps Revolution
 
 :: default ::
-
 
 <div class="bluf-box clear-both mt-8">
   <strong>BLUF:</strong> By baking build logic into the graph itself, Nix enables minimal, secure, reproducible software delivery — even in airgapped environments.
@@ -77,12 +76,6 @@ columns: is-6
   <li><strong>Unified logic</strong> — dev, build, infra all in one graph</li>
 </ul>
 
-<div class="flex items-center justify-center h-full">
-  <img src="/assets/devsecops.png" class="rounded shadow-lg max-w-[250px]" />
-</div>
-
-:: right ::
-
 ### **DevSecOps Revolution**
 
 <ul class="text-sm ml-4 mt-2">
@@ -91,6 +84,12 @@ columns: is-6
   <li><strong>No setup tax</strong> — build environments embedded in Nix itself</li>
   <li><strong>Do more with less</strong> — small teams, large systems</li>
 </ul>
+
+:: right ::
+
+<div class="flex items-center justify-center h-full">
+  <img src="/assets/devsecops.png" class="rounded shadow-lg max-w-[250px]" />
+</div>
 
 ---
 src: ./slides/01-what-is-nix.md 
