@@ -1,11 +1,8 @@
 ---
 theme: ./themes/slidev-theme-neversink
 lineNumbers: true
-layout: cover
 color: dark
-class: text-right
 neversink_string: "Nix: Taming the Wild West of Codebases"
-colorSchema: light
 routerMode: hash
 title: Nix
 src: ./slides/00-intro.md 
@@ -42,29 +39,62 @@ columns: is-9
 src: ./slides/04-traditional-approaches.md 
 ---
 
-
 ---
-layout: top-title
+layout: top-title-two-cols
 color: dark
-align: l
-title: The Traditional Approach
+columns: is-4
 ---
 
 :: title ::
 
-# How We Usually Do It
+## Why Current Tools Still Fail
 
-:: content ::
+:: right ::
 
-Before Nix, most teams relied on **containers** to define and share dev environments:
+Even with "modern" tooling, we're still patching over deep structural problems:
 
-- Start with a base image (Ubuntu, Alpine, etc.)
-- Use shell scripts to install dependencies
-- Manually configure the environment
-- Add a startup script
-- Pray it works the same on every machine
+- 🐳 <b>Docker</b> — Starts from clean slates, but depends on <b>mutable golden images</b> that silently rot over time.
+- ⚙️ <b>CI Pipelines</b> — Automate builds, but rarely guarantee reproducibility. Flaky tests? Mysterious failures? That's drift.
+- 📦 <b>Package managers</b> — Resolve dependencies dynamically, not reproducibly.
+- 🧩 <b>Glue scripts & custom bootstrapping</b> — Every team invents their own fragile setup.
 
-It works... but it’s<span v-mark.underline.orange> fragile, inconsistent, and often hard to maintain</span>.
+These tools are <b>reactive</b> — built to manage breakage — not prevent it.
+
+:: left ::
+
+<div class="flex justify-center items-center h-full">
+  <img src="/assets/golden-image.png" class="max-h-[85vh] rounded shadow-lg" />
+</div>
+
+
+---
+layout: top-title-two-cols
+color: dark
+columns: is-4
+align: l-lt-lt
+---
+
+:: title ::
+
+## What Nix Brings
+
+:: left ::
+
+<div class="flex min-h-[400px] items-center justify-center">
+  <img src="/assets/Nix_Snowflake_Logo.svg" class="max-w-[250px]" />
+</div>
+
+:: right ::
+
+<div class="text-lg leading-relaxed space-y-5">
+  <div>📜 <b>Declarative environments</b> — Say what you want your system to look like, and Nix makes it so.</div>
+  <div><code>&gt;</code> <b>Devshells</b> — Define fully custom CLI environments that can be activated in one step with <code>nix develop</code>.</div>
+  <div>♻️ <b>Reproducibility</b> — Builds and environments that work the same across every machine, every time.</div>
+  <div>🧰 <b>Unified config</b> — Use one language and toolset to manage everything: packages, containers, infra, and more.</div>
+  <div>🔁 <b>Immutable deployments</b> — Roll back instantly, upgrade safely. Your systems are always in a known state.</div>
+</div>
+
+
 
 ---
 layout: side-title
@@ -112,33 +142,6 @@ Bu
 -->
 
 ---
-layout: top-title-two-cols
-color: dark
-columns: is-4
----
-
-:: title ::
-
-## Why Current Tools Still Fail
-
-:: right ::
-
-Even with "modern" tooling, we're still patching over deep structural problems:
-
-- 🐳 <b>Docker</b> — Starts from clean slates, but depends on <b>mutable golden images</b> that silently rot over time.
-- ⚙️ <b>CI Pipelines</b> — Automate builds, but rarely guarantee reproducibility. Flaky tests? Mysterious failures? That's drift.
-- 📦 <b>Package managers</b> — Resolve dependencies dynamically, not reproducibly.
-- 🧩 <b>Glue scripts & custom bootstrapping</b> — Every team invents their own fragile setup.
-
-These tools are <b>reactive</b> — built to manage breakage — not prevent it.
-
-:: left ::
-
-<div class="flex justify-center items-center h-full">
-  <img src="/assets/golden-image.png" class="max-h-[85vh] rounded shadow-lg" />
-</div>
-
----
 layout: top-title
 color: dark
 ---
@@ -153,32 +156,6 @@ color: dark
   <img src="/assets/frustrated-developer.gif" class="max-h-[85vh] rounded shadow-lg" />
 </div>
 
----
-layout: top-title-two-cols
-color: dark
-columns: is-4
-align: l-lt-lt
----
-
-:: title ::
-
-## What Nix Brings
-
-:: left ::
-
-<div class="flex min-h-[400px] items-center justify-center">
-  <img src="/assets/Nix_Snowflake_Logo.svg" class="max-w-[250px]" />
-</div>
-
-:: right ::
-
-<div class="text-lg leading-relaxed space-y-5">
-  <div>📜 <b>Declarative environments</b> — Say what you want your system to look like, and Nix makes it so.</div>
-  <div><code>&gt;</code> <b>Devshells</b> — Define fully custom CLI environments that can be activated in one step with <code>nix develop</code>.</div>
-  <div>♻️ <b>Reproducibility</b> — Builds and environments that work the same across every machine, every time.</div>
-  <div>🧰 <b>Unified config</b> — Use one language and toolset to manage everything: packages, containers, infra, and more.</div>
-  <div>🔁 <b>Immutable deployments</b> — Roll back instantly, upgrade safely. Your systems are always in a known state.</div>
-</div>
 
 ---
 layout: top-title
@@ -337,13 +314,14 @@ title: Why This Matters
 
 We defined a full development environment — and then used it two ways:
 
-- 🧰 Built a **devshell** with custom packages and our own script  
-- ⚡ Activated instantly with a single `nix develop`  
-- 🐳 Reused the exact same setup to build a **Docker image**  
-- 🔁 One config — consistent across shell and container, no duplication  
-- 🪝 No volume mounts or host-container sync hacks  
-- 📋 No tribal knowledge — everything's codified  
-- 🧱 No guessing which packages are needed to make it build
+- Built a **devshell** with custom packages and our own script  
+- Activated instantly with a single `nix develop`  
+- Reused the exact same setup to build a **Docker image**  
+- One config — consistent across shell and container, no duplication  
+- No volume mounts or host-container sync hacks  
+- No tribal knowledge — everything's codified  
+- No guessing which packages are needed to make it build
+
 
 <AdmonitionType type="tip">
 This is the power of declarative, composable tooling. One definition — everywhere.
@@ -371,7 +349,7 @@ align: c
 layout: top-title-two-cols
 color: dark
 title: Why Nix Changes the Game
-columns: is-11
+columns: is-10
 ---
 
 :: title ::
@@ -419,7 +397,6 @@ title: From Dev to Delivery
 
 - 🧪 **DevShells** — Clean, reproducible CLI environments, no setup scripts, no drift  
 - 🐳 **Containers** — Same source, same environment, delivered as OCI image  
-- 🧼 **Zero-dependency shell scripts** — Write scripts with fully isolated, declarative runtimes  
 - 🔧 **Infra as Code, as Functions** — Compose systems with code, not YAML  
 - 🔐 **SBOMs by design** — Everything is declared; provenance is automatic  
 - 📦 **Binary caching** — Share artifacts securely via Cachix or your own  
@@ -428,6 +405,18 @@ title: From Dev to Delivery
 <AdmonitionType type="important">
 Nix lets you go from laptop to prod — with trust, traceability, and zero config drift.
 </AdmonitionType>
+
+<!--
+One definition saves time... 
+
+
+really good bullets
+
+
+in the important thing 
+
+important bubble!
+-->
 
 ---
 layout: top-title-two-cols
@@ -515,122 +504,30 @@ In Nix, you don’t bolt on SBOMs — you get them for free.
 </div>
 
 ---
-layout: top-title
+layout: image
+image: /assets/nix-wallpaper-nineish-catppuccin-mocha-alt.png
+class: text-center
 color: dark
-align: l
-title: DoD Alignment
 ---
 
-:: title ::
+<div class="text-5xl font-bold tracking-tight mt-10">
 
-# Trusted by Design: Nix and DoD Priorities
+From chaos to clarity
 
-:: content ::
+</div>
 
-- 🧱 **ZTRA-aligned** — Immutable, declarative systems enable zero trust enforcement at the software layer  
-- 🧬 **RAISE 2.0–ready** — Build provenance, SBOMs, and automation are native to Nix workflows  
-- 🔁 **Reproducibility** means less reliance on post-hoc scans and hardening guides  
-- 📋 **Policy compliance** isn't a layer on top — it's part of the build process  
-- 🚀 Speeds up Authority to Operate (ATO) by making intent and artifacts auditable
+<div class="text-2xl mt-8 leading-relaxed">
+  <span class="inline-block mr-4">🔁 Reproducibility</span>
+  <span class="inline-block mr-4">📦 Determinism</span><br/>
+  <span class="inline-block mr-4">⚖️ Dev ⇄ Prod Parity</span>
+  <span class="inline-block mr-4">🧯 Fewer Footguns</span>
+</div>
 
-<AdmonitionType type="important">
-Nix brings software engineering practices into alignment with federal compliance — without sacrificing velocity.
-</AdmonitionType>
+<div class="text-xl mt-10 italic opacity-90">
+  The future of infrastructure and development isn't coming —
+</div>
 
----
-layout: top-title
-color: dark
-align: l
-src: ./slides/cyber-analysis.md
----
+<div class="text-xl mt-10 text-accent">
+  it's already here. With Nix.
+</div>
 
----
-
-# Nix for Kubernetes
-
-- Manage K8s manifests as Nix code
-- Tools like Kubenix, NixJson
-- Reusable, parameterized deployments
-
-Example:
-
-```nix
-kubenix.modules.kubernetes.deployment {
-  name = "web";
-  image = "nginx:latest";
-  replicas = 2;
-}
-```
-
----
-
-# Nix for Cloud Infrastructure
-
-- Define Terraform with Terranix
-- Use functions, not static YAML
-- Abstract environments into reusable modules
-
-Example:
-
-```nix
-{ config, ... }:
-{
-  aws.lambda = {
-    name = "process-data";
-    image = myNixBuiltImage;
-  };
-}
-```
-
----
-
-# Nix is Fundamentally Low-Level
-
-Unlike YAML, Nix:
-
-- Supports functions
-- Allows inlined packages
-- Is a full programming language
-
-You can:
-
-- Define Terraform modules
-- Generate Lambda containers
-- Automate entire infra setups
-
-Write once, abstract away complexity, and **test everything at build time**.
-
----
-
-# The Power of Abstraction
-
-With smart module design:
-
-- `aws.flink-cluster.enable = true` can trigger:
-  - IAM setup
-  - Networking
-  - Monitoring
-  - Logging
-  - Container builds
-
-You say **what** you want. Nix handles the **how**.
-
----
-
-# The Result
-
-- Determinism
-- Reproducibility
-- Dev & Prod parity
-- Fewer footguns
-
-Welcome to the future of infrastructure and development environments.
-
-**Welcome to Nix.**
-
----
-layout: top-title
-color: dark
-align: l
-src: ./slides/mkderivation.md
----

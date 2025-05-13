@@ -32,3 +32,9 @@ But <b>Nix ≠ NixOS</b>, <b>Nix ≠ nixpkgs</b>, and <b>Nix ≠ just a language
 <div class="flex justify-center items-end h-full pb-4">
   <img src="/assets/whatisnix.png" class="max-w-[300px]" />
 </div>
+
+<!--
+Nix Powered DevSecOps reduces complexity that a team may handle far more. 
+
+the largest source of complexity is that i am speakingin yaml and hcl and they dont let me speak about things like i want and i end up creating a lot of ok but fragile layers on top of them. there is a limit on the tools and nix allows me to talk more percisily.
+-->

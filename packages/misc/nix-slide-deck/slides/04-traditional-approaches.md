@@ -1,4 +1,3 @@
-
 :: title ::
 
 ## Traditional Approaches
@@ -17,9 +16,9 @@ Before Nix, teams used tools like:
 
 These tools stack on top of traditional operating systems and their package managers, which:
 
-- Don’t guarantee state
-- Depend on mutable files
-- Drift over time without notice
+- <span v-mark.underline.orange>Don’t guarantee state</span>
+- <span v-mark.underline.orange>Depend on mutable files</span>
+- <span v-mark.underline.orange>Drift over time without notice</span>
 
 </div>
 

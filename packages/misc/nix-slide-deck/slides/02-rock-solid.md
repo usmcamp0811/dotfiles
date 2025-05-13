@@ -28,3 +28,13 @@ Nix builds <strong>from the ground up</strong> on a cryptographic, content-addre
 <div class="flex min-h-[350px] items-center justify-center">
   <img src="/assets/house_on_rock_and_sand.jpg" class="rounded shadow-lg max-w-[250px]" />
 </div>
+
+<!--
+lazy build everything from source 
+subsitutors 
+
+
+taken artifact trust out of the equation 
+
+crpto signed hashed artifacts and code
+-->

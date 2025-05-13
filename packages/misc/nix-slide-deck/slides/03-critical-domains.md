@@ -1,4 +1,3 @@
-
 :: title ::
 
 # Critical Qualities, Critical Domains
@@ -30,3 +29,9 @@ Nix provides these qualities **by design**, not as bolt-ons or afterthoughts.
 <div class="flex justify-center items-end h-full pb-6">
   <img src="/assets/mission-critical.jpg" class="rounded shadow-lg max-w-[300px]" />
 </div>
+
+<!--
+works for all languages 
+
+made for the worst language ... c++
+-->

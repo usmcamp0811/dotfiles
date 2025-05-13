@@ -17,12 +17,14 @@ title: Nix
 </style>
 
 
-# Nix
-
-## Taming the Wild West of Codebases
+#
+<h3>
+  <img src="/assets/Nix_Snowflake_Logo.svg" alt="Nix Logo" style="width: 40px; height: 40px; display: inline-block; vertical-align: middle;" />
+  A Nix Powered DevSecOps Revolution
+</h3>
 
 <div class="text-sm mt-4">
-  🐍💻 Reproducible environments, declarative infra, and zero-footgun dev setups  
+   Avoiding the YAML heat death...
 </div>
 
 <div class="text-xs opacity-50 mt-2">
@@ -32,7 +34,6 @@ title: Nix
 <img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.aicampground.com/matomo.php?idsite=5&amp;rec=1" style="border:0" alt="" />
 
 <!--
-
 ## 🔷 Slide Deck Outline: *Nix — Taming the Wild West of Codebases*
 
 ### I. **Opening: Set the Stage**
