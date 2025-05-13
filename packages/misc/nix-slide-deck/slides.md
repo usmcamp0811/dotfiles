@@ -518,7 +518,7 @@ From chaos to clarity
 
 <div class="text-2xl mt-8 leading-relaxed">
   <span class="inline-block mr-4">🔁 Reproducibility</span>
-  <span class="inline-block mr-4">📦 Determinism</span><br/>
+  <span class="inline-block mr-4">📦 Determinism</span>
   <span class="inline-block mr-4">⚖️ Dev ⇄ Prod Parity</span>
   <span class="inline-block mr-4">🧯 Fewer Footguns</span>
 </div>
