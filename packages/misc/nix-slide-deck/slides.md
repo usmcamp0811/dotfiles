@@ -8,8 +8,6 @@ title: Nix
 src: ./slides/00-intro.md 
 ---
 
-
-
 ---
 src: ./slides/paradigm-shift.md
 ---
@@ -18,34 +16,19 @@ src: ./slides/paradigm-shift.md
 src: ./slides/devsecops-rev.md
 ---
 
-
 ---
 src: ./slides/01-what-is-nix.md 
-layout: top-title-two-cols
-color: dark
-columns: is-9
 ---
 
 ---
-layout: top-title-two-cols
-color: dark
-columns: is-9
 src: ./slides/02-rock-solid.md 
 ---
 
-
 ---
-layout: top-title-two-cols
-color: dark
-columns: is-9
 src: ./slides/03-critical-domains.md 
 ---
 
-
 ---
-layout: top-title-two-cols
-color: dark
-columns: is-9
 src: ./slides/04-traditional-approaches.md 
 ---
 
@@ -60,7 +43,6 @@ src: ./slides/what-it-takes.md
 ---
 src: ./slides/latest-strikes-again.md 
 ---
-
 
 ---
 src: ./slides/what-nix-brings.md 

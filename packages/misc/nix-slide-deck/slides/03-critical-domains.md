@@ -1,3 +1,9 @@
+---
+layout: top-title-two-cols
+color: dark
+columns: is-9
+---
+
 :: title ::
 
 # Critical Qualities, Critical Domains
