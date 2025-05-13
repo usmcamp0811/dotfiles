@@ -368,25 +368,17 @@ align: c
 
 
 ---
-layout: top-title
+layout: top-title-two-cols
 color: dark
-align: l
 title: Why Nix Changes the Game
+columns: is-11
 ---
 
 :: title ::
 
 # What If You Could Trust the Files?
 
-:: content ::
-
-Nix isn't just a tool — it's a **guarantee**:
-
-- 📁 You know **what every file is**, **where it is**, and **what went into it**
-- ✍️ You **declare what you want**, not how to do it
-- 📦 Reproducibility isn't an afterthought — it's **baked in**
-- 🧬 Every artifact has a traceable input — you can derive **SBOMs**, **audits**, and **provenance** by default
-- 🏗️ If this is true… you can build *anything* — infra, dev envs, images, whole systems
+:: default ::
 
 <AdmonitionType type="tip">
 
@@ -394,6 +386,23 @@ Declarative systems don’t just build things — they **prove** what they built
 
 </AdmonitionType>
 
+
+:: left ::
+
+Nix isn't just a tool — it's a **guarantee**:
+
+- 📁 You know **what every file is**, **where it is**, and **what went into it**
+- ✍️ You **declare what you want**, not how to do it
+- 📦 Reproducibility isn't an afterthought — it's **baked in**
+- 🧬 <span v-mark.underline.orange>Every artifact </span>has a traceable input — you can derive <span v-mark.underline.orange>**SBOMs**, **audits**, and **provenance** by default</span>
+- 🏗️ If this is true… you can build *anything* — infra, dev envs, images, whole systems
+
+
+:: right ::
+
+<div class="flex justify-center items-end h-full pb-4">
+  <img src="/assets/trustme.jpg" class="max-w-[300px]" />
+</div>
 
 ---
 layout: top-title
@@ -476,9 +485,8 @@ Both aim to provide trusted binaries — but target very different ecosystems an
 
 
 ---
-layout: top-title
+layout: top-title-two-cols
 color: dark
-align: l
 title: SBOM-First Design
 ---
 
@@ -486,7 +494,7 @@ title: SBOM-First Design
 
 # SBOM-First by Nature
 
-:: content ::
+:: left ::
 
 - 🧬 With Nix, you know exactly **what went into every build** — no guesswork  
 - 📦 Every package, patch, and dependency is declared and traceable  
@@ -494,10 +502,17 @@ title: SBOM-First Design
 - 🧾 SBOMs become a **byproduct**, not an afterthought  
 - 🔐 Essential for compliance, zero trust, and secure software supply chains
 
+:: default ::
+
 <AdmonitionType type="tip">
 In Nix, you don’t bolt on SBOMs — you get them for free.
 </AdmonitionType>
 
+:: right ::
+
+<div class="flex justify-center items-end h-full pb-4">
+  <img src="/assets/ohmy.webp" class="max-w-[300px]" />
+</div>
 
 ---
 layout: top-title
