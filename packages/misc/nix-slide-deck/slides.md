@@ -157,7 +157,7 @@ color: dark
 layout: top-title-two-cols
 color: dark
 columns: is-4
-align: c-lt-lt
+align: l-lt-lt
 ---
 
 :: title ::
@@ -183,12 +183,15 @@ align: c-lt-lt
 ---
 layout: top-title
 color: dark
-align: c
+align: l
 ---
 
 :: title ::
 
-# 🧠 Nix as a Language
+<h1>
+  <img src="/assets/Nix_Snowflake_Logo.svg" alt="Nix Logo" style="width: 40px; height: 40px; display: inline-block; vertical-align: middle;" />
+    Nix as a Language
+</h1>
 
 :: content ::
 
@@ -214,7 +217,7 @@ Nix isn’t just a config format — it's a <b>purely functional language</b> bu
 </div>
 
 <div class="mt-10 text-sm text-center opacity-60">
-Purity isn’t a restriction — it’s what makes reproducibility possible.
+<span v-mark.underline.orange>Purity isn’t a restriction — it’s what makes reproducibility possible.</span>
 </div>
 
 ---
