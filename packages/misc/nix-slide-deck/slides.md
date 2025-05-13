@@ -109,6 +109,22 @@ CMD ["demo"]
 This is a minimal case — real-world Dockerfiles get much more complex.
 </AdmonitionType>
 
+---
+layout: top-title
+color: dark
+---
+
+:: title ::
+
+# When ‘latest’ Strikes Again
+
+:: default ::
+
+<div class="flex justify-center items-center h-full">
+  <img src="/assets/frustrated-developer.gif" class="max-h-[85vh] rounded shadow-lg" />
+</div>
+
+
 
 ---
 layout: top-title-two-cols
@@ -135,22 +151,6 @@ align: l-lt-lt
   <div>♻️ <b>Reproducibility</b> — Builds and environments that work the same across every machine, every time.</div>
   <div>🧰 <b>Unified config</b> — Use one language and toolset to manage everything: packages, containers, infra, and more.</div>
   <div>🔁 <b>Immutable deployments</b> — Roll back instantly, upgrade safely. Your systems are always in a known state.</div>
-</div>
-
-
----
-layout: top-title
-color: dark
----
-
-:: title ::
-
-# When ‘latest’ Strikes Again
-
-:: default ::
-
-<div class="flex justify-center items-center h-full">
-  <img src="/assets/frustrated-developer.gif" class="max-h-[85vh] rounded shadow-lg" />
 </div>
 
 
