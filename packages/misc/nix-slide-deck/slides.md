@@ -8,13 +8,95 @@ title: Nix
 src: ./slides/00-intro.md 
 ---
 
+
+---
+layout: top-title-two-cols
+color: dark
+columns: is-9
+---
+
+:: title ::
+
+# Nix: A Paradigm Shift, Not Just Better YAML
+
+:: default ::
+
+<div class="bluf-box clear-both mt-4">
+
+  Nix replaces procedural sprawl with declarative clarity — unlocking reproducibility, scalability, and long-term maintainability.
+
+</div>
+
+:: left ::
+
+### **Org-Level Capabilities**
+
+<ul class="text-sm ml-4 mt-2">
+  <li><strong>Hyperconverged SDLC</strong> — one definition for prod, dev, VM, Docker, AMI</li>
+  <li><strong>Zero trust in artifacts</strong> — build from source with cryptographic guarantees</li>
+  <li><strong>Save time</strong> — minimal boilerplate, reusable logic</li>
+  <li><strong>Lower cognitive load</strong> — declare <i>what</i>, not <i>how</i></li>
+  <li><strong>Reproducible by default</strong> — inputs = outputs, always</li>
+  <li><strong>Long-term upside</strong> — like Python, steady growth toward dominance</li>
+  <li><strong>Not new — just right</strong> — the correct idea finally maturing</li>
+</ul>
+
+:: right ::
+
+<div class="flex min-h-[300px] items-center justify-center">
+  <img src="/assets/6-ways-to-improve-your-business-efficiency-banner.jpeg" class="rounded shadow-lg max-w-[250px]" />
+</div>
+
+
+
+
+---
+layout: top-title-two-cols
+color: dark
+columns: is-9
+---
+
+:: title ::
+
+# Nix: The DevSecOps Revolution
+
+:: default ::
+
+<div class="bluf-box clear-both mt-8">
+  <strong>BLUF:</strong> By baking build logic into the graph itself, Nix enables minimal, secure, reproducible software delivery — even in airgapped environments.
+</div>
+
+:: left ::
+
+### **A Paradigm Shift**
+
+<ul class="text-sm ml-4 mt-2">
+  <li><strong>Not just better YAML</strong> — a higher-order language</li>
+  <li><strong>Encodes relationships natively</strong> — no hidden complexity</li>
+  <li><strong>Unified logic</strong> — dev, build, infra all in one graph</li>
+</ul>
+
+### **DevSecOps Revolution**
+
+<ul class="text-sm ml-4 mt-2">
+  <li><strong>Minimal, secure containers</strong> — near Chainguard by default</li>
+  <li><strong>Airgap ready</strong> — lazy evaluation, full graph builds offline</li>
+  <li><strong>No setup tax</strong> — build environments embedded in Nix itself</li>
+  <li><strong>Do more with less</strong> — small teams, large systems</li>
+</ul>
+
+:: right ::
+
+<div class="flex items-center justify-center h-full">
+  <img src="/assets/devsecops.png" class="rounded shadow-lg max-w-[250px]" />
+</div>
+
 ---
 src: ./slides/01-what-is-nix.md 
 layout: top-title-two-cols
 color: dark
 columns: is-9
 ---
-
 
 ---
 layout: top-title-two-cols
@@ -414,60 +496,6 @@ in the important thing
 
 important bubble!
 -->
-
----
-layout: top-title-two-cols
-columns: is-6
-align: l-lt-lt
-color: dark
-style: |
-  .smaller-cols {
-    font-size: 0.9rem;
-    line-height: 1.4;
-  }
----
-
-:: title ::
-
-# Binary Delivery: Cachix vs Iron Bank
-
-:: left ::
-
-<div class="smaller-cols">
-
-## Nix Binary Cache 
-
-- 🌐 Decentralized binary cache as a service  
-- ⚙️ Push or pull via `nix copy` or Flakes  
-- 🔒 Can be **public or private**  
-- 📦 Works seamlessly with **SBOMs** and provenance  
-- ⚡ Fast, scalable, supports **signed builds**  
-- 🧰 Ideal for developer workflows and CI/CD  
-- 🪜 Simple CLI tools and automation support  
-
-</div>
-
-:: right ::
-
-<div class="smaller-cols">
-
-## Iron Bank (DoD / Platform One)
-
-- 🧱 Centralized hardened container registry  
-- 🛡️ Strict vetting process with manual review  
-- 🔒 Enforces compliance policies (e.g., STIGs)  
-- 📄 Requires extensive documentation & justification  
-- 🐢 Slower to update, less developer-friendly  
-- 🎯 Tailored for mission-critical DoD deployments  
-- 🧩 Complex integration into CI/CD pipelines  
-
-</div>
-
-:: default ::
-
-<AdmonitionType type="note">
-Both aim to provide trusted binaries — but target very different ecosystems and tradeoffs.
-</AdmonitionType>
 
 
 ---

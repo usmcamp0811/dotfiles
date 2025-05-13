@@ -1,3 +1,9 @@
+--- layout: top-title-two-cols
+color: dark
+columns: is-9
+src: ./slides/02-rock-solid.md 
+---
+
 :: title ::
 
 # Rock-Solid Infrastructure Starts Here
