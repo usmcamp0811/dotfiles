@@ -12,11 +12,9 @@
     authentik-nix.url = "github:nix-community/authentik-nix";
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    nixpkgs.url = "github:nixos/nixpkgs/release-24.11";
-    pyarrow.url =
-      "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
-    hyprland-works-here.url =
-      "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
+    nixpkgs.url = "github:nixos/nixpkgs/staging-25.05";
+    pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
+    hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     # TODO: Switch back to unstable branch when the node fix gets merged
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
@@ -141,8 +139,7 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
-    mlflow-works.url =
-      "gitlab:usmcamp0811/dotfiles/38739f362e9c8e27880c0835f8db4a4866a61337";
+    mlflow-works.url = "gitlab:usmcamp0811/dotfiles/38739f362e9c8e27880c0835f8db4a4866a61337";
 
     nix-snapshotter = {
       url = "github:yu-re-ka/nix-snapshotter/update";
@@ -169,8 +166,7 @@
 
     # Run unpatched dynamically compiled binaries
     nix-ld-rs = {
-      url =
-        "github:nix-community/nix-ld-rs/8af5fc9add315c251edea8f659b56fc7836a163f";
+      url = "github:nix-community/nix-ld-rs/8af5fc9add315c251edea8f659b56fc7836a163f";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -213,8 +209,7 @@
     };
 
     official-plugins-yazi = {
-      url =
-        "github:yazi-rs/plugins?rev=273019910c1111a388dd20e057606016f4bd0d17";
+      url = "github:yazi-rs/plugins?rev=273019910c1111a388dd20e057606016f4bd0d17";
       flake = false;
     };
 
@@ -340,7 +335,8 @@
           namespace = "campground";
         };
       };
-    in lib.mkFlake {
+    in
+    lib.mkFlake {
       channels-config = {
         allowUnfree = true;
         permittedInsecurePackages = [
@@ -380,7 +376,7 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
-        "${unstable}/nixos/modules/services/web-apps/pds.nix"
+        # "${unstable}/nixos/modules/services/web-apps/pds.nix"
         # { disabledModules = [ "${nixpkgs}/nixos/modules/services/cluster/k3s/default.nix" ]; }
         # "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
       ];
@@ -392,33 +388,31 @@
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53
       ];
-      systems.hosts.gray.modules = with inputs;
-        [ nixos-hardware.nixosModules.framework-16-7040-amd ];
+      systems.hosts.gray.modules = with inputs; [ nixos-hardware.nixosModules.framework-16-7040-amd ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
-      systems.hosts.base.modules =
-        [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
+      systems.hosts.base.modules = [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks = builtins.mapAttrs
-        (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
-        deploy-rs.lib;
+      checks =
+        builtins.mapAttrs
+          (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
+          deploy-rs.lib;
 
       outputs-builder = channels: {
         # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and
         # which will break `deploy`.
-        hooks.pre-commit-check =
-          inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-            src = ./.;
-            hooks = {
-              nixpkgs-fmt.enable = true;
-              # flake8.enable = true;
-              # markdownlint.enable = true;
-              # yamllint.enable = true;
-              # deadnix.enable = true;
-            };
+        hooks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+          src = ./.;
+          hooks = {
+            nixpkgs-fmt.enable = true;
+            # flake8.enable = true;
+            # markdownlint.enable = true;
+            # yamllint.enable = true;
+            # deadnix.enable = true;
           };
+        };
         nixidyEnvs = inputs.nixidy.lib.mkEnvs {
           pkgs = channels.nixpkgs;
           envs = { dev.modules = [ ./kubernetes/dev.nix ]; };
@@ -449,8 +443,7 @@
         };
         slidev = {
           path = ./templates/slidev;
-          description =
-            "A Template for making a flake with a devshell for running Slidev slides";
+          description = "A Template for making a flake with a devshell for running Slidev slides";
         };
         julia-project = {
           path = ./templates/julia-project;
@@ -458,18 +451,15 @@
         };
         simple-rust-package = {
           path = ./templates/simple-rust-package;
-          description =
-            "An Example of how to package a Rust app not in Snowfall but vanilla Nix";
+          description = "An Example of how to package a Rust app not in Snowfall but vanilla Nix";
         };
         python-package-with-tests = {
           path = ./templates/python-package-with-tests;
-          description =
-            "An Example of how to package Python with UV2Nix in vanilla Nix...also does checks and tests.";
+          description = "An Example of how to package Python with UV2Nix in vanilla Nix...also does checks and tests.";
         };
         basic-flake-system = {
           path = ./templates/basic-flake-system;
-          description =
-            "An Example of how to convert a vanilla NixOS system's configuration.nix to a flake.";
+          description = "An Example of how to convert a vanilla NixOS system's configuration.nix to a flake.";
         };
       };
     };
