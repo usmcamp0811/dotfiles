@@ -76,7 +76,7 @@ with lib.campground; {
           external-secrets = enabled;
           argocd = enabled;
         };
-        enable = true;
+        # enable = true;
         role = "server";
         clusterInit = true;
         extraFlags = [
