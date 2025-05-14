@@ -353,7 +353,7 @@
         devshell.overlays.default
         nix-ld-rs.overlays.default
         nuenv.overlays.default
-        nur.overlay
+        nur.overlays.default
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
