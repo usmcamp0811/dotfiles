@@ -249,7 +249,6 @@ in
 
       borgbackup = {
         enable = true;
-        extraArgs = [ "--remote-path=borg14" ];
         jobs = {
           "webb_campground" = {
             paths = [
@@ -268,6 +267,7 @@ in
             startAt = "daily";
           };
           "webb_rsync" = {
+            extraArgs = [ "--remote-path=borg14" ];
             paths = [
               "/persist"
               "/webb/media/photos"
