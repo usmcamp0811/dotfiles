@@ -249,6 +249,7 @@ in
 
       borgbackup = {
         enable = true;
+        extraArgs = [ "--remote-path=borg14" ];
         jobs = {
           "webb_campground" = {
             paths = [
