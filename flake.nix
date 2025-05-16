@@ -9,10 +9,12 @@
       flake = false;
     };
     # nixtheplanet.url = "github:usmcamp0811/nixtheplanet/update-macos-url";
-    authentik-nix.url = "github:nix-community/authentik-nix/b4916a86d4e650401e67dc03556eadb4a3cb248a";
+    # authentik-nix.url = "github:nix-community/authentik-nix/b4916a86d4e650401e67dc03556eadb4a3cb248a";
+    authentik-nix.url = "github:marcelcoding/authentik-nix";
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    nixpkgs.url = "github:nixos/nixpkgs/release-24.11";
+    # nixpkgs.url = "github:nixos/nixpkgs/release-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/backport-404525-to-release-24.11";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     # TODO: Switch back to unstable branch when the node fix gets merged
