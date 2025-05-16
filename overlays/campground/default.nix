@@ -26,6 +26,7 @@
       nixhelm.chartsDerivations.${prev.system}
   );
 
+
   nixidy-cli = nixidy.packages.${prev.system}.default;
   nixidy-lib = nixidy.lib;
   campground-nvim = campground-nvim.packages.${prev.system}.nvim;

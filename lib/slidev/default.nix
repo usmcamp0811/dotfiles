@@ -143,4 +143,32 @@
         license = pkgs.lib.licenses.mit;
       };
     };
+
+  buildYarnTheme =
+    { pkgs
+    , pname
+    , version
+    , src
+    , depsHash
+    ,
+    }:
+    pkgs.mkYarnPackage {
+      inherit pname version src;
+
+      packageJSON = "${src}/package.json";
+      yarnLock = "${src}/yarn.lock";
+
+      outputHash = depsHash;
+
+      installPhase = ''
+        runHook preInstall
+        cp -r . $out
+        runHook postInstall
+      '';
+
+      meta = {
+        description = "Built theme ${pname}";
+        license = pkgs.lib.licenses.mit;
+      };
+    };
 }

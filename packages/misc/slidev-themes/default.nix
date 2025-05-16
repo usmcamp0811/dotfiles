@@ -56,6 +56,18 @@ with lib.campground; let
     depsHash = "sha256-7BWUjHR1BtVtOvYGVFYVia3vKiaWFKHiQTL+mI8qNDY=";
     pnpm = pkgs.pnpm_9;
   };
+  dataroots-theme = buildYarnTheme {
+    inherit pkgs;
+    pname = "slidev-theme-dataroots";
+    version = "0.1.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "datarootsio";
+      repo = "slidev-theme-dataroots";
+      rev = "439c3add51c76c24953113380dded57fbdccc52b";
+      hash = "sha256-9wU7+aBk8zVsRIaAkpr56ZSNLwiEBkLkJBAp1YY1iAU=";
+    };
+    depsHash = "sha256-9wU7+aBk8zVsRIaAkpr56ZSNLwiEBkLkJBAp1YY1iAU=";
+  };
   custom-mokkapps-theme = pkgs.stdenv.mkDerivation {
     pname = "slidev-theme-mokkapps";
     version = "0.1.0";
@@ -98,6 +110,6 @@ with lib.campground; let
 in
 slidev-themes
   // {
-  inherit neversink-theme csscade-theme eavise-theme;
+  inherit neversink-theme csscade-theme eavise-theme dataroots-theme;
   mokkapps-theme = custom-mokkapps-theme;
 }
