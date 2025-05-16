@@ -43,7 +43,19 @@ with lib.campground; let
     depsHash = "sha256-ZJh47LQamNh1kPd8c/JTlkcQp9k2MwKLkIw+f+102DE=";
     pnpm = pkgs.pnpm_9;
   };
-
+  eavise-theme = buildPnpmTheme {
+    inherit pkgs;
+    pname = "slidev-theme-eavise";
+    version = "1.1.1-rc1";
+    src = pkgs.fetchFromGitHub {
+      owner = "0phoff";
+      repo = "slidev-theme-eavise";
+      rev = "v1.1.1-rc1";
+      hash = "sha256-svILnvGD7SoECrhg6lSwDDWVcgxQONwCGw/nBYDpMOQ=";
+    };
+    depsHash = "sha256-7BWUjHR1BtVtOvYGVFYVia3vKiaWFKHiQTL+mI8qNDY=";
+    pnpm = pkgs.pnpm_9;
+  };
   custom-mokkapps-theme = pkgs.stdenv.mkDerivation {
     pname = "slidev-theme-mokkapps";
     version = "0.1.0";
@@ -77,7 +89,6 @@ with lib.campground; let
     depsHash = "sha256-7aY8Md7Je6SEAnkhzCpkRSOG5Q4A1wHqK34qMEG8HJo=";
     pnpm = pkgs.pnpm_8;
   };
-
   # slidev-themes = pkgs.fetchFromGitHub {
   #   owner = "slidevjs";
   #   repo = "themes";
@@ -87,6 +98,6 @@ with lib.campground; let
 in
 slidev-themes
   // {
-  inherit neversink-theme csscade-theme;
+  inherit neversink-theme csscade-theme eavise-theme;
   mokkapps-theme = custom-mokkapps-theme;
 }
