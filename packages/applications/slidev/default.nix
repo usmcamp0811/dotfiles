@@ -23,7 +23,7 @@ with lib; let
       # rev = "v51.6.0";
       # rev = "v51.6.0-nix-fix";
       rev = "4e50ffdb957ebc4d65ae3fdc7a144cb1b670e9e6";
-      srcHash = "sha256-Zz+cVsPhtifR9lI6rDbm1WlYL3YYTrspb4biZG3i+PQ=";
+      srcHash = "sha256-Y5xsepssNa7QzDKE3xAY3n/5gYLiR8B5DusKObrnqVY=";
       depsHash = "sha256-SUah/68SjVVyCCCl90RGcScD9lKre4lfH8xM98B4MSQ=";
       pnpm = pkgs.pnpm_9;
     };
