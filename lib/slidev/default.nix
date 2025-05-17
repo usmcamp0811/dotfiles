@@ -13,6 +13,7 @@
     , assets ? [ ]
     , urlBase ? "/"
     , extraNodePackages ? [ ]
+    , meta ? { }
     ,
     }:
     stdenv.mkDerivation {
@@ -78,12 +79,14 @@
         runHook postInstall
       '';
 
-      meta = {
-        description = "Slidev Presentation SPA";
-        homepage = "https://sli.dev/";
-        license = lib.licenses.mit;
-        maintainers = with lib.maintainers; [ ];
-      };
+      meta =
+        {
+          description = "Slidev Presentation SPA";
+          homepage = "https://sli.dev/";
+          license = lib.licenses.mit;
+          maintainers = with lib.maintainers; [ ];
+        }
+        // meta;
     };
   buildPnpmTheme =
     { pkgs
@@ -92,6 +95,7 @@
     , src
     , depsHash
     , pnpm
+    , meta ? { }
     ,
     }:
     pkgs.stdenv.mkDerivation {
@@ -110,10 +114,12 @@
         runHook postInstall
       '';
 
-      meta = {
-        description = "Built theme ${pname}";
-        license = lib.licenses.mit;
-      };
+      meta =
+        {
+          description = "Built theme ${pname}";
+          license = lib.licenses.mit;
+        }
+        // meta;
     };
 
   buildNpmTheme =
@@ -123,6 +129,7 @@
     , src
     , depsHash ? null
     , peerDeps ? { }
+    , meta ? { }
     ,
     }:
     pkgs.buildNpmPackage {
@@ -148,10 +155,12 @@
         runHook postInstall
       '';
 
-      meta = {
-        description = "Built theme ${pname}";
-        license = pkgs.lib.licenses.mit;
-      };
+      meta =
+        {
+          description = "Built theme ${pname}";
+          license = pkgs.lib.licenses.mit;
+        }
+        // meta;
     };
 
   buildYarnTheme =
@@ -160,6 +169,7 @@
     , version
     , src
     , yarnNix
+    , meta ? { }
     ,
     }:
     let
@@ -200,9 +210,11 @@
         ln -s ${themePkg}/deps/${pname}/* $out/
       '';
 
-      meta = {
-        description = "Slidev theme ${pname}";
-        license = pkgs.lib.licenses.mit;
-      };
+      meta =
+        {
+          description = "Slidev theme ${pname}";
+          license = pkgs.lib.licenses.mit;
+        }
+        // meta;
     };
 }

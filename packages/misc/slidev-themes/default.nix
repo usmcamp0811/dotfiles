@@ -28,7 +28,9 @@ with lib.campground; let
       hash = "sha256-4xnuRLhHqNqtD5Yu9PZ/STRptCfz8m60chvGhmkt/SU=";
     };
     depsHash = "sha256-hpjXGy0KPOXxVS+Bo7o2p1d5lHRWU2/myRUN3ygHSz4=";
+    meta.broken = true;
   };
+
   neversink-theme = buildPnpmTheme {
     inherit pkgs;
     pname = "slidev-theme-neversink";
@@ -116,6 +118,6 @@ with lib.campground; let
 in
 slidev-themes
   // {
-  inherit neversink-theme csscade-theme eavise-theme dataroots-theme;
+  inherit csscade-theme neversink-theme eavise-theme dataroots-theme;
   mokkapps-theme = custom-mokkapps-theme;
 }
