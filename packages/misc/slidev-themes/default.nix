@@ -56,18 +56,60 @@ with lib.campground; let
     depsHash = "sha256-7BWUjHR1BtVtOvYGVFYVia3vKiaWFKHiQTL+mI8qNDY=";
     pnpm = pkgs.pnpm_9;
   };
-  dataroots-theme = buildYarnTheme {
-    inherit pkgs;
+
+  dataroots-theme = pkgs.stdenv.mkDerivation rec {
     pname = "slidev-theme-dataroots";
     version = "0.1.0";
-    src = pkgs.fetchFromGitHub {
-      owner = "datarootsio";
-      repo = "slidev-theme-dataroots";
-      rev = "439c3add51c76c24953113380dded57fbdccc52b";
-      hash = "sha256-9wU7+aBk8zVsRIaAkpr56ZSNLwiEBkLkJBAp1YY1iAU=";
+
+    buildInputs = [
+      (pkgs.yarn2nix-moretea.mkYarnPackage rec {
+        inherit pname version;
+        src = pkgs.fetchFromGitHub {
+          owner = "datarootsio";
+          repo = "slidev-theme-dataroots";
+          rev = "439c3add51c76c24953113380dded57fbdccc52b";
+          hash = "sha256-9wU7+aBk8zVsRIaAkpr56ZSNLwiEBkLkJBAp1YY1iAU=";
+        };
+        packageJSON = "${src}/package.json";
+        yarnLock = "${src}/yarn.lock";
+        yarnNix = ./dataroots-yarn-deps.nix;
+      })
+    ];
+
+    phases = [ "installPhase" ];
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/themes/${pname}
+      cp -r ${builtins.head buildInputs}/libexec/${pname}/* $out
+      runHook postInstall
+    '';
+
+    meta = {
+      description = "Slidev theme dataroots";
+      license = pkgs.lib.licenses.mit;
     };
-    depsHash = "sha256-9wU7+aBk8zVsRIaAkpr56ZSNLwiEBkLkJBAp1YY1iAU=";
   };
+  # dataroots-theme = pkgs.yarn2nix-moretea.mkYarnPackage rec {
+  #   pname = "slidev-theme-dataroots";
+  #   version = "0.1.0";
+  #
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "datarootsio";
+  #     repo = "slidev-theme-dataroots";
+  #     rev = "439c3add51c76c24953113380dded57fbdccc52b";
+  #     hash = "sha256-9wU7+aBk8zVsRIaAkpr56ZSNLwiEBkLkJBAp1YY1iAU=";
+  #   };
+  #
+  #   packageJSON = src + "/package.json";
+  #   yarnLock = src + "/yarn.lock";
+  #   yarnNix = ./dataroots-yarn-deps.nix;
+  #
+  #   meta = {
+  #     description = "Slidev theme dataroots";
+  #     license = pkgs.lib.licenses.mit;
+  #   };
+  # };
   custom-mokkapps-theme = pkgs.stdenv.mkDerivation {
     pname = "slidev-theme-mokkapps";
     version = "0.1.0";
