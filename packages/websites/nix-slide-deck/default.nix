@@ -13,7 +13,7 @@ with lib.campground; let
     themes = [
       # pkgs.campground.slidev-themes
       pkgs.campground.slidev-themes.neversink-theme
-      pkgs.campground.slidev-themes.dataroots-theme
+      # pkgs.campground.slidev-themes.dataroots-theme
       # pkgs.campground.slidev-themes.mokkapps-theme
       # pkgs.campground.slidev-themes.csscade-theme
     ];
