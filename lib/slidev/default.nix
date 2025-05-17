@@ -143,4 +143,56 @@
         license = pkgs.lib.licenses.mit;
       };
     };
+
+  buildYarnTheme =
+    { pkgs
+    , pname
+    , version
+    , src
+    , yarnNix
+    ,
+    }:
+    let
+      themePkg = pkgs.stdenv.mkDerivation rec {
+        inherit pname version;
+
+        buildInputs = [
+          (pkgs.yarn2nix-moretea.mkYarnPackage {
+            inherit pname version src yarnNix;
+            packageJSON = "${src}/package.json";
+            yarnLock = "${src}/yarn.lock";
+          })
+        ];
+
+        phases = [ "installPhase" ];
+
+        installPhase = ''
+          runHook preInstall
+          mkdir -p $out/deps/${pname}
+          cp -r ${builtins.head buildInputs}/libexec/${pname}/* $out
+          runHook postInstall
+        '';
+
+        meta = {
+          description = "Raw theme build for ${pname}";
+          license = pkgs.lib.licenses.mit;
+        };
+      };
+    in
+    pkgs.stdenv.mkDerivation {
+      inherit pname version;
+      src = themePkg;
+
+      phases = [ "installPhase" ];
+
+      installPhase = ''
+        mkdir -p $out
+        ln -s ${themePkg}/deps/${pname}/* $out/
+      '';
+
+      meta = {
+        description = "Slidev theme ${pname}";
+        license = pkgs.lib.licenses.mit;
+      };
+    };
 }
