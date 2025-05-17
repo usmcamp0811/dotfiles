@@ -4,36 +4,66 @@
 , ...
 }:
 let
-  nodeEnv = import ./node-env.nix {
-    inherit (pkgs) lib stdenv nodejs python2 libtool runCommand writeTextFile writeShellScript;
-    inherit pkgs;
-  };
+  sassEmbeddedLinux =
+    let
+      dartFHS = pkgs.buildFHSUserEnv {
+        name = "dart-wrapper";
+        targetPkgs = pkgs: [ pkgs.dart ];
+        runScript = "${pkgs.dart}/bin/dart";
+      };
+    in
+    pkgs.stdenv.mkDerivation rec {
+      pname = "sass-embedded-linux-x64";
+      version = "1.71.1";
+
+      src = pkgs.fetchurl {
+        url = "https://registry.npmjs.org/sass-embedded-linux-x64/-/sass-embedded-linux-x64-${version}.tgz";
+        sha512 = "sha512-7BXniYic16+MQx0InyH8OXburLPGMRYRWf0l/t/fRkNkUHWFl7NQPAX0yvj73c/PKOdaYEUY6isNB4OGUGtZHQ==";
+      };
+
+      installPhase = ''
+            mkdir -p $out/lib/node_modules/sass-embedded-linux-x64
+            tar --strip-components=1 -xzf $src -C $out/lib/node_modules/sass-embedded-linux-x64
+
+            mkdir -p $out/lib/node_modules/sass-embedded-linux-x64/dart-sass/src
+            cat > $out/lib/node_modules/sass-embedded-linux-x64/dart-sass/src/dart <<EOF
+            #!${pkgs.runtimeShell}
+            exec ${dartFHS}/bin/dart "\$@"
+        EOF
+            chmod +x $out/lib/node_modules/sass-embedded-linux-x64/dart-sass/src/dart
+      '';
+
+      meta = with pkgs.lib; {
+        description = "Sass embedded with Dart in FHS for working IPC";
+        homepage = "https://github.com/sass/embedded-host-node";
+        license = licenses.mit;
+      };
+    };
 in
-nodeEnv.buildNodePackage rec {
+pkgs.stdenv.mkDerivation rec {
   pname = "sass-embedded";
-  version = "1.88.0";
-  name = "${pname}-${version}";
-  packageName = "sass-embedded"; # Required by buildNodePackage
+  version = "1.71.1";
 
-  src = pkgs.fetchFromGitHub {
-    owner = "sass";
-    repo = "embedded-host-node";
-    rev = "ba6e09f4b0ef4c571e978d56644be1976701af39";
-    hash = "sha256-a583SWAc5Ivz/UuUC9Laui9DFunZqzQh9Gh2UdS7hPw=";
+  src = pkgs.fetchurl {
+    url = "https://registry.npmjs.org/sass-embedded/-/sass-embedded-${version}.tgz";
+    sha512 = "sha512-nOmqErO1zd1wjvTbDscLZZ3fv5JPeQfaKuo0UCjYm7qPbpQcycp0l3nFZHxovjLjCetJ9IrLOADdznFYKV0f1A==";
   };
 
-  buildInputs = [
-    pkgs.nodejs
-    pkgs.typescript
-    pkgs.gts
-  ];
+  installPhase = ''
+    mkdir -p $out/lib/node_modules/${pname}/node_modules
+    tar --strip-components=1 -xzf $src -C $out/lib/node_modules/${pname}
 
-  postInstall = ''
-    mkdir -p dist/lib
-    tsc -p tsconfig.build.json
-    cp lib/index.mjs dist/lib/index.mjs
-    cp -r lib/src/vendor/sass dist/lib/src/vendor/sass
-    cp dist/lib/src/vendor/sass/index.d.ts dist/lib/src/vendor/sass/index.m.d.ts
-    cp lib/index.js dist/lib/index.js || true
+    cp -r ${sassEmbeddedLinux}/lib/node_modules/sass-embedded-linux-x64 \
+      $out/lib/node_modules/${pname}/node_modules/
+
+    mkdir -p $out/bin
+    ln -s $out/lib/node_modules/${pname}/bin/sass-embedded.js $out/bin/sass-embedded
   '';
+
+  meta = with lib; {
+    description = "Embedded Sass implementation for Node (with embedded compiler)";
+    homepage = "https://github.com/sass/embedded-host-node";
+    license = licenses.mit;
+    platforms = platforms.linux;
+  };
 }

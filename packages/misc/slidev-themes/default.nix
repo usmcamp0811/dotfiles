@@ -5,6 +5,18 @@
 }:
 with lib;
 with lib.campground; let
+  # csscade-theme = buildYarnTheme {
+  #   pkgs = pkgs;
+  #   pname = "slidev-theme-csscade";
+  #   version = "0.1.0";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "usmcamp0811";
+  #     repo = "slidev-theme-csscade";
+  #     rev = "491da23c5c6928ee4f99881ff6fc2db130089c1f";
+  #     hash = "sha256-koTSlTpYgPP+XH4AXe0CAbHJ9VIizcmMJmciATdXCHs=";
+  #   };
+  #   yarnNix = ./csscade-yarn-deps.nix;
+  # };
   csscade-theme = buildNpmTheme {
     inherit pkgs;
     pname = "slidev-theme-csscade";

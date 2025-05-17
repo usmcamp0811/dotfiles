@@ -122,16 +122,26 @@
     , version
     , src
     , depsHash ? null
+    , peerDeps ? { }
     ,
     }:
     pkgs.buildNpmPackage {
       inherit pname version src;
-
       npmDepsHash = depsHash;
 
       env = {
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
       };
+
+      preBuild = ''
+        echo "Injecting peerDependencies..."
+        tmpfile=$(mktemp)
+        ${pkgs.jq}/bin/jq --argjson peerDeps '${builtins.toJSON peerDeps}' '
+          .dependencies += $peerDeps
+        ' package.json > $tmpfile
+        mv $tmpfile package.json
+      '';
+
       installPhase = ''
         runHook preInstall
         cp -r . $out
