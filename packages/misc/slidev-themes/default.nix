@@ -57,7 +57,7 @@ with lib.campground; let
     pnpm = pkgs.pnpm_9;
   };
 
-  dataroots-theme = pkgs.stdenv.mkDerivation rec {
+  dataroots = pkgs.stdenv.mkDerivation rec {
     pname = "slidev-theme-dataroots";
     version = "0.1.0";
 
@@ -80,7 +80,7 @@ with lib.campground; let
 
     installPhase = ''
       runHook preInstall
-      mkdir -p $out/themes/${pname}
+      mkdir -p $out
       cp -r ${builtins.head buildInputs}/libexec/${pname}/* $out
       runHook postInstall
     '';
@@ -89,6 +89,15 @@ with lib.campground; let
       description = "Slidev theme dataroots";
       license = pkgs.lib.licenses.mit;
     };
+  };
+  dataroots-theme = pkgs.stdenv.mkDerivation {
+    pname = "slidev-theme-dataroots";
+    version = "0.1.0";
+    src = dataroots;
+    installPhase = ''
+      mkdir -p $out
+      ln -s ${dataroots}/deps/slidev-theme-dataroots/* $out
+    '';
   };
   # dataroots-theme = pkgs.yarn2nix-moretea.mkYarnPackage rec {
   #   pname = "slidev-theme-dataroots";
