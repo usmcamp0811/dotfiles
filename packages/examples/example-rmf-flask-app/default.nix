@@ -3,23 +3,32 @@
 , ...
 }:
 with lib.campground;
-mkCompliantPackage {
+wrapWithRMF {
   pkg = pkgs.campground.example-flask-app;
 
   rmfMeta = {
     approved = false;
-    mustMeetControls = {
+    controls = {
       "AC-17" = {
         status = "met";
+        config = {
+          networking.firewall.enable = true;
+        };
+        srg = [ "SRG-APP-000516" ];
+        cci = [ "CCI-000366" ];
       };
+
       "CM-2" = {
         status = "waived";
-        justification = "Manual config approved for dev environment only.";
+        justification = "Manual configuration accepted in dev.";
+        config = {
+          nix.settings.warn-dirty = true;
+        };
+        srg = [ "SRG-APP-000142" ];
+        cci = [ "CCI-000366" ];
       };
     };
     poc = "DevSecOps <devsecops@example.mil>";
     lastReviewed = "2025-08-15";
   };
-
-  knownCompliantControls = [ "AC-17" "CM-2" ]; # Fails if CM-2 omitted
 }

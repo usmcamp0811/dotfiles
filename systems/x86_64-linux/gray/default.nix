@@ -1,20 +1,33 @@
-{ pkgs, config, lib, inputs, ... }:
+{ pkgs
+, config
+, lib
+, inputs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
+in
+{
   imports = [ ./hardware.nix ];
   programs.adb.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   services.tlp = { enable = mkForce false; };
   campground = {
+    example-flask-app = {
+      enable = true;
+      CM-2 = {
+        enabled = false;
+        justification = [ "dev box, manual baseline config accepted" ];
+      };
+    };
+
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
