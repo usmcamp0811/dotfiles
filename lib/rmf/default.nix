@@ -8,10 +8,11 @@
       controlSet = rmfMeta.controls or { };
 
       # All controls must be either met or waived (nothing left "open")
-      allResolved = builtins.all
-        (c:
-          builtins.elem controlSet.${c}.status [ "met" "waived" ])
-        (builtins.attrNames controlSet);
+      allResolved =
+        builtins.all
+          (c:
+            builtins.elem controlSet.${c}.status [ "met" "waived" ])
+          (builtins.attrNames controlSet);
 
       _0 =
         lib.asserts.assertMsg allResolved
@@ -115,58 +116,74 @@
     }:
     let
       controls = pkg.meta.rmf.controls or { };
-      topLevelEnable = config.campground.${name}.enable;
 
-      toModuleEntry = controlName: control:
-        let
-          cfg = config.campground.controls.${name}.${controlName};
-          effectiveEnable = cfg.enable or topLevelEnable;
-          forceAttrs = lib.mapAttrsRecursive (_: v: lib.mkForce v) (control.config or { });
-        in
-        {
-          options.campground.controls.${name}.${controlName} = with lib.types; {
-            enable =
-              lib.campground.mkBoolOpt topLevelEnable
-                "Enable/Disable control ${controlName} for ${name}";
-            justification =
-              lib.campground.mkOpt (listOf str) [ ]
-                "Justification for disabling ${controlName} for ${name}";
-          };
-
-          config = lib.mkMerge [
-            (lib.mkIf effectiveEnable forceAttrs)
-
+      moduleEntries =
+        lib.mapAttrsToList
+          (controlName: control:
+            let
+              controlPath = [ "campground" "rmf" name controlName ];
+              cfg = lib.getAttrFromPath controlPath config;
+              pkgEnable = config.campground.rmf.${name}.enable or false;
+              effectiveEnable = cfg.enabled or pkgEnable;
+              forceAttrs = lib.mapAttrsRecursive (_: v: lib.mkForce v) (control.config or { });
+            in
             {
-              campground.controls.active.${name}.${controlName} = lib.mkIf effectiveEnable {
-                srg = control.srg or [ ];
-                cci = control.cci or [ ];
-                config = control.config or { };
+              options = {
+                campground.rmf.${name}.${controlName} = {
+                  enabled = lib.mkOption {
+                    type = lib.types.bool;
+                    default = true;
+                    description = "Enable/Disable control ${controlName} for ${name}";
+                  };
+                  justification = lib.mkOption {
+                    type = lib.types.listOf lib.types.str;
+                    default = [ ];
+                    description = "Justification for disabling ${controlName}";
+                  };
+                };
               };
+              config = {
+                config = lib.mkMerge [
+                  (lib.mkIf effectiveEnable forceAttrs)
 
-              campground.controls.inactive.${name}.${controlName} = lib.mkIf (!effectiveEnable) {
-                srg = control.srg or [ ];
-                cci = control.cci or [ ];
-                justification = cfg.justification;
-                config = control.config or { };
+                  {
+                    campground.controls.active.${name}.${controlName} = lib.mkIf effectiveEnable {
+                      srg = control.srg or [ ];
+                      cci = control.cci or [ ];
+                      config = control.config or { };
+                    };
+
+                    campground.controls.inactive.${name}.${controlName} = lib.mkIf (!effectiveEnable) {
+                      srg = control.srg or [ ];
+                      cci = control.cci or [ ];
+                      justification = cfg.justification;
+                      config = control.config or { };
+                    };
+                  }
+
+                  {
+                    assertions = [
+                      {
+                        assertion = (!effectiveEnable) -> (cfg.justification != [ ]);
+                        message = "Must justify disabling ${controlName} for ${name}.";
+                      }
+                    ];
+                  }
+                ];
               };
-            }
+            })
+          controls;
 
-            {
-              assertions = [
-                {
-                  assertion =
-                    (!effectiveEnable && config.campground.controls.enable)
-                    -> (cfg.justification != [ ]);
-                  message = "Must justify disabling ${controlName} for ${name}.";
-                }
-              ];
-            }
-          ];
-        };
+      optionsList = map (entry: entry.options) moduleEntries;
+      configList = map (entry: entry.config.config) moduleEntries;
     in
     {
-      options.campground.${name}.enable = lib.mkEnableOption "Enable all controls for ${name}";
+      options =
+        {
+          campground.rmf.${name}.enable = lib.mkEnableOption "Enable all controls for ${name}";
+        }
+        // lib.foldlAttrs (acc: opt: acc // opt) { } optionsList;
 
-      config = lib.mkMerge (lib.mapAttrsToList toModuleEntry controls);
+      config = lib.mkMerge configList;
     };
 }
