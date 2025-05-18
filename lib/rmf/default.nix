@@ -30,30 +30,6 @@
         };
     });
 
-  checkRMFCompliance =
-    { pkg
-    , knownCompliantControls ? [ ]
-    ,
-    }:
-    let
-      meta = pkg.meta.rmf or { };
-      required = meta.mustMeetControls or { };
-      controls = builtins.attrNames required;
-
-      unmet =
-        builtins.filter
-          (
-            c:
-              !(required.${c}.status
-                == "met"
-                && builtins.elem c knownCompliantControls)
-          )
-          controls;
-    in
-    if unmet == [ ]
-    then true
-    else throw "Package ${pkg.pname or "<unknown>"} fails RMF check: unmet controls ${builtins.toString unmet}";
-
   mkCompliantPackage =
     { pkg
     , rmfMeta
@@ -68,4 +44,40 @@
         pkg = wrapped;
         inherit knownCompliantControls;
       }; wrapped;
+
+  checkRMFCompliance =
+    { pkg
+    , knownCompliantControls ? [ ]
+    ,
+    }:
+    builtins.trace "Running RMF compliance check for ${pkg.pname or "<unknown>"}" (
+      let
+        meta = pkg.meta.rmf or { };
+        required = meta.mustMeetControls or { };
+        controls = builtins.attrNames required;
+
+        unmet =
+          builtins.filter
+            (
+              c:
+                !(required.${c}.status
+                  == "met"
+                  && builtins.elem c knownCompliantControls)
+            )
+            controls;
+
+        _ =
+          lib.asserts.assertMsg
+            (builtins.all
+              (
+                c:
+                required.${c}.status == "met" || required.${c} ? justification
+              )
+              controls)
+            "Each non-met RMF control must include a justification.";
+      in
+      if unmet == [ ]
+      then true
+      else throw "Package ${pkg.pname or "<unknown>"} fails RMF check: unmet controls ${builtins.toString unmet}"
+    );
 }
