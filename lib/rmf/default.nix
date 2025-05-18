@@ -175,15 +175,16 @@
           controls;
 
       optionsList = map (entry: entry.options) moduleEntries;
-      configList = map (entry: entry.config.config) moduleEntries;
+
+      configList = map (entry: entry.config) moduleEntries;
     in
     {
       options =
         {
           campground.rmf.${name}.enable = lib.mkEnableOption "Enable all controls for ${name}";
         }
-        // lib.foldlAttrs (acc: opt: acc // opt) { } optionsList;
+        // lib.foldl (acc: opt: acc // opt) { } optionsList;
 
-      config = lib.mkMerge configList;
+      config = lib.mkMerge (map (entry: entry.config) moduleEntries);
     };
 }
