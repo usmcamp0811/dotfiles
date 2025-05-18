@@ -60,9 +60,10 @@
           builtins.filter
             (
               c:
-                !(required.${c}.status
-                  == "met"
-                  && builtins.elem c knownCompliantControls)
+                !(
+                  builtins.elem required.${c}.status [ "met" "waived" ]
+                  && builtins.elem c knownCompliantControls
+                )
             )
             controls;
 
