@@ -20,14 +20,14 @@ in
 
   services.tlp = { enable = mkForce false; };
   campground = {
-    example-flask-app = {
-      enable = true;
+    rmf.example-flask-app = {
+      # enable = true;
+
       CM-2 = {
         enabled = false;
         justification = [ "dev box, manual baseline config accepted" ];
       };
     };
-
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
