@@ -6,7 +6,7 @@
 with lib;
 with lib.campground;
 mkRmfModuleFromPackage {
-  inherit config;
+  inherit config pkgs;
   name = "example-flask-app";
   pkg = pkgs.campground.example-rmf-flask-app;
 }

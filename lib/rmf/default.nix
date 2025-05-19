@@ -66,14 +66,13 @@
     }:
     let
       controls = pkg.meta.rmf.controls or { };
-
       forceAll = attrs: lib.mapAttrsRecursive (_: v: lib.mkForce v) attrs;
 
       buildControlModule = controlName: control:
         let
-          cfg = config.campground.rmf.${name}.${controlName};
+          ctrlCfg = config.campground.rmf.${name}.controls.${controlName} or { };
           pkgEnabled = config.campground.rmf.${name}.enable or false;
-          enabled = cfg.enabled or pkgEnabled;
+          enabled = (ctrlCfg ? enabled && ctrlCfg.enabled) || pkgEnabled;
 
           controlConfig = control.config or { };
           srg = control.srg or [ ];
@@ -81,7 +80,7 @@
         in
         {
           options = {
-            ${controlName} = with lib.types; {
+            controls.${controlName} = with lib.types; {
               enabled = lib.campground.mkBoolOpt true "Enable/Disable control ${controlName}";
               justification = lib.campground.mkOpt (listOf str) [ ] "Justification if disabled.";
             };
@@ -97,7 +96,7 @@
 
               campground.controls.inactive.${name}.${controlName} = lib.mkIf (!enabled) {
                 inherit srg cci;
-                justification = cfg.justification;
+                justification = ctrlCfg.justification;
                 config = controlConfig;
               };
             }
@@ -105,7 +104,7 @@
             {
               assertions = [
                 {
-                  assertion = (!enabled) -> (cfg.justification != [ ]);
+                  assertion = (!enabled) -> (ctrlCfg.justification != [ ]);
                   message = "You must justify disabling ${controlName} for ${name}.";
                 }
               ];
@@ -114,13 +113,11 @@
         };
 
       entries = lib.mapAttrsToList buildControlModule controls;
-
       controlOptions = lib.mergeAttrsList (map (e: e.options) entries);
       controlConfigs = map (e: e.config) entries;
 
       installModule = pkg.passthru.installModule or (_: { config = { }; });
       moduleOptions = pkg.passthru.moduleOptions or { };
-
       enabled = config.campground.rmf.${name}.enable or false;
     in
     {
@@ -128,10 +125,9 @@
         campground.rmf.${name} =
           {
             enable = lib.campground.mkBoolOpt true "Enable all controls for ${name}";
+            settings = moduleOptions;
           }
           // controlOptions;
-
-        campground.vendor.${name} = moduleOptions;
       };
 
       config = lib.mkMerge (
