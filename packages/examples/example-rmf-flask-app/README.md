@@ -128,5 +128,7 @@ campground.rmf.example-flask-app = {
 ## 🛠️ Future Ideas
 
 - Add support for STIG profile selection
-- Auto-generate RMF compliance reports from metadata
+- Auto-generate RMF compliance reports from metadata (OSCAL)
 - Build CI checks for failed/waived controls
+- Include SBOM as `passthru`
+- Add options for adding VM pent tests
