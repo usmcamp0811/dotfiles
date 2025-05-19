@@ -131,4 +131,4 @@ campground.rmf.example-flask-app = {
 - Auto-generate RMF compliance reports from metadata (OSCAL)
 - Build CI checks for failed/waived controls
 - Include SBOM as `passthru`
-- Add options for adding VM pent tests
+- Add options for adding VM pen-tests

@@ -30,7 +30,7 @@ wrapWithRMF {
   rmfMeta = {
     approved = false;
     controls = {
-      "AC-17" = {
+      AC-17 = {
         status = "met";
         config = {
           networking.firewall.enable = true;
@@ -39,7 +39,7 @@ wrapWithRMF {
         cci = [ "CCI-000366" ];
       };
 
-      "CM-2" = {
+      CM-2 = {
         status = "waived";
         justification = "Manual configuration accepted in dev.";
         config = {
