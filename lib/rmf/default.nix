@@ -1,4 +1,22 @@
 { lib, ... }: rec {
+  /**
+  * Wraps a Nix package with RMF (Risk Management Framework) metadata and compliance logic.
+  *
+  * This function is intended to be used by software vendors to annotate their packages
+  * with RMF control metadata, define system-level install modules, and expose
+  * configuration options to downstream consumers (e.g., government agencies).
+  *
+  * Validates that all controls are either "met" or "waived", and ensures all non-"met"
+  * controls are justified.
+  *
+  * @param pkg             The Nix package to wrap.
+  * @param rmfMeta         RMF metadata including control mappings, status, and justifications.
+  * @param installModule   Optional NixOS module function that configures the system when enabled.
+  * @param moduleOptions   Optional NixOS module options to expose under `campground.rmf.<name>.settings`.
+  *
+  * @return A package with extended `meta.rmf`, `passthru.enforcedConfig`, and optionally
+  *         `passthru.installModule` and `passthru.moduleOptions`.
+  */
   wrapWithRMF =
     { pkg
     , rmfMeta
@@ -57,6 +75,28 @@
         };
     });
 
+  /**
+  * Generates a NixOS module for enabling and configuring a wrapped RMF-compliant package.
+  *
+  * This function is intended to be used by system integrators (e.g., government consumers)
+  * to declare whether to enforce a vendor’s wrapped package, configure its controls,
+  * and optionally apply the vendor-defined install configuration and settings.
+  *
+  * Enables structured declaration of RMF control status and justification, enforces assertions,
+  * and integrates the vendor's install logic conditionally based on `enable = true`.
+  *
+  * @param name    Unique identifier used to namespace the module (e.g., "example-flask-app").
+  * @param pkg     A package previously wrapped by `wrapWithRMF`, which must include RMF metadata.
+  * @param pkgs    The `pkgs` scope for injecting dependencies into the install module.
+  * @param config  The global NixOS module `config` object for accessing user-defined settings.
+  *
+  * @return A NixOS module with:
+  *         - options under `campground.rmf.${name}`:
+  *           - `enable`: global toggle
+  *           - `controls.<CONTROL>`: status + justification
+  *           - `settings`: vendor-defined knobs
+  *         - config that enforces controls and installs vendor system config if enabled
+  */
   mkRmfModuleFromPackage =
     { name
     , pkg
