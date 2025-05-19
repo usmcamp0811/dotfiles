@@ -55,59 +55,6 @@
         };
     });
 
-  mkCompliantPackage =
-    { pkg
-    , rmfMeta
-    , knownCompliantControls ? [ ]
-    ,
-    }:
-    let
-      wrapped = wrapWithRMF { inherit pkg rmfMeta; };
-    in
-    assert checkRMFCompliance
-      {
-        pkg = wrapped;
-        inherit knownCompliantControls;
-      }; wrapped;
-
-  checkRMFCompliance =
-    { pkg
-    , knownCompliantControls ? [ ]
-    ,
-    }:
-    builtins.trace "Running RMF compliance check for ${pkg.pname or "<unknown>"}" (
-      let
-        meta = pkg.meta.rmf or { };
-        required = meta.controls or { };
-        controls = builtins.attrNames required;
-
-        unmet =
-          builtins.filter
-            (
-              c:
-                !(
-                  builtins.elem required.${c}.status [ "met" "waived" ]
-                  && builtins.elem c knownCompliantControls
-                )
-            )
-            controls;
-
-        _ =
-          lib.asserts.assertMsg
-            (builtins.all
-              (
-                c:
-                required.${c}.status
-                == "met"
-                || required.${c} ? justification
-              )
-              controls)
-            "Each non-met RMF control must include a justification.";
-      in
-      if unmet == [ ]
-      then true
-      else throw "Package ${pkg.pname or "<unknown>"} fails RMF check: unmet controls ${builtins.toString unmet}"
-    );
   mkRmfModuleFromPackage =
     { name
     , pkg
@@ -117,74 +64,72 @@
     let
       controls = pkg.meta.rmf.controls or { };
 
-      moduleEntries =
-        lib.mapAttrsToList
-          (controlName: control:
-            let
-              controlPath = [ "campground" "rmf" name controlName ];
-              cfg = lib.getAttrFromPath controlPath config;
-              pkgEnable = config.campground.rmf.${name}.enable or false;
-              effectiveEnable = cfg.enabled or pkgEnable;
-              forceAttrs = lib.mapAttrsRecursive (_: v: lib.mkForce v) (control.config or { });
-            in
+      # Utility to force all values
+      forceAll = attrs: lib.mapAttrsRecursive (_: v: lib.mkForce v) attrs;
+
+      # Build a module entry per control
+      buildControlModule = controlName: control:
+        let
+          cfg = config.campground.rmf.${name}.${controlName};
+          pkgEnabled = config.campground.rmf.${name}.enable or false;
+          enabled = cfg.enabled or pkgEnabled;
+
+          controlConfig = control.config or { };
+          srg = control.srg or [ ];
+          cci = control.cci or [ ];
+        in
+        {
+          options = {
+            ${controlName} = with lib.types; {
+              enabled = lib.campground.mkBoolOpt true "Enable/Disable control ${controlName}";
+              justification = lib.campground.mkOpt (listOf str) [ ] "Justification if disabled.";
+            };
+          };
+
+          config = lib.mkMerge [
+            (lib.mkIf enabled (forceAll controlConfig))
+
             {
-              options = {
-                campground.rmf.${name}.${controlName} = {
-                  enabled = lib.mkOption {
-                    type = lib.types.bool;
-                    default = true;
-                    description = "Enable/Disable control ${controlName} for ${name}";
-                  };
-                  justification = lib.mkOption {
-                    type = lib.types.listOf lib.types.str;
-                    default = [ ];
-                    description = "Justification for disabling ${controlName}";
-                  };
-                };
+              campground.controls.active.${name}.${controlName} = lib.mkIf enabled {
+                inherit srg cci config;
               };
-              config = {
-                config = lib.mkMerge [
-                  (lib.mkIf effectiveEnable forceAttrs)
 
-                  {
-                    campground.controls.active.${name}.${controlName} = lib.mkIf effectiveEnable {
-                      srg = control.srg or [ ];
-                      cci = control.cci or [ ];
-                      config = control.config or { };
-                    };
-
-                    campground.controls.inactive.${name}.${controlName} = lib.mkIf (!effectiveEnable) {
-                      srg = control.srg or [ ];
-                      cci = control.cci or [ ];
-                      justification = cfg.justification;
-                      config = control.config or { };
-                    };
-                  }
-
-                  {
-                    assertions = [
-                      {
-                        assertion = (!effectiveEnable) -> (cfg.justification != [ ]);
-                        message = "Must justify disabling ${controlName} for ${name}.";
-                      }
-                    ];
-                  }
-                ];
+              campground.controls.inactive.${name}.${controlName} = lib.mkIf (!enabled) {
+                inherit srg cci;
+                justification = cfg.justification;
+                config = controlConfig;
               };
-            })
-          controls;
+            }
 
-      optionsList = map (entry: entry.options) moduleEntries;
+            {
+              assertions = [
+                {
+                  assertion = (!enabled) -> (cfg.justification != [ ]);
+                  message = "You must justify disabling ${controlName} for ${name}.";
+                }
+              ];
+            }
+          ];
+        };
 
-      configList = map (entry: entry.config) moduleEntries;
+      entries = lib.mapAttrsToList buildControlModule controls;
+
+      # Merge control-level options into a single attrset under campground.rmf.${name}
+      controlOptions =
+        lib.mergeAttrsList (map (e: e.options) entries);
+
+      controlConfigs =
+        map (e: e.config) entries;
     in
     {
-      options =
-        {
-          campground.rmf.${name}.enable = lib.mkEnableOption "Enable all controls for ${name}";
-        }
-        // lib.foldl (acc: opt: acc // opt) { } optionsList;
+      options = {
+        campground.rmf.${name} =
+          {
+            enable = lib.campground.mkBoolOpt true "Enable all controls for ${name}";
+          }
+          // controlOptions;
+      };
 
-      config = lib.mkMerge (map (entry: entry.config) moduleEntries);
+      config = lib.mkMerge controlConfigs;
     };
 }
