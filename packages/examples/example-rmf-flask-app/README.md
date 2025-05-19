@@ -1,115 +1,132 @@
-# RMF Compliance Functions for Nix
+# RMF Compliance Framework for NixOS
 
-This module is a proof of concept that provides utility functions to annotate Nix packages with RMF
-(Risk Management Framework) metadata and enforce control compliance during evaluation.
+This library provides a clean separation of responsibilities between software **vendors** and **government integrators** for building RMF-compliant systems on NixOS. It enables vendors to declare and enforce supply chain integrity, while giving consumers configurable enforcement and auditing capabilities.
 
 ---
 
-## 🧩 Functions
+## ✨ Overview
 
-### `wrapWithRMF`
+The framework is composed of two primary functions:
 
-Wraps a Nix package with `meta.rmf` fields and asserts that:
+- `wrapWithRMF`: used by **vendors** to wrap packages with RMF metadata, install modules, and configuration options.
+- `mkRmfModuleFromPackage`: used by **government integrators** to enable vendor-wrapped packages, selectively waive controls, and apply vendor install logic.
 
-- A justification is provided if the package is not approved or any control is unmet.
-- `mustMeetControls` is a structured attribute set mapping control IDs to `{ status, justification? }`.
+---
+
+## 🏗️ Vendor Responsibilities
+
+Vendors wrap their Nix packages using `wrapWithRMF`, providing:
+
+- **RMF metadata**: a set of NIST 800-53 controls with `met` or `waived` status.
+- **Install module**: NixOS module fragment that installs/configures services.
+- **Module options**: Optional knobs exposed for configuration under `settings`.
+
+### Example:
 
 ```nix
 wrapWithRMF {
-  pkg = pkgs.curl;
+  pkg = myApp;
+
   rmfMeta = {
     approved = false;
-    mustMeetControls = {
+    controls = {
       "AC-17" = {
         status = "met";
-      };
-      "SC-7" = {
-        status = "waived";
-        justification = "Traffic monitoring handled at the network gateway.";
-      };
-    };
-  };
-}
-```
-
----
-
-### `checkRMFCompliance`
-
-Checks whether a package's declared controls are satisfied by the given set of known compliant controls.
-
-```nix
-checkRMFCompliance {
-  pkg = myWrappedCurl;
-  knownCompliantControls = [ "AC-17" "SC-7" ];
-}
-```
-
-Throws an error if any control with `status = "met"` is not in the known list.
-
----
-
-### `mkCompliantPackage`
-
-Wraps the package and enforces compliance in a single step. This is the recommended default.
-
-```nix
-mkCompliantPackage {
-  pkg = pkgs.openssh;
-  rmfMeta = {
-    approved = false;
-    mustMeetControls = {
-      "AC-3" = {
-        status = "met";
+        config = {
+          networking.firewall.enable = true;
+        };
+        srg = [ "SRG-APP-000516" ];
+        cci = [ "CCI-000366" ];
       };
       "CM-2" = {
         status = "waived";
-        justification = "Manual config for isolated lab systems.";
+        justification = "Manually configured for dev.";
+        config = {
+          nix.settings.warn-dirty = true;
+        };
+        srg = [ "SRG-APP-000142" ];
+        cci = [ "CCI-000366" ];
       };
     };
-    poc = "Security Team <security@example.org>";
+    poc = "DevSecOps <sec@aicampground.com>";
     lastReviewed = "2025-08-15";
   };
-  knownCompliantControls = [ "AC-3" "CM-2" ];
+
+  installModule = { config, pkgs, lib, ... }: {
+    config = {
+      systemd.services.myApp = {
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig.ExecStart = "${myApp}/bin/start";
+      };
+      environment.systemPackages = [ myApp ];
+    };
+  };
+
+  moduleOptions = {
+    port = lib.mkOption {
+      type = lib.types.port;
+      default = 8080;
+      description = "HTTP port to run the app.";
+    };
+  };
 }
 ```
 
 ---
 
-## ✅ Recommended Usage
+## 🛡️ Integrator Responsibilities
 
-Use `mkCompliantPackage` in your flake outputs to enforce compliance at build time:
+Government consumers use `mkRmfModuleFromPackage` to instantiate a module from the vendor package.
+
+They can:
+
+- Enable/disable the package
+- Configure individual RMF controls
+- Override settings exposed by the vendor
+
+### Usage in System Configuration:
 
 ```nix
-outputs = { self, nixpkgs }: {
-  packages.x86_64-linux.default =
-    let
-      rmf = import ./rmf-support.nix { lib = nixpkgs.lib; };
-    in
-    rmf.mkCompliantPackage {
-      pkg = nixpkgs.legacyPackages.x86_64-linux.nginx;
-      rmfMeta = {
-        approved = false;
-        mustMeetControls = {
-          "AC-17" = { status = "met"; };
-          "SC-7"  = {
-            status = "waived";
-            justification = "Monitoring handled by WAF.";
-          };
-        };
-        poc = "DevSecOps <devsecops@example.mil>";
-        lastReviewed = "2025-08-15";
-      };
-      knownCompliantControls = [ "AC-17" "SC-7" ];
+campground.rmf.example-flask-app = {
+  enable = true;
+
+  settings = {
+    port = 9001;
+  };
+
+  controls = {
+    CM-2 = {
+      enabled = false;
+      justification = [ "dev system" ];
     };
+  };
 };
 ```
 
 ---
 
-## 🛡️ Future Improvements
+## ✅ Assertions Enforced
 
-- Enforced status value enums: `met`, `waived`, `deferred`, etc.
-- Structured compliance reports (JSON)
-- Time-based expiration/`lastReviewed` enforcement
-- CI integration for automated policy gatekeeping
+- Every control must be marked as `met` or `waived`
+- Every `waived` control must include a `justification`
+- Control configs are only enforced when enabled
+- Vendor install logic is only evaluated if the package is enabled
+
+---
+
+## 📚 Glossary
+
+| Term            | Meaning                                                          |
+| --------------- | ---------------------------------------------------------------- |
+| `rmfMeta`       | Metadata declaring RMF controls and their statuses               |
+| `controls`      | The set of security controls tied to RMF requirements            |
+| `settings`      | Arbitrary knobs exposed by the vendor via `moduleOptions`        |
+| `installModule` | Vendor logic to install and configure the software on the system |
+
+---
+
+## 🛠️ Future Ideas
+
+- Add support for STIG profile selection
+- Auto-generate RMF compliance reports from metadata
+- Build CI checks for failed/waived controls
