@@ -2,16 +2,17 @@
   wrapWithRMF =
     { pkg
     , rmfMeta
+    , installModule ? null
+    , moduleOptions ? { }
     ,
     }:
     let
       controlSet = rmfMeta.controls or { };
 
-      # All controls must be either met or waived (nothing left "open")
+      # All controls must be either met or waived
       allResolved =
         builtins.all
-          (c:
-            builtins.elem controlSet.${c}.status [ "met" "waived" ])
+          (c: builtins.elem controlSet.${c}.status [ "met" "waived" ])
           (builtins.attrNames controlSet);
 
       _0 =
@@ -26,8 +27,7 @@
       _1 =
         lib.asserts.assertMsg
           (!justificationRequired
-            || builtins.all
-            (c: controlSet.${c} ? justification)
+            || builtins.all (c: controlSet.${c} ? justification)
             (builtins.attrNames controlSet))
           "Each non-met RMF control must include a justification.";
 
@@ -44,30 +44,31 @@
     in
     pkg.overrideAttrs (old: {
       meta =
-        old.meta or { }
+        (old.meta or { })
         // {
           rmf = rmfMeta;
         };
+
       passthru =
         (old.passthru or { })
         // {
           enforcedConfig = enforcedConfig;
+          inherit installModule moduleOptions;
         };
     });
 
   mkRmfModuleFromPackage =
     { name
     , pkg
+    , pkgs
     , config
     ,
     }:
     let
       controls = pkg.meta.rmf.controls or { };
 
-      # Utility to force all values
       forceAll = attrs: lib.mapAttrsRecursive (_: v: lib.mkForce v) attrs;
 
-      # Build a module entry per control
       buildControlModule = controlName: control:
         let
           cfg = config.campground.rmf.${name}.${controlName};
@@ -114,12 +115,13 @@
 
       entries = lib.mapAttrsToList buildControlModule controls;
 
-      # Merge control-level options into a single attrset under campground.rmf.${name}
-      controlOptions =
-        lib.mergeAttrsList (map (e: e.options) entries);
+      controlOptions = lib.mergeAttrsList (map (e: e.options) entries);
+      controlConfigs = map (e: e.config) entries;
 
-      controlConfigs =
-        map (e: e.config) entries;
+      installModule = pkg.passthru.installModule or (_: { config = { }; });
+      moduleOptions = pkg.passthru.moduleOptions or { };
+
+      enabled = config.campground.rmf.${name}.enable or false;
     in
     {
       options = {
@@ -128,8 +130,19 @@
             enable = lib.campground.mkBoolOpt true "Enable all controls for ${name}";
           }
           // controlOptions;
+
+        campground.vendor.${name} = moduleOptions;
       };
 
-      config = lib.mkMerge controlConfigs;
+      config = lib.mkMerge (
+        controlConfigs
+        ++ [
+          (lib.mkIf enabled (
+            (installModule {
+              inherit config lib pkgs;
+            }).config
+          ))
+        ]
+      );
     };
 }

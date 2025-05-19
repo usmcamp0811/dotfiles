@@ -22,7 +22,7 @@ in
   campground = {
     rmf.example-flask-app = {
       enable = true;
-
+      port = 8081;
       CM-2 = {
         enabled = false;
         justification = [ "dev box, manual baseline config accepted" ];

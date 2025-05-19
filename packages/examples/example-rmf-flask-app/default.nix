@@ -6,6 +6,27 @@ with lib.campground;
 wrapWithRMF {
   pkg = pkgs.campground.example-flask-app;
 
+  installModule =
+    { config
+    , pkgs
+    , lib
+    , ...
+    }: {
+      config = {
+        systemd.services.example-rmf-flask-app = {
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig.ExecStart = "${pkgs.campground.example-flask-app}/bin/example-flask-app";
+        };
+        environment.systemPackages = [ pkgs.campground.example-flask-app ];
+      };
+    };
+  moduleOptions = {
+    port = lib.mkOption {
+      type = lib.types.port;
+      default = 8080;
+      description = "HTTP port for example service.";
+    };
+  };
   rmfMeta = {
     approved = false;
     controls = {
