@@ -20,18 +20,18 @@ in
 
   services.tlp = { enable = mkForce false; };
   campground = {
-    rmf.example-flask-app = {
-      # enable = true;
-      settings = {
-        port = 8081;
-      };
-      controls = {
-        CM-2 = {
-          enabled = false;
-          justification = [ "dev box, manual baseline config accepted" ];
-        };
-      };
-    };
+    # rmf.example-flask-app = {
+    #   # enable = true;
+    #   settings = {
+    #     port = 8081;
+    #   };
+    #   controls = {
+    #     CM-2 = {
+    #       enabled = false;
+    #       justification = [ "dev box, manual baseline config accepted" ];
+    #     };
+    #   };
+    # };
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
