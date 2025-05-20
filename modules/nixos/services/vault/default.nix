@@ -1,10 +1,16 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.vault;
 
-  package = if cfg.ui then pkgs.vault-bin else pkgs.vault;
+  package =
+    if cfg.ui
+    then pkgs.vault-bin
+    else pkgs.vault;
 
   has-policies = (builtins.length (builtins.attrNames cfg.policies)) != 0;
 
@@ -42,19 +48,19 @@ let
       mv "./$name" $out
     '';
 
-  policies = mapAttrs
-    (name: value:
-      if builtins.isPath value then
-        format-policy name value
-      else
-        format-policy name (pkgs.writeText "${name}.hcl" value))
-    cfg.policies;
+  policies =
+    mapAttrs
+      (name: value:
+        if builtins.isPath value
+        then format-policy name value
+        else format-policy name (pkgs.writeText "${name}.hcl" value))
+      cfg.policies;
 
   unseal-script = pkgs.writeShellApplication {
     name = "celvis-unseal-vault";
     runtimeInputs = [ package pkgs.clevis pkgs.curl ];
     text = ''
-      # TODO: make sure this exists? 
+      # TODO: make sure this exists?
       export HOME="/var/lib/vault" # Needed or Vault cli shits the bed
       # Path to the encrypted file containing the unseal key
       encrypted_file="${cfg.tang-unseal-key}"
@@ -77,12 +83,13 @@ let
     '';
   };
 
-  write-policies-commands = mapAttrsToList
-    (name: policy: ''
-      echo Writing policy '${name}': '${policy}'
-      vault policy write '${name}' '${policy}'
-    '')
-    policies;
+  write-policies-commands =
+    mapAttrsToList
+      (name: policy: ''
+        echo Writing policy '${name}': '${policy}'
+        vault policy write '${name}' '${policy}'
+      '')
+      policies;
   write-policies = concatStringsSep "\n" write-policies-commands;
 
   known-policies = mapAttrsToList (name: _value: name) policies;
@@ -119,39 +126,47 @@ in
     ui = mkBoolOpt true "Whether the UI should be enabled.";
     auto-unseal =
       mkBoolOpt false "Whether or not to auto unseal with Clevis & Tang";
-    tang-unseal-key = mkOpt types.str "/var/lib/vault/unsealkey.enc"
-      "Location of a Tang encrypted unseal key";
+    tang-unseal-key =
+      mkOpt types.str "/var/lib/vault/unsealkey.enc"
+        "Location of a Tang encrypted unseal key";
     storage = {
       backend = mkOpt types.str "file" "The storage backend for Vault.";
       path = mkOpt types.str "/var/lib/vault/data" "Path";
       config = mkOpt (types.nullOr types.str) null "Config";
     };
-    address = mkOpt types.str "0.0.0.0:${toString cfg.port}"
-      "Where to access vault UI at";
+    address =
+      mkOpt types.str "0.0.0.0:${toString cfg.port}"
+        "Where to access vault UI at";
     port = mkOpt types.int 8200 "Port for UI";
     settings = mkOpt types.str "" "Configuration for Vault's config file.";
-    mutable-policies = mkBoolOpt false
-      "Whether policies not specified in Nix should be removed.";
-    policies = mkOpt (types.attrsOf (types.either types.str types.path)) { }
-      "Policies to install when Vault runs.";
+    mutable-policies =
+      mkBoolOpt false
+        "Whether policies not specified in Nix should be removed.";
+    policies =
+      mkOpt (types.attrsOf (types.either types.str types.path)) { }
+        "Policies to install when Vault runs.";
     policy-agent = {
       user = mkOpt types.str "root" "The user to run the Vault Agent as.";
       group = mkOpt types.str "root" "The group to run the Vault Agent as.";
       auth = {
-        roleIdFilePath = mkOpt types.str "/var/lib/vault/vault/role-id"
-          "The file to read the role-id from.";
-        secretIdFilePath = mkOpt types.str "/var/lib/vault/vault/secret-id"
-          "The file to read the secret-id from.";
+        roleIdFilePath =
+          mkOpt types.str "/var/lib/vault/vault/role-id"
+            "The file to read the role-id from.";
+        secretIdFilePath =
+          mkOpt types.str "/var/lib/vault/vault/secret-id"
+            "The file to read the secret-id from.";
       };
     };
     snapshot = {
       enable = mkBoolOpt false "Should we make regular snapshots";
-      vault-domain = mkOpt types.str "https://vault.lan.aicampground.com"
-        "The domain name of the Vault";
+      vault-domain =
+        mkOpt types.str "https://vault.lan.aicampground.com"
+          "The domain name of the Vault";
       location =
         mkOpt types.str "/persist/vault" "The place to store the snapshot";
-      schedule = mkOpt types.str "*-*-* 23:50:00 America/Chicago"
-        "The schedule the snapshots should be run on";
+      schedule =
+        mkOpt types.str "*-*-* 23:50:00 America/Chicago"
+          "The schedule the snapshots should be run on";
     };
   };
 
@@ -165,122 +180,124 @@ in
       storagePath = cfg.storage.path;
       storageConfig = cfg.storage.config;
       extraConfig = ''
-        ui = ${if cfg.ui then "true" else "false"}
+        ui = ${
+          if cfg.ui
+          then "true"
+          else "false"
+        }
 
         ${cfg.settings}
       '';
     };
 
-    systemd.services.vault.postStart =
-      mkIf cfg.enable "${unseal-script}/bin/celvis-unseal-vault";
+    # systemd.services.vault.postStart =
+    #   mkIf cfg.enable "${unseal-script}/bin/celvis-unseal-vault";
 
-    systemd.services.vault-policies =
-      mkIf (cfg.enable && (has-policies || !cfg.mutable-policies)) {
-        wantedBy = [ "vault.service" ];
-        after = [ "vault.service" ];
+    systemd.services.vault-policies = mkIf (cfg.enable && (has-policies || !cfg.mutable-policies)) {
+      wantedBy = [ "vault.service" ];
+      after = [ "vault.service" ];
 
-        serviceConfig = {
-          Type = "oneshot";
-          User = cfg.policy-agent.user;
-          Group = cfg.policy-agent.group;
-          Restart = "on-failure";
-          RestartSec = 30;
-          RemainAfterExit = "yes";
-        };
+      serviceConfig = {
+        Type = "oneshot";
+        User = cfg.policy-agent.user;
+        Group = cfg.policy-agent.group;
+        Restart = "on-failure";
+        RestartSec = 30;
+        RemainAfterExit = "yes";
+      };
 
-        restartTriggers =
-          mapAttrsToList (name: value: "${name}=${value}") policies;
+      restartTriggers =
+        mapAttrsToList (name: value: "${name}=${value}") policies;
 
-        path = [ package pkgs.curl pkgs.jq ];
+      path = [ package pkgs.curl pkgs.jq ];
 
-        environment = {
-          VAULT_ADDR = "http://${config.services.vault.address}";
-        };
+      environment = {
+        VAULT_ADDR = "http://${config.services.vault.address}";
+      };
 
-        script = ''
-          if ! [ -f '${cfg.policy-agent.auth.roleIdFilePath}' ]; then
-            echo 'role-id file not found: ${cfg.policy-agent.auth.roleIdFilePath}'
-            exit 0
-          fi
-
-          if ! [ -f '${cfg.policy-agent.auth.secretIdFilePath}' ]; then
-            echo 'secret-id file not found: ${cfg.policy-agent.auth.secretIdFilePath}'
-            exit 0
-          fi
-
-          role_id="$(cat '${cfg.policy-agent.auth.roleIdFilePath}')"
-          secret_id="$(cat '${cfg.policy-agent.auth.secretIdFilePath}')"
-
-          seal_status=$(${pkgs.curl}/bin/curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
-
-          echo "Seal Status: $seal_status"
-
-          if [ seal_status = "true" ]; then
-            echo "Vault is currently sealed, cannot install policies."
-            exit 1
-          fi
-
-          echo "Getting token..."
-
-          token=$(vault write -field=token auth/approle/login \
-            role_id="$role_id" \
-            secret_id="$secret_id" \
-          )
-
-          echo "Logging in..."
-
-          export VAULT_TOKEN="$(vault login -method=token -token-only token="$token")"
-
-          echo "Writing policies..."
-
-          ${write-policies}
-
-          ${optionalString (!cfg.mutable-policies) remove-unknown-policies}
+      script = ''
+        if ! [ -f '${cfg.policy-agent.auth.roleIdFilePath}' ]; then
+          echo 'role-id file not found: ${cfg.policy-agent.auth.roleIdFilePath}'
           exit 0
-        '';
-      };
+        fi
 
-    systemd.services.vault-snapshot =
-      mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
-        description = "Vault Raft Snapshot Service";
-        serviceConfig = { Type = "oneshot"; };
+        if ! [ -f '${cfg.policy-agent.auth.secretIdFilePath}' ]; then
+          echo 'secret-id file not found: ${cfg.policy-agent.auth.secretIdFilePath}'
+          exit 0
+        fi
 
-        environment = { HOME = "/var/lib/vault"; };
+        role_id="$(cat '${cfg.policy-agent.auth.roleIdFilePath}')"
+        secret_id="$(cat '${cfg.policy-agent.auth.secretIdFilePath}')"
 
-        script = ''
-          # Paths to the AppRole credentials
-          export VAULT_ADDR="${cfg.snapshot.vault-domain}"
-          ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
-          SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
+        seal_status=$(${pkgs.curl}/bin/curl -s "$VAULT_ADDR/v1/sys/seal-status" | jq ".sealed")
 
-          # Check if the credential files exist
-          if [[ ! -f "$ROLE_ID_FILE" || ! -f "$SECRET_ID_FILE" ]]; then
-              echo "Error: AppRole credential files not found."
-              exit 1
-          fi
+        echo "Seal Status: $seal_status"
 
-          # Read the credentials
-          ROLE_ID=$(cat "$ROLE_ID_FILE")
-          SECRET_ID=$(cat "$SECRET_ID_FILE")
+        if [ seal_status = "true" ]; then
+          echo "Vault is currently sealed, cannot install policies."
+          exit 1
+        fi
 
-          # Login to Vault using AppRole
-          export VAULT_TOKEN=$(${package}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID") 
-          echo "Successfully logged in to Vault."
+        echo "Getting token..."
 
-          mkdir -p ${cfg.snapshot.location}
-          echo "Creating Vault Raft Snapshot."
-          # take snapshot
-          ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}/vault-snapshot.backup
-          # make sure snapshot is good
-          ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}/vault-snapshot.backup
+        token=$(vault write -field=token auth/approle/login \
+          role_id="$role_id" \
+          secret_id="$secret_id" \
+        )
 
-          chown -R root:root ${cfg.snapshot.location}
-          chmod 400 ${cfg.snapshot.location}/vault-snapshot.backup
+        echo "Logging in..."
 
-          echo "Vault Snapshot verified..."
+        export VAULT_TOKEN="$(vault login -method=token -token-only token="$token")"
 
-        '';
-      };
+        echo "Writing policies..."
+
+        ${write-policies}
+
+        ${optionalString (!cfg.mutable-policies) remove-unknown-policies}
+        exit 0
+      '';
+    };
+
+    systemd.services.vault-snapshot = mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
+      description = "Vault Raft Snapshot Service";
+      serviceConfig = { Type = "oneshot"; };
+
+      environment = { HOME = "/var/lib/vault"; };
+
+      script = ''
+        # Paths to the AppRole credentials
+        export VAULT_ADDR="${cfg.snapshot.vault-domain}"
+        ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
+        SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
+
+        # Check if the credential files exist
+        if [[ ! -f "$ROLE_ID_FILE" || ! -f "$SECRET_ID_FILE" ]]; then
+            echo "Error: AppRole credential files not found."
+            exit 1
+        fi
+
+        # Read the credentials
+        ROLE_ID=$(cat "$ROLE_ID_FILE")
+        SECRET_ID=$(cat "$SECRET_ID_FILE")
+
+        # Login to Vault using AppRole
+        export VAULT_TOKEN=$(${package}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+        echo "Successfully logged in to Vault."
+
+        mkdir -p ${cfg.snapshot.location}
+        echo "Creating Vault Raft Snapshot."
+        # take snapshot
+        ${package}/bin/vault operator raft snapshot save ${cfg.snapshot.location}/vault-snapshot.backup
+        # make sure snapshot is good
+        ${package}/bin/vault operator raft snapshot inspect ${cfg.snapshot.location}/vault-snapshot.backup
+
+        chown -R root:root ${cfg.snapshot.location}
+        chmod 400 ${cfg.snapshot.location}/vault-snapshot.backup
+
+        echo "Vault Snapshot verified..."
+
+      '';
+    };
 
     systemd.timers."vault-snapshot" = mkIf cfg.snapshot.enable {
       description = "Take regular snapshots of the Vault Raft DB";
