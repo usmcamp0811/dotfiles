@@ -62,6 +62,8 @@ it’s just static data. As one developer bluntly put it, [_"it’s not possible
 with a data language like YAML. It has to be a programming language."_](https://discourse.nixos.org/t/why-not-use-yaml-for-configuration-and-package-declaration/1333/11) In other words, YAML alone
 can’t model the sophisticated build rules and verifications that DevSecOps requires.
 
+![Charlie explaining his CI Piplines he wrote in simple YAML](charlie-day.gif)
+
 This limitation has led to an ironic phenomenon: we keep trying to bend YAML into a pseudo-programming
 language, with templating hacks, embedded scripts, and vendor-specific DSLs layered on top. CI/CD systems
 allow YAML pipelines to call shell scripts and third-party actions, but that just offloads complexity
@@ -123,6 +125,8 @@ What makes Nix so suited as the common language of DevSecOps? Let’s break down
   languages or frameworks), so you’re not writing everything from scratch. In sum, Nix offers the flexibility
   of a programming language with guardrails for reproducibility and consistency.
 
+![Turning fragile scripts and scattered YAML into a unified, verifiable system.](sourcery.png)
+
 ## Reproducibility, Traceability, and Policy Enforcement by Default
 
 A fundamental advantage of adopting Nix is how it makes secure practices the default, not an afterthought.
@@ -158,8 +162,6 @@ Many teams today suffer from a patchwork pipeline: a Dockerfile to build an imag
 glue steps together, YAML files to configure CI tasks, Helm charts to deploy, and so on. Each piece is
 written in a different syntax, with different assumptions, often maintained by different people. It’s
 no wonder things break. The more moving parts and translation layers, the more chances for error.
-
-![My CI Pipline is simple...](charlie-day.gif)
 
 Nix enables you to consolidate these steps into **one coherent, verifiable process**. You can replace
 Dockerfiles with Nix-based container image builds (using Nix functions to produce Docker/OCI images).
