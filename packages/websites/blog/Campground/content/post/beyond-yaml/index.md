@@ -58,8 +58,8 @@ with YAML leads to brittle solutions. Let’s examine why.
 YAML’s popularity in DevOps stems from its simplicity, but that simplicity comes with severe trade-offs
 when facing security and compliance demands. **YAML lacks the expressiveness and rigor needed for today’s
 software supply chains.** It cannot implement dynamic logic or enforce complex policies by itself,
-it’s just static data. As one developer bluntly put it, _“it’s not possible to have the power of Nix/NixOS
-with a data language like YAML. It has to be a programming language.”_[^1] In other words, YAML alone
+it’s just static data. As one developer bluntly put it, [_"it’s not possible to have the power of Nix/NixOS
+with a data language like YAML. It has to be a programming language."_](https://discourse.nixos.org/t/why-not-use-yaml-for-configuration-and-package-declaration/1333/11) In other words, YAML alone
 can’t model the sophisticated build rules and verifications that DevSecOps requires.
 
 This limitation has led to an ironic phenomenon: we keep trying to bend YAML into a pseudo-programming
@@ -159,7 +159,7 @@ glue steps together, YAML files to configure CI tasks, Helm charts to deploy, an
 written in a different syntax, with different assumptions, often maintained by different people. It’s
 no wonder things break. The more moving parts and translation layers, the more chances for error.
 
-![My CI Pipline is simple...](./charlie-day.gif)
+![My CI Pipline is simple...](charlie-day.gif)
 
 Nix enables you to consolidate these steps into **one coherent, verifiable process**. You can replace
 Dockerfiles with Nix-based container image builds (using Nix functions to produce Docker/OCI images).
@@ -197,7 +197,7 @@ approach, Nix fulfills the core needs of DevSecOps in a way YAML never can. It e
 traceability, isolation, and auditability _from the ground up_, not as bolted-on afterthoughts.
 
 Nix isn’t just about security, it’s about _business resilience and efficiency_.
-"What once took months to achieve in terms of reproducibility and version control can now be accomplished in a matter of hours."[^2]
+["What once took months to achieve in terms of reproducibility and version control can now be accomplished in a matter of hours."](https://flox.dev/blog/nix-in-the-wild-pdt-partners/)
 Organizations adopting Nix have found they can meet stringent security requirements
 **without slowing down development or inflating costs**. Developers get to work with the latest tools
 and libraries, while the Nix framework guarantees that the resulting products are consistent and verifiably
@@ -207,8 +207,8 @@ Nix provides an answer grounded in math and computer science, a verifiable "proo
 was constructed.
 
 The momentum behind Nix is growing, with a vibrant community and increasing adoption in industry (its
-popularity has been growing _exponentially_ in recent years). Forward-thinking leaders are already investing
-in Nix skills and pilot projects[^3]. As an industry, if we embrace Nix as the standard language of DevSecOps,
+popularity has been growing _exponentially_ in recent years). [Forward-thinking leaders are already investing
+in Nix skills and pilot projects.](https://flox.dev/blog/nix-in-the-wild-pdt-partners/) As an industry, if we embrace Nix as the standard language of DevSecOps,
 we move toward a future where **secure, verifiable builds are the default rather than the exception**. Imagine
 a world where every build output can be trusted, where supply chain attacks are thwarted
 by design, and where development speed doesn’t suffer for security. That’s the future Nix is pointing
@@ -221,9 +221,3 @@ and see the benefits firsthand. Adopting Nix today is an investment in the stabi
 your software supply chain tomorrow. In an era of ever-increasing cyber threats and compliance pressures,
 Nix isn’t just a niche tool, it’s a strategic advantage. Embrace the change, and lead your organization
 into a more secure, reproducible, and confident DevSecOps era.
-
-[^1]: https://discourse.nixos.org/t/why-not-use-yaml-for-configuration-and-package-declaration/1333/11
-
-[^2]: https://flox.dev/blog/nix-in-the-wild-pdt-partners/
-
-[^3]: https://flox.dev/blog/nix-in-the-wild-pdt-partners/
