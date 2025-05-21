@@ -1,9 +1,8 @@
-{
-  pkgs,
-  config,
-  lib,
-  inputs,
-  ...
+{ pkgs
+, config
+, lib
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -13,8 +12,9 @@ with lib.campground; let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
-  imports = [./hardware.nix];
+in
+{
+  imports = [ ./hardware.nix ];
   programs.adb.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
@@ -30,7 +30,7 @@ in {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker" "adbusers" "kvm"];
+      extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
     # stig = {
@@ -53,14 +53,14 @@ in {
       #   # isLeader = true;
       # };
     };
-    apps = {steam = enabled;};
+    apps = { steam = enabled; };
 
     archetypes = {
       laptop = enabled;
       workstation = enabled;
     };
 
-    nfs.client = {enable = true;};
+    nfs.client = { enable = true; };
 
     hardware = {
       bluetooth = enabled;
@@ -73,11 +73,16 @@ in {
         serverAddr = "10.8.0.197";
         role = "agent";
       };
-      ldap-client = {enable = mkForce false;};
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       zfs-key-server = {
-        enable = false;
-        tang-servers = ["http://webb:1234" "http://lucas:1234" "http://chesty:1234"];
+        enable = true;
+        tang-servers = [
+          "http://pikvm:1234"
+          "http://webb:1234"
+          "http://lucas:1234"
+          "http://chesty:1234"
+        ];
       };
       netbird.client = enabled;
       # wireguard-client = {
@@ -90,7 +95,7 @@ in {
       user-secrets = {
         enable = true;
         users = {
-          mcamp = {files = ["id_ed25519" "passwords" "kubeconfig"];};
+          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
         };
       };
       vault-agent = {
