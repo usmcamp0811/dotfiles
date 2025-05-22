@@ -190,8 +190,8 @@ in
       '';
     };
 
-    # systemd.services.vault.postStart =
-    #   mkIf cfg.enable "${unseal-script}/bin/celvis-unseal-vault";
+    systemd.services.vault.postStart =
+      mkIf cfg.enable "${unseal-script}/bin/celvis-unseal-vault";
 
     systemd.services.vault-policies = mkIf (cfg.enable && (has-policies || !cfg.mutable-policies)) {
       wantedBy = [ "vault.service" ];
