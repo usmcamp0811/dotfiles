@@ -256111,6 +256111,22 @@
         "type": "github"
       }
     },
+    "prev-nixpkgs": {
+      "locked": {
+        "lastModified": 1747676747,
+        "narHash": "sha256-LXkWBVqilgx7Pohwqu/ABxDVw+Cmi5/Mj2S2mpUH0Fw=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "72841a4a8761d1aed92ef6169a636872c986c76d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-24.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "pub2nix": {
       "flake": false,
       "locked": {
@@ -261954,6 +261970,7 @@
         "ouch-yazi": "ouch-yazi_3",
         "poetry2nix": "poetry2nix_97",
         "pre-commit-hooks": "pre-commit-hooks_202",
+        "prev-nixpkgs": "prev-nixpkgs",
         "pyarrow": "pyarrow_38",
         "pyproject-build-systems": "pyproject-build-systems_4",
         "pyproject-nix": "pyproject-nix_82",

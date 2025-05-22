@@ -55,5 +55,5 @@
 }
   // {
   inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin k3s pnpm_9 python312Packages python3Packages;
-  inherit (channels.pyarrow) cargo-auditable;
+  inherit (channels.prev-nixpkgs) fetchCargoVendor cargo-auditable rustPlatform;
 }
