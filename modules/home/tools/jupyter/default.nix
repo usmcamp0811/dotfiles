@@ -1,14 +1,14 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.tools.jupyter;
-in {
+in
+{
   options.campground.tools.jupyter = with types; {
     enable = mkBoolOpt false "Jupyter QtConsole";
     syntaxStyle =
@@ -38,7 +38,7 @@ in {
       python311Packages.ipykernel
       python311Packages.qtconsole
       python311Packages.xcffib
-      libstdcxx5
+      # libstdcxx5
       zlib
       gcc
       glib

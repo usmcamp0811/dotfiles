@@ -54,6 +54,6 @@
   });
 }
   // {
-  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin k3s pnpm_9 python312Packages python3Packages;
-  inherit (channels.prev-nixpkgs) fetchCargoVendor cargo-auditable rustPlatform;
+  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 python312Packages python3Packages;
+  inherit (channels.prev-nixpkgs) fetchCargoVendor swaynotificationcenter rustPlatform julia;
 }

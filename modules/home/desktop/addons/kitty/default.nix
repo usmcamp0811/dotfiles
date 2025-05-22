@@ -1,4 +1,8 @@
-{ lib, config, pkgs, ... }:
+{ lib
+, config
+, pkgs
+, ...
+}:
 let
   inherit (lib) mkEnableOption mkIf;
 
@@ -11,8 +15,10 @@ in
 
   config = mkIf cfg.enable {
     fonts.fontconfig.enable = true;
-    home.packages =
-      [ (pkgs.nerdfonts.override { fonts = [ "FiraCode" "SourceCodePro" ]; }) ];
+    home.packages = [
+      pkgs.nerd-fonts.fira-code
+      pkgs.nerd-fonts.sauce-code-pro
+    ];
     programs.kitty = {
       enable = true;
       # themeFile = "Alabaster_Dark";
