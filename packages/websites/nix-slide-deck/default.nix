@@ -33,15 +33,17 @@ with lib.campground; let
     name = "serve-dev";
     runtimeInputs = [ pkgs.coreutils ];
     text = ''
-      if [ ! -f slides.md ]; then
-        echo "Error: slides.md not found in the current directory."
+      SLIDE_FILE="''${1:-slides.md}"
+      [ -z "$SLIDE_FILE" ] && SLIDE_FILE="slides.md"
+
+      if [ ! -f "$SLIDE_FILE" ]; then
+        echo "Error: $SLIDE_FILE not found in the current directory."
         exit 1
       fi
 
       VITE_CACHE_DIR=$(mktemp -d)
       export VITE_CACHE_DIR
 
-      # Define cleanup
       cleanup() {
         rm -rf "$VITE_CACHE_DIR"
         rm -rf themes
@@ -55,7 +57,6 @@ with lib.campground; let
       }
       trap cleanup EXIT
 
-      # Setup
       rm -rf themes
       cp -r --no-preserve=mode,ownership ${slides}/themes themes
       mkdir -p node_modules/.pnpm
@@ -63,7 +64,7 @@ with lib.campground; let
       mkdir -p node_modules/prism-theme-vars
       touch pnpm-lock.yaml
 
-      ${pkgs.campground.slidev.v0_50_0}/bin/slidev --remote
+      ${pkgs.campground.slidev.v0_50_0}/bin/slidev "$SLIDE_FILE" --remote
     '';
   };
 in
