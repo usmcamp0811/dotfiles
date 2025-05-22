@@ -132992,16 +132992,17 @@
     },
     "hyprland-works-here_37": {
       "locked": {
-        "lastModified": 1747916395,
-        "narHash": "sha256-Orlp9CgY2TMbABL6B/EKCbNAVt3KRbmYrGwuPSE6EKk=",
+        "lastModified": 1711668574,
+        "narHash": "sha256-u1dfs0ASQIEr1icTVrsKwg2xToIpn7ZXxW3RHfHxshg=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "b72ff2f539d8bded23cbf152ad15189a99306025",
+        "rev": "219951b495fc2eac67b1456824cc1ec1fd2ee659",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
         "repo": "nixpkgs",
+        "rev": "219951b495fc2eac67b1456824cc1ec1fd2ee659",
         "type": "github"
       }
     },
@@ -182294,6 +182295,7 @@
       "original": {
         "owner": "nix-community",
         "repo": "nix-ld-rs",
+        "rev": "8af5fc9add315c251edea8f659b56fc7836a163f",
         "type": "github"
       }
     },
