@@ -52,15 +52,37 @@
         cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
       '';
   });
+  cargo-auditable = prev.cargo-auditable.overrideAttrs (old: {
+    buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
+  });
   python3Packages =
     prev.python3Packages
     // {
       requests-ratelimiter = prev.python3Packages.requests-ratelimiter.overrideAttrs (old: {
         meta = old.meta // { broken = false; };
       });
+
+      lap = final.python3Packages.buildPythonPackage rec {
+        pname = "lap";
+        version = "0.4.0";
+
+        src = final.fetchPypi {
+          inherit pname version;
+          sha256 = "sha256-aQEpE09EOph9KnLbkgvi1SpM67PaqGL7If95hAj8Xl4=";
+        };
+
+        nativeBuildInputs = [ final.python3Packages.setuptools ];
+        doCheck = false;
+
+        meta = with final.lib; {
+          description = "Linear assignment problem solver using LAPJV algorithm";
+          homepage = "https://github.com/gatagat/lap";
+          license = licenses.mit;
+        };
+      };
     };
 }
   // {
   inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9;
-  inherit (channels.prev-nixpkgs) python313Packages python312Packages fetchCargoVendor swaynotificationcenter rustPlatform julia;
+  inherit (channels.prev-nixpkgs) yarn2nix yarn python313Packages python312Packages fetchCargoVendor swaynotificationcenter rustPlatform julia;
 }
