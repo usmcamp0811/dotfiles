@@ -1,4 +1,6 @@
 { kube-gen
+, funkwhale
+, comma
 , prev-nixpkgs
 , campground-nvim
 , nixhelm
@@ -103,7 +105,9 @@ in
   mkYarnPackage = old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
 }
   // {
-  inherit (channels.unstable) zookeeper vaultwarden vault-bin vault lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
+  inherit (comma.packages.${final.system}) comma;
+  inherit (funkwhale.overlay);
+  inherit (channels.unstable) deploy-rs zookeeper vaultwarden vault-bin vault lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
   inherit
     (channels.prev-nixpkgs)
     nginx
