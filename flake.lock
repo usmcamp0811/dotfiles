@@ -133007,22 +133007,6 @@
         "type": "github"
       }
     },
-    "hyprland-works-here_38": {
-      "locked": {
-        "lastModified": 1711668574,
-        "narHash": "sha256-u1dfs0ASQIEr1icTVrsKwg2xToIpn7ZXxW3RHfHxshg=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "219951b495fc2eac67b1456824cc1ec1fd2ee659",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "219951b495fc2eac67b1456824cc1ec1fd2ee659",
-        "type": "github"
-      }
-    },
     "hyprland-works-here_4": {
       "locked": {
         "lastModified": 1711668574,
@@ -163079,7 +163063,7 @@
         "home-manager": "home-manager_90",
         "hyprland": "hyprland_38",
         "hyprland-contrib": "hyprland-contrib_38",
-        "hyprland-works-here": "hyprland-works-here_38",
+        "hyprland-works-here": "hyprland-works-here_37",
         "hyprpaper": "hyprpaper_38",
         "icehouse": "icehouse_23",
         "neorg-overlay": "neorg-overlay_37",
@@ -261962,7 +261946,6 @@
         "home-manager": "home-manager_89",
         "hyprland": "hyprland_37",
         "hyprland-contrib": "hyprland-contrib_37",
-        "hyprland-works-here": "hyprland-works-here_37",
         "hyprpaper": "hyprpaper_37",
         "k0s-nix": "k0s-nix_3",
         "kanagawa-yazi": "kanagawa-yazi_3",
@@ -262014,6 +261997,7 @@
         "technofab": "technofab_38",
         "terranix": "terranix_10",
         "unstable": "unstable_38",
+        "updated-ollama": "updated-ollama_15",
         "uv2nix": "uv2nix_4",
         "vault-service": "vault-service_38",
         "yatline-catppuccin-yazi": "yatline-catppuccin-yazi_3",
@@ -309685,6 +309669,22 @@
       "original": {
         "owner": "nixos",
         "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "updated-ollama_15": {
+      "locked": {
+        "lastModified": 1732680587,
+        "narHash": "sha256-WndEhvcS8vFhcj9r0OTdUre/v9nMb4YLKSjJAU9ETtw=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "27dbbeec4f904960751678f949b22cf5aa3791d9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "27dbbeec4f904960751678f949b22cf5aa3791d9",
         "type": "github"
       }
     },

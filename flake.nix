@@ -15,7 +15,7 @@
     prev-nixpkgs.url = "github:nixos/nixpkgs/ba8b70ee098bc5654c459d6a95dfc498b91ff858";
     nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
-    hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
+    # hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     # TODO: Switch back to unstable branch when the node fix gets merged
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
@@ -124,7 +124,7 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
-    # updated-ollama.url = "github:nixos/nixpkgs";
+    updated-ollama.url = "github:nixos/nixpkgs/27dbbeec4f904960751678f949b22cf5aa3791d9";
 
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:nix-community/nix-ld/";

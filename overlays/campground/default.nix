@@ -111,9 +111,6 @@ in
   inherit
     (channels.prev-nixpkgs)
     zathura
-    auditable-cargo
-    auditable-cargo-bootstrap
-    cargo-auditable
     clippy
     librsvg
     adwaita-icon-theme

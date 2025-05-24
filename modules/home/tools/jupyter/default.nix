@@ -28,16 +28,16 @@ in
     '';
 
     home.packages = with pkgs; [
-      python311Packages.ipython
-      python311Packages.jupyter_console
-      python311Packages.matplotlib-inline
-      python311Packages.jupyter
-      python311Packages.jupyter-core
-      python311Packages.jupyter_server
-      python311Packages.jupyterlab
-      python311Packages.ipykernel
-      python311Packages.qtconsole
-      python311Packages.xcffib
+      python313Packages.ipython
+      python313Packages.jupyter_console
+      python313Packages.matplotlib-inline
+      python313Packages.jupyter
+      python313Packages.jupyter-core
+      python313Packages.jupyter_server
+      python313Packages.jupyterlab
+      python313Packages.ipykernel
+      python313Packages.qtconsole
+      python313Packages.xcffib
       # libstdcxx5
       zlib
       gcc
