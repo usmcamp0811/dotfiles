@@ -52,8 +52,15 @@
         cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
       '';
   });
+  python3Packages =
+    prev.python3Packages
+    // {
+      requests-ratelimiter = prev.python3Packages.requests-ratelimiter.overrideAttrs (old: {
+        meta = old.meta // { broken = false; };
+      });
+    };
 }
   // {
-  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 python312Packages python3Packages;
-  inherit (channels.prev-nixpkgs) fetchCargoVendor swaynotificationcenter rustPlatform julia;
+  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9;
+  inherit (channels.prev-nixpkgs) python313Packages python312Packages fetchCargoVendor swaynotificationcenter rustPlatform julia;
 }

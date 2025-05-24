@@ -13,7 +13,7 @@
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     prev-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
-    nixpkgs.url = "github:nixos/nixpkgs/staging-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     # TODO: Switch back to unstable branch when the node fix gets merged
