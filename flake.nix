@@ -12,7 +12,7 @@
     authentik-nix.url = "github:nix-community/authentik-nix";
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    prev-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+    prev-nixpkgs.url = "github:nixos/nixpkgs/ba8b70ee098bc5654c459d6a95dfc498b91ff858";
     nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
@@ -110,7 +110,7 @@
 
     # Home Manager (release-24.11)
     # home-manager.url = "github:nix-community/home-manager/release-24.11";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # Vault Integration

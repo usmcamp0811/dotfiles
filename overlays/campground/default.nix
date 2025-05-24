@@ -98,9 +98,18 @@ in
 }
   // {
   inherit (channels.unstable) zookeeper vaultwarden vault-bin vault lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
-  inherit (channels.prev-nixpkgs) nginx yarn2nix yarn python313Packages python312Packages eza fetchCargoVendor swaynotificationcenter rustPlatform julia;
   inherit
-    (prev-nixpkgs.legacyPackages.${prev.system})
+    (channels.prev-nixpkgs)
+    nginx
+    yarn2nix
+    yarn
+    python313Packages
+    python312Packages
+    eza
+    fetchCargoVendor
+    swaynotificationcenter
+    rustPlatform
+    julia
     auditable-cargo
     auditable-cargo-bootstrap
     cargo-auditable
