@@ -5,6 +5,18 @@
 }:
 with lib;
 with lib.campground; let
+  beyond-yaml = mkSlide {
+    inherit lib;
+    stdenv = pkgs.stdenv;
+    slidev = pkgs.campground.slidev.v0_50_0;
+    markdown = ./beyond-yaml.md;
+    themes = [
+      pkgs.campground.slidev-themes.neversink-theme
+    ];
+    slides = [ ./slides ];
+    assets = [ ./assets ];
+  };
+
   slides = mkSlide {
     inherit lib;
     stdenv = pkgs.stdenv;
@@ -20,13 +32,6 @@ with lib.campground; let
     slides = [ ./slides ];
     assets = [ ./assets ];
     # extraNodePackages = [pkgs.campground.sass-embedded];
-  };
-
-  serve = pkgs.writeShellApplication {
-    name = "serve";
-    text = ''
-      ${pkgs.python3}/bin/python3 -m http.server 8080 --directory ${slides}
-    '';
   };
 
   serve-dev = pkgs.writeShellApplication {
@@ -70,6 +75,6 @@ with lib.campground; let
 in
 slides
   // {
-  inherit serve;
+  inherit beyond-yaml;
   dev = serve-dev;
 }
