@@ -93,6 +93,12 @@ in
         cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
       '';
   });
+  cargo-auditable = prev.cargo-auditable.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.python3Packages.requests ];
+  });
+  fetch-cargo-vendor-util = prev.fetch-cargo-vendor-util.overrideAttrs (old: {
+    buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
+  });
 
   mkYarnPackage = old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
 }
@@ -112,7 +118,6 @@ in
     julia
     auditable-cargo
     auditable-cargo-bootstrap
-    cargo-auditable
     cargo
     rustfmt
     ;
