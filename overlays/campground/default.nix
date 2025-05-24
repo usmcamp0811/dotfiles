@@ -14,8 +14,49 @@
 , lib
 , ...
 }: final: prev:
+let
+  lapPkg = pythonPackages:
+    pythonPackages.buildPythonPackage rec {
+      pname = "lap";
+      version = "0.4.0";
+
+      src = final.fetchPypi {
+        inherit pname version;
+        sha256 = "sha256-aQEpE09EOph9KnLbkgvi1SpM67PaqGL7If95hAj8Xl4=";
+      };
+
+      nativeBuildInputs = [ pythonPackages.setuptools ];
+      doCheck = false;
+
+      meta = with final.lib; {
+        description = "Linear assignment problem solver using LAPJV algorithm";
+        homepage = "https://github.com/gatagat/lap";
+        license = licenses.mit;
+      };
+    };
+
+  requestsRatelimiterPkg = pythonPackages:
+    pythonPackages.buildPythonPackage rec {
+      pname = "requests-ratelimiter";
+      version = "0.4.0";
+
+      src = final.fetchPypi {
+        inherit pname version;
+        sha256 = "sha256-HypwHqLzYp97x7zKnqSejAV0zQq3fTrW4ldn4NdQ16A=";
+      };
+
+      propagatedBuildInputs = [ pythonPackages.requests ];
+      nativeBuildInputs = [ pythonPackages.setuptools ];
+      doCheck = false;
+
+      meta = with final.lib; {
+        description = "Rate limiter for python-requests";
+        homepage = "https://github.com/itsayellow/requests-ratelimiter";
+        license = licenses.mit;
+      };
+    };
+in
 {
-  # existing entries ...
   nixhelmCharts = lib.fix (
     self:
     lib.mapAttrs
@@ -35,8 +76,7 @@
   nixhelm = nixhelm;
   neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
   yazi = yazi.packages.${prev.system}.yazi;
-  wasm-bindgen-cli =
-    unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
+  wasm-bindgen-cli = unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
 
   matomo_5 = prev.matomo_5.overrideAttrs (old: rec {
     loginOIDCPlugin = prev.fetchFromGitHub {
@@ -53,85 +93,46 @@
         cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
       '';
   });
+
   mkYarnPackage = old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
 
   cargo-auditable = prev.cargo-auditable.overrideAttrs (old: {
     buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
   });
-  python312Packages =
-    prev.python312Packages
-    // {
-      pyrate-limiter = prev-nixpkgs.outputs.legacyPackages.${prev.system}.python312Packages.pyrate-limiter;
-      requests-ratelimiter = prev-nixpkgs.outputs.legacyPackages.${prev.system}.python312Packages.requests-ratelimiter;
-      lap = final.python3Packages.buildPythonPackage rec {
-        pname = "lap";
-        version = "0.4.0";
 
-        src = final.fetchPypi {
-          inherit pname version;
-          sha256 = "sha256-aQEpE09EOph9KnLbkgvi1SpM67PaqGL7If95hAj8Xl4=";
-        };
-
-        nativeBuildInputs = [ final.python3Packages.setuptools ];
-        doCheck = false;
-
-        meta = with final.lib; {
-          description = "Linear assignment problem solver using LAPJV algorithm";
-          homepage = "https://github.com/gatagat/lap";
-          license = licenses.mit;
-        };
-      };
-    };
-  python313Packages =
-    prev.python313Packages
-    // {
-      pyrate-limiter = prev-nixpkgs.outputs.legacyPackages.${prev.system}.python313Packages.pyrate-limiter;
-      requests-ratelimiter = prev-nixpkgs.outputs.legacyPackages.${prev.system}.python313Packages.requests-ratelimiter;
-      lap = final.python3Packages.buildPythonPackage rec {
-        pname = "lap";
-        version = "0.4.0";
-
-        src = final.fetchPypi {
-          inherit pname version;
-          sha256 = "sha256-aQEpE09EOph9KnLbkgvi1SpM67PaqGL7If95hAj8Xl4=";
-        };
-
-        nativeBuildInputs = [ final.python3Packages.setuptools ];
-        doCheck = false;
-
-        meta = with final.lib; {
-          description = "Linear assignment problem solver using LAPJV algorithm";
-          homepage = "https://github.com/gatagat/lap";
-          license = licenses.mit;
-        };
-      };
-    };
-  python3Packages =
-    prev.python3Packages
-    // {
-      pyrate-limiter = prev-nixpkgs.outputs.legacyPackages.${prev.system}.python3Packages.pyrate-limiter;
-      requests-ratelimiter = prev-nixpkgs.outputs.legacyPackages.${prev.system}.python3Packages.requests-ratelimiter;
-      lap = final.python3Packages.buildPythonPackage rec {
-        pname = "lap";
-        version = "0.4.0";
-
-        src = final.fetchPypi {
-          inherit pname version;
-          sha256 = "sha256-aQEpE09EOph9KnLbkgvi1SpM67PaqGL7If95hAj8Xl4=";
-        };
-
-        nativeBuildInputs = [ final.python3Packages.setuptools ];
-        doCheck = false;
-
-        meta = with final.lib; {
-          description = "Linear assignment problem solver using LAPJV algorithm";
-          homepage = "https://github.com/gatagat/lap";
-          license = licenses.mit;
-        };
-      };
-    };
+  # python3Packages =
+  #   prev.python3Packages
+  #   // {
+  #     pyrate-limiter = prev-nixpkgs.legacyPackages.${prev.system}.python3Packages.pyrate-limiter;
+  #     requests-ratelimiter = requestsRatelimiterPkg prev.python3Packages;
+  #     lap = lapPkg prev.python3Packages;
+  #   };
+  #
+  # python312Packages =
+  #   prev.python312Packages
+  #   // {
+  #     pyrate-limiter = prev-nixpkgs.legacyPackages.${prev.system}.python312Packages.pyrate-limiter;
+  #     requests-ratelimiter = requestsRatelimiterPkg prev.python312Packages;
+  #     lap = lapPkg prev.python312Packages;
+  #   };
+  #
+  # python313Packages =
+  #   prev.python313Packages
+  #   // {
+  #     pyrate-limiter = prev-nixpkgs.legacyPackages.${prev.system}.python313Packages.pyrate-limiter;
+  #     requests-ratelimiter = requestsRatelimiterPkg prev.python313Packages;
+  #     lap = lapPkg prev.python313Packages;
+  #   };
 }
   // {
-  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9;
-  inherit (channels.prev-nixpkgs) nginx yarn2nix yarn python313Packages python312Packages fetchCargoVendor swaynotificationcenter rustPlatform julia;
+  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
+  inherit (channels.prev-nixpkgs) nginx yarn2nix yarn python313Packages python312Packages eza fetchCargoVendor swaynotificationcenter rustPlatform julia;
+  inherit
+    (prev-nixpkgs.legacyPackages.${prev.system})
+    cargo-auditable
+    auditable-cargo
+    auditable-cargo-bootstrap
+    cargo
+    rustfmt
+    ;
 }

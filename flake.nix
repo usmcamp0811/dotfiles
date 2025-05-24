@@ -136,8 +136,8 @@
     nix2sbom.inputs.nixpkgs.follows = "unstable";
 
     sbomnix = {
-      url = "github:tiiuae/sbomnix";
-      inputs.nixpkgs.follows = "unstable";
+      url = "github:tiiuae/sbomnix/c0a07db80c1173c4f6a7957c5ea6ec416698fc3e";
+      # inputs.nixpkgs.follows = "unstable";
     };
 
     mlflow-works.url = "gitlab:usmcamp0811/dotfiles/38739f362e9c8e27880c0835f8db4a4866a61337";
