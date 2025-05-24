@@ -125,7 +125,7 @@ in
   #   };
 }
   // {
-  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
+  inherit (channels.unstable) zookeeper vaultwarden vault-bin vault lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
   inherit (channels.prev-nixpkgs) nginx yarn2nix yarn python313Packages python312Packages eza fetchCargoVendor swaynotificationcenter rustPlatform julia;
   inherit
     (prev-nixpkgs.legacyPackages.${prev.system})
