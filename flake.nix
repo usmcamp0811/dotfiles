@@ -124,7 +124,7 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
-    updated-ollama.url = "github:nixos/nixpkgs";
+    # updated-ollama.url = "github:nixos/nixpkgs";
 
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:nix-community/nix-ld/";

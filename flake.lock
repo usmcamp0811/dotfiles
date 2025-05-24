@@ -262014,7 +262014,6 @@
         "technofab": "technofab_38",
         "terranix": "terranix_10",
         "unstable": "unstable_38",
-        "updated-ollama": "updated-ollama_15",
         "uv2nix": "uv2nix_4",
         "vault-service": "vault-service_38",
         "yatline-catppuccin-yazi": "yatline-catppuccin-yazi_3",
@@ -309681,21 +309680,6 @@
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "72279b768779d1947b172d4b177af8bfe512305c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "updated-ollama_15": {
-      "locked": {
-        "lastModified": 1747916395,
-        "narHash": "sha256-Orlp9CgY2TMbABL6B/EKCbNAVt3KRbmYrGwuPSE6EKk=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "b72ff2f539d8bded23cbf152ad15189a99306025",
         "type": "github"
       },
       "original": {

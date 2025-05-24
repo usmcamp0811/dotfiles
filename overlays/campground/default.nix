@@ -110,19 +110,25 @@ in
   inherit (channels.unstable) deploy-rs zookeeper vaultwarden vault-bin vault lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
   inherit
     (channels.prev-nixpkgs)
-    nginx
-    yarn2nix
-    yarn
-    python313Packages
-    python312Packages
-    eza
-    fetchCargoVendor
-    swaynotificationcenter
-    rustPlatform
-    julia
+    zathura
     auditable-cargo
     auditable-cargo-bootstrap
-    cargo
-    rustfmt
+    cargo-auditable
+    clippy
+    librsvg
+    adwaita-icon-theme
+    appstream
+    blueman
+    djvulibre
+    gnome-themes-extra
+    gst-plugins-bad
+    home-manager-path
+    hyprcursor
+    imagemagick
+    imlib2
+    inkscape
+    sway-unwrapped
+    wrapGAppsHook
+    xdg-desktop-portal
     ;
 }
