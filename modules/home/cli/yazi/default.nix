@@ -60,7 +60,7 @@ in
         vcs-files = "${inputs.official-plugins-yazi}/vcs-files.yazi";
         office = "${inputs.office-yazi}";
         rich-preview = "${inputs.rich-preview-yazi}";
-        eza-preview = "${eza-preview}";
+        # eza-preview = "${eza-preview}";
         mediainfo = "${inputs.mediainfo-yazi}";
         fg = "${inputs.fzf-yazi}";
         glow = "${inputs.glow-yazi}";

@@ -129,7 +129,6 @@ in
   inherit (channels.prev-nixpkgs) nginx yarn2nix yarn python313Packages python312Packages eza fetchCargoVendor swaynotificationcenter rustPlatform julia;
   inherit
     (prev-nixpkgs.legacyPackages.${prev.system})
-    cargo-auditable
     auditable-cargo
     auditable-cargo-bootstrap
     cargo
