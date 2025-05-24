@@ -95,34 +95,6 @@ in
   });
 
   mkYarnPackage = old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
-
-  cargo-auditable = prev.cargo-auditable.overrideAttrs (old: {
-    buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
-  });
-
-  # python3Packages =
-  #   prev.python3Packages
-  #   // {
-  #     pyrate-limiter = prev-nixpkgs.legacyPackages.${prev.system}.python3Packages.pyrate-limiter;
-  #     requests-ratelimiter = requestsRatelimiterPkg prev.python3Packages;
-  #     lap = lapPkg prev.python3Packages;
-  #   };
-  #
-  # python312Packages =
-  #   prev.python312Packages
-  #   // {
-  #     pyrate-limiter = prev-nixpkgs.legacyPackages.${prev.system}.python312Packages.pyrate-limiter;
-  #     requests-ratelimiter = requestsRatelimiterPkg prev.python312Packages;
-  #     lap = lapPkg prev.python312Packages;
-  #   };
-  #
-  # python313Packages =
-  #   prev.python313Packages
-  #   // {
-  #     pyrate-limiter = prev-nixpkgs.legacyPackages.${prev.system}.python313Packages.pyrate-limiter;
-  #     requests-ratelimiter = requestsRatelimiterPkg prev.python313Packages;
-  #     lap = lapPkg prev.python313Packages;
-  #   };
 }
   // {
   inherit (channels.unstable) zookeeper vaultwarden vault-bin vault lemmy-server lemmy-help pds pdsadmin rofi k3s pnpm_9 beets;
@@ -131,6 +103,7 @@ in
     (prev-nixpkgs.legacyPackages.${prev.system})
     auditable-cargo
     auditable-cargo-bootstrap
+    cargo-auditable
     cargo
     rustfmt
     ;
