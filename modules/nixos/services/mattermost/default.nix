@@ -1,8 +1,12 @@
-{ lib, config, ... }:
+{ lib
+, config
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.mattermost;
-in {
+with lib.campground; let
+  cfg = config.campground.services.mattermost;
+in
+{
   options.campground.services.mattermost = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
   };
@@ -11,10 +15,12 @@ in {
     campground.services.postgresql = {
       enable = true;
       authentication = [ "local mattermost mattermost trust" ];
-      databases = [{
-        name = "mattermost";
-        user = "mattermost";
-      }];
+      databases = [
+        {
+          name = "mattermost";
+          user = "mattermost";
+        }
+      ];
     };
 
     # have to force this since we create the db elsewhere
@@ -25,9 +31,11 @@ in {
 
     services.mattermost = {
       enable = true;
+      host = "0.0.0.0";
+      port = 8065;
 
       siteUrl = "https://mattermost.aicampground.com";
-      listenAddress = "0.0.0.0:8065";
+      # listenAddress = "0.0.0.0:8065";
       # TODO: Move away from mutable
       mutableConfig = true;
       matterircd = { enable = true; };

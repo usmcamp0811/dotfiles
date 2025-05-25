@@ -69,7 +69,9 @@ with lib; let
           --add-flags "$out/packages/slidev/bin/slidev.mjs"
         runHook postInstall
       '';
-
+      postInstall = ''
+        find $out -type l ! -exec test -e {} \; -print | xargs -r rm
+      '';
       meta = {
         description = "Presentation Slides for Developers";
         homepage = "https://sli.dev/";
