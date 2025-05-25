@@ -38,7 +38,6 @@ in
       python313Packages.ipykernel
       python313Packages.qtconsole
       python313Packages.xcffib
-      # libstdcxx5
       zlib
       gcc
       glib

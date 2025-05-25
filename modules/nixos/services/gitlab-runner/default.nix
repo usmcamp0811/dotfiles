@@ -92,8 +92,7 @@ in
                 campground.get-lan-pub-systems
                 vault
                 ssh-agents
-                # attic-client
-                # sbomnix
+                attic-client
               ])
             }
             mkdir -p -m 0755 /etc/nix
