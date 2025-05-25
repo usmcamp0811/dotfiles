@@ -5,6 +5,17 @@
 }:
 with lib;
 with lib.campground; let
+  mac-builder = mkSlide {
+    inherit lib;
+    stdenv = pkgs.stdenv;
+    slidev = pkgs.campground.slidev.v0_50_0;
+    markdown = ./mac-builder.md;
+    themes = [
+      pkgs.campground.slidev-themes.neversink-theme
+    ];
+    slides = [ ./slides ];
+    assets = [ ./assets ];
+  };
   beyond-yaml = mkSlide {
     inherit lib;
     stdenv = pkgs.stdenv;
@@ -75,6 +86,6 @@ with lib.campground; let
 in
 slides
   // {
-  inherit beyond-yaml;
+  inherit beyond-yaml mac-builder;
   dev = serve-dev;
 }

@@ -246,7 +246,6 @@ If the output shows a Linux kernel version, then your builder is working.
 ---
 layout: top-title
 color: dark
-class: text-sm
 ---
 
 :: title ::
@@ -254,8 +253,6 @@ class: text-sm
 # Deploy to Linux Machine
 
 :: content ::
-
-<div class="text-sm">
 
 Once you're building for Linux, you can deploy to a remote NixOS machine with:
 
@@ -274,10 +271,8 @@ Make sure `nixos-rebuild` is available. If you're not using nix-darwin to instal
 nix shell nixpkgs#nixos-rebuild
 ```
 
-</div>
-
 ---
-layout: top-title
+layout: side-title
 color: dark
 class: text-sm
 ---
@@ -288,15 +283,11 @@ class: text-sm
 
 :: content ::
 
-<div class="text-sm">
+You now have a powerful, isolated Linux build environment—even on macOS—with support for deployment to real Linux systems.
 
-<ul>
-  <li>✅ Local Linux builder on macOS</li>
-  <li>✅ Declarative setup via <code>nix-darwin</code></li>
-  <li>✅ Seamless remote builds and deploys</li>
-  <li>👀 QEMU Rosetta support is still pending</li>
-</ul>
+- Local Linux builder on macOS
+- Declarative setup via `nix-darwin`
+- Seamless remote builds and deploys
+- QEMU Rosetta support is still pending
 
-<p>You now have a powerful, isolated Linux build environment—even on macOS—with support for deployment to real Linux systems.</p>
-
-</div>
+While this guide focused on using a local Linux VM, Nix also supports remote builders over SSH. These can be other physical machines, cloud instances, or any device reachable on your network. The same configuration approach applies.
