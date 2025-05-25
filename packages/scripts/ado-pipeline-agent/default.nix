@@ -1,4 +1,7 @@
-{ pkgs, lib, ... }:
+{ pkgs
+, lib
+, ...
+}:
 let
   name = "ado-pipeline-agent";
   version = "4.248.0";
@@ -15,7 +18,6 @@ let
     inherit name;
     targetPkgs = pkgs:
       with pkgs; [
-
         nodejs
         git
         curl
@@ -30,7 +32,7 @@ let
         libffi
         glibc
         libgcc
-        libstdcxx5
+        # libstdcxx5
         azure-cli
       ];
     runScript = "bash";
@@ -131,8 +133,9 @@ let
       fi
     '';
   };
-
-in main // {
+in
+main
+  // {
   config = config-script;
   run = run-script;
   fhs = fhsEnv;

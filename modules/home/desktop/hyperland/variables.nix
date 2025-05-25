@@ -1,8 +1,13 @@
-{ config, lib, pkgs, ... }:
+{ config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.hyprland;
-in {
+with lib.campground; let
+  cfg = config.campground.desktop.hyprland;
+in
+{
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -39,7 +44,6 @@ in {
             passes = 4;
             size = 5;
           };
-
         };
 
         dwindle = {
@@ -94,7 +98,7 @@ in {
           # no_gaps_when_only = false;
           orientation = "left";
           inherit_fullscreen = true;
-          always_center_master = true;
+          # always_center_master = true;
         };
 
         misc = {
@@ -117,11 +121,10 @@ in {
         "$music" = "${getExe pkgs.spotify}";
         "$launcher" = "${getExe config.programs.rofi.package} -show drun -n";
         "$launcher_alt" = "${getExe config.programs.rofi.package} -show calc";
-        "$launcher_shift" =
-          "${getExe config.programs.rofi.package} -show run -n";
+        "$launcher_shift" = "${getExe config.programs.rofi.package} -show run -n";
         "$launchpad" = "${
-            getExe config.programs.rofi.package
-          } -show drun -config '~/.config/rofi/appmenu/rofi.rasi'";
+          getExe config.programs.rofi.package
+        } -show drun -config '~/.config/rofi/appmenu/rofi.rasi'";
         "$looking-glass" = "${getExe pkgs.looking-glass-client}";
       };
     };

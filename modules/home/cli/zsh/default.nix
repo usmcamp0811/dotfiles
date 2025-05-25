@@ -36,7 +36,7 @@ in
         theme = "fino";
         plugins = [ "fzf" ];
       };
-      initExtra = lib.mkBefore ''
+      initContent = lib.mkBefore ''
         source $HOME/.config/shell/zsh/fino.zsh-theme
         ${lib.concatMapStringsSep "\n"
           (file: ''[ -r "${file}" ] && source "${file}"'')

@@ -8,17 +8,6 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.cli.yazi;
-  eza-preview =
-    pkgs.runCommandLocal "eza-patched"
-      {
-        preferLocalBuild = true;
-        allowSubstitutes = false;
-        src = inputs.eza-preview-yazi;
-      } ''
-      mkdir -p "$out"
-      cp -rT "$src" "$out"
-      ln -s "$out/init.lua" "$out/main.lua"
-    '';
 in
 {
   options.campground.cli.yazi = { enable = mkEnableOption "Yazi"; };
@@ -60,7 +49,7 @@ in
         vcs-files = "${inputs.official-plugins-yazi}/vcs-files.yazi";
         office = "${inputs.office-yazi}";
         rich-preview = "${inputs.rich-preview-yazi}";
-        eza-preview = "${eza-preview}";
+        eza-preview = "${inputs.eza-preview-yazi}";
         mediainfo = "${inputs.mediainfo-yazi}";
         fg = "${inputs.fzf-yazi}";
         glow = "${inputs.glow-yazi}";

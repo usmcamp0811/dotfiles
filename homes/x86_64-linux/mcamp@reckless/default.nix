@@ -1,8 +1,14 @@
-{ inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
+{ inputs
+, lib
+, pkgs
+, config
+, osConfig ? { }
+, format ? "unknown"
+, ...
+}:
 with lib;
 with lib.campground; {
   campground = {
-
     system.xdg = enabled;
     user = {
       name = "mcamp";

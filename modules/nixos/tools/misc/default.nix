@@ -40,7 +40,7 @@ in
       pciutils
       neofetch
       libnotify
-      sbomnix
+      # sbomnix
       bash
       lsof
       hwinfo

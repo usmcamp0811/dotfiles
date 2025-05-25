@@ -1,7 +1,8 @@
 baseurl: https://blog.aicampground.com
 languageCode: en-us
 theme: hugo-theme-stack
-paginate: 3
+pagination:
+  pagerSize: 3
 title: The Campground Blog
 copyright: AICampground
 

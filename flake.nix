@@ -13,10 +13,11 @@
     authentik-nix.url = "github:marcelcoding/authentik-nix";
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    # nixpkgs.url = "github:nixos/nixpkgs/release-24.11";
-    nixpkgs.url = "github:nixos/nixpkgs/backport-404525-to-release-24.11";
+    prev-nixpkgs.url = "github:nixos/nixpkgs/ba8b70ee098bc5654c459d6a95dfc498b91ff858";
+    # prev-nixpkgs.url = "github:nixos/nixpkgs/release-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
-    hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
+    # hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
     # TODO: Switch back to unstable branch when the node fix gets merged
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
@@ -84,11 +85,11 @@
     };
 
     # Binary Cache
-    attic = {
-      url = "github:zhaofengli/attic";
-      inputs.nixpkgs.follows = "unstable";
-      # inputs.nixpkgs-stable.follows = "nixpkgs";
-    };
+    # attic = {
+    #   url = "github:zhaofengli/attic/ff8a897d1f4408ebbf4d45fa9049c06b3e1e3f4e";
+    #   inputs.nixpkgs.follows = "unstable";
+    #   # inputs.nixpkgs-stable.follows = "nixpkgs";
+    # };
 
     # Snowfall Lib
     snowfall-lib.url = "github:snowfallorg/lib";
@@ -111,7 +112,7 @@
 
     # Home Manager (release-24.11)
     # home-manager.url = "github:nix-community/home-manager/release-24.11";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # Vault Integration
@@ -125,7 +126,7 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
-    updated-ollama.url = "github:nixos/nixpkgs";
+    updated-ollama.url = "github:nixos/nixpkgs/27dbbeec4f904960751678f949b22cf5aa3791d9";
 
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:nix-community/nix-ld/";
@@ -137,8 +138,8 @@
     nix2sbom.inputs.nixpkgs.follows = "unstable";
 
     sbomnix = {
-      url = "github:tiiuae/sbomnix";
-      inputs.nixpkgs.follows = "unstable";
+      url = "github:tiiuae/sbomnix/c0a07db80c1173c4f6a7957c5ea6ec416698fc3e";
+      # inputs.nixpkgs.follows = "unstable";
     };
 
     mlflow-works.url = "gitlab:usmcamp0811/dotfiles/38739f362e9c8e27880c0835f8db4a4866a61337";
@@ -351,11 +352,11 @@
 
       overlays = with inputs; [
         flake.overlays."package/flake"
-        attic.overlays.default
+        # attic.overlays.default
         devshell.overlays.default
         nix-ld-rs.overlays.default
         nuenv.overlays.default
-        nur.overlay
+        nur.overlays.default
         nix-snapshotter.overlays.default
         poetry2nix.overlays.default
         nix-topology.overlays.default
@@ -378,7 +379,7 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
-        "${unstable}/nixos/modules/services/web-apps/pds.nix"
+        # "${unstable}/nixos/modules/services/web-apps/pds.nix"
         # { disabledModules = [ "${nixpkgs}/nixos/modules/services/cluster/k3s/default.nix" ]; }
         # "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
       ];
