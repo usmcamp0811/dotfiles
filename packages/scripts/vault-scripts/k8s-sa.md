@@ -1,9 +1,3 @@
-That means your k3s cluster is using **bound service account tokens**, which no longer create traditional `Secret` objects.
-
-To get the token for the `vault-auth` ServiceAccount on modern Kubernetes (incl. recent k3s), do this:
-
----
-
 ### ✅ Create a temporary `Secret` token manually:
 
 ```bash
@@ -29,9 +23,3 @@ vault write auth/kubernetes/role/external-secrets \
 
 
 ```
-
----
-
-This method is Kubernetes-native and works with modern service account projection.
-
-Let me know when you're ready to test an `ExternalSecret`.
