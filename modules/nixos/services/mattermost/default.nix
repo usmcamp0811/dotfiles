@@ -33,9 +33,10 @@ in
       enable = true;
       host = "0.0.0.0";
       port = 8065;
+      database.fromEnvironment = true;
+      database.create = false;
 
       siteUrl = "https://mattermost.aicampground.com";
-      # listenAddress = "0.0.0.0:8065";
       # TODO: Move away from mutable
       mutableConfig = true;
       matterircd = { enable = true; };
@@ -45,7 +46,7 @@ in
       # requires to put add the password to the nix store.
       localDatabaseCreate = false;
 
-      extraConfig = {
+      settings = {
         ServiceSettings = {
           EnableEmailInvitations = true;
           EnableOAuthServiceProvider = true;
