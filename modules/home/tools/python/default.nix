@@ -1,8 +1,14 @@
-{ options, config, lib, pkgs, ... }:
+{ options
+, config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.python;
-in {
+with lib.campground; let
+  cfg = config.campground.tools.python;
+in
+{
   options.campground.tools.python = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Python.";
   };
@@ -10,7 +16,7 @@ in {
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
       campground.python
-      libstdcxx5
+      # libstdcxx5
       zlib
       gcc
       glib

@@ -1,4 +1,7 @@
 { kube-gen
+, funkwhale
+, comma
+, prev-nixpkgs
 , campground-nvim
 , nixhelm
 , nixtheplanet
@@ -14,7 +17,6 @@
 , ...
 }: final: prev:
 {
-  # existing entries ...
   nixhelmCharts = lib.fix (
     self:
     lib.mapAttrs
@@ -26,15 +28,22 @@
       nixhelm.chartsDerivations.${prev.system}
   );
 
-
-  nixidy-cli = nixidy.packages.${prev.system}.default;
-  nixidy-lib = nixidy.lib;
-  campground-nvim = campground-nvim.packages.${prev.system}.nvim;
-  neovim = campground-nvim.packages.${prev.system}.nvim;
-  makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
-  nixhelm = nixhelm;
-  neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
-  yazi = yazi.packages.${prev.system}.yazi;
+  nixidy-cli =
+    nixidy.packages.${prev.system}.default;
+  nixidy-lib =
+    nixidy.lib;
+  campground-nvim =
+    campground-nvim.packages.${prev.system}.nvim;
+  neovim =
+    campground-nvim.packages.${prev.system}.nvim;
+  makeDarwinImage =
+    nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
+  nixhelm =
+    nixhelm;
+  neovide =
+    old-nixpkgs.legacyPackages.${prev.system}.neovide;
+  yazi =
+    yazi.packages.${prev.system}.yazi;
   wasm-bindgen-cli =
     unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
 
@@ -53,7 +62,51 @@
         cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
       '';
   });
+  cargo-auditable = prev.cargo-auditable.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.python3Packages.requests ];
+  });
+  fetch-cargo-vendor-util = prev.fetch-cargo-vendor-util.overrideAttrs (old: {
+    buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
+  });
+
+  mkYarnPackage =
+    old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
 }
   // {
-  inherit (channels.unstable) lemmy-server lemmy-help pds pdsadmin k3s pnpm_9;
+  inherit (comma.packages.${final.system}) comma;
+  # inherit (funkwhale.overlay);
+  inherit
+    (channels.unstable)
+    deploy-rs
+    zookeeper
+    vaultwarden
+    vault-bin
+    vault
+    lemmy-server
+    lemmy-help
+    pds
+    pdsadmin
+    rofi
+    k3s
+    pnpm_9
+    beets
+    zathura
+    clippy
+    librsvg
+    adwaita-icon-theme
+    appstream
+    blueman
+    djvulibre
+    gnome-themes-extra
+    gst-plugins-bad
+    home-manager-path
+    hyprcursor
+    imagemagick
+    imlib2
+    inkscape
+    sway-unwrapped
+    wrapGAppsHook
+    # xdg-desktop-portal
+    ;
+  inherit (channels.prev-nixpkgs) input-leap;
 }

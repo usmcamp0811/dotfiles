@@ -1,18 +1,18 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.attic-watch-store;
-in {
+in
+{
   options.campground.services.attic-watch-store = {
     enable = mkEnableOption "Attic";
     cache-name =
       mkOpt types.str "campground"
-      "Name of the Attic Cache that we want to push things to";
+        "Name of the Attic Cache that we want to push things to";
     endpoint =
       mkOpt types.str "https://attic.aicampground.com" "URL of the Cache";
 
@@ -21,17 +21,17 @@ in {
 
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/attic"
-      "The Vault path to the KV containing the KVs that are for the attic cache token";
+        "The Vault path to the KV containing the KVs that are for the attic cache token";
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -51,15 +51,15 @@ in {
           isSystemUser = true;
         };
       };
-      groups = optionalAttrs (cfg.group == "atticd") {atticd = {};};
+      groups = optionalAttrs (cfg.group == "atticd") { atticd = { }; };
     };
 
     systemd.services.attic-watch-store = {
-      wantedBy = ["multi-user.target"];
-      after = ["atticd.service"];
-      environment = {HOME = "/var/lib/atticd";};
+      wantedBy = [ "multi-user.target" ];
+      after = [ "atticd.service" ];
+      environment = { HOME = "/var/lib/atticd"; };
       serviceConfig = {
-        ExecStart = "${pkgs.attic}/bin/attic watch-store ${cfg.cache-name}";
+        ExecStart = "${pkgs.attic-client}/bin/attic watch-store ${cfg.cache-name}";
         User = cfg.user;
         Group = cfg.group;
         DynamicUser = false;

@@ -1,8 +1,13 @@
-{ config, lib, pkgs, ... }:
+{ config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.hyprland;
-in {
+with lib.campground; let
+  cfg = config.campground.desktop.hyprland;
+in
+{
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -115,12 +120,12 @@ in {
 
           # screen sharing
           "opacity 0.0 override 0.0 override,class:^(${
-            getExe pkgs.xwaylandvideobridge
+            getExe pkgs.kdePackages.xwaylandvideobridge
           })$"
-          "noanim,class:^(${getExe pkgs.xwaylandvideobridge})$"
-          "noinitialfocus,class:^(${getExe pkgs.xwaylandvideobridge})$"
-          "maxsize 1 1,class:^(${getExe pkgs.xwaylandvideobridge})$"
-          "noblur,class:^(${getExe pkgs.xwaylandvideobridge})$"
+          "noanim,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
+          "noinitialfocus,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
+          "maxsize 1 1,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
+          "noblur,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
 
           ##
           # ░█░█░█▀█░█▀▄░█░█░█▀▀░█▀█░█▀█░█▀▀░█▀▀░░░█▀▀░█▀█░█▀█░█▀▀░▀█▀░█▀▀
