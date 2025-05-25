@@ -6824,15 +6824,15 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1747386678,
-        "narHash": "sha256-+4pIDo56iXWUklX1U+biw/cfC8TiSXTMh2N6V/+JMUg=",
-        "owner": "nix-community",
+        "lastModified": 1747509307,
+        "narHash": "sha256-v08I8e2006ZHamRJ9iawHGoQphYsQu0TrORd5qwg4nk=",
+        "owner": "marcelcoding",
         "repo": "authentik-nix",
-        "rev": "f20474660332903be6b47f3c1fdfc531f6f75f1d",
+        "rev": "fa8d3ea7335ee2adf4d1a633bc725199def62791",
         "type": "github"
       },
       "original": {
-        "owner": "nix-community",
+        "owner": "marcelcoding",
         "repo": "authentik-nix",
         "type": "github"
       }
@@ -199791,16 +199791,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1747179050,
-        "narHash": "sha256-qhFMmDkeJX9KJwr5H32f1r7Prs7XbQWtO0h3V0a0rFY=",
+        "lastModified": 1748037224,
+        "narHash": "sha256-92vihpZr6dwEMV6g98M5kHZIttrWahb9iRPBm1atcPk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "adaa24fbf46737f3f1b5497bf64bae750f82942e",
+        "rev": "f09dede81861f3a83f7f06641ead34f02f37597f",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-unstable",
+        "ref": "nixos-24.11",
         "repo": "nixpkgs",
         "type": "github"
       }
