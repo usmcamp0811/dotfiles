@@ -43,10 +43,9 @@ nix run nixpkgs#darwin.Linux-builder
 </div>
 
 ---
-layout: side-title
+layout: top-title
 side: left
-titlewidth: is-4
-align: rm-lt
+
 color: dark
 class: text-sm
 ---
@@ -65,9 +64,9 @@ class: text-sm
 /etc/nix/nix.conf
 ```
 
-This file controls global Nix behavior on macOS, including who is allowed to invoke builds and which machines can do builds.
+_This file controls global Nix behavior on macOS, including who is allowed to invoke builds and which machines can do builds._
 
-Below is the change needed:
+**Below is the change needed:**
 
 ```ini
 build-users-group = nixbld
@@ -75,7 +74,7 @@ extra-trusted-users = @admin
 builders = ssh-ng://linux-builder x86_64-linux,aarch64-linux /etc/nix/machines
 ```
 
-Explanation:
+**Explanation:**
 
 - `build-users-group = nixbld` allows secure sandboxed builds
 - `extra-trusted-users = @admin` ensures admin group can initiate privileged builds
@@ -170,6 +169,7 @@ darwin-rebuild switch
 
 ---
 layout: center
+color: dark
 ---
 
 # What does this do?
