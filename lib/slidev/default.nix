@@ -13,6 +13,7 @@
     , assets ? [ ]
     , urlBase ? "/"
     , extraNodePackages ? [ ]
+    , meta ? { }
     ,
     }:
     stdenv.mkDerivation {
@@ -78,12 +79,14 @@
         runHook postInstall
       '';
 
-      meta = {
-        description = "Slidev Presentation SPA";
-        homepage = "https://sli.dev/";
-        license = lib.licenses.mit;
-        maintainers = with lib.maintainers; [ ];
-      };
+      meta =
+        {
+          description = "Slidev Presentation SPA";
+          homepage = "https://sli.dev/";
+          license = lib.licenses.mit;
+          maintainers = with lib.maintainers; [ ];
+        }
+        // meta;
     };
   buildPnpmTheme =
     { pkgs
@@ -92,6 +95,7 @@
     , src
     , depsHash
     , pnpm
+    , meta ? { }
     ,
     }:
     pkgs.stdenv.mkDerivation {
@@ -110,10 +114,12 @@
         runHook postInstall
       '';
 
-      meta = {
-        description = "Built theme ${pname}";
-        license = lib.licenses.mit;
-      };
+      meta =
+        {
+          description = "Built theme ${pname}";
+          license = lib.licenses.mit;
+        }
+        // meta;
     };
 
   buildNpmTheme =
@@ -122,25 +128,93 @@
     , version
     , src
     , depsHash ? null
+    , peerDeps ? { }
+    , meta ? { }
     ,
     }:
     pkgs.buildNpmPackage {
       inherit pname version src;
-
       npmDepsHash = depsHash;
 
       env = {
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
       };
+
+      preBuild = ''
+        echo "Injecting peerDependencies..."
+        tmpfile=$(mktemp)
+        ${pkgs.jq}/bin/jq --argjson peerDeps '${builtins.toJSON peerDeps}' '
+          .dependencies += $peerDeps
+        ' package.json > $tmpfile
+        mv $tmpfile package.json
+      '';
+
       installPhase = ''
         runHook preInstall
         cp -r . $out
         runHook postInstall
       '';
 
-      meta = {
-        description = "Built theme ${pname}";
-        license = pkgs.lib.licenses.mit;
+      meta =
+        {
+          description = "Built theme ${pname}";
+          license = pkgs.lib.licenses.mit;
+        }
+        // meta;
+    };
+
+  buildYarnTheme =
+    { pkgs
+    , pname
+    , version
+    , src
+    , yarnNix
+    , meta ? { }
+    ,
+    }:
+    let
+      themePkg = pkgs.stdenv.mkDerivation rec {
+        inherit pname version;
+
+        buildInputs = [
+          (pkgs.yarn2nix-moretea.mkYarnPackage {
+            inherit pname version src yarnNix;
+            packageJSON = "${src}/package.json";
+            yarnLock = "${src}/yarn.lock";
+          })
+        ];
+
+        phases = [ "installPhase" ];
+
+        installPhase = ''
+          runHook preInstall
+          mkdir -p $out/deps/${pname}
+          cp -r ${builtins.head buildInputs}/libexec/${pname}/* $out
+          runHook postInstall
+        '';
+
+        meta = {
+          description = "Raw theme build for ${pname}";
+          license = pkgs.lib.licenses.mit;
+        };
       };
+    in
+    pkgs.stdenv.mkDerivation {
+      inherit pname version;
+      src = themePkg;
+
+      phases = [ "installPhase" ];
+
+      installPhase = ''
+        mkdir -p $out
+        ln -s ${themePkg}/deps/${pname}/* $out/
+      '';
+
+      meta =
+        {
+          description = "Slidev theme ${pname}";
+          license = pkgs.lib.licenses.mit;
+        }
+        // meta;
     };
 }

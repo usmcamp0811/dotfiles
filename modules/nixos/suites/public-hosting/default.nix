@@ -246,10 +246,21 @@ in
           tls.certResolver = "cloudflare";
         };
 
-        http.services.matt-camp = generateServiceConfig "matt-camp-website";
-        # http.services.matt-camp = {
-        #   loadBalancer.servers = [{ url = "http://lucas:4356"; }];
-        # };
+        # http.services.matt-camp = generateServiceConfig "matt-camp-website";
+        http.services.matt-camp = {
+          loadBalancer.servers = [
+            { url = "http://reckless:4356"; }
+            { url = "http://mattis:4356"; }
+            { url = "http://lucas:4356"; }
+          ];
+          loadBalancer.healthCheck = {
+            path = "/";
+            interval = "10s";
+            timeout = "5s";
+            scheme = "http";
+            port = 4356;
+          };
+        };
 
         http.services.aicampground = {
           loadBalancer.servers = [{ url = "http://lucas:4356"; }];

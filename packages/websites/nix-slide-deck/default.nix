@@ -5,6 +5,18 @@
 }:
 with lib;
 with lib.campground; let
+  beyond-yaml = mkSlide {
+    inherit lib;
+    stdenv = pkgs.stdenv;
+    slidev = pkgs.campground.slidev.v0_50_0;
+    markdown = ./beyond-yaml.md;
+    themes = [
+      pkgs.campground.slidev-themes.neversink-theme
+    ];
+    slides = [ ./slides ];
+    assets = [ ./assets ];
+  };
+
   slides = mkSlide {
     inherit lib;
     stdenv = pkgs.stdenv;
@@ -13,6 +25,7 @@ with lib.campground; let
     themes = [
       # pkgs.campground.slidev-themes
       pkgs.campground.slidev-themes.neversink-theme
+      # pkgs.campground.slidev-themes.dataroots-theme
       # pkgs.campground.slidev-themes.mokkapps-theme
       # pkgs.campground.slidev-themes.csscade-theme
     ];
@@ -21,36 +34,21 @@ with lib.campground; let
     # extraNodePackages = [pkgs.campground.sass-embedded];
   };
 
-  docker-slidev-dev = pkgs.dockerTools.streamLayeredImage {
-    name = "slidev";
-    tag = "latest";
-    contents = [ pkgs.campground.slidev.v0_49_29 pkgs.campground.slidev-themes ];
-    config = {
-      Cmd = [ "${pkgs.campground.slidev}/bin/slidev" "--remote" ];
-      ExposedPorts = { "3030/tcp" = { }; };
-    };
-  };
-
-  serve = pkgs.writeShellApplication {
-    name = "serve";
-    text = ''
-      ${pkgs.python3}/bin/python3 -m http.server 8080 --directory ${slides}
-    '';
-  };
-
   serve-dev = pkgs.writeShellApplication {
     name = "serve-dev";
     runtimeInputs = [ pkgs.coreutils ];
     text = ''
-      if [ ! -f slides.md ]; then
-        echo "Error: slides.md not found in the current directory."
+      SLIDE_FILE="''${1:-slides.md}"
+      [ -z "$SLIDE_FILE" ] && SLIDE_FILE="slides.md"
+
+      if [ ! -f "$SLIDE_FILE" ]; then
+        echo "Error: $SLIDE_FILE not found in the current directory."
         exit 1
       fi
 
       VITE_CACHE_DIR=$(mktemp -d)
       export VITE_CACHE_DIR
 
-      # Define cleanup
       cleanup() {
         rm -rf "$VITE_CACHE_DIR"
         rm -rf themes
@@ -64,7 +62,6 @@ with lib.campground; let
       }
       trap cleanup EXIT
 
-      # Setup
       rm -rf themes
       cp -r --no-preserve=mode,ownership ${slides}/themes themes
       mkdir -p node_modules/.pnpm
@@ -72,12 +69,12 @@ with lib.campground; let
       mkdir -p node_modules/prism-theme-vars
       touch pnpm-lock.yaml
 
-      ${pkgs.campground.slidev.v0_50_0}/bin/slidev --remote
+      ${pkgs.campground.slidev.v0_50_0}/bin/slidev "$SLIDE_FILE" --remote
     '';
   };
 in
 slides
   // {
-  inherit serve;
+  inherit beyond-yaml;
   dev = serve-dev;
 }

@@ -42,10 +42,10 @@ in
     # };
 
     suites = {
-      # public-hosting = {
-      #   enable = true;
-      #   interface = "enp0s13f0u3";
-      # };
+      public-hosting = {
+        enable = true;
+        interface = "enp0s13f0u3";
+      };
       # kubernetes = {
       #   enable = true;
       #   role = "worker";
@@ -69,15 +69,20 @@ in
 
     services = {
       k3s = {
-        enable = true;
+        # enable = true;
         serverAddr = "10.8.0.197";
         role = "agent";
       };
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       zfs-key-server = {
-        enable = false;
-        tang-servers = [ "http://webb:1234" "http://lucas:1234" "http://chesty:1234" ];
+        enable = true;
+        tang-servers = [
+          "http://pikvm:1234"
+          "http://webb:1234"
+          "http://lucas:1234"
+          "http://chesty:1234"
+        ];
       };
       netbird.client = enabled;
       # wireguard-client = {

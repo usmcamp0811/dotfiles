@@ -5,6 +5,18 @@
 }:
 with lib;
 with lib.campground; let
+  # csscade-theme = buildYarnTheme {
+  #   pkgs = pkgs;
+  #   pname = "slidev-theme-csscade";
+  #   version = "0.1.0";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "usmcamp0811";
+  #     repo = "slidev-theme-csscade";
+  #     rev = "491da23c5c6928ee4f99881ff6fc2db130089c1f";
+  #     hash = "sha256-koTSlTpYgPP+XH4AXe0CAbHJ9VIizcmMJmciATdXCHs=";
+  #   };
+  #   yarnNix = ./csscade-yarn-deps.nix;
+  # };
   csscade-theme = buildNpmTheme {
     inherit pkgs;
     pname = "slidev-theme-csscade";
@@ -16,7 +28,9 @@ with lib.campground; let
       hash = "sha256-4xnuRLhHqNqtD5Yu9PZ/STRptCfz8m60chvGhmkt/SU=";
     };
     depsHash = "sha256-hpjXGy0KPOXxVS+Bo7o2p1d5lHRWU2/myRUN3ygHSz4=";
+    meta.broken = true;
   };
+
   neversink-theme = buildPnpmTheme {
     inherit pkgs;
     pname = "slidev-theme-neversink";
@@ -43,7 +57,31 @@ with lib.campground; let
     depsHash = "sha256-ZJh47LQamNh1kPd8c/JTlkcQp9k2MwKLkIw+f+102DE=";
     pnpm = pkgs.pnpm_9;
   };
-
+  eavise-theme = buildPnpmTheme {
+    inherit pkgs;
+    pname = "slidev-theme-eavise";
+    version = "1.1.1-rc1";
+    src = pkgs.fetchFromGitHub {
+      owner = "0phoff";
+      repo = "slidev-theme-eavise";
+      rev = "v1.1.1-rc1";
+      hash = "sha256-svILnvGD7SoECrhg6lSwDDWVcgxQONwCGw/nBYDpMOQ=";
+    };
+    depsHash = "sha256-7BWUjHR1BtVtOvYGVFYVia3vKiaWFKHiQTL+mI8qNDY=";
+    pnpm = pkgs.pnpm_9;
+  };
+  dataroots-theme = buildYarnTheme {
+    pkgs = pkgs;
+    pname = "slidev-theme-dataroots";
+    version = "0.1.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "datarootsio";
+      repo = "slidev-theme-dataroots";
+      rev = "439c3add51c76c24953113380dded57fbdccc52b";
+      hash = "sha256-9wU7+aBk8zVsRIaAkpr56ZSNLwiEBkLkJBAp1YY1iAU=";
+    };
+    yarnNix = ./dataroots-yarn-deps.nix;
+  };
   custom-mokkapps-theme = pkgs.stdenv.mkDerivation {
     pname = "slidev-theme-mokkapps";
     version = "0.1.0";
@@ -77,16 +115,9 @@ with lib.campground; let
     depsHash = "sha256-7aY8Md7Je6SEAnkhzCpkRSOG5Q4A1wHqK34qMEG8HJo=";
     pnpm = pkgs.pnpm_8;
   };
-
-  # slidev-themes = pkgs.fetchFromGitHub {
-  #   owner = "slidevjs";
-  #   repo = "themes";
-  #   rev = "v0.22.0";
-  #   hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
-  # };
 in
 slidev-themes
   // {
-  inherit neversink-theme csscade-theme;
+  inherit csscade-theme neversink-theme eavise-theme dataroots-theme;
   mokkapps-theme = custom-mokkapps-theme;
 }

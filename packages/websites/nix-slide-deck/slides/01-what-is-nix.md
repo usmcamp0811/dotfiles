@@ -1,9 +1,9 @@
 ---
-src: ./slides/01-what-is-nix.md 
 layout: top-title-two-cols
 color: dark
 columns: is-9
 ---
+
 :: title ::
 
 <h1>

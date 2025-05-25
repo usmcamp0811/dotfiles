@@ -148,3 +148,5 @@ packages/misc/nix-slide-deck/.vite/deps
 packages/misc/nix-slide-deck/dist
 packages/misc/nix-slide-deck/themes
 packages/websites/nix-slide-deck/.vite/deps
+packages/websites/nix-slide-deck/themes
+resume.pdf

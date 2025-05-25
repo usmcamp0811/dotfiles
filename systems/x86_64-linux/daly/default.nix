@@ -50,7 +50,7 @@ with lib.campground; {
 
     services = {
       k3s = {
-        enable = true;
+        # enable = true;
         role = "server";
         serverAddr = "10.8.0.197";
         extraFlags = [
@@ -130,11 +130,12 @@ with lib.campground; {
         enable = true;
         interface = "enp3s0f1";
         tang-servers = [
+          "http://pikvm:1234"
           # "http://webb:1234"
-          "http://chesty:1234"
-          "http://lucas:1234"
-          "http://ermy:1234"
-          "http://reckless:1234"
+          # "http://chesty:1234"
+          # "http://lucas:1234"
+          # "http://ermy:1234"
+          # "http://reckless:1234"
         ];
         port = 8123;
       };

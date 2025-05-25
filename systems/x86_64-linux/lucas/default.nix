@@ -76,7 +76,7 @@ with lib.campground; {
           external-secrets = enabled;
           argocd = enabled;
         };
-        enable = true;
+        # enable = true;
         role = "server";
         clusterInit = true;
         extraFlags = [
@@ -192,7 +192,7 @@ with lib.campground; {
       #   '';
       # };
       # example-flink-job = { enable = true; };
-      matt-camp-website = enabled;
+      # matt-camp-website = enabled;
       nix-slide-website = enabled;
       # attic-watch-store = enabled;
       gitlab-runner = enabled;
@@ -206,12 +206,13 @@ with lib.campground; {
         port = 8123;
         interface = "eno1";
         tang-servers = [
-          "http://daly:1234"
-          "http://mattis:1234"
-          "http://chesty:1234"
-          "http://ermy:1234"
-          # "http://webb:1234"
-          "http://reckless:1234"
+          "http://pikvm:1234"
+          # "http://daly:1234"
+          # "http://mattis:1234"
+          # "http://chesty:1234"
+          # "http://ermy:1234"
+          # # "http://webb:1234"
+          # "http://reckless:1234"
         ];
       };
       user-secrets = {

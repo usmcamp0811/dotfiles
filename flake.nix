@@ -9,7 +9,8 @@
       flake = false;
     };
     # nixtheplanet.url = "github:usmcamp0811/nixtheplanet/update-macos-url";
-    authentik-nix.url = "github:nix-community/authentik-nix";
+    # authentik-nix.url = "github:nix-community/authentik-nix/b4916a86d4e650401e67dc03556eadb4a3cb248a";
+    authentik-nix.url = "github:marcelcoding/authentik-nix";
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     prev-nixpkgs.url = "github:nixos/nixpkgs/ba8b70ee098bc5654c459d6a95dfc498b91ff858";
