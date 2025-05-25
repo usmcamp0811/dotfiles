@@ -13,6 +13,7 @@
     terranix.url = "github:terranix/terranix";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     prev-nixpkgs.url = "github:nixos/nixpkgs/ba8b70ee098bc5654c459d6a95dfc498b91ff858";
+    # prev-nixpkgs.url = "github:nixos/nixpkgs/release-24.11";
     nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     # hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
@@ -83,11 +84,11 @@
     };
 
     # Binary Cache
-    attic = {
-      url = "github:zhaofengli/attic";
-      inputs.nixpkgs.follows = "unstable";
-      # inputs.nixpkgs-stable.follows = "nixpkgs";
-    };
+    # attic = {
+    #   url = "github:zhaofengli/attic/ff8a897d1f4408ebbf4d45fa9049c06b3e1e3f4e";
+    #   inputs.nixpkgs.follows = "unstable";
+    #   # inputs.nixpkgs-stable.follows = "nixpkgs";
+    # };
 
     # Snowfall Lib
     snowfall-lib.url = "github:snowfallorg/lib";
@@ -350,7 +351,7 @@
 
       overlays = with inputs; [
         flake.overlays."package/flake"
-        attic.overlays.default
+        # attic.overlays.default
         devshell.overlays.default
         nix-ld-rs.overlays.default
         nuenv.overlays.default
