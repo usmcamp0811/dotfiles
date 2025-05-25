@@ -21,7 +21,7 @@ in
         addons = {
           wlsunset = enabled;
           waynergy = enabled;
-          # rofi = enabled;
+          rofi = enabled;
           swaynotificationcenter = enabled;
           networkmanagerapplet = enabled;
           swayidle = enabled;
