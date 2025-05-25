@@ -62,12 +62,12 @@
         cp -r ${loginOIDCPlugin} $out/share/plugins/LoginOIDC
       '';
   });
-  cargo-auditable = prev.cargo-auditable.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.python3Packages.requests ];
-  });
-  fetch-cargo-vendor-util = prev.fetch-cargo-vendor-util.overrideAttrs (old: {
-    buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
-  });
+  # cargo-auditable = prev.cargo-auditable.overrideAttrs (old: {
+  #   nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.python3Packages.requests ];
+  # });
+  # fetch-cargo-vendor-util = prev.fetch-cargo-vendor-util.overrideAttrs (old: {
+  #   buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
+  # });
 
   mkYarnPackage =
     old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;

@@ -1,11 +1,16 @@
-{ inputs, options, config, pkgs, lib, ... }:
+{ inputs
+, options
+, config
+, pkgs
+, lib
+, ...
+}:
 with lib;
-with lib.campground;
-let
-
+with lib.campground; let
   # Generated file content for aliases
-  aliasesFile = pkgs.writeText "aliases.shrc"
-    "${convertAlias config.campground.cli.aliases}";
+  aliasesFile =
+    pkgs.writeText "aliases.shrc"
+      "${convertAlias config.campground.cli.aliases}";
 
   default-aliases = pkgs.writeText "default-aliases.shrc" (convertAlias {
     ".." = "cd ..";
@@ -28,15 +33,12 @@ let
     restart = "sudo systemctl restart";
     disable = "sudo systemctl disable";
     enable = "sudo systemctl enable";
-    deploy-sys =
-      "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
+    deploy-sys = "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
     kill = ''
       [ $# -eq 0 ] && echo 'You need to specify whom to kill.' && return
             /usr/bin/kill $@'';
-    update-user =
-      "nix run /config/#homeConfigurations.${config.home.username}@ldap.activationPackage";
-    update-sys =
-      "sudo sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'";
+    update-user = "nix run /config/#homeConfigurations.${config.home.username}@ldap.activationPackage";
+    update-sys = "sudo sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'";
     get-approle = ''
       local role_id=$(sudo cat /var/lib/vault/$(hostname)/role-id)
       local secret_id=$(sudo cat /var/lib/vault/$(hostname)/secret-id)
@@ -56,7 +58,7 @@ let
           # Remove the existing key if it exists
           ssh-keygen -R "$target_host" > /dev/null 2>&1
           echo "Removed existing key for $target_host (if it existed)."
-          
+
           # Add the new host key to known_hosts
           ssh-keyscan -H "$target_host" >> "$known_hosts_file" 2>/dev/null
           echo "Added new key for $target_host to known_hosts."
@@ -65,7 +67,6 @@ let
       # Pass all arguments to the regular ssh command
       command ssh "$@"
     '';
-
   });
 in
 {
@@ -78,7 +79,7 @@ in
 
   config = {
     # Source the alias file in the shell configuration
-    programs.zsh.initExtra = lib.mkAfter ''
+    programs.zsh.initContent = lib.mkAfter ''
       source ${default-aliases}
       source ${aliasesFile}
     '';
