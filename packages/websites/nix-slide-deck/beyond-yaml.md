@@ -75,3 +75,7 @@ src: ./slides/problem-devsecops-today.md
 ---
 src: ./slides/yaml-old-glue.md
 ---
+
+---
+src: ./slides/devsecops-req.md
+---
