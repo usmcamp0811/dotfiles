@@ -228,6 +228,13 @@ in
 
         http.services.nix-slides = generateServiceConfig "nix-slide-website";
 
+        http.routers.slides = {
+          rule = "Host(`slides.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "slides";
+        };
+
+        http.services.slides = generateServiceConfig "nix-slide-website";
         # http.routers.adhoc = {
         #   rule = "Host(`adhoc.aicampground.com`)";
         #   entryPoints = [ "web" "websecure" ];
