@@ -30,7 +30,7 @@ with lib.campground; let
   slides = mkSlide {
     inherit lib stdenv slidev;
     markdown = ./slides.md;
-    urlBase = "/slides/";
+    urlBase = "/devsecops-revolution/";
     themes = [ pkgs.campground.slidev-themes.neversink-theme ];
     slides = [ ./slides ];
     assets = [ ./assets ];
@@ -40,7 +40,7 @@ with lib.campground; let
   allSlides = {
     mac-builder = mac-builder;
     beyond-yaml = beyond-yaml;
-    slides = slides;
+    devsecops-revolution = slides;
   };
 
   index-page = makeIndexPage {
