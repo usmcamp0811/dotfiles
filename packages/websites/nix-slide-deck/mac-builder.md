@@ -44,8 +44,6 @@ nix run nixpkgs#darwin.Linux-builder
 
 ---
 layout: top-title
-side: left
-
 color: dark
 class: text-sm
 ---

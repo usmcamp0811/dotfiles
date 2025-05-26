@@ -6,9 +6,6 @@ image: /assets/blackboard-slide-bg.jpg
 
 <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;600&display=swap" rel="stylesheet">
 
-
-
-
 <div class="title-slide-container">
   <h1 class="title-big">BEYOND YAML:</h1>
   <svg class="drawn-underline" viewBox="0 0 400 20" preserveAspectRatio="none">
@@ -62,3 +59,7 @@ h2 {
 }
 
 </style>
+
+---
+src: ./slides/problem-devsecops-today.md
+---
