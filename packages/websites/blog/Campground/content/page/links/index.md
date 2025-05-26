@@ -13,10 +13,10 @@ links:
     description: My Linkedin Profile
     website: https://www.linkedin.com/in/matthewjcamp/
     image: linkedin.png
-  - title: A Nix Powered DevSecOps Revolution
-    description: A Slide Deck Showcasing Nix
-    website: https://nix-slides.aicampground.com
-    image: nix-slide-deck.png
+  - title: Campground Slide Decks
+    description: Varios Slide Decks (mostly Nix related)
+    website: https://slides.aicampground.com
+    image: slides.png
 menu:
   main:
     weight: -50
