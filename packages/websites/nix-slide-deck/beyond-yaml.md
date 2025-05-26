@@ -57,9 +57,21 @@ h2 {
   left: 1em;
   height: 9rem;
 }
+.no-gap .slidev-layout.image-left .image-container {
+margin-left: 0 !important;
+padding-left: 0 !important;
+}
+
+.no-gap .slidev-layout.image-left .content-container {
+padding-left: 0 !important;
+}
 
 </style>
 
 ---
 src: ./slides/problem-devsecops-today.md
+---
+
+---
+src: ./slides/yaml-old-glue.md
 ---
