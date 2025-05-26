@@ -37,13 +37,15 @@ with lib.campground; let
     meta = { title = "A Nix Powered DevSecOps Revolution"; };
   };
 
+  allSlides = {
+    mac-builder = mac-builder;
+    beyond-yaml = beyond-yaml;
+    slides = slides;
+  };
+
   index-page = makeIndexPage {
     inherit pkgs;
-    slides = {
-      mac-builder = mac-builder;
-      beyond-yaml = beyond-yaml;
-      slides = slides;
-    };
+    slides = allSlides;
   };
 
   index-site =
