@@ -217,4 +217,77 @@
         }
         // meta;
     };
+
+  makeIndexPage =
+    { pkgs
+    , slides
+    ,
+    }:
+    pkgs.writeTextFile {
+      name = "index.html";
+      text = ''
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Slide Decks</title>
+          <style>
+            body {
+              font-family: system-ui, sans-serif;
+              background: linear-gradient(145deg, #1e1e2f, #2e2e3f);
+              color: #eee;
+              margin: 0;
+              padding: 2rem;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+            }
+            h1 {
+              font-size: 2.5rem;
+              margin-bottom: 1.5rem;
+            }
+            ul {
+              list-style: none;
+              padding: 0;
+              max-width: 600px;
+              width: 100%;
+            }
+            li {
+              margin: 1rem 0;
+            }
+            a {
+              display: block;
+              padding: 1rem 1.5rem;
+              border-radius: 0.5rem;
+              background: #3a3a5a;
+              color: #fff;
+              text-decoration: none;
+              font-size: 1.2rem;
+              transition: background 0.3s ease;
+            }
+            a:hover {
+              background: #5a5acc;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>📚 Slide Decks</h1>
+          <ul>
+          ${
+          builtins.concatStringsSep "\n" (
+            builtins.map
+            (
+              slideName: let
+                title = lib.getAttr "meta" (lib.getAttr slideName slides) // {};
+              in
+                "<li><a href=\"" + slideName + "/\">" + title.title + "</a></li>"
+            )
+            (builtins.attrNames slides)
+          )
+        }
+          </ul>
+        </body>
+        </html>
+      '';
+    };
 }
