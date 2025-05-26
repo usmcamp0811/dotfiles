@@ -14,7 +14,7 @@ links:
     website: https://www.linkedin.com/in/matthewjcamp/
     image: linkedin.png
   - title: Campground Slide Decks
-    description: Varios Slide Decks (mostly Nix related)
+    description: Various Slide Decks (mostly Nix related)
     website: https://slides.aicampground.com
     image: slides.png
 menu:
