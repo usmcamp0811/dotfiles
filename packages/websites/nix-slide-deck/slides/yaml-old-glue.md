@@ -12,11 +12,9 @@ class: text-sm
 :: default ::
 
 <AdmonitionType type="important">
-<p class="m-0 leading-tight">
 
 _"DevSecOps isn’t just about CI/CD — it’s about trust, traceability, and reproducibility."_
 
-</p>
 </AdmonitionType>
 
 :: left ::
