@@ -69,13 +69,13 @@ padding-left: 0 !important;
 </style>
 
 ---
-src: ./slides/problem-devsecops-today.md
+src: ./slides/beyond-yaml/problem-devsecops-today.md
 ---
 
 ---
-src: ./slides/yaml-old-glue.md
+src: ./slides/beyond-yaml/yaml-old-glue.md
 ---
 
 ---
-src: ./slides/devsecops-req.md
+src: ./slides/beyond-yaml/devsecops-req.md
 ---
