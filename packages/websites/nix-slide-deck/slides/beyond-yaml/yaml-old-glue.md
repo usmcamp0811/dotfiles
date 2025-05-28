@@ -23,7 +23,7 @@ _"DevSecOps isn’t just about CI/CD — it’s about trust, traceability, and r
 
 :: right ::
 
-- YAML handles basic config well, but falls apart under complexity — logic turns into an unreadable mess, as anyone who's wrangled Helm templates knows.
+- YAML handles basic config well, but collapses under complexity — logic quickly devolves into unreadable Helm spaghetti.
 - YAML can describe what you need, but not how to guarantee it — there's no way to enforce that a file is correct, reproducible, or even exists without relying on fragile glue scripts.
 - Leads to brittle pipelines (YAML → bash → Docker → CI → ??)
 - Creates a disconnect between local development and CI/CD — what works on a dev machine may not reflect what actually gets built or tested.
