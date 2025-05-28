@@ -33,58 +33,58 @@ columns: is-6
   }
 </style>
 
-<div style="margin-top: 1.5rem;">
-  <div class="table-title">DevSecOps Checklist</div>
+<div class="table-title">DevSecOps Checklist</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Category</th>
-        <th>YAML</th>
-        <th>Nix</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Expressiveness</td>
-        <td>❌ Limited</td>
-        <td>✅ Full language</td>
-      </tr>
-      <tr>
-        <td>Reproducibility</td>
-        <td>❌ Environment drift</td>
-        <td>✅ Byte-for-byte reproducible</td>
-      </tr>
-      <tr>
-        <td>Traceability</td>
-        <td>❌ Manual logs</td>
-        <td>✅ Full artifact lineage</td>
-      </tr>
-      <tr>
-        <td>Security Guarantees</td>
-        <td>❌ Trust-based</td>
-        <td>✅ Verified inputs + outputs</td>
-      </tr>
-      <tr>
-        <td>Validation</td>
-        <td>❌ Manual/error-prone</td>
-        <td>✅ Type-checked + pure evaluation</td>
-      </tr>
-      <tr>
-        <td>Composability</td>
-        <td>❌ Ad-hoc includes</td>
-        <td>✅ Modular imports and abstractions</td>
-      </tr>
-      <tr>
-        <td>Deployment Guarantees</td>
-        <td>❌ Drift over time</td>
-        <td>✅ Immutable, reproducible deploys</td>
-      </tr>
-    </tbody>
-  </table>
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>YAML</th>
+      <th>Nix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Expressiveness</td>
+      <td>❌ Limited</td>
+      <td>✅ Full language</td>
+    </tr>
+    <tr>
+      <td>Reproducibility</td>
+      <td>❌ Environment drift</td>
+      <td>✅ Byte-for-byte reproducible</td>
+    </tr>
+    <tr>
+      <td>Traceability</td>
+      <td>❌ Manual logs</td>
+      <td>✅ Full artifact lineage</td>
+    </tr>
+    <tr>
+      <td>Security Guarantees</td>
+      <td>❌ Trust-based</td>
+      <td>✅ Verified inputs + outputs</td>
+    </tr>
+    <tr>
+      <td>Validation</td>
+      <td>❌ Manual/error-prone</td>
+      <td>✅ Type-checked + pure evaluation</td>
+    </tr>
+    <tr>
+      <td>Composability</td>
+      <td>❌ Ad-hoc includes</td>
+      <td>✅ Modular imports and abstractions</td>
+    </tr>
+    <tr>
+      <td>Deployment Guarantees</td>
+      <td>❌ Drift over time</td>
+      <td>✅ Immutable, reproducible deploys</td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="margin-top: 3rem;">
+
 </div>
-
-<div style="margin-top: 3rem;"></div>
 
 :: default ::
 
