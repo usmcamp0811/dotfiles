@@ -79,3 +79,7 @@ src: ./slides/beyond-yaml/yaml-old-glue.md
 ---
 src: ./slides/beyond-yaml/devsecops-req.md
 ---
+
+---
+src: ./slides/beyond-yaml/why-nix.md
+---
