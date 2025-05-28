@@ -26,6 +26,10 @@ _"DevSecOps isn’t just about CI/CD — it’s about trust, traceability, and r
 
 ![YAML chaos and headlines visual](/assets/yaml-headlines.png)
 
+<!-- Matomo Image Tracker-->
+<img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.aicampground.com/matomo.php?idsite=5&amp;rec=1" style="border:0" alt="" />
+<!-- End Matomo -->
+
 <!--
 - YAML defined pipelines, that have nested scripts that create more YAML. 
 
