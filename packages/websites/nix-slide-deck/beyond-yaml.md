@@ -83,3 +83,7 @@ src: ./slides/beyond-yaml/devsecops-req.md
 ---
 src: ./slides/beyond-yaml/why-nix.md
 ---
+
+---
+src: ./slides/beyond-yaml/policy-as-code.md
+---
