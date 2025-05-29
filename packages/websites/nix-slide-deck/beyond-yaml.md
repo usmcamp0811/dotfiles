@@ -87,3 +87,7 @@ src: ./slides/beyond-yaml/why-nix.md
 ---
 src: ./slides/beyond-yaml/policy-as-code.md
 ---
+
+---
+src: ./slides/beyond-yaml/reproducible-devshells.md
+---
