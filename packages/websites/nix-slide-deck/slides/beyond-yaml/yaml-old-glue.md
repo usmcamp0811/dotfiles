@@ -32,4 +32,6 @@ _"DevSecOps isn’t just about CI/CD — it’s about trust, traceability, and r
 - YAML defined pipelines, that have nested scripts that create more YAML. 
 
 - Trying to figure out your SBOM after the fact is tedious and error prone
+
+#TODO: Move note to top
 -->
