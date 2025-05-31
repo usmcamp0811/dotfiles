@@ -55,7 +55,11 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "glusterd.service" ];
       path = [ pkgs.glusterfs ];
-      serviceConfig.Type = "oneshot";
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        SuccessExitStatus = "0 1";
+      };
       script =
         ''
           for peer in ${lib.concatStringsSep " " cfg.peers}; do
