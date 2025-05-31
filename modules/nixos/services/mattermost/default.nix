@@ -44,7 +44,7 @@ in
       # TODO reevaluate option on fresh install
       # Database was created before this option existed. Also using this
       # requires to put add the password to the nix store.
-      localDatabaseCreate = false;
+      create = false;
 
       settings = {
         ServiceSettings = {
