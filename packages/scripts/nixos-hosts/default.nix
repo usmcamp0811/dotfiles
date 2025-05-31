@@ -2,6 +2,7 @@
 , writeText
 , writeShellApplication
 , replaceVars
+, substituteAll
 , gum
 , inputs
 , hosts ? { }
@@ -11,7 +12,7 @@ let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
-  substitute = args: replaceVars (builtins.readFile args.src) (builtins.removeAttrs args [ "src" ]);
+  substitute = args: builtins.readFile (substituteAll args);
 
   formatted-hosts = mapAttrsToList (name: host: "${name},${host.pkgs.system}") hosts;
 
