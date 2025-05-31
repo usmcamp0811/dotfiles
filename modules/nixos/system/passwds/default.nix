@@ -37,7 +37,7 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/set-passwds";
-        Environment = "PATH=${pkgs.shadow}/bin:${pkgs.coreutils}/bin:${config.system.path}/bin";
+        Environment = "PATH=${pkgs.shadow}/bin:${pkgs.coreutils}/bin";
         Type = "oneshot";
         RemainAfterExit = true;
       };
