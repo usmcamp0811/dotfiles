@@ -93,7 +93,7 @@ in
         # NOTE: Having issues with Nextcloud getting this file or something so I have to manually reset the password
         # export OC_PASS=new_password_here
         # nextcloud-occ user:resetpassword --password-from-env mcamp
-        adminpassFile = "/tmp/detsys-vault/nextcloud-adminpassFile";
+        adminpassFile = "/tmp/detsys-vault/adminpass";
         dbtype = "pgsql";
         dbuser = "nextcloud";
         dbname = "nextcloud";
@@ -150,6 +150,12 @@ in
       nextcloud-occ config:system:set memcache.locking --value '\OC\Memcache\Redis' --type string
     '';
 
+    systemd.services.nextcloud-setup.serviceConfig = {
+      LoadCredential = lib.mkForce [ ];
+      SetCredential = lib.mkForce [ ];
+      Environment = [ "CREDENTIALS_DIRECTORY=/tmp/detsys-vault" ];
+    };
+
     services.redis.servers.nextcloud = {
       enable = true;
       user = "nextcloud";
@@ -179,7 +185,7 @@ in
       secrets = {
         file = {
           files = {
-            "nextcloud-adminpassFile" = {
+            "adminpass" = {
               text = ''
                 {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.ADMIN_PASSWORD }}{{ else }}{{ .Data.data.ADMIN_PASSWORD }}{{ end }}{{ end }}'';
               permissions = "0600";
