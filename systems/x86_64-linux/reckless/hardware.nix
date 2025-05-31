@@ -94,6 +94,16 @@
     fsType = "zfs";
   };
 
+  environment.systemPackages = with pkgs; [
+    glusterfs
+  ];
+  fileSystems."/mnt/gluster/kubernetes" = {
+    device = "localhost:/kubernetes";
+    fsType = "glusterfs";
+    # noCheck = true;
+    # options = ["noatime" "_netdev"];
+  };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking

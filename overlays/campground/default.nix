@@ -68,7 +68,6 @@
   # fetch-cargo-vendor-util = prev.fetch-cargo-vendor-util.overrideAttrs (old: {
   #   buildInputs = (old.buildInputs or [ ]) ++ [ prev.python3Packages.requests ];
   # });
-
   mkYarnPackage =
     old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
 }
