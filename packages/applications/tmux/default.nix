@@ -1,15 +1,13 @@
 { lib
 , writeText
 , writeShellApplication
-, substituteAll
 , inputs
 , pkgs
 , hosts ? { }
 , ...
 }:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   conf = ./tmux.conf;
   tmux = pkgs.writeShellApplication {
     name = "campground-tmux";
@@ -18,6 +16,5 @@ let
       ${pkgs.tmux}/bin/tmux -f ${conf} "$@"
     '';
   };
-
 in
 tmux

@@ -1,5 +1,11 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib
+, writeText
+, writeShellApplication
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -40,8 +46,7 @@ let
       owner = "Aiven-Open";
       repo = "karapace";
       rev = version;
-      sha256 =
-        "sha256-Gw4R8QZOfP0cqxMPaes0MGOt0Qd4wJn9SWlcGq+D9b8="; # Placeholder hash
+      sha256 = "sha256-Gw4R8QZOfP0cqxMPaes0MGOt0Qd4wJn9SWlcGq+D9b8="; # Placeholder hash
     };
 
     preBuild = ''
@@ -69,7 +74,8 @@ let
         kafka-python
         lz4
         watchfiles
-      ] ++ [ accept-types ];
+      ]
+      ++ [ accept-types ];
     doCheck = false;
 
     meta = with lib; {
@@ -79,6 +85,6 @@ let
       maintainers = with maintainers; [ ]; # Add maintainers here
     };
   };
-
   # python-env
-in override-meta new-meta karapace
+in
+override-meta new-meta karapace

@@ -1,5 +1,12 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib
+, writeText
+, writeShellApplication
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -10,7 +17,8 @@ let
     ignoreCollisions = true;
   };
 
-in writeShellApplication {
+in
+writeShellApplication {
   name = "example-kafka-producer";
   meta = { mainProgram = "example-kafka-producer"; };
   text = ''

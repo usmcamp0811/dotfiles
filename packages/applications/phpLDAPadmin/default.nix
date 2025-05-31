@@ -1,14 +1,13 @@
-{
-  lib,
-  writeText,
-  writeShellApplication,
-  substituteAll,
-  gum,
-  inputs,
-  pkgs,
-  hosts ? {},
-  ...
-}: let
+{ lib
+, writeText
+, writeShellApplication
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
+let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "phpLDAPadmin";
@@ -93,7 +92,7 @@
       sha256 = "sha256-eowCphHmCqZxPRz4Y9+sljfiPD9NQB6l5H2+KyLUiVo=";
     };
 
-    buildInputs = [pkgs.php];
+    buildInputs = [ pkgs.php ];
 
     installPhase = ''
       mkdir -p $out/var/www
@@ -104,7 +103,7 @@
   new-meta = with lib; {
     description = "A web-based LDAP administration tool";
     license = licenses.asl20;
-    maintainers = with maintainers; [mattcamp];
+    maintainers = with maintainers; [ mattcamp ];
   };
 in
-  override-meta new-meta phpLDAPadmin
+override-meta new-meta phpLDAPadmin

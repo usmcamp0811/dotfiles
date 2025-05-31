@@ -1,18 +1,17 @@
-{
-  lib,
-  writeText,
-  writeShellApplication,
-  substituteAll,
-  gum,
-  inputs,
-  hosts ? { },
-  ...
+{ lib
+, writeText
+, writeShellApplication
+, replaceVars
+, gum
+, inputs
+, hosts ? { }
+, ...
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
-  substitute = args: builtins.readFile (substituteAll args);
+  substitute = args: replaceVars (builtins.readFile args.src) (builtins.removeAttrs args [ "src" ]);
 
   formatted-hosts = mapAttrsToList (name: host: "${name},${host.pkgs.system}") hosts;
 
@@ -28,7 +27,10 @@ let
       src = ./nixos-hosts.sh;
 
       help = ./help;
-      hosts = if hosts == { } then "" else hosts-csv;
+      hosts =
+        if hosts == { }
+        then ""
+        else hosts-csv;
     };
 
     checkPhase = "";

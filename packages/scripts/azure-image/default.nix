@@ -1,10 +1,17 @@
-{ lib, writeText, writeShellApplication, substituteAll, gum, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib
+, writeText
+, writeShellApplication
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
-
-in writeShellApplication {
+in
+writeShellApplication {
   name = "azure-image";
   meta = { mainProgram = "azure-image"; };
   runtimeInputs = [ pkgs.azure-cli pkgs.jq pkgs.nix ];
@@ -109,7 +116,7 @@ in writeShellApplication {
 
     # build image and set img file
     # we set impure cause of the ssh key file
-    nix build --out-link "azure" .#azureConfigurations.base-azure-vm 
+    nix build --out-link "azure" .#azureConfigurations.base-azure-vm
     img_file="$(readlink -f ./azure/nixos.vhd)"
 
     # Make resource group exists

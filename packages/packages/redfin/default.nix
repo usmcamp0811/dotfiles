@@ -1,12 +1,17 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib
+, writeText
+, writeShellApplication
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
   new-meta = with lib; {
-    description =
-      "A wrapper around redfin's unofficial API. Anything on the redfin site can be accessed through this module without screen scraping.";
+    description = "A wrapper around redfin's unofficial API. Anything on the redfin site can be accessed through this module without screen scraping.";
     homepage = "https://github.com/reteps/redfin";
     license = licenses.mit; # Update the license if necessary
     maintainers = with maintainers; [ matt-camp ];
@@ -29,5 +34,5 @@ let
       maintainers = with lib.maintainers; [ mattcamp ];
     };
   };
-
-in override-meta new-meta redfin
+in
+override-meta new-meta redfin

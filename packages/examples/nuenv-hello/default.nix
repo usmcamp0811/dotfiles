@@ -1,14 +1,13 @@
-{
-  lib,
-  writeText,
-  writeShellApplication,
-  substituteAll,
-  gum,
-  pkgs,
-  system,
-  hosts ? {},
-  ...
-}: let
+{ lib
+, writeText
+, writeShellApplication
+, gum
+, pkgs
+, system
+, hosts ? { }
+, ...
+}:
+let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   inherit system;
@@ -18,7 +17,7 @@
     src = ./.;
     inherit system;
     # This script is Nushell, not Bash
-    packages = with pkgs; [hello];
+    packages = with pkgs; [ hello ];
     build = ''
       hello --greeting $"($env.MESSAGE)" | save hello.txt
       let out = $"($env.out)/share"
@@ -28,4 +27,4 @@
     MESSAGE = "My custom Nuenv derivation!";
   };
 in
-  nuenv-hello
+nuenv-hello

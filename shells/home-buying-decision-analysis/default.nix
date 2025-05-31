@@ -1,17 +1,14 @@
-{
-  lib,
-  writeText,
-  writeShellApplication,
-  substituteAll,
-  gum,
-  inputs,
-  pkgs,
-  hosts ? { },
-  ...
+{ lib
+, writeText
+, writeShellApplication
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
 }:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   src = ./.;
   julia-env = pkgs.julia.withPackages.override { extraLibs = [ python-env ]; } [
     "IJulia"
@@ -48,7 +45,6 @@ let
       redfin = [ "setuptools" ];
     };
   };
-
 in
 pkgs.mkShell {
   buildInputs = [

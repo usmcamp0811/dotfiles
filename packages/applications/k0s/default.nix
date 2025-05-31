@@ -1,7 +1,6 @@
 { lib
 , writeText
 , writeShellApplication
-, substituteAll
 , gum
 , inputs
 , pkgs

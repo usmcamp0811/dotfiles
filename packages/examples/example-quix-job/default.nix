@@ -1,5 +1,11 @@
-{ lib, writeText, writeShellApplication, substituteAll, inputs, pkgs
-, hosts ? { }, ... }:
+{ lib
+, writeText
+, writeShellApplication
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
@@ -13,25 +19,29 @@ let
 
   pypkgs-build-requirements = {
     avro = [ "setuptools" ];
-    avro-python3 =
-      [ "setuptools" "python-snappy" "zstandard" "isort" "pycodestyle" ];
+    avro-python3 = [ "setuptools" "python-snappy" "zstandard" "isort" "pycodestyle" ];
     apache-quix = [ "setuptools" ];
     mocker = [ "setuptools" ];
     apache-quix-libraries = [ "setuptools" ];
   };
 
   p2n-overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super:
-    builtins.mapAttrs (package: build-requirements:
-      super."${package}".overridePythonAttrs (oldAttrs: {
-        buildInputs = (oldAttrs.buildInputs or [ ])
-          ++ (builtins.map (req: super."${req}") build-requirements);
+    builtins.mapAttrs
+      (package: build-requirements:
+        super."${package}".overridePythonAttrs (oldAttrs: {
+          buildInputs =
+            (oldAttrs.buildInputs or [ ])
+            ++ (builtins.map (req: super."${req}") build-requirements);
 
-        # Additional override for apache-quix-libraries to avoid collision
-        installPhase = if package == "apache-quix-libraries" then ''
-          rm -rf $out/lib/python3.11/site-packages/pyquix/__pycache__/version.cpython-311.pyc
-        '' else
-          oldAttrs.postInstall or "";
-      })) pypkgs-build-requirements);
+          # Additional override for apache-quix-libraries to avoid collision
+          installPhase =
+            if package == "apache-quix-libraries"
+            then ''
+              rm -rf $out/lib/python3.11/site-packages/pyquix/__pycache__/version.cpython-311.pyc
+            ''
+            else oldAttrs.postInstall or "";
+        }))
+      pypkgs-build-requirements);
 
   src = ./.;
 
@@ -91,4 +101,5 @@ let
       test = test-quix-job;
     };
   };
-in override-meta new-meta example-quix-job
+in
+override-meta new-meta example-quix-job

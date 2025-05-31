@@ -1,14 +1,13 @@
-{
-  lib,
-  writeText,
-  writeShellApplication,
-  substituteAll,
-  gum,
-  inputs,
-  pkgs,
-  hosts ? {},
-  ...
-}: let
+{ lib
+, writeText
+, writeShellApplication
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
+let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   pname = "emoji-picker";
@@ -64,7 +63,7 @@
 
   emoji-picker = pkgs.stdenv.mkDerivation {
     name = "${pname}-${version}";
-    phases = ["installPhase"];
+    phases = [ "installPhase" ];
     installPhase = ''
       mkdir -p $out/bin
       cp ${emoji-script} $out/bin/'${pname}'
@@ -77,7 +76,7 @@
   new-meta = with lib; {
     description = description;
     license = licenses.mit;
-    maintainers = with maintainers; [mattcamp];
+    maintainers = with maintainers; [ mattcamp ];
   };
   # {
   #   # If k0s should be in the PATH:
@@ -85,4 +84,4 @@
   #
   # }
 in
-  override-meta new-meta emoji-picker
+override-meta new-meta emoji-picker

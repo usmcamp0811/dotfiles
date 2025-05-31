@@ -1,14 +1,13 @@
-{
-  lib,
-  writeText,
-  mkYarnPackage,
-  substituteAll,
-  gum,
-  inputs,
-  pkgs,
-  hosts ? {},
-  ...
-}: let
+{ lib
+, writeText
+, mkYarnPackage
+, gum
+, inputs
+, pkgs
+, hosts ? { }
+, ...
+}:
+let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
   matt-camp-website = mkYarnPackage {
@@ -23,4 +22,4 @@
     '';
   };
 in
-  matt-camp-website
+matt-camp-website
