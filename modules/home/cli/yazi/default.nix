@@ -1,16 +1,16 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  inputs,
-  ...
+{ options
+, config
+, pkgs
+, lib
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.cli.yazi;
-in {
-  options.campground.cli.yazi = {enable = mkEnableOption "Yazi";};
+in
+{
+  options.campground.cli.yazi = { enable = mkEnableOption "Yazi"; };
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
@@ -66,7 +66,7 @@ in {
       keymap = {
         manager = {
           show_hidden = true;
-          ratio = [1 2 5];
+          ratio = [ 1 2 5 ];
           show_symlink = true;
           prepend_keymap = [
             {
@@ -75,92 +75,92 @@ in {
               desc = "Start bunny.yazi";
             }
             {
-              on = ["l"];
+              on = [ "l" ];
               run = "plugin smart-enter";
               desc = "Enter the child directory, or open the file";
             }
             {
-              on = ["E"];
+              on = [ "E" ];
               run = "plugin eza-preview";
               desc = "Toggle tree/list dir preview";
             }
 
             {
-              on = ["-"];
+              on = [ "-" ];
               run = "plugin eza-preview '--inc-level'";
               desc = "Increment tree level";
             }
 
             {
-              on = ["_"];
+              on = [ "_" ];
               run = "plugin eza-preview '--dec-level'";
               desc = "Decrement tree level";
             }
 
             {
-              on = ["$"];
+              on = [ "$" ];
               run = "plugin eza-preview '--toggle-follow-symlinks'";
               desc = "Toggle tree follow symlinks";
             }
 
             {
-              on = ["<C-d>"];
+              on = [ "<C-d>" ];
               run = "plugin diff";
               desc = "Diff the selected with the hovered file";
             }
 
             {
-              on = ["t" "g"];
+              on = [ "t" "g" ];
               run = "plugin lazygit";
               desc = "run lazygit";
             }
             {
-              on = ["g" "c"];
+              on = [ "g" "c" ];
               run = "plugin vcs-files";
               desc = "Show Git file changes";
             }
 
             {
-              on = ["T"];
+              on = [ "T" ];
               run = "plugin toggle-pane max-preview";
               desc = "Hide or show preview";
             }
 
             {
-              on = ["M"];
+              on = [ "M" ];
               run = "plugin mount";
             }
 
             {
-              on = ["<C-e>"];
+              on = [ "<C-e>" ];
               run = "seek 5";
             }
 
             {
-              on = ["<C-y>"];
+              on = [ "<C-y>" ];
               run = "seek -5";
             }
 
             {
-              on = ["f" "g"];
+              on = [ "f" "g" ];
               run = "plugin fg";
               desc = "find file by content";
             }
 
             {
-              on = ["f" "f"];
+              on = [ "f" "f" ];
               run = "plugin fg 'fzf'";
               desc = "find file by filename";
             }
 
             {
-              on = ["f" "G"];
+              on = [ "f" "G" ];
               run = "plugin fg 'rg'";
               desc = "find file by content (ripgrep match)";
             }
 
             {
-              on = ["C"];
+              on = [ "C" ];
               run = "plugin ouch zip";
               desc = "Compress with ouch";
             }
@@ -210,19 +210,19 @@ in {
         };
 
         plugin = {
-          prepend_fetchers = [
-            {
-              id = "git";
-              name = "*";
-              run = "git";
-            }
-
-            {
-              id = "git";
-              name = "*/";
-              run = "git";
-            }
-          ];
+          # prepend_fetchers = [
+          #   {
+          #     id = "git";
+          #     name = "*";
+          #     run = "git";
+          #   }
+          #
+          #   {
+          #     id = "git";
+          #     name = "*/";
+          #     run = "git";
+          #   }
+          # ];
           prepend_preloaders = [
             {
               mime = "{audio,video,image}/*";
