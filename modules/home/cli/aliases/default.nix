@@ -48,10 +48,11 @@ with lib.campground; let
       HOST=$1
       ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
     '';
+    # TODO: Add some function to get all virtual IPs and add them to allowed_hosts
     ssh = ''
       local target_host="$1"
       local known_hosts_file="''${HOME}/.ssh/known_hosts"
-      local allowed_hosts=("10.8.0.69" "10.8.0.42")
+      local allowed_hosts=("10.8.0.69" "10.8.0.42" "10.8.0.55")
 
       if [[ " ''${allowed_hosts[*]} " =~ " ''${target_host} " ]]; then
           echo "Handling special case for $target_host..."
