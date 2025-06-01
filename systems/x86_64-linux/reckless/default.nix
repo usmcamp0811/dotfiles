@@ -258,6 +258,10 @@ in
             name = "atticd";
             user = "atticd";
           }
+          {
+            name = "crystal_forge";
+            user = "crystal_forge";
+          }
         ];
         backupEnable = true;
         backupLocation = "/persist/postgresqlBackups/";
@@ -266,6 +270,7 @@ in
           "local all postgres peer"
           "local atticd atticd trust"
           # "host  campgroundai  campgroundai  0.0.0.0/0 md5"
+          "host  crystal_forge    crystal_forge   0.0.0.0/0 md5"
           "host  all  all  0.0.0.0/0  reject"
           "host  all  all  ::0/0  reject"
         ];
