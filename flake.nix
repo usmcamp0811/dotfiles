@@ -2,6 +2,7 @@
   description = "Campground Config";
 
   inputs = {
+    crystal-forge.url = "gitlab:usmcamp0811/crystal-forge";
     zig2nix.url = "github:Cloudef/zig2nix";
     nixtheplanet.url = "github:Doc-Steve/NixThePlanet";
     npmlock2nix = {
@@ -363,6 +364,9 @@
         funkwhale.overlays.default
         yazi.overlays.default
         k0s-nix.overlays.default
+        /*
+        # crystal-forge.overlays.default
+        */
 
         # kubenix.overlays.default
       ];
@@ -379,6 +383,7 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
+        # crystal-forge.nixosModules.crystal-forge
         # "${unstable}/nixos/modules/services/web-apps/pds.nix"
         # { disabledModules = [ "${nixpkgs}/nixos/modules/services/cluster/k3s/default.nix" ]; }
         # "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
