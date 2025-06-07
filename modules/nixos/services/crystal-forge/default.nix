@@ -1,20 +1,15 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.crystal-forge;
-in {
+in
+{
   options.campground.services.crystal-forge = {
     enable = mkEnableOption "Enable the Crystal Forge service(s)";
-    roles = mkOption {
-      type = types.listOf (types.enum ["agent" "server"]);
-      default = ["agent"];
-      description = "Which roles to run on this system.";
-    };
     configPath = mkOption {
       type = types.path;
       default = generatedConfigPath;
@@ -44,6 +39,7 @@ in {
       };
     };
     server = {
+      enable = mkEnableOption "Enable the Crystal Forge Server";
       host = mkOption {
         type = types.str;
         default = "0.0.0.0";
@@ -54,10 +50,11 @@ in {
       };
       authorized_keys = mkOption {
         type = types.attrsOf types.str;
-        default = {};
+        default = { };
       };
     };
     client = {
+      enable = mkEnableOption "Enable the Crystal Forge Agent";
       server_host = mkOption {
         type = types.str;
         default = "reckless";
@@ -66,7 +63,7 @@ in {
         type = types.port;
         default = 3000;
       };
-      private_key = mkOption {type = types.path;};
+      private_key = mkOption { type = types.path; };
     };
   };
 
@@ -74,7 +71,6 @@ in {
     services.crystal-forge = {
       inherit
         (cfg)
-        roles
         configPath
         database
         server

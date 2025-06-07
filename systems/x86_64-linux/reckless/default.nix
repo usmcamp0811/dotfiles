@@ -97,6 +97,19 @@ in
     services = {
       crystal-forge = {
         enable = true;
+        server = {
+          enable = true;
+          port = 3444;
+          authorized_keys = {
+            gray = "hUwxCZUFydwDjf8BMyXLyMiI33PrKvhfDRj60OkisdY=";
+            reckless = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
+          };
+        };
+        client = {
+          enable = true;
+          server_host = "localhost";
+          server_port = 3444;
+        };
       };
       glusterfs = {
         enable = true;
