@@ -364,9 +364,7 @@
         funkwhale.overlays.default
         yazi.overlays.default
         k0s-nix.overlays.default
-        /*
-        # crystal-forge.overlays.default
-        */
+        crystal-forge.overlays.default
 
         # kubenix.overlays.default
       ];
@@ -383,7 +381,7 @@
         crowdsec.nixosModules.crowdsec
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
-        # crystal-forge.nixosModules.crystal-forge
+        crystal-forge.nixosModules.crystal-forge
         # "${unstable}/nixos/modules/services/web-apps/pds.nix"
         # { disabledModules = [ "${nixpkgs}/nixos/modules/services/cluster/k3s/default.nix" ]; }
         # "${unstable}/nixos/modules/services/cluster/k3s/default.nix"
