@@ -1,7 +1,12 @@
-{ options, config, pkgs, lib, inputs, ... }:
+{ options
+, config
+, pkgs
+, lib
+, inputs
+, ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.nix;
   substituters-submodule = types.submodule ({ ... }: {
     options = with types; {
@@ -9,7 +14,6 @@ let
         mkOpt (nullOr str) null "The trusted public key for this substituter.";
     };
   });
-
 in
 {
   options.campground.nix = with types; {
@@ -20,22 +24,27 @@ in
 
     default-substituter = {
       url = mkOpt str "https://cache.nixos.org" "The url for the substituter.";
-      key = mkOpt str
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "The trusted public key for the substituter.";
+      key =
+        mkOpt str
+          "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+          "The trusted public key for the substituter.";
     };
 
-    extra-substituters = mkOpt (attrsOf substituters-submodule) { }
-      "Extra substituters to configure.";
+    extra-substituters =
+      mkOpt (attrsOf substituters-submodule) { }
+        "Extra substituters to configure.";
 
-    role-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
-    secret-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
-    vault-path = mkOpt types.str "secret/campground/netrc"
-      "The Vault path to the KV containing the KVs that are for a properly formated netrc file text";
+    role-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt types.str
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt types.str "secret/campground/netrc"
+        "The Vault path to the KV containing the KVs that are for a properly formated netrc file text";
     kvVersion = mkOption {
       type = types.enum [ "v1" "v2" ];
       default = "v2";
@@ -49,12 +58,13 @@ in
   };
 
   config = mkIf cfg.enable {
-    assertions = mapAttrsToList
-      (name: value: {
-        assertion = value.key != null;
-        message = "campground.nix.extra-substituters.${name}.key must be set";
-      })
-      cfg.extra-substituters;
+    assertions =
+      mapAttrsToList
+        (name: value: {
+          assertion = value.key != null;
+          message = "campground.nix.extra-substituters.${name}.key must be set";
+        })
+        cfg.extra-substituters;
     environment.systemPackages = with pkgs; [
       campground.nixos-revision
       (campground.nixos-hosts.override {
@@ -69,7 +79,9 @@ in
     ];
 
     systemd.services.nix-daemon = {
-      serviceConfig.Environment = [ "NETRC=/var/lib/nixos/netrc" ];
+      environment = {
+        NETRC = "/var/lib/nixos/netrc";
+      };
     };
 
     # TODO: Figure out if I can just use it straigh from the /tmp/detsys-vault/netrc location
@@ -79,8 +91,7 @@ in
         Type = "oneshot";
         User = "root";
         ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /var/lib/nixos";
-        ExecStart =
-          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /var/lib/nixos/netrc";
+        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /var/lib/nixos/netrc";
         before = [ "nix-daemon.service" ];
       };
       wantedBy = [ "multi-user.target" ];
@@ -88,7 +99,8 @@ in
 
     nix =
       let
-        users = [ "root" config.campground.user.name ]
+        users =
+          [ "root" config.campground.user.name ]
           ++ cfg.additional-authorized-users
           ++ (optional config.campground.services.hydra.enable "hydra")
           ++ (optional config.campground.services.nixery.enable "nixery");
@@ -96,31 +108,33 @@ in
       {
         package = cfg.package;
 
-        settings = {
-          experimental-features = "nix-command flakes";
-          fallback = true;
-          http-connections = 50;
-          warn-dirty = false;
-          log-lines = 50;
-          sandbox = "relaxed";
-          auto-optimise-store = true;
-          trusted-users = users;
-          allowed-users = users;
-          netrc-file = "/var/lib/nixos/netrc";
-          extra-sandbox-paths = [ "/var/lib/nixos/netrc" ];
+        settings =
+          {
+            experimental-features = "nix-command flakes";
+            fallback = true;
+            http-connections = 50;
+            warn-dirty = false;
+            log-lines = 50;
+            sandbox = "relaxed";
+            auto-optimise-store = true;
+            trusted-users = users;
+            allowed-users = users;
+            netrc-file = "/var/lib/nixos/netrc";
+            extra-sandbox-paths = [ "/var/lib/nixos/netrc" ];
 
-          substituters =
-            # [ cfg.default-substituter.url ]
-            # ++
-            mapAttrsToList (name: _value: name) cfg.extra-substituters;
-          trusted-public-keys =
-            # [ cfg.default-substituter.key ]
-            # ++
-            mapAttrsToList (_name: value: value.key) cfg.extra-substituters;
-        } // (lib.optionalAttrs config.campground.tools.direnv.enable {
-          keep-outputs = true;
-          keep-derivations = true;
-        });
+            substituters =
+              # [ cfg.default-substituter.url ]
+              # ++
+              mapAttrsToList (name: _value: name) cfg.extra-substituters;
+            trusted-public-keys =
+              # [ cfg.default-substituter.key ]
+              # ++
+              mapAttrsToList (_name: value: value.key) cfg.extra-substituters;
+          }
+          // (lib.optionalAttrs config.campground.tools.direnv.enable {
+            keep-outputs = true;
+            keep-derivations = true;
+          });
 
         gc = {
           automatic = true;
@@ -137,14 +151,16 @@ in
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {
