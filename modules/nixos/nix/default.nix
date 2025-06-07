@@ -78,6 +78,8 @@ in
       flake-checker
     ];
 
+    systemd.services.nix-daemon.serviceConfig.Environment = "NETRC=/var/lib/nixos/netrc";
+
     systemd.services.nix-daemon = {
       environment = {
         NETRC = "/var/lib/nixos/netrc";
