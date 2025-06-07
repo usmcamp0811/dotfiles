@@ -95,6 +95,9 @@ in
     };
 
     services = {
+      crystal-forge = {
+        enable = true;
+      };
       glusterfs = {
         enable = true;
         # peers = ["webb"];
