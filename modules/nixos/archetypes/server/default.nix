@@ -1,8 +1,14 @@
-{ options, config, lib, pkgs, ... }:
+{ options
+, config
+, lib
+, pkgs
+, ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.archetypes.server;
-in {
+with lib.campground; let
+  cfg = config.campground.archetypes.server;
+in
+{
   options.campground.archetypes.server = with types; {
     enable = mkBoolOpt false "Whether or not to enable the server archetype.";
     k8s = mkBoolOpt false "Is this a K8s Node?";
