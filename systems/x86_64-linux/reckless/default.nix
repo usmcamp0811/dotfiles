@@ -103,6 +103,11 @@ in
           authorized_keys = {
             gray = "hUwxCZUFydwDjf8BMyXLyMiI33PrKvhfDRj60OkisdY=";
             reckless = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
+            webb = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
+            lucas = "OMxvf/rZmi8PZJOpVxjbPHDaX+BmJqp8FUOoosWJ7qY=";
+            chesty = "Asu0Fl8SsM9Pd/woHt5qkvBdCbye6j2Q2M/qDmnFUjc=";
+            daly = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
+            ermy = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
           };
         };
         client = {
