@@ -129,11 +129,14 @@ in
                 files = {
                   "agent.key" = {
                     text = ''
-                      {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${
-                        config.networking.hostName
-                      }}{{ else }}{{ .Data.data.${
-                        config.networking.hostName
-                      } }}{{ end }}{{ end }}'';
+                      {{ with secret "${cfg.vault-path}" }}
+                        {{ if eq "${cfg.kvVersion}" "v1" }}
+                          {{ .Data."${config.networking.hostName}" }}
+                        {{ else }}
+                          {{ .Data.data."${config.networking.hostName}" }}
+                        {{ end }}
+                      {{ end }}
+                    '';
                     permissions = "0600";
                     change-action = "restart";
                   };
