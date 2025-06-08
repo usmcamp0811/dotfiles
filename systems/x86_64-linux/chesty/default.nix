@@ -166,15 +166,6 @@ with lib.campground;
                 (snowfall.fs.get-files ../daly/vault/policies)));
       };
 
-      crystal-forge = {
-        enable = true;
-        client = {
-          enable = true;
-          server_host = "reckless";
-          server_port = 3444;
-          private_key = "/var/lib/crystal_forge/chesty.key";
-        };
-      };
       searx = {
         enable = true;
         port = 3249;

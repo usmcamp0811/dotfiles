@@ -49,15 +49,6 @@ in
     };
 
     services = {
-      crystal-forge = {
-        enable = true;
-        client = {
-          enable = true;
-          server_host = "reckless";
-          server_port = 3444;
-          private_key = "/var/lib/crystal_forge/ermy.key";
-        };
-      };
       k3s = {
         enable = true;
         role = "server";

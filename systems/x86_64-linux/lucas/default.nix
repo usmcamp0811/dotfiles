@@ -84,15 +84,6 @@ with lib.campground; {
         ];
       };
 
-      crystal-forge = {
-        enable = true;
-        client = {
-          enable = true;
-          server_host = "reckless";
-          server_port = 3444;
-          private_key = "/var/lib/crystal_forge/lucas.key";
-        };
-      };
       vault = {
         enable = true;
         ui = true;

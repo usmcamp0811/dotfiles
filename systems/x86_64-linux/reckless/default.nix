@@ -111,12 +111,6 @@ in
             butler = "rbMIke0a5emtaPc7MKgwqEn/UL3e0yyKUn5zHy3Ct/c=";
           };
         };
-        client = {
-          enable = true;
-          server_host = "localhost";
-          server_port = 3444;
-          private_key = "/var/lib/crystal_forge/reckless.key";
-        };
       };
       glusterfs = {
         enable = true;

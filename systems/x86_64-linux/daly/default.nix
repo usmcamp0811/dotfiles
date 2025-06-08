@@ -78,15 +78,6 @@ with lib.campground; {
           };
         };
       };
-      crystal-forge = {
-        enable = true;
-        client = {
-          enable = true;
-          server_host = "reckless";
-          server_port = 3444;
-          private_key = "/var/lib/crystal_forge/daly.key";
-        };
-      };
       searx = {
         enable = true;
         port = 8181;
