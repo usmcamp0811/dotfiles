@@ -71,6 +71,7 @@ in
     services.crystal-forge = {
       inherit
         (cfg)
+        enable
         configPath
         database
         server
