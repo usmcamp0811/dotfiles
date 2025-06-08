@@ -6,6 +6,7 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.crystal-forge;
+  host = config.networking.hostName;
 in
 {
   options.campground.services.crystal-forge = {
@@ -128,15 +129,10 @@ in
               file = {
                 files = {
                   "agent.key" = {
-                    text = ''
-                      {{ with secret "${cfg.vault-path}" }}
-                        {{ if eq "${cfg.kvVersion}" "v1" }}
-                          {{ .Data."${config.networking.hostName}" }}
-                        {{ else }}
-                          {{ .Data.data."${config.networking.hostName}" }}
-                        {{ end }}
-                      {{ end }}
-                    '';
+                    text =
+                      if cfg.kvVersion == "v1"
+                      then ''{{ with secret "${cfg.vault-path}" }}{{ .Data."${host}" }}{{ end }}''
+                      else ''{{ with secret "${cfg.vault-path}" }}{{ .Data.data."${host}" }}{{ end }}'';
                     permissions = "0600";
                     change-action = "restart";
                   };
