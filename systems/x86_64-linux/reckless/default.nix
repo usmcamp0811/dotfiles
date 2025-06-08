@@ -108,6 +108,7 @@ in
             chesty = "Asu0Fl8SsM9Pd/woHt5qkvBdCbye6j2Q2M/qDmnFUjc=";
             daly = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
             ermy = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
+            butler = "rbMIke0a5emtaPc7MKgwqEn/UL3e0yyKUn5zHy3Ct/c=";
           };
         };
         client = {
