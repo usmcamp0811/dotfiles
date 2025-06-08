@@ -313,6 +313,16 @@ in
         ];
       };
       matomo = enabled;
+
+      crystal-forge = {
+        enable = true;
+        client = {
+          enable = true;
+          server_host = "reckless";
+          server_port = 3444;
+          private_key = "/var/lib/crystal_forge/webb.key";
+        };
+      };
       zfs-key-server = {
         enable = true;
         port = 8123;
