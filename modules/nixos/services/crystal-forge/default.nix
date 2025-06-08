@@ -98,9 +98,13 @@ in
         ;
       client = {
         inherit (cfg.client) server_port server_host enable;
-        private_key = "/tmp/detsys-vault/${config.networking.hostName}";
+        private_key = "/var/lib/crystal_forge/agent.key";
       };
     };
+    systemd.services.crystal-forge-agent.preStart = ''
+      mkdir -p /var/lib/crystal_forge/
+      cp /tmp/detsys-vault/agent.key /var/lib/crystal_forge/agent.key
+    '';
     campground.services = {
       vault-agent = {
         services = {
@@ -123,7 +127,7 @@ in
             secrets = {
               file = {
                 files = {
-                  "${config.networking.hostName}.key" = {
+                  "agent.key" = {
                     text = ''
                       {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${
                         config.networking.hostName
