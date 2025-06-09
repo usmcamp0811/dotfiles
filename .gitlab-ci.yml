@@ -1,6 +1,5 @@
 stages:
-  - nvim_update
-  - crystal_forge_update
+  - updates
   - build
   - update_flake
   - build_systems
@@ -207,7 +206,7 @@ build_resume:
         - "package/matt-camp-website/src/assets/resume/resume.json"
 
 nvim_update:
-  stage: nvim_update
+  stage: updates
   script:
     # - "nix flake check gitlab:usmcamp0811/campground-nvim"
     - "nix flake lock --update-input campground-nvim"
@@ -222,7 +221,7 @@ nvim_update:
       allow_failure: false
 
 crystal_forge_update:
-  stage: crystal_forge_update
+  stage: updates
   script:
     - "nix flake lock --update-input crystal-forge"
     - "git config --global user.email 'ci-bot@gitlab.com'"
