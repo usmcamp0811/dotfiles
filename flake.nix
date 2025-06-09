@@ -2,7 +2,8 @@
   description = "Campground Config";
 
   inputs = {
-    crystal-forge.url = "git+ssh://git@gitlab.com/usmcamp0811/crystal-forge?ref=main";
+    crystal-forge.url = "git+ssh://git@gitlab.com/usmcamp0811/crystal-forge";
+
     zig2nix.url = "github:Cloudef/zig2nix";
     nixtheplanet.url = "github:Doc-Steve/NixThePlanet";
     npmlock2nix = {
