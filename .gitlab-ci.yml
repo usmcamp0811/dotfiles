@@ -222,14 +222,19 @@ nvim_update:
 
 crystal_forge_update:
   stage: updates
-  script:
-    - "nix flake lock --update-input crystal-forge"
-    - "git config --global user.email 'ci-bot@gitlab.com'"
-    - "git config --global user.name 'CI Bot'"
-    - "git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/dotfiles.git"
-    - "git add flake.lock"
-    - "git commit -m 'CI: Update crystal-forge update'"
-    - "git push origin HEAD:${CI_DEFAULT_BRANCH}"
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "trigger"'
-      allow_failure: false
+  script: |
+    echo "Authenticating with Vault..."
+    vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID" > /dev/null
+    export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+    export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+    mkdir -p ~/.ssh
+    eval "$(ssh-agent -s)"
+    echo "$sshkey" | ssh-add -
+    ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    nix flake lock --update-input crystal-forge
+    git config --global user.email 'ci-bot@gitlab.com'
+    git config --global user.name 'CI Bot'
+    git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/crystal-forge.git
+    git add flake.lock
+    git commit -m 'CI: Update crystal-forge update'
+    git push origin HEAD:${CI_DEFAULT_BRANCH}
