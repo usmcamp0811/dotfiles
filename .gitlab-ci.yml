@@ -1,5 +1,6 @@
 stages:
   - nvim_update
+  - crystal_forge_update
   - build
   - update_flake
   - build_systems
