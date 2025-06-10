@@ -1,4 +1,12 @@
-{ inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
+{
+  inputs,
+  lib,
+  pkgs,
+  config,
+  osConfig ? {},
+  format ? "unknown",
+  ...
+}:
 with lib;
 with lib.campground; {
   campground = {
