@@ -1,9 +1,8 @@
-{
-  pkgs,
-  config,
-  lib,
-  inputs,
-  ...
+{ pkgs
+, config
+, lib
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -13,8 +12,9 @@ with lib.campground; let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
-  imports = [./hardware.nix];
+in
+{
+  imports = [ ./hardware.nix ];
   programs.adb.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
@@ -30,7 +30,7 @@ in {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker" "adbusers" "kvm"];
+      extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
       uid = 10000;
     };
     # stig = {
@@ -40,7 +40,7 @@ in {
     #     justification = [ "i said so" ];
     #   };
     # };
-    campground.desktop.cinnamon = enabled;
+    desktop.cinnamon = enabled;
     suites = {
       public-hosting = {
         enable = true;
@@ -53,14 +53,14 @@ in {
       #   # isLeader = true;
       # };
     };
-    apps = {steam = enabled;};
+    apps = { steam = enabled; };
 
     archetypes = {
       laptop = enabled;
       workstation = enabled;
     };
 
-    nfs.client = {enable = true;};
+    nfs.client = { enable = true; };
 
     hardware = {
       bluetooth = enabled;
@@ -73,7 +73,7 @@ in {
         serverAddr = "10.8.0.197";
         role = "agent";
       };
-      ldap-client = {enable = mkForce false;};
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       zfs-key-server = {
         enable = true;
@@ -95,7 +95,7 @@ in {
       user-secrets = {
         enable = true;
         users = {
-          mcamp = {files = ["id_ed25519" "passwords" "kubeconfig"];};
+          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
         };
       };
       vault-agent = {
