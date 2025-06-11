@@ -1,14 +1,14 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
+{ options
+, config
+, lib
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.cinnamon;
-in {
+in
+{
   options.campground.desktop.cinnamon = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
@@ -28,8 +28,8 @@ in {
 
     environment.systemPackages = with pkgs; [
       wl-clipboard
-      gnome.gnome-tweaks
-      gnome.nautilus-python
+      gnome-tweaks
+      nautilus-python
     ];
 
     environment.gnome.excludePackages = with pkgs.gnome; [
@@ -50,8 +50,8 @@ in {
     #    );
 
     systemd.services.campground-user-icon = {
-      before = ["display-manager.service"];
-      wantedBy = ["display-manager.service"];
+      before = [ "display-manager.service" ];
+      wantedBy = [ "display-manager.service" ];
 
       serviceConfig = {
         Type = "simple";
@@ -87,7 +87,7 @@ in {
     services.xserver = {
       enable = true;
       libinput.enable = true;
-      desktopManager.cinnamon = {enable = true;};
+      desktopManager.cinnamon = { enable = true; };
     };
 
     programs.kdeconnect = {

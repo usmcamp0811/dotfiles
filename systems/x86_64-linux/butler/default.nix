@@ -15,6 +15,8 @@ with lib.campground; let
 in
 {
   imports = [ ./hardware.nix ];
+
+  services.tlp = { enable = mkForce false; };
   programs.adb.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
