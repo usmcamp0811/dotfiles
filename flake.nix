@@ -207,14 +207,14 @@
     nixidy.url = "github:arnarg/nixidy";
     nix2container.url = "github:nlewo/nix2container";
 
-    yazi.url = "github:sxyazi/yazi/v25.4.8";
+    yazi.url = "github:sxyazi/yazi/v25.5.31";
     bunny-yazi = {
       url = "github:stelcodes/bunny.yazi";
       flake = false;
     };
 
     official-plugins-yazi = {
-      url = "github:yazi-rs/plugins?rev=273019910c1111a388dd20e057606016f4bd0d17";
+      url = "github:yazi-rs/plugins";
       flake = false;
     };
 
@@ -223,11 +223,13 @@
       flake = false;
     };
 
+    # TODO: Remove
     mime-ext-yazi = {
       url = "github:DreamMaoMao/mime-ext.yazi";
       flake = false;
     };
 
+    # TODO: Remove
     mediainfo-yazi = {
       url = "github:boydaihungst/mediainfo.yazi";
       flake = false;
@@ -243,6 +245,7 @@
       flake = false;
     };
 
+    # TODO: Remove
     glow-yazi = {
       url = "github:Reledia/glow.yazi";
       flake = false;
@@ -253,16 +256,19 @@
       flake = false;
     };
 
+    # TODO: Remove
     ouch-yazi = {
       url = "github:ndtoan96/ouch.yazi";
       flake = false;
     };
 
+    # TODO: Remove
     rich-preview-yazi = {
       url = "github:MrDwarf7/rich-preview.yazi";
       flake = false;
     };
 
+    # TODO: Remove
     duckdb-yazi = {
       url = "github:wylie102/duckdb.yazi";
       flake = false;
@@ -273,16 +279,19 @@
       flake = false;
     };
 
+    # TODO: Remove
     yatline-yazi = {
       url = "github:imsi32/yatline.yazi";
       flake = false;
     };
 
+    # TODO: Remove
     yatline-catppuccin-yazi = {
       url = "github:imsi32/yatline-catppuccin.yazi";
       flake = false;
     };
 
+    # TODO: Remove
     lazygit-yazi = {
       url = "github:Lil-Dank/lazygit.yazi";
       flake = false;
