@@ -103,6 +103,7 @@ in {
         configPath
         database
         server
+        flakes
         ;
       client = {
         inherit (cfg.client) server_port server_host enable;
