@@ -306,6 +306,16 @@ in
           loadBalancer.servers = [{ url = "http://reckless:8082"; }];
         };
 
+        http.routers.crystal-forge = {
+          rule = "Host(`crystal-forge.aicampground.com`)";
+          entryPoints = [ "websecure" ];
+          service = "crystal-forge";
+        };
+
+        http.services.crystal-forge = {
+          loadBalancer.servers = [{ url = "http://reckless:3444"; }];
+        };
+
         http.routers.bitwarden = {
           rule = "Host(`bw.aicampground.com`)";
           entryPoints = [ "websecure" ];
