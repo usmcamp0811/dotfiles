@@ -96,6 +96,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+
     services.crystal-forge = {
       inherit
         (cfg)
