@@ -97,6 +97,7 @@ in
     services = {
       crystal-forge = {
         enable = true;
+        flakes.watched = { dotfiles = "https://gitlab.com/usmcamp0811/dotfiles"; };
         server = {
           enable = true;
           port = 3444;
