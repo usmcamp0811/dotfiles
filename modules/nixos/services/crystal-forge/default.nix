@@ -122,6 +122,10 @@ in
       cp /tmp/detsys-vault/agent.key /var/lib/crystal_forge/agent.key
     '';
 
+    systemd.services.crystal-forge-server.environment = {
+      NETRC = "/etc/netrc";
+    };
+
     campground.services = {
       vault-agent = {
         services = {
