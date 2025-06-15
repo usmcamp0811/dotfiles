@@ -1,50 +1,54 @@
-{ lib, config, ... }:
+{
+  lib,
+  config,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.grafana;
   dashboards = ./dashboards;
   dashboardProviders = [
     {
       name = "Backup Monitor";
       type = "file";
-      options = { path = ./dashboards/backup-monitor.json; };
+      options = {path = ./dashboards/backup-monitor.json;};
     }
     {
       name = "Campground Budget";
       type = "file";
-      options = { path = ./dashboards/budget-dashboard.json; };
+      options = {path = ./dashboards/budget-dashboard.json;};
     }
   ];
-in
-{
+in {
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
     datasources = mkOption {
       type = types.listOf (types.attrsOf types.anything);
       description = "A list of datasources.";
-      default = [ ];
+      default = [];
     };
     dashboards = mkOption {
       type = types.listOf (types.attrsOf types.str);
       description = "A list of dashboard providers";
-      default = [ ];
+      default = [];
     };
-    domain = mkOpt str "grafana.lan.aicampground.com"
+    domain =
+      mkOpt str "grafana.lan.aicampground.com"
       "Domain to Host the grafana server on.";
     oidc-domain = mkOpt str "auth.aicampground.com" "ODIC Domain";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/grafana"
+      "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/grafana"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -56,6 +60,21 @@ in
   };
 
   config = mkIf cfg.enable {
+    systemd.services.copy-grafana-dashboards = {
+      description = "Copy Grafana dashboards from Nix store to writable path";
+      wantedBy = ["grafana.service"];
+      before = ["grafana.service"];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = let
+          dashboardSrc = ./dashboards; # same as in your module
+        in "${pkgs.bash}/bin/bash -c 'cp -r ${dashboardSrc}/* /var/lib/grafana/dashboards/'";
+      };
+    };
+
+    systemd.tmpfiles.rules = [
+      "d /var/lib/grafana/dashboards 0755 grafana grafana -"
+    ];
 
     services.grafana = {
       enable = true;
@@ -65,60 +84,65 @@ in
           rules = {
             settings = {
               apiVersion = 1;
-              groups = [{
-                orgId = 1;
-                name = "backups";
-                folder = "backup_alerts";
-                interval = "5m";
-                rules = [{
-                  uid = "adxql03nljqwwa";
-                  title = "Borg Backup Alert";
-                  condition = "A";
-                  data = [{
-                    refId = "A";
-                    relativeTimeRange = {
-                      from = 86400;
-                      to = 0;
-                    };
-                    datasourceUid = "PBFA97CFB590B2093";
-                    model = {
-                      datasource = {
-                        type = "prometheus";
-                        uid = "PBFA97CFB590B2093";
+              groups = [
+                {
+                  orgId = 1;
+                  name = "backups";
+                  folder = "backup_alerts";
+                  interval = "5m";
+                  rules = [
+                    {
+                      uid = "adxql03nljqwwa";
+                      title = "Borg Backup Alert";
+                      condition = "A";
+                      data = [
+                        {
+                          refId = "A";
+                          relativeTimeRange = {
+                            from = 86400;
+                            to = 0;
+                          };
+                          datasourceUid = "PBFA97CFB590B2093";
+                          model = {
+                            datasource = {
+                              type = "prometheus";
+                              uid = "PBFA97CFB590B2093";
+                            };
+                            editorMode = "code";
+                            expr = ''
+                              (
+                                borg_backup_success{exported_job=~"webb_rsync|webb_campground|daly_rsync|daly_campground"} == 0
+                              )
+                              or
+                              (
+                                (time() - borg_backup_last_run{exported_job=~"webb_rsync|webb_campground|daly_rsync|daly_campground"}) > 86400
+                              )
+                            '';
+                            instant = true;
+                            intervalMs = 1000;
+                            legendFormat = "__auto";
+                            maxDataPoints = 43200;
+                            range = false;
+                            refId = "A";
+                          };
+                        }
+                      ];
+                      dashboardUid = "fdxl9e1g0zaiod";
+                      panelId = 1;
+                      noDataState = "OK";
+                      execErrState = "Error";
+                      for = "5m";
+                      annotations = {
+                        __dashboardUid__ = "fdxl9e1g0zaiod";
+                        __panelId__ = "1";
+                        summary = "One or more of your backups did not run successfully.";
                       };
-                      editorMode = "code";
-                      expr = ''
-                        (
-                          borg_backup_success{exported_job=~"webb_rsync|webb_campground|daly_rsync|daly_campground"} == 0
-                        )
-                        or
-                        (
-                          (time() - borg_backup_last_run{exported_job=~"webb_rsync|webb_campground|daly_rsync|daly_campground"}) > 86400
-                        )
-                      '';
-                      instant = true;
-                      intervalMs = 1000;
-                      legendFormat = "__auto";
-                      maxDataPoints = 43200;
-                      range = false;
-                      refId = "A";
-                    };
-                  }];
-                  dashboardUid = "fdxl9e1g0zaiod";
-                  panelId = 1;
-                  noDataState = "OK";
-                  execErrState = "Error";
-                  for = "5m";
-                  annotations = {
-                    __dashboardUid__ = "fdxl9e1g0zaiod";
-                    __panelId__ = "1";
-                    summary =
-                      "One or more of your backups did not run successfully.";
-                  };
-                  labels = { };
-                  isPaused = false;
-                }];
-              }];
+                      labels = {};
+                      isPaused = false;
+                    }
+                  ];
+                }
+              ];
             };
           };
         };
@@ -131,16 +155,23 @@ in
         dashboards = {
           settings = {
             apiVersion = 1;
-            providers = cfg.dashboards
-              ++ dashboardProviders; # Combine dashboards
+
+            providers = [
+              {
+                name = "local";
+                type = "file";
+                options.path = "/var/lib/grafana/dashboards";
+              }
+            ];
+            # providers =
+            #   cfg.dashboards
+            #   ++ dashboardProviders; # Combine dashboards
           };
         };
       };
       settings = {
-
         auth.oauth_auto_login = true;
-        auth.signout_redirect_url =
-          "https://${cfg.oidc-domain}/application/o/grafana/end-session/";
+        auth.signout_redirect_url = "https://${cfg.oidc-domain}/application/o/grafana/end-session/";
 
         "auth.generic_oauth" = {
           name = "authentik";
@@ -179,20 +210,22 @@ in
       };
     };
 
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
+    networking.firewall.allowedTCPPorts = [cfg.port];
 
     campground.services.vault-agent.services.grafana = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets.environment.templates = {
