@@ -82,7 +82,7 @@ in
     services.grafana = {
       enable = true;
       provision = {
-        enable = true;
+        # enable = true;
         alerting = {
           rules = {
             settings = {
@@ -178,8 +178,7 @@ in
           auth_url = "https://${cfg.oidc-domain}/application/o/authorize/";
           token_url = "https://${cfg.oidc-domain}/application/o/token/";
           api_url = "https://${cfg.oidc-domain}/application/o/userinfo/";
-          # role_attribute_path =
-          #   "contains(groups, 'Grafana Admins') && 'Admin' || contains(groups, 'Grafana Editors') && 'Editor' || 'Viewer'";
+          role_attribute_path = "contains(groups, 'Grafana Admins') && 'Admin' || contains(groups, 'Grafana Editors') && 'Editor' || 'Editor'";
         };
         smtp = {
           enabled = true;
