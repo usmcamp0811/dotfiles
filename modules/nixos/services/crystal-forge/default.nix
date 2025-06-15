@@ -113,6 +113,7 @@ in {
     };
 
     systemd.services.crystal-forge-agent.preStart = ''
+
       mkdir -p /var/lib/crystal_forge/
       cp /tmp/detsys-vault/agent.key /var/lib/crystal_forge/agent.key
     '';
