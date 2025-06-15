@@ -11,7 +11,6 @@
 , unstable
 , nixidy
 , uv2nix
-, yazi
 , npmlock2nix
 , lib
 , ...
