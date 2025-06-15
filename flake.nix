@@ -207,7 +207,7 @@
     nixidy.url = "github:arnarg/nixidy";
     nix2container.url = "github:nlewo/nix2container";
 
-    yazi.url = "github:sxyazi/yazi/v25.5.31";
+    # yazi.url = "github:sxyazi/yazi/v25.5.31";
     bunny-yazi = {
       url = "github:stelcodes/bunny.yazi";
       flake = false;
@@ -372,7 +372,7 @@
         poetry2nix.overlays.default
         nix-topology.overlays.default
         funkwhale.overlays.default
-        yazi.overlays.default
+        # yazi.overlays.default
         k0s-nix.overlays.default
         crystal-forge.overlays.default
 
