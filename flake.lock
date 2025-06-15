@@ -569239,8 +569239,6 @@
         "updated-ollama": "updated-ollama_32",
         "uv2nix": "uv2nix_12",
         "vault-service": "vault-service_80",
-        "yatline-catppuccin-yazi": "yatline-catppuccin-yazi_8",
-        "yatline-yazi": "yatline-yazi_8",
         "yaziline-yazi": "yaziline-yazi_8",
         "zig2nix": "zig2nix_16"
       }
@@ -696319,22 +696317,6 @@
         "type": "github"
       }
     },
-    "yatline-catppuccin-yazi_8": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1741193477,
-        "narHash": "sha256-Wz53zjwFyflnxCIMjAv+nzcgDriJwVYBX81pFXJUzc4=",
-        "owner": "imsi32",
-        "repo": "yatline-catppuccin.yazi",
-        "rev": "8cc4773ecab8ee8995485d53897e1c46991a7fea",
-        "type": "github"
-      },
-      "original": {
-        "owner": "imsi32",
-        "repo": "yatline-catppuccin.yazi",
-        "type": "github"
-      }
-    },
     "yatline-yazi": {
       "flake": false,
       "locked": {
@@ -696439,22 +696421,6 @@
         "owner": "imsi32",
         "repo": "yatline.yazi",
         "rev": "2ecf715d33866e5f8a63af25f6a242821746ddb7",
-        "type": "github"
-      },
-      "original": {
-        "owner": "imsi32",
-        "repo": "yatline.yazi",
-        "type": "github"
-      }
-    },
-    "yatline-yazi_8": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1749709910,
-        "narHash": "sha256-RkQKZQAa5U9eMWk1Q0doueJZiuP4elUJ0dM1XKLSnDo=",
-        "owner": "imsi32",
-        "repo": "yatline.yazi",
-        "rev": "88bd1c58357d472fe7e8daf9904936771fc49795",
         "type": "github"
       },
       "original": {
