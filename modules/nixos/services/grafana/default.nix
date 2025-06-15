@@ -61,23 +61,23 @@ in
   };
 
   config = mkIf cfg.enable {
-    systemd.services.copy-grafana-dashboards = {
-      description = "Copy Grafana dashboards from Nix store to writable path";
-      wantedBy = [ "grafana.service" ];
-      before = [ "grafana.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart =
-          let
-            dashboardSrc = ./dashboards; # same as in your module
-          in
-          "${pkgs.bash}/bin/bash -c 'cp -r ${dashboardSrc}/* /var/lib/grafana/dashboards/'";
-      };
-    };
-
-    systemd.tmpfiles.rules = [
-      "d /var/lib/grafana/dashboards 0755 grafana grafana -"
-    ];
+    # systemd.services.copy-grafana-dashboards = {
+    #   description = "Copy Grafana dashboards from Nix store to writable path";
+    #   wantedBy = [ "grafana.service" ];
+    #   before = [ "grafana.service" ];
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     ExecStart =
+    #       let
+    #         dashboardSrc = ./dashboards; # same as in your module
+    #       in
+    #       "${pkgs.bash}/bin/bash -c 'cp -r ${dashboardSrc}/* /var/lib/grafana/dashboards/'";
+    #   };
+    # };
+    #
+    # systemd.tmpfiles.rules = [
+    #   "d /var/lib/grafana/dashboards 0755 grafana grafana -"
+    # ];
 
     services.grafana = {
       enable = true;
@@ -159,16 +159,9 @@ in
           settings = {
             apiVersion = 1;
 
-            providers = [
-              {
-                name = "local";
-                type = "file";
-                options.path = "/var/lib/grafana/dashboards";
-              }
-            ];
-            # providers =
-            #   cfg.dashboards
-            #   ++ dashboardProviders; # Combine dashboards
+            providers =
+              cfg.dashboards
+              ++ dashboardProviders; # Combine dashboards
           };
         };
       };
