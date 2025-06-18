@@ -92967,15 +92967,15 @@
     "eza-preview-yazi_8": {
       "flake": false,
       "locked": {
-        "lastModified": 1749392975,
-        "narHash": "sha256-T/j4sWV2R/NDYlmAzjoQfdXe9CEGfdXoJ6NOtukN300=",
-        "owner": "pierreay",
+        "lastModified": 1748833870,
+        "narHash": "sha256-Q8RwpzUkZkz8FKmG+z2v1Rn9NMnkbhu+z1n3cyc/NUk=",
+        "owner": "ahkohd",
         "repo": "eza-preview.yazi",
-        "rev": "c1d8e32cee381cdce91ac82c0f903f49ba55e019",
+        "rev": "7a93433fa6affbc6325d654b202b73914ac9d48f",
         "type": "github"
       },
       "original": {
-        "owner": "pierreay",
+        "owner": "ahkohd",
         "repo": "eza-preview.yazi",
         "type": "github"
       }
