@@ -241,7 +241,7 @@
     };
 
     eza-preview-yazi = {
-      url = "github:pierreay/eza-preview.yazi";
+      url = "github:ahkohd/eza-preview.yazi";
       flake = false;
     };
 
