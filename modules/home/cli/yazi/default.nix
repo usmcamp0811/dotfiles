@@ -64,7 +64,7 @@ in
         bunny = "${inputs.bunny-yazi}";
       };
       keymap = {
-        manager = {
+        mgr = {
           show_hidden = true;
           ratio = [ 1 2 5 ];
           show_symlink = true;
