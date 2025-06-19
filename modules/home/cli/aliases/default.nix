@@ -34,6 +34,7 @@ with lib.campground; let
     disable = "sudo systemctl disable";
     enable = "sudo systemctl enable";
     deploy-sys = "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
+    flake-update = ''${pkgs.nix}/bin/nix flake update --option access-tokens "github.com=$GITHUB_TOKEN"'';
     kill = ''
       [ $# -eq 0 ] && echo 'You need to specify whom to kill.' && return
             /usr/bin/kill $@'';
