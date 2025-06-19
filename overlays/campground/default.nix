@@ -80,6 +80,7 @@
     vaultwarden
     vault-bin
     vault
+    yazi
     lemmy-server
     lemmy-help
     pds
