@@ -287,6 +287,7 @@ in
           "local all postgres peer"
           "local atticd atticd trust"
           "host  crystal_forge  grafana  10.8.0.0/24  trust"
+          "host  crystal_forge  crystal_forge  127.0.0.1/32  trust"
           # "host  campgroundai  campgroundai  0.0.0.0/0 md5"
           "host  all  all  0.0.0.0/0  reject"
           "host  all  all  ::0/0  reject"
