@@ -290,6 +290,7 @@ in
           "host  crystal_forge  crystal_forge  127.0.0.1/32  trust"
           "host  postgres  crystal_forge  127.0.0.1/32  trust"
           "host  postgres  crystal_forge  ::1/128       trust"
+          "host  crystal_forge   crystal_forge   ::1/128     trust"
           # "host  campgroundai  campgroundai  0.0.0.0/0 md5"
           "host  all  all  0.0.0.0/0  reject"
           "host  all  all  ::0/0  reject"
