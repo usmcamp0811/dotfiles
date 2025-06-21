@@ -280,18 +280,6 @@
     };
 
     # TODO: Remove
-    # yatline-yazi = {
-    #   url = "github:imsi32/yatline.yazi";
-    #   flake = false;
-    # };
-
-    # TODO: Remove
-    # yatline-catppuccin-yazi = {
-    #   url = "github:imsi32/yatline-catppuccin.yazi";
-    #   flake = false;
-    # };
-
-    # TODO: Remove
     lazygit-yazi = {
       url = "github:Lil-Dank/lazygit.yazi";
       flake = false;
