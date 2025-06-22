@@ -2,6 +2,9 @@
   description = "Campground Config";
 
   inputs = {
+    process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
+    services-flake.url = "github:juspay/services-flake";
+
     crystal-forge.url = "git+ssh://git@gitlab.com/usmcamp0811/crystal-forge";
 
     zig2nix.url = "github:Cloudef/zig2nix";
