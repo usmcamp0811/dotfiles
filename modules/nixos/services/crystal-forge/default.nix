@@ -1,19 +1,19 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.crystal-forge;
 
   host = config.networking.hostName;
-in
-{
+in {
   options.campground.services.crystal-forge = {
     enable = mkEnableOption "Enable the Crystal Forge service(s)";
     log_level = lib.mkOption {
-      type = lib.types.enum [ "off" "error" "warn" "info" "debug" "trace" ];
+      type = lib.types.enum ["off" "error" "warn" "info" "debug" "trace"];
       default = "debug";
     };
     configPath = mkOption {
@@ -39,7 +39,7 @@ in
         default = null;
         description = "Optional path to a file containing the database password. Overrides 'password'.";
       };
-      dbname = mkOption {
+      name = mkOption {
         type = types.str;
         default = "crystal_forge";
       };
@@ -56,7 +56,7 @@ in
       };
       authorized_keys = mkOption {
         type = types.attrsOf types.str;
-        default = { };
+        default = {};
       };
     };
     client = {
@@ -73,23 +73,23 @@ in
     flakes = {
       watched = lib.mkOption {
         type = lib.types.attrsOf lib.types.str;
-        default = { dotfiles = "git+https://gitlab.com/usmcamp0811/dotfiles"; };
+        default = {dotfiles = "git+https://gitlab.com/usmcamp0811/dotfiles";};
         description = "Flakes to watch and auto-track (name → repo_url).";
       };
     };
     role-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/crystal-forge"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = types.enum [ "v1" "v2" ];
+      type = types.enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
