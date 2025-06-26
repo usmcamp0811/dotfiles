@@ -32,7 +32,7 @@ in {
     repositoryPath = mkOpt str "/var/lib/gitlab/repositories" "Git repositories path";
 
     # Package and user configuration
-    package = mkOpt package pkgs.gitlab-ee "GitLab package to use";
+    package = mkOpt package pkgs.gitlab "GitLab package to use";
     user = mkOpt str "gitlab" "User to run GitLab as";
     group = mkOpt str "gitlab" "Group to run GitLab as";
 
@@ -71,8 +71,17 @@ in {
     # Pages configuration
     pages = {
       enable = mkBoolOpt false "Enable GitLab Pages";
-      host = mkOpt str "pages.${cfg.host}" "Pages hostname";
-      port = mkOpt int 8090 "Pages port";
+      settings = mkOption {
+        type = attrs;
+        default = {};
+        description = "GitLab Pages settings";
+        example = literalExpression ''
+          {
+            pages-domain = "pages.example.com";
+            listen-proxy = ["127.0.0.1:8090"];
+          }
+        '';
+      };
     };
 
     # Vault integration
@@ -193,8 +202,7 @@ in {
       user = cfg.user;
       group = cfg.group;
       statePath = cfg.statePath;
-      backupPath = cfg.backupPath;
-      repositoryRoot = cfg.repositoryPath;
+      backup.path = cfg.backupPath;
       databaseHost = cfg.databaseHost;
       databaseName = cfg.databaseName;
       databaseUsername = cfg.databaseUsername;
@@ -230,8 +238,7 @@ in {
 
       pages = mkIf cfg.pages.enable {
         enable = true;
-        host = cfg.pages.host;
-        port = cfg.pages.port;
+        settings = cfg.pages.settings;
       };
 
       extraConfig =
@@ -247,6 +254,7 @@ in {
               container_registry = cfg.registry.enable;
             };
           };
+          repositories.storages.default.path = cfg.repositoryPath;
           production = {
             redis = {
               host = cfg.redisHost;
@@ -312,8 +320,7 @@ in {
         cfg.port
         cfg.sshPort
       ]
-      ++ optionals cfg.registry.enable [cfg.registry.port]
-      ++ optionals cfg.pages.enable [cfg.pages.port];
+      ++ optionals cfg.registry.enable [cfg.registry.port];
 
     # Vault agent configuration for secrets
     campground.services.vault-agent.services.setup-gitlab-secrets = {
