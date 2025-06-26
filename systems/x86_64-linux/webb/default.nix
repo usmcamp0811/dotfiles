@@ -1,6 +1,7 @@
-{ lib
-, pkgs
-, ...
+{
+  lib,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -18,16 +19,15 @@ with lib.campground; let
   #   # You need to obtain the port for each service dynamically if it varies; otherwise, specify it directly if constant
   #   url = "http://${host}:${cfg.port}"; # Replace PORT with the actual port or a method to retrieve it dynamically
   # }) searxEnabledSystems;
-in
-{
-  imports = [ ./hardware.nix ];
+in {
+  imports = [./hardware.nix];
 
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
     suites = {
@@ -68,16 +68,19 @@ in
       };
     };
 
-    tools = { attic = enabled; };
+    tools = {attic = enabled;};
 
     services = {
+      gitlab = {
+        enable = true;
+      };
       glusterfs = {
         enable = true;
-        peers = [ "reckless" "lucas" ];
+        peers = ["reckless" "lucas"];
         volumes = [
           {
             name = "kubernetes";
-            brickDirs = [ "/glusterfs/kubernetes" ];
+            brickDirs = ["/glusterfs/kubernetes"];
             replicaCount = 2;
             transport = "tcp";
           }
@@ -97,7 +100,7 @@ in
         enable = true;
         ui = true;
         auto-unseal = true;
-        snapshot = { enable = true; };
+        snapshot = {enable = true;};
         storage = {
           backend = "raft";
           config = ''
@@ -120,20 +123,20 @@ in
 
         policies =
           builtins.foldl'
-            (policies: file:
-              policies
-              // {
-                "${snowfall.path.get-file-name-without-extension file}" = file;
-              })
-            { }
-            (builtins.filter (snowfall.path.has-file-extension "hcl")
-              (builtins.map
-                (path:
-                  ./vault/policies
-                  + "/${
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          {}
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies
+                + "/${
                   builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
                 }")
-                (snowfall.fs.get-files ./vault/policies)));
+              (snowfall.fs.get-files ./vault/policies)));
       };
       remark42 = {
         enable = true;
@@ -180,8 +183,8 @@ in
       firefly = enabled;
       firefly-plaid-connector = enabled;
       campground-blog = enabled;
-      nextcloud = { enable = true; };
-      ldap-client = { enable = mkForce false; };
+      nextcloud = {enable = true;};
+      ldap-client = {enable = mkForce false;};
       uptime-kuma = enabled;
       grafana = {
         enable = true;
@@ -267,7 +270,7 @@ in
             startAt = "daily";
           };
           "webb_rsync" = {
-            extraArgs = [ "--remote-path=borg14" ];
+            extraArgs = ["--remote-path=borg14"];
             paths = [
               "/persist"
               "/webb/media/photos"
@@ -328,7 +331,7 @@ in
       };
       user-secrets = {
         enable = true;
-        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
+        users.mcamp = {files = ["id_ed25519" "passwords"];};
       };
 
       vault-agent = {
