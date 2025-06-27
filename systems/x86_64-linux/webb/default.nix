@@ -72,7 +72,7 @@ in {
 
     services = {
       gitlab = {
-        enable = true;
+        # enable = true;
       };
       glusterfs = {
         enable = true;
