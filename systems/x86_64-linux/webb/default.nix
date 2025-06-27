@@ -71,9 +71,6 @@ in {
     tools = {attic = enabled;};
 
     services = {
-      gitlab = {
-        # enable = true;
-      };
       glusterfs = {
         enable = true;
         peers = ["reckless" "lucas"];

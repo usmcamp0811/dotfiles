@@ -132,26 +132,9 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # User and group configuration
-    users = {
-      users = {
-        ${cfg.user} = {
-          description = "GitLab service user";
-          group = cfg.group;
-          isSystemUser = true;
-          home = cfg.statePath;
-          createHome = true;
-        };
-      };
-      groups = {
-        ${cfg.group} = {};
-      };
-    };
-
     # PostgreSQL configuration
     campground.services.postgresql = {
       enable = true;
-      enableTCPIP = false;
       authentication = [
         "local ${cfg.databaseName} ${cfg.databaseUsername} trust"
       ];
@@ -164,35 +147,35 @@ in {
     };
 
     # Redis configuration
-    services.redis.servers."" = {
-      enable = true;
-      port = cfg.redisPort;
-      bind = cfg.redisHost;
-    };
+    # services.redis.servers."" = {
+    #   enable = true;
+    #   port = cfg.redisPort;
+    #   bind = cfg.redisHost;
+    # };
 
     # Nginx reverse proxy
-    services.nginx = {
-      enable = true;
-      virtualHosts.${cfg.host} = {
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = cfg.port;
-          }
-        ];
-        locations."/" = {
-          proxyPass = "http://unix:/run/gitlab/gitlab-workhorse.socket";
-          extraConfig = ''
-            proxy_set_header Host $http_host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
-            proxy_redirect off;
-          '';
-        };
-      };
-    };
+    # services.nginx = {
+    #   enable = true;
+    #   virtualHosts.${cfg.host} = {
+    #     listen = [
+    #       {
+    #         addr = "0.0.0.0";
+    #         port = cfg.port;
+    #       }
+    #     ];
+    #     locations."/" = {
+    #       proxyPass = "http://unix:/run/gitlab/gitlab-workhorse.socket";
+    #       extraConfig = ''
+    #         proxy_set_header Host $http_host;
+    #         proxy_set_header X-Real-IP $remote_addr;
+    #         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #         proxy_set_header X-Forwarded-Proto $scheme;
+    #         proxy_cache_bypass $http_upgrade;
+    #         proxy_redirect off;
+    #       '';
+    #     };
+    #   };
+    # };
 
     # GitLab service configuration
     services.gitlab = {
@@ -214,6 +197,9 @@ in {
         otpFile = "/var/lib/vault/gitlab-otp";
         dbFile = "/var/lib/vault/gitlab-db-secret";
         jwsFile = "/var/lib/vault/gitlab-jws";
+        activeRecordPrimaryKeyFile = "/var/lib/vault/gitlab-ar-primary";
+        activeRecordDeterministicKeyFile = "/var/lib/vault/gitlab-ar-deterministic";
+        activeRecordSaltFile = "/var/lib/vault/gitlab-ar-salt";
       };
 
       smtp = mkIf cfg.smtp.enable {
@@ -265,27 +251,6 @@ in {
         cfg.extraConfig;
     };
 
-    # Backup service
-    systemd.services.gitlab-backup = mkIf cfg.backup.enable {
-      description = "GitLab backup service";
-      serviceConfig = {
-        Type = "oneshot";
-        User = cfg.user;
-        Group = cfg.group;
-        ExecStart = "${cfg.package}/bin/gitlab-backup create SKIP=registry";
-        ExecStartPost = "${pkgs.bash}/bin/bash -c 'find ${cfg.backupPath} -name \"*gitlab_backup.tar\" -mtime +${toString cfg.backup.keep} -delete'";
-      };
-    };
-
-    systemd.timers.gitlab-backup = mkIf cfg.backup.enable {
-      description = "GitLab backup timer";
-      wantedBy = ["timers.target"];
-      timerConfig = {
-        OnCalendar = cfg.backup.startAt;
-        Persistent = true;
-      };
-    };
-
     # Setup GitLab secrets from Vault
     systemd.services.setup-gitlab-secrets = {
       description = "Setup GitLab secrets from Vault";
@@ -306,6 +271,10 @@ in {
         cp /tmp/detsys-vault/gitlab-otp /var/lib/vault/
         cp /tmp/detsys-vault/gitlab-db-secret /var/lib/vault/
         cp /tmp/detsys-vault/gitlab-jws /var/lib/vault/
+        cp /tmp/detsys-vault/gitlab-ar-primary /var/lib/vault/
+        cp /tmp/detsys-vault/gitlab-ar-deterministic /var/lib/vault/
+        cp /tmp/detsys-vault/gitlab-ar-salt /var/lib/vault/
+
         ${optionalString cfg.smtp.enable "cp /tmp/detsys-vault/gitlab-smtp-password /var/lib/vault/"}
 
         # Set correct permissions
@@ -381,6 +350,29 @@ in {
               "gitlab-jws" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.jws_private_key }}{{ else }}{{ .Data.data.jws_private_key }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+              "gitlab-ar-primary" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.active_record_primary_key }}{{ else }}{{ .Data.data.active_record_primary_key }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+
+              "gitlab-ar-deterministic" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.active_record_deterministic_key }}{{ else }}{{ .Data.data.active_record_deterministic_key }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+
+              "gitlab-ar-salt" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.active_record_encryption_salt }}{{ else }}{{ .Data.data.active_record_encryption_salt }}{{ end }}{{ end }}
                 '';
                 permissions = "0600";
                 change-action = "restart";
