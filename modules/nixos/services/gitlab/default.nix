@@ -1,13 +1,13 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.gitlab;
-in {
+in
+{
   options.campground.services.gitlab = with types; {
     enable = mkBoolOpt false "Enable GitLab;";
 
@@ -32,7 +32,7 @@ in {
     repositoryPath = mkOpt str "/var/lib/gitlab/repositories" "Git repositories path";
 
     # Package and user configuration
-    package = mkOpt package pkgs.gitlab "GitLab package to use";
+    package = mkOpt package pkgs.gitlab-ee "GitLab package to use";
     user = mkOpt str "gitlab" "User to run GitLab as";
     group = mkOpt str "gitlab" "Group to run GitLab as";
 
@@ -73,7 +73,7 @@ in {
       enable = mkBoolOpt false "Enable GitLab Pages";
       settings = mkOption {
         type = attrs;
-        default = {};
+        default = { };
         description = "GitLab Pages settings";
         example = literalExpression ''
           {
@@ -87,15 +87,15 @@ in {
     # Vault integration
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/gitlab"
-      "The Vault path to the KV containing GitLab secrets";
+        "The Vault path to the KV containing GitLab secrets";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -108,7 +108,7 @@ in {
     # Extra configuration
     extraConfig = mkOption {
       type = attrs;
-      default = {};
+      default = { };
       description = "Extra GitLab configuration";
       example = literalExpression ''
         {
@@ -154,28 +154,20 @@ in {
     # };
 
     # Nginx reverse proxy
-    # services.nginx = {
-    #   enable = true;
-    #   virtualHosts.${cfg.host} = {
-    #     listen = [
-    #       {
-    #         addr = "0.0.0.0";
-    #         port = cfg.port;
-    #       }
-    #     ];
-    #     locations."/" = {
-    #       proxyPass = "http://unix:/run/gitlab/gitlab-workhorse.socket";
-    #       extraConfig = ''
-    #         proxy_set_header Host $http_host;
-    #         proxy_set_header X-Real-IP $remote_addr;
-    #         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #         proxy_set_header X-Forwarded-Proto $scheme;
-    #         proxy_cache_bypass $http_upgrade;
-    #         proxy_redirect off;
-    #       '';
-    #     };
-    #   };
-    # };
+
+    services.nginx = {
+      enable = true;
+      virtualHosts.${cfg.host} = {
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }
+        ];
+
+        locations."/".proxyPass = "http://unix:/run/gitlab/gitlab-workhorse.socket";
+      };
+    };
 
     # GitLab service configuration
     services.gitlab = {
@@ -192,6 +184,7 @@ in {
       databasePasswordFile = "/var/lib/vault/gitlab-db-password";
       initialRootEmail = cfg.initialRootEmail;
       initialRootPasswordFile = "/var/lib/vault/gitlab-root-password";
+      packages.gitlab = cfg.package;
       secrets = {
         secretFile = "/var/lib/vault/gitlab-secret";
         otpFile = "/var/lib/vault/gitlab-otp";
@@ -228,35 +221,36 @@ in {
       };
 
       extraConfig =
-        recursiveUpdate {
-          gitlab = {
-            time_zone = "America/Chicago";
-            default_projects_features = {
-              issues = true;
-              merge_requests = true;
-              wiki = true;
-              snippets = true;
-              builds = true;
-              container_registry = cfg.registry.enable;
+        recursiveUpdate
+          {
+            gitlab = {
+              time_zone = "America/Chicago";
+              default_projects_features = {
+                issues = true;
+                merge_requests = true;
+                wiki = true;
+                snippets = true;
+                builds = true;
+                container_registry = cfg.registry.enable;
+              };
             };
-          };
-          repositories.storages.default.path = cfg.repositoryPath;
-          production = {
-            redis = {
-              host = cfg.redisHost;
-              port = cfg.redisPort;
+            repositories.storages.default.path = cfg.repositoryPath;
+            production = {
+              redis = {
+                host = cfg.redisHost;
+                port = cfg.redisPort;
+              };
             };
-          };
-        }
-        cfg.extraConfig;
+          }
+          cfg.extraConfig;
     };
 
     # Setup GitLab secrets from Vault
     systemd.services.setup-gitlab-secrets = {
       description = "Setup GitLab secrets from Vault";
-      wantedBy = ["multi-user.target"];
-      before = ["gitlab.service"];
-      after = ["postgresql.service"];
+      wantedBy = [ "multi-user.target" ];
+      before = [ "gitlab.service" ];
+      after = [ "postgresql.service" ];
       serviceConfig = {
         Type = "oneshot";
         User = "root";
@@ -289,7 +283,7 @@ in {
         cfg.port
         cfg.sshPort
       ]
-      ++ optionals cfg.registry.enable [cfg.registry.port];
+      ++ optionals cfg.registry.enable [ cfg.registry.port ];
 
     # Vault agent configuration for secrets
     campground.services.vault-agent.services.setup-gitlab-secrets = {

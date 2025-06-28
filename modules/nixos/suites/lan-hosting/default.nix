@@ -315,6 +315,17 @@ in
               loadBalancer.servers = [{ url = "http://pivm"; }];
             };
 
+            http.routers.gitlab = {
+              rule = "Host(`gitlab.lan.aicampground.com`)";
+              entryPoints = [ "websecure" ];
+              service = "gitlab";
+              middlewares = [ "ip-whitelist" ];
+            };
+
+            http.services.gitlab = {
+              loadBalancer.servers = [{ url = "http://chesty:8443"; }];
+            };
+
             http.routers.sonar = {
               rule = "Host(`sonar.lan.aicampground.com`)";
               entryPoints = [ "websecure" ];
