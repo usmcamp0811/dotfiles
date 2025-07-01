@@ -1,8 +1,9 @@
-{ pkgs
-, config
-, lib
-, inputs
-, ...
+{
+  pkgs,
+  config,
+  lib,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -12,29 +13,28 @@ with lib.campground; let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
-  imports = [ ./hardware.nix ];
-  boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+in {
+  imports = [./hardware.nix];
+  boot.kernelParams = ["pcie_port_pm=off" "pcie_aspm.policy=performance"];
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
   systemd.services.proton-socat-smtp = {
     description = "Socat Service for Proton Bridge SMTP Port Forwarding";
-    after = [ "network.target" ];
+    after = ["network.target"];
     serviceConfig = {
       ExecStart = "${pkgs.socat}/bin/socat TCP4-LISTEN:587,fork TCP4:127.0.0.1:1025";
       Restart = "always";
     };
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = ["multi-user.target"];
   };
 
   systemd.services.proton-socat-imap = {
     description = "Socat Service for Proton Bridge IMAP Port Forwarding";
-    after = [ "network.target" ];
+    after = ["network.target"];
     serviceConfig = {
       ExecStart = "${pkgs.socat}/bin/socat TCP4-LISTEN:143,fork TCP4:127.0.0.1:1143";
       Restart = "always";
     };
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = ["multi-user.target"];
   };
 
   campground = {
@@ -42,7 +42,7 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
 
@@ -82,12 +82,12 @@ in
       };
     };
 
-    apps = { steam = enabled; };
-    nfs.client = { enable = true; };
+    apps = {steam = enabled;};
+    nfs.client = {enable = true;};
 
     hardware = {
       ckb-next = enabled;
-      ups.cp1500 = { enable = true; };
+      ups.cp1500 = {enable = true;};
       nvidia = {
         enable = true;
       };
@@ -100,30 +100,100 @@ in
         flakes.watched = {
           dotfiles = "https://gitlab.com/usmcamp0811/dotfiles";
         };
-        server = {
+        crystal-forge = {
           enable = true;
-          port = 3444;
-          authorized_keys = {
-            gray = "hUwxCZUFydwDjf8BMyXLyMiI33PrKvhfDRj60OkisdY=";
-            reckless = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
-            webb = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
-            lucas = "OMxvf/rZmi8PZJOpVxjbPHDaX+BmJqp8FUOoosWJ7qY=";
-            chesty = "Asu0Fl8SsM9Pd/woHt5qkvBdCbye6j2Q2M/qDmnFUjc=";
-            daly = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
-            ermy = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
-            butler = "rbMIke0a5emtaPc7MKgwqEn/UL3e0yyKUn5zHy3Ct/c=";
-            mattis = "vfRbvu/rl1c9+zqMRHzCKMrqpchahyf5qFDUaJyj3eg=";
+          # log_level = "debug"; # Added explicit log level
+
+          # Updated flakes structure - now uses list format
+          flakes.watched = [
+            {
+              name = "dotfiles";
+              repo_url = "git+https://gitlab.com/usmcamp0811/dotfiles"; # Added git+ prefix and updated URL
+            }
+          ];
+
+          # Updated systems configuration (new requirement)
+          systems = [
+            {
+              hostname = "gray";
+              public_key = "hUwxCZUFydwDjf8BMyXLyMiI33PrKvhfDRj60OkisdY=";
+              environment = "dev"; # You can change this as needed
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "reckless";
+              public_key = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "webb";
+              public_key = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "lucas";
+              public_key = "OMxvf/rZmi8PZJOpVxjbPHDaX+BmJqp8FUOoosWJ7qY=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "chesty";
+              public_key = "Asu0Fl8SsM9Pd/woHt5qkvBdCbye6j2Q2M/qDmnFUjc=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "daly";
+              public_key = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "ermy";
+              public_key = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "butler";
+              public_key = "rbMIke0a5emtaPc7MKgwqEn/UL3e0yyKUn5zHy3Ct/c=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+            {
+              hostname = "mattis";
+              public_key = "vfRbvu/rl1c9+zqMRHzCKMrqpchahyf5qFDUaJyj3eg=";
+              environment = "dev";
+              flake_name = "dotfiles";
+            }
+          ];
+
+          server = {
+            enable = true;
+            host = "0.0.0.0"; # Added explicit host
+            port = 3444; # Kept your custom port
+            # Note: authorized_keys moved to systems configuration above
+          };
+
+          # Database configuration (using defaults)
+          database = {
+            host = "localhost";
+            user = "crystal_forge";
+            name = "crystal_forge";
+            # password defaults handled by module
           };
         };
       };
       glusterfs = {
         enable = true;
         # peers = ["webb"];
-        peers = [ "reckless" "lucas" ];
+        peers = ["reckless" "lucas"];
         volumes = [
           {
             name = "kubernetes";
-            brickDirs = [ "/glusterfs/kubernetes" ];
+            brickDirs = ["/glusterfs/kubernetes"];
             replicaCount = 2;
             transport = "tcp";
           }
@@ -211,7 +281,7 @@ in
         # host = "0.0.0.0";
       };
       file-share = enabled;
-      ldap-client = { enable = mkForce false; };
+      ldap-client = {enable = mkForce false;};
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       # hadoop = {
@@ -266,8 +336,8 @@ in
             "avg-size" = 65536; # 64 KiB
             "max-size" = 262144; # 256 KiB
           };
-          compression = { type = "zstd"; };
-          garbage-collection = { interval = "144 hours"; };
+          compression = {type = "zstd";};
+          garbage-collection = {interval = "144 hours";};
         };
       };
 
@@ -314,7 +384,7 @@ in
       user-secrets = {
         enable = true;
         users = {
-          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
+          mcamp = {files = ["id_ed25519" "passwords" "kubeconfig"];};
         };
       };
 
