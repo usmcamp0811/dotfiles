@@ -54,10 +54,6 @@ in {
         type = types.port;
         default = 3000;
       };
-      authorized_keys = mkOption {
-        type = types.attrsOf types.str;
-        default = {};
-      };
     };
     client = {
       enable = mkEnableOption "Enable the Crystal Forge Agent";
@@ -72,11 +68,63 @@ in {
     };
     flakes = {
       watched = lib.mkOption {
-        type = lib.types.attrsOf lib.types.str;
-        default = {dotfiles = "git+https://gitlab.com/usmcamp0811/dotfiles";};
-        description = "Flakes to watch and auto-track (name → repo_url).";
+        type = lib.types.listOf (lib.types.submodule {
+          options = {
+            name = lib.mkOption {
+              type = lib.types.str;
+              description = "Name identifier for the flake";
+            };
+            repo_url = lib.mkOption {
+              type = lib.types.str;
+              description = "Repository URL of the flake";
+            };
+          };
+        });
+        default = [];
+        description = "List of flakes to watch for changes";
+        example = [
+          {
+            name = "dotfiles";
+            repo_url = "git+https://gitlab.com/usmcamp0811/dotfiles";
+          }
+        ];
       };
     };
+
+    systems = lib.mkOption {
+      type = lib.types.listOf (lib.types.submodule {
+        options = {
+          hostname = lib.mkOption {
+            type = lib.types.str;
+            description = "System hostname";
+          };
+          public_key = lib.mkOption {
+            type = lib.types.str;
+            description = "Base64-encoded Ed25519 public key";
+          };
+          environment = lib.mkOption {
+            type = lib.types.str;
+            description = "Environment name (e.g., dev, prod, staging)";
+          };
+          flake_name = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Reference to a flake name from flakes.watched";
+          };
+        };
+      });
+      default = [];
+      description = "Systems to register with Crystal Forge";
+      example = [
+        {
+          hostname = "myhost";
+          public_key = "base64encodedkey";
+          environment = "production";
+          flake_name = "dotfiles";
+        }
+      ];
+    };
+
     role-id =
       mkOpt types.str
       config.campground.services.vault-agent.settings.vault.role-id
@@ -110,6 +158,7 @@ in {
         database
         server
         flakes
+        systems
         ;
       client = {
         inherit (cfg.client) server_port server_host enable;
