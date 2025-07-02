@@ -203,7 +203,36 @@ in {
         private_key = "/var/lib/crystal-forge/agent.key";
       };
     };
+    systemd.services.crystal-forge-agent.path = with pkgs; [
+      # Existing
+      coreutils
+      zfs
 
+      # For filesystem data (df, mount, findmnt, lsblk)
+      util-linux
+
+      # For network interface data (ip, ifconfig)
+      iproute2
+      nettools
+
+      # For system info (lscpu, lsmem, dmidecode)
+      pciutils
+      usbutils
+      dmidecode
+
+      # For process/memory info (ps, top, free)
+      procps
+
+      # For disk info (fdisk, parted)
+      parted
+
+      # General system utilities
+      systemd
+      gawk
+      gnused
+      gnugrep
+      findutils
+    ];
     systemd.services.crystal-forge-agent.preStart = ''
 
       mkdir -p /var/lib/crystal-forge/
