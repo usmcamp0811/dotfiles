@@ -200,14 +200,14 @@ in {
         ;
       client = {
         inherit (cfg.client) server_port server_host enable;
-        private_key = "/var/lib/crystal_forge/agent.key";
+        private_key = "/var/lib/crystal-forge/agent.key";
       };
     };
 
     systemd.services.crystal-forge-agent.preStart = ''
 
-      mkdir -p /var/lib/crystal_forge/
-      cp /tmp/detsys-vault/agent.key /var/lib/crystal_forge/agent.key
+      mkdir -p /var/lib/crystal-forge/
+      cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
     '';
 
     campground.services = {
