@@ -203,6 +203,11 @@ in {
         private_key = "/var/lib/crystal-forge/agent.key";
       };
     };
+
+    systemd.services.crystal-forge-server.path = with pkgs; [
+      nix
+      git
+    ];
     systemd.services.crystal-forge-agent.path = with pkgs; [
       # Existing
       coreutils
