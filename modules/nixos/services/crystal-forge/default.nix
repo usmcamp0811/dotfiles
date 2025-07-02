@@ -208,6 +208,11 @@ in {
       nix
       git
     ];
+    systemd.services.crystal-forge-server.environment = {
+      RUST_LOG = cfg.log_level;
+      NIX_USER_CACHE_DIR = "/var/lib/crystal-forge/.cache/nix";
+    };
+
     systemd.services.crystal-forge-server.serviceConfig = {
       StateDirectory = "crystal-forge";
       User = mkForce "root";
