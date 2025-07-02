@@ -215,8 +215,8 @@ in {
 
     systemd.services.crystal-forge-server.serviceConfig = {
       StateDirectory = "crystal-forge";
-      User = mkForce "root";
-      Group = mkForce "root";
+      # User = mkForce "root";
+      # Group = mkForce "root";
       ProtectSystem = mkForce "no";
     };
 
