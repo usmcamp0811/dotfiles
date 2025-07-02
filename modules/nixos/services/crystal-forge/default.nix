@@ -212,6 +212,7 @@ in {
       StateDirectory = "crystal-forge";
       User = mkDefault "root";
       Group = mkDefault "root";
+      ProtectSystem = mkDefault "no";
     };
 
     systemd.services.crystal-forge-agent.path = with pkgs; [
