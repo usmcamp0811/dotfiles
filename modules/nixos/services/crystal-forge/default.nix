@@ -210,9 +210,9 @@ in {
     ];
     systemd.services.crystal-forge-server.serviceConfig = {
       StateDirectory = "crystal-forge";
-      User = mkDefault "root";
-      Group = mkDefault "root";
-      ProtectSystem = mkDefault "no";
+      User = mkForce "root";
+      Group = mkForce "root";
+      ProtectSystem = mkForce "no";
     };
 
     systemd.services.crystal-forge-agent.path = with pkgs; [
