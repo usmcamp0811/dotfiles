@@ -209,8 +209,9 @@ in {
       git
     ];
     systemd.services.crystal-forge-server.serviceConfig = {
-      User = "crystal-forge";
       StateDirectory = "crystal-forge";
+      User = mkDefault "root";
+      Group = mkDefault "root";
     };
 
     systemd.services.crystal-forge-agent.path = with pkgs; [
