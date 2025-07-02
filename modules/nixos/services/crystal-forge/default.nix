@@ -208,6 +208,11 @@ in {
       nix
       git
     ];
+    systemd.services.crystal-forge-server.serviceConfig = {
+      User = "crystal-forge";
+      StateDirectory = "crystal-forge";
+    };
+
     systemd.services.crystal-forge-agent.path = with pkgs; [
       # Existing
       coreutils
