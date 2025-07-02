@@ -220,6 +220,7 @@ in {
       ProtectSystem = mkForce "no";
     };
 
+    nix.settings.allowed-users = ["root" "crystal-forge"];
     systemd.services.crystal-forge-agent.path = with pkgs; [
       # Existing
       coreutils
