@@ -204,55 +204,7 @@ in {
       };
     };
 
-    systemd.services.crystal-forge-server.path = with pkgs; [
-      nix
-      git
-    ];
-    systemd.services.crystal-forge-server.environment = {
-      RUST_LOG = cfg.log_level;
-      NIX_USER_CACHE_DIR = "/var/lib/crystal-forge/.cache/nix";
-    };
-
-    systemd.services.crystal-forge-server.serviceConfig = {
-      StateDirectory = "crystal-forge";
-      # User = mkForce "root";
-      # Group = mkForce "root";
-      ProtectSystem = mkForce "no";
-    };
-
-    nix.settings.allowed-users = ["root" "crystal-forge"];
-    systemd.services.crystal-forge-agent.path = with pkgs; [
-      # Existing
-      coreutils
-      zfs
-
-      # For filesystem data (df, mount, findmnt, lsblk)
-      util-linux
-
-      # For network interface data (ip, ifconfig)
-      iproute2
-      nettools
-
-      # For system info (lscpu, lsmem, dmidecode)
-      pciutils
-      usbutils
-      dmidecode
-
-      # For process/memory info (ps, top, free)
-      procps
-
-      # For disk info (fdisk, parted)
-      parted
-
-      # General system utilities
-      systemd
-      gawk
-      gnused
-      gnugrep
-      findutils
-    ];
     systemd.services.crystal-forge-agent.preStart = ''
-
       mkdir -p /var/lib/crystal-forge/
       cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
     '';
