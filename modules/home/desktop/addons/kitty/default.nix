@@ -29,6 +29,14 @@ in
         size = 11;
       };
       settings = {
+        clipboard_control = "write-clipboard write-primary read-clipboard read-primary";
+        # Other useful settings for remote work
+        allow_remote_control = "yes";
+        listen_on = "unix:/tmp/mykitty";
+
+        # Performance for remote connections
+        sync_to_monitor = "no";
+
         # Fonts
         italic_font = "SourceCodePro";
 
@@ -41,10 +49,6 @@ in
 
         # Color scheme
         background_opacity = "0.85";
-
-        # Advanced
-        allow_remote_control = "yes";
-        # listen_on = "/tmp/mykitty";
       };
     };
   };
