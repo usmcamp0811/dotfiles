@@ -66,7 +66,7 @@ Here's an overview of what my Nix configuration offers:
 
 ## Customization
 
-Leveraging the SnowfallOrg lib architecture, my Nix setup offers a streamlined and well-organized way to handle your Nix ecosystem. Here’s the breakdown:
+Leveraging the Snowfall Org lib architecture, my Nix setup offers a streamlined and well-organized way to handle your Nix ecosystem. Here’s the breakdown:
 
 - **Custom Library**: Located in the `lib/` folder, an optional custom library features a Nix function that utilizes `inputs`, `snowfall-inputs`, and `lib` to return an attribute set that merges with `lib`.
 
