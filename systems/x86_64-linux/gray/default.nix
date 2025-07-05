@@ -55,13 +55,6 @@ in
       ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       netbird.client = enabled;
-      # wireguard-client = {
-      #   enable = true;
-      #   port = 1149;
-      #   ips = [ "10.100.0.2/32" ];
-      #   ip = "10.100.0.2/32";
-      #   publicKey = "uMOWdQXLQL7QHstypM/yrSw1kTpMZKysRA/SxSjAZwA=";
-      # };
       user-secrets = {
         enable = true;
         users = {
