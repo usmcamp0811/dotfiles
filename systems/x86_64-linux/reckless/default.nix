@@ -97,11 +97,11 @@ in {
     services = {
       crystal-forge = {
         enable = true;
-        log_level = "info"; # Added explicit log level
+        log_level = "info";
         flakes.watched = [
           {
             name = "dotfiles";
-            repo_url = "https://gitlab.com/usmcamp0811/dotfiles"; # Added git+ prefix and updated URL
+            repo_url = "https://gitlab.com/usmcamp0811/dotfiles";
           }
         ];
 
