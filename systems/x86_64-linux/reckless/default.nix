@@ -101,7 +101,7 @@ in {
         flakes.watched = [
           {
             name = "dotfiles";
-            repo_url = "git+https://gitlab.com/usmcamp0811/dotfiles"; # Added git+ prefix and updated URL
+            repo_url = "https://gitlab.com/usmcamp0811/dotfiles"; # Added git+ prefix and updated URL
           }
         ];
 
