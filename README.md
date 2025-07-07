@@ -25,7 +25,7 @@
 
 </div>
 
-Welcome to AI Campground, your gateway to my personalized Nix ecosystem. This repository serves as a comprehensive collection of both my NixOS and generic Nix configurations, as I transition from traditional dotfiles. The migration is a work in progress, but the goal is a cohesive, well-documented Nix setup. Throughout this evolution, I'm committed to providing detailed READMEs to share my journey, insights, and solutions to challenges encountered.
+Welcome to AI Campground, your gateway to my personalized Nix ecosystem. This repository is a comprehensive collection of my NixOS and generic Nix configurations, forming a cohesive, well-documented setup. I’m committed to providing detailed READMEs to share my journey, insights, and solutions to challenges encountered along the way.
 
 ## Getting Started
 
