@@ -209,18 +209,18 @@ in {
       cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
     '';
 
-    systemd.services.crystal-forge-server.preStart = ''
-      mkdir -p /var/lib/crystal-forge/
-      chown -R crystal-forge:crystal-forge /var/lib/crystal-forge/
-      ${pkgs.postgresql_16}/bin/psql -U postgres -d crystal_forge <<SQL
-      GRANT CONNECT ON DATABASE crystal_forge TO grafana;
-      GRANT USAGE ON SCHEMA public TO grafana;
-      GRANT SELECT ON ALL TABLES IN SCHEMA public TO grafana;
-      GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO grafana;
-      ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO grafana;
-      ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON SEQUENCES TO grafana;
-      SQL
-    '';
+    # systemd.services.crystal-forge-server.preStart = ''
+    #   mkdir -p /var/lib/crystal-forge/
+    #   chown -R crystal-forge:crystal-forge /var/lib/crystal-forge/
+    #   ${pkgs.postgresql_16}/bin/psql -U postgres -d crystal_forge <<SQL
+    #   GRANT CONNECT ON DATABASE crystal_forge TO grafana;
+    #   GRANT USAGE ON SCHEMA public TO grafana;
+    #   GRANT SELECT ON ALL TABLES IN SCHEMA public TO grafana;
+    #   GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO grafana;
+    #   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO grafana;
+    #   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON SEQUENCES TO grafana;
+    #   SQL
+    # '';
 
     campground.services = {
       vault-agent = {
