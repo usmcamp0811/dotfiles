@@ -207,6 +207,10 @@ in {
     systemd.services.crystal-forge-agent.preStart = ''
       mkdir -p /var/lib/crystal-forge/
       cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
+    '';
+
+    systemd.services.crystal-forge-server.preStart = ''
+      mkdir -p /var/lib/crystal-forge/
       chown -R crystal-forge:crystal-forge /var/lib/crystal-forge/
       ${pkgs.postgresql_16}/bin/psql -U postgres -d crystal_forge <<SQL
       GRANT CONNECT ON DATABASE crystal_forge TO grafana;
