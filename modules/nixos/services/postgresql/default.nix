@@ -90,7 +90,7 @@ in
     services.postgresql = {
       enable = true;
       package = cfg.package;
-      extensions = ps: cfg.extraPlugins;
+      extensions = cfg.extraPlugins;
       enableTCPIP = cfg.enableTCPIP;
       authentication = lib.concatStringsSep "\n" cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
