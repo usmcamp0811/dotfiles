@@ -351,9 +351,15 @@ in
 
       postgresql = {
         enable = true;
-        package = pkgs.postgresql_17;
-        extraPlugins = [ pkgs.postgresql17Packages.timescaledb pkgs.postgresql17Packages.pg_cron ];
+        package = pkgs.postgresql_16;
+        extraPlugins = [ pkgs.postgresql16Packages.timescaledb pkgs.postgresql16Packages.pg_cron ];
         enableTCPIP = true;
+        settings = {
+          shared_preload_libraries = "pg_cron,timescaledb";
+          "cron.database_name" = "postgres";
+          max_connections = 200;
+          log_statement = "all"; # or "none", "ddl", "mod"
+        };
         databases = [
           {
             name = "atticd";
