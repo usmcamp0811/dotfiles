@@ -29,6 +29,33 @@ in
       default = config.campground.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+    settings = mkOption {
+      type = lib.types.attrsOf (lib.types.oneOf [
+        lib.types.bool
+        lib.types.int
+        lib.types.float
+        lib.types.str
+      ]);
+      default = {
+        shared_preload_libraries = "timescaledb";
+      };
+      example = {
+        shared_preload_libraries = "pg_cron,timescaledb";
+        "cron.database_name" = "postgres";
+        max_connections = 200;
+        log_statement = "all";
+      };
+      description = lib.mdDoc ''
+        PostgreSQL configuration settings. These are passed directly to the
+        services.postgresql.settings option.
+
+        Common settings include:
+        - shared_preload_libraries: Extensions that need to be preloaded
+        - max_connections: Maximum number of concurrent connections
+        - log_statement: What statements to log (none, ddl, mod, all)
+        - cron.database_name: Database for pg_cron (if using pg_cron)
+      '';
+    };
     databases = mkOption {
       type = listOf (submodule {
         options = {
@@ -94,6 +121,7 @@ in
       enableTCPIP = cfg.enableTCPIP;
       authentication = lib.concatStringsSep "\n" cfg.authentication;
       ensureDatabases = map (db: db.name) cfg.databases;
+      settings = cfg.settings; # Use the configurable settings
       ensureUsers =
         map
           (db: {
