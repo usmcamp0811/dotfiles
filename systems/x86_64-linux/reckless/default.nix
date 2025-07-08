@@ -351,6 +351,7 @@ in {
 
       postgresql = {
         enable = true;
+        extraPlugins = [pkgs.postgresql16Packages.pg_cron];
         enableTCPIP = true;
         databases = [
           {
