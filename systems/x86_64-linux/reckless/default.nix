@@ -351,7 +351,8 @@ in
 
       postgresql = {
         enable = true;
-        extraPlugins = [ pkgs.postgresql16Packages.pg_cron ];
+        package = pkgs.postgresql_17;
+        extraPlugins = [ pkgs.postgresql17Packages.timescaledb pkgs.postgresql17Packages.pg_cron ];
         enableTCPIP = true;
         databases = [
           {
