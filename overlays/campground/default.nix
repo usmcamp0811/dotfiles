@@ -108,6 +108,7 @@
     inkscape
     sway-unwrapped
     wrapGAppsHook
+    switch-to-configuration-ng
     # xdg-desktop-portal
     ;
   inherit (channels.prev-nixpkgs) input-leap;
