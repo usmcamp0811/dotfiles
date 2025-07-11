@@ -1,13 +1,13 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.hyprland;
-in
-{
+in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -31,7 +31,7 @@ in
           ];
         };
 
-        debug = { disable_logs = false; };
+        debug = {disable_logs = false;};
 
         decoration = {
           active_opacity = 0.95;
@@ -65,7 +65,7 @@ in
           # no_cursor_warps = true;
         };
 
-        xwayland = { force_zero_scaling = true; };
+        xwayland = {force_zero_scaling = true;};
 
         cursor.no_hardware_cursors = 1;
         gestures = {
@@ -115,7 +115,6 @@ in
         # default applications
         "$term" = "${getExe pkgs.kitty}";
         "$browser" = "${getExe pkgs.brave}";
-        "$mail" = "${getExe pkgs.thunderbird}";
         "$editor" = "${getExe pkgs.neovim}";
         "$explorer" = "${getExe pkgs.xfce.thunar}";
         "$music" = "${getExe pkgs.spotify}";

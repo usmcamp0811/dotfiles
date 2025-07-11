@@ -1,10 +1,11 @@
-{ inputs
-, lib
-, pkgs
-, config
-, osConfig ? { }
-, format ? "unknown"
-, ...
+{
+  inputs,
+  lib,
+  pkgs,
+  config,
+  osConfig ? {},
+  format ? "unknown",
+  ...
 }:
 with lib;
 with lib.campground; {
@@ -21,7 +22,7 @@ with lib.campground; {
       display-name = "HDMI-A-2";
     };
     services.protonmail-bridge = enabled;
-    apps.thunderbird = enabled;
+    # apps.thunderbird = enabled;
     tools.beets = enabled;
     tools.spotdl = enabled;
   };
