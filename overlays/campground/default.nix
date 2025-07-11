@@ -1,29 +1,30 @@
-{ kube-gen
-, funkwhale
-, comma
-, process-compose-flake
-, campground-nvim
-, nixhelm
-, nixtheplanet
-, old-nixpkgs
-, nixpkgs
-, channels
-, unstable
-, nixidy
-, uv2nix
-, npmlock2nix
-, lib
-, ...
+{
+  kube-gen,
+  funkwhale,
+  comma,
+  process-compose-flake,
+  campground-nvim,
+  nixhelm,
+  nixtheplanet,
+  old-nixpkgs,
+  nixpkgs,
+  channels,
+  unstable,
+  nixidy,
+  uv2nix,
+  npmlock2nix,
+  lib,
+  ...
 }: final: prev:
 {
-  services-flake = import process-compose-flake.lib { pkgs = final; };
+  services-flake = import process-compose-flake.lib {pkgs = final;};
   nixhelmCharts = lib.fix (
     self:
-    lib.mapAttrs
+      lib.mapAttrs
       (
         repo: charts:
           lib.mapAttrs (_chart: drv: drv)
-            charts
+          charts
       )
       nixhelm.chartsDerivations.${prev.system}
   );
@@ -70,7 +71,7 @@
   mkYarnPackage =
     old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
 }
-  // {
+// {
   inherit (comma.packages.${final.system}) comma;
   # inherit (funkwhale.overlay);
   inherit
