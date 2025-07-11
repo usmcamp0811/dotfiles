@@ -1,20 +1,19 @@
-{ pkgs
-, lib
-, config
-, ...
-}:
-let
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.cli.zsh;
-in
-{
+in {
   options.campground.cli.zsh = {
     enable = mkEnableOption "ZSH";
     extraSource = lib.mkOption {
       # Corrected line
       type = with lib.types; listOf str;
-      default = [ ];
+      default = [];
       description = "Additional files to source in ZSH initialization.";
     };
   };
@@ -28,8 +27,13 @@ in
       enableCompletion = true;
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
-
-      shellAliases = { update = "sudo nixos-rebuild switch"; };
+      plugins = [
+        {
+          name = "fzf-tab";
+          src = "${pkgs.zsh-fzf-tab}/share/fzf-tab";
+        }
+      ];
+      shellAliases = {update = "sudo nixos-rebuild switch";};
 
       # oh-my-zsh = {
       #   enable = true;
