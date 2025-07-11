@@ -24,14 +24,15 @@ import os
 import re
 import socket
 import subprocess
-from libqtile.config import KeyChord, Key, Screen, Group, Drag, Click, Drag, Key, Match
-from libqtile.command import lazy
-from libqtile import layout, bar, widget, hook
-from libqtile.widget import *
-from libqtile.lazy import lazy
 from typing import List  # noqa: F401
+
+from libqtile import bar, hook, layout, qtile, widget
+from libqtile.command import lazy
+from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
+from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
-from libqtile import hook, qtile
+from libqtile.widget import *
+
 # from custom.layout import MasterStack
 # from MutableScratch import MutableScratch
 # import MutableScratch.MutableScratch

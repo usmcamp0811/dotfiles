@@ -1,15 +1,15 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.campground.archetypes.desktop;
-in
-{
+in {
   options.campground.archetypes.desktop = with types; {
     enable = mkEnableOption "desktop home enviornment";
     display-name = mkOpt str "HDMI-A-3" "The name of the primary display";
@@ -53,7 +53,7 @@ in
         wallpapers = enabled;
         hyprland = {
           enable = true;
-          startup = [ "${getExe pkgs.networkmanagerapplet}" ];
+          startup = ["${getExe pkgs.networkmanagerapplet}"];
         };
       };
 
@@ -104,7 +104,7 @@ in
         alacritty = enabled;
         mpv = enabled;
         zoom = enabled;
-        qutebrowser = enabled;
+        # qutebrowser = enabled;
         ckb-next = enabled;
         slack = enabled;
         compose2nix = enabled;
