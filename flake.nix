@@ -31,12 +31,6 @@
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
 
-    # nixvim
-    nix-vim = {
-      url = "github:nix-community/nixvim/main";
-      inputs.nixpkgs.follows = "unstable";
-    };
-
     # Nixery
     nixery-flake = {
       type = "github";
@@ -186,6 +180,7 @@
     dream2nix.url = "github:nix-community/dream2nix";
     scientific-fhs = {
       url = "github:usmcamp0811/scientific-fhs/pass-python-env-in";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-output-monitor.url = "github:maralorn/nix-output-monitor";
