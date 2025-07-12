@@ -51,6 +51,7 @@ in
         }
       ];
       package = pkgs.postgresql_14; # Ensure compatibility with Authentik
+      extraPlugins = [ pkgs.postgresql14Packages.timescaledb ];
     };
     services.authentik = {
       enable = true;
