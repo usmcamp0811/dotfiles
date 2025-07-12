@@ -85,14 +85,14 @@ in
       };
 
       services = {
-        crystal-forge = {
-          enable = true;
-          client = {
-            enable = true;
-            server_host = "reckless";
-            server_port = 3444;
-          };
-        };
+        # crystal-forge = {
+        #   enable = true;
+        #   client = {
+        #     enable = true;
+        #     server_host = "reckless";
+        #     server_port = 3444;
+        #   };
+        # };
         openssh = {
           enable = true;
           authorizedKeys = [

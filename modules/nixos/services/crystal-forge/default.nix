@@ -1,19 +1,19 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
+{ lib
+, config
+, pkgs
+, ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.crystal-forge;
 
   host = config.networking.hostName;
-in {
+in
+{
   options.campground.services.crystal-forge = {
     enable = mkEnableOption "Enable the Crystal Forge service(s)";
     log_level = lib.mkOption {
-      type = lib.types.enum ["off" "error" "warn" "info" "debug" "trace"];
+      type = lib.types.enum [ "off" "error" "warn" "info" "debug" "trace" ];
       default = "debug";
     };
     configPath = mkOption {
@@ -84,7 +84,7 @@ in {
             };
           };
         });
-        default = [];
+        default = [ ];
         description = "List of flakes to watch for changes";
         example = [
           {
@@ -248,7 +248,7 @@ in {
           };
         };
       });
-      default = [];
+      default = [ ];
       description = "Systems to register with Crystal Forge";
       example = [
         {
@@ -285,7 +285,7 @@ in {
           };
         };
       });
-      default = [];
+      default = [ ];
       description = "List of environments for agents and evaluation";
       example = [
         {
@@ -299,17 +299,17 @@ in {
     };
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/crystal-forge"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -321,28 +321,28 @@ in {
   };
 
   config = mkIf cfg.enable {
-    services.crystal-forge = {
-      inherit
-        (cfg)
-        enable
-        log_level
-        configPath
-        database
-        server
-        flakes
-        systems
-        environments
-        ;
-      client = {
-        inherit (cfg.client) server_port server_host enable;
-        private_key = "/var/lib/crystal-forge/agent.key";
-      };
-    };
+    # services.crystal-forge = {
+    #   inherit
+    #     (cfg)
+    #     enable
+    #     log_level
+    #     configPath
+    #     database
+    #     server
+    #     flakes
+    #     systems
+    #     environments
+    #     ;
+    #   client = {
+    #     inherit (cfg.client) server_port server_host enable;
+    #     private_key = "/var/lib/crystal-forge/agent.key";
+    #   };
+    # };
 
-    systemd.services.crystal-forge-agent.preStart = ''
-      mkdir -p /var/lib/crystal-forge/
-      cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
-    '';
+    # systemd.services.crystal-forge-agent.preStart = ''
+    #   mkdir -p /var/lib/crystal-forge/
+    #   cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
+    # '';
 
     systemd.tmpfiles.rules = [
       "d /var/lib/crystal-forge 0700 crystal-forge crystal-forge -"
