@@ -1,9 +1,8 @@
-{
-  pkgs,
-  config,
-  lib,
-  inputs,
-  ...
+{ pkgs
+, config
+, lib
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -13,35 +12,36 @@ with lib.campground; let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in {
-  imports = [./hardware.nix];
-  boot.kernelParams = ["pcie_port_pm=off" "pcie_aspm.policy=performance"];
-  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+in
+{
+  imports = [ ./hardware.nix ];
+  boot.kernelParams = [ "pcie_port_pm=off" "pcie_aspm.policy=performance" ];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   systemd.services.proton-socat-smtp = {
     description = "Socat Service for Proton Bridge SMTP Port Forwarding";
-    after = ["network.target"];
+    after = [ "network.target" ];
     serviceConfig = {
       ExecStart = "${pkgs.socat}/bin/socat TCP4-LISTEN:587,fork TCP4:127.0.0.1:1025";
       Restart = "always";
     };
-    wantedBy = ["multi-user.target"];
+    wantedBy = [ "multi-user.target" ];
   };
 
   systemd.services.proton-socat-imap = {
     description = "Socat Service for Proton Bridge IMAP Port Forwarding";
-    after = ["network.target"];
+    after = [ "network.target" ];
     serviceConfig = {
       ExecStart = "${pkgs.socat}/bin/socat TCP4-LISTEN:143,fork TCP4:127.0.0.1:1143";
       Restart = "always";
     };
-    wantedBy = ["multi-user.target"];
+    wantedBy = [ "multi-user.target" ];
   };
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
 
@@ -81,12 +81,12 @@ in {
       };
     };
 
-    apps = {steam = enabled;};
-    nfs.client = {enable = true;};
+    apps = { steam = enabled; };
+    nfs.client = { enable = true; };
 
     hardware = {
       ckb-next = enabled;
-      ups.cp1500 = {enable = true;};
+      ups.cp1500 = { enable = true; };
       nvidia = {
         enable = true;
       };
@@ -196,11 +196,11 @@ in {
       glusterfs = {
         enable = true;
         # peers = ["webb"];
-        peers = ["reckless" "lucas"];
+        peers = [ "reckless" "lucas" ];
         volumes = [
           {
             name = "kubernetes";
-            brickDirs = ["/glusterfs/kubernetes"];
+            brickDirs = [ "/glusterfs/kubernetes" ];
             replicaCount = 2;
             transport = "tcp";
           }
@@ -288,7 +288,7 @@ in {
         # host = "0.0.0.0";
       };
       file-share = enabled;
-      ldap-client = {enable = mkForce false;};
+      ldap-client = { enable = mkForce false; };
       attic-watch-store = enabled;
       gitlab-runner = enabled;
       # hadoop = {
@@ -343,15 +343,15 @@ in {
             "avg-size" = 65536; # 64 KiB
             "max-size" = 262144; # 256 KiB
           };
-          compression = {type = "zstd";};
-          garbage-collection = {interval = "144 hours";};
+          compression = { type = "zstd"; };
+          garbage-collection = { interval = "144 hours"; };
         };
       };
 
       postgresql = {
         enable = true;
         package = pkgs.postgresql_16;
-        extraPlugins = [pkgs.postgresql16Packages.timescaledb pkgs.postgresql16Packages.pg_cron];
+        extraPlugins = [ pkgs.postgresql16Packages.timescaledb pkgs.postgresql16Packages.pg_cron ];
         enableTCPIP = true;
         settings = {
           shared_preload_libraries = "pg_cron,timescaledb";
@@ -399,7 +399,7 @@ in {
       user-secrets = {
         enable = true;
         users = {
-          mcamp = {files = ["id_ed25519" "passwords" "kubeconfig"];};
+          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
         };
       };
 
