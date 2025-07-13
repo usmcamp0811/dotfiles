@@ -96,122 +96,105 @@ in {
     };
 
     services = {
-      crystal-forge = {
-        enable = true;
-        # log_level = "debug";
-        flakes.watched = [
-          {
-            name = "dotfiles";
-            repo_url = "https://gitlab.com/usmcamp0811/dotfiles";
-          }
-          {
-            name = "boterf-nix-configurations";
-            repo_url = "https://gitlab.com/michaelboterf/nix-configurations";
-          }
-        ];
-
-        environments = [
-          {
-            name = "wifi";
-            description = "Computers that get on wifi";
-            is_active = true;
-            risk_profile = "MEDIUM";
-            compliance_level = "NONE";
-          }
-          {
-            name = "lan";
-            description = "Computers that get are wired";
-            is_active = true;
-            risk_profile = "LOW";
-            compliance_level = "NONE";
-          }
-          {
-            name = "boterf-net";
-            description = "Computers that are on Boterf's Network";
-            is_active = true;
-            risk_profile = "LOW";
-            compliance_level = "NONE";
-          }
-        ];
-        # Updated systems configuration (new requirement)
-        systems = [
-          {
-            hostname = "txboterf-nzxt-gaming";
-            public_key = "UX6i4J8llCDTJICZ6FLve2yx5RgEo/5yttvEuuRa06w=";
-            environment = "boterf-net";
-            flake_name = "boterf-nix-configurations";
-          }
-          {
-            hostname = "gray";
-            public_key = "hUwxCZUFydwDjf8BMyXLyMiI33PrKvhfDRj60OkisdY=";
-            environment = "wifi";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "reckless";
-            public_key = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "webb";
-            public_key = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "lucas";
-            public_key = "OMxvf/rZmi8PZJOpVxjbPHDaX+BmJqp8FUOoosWJ7qY=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "chesty";
-            public_key = "Asu0Fl8SsM9Pd/woHt5qkvBdCbye6j2Q2M/qDmnFUjc=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "daly";
-            public_key = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "ermy";
-            public_key = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "butler";
-            public_key = "rbMIke0a5emtaPc7MKgwqEn/UL3e0yyKUn5zHy3Ct/c=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-          {
-            hostname = "mattis";
-            public_key = "vfRbvu/rl1c9+zqMRHzCKMrqpchahyf5qFDUaJyj3eg=";
-            environment = "lan";
-            flake_name = "dotfiles";
-          }
-        ];
-
-        server = {
-          enable = true;
-          host = "0.0.0.0"; # Added explicit host
-          port = 3444; # Kept your custom port
-          # Note: authorized_keys moved to systems configuration above
-        };
-
-        # Database configuration (using defaults)
-        database = {
-          host = "localhost";
-          user = "crystal_forge";
-          name = "crystal_forge";
-          # password defaults handled by module
-        };
-      };
+      # crystal-forge = {
+      #   enable = true;
+      #   log_level = "info";
+      #   flakes.watched = [
+      #     {
+      #       name = "dotfiles";
+      #       repo_url = "https://gitlab.com/usmcamp0811/dotfiles";
+      #     }
+      #   ];
+      #
+      #   environments = [
+      #     {
+      #       name = "wifi";
+      #       description = "Computers that get on wifi";
+      #       is_active = true;
+      #       risk_profile = "MEDIUM";
+      #       compliance_level = "NONE";
+      #     }
+      #     {
+      #       name = "lan";
+      #       description = "Computers that get are wired";
+      #       is_active = true;
+      #       risk_profile = "LOW";
+      #       compliance_level = "NONE";
+      #     }
+      #   ];
+      #   # Updated systems configuration (new requirement)
+      #   systems = [
+      #     {
+      #       hostname = "gray";
+      #       public_key = "hUwxCZUFydwDjf8BMyXLyMiI33PrKvhfDRj60OkisdY=";
+      #       environment = "wifi";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "reckless";
+      #       public_key = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "webb";
+      #       public_key = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "lucas";
+      #       public_key = "OMxvf/rZmi8PZJOpVxjbPHDaX+BmJqp8FUOoosWJ7qY=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "chesty";
+      #       public_key = "Asu0Fl8SsM9Pd/woHt5qkvBdCbye6j2Q2M/qDmnFUjc=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "daly";
+      #       public_key = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "ermy";
+      #       public_key = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "butler";
+      #       public_key = "rbMIke0a5emtaPc7MKgwqEn/UL3e0yyKUn5zHy3Ct/c=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #     {
+      #       hostname = "mattis";
+      #       public_key = "vfRbvu/rl1c9+zqMRHzCKMrqpchahyf5qFDUaJyj3eg=";
+      #       environment = "lan";
+      #       flake_name = "dotfiles";
+      #     }
+      #   ];
+      #
+      #   server = {
+      #     enable = true;
+      #     host = "0.0.0.0"; # Added explicit host
+      #     port = 3444; # Kept your custom port
+      #     # Note: authorized_keys moved to systems configuration above
+      #   };
+      #
+      #   # Database configuration (using defaults)
+      #   database = {
+      #     host = "localhost";
+      #     user = "crystal_forge";
+      #     name = "crystal_forge";
+      #     # password defaults handled by module
+      #   };
+      # };
       glusterfs = {
         enable = true;
         # peers = ["webb"];
