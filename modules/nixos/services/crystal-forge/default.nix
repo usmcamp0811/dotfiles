@@ -220,6 +220,24 @@ in {
     #   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO grafana;
     #   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON SEQUENCES TO grafana;
     #   SQL
+    # -- Complete Grafana PostgreSQL Permissions Setup
+    # -- 1. Grant database connection privileges
+    # GRANT CONNECT ON DATABASE crystal_forge TO grafana;
+    #
+    # -- 2. Grant schema usage
+    # GRANT USAGE ON SCHEMA public TO grafana;
+    #
+    # -- 3. Grant read access on ALL existing tables, views, and sequences
+    # GRANT SELECT ON ALL TABLES IN SCHEMA public TO grafana;
+    # GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO grafana;
+    #
+    # -- 4. Grant read access to future tables, views, and sequences
+    # ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO grafana;
+    # ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON SEQUENCES TO grafana;
+    #
+    # -- 5. Explicit grant on systems table (covers edge cases)
+    # GRANT SELECT ON systems TO grafana;
+    # GRANT SELECT ON public.systems TO grafana;
     # '';
 
     campground.services = {
