@@ -8,7 +8,20 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.gitlab-runner;
-
+  # Convert flake input to channel URL
+  nixChannelUrl = let
+    url = inputs.nixpkgs.url;
+    # Handle different input formats
+    channelUrl =
+      if lib.hasPrefix "github:" url
+      then builtins.replaceStrings ["github:"] ["https://github.com/"] url
+      else if lib.hasPrefix "https://github.com/" url
+      then url
+      else
+        # Fallback for other formats or add more cases as needed
+        "https://github.com/NixOS/nixpkgs";
+  in
+    channelUrl;
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
   nixChannelUrl =
@@ -79,8 +92,7 @@ in {
             mkdir -p -m 0755 /nix/var/nix/profiles/per-user/root
             mkdir -p -m 0700 "$HOME/.nix-defexpr"
             . ${pkgs.nix}/etc/profile.d/nix-daemon.sh
-            # TODO: link to inputs.nixpkgs
-            ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-25.05 nixpkgs # 3
+            ${pkgs.nix}/bin/nix-channel --add ${nixChannelUrl} nixpkgs
             ${pkgs.nix}/bin/nix-channel --update nixpkgs
             ${pkgs.nix}/bin/nix-env -i ${
               concatStringsSep " " (with pkgs; [
