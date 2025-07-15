@@ -24,9 +24,6 @@ with lib.campground; let
     channelUrl;
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
-  nixChannelUrl =
-    builtins.replaceStrings ["github:"] ["https://github.com/"]
-    inputs.nixpkgs.url;
 in {
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
