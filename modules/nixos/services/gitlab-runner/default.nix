@@ -1,8 +1,9 @@
-{ lib
-, config
-, pkgs
-, inputs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -11,29 +12,28 @@ with lib.campground; let
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
   nixChannelUrl =
-    builtins.replaceStrings [ "github:" ] [ "https://github.com/" ]
-      inputs.nixpkgs.url;
-in
-{
+    builtins.replaceStrings ["github:"] ["https://github.com/"]
+    inputs.nixpkgs.url;
+in {
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
     runner-name =
       mkOpt types.str config.networking.hostName
-        "Name used in Vault to deleniate runners";
+      "Name used in Vault to deleniate runners";
 
     role-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      config.campground.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      config.campground.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/gitlab-runner"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = types.enum [ "v1" "v2" ];
+      type = types.enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -80,7 +80,7 @@ in
             mkdir -p -m 0700 "$HOME/.nix-defexpr"
             . ${pkgs.nix}/etc/profile.d/nix-daemon.sh
             # TODO: link to inputs.nixpkgs
-            ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-24.11 nixpkgs # 3
+            ${pkgs.nix}/bin/nix-channel --add https://nixos.org/channels/nixos-25.05 nixpkgs # 3
             ${pkgs.nix}/bin/nix-channel --update nixpkgs
             ${pkgs.nix}/bin/nix-env -i ${
               concatStringsSep " " (with pkgs; [
