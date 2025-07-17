@@ -1,9 +1,8 @@
-{
-  lib,
-  config,
-  pkgs,
-  inputs,
-  ...
+{ lib
+, config
+, pkgs
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; let
@@ -15,26 +14,27 @@ with lib.campground; let
 
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
-in {
+in
+{
   options.campground.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
     runner-name =
       mkOpt types.str config.networking.hostName
-      "Name used in Vault to deleniate runners";
+        "Name used in Vault to deleniate runners";
 
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
-      "Absolute path to the Vault role-id";
+        config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
-      "Absolute path to the Vault secret-id";
+        config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/gitlab-runner"
-      "The Vault path to the KV containing the KVs that are for each database";
+        "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -70,6 +70,9 @@ in {
           ];
           dockerDisableCache = true;
           preBuildScript = pkgs.writeScript "setup-container" ''
+            set -e  # Exit on any error
+
+            # Create necessary Nix directories first
             mkdir -p -m 0755 /nix/var/log/nix/drvs
             mkdir -p -m 0755 /nix/var/nix/gcroots
             mkdir -p -m 0755 /nix/var/nix/profiles
@@ -79,9 +82,12 @@ in {
             mkdir -p -m 1777 /nix/var/nix/profiles/per-user
             mkdir -p -m 0755 /nix/var/nix/profiles/per-user/root
             mkdir -p -m 0700 "$HOME/.nix-defexpr"
+            mkdir -p -m 0755 /etc/nix
+
+            # Source the Nix daemon environment
             . ${pkgs.nix}/etc/profile.d/nix-daemon.sh
-            ${pkgs.nix}/bin/nix-channel --add ${nixChannelUrl} nixpkgs
-            ${pkgs.nix}/bin/nix-channel --update nixpkgs
+
+            # Install packages FIRST (including SSL certificates)
             ${pkgs.nix}/bin/nix-env -i ${
               concatStringsSep " " (with pkgs; [
                 nix
@@ -95,10 +101,15 @@ in {
                 attic-client
               ])
             }
-            mkdir -p -m 0755 /etc/nix
+
+            # Configure Nix settings
             echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
             echo "allow-unfree = true" >> /etc/nix/nix.conf
             chmod 644 /etc/nix/nix.conf
+
+            # NOW add and update channels (after SSL certs are installed)
+            ${pkgs.nix}/bin/nix-channel --add ${nixChannelUrl} nixpkgs
+            ${pkgs.nix}/bin/nix-channel --update nixpkgs
           '';
           environmentVariables = {
             ENV = "/etc/profile";
