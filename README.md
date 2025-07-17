@@ -2,6 +2,7 @@
 
 <h3>
   <img src="./camp-gumby.png" width="100" alt="Logo" style="border-radius: 50%; overflow: hidden;"/><br/>
+  NixOS Config for <a href="https://matt-camp.com">Matt Camp</a>
   <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png" height="30" width="0px"/>
   <img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.aicampground.com/matomo.php?idsite=3&amp;rec=1" style="border:0" alt="" />
 </h3>
