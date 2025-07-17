@@ -8,20 +8,11 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.gitlab-runner;
+
   # Convert flake input to channel URL
-  nixChannelUrl = let
-    url = inputs.nixpkgs.url;
-    # Handle different input formats
-    channelUrl =
-      if lib.hasPrefix "github:" url
-      then builtins.replaceStrings ["github:"] ["https://github.com/"] url
-      else if lib.hasPrefix "https://github.com/" url
-      then url
-      else
-        # Fallback for other formats or add more cases as needed
-        "https://github.com/NixOS/nixpkgs";
-  in
-    channelUrl;
+  rev = inputs.nixpkgs.rev;
+  nixChannelUrl = "https://github.com/NixOS/nixpkgs/${rev}";
+
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
 in {
