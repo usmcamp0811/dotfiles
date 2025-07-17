@@ -27,13 +27,41 @@ update-flake:
   script:
     - |
       echo "Authenticating with Vault..."
-      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID" > /dev/null
+      # Remove the /dev/null redirect to see errors
+      vault write auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID"
+
+      # Check if authentication succeeded
       export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+      if [ -z "$VAULT_TOKEN" ]; then
+        echo "ERROR: Failed to get Vault token"
+        exit 1
+      fi
+
+      # Get SSH key with error checking
       export sshkey=$(vault kv get -field="sshkey" "secret/campground/gitlab-runner")
+      if [ -z "$sshkey" ]; then
+        echo "ERROR: Failed to get SSH key from Vault"
+        exit 1
+      fi
+
       mkdir -p ~/.ssh
       eval "$(ssh-agent -s)"
+
+      # Add key with error checking
       echo "$sshkey" | ssh-add -
+      if [ $? -ne 0 ]; then
+        echo "ERROR: Failed to add SSH key"
+        exit 1
+      fi
+
+      # Test connectivity before proceeding
+      echo "Testing connectivity to ${SYSTEM}..."
       ssh-keyscan ${SYSTEM} >> ~/.ssh/known_hosts
+      if [ $? -ne 0 ]; then
+        echo "ERROR: Failed to scan SSH keys for ${SYSTEM}"
+        exit 1
+      fi
+
       nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
       nix-copy-closure --to root@${SYSTEM} ./result
   resource_group: build_sequential
