@@ -64,6 +64,7 @@ update-flake:
 
       nix build .#nixosConfigurations.${SYSTEM}.config.system.build.toplevel -j 1
       nix-copy-closure --to root@${SYSTEM} ./result
+
   resource_group: build_sequential
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $FLAKE_UPDATE == "true"'

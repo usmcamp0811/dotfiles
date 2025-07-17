@@ -45,6 +45,8 @@ dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
 
 #### [New System Install](./docs/Install.md)
 
+**TODO: Show how to install with disko**
+
 ## Features
 
 Here's an overview of what my Nix configuration offers:
