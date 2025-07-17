@@ -8,10 +8,6 @@ with lib;
 with lib.campground; let
   cfg = config.campground.services.gitlab-runner;
 
-  # Convert flake input to channel URL
-  rev = inputs.nixpkgs.rev;
-  nixChannelUrl = "https://github.com/NixOS/nixpkgs/${rev}";
-
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
 in
@@ -70,9 +66,8 @@ in
           ];
           dockerDisableCache = true;
           preBuildScript = pkgs.writeScript "setup-container" ''
-            set -e  # Exit on any error
+            set -e
 
-            # Create necessary Nix directories first
             mkdir -p -m 0755 /nix/var/log/nix/drvs
             mkdir -p -m 0755 /nix/var/nix/gcroots
             mkdir -p -m 0755 /nix/var/nix/profiles
@@ -84,10 +79,8 @@ in
             mkdir -p -m 0700 "$HOME/.nix-defexpr"
             mkdir -p -m 0755 /etc/nix
 
-            # Source the Nix daemon environment
             . ${pkgs.nix}/etc/profile.d/nix-daemon.sh
 
-            # Install packages FIRST (including SSL certificates)
             ${pkgs.nix}/bin/nix-env -i ${
               concatStringsSep " " (with pkgs; [
                 nix
@@ -102,14 +95,11 @@ in
               ])
             }
 
-            # Configure Nix settings
             echo "extra-experimental-features = nix-command flakes" >> /etc/nix/nix.conf
-            echo "allow-unfree = true" >> /etc/nix/nix.conf
+            echo "allowed-unfree = true" >> /etc/nix/nix.conf
             chmod 644 /etc/nix/nix.conf
 
-            # NOW add and update channels (after SSL certs are installed)
-            ${pkgs.nix}/bin/nix-channel --add ${nixChannelUrl} nixpkgs
-            ${pkgs.nix}/bin/nix-channel --update nixpkgs
+            # Removed channel commands - not needed with flakes
           '';
           environmentVariables = {
             ENV = "/etc/profile";
