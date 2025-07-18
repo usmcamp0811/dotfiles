@@ -39,28 +39,28 @@ in
         dark = "onedark";
       };
       plugins = {
-        chmod = "${inputs.official-plugins-yazi}/chmod.yazi";
-        diff = "${inputs.official-plugins-yazi}/diff.yazi";
-        full-border = "${inputs.official-plugins-yazi}/full-border.yazi";
-        git = "${inputs.official-plugins-yazi}/git.yazi";
-        toggle-pane = "${inputs.official-plugins-yazi}/toggle-pane.yazi";
-        mount = "${inputs.official-plugins-yazi}/mount.yazi";
-        smart-enter = "${inputs.official-plugins-yazi}/smart-enter.yazi";
-        vcs-files = "${inputs.official-plugins-yazi}/vcs-files.yazi";
+        chmod = "${pkgs.yaziPlugins.chmod}";
+        diff = "${pkgs.yaziPlugins.diff}";
+        full-border = "${pkgs.yaziPlugins.full-border}";
+        git = "${pkgs.yaziPlugins.git}";
+        toggle-pane = "${pkgs.yaziPlugins.toggle-pane}";
+        mount = "${pkgs.yaziPlugins.mount}";
+        smart-enter = "${pkgs.yaziPlugins.smart-enter}";
+        vcs-files = "${pkgs.yaziPlugins.vcs-files}";
+
         office = "${inputs.office-yazi}";
-        rich-preview = "${inputs.rich-preview-yazi}";
+        rich-preview = "${pkgs.yaziPlugins.rich-preview}";
         eza-preview = "${inputs.eza-preview-yazi}";
-        mediainfo = "${inputs.mediainfo-yazi}";
+        mediainfo = "${pkgs.yaziPlugins.mediainfo}";
         fg = "${inputs.fzf-yazi}";
-        glow = "${inputs.glow-yazi}";
+        glow = "${pkgs.yaziPlugins.glow}";
         hexyl = "${inputs.hexyl-yazi}";
-        ouch = "${inputs.ouch-yazi}";
-        # yaziline = "${inputs.yaziline-yazi}";
+        ouch = "${pkgs.yaziPlugins.ouch}";
         yatline = "${pkgs.yaziPlugins.yatline}";
         yatline-catppuccin = "${pkgs.yaziPlugins.yatline-catppuccin}";
-        lazygit = "${inputs.lazygit-yazi}";
-        githead = "${inputs.githead-yazi}";
-        duckdb = "${inputs.duckdb-yazi}";
+        lazygit = "${pkgs.yaziPlugins.lazygit}";
+        githead = "${pkgs.yaziPlugins.yatline-githead}";
+        duckdb = "${pkgs.yaziPlugins.duckdb}";
         bunny = "${inputs.bunny-yazi}";
       };
       keymap = {

@@ -16,8 +16,6 @@
       url = "github:nix-community/npmlock2nix";
       flake = false;
     };
-    # nixtheplanet.url = "github:usmcamp0811/nixtheplanet/update-macos-url";
-    # authentik-nix.url = "github:nix-community/authentik-nix/b4916a86d4e650401e67dc03556eadb4a3cb248a";
     authentik-nix.url = "github:marcelcoding/authentik-nix";
     # authentik-nix.inputs.nixpkgs.follows = "unstable";
     terranix.url = "github:terranix/terranix";
@@ -25,8 +23,6 @@
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
-    # hyprland-works-here.url = "github:nixos/nixpkgs/219951b495fc2eac67b1456824cc1ec1fd2ee659";
-    # TODO: Switch back to unstable branch when the node fix gets merged
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     #nuenv
@@ -91,13 +87,6 @@
       url = "github:nix-community/nixpkgs-wayland";
       inputs.nixpkgs.follows = "unstable";
     };
-
-    # Binary Cache
-    # attic = {
-    #   url = "github:zhaofengli/attic/ff8a897d1f4408ebbf4d45fa9049c06b3e1e3f4e";
-    #   inputs.nixpkgs.follows = "unstable";
-    #   # inputs.nixpkgs-stable.follows = "nixpkgs";
-    # };
 
     # Snowfall Lib
     snowfall-lib.url = "github:snowfallorg/lib";
@@ -239,18 +228,6 @@
       flake = false;
     };
 
-    # TODO: Remove
-    mime-ext-yazi = {
-      url = "github:DreamMaoMao/mime-ext.yazi";
-      flake = false;
-    };
-
-    # TODO: Remove
-    mediainfo-yazi = {
-      url = "github:boydaihungst/mediainfo.yazi";
-      flake = false;
-    };
-
     office-yazi = {
       url = "github:macydnah/office.yazi";
       flake = false;
@@ -261,43 +238,13 @@
       flake = false;
     };
 
-    # TODO: Remove
-    glow-yazi = {
-      url = "github:Reledia/glow.yazi";
-      flake = false;
-    };
-
     hexyl-yazi = {
       url = "github:Reledia/hexyl.yazi";
       flake = false;
     };
 
-    # TODO: Remove
-    ouch-yazi = {
-      url = "github:ndtoan96/ouch.yazi";
-      flake = false;
-    };
-
-    # TODO: Remove
-    rich-preview-yazi = {
-      url = "github:MrDwarf7/rich-preview.yazi";
-      flake = false;
-    };
-
-    # TODO: Remove
-    duckdb-yazi = {
-      url = "github:wylie102/duckdb.yazi";
-      flake = false;
-    };
-
     yaziline-yazi = {
       url = "github:llanosrocas/yaziline.yazi";
-      flake = false;
-    };
-
-    # TODO: Remove
-    lazygit-yazi = {
-      url = "github:Lil-Dank/lazygit.yazi";
       flake = false;
     };
 
