@@ -21,6 +21,7 @@
     authentik-nix.url = "github:marcelcoding/authentik-nix";
     # authentik-nix.inputs.nixpkgs.follows = "unstable";
     terranix.url = "github:terranix/terranix";
+    terranix.inputs.nixpkgs.follows = "nixpkgs";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
@@ -30,6 +31,7 @@
 
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
+    nuenv.inputs.nixpkgs.follows = "nixpkgs";
 
     # Nixery
     nixery-flake = {
@@ -45,12 +47,14 @@
     };
 
     nixos-cli.url = "github:water-sucks/nixos";
+    nixos-cli.inputs.nixpkgs.follows = "nixpkgs";
 
     # macOS Support (master)
     darwin.url = "github:lnl7/nix-darwin";
     darwin.inputs.nixpkgs.follows = "unstable";
 
     devshell.url = "github:numtide/devshell";
+    devshell.inputs.nixpkgs.follows = "nixpkgs";
 
     bibata-cursors = {
       url = "github:suchipi/Bibata_Cursor";
@@ -64,7 +68,9 @@
     };
 
     nix-topology.url = "github:oddlama/nix-topology";
+    nix-topology.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-python.url = "github:cachix/nixpkgs-python";
+    nixpkgs-python.inputs.nixpkgs.follows = "nixpkgs";
 
     hyprpaper = {
       url = "github:hyprwm/hyprpaper";
@@ -78,6 +84,7 @@
     };
 
     gBar.url = "github:scorpion-26/gBar";
+    gBar.inputs.nixpkgs.follows = "nixpkgs";
 
     # NixPkgs-Wayland
     nixpkgs-wayland = {
@@ -151,6 +158,7 @@
     };
 
     technofab = { url = "gitlab:TECHNOFAB/nix-packages"; };
+    technofab.inputs.nixpkgs.follows = "nixpkgs";
 
     # GPG default configuration
     gpg-base-conf = {
@@ -184,15 +192,19 @@
     };
 
     nix-output-monitor.url = "github:maralorn/nix-output-monitor";
+    nix-output-monitor.inputs.nixpkgs.follows = "nixpkgs";
 
     # dataflow2nix.url = "github:GTrunSec/dataflow2nix";
 
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
+    catppuccin.inputs.nixpkgs.follows = "nixpkgs";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+    pre-commit-hooks.inputs.nixpkgs.follows = "unstable";
 
     nix-ai.url = "github:nixified-ai/flake";
+    nix-ai.inputs.nixpkgs.follows = "unstable";
     neorg-overlay = {
       url = "github:nvim-neorg/nixpkgs-neorg-overlay";
       inputs.nixpkgs.follows = "unstable";
@@ -204,6 +216,7 @@
     };
     funkwhale.url = "github:usmcamp0811/funkwhale-flake";
     nixhelm.url = "github:nix-community/nixhelm";
+    nixhelm.inputs.nixpkgs.follows = "unstable";
     # kubenix.url = "github:hall/kubenix";
     k0s-nix.url = "github:johbo/k0s-nix";
     kube-gen.url = "github:farcaller/nix-kube-generators";
