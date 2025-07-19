@@ -16,8 +16,30 @@ in
     environment.systemPackages = [ ];
 
     campground = {
-      nix = { enable = true; };
+      nix = {
+        enable = true;
+        extra-substituters = {
+          # Core NixOS cache (you might already have this as default)
+          "https://cache.nixos.org" = {
+            key = "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=";
+          };
 
+          # Hyprland cache (for your Wayland setup)
+          "https://hyprland.cachix.org" = {
+            key = "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=";
+          };
+
+          # Nix community cache
+          "https://nix-community.cachix.org" = {
+            key = "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=";
+          };
+
+          # NUR cache - KEY for Firefox addons!
+          "https://nur.cachix.org" = {
+            key = "nur.cachix.org-1:WG6ry5dehFKjDzEkgxcGdQQGt1IRbJLtL0F6bJwfnr8=";
+          };
+        };
+      };
       cache = {
         public = enabled;
         campground = enabled;
