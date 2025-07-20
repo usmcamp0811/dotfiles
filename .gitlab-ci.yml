@@ -268,3 +268,6 @@ crystal_forge_update:
     git add flake.lock
     git commit -m 'CI: Update crystal-forge update'
     git push origin HEAD:${CI_DEFAULT_BRANCH}
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "trigger" && $FLAKE_UPDATE != "true"'
+      allow_failure: false
