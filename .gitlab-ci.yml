@@ -246,7 +246,7 @@ nvim_update:
     - "git commit -m 'CI: Update campground-nvim'"
     - "git push origin HEAD:${CI_DEFAULT_BRANCH}"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+    - if: '$CI_PIPELINE_SOURCE == "trigger" && $FLAKE_UPDATE != "true"'
       allow_failure: false
 
 crystal_forge_update:
