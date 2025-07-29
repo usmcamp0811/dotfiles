@@ -137,7 +137,7 @@ in {
             hostname = "txboterf-nzxt-gaming";
             public_key = "UX6i4J8llCDTJICZ6FLve2yx5RgEo/5yttvEuuRa06w=";
             environment = "boterf-net";
-            flake_name = "dotfiles";
+            flake_name = "boterf-nix-configurations";
           }
           {
             hostname = "gray";
