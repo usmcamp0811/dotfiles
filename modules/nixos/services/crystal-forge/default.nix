@@ -18,7 +18,7 @@ in {
     };
     configPath = mkOption {
       type = types.path;
-      default = generatedConfigPath;
+      default = "/var/lib/crystal-forge/config.toml";
       description = "Path to the final config.toml file.";
     };
     database = {
@@ -80,6 +80,7 @@ in {
             };
             auto_poll = lib.mkOption {
               type = lib.types.bool;
+              default = false; # Add default value
               description = "Whether to automatically poll the repository for new commits instead of relying solely on webhooks";
             };
           };
@@ -321,32 +322,36 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Configure the base Crystal Forge service with our options
     services.crystal-forge = {
-      inherit
-        (cfg)
-        enable
-        log_level
-        configPath
-        database
-        server
-        flakes
-        systems
-        environments
-        ;
-      client = {
-        inherit (cfg.client) server_port server_host enable;
+      enable = true;
+      inherit (cfg) log_level database;
+
+      # Pass through server configuration
+      server = mkIf cfg.server.enable {
+        enable = true;
+        inherit (cfg.server) host port;
+      };
+
+      # Pass through client configuration, but we'll handle the private key separately
+      client = mkIf cfg.client.enable {
+        enable = true;
+        inherit (cfg.client) server_port server_host;
         private_key = "/var/lib/crystal-forge/agent.key";
       };
+
+      # Pass through all other configuration sections
+      inherit (cfg) flakes systems environments build vulnix cache;
     };
 
-    systemd.services.crystal-forge-agent.preStart = ''
-      mkdir -p /var/lib/crystal-forge/
-      cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
-    '';
+    # Pre-start script to copy the agent key from vault
+    systemd.services.crystal-forge-agent = mkIf cfg.client.enable {
+      preStart = mkForce ''
+        mkdir -p /var/lib/crystal-forge/
+        cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
+      '';
+    };
 
-    systemd.tmpfiles.rules = [
-      "d /var/lib/crystal-forge 0700 crystal-forge crystal-forge -"
-    ];
     # systemd.services.crystal-forge-server.preStart = ''
     #   mkdir -p /var/lib/crystal-forge/
     #   chown -R crystal-forge:crystal-forge /var/lib/crystal-forge/
@@ -378,6 +383,11 @@ in {
     # GRANT SELECT ON public.systems TO grafana;
     # '';
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/crystal-forge 0700 crystal-forge crystal-forge -"
+    ];
+
+    # Vault agent configuration for fetching the private key
     campground.services = {
       vault-agent = {
         services = {
