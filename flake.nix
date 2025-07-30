@@ -163,9 +163,10 @@
       flake = false;
     };
 
+    # no cf
     campground-nvim = {
-      url = "gitlab:usmcamp0811/campground-nvim";
-      # inputs.nixpkgs.follows = "unstable";
+      url = "gitlab:usmcamp0811/campground-nvim/ea8ef1e38ad5c7e369a0bbf7eab3d8c20e3fb865";
+      inputs.nixpkgs.follows = "unstable";
     };
 
     campground-packages.url = "gitlab:usmcamp0811/campground-packages";
