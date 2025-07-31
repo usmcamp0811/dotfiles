@@ -121,7 +121,7 @@ in {
       };
       cores = lib.mkOption {
         type = lib.types.ints.positive;
-        default = 1;
+        default = 8;
         description = "Maximum CPU cores to use per build job";
       };
 
