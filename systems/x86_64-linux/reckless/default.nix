@@ -96,7 +96,7 @@ in {
     services = {
       crystal-forge = {
         enable = true;
-        log_level = "info";
+        log_level = "debug";
         flakes.watched = [
           {
             name = "dotfiles";
