@@ -351,6 +351,11 @@ in {
         cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
       '';
     };
+    systemd.services.crystal-forge-server.serviceConfig = {
+      MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
+      MemoryHigh = lib.mkForce "85%"; # Start throttling early
+      MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
+    };
     systemd.services.crystal-forge-builder.serviceConfig = {
       MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
       MemoryHigh = lib.mkForce "85%"; # Start throttling early
