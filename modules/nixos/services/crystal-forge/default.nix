@@ -357,9 +357,36 @@ in {
       MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
     };
     systemd.services.crystal-forge-builder.serviceConfig = {
-      MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
-      MemoryHigh = lib.mkForce "85%"; # Start throttling early
-      MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
+      # Memory Management
+      MemoryMax = lib.mkForce "90%"; # Hard limit - leave 10% for OS
+      MemoryHigh = lib.mkForce "80%"; # Soft limit - start pressure early
+      MemorySwapMax = lib.mkForce "5G"; # Limited swap to prevent thrashing
+
+      # CPU Priority and Control
+      CPUWeight = lib.mkForce "1000"; # High CPU priority (default is 100)
+      Nice = lib.mkForce "-10"; # Higher process priority
+      CPUQuota = lib.mkForce "800%"; # Allow up to 8 cores if available
+
+      # I/O Priority
+      IOWeight = lib.mkForce "1000"; # High I/O priority
+      IOSchedulingClass = lib.mkForce "1"; # Real-time I/O class
+      IOSchedulingPriority = lib.mkForce "4"; # High RT priority (0-7, lower = higher)
+
+      # Process Protection
+      OOMScoreAdjust = lib.mkForce "-500"; # Protect from OOM killer
+
+      # Restart Behavior
+      Restart = lib.mkForce "always";
+      RestartSec = lib.mkForce "5";
+      StartLimitBurst = lib.mkForce "10";
+      StartLimitIntervalSec = lib.mkForce "60";
+
+      # Process Limits
+      LimitNOFILE = lib.mkForce "1048576"; # High file descriptor limit
+      LimitNPROC = lib.mkForce "32768"; # High process limit
+
+      # Optional: Pin to specific cores if you have many
+      # CPUAffinity = lib.mkForce "0-7"; # Use first 8 cores
     };
 
     # systemd.services.crystal-forge-server.preStart = ''
