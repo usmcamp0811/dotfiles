@@ -356,6 +356,14 @@ in {
       MemoryHigh = lib.mkForce "85%"; # Start throttling early
       MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
     };
+    systemd.services.crystal-forge-server.environment = {
+      GC_INITIAL_HEAP_SIZE = "128M";
+      GC_MAX_HEAP_SIZE = "12G";
+    };
+    systemd.services.crystal-forge-builder.environment = {
+      GC_INITIAL_HEAP_SIZE = "128M";
+      GC_MAX_HEAP_SIZE = "12G";
+    };
     systemd.services.crystal-forge-builder.serviceConfig = {
       # Memory Management
       MemoryMax = lib.mkForce "90%"; # Hard limit - leave 10% for OS
