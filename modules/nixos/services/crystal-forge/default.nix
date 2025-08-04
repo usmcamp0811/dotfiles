@@ -355,6 +355,8 @@ in {
       MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
       MemoryHigh = lib.mkForce "85%"; # Start throttling early
       MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
+      OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
+      OOMPolicy = "continue"; # Don't kill the service on OOM
     };
     systemd.services.crystal-forge-server.environment = {
       GC_INITIAL_HEAP_SIZE = "128M";
@@ -365,6 +367,8 @@ in {
       GC_MAX_HEAP_SIZE = "12G";
     };
     systemd.services.crystal-forge-builder.serviceConfig = {
+      OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
+      OOMPolicy = "continue"; # Don't kill the service on OOM
       # Memory Management
       MemoryMax = lib.mkForce "90%"; # Hard limit - leave 10% for OS
       MemoryHigh = lib.mkForce "80%"; # Soft limit - start pressure early
@@ -379,9 +383,6 @@ in {
       IOWeight = lib.mkForce "1000"; # High I/O priority
       IOSchedulingClass = lib.mkForce "1"; # Real-time I/O class
       IOSchedulingPriority = lib.mkForce "4"; # High RT priority (0-7, lower = higher)
-
-      # Process Protection
-      OOMScoreAdjust = lib.mkForce "-500"; # Protect from OOM killer
 
       # Restart Behavior
       Restart = lib.mkForce "always";
@@ -429,7 +430,9 @@ in {
     # '';
 
     systemd.tmpfiles.rules = [
-      "d /var/lib/crystal-forge 0700 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge 0755 crystal-forge crystal-forge -"
+      # Ensure subdirectories and files are also properly owned
+      "Z /var/lib/crystal-forge - crystal-forge crystal-forge - -"
     ];
 
     # Vault agent configuration for fetching the private key
