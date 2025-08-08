@@ -1,6 +1,7 @@
-{ pkgs
-, lib
-, ...
+{
+  pkgs,
+  lib,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -14,11 +15,12 @@ with lib.campground; let
       hash = "sha256-AIlOwylRuZ6/I4whoc/dJdGRQoldWVzTucABsnCEREo=";
     };
 
-    nativeBuildInputs = [ pkgs.nodejs pkgs.pnpm_9.configHook pkgs.makeWrapper ];
+    nativeBuildInputs = [pkgs.nodejs pkgs.pnpm_9.configHook pkgs.makeWrapper];
 
     pnpmDeps = pkgs.pnpm_9.fetchDeps {
       inherit (finalAttrs) pname version src;
       hash = "sha256-EHISiqPo2hevf9ear0I7oAQs3rzagnd6M2zPrHwn0ig=";
+      fetcherVersion = 1;
     };
 
     buildPhase = ''
@@ -51,7 +53,7 @@ with lib.campground; let
     pname = "prettier-with-slidev";
     version = "3";
 
-    nativeBuildInputs = [ pkgs.makeWrapper ];
+    nativeBuildInputs = [pkgs.makeWrapper];
 
     buildCommand = ''
       mkdir -p $out/bin
@@ -60,4 +62,4 @@ with lib.campground; let
     '';
   };
 in
-prettier-with-slidev
+  prettier-with-slidev

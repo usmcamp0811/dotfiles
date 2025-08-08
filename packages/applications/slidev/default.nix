@@ -1,6 +1,6 @@
-{ lib
-, pkgs
-,
+{
+  lib,
+  pkgs,
 }:
 with lib; let
   versions = {
@@ -42,13 +42,14 @@ with lib; let
         hash = cfg.srcHash;
       };
 
-      nativeBuildInputs = [ pkgs.nodejs cfg.pnpm.configHook pkgs.makeWrapper ];
+      nativeBuildInputs = [pkgs.nodejs cfg.pnpm.configHook pkgs.makeWrapper];
 
       pnpmDeps = cfg.pnpm.fetchDeps {
         pname = "slidev";
         version = cfg.version;
         src = finalAttrs.src;
         hash = cfg.depsHash;
+        fetcherVersion = 1;
       };
 
       buildPhase = ''
@@ -86,4 +87,4 @@ with lib; let
   # Choose the latest version for default
   latest = all.v51_6_0;
 in
-latest // all
+  latest // all
