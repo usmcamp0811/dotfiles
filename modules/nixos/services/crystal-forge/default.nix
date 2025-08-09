@@ -351,21 +351,21 @@ in {
         cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
       '';
     };
-    # systemd.services.crystal-forge-server.serviceConfig = {
-    #   MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
-    #   MemoryHigh = lib.mkForce "85%"; # Start throttling early
-    #   MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
-    #   OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
-    #   OOMPolicy = "continue"; # Don't kill the service on OOM
-    # };
-    # systemd.services.crystal-forge-server.environment = {
-    #   GC_INITIAL_HEAP_SIZE = "128M";
-    #   GC_MAX_HEAP_SIZE = "12G";
-    # };
-    # systemd.services.crystal-forge-builder.environment = {
-    #   GC_INITIAL_HEAP_SIZE = "128M";
-    #   GC_MAX_HEAP_SIZE = "12G";
-    # };
+    systemd.services.crystal-forge-server.serviceConfig = {
+      MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
+      MemoryHigh = lib.mkForce "85%"; # Start throttling early
+      MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
+      OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
+      OOMPolicy = "continue"; # Don't kill the service on OOM
+    };
+    systemd.services.crystal-forge-server.environment = {
+      GC_INITIAL_HEAP_SIZE = "128M";
+      GC_MAX_HEAP_SIZE = "12G";
+    };
+    systemd.services.crystal-forge-builder.environment = {
+      GC_INITIAL_HEAP_SIZE = "128M";
+      GC_MAX_HEAP_SIZE = "12G";
+    };
     systemd.services.crystal-forge-builder.serviceConfig = {
       OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
       OOMPolicy = "continue"; # Don't kill the service on OOM
