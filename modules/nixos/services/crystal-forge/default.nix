@@ -345,55 +345,55 @@ in {
     };
 
     # Pre-start script to copy the agent key from vault
-    systemd.services.crystal-forge-agent = mkIf cfg.client.enable {
-      preStart = mkForce ''
-        mkdir -p /var/lib/crystal-forge/
-        cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
-      '';
-    };
-    systemd.services.crystal-forge-server.serviceConfig = {
-      MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
-      MemoryHigh = lib.mkForce "85%"; # Start throttling early
-      MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
-      OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
-      OOMPolicy = "continue"; # Don't kill the service on OOM
-    };
-    systemd.services.crystal-forge-server.environment = {
-      GC_INITIAL_HEAP_SIZE = "128M";
-      GC_MAX_HEAP_SIZE = "12G";
-    };
-    systemd.services.crystal-forge-builder.environment = {
-      GC_INITIAL_HEAP_SIZE = "128M";
-      GC_MAX_HEAP_SIZE = "12G";
-    };
-    systemd.services.crystal-forge-builder.serviceConfig = {
-      OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
-      OOMPolicy = "continue"; # Don't kill the service on OOM
-      # Memory Management
-      MemoryMax = lib.mkForce "90%"; # Hard limit - leave 10% for OS
-      MemoryHigh = lib.mkForce "80%"; # Soft limit - start pressure early
-      MemorySwapMax = lib.mkForce "5G"; # Limited swap to prevent thrashing
-
-      # CPU Priority and Control
-      CPUWeight = lib.mkForce "1000"; # High CPU priority (default is 100)
-      Nice = lib.mkForce "-10"; # Higher process priority
-      CPUQuota = lib.mkForce "800%"; # Allow up to 8 cores if available
-
-      # I/O Priority
-      IOWeight = lib.mkForce "1000"; # High I/O priority
-      IOSchedulingClass = lib.mkForce "1"; # Real-time I/O class
-      IOSchedulingPriority = lib.mkForce "4"; # High RT priority (0-7, lower = higher)
-
-      # Restart Behavior
-      Restart = lib.mkForce "always";
-      RestartSec = lib.mkForce "5";
-      StartLimitBurst = lib.mkForce "10";
-      StartLimitIntervalSec = lib.mkForce "60";
-
-      # Process Limits
-      LimitNOFILE = lib.mkForce "1048576"; # High file descriptor limit
-      LimitNPROC = lib.mkForce "32768"; # High process limit
-    };
+    # systemd.services.crystal-forge-agent = mkIf cfg.client.enable {
+    #   preStart = mkForce ''
+    #     mkdir -p /var/lib/crystal-forge/
+    #     cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
+    #   '';
+    # };
+    # systemd.services.crystal-forge-server.serviceConfig = {
+    #   MemoryMax = lib.mkForce "95%"; # Leave 5% for OS
+    #   MemoryHigh = lib.mkForce "85%"; # Start throttling early
+    #   MemorySwapMax = lib.mkForce "10G"; # Minimal swap usage
+    #   OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
+    #   OOMPolicy = "continue"; # Don't kill the service on OOM
+    # };
+    # systemd.services.crystal-forge-server.environment = {
+    #   GC_INITIAL_HEAP_SIZE = "128M";
+    #   GC_MAX_HEAP_SIZE = "12G";
+    # };
+    # systemd.services.crystal-forge-builder.environment = {
+    #   GC_INITIAL_HEAP_SIZE = "128M";
+    #   GC_MAX_HEAP_SIZE = "12G";
+    # };
+    # systemd.services.crystal-forge-builder.serviceConfig = {
+    #   OOMScoreAdjust = lib.mkForce "-1000"; # Maximum protection from OOM killer
+    #   OOMPolicy = "continue"; # Don't kill the service on OOM
+    #   # Memory Management
+    #   MemoryMax = lib.mkForce "90%"; # Hard limit - leave 10% for OS
+    #   MemoryHigh = lib.mkForce "80%"; # Soft limit - start pressure early
+    #   MemorySwapMax = lib.mkForce "5G"; # Limited swap to prevent thrashing
+    #
+    #   # CPU Priority and Control
+    #   CPUWeight = lib.mkForce "1000"; # High CPU priority (default is 100)
+    #   Nice = lib.mkForce "-10"; # Higher process priority
+    #   CPUQuota = lib.mkForce "800%"; # Allow up to 8 cores if available
+    #
+    #   # I/O Priority
+    #   IOWeight = lib.mkForce "1000"; # High I/O priority
+    #   IOSchedulingClass = lib.mkForce "1"; # Real-time I/O class
+    #   IOSchedulingPriority = lib.mkForce "4"; # High RT priority (0-7, lower = higher)
+    #
+    #   # Restart Behavior
+    #   Restart = lib.mkForce "always";
+    #   RestartSec = lib.mkForce "5";
+    #   StartLimitBurst = lib.mkForce "10";
+    #   StartLimitIntervalSec = lib.mkForce "60";
+    #
+    #   # Process Limits
+    #   LimitNOFILE = lib.mkForce "1048576"; # High file descriptor limit
+    #   LimitNPROC = lib.mkForce "32768"; # High process limit
+    # };
 
     # systemd.services.crystal-forge-server.preStart = ''
     #   mkdir -p /var/lib/crystal-forge/
@@ -426,11 +426,11 @@ in {
     # GRANT SELECT ON public.systems TO grafana;
     # '';
 
-    systemd.tmpfiles.rules = [
-      "d /var/lib/crystal-forge 0755 crystal-forge crystal-forge -"
-      # Ensure subdirectories and files are also properly owned
-      "Z /var/lib/crystal-forge - crystal-forge crystal-forge - -"
-    ];
+    # systemd.tmpfiles.rules = [
+    #   "d /var/lib/crystal-forge 0755 crystal-forge crystal-forge -"
+    #   # Ensure subdirectories and files are also properly owned
+    #   "Z /var/lib/crystal-forge - crystal-forge crystal-forge - -"
+    # ];
 
     # Vault agent configuration for fetching the private key
     campground.services = {
