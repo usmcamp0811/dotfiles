@@ -121,32 +121,78 @@ in {
       };
       cores = lib.mkOption {
         type = lib.types.ints.positive;
-        default = 8;
+        default = 1;
         description = "Maximum CPU cores to use per build job";
       };
-
       max_jobs = lib.mkOption {
         type = lib.types.ints.positive;
         default = 1;
         description = "Maximum number of concurrent build jobs";
       };
-
       use_substitutes = lib.mkOption {
         type = lib.types.bool;
         default = true;
         description = "Whether to use binary substitutes/caches";
       };
-
       offline = lib.mkOption {
         type = lib.types.bool;
         default = false;
         description = "Build in offline mode (no network access)";
       };
-
       poll_interval = lib.mkOption {
         type = lib.types.str;
         default = "5m";
         description = "Interval between checking for new build jobs";
+      };
+      max_silent_time = lib.mkOption {
+        type = lib.types.str;
+        default = "1h";
+        description = "Maximum time a build can be silent before timing out";
+      };
+      timeout = lib.mkOption {
+        type = lib.types.str;
+        default = "2h";
+        description = "Maximum total time for a build before timing out";
+      };
+      sandbox = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable sandbox for builds";
+      };
+
+      # Systemd resource controls
+      use_systemd_scope = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether to use systemd-run for resource isolation";
+      };
+      systemd_memory_max = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = "64G";
+        description = "Memory limit for systemd scope (e.g., '4G', '2048M')";
+      };
+      systemd_cpu_quota = lib.mkOption {
+        type = lib.types.nullOr lib.types.ints.positive;
+        default = 1000;
+        description = "CPU quota as percentage (e.g., 300 for 3 cores worth)";
+      };
+      systemd_timeout_stop_sec = lib.mkOption {
+        type = lib.types.nullOr lib.types.ints.positive;
+        default = 600;
+        description = "Timeout for systemd scope stop operation in seconds";
+      };
+      systemd_properties = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [
+          "MemorySwapMax=8G"
+          "TasksMax=3000"
+        ];
+        description = "Additional systemd properties to set";
+        example = [
+          "MemorySwapMax=2G"
+          "TasksMax=3000"
+          "IOWeight=100"
+        ];
       };
     };
 
