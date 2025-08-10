@@ -344,17 +344,17 @@ in {
       inherit (cfg) flakes systems environments build vulnix cache;
     };
 
-    security.polkit.enable = true;
-    security.polkit.extraConfig = ''
-      polkit.addRule(function(action, subject) {
-        if (subject.user === "crystal-forge") {
-          if (action.id === "org.freedesktop.systemd1.manage-units" ||
-              action.id === "org.freedesktop.systemd1.set-property") {
-            return polkit.Result.YES;
-          }
-        }
-      });
-    '';
+    # security.polkit.enable = true;
+    # security.polkit.extraConfig = ''
+    #   polkit.addRule(function(action, subject) {
+    #     if (subject.user === "crystal-forge") {
+    #       if (action.id === "org.freedesktop.systemd1.manage-units" ||
+    #           action.id === "org.freedesktop.systemd1.set-property") {
+    #         return polkit.Result.YES;
+    #       }
+    #     }
+    #   });
+    # '';
     # Pre-start script to copy the agent key from vault
     # systemd.services.crystal-forge-agent = mkIf cfg.client.enable {
     #   preStart = mkForce ''
