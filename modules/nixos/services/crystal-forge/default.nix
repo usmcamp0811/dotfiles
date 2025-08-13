@@ -390,9 +390,6 @@ in {
       inherit (cfg) flakes systems environments build vulnix cache;
     };
 
-    systemd.services.crystal-forge-server.environment.HOME = mkIf cfg.server.enable "/var/lib/crystal-forge";
-    systemd.services.crystal-forge-builder.environment.HOME = mkIf cfg.build.enable "/var/lib/crystal-forge";
-
     # security.polkit.enable = true;
     # security.polkit.extraConfig = ''
     #   polkit.addRule(function(action, subject) {
