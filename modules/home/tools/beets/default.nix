@@ -1,10 +1,13 @@
-{ options, config, lib, pkgs, ... }:
-
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.campground;
-
-let cfg = config.campground.tools.beets;
-
+with lib.campground; let
+  cfg = config.campground.tools.beets;
 in {
   options.campground.tools.beets = with types; {
     enable = mkBoolOpt false "Whether or not to enable beets.";
@@ -17,28 +20,42 @@ in {
       settings = {
         directory = cfg.music-dir;
         library = "~/.config/beets/library.db";
-        ignore = [ ".jpg" ".jpeg" ".png" ".webp" ".gif" ".txt" ".pdf" ];
-        ui = { color = true; };
+
+        ignore = ["*.jpg" "*.jpeg" "*.png" "*.webp" "*.gif" "*.txt" "*.pdf"];
+        clutter = ["Thumbs.db" ".DS_Store" "desktop.ini" "AlbumArt*"];
+        ignore_hidden = true;
+
+        ui = {color = true;};
+
         import = {
-          move = true;
+          move = false;
+          copy = false;
+          link = false;
+          hardlink = false;
           write = true;
           autotag = true;
           log = "~/.config/beets/import.log";
           duplicate_action = "merge";
           incremental = true;
-          singleton = true;
+          singleton = false; # album-aware
+          group_albums = true;
           timid = false;
           resume = true;
           quiet_fallback = "asis";
-          group_albums = true;
-          strong_rec_thresh = 0.4;
           default_action = "apply";
         };
 
+        match = {
+          strong_rec_thresh = 0.7;
+          preferred = {
+            countries = ["US" "CA"];
+            media = ["CD" "Digital Media"];
+            original_year = true;
+          };
+        };
+
         plugins = [
-          "spotify"
           "info"
-          "ftintitle"
           "edit"
           "fetchart"
           "embedart"
@@ -55,6 +72,14 @@ in {
           relative_to = cfg.music-dir;
           playlist_dir = cfg.music-dir;
           playlists = [
+            {
+              name = "Never_Listened.m3u";
+              query = "play_count: ";
+            }
+            {
+              name = "Top_Rated.m3u";
+              query = "rating:1";
+            }
             {
               name = "80s_New_Wave.m3u";
               query = [
@@ -74,33 +99,20 @@ in {
                 "mood_energetic:..0.6"
               ];
             }
-            {
-              name = "Never_Listened.m3u";
-              query = "play_count: ";
-            }
-            {
-              name = "Top_Rated.m3u";
-              query = "rating:1";
-            }
           ];
         };
 
         fetchart = {
           auto = true;
-          sources = [ "coverart" "itunes" "amazon" "google" "albumart" ];
+          sources = ["coverart" "itunes" "amazon" "google" "albumart"];
           minwidth = 500;
         };
-
         embedart = {
           auto = true;
           ifempty = true;
         };
-
-        match = { strong_rec_thresh = 0.4; };
-
-        replaygain = { auto = true; };
-
-        scrub = { auto = true; };
+        replaygain = {auto = true;};
+        scrub = {auto = true;};
 
         lastgenre = {
           auto = true;
@@ -109,20 +121,7 @@ in {
           whitelist = true;
           count = 3;
         };
-
-        chroma = { auto = true; };
-
-        # moods = {
-        #   auto = true;
-        #   source = "lastfm";
-        #   write = true;
-        # };
-        #
-        # styles = {
-        #   auto = true;
-        #   source = "musicbrainz";
-        #   write = true;
-        # };
+        chroma = {auto = true;};
       };
     };
   };
