@@ -311,13 +311,21 @@ in {
       github-runner = {
         enable = true;
         runners = {
-          main-repo = {
+          jts-nix-runner = {
             enable = true;
             url = "https://github.com/atallc/jts";
             runner-name = "jts-nix-runner";
             extraLabels = ["nix" "docker"];
             ephemeral = true;
           };
+
+          # org-wide = {
+          #   # enable = true;
+          #   url = "https://github.com/atallc";
+          #   runner-name = "jts-nix-runner";
+          #   runnerGroup = "ata-nix-runners";
+          #   extraLabels = ["nix" "large"];
+          # };
         };
       };
       # hadoop = {

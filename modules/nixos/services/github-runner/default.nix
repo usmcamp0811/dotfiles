@@ -159,11 +159,7 @@ in {
         tokenFile = "/tmp/detsys-vault/github-runner-${runnerName}-token";
 
         # Add nix-specific packages and environment
-        extraEnvironment =
-          runnerCfg.extraEnvironment
-          // {
-            PATH = "/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:/bin:/sbin:/usr/bin:/usr/sbin";
-          };
+        extraEnvironment = runnerCfg.extraEnvironment;
       })
       cfg.runners;
 
@@ -171,42 +167,49 @@ in {
     campground = {
       services = {
         vault-agent = {
-          services = mapAttrs (runnerName: runnerCfg: {
-            settings = {
-              vault.address = cfg.vault-address;
-              auto_auth = {
-                method = [
-                  {
-                    type = "approle";
-                    config = {
-                      role_id_file_path = cfg.role-id;
-                      secret_id_file_path = cfg.secret-id;
-                      remove_secret_id_file_after_reading = false;
-                    };
-                  }
-                ];
+          services = {
+            "github-runner" = {
+              settings = {
+                vault.address = cfg.vault-address;
+                auto_auth = {
+                  method = [
+                    {
+                      type = "approle";
+                      config = {
+                        role_id_file_path = cfg.role-id;
+                        secret_id_file_path = cfg.secret-id;
+                        remove_secret_id_file_after_reading = false;
+                      };
+                    }
+                  ];
+                };
               };
-            };
-            secrets = {
-              file = {
-                files = {
-                  "github-runner-${runnerName}-token" = {
-                    text = ''
-                      {{ with secret "${cfg.vault-path}" }}
-                      {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${runnerName}_TOKEN }}{{ else }}{{ .Data.data.${runnerName}_TOKEN }}{{ end }}
-                      {{ end }}
-                    '';
-                    permissions = "0600";
-                    change-action = "restart";
-                  };
+              secrets = {
+                file = {
+                  files = mkMerge (
+                    mapAttrsToList (
+                      runnerName: runnerCfg:
+                        mkIf runnerCfg.enable {
+                          "github-runner-${runnerName}-token" = {
+                            text = ''
+                              {{ with secret "${cfg.vault-path}" }}
+                              {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${runnerCfg.runner-name}_TOKEN }}{{ else }}{{ .Data.data.${runnerCfg.runner-name}_TOKEN }}{{ end }}
+                              {{ end }}
+                            '';
+                            permissions = "0600";
+                            change-action = "restart";
+                          };
+                        }
+                    )
+                    cfg.runners
+                  );
                 };
               };
             };
-          }) (filterAttrs (_: runnerCfg: runnerCfg.enable) cfg.runners);
+          };
         };
       };
     };
-
     # Ensure nix daemon is available for runners
     nix.settings = {
       experimental-features = ["nix-command" "flakes"];
