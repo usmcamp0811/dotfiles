@@ -308,6 +308,18 @@ in {
       ldap-client = {enable = mkForce false;};
       attic-watch-store = enabled;
       gitlab-runner = enabled;
+      github-runner = {
+        enable = true;
+        runners = {
+          main-repo = {
+            enable = true;
+            url = "https://github.com/atallc/jts";
+            runner-name = "jts-nix-runner";
+            extraLabels = ["nix" "docker"];
+            ephemeral = true;
+          };
+        };
+      };
       # hadoop = {
       #   enable = true;
       #   yarnSite = { "yarn.nodemanager.hostname" = "reckless"; };
