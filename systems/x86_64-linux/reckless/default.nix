@@ -313,7 +313,7 @@ in {
         runners = {
           jts-nix-runner = {
             enable = true;
-            url = "https://github.com/atallc/jts";
+            url = "https://github.com/ATALLC/JTS";
             runner-name = "jts-nix-runner";
             extraLabels = ["nix" "docker"];
             ephemeral = true;
