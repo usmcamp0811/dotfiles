@@ -55,6 +55,28 @@ in {
         default = 3000;
       };
     };
+    auth = {
+      ssh_key_path = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Path to SSH private key for Git authentication. If null, SSH keys will be generated automatically.";
+      };
+      ssh_known_hosts_path = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = "/var/lib/crystal-forge/.ssh/known_hosts";
+        description = "Path to SSH known_hosts file. If null, defaults to /var/lib/crystal-forge/.ssh/known_hosts";
+      };
+      netrc_path = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = "/var/lib/crystal-forge/.netrc";
+        description = "Path to .netrc file for HTTPS Git authentication. If null, defaults to /var/lib/crystal-forge/.netrc";
+      };
+      ssh_disable_strict_host_checking = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Whether to disable strict host key checking for SSH";
+      };
+    };
     client = {
       enable = mkEnableOption "Enable the Crystal Forge Agent";
       server_host = mkOption {
