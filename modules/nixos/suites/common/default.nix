@@ -1,19 +1,19 @@
-{ options
-, config
-, lib
-, ...
+{
+  options,
+  config,
+  lib,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.suites.common;
-in
-{
+in {
   options.campground.suites.common = with types; {
     enable = mkBoolOpt false "Whether or not to enable common configuration.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ ];
+    environment.systemPackages = [];
 
     campground = {
       nix = {
@@ -70,7 +70,7 @@ in
         campground = enabled;
       };
 
-      cli-apps = { flake = enabled; };
+      cli-apps = {flake = enabled;};
 
       tools = {
         git = enabled;
@@ -87,6 +87,9 @@ in
       services = {
         crystal-forge = {
           enable = true;
+          server = {
+            port = 3444;
+          };
           client = {
             enable = true;
             server_host = "reckless";
@@ -103,7 +106,7 @@ in
         };
       };
 
-      security = { keyring = enabled; };
+      security = {keyring = enabled;};
 
       system = {
         boot = enabled;
