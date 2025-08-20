@@ -179,7 +179,6 @@ in {
       cfg.runners;
 
     # Fix for the token copy oneshot service ordering issue
-    # Fix for the token copy oneshot service ordering issue
     systemd.services =
       # GitHub runner services that depend on token copy
       (builtins.listToAttrs (mapAttrsToList (name: runnerCfg: {
@@ -192,7 +191,7 @@ in {
         cfg.runners))
       //
       # Token copy oneshot services (one per runner)
-      builtins.listToAttrs (mapAttrsToList (name: runnerCfg: {
+      (builtins.listToAttrs (mapAttrsToList (name: runnerCfg: {
           name = "github-runner-token-copy-${name}";
           value = mkIf runnerCfg.enable {
             description = "Copy GitHub Runner token for ${name}";
@@ -272,7 +271,14 @@ in {
             };
           };
         })
-        cfg.runners);
+        cfg.runners))
+      //
+      # Add restart trigger for nix-daemon
+      {
+        nix-daemon = {
+          restartTriggers = [config.nix.settings.trusted-users];
+        };
+      };
 
     # Configure Vault agent for each runner
     campground.services.vault-agent.services = builtins.listToAttrs (
@@ -301,15 +307,31 @@ in {
       })
       cfg.runners
     );
+
     # Ensure nix daemon is available for runners
     nix.settings = {
       experimental-features = ["nix-command" "flakes"];
       trusted-users =
-        ["root"]
-        ++ (map (runnerCfg: runnerCfg.user)
-          (filter (runnerCfg: runnerCfg.user != null)
-            (attrValues cfg.runners)));
+        ["root" "github-runner"]
+        ++ (lib.lists.unique (
+          lib.lists.filter (user: user != null) (
+            map (runnerCfg: runnerCfg.user) (attrValues cfg.runners)
+          )
+        ))
+        # Add the actual runner service users that NixOS creates
+        ++ (map (name: "github-runner-${name}")
+          (attrNames (lib.attrsets.filterAttrs (n: v: v.enable) cfg.runners)));
     };
+
+    # Add github-runner users to necessary groups
+    users.users = builtins.listToAttrs (
+      map (name: {
+        name = "github-runner-${name}";
+        value = {
+          extraGroups = ["docker"];
+        };
+      }) (attrNames (lib.attrsets.filterAttrs (n: v: v.enable) cfg.runners))
+    );
 
     # Create necessary nix directories and permissions
     system.activationScripts.github-runners-nix-setup = ''
