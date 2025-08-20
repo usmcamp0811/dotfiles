@@ -92,7 +92,7 @@ in {
           };
           client = {
             enable = true;
-            server_host = "reckless";
+            server_host = "crystal-forge.aicampground.com";
             server_port = 3444;
           };
         };
