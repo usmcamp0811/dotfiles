@@ -328,8 +328,18 @@ in {
       map (name: {
         name = "github-runner-${name}";
         value = {
+          isSystemUser = true;
+          group = "github-runner-${name}";
           extraGroups = ["docker"];
         };
+      }) (attrNames (lib.attrsets.filterAttrs (n: v: v.enable) cfg.runners))
+    );
+
+    # Create corresponding groups for the users
+    users.groups = builtins.listToAttrs (
+      map (name: {
+        name = "github-runner-${name}";
+        value = {};
       }) (attrNames (lib.attrsets.filterAttrs (n: v: v.enable) cfg.runners))
     );
 
