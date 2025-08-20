@@ -93,7 +93,7 @@ in {
           client = {
             enable = true;
             server_host = "crystal-forge.aicampground.com";
-            server_port = 3444;
+            server_port = 443;
           };
         };
         openssh = {
