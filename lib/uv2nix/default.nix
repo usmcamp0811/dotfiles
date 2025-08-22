@@ -4,16 +4,16 @@
 }: rec {
   # Main function to create a jupyenv-compatible uv2nix Python environment
   mkUv2nixPythonEnv = {
-    pkgs,
     # Required parameters
+    pkgs,
     workspaceRoot,
-    projectName,
+    projectName ? null, # Now optional - will auto-detect from workspace if not provided
     # Optional parameters with sensible defaults
     python ? pkgs.python313,
     sourcePreference ? "wheel",
-    deps ? "default",
-    # Can be "default", "all", or specific dependency groups
+    deps ? "default", # Can be "default", "all", or specific dependency groups
     customOverrides ? (final: prev: {}),
+    envName ? null, # Custom environment name, defaults to projectName + "-env"
     # Advanced options
     extraPassthru ? {},
     extraMeta ? {},
@@ -29,16 +29,36 @@
     };
 
     # 3. Construct the Final Python Package Set
-    pythonSet = (pkgs.callPackage inputs.pyproject-nix.build.packages {inherit python;}).overrideScope (lib.composeManyExtensions [
+    pythonSet = (pkgs.callPackage inputs.pyproject-nix.build.packages {inherit python;})
+      .overrideScope (lib.composeManyExtensions [
       inputs.pyproject-build-systems.overlays.default # For build tools
       uvLockedOverlay # Your locked dependencies
       customOverrides # User-provided overrides
     ]);
 
-    # 4. Get the project package
-    thisProjectAsNixPkg = pythonSet.${projectName};
+    # 4. Auto-detect project name if not provided
+    detectedProjectName =
+      if projectName != null
+      then projectName
+      else if workspace ? project && workspace.project ? name
+      then workspace.project.name
+      else "python-env";
 
-    # 5. Select dependencies based on deps parameter
+    # 5. Get the project package (if it exists)
+    thisProjectAsNixPkg =
+      if pythonSet ? ${detectedProjectName}
+      then pythonSet.${detectedProjectName}
+      else null;
+
+    # 6. Determine environment name
+    finalEnvName =
+      if envName != null
+      then envName
+      else if thisProjectAsNixPkg != null
+      then "${thisProjectAsNixPkg.pname}-env"
+      else "${detectedProjectName}-env";
+
+    # 7. Select dependencies based on deps parameter
     selectedDeps =
       if deps == "default"
       then workspace.deps.default
@@ -48,31 +68,99 @@
       then deps
       else workspace.deps.${deps} or workspace.deps.default;
 
-    # 6. Create the Python Runtime Environment
+    # 8. Parse pyproject.toml to find the main script
+    pyprojectPath = workspaceRoot + "/pyproject.toml";
+    pyprojectContent =
+      if builtins.pathExists pyprojectPath
+      then builtins.readFile pyprojectPath
+      else "";
+
+    # Extract main program from pyproject.toml [project.scripts] section
+    # This is a simplified parser - in practice you might want to use a proper TOML parser
+    mainProgramFromPyproject = let
+      lines = lib.splitString "\n" pyprojectContent;
+      inScriptsSection =
+        lib.foldl' (
+          acc: line: let
+            trimmed = lib.trim line;
+          in
+            if acc.inSection
+            then
+              if lib.hasPrefix "[" trimmed && trimmed != "[project.scripts]"
+              then acc // {inSection = false;}
+              else if lib.hasPrefix "#" trimmed || trimmed == ""
+              then acc
+              else let
+                parts = lib.splitString "=" trimmed;
+              in
+                if builtins.length parts >= 2
+                then
+                  acc
+                  // {
+                    scripts =
+                      acc.scripts
+                      ++ [
+                        {
+                          name = lib.trim (builtins.head parts);
+                          command = lib.trim (lib.concatStringsSep "=" (lib.tail parts));
+                        }
+                      ];
+                  }
+                else acc
+            else if trimmed == "[project.scripts]"
+            then acc // {inSection = true;}
+            else acc
+        ) {
+          inSection = false;
+          scripts = [];
+        }
+        lines;
+    in
+      if builtins.length inScriptsSection.scripts > 0
+      then (builtins.head inScriptsSection.scripts).name
+      else null;
+
+    # 9. Create the Python Runtime Environment
     appPythonEnv =
       pythonSet.mkVirtualEnv
-      (thisProjectAsNixPkg.pname + "-env")
+      finalEnvName
       selectedDeps;
 
     # Filter out non-package attributes to create pkgs
     nonPackageAttrs = ["python" "mkVirtualEnv" "resolveBuildSystem" "pythonPkgsBuildHost" "callPackage" "newScope" "overrideScope"];
     pythonPkgs = builtins.removeAttrs pythonSet nonPackageAttrs;
+
+    # Create a wrapper script for the REPL
+    replWrapper = pkgs.writeShellScript "${finalEnvName}-python" ''
+      exec ${appPythonEnv}/bin/python "$@"
+    '';
   in
     # Return the Python environment with full compatibility
     appPythonEnv.overrideAttrs (old: {
       meta =
         (old.meta or {})
         // {
-          mainProgram = "python";
+          mainProgram =
+            if mainProgramFromPyproject != null
+            then mainProgramFromPyproject
+            else "python";
         }
         // extraMeta;
 
-      # Fix jupyenv compatibility by removing non-executable files
+      # Fix jupyenv compatibility and ensure main program availability
       postFixup =
         (old.postFixup or "")
         + ''
           # Remove all non-executable files that jupyenv can't wrap
           find $out/bin -type f ! -executable -delete 2>/dev/null || true
+
+          # Ensure python is always available as the fallback
+          if [[ ! -x "$out/bin/python" ]]; then
+            ln -sf ${appPythonEnv}/bin/python $out/bin/python
+          fi
+
+          # Create a .python symlink for direct REPL access
+          ln -sf ${appPythonEnv}/bin/python $out/bin/.python
         '';
 
       passthru =
@@ -90,17 +178,23 @@
             interpreter
             ;
 
-          # Expose the underlying Python interpreter
-          python = pythonSet.python;
+          # Expose the environment's Python interpreter (not the base one)
+          python =
+            pkgs.runCommand "${finalEnvName}-python" {
+              meta.mainProgram = "python";
+            } ''
+              mkdir -p $out/bin
+              ln -s ${appPythonEnv}/bin/python $out/bin/python
+            '';
 
           # Create a pkgs attribute that includes requiredPythonModules
           pkgs =
             pythonPkgs
             // {
               requiredPythonModules =
-                pythonSet.python.passthru.requiredPythonModules or
-                  python.pkgs.requiredPythonModules or
-                    (ps: lib.concatMap (p: p.requiredPythonModules or []) ps);
+                pythonSet.python.passthru.requiredPythonModules or 
+            python.pkgs.requiredPythonModules or
+            (ps: lib.concatMap (p: p.requiredPythonModules or []) ps);
             };
 
           # Provide withPackages method

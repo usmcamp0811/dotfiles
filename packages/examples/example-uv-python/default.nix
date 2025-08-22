@@ -1,25 +1,18 @@
-{ pkgs
-, lib
-, inputs
-, ...
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
 }:
-let
-  workspace = inputs.uv2nix.lib.workspace.loadWorkspace {
-    workspaceRoot = ./.;
-  };
+lib.campground.mkUv2nixPythonEnv {
+  inherit pkgs;
+  workspaceRoot = ./.;
+  python = pkgs.python312;
+  # projectName will be auto-detected from pyproject.toml
+  # envName will default to "example-python-env" or similar
+}
+# Usage:
+# nix run .#your-package          # Runs the main program from pyproject.toml
+# nix run .#your-package.python   # Runs the Python REPL
+# result.passthru.python          # Access to Python interpreter
 
-  overlay = workspace.mkPyprojectOverlay {
-    sourcePreference = "wheel";
-  };
-
-  pythonSet =
-    (pkgs.callPackage inputs.pyproject-nix.build.packages {
-      python = pkgs.python312;
-    }).overrideScope (
-      lib.composeManyExtensions [
-        inputs.pyproject-build-systems.overlays.default
-        overlay
-      ]
-    );
-in
-pythonSet.mkVirtualEnv "example-python-env" workspace.deps.default
