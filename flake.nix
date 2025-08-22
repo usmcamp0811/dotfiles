@@ -289,7 +289,11 @@
         uv2nix.follows = "uv2nix";
       };
     };
-    jupyenv.url = "github:tweag/jupyenv";
+    jupyenv = {
+      # url = "github:tweag/jupyenv";
+      url = "github:malikwirin/jupyenv/25.05";
+      inputs.nixpkgs.follows = "unstable";
+    };
   };
 
   outputs = inputs: let

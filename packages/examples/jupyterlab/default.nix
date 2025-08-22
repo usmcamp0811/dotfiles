@@ -12,7 +12,7 @@
       enable = true;
       displayName = "Python Environment (uv2nix)";
       env = pkgs.campground.example-uv-python;
-      # python = pkgs.python313;
+      python = pkgs.python312;
     };
   };
 in
