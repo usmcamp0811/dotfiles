@@ -109,9 +109,9 @@
     switch-to-configuration-ng
     gjs
     libsecret
-    netbird
-    netbird-ui
-    netbird-dashboard
+    # netbird
+    # netbird-ui
+    # netbird-dashboard
     # xdg-desktop-portal
     ;
 }
