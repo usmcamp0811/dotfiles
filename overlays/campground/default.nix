@@ -1,5 +1,6 @@
 {
   kube-gen,
+  jupyenv,
   funkwhale,
   comma,
   process-compose-flake,
@@ -114,4 +115,6 @@
     # netbird-dashboard
     # xdg-desktop-portal
     ;
+
+  inherit (jupyenv.lib.${final.system}) mkJupyterlabNew mkKernel;
 }
