@@ -292,7 +292,7 @@
     jupyenv = {
       # url = "github:tweag/jupyenv";
       url = "github:malikwirin/jupyenv/25.05";
-      inputs.nixpkgs.follows = "unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 

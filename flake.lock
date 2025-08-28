@@ -9947,7 +9947,7 @@
         "flake-utils": "flake-utils_61",
         "nix-dart": "nix-dart_2",
         "nixpkgs": [
-          "unstable"
+          "nixpkgs"
         ],
         "poetry2nix": "poetry2nix_7",
         "pre-commit-hooks": "pre-commit-hooks_12"
