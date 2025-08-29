@@ -13,6 +13,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    environment.systemPackages = [
+      pkgs.via
+    ];
+
     # VIA/Vial udev rules (use package-provided rules with correct priority)
     services.udev.packages = [pkgs.via pkgs.vial];
 
