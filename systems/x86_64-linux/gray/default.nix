@@ -1,8 +1,9 @@
-{ pkgs
-, config
-, lib
-, inputs
-, ...
+{
+  pkgs,
+  config,
+  lib,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -12,13 +13,12 @@ with lib.campground; let
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
-  imports = [ ./hardware.nix ];
+in {
+  imports = [./hardware.nix];
   programs.adb.enable = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages;
 
-  services.tlp = { enable = mkForce false; };
+  services.tlp = {enable = mkForce false;};
   campground = {
     # rmf.example-flask-app = {
     #   # enable = true;
@@ -36,29 +36,29 @@ in
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" "adbusers" "kvm" ];
+      extraGroups = ["wheel" "docker" "adbusers" "kvm"];
       uid = 10000;
     };
 
-    apps = { steam = enabled; };
+    apps = {steam = enabled;};
 
     archetypes = {
       laptop = enabled;
       workstation = enabled;
     };
 
-    nfs.client = { enable = true; };
+    nfs.client = {enable = true;};
 
-    hardware = { bluetooth = enabled; };
+    hardware = {bluetooth = enabled;};
 
     services = {
-      ldap-client = { enable = mkForce false; };
+      ldap-client = {enable = mkForce false;};
       attic-watch-store = enabled;
       netbird.client = enabled;
       user-secrets = {
         enable = true;
         users = {
-          mcamp = { files = [ "id_ed25519" "passwords" "kubeconfig" ]; };
+          mcamp = {files = ["id_ed25519" "passwords" "kubeconfig"];};
         };
       };
       vault-agent = {
