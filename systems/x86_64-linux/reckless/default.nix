@@ -17,6 +17,7 @@ in {
   imports = [./hardware.nix];
   boot.kernelParams = ["pcie_port_pm=off" "pcie_aspm.policy=performance"];
   boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
   systemd.services.proton-socat-smtp = {
     description = "Socat Service for Proton Bridge SMTP Port Forwarding";
     after = ["network.target"];
@@ -86,6 +87,7 @@ in {
 
     hardware = {
       ckb-next = enabled;
+      via = enabled;
       ups.cp1500 = {enable = true;};
       nvidia = {
         enable = true;

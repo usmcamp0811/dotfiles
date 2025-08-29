@@ -120,6 +120,9 @@
   hardware.cpu.amd.updateMicrocode =
     lib.mkDefault config.hardware.enableRedistributableFirmware;
 
+  # VIA needs HID access; this installs the udev rules for QMK/VIA boards.
+  hardware.keyboard.qmk.enable = true;
+
   networking.firewall.allowedTCPPorts = [2049 20048];
   networking.firewall.allowedUDPPorts = [2049 20048];
   services.nfs.server.enable = true;
