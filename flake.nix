@@ -394,6 +394,7 @@
           envs = {dev.modules = [./kubernetes/dev.nix];};
         };
       };
+
       terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
 
       templates = {
