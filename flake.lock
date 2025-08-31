@@ -1197,11 +1197,11 @@
         "snowfall-lib": "snowfall-lib_6"
       },
       "locked": {
-        "lastModified": 1756678489,
-        "narHash": "sha256-E+R9FjrNmm4vYil2uqX1zpSrlCFMFm6KJfLb9TD7vnY=",
+        "lastModified": 1756684255,
+        "narHash": "sha256-kyM1uehp7YcIjkYXu7v5363efuzEf0VBlGkL2hfH9dM=",
         "ref": "refs/heads/main",
-        "rev": "449c4804e495c3b3f96bd6dd059aee09f264732e",
-        "revCount": 267,
+        "rev": "80f858006d0cc79301d454d405e4d695ef31f213",
+        "revCount": 270,
         "type": "git",
         "url": "ssh://git@gitlab.com/crystal-forge/crystal-forge"
       },
