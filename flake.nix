@@ -359,6 +359,7 @@
       # systemds.hosts.lucas.modules = with inputs; [
       #   unstable.nixosModules.services.k3s
       # ];
+
       systems.hosts.butler.modules = with inputs; [
         nixos-hardware.nixosModules.lenovo-thinkpad-p1
         nixos-hardware.nixosModules.lenovo-thinkpad-p53
