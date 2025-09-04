@@ -1197,11 +1197,11 @@
         "snowfall-lib": "snowfall-lib_6"
       },
       "locked": {
-        "lastModified": 1756954245,
-        "narHash": "sha256-jgc9zqBUmK84c0qRyOOSL10icET1dX2wzEWv+a+nitM=",
+        "lastModified": 1757024611,
+        "narHash": "sha256-4jiacvDUYgunnQq9rU2ElB0TaFt5W4Q7oBZQetGGerU=",
         "ref": "refs/heads/main",
-        "rev": "8e37f30744014ac8e5bdb64d91f1ca730b62da4d",
-        "revCount": 277,
+        "rev": "4078c5a9b955f05aac97a499585629ef99b3423d",
+        "revCount": 280,
         "type": "git",
         "url": "ssh://git@gitlab.com/crystal-forge/crystal-forge"
       },
@@ -18060,11 +18060,11 @@
     },
     "services-flake_2": {
       "locked": {
-        "lastModified": 1753819604,
-        "narHash": "sha256-ixDQBfmPVbSz8FZhWY/3fsZfYOvPKufYXtATiqR3xxM=",
+        "lastModified": 1756600705,
+        "narHash": "sha256-MRsbapTbaHI17JJ8axMRf6uQaiDf+D3I+AbxkHqxDiY=",
         "owner": "juspay",
         "repo": "services-flake",
-        "rev": "421a2512637b7736ed903181c5c9a38b44fe3a3c",
+        "rev": "383348cffc753cde22b67b3e7a3aa65e4a9f28e9",
         "type": "github"
       },
       "original": {
