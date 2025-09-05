@@ -1,13 +1,13 @@
-{ lib, ... }:
+{lib, ...}:
 with lib;
 with lib.campground; {
-  imports = [ ./hardware.nix ];
+  imports = [./hardware.nix];
   campground = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = [ "wheel" "docker" ];
+      extraGroups = ["wheel" "docker"];
       uid = 10000;
     };
     suites = {
@@ -46,7 +46,7 @@ with lib.campground; {
     # security = {
     #   acme = enabled;
     # };
-    nfs.client = { enable = true; };
+    nfs.client = {enable = true;};
 
     services = {
       k3s = {
@@ -60,19 +60,19 @@ with lib.campground; {
       # lemmy = enabled;
       # lynis = enabled;
       # netbird.server = enabled;
-      ldap-client = { enable = mkForce false; };
-      authentik = { enable = true; };
+      ldap-client = {enable = mkForce false;};
+      authentik = {enable = true;};
       borgbackup = {
         enable = true;
         jobs = {
           "daly_campground" = {
-            paths = [ "/persist" ];
+            paths = ["/persist"];
             repo = "mcamp@reckless:/mnt/backups/daly";
             startAt = "daily";
           };
           "daly_rsync" = {
-            extraArgs = [ "--remote-path=borg14" ];
-            paths = [ "/persist" ];
+            extraArgs = ["--remote-path=borg14"];
+            paths = ["/persist"];
             repo = "de3288@de3288.rsync.net:/data2/home/de3288/backups/daly";
             startAt = "daily";
           };
@@ -96,22 +96,22 @@ with lib.campground; {
           datanode.enable = true;
           datanode.restartIfChanged = true;
           datanode.openFirewall = true;
-          datanode.extraFlags = [ ];
-          datanode.extraEnv = { };
-          datanode.dataDirs = [ ];
+          datanode.extraFlags = [];
+          datanode.extraEnv = {};
+          datanode.dataDirs = [];
 
           journalnode.enable = true;
           journalnode.restartIfChanged = true;
           journalnode.openFirewall = true;
-          journalnode.extraFlags = [ ];
-          journalnode.extraEnv = { };
+          journalnode.extraFlags = [];
+          journalnode.extraEnv = {};
         };
         yarn = {
           resourcemanager.enable = true;
           resourcemanager.openFirewall = true;
           resourcemanager.restartIfChanged = true;
-          resourcemanager.extraFlags = [ ];
-          resourcemanager.extraEnv = { };
+          resourcemanager.extraFlags = [];
+          resourcemanager.extraEnv = {};
 
           nodemanager.enable = true;
           nodemanager.useCGroups = false;
@@ -122,8 +122,8 @@ with lib.campground; {
           nodemanager.resource.cpuVCores = null;
           nodemanager.openFirewall = true;
           nodemanager.localDir = null;
-          nodemanager.extraFlags = [ ];
-          nodemanager.extraEnv = { };
+          nodemanager.extraFlags = [];
+          nodemanager.extraEnv = {};
           nodemanager.addBinBash = true;
         };
       };
@@ -142,7 +142,7 @@ with lib.campground; {
       };
       user-secrets = {
         enable = true;
-        users = { mcamp = { files = [ "id_ed25519" "passwords" ]; }; };
+        users = {mcamp = {files = ["id_ed25519" "passwords"];};};
       };
       # wireguard = {
       #   enable = true;
@@ -168,23 +168,11 @@ with lib.campground; {
       vault = {
         enable = true;
         ui = true;
-        auto-unseal = true;
+        # auto-unseal = true;
         storage = {
           backend = "raft";
           config = ''
             node_id = "vault-node-daly"
-            retry_join {
-              leader_api_addr = "http://chesty:8200"
-            }
-            retry_join {
-              leader_api_addr = "http://ermy:8200"
-            }
-            retry_join {
-              leader_api_addr = "http://webb:8200"
-            }
-            retry_join {
-              leader_api_addr = "http://lucas:8200"
-            }
           '';
         };
         settings = ''
@@ -194,20 +182,20 @@ with lib.campground; {
 
         policies =
           builtins.foldl'
-            (policies: file:
-              policies
-              // {
-                "${snowfall.path.get-file-name-without-extension file}" = file;
-              })
-            { }
-            (builtins.filter (snowfall.path.has-file-extension "hcl")
-              (builtins.map
-                (path:
-                  ./vault/policies
-                  + "/${
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          {}
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ./vault/policies
+                + "/${
                   builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
                 }")
-                (snowfall.fs.get-files ./vault/policies)));
+              (snowfall.fs.get-files ./vault/policies)));
       };
       vault-agent = {
         enable = true;

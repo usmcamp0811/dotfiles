@@ -1,7 +1,8 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -16,10 +17,10 @@ with lib.campground; let
 
   format-policy = name: file:
     pkgs.runCommandNoCC "formatted-vault-policy"
-      {
-        inherit file;
-        buildInputs = [ package ];
-      } ''
+    {
+      inherit file;
+      buildInputs = [package];
+    } ''
       name="$(basename "$file")"
 
       cp "$file" "./$name"
@@ -50,15 +51,15 @@ with lib.campground; let
 
   policies =
     mapAttrs
-      (name: value:
-        if builtins.isPath value
-        then format-policy name value
-        else format-policy name (pkgs.writeText "${name}.hcl" value))
-      cfg.policies;
+    (name: value:
+      if builtins.isPath value
+      then format-policy name value
+      else format-policy name (pkgs.writeText "${name}.hcl" value))
+    cfg.policies;
 
   unseal-script = pkgs.writeShellApplication {
     name = "celvis-unseal-vault";
-    runtimeInputs = [ package pkgs.clevis pkgs.curl ];
+    runtimeInputs = [package pkgs.clevis pkgs.curl];
     text = ''
       # TODO: make sure this exists?
       export HOME="/var/lib/vault" # Needed or Vault cli shits the bed
@@ -85,11 +86,11 @@ with lib.campground; let
 
   write-policies-commands =
     mapAttrsToList
-      (name: policy: ''
-        echo Writing policy '${name}': '${policy}'
-        vault policy write '${name}' '${policy}'
-      '')
-      policies;
+    (name: policy: ''
+      echo Writing policy '${name}': '${policy}'
+      vault policy write '${name}' '${policy}'
+    '')
+    policies;
   write-policies = concatStringsSep "\n" write-policies-commands;
 
   known-policies = mapAttrsToList (name: _value: name) policies;
@@ -119,8 +120,7 @@ with lib.campground; let
       fi
     done <<< "$current_policies"
   '';
-in
-{
+in {
   options.campground.services.vault = {
     enable = mkEnableOption "Vault";
     ui = mkBoolOpt true "Whether the UI should be enabled.";
@@ -128,50 +128,52 @@ in
       mkBoolOpt false "Whether or not to auto unseal with Clevis & Tang";
     tang-unseal-key =
       mkOpt types.str "/var/lib/vault/unsealkey.enc"
-        "Location of a Tang encrypted unseal key";
+      "Location of a Tang encrypted unseal key";
     storage = {
       backend = mkOpt types.str "file" "The storage backend for Vault.";
       path = mkOpt types.str "/var/lib/vault/data" "Path";
       config = mkOpt (types.nullOr types.str) null "Config";
     };
+
+    disable-mlock = mkBoolOpt true "Whether to set Vault's disable_mlock.";
     address =
       mkOpt types.str "0.0.0.0:${toString cfg.port}"
-        "Where to access vault UI at";
+      "Where to access vault UI at";
     port = mkOpt types.int 8200 "Port for UI";
     settings = mkOpt types.str "" "Configuration for Vault's config file.";
     mutable-policies =
       mkBoolOpt false
-        "Whether policies not specified in Nix should be removed.";
+      "Whether policies not specified in Nix should be removed.";
     policies =
-      mkOpt (types.attrsOf (types.either types.str types.path)) { }
-        "Policies to install when Vault runs.";
+      mkOpt (types.attrsOf (types.either types.str types.path)) {}
+      "Policies to install when Vault runs.";
     policy-agent = {
       user = mkOpt types.str "root" "The user to run the Vault Agent as.";
       group = mkOpt types.str "root" "The group to run the Vault Agent as.";
       auth = {
         roleIdFilePath =
           mkOpt types.str "/var/lib/vault/vault/role-id"
-            "The file to read the role-id from.";
+          "The file to read the role-id from.";
         secretIdFilePath =
           mkOpt types.str "/var/lib/vault/vault/secret-id"
-            "The file to read the secret-id from.";
+          "The file to read the secret-id from.";
       };
     };
     snapshot = {
       enable = mkBoolOpt false "Should we make regular snapshots";
       vault-domain =
         mkOpt types.str "https://vault.lan.aicampground.com"
-          "The domain name of the Vault";
+        "The domain name of the Vault";
       location =
         mkOpt types.str "/persist/vault" "The place to store the snapshot";
       schedule =
         mkOpt types.str "*-*-* 23:50:00 America/Chicago"
-          "The schedule the snapshots should be run on";
+        "The schedule the snapshots should be run on";
     };
   };
 
   config = {
-    environment.systemPackages = with pkgs; [ campground.vault-scripts ];
+    environment.systemPackages = with pkgs; [campground.vault-scripts];
     services.vault = mkIf cfg.enable {
       enable = true;
       address = cfg.address;
@@ -180,6 +182,11 @@ in
       storagePath = cfg.storage.path;
       storageConfig = cfg.storage.config;
       extraConfig = ''
+        disable_mlock = ${
+          if cfg.disable-mlock
+          then "true"
+          else "false"
+        }
         ui = ${
           if cfg.ui
           then "true"
@@ -194,8 +201,8 @@ in
       mkIf cfg.enable "${unseal-script}/bin/celvis-unseal-vault";
 
     systemd.services.vault-policies = mkIf (cfg.enable && (has-policies || !cfg.mutable-policies)) {
-      wantedBy = [ "vault.service" ];
-      after = [ "vault.service" ];
+      wantedBy = ["vault.service"];
+      after = ["vault.service"];
 
       serviceConfig = {
         Type = "oneshot";
@@ -209,7 +216,7 @@ in
       restartTriggers =
         mapAttrsToList (name: value: "${name}=${value}") policies;
 
-      path = [ package pkgs.curl pkgs.jq ];
+      path = [package pkgs.curl pkgs.jq];
 
       environment = {
         VAULT_ADDR = "http://${config.services.vault.address}";
@@ -260,9 +267,9 @@ in
 
     systemd.services.vault-snapshot = mkIf (cfg.snapshot.enable && cfg.storage.backend == "raft") {
       description = "Vault Raft Snapshot Service";
-      serviceConfig = { Type = "oneshot"; };
+      serviceConfig = {Type = "oneshot";};
 
-      environment = { HOME = "/var/lib/vault"; };
+      environment = {HOME = "/var/lib/vault";};
 
       script = ''
         # Paths to the AppRole credentials
@@ -301,12 +308,12 @@ in
 
     systemd.timers."vault-snapshot" = mkIf cfg.snapshot.enable {
       description = "Take regular snapshots of the Vault Raft DB";
-      partOf = [ "vault-snapshot.service" ];
+      partOf = ["vault-snapshot.service"];
       timerConfig = {
         OnCalendar = cfg.snapshot.schedule;
         Persistent = true;
       };
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
     };
   };
 }
