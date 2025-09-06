@@ -29,8 +29,8 @@
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
-    # unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    unstable.url = "github:nixos/nixpkgs/20075955deac2583bb12f07151c2df830ef346b4";
+    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    # unstable.url = "github:nixos/nixpkgs/20075955deac2583bb12f07151c2df830ef346b4";
 
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
