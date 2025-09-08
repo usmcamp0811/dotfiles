@@ -110,6 +110,7 @@
     switch-to-configuration-ng
     gjs
     libsecret
+    vulnix
     # netbird
     # netbird-ui
     # netbird-dashboard
