@@ -38,23 +38,36 @@ in {
       };
 
       # WirePlumber: no auto-suspend + lower per-app latency for Brave
-      wireplumber.extraConfig."51-no-suspend.lua" = ''
-        alsa_monitor = alsa_monitor or {}
-        alsa_monitor.rules = alsa_monitor.rules or {}
-
-        table.insert(alsa_monitor.rules, {
-          matches = { { { "node.name", "matches", "alsa_output.*" } } },
-          apply_properties = { ["session.suspend-timeout-seconds"] = 0 }
-        })
-
-        table.insert(alsa_monitor.rules, {
-          matches = { { { "application.name", "matches", "Brave*" } } },
-          apply_properties = {
-            ["node.pause-on-idle"] = false,
-            ["node.latency"] = "1024/48000"
-          }
-        })
-      '';
+      wireplumber.extraConfig."51-no-suspend.conf" = {
+        # This mirrors the Lua tables in JSON-ish form
+        alsa_monitor = {
+          rules = [
+            {
+              # matches = { { { "node.name", "matches", "alsa_output.*" } } }
+              matches = [
+                [
+                  ["node.name" "matches" "alsa_output.*"]
+                ]
+              ];
+              apply_properties = {
+                "session.suspend-timeout-seconds" = 0;
+              };
+            }
+            {
+              # matches = { { { "application.name", "matches", "Brave*" } } }
+              matches = [
+                [
+                  ["application.name" "matches" "Brave*"]
+                ]
+              ];
+              apply_properties = {
+                "node.pause-on-idle" = false;
+                "node.latency" = "1024/48000";
+              };
+            }
+          ];
+        };
+      };
     };
 
     # Disable legacy PulseAudio daemon
