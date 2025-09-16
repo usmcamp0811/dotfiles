@@ -23,7 +23,7 @@ with lib.campground; {
     };
     desktop.hyprland.startup = [
       ''
-        ${getExe pkgs.hyprland "hpyrctl"} keyword monitor "DP-2, disable"
+        ${getExe' pkgs.hyprland "hpyrctl"} keyword monitor "DP-2, disable"
       ''
     ];
     services.protonmail-bridge = enabled;
