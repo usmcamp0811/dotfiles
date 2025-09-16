@@ -1,16 +1,17 @@
-{ inputs
-, options
-, config
-, pkgs
-, lib
-, ...
+{
+  inputs,
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
 }:
 with lib;
 with lib.campground; let
   # Generated file content for aliases
   aliasesFile =
     pkgs.writeText "aliases.shrc"
-      "${convertAlias config.campground.cli.aliases}";
+    "${convertAlias config.campground.cli.aliases}";
 
   default-aliases = pkgs.writeText "default-aliases.shrc" (convertAlias {
     ".." = "cd ..";
@@ -69,13 +70,23 @@ with lib.campground; let
       # Pass all arguments to the regular ssh command
       command ssh "$@"
     '';
+    hyprmon = ''
+      # Easily adjust monitors over ssh
+      # Usage:
+      #   hyprmon monitors
+      #   hyprmon keyword monitor "DP-2, disable"
+      #   hyprmon keyword monitor "DP-2, 1920x1080@60, auto, 1"
+
+      local sig
+      sig=$(hyprctl instances | awk '/^instance /{gsub(":","",$2); print $2; exit}')
+      hyprctl --instance "$sig" "$@"
+    '';
   });
-in
-{
+in {
   options.campground.cli.aliases = with types;
     mkOption {
       type = attrsOf str;
-      default = { };
+      default = {};
       description = "A set of command aliases to set.";
     };
 
