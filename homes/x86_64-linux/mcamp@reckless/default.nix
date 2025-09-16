@@ -22,11 +22,7 @@ with lib.campground; {
       display-name = "HDMI-A-2";
     };
     desktop.hyprland.startup = [
-      ''
-        local sig
-        sig=$(${pkgs.hyprland}/bin/hpyrctl  instances | ${pkgs.gawk}/bin/awk '/^instance /{gsub(":","",$2); print $2; exit}')
-        ${pkgs.hyprland}/bin/hpyrctl --instance "$sig" keyword monitor "DP-2, disable"
-      ''
+      ''${pkgs.hyprland}/bin/hyprctl --instance 0 keyword monitor "keyword monitor "DP-2, disable"''
     ];
     services.protonmail-bridge = enabled;
     # apps.thunderbird = enabled;
