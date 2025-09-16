@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   pkgs,
   config,
@@ -62,7 +63,9 @@ with lib.campground; {
         enable = true;
         startup = [
           ''
-            ${getExe pkgs.hyprland "hpyrctl"} keyword monitor "HDMI-A-5,preferred,0x0,1,mirror,DP-3"
+            local sig
+            sig=$(${pkgs.hyprland}/bin/hpyrctl  instances | ${pkgs.gawk}/bin/awk '/^instance /{gsub(":","",$2); print $2; exit}')
+            ${pkgs.hyprland}/bin/hpyrctl --instance "$sig" keyword monitor "HDMI-A-5,preferred,0x0,1,mirror,DP-3"
           ''
         ];
       };
