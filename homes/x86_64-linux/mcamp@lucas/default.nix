@@ -1,4 +1,11 @@
-{ lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
+{
+  lib,
+  pkgs,
+  config,
+  osConfig ? {},
+  format ? "unknown",
+  ...
+}:
 with lib.campground; {
   campground = {
     user = {
@@ -27,18 +34,15 @@ with lib.campground; {
           monitors = [
             {
               name = "HDMI-A-1";
-              wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-2";
-              wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-3";
-              wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
           ];
 
@@ -56,7 +60,11 @@ with lib.campground; {
       };
       hyprland = {
         enable = true;
-        # startup = [ "${getExe pkgs.ckb-next} -b" ];
+        startup = [
+          ''
+            ${getExe pkgs.hyprland "hpyrctl"} keyword monitor "HDMI-A-5,preferred,0x0,1,mirror,DP-3"
+          ''
+        ];
       };
     };
 

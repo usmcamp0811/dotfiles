@@ -21,6 +21,11 @@ with lib.campground; {
       enable = true;
       display-name = "HDMI-A-2";
     };
+    desktop.hyprland.startup = [
+      ''
+        ${getExe pkgs.hyprland "hpyrctl"} keyword monitor "DP-2, disable"
+      ''
+    ];
     services.protonmail-bridge = enabled;
     # apps.thunderbird = enabled;
     tools.beets = enabled;
