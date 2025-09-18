@@ -9,7 +9,7 @@ with lib;
 with lib.campground; let
   cfg = config.campground.tools.python;
   python =
-    python3.withPackages
+    pkgs.python3.withPackages
     (ps: [ps.bpython ps.numpy ps.pandas]);
 in {
   options.campground.tools.python = with types; {
