@@ -9,6 +9,7 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.nix;
+  vaultConfigured = cfg.vault-address != null && cfg.vault-address != "";
   substituters-submodule = types.submodule ({...}: {
     options = with types; {
       key =
@@ -86,7 +87,7 @@ in {
     };
 
     # TODO: Figure out if I can just use it straigh from the /tmp/detsys-vault/netrc location
-    systemd.services.copyNETRC = {
+    systemd.services.copyNETRC = mkIf vaultConfigured {
       description = "Copy the NETRC file to the correct spot";
       serviceConfig = {
         Type = "oneshot";
