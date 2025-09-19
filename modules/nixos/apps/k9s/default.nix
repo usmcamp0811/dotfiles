@@ -9,7 +9,6 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.apps.k9s;
-  vaultConfigured = cfg.vault-address != null && cfg.vault-address != "";
 in {
   options.campground.apps.k9s = with types; {
     enable = mkBoolOpt false "Whether or not to enable K9s.";
@@ -41,7 +40,7 @@ in {
     # (i.e., not null/empty).
     # This prevents copyKUBECONFIG from running when Vault isn’t configured.
     # You can still provide your kubeconfig some other way.
-    systemd.services.copyKUBECONFIG = mkIf vaultConfigured {
+    systemd.services.copyKUBECONFIG = mkIf config.campground.services.vault-agent.enable {
       description = "Copy Kubeconfig to /etc/k8s/";
       serviceConfig = {
         Type = "oneshot";
