@@ -1,26 +1,26 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.postgresql;
-in
-{
+in {
   options.campground.services.postgresql = with types; {
     enable = mkBoolOpt false "Enable PostgreSQL on a server";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/database-users"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -103,7 +103,7 @@ in
     extraInit = mkOpt str "" "Extra stuff to put into the Init script";
     extraPlugins = lib.mkOption {
       type = lib.types.listOf lib.types.package;
-      default = [ pkgs.postgresql16Packages.timescaledb ];
+      default = [pkgs.postgresql16Packages.timescaledb];
       description = "A list of packages to use.";
     };
     backupEnable = mkBoolOpt false "Enable backups";
@@ -112,8 +112,9 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.services.prometheus.additionalCollectors = [ "postgres" ];
-    networking.firewall.allowedTCPPorts = [ 5432 ]; # Open PostgreSQL port
+    environment.systemPackages = with pkgs; [pgcli];
+    campground.services.prometheus.additionalCollectors = ["postgres"];
+    networking.firewall.allowedTCPPorts = [5432]; # Open PostgreSQL port
     services.postgresql = {
       enable = true;
       package = cfg.package;
@@ -124,17 +125,17 @@ in
       settings = cfg.settings; # Use the configurable settings
       ensureUsers =
         map
-          (db: {
-            name = db.user;
-            ensureDBOwnership = true;
-            # ensurePermissions = {
-            #   "DATABASE ${db.name}" = "ALL PRIVILEGES";
-            # };
-            ensureClauses = {
-              login = true; # or however you wish to set this
-            };
-          })
-          cfg.databases;
+        (db: {
+          name = db.user;
+          ensureDBOwnership = true;
+          # ensurePermissions = {
+          #   "DATABASE ${db.name}" = "ALL PRIVILEGES";
+          # };
+          ensureClauses = {
+            login = true; # or however you wish to set this
+          };
+        })
+        cfg.databases;
     };
     services.postgresqlBackup = {
       enable = cfg.backupEnable;
@@ -151,9 +152,9 @@ in
         User = "postgres";
         ExecStartPre = "${pkgs.bash}/bin/bash -c 'until ${pkgs.postgresql}/bin/pg_isready -U postgres; do echo Waiting for PostgreSQL; sleep 1; done'";
       };
-      after = [ "postgresql.service" ];
-      requires = [ "postgresql.service" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["postgresql.service"];
+      requires = ["postgresql.service"];
+      wantedBy = ["multi-user.target"];
       preStart = "echo 'Preparing to set PostgreSQL passwords'";
     };
 
