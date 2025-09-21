@@ -452,33 +452,89 @@ in {
       inherit (cfg) flakes systems environments build vulnix cache auth;
     };
 
-    systemd.services.crystal-forge-agent.preStart = ''
-      mkdir -p /var/lib/crystal-forge/
-      while [ ! -f /tmp/detsys-vault/agent.key ]; do
-        echo "Waiting for vault-agent to create agent.key..."
-        sleep 2
-      done
-      cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
-      chown crystal-forge:crystal-forge /var/lib/crystal-forge/agent.key
-      chmod 600 /var/lib/crystal-forge/agent.key
-    '';
+    systemd.services.crystal-forge-setup = {
+      description = "Crystal Forge Setup - Copy Vault Agent Files";
+      wantedBy = ["multi-user.target"];
+      after = [
+        "vault-agent-crystal-forge-agent.service"
+        "vault-agent-crystal-forge-builder.service"
+      ];
+      wants = [
+        "vault-agent-crystal-forge-agent.service"
+        "vault-agent-crystal-forge-builder.service"
+      ];
 
-    systemd.services.crystal-forge-builder.preStart = ''
-      mkdir -p /var/lib/crystal-forge/
-      while [ ! -f /tmp/detsys-vault/attic-token ]; do
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "root";
+        Group = "root";
+      };
+
+      script = ''
+        set -euo pipefail
+        echo "Starting Crystal Forge setup..."
+
+        # Create directory
+        mkdir -p /var/lib/crystal-forge/
+
+        # Wait for and copy agent key
+        echo "Waiting for vault-agent to create agent.key..."
+        timeout=300  # 5 minutes
+        elapsed=0
+        while [ ! -f /tmp/detsys-vault/agent.key ] && [ $elapsed -lt $timeout ]; do
+          sleep 2
+          elapsed=$((elapsed + 2))
+        done
+
+        if [ ! -f /tmp/detsys-vault/agent.key ]; then
+          echo "ERROR: agent.key not found after $timeout seconds"
+          exit 1
+        fi
+
+        cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
+        chown crystal-forge:crystal-forge /var/lib/crystal-forge/agent.key
+        chmod 600 /var/lib/crystal-forge/agent.key
+        echo "✅ Agent key copied successfully"
+
+        # Wait for and copy attic token
         echo "Waiting for vault-agent to create attic-token..."
-        sleep 2
-      done
-      cp /tmp/detsys-vault/attic-token /var/lib/crystal-forge/attic-token
-      chown crystal-forge:crystal-forge /var/lib/crystal-forge/attic-token
-      chmod 600 /var/lib/crystal-forge/attic-token
-    '';
+        elapsed=0
+        while [ ! -f /tmp/detsys-vault/attic-token ] && [ $elapsed -lt $timeout ]; do
+          sleep 2
+          elapsed=$((elapsed + 2))
+        done
+
+        if [ ! -f /tmp/detsys-vault/attic-token ]; then
+          echo "ERROR: attic-token not found after $timeout seconds"
+          exit 1
+        fi
+
+        cp /tmp/detsys-vault/attic-token /var/lib/crystal-forge/attic-token
+        chown crystal-forge:crystal-forge /var/lib/crystal-forge/attic-token
+        chmod 600 /var/lib/crystal-forge/attic-token
+        echo "✅ Attic token copied successfully"
+
+        echo "Crystal Forge setup completed successfully"
+      '';
+    };
+
+    # Update the other services to depend on the setup service
+    systemd.services.crystal-forge-agent.after = ["crystal-forge-setup.service"];
+    systemd.services.crystal-forge-agent.wants = ["crystal-forge-setup.service"];
+
+    systemd.services.crystal-forge-builder.after = ["crystal-forge-setup.service"];
+    systemd.services.crystal-forge-builder.wants = ["crystal-forge-setup.service"];
+
+    # Remove the preStart scripts since we're handling this in the setup service
+    systemd.services.crystal-forge-agent.preStart = lib.mkForce "";
+    systemd.services.crystal-forge-builder.preStart = lib.mkForce "";
 
     # Vault agent configuration for fetching the private key
     campground.services = {
       vault-agent = {
         services = {
-          "crystal-forge-builder" = {
+          "crystal-forge-setup" = {
             settings = {
               vault.address = cfg.vault-address;
               auto_auth = {
@@ -502,29 +558,6 @@ in {
                     permissions = "0600";
                     change-action = "restart";
                   };
-                };
-              };
-            };
-          };
-          "crystal-forge-agent" = {
-            settings = {
-              vault.address = cfg.vault-address;
-              auto_auth = {
-                method = [
-                  {
-                    type = "approle";
-                    config = {
-                      role_id_file_path = cfg.role-id;
-                      secret_id_file_path = cfg.secret-id;
-                      remove_secret_id_file_after_reading = false;
-                    };
-                  }
-                ];
-              };
-            };
-            secrets = {
-              file = {
-                files = {
                   "agent.key" = {
                     text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${host} }}{{ else }}{{ .Data.data.${host} }}{{ end }}{{ end }}'';
                     permissions = "0600";
