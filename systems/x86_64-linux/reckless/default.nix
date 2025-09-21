@@ -99,14 +99,42 @@ in {
       crystal-forge = {
         enable = true;
         # log_level = "debug";
+
+        # Cache configuration for your Attic cache
+        cache = {
+          cache_type = "Attic";
+          push_to = "https://attic.aicampground.com/campground";
+          push_after_build = true;
+          attic_cache_name = "campground";
+          parallel_uploads = 4;
+          max_retries = 3;
+          retry_delay_seconds = 5;
+        };
+
+        # Build configuration to enable cache pushing
+        build = {
+          enable = true;
+          cores = 4; # Adjust based on your hardware
+          max_jobs = 2;
+          use_substitutes = true;
+          sandbox = true;
+          # Resource limits
+          systemd_memory_max = "32G";
+          systemd_cpu_quota = 400; # 4 cores worth
+        };
+
         flakes.watched = [
           {
             name = "dotfiles";
             repo_url = "https://gitlab.com/usmcamp0811/dotfiles";
+            auto_poll = true;
+            initial_commit_depth = 10;
           }
           {
             name = "boterf-nix-configurations";
             repo_url = "https://gitlab.com/michaelboterf/nix-configurations";
+            auto_poll = true;
+            initial_commit_depth = 10;
           }
         ];
 
@@ -133,7 +161,7 @@ in {
             compliance_level = "NONE";
           }
         ];
-        # Updated systems configuration (new requirement)
+
         systems = [
           {
             hostname = "txboterf-nzxt-gaming";
@@ -199,9 +227,8 @@ in {
 
         server = {
           enable = true;
-          host = "0.0.0.0"; # Added explicit host
-          port = 3444; # Kept your custom port
-          # Note: authorized_keys moved to systems configuration above
+          host = "0.0.0.0";
+          port = 3444;
         };
 
         # Database configuration (using defaults)
@@ -209,7 +236,17 @@ in {
           host = "localhost";
           user = "crystal_forge";
           name = "crystal_forge";
-          # password defaults handled by module
+          port = 5432;
+        };
+
+        # Enable local database management if needed
+        local-database = true;
+
+        # CVE scanning configuration
+        vulnix = {
+          timeout = "10m";
+          max_retries = 3;
+          poll_interval = "5m";
         };
       };
       glusterfs = {

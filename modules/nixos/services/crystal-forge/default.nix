@@ -43,6 +43,10 @@ in {
         type = types.str;
         default = "crystal_forge";
       };
+      port = mkOption {
+        type = types.port;
+        default = 5432;
+      };
     };
     server = {
       enable = mkEnableOption "Enable the Crystal Forge Server";
@@ -87,6 +91,11 @@ in {
         type = types.port;
         default = 3000;
       };
+      private_key = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = "Path to Ed25519 private key for agent authentication";
+      };
     };
     flakes = {
       watched = lib.mkOption {
@@ -102,8 +111,13 @@ in {
             };
             auto_poll = lib.mkOption {
               type = lib.types.bool;
-              default = false; # Add default value
+              default = false;
               description = "Whether to automatically poll the repository for new commits instead of relying solely on webhooks";
+            };
+            initial_commit_depth = lib.mkOption {
+              type = lib.types.ints.positive;
+              default = 10;
+              description = "Number of commits to fetch initially when adding the flake";
             };
           };
         });
@@ -114,24 +128,23 @@ in {
             name = "dotfiles";
             repo_url = "git+https://gitlab.com/usmcamp0811/dotfiles";
             auto_poll = false;
+            initial_commit_depth = 10;
           }
         ];
       };
       flake_polling_interval = lib.mkOption {
         type = lib.types.str;
-        default = "10m"; # 10 minutes
+        default = "10m";
         description = "Interval between flake polling checks (e.g., '10m', '1h')";
       };
-
       commit_evaluation_interval = lib.mkOption {
         type = lib.types.str;
-        default = "1m"; # 1 minute
+        default = "1m";
         description = "Interval between commit evaluation checks (e.g., '1m', '5m')";
       };
-
       build_processing_interval = lib.mkOption {
         type = lib.types.str;
-        default = "1m"; # 1 minute
+        default = "1m";
         description = "Interval between build processing checks (e.g., '1m', '5m')";
       };
     };
@@ -181,8 +194,6 @@ in {
         default = true;
         description = "Enable sandbox for builds";
       };
-
-      # Systemd resource controls
       use_systemd_scope = lib.mkOption {
         type = lib.types.bool;
         default = true;
@@ -217,82 +228,106 @@ in {
         ];
       };
     };
-
-    # Vulnix configuration options
     vulnix = {
       timeout = lib.mkOption {
         type = lib.types.str;
         default = "5m";
         description = "Timeout for vulnix scans";
       };
-
       max_retries = lib.mkOption {
         type = lib.types.ints.unsigned;
         default = 5;
         description = "Maximum number of retry attempts for failed scans";
       };
-
       enable_whitelist = lib.mkOption {
         type = lib.types.bool;
         default = false;
         description = "Enable CVE whitelist filtering";
       };
-
       extra_args = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [];
         description = "Additional arguments to pass to vulnix";
       };
-
       whitelist_path = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
         description = "Path to CVE whitelist file";
       };
-
       poll_interval = lib.mkOption {
         type = lib.types.str;
         default = "1m";
         description = "Interval between checking for new CVE scan jobs";
       };
     };
-
-    # Cache configuration options
     cache = {
+      cache_type = lib.mkOption {
+        type = lib.types.enum ["S3" "Attic" "Http" "Nix"];
+        default = "Nix";
+        description = "Type of cache to use";
+      };
       push_to = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
-        description = "Cache URI to push to (e.g., 's3://bucket', 'https://cache.example.com')";
+        description = "Cache URI to push to";
       };
-
       push_after_build = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Automatically push builds to cache after successful completion";
+        description = "Push after build";
       };
-
       signing_key = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
-        description = "Path to private signing key for cache signatures";
+        description = "Signing key path";
       };
-
       compression = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
-        description = "Compression method for cache uploads";
+        description = "Compression method";
       };
-
       push_filter = lib.mkOption {
         type = lib.types.nullOr (lib.types.listOf lib.types.str);
         default = null;
-        description = "Only push builds for these systems/targets";
+        description = "Push filter";
       };
-
       parallel_uploads = lib.mkOption {
         type = lib.types.ints.positive;
         default = 4;
-        description = "Maximum parallel uploads to cache";
+        description = "Parallel uploads";
+      };
+      # S3-specific options
+      s3_region = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "S3 region for cache";
+      };
+      s3_profile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "AWS profile to use for S3 cache";
+      };
+      # Attic-specific options
+      attic_token = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Attic authentication token";
+      };
+      attic_cache_name = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Attic cache name";
+      };
+      # Retry configuration
+      max_retries = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 3;
+        description = "Maximum retry attempts for cache operations";
+      };
+      retry_delay_seconds = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 5;
+        description = "Delay between retry attempts in seconds";
       };
     };
     systems = lib.mkOption {
@@ -328,7 +363,6 @@ in {
         }
       ];
     };
-
     environments = lib.mkOption {
       type = lib.types.listOf (lib.types.submodule {
         options = {
@@ -366,6 +400,12 @@ in {
         }
       ];
     };
+    # Database initialization
+    local-database = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether to set up and manage a local PostgreSQL database";
+    };
     role-id =
       mkOpt types.str
       config.campground.services.vault-agent.settings.vault.role-id
@@ -393,7 +433,7 @@ in {
     # Configure the base Crystal Forge service with our options
     services.crystal-forge = {
       enable = true;
-      inherit (cfg) log_level database;
+      inherit (cfg) log_level database local-database;
 
       # Pass through server configuration
       server = mkIf cfg.server.enable {
@@ -409,13 +449,63 @@ in {
       };
 
       # Pass through all other configuration sections
-      inherit (cfg) flakes systems environments build vulnix cache;
+      inherit (cfg) flakes systems environments build vulnix cache auth;
     };
+
+    systemd.services.crystal-forge-agent.preStart = ''
+      mkdir -p /var/lib/crystal-forge/
+      while [ ! -f /tmp/detsys-vault/agent.key ]; do
+        echo "Waiting for vault-agent to create agent.key..."
+        sleep 2
+      done
+      cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
+      chown crystal-forge:crystal-forge /var/lib/crystal-forge/agent.key
+      chmod 600 /var/lib/crystal-forge/agent.key
+    '';
+
+    systemd.services.crystal-forge-builder.preStart = ''
+      mkdir -p /var/lib/crystal-forge/
+      while [ ! -f /tmp/detsys-vault/attic-token ]; do
+        echo "Waiting for vault-agent to create attic-token..."
+        sleep 2
+      done
+      cp /tmp/detsys-vault/attic-token /var/lib/crystal-forge/attic-token
+      chown crystal-forge:crystal-forge /var/lib/crystal-forge/attic-token
+      chmod 600 /var/lib/crystal-forge/attic-token
+    '';
 
     # Vault agent configuration for fetching the private key
     campground.services = {
       vault-agent = {
         services = {
+          "crystal-forge-builder" = {
+            settings = {
+              vault.address = cfg.vault-address;
+              auto_auth = {
+                method = [
+                  {
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }
+                ];
+              };
+            };
+            secrets = {
+              file = {
+                files = {
+                  "attic-token" = {
+                    text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}'';
+                    permissions = "0600";
+                    change-action = "restart";
+                  };
+                };
+              };
+            };
+          };
           "crystal-forge-agent" = {
             settings = {
               vault.address = cfg.vault-address;
