@@ -516,32 +516,29 @@ in {
       '';
     };
 
-    # Update service dependencies conditionally
-    systemd.services.crystal-forge-agent = lib.mkIf cfg.client.enable {
-      after = ["crystal-forge-setup.service"];
-      wants = ["crystal-forge-setup.service"];
-    };
+    # Update service dependencies conditionally using mkMerge
+    systemd.services.crystal-forge-agent = lib.mkIf cfg.client.enable (lib.mkMerge [
+      {
+        after = ["crystal-forge-setup.service"];
+        wants = ["crystal-forge-setup.service"];
+        preStart = lib.mkForce "";
+      }
+    ]);
 
-    systemd.services.crystal-forge-builder = lib.mkIf cfg.build.enable {
-      after = ["crystal-forge-setup.service"];
-      wants = ["crystal-forge-setup.service"];
-    };
+    systemd.services.crystal-forge-builder = lib.mkIf cfg.build.enable (lib.mkMerge [
+      {
+        after = ["crystal-forge-setup.service"];
+        wants = ["crystal-forge-setup.service"];
+        preStart = lib.mkForce "";
+      }
+    ]);
 
-    systemd.services.crystal-forge-server = lib.mkIf cfg.server.enable {
-      after = ["crystal-forge-setup.service"];
-      wants = ["crystal-forge-setup.service"];
-    };
-
-    # Update the other services to depend on the setup service
-    systemd.services.crystal-forge-agent.after = ["crystal-forge-setup.service"];
-    systemd.services.crystal-forge-agent.wants = ["crystal-forge-setup.service"];
-
-    systemd.services.crystal-forge-builder.after = ["crystal-forge-setup.service"];
-    systemd.services.crystal-forge-builder.wants = ["crystal-forge-setup.service"];
-
-    # Remove the preStart scripts since we're handling this in the setup service
-    systemd.services.crystal-forge-agent.preStart = lib.mkForce "";
-    systemd.services.crystal-forge-builder.preStart = lib.mkForce "";
+    systemd.services.crystal-forge-server = lib.mkIf cfg.server.enable (lib.mkMerge [
+      {
+        after = ["crystal-forge-setup.service"];
+        wants = ["crystal-forge-setup.service"];
+      }
+    ]);
 
     # Vault agent configuration for fetching the private key
     campground.services = {
