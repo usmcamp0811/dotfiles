@@ -489,7 +489,6 @@ in {
             exit 1
           fi
           cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
-          chown crystal-forge:crystal-forge /var/lib/crystal-forge/agent.key
           chmod 600 /var/lib/crystal-forge/agent.key
           echo "✅ Agent key copied successfully"
         ''}
