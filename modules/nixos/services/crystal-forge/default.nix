@@ -455,14 +455,12 @@ in {
     systemd.services.crystal-forge-setup = {
       description = "Crystal Forge Setup - Copy Vault Agent Files";
       wantedBy = ["multi-user.target"];
-      after = [
-        "vault-agent-crystal-forge-agent.service"
-        "vault-agent-crystal-forge-builder.service"
-      ];
-      wants = [
-        "vault-agent-crystal-forge-agent.service"
-        "vault-agent-crystal-forge-builder.service"
-      ];
+      after =
+        lib.optional cfg.client.enable "vault-agent-crystal-forge-agent.service"
+        ++ lib.optional cfg.build.enable "vault-agent-crystal-forge-builder.service";
+      wants =
+        lib.optional cfg.client.enable "vault-agent-crystal-forge-agent.service"
+        ++ lib.optional cfg.build.enable "vault-agent-crystal-forge-builder.service";
 
       serviceConfig = {
         Type = "oneshot";
@@ -474,49 +472,64 @@ in {
       script = ''
         set -euo pipefail
         echo "Starting Crystal Forge setup..."
-
         # Create directory
         mkdir -p /var/lib/crystal-forge/
 
-        # Wait for and copy agent key
-        echo "Waiting for vault-agent to create agent.key..."
-        timeout=300  # 5 minutes
-        elapsed=0
-        while [ ! -f /tmp/detsys-vault/agent.key ] && [ $elapsed -lt $timeout ]; do
-          sleep 2
-          elapsed=$((elapsed + 2))
-        done
+        ${lib.optionalString cfg.client.enable ''
+          # Wait for and copy agent key
+          echo "Waiting for vault-agent to create agent.key..."
+          timeout=300  # 5 minutes
+          elapsed=0
+          while [ ! -f /tmp/detsys-vault/agent.key ] && [ $elapsed -lt $timeout ]; do
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+          if [ ! -f /tmp/detsys-vault/agent.key ]; then
+            echo "ERROR: agent.key not found after $timeout seconds"
+            exit 1
+          fi
+          cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
+          chown crystal-forge:crystal-forge /var/lib/crystal-forge/agent.key
+          chmod 600 /var/lib/crystal-forge/agent.key
+          echo "✅ Agent key copied successfully"
+        ''}
 
-        if [ ! -f /tmp/detsys-vault/agent.key ]; then
-          echo "ERROR: agent.key not found after $timeout seconds"
-          exit 1
-        fi
-
-        cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
-        chown crystal-forge:crystal-forge /var/lib/crystal-forge/agent.key
-        chmod 600 /var/lib/crystal-forge/agent.key
-        echo "✅ Agent key copied successfully"
-
-        # Wait for and copy attic token
-        echo "Waiting for vault-agent to create attic-token..."
-        elapsed=0
-        while [ ! -f /tmp/detsys-vault/attic-token ] && [ $elapsed -lt $timeout ]; do
-          sleep 2
-          elapsed=$((elapsed + 2))
-        done
-
-        if [ ! -f /tmp/detsys-vault/attic-token ]; then
-          echo "ERROR: attic-token not found after $timeout seconds"
-          exit 1
-        fi
-
-        cp /tmp/detsys-vault/attic-token /var/lib/crystal-forge/attic-token
-        chown crystal-forge:crystal-forge /var/lib/crystal-forge/attic-token
-        chmod 600 /var/lib/crystal-forge/attic-token
-        echo "✅ Attic token copied successfully"
+        ${lib.optionalString cfg.build.enable ''
+          # Wait for and copy attic token
+          echo "Waiting for vault-agent to create attic-token..."
+          elapsed=0
+          while [ ! -f /tmp/detsys-vault/attic-token ] && [ $elapsed -lt $timeout ]; do
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+          if [ ! -f /tmp/detsys-vault/attic-token ]; then
+            echo "ERROR: attic-token not found after $timeout seconds"
+            exit 1
+          fi
+          cp /tmp/detsys-vault/attic-token /var/lib/crystal-forge/attic-token
+          chown crystal-forge:crystal-forge /var/lib/crystal-forge/attic-token
+          chmod 600 /var/lib/crystal-forge/attic-token
+          echo "✅ Attic token copied successfully"
+        ''}
 
         echo "Crystal Forge setup completed successfully"
       '';
+    };
+
+    # Update service dependencies conditionally
+    systemd.services.crystal-forge-agent = lib.mkIf cfg.client.enable {
+      after = ["crystal-forge-setup.service"];
+      wants = ["crystal-forge-setup.service"];
+    };
+
+    systemd.services.crystal-forge-builder = lib.mkIf cfg.build.enable {
+      after = ["crystal-forge-setup.service"];
+      wants = ["crystal-forge-setup.service"];
+    };
+
+    systemd.services.crystal-forge-server = lib.mkIf cfg.server.enable {
+      after = ["crystal-forge-setup.service"];
+      wants = ["crystal-forge-setup.service"];
     };
 
     # Update the other services to depend on the setup service
