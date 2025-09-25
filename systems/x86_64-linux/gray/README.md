@@ -1,6 +1,6 @@
 # Al Gray
 
-![Al Gray](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Official_Portrait_of_Retired_Gen._Alfred_M._Gray_%282%29_%28cropped%29.jpg/440px-Official_Portrait_of_Retired_Gen._Alfred_M._Gray_%282%29_%28cropped%29.jpg)
+![Al Gray](../../../docs/images/gray.jpg)
 
 ## Personal Information
 

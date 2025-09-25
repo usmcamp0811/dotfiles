@@ -1,6 +1,6 @@
 # Chesty Puller
 
-![Chesty Puller](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Chesty-puller.jpg/440px-Chesty-puller.jpg)
+![Chesty Puller](../../../docs/images/chesty.jpg)
 
 ## Personal Information
 

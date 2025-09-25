@@ -1,6 +1,6 @@
 # R. Lee Ermey
 
-![R. Lee Ermey](https://upload.wikimedia.org/wikipedia/commons/4/4f/RLeeErmeyCrop.jpeg)
+![R. Lee Ermey](../../../docs/images/ermy.jpg)
 
 ## Personal Information
 

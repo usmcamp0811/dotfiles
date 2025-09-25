@@ -1,6 +1,6 @@
 # Smedley Butler
 
-![Smedley Butler](https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/SmedleyButler.jpeg/440px-SmedleyButler.jpeg)
+![Smedley Butler](../../../docs/images/butler.jpg)
 
 ## Personal Information
 

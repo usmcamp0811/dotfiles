@@ -1,6 +1,6 @@
 # Jim Mattis
 
-![Jim Mattis](https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/James_Mattis_official_photo.jpg/440px-James_Mattis_official_photo.jpg)
+![Jim Mattis](../../../docs/images/mattis.jpg)
 
 ## Personal Information
 

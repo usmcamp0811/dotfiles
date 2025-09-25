@@ -1,6 +1,6 @@
 # Sergeant Reckless
 
-![Sergeant Reckless](https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Sgt_reckless_in_pasture.jpg/440px-Sgt_reckless_in_pasture.jpg)
+![Sergeant Reckless](../../../docs/images/reckless.pang)
 
 ## Personal Information
 

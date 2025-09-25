@@ -1,6 +1,6 @@
 # Dan Daly
 
-![Dan Daly](https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/DanielDaly.jpg/440px-DanielDaly.jpg)
+![Dan Daly](../../../docs/images/daly.jpg)
 
 ## Personal Information
 

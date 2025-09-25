@@ -1,6 +1,6 @@
 # Jacklyn Harold Lucas
 
-![Jack Lucas](https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Lucas_JH.jpg/440px-Lucas_JH.jpg)
+![Jack Lucas](../../../docs/images/lucas.jpg)
 
 ## Personal Information
 

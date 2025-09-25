@@ -1,6 +1,6 @@
 # John Glenn
 
-![John Glenn](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/John_Glenn_Low_Res.jpg/440px-John_Glenn_Low_Res.jpg)
+![John Glenn](../../../docs/images/glenn.jpg)
 
 ## Personal Information
 
