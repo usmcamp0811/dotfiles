@@ -1,6 +1,6 @@
 # Jim Webb
 
-![Jim Webb](https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Jim_Webb_official_110th_Congress_photo.jpg/440px-Jim_Webb_official_110th_Congress_photo.jpg)
+![Jim Webb](../../../docs/images/webb.jpg)
 
 ## Personal Information
 
