@@ -577,7 +577,7 @@ in {
                 files = {
                   "attic-env" = {
                     text = ''
-                      ATTIC_SERVER_URL=${cfg.cache.push_to or "http://localhost:8080"}
+                      ATTIC_SERVER_URL=${cfg.cache.push_to or "https://attic.aicampground.com"}
                       ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}
                       ATTIC_REMOTE_NAME=${cfg.cache.attic_remote_name or "default"}
                       HOME=/var/lib/crystal-forge
