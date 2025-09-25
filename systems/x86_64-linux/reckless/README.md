@@ -1,6 +1,6 @@
 # Sergeant Reckless
 
-![Sergeant Reckless](../../../docs/images/reckless.pang)
+![Sergeant Reckless](../../../docs/images/reckless.jpg)
 
 ## Personal Information
 
