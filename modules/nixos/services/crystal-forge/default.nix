@@ -579,7 +579,7 @@ in {
                     text = ''
                       ATTIC_SERVER_URL=${cfg.cache.push_to or "https://attic.aicampground.com"}
                       ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}
-                      ATTIC_REMOTE_NAME=${cfg.cache.attic_remote_name or "default"}
+                      ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name or "campground"}
                       HOME=/var/lib/crystal-forge
                       XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
                     '';
