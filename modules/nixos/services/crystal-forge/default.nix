@@ -449,7 +449,21 @@ in {
       };
 
       # Pass through all other configuration sections
-      inherit (cfg) flakes systems environments build vulnix cache auth;
+      inherit (cfg) flakes systems environments vulnix cache auth;
+
+      build =
+        cfg.build
+        // {
+          systemd_properties =
+            (cfg.build.systemd_properties or [])
+            ++ (lib.optionals (cfg.cache.cache_type == "Attic") [
+              "EnvironmentFile=-/var/lib/crystal-forge/attic-env"
+              "Environment=HOME=/var/lib/crystal-forge"
+              "Environment=XDG_CONFIG_HOME=/var/lib/crystal-forge/.config"
+              "Environment=NIX_LOG=trace"
+              "Environment=NIX_SHOW_STATS=1"
+            ]);
+        };
     };
 
     systemd.services.crystal-forge-setup = {
@@ -470,12 +484,12 @@ in {
       };
 
       script = ''
-        set -euo pipefail
-        echo "Starting Crystal Forge setup..."
-        # Create directory
-        mkdir -p /var/lib/crystal-forge/
+                set -euo pipefail
+                echo "Starting Crystal Forge setup..."
+                # Create directory
+                mkdir -p /var/lib/crystal-forge/
 
-        ${lib.optionalString cfg.client.enable ''
+                ${lib.optionalString cfg.client.enable ''
           # Wait for and copy agent key
           echo "Waiting for vault-agent to create agent.key..."
           timeout=300  # 5 minutes
@@ -493,22 +507,21 @@ in {
           echo "✅ Agent key copied successfully"
         ''}
 
-        ${lib.optionalString cfg.build.enable ''
-          # Wait for and copy attic token
-          echo "Waiting for vault-agent to create attic-token..."
+        ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type == "Attic") ''
+          # Wait for and copy attic environment file
+          echo "Waiting for vault-agent to create attic-env..."
           elapsed=0
-          while [ ! -f /tmp/detsys-vault/attic-token ] && [ $elapsed -lt $timeout ]; do
+          while [ ! -f /tmp/detsys-vault/attic-env ] && [ $elapsed -lt $timeout ]; do
             sleep 2
             elapsed=$((elapsed + 2))
           done
-          if [ ! -f /tmp/detsys-vault/attic-token ]; then
-            echo "ERROR: attic-token not found after $timeout seconds"
+          if [ ! -f /tmp/detsys-vault/attic-env ]; then
+            echo "ERROR: attic-env not found after $timeout seconds"
             exit 1
           fi
-          cp /tmp/detsys-vault/attic-token /var/lib/crystal-forge/attic-token
-          chown crystal-forge:crystal-forge /var/lib/crystal-forge/attic-token
-          chmod 600 /var/lib/crystal-forge/attic-token
-          echo "✅ Attic token copied successfully"
+          cp /tmp/detsys-vault/attic-env /var/lib/crystal-forge/attic-env
+          chmod 644 /var/lib/crystal-forge/attic-env
+          echo "✅ Attic environment file copied successfully"
         ''}
 
         echo "Crystal Forge setup completed successfully"
@@ -562,9 +575,15 @@ in {
             secrets = {
               file = {
                 files = {
-                  "attic-token" = {
-                    text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}'';
-                    permissions = "0600";
+                  "attic-env" = {
+                    text = ''
+                      ATTIC_SERVER_URL=${cfg.cache.attic_server_url or "http://localhost:8080"}
+                      ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}
+                      ATTIC_REMOTE_NAME=${cfg.cache.attic_remote_name or "default"}
+                      HOME=/var/lib/crystal-forge
+                      XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
+                    '';
+                    permissions = "0644";
                     change-action = "restart";
                   };
                   "agent.key" = {
