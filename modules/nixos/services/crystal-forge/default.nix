@@ -466,6 +466,21 @@ in {
         };
     };
 
+    systemd.tmpfiles.rules = [
+      "d /var/lib/crystal-forge 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/.cache 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/.cache/nix 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/tmp 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/builds 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/workdir 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/.ssh 0700 crystal-forge crystal-forge -"
+      "f /var/lib/crystal-forge/config.toml 0600 crystal-forge crystal-forge - -"
+      "d /var/lib/crystal-forge/.config 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/.config/attic 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/.config/nix 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/.local 0755 crystal-forge crystal-forge -"
+      "d /var/lib/crystal-forge/.local/share 0755 crystal-forge crystal-forge -"
+    ];
     systemd.services.crystal-forge-setup = {
       description = "Crystal Forge Setup - Copy Vault Agent Files";
       wantedBy = ["multi-user.target"];
@@ -542,6 +557,12 @@ in {
         after = ["crystal-forge-setup.service"];
         wants = ["crystal-forge-setup.service"];
         preStart = lib.mkForce "";
+        serviceConfig.ReadWritePaths = [
+          "/var/lib/crystal-forge"
+          "/tmp"
+          "/run/crystal-forge"
+          "/var/cache/crystal-forge-nix"
+        ];
       }
     ]);
 
@@ -549,6 +570,12 @@ in {
       {
         after = ["crystal-forge-setup.service"];
         wants = ["crystal-forge-setup.service"];
+        serviceConfig.ReadWritePaths = [
+          "/var/lib/crystal-forge"
+          "/tmp"
+          "/run/crystal-forge"
+          "/var/cache/crystal-forge-nix"
+        ];
       }
     ]);
 
