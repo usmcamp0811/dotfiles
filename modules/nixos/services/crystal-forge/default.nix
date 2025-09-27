@@ -603,13 +603,15 @@ in {
               file = {
                 files = {
                   "attic-env" = {
-                    text = ''
-                      ATTIC_SERVER_URL=${cfg.cache.push_to or "http://localhost:8082"}
-                      ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}
-                      ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name or "campground"}
-                      HOME=/var/lib/crystal-forge
-                      XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
-                    '';
+                    text = lib.concatStrings [
+                      (lib.optionalString (cfg.cache.push_to != null)
+                        "ATTIC_SERVER_URL=${cfg.cache.push_to}\n")
+                      ''ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}\n''
+                      (lib.optionalString (cfg.cache.attic_cache_name != null)
+                        "ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name}\n")
+                      "HOME=/var/lib/crystal-forge\n"
+                      "XDG_CONFIG_HOME=/var/lib/crystal-forge/.config\n"
+                    ];
                     permissions = "0644";
                     change-action = "restart";
                   };
