@@ -111,7 +111,7 @@ in {
     };
     systemd.services.sssd = {
       serviceConfig = {
-        Restart = "always";
+        Restart = mkForce "always";
         RestartSec = "15s";
       };
       # wantedBy = [ "multi-user.target" "nscd.service" ];
