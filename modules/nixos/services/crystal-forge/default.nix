@@ -491,12 +491,12 @@ in {
       };
 
       script = ''
-                set -euo pipefail
-                echo "Starting Crystal Forge setup..."
-                # Create directory
-                mkdir -p /var/lib/crystal-forge/
+                        set -euo pipefail
+                        echo "Starting Crystal Forge setup..."
+                        # Create directory
+                        mkdir -p /var/lib/crystal-forge/
 
-                ${lib.optionalString cfg.client.enable ''
+                        ${lib.optionalString cfg.client.enable ''
           # Wait for and copy agent key
           echo "Waiting for vault-agent to create agent.key..."
           timeout=300  # 5 minutes
@@ -526,8 +526,9 @@ in {
             echo "ERROR: attic-env not found after $timeout seconds"
             exit 1
           fi
-          cp /tmp/detsys-vault/attic-env /var/lib/crystal-forge/attic-env
-          chmod 644 /var/lib/crystal-forge/attic-env
+          mkdir -p /var/lib/crystal-forge/.config
+          cp /tmp/detsys-vault/attic-env /var/lib/crystal-forge/.config/crystal-forge-attic.env
+          chmod 644 /var/lib/crystal-forge/.config/crystal-forge-attic.env
           echo "✅ Attic environment file copied successfully"
         ''}
 
