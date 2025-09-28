@@ -504,12 +504,12 @@ in {
       };
 
       script = ''
-        set -euo pipefail
-        echo "Starting Crystal Forge setup..."
-        # Create directory
-        mkdir -p /var/lib/crystal-forge/
+                set -euo pipefail
+                echo "Starting Crystal Forge setup..."
+                # Create directory
+                mkdir -p /var/lib/crystal-forge/
 
-        ${lib.optionalString cfg.client.enable ''
+                ${lib.optionalString cfg.client.enable ''
           # Wait for and copy agent key
           echo "Waiting for vault-agent to create agent.key..."
           timeout=300  # 5 minutes
@@ -527,7 +527,7 @@ in {
           echo "✅ Agent key copied successfully"
         ''}
 
-        ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type == "Attic") ''
+        ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) ''
           # Wait for and copy attic environment file
           echo "Waiting for vault-agent to create attic-env..."
           elapsed=0
@@ -545,7 +545,7 @@ in {
           echo "✅ Attic environment file copied successfully"
         ''}
 
-        echo "Crystal Forge setup completed successfully"
+                echo "Crystal Forge setup completed successfully"
       '';
     };
 
@@ -608,10 +608,9 @@ in {
             secrets = {
               file = {
                 files = {
-                  "attic-env" = {
+                  "attic-env" = lib.mkIf (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) {
                     text = lib.concatStrings [
-                      (lib.optionalString (cfg.cache.push_to != null)
-                        "ATTIC_SERVER_URL=${cfg.cache.push_to}\n")
+                      "ATTIC_SERVER_URL=${cfg.cache.push_to}\n"
                       ''ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}\n''
                       (lib.optionalString (cfg.cache.attic_cache_name != null)
                         "ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name}\n")
