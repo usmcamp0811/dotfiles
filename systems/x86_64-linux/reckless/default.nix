@@ -174,12 +174,14 @@ in {
             public_key = "hUwxCZUFydwDjf8BMyXLyMiI33PrKvhfDRj60OkisdY=";
             environment = "wifi";
             flake_name = "dotfiles";
+            desired_target = "auto_latest";
           }
           {
             hostname = "reckless";
             public_key = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
             environment = "lan";
             flake_name = "dotfiles";
+            desired_target = "auto_latest";
           }
           {
             hostname = "webb";
@@ -198,6 +200,7 @@ in {
             public_key = "Asu0Fl8SsM9Pd/woHt5qkvBdCbye6j2Q2M/qDmnFUjc=";
             environment = "lan";
             flake_name = "dotfiles";
+            desired_target = "auto_latest";
           }
           {
             hostname = "daly";
