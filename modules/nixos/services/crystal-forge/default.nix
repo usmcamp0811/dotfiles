@@ -350,6 +350,16 @@ in {
             default = null;
             description = "Reference to a flake name from flakes.watched";
           };
+          desired_target = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Desired derivation hash for system";
+          };
+          deployment_policy = lib.mkOption {
+            type = lib.types.enum ["manual" "auto_latest" "pinned"];
+            default = "manual";
+            description = "Deployment policy for the system";
+          };
         };
       });
       default = [];
@@ -360,6 +370,8 @@ in {
           public_key = "base64encodedkey";
           environment = "production";
           flake_name = "dotfiles";
+          desired_target = null;
+          deployment_policy = "manual";
         }
       ];
     };
@@ -473,6 +485,7 @@ in {
       "d /var/lib/crystal-forge/.local 0755 crystal-forge crystal-forge -"
       "d /var/lib/crystal-forge/.local/share 0755 crystal-forge crystal-forge -"
     ];
+
     systemd.services.crystal-forge-setup = {
       description = "Crystal Forge Setup - Copy Vault Agent Files";
       wantedBy = ["multi-user.target"];
@@ -491,12 +504,12 @@ in {
       };
 
       script = ''
-                        set -euo pipefail
-                        echo "Starting Crystal Forge setup..."
-                        # Create directory
-                        mkdir -p /var/lib/crystal-forge/
+        set -euo pipefail
+        echo "Starting Crystal Forge setup..."
+        # Create directory
+        mkdir -p /var/lib/crystal-forge/
 
-                        ${lib.optionalString cfg.client.enable ''
+        ${lib.optionalString cfg.client.enable ''
           # Wait for and copy agent key
           echo "Waiting for vault-agent to create agent.key..."
           timeout=300  # 5 minutes
