@@ -454,15 +454,7 @@ in {
       build =
         cfg.build
         // {
-          systemd_properties =
-            (cfg.build.systemd_properties or [])
-            ++ (lib.optionals (cfg.cache.cache_type == "Attic") [
-              "EnvironmentFile=-/var/lib/crystal-forge/attic-env"
-              "Environment=HOME=/var/lib/crystal-forge"
-              "Environment=XDG_CONFIG_HOME=/var/lib/crystal-forge/.config"
-              "Environment=NIX_LOG=trace"
-              "Environment=NIX_SHOW_STATS=1"
-            ]);
+          systemd_properties = cfg.build.systemd_properties or [];
         };
     };
 
