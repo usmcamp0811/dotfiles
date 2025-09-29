@@ -214,6 +214,11 @@ in {
         default = 600;
         description = "Timeout for systemd scope stop operation in seconds";
       };
+      max_concurrent_derivations = lib.mkOption {
+        type = lib.types.int;
+        default = 8;
+        description = "Maximum concurrent dry run derivations to process";
+      };
       systemd_properties = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [
@@ -260,7 +265,44 @@ in {
         description = "Interval between checking for new CVE scan jobs";
       };
     };
+    deployment = {
+      max_deployment_age_minutes = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 30;
+        description = "Maximum age in minutes for deployments to be considered valid";
+      };
+      dry_run_first = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Perform a dry run before actual deployment";
+      };
+      fallback_to_local_build = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Fallback to local build if remote build fails";
+      };
+      deployment_timeout_minutes = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 60;
+        description = "Timeout for deployment operations in minutes";
+      };
+      cache_url = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Cache URL for deployment artifacts";
+      };
+      deployment_poll_interval = lib.mkOption {
+        type = lib.types.str;
+        default = "15m";
+        description = "Interval between deployment polling checks";
+      };
+    };
     cache = {
+      attic_cache_name = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Attic cache name";
+      };
       cache_type = lib.mkOption {
         type = lib.types.enum ["S3" "Attic" "Http" "Nix"];
         default = "Nix";
@@ -312,11 +354,6 @@ in {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Attic authentication token";
-      };
-      attic_cache_name = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = "Attic cache name";
       };
       # Retry configuration
       max_retries = lib.mkOption {

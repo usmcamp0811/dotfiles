@@ -121,6 +121,11 @@ in {
           # Resource limits
           systemd_memory_max = "32G";
           systemd_cpu_quota = 400; # 4 cores worth
+          systemd_properties = [
+            "Environment=ATTIC_SERVER_URL=https://attic.aicampground.com/campground"
+            "Environment=ATTIC_REMOTE_NAME=campground"
+            # Add ATTIC_TOKEN if you have it statically, or let vault handle it
+          ];
         };
 
         flakes.watched = [
