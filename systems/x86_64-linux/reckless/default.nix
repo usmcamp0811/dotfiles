@@ -199,6 +199,7 @@ in {
             public_key = "OMxvf/rZmi8PZJOpVxjbPHDaX+BmJqp8FUOoosWJ7qY=";
             environment = "lan";
             flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
           }
           {
             hostname = "chesty";
@@ -212,6 +213,7 @@ in {
             public_key = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
             environment = "lan";
             flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
           }
           {
             hostname = "ermy";

@@ -12,7 +12,7 @@
     services-flake.url = "github:juspay/services-flake";
 
     crystal-forge = {
-      url = "git+ssh://git@gitlab.com/crystal-forge/crystal-forge.git?ref=fix-tests";
+      url = "git+ssh://git@gitlab.com/crystal-forge/crystal-forge.git?ref=main";
       inputs.nixpkgs.follows = "unstable";
     };
 
