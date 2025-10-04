@@ -104,7 +104,7 @@ in {
         cache = {
           cache_type = "Attic";
           push_to = "https://attic.aicampground.com/campground";
-          push_after_build = true;
+          push_after_build = false;
           attic_cache_name = "campground";
           parallel_uploads = 4;
           max_retries = 3;
@@ -114,13 +114,13 @@ in {
         # Build configuration to enable cache pushing
         build = {
           enable = true;
-          cores = 4; # Adjust based on your hardware
-          max_jobs = 2;
-          use_substitutes = true;
-          sandbox = true;
-          # Resource limits
+          cores = 12;
+          max_jobs = 4;
           systemd_memory_max = "32G";
-          systemd_cpu_quota = 400; # 4 cores worth
+          systemd_cpu_quota = 1000; # 10 cores per build
+          use_substitutes = true;
+          poll_interval = "1s";
+          sandbox = true;
           systemd_properties = [
             "Environment=ATTIC_SERVER_URL=https://attic.aicampground.com/campground"
             "Environment=ATTIC_REMOTE_NAME=campground"
