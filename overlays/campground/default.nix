@@ -14,6 +14,7 @@
   nixidy,
   uv2nix,
   npmlock2nix,
+  crystal-forge,
   lib,
   ...
 }: final: prev:
@@ -29,6 +30,7 @@
       )
       nixhelm.chartsDerivations.${prev.system}
   );
+  cf-slides = crystal-forge.packages.${prev.system}.slides;
   nixidy-cli =
     nixidy.packages.${prev.system}.default;
   nixidy-lib =
