@@ -240,7 +240,7 @@ in {
           service = "cfslides";
         };
 
-        http.services.cfslides = generateServiceConfig "nix-slide-website";
+        http.services.cfslides = generateServiceConfig "crystal-forge-website";
         # http.routers.adhoc = {
         #   rule = "Host(`adhoc.aicampground.com`)";
         #   entryPoints = [ "web" "websecure" ];

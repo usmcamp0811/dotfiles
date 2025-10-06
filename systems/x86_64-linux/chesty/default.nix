@@ -123,6 +123,7 @@ with lib.campground;
         # hydra = enabled;
         jellyfin = enabled;
         matt-camp-website = enabled;
+        crystal-forge-website = enabled;
         campground-blog = enabled;
         vault = {
           enable = true;

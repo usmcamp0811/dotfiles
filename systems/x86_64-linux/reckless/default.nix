@@ -96,6 +96,7 @@ in {
     };
 
     services = {
+      crystal-forge-website = enabled;
       crystal-forge = {
         enable = true;
         # log_level = "debug";
