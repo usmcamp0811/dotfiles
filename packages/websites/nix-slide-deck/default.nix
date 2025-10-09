@@ -1,7 +1,8 @@
-{ pkgs
-, lib
-, inputs
-, ...
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -11,36 +12,37 @@ with lib.campground; let
     inherit lib stdenv slidev;
     markdown = ./mac-builder.md;
     urlBase = "/mac-builder/";
-    themes = [ pkgs.campground.slidev-themes.neversink-theme ];
-    slides = [ ./slides ];
-    assets = [ ./assets ];
-    meta = { title = "Remote Linux Builder on MacOS"; };
+    themes = [pkgs.campground.slidev-themes.neversink-theme];
+    slides = [./slides];
+    assets = [./assets];
+    meta = {title = "Remote Linux Builder on MacOS";};
   };
 
   beyond-yaml = mkSlide {
     inherit lib stdenv slidev;
     markdown = ./beyond-yaml.md;
     urlBase = "/beyond-yaml/";
-    themes = [ pkgs.campground.slidev-themes.neversink-theme ];
-    slides = [ ./slides ];
-    assets = [ ./assets ];
-    meta = { title = "Beyond YAML: The Case for Nix as the Common Language of DevSecOps"; };
+    themes = [pkgs.campground.slidev-themes.neversink-theme];
+    slides = [./slides];
+    assets = [./assets];
+    meta = {title = "Beyond YAML: The Case for Nix as the Common Language of DevSecOps";};
   };
 
   slides = mkSlide {
     inherit lib stdenv slidev;
     markdown = ./slides.md;
     urlBase = "/devsecops-revolution/";
-    themes = [ pkgs.campground.slidev-themes.neversink-theme ];
-    slides = [ ./slides ];
-    assets = [ ./assets ];
-    meta = { title = "A Nix Powered DevSecOps Revolution"; };
+    themes = [pkgs.campground.slidev-themes.neversink-theme];
+    slides = [./slides];
+    assets = [./assets];
+    meta = {title = "A Nix Powered DevSecOps Revolution";};
   };
 
   allSlides = {
     mac-builder = mac-builder;
     beyond-yaml = beyond-yaml;
     devsecops-revolution = slides;
+    crystal-forge = pkgs.cf-slides;
   };
 
   index-page = makeIndexPage {
@@ -50,9 +52,9 @@ with lib.campground; let
 
   index-site =
     pkgs.runCommand "slide-index"
-      {
-        buildInputs = [ pkgs.coreutils ];
-      } ''
+    {
+      buildInputs = [pkgs.coreutils];
+    } ''
       mkdir -p $out
       ${builtins.concatStringsSep "\n" (
         builtins.map (name: "cp -r ${getAttr name allSlides} $out/${name}") (builtins.attrNames allSlides)
@@ -62,7 +64,7 @@ with lib.campground; let
 
   serve-index = pkgs.writeShellApplication {
     name = "serve-index";
-    runtimeInputs = [ pkgs.python3 ];
+    runtimeInputs = [pkgs.python3];
     text = ''
       PORT="''${1:-8000}"
       cd ${index-site}
@@ -73,7 +75,7 @@ with lib.campground; let
 
   serve-dev = pkgs.writeShellApplication {
     name = "serve-dev";
-    runtimeInputs = [ pkgs.coreutils ];
+    runtimeInputs = [pkgs.coreutils];
     text = ''
       SLIDE_FILE="''${1:-slides.md}"
       [ -z "$SLIDE_FILE" ] && SLIDE_FILE="slides.md"
@@ -110,8 +112,8 @@ with lib.campground; let
     '';
   };
 in
-index-site
+  index-site
   // {
-  inherit mac-builder beyond-yaml slides serve-index;
-  dev = serve-dev;
-}
+    inherit mac-builder beyond-yaml slides serve-index;
+    dev = serve-dev;
+  }
