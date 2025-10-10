@@ -1,7 +1,8 @@
-{ lib
-, pkgs
-, config
-, ...
+{
+  lib,
+  pkgs,
+  config,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -11,45 +12,44 @@ with lib.campground; let
     {
       name = "Backup Monitor";
       type = "file";
-      options = { path = ./dashboards/backup-monitor.json; };
+      options = {path = ./dashboards/backup-monitor.json;};
     }
     {
       name = "Campground Budget";
       type = "file";
-      options = { path = ./dashboards/budget-dashboard.json; };
+      options = {path = ./dashboards/budget-dashboard.json;};
     }
   ];
-in
-{
+in {
   options.campground.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
     datasources = mkOption {
       type = types.listOf (types.attrsOf types.anything);
       description = "A list of datasources.";
-      default = [ ];
+      default = [];
     };
     dashboards = mkOption {
       type = types.listOf (types.attrsOf types.str);
       description = "A list of dashboard providers";
-      default = [ ];
+      default = [];
     };
     domain =
       mkOpt str "grafana.lan.aicampground.com"
-        "Domain to Host the grafana server on.";
+      "Domain to Host the grafana server on.";
     oidc-domain = mkOpt str "auth.aicampground.com" "ODIC Domain";
 
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/grafana"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -81,6 +81,10 @@ in
 
     services.grafana = {
       enable = true;
+      declarativePlugins = with pkgs.grafanaPlugins; [
+        marcusolsson-dynamictext-panel
+        netsage-sankey-panel
+      ];
       provision = {
         # enable = true;
         alerting = {
@@ -140,7 +144,7 @@ in
                         __panelId__ = "1";
                         summary = "One or more of your backups did not run successfully.";
                       };
-                      labels = { };
+                      labels = {};
                       isPaused = false;
                     }
                   ];
@@ -205,7 +209,7 @@ in
       };
     };
 
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
+    networking.firewall.allowedTCPPorts = [cfg.port];
 
     campground.services.vault-agent.services.grafana = {
       settings = {
