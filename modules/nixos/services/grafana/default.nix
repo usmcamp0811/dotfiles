@@ -8,6 +8,11 @@ with lib;
 with lib.campground; let
   cfg = config.campground.services.grafana;
   dashboards = ./dashboards;
+  sankey-panel-plugin = pkgs.grafanaPlugins.grafanaPlugin {
+    pname = "netsage-sankey-panel";
+    version = "1.1.4";
+    zipHash = "sha256-z5Np45xdv3zXww+uvmMlN/brRgwT9yCjl+pNpWH7Ky4=";
+  };
   dashboardProviders = [
     {
       name = "Backup Monitor";
@@ -83,7 +88,7 @@ in {
       enable = true;
       declarativePlugins = with pkgs.grafanaPlugins; [
         marcusolsson-dynamictext-panel
-        netsage-sankey-panel
+        sankey-panel-plugin
       ];
       provision = {
         # enable = true;
