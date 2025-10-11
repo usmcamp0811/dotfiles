@@ -107,8 +107,8 @@ in {
           push_to = "https://attic.aicampground.com/campground";
           push_after_build = false;
           attic_cache_name = "campground";
-          parallel_uploads = 4;
-          max_retries = 3;
+          parallel_uploads = 3;
+          max_retries = 5;
           retry_delay_seconds = 5;
         };
 
