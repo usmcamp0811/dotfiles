@@ -133,7 +133,7 @@ in {
         flakes.watched = [
           {
             name = "dotfiles";
-            repo_url = "https://gitlab.com/usmcamp0811/dotfiles";
+            repo_url = "https://gitlab.com/usmcamp0811/dotfiles?ref=nixos";
             auto_poll = true;
             initial_commit_depth = 10;
           }
