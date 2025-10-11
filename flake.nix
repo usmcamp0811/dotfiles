@@ -12,7 +12,8 @@
     services-flake.url = "github:juspay/services-flake";
 
     crystal-forge = {
-      url = "git+ssh://git@gitlab.com/crystal-forge/crystal-forge.git?ref=main";
+      # url = "path:/home/mcamp/code/crystal-forge";
+      url = "git+ssh://git@gitlab.com/crystal-forge/crystal-forge.git?ref=104-implement-gc-roots-for-cache-push";
       inputs.nixpkgs.follows = "unstable";
     };
 
