@@ -648,7 +648,14 @@ in {
                   "attic-env" = lib.mkIf (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) {
                     text = lib.concatStrings [
                       "ATTIC_SERVER_URL=${cfg.cache.push_to}\n"
-                      ''ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}\n''
+                      (
+                        ''
+                          ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}
+                          {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}
+                          {{ end }}
+                        ''
+                        + "\n"
+                      )
                       (lib.optionalString (cfg.cache.attic_cache_name != null)
                         "ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name}\n")
                       "HOME=/var/lib/crystal-forge\n"
@@ -657,8 +664,13 @@ in {
                     permissions = "0644";
                     change-action = "restart";
                   };
+
                   "agent.key" = {
-                    text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${host} }}{{ else }}{{ .Data.data.${host} }}{{ end }}{{ end }}'';
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}
+                      {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${host} }}{{ else }}{{ .Data.data.${host} }}{{ end }}
+                      {{ end }}
+                    '';
                     permissions = "0600";
                     change-action = "restart";
                   };
