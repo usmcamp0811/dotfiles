@@ -646,21 +646,13 @@ in {
               file = {
                 files = {
                   "attic-env" = lib.mkIf (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) {
-                    text = lib.concatStrings [
-                      "ATTIC_SERVER_URL=${cfg.cache.push_to}\n"
-                      (
-                        ''
-                          ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}
-                          {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}
-                          {{ end }}
-                        ''
-                        + "\n"
-                      )
-                      (lib.optionalString (cfg.cache.attic_cache_name != null)
-                        "ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name}\n")
-                      "HOME=/var/lib/crystal-forge\n"
-                      "XDG_CONFIG_HOME=/var/lib/crystal-forge/.config\n"
-                    ];
+                    text = ''
+                      ATTIC_SERVER_URL=${cfg.cache.push_to}
+                      ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}
+                      ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name}
+                      HOME=/var/lib/crystal-forge
+                      XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
+                    '';
                     permissions = "0644";
                     change-action = "restart";
                   };
