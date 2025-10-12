@@ -109,7 +109,7 @@ in {
           attic_cache_name = "campground";
           parallel_uploads = 3;
           max_retries = 5;
-          retry_delay_seconds = 5;
+          retry_delay_seconds = 10;
         };
 
         # Build configuration to enable cache pushing
