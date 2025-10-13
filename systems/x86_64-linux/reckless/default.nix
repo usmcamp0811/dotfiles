@@ -109,6 +109,7 @@ in {
           cache_type = "S3";
           push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           s3_region = "us-east-1";
+          public_key = "ata-nix-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
           push_after_build = true;
           parallel_uploads = 3;
           max_retries = 5;
