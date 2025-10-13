@@ -363,7 +363,7 @@ in {
       };
       file-share = enabled;
       ldap-client = {enable = mkForce false;};
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
       gitlab-runner = enabled;
       # hadoop = {
       #   enable = true;
@@ -400,7 +400,7 @@ in {
       #   };
       # };
       attic = {
-        enable = true;
+        # enable = true;
         settings = {
           listen = "[::]:8082";
           database = {
