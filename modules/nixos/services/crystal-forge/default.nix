@@ -318,6 +318,11 @@ in {
         default = false;
         description = "Push after build";
       };
+      public_key = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Public key for verifying cache signatures (used in trusted-public-keys)";
+      };
       signing_key = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
