@@ -541,12 +541,12 @@ in {
       };
 
       script = ''
-                set -euo pipefail
-                echo "Starting Crystal Forge setup..."
-                # Create directory
-                mkdir -p /var/lib/crystal-forge/
+        set -euo pipefail
+        echo "Starting Crystal Forge setup..."
+        # Create directory
+        mkdir -p /var/lib/crystal-forge/
 
-                ${lib.optionalString cfg.client.enable ''
+        ${lib.optionalString cfg.client.enable ''
           # Wait for and copy agent key
           echo "Waiting for vault-agent to create agent.key..."
           timeout=300  # 5 minutes
@@ -582,7 +582,41 @@ in {
           echo "✅ Attic environment file copied successfully"
         ''}
 
-                echo "Crystal Forge setup completed successfully"
+        ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) ''
+          # Wait for and copy S3 environment file
+          echo "Waiting for vault-agent to create s3-env..."
+          elapsed=0
+          while [ ! -f /tmp/detsys-vault/s3-env ] && [ $elapsed -lt $timeout ]; do
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+          if [ ! -f /tmp/detsys-vault/s3-env ]; then
+            echo "ERROR: s3-env not found after $timeout seconds"
+            exit 1
+          fi
+          mkdir -p /var/lib/crystal-forge/.config
+          cp /tmp/detsys-vault/s3-env /var/lib/crystal-forge/.config/crystal-forge-s3.env
+          chmod 644 /var/lib/crystal-forge/.config/crystal-forge-s3.env
+          echo "✅ S3 environment file copied successfully"
+
+          # Wait for and copy signing key
+          echo "Waiting for vault-agent to create signing-key..."
+          elapsed=0
+          while [ ! -f /tmp/detsys-vault/signing-key ] && [ $elapsed -lt $timeout ]; do
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+          if [ ! -f /tmp/detsys-vault/signing-key ]; then
+            echo "ERROR: signing-key not found after $timeout seconds"
+            exit 1
+          fi
+          cp /tmp/detsys-vault/signing-key /var/lib/crystal-forge/signing-key
+          chmod 600 /var/lib/crystal-forge/signing-key
+          chown crystal-forge:crystal-forge /var/lib/crystal-forge/signing-key
+          echo "✅ Signing key copied successfully"
+        ''}
+
+        echo "Crystal Forge setup completed successfully"
       '';
     };
 
@@ -600,12 +634,22 @@ in {
         after = ["crystal-forge-setup.service"];
         wants = ["crystal-forge-setup.service"];
         preStart = lib.mkForce "";
-        serviceConfig.ReadWritePaths = [
-          "/var/lib/crystal-forge"
-          "/tmp"
-          "/run/crystal-forge"
-          "/var/cache/crystal-forge-nix"
-        ];
+        serviceConfig = {
+          ReadWritePaths = [
+            "/var/lib/crystal-forge"
+            "/tmp"
+            "/run/crystal-forge"
+            "/var/cache/crystal-forge-nix"
+          ];
+          # List format with - prefix for optional files
+          EnvironmentFile =
+            lib.optionals (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) [
+              "-/var/lib/crystal-forge/.config/crystal-forge-s3.env"
+            ]
+            ++ lib.optionals (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) [
+              "-/var/lib/crystal-forge/.config/crystal-forge-attic.env"
+            ];
+        };
       }
     ]);
 
@@ -613,12 +657,15 @@ in {
       {
         after = ["crystal-forge-setup.service"];
         wants = ["crystal-forge-setup.service"];
-        serviceConfig.ReadWritePaths = [
-          "/var/lib/crystal-forge"
-          "/tmp"
-          "/run/crystal-forge"
-          "/var/cache/crystal-forge-nix"
-        ];
+        serviceConfig = {
+          ReadWritePaths = [
+            "/var/lib/crystal-forge"
+            "/tmp"
+            "/run/crystal-forge"
+            "/var/cache/crystal-forge-nix"
+          ];
+          # No EnvironmentFile needed for server
+        };
       }
     ]);
 
@@ -654,6 +701,29 @@ in {
                       XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
                     '';
                     permissions = "0644";
+                    change-action = "restart";
+                  };
+
+                  "s3-env" = lib.mkIf (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) {
+                    text = ''
+                      AWS_ACCESS_KEY_ID={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.minio_access_key }}{{ else }}{{ .Data.data.minio_access_key }}{{ end }}{{ end }}
+                      AWS_SECRET_ACCESS_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.minio_secret_key }}{{ else }}{{ .Data.data.minio_secret_key }}{{ end }}{{ end }}
+                      ${lib.optionalString (cfg.cache.s3_region != null) "AWS_REGION=${cfg.cache.s3_region}"}
+                      AWS_EC2_METADATA_DISABLED=true
+                      HOME=/var/lib/crystal-forge
+                      XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
+                    '';
+                    permissions = "0644";
+                    change-action = "restart";
+                  };
+
+                  "signing-key" = lib.mkIf (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) {
+                    text = ''
+                      {{ with secret "${cfg.vault-path}" }}
+                      {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.signing_key }}{{ else }}{{ .Data.data.signing_key }}{{ end }}
+                      {{ end }}
+                    '';
+                    permissions = "0600";
                     change-action = "restart";
                   };
 

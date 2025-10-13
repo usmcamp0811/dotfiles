@@ -103,10 +103,13 @@ in {
 
         # Cache configuration for your Attic cache
         cache = {
-          cache_type = "Attic";
-          push_to = "https://attic.aicampground.com/campground";
+          # cache_type = "Attic";
+          # attic_cache_name = "campground";
+          # push_to = "https://attic.aicampground.com/campground";
+          cache_type = "S3";
+          push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com.com&region=us-east-1";
+          s3_region = "us-east-1";
           push_after_build = true;
-          attic_cache_name = "campground";
           parallel_uploads = 3;
           max_retries = 5;
           retry_delay_seconds = 5;
@@ -123,11 +126,11 @@ in {
           use_substitutes = true;
           poll_interval = "1s";
           sandbox = true;
-          systemd_properties = [
-            "Environment=ATTIC_SERVER_URL=https://attic.aicampground.com/campground"
-            "Environment=ATTIC_REMOTE_NAME=campground"
-            # Add ATTIC_TOKEN if you have it statically, or let vault handle it
-          ];
+          # systemd_properties = [
+          #   "Environment=ATTIC_SERVER_URL=https://attic.aicampground.com/campground"
+          #   "Environment=ATTIC_REMOTE_NAME=campground"
+          #   # Add ATTIC_TOKEN if you have it statically, or let vault handle it
+          # ];
         };
 
         flakes.watched = [
