@@ -107,7 +107,7 @@ in {
           # attic_cache_name = "campground";
           # push_to = "https://attic.aicampground.com/campground";
           cache_type = "S3";
-          push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com.com&region=us-east-1";
+          push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           s3_region = "us-east-1";
           push_after_build = true;
           parallel_uploads = 3;
