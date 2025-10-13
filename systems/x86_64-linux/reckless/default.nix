@@ -232,12 +232,14 @@ in {
             public_key = "rbMIke0a5emtaPc7MKgwqEn/UL3e0yyKUn5zHy3Ct/c=";
             environment = "lan";
             flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
           }
           {
             hostname = "mattis";
             public_key = "vfRbvu/rl1c9+zqMRHzCKMrqpchahyf5qFDUaJyj3eg=";
             environment = "lan";
             flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
           }
         ];
 
