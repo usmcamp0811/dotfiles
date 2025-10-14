@@ -52,7 +52,7 @@ with lib.campground; {
       # };
     };
     nfs.client.enable = true;
-    tools.attic = enabled;
+    # tools.attic = enabled;
 
     hardware = {nvidia = enabled;};
     services = {
