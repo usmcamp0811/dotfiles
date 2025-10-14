@@ -19,6 +19,9 @@ in {
       nix = {
         enable = true;
         extra-substituters = {
+          "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1" = {
+            key = "campground-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
+          };
           # Core NixOS cache
           "https://cache.nixos.org" = {
             key = "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=";
