@@ -291,6 +291,11 @@ in {
         default = null;
         description = "Cache URL for deployment artifacts";
       };
+      cache_public_key = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Public key for verifying cache signatures (used in trusted-public-keys)";
+      };
       deployment_poll_interval = lib.mkOption {
         type = lib.types.str;
         default = "15m";
@@ -317,11 +322,6 @@ in {
         type = lib.types.bool;
         default = false;
         description = "Push after build";
-      };
-      public_key = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = "Public key for verifying cache signatures (used in trusted-public-keys)";
       };
       signing_key = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
@@ -503,7 +503,7 @@ in {
       };
 
       # Pass through all other configuration sections
-      inherit (cfg) flakes systems environments vulnix cache auth;
+      inherit (cfg) flakes systems environments vulnix cache auth deployment;
 
       build =
         cfg.build
