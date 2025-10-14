@@ -86,7 +86,7 @@ in {
         role = "agent";
       };
       ldap-client = {enable = mkForce false;};
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
       zfs-key-server = {
         enable = true;
         tang-servers = [
