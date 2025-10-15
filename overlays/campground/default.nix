@@ -30,7 +30,16 @@
       )
       nixhelm.chartsDerivations.${prev.system}
   );
-  cf-slides = crystal-forge.packages.${prev.system}.slides;
+  cf-slides = crystal-forge.packages.${prev.system}.slides.overrideAttrs (old: {
+    postBuild =
+      (old.postBuild or "")
+      + ''
+        echo "Rebuilding Slidev with custom base: /crystal-forge/"
+        rm -rf dist
+        # NOTE: Vite/Slidev are happiest when base starts & ends with a slash.
+        slidev build --base "/crystal-forge/"
+      '';
+  });
   nixidy-cli =
     nixidy.packages.${prev.system}.default;
   nixidy-lib =
