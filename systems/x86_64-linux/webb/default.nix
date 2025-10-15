@@ -210,7 +210,7 @@ in {
         ];
       };
       # collabora = enabled;
-      attic-watch-store = enabled;
+      # attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
       minio = enabled;
