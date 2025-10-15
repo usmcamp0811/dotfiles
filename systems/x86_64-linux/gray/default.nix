@@ -53,7 +53,6 @@ in {
 
     services = {
       ldap-client = {enable = mkForce false;};
-      attic-watch-store = enabled;
       netbird.client = enabled;
       user-secrets = {
         enable = true;
