@@ -119,6 +119,7 @@ in {
           parallel_uploads = 3;
           max_retries = 5;
           retry_delay_seconds = 5;
+          poll_interval = 1;
         };
 
         # Build configuration to enable cache pushing
