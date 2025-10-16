@@ -371,6 +371,11 @@ in {
         default = 5;
         description = "Delay between retry attempts in seconds";
       };
+      poll_interval = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 5;
+        description = "Delay between cache pushes in seconds";
+      };
     };
     systems = lib.mkOption {
       type = lib.types.listOf (lib.types.submodule {
