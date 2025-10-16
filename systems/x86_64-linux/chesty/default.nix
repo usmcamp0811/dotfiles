@@ -62,7 +62,7 @@ with lib.campground;
           serverAddr = "10.8.0.197";
         };
         ldap-client = {enable = mkForce false;};
-        attic-watch-store = enabled;
+        # attic-watch-store = enabled;
         # netbird.client.enable = true;
 
         # hadoop = {
