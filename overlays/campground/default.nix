@@ -30,7 +30,8 @@
       )
       nixhelm.chartsDerivations.${prev.system}
   );
-  cf-slides = crystal-forge.packages.${prev.system}.slides.overrideAttrs (old: {
+  cf-slides = crystal-forge.packages.${prev.system}.slides;
+  cf-slides-campground = crystal-forge.packages.${prev.system}.slides.overrideAttrs (old: {
     postBuild =
       (old.postBuild or "")
       + ''

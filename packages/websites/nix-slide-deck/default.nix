@@ -42,7 +42,7 @@ with lib.campground; let
     mac-builder = mac-builder;
     beyond-yaml = beyond-yaml;
     devsecops-revolution = slides;
-    crystal-forge = pkgs.cf-slides;
+    crystal-forge = pkgs.cf-slides-campground;
   };
 
   index-page = makeIndexPage {
