@@ -140,41 +140,41 @@ mattis:
       changes:
         - "**/lan-hosting/default.nix"
       allow_failure: false
-
-butler_deploy:
-  <<: *deploy_job_template
-  variables:
-    SYSTEM: "butler"
-
-daly_deploy:
-  <<: *deploy_job_template
-  variables:
-    SYSTEM: "daly"
-
-lucas_deploy:
-  <<: *deploy_job_template
-  variables:
-    SYSTEM: "lucas"
-
-chesty_deploy:
-  <<: *deploy_job_template
-  variables:
-    SYSTEM: "chesty"
-
-webb_deploy:
-  <<: *deploy_job_template
-  variables:
-    SYSTEM: "webb"
-
-reckless_deploy:
-  <<: *deploy_job_template
-  variables:
-    SYSTEM: "reckless"
-
-mattis_deploy:
-  <<: *deploy_job_template
-  variables:
-    SYSTEM: "mattis"
+#
+# butler_deploy:
+#   <<: *deploy_job_template
+#   variables:
+#     SYSTEM: "butler"
+#
+# daly_deploy:
+#   <<: *deploy_job_template
+#   variables:
+#     SYSTEM: "daly"
+#
+# lucas_deploy:
+#   <<: *deploy_job_template
+#   variables:
+#     SYSTEM: "lucas"
+#
+# chesty_deploy:
+#   <<: *deploy_job_template
+#   variables:
+#     SYSTEM: "chesty"
+#
+# webb_deploy:
+#   <<: *deploy_job_template
+#   variables:
+#     SYSTEM: "webb"
+#
+# reckless_deploy:
+#   <<: *deploy_job_template
+#   variables:
+#     SYSTEM: "reckless"
+#
+# mattis_deploy:
+#   <<: *deploy_job_template
+#   variables:
+#     SYSTEM: "mattis"
 
 .deploy_hosting_template: &deploy_hosting_template
   stage: deploy
