@@ -116,7 +116,7 @@ in {
           push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           s3_region = "us-east-1";
           push_after_build = true;
-          parallel_uploads = 3;
+          parallel_uploads = 5;
           max_retries = 5;
           retry_delay_seconds = 5;
           poll_interval = 1;
@@ -205,6 +205,7 @@ in {
             public_key = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
             environment = "lan";
             flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
           }
           {
             hostname = "lucas";
@@ -232,6 +233,7 @@ in {
             public_key = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
             environment = "lan";
             flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
           }
           {
             hostname = "butler";
