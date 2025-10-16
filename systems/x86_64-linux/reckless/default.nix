@@ -205,7 +205,7 @@ in {
             public_key = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
             environment = "lan";
             flake_name = "dotfiles";
-            deployment_policy = "auto_latest";
+            # deployment_policy = "auto_latest";
           }
           {
             hostname = "lucas";
@@ -226,7 +226,7 @@ in {
             public_key = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
             environment = "lan";
             flake_name = "dotfiles";
-            deployment_policy = "auto_latest";
+            # deployment_policy = "auto_latest";
           }
           {
             hostname = "ermy";
