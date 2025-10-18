@@ -127,7 +127,7 @@ in {
           enable = true;
           cores = 12;
           max_jobs = 4;
-          max_concurrent_derivations = 1;
+          max_concurrent_derivations = 4;
           systemd_memory_max = "32G";
           systemd_cpu_quota = 1000; # 10 cores per build
           use_substitutes = true;
