@@ -104,40 +104,42 @@ in {
         deployment = {
           cache_url = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           cache_public_key = "campground-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
-          deployment_poll_interval = "5";
+          deployment_poll_interval = "30s"; # Agents checking in - can be moderate
           fallback_to_local_build = false;
         };
         # Cache configuration for your Attic cache
         cache = {
-          # cache_type = "Attic";
-          # attic_cache_name = "campground";
-          # push_to = "https://attic.aicampground.com/campground";
           cache_type = "S3";
           push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           s3_region = "us-east-1";
           push_after_build = true;
-          parallel_uploads = 5;
+          parallel_uploads = 8; # Utilize your network better
           max_retries = 5;
           retry_delay_seconds = 5;
-          poll_interval = 1;
+          poll_interval = "5s"; # Fast cache push polling ✅
         };
 
         # Build configuration to enable cache pushing
         build = {
           enable = true;
-          cores = 12;
-          max_jobs = 4;
-          max_concurrent_derivations = 4;
-          systemd_memory_max = "32G";
-          systemd_cpu_quota = 1000; # 10 cores per build
-          use_substitutes = true;
-          poll_interval = "1s";
+          cores = 24; # Leave some cores for system/other tasks
+          max_jobs = 6; # Can run 6 concurrent build jobs
+          max_concurrent_derivations = 8; # Process up to 8 derivations concurrently
+
+          # Systemd resource limits per build scope
+          systemd_memory_max = "20G"; # Per-build memory limit (6 jobs * 20G = 120GB max)
+          systemd_cpu_quota = 400; # 4 cores per build (6 jobs * 4 = 24 cores)
+          use_systemd_scope = true; # Critical for resource isolation
+
+          use_substitutes = true; # Download from caches when possible
+          poll_interval = "5s"; # Fast polling for build queue ✅
           sandbox = true;
-          # systemd_properties = [
-          #   "Environment=ATTIC_SERVER_URL=https://attic.aicampground.com/campground"
-          #   "Environment=ATTIC_REMOTE_NAME=campground"
-          #   # Add ATTIC_TOKEN if you have it statically, or let vault handle it
-          # ];
+
+          # Timeout settings for large builds
+          max_silent_time = "2h"; # Firefox/Electron can be quiet for a while
+          timeout = "6h"; # Total timeout for massive builds
+
+          systemd_timeout_stop_sec = 900; # 15 minutes to clean up
         };
 
         flakes.watched = [
