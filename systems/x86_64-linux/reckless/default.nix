@@ -104,7 +104,7 @@ in {
         deployment = {
           cache_url = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           cache_public_key = "campground-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
-          deployment_poll_interval = mkForce "30s"; # Agents checking in - can be moderate
+          deployment_poll_interval = mkForce "30"; # Agents checking in - can be moderate
           fallback_to_local_build = false;
         };
         # Cache configuration for your Attic cache
