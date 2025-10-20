@@ -13,7 +13,6 @@
 
     crystal-forge = {
       # url = "path:/home/mcamp/code/crystal-forge";
-
       url = "git+ssh://git@gitlab.com/crystal-forge/crystal-forge.git?ref=104-implement-gc-roots-for-cache-push";
       inputs.nixpkgs.follows = "unstable";
     };
