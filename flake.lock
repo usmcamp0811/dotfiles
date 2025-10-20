@@ -1196,11 +1196,11 @@
         "snowfall-lib": "snowfall-lib_6"
       },
       "locked": {
-        "lastModified": 1760931126,
-        "narHash": "sha256-G9HHhpk0mbLiGP/roFm0ljCeO/mTLkB98kLc1dEKGx4=",
+        "lastModified": 1760931349,
+        "narHash": "sha256-xqWFG+7weUDx4if3BmH2g60QKWJ9be/VHR1l3oS3zr0=",
         "ref": "104-implement-gc-roots-for-cache-push",
-        "rev": "6c2834fb8acff44070470be6cf123fb112ce7b10",
-        "revCount": 412,
+        "rev": "60a7fe1e8289d35f8b5feac17ec12412f58b8c6d",
+        "revCount": 413,
         "type": "git",
         "url": "ssh://git@gitlab.com/crystal-forge/crystal-forge.git"
       },
