@@ -1,7 +1,11 @@
-{ lib, config, ... }:
+{
+  lib,
+  config,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.airflow;
+with lib.campground; let
+  cfg = config.campground.services.airflow;
 in {
   options.campground.services.airflow = with types; {
     enable = mkBoolOpt false "Enable airflow;";
@@ -10,14 +14,15 @@ in {
     path = mkOpt str "/var/lib/airflow" "Where to put the airflow directory.";
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/mlflow"
+      "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/mlflow"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -29,8 +34,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-
-    environment.systemPackages = with pkgs; [ apache-airflow ];
+    # environment.systemPackages = with pkgs; [ apache-airflow ];
 
     # systemd.services.apache-airflow = {
     #   wantedBy = [ "multi-user.target" ];

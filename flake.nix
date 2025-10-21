@@ -169,7 +169,7 @@
       # inputs.nixpkgs.follows = "unstable";
     };
 
-    campground-packages.url = "gitlab:usmcamp0811/campground-packages";
+    # campground-packages.url = "gitlab:usmcamp0811/campground-packages";
 
     # Backup management
     poetry2nix = {
