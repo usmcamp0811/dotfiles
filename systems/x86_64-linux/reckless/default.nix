@@ -124,7 +124,7 @@ in {
           enable = true;
           cores = 24; # Leave some cores for system/other tasks
           max_jobs = 6; # Can run 6 concurrent build jobs
-          max_concurrent_derivations = 2; # Process up to 8 derivations concurrently
+          max_concurrent_derivations = 4; # Process up to 8 derivations concurrently
 
           # Systemd resource limits per build scope
           systemd_memory_max = "20G"; # Per-build memory limit (6 jobs * 20G = 120GB max)
