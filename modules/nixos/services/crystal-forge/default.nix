@@ -938,7 +938,6 @@ in {
       {
         after = ["crystal-forge-setup.service"];
         wants = ["crystal-forge-setup.service"];
-        preStart = lib.mkForce "";
       }
     ]);
 
@@ -946,7 +945,6 @@ in {
       {
         after = ["crystal-forge-setup.service"];
         wants = ["crystal-forge-setup.service"];
-        preStart = lib.mkForce "";
         serviceConfig = {
           ReadWritePaths = [
             "/var/lib/crystal-forge"
