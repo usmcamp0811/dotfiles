@@ -122,7 +122,6 @@ in {
         # Build configuration to enable cache pushing
         build = {
           enable = true;
-          cores = 24; # Ignored by new config, but kept for backward compat
 
           # BUILD CONCURRENCY
           max_concurrent_derivations = 3; # 3 parallel builds
