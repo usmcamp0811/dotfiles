@@ -234,6 +234,14 @@ in {
         default = true;
         description = "Enable sandbox for builds";
       };
+
+      max_concurrent_derivations = lib.mkOption {
+        type = lib.types.int;
+        default = 8;
+        description = "Maximum concurrent dry run derivations to process";
+      };
+
+      # Systemd resource controls
       use_systemd_scope = lib.mkOption {
         type = lib.types.bool;
         default = true;
@@ -241,12 +249,12 @@ in {
       };
       systemd_memory_max = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
-        default = "64G";
+        default = "32G";
         description = "Memory limit for systemd scope (e.g., '4G', '2048M')";
       };
       systemd_cpu_quota = lib.mkOption {
         type = lib.types.nullOr lib.types.ints.positive;
-        default = 1000;
+        default = 800;
         description = "CPU quota as percentage (e.g., 300 for 3 cores worth)";
       };
       systemd_timeout_stop_sec = lib.mkOption {
@@ -254,15 +262,10 @@ in {
         default = 600;
         description = "Timeout for systemd scope stop operation in seconds";
       };
-      max_concurrent_derivations = lib.mkOption {
-        type = lib.types.int;
-        default = 8;
-        description = "Maximum concurrent dry run derivations to process";
-      };
       systemd_properties = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [
-          "MemorySwapMax=8G"
+          "MemorySwapMax=2G"
           "TasksMax=3000"
         ];
         description = "Additional systemd properties to set";

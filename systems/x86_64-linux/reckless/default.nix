@@ -122,24 +122,26 @@ in {
         # Build configuration to enable cache pushing
         build = {
           enable = true;
-          cores = 24; # Leave some cores for system/other tasks
-          max_jobs = 6; # Can run 6 concurrent build jobs
-          max_concurrent_derivations = 4; # Process up to 8 derivations concurrently
+          cores = 24; # Ignored by new config, but kept for backward compat
 
-          # Systemd resource limits per build scope
-          systemd_memory_max = "20G"; # Per-build memory limit (6 jobs * 20G = 120GB max)
-          systemd_cpu_quota = 400; # 4 cores per build (6 jobs * 4 = 24 cores)
-          use_systemd_scope = true; # Critical for resource isolation
+          # BUILD CONCURRENCY
+          max_concurrent_derivations = 3; # 3 parallel builds
+          max_jobs = 2; # 2 derivations per build
+          cores_per_job = 4; # 4 cores per derivation
+          # Math: 3 × 2 × 4 = 24 cores (leaves 8 for system/eval)
 
-          use_substitutes = true; # Download from caches when possible
-          poll_interval = "5s"; # Fast polling for build queue ✅
+          # SYSTEMD LIMITS
+          systemd_memory_max = "32G"; # 32GB per build (3 × 32G = 96GB, safe)
+          systemd_cpu_quota = 800; # 8 cores per build scope (not per derivation!)
+          use_systemd_scope = true;
+          systemd_timeout_stop_sec = 900;
+
+          # OTHER SETTINGS
+          use_substitutes = true;
+          poll_interval = "5s";
           sandbox = true;
-
-          # Timeout settings for large builds
-          max_silent_time = "2h"; # Firefox/Electron can be quiet for a while
-          timeout = "6h"; # Total timeout for massive builds
-
-          systemd_timeout_stop_sec = 900; # 15 minutes to clean up
+          max_silent_time = "2h";
+          timeout = "6h";
         };
 
         flakes.watched = [
