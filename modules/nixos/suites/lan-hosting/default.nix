@@ -401,7 +401,7 @@ in
 
             # TODO: make this work with my function
             http.services.minio = {
-              loadBalancer.servers = [{ url = "http://webb:9001"; }];
+              loadBalancer.servers = [{ url = "http://reckless:9001"; }];
 
               # loadBalancer.servers = lib.campground.lookupServiceEndpoint {
               #   nixosConfigurations = inputs.self.nixosConfigurations;
