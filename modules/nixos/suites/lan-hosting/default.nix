@@ -423,7 +423,7 @@ in
             };
 
             http.services.minio-api = {
-              loadBalancer.servers = [{ url = "http://webb:9000"; }];
+              loadBalancer.servers = [{ url = "http://reckless:9000"; }];
             };
 
             http.routers.mlflow = {
