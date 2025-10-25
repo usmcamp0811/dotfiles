@@ -213,7 +213,7 @@ in {
       # attic-watch-store = enabled;
       nixery = enabled;
       docker = enabled;
-      minio = enabled;
+      # minio = enabled;
       mlflow = enabled;
       # airflow = enabled;
       # label-studio = enabled;
@@ -258,7 +258,7 @@ in {
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
               "/var/lib/paperless"
-              "/var/lib/minio"
+              # "/var/lib/minio"
               "/var/lib/label-studio"
               "/var/lib/mattermost/files"
               "/var/lib/remark42/"
@@ -275,7 +275,7 @@ in {
               "/webb/kubernetes"
               "/webb/backups/openwrt-backups"
               "/var/lib/paperless"
-              "/var/lib/minio"
+              # "/var/lib/minio"
               "/var/lib/label-studio"
               "/var/lib/mattermost/files"
               "/var/lib/remark42/"

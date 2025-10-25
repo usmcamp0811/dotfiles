@@ -96,6 +96,7 @@ in {
     };
 
     services = {
+      minio = enabled;
       crystal-forge-website = enabled;
       crystal-forge = {
         enable = true;
