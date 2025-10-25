@@ -101,7 +101,6 @@ in {
       crystal-forge = {
         enable = true;
         # log_level = "debug";
-
         deployment = {
           cache_url = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           cache_public_key = "campground-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
