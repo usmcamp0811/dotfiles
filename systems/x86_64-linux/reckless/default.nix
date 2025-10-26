@@ -127,13 +127,13 @@ in {
 
           # BUILD CONCURRENCY
           max_concurrent_derivations = 1; # 3 parallel builds
-          max_jobs = 4; # 2 derivations per build
-          cores_per_job = 2; # 4 cores per derivation
+          max_jobs = 1; # 2 derivations per build
+          cores_per_job = 12; # 4 cores per derivation
           # Math: 3 × 2 × 4 = 24 cores (leaves 8 for system/eval)
 
           # SYSTEMD LIMITS
           systemd_memory_max = "64G"; # 32GB per build (3 × 32G = 96GB, safe)
-          systemd_cpu_quota = 800; # 8 cores per build scope (not per derivation!)
+          systemd_cpu_quota = 1200; # 8 cores per build scope (not per derivation!)
           use_systemd_scope = true;
           systemd_timeout_stop_sec = 900;
 
