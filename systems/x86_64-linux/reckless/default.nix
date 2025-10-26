@@ -118,6 +118,7 @@ in {
           max_retries = 5;
           retry_delay_seconds = 5;
           poll_interval = "5s"; # Fast cache push polling ✅
+          force_repush = true;
         };
 
         # Build configuration to enable cache pushing
