@@ -679,6 +679,11 @@ in {
         default = 5;
         description = "Delay between cache pushes in seconds";
       };
+      force_repush = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Force re-push to cache even if it thinks it's already there.";
+      };
     };
     systems = lib.mkOption {
       type = lib.types.listOf (lib.types.submodule {
