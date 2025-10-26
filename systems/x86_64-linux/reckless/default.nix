@@ -125,13 +125,13 @@ in {
           enable = true;
 
           # BUILD CONCURRENCY
-          max_concurrent_derivations = 3; # 3 parallel builds
-          max_jobs = 2; # 2 derivations per build
-          cores_per_job = 4; # 4 cores per derivation
+          max_concurrent_derivations = 1; # 3 parallel builds
+          max_jobs = 4; # 2 derivations per build
+          cores_per_job = 2; # 4 cores per derivation
           # Math: 3 × 2 × 4 = 24 cores (leaves 8 for system/eval)
 
           # SYSTEMD LIMITS
-          systemd_memory_max = "32G"; # 32GB per build (3 × 32G = 96GB, safe)
+          systemd_memory_max = "64G"; # 32GB per build (3 × 32G = 96GB, safe)
           systemd_cpu_quota = 800; # 8 cores per build scope (not per derivation!)
           use_systemd_scope = true;
           systemd_timeout_stop_sec = 900;
@@ -140,8 +140,8 @@ in {
           use_substitutes = true;
           poll_interval = "5s";
           sandbox = true;
-          max_silent_time = "2h";
-          timeout = "6h";
+          max_silent_time = "3h";
+          timeout = "8h";
         };
 
         flakes.watched = [
