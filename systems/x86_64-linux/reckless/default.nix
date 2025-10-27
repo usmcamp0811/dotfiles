@@ -153,6 +153,12 @@ in {
             initial_commit_depth = 10;
           }
           {
+            name = "dotfiles-main";
+            repo_url = "https://gitlab.com/usmcamp0811/dotfiles?ref=main";
+            auto_poll = true;
+            initial_commit_depth = 10;
+          }
+          {
             name = "boterf-nix-configurations";
             repo_url = "https://gitlab.com/michaelboterf/nix-configurations";
             auto_poll = true;
@@ -209,7 +215,7 @@ in {
             hostname = "webb";
             public_key = "ZJBA2GS03P+Q2mhUAbjfjFILQ57yGChjXmRdL6Xfang=";
             environment = "lan";
-            flake_name = "dotfiles";
+            flake_name = "dotfiles-main";
             # deployment_policy = "auto_latest";
           }
           {
@@ -230,7 +236,7 @@ in {
             hostname = "daly";
             public_key = "JhjP4LK72nuTQJ6y7pcYjoTtfrY86BpJBi9WeolcpKY=";
             environment = "lan";
-            flake_name = "dotfiles";
+            flake_name = "dotfiles-main";
             # deployment_policy = "auto_latest";
           }
           {
