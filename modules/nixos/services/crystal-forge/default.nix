@@ -812,7 +812,7 @@ in {
       client = mkIf cfg.client.enable {
         enable = true;
         inherit (cfg.client) server_port server_host;
-        private_key = "/var/lib/crystal-forge/agent.key";
+        private_key = "/var/lib/crystal-forge-agent/agent.key";
       };
 
       # Pass through all other configuration sections
@@ -862,7 +862,7 @@ in {
         set -euo pipefail
         echo "Starting Crystal Forge setup..."
         # Create directory
-        mkdir -p /var/lib/crystal-forge/
+        mkdir -p /var/lib/crystal-forge-agent/
 
         ${lib.optionalString cfg.client.enable ''
           # Wait for and copy agent key
@@ -877,8 +877,8 @@ in {
             echo "ERROR: agent.key not found after $timeout seconds"
             exit 1
           fi
-          cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge/agent.key
-          chmod 600 /var/lib/crystal-forge/agent.key
+          cp /tmp/detsys-vault/agent.key /var/lib/crystal-forge-agent/agent.key
+          chmod 600 /var/lib/crystal-forge-agent/agent.key
           echo "✅ Agent key copied successfully"
         ''}
 
