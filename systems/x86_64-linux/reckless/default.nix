@@ -107,7 +107,6 @@ in {
           deployment_poll_interval = mkForce "30"; # Agents checking in - can be moderate
           fallback_to_local_build = false;
         };
-
         # Cache configuration for your Attic cache
         cache = {
           cache_type = "S3";
