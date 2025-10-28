@@ -98,6 +98,7 @@ in {
             cache_public_key = "campground-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
             deployment_poll_interval = "5";
             fallback_to_local_build = false;
+            require_sigs = false;
           };
           client = {
             enable = true;
