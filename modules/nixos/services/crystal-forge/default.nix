@@ -633,7 +633,7 @@ in {
       };
       signing_key = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
-        default = null;
+        default = "/var/lib/crystal-forge/signing-key";
         description = "Signing key path";
       };
       compression = lib.mkOption {
