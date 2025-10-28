@@ -103,7 +103,7 @@ in {
         # log_level = "debug";
         deployment = {
           cache_url = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
-          cache_public_key = "campground-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
+          # cache_public_key = "campground-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
           deployment_poll_interval = mkForce "30"; # Agents checking in - can be moderate
           fallback_to_local_build = false;
         };
@@ -119,7 +119,6 @@ in {
           retry_delay_seconds = 5;
           poll_interval = "5s"; # Fast cache push polling ✅
           force_repush = true;
-
         };
 
         # Build configuration to enable cache pushing
