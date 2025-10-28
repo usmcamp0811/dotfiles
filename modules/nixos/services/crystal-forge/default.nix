@@ -604,6 +604,11 @@ in {
         default = "15m";
         description = "Interval between deployment polling checks";
       };
+      require_sigs = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Check sigs before deployment";
+      };
     };
     cache = {
       attic_cache_name = lib.mkOption {
