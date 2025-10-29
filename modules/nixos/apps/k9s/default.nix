@@ -40,16 +40,16 @@ in {
     # (i.e., not null/empty).
     # This prevents copyKUBECONFIG from running when Vault isn’t configured.
     # You can still provide your kubeconfig some other way.
-    systemd.services.copyKUBECONFIG = mkIf config.campground.services.vault-agent.enable {
-      description = "Copy Kubeconfig to /etc/k8s/";
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = "${pkgs.bash}/bin/bash -c 'mkdir -p /etc/k8s/ && cp /tmp/detsys-vault/kubeconfig /etc/k8s/config && chgrp k8s /etc/k8s/config'";
-      };
-      wantedBy = ["multi-user.target"];
-      # after = ["nscd.service"];
-    };
+    # systemd.services.copyKUBECONFIG = mkIf config.campground.services.vault-agent.enable {
+    #   description = "Copy Kubeconfig to /etc/k8s/";
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     User = "root";
+    #     ExecStart = "${pkgs.bash}/bin/bash -c 'mkdir -p /etc/k8s/ && cp /tmp/detsys-vault/kubeconfig /etc/k8s/config && chgrp k8s /etc/k8s/config'";
+    #   };
+    #   wantedBy = ["multi-user.target"];
+    #   # after = ["nscd.service"];
+    # };
 
     campground.services.vault-agent.services.copyKUBECONFIG = {
       settings = {
