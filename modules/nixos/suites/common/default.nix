@@ -95,7 +95,7 @@ in {
           };
           deployment = {
             cache_url = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
-            cache_public_key = "ata-nix-cache:rEvsSt+le2/YWewNPH+LNhWHPAqZwONk3VSoei307u4=";
+            cache_public_key = "campground:Us1XpC1L8ruQ7UoBBfZqrQravKKTVLIijcuhJ2bK6H4=";
             deployment_poll_interval = "5";
             fallback_to_local_build = false;
             require_sigs = false;
