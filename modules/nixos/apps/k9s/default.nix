@@ -48,7 +48,7 @@ in {
         ExecStart = "${pkgs.bash}/bin/bash -c 'mkdir -p /etc/k8s/ && cp /tmp/detsys-vault/kubeconfig /etc/k8s/config && chgrp k8s /etc/k8s/config'";
       };
       wantedBy = ["multi-user.target"];
-      after = ["nscd.service"];
+      # after = ["nscd.service"];
     };
 
     campground.services.vault-agent.services.copyKUBECONFIG = {
