@@ -112,7 +112,7 @@ in {
           push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
           s3_region = "us-east-1";
           push_after_build = true;
-          parallel_uploads = 8; # Utilize your network better
+          parallel_uploads = 1; # Utilize your network better
           max_retries = 5;
           retry_delay_seconds = 5;
           poll_interval = "5s"; # Fast cache push polling ✅
