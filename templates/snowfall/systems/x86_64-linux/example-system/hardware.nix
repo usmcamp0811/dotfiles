@@ -12,17 +12,17 @@
 
   fileSystems."/" = {
     device = "NIXROOT/root";
-    fsType = "zfs";
+    fsType = "ext4";
   };
 
   fileSystems."/home" = {
     device = "NIXROOT/home";
-    fsType = "zfs";
+    fsType = "ext4";
   };
 
   fileSystems."/persist" = {
     device = "NIXROOT/persist";
-    fsType = "zfs";
+    fsType = "ext4";
   };
 
   fileSystems."/boot" = {
