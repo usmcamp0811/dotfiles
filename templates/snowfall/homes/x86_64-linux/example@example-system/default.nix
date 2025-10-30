@@ -3,7 +3,7 @@ with lib.namespace-change-me; {
   namespace-change-me = {
     user = {
       enable = true;
-      name = "mcamp";
+      name = "example";
       fullName = "Matt Camp";
       email = "matt@ainamespace-change-me.com";
     };
