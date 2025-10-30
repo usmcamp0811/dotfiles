@@ -14,7 +14,7 @@ in {
 
   namespace-change-me = {
     user = {
-      name = "abe";
+      name = "example";
       fullName = "Matt Camp";
       email = "matt@ainamespace-change-me.com";
       extraGroups = [ "wheel" ];

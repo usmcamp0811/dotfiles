@@ -1,6 +1,13 @@
 { lib, pkgs, ... }:
-with lib.namespace-change-me;
 let
+  inherit (lib) mapAttrsToList concatStringsSep;
+  inherit (lib.namespace-change-me) override-meta;
+  pname = "example-flask-app";
+
+  description = "A Simple Flask App";
+
+  version = "1.0.0";
+
   # Create a simple Flask app
   flaskApp = pkgs.writeText "app.py" ''
     from flask import Flask
@@ -22,28 +29,28 @@ let
 
   python-env = pkgs.python3.withPackages (ps: [ ps.flask ]);
 
-  example-flask-app = mkPythonDerivation {
-    inherit pkgs;
+  container = pkgs.dockerTools.buildLayeredImage {
     name = "example-flask-app";
+    tag = "latest";
+    contents = [ run-with-wsgi ];
+    config = { Entrypoint = [ "run-app" ]; };
+  };
+
+  example-flask-app = pkgs.stdenv.mkDerivation {
+    name = "${pname}-${version}";
     src = flaskApp;
-    python = python-env;
+    phases = [ "installPhase" ];
+    buildInputs = [ run-with-wsgi ];
+
+    # Build a derivation for the Flask app
     installPhase = ''
       mkdir -p $out/src
       mkdir -p $out/bin
       cp -r ${flaskApp} $out/src/app.py
-      cp -r ${run-with-wsgi}/bin/run-app $out/bin/example-flask-app
+      cp ${run-with-wsgi}/bin/run-app $out/bin/example-flask-app
     '';
-    container = {
-      name = "example-flask-app";
-      tag = "1.0.0";
-      contents = [ run-with-wsgi ];
-      config = { Entrypoint = [ "run-app" ]; };
-    };
-    meta = { mainProgram = "example-flask-app"; };
-  } // {
-    flakeforge = flakeforge-container;
+    passthru = { container = container; };
   };
-
   uwsgi = pkgs.uwsgi.override {
     python3 = python-env;
     plugins = [ "python3" ];
