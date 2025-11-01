@@ -102,15 +102,16 @@ in {
         enable = true;
         # log_level = "debug";
         deployment = {
-          cache_url = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
+          cache_url = "https://attic.aicampground.com/campground";
           deployment_poll_interval = mkForce "30"; # Agents checking in - can be moderate
           fallback_to_local_build = false;
         };
+
         # Cache configuration for your Attic cache
         cache = {
-          cache_type = "S3";
-          push_to = "s3://nix-cache?endpoint=https://s3-api.lan.aicampground.com&region=us-east-1";
-          s3_region = "us-east-1";
+          cache_type = "Attic";
+          push_to = "https://attic.aicampground.com/campground";
+          attic_cache_name = "campground";
           push_after_build = true;
           parallel_uploads = 4; # Utilize your network better
           max_retries = 5;
