@@ -142,6 +142,11 @@ in {
           sandbox = true;
           max_silent_time = "3h";
           timeout = "8h";
+
+          systemd_properties = [
+            "Environment=ATTIC_SERVER_URL=https://attic.aicampground.com/campground"
+            "Environment=ATTIC_REMOTE_NAME=campground"
+          ];
         };
 
         flakes.watched = [
