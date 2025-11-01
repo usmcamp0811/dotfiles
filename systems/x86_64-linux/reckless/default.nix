@@ -113,7 +113,7 @@ in {
           push_to = "https://attic.aicampground.com/campground";
           attic_cache_name = "campground";
           push_after_build = true;
-          parallel_uploads = 4; # Utilize your network better
+          parallel_uploads = 5; # Utilize your network better
           max_retries = 5;
           retry_delay_seconds = 5;
           poll_interval = "5s"; # Fast cache push polling ✅
