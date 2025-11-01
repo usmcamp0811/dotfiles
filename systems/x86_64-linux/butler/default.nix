@@ -52,7 +52,7 @@ in {
     #     justification = [ "i said so" ];
     #   };
     # };
-    desktop.cinnamon = enabled;
+    # desktop.cinnamon = enabled;
     suites = {
       public-hosting = {
         enable = true;
@@ -65,7 +65,7 @@ in {
       #   # isLeader = true;
       # };
     };
-    apps = {steam = enabled;};
+    # apps = {steam = enabled;};
 
     archetypes = {
       laptop = enabled;

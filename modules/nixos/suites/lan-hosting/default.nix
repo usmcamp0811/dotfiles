@@ -1,54 +1,52 @@
-{ options
-, config
-, lib
-, inputs
-, ...
+{
+  options,
+  config,
+  lib,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.suites.lan-hosting;
 
-  generateServiceConfig = serviceName:
-    let
-      # Use the existing `lookupServiceEndpoint` function
-      serviceEndpoints = lib.campground.lookupServiceEndpoint {
-        nixosConfigurations = inputs.self.nixosConfigurations;
-        serviceName = serviceName;
-      };
-    in
-    { loadBalancer.servers = serviceEndpoints; };
+  generateServiceConfig = serviceName: let
+    # Use the existing `lookupServiceEndpoint` function
+    serviceEndpoints = lib.campground.lookupServiceEndpoint {
+      nixosConfigurations = inputs.self.nixosConfigurations;
+      serviceName = serviceName;
+    };
+  in {loadBalancer.servers = serviceEndpoints;};
   jsonValue = with types; let
     valueType =
       nullOr
-        (oneOf [
-          bool
-          int
-          float
-          str
-          (lazyAttrsOf valueType)
-          (listOf valueType)
-        ])
+      (oneOf [
+        bool
+        int
+        float
+        str
+        (lazyAttrsOf valueType)
+        (listOf valueType)
+      ])
       // {
         description = "JSON value";
-        emptyValue.value = { };
+        emptyValue.value = {};
       };
   in
-  valueType;
-in
-{
+    valueType;
+in {
   options.campground.suites.lan-hosting = with types; {
     enable =
       mkBoolOpt false
-        "Whether or not to enable common lan-hosting configuration.";
+      "Whether or not to enable common lan-hosting configuration.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
     lan-ip = mkOpt str "10.8.0.69" "IP to use for the LAN Instance";
     entrypoints = mkOption {
       type = jsonValue;
       default = {
-        web = { address = "0.0.0.0:80"; };
-        metrics = { address = "0.0.0.0:58082"; };
+        web = {address = "0.0.0.0:80";};
+        metrics = {address = "0.0.0.0:58082";};
       };
-      example = { web = { address = "0.0.0.0:80"; }; };
+      example = {web = {address = "0.0.0.0:80";};};
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
   };
@@ -59,7 +57,7 @@ in
         prometheus.additionalScrapeConfigs = [
           {
             job_name = "lan-traefik-monitor";
-            static_configs = [{ targets = [ "${cfg.lan-ip}:58082" ]; }];
+            static_configs = [{targets = ["${cfg.lan-ip}:58082"];}];
           }
         ];
         traefik = mkIf cfg.enable {
@@ -78,7 +76,7 @@ in
             };
             # Define the IP whitelist middleware
             http.middlewares.ip-whitelist = {
-              ipWhiteList = { sourceRange = [ "10.8.0.0/24" "172.16.0.0/8" "100.64.0.0/10" ]; };
+              ipWhiteList = {sourceRange = ["10.8.0.0/24" "172.16.0.0/8" "100.64.0.0/10"];};
             };
 
             ############################################################################
@@ -113,9 +111,9 @@ in
 
             http.routers.akhq = {
               rule = "Host(`akhq.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "akhq";
-              middlewares = [ "akhq-auth" "ip-whitelist" ];
+              middlewares = ["akhq-auth" "ip-whitelist"];
             };
 
             http.services.akhq = generateServiceConfig "akhq";
@@ -124,58 +122,58 @@ in
 
             http.routers.authentik = {
               rule = "Host(`auth.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "authentik";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.akhq-auth = {
-              loadBalancer.servers = [{ url = "http://daly:9000/outpost.goauthentik.io"; }];
+              loadBalancer.servers = [{url = "http://daly:9000/outpost.goauthentik.io";}];
             };
 
             http.services.authentik = generateServiceConfig "authentik";
 
             http.routers.mealie = {
               rule = "Host(`mealie.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "mealie";
-              middlewares = [ "redirect-to-https" "ip-whitelist" ];
+              middlewares = ["redirect-to-https" "ip-whitelist"];
             };
 
             http.services.mealie = generateServiceConfig "mealie";
 
             http.routers.flake-forge = {
               rule = "Host(`flakeforge.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "flake-forge";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.flake-forge = generateServiceConfig "flake-forge";
 
             http.routers.file-share = {
               rule = "Host(`files.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "file-share";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.file-share = generateServiceConfig "file-share";
 
             http.routers.n8n = {
               rule = "Host(`n8n.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "n8n";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.n8n = generateServiceConfig "n8n";
 
             http.routers.matomo = {
               rule = "Host(`matomo.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "matomo";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.matomo = generateServiceConfig "matomo";
@@ -192,36 +190,36 @@ in
 
             http.routers.firefly = {
               rule = "Host(`firefly.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "firefly";
-              middlewares = [ "redirect-to-https" "ip-whitelist" ];
+              middlewares = ["redirect-to-https" "ip-whitelist"];
             };
 
             http.services.firefly = generateServiceConfig "firefly";
 
             http.routers.local-ai = {
               rule = "Host(`local-ai.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "local-ai";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.local-ai = generateServiceConfig "local-ai";
 
             http.routers.open-webui = {
               rule = "Host(`chad.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "open-webui";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.open-webui = generateServiceConfig "open-webui";
 
             http.routers.schema-registry = {
               rule = "Host(`schema-registry.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "schema-registry";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.schema-registry =
@@ -229,27 +227,27 @@ in
 
             http.routers.kafka = {
               rule = "Host(`kafka.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "kafka";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.kafka = generateServiceConfig "kafka";
 
             http.routers.prometheus = {
               rule = "Host(`prometheus.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "prometheus";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.prometheus = generateServiceConfig "prometheus";
 
             http.routers.grafana = {
               rule = "Host(`grafana.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "grafana";
-              middlewares = [ "redirect-to-https" "ip-whitelist" ];
+              middlewares = ["redirect-to-https" "ip-whitelist"];
             };
 
             http.services.grafana = generateServiceConfig "grafana";
@@ -268,140 +266,140 @@ in
 
             http.routers.hydra = {
               rule = "Host(`hydra.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "hydra";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.hydra = generateServiceConfig "hydra";
 
             http.routers.uptime-kuma = {
               rule = "Host(`uptime.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "uptime-kuma";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.uptime-kuma = generateServiceConfig "uptime-kuma";
 
             http.routers.crowdsec = {
               rule = "Host(`crowdsec.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "crowdsec";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.crowdsec = generateServiceConfig "crowdsec";
 
             http.routers.pub-traefik = {
               rule = "Host(`public-traefik.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "pub-traefik";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.pub-traefik = {
-              loadBalancer.servers = [{ url = "http://10.8.0.42:8080"; }];
+              loadBalancer.servers = [{url = "http://10.8.0.42:8080";}];
             };
 
             http.routers.pikvm = {
               rule = "Host(`pikvm.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "pikvm";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.pikvm = {
-              loadBalancer.servers = [{ url = "http://pivm"; }];
+              loadBalancer.servers = [{url = "http://pivm";}];
             };
 
             http.routers.gitlab = {
               rule = "Host(`gitlab.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "gitlab";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.gitlab = {
-              loadBalancer.servers = [{ url = "http://chesty:8443"; }];
+              loadBalancer.servers = [{url = "http://chesty:8443";}];
             };
 
             http.routers.sonar = {
               rule = "Host(`sonar.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "sonar";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.sonar = {
-              loadBalancer.servers = [{ url = "http://chesty:8989"; }];
+              loadBalancer.servers = [{url = "http://chesty:8989";}];
             };
 
             http.routers.reiverr = {
               rule = "Host(`reiverr.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "reiverr";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.reiverr = {
-              loadBalancer.servers = [{ url = "http://chesty:9494"; }];
+              loadBalancer.servers = [{url = "http://chesty:9494";}];
             };
 
             http.routers.radar = {
               rule = "Host(`radar.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "radar";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.radar = {
-              loadBalancer.servers = [{ url = "http://chesty:7878"; }];
+              loadBalancer.servers = [{url = "http://chesty:7878";}];
             };
 
             http.routers.prowlarr = {
               rule = "Host(`prowlarr.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "prowlarr";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.prowlarr = {
-              loadBalancer.servers = [{ url = "http://chesty:9696"; }];
+              loadBalancer.servers = [{url = "http://chesty:9696";}];
             };
 
             http.routers.jacket = {
               rule = "Host(`jacket.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "jacket";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.jacket = {
-              loadBalancer.servers = [{ url = "http://chesty:9117"; }];
+              loadBalancer.servers = [{url = "http://chesty:9117";}];
             };
 
             http.routers.deluge = {
               rule = "Host(`deluge.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "deluge";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.deluge = {
-              loadBalancer.servers = [{ url = "http://chesty:8112"; }];
+              loadBalancer.servers = [{url = "http://chesty:8112";}];
             };
 
             http.routers.minio = {
               rule = "Host(`s3.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "minio";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             # TODO: make this work with my function
             http.services.minio = {
-              loadBalancer.servers = [{ url = "http://reckless:9001"; }];
+              loadBalancer.servers = [{url = "http://reckless:9001";}];
 
               # loadBalancer.servers = lib.campground.lookupServiceEndpoint {
               #   nixosConfigurations = inputs.self.nixosConfigurations;
@@ -417,24 +415,24 @@ in
             # TODO: make this work with my function
             http.routers.minio-api = {
               rule = "Host(`s3-api.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "minio-api";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.minio-api = {
-              loadBalancer.servers = [{ url = "http://reckless:9000"; }];
+              loadBalancer.servers = [{url = "http://reckless:9000";}];
             };
 
             http.routers.mlflow = {
               rule = "Host(`mlflow.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "mlflow";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.mlflow = {
-              loadBalancer.servers = [{ url = "http://webb:8000"; }];
+              loadBalancer.servers = [{url = "http://webb:8000";}];
               loadBalancer.healthCheck = {
                 path = "/health";
                 interval = "10s";
@@ -444,9 +442,9 @@ in
 
             http.routers.vault = {
               rule = "Host(`vault.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "vault";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.vault = {
@@ -469,29 +467,29 @@ in
 
             http.routers.nixery = {
               rule = "Host(`nixery.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "nixery";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
 
             http.services.nixery = generateServiceConfig "nixery";
 
             http.routers.paperless = {
               rule = "Host(`docs.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "paperless";
-              middlewares = [ "ip-whitelist" ];
+              middlewares = ["ip-whitelist"];
             };
             http.services.paperless = generateServiceConfig "paperless";
 
             http.routers.jellyfin = {
               rule = "Host(`jellyfin.lan.aicampground.com`)";
-              entryPoints = [ "websecure" ];
+              entryPoints = ["websecure"];
               service = "jellyfin";
             };
 
             http.services.jellyfin = {
-              loadBalancer.servers = [{ url = "http://chesty:8096"; }];
+              loadBalancer.servers = [{url = "http://chesty:8096";}];
               loadBalancer.healthCheck = {
                 path = "/health";
                 interval = "10s";
@@ -506,7 +504,7 @@ in
           instances = {
             "lan-campground" = {
               interface = cfg.interface;
-              ips = [ cfg.lan-ip ];
+              ips = [cfg.lan-ip];
               state = "MASTER";
               priority = 50;
               virtualRouterId = 52;

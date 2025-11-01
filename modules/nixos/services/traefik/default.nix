@@ -1,7 +1,8 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
@@ -9,20 +10,20 @@ with lib.campground; let
   jsonValue = with types; let
     valueType =
       nullOr
-        (oneOf [
-          bool
-          int
-          float
-          str
-          (lazyAttrsOf valueType)
-          (listOf valueType)
-        ])
+      (oneOf [
+        bool
+        int
+        float
+        str
+        (lazyAttrsOf valueType)
+        (listOf valueType)
+      ])
       // {
         description = "JSON value";
-        emptyValue.value = { };
+        emptyValue.value = {};
       };
   in
-  valueType;
+    valueType;
   saveCert2Vault = pkgs.writeShellScriptBin "save-certs" ''
     ACME_JSON="${cfg.acme-path}"
     # Vault base path
@@ -76,47 +77,46 @@ with lib.campground; let
     done <<< "$certificates"
     echo "All certificates processed."
   '';
-in
-{
+in {
   options.campground.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     email = mkOpt str config.campground.user.email "The email to use.";
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
     acme-path =
       mkOpt str "/var/lib/traefik/acme.json"
-        "The location Traefik saves the certs";
+      "The location Traefik saves the certs";
     domains = mkOption {
       type = listOf str;
-      default = [ "aicampground.com" ];
-      example = [ "example.com" "example.org" ];
+      default = ["aicampground.com"];
+      example = ["example.com" "example.org"];
       description = "List of domains.";
     };
     log-path =
       mkOpt str "/var/lib/traefik/access.log"
-        "The location to store the access log.";
+      "The location to store the access log.";
     insecure = mkBoolOpt false "Insecure dashboard?";
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
-      default = { };
+      default = {};
       description = "HTTP configuration for routers and services";
     };
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; };
-      example = { web = { address = "0.0.0.0:80"; }; };
+      default = {web = {address = "0.0.0.0:80";};};
+      example = {web = {address = "0.0.0.0:80";};};
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
     role-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/cloudflare"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -134,28 +134,41 @@ in
         Type = "oneshot";
         User = "root";
         WorkingDirectory = "/var/lib/traefik";
-        ReadWritePaths = [ "/var/lib/traefik" ];
+        ReadWritePaths = ["/var/lib/traefik"];
       };
       script = ''
         while [[ ! -f ${cfg.acme-path} ]]; do sleep 1; done && ${saveCert2Vault}/bin/save-certs
       '';
-      wantedBy = [ "multi-user.target" ];
-      after = [ "traefik.service" ];
+      wantedBy = ["multi-user.target"];
+      after = ["traefik.service"];
     };
     systemd.services.traefik.serviceConfig = {
       Restart = mkDefault "always";
       RestartSec = 5;
     };
-    users.users.traefik = { extraGroups = [ "docker" ]; };
+    users.users.traefik = {extraGroups = ["docker"];};
     systemd.services.traefik.serviceConfig.WorkingDirectory = "${config.services.traefik.package}/bin";
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
+
       staticConfigOptions = {
         experimental.localPlugins = {
           cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
           fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
         };
+
+        serversTransport = {
+          insecureSkipVerify = false;
+          maxIdleConnsPerHost = 200;
+          rootCAs = [];
+          forwardingTimeouts = {
+            dialTimeout = "30s";
+            responseHeaderTimeout = "0s"; # No timeout for response headers
+            idleConnTimeout = "1800s"; # 30 minutes (1800 seconds)
+          };
+        };
+
         global = {
           checkNewVersion = false;
           sendAnonymousUsage = false;
@@ -174,6 +187,13 @@ in
         entryPoints =
           {
             web = {
+              transport = {
+                respondingTimeouts = {
+                  readTimeout = "0s"; # No timeout - allows unlimited upload time
+                  writeTimeout = "0s"; # No timeout - allows unlimited download time
+                  idleTimeout = "1800s"; # 30 minutes
+                };
+              };
               http.redirections.entryPoint = {
                 to = "websecure";
                 scheme = "https";
@@ -181,6 +201,13 @@ in
               };
             };
             websecure = {
+              transport = {
+                respondingTimeouts = {
+                  readTimeout = "0s"; # No timeout - allows unlimited upload time
+                  writeTimeout = "0s"; # No timeout - allows unlimited download time
+                  idleTimeout = "1800s"; # 30 minutes
+                };
+              };
               address = "0.0.0.0:443";
               forwardedHeaders = {
                 trustedIPs = [
@@ -205,11 +232,11 @@ in
                 certResolver = "cloudflare";
                 domains =
                   map
-                    (domain: {
-                      main = domain;
-                      sans = [ "*.${domain}" "*.lan.${domain}" ];
-                    })
-                    cfg.domains;
+                  (domain: {
+                    main = domain;
+                    sans = ["*.${domain}" "*.lan.${domain}"];
+                  })
+                  cfg.domains;
               };
             };
           }
@@ -226,7 +253,7 @@ in
               storage = "${cfg.acme-path}";
               dnsChallenge = {
                 provider = "cloudflare";
-                resolvers = [ "1.1.1.1:53" "1.0.0.1:53" ];
+                resolvers = ["1.1.1.1:53" "1.0.0.1:53"];
               };
             };
           };

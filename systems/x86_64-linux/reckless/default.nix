@@ -418,25 +418,35 @@ in {
       #   };
       # };
       attic = {
-        # enable = true;
+        enable = true;
         settings = {
           listen = "[::]:8082";
-          database = {
-            url = "postgres://atticd@localhost/atticd?host=/run/postgresql/";
-          };
+
+          # Postgres over the local socket. Let PG handle its own tuning.
+          database.url = "postgres://atticd@localhost/atticd?host=/run/postgresql/";
+
+          # NVMe-backed store = lowest latency
           storage = {
             type = "local";
             path = "/var/lib/atticd";
           };
+
+          # (64 KiB avg is the sweet spot for dedupe vs. CPU.)
           chunking = {
-            "nar-size-threshold" =
-              65536; # chunk files that are 64 KiB or larger
+            "nar-size-threshold" = 65536; # start chunking at >=64 KiB nars
             "min-size" = 16384; # 16 KiB
             "avg-size" = 65536; # 64 KiB
             "max-size" = 262144; # 256 KiB
           };
-          compression = {type = "zstd";};
-          garbage-collection = {interval = "144 hours";};
+
+          # Use zstd at level 6: strong compression with great speed on modern CPUs.
+          compression = {
+            type = "zstd";
+            level = 6;
+          };
+
+          # GC every 6 days is fine; tune to your retention needs
+          garbage-collection.interval = "6 days";
         };
       };
 

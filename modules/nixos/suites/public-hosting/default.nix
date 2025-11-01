@@ -302,14 +302,28 @@ in {
           };
         };
 
+        http.middlewares.attic-headers.headers = {
+          stsSeconds = 31536000;
+          stsIncludeSubdomains = true;
+          stsPreload = true;
+          referrerPolicy = "same-origin";
+        };
+
         http.routers.attic = {
           rule = "Host(`attic.aicampground.com`)";
           entryPoints = ["websecure"];
           service = "attic";
+          middlewares = ["attic-headers"];
         };
 
         http.services.attic = {
-          loadBalancer.servers = [{url = "http://reckless:8082";}];
+          loadBalancer = {
+            servers = [{url = "http://reckless:8082";}];
+            passHostHeader = true;
+            responseForwarding = {
+              flushInterval = "100ms";
+            };
+          };
         };
 
         http.routers.crystal-forge = {
