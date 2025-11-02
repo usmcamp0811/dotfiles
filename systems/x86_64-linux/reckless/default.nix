@@ -123,6 +123,7 @@ in {
         # Build configuration to enable cache pushing
         build = {
           enable = true;
+
           # BUILD CONCURRENCY
           max_concurrent_derivations = 1; # 3 parallel builds
           max_jobs = 1; # 2 derivations per build
