@@ -119,7 +119,7 @@ in {
         virtmanager = enabled; # don't forget to add to libvirtd group
         emoji-picker = enabled;
         jupyter = enabled;
-        julia = enabled;
+        # julia = enabled;
         node = enabled;
         yt-dlp = enabled;
       };
