@@ -489,7 +489,6 @@ in {
           "host  all  all  ::0/0  reject"
         ];
       };
-
       nix-snapshotter = enabled;
       flakeforge = enabled;
       zfs-key-server = {
