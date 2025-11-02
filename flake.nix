@@ -10,7 +10,6 @@
   inputs = {
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
-
     crystal-forge = {
       # url = "path:/home/mcamp/code/crystal-forge";
       url = "git+ssh://git@gitlab.com/crystal-forge/crystal-forge.git?ref=104-implement-gc-roots-for-cache-push";
