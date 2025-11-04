@@ -451,8 +451,7 @@ in {
             level = 6;
           };
 
-          # GC every 6 days is fine; tune to your retention needs
-          garbage-collection.interval = "6 days";
+          garbage-collection.interval = "30 days";
         };
       };
 
