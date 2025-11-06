@@ -157,16 +157,16 @@ in {
             initial_commit_depth = 10;
           }
           {
-            name = "dotfiles-main";
-            repo_url = "https://gitlab.com/usmcamp0811/dotfiles?ref=main";
-            auto_poll = true;
-            initial_commit_depth = 10;
-          }
-          {
             name = "boterf-nix-configurations";
             repo_url = "https://gitlab.com/michaelboterf/nix-configurations";
             auto_poll = true;
             initial_commit_depth = 10;
+          }
+          {
+            name = "ata-nix-config";
+            repo_url = "https://github.com/ATALLC/nix-config";
+            auto_poll = true;
+            initial_commit_depth = 2;
           }
         ];
 
@@ -200,6 +200,13 @@ in {
             public_key = "UX6i4J8llCDTJICZ6FLve2yx5RgEo/5yttvEuuRa06w=";
             environment = "boterf-net";
             flake_name = "boterf-nix-configurations";
+          }
+          {
+            hostname = "mcamp-al-x86-intel-nuc";
+            public_key = "7l+hBUfQw13QlwP+DZtpLVO3VRYEKouCtO/g6Y4ZGcs=";
+            environment = "lan";
+            flake_name = "ata-nix-config";
+            deployment_policy = "auto_latest";
           }
           {
             hostname = "gray";
