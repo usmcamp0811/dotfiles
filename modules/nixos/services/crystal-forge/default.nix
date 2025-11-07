@@ -1051,11 +1051,14 @@ in {
                     permissions = "0600";
                     change-action = "restart";
                   };
-
                   "agent.key" = {
                     text = ''
                       {{ with secret "${cfg.vault-path}" }}
-                      {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data."${host}" }}{{ else }}{{ .Data.data."${host}" }}{{ end }}
+                      {{ if eq "${cfg.kvVersion}" "v1" }}
+                        {{ index .Data "${host}" }}
+                      {{ else }}
+                        {{ index .Data.data "${host}" }}
+                      {{ end }}
                       {{ end }}
                     '';
                     permissions = "0600";
