@@ -7,6 +7,7 @@
   # nixConfig.extra-trusted-public-keys = [
   #   "tweag-jupyter.cachix.org-1:UtNH4Zs6hVUFpFBTLaA4ejYavPo5EFFqgd7G7FxGW9g="
   # ];
+
   inputs = {
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
