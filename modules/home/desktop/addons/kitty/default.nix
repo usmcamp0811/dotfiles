@@ -22,9 +22,9 @@ in {
       enable = true;
 
       # Consider a calmer, high-legibility theme:
-      # themeFile = "Modus_Vivendi";   # dark
+      themeFile = "Modus_Vivendi"; # dark
       # themeFile = "Modus_Operandi";  # light
-      themeFile = "Seti";
+      # themeFile = "Seti";
 
       font = {
         name = "FiraCode Nerd Font Mono";
@@ -59,9 +59,6 @@ in {
 
         # Slightly more line height for legibility (pixels; tweak ±1–2)
         adjust_line_height = "2";
-
-        # Optional: reduce visual “morphing” of glyphs
-        disable_ligatures = "cursor";
 
         # Don’t nag on close
         confirm_os_window_close = "0";
