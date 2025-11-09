@@ -277,7 +277,6 @@ in {
           enable = true;
           host = "0.0.0.0";
           port = 3444;
-          evalWorkers = 4;
         };
 
         # Database configuration (using defaults)
