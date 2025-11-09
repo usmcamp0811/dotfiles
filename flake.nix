@@ -12,7 +12,6 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      # url = "path:/home/mcamp/code/crystal-forge";
       url = "gitlab:crystal-forge/crystal-forge/dashboard-installable";
       inputs.nixpkgs.follows = "unstable";
     };
