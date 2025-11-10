@@ -185,7 +185,6 @@ in {
       uptime-kuma = enabled;
       crystal-forge.dashboards = {
         enable = true;
-
         datasource = {
           host = "reckless";
           port = 5432; # Default PostgreSQL port
