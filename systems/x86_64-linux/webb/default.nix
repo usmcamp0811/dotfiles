@@ -183,8 +183,18 @@ in {
       nextcloud = {enable = true;};
       ldap-client = {enable = mkForce false;};
       uptime-kuma = enabled;
-      crystal-forge.dashboards = {enable = true;};
+      crystal-forge.dashboards = {
+        enable = true;
 
+        datasource = {
+          host = "reckless";
+          port = 5432; # Default PostgreSQL port
+          database = "crystal_forge";
+          user = "grafana";
+          passwordFile = null;
+          sslMode = "disable";
+        };
+      };
       grafana = {
         enable = true;
         datasources = [
