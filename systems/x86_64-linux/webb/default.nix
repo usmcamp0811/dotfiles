@@ -183,6 +183,8 @@ in {
       nextcloud = {enable = true;};
       ldap-client = {enable = mkForce false;};
       uptime-kuma = enabled;
+      crystal-forge.dashboards = {enable = true;};
+
       grafana = {
         enable = true;
         datasources = [

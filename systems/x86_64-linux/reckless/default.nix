@@ -100,7 +100,6 @@ in {
       crystal-forge-website = enabled;
       crystal-forge = {
         enable = true;
-        dashboard = {enable = true;};
         # log_level = "debug";
         deployment = {
           cache_url = "https://attic.aicampground.com/campground";
@@ -332,7 +331,7 @@ in {
       mealie = enabled;
 
       # grafana = {
-      #   enable = true;
+      # enable = true;
       #   datasources = [
       #     {
       #       name = "Prometheus";
