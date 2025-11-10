@@ -100,6 +100,7 @@ in {
       crystal-forge-website = enabled;
       crystal-forge = {
         enable = true;
+        dashboards = {enable = true;};
         # log_level = "debug";
         deployment = {
           cache_url = "https://attic.aicampground.com/campground";
