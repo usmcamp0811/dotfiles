@@ -152,7 +152,7 @@ in {
       wantedBy = ["multi-user.target"];
     };
 
-    systemd.services.copyCAcert = {
+    systemd.services.copyCAcert = mkIf config.campground.services.vault-agent.enable {
       description = "Copy LDAP CA Cert somewhere to avoid SSSD shitting the bed randomly";
       serviceConfig = {
         Type = "oneshot";
