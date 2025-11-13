@@ -204,7 +204,7 @@ in {
         systems = [
           {
             hostname = "ajames-oh-x86-intel-nuc";
-            public_key = "GrhvxWSONdUuvUvouYcHesGdDYRlz/ZzLemi8Qx/lkw=";
+            public_key = "Tk1eIdcDrP66wibSx6RQLmOr5yN8aDIOlsB4jS1tDFY=";
             environment = "remote";
             flake_name = "ata-nix-config";
           }
