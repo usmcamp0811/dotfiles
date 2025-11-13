@@ -192,9 +192,22 @@ in {
             risk_profile = "LOW";
             compliance_level = "NONE";
           }
+          {
+            name = "remote";
+            description = "Other Peoples Computers";
+            is_active = true;
+            risk_profile = "LOW";
+            compliance_level = "NONE";
+          }
         ];
 
         systems = [
+          {
+            hostname = "ajames-oh-x86-intel-nuc";
+            public_key = "GrhvxWSONdUuvUvouYcHesGdDYRlz/ZzLemi8Qx/lkw=";
+            environment = "remote";
+            flake_name = "ata-nix-config";
+          }
           {
             hostname = "txboterf-nzxt-gaming";
             public_key = "UX6i4J8llCDTJICZ6FLve2yx5RgEo/5yttvEuuRa06w=";
