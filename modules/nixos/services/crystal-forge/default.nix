@@ -580,7 +580,7 @@ in {
     ];
 
     # ---- Simple setup step to copy Vault-rendered files into place ----
-    systemd.services.crystal-forge-setup = {
+    systemd.services.crystal-forge-setup = mkIf (config.campground.services.vault-agent.enable) {
       description = "Crystal Forge Setup - Copy Vault Agent Files";
       wantedBy = ["multi-user.target"];
       after =
@@ -640,11 +640,11 @@ in {
     };
 
     # Wire ordering so upstream units see the files
-    systemd.services.crystal-forge-agent = lib.mkIf cfg.client.enable {
+    systemd.services.crystal-forge-agent = lib.mkIf (cfg.client.enable && config.campground.services.vault-agent.enable) {
       after = ["crystal-forge-setup.service"];
       wants = ["crystal-forge-setup.service"];
     };
-    systemd.services.crystal-forge-builder = lib.mkIf cfg.build.enable {
+    systemd.services.crystal-forge-builder = lib.mkIf (cfg.client.enable && config.campground.services.vault-agent.enable) {
       after = ["crystal-forge-setup.service"];
       wants = ["crystal-forge-setup.service"];
       serviceConfig = {
