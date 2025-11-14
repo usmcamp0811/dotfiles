@@ -14,7 +14,7 @@ in {
 
     log_level = lib.mkOption {
       type = lib.types.enum ["off" "error" "warn" "info" "debug" "trace"];
-      default = "debug";
+      default = "info";
       description = "Log level for all Crystal Forge components.";
     };
 
