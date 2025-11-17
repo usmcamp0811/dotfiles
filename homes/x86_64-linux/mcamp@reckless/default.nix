@@ -21,11 +21,12 @@ with lib.campground; {
       enable = true;
       display-name = "HDMI-A-2";
     };
-    desktop.addons.kitty.themeFile = "Seti";
-
-    desktop.hyprland.startup = [
-      ''${pkgs.hyprland}/bin/hyprctl --instance 0 keyword monitor "keyword monitor "DP-2, disable"''
-    ];
+    desktop = {
+      addons.kitty.themeFile = "Seti";
+      hyprland.startup = [
+        ''${pkgs.hyprland}/bin/hyprctl --instance 0 keyword monitor "keyword monitor "DP-2, disable"''
+      ];
+    };
     services.protonmail-bridge = enabled;
     # apps.thunderbird = enabled;
     tools.beets = enabled;
