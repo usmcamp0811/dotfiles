@@ -9,6 +9,7 @@
 in {
   options.campground.desktop.addons.kitty = {
     enable = mkEnableOption "Kitty";
+    themeFile = lib.mkOpt lib.str "Modus_Vivendi" "Kitty Theme to use";
   };
 
   config = mkIf cfg.enable {
@@ -22,7 +23,7 @@ in {
       enable = true;
 
       # Consider a calmer, high-legibility theme:
-      themeFile = "Modus_Vivendi"; # dark
+      themeFile = cfg.themeFile;
       # themeFile = "Modus_Operandi";  # light
       # themeFile = "Seti";
 
