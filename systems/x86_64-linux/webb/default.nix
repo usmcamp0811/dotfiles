@@ -185,12 +185,12 @@ in {
       uptime-kuma = enabled;
       crystal-forge.dashboards = {
         enable = true;
+        database.password = "password";
         datasource = {
           host = "reckless";
           port = 5432;
           database = "crystal_forge";
           user = "grafana";
-          password = "password";
           sslMode = "disable";
         };
       };
