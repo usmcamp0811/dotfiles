@@ -183,15 +183,17 @@ in {
       nextcloud = {enable = true;};
       ldap-client = {enable = mkForce false;};
       uptime-kuma = enabled;
-      crystal-forge.database.password = "password";
-      crystal-forge.dashboards = {
-        enable = true;
-        datasource = {
-          host = "reckless";
-          port = 5432;
-          database = "crystal_forge";
-          user = "grafana";
-          sslMode = "disable";
+      crystal-forge = {
+        database.password = "password";
+        dashboards = {
+          enable = true;
+          datasource = {
+            host = "reckless";
+            port = 5432;
+            database = "crystal_forge";
+            user = "grafana";
+            sslMode = "disable";
+          };
         };
       };
       grafana = {
