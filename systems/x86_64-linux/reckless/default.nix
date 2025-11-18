@@ -207,6 +207,7 @@ in {
             public_key = "Tk1eIdcDrP66wibSx6RQLmOr5yN8aDIOlsB4jS1tDFY=";
             environment = "remote";
             flake_name = "ata-nix-config";
+            deployment_policy = "auto_latest";
           }
           {
             hostname = "txboterf-nzxt-gaming";
