@@ -4,7 +4,7 @@
   pkgs,
   ...
 }:
-with campground; let
+with lib.campground; let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.campground.desktop.addons.kitty;
 in {
