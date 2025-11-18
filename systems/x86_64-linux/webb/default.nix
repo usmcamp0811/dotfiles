@@ -183,9 +183,9 @@ in {
       nextcloud = {enable = true;};
       ldap-client = {enable = mkForce false;};
       uptime-kuma = enabled;
+      crystal-forge.database.password = "password";
       crystal-forge.dashboards = {
         enable = true;
-        database.password = "password";
         datasource = {
           host = "reckless";
           port = 5432;
