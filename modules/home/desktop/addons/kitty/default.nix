@@ -10,7 +10,7 @@ with lib.campground; let
 in {
   options.campground.desktop.addons.kitty = {
     enable = mkEnableOption "Kitty";
-    themeFile = mkOpt lib.str "Modus_Vivendi" "Kitty Theme to use";
+    themeFile = mkOpt types.str "Modus_Vivendi" "Kitty Theme to use";
   };
 
   config = mkIf cfg.enable {
