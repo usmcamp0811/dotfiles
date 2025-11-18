@@ -190,7 +190,7 @@ in {
           port = 5432; # Default PostgreSQL port
           database = "crystal_forge";
           user = "grafana";
-          password = "password";
+          passwordFile = "/var/lib/crystal-forge-agent/agent.key";
           sslMode = "disable";
         };
       };
