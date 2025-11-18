@@ -3,13 +3,14 @@
   config,
   pkgs,
   ...
-}: let
+}:
+with campground; let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.campground.desktop.addons.kitty;
 in {
   options.campground.desktop.addons.kitty = {
     enable = mkEnableOption "Kitty";
-    themeFile = lib.mkOpt lib.str "Modus_Vivendi" "Kitty Theme to use";
+    themeFile = mkOpt lib.str "Modus_Vivendi" "Kitty Theme to use";
   };
 
   config = mkIf cfg.enable {
