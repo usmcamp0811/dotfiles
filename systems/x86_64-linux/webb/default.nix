@@ -184,13 +184,13 @@ in {
       ldap-client = {enable = mkForce false;};
       uptime-kuma = enabled;
       crystal-forge.dashboards = {
-        enable = true;
+        # enable = true;
         datasource = {
           host = "reckless";
           port = 5432; # Default PostgreSQL port
           database = "crystal_forge";
           user = "grafana";
-          passwordFile = "/var/lib/crystal-forge-agent/agent.key";
+          # passwordFile = "/var/lib/crystal-forge-agent/agent.key";
           sslMode = "disable";
         };
       };
