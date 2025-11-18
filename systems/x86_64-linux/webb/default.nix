@@ -187,9 +187,10 @@ in {
         enable = true;
         datasource = {
           host = "reckless";
-          port = 5432; # Default PostgreSQL port
+          port = 5432;
           database = "crystal_forge";
           user = "grafana";
+          password = "password";
           sslMode = "disable";
         };
       };
