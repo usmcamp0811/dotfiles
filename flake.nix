@@ -211,6 +211,7 @@
     funkwhale.url = "github:usmcamp0811/funkwhale-flake";
     nixhelm.url = "github:nix-community/nixhelm";
     nixhelm.inputs.nixpkgs.follows = "unstable";
+
     # kubenix.url = "github:hall/kubenix";
     k0s-nix.url = "github:johbo/k0s-nix";
     kube-gen.url = "github:farcaller/nix-kube-generators";
