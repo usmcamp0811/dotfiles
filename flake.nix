@@ -1,13 +1,11 @@
 {
   description = "Campground Config";
-
   # nixConfig.extra-substituters = [
   #   "https://tweag-jupyter.cachix.org"
   # ];
   # nixConfig.extra-trusted-public-keys = [
   #   "tweag-jupyter.cachix.org-1:UtNH4Zs6hVUFpFBTLaA4ejYavPo5EFFqgd7G7FxGW9g="
   # ];
-
   inputs = {
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
@@ -30,7 +28,6 @@
     nixpkgs.url = "github:nixos/nixpkgs/release-25.05";
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    # unstable.url = "github:nixos/nixpkgs/20075955deac2583bb12f07151c2df830ef346b4";
 
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
