@@ -62,6 +62,12 @@
       installPhase = ''
         mkdir -p "$out/bin"
         install -m 555 build/bin/neowall "$out/bin/neowall"
+
+        # install bundled shaders
+        if [ -d examples/shaders ]; then
+          mkdir -p "$out/share/shaders"
+          cp -r examples/shaders/* "$out/share/shaders/"
+        fi
       '';
     };
 
@@ -72,5 +78,5 @@
   latest = drvs.v0-4-1;
 in
   # Default output is the latest derivation,
-  # but you also get attrs like `.v0-4-1` (and future `.v0-4-2`, …)
+  # but you also get attrs like `.v0-4-0` and `.v0-4-1`
   latest // drvs
