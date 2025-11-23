@@ -48,6 +48,7 @@
       cargoLock = {
         lockFile = "${src}/Cargo.lock";
       };
+      doCheck = false;
 
       # Allow use of unstable features (let-chains) on this stable compiler
       RUSTC_BOOTSTRAP = 1;
