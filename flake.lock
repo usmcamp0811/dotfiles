@@ -1173,15 +1173,16 @@
         "snowfall-lib": "snowfall-lib_6"
       },
       "locked": {
-        "lastModified": 1763906143,
-        "narHash": "sha256-g5ms+YhFBWmZPsBWZ263RmYja4v1J4MN1AcJT7qGDaU=",
+        "lastModified": 1763946386,
+        "narHash": "sha256-k7lP1PTCqBVCxDzGOx5PcRMU3Txk+fOe36tuZGoAvYc=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "64cebeb8aaf61fd6be79a85994003e88a257672d",
+        "rev": "15be78540ca8b4fd7937297cc17107d920524ecb",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
+        "ref": "109-make-stig-module-system",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
