@@ -37,6 +37,7 @@ in {
     };
     wantedBy = ["multi-user.target"];
   };
+  crystal-forge.stig.banner = {enable = true;};
   campground = {
     user = {
       name = "mcamp";
