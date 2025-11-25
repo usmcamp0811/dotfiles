@@ -187,6 +187,7 @@ in {
         database.password = "password";
         dashboards = {
           enable = true;
+          grafana.provision = true;
           datasource = {
             host = "reckless";
             port = 5432;
