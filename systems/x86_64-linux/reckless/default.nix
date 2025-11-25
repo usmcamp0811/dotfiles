@@ -19,13 +19,6 @@ in {
   boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
   # crystal-forge.stig-presets.off.enable = true;
-  crystal-forge.stig = {
-    sudo = {enable = true;};
-    banner = {
-      enable = true;
-      # justification = ["fuck if i care"];
-    };
-  };
   systemd.services.proton-socat-smtp = {
     description = "Socat Service for Proton Bridge SMTP Port Forwarding";
     after = ["network.target"];
