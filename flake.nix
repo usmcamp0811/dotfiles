@@ -353,6 +353,7 @@
         funkwhale.nixosModules.default
         authentik-nix.nixosModules.default
         crystal-forge.nixosModules.crystal-forge
+        crystal-forge.nixosModules.stig
       ];
 
       # systemds.hosts.lucas.modules = with inputs; [
