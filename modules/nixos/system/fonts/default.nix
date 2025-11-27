@@ -1,17 +1,17 @@
-{ options
-, config
-, pkgs
-, lib
-, ...
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.system.fonts;
-in
-{
+in {
   options.campground.system.fonts = with types; {
     enable = mkBoolOpt false "Whether or not to manage fonts.";
-    fonts = mkOpt (listOf package) [ ] "Custom font packages to install.";
+    fonts = mkOpt (listOf package) [] "Custom font packages to install.";
     default = mkOpt types.str "FiraCode" "Default font name";
   };
 
@@ -21,7 +21,7 @@ in
       LOG_ICONS = "true";
     };
 
-    environment.systemPackages = with pkgs; [ font-manager ];
+    environment.systemPackages = with pkgs; [font-manager];
     # fonts.fonts = with pkgs;
 
     fonts.packages = with pkgs;
@@ -30,7 +30,6 @@ in
         noto-fonts-cjk-sans
         noto-fonts-cjk-serif
         noto-fonts-color-emoji
-        noto-fonts-emoji
         hack-font
         font-awesome
         ibm-plex
