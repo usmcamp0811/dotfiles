@@ -1,18 +1,18 @@
-{ lib
-, writeText
-, writeShellApplication
-, replaceVars
-, substituteAll
-, gum
-, inputs
-, hosts ? { }
-, ...
-}:
-let
+{
+  lib,
+  writeText,
+  writeShellApplication,
+  replaceVars,
+  replaceVars,
+  gum,
+  inputs,
+  hosts ? {},
+  ...
+}: let
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
-  substitute = args: builtins.readFile (substituteAll args);
+  substitute = args: builtins.readFile (replaceVars args);
 
   formatted-hosts = mapAttrsToList (name: host: "${name},${host.pkgs.system}") hosts;
 
@@ -29,19 +29,19 @@ let
 
       help = ./help;
       hosts =
-        if hosts == { }
+        if hosts == {}
         then ""
         else hosts-csv;
     };
 
     checkPhase = "";
 
-    runtimeInputs = [ gum ];
+    runtimeInputs = [gum];
   };
   new-meta = with lib; {
     description = "A helper to list all of the NixOS hosts available from your flake.";
     license = licenses.asl20;
-    maintainers = with maintainers; [ mattcamp ];
+    maintainers = with maintainers; [mattcamp];
   };
 in
-override-meta new-meta nixos-hosts
+  override-meta new-meta nixos-hosts
