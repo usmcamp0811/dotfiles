@@ -19,7 +19,7 @@ in {
 
     programs.rofi = {
       enable = true;
-      package = pkgs.rofi-wayland;
+      package = pkgs.rofi;
 
       font = "MonaspiceNe Nerd Font 14";
       location = "center";
