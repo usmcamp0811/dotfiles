@@ -41,8 +41,6 @@ in {
       zlib
       gcc
       glib
-      qt5.qtbase
-      qt5.qtwebengine
     ];
   };
 }
