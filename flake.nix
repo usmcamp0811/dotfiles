@@ -340,21 +340,22 @@
         # kubenix.overlays.default
       ];
 
-      systems.modules.nixos = with inputs; [
-        nixtheplanet.nixosModules.macos-ventura
-        home-manager.nixosModules.home-manager
-        # nix-ld.nixosModules.nix-ld
-        vault-service.nixosModules.nixos-vault-service
-        # dataflow2nix.nixosModules.airflow
-        nix-topology.nixosModules.default
-        catppuccin.nixosModules.catppuccin
-        flakeforge.nixosModules.flakeforge
-        crowdsec.nixosModules.crowdsec
-        funkwhale.nixosModules.default
-        authentik-nix.nixosModules.default
-        crystal-forge.nixosModules.crystal-forge
-      ];
-      # ++ (lib.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules));
+      systems.modules.nixos = with inputs;
+        [
+          nixtheplanet.nixosModules.macos-ventura
+          home-manager.nixosModules.home-manager
+          # nix-ld.nixosModules.nix-ld
+          vault-service.nixosModules.nixos-vault-service
+          # dataflow2nix.nixosModules.airflow
+          nix-topology.nixosModules.default
+          catppuccin.nixosModules.catppuccin
+          flakeforge.nixosModules.flakeforge
+          crowdsec.nixosModules.crowdsec
+          funkwhale.nixosModules.default
+          authentik-nix.nixosModules.default
+          crystal-forge.nixosModules.crystal-forge
+        ]
+        ++ (lib.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules));
 
       # systemds.hosts.lucas.modules = with inputs; [
       #   unstable.nixosModules.services.k3s
