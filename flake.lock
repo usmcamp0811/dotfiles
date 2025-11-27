@@ -7466,6 +7466,27 @@
         "type": "github"
       }
     },
+    "globset": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nix-snapshotter",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1756146523,
+        "narHash": "sha256-dn8WNgwVQe0xBJ/d4CiRRcEVSgNclG6WSbqFEf6V024=",
+        "owner": "pdtpartners",
+        "repo": "globset",
+        "rev": "62da8904981f01dc7c97f56c3ea4f131a8393411",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pdtpartners",
+        "repo": "globset",
+        "type": "github"
+      }
+    },
     "gpg-base-conf": {
       "flake": false,
       "locked": {
@@ -12072,21 +12093,21 @@
       "inputs": {
         "flake-compat": "flake-compat_85",
         "flake-parts": "flake-parts_27",
+        "globset": "globset",
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1717951961,
-        "narHash": "sha256-ox8qyMfHZXUqcTQ1bJvv7CkkZYZcOPolciAaYs1UScc=",
+        "lastModified": 1759053196,
+        "narHash": "sha256-ZCJjTAM+ZVs+azWXuPf5u+qCxLC2h0aISMED7qJTB6E=",
         "owner": "yu-re-ka",
         "repo": "nix-snapshotter",
-        "rev": "a9ffbedc172e659a7812ab30e02c2e06ca6889c2",
+        "rev": "2a4c86c1e693bc0e772f9bab974e3727890be709",
         "type": "github"
       },
       "original": {
         "owner": "yu-re-ka",
-        "ref": "update",
         "repo": "nix-snapshotter",
         "type": "github"
       }

@@ -147,7 +147,7 @@
     mlflow-works.url = "gitlab:usmcamp0811/dotfiles/38739f362e9c8e27880c0835f8db4a4866a61337";
 
     nix-snapshotter = {
-      url = "github:yu-re-ka/nix-snapshotter/update";
+      url = "github:yu-re-ka/nix-snapshotter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
