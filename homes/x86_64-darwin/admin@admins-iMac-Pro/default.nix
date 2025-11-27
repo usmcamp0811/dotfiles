@@ -45,7 +45,6 @@ with lib.campground; {
     };
 
     apps = {
-      barrier = enabled;
       firefox = enabled;
       brave = enabled;
       libreoffice = enabled;
