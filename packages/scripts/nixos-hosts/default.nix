@@ -11,7 +11,17 @@
   inherit (lib) mapAttrsToList concatStringsSep;
   inherit (lib.campground) override-meta;
 
-  substitute = args: builtins.readFile (replaceVars args);
+  # substituteAll -> replaceVars
+  substitute = args: let
+    # Read the template file
+    src = builtins.readFile args.src;
+
+    # Everything except src becomes a variable
+    vars =
+      builtins.mapAttrs (_: v: toString v)
+      (builtins.removeAttrs args ["src"]);
+  in
+    replaceVars src vars;
 
   formatted-hosts = mapAttrsToList (name: host: "${name},${host.pkgs.system}") hosts;
 
@@ -37,6 +47,7 @@
 
     runtimeInputs = [gum];
   };
+
   new-meta = with lib; {
     description = "A helper to list all of the NixOS hosts available from your flake.";
     license = licenses.asl20;
