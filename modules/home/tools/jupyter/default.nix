@@ -33,7 +33,7 @@ in {
       python313Packages.matplotlib-inline
       python313Packages.jupyter
       python313Packages.jupyter-core
-      python313Packages.jupyter_server
+      python313Packages.jupyter-server
       python313Packages.jupyterlab
       python313Packages.ipykernel
       python313Packages.qtconsole
