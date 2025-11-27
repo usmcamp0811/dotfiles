@@ -46,6 +46,6 @@ in {
       extraPortals = [pkgs.xdg-desktop-portal-gtk];
     };
     # Make sure OpenGL stack is wired for Electron/Chromium apps
-    hardware.opengl.enable = true;
+    hardware.graphics.enable = true;
   };
 }
