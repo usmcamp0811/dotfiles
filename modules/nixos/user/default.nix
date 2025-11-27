@@ -1,7 +1,12 @@
-{ options, config, pkgs, lib, ... }:
+{
+  options,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.user;
   defaultIconFileName = "profile.png";
   defaultIcon = pkgs.stdenvNoCC.mkDerivation {
@@ -14,30 +19,33 @@ let
       ${pkgs.coreutils}/bin/cp $src $out
     '';
 
-    passthru = { fileName = defaultIconFileName; };
+    passthru = {fileName = defaultIconFileName;};
   };
-  propagatedIcon = pkgs.runCommandNoCC "propagated-icon"
+  propagatedIcon =
+    pkgs.runCommand "propagated-icon"
     {
-      passthru = { fileName = cfg.icon.fileName; };
+      passthru = {fileName = cfg.icon.fileName;};
     } ''
-    local target="$out/share/icons/user/${cfg.name}"
-    mkdir -p "$target"
+      local target="$out/share/icons/user/${cfg.name}"
+      mkdir -p "$target"
 
-    cp ${cfg.icon} "$target/${cfg.icon.fileName}"
-  '';
-in
-{
+      cp ${cfg.icon} "$target/${cfg.icon.fileName}"
+    '';
+in {
   options.campground.user = with types; {
     name = mkOpt str "abe" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
     uid = mkOpt int 1000 "UID of the user";
-    initialPassword = mkOpt str "password"
+    initialPassword =
+      mkOpt str "password"
       "The initial password to use when the user is first created.";
-    icon = mkOpt (nullOr package) defaultIcon
+    icon =
+      mkOpt (nullOr package) defaultIcon
       "The profile picture to use for the user.";
-    extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
-    extraOptions = mkOpt attrs { }
+    extraGroups = mkOpt (listOf str) [] "Groups for the user to be assigned.";
+    extraOptions =
+      mkOpt attrs {}
       "Extra options passed to <option>users.users.<name></option>.";
     GroupsIds = mkOption {
       type = types.attrsOf types.int;
@@ -55,7 +63,7 @@ in
   };
 
   config = {
-    environment.systemPackages = with pkgs; [ propagatedIcon lsd ];
+    environment.systemPackages = with pkgs; [propagatedIcon lsd];
 
     programs.zsh = {
       enable = true; # Enable zsh as the default shell
@@ -63,8 +71,7 @@ in
       autosuggestions.enable = true;
       syntaxHighlighting.enable = true;
 
-      interactiveShellInit =
-        ""; # Extra commands to run at interactive shell initialization
+      interactiveShellInit = ""; # Extra commands to run at interactive shell initialization
 
       loginShellInit = ""; # Extra commands to run at login shell initialization
 
@@ -73,7 +80,7 @@ in
       # TODO: migrate my theme here
       ohMyZsh = {
         enable = true; # Enable Oh My Zsh
-        plugins = [ "fzf" ]; # Oh My Zsh plugins
+        plugins = ["fzf"]; # Oh My Zsh plugins
         # theme = "fino"; # Oh My Zsh theme
         # custom = ""; # Custom Oh My Zsh configuration
       };
@@ -91,10 +98,11 @@ in
         ".face".source = cfg.icon;
         "Pictures/${
           cfg.icon.fileName or (builtins.baseNameOf cfg.icon)
-        }".source = cfg.icon;
+        }".source =
+          cfg.icon;
       };
 
-      configFile = { "sddm/faces/.${cfg.name}".source = cfg.icon; };
+      configFile = {"sddm/faces/.${cfg.name}".source = cfg.icon;};
 
       extraOptions = {
         home.shellAliases = {
@@ -111,29 +119,31 @@ in
     };
 
     users.groups =
-      mapAttrs' (name: id: nameValuePair name { gid = mkForce id; })
-        cfg.GroupsIds;
+      mapAttrs' (name: id: nameValuePair name {gid = mkForce id;})
+      cfg.GroupsIds;
 
-    users.users.root = { shell = pkgs.zsh; } // cfg.extraOptions;
+    users.users.root = {shell = pkgs.zsh;} // cfg.extraOptions;
 
-    users.users.${cfg.name} = {
-      isNormalUser = true;
+    users.users.${cfg.name} =
+      {
+        isNormalUser = true;
 
-      inherit (cfg) name initialPassword;
+        inherit (cfg) name initialPassword;
 
-      home = "/home/${cfg.name}";
-      group = "users";
+        home = "/home/${cfg.name}";
+        group = "users";
 
-      shell = pkgs.zsh;
+        shell = pkgs.zsh;
 
-      # Arbitrary user ID to use for the user. Since I only
-      # have a single user on my machines this won't ever collide.
-      # However, if you add multiple users you'll need to change this
-      # so each user has their own unique uid (or leave it out for the
-      # system to select).
-      uid = cfg.uid;
+        # Arbitrary user ID to use for the user. Since I only
+        # have a single user on my machines this won't ever collide.
+        # However, if you add multiple users you'll need to change this
+        # so each user has their own unique uid (or leave it out for the
+        # system to select).
+        uid = cfg.uid;
 
-      extraGroups = [ ] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
-    } // cfg.extraOptions;
+        extraGroups = [] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
+      }
+      // cfg.extraOptions;
   };
 }

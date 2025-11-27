@@ -2,7 +2,7 @@
   lib,
   campground,
   fetchFromGitHub,
-  runCommandNoCC,
+  runCommand,
   callPackage,
   unzip,
   favicon ? "light",
@@ -24,7 +24,7 @@
   };
 
   catppuccin =
-    runCommandNoCC "catpuccin" {
+    runCommand "catpuccin" {
       src = catppuccin-raw;
       buildInputs = [unzip];
     } (''
