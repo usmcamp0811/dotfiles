@@ -15,6 +15,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = [];
 
+    crystal-forge.stig-presets.off.enable = true;
     campground = {
       nix = {
         enable = true;

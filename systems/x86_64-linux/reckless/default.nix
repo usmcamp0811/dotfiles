@@ -18,7 +18,6 @@ in {
   boot.kernelParams = ["pcie_port_pm=off" "pcie_aspm.policy=performance"];
   boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
-  # crystal-forge.stig-presets.off.enable = true;
   systemd.services.proton-socat-smtp = {
     description = "Socat Service for Proton Bridge SMTP Port Forwarding";
     after = ["network.target"];

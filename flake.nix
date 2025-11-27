@@ -354,6 +354,7 @@
         authentik-nix.nixosModules.default
         crystal-forge.nixosModules.crystal-forge
       ];
+      # ++ (lib.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules));
 
       # systemds.hosts.lucas.modules = with inputs; [
       #   unstable.nixosModules.services.k3s
