@@ -1,6 +1,7 @@
 {
   lib,
   nixos-option,
+  runCommand,
   makeWrapper,
   fetchFromGitHub,
   flakeSource ? "/config",
