@@ -3,7 +3,6 @@
   writeText,
   writeShellApplication,
   replaceVars,
-  replaceVars,
   gum,
   inputs,
   hosts ? {},
