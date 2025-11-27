@@ -1,13 +1,13 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.desktop.hyprland;
-in
-{
+in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
@@ -110,22 +110,6 @@ in
           "idleinhibit fullscreen, title:^(.*(Twitch|TNTdrama|YouTube|Bally Sports|Video Entertainment|Plex)).*(Firefox).*$"
           "idleinhibit focus, title:^(.*(Twitch|TNTdrama|YouTube|Bally Sports|Video Entertainment|Plex)).*(Firefox).*$"
           "idleinhibit focus, class:^(mpv|.+exe)$"
-
-          ##
-          # ░▀█▀░█▀▀░█▀█░█▀▄░▀█▀░█▀█░█▀▀
-          # ░░█░░█▀▀░█▀█░█▀▄░░█░░█░█░█░█
-          # ░░▀░░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀▀
-          ##
-          # "immediate, class:^(gamescope|steam_app).*"
-
-          # screen sharing
-          "opacity 0.0 override 0.0 override,class:^(${
-            getExe pkgs.kdePackages.xwaylandvideobridge
-          })$"
-          "noanim,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
-          "noinitialfocus,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
-          "maxsize 1 1,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
-          "noblur,class:^(${getExe pkgs.kdePackages.xwaylandvideobridge})$"
 
           ##
           # ░█░█░█▀█░█▀▄░█░█░█▀▀░█▀█░█▀█░█▀▀░█▀▀░░░█▀▀░█▀█░█▀█░█▀▀░▀█▀░█▀▀
