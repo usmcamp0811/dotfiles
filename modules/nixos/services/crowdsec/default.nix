@@ -1,17 +1,15 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   cfg = config.campground.services.crowdsec;
-  yaml = (pkgs.formats.yaml { }).generate;
-  acquisitions_file = yaml "acquisitions.yaml" {
-    source = "journalctl";
-    journalctl_filter = [ "_SYSTEMD_UNIT=sshd.service" ];
-    labels.type = "syslog";
-  };
 in {
   options.campground.services.crowdsec = with types; {
-    enable = mkBoolOpt false "Enable file-share;";
+    enable = mkBoolOpt false "Enable crowdsec.";
     listen_uri = mkOpt str "0.0.0.0:10808" "URI to listen on";
 
     role-id =
@@ -20,10 +18,11 @@ in {
     secret-id =
       mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/crowdsec"
+    vault-path =
+      mkOpt str "secret/campground/crowdsec"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -37,30 +36,38 @@ in {
   config = mkIf cfg.enable {
     services.crowdsec = {
       enable = true;
-      enrollKeyFile = "/tmp/detsys-vault/crowdsec_key";
-      allowLocalJournalAccess = true;
-      acquisitions = [{
-        source = "journalctl";
-        journalctl_filter = [ "_SYSTEMD_UNIT=sshd.service" ];
-        labels.type = "syslog";
-      }];
-      settings = {
-        # crowdsec_service.acquisition_path = acquisitions_file;
-        api.server = { listen_uri = cfg.listen_uri; };
+
+      # acquisitions moved into localConfig for nixpkgs module
+      localConfig.acquisitions = [
+        {
+          source = "journalctl";
+          journalctl_filter = ["_SYSTEMD_UNIT=sshd.service"];
+          labels.type = "syslog";
+        }
+      ];
+
+      # settings now live under settings.general.*
+      settings.general.api.server = {
+        # enable LAPI and bind to your configured listen URI
+        enable = true;
+        listen_uri = cfg.listen_uri;
       };
     };
+
     campground.services.vault-agent.services.crowdsec = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {

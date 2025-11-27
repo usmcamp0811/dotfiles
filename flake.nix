@@ -204,10 +204,6 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
-    crowdsec = {
-      url = "git+https://codeberg.org/kampka/nix-flake-crowdsec.git";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     funkwhale.url = "github:usmcamp0811/funkwhale-flake";
     nixhelm.url = "github:nix-community/nixhelm";
     nixhelm.inputs.nixpkgs.follows = "unstable";
@@ -350,7 +346,6 @@
           nix-topology.nixosModules.default
           catppuccin.nixosModules.catppuccin
           flakeforge.nixosModules.flakeforge
-          crowdsec.nixosModules.crowdsec
           funkwhale.nixosModules.default
           authentik-nix.nixosModules.default
           crystal-forge.nixosModules.crystal-forge
