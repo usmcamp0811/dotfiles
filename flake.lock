@@ -6544,11 +6544,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1732331122,
-        "narHash": "sha256-TLP9V4c1R28tDmvblqGx9dNUjq9akkhk/+H8b4UzMlo=",
+        "lastModified": 1764254417,
+        "narHash": "sha256-XqxYs97bOeVu32uULjmmlOP3odxu1GLAWzHL8QU/IQM=",
         "owner": "usmcamp0811",
         "repo": "flakeforge",
-        "rev": "97d5130a9afa3b9e8f63c12ab47d08e062af8bd6",
+        "rev": "95cabc27dd08f810d9657ee18c09050e096f1a58",
         "type": "github"
       },
       "original": {
