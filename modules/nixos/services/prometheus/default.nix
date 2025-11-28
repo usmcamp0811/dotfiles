@@ -103,7 +103,7 @@ in {
           settings = {
             scripts = [{
               name = "shit-script";
-              script = "${test-script}/bin/test-script";
+              command = "${test-script}/bin/test-script";
             }];
           };
         };
