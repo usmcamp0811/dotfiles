@@ -1,7 +1,12 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.matomo;
+with lib.campground; let
+  cfg = config.campground.services.matomo;
 in {
   options.campground.services.matomo = with types; {
     enable = mkBoolOpt false "Enable Matomo;";
@@ -13,30 +18,30 @@ in {
     # TODO: Do better configign of this shit
     campground.services.mysql = {
       enable = true;
-      databases = [{
-        name = "matomo";
-        user = "matomo";
-      }];
+      databases = [
+        {
+          name = "matomo";
+          user = "matomo";
+        }
+      ];
     };
 
     services.matomo = {
       enable = true;
-      package = pkgs.matomo_5;
+      package = pkgs.matomo;
       hostname = cfg.rootDomain;
       nginx = {
-        serverAliases =
-          [ "matomo.${cfg.rootDomain}" "stats.${cfg.rootDomain}" ];
+        serverAliases = ["matomo.${cfg.rootDomain}" "stats.${cfg.rootDomain}"];
         serverName = "matomo.${cfg.rootDomain}";
-        listen = [{
-          addr = "0.0.0.0";
-          port = cfg.port;
-        }];
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }
+        ];
         enableACME = false;
         forceSSL = false;
-
       };
-
     };
-
   };
 }
