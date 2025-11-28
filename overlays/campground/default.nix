@@ -87,6 +87,7 @@
 // {
   inherit (comma.packages.${final.system}) comma;
   # inherit (funkwhale.overlay);
+  inherit (channels.old-nixpkgs) ckb-next;
   inherit
     (channels.unstable)
     deploy-rs
