@@ -89,6 +89,7 @@
   # inherit (funkwhale.overlay);
   inherit
     (channels.unstable)
+    ckb-next
     deploy-rs
     zookeeper
     vaultwarden
