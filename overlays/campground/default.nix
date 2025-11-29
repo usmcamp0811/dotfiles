@@ -87,9 +87,7 @@
 // {
   inherit (comma.packages.${final.system}) comma;
   # inherit (funkwhale.overlay);
-  inherit (channels.old-nixpkgs) ckb-next;
-  inherit (channels.old-nixpkgs.postgresql14Packages) timescaledb;
-  inherit (channels.old-nixpkgs.postgresql16Packages) timescaledb;
+  inherit (channels.old-nixpkgs) ckb-next postgresql16Packages postgresql14Packages;
   inherit
     (channels.unstable)
     deploy-rs
