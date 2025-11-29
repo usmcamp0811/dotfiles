@@ -89,6 +89,7 @@
   # inherit (funkwhale.overlay);
   inherit (channels.old-nixpkgs) ckb-next;
   inherit (channels.old-nixpkgs.postgresql14Packages) timescaledb;
+  inherit (channels.old-nixpkgs.postgresql16Packages) timescaledb;
   inherit
     (channels.unstable)
     deploy-rs
