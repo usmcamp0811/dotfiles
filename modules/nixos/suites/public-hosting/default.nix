@@ -255,7 +255,7 @@ in {
           rule = "Host(`matt-camp.com`)";
           entryPoints = ["websecure"];
           service = "matt-camp";
-          middlewares = ["cloudflarewarp"];
+          # middlewares = ["cloudflarewarp"];
           tls.certResolver = "cloudflare";
         };
 
@@ -340,7 +340,7 @@ in {
           rule = "Host(`bw.aicampground.com`)";
           entryPoints = ["websecure"];
           service = "bitwarden";
-          middlewares = ["cloudflarewarp"];
+          # middlewares = ["cloudflarewarp"];
         };
 
         http.services.bitwarden = {
@@ -356,14 +356,14 @@ in {
           rule = "Host(`mattermost.aicampground.com`)";
           entryPoints = ["websecure"];
           service = "mattermost";
-          middlewares = ["cloudflarewarp"];
+          # middlewares = ["cloudflarewarp"];
         };
 
         http.routers.mm = {
           rule = "Host(`mm.aicampground.com`)";
           entryPoints = ["websecure"];
           service = "mattermost";
-          middlewares = ["cloudflarewarp"];
+          # middlewares = ["cloudflarewarp"];
         };
 
         http.services.mattermost = {
