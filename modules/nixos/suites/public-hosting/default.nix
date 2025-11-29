@@ -286,21 +286,21 @@ in {
           # middlewares = [ "cloudflarewarp" ];
         };
 
-        http.services.searx = {
-          loadBalancer.servers = [
-            {url = "http://10.8.0.201:3249";}
-            {url = "http://daly:8181";}
-            {url = "http://chesty:3249";}
-            {url = "http://lucas:3249";}
-            {url = "http://reckless:3249";}
-          ];
-
-          loadBalancer.healthCheck = {
-            path = "/";
-            interval = "10s";
-            timeout = "5s";
-          };
-        };
+        http.services.searx = generateServiceConfig "searx";
+        # http.services.searx = {
+        #   loadBalancer.servers = [
+        #     {url = "http://daly:8181";}
+        #     {url = "http://chesty:3249";}
+        #     {url = "http://lucas:3249";}
+        #     {url = "http://reckless:3249";}
+        #   ];
+        #
+        #   loadBalancer.healthCheck = {
+        #     path = "/";
+        #     interval = "10s";
+        #     timeout = "5s";
+        #   };
+        # };
 
         http.middlewares.attic-headers.headers = {
           stsSeconds = 31536000;
