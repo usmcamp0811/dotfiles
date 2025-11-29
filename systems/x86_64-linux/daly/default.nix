@@ -85,48 +85,48 @@ with lib.campground; {
       campground-blog = enabled;
       matt-camp-website = enabled;
 
-      hadoop = {
-        # enable = true;
-        yarnSite = {
-          "yarn.nodemanager.hostname" = "daly";
-          "yarn.scheduler.capacity.root.queues" = "default";
-          "yarn.scheduler.capacity.root.default.capacity" = "100";
-        };
-        hdfs = {
-          datanode.enable = true;
-          datanode.restartIfChanged = true;
-          datanode.openFirewall = true;
-          datanode.extraFlags = [];
-          datanode.extraEnv = {};
-          datanode.dataDirs = [];
-
-          journalnode.enable = true;
-          journalnode.restartIfChanged = true;
-          journalnode.openFirewall = true;
-          journalnode.extraFlags = [];
-          journalnode.extraEnv = {};
-        };
-        yarn = {
-          resourcemanager.enable = true;
-          resourcemanager.openFirewall = true;
-          resourcemanager.restartIfChanged = true;
-          resourcemanager.extraFlags = [];
-          resourcemanager.extraEnv = {};
-
-          nodemanager.enable = true;
-          nodemanager.useCGroups = false;
-          nodemanager.restartIfChanged = true;
-          nodemanager.resource.memoryMB = null;
-          nodemanager.resource.maximumAllocationVCores = null;
-          nodemanager.resource.maximumAllocationMB = null;
-          nodemanager.resource.cpuVCores = null;
-          nodemanager.openFirewall = true;
-          nodemanager.localDir = null;
-          nodemanager.extraFlags = [];
-          nodemanager.extraEnv = {};
-          nodemanager.addBinBash = true;
-        };
-      };
+      # hadoop = {
+      #   # enable = true;
+      #   yarnSite = {
+      #     "yarn.nodemanager.hostname" = "daly";
+      #     "yarn.scheduler.capacity.root.queues" = "default";
+      #     "yarn.scheduler.capacity.root.default.capacity" = "100";
+      #   };
+      #   hdfs = {
+      #     datanode.enable = true;
+      #     datanode.restartIfChanged = true;
+      #     datanode.openFirewall = true;
+      #     datanode.extraFlags = [];
+      #     datanode.extraEnv = {};
+      #     datanode.dataDirs = [];
+      #
+      #     journalnode.enable = true;
+      #     journalnode.restartIfChanged = true;
+      #     journalnode.openFirewall = true;
+      #     journalnode.extraFlags = [];
+      #     journalnode.extraEnv = {};
+      #   };
+      #   yarn = {
+      #     resourcemanager.enable = true;
+      #     resourcemanager.openFirewall = true;
+      #     resourcemanager.restartIfChanged = true;
+      #     resourcemanager.extraFlags = [];
+      #     resourcemanager.extraEnv = {};
+      #
+      #     nodemanager.enable = true;
+      #     nodemanager.useCGroups = false;
+      #     nodemanager.restartIfChanged = true;
+      #     nodemanager.resource.memoryMB = null;
+      #     nodemanager.resource.maximumAllocationVCores = null;
+      #     nodemanager.resource.maximumAllocationMB = null;
+      #     nodemanager.resource.cpuVCores = null;
+      #     nodemanager.openFirewall = true;
+      #     nodemanager.localDir = null;
+      #     nodemanager.extraFlags = [];
+      #     nodemanager.extraEnv = {};
+      #     nodemanager.addBinBash = true;
+      #   };
+      # };
       zfs-key-server = {
         enable = true;
         interface = "enp3s0f1";
