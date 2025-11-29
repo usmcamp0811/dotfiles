@@ -7,19 +7,6 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.services.traefik;
-  cloudflarewarpPlugin = pkgs.fetchFromGitHub {
-    owner = "BilikoX";
-    repo = "cloudflarewarp";
-    rev = "v1.3.4"; # pin to a specific version
-    sha256 = "sha256-3nHPMGQltTo1jpMLAOuY99fu+xdLcvwZgrJh1h0pMGw="; # run once with "" to get the hash, or use lib.fakeHash
-  };
-
-  fail2banPlugin = pkgs.fetchFromGitHub {
-    owner = "tomMoulard";
-    repo = "fail2ban";
-    rev = "v0.8.1"; # pin to a specific version
-    sha256 = "sha256-3nHPMGQltTo1jpMLAOuY99fu+xdLcvwZgrJh1h0pMGw=";
-  };
   jsonValue = with types; let
     valueType =
       nullOr
@@ -141,12 +128,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d /var/lib/traefik/plugins-local/src/github.com/BilikoX/cloudflarewarp 0755 traefik traefik -"
-      "d /var/lib/traefik/plugins-local/src/github.com/tomMoulard/fail2ban 0755 traefik traefik -"
-      "C /var/lib/traefik/plugins-local/src/github.com/BilikoX/cloudflarewarp - - - - ${cloudflarewarpPlugin}"
-      "C /var/lib/traefik/plugins-local/src/github.com/tomMoulard/fail2ban - - - - ${fail2banPlugin}"
-    ];
     systemd.services.saveCertsToVault = {
       description = "Save TLS Certs in Vault";
       serviceConfig = {
@@ -172,7 +153,7 @@ in {
 
       staticConfigOptions = {
         experimental.localPlugins = {
-          cloudflarewarp.moduleName = "github.com/BilikoX/cloudflarewarp";
+          cloudflarewarp.moduleName = "github.com/fma965/cloudflarewarp";
           fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
         };
 
