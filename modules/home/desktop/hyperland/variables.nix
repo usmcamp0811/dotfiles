@@ -69,8 +69,8 @@ in {
 
         cursor.no_hardware_cursors = 1;
         gestures = {
-          workspace_swipe = true;
-          workspace_swipe_fingers = 3;
+          # workspace_swipe = true;
+          # workspace_swipe_fingers = 3;
           workspace_swipe_invert = false;
         };
 
