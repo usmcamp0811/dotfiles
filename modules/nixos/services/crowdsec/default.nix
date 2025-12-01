@@ -1,11 +1,11 @@
-{
-  lib,
-  pkgs,
-  config,
-  ...
+{ lib
+, pkgs
+, config
+, ...
 }:
 with lib;
-with lib.campground; let
+with lib.campground;
+let
   cfg = config.campground.services.crowdsec;
 in {
   options.campground.services.crowdsec = with types; {
@@ -22,7 +22,7 @@ in {
       mkOpt str "secret/campground/crowdsec"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum ["v1" "v2"];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -41,16 +41,17 @@ in {
       localConfig.acquisitions = [
         {
           source = "journalctl";
-          journalctl_filter = ["_SYSTEMD_UNIT=sshd.service"];
+          journalctl_filter = [ "_SYSTEMD_UNIT=sshd.service" ];
           labels.type = "syslog";
         }
       ];
 
-      # settings now live under settings.general.*
-      settings.general.api.server = {
-        # enable LAPI and bind to your configured listen URI
-        enable = true;
-        listen_uri = cfg.listen_uri;
+      # settings.general is a YAML value; put api.server inside it
+      settings.general = {
+        api.server = {
+          enable = true;
+          listen_uri = cfg.listen_uri;
+        };
       };
     };
 
@@ -62,8 +63,8 @@ in {
             {
               type = "approle";
               config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
+                role_id_file_path = cfg."role-id";
+                secret_id_file_path = cfg."secret-id";
                 remove_secret_id_file_after_reading = false;
               };
             }
@@ -71,15 +72,13 @@ in {
         };
       };
       secrets = {
-        file = {
-          files = {
-            "crowdsec_key" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }}
-              '';
-              permissions = "0600";
-              change-action = "restart";
-            };
+        file.files = {
+          "crowdsec_key" = {
+            text = ''
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.key }}{{ else }}{{ .Data.data.key }}{{ end }}{{ end }}
+            '';
+            permissions = "0600";
+            change-action = "restart";
           };
         };
       };
