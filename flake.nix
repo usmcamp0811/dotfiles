@@ -144,7 +144,7 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
-    mlflow-works.url = "gitlab:usmcamp0811/dotfiles/38739f362e9c8e27880c0835f8db4a4866a61337";
+    # mlflow-works.url = "gitlab:usmcamp0811/dotfiles/flake-pin-b526f61";
 
     nix-snapshotter = {
       url = "github:yu-re-ka/nix-snapshotter";

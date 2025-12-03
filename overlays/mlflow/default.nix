@@ -1,5 +1,10 @@
-{ mlflow-works, channels, unstable, nixpkgs, ... }:
-final: prev: {
+{
+  # mlflow-works,
+  channels,
+  unstable,
+  nixpkgs,
+  ...
+}: final: prev: {
   # inherit (channels.unstable) python311Packages;
   python3-11 = unstable.legacyPackages.${prev.system}.python311;
   python311Packages-unstable =
@@ -15,5 +20,5 @@ final: prev: {
   gunicorn-unstable =
     unstable.legacyPackages.${prev.system}.python311Packages.gunicorn;
   poetry = nixpkgs.legacyPackages.${prev.system}.poetry;
-  mlflow-server = mlflow-works.packages.${prev.system}.mlflow;
+  mlflow-server = unstable.packages.${prev.system}.mlflow;
 }
