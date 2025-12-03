@@ -203,6 +203,13 @@ in {
 
         systems = [
           {
+            hostname = "nix-builder";
+            public_key = "GQ7yYp5jkUgY+JW1DbCgM5xAt32SH2kCul9GmeFg1+E=";
+            environment = "remote";
+            flake_name = "ata-nix-config";
+            deployment_policy = "auto_latest";
+          }
+          {
             hostname = "ajames-oh-x86-intel-nuc";
             public_key = "Tk1eIdcDrP66wibSx6RQLmOr5yN8aDIOlsB4jS1tDFY=";
             environment = "remote";
