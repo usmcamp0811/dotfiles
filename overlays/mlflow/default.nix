@@ -20,5 +20,5 @@
   gunicorn-unstable =
     unstable.legacyPackages.${prev.system}.python311Packages.gunicorn;
   poetry = nixpkgs.legacyPackages.${prev.system}.poetry;
-  mlflow-server = unstable.packages.${prev.system}.mlflow;
+  mlflow-server = unstable.packages.${prev.system}.mlflow-server;
 }
