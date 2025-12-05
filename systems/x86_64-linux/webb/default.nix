@@ -228,7 +228,7 @@ in {
       nixery = enabled;
       docker = enabled;
       # minio = enabled;
-      mlflow = enabled;
+      # mlflow = enabled;
       # airflow = enabled;
       # label-studio = enabled;
       vaultwarden = enabled;
