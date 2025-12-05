@@ -20,5 +20,5 @@
   gunicorn-unstable =
     unstable.legacyPackages.${prev.system}.python311Packages.gunicorn;
   poetry = nixpkgs.legacyPackages.${prev.system}.poetry;
-  inherit (unstable) mlflow-server;
+  inherit (channels.unstable) mlflow-server;
 }
