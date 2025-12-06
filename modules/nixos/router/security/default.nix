@@ -111,19 +111,25 @@ in {
     };
 
     # Firewall for SSH (LAN only)
-    networking.firewall.interfaces."br-lan" = mkIf cfg.enableSSH {
-      allowedTCPPorts = [cfg.sshPort];
-    };
-
-    # Additional allowed services
-    networking.firewall.interfaces = mkDefault listToAttrs (
-      map (service:
-        nameValuePair service.interface {
-          allowedTCPPorts = mkIf (service.protocol == "tcp") [service.port];
-          allowedUDPPorts = mkIf (service.protocol == "udp") [service.port];
-        })
-      cfg.allowedServices
-    );
+    # merged networking.firewall.interfaces
+    networking.firewall.interfaces =
+      {
+        # SSH rule for br-lan
+        "br-lan" = mkIf cfg.enableSSH {
+          allowedTCPPorts = [cfg.sshPort];
+        };
+      }
+      # merge in dynamically generated allowedServices rules
+      // (listToAttrs (
+        map (
+          service:
+            nameValuePair service.interface {
+              allowedTCPPorts = mkIf (service.protocol == "tcp") [service.port];
+              allowedUDPPorts = mkIf (service.protocol == "udp") [service.port];
+            }
+        )
+        cfg.allowedServices
+      ));
 
     # fail2ban for SSH protection
     services.fail2ban = mkIf (cfg.enableSSH && cfg.fail2ban.enable) {
@@ -148,9 +154,6 @@ in {
       # Restrict ptrace
       allowUserNamespaces = true;
       unprivilegedUsernsClone = false;
-
-      # Restrict access to dmesg
-      dmesg.enable = false;
     };
 
     # Additional kernel hardening
@@ -179,25 +182,6 @@ in {
       "net.ipv4.conf.default.log_martians" = 1;
     };
 
-    # Minimal package set
-    environment.systemPackages = with pkgs; [
-      # Essential tools
-      vim
-      htop
-      tcpdump
-      ethtool
-      conntrack-tools
-
-      # Network diagnostics
-      inetutils
-      dnsutils
-      nmap
-
-      # Security tools
-      iptables
-      nftables
-    ];
-
     # Enable audit
     security.audit.enable = true;
     security.auditd.enable = true;
@@ -209,29 +193,47 @@ in {
     systemd.coredump.enable = false;
 
     # Create security monitoring script
-    environment.systemPackages = [
-      (pkgs.writeScriptBin "router-security-check" ''
-        #!${pkgs.bash}/bin/bash
-        echo "=== Router Security Status ==="
-        echo ""
-        echo "Firewall Status:"
-        ${pkgs.systemd}/bin/systemctl status nftables.service | ${pkgs.gnugrep}/bin/grep -E "(Active|Loaded)"
-        echo ""
-        echo "SSH Status:"
-        ${pkgs.systemd}/bin/systemctl status sshd.service | ${pkgs.gnugrep}/bin/grep -E "(Active|Loaded)"
-        echo ""
-        echo "Active Connections:"
-        ${pkgs.nettools}/bin/netstat -tn | ${pkgs.gnugrep}/bin/grep ESTABLISHED | wc -l
-        echo ""
-        echo "Recent SSH Attempts:"
-        ${pkgs.systemd}/bin/journalctl -u sshd.service --since "1 hour ago" | ${pkgs.gnugrep}/bin/grep -i "failed\|accepted" | tail -10
-        echo ""
-        ${optionalString cfg.fail2ban.enable ''
-          echo "fail2ban Status:"
-          ${pkgs.fail2ban}/bin/fail2ban-client status sshd 2>/dev/null || echo "No bans"
+    environment.systemPackages =
+      [
+        (pkgs.writeScriptBin "router-security-check" ''
+          #!${pkgs.bash}/bin/bash
+          echo "=== Router Security Status ==="
           echo ""
-        ''}
-      '')
-    ];
+          echo "Firewall Status:"
+          ${pkgs.systemd}/bin/systemctl status nftables.service | ${pkgs.gnugrep}/bin/grep -E "(Active|Loaded)"
+          echo ""
+          echo "SSH Status:"
+          ${pkgs.systemd}/bin/systemctl status sshd.service | ${pkgs.gnugrep}/bin/grep -E "(Active|Loaded)"
+          echo ""
+          echo "Active Connections:"
+          ${pkgs.nettools}/bin/netstat -tn | ${pkgs.gnugrep}/bin/grep ESTABLISHED | wc -l
+          echo ""
+          echo "Recent SSH Attempts:"
+          ${pkgs.systemd}/bin/journalctl -u sshd.service --since "1 hour ago" | ${pkgs.gnugrep}/bin/grep -i "failed\|accepted" | tail -10
+          echo ""
+          ${optionalString cfg.fail2ban.enable ''
+            echo "fail2ban Status:"
+            ${pkgs.fail2ban}/bin/fail2ban-client status sshd 2>/dev/null || echo "No bans"
+            echo ""
+          ''}
+        '')
+      ]
+      ++ (with pkgs; [
+        # Essential tools
+        vim
+        htop
+        tcpdump
+        ethtool
+        conntrack-tools
+
+        # Network diagnostics
+        inetutils
+        dnsutils
+        nmap
+
+        # Security tools
+        iptables
+        nftables
+      ]);
   };
 }
