@@ -3,7 +3,7 @@ with lib.campground; {
   campground = {
     user = {
       enable = true;
-      name = "mcamp";
+      name = "admin";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
     };
