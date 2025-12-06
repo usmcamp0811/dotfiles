@@ -25,12 +25,12 @@
 
       # SSH host keys
       "/etc/ssh"
-
-      # Machine ID
-      "/etc/machine-id"
     ];
 
     files = [
+      # Machine ID (must be a file, not directory)
+      "/etc/machine-id"
+
       # systemd random seed
       "/var/lib/systemd/random-seed"
     ];
