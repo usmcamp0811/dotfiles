@@ -7407,6 +7407,21 @@
         "type": "github"
       }
     },
+    "impermanence": {
+      "locked": {
+        "lastModified": 1737831083,
+        "narHash": "sha256-LJggUHbpyeDvNagTUrdhe/pRVp4pnS6wVKALS782gRI=",
+        "owner": "nix-community",
+        "repo": "impermanence",
+        "rev": "4b3e914cdf97a5b536a889e939fb2fd2b043a170",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "impermanence",
+        "type": "github"
+      }
+    },
     "incl": {
       "inputs": {
         "nixlib": [
@@ -9811,6 +9826,26 @@
       "original": {
         "owner": "nixos",
         "repo": "nixos-hardware",
+        "type": "github"
+      }
+    },
+    "nixos-router": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763533732,
+        "narHash": "sha256-iXSBJjxZNrQPHtaPXlwHAk/n5H4L4PID8cRDrD130Fo=",
+        "owner": "chayleaf",
+        "repo": "nixos-router",
+        "rev": "3455070b0aaadfa884c1e31df7aef732c17cf4ac",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chayleaf",
+        "repo": "nixos-router",
         "type": "github"
       }
     },
@@ -13259,6 +13294,7 @@
         "hyprland": "hyprland_3",
         "hyprland-contrib": "hyprland-contrib_3",
         "hyprpaper": "hyprpaper_3",
+        "impermanence": "impermanence",
         "jupyenv": "jupyenv_2",
         "k0s-nix": "k0s-nix_2",
         "kanagawa-yazi": "kanagawa-yazi_2",
@@ -13280,6 +13316,7 @@
         "nixos-cli": "nixos-cli_2",
         "nixos-generators": "nixos-generators_3",
         "nixos-hardware": "nixos-hardware_3",
+        "nixos-router": "nixos-router",
         "nixpkgs": "nixpkgs_53",
         "nixpkgs-python": "nixpkgs-python_3",
         "nixpkgs-wayland": "nixpkgs-wayland_3",
