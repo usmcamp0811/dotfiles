@@ -34,7 +34,7 @@ with lib.campground; {
 
     # Router configuration using campground modules
     router = {
-      enable = true;
+      # enable = true;
 
       wan = {
         interface = "enp1s0"; # First port - WAN
