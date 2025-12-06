@@ -1,0 +1,292 @@
+{ lib
+, config
+, pkgs
+, ...
+}:
+with lib;
+with lib.campground; let
+  cfg = config.campground.services.gitea;
+in
+{
+  options.campground.services.gitea = with types; {
+    enable = mkBoolOpt false "Enable Gitea";
+
+    # Basic configuration
+    domain = mkOpt str "git.lan.aicampground.com" "Gitea domain";
+    port = mkOpt int 3000 "HTTP port to serve Gitea on";
+    httpPort = mkOpt int 8445 "External HTTP port for nginx proxy";
+    sshPort = mkOpt int 2222 "SSH port for Git operations";
+
+    # Application configuration
+    appName = mkOpt str "Gitea: Git with a cup of tea" "Application name";
+    repositoryRoot = mkOpt str "/var/lib/gitea/repositories" "Path to Git repositories";
+    stateDir = mkOpt str "/var/lib/gitea" "Gitea state directory";
+
+    # Database configuration
+    databaseType = mkOpt str "postgres" "Database type (postgres, mysql, sqlite3)";
+    databaseHost = mkOpt str "/run/postgresql" "Database host (socket path for local PostgreSQL)";
+    databaseName = mkOpt str "gitea" "Database name";
+    databaseUser = mkOpt str "gitea" "Database user";
+
+    # User and group configuration
+    user = mkOpt str "gitea" "User to run Gitea as";
+    group = mkOpt str "gitea" "Group to run Gitea as";
+
+    # Service configuration
+    disableRegistration = mkBoolOpt false "Disable user registration";
+    enableLFS = mkBoolOpt true "Enable Git LFS support";
+    enableActions = mkBoolOpt true "Enable Gitea Actions (CI/CD)";
+
+    # Mail configuration
+    mailer = {
+      enable = mkBoolOpt false "Enable mail notifications";
+      host = mkOpt str "smtp.gmail.com" "SMTP server address";
+      port = mkOpt int 587 "SMTP server port";
+      user = mkOpt str "" "SMTP username";
+      from = mkOpt str "gitea@aicampground.com" "Sender email address";
+    };
+
+    # Vault integration
+    role-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+        "Absolute path to the Vault role-id";
+    secret-id =
+      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+        "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/gitea"
+        "The Vault path to the KV containing Gitea secrets";
+    kvVersion = mkOption {
+      type = enum [ "v1" "v2" ];
+      default = "v2";
+      description = "KV store version";
+    };
+    vault-address = mkOption {
+      type = str;
+      default = config.campground.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
+    };
+
+    # Extra configuration
+    extraConfig = mkOption {
+      type = attrs;
+      default = { };
+      description = "Extra Gitea configuration";
+      example = literalExpression ''
+        {
+          service = {
+            DISABLE_REGISTRATION = true;
+            REQUIRE_SIGNIN_VIEW = true;
+          };
+          "ui.meta" = {
+            AUTHOR = "Gitea - Git with a cup of tea";
+          };
+        }
+      '';
+    };
+  };
+
+  config = mkIf cfg.enable {
+    # PostgreSQL configuration
+    campground.services.postgresql = mkIf (cfg.databaseType == "postgres") {
+      enable = true;
+      authentication = [
+        "local ${cfg.databaseName} ${cfg.databaseUser} trust"
+      ];
+      databases = [
+        {
+          name = cfg.databaseName;
+          user = cfg.databaseUser;
+        }
+      ];
+    };
+
+    # Nginx reverse proxy
+    services.nginx = {
+      enable = true;
+      virtualHosts.${cfg.domain} = {
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.httpPort;
+          }
+        ];
+
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString cfg.port}";
+          extraConfig = ''
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+          '';
+        };
+      };
+    };
+
+    # Gitea service configuration
+    services.gitea = {
+      enable = true;
+      appName = cfg.appName;
+      user = cfg.user;
+      group = cfg.group;
+      stateDir = cfg.stateDir;
+
+      database = {
+        type = cfg.databaseType;
+        host = cfg.databaseHost;
+        name = cfg.databaseName;
+        user = cfg.databaseUser;
+        passwordFile = "/var/lib/vault/gitea-db-password";
+      };
+
+      settings = recursiveUpdate {
+        server = {
+          DOMAIN = cfg.domain;
+          HTTP_PORT = cfg.port;
+          ROOT_URL = "https://${cfg.domain}";
+          SSH_DOMAIN = cfg.domain;
+          SSH_PORT = cfg.sshPort;
+          START_SSH_SERVER = true;
+          LFS_START_SERVER = cfg.enableLFS;
+        };
+
+        service = {
+          DISABLE_REGISTRATION = cfg.disableRegistration;
+          REQUIRE_SIGNIN_VIEW = false;
+          DEFAULT_KEEP_EMAIL_PRIVATE = true;
+          DEFAULT_ALLOW_CREATE_ORGANIZATION = true;
+          ENABLE_NOTIFY_MAIL = cfg.mailer.enable;
+        };
+
+        repository = {
+          ROOT = cfg.repositoryRoot;
+          ENABLE_PUSH_CREATE_USER = true;
+          DEFAULT_BRANCH = "main";
+        };
+
+        security = {
+          INSTALL_LOCK = true;
+          SECRET_KEY_FILE = "/var/lib/vault/gitea-secret-key";
+          INTERNAL_TOKEN_FILE = "/var/lib/vault/gitea-internal-token";
+        };
+
+        session = {
+          PROVIDER = "file";
+        };
+
+        log = {
+          MODE = "console";
+          LEVEL = "Info";
+        };
+
+        actions = mkIf cfg.enableActions {
+          ENABLED = true;
+        };
+
+        mailer = mkIf cfg.mailer.enable {
+          ENABLED = true;
+          SMTP_ADDR = cfg.mailer.host;
+          SMTP_PORT = cfg.mailer.port;
+          FROM = cfg.mailer.from;
+          USER = cfg.mailer.user;
+        };
+      } cfg.extraConfig;
+    };
+
+    # Setup Gitea secrets from Vault
+    systemd.services.setup-gitea-secrets = {
+      description = "Setup Gitea secrets from Vault";
+      wantedBy = [ "multi-user.target" ];
+      before = [ "gitea.service" ];
+      after = [ "postgresql.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+      };
+      script = ''
+        mkdir -p /var/lib/vault
+
+        # Copy secrets from Vault agent
+        cp /tmp/detsys-vault/gitea-db-password /var/lib/vault/
+        cp /tmp/detsys-vault/gitea-secret-key /var/lib/vault/
+        cp /tmp/detsys-vault/gitea-internal-token /var/lib/vault/
+
+        ${optionalString cfg.mailer.enable "cp /tmp/detsys-vault/gitea-smtp-password /var/lib/vault/"}
+
+        # Set correct permissions
+        chown ${cfg.user}:${cfg.group} /var/lib/vault/gitea-*
+        chmod 600 /var/lib/vault/gitea-*
+      '';
+    };
+
+    # Vault agent configuration for secrets
+    campground.services.vault-agent.services.setup-gitea-secrets = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
+        };
+      };
+      secrets = {
+        file = {
+          files =
+            {
+              "gitea-db-password" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.db_password }}{{ else }}{{ .Data.data.db_password }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+              "gitea-secret-key" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.secret_key }}{{ else }}{{ .Data.data.secret_key }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+              "gitea-internal-token" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.internal_token }}{{ else }}{{ .Data.data.internal_token }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+            }
+            // optionalAttrs cfg.mailer.enable {
+              "gitea-smtp-password" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.smtp_password }}{{ else }}{{ .Data.data.smtp_password }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+            };
+        };
+      };
+    };
+
+    # Firewall configuration
+    networking.firewall.allowedTCPPorts = [
+      cfg.httpPort
+      cfg.sshPort
+    ];
+
+    # System dependencies
+    systemd.tmpfiles.rules = [
+      "d ${cfg.stateDir} 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.repositoryRoot} 0755 ${cfg.user} ${cfg.group} -"
+      "d /var/lib/vault 0755 root root -"
+    ];
+  };
+}

@@ -107,6 +107,9 @@
     # Hardware Configuration
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
+    # Impermanence
+    impermanence.url = "github:nix-community/impermanence";
+
     # Generate System Images
     nixos-generators.url = "github:nix-community/nixos-generators";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
@@ -274,6 +277,13 @@
       url = "github:DreamMaoMao/fg.yazi";
       flake = false;
     };
+
+    # Router configuration
+    nixos-router = {
+      url = "github:chayleaf/nixos-router";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     uv2nix.url = "github:pyproject-nix/uv2nix";
     pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
     pyproject-build-systems = {
@@ -349,6 +359,8 @@
           funkwhale.nixosModules.default
           authentik-nix.nixosModules.default
           crystal-forge.nixosModules.crystal-forge
+          nixos-router.nixosModules.default
+          impermanence.nixosModules.impermanence
         ]
         ++ (lib.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules));
 
