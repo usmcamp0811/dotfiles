@@ -20,6 +20,14 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # LUKS configuration for encrypted /persist
+  # Keyfile must be placed at /boot/persist.key for unattended boot
+  boot.initrd.luks.devices."crypted-persist" = {
+    device = "/dev/disk/by-partlabel/disk-main-persist";
+    keyFile = "/boot/persist.key";
+    allowDiscards = true;
+  };
+
   # Impermanence: Root is ephemeral tmpfs, wiped on boot
   # Only /nix and /persist survive reboots
   fileSystems."/" = {
@@ -28,37 +36,41 @@
     options = ["defaults" "size=2G" "mode=755"];
   };
 
+  # NOTE: /boot and /nix are managed by disko, but we keep these for reference
+  # disko.nix will generate the actual mount configuration
+  # If these conflict, you can comment them out and rely solely on disko
+
   fileSystems."/boot" = {
-    device = "/dev/disk/by-label/ESP";
+    device = "/dev/disk/by-partlabel/disk-main-ESP";
     fsType = "vfat";
     options = [ "umask=0077" ];
   };
 
   fileSystems."/nix" = {
-    device = "/dev/disk/by-label/nix";
+    device = "/dev/disk/by-partlabel/disk-main-nix";
     fsType = "ext4";
     neededForBoot = true;
     options = [ "noatime" ];
   };
 
+  # Encrypted persist partition - mounted via LUKS mapper
   fileSystems."/persist" = {
-    device = "/dev/disk/by-label/persist";
+    device = "/dev/mapper/crypted-persist";
     fsType = "ext4";
     neededForBoot = true;
     options = [ "noatime" ];
   };
 
-  # Swap configuration
-  swapDevices = [
-    { device = "/dev/disk/by-label/swap"; }
-  ];
+  # Swap is handled by disko with randomEncryption
+  # No need to explicitly define swapDevices here
+  swapDevices = [];
 
   # Rollback root to blank state on boot
   boot.initrd.postDeviceCommands = lib.mkAfter ''
     mkdir -p /mnt
     # We don't need to wipe anything since root is tmpfs
     # But we ensure /persist exists
-    mount -t ext4 /dev/disk/by-label/persist /mnt
+    mount -t ext4 /dev/mapper/crypted-persist /mnt
     mkdir -p /mnt/system
     umount /mnt
   '';
