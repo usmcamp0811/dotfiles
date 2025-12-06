@@ -6,7 +6,7 @@
 let
   sassEmbeddedLinux =
     let
-      dartFHS = pkgs.buildFHSUserEnv {
+      dartFHS = pkgs.buildFHSEnv {
         name = "dart-wrapper";
         targetPkgs = pkgs: [ pkgs.dart ];
         runScript = "${pkgs.dart}/bin/dart";

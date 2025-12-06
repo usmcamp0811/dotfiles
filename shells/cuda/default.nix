@@ -3,7 +3,7 @@ with lib;
 with lib.campground;
 let
   inherit (lib.campground) override-meta;
-  cudaFHS = pkgs.buildFHSUserEnv {
+  cudaFHS = pkgs.buildFHSEnv {
     name = "cuda-env";
     targetPkgs = pkgs:
       with pkgs; [

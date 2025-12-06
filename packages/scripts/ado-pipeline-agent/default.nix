@@ -14,7 +14,7 @@ let
 
   # we use an FHS here mostly because I don't know what .Net stuff needs and this is simpler for now
   # TODO: remove FHS if not needed
-  fhsEnv = pkgs.buildFHSUserEnv {
+  fhsEnv = pkgs.buildFHSEnv {
     inherit name;
     targetPkgs = pkgs:
       with pkgs; [
