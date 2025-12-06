@@ -21,6 +21,7 @@ with lib.campground; {
     keyMap = "us";
   };
 
+  crystal-forge.stig-presets.off.enable = true;
   campground = {
     # User configuration
     user = {
