@@ -403,6 +403,15 @@
           pkgs = channels.nixpkgs;
           envs = {dev.modules = [./kubernetes/dev.nix];};
         };
+
+        # # Router security checks
+        # checks = {
+        #   router-security = import ./checks/router-security.nix {
+        #     pkgs = channels.nixpkgs;
+        #     lib = channels.nixpkgs.lib;
+        #     system = channels.nixpkgs.system;
+        #   };
+        # };
       };
 
       terranixModule.modules = lib.findDefaultNixFiles ./modules/terraform;
