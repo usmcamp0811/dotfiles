@@ -204,5 +204,5 @@ with lib.campground; {
   };
 
   # State version
-  system.stateVersion = "25.11";
+  system.stateVersion = "23.05";
 }
