@@ -448,6 +448,10 @@
           path = ./templates/basic-flake-system;
           description = "An Example of how to convert a vanilla NixOS system's configuration.nix to a flake.";
         };
+        snowfall = {
+          path = ./templates/snowfall;
+          description = "A template to quickly create a Snowfall based flake for managing systems; has some modules in it for examples...";
+        };
       };
     };
 }
