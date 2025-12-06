@@ -5,7 +5,7 @@
   ...
 }: let
   # Path to the flake source (this will be a path in the nix store)
-  flakeSrc = ../..; # Relative to packages/disko/default.nix -> flake root
+  flakeSrc = ../../..; # Relative to packages/disko/default.nix -> flake root
 
   # Main disko runner script
   diskoScript = pkgs.writeShellApplication {
@@ -162,7 +162,7 @@
 
         echo -e "''${RED}WARNING: This will ERASE ALL DATA on $DISK!''${NC}"
         echo ""
-        read -p "Are you sure you want to continue? (type 'yes' to confirm): " -r
+        read -r -p "Are you sure you want to continue? (type 'yes' to confirm): " REPLY
         echo
         if [[ ! $REPLY == "yes" ]]; then
           echo "Aborted."
@@ -183,7 +183,7 @@
             echo "Key contents (save this somewhere safe):"
             base64 /tmp/persist.key
             echo ""
-            read -p "Press Enter after you've saved the key..."
+            read -r -p "Press Enter after you've saved the key..." _
           else
             echo -e "''${GREEN}Using existing encryption key: /tmp/persist.key''${NC}"
           fi
