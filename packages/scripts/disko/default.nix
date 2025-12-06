@@ -38,7 +38,6 @@
         --help              Show this help message
         --mode MODE         Disko mode (disko, format, mount, dryDisko)
                            Default: disko
-        --encrypted         Use encrypted disko config (disko-encrypted.nix)
         --disk DEVICE       Override disk device (default: /dev/sda)
 
       Available Systems:
@@ -52,24 +51,22 @@
         # Partition blue-ridge system
         nix run .#disko -- blue-ridge
 
-        # Use encrypted config
-        nix run .#disko -- blue-ridge --encrypted
-
         # Dry run (show what would be done)
         nix run .#disko -- blue-ridge --mode dryDisko
 
         # Use different disk
         nix run .#disko -- blue-ridge --disk /dev/nvme0n1
 
+      Per-System Shortcuts:
+        nix run .#disko-blue-ridge    # Same as: nix run .#disko -- blue-ridge
+
       Notes:
         - This will ERASE ALL DATA on the target disk!
         - Run with --mode dryDisko first to verify
-        - For encrypted configs, you'll need to generate a key first
         - After disko completes, run: mkdir -p /mnt/persist/{system,home}
 
       System Configs:
         Disko configs are stored in: systems/x86_64-linux/{system}/disko.nix
-        Encrypted configs:           systems/x86_64-linux/{system}/disko-encrypted.nix
 
       EOF
       }
@@ -77,7 +74,6 @@
       # Parse arguments
       SYSTEM_NAME=""
       MODE="disko"
-      ENCRYPTED=false
       DISK_OVERRIDE=""
 
       while [[ $# -gt 0 ]]; do
@@ -89,10 +85,6 @@
           --mode)
             MODE="$2"
             shift 2
-            ;;
-          --encrypted)
-            ENCRYPTED=true
-            shift
             ;;
           --disk)
             DISK_OVERRIDE="$2"
@@ -119,11 +111,7 @@
       echo -e "''${GREEN}Using flake from: $FLAKE_ROOT''${NC}"
 
       # Determine disko config path
-      if [[ "$ENCRYPTED" == true ]]; then
-        DISKO_CONFIG="$FLAKE_ROOT/systems/x86_64-linux/$SYSTEM_NAME/disko-encrypted.nix"
-      else
-        DISKO_CONFIG="$FLAKE_ROOT/systems/x86_64-linux/$SYSTEM_NAME/disko.nix"
-      fi
+      DISKO_CONFIG="$FLAKE_ROOT/systems/x86_64-linux/$SYSTEM_NAME/disko.nix"
 
       # Check if config exists
       if [[ ! -f "$DISKO_CONFIG" ]]; then
@@ -131,11 +119,9 @@
         echo ""
         echo "Available systems:"
         for system_dir in "$FLAKE_ROOT/systems/x86_64-linux"/*; do
-          if [[ -d "$system_dir" ]]; then
+          if [[ -d "$system_dir" ]] && [[ -f "$system_dir/disko.nix" ]]; then
             system=$(basename "$system_dir")
-            if [[ -f "$system_dir/disko.nix" ]] || [[ -f "$system_dir/disko-encrypted.nix" ]]; then
-              echo "  - $system"
-            fi
+            echo "  - $system"
           fi
         done
         exit 1
@@ -169,10 +155,11 @@
           exit 1
         fi
 
-        # For encrypted config, check for key file
-        if [[ "$ENCRYPTED" == true ]]; then
+        # Check if config uses encryption (look for "luks" in the config)
+        if grep -q "type = \"luks\"" "$DISKO_CONFIG"; then
+          echo -e "''${YELLOW}Detected LUKS encryption in config''${NC}"
           if [[ ! -f "/tmp/persist.key" ]]; then
-            echo -e "''${YELLOW}No encryption key found at /tmp/persist.key''${NC}"
+            echo "No encryption key found at /tmp/persist.key"
             echo "Generating encryption key..."
             dd if=/dev/random of=/tmp/persist.key bs=1024 count=4
             chmod 600 /tmp/persist.key
@@ -214,7 +201,8 @@
         echo "   mkdir -p /mnt/persist/home/$USER"
         echo ""
 
-        if [[ "$ENCRYPTED" == true ]]; then
+        # Check if encryption was used
+        if [[ -f "/tmp/persist.key" ]] && grep -q "type = \"luks\"" "$DISKO_CONFIG"; then
           echo "2. Copy encryption key to boot:"
           echo "   cp /tmp/persist.key /mnt/boot/persist.key"
           echo "   chmod 600 /mnt/boot/persist.key"

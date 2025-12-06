@@ -1,3 +1,6 @@
+# Disko configuration with encrypted /persist for unattended boot
+# Security: /persist is encrypted, /nix is plain (no secrets in nix store)
+# Key stored on /boot (protected by physical security + optional Secure Boot)
 {
   disko.devices = {
     disk = {
@@ -7,10 +10,10 @@
         content = {
           type = "gpt";
           partitions = {
-            # BIOS boot partition for legacy boot compatibility
+            # BIOS boot partition
             boot = {
               size = "1M";
-              type = "EF02"; # BIOS boot
+              type = "EF02";
             };
 
             # EFI System Partition
@@ -25,7 +28,7 @@
               };
             };
 
-            # Nix store partition - most of the disk space
+            # Nix store - UNENCRYPTED (contains no secrets, world-readable anyway)
             nix = {
               size = "180G";
               content = {
@@ -36,23 +39,33 @@
               };
             };
 
-            # Persistent data partition
+            # Persistent data - ENCRYPTED (contains secrets: SSH keys, configs, logs)
             persist = {
               size = "50G";
               content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/persist";
-                mountOptions = [ "noatime" ];
+                type = "luks";
+                name = "crypted-persist";
+                settings = {
+                  allowDiscards = true;
+                  # Key file for unattended boot (stored on /boot)
+                  # Generate with: dd if=/dev/random of=/tmp/persist.key bs=1024 count=4
+                  keyFile = "/tmp/persist.key";
+                };
+                content = {
+                  type = "filesystem";
+                  format = "ext4";
+                  mountpoint = "/persist";
+                  mountOptions = [ "noatime" ];
+                };
               };
             };
 
-            # Swap partition
+            # Swap - encrypted with random key (regenerated each boot)
             swap = {
-              size = "100%"; # Use remaining space (should be ~7.5G)
+              size = "100%";
               content = {
                 type = "swap";
-                resumeDevice = true; # Enable hibernation support
+                randomEncryption = true; # Fresh random key each boot
               };
             };
           };
@@ -60,8 +73,7 @@
       };
     };
 
-    # Root is tmpfs (ephemeral) - not on disk
-    # This is handled in hardware.nix with fileSystems."/"
+    # Root is tmpfs (ephemeral)
     nodev = {
       "/" = {
         fsType = "tmpfs";
