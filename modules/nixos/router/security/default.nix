@@ -116,7 +116,7 @@ in {
     };
 
     # Additional allowed services
-    networking.firewall.interfaces = listToAttrs (
+    networking.firewall.interfaces = mkDefault listToAttrs (
       map (service:
         nameValuePair service.interface {
           allowedTCPPorts = mkIf (service.protocol == "tcp") [service.port];
@@ -197,15 +197,6 @@ in {
       iptables
       nftables
     ];
-
-    # Automatic security updates
-    system.autoUpgrade = {
-      enable = true;
-      allowReboot = false; # Don't auto-reboot, but do apply updates
-      dates = "04:00";
-      flake = "github:yourusername/yourrepo#blue-ridge"; # Update this
-      persistent = true; # For impermanence compatibility
-    };
 
     # Enable audit
     security.audit.enable = true;
