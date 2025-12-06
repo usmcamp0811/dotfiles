@@ -1,31 +1,37 @@
-{ pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
+{
+  pkgs,
+  inputs,
+  lib,
+  nixos-hardware,
+  nixosModules,
+  ...
+}:
 with lib;
-with lib.campground;
-let
+with lib.campground; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
     home = "/home/${name}";
     shell = pkgs.zsh;
   };
-in
-{
+in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
-  boot.kernelModules = [ "igb" ];
+  boot.kernelModules = ["igb"];
 
-  environment.systemPackages = with pkgs; [ pkgs.campground.install-scripts ];
+  crystal-forge.stig-presets.off.enable = true;
+  environment.systemPackages = with pkgs; [pkgs.campground.install-scripts];
   networking.wireless.enable = false;
   campground = {
     nix = enabled;
-    archetypes = { barebones = enabled; };
-    cli-apps = { flake = enabled; };
+    archetypes = {barebones = enabled;};
+    cli-apps = {flake = enabled;};
     tools = {
       git = enabled;
       misc = enabled;
     };
-    services = { openssh = enabled; };
+    services = {openssh = enabled;};
 
     system = {
       fonts = enabled;
@@ -38,7 +44,7 @@ in
       name = "nixos";
       fullName = "Matt";
       email = "mcamp@ata-llc.com";
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
     };
   };
 
