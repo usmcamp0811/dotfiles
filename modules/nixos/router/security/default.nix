@@ -80,7 +80,7 @@ in {
     services.avahi.enable = mkForce false;
     services.printing.enable = mkForce false;
     sound.enable = mkForce false;
-    hardware.pulseaudio.enable = mkForce false;
+    # hardware.pulseaudio.enable = mkForce false;
 
     # SSH configuration - LAN only
     services.openssh = mkIf cfg.enableSSH {
