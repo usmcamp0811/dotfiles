@@ -203,6 +203,13 @@ in {
 
         systems = [
           {
+            hostname = "blue-ridge";
+            public_key = "qalZrq9Uoe4QUGHTEh/r/j+a59Ym3qA+sYmHq/5qh3M=";
+            environment = "lan";
+            flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
+          }
+          {
             hostname = "nix-builder";
             public_key = "GQ7yYp5jkUgY+JW1DbCgM5xAt32SH2kCul9GmeFg1+E=";
             environment = "remote";
