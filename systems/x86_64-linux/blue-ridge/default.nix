@@ -25,7 +25,7 @@ with lib.campground; {
       observability = enabled;
     };
     system = {
-      passwds = enabled;
+      # passwds = enabled;
     };
     services = {
       ntp = enabled;
