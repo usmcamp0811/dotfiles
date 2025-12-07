@@ -71,13 +71,16 @@ with lib.campground; {
   # Networking for MicroVMs
   # Create a bridge for VM networking so VMs appear on the same network
   networking = {
-    # Enable bridge for VMs
+    # Enable bridge for VMs - attach to enp2s0 (your active interface)
     bridges.br0 = {
-      interfaces = []; # Will add tap interfaces dynamically
+      interfaces = ["enp2s0"];
     };
 
-    # Bridge uses DHCP (or configure static IP if needed)
+    # Bridge gets IP via DHCP (enp2s0's IP will move to br0)
     interfaces.br0.useDHCP = true;
+
+    # Disable DHCP on enp2s0 since br0 will handle it
+    interfaces.enp2s0.useDHCP = false;
 
     # Allow forwarding for VMs
     firewall.trustedInterfaces = ["br0"];
