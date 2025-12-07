@@ -35,7 +35,6 @@ with lib.campground; {
     # Router configuration using campground modules
     router = {
       # enable = true;
-
       wan = {
         interface = "enp1s0"; # First port - WAN
         dhcp = true; # Get IP from ISP
@@ -140,8 +139,8 @@ with lib.campground; {
   };
 
   # Disable NetworkManager - using systemd-networkd via router module
-  networking.networkmanager.enable = mkForce false;
-  networking.useDHCP = mkForce false;
+  # networking.networkmanager.enable = mkForce false;
+  # networking.useDHCP = mkForce false;
 
   # Firewall - managed by router module
   networking.firewall.enable = mkForce false; # Using nftables from router module
