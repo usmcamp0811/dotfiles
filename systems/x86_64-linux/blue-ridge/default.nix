@@ -11,8 +11,8 @@ with lib.campground; {
   ];
 
   # System metadata
-  networking.hostName = "blue-ridge";
-  time.timeZone = "America/New_York";
+  # networking.hostName = "blue-ridge";
+  # time.timeZone = "America/Chicago";
 
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
@@ -23,6 +23,8 @@ with lib.campground; {
 
   crystal-forge.stig-presets.off.enable = true;
   campground = {
+    archetypes.server.enable = true;
+    system.zfs.enable = mkForce false;
     # User configuration
     user = {
       name = "admin";
@@ -147,25 +149,25 @@ with lib.campground; {
   # networking.firewall.enable = mkForce false; # Using nftables from router module
 
   # Enable monitoring tools (optional)
-  services.prometheus = {
-    enable = false; # Enable if you want metrics
-    exporters = {
-      node = {
-        enable = false;
-        enabledCollectors = ["systemd"];
-        port = 9100;
-      };
-    };
-  };
+  # services.prometheus = {
+  #   enable = false; # Enable if you want metrics
+  #   exporters = {
+  #     node = {
+  #       enable = false;
+  #       enabledCollectors = ["systemd"];
+  #       port = 9100;
+  #     };
+  #   };
+  # };
 
   # Logging
-  services.journald.extraConfig = ''
-    SystemMaxUse=500M
-    MaxRetentionSec=7day
-  '';
+  # services.journald.extraConfig = ''
+  #   SystemMaxUse=500M
+  #   MaxRetentionSec=7day
+  # '';
 
   # NTP for time sync
-  services.timesyncd.enable = true;
+  # services.timesyncd.enable = true;
 
   # Minimal packages (router module provides base set)
   environment.systemPackages = with pkgs; [
@@ -183,25 +185,25 @@ with lib.campground; {
     autodetect = true;
   };
 
-  # Disable unnecessary services for router
-  services.xserver.enable = mkForce false;
-  xdg.portal.enable = mkForce false;
-  programs.dconf.enable = mkForce false;
+  # # Disable unnecessary services for router
+  # services.xserver.enable = mkForce false;
+  # xdg.portal.enable = mkForce false;
+  # programs.dconf.enable = mkForce false;
 
   # Performance tuning (additional to router module defaults)
-  boot.kernel.sysctl = {
-    # Network performance
-    "net.core.netdev_max_backlog" = 5000;
-    "net.core.rmem_max" = 134217728;
-    "net.core.wmem_max" = 134217728;
-    "net.ipv4.tcp_rmem" = "4096 87380 67108864";
-    "net.ipv4.tcp_wmem" = "4096 65536 67108864";
-    "net.ipv4.tcp_congestion_control" = "bbr";
-
-    # Connection tracking
-    "net.netfilter.nf_conntrack_max" = 262144;
-    "net.netfilter.nf_conntrack_tcp_timeout_established" = 432000;
-  };
+  # boot.kernel.sysctl = {
+  #   # Network performance
+  #   "net.core.netdev_max_backlog" = 5000;
+  #   "net.core.rmem_max" = 134217728;
+  #   "net.core.wmem_max" = 134217728;
+  #   "net.ipv4.tcp_rmem" = "4096 87380 67108864";
+  #   "net.ipv4.tcp_wmem" = "4096 65536 67108864";
+  #   "net.ipv4.tcp_congestion_control" = "bbr";
+  #
+  #   # Connection tracking
+  #   "net.netfilter.nf_conntrack_max" = 262144;
+  #   "net.netfilter.nf_conntrack_tcp_timeout_established" = 432000;
+  # };
 
   # State version
   system.stateVersion = "23.05";
