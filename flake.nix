@@ -284,6 +284,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # MicroVM for lightweight VMs
+    microvm = {
+      url = "github:astro/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     uv2nix.url = "github:pyproject-nix/uv2nix";
     pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
     pyproject-build-systems = {
@@ -361,6 +367,7 @@
           crystal-forge.nixosModules.crystal-forge
           nixos-router.nixosModules.default
           impermanence.nixosModules.impermanence
+          microvm.nixosModules.host
         ]
         ++ (lib.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules));
 
@@ -374,6 +381,11 @@
       ];
 
       systems.hosts.gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
+
+      # MicroVM guest configuration
+      systems.hosts.vault.modules = with inputs; [
+        microvm.nixosModules.microvm
+      ];
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];

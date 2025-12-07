@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  inputs,
   ...
 }:
 with lib;
@@ -45,6 +46,41 @@ with lib.campground; {
       extraGroups = ["wheel"];
       uid = 1000;
     };
+  };
+
+  # MicroVM host configuration
+  microvm.host = {
+    enable = true;
+    # Use the declarative runner for easier management
+    useNotifySockets = true;
+  };
+
+  # Declare VMs to run on this host
+  microvm.vms = {
+    vault = {
+      # Reference the vault system configuration from this flake
+      # microvm.nix will look for nixosConfigurations.vault
+      flake = inputs.self;
+      # Auto-start the VM when blue-ridge boots
+      autostart = true;
+      # Update flake reference (optional - allows VM updates without host rebuild)
+      # updateFlake = "git+https://your-git-repo";
+    };
+  };
+
+  # Networking for MicroVMs
+  # Create a bridge for VM networking so VMs appear on the same network
+  networking = {
+    # Enable bridge for VMs
+    bridges.br0 = {
+      interfaces = []; # Will add tap interfaces dynamically
+    };
+
+    # Bridge uses DHCP (or configure static IP if needed)
+    interfaces.br0.useDHCP = true;
+
+    # Allow forwarding for VMs
+    firewall.trustedInterfaces = ["br0"];
   };
 
   # State version
