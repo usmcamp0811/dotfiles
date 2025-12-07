@@ -130,7 +130,7 @@ with lib.campground; {
 
     # Services
     services = {
-      openssh = enabled;
+      openssh.enable = true;
       # Disable LDAP client (not needed for router)
       ldap-client = {enable = mkForce false;};
 
