@@ -192,6 +192,15 @@ in {
     # Disable coredumps
     systemd.coredump.enable = false;
 
+    # Logging configuration for routers
+    services.journald.extraConfig = ''
+      SystemMaxUse=500M
+      MaxRetentionSec=7day
+    '';
+
+    # NTP for accurate time sync (important for security logging)
+    services.timesyncd.enable = true;
+
     # Create security monitoring script
     environment.systemPackages =
       [
