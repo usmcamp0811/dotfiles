@@ -65,6 +65,14 @@ with lib.campground; {
       autostart = true;
       # Update flake reference (optional - allows VM updates without host rebuild)
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
+      interfaces = [
+        {
+          type = "tap";
+          id = "vault0";
+          bridge = "br0";
+          mac = "02:00:00:00:00:10"; # pick any locally-administered MAC
+        }
+      ];
     };
   };
 

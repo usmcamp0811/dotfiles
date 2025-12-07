@@ -48,6 +48,7 @@ with lib.campground; {
     ];
   };
 
+  networking.interfaces.eth0.useDHCP = true;
   # Basic system configuration
   campground = {
     suites.common = enabled;
