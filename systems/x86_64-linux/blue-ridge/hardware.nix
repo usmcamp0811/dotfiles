@@ -11,7 +11,7 @@
   ];
 
   # Intel N100 (Alder Lake-N) CPU
-  boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"];
+  # Note: availableKernelModules is set below with LUKS config
   boot.initrd.kernelModules = [];
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
@@ -19,6 +19,24 @@
   # Bootloader configuration - using systemd-boot for UEFI
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  # LUKS configuration for encrypted /persist with USB keyfile
+  # The system will look for the key on a USB drive at boot
+  boot.initrd.luks.devices."crypted-persist" = {
+    device = "/dev/disk/by-partlabel/disk-main-persist";
+    # Key file path on USB drive - adjust the UUID to match your USB device
+    # Find USB UUID with: lsblk -f or blkid
+    # Example paths:
+    # - keyFile = "/dev/disk/by-uuid/XXXX-XXXX/persist.key";
+    # - keyFile = "/dev/disk/by-label/USBKEY/persist.key";
+    keyFile = "/dev/disk/by-label/USBKEY/persist.key";
+    keyFileSize = 4096;  # 4KB key size
+    allowDiscards = true;
+    fallbackToPassword = true;  # Allow password entry if USB is not found
+  };
+
+  # Ensure USB storage modules are available in initrd
+  boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "uas"];
 
   # Impermanence: Root is ephemeral tmpfs, wiped on boot
   # Only /nix and /persist survive reboots
@@ -45,9 +63,9 @@
     options = [ "noatime" ];
   };
 
-  # Persistent data partition - unencrypted
+  # Encrypted persist partition - mounted via LUKS mapper
   fileSystems."/persist" = {
-    device = "/dev/disk/by-partlabel/disk-main-persist";
+    device = "/dev/mapper/crypted-persist";
     fsType = "ext4";
     neededForBoot = true;
     options = [ "noatime" ];
@@ -62,7 +80,7 @@
     mkdir -p /mnt
     # We don't need to wipe anything since root is tmpfs
     # But we ensure /persist exists
-    mount -t ext4 /dev/disk/by-partlabel/disk-main-persist /mnt
+    mount -t ext4 /dev/mapper/crypted-persist /mnt
     mkdir -p /mnt/system
     umount /mnt
   '';

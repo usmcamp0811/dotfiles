@@ -39,14 +39,23 @@
               };
             };
 
-            # Persistent data - UNENCRYPTED
+            # Persistent data - ENCRYPTED with USB keyfile
             persist = {
               size = "50G";
               content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/persist";
-                mountOptions = [ "noatime" ];
+                type = "luks";
+                name = "crypted-persist";
+                settings = {
+                  allowDiscards = true;
+                  # Key will be stored on USB drive
+                  # During installation: dd if=/dev/random of=/mnt/usbkey/persist.key bs=1024 count=4
+                };
+                content = {
+                  type = "filesystem";
+                  format = "ext4";
+                  mountpoint = "/persist";
+                  mountOptions = [ "noatime" ];
+                };
               };
             };
 
