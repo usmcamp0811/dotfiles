@@ -33,103 +33,104 @@ with lib.campground; {
     };
 
     # Router configuration using campground modules
-    router = {
-      # enable = true;
-      wan = {
-        interface = "enp1s0"; # First port - WAN
-        dhcp = true; # Get IP from ISP
-        # staticIP = "203.0.113.10/24"; # Uncomment if you have static IP from ISP
-      };
-
-      lan = {
-        interfaces = ["enp2s0" "enp3s0" "enp4s0"]; # Remaining 3 ports - LAN
-        subnet = "192.168.1.0/24";
-        gateway = "192.168.1.1";
-      };
-
-      enableIPv6 = false; # Enable if your ISP provides IPv6
-
-      dns = {
-        forwarders = [
-          "1.1.1.1"
-          "1.0.0.1"
-          "8.8.8.8"
-          "8.8.4.4"
-        ];
-        enableDNSSEC = true;
-      };
-
-      firewall = {
-        allowPing = false; # Don't respond to WAN pings
-        extraRules = ''
-          # Example: Port forward SSH from WAN to internal server
-          # table inet nat {
-          #   chain prerouting {
-          #     iifname "enp1s0" tcp dport 2222 dnat to 192.168.1.100:22
-          #   }
-          # }
-        '';
-      };
-
-      # DHCP Configuration
-      dhcp = {
-        enable = true;
-        poolStart = "192.168.1.100";
-        poolEnd = "192.168.1.250";
-        leaseTime = 86400; # 24 hours
-
-        # Static DHCP leases - easy to manage!
-        staticLeases = [
-          # Example static leases - customize these
-          # {
-          #   hostname = "desktop";
-          #   mac = "00:11:22:33:44:55";
-          #   ip = "192.168.1.10";
-          #   description = "Main desktop computer";
-          # }
-          # {
-          #   hostname = "nas";
-          #   mac = "AA:BB:CC:DD:EE:FF";
-          #   ip = "192.168.1.20";
-          #   description = "Network storage";
-          # }
-          # {
-          #   hostname = "printer";
-          #   mac = "11:22:33:44:55:66";
-          #   ip = "192.168.1.30";
-          #   description = "Network printer";
-          # }
-        ];
-      };
-
-      # Security hardening
-      security = {
-        enable = true;
-
-        enableSSH = true;
-        sshPort = 22;
-
-        enableWebUI = false; # Not implemented yet
-
-        fail2ban = {
-          enable = true;
-          maxRetry = 3;
-          banTime = 3600; # 1 hour
-        };
-
-        # Additional services if needed
-        # allowedServices = [
-        #   {
-        #     port = 8080;
-        #     protocol = "tcp";
-        #     interface = "br-lan";
-        #   }
-        # ];
-      };
-    };
+    # router = {
+    #   # enable = true;
+    #   wan = {
+    #     interface = "enp1s0"; # First port - WAN
+    #     dhcp = true; # Get IP from ISP
+    #     # staticIP = "203.0.113.10/24"; # Uncomment if you have static IP from ISP
+    #   };
+    #
+    #   lan = {
+    #     interfaces = ["enp2s0" "enp3s0" "enp4s0"]; # Remaining 3 ports - LAN
+    #     subnet = "192.168.1.0/24";
+    #     gateway = "192.168.1.1";
+    #   };
+    #
+    #   enableIPv6 = false; # Enable if your ISP provides IPv6
+    #
+    #   dns = {
+    #     forwarders = [
+    #       "1.1.1.1"
+    #       "1.0.0.1"
+    #       "8.8.8.8"
+    #       "8.8.4.4"
+    #     ];
+    #     enableDNSSEC = true;
+    #   };
+    #
+    #   firewall = {
+    #     allowPing = false; # Don't respond to WAN pings
+    #     extraRules = ''
+    #       # Example: Port forward SSH from WAN to internal server
+    #       # table inet nat {
+    #       #   chain prerouting {
+    #       #     iifname "enp1s0" tcp dport 2222 dnat to 192.168.1.100:22
+    #       #   }
+    #       # }
+    #     '';
+    #   };
+    #
+    #   # DHCP Configuration
+    #   dhcp = {
+    #     enable = true;
+    #     poolStart = "192.168.1.100";
+    #     poolEnd = "192.168.1.250";
+    #     leaseTime = 86400; # 24 hours
+    #
+    #     # Static DHCP leases - easy to manage!
+    #     staticLeases = [
+    #       # Example static leases - customize these
+    #       # {
+    #       #   hostname = "desktop";
+    #       #   mac = "00:11:22:33:44:55";
+    #       #   ip = "192.168.1.10";
+    #       #   description = "Main desktop computer";
+    #       # }
+    #       # {
+    #       #   hostname = "nas";
+    #       #   mac = "AA:BB:CC:DD:EE:FF";
+    #       #   ip = "192.168.1.20";
+    #       #   description = "Network storage";
+    #       # }
+    #       # {
+    #       #   hostname = "printer";
+    #       #   mac = "11:22:33:44:55:66";
+    #       #   ip = "192.168.1.30";
+    #       #   description = "Network printer";
+    #       # }
+    #     ];
+    #   };
+    #
+    #   # Security hardening
+    #   security = {
+    #     enable = true;
+    #
+    #     enableSSH = true;
+    #     sshPort = 22;
+    #
+    #     enableWebUI = false; # Not implemented yet
+    #
+    #     fail2ban = {
+    #       enable = true;
+    #       maxRetry = 3;
+    #       banTime = 3600; # 1 hour
+    #     };
+    #
+    #     # Additional services if needed
+    #     # allowedServices = [
+    #     #   {
+    #     #     port = 8080;
+    #     #     protocol = "tcp";
+    #     #     interface = "br-lan";
+    #     #   }
+    #     # ];
+    #   };
+    # };
 
     # Services
     services = {
+      openssh = enabled;
       # Disable LDAP client (not needed for router)
       ldap-client = {enable = mkForce false;};
 
@@ -143,7 +144,7 @@ with lib.campground; {
   # networking.useDHCP = mkForce false;
 
   # Firewall - managed by router module
-  networking.firewall.enable = mkForce false; # Using nftables from router module
+  # networking.firewall.enable = mkForce false; # Using nftables from router module
 
   # Enable monitoring tools (optional)
   services.prometheus = {
