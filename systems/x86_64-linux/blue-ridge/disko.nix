@@ -39,24 +39,14 @@
               };
             };
 
-            # Persistent data - ENCRYPTED (contains secrets: SSH keys, configs, logs)
+            # Persistent data - UNENCRYPTED
             persist = {
               size = "50G";
               content = {
-                type = "luks";
-                name = "crypted-persist";
-                settings = {
-                  allowDiscards = true;
-                  # Key file for unattended boot (stored on /boot)
-                  # Generate with: dd if=/dev/random of=/tmp/persist.key bs=1024 count=4
-                  keyFile = "/tmp/persist.key";
-                };
-                content = {
-                  type = "filesystem";
-                  format = "ext4";
-                  mountpoint = "/persist";
-                  mountOptions = [ "noatime" ];
-                };
+                type = "filesystem";
+                format = "ext4";
+                mountpoint = "/persist";
+                mountOptions = [ "noatime" ];
               };
             };
 

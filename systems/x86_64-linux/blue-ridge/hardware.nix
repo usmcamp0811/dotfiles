@@ -20,14 +20,6 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # LUKS configuration for encrypted /persist
-  # Keyfile must be placed at /boot/persist.key for unattended boot
-  boot.initrd.luks.devices."crypted-persist" = {
-    device = "/dev/disk/by-partlabel/disk-main-persist";
-    keyFile = "/boot/persist.key";
-    allowDiscards = true;
-  };
-
   # Impermanence: Root is ephemeral tmpfs, wiped on boot
   # Only /nix and /persist survive reboots
   fileSystems."/" = {
@@ -53,9 +45,9 @@
     options = [ "noatime" ];
   };
 
-  # Encrypted persist partition - mounted via LUKS mapper
+  # Persistent data partition - unencrypted
   fileSystems."/persist" = {
-    device = "/dev/mapper/crypted-persist";
+    device = "/dev/disk/by-partlabel/disk-main-persist";
     fsType = "ext4";
     neededForBoot = true;
     options = [ "noatime" ];
@@ -70,7 +62,7 @@
     mkdir -p /mnt
     # We don't need to wipe anything since root is tmpfs
     # But we ensure /persist exists
-    mount -t ext4 /dev/mapper/crypted-persist /mnt
+    mount -t ext4 /dev/disk/by-partlabel/disk-main-persist /mnt
     mkdir -p /mnt/system
     umount /mnt
   '';
