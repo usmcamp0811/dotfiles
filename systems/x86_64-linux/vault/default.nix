@@ -25,9 +25,8 @@ with lib.campground; {
     interfaces = [
       {
         type = "tap";
-        id = "vm-vault";
-        mac = "02:00:00:00:00:01"; # Static MAC for consistent DHCP
-        # This will be added to br0 on the host
+        id = "vault0";
+        mac = "02:00:00:00:00:10"; # Static MAC for consistent DHCP
       }
     ];
 
