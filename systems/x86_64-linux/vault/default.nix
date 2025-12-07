@@ -71,26 +71,26 @@ with lib.campground; {
     };
   };
 
-  # Network configuration - will get IP from blue-ridge's DHCP
-  networking = {
-    hostName = "vault";
-    useDHCP = true;
-    firewall.enable = true;
-  };
-
-  # Locale
-  i18n.defaultLocale = "en_US.UTF-8";
-  console = {
-    font = "Lat2-Terminus16";
-    keyMap = "us";
-  };
-
-  # Essential packages
-  environment.systemPackages = with pkgs; [
-    htop
-    vim
-    curl
-  ];
+  # # Network configuration - will get IP from blue-ridge's DHCP
+  # networking = {
+  #   hostName = "vault";
+  #   useDHCP = true;
+  #   firewall.enable = true;
+  # };
+  #
+  # # Locale
+  # i18n.defaultLocale = "en_US.UTF-8";
+  # console = {
+  #   font = "Lat2-Terminus16";
+  #   keyMap = "us";
+  # };
+  #
+  # # Essential packages
+  # environment.systemPackages = with pkgs; [
+  #   htop
+  #   vim
+  #   curl
+  # ];
 
   # Example: Vault service (uncomment when ready to configure)
   # services.vault = {
