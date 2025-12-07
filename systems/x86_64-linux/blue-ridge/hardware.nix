@@ -24,12 +24,8 @@
   # The system will look for the key on a USB drive at boot
   boot.initrd.luks.devices."crypted-persist" = {
     device = "/dev/disk/by-partlabel/disk-main-persist";
-    # Key file path on USB drive - adjust the UUID to match your USB device
-    # Find USB UUID with: lsblk -f or blkid
-    # Example paths:
-    # - keyFile = "/dev/disk/by-uuid/XXXX-XXXX/persist.key";
-    # - keyFile = "/dev/disk/by-label/USBKEY/persist.key";
-    keyFile = "/dev/disk/by-label/USBKEY/persist.key";
+    # Key file on USB drive: UUID=cea8f5b6-d40e-4043-b23d-c6326dab421b (LABEL=USBKEY)
+    keyFile = "/dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b/persist.key";
     keyFileSize = 4096;  # 4KB key size
     allowDiscards = true;
     fallbackToPassword = true;  # Allow password entry if USB is not found
