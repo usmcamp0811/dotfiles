@@ -46,7 +46,21 @@ with lib.campground; {
     ];
   };
 
-  networking.interfaces.eth0.useDHCP = true;
+  # Static IP configuration using systemd-networkd
+  networking.useNetworkd = true;
+
+  systemd.network = {
+    enable = true;
+    networks."10-eth0" = {
+      matchConfig.Name = "eth0";
+      networkConfig = {
+        Address = "10.8.1.10/24";
+        Gateway = "10.8.1.1";
+        DNS = ["1.1.1.1" "8.8.8.8"];
+      };
+    };
+  };
+
   # Basic system configuration
   campground = {
     suites.common = enabled;

@@ -98,6 +98,31 @@ with lib.campground; {
       };
       linkConfig.RequiredForOnline = "routable";
     };
+
+    # Internal VM bridge
+    netdevs."br-vm" = {
+      netdevConfig = {
+        Name = "br-vm";
+        Kind = "bridge";
+      };
+    };
+
+    # VM TAP interfaces -> internal bridge
+    networks."20-vm" = {
+      matchConfig.Name = "vm-*";
+      networkConfig = {
+        Bridge = "br-vm";
+      };
+    };
+
+    # Internal VM bridge network - static IP
+    networks."20-vm-bridge" = {
+      matchConfig.Name = "br-vm";
+      networkConfig = {
+        Address = "10.8.1.1/24";
+        IPMasquerade = "ipv4";
+      };
+    };
   };
 
   # State version
