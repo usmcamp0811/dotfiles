@@ -19,6 +19,12 @@ with lib.campground; {
         source = "/nix/store";
         mountPoint = "/nix/.ro-store";
       }
+      {
+        proto = "virtiofs";
+        tag = "vault-agent";
+        source = "/var/lib/vault/pub-traefik";
+        mountPoint = "/var/lib/vault/pub-traefik";
+      }
     ];
 
     # Networking - TAP interface bridged to host network
@@ -43,11 +49,6 @@ with lib.campground; {
         image = "traefik-public-data.img";
         mountPoint = "/var/lib/traefik";
         size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
-      }
-      {
-        image = "traefik-public-vault.img";
-        mountPoint = "/var/lib/vault";
-        size = 1024; # 1GB for vault credentials
       }
     ];
   };
