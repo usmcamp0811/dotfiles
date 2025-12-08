@@ -57,11 +57,11 @@ with lib.campground; {
   campground = {
     suites = {
       common = enabled;
-      # public-hosting = {
-      #   enable = true;
-      #   interface = "eth0";
-      #   pub-ip = "10.8.0.42";
-      # };
+      public-hosting = {
+        enable = true;
+        interface = "eth0";
+        pub-ip = "10.8.0.42";
+      };
     };
 
     user = {
