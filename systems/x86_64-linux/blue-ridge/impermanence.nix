@@ -33,6 +33,8 @@
 
       # systemd random seed
       "/var/lib/systemd/random-seed"
+
+      "/var/lib/crystal-forge-agent/agent.key"
     ];
 
     users.admin = {
