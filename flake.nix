@@ -387,6 +387,18 @@
         microvm.nixosModules.microvm
       ];
 
+      systems.hosts.websites.modules = with inputs; [
+        microvm.nixosModules.microvm
+      ];
+
+      systems.hosts.lan-traefik.modules = with inputs; [
+        microvm.nixosModules.microvm
+      ];
+
+      systems.hosts.public-traefik.modules = with inputs; [
+        microvm.nixosModules.microvm
+      ];
+
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
 
