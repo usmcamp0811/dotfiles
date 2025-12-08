@@ -24,7 +24,7 @@ with lib.campground; {
     # Networking - bridge to the host's network
     interfaces = [
       {
-        type = "bridge";
+        type = "macvtap";
         id = "vm-vault";
         bridge = "br0"; # Connect to br0 on the host
         mac = "02:00:00:00:00:10"; # Static MAC for consistent DHCP
