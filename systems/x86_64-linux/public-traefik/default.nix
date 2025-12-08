@@ -60,7 +60,7 @@ with lib.campground; {
       public-hosting = {
         enable = true;
         interface = "eth0";
-        pub-ip = "10.8.0.42";
+        pub-ip = "10.8.0.43";
       };
     };
 
