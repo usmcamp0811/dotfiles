@@ -204,7 +204,7 @@ in {
         systems = [
           {
             hostname = "blue-ridge";
-            public_key = "qalZrq9Uoe4QUGHTEh/r/j+a59Ym3qA+sYmHq/5qh3M=";
+            public_key = "NwobuiTss5bB35lZx+jesC5jGfpRk7L4oEdEyoU9C3s=";
             environment = "lan";
             flake_name = "dotfiles";
             deployment_policy = "auto_latest";
