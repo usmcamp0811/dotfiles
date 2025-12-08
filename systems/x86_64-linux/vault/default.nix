@@ -47,7 +47,19 @@ with lib.campground; {
     ];
   };
 
-  networking.interfaces.eth0.useDHCP = true;
+  # Static IP configuration
+  networking = {
+    useDHCP = false;
+    interfaces.eth0 = {
+      useDHCP = false;
+      ipv4.addresses = [{
+        address = "10.8.2.10";
+        prefixLength = 24;
+      }];
+    };
+    defaultGateway = "10.8.2.1";
+    nameservers = [ "1.1.1.1" "8.8.8.8" ];
+  };
   # Basic system configuration
   campground = {
     suites.common = enabled;

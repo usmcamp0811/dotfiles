@@ -24,9 +24,6 @@ with lib.campground; {
       common = enabled;
       observability = enabled;
     };
-    system = {
-      # passwds = enabled;
-    };
     services = {
       ntp = enabled;
       tang = enabled;
@@ -61,9 +58,11 @@ with lib.campground; {
       # Reference the vault system configuration from this flake
       # microvm.nix will look for nixosConfigurations.vault
       flake = inputs.self;
+
       # Auto-start the VM when blue-ridge boots
       autostart = true;
       restartIfChanged = true;
+
       # Update flake reference (optional - allows VM updates without host rebuild)
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
@@ -91,11 +90,11 @@ with lib.campground; {
       };
     };
 
-    # Bridge network - gets IP via DHCP
+    # Bridge network - static IP for microVM network
     networks."10-lan-bridge" = {
       matchConfig.Name = "br0";
       networkConfig = {
-        DHCP = "yes";
+        Address = "10.8.2.1/24";
       };
       linkConfig.RequiredForOnline = "routable";
     };
