@@ -695,13 +695,7 @@ in {
         # Agent private key (per-host key from KV)
         "agent.key" = {
           text = ''
-            {{ with secret "${cfg.vault-path}" }}
-            {{ if eq "${cfg.kvVersion}" "v1" }}
-              {{ index .Data "${host}" }}
-            {{ else }}
-              {{ index .Data.data "${host}" }}
-            {{ end }}
-            {{ end }}
+            {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ index .Data "${host}" }}{{ else }}{{ index .Data.data "${host}" }}{{ end }}{{ end }}
           '';
           permissions = "0600";
           change-action = "restart";
@@ -736,9 +730,7 @@ in {
 
         "signing-key" = lib.mkIf (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) {
           text = ''
-            {{ with secret "${cfg.vault-path}" }}
-            {{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.signing_key }}{{ else }}{{ .Data.data.signing_key }}{{ end }}
-            {{ end }}
+            {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.signing_key }}{{ else }}{{ .Data.data.signing_key }}{{ end }}{{ end }}
           '';
           permissions = "0600";
           change-action = "restart";
