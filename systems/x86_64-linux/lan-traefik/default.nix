@@ -32,7 +32,7 @@ with lib.campground; {
 
     # Resources
     vcpu = 2;
-    mem = 2048; # 2GB RAM - adjust based on workload
+    mem = 2047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
 
     # Boot configuration
     socket = "control.socket";
@@ -43,6 +43,11 @@ with lib.campground; {
         image = "traefik-lan-data.img";
         mountPoint = "/var/lib/traefik";
         size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
+      }
+      {
+        image = "traefik-lan-vault.img";
+        mountPoint = "/var/lib/vault";
+        size = 1024; # 1GB for vault credentials
       }
     ];
   };
@@ -68,6 +73,17 @@ with lib.campground; {
     };
 
     services = {
+      vault-agent = {
+        enable = true;
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            role-id = "/var/lib/vault/lan-traefik/role-id";
+            secret-id = "/var/lib/vault/lan-traefik/secret-id";
+          };
+        };
+      };
+
       openssh = {
         enable = true;
         authorizedKeys = [

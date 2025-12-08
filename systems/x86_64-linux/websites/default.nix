@@ -32,7 +32,7 @@ with lib.campground; {
 
     # Resources
     vcpu = 2;
-    mem = 2048; # 2GB RAM - adjust based on workload
+    mem = 2047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
 
     # Boot configuration
     socket = "control.socket";
@@ -52,13 +52,13 @@ with lib.campground; {
   campground = {
     suites.common = enabled;
 
-    # user = {
-    #   name = "admin";
-    #   fullName = "Websites Administrator";
-    #   email = "admin@aicampground.com";
-    #   extraGroups = ["wheel"];
-    #   uid = 1000;
-    # };
+    user = {
+      name = "admin";
+      fullName = "Websites Administrator";
+      email = "admin@aicampground.com";
+      extraGroups = ["wheel"];
+      uid = 1000;
+    };
 
     services = {
       # All static websites

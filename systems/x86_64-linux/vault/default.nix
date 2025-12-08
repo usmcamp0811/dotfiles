@@ -31,7 +31,7 @@ with lib.campground; {
 
     # Resources
     vcpu = 2;
-    mem = 2048; # 2GB RAM - adjust based on workload
+    mem = 2047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
 
     # Boot configuration
     socket = "control.socket";
