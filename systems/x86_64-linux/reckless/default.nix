@@ -231,7 +231,7 @@ in {
             deployment_policy = "auto_latest";
           }
           {
-            hostname = "public-traefik";
+            hostname = "pub-traefik";
             public_key = "ZYuA3IuEYyrJEwPy1RcS1Y+do0W835LF7K8S7USl9f8=";
             environment = "lan";
             flake_name = "dotfiles";
