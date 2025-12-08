@@ -87,7 +87,7 @@ with lib.campground; {
       # Update flake reference (optional - allows VM updates without host rebuild)
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
-    public-traefik = {
+    pub-traefik = {
       # Reference the vault system configuration from this flake
       # microvm.nix will look for nixosConfigurations.vault
       flake = inputs.self;
