@@ -50,6 +50,7 @@ with lib.campground; {
   # Static IP configuration
   networking = {
     useDHCP = false;
+    useNetworkd = true;
     interfaces.eth0 = {
       useDHCP = false;
       ipv4.addresses = [{
@@ -57,7 +58,10 @@ with lib.campground; {
         prefixLength = 24;
       }];
     };
-    defaultGateway = "10.8.2.1";
+    defaultGateway = {
+      address = "10.8.2.1";
+      interface = "eth0";
+    };
     nameservers = [ "1.1.1.1" "8.8.8.8" ];
   };
   # Basic system configuration
