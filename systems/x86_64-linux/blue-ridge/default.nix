@@ -71,6 +71,11 @@ with lib.campground; {
   # Network configuration - Use systemd-networkd for bridge (microvm.nix recommended setup)
   networking.useNetworkd = true;
 
+  # Enable IP forwarding for VM NAT
+  boot.kernel.sysctl = {
+    "net.ipv4.ip_forward" = 1;
+  };
+
   systemd.network = {
     enable = true;
 
@@ -82,21 +87,46 @@ with lib.campground; {
       };
     };
 
-    # Physical interface + all VM TAP interfaces (vm-*) -> bridge
+    # Physical interface -> bridge (for external network)
     networks."10-lan" = {
-      matchConfig.Name = ["enp2s0" "vm-*"];
+      matchConfig.Name = "enp2s0";
       networkConfig = {
         Bridge = "br0";
       };
     };
 
-    # Bridge network - static IP for microVM network
+    # Bridge network - gets IP via DHCP on physical network
     networks."10-lan-bridge" = {
       matchConfig.Name = "br0";
       networkConfig = {
-        Address = "10.8.2.1/24";
+        DHCP = "yes";
       };
       linkConfig.RequiredForOnline = "routable";
+    };
+
+    # Internal VM bridge
+    netdevs."br-vm" = {
+      netdevConfig = {
+        Name = "br-vm";
+        Kind = "bridge";
+      };
+    };
+
+    # VM TAP interfaces -> internal bridge
+    networks."20-vm" = {
+      matchConfig.Name = "vm-*";
+      networkConfig = {
+        Bridge = "br-vm";
+      };
+    };
+
+    # Internal VM bridge network - static IP
+    networks."20-vm-bridge" = {
+      matchConfig.Name = "br-vm";
+      networkConfig = {
+        Address = "10.8.2.1/24";
+        IPMasquerade = "ipv4";
+      };
     };
   };
 
