@@ -172,6 +172,13 @@ in {
 
         environments = [
           {
+            name = "microvms";
+            description = "MicroVMs on the network";
+            is_active = true;
+            risk_profile = "MEDIUM";
+            compliance_level = "NONE";
+          }
+          {
             name = "wifi";
             description = "Computers that get on wifi";
             is_active = true;
@@ -204,7 +211,35 @@ in {
         systems = [
           {
             hostname = "blue-ridge";
-            public_key = "NwobuiTss5bB35lZx+jesC5jGfpRk7L4oEdEyoU9C3s=";
+            public_key = "WRKQglpjcMAWYi1qkZvwYCYO8i9RXkB5AU+6EweFCN8=";
+            environment = "lan";
+            flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
+          }
+          {
+            hostname = "vault";
+            public_key = "cRBgbi33Cb3KHXCUZd+38Qcdb1Pm8J/STp39Wdc5Jbw=";
+            environment = "microvms";
+            flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
+          }
+          {
+            hostname = "websites";
+            public_key = "Voh9RXtQ0F8UIKLW8AGbith/9O1yizMhrcsCECY2ZjU=";
+            environment = "lan";
+            flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
+          }
+          {
+            hostname = "public-traefik";
+            public_key = "ZYuA3IuEYyrJEwPy1RcS1Y+do0W835LF7K8S7USl9f8=";
+            environment = "lan";
+            flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
+          }
+          {
+            hostname = "lan-traefik";
+            public_key = "PJXYcG8Av5HtygYdUeg83QFBe06TQJnqjGyT43w+ujA=";
             environment = "lan";
             flake_name = "dotfiles";
             deployment_policy = "auto_latest";
