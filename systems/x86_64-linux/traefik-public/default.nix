@@ -25,8 +25,8 @@ with lib.campground; {
     interfaces = [
       {
         type = "tap";
-        id = "vm-websites";
-        mac = "02:00:00:00:00:11"; # Static MAC for consistent DHCP
+        id = "vm-traefik-public";
+        mac = "02:00:00:00:00:20"; # Static MAC for consistent DHCP
       }
     ];
 
@@ -40,9 +40,9 @@ with lib.campground; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "websites-data.img";
-        mountPoint = "/var/lib/nginx";
-        size = 5120; # 5GB for website data
+        image = "traefik-public-data.img";
+        mountPoint = "/var/lib/traefik";
+        size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
       }
     ];
   };
@@ -54,17 +54,20 @@ with lib.campground; {
 
     user = {
       name = "admin";
-      fullName = "Websites Administrator";
+      fullName = "Traefik Public Administrator";
       email = "admin@aicampground.com";
       extraGroups = ["wheel"];
       uid = 1000;
     };
 
     services = {
-      # All static websites
-      crystal-forge-website = enabled;
-      matt-camp-website = enabled;
-      nix-slide-website = enabled;
+      traefik = {
+        enable = true;
+        email = "admin@aicampground.com";
+        domains = ["aicampground.com"];
+        insecure = false;
+        docker-provider = false;
+      };
 
       openssh = {
         enable = true;
