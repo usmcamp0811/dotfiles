@@ -1,7 +1,8 @@
-{ lib
-, pkgs
-, inputs
-, ...
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; {
@@ -42,7 +43,7 @@ with lib.campground; {
       name = "admin";
       fullName = "System Administrator";
       email = "admin@aicampground.com";
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
       uid = 1000;
     };
   };
@@ -84,7 +85,7 @@ with lib.campground; {
 
     # Physical interface + all VM TAP interfaces (vm-*) -> bridge
     networks."10-lan" = {
-      matchConfig.Name = [ "enp2s0" "vm-*" ];
+      matchConfig.Name = ["enp2s0" "vm-*"];
       networkConfig = {
         Bridge = "br0";
       };
@@ -97,31 +98,6 @@ with lib.campground; {
         DHCP = "yes";
       };
       linkConfig.RequiredForOnline = "routable";
-    };
-
-    # Internal VM bridge
-    netdevs."br-vm" = {
-      netdevConfig = {
-        Name = "br-vm";
-        Kind = "bridge";
-      };
-    };
-
-    # VM TAP interfaces -> internal bridge
-    networks."20-vm" = {
-      matchConfig.Name = "vm-*";
-      networkConfig = {
-        Bridge = "br-vm";
-      };
-    };
-
-    # Internal VM bridge network - static IP
-    networks."20-vm-bridge" = {
-      matchConfig.Name = "br-vm";
-      networkConfig = {
-        Address = "10.8.1.1/24";
-        IPMasquerade = "ipv4";
-      };
     };
   };
 
