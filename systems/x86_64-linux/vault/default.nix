@@ -61,6 +61,7 @@ with lib.campground; {
     };
 
     services = {
+      nix-slide-website = enabled;
       openssh = {
         enable = true;
         authorizedKeys = [
