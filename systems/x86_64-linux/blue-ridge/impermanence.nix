@@ -25,6 +25,9 @@
 
       # SSH host keys
       "/etc/ssh"
+
+      # Crystal Forge agent
+      "/var/lib/crystal-forge-agent"
     ];
 
     files = [
@@ -33,8 +36,6 @@
 
       # systemd random seed
       "/var/lib/systemd/random-seed"
-
-      "/var/lib/crystal-forge-agent/agent.key"
     ];
 
     users.admin = {
