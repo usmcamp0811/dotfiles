@@ -1,8 +1,7 @@
-{
-  lib,
-  pkgs,
-  inputs,
-  ...
+{ lib
+, pkgs
+, inputs
+, ...
 }:
 with lib;
 with lib.campground; {
@@ -24,6 +23,9 @@ with lib.campground; {
       common = enabled;
       observability = enabled;
     };
+    system = {
+      # passwds = enabled;
+    };
     services = {
       ntp = enabled;
       tang = enabled;
@@ -40,7 +42,7 @@ with lib.campground; {
       name = "admin";
       fullName = "System Administrator";
       email = "admin@aicampground.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
       uid = 1000;
     };
   };
@@ -58,11 +60,9 @@ with lib.campground; {
       # Reference the vault system configuration from this flake
       # microvm.nix will look for nixosConfigurations.vault
       flake = inputs.self;
-
       # Auto-start the VM when blue-ridge boots
       autostart = true;
       restartIfChanged = true;
-
       # Update flake reference (optional - allows VM updates without host rebuild)
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
@@ -70,11 +70,6 @@ with lib.campground; {
 
   # Network configuration - Use systemd-networkd for bridge (microvm.nix recommended setup)
   networking.useNetworkd = true;
-
-  # Enable IP forwarding for VM NAT
-  boot.kernel.sysctl = {
-    "net.ipv4.ip_forward" = 1;
-  };
 
   systemd.network = {
     enable = true;
@@ -87,46 +82,21 @@ with lib.campground; {
       };
     };
 
-    # Physical interface -> bridge (for external network)
+    # Physical interface + all VM TAP interfaces (vm-*) -> bridge
     networks."10-lan" = {
-      matchConfig.Name = "enp2s0";
+      matchConfig.Name = [ "enp2s0" "vm-*" ];
       networkConfig = {
         Bridge = "br0";
       };
     };
 
-    # Bridge network - gets IP via DHCP on physical network
+    # Bridge network - gets IP via DHCP
     networks."10-lan-bridge" = {
       matchConfig.Name = "br0";
       networkConfig = {
         DHCP = "yes";
       };
       linkConfig.RequiredForOnline = "routable";
-    };
-
-    # Internal VM bridge
-    netdevs."br-vm" = {
-      netdevConfig = {
-        Name = "br-vm";
-        Kind = "bridge";
-      };
-    };
-
-    # VM TAP interfaces -> internal bridge
-    networks."20-vm" = {
-      matchConfig.Name = "vm-*";
-      networkConfig = {
-        Bridge = "br-vm";
-      };
-    };
-
-    # Internal VM bridge network - static IP
-    networks."20-vm-bridge" = {
-      matchConfig.Name = "br-vm";
-      networkConfig = {
-        Address = "10.8.1.1/24";
-        IPMasquerade = "ipv4";
-      };
     };
   };
 
