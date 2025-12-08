@@ -50,7 +50,14 @@ with lib.campground; {
   networking.interfaces.eth0.useDHCP = true;
   # Basic system configuration
   campground = {
-    suites.common = enabled;
+    suites = {
+      common = enabled;
+      lan-hosting = {
+        enable = true;
+        interface = "eth0";
+        lan-ip = "10.8.0.69";
+      };
+    };
 
     user = {
       name = "admin";
@@ -61,14 +68,6 @@ with lib.campground; {
     };
 
     services = {
-      traefik = {
-        enable = true;
-        email = "admin@aicampground.com";
-        domains = ["lan.aicampground.com"];
-        insecure = false;
-        docker-provider = false;
-      };
-
       openssh = {
         enable = true;
         authorizedKeys = [
