@@ -68,30 +68,36 @@ with lib.campground; {
     };
   };
 
-  # Network configuration - Bridge for host + VMs
-  networking = {
-    # Create bridge that includes the physical interface
-    bridges.br0 = {
-      interfaces = ["enp2s0"];
+  # Network configuration - Use systemd-networkd for bridge (microvm.nix recommended setup)
+  networking.useNetworkd = true;
+
+  systemd.network = {
+    enable = true;
+
+    # Bridge device
+    netdevs."br0" = {
+      netdevConfig = {
+        Name = "br0";
+        Kind = "bridge";
+      };
     };
 
-    # Host gets IP on the bridge (not on enp2s0)
-    interfaces.br0.useDHCP = true;
+    # Physical interface + all VM TAP interfaces (vm-*) -> bridge
+    networks."10-lan" = {
+      matchConfig.Name = ["enp2s0" "vm-*"];
+      networkConfig = {
+        Bridge = "br0";
+      };
+    };
 
-    # Physical interface has no IP (bridge handles it)
-    interfaces.enp2s0.useDHCP = false;
-
-    # Add TAP interfaces to bridge after they're created
-    localCommands = ''
-      # Wait for vm-vault tap interface and add to bridge
-      for i in {1..30}; do
-        if ${pkgs.iproute2}/bin/ip link show vm-vault &>/dev/null; then
-          ${pkgs.iproute2}/bin/ip link set vm-vault master br0 2>/dev/null || true
-          break
-        fi
-        sleep 1
-      done &
-    '';
+    # Bridge network - gets IP via DHCP
+    networks."10-lan-bridge" = {
+      matchConfig.Name = "br0";
+      networkConfig = {
+        DHCP = "yes";
+      };
+      linkConfig.RequiredForOnline = "routable";
+    };
   };
 
   # State version
