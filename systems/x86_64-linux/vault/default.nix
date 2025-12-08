@@ -1,8 +1,7 @@
-{
-  lib,
-  pkgs,
-  config,
-  ...
+{ lib
+, pkgs
+, config
+, ...
 }:
 with lib;
 with lib.campground; {
@@ -56,12 +55,43 @@ with lib.campground; {
       name = "admin";
       fullName = "Vault Administrator";
       email = "admin@aicampground.com";
-      extraGroups = ["wheel"];
+      extraGroups = [ "wheel" ];
       uid = 1000;
     };
 
     services = {
-      nix-slide-website = enabled;
+      vault = {
+        enable = true;
+        ui = true;
+        auto-unseal = true;
+        storage = {
+          backend = "raft";
+          config = ''
+            node_id = "vault-node-vm"
+          '';
+        };
+        settings = ''
+          cluster_addr = "http://vault:8201"
+          api_addr = "http://vault:8200"
+        '';
+
+        policies =
+          builtins.foldl'
+            (policies: file:
+              policies
+              // {
+                "${snowfall.path.get-file-name-without-extension file}" = file;
+              })
+            { }
+            (builtins.filter (snowfall.path.has-file-extension "hcl")
+              (builtins.map
+                (path:
+                  ../daly/vault/policies
+                  + "/${
+                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+                }")
+                (snowfall.fs.get-files ../daly/vault/policies)));
+      };
       openssh = {
         enable = true;
         authorizedKeys = [
