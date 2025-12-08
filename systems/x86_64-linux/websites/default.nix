@@ -52,13 +52,13 @@ with lib.campground; {
   campground = {
     suites.common = enabled;
 
-    user = {
-      name = "admin";
-      fullName = "Websites Administrator";
-      email = "admin@aicampground.com";
-      extraGroups = ["wheel"];
-      uid = 1000;
-    };
+    # user = {
+    #   name = "admin";
+    #   fullName = "Websites Administrator";
+    #   email = "admin@aicampground.com";
+    #   extraGroups = ["wheel"];
+    #   uid = 1000;
+    # };
 
     services = {
       # All static websites

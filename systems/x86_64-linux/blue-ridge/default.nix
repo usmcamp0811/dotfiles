@@ -67,6 +67,36 @@ with lib.campground; {
       # Update flake reference (optional - allows VM updates without host rebuild)
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
+    websites = {
+      # Reference the vault system configuration from this flake
+      # microvm.nix will look for nixosConfigurations.vault
+      flake = inputs.self;
+      # Auto-start the VM when blue-ridge boots
+      autostart = true;
+      restartIfChanged = true;
+      # Update flake reference (optional - allows VM updates without host rebuild)
+      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
+    };
+    public-traefik = {
+      # Reference the vault system configuration from this flake
+      # microvm.nix will look for nixosConfigurations.vault
+      flake = inputs.self;
+      # Auto-start the VM when blue-ridge boots
+      autostart = true;
+      restartIfChanged = true;
+      # Update flake reference (optional - allows VM updates without host rebuild)
+      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
+    };
+    lan-traefik = {
+      # Reference the vault system configuration from this flake
+      # microvm.nix will look for nixosConfigurations.vault
+      flake = inputs.self;
+      # Auto-start the VM when blue-ridge boots
+      autostart = true;
+      restartIfChanged = true;
+      # Update flake reference (optional - allows VM updates without host rebuild)
+      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
+    };
   };
 
   # Network configuration - Use systemd-networkd for bridge (microvm.nix recommended setup)
