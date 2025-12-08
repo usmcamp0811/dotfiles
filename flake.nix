@@ -395,7 +395,7 @@
         microvm.nixosModules.microvm
       ];
 
-      systems.hosts.public-traefik.modules = with inputs; [
+      systems.hosts.pub-traefik.modules = with inputs; [
         microvm.nixosModules.microvm
       ];
 
