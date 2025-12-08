@@ -55,9 +55,9 @@ with lib.campground; {
     networks."10-eth0" = {
       matchConfig.Name = "eth0";
       networkConfig = {
-        Address = "10.8.2.10/24";
-        Gateway = "10.8.2.1";
-        DNS = [ "1.1.1.1" "8.8.8.8" ];
+        Address = "10.8.1.10/24";
+        Gateway = "10.8.1.1";
+        DNS = ["1.1.1.1" "8.8.8.8"];
       };
     };
   };

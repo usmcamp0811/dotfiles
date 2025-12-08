@@ -124,7 +124,7 @@ with lib.campground; {
     networks."20-vm-bridge" = {
       matchConfig.Name = "br-vm";
       networkConfig = {
-        Address = "10.8.2.1/24";
+        Address = "10.8.1.1/24";
         IPMasquerade = "ipv4";
       };
     };
