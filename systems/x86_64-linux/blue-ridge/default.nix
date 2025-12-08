@@ -63,6 +63,7 @@ with lib.campground; {
       flake = inputs.self;
       # Auto-start the VM when blue-ridge boots
       autostart = true;
+      restartIfChanged = true;
       # Update flake reference (optional - allows VM updates without host rebuild)
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
