@@ -21,16 +21,12 @@ with lib.campground; {
       }
     ];
 
-    # Networking - appear as separate device on the network
+    # Networking - TAP interface bridged to host network
     interfaces = [
       {
-        type = "macvtap";
+        type = "tap";
         id = "vm-vault";
         mac = "02:00:00:00:00:10"; # Static MAC for consistent DHCP
-        macvtap = {
-          link = "enp2s0"; # Physical interface on blue-ridge
-          mode = "bridge"; # VM appears as separate device on network
-        };
       }
     ];
 
