@@ -26,9 +26,6 @@
       # SSH host keys
       "/etc/ssh"
 
-      # Crystal Forge agent
-      "/var/lib/crystal-forge-agent"
-
       # MicroVM persistent storage
       "/var/lib/microvms" # All VM volumes and state
     ];
