@@ -136,7 +136,6 @@
     '')
   ];
 
-  # Ensure the system can boot without /persist existing
-  # This is important for first-time installation
-  boot.initrd.systemd.enable = false; # Use traditional stage-1
+  # Note: Using systemd in initrd for better USB keyfile handling
+  # Systemd initrd is enabled in hardware.nix
 }

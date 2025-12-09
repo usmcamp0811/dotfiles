@@ -18,21 +18,28 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Enable systemd in initrd for better USB device handling
+  boot.initrd.systemd.enable = true;
+
   # LUKS configuration for encrypted /persist with USB keyfile
-  # The system will look for the key on a USB drive at boot
   boot.initrd.luks.devices."crypted-persist" = {
     device = "/dev/disk/by-partlabel/disk-main-persist";
-    # Key file will be mounted from USB drive in preLuksCommands below
-    keyFile = "/tmp/usbkey/persist.key";
+    keyFile = "/usbkey/persist.key";
     keyFileSize = 4096;  # 4KB key size
     allowDiscards = true;
     fallbackToPassword = true;  # Allow password entry if USB is not found
   };
 
-  # Ensure USB storage modules are available in initrd
-  boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "uas"];
+  # Mount USB key in initrd using systemd fstab
+  boot.initrd.systemd.contents."/etc/fstab".text = ''
+    UUID=cea8f5b6-d40e-4043-b23d-c6326dab421b /usbkey ext4 ro 0 0
+  '';
 
-  # Ensure ext4 module is loaded for USB key filesystem
+  # Create the mountpoint directory in initrd
+  boot.initrd.systemd.emergencyAccess = true;  # Allow shell access if something fails
+
+  # Ensure USB and ext4 modules are available in initrd
+  boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "uas"];
   boot.initrd.kernelModules = ["ext4"];
 
   # Impermanence: Root is ephemeral tmpfs, wiped on boot
@@ -72,40 +79,6 @@
   # No need to explicitly define swapDevices here
   swapDevices = [];
 
-  # Mount USB key before LUKS unlock
-  boot.initrd.postDeviceCommands = ''
-    # Mount USB key for LUKS keyfile
-    echo "Looking for USB keyfile..."
-    mkdir -p /tmp/usbkey
-
-    # Wait for USB device to appear (max 10 seconds)
-    for i in 1 2 3 4 5 6 7 8 9 10; do
-      if [ -e /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b ]; then
-        echo "USB key found, mounting..."
-        mount -t ext4 /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b /tmp/usbkey
-        if [ -f /tmp/usbkey/persist.key ]; then
-          echo "Keyfile found on USB!"
-          break
-        else
-          echo "ERROR: persist.key not found on USB"
-          umount /tmp/usbkey
-        fi
-      fi
-      echo "Waiting for USB key... ($i/10)"
-      sleep 1
-    done
-  '';
-
-  # Setup persist directory structure after LUKS unlock
-  boot.initrd.postMountCommands = ''
-    mkdir -p /mnt-root/persist/system
-
-    # Cleanup USB mount if still mounted
-    if mountpoint -q /tmp/usbkey 2>/dev/null; then
-      echo "Unmounting USB keyfile..."
-      umount /tmp/usbkey
-    fi
-  '';
 
   # Intel N100 specific optimizations
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
