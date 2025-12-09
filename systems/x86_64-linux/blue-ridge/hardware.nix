@@ -29,29 +29,6 @@
     fallbackToPassword = true;  # Allow password entry if USB is not found
   };
 
-  # Mount USB key before LUKS unlock (runs after devices are available)
-  boot.initrd.postDeviceCommands = lib.mkBefore ''
-    echo "Looking for USB keyfile..."
-    mkdir -p /tmp/usbkey
-
-    # Wait for USB device to appear (max 10 seconds)
-    for i in $(seq 1 10); do
-      if [ -e /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b ]; then
-        echo "USB key found, mounting..."
-        mount -t ext4 /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b /tmp/usbkey
-        if [ -f /tmp/usbkey/persist.key ]; then
-          echo "Keyfile found on USB!"
-          break
-        else
-          echo "ERROR: persist.key not found on USB"
-          umount /tmp/usbkey
-        fi
-      fi
-      echo "Waiting for USB key... ($i/10)"
-      sleep 1
-    done
-  '';
-
   # Ensure USB storage modules are available in initrd
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "uas"];
 
@@ -95,14 +72,39 @@
   # No need to explicitly define swapDevices here
   swapDevices = [];
 
-  # Rollback root to blank state on boot
-  boot.initrd.postDeviceCommands = lib.mkAfter ''
-    mkdir -p /mnt
-    # We don't need to wipe anything since root is tmpfs
-    # But we ensure /persist exists
-    mount -t ext4 /dev/mapper/crypted-persist /mnt
-    mkdir -p /mnt/system
-    umount /mnt
+  # Mount USB key before LUKS unlock
+  boot.initrd.postDeviceCommands = ''
+    # Mount USB key for LUKS keyfile
+    echo "Looking for USB keyfile..."
+    mkdir -p /tmp/usbkey
+
+    # Wait for USB device to appear (max 10 seconds)
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+      if [ -e /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b ]; then
+        echo "USB key found, mounting..."
+        mount -t ext4 /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b /tmp/usbkey
+        if [ -f /tmp/usbkey/persist.key ]; then
+          echo "Keyfile found on USB!"
+          break
+        else
+          echo "ERROR: persist.key not found on USB"
+          umount /tmp/usbkey
+        fi
+      fi
+      echo "Waiting for USB key... ($i/10)"
+      sleep 1
+    done
+  '';
+
+  # Setup persist directory structure after LUKS unlock
+  boot.initrd.postMountCommands = ''
+    mkdir -p /mnt-root/persist/system
+
+    # Cleanup USB mount if still mounted
+    if mountpoint -q /tmp/usbkey 2>/dev/null; then
+      echo "Unmounting USB keyfile..."
+      umount /tmp/usbkey
+    fi
   '';
 
   # Intel N100 specific optimizations
