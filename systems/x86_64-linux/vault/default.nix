@@ -25,6 +25,7 @@ with lib.campground; {
         tag = "vault-agent";
         source = "/var/lib/vault/vault";
         mountPoint = "/var/lib/vault/vault";
+        writable = true;
       }
     ];
 
@@ -39,7 +40,7 @@ with lib.campground; {
 
     # Resources
     vcpu = 2;
-    mem = 2047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
+    mem = 8047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
 
     # Boot configuration
     socket = "control.socket";
