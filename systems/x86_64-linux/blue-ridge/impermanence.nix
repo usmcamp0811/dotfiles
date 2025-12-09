@@ -39,12 +39,12 @@
       "/var/lib/vault/blue-ridge/role-id"
       "/var/lib/vault/blue-ridge/secret-id"
 
-      # Persist user password hashes
-      "/etc/shadow"
-      "/etc/passwd"
-      "/etc/group"
-      "/etc/subuid"
-      "/etc/subgid"
+      # # Persist user password hashes
+      # "/etc/shadow"
+      # "/etc/passwd"
+      # "/etc/group"
+      # "/etc/subuid"
+      # "/etc/subgid"
     ];
 
     users.admin = {
