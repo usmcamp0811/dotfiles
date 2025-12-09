@@ -22,7 +22,7 @@ with lib.campground; {
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/var/lib/vault/websites";
+        source = "/persist/system/var/lib/vault/websites";  # Share actual files, not symlinks
         mountPoint = "/var/lib/vault/websites";
       }
     ];

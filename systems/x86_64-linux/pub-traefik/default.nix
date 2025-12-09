@@ -22,7 +22,7 @@ with lib.campground; {
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/var/lib/vault/pub-traefik";
+        source = "/persist/system/var/lib/vault/pub-traefik";  # Share actual files, not symlinks
         mountPoint = "/var/lib/vault/pub-traefik";
       }
     ];
