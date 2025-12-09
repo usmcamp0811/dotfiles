@@ -280,7 +280,7 @@ in {
           }
           {
             hostname = "reckless";
-            public_key = "SKYgYiwK0vMwK3sJP6R53z0gbtOVSWOmJ33WT4AbCQ8=";
+            public_key = "Z+0suSOZmGG2UWdIc7EN9VW66gru4GibiqxOLgyAieg=";
             environment = "lan";
             flake_name = "dotfiles";
             deployment_policy = "auto_latest";
