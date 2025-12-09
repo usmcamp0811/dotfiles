@@ -1,6 +1,7 @@
 # Disko configuration with encrypted /persist for unattended boot
 # Security: /persist is encrypted, /nix is plain (no secrets in nix store)
 # Key stored on /boot (protected by physical security + optional Secure Boot)
+# TODO: Make full disk encrypted
 {
   disko.devices = {
     disk = {
