@@ -79,8 +79,8 @@ with lib.campground; {
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/public-traefik/role-id";
-            secret-id = "/var/lib/vault/public-traefik/secret-id";
+            role-id = "/var/lib/vault/pub-traefik/role-id";
+            secret-id = "/var/lib/vault/pub-traefik/secret-id";
           };
         };
       };

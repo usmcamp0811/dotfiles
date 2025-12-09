@@ -1,7 +1,8 @@
-{ lib
-, pkgs
-, config
-, ...
+{
+  lib,
+  pkgs,
+  config,
+  ...
 }:
 with lib;
 with lib.campground; {
@@ -18,6 +19,14 @@ with lib.campground; {
         source = "/nix/store";
         mountPoint = "/nix/.ro-store";
       }
+      # Add writable host directory mounts here
+      # {
+      #   proto = "virtiofs";
+      #   tag = "host-data";
+      #   source = "/var/lib/microvms/vault/data";  # Host path
+      #   mountPoint = "/mnt/host-data";             # VM path
+      #   writable = true;
+      # }
     ];
 
     # Networking - TAP interface bridged to host network
@@ -55,11 +64,21 @@ with lib.campground; {
       name = "admin";
       fullName = "Vault Administrator";
       email = "admin@aicampground.com";
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
       uid = 1000;
     };
 
     services = {
+      vault-agent = {
+        enable = true;
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            role-id = "/var/lib/vault/vault/role-id";
+            secret-id = "/var/lib/vault/vault/secret-id";
+          };
+        };
+      };
       vault = {
         enable = true;
         ui = true;
@@ -77,20 +96,20 @@ with lib.campground; {
 
         policies =
           builtins.foldl'
-            (policies: file:
-              policies
-              // {
-                "${snowfall.path.get-file-name-without-extension file}" = file;
-              })
-            { }
-            (builtins.filter (snowfall.path.has-file-extension "hcl")
-              (builtins.map
-                (path:
-                  ../daly/vault/policies
-                  + "/${
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          {}
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies
+                + "/${
                   builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
                 }")
-                (snowfall.fs.get-files ../daly/vault/policies)));
+              (snowfall.fs.get-files ../daly/vault/policies)));
       };
       openssh = {
         enable = true;

@@ -66,6 +66,16 @@ with lib.campground; {
       matt-camp-website = enabled;
       nix-slide-website = enabled;
 
+      vault-agent = {
+        enable = true;
+        settings = {
+          vault = {
+            address = "https://vault.lan.aicampground.com";
+            role-id = "/var/lib/vault/websites/role-id";
+            secret-id = "/var/lib/vault/websites/secret-id";
+          };
+        };
+      };
       openssh = {
         enable = true;
         authorizedKeys = [
