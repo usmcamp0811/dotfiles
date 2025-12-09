@@ -11,8 +11,6 @@
   ];
 
   # Intel N100 (Alder Lake-N) CPU
-  # Note: availableKernelModules is set below with LUKS config
-  boot.initrd.kernelModules = [];
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
 
@@ -24,15 +22,49 @@
   # The system will look for the key on a USB drive at boot
   boot.initrd.luks.devices."crypted-persist" = {
     device = "/dev/disk/by-partlabel/disk-main-persist";
-    # Key file on USB drive: UUID=cea8f5b6-d40e-4043-b23d-c6326dab421b (LABEL=USBKEY)
-    keyFile = "/dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b/persist.key";
+    # Key file will be mounted from USB drive in preLuksCommands below
+    keyFile = "/tmp/usbkey/persist.key";
     keyFileSize = 4096;  # 4KB key size
     allowDiscards = true;
     fallbackToPassword = true;  # Allow password entry if USB is not found
   };
 
+  # Mount USB key before LUKS unlock
+  boot.initrd.preLuksCommands = ''
+    echo "Looking for USB keyfile..."
+    mkdir -p /tmp/usbkey
+
+    # Wait for USB device to appear (max 10 seconds)
+    for i in $(seq 1 10); do
+      if [ -e /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b ]; then
+        echo "USB key found, mounting..."
+        mount -t ext4 /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b /tmp/usbkey
+        if [ -f /tmp/usbkey/persist.key ]; then
+          echo "Keyfile found on USB!"
+          break
+        else
+          echo "ERROR: persist.key not found on USB"
+          umount /tmp/usbkey
+        fi
+      fi
+      echo "Waiting for USB key... ($i/10)"
+      sleep 1
+    done
+  '';
+
+  # Unmount USB key after LUKS unlock
+  boot.initrd.postMountCommands = ''
+    if mountpoint -q /tmp/usbkey; then
+      echo "Unmounting USB keyfile..."
+      umount /tmp/usbkey
+    fi
+  '';
+
   # Ensure USB storage modules are available in initrd
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "uas"];
+
+  # Ensure ext4 module is loaded for USB key filesystem
+  boot.initrd.kernelModules = ["ext4"];
 
   # Impermanence: Root is ephemeral tmpfs, wiped on boot
   # Only /nix and /persist survive reboots
