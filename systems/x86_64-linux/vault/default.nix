@@ -20,13 +20,12 @@ with lib.campground; {
         mountPoint = "/nix/.ro-store";
       }
       # Add writable host directory mounts here
-      # {
-      #   proto = "virtiofs";
-      #   tag = "host-data";
-      #   source = "/var/lib/microvms/vault/data";  # Host path
-      #   mountPoint = "/mnt/host-data";             # VM path
-      #   writable = true;
-      # }
+      {
+        proto = "virtiofs";
+        tag = "vault-agent";
+        source = "/var/lib/vault/vault";
+        mountPoint = "/var/lib/vault/vault";
+      }
     ];
 
     # Networking - TAP interface bridged to host network
