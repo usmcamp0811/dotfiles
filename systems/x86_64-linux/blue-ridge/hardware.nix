@@ -27,7 +27,7 @@
     keyFile = "/usbkey/persist.key";
     keyFileSize = 4096;  # 4KB key size
     allowDiscards = true;
-    fallbackToPassword = true;  # Allow password entry if USB is not found
+    # fallbackToPassword is automatic with systemd stage 1
   };
 
   # Mount USB key in initrd using systemd fstab
