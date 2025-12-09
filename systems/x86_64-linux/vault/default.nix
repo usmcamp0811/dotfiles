@@ -26,6 +26,12 @@ with lib.campground; {
         source = "/var/lib/vault/vault";
         mountPoint = "/var/lib/vault/vault";
       }
+      {
+        proto = "virtiofs";
+        tag = "var-nix";
+        source = "/nix/var/nix"; # Share actual files, not symlinks
+        mountPoint = "/nix/var/nix";
+      }
     ];
 
     # Networking - TAP interface bridged to host network

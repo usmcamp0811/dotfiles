@@ -22,8 +22,14 @@ with lib.campground; {
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/lan-traefik";  # Share actual files, not symlinks
+        source = "/persist/system/var/lib/vault/lan-traefik"; # Share actual files, not symlinks
         mountPoint = "/var/lib/vault/lan-traefik";
+      }
+      {
+        proto = "virtiofs";
+        tag = "var-nix";
+        source = "/nix/var/nix"; # Share actual files, not symlinks
+        mountPoint = "/nix/var/nix";
       }
     ];
 
