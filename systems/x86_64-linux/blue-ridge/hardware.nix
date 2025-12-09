@@ -29,8 +29,8 @@
     fallbackToPassword = true;  # Allow password entry if USB is not found
   };
 
-  # Mount USB key before LUKS unlock
-  boot.initrd.preLuksCommands = ''
+  # Mount USB key before LUKS unlock (runs after devices are available)
+  boot.initrd.postDeviceCommands = lib.mkBefore ''
     echo "Looking for USB keyfile..."
     mkdir -p /tmp/usbkey
 
@@ -50,14 +50,6 @@
       echo "Waiting for USB key... ($i/10)"
       sleep 1
     done
-  '';
-
-  # Unmount USB key after LUKS unlock
-  boot.initrd.postMountCommands = ''
-    if mountpoint -q /tmp/usbkey; then
-      echo "Unmounting USB keyfile..."
-      umount /tmp/usbkey
-    fi
   '';
 
   # Ensure USB storage modules are available in initrd
