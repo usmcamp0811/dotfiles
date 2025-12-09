@@ -36,9 +36,21 @@
 
       # systemd random seed
       "/var/lib/systemd/random-seed"
+
       "/var/lib/vault/blue-ridge/role-id"
       "/var/lib/vault/blue-ridge/secret-id"
 
+      "/var/lib/vault/lan-traefik/role-id"
+      "/var/lib/vault/lan-traefik/secret-id"
+
+      "/var/lib/vault/pub-traefik/role-id"
+      "/var/lib/vault/pub-traefik/secret-id"
+
+      "/var/lib/vault/websites/role-id"
+      "/var/lib/vault/websites/secret-id"
+
+      "/var/lib/vault/vault/role-id"
+      "/var/lib/vault/vault/secret-id"
       # # Persist user password hashes
       # "/etc/shadow"
       # "/etc/passwd"
