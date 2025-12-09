@@ -315,7 +315,7 @@ in {
           }
           {
             hostname = "ermy";
-            public_key = "z9FINYnz2IPPaECHZbTae5prPFUE/ubAT+4HHLPSq7I=";
+            public_key = "PFaxyQSecum7E/+ig4nNZnS1uobcjUZjrNNBG/fOlHc=";
             environment = "lan";
             flake_name = "dotfiles";
             deployment_policy = "auto_latest";
