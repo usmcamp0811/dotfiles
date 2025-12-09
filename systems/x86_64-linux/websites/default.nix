@@ -19,6 +19,12 @@ with lib.campground; {
         source = "/nix/store";
         mountPoint = "/nix/.ro-store";
       }
+      {
+        proto = "virtiofs";
+        tag = "vault-agent";
+        source = "/var/lib/vault/websites";
+        mountPoint = "/var/lib/vault/websites";
+      }
     ];
 
     # Networking - TAP interface bridged to host network
