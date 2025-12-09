@@ -25,7 +25,6 @@ with lib.campground; {
         tag = "vault-agent";
         source = "/var/lib/vault/vault";
         mountPoint = "/var/lib/vault/vault";
-        writable = true;
       }
     ];
 
