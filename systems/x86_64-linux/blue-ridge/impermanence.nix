@@ -39,6 +39,8 @@
 
       # systemd random seed
       "/var/lib/systemd/random-seed"
+      "/var/lib/vault/blue-ridge/role-id"
+      "/var/lib/vault/blue-ridge/secret-id"
     ];
 
     users.admin = {
