@@ -51,12 +51,6 @@
 
       "/var/lib/vault/vault/role-id"
       "/var/lib/vault/vault/secret-id"
-      # # Persist user password hashes
-      # "/etc/shadow"
-      # "/etc/passwd"
-      # "/etc/group"
-      # "/etc/subuid"
-      # "/etc/subgid"
     ];
 
     users.admin = {

@@ -53,7 +53,7 @@ with lib.campground; {
       name = "admin";
       fullName = "System Administrator";
       email = "admin@aicampground.com";
-      extraGroups = ["wheel"];
+      extraGroups = [];
       uid = 1000;
     };
   };
