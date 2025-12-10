@@ -57,11 +57,11 @@ with lib.campground; {
       email = "admin@aicampground.com";
       extraGroups = [];
       uid = 1000;
-      # generate with: nix-shell --run 'mkpasswd -m SHA-512 -s' -p mkpasswd
-      passwordFile = "/nix/persist/users/admin";
     };
   };
 
+  # generate with: nix-shell --run 'mkpasswd -m SHA-512 -s' -p mkpasswd
+  users.users.admin.passwordFile = "/users/admin";
   # MicroVM host configuration
   microvm.host = {
     enable = true;
