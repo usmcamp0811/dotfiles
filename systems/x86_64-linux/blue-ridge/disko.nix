@@ -1,7 +1,6 @@
-# Disko configuration with encrypted /persist for unattended boot
-# Security: /persist is encrypted, /nix is plain (no secrets in nix store)
-# Key stored on /boot (protected by physical security + optional Secure Boot)
-# TODO: Make full disk encrypted
+# Full disk encryption with USB keyfile + passphrase fallback
+# Uses systemd stage 1 initrd for USB key handling
+# Security: Entire disk encrypted except ESP (required for UEFI boot)
 {
   disko.devices = {
     disk = {
@@ -11,13 +10,13 @@
         content = {
           type = "gpt";
           partitions = {
-            # BIOS boot partition
+            # BIOS boot partition (for legacy boot compatibility)
             boot = {
               size = "1M";
               type = "EF02";
             };
 
-            # EFI System Partition
+            # EFI System Partition (must be unencrypted for UEFI boot)
             ESP = {
               size = "1G";
               type = "EF00";
@@ -29,43 +28,40 @@
               };
             };
 
-            # Nix store - UNENCRYPTED (contains no secrets, world-readable anyway)
-            nix = {
-              size = "180G";
-              content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/nix";
-                mountOptions = [ "noatime" ];
-              };
-            };
-
-            # Persistent data - ENCRYPTED with USB keyfile
-            persist = {
-              size = "50G";
-              content = {
-                type = "luks";
-                name = "crypted-persist";
-                settings = {
-                  allowDiscards = true;
-                  # Key will be stored on USB drive
-                  # During installation: dd if=/dev/random of=/mnt/usbkey/persist.key bs=1024 count=4
-                };
-                content = {
-                  type = "filesystem";
-                  format = "ext4";
-                  mountpoint = "/persist";
-                  mountOptions = [ "noatime" ];
-                };
-              };
-            };
-
-            # Swap - encrypted with random key (regenerated each boot)
-            swap = {
+            # Everything else encrypted with LUKS
+            luks = {
               size = "100%";
               content = {
-                type = "swap";
-                randomEncryption = true; # Fresh random key each boot
+                type = "luks";
+                name = "crypted";
+                # Keyfile will be on USB drive at /usbkey/persist.key
+                # Fallback to password is automatic with systemd stage 1 initrd
+                settings = {
+                  allowDiscards = true;
+                };
+                content = {
+                  type = "btrfs";
+                  extraArgs = [ "-f" ];
+                  subvolumes = {
+                    # Nix store
+                    "/nix" = {
+                      mountpoint = "/nix";
+                      mountOptions = [ "compress=zstd" "noatime" ];
+                    };
+
+                    # Persistent data (system state, user data)
+                    "/persist" = {
+                      mountpoint = "/persist";
+                      mountOptions = [ "compress=zstd" "noatime" ];
+                    };
+
+                    # Swap
+                    "/swap" = {
+                      mountpoint = "/.swapvol";
+                      swap.swapfile.size = "20G";
+                    };
+                  };
+                };
               };
             };
           };
@@ -73,7 +69,7 @@
       };
     };
 
-    # Root is tmpfs (ephemeral)
+    # Root is tmpfs (ephemeral, wiped on boot)
     nodev = {
       "/" = {
         fsType = "tmpfs";

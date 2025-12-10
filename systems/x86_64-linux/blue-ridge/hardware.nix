@@ -21,9 +21,9 @@
   # Enable systemd in initrd for better USB device handling
   boot.initrd.systemd.enable = true;
 
-  # LUKS configuration for encrypted /persist with USB keyfile
-  boot.initrd.luks.devices."crypted-persist" = {
-    device = "/dev/disk/by-partlabel/disk-main-persist";
+  # LUKS configuration for full disk encryption with USB keyfile
+  boot.initrd.luks.devices."crypted" = {
+    device = "/dev/disk/by-partlabel/disk-main-luks";
     keyFile = "/usbkey/persist.key";
     keyFileSize = 4096;  # 4KB key size
     allowDiscards = true;
@@ -38,46 +38,44 @@
   # Create the mountpoint directory in initrd
   boot.initrd.systemd.emergencyAccess = true;  # Allow shell access if something fails
 
-  # Ensure USB and ext4 modules are available in initrd
+  # Ensure USB and filesystem modules are available in initrd
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "uas"];
-  boot.initrd.kernelModules = ["ext4"];
+  boot.initrd.kernelModules = ["ext4" "btrfs"];
 
   # Impermanence: Root is ephemeral tmpfs, wiped on boot
-  # Only /nix and /persist survive reboots
   fileSystems."/" = {
     device = "none";
     fsType = "tmpfs";
     options = ["defaults" "size=2G" "mode=755"];
   };
 
-  # NOTE: /boot and /nix are managed by disko, but we keep these for reference
-  # disko.nix will generate the actual mount configuration
-  # If these conflict, you can comment them out and rely solely on disko
-
+  # Boot partition (unencrypted ESP)
   fileSystems."/boot" = {
     device = "/dev/disk/by-partlabel/disk-main-ESP";
     fsType = "vfat";
-    options = [ "umask=0077" ];
+    options = ["umask=0077"];
   };
 
+  # Nix store - btrfs subvolume inside LUKS
   fileSystems."/nix" = {
-    device = "/dev/disk/by-partlabel/disk-main-nix";
-    fsType = "ext4";
+    device = "/dev/mapper/crypted";
+    fsType = "btrfs";
+    options = ["subvol=nix" "compress=zstd" "noatime"];
     neededForBoot = true;
-    options = [ "noatime" ];
   };
 
-  # Encrypted persist partition - mounted via LUKS mapper
+  # Persistent data - btrfs subvolume inside LUKS
   fileSystems."/persist" = {
-    device = "/dev/mapper/crypted-persist";
-    fsType = "ext4";
+    device = "/dev/mapper/crypted";
+    fsType = "btrfs";
+    options = ["subvol=persist" "compress=zstd" "noatime"];
     neededForBoot = true;
-    options = [ "noatime" ];
   };
 
-  # Swap is handled by disko with randomEncryption
-  # No need to explicitly define swapDevices here
-  swapDevices = [];
+  # Swap via btrfs swapfile
+  swapDevices = [{
+    device = "/.swapvol/swapfile";
+  }];
 
 
   # Intel N100 specific optimizations
