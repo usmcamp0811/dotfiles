@@ -71,8 +71,8 @@ with lib.campground; {
   # No need to connect to host daemon
 
   # Disable nix store optimization - incompatible with writableStoreOverlay
-  nix.optimise.automatic = false;
-  nix.settings.auto-optimise-store = false;
+  nix.optimise.automatic = lib.mkForce false;
+  nix.settings.auto-optimise-store = lib.mkForce false;
 
   # Basic system configuration
   campground = {
