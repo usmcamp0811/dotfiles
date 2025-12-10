@@ -34,9 +34,9 @@
               content = {
                 type = "luks";
                 name = "crypted";
-                # Use existing keyfile from USB drive
-                # Mount USB first: mount /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b /mnt/usbkey
-                passwordFile = "/mnt/usbkey/persist.key";
+                # Prompt for passphrase during installation
+                # After disko completes, add USB key with:
+                # cryptsetup luksAddKey /dev/disk/by-partlabel/disk-main-luks /mnt/usbkey/persist.key
                 settings = {
                   allowDiscards = true;
                 };
