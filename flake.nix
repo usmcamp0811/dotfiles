@@ -110,6 +110,10 @@
     # Impermanence
     impermanence.url = "github:nix-community/impermanence";
 
+    # Disko - Declarative disk partitioning
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+
     # Generate System Images
     nixos-generators.url = "github:nix-community/nixos-generators";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
@@ -381,6 +385,10 @@
       ];
 
       systems.hosts.gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
+
+      systems.hosts.blue-ridge.modules = with inputs; [
+        disko.nixosModules.disko
+      ];
 
       # MicroVM guest configuration
       systems.hosts.vault.modules = with inputs; [
