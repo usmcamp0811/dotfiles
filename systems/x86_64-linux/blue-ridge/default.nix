@@ -113,14 +113,6 @@ with lib.campground; {
     };
   };
 
-  # Create directories for VM nix stores
-  systemd.tmpfiles.rules = [
-    "d /var/lib/microvms/vault/nix-store 0755 root root -"
-    "d /var/lib/microvms/websites/nix-store 0755 root root -"
-    "d /var/lib/microvms/pub-traefik/nix-store 0755 root root -"
-    "d /var/lib/microvms/lan-traefik/nix-store 0755 root root -"
-  ];
-
   # Network configuration - Use systemd-networkd for bridge (microvm.nix recommended setup)
   networking.useNetworkd = true;
 

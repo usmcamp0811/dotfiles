@@ -26,7 +26,7 @@ with lib.campground; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/var/lib/microvms/vault/nix-store";
+        source = "/persist/vm-stores/vault/nix-store";
         mountPoint = "/nix/.rw-store";
       }
       # Add writable host directory mounts here

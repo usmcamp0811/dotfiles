@@ -27,7 +27,7 @@ with lib.campground; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/var/lib/microvms/pub-traefik/nix-store";
+        source = "/persist/vm-stores/pub-traefik/nix-store";
         mountPoint = "/nix/.rw-store";
       }
       {

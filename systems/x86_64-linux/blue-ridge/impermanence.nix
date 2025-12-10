@@ -28,6 +28,12 @@
 
       # MicroVM persistent storage
       "/var/lib/microvms" # All VM volumes and state
+
+      # MicroVM writable nix-stores (separate from /var/lib/microvms to avoid conflicts)
+      "/persist/vm-stores/vault/nix-store"
+      "/persist/vm-stores/websites/nix-store"
+      "/persist/vm-stores/pub-traefik/nix-store"
+      "/persist/vm-stores/lan-traefik/nix-store"
     ];
 
     files = [
