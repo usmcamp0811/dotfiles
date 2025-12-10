@@ -57,11 +57,6 @@ with lib.campground; {
         mountPoint = "/var/lib/nginx";
         size = 5120; # 5GB for website data
       }
-      {
-        image = "nix-rw-store.img";
-        mountPoint = "/nix/.rw-store";
-        size = 10240; # 10GB for writable nix store overlay
-      }
     ];
   };
 
