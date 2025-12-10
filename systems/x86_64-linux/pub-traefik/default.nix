@@ -61,11 +61,9 @@ with lib.campground; {
 
   networking.interfaces.eth0.useDHCP = true;
 
-  # Force use of host's nix daemon (store is read-only)
-  nix.settings = {
-    store = "/nix/store";
-    state-dir = "/nix/var/nix";
-  };
+  # Force all nix commands to use the host's daemon through virtiofs
+  environment.sessionVariables.NIX_REMOTE = "daemon";
+  systemd.services.nix-daemon.enable = false;  # Ensure local daemon stays disabled
 
   # Basic system configuration
   campground = {
