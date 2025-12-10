@@ -26,7 +26,6 @@
       # SSH host keys
       "/etc/ssh"
 
-
       # MicroVM persistent storage
       "/var/lib/microvms" # All VM volumes and state
     ];
@@ -36,7 +35,7 @@
       "/etc/machine-id"
 
       # systemd random seed
-      "/var/lib/systemd/random-seed"
+      # "/var/lib/systemd/random-seed"
 
       "/var/lib/vault/blue-ridge/role-id"
       "/var/lib/vault/blue-ridge/secret-id"
