@@ -6,7 +6,10 @@
 }:
 with lib;
 with lib.campground; {
-  boot.loader.grub.enable = false;
+  # MicroVMs don't use bootloaders - booted directly by QEMU
+  boot.loader.grub.enable = lib.mkForce false;
+  boot.loader.systemd-boot.enable = lib.mkForce false;
+
   # MicroVM configuration
   microvm = {
     # Use microvm as the hypervisor (lightweight, fast boot)
