@@ -16,6 +16,12 @@ with lib.campground; {
     shares = [
       {
         proto = "virtiofs";
+        tag = "ro-store";
+        source = "/nix/store";
+        mountPoint = "/nix/.ro-store";
+      }
+      {
+        proto = "virtiofs";
         tag = "rw-store";
         source = "/var/lib/microvm/pub-traefik/nix-store";
         mountPoint = "/nix/.rw-store";

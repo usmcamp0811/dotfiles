@@ -13,12 +13,12 @@ with lib.campground; {
     writableStoreOverlay = "/nix/.rw-store";
     # Share the host's Nix store to save disk space
     shares = [
-      # {
-      #   proto = "virtiofs";
-      #   tag = "ro-store";
-      #   source = "/nix/store";
-      #   mountPoint = "/nix/.ro-store";
-      # }
+      {
+        proto = "virtiofs";
+        tag = "ro-store";
+        source = "/nix/store";
+        mountPoint = "/nix/.ro-store";
+      }
       {
         proto = "virtiofs";
         tag = "rw-store";
