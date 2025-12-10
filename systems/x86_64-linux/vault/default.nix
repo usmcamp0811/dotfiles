@@ -70,6 +70,10 @@ with lib.campground; {
   # With writableStoreOverlay, the VM runs its own nix-daemon
   # No need to connect to host daemon
 
+  # Disable nix store optimization - incompatible with writableStoreOverlay
+  nix.optimise.automatic = false;
+  nix.settings.auto-optimise-store = false;
+
   # Basic system configuration
   campground = {
     suites.common = enabled;
