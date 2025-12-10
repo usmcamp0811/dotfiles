@@ -13,11 +13,17 @@ with lib.campground; {
     writableStoreOverlay = "/nix/.rw-store";
     # Share the host's Nix store to save disk space
     shares = [
+      # {
+      #   proto = "virtiofs";
+      #   tag = "ro-store";
+      #   source = "/nix/store";
+      #   mountPoint = "/nix/.ro-store";
+      # }
       {
         proto = "virtiofs";
-        tag = "ro-store";
-        source = "/nix/store";
-        mountPoint = "/nix/.ro-store";
+        tag = "rw-store";
+        source = "/var/lib/microvm/vault/nix-store";
+        mountPoint = "/nix/.rw-store";
       }
       # Add writable host directory mounts here
       {
@@ -51,11 +57,11 @@ with lib.campground; {
         mountPoint = "/var/lib/vault";
         size = 10240; # 10GB for vault data
       }
-      {
-        image = "nix-rw-store.img";
-        mountPoint = "/nix/.rw-store";
-        size = 10240; # 10GB for writable nix store overlay
-      }
+      # {
+      #   image = "nix-rw-store.img";
+      #   mountPoint = "/nix/.rw-store";
+      #   size = 10240; # 10GB for writable nix store overlay
+      # }
     ];
   };
 
