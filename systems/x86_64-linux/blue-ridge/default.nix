@@ -8,6 +8,7 @@ with lib;
 with lib.campground; {
   imports = [
     ./hardware.nix
+    ./disko.nix
     ./impermanence.nix
   ];
 

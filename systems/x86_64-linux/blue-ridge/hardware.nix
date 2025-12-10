@@ -42,40 +42,8 @@
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "uas"];
   boot.initrd.kernelModules = ["ext4" "btrfs"];
 
-  # Impermanence: Root is ephemeral tmpfs, wiped on boot
-  fileSystems."/" = {
-    device = "none";
-    fsType = "tmpfs";
-    options = ["defaults" "size=2G" "mode=755"];
-  };
-
-  # Boot partition (unencrypted ESP)
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-partlabel/disk-main-ESP";
-    fsType = "vfat";
-    options = ["umask=0077"];
-  };
-
-  # Nix store - btrfs subvolume inside LUKS
-  fileSystems."/nix" = {
-    device = "/dev/mapper/crypted";
-    fsType = "btrfs";
-    options = ["subvol=/nix" "compress=zstd" "noatime"];
-    neededForBoot = true;
-  };
-
-  # Persistent data - btrfs subvolume inside LUKS
-  fileSystems."/persist" = {
-    device = "/dev/mapper/crypted";
-    fsType = "btrfs";
-    options = ["subvol=/persist" "compress=zstd" "noatime"];
-    neededForBoot = true;
-  };
-
-  # Swap via btrfs swapfile
-  swapDevices = [{
-    device = "/.swapvol/swapfile";
-  }];
+  # All filesystems are defined in disko.nix
+  # disko handles: /, /boot, /nix, /persist, and swap
 
 
   # Intel N100 specific optimizations
