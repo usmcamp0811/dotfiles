@@ -62,9 +62,6 @@ with lib.campground; {
 
   networking.interfaces.eth0.useDHCP = true;
 
-  # With writableStoreOverlay, the VM runs its own nix-daemon
-  # No need to connect to host daemon
-
   # Disable nix store optimization - incompatible with writableStoreOverlay
   nix.optimise.automatic = lib.mkForce false;
   nix.settings.auto-optimise-store = lib.mkForce false;
