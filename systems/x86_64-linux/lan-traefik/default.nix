@@ -10,6 +10,7 @@ with lib.campground; {
   microvm = {
     # Use microvm as the hypervisor (lightweight, fast boot)
     hypervisor = "qemu";
+    writableStoreOverlay = "/nix/.rw-store";
 
     # Share the host's Nix store to save disk space
     shares = [
@@ -24,12 +25,6 @@ with lib.campground; {
         tag = "vault-agent";
         source = "/persist/system/var/lib/vault/lan-traefik"; # Share actual files, not symlinks
         mountPoint = "/var/lib/vault/lan-traefik";
-      }
-      {
-        proto = "virtiofs";
-        tag = "var-nix";
-        source = "/nix/var/nix"; # Share actual files, not symlinks
-        mountPoint = "/nix/var/nix";
       }
     ];
 
@@ -56,14 +51,18 @@ with lib.campground; {
         mountPoint = "/var/lib/traefik";
         size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
       }
+      {
+        image = "nix-rw-store.img";
+        mountPoint = "/nix/.rw-store";
+        size = 10240; # 10GB for writable nix store overlay
+      }
     ];
   };
 
   networking.interfaces.eth0.useDHCP = true;
 
-  # Force all nix commands to use the host's daemon through virtiofs
-  environment.sessionVariables.NIX_REMOTE = "daemon";
-  systemd.services.nix-daemon.enable = false;  # Ensure local daemon stays disabled
+  # With writableStoreOverlay, the VM runs its own nix-daemon
+  # No need to connect to host daemon
 
   # Basic system configuration
   campground = {
