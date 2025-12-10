@@ -6,6 +6,7 @@
 }:
 with lib;
 with lib.campground; {
+  boot.loader.grub.enable = false;
   # MicroVM configuration
   microvm = {
     # Use microvm as the hypervisor (lightweight, fast boot)
