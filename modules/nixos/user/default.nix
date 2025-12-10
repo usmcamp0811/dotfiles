@@ -38,8 +38,11 @@ in {
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
     uid = mkOpt int 1000 "UID of the user";
     initialPassword =
-      mkOpt str "password"
+      mkOpt (nullOr str) "password"
       "The initial password to use when the user is first created.";
+    hashedPasswordFile =
+      mkOpt (nullOr str) null
+      "Path to a file containing the hashed password for the user.";
     icon =
       mkOpt (nullOr package) defaultIcon
       "The profile picture to use for the user.";
@@ -128,7 +131,7 @@ in {
       {
         isNormalUser = true;
 
-        inherit (cfg) name initialPassword;
+        inherit (cfg) name;
 
         home = "/home/${cfg.name}";
         group = "users";
@@ -144,6 +147,12 @@ in {
 
         extraGroups = [] ++ cfg.extraGroups ++ lib.attrNames cfg.GroupsIds;
       }
+      // (optionalAttrs (cfg.initialPassword != null) {
+        inherit (cfg) initialPassword;
+      })
+      // (optionalAttrs (cfg.hashedPasswordFile != null) {
+        inherit (cfg) hashedPasswordFile;
+      })
       // cfg.extraOptions;
   };
 }
