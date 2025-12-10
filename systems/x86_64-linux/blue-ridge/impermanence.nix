@@ -26,6 +26,7 @@
       # SSH host keys
       "/etc/ssh"
 
+
       # MicroVM persistent storage
       "/var/lib/microvms" # All VM volumes and state
     ];
@@ -51,6 +52,8 @@
 
       "/var/lib/vault/vault/role-id"
       "/var/lib/vault/vault/secret-id"
+
+      "/users/admin"
     ];
 
     users.admin = {

@@ -19,6 +19,7 @@ with lib.campground; {
     keyMap = "us";
   };
 
+  # users.mutableUsers = true;
   # Use campground modules for configuration
   campground = {
     suites = {
@@ -56,6 +57,8 @@ with lib.campground; {
       email = "admin@aicampground.com";
       extraGroups = [];
       uid = 1000;
+      # generate with: nix-shell --run 'mkpasswd -m SHA-512 -s' -p mkpasswd
+      passwordFile = "/nix/persist/users/admin";
     };
   };
 
