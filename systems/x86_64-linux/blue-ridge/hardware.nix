@@ -60,7 +60,7 @@
   fileSystems."/nix" = {
     device = "/dev/mapper/crypted";
     fsType = "btrfs";
-    options = ["subvol=nix" "compress=zstd" "noatime"];
+    options = ["subvol=/nix" "compress=zstd" "noatime"];
     neededForBoot = true;
   };
 
@@ -68,7 +68,7 @@
   fileSystems."/persist" = {
     device = "/dev/mapper/crypted";
     fsType = "btrfs";
-    options = ["subvol=persist" "compress=zstd" "noatime"];
+    options = ["subvol=/persist" "compress=zstd" "noatime"];
     neededForBoot = true;
   };
 

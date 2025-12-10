@@ -34,8 +34,9 @@
               content = {
                 type = "luks";
                 name = "crypted";
-                # Keyfile will be on USB drive at /usbkey/persist.key
-                # Fallback to password is automatic with systemd stage 1 initrd
+                # Use existing keyfile from USB drive
+                # Mount USB first: mount /dev/disk/by-uuid/cea8f5b6-d40e-4043-b23d-c6326dab421b /mnt/usbkey
+                passwordFile = "/mnt/usbkey/persist.key";
                 settings = {
                   allowDiscards = true;
                 };
