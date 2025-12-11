@@ -25,7 +25,7 @@ local virtualenv_info='$(virtualenv_prompt_info)'
 local prompt_char='$(prompt_char)'
 
 # ROOT PROMPT - Red theme with radioactive emoji for high visibility
-PROMPT="${FG[196]}╭─☢️  ${FG[196]}%B%n%b ${FG[196]}on ${FG[196]}$(box_name) ${FG[196]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
+PROMPT="${FG[196]}╭─☢️  ${FG[196]}%B%n%b ${FG[196]}on ${FG[033]}$(box_name) ${FG[196]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
 ${FG[196]}╰─${prompt_char}%{$reset_color%} "
 
 ZSH_THEME_GIT_PROMPT_PREFIX=" ${FG[196]}on%{$reset_color%} ${FG[255]}"
