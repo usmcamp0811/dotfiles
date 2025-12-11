@@ -40,8 +40,8 @@ in {
 
           # Source additional files
           ${lib.concatMapStringsSep "\n"
-            (file: ''[ -r "${file}" ] && source "${file}"'')
-            cfg.extraSource}
+          (file: ''[ -r "${file}" ] && source "${file}"'')
+          cfg.extraSource}
 
           # Source vault passwords if available
           [ -r "/var/lib/vault/users/root/passwords" ] && source "/var/lib/vault/users/root/passwords"
@@ -77,10 +77,10 @@ in {
       mkdir -p /root/.config/shell/private
 
       # Copy fino theme files from the home module
-      cp ${../../home/cli/zsh/fino-theme/fino.zsh-theme} /root/.config/shell/zsh/fino.zsh-theme
-      cp ${../../home/cli/zsh/fino-theme/git.zsh} /root/.config/shell/zsh/git.zsh
-      cp ${../../home/cli/zsh/fino-theme/prompt_info_functions.zsh} /root/.config/shell/zsh/prompt_info_functions.zsh
-      cp ${../../home/cli/zsh/fino-theme/spectrum.zsh} /root/.config/shell/zsh/spectrum.zsh
+      cp ${../../../home/cli/zsh/fino-theme/fino.zsh-theme} /root/.config/shell/zsh/fino.zsh-theme
+      cp ${../../../home/cli/zsh/fino-theme/git.zsh} /root/.config/shell/zsh/git.zsh
+      cp ${../../../home/cli/zsh/fino-theme/prompt_info_functions.zsh} /root/.config/shell/zsh/prompt_info_functions.zsh
+      cp ${../../../home/cli/zsh/fino-theme/spectrum.zsh} /root/.config/shell/zsh/spectrum.zsh
 
       chmod 644 /root/.config/shell/zsh/*
     '';
