@@ -125,6 +125,8 @@ in {
       mapAttrs' (name: id: nameValuePair name {gid = mkForce id;})
       cfg.GroupsIds;
 
+    users.users.root = cfg.extraOptions;
+
     users.users.${cfg.name} =
       {
         isNormalUser = true;
