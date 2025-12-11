@@ -4,6 +4,11 @@
 # Use with a dark background and 256-color terminal!
 # Borrowing from fino.zsh-theme but with root-specific modifications
 
+# Load required theme dependencies
+[ -r "/root/.config/shell/zsh/spectrum.zsh" ] && source "/root/.config/shell/zsh/spectrum.zsh"
+[ -r "/root/.config/shell/zsh/git.zsh" ] && source "/root/.config/shell/zsh/git.zsh"
+[ -r "/root/.config/shell/zsh/prompt_info_functions.zsh" ] && source "/root/.config/shell/zsh/prompt_info_functions.zsh"
+
 function virtualenv_prompt_info {
   [[ -n ${VIRTUAL_ENV} ]] || return
   echo "${ZSH_THEME_VIRTUALENV_PREFIX:=[}${VIRTUAL_ENV:t}${ZSH_THEME_VIRTUALENV_SUFFIX:=]}"
