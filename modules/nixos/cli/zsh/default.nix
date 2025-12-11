@@ -32,8 +32,8 @@ in {
       interactiveShellInit = ''
         # Only apply this configuration for root user
         if [ "$USER" = "root" ]; then
-          # Source fino theme files
-          [ -r "/root/.config/shell/zsh/fino.zsh-theme" ] && source "/root/.config/shell/zsh/fino.zsh-theme"
+          # Source fino-root theme (distinctive red theme for root)
+          [ -r "/root/.config/shell/zsh/fino-root.zsh-theme" ] && source "/root/.config/shell/zsh/fino-root.zsh-theme"
 
           # Load fzf-tab plugin
           [ -r "${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh" ] && source "${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh"
@@ -76,8 +76,10 @@ in {
       mkdir -p /root/.config/shell/zsh
       mkdir -p /root/.config/shell/private
 
-      # Copy fino theme files from the home module
-      cp ${../../../home/cli/zsh/fino-theme/fino.zsh-theme} /root/.config/shell/zsh/fino.zsh-theme
+      # Copy fino-root theme (root-specific with distinctive styling)
+      cp ${./fino-root.zsh-theme} /root/.config/shell/zsh/fino-root.zsh-theme
+
+      # Copy supporting theme files from the home module
       cp ${../../../home/cli/zsh/fino-theme/git.zsh} /root/.config/shell/zsh/git.zsh
       cp ${../../../home/cli/zsh/fino-theme/prompt_info_functions.zsh} /root/.config/shell/zsh/prompt_info_functions.zsh
       cp ${../../../home/cli/zsh/fino-theme/spectrum.zsh} /root/.config/shell/zsh/spectrum.zsh
