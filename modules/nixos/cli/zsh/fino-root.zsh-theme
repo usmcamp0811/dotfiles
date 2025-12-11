@@ -24,18 +24,18 @@ local git_info='$(git_prompt_info)'
 local virtualenv_info='$(virtualenv_prompt_info)'
 local prompt_char='$(prompt_char)'
 
-# ROOT PROMPT - Red theme with crown emoji for visibility
-PROMPT="${FG[196]}╭─👑 ${FG[196]}%B%n%b ${FG[202]}on ${FG[208]}$(box_name) ${FG[202]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
+# ROOT PROMPT - Red theme with radioactive emoji for high visibility
+PROMPT="${FG[196]}╭─☢️  ${FG[196]}%B%n%b ${FG[196]}on ${FG[196]}$(box_name) ${FG[196]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}
 ${FG[196]}╰─${prompt_char}%{$reset_color%} "
 
-ZSH_THEME_GIT_PROMPT_PREFIX=" ${FG[202]}on%{$reset_color%} ${FG[255]}"
+ZSH_THEME_GIT_PROMPT_PREFIX=" ${FG[196]}on%{$reset_color%} ${FG[255]}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_DIRTY="${FG[196]}🔥"
-ZSH_THEME_GIT_PROMPT_CLEAN="${FG[208]}✔️"
+ZSH_THEME_GIT_PROMPT_CLEAN="${FG[196]}✔️"
 
-ZSH_THEME_RUBY_PROMPT_PREFIX=" ${FG[202]}using${FG[203]} ‹"
+ZSH_THEME_RUBY_PROMPT_PREFIX=" ${FG[196]}using${FG[196]} ‹"
 ZSH_THEME_RUBY_PROMPT_SUFFIX="›%{$reset_color%}"
 
 export VIRTUAL_ENV_DISABLE_PROMPT=1
-ZSH_THEME_VIRTUALENV_PREFIX=" ${FG[202]}using${FG[203]} «"
+ZSH_THEME_VIRTUALENV_PREFIX=" ${FG[196]}using${FG[196]} «"
 ZSH_THEME_VIRTUALENV_SUFFIX="»%{$reset_color%}"
