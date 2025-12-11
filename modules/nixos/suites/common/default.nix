@@ -17,6 +17,7 @@ in {
 
     crystal-forge.stig-presets.off.enable = true;
     campground = {
+      cli = {zsh.root = enabled;};
       nix = {
         enable = true;
         extra-substituters = {
