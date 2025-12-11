@@ -125,8 +125,6 @@ in {
       mapAttrs' (name: id: nameValuePair name {gid = mkForce id;})
       cfg.GroupsIds;
 
-    users.users.root = {shell = pkgs.zsh;} // cfg.extraOptions;
-
     users.users.${cfg.name} =
       {
         isNormalUser = true;
