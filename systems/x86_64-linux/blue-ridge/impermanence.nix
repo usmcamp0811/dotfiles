@@ -18,7 +18,7 @@
       "/var/lib/nixos"
 
       # Network state
-      "/var/lib/kea" # DHCP leases
+      "/var/lib/private/kea" # DHCP leases (DynamicUser puts it here)
       "/var/lib/unbound" # DNS state and DNSSEC root key
       "/var/lib/fail2ban" # fail2ban state
       "/etc/NetworkManager/system-connections" # If using NetworkManager
