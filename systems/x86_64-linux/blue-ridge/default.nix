@@ -118,7 +118,7 @@ with lib.campground; {
       fail2ban = {
         enable = true;
         maxRetry = 3;
-        bantime = 3600;
+        banTime = 3600;
       };
     };
 

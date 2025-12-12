@@ -79,7 +79,6 @@ in {
     # Disable unnecessary services
     services.avahi.enable = mkForce false;
     services.printing.enable = mkForce false;
-    sound.enable = mkForce false;
     # hardware.pulseaudio.enable = mkForce false;
 
     # SSH configuration - LAN only
@@ -93,9 +92,6 @@ in {
         PermitRootLogin = "no";
         KbdInteractiveAuthentication = false;
         X11Forwarding = false;
-
-        # Performance
-        UseDNS = false;
 
         # Only allow from LAN
         ListenAddress = routerCfg.lan.gateway;
@@ -138,7 +134,7 @@ in {
       bantime = "${toString cfg.fail2ban.banTime}";
 
       jails = {
-        sshd = {
+        sshd.settings = {
           enabled = true;
           filter = "sshd";
           action = "nftables-allports";
