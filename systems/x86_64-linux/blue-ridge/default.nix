@@ -73,7 +73,8 @@ with lib.campground; {
       enableIPv6 = false;
 
       firewall = {
-        allowPing = false;
+        # allowPing = false;
+        allowPing = true;
         extraRules = "";
       };
     };

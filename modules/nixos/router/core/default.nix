@@ -150,7 +150,9 @@ in {
           "30-lan-bridge" = {
             matchConfig.Name = "br-lan";
             networkConfig = {
-              Address = cfg.lan.gateway;
+              Address = "${cfg.lan.gateway}/${
+                last (splitString "/" cfg.lan.subnet)
+              }";
               DHCPServer = false; # Using Kea instead
               IPv6SendRA = mkIf cfg.enableIPv6 true;
             };
