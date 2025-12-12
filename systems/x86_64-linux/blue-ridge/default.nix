@@ -50,6 +50,78 @@ with lib.campground; {
       };
     };
 
+    # Router configuration - MicroVMs on LAN, not WAN
+    router = {
+      enable = true;
+
+      wan = {
+        interface = "enp1s0";
+        dhcp = true;
+      };
+
+      lan = {
+        interfaces = ["enp2s0" "enp3s0" "enp4s0"];
+        subnet = "192.168.1.0/24";
+        gateway = "192.168.1.1";
+      };
+
+      dns = {
+        forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
+        enableDNSSEC = true;
+      };
+
+      enableIPv6 = false;
+
+      firewall = {
+        allowPing = false;
+        extraRules = "";
+      };
+    };
+
+    # DHCP server for LAN
+    router.dhcp = {
+      enable = true;
+      poolStart = "192.168.1.100";
+      poolEnd = "192.168.1.200";
+      leaseTime = 86400; # 24 hours
+
+      staticLeases = [
+        # MicroVMs get static IPs for consistency
+        {
+          mac = "02:00:00:00:00:10";
+          ip = "192.168.1.10";
+          hostname = "vault";
+        }
+        {
+          mac = "02:00:00:00:00:11";
+          ip = "192.168.1.11";
+          hostname = "websites";
+        }
+        {
+          mac = "02:00:00:00:00:20";
+          ip = "192.168.1.20";
+          hostname = "pub-traefik";
+        }
+        {
+          mac = "02:00:00:00:00:21";
+          ip = "192.168.1.21";
+          hostname = "lan-traefik";
+        }
+      ];
+    };
+
+    # Router security hardening
+    router.security = {
+      enable = true;
+      enableSSH = true;
+      sshPort = 22;
+      fail2ban = {
+        enable = true;
+        maxRetry = 3;
+        bantime = 3600;
+      };
+    };
+
     # User configuration
     user = {
       name = "admin";
@@ -113,36 +185,20 @@ with lib.campground; {
     };
   };
 
-  # Network configuration - Use systemd-networkd for bridge (microvm.nix recommended setup)
+  # Network configuration is handled by campground.router module
+  # The router module will:
+  # - Configure WAN on enp1s0 (DHCP from ISP)
+  # - Create br-lan bridge with enp2s0, enp3s0, enp4s0
+  # - Run DHCP server for LAN (192.168.1.0/24)
+  # - Run Unbound DNS resolver
+  # - Configure nftables firewall with NAT
   networking.useNetworkd = true;
 
-  systemd.network = {
-    enable = true;
-
-    # Bridge device
-    netdevs."br0" = {
-      netdevConfig = {
-        Name = "br0";
-        Kind = "bridge";
-      };
-    };
-
-    # Physical interface + all VM TAP interfaces (vm-*) -> bridge
-    networks."10-lan" = {
-      matchConfig.Name = ["enp2s0" "vm-*"];
-      networkConfig = {
-        Bridge = "br0";
-      };
-    };
-
-    # Bridge network - gets IP via DHCP
-    networks."10-lan-bridge" = {
-      matchConfig.Name = "br0";
-      networkConfig = {
-        DHCP = "yes";
-      };
-      linkConfig.RequiredForOnline = "routable";
-    };
+  # Add MicroVM TAP interfaces to the LAN bridge
+  systemd.network.networks."30-lan-vm-taps" = {
+    matchConfig.Name = "vm-*";
+    networkConfig.Bridge = "br-lan";
+    linkConfig.RequiredForOnline = "enslaved";
   };
 
   # State version
