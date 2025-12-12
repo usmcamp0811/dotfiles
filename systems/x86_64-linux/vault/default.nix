@@ -61,11 +61,6 @@ with lib.campground; {
         mountPoint = "/var/lib/vault";
         size = 10240; # 10GB for vault data
       }
-      # {
-      #   image = "nix-rw-store.img";
-      #   mountPoint = "/nix/.rw-store";
-      #   size = 10240; # 10GB for writable nix store overlay
-      # }
     ];
   };
 
