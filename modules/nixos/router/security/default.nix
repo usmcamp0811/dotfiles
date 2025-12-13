@@ -82,50 +82,24 @@ in {
     # hardware.pulseaudio.enable = mkForce false;
 
     # SSH configuration - LAN only
+    # Note: We extend the campground.services.openssh configuration
     services.openssh = mkIf cfg.enableSSH {
-      enable = true;
-      ports = [cfg.sshPort];
-
       settings = {
-        # Security settings
-        PasswordAuthentication = false;
-        PermitRootLogin = "no";
-        KbdInteractiveAuthentication = false;
-        X11Forwarding = false;
-
-        # Only allow from LAN
-        ListenAddress = routerCfg.lan.gateway;
+        # Only allow from LAN interface
+        ListenAddress = mkDefault routerCfg.lan.gateway;
       };
 
       # Modern key exchange algorithms
-      extraConfig = ''
-        # Only allow modern ciphers
+      extraConfig = mkAfter ''
+        # Only allow modern ciphers for router
         Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
         MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
         KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
       '';
     };
 
-    # Firewall for SSH (LAN only)
-    # merged networking.firewall.interfaces
-    networking.firewall.interfaces =
-      {
-        # SSH rule for br-lan
-        "br-lan" = mkIf cfg.enableSSH {
-          allowedTCPPorts = [cfg.sshPort];
-        };
-      }
-      # merge in dynamically generated allowedServices rules
-      // (listToAttrs (
-        map (
-          service:
-            nameValuePair service.interface {
-              allowedTCPPorts = mkIf (service.protocol == "tcp") [service.port];
-              allowedUDPPorts = mkIf (service.protocol == "udp") [service.port];
-            }
-        )
-        cfg.allowedServices
-      ));
+    # SSH firewall rules are handled in the nftables ruleset in router.core module
+    # The br-lan interface is allowed full access to the router
 
     # fail2ban for SSH protection
     services.fail2ban = mkIf (cfg.enableSSH && cfg.fail2ban.enable) {

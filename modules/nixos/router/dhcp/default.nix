@@ -168,10 +168,7 @@ in {
       };
     };
 
-    # Open DHCP ports on LAN
-    networking.firewall.interfaces."br-lan" = {
-      allowedUDPPorts = [67 68];
-    };
+    # DHCP ports are opened in the nftables ruleset in router.core module
 
     # Create a convenient script to show current DHCP leases
     environment.systemPackages = [

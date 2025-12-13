@@ -170,6 +170,9 @@ in {
         ));
     };
 
+    # Disable standard firewall - we're using nftables
+    networking.firewall.enable = false;
+
     # Basic firewall with nftables
     networking.nftables = {
       enable = true;
@@ -186,6 +189,16 @@ in {
 
             # Allow LAN to router
             iifname "br-lan" accept
+
+            # Allow DHCP
+            udp dport {67, 68} accept
+
+            # Allow DNS
+            tcp dport 53 accept
+            udp dport 53 accept
+
+            # Allow SSH from LAN (handled by iifname br-lan accept above, but explicit)
+            # iifname "br-lan" tcp dport 22 accept
 
             # Allow ping if enabled
             ${optionalString cfg.firewall.allowPing ''
@@ -269,12 +282,6 @@ in {
           }
         ];
       };
-    };
-
-    # Open DNS port on LAN
-    networking.firewall.interfaces."br-lan" = {
-      allowedTCPPorts = [53];
-      allowedUDPPorts = [53];
     };
   };
 }
