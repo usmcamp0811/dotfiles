@@ -10,10 +10,10 @@ with lib;
 with lib.campground; let
   cfg = config.campground.cli.aliases.root;
 
-  # Generated file content for aliases
+  # Generated file content for custom aliases
   aliasesFile =
     pkgs.writeText "aliases.shrc"
-    "${convertAlias config.campground.cli.aliases}";
+    "${convertAlias cfg.aliases}";
 
   default-aliases = pkgs.writeText "default-aliases.shrc" (convertAlias {
     ".." = "cd ..";
@@ -41,8 +41,7 @@ with lib.campground; let
     kill = ''
       [ $# -eq 0 ] && echo 'You need to specify whom to kill.' && return
             /usr/bin/kill $@'';
-    update-user = "nix run /config/#homeConfigurations.${config.home.username}@ldap.activationPackage";
-    update-sys = "sudo sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'";
+    update-sys = "sh -c 'nixos-rebuild switch --flake /config/#$(hostname) |& nom'";
     get-approle = ''
       local role_id=$(sudo cat /var/lib/vault/$(hostname)/role-id)
       local secret_id=$(sudo cat /var/lib/vault/$(hostname)/secret-id)
@@ -88,6 +87,11 @@ in {
   options.campground.cli.aliases = with types; {
     root = {
       enable = mkEnableOption "Shell aliases for root user";
+      aliases = mkOption {
+        type = attrsOf str;
+        default = {};
+        description = "A set of custom command aliases to add for root user.";
+      };
     };
   };
 
