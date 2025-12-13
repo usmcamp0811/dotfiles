@@ -22,7 +22,7 @@ with lib.campground; {
   # users.mutableUsers = true;
   # Use campground modules for configuration
   campground = {
-    cli.aliases = enabled;
+    cli.aliases.root = enabled;
     suites = {
       common = enabled;
       observability = enabled;

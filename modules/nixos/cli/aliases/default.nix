@@ -8,6 +8,8 @@
 }:
 with lib;
 with lib.campground; let
+  cfg = config.campground.cli.aliases.root;
+
   # Generated file content for aliases
   aliasesFile =
     pkgs.writeText "aliases.shrc"
@@ -83,18 +85,20 @@ with lib.campground; let
     '';
   });
 in {
-  options.campground.cli.aliases = with types;
-    mkOption {
-      type = attrsOf str;
-      default = {};
-      description = "A set of command aliases to set.";
+  options.campground.cli.aliases = with types; {
+    root = {
+      enable = mkEnableOption "Shell aliases for root user";
     };
+  };
 
-  config = {
-    # Source the alias file in the shell configuration
-    programs.zsh.initContent = lib.mkAfter ''
-      source ${default-aliases}
-      source ${aliasesFile}
+  config = mkIf cfg.enable {
+    # Source the alias files in the shell configuration for root user only
+    programs.zsh.interactiveShellInit = lib.mkAfter ''
+      # Only apply aliases for root user
+      if [ "$USER" = "root" ]; then
+        source ${default-aliases}
+        source ${aliasesFile}
+      fi
     '';
   };
 }
