@@ -107,8 +107,8 @@ with lib.campground; {
       email = "admin@aicampground.com";
       extraGroups = [];
       uid = 1000;
-      initialPassword = null; # Don't use initialPassword when using hashedPasswordFile
-      hashedPasswordFile = "/persist/system/users/admin";
+      # initialPassword = null; # Don't use initialPassword when using hashedPasswordFile
+      # hashedPasswordFile = "/persist/system/users/admin";
     };
   };
 
