@@ -57,8 +57,6 @@
 
       "/var/lib/vault/vault/role-id"
       "/var/lib/vault/vault/secret-id"
-
-      "/users/admin"
     ];
 
     users.admin = {

@@ -108,7 +108,7 @@ with lib.campground; {
       extraGroups = [];
       uid = 1000;
       initialPassword = null; # Don't use initialPassword when using hashedPasswordFile
-      hashedPasswordFile = "/users/admin";
+      hashedPasswordFile = "/persist/system/users/admin";
     };
   };
 
