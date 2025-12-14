@@ -58,47 +58,46 @@ with lib.campground; {
     ############################################################
     # Router configuration (single, consolidated)
     ############################################################
-    # router = {
-    #   enable = true;
-    #
-    #   # WAN: upstream network
-    #   wan = {
-    #     interface = "enp1s0";
-    #     dhcp = true;
-    #   };
-    #
-    #   # LAN: bridge + gateway
-    #   lan = {
-    #     interfaces = ["enp2s0" "enp3s0" "enp4s0"];
-    #     gateway = "192.169.1.1";
-    #     prefixLength = 24;
-    #   };
-    #
-    #   # DHCP server for LAN clients
-    #   dhcp = {
-    #     enable = true;
-    #     rangeStart = "192.169.1.50";
-    #     rangeEnd = "192.169.1.200";
-    #     leaseTime = "12h";
-    #   };
-    #
-    #   dns = {
-    #     enable = true;
-    #     forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
-    #   };
-    # };
+    router = {
+      enable = true;
 
-    # Router security hardening
-    # router.security = {
-    #   enable = true;
-    #   enableSSH = true;
-    #   sshPort = 22;
-    #   fail2ban = {
-    #     enable = true;
-    #     maxRetry = 3;
-    #     banTime = 3600;
-    #   };
-    # };
+      # WAN: upstream network
+      wan = {
+        interface = "enp1s0";
+        dhcp = true;
+      };
+
+      # LAN: bridge + gateway
+      lan = {
+        interfaces = ["enp2s0" "enp3s0" "enp4s0"];
+        gateway = "192.169.1.1";
+        prefixLength = 24;
+      };
+
+      # DHCP server for LAN clients
+      dhcp = {
+        enable = true;
+        rangeStart = "192.169.1.50";
+        rangeEnd = "192.169.1.200";
+        leaseTime = "12h";
+      };
+
+      dns = {
+        enable = true;
+        forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
+      };
+      # Router security hardening
+      security = {
+        enable = true;
+        enableSSH = true;
+        sshPort = 22;
+        fail2ban = {
+          enable = true;
+          maxRetry = 3;
+          banTime = 3600;
+        };
+      };
+    };
 
     # User configuration
     user = {
@@ -117,12 +116,12 @@ with lib.campground; {
   # services.resolved.enable = lib.mkForce false;
 
   # Static DHCP leases for MicroVMs (via dnsmasq)
-  # services.dnsmasq.settings.dhcp-host = [
-  #   "02:00:00:00:00:10,192.169.1.10,vault"
-  #   "02:00:00:00:00:11,192.169.1.11,websites"
-  #   "02:00:00:00:00:20,192.169.1.20,pub-traefik"
-  #   "02:00:00:00:00:21,192.169.1.21,lan-traefik"
-  # ];
+  services.dnsmasq.settings.dhcp-host = [
+    "02:00:00:00:00:10,192.169.1.10,vault"
+    "02:00:00:00:00:11,192.169.1.11,websites"
+    "02:00:00:00:00:20,192.169.1.20,pub-traefik"
+    "02:00:00:00:00:21,192.169.1.21,lan-traefik"
+  ];
 
   ############################################################
   # MicroVM host configuration
