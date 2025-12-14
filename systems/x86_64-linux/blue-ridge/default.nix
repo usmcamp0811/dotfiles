@@ -114,6 +114,10 @@ with lib.campground; {
     };
   };
 
+  # Disable conflicting DNS services - dnsmasq handles both DHCP and DNS
+  services.unbound.enable = lib.mkForce false;
+  services.resolved.enable = lib.mkForce false;
+
   # Static DHCP leases for MicroVMs (via dnsmasq)
   services.dnsmasq.settings.dhcp-host = [
     "02:00:00:00:00:10,192.169.1.10,vault"
