@@ -69,14 +69,12 @@ with lib.campground; {
 
       # LAN: bridge + gateway
       lan = {
-        # Based on your ip a screenshot, enp4s0 is the active LAN port.
-        # Keep only enp4s0 here unless you *know* enp2s0/enp3s0 are cabled.
-        interfaces = ["enp4s0"];
+        interfaces = ["enp2s0" "enp3s0" "enp4s0"];
         gateway = "192.169.1.1";
         prefixLength = 24;
       };
 
-      # DHCP server for LAN clients (Butler)
+      # DHCP server for LAN clients
       dhcp = {
         enable = true;
         rangeStart = "192.169.1.50";
