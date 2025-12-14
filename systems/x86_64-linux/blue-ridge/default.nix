@@ -82,59 +82,23 @@ with lib.campground; {
         rangeStart = "192.168.1.50";
         rangeEnd = "192.168.1.200";
         leaseTime = "12h";
-
-        # If your campground.router module supports static leases, keep them.
-        # If it expects different field names, adjust here to match your module.
-        staticLeases = [
-          {
-            mac = "02:00:00:00:00:10";
-            ip = "192.168.1.10";
-            hostname = "vault";
-          }
-          {
-            mac = "02:00:00:00:00:11";
-            ip = "192.168.1.11";
-            hostname = "websites";
-          }
-          {
-            mac = "02:00:00:00:00:20";
-            ip = "192.168.1.20";
-            hostname = "pub-traefik";
-          }
-          {
-            mac = "02:00:00:00:00:21";
-            ip = "192.168.1.21";
-            hostname = "lan-traefik";
-          }
-        ];
       };
 
       dns = {
-        # Keep your forwarders
-        forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
-
-        # If your module supports it, keep it. Otherwise remove.
-        enableDNSSEC = true;
-      };
-
-      # Keep disabled unless you’ve built v6 in your module end-to-end
-      enableIPv6 = false;
-
-      firewall = {
-        allowPing = true;
-        extraRules = "";
-      };
-
-      # Router security hardening (unchanged)
-      security = {
         enable = true;
-        enableSSH = true;
-        sshPort = 22;
-        fail2ban = {
-          enable = true;
-          maxRetry = 3;
-          banTime = 3600;
-        };
+        forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
+      };
+    };
+
+    # Router security hardening
+    router.security = {
+      enable = true;
+      enableSSH = true;
+      sshPort = 22;
+      fail2ban = {
+        enable = true;
+        maxRetry = 3;
+        banTime = 3600;
       };
     };
 
@@ -149,6 +113,14 @@ with lib.campground; {
       hashedPasswordFile = "/users/admin";
     };
   };
+
+  # Static DHCP leases for MicroVMs (via dnsmasq)
+  services.dnsmasq.settings.dhcp-host = [
+    "02:00:00:00:00:10,192.168.1.10,vault"
+    "02:00:00:00:00:11,192.168.1.11,websites"
+    "02:00:00:00:00:20,192.168.1.20,pub-traefik"
+    "02:00:00:00:00:21,192.168.1.21,lan-traefik"
+  ];
 
   ############################################################
   # MicroVM host configuration

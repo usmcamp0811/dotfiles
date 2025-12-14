@@ -128,9 +128,9 @@ in {
 
     # Additional kernel hardening
     boot.kernel.sysctl = {
-      # Disable IPv6 if not enabled
-      "net.ipv6.conf.all.disable_ipv6" = mkIf (!routerCfg.enableIPv6) 1;
-      "net.ipv6.conf.default.disable_ipv6" = mkIf (!routerCfg.enableIPv6) 1;
+      # Disable IPv6 (router core doesn't support IPv6 yet)
+      "net.ipv6.conf.all.disable_ipv6" = 1;
+      "net.ipv6.conf.default.disable_ipv6" = 1;
 
       # Additional security
       "kernel.kptr_restrict" = 2;
