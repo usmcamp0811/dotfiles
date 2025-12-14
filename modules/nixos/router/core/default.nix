@@ -160,18 +160,19 @@ in {
         {
           interface = cfg.lan.bridgeName;
           bind-interfaces = true;
-
+        }
+        // (lib.optionalAttrs cfg.dhcp.enable {
           # DHCP (Butler needs this)
-          dhcp-range = mkIf cfg.dhcp.enable [
+          dhcp-range = [
             "${cfg.dhcp.rangeStart},${cfg.dhcp.rangeEnd},${cfg.dhcp.leaseTime}"
           ];
 
-          dhcp-option = mkIf cfg.dhcp.enable [
+          dhcp-option = [
             "option:router,${cfg.lan.gateway}"
             "option:dns-server,${cfg.lan.gateway}"
           ];
-        }
-        // (mkIf cfg.dns.enable {
+        })
+        // (lib.optionalAttrs cfg.dns.enable {
           no-resolv = true;
           server = cfg.dns.forwarders;
         });
