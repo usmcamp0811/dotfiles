@@ -85,6 +85,7 @@ with lib.campground; {
         enable = true;
         forwarders = [ "1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4" ];
       };
+
       # Router security hardening
       security = {
         enable = true;
@@ -96,6 +97,16 @@ with lib.campground; {
           banTime = 3600;
         };
       };
+
+      # Port forwarding (declarative)
+      portForwards = [
+        {
+          port = 443;
+          destination = "192.169.1.20";
+          protocol = "tcp";
+          description = "HTTPS to pub-traefik";
+        }
+      ];
     };
 
     # User configuration

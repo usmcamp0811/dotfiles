@@ -226,6 +226,46 @@ systemd-networkd → Creates bridge and assigns interfaces
    nftables → Firewall and NAT
 ```
 
+## Port Forwarding
+
+The router module provides a clean, declarative way to configure port forwarding:
+
+```nix
+campground.router.portForwards = [
+  {
+    port = 443;
+    destination = "192.168.1.100";
+    protocol = "tcp";
+    description = "HTTPS to web server";
+  }
+  {
+    port = 25565;
+    destination = "192.168.1.50";
+    destinationPort = 25565;  # Optional: forward to different port
+    protocol = "both";         # tcp, udp, or both
+    description = "Minecraft server";
+  }
+  {
+    port = 80;
+    destination = "192.168.1.100";
+    # protocol defaults to "tcp"
+    # destinationPort defaults to same as port
+  }
+];
+```
+
+### Port Forward Options
+
+Each port forward has the following options:
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `port` | int | Yes | External port on WAN to forward |
+| `destination` | string | Yes | Internal IP to forward to |
+| `destinationPort` | int? | No | Internal port (defaults to `port`) |
+| `protocol` | enum | No | "tcp", "udp", or "both" (default: "tcp") |
+| `description` | string | No | Human-readable description |
+
 ## Module Options Reference
 
 ### `campground.router.*`
@@ -239,6 +279,7 @@ systemd-networkd → Creates bridge and assigns interfaces
 | `lan.interfaces` | list | - | LAN interfaces to bridge |
 | `lan.subnet` | string | - | LAN subnet (CIDR) |
 | `lan.gateway` | string | - | Router IP on LAN |
+| `portForwards` | list | [] | Declarative port forwards |
 | `enableIPv6` | bool | false | Enable IPv6 routing |
 | `dns.forwarders` | list | [1.1.1.1...] | DNS forwarders |
 | `dns.enableDNSSEC` | bool | true | Enable DNSSEC |
@@ -273,19 +314,14 @@ systemd-networkd → Creates bridge and assigns interfaces
 
 ### Adding Custom Firewall Rules
 
+For most port forwarding needs, use the declarative `portForwards` option (see Port Forwarding section above). For advanced custom rules:
+
 ```nix
 campground.router.firewall.extraRules = ''
-  table inet nat {
-    chain prerouting {
-      # Port forward HTTP to internal server
-      iifname "${cfg.wan.interface}" tcp dport 80 dnat to 192.168.1.100:80
-    }
-  }
-
   table inet filter {
-    chain forward {
-      # Allow forwarded HTTP
-      iifname "${cfg.wan.interface}" oifname "br-lan" ip daddr 192.168.1.100 tcp dport 80 ct state new accept
+    chain input {
+      # Allow custom service on router itself
+      tcp dport 8080 accept
     }
   }
 '';
@@ -345,7 +381,7 @@ campground.router.firewall.extraRules = ''
 1. **Always use version control** - Keep your router config in Git
 2. **Test in a VM first** - Use `nixos-rebuild build-vm` to test changes
 3. **Keep static leases organized** - Use descriptive hostnames and descriptions
-4. **Document port forwards** - Comment your firewall rules
+4. **Use declarative port forwards** - Use `portForwards` option with descriptions
 5. **Regular backups** - Backup `/etc/nixos` and any secret files
 6. **Monitor logs** - Check `journalctl -f` periodically
 7. **Update regularly** - Keep the system updated for security

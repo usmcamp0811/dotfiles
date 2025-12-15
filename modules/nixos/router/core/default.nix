@@ -7,6 +7,30 @@
 with lib;
 with lib.campground; let
   cfg = config.campground.router;
+
+  # Generate NAT DNAT rules for port forwards
+  mkPortForwardNatRules = portForwards:
+    concatMapStrings (pf: let
+      destPort = if pf.destinationPort != null then pf.destinationPort else pf.port;
+      protocols = if pf.protocol == "both" then ["tcp" "udp"] else [pf.protocol];
+      comment = optionalString (pf.description != "") "# ${pf.description}\n      ";
+    in
+      concatMapStrings (proto: ''
+        ${comment}iifname "${cfg.wan.interface}" ${proto} dport ${toString pf.port} dnat to ${pf.destination}:${toString destPort}
+      '') protocols
+    ) portForwards;
+
+  # Generate firewall forward rules for port forwards
+  mkPortForwardFilterRules = portForwards:
+    concatMapStrings (pf: let
+      destPort = if pf.destinationPort != null then pf.destinationPort else pf.port;
+      protocols = if pf.protocol == "both" then ["tcp" "udp"] else [pf.protocol];
+      comment = optionalString (pf.description != "") "# ${pf.description}\n        ";
+      protoList = if length protocols > 1 then "{${concatStringsSep ", " protocols}}" else head protocols;
+    in ''
+      ${comment}iifname "${cfg.wan.interface}" oifname "${cfg.lan.bridgeName}" ip daddr ${pf.destination} meta l4proto ${protoList} th dport ${toString destPort} ct state new accept
+    ''
+    ) portForwards;
 in {
   options.campground.router = {
     enable = mkEnableOption "campground router core (WAN+LAN bridge, DHCP, NAT)";
@@ -97,9 +121,95 @@ in {
         description = "Upstream DNS servers";
       };
     };
+
+    portForwards = mkOption {
+      type = types.listOf (types.submodule {
+        options = {
+          port = mkOption {
+            type = types.port;
+            description = "External port to forward from WAN";
+            example = 443;
+          };
+
+          destination = mkOption {
+            type = types.str;
+            description = "Internal IP address to forward to";
+            example = "192.168.1.100";
+          };
+
+          destinationPort = mkOption {
+            type = types.nullOr types.port;
+            default = null;
+            description = "Internal port to forward to (defaults to same as external port)";
+            example = 8080;
+          };
+
+          protocol = mkOption {
+            type = types.enum ["tcp" "udp" "both"];
+            default = "tcp";
+            description = "Protocol to forward (tcp, udp, or both)";
+          };
+
+          description = mkOption {
+            type = types.str;
+            default = "";
+            description = "Description of this port forward";
+            example = "HTTPS to web server";
+          };
+        };
+      });
+      default = [];
+      description = "Declarative port forwarding rules";
+      example = literalExpression ''
+        [
+          {
+            port = 443;
+            destination = "192.168.1.100";
+            protocol = "tcp";
+            description = "HTTPS to web server";
+          }
+          {
+            port = 25565;
+            destination = "192.168.1.50";
+            destinationPort = 25565;
+            protocol = "both";
+            description = "Minecraft server";
+          }
+        ]
+      '';
+    };
+
+    firewall = {
+      allowPing = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Allow ICMP ping from WAN";
+      };
+
+      extraRules = mkOption {
+        type = types.lines;
+        default = "";
+        description = "Extra nftables rules to append to the ruleset (for advanced use cases)";
+        example = ''
+          table inet filter {
+            chain input {
+              tcp dport 8080 accept
+            }
+          }
+        '';
+      };
+    };
   };
 
   config = mkIf cfg.enable {
+    ############################################################
+    # Port forwarding rule generation
+    ############################################################
+    assertions = map (pf: {
+      assertion = pf.destinationPort == null || pf.destinationPort > 0;
+      message = "Port forward destination port must be > 0";
+    }) cfg.portForwards;
+
     ############################################################
     # Forwarding (router behavior)
     ############################################################
@@ -199,6 +309,11 @@ in {
           udp dport {67, 68} accept
           tcp dport 53 accept
           udp dport 53 accept
+
+          ${optionalString cfg.firewall.allowPing ''
+          # Allow ICMP ping from WAN
+          ip protocol icmp icmp type echo-request accept
+          ''}
         }
 
         chain forward {
@@ -208,15 +323,28 @@ in {
 
           # LAN -> WAN allowed
           iifname "${cfg.lan.bridgeName}" oifname "${cfg.wan.interface}" accept
+
+          ${optionalString (cfg.portForwards != []) ''
+          # Port forwarding rules
+          ${mkPortForwardFilterRules cfg.portForwards}''}
         }
       }
 
       table ip nat {
+        chain prerouting {
+          type nat hook prerouting priority -100;
+          ${optionalString (cfg.portForwards != []) ''
+          # Port forwarding DNAT rules
+          ${mkPortForwardNatRules cfg.portForwards}''}
+        }
+
         chain postrouting {
           type nat hook postrouting priority 100;
           oifname "${cfg.wan.interface}" masquerade
         }
       }
+
+      ${cfg.firewall.extraRules}
     '';
   };
 }
