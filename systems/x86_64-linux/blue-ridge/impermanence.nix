@@ -27,7 +27,7 @@
       "/etc/ssh"
 
       # MicroVM persistent storage
-      "/var/lib/microvms" # All VM volumes and state
+      # "/var/lib/microvms" # All VM volumes and state
 
       # MicroVM writable nix-stores (separate from /var/lib/microvms to avoid conflicts)
       "/persist/vm-stores/vault/nix-store"
