@@ -34,6 +34,7 @@
       "/persist/vm-stores/websites/nix-store"
       "/persist/vm-stores/pub-traefik/nix-store"
       "/persist/vm-stores/lan-traefik/nix-store"
+      "/persist/vm-stores/adguard/nix-store"
     ];
 
     files = [
@@ -57,6 +58,9 @@
 
       "/var/lib/vault/vault/role-id"
       "/var/lib/vault/vault/secret-id"
+
+      "/var/lib/vault/adguard/role-id"
+      "/var/lib/vault/adguard/secret-id"
     ];
 
     users.admin = {

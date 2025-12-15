@@ -141,6 +141,7 @@ with lib.campground; {
     "02:00:00:00:00:11,192.169.1.11,websites"
     "02:00:00:00:00:20,192.169.1.20,pub-traefik"
     "02:00:00:00:00:21,192.169.1.21,lan-traefik"
+    "02:00:00:00:00:30,192.169.1.30,adguard"
   ];
 
   ############################################################
@@ -171,6 +172,12 @@ with lib.campground; {
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
     lan-traefik = {
+      flake = inputs.self;
+      autostart = true;
+      restartIfChanged = true;
+      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
+    };
+    adguard = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
