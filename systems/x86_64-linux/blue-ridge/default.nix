@@ -85,6 +85,8 @@ with lib.campground; {
       dns = {
         enable = true;
         forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
+        enableDNSSEC = true;
+        dnssecCheckUnsigned = true;
       };
 
       # Router security hardening

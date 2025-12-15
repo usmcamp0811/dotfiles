@@ -120,6 +120,18 @@ in {
         default = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
         description = "Upstream DNS servers";
       };
+
+      enableDNSSEC = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Enable DNSSEC validation";
+      };
+
+      dnssecCheckUnsigned = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Check unsigned DNSSEC replies and treat them as insecure";
+      };
     };
 
     portForwards = mkOption {
@@ -285,6 +297,11 @@ in {
         // (lib.optionalAttrs cfg.dns.enable {
           no-resolv = true;
           server = cfg.dns.forwarders;
+        })
+        // (lib.optionalAttrs (cfg.dns.enable && cfg.dns.enableDNSSEC) {
+          # DNSSEC validation
+          dnssec = true;
+          dnssec-check-unsigned = cfg.dns.dnssecCheckUnsigned;
         });
     };
 

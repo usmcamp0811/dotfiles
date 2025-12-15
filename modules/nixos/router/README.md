@@ -226,6 +226,65 @@ systemd-networkd → Creates bridge and assigns interfaces
    nftables → Firewall and NAT
 ```
 
+## DNSSEC Configuration
+
+The router module supports DNSSEC validation via dnsmasq. DNSSEC is **enabled by default** to provide cryptographic authentication of DNS responses.
+
+### Basic Configuration
+
+```nix
+campground.router.dns = {
+  enable = true;
+  forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
+  enableDNSSEC = true;  # Default: enabled
+  dnssecCheckUnsigned = true;  # Default: check unsigned zones
+};
+```
+
+### Options
+
+- **enableDNSSEC** - Enable DNSSEC validation (default: `true`)
+  - When enabled, dnsmasq validates DNSSEC signatures
+  - Invalid signatures will cause queries to fail (SERVFAIL)
+  - Protects against DNS spoofing and cache poisoning
+
+- **dnssecCheckUnsigned** - Check unsigned zones (default: `true`)
+  - Validates that unsigned replies are genuinely in unsigned zones
+  - Prevents downgrade attacks
+  - Recommended to keep enabled for security
+
+### Recommended DNS Forwarders with DNSSEC Support
+
+```nix
+dns.forwarders = [
+  "1.1.1.1"      # Cloudflare (DNSSEC enabled)
+  "1.0.0.1"      # Cloudflare secondary
+  "8.8.8.8"      # Google Public DNS (DNSSEC enabled)
+  "8.8.4.4"      # Google secondary
+  "9.9.9.9"      # Quad9 (DNSSEC enabled, malware blocking)
+];
+```
+
+### Testing DNSSEC
+
+After enabling DNSSEC, test it works correctly:
+
+```bash
+# Should succeed (valid DNSSEC)
+dig @192.168.1.1 dnssec-deployment.org
+
+# Should fail (intentionally broken DNSSEC)
+dig @192.168.1.1 dnssec-failed.org
+```
+
+### Disabling DNSSEC (Not Recommended)
+
+If you need to disable DNSSEC for troubleshooting:
+
+```nix
+campground.router.dns.enableDNSSEC = false;
+```
+
 ## Port Forwarding
 
 The router module provides a clean, declarative way to configure port forwarding:
@@ -280,9 +339,10 @@ Each port forward has the following options:
 | `lan.subnet` | string | - | LAN subnet (CIDR) |
 | `lan.gateway` | string | - | Router IP on LAN |
 | `portForwards` | list | [] | Declarative port forwards |
-| `enableIPv6` | bool | false | Enable IPv6 routing |
+| `dns.enable` | bool | true | Enable DNS server |
 | `dns.forwarders` | list | [1.1.1.1...] | DNS forwarders |
-| `dns.enableDNSSEC` | bool | true | Enable DNSSEC |
+| `dns.enableDNSSEC` | bool | true | Enable DNSSEC validation |
+| `dns.dnssecCheckUnsigned` | bool | true | Check unsigned DNSSEC replies |
 | `firewall.allowPing` | bool | false | Allow WAN ping |
 | `firewall.extraRules` | string | "" | Extra nftables rules |
 
