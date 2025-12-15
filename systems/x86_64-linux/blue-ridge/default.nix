@@ -1,7 +1,8 @@
-{ lib
-, pkgs
-, inputs
-, ...
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
 }:
 with lib;
 with lib.campground; {
@@ -68,7 +69,7 @@ with lib.campground; {
 
       # LAN: bridge + gateway
       lan = {
-        interfaces = [ "enp2s0" "enp3s0" "enp4s0" ];
+        interfaces = ["enp2s0" "enp3s0" "enp4s0"];
         gateway = "192.169.1.1";
         prefixLength = 24;
       };
@@ -83,7 +84,7 @@ with lib.campground; {
 
       dns = {
         enable = true;
-        forwarders = [ "1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4" ];
+        forwarders = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
       };
 
       # Router security hardening
@@ -106,6 +107,13 @@ with lib.campground; {
           protocol = "tcp";
           description = "HTTPS to pub-traefik";
         }
+        {
+          port = 80;
+          destination = "192.169.1.20";
+          destinationPort = 8080;
+          protocol = "tcp";
+          description = "HTTPS to pub-traefik";
+        }
       ];
     };
 
@@ -114,7 +122,7 @@ with lib.campground; {
       name = "admin";
       fullName = "System Administrator";
       email = "admin@aicampground.com";
-      extraGroups = [ ];
+      extraGroups = [];
       uid = 1000;
       # initialPassword = null; # Don't use initialPassword when using hashedPasswordFile
       # hashedPasswordFile = "/persist/system/users/admin";
