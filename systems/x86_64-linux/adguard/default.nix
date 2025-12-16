@@ -67,6 +67,7 @@ with lib.campground; {
   };
 
   networking.interfaces.eth0.useDHCP = true;
+  services.resolved.enable = false;
 
   # Using read-only host /nix/store share
   # Disable nix store optimization in VMs to save resources
