@@ -226,21 +226,28 @@ in {
           {
             hostname = "websites";
             public_key = "Voh9RXtQ0F8UIKLW8AGbith/9O1yizMhrcsCECY2ZjU=";
-            environment = "lan";
+            environment = "microvms";
             flake_name = "dotfiles";
             deployment_policy = "auto_latest";
           }
           {
             hostname = "pub-traefik";
             public_key = "ZYuA3IuEYyrJEwPy1RcS1Y+do0W835LF7K8S7USl9f8=";
-            environment = "lan";
+            environment = "microvms";
             flake_name = "dotfiles";
             deployment_policy = "auto_latest";
           }
           {
             hostname = "lan-traefik";
             public_key = "PJXYcG8Av5HtygYdUeg83QFBe06TQJnqjGyT43w+ujA=";
-            environment = "lan";
+            environment = "microvms";
+            flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
+          }
+          {
+            hostname = "adguard";
+            public_key = "86hZY01AH2oXqR6irsjl0nZq8aexWwiOvF17FSxMc4w=";
+            environment = "microvms";
             flake_name = "dotfiles";
             deployment_policy = "auto_latest";
           }
