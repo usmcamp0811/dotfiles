@@ -111,8 +111,8 @@ with lib.campground; {
         }
         {
           port = 80;
-          destination = "192.169.1.20";
-          destinationPort = 8080;
+          destination = "192.169.1.30";
+          destinationPort = 3000;
           protocol = "tcp";
           description = "HTTPS to pub-traefik";
         }
