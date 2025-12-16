@@ -121,6 +121,25 @@ with lib.campground; {
     };
   };
 
+  # Override systemd service to work with persistent volume
+  # Disable DynamicUser since we have a persistent volume mounted
+  systemd.services.adguardhome = {
+    serviceConfig = {
+      DynamicUser = lib.mkForce false;
+      User = "adguardhome";
+      Group = "adguardhome";
+      StateDirectory = lib.mkForce "AdGuardHome";
+    };
+  };
+
+  # Create static user and group for AdGuard Home
+  users.users.adguardhome = {
+    isSystemUser = true;
+    group = "adguardhome";
+    home = "/var/lib/AdGuardHome";
+  };
+  users.groups.adguardhome = {};
+
   # Open firewall ports
   networking.firewall.allowedTCPPorts = [53 3000];
   networking.firewall.allowedUDPPorts = [53];
