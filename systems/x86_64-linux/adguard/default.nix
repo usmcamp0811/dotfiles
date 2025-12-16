@@ -28,6 +28,12 @@ with lib.campground; {
       }
       {
         proto = "virtiofs";
+        tag = "rw-store";
+        source = "/persist/vm-stores/adguard/nix-store";
+        mountPoint = "/nix/.rw-store";
+      }
+      {
+        proto = "virtiofs";
         tag = "vault-agent";
         source = "/persist/system/var/lib/vault/adguard";
         mountPoint = "/var/lib/vault/adguard";
