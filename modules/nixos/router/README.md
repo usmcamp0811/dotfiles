@@ -244,9 +244,10 @@ campground.router.dns = {
 ### Options
 
 - **enableDNSSEC** - Enable DNSSEC validation (default: `true`)
-  - When enabled, dnsmasq validates DNSSEC signatures
+  - When enabled, dnsmasq validates DNSSEC signatures using the DNSSEC root trust anchor
   - Invalid signatures will cause queries to fail (SERVFAIL)
   - Protects against DNS spoofing and cache poisoning
+  - Automatically configures the root trust anchor from dnsmasq package
 
 - **dnssecCheckUnsigned** - Check unsigned zones (default: `true`)
   - Validates that unsigned replies are genuinely in unsigned zones
@@ -472,15 +473,32 @@ journalctl -u kea-dhcp4-server -f
 ### DNS Not Resolving
 
 ```bash
-# Check Unbound status
-systemctl status unbound
+# Check dnsmasq status
+systemctl status dnsmasq
 
 # Test DNS
-dig @127.0.0.1 google.com
+dig @192.168.1.1 google.com
 
 # Check logs
-journalctl -u unbound -f
+journalctl -u dnsmasq -f
 ```
+
+### DNSSEC Errors
+
+If you see "no root trust anchor provided for DNSSEC":
+
+```bash
+# Check if trust anchor file exists
+ls -la $(nix-build '<nixpkgs>' -A dnsmasq --no-out-link)/share/dnsmasq/trust-anchors.conf
+
+# Verify dnsmasq config includes trust anchor
+journalctl -u dnsmasq | grep trust-anchor
+
+# Temporarily disable DNSSEC for troubleshooting
+campground.router.dns.enableDNSSEC = false;
+```
+
+The router module automatically configures the DNSSEC root trust anchor from the dnsmasq package. If issues persist, ensure your dnsmasq package is up to date.
 
 ### Firewall Blocking Traffic
 

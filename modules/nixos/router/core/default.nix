@@ -302,6 +302,8 @@ in {
           # DNSSEC validation
           dnssec = true;
           dnssec-check-unsigned = cfg.dns.dnssecCheckUnsigned;
+          # Use system trust anchor (required for DNSSEC)
+          conf-file = "${pkgs.dnsmasq}/share/dnsmasq/trust-anchors.conf";
         });
     };
 
