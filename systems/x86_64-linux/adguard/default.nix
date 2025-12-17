@@ -66,7 +66,19 @@ with lib.campground; {
     ];
   };
 
-  networking.interfaces.eth0.useDHCP = true;
+  # Static IP configuration for AdGuard VM
+  networking.interfaces.eth0 = {
+    useDHCP = false;
+    ipv4.addresses = [{
+      address = "192.169.1.30";
+      prefixLength = 24;
+    }];
+  };
+  networking.defaultGateway = {
+    address = "192.169.1.1";
+    interface = "eth0";
+  };
+  networking.nameservers = ["1.1.1.1" "1.0.0.1"];
   services.resolved.enable = false;
 
   # Using read-only host /nix/store share
