@@ -388,6 +388,133 @@ Even with `isolation = "full"`, IoT and Guest zones can reach AdGuard for DNS.
 3. **Per-network visibility**: See which zone generates queries (by IP range)
 4. **Resource efficient**: One AdGuard instance instead of four
 
+## Static DHCP Leases
+
+Assign fixed IP addresses to devices based on their MAC address:
+
+### Configuration
+
+```nix
+zones = {
+  iot = {
+    vlanId = 20;
+    subnet = "192.169.20.0/24";
+    gateway = "192.169.20.1";
+    dhcp = {
+      enable = true;
+      rangeStart = "192.169.20.50";
+      rangeEnd = "192.169.20.200";
+
+      # Static leases - devices always get the same IP
+      staticLeases = [
+        {
+          mac = "aa:bb:cc:dd:ee:ff";
+          ip = "192.169.20.100";
+          hostname = "thermostat";
+        }
+        {
+          mac = "11:22:33:44:55:66";
+          ip = "192.169.20.101";
+          hostname = "hue-bridge";
+        }
+        {
+          mac = "22:33:44:55:66:77";
+          ip = "192.169.20.102";
+          hostname = "security-camera";
+        }
+      ];
+    };
+  };
+};
+```
+
+### How It Works
+
+- **dnsmasq** creates `dhcp-host` entries for each static lease
+- Device with matching MAC always receives the same IP
+- Hostname is registered in local DNS (optional)
+- Works across all zones (LAN, WiFi, IoT, Guest)
+
+### Finding MAC Addresses
+
+**From the device:**
+```bash
+# Linux/Mac
+ip link show
+ifconfig
+
+# Windows
+ipconfig /all
+```
+
+**From router logs:**
+```bash
+# View DHCP leases
+cat /var/lib/dnsmasq/dnsmasq.leases
+
+# Live DHCP requests
+journalctl -u dnsmasq -f
+```
+
+**From network scan:**
+```bash
+# Scan WiFi zone (192.169.10.x)
+nmap -sn 192.169.10.0/24
+
+# Scan IoT zone (192.169.20.x)
+nmap -sn 192.169.20.0/24
+```
+
+### Use Cases
+
+**IoT Devices:**
+```nix
+staticLeases = [
+  { mac = "..."; ip = "192.169.20.100"; hostname = "thermostat"; }
+  { mac = "..."; ip = "192.169.20.101"; hostname = "hue-bridge"; }
+  { mac = "..."; ip = "192.169.20.102"; hostname = "ring-doorbell"; }
+];
+```
+
+**WiFi Devices:**
+```nix
+staticLeases = [
+  { mac = "..."; ip = "192.169.10.100"; hostname = "laptop"; }
+  { mac = "..."; ip = "192.169.10.101"; hostname = "iphone"; }
+  { mac = "..."; ip = "192.169.10.102"; hostname = "ipad"; }
+];
+```
+
+**Guest Network Printer:**
+```nix
+staticLeases = [
+  { mac = "..."; ip = "192.169.30.10"; hostname = "guest-printer"; }
+];
+```
+
+### Testing
+
+After rebuilding, verify the static lease is active:
+
+```bash
+# Check dnsmasq config
+cat /etc/dnsmasq.conf | grep dhcp-host
+
+# Should show:
+# dhcp-host=aa:bb:cc:dd:ee:ff,192.169.20.100,thermostat
+
+# Restart the device or wait for DHCP renewal
+# Check it got the right IP
+ping thermostat  # or ping 192.169.20.100
+```
+
+### Notes
+
+- **LAN zone**: For VMs, static leases are defined separately in Blue Ridge config
+- **IP must be outside DHCP range**: Use IPs below `rangeStart` or above `rangeEnd`
+- **Hostname**: Optional but recommended for easy access (e.g., `http://thermostat/`)
+- **DNS**: Hostnames automatically registered in local DNS
+
 ## Network Switch Configuration
 
 Your network switch must support VLANs and be configured accordingly:

@@ -153,6 +153,47 @@ in {
               default = "12h";
               description = "DHCP lease time";
             };
+
+            staticLeases = mkOption {
+              type = types.listOf (types.submodule {
+                options = {
+                  mac = mkOption {
+                    type = types.str;
+                    description = "MAC address";
+                    example = "aa:bb:cc:dd:ee:ff";
+                  };
+
+                  ip = mkOption {
+                    type = types.str;
+                    description = "Static IP address to assign";
+                    example = "192.168.10.100";
+                  };
+
+                  hostname = mkOption {
+                    type = types.nullOr types.str;
+                    default = null;
+                    description = "Hostname for this device (optional)";
+                    example = "my-printer";
+                  };
+                };
+              });
+              default = [];
+              description = "Static DHCP leases (MAC → IP mappings)";
+              example = literalExpression ''
+                [
+                  {
+                    mac = "aa:bb:cc:dd:ee:ff";
+                    ip = "192.168.10.100";
+                    hostname = "printer";
+                  }
+                  {
+                    mac = "11:22:33:44:55:66";
+                    ip = "192.168.10.101";
+                    hostname = "smart-tv";
+                  }
+                ]
+              '';
+            };
           };
 
           dns = {
@@ -416,6 +457,15 @@ in {
           "tag:${zone.interface},option:router,${zone.gateway}"
           "tag:${zone.interface},option:dns-server,${dnsServers}"
         ]) cfg.zones);
+
+        # Static DHCP leases per zone
+        dhcp-host = flatten (mapAttrsToList (zoneName: zone:
+          map (lease: let
+            hostnameField = optionalString (lease.hostname != null) ",${lease.hostname}";
+          in
+            "${lease.mac},${lease.ip}${hostnameField}"
+          ) zone.dhcp.staticLeases
+        ) cfg.zones);
       }
 
       # Zone DHCP ranges

@@ -86,8 +86,8 @@ with lib.campground; {
       # Router itself uses AdGuard, which then forwards to upstream (1.1.1.1, etc.)
       dns = {
         enable = true;
-        forwarders = ["192.169.1.30"];  # AdGuard IP
-        enableDNSSEC = false;  # AdGuard handles DNSSEC
+        forwarders = ["192.169.1.30"]; # AdGuard IP
+        enableDNSSEC = false; # AdGuard handles DNSSEC
         dnssecCheckUnsigned = false;
       };
 
@@ -103,12 +103,12 @@ with lib.campground; {
             subnet = "192.169.1.0/24";
             gateway = "192.169.1.1";
             dhcp = {
-              enable = false;  # AdGuard handles DHCP for LAN
+              enable = false; # AdGuard handles DHCP for LAN
               rangeStart = "192.169.1.50";
               rangeEnd = "192.169.1.200";
             };
             dns = {
-              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
+              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
             };
             allowInternet = true;
             isolation = "none"; # LAN can talk to all zones
@@ -127,7 +127,7 @@ with lib.campground; {
               rangeEnd = "192.169.10.200";
             };
             dns = {
-              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
+              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
             };
             allowInternet = true;
             isolation = "partial"; # Can access LAN only
@@ -144,9 +144,24 @@ with lib.campground; {
               enable = true;
               rangeStart = "192.169.20.50";
               rangeEnd = "192.169.20.200";
+              # Static DHCP leases for IoT devices (MAC → IP)
+              staticLeases = [
+                # Example: smart thermostat
+                # {
+                #   mac = "aa:bb:cc:dd:ee:ff";
+                #   ip = "192.169.20.100";
+                #   hostname = "thermostat";
+                # }
+                # Example: smart lights hub
+                # {
+                #   mac = "11:22:33:44:55:66";
+                #   ip = "192.169.20.101";
+                #   hostname = "hue-bridge";
+                # }
+              ];
             };
             dns = {
-              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
+              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
             };
             allowInternet = true;
             isolation = "full"; # Isolated from other zones
@@ -165,7 +180,7 @@ with lib.campground; {
               rangeEnd = "192.169.30.200";
             };
             dns = {
-              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
+              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
             };
             allowInternet = true;
             isolation = "full"; # Fully isolated
