@@ -11,6 +11,9 @@ with lib.campground; {
   boot.loader.grub.enable = lib.mkForce false;
   boot.loader.systemd-boot.enable = lib.mkForce false;
 
+  ############################################################
+  # MicroVM
+  ############################################################
   microvm = {
     hypervisor = "qemu";
 
@@ -56,17 +59,15 @@ with lib.campground; {
     ];
   };
 
-  # MicroVM: keep it simple and avoid DHCP/firewall surprises
+  ############################################################
+  # Networking (static, simple, no firewall)
+  ############################################################
   networking.useNetworkd = true;
   networking.useDHCP = false;
   services.resolved.enable = false;
-
-  # DHCP server VM: don't block DHCP
   networking.firewall.enable = false;
 
-  # IMPORTANT: interface name must match what the VM actually has.
-  # "ens3" is the common virtio name; change to your real one if needed.
-  networking.interfaces.ens3.ipv4.addresses = [
+  networking.interfaces.eth0.ipv4.addresses = [
     {
       address = "192.168.1.30";
       prefixLength = 24;
@@ -75,19 +76,20 @@ with lib.campground; {
 
   networking.defaultGateway = {
     address = "192.168.1.1";
-    interface = "ens3";
+    interface = "eth0";
   };
 
   networking.nameservers = [
     "1.1.1.1"
-    "1.0.0.1"
     "8.8.8.8"
-    "8.8.4.4"
   ];
 
   nix.optimise.automatic = lib.mkForce false;
   nix.settings.auto-optimise-store = lib.mkForce false;
 
+  ############################################################
+  # Base system
+  ############################################################
   campground = {
     suites.common = enabled;
 
@@ -99,26 +101,21 @@ with lib.campground; {
       uid = 1000;
     };
 
-    services = {
-      vault-agent = {
-        enable = true;
-        settings.vault = {
-          address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/adguard/role-id";
-          secret-id = "/var/lib/vault/adguard/secret-id";
-        };
-      };
-
-      openssh = {
-        enable = true;
-        authorizedKeys = [
-          "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler"
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler"
-        ];
+    services.vault-agent = {
+      enable = true;
+      settings.vault = {
+        address = "https://vault.lan.aicampground.com";
+        role-id = "/var/lib/vault/adguard/role-id";
+        secret-id = "/var/lib/vault/adguard/secret-id";
       };
     };
+
+    services.openssh.enable = true;
   };
 
+  ############################################################
+  # AdGuard Home (DNS + DHCP)
+  ############################################################
   services.adguardhome = {
     enable = true;
     mutableSettings = true;
@@ -131,17 +128,13 @@ with lib.campground; {
         port = 53;
         upstream_dns = [
           "1.1.1.1"
-          "1.0.0.1"
           "8.8.8.8"
-          "8.8.4.4"
         ];
       };
 
+      # 🚨 KEY FIX: no interface_name
       dhcp = {
         enabled = true;
-
-        # MUST match the VM interface name
-        interface_name = "ens3";
 
         dhcpv4 = {
           gateway_ip = "192.168.1.1";
@@ -151,11 +144,12 @@ with lib.campground; {
           lease_duration = 43200;
         };
       };
-
-      # (keeping your filters as-is is fine; omitted here for brevity)
     };
   };
 
+  ############################################################
+  # AdGuard user (persistent volume safe)
+  ############################################################
   systemd.services.adguardhome.serviceConfig = {
     DynamicUser = lib.mkForce false;
     User = "adguardhome";
