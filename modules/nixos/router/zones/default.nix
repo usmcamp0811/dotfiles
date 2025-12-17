@@ -154,10 +154,21 @@ in {
               description = "Enable DNS for this zone";
             };
 
+            servers = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = ''
+                DNS servers to advertise to DHCP clients in this zone (via DHCP option 6).
+                Null uses the zone gateway (router itself).
+                Set to AdGuard IP (e.g., ["192.169.1.30"]) for DNS filtering.
+              '';
+              example = ["192.169.1.30"];
+            };
+
             customForwarders = mkOption {
               type = types.nullOr (types.listOf types.str);
               default = null;
-              description = "Custom DNS forwarders for this zone (null uses global)";
+              description = "Custom DNS forwarders for dnsmasq on this zone (null uses global)";
               example = ["1.1.1.1" "1.0.0.1"];
             };
           };
@@ -388,9 +399,14 @@ in {
         interface = mapAttrsToList (n: z: z.interface) cfg.zones;
 
         # DHCP options per zone
-        dhcp-option = flatten (mapAttrsToList (zoneName: zone: [
+        dhcp-option = flatten (mapAttrsToList (zoneName: zone: let
+          # DNS servers: use custom if specified, otherwise use gateway
+          dnsServers = if zone.dns.servers != null
+            then concatStringsSep "," zone.dns.servers
+            else zone.gateway;
+        in [
           "tag:${zone.interface},option:router,${zone.gateway}"
-          "tag:${zone.interface},option:dns-server,${zone.gateway}"
+          "tag:${zone.interface},option:dns-server,${dnsServers}"
         ]) cfg.zones);
       }
 
@@ -401,7 +417,22 @@ in {
     ############################################################
     # Zone-based firewall (nftables)
     ############################################################
-    networking.nftables.ruleset = mkAfter ''
+    networking.nftables.ruleset = mkAfter (let
+      # Get all zones that use a custom DNS server (not their own gateway)
+      zonesWithCustomDNS = filter (zoneName: let
+        zone = cfg.zones.${zoneName};
+      in zone.dns.servers != null && zone.dns.servers != []) (attrNames cfg.zones);
+
+      # Generate DNS access rules for zones with custom DNS servers
+      dnsAccessRules = concatMapStrings (zoneName: let
+        zone = cfg.zones.${zoneName};
+        dnsIPs = concatStringsSep ", " zone.dns.servers;
+      in ''
+        # ${zoneName} -> DNS servers (${dnsIPs})
+        iifname "${zone.interface}" ip daddr { ${dnsIPs} } udp dport 53 accept
+        iifname "${zone.interface}" ip daddr { ${dnsIPs} } tcp dport 53 accept
+      '') zonesWithCustomDNS;
+    in ''
       # Zone-based firewall rules
       table inet zones {
         ${concatMapStrings (zoneName: mkZoneSet zoneName cfg.zones.${zoneName}) (attrNames cfg.zones)}
@@ -421,6 +452,9 @@ in {
           type filter hook forward priority 1; policy drop;
 
           ct state { established, related } accept
+
+          # DNS access for zones with custom DNS servers
+          ${dnsAccessRules}
 
           # Zone -> WAN (internet access)
           ${mkZoneToWanRules}
@@ -445,7 +479,7 @@ in {
 
         ${cfg.extraFirewallRules}
       }
-    '';
+    '');
 
     ############################################################
     # Helpful scripts

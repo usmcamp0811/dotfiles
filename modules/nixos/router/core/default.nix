@@ -118,7 +118,11 @@ in {
       forwarders = mkOption {
         type = types.listOf types.str;
         default = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
-        description = "Upstream DNS servers";
+        description = ''
+          Upstream DNS servers.
+          Set to AdGuard IP (e.g., ["192.169.1.30"]) to use AdGuard for DNS filtering.
+          Set to public DNS (e.g., ["1.1.1.1" "1.0.0.1"]) to bypass AdGuard.
+        '';
       };
 
       enableDNSSEC = mkOption {

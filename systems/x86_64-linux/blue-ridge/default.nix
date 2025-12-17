@@ -73,7 +73,8 @@ with lib.campground; {
       };
 
       # DHCP for VMs only (static reservations below)
-      # Zones will handle DHCP for their respective networks
+      # Note: LAN zone DHCP is disabled (AdGuard handles it)
+      # WiFi/IoT/Guest zones use dnsmasq for DHCP
       dhcp = {
         enable = true;
         rangeStart = "192.169.1.10";
@@ -81,12 +82,13 @@ with lib.campground; {
         leaseTime = "12h";
       };
 
-      # DNS forwarding to upstream
+      # DNS forwarding to AdGuard for filtering
+      # Router itself uses AdGuard, which then forwards to upstream (1.1.1.1, etc.)
       dns = {
         enable = true;
-        forwarders = ["1.1.1.1" "1.0.0.1"];
-        enableDNSSEC = true;
-        dnssecCheckUnsigned = true;
+        forwarders = ["192.169.1.30"];  # AdGuard IP
+        enableDNSSEC = false;  # AdGuard handles DNSSEC
+        dnssecCheckUnsigned = false;
       };
 
       # Network zones (VLAN-based segmentation)
@@ -95,14 +97,18 @@ with lib.campground; {
 
         zones = {
           # LAN - Native/untagged VLAN (existing network)
+          # DHCP handled by AdGuard (192.169.1.30)
           lan = {
             vlanId = null; # Native VLAN
             subnet = "192.169.1.0/24";
             gateway = "192.169.1.1";
             dhcp = {
-              enable = true;
+              enable = false;  # AdGuard handles DHCP for LAN
               rangeStart = "192.169.1.50";
               rangeEnd = "192.169.1.200";
+            };
+            dns = {
+              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
             };
             allowInternet = true;
             isolation = "none"; # LAN can talk to all zones
@@ -110,6 +116,7 @@ with lib.campground; {
           };
 
           # WiFi - VLAN 10
+          # DHCP handled by dnsmasq, DNS filtering via AdGuard
           wifi = {
             vlanId = 10;
             subnet = "192.169.10.0/24";
@@ -119,12 +126,16 @@ with lib.campground; {
               rangeStart = "192.169.10.50";
               rangeEnd = "192.169.10.200";
             };
+            dns = {
+              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
+            };
             allowInternet = true;
             isolation = "partial"; # Can access LAN only
             description = "WiFi network for wireless devices";
           };
 
           # IoT - VLAN 20
+          # DHCP handled by dnsmasq, DNS filtering via AdGuard
           iot = {
             vlanId = 20;
             subnet = "192.169.20.0/24";
@@ -134,12 +145,16 @@ with lib.campground; {
               rangeStart = "192.169.20.50";
               rangeEnd = "192.169.20.200";
             };
+            dns = {
+              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
+            };
             allowInternet = true;
             isolation = "full"; # Isolated from other zones
             description = "IoT network for smart home devices";
           };
 
           # Guest - VLAN 30
+          # DHCP handled by dnsmasq, DNS filtering via AdGuard
           guest = {
             vlanId = 30;
             subnet = "192.169.30.0/24";
@@ -148,6 +163,9 @@ with lib.campground; {
               enable = true;
               rangeStart = "192.169.30.50";
               rangeEnd = "192.169.30.200";
+            };
+            dns = {
+              servers = ["192.169.1.30"];  # AdGuard for DNS filtering
             };
             allowInternet = true;
             isolation = "full"; # Fully isolated

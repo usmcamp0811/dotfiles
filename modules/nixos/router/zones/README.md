@@ -9,10 +9,11 @@ The zones module allows you to create isolated network segments (zones) using VL
 ## Features
 
 - **VLAN-based segmentation**: Each zone can have its own VLAN ID
-- **Per-zone DHCP/DNS**: Automatic DHCP and DNS configuration for each zone
+- **Per-zone DHCP**: Automatic DHCP configuration for each zone via dnsmasq
+- **Centralized DNS filtering**: All zones can use AdGuard Home for DNS filtering
 - **Zone-based firewall**: Isolation levels (full, partial, none) with explicit inter-zone routing
 - **Internet access control**: Per-zone internet (WAN) access control
-- **Declarative routing**: Easy-to-configure inter-zone routing rules
+- **Declarative routing**: Easy-to-configure inter-zone routing rules with port/protocol restrictions
 
 ## Network Architecture
 
@@ -273,6 +274,119 @@ campground.router.zones = {
   ];
 };
 ```
+
+## Hybrid DHCP/DNS with AdGuard Home
+
+The zones module supports a hybrid approach for multi-VLAN networks with centralized DNS filtering:
+
+### Architecture
+
+**DHCP:**
+- **LAN zone (192.169.1.x)**: AdGuard Home handles DHCP
+- **WiFi/IoT/Guest zones**: Blue Ridge dnsmasq handles DHCP
+
+**DNS:**
+- **All zones**: Use AdGuard Home (192.169.1.30) for DNS filtering
+- AdGuard then forwards to upstream DNS (1.1.1.1, 1.0.0.1, etc.)
+
+### Why This Approach?
+
+AdGuard Home currently only supports **one DHCP server on one interface** (see [AdGuardHome#3539](https://github.com/AdguardTeam/AdGuardHome/issues/3539)). The hybrid approach gives you:
+
+✅ **AdGuard DNS filtering** on all VLANs
+✅ **AdGuard DHCP** on your main LAN (servers, VMs)
+✅ **Per-VLAN DHCP pools** via dnsmasq
+✅ **Simple configuration** - one AdGuard instance
+
+### Configuration
+
+**AdGuard VM** (`systems/x86_64-linux/adguard/default.nix`):
+```nix
+services.adguardhome = {
+  enable = true;
+  settings = {
+    dhcp = {
+      enabled = true;
+      interface_name = "lan0";  # Only LAN
+      dhcpv4 = {
+        gateway_ip = "192.169.1.1";
+        subnet_mask = "255.255.255.0";
+        range_start = "192.169.1.50";
+        range_end = "192.169.1.200";
+      };
+    };
+  };
+};
+```
+
+**Blue Ridge Router** (zones configuration):
+```nix
+router = {
+  # Router DNS forwards to AdGuard
+  dns.forwarders = ["192.169.1.30"];  # AdGuard IP
+
+  zones = {
+    zones = {
+      lan = {
+        dhcp.enable = false;  # AdGuard handles LAN DHCP
+        dns.servers = ["192.169.1.30"];  # Use AdGuard for DNS
+      };
+
+      wifi = {
+        dhcp.enable = true;  # dnsmasq handles WiFi DHCP
+        dns.servers = ["192.169.1.30"];  # Use AdGuard for DNS
+      };
+
+      iot = {
+        dhcp.enable = true;  # dnsmasq handles IoT DHCP
+        dns.servers = ["192.169.1.30"];  # Use AdGuard for DNS
+      };
+
+      guest = {
+        dhcp.enable = true;  # dnsmasq handles Guest DHCP
+        dns.servers = ["192.169.1.30"];  # Use AdGuard for DNS
+      };
+    };
+  };
+};
+```
+
+### Traffic Flow
+
+```
+WiFi Client (192.169.10.x)
+  ↓ (DHCP Request)
+Blue Ridge dnsmasq
+  ↓ (DHCP Response: IP=192.169.10.50, DNS=192.169.1.30)
+WiFi Client
+  ↓ (DNS Query: example.com)
+AdGuard Home (192.169.1.30)
+  ↓ (Filtering, logging)
+Upstream DNS (1.1.1.1)
+  ↓ (Response)
+AdGuard Home
+  ↓ (Filtered response)
+WiFi Client
+```
+
+### Firewall Rules
+
+The zones module automatically creates firewall rules to allow DNS traffic from all zones to AdGuard:
+
+```nix
+# iot -> DNS servers (192.169.1.30)
+iifname "br-lan.20" ip daddr { 192.169.1.30 } udp dport 53 accept
+iifname "br-lan.20" ip daddr { 192.169.1.30 } tcp dport 53 accept
+```
+
+Even with `isolation = "full"`, IoT and Guest zones can reach AdGuard for DNS.
+
+### Benefits
+
+1. **Centralized filtering**: All network traffic benefits from AdGuard's blocklists
+2. **Single management point**: One AdGuard UI for all filtering rules
+3. **Per-network visibility**: See which zone generates queries (by IP range)
+4. **Resource efficient**: One AdGuard instance instead of four
 
 ## Network Switch Configuration
 

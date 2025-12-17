@@ -274,6 +274,9 @@ with lib.campground; {
           id = 102;
         }
       ];
+      # DHCP enabled for LAN only (192.169.1.x)
+      # Blue Ridge dnsmasq handles DHCP for WiFi/IoT/Guest zones
+      # All zones use AdGuard for DNS filtering
       dhcp = {
         enabled = true;
         interface_name = "lan0";
@@ -283,7 +286,7 @@ with lib.campground; {
           subnet_mask = "255.255.255.0";
           range_start = "192.169.1.50";
           range_end = "192.169.1.200";
-          lease_duration = 43200;
+          lease_duration = 43200;  # 12 hours
         };
       };
     };
