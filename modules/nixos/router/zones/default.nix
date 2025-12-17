@@ -461,6 +461,10 @@ in {
 
           ct state { established, related } accept
 
+          # Allow port forwarding from WAN to LAN
+          # (Port forward rules are in core router module, this allows them through zones)
+          iifname "${routerCfg.wan.interface}" oifname "${cfg.zones.lan.interface}" accept
+
           # DNS access for zones with custom DNS servers
           ${dnsAccessRules}
 
