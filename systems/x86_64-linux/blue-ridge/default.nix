@@ -73,7 +73,7 @@ with lib.campground; {
       };
 
       # DHCP for VMs only (static reservations below)
-      # AdGuard will handle DHCP for client devices (50-200 range)
+      # Zones will handle DHCP for their respective networks
       dhcp = {
         enable = true;
         rangeStart = "192.169.1.10";
@@ -81,12 +81,136 @@ with lib.campground; {
         leaseTime = "12h";
       };
 
-      # DNS forwarding to upstream (not AdGuard to avoid circular dependency during boot)
+      # DNS forwarding to upstream
       dns = {
         enable = true;
         forwarders = ["1.1.1.1" "1.0.0.1"];
         enableDNSSEC = true;
         dnssecCheckUnsigned = true;
+      };
+
+      # Network zones (VLAN-based segmentation)
+      zones = {
+        enable = true;
+
+        zones = {
+          # LAN - Native/untagged VLAN (existing network)
+          lan = {
+            vlanId = null; # Native VLAN
+            subnet = "192.169.1.0/24";
+            gateway = "192.169.1.1";
+            dhcp = {
+              enable = true;
+              rangeStart = "192.169.1.50";
+              rangeEnd = "192.169.1.200";
+            };
+            allowInternet = true;
+            isolation = "none"; # LAN can talk to all zones
+            description = "Main LAN network for trusted devices and VMs";
+          };
+
+          # WiFi - VLAN 10
+          wifi = {
+            vlanId = 10;
+            subnet = "192.169.10.0/24";
+            gateway = "192.169.10.1";
+            dhcp = {
+              enable = true;
+              rangeStart = "192.169.10.50";
+              rangeEnd = "192.169.10.200";
+            };
+            allowInternet = true;
+            isolation = "partial"; # Can access LAN only
+            description = "WiFi network for wireless devices";
+          };
+
+          # IoT - VLAN 20
+          iot = {
+            vlanId = 20;
+            subnet = "192.169.20.0/24";
+            gateway = "192.169.20.1";
+            dhcp = {
+              enable = true;
+              rangeStart = "192.169.20.50";
+              rangeEnd = "192.169.20.200";
+            };
+            allowInternet = true;
+            isolation = "full"; # Isolated from other zones
+            description = "IoT network for smart home devices";
+          };
+
+          # Guest - VLAN 30
+          guest = {
+            vlanId = 30;
+            subnet = "192.169.30.0/24";
+            gateway = "192.169.30.1";
+            dhcp = {
+              enable = true;
+              rangeStart = "192.169.30.50";
+              rangeEnd = "192.169.30.200";
+            };
+            allowInternet = true;
+            isolation = "full"; # Fully isolated
+            description = "Guest network for visitors";
+          };
+        };
+
+        # Inter-zone routing with granular port/protocol restrictions
+        # Uncomment and customize as needed
+        interZoneRoutes = [
+          # Example: IoT devices can reach Home Assistant on LAN (TCP port 8123 only)
+          # {
+          #   from = "iot";
+          #   to = ["lan"];
+          #   protocol = "tcp";
+          #   ports = [8123];
+          #   destinationIPs = ["192.169.1.100"];  # Home Assistant IP
+          #   description = "IoT to Home Assistant";
+          # }
+
+          # Example: WiFi can access file shares and SSH on LAN
+          # {
+          #   from = "wifi";
+          #   to = ["lan"];
+          #   protocol = "tcp";
+          #   ports = [22 139 445];  # SSH, SMB
+          #   description = "WiFi to LAN services";
+          # }
+
+          # Example: WiFi can ping LAN devices
+          # {
+          #   from = "wifi";
+          #   to = ["lan"];
+          #   protocol = "icmp";
+          #   description = "WiFi ICMP to LAN";
+          # }
+
+          # Example: LAN has full admin access to IoT network
+          # {
+          #   from = "lan";
+          #   to = ["iot"];
+          #   description = "LAN admin access to IoT";
+          # }
+
+          # Example: IoT can reach DNS/NTP on LAN
+          # {
+          #   from = "iot";
+          #   to = ["lan"];
+          #   protocol = "udp";
+          #   ports = [53 123];  # DNS, NTP
+          #   description = "IoT to LAN DNS/NTP";
+          # }
+
+          # Example: Guest can access printer only
+          # {
+          #   from = "guest";
+          #   to = ["lan"];
+          #   protocol = "tcp";
+          #   ports = [9100 631];  # IPP, HP JetDirect
+          #   destinationIPs = ["192.169.1.50"];  # Printer IP
+          #   description = "Guest to LAN printer";
+          # }
+        ];
       };
 
       # Router security hardening
