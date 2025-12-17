@@ -76,15 +76,23 @@ with lib.campground; let
   # Generate DHCP configuration for a zone
   mkZoneDHCP = zoneName: zone:
     optionalAttrs zone.dhcp.enable {
-      "dhcp-range@${zone.interface}" = [
-        "${zone.dhcp.rangeStart},${zone.dhcp.rangeEnd},${zone.dhcp.leaseTime}"
+      dhcp-range = [
+        "${zone.interface},${zone.dhcp.rangeStart},${zone.dhcp.rangeEnd},${zone.dhcp.leaseTime}"
       ];
     };
 
   # All zone DHCP configs merged
-  allZoneDHCP = foldl' (acc: zoneName:
-    acc // mkZoneDHCP zoneName cfg.zones.${zoneName}
-  ) {} (attrNames cfg.zones);
+  allZoneDHCP = let
+    allRanges = concatMap (zoneName: let
+      zone = cfg.zones.${zoneName};
+    in
+      optional zone.dhcp.enable
+        "${zone.interface},${zone.dhcp.rangeStart},${zone.dhcp.rangeEnd},${zone.dhcp.leaseTime}"
+    ) (attrNames cfg.zones);
+  in
+    optionalAttrs (allRanges != []) {
+      dhcp-range = allRanges;
+    };
 in {
   options.campground.router.zones = {
     enable = mkEnableOption "Network zones with VLAN segmentation" // {default = routerCfg.enable;};
