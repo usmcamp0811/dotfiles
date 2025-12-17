@@ -66,6 +66,9 @@ with lib.campground; {
     ];
   };
 
+  # Enable networkd for microvm
+  networking.useNetworkd = true;
+
   # Static IP configuration for AdGuard VM
   networking.interfaces.eth0 = {
     useDHCP = false;
