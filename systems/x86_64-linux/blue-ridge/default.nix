@@ -134,13 +134,19 @@ with lib.campground; {
   };
 
   # Static DHCP leases for MicroVMs
-  services.dnsmasq.settings.dhcp-host = [
-    "02:00:00:00:00:10,192.169.1.10,vault"
-    "02:00:00:00:00:11,192.169.1.11,websites"
-    "02:00:00:00:00:20,192.169.1.20,pub-traefik"
-    "02:00:00:00:00:21,192.169.1.21,lan-traefik"
-    "02:00:00:00:00:30,192.169.1.30,adguard"
-  ];
+  services.dnsmasq.settings = {
+    dhcp-host = [
+      "02:00:00:00:00:10,192.169.1.10,vault"
+      "02:00:00:00:00:11,192.169.1.11,websites"
+      "02:00:00:00:00:20,192.169.1.20,pub-traefik"
+      "02:00:00:00:00:21,192.169.1.21,lan-traefik"
+      "02:00:00:00:00:30,192.169.1.30,adguard"
+    ];
+
+    # Only serve DHCP to VMs with static reservations, ignore all other clients
+    # This ensures client devices get DHCP from AdGuard (range 50-200)
+    dhcp-ignore = "tag:!known";
+  };
 
   ############################################################
   # MicroVM host configuration
