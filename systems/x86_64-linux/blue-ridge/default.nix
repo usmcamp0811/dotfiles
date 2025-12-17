@@ -74,9 +74,20 @@ with lib.campground; {
         prefixLength = 24;
       };
 
-      # DHCP and DNS are handled by AdGuard VM (192.169.1.30)
-      dhcp.enable = false;
-      dns.enable = false;
+      # DHCP only for static VM leases, AdGuard handles the rest
+      dhcp = {
+        enable = true;
+        rangeStart = "192.169.1.10";
+        rangeEnd = "192.169.1.35";
+        leaseTime = "12h";
+      };
+
+      # DNS forwarding to AdGuard
+      dns = {
+        enable = true;
+        forwarders = ["192.169.1.30"];
+        enableDNSSEC = false;
+      };
 
       # Router security hardening
       security = {
