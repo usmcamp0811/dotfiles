@@ -69,6 +69,18 @@ with lib.campground; {
     linkConfig.Name = "lan0";
   };
 
+  # Explicit network configuration for lan0
+  systemd.network.networks."20-lan0" = {
+    matchConfig.Name = "lan0";
+    address = ["192.169.1.30/24"];
+    gateway = ["192.169.1.1"];
+    networkConfig = {
+      DHCP = "no";
+      IPv6AcceptRA = false;
+    };
+    linkConfig.RequiredForOnline = "routable";
+  };
+
   ############################################################
   # Networking - static IP (this VM is DHCP server)
   ############################################################
@@ -79,15 +91,8 @@ with lib.campground; {
   # Avoid DHCP being blocked by guest firewall
   networking.firewall.enable = false;
 
-  networking.interfaces.lan0.ipv4.addresses = [
-    {
-      address = "192.168.1.30";
-      prefixLength = 24;
-    }
-  ];
-
   networking.defaultGateway = {
-    address = "192.168.1.1";
+    address = "192.169.1.1";
     interface = "lan0";
   };
 
@@ -164,10 +169,10 @@ with lib.campground; {
         interface_name = "lan0";
 
         dhcpv4 = {
-          gateway_ip = "192.168.1.1";
+          gateway_ip = "192.169.1.1";
           subnet_mask = "255.255.255.0";
-          range_start = "192.168.1.50";
-          range_end = "192.168.1.200";
+          range_start = "192.169.1.50";
+          range_end = "192.169.1.200";
           lease_duration = 43200;
         };
       };

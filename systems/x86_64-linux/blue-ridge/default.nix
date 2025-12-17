@@ -68,7 +68,7 @@ with lib.campground; {
       # LAN: bridge + gateway
       lan = {
         interfaces = ["enp2s0" "enp3s0" "enp4s0"];
-        gateway = "192.168.1.1";
+        gateway = "192.169.1.1";
         prefixLength = 24;
       };
 
@@ -92,13 +92,13 @@ with lib.campground; {
       portForwards = [
         {
           port = 443;
-          destination = "192.168.1.20";
+          destination = "192.169.1.20";
           protocol = "tcp";
           description = "HTTPS to pub-traefik";
         }
         {
           port = 80;
-          destination = "192.168.1.30";
+          destination = "192.169.1.30";
           destinationPort = 3000;
           protocol = "tcp";
           description = "AdGuard Web UI via port 80 -> 3000 (optional)";
@@ -167,7 +167,7 @@ with lib.campground; {
 
   # Host itself should use AdGuard for DNS (plus a fallback)
   networking.nameservers = [
-    "192.168.1.30"
+    "192.169.1.30"
     "1.1.1.1"
   ];
 
