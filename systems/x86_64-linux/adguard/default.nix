@@ -13,8 +13,11 @@ with lib.campground; {
   boot.loader.grub.enable = lib.mkForce false;
   boot.loader.systemd-boot.enable = lib.mkForce false;
 
+  ############################################################
   # MicroVM configuration
+  ############################################################
   microvm = {
+    # Use microvm as the hypervisor (lightweight, fast boot)
     hypervisor = "qemu";
 
     # Share the host's Nix store to save disk space
@@ -44,13 +47,13 @@ with lib.campground; {
       {
         type = "tap";
         id = "vm-adguard";
-        mac = "02:00:00:00:00:30"; # Static MAC for consistent static lease / identification
+        mac = "02:00:00:00:00:30"; # Static MAC
       }
     ];
 
     # Resources
     vcpu = 2;
-    mem = 2047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
+    mem = 2047; # ~2GB RAM
 
     # Boot configuration
     socket = "control.socket";
@@ -60,17 +63,15 @@ with lib.campground; {
       {
         image = "adguard-data.img";
         mountPoint = "/var/lib/AdGuardHome";
-        size = 5120; # 5GB for AdGuard data (config, logs, query logs, etc.)
+        size = 5120; # 5GB
       }
     ];
   };
 
   ############################################################
-  # Networking
+  # Networking (static; required for DHCP/DNS server)
   #
-  # IMPORTANT:
-  # AdGuard is DHCP + DNS for the LAN, so it should NOT depend on
-  # DHCP itself. Give it a static IP.
+  # FIX: defaultGateway MUST include interface when using networkd
   ############################################################
   networking = {
     useDHCP = false;
@@ -82,10 +83,12 @@ with lib.campground; {
       }
     ];
 
-    defaultGateway = "192.168.1.1";
+    defaultGateway = {
+      address = "192.168.1.1";
+      interface = "eth0";
+    };
 
     nameservers = [
-      # while AdGuard is starting, having upstream resolvers avoids weirdness
       "1.1.1.1"
       "1.0.0.1"
       "8.8.8.8"
@@ -96,10 +99,13 @@ with lib.campground; {
   services.resolved.enable = false;
 
   # Using read-only host /nix/store share
+  # Disable nix store optimization in VMs to save resources
   nix.optimise.automatic = lib.mkForce false;
   nix.settings.auto-optimise-store = lib.mkForce false;
 
+  ############################################################
   # Basic system configuration
+  ############################################################
   campground = {
     suites.common = enabled;
 
@@ -134,7 +140,7 @@ with lib.campground; {
   };
 
   ############################################################
-  # AdGuard Home: DNS + DHCP authoritative for LAN
+  # AdGuard Home DNS and DHCP server
   ############################################################
   services.adguardhome = {
     enable = true;
@@ -265,37 +271,23 @@ with lib.campground; {
         }
       ];
 
-      # DHCPv4 server (authoritative)
       dhcp = {
         enabled = true;
         interface_name = "eth0";
-
         dhcpv4 = {
           gateway_ip = "192.168.1.1";
           subnet_mask = "255.255.255.0";
-
           range_start = "192.168.1.50";
           range_end = "192.168.1.200";
-
-          lease_duration = 43200; # 12h in seconds
+          lease_duration = 43200; # 12 hours (seconds)
         };
       };
     };
   };
 
   ############################################################
-  # AdGuard DHCP reservations (static leases)
-  #
-  # AdGuardHome's YAML supports static leases; NixOS module doesn't
-  # expose a nice option for it directly. You have two paths:
-  #
-  # 1) Set these in the AdGuard Web UI (since mutableSettings = true), OR
-  # 2) We can generate AdGuardHome.yaml ourselves and set mutableSettings=false.
-  #
-  # I’m not inventing a schema here without your existing yaml shape.
-  ############################################################
-
   # Override systemd service to work with persistent volume
+  ############################################################
   systemd.services.adguardhome = {
     serviceConfig = {
       DynamicUser = lib.mkForce false;
@@ -314,10 +306,8 @@ with lib.campground; {
   users.groups.adguardhome = {};
 
   # Open firewall ports (DNS, DHCP, Web UI)
-  networking.firewall = {
-    allowedTCPPorts = [53 3000];
-    allowedUDPPorts = [53 67 68];
-  };
+  networking.firewall.allowedTCPPorts = [53 3000];
+  networking.firewall.allowedUDPPorts = [53 67 68];
 
   system.stateVersion = "23.05";
 }

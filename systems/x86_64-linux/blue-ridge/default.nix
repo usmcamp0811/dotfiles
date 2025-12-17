@@ -12,14 +12,18 @@ with lib.campground; {
     ./impermanence.nix
   ];
 
-  # Locale
+  ############################################################
+  # Locale / Console
+  ############################################################
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
     font = "Lat2-Terminus16";
     keyMap = "us";
   };
 
-  # Use campground modules for configuration
+  ############################################################
+  # Campground baseline
+  ############################################################
   campground = {
     cli.aliases.root = enabled;
 
@@ -28,9 +32,7 @@ with lib.campground; {
       observability = enabled;
     };
 
-    system = {
-      passwds = enabled;
-    };
+    system.passwds = enabled;
 
     services = {
       ntp = enabled;
@@ -38,58 +40,48 @@ with lib.campground; {
 
       vault-agent = {
         enable = true;
-        settings = {
-          vault = {
-            address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/blue-ridge/role-id";
-            secret-id = "/var/lib/vault/blue-ridge/secret-id";
-          };
+        settings.vault = {
+          address = "https://vault.lan.aicampground.com";
+          role-id = "/var/lib/vault/blue-ridge/role-id";
+          secret-id = "/var/lib/vault/blue-ridge/secret-id";
         };
       };
 
-      openssh = {
-        authorizedKeys = [
-          "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler"
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler"
-        ];
-      };
+      openssh.authorizedKeys = [
+        "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGs9njLHA3yyrX6BTf5Z3Xj8jzOh9zVYfJoeai6WhmBtjr34KV0F79YKafvJPS4gasOTFpnKXObvBo0jG3/AIN+dwBohHtFtXSYBgZecFg847XoeN+7cIveqgI2Q1Jn2sFoUTzGiwKxqLRM7ZuTtRJGfoizOxlYHdyovus67jfDxewP5A== mcamp@Butler"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler"
+      ];
     };
 
     ############################################################
-    # Router configuration (single, consolidated)
-    #
-    # IMPORTANT:
-    # - Blue-Ridge stays the router (WAN/LAN/NAT/firewall)
-    # - AdGuard microVM becomes the ONLY DHCP server for LAN clients + microVMs
+    # Router (authoritative for WAN/LAN/NAT only)
     ############################################################
     router = {
       enable = true;
 
-      # WAN: upstream network
+      # WAN
       wan = {
         interface = "enp1s0";
         dhcp = true;
       };
 
-      # LAN: bridge + gateway
+      # LAN (static; NEVER DHCP)
       lan = {
         interfaces = ["enp2s0" "enp3s0" "enp4s0"];
         gateway = "192.168.1.1";
         prefixLength = 24;
       };
 
-      # DHCP: DISABLED on router (AdGuard microVM is authoritative DHCP)
+      # DHCP/DNS intentionally disabled here
+      # AdGuard microVM is authoritative
       dhcp.enable = false;
-
-      # DNS: DISABLED on router (clients will use AdGuard directly)
-      # If you *want* the router itself to query AdGuard, set networking.nameservers below.
       dns.enable = false;
 
-      # Router security hardening
       security = {
         enable = true;
         enableSSH = true;
         sshPort = 22;
+
         fail2ban = {
           enable = true;
           maxRetry = 3;
@@ -97,7 +89,6 @@ with lib.campground; {
         };
       };
 
-      # Port forwarding (declarative)
       portForwards = [
         {
           port = 443;
@@ -105,62 +96,39 @@ with lib.campground; {
           protocol = "tcp";
           description = "HTTPS to pub-traefik";
         }
-        {
-          port = 80;
-          destination = "192.168.1.30";
-          destinationPort = 3000;
-          protocol = "tcp";
-          description = "HTTP to adguard UI (or whatever you intended here)";
-        }
       ];
     };
 
-    # User configuration
+    ############################################################
+    # Admin user
+    ############################################################
     user = {
       name = "admin";
       fullName = "System Administrator";
       email = "admin@aicampground.com";
-      extraGroups = [];
       uid = 1000;
-      # initialPassword = null; # Don't use initialPassword when using hashedPasswordFile
-      # hashedPasswordFile = "/persist/system/users/admin";
+      extraGroups = [];
     };
   };
 
   ############################################################
-  # DHCP/DNS: Router must NOT run dnsmasq if AdGuard is DHCP
+  # Networking (host)
   ############################################################
-  services.dnsmasq.enable = false;
+  networking = {
+    useNetworkd = true;
 
-  ############################################################
-  # Networking
-  ############################################################
-  networking.useNetworkd = true;
+    # Router module owns firewall rules
+    firewall.enable = lib.mkForce false;
 
-  # Let the router itself use AdGuard for DNS once it's up (optional but recommended)
-  # (This does NOT provide DHCP/DNS to clients; it's only for the host itself.)
-  networking.nameservers = [
-    "192.168.1.30" # adguard microVM
-    "1.1.1.1"
-  ];
-
-  # Firewall: DHCP (67/68) + DNS (53) must be allowed on LAN
-  # so clients can reach AdGuard DHCP/DNS and broadcasts can flow.
-  networking.firewall = {
-    enable = true;
-    allowedUDPPorts = [53 67 68];
-    allowedTCPPorts = [53];
-  };
-
-  # Add MicroVM TAP interfaces to the LAN bridge (br-lan)
-  systemd.network.networks."30-lan-vm-taps" = {
-    matchConfig.Name = "vm-*";
-    networkConfig.Bridge = "br-lan";
-    linkConfig.RequiredForOnline = "enslaved";
+    # Let the host itself resolve via AdGuard
+    nameservers = [
+      "192.168.1.30" # adguard microVM
+      "1.1.1.1"
+    ];
   };
 
   ############################################################
-  # MicroVM host configuration
+  # MicroVM host + bridge wiring
   ############################################################
   microvm.host = {
     enable = true;
@@ -174,30 +142,41 @@ with lib.campground; {
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
+
     websites = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
+
     pub-traefik = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
+
     lan-traefik = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
+
     adguard = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
+  };
+
+  # Bridge all VM TAPs onto LAN
+  systemd.network.networks."30-lan-vm-taps" = {
+    matchConfig.Name = "vm-*";
+    networkConfig.Bridge = "br-lan";
+    linkConfig.RequiredForOnline = "enslaved";
   };
 
   system.stateVersion = "23.05";
