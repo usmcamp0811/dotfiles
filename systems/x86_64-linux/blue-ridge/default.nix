@@ -72,9 +72,22 @@ with lib.campground; {
         prefixLength = 24;
       };
 
-      # DHCP/DNS are handled by AdGuard microVM
-      dhcp.enable = false;
-      dns.enable = false;
+      # DHCP for VMs only (static reservations below)
+      # AdGuard will handle DHCP for client devices (50-200 range)
+      dhcp = {
+        enable = true;
+        rangeStart = "192.169.1.10";
+        rangeEnd = "192.169.1.40";
+        leaseTime = "12h";
+      };
+
+      # DNS forwarding to upstream (not AdGuard to avoid circular dependency during boot)
+      dns = {
+        enable = true;
+        forwarders = ["1.1.1.1" "1.0.0.1"];
+        enableDNSSEC = true;
+        dnssecCheckUnsigned = true;
+      };
 
       # Router security hardening
       security = {
@@ -114,6 +127,22 @@ with lib.campground; {
       extraGroups = [];
       uid = 1000;
     };
+  };
+
+  # Static DHCP leases for MicroVMs
+  # dnsmasq will ONLY serve these VMs, ignoring all other DHCP requests
+  services.dnsmasq.settings = {
+    dhcp-host = [
+      "02:00:00:00:00:10,192.169.1.10,vault"
+      "02:00:00:00:00:11,192.169.1.11,websites"
+      "02:00:00:00:00:20,192.169.1.20,pub-traefik"
+      "02:00:00:00:00:21,192.169.1.21,lan-traefik"
+      "02:00:00:00:00:30,192.169.1.30,adguard"
+    ];
+
+    # CRITICAL: Only serve DHCP to VMs with static reservations above
+    # This ensures client devices get DHCP from AdGuard (range 50-200)
+    dhcp-ignore = "tag:!known";
   };
 
   ############################################################
