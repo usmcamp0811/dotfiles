@@ -68,21 +68,21 @@ with lib.campground; {
 
   # Enable networkd for microvm
   networking.useNetworkd = true;
-
-  # Static IP configuration for AdGuard VM
-  networking.interfaces.eth0 = {
-    useDHCP = false;
-    ipv4.addresses = [{
-      address = "192.169.1.30";
-      prefixLength = 24;
-    }];
-  };
-  networking.defaultGateway = {
-    address = "192.169.1.1";
-    interface = "eth0";
-  };
+  networking.useDHCP = false;
   networking.nameservers = ["1.1.1.1" "1.0.0.1"];
   services.resolved.enable = false;
+
+  # Static IP configuration using systemd-networkd
+  # Match any ethernet interface in the VM
+  systemd.network.networks."10-lan" = {
+    matchConfig.Type = "ether";
+    networkConfig = {
+      Address = "192.169.1.30/24";
+      Gateway = "192.169.1.1";
+      DNS = ["1.1.1.1" "1.0.0.1"];
+    };
+    linkConfig.RequiredForOnline = "routable";
+  };
 
   # Using read-only host /nix/store share
   # Disable nix store optimization in VMs to save resources
