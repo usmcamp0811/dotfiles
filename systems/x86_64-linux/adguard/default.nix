@@ -125,6 +125,116 @@ with lib.campground; {
           "8.8.4.4"
         ];
       };
+      filters = [
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt";
+          name = "AdGuard DNS filter";
+          id = 1;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_2.txt";
+          name = "AdAway Default Blocklist";
+          id = 2;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_4.txt";
+          name = "Dan Pollock's List";
+          id = 4;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_24.txt";
+          name = "WindowsSpyBlocker - Hosts spy rules";
+          id = 24;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_38.txt";
+          name = "The Big List of Hacked Malware Web Sites";
+          id = 38;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_6.txt";
+          name = "NoCoin Filter List";
+          id = 6;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_7.txt";
+          name = "Perflyst and Dandelion Sprout's Smart-TV Blocklist";
+          id = 7;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_30.txt";
+          name = "Phishing URL Blocklist";
+          id = 30;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_11.txt";
+          name = "Malicious URL Blocklist";
+          id = 11;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_9.txt";
+          name = "The Block List Project - Malware List";
+          id = 9;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_10.txt";
+          name = "Dandelion Sprout's Anti-Malware List";
+          id = 10;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_8.txt";
+          name = "Online Malicious URL Blocklist";
+          id = 8;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_12.txt";
+          name = "Scam Blocklist by DurableNapkin";
+          id = 12;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_31.txt";
+          name = "Stalkerware Indicators List";
+          id = 31;
+        }
+        {
+          enabled = true;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_59.txt";
+          name = "1Hosts (Lite)";
+          id = 59;
+        }
+        {
+          enabled = true;
+          url = "https://raw.githubusercontent.com/ph00lt0/blocklist/master/blocklist.txt";
+          name = "ph00lt0's blocklist";
+          id = 100;
+        }
+        {
+          enabled = true;
+          url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/native.amazon.txt";
+          name = "HaGeZi - Amazon Native Ads (Domains)";
+          id = 101;
+        }
+        {
+          enabled = true;
+          url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/native.amazon.txt";
+          name = "HaGeZi - Amazon Native Ads (AdBlock)";
+          id = 102;
+        }
+      ];
       dhcp = {
         enabled = true;
         interface_name = "eth0";
