@@ -57,7 +57,7 @@ with lib.campground; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "websites-data.img";
+        image = "/persist/vm-data/websites/websites-data.img";
         mountPoint = "/var/lib/nginx";
         size = 5120; # 5GB for website data
       }

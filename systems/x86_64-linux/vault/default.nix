@@ -57,7 +57,7 @@ with lib.campground; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "vault-data.img";
+        image = "/persist/vm-data/vault/vault-data.img";
         mountPoint = "/var/lib/vault";
         size = 10240; # 10GB for vault data
       }

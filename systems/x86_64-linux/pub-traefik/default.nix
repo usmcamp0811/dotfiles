@@ -57,7 +57,7 @@ with lib.campground; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "traefik-public-data.img";
+        image = "/persist/vm-data/pub-traefik/traefik-public-data.img";
         mountPoint = "/var/lib/traefik";
         size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
       }

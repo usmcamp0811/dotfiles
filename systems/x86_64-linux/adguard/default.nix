@@ -54,7 +54,7 @@ with lib.campground; {
 
     volumes = [
       {
-        image = "adguard-data.img";
+        image = "/persist/vm-data/adguard/adguard-data.img";
         mountPoint = "/var/lib/AdGuardHome";
         size = 5120;
       }
