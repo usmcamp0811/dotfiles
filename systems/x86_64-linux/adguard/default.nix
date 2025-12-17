@@ -15,7 +15,6 @@ with lib.campground; {
 
   # MicroVM configuration
   microvm = {
-    # Use microvm as the hypervisor (lightweight, fast boot)
     hypervisor = "qemu";
 
     # Share the host's Nix store to save disk space
@@ -45,7 +44,7 @@ with lib.campground; {
       {
         type = "tap";
         id = "vm-adguard";
-        mac = "02:00:00:00:00:30"; # Static MAC for consistent DHCP
+        mac = "02:00:00:00:00:30"; # Static MAC for consistent static lease / identification
       }
     ];
 
@@ -66,12 +65,37 @@ with lib.campground; {
     ];
   };
 
-  # Network configuration - get IP from blue-ridge dnsmasq
-  networking.interfaces.eth0.useDHCP = true;
+  ############################################################
+  # Networking
+  #
+  # IMPORTANT:
+  # AdGuard is DHCP + DNS for the LAN, so it should NOT depend on
+  # DHCP itself. Give it a static IP.
+  ############################################################
+  networking = {
+    useDHCP = false;
+
+    interfaces.eth0.ipv4.addresses = [
+      {
+        address = "192.168.1.30";
+        prefixLength = 24;
+      }
+    ];
+
+    defaultGateway = "192.168.1.1";
+
+    nameservers = [
+      # while AdGuard is starting, having upstream resolvers avoids weirdness
+      "1.1.1.1"
+      "1.0.0.1"
+      "8.8.8.8"
+      "8.8.4.4"
+    ];
+  };
+
   services.resolved.enable = false;
 
   # Using read-only host /nix/store share
-  # Disable nix store optimization in VMs to save resources
   nix.optimise.automatic = lib.mkForce false;
   nix.settings.auto-optimise-store = lib.mkForce false;
 
@@ -109,12 +133,15 @@ with lib.campground; {
     };
   };
 
-  # AdGuard Home DNS and DHCP server
+  ############################################################
+  # AdGuard Home: DNS + DHCP authoritative for LAN
+  ############################################################
   services.adguardhome = {
     enable = true;
     mutableSettings = true;
     host = "0.0.0.0";
     port = 3000;
+
     settings = {
       dns = {
         bind_hosts = ["0.0.0.0"];
@@ -126,6 +153,7 @@ with lib.campground; {
           "8.8.4.4"
         ];
       };
+
       filters = [
         {
           enabled = true;
@@ -236,23 +264,38 @@ with lib.campground; {
           id = 102;
         }
       ];
+
+      # DHCPv4 server (authoritative)
       dhcp = {
         enabled = true;
         interface_name = "eth0";
+
         dhcpv4 = {
-          gateway_ip = "192.169.1.1";
+          gateway_ip = "192.168.1.1";
           subnet_mask = "255.255.255.0";
-          range_start = "192.169.1.50";  # Start after dnsmasq range (10-40)
-          range_end = "192.169.1.200";
-          lease_duration = 43200; # 12 hours in seconds
-          # Note: VM static leases are handled by blue-ridge dnsmasq
+
+          range_start = "192.168.1.50";
+          range_end = "192.168.1.200";
+
+          lease_duration = 43200; # 12h in seconds
         };
       };
     };
   };
 
+  ############################################################
+  # AdGuard DHCP reservations (static leases)
+  #
+  # AdGuardHome's YAML supports static leases; NixOS module doesn't
+  # expose a nice option for it directly. You have two paths:
+  #
+  # 1) Set these in the AdGuard Web UI (since mutableSettings = true), OR
+  # 2) We can generate AdGuardHome.yaml ourselves and set mutableSettings=false.
+  #
+  # I’m not inventing a schema here without your existing yaml shape.
+  ############################################################
+
   # Override systemd service to work with persistent volume
-  # Disable DynamicUser since we have a persistent volume mounted
   systemd.services.adguardhome = {
     serviceConfig = {
       DynamicUser = lib.mkForce false;
@@ -271,8 +314,10 @@ with lib.campground; {
   users.groups.adguardhome = {};
 
   # Open firewall ports (DNS, DHCP, Web UI)
-  networking.firewall.allowedTCPPorts = [53 3000];
-  networking.firewall.allowedUDPPorts = [53 67]; # DNS and DHCP server
+  networking.firewall = {
+    allowedTCPPorts = [53 3000];
+    allowedUDPPorts = [53 67 68];
+  };
 
   system.stateVersion = "23.05";
 }

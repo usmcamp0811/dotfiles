@@ -57,6 +57,10 @@ with lib.campground; {
 
     ############################################################
     # Router configuration (single, consolidated)
+    #
+    # IMPORTANT:
+    # - Blue-Ridge stays the router (WAN/LAN/NAT/firewall)
+    # - AdGuard microVM becomes the ONLY DHCP server for LAN clients + microVMs
     ############################################################
     router = {
       enable = true;
@@ -70,26 +74,16 @@ with lib.campground; {
       # LAN: bridge + gateway
       lan = {
         interfaces = ["enp2s0" "enp3s0" "enp4s0"];
-        gateway = "192.169.1.1";
+        gateway = "192.168.1.1";
         prefixLength = 24;
       };
 
-      # DHCP for VMs only (static reservations below)
-      # AdGuard will handle DHCP for client devices (50-200 range)
-      dhcp = {
-        enable = true;
-        rangeStart = "192.169.1.10";
-        rangeEnd = "192.169.1.40";
-        leaseTime = "12h";
-      };
+      # DHCP: DISABLED on router (AdGuard microVM is authoritative DHCP)
+      dhcp.enable = false;
 
-      # DNS forwarding to AdGuard once it's up
-      dns = {
-        enable = true;
-        forwarders = ["1.1.1.1" "1.0.0.1"];
-        enableDNSSEC = true;
-        dnssecCheckUnsigned = true;
-      };
+      # DNS: DISABLED on router (clients will use AdGuard directly)
+      # If you *want* the router itself to query AdGuard, set networking.nameservers below.
+      dns.enable = false;
 
       # Router security hardening
       security = {
@@ -107,16 +101,16 @@ with lib.campground; {
       portForwards = [
         {
           port = 443;
-          destination = "192.169.1.20";
+          destination = "192.168.1.20";
           protocol = "tcp";
           description = "HTTPS to pub-traefik";
         }
         {
           port = 80;
-          destination = "192.169.1.30";
+          destination = "192.168.1.30";
           destinationPort = 3000;
           protocol = "tcp";
-          description = "HTTPS to pub-traefik";
+          description = "HTTP to adguard UI (or whatever you intended here)";
         }
       ];
     };
@@ -133,19 +127,36 @@ with lib.campground; {
     };
   };
 
-  # Static DHCP leases for MicroVMs
-  services.dnsmasq.settings = {
-    dhcp-host = [
-      "02:00:00:00:00:10,192.169.1.10,vault"
-      "02:00:00:00:00:11,192.169.1.11,websites"
-      "02:00:00:00:00:20,192.169.1.20,pub-traefik"
-      "02:00:00:00:00:21,192.169.1.21,lan-traefik"
-      "02:00:00:00:00:30,192.169.1.30,adguard"
-    ];
+  ############################################################
+  # DHCP/DNS: Router must NOT run dnsmasq if AdGuard is DHCP
+  ############################################################
+  services.dnsmasq.enable = false;
 
-    # Only serve DHCP to VMs with static reservations, ignore all other clients
-    # This ensures client devices get DHCP from AdGuard (range 50-200)
-    dhcp-ignore = "tag:!known";
+  ############################################################
+  # Networking
+  ############################################################
+  networking.useNetworkd = true;
+
+  # Let the router itself use AdGuard for DNS once it's up (optional but recommended)
+  # (This does NOT provide DHCP/DNS to clients; it's only for the host itself.)
+  networking.nameservers = [
+    "192.168.1.30" # adguard microVM
+    "1.1.1.1"
+  ];
+
+  # Firewall: DHCP (67/68) + DNS (53) must be allowed on LAN
+  # so clients can reach AdGuard DHCP/DNS and broadcasts can flow.
+  networking.firewall = {
+    enable = true;
+    allowedUDPPorts = [53 67 68];
+    allowedTCPPorts = [53];
+  };
+
+  # Add MicroVM TAP interfaces to the LAN bridge (br-lan)
+  systemd.network.networks."30-lan-vm-taps" = {
+    matchConfig.Name = "vm-*";
+    networkConfig.Bridge = "br-lan";
+    linkConfig.RequiredForOnline = "enslaved";
   };
 
   ############################################################
@@ -187,18 +198,6 @@ with lib.campground; {
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
-  };
-
-  ############################################################
-  # Networking
-  ############################################################
-  networking.useNetworkd = true;
-
-  # Add MicroVM TAP interfaces to the LAN bridge (br-lan)
-  systemd.network.networks."30-lan-vm-taps" = {
-    matchConfig.Name = "vm-*";
-    networkConfig.Bridge = "br-lan";
-    linkConfig.RequiredForOnline = "enslaved";
   };
 
   system.stateVersion = "23.05";
