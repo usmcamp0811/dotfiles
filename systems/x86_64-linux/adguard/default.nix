@@ -108,7 +108,7 @@ with lib.campground; {
     };
   };
 
-  # AdGuard Home DNS server
+  # AdGuard Home DNS and DHCP server
   services.adguardhome = {
     enable = true;
     mutableSettings = true;
@@ -124,6 +124,45 @@ with lib.campground; {
           "8.8.8.8"
           "8.8.4.4"
         ];
+      };
+      dhcp = {
+        enabled = true;
+        interface_name = "eth0";
+        dhcpv4 = {
+          gateway_ip = "192.169.1.1";
+          subnet_mask = "255.255.255.0";
+          range_start = "192.169.1.50";
+          range_end = "192.169.1.200";
+          lease_duration = 43200; # 12 hours in seconds
+          # Static leases for MicroVMs
+          static_leases = [
+            {
+              mac = "02:00:00:00:00:10";
+              ip = "192.169.1.10";
+              hostname = "vault";
+            }
+            {
+              mac = "02:00:00:00:00:11";
+              ip = "192.169.1.11";
+              hostname = "websites";
+            }
+            {
+              mac = "02:00:00:00:00:20";
+              ip = "192.169.1.20";
+              hostname = "pub-traefik";
+            }
+            {
+              mac = "02:00:00:00:00:21";
+              ip = "192.169.1.21";
+              hostname = "lan-traefik";
+            }
+            {
+              mac = "02:00:00:00:00:30";
+              ip = "192.169.1.30";
+              hostname = "adguard";
+            }
+          ];
+        };
       };
     };
   };
@@ -147,9 +186,9 @@ with lib.campground; {
   };
   users.groups.adguardhome = {};
 
-  # Open firewall ports
+  # Open firewall ports (DNS, DHCP, Web UI)
   networking.firewall.allowedTCPPorts = [53 3000];
-  networking.firewall.allowedUDPPorts = [53];
+  networking.firewall.allowedUDPPorts = [53 67]; # DNS and DHCP server
 
   system.stateVersion = "23.05";
 }
