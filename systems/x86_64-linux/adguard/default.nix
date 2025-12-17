@@ -66,23 +66,9 @@ with lib.campground; {
     ];
   };
 
-  # Enable networkd for microvm
-  networking.useNetworkd = true;
-  networking.useDHCP = false;
-  networking.nameservers = ["1.1.1.1" "1.0.0.1"];
+  # Network configuration - get IP from blue-ridge dnsmasq
+  networking.interfaces.eth0.useDHCP = true;
   services.resolved.enable = false;
-
-  # Static IP configuration using systemd-networkd
-  # Match any ethernet interface in the VM
-  systemd.network.networks."10-lan" = {
-    matchConfig.Type = "ether";
-    networkConfig = {
-      Address = "192.169.1.30/24";
-      Gateway = "192.169.1.1";
-      DNS = ["1.1.1.1" "1.0.0.1"];
-    };
-    linkConfig.RequiredForOnline = "routable";
-  };
 
   # Using read-only host /nix/store share
   # Disable nix store optimization in VMs to save resources
@@ -256,37 +242,10 @@ with lib.campground; {
         dhcpv4 = {
           gateway_ip = "192.169.1.1";
           subnet_mask = "255.255.255.0";
-          range_start = "192.169.1.50";
+          range_start = "192.169.1.50";  # Start after dnsmasq range (10-40)
           range_end = "192.169.1.200";
           lease_duration = 43200; # 12 hours in seconds
-          # Static leases for MicroVMs
-          static_leases = [
-            {
-              mac = "02:00:00:00:00:10";
-              ip = "192.169.1.10";
-              hostname = "vault";
-            }
-            {
-              mac = "02:00:00:00:00:11";
-              ip = "192.169.1.11";
-              hostname = "websites";
-            }
-            {
-              mac = "02:00:00:00:00:20";
-              ip = "192.169.1.20";
-              hostname = "pub-traefik";
-            }
-            {
-              mac = "02:00:00:00:00:21";
-              ip = "192.169.1.21";
-              hostname = "lan-traefik";
-            }
-            {
-              mac = "02:00:00:00:00:30";
-              ip = "192.169.1.30";
-              hostname = "adguard";
-            }
-          ];
+          # Note: VM static leases are handled by blue-ridge dnsmasq
         };
       };
     };

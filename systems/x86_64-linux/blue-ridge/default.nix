@@ -74,19 +74,21 @@ with lib.campground; {
         prefixLength = 24;
       };
 
-      # DHCP only for static VM leases, AdGuard handles the rest
+      # DHCP for VMs only (static reservations below)
+      # AdGuard will handle DHCP for client devices (50-200 range)
       dhcp = {
         enable = true;
         rangeStart = "192.169.1.10";
-        rangeEnd = "192.169.1.35";
+        rangeEnd = "192.169.1.40";
         leaseTime = "12h";
       };
 
-      # DNS forwarding to AdGuard
+      # DNS forwarding to AdGuard once it's up
       dns = {
         enable = true;
-        forwarders = ["192.169.1.30"];
-        enableDNSSEC = false;
+        forwarders = ["1.1.1.1" "1.0.0.1"];
+        enableDNSSEC = true;
+        dnssecCheckUnsigned = true;
       };
 
       # Router security hardening
@@ -131,9 +133,14 @@ with lib.campground; {
     };
   };
 
-  # Use AdGuard for DNS resolution
-  networking.nameservers = ["192.169.1.30"];
-  services.resolved.enable = false;
+  # Static DHCP leases for MicroVMs
+  services.dnsmasq.settings.dhcp-host = [
+    "02:00:00:00:00:10,192.169.1.10,vault"
+    "02:00:00:00:00:11,192.169.1.11,websites"
+    "02:00:00:00:00:20,192.169.1.20,pub-traefik"
+    "02:00:00:00:00:21,192.169.1.21,lan-traefik"
+    "02:00:00:00:00:30,192.169.1.30,adguard"
+  ];
 
   ############################################################
   # MicroVM host configuration
