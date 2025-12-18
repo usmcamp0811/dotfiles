@@ -287,16 +287,16 @@ with lib.campground; {
           range_start = "192.169.1.50";
           range_end = "192.169.1.200";
           lease_duration = 43200; # 12 hours
-        };
 
-        # Static DHCP leases (MAC → IP)
-        static_leases = [
-          {
-            mac = "60:6d:3c:c2:4a:6e";
-            ip = "192.169.1.100";
-            hostname = "butler";
-          }
-        ];
+          # Static DHCP leases (MAC → IP)
+          static_leases = [
+            {
+              mac = "60:6d:3c:c2:4a:6e";
+              ip = "192.169.1.100";
+              hostname = "butler";
+            }
+          ];
+        };
       };
     };
   };
