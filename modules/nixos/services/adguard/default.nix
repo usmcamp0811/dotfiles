@@ -177,13 +177,10 @@ in {
     # Configure the base AdGuard Home service
     services.adguardhome = {
       enable = true;
-      inherit (cfg) package mutableSettings openFirewall extraArgs;
+      inherit (cfg) package mutableSettings openFirewall extraArgs host port;
 
       settings = mkMerge [
         {
-          # HTTP API configuration
-          bind_host = cfg.host;
-          bind_port = cfg.port;
 
           # DNS configuration
           dns =
