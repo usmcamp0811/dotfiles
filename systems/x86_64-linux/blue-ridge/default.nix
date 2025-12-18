@@ -110,6 +110,40 @@ with lib.campground; {
             dns = {
               servers = ["192.169.1.30"]; # AdGuard for DNS filtering
             };
+            staticLeases = [
+              # MicroVMs
+              {
+                mac = "02:00:00:00:00:10";
+                ip = "192.169.1.10";
+                hostname = "vault";
+              }
+              {
+                mac = "02:00:00:00:00:11";
+                ip = "192.169.1.11";
+                hostname = "websites";
+              }
+              {
+                mac = "02:00:00:00:00:20";
+                ip = "192.169.1.20";
+                hostname = "pub-traefik";
+              }
+              {
+                mac = "02:00:00:00:00:21";
+                ip = "192.169.1.21";
+                hostname = "lan-traefik";
+              }
+              {
+                mac = "02:00:00:00:00:30";
+                ip = "192.169.1.30";
+                hostname = "adguard";
+              }
+              # Physical machines
+              {
+                mac = "60:6d:3c:c2:4a:6e";
+                ip = "192.169.1.101";
+                hostname = "butler";
+              }
+            ];
             allowInternet = true;
             isolation = "none"; # LAN can talk to all zones
             description = "Main LAN network for trusted devices and VMs";
@@ -284,23 +318,6 @@ with lib.campground; {
       extraGroups = [];
       uid = 1000;
     };
-  };
-
-  # Static DHCP leases for MicroVMs
-  # dnsmasq will ONLY serve these VMs, ignoring all other DHCP requests
-  services.dnsmasq.settings = {
-    dhcp-host = [
-      "02:00:00:00:00:10,192.169.1.10,vault"
-      "02:00:00:00:00:11,192.169.1.11,websites"
-      "02:00:00:00:00:20,192.169.1.20,pub-traefik"
-      "02:00:00:00:00:21,192.169.1.21,lan-traefik"
-      "02:00:00:00:00:30,192.169.1.30,adguard"
-      "60:6d:3c:c2:4a:6e,192.169.1.101,butler"
-    ];
-
-    # CRITICAL: Only serve DHCP to VMs with static reservations above
-    # This ensures client devices get DHCP from AdGuard (range 50-200)
-    dhcp-ignore = "tag:!known";
   };
 
   ############################################################

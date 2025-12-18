@@ -257,24 +257,25 @@ with lib.campground; {
         # DHCP enabled for LAN only (192.169.1.x)
         # Blue Ridge dnsmasq handles DHCP for WiFi/IoT/Guest zones
         # All zones use AdGuard for DNS filtering
-        dhcp = {
-          enable = true;
-          interface = "lan0";
-          gatewayIp = "192.169.1.1";
-          subnetMask = "255.255.255.0";
-          rangeStart = "192.169.1.50";
-          rangeEnd = "192.169.1.200";
-          leaseDuration = 43200; # 12 hours
-
-          # Static DHCP leases (MAC → IP)
-          staticLeases = [
-            {
-              mac = "60:6d:3c:c2:4a:6e";
-              ip = "192.169.1.100";
-              hostname = "butler";
-            }
-          ];
-        };
+        # this doesnt work like i want
+        # dhcp = {
+        #   enable = true;
+        #   interface = "lan0";
+        #   gatewayIp = "192.169.1.1";
+        #   subnetMask = "255.255.255.0";
+        #   rangeStart = "192.169.1.50";
+        #   rangeEnd = "192.169.1.200";
+        #   leaseDuration = 43200; # 12 hours
+        #
+        #   # Static DHCP leases (MAC → IP)
+        #   staticLeases = [
+        #     {
+        #       mac = "60:6d:3c:c2:4a:6e";
+        #       ip = "192.169.1.100";
+        #       hostname = "butler";
+        #     }
+        #   ];
+        # };
       };
     };
   };
