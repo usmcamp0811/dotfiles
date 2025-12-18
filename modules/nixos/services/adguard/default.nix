@@ -1,13 +1,13 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.campground; let
   cfg = config.campground.services.adguard;
-in
-{
+in {
   options.campground.services.adguard = with types; {
     enable = mkBoolOpt false "Enable AdGuard Home DNS server and ad blocker";
 
@@ -24,7 +24,7 @@ in
     dns = {
       port = mkOpt port 53 "DNS server port";
 
-      bindHosts = mkOpt (listOf str) [ "0.0.0.0" ] "DNS server bind addresses";
+      bindHosts = mkOpt (listOf str) ["0.0.0.0"] "DNS server bind addresses";
 
       upstreamDns = mkOpt (listOf str) [
         "https://dns.cloudflare.com/dns-query"
@@ -40,7 +40,8 @@ in
 
       ratelimit = mkOpt int 20 "DDoS protection: max number of requests per second from a client";
 
-      blockingMode = mkOpt (enum [ "default" "nxdomain" "null_ip" "custom_ip" ]) "default"
+      blockingMode =
+        mkOpt (enum ["default" "nxdomain" "null_ip" "custom_ip"]) "default"
         "How to respond to blocked domains (default, nxdomain, null_ip, custom_ip)";
 
       blockingIpv4 = mkOpt str "" "Custom IPv4 for blocked domains when blockingMode is custom_ip";
@@ -65,29 +66,30 @@ in
 
       updateInterval = mkOpt int 24 "How often to update filters (in hours)";
 
-      filters = mkOpt (listOf (submodule {
-        options = {
-          enabled = mkOption {
-            type = bool;
-            default = true;
-            description = "Whether this filter is enabled";
+      filters =
+        mkOpt (listOf (submodule {
+          options = {
+            enabled = mkOption {
+              type = bool;
+              default = true;
+              description = "Whether this filter is enabled";
+            };
+            name = mkOption {
+              type = str;
+              description = "Filter name";
+            };
+            url = mkOption {
+              type = str;
+              description = "Filter URL";
+            };
           };
-          name = mkOption {
-            type = str;
-            description = "Filter name";
-          };
-          url = mkOption {
-            type = str;
-            description = "Filter URL";
-          };
-        };
-      })) [
-        {
-          enabled = true;
-          name = "AdGuard DNS filter";
-          url = "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt";
-        }
-      ] "Filter lists to enable";
+        })) [
+          {
+            enabled = true;
+            name = "AdGuard DNS filter";
+            url = "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt";
+          }
+        ] "Filter lists to enable";
     };
 
     queryLog = {
@@ -118,6 +120,24 @@ in
       rangeEnd = mkOpt str "" "DHCP range end IP";
 
       leaseDuration = mkOpt int 86400 "DHCP lease duration in seconds (default: 24 hours)";
+
+      staticLeases = mkOpt (listOf (submodule {
+        options = {
+          mac = mkOption {
+            type = str;
+            description = "Client MAC address";
+          };
+          ip = mkOption {
+            type = str;
+            description = "Static IP address to assign";
+          };
+          hostname = mkOption {
+            type = str;
+            default = "";
+            description = "Hostname to advertise via DHCP";
+          };
+        };
+      })) [] "Static DHCP leases (MAC → IP mapping)";
     };
 
     tls = {
@@ -148,9 +168,9 @@ in
       enable = mkBoolOpt false "Enable safe search enforcement";
     };
 
-    extraArgs = mkOpt (listOf str) [ ] "Extra command-line arguments to pass to AdGuard Home";
+    extraArgs = mkOpt (listOf str) [] "Extra command-line arguments to pass to AdGuard Home";
 
-    extraSettings = mkOpt attrs { } "Additional settings to merge into AdGuard Home configuration";
+    extraSettings = mkOpt attrs {} "Additional settings to merge into AdGuard Home configuration";
   };
 
   config = mkIf cfg.enable {
@@ -166,29 +186,31 @@ in
           bind_port = cfg.port;
 
           # DNS configuration
-          dns = {
-            bind_hosts = cfg.dns.bindHosts;
-            port = cfg.dns.port;
-            upstream_dns = cfg.dns.upstreamDns;
-            bootstrap_dns = cfg.dns.bootstrapDns;
-            ratelimit = cfg.dns.ratelimit;
-            blocking_mode = cfg.dns.blockingMode;
-            enable_dnssec = cfg.dns.enableDNSSEC;
-            edns_client_subnet = {
-              enabled = cfg.dns.enableEDNSClientSubnet;
-            };
-            cache_size = cfg.dns.cacheSize;
-            cache_ttl_min = cfg.dns.cacheTtlMin;
-            cache_ttl_max = cfg.dns.cacheTtlMax;
-            all_servers = cfg.dns.enableParallelUpstreamQueries;
-          }
-          // (optionalAttrs (cfg.dns.blockingMode == "custom_ip") {
-            blocking_ipv4 = cfg.dns.blockingIpv4;
-            blocking_ipv6 = cfg.dns.blockingIpv6;
-          });
+          dns =
+            {
+              bind_hosts = cfg.dns.bindHosts;
+              port = cfg.dns.port;
+              upstream_dns = cfg.dns.upstreamDns;
+              bootstrap_dns = cfg.dns.bootstrapDns;
+              ratelimit = cfg.dns.ratelimit;
+              blocking_mode = cfg.dns.blockingMode;
+              enable_dnssec = cfg.dns.enableDNSSEC;
+              edns_client_subnet = {
+                enabled = cfg.dns.enableEDNSClientSubnet;
+              };
+              cache_size = cfg.dns.cacheSize;
+              cache_ttl_min = cfg.dns.cacheTtlMin;
+              cache_ttl_max = cfg.dns.cacheTtlMax;
+              all_servers = cfg.dns.enableParallelUpstreamQueries;
+            }
+            // (optionalAttrs (cfg.dns.blockingMode == "custom_ip") {
+              blocking_ipv4 = cfg.dns.blockingIpv4;
+              blocking_ipv6 = cfg.dns.blockingIpv6;
+            });
 
           # Filtering configuration
-          filters = map
+          filters =
+            map
             (filter: {
               enabled = filter.enabled;
               name = filter.name;
@@ -233,11 +255,20 @@ in
           dhcp = {
             enabled = true;
             interface_name = cfg.dhcp.interface;
-            gateway_ip = cfg.dhcp.gatewayIp;
-            subnet_mask = cfg.dhcp.subnetMask;
-            range_start = cfg.dhcp.rangeStart;
-            range_end = cfg.dhcp.rangeEnd;
-            lease_duration = cfg.dhcp.leaseDuration;
+            dhcpv4 = {
+              gateway_ip = cfg.dhcp.gatewayIp;
+              subnet_mask = cfg.dhcp.subnetMask;
+              range_start = cfg.dhcp.rangeStart;
+              range_end = cfg.dhcp.rangeEnd;
+              lease_duration = cfg.dhcp.leaseDuration;
+              static_leases =
+                map (l: {
+                  mac = l.mac;
+                  ip = l.ip;
+                  hostname = l.hostname;
+                })
+                cfg.dhcp.staticLeases;
+            };
           };
         })
 
@@ -261,12 +292,14 @@ in
 
     # Open firewall ports if requested
     networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [ cfg.port ]
+      allowedTCPPorts =
+        [cfg.port]
         ++ optional (cfg.dns.port != 53) cfg.dns.port
         ++ optional cfg.tls.enable cfg.tls.port
         ++ optional cfg.tls.enable cfg.tls.portHttps;
 
-      allowedUDPPorts = [ cfg.dns.port ]
+      allowedUDPPorts =
+        [cfg.dns.port]
         ++ optional cfg.dhcp.enable 67
         ++ optional cfg.tls.enable cfg.tls.portQuic;
     };
@@ -283,6 +316,6 @@ in
       description = "AdGuard Home daemon user";
     };
 
-    users.groups.adguardhome = { };
+    users.groups.adguardhome = {};
   };
 }
