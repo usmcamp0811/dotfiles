@@ -97,19 +97,17 @@ with lib.campground; {
 
         zones = {
           # LAN - Native/untagged VLAN (existing network)
-          # DHCP handled by AdGuard (192.169.1.30)
-          lan = {
-            vlanId = null; # Native VLAN
-            subnet = "192.169.1.0/24";
-            gateway = "192.169.1.1";
-            dhcp = {
-              enable = false; # AdGuard handles DHCP for LAN
-              rangeStart = "192.169.1.50";
-              rangeEnd = "192.169.1.200";
-            };
-            dns = {
-              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
-            };
+        # DHCP handled by AdGuard (192.169.1.30)
+        lan = {
+          vlanId = null; # Native VLAN
+          subnet = "192.169.1.0/24";
+          gateway = "192.169.1.1";
+          dhcp = {
+            enable = false; # AdGuard handles DHCP for LAN
+            rangeStart = "192.169.1.50";
+            rangeEnd = "192.169.1.200";
+
+            # Static DHCP leases (MAC → IP) served by dnsmasq
             staticLeases = [
               # MicroVMs
               {
@@ -144,83 +142,87 @@ with lib.campground; {
                 hostname = "butler";
               }
             ];
-            allowInternet = true;
-            isolation = "none"; # LAN can talk to all zones
-            description = "Main LAN network for trusted devices and VMs";
           };
-
-          # WiFi - VLAN 10
-          # DHCP handled by dnsmasq, DNS filtering via AdGuard
-          wifi = {
-            vlanId = 10;
-            subnet = "192.169.10.0/24";
-            gateway = "192.169.10.1";
-            dhcp = {
-              enable = true;
-              rangeStart = "192.169.10.50";
-              rangeEnd = "192.169.10.200";
-            };
-            dns = {
-              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
-            };
-            allowInternet = true;
-            isolation = "partial"; # Can access LAN only
-            description = "WiFi network for wireless devices";
+          dns = {
+            servers = ["192.169.1.30"]; # AdGuard for DNS filtering
           };
-
-          # IoT - VLAN 20
-          # DHCP handled by dnsmasq, DNS filtering via AdGuard
-          iot = {
-            vlanId = 20;
-            subnet = "192.169.20.0/24";
-            gateway = "192.169.20.1";
-            dhcp = {
-              enable = true;
-              rangeStart = "192.169.20.50";
-              rangeEnd = "192.169.20.200";
-              # Static DHCP leases for IoT devices (MAC → IP)
-              staticLeases = [
-                # Example: smart thermostat
-                # {
-                #   mac = "aa:bb:cc:dd:ee:ff";
-                #   ip = "192.169.20.100";
-                #   hostname = "thermostat";
-                # }
-                # Example: smart lights hub
-                # {
-                #   mac = "11:22:33:44:55:66";
-                #   ip = "192.169.20.101";
-                #   hostname = "hue-bridge";
-                # }
-              ];
-            };
-            dns = {
-              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
-            };
-            allowInternet = true;
-            isolation = "full"; # Isolated from other zones
-            description = "IoT network for smart home devices";
-          };
-
-          # Guest - VLAN 30
-          # DHCP handled by dnsmasq, DNS filtering via AdGuard
-          guest = {
-            vlanId = 30;
-            subnet = "192.169.30.0/24";
-            gateway = "192.169.30.1";
-            dhcp = {
-              enable = true;
-              rangeStart = "192.169.30.50";
-              rangeEnd = "192.169.30.200";
-            };
-            dns = {
-              servers = ["192.169.1.30"]; # AdGuard for DNS filtering
-            };
-            allowInternet = true;
-            isolation = "full"; # Fully isolated
-            description = "Guest network for visitors";
-          };
+          allowInternet = true;
+          isolation = "none"; # LAN can talk to all zones
+          description = "Main LAN network for trusted devices and VMs";
         };
+
+        # WiFi - VLAN 10
+        # DHCP handled by dnsmasq, DNS filtering via AdGuard
+        wifi = {
+          vlanId = 10;
+          subnet = "192.169.10.0/24";
+          gateway = "192.169.10.1";
+          dhcp = {
+            enable = true;
+            rangeStart = "192.169.10.50";
+            rangeEnd = "192.169.10.200";
+          };
+          dns = {
+            servers = ["192.169.1.30"]; # AdGuard for DNS filtering
+          };
+          allowInternet = true;
+          isolation = "partial"; # Can access LAN only
+          description = "WiFi network for wireless devices";
+        };
+
+        # IoT - VLAN 20
+        # DHCP handled by dnsmasq, DNS filtering via AdGuard
+        iot = {
+          vlanId = 20;
+          subnet = "192.169.20.0/24";
+          gateway = "192.169.20.1";
+          dhcp = {
+            enable = true;
+            rangeStart = "192.169.20.50";
+            rangeEnd = "192.169.20.200";
+            # Static DHCP leases for IoT devices (MAC → IP)
+            staticLeases = [
+              # Example: smart thermostat
+              # {
+              #   mac = "aa:bb:cc:dd:ee:ff";
+              #   ip = "192.169.20.100";
+              #   hostname = "thermostat";
+              # }
+              # Example: smart lights hub
+              # {
+              #   mac = "11:22:33:44:55:66";
+              #   ip = "192.169.20.101";
+              #   hostname = "hue-bridge";
+              # }
+            ];
+          };
+          dns = {
+            servers = ["192.169.1.30"]; # AdGuard for DNS filtering
+          };
+          allowInternet = true;
+          isolation = "full"; # Isolated from other zones
+          description = "IoT network for smart home devices";
+        };
+
+        # Guest - VLAN 30
+        # DHCP handled by dnsmasq, DNS filtering via AdGuard
+        guest = {
+          vlanId = 30;
+          subnet = "192.169.30.0/24";
+          gateway = "192.169.30.1";
+          dhcp = {
+            enable = true;
+            rangeStart = "192.169.30.50";
+            rangeEnd = "192.169.30.200";
+          };
+          dns = {
+            servers = ["192.169.1.30"]; # AdGuard for DNS filtering
+          };
+          allowInternet = true;
+          isolation = "full"; # Fully isolated
+          description = "Guest network for visitors";
+        };
+        }; # end zones
 
         # Inter-zone routing with granular port/protocol restrictions
         # Uncomment and customize as needed
