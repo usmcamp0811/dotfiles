@@ -159,6 +159,7 @@ with lib.campground; {
             "8.8.8.8"
             "8.8.4.4"
           ];
+          enableDNSSEC = true;
         };
 
         filtering.filters = [
