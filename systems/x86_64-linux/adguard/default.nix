@@ -279,5 +279,14 @@ with lib.campground; {
     };
   };
 
+  # Override systemd service to use static user instead of DynamicUser
+  # This is necessary because /var/lib/AdGuardHome is on a persistent volume
+  systemd.services.adguardhome.serviceConfig = {
+    DynamicUser = lib.mkForce false;
+    User = "adguardhome";
+    Group = "adguardhome";
+    StateDirectory = lib.mkForce "AdGuardHome";
+  };
+
   system.stateVersion = "23.05";
 }
