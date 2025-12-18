@@ -72,7 +72,7 @@ with lib.campground; {
   # Explicit network configuration for lan0
   systemd.network.networks."20-lan0" = {
     matchConfig.Name = "lan0";
-    address = ["192.169.1.30/24"];
+    address = ["192.169.1.2/24"];
     gateway = ["192.169.1.1"];
     networkConfig = {
       DHCP = "no";
