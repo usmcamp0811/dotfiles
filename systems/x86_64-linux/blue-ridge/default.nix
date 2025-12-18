@@ -295,6 +295,7 @@ with lib.campground; {
       "02:00:00:00:00:20,192.169.1.20,pub-traefik"
       "02:00:00:00:00:21,192.169.1.21,lan-traefik"
       "02:00:00:00:00:30,192.169.1.30,adguard"
+      "60:6d:3c:c2:4a:6e,192.169.1.101,butler"
     ];
 
     # CRITICAL: Only serve DHCP to VMs with static reservations above
