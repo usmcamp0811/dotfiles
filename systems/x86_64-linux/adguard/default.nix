@@ -148,7 +148,7 @@ with lib.campground; {
   ############################################################
   services.adguardhome = {
     enable = true;
-    mutableSettings = true;
+    # mutableSettings = true;
     host = "0.0.0.0";
     port = 3000;
 
@@ -286,7 +286,7 @@ with lib.campground; {
           subnet_mask = "255.255.255.0";
           range_start = "192.169.1.50";
           range_end = "192.169.1.200";
-          lease_duration = 43200;  # 12 hours
+          lease_duration = 43200; # 12 hours
         };
 
         # Static DHCP leases (MAC → IP)
