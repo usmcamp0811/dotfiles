@@ -311,6 +311,21 @@ in {
         });
     };
 
+    # Ensure dnsmasq starts after network interfaces are ready
+    systemd.services.dnsmasq = mkIf (cfg.dhcp.enable || cfg.dns.enable) {
+      after = [
+        "systemd-networkd.service"
+        "network-online.target"
+      ];
+      wants = [
+        "network-online.target"
+      ];
+      # Small delay to ensure VLAN interfaces are fully initialized
+      serviceConfig = {
+        ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+      };
+    };
+
     ############################################################
     # Firewall + NAT (nftables)
     ############################################################
