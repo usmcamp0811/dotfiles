@@ -137,8 +137,9 @@ in
         host = cfg.databaseHost;
         name = cfg.databaseName;
         user = cfg.databaseUser;
+      } // (lib.optionalAttrs (cfg.databaseType != "sqlite3") {
         passwordFile = "/var/lib/vault/gitea-db-password";
-      };
+      });
 
       settings = recursiveUpdate {
         server = {
@@ -208,7 +209,7 @@ in
         mkdir -p /var/lib/vault
 
         # Copy secrets from Vault agent
-        cp /tmp/detsys-vault/gitea-db-password /var/lib/vault/
+        ${optionalString (cfg.databaseType != "sqlite3") "cp /tmp/detsys-vault/gitea-db-password /var/lib/vault/"}
         cp /tmp/detsys-vault/gitea-secret-key /var/lib/vault/
         cp /tmp/detsys-vault/gitea-internal-token /var/lib/vault/
 
@@ -240,7 +241,7 @@ in
       secrets = {
         file = {
           files =
-            {
+            (optionalAttrs (cfg.databaseType != "sqlite3") {
               "gitea-db-password" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.db_password }}{{ else }}{{ .Data.data.db_password }}{{ end }}{{ end }}
@@ -248,6 +249,8 @@ in
                 permissions = "0600";
                 change-action = "restart";
               };
+            })
+            // {
               "gitea-secret-key" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.secret_key }}{{ else }}{{ .Data.data.secret_key }}{{ end }}{{ end }}
