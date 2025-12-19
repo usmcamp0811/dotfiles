@@ -153,11 +153,16 @@ with lib.campground; {
         dns = {
           bindHosts = ["0.0.0.0"];
           port = 53;
+          # Encrypted DNS using DoH (DNS over HTTPS) for privacy from ISP
           upstreamDns = [
+            "https://cloudflare-dns.com/dns-query"  # Cloudflare DoH (primary)
+            "https://dns.google/dns-query"          # Google DoH (backup)
+            "https://dns.quad9.net/dns-query"       # Quad9 DoH (backup)
+          ];
+          # Bootstrap DNS for resolving DoH server hostnames (unencrypted, but only for initial connection)
+          bootstrapDns = [
             "1.1.1.1"
-            "1.0.0.1"
             "8.8.8.8"
-            "8.8.4.4"
           ];
           enableDNSSEC = true;
         };
