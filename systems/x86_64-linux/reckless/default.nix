@@ -245,6 +245,13 @@ in {
             deployment_policy = "auto_latest";
           }
           {
+            hostname = "gitea";
+            public_key = "wdrHuQ5tGG2FxpdH84kvYz6Tmbml1Lp4YVWbhtDW7mo=";
+            environment = "microvms";
+            flake_name = "dotfiles";
+            deployment_policy = "auto_latest";
+          }
+          {
             hostname = "adguard";
             public_key = "86hZY01AH2oXqR6irsjl0nZq8aexWwiOvF17FSxMc4w=";
             environment = "microvms";

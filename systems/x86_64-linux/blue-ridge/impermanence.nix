@@ -38,6 +38,7 @@
       "/persist/vm-stores/pub-traefik/nix-store"
       "/persist/vm-stores/lan-traefik/nix-store"
       "/persist/vm-stores/adguard/nix-store"
+      "/persist/vm-stores/gitea/nix-store"
     ];
 
     files = [
@@ -64,6 +65,9 @@
 
       "/var/lib/vault/adguard/role-id"
       "/var/lib/vault/adguard/secret-id"
+
+      "/var/lib/vault/gitea/role-id"
+      "/var/lib/vault/gitea/secret-id"
     ];
 
     users.admin = {
