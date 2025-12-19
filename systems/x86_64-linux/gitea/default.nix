@@ -18,13 +18,14 @@ with lib.fmf; {
   ############################################################
   microvm = {
     hypervisor = "qemu";
+    writableStoreOverlay = "/nix/.rw-store";
 
     shares = [
       {
         proto = "virtiofs";
         tag = "ro-store";
         source = "/nix/store";
-        mountPoint = "/nix/store";
+        mountPoint = "/nix/.ro-store";
       }
       {
         proto = "virtiofs";
@@ -86,9 +87,6 @@ with lib.fmf; {
   networking.useDHCP = false;
   services.resolved.enable = false;
 
-  networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [22 3000 22022]; # SSH, Web UI, Git SSH
-
   networking.defaultGateway = {
     address = "192.169.1.1";
     interface = "lan0";
@@ -138,50 +136,19 @@ with lib.fmf; {
       gitea = {
         enable = true;
         appName = "AI Campground Gitea";
-
-        settings = {
-          server = {
-            DOMAIN = "git.lan.aicampground.com";
-            ROOT_URL = "https://git.lan.aicampground.com/";
-            HTTP_PORT = 3000;
-            SSH_PORT = 22022;
-            DISABLE_SSH = false;
-            START_SSH_SERVER = true;
-          };
-
-          service = {
-            DISABLE_REGISTRATION = false;
-            REQUIRE_SIGNIN_VIEW = false;
-          };
-
-          repository = {
-            ROOT = "/var/lib/gitea/repositories";
-          };
-
-          database = {
-            DB_TYPE = "sqlite3";
-            PATH = "/var/lib/gitea/data/gitea.db";
-          };
-
-          session = {
-            PROVIDER = "file";
-          };
-
-          log = {
-            MODE = "file";
-            LEVEL = "Info";
-          };
-        };
+        domain = "git.lan.aicampground.com";
+        port = 3000;
+        httpPort = 8445;
+        sshPort = 22022;
+        databaseType = "sqlite3";
+        repositoryRoot = "/var/lib/gitea/repositories";
+        stateDir = "/var/lib/gitea";
+        disableRegistration = false;
+        enableLFS = true;
+        enableActions = true;
       };
     };
   };
-
-  # Ensure gitea user has correct permissions
-  systemd.tmpfiles.rules = [
-    "d /var/lib/gitea 0750 gitea gitea -"
-    "d /var/lib/gitea/data 0750 gitea gitea -"
-    "d /var/lib/gitea/repositories 0750 gitea gitea -"
-  ];
 
   system.stateVersion = "23.05";
 }

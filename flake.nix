@@ -411,6 +411,10 @@
         microvm.nixosModules.microvm
       ];
 
+      systems.hosts.gitea.modules = with inputs; [
+        microvm.nixosModules.microvm
+      ];
+
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
 
