@@ -4,10 +4,10 @@
 , ...
 }:
 with lib; let
-  cfg = config.campground.hardware.intel;
+  cfg = config.fmf.hardware.intel;
 in
 {
-  options.campground.hardware.intel = with types; {
+  options.fmf.hardware.intel = with types; {
     enable = mkEnableOption "Intel Graphics";
   };
 

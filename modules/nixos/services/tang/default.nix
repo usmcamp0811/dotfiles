@@ -3,11 +3,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.tang;
+with lib.fmf; let
+  cfg = config.fmf.services.tang;
 in
 {
-  options.campground.services.tang = with types; {
+  options.fmf.services.tang = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     port = mkOption {
       type = types.listOf types.str;

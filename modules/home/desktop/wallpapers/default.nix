@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  inherit (pkgs.campground) wallpapers;
+with lib.fmf; let
+  inherit (pkgs.fmf) wallpapers;
 in
 {
-  options.campground.desktop.wallpapers = with types; {
+  options.fmf.desktop.wallpapers = with types; {
     enable =
       mkBoolOpt false
         "Whether or not to add wallpapers to ~/Pictures/wallpapers.";

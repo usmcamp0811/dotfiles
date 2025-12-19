@@ -1,12 +1,12 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.mlflow;
-  inherit (pkgs.campground) mlflow;
+  cfg = config.fmf.services.mlflow;
+  inherit (pkgs.fmf) mlflow;
 in
 {
-  options.campground.services.mlflow = with types; {
+  options.fmf.services.mlflow = with types; {
     enable = mkBoolOpt false "Enable an MLFlow;";
     port = mkOpt int 8000 "Port to Host the mlflow server on.";
     dbURI =
@@ -19,10 +19,10 @@ in
     s3Region = mkOpt str "us-east-1" "S3 Region";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/mlflow"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -33,7 +33,7 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -50,7 +50,7 @@ in
 
     users.groups.mlflow = { };
 
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [ "local mlflow mlflow trust" ];
       databases = [{
@@ -59,7 +59,7 @@ in
       }];
     };
 
-    # campground.services.mysql = {
+    # fmf.services.mysql = {
     #   enable = true;
     #   databases = [
     #     {
@@ -102,7 +102,7 @@ in
       };
       # Use a preStart script to ensure the database is initialized or upgraded before the server starts
       # preStart = ''
-      #   ${pkgs.campground.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}'
+      #   ${pkgs.fmf.mlflow}/bin/mlflow-server db upgrade '${cfg.dbURI}'
       # '';
       script = ''
         ${pkgs.mlflow-server}/bin/mlflow-server server --backend-store-uri '${cfg.dbURI}' --artifacts-destination ${cfg.artifactRoot} --host 127.0.0.1 --port 5000
@@ -121,7 +121,7 @@ in
     ];
     networking.firewall.allowedTCPPorts = [ cfg.port ];
 
-    campground.services.vault-agent.services.mlflow = {
+    fmf.services.vault-agent.services.mlflow = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

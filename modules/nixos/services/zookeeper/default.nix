@@ -1,11 +1,11 @@
 { lib, config, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.zookeeper;
+  cfg = config.fmf.services.zookeeper;
 in
 {
-  options.campground.services.zookeeper = with types; {
+  options.fmf.services.zookeeper = with types; {
     enable = mkBoolOpt false "Enable Kafka;";
     id = mkOpt int 0 "Server ID";
     servers = mkOption {

@@ -8,8 +8,8 @@
   ...
 }:
 with lib;
-with lib.campground; {
-  campground = {
+with lib.fmf; {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

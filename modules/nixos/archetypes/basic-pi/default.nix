@@ -6,15 +6,15 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.archetypes.basic-pi;
+with lib.fmf; let
+  cfg = config.fmf.archetypes.basic-pi;
 in {
-  options.campground.archetypes.basic-pi = with types; {
+  options.fmf.archetypes.basic-pi = with types; {
     enable = mkBoolOpt false "Whether or not to enable the basic-pi archetype.";
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       # suites = {common = enabled;};
       system = {
         passwds = enabled;

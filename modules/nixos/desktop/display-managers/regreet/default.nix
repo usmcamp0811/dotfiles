@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.display-manager.regreet;
+with lib.fmf; let
+  cfg = config.fmf.desktop.display-manager.regreet;
   greetdSwayConfig = pkgs.writeText "greetd-sway-config" ''
     exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
     exec systemctl --user import-environment
@@ -37,7 +37,7 @@ with lib.campground; let
     } exit"
   '';
 in {
-  options.campground.desktop.display-manager.regreet = with types; {
+  options.fmf.desktop.display-manager.regreet = with types; {
     enable = mkBoolOpt false "Whether or not to enable greetd.";
     swayOutput = mkOpt lines "" "Sway Outputs config.";
     font = mkOpt types.str "MonaspiceNe Nerd Font" "Default font name";
@@ -45,9 +45,9 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      config.campground.desktop.addons.gtk.cursor.pkg
-      config.campground.desktop.addons.gtk.icon.pkg
-      config.campground.desktop.addons.gtk.theme.pkg
+      config.fmf.desktop.addons.gtk.cursor.pkg
+      config.fmf.desktop.addons.gtk.icon.pkg
+      config.fmf.desktop.addons.gtk.theme.pkg
       pkgs.vulkan-validation-layers
     ];
 
@@ -56,16 +56,16 @@ in {
 
       settings = {
         # background = {
-        #   path = pkgs.campground.wallpapers.flatppuccin_macchiato;
+        #   path = pkgs.fmf.wallpapers.flatppuccin_macchiato;
         #   fit = "Cover";
         # };
 
         GTK = {
           application_prefer_dark_theme = true;
-          cursor_theme_name = "${config.campground.desktop.addons.gtk.cursor.name}";
-          font_name = "${config.campground.system.fonts.default} * 12";
-          icon_theme_name = "${config.campground.desktop.addons.gtk.icon.name}";
-          theme_name = "${config.campground.desktop.addons.gtk.theme.name}";
+          cursor_theme_name = "${config.fmf.desktop.addons.gtk.cursor.name}";
+          font_name = "${config.fmf.system.fonts.default} * 12";
+          icon_theme_name = "${config.fmf.desktop.addons.gtk.icon.name}";
+          theme_name = "${config.fmf.desktop.addons.gtk.theme.name}";
         };
       };
     };

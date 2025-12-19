@@ -2,10 +2,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.freetube;
+  cfg = config.fmf.apps.freetube;
 in
 {
-  options.campground.apps.freetube = {
+  options.fmf.apps.freetube = {
     enable = mkEnableOption "freetube";
   };
 

@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.waynergy;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.waynergy;
 in
 {
-  options.campground.desktop.addons.waynergy = with types; {
+  options.fmf.desktop.addons.waynergy = with types; {
     enable =
       mkBoolOpt false "Whether to enable waynergy in the desktop environment.";
   };

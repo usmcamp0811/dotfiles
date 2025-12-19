@@ -1,9 +1,9 @@
 { inputs, pkgs, options, config, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.addons.wlsunset;
+with lib.fmf;
+let cfg = config.fmf.desktop.addons.wlsunset;
 in {
-  options.campground.desktop.addons.wlsunset = with types; {
+  options.fmf.desktop.addons.wlsunset = with types; {
     enable =
       mkBoolOpt false "Whether to enable wlsunset in the desktop environment.";
   };

@@ -4,9 +4,9 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.k0s;
-  inherit (pkgs.campground) k0s;
+with lib.fmf; let
+  cfg = config.fmf.services.k0s;
+  inherit (pkgs.fmf) k0s;
 
   configFile =
     if cfg.configText != ""
@@ -55,7 +55,7 @@ with lib.campground; let
       '';
 in
 {
-  options.campground.services.k0s = {
+  options.fmf.services.k0s = {
     enable =
       mkEnableOption (lib.mdDoc "Enable the k0s Kubernetes distribution.");
 
@@ -178,18 +178,18 @@ in
 
     role-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.role-id
+        config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.secret-id
+        config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/k0s"
         "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
@@ -203,7 +203,7 @@ in
       openiscsi
       nfs-utils
       cilium-cli
-      campground.k0s
+      fmf.k0s
     ];
 
     systemd.network.networks."10-${cfg.interface}" = {
@@ -522,7 +522,7 @@ in
           };
         })
         cfg.users;
-    campground.services.vault-agent.services = {
+    fmf.services.vault-agent.services = {
       get-k0s-worker-token =
         mkIf
           (

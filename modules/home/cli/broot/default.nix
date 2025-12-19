@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.cli.broot;
+with lib.fmf; let
+  cfg = config.fmf.cli.broot;
 in {
-  options.campground.cli.broot = with types; {
+  options.fmf.cli.broot = with types; {
     enable = mkBoolOpt false "Whether or not to enable broot.";
   };
 

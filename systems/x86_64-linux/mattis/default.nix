@@ -6,7 +6,7 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -19,7 +19,7 @@ in {
   boot.initrd.availableKernelModules = ["thunderbolt" "xhci_hcd"];
 
   services.logind.lidSwitch = "ignore";
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

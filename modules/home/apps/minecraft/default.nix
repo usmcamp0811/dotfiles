@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.minecraft;
+with lib.fmf; let
+  cfg = config.fmf.apps.minecraft;
 in {
-  options.campground.apps.minecraft = with types; {
+  options.fmf.apps.minecraft = with types; {
     enable = mkBoolOpt false "Whether or not to enable minecraft.";
   };
 

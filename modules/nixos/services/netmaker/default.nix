@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.netmaker;
+with lib.fmf; let
+  cfg = config.fmf.services.netmaker;
 in {
-  options.campground.services.netmaker = with types; {
+  options.fmf.services.netmaker = with types; {
     enable = mkBoolOpt false "Netmaker";
     server_name =
       mkOpt str "campground"
@@ -64,17 +64,17 @@ in {
     verbosity = mkOpt int 0 "Specify the level of logging on the server.";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/netmaker"
       "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
@@ -86,7 +86,7 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      pkgs.campground.netmaker-ui
+      pkgs.fmf.netmaker-ui
       pkgs.netmaker
     ]; # Ensure netmaker package is available
 
@@ -103,7 +103,7 @@ in {
     #       listen = [{ addr = "0.0.0.0"; port = 80; }];
     #       extraConfig = ''
     #         location / {
-    #           root ${pkgs.campground.netmaker-ui};
+    #           root ${pkgs.fmf.netmaker-ui};
     #           add_header Access-Control-Allow-Origin *.$baseDomain;
     #           add_header X-XSS-Protection "1; mode=block";
     #           add_header X-Frame-Options "SAMEORIGIN";
@@ -143,7 +143,7 @@ in {
               X-Robots-Tag "none"
               -Server
           }
-          root * ${pkgs.campground.netmaker-ui}
+          root * ${pkgs.fmf.netmaker-ui}
           file_server
           reverse_proxy http://localhost
         '';
@@ -177,7 +177,7 @@ in {
 
     systemd.tmpfiles.rules = ["d /var/lib/netmaker 0755 netmaker netmaker -"];
 
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [
         "local netmaker netmaker trust"
@@ -278,7 +278,7 @@ in {
       '';
     };
 
-    campground.services.vault-agent.services.netmaker = {
+    fmf.services.vault-agent.services.netmaker = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -308,7 +308,7 @@ in {
         };
       };
     };
-    campground.services.vault-agent.services.copyMQpass = {
+    fmf.services.vault-agent.services.copyMQpass = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

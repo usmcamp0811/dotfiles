@@ -8,12 +8,12 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   inherit (inputs) nixpkgs-wayland;
 
-  cfg = config.campground.suites.wlroots;
+  cfg = config.fmf.suites.wlroots;
 in {
-  options.campground.suites.wlroots = {
+  options.fmf.suites.wlroots = {
     enable =
       mkBoolOpt false "Whether or not to enable common wlroots configuration.";
   };
@@ -33,7 +33,7 @@ in {
       playerctl
     ];
 
-    campground = {
+    fmf = {
       # cli-apps = {
       #   wshowkeys = enabled;
       # };

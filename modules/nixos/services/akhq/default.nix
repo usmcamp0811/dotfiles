@@ -1,11 +1,11 @@
 { host ? "", options, config, lib, pkgs, ... }:
 
 with lib;
-with lib.campground;
+with lib.fmf;
 let 
-  cfg = config.campground.services.akhq;
+  cfg = config.fmf.services.akhq;
 in {
-  options.campground.services.akhq = with types; {
+  options.fmf.services.akhq = with types; {
     enable = mkBoolOpt false "Whether or not to enable kafka configuration.";
     connection-name = mkOpt str "campground"
         "Name of the connection";
@@ -47,7 +47,7 @@ in {
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.campground.akhq}/bin/akhq";
+        ExecStart = "${pkgs.fmf.akhq}/bin/akhq";
         Restart = "always";
         User = "apache-kafka"; 
         Group = "apache-kafka";  

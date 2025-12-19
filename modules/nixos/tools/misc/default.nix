@@ -1,17 +1,17 @@
 { options, config, inputs, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.tools.misc;
+  cfg = config.fmf.tools.misc;
   flake-src = ../../../..;
 in
 {
-  options.campground.tools.misc = with types; {
+  options.fmf.tools.misc = with types; {
     enable = mkBoolOpt false "Whether or not to enable common utilities.";
   };
 
   config = mkIf cfg.enable {
-    campground.home.configFile."wgetrc".text = "";
+    fmf.home.configFile."wgetrc".text = "";
 
     environment.systemPackages = with pkgs; [
       fzf

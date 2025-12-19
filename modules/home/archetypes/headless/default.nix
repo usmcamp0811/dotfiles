@@ -4,16 +4,16 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.archetypes.headless;
+with lib.fmf; let
+  cfg = config.fmf.archetypes.headless;
 in
 {
-  options.campground.archetypes.headless = with types; {
+  options.fmf.archetypes.headless = with types; {
     enable = mkEnableOption "desktop home enviornment";
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       cli = {
         zsh = enabled;
         bash = enabled;

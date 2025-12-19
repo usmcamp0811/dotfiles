@@ -1,8 +1,8 @@
 { lib, config, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.stig;
+  cfg = config.fmf.stig;
   # allStigs = removeAttrs cfg [ "enable" ];
   # activeStigs = filterAttrs (_: v: v.enable or false) allStigs;
   # inactiveStigs = filterAttrs (_: v: !(v.enable or false)) allStigs;
@@ -19,7 +19,7 @@ let
 in
 {
 
-  options.campground.stig = {
+  options.fmf.stig = {
     enable = mkEnableOption "Campground STIG aggregation";
     active = mkOption {
       type = types.attrsOf types.attrs;
@@ -35,7 +35,7 @@ in
     };
   };
   config = mkIf cfg.enable {
-    # campground.stig = {
+    # fmf.stig = {
     #   account_expiry.enable = mkDefault true;
     #   audit.enable = mkDefault true;
     #   audit_account_events.enable = mkDefault true;

@@ -7,11 +7,11 @@
 { config, pkgs, lib, ... }:
 
 with lib;
-with lib.campground;
+with lib.fmf;
 
-let cfg = config.campground.services.lynis;
+let cfg = config.fmf.services.lynis;
 in {
-  options.campground.services.lynis = with types; {
+  options.fmf.services.lynis = with types; {
     enable = mkBoolOpt false "Enable Lynis audit service";
     reportsDir =
       mkOpt str "/var/log/audit-reports" "report and logging base path";

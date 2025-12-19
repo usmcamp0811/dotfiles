@@ -5,14 +5,14 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.gitlab-runner;
+with lib.fmf; let
+  cfg = config.fmf.services.gitlab-runner;
 
   CI_SERVER_URL = "${cfg.runner-name}_CI_SERVER_URL";
   REGISTRATION_TOKEN = "${cfg.runner-name}_REGISTRATION_TOKEN";
 in
 {
-  options.campground.services.gitlab-runner = {
+  options.fmf.services.gitlab-runner = {
     enable = mkEnableOption "GitLab Runner";
     runner-name =
       mkOpt types.str config.networking.hostName
@@ -20,11 +20,11 @@ in
 
     role-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.role-id
+        config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.secret-id
+        config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/gitlab-runner"
@@ -36,7 +36,7 @@ in
     };
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -88,7 +88,7 @@ in
                 git
                 openssh
                 deploy-rs
-                campground.get-lan-pub-systems
+                fmf.get-lan-pub-systems
                 vault
                 ssh-agents
                 attic-client
@@ -113,7 +113,7 @@ in
       };
     };
 
-    campground = {
+    fmf = {
       services = {
         vault-agent = {
           services = {

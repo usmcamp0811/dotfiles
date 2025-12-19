@@ -23,7 +23,7 @@
           };
         };
         lambda-functions.pdf_ocr = {
-          lambda-image = pkgs.campground.aws-lambda-image;
+          lambda-image = pkgs.fmf.aws-lambda-image;
           registry-name = "campground_ecr";
           environment = {
             INPUT_BUCKET = "initech-tps-reports-bucket";
@@ -47,7 +47,7 @@
     };
     lambda = {
       jobs.another-example-job = {
-        lambda-image = pkgs.campground.aws-lambda-image;
+        lambda-image = pkgs.fmf.aws-lambda-image;
         environment.variables = {
           LATITUDE = "38.9072";
           LONGITUDE = "-77.0369";

@@ -1,6 +1,6 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 # TODO: add options for remote-loggin-server and port
 mkStigModule {
   inherit config;

@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.rofi;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.rofi;
 in {
-  options.campground.desktop.addons.rofi = with types; {
+  options.fmf.desktop.addons.rofi = with types; {
     enable =
       mkBoolOpt false "Whether to enable Rofi in the desktop environment.";
   };

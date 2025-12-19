@@ -1,10 +1,10 @@
 { options, config, lib, host ? "", format ? "", inputs ? { }, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.openssh;
+  cfg = config.fmf.services.openssh;
 
-  user = config.users.users.${config.campground.user.name};
+  user = config.users.users.${config.fmf.user.name};
   user-id = builtins.toString user.uid;
 
   # @TODO(jakehamilton): This is a hold-over from an earlier Snowfall Lib version which used
@@ -16,7 +16,7 @@ let
 
   other-hosts = lib.filterAttrs
     (key: host:
-      key != name && (host.config.campground.user.name or null) != null)
+      key != name && (host.config.fmf.user.name or null) != null)
     ((inputs.self.nixosConfigurations or { })
       // (inputs.self.darwinConfigurations or { }));
 
@@ -24,7 +24,7 @@ let
     (name:
       let
         remote = other-hosts.${name};
-        remote-user-name = remote.config.campground.user.name;
+        remote-user-name = remote.config.fmf.user.name;
         remote-user-id =
           builtins.toString remote.config.users.users.${remote-user-name}.uid;
 
@@ -45,7 +45,7 @@ let
     (builtins.attrNames other-hosts);
 in
 {
-  options.campground.services.openssh = with types; {
+  options.fmf.services.openssh = with types; {
     enable = mkBoolOpt false "Whether or not to configure OpenSSH support.";
     authorizedKeys =
       mkOpt (listOf str) [ default-key ] "The public keys to apply.";
@@ -82,10 +82,10 @@ in
       ${optionalString cfg.manage-other-hosts other-hosts-config}
     '';
 
-    campground.user.extraOptions.openssh.authorizedKeys.keys =
+    fmf.user.extraOptions.openssh.authorizedKeys.keys =
       cfg.authorizedKeys;
 
-    campground.home.extraOptions = {
+    fmf.home.extraOptions = {
       programs.zsh.shellAliases = foldl
         (aliases: system:
           aliases // {

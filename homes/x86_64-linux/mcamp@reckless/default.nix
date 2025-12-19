@@ -8,8 +8,8 @@
   ...
 }:
 with lib;
-with lib.campground; {
-  campground = {
+with lib.fmf; {
+  fmf = {
     system.xdg = enabled;
     user = {
       name = "mcamp";

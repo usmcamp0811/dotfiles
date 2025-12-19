@@ -5,11 +5,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.crystal-forge;
+with lib.fmf; let
+  cfg = config.fmf.services.crystal-forge;
   host = config.networking.hostName;
 in {
-  options.campground.services.crystal-forge = {
+  options.fmf.services.crystal-forge = {
     enable = mkEnableOption "Enable the Crystal Forge service(s)";
 
     log_level = lib.mkOption {
@@ -445,17 +445,17 @@ in {
         host = lib.mkOption {
           type = lib.types.str;
           default = cfg.database.host;
-          defaultText = lib.literalExpression "config.campground.services.crystal-forge.database.host";
+          defaultText = lib.literalExpression "config.fmf.services.crystal-forge.database.host";
         };
         port = lib.mkOption {
           type = lib.types.port;
           default = cfg.database.port;
-          defaultText = lib.literalExpression "config.campground.services.crystal-forge.database.port";
+          defaultText = lib.literalExpression "config.fmf.services.crystal-forge.database.port";
         };
         database = lib.mkOption {
           type = lib.types.str;
           default = cfg.database.name;
-          defaultText = lib.literalExpression "config.campground.services.crystal-forge.database.name";
+          defaultText = lib.literalExpression "config.fmf.services.crystal-forge.database.name";
         };
         user = lib.mkOption {
           type = lib.types.str;
@@ -500,11 +500,11 @@ in {
     # === Vault Agent glue (keep exactly as your downstream requires) ===
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/crystal-forge"
@@ -516,7 +516,7 @@ in {
     };
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "Vault address";
     };
   };
@@ -580,7 +580,7 @@ in {
     ];
 
     # ---- Simple setup step to copy Vault-rendered files into place ----
-    systemd.services.crystal-forge-setup = mkIf (config.campground.services.vault-agent.enable) {
+    systemd.services.crystal-forge-setup = mkIf (config.fmf.services.vault-agent.enable) {
       description = "Crystal Forge Setup - Copy Vault Agent Files";
       wantedBy = ["multi-user.target"];
       after =
@@ -640,11 +640,11 @@ in {
     };
 
     # Wire ordering so upstream units see the files
-    systemd.services.crystal-forge-agent = lib.mkIf (cfg.client.enable && config.campground.services.vault-agent.enable) {
+    systemd.services.crystal-forge-agent = lib.mkIf (cfg.client.enable && config.fmf.services.vault-agent.enable) {
       after = ["crystal-forge-setup.service"];
       wants = ["crystal-forge-setup.service"];
     };
-    systemd.services.crystal-forge-builder = lib.mkIf (cfg.client.enable && config.campground.services.vault-agent.enable) {
+    systemd.services.crystal-forge-builder = lib.mkIf (cfg.client.enable && config.fmf.services.vault-agent.enable) {
       after = ["crystal-forge-setup.service"];
       wants = ["crystal-forge-setup.service"];
       serviceConfig = {
@@ -677,7 +677,7 @@ in {
     };
 
     # ---- Vault Agent: render the files we consume above ----
-    campground.services.vault-agent.services."crystal-forge-setup" = {
+    fmf.services.vault-agent.services."crystal-forge-setup" = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth.method = [

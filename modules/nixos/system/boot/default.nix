@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.system.boot;
+with lib.fmf; let
+  cfg = config.fmf.system.boot;
 in
 {
-  options.campground.system.boot = with types; {
+  options.fmf.system.boot = with types; {
     enable = mkBoolOpt false "Whether or not to enable booting.";
   };
 

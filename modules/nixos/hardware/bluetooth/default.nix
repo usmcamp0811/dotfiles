@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.hardware.bluetooth;
+with lib.fmf; let
+  cfg = config.fmf.hardware.bluetooth;
 in {
-  options.campground.hardware.bluetooth = with types; {
+  options.fmf.hardware.bluetooth = with types; {
     enable = mkBoolOpt false "Whether or not to enable bluetooth support";
   };
 

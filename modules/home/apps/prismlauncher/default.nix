@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.prismlauncher;
+with lib.fmf; let
+  cfg = config.fmf.apps.prismlauncher;
 in {
-  options.campground.apps.prismlauncher = with types; {
+  options.fmf.apps.prismlauncher = with types; {
     enable = mkBoolOpt false "Whether or not to enable prismlauncher.";
   };
 

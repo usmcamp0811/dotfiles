@@ -2,9 +2,9 @@
 , pkgs
 , ...
 }:
-with lib.campground;
+with lib.fmf;
 wrapWithRMF {
-  pkg = pkgs.campground.example-flask-app;
+  pkg = pkgs.fmf.example-flask-app;
 
   installModule =
     { config
@@ -15,9 +15,9 @@ wrapWithRMF {
       config = {
         # systemd.services.example-rmf-flask-app = {
         #   wantedBy = [ "multi-user.target" ];
-        #   serviceConfig.ExecStart = "${pkgs.campground.example-flask-app}/bin/example-flask-app";
+        #   serviceConfig.ExecStart = "${pkgs.fmf.example-flask-app}/bin/example-flask-app";
         # };
-        environment.systemPackages = [ pkgs.campground.example-flask-app ];
+        environment.systemPackages = [ pkgs.fmf.example-flask-app ];
       };
     };
   moduleOptions = {

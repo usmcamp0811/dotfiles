@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   new-meta = with lib; {
     description = "Hello World Docker Image";

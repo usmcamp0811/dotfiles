@@ -1,6 +1,6 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 mkStigModule {
   inherit config;
   name = "pki_auth_password_complexity";

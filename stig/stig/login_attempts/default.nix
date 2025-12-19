@@ -1,8 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.stig.login_attempts;
+  cfg = config.fmf.stig.login_attempts;
   pamfile = ''
     auth required pam_faillock.so preauth silent audit deny=3 fail_interval=900 unlock_time=0
     auth sufficient pam_unix.so nullok try_first_pass

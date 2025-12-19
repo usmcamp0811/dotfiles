@@ -6,11 +6,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.git;
-  user = config.campground.user;
+with lib.fmf; let
+  cfg = config.fmf.tools.git;
+  user = config.fmf.user;
 in {
-  options.campground.tools.git = with types; {
+  options.fmf.tools.git = with types; {
     enable = mkBoolOpt false "Whether or not to install and configure git.";
     userName = mkOpt types.str user.fullName "The name to configure git with.";
     userEmail = mkOpt types.str user.email "The email to configure git with.";
@@ -19,7 +19,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [git lazygit];
 
-    campground.home.extraOptions = {
+    fmf.home.extraOptions = {
       programs.git = {
         enable = true;
 

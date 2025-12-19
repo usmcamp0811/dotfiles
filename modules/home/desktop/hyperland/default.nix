@@ -1,12 +1,12 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   # inherit (inputs) hyprland;
-  cfg = config.campground.desktop.hyprland;
+  cfg = config.fmf.desktop.hyprland;
 in
 {
-  options.campground.desktop.hyprland = with types; {
+  options.fmf.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to turn on hyperland config.";
     startup = mkOpt (listOf str) [ ] "List of commands to run when you login";
     appendConfig = lib.mkOption {

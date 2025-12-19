@@ -5,21 +5,21 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.photoprism;
+with lib.fmf; let
+  cfg = config.fmf.services.photoprism;
   # If you setup Syncthing to sync with your phone and have the sync folder mapped to cfg.importPath then this will automatically import whenever you take a pic
 in {
-  options.campground.services.photoprism = with types; {
+  options.fmf.services.photoprism = with types; {
     enable = mkBoolOpt false "Enable Photoprisim;";
     originalsPath = mkOpt str "" "Path to store original photos";
     importPath = mkOpt str "/webb/media/phone-pictures" "Path to import folder";
     port = mkOpt int 9080 "Port to expose Photoprism on";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/photoprism"
@@ -31,7 +31,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -54,7 +54,7 @@ in {
         else null;
     };
 
-    campground.services.mysql = {
+    fmf.services.mysql = {
       enable = true;
       databases = [
         {
@@ -134,7 +134,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.photoprismPasswordFile = {
+    fmf.services.vault-agent.services.photoprismPasswordFile = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

@@ -5,18 +5,18 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.archetypes.desktop;
+  cfg = config.fmf.archetypes.desktop;
 in {
-  options.campground.archetypes.desktop = with types; {
+  options.fmf.archetypes.desktop = with types; {
     enable = mkEnableOption "desktop home enviornment";
     display-name = mkOpt str "HDMI-A-3" "The name of the primary display";
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       desktop = {
         addons = {
           wlsunset = enabled;
@@ -38,13 +38,13 @@ in {
             monitors = [
               {
                 name = cfg.display-name;
-                wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
+                wallpaper = "${pkgs.fmf.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
               }
             ];
 
             wallpapers = [
-              "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
-              "${pkgs.campground.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg"
+              "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
+              "${pkgs.fmf.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg"
             ];
           };
           gbar = enabled;

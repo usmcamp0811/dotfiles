@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.openwrt-backup;
+with lib.fmf; let
+  cfg = config.fmf.services.openwrt-backup;
   filelist = builtins.readFile ./filelist.txt;
   backup = pkgs.writeShellScriptBin "backup.sh" ''
     # Check if the correct number of arguments have been provided
@@ -57,7 +57,7 @@ with lib.campground; let
     ${pkgs.git}/bin/git commit -m "$COMMITMSG"
   '';
 in {
-  options.campground.services.openwrt-backup = with types; {
+  options.fmf.services.openwrt-backup = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
     backupPath =
       mkOpt str "/webb/backups/openwrt-backups/campnet-backup"

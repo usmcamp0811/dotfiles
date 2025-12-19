@@ -1,9 +1,9 @@
 { options, config, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.loki;
+with lib.fmf;
+let cfg = config.fmf.services.loki;
 in {
-  options.campground.services.loki = with types; {
+  options.fmf.services.loki = with types; {
     enable = mkBoolOpt false "Enable Loki";
     httpListenPort = mkOption {
       type = int;

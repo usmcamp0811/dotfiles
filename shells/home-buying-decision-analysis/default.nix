@@ -8,7 +8,7 @@
 , ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   src = ./.;
   julia-env = pkgs.julia.withPackages.override { extraLibs = [ python-env ]; } [
     "IJulia"

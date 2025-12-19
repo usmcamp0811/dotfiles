@@ -4,12 +4,12 @@
 , ...
 }:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   # imports = with inputs; [
   #   home-manager.nixosModules.home-manager
   # ];
 
-  options.campground.home = with types; {
+  options.fmf.home = with types; {
     file =
       mkOpt attrs { }
         (mdDoc "A set of files to be managed by home-manager's `home.file`.");
@@ -20,19 +20,19 @@ with lib.campground; {
   };
 
   config = {
-    campground.home.extraOptions = {
+    fmf.home.extraOptions = {
       home.stateVersion = config.system.stateVersion;
-      home.file = mkAliasDefinitions options.campground.home.file;
+      home.file = mkAliasDefinitions options.fmf.home.file;
       xdg.enable = true;
-      xdg.configFile = mkAliasDefinitions options.campground.home.configFile;
+      xdg.configFile = mkAliasDefinitions options.fmf.home.configFile;
     };
 
     home-manager = {
       useUserPackages = true;
       useGlobalPkgs = true;
 
-      users.${config.campground.user.name} =
-        mkAliasDefinitions options.campground.home.extraOptions;
+      users.${config.fmf.user.name} =
+        mkAliasDefinitions options.fmf.home.extraOptions;
     };
   };
 }

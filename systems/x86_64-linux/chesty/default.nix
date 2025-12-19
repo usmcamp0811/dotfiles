@@ -1,6 +1,6 @@
 {lib, ...}:
 with lib;
-with lib.campground;
+with lib.fmf;
 # let
 #   newUser = name: {
 #     isNormalUser = true;
@@ -11,7 +11,7 @@ with lib.campground;
 # in
   {
     imports = [./hardware.nix];
-    campground = {
+    fmf = {
       nfs.client.enable = true;
       user = {
         name = "mcamp";

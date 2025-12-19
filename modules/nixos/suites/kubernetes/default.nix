@@ -6,8 +6,8 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.kubernetes;
+with lib.fmf; let
+  cfg = config.fmf.suites.kubernetes;
 
   kubeAPIPort = 6443;
   konnectivityPort = 8133;
@@ -36,7 +36,7 @@ with lib.campground; let
   };
 in
 {
-  options.campground.suites.kubernetes = with types; {
+  options.fmf.suites.kubernetes = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable kubernetes configuration.";
     role = mkOption {
@@ -57,10 +57,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.services = {
+    fmf.services = {
       k0s = {
         enable = true;
-        package = pkgs.campground.k0s;
+        package = pkgs.fmf.k0s;
         interface = cfg.interface;
         isLeader = cfg.isLeader;
         role = cfg.role;

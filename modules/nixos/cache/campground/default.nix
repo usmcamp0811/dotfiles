@@ -4,14 +4,14 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.cache.campground;
+with lib.fmf; let
+  cfg = config.fmf.cache.campground;
 in {
-  options.campground.cache.campground = {
+  options.fmf.cache.campground = {
     enable = mkEnableOption "Campground cache";
   };
   config = mkIf cfg.enable {
-    campground.nix.extra-substituters = {
+    fmf.nix.extra-substituters = {
       "https://attic.aicampground.com/campground".key = "campground:XZ6LmOgWmChUUb5ZWWn/XnTreAYaNcPTQHxUR3T3dc8=";
     };
   };

@@ -81,7 +81,7 @@
           python.path: ${python-env}/lib/python3.11/site-packages:${src}
           python.executable: ${python-env}/bin/python
           python.client.executable: ${python-env}/bin/python
-          pipeline.jars: ${pkgs.campground.flink-connector-kafka}
+          pipeline.jars: ${pkgs.fmf.flink-connector-kafka}
         '';
       }, python-env, src, flink-job-script ? "jobs/job.py"
     , additionalInstallPhase ? "", additionalPassThru ? { }
@@ -90,7 +90,7 @@
       flink-with-kafka-connector = pkgs.flink.overrideAttrs (oldAttrs: {
         installPhase = oldAttrs.installPhase + ''
           mkdir -p $out/opt/flink/lib
-          cp -r ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-sql-connector-kafka.jar
+          cp -r ${pkgs.fmf.flink-connector-kafka} $out/opt/flink/lib/flink-sql-connector-kafka.jar
         '' ++ additionalFlinkJarSetup;
       });
 
@@ -115,7 +115,7 @@
           export JAVA_HOME="${pkgs.openjdk11}"
           export FLINK_HOME="${pkgs.flink}/opt/flink"
 
-          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -pyfs=${src} -j=${pkgs.campground.flink-connector-kafka} -pyclientexec=${python-env}/bin/python "$@"
+          ${flink-with-kafka-connector}/opt/flink/bin/sql-client.sh -pyfs=${src} -j=${pkgs.fmf.flink-connector-kafka} -pyclientexec=${python-env}/bin/python "$@"
         '';
       };
       run-job = writeFlinkApplication {
@@ -125,19 +125,19 @@
           ${flink-with-kafka-connector}/bin/flink run \
             -py "$1" \
             -pyclientexec ${python-env}/bin/python \
-            --jarfile ${pkgs.campground.flink-connector-kafka}
+            --jarfile ${pkgs.fmf.flink-connector-kafka}
         '';
       };
       job = pkgs.writeShellScriptBin "job" ''
         ${run-job}/bin/run-job ${src}/${flink-job-script}
       '';
 
-      dev-scripts = lib.campground.mkPythonDevScripts {
+      dev-scripts = lib.fmf.mkPythonDevScripts {
         inherit pkgs;
         project-drv = flink-job;
         python-env = python-env;
       };
-      container = lib.campground.buildFlinkContainer {
+      container = lib.fmf.buildFlinkContainer {
         inherit pkgs python-env name tag flink-job;
       };
       flink-job = pkgs.stdenv.mkDerivation {
@@ -152,7 +152,7 @@
 
           cp -r ${src}/* $out/src/
           cp -r ${flink-with-kafka-connector}/opt/flink $out/opt/
-          ln -s ${pkgs.campground.flink-connector-kafka} $out/opt/flink/lib/flink-kafka-connector.jar
+          ln -s ${pkgs.fmf.flink-connector-kafka} $out/opt/flink/lib/flink-kafka-connector.jar
           cp -r ${python-env}/bin/* $out/bin/
           cp ${stop-all}/bin/stop-all $out/bin/stop-all
           ${additionalInstallPhase}

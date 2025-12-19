@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.grafana;
+with lib.fmf; let
+  cfg = config.fmf.services.grafana;
   dashboards = ./dashboards;
   sankey-panel-plugin = pkgs.grafanaPlugins.grafanaPlugin {
     pname = "netsage-sankey-panel";
@@ -26,7 +26,7 @@ with lib.campground; let
     }
   ];
 in {
-  options.campground.services.grafana = with types; {
+  options.fmf.services.grafana = with types; {
     enable = mkBoolOpt false "Enable an Grafana;";
     port = mkOpt int 7443 "Port to Host the grafana server on.";
     datasources = mkOption {
@@ -45,10 +45,10 @@ in {
     oidc-domain = mkOpt str "auth.aicampground.com" "ODIC Domain";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/grafana"
@@ -60,7 +60,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -216,7 +216,7 @@ in {
 
     networking.firewall.allowedTCPPorts = [cfg.port];
 
-    campground.services.vault-agent.services.grafana = {
+    fmf.services.vault-agent.services.grafana = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

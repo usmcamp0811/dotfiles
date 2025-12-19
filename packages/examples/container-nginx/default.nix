@@ -7,11 +7,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
-  campground.system.env = enabled;
+  fmf.system.env = enabled;
 
   new-meta = with lib; {
     description = "nginx container";

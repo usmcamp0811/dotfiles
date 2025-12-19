@@ -1,9 +1,9 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.desktop.addons.qt;
+with lib.fmf;
+let cfg = config.fmf.desktop.addons.qt;
 in {
-  options.campground.desktop.addons.qt = with types; {
+  options.fmf.desktop.addons.qt = with types; {
     enable = mkBoolOpt false "Whether to customize qt and apply themes.";
     theme = {
       name = mkOpt str "Catppuccin-Macchiato-Blue"
@@ -21,7 +21,7 @@ in {
             accent = "blue";
             variant = "macchiato";
           })
-        ] ++ lib.optional config.campground.suites.wlroots.enable
+        ] ++ lib.optional config.fmf.suites.wlroots.enable
           libsForQt5.qt5.qtwayland;
     };
 

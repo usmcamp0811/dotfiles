@@ -1,6 +1,6 @@
 { pkgs, lib, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 
 pkgs.writeShellApplication {
   name = "ocr-script";

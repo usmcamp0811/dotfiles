@@ -8,11 +8,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   # allows us to just use the app/package
-  # inherit (pkgs.campground) campground;
+  # inherit (pkgs.fmf) campground;
 
   new-meta = with lib; {
     description = "A Simple label-studio App Container Image";

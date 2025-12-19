@@ -1,8 +1,8 @@
 { lib, config, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.wg-quick;
+  cfg = config.fmf.services.wg-quick;
   removeNameField = options: removeAttrs options [ "name" ];
   importedPeers = import ./peers.nix { };
 
@@ -243,7 +243,7 @@ let
     };
   };
 in {
-  options.campground.services.wg-quick = with types; {
+  options.fmf.services.wg-quick = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
     publicKey = mkOpt str "public key" "Your public key for easy reference";
     interfaces = mkOption {

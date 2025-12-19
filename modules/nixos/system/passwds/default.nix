@@ -4,21 +4,21 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.system.passwds;
+with lib.fmf; let
+  cfg = config.fmf.system.passwds;
 in
 {
-  options.campground.system.passwds = with types; {
+  options.fmf.system.passwds = with types; {
     enable = mkBoolOpt false "Set Local User Passwords with Vault";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     vault-path =
@@ -43,7 +43,7 @@ in
       };
     };
 
-    campground.services.vault-agent.services.passwds = {
+    fmf.services.vault-agent.services.passwds = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -65,8 +65,8 @@ in
             "set-passwds" = {
               text = ''
                 #!/bin/sh
-                USERNAME=${config.campground.user.name}
-                PASSWORD="{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${config.campground.user.name} }}{{ else }}{{ .Data.data.${config.campground.user.name} }}{{ end }}{{ end }}"
+                USERNAME=${config.fmf.user.name}
+                PASSWORD="{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${config.fmf.user.name} }}{{ else }}{{ .Data.data.${config.fmf.user.name} }}{{ end }}{{ end }}"
                 ROOT_PASSWORD="{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.root }}{{ else }}{{ .Data.data.root }}{{ end }}{{ end }}"
 
                 printf "Setting $USERNAME Password from Vault"

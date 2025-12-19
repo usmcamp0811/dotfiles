@@ -1,10 +1,10 @@
 { inputs, lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.flakeforge;
+with lib.fmf;
+let cfg = config.fmf.services.flakeforge;
 
 in {
-  options.campground.services.flakeforge = with types; {
+  options.fmf.services.flakeforge = with types; {
     enable = mkBoolOpt false "Enable Flake Forge";
     listenAddress = mkOption {
       type = str;

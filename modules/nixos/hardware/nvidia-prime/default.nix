@@ -6,7 +6,7 @@
   ...
 }:
 with lib; let
-  cfg = config.campground.hardware.nvidia-prime;
+  cfg = config.fmf.hardware.nvidia-prime;
   nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
     export __NV_PRIME_RENDER_OFFLOAD=1
     export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
@@ -15,7 +15,7 @@ with lib; let
     exec -a "$0" "$@"
   '';
 in {
-  options.campground.hardware.nvidia-prime = with types; {
+  options.fmf.hardware.nvidia-prime = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
       type = types.enum [

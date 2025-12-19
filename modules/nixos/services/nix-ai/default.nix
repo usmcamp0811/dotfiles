@@ -1,11 +1,11 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.nix-ai;
+  cfg = config.fmf.services.nix-ai;
   extraFlagsString = concatStringsSep " " cfg.extraFlags;
 in {
-  options.campground.services.nix-ai = with types; {
+  options.fmf.services.nix-ai = with types; {
     enable = mkBoolOpt false "Enable nix-ai;";
 
     package = mkOption {
@@ -27,10 +27,10 @@ in {
     };
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/nix-ai"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -41,7 +41,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -83,7 +83,7 @@ in {
       chown -R nixai:nixai /var/lib/nix-ai
     '';
 
-    campground.services.vault-agent.services.nix-ai = {
+    fmf.services.vault-agent.services.nix-ai = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

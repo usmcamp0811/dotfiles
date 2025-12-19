@@ -1,6 +1,6 @@
 { pkgs, lib, modulesPath, inputs, ... }:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   imports = with inputs.nixos-hardware.nixosModules;
     [ (modulesPath + "/installer/scan/not-detected.nix") ];
   # sdImage.compressImage = false;
@@ -9,7 +9,7 @@ with lib.campground; {
 
   boot = { kernelPackages = pkgs.linuxKernel.packages.linux_rpi3; };
 
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

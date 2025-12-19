@@ -1,6 +1,6 @@
 { lib, makeDesktopItem, symlinkJoin, ... }:
 let
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   steam-pipewire = makeDesktopItem {
     name = "Steam (Pipewire)";

@@ -1,6 +1,6 @@
 { pkgs, lib, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 
 let
   python-env = pkgs.python3.withPackages (ps: [ ps.pyspark ]);

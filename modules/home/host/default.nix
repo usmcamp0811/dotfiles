@@ -4,10 +4,10 @@
 }:
 let
   inherit (lib) types;
-  inherit (lib.campground) mkOpt;
+  inherit (lib.fmf) mkOpt;
 in
 {
-  options.campground.host = {
+  options.fmf.host = {
     name = mkOpt (types.nullOr types.str) host "The host name.";
   };
 }

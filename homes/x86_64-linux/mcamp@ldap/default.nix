@@ -1,7 +1,7 @@
 { inputs, lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
 with lib;
-with lib.campground; {
-  campground = {
+with lib.fmf; {
+  fmf = {
     user = {
       enable = true;
       name = "mcamp";
@@ -29,27 +29,27 @@ with lib.campground; {
             {
               name = "HDMI-A-3";
               wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+                "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-2";
               wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+                "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-1";
               wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+                "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "eDP-1";
               wallpaper =
-                "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+                "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
           ];
 
           wallpapers = [
-            "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
+            "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
           ];
         };
         gbar = enabled;

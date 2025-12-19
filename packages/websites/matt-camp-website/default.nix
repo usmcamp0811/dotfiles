@@ -9,7 +9,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   matt-camp-website = mkYarnPackage {
     name = "matt-com.com";
     src = ./.;

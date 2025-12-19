@@ -6,9 +6,9 @@
 }: let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.logseq;
+  cfg = config.fmf.apps.logseq;
 in {
-  options.campground.apps.logseq = {enable = mkEnableOption "logseq";};
+  options.fmf.apps.logseq = {enable = mkEnableOption "logseq";};
 
   config = mkIf cfg.enable {home.packages = with pkgs; [logseq];};
 }

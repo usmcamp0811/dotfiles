@@ -6,12 +6,12 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.lan-hosting;
+with lib.fmf; let
+  cfg = config.fmf.suites.lan-hosting;
 
   generateServiceConfig = serviceName: let
     # Use the existing `lookupServiceEndpoint` function
-    serviceEndpoints = lib.campground.lookupServiceEndpoint {
+    serviceEndpoints = lib.fmf.lookupServiceEndpoint {
       nixosConfigurations = inputs.self.nixosConfigurations;
       serviceName = serviceName;
     };
@@ -34,7 +34,7 @@ with lib.campground; let
   in
     valueType;
 in {
-  options.campground.suites.lan-hosting = with types; {
+  options.fmf.suites.lan-hosting = with types; {
     enable =
       mkBoolOpt false
       "Whether or not to enable common lan-hosting configuration.";
@@ -52,7 +52,7 @@ in {
   };
 
   config = {
-    campground = {
+    fmf = {
       services = {
         prometheus.additionalScrapeConfigs = [
           {
@@ -401,7 +401,7 @@ in {
             http.services.minio = {
               loadBalancer.servers = [{url = "http://reckless:9001";}];
 
-              # loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+              # loadBalancer.servers = lib.fmf.lookupServiceEndpoint {
               #   nixosConfigurations = inputs.self.nixosConfigurations;
               #   serviceName = "minio";
               # };
@@ -448,7 +448,7 @@ in {
             };
 
             http.services.vault = {
-              loadBalancer.servers = lib.campground.lookupServiceEndpoint {
+              loadBalancer.servers = lib.fmf.lookupServiceEndpoint {
                 nixosConfigurations = inputs.self.nixosConfigurations;
                 serviceName = "vault";
               };

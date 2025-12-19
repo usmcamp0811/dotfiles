@@ -6,10 +6,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.cli-apps.neovim;
+  cfg = config.fmf.cli-apps.neovim;
 in
 {
-  options.campground.cli-apps.neovim = { enable = mkEnableOption "Neovim"; };
+  options.fmf.cli-apps.neovim = { enable = mkEnableOption "Neovim"; };
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [

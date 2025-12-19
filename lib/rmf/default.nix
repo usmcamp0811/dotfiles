@@ -12,7 +12,7 @@
   * @param pkg             The Nix package to wrap.
   * @param rmfMeta         RMF metadata including control mappings, status, and justifications.
   * @param installModule   Optional NixOS module function that configures the system when enabled.
-  * @param moduleOptions   Optional NixOS module options to expose under `campground.rmf.<name>.settings`.
+  * @param moduleOptions   Optional NixOS module options to expose under `fmf.rmf.<name>.settings`.
   *
   * @return A package with extended `meta.rmf`, `passthru.enforcedConfig`, and optionally
   *         `passthru.installModule` and `passthru.moduleOptions`.
@@ -91,7 +91,7 @@
   * @param config  The global NixOS module `config` object for accessing user-defined settings.
   *
   * @return A NixOS module with:
-  *         - options under `campground.rmf.${name}`:
+  *         - options under `fmf.rmf.${name}`:
   *           - `enable`: global toggle
   *           - `controls.<CONTROL>`: status + justification
   *           - `settings`: vendor-defined knobs
@@ -110,8 +110,8 @@
 
       buildControlModule = controlName: control:
         let
-          ctrlCfg = config.campground.rmf.${name}.controls.${controlName} or { };
-          pkgEnabled = config.campground.rmf.${name}.enable or false;
+          ctrlCfg = config.fmf.rmf.${name}.controls.${controlName} or { };
+          pkgEnabled = config.fmf.rmf.${name}.enable or false;
           enabled = (ctrlCfg ? enabled && ctrlCfg.enabled) || pkgEnabled;
 
           controlConfig = control.config or { };
@@ -121,8 +121,8 @@
         {
           options = {
             controls.${controlName} = with lib.types; {
-              enabled = lib.campground.mkBoolOpt true "Enable/Disable control ${controlName}";
-              justification = lib.campground.mkOpt (listOf str) [ ] "Justification if disabled.";
+              enabled = lib.fmf.mkBoolOpt true "Enable/Disable control ${controlName}";
+              justification = lib.fmf.mkOpt (listOf str) [ ] "Justification if disabled.";
             };
           };
 
@@ -130,11 +130,11 @@
             (lib.mkIf enabled (forceAll controlConfig))
 
             {
-              campground.controls.active.${name}.${controlName} = lib.mkIf enabled {
+              fmf.controls.active.${name}.${controlName} = lib.mkIf enabled {
                 inherit srg cci config;
               };
 
-              campground.controls.inactive.${name}.${controlName} = lib.mkIf (!enabled) {
+              fmf.controls.inactive.${name}.${controlName} = lib.mkIf (!enabled) {
                 inherit srg cci;
                 justification = ctrlCfg.justification;
                 config = controlConfig;
@@ -158,13 +158,13 @@
 
       installModule = pkg.passthru.installModule or (_: { config = { }; });
       moduleOptions = pkg.passthru.moduleOptions or { };
-      enabled = config.campground.rmf.${name}.enable or false;
+      enabled = config.fmf.rmf.${name}.enable or false;
     in
     {
       options = {
-        campground.rmf.${name} =
+        fmf.rmf.${name} =
           {
-            enable = lib.campground.mkBoolOpt true "Enable all controls for ${name}";
+            enable = lib.fmf.mkBoolOpt true "Enable all controls for ${name}";
             settings = moduleOptions;
           }
           // controlOptions;

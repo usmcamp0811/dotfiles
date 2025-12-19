@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.example_postgresql;
+with lib.fmf; let
+  cfg = config.fmf.services.example_postgresql;
 in {
-  options.campground.services.example_postgresql = with types; {
+  options.fmf.services.example_postgresql = with types; {
     enable =
       mkBoolOpt false
       "Create an example DB to be used with the Vault DB Readme";

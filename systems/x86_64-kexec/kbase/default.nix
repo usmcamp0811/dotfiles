@@ -1,6 +1,6 @@
 { pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   newUser = name: {
     isNormalUser = true;
@@ -12,7 +12,7 @@ in {
   home-manager.users.ec2-user.snowfallorg.user.name = "ec2-user";
   boot.loader.grub = enabled;
   virtualisation.amazon-init = enabled;
-  campground = {
+  fmf = {
     nix = enabled;
     cli-apps = { flake = enabled; };
     tools = {

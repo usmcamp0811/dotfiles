@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.swappy;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.swappy;
 in {
-  options.campground.desktop.addons.swappy = {
+  options.fmf.desktop.addons.swappy = {
     enable =
       mkBoolOpt false "Whether to enable Swappy in the desktop environment.";
   };
@@ -17,7 +17,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [swappy];
 
-    campground.home = {
+    fmf.home = {
       configFile."swappy/config".source = ./config;
       file."Pictures/screenshots/.keep".text = "";
     };

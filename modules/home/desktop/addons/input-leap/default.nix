@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.input-leap;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.input-leap;
 in
 {
-  options.campground.desktop.addons.input-leap = with types; {
+  options.fmf.desktop.addons.input-leap = with types; {
     enable =
       mkBoolOpt false
         "Whether to enable input-leap in the desktop environment.";

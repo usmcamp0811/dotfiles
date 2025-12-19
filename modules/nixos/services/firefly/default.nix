@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.firefly;
+with lib.fmf;
+let cfg = config.fmf.services.firefly;
 in {
-  options.campground.services.firefly = with types; {
+  options.fmf.services.firefly = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
     port = mkOpt int 16244 "Port for firefly";
     firefly-user = mkOpt str "firefly" "user for Firefly III.";
@@ -41,10 +41,10 @@ in {
       } "Pool configuration for Firefly III.";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/firefly"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -55,7 +55,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -97,7 +97,7 @@ in {
       };
       groups = { ${cfg.firefly-group} = { }; };
     };
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [ "local firefly firefly trust" ];
       databases = [{
@@ -116,7 +116,7 @@ in {
       enableNginx = true;
       poolConfig = cfg.poolConfig;
     };
-    campground.services = {
+    fmf.services = {
       vault-agent = {
         services = {
           "get-firefly-key" = {

@@ -1,13 +1,13 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.desktop.addons.qt;
+  cfg = config.fmf.desktop.addons.qt;
   settings = {
     Appearance = {
       color_scheme_path = "";
       custom_palette = true;
-      icon_theme = config.campground.desktop.addons.gtk.icon.name;
+      icon_theme = config.fmf.desktop.addons.gtk.icon.name;
       standard_dialogs = "gtk3";
       style = "kvantum";
     };
@@ -45,7 +45,7 @@ let
   colorSchemePath = "${pkgs.catppuccin}/qt5ct/Catppuccin-Macchiato.conf";
 in
 {
-  options.campground.desktop.addons.qt = with types; {
+  options.fmf.desktop.addons.qt = with types; {
     enable = mkBoolOpt false "Whether to customize qt and apply themes.";
     theme = {
       name = mkOpt str "Catppuccin-Macchiato-Blue"

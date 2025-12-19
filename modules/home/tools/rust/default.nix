@@ -1,9 +1,9 @@
 { config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.rust;
+with lib.fmf;
+let cfg = config.fmf.tools.rust;
 in {
-  options.campground.tools.rust = with types; {
+  options.fmf.tools.rust = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Rust.";
   };
 

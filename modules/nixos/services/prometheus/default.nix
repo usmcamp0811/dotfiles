@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.prometheus;
+with lib.fmf; let
+  cfg = config.fmf.services.prometheus;
   generateScrapeConfigs = hostnames:
     lib.concatMap (hostname: [
       # Existing node exporter scrape config
@@ -65,7 +65,7 @@ with lib.campground; let
     echo "END TEST"
   '';
 in {
-  options.campground.services.prometheus = with types; {
+  options.fmf.services.prometheus = with types; {
     enable = mkBoolOpt false "Enable Prometheus";
     exporter-enable = mkBoolOpt false "Enable Prometheus Systemd Exporter";
     port = mkOpt int 9011 "Port to Host the Prometheus server on.";

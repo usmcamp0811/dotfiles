@@ -1,12 +1,12 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.julia;
+with lib.fmf;
+let cfg = config.fmf.tools.julia;
 in {
-  options.campground.tools.julia = with types; {
+  options.fmf.tools.julia = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Julia.";
   };
 
   config =
-    mkIf cfg.enable { home.packages = with pkgs; [ campground.julia.fhs ]; };
+    mkIf cfg.enable { home.packages = with pkgs; [ fmf.julia.fhs ]; };
 }

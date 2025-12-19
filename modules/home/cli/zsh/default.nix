@@ -6,9 +6,9 @@
 }: let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.cli.zsh;
+  cfg = config.fmf.cli.zsh;
 in {
-  options.campground.cli.zsh = {
+  options.fmf.cli.zsh = {
     enable = mkEnableOption "ZSH";
     extraSource = lib.mkOption {
       # Corrected line
@@ -20,7 +20,7 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      campground.campfetch
+      fmf.campfetch
     ];
     programs.zsh = {
       enable = true;
@@ -46,12 +46,12 @@ in {
         ${lib.concatMapStringsSep "\n"
           (file: ''[ -r "${file}" ] && source "${file}"'')
           cfg.extraSource}
-        [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
+        [ -r "/var/lib/vault/users/${config.fmf.user.name}/passwords" ] && source "/var/lib/vault/users/${config.fmf.user.name}/passwords"
 
         for file in ~/.config/shell/private/*.shrc(N); do
           [ -r "$file" ] && source "$file"
         done
-        ${pkgs.campground.campfetch}/bin/campfetch
+        ${pkgs.fmf.campfetch}/bin/campfetch
         bindkey -v
         bindkey '^?' backward-delete-char          # backspace in insert mode
         bindkey -M vicmd 'v' edit-command-line     # open $EDITOR in command mode

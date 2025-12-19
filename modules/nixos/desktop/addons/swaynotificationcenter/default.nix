@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.swaynotificationcenter;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.swaynotificationcenter;
 in
 {
-  options.campground.desktop.addons.swaynotificationcenter = {
+  options.fmf.desktop.addons.swaynotificationcenter = {
     enable = mkEnableOption "Hyprpaper";
   };
 

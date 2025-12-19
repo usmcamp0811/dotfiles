@@ -1,7 +1,7 @@
 { lib, pkgs, hosts ? { }, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   julia-env = pkgs.julia.withPackages.override
     {
       extraLibs =

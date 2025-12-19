@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   new-meta = with lib; {
     description = "An Example Flink Job";
@@ -46,7 +46,7 @@ let
   src = ./.;
 
   quix-job = pkgs.writeShellScriptBin "quix-job" ''
-    ${pkgs.campground.example-quix-job.python}/bin/python ${src}/job/job.py
+    ${pkgs.fmf.example-quix-job.python}/bin/python ${src}/job/job.py
   '';
 
   run-tests = pkgs.writeShellScriptBin "run-tests" ''

@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.waybar;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.waybar;
 
   theme = builtins.readFile ./styles/catppuccin.css;
   style = builtins.readFile ./styles/style.css;
@@ -27,7 +27,7 @@ with lib.campground; let
     custom-modules
     default-modules
     group-modules
-    (lib.mkIf config.campground.desktop.hyprland.enable hyprland-modules)
+    (lib.mkIf config.fmf.desktop.hyprland.enable hyprland-modules)
   ];
 
   bar = {
@@ -63,7 +63,7 @@ with lib.campground; let
     ];
   };
 in {
-  options.campground.desktop.addons.waybar = with types; {
+  options.fmf.desktop.addons.waybar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
     display = mkOpt str "DP-1" "the name of the output";

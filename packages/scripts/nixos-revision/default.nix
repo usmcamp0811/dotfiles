@@ -4,7 +4,7 @@
 , ...
 }:
 let
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   new-meta = with lib; {
     description =

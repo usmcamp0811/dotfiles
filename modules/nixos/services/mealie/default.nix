@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.mealie;
+with lib.fmf;
+let cfg = config.fmf.services.mealie;
 in {
-  options.campground.services.mealie = {
+  options.fmf.services.mealie = {
     enable = mkEnableOption "Attic";
 
     package =
@@ -22,10 +22,10 @@ in {
     base-url = mkOpt types.str "https://mealie.lan.aicampground.com" "base url";
 
     role-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path = mkOpt types.str "secret/campground/mealie"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -36,7 +36,7 @@ in {
     };
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -52,7 +52,7 @@ in {
       groups = { "${cfg.group}" = { }; };
     };
 
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       databases = [{
         name = "mealie";
@@ -105,7 +105,7 @@ in {
       before = [ "mealie.service" ];
 
     };
-    campground.services.vault-agent.services.mealieSecrets = {
+    fmf.services.vault-agent.services.mealieSecrets = {
       settings = {
         # replace with the address of your vault
         vault.address = cfg.vault-address;

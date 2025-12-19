@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.chromadb;
+with lib.fmf; let
+  cfg = config.fmf.services.chromadb;
 in {
-  options.campground.services.chromadb = with types; {
+  options.fmf.services.chromadb = with types; {
     enable = mkBoolOpt false "Enable ChromaDB.";
     package = mkOption {
       type = package;

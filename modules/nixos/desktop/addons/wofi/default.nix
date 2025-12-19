@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.wofi;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.wofi;
 in {
-  options.campground.desktop.addons.wofi = with types; {
+  options.fmf.desktop.addons.wofi = with types; {
     enable =
       mkBoolOpt false "Whether to enable the Wofi in the desktop environment.";
   };
@@ -17,7 +17,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [wofi wofi-emoji];
 
-    campground.home.configFile = {
+    fmf.home.configFile = {
       "wofi/config".source = ./config;
       "wofi/style.css".source = ./style.css;
     };

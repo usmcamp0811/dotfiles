@@ -1,6 +1,6 @@
 { lib, pkgs, hosts ? { }, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   pypkgs-build-requirements = {
     avro = [ "setuptools" ];

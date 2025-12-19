@@ -1,9 +1,9 @@
 { options, config, pkgs, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.system.zfs;
+with lib.fmf;
+let cfg = config.fmf.system.zfs;
 in {
-  options.campground.system.zfs = with types; {
+  options.fmf.system.zfs = with types; {
     enable = mkBoolOpt false "Whether or not to configure zfs.";
     hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
     keyfile-url = mkOpt str "http://10.8.0.55:8123/zfs-keyfile"

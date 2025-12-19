@@ -1,16 +1,16 @@
 { options, config, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.hardware.networking;
+with lib.fmf;
+let cfg = config.fmf.hardware.networking;
 in {
-  options.campground.hardware.networking = with types; {
+  options.fmf.hardware.networking = with types; {
     enable = mkBoolOpt false "Whether or not to enable networking support";
     hosts = mkOpt attrs { }
       "An attribute set to merge with <option>networking.hosts</option>";
   };
 
   config = mkIf cfg.enable {
-    campground.user.extraGroups = [ "networkmanager" ];
+    fmf.user.extraGroups = [ "networkmanager" ];
 
     networking = {
       hosts = {

@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.brave;
+with lib.fmf; let
+  cfg = config.fmf.apps.brave;
 in
 {
-  options.campground.apps.brave = with types; {
+  options.fmf.apps.brave = with types; {
     enable = mkBoolOpt false "Whether or not to enable Brave.";
     cac = mkBoolOpt false "Enable CAC Support";
   };

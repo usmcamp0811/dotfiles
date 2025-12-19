@@ -6,9 +6,9 @@
   ...
 }:
 with lib; let
-  cfg = config.campground.hardware.ckb-next;
+  cfg = config.fmf.hardware.ckb-next;
 in {
-  options.campground.hardware.ckb-next = with types; {
+  options.fmf.hardware.ckb-next = with types; {
     enable = mkEnableOption "Corsair Keyboards & Mice";
     gid = mkOption {
       type = types.nullOr types.int;

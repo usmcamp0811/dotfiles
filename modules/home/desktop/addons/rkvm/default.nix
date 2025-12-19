@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.rkvm;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.rkvm;
 in
 {
-  options.campground.desktop.addons.rkvm = with types; {
+  options.fmf.desktop.addons.rkvm = with types; {
     enable =
       mkBoolOpt false "Whether to enable rkvm in the desktop environment.";
   };

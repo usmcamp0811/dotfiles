@@ -1,8 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.paperless;
+  cfg = config.fmf.services.paperless;
   package = config.services.paperless.package;
   # Extract the default script
   hacked-web-script =
@@ -29,7 +29,7 @@ let
 
 in
 {
-  options.campground.services.paperless = with types; {
+  options.fmf.services.paperless = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
     dataDir = mkOpt str "/var/lib/paperless" "Location to store data";
     mediaDir = mkOpt str "/var/lib/paperless/media" "Location to store media";
@@ -42,10 +42,10 @@ in
     domainName = mkOpt str "https://docs.lan.aicampground.com" "domain to use";
     oidc-auth = mkBoolOpt true "Enable Authentik Login";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/paperless"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -56,13 +56,13 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
 
   config = mkIf cfg.enable {
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [
         "local paperless paperless trust"
@@ -150,7 +150,7 @@ in
       ports = [ "127.0.0.1:${cfg.tikaPort}:9998" ];
     };
 
-    campground.services.vault-agent.services = {
+    fmf.services.vault-agent.services = {
       paperlessPasswordFile = {
         settings = {
           vault.address = cfg.vault-address;

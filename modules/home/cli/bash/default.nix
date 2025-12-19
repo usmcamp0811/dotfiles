@@ -3,10 +3,10 @@
 , ...
 }:
 let
-  cfg = config.campground.cli.bash;
+  cfg = config.fmf.cli.bash;
 in
 {
-  options.campground.cli.bash = {
+  options.fmf.cli.bash = {
     enable = lib.mkEnableOption "Bash";
     extraSource = lib.mkOption {
       type = with lib.types; listOf str;
@@ -33,7 +33,7 @@ in
         (file: ''[ -r "${file}" ] && source "${file}"'')
         cfg.extraSource}
       source $HOME/.config/shell/aliases.shrc
-      [ -r "/var/lib/vault/users/${config.campground.user.name}/passwords" ] && source "/var/lib/vault/users/${config.campground.user.name}/passwords"
+      [ -r "/var/lib/vault/users/${config.fmf.user.name}/passwords" ] && source "/var/lib/vault/users/${config.fmf.user.name}/passwords"
     '';
   };
 }

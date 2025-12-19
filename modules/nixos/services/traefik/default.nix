@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.traefik;
+with lib.fmf; let
+  cfg = config.fmf.services.traefik;
   jsonValue = with types; let
     valueType =
       nullOr
@@ -78,9 +78,9 @@ with lib.campground; let
     echo "All certificates processed."
   '';
 in {
-  options.campground.services.traefik = with types; {
+  options.fmf.services.traefik = with types; {
     enable = mkBoolOpt false "Enable an Tang;";
-    email = mkOpt str config.campground.user.email "The email to use.";
+    email = mkOpt str config.fmf.user.email "The email to use.";
     docker-provider = mkBoolOpt false "Whether or not to enable syncthing.";
     acme-path =
       mkOpt str "/var/lib/traefik/acme.json"
@@ -107,10 +107,10 @@ in {
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/cloudflare"
@@ -122,7 +122,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -267,7 +267,7 @@ in {
         };
       };
     };
-    campground = {
+    fmf = {
       services = {
         vault-agent = {
           services = {

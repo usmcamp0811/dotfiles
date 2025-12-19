@@ -6,7 +6,7 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -19,7 +19,7 @@ in {
   boot.kernelPackages = pkgs.linuxPackages;
 
   services.tlp = {enable = mkForce false;};
-  campground = {
+  fmf = {
     # rmf.example-flask-app = {
     #   # enable = true;
     #   settings = {

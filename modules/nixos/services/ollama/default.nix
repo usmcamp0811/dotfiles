@@ -1,10 +1,10 @@
 { pkgs, lib, config, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.ollama;
+with lib.fmf;
+let cfg = config.fmf.services.ollama;
 
 in {
-  options.campground.services.ollama = with types; {
+  options.fmf.services.ollama = with types; {
     enable = mkBoolOpt false "Enable Ollama.";
     environmentVariables = mkOption {
       type = types.attrsOf types.str;

@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.matomo;
+with lib.fmf; let
+  cfg = config.fmf.services.matomo;
 in {
-  options.campground.services.matomo = with types; {
+  options.fmf.services.matomo = with types; {
     enable = mkBoolOpt false "Enable Matomo;";
     port = mkOpt int 16969 "Port for matomo";
     rootDomain = mkOpt str "aicampground.com" "Root domain to use for Matomo";
@@ -16,7 +16,7 @@ in {
 
   config = mkIf cfg.enable {
     # TODO: Do better configign of this shit
-    campground.services.mysql = {
+    fmf.services.mysql = {
       enable = true;
       databases = [
         {

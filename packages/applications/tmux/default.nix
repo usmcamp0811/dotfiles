@@ -7,7 +7,7 @@
 , ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   conf = ./tmux.conf;
   tmux = pkgs.writeShellApplication {
     name = "campground-tmux";

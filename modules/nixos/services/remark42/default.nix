@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.remark42;
+with lib.fmf;
+let cfg = config.fmf.services.remark42;
 in {
-  options.campground.services.remark42 = with types; {
+  options.fmf.services.remark42 = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
     port = mkOpt int 11845 "Port to Host the remark42 server on.";
     remark-url =
@@ -11,10 +11,10 @@ in {
     site = mkOpt str "blog.aicampground.com" "Remark Site";
     emoji = mkOpt bool true "Enable Emoji support or not";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/remark42"
       "The Vault path to the KV containing the Searx Secrets.";
@@ -25,7 +25,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -58,7 +58,7 @@ in {
         CORS_ALLOWED_ORIGINS = "https://${cfg.site}:remark.aicampgroud.com";
       };
       serviceConfig = {
-        ExecStart = "${pkgs.campground.remark42}/bin/remark42 server";
+        ExecStart = "${pkgs.fmf.remark42}/bin/remark42 server";
         Restart = "always";
         RestartSec = 30;
         # StandardOutput = "journal";
@@ -68,7 +68,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.remark42-blog-comments = {
+    fmf.services.vault-agent.services.remark42-blog-comments = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

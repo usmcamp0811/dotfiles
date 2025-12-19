@@ -7,11 +7,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.router.security;
-  routerCfg = config.campground.router;
+with lib.fmf; let
+  cfg = config.fmf.router.security;
+  routerCfg = config.fmf.router;
 in {
-  options.campground.router.security = {
+  options.fmf.router.security = {
     enable = mkEnableOption "Router security hardening" // {default = routerCfg.enable;};
 
     enableSSH = mkOption {
@@ -82,7 +82,7 @@ in {
     # hardware.pulseaudio.enable = mkForce false;
 
     # SSH configuration - LAN only
-    # Note: We extend the campground.services.openssh configuration
+    # Note: We extend the fmf.services.openssh configuration
     services.openssh = mkIf cfg.enableSSH {
       settings = {
         # Only allow from LAN interface

@@ -7,9 +7,9 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.router.zones;
-  routerCfg = config.campground.router;
+with lib.fmf; let
+  cfg = config.fmf.router.zones;
+  routerCfg = config.fmf.router;
 
   # Generate nftables sets for each zone
   mkZoneSet = zoneName: zone: ''
@@ -94,7 +94,7 @@ with lib.campground; let
       dhcp-range = allRanges;
     };
 in {
-  options.campground.router.zones = {
+  options.fmf.router.zones = {
     enable = mkEnableOption "Network zones with VLAN segmentation" // {default = routerCfg.enable;};
 
     zones = mkOption {

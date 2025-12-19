@@ -1,8 +1,8 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.tools.spotdl;
+  cfg = config.fmf.tools.spotdl;
 
   queue_file = "$HOME/.bdl_queue";
 
@@ -43,7 +43,7 @@ let
   '';
 in
 {
-  options.campground.tools.spotdl = with types; {
+  options.fmf.tools.spotdl = with types; {
     enable = mkBoolOpt false "Whether or not to enable spotdl.";
   };
 

@@ -1,6 +1,6 @@
 { lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   example-chart = pkgs.stdenv.mkDerivation {
     name = "example-chart";

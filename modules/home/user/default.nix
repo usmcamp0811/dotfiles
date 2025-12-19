@@ -1,10 +1,10 @@
 { lib, inputs, config, pkgs, ... }:
 let
   inherit (lib) types mkIf mkDefault mkMerge;
-  inherit (lib.campground) mkOpt;
+  inherit (lib.fmf) mkOpt;
 
-  cfg = config.campground.user;
-  cfg-user = config.campground.user;
+  cfg = config.fmf.user;
+  cfg-user = config.fmf.user;
   is-darwin = pkgs.stdenv.isDarwin;
 
   default-key =
@@ -17,7 +17,7 @@ let
   else
     "/home/${cfg.name}";
 in {
-  options.campground.user = {
+  options.fmf.user = {
     enable = mkOpt types.bool false "Whether to configure the user account.";
     name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name
       "The user account.";
@@ -37,11 +37,11 @@ in {
     assertions = [
       {
         assertion = cfg.name != null;
-        message = "campground.user.name must be set";
+        message = "fmf.user.name must be set";
       }
       {
         assertion = cfg.home != null;
-        message = "campground.user.home must be set";
+        message = "fmf.user.home must be set";
       }
     ];
 

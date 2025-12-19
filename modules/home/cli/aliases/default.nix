@@ -7,11 +7,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   # Generated file content for aliases
   aliasesFile =
     pkgs.writeText "aliases.shrc"
-    "${convertAlias config.campground.cli.aliases}";
+    "${convertAlias config.fmf.cli.aliases}";
 
   default-aliases = pkgs.writeText "default-aliases.shrc" (convertAlias {
     ".." = "cd ..";
@@ -83,7 +83,7 @@ with lib.campground; let
     '';
   });
 in {
-  options.campground.cli.aliases = with types;
+  options.fmf.cli.aliases = with types;
     mkOption {
       type = attrsOf str;
       default = {};

@@ -1,9 +1,9 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.suites.gaming;
+with lib.fmf;
+let cfg = config.fmf.suites.gaming;
 in {
-  options.campground.suites.gaming = with types; {
+  options.fmf.suites.gaming = with types; {
     enable = mkBoolOpt false "Whether or not to enable gaming configuration.";
   };
 

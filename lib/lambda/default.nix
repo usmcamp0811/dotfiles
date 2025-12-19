@@ -241,7 +241,7 @@ with lib; rec {
 
         # Tag and push the Docker image
         ${
-          lib.campground.pushDockerImage {
+          lib.fmf.pushDockerImage {
             inherit pkgs;
             dockerImage = lambdaImg;
           }

@@ -6,7 +6,7 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -37,7 +37,7 @@ in {
     };
     wantedBy = ["multi-user.target"];
   };
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

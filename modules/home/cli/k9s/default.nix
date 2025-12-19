@@ -5,16 +5,16 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.cli.k9s;
+with lib.fmf; let
+  cfg = config.fmf.cli.k9s;
 in
 {
-  options.campground.cli.k9s = with types; {
+  options.fmf.cli.k9s = with types; {
     enable = mkBoolOpt false "Whether or not to enable K9s.";
   };
 
   config = mkIf cfg.enable {
-    campground.cli.aliases = {
+    fmf.cli.aliases = {
       k = ''
         ${pkgs.kubectl}/bin/kubectl $@
       '';

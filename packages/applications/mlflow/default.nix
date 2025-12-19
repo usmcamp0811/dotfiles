@@ -1,7 +1,7 @@
 { lib, pkgs, ... }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   pname = "mlflow";
 
   description = "MLFlow hack job";

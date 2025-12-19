@@ -1,12 +1,12 @@
 { options, config, pkgs, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.cli.ranger;
+with lib.fmf;
+let cfg = config.fmf.cli.ranger;
 in {
-  options.campground.cli.ranger = { enable = mkEnableOption "Ranger"; };
+  options.fmf.cli.ranger = { enable = mkEnableOption "Ranger"; };
 
   config = mkIf cfg.enable {
-    campground.cli.aliases = {
+    fmf.cli.aliases = {
 
       ranger = ''
         ${pkgs.ranger}/bin/ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"

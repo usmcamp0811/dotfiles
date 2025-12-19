@@ -1,9 +1,9 @@
 { options, config, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.promtail;
+with lib.fmf;
+let cfg = config.fmf.services.promtail;
 in {
-  options.campground.services.promtail = with types; {
+  options.fmf.services.promtail = with types; {
     enable = mkBoolOpt false "Enable an Promtail";
     port = mkOpt int 3031 "Port to listen on";
     loki-uri = mkOpt str "localhost:3030" "loki host:port";

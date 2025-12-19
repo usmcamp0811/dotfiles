@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.beets;
+with lib.fmf; let
+  cfg = config.fmf.tools.beets;
 in {
-  options.campground.tools.beets = with types; {
+  options.fmf.tools.beets = with types; {
     enable = mkBoolOpt false "Whether or not to enable beets.";
     music-dir = mkOpt str "/export/media/music" "Directory for music files.";
   };

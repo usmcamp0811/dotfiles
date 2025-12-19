@@ -4,10 +4,10 @@
 }:
 let
   inherit (lib) mkEnableOption mkIf;
-  cfg = config.campground.tools.ssh;
+  cfg = config.fmf.tools.ssh;
 in
 {
-  options.campground.tools.ssh = { enable = mkEnableOption "SSH"; };
+  options.fmf.tools.ssh = { enable = mkEnableOption "SSH"; };
 
   config = mkIf cfg.enable {
     programs.ssh = {

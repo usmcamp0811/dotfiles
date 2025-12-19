@@ -5,12 +5,12 @@
   ...
 }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.campground-blog;
+  cfg = config.fmf.services.campground-blog;
 in
 {
-  options.campground.services.campground-blog = with types; {
+  options.fmf.services.campground-blog = with types; {
     enable = mkBoolOpt false "Enable the Campground Blog";
     port = mkOpt int 28345 "Port to host the Blog on";
     domain = mkOpt str "blog.aicampground.com" "The Blog Domain";
@@ -27,7 +27,7 @@ in
             port = cfg.port;
           }
         ];
-        root = "${pkgs.campground.blog}/public";
+        root = "${pkgs.fmf.blog}/public";
         extraConfig = ''
           access_log /var/log/nginx/${cfg.domain}-access.log;
           error_log /var/log/nginx/${cfg.domain}-error.log;

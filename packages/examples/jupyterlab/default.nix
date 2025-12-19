@@ -11,7 +11,7 @@
     kernel.python.example-env = {
       enable = true;
       displayName = "Python Environment (uv2nix)";
-      env = pkgs.campground.example-uv-python;
+      env = pkgs.fmf.example-uv-python;
       python = pkgs.python312;
     };
   };

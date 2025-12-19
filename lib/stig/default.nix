@@ -2,23 +2,23 @@
 with lib; rec {
   mkStigModule = { name, srgList ? [ ], cciList ? [ ], config, stigConfig }:
     let
-      cfg = config.campground.stig.${name};
+      cfg = config.fmf.stig.${name};
       forceAttrs = attrs: mapAttrsRecursive (_: v: mkForce v) attrs;
 
     in
     {
-      options.campground.stig.${name} = with types; {
-        enable = lib.campground.mkBoolOpt config.campground.stig.enable
+      options.fmf.stig.${name} = with types; {
+        enable = lib.fmf.mkBoolOpt config.fmf.stig.enable
           "Enable/Disable ${name}";
         justification =
-          lib.campground.mkOpt (listOf str) [ ] "Reasons why this is disabled.";
+          lib.fmf.mkOpt (listOf str) [ ] "Reasons why this is disabled.";
       };
 
       config = mkMerge [
         (mkIf cfg.enable (forceAttrs stigConfig))
 
         {
-          campground.stig = {
+          fmf.stig = {
             active.${name} = mkIf cfg.enable {
               srg = srgList;
               cci = cciList;
@@ -34,10 +34,10 @@ with lib; rec {
           };
 
           assertions = [{
-            assertion = (!cfg.enable && config.campground.stig.enable == true)
+            assertion = (!cfg.enable && config.fmf.stig.enable == true)
               -> (cfg.justification != [ ]);
             message =
-              "You must provide at least one justification if config.campground.stig.${name} is disabled.";
+              "You must provide at least one justification if config.fmf.stig.${name} is disabled.";
           }];
         }
       ];

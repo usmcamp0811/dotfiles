@@ -1,12 +1,12 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.lemmy;
+  cfg = config.fmf.services.lemmy;
   settingsFormat = pkgs.formats.json { };
 in
 {
-  options.campground.services.lemmy = with types; {
+  options.fmf.services.lemmy = with types; {
     enable = mkEnableOption "Lemmy";
     user = mkOpt types.str "lemmy" "The user under which lemmy runs.";
     group = mkOpt types.str "lemmy" "The group under which lemmy runs.";
@@ -22,10 +22,10 @@ in
     pict-rs-port = mkOpt types.int 18824 "pict-rs port";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/lemmy"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -36,7 +36,7 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -52,7 +52,7 @@ in
       groups = { "${cfg.group}" = { }; };
     };
 
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       databases = [{
         name = "lemmy";
@@ -107,7 +107,7 @@ in
     };
     services.pict-rs.package = pkgs.pict-rs;
     services.pict-rs.port = cfg.pict-rs-port;
-    campground.services.vault-agent.services.lemmy = {
+    fmf.services.vault-agent.services.lemmy = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -141,7 +141,7 @@ in
                  "pictrs": {
                    "api_key": "{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.LEMMY_PICTRS_API_KEY }}{{ else }}{{ .Data.data.LEMMY_PICTRS_API_KEY }}{{ end }}"
                  },
-                  "hostname": "lemmy.campground.com",
+                  "hostname": "lemmy.fmf.com",
                   "bind": "0.0.0.0"
                 }
                 {{ end }}'

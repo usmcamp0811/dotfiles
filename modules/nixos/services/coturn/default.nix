@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.coturn;
+with lib.fmf;
+let cfg = config.fmf.services.coturn;
 in {
-  options.campground.services.coturn = with types; {
+  options.fmf.services.coturn = with types; {
     enable = mkBoolOpt false "Enable Coturn";
     cert-fqdn = mkOpt str "" "Fully qualified domain name for the certificate";
     external-ip = mkOpt str "" "External IP address of the server";

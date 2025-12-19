@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 with types;
 
 let cfg = config.aws.step_functions;

@@ -1,9 +1,9 @@
 { options, config, pkgs, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.nix;
+with lib.fmf;
+let cfg = config.fmf.nix;
 in {
-  options.campground.nix = with types; {
+  options.fmf.nix = with types; {
     enable = mkBoolOpt true "Whether or not to manage nix configuration.";
     package = mkOpt package pkgs.nixVersions.stable "Which nix package to use.";
   };
@@ -17,7 +17,7 @@ in {
     ];
 
     nix =
-      let users = [ "root" config.campground.user.name ];
+      let users = [ "root" config.fmf.user.name ];
       in {
         package = cfg.package;
 
@@ -36,7 +36,7 @@ in {
           extra-nix-path = "nixpkgs=flake:nixpkgs";
           build-users-group = "nixbld";
         };
-        #// (lib.optionalAttrs config.campground.tools.direnv.enable {
+        #// (lib.optionalAttrs config.fmf.tools.direnv.enable {
         #  keep-outputs = true;
         #  keep-derivations = true;
         #});
@@ -45,7 +45,7 @@ in {
           automatic = true;
           interval = { Day = 7; };
           options = "--delete-older-than 30d";
-          user = config.campground.user.name;
+          user = config.fmf.user.name;
         };
 
         # flake-utils-plus

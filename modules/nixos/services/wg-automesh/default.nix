@@ -1,12 +1,12 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.wgautomesh;
+  cfg = config.fmf.services.wgautomesh;
   inherit (pkgs) wgautomesh;
 in
 {
-  options.campground.services.wgautomesh = with types; {
+  options.fmf.services.wgautomesh = with types; {
     enable = mkBoolOpt false "Enable the wgautomesh service.";
     logLevel = mkOption {
       type = enum [ "trace" "debug" "info" "warn" "error" ];
@@ -24,7 +24,7 @@ in
       mkBoolOpt true "Should you get the gossip secret file from Vault?";
     peers = mkOption {
       type = listOf (attrsOf str);
-      default = config.campground.services.wireguard.peers;
+      default = config.fmf.services.wireguard.peers;
       description = "List of peer configurations.";
     };
   };
@@ -44,7 +44,7 @@ in
       };
     };
 
-    campground.services.vault-agent.services.wgautomesh = {
+    fmf.services.vault-agent.services.wgautomesh = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

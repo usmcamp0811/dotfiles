@@ -165,7 +165,7 @@
 
       pythonVersion = builtins.substring 0 4 python-env.python.python.version;
 
-      python-env = lib.campground.mkPythonDerivation {
+      python-env = lib.fmf.mkPythonDerivation {
         inherit pkgs name src pypkgs-build-requirements;
       };
 
@@ -302,7 +302,7 @@
           flink = flink-with-kafka-connector;
           sql-client = sql-client;
           container = container;
-          push-img = lib.campground.pushDockerImage {
+          push-img = lib.fmf.pushDockerImage {
             inherit pkgs;
             dockerImage = container;
           };

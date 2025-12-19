@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.electron-support;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.electron-support;
 in {
-  options.campground.desktop.addons.electron-support = {
+  options.fmf.desktop.addons.electron-support = {
     enable =
       mkBoolOpt false
       "Whether to enable electron support in the desktop environment.";
@@ -17,7 +17,7 @@ in {
   config = mkIf cfg.enable {
     environment.sessionVariables = {NIXOS_OZONE_WL = "1";};
 
-    campground.home.configFile."electron-flags.conf".source =
+    fmf.home.configFile."electron-flags.conf".source =
       ./electron-flags.conf;
   };
 }

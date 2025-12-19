@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.nix-output-monitor;
+with lib.fmf; let
+  cfg = config.fmf.tools.nix-output-monitor;
 in {
-  options.campground.tools.nix-output-monitor = with types; {
+  options.fmf.tools.nix-output-monitor = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common Nix Output Monitor.";
   };

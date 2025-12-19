@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.nfs.server;
+with lib.fmf; let
+  cfg = config.fmf.nfs.server;
 in
 {
-  options.campground.nfs.server = with types; {
+  options.fmf.nfs.server = with types; {
     enable = mkBoolOpt false "Whether or not to mount server.";
   };
 

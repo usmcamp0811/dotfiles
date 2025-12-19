@@ -6,9 +6,9 @@
   ...
 }:
 with lib; let
-  cfg = config.campground.hardware.nvidia;
+  cfg = config.fmf.hardware.nvidia;
 in {
-  options.campground.hardware.nvidia = with types; {
+  options.fmf.hardware.nvidia = with types; {
     enable = mkEnableOption "Nvidia support";
     driverType = mkOption {
       type = types.enum [

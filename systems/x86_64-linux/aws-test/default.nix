@@ -6,7 +6,7 @@
 , ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -26,7 +26,7 @@ in
   };
   ###### REQUIRED FOR EC2 SYSTEMS #######
 
-  campground = {
+  fmf = {
     nix = enabled;
     cli-apps = { flake = enabled; };
     tools = {

@@ -3,11 +3,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.haproxy;
+with lib.fmf; let
+  cfg = config.fmf.services.haproxy;
 in
 {
-  options.campground.services.haproxy = with types; {
+  options.fmf.services.haproxy = with types; {
     enable = mkBoolOpt false "Enable HAProxy.";
     haIP = mkOpt str "*" "IP to listen on";
     defaults = mkOption {

@@ -1,6 +1,6 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 # TODO: Add Remote Logging Server options
 mkStigModule {
   inherit config;

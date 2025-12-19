@@ -20,7 +20,7 @@ in rec {
       nodes = lib.foldl (result: name:
         let
           host = hosts.${name};
-          user = host.config.campground.user.name or null;
+          user = host.config.fmf.user.name or null;
           inherit (host.pkgs) system;
         in result // {
           ${name} = (overrides.${name} or { }) // {
@@ -32,7 +32,7 @@ in rec {
                 user = "root";
                 sshUser = "root";
               } // lib.optionalAttrs
-                (host.config.campground.security.doas.enable or false) {
+                (host.config.fmf.security.doas.enable or false) {
                   sudo = "doas -u";
                 };
             };

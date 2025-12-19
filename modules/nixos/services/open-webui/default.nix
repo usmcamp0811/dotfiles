@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.open-webui;
+with lib.fmf;
+let cfg = config.fmf.services.open-webui;
 in {
-  options.campground.services.open-webui = with types; {
+  options.fmf.services.open-webui = with types; {
     enable = mkBoolOpt false "Enable Open-WebUI.";
 
     stateDir = mkOption {
@@ -71,10 +71,10 @@ in {
 
     };
     role-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id = mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path = mkOpt types.str "secret/campground/open-webui"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -85,7 +85,7 @@ in {
     };
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -116,7 +116,7 @@ in {
       environmentFile = cfg.environmentFile;
       environment = cfg.environment;
     };
-    campground.services.vault-agent.services.open-webuiSecrets = {
+    fmf.services.vault-agent.services.open-webuiSecrets = {
       settings = {
         # replace with the address of your vault
         vault.address = cfg.vault-address;

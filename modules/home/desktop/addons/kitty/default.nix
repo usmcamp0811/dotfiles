@@ -5,11 +5,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   inherit (lib) mkEnableOption mkIf;
-  cfg = config.campground.desktop.addons.kitty;
+  cfg = config.fmf.desktop.addons.kitty;
 in {
-  options.campground.desktop.addons.kitty = {
+  options.fmf.desktop.addons.kitty = {
     enable = mkEnableOption "Kitty";
 
     themeFile = mkOpt types.str "Modus_Vivendi" "Kitty theme to use";

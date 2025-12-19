@@ -1,9 +1,9 @@
 { lib, config, pkgs, inputs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.immich;
+with lib.fmf;
+let cfg = config.fmf.services.immich;
 in {
-  options.campground.services.immich = with types; {
+  options.fmf.services.immich = with types; {
     enable = mkBoolOpt false "Enable Immich;";
     mediaLocation =
       mkOpt path "/var/lib/immich" "Directory used to store media files.";
@@ -35,10 +35,10 @@ in {
     };
 
     # role-id =
-    #   mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+    #   mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
     #   "Absolute path to the Vault role-id";
     # secret-id =
-    #   mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+    #   mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
     #   "Absolute path to the Vault secret-id";
     # vault-path = mkOpt str "secret/campground/immich"
     #   "The Vault path to the KV containing the KVs that are for each database";
@@ -49,13 +49,13 @@ in {
     # };
     # vault-address = mkOption {
     #   type = str;
-    #   default = config.campground.services.vault-agent.settings.vault.address;
+    #   default = config.fmf.services.vault-agent.settings.vault.address;
     #   description = "The address of your Vault";
     # };
   };
 
   config = mkIf cfg.enable {
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       enableTCPIP = true;
       backupEnable = true;
@@ -104,7 +104,7 @@ in {
     # };
     # users.groups.immich = {};
 
-    # campground.services.vault-agent.services.immich-server = {
+    # fmf.services.vault-agent.services.immich-server = {
     #   settings = {
     #     vault.address = cfg.vault-address;
     #     auto_auth = {

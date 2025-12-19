@@ -119,7 +119,7 @@
           jupyter = run-jupyter;
           test = run-tests;
           container = container-img;
-          push-img = lib.campground.pushDockerImage {
+          push-img = lib.fmf.pushDockerImage {
             inherit pkgs;
             dockerImage = container-img;
           };

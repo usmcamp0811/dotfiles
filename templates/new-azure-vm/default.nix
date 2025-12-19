@@ -1,6 +1,6 @@
 { pkgs, config, lib, nixos-hardware, nixosModules, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   newUser = name: {
     isNormalUser = true;
@@ -21,7 +21,7 @@ in
     fsType = "ext4";
   };
 
-  campground = {
+  fmf = {
     archetypes.barebones = enabled;
 
     user = {

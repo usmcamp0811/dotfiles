@@ -4,9 +4,9 @@
 , ...
 }:
 with lib; {
-  options.campground.services.k3s.modules.certificates.enable = mkEnableOption "Deploy cert-manager and wildcard certificates";
+  options.fmf.services.k3s.modules.certificates.enable = mkEnableOption "Deploy cert-manager and wildcard certificates";
 
-  config = mkIf config.campground.services.k3s.modules.certificates.enable {
+  config = mkIf config.fmf.services.k3s.modules.certificates.enable {
     services.k3s.manifests = {
       cert-manager = {
         source = pkgs.fetchurl {

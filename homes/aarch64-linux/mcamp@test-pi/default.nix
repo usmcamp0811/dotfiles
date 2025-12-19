@@ -1,6 +1,6 @@
 { lib, config, ... }:
-with lib.campground; {
-  campground = {
+with lib.fmf; {
+  fmf = {
     user = {
       enable = true;
       name = config.snowfallorg.user.name;

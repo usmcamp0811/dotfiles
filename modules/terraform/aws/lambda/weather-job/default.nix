@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 with types;
 
 let cfg = config.aws.lambda.weather-job;
@@ -30,7 +30,7 @@ in {
         enable = true;
         jobs = {
           weather-job = {
-            lambda-image = pkgs.campground.aws-lambda-image;
+            lambda-image = pkgs.fmf.aws-lambda-image;
             registry-name = cfg.registry-name;
             environment.variables = cfg.variables;
             depends_on =

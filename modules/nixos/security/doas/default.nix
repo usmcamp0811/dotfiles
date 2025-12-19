@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.security.doas;
+with lib.fmf; let
+  cfg = config.fmf.security.doas;
 in
 {
-  options.campground.security.doas = {
+  options.fmf.security.doas = {
     enable = mkBoolOpt false "Whether or not to replace sudo with doas.";
   };
 
@@ -23,7 +23,7 @@ in
         {
           runAs = "root";
           cmd = "nixos-rebuild";
-          users = [ config.campground.user.name ];
+          users = [ config.fmf.user.name ];
           noPass = true;
           keepEnv = true;
         }

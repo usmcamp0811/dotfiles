@@ -5,17 +5,17 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.vaultwarden;
+with lib.fmf; let
+  cfg = config.fmf.services.vaultwarden;
 in {
-  options.campground.services.vaultwarden = with types; {
+  options.fmf.services.vaultwarden = with types; {
     enable = mkBoolOpt false "Enable Vaultwarden;";
     port = mkOpt int 8989 "Port to expose Vaultwarden on";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/vaultwarden"
@@ -27,13 +27,13 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
 
   config = mkIf cfg.enable {
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [
         "local vaultwarden vaultwarden trust"
@@ -93,7 +93,7 @@ in {
       before = ["vaultwarden.service"];
     };
 
-    campground.services.vault-agent.services.vaultwarden_env = {
+    fmf.services.vault-agent.services.vaultwarden_env = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

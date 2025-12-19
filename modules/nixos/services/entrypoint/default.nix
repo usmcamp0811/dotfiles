@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.entrypoint;
+with lib.fmf; let
+  cfg = config.fmf.services.entrypoint;
 in {
-  options.campground.services.entrypoint = with types; {
+  options.fmf.services.entrypoint = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     user = mkOpt str "root" "User to run the container";
     group = mkOpt str "root" "Group of the user running the container";

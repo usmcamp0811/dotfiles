@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.hyprland;
+with lib.fmf; let
+  cfg = config.fmf.desktop.hyprland;
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {

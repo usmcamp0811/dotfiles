@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.system.vpn;
+with lib.fmf; let
+  cfg = config.fmf.system.vpn;
 
   gen-clients = pkgs.writeShellScriptBin "generate-client-ovpn" ''
     set -e
@@ -134,13 +134,13 @@ with lib.campground; let
     echo "''${CLIENT_NAME}.ovpn file has been generated."
   '';
 in {
-  options.campground.system.vpn = with types; {
+  options.fmf.system.vpn = with types; {
     enable = mkBoolOpt false "Whether or not to enable VPN.";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "campground-pki/issue/vpn-client-role"
@@ -150,7 +150,7 @@ in {
       "The Vault path to the TLS Key in Vault";
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     common-name =

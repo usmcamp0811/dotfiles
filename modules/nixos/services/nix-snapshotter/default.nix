@@ -1,14 +1,14 @@
 { inputs, lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.nix-snapshotter;
+  cfg = config.fmf.services.nix-snapshotter;
 
-  # preloadContainerdImages = [pkgs.campground.containers];
+  # preloadContainerdImages = [pkgs.fmf.containers];
 in {
   imports = [ inputs.nix-snapshotter.nixosModules.default ];
 
-  options.campground.services.nix-snapshotter = with types; {
+  options.fmf.services.nix-snapshotter = with types; {
     enable = mkBoolOpt false "Enable Nix Snapshotter;";
   };
 

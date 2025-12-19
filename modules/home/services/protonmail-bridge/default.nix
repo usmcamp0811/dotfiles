@@ -1,9 +1,9 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.protonmail-bridge;
+with lib.fmf;
+let cfg = config.fmf.services.protonmail-bridge;
 in {
-  options.campground.services.protonmail-bridge = {
+  options.fmf.services.protonmail-bridge = {
     enable = mkOption {
       type = types.bool;
       default = false;

@@ -1,6 +1,6 @@
 {
   lib,
-  campground,
+  fmf,
   fetchFromGitHub,
   runCommand,
   callPackage,

@@ -319,11 +319,11 @@
       src = ./.;
       snowfall = {
         meta = {
-          name = "campground";
+          name = "fmf";
           title = "AI Campground";
         };
 
-        namespace = "campground";
+        namespace = "fmf";
       };
     };
   in

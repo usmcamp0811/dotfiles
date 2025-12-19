@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.vscode;
+with lib.fmf; let
+  cfg = config.fmf.apps.vscode;
 in {
-  options.campground.apps.vscode = with types; {
+  options.fmf.apps.vscode = with types; {
     enable = mkBoolOpt false "Whether or not to enable vscode.";
   };
 

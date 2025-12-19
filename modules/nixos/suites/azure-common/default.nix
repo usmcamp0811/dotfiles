@@ -1,15 +1,15 @@
 { pkgs, options, config, lib, inputs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.suites.azure-common;
+with lib.fmf;
+let cfg = config.fmf.suites.azure-common;
 in {
-  options.campground.suites.azure-common = with types; {
+  options.fmf.suites.azure-common = with types; {
     enable = mkBoolOpt false "Whether or not to enable common configuration.";
   };
   config = mkIf cfg.enable {
     boot.loader.systemd-boot.enable = false;
     boot.loader.grub = enabled;
-    campground = {
+    fmf = {
       nix = { enable = true; };
 
       cache = { public = enabled; };

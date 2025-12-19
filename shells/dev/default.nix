@@ -1,7 +1,7 @@
 { pkgs, config, lib, ... }:
 with lib;
-with lib.campground;
-let inherit (lib.campground) override-meta;
+with lib.fmf;
+let inherit (lib.fmf) override-meta;
 in pkgs.mkShell {
   name = "cuda-env-shell";
   buildInputs = with pkgs; [

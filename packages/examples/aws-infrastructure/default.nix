@@ -1,5 +1,5 @@
 { lib, pkgs, system, ... }:
-with lib.campground;
+with lib.fmf;
 mkTerranixDerivation {
   inherit pkgs system;
   modules = [ ./example.nix ];

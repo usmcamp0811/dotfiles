@@ -1,6 +1,6 @@
 { lib, pkgs, inputs, system, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 mkAWSLambdaPythonImage {
   inherit pkgs system;
   name = "pdf_ocr";

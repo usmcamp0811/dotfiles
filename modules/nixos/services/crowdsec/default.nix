@@ -4,19 +4,19 @@
 , ...
 }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.crowdsec;
+  cfg = config.fmf.services.crowdsec;
 in {
-  options.campground.services.crowdsec = with types; {
+  options.fmf.services.crowdsec = with types; {
     enable = mkBoolOpt false "Enable crowdsec.";
     listen_uri = mkOpt str "0.0.0.0:10808" "URI to listen on";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/crowdsec"
@@ -28,7 +28,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -55,7 +55,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.crowdsec = {
+    fmf.services.vault-agent.services.crowdsec = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

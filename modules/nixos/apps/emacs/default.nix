@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.emacs;
+with lib.fmf; let
+  cfg = config.fmf.apps.emacs;
   src = pkgs.fetchFromGitHub {
     owner = "syl20bnr";
     repo = "spacemacs";
@@ -15,7 +15,7 @@ with lib.campground; let
     sha256 = "e/pL+9+8BRXIJr0jZ2ca5nuL5ZaJ7zJSl8DMlxyAd08=";
   };
 in {
-  options.campground.apps.emacs = with types; {
+  options.fmf.apps.emacs = with types; {
     enable = mkBoolOpt false "Whether or not to enable Emacs.";
     spacemacs = mkBoolOpt false "Whether or not to enable Spacemacs";
   };
@@ -25,14 +25,14 @@ in {
 
     system.activationScripts.spacemacs = lib.mkIf cfg.spacemacs {
       text = ''
-        if [[ -f /home/${config.campground.user.name}/.spacemacs ]]; then
+        if [[ -f /home/${config.fmf.user.name}/.spacemacs ]]; then
           echo "Spacemacs is already configured due to existing .spacemacs file"
         else
-          echo "Initializing Spacemacs directory at /home/${config.campground.user.name}/.emacs.d"
-          mkdir -p /home/${config.campground.user.name}/.emacs.d
-          cp -a ${src}/. /home/${config.campground.user.name}/.emacs.d/
-          chown -R ${config.campground.user.name}: /home/${config.campground.user.name}/.emacs.d
-          chmod -R u+rwx /home/${config.campground.user.name}/.emacs.d/
+          echo "Initializing Spacemacs directory at /home/${config.fmf.user.name}/.emacs.d"
+          mkdir -p /home/${config.fmf.user.name}/.emacs.d
+          cp -a ${src}/. /home/${config.fmf.user.name}/.emacs.d/
+          chown -R ${config.fmf.user.name}: /home/${config.fmf.user.name}/.emacs.d
+          chmod -R u+rwx /home/${config.fmf.user.name}/.emacs.d/
           echo "Successfully initialized Spacemacs directory"
         fi
       '';

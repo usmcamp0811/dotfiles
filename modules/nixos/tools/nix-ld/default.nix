@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.nix-ld;
+with lib.fmf; let
+  cfg = config.fmf.tools.nix-ld;
 in
 {
-  options.campground.tools.nix-ld = with types; {
+  options.fmf.tools.nix-ld = with types; {
     enable = mkBoolOpt false "Whether or not to enable nix-ld.";
   };
 

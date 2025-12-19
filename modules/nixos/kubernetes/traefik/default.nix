@@ -4,16 +4,16 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.k3s.modules.traefik;
+with lib.fmf; let
+  cfg = config.fmf.services.k3s.modules.traefik;
 in
 {
-  options.campground.services.k3s.modules.traefik = {
+  options.fmf.services.k3s.modules.traefik = {
     enable = mkEnableOption "Enable Traefik and supporting manifests.";
   };
 
   config = mkIf cfg.enable {
-    campground.services.k3s.modules.certificates.enable = true;
+    fmf.services.k3s.modules.certificates.enable = true;
     services.k3s = {
       charts.traefik =
         pkgs.runCommand "traefik.tgz"
@@ -223,9 +223,9 @@ in
                       lib.recursiveUpdate val {
                         tls.certResolver = "cloudflare";
                       })
-                    config.campground.suites.public-hosting.dynamicConfigOptions.http.routers;
+                    config.fmf.suites.public-hosting.dynamicConfigOptions.http.routers;
               }
-              // (lib.removeAttrs config.campground.suites.public-hosting.dynamicConfigOptions.http [ "routers" ]);
+              // (lib.removeAttrs config.fmf.suites.public-hosting.dynamicConfigOptions.http [ "routers" ]);
           };
         };
       };

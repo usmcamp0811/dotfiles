@@ -5,13 +5,13 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.gtk;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.gtk;
   default-attrs = mapAttrs (_key: mkDefault);
   nested-default-attrs = mapAttrs (_key: default-attrs);
 in
 {
-  options.campground.desktop.addons.gtk = with types; {
+  options.fmf.desktop.addons.gtk = with types; {
     enable = mkBoolOpt false "Whether to customize GTK and apply themes.";
     cursor = {
       name =
@@ -57,7 +57,7 @@ in
           cursor-size = cfg.cursor.size;
           cursor-theme = cfg.cursor.name;
           enable-hot-corners = false;
-          font-name = config.campground.system.fonts.default;
+          font-name = config.fmf.system.fonts.default;
           gtk-theme = cfg.theme.name;
           icon-theme = cfg.icon.name;
         };
@@ -72,7 +72,7 @@ in
         package = cfg.cursor.pkg;
       };
 
-      font = { name = config.campground.system.fonts.default; };
+      font = { name = config.fmf.system.fonts.default; };
 
       gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
 

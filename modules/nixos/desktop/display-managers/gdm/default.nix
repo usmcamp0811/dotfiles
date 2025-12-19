@@ -1,11 +1,11 @@
 { config, lib, options, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.desktop.display-manager.gdm;
+  cfg = config.fmf.desktop.display-manager.gdm;
   gdmHome = config.users.users.gdm.home;
 in {
-  options.campground.desktop.display-manager.gdm = with types; {
+  options.fmf.desktop.display-manager.gdm = with types; {
     enable = mkBoolOpt false "Whether or not to enable gdm.";
     autoSuspend =
       mkBoolOpt false "Whether or not to suspend the machine after inactivity.";
@@ -41,8 +41,8 @@ in {
       script =
         # bash
         ''
-          config_file=/var/lib/AccountsService/users/${config.campground.user.name}
-          icon_file=/run/current-system/sw/share/icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
+          config_file=/var/lib/AccountsService/users/${config.fmf.user.name}
+          icon_file=/run/current-system/sw/share/icons/user/${config.fmf.user.name}/${config.fmf.user.icon.fileName}
 
           if ! [ -d "$(dirname "$config_file")" ]; then
             mkdir -p "$(dirname "$config_file")"
@@ -77,10 +77,10 @@ in {
         echo "Setting gdm permissions for user icon"
         ${
           getExe' pkgs.acl "setfacl"
-        } -m u:gdm:x /home/${config.campground.user.name}
+        } -m u:gdm:x /home/${config.fmf.user.name}
         ${
           getExe' pkgs.acl "setfacl"
-        } -m u:gdm:r /home/${config.campground.user.name}/.face || true
+        } -m u:gdm:r /home/${config.fmf.user.name}/.face || true
       '';
   };
 }

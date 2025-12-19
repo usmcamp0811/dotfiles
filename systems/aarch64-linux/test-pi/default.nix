@@ -1,6 +1,6 @@
 { pkgs, lib, modulesPath, inputs, ... }:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   imports = with inputs.nixos-hardware.nixosModules; [
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/installer/sd-card/sd-image-aarch64.nix")
@@ -13,7 +13,7 @@ with lib.campground; {
   #   kernelModules = [ "ahci" ];
   # };
 
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

@@ -6,16 +6,16 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.user-secrets;
+with lib.fmf; let
+  cfg = config.fmf.services.user-secrets;
 in {
-  options.campground.services.user-secrets = with types; {
+  options.fmf.services.user-secrets = with types; {
     enable = mkEnableOption "user-secrets";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/users"
@@ -27,7 +27,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
 
@@ -39,7 +39,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    campground.services.vault-agent.services =
+    fmf.services.vault-agent.services =
       lib.mapAttrs' (user: secrets: {
         name = "user-secrets-${user}";
         value = {

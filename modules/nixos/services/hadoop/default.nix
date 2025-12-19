@@ -1,11 +1,11 @@
 { lib, config, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 # If this is the first time or you still don't know what to do with Hadoop 
 # I had to do `sudo hdfs namenode -format` to format the storage
-let cfg = config.campground.services.hadoop;
+let cfg = config.fmf.services.hadoop;
 in {
-  options.campground.services.hadoop = with types; {
+  options.fmf.services.hadoop = with types; {
     enable = mkBoolOpt false "Enable Hadoop services.";
 
     role = mkOption {
@@ -171,12 +171,12 @@ in {
         "dfs.ha.namenodes.campground" = "nn1,nn2";
 
         # RPC addresses for each NameNode in HA setup
-        "dfs.namenode.rpc-address.campground.nn1" = "lucas:8020";
-        "dfs.namenode.rpc-address.campground.nn2" = "chesty:8020";
+        "dfs.namenode.rpc-address.fmf.nn1" = "lucas:8020";
+        "dfs.namenode.rpc-address.fmf.nn2" = "chesty:8020";
 
         # HTTP addresses for each NameNode (for web UI, optional)
-        "dfs.namenode.http-address.campground.nn1" = "lucas:50070";
-        "dfs.namenode.http-address.campground.nn2" = "chesty:50070";
+        "dfs.namenode.http-address.fmf.nn1" = "lucas:50070";
+        "dfs.namenode.http-address.fmf.nn2" = "chesty:50070";
 
         # JournalNode settings (optional, but recommended in an HA setup)
         "dfs.namenode.shared.edits.dir" =

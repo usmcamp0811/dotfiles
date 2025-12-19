@@ -1,12 +1,12 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 # THIS IS BORKED
 # Think the problem is with the version of Python but not certain.. 
 # do know starting with version 1.4.0 they switch to Poetry so 
 # the package will need to be reworked to support poetry. 
 let
-  cfg = config.campground.services.funkwhale;
+  cfg = config.fmf.services.funkwhale;
 
   funkwhaleEnvTemplate = ''
     {{ with secret "${cfg.vault-path}" }}
@@ -15,7 +15,7 @@ let
     {{ end }}
   '';
 in {
-  options.campground.services.funkwhale = with types; {
+  options.fmf.services.funkwhale = with types; {
     enable = mkEnableOption "Funkwhale";
 
     apiIp = mkOpt str "0.0.0.0" "IP to access the API on";
@@ -26,7 +26,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [ "local funkwhale funkwhale trust" ];
       databases = [{
@@ -70,7 +70,7 @@ in {
       musicPath = "/mnt/media/music";
     };
 
-    campground.services.vault-agent.services = {
+    fmf.services.vault-agent.services = {
       funkwhale = {
         settings = {
           vault.address = cfg.vault-address;

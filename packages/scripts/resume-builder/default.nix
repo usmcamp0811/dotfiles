@@ -9,7 +9,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   resume-json = ../../websites/matt-camp-website/src/assets/resume/resume.json;
   resume-latex = pkgs.stdenv.mkDerivation {

@@ -1,21 +1,21 @@
 { pkgs, options, config, lib, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.system.env;
+  cfg = config.fmf.system.env;
 
   # Generated file content for aliases
   aliasesFile = pkgs.writeText "aliases.shrc"
-    "${convertAlias config.campground.system.aliases}";
+    "${convertAlias config.fmf.system.aliases}";
 in
 {
-  options.campground.system.aliases = with types;
+  options.fmf.system.aliases = with types;
     mkOption {
       type = attrsOf str;
       default = { };
       description = "A set of command aliases to set.";
     };
-  options.campground.system.env = with types;
+  options.fmf.system.env = with types;
     mkOption {
       type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
       apply = mapAttrs (_n: v:

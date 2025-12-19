@@ -1,5 +1,5 @@
 { lib, inputs, pkgs, ... }:
-with lib.campground;
+with lib.fmf;
 let
   chromaterm = mkPythonDerivation {
     inherit pkgs;

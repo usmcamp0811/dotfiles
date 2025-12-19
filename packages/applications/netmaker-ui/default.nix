@@ -10,7 +10,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   inherit system;
 
   description = "Netmaker UI";

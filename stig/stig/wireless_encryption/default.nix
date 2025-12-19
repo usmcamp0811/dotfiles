@@ -1,7 +1,7 @@
 { lib, config, ... }:
 
 with lib;
-with lib.campground;
+with lib.fmf;
 
 let
   inherit (lib) mapAttrs' nameValuePair;

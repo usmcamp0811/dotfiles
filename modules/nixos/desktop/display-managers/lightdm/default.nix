@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.display-manager.lightdm;
+with lib.fmf; let
+  cfg = config.fmf.desktop.display-manager.lightdm;
 in {
-  options.campground.desktop.display-manager.lightdm = with types; {
+  options.fmf.desktop.display-manager.lightdm = with types; {
     enable = mkBoolOpt false "Whether or not to enable lightdm.";
     greeter = lib.mkOption {
       type = lib.types.attrs;
@@ -43,8 +43,8 @@ in {
       script =
         # bash
         ''
-          config_file=/var/lib/AccountsService/users/${config.campground.user.name}
-          icon_file=/run/current-system/sw/share/icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
+          config_file=/var/lib/AccountsService/users/${config.fmf.user.name}
+          icon_file=/run/current-system/sw/share/icons/user/${config.fmf.user.name}/${config.fmf.user.icon.fileName}
 
           if ! [ -d "$(dirname "$config_file")" ]; then
             mkdir -p "$(dirname "$config_file")"

@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.nextcloud;
+with lib.fmf; let
+  cfg = config.fmf.services.nextcloud;
 in
 {
-  options.campground.services.nextcloud = with types; {
+  options.fmf.services.nextcloud = with types; {
     enable = mkBoolOpt false "Enable Nextcloud";
     port = mkOpt int 7443 "Port to host the Nextcloud server on";
     adminuser = mkOpt str "mcamp" "Absolute path to the Vault role-id";
@@ -20,10 +20,10 @@ in
     # OnlyOffice configuration
     onlyoffice = mkBoolOpt true "Enable OnlyOffice integration";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     onlyoffice-vault-path =
       mkOpt str "secret/campground/onlyoffice"
@@ -38,7 +38,7 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -116,7 +116,7 @@ in
       "d /var/lib/nextcloud 700 nextcloud nextcloud -"
       "d /var/lib/nextcloud/data 700 nextcloud nextcloud -"
     ];
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [ "local nextcloud nextcloud trust" ];
       databases = [
@@ -166,7 +166,7 @@ in
 
     environment.systemPackages = with pkgs; [ exiftool ffmpeg ];
 
-    campground.services.vault-agent.services.nextcloud-setup = {
+    fmf.services.vault-agent.services.nextcloud-setup = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

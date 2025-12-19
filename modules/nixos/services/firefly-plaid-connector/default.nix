@@ -1,18 +1,18 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.firefly-plaid-connector;
-  ff = config.campground.services.firefly;
+  cfg = config.fmf.services.firefly-plaid-connector;
+  ff = config.fmf.services.firefly;
   application_yaml = ./application.yml;
 in {
-  options.campground.services.firefly-plaid-connector = with types; {
+  options.fmf.services.firefly-plaid-connector = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/plaid"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -23,7 +23,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -75,7 +75,7 @@ in {
       };
     };
 
-    campground.services.vault-agent.services.setup-firefly-plaid-connector3 = {
+    fmf.services.vault-agent.services.setup-firefly-plaid-connector3 = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

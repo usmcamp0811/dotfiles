@@ -1,9 +1,9 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.apps.steam;
+with lib.fmf;
+let cfg = config.fmf.apps.steam;
 in {
-  options.campground.apps.steam = with types; {
+  options.fmf.apps.steam = with types; {
     enable = mkBoolOpt false "Whether or not to enable support for Steam.";
   };
 
@@ -17,7 +17,7 @@ in {
     services.udev.packages = [ pkgs.dolphin-emu ];
 
     environment.systemPackages = with pkgs; [
-      campground.steam
+      fmf.steam
       steamtinkerlaunch
     ];
 

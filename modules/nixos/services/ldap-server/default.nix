@@ -5,17 +5,17 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.ldap-server;
+with lib.fmf; let
+  cfg = config.fmf.services.ldap-server;
 
   user-template =
     pkgs.writeText "user-template.xml"
     (builtins.readFile ./openldap/user-template.xml);
   entrypoint = pkgs.writeText "run" (builtins.readFile ./openldap/run);
 
-  inherit (pkgs.campground) phpLDAPadmin;
+  inherit (pkgs.fmf) phpLDAPadmin;
 in {
-  options.campground.services.ldap-server = with types; {
+  options.fmf.services.ldap-server = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     ldapBackend = mkOpt str "mdb" "the Ldap Backend";
     domain-name = mkOpt str "aicampground" "The domain name to use";
@@ -23,10 +23,10 @@ in {
     rootdn =
       mkOpt str "cn=admin,dc=${cfg.domain-name},dc=com" "The Root DN to use";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-pki-path =
       mkOpt str "campground-pki/issue/ldap-server-role"
@@ -38,7 +38,7 @@ in {
       mkOpt str "server.ldap.lan.aicampground.com"
       "Common Name for Server Certs";
     ldap_uri =
-      mkOpt str "ldap://ldap.campground.lan"
+      mkOpt str "ldap://ldap.fmf.lan"
       "The url of hte server.. should be the hostname or ip or dns name";
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
@@ -47,7 +47,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -586,7 +586,7 @@ in {
       # };
     };
 
-    campground.services.vault-agent.services.openldap = {
+    fmf.services.vault-agent.services.openldap = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

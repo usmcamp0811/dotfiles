@@ -1,5 +1,5 @@
 { lib, inputs, pkgs, ... }:
-with lib.campground;
+with lib.fmf;
 let
 
   ppim = pkgs.writeShellScriptBin "ppim-migrator" ''

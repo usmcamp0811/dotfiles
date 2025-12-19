@@ -4,12 +4,12 @@
 }:
 let
   inherit (lib) types mkIf;
-  inherit (lib.campground) mkOpt;
+  inherit (lib.fmf) mkOpt;
 
-  cfg = config.campground.user;
+  cfg = config.fmf.user;
 in
 {
-  options.campground.user = {
+  options.fmf.user = {
     name = mkOpt types.str "abe" "The user account.";
 
     fullName = mkOpt types.str "Matt Camp" "The full name of the user.";
@@ -22,7 +22,7 @@ in
     users.users.${cfg.name} = {
       # @NOTE(jakehamilton): Setting the uid here is required for another
       # module to evaluate successfully since it reads
-      # `users.users.${campground.user.name}.uid`.
+      # `users.users.${fmf.user.name}.uid`.
       uid = mkIf (cfg.uid != null) cfg.uid;
     };
   };

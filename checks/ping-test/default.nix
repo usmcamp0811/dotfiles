@@ -1,3 +1,3 @@
 { pkgs, ... }:
 
-pkgs.campground.ping-test.driverInteractive
+pkgs.fmf.ping-test.driverInteractive

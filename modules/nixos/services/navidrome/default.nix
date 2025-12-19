@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.navidrome;
+with lib.fmf;
+let cfg = config.fmf.services.navidrome;
 in {
-  options.campground.services.navidrome = with types; {
+  options.fmf.services.navidrome = with types; {
     enable = mkEnableOption "Navidrome Music Server";
 
     package =
@@ -20,10 +20,10 @@ in {
       "Enable anonymous insights collection for Navidrome.";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/navidrome"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -34,7 +34,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -64,7 +64,7 @@ in {
       };
       groups = { "${cfg.group}" = { }; };
     };
-    campground.services.vault-agent.services.navidrome = {
+    fmf.services.vault-agent.services.navidrome = {
       settings = {
         vault.address =
           cfg.vault-address; # Replace with your Vault server address

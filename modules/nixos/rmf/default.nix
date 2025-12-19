@@ -3,11 +3,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.controls;
+with lib.fmf; let
+  cfg = config.fmf.controls;
 in
 {
-  options.campground.controls = lib.mkOption {
+  options.fmf.controls = lib.mkOption {
     type = lib.types.attrsOf lib.types.anything;
     default = { };
     description = "Holds active/inactive RMF control data across packages.";

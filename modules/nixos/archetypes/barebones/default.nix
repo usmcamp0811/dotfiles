@@ -4,15 +4,15 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.archetypes.barebones;
+with lib.fmf; let
+  cfg = config.fmf.archetypes.barebones;
 in
 {
-  options.campground.archetypes.barebones = with types; {
+  options.fmf.archetypes.barebones = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable the barebones archetype.";
   };
 
   config =
-    mkIf cfg.enable { campground = { suites = { common = enabled; }; }; };
+    mkIf cfg.enable { fmf = { suites = { common = enabled; }; }; };
 }

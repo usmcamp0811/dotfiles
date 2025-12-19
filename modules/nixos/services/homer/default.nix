@@ -1,8 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.homer;
+  cfg = config.fmf.services.homer;
 
   yaml-format = pkgs.formats.yaml { };
   settings-yaml = yaml-format.generate "config.yml" cfg.settings;
@@ -12,10 +12,10 @@ let
   else
     builtins.toString settings-yaml;
 in {
-  options.campground.services.homer = {
+  options.fmf.services.homer = {
     enable = mkEnableOption "Homer";
 
-    package = mkOpt types.package pkgs.campground.homer
+    package = mkOpt types.package pkgs.fmf.homer
       "The package of Homer assets to use.";
 
     settings =
@@ -56,17 +56,17 @@ in {
     assertions = [
       {
         assertion = cfg.host != null;
-        message = "campground.services.homer.host must be set.";
+        message = "fmf.services.homer.host must be set.";
       }
       {
         assertion = cfg.settings-path != null -> cfg.settings == { };
         message =
-          "campground.services.homer.settings and campground.services.homer.settings-path are mutually exclusive.";
+          "fmf.services.homer.settings and fmf.services.homer.settings-path are mutually exclusive.";
       }
       {
         assertion = cfg.nginx.forceSSL -> cfg.acme.enable;
         message =
-          "campground.services.homer.nginx.forceSSL requires setting campground.services.homer.acme.enable to true.";
+          "fmf.services.homer.nginx.forceSSL requires setting fmf.services.homer.acme.enable to true.";
       }
     ];
 

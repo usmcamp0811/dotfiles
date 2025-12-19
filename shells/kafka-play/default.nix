@@ -1,6 +1,6 @@
 { mkShell, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   julia-env = pkgs.julia.withPackages.override {
     extraLibs =

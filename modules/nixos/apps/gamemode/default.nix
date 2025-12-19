@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.gamemode;
+with lib.fmf; let
+  cfg = config.fmf.apps.gamemode;
 
   defaultStartScript = ''
     ${getExe' pkgs.libnotify "notify-send"} 'GameMode started'
@@ -17,7 +17,7 @@ with lib.campground; let
     ${getExe' pkgs.libnotify "notify-send"} 'GameMode ended'
   '';
 in {
-  options.campground.apps.gamemode = with types; {
+  options.fmf.apps.gamemode = with types; {
     enable = mkBoolOpt false "Whether or not to enable gamemode.";
     endscript =
       mkOpt (nullOr str) null "The script to run when disabling gamemode.";

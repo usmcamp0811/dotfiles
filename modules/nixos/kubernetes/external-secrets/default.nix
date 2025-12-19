@@ -5,26 +5,26 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.k3s.modules.external-secrets;
+with lib.fmf; let
+  cfg = config.fmf.services.k3s.modules.external-secrets;
 in {
-  options.campground.services.k3s.modules.external-secrets = {
+  options.fmf.services.k3s.modules.external-secrets = {
     enable = mkEnableOption "Deploy External Secrets and Vault Store";
     vault-policy = mkOpt types.str "campground" "The Policy to give the `vault-auth` ServiceAccount";
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/k3s"
       "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
@@ -34,8 +34,8 @@ in {
     };
   };
 
-  config = mkIf config.campground.services.k3s.modules.external-secrets.enable {
-    campground.services.k3s.modules.certificates.enable = true;
+  config = mkIf config.fmf.services.k3s.modules.external-secrets.enable {
+    fmf.services.k3s.modules.certificates.enable = true;
     services.k3s.charts.external-secrets =
       pkgs.runCommand "external-secrets.tgz"
       {
@@ -117,9 +117,9 @@ in {
         metadata.name = "vault-backend";
         spec = {
           provider.vault = {
-            server = config.campground.services.k3s.vault-address;
-            path = lib.removeSuffix "/k3s" config.campground.services.k3s.vault-path;
-            version = config.campground.services.k3s.kvVersion;
+            server = config.fmf.services.k3s.vault-address;
+            path = lib.removeSuffix "/k3s" config.fmf.services.k3s.vault-path;
+            version = config.fmf.services.k3s.kvVersion;
             auth.kubernetes = {
               mountPath = "kubernetes";
               role = "external-secrets";

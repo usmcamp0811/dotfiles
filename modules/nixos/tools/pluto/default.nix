@@ -6,14 +6,14 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.pluto;
+with lib.fmf; let
+  cfg = config.fmf.tools.pluto;
 in {
-  options.campground.tools.pluto = with types; {
+  options.fmf.tools.pluto = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Pluto.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [campground.pluto];
+    environment.systemPackages = with pkgs; [fmf.pluto];
   };
 }

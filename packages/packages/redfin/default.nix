@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   new-meta = with lib; {
     description = "A wrapper around redfin's unofficial API. Anything on the redfin site can be accessed through this module without screen scraping.";
     homepage = "https://github.com/reteps/redfin";

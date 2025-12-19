@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.jupyter;
+with lib.fmf; let
+  cfg = config.fmf.services.jupyter;
 in {
-  options.campground.services.jupyter = with types; {
+  options.fmf.services.jupyter = with types; {
     enable = mkBoolOpt false "Enable Docker;";
     user = mkOpt str "jupyter" "The user name to run Jupyter Lab as..";
     group = mkOpt str "jupyter" "The group name to run Jupyter Lab as..";

@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.libreoffice;
+with lib.fmf; let
+  cfg = config.fmf.apps.libreoffice;
 in {
-  options.campground.apps.libreoffice = with types; {
+  options.fmf.apps.libreoffice = with types; {
     enable = mkBoolOpt false "Whether or not to enable libreoffice.";
   };
 

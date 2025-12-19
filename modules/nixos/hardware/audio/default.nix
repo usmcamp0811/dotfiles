@@ -7,10 +7,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.hardware.audio;
+with lib.fmf; let
+  cfg = config.fmf.hardware.audio;
 in {
-  options.campground.hardware.audio = with types; {
+  options.fmf.hardware.audio = with types; {
     enable = mkBoolOpt false "Whether or not to enable audio support.";
     alsa-monitor = mkOpt attrs {} "Alsa configuration.";
     nodes = mkOpt (listOf attrs) [] "Audio nodes to pass to Pipewire as `context.objects`.";
@@ -81,9 +81,9 @@ in {
 
     environment.systemPackages = with pkgs; [pulsemixer pavucontrol] ++ cfg.extra-packages;
 
-    campground.user.extraGroups = ["audio"];
+    fmf.user.extraGroups = ["audio"];
 
-    campground.home.extraOptions = {
+    fmf.home.extraOptions = {
       systemd.user.services.mpris-proxy = {
         Unit.Description = "Mpris proxy";
         Unit.After = ["network.target" "sound.target"];

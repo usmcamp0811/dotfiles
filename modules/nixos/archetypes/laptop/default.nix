@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.archetypes.laptop;
+with lib.fmf; let
+  cfg = config.fmf.archetypes.laptop;
 in
 {
-  options.campground.archetypes.laptop = with types; {
+  options.fmf.archetypes.laptop = with types; {
     enable = mkBoolOpt false "Whether or not to enable the laptop archetype.";
   };
 
@@ -23,7 +23,7 @@ in
       };
     };
 
-    campground = {
+    fmf = {
       suites = {
         common = enabled;
         desktop = enabled;

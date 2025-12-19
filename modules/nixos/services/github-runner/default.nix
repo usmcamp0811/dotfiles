@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.github-runner;
+with lib.fmf; let
+  cfg = config.fmf.services.github-runner;
 in {
-  options.campground.services.github-runner = {
+  options.fmf.services.github-runner = {
     enable = mkEnableOption "GitHub Actions Runner";
 
     runners = mkOption {
@@ -75,7 +75,7 @@ in {
               cacert
               openssh
               deploy-rs
-              campground.get-lan-pub-systems
+              fmf.get-lan-pub-systems
               vault
               ssh-agents
               attic-client
@@ -121,12 +121,12 @@ in {
     # Vault configuration
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
 
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
 
     vault-path =
@@ -141,7 +141,7 @@ in {
 
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -281,7 +281,7 @@ in {
       };
 
     # Configure Vault agent for each runner
-    campground.services.vault-agent.services = builtins.listToAttrs (
+    fmf.services.vault-agent.services = builtins.listToAttrs (
       mapAttrsToList (name: runnerCfg: {
         name = "github-runner-token-copy-${name}";
         value = mkIf runnerCfg.enable {

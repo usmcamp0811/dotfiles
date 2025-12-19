@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.thunderbird;
+with lib.fmf; let
+  cfg = config.fmf.apps.thunderbird;
 in
 {
-  options.campground.apps.thunderbird = with types; {
+  options.fmf.apps.thunderbird = with types; {
     enable = mkBoolOpt false "Whether or not to enable Thunderbird for email.";
   };
 

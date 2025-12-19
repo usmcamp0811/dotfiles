@@ -1,6 +1,6 @@
 { pkgs, modulesPath, inputs, lib, nixos-hardware, nixosModules, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   newUser = name: {
     isNormalUser = true;
@@ -31,7 +31,7 @@ in
   services.cloud-init.enable = true;
   systemd.services.cloud-config.serviceConfig = { Restart = "on-failure"; };
   services.cloud-init.network.enable = true;
-  campground = {
+  fmf = {
     user = {
       name = "nixos";
       fullName = "Matt";

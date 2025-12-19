@@ -1,9 +1,9 @@
 { lib, pkgs, inputs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   haskellEnv = pkgs.haskellPackages.ghcWithPackages (p: with p; [ ihaskell ]);
   jupyterConsole = createHaskellConsole "haskell-jupyter" "jupyter console" {
     inherit pkgs haskellEnv;

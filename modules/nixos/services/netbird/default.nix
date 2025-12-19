@@ -5,14 +5,14 @@
   ...
 }:
 with lib;
-with lib.campground;
+with lib.fmf;
 # PIRs:
 # 1. What ports must be open?
 # 2. How to make Turn Server work correctly
   let
-    cfg = config.campground.services.netbird;
+    cfg = config.fmf.services.netbird;
   in {
-    options.campground.services.netbird = with types; {
+    options.fmf.services.netbird = with types; {
       client = {enable = mkBoolOpt false "Enable Netbird Client Only";};
       server = {
         enable = mkBoolOpt false "Enable Netbird;";
@@ -35,10 +35,10 @@ with lib.campground;
       };
 
       role-id =
-        mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+        mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
       secret-id =
-        mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+        mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
       vault-path =
         mkOpt str "secret/campground/netbird"
@@ -50,7 +50,7 @@ with lib.campground;
       };
       vault-address = mkOption {
         type = str;
-        default = config.campground.services.vault-agent.settings.vault.address;
+        default = config.fmf.services.vault-agent.settings.vault.address;
         description = "The address of your Vault";
       };
     };
@@ -217,7 +217,7 @@ with lib.campground;
       };
       users.groups.netbird = {};
 
-      campground.services.vault-agent.services = {
+      fmf.services.vault-agent.services = {
         netbirdSecrets = {
           settings = {
             vault.address = cfg.vault-address;

@@ -6,15 +6,15 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.swaynotificationcenter;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.swaynotificationcenter;
   swayncConfig = import ./config.nix {inherit pkgs;};
   swayncConfigFile = pkgs.writeTextFile {
     name = "swaync-config.json";
     text = builtins.toJSON swayncConfig;
   };
 in {
-  options.campground.desktop.addons.swaynotificationcenter = {
+  options.fmf.desktop.addons.swaynotificationcenter = {
     enable = mkEnableOption "Hyprpaper";
   };
 

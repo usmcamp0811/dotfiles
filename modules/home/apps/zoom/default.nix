@@ -6,9 +6,9 @@
 }: let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.zoom;
+  cfg = config.fmf.apps.zoom;
 in {
-  options.campground.apps.zoom = {enable = mkEnableOption "zoom";};
+  options.fmf.apps.zoom = {enable = mkEnableOption "zoom";};
 
   config = mkIf cfg.enable {home.packages = with pkgs; [zoom-us];};
 }

@@ -1,9 +1,9 @@
 { lib, pkgs, inputs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   julia-env = pkgs.julia.withPackages.override
     {
       extraLibs = [
@@ -47,15 +47,15 @@ let
     };
   juliaInFHS = (pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "julia";
-    juliaEnv = pkgs.campground.julia;
+    juliaEnv = pkgs.fmf.julia;
   }));
   startJupyterWithJuliaFHS = (pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "julia-console";
-    juliaEnv = pkgs.campground.julia;
+    juliaEnv = pkgs.fmf.julia;
   }));
   startQtJupyterWithJuliaFHS = (pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "julia-qtconsole";
-    juliaEnv = pkgs.campground.julia;
+    juliaEnv = pkgs.fmf.julia;
   }));
 
   container = pkgs.dockerTools.buildLayeredImage {

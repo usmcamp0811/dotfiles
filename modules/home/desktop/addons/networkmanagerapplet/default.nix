@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.networkmanagerapplet;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.networkmanagerapplet;
 in
 {
-  options.campground.desktop.addons.networkmanagerapplet = with types; {
+  options.fmf.desktop.addons.networkmanagerapplet = with types; {
     enable =
       mkBoolOpt false
         "Whether to enable networkmanagerapplet in the desktop environment.";

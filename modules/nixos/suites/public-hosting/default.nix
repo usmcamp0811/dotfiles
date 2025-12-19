@@ -7,11 +7,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.public-hosting;
+with lib.fmf; let
+  cfg = config.fmf.suites.public-hosting;
   generateServiceConfig = serviceName: let
     # Use the existing `lookupServiceEndpoint` function
-    serviceEndpoints = lib.campground.lookupServiceEndpoint {
+    serviceEndpoints = lib.fmf.lookupServiceEndpoint {
       nixosConfigurations = inputs.self.nixosConfigurations;
       serviceName = serviceName;
     };
@@ -41,7 +41,7 @@ with lib.campground; let
   in
     valueType;
 in {
-  options.campground.suites.public-hosting = with types; {
+  options.fmf.suites.public-hosting = with types; {
     enable =
       mkBoolOpt false
       "Whether or not to enable common public-hosting configuration.";
@@ -421,7 +421,7 @@ in {
     #     OnUnitActiveSec = "30s";
     #   };
     # };
-    campground = {
+    fmf = {
       # kafka-producers = { traefik-logs = { enable = cfg.log-to-kafka; }; };
 
       services = {

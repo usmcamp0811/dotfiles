@@ -5,12 +5,12 @@
   ...
 }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.syncthing;
+  cfg = config.fmf.services.syncthing;
 in
 {
-  options.campground.services.syncthing = with types; {
+  options.fmf.services.syncthing = with types; {
     enable = mkBoolOpt false "Whether or not to enable syncthing.";
   };
 

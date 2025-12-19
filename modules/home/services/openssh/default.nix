@@ -1,10 +1,10 @@
 { options, config, lib, host ? "", inputs ? { }, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.openssh;
+  cfg = config.fmf.services.openssh;
 
-  user = config.users.users.${config.campground.user.name};
+  user = config.users.users.${config.fmf.user.name};
   user-id = builtins.toString user.uid;
 
   name = host; # Use the provided hostname or default if not specified.
@@ -13,14 +13,14 @@ let
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler";
 
   other-hosts = lib.filterAttrs (key: host:
-    key != name && (host.config.campground.user.name or null) != null)
+    key != name && (host.config.fmf.user.name or null) != null)
     ((inputs.self.nixosConfigurations or { })
       // (inputs.self.darwinConfigurations or { }));
 
   other-hosts-config = lib.concatMapStringsSep "\n" (name:
     let
       remote = other-hosts.${name};
-      remote-user-name = remote.config.campground.user.name;
+      remote-user-name = remote.config.fmf.user.name;
       remote-user-id =
         builtins.toString remote.config.users.users.${remote-user-name}.uid;
 
@@ -37,7 +37,7 @@ let
         Port ${builtins.toString cfg.port}
     '') (builtins.attrNames other-hosts);
 in {
-  options.campground.services.openssh = with types; {
+  options.fmf.services.openssh = with types; {
     enable = mkEnableOption "OpenSSH support";
     authorizedKeys = mkOption {
       type = listOf str;

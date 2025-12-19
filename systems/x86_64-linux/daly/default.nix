@@ -1,8 +1,8 @@
 {lib, ...}:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   imports = [./hardware.nix];
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

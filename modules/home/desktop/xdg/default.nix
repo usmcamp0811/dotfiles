@@ -2,7 +2,7 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.system.xdg;
+  cfg = config.fmf.system.xdg;
 
   browser = [ "firefox.desktop" ];
   editor = [ "nvim.desktop" ];
@@ -152,7 +152,7 @@ let
     # "x-scheme-handler/chrome" = ["chromium-browser.desktop"];
   };
 in {
-  options.campground.system.xdg = { enable = mkEnableOption "xdg"; };
+  options.fmf.system.xdg = { enable = mkEnableOption "xdg"; };
 
   config = mkIf cfg.enable {
     xdg = {

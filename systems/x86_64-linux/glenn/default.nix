@@ -1,6 +1,6 @@
 { pkgs, config, lib, inputs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   newUser = name: {
     isNormalUser = true;
@@ -15,7 +15,7 @@ in
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   services.tlp = { enable = mkForce false; };
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

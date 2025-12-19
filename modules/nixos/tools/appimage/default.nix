@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.appimage;
+with lib.fmf; let
+  cfg = config.fmf.tools.appimage;
 in {
-  options.campground.tools.appimage = with types; {
+  options.fmf.tools.appimage = with types; {
     enable = mkBoolOpt false "Whether or not to enable common appimage-run.";
   };
 

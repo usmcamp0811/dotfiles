@@ -7,8 +7,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.cli.aliases.root;
+with lib.fmf; let
+  cfg = config.fmf.cli.aliases.root;
 
   # Generated file content for custom aliases
   aliasesFile =
@@ -84,7 +84,7 @@ with lib.campground; let
     '';
   });
 in {
-  options.campground.cli.aliases = with types; {
+  options.fmf.cli.aliases = with types; {
     root = {
       enable = mkEnableOption "Shell aliases for root user";
       aliases = mkOption {

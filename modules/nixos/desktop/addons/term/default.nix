@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.term;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.term;
 in {
-  options.campground.desktop.addons.term = with types; {
+  options.fmf.desktop.addons.term = with types; {
     enable = mkBoolOpt false "Whether to enable the gnome file manager.";
     pkg = mkOpt package pkgs.foot "The terminal to install.";
   };

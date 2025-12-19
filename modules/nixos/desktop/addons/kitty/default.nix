@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.kitty;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.kitty;
 in {
-  options.campground.desktop.addons.kitty = with types; {
+  options.fmf.desktop.addons.kitty = with types; {
     enable =
       mkBoolOpt false "Whether to enable Kitty in the desktop environment.";
   };

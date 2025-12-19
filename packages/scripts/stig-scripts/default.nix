@@ -42,14 +42,14 @@ in pkgs.writeShellScriptBin "system-stig-check" ''
   echo -e "''${YELLOW}Fetching STIG configuration for system: $SYSTEM...''${RESET}"
 
   # Extract active STIG configuration
-  ACTIVE_RESULT=$(nix eval --json ".#nixosConfigurations.\"$SYSTEM\".config.campground.stig.active" 2>/dev/null)
+  ACTIVE_RESULT=$(nix eval --json ".#nixosConfigurations.\"$SYSTEM\".config.fmf.stig.active" 2>/dev/null)
   if [[ $? -ne 0 || -z "$ACTIVE_RESULT" ]]; then
     echo -e "''${RED}Error: Failed to fetch active STIG configuration for '$SYSTEM'.''${RESET}"
     exit 1
   fi
 
   # Extract inactive STIG configuration
-  INACTIVE_RESULT=$(nix eval --json ".#nixosConfigurations.\"$SYSTEM\".config.campground.stig.inactive" 2>/dev/null)
+  INACTIVE_RESULT=$(nix eval --json ".#nixosConfigurations.\"$SYSTEM\".config.fmf.stig.inactive" 2>/dev/null)
   if [[ $? -ne 0 || -z "$INACTIVE_RESULT" ]]; then
     echo -e "''${RED}Error: Failed to fetch inactive STIG configuration for '$SYSTEM'.''${RESET}"
     exit 1

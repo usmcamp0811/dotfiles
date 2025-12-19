@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.noisetorch;
+with lib.fmf; let
+  cfg = config.fmf.tools.noisetorch;
 in
 {
-  options.campground.tools.noisetorch = with types; {
+  options.fmf.tools.noisetorch = with types; {
     enable = mkBoolOpt false "Whether or not to enable noisetorch.";
   };
 

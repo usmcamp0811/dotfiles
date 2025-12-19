@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.attic;
+with lib.fmf; let
+  cfg = config.fmf.services.attic;
 
   toml-format = pkgs.formats.toml {};
 
@@ -32,7 +32,7 @@ with lib.campground; let
     && hasPrefix "postgresql://" url
     && is-local-db-url;
 in {
-  options.campground.services.attic = {
+  options.fmf.services.attic = {
     enable = mkEnableOption "Attic";
 
     package =
@@ -50,11 +50,11 @@ in {
 
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/attic"
@@ -66,7 +66,7 @@ in {
     };
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -75,7 +75,7 @@ in {
     assertions = [
       {
         assertion = !isStorePath cfg.credentials;
-        message = "campground.services.attic.credentials CANNOT be in the Nix Store.";
+        message = "fmf.services.attic.credentials CANNOT be in the Nix Store.";
       }
     ];
 
@@ -89,7 +89,7 @@ in {
       groups = optionalAttrs (cfg.group == "atticd") {atticd = {};};
     };
 
-    campground = {
+    fmf = {
       tools.attic = enabled;
       services = {
         attic.settings = {

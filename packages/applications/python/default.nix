@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   new-meta = with lib; {
     description = "My goto Python";
@@ -45,13 +45,13 @@ let
 
   pythonInFHS = pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "python";
-    juliaEnv = pkgs.campground.julia;
+    juliaEnv = pkgs.fmf.julia;
     poetryEnv = python-env;
   });
 
   bashInFHS = pkgs.scientific-fhs.override (oldAttrs: {
     commandScript = "bash";
-    juliaEnv = pkgs.campground.julia;
+    juliaEnv = pkgs.fmf.julia;
     poetryEnv = python-env;
   });
 

@@ -1,8 +1,8 @@
 { pkgs, config, lib, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   cudaFHS = pkgs.buildFHSEnv {
     name = "cuda-env";
     targetPkgs = pkgs:

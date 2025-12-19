@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.user;
+with lib.fmf; let
+  cfg = config.fmf.user;
   defaultIconFileName = "profile.png";
   defaultIcon = pkgs.stdenvNoCC.mkDerivation {
     name = "default-icon";
@@ -32,7 +32,7 @@ with lib.campground; let
       cp ${cfg.icon} "$target/${cfg.icon.fileName}"
     '';
 in {
-  options.campground.user = with types; {
+  options.fmf.user = with types; {
     name = mkOpt str "abe" "The name to use for the user account.";
     fullName = mkOpt str "Matt Camp" "The full name of the user.";
     email = mkOpt str "matt@aicampground.com" "The email of the user.";
@@ -89,7 +89,7 @@ in {
       };
     };
 
-    campground.home = {
+    fmf.home = {
       file = {
         "Desktop/.keep".text = "";
         "Documents/.keep".text = "";

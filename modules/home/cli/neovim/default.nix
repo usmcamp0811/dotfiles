@@ -6,13 +6,13 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.cli.neovim;
+  cfg = config.fmf.cli.neovim;
 in
 {
-  options.campground.cli.neovim = { enable = mkEnableOption "Neovim"; };
+  options.fmf.cli.neovim = { enable = mkEnableOption "Neovim"; };
 
   config = mkIf cfg.enable {
-    campground.cli.aliases = {
+    fmf.cli.aliases = {
       vim = "${pkgs.campground-nvim}/bin/nvim";
       # nvim = "${pkgs.campground-nvim}/bin/nvim";
       diff = "${pkgs.campground-nvim}/bin/nvim -d $1 $2";

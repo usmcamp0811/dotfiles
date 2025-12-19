@@ -1,10 +1,10 @@
 {lib, ...}:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   imports = [./hardware.nix];
 
   boot.binfmt.emulatedSystems = ["aarch64-linux"];
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

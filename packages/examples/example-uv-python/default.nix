@@ -4,7 +4,7 @@
   inputs,
   ...
 }:
-lib.campground.mkUv2nixPythonEnv {
+lib.fmf.mkUv2nixPythonEnv {
   inherit pkgs;
   workspaceRoot = ./.;
   python = pkgs.python312;

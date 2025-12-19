@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.minio;
+with lib.fmf; let
+  cfg = config.fmf.services.minio;
 in {
-  options.campground.services.minio = with types; {
+  options.fmf.services.minio = with types; {
     enable = mkBoolOpt false "Enable minio;";
     dataDir =
       mkOpt str "/var/lib/minio/data" "Data directory for MinIO server.";
@@ -20,10 +20,10 @@ in {
       "where the server is at... defaults to the same as AWS";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/minio"
@@ -35,7 +35,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -61,7 +61,7 @@ in {
       wantedBy = ["multi-user.target"];
       before = ["minio.service"];
     };
-    campground.services.vault-agent.services.copyMinioCreds = {
+    fmf.services.vault-agent.services.copyMinioCreds = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

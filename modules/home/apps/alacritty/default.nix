@@ -6,10 +6,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.alacritty;
+  cfg = config.fmf.apps.alacritty;
 in
 {
-  options.campground.apps.alacritty = { enable = mkEnableOption "Alacritty"; };
+  options.fmf.apps.alacritty = { enable = mkEnableOption "Alacritty"; };
 
   config = mkIf cfg.enable {
     fonts.fontconfig.enable = true;

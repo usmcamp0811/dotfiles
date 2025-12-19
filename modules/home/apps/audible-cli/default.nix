@@ -6,10 +6,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.audible-cli;
+  cfg = config.fmf.apps.audible-cli;
 in
 {
-  options.campground.apps.audible-cli = { enable = mkEnableOption "audible-cli"; };
+  options.fmf.apps.audible-cli = { enable = mkEnableOption "audible-cli"; };
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [

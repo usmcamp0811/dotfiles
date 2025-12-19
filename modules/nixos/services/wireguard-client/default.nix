@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.wireguard-client;
+with lib.fmf;
+let cfg = config.fmf.services.wireguard-client;
 in {
-  options.campground.services.wireguard-client = with types; {
+  options.fmf.services.wireguard-client = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     publicKey = mkOpt str "123456789" "The client's public key";
     endpoint = mkOpt str "vpn.aicampground.com" "VPN Domain Name / IP address.";
@@ -15,10 +15,10 @@ in {
     vpn-name = mkOpt str "campnet" "Name of the VPN";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/wireguard"
       "The Vault path to the Server Cert in Vault";
@@ -29,7 +29,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -59,7 +59,7 @@ in {
       '';
     };
 
-    campground.services.vault-agent.services.getWireguardConf = {
+    fmf.services.vault-agent.services.getWireguardConf = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

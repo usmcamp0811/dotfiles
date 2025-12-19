@@ -1,12 +1,12 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.kafka-producers.traefik-logs;
+with lib.fmf;
+let cfg = config.fmf.kafka-producers.traefik-logs;
 in {
-  options.campground.kafka-producers.traefik-logs = with types; {
+  options.fmf.kafka-producers.traefik-logs = with types; {
     enable = mkBoolOpt false "Enable Kafka Producer for Traefik Logs;";
-    kafkaBroker = mkOpt str "${config.campground.suites.kafka.kafka-lan-ip}:${
-        builtins.toString config.campground.suites.kafka.kafka-port
+    kafkaBroker = mkOpt str "${config.fmf.suites.kafka.kafka-lan-ip}:${
+        builtins.toString config.fmf.suites.kafka.kafka-port
       }" "Kafka broker address.";
     kafkaTopic = mkOpt str "traefik-logs" "Kafka topic to which logs are sent.";
   };
@@ -24,7 +24,7 @@ in {
       environment = {
         KT_BROKERS = cfg.kafkaBroker;
         KT_TOPIC = cfg.kafkaTopic;
-        TRAEFIK_LOG = config.campground.services.traefik.log-path;
+        TRAEFIK_LOG = config.fmf.services.traefik.log-path;
       };
       script = ''
         while true; do

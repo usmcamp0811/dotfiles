@@ -7,7 +7,7 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   newUser = name: {
     isNormalUser = true;
     createHome = true;
@@ -21,9 +21,9 @@ in {
   boot.kernelModules = ["igb"];
 
   crystal-forge.stig-presets.off.enable = true;
-  environment.systemPackages = with pkgs; [pkgs.campground.install-scripts];
+  environment.systemPackages = with pkgs; [pkgs.fmf.install-scripts];
   networking.wireless.enable = false;
-  campground = {
+  fmf = {
     nix = enabled;
     archetypes = {barebones = enabled;};
     cli-apps = {flake = enabled;};

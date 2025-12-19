@@ -9,7 +9,7 @@
 }:
 let
   inherit (lib) mapAttrsToList concatStringsSep;
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
   pname = "k0s";
 
   owner = "k0sproject";

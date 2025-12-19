@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.nix-doc;
+with lib.fmf; let
+  cfg = config.fmf.tools.nix-doc;
 in {
-  options.campground.tools.nix-doc = with types; {
+  options.fmf.tools.nix-doc = with types; {
     enable = mkBoolOpt false "Whether or not to enable nix-doc.";
   };
 

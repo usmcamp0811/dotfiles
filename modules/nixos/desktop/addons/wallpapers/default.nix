@@ -5,18 +5,18 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  inherit (pkgs.campground) wallpapers;
+with lib.fmf; let
+  inherit (pkgs.fmf) wallpapers;
 in
 {
-  options.campground.desktop.addons.wallpapers = with types; {
+  options.fmf.desktop.addons.wallpapers = with types; {
     enable =
       mkBoolOpt false
         "Whether or not to add wallpapers to ~/Pictures/wallpapers.";
   };
   # TODO: Make this mine....
   config = {
-    campground.home.file = lib.foldl
+    fmf.home.file = lib.foldl
       (acc: name:
         let
           wallpaper = wallpapers.${name};

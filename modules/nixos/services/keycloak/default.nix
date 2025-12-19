@@ -1,8 +1,8 @@
 { config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.keycloak;
+  cfg = config.fmf.services.keycloak;
   keycloakDir = "/var/lib/keycloak";
   sslCertificate = "${keycloakDir}/${cfg.domain}.cert";
   sslCertificateKey = "${keycloakDir}/${cfg.domain}.key";
@@ -12,17 +12,17 @@ let
 
 in
 {
-  options.campground.services.keycloak = with types; {
+  options.fmf.services.keycloak = with types; {
     enable = mkBoolOpt false "Whether or not to enable keycloak.";
     port = mkOpt int 19323 "Port to listen on";
     domain = mkOpt str "keycloak.lan.aicampground.com"
       "The domain part of the public URL used as base for all frontend requests.";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/keycloak"
       "The Vault path to the KV containing the KVs that are for each database";
@@ -36,7 +36,7 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -98,7 +98,7 @@ in
       # };
     };
 
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [
         "local keycloak keycloak peer"
@@ -111,7 +111,7 @@ in
       }];
     };
 
-    campground.services.vault-agent.services = {
+    fmf.services.vault-agent.services = {
       keycloakSecrets = {
         settings = {
           vault.address = cfg.vault-address;

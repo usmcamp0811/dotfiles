@@ -5,8 +5,8 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.gnome;
+with lib.fmf; let
+  cfg = config.fmf.desktop.gnome;
   #  gdmHome = config.users.users.gdm.home;
 
   defaultExtensions = with pkgs.gnomeExtensions; [
@@ -29,17 +29,17 @@ with lib.campground; let
   nested-default-attrs = mapAttrs (_key: default-attrs);
 in
 {
-  options.campground.desktop.gnome = with types; {
+  options.fmf.desktop.gnome = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Gnome as the desktop environment.";
     wallpaper = {
       light =
         mkOpt (oneOf [ str package ])
-          pkgs.campground.wallpapers.nord-rainbow-light-nix
+          pkgs.fmf.wallpapers.nord-rainbow-light-nix
           "The light wallpaper to use.";
       dark =
         mkOpt (oneOf [ str package ])
-          pkgs.campground.wallpapers.nord-rainbow-dark-nix
+          pkgs.fmf.wallpapers.nord-rainbow-dark-nix
           "The dark wallpaper to use.";
     };
     color-scheme =
@@ -55,8 +55,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.system.xkb.enable = true;
-    campground.desktop.addons = {
+    fmf.system.xkb.enable = true;
+    fmf.desktop.addons = {
       #      gtk = enabled;
       wallpapers = enabled;
       #      electron-support = enabled;
@@ -96,8 +96,8 @@ in
       };
 
       script = ''
-        config_file=/var/lib/AccountsService/users/${config.campground.user.name}
-        icon_file=/run/current-system/sw/share/campground-icons/user/${config.campground.user.name}/${config.campground.user.icon.fileName}
+        config_file=/var/lib/AccountsService/users/${config.fmf.user.name}
+        icon_file=/run/current-system/sw/share/campground-icons/user/${config.fmf.user.name}/${config.fmf.user.icon.fileName}
 
         if ! [ -d "$(dirname "$config_file")"]; then
           mkdir -p "$(dirname "$config_file")"
@@ -137,7 +137,7 @@ in
       desktopManager.gnome = { enable = true; };
     };
 
-    campground.home.extraOptions = {
+    fmf.home.extraOptions = {
       dconf.settings =
         let
           get-wallpaper = wallpaper:
@@ -158,13 +158,13 @@ in
               ];
             favorite-apps =
               [ "org.gnome.Nautilus.desktop" ]
-              ++ optional config.campground.apps.firefox.enable "firefox.desktop"
-              ++ optional config.campground.apps.vscode.enable "code.desktop";
-            #              ++ optional config.campground.desktop.addons.foot.enable "foot.desktop"
-            #              ++ optional config.campground.apps.logseq.enable "logseq.desktop"
-            #              ++ optional config.campground.apps.discord.enable "discord.desktop"
-            #              ++ optional config.campground.apps.element.enable "element-desktop.desktop"
-            #              ++ optional config.campground.apps.steam.enable "steam.desktop";
+              ++ optional config.fmf.apps.firefox.enable "firefox.desktop"
+              ++ optional config.fmf.apps.vscode.enable "code.desktop";
+            #              ++ optional config.fmf.desktop.addons.foot.enable "foot.desktop"
+            #              ++ optional config.fmf.apps.logseq.enable "logseq.desktop"
+            #              ++ optional config.fmf.apps.discord.enable "discord.desktop"
+            #              ++ optional config.fmf.apps.element.enable "element-desktop.desktop"
+            #              ++ optional config.fmf.apps.steam.enable "steam.desktop";
           };
 
           "org/gnome/desktop/background" = {
@@ -252,8 +252,8 @@ in
             menu-button-icon-image = 23;
 
             menu-button-terminal =
-              if config.campground.desktop.addons.term.enable
-              then lib.getExe config.campground.desktop.addons.term.pkg
+              if config.fmf.desktop.addons.term.enable
+              then lib.getExe config.fmf.desktop.addons.term.pkg
               else lib.getExe pkgs.gnome.gnome-terminal;
           };
 

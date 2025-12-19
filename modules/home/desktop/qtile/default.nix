@@ -6,8 +6,8 @@
   ...
 }:
 with lib;
-with lib.campground; {
-  options.campground.desktop.qtile = with types; {
+with lib.fmf; {
+  options.fmf.desktop.qtile = with types; {
     enable = mkBoolOpt false "Whether or not to turn on qtile config.";
     wallpaper = mkOpt str "hsv-saturnV.png" "Name of the Wallpaper to Set";
     lat-lon = mkOpt str "34.6503:86.7757" "Lat Long for Redshift.";
@@ -18,7 +18,7 @@ with lib.campground; {
   };
 
   config = let
-    cfg = config.campground.desktop.qtile;
+    cfg = config.fmf.desktop.qtile;
     QtileAutostart = pkgs.writeShellScript "autostart.sh" ''
 
       [[ $(xrandr --listactivemonitors | grep 1440) -eq 0 ]] && export GDK_SCALE=1 || export GDK_SCALE=1.33

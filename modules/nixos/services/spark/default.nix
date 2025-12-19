@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.spark;
+with lib.fmf;
+let cfg = config.fmf.services.spark;
 in {
-  options.campground.services.spark = with types; {
+  options.fmf.services.spark = with types; {
     enable = mkBoolOpt false "Enable a Spark server.";
     port = mkOpt int 8081 "Port to host the Spark server on.";
     confDir = mkOpt str "${cfg.package}/conf"
@@ -25,10 +25,10 @@ in {
     master.restartIfChanged =
       mkBoolOpt true "Restart Spark master if configuration changes.";
     # role-id =
-    #   mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+    #   mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
     #   "Absolute path to the Vault role-id";
     # secret-id =
-    #   mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+    #   mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
     #   "Absolute path to the Vault secret-id";
     # vault-path = mkOpt str "secret/campground/spark"
     #   "The Vault path to the KV containing the Spark Secrets.";
@@ -39,7 +39,7 @@ in {
     # };
     # vault-address = mkOption {
     #   type = str;
-    #   default = config.campground.services.vault-agent.settings.vault.address;
+    #   default = config.fmf.services.vault-agent.settings.vault.address;
     #   description = "The address of your Vault";
     # };
   };
@@ -60,7 +60,7 @@ in {
       master.restartIfChanged = cfg.master.restartIfChanged;
     };
 
-    # campground.services.vault-agent.services.copy-spark-env = {
+    # fmf.services.vault-agent.services.copy-spark-env = {
     #   settings = {
     #     vault.address = cfg.vault-address;
     #     auto_auth = {

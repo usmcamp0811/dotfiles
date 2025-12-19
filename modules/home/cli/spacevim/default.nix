@@ -6,10 +6,10 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.cli.spacevim;
+  cfg = config.fmf.cli.spacevim;
 in
 {
-  options.campground.cli.spacevim = { enable = mkEnableOption "Neovim"; };
+  options.fmf.cli.spacevim = { enable = mkEnableOption "Neovim"; };
 
   config =
     mkIf cfg.enable { home = { packages = with pkgs; [ less spacevim ]; }; };

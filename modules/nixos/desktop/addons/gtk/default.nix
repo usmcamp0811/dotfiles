@@ -6,11 +6,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.gtk;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.gtk;
   gdmCfg = config.services.xserver.displayManager.gdm;
 in {
-  options.campground.desktop.addons.gtk = with types; {
+  options.fmf.desktop.addons.gtk = with types; {
     enable = mkBoolOpt false "Whether to customize GTK and apply themes.";
     theme = {
       name = mkOpt str "Nordic-darker" "The name of the GTK theme to apply.";
@@ -20,7 +20,7 @@ in {
       name =
         mkOpt str "Bibata-Modern-Ice" "The name of the cursor theme to apply.";
       pkg =
-        mkOpt package pkgs.campground.bibata-cursors
+        mkOpt package pkgs.fmf.bibata-cursors
         "The package to use for the cursor theme.";
     };
     icon = {
@@ -36,7 +36,7 @@ in {
 
     environment.sessionVariables = {XCURSOR_THEME = cfg.cursor.name;};
 
-    campground.home.extraOptions = {
+    fmf.home.extraOptions = {
       gtk = {
         enable = true;
 

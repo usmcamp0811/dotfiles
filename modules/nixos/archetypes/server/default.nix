@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.archetypes.server;
+with lib.fmf; let
+  cfg = config.fmf.archetypes.server;
 in
 {
-  options.campground.archetypes.server = with types; {
+  options.fmf.archetypes.server = with types; {
     enable = mkBoolOpt false "Whether or not to enable the server archetype.";
     k8s = mkBoolOpt false "Is this a K8s Node?";
     keyfile-url =
@@ -19,7 +19,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       suites = {
         common = enabled;
         observability = enabled;

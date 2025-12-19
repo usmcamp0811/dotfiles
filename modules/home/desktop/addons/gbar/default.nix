@@ -5,12 +5,12 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.gbar;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.gbar;
   inherit (inputs) gBar;
 in
 {
-  options.campground.desktop.addons.gbar = with types; {
+  options.fmf.desktop.addons.gbar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
   };

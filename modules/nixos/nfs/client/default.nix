@@ -1,9 +1,9 @@
 { options, config, lib, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.nfs.client;
+with lib.fmf;
+let cfg = config.fmf.nfs.client;
 in {
-  options.campground.nfs.client = with types; {
+  options.fmf.nfs.client = with types; {
     enable = mkBoolOpt false "NFS";
     webb = mkBoolOpt false "Whether or not to Webb mount.";
     campfs = mkBoolOpt false "Whether or not to campfs mount.";

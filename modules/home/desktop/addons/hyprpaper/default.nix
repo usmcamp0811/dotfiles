@@ -6,11 +6,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.hyprpaper;
-  inherit (pkgs.campground) wallpapers;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.hyprpaper;
+  inherit (pkgs.fmf) wallpapers;
 in {
-  options.campground.desktop.addons.hyprpaper = {
+  options.fmf.desktop.addons.hyprpaper = {
     enable = mkEnableOption "Hyprpaper";
     monitors = mkOption {
       description = "Monitors and their wallpapers";

@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.mattermost-desktop;
+with lib.fmf; let
+  cfg = config.fmf.apps.mattermost-desktop;
 in {
-  options.campground.apps.mattermost-desktop = with types; {
+  options.fmf.apps.mattermost-desktop = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable Mattermost Desktop Client.";
   };

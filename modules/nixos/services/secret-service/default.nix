@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.secret-service;
+with lib.fmf; let
+  cfg = config.fmf.services.secret-service;
 in {
-  options.campground.services.secret-service = with types; {
+  options.fmf.services.secret-service = with types; {
     enable = mkBoolOpt false "Whether or not to enable secret-service.";
   };
 

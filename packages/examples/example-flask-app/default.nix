@@ -1,5 +1,5 @@
 { lib, pkgs, ... }:
-with lib.campground;
+with lib.fmf;
 let
   # Create a simple Flask app
   flaskApp = pkgs.writeText "app.py" ''
@@ -76,7 +76,7 @@ let
   flakeforge-container = pkgs.streamLayeredImageConf {
     name = "flakeforge-example-flask-app";
     tag = "latest";
-    contents = [ pkgs.campground.example-flask-app ];
+    contents = [ pkgs.fmf.example-flask-app ];
     config = { Entrypoint = [ "example-flask-app" ]; };
   };
 in example-flask-app

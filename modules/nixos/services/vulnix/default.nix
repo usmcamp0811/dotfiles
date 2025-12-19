@@ -7,11 +7,11 @@
 { config, pkgs, lib, ... }:
 
 with lib;
-with lib.campground;
+with lib.fmf;
 
-let cfg = config.campground.services.vulnix;
+let cfg = config.fmf.services.vulnix;
 in {
-  options.campground.services.vulnix = with types; {
+  options.fmf.services.vulnix = with types; {
     enable = mkBoolOpt false "Enable vulnix audit service";
     reportsDir =
       mkOpt str "/var/log/audit-reports" "report and logging base path";

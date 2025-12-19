@@ -1,8 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.searx;
+  cfg = config.fmf.services.searx;
   # Assuming the definition of `findEnabledServices` is correct and placed appropriately
   #
   # Assuming `self` is correctly defined in your broader context
@@ -10,14 +10,14 @@ let
   # # Generate URLs for each enabled service
 in
 {
-  options.campground.services.searx = with types; {
+  options.fmf.services.searx = with types; {
     enable = mkBoolOpt false "Enable an Searx;";
     port = mkOpt int 8081 "Port to Host the searx server on.";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/searx"
       "The Vault path to the KV containing the Searx Secrets.";
@@ -28,13 +28,13 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
 
   config = mkIf cfg.enable {
-    # campground.services = {
+    # fmf.services = {
     #   traefik = {
     #     dynamicConfigOptions = {
     #       http.routers.searx = {
@@ -77,7 +77,7 @@ in
       before = [ "searx.service" ];
     };
 
-    campground.services.vault-agent.services.copy-searx-env = {
+    fmf.services.vault-agent.services.copy-searx-env = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

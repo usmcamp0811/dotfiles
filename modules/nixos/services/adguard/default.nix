@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.adguard;
+with lib.fmf; let
+  cfg = config.fmf.services.adguard;
 in {
-  options.campground.services.adguard = with types; {
+  options.fmf.services.adguard = with types; {
     enable = mkBoolOpt false "Enable AdGuard Home DNS server and ad blocker";
 
     package = mkOpt package pkgs.adguardhome "The AdGuard Home package to use";

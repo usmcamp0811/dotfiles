@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.attic;
+with lib.fmf; let
+  cfg = config.fmf.tools.attic;
 in
 {
-  options.campground.tools.attic = { enable = mkEnableOption "Attic"; };
+  options.fmf.tools.attic = { enable = mkEnableOption "Attic"; };
 
   config =
     mkIf cfg.enable { environment.systemPackages = with pkgs; [ attic-client ]; };

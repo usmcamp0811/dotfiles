@@ -5,14 +5,14 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  slidev = pkgs.campground.slidev.v0_50_0;
+with lib.fmf; let
+  slidev = pkgs.fmf.slidev.v0_50_0;
   stdenv = pkgs.stdenv;
   mac-builder = mkSlide {
     inherit lib stdenv slidev;
     markdown = ./mac-builder.md;
     urlBase = "/mac-builder/";
-    themes = [pkgs.campground.slidev-themes.neversink-theme];
+    themes = [pkgs.fmf.slidev-themes.neversink-theme];
     slides = [./slides];
     assets = [./assets];
     meta = {title = "Remote Linux Builder on MacOS";};
@@ -22,7 +22,7 @@ with lib.campground; let
     inherit lib stdenv slidev;
     markdown = ./beyond-yaml.md;
     urlBase = "/beyond-yaml/";
-    themes = [pkgs.campground.slidev-themes.neversink-theme];
+    themes = [pkgs.fmf.slidev-themes.neversink-theme];
     slides = [./slides];
     assets = [./assets];
     meta = {title = "Beyond YAML: The Case for Nix as the Common Language of DevSecOps";};
@@ -32,7 +32,7 @@ with lib.campground; let
     inherit lib stdenv slidev;
     markdown = ./slides.md;
     urlBase = "/devsecops-revolution/";
-    themes = [pkgs.campground.slidev-themes.neversink-theme];
+    themes = [pkgs.fmf.slidev-themes.neversink-theme];
     slides = [./slides];
     assets = [./assets];
     meta = {title = "A Nix Powered DevSecOps Revolution";};
@@ -108,7 +108,7 @@ with lib.campground; let
       mkdir -p node_modules/prism-theme-vars
       touch pnpm-lock.yaml
 
-      ${pkgs.campground.slidev.v0_50_0}/bin/slidev "$SLIDE_FILE" --remote
+      ${pkgs.fmf.slidev.v0_50_0}/bin/slidev "$SLIDE_FILE" --remote
     '';
   };
 in

@@ -1,8 +1,8 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.wireguard;
+  cfg = config.fmf.services.wireguard;
   killswitch-on = ''
     # Mark packets on the wg0 interface
     wg set ${cfg.interface-name} fwmark 51820
@@ -35,7 +35,7 @@ let
   '';
 in
 {
-  options.campground.services.wireguard = with types; {
+  options.fmf.services.wireguard = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     interface-name = mkOpt str "wg0" "Name of WG interface";
     nic = mkOpt str "eno1" "Name of the NIC to use";
@@ -83,10 +83,10 @@ in
 
     fetchWireguardKeys = mkBoolOpt false "Should we get the Keys from Vault?";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/wireguard"
       "The Vault path to the Server Cert in Vault";
@@ -97,7 +97,7 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -116,7 +116,7 @@ in
 
     boot.kernel.sysctl = { "net.ipv4.ip_forward" = 1; };
     networking.firewall.allowedUDPPorts = [ cfg.port 53 ];
-    systemd.network.netdevs.campground.wireguardPeers = cfg.peers;
+    systemd.network.netdevs.fmf.wireguardPeers = cfg.peers;
     # networking.firewall.allowedTCPPorts = [ 53 ];
 
     networking.wireguard = {
@@ -178,7 +178,7 @@ in
       requires = [ "network-online.target" ];
     };
 
-    campground.services.vault-agent.services.fetchWireguardKeys = {
+    fmf.services.vault-agent.services.fetchWireguardKeys = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

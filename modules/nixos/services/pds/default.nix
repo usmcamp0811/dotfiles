@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.pds;
+with lib.fmf;
+let cfg = config.fmf.services.pds;
 in {
-  options.campground.services.pds = with types; {
+  options.fmf.services.pds = with types; {
     enable = mkEnableOption "PDS";
     hostname = mkOpt types.str "bsky.aicampground.com" "Hostname for PDS.";
     port = mkOpt types.int 13440 "Port for PDS service.";
@@ -16,7 +16,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "Vault address.";
     };
   };
@@ -33,7 +33,7 @@ in {
     };
 
     # Vault Agent Configuration for setting PDS environment variables
-    campground.services.vault-agent.services.pds = {
+    fmf.services.vault-agent.services.pds = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -41,9 +41,9 @@ in {
             type = "approle";
             config = {
               role_id_file_path =
-                config.campground.services.vault-agent.settings.vault.role-id;
+                config.fmf.services.vault-agent.settings.vault.role-id;
               secret_id_file_path =
-                config.campground.services.vault-agent.settings.vault.secret-id;
+                config.fmf.services.vault-agent.settings.vault.secret-id;
               remove_secret_id_file_after_reading = false;
             };
           }];

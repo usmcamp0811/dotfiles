@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.brave;
+with lib.fmf; let
+  cfg = config.fmf.apps.brave;
 in
 {
-  options.campground.apps.brave = with types; {
+  options.fmf.apps.brave = with types; {
     enable = mkBoolOpt false "Whether or not to enable Brave.";
     cac = mkBoolOpt false "Enable CAC Support";
   };
@@ -17,7 +17,7 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ nssTools pkcs11helper ];
 
-    campground.home.extraOptions.programs.brave = {
+    fmf.home.extraOptions.programs.brave = {
       enable = true;
       package = pkgs.brave;
       extensions = [
@@ -40,6 +40,6 @@ in
     #   };
     # };
 
-    campground.services.cac.enable = mkIf cfg.cac true;
+    fmf.services.cac.enable = mkIf cfg.cac true;
   };
 }

@@ -4,7 +4,7 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   # newUser = name: {
   #   isNormalUser = true;
   #   createHome = true;
@@ -22,7 +22,7 @@ with lib.campground; let
 in {
   imports = [./hardware.nix];
 
-  campground = {
+  fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";

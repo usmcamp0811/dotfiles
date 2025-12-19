@@ -14,9 +14,9 @@ writeShellApplication {
 
     # Determine the hosting type based on the argument
     if [ "$TYPE" = "public" ]; then
-      ENABLED_PATH=".config.campground.suites.public-hosting.enable"
+      ENABLED_PATH=".config.fmf.suites.public-hosting.enable"
     elif [ "$TYPE" = "lan" ]; then
-      ENABLED_PATH=".config.campground.suites.lan-hosting.enable"
+      ENABLED_PATH=".config.fmf.suites.lan-hosting.enable"
     else
       echo "Invalid type: $TYPE"
       exit 1

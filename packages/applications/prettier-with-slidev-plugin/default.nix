@@ -4,7 +4,7 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   slidevPlugin = pkgs.stdenv.mkDerivation (finalAttrs: {
     pname = "prettier-plugin-slidev";
     version = "1.0.5";

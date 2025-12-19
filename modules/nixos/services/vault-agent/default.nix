@@ -5,8 +5,8 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.vault-agent;
+with lib.fmf; let
+  cfg = config.fmf.services.vault-agent;
 
   # nixos-vault-service places generated files here:
   # https://github.com/DeterminateSystems/nixos-vault-service/blob/45e65627dff5dc4bb40d0f2595916f37e78959c1/module/helpers.nix#L4
@@ -103,7 +103,7 @@ in
 {
   imports = [ inputs.vault-service.nixosModules.nixos-vault-service ];
 
-  options.campground.services.vault-agent = {
+  options.fmf.services.vault-agent = {
     enable = mkEnableOption "Vault Agent";
 
     settings = mkOpt types.attrs { } "Default Vault Agent configuration.";
@@ -124,7 +124,7 @@ in
             assertion =
               (template.source != null && template.text == null)
               || (template.source == null && template.text != null);
-            message = "campground.services.vault-agent.services.${service-name}.secrets.environment.templates.${template-name} must set either `source` or `text`.";
+            message = "fmf.services.vault-agent.services.${service-name}.secrets.environment.templates.${template-name} must set either `source` or `text`.";
           })
           service.secrets.environment.templates)
         ++ (mapAttrsToList
@@ -132,7 +132,7 @@ in
             assertion =
               (file.source != null && file.text == null)
               || (file.source == null && file.text != null);
-            message = "campground.services.vault-agent.services.${service-name}.secrets.file.files.${file-name} must set either `source` or `text`.";
+            message = "fmf.services.vault-agent.services.${service-name}.secrets.file.files.${file-name} must set either `source` or `text`.";
           })
           service.secrets.file.files))
       cfg.services);

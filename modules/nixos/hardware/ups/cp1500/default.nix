@@ -1,11 +1,11 @@
 { options, config, lib, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.hardware.ups.cp1500;
+  cfg = config.fmf.hardware.ups.cp1500;
   password = "TODO";
 in {
-  options.campground.hardware.ups.cp1500 = with types; {
+  options.fmf.hardware.ups.cp1500 = with types; {
     enable = mkEnableOption "Enable the management of CP1500 UPS";
     vid = mkOpt str "0764" "Set the vid";
     pid = mkOpt str "0601" "Set the pid";

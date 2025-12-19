@@ -6,13 +6,13 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.mpv;
+  cfg = config.fmf.apps.mpv;
 in
 {
-  options.campground.apps.mpv = { enable = mkEnableOption "mpv"; };
+  options.fmf.apps.mpv = { enable = mkEnableOption "mpv"; };
 
   config = mkIf cfg.enable {
-    # campground.cli.aliases = {
+    # fmf.cli.aliases = {
     #   mpv =
     #     "${pkgs.devour}/bin/devour ${pkgs.mpv}/bin/mpv --script=$HOME/.config/mpv/scripts/mpv-cheatsheet.js -ao=pipewire";
     # };

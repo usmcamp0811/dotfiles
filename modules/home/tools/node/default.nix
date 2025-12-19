@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.node;
+with lib.fmf; let
+  cfg = config.fmf.tools.node;
 in {
-  options.campground.tools.node = with types; {
+  options.fmf.tools.node = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Node.";
   };
 

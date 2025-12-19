@@ -6,24 +6,24 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.system.wifi;
+with lib.fmf; let
+  cfg = config.fmf.system.wifi;
 in {
   # Save Wifi Passwords in Vault with the SSID as the Key to the KV store
-  options.campground.system.wifi = with types; {
+  options.fmf.system.wifi = with types; {
     enable = mkBoolOpt false "Whether or not to enable Wifi.";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/wifi"
       "The Vault path to the KV containing the Wifi Secrets.";
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
@@ -52,7 +52,7 @@ in {
         Type = "oneshot";
       };
     };
-    campground.services.vault-agent.services.wifi_passwords = {
+    fmf.services.vault-agent.services.wifi_passwords = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

@@ -4,7 +4,7 @@
 , ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   # csscade-theme = buildYarnTheme {
   #   pkgs = pkgs;
   #   pname = "slidev-theme-csscade";

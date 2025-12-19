@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.slack;
+with lib.fmf; let
+  cfg = config.fmf.apps.slack;
 in {
-  options.campground.apps.slack = with types; {
+  options.fmf.apps.slack = with types; {
     enable = mkBoolOpt false "Whether or not to enable Slack Desktop Client.";
   };
 

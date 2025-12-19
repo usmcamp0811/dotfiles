@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.cli-apps.cowsay;
+with lib.fmf; let
+  cfg = config.fmf.cli-apps.cowsay;
 in
 {
-  options.campground.cli-apps.cowsay = with types; {
+  options.fmf.cli-apps.cowsay = with types; {
     enable = mkBoolOpt false "Whether or not to enable cowsay.";
   };
 

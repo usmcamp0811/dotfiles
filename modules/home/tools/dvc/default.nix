@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.dvc;
+with lib.fmf; let
+  cfg = config.fmf.tools.dvc;
 in {
-  options.campground.tools.dvc = with types; {
+  options.fmf.tools.dvc = with types; {
     enable = mkBoolOpt false "Whether or not to enable common DVC.";
   };
 

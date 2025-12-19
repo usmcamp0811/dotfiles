@@ -1,14 +1,14 @@
 { host ? "", options, config, lib, pkgs, ... }:
 
 with lib;
-with lib.campground;
+with lib.fmf;
 let 
-  cfg = config.campground.services.kafka-connect;
+  cfg = config.fmf.services.kafka-connect;
   kafka-connect-config = builtins.concatStringsSep "\n" (
     lib.mapAttrsToList (name: value: "${name}=${builtins.toString value}") cfg.config
   );
 in {
-  options.campground.services.kafka-connect = with types; {
+  options.fmf.services.kafka-connect = with types; {
     enable = mkBoolOpt false "Whether or not to enable Kafka Connect.";
     config = mkOption {
       type = types.attrs;

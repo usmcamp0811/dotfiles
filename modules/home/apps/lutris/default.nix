@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.lutris;
+with lib.fmf; let
+  cfg = config.fmf.apps.lutris;
 in {
-  options.campground.apps.lutris = with types; {
+  options.fmf.apps.lutris = with types; {
     enable = mkBoolOpt false "Whether or not to enable lutris.";
   };
 

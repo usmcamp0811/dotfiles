@@ -1,6 +1,6 @@
 { lib, pkgs, config, osConfig ? { }, format ? "unknown", ... }:
-with lib.campground; {
-  campground = {
+with lib.fmf; {
+  fmf = {
     user = {
       enable = true;
       name = "mcamp";

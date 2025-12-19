@@ -6,12 +6,12 @@
 let
   inherit (lib) mkEnableOption mkIf;
 
-  cfg = config.campground.apps.qutebrowser;
+  cfg = config.fmf.apps.qutebrowser;
   dir = ./qutebrowser;
   stylesheet = ./qutebrowser/reddit.css;
 in
 {
-  options.campground.apps.qutebrowser = {
+  options.fmf.apps.qutebrowser = {
     enable = mkEnableOption "qutebrowser";
   };
 

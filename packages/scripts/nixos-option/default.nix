@@ -7,7 +7,7 @@
   flakeSource ? "/config",
   ...
 }: let
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   flake-compat = fetchFromGitHub {
     owner = "edolstra";

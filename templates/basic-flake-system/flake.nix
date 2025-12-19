@@ -10,7 +10,7 @@
     flake-utils.url = "github:numtide/flake-utils";
 
     # Matt's neovim config for demo
-    campground.url = "gitlab:usmcamp0811/dotfiles";
+    fmf.url = "gitlab:usmcamp0811/dotfiles";
   };
 
   outputs = { self, nixpkgs, flake-utils, campground, }:
@@ -31,7 +31,7 @@
       # Define an overlay that adds a stub package
       overlays.default = final: prev: {
         # Example stub overlay: expose hello as myPackage
-        campfetch = self.inputs.campground.packages.${final.system}.campfetch;
+        campfetch = self.inputs.fmf.packages.${final.system}.campfetch;
       };
 
       # Define a NixOS configuration using configuration.nix

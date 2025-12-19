@@ -5,7 +5,7 @@
   ...
 }:
 with lib;
-with lib.campground;
+with lib.fmf;
   mkStigModule {
     inherit config;
     name = "banner-campground";

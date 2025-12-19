@@ -1,6 +1,6 @@
 { mkShell, pkgs, ... }:
 mkShell {
-  buildInputs = with pkgs; [ vault-bin deploy-rs campground.vault-scripts ];
+  buildInputs = with pkgs; [ vault-bin deploy-rs fmf.vault-scripts ];
 
   shellHook = ''
     clear

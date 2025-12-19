@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.hyprland;
+with lib.fmf; let
+  cfg = config.fmf.desktop.hyprland;
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
@@ -68,12 +68,12 @@ in {
             # ░▀▀█░█░░░█▀▄░█▀▀░█▀▀░█░█░▀▀█░█▀█░█░█░░█░
             # ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░░▀░
             # Pictures
-            ", Print, exec, file=\"/home/${config.campground.user.name}/Pictures/screenshots/$(date +'%Y%m%d_%H%M%S.png')\" && ${
+            ", Print, exec, file=\"/home/${config.fmf.user.name}/Pictures/screenshots/$(date +'%Y%m%d_%H%M%S.png')\" && ${
               getExe pkgs.grim
             } \"$file\" && ${
               getExe pkgs.libnotify
             } --icon \"$file\" 'Screenshot Saved'"
-            "SHIFT, Print, exec, file=\"/home/${config.campground.user.name})/Pictures/screenshots/$(date +'%Y%m%d_%H%M%S.png')\" && ${
+            "SHIFT, Print, exec, file=\"/home/${config.fmf.user.name})/Pictures/screenshots/$(date +'%Y%m%d_%H%M%S.png')\" && ${
               getExe pkgs.grim
             } -g \"$(slurp)\" \"$file\" && ${
               getExe pkgs.libnotify
@@ -110,10 +110,10 @@ in {
             } --icon=/tmp/clipboard.png 'Area copied to clipboard'"
             # Screen recording
             "SUPER_CTRLALT, Print, exec, ${
-              getExe pkgs.campground.record_screen
+              getExe pkgs.fmf.record_screen
             } screen"
             "SUPER_CTRLALTSHIFT, Print, exec, ${
-              getExe pkgs.campground.record_screen
+              getExe pkgs.fmf.record_screen
             } area"
 
             # ░█░░░█▀█░█░█░█▀█░█░█░▀█▀

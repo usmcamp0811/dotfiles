@@ -6,9 +6,9 @@
 }: let
   inherit (lib) mkEnableOption mkIf mkOption types;
 
-  cfg = config.campground.cli.zsh.root;
+  cfg = config.fmf.cli.zsh.root;
 in {
-  options.campground.cli.zsh.root = {
+  options.fmf.cli.zsh.root = {
     enable = mkEnableOption "ZSH for root user";
     extraSource = mkOption {
       type = with types; listOf str;
@@ -52,7 +52,7 @@ in {
           done
 
           # Run campfetch
-          ${pkgs.campground.campfetch}/bin/campfetch
+          ${pkgs.fmf.campfetch}/bin/campfetch
 
           # Enable vi mode
           bindkey -v
@@ -68,7 +68,7 @@ in {
     # Install fzf-tab plugin
     environment.systemPackages = with pkgs; [
       zsh-fzf-tab
-      campground.campfetch
+      fmf.campfetch
     ];
 
     # Create theme files for root user

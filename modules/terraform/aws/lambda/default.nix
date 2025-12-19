@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 with types;
 
 let
@@ -11,7 +11,7 @@ let
     builtins.hashString "sha256" (builtins.toString lambdaConfig.lambda-image);
 
   build-push-lambda-image = lambdaConfig:
-    lib.campground.pushLambdaToAWS {
+    lib.fmf.pushLambdaToAWS {
       inherit pkgs config;
       registryName = lambdaConfig.registry-name;
       lambdaImg = lambdaConfig.lambda-image;
@@ -24,7 +24,7 @@ in
     jobs = mkOption {
       type = types.attrsOf (types.submodule {
         options = {
-          lambda-image = mkOpt package pkgs.campground.aws-lambda-image
+          lambda-image = mkOpt package pkgs.fmf.aws-lambda-image
             "The lambda image to use for the job";
           registry-name =
             mkOpt str "campground_ecr" "The name of the registry to use";

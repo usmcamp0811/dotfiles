@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.system.locale;
+with lib.fmf; let
+  cfg = config.fmf.system.locale;
 in
 {
-  options.campground.system.locale = with types; {
+  options.fmf.system.locale = with types; {
     enable = mkBoolOpt false "Whether or not to manage locale settings.";
   };
 

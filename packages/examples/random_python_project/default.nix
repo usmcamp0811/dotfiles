@@ -1,5 +1,5 @@
 { lib, pkgs, ... }:
-with lib.campground;
+with lib.fmf;
 let
   pypkgs-build-requirements = { snaptime = [ "setuptools" ]; };
 

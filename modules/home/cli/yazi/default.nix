@@ -6,11 +6,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.cli.yazi;
+with lib.fmf; let
+  cfg = config.fmf.cli.yazi;
 in
 {
-  options.campground.cli.yazi = { enable = mkEnableOption "Yazi"; };
+  options.fmf.cli.yazi = { enable = mkEnableOption "Yazi"; };
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [

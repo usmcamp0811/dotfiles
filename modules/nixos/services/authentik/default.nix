@@ -6,22 +6,22 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.authentik;
+with lib.fmf; let
+  cfg = config.fmf.services.authentik;
   authentikDir = "/var/lib/authentik";
 in
 {
-  options.campground.services.authentik = with types; {
+  options.fmf.services.authentik = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable Authentik configuration.";
     port = mkOpt int 8434 "Port to Host the Authentik server.";
     avatars = mkOpt str "gravatar" "Avatars to use?";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/authentik"
@@ -33,13 +33,13 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
 
   config = mkIf cfg.enable {
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       enableTCPIP = true;
       backupEnable = true;
@@ -89,7 +89,7 @@ in
         "authentik-radius.service"
       ];
     };
-    campground.services.vault-agent.services = {
+    fmf.services.vault-agent.services = {
       authentikSecrets = {
         settings = {
           vault.address = cfg.vault-address;

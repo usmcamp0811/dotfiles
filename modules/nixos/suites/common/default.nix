@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.common;
+with lib.fmf; let
+  cfg = config.fmf.suites.common;
 in {
-  options.campground.suites.common = with types; {
+  options.fmf.suites.common = with types; {
     enable = mkBoolOpt false "Whether or not to enable common configuration.";
   };
 
@@ -16,7 +16,7 @@ in {
     environment.systemPackages = [];
 
     crystal-forge.stig-presets.off.enable = true;
-    campground = {
+    fmf = {
       cli = {zsh.root = enabled;};
       nix = {
         enable = true;

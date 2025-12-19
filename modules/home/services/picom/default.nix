@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.picom;
+with lib.fmf; let
+  cfg = config.fmf.services.picom;
 in
 {
-  options.campground.services.picom = with types; {
+  options.fmf.services.picom = with types; {
     enable = mkBoolOpt false "Whether or not to enable picom.";
   };
 

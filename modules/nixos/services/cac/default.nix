@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.cac;
+with lib.fmf; let
+  cfg = config.fmf.services.cac;
 in {
-  options.campground.services.cac = with types; {
+  options.fmf.services.cac = with types; {
     enable = mkBoolOpt false "Enable CAC Support;";
   };
 

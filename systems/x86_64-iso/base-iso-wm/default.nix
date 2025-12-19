@@ -1,6 +1,6 @@
 { pkgs, inputs, lib, nixos-hardware, nixosModules, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   newUser = name: {
     isNormalUser = true;
@@ -12,7 +12,7 @@ in {
   home-manager.users.nixos.snowfallorg.user.name = "nixos";
   # boot.loader.grub = enabled;
 
-  campground = {
+  fmf = {
     user = {
       name = "nixos";
       fullName = "Matt";

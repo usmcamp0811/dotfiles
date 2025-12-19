@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.keepalived;
+with lib.fmf;
+let cfg = config.fmf.services.keepalived;
 in {
-  options.campground.services.keepalived = {
+  options.fmf.services.keepalived = {
     enable = lib.mkEnableOption "Enable KeepAliveD";
     instances = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule {

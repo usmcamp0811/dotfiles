@@ -4,17 +4,17 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.archetypes.workstation;
+with lib.fmf; let
+  cfg = config.fmf.archetypes.workstation;
 in
 {
-  options.campground.archetypes.workstation = with types; {
+  options.fmf.archetypes.workstation = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable the workstation archetype.";
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       suites = {
         common = enabled;
         desktop = enabled;

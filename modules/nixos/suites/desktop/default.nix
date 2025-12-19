@@ -4,17 +4,17 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.desktop;
+with lib.fmf; let
+  cfg = config.fmf.suites.desktop;
 in
 {
-  options.campground.suites.desktop = with types; {
+  options.fmf.suites.desktop = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common desktop configuration.";
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       desktop = {
         addons = {
           wallpapers = enabled;

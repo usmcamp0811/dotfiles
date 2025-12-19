@@ -1,6 +1,6 @@
 { config, lib, options, pkgs, system, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   # inherit (inputs) hyprland;
   # inherit (inputs) nixpkgs-wayland;
@@ -30,11 +30,11 @@ let
       systemctl --user start pipewire pipewire-media-session xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
     '';
   };
-  cfg = config.campground.desktop.hyprland;
+  cfg = config.fmf.desktop.hyprland;
   programs = lib.makeBinPath [ config.programs.hyprland.package ];
 in
 {
-  options.campground.desktop.hyprland = with types; {
+  options.fmf.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to enable Hyprland.";
     customConfigFiles = mkOpt attrs { }
       "Custom configuration files that can be used to override the default files.";
@@ -44,8 +44,8 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground.desktop.addons.swaylock.enable = true;
-    campground.apps = {
+    fmf.desktop.addons.swaylock.enable = true;
+    fmf.apps = {
       gamemode = {
         startscript =
           # bash

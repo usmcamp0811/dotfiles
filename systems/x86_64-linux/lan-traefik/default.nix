@@ -5,7 +5,7 @@
   ...
 }:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   # MicroVMs don't use bootloaders - booted directly by QEMU
   boot.loader.grub.enable = lib.mkForce false;
   boot.loader.systemd-boot.enable = lib.mkForce false;
@@ -74,7 +74,7 @@ with lib.campground; {
   nix.settings.auto-optimise-store = lib.mkForce false;
 
   # Basic system configuration
-  campground = {
+  fmf = {
     suites = {
       common = enabled;
       lan-hosting = {

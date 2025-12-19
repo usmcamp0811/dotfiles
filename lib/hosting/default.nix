@@ -6,8 +6,8 @@ with lib; rec {
     let
       # Helper function to construct the URL for a service
       getServiceUrl = host: cfg:
-        if cfg.config.campground.services.${serviceName}.enable or false then
-          let port = cfg.config.campground.services.${serviceName}.port or null;
+        if cfg.config.fmf.services.${serviceName}.enable or false then
+          let port = cfg.config.fmf.services.${serviceName}.port or null;
           in if port != null then {
             url = "http://${host}:${toString port}";
           } else

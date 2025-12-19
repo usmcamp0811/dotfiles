@@ -1,5 +1,5 @@
 { lib, ... }:
-with lib.campground;
+with lib.fmf;
 let
   /* *
      Function to build a Flink container image that is compatible with
@@ -70,7 +70,7 @@ let
           chmod -R 777 ./tmp
           cp -r ${pkgs.flink}/opt/flink ./opt/
           cp  ${pkgs.flink}/bin/flink ./bin/
-          cp -r ${pkgs.campground.flink-connector-kafka} ./opt/flink/lib/flink-sql-connector-kafka.jar
+          cp -r ${pkgs.fmf.flink-connector-kafka} ./opt/flink/lib/flink-sql-connector-kafka.jar
           cp ${docker-entrypoint} ./docker-entrypoint.sh
           cp -r ${pkgs.coreutils}/bin/* ./usr/bin/
           chmod +x ./docker-entrypoint.sh

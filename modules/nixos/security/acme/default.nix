@@ -6,23 +6,23 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.security.acme;
+with lib.fmf; let
+  cfg = config.fmf.security.acme;
   # STILL A WIP.. didn't get acme fully working yet.
 in {
-  options.campground.security.acme = with lib.types; {
+  options.fmf.security.acme = with lib.types; {
     enable = mkEnableOption "default ACME configuration";
-    email = mkOpt str config.campground.user.email "The email to use.";
+    email = mkOpt str config.fmf.user.email "The email to use.";
     staging = mkOpt bool virtual "Whether to use the staging server or not.";
     dnsProvider = mkOpt str "cloudflare" "DNS Provider";
     credentialsFile =
       mkOpt str "/var/lib/vault/cloudflare.env" "The credentials File.";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/cloudflare"
@@ -34,7 +34,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -75,7 +75,7 @@ in {
       };
     };
 
-    campground = {
+    fmf = {
       services = {
         vault-agent = {
           services = {

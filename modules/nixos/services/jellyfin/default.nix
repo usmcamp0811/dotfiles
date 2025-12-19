@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.jellyfin;
+with lib.fmf; let
+  cfg = config.fmf.services.jellyfin;
 in {
-  options.campground.services.jellyfin = {
+  options.fmf.services.jellyfin = {
     enable = mkEnableOption "Jellyfin";
   };
 

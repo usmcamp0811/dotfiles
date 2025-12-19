@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.remmina;
+with lib.fmf; let
+  cfg = config.fmf.tools.remmina;
 in
 {
-  options.campground.tools.remmina = with types; {
+  options.fmf.tools.remmina = with types; {
     enable = mkBoolOpt false "Whether or not to enable Remmina.";
   };
 

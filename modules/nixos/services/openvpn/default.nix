@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.openvpn;
+with lib.fmf; let
+  cfg = config.fmf.services.openvpn;
   gen-server = pkgs.writeShellScriptBin "generate-server-ovpn" ''
     set -e
 
@@ -79,13 +79,13 @@ with lib.campground; let
   '';
 in {
   # TODO: clean up any unused options
-  options.campground.services.openvpn = with types; {
+  options.fmf.services.openvpn = with types; {
     enable = mkBoolOpt false "Enable OpenVPN Server;";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "campground-pki/issue/vpn-server-role"
@@ -106,7 +106,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     common-name =
@@ -138,7 +138,7 @@ in {
     networking.firewall.allowedUDPPorts = [1194];
 
     services.openvpn.servers = {
-      campground = {
+      fmf = {
         config = ''
           port 1194
           proto udp
@@ -190,12 +190,12 @@ in {
         User = "root";
         ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
         after = ["vault-agent.service"];
-        before = ["openvpn-campground.service"];
+        before = ["openvpn-fmf.service"];
       };
       wantedBy = ["multi-user.target"];
     };
     # TODO: Refactor this so that we rotate server certs in a similar manner as the client certs
-    campground.services.vault-agent.services.genVPNserver-cert = {
+    fmf.services.vault-agent.services.genVPNserver-cert = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

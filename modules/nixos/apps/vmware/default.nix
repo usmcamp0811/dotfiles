@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.vmware;
+with lib.fmf; let
+  cfg = config.fmf.apps.vmware;
 in {
-  options.campground.apps.vmware = with types; {
+  options.fmf.apps.vmware = with types; {
     enable = mkBoolOpt false "Whether or not to enable Firefox.";
   };
 

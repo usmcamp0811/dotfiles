@@ -6,9 +6,9 @@
   ...
 }:
 with lib; let
-  cfg = config.campground.hardware.via;
+  cfg = config.fmf.hardware.via;
 in {
-  options.campground.hardware.via = with types; {
+  options.fmf.hardware.via = with types; {
     enable = mkEnableOption "Keychron Keyboards & Mice";
   };
   config = mkIf cfg.enable {

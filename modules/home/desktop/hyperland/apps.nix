@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.hyprland;
+with lib.fmf; let
+  cfg = config.fmf.desktop.hyprland;
   configure-gtk = pkgs.writeTextFile {
     name = "configure-gtk";
     destination = "/bin/configure-gtk";
@@ -43,7 +43,7 @@ in {
     #
     #   Service = {
     #     Environment = "PATH=/run/wrappers/bin:${lib.makeBinPath hypr_socket_watch_dependencies}";
-    #     ExecStart = "${getExe pkgs.campground.hypr_socket_watch}";
+    #     ExecStart = "${getExe pkgs.fmf.hypr_socket_watch}";
     #     Restart = "on-failure";
     #   };
     # };

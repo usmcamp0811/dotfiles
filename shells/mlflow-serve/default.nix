@@ -1,8 +1,8 @@
 { mkShell, pkgs, inputs, config, lib, system, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   # This is required if you get odd errors
   # read the https://github.com/nix-community/poetry2nix/blob/master/docs/edgecases.md

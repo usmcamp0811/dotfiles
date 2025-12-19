@@ -5,13 +5,13 @@
   ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   # TODO: One day maybe pass credentials automatically into n8n via Vault
-  cfg = config.campground.services.n8n;
+  cfg = config.fmf.services.n8n;
   format = pkgs.formats.json {};
   configFile = format.generate "n8n.json" cfg.settings;
 in {
-  options.campground.services.n8n = with types; {
+  options.fmf.services.n8n = with types; {
     enable = mkBoolOpt false "Enable n8n.";
     port = mkOpt int cfg.settings.port "Port for n8n";
     webhookUrl = mkOption {

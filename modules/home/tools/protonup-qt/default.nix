@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.protonup-qt;
+with lib.fmf; let
+  cfg = config.fmf.tools.protonup-qt;
 in {
-  options.campground.tools.protonup-qt = with types; {
+  options.fmf.tools.protonup-qt = with types; {
     enable = mkBoolOpt false "Whether or not to enable protonup-qt.";
   };
 

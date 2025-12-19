@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 with types;
 
 let cfg = config.aws.lambda.pdf-ocr;
@@ -30,7 +30,7 @@ in {
         enable = true;
         jobs = {
           pdf-ocr = {
-            lambda-image = pkgs.campground.aws-textract-job;
+            lambda-image = pkgs.fmf.aws-textract-job;
             registry-name = cfg.registry-name;
             environment.variables = cfg.variables;
             timeout = 600;

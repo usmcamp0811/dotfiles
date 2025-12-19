@@ -4,16 +4,16 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.direnv;
+with lib.fmf; let
+  cfg = config.fmf.tools.direnv;
 in
 {
-  options.campground.tools.direnv = with types; {
+  options.fmf.tools.direnv = with types; {
     enable = mkBoolOpt false "Whether or not to enable direnv.";
   };
 
   config = mkIf cfg.enable {
-    campground.home.extraOptions = {
+    fmf.home.extraOptions = {
       programs.direnv = {
         enable = true;
         nix-direnv = enabled;

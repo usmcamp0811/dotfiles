@@ -4,8 +4,8 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.nixery;
+with lib.fmf; let
+  cfg = config.fmf.services.nixery;
   nixery = pkgs.nixery-pkgs.nixery.overrideAttrs (_old: {
     # Drop the nix-1p documentation page as it doesn't build in pure evaluation.
     postInstall = ''
@@ -16,7 +16,7 @@ with lib.campground; let
   });
 in
 {
-  options.campground.services.nixery = with types; {
+  options.fmf.services.nixery = with types; {
     enable = mkBoolOpt false "Whether or not to enable nixery.";
     port = mkOpt str "4567" "Port to listen on";
     storagePath = mkOpt str "/var/lib/nixery" "Place to store images";

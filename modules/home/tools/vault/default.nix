@@ -1,9 +1,9 @@
 { options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.tools.vault;
+with lib.fmf;
+let cfg = config.fmf.tools.vault;
 in {
-  options.campground.tools.vault = with types; {
+  options.fmf.tools.vault = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Vault CLI.";
     vault-addr =
       mkOpt str "https://vault.lan.aicampground.com" "url for the vault";

@@ -1,9 +1,9 @@
 { lib, config, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.ntp;
+with lib.fmf;
+let cfg = config.fmf.services.ntp;
 in {
-  options.campground.services.ntp = with types; {
+  options.fmf.services.ntp = with types; {
     enable = mkBoolOpt false "Enable CAC Support;";
   };
 

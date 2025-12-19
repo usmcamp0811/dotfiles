@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.attic-watch-store;
+with lib.fmf; let
+  cfg = config.fmf.services.attic-watch-store;
 in
 {
-  options.campground.services.attic-watch-store = {
+  options.fmf.services.attic-watch-store = {
     enable = mkEnableOption "Attic";
     cache-name =
       mkOpt types.str "campground"
@@ -21,11 +21,11 @@ in
 
     role-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.role-id
+        config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-        config.campground.services.vault-agent.settings.vault.secret-id
+        config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/attic"
@@ -37,7 +37,7 @@ in
     };
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -72,7 +72,7 @@ in
       '';
     };
 
-    campground = {
+    fmf = {
       tools.attic = enabled;
       services = {
         vault-agent = {

@@ -1,9 +1,9 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.llama-cpp;
+with lib.fmf;
+let cfg = config.fmf.services.llama-cpp;
 in {
-  options.campground.services.llama-cpp = with types; {
+  options.fmf.services.llama-cpp = with types; {
     enable = mkBoolOpt false "Enable llama-cpp;";
 
     port = mkOption {
@@ -26,7 +26,7 @@ in {
 
     model = mkOption {
       type = types.str;
-      default = "${pkgs.campground.mistral-7b-instruct}";
+      default = "${pkgs.fmf.mistral-7b-instruct}";
       description = "The host for llama-cpp service.";
     };
 

@@ -5,11 +5,11 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.k3s;
+with lib.fmf; let
+  cfg = config.fmf.services.k3s;
   serverAddr = "https://${cfg.serverAddr}:6443";
 in {
-  options.campground.services.k3s = {
+  options.fmf.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
     package = lib.mkPackageOption pkgs "k3s" {};
     config = mkOption {
@@ -53,18 +53,18 @@ in {
 
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/k3s"
       "The Vault path to the KV containing the k0s secrets.";
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
@@ -161,7 +161,7 @@ in {
       ''))
     ];
 
-    campground.services.vault-agent.services.k3s = {
+    fmf.services.vault-agent.services.k3s = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

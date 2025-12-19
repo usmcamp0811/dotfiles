@@ -6,14 +6,14 @@
   ...
 }:
 with lib;
-with lib.campground;
+with lib.fmf;
 
 let
-  cfg = config.campground.suites.observability;
+  cfg = config.fmf.suites.observability;
 
 in
 {
-  options.campground.suites.observability = with types; {
+  options.fmf.suites.observability = with types; {
     enable = mkBoolOpt false "Whether or not to enable observability reporters.";
     loki-uri = mkOpt str "webb:3030" "The <host>:<port> of the Loki server";
     prometheus = mkBoolOpt false "Whether or not to enable Prometheus server.";
@@ -30,7 +30,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       services = {
         loki = {
           enable = cfg.loki;
@@ -81,7 +81,7 @@ in
                 # Match specific borgbackup services and count their successful deactivations
                 {
                   source_labels = [ "__journal__systemd_unit" ];
-                  regex = "borgbackup-job-webb_rsync.service|borgbackup-job-daly_rsync.service|borgbackup-job-campground.service";
+                  regex = "borgbackup-job-webb_rsync.service|borgbackup-job-daly_rsync.service|borgbackup-job-fmf.service";
                   action = "keep";
                 }
                 {

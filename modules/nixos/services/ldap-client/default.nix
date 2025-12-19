@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.ldap-client;
+with lib.fmf; let
+  cfg = config.fmf.services.ldap-client;
   # This script fixes the problem I encountered using home-manager as a random LDAP user
   # LDAP users don't get `/nix/var/nix/profiles` created so we just watch /home
   # and if a new folder gets created (aka new user logs in) then we create the folder for them
@@ -21,19 +21,19 @@ with lib.campground; let
     done
   '';
 in {
-  options.campground.services.ldap-client = with types; {
+  options.fmf.services.ldap-client = with types; {
     enable = mkBoolOpt false "Whether or not to configure LDAP support.";
     domain = mkOpt str "aicampground" "The domain name.";
     ldap_uri =
-      mkOpt str "ldap://ldap.campground.lan:389" "The ldap URI to use.";
+      mkOpt str "ldap://ldap.fmf.lan:389" "The ldap URI to use.";
     ldap_search_base =
       mkOpt str "dc=aicampground,dc=com" "The ldap search base.";
     cache_credentials = mkBoolOpt true "Whether or not to cache credentials.";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-pki-path =
       mkOpt str "campground-pki/issue/ldap-server-role"
@@ -46,7 +46,7 @@ in {
       "The Vault path to the KV containing the LDAP Secrets.";
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     trusted_group =
@@ -152,7 +152,7 @@ in {
       wantedBy = ["multi-user.target"];
     };
 
-    systemd.services.copyCAcert = mkIf config.campground.services.vault-agent.enable {
+    systemd.services.copyCAcert = mkIf config.fmf.services.vault-agent.enable {
       description = "Copy LDAP CA Cert somewhere to avoid SSSD shitting the bed randomly";
       serviceConfig = {
         Type = "oneshot";
@@ -163,7 +163,7 @@ in {
       # before = [ "nscd.service" ];
     };
 
-    campground.services.vault-agent.services.copyCAcert = {
+    fmf.services.vault-agent.services.copyCAcert = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

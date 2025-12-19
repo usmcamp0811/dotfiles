@@ -4,19 +4,19 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.airflow;
+with lib.fmf; let
+  cfg = config.fmf.services.airflow;
 in {
-  options.campground.services.airflow = with types; {
+  options.fmf.services.airflow = with types; {
     enable = mkBoolOpt false "Enable airflow;";
     port = mkOpt int 8888 "Where the airflow port number";
     ip = mkOpt str "127.0.0.1" "Where the airflow ip address";
     path = mkOpt str "/var/lib/airflow" "Where to put the airflow directory.";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/mlflow"
@@ -28,7 +28,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -63,7 +63,7 @@ in {
     #   postgresql = true;
     # };
 
-    # campground.services.vault-agent.services.airflow = {
+    # fmf.services.vault-agent.services.airflow = {
     #   settings = {
     #     vault.address = cfg.vault-address;
     #     auto_auth = {

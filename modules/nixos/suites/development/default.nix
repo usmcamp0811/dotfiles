@@ -4,18 +4,18 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.suites.development;
+with lib.fmf; let
+  cfg = config.fmf.suites.development;
 in
 {
-  options.campground.suites.development = with types; {
+  options.fmf.suites.development = with types; {
     enable =
       mkBoolOpt false
         "Whether or not to enable common development configuration.";
   };
 
   config = mkIf cfg.enable {
-    campground = {
+    fmf = {
       apps = {
         k9s = enabled;
         virtmanager = enabled;

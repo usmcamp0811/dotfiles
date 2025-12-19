@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.busybox;
+with lib.fmf; let
+  cfg = config.fmf.services.busybox;
 in {
-  options.campground.services.busybox = with types; {
+  options.fmf.services.busybox = with types; {
     enable = mkBoolOpt false "Enable busybox;";
   };
 

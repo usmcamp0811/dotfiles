@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.system.clevis;
+with lib.fmf; let
+  cfg = config.fmf.system.clevis;
 in {
-  options.campground.system.clevis = with types; {
+  options.fmf.system.clevis = with types; {
     enable = mkBoolOpt false "Whether or not to enable Clevis.";
     hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
     keyfile-url =

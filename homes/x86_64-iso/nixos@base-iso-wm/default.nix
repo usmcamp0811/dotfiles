@@ -7,8 +7,8 @@
   ...
 }:
 with lib;
-with lib.campground; {
-  campground = {
+with lib.fmf; {
+  fmf = {
     user = {
       enable = true;
       name = config.snowfallorg.user.name;
@@ -37,20 +37,20 @@ with lib.campground; {
           monitors = [
             {
               name = "HDMI-A-3";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper = "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "HDMI-A-2";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper = "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
             {
               name = "eDP-1";
-              wallpaper = "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
+              wallpaper = "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg";
             }
           ];
 
           wallpapers = [
-            "${pkgs.campground.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
+            "${pkgs.fmf.wallpapers}/share/wallpapers/hsv-saturnV.jpg"
           ];
         };
         wofi = enabled;

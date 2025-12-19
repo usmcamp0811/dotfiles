@@ -1,11 +1,11 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.local-ai;
+  cfg = config.fmf.services.local-ai;
   extraFlagsString = concatStringsSep " " cfg.extraFlags;
 in {
-  options.campground.services.local-ai = with types; {
+  options.fmf.services.local-ai = with types; {
     enable = mkBoolOpt false "Enable local-ai;";
 
     port = mkOption {
@@ -22,7 +22,7 @@ in {
 
     model = mkOption {
       type = types.str;
-      default = "${pkgs.campground.mistral-7b-instruct}";
+      default = "${pkgs.fmf.mistral-7b-instruct}";
       description = "The host for local-ai service.";
     };
 

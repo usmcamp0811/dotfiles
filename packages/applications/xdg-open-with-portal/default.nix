@@ -7,7 +7,7 @@
   ...
 }:
 let
-  inherit (lib.campground) override-meta;
+  inherit (lib.fmf) override-meta;
 
   new-meta = with lib; {
     description = "A replacement for the default xdg-open program which correctly handles portals.";

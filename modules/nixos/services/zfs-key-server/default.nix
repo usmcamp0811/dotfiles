@@ -1,14 +1,14 @@
 { lib, config, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.zfs-key-server;
+  cfg = config.fmf.services.zfs-key-server;
   tangServersJSON = builtins.toJSON {
     t = cfg.threshold;
     pins = { tang = map (server: { url = server; }) cfg.tang-servers; };
   };
 in {
-  options.campground.services.zfs-key-server = with types; {
+  options.fmf.services.zfs-key-server = with types; {
     enable = mkBoolOpt false "Enable an Nginx Proxy;";
     port = mkOpt int 8084 "Port to Host the NGINX porxy on.";
     interface = mkOpt str "eno1" "Interface to use for the LAN Instance";
@@ -21,10 +21,10 @@ in {
     };
     threshold = mkOpt int 1 "Number of tanger serveres required to unlock";
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/zfs"
       "The Vault path to the KV containing the LDAP Secrets.";
@@ -35,14 +35,14 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
 
   config = mkIf cfg.enable {
 
-    campground.services.keepalived = {
+    fmf.services.keepalived = {
       enable = true;
       instances = {
         "zfs-key-server" = {
@@ -102,7 +102,7 @@ in {
         gnugrep
       ];
     };
-    campground.services.vault-agent.services.encryptZFSkey = {
+    fmf.services.vault-agent.services.encryptZFSkey = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

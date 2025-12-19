@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.glusterfs;
+with lib.fmf; let
+  cfg = config.fmf.services.glusterfs;
 in
 {
-  options.campground.services.glusterfs = {
+  options.fmf.services.glusterfs = {
     enable = lib.mkEnableOption "GlusterFS server";
     peers = lib.mkOption {
       type = lib.types.listOf lib.types.str;

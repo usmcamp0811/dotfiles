@@ -1,6 +1,6 @@
 { lib, ... }:
-with lib.campground; {
-  campground = {
+with lib.fmf; {
+  fmf = {
     user = {
       enable = true;
       name = "admin";

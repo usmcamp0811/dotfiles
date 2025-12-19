@@ -5,12 +5,12 @@
   ...
 }: let
   inherit (lib) types mkEnableOption mkIf;
-  inherit (lib.campground) mkOpt enabled;
+  inherit (lib.fmf) mkOpt enabled;
 
-  cfg = config.campground.tools.git;
-  user = config.campground.user;
+  cfg = config.fmf.tools.git;
+  user = config.fmf.user;
 in {
-  options.campground.tools.git = {
+  options.fmf.tools.git = {
     enable = mkEnableOption "Git";
     userName = mkOpt types.str user.fullName "The name to configure git with.";
     userEmail = mkOpt types.str user.email "The email to configure git with.";
@@ -19,7 +19,7 @@ in {
   config = mkIf cfg.enable {
     home.packages = with pkgs; [lazygit];
 
-    campground.cli.aliases = {
+    fmf.cli.aliases = {
       undopush = "${pkgs.git}/bin/git push -f origin HEAD^:master";
       gr = "[ ! -z `${pkgs.git}/bin/git rev-parse --show-cdup` ] && cd `${pkgs.git}/bin/git rev-parse --show-cdup || pwd`";
       master = "${pkgs.git}/bin/git checkout master";

@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.renew-pki;
+with lib.fmf; let
+  cfg = config.fmf.services.renew-pki;
 
   gen-server = pkgs.writeShellScriptBin "generate-server-pki" ''
     set -e
@@ -66,7 +66,7 @@ with lib.campground; let
     echo "$SERVER_CA" > ca.crt
   '';
 in {
-  options.campground.services.renew-pki = with types; {
+  options.fmf.services.renew-pki = with types; {
     # TODO: See if we can make the defaults come from elsewhere
     enable =
       mkBoolOpt false "Enable an AWS VPN Certificate Generation Service;";
@@ -79,14 +79,14 @@ in {
       "the domain name used in the PKI cert creation";
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "campground-pki/issue/vpn-server-role"
@@ -117,7 +117,7 @@ in {
         User = "root";
         # ExecStart = "${pkgs.bash}/bin/bash /tmp/detsys-vault/copyVPNcerts.sh";
         after = ["vault-agent.service"];
-        before = ["openvpn-campground.service"];
+        before = ["openvpn-fmf.service"];
       };
       script = ''
         # Generate the server certificate

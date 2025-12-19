@@ -5,11 +5,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.swaylock;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.swaylock;
 in
 {
-  options.campground.desktop.addons.swaylock = with types; {
+  options.fmf.desktop.addons.swaylock = with types; {
     enable =
       mkBoolOpt false "Whether to enable swaylock in the desktop environment.";
   };
@@ -27,7 +27,7 @@ in
         timestr = "%R";
         datestr = "%a, %e of %B";
 
-        image = "${pkgs.campground.wallpapers}/share/wallpapers/atmosphere.png";
+        image = "${pkgs.fmf.wallpapers}/share/wallpapers/atmosphere.png";
 
         fade-in = "0.2";
 

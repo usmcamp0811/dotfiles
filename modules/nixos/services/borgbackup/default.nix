@@ -5,14 +5,14 @@
   ...
 }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.services.borgbackup;
-  fileExporterDir = config.campground.services.prometheus.fileExporterDir;
+  cfg = config.fmf.services.borgbackup;
+  fileExporterDir = config.fmf.services.prometheus.fileExporterDir;
 
 in
 {
-  options.campground.services.borgbackup = with types; {
+  options.fmf.services.borgbackup = with types; {
     enable = mkBoolOpt false "Whether or not to enable Borg Backups.";
     jobs = lib.mkOption {
       type = lib.types.attrsOf (
@@ -116,10 +116,10 @@ in
     };
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
         "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/borg"
@@ -134,7 +134,7 @@ in
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -151,7 +151,7 @@ in
       '';
       wantedBy = [ "multi-user.target" ];
     });
-    campground.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
+    fmf.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

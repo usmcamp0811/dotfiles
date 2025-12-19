@@ -5,7 +5,7 @@
   ...
 }:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   imports = [
     ./hardware.nix
     ./disko.nix
@@ -20,7 +20,7 @@ with lib.campground; {
   };
 
   # Use campground modules for configuration
-  campground = {
+  fmf = {
     cli.aliases.root = enabled;
 
     suites = {

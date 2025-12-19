@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.virtmanager;
+with lib.fmf; let
+  cfg = config.fmf.apps.virtmanager;
 in {
-  options.campground.apps.virtmanager = with types; {
+  options.fmf.apps.virtmanager = with types; {
     enable = mkBoolOpt false "Whether or not to enable Virt-manager.";
   };
 

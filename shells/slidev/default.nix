@@ -4,12 +4,12 @@
 , ...
 }:
 with lib;
-with lib.campground; let
+with lib.fmf; let
   devShell = pkgs.mkShell {
     buildInputs = with pkgs; [
       pnpm
       nodejs
-      campground.slidev
+      fmf.slidev
     ];
   };
 in

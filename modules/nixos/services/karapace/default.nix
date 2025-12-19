@@ -1,10 +1,10 @@
 { host ? "", options, config, lib, pkgs, ... }:
 
 with lib;
-with lib.campground;
-let cfg = config.campground.services.karapace;
+with lib.fmf;
+let cfg = config.fmf.services.karapace;
 in {
-  options.campground.services.karapace = with types; {
+  options.fmf.services.karapace = with types; {
     enable = mkBoolOpt false "Whether or not to enable Karapace.";
     port = mkOpt int cfg.config.port "Port to use";
     config = lib.mkOption {
@@ -44,7 +44,7 @@ in {
       # Pre-start script to convert Nix configuration to JSON
       serviceConfig = {
         ExecStart =
-          "${pkgs.campground.karapace}/bin/karapace /var/lib/apache-kafka/config.json";
+          "${pkgs.fmf.karapace}/bin/karapace /var/lib/apache-kafka/config.json";
         Restart = "always";
         User = "apache-kafka";
         Group = "apache-kafka";

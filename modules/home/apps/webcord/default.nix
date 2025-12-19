@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.webcord;
+with lib.fmf; let
+  cfg = config.fmf.apps.webcord;
 in {
-  options.campground.apps.webcord = with types; {
+  options.fmf.apps.webcord = with types; {
     enable = mkBoolOpt false "Whether or not to enable webcord.";
   };
 

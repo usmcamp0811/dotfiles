@@ -6,13 +6,13 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.python;
+with lib.fmf; let
+  cfg = config.fmf.tools.python;
   python =
     pkgs.python3.withPackages
     (ps: [ps.bpython ps.numpy ps.pandas]);
 in {
-  options.campground.tools.python = with types; {
+  options.fmf.tools.python = with types; {
     enable = mkBoolOpt false "Whether or not to enable common Python.";
   };
 

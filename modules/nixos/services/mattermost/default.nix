@@ -3,16 +3,16 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.mattermost;
+with lib.fmf; let
+  cfg = config.fmf.services.mattermost;
 in
 {
-  options.campground.services.mattermost = with types; {
+  options.fmf.services.mattermost = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
   };
 
   config = mkIf cfg.enable {
-    campground.services.postgresql = {
+    fmf.services.postgresql = {
       enable = true;
       authentication = [ "local mattermost mattermost trust" ];
       databases = [

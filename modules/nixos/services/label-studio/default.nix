@@ -5,10 +5,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.label-studio;
+with lib.fmf; let
+  cfg = config.fmf.services.label-studio;
 in {
-  options.campground.services.label-studio = with types; {
+  options.fmf.services.label-studio = with types; {
     enable = mkBoolOpt false "Enable label-studio;";
     port = mkOpt int 8080 "Port to listen on";
     dbURI =
@@ -20,10 +20,10 @@ in {
     s3Region = mkOpt str "us-east-1" "S3 Region";
 
     role-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.role-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt str config.campground.services.vault-agent.settings.vault.secret-id
+      mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/mlflow"
@@ -35,7 +35,7 @@ in {
     };
     vault-address = mkOption {
       type = str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -78,7 +78,7 @@ in {
     #   };
     # };
     #
-    # campground.services.postgresql = {
+    # fmf.services.postgresql = {
     #   enable = true;
     #   authentication = [
     #     "local labelstudio labelstudio trust"
@@ -109,7 +109,7 @@ in {
     #   };
     # };
     #
-    # campground.services.vault-agent.services.label-studio = {
+    # fmf.services.vault-agent.services.label-studio = {
     #   settings = {
     #     vault.address = cfg.vault-address;
     #     auto_auth = {

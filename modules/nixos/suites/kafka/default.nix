@@ -1,11 +1,11 @@
 { host ? "", options, config, lib, pkgs, ... }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
-  cfg = config.campground.suites.kafka;
+  cfg = config.fmf.suites.kafka;
   bootstrap-server = "${cfg.kafka-lan-ip}:${builtins.toString cfg.kafka-port}";
 in {
-  options.campground.suites.kafka = with types; {
+  options.fmf.suites.kafka = with types; {
     enable = mkBoolOpt false "Enable Kafka configurations.";
     interface =
       mkOpt str "eno1" "Network interface used for all Kafka services.";
@@ -65,7 +65,7 @@ in {
 
     networking.firewall = { allowedTCPPorts = [ 2181 2888 3888 9092 ]; };
 
-    campground = {
+    fmf = {
       services = {
         keepalived = {
           enable = true;
@@ -133,7 +133,7 @@ in {
             };
             akhq = {
               connections = {
-                campground = {
+                fmf = {
                   properties = { "bootstrap.servers" = bootstrap-server; };
                   schema-registry = {
                     url = "http://${cfg.karapace-lan-ip}:${

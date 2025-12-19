@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.go;
+with lib.fmf; let
+  cfg = config.fmf.tools.go;
 in {
-  options.campground.tools.go = with types; {
+  options.fmf.tools.go = with types; {
     enable = mkBoolOpt false "Whether or not to enable Go support.";
   };
 

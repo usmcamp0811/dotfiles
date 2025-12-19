@@ -1,9 +1,9 @@
 { lib, config, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.qdrant;
+with lib.fmf;
+let cfg = config.fmf.services.qdrant;
 in {
-  options.campground.services.qdrant = with types; {
+  options.fmf.services.qdrant = with types; {
     enable = mkBoolOpt false "Enable Qdrant.";
 
     settings = mkOption {

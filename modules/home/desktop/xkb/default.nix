@@ -3,10 +3,10 @@
 , ...
 }:
 with lib; let
-  cfg = config.campground.desktop.xkb;
+  cfg = config.fmf.desktop.xkb;
 in
 {
-  options.campground.desktop.xkb = with lib.types; {
+  options.fmf.desktop.xkb = with lib.types; {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;

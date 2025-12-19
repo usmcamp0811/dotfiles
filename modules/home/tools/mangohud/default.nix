@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.tools.mangohud;
+with lib.fmf; let
+  cfg = config.fmf.tools.mangohud;
 in {
-  options.campground.tools.mangohud = with types; {
+  options.fmf.tools.mangohud = with types; {
     enable = mkBoolOpt false "Whether or not to enable mangohud.";
   };
 

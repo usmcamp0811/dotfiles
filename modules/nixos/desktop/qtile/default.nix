@@ -6,20 +6,20 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.qtile;
+with lib.fmf; let
+  cfg = config.fmf.desktop.qtile;
 
   # TODO: Look at renaming.. figure this could be used to put gui apps that make qtile config pretty and what not
   defaultExtensions = with pkgs; [networkmanagerapplet arc-theme];
 in {
-  options.campground.desktop.qtile = with types; {
+  options.fmf.desktop.qtile = with types; {
     enable =
       mkBoolOpt false "Whether or not to use Qtile as the desktop environment.";
   };
 
   config = mkIf cfg.enable {
-    campground.system.xkb.enable = true;
-    campground.desktop.addons = {wallpapers = enabled;};
+    fmf.system.xkb.enable = true;
+    fmf.desktop.addons = {wallpapers = enabled;};
 
     environment.systemPackages = with pkgs;
       [
@@ -66,6 +66,6 @@ in {
         # ];
       };
     };
-    campground.home.extraOptions = {};
+    fmf.home.extraOptions = {};
   };
 }

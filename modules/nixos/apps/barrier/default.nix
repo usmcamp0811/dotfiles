@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.barrier;
+with lib.fmf; let
+  cfg = config.fmf.apps.barrier;
 in {
-  options.campground.apps.barrier = with types; {
+  options.fmf.apps.barrier = with types; {
     enable = mkBoolOpt false "Whether or not to enable barrier.";
   };
 

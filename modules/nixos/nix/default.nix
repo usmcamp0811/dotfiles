@@ -7,8 +7,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.nix;
+with lib.fmf; let
+  cfg = config.fmf.nix;
   substituters-submodule = types.submodule ({...}: {
     options = with types; {
       key =
@@ -16,7 +16,7 @@ with lib.campground; let
     };
   });
 in {
-  options.campground.nix = with types; {
+  options.fmf.nix = with types; {
     enable = mkBoolOpt true "Whether or not to manage nix configuration.";
     package = mkOpt package pkgs.nixVersions.stable "Which nix package to use.";
     additional-authorized-users =
@@ -36,11 +36,11 @@ in {
 
     role-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.role-id
+      config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
       mkOpt types.str
-      config.campground.services.vault-agent.settings.vault.secret-id
+      config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt types.str "secret/campground/netrc"
@@ -52,7 +52,7 @@ in {
     };
     vault-address = mkOption {
       type = types.str;
-      default = config.campground.services.vault-agent.settings.vault.address;
+      default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
   };
@@ -62,12 +62,12 @@ in {
       mapAttrsToList
       (name: value: {
         assertion = value.key != null;
-        message = "campground.nix.extra-substituters.${name}.key must be set";
+        message = "fmf.nix.extra-substituters.${name}.key must be set";
       })
       cfg.extra-substituters;
     environment.systemPackages = with pkgs; [
-      campground.nixos-revision
-      (campground.nixos-hosts.override {
+      fmf.nixos-revision
+      (fmf.nixos-hosts.override {
         hosts = inputs.self.nixosConfigurations;
       })
       deploy-rs
@@ -86,7 +86,7 @@ in {
     };
 
     # TODO: Figure out if I can just use it straigh from the /tmp/detsys-vault/netrc location
-    systemd.services.copyNETRC = mkIf config.campground.services.vault-agent.enable {
+    systemd.services.copyNETRC = mkIf config.fmf.services.vault-agent.enable {
       description = "Copy the NETRC file to the correct spot";
       serviceConfig = {
         Type = "oneshot";
@@ -100,10 +100,10 @@ in {
     # In your nixos configuration (probably in modules/nixos/nix/ or similar)
     nix = let
       users =
-        ["root" config.campground.user.name]
+        ["root" config.fmf.user.name]
         ++ cfg.additional-authorized-users
-        ++ (optional config.campground.services.hydra.enable "hydra")
-        ++ (optional config.campground.services.nixery.enable "nixery");
+        ++ (optional config.fmf.services.hydra.enable "hydra")
+        ++ (optional config.fmf.services.nixery.enable "nixery");
     in {
       package = cfg.package;
       registry.nixpkgs.to = lib.mkForce {
@@ -134,7 +134,7 @@ in {
             # ++
             mapAttrsToList (_name: value: value.key) cfg.extra-substituters;
         }
-        // (lib.optionalAttrs config.campground.tools.direnv.enable {
+        // (lib.optionalAttrs config.fmf.tools.direnv.enable {
           keep-outputs = true;
           keep-derivations = true;
         });
@@ -150,7 +150,7 @@ in {
       generateNixPathFromInputs = true;
       linkInputs = true;
     };
-    campground.services.vault-agent.services.copyNETRC = {
+    fmf.services.vault-agent.services.copyNETRC = {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {

@@ -6,8 +6,8 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg-user = config.campground.user;
+with lib.fmf; let
+  cfg-user = config.fmf.user;
   is-darwin = pkgs.stdenv.isDarwin;
 
   # aliases = import ./aliases.nix { inherit pkgs; };
@@ -19,7 +19,7 @@ with lib.campground; let
     else "/home/${cfg-user.name}";
 in
 {
-  options.campground.cli.env = with types;
+  options.fmf.cli.env = with types;
     mkOption {
       type = attrsOf (oneOf [ str path (listOf (either str path)) ]);
       apply = mapAttrs (_n: v:

@@ -4,11 +4,11 @@
   pkgs,
   ...
 }: let
-  cfg = config.campground.tools.icehouse;
+  cfg = config.fmf.tools.icehouse;
 
   inherit (lib) mkEnableOption mkIf;
 in {
-  options.campground.tools.icehouse = {enable = mkEnableOption "Icehouse";};
+  options.fmf.tools.icehouse = {enable = mkEnableOption "Icehouse";};
 
   config = mkIf cfg.enable {
     environment.systemPackages = [pkgs.snowfallorg.icehouse];

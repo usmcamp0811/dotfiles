@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.router;
+with lib.fmf; let
+  cfg = config.fmf.router;
 
   # Generate NAT DNAT rules for port forwards
   mkPortForwardNatRules = portForwards:
@@ -32,7 +32,7 @@ with lib.campground; let
     ''
     ) portForwards;
 in {
-  options.campground.router = {
+  options.fmf.router = {
     enable = mkEnableOption "campground router core (WAN+LAN bridge, DHCP, NAT)";
 
     wan = {

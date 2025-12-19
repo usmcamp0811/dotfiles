@@ -1,6 +1,6 @@
 { lib, writeShellScriptBin, pkgs, hosts ? { } }:
 with lib;
-with lib.campground;
+with lib.fmf;
 let
   name = "install-scripts";
   version = "0.1.0";

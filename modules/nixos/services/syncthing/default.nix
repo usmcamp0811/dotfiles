@@ -4,11 +4,11 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.syncthing;
+with lib.fmf; let
+  cfg = config.fmf.services.syncthing;
 in
 {
-  options.campground.services.syncthing = with types; {
+  options.fmf.services.syncthing = with types; {
     enable = mkBoolOpt false "Whether or not to enable syncthing.";
     user = mkOpt str "mcamp" "User name";
     # TODO: use variablese from config as defaults

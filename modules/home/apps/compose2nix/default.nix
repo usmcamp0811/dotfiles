@@ -6,10 +6,10 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.apps.compose2nix;
+with lib.fmf; let
+  cfg = config.fmf.apps.compose2nix;
 in {
-  options.campground.apps.compose2nix = with types; {
+  options.fmf.apps.compose2nix = with types; {
     enable = mkBoolOpt false "Whether or not to enable Compose2Nix.";
   };
 

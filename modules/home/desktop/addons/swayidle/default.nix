@@ -5,12 +5,12 @@
 , ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.desktop.addons.swayidle;
+with lib.fmf; let
+  cfg = config.fmf.desktop.addons.swayidle;
   # inherit (inputs) nixpkgs-wayland;
 in
 {
-  options.campground.desktop.addons.swayidle = with types; {
+  options.fmf.desktop.addons.swayidle = with types; {
     enable =
       mkBoolOpt false "Whether to enable swayidle in the desktop environment.";
   };

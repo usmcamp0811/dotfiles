@@ -5,8 +5,8 @@
   ...
 }:
 with lib;
-with lib.campground; let
-  cfg = config.campground.services.vault;
+with lib.fmf; let
+  cfg = config.fmf.services.vault;
 
   package =
     if cfg.ui
@@ -117,7 +117,7 @@ with lib.campground; let
     done <<< "$current_policies"
   '';
 in {
-  options.campground.services.vault = {
+  options.fmf.services.vault = {
     enable = mkEnableOption "Vault";
     ui = mkBoolOpt true "Whether the UI should be enabled.";
     auto-unseal =
@@ -169,7 +169,7 @@ in {
   };
 
   config = {
-    environment.systemPackages = with pkgs; [campground.vault-scripts];
+    environment.systemPackages = with pkgs; [fmf.vault-scripts];
     services.vault = mkIf cfg.enable {
       enable = true;
       address = cfg.address;
@@ -271,8 +271,8 @@ in {
       script = ''
         # Paths to the AppRole credentials
         export VAULT_ADDR="${cfg.snapshot.vault-domain}"
-        ROLE_ID_FILE="${config.campground.services.vault-agent.settings.vault.role-id}"
-        SECRET_ID_FILE="${config.campground.services.vault-agent.settings.vault.secret-id}"
+        ROLE_ID_FILE="${config.fmf.services.vault-agent.settings.vault.role-id}"
+        SECRET_ID_FILE="${config.fmf.services.vault-agent.settings.vault.secret-id}"
 
         # Check if the credential files exist
         if [[ ! -f "$ROLE_ID_FILE" || ! -f "$SECRET_ID_FILE" ]]; then

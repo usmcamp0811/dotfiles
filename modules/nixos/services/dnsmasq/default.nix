@@ -1,9 +1,9 @@
 { lib, config, ... }:
 with lib;
-with lib.campground;
-let cfg = config.campground.services.dnsmasq;
+with lib.fmf;
+let cfg = config.fmf.services.dnsmasq;
 in {
-  options.campground.services.dnsmasq = with types; {
+  options.fmf.services.dnsmasq = with types; {
     enable = mkBoolOpt false "Enable dnsmasq.";
 
     settings = mkOption {

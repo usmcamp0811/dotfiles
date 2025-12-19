@@ -5,7 +5,7 @@
   ...
 }:
 with lib;
-with lib.campground; {
+with lib.fmf; {
   # Set snowfallorg user name for home-manager
   home-manager.users.admin.snowfallorg.user.name = "admin";
 
@@ -109,7 +109,7 @@ with lib.campground; {
   ############################################################
   # Base system configuration
   ############################################################
-  campground = {
+  fmf = {
     suites.common = enabled;
 
     user = {
