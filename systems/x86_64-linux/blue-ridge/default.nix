@@ -135,6 +135,11 @@ with lib.fmf; {
                   ip = "192.169.1.2";
                   hostname = "adguard";
                 }
+                {
+                  mac = "02:00:00:00:00:40";
+                  ip = "192.169.1.40";
+                  hostname = "gitea";
+                }
                 # Physical machines
                 {
                   mac = "60:6d:3c:c2:4a:6e";
@@ -356,6 +361,12 @@ with lib.fmf; {
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
     adguard = {
+      flake = inputs.self;
+      autostart = true;
+      restartIfChanged = true;
+      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
+    };
+    gitea = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
