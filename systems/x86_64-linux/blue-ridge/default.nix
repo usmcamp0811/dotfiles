@@ -314,6 +314,24 @@ with lib.fmf; {
           protocol = "tcp";
           description = "AdGuard Web UI via port 80 -> 3000 (optional)";
         }
+        {
+          port = 3000;
+          destination = "192.169.1.40";
+          protocol = "tcp";
+          description = "Gitea Web UI";
+        }
+        {
+          port = 8445;
+          destination = "192.169.1.40";
+          protocol = "tcp";
+          description = "Gitea HTTPS (nginx proxy)";
+        }
+        {
+          port = 22022;
+          destination = "192.169.1.40";
+          protocol = "tcp";
+          description = "Gitea SSH";
+        }
       ];
     };
 
