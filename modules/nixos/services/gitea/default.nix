@@ -8,16 +8,16 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.gitea;
 
-  # Where the VM actually mounts your vault share:
-  vaultDir = "/var/lib/vault/${cfg.user}";
+  # Store secrets in a dedicated directory
+  secretsDir = "${cfg.stateDir}/secrets";
 
   secretPaths = {
-    dbPassword = "${vaultDir}/db-password";
-    secretKey = "${vaultDir}/secret-key";
-    internalToken = "${vaultDir}/internal-token";
-    lfsJwtSecret = "${vaultDir}/lfs-jwt-secret";
-    oauth2JwtSecret = "${vaultDir}/oauth2-jwt-secret";
-    smtpPassword = "${vaultDir}/smtp-password";
+    dbPassword = "${secretsDir}/db-password";
+    secretKey = "${secretsDir}/secret-key";
+    internalToken = "${secretsDir}/internal-token";
+    lfsJwtSecret = "${secretsDir}/lfs-jwt-secret";
+    oauth2JwtSecret = "${secretsDir}/oauth2-jwt-secret";
+    smtpPassword = "${secretsDir}/smtp-password";
   };
 in {
   options.fmf.services.gitea = with types; {
@@ -140,40 +140,6 @@ in {
     # (UID/GID are remapped inside the user namespace). Disable it.
     systemd.services.gitea.serviceConfig.PrivateUsers = lib.mkForce false;
 
-    # Make sure perms are correct AFTER virtiofs mounts exist, and scrub conflicting JWT_SECRET keys.
-    systemd.services.fix-gitea-conf-perms = {
-      description = "Fix Gitea config permissions (post-mount)";
-      wantedBy = ["multi-user.target"];
-      before = ["gitea.service"];
-      after = ["local-fs.target"];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-      };
-      script = ''
-        set -euo pipefail
-
-        # Ensure dirs exist
-        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${cfg.stateDir}/custom/conf
-        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${vaultDir}
-
-        # Ensure app.ini exists and is writable by gitea
-        if [ ! -e ${cfg.stateDir}/custom/conf/app.ini ]; then
-          install -m 0640 -o ${cfg.user} -g ${cfg.group} /dev/null ${cfg.stateDir}/custom/conf/app.ini
-        else
-          chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/custom/conf/app.ini || true
-          chmod 0640 ${cfg.stateDir}/custom/conf/app.ini || true
-        fi
-
-        # IMPORTANT: if we're using *_URI secrets, make sure no plaintext secret keys remain.
-        # Gitea hard-fails if both *_SECRET and *_SECRET_URI are set for the same key.
-        sed -i '/^\s*LFS_JWT_SECRET\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
-        sed -i '/^\s*JWT_SECRET\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
-        sed -i '/^\s*INTERNAL_TOKEN\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
-        sed -i '/^\s*SECRET_KEY\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
-      '';
-    };
-
     # Gitea service configuration
     services.gitea = {
       enable = true;
@@ -204,7 +170,8 @@ in {
             START_SSH_SERVER = true;
             LFS_START_SERVER = cfg.enableLFS;
 
-            # Use URI form so Gitea doesn't try to persist generated secrets into app.ini
+            # Use *_URI to read secrets from files (Gitea's documented method)
+            # This prevents Gitea from auto-generating and persisting secrets to app.ini
             LFS_JWT_SECRET_URI = "file:${secretPaths.lfsJwtSecret}";
           };
 
@@ -224,14 +191,13 @@ in {
 
           security = {
             INSTALL_LOCK = true;
-
-            # Use *_URI (documented), not *_FILE
+            # Read secrets from files managed by Vault
             SECRET_KEY_URI = "file:${secretPaths.secretKey}";
             INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
           };
 
-          # Provide OAuth2 JWT secret via URI as well
           oauth2 = {
+            # OAuth2 JWT secret from file
             JWT_SECRET_URI = "file:${secretPaths.oauth2JwtSecret}";
           };
 
@@ -260,12 +226,14 @@ in {
         cfg.extraConfig;
     };
 
-    # Setup Gitea secrets from Vault (and generate missing ones once, persistently)
+    # Setup Gitea secrets from Vault
+    # This service ensures all secret files exist before Gitea starts,
+    # preventing Gitea from auto-generating them and writing to app.ini
     systemd.services.setup-gitea-secrets = {
       description = "Setup Gitea secrets from Vault";
       wantedBy = ["multi-user.target"];
       before = ["gitea.service"];
-      after = ["local-fs.target"];
+      after = ["local-fs.target" "vault-agent-setup-gitea-secrets.service"];
       serviceConfig = {
         Type = "oneshot";
         User = "root";
@@ -273,42 +241,64 @@ in {
       script = ''
         set -euo pipefail
 
-        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${vaultDir}
+        # Ensure secrets directory exists
+        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${secretsDir}
 
-        copy_if_present() {
+        # Helper to copy secrets from Vault agent's temp location
+        copy_secret() {
           local src="$1"
           local dst="$2"
           if [ -s "$src" ]; then
             install -m 0600 -o ${cfg.user} -g ${cfg.group} "$src" "$dst"
+            echo "Copied secret to $dst"
+          else
+            echo "Warning: Source secret $src not found or empty"
           fi
         }
 
         ${optionalString (cfg.databaseType != "sqlite3") ''
-          copy_if_present /tmp/detsys-vault/gitea-db-password ${secretPaths.dbPassword}
+          copy_secret /tmp/detsys-vault/gitea-db-password ${secretPaths.dbPassword}
         ''}
 
-        copy_if_present /tmp/detsys-vault/gitea-secret-key        ${secretPaths.secretKey}
-        copy_if_present /tmp/detsys-vault/gitea-internal-token    ${secretPaths.internalToken}
-        copy_if_present /tmp/detsys-vault/gitea-lfs-jwt-secret    ${secretPaths.lfsJwtSecret}
-        copy_if_present /tmp/detsys-vault/gitea-oauth2-jwt-secret ${secretPaths.oauth2JwtSecret}
+        copy_secret /tmp/detsys-vault/gitea-secret-key        ${secretPaths.secretKey}
+        copy_secret /tmp/detsys-vault/gitea-internal-token    ${secretPaths.internalToken}
+        copy_secret /tmp/detsys-vault/gitea-lfs-jwt-secret    ${secretPaths.lfsJwtSecret}
+        copy_secret /tmp/detsys-vault/gitea-oauth2-jwt-secret ${secretPaths.oauth2JwtSecret}
 
         ${optionalString cfg.mailer.enable ''
-          copy_if_present /tmp/detsys-vault/gitea-smtp-password ${secretPaths.smtpPassword}
+          copy_secret /tmp/detsys-vault/gitea-smtp-password ${secretPaths.smtpPassword}
         ''}
 
-        # If Vault did not provide JWT secrets yet, generate stable ones and persist them.
+        # Generate any missing JWT secrets (fallback if Vault doesn't provide them)
         if [ ! -s ${secretPaths.lfsJwtSecret} ]; then
-          umask 077
+          echo "Generating LFS JWT secret..."
           ${pkgs.gitea}/bin/gitea generate secret JWT_SECRET > ${secretPaths.lfsJwtSecret}
           chown ${cfg.user}:${cfg.group} ${secretPaths.lfsJwtSecret}
           chmod 0600 ${secretPaths.lfsJwtSecret}
         fi
 
         if [ ! -s ${secretPaths.oauth2JwtSecret} ]; then
+          echo "Generating OAuth2 JWT secret..."
           cp ${secretPaths.lfsJwtSecret} ${secretPaths.oauth2JwtSecret}
           chown ${cfg.user}:${cfg.group} ${secretPaths.oauth2JwtSecret}
           chmod 0600 ${secretPaths.oauth2JwtSecret}
         fi
+
+        if [ ! -s ${secretPaths.secretKey} ]; then
+          echo "Generating SECRET_KEY..."
+          ${pkgs.gitea}/bin/gitea generate secret SECRET_KEY > ${secretPaths.secretKey}
+          chown ${cfg.user}:${cfg.group} ${secretPaths.secretKey}
+          chmod 0600 ${secretPaths.secretKey}
+        fi
+
+        if [ ! -s ${secretPaths.internalToken} ]; then
+          echo "Generating INTERNAL_TOKEN..."
+          ${pkgs.gitea}/bin/gitea generate secret INTERNAL_TOKEN > ${secretPaths.internalToken}
+          chown ${cfg.user}:${cfg.group} ${secretPaths.internalToken}
+          chmod 0600 ${secretPaths.internalToken}
+        fi
+
+        echo "All secrets are in place"
       '';
     };
 
@@ -396,6 +386,7 @@ in {
       "d ${cfg.stateDir} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.repositoryRoot} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.stateDir}/custom/conf 0750 ${cfg.user} ${cfg.group} -"
+      "d ${secretsDir} 0750 ${cfg.user} ${cfg.group} -"
       "f ${cfg.stateDir}/custom/conf/app.ini 0640 ${cfg.user} ${cfg.group} -"
     ];
   };
