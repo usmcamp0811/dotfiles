@@ -122,68 +122,79 @@ pkgs.testers.nixosTest {
     router.wait_until_succeeds("ip addr show eth2 | grep 192.168.10.1")
     router.wait_until_succeeds("ip addr show eth3 | grep 192.168.20.1")
 
-    print("="*60)
-    print("ROUTER NETWORK ISOLATION TEST")
-    print("="*60)
+    # Collect test results
+    results = []
+    results.append("="*60)
+    results.append("ROUTER NETWORK ISOLATION TEST")
+    results.append("="*60)
+    results.append("")
 
     # Test 1: LAN -> Router
     with subtest("LAN can reach router"):
         lan_client.succeed("ping -c 1 192.168.1.1")
-        print("[PASS] LAN can ping router")
+        results.append("[PASS] LAN can ping router")
 
     # Test 2: WiFi -> Router
     with subtest("WiFi can reach router"):
         wifi_client.succeed("ping -c 1 192.168.10.1")
-        print("[PASS] WiFi can ping router")
+        results.append("[PASS] WiFi can ping router")
 
     # Test 3: IoT -> Router
     with subtest("IoT can reach router"):
         iot_client.succeed("ping -c 1 192.168.20.1")
-        print("[PASS] IoT can ping router")
+        results.append("[PASS] IoT can ping router")
 
     # Test 4: WiFi -> LAN (should work - partial isolation)
     with subtest("WiFi can reach LAN"):
         wifi_client.succeed("ping -c 1 192.168.1.10")
-        print("[PASS] WiFi can reach LAN (partial isolation)")
+        results.append("[PASS] WiFi can reach LAN (partial isolation)")
 
     # Test 5: IoT -> LAN (should FAIL - full isolation)
     with subtest("IoT BLOCKED from LAN"):
         iot_client.fail("ping -c 1 -W 2 192.168.1.10")
-        print("[PASS] IoT cannot reach LAN (full isolation working!)")
+        results.append("[PASS] IoT cannot reach LAN (full isolation working!)")
 
     # Test 6: IoT -> WiFi (should FAIL - full isolation)
     with subtest("IoT BLOCKED from WiFi"):
         iot_client.fail("ping -c 1 -W 2 192.168.10.10")
-        print("[PASS] IoT cannot reach WiFi (full isolation working!)")
+        results.append("[PASS] IoT cannot reach WiFi (full isolation working!)")
 
     # Test 7: LAN -> WiFi (should work - LAN has full access)
     with subtest("LAN can reach WiFi"):
         lan_client.succeed("ping -c 1 192.168.10.10")
-        print("[PASS] LAN can reach WiFi")
+        results.append("[PASS] LAN can reach WiFi")
 
     # Test 8: LAN -> IoT (should work - LAN has full access)
     with subtest("LAN can reach IoT"):
         lan_client.succeed("ping -c 1 192.168.20.10")
-        print("[PASS] LAN can reach IoT")
+        results.append("[PASS] LAN can reach IoT")
 
     # Test 9: Firewall is running
     with subtest("Firewall active"):
         router.succeed("systemctl is-active nftables.service")
-        print("[PASS] Firewall is active")
+        results.append("[PASS] Firewall is active")
 
     # Test 10: Check IP forwarding
     with subtest("IP forwarding enabled"):
         output = router.succeed("cat /proc/sys/net/ipv4/ip_forward").strip()
         assert output == "1", "IP forwarding disabled"
-        print("[PASS] IP forwarding enabled")
+        results.append("[PASS] IP forwarding enabled")
 
-    print("\n" + "="*60)
-    print("ALL NETWORK ISOLATION TESTS PASSED!")
-    print("="*60)
-    print("Summary:")
-    print("  ✓ LAN has full access to all zones")
-    print("  ✓ WiFi can access LAN (partial isolation)")
-    print("  ✓ IoT is fully isolated (cannot reach LAN or WiFi)")
-    print("  ✓ Firewall properly enforcing zone policies")
+    results.append("")
+    results.append("="*60)
+    results.append("ALL NETWORK ISOLATION TESTS PASSED!")
+    results.append("="*60)
+    results.append("Summary:")
+    results.append("  ✓ LAN has full access to all zones")
+    results.append("  ✓ WiFi can access LAN (partial isolation)")
+    results.append("  ✓ IoT is fully isolated (cannot reach LAN or WiFi)")
+    results.append("  ✓ Firewall properly enforcing zone policies")
+
+    # Save results to file
+    with open(os.environ.get("out") + "/test-results.txt", "w") as f:
+        f.write("\n".join(results))
+
+    # Also print to console
+    print("\n".join(results))
   '';
 }
