@@ -2,20 +2,44 @@
 
 Security testing and penetration testing suite for the blue-ridge router.
 
-## Configuration Audit (Build-time Check)
+## Two Types of Tests
 
-The configuration audit runs at build time and validates your router configuration for security issues.
+### 1. Configuration Audit (Simple)
+Tests router configuration and services inside a single VM.
 
 ```bash
-# Run the check
 nix build .#checks.x86_64-linux.router-security
-
-# View results
-cat result/security-audit.log
-
-# Run manually
-result/test-script
 ```
+
+**What it checks:**
+- Firewall active with DROP policy
+- SSH service configuration
+- fail2ban running
+- Kernel hardening (IP forwarding, RP filter, SYN cookies)
+- NAT masquerading configured
+- Audit daemon running
+
+### 2. Network Isolation Test (Advanced)
+Spawns 5 VMs to test actual network behavior and zone isolation.
+
+```bash
+nix build .#checks.x86_64-linux.router-network-isolation
+```
+
+**Test topology:**
+- Router VM (with LAN, WiFi, IoT zones)
+- LAN client (192.168.1.10)
+- WiFi client (192.168.10.10)
+- IoT client (192.168.20.10)
+- WAN "attacker" (10.0.2.100)
+
+**What it tests:**
+- ✅ WiFi → LAN works (partial isolation)
+- ❌ IoT → LAN blocked (full isolation)
+- ❌ IoT → WiFi blocked (full isolation)
+- ❌ WAN → Router SSH blocked
+- ✅ All zones can reach internet through NAT
+- ✅ Firewall DROP policy enforced
 
 ### What it checks:
 - ✅ SSH configuration (LAN-only, port hardening)
