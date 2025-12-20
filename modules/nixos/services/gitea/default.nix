@@ -148,6 +148,7 @@ in {
       group = cfg.group;
       stateDir = cfg.stateDir;
 
+      # Use native NixOS *File options where available
       database =
         {
           type = cfg.databaseType;
@@ -158,6 +159,8 @@ in {
         // (lib.optionalAttrs (cfg.databaseType != "sqlite3") {
           passwordFile = secretPaths.dbPassword;
         });
+
+      mailerPasswordFile = lib.mkIf cfg.mailer.enable secretPaths.smtpPassword;
 
       settings =
         recursiveUpdate {
@@ -220,17 +223,14 @@ in {
             SMTP_PORT = cfg.mailer.port;
             FROM = cfg.mailer.from;
             USER = cfg.mailer.user;
-            PASSWD_FILE = secretPaths.smtpPassword;
           };
         }
         cfg.extraConfig;
     };
 
-    # Setup Gitea secrets from Vault
-    # This service ensures all secret files exist before Gitea starts,
-    # preventing Gitea from auto-generating them and writing to app.ini
+    # Copy Gitea secrets from Vault to persistent location
     systemd.services.setup-gitea-secrets = {
-      description = "Setup Gitea secrets from Vault";
+      description = "Copy Gitea secrets from Vault";
       wantedBy = ["multi-user.target"];
       before = ["gitea.service"];
       after = ["local-fs.target" "vault-agent-setup-gitea-secrets.service"];
@@ -244,61 +244,34 @@ in {
         # Ensure secrets directory exists
         install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${secretsDir}
 
-        # Helper to copy secrets from Vault agent's temp location
-        copy_secret() {
-          local src="$1"
-          local dst="$2"
-          if [ -s "$src" ]; then
-            install -m 0600 -o ${cfg.user} -g ${cfg.group} "$src" "$dst"
-            echo "Copied secret to $dst"
-          else
-            echo "Warning: Source secret $src not found or empty"
-          fi
-        }
-
+        # Copy secrets from Vault agent
         ${optionalString (cfg.databaseType != "sqlite3") ''
-          copy_secret /tmp/detsys-vault/gitea-db-password ${secretPaths.dbPassword}
+          if [ -s /tmp/detsys-vault/gitea-db-password ]; then
+            install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-db-password ${secretPaths.dbPassword}
+          fi
         ''}
 
-        copy_secret /tmp/detsys-vault/gitea-secret-key        ${secretPaths.secretKey}
-        copy_secret /tmp/detsys-vault/gitea-internal-token    ${secretPaths.internalToken}
-        copy_secret /tmp/detsys-vault/gitea-lfs-jwt-secret    ${secretPaths.lfsJwtSecret}
-        copy_secret /tmp/detsys-vault/gitea-oauth2-jwt-secret ${secretPaths.oauth2JwtSecret}
+        if [ -s /tmp/detsys-vault/gitea-secret-key ]; then
+          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-secret-key ${secretPaths.secretKey}
+        fi
+
+        if [ -s /tmp/detsys-vault/gitea-internal-token ]; then
+          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-internal-token ${secretPaths.internalToken}
+        fi
+
+        if [ -s /tmp/detsys-vault/gitea-lfs-jwt-secret ]; then
+          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-lfs-jwt-secret ${secretPaths.lfsJwtSecret}
+        fi
+
+        if [ -s /tmp/detsys-vault/gitea-oauth2-jwt-secret ]; then
+          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-oauth2-jwt-secret ${secretPaths.oauth2JwtSecret}
+        fi
 
         ${optionalString cfg.mailer.enable ''
-          copy_secret /tmp/detsys-vault/gitea-smtp-password ${secretPaths.smtpPassword}
+          if [ -s /tmp/detsys-vault/gitea-smtp-password ]; then
+            install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-smtp-password ${secretPaths.smtpPassword}
+          fi
         ''}
-
-        # Generate any missing JWT secrets (fallback if Vault doesn't provide them)
-        if [ ! -s ${secretPaths.lfsJwtSecret} ]; then
-          echo "Generating LFS JWT secret..."
-          ${pkgs.gitea}/bin/gitea generate secret JWT_SECRET > ${secretPaths.lfsJwtSecret}
-          chown ${cfg.user}:${cfg.group} ${secretPaths.lfsJwtSecret}
-          chmod 0600 ${secretPaths.lfsJwtSecret}
-        fi
-
-        if [ ! -s ${secretPaths.oauth2JwtSecret} ]; then
-          echo "Generating OAuth2 JWT secret..."
-          cp ${secretPaths.lfsJwtSecret} ${secretPaths.oauth2JwtSecret}
-          chown ${cfg.user}:${cfg.group} ${secretPaths.oauth2JwtSecret}
-          chmod 0600 ${secretPaths.oauth2JwtSecret}
-        fi
-
-        if [ ! -s ${secretPaths.secretKey} ]; then
-          echo "Generating SECRET_KEY..."
-          ${pkgs.gitea}/bin/gitea generate secret SECRET_KEY > ${secretPaths.secretKey}
-          chown ${cfg.user}:${cfg.group} ${secretPaths.secretKey}
-          chmod 0600 ${secretPaths.secretKey}
-        fi
-
-        if [ ! -s ${secretPaths.internalToken} ]; then
-          echo "Generating INTERNAL_TOKEN..."
-          ${pkgs.gitea}/bin/gitea generate secret INTERNAL_TOKEN > ${secretPaths.internalToken}
-          chown ${cfg.user}:${cfg.group} ${secretPaths.internalToken}
-          chmod 0600 ${secretPaths.internalToken}
-        fi
-
-        echo "All secrets are in place"
       '';
     };
 
