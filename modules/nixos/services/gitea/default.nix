@@ -175,7 +175,7 @@ in {
 
             # Use *_URI to read secrets from files (Gitea's documented method)
             # This prevents Gitea from auto-generating and persisting secrets to app.ini
-            LFS_JWT_SECRET_URI = "file:${secretPaths.lfsJwtSecret}";
+            # LFS_JWT_SECRET_URI = "file:${secretPaths.lfsJwtSecret}";
           };
 
           service = {
@@ -192,17 +192,17 @@ in {
             DEFAULT_BRANCH = "main";
           };
 
-          security = {
-            INSTALL_LOCK = true;
-            # Read secrets from files managed by Vault
-            SECRET_KEY_URI = "file:${secretPaths.secretKey}";
-            INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
-          };
+          # security = {
+          #   INSTALL_LOCK = true;
+          #   # Read secrets from files managed by Vault
+          #   SECRET_KEY_URI = "file:${secretPaths.secretKey}";
+          #   INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
+          # };
 
-          oauth2 = {
-            # OAuth2 JWT secret from file
-            JWT_SECRET_URI = "file:${secretPaths.oauth2JwtSecret}";
-          };
+          # oauth2 = {
+          #   # OAuth2 JWT secret from file
+          #   JWT_SECRET_URI = "file:${secretPaths.oauth2JwtSecret}";
+          # };
 
           session = {
             PROVIDER = "file";
