@@ -98,6 +98,22 @@ in {
       '';
     };
 
+    # Ensure sshd starts after network interfaces are ready
+    # SSH needs to bind to the br-lan IP (192.169.1.1) which may not exist yet at boot
+    systemd.services.sshd = mkIf cfg.enableSSH {
+      after = [
+        "systemd-networkd.service"
+        "network-online.target"
+      ];
+      wants = [
+        "network-online.target"
+      ];
+      # Small delay to ensure bridge interface has IP configured
+      serviceConfig = {
+        ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+      };
+    };
+
     # SSH firewall rules are handled in the nftables ruleset in router.core module
     # The br-lan interface is allowed full access to the router
 
