@@ -7,6 +7,18 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.services.gitea;
+
+  # Where the VM actually mounts your vault share:
+  vaultDir = "/var/lib/vault/${cfg.user}";
+
+  secretPaths = {
+    dbPassword = "${vaultDir}/db-password";
+    secretKey = "${vaultDir}/secret-key";
+    internalToken = "${vaultDir}/internal-token";
+    lfsJwtSecret = "${vaultDir}/lfs-jwt-secret";
+    oauth2JwtSecret = "${vaultDir}/oauth2-jwt-secret";
+    smtpPassword = "${vaultDir}/smtp-password";
+  };
 in {
   options.fmf.services.gitea = with types; {
     enable = mkBoolOpt false "Enable Gitea";
@@ -124,6 +136,35 @@ in {
       };
     };
 
+    # Make sure perms are correct AFTER virtiofs mounts exist
+    systemd.services.fix-gitea-conf-perms = {
+      description = "Fix Gitea config permissions (post-mount)";
+      wantedBy = ["multi-user.target"];
+      before = ["gitea.service"];
+      after = ["local-fs.target"];
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+      };
+      script = ''
+        set -euo pipefail
+
+        # Ensure dirs exist
+        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${cfg.stateDir}/custom/conf
+
+        # Ensure app.ini exists and is writable by gitea
+        if [ ! -e ${cfg.stateDir}/custom/conf/app.ini ]; then
+          install -m 0640 -o ${cfg.user} -g ${cfg.group} /dev/null ${cfg.stateDir}/custom/conf/app.ini
+        else
+          chown ${cfg.user}:${cfg.group} ${cfg.stateDir}/custom/conf/app.ini || true
+          chmod 0640 ${cfg.stateDir}/custom/conf/app.ini || true
+        fi
+
+        # Ensure vault dir exists (your VM mounts it here)
+        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${vaultDir}
+      '';
+    };
+
     # Gitea service configuration
     services.gitea = {
       enable = true;
@@ -140,7 +181,7 @@ in {
           user = cfg.databaseUser;
         }
         // (lib.optionalAttrs (cfg.databaseType != "sqlite3") {
-          passwordFile = "/var/lib/vault/gitea-db-password";
+          passwordFile = secretPaths.dbPassword;
         });
 
       settings =
@@ -153,6 +194,10 @@ in {
             SSH_PORT = cfg.sshPort;
             START_SSH_SERVER = true;
             LFS_START_SERVER = cfg.enableLFS;
+
+            # IMPORTANT: this prevents Gitea from trying to write a generated JWT secret into app.ini
+            # (example syntax is file:/path). :contentReference[oaicite:1]{index=1}
+            LFS_JWT_SECRET_URI = "file:${secretPaths.lfsJwtSecret}";
           };
 
           service = {
@@ -171,8 +216,15 @@ in {
 
           security = {
             INSTALL_LOCK = true;
-            SECRET_KEY_FILE = "/var/lib/vault/gitea-secret-key";
-            INTERNAL_TOKEN_FILE = "/var/lib/vault/gitea-internal-token";
+
+            # Use *_URI (documented), not *_FILE
+            SECRET_KEY_URI = "file:${secretPaths.secretKey}";
+            INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
+          };
+
+          # OAuth2 JWT secret is only needed for HS* signing algorithms, but providing via URI is safe.
+          oauth2 = {
+            JWT_SECRET_URI = "file:${secretPaths.oauth2JwtSecret}";
           };
 
           session = {
@@ -194,6 +246,7 @@ in {
             SMTP_PORT = cfg.mailer.port;
             FROM = cfg.mailer.from;
             USER = cfg.mailer.user;
+            PASSWD_FILE = secretPaths.smtpPassword;
           };
         }
         cfg.extraConfig;
@@ -204,24 +257,53 @@ in {
       description = "Setup Gitea secrets from Vault";
       wantedBy = ["multi-user.target"];
       before = ["gitea.service"];
-      after = ["postgresql.service"];
+      after = ["local-fs.target"];
       serviceConfig = {
         Type = "oneshot";
         User = "root";
       };
       script = ''
-        mkdir -p /var/lib/vault
+        set -euo pipefail
 
-        # Copy secrets from Vault agent
-        ${optionalString (cfg.databaseType != "sqlite3") "cp /tmp/detsys-vault/gitea-db-password /var/lib/vault/"}
-        cp /tmp/detsys-vault/gitea-secret-key /var/lib/vault/
-        cp /tmp/detsys-vault/gitea-internal-token /var/lib/vault/
+        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${vaultDir}
 
-        ${optionalString cfg.mailer.enable "cp /tmp/detsys-vault/gitea-smtp-password /var/lib/vault/"}
+        # Copy if Vault agent rendered them; otherwise leave existing alone
+        copy_if_present() {
+          local src="$1"
+          local dst="$2"
+          if [ -s "$src" ]; then
+            install -m 0600 -o ${cfg.user} -g ${cfg.group} "$src" "$dst"
+          fi
+        }
 
-        # Set correct permissions
-        chown ${cfg.user}:${cfg.group} /var/lib/vault/gitea-*
-        chmod 600 /var/lib/vault/gitea-*
+        ${optionalString (cfg.databaseType != "sqlite3") ''
+          copy_if_present /tmp/detsys-vault/gitea-db-password ${secretPaths.dbPassword}
+        ''}
+
+        copy_if_present /tmp/detsys-vault/gitea-secret-key      ${secretPaths.secretKey}
+        copy_if_present /tmp/detsys-vault/gitea-internal-token  ${secretPaths.internalToken}
+        copy_if_present /tmp/detsys-vault/gitea-lfs-jwt-secret  ${secretPaths.lfsJwtSecret}
+        copy_if_present /tmp/detsys-vault/gitea-oauth2-jwt-secret ${secretPaths.oauth2JwtSecret}
+
+        ${optionalString cfg.mailer.enable ''
+          copy_if_present /tmp/detsys-vault/gitea-smtp-password ${secretPaths.smtpPassword}
+        ''}
+
+        # If Vault did not provide JWT secrets yet, generate stable ones and persist them.
+        # This prevents Gitea from attempting to write into app.ini on first boot.
+        if [ ! -s ${secretPaths.lfsJwtSecret} ]; then
+          umask 077
+          ${pkgs.gitea}/bin/gitea generate secret JWT_SECRET > ${secretPaths.lfsJwtSecret}
+          chown ${cfg.user}:${cfg.group} ${secretPaths.lfsJwtSecret}
+          chmod 0600 ${secretPaths.lfsJwtSecret}
+        fi
+
+        if [ ! -s ${secretPaths.oauth2JwtSecret} ]; then
+          # reuse the same secret by default; keeps things simple and avoids more moving parts
+          cp ${secretPaths.lfsJwtSecret} ${secretPaths.oauth2JwtSecret}
+          chown ${cfg.user}:${cfg.group} ${secretPaths.oauth2JwtSecret}
+          chmod 0600 ${secretPaths.oauth2JwtSecret}
+        fi
       '';
     };
 
@@ -269,6 +351,22 @@ in {
                 permissions = "0600";
                 change-action = "restart";
               };
+
+              # Add these to Vault later if you want; if missing, we auto-generate and persist.
+              "gitea-lfs-jwt-secret" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.lfs_jwt_secret }}{{ else }}{{ .Data.data.lfs_jwt_secret }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
+              "gitea-oauth2-jwt-secret" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.oauth2_jwt_secret }}{{ else }}{{ .Data.data.oauth2_jwt_secret }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
             }
             // optionalAttrs cfg.mailer.enable {
               "gitea-smtp-password" = {
@@ -293,10 +391,10 @@ in {
     systemd.tmpfiles.rules = [
       "d ${cfg.stateDir} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.repositoryRoot} 0755 ${cfg.user} ${cfg.group} -"
-      "d /var/lib/vault 0755 root root -"
-      "d /var/lib/gitea/custom/conf 0750 gitea gitea -"
-      # Use 'z' to adjust permissions on existing file (Gitea creates it as read-only)
-      "z /var/lib/gitea/custom/conf/app.ini 0640 gitea gitea -"
+
+      # These help on fresh boots, but the post-mount service is the real fix
+      "d ${cfg.stateDir}/custom/conf 0750 ${cfg.user} ${cfg.group} -"
+      "f ${cfg.stateDir}/custom/conf/app.ini 0640 ${cfg.user} ${cfg.group} -"
     ];
   };
 }
