@@ -1,13 +1,13 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.fmf; let
   cfg = config.fmf.services.gitea;
-in
-{
+in {
   options.fmf.services.gitea = with types; {
     enable = mkBoolOpt false "Enable Gitea";
 
@@ -49,15 +49,15 @@ in
     # Vault integration
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/gitea"
-        "The Vault path to the KV containing Gitea secrets";
+      "The Vault path to the KV containing Gitea secrets";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -70,7 +70,7 @@ in
     # Extra configuration
     extraConfig = mkOption {
       type = attrs;
-      default = { };
+      default = {};
       description = "Extra Gitea configuration";
       example = literalExpression ''
         {
@@ -132,75 +132,79 @@ in
       group = cfg.group;
       stateDir = cfg.stateDir;
 
-      database = {
-        type = cfg.databaseType;
-        host = cfg.databaseHost;
-        name = cfg.databaseName;
-        user = cfg.databaseUser;
-      } // (lib.optionalAttrs (cfg.databaseType != "sqlite3") {
-        passwordFile = "/var/lib/vault/gitea-db-password";
-      });
+      database =
+        {
+          type = cfg.databaseType;
+          host = cfg.databaseHost;
+          name = cfg.databaseName;
+          user = cfg.databaseUser;
+        }
+        // (lib.optionalAttrs (cfg.databaseType != "sqlite3") {
+          passwordFile = "/var/lib/vault/gitea-db-password";
+        });
 
-      settings = recursiveUpdate {
-        server = {
-          DOMAIN = cfg.domain;
-          HTTP_PORT = cfg.port;
-          ROOT_URL = "https://${cfg.domain}";
-          SSH_DOMAIN = cfg.domain;
-          SSH_PORT = cfg.sshPort;
-          START_SSH_SERVER = true;
-          LFS_START_SERVER = cfg.enableLFS;
-        };
+      settings =
+        recursiveUpdate {
+          server = {
+            DOMAIN = cfg.domain;
+            HTTP_PORT = cfg.port;
+            ROOT_URL = "https://${cfg.domain}";
+            SSH_DOMAIN = cfg.domain;
+            SSH_PORT = cfg.sshPort;
+            START_SSH_SERVER = true;
+            LFS_START_SERVER = cfg.enableLFS;
+          };
 
-        service = {
-          DISABLE_REGISTRATION = cfg.disableRegistration;
-          REQUIRE_SIGNIN_VIEW = false;
-          DEFAULT_KEEP_EMAIL_PRIVATE = true;
-          DEFAULT_ALLOW_CREATE_ORGANIZATION = true;
-          ENABLE_NOTIFY_MAIL = cfg.mailer.enable;
-        };
+          service = {
+            DISABLE_REGISTRATION = cfg.disableRegistration;
+            REQUIRE_SIGNIN_VIEW = false;
+            DEFAULT_KEEP_EMAIL_PRIVATE = true;
+            DEFAULT_ALLOW_CREATE_ORGANIZATION = true;
+            ENABLE_NOTIFY_MAIL = cfg.mailer.enable;
+          };
 
-        repository = {
-          ROOT = cfg.repositoryRoot;
-          ENABLE_PUSH_CREATE_USER = true;
-          DEFAULT_BRANCH = "main";
-        };
+          repository = {
+            ROOT = cfg.repositoryRoot;
+            ENABLE_PUSH_CREATE_USER = true;
+            DEFAULT_BRANCH = "main";
+          };
 
-        security = {
-          INSTALL_LOCK = true;
-          SECRET_KEY_FILE = "/var/lib/vault/gitea-secret-key";
-          INTERNAL_TOKEN_FILE = "/var/lib/vault/gitea-internal-token";
-        };
+          security = {
+            INSTALL_LOCK = true;
+            SECRET_KEY_FILE = "/var/lib/vault/gitea-secret-key";
+            INTERNAL_TOKEN_FILE = "/var/lib/vault/gitea-internal-token";
+          };
 
-        session = {
-          PROVIDER = "file";
-        };
+          session = {
+            PROVIDER = "file";
+          };
 
-        log = {
-          MODE = "console";
-          LEVEL = "Info";
-        };
+          log = {
+            MODE = "console";
+            LEVEL = "Info";
+          };
 
-        actions = mkIf cfg.enableActions {
-          ENABLED = true;
-        };
+          actions = mkIf cfg.enableActions {
+            ENABLED = true;
+          };
 
-        mailer = mkIf cfg.mailer.enable {
-          ENABLED = true;
-          SMTP_ADDR = cfg.mailer.host;
-          SMTP_PORT = cfg.mailer.port;
-          FROM = cfg.mailer.from;
-          USER = cfg.mailer.user;
-        };
-      } cfg.extraConfig;
+          mailer = mkIf cfg.mailer.enable {
+            ENABLED = true;
+            SMTP_ADDR = cfg.mailer.host;
+            SMTP_PORT = cfg.mailer.port;
+            FROM = cfg.mailer.from;
+            USER = cfg.mailer.user;
+          };
+        }
+        cfg.extraConfig;
     };
 
     # Setup Gitea secrets from Vault
     systemd.services.setup-gitea-secrets = {
       description = "Setup Gitea secrets from Vault";
-      wantedBy = [ "multi-user.target" ];
-      before = [ "gitea.service" ];
-      after = [ "postgresql.service" ];
+      wantedBy = ["multi-user.target"];
+      before = ["gitea.service"];
+      after = ["postgresql.service"];
       serviceConfig = {
         Type = "oneshot";
         User = "root";
@@ -290,6 +294,8 @@ in
       "d ${cfg.stateDir} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.repositoryRoot} 0755 ${cfg.user} ${cfg.group} -"
       "d /var/lib/vault 0755 root root -"
+      "d /var/lib/gitea/custom/conf 0750 gitea gitea -"
+      "f /var/lib/gitea/custom/conf/app.ini 0640 gitea gitea -"
     ];
   };
 }
