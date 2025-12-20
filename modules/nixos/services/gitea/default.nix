@@ -295,7 +295,8 @@ in {
       "d ${cfg.repositoryRoot} 0755 ${cfg.user} ${cfg.group} -"
       "d /var/lib/vault 0755 root root -"
       "d /var/lib/gitea/custom/conf 0750 gitea gitea -"
-      "f /var/lib/gitea/custom/conf/app.ini 0640 gitea gitea -"
+      # Use 'z' to adjust permissions on existing file (Gitea creates it as read-only)
+      "z /var/lib/gitea/custom/conf/app.ini 0640 gitea gitea -"
     ];
   };
 }
