@@ -136,7 +136,11 @@ in {
       };
     };
 
-    # Make sure perms are correct AFTER virtiofs mounts exist
+    # Gitea's stock unit enables PrivateUsers=true, which breaks writes to virtiofs-mounted paths
+    # (UID/GID are remapped inside the user namespace). Disable it.
+    systemd.services.gitea.serviceConfig.PrivateUsers = lib.mkForce false;
+
+    # Make sure perms are correct AFTER virtiofs mounts exist, and scrub conflicting JWT_SECRET keys.
     systemd.services.fix-gitea-conf-perms = {
       description = "Fix Gitea config permissions (post-mount)";
       wantedBy = ["multi-user.target"];
@@ -151,6 +155,7 @@ in {
 
         # Ensure dirs exist
         install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${cfg.stateDir}/custom/conf
+        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${vaultDir}
 
         # Ensure app.ini exists and is writable by gitea
         if [ ! -e ${cfg.stateDir}/custom/conf/app.ini ]; then
@@ -160,12 +165,13 @@ in {
           chmod 0640 ${cfg.stateDir}/custom/conf/app.ini || true
         fi
 
-        # Ensure vault dir exists (your VM mounts it here)
-        install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${vaultDir}
+        # IMPORTANT: if we're using *_URI secrets, make sure no plaintext JWT_SECRET keys remain.
+        # Gitea hard-fails if both JWT_SECRET(_*) and JWT_SECRET_URI are set.
+        sed -i '/^\s*LFS_JWT_SECRET\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
+        sed -i '/^\s*JWT_SECRET\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
       '';
     };
 
-    systemd.services.gitea.serviceConfig.PrivateUsers = lib.mkForce false;
     # Gitea service configuration
     services.gitea = {
       enable = true;
@@ -196,8 +202,7 @@ in {
             START_SSH_SERVER = true;
             LFS_START_SERVER = cfg.enableLFS;
 
-            # IMPORTANT: this prevents Gitea from trying to write a generated JWT secret into app.ini
-            # (example syntax is file:/path). :contentReference[oaicite:1]{index=1}
+            # Use URI form so Gitea doesn't try to persist generated secrets into app.ini
             LFS_JWT_SECRET_URI = "file:${secretPaths.lfsJwtSecret}";
           };
 
@@ -223,7 +228,7 @@ in {
             INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
           };
 
-          # OAuth2 JWT secret is only needed for HS* signing algorithms, but providing via URI is safe.
+          # Provide OAuth2 JWT secret via URI as well
           oauth2 = {
             JWT_SECRET_URI = "file:${secretPaths.oauth2JwtSecret}";
           };
@@ -253,7 +258,7 @@ in {
         cfg.extraConfig;
     };
 
-    # Setup Gitea secrets from Vault
+    # Setup Gitea secrets from Vault (and generate missing ones once, persistently)
     systemd.services.setup-gitea-secrets = {
       description = "Setup Gitea secrets from Vault";
       wantedBy = ["multi-user.target"];
@@ -268,7 +273,6 @@ in {
 
         install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${vaultDir}
 
-        # Copy if Vault agent rendered them; otherwise leave existing alone
         copy_if_present() {
           local src="$1"
           local dst="$2"
@@ -281,9 +285,9 @@ in {
           copy_if_present /tmp/detsys-vault/gitea-db-password ${secretPaths.dbPassword}
         ''}
 
-        copy_if_present /tmp/detsys-vault/gitea-secret-key      ${secretPaths.secretKey}
-        copy_if_present /tmp/detsys-vault/gitea-internal-token  ${secretPaths.internalToken}
-        copy_if_present /tmp/detsys-vault/gitea-lfs-jwt-secret  ${secretPaths.lfsJwtSecret}
+        copy_if_present /tmp/detsys-vault/gitea-secret-key        ${secretPaths.secretKey}
+        copy_if_present /tmp/detsys-vault/gitea-internal-token    ${secretPaths.internalToken}
+        copy_if_present /tmp/detsys-vault/gitea-lfs-jwt-secret    ${secretPaths.lfsJwtSecret}
         copy_if_present /tmp/detsys-vault/gitea-oauth2-jwt-secret ${secretPaths.oauth2JwtSecret}
 
         ${optionalString cfg.mailer.enable ''
@@ -291,7 +295,6 @@ in {
         ''}
 
         # If Vault did not provide JWT secrets yet, generate stable ones and persist them.
-        # This prevents Gitea from attempting to write into app.ini on first boot.
         if [ ! -s ${secretPaths.lfsJwtSecret} ]; then
           umask 077
           ${pkgs.gitea}/bin/gitea generate secret JWT_SECRET > ${secretPaths.lfsJwtSecret}
@@ -300,7 +303,6 @@ in {
         fi
 
         if [ ! -s ${secretPaths.oauth2JwtSecret} ]; then
-          # reuse the same secret by default; keeps things simple and avoids more moving parts
           cp ${secretPaths.lfsJwtSecret} ${secretPaths.oauth2JwtSecret}
           chown ${cfg.user}:${cfg.group} ${secretPaths.oauth2JwtSecret}
           chmod 0600 ${secretPaths.oauth2JwtSecret}
@@ -353,7 +355,6 @@ in {
                 change-action = "restart";
               };
 
-              # Add these to Vault later if you want; if missing, we auto-generate and persist.
               "gitea-lfs-jwt-secret" = {
                 text = ''
                   {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.lfs_jwt_secret }}{{ else }}{{ .Data.data.lfs_jwt_secret }}{{ end }}{{ end }}
@@ -392,8 +393,6 @@ in {
     systemd.tmpfiles.rules = [
       "d ${cfg.stateDir} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.repositoryRoot} 0755 ${cfg.user} ${cfg.group} -"
-
-      # These help on fresh boots, but the post-mount service is the real fix
       "d ${cfg.stateDir}/custom/conf 0750 ${cfg.user} ${cfg.group} -"
       "f ${cfg.stateDir}/custom/conf/app.ini 0640 ${cfg.user} ${cfg.group} -"
     ];
