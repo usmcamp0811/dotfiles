@@ -165,6 +165,7 @@ in {
       '';
     };
 
+    systemd.services.gitea.serviceConfig.PrivateUsers = lib.mkForce false;
     # Gitea service configuration
     services.gitea = {
       enable = true;
