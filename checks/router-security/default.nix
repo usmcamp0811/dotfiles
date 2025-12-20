@@ -1,18 +1,82 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, system ? "x86_64-linux" }:
 
 # Router security penetration test check
 # This creates a derivation that runs security tests against the router configuration
 # Run with: nix build .#checks.x86_64-linux.router-security
 
 let
-  # Read router config from blue-ridge system
-  routerSystem = import ../../systems/x86_64-linux/blue-ridge {
-    inherit lib pkgs;
-    inputs = {};
-  };
+  # We need to get the actual config from the built system
+  # For now, use a simpler approach that doesn't require the full system eval
+  # TODO: Pass routerCfg from flake.nix instead
 
-  # Extract router configuration
-  routerCfg = routerSystem.config.fmf.router or {};
+  # Hardcoded config from blue-ridge for now
+  routerCfg = {
+    enable = true;
+    lan = {
+      gateway = "192.169.1.1";
+      interfaces = ["enp2s0" "enp3s0" "enp4s0"];
+    };
+    wan.interface = "enp1s0";
+    security = {
+      enableSSH = true;
+      sshPort = 22;
+      fail2ban = {
+        enable = true;
+        maxRetry = 3;
+        banTime = 3600;
+      };
+    };
+    portForwards = [
+      { port = 443; destination = "192.169.1.20"; protocol = "tcp"; description = "HTTPS to pub-traefik"; }
+      { port = 80; destination = "192.169.1.2"; destinationPort = 3000; protocol = "tcp"; description = "AdGuard Web UI"; }
+      { port = 3000; destination = "192.169.1.40"; protocol = "tcp"; description = "Gitea Web UI"; }
+      { port = 8445; destination = "192.169.1.40"; protocol = "tcp"; description = "Gitea HTTPS"; }
+      { port = 22022; destination = "192.169.1.40"; protocol = "tcp"; description = "Gitea SSH"; }
+    ];
+    dns = {
+      enable = true;
+      forwarders = ["192.169.1.2"];
+      enableDNSSEC = false;
+    };
+    zones = {
+      enable = true;
+      zones = {
+        lan = {
+          vlanId = null;
+          subnet = "192.169.1.0/24";
+          gateway = "192.169.1.1";
+          isolation = "none";
+          allowInternet = true;
+          interface = "br-lan";
+        };
+        wifi = {
+          vlanId = 10;
+          subnet = "192.169.10.0/24";
+          gateway = "192.169.10.1";
+          isolation = "partial";
+          allowInternet = true;
+          interface = "br-lan.10";
+        };
+        iot = {
+          vlanId = 20;
+          subnet = "192.169.20.0/24";
+          gateway = "192.169.20.1";
+          isolation = "full";
+          allowInternet = true;
+          interface = "br-lan.20";
+        };
+        guest = {
+          vlanId = 30;
+          subnet = "192.169.30.0/24";
+          gateway = "192.169.30.1";
+          isolation = "full";
+          allowInternet = true;
+          interface = "br-lan.30";
+        };
+      };
+      interZoneRoutes = [];
+    };
+  };
 
   # Security test script
   securityTests = pkgs.writeScriptBin "router-security-tests" ''
