@@ -7,7 +7,6 @@
 }:
 # Simplified network isolation test
 # Tests zone isolation using test framework's virtual networks
-
 pkgs.testers.nixosTest {
   name = "router-network-isolation-test";
 
@@ -19,7 +18,7 @@ pkgs.testers.nixosTest {
       lib,
       ...
     }: {
-      virtualisation.vlans = [ 1 2 3 ]; # LAN, WiFi, IoT
+      virtualisation.vlans = [1 2 3]; # LAN, WiFi, IoT
 
       # Manual network config for test
       networking = {
@@ -29,9 +28,24 @@ pkgs.testers.nixosTest {
 
         # Configure interfaces manually
         interfaces = {
-          eth1.ipv4.addresses = [{ address = "192.168.1.1"; prefixLength = 24; }];
-          eth2.ipv4.addresses = [{ address = "192.168.10.1"; prefixLength = 24; }];
-          eth3.ipv4.addresses = [{ address = "192.168.20.1"; prefixLength = 24; }];
+          eth1.ipv4.addresses = [
+            {
+              address = "192.168.1.1";
+              prefixLength = 24;
+            }
+          ];
+          eth2.ipv4.addresses = [
+            {
+              address = "192.168.10.1";
+              prefixLength = 24;
+            }
+          ];
+          eth3.ipv4.addresses = [
+            {
+              address = "192.168.20.1";
+              prefixLength = 24;
+            }
+          ];
         };
       };
 
@@ -68,7 +82,7 @@ pkgs.testers.nixosTest {
       '';
 
       services.timesyncd.enable = lib.mkForce false;
-      environment.systemPackages = [ pkgs.iputils ];
+      environment.systemPackages = [pkgs.iputils];
 
       # Enable IP forwarding
       boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
@@ -76,39 +90,57 @@ pkgs.testers.nixosTest {
 
     # Client in LAN zone
     lan-client = {
-      virtualisation.vlans = [ 1 ];
+      virtualisation.vlans = [1];
       networking = {
         useDHCP = false;
-        interfaces.eth1.ipv4.addresses = [{ address = "192.168.1.10"; prefixLength = 24; }];
+        interfaces.eth1.ipv4.addresses = [
+          {
+            address = "192.168.1.10";
+            prefixLength = 24;
+          }
+        ];
         defaultGateway = "192.168.1.1";
       };
-      environment.systemPackages = [ pkgs.iputils ];
+      environment.systemPackages = [pkgs.iputils];
     };
 
     # Client in WiFi zone
     wifi-client = {
-      virtualisation.vlans = [ 2 ];
+      virtualisation.vlans = [2];
       networking = {
         useDHCP = false;
-        interfaces.eth1.ipv4.addresses = [{ address = "192.168.10.10"; prefixLength = 24; }];
+        interfaces.eth1.ipv4.addresses = [
+          {
+            address = "192.168.10.10";
+            prefixLength = 24;
+          }
+        ];
         defaultGateway = "192.168.10.1";
       };
-      environment.systemPackages = [ pkgs.iputils ];
+      environment.systemPackages = [pkgs.iputils];
     };
 
     # Client in IoT zone
     iot-client = {
-      virtualisation.vlans = [ 3 ];
+      virtualisation.vlans = [3];
       networking = {
         useDHCP = false;
-        interfaces.eth1.ipv4.addresses = [{ address = "192.168.20.10"; prefixLength = 24; }];
+        interfaces.eth1.ipv4.addresses = [
+          {
+            address = "192.168.20.10";
+            prefixLength = 24;
+          }
+        ];
         defaultGateway = "192.168.20.1";
       };
-      environment.systemPackages = [ pkgs.iputils ];
+      environment.systemPackages = [pkgs.iputils];
     };
   };
 
   testScript = ''
+    import os
+    import os.path
+
     start_all()
 
     # Wait for all VMs
@@ -190,8 +222,10 @@ pkgs.testers.nixosTest {
     results.append("  ✓ IoT is fully isolated (cannot reach LAN or WiFi)")
     results.append("  ✓ Firewall properly enforcing zone policies")
 
-    # Save results to file
-    with open(os.environ.get("out") + "/test-results.txt", "w") as f:
+    # Save results to file (os.environ[...] is always str, so type-checker is happy)
+    out_dir = os.environ["out"]
+    out_path = os.path.join(out_dir, "test-results.txt")
+    with open(out_path, "w") as f:
         f.write("\n".join(results))
 
     # Also print to console
