@@ -13,10 +13,6 @@ with lib.fmf; let
 
   secretPaths = {
     dbPassword = "${secretsDir}/db-password";
-    secretKey = "${secretsDir}/secret-key";
-    internalToken = "${secretsDir}/internal-token";
-    lfsJwtSecret = "${secretsDir}/lfs-jwt-secret";
-    oauth2JwtSecret = "${secretsDir}/oauth2-jwt-secret";
     smtpPassword = "${secretsDir}/smtp-password";
   };
 in {
@@ -148,84 +144,48 @@ in {
       group = cfg.group;
       stateDir = cfg.stateDir;
 
-      # Use native NixOS *File options where available
-      database =
-        {
-          type = cfg.databaseType;
-          host = cfg.databaseHost;
-          name = cfg.databaseName;
-          user = cfg.databaseUser;
-        }
-        // (lib.optionalAttrs (cfg.databaseType != "sqlite3") {
-          passwordFile = secretPaths.dbPassword;
-        });
+      lfs.enable = cfg.enableLFS;
+
+      database = {
+        type = cfg.databaseType;
+        host = cfg.databaseHost;
+        name = cfg.databaseName;
+        user = cfg.databaseUser;
+        passwordFile = lib.mkIf (cfg.databaseType != "sqlite3") secretPaths.dbPassword;
+      };
 
       mailerPasswordFile = lib.mkIf cfg.mailer.enable secretPaths.smtpPassword;
 
-      settings =
-        recursiveUpdate {
-          server = {
-            DOMAIN = cfg.domain;
-            HTTP_PORT = cfg.port;
-            ROOT_URL = "https://${cfg.domain}";
-            SSH_DOMAIN = cfg.domain;
-            SSH_PORT = cfg.sshPort;
-            START_SSH_SERVER = true;
-            LFS_START_SERVER = cfg.enableLFS;
+      settings = recursiveUpdate {
+        server = {
+          DOMAIN = cfg.domain;
+          HTTP_PORT = cfg.port;
+          ROOT_URL = "https://${cfg.domain}";
+          SSH_DOMAIN = cfg.domain;
+          SSH_PORT = cfg.sshPort;
+        };
 
-            # Use *_URI to read secrets from files (Gitea's documented method)
-            # This prevents Gitea from auto-generating and persisting secrets to app.ini
-            # LFS_JWT_SECRET_URI = "file:${secretPaths.lfsJwtSecret}";
-          };
+        service = {
+          DISABLE_REGISTRATION = cfg.disableRegistration;
+        };
 
-          service = {
-            DISABLE_REGISTRATION = cfg.disableRegistration;
-            REQUIRE_SIGNIN_VIEW = false;
-            DEFAULT_KEEP_EMAIL_PRIVATE = true;
-            DEFAULT_ALLOW_CREATE_ORGANIZATION = true;
-            ENABLE_NOTIFY_MAIL = cfg.mailer.enable;
-          };
+        repository = {
+          ROOT = cfg.repositoryRoot;
+          DEFAULT_BRANCH = "main";
+        };
 
-          repository = {
-            ROOT = cfg.repositoryRoot;
-            ENABLE_PUSH_CREATE_USER = true;
-            DEFAULT_BRANCH = "main";
-          };
+        actions = {
+          ENABLED = cfg.enableActions;
+        };
 
-          # security = {
-          #   INSTALL_LOCK = true;
-          #   # Read secrets from files managed by Vault
-          #   SECRET_KEY_URI = "file:${secretPaths.secretKey}";
-          #   INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
-          # };
-
-          # oauth2 = {
-          #   # OAuth2 JWT secret from file
-          #   JWT_SECRET_URI = "file:${secretPaths.oauth2JwtSecret}";
-          # };
-
-          session = {
-            PROVIDER = "file";
-          };
-
-          log = {
-            MODE = "console";
-            LEVEL = "Info";
-          };
-
-          actions = mkIf cfg.enableActions {
-            ENABLED = true;
-          };
-
-          mailer = mkIf cfg.mailer.enable {
-            ENABLED = true;
-            SMTP_ADDR = cfg.mailer.host;
-            SMTP_PORT = cfg.mailer.port;
-            FROM = cfg.mailer.from;
-            USER = cfg.mailer.user;
-          };
-        }
-        cfg.extraConfig;
+        mailer = mkIf cfg.mailer.enable {
+          ENABLED = true;
+          SMTP_ADDR = cfg.mailer.host;
+          SMTP_PORT = cfg.mailer.port;
+          FROM = cfg.mailer.from;
+          USER = cfg.mailer.user;
+        };
+      } cfg.extraConfig;
     };
 
     # Copy Gitea secrets from Vault to persistent location
@@ -240,32 +200,13 @@ in {
       };
       script = ''
         set -euo pipefail
-
-        # Ensure secrets directory exists
         install -d -m 0750 -o ${cfg.user} -g ${cfg.group} ${secretsDir}
 
-        # Copy secrets from Vault agent
         ${optionalString (cfg.databaseType != "sqlite3") ''
           if [ -s /tmp/detsys-vault/gitea-db-password ]; then
             install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-db-password ${secretPaths.dbPassword}
           fi
         ''}
-
-        if [ -s /tmp/detsys-vault/gitea-secret-key ]; then
-          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-secret-key ${secretPaths.secretKey}
-        fi
-
-        if [ -s /tmp/detsys-vault/gitea-internal-token ]; then
-          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-internal-token ${secretPaths.internalToken}
-        fi
-
-        if [ -s /tmp/detsys-vault/gitea-lfs-jwt-secret ]; then
-          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-lfs-jwt-secret ${secretPaths.lfsJwtSecret}
-        fi
-
-        if [ -s /tmp/detsys-vault/gitea-oauth2-jwt-secret ]; then
-          install -m 0600 -o ${cfg.user} -g ${cfg.group} /tmp/detsys-vault/gitea-oauth2-jwt-secret ${secretPaths.oauth2JwtSecret}
-        fi
 
         ${optionalString cfg.mailer.enable ''
           if [ -s /tmp/detsys-vault/gitea-smtp-password ]; then
@@ -292,60 +233,25 @@ in {
           ];
         };
       };
-      secrets = {
-        file = {
-          files =
-            (optionalAttrs (cfg.databaseType != "sqlite3") {
-              "gitea-db-password" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.db_password }}{{ else }}{{ .Data.data.db_password }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-            })
-            // {
-              "gitea-secret-key" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.secret_key }}{{ else }}{{ .Data.data.secret_key }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-              "gitea-internal-token" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.internal_token }}{{ else }}{{ .Data.data.internal_token }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-
-              "gitea-lfs-jwt-secret" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.lfs_jwt_secret }}{{ else }}{{ .Data.data.lfs_jwt_secret }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-              "gitea-oauth2-jwt-secret" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.oauth2_jwt_secret }}{{ else }}{{ .Data.data.oauth2_jwt_secret }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-            }
-            // optionalAttrs cfg.mailer.enable {
-              "gitea-smtp-password" = {
-                text = ''
-                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.smtp_password }}{{ else }}{{ .Data.data.smtp_password }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-            };
+      secrets.file.files =
+        (optionalAttrs (cfg.databaseType != "sqlite3") {
+          "gitea-db-password" = {
+            text = ''
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.db_password }}{{ else }}{{ .Data.data.db_password }}{{ end }}{{ end }}
+            '';
+            permissions = "0600";
+            change-action = "restart";
+          };
+        })
+        // optionalAttrs cfg.mailer.enable {
+          "gitea-smtp-password" = {
+            text = ''
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.smtp_password }}{{ else }}{{ .Data.data.smtp_password }}{{ end }}{{ end }}
+            '';
+            permissions = "0600";
+            change-action = "restart";
+          };
         };
-      };
     };
 
     # Firewall configuration
