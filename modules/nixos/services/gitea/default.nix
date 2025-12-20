@@ -223,9 +223,9 @@ in {
           security = {
             INSTALL_LOCK = true;
 
-            # Use *_URI (documented), not *_FILE
-            SECRET_KEY_URI = "file:${secretPaths.secretKey}";
-            INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
+            # # Use *_URI (documented), not *_FILE
+            # SECRET_KEY_URI = "file:${secretPaths.secretKey}";
+            # INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
           };
 
           # Provide OAuth2 JWT secret via URI as well
