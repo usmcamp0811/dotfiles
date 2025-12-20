@@ -165,10 +165,12 @@ in {
           chmod 0640 ${cfg.stateDir}/custom/conf/app.ini || true
         fi
 
-        # IMPORTANT: if we're using *_URI secrets, make sure no plaintext JWT_SECRET keys remain.
-        # Gitea hard-fails if both JWT_SECRET(_*) and JWT_SECRET_URI are set.
+        # IMPORTANT: if we're using *_URI secrets, make sure no plaintext secret keys remain.
+        # Gitea hard-fails if both *_SECRET and *_SECRET_URI are set for the same key.
         sed -i '/^\s*LFS_JWT_SECRET\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
         sed -i '/^\s*JWT_SECRET\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
+        sed -i '/^\s*INTERNAL_TOKEN\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
+        sed -i '/^\s*SECRET_KEY\s*=.*/d' ${cfg.stateDir}/custom/conf/app.ini || true
       '';
     };
 
@@ -223,9 +225,9 @@ in {
           security = {
             INSTALL_LOCK = true;
 
-            # # Use *_URI (documented), not *_FILE
-            # SECRET_KEY_URI = "file:${secretPaths.secretKey}";
-            # INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
+            # Use *_URI (documented), not *_FILE
+            SECRET_KEY_URI = "file:${secretPaths.secretKey}";
+            INTERNAL_TOKEN_URI = "file:${secretPaths.internalToken}";
           };
 
           # Provide OAuth2 JWT secret via URI as well
