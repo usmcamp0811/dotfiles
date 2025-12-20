@@ -133,7 +133,7 @@ pkgs.testers.nixosTest {
     # Add packages needed for testing
     environment.systemPackages = with pkgs; [
       nettools # provides netstat
-      iproute2 # provides ss
+      iprouteq2 # provides ss
     ];
 
     # Enable SSH for testing
