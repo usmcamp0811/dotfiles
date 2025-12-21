@@ -240,7 +240,7 @@ in {
             hostname = "pub-traefik";
             public_key = "ZYuA3IuEYyrJEwPy1RcS1Y+do0W835LF7K8S7USl9f8=";
             environment = "microvms";
-            flake_name = "dotfiles";
+            flake_name = "campground";
             deployment_policy = "auto_latest";
           }
           {
