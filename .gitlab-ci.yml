@@ -5,6 +5,46 @@ stages:
   - build_systems
   - deploy
 
+# NEW JOB: update fmf input in Gitea flake on every commit to main
+update_fmf_in_gitea:
+  stage: updates
+  tags:
+    - nix
+  script:
+    - |
+      set -euo pipefail
+
+      if [ -z "${gitea_token:-}" ]; then
+        echo "ERROR: gitea_token is not set"
+        exit 1
+      fi
+
+      GITEA_REPO_URL="https://campground:${gitea_token}@git.lan.aicampground.com/ripening7873/Campground.git"
+
+      echo "Cloning Gitea flake from ${GITEA_REPO_URL}"
+      rm -rf Campground || true
+      git clone --depth 1 "${GITEA_REPO_URL}" Campground
+      cd Campground
+
+      echo "Updating flake input 'fmf'..."
+      nix flake update fmf
+
+      if [ -z "$(git status --porcelain)" ]; then
+        echo "No changes to commit after nix flake update fmf"
+        exit 0
+      fi
+
+      git config user.email 'ci-bot@gitlab.com'
+      git config user.name 'CI Bot'
+
+      git add flake.lock flake.nix || git add flake.lock || true
+      git commit -m "CI: nix flake update fmf"
+      git push origin HEAD:main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"'
+      when: always
+      allow_failure: false
+
 update-flake:
   stage: update_flake
   tags:
