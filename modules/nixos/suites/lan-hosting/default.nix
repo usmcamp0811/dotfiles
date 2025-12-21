@@ -424,6 +424,22 @@ in {
               loadBalancer.servers = [{url = "http://reckless:9000";}];
             };
 
+            http.routers.gitea = {
+              rule = "Host(`git.lan.aicampground.com`)";
+              entryPoints = ["websecure"];
+              service = "gitea";
+              middlewares = ["ip-whitelist"];
+            };
+
+            http.services.gitea = {
+              loadBalancer.servers = [{url = "http://blue-ridge:3000";}];
+              loadBalancer.healthCheck = {
+                path = "/health";
+                interval = "10s";
+                timeout = "5s";
+              };
+            };
+
             http.routers.mlflow = {
               rule = "Host(`mlflow.lan.aicampground.com`)";
               entryPoints = ["websecure"];
