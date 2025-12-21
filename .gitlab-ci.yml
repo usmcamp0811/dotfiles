@@ -19,7 +19,7 @@ update_fmf_in_gitea:
         exit 1
       fi
 
-      GITEA_REPO_URL="https://campground:${gitea_token}@git.lan.aicampground.com/ripening7873/Campground.git"
+      GITEA_REPO_URL="https://campground:${gitea_token}@git.lan.aicampground.com/campground/config.git"
 
       echo "Cloning Gitea flake from ${GITEA_REPO_URL}"
       rm -rf Campground || true
