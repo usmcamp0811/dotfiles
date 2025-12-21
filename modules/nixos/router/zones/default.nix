@@ -42,6 +42,15 @@ with lib.fmf; let
       then concatMapStrings (range: "th dport ${toString range.start}-${toString range.end} ") rule.portRanges
       else "";
 
+    # Build source IP matcher
+    sourceMatch =
+      if rule.sourceIPs != null && rule.sourceIPs != []
+      then
+        if length rule.sourceIPs == 1
+        then "ip saddr ${head rule.sourceIPs} "
+        else "ip saddr { ${concatStringsSep ", " rule.sourceIPs} } "
+      else "";
+
     # Generate rules for each destination zone
     mkDestRule = to: let
       toZone = cfg.zones.${to};
@@ -57,7 +66,7 @@ with lib.fmf; let
 
       comment = optionalString (rule.description != "") "# ${rule.description}\n        ";
     in ''
-      ${comment}iifname "${fromZone.interface}" oifname "${toZone.interface}" ${destMatch}${protoMatch}${portMatch}accept
+      ${comment}iifname "${fromZone.interface}" oifname "${toZone.interface}" ${sourceMatch}${destMatch}${protoMatch}${portMatch}accept
     '';
   in
     concatMapStrings mkDestRule rule.to
@@ -325,6 +334,13 @@ in {
             example = [{start = 8000; end = 8999;}];
           };
 
+          sourceIPs = mkOption {
+            type = types.nullOr (types.listOf types.str);
+            default = null;
+            description = "Specific source IPs within the source zone (null = entire source zone subnet)";
+            example = ["192.169.10.100" "192.169.10.101"];
+          };
+
           destinationIPs = mkOption {
             type = types.nullOr (types.listOf types.str);
             default = null;
@@ -359,6 +375,13 @@ in {
             protocol = "tcp";
             ports = [22 139 445];
             description = "WiFi to LAN file sharing and SSH";
+          }
+          # Allow specific WiFi device full access to LAN
+          {
+            from = "wifi";
+            to = ["lan"];
+            sourceIPs = ["192.169.10.100"];
+            description = "Trusted WiFi device to LAN";
           }
           # Allow all traffic from LAN to IoT (admin access)
           {
@@ -569,6 +592,10 @@ in {
         echo "=== Inter-Zone Routes ==="
         ${if cfg.interZoneRoutes != [] then
           concatMapStrings (rule: let
+            sourceIPStr =
+              if rule.sourceIPs != null && rule.sourceIPs != []
+              then "${concatStringsSep "," rule.sourceIPs} @ "
+              else "";
             protoStr = if rule.protocol != null then " [${rule.protocol}]" else "";
             portsStr =
               if rule.ports != null && rule.ports != []
@@ -582,7 +609,7 @@ in {
               else "";
             descStr = optionalString (rule.description != "") " (${rule.description})";
           in ''
-            echo "${rule.from} -> ${concatStringsSep ", " rule.to}${protoStr}${portsStr}${destIPStr}${descStr}"
+            echo "${sourceIPStr}${rule.from} -> ${concatStringsSep ", " rule.to}${protoStr}${portsStr}${destIPStr}${descStr}"
           '') cfg.interZoneRoutes
         else ''
           echo "No custom inter-zone routes configured"
