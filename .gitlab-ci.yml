@@ -5,7 +5,6 @@ stages:
   - build_systems
   - deploy
 
-# NEW JOB: update fmf input in Gitea flake on every commit to main
 update_fmf_in_gitea:
   stage: updates
   tags:
@@ -26,11 +25,17 @@ update_fmf_in_gitea:
       git clone --depth 1 "${GITEA_REPO_URL}" Campground
       cd Campground
 
+      echo "Copying flake.lock from GitLab repo to align inputs (e.g. nixpkgs)..."
+      cp ../flake.lock .
+
+      echo "Re-locking flake to tidy lockfile for this config..."
+      nix flake lock
+
       echo "Updating flake input 'fmf'..."
       nix flake update fmf
 
       if [ -z "$(git status --porcelain)" ]; then
-        echo "No changes to commit after nix flake update fmf"
+        echo "No changes to commit after syncing lock + updating fmf"
         exit 0
       fi
 
@@ -38,7 +43,7 @@ update_fmf_in_gitea:
       git config user.name 'CI Bot'
 
       git add flake.lock flake.nix || git add flake.lock || true
-      git commit -m "CI: nix flake update fmf"
+      git commit -m "CI: sync flake.lock with GitLab repo and update fmf"
       git push origin HEAD:main
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"'
