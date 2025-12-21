@@ -433,11 +433,11 @@ in {
 
             http.services.gitea = {
               loadBalancer.servers = [{url = "http://blue-ridge:3000";}];
-              loadBalancer.healthCheck = {
-                path = "/health";
-                interval = "10s";
-                timeout = "5s";
-              };
+              # loadBalancer.healthCheck = {
+              #   path = "/health";
+              #   interval = "10s";
+              #   timeout = "5s";
+              # };
             };
 
             http.routers.mlflow = {
