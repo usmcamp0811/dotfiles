@@ -302,7 +302,7 @@ in {
             hostname = "reckless";
             public_key = "Z+0suSOZmGG2UWdIc7EN9VW66gru4GibiqxOLgyAieg=";
             environment = "lan";
-            flake_name = "dotfiles";
+            flake_name = "campground";
             deployment_policy = "auto_latest";
           }
           {
