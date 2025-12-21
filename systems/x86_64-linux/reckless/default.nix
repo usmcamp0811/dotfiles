@@ -157,6 +157,12 @@ in {
             initial_commit_depth = 10;
           }
           {
+            name = "campground";
+            repo_url = "https://git.lan.aicampground.com/campground/config";
+            auto_poll = true;
+            initial_commit_depth = 10;
+          }
+          {
             name = "boterf-nix-configurations";
             repo_url = "https://gitlab.com/michaelboterf/nix-configurations";
             auto_poll = true;
