@@ -359,6 +359,9 @@ in {
 
           ct state { established, related } accept
 
+          # LAN -> LAN allowed (intra-LAN traffic for VMs and devices)
+          iifname "${cfg.lan.bridgeName}" oifname "${cfg.lan.bridgeName}" accept
+
           # LAN -> WAN allowed
           iifname "${cfg.lan.bridgeName}" oifname "${cfg.wan.interface}" accept
 
