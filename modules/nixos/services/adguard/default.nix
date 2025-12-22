@@ -206,13 +206,6 @@ in {
               cache_ttl_min = cfg.dns.cacheTtlMin;
               cache_ttl_max = cfg.dns.cacheTtlMax;
               all_servers = cfg.dns.enableParallelUpstreamQueries;
-
-              # NEW: dns.rewrites list
-              rewrites = mapAttrsToList (domain: answer: {
-                domain = domain;
-                answer = answer;
-              })
-              cfg.dns.rewrites;
             }
             // (optionalAttrs (cfg.dns.blockingMode == "custom_ip") {
               blocking_ipv4 = cfg.dns.blockingIpv4;
@@ -231,6 +224,11 @@ in {
           filtering = {
             enabled = cfg.filtering.enable;
             filters_update_interval = cfg.filtering.updateInterval;
+            rewrites = mapAttrsToList (domain: answer: {
+              domain = domain;
+              answer = answer;
+            })
+            cfg.dns.rewrites;
           };
 
           querylog = {
