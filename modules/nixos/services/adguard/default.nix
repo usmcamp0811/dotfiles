@@ -59,6 +59,16 @@ in {
       cacheTtlMax = mkOpt int 0 "Maximum TTL for DNS cache entries (0 = use upstream TTL)";
 
       enableParallelUpstreamQueries = mkBoolOpt false "Query all upstream servers in parallel";
+
+      # NEW: LAN DNS overrides (domain -> answer/IP/CNAME)
+      # This maps to AdGuardHome's dns.rewrites entries (domain/answer). :contentReference[oaicite:1]{index=1}
+      rewrites = mkOpt (attrsOf str) {} ''
+        DNS rewrite rules (domain -> answer). Example:
+          {
+            "vault.lan.aicampground.com" = "192.169.1.3";
+            "*.lan.aicampground.com" = "A"; # keep upstream A records
+          }
+      '';
     };
 
     filtering = {
@@ -174,15 +184,12 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Configure the base AdGuard Home service
     services.adguardhome = {
       enable = true;
       inherit (cfg) package mutableSettings openFirewall extraArgs host port;
 
       settings = mkMerge [
         {
-
-          # DNS configuration
           dns =
             {
               bind_hosts = cfg.dns.bindHosts;
@@ -199,13 +206,19 @@ in {
               cache_ttl_min = cfg.dns.cacheTtlMin;
               cache_ttl_max = cfg.dns.cacheTtlMax;
               all_servers = cfg.dns.enableParallelUpstreamQueries;
+
+              # NEW: dns.rewrites list
+              rewrites = mapAttrsToList (domain: answer: {
+                domain = domain;
+                answer = answer;
+              })
+              cfg.dns.rewrites;
             }
             // (optionalAttrs (cfg.dns.blockingMode == "custom_ip") {
               blocking_ipv4 = cfg.dns.blockingIpv4;
               blocking_ipv6 = cfg.dns.blockingIpv6;
             });
 
-          # Filtering configuration
           filters =
             map
             (filter: {
@@ -220,20 +233,17 @@ in {
             filters_update_interval = cfg.filtering.updateInterval;
           };
 
-          # Query log configuration
           querylog = {
             enabled = cfg.queryLog.enabled;
             interval = cfg.queryLog.interval;
             anonymize_client_ip = cfg.queryLog.anonymizeClientIp;
           };
 
-          # Statistics configuration
           statistics = {
             enabled = cfg.statistics.enabled;
             interval = cfg.statistics.interval;
           };
 
-          # Safe browsing / Parental control
           safebrowsing = {
             enabled = cfg.safeBrowsing.enable;
           };
@@ -247,7 +257,6 @@ in {
           };
         }
 
-        # DHCP configuration (optional)
         (optionalAttrs cfg.dhcp.enable {
           dhcp = {
             enabled = true;
@@ -269,7 +278,6 @@ in {
           };
         })
 
-        # TLS configuration (optional)
         (optionalAttrs cfg.tls.enable {
           tls = {
             enabled = true;
@@ -282,12 +290,10 @@ in {
           };
         })
 
-        # User-provided extra settings
         cfg.extraSettings
       ];
     };
 
-    # Open firewall ports if requested
     networking.firewall = mkIf cfg.openFirewall {
       allowedTCPPorts =
         [cfg.port]
@@ -301,12 +307,10 @@ in {
         ++ optional cfg.tls.enable cfg.tls.portQuic;
     };
 
-    # Ensure AdGuard Home data directory exists
     systemd.tmpfiles.rules = [
       "d /var/lib/AdGuardHome 0750 adguardhome adguardhome -"
     ];
 
-    # User and group for AdGuard Home
     users.users.adguardhome = {
       isSystemUser = true;
       group = "adguardhome";
