@@ -155,9 +155,9 @@ with lib.fmf; {
           port = 53;
           # Encrypted DNS using DoH (DNS over HTTPS) for privacy from ISP
           upstreamDns = [
-            "https://cloudflare-dns.com/dns-query"  # Cloudflare DoH (primary)
-            "https://dns.google/dns-query"          # Google DoH (backup)
-            "https://dns.quad9.net/dns-query"       # Quad9 DoH (backup)
+            "https://cloudflare-dns.com/dns-query" # Cloudflare DoH (primary)
+            "https://dns.google/dns-query" # Google DoH (backup)
+            "https://dns.quad9.net/dns-query" # Quad9 DoH (backup)
           ];
           # Bootstrap DNS for resolving DoH server hostnames (unencrypted, but only for initial connection)
           bootstrapDns = [
