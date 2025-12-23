@@ -169,7 +169,7 @@ in {
   };
 
   config = {
-    environment.systemPackages = with pkgs; [fmf.vault-scripts];
+    environment.systemPackages = with pkgs; [fmf.vault-scripts vault-bin];
     services.vault = mkIf cfg.enable {
       enable = true;
       address = cfg.address;
