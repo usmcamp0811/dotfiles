@@ -60,13 +60,11 @@ in {
 
       enableParallelUpstreamQueries = mkBoolOpt false "Query all upstream servers in parallel";
 
-      # NEW: LAN DNS overrides (domain -> answer/IP/CNAME)
-      # This maps to AdGuardHome's dns.rewrites entries (domain/answer). :contentReference[oaicite:1]{index=1}
+      # LAN DNS overrides: domain -> answer (IP or CNAME target)
       rewrites = mkOpt (attrsOf str) {} ''
         DNS rewrite rules (domain -> answer). Example:
           {
             "vault.lan.aicampground.com" = "192.169.1.3";
-            "*.lan.aicampground.com" = "A"; # keep upstream A records
           }
       '';
     };
@@ -166,17 +164,9 @@ in {
       serverName = mkOpt str "" "Server name for TLS certificate";
     };
 
-    safeBrowsing = {
-      enable = mkBoolOpt false "Enable safe browsing";
-    };
-
-    parentalControl = {
-      enable = mkBoolOpt false "Enable parental control";
-    };
-
-    safeSearch = {
-      enable = mkBoolOpt false "Enable safe search enforcement";
-    };
+    safeBrowsing.enable = mkBoolOpt false "Enable safe browsing";
+    parentalControl.enable = mkBoolOpt false "Enable parental control";
+    safeSearch.enable = mkBoolOpt false "Enable safe search enforcement";
 
     extraArgs = mkOpt (listOf str) [] "Extra command-line arguments to pass to AdGuard Home";
 
@@ -199,9 +189,7 @@ in {
               ratelimit = cfg.dns.ratelimit;
               blocking_mode = cfg.dns.blockingMode;
               enable_dnssec = cfg.dns.enableDNSSEC;
-              edns_client_subnet = {
-                enabled = cfg.dns.enableEDNSClientSubnet;
-              };
+              edns_client_subnet = {enabled = cfg.dns.enableEDNSClientSubnet;};
               cache_size = cfg.dns.cacheSize;
               cache_ttl_min = cfg.dns.cacheTtlMin;
               cache_ttl_max = cfg.dns.cacheTtlMax;
@@ -224,11 +212,16 @@ in {
           filtering = {
             enabled = cfg.filtering.enable;
             filters_update_interval = cfg.filtering.updateInterval;
-            rewrites = mapAttrsToList (domain: answer: {
-              domain = domain;
-              answer = answer;
-            })
-            cfg.dns.rewrites;
+
+            # IMPORTANT: schema 31 wants enabled per rewrite
+            rewrites_enabled = true;
+            rewrites =
+              mapAttrsToList (domain: answer: {
+                domain = domain;
+                answer = answer;
+                enabled = true;
+              })
+              cfg.dns.rewrites;
           };
 
           querylog = {
@@ -242,17 +235,9 @@ in {
             interval = cfg.statistics.interval;
           };
 
-          safebrowsing = {
-            enabled = cfg.safeBrowsing.enable;
-          };
-
-          parental = {
-            enabled = cfg.parentalControl.enable;
-          };
-
-          safesearch = {
-            enabled = cfg.safeSearch.enable;
-          };
+          safebrowsing.enabled = cfg.safeBrowsing.enable;
+          parental.enabled = cfg.parentalControl.enable;
+          safesearch.enabled = cfg.safeSearch.enable;
         }
 
         (optionalAttrs cfg.dhcp.enable {
