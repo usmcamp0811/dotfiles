@@ -76,7 +76,7 @@ in {
             };
             # Define the IP whitelist middleware
             http.middlewares.ip-whitelist = {
-              ipWhiteList = {sourceRange = ["10.8.0.0/24" "172.16.0.0/8" "100.64.0.0/10"];};
+              ipWhiteList = {sourceRange = ["10.8.0.0/24" "172.16.0.0/8" "100.64.0.0/10" "192.169.1.0/24"];};
             };
 
             ############################################################################
