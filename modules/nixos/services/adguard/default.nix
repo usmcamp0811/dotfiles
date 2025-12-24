@@ -170,6 +170,8 @@ in {
 
     extraArgs = mkOpt (listOf str) [] "Extra command-line arguments to pass to AdGuard Home";
 
+    userRules = mkOpt (listOf str) [] "Custom filtering rules (e.g., @@||domain^ to whitelist)";
+
     extraSettings = mkOpt attrs {} "Additional settings to merge into AdGuard Home configuration";
   };
 
@@ -223,6 +225,8 @@ in {
               })
               cfg.dns.rewrites;
           };
+
+          user_rules = cfg.userRules;
 
           querylog = {
             enabled = cfg.queryLog.enabled;
