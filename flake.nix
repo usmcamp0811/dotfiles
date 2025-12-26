@@ -294,6 +294,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # OISD blocklist for dnscrypt-proxy
+    oisd = {
+      url = "https://big.oisd.nl/domainswild";
+      flake = false;
+    };
+
     uv2nix.url = "github:pyproject-nix/uv2nix";
     pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
     pyproject-build-systems = {
