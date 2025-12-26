@@ -29,7 +29,7 @@ in {
     networking.networkmanager.enable = lib.mkForce false;
 
     # Disable systemd-networkd wait-online to prevent boot delays
-    systemd.services.systemd-networkd-wait-online.enable = false;
+    # systemd.services.systemd-networkd-wait-online.enable = false;
 
     # Bridge configuration (if enabled)
     systemd.network = mkIf cfg.bridge.enable {
