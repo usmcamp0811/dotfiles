@@ -122,11 +122,17 @@ in {
       enable = true;
       services.ntopng = {
         settings = {
-          vault = {
-            address = config.fmf.services.vault-agent.settings.vault.address;
-            secret_id_file_path = cfg.vault.secret-id;
-            remove_secret_id_file_after_reading = false;
-          };
+          vault.address = config.fmf.services.vault-agent.settings.vault.address;
+          auto_auth.method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = config.fmf.services.vault-agent.settings.vault.role-id;
+                secret_id_file_path = cfg.vault.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
 
         secrets = {
