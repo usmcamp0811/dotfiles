@@ -11,8 +11,6 @@ in {
   options.fmf.services.ntopng = {
     enable = mkEnableOption "ntopng network traffic monitoring";
 
-    package = mkOpt types.package pkgs.ntopng "The ntopng package to use.";
-
     port = mkOpt types.port 3000 "The HTTP port for ntopng web interface.";
 
     interfaces = mkOption {
@@ -90,7 +88,6 @@ in {
   config = mkIf cfg.enable {
     services.ntopng = {
       enable = true;
-      package = cfg.package;
 
       extraConfig = let
         baseConfig = ''
