@@ -95,8 +95,7 @@ in {
     services.librenms = {
       enable = true;
       package = cfg.package;
-      # Don't set hostname to avoid nginx SSL bug in upstream module
-      # We configure nginx manually below instead
+      hostname = cfg.hostname;
 
       database = {
         host = cfg.database.host;
@@ -114,25 +113,15 @@ in {
         "pm.min_spare_servers" = toString (cfg.poolSize / 4);
         "pm.max_spare_servers" = toString (cfg.poolSize / 2);
       };
-    };
 
-    services.nginx = {
-      enable = true;
-      virtualHosts.${cfg.hostname} = {
+      # Override nginx config to avoid the enableSSL bug
+      nginx = {
         listen = [
           {
             addr = "0.0.0.0";
             port = cfg.port;
           }
         ];
-        locations."/" = {
-          index = "index.php";
-          tryFiles = "$uri $uri/ /index.php?$query_string";
-        };
-        locations."~ \\.php$".extraConfig = ''
-          fastcgi_pass unix:${config.services.phpfpm.pools."librenms".socket};
-          fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        '';
       };
     };
 
