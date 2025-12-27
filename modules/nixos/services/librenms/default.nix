@@ -95,7 +95,8 @@ in {
     services.librenms = {
       enable = true;
       package = cfg.package;
-      hostname = cfg.hostname;
+      # Don't set hostname to avoid nginx SSL bug in upstream module
+      # We configure nginx manually below instead
 
       database = {
         host = cfg.database.host;
@@ -125,14 +126,13 @@ in {
           }
         ];
         locations."/" = {
-          proxyPass = "http://unix:/run/librenms/librenms.sock";
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-          '';
+          index = "index.php";
+          tryFiles = "$uri $uri/ /index.php?$query_string";
         };
+        locations."~ \\.php$".extraConfig = ''
+          fastcgi_pass unix:${config.services.phpfpm.pools."librenms".socket};
+          fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        '';
       };
     };
 
