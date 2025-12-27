@@ -79,11 +79,13 @@ in {
         description = "Whether to enable Vault integration for secrets management.";
       };
 
-      secret-id = mkOpt types.str
+      secret-id =
+        mkOpt types.str
         config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
 
-      vault-path = mkOpt types.str
+      vault-path =
+        mkOpt types.str
         "secret/campground/librenms"
         "The Vault path to the KV containing the LibreNMS secrets.";
 

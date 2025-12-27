@@ -15,7 +15,7 @@
     };
 
     zig2nix.url = "github:Cloudef/zig2nix";
-    nixtheplanet.url = "github:Doc-Steve/NixThePlanet";
+    nixtheplanet.url = "github:MatthewCroughan/NixThePlanet";
     npmlock2nix = {
       url = "github:nix-community/npmlock2nix";
       flake = false;
