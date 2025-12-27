@@ -133,17 +133,11 @@ in {
           file.files = {
             ntopng-admin-password = {
               text = ''{{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_password }}{{ else }}{{ .Data.data.admin_password }}{{ end }}{{ end }}'';
-              path = "/var/lib/ntopng/admin-password";
-              owner = "ntopng";
-              group = "ntopng";
               permissions = "0400";
             };
 
             ntopng-license = {
               text = ''{{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.license_key }}{{ else }}{{ .Data.data.license_key }}{{ end }}{{ end }}'';
-              path = "/var/lib/ntopng/license.key";
-              owner = "ntopng";
-              group = "ntopng";
               permissions = "0400";
             };
           };
@@ -154,10 +148,6 @@ in {
                 NTOPNG_ADMIN_USER={{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_user }}{{ else }}{{ .Data.data.admin_user }}{{ end }}{{ end }}
                 NTOPNG_ADMIN_PASSWORD={{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_password }}{{ else }}{{ .Data.data.admin_password }}{{ end }}{{ end }}
               '';
-              path = "/var/lib/ntopng/env";
-              owner = "ntopng";
-              group = "ntopng";
-              permissions = "0400";
             };
           };
         };

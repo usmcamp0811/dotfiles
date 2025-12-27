@@ -155,9 +155,6 @@ in {
           file.files = {
             librenms-db-password = {
               text = ''{{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.db_password }}{{ else }}{{ .Data.data.db_password }}{{ end }}{{ end }}'';
-              path = "/var/lib/librenms/db-password";
-              owner = "librenms";
-              group = "librenms";
               permissions = "0400";
             };
           };
@@ -169,10 +166,6 @@ in {
                 LIBRENMS_ADMIN_PASSWORD={{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_password }}{{ else }}{{ .Data.data.admin_password }}{{ end }}{{ end }}
                 LIBRENMS_ADMIN_EMAIL={{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_email }}{{ else }}{{ .Data.data.admin_email }}{{ end }}{{ end }}
               '';
-              path = "/var/lib/librenms/env";
-              owner = "librenms";
-              group = "librenms";
-              permissions = "0400";
             };
           };
         };
