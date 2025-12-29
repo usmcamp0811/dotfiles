@@ -66,6 +66,24 @@ in {
       example = literalExpression ''["--disable-autologout" "--disable-login"]'';
     };
 
+    disableLogin = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Disable ntopng login requirement (WARNING: Insecure, only use on trusted networks).";
+    };
+
+    adminPassword = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Admin password for API configuration (only used for auto-configuration via REST API).";
+    };
+
+    adminPasswordFile = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to file containing admin password for API configuration. Preferred over adminPassword to keep secrets out of nix store.";
+    };
+
     hostPools = mkOption {
       type = types.attrsOf (types.submodule {
         options = {
@@ -182,6 +200,7 @@ in {
           ${optionalString (cfg.localNetworks != []) "--local-networks=${concatStringsSep "," cfg.localNetworks}"}
           ${optionalString cfg.dumpFlows "--dump-flows"}
           ${optionalString cfg.redis.enable "--redis=${cfg.redis.host}:${toString cfg.redis.port}"}
+          ${optionalString cfg.disableLogin "--disable-login=1"}
           ${concatStringsSep "\n" cfg.extraFlags}
         '';
       in baseConfig;
@@ -214,30 +233,82 @@ in {
       "d /var/lib/redis-ntopng 0750 redis redis -"
     ];
 
-    # Copy configuration files to data directory
-    systemd.services.ntopng-config = mkIf (cfg.hostPools != {} || cfg.customHosts != {}) {
-      description = "ntopng configuration setup";
-      wantedBy = [ "ntopng.service" ];
-      before = [ "ntopng.service" ];
+    # Configure ntopng via REST API after startup
+    systemd.services.ntopng-api-config = mkIf (cfg.hostPools != {} || cfg.customHosts != {}) {
+      description = "ntopng REST API configuration";
+      after = [ "ntopng.service" ];
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        User = "ntopng";
-        Group = "ntopng";
+        Restart = "on-failure";
+        RestartSec = "10s";
       };
-      script = ''
-        ${optionalString (cfg.hostPools != {}) ''
-          mkdir -p ${cfg.dataDir}
-          cp ${hostPoolsConfig} ${cfg.dataDir}/host_pools.conf
-          chown ntopng:ntopng ${cfg.dataDir}/host_pools.conf
-          chmod 640 ${cfg.dataDir}/host_pools.conf
+      script = let
+        # Generate pool configuration script
+        poolsScript = concatStringsSep "\n" (
+          mapAttrsToList (poolName: poolCfg: ''
+            # Create pool: ${poolName}
+            POOL_ID=$(${pkgs.curl}/bin/curl -s $AUTH_STR \
+              "http://localhost:${toString cfg.port}/lua/rest/v2/add/pool.lua?pool_name=${lib.escapeShellArg poolName}" \
+              | ${pkgs.jq}/bin/jq -r '.rsp.pool_id // empty')
+
+            if [ -n "$POOL_ID" ]; then
+              echo "Created pool '${poolName}' with ID: $POOL_ID"
+              ${concatMapStringsSep "\n" (member: ''
+                # Add member ${member} to pool
+                ${pkgs.curl}/bin/curl -s $AUTH_STR \
+                  "http://localhost:${toString cfg.port}/lua/rest/v2/bind/pool/member.lua?pool=$POOL_ID&member=${lib.escapeShellArg member}" \
+                  > /dev/null
+              '') poolCfg.members}
+            else
+              echo "Failed to create pool '${poolName}'"
+            fi
+          '') cfg.hostPools
+        );
+
+        # Generate custom hosts script
+        hostsScript = concatStringsSep "\n" (
+          mapAttrsToList (addr: hostCfg: ''
+            # Set custom name for ${addr}
+            ${pkgs.curl}/bin/curl -s $AUTH_STR \
+              -X POST \
+              "http://localhost:${toString cfg.port}/lua/rest/v2/set/host/alias.lua" \
+              -d "host=${lib.escapeShellArg addr}&custom_name=${lib.escapeShellArg hostCfg.name}" \
+              > /dev/null
+          '') cfg.customHosts
+        );
+      in ''
+        # Determine authentication
+        AUTH_STR=""
+        ${optionalString (!cfg.disableLogin) ''
+          if [ -n "${optionalString (cfg.adminPasswordFile != null) cfg.adminPasswordFile}" ]; then
+            # Read password from file
+            ADMIN_PASSWORD=$(cat ${cfg.adminPasswordFile} | tr -d '\n')
+            AUTH_STR="-u admin:$ADMIN_PASSWORD"
+          elif [ -n "${optionalString (cfg.adminPassword != null) cfg.adminPassword}" ]; then
+            # Use password from config (not recommended)
+            AUTH_STR="-u admin:${cfg.adminPassword}"
+          else
+            echo "ERROR: Login is enabled but no adminPassword or adminPasswordFile configured"
+            exit 1
+          fi
         ''}
-        ${optionalString (cfg.customHosts != {}) ''
-          mkdir -p ${cfg.dataDir}
-          cp ${customHostsConfig} ${cfg.dataDir}/custom_hosts.json
-          chown ntopng:ntopng ${cfg.dataDir}/custom_hosts.json
-          chmod 640 ${cfg.dataDir}/custom_hosts.json
-        ''}
+
+        # Wait for ntopng to be ready
+        for i in {1..30}; do
+          if ${pkgs.curl}/bin/curl -s -f http://localhost:${toString cfg.port}/ > /dev/null 2>&1; then
+            echo "ntopng is ready"
+            break
+          fi
+          echo "Waiting for ntopng to start... ($i/30)"
+          sleep 2
+        done
+
+        ${optionalString (cfg.hostPools != {}) poolsScript}
+        ${optionalString (cfg.customHosts != {}) hostsScript}
+
+        echo "ntopng configuration complete"
       '';
     };
 
