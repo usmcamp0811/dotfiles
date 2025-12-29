@@ -66,6 +66,68 @@ in {
       example = literalExpression ''["--disable-autologout" "--disable-login"]'';
     };
 
+    hostPools = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          members = mkOption {
+            type = types.listOf types.str;
+            default = [];
+            description = "List of IP addresses, networks (CIDR), or MAC addresses in this pool.";
+            example = literalExpression ''["192.168.1.10" "192.168.1.0/24" "AA:BB:CC:DD:EE:FF"]'';
+          };
+          recipients = mkOption {
+            type = types.listOf types.str;
+            default = [];
+            description = "List of alert recipients for this pool.";
+          };
+        };
+      });
+      default = {};
+      description = "Host pools configuration. Pool name is the attribute name.";
+      example = literalExpression ''
+        {
+          "IoT Devices" = {
+            members = ["10.8.20.0/24"];
+            recipients = [];
+          };
+          "Servers" = {
+            members = ["10.8.0.10" "10.8.0.11"];
+            recipients = [];
+          };
+        }
+      '';
+    };
+
+    customHosts = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          name = mkOption {
+            type = types.str;
+            description = "Custom name for this host.";
+          };
+          icon = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "Icon name for this host.";
+          };
+        };
+      });
+      default = {};
+      description = "Custom host names and metadata. Key is IP or MAC address.";
+      example = literalExpression ''
+        {
+          "10.8.0.1" = {
+            name = "Router";
+            icon = "router";
+          };
+          "10.8.0.2" = {
+            name = "AdGuard DNS";
+            icon = "shield";
+          };
+        }
+      '';
+    };
+
     vault = {
       enable = mkOption {
         type = types.bool;
@@ -85,7 +147,27 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = mkIf cfg.enable (let
+    # Generate host pools configuration file
+    hostPoolsConfig = pkgs.writeText "host_pools.conf" (
+      concatStringsSep "\n" (
+        mapAttrsToList (poolName: poolCfg:
+          "${poolName}@${concatStringsSep "," poolCfg.members}@${concatStringsSep "," poolCfg.recipients}"
+        ) cfg.hostPools
+      )
+    );
+
+    # Generate custom hosts configuration (JSON format)
+    customHostsConfig = pkgs.writeText "custom_hosts.json" (
+      builtins.toJSON (
+        mapAttrs (addr: hostCfg: {
+          name = hostCfg.name;
+        } // optionalAttrs (hostCfg.icon != null) {
+          icon = hostCfg.icon;
+        }) cfg.customHosts
+      )
+    );
+  in {
     services.ntopng = {
       enable = true;
 
@@ -132,6 +214,33 @@ in {
       "d /var/lib/redis-ntopng 0750 redis redis -"
     ];
 
+    # Copy configuration files to data directory
+    systemd.services.ntopng-config = mkIf (cfg.hostPools != {} || cfg.customHosts != {}) {
+      description = "ntopng configuration setup";
+      wantedBy = [ "ntopng.service" ];
+      before = [ "ntopng.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "ntopng";
+        Group = "ntopng";
+      };
+      script = ''
+        ${optionalString (cfg.hostPools != {}) ''
+          mkdir -p ${cfg.dataDir}
+          cp ${hostPoolsConfig} ${cfg.dataDir}/host_pools.conf
+          chown ntopng:ntopng ${cfg.dataDir}/host_pools.conf
+          chmod 640 ${cfg.dataDir}/host_pools.conf
+        ''}
+        ${optionalString (cfg.customHosts != {}) ''
+          mkdir -p ${cfg.dataDir}
+          cp ${customHostsConfig} ${cfg.dataDir}/custom_hosts.json
+          chown ntopng:ntopng ${cfg.dataDir}/custom_hosts.json
+          chmod 640 ${cfg.dataDir}/custom_hosts.json
+        ''}
+      '';
+    };
+
     # Open firewall port
     # networking.firewall.allowedTCPPorts = [ cfg.port ];
 
@@ -177,5 +286,5 @@ in {
         };
       };
     };
-  };
+  });
 }
