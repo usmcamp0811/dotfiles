@@ -7,17 +7,48 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.services.ntopng;
+
+  # Build a line-based ntopng.conf (ntopng accepts a file that contains CLI flags, one per line)
+  ntopngConfText = let
+    ifaceLines = concatMapStringsSep "\n" (iface: "--interface=${iface}") cfg.interfaces;
+
+    # Render additional key/value style options as `--flag=value` (or `--flag` if value == true)
+    extraKvLines = concatStringsSep "\n" (mapAttrsToList (
+        k: v:
+          if v == true
+          then "${k}"
+          else "${k}=${toString v}"
+      )
+      cfg.extraConfig);
+  in ''
+    --http-port=${toString cfg.port}
+    --data-dir=${cfg.dataDir}
+    ${optionalString (cfg.redis.enable) "--redis=${cfg.redis.host}:${toString cfg.redis.port}"}
+    ${optionalString (cfg.localNetworks != []) "--local-networks=${concatStringsSep "," cfg.localNetworks}"}
+    ${optionalString cfg.dumpFlows "--dump-flows"}
+    ${optionalString cfg.disableLogin "--disable-login=1"}
+    ${ifaceLines}
+    ${extraKvLines}
+    ${concatStringsSep "\n" cfg.extraFlags}
+  '';
+
+  ntopngConfFile = pkgs.writeText "ntopng.conf" ntopngConfText;
+
+  # Helper script for URL encoding in the systemd oneshot API-config unit
+  urlenc = "${pkgs.python3}/bin/python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=\"\"))'";
+  curl = "${pkgs.curl}/bin/curl";
+  jq = "${pkgs.jq}/bin/jq";
 in {
   options.fmf.services.ntopng = {
     enable = mkEnableOption "ntopng network traffic monitoring";
 
-    port = mkOpt types.port 3000 "The HTTP port for ntopng web interface.";
+    port = mkOpt types.port 3000 "The HTTP port for the ntopng web interface.";
 
     interfaces = mkOption {
       type = types.listOf types.str;
       default = ["eth0"];
       description = "Network interfaces to monitor.";
-      example = literalExpression ''["eth0" "wlan0"]'';
+      example = literalExpression ''["eth0" "eth1"]'';
     };
 
     dataDir = mkOpt types.str "/var/lib/ntopng" "Directory for ntopng data files.";
@@ -36,25 +67,26 @@ in {
     };
 
     redis = {
-      host = mkOpt types.str "localhost" "Redis server host.";
-
-      port = mkOpt types.port 6379 "Redis server port.";
-
       enable = mkOption {
         type = types.bool;
         default = true;
         description = "Whether to use Redis for data persistence.";
       };
+
+      host = mkOpt types.str "127.0.0.1" "Redis server host.";
+
+      port = mkOpt types.port 6379 "Redis server port.";
     };
 
+    # Additional ntopng flags expressed as an attrset, rendered as `--flag=value` or `--flag` if true.
     extraConfig = mkOption {
       type = types.attrs;
       default = {};
       description = "Additional ntopng configuration options as key-value pairs.";
       example = literalExpression ''
         {
-          "--disable-login" = "1";
-          "--community" = true;
+          "--dns-mode" = 1;
+          "--disable-autologout" = true;
         }
       '';
     };
@@ -62,26 +94,26 @@ in {
     extraFlags = mkOption {
       type = types.listOf types.str;
       default = [];
-      description = "Extra command-line flags to pass to ntopng.";
-      example = literalExpression ''["--disable-autologout" "--disable-login"]'';
+      description = "Extra command-line flags (one per entry) to pass to ntopng.";
+      example = literalExpression ''["--ndpi-protocols" "--verbose"]'';
     };
 
     disableLogin = mkOption {
       type = types.bool;
       default = false;
-      description = "Disable ntopng login requirement (WARNING: Insecure, only use on trusted networks).";
+      description = "Disable ntopng login requirement (WARNING: insecure; only on trusted networks).";
     };
 
     adminPassword = mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "Admin password for API configuration (only used for auto-configuration via REST API).";
+      description = "Admin password for API configuration (not recommended; prefer adminPasswordFile).";
     };
 
     adminPasswordFile = mkOption {
       type = types.nullOr types.path;
       default = null;
-      description = "Path to file containing admin password for API configuration. Preferred over adminPassword to keep secrets out of nix store.";
+      description = "Path to a file containing the admin password for API configuration.";
     };
 
     hostPools = mkOption {
@@ -90,30 +122,18 @@ in {
           members = mkOption {
             type = types.listOf types.str;
             default = [];
-            description = "List of IP addresses, networks (CIDR), or MAC addresses in this pool.";
-            example = literalExpression ''["192.168.1.10" "192.168.1.0/24" "AA:BB:CC:DD:EE:FF"]'';
+            description = "IPs, CIDRs, or MACs in this pool.";
+            example = literalExpression ''["10.8.20.0/24" "AA:BB:CC:DD:EE:FF"]'';
           };
           recipients = mkOption {
             type = types.listOf types.str;
             default = [];
-            description = "List of alert recipients for this pool.";
+            description = "Alert recipients for this pool.";
           };
         };
       });
       default = {};
       description = "Host pools configuration. Pool name is the attribute name.";
-      example = literalExpression ''
-        {
-          "IoT Devices" = {
-            members = ["10.8.20.0/24"];
-            recipients = [];
-          };
-          "Servers" = {
-            members = ["10.8.0.10" "10.8.0.11"];
-            recipients = [];
-          };
-        }
-      '';
     };
 
     customHosts = mkOption {
@@ -126,24 +146,12 @@ in {
           icon = mkOption {
             type = types.nullOr types.str;
             default = null;
-            description = "Icon name for this host.";
+            description = "Optional icon name for this host (if supported by your ntopng build/UI).";
           };
         };
       });
       default = {};
-      description = "Custom host names and metadata. Key is IP or MAC address.";
-      example = literalExpression ''
-        {
-          "10.8.0.1" = {
-            name = "Router";
-            icon = "router";
-          };
-          "10.8.0.2" = {
-            name = "AdGuard DNS";
-            icon = "shield";
-          };
-        }
-      '';
+      description = "Custom host names and metadata. Key is IP or MAC.";
     };
 
     vault = {
@@ -153,11 +161,13 @@ in {
         description = "Whether to enable Vault integration for secrets management.";
       };
 
-      secret-id = mkOpt types.str
+      secret-id =
+        mkOpt types.str
         config.fmf.services.vault-agent.settings.vault.secret-id
         "Absolute path to the Vault secret-id";
 
-      vault-path = mkOpt types.str
+      vault-path =
+        mkOpt types.str
         "secret/campground/ntopng"
         "The Vault path to the KV containing the ntopng secrets.";
 
@@ -165,58 +175,36 @@ in {
     };
   };
 
-  config = mkIf cfg.enable (let
-    # Generate host pools configuration file
-    hostPoolsConfig = pkgs.writeText "host_pools.conf" (
-      concatStringsSep "\n" (
-        mapAttrsToList (poolName: poolCfg:
-          "${poolName}@${concatStringsSep "," poolCfg.members}@${concatStringsSep "," poolCfg.recipients}"
-        ) cfg.hostPools
-      )
-    );
-
-    # Generate custom hosts configuration (JSON format)
-    customHostsConfig = pkgs.writeText "custom_hosts.json" (
-      builtins.toJSON (
-        mapAttrs (addr: hostCfg: {
-          name = hostCfg.name;
-        } // optionalAttrs (hostCfg.icon != null) {
-          icon = hostCfg.icon;
-        }) cfg.customHosts
-      )
-    );
-  in {
+  config = mkIf cfg.enable {
     services.ntopng = {
       enable = true;
 
-      # Disable the default interface to prevent "any" from being added
-      interfaces = [];
+      # We explicitly pass a config file rather than relying on the default interface behavior.
+      # The upstream NixOS module supports a "configFile" style; if yours doesn’t,
+      # swap this to the appropriate option your base module exposes.
+      #
+      # Common patterns are either:
+      #   services.ntopng.configFile = ntopngConfFile;
+      # or:
+      #   services.ntopng.extraConfig = builtins.readFile ntopngConfFile;
+      #
+      # This module uses the latter (string), since it's widely supported.
+      extraConfig = builtins.readFile ntopngConfFile;
 
-      extraConfig = let
-        baseConfig = ''
-          --http-port=${toString cfg.port}
-          --data-dir=${cfg.dataDir}
-          ${concatMapStringsSep "\n" (iface: "--interface=${iface}") cfg.interfaces}
-          ${optionalString (cfg.localNetworks != []) "--local-networks=${concatStringsSep "," cfg.localNetworks}"}
-          ${optionalString cfg.dumpFlows "--dump-flows"}
-          ${optionalString cfg.redis.enable "--redis=${cfg.redis.host}:${toString cfg.redis.port}"}
-          ${optionalString cfg.disableLogin "--disable-login=1"}
-          ${concatStringsSep "\n" cfg.extraFlags}
-        '';
-      in baseConfig;
+      # Prevent "any" being implicitly added by some wrappers.
+      interfaces = [];
     };
 
-    # Enable Redis if configured
+    # Redis (separate instance) if requested
     services.redis.servers.ntopng = mkIf cfg.redis.enable {
       enable = true;
       port = cfg.redis.port;
       bind = cfg.redis.host;
 
-      # Persist data to disk
       save = [
-        [900 1]    # Save after 900 seconds if at least 1 key changed
-        [300 10]   # Save after 300 seconds if at least 10 keys changed
-        [60 10000] # Save after 60 seconds if at least 10000 keys changed
+        [900 1]
+        [300 10]
+        [60 10000]
       ];
 
       settings = {
@@ -227,82 +215,131 @@ in {
       };
     };
 
-    # Create data directories
+    # Ensure dirs exist with sane perms (especially useful when using virtiofs mounts)
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0750 ntopng ntopng -"
       "d /var/lib/redis-ntopng 0750 redis redis -"
     ];
 
-    # Configure ntopng via REST API after startup
+    # Provision host pools + custom hostnames using REST API after ntopng starts
+    #
+    # IMPORTANT: ntopng REST endpoints can differ by version/edition.
+    # This unit logs every response so you can see exactly what fails.
     systemd.services.ntopng-api-config = mkIf (cfg.hostPools != {} || cfg.customHosts != {}) {
       description = "ntopng REST API configuration";
-      after = [ "ntopng.service" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["ntopng.service" "network-online.target"];
+      wants = ["network-online.target"];
+      wantedBy = ["multi-user.target"];
+
       serviceConfig = {
         Type = "oneshot";
-        RemainAfterExit = true;
         Restart = "on-failure";
         RestartSec = "10s";
       };
+
       script = let
-        # Generate pool configuration script
-        poolsScript = concatStringsSep "\n" (
-          mapAttrsToList (poolName: poolCfg: ''
-            # Create pool: ${poolName}
-            POOL_ID=$(${pkgs.curl}/bin/curl -s $AUTH_STR \
-              "http://localhost:${toString cfg.port}/lua/rest/v2/add/pool.lua?pool_name=${lib.escapeShellArg poolName}" \
-              | ${pkgs.jq}/bin/jq -r '.rsp.pool_id // empty')
+        poolsScript = concatStringsSep "\n" (mapAttrsToList (poolName: poolCfg: ''
+            echo "==> Creating pool: ${poolName}"
 
-            if [ -n "$POOL_ID" ]; then
-              echo "Created pool '${poolName}' with ID: $POOL_ID"
-              ${concatMapStringsSep "\n" (member: ''
-                # Add member ${member} to pool
-                ${pkgs.curl}/bin/curl -s $AUTH_STR \
-                  "http://localhost:${toString cfg.port}/lua/rest/v2/bind/pool/member.lua?pool=$POOL_ID&member=${lib.escapeShellArg member}" \
-                  > /dev/null
-              '') poolCfg.members}
-            else
-              echo "Failed to create pool '${poolName}'"
+            POOL_NAME_ENC=$(${urlenc} ${lib.escapeShellArg poolName})
+
+            # Create pool (endpoint may differ by ntopng version; we log response)
+            RESP="$(${curl} -sS --fail $AUTH_STR \
+              "http://127.0.0.1:${toString cfg.port}/lua/rest/v2/add/pool.lua?pool_name=$POOL_NAME_ENC" \
+              || true)"
+
+            echo "Pool create response: $RESP"
+
+            POOL_ID="$(echo "$RESP" | ${jq} -r '.rsp.pool_id // empty' 2>/dev/null || true)"
+
+            if [ -z "$POOL_ID" ]; then
+              echo "ERROR: Failed to create pool '${poolName}'. Response: $RESP" >&2
+              exit 1
             fi
-          '') cfg.hostPools
-        );
 
-        # Generate custom hosts script
-        hostsScript = concatStringsSep "\n" (
-          mapAttrsToList (addr: hostCfg: ''
-            # Set custom name for ${addr}
-            ${pkgs.curl}/bin/curl -s $AUTH_STR \
+            echo "Created pool '${poolName}' with ID: $POOL_ID"
+
+            ${concatMapStringsSep "\n" (member: ''
+                echo "  -> Adding member: ${member}"
+                MEMBER_ENC=$(${urlenc} ${lib.escapeShellArg member})
+
+                for attempt in 1 2 3 4 5; do
+                  RESP2="$(${curl} -sS --fail $AUTH_STR \
+                    "http://127.0.0.1:${toString cfg.port}/lua/rest/v2/bind/pool/member.lua?pool=$POOL_ID&member=$MEMBER_ENC" \
+                    || true)"
+
+                  if [ -n "$RESP2" ]; then
+                    echo "     Member add response: $RESP2"
+                  fi
+
+                  # If curl succeeded, it would have --fail’d on HTTP errors; treat non-empty response as “done”
+                  if ${curl} -sS --fail $AUTH_STR \
+                    "http://127.0.0.1:${toString cfg.port}/lua/rest/v2/bind/pool/member.lua?pool=$POOL_ID&member=$MEMBER_ENC" \
+                    >/dev/null 2>&1; then
+                    break
+                  fi
+
+                  echo "     (attempt $attempt failed, retrying...)"
+                  sleep 2
+                  if [ "$attempt" = "5" ]; then
+                    echo "ERROR: Failed to add member '${member}' to pool '${poolName}'" >&2
+                    exit 1
+                  fi
+                done
+              '')
+              poolCfg.members}
+          '')
+          cfg.hostPools);
+
+        hostsScript = concatStringsSep "\n" (mapAttrsToList (addr: hostCfg: ''
+            echo "==> Setting host alias for ${addr} -> ${hostCfg.name}"
+
+            HOST_ENC=$(${urlenc} ${lib.escapeShellArg addr})
+            NAME_ENC=$(${urlenc} ${lib.escapeShellArg hostCfg.name})
+
+            RESP="$(${curl} -sS --fail $AUTH_STR \
               -X POST \
-              "http://localhost:${toString cfg.port}/lua/rest/v2/set/host/alias.lua" \
-              -d "host=${lib.escapeShellArg addr}&custom_name=${lib.escapeShellArg hostCfg.name}" \
-              > /dev/null
-          '') cfg.customHosts
-        );
+              "http://127.0.0.1:${toString cfg.port}/lua/rest/v2/set/host/alias.lua" \
+              -H "Content-Type: application/x-www-form-urlencoded" \
+              --data "host=$HOST_ENC&custom_name=$NAME_ENC" \
+              || true)"
+
+            echo "Host alias response: $RESP"
+          '')
+          cfg.customHosts);
       in ''
-        # Determine authentication
+        set -euo pipefail
+
         AUTH_STR=""
         ${optionalString (!cfg.disableLogin) (
-          if cfg.adminPasswordFile != null then ''
-            # Read password from file
-            ADMIN_PASSWORD=$(cat ${cfg.adminPasswordFile} | tr -d '\n')
+          if cfg.adminPasswordFile != null
+          then ''
+            ADMIN_PASSWORD="$(tr -d '\n' < ${cfg.adminPasswordFile})"
             AUTH_STR="-u admin:$ADMIN_PASSWORD"
-          '' else if cfg.adminPassword != null then ''
-            # Use password from config (not recommended)
+          ''
+          else if cfg.adminPassword != null
+          then ''
             AUTH_STR="-u admin:${cfg.adminPassword}"
-          '' else ''
-            echo "ERROR: Login is enabled but no adminPassword or adminPasswordFile configured"
+          ''
+          else ''
+            echo "ERROR: Login is enabled but no adminPassword/adminPasswordFile configured" >&2
             exit 1
           ''
         )}
 
-        # Wait for ntopng to be ready
-        for i in {1..30}; do
-          if ${pkgs.curl}/bin/curl -s -f http://localhost:${toString cfg.port}/ > /dev/null 2>&1; then
-            echo "ntopng is ready"
+        echo "Waiting for ntopng REST to be ready..."
+        for i in $(seq 1 60); do
+          if ${curl} -sS --fail $AUTH_STR \
+            "http://127.0.0.1:${toString cfg.port}/lua/rest/v2/get/system/status.lua" \
+            >/dev/null 2>&1; then
+            echo "ntopng REST is ready"
             break
           fi
-          echo "Waiting for ntopng to start... ($i/30)"
           sleep 2
+          if [ "$i" = "60" ]; then
+            echo "ERROR: ntopng REST did not become ready" >&2
+            exit 1
+          fi
         done
 
         ${optionalString (cfg.hostPools != {}) poolsScript}
@@ -312,12 +349,10 @@ in {
       '';
     };
 
-    # Open firewall port
-    # networking.firewall.allowedTCPPorts = [ cfg.port ];
-
-    # Vault integration for secrets
+    # Vault integration (optional): provides a password file you can point adminPasswordFile at
     fmf.services.vault-agent = mkIf cfg.vault.enable {
       enable = true;
+
       services.ntopng = {
         settings = {
           vault.address = config.fmf.services.vault-agent.settings.vault.address;
@@ -336,26 +371,20 @@ in {
         secrets = {
           file.files = {
             ntopng-admin-password = {
-              text = ''{{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_password }}{{ else }}{{ .Data.data.admin_password }}{{ end }}{{ end }}'';
-              permissions = "0400";
-            };
-
-            ntopng-license = {
-              text = ''{{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.license_key }}{{ else }}{{ .Data.data.license_key }}{{ end }}{{ end }}'';
-              permissions = "0400";
-            };
-          };
-
-          environment.templates = {
-            ntopng-env = {
               text = ''
-                NTOPNG_ADMIN_USER={{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_user }}{{ else }}{{ .Data.data.admin_user }}{{ end }}{{ end }}
-                NTOPNG_ADMIN_PASSWORD={{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.admin_password }}{{ else }}{{ .Data.data.admin_password }}{{ end }}{{ end }}
+                {{ with secret "${cfg.vault.vault-path}" -}}
+                {{- if eq "${cfg.vault.kvVersion}" "v1" -}}
+                {{ .Data.admin_password }}
+                {{- else -}}
+                {{ .Data.data.admin_password }}
+                {{- end -}}
+                {{- end -}}
               '';
+              permissions = "0400";
             };
           };
         };
       };
     };
-  });
+  };
 }
