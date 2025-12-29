@@ -8,39 +8,29 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.zeek;
 
-  # A writable "runtime prefix" so zeekctl can write zeekctl-config.sh, installed scripts, etc.
-  runtimePrefix = "${cfg.cfgDir}/prefix";
-
-  # Generate Zeek configuration files
+  # Generate Zeek configuration files (kept for compatibility / debugging; we don't use zeekctl at runtime)
   zeekConfig = pkgs.writeText "zeekctl.cfg" ''
-    # Installation paths
-    #
-    # Recommended on Linux to avoid collisions with the ephemeral port range.
-    ZeekPort = 27760
+    # NOTE: This file is generated for convenience, but this module does NOT run zeekctl
+    # because zeekctl mutates files under its install prefix which is read-only on NixOS.
 
+    ZeekPort = 27760
     LogDir = ${cfg.logDir}
     SpoolDir = ${cfg.spoolDir}
     CfgDir = ${cfg.cfgDir}
 
-    # Script paths - use local writable locations
     SitePolicyPath = ${cfg.spoolDir}/site
     SitePluginPath = ${cfg.spoolDir}/plugins
 
-    # Log settings
     LogRotationInterval = 3600
     LogExpireInterval = 0
     StatsLogEnable = 1
     StatsLogExpireInterval = 0
 
-    # Misc settings
     CompressCmd = gzip -9
     CompressExtension = gz
-
-    # If you want to silence the ZeekPort warning without changing ports:
-    # zeek_port_warning.disable = 1
   '';
 
-  # Generate node.cfg for standalone or cluster mode
+  # Generate node.cfg for standalone or cluster mode (kept, but not used by zeekctl here)
   nodeConfig = pkgs.writeText "node.cfg" (
     if cfg.standalone
     then
@@ -76,8 +66,7 @@ with lib.fmf; let
 
   # Generate local.zeek with custom scripts
   localZeek = pkgs.writeText "local.zeek" ''
-    # Enable default scripts
-    @load base/frameworks/cluster
+    # Default policy scripts (safe for standalone)
     @load policy/misc/stats
 
     ${optionalString cfg.enableJsonLogs ''
@@ -114,13 +103,7 @@ with lib.fmf; let
     else "# No local networks defined\n"
   );
 
-  # Tmpfiles rules for worker dirs matching interfaces (only really needed for cluster-ish layout)
-  workerDirs =
-    if cfg.standalone && length cfg.interfaces > 1
-    then
-      map (i: "d ${cfg.spoolDir}/worker-${toString i} 0755 ${cfg.user} ${cfg.group} -")
-      (lib.range 0 (length cfg.interfaces - 1))
-    else [];
+  unitNameForIface = iface: "zeek@${iface}";
 in {
   options.fmf.services.zeek = {
     enable = mkEnableOption "Zeek Network Security Monitor";
@@ -170,12 +153,23 @@ in {
       type = types.listOf types.str;
       default = [];
       description = "Additional Zeek scripts to load.";
+      example = literalExpression ''
+        [
+          "policy/protocols/ssl/known-certs"
+          "policy/protocols/http/detect-sqli"
+          "site/custom-script"
+        ]
+      '';
     };
 
     extraConfig = mkOption {
       type = types.lines;
       default = "";
       description = "Additional Zeek script code to include in local.zeek.";
+      example = literalExpression ''
+        redef HTTP::default_capture_password = T;
+        redef FTP::default_capture_password = T;
+      '';
     };
 
     nodeConfigText = mkOption {
@@ -219,6 +213,7 @@ in {
       type = types.listOf types.package;
       default = [];
       description = "List of Zeek plugin packages to install.";
+      example = literalExpression ''[ pkgs.zeek-plugins.af_packet ]'';
     };
 
     openFirewall = mkOption {
@@ -307,27 +302,19 @@ in {
       };
     };
 
+    # Directories + generated config files
     systemd.tmpfiles.rules =
       [
         "d ${cfg.logDir} 0755 ${cfg.user} ${cfg.group} -"
         "d ${cfg.logDir}/current 0755 ${cfg.user} ${cfg.group} -"
         "d ${cfg.spoolDir} 0755 ${cfg.user} ${cfg.group} -"
-        "d ${cfg.spoolDir}/tmp 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.spoolDir}/extract 0755 ${cfg.user} ${cfg.group} -"
         "d ${cfg.spoolDir}/site 0755 ${cfg.user} ${cfg.group} -"
         "d ${cfg.spoolDir}/plugins 0755 ${cfg.user} ${cfg.group} -"
-        "d ${cfg.spoolDir}/manager 0755 ${cfg.user} ${cfg.group} -"
-        "d ${cfg.spoolDir}/proxy-1 0755 ${cfg.user} ${cfg.group} -"
-
         "d ${cfg.cfgDir} 0755 ${cfg.user} ${cfg.group} -"
         "d ${cfg.cfgDir}/etc 0755 ${cfg.user} ${cfg.group} -"
 
-        # Writable runtime prefix (this is the key fix)
-        "d ${runtimePrefix} 0755 ${cfg.user} ${cfg.group} -"
-        "d ${runtimePrefix}/bin 0755 ${cfg.user} ${cfg.group} -"
-        "d ${runtimePrefix}/etc 0755 ${cfg.user} ${cfg.group} -"
-        "d ${runtimePrefix}/share 0755 ${cfg.user} ${cfg.group} -"
-
-        # Config files (both locations; zeekctl typically reads <prefix>/etc)
+        # Generated config files (useful for debugging / compatibility)
         "L+ ${cfg.cfgDir}/zeekctl.cfg - - - - ${zeekConfig}"
         "L+ ${cfg.cfgDir}/node.cfg - - - - ${nodeConfig}"
         "L+ ${cfg.cfgDir}/local.zeek - - - - ${localZeek}"
@@ -336,88 +323,81 @@ in {
         "L+ ${cfg.cfgDir}/etc/zeekctl.cfg - - - - ${zeekConfig}"
         "L+ ${cfg.cfgDir}/etc/node.cfg - - - - ${nodeConfig}"
         "L+ ${cfg.cfgDir}/etc/networks.cfg - - - - ${networksConfig}"
-
-        "L+ ${runtimePrefix}/etc/zeekctl.cfg - - - - ${zeekConfig}"
-        "L+ ${runtimePrefix}/etc/node.cfg - - - - ${nodeConfig}"
-        "L+ ${runtimePrefix}/etc/networks.cfg - - - - ${networksConfig}"
-
-        # Link zeek/zeekctl binaries into the runtime prefix
-        "L+ ${runtimePrefix}/bin/zeek - - - - ${cfg.package}/bin/zeek"
-        "L+ ${runtimePrefix}/bin/zeekctl - - - - ${cfg.package}/bin/zeekctl"
-
-        # Link Zeek scripts (read-only is fine)
-        "L+ ${runtimePrefix}/share/zeek - - - - ${cfg.package}/share/zeek"
       ]
-      ++ workerDirs
+      ++ (concatMap (iface: [
+          "d ${cfg.logDir}/current/${iface} 0755 ${cfg.user} ${cfg.group} -"
+          "d ${cfg.spoolDir}/spool-${iface} 0755 ${cfg.user} ${cfg.group} -"
+          "d ${cfg.spoolDir}/extract/${iface} 0755 ${cfg.user} ${cfg.group} -"
+        ])
+        cfg.interfaces)
       ++ optional cfg.redis.enable "d /var/lib/redis-zeek 0750 redis redis -";
 
-    systemd.services.zeek = {
-      description = "Zeek Network Security Monitor";
-      after = ["network-online.target"] ++ optional cfg.redis.enable "redis-zeek.service";
-      wants = ["network-online.target"];
+    # A target that means "all zeek instances"
+    systemd.targets.zeek = {
+      description = "Zeek Network Security Monitor (all interfaces)";
       wantedBy = ["multi-user.target"];
-
-      path = with pkgs; [cfg.package iproute2 nettools coreutils gnused gawk rsync];
-
-      preStart = ''
-        set -euo pipefail
-
-        # Ensure zeekctl scripts are writable (zeekctl writes zeekctl-config.sh there).
-        # Copy them into the runtime prefix (owned by zeek user).
-        if [ ! -e "${runtimePrefix}/share/zeekctl/.nix-copied-from-${cfg.package.pname or "zeek"}-${cfg.package.version}" ]; then
-          rm -rf "${runtimePrefix}/share/zeekctl"
-          mkdir -p "${runtimePrefix}/share"
-          cp -a "${cfg.package}/share/zeekctl" "${runtimePrefix}/share/zeekctl"
-          touch "${runtimePrefix}/share/zeekctl/.nix-copied-from-${cfg.package.pname or "zeek"}-${cfg.package.version}"
-          chown -R ${cfg.user}:${cfg.group} "${runtimePrefix}/share/zeekctl"
-        fi
-
-        cd ${cfg.cfgDir}
-        export ZEEK_INSTALL_PREFIX=${runtimePrefix}
-
-        ${cfg.package}/bin/zeekctl install
-      '';
-
-      script = ''
-        set -euo pipefail
-        cd ${cfg.cfgDir}
-        export ZEEK_INSTALL_PREFIX=${runtimePrefix}
-
-        ${cfg.package}/bin/zeekctl deploy
-
-        # Keep the service "up" as long as zeekctl reports a healthy status.
-        while ${cfg.package}/bin/zeekctl status >/dev/null 2>&1; do
-          sleep 60
-        done
-
-        exit 1
-      '';
-
-      postStop = ''
-        cd ${cfg.cfgDir}
-        export ZEEK_INSTALL_PREFIX=${runtimePrefix}
-        ${cfg.package}/bin/zeekctl stop || true
-      '';
-
-      serviceConfig = {
-        Type = "simple";
-        User = cfg.user;
-        Group = cfg.group;
-        WorkingDirectory = cfg.cfgDir;
-        Environment = "ZEEK_INSTALL_PREFIX=${runtimePrefix}";
-        Restart = "on-failure";
-        RestartSec = "10s";
-
-        PrivateTmp = false;
-        ProtectSystem = "full";
-        ProtectHome = true;
-        ReadWritePaths = [cfg.logDir cfg.spoolDir cfg.cfgDir];
-
-        AmbientCapabilities = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
-        CapabilityBoundingSet = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
-      };
+      after = ["network-online.target"] ++ optional cfg.redis.enable "redis-zeek.service";
+      wants = ["network-online.target"] ++ optional cfg.redis.enable "redis-zeek.service";
     };
 
+    # One service per interface: zeek@eth0, zeek@eth1, ...
+    systemd.services = listToAttrs (map (iface: {
+        name = unitNameForIface iface;
+        value = {
+          description = "Zeek Network Security Monitor on ${iface}";
+          wantedBy = ["zeek.target"];
+          after = ["network-online.target"] ++ optional cfg.redis.enable "redis-zeek.service";
+          wants = ["network-online.target"] ++ optional cfg.redis.enable "redis-zeek.service";
+
+          path = with pkgs; [cfg.package iproute2 coreutils];
+
+          serviceConfig = {
+            Type = "simple";
+            User = cfg.user;
+            Group = cfg.group;
+            WorkingDirectory = cfg.cfgDir;
+
+            # packet capture without running as root
+            AmbientCapabilities = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
+            CapabilityBoundingSet = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
+
+            # hardening
+            PrivateTmp = true;
+            ProtectSystem = "strict";
+            ProtectHome = true;
+            ReadWritePaths = [cfg.logDir cfg.spoolDir cfg.cfgDir];
+
+            Restart = "on-failure";
+            RestartSec = "5s";
+          };
+
+          script = ''
+            set -euo pipefail
+
+            LOG_DIR="${cfg.logDir}/current/${iface}"
+            SPOOL_DIR="${cfg.spoolDir}/spool-${iface}"
+            EXTRACT_DIR="${cfg.spoolDir}/extract/${iface}"
+
+            mkdir -p "$LOG_DIR" "$SPOOL_DIR" "$EXTRACT_DIR"
+
+            # Per-interface overrides (log dir + file extraction prefix)
+            cat > "$SPOOL_DIR/site-local.zeek" <<'EOF'
+            redef Log::default_logdir = "'"$LOG_DIR"'";
+            redef FileExtract::prefix = "'"$EXTRACT_DIR"'/";
+            EOF
+
+            exec ${cfg.package}/bin/zeek \
+              -i ${escapeShellArg iface} \
+              -C \
+              -l "$LOG_DIR" \
+              "${cfg.cfgDir}/local.zeek" \
+              "$SPOOL_DIR/site-local.zeek"
+          '';
+        };
+      })
+      cfg.interfaces);
+
+    # Log rotation (kept)
     services.logrotate.settings.zeek = {
       files = "${cfg.logDir}/*.log";
       frequency = "daily";
@@ -429,6 +409,7 @@ in {
       su = "${cfg.user} ${cfg.group}";
     };
 
+    # Filebeat (kept)
     services.filebeat = mkIf cfg.filebeat.enable {
       enable = true;
       settings = {
@@ -436,7 +417,7 @@ in {
           {
             type = "log";
             enabled = true;
-            paths = ["${cfg.logDir}/current/*.log"];
+            paths = ["${cfg.logDir}/current/*/*.log"];
             fields = {type = "zeek";};
             json = {
               keys_under_root = true;
@@ -451,9 +432,9 @@ in {
       };
     };
 
-    # If you changed ZeekPort to 27760, open the matching ports (27760-27761).
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [27760 27761];
 
+    # Vault integration (kept)
     fmf.services.vault-agent.services.zeek = mkIf cfg.vault.enable {
       settings = {
         vault.address = cfg.vault.vault-address;
