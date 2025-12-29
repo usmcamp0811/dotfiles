@@ -56,6 +56,17 @@ with lib.fmf; let
 
     ${cfg.extraConfig}
   '';
+
+  # Generate networks.cfg for local network definitions
+  networksConfig = pkgs.writeText "networks.cfg" (
+    if cfg.localNetworks != []
+    then concatMapStringsSep "\n" (net: let
+      # Extract network and create a label from it
+      parts = lib.splitString "/" net;
+      addr = builtins.head parts;
+    in "${net}       Network_${builtins.replaceStrings ["."] ["_"] addr}") cfg.localNetworks
+    else "# No local networks defined\n"
+  );
 in {
   options.fmf.services.zeek = {
     enable = mkEnableOption "Zeek Network Security Monitor";
@@ -271,9 +282,14 @@ in {
       "d ${cfg.logDir} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.spoolDir} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.cfgDir} 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.cfgDir}/etc 0755 ${cfg.user} ${cfg.group} -"
       "L+ ${cfg.cfgDir}/zeekctl.cfg - - - - ${zeekConfig}"
       "L+ ${cfg.cfgDir}/node.cfg - - - - ${nodeConfig}"
       "L+ ${cfg.cfgDir}/local.zeek - - - - ${localZeek}"
+      "L+ ${cfg.cfgDir}/networks.cfg - - - - ${networksConfig}"
+      "L+ ${cfg.cfgDir}/etc/zeekctl.cfg - - - - ${zeekConfig}"
+      "L+ ${cfg.cfgDir}/etc/node.cfg - - - - ${nodeConfig}"
+      "L+ ${cfg.cfgDir}/etc/networks.cfg - - - - ${networksConfig}"
     ] ++ optional cfg.redis.enable "d /var/lib/redis-zeek 0750 redis redis -";
 
     # Main Zeek service
