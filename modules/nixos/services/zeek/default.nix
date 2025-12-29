@@ -300,12 +300,11 @@ in {
       wantedBy = ["multi-user.target"];
 
       serviceConfig = {
-        Type = "forking";
+        Type = "simple";
         User = cfg.user;
         Group = cfg.group;
-        ExecStart = "${cfg.package}/bin/zeekctl start";
-        ExecStop = "${cfg.package}/bin/zeekctl stop";
-        ExecReload = "${cfg.package}/bin/zeekctl restart";
+        WorkingDirectory = cfg.cfgDir;
+        ExecStart = "${cfg.package}/bin/zeek -i ${concatStringsSep "," cfg.interfaces} ${cfg.cfgDir}/local.zeek";
         Restart = "on-failure";
         RestartSec = "10s";
 
@@ -320,32 +319,18 @@ in {
         AmbientCapabilities = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
         CapabilityBoundingSet = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
       };
-
-      preStart = ''
-        # Deploy Zeek configuration
-        cd ${cfg.cfgDir}
-        ${cfg.package}/bin/zeekctl deploy
-      '';
     };
 
-    # Log rotation service
-    systemd.services.zeek-logrotate = {
-      description = "Zeek log rotation";
-      serviceConfig = {
-        Type = "oneshot";
-        User = cfg.user;
-        Group = cfg.group;
-        ExecStart = "${cfg.package}/bin/zeekctl cron";
-      };
-    };
-
-    systemd.timers.zeek-logrotate = {
-      description = "Zeek log rotation timer";
-      wantedBy = ["timers.target"];
-      timerConfig = {
-        OnCalendar = "hourly";
-        Persistent = true;
-      };
+    # Log rotation - use logrotate instead of zeekctl
+    services.logrotate.settings.zeek = {
+      files = "${cfg.logDir}/*.log";
+      frequency = "daily";
+      rotate = 7;
+      compress = true;
+      delaycompress = true;
+      missingok = true;
+      notifempty = true;
+      su = "${cfg.user} ${cfg.group}";
     };
 
     # Filebeat configuration for log shipping
