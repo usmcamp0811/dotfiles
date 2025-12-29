@@ -18,12 +18,29 @@ with lib.fmf; let
   # Generate node.cfg for standalone or cluster mode
   nodeConfig = pkgs.writeText "node.cfg" (
     if cfg.standalone
-    then ''
-      [zeek]
-      type=standalone
-      host=localhost
-      interface=${concatStringsSep "," cfg.interfaces}
-    ''
+    then
+      # For multiple interfaces in standalone mode, create a worker for each interface
+      if length cfg.interfaces > 1
+      then ''
+        [manager]
+        type=manager
+        host=localhost
+
+        ${concatMapStringsSep "\n" (idx: let
+          iface = builtins.elemAt cfg.interfaces idx;
+        in ''
+        [worker-${toString idx}]
+        type=worker
+        host=localhost
+        interface=${iface}
+        '') (lib.range 0 (length cfg.interfaces - 1))}
+      ''
+      else ''
+        [zeek]
+        type=standalone
+        host=localhost
+        interface=${builtins.head cfg.interfaces}
+      ''
     else ''
       ${cfg.nodeConfigText}
     ''
@@ -304,7 +321,7 @@ in {
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.cfgDir;
-        ExecStart = "${cfg.package}/bin/zeek -i ${concatStringsSep "," cfg.interfaces} ${cfg.cfgDir}/local.zeek";
+        ExecStart = "${cfg.package}/bin/zeek ${concatMapStringsSep " " (iface: "-i ${iface}") cfg.interfaces} ${cfg.cfgDir}/local.zeek";
         Restart = "on-failure";
         RestartSec = "10s";
 
