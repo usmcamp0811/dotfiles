@@ -27,14 +27,14 @@ with lib.fmf; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/persist/vm-stores/pub-traefik/nix-store";
+        source = "/persist/vm-stores/vm-lan-traefik/nix-store";
         mountPoint = "/nix/.rw-store";
       }
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/pub-traefik"; # Share actual files, not symlinks
-        mountPoint = "/var/lib/vault/pub-traefik";
+        source = "/persist/system/var/lib/vault/vm-lan-traefik"; # Share actual files, not symlinks
+        mountPoint = "/var/lib/vault/vm-lan-traefik";
       }
     ];
 
@@ -42,8 +42,8 @@ with lib.fmf; {
     interfaces = [
       {
         type = "tap";
-        id = "vm-traefik-pub";
-        mac = "02:00:00:00:00:20"; # Static MAC for consistent DHCP
+        id = "vm-traefik-lan";
+        mac = "02:00:00:00:00:21"; # Static MAC for consistent DHCP
       }
     ];
 
@@ -57,7 +57,7 @@ with lib.fmf; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "/persist/vm-data/pub-traefik/traefik-public-data.img";
+        image = "/persist/vm-data/vm-lan-traefik/traefik-lan-data.img";
         mountPoint = "/var/lib/traefik";
         size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
       }
@@ -77,16 +77,16 @@ with lib.fmf; {
   fmf = {
     suites = {
       common = enabled;
-      public-hosting = {
+      lan-hosting = {
         enable = true;
         interface = "eth0";
-        pub-ip = "10.8.0.42";
+        lan-ip = "10.8.0.69";
       };
     };
 
     user = {
       name = "admin";
-      fullName = "Traefik Public Administrator";
+      fullName = "Traefik LAN Administrator";
       email = "admin@aicampground.com";
       extraGroups = ["wheel"];
       uid = 1000;
@@ -98,8 +98,8 @@ with lib.fmf; {
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/pub-traefik/role-id";
-            secret-id = "/var/lib/vault/pub-traefik/secret-id";
+            role-id = "/var/lib/vault/vm-lan-traefik/role-id";
+            secret-id = "/var/lib/vault/vm-lan-traefik/secret-id";
           };
         };
       };

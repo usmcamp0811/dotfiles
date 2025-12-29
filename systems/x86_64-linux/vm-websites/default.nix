@@ -15,6 +15,7 @@ with lib.fmf; {
     # Use microvm as the hypervisor (lightweight, fast boot)
     hypervisor = "qemu";
     writableStoreOverlay = "/nix/.rw-store";
+
     # Share the host's Nix store to save disk space
     shares = [
       {
@@ -26,15 +27,14 @@ with lib.fmf; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/persist/vm-stores/vault/nix-store";
+        source = "/persist/vm-stores/vm-websites/nix-store";
         mountPoint = "/nix/.rw-store";
       }
-      # Add writable host directory mounts here
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/vault"; # Share actual files, not symlinks
-        mountPoint = "/var/lib/vault/vault";
+        source = "/persist/system/var/lib/vault/vm-websites"; # Share actual files, not symlinks
+        mountPoint = "/var/lib/vault/vm-websites";
       }
     ];
 
@@ -42,14 +42,14 @@ with lib.fmf; {
     interfaces = [
       {
         type = "tap";
-        id = "vm-vault";
-        mac = "02:00:00:00:00:10"; # Static MAC for consistent DHCP
+        id = "vm-websites";
+        mac = "02:00:00:00:00:11"; # Static MAC for consistent DHCP
       }
     ];
 
     # Resources
     vcpu = 2;
-    mem = 8047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
+    mem = 2047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
 
     # Boot configuration
     socket = "control.socket";
@@ -57,17 +57,14 @@ with lib.fmf; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "/persist/vm-data/vault/vault-data.img";
-        mountPoint = "/var/lib/vault";
-        size = 10240; # 10GB for vault data
+        image = "/persist/vm-data/vm-websites/websites-data.img";
+        mountPoint = "/var/lib/nginx";
+        size = 5120; # 5GB for website data
       }
     ];
   };
 
   networking.interfaces.eth0.useDHCP = true;
-
-  # With writableStoreOverlay, the VM runs its own nix-daemon
-  # No need to connect to host daemon
 
   # Disable nix store optimization - incompatible with writableStoreOverlay
   nix.optimise.automatic = lib.mkForce false;
@@ -79,54 +76,27 @@ with lib.fmf; {
 
     user = {
       name = "admin";
-      fullName = "Vault Administrator";
+      fullName = "Websites Administrator";
       email = "admin@aicampground.com";
       extraGroups = ["wheel"];
       uid = 1000;
     };
 
     services = {
+      # All static websites
+      crystal-forge-website = enabled;
+      matt-camp-website = enabled;
+      nix-slide-website = enabled;
+
       vault-agent = {
         enable = true;
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/vault/role-id";
-            secret-id = "/var/lib/vault/vault/secret-id";
+            role-id = "/var/lib/vault/vm-websites/role-id";
+            secret-id = "/var/lib/vault/vm-websites/secret-id";
           };
         };
-      };
-      vault = {
-        enable = true;
-        ui = true;
-        auto-unseal = true;
-        storage = {
-          backend = "raft";
-          config = ''
-            node_id = "vault-node-vm"
-          '';
-        };
-        settings = ''
-          cluster_addr = "http://vault:8201"
-          api_addr = "http://vault:8200"
-        '';
-
-        policies =
-          builtins.foldl'
-          (policies: file:
-            policies
-            // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          {}
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ../daly/vault/policies
-                + "/${
-                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-                }")
-              (snowfall.fs.get-files ../daly/vault/policies)));
       };
       openssh = {
         enable = true;

@@ -27,14 +27,14 @@ with lib.fmf; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/persist/vm-stores/websites/nix-store";
+        source = "/persist/vm-stores/vm-pub-traefik/nix-store";
         mountPoint = "/nix/.rw-store";
       }
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/websites"; # Share actual files, not symlinks
-        mountPoint = "/var/lib/vault/websites";
+        source = "/persist/system/var/lib/vault/vm-pub-traefik"; # Share actual files, not symlinks
+        mountPoint = "/var/lib/vault/vm-pub-traefik";
       }
     ];
 
@@ -42,8 +42,8 @@ with lib.fmf; {
     interfaces = [
       {
         type = "tap";
-        id = "vm-websites";
-        mac = "02:00:00:00:00:11"; # Static MAC for consistent DHCP
+        id = "vm-traefik-pub";
+        mac = "02:00:00:00:00:20"; # Static MAC for consistent DHCP
       }
     ];
 
@@ -57,14 +57,17 @@ with lib.fmf; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "/persist/vm-data/websites/websites-data.img";
-        mountPoint = "/var/lib/nginx";
-        size = 5120; # 5GB for website data
+        image = "/persist/vm-data/vm-pub-traefik/traefik-public-data.img";
+        mountPoint = "/var/lib/traefik";
+        size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
       }
     ];
   };
 
   networking.interfaces.eth0.useDHCP = true;
+
+  # With writableStoreOverlay, the VM runs its own nix-daemon
+  # No need to connect to host daemon
 
   # Disable nix store optimization - incompatible with writableStoreOverlay
   nix.optimise.automatic = lib.mkForce false;
@@ -72,32 +75,35 @@ with lib.fmf; {
 
   # Basic system configuration
   fmf = {
-    suites.common = enabled;
+    suites = {
+      common = enabled;
+      public-hosting = {
+        enable = true;
+        interface = "eth0";
+        pub-ip = "10.8.0.42";
+      };
+    };
 
     user = {
       name = "admin";
-      fullName = "Websites Administrator";
+      fullName = "Traefik Public Administrator";
       email = "admin@aicampground.com";
       extraGroups = ["wheel"];
       uid = 1000;
     };
 
     services = {
-      # All static websites
-      crystal-forge-website = enabled;
-      matt-camp-website = enabled;
-      nix-slide-website = enabled;
-
       vault-agent = {
         enable = true;
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/websites/role-id";
-            secret-id = "/var/lib/vault/websites/secret-id";
+            role-id = "/var/lib/vault/vm-pub-traefik/role-id";
+            secret-id = "/var/lib/vault/vm-pub-traefik/secret-id";
           };
         };
       };
+
       openssh = {
         enable = true;
         authorizedKeys = [

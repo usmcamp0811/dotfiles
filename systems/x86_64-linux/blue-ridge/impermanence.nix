@@ -33,12 +33,12 @@
       "/persist/vm-data"
 
       # MicroVM writable nix-stores (separate from /var/lib/microvms to avoid conflicts)
-      "/persist/vm-stores/vault/nix-store"
-      "/persist/vm-stores/websites/nix-store"
-      "/persist/vm-stores/pub-traefik/nix-store"
-      "/persist/vm-stores/lan-traefik/nix-store"
-      "/persist/vm-stores/adguard/nix-store"
-      "/persist/vm-stores/gitea/nix-store"
+      "/persist/vm-stores/vm-vault/nix-store"
+      "/persist/vm-stores/vm-websites/nix-store"
+      "/persist/vm-stores/vm-pub-traefik/nix-store"
+      "/persist/vm-stores/vm-lan-traefik/nix-store"
+      "/persist/vm-stores/vm-adguard/nix-store"
+      "/persist/vm-stores/vm-gitea/nix-store"
     ];
 
     files = [
@@ -51,23 +51,23 @@
       "/var/lib/vault/blue-ridge/role-id"
       "/var/lib/vault/blue-ridge/secret-id"
 
-      "/var/lib/vault/lan-traefik/role-id"
-      "/var/lib/vault/lan-traefik/secret-id"
+      "/var/lib/vault/vm-lan-traefik/role-id"
+      "/var/lib/vault/vm-lan-traefik/secret-id"
 
-      "/var/lib/vault/pub-traefik/role-id"
-      "/var/lib/vault/pub-traefik/secret-id"
+      "/var/lib/vault/vm-pub-traefik/role-id"
+      "/var/lib/vault/vm-pub-traefik/secret-id"
 
-      "/var/lib/vault/websites/role-id"
-      "/var/lib/vault/websites/secret-id"
+      "/var/lib/vault/vm-websites/role-id"
+      "/var/lib/vault/vm-websites/secret-id"
 
-      "/var/lib/vault/vault/role-id"
-      "/var/lib/vault/vault/secret-id"
+      "/var/lib/vault/vm-vault/role-id"
+      "/var/lib/vault/vm-vault/secret-id"
 
-      "/var/lib/vault/adguard/role-id"
-      "/var/lib/vault/adguard/secret-id"
+      "/var/lib/vault/vm-adguard/role-id"
+      "/var/lib/vault/vm-adguard/secret-id"
 
-      "/var/lib/vault/gitea/role-id"
-      "/var/lib/vault/gitea/secret-id"
+      "/var/lib/vault/vm-gitea/role-id"
+      "/var/lib/vault/vm-gitea/secret-id"
     ];
 
     users.admin = {

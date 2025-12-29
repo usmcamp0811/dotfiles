@@ -29,14 +29,14 @@ with lib.fmf; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/persist/vm-stores/adguard/nix-store";
+        source = "/persist/vm-stores/vm-adguard/nix-store";
         mountPoint = "/nix/.rw-store";
       }
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/adguard";
-        mountPoint = "/var/lib/vault/adguard";
+        source = "/persist/system/var/lib/vault/vm-adguard";
+        mountPoint = "/var/lib/vault/vm-adguard";
       }
     ];
 
@@ -54,7 +54,7 @@ with lib.fmf; {
 
     volumes = [
       {
-        image = "/persist/vm-data/adguard/adguard-data.img";
+        image = "/persist/vm-data/vm-adguard/adguard-data.img";
         mountPoint = "/var/lib/AdGuardHome";
         size = 5120;
       }
@@ -125,8 +125,8 @@ with lib.fmf; {
         enable = true;
         settings.vault = {
           address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/adguard/role-id";
-          secret-id = "/var/lib/vault/adguard/secret-id";
+          role-id = "/var/lib/vault/vm-adguard/role-id";
+          secret-id = "/var/lib/vault/vm-adguard/secret-id";
         };
       };
 

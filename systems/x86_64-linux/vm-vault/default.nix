@@ -15,7 +15,6 @@ with lib.fmf; {
     # Use microvm as the hypervisor (lightweight, fast boot)
     hypervisor = "qemu";
     writableStoreOverlay = "/nix/.rw-store";
-
     # Share the host's Nix store to save disk space
     shares = [
       {
@@ -27,14 +26,15 @@ with lib.fmf; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/persist/vm-stores/lan-traefik/nix-store";
+        source = "/persist/vm-stores/vm-vault/nix-store";
         mountPoint = "/nix/.rw-store";
       }
+      # Add writable host directory mounts here
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/lan-traefik"; # Share actual files, not symlinks
-        mountPoint = "/var/lib/vault/lan-traefik";
+        source = "/persist/system/var/lib/vault/vm-vault"; # Share actual files, not symlinks
+        mountPoint = "/var/lib/vault/vm-vault";
       }
     ];
 
@@ -42,14 +42,14 @@ with lib.fmf; {
     interfaces = [
       {
         type = "tap";
-        id = "vm-traefik-lan";
-        mac = "02:00:00:00:00:21"; # Static MAC for consistent DHCP
+        id = "vm-vault";
+        mac = "02:00:00:00:00:10"; # Static MAC for consistent DHCP
       }
     ];
 
     # Resources
     vcpu = 2;
-    mem = 2047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
+    mem = 8047; # ~2GB RAM (avoid exactly 2048 due to QEMU bug)
 
     # Boot configuration
     socket = "control.socket";
@@ -57,9 +57,9 @@ with lib.fmf; {
     # Volumes for persistent data
     volumes = [
       {
-        image = "/persist/vm-data/lan-traefik/traefik-lan-data.img";
-        mountPoint = "/var/lib/traefik";
-        size = 5120; # 5GB for traefik data (logs, acme certs, etc.)
+        image = "/persist/vm-data/vm-vault/vault-data.img";
+        mountPoint = "/var/lib/vault";
+        size = 10240; # 10GB for vault data
       }
     ];
   };
@@ -75,18 +75,11 @@ with lib.fmf; {
 
   # Basic system configuration
   fmf = {
-    suites = {
-      common = enabled;
-      lan-hosting = {
-        enable = true;
-        interface = "eth0";
-        lan-ip = "10.8.0.69";
-      };
-    };
+    suites.common = enabled;
 
     user = {
       name = "admin";
-      fullName = "Traefik LAN Administrator";
+      fullName = "Vault Administrator";
       email = "admin@aicampground.com";
       extraGroups = ["wheel"];
       uid = 1000;
@@ -98,12 +91,43 @@ with lib.fmf; {
         settings = {
           vault = {
             address = "https://vault.lan.aicampground.com";
-            role-id = "/var/lib/vault/lan-traefik/role-id";
-            secret-id = "/var/lib/vault/lan-traefik/secret-id";
+            role-id = "/var/lib/vault/vm-vault/role-id";
+            secret-id = "/var/lib/vault/vm-vault/secret-id";
           };
         };
       };
+      vault = {
+        enable = true;
+        ui = true;
+        auto-unseal = true;
+        storage = {
+          backend = "raft";
+          config = ''
+            node_id = "vault-node-vm"
+          '';
+        };
+        settings = ''
+          cluster_addr = "http://vault:8201"
+          api_addr = "http://vault:8200"
+        '';
 
+        policies =
+          builtins.foldl'
+          (policies: file:
+            policies
+            // {
+              "${snowfall.path.get-file-name-without-extension file}" = file;
+            })
+          {}
+          (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map
+              (path:
+                ../daly/vault/policies
+                + "/${
+                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+                }")
+              (snowfall.fs.get-files ../daly/vault/policies)));
+      };
       openssh = {
         enable = true;
         authorizedKeys = [

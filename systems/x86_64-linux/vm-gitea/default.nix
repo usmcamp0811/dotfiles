@@ -30,19 +30,19 @@ with lib.fmf; {
       {
         proto = "virtiofs";
         tag = "rw-store";
-        source = "/persist/vm-stores/gitea/nix-store";
+        source = "/persist/vm-stores/vm-gitea/nix-store";
         mountPoint = "/nix/.rw-store";
       }
       {
         proto = "virtiofs";
         tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/gitea";
-        mountPoint = "/var/lib/vault/gitea";
+        source = "/persist/system/var/lib/vault/vm-gitea";
+        mountPoint = "/var/lib/vault/vm-gitea";
       }
       {
         proto = "virtiofs";
         tag = "gitea-data";
-        source = "/persist/vm-data/gitea";
+        source = "/persist/vm-data/vm-gitea";
         mountPoint = "/var/lib/gitea";
       }
     ];
@@ -120,8 +120,8 @@ with lib.fmf; {
         enable = true;
         settings.vault = {
           address = "https://vault.lan.aicampground.com";
-          role-id = "/var/lib/vault/gitea/role-id";
-          secret-id = "/var/lib/vault/gitea/secret-id";
+          role-id = "/var/lib/vault/vm-gitea/role-id";
+          secret-id = "/var/lib/vault/vm-gitea/secret-id";
         };
       };
 

@@ -397,27 +397,27 @@
       ];
 
       # MicroVM guest configuration
-      systems.hosts.vault.modules = with inputs; [
+      systems.hosts.vm-vault.modules = with inputs; [
         microvm.nixosModules.microvm
       ];
 
-      systems.hosts.websites.modules = with inputs; [
+      systems.hosts.vm-websites.modules = with inputs; [
         microvm.nixosModules.microvm
       ];
 
-      systems.hosts.lan-traefik.modules = with inputs; [
+      systems.hosts.vm-lan-traefik.modules = with inputs; [
         microvm.nixosModules.microvm
       ];
 
-      systems.hosts.pub-traefik.modules = with inputs; [
+      systems.hosts.vm-pub-traefik.modules = with inputs; [
         microvm.nixosModules.microvm
       ];
 
-      systems.hosts.adguard.modules = with inputs; [
+      systems.hosts.vm-adguard.modules = with inputs; [
         microvm.nixosModules.microvm
       ];
 
-      systems.hosts.gitea.modules = with inputs; [
+      systems.hosts.vm-gitea.modules = with inputs; [
         microvm.nixosModules.microvm
       ];
 

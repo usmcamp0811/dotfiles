@@ -89,6 +89,9 @@ in {
     services.ntopng = {
       enable = true;
 
+      # Disable the default interface to prevent "any" from being added
+      interfaces = [];
+
       extraConfig = let
         baseConfig = ''
           --http-port=${toString cfg.port}

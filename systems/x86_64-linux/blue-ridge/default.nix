@@ -113,32 +113,32 @@ with lib.fmf; {
                 {
                   mac = "02:00:00:00:00:10";
                   ip = "192.169.1.10";
-                  hostname = "vault";
+                  hostname = "vm-vault";
                 }
                 {
                   mac = "02:00:00:00:00:11";
                   ip = "192.169.1.11";
-                  hostname = "websites";
+                  hostname = "vm-websites";
                 }
                 {
                   mac = "02:00:00:00:00:20";
                   ip = "192.169.1.20";
-                  hostname = "pub-traefik";
+                  hostname = "vm-pub-traefik";
                 }
                 {
                   mac = "02:00:00:00:00:21";
                   ip = "192.169.1.21";
-                  hostname = "lan-traefik";
+                  hostname = "vm-lan-traefik";
                 }
                 {
                   mac = "02:00:00:00:00:30";
                   ip = "192.169.1.2";
-                  hostname = "adguard";
+                  hostname = "vm-adguard";
                 }
                 {
                   mac = "02:00:00:00:00:40";
                   ip = "192.169.1.40";
-                  hostname = "gitea";
+                  hostname = "vm-gitea";
                 }
                 # Physical machines
                 {
@@ -305,32 +305,32 @@ with lib.fmf; {
           port = 443;
           destination = "192.169.1.20";
           protocol = "tcp";
-          description = "HTTPS to pub-traefik";
+          description = "HTTPS to vm-pub-traefik";
         }
         {
           port = 80;
           destination = "192.169.1.2";
           destinationPort = 3000;
           protocol = "tcp";
-          description = "AdGuard Web UI via port 80 -> 3000 (optional)";
+          description = "vm-AdGuard Web UI via port 80 -> 3000 (optional)";
         }
         {
           port = 3000;
           destination = "192.169.1.40";
           protocol = "tcp";
-          description = "Gitea Web UI";
+          description = "vm-Gitea Web UI";
         }
         {
           port = 8445;
           destination = "192.169.1.40";
           protocol = "tcp";
-          description = "Gitea HTTPS (nginx proxy)";
+          description = "vm-Gitea HTTPS (nginx proxy)";
         }
         {
           port = 22022;
           destination = "192.169.1.40";
           protocol = "tcp";
-          description = "Gitea SSH";
+          description = "vm-Gitea SSH";
         }
       ];
     };
@@ -354,37 +354,37 @@ with lib.fmf; {
   };
 
   microvm.vms = {
-    vault = {
+    vm-vault = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
-    websites = {
+    vm-websites = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
-    pub-traefik = {
+    vm-pub-traefik = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
-    lan-traefik = {
+    vm-lan-traefik = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
-    adguard = {
+    vm-adguard = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
       updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
     };
-    gitea = {
+    vm-gitea = {
       flake = inputs.self;
       autostart = true;
       restartIfChanged = true;
