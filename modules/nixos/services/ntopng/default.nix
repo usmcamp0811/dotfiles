@@ -110,11 +110,26 @@ in {
       enable = true;
       port = cfg.redis.port;
       bind = cfg.redis.host;
+
+      # Persist data to disk
+      save = [
+        [900 1]    # Save after 900 seconds if at least 1 key changed
+        [300 10]   # Save after 300 seconds if at least 10 keys changed
+        [60 10000] # Save after 60 seconds if at least 10000 keys changed
+      ];
+
+      settings = {
+        dir = "/var/lib/redis-ntopng";
+        dbfilename = "dump.rdb";
+        appendonly = "yes";
+        appendfilename = "appendonly.aof";
+      };
     };
 
-    # Create data directory
+    # Create data directories
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0750 ntopng ntopng -"
+      "d /var/lib/redis-ntopng 0750 redis redis -"
     ];
 
     # Open firewall port
