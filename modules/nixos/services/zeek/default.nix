@@ -309,21 +309,32 @@ in {
       "L+ ${cfg.cfgDir}/etc/networks.cfg - - - - ${networksConfig}"
     ] ++ optional cfg.redis.enable "d /var/lib/redis-zeek 0750 redis redis -";
 
-    # Main Zeek service
+    # Main Zeek service using zeekctl for proper multi-interface support
     systemd.services.zeek = {
       description = "Zeek Network Security Monitor";
       after = ["network-online.target"] ++ optional cfg.redis.enable "redis-zeek.service";
       wants = ["network-online.target"];
       wantedBy = ["multi-user.target"];
 
+      path = [cfg.package];
+
+      preStart = ''
+        # Initialize zeekctl if needed
+        cd ${cfg.cfgDir}
+        ${cfg.package}/bin/zeekctl install || true
+      '';
+
       serviceConfig = {
-        Type = "simple";
+        Type = "forking";
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.cfgDir;
-        ExecStart = "${cfg.package}/bin/zeek ${concatMapStringsSep " " (iface: "-i ${iface}") cfg.interfaces} ${cfg.cfgDir}/local.zeek";
+        ExecStart = "${cfg.package}/bin/zeekctl start";
+        ExecStop = "${cfg.package}/bin/zeekctl stop";
+        ExecReload = "${cfg.package}/bin/zeekctl restart";
         Restart = "on-failure";
         RestartSec = "10s";
+        PIDFile = "${cfg.spoolDir}/zeek/.pid";
 
         # Security hardening
         NoNewPrivileges = true;
