@@ -281,19 +281,19 @@ in {
       in ''
         # Determine authentication
         AUTH_STR=""
-        ${optionalString (!cfg.disableLogin) ''
-          if [ -n "${optionalString (cfg.adminPasswordFile != null) cfg.adminPasswordFile}" ]; then
+        ${optionalString (!cfg.disableLogin) (
+          if cfg.adminPasswordFile != null then ''
             # Read password from file
             ADMIN_PASSWORD=$(cat ${cfg.adminPasswordFile} | tr -d '\n')
             AUTH_STR="-u admin:$ADMIN_PASSWORD"
-          elif [ -n "${optionalString (cfg.adminPassword != null) cfg.adminPassword}" ]; then
+          '' else if cfg.adminPassword != null then ''
             # Use password from config (not recommended)
             AUTH_STR="-u admin:${cfg.adminPassword}"
-          else
+          '' else ''
             echo "ERROR: Login is enabled but no adminPassword or adminPasswordFile configured"
             exit 1
-          fi
-        ''}
+          ''
+        )}
 
         # Wait for ntopng to be ready
         for i in {1..30}; do
