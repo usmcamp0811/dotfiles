@@ -27,34 +27,41 @@
       "job_title": "Senior Data Scientist / Full Stack MLOps/DevOps Engineer",
       "company": "Advanced Technology Applications (ATA) LLC",
       "company_location": "Great Falls, VA (Remote)",
-      "description": "As a key figure on the platform team, spearheaded the deployment and management of intricate technological solutions. Leveraging expertise in JupyterHub, Kubernetes, Docker, Nix, and Flink, facilitated seamless tool integration and customization to optimize workflow efficiency. Recognizing areas for improvement, proactively mastered Nix to design robust solutions, including replacing unreliable Ansible playbooks and creating reproducible configurations for Flink jobs, enabling consistent deployments across local and Kubernetes environments. Dedicated to mentorship and knowledge-sharing, cultivated a collaborative team culture through daily coaching sessions for junior developers. Innovative strategies in deployment, data science, and DevSecOps have significantly enhanced organizational processes and positioned the team for diverse challenges.",
+      "description": "Senior technical contributor on the platform team with primary responsibility for designing and operationalizing AI/ML workflows alongside reproducible infrastructure. Led the development of end-to-end machine learning systems, from labeled dataset creation and model development to secure, deterministic deployment in both local and Kubernetes environments. Combined deep experience in data science, DevOps, and distributed systems to deliver reliable, mission-ready analytics capabilities for government customers while mentoring junior developers and shaping team-wide engineering practices.",
       "key_accomplishments": [
-        "Spearheaded the adoption of Nix and NixOS, creating a secure and reproducible DevSecOps framework and addressing challenges like configuration drift and dependency conflicts.",
-        "Developed a UNet-based image segmentation model in Julia, including dataset creation with Label Studio and performance tracking with MLFlow.",
-        "Streamlined Flink job deployment for both local and Kubernetes environments by leveraging Nix for reproducible configurations and consistent runtime environments.",
-        "Built a local development cluster with K3D and Nix, enabling developers to spin up Kubernetes environments with a single command for testing and debugging.",
-        "Deployed JupyterHub on enterprise Kubernetes clusters, customized Helm charts, and developed Docker images supporting Julia, Python, and R workflows.",
-        "Designed modular infrastructure solutions for systems like Kafka and MLFlow, simplifying deployment, improving scalability, and enhancing security.",
-        "Mentored junior associates in emerging technologies, fostering team collaboration and streamlining onboarding with Nix development shells.",
-        "Built a document processing pipeline for medical forms using AWS Textract and Lambda, automating OCR and structured data extraction at scale."
+        "Stood up and administered Label Studio to create high-quality labeled training datasets for computer vision models, including annotating satellite imagery to identify maritime vessels and other domain-specific features.",
+        "Developed and trained machine learning models for image segmentation and classification, including a UNet-based computer vision model in Julia, with experiment tracking and performance evaluation using MLFlow.",
+        "Designed end-to-end AI/ML pipelines supporting data ingestion, labeling, model training, evaluation, and deployment, enabling repeatable and auditable model development workflows.",
+        "Spearheaded the adoption of Nix and NixOS to create a secure, reproducible MLOps and DevSecOps framework, eliminating configuration drift and ensuring deterministic ML environments across development and production.",
+        "Streamlined deployment of ML-enabled Flink jobs across local and Kubernetes environments using Nix to ensure consistent runtime behavior and dependency management.",
+        "Built a local Kubernetes development cluster using K3D and Nix, allowing data scientists and engineers to spin up complete ML experimentation environments with a single command.",
+        "Deployed and customized JupyterHub on enterprise Kubernetes clusters, building container images that supported integrated Python, Julia, and R data science workflows.",
+        "Designed modular infrastructure for data-intensive systems such as Kafka and MLFlow, improving scalability, security, and observability for ML workloads.",
+        "Mentored junior developers and data scientists in machine learning workflows, MLOps best practices, and reproducible development environments, significantly reducing onboarding time.",
+        "Built and operated a large-scale document processing pipeline for medical forms using AWS Textract and Lambda, integrating OCR, classification, and structured data extraction to support downstream analytics."
       ],
       "dt_from": "November 2021",
       "dt_to": "Present"
     },
     {
-      "job_title": "Artificial Intelligence Software Developer / Full Stack Data Scientist / Tech Lead",
-      "company": "Colsa",
-      "company_location": "Huntsville, AL",
-      "description": "Developed data science strategies for dealing with big data problems. Primary driving force behind the adoption of modern software development practices by the government customer. Assisted junior developers become better familiar with Linux, Python and a number of DevOps tools. Interacted with customer Technical Point of Contact (TPOC) daily to ensure contract needs were being satisfied.",
+      "job_title": "Senior Data Scientist / Full Stack MLOps/DevOps Engineer",
+      "company": "Advanced Technology Applications (ATA) LLC",
+      "company_location": "Great Falls, VA (Remote)",
+      "description": "Senior technical contributor on the platform team with responsibility for delivering production-grade AI/ML capabilities alongside secure, reproducible infrastructure. Led applied machine learning efforts spanning dataset creation, model development, and deployment while shaping team-wide MLOps and DevSecOps practices. Combined expertise in data science, distributed systems, and platform engineering to deliver mission-ready analytics solutions for government customers and mentor junior engineers.",
       "key_accomplishments": [
-        "Initiated the organizational adoption of DevOps tools such as Gitlab CI/CD Pipelines and Docker",
-        "Created a GraphQL API in Python utilizing the Graphene, MongoEngine, and a self-written Neo4j API.",
-        "Wrote an unsupervised machine learning algorithm for describing data found in domain specific files. ",
-        "Architected and developed a data pipeline using a combination of Docker and Apache Airflow.",
-        "Built and implemented a domain specific graph data (MongoDB + Neo4j) model for use in maintaining a file meta database."
+        "Stood up and administered Label Studio to create high-quality labeled training datasets for computer vision models, including annotating satellite imagery to identify maritime vessels and other domain-specific features.",
+        "Developed and trained machine learning models for image segmentation and classification, including a UNet-based computer vision model in Julia, with experiment tracking and evaluation using MLFlow.",
+        "Designed and implemented reproducible MLOps workflows supporting model development and deployment across local and Kubernetes environments, enabling consistent and auditable ML experimentation.",
+        "Spearheaded adoption of Nix and NixOS to establish a secure, deterministic DevSecOps and MLOps framework, eliminating configuration drift and ensuring consistent ML runtimes across teams.",
+        "Streamlined deployment of ML-enabled Flink jobs using Nix, enabling consistent execution across developer workstations and production Kubernetes clusters.",
+        "Built a single-command local Kubernetes development environment using K3D and Nix, significantly reducing setup time for data science and ML experimentation.",
+        "Deployed and customized JupyterHub on enterprise Kubernetes clusters, providing integrated Python, Julia, and R environments for applied data science and machine learning workflows.",
+        "Designed modular, scalable infrastructure for data-intensive systems including Kafka and MLFlow, improving reliability, observability, and security of ML workloads.",
+        "Mentored junior developers and data scientists in applied machine learning, MLOps best practices, and reproducible development environments, accelerating onboarding and improving team effectiveness.",
+        "Orchestrated a complete CI/CD pipeline for a large-scale medical form processing system using AWS Textract and Lambda functions, leveraging Nix to enable fully reproducible, air-gapped deployments of the entire software and ML stack."
       ],
-      "dt_from": "September 2018",
-      "dt_to": "November 2021"
+      "dt_from": "November 2021",
+      "dt_to": "Present"
     },
     {
       "job_title": "Senior Database Administrator & Business Process Improvement Analyst",
