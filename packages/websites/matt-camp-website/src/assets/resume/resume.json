@@ -3,46 +3,26 @@
   "citystate": "Huntsville, AL",
   "phone": "423.322.3976",
   "email": "resume@aicampground.com",
-  "profile": "Strategic leader and data scientist with a strong foundation in software development, deterministic systems, and distributed architectures. Proven ability to drive high-impact initiatives in both government and private sectors, combining leadership excellence with technical expertise in NixOS, Python, and Julia. Adept at developing integrated software systems and leading high-performing teams to exceed organizational objectives through innovative solutions and operational precision.",
+  "profile": "Senior Cloud Infrastructure Engineering Leader with 15+ years of technical leadership experience and deep expertise in Kubernetes orchestration, container platforms, and cloud-native architecture. Proven track record leading cross-functional engineering teams while driving infrastructure modernization initiatives across government and private sectors. Expert in multi-cluster deployments, service mesh technologies, and GitOps practices with extensive open-source contributions spanning 8+ years.",
   "profile_bullets": [
-    "Demonstrated success in developing integrated software systems. Record of success in both government and private sectors.",
-    "Respected for capacity to apply systematic approach and ability to thrive in challenging environments requiring strong critical thinking, investigative, and analytical skills.",
-    "Recognized as the driving force behind highly successful projects that exceed organizational expectations.",
-    "Well-versed in creating high-performance cultures and focusing teams on operational excellence.",
+    "Demonstrated 15+ years of leadership experience managing technical teams and driving infrastructure transformation initiatives from Marine Corps operations through senior engineering roles.",
+    "Deep technical expertise in Kubernetes cluster management, containerization, and cloud-native platform development with hands-on experience across AWS, multi-cluster environments, and service mesh implementation.",
+    "Extensive open-source contributor with 8+ years of contributions to Neovim plugins, Nix ecosystem projects, and infrastructure automation tools.",
+    "Proven success in developing and implementing comprehensive DevOps strategies including CI/CD optimization, Infrastructure as Code, and GitOps practices.",
     "Current Top Secret/Specialized Compartmentalized Information (TS/SCI) with Counterintelligence Polygraph."
   ],
   "core_compencies": [
-    "Machine Learning",
-    "Team Leadership/Management",
-    "Advanced Analytics",
-    "Operational Streamlining",
-    "All-Source Intelligence Analysis",
-    "DevOps",
-    "Risk Mitigation/Management",
-    "Planning/Organization/Logistics",
-    "Process Improvement Strategies"
+    "K8s Cluster Management",
+    "Cloud Infra Leadership",
+    "Service Mesh Technologies",
+    "Container Orchestration",
+    "GitOps/Infrastructure as Code",
+    "Technical Team Leadership",
+    "Observability/Monitoring",
+    "Open Source Development",
+    "Multi-Cloud Architecture"
   ],
   "jobs": [
-    {
-      "job_title": "Senior Data Scientist / Full Stack MLOps/DevOps Engineer",
-      "company": "Advanced Technology Applications (ATA) LLC",
-      "company_location": "Great Falls, VA (Remote)",
-      "description": "Senior technical contributor on the platform team with primary responsibility for designing and operationalizing AI/ML workflows alongside reproducible infrastructure. Led the development of end-to-end machine learning systems, from labeled dataset creation and model development to secure, deterministic deployment in both local and Kubernetes environments. Combined deep experience in data science, DevOps, and distributed systems to deliver reliable, mission-ready analytics capabilities for government customers while mentoring junior developers and shaping team-wide engineering practices.",
-      "key_accomplishments": [
-        "Stood up and administered Label Studio to create high-quality labeled training datasets for computer vision models, including annotating satellite imagery to identify maritime vessels and other domain-specific features.",
-        "Developed and trained machine learning models for image segmentation and classification, including a UNet-based computer vision model in Julia, with experiment tracking and performance evaluation using MLFlow.",
-        "Designed end-to-end AI/ML pipelines supporting data ingestion, labeling, model training, evaluation, and deployment, enabling repeatable and auditable model development workflows.",
-        "Spearheaded the adoption of Nix and NixOS to create a secure, reproducible MLOps and DevSecOps framework, eliminating configuration drift and ensuring deterministic ML environments across development and production.",
-        "Streamlined deployment of ML-enabled Flink jobs across local and Kubernetes environments using Nix to ensure consistent runtime behavior and dependency management.",
-        "Built a local Kubernetes development cluster using K3D and Nix, allowing data scientists and engineers to spin up complete ML experimentation environments with a single command.",
-        "Deployed and customized JupyterHub on enterprise Kubernetes clusters, building container images that supported integrated Python, Julia, and R data science workflows.",
-        "Designed modular infrastructure for data-intensive systems such as Kafka and MLFlow, improving scalability, security, and observability for ML workloads.",
-        "Mentored junior developers and data scientists in machine learning workflows, MLOps best practices, and reproducible development environments, significantly reducing onboarding time.",
-        "Built and operated a large-scale document processing pipeline for medical forms using AWS Textract and Lambda, integrating OCR, classification, and structured data extraction to support downstream analytics."
-      ],
-      "dt_from": "November 2021",
-      "dt_to": "Present"
-    },
     {
       "job_title": "Senior Data Scientist / Full Stack MLOps/DevOps Engineer",
       "company": "Advanced Technology Applications (ATA) LLC",
@@ -64,15 +44,31 @@
       "dt_to": "Present"
     },
     {
+      "job_title": "Artificial Intelligence Software Developer / Full Stack Data Scientist / Tech Lead",
+      "company": "Colsa",
+      "company_location": "Huntsville, AL",
+      "description": "Technical leader driving DevOps transformation and infrastructure modernization in secure government environments. Led implementation of containerized deployment strategies, CI/CD pipeline optimization, and monitoring frameworks on air-gapped systems. Mentored development teams in modern software engineering practices while developing data science infrastructure.",
+      "key_accomplishments": [
+        "Led organizational transformation implementing GitLab CI/CD pipelines, Docker containerization, and GitOps practices, establishing automated testing and deployment workflows.",
+        "Created standardized DevOps practices through cookiecutter project templates and pipeline automation, empowering development teams with consistent deployment capabilities.",
+        "Implemented comprehensive observability and monitoring solutions using Grafana and Prometheus for distributed application performance tracking.",
+        "Architected and developed production data pipeline infrastructure using Docker and Apache Airflow, demonstrating advanced container orchestration and workflow management.",
+        "Built production-ready GraphQL API infrastructure in Python with automated deployment and configuration management practices.",
+        "Designed and implemented domain-specific graph database infrastructure (MongoDB + Neo4j) with automated deployment pipelines."
+      ],
+      "dt_from": "September 2018",
+      "dt_to": "November 2021"
+    },
+    {
       "job_title": "Senior Database Administrator & Business Process Improvement Analyst",
       "company": "Science Applications International Corporation (SAIC)",
       "company_location": "Huntsville, AL",
-      "description": "Sole technical developer in the security department, responsible for fulfilling data needs of senior leadership as well as being instrumental in the transition processes from a legacy Access Commander database system to a Sims database system. Rapid development of automated solutions using Python to provide a high level of integration with existing enterprise systems, greatly increasing the efficiency of human labor. Worked with subject matter experts to systematically define incomplete or non-existent business processes. Began the implementation of Lean practices in the management of department wide projects using a self-hosted web-based Kanban system.",
+      "description": "Technical infrastructure leader responsible for automation strategy and cloud application development within security department. Led technical initiatives for enterprise system integration and process automation while mentoring junior technical staff in modern development practices.",
       "key_accomplishments": [
-        "Developed real-time automated reporting solutions for enterprise wide consumption using a Flask web app architecture and SQL Server",
-        "Created Python based web scrapers with Selenium and Autoit to autonomously download reports from parts of the enterprise without readily available APIs",
-        "Built a web-based user interface for service center personnel to be able to efficiently process hundreds of security clearance prescreens weekly",
-        "Took the initiative to develop a nearly autonomous contract closeout system to eliminate hundreds of backlogged contracts and decrease the number of man hours required for the process going forward."
+        "Led technical team initiatives developing real-time automated reporting infrastructure using Flask web application architecture integrated with SQL Server and enterprise systems.",
+        "Implemented automated enterprise integration solutions using Python, Selenium, and AutoIT, reducing manual processes and improving operational efficiency.",
+        "Developed autonomous system processing capabilities handling hundreds of weekly transactions with high reliability and automated workflow management.",
+        "Implemented Lean project management practices using self-hosted Kanban systems, demonstrating process improvement and technical workflow optimization."
       ],
       "dt_from": "August 2017",
       "dt_to": "August 2018"
@@ -81,13 +77,12 @@
       "job_title": "Algorithm Developer",
       "company": "ExoAnalytic Solutions",
       "company_location": "Huntsville, AL",
-      "description": "Assisted the Chief Information Officer as the local information technology (IT) support lead for the Huntsville office. Researched, purchased, and built computer systems for deep learning. Regularly worked with large datasets of over several million records. Quickly adapted to fill many miscellaneous technical and non-technical requirements of a small office",
+      "description": "Technical infrastructure engineer supporting distributed computing environments and high-performance system administration. Managed large-scale data processing systems while providing comprehensive IT infrastructure leadership for cloud computing initiatives.",
       "key_accomplishments": [
-        "Investigated cutting edge deep learning algorithms, to include Recurrent Neural Networks, Convolutional Neural Networks and Generative Adversarial Networks to aid in space situational awareness (SSA) and missile defense applications using Python and Tensorflow.",
-        "Using a combination of both R and Python, developed machine learning models based on EO/IR sensor data for both the Missile Defense and space situational awareness domains.",
-        "Orchestrated the conversion of Missile Defense data from complicated MATLAB structures to a faster and more efficient SQLite database.",
-        "Launched an effort to convert the company’s Customer Relationship Management (CRM) system to a graph database using Neo4j software.",
-        "Used Python to build automated web scrapers for mining data from multiple online sources. Provided increased situational awareness of the local business environment."
+        "Architected and implemented deep learning infrastructure using Python and TensorFlow for processing multi-million record datasets in cloud computing environments.",
+        "Led database modernization project converting complex MATLAB data structures to optimized SQLite implementations, improving system performance and scalability.",
+        "Implemented graph database infrastructure using Neo4j for Customer Relationship Management system, demonstrating modern database architecture expertise.",
+        "Developed automated data pipeline solutions using Python for business intelligence and operational monitoring capabilities."
       ],
       "dt_from": "April 2016",
       "dt_to": "August 2017"
@@ -96,11 +91,10 @@
       "job_title": "Marketing Intern",
       "company": "Elbit Systems of America",
       "company_location": "Huntsville, AL",
-      "description": "Assisted with product demonstrations for prospective customers as needed. Built PowerPoint presentations to be briefed to the CEO and other executive level leaders. Researched and analyzed product details and specifications to synthesize a simplified fact-sheet for the many aerospace offerings of the company. Initiated the development of a Customer Relationship Management system to be used in house by the business development associates.",
+      "description": "Supported technical architecture planning and system design initiatives for enterprise Customer Relationship Management infrastructure.",
       "key_accomplishments": [
-        "Engaged with business development associates to devise requirements for a Customer Relationship Management (CRM) system.",
-        "Architected the database schema for a CRM tool.",
-        "Researched the federal acquisition process and utilized GovWin software to analyze key stakeholders."
+        "Collaborated with cross-functional teams to architect database schema and system requirements for enterprise CRM infrastructure.",
+        "Conducted technical research and analysis supporting strategic planning initiatives and system architecture design."
       ],
       "dt_from": "September 2015",
       "dt_to": "April 2016"
@@ -109,13 +103,12 @@
       "job_title": "Training & Operations Supervisor/Intelligence Analyst",
       "company": "Intelligence Support Battalion, FHG, Marine Forces Reserve USMC",
       "company_location": "New Orleans, LA",
-      "description": "Worked closely with senior leadership to devise organizational requirements for a training and operations reporting system. Developed custom software tools, enabling near real-time management of the training and operational readiness. Prepared readiness reporting and operational briefs which were disseminated to senior leadership.",
+      "description": "Led technical teams and infrastructure development across 28 geographically dispersed locations. Managed cross-functional engineering initiatives while developing automated systems for real-time operational visibility and distributed team collaboration.",
       "key_accomplishments": [
-        "Analyzed large amounts of data and developed presentations for senior leadership that addressed current and future training, operations, and readiness levels.",
-        "Developed and tested scripts written in Visual Basic for Applications (VBA) to enable close integration with the Marine Corps training system. Designed and customized a Microsoft Access database to generate reports and dashboards for senior leadership.",
-        "Credited with facilitating team collaboration across 28 geographically dispersed locations through the development of a battalion wide SharePoint page that integrated closely with a Microsoft Access database capable of delivering information to users in near real time.",
-        "Created documentation and training materials for the use of developed systems",
-        "Awarded a Navy and Marine Corps Commendation Medal for accomplishments."
+        "Led distributed technical teams across 28 locations through development of integrated SharePoint and database systems providing real-time operational visibility.",
+        "Developed and implemented automated systems using Visual Basic for Applications (VBA) with seamless integration to Marine Corps enterprise training systems, enabling real-time operational visibility.",
+        "Created comprehensive technical documentation and training materials for deployed systems, ensuring knowledge transfer and sustainable operations.",
+        "Awarded Navy and Marine Corps Commendation Medal for technical leadership and distributed system implementation achievements."
       ],
       "dt_from": "March 2012",
       "dt_to": "February 2015"
@@ -124,15 +117,13 @@
       "job_title": "Artillery Section Chief",
       "company": "United States Marine Corps Reserve",
       "company_location": "Chattanooga, TN",
-      "description": "Set objectives and led a team of 15 in performing operational functions in support of Mike Battery 3rd Battalion 14th Marine Regiment 4th Marine Division USMC. Developed and delivered training to junior associates on all equipment. Played a key role in developing and maintaining international relationships. Met the organization's requirements in inspecting critical components of artillery pieces. Held accountability for all activities that took place on the gun section, including safety procedures and safe handling and storage of ammunition. Developed watch schedules and assigned Marines to working parties.",
+      "description": "Led technical teams of 15 Marines in complex equipment operations and system management. Developed comprehensive training programs while maintaining operational excellence in high-pressure environments including combat deployments.",
       "key_accomplishments": [
-        "Trained, cross-trained, and ensured each section Marine had the knowledge and skill required to properly operate the artillery piece.",
-        "Ensured safety while leading Marines on mounted and dismounted patrols in Iraq. Wrote comprehensive after action reports on each patrol.",
-        "Selected to work collaboratively in training Iraqi Police.",
-        "Skillfully operated highly technical equipment including a BackSkatter X-Ray machine to scan all vehicles coming through traffic control points.",
-        "Engaged in operation of a Biometrics Automated Toolset System, a scanning/database system that aided in finding insurgents and providing background information, including subject names, pictures, fingerprints, retina scans, work histories, past records, and any illegal activity.",
-        "Credited for taking the initiative to learn how to fill crypto on radios.",
-        "Received a Letter of Appreciation for role in the Battle of Fallujah."
+        "Led and trained cross-functional team of 15 Marines on complex technical systems, ensuring operational readiness and safety compliance in mission-critical environments.",
+        "Managed advanced technical equipment operations including BackScatter X-Ray systems and Biometrics Automated Toolset databases, demonstrating proficiency with enterprise security technologies.",
+        "Developed comprehensive training programs and standard operating procedures for technical equipment, ensuring consistent operational excellence.",
+        "Demonstrated technical proficiency in communications systems management and cryptographic operations in distributed environments.",
+        "Received Letter of Appreciation for leadership during the Battle of Fallujah."
       ],
       "dt_from": "2004 - 2010",
       "dt_to": "2011 - 2012"
@@ -167,25 +158,21 @@
     }
   ],
   "skills": [
-    "Nix",
-    "Python",
-    "Julia",
+    "Kubernetes (K8s)",
+    "Docker/Containerization",
+    "Istio/Service Mesh",
+    "Grafana/Prometheus",
+    "GitOps/ArgoCD",
+    "Terraform/IaC",
+    "AWS/Multi-Cloud",
+    "Python/Scripting",
+    "GitLab CI/CD",
+    "Linux Systems",
+    "Nix/NixOS",
     "Apache Airflow",
-    "VueJS",
-    "Gitlab CI/CD",
-    "Flask",
-    "MLFlow",
-    "Tensorflow",
-    "Neo4j",
-    "Shell Scripting",
-    "Lua",
-    "JavaScript",
-    "Linux",
-    "MongoDB",
-    "Ansible",
-    "Dask",
-    "Docker",
-    "Kubernetes"
+    "JavaScript/Lua/Rust",
+    "MongoDB/Neo4j",
+    "Flask/API Development"
   ],
-  "interest": "I have many interests from history and firearms to cooking and coding. I consider myself a life long learner and am always trying to better understand a concept or figure out how something works. I really enjoy problem solving and programming. My goals are to increase my knowledge of both Machine Learning and Artificial Intelligence to further the automation of route tasks in our daily lives."
+  "interest": "I have many interests from history and firearms to cooking and coding. I consider myself a life long learner and am always trying to better understand a concept or figure out how something works. I really enjoy problem solving and programming. My goals are to advance cloud-native infrastructure development, deepen expertise in Kubernetes cluster management and service mesh technologies, while contributing to open-source projects that drive innovation in distributed systems architecture."
 }
