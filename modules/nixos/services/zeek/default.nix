@@ -26,6 +26,10 @@ with lib.fmf; let
         type=manager
         host=localhost
 
+        [proxy-1]
+        type=proxy
+        host=localhost
+
         ${concatMapStringsSep "\n" (idx: let
           iface = builtins.elemAt cfg.interfaces idx;
         in ''
@@ -316,11 +320,12 @@ in {
       wants = ["network-online.target"];
       wantedBy = ["multi-user.target"];
 
-      path = [cfg.package];
+      path = with pkgs; [cfg.package iproute2 nettools];
 
       preStart = ''
         # Initialize zeekctl if needed
         cd ${cfg.cfgDir}
+        export ZEEK_INSTALL_PREFIX=${cfg.package}
         ${cfg.package}/bin/zeekctl install || true
       '';
 
@@ -329,6 +334,7 @@ in {
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.cfgDir;
+        Environment = "ZEEK_INSTALL_PREFIX=${cfg.package}";
         ExecStart = "${cfg.package}/bin/zeekctl start";
         ExecStop = "${cfg.package}/bin/zeekctl stop";
         ExecReload = "${cfg.package}/bin/zeekctl restart";
