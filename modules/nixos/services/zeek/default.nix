@@ -8,10 +8,16 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.zeek;
 
+  # A writable "runtime prefix" so zeekctl can write zeekctl-config.sh, installed scripts, etc.
+  runtimePrefix = "${cfg.cfgDir}/prefix";
+
   # Generate Zeek configuration files
   zeekConfig = pkgs.writeText "zeekctl.cfg" ''
     # Installation paths
-    ZeekPort = 47760
+    #
+    # Recommended on Linux to avoid collisions with the ephemeral port range.
+    ZeekPort = 27760
+
     LogDir = ${cfg.logDir}
     SpoolDir = ${cfg.spoolDir}
     CfgDir = ${cfg.cfgDir}
@@ -27,16 +33,17 @@ with lib.fmf; let
     StatsLogExpireInterval = 0
 
     # Misc settings
-    SaveTracesDir = ${cfg.spoolDir}/tmp
     CompressCmd = gzip -9
     CompressExtension = gz
+
+    # If you want to silence the ZeekPort warning without changing ports:
+    # zeek_port_warning.disable = 1
   '';
 
   # Generate node.cfg for standalone or cluster mode
   nodeConfig = pkgs.writeText "node.cfg" (
     if cfg.standalone
     then
-      # For multiple interfaces in standalone mode, create a worker for each interface
       if length cfg.interfaces > 1
       then ''
         [manager]
@@ -50,10 +57,10 @@ with lib.fmf; let
         ${concatMapStringsSep "\n" (idx: let
           iface = builtins.elemAt cfg.interfaces idx;
         in ''
-        [worker-${toString idx}]
-        type=worker
-        host=localhost
-        interface=${iface}
+          [worker-${toString idx}]
+          type=worker
+          host=localhost
+          interface=${iface}
         '') (lib.range 0 (length cfg.interfaces - 1))}
       ''
       else ''
@@ -98,13 +105,22 @@ with lib.fmf; let
   # Generate networks.cfg for local network definitions
   networksConfig = pkgs.writeText "networks.cfg" (
     if cfg.localNetworks != []
-    then concatMapStringsSep "\n" (net: let
-      # Extract network and create a label from it
-      parts = lib.splitString "/" net;
-      addr = builtins.head parts;
-    in "${net}       Network_${builtins.replaceStrings ["."] ["_"] addr}") cfg.localNetworks
+    then
+      concatMapStringsSep "\n" (net: let
+        parts = lib.splitString "/" net;
+        addr = builtins.head parts;
+      in "${net}       Network_${builtins.replaceStrings ["."] ["_"] addr}")
+      cfg.localNetworks
     else "# No local networks defined\n"
   );
+
+  # Tmpfiles rules for worker dirs matching interfaces (only really needed for cluster-ish layout)
+  workerDirs =
+    if cfg.standalone && length cfg.interfaces > 1
+    then
+      map (i: "d ${cfg.spoolDir}/worker-${toString i} 0755 ${cfg.user} ${cfg.group} -")
+      (lib.range 0 (length cfg.interfaces - 1))
+    else [];
 in {
   options.fmf.services.zeek = {
     enable = mkEnableOption "Zeek Network Security Monitor";
@@ -154,43 +170,18 @@ in {
       type = types.listOf types.str;
       default = [];
       description = "Additional Zeek scripts to load.";
-      example = literalExpression ''
-        [
-          "policy/protocols/ssl/known-certs"
-          "policy/protocols/http/detect-sqli"
-          "site/custom-script"
-        ]
-      '';
     };
 
     extraConfig = mkOption {
       type = types.lines;
       default = "";
       description = "Additional Zeek script code to include in local.zeek.";
-      example = literalExpression ''
-        redef HTTP::default_capture_password = T;
-        redef FTP::default_capture_password = T;
-      '';
     };
 
     nodeConfigText = mkOption {
       type = types.lines;
       default = "";
       description = "Custom node.cfg content for cluster mode. Only used when standalone = false.";
-      example = literalExpression ''
-        [manager]
-        type=manager
-        host=192.168.1.10
-
-        [proxy-1]
-        type=proxy
-        host=192.168.1.10
-
-        [worker-1]
-        type=worker
-        host=192.168.1.11
-        interface=eth0
-      '';
     };
 
     redis = {
@@ -228,13 +219,12 @@ in {
       type = types.listOf types.package;
       default = [];
       description = "List of Zeek plugin packages to install.";
-      example = literalExpression ''[ pkgs.zeek-plugins.af_packet ]'';
     };
 
     openFirewall = mkOption {
       type = types.bool;
       default = false;
-      description = "Whether to open firewall ports for Zeek cluster communication (47760-47761).";
+      description = "Whether to open firewall ports for Zeek cluster communication (27760-27761).";
     };
 
     vault = {
@@ -244,19 +234,22 @@ in {
         description = "Whether to enable Vault integration for secrets management.";
       };
 
-      role-id = mkOpt (types.nullOr types.str) null
+      role-id =
+        mkOpt (types.nullOr types.str) null
         "Absolute path to the Vault role-id";
-      secret-id = mkOpt (types.nullOr types.str) null
+      secret-id =
+        mkOpt (types.nullOr types.str) null
         "Absolute path to the Vault secret-id";
-      vault-path = mkOpt types.str "secret/campground/zeek"
+      vault-path =
+        mkOpt types.str "secret/campground/zeek"
         "The Vault path to the KV containing Zeek secrets.";
       kvVersion = mkOpt types.str "v2" "KV Secrets Engine version (v1 or v2).";
       vault-address = mkOption {
         type = types.nullOr types.str;
-        default = if config.fmf.services.vault-agent.settings ? vault then
-          config.fmf.services.vault-agent.settings.vault.address
-        else
-          null;
+        default =
+          if config.fmf.services.vault-agent.settings ? vault
+          then config.fmf.services.vault-agent.settings.vault.address
+          else null;
         description = "The address of your Vault";
       };
     };
@@ -278,7 +271,6 @@ in {
       }
     ];
 
-    # Create zeek user and group
     users.users.${cfg.user} = {
       isSystemUser = true;
       group = cfg.group;
@@ -288,14 +280,14 @@ in {
 
     users.groups.${cfg.group} = {};
 
-    # Install Zeek package with plugins
     environment.systemPackages = [
-      (if cfg.plugins != []
+      (
+        if cfg.plugins != []
         then cfg.package.override {plugins = cfg.plugins;}
-        else cfg.package)
+        else cfg.package
+      )
     ];
 
-    # Redis (separate instance) if requested
     services.redis.servers.zeek = mkIf cfg.redis.enable {
       enable = true;
       port = cfg.redis.port;
@@ -315,61 +307,95 @@ in {
       };
     };
 
-    # Create necessary directories
-    systemd.tmpfiles.rules = [
-      "d ${cfg.logDir} 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.logDir}/current 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir} 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/tmp 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/site 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/plugins 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/manager 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/proxy-1 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/worker-0 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/worker-1 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/worker-2 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.spoolDir}/worker-3 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.cfgDir} 0755 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.cfgDir}/etc 0755 ${cfg.user} ${cfg.group} -"
-      "L+ ${cfg.cfgDir}/zeekctl.cfg - - - - ${zeekConfig}"
-      "L+ ${cfg.cfgDir}/node.cfg - - - - ${nodeConfig}"
-      "L+ ${cfg.cfgDir}/local.zeek - - - - ${localZeek}"
-      "L+ ${cfg.cfgDir}/networks.cfg - - - - ${networksConfig}"
-      "L+ ${cfg.cfgDir}/etc/zeekctl.cfg - - - - ${zeekConfig}"
-      "L+ ${cfg.cfgDir}/etc/node.cfg - - - - ${nodeConfig}"
-      "L+ ${cfg.cfgDir}/etc/networks.cfg - - - - ${networksConfig}"
-    ] ++ optional cfg.redis.enable "d /var/lib/redis-zeek 0750 redis redis -";
+    systemd.tmpfiles.rules =
+      [
+        "d ${cfg.logDir} 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.logDir}/current 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.spoolDir} 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.spoolDir}/tmp 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.spoolDir}/site 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.spoolDir}/plugins 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.spoolDir}/manager 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.spoolDir}/proxy-1 0755 ${cfg.user} ${cfg.group} -"
 
-    # Main Zeek service using zeekctl for proper multi-interface support
+        "d ${cfg.cfgDir} 0755 ${cfg.user} ${cfg.group} -"
+        "d ${cfg.cfgDir}/etc 0755 ${cfg.user} ${cfg.group} -"
+
+        # Writable runtime prefix (this is the key fix)
+        "d ${runtimePrefix} 0755 ${cfg.user} ${cfg.group} -"
+        "d ${runtimePrefix}/bin 0755 ${cfg.user} ${cfg.group} -"
+        "d ${runtimePrefix}/etc 0755 ${cfg.user} ${cfg.group} -"
+        "d ${runtimePrefix}/share 0755 ${cfg.user} ${cfg.group} -"
+
+        # Config files (both locations; zeekctl typically reads <prefix>/etc)
+        "L+ ${cfg.cfgDir}/zeekctl.cfg - - - - ${zeekConfig}"
+        "L+ ${cfg.cfgDir}/node.cfg - - - - ${nodeConfig}"
+        "L+ ${cfg.cfgDir}/local.zeek - - - - ${localZeek}"
+        "L+ ${cfg.cfgDir}/networks.cfg - - - - ${networksConfig}"
+
+        "L+ ${cfg.cfgDir}/etc/zeekctl.cfg - - - - ${zeekConfig}"
+        "L+ ${cfg.cfgDir}/etc/node.cfg - - - - ${nodeConfig}"
+        "L+ ${cfg.cfgDir}/etc/networks.cfg - - - - ${networksConfig}"
+
+        "L+ ${runtimePrefix}/etc/zeekctl.cfg - - - - ${zeekConfig}"
+        "L+ ${runtimePrefix}/etc/node.cfg - - - - ${nodeConfig}"
+        "L+ ${runtimePrefix}/etc/networks.cfg - - - - ${networksConfig}"
+
+        # Link zeek/zeekctl binaries into the runtime prefix
+        "L+ ${runtimePrefix}/bin/zeek - - - - ${cfg.package}/bin/zeek"
+        "L+ ${runtimePrefix}/bin/zeekctl - - - - ${cfg.package}/bin/zeekctl"
+
+        # Link Zeek scripts (read-only is fine)
+        "L+ ${runtimePrefix}/share/zeek - - - - ${cfg.package}/share/zeek"
+      ]
+      ++ workerDirs
+      ++ optional cfg.redis.enable "d /var/lib/redis-zeek 0750 redis redis -";
+
     systemd.services.zeek = {
       description = "Zeek Network Security Monitor";
       after = ["network-online.target"] ++ optional cfg.redis.enable "redis-zeek.service";
       wants = ["network-online.target"];
       wantedBy = ["multi-user.target"];
 
-      path = with pkgs; [cfg.package iproute2 nettools];
+      path = with pkgs; [cfg.package iproute2 nettools coreutils gnused gawk rsync];
 
       preStart = ''
-        # Initialize zeekctl
+        set -euo pipefail
+
+        # Ensure zeekctl scripts are writable (zeekctl writes zeekctl-config.sh there).
+        # Copy them into the runtime prefix (owned by zeek user).
+        if [ ! -e "${runtimePrefix}/share/zeekctl/.nix-copied-from-${cfg.package.pname or "zeek"}-${cfg.package.version}" ]; then
+          rm -rf "${runtimePrefix}/share/zeekctl"
+          mkdir -p "${runtimePrefix}/share"
+          cp -a "${cfg.package}/share/zeekctl" "${runtimePrefix}/share/zeekctl"
+          touch "${runtimePrefix}/share/zeekctl/.nix-copied-from-${cfg.package.pname or "zeek"}-${cfg.package.version}"
+          chown -R ${cfg.user}:${cfg.group} "${runtimePrefix}/share/zeekctl"
+        fi
+
         cd ${cfg.cfgDir}
-        export ZEEK_INSTALL_PREFIX=${cfg.package}
+        export ZEEK_INSTALL_PREFIX=${runtimePrefix}
+
         ${cfg.package}/bin/zeekctl install
       '';
 
       script = ''
+        set -euo pipefail
         cd ${cfg.cfgDir}
-        export ZEEK_INSTALL_PREFIX=${cfg.package}
+        export ZEEK_INSTALL_PREFIX=${runtimePrefix}
+
         ${cfg.package}/bin/zeekctl deploy
 
-        # Keep the service running by monitoring the processes
+        # Keep the service "up" as long as zeekctl reports a healthy status.
         while ${cfg.package}/bin/zeekctl status >/dev/null 2>&1; do
           sleep 60
         done
+
+        exit 1
       '';
 
       postStop = ''
         cd ${cfg.cfgDir}
-        export ZEEK_INSTALL_PREFIX=${cfg.package}
+        export ZEEK_INSTALL_PREFIX=${runtimePrefix}
         ${cfg.package}/bin/zeekctl stop || true
       '';
 
@@ -378,23 +404,20 @@ in {
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.cfgDir;
-        Environment = "ZEEK_INSTALL_PREFIX=${cfg.package}";
+        Environment = "ZEEK_INSTALL_PREFIX=${runtimePrefix}";
         Restart = "on-failure";
         RestartSec = "10s";
 
-        # Security hardening - need to relax protections for zeekctl
         PrivateTmp = false;
         ProtectSystem = "full";
         ProtectHome = true;
         ReadWritePaths = [cfg.logDir cfg.spoolDir cfg.cfgDir];
 
-        # Network capabilities for packet capture
         AmbientCapabilities = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
         CapabilityBoundingSet = ["CAP_NET_RAW" "CAP_NET_ADMIN"];
       };
     };
 
-    # Log rotation - use logrotate instead of zeekctl
     services.logrotate.settings.zeek = {
       files = "${cfg.logDir}/*.log";
       frequency = "daily";
@@ -406,7 +429,6 @@ in {
       su = "${cfg.user} ${cfg.group}";
     };
 
-    # Filebeat configuration for log shipping
     services.filebeat = mkIf cfg.filebeat.enable {
       enable = true;
       settings = {
@@ -415,9 +437,7 @@ in {
             type = "log";
             enabled = true;
             paths = ["${cfg.logDir}/current/*.log"];
-            fields = {
-              type = "zeek";
-            };
+            fields = {type = "zeek";};
             json = {
               keys_under_root = true;
               add_error_key = true;
@@ -431,10 +451,9 @@ in {
       };
     };
 
-    # Open firewall ports for cluster communication
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [47760 47761];
+    # If you changed ZeekPort to 27760, open the matching ports (27760-27761).
+    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [27760 27761];
 
-    # Vault integration (optional)
     fmf.services.vault-agent.services.zeek = mkIf cfg.vault.enable {
       settings = {
         vault.address = cfg.vault.vault-address;
@@ -458,10 +477,8 @@ in {
             text = ''
               {{ with secret "${cfg.vault.vault-path}" -}}
               {{- if eq "${cfg.vault.kvVersion}" "v1" -}}
-              # Zeek secrets from Vault
               ZEEK_API_KEY={{ .Data.api_key }}
               {{- else -}}
-              # Zeek secrets from Vault
               ZEEK_API_KEY={{ .Data.data.api_key }}
               {{- end -}}
               {{- end -}}
