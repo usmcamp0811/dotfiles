@@ -10,9 +10,26 @@ with lib.fmf; let
 
   # Generate Zeek configuration files
   zeekConfig = pkgs.writeText "zeekctl.cfg" ''
+    # Installation paths
+    ZeekPort = 47760
     LogDir = ${cfg.logDir}
     SpoolDir = ${cfg.spoolDir}
     CfgDir = ${cfg.cfgDir}
+
+    # Script paths - use local writable locations
+    SitePolicyPath = ${cfg.spoolDir}/site
+    SitePluginPath = ${cfg.spoolDir}/plugins
+
+    # Log settings
+    LogRotationInterval = 3600
+    LogExpireInterval = 0
+    StatsLogEnable = 1
+    StatsLogExpireInterval = 0
+
+    # Misc settings
+    SaveTracesDir = ${cfg.spoolDir}/tmp
+    CompressCmd = gzip -9
+    CompressExtension = gz
   '';
 
   # Generate node.cfg for standalone or cluster mode
@@ -301,7 +318,17 @@ in {
     # Create necessary directories
     systemd.tmpfiles.rules = [
       "d ${cfg.logDir} 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.logDir}/current 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.spoolDir} 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/tmp 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/site 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/plugins 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/manager 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/proxy-1 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/worker-0 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/worker-1 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/worker-2 0755 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.spoolDir}/worker-3 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.cfgDir} 0755 ${cfg.user} ${cfg.group} -"
       "d ${cfg.cfgDir}/etc 0755 ${cfg.user} ${cfg.group} -"
       "L+ ${cfg.cfgDir}/zeekctl.cfg - - - - ${zeekConfig}"
@@ -323,29 +350,41 @@ in {
       path = with pkgs; [cfg.package iproute2 nettools];
 
       preStart = ''
-        # Initialize zeekctl if needed
+        # Initialize zeekctl
         cd ${cfg.cfgDir}
         export ZEEK_INSTALL_PREFIX=${cfg.package}
-        ${cfg.package}/bin/zeekctl install || true
+        ${cfg.package}/bin/zeekctl install
+      '';
+
+      script = ''
+        cd ${cfg.cfgDir}
+        export ZEEK_INSTALL_PREFIX=${cfg.package}
+        ${cfg.package}/bin/zeekctl deploy
+
+        # Keep the service running by monitoring the processes
+        while ${cfg.package}/bin/zeekctl status >/dev/null 2>&1; do
+          sleep 60
+        done
+      '';
+
+      postStop = ''
+        cd ${cfg.cfgDir}
+        export ZEEK_INSTALL_PREFIX=${cfg.package}
+        ${cfg.package}/bin/zeekctl stop || true
       '';
 
       serviceConfig = {
-        Type = "forking";
+        Type = "simple";
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.cfgDir;
         Environment = "ZEEK_INSTALL_PREFIX=${cfg.package}";
-        ExecStart = "${cfg.package}/bin/zeekctl start";
-        ExecStop = "${cfg.package}/bin/zeekctl stop";
-        ExecReload = "${cfg.package}/bin/zeekctl restart";
         Restart = "on-failure";
         RestartSec = "10s";
-        PIDFile = "${cfg.spoolDir}/zeek/.pid";
 
-        # Security hardening
-        NoNewPrivileges = true;
-        PrivateTmp = true;
-        ProtectSystem = "strict";
+        # Security hardening - need to relax protections for zeekctl
+        PrivateTmp = false;
+        ProtectSystem = "full";
         ProtectHome = true;
         ReadWritePaths = [cfg.logDir cfg.spoolDir cfg.cfgDir];
 
