@@ -5,7 +5,7 @@
   ...
 }:
 with lib; let
-  cfg = config.services.microvm-healthcheck;
+  cfg = config.fmf.services.microvm-healthcheck;
 
   # Build a mapping of VM names to their IP addresses from static DHCP leases
   # This searches through all zones' static leases to find VMs
@@ -41,35 +41,35 @@ with lib; let
           echo "VM ${vm} is not running, skipping health check"
         else
           ${
-      if vmIpMapping ? ${vm}
-      then ''
-        IP="${vmIpMapping.${vm}}"
-        if timeout ${toString cfg.healthCheckTimeout} ${pkgs.netcat}/bin/nc -z "$IP" ${toString cfg.healthCheckPort} 2>/dev/null; then
-          echo "VM ${vm} ($IP) is healthy - port ${toString cfg.healthCheckPort} responding"
-        else
-          echo "VM ${vm} ($IP) is NOT responding on port ${toString cfg.healthCheckPort} - may be stuck"
-          ${
-          if cfg.autoRestart
+          if vmIpMapping ? ${vm}
           then ''
-            echo "Restarting microvm@${vm}.service..."
-            systemctl restart "microvm@${vm}.service"
+            IP="${vmIpMapping.${vm}}"
+            if timeout ${toString cfg.healthCheckTimeout} ${pkgs.netcat}/bin/nc -z "$IP" ${toString cfg.healthCheckPort} 2>/dev/null; then
+              echo "VM ${vm} ($IP) is healthy - port ${toString cfg.healthCheckPort} responding"
+            else
+              echo "VM ${vm} ($IP) is NOT responding on port ${toString cfg.healthCheckPort} - may be stuck"
+              ${
+              if cfg.autoRestart
+              then ''
+                echo "Restarting microvm@${vm}.service..."
+                systemctl restart "microvm@${vm}.service"
+              ''
+              else ''
+                echo "Auto-restart is disabled, manual intervention required"
+              ''
+            }
+            fi
           ''
           else ''
-            echo "Auto-restart is disabled, manual intervention required"
+            echo "WARNING: No IP mapping found for ${vm} in static DHCP leases"
           ''
         }
-        fi
-      ''
-      else ''
-        echo "WARNING: No IP mapping found for ${vm} in static DHCP leases"
-      ''
-    }
         fi
       '')
       configuredVms}
   '';
 in {
-  options.services.microvm-healthcheck = {
+  options.fmf.services.microvm-healthcheck = {
     enable = mkEnableOption "MicroVM health check and auto-recovery";
 
     healthCheckPort = mkOption {
