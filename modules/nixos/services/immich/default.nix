@@ -1,7 +1,13 @@
-{ lib, config, pkgs, inputs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 with lib;
-with lib.fmf;
-let cfg = config.fmf.services.immich;
+with lib.fmf; let
+  cfg = config.fmf.services.immich;
 in {
   options.fmf.services.immich = with types; {
     enable = mkBoolOpt false "Enable Immich;";
@@ -59,11 +65,13 @@ in {
       enable = true;
       enableTCPIP = true;
       backupEnable = true;
-      backupLocation = "/persist/postgresqlBackups/";
-      databases = [{
-        name = "immich";
-        user = "immich";
-      }];
+      backupLocation = mkDefault "/persist/postgresqlBackups/";
+      databases = [
+        {
+          name = "immich";
+          user = "immich";
+        }
+      ];
     };
     # Enable services.immich using the upstream service module
     services.immich = {
