@@ -53,6 +53,7 @@ in {
     };
 
     services.nginx = {
+      enable = true;
       virtualHosts."vaultwarden.lan" = {
         listen = [
           {
