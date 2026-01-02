@@ -11848,7 +11848,7 @@
     "oisd": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-ChM31EY5nRsnwOXWel+7hnZlx/9hZgJGbO26GyJ0VVM=",
+        "narHash": "sha256-wAbSCNVcU6BCQrwTsCd9GQWHueRivIqYhQhf9N5LK9w=",
         "type": "file",
         "url": "https://big.oisd.nl/domainswild"
       },
