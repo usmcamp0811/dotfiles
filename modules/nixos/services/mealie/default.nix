@@ -1,7 +1,12 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.fmf;
-let cfg = config.fmf.services.mealie;
+with lib.fmf; let
+  cfg = config.fmf.services.mealie;
 in {
   options.fmf.services.mealie = {
     enable = mkEnableOption "Attic";
@@ -21,16 +26,19 @@ in {
     listenAddress = mkOpt types.str "0.0.0.0" "Listen Address";
     base-url = mkOpt types.str "https://mealie.lan.aicampground.com" "base url";
 
-    role-id = mkOpt types.str
+    role-id =
+      mkOpt types.str
       config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
-    secret-id = mkOpt types.str
+    secret-id =
+      mkOpt types.str
       config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path = mkOpt types.str "secret/campground/mealie"
+    vault-path =
+      mkOpt types.str "secret/campground/mealie"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = types.enum [ "v1" "v2" ];
+      type = types.enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -49,15 +57,17 @@ in {
           isSystemUser = true;
         };
       };
-      groups = { "${cfg.group}" = { }; };
+      groups = {"${cfg.group}" = {};};
     };
 
     fmf.services.postgresql = {
       enable = true;
-      databases = [{
-        name = "mealie";
-        user = "${cfg.user}";
-      }];
+      databases = [
+        {
+          name = "mealie";
+          user = "${cfg.user}";
+        }
+      ];
       authentication = [
         "local   mealie    mealie   trust" # Allow trusted local connections for firefly user to firefly DB
         # "host    mealie    mealie   127.0.0.1/32 trust" # Allow trusted connections from localhost (IPv4) for firefly user to firefly DB
@@ -67,13 +77,11 @@ in {
     };
     systemd.services.mealie.serviceConfig.User = cfg.user;
     systemd.services.mealie.serviceConfig.Group = cfg.user;
-    systemd.services.mealie.serviceConfig.DynamicUser = lib.mkForce false;
     services.mealie = {
       port = cfg.port;
       settings = {
         DB_ENGINE = "postgres";
-        DB_SERVER =
-          "/var/run/postgresql"; # Path to the PostgreSQL socket directory
+        DB_SERVER = "/var/run/postgresql"; # Path to the PostgreSQL socket directory
         DB_PORT = ""; # Leave empty to use the socket
         DB_NAME = cfg.dbname;
         DB_USER = cfg.user;
@@ -82,8 +90,7 @@ in {
         BASE_URL = cfg.base-url;
         MEDIA_DIR = "/var/lib/mealie/media";
         BACKUP_DIR = "/var/lib/mealie/backup";
-        POSTGRES_URL_OVERRIDE =
-          "postgresql://${cfg.user}:@/mealie?host=/run/postgresql";
+        POSTGRES_URL_OVERRIDE = "postgresql://${cfg.user}:@/mealie?host=/run/postgresql";
       };
       enable = true;
       credentialsFile = "/var/lib/mealie/creds";
@@ -102,23 +109,24 @@ in {
         chown ${cfg.user}:${cfg.group} /var/lib/mealie/
         chown ${cfg.user}:${cfg.group} /var/lib/mealie/creds
       '';
-      wantedBy = [ "multi-user.target" ];
-      before = [ "mealie.service" ];
-
+      wantedBy = ["multi-user.target"];
+      before = ["mealie.service"];
     };
     fmf.services.vault-agent.services.mealieSecrets = {
       settings = {
         # replace with the address of your vault
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [{
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }];
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
         };
       };
       secrets = {
