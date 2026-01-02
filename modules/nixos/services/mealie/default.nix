@@ -67,6 +67,7 @@ in {
     };
     systemd.services.mealie.serviceConfig.User = cfg.user;
     systemd.services.mealie.serviceConfig.Group = cfg.user;
+    systemd.services.mealie.serviceConfig.DynamicUser = lib.mkForce false;
     services.mealie = {
       port = cfg.port;
       settings = {
