@@ -95,7 +95,7 @@
     vaultwarden
     vault-bin
     vault
-    yazi
+    # yazi
     lemmy-server
     lemmy-help
     pds
