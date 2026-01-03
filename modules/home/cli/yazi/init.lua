@@ -20,41 +20,24 @@ require("duckdb"):setup({
 	minmax_column_width = 30, -- Default: 21
 })
 
--- require("yaziline"):setup({
---     color = "#98c379"
--- 	separator_style = "curvy", -- "angly" | "curvy" | "liney" | "empty"
---
--- 	separator_open = "",
--- 	separator_close = "",
--- 	separator_open_thin = "",
--- 	separator_close_thin = "",
--- 	separator_head = "",
--- 	separator_tail = "",
--- 	select_symbol = "",
--- 	yank_symbol = "󰆏",
--- 	filename_max_length = 24, -- truncate when filename > 24
--- 	filename_truncate_length = 6, -- leave 6 chars on both sides
--- 	filename_truncate_separator = "...", -- the separator of the truncated filename
+-- require("bunny"):setup({
+-- 	hops = {
+-- 		{ key = "r", path = "/" },
+-- 		{ key = "v", path = "/var" },
+-- 		{ key = "t", path = "/tmp" },
+-- 		{ key = "c", path = "/config", desc = "Nix Config" },
+-- 		{ key = { "n", "n" }, path = "/nix/store", desc = "Nix store" },
+-- 		{ key = { "n", "v" }, path = "~/code/campground-nvim", desc = "Nvim Config" },
+-- 		{ key = { "h", "h" }, path = "~", desc = "Home" },
+-- 		{ key = { "h", "c" }, path = "~/code", desc = "Code" },
+-- 		{ key = { "h", "w" }, path = "~/work-code", desc = "Work Code" },
+-- 		{ key = { "h", "d" }, path = "~/Documents", desc = "Documents" },
+-- 	},
+-- 	desc_strategy = "path",
+-- 	notify = false,
+-- 	fuzzy_cmd = "fzf",
 -- })
 
-require("bunny"):setup({
-	hops = {
-		{ key = "r", path = "/" },
-		{ key = "v", path = "/var" },
-		{ key = "t", path = "/tmp" },
-		{ key = "c", path = "/config", desc = "Nix Config" },
-		{ key = { "n", "n" }, path = "/nix/store", desc = "Nix store" },
-		{ key = { "n", "v" }, path = "~/code/campground-nvim", desc = "Nvim Config" },
-		{ key = { "h", "h" }, path = "~", desc = "Home" },
-		{ key = { "h", "c" }, path = "~/code", desc = "Code" },
-		{ key = { "h", "w" }, path = "~/work-code", desc = "Work Code" },
-		{ key = { "h", "d" }, path = "~/Documents", desc = "Documents" },
-		-- key and path attributes are required, desc is optional
-	},
-	desc_strategy = "path", -- If desc isn't present, use "path" or "filename", default is "path"
-	notify = false, -- Notify after hopping, default is false
-	fuzzy_cmd = "fzf", -- Fuzzy searching command, default is "fzf"
-})
 local catppuccin_theme = require("yatline-catppuccin"):setup("mocha")
 require("yatline"):setup({
 	theme = catppuccin_theme,

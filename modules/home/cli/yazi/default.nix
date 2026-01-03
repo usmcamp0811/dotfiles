@@ -69,11 +69,11 @@ in {
           ratio = [1 2 5];
           show_symlink = true;
           prepend_keymap = [
-            {
-              on = ";";
-              run = "plugin bunny";
-              desc = "Start bunny.yazi";
-            }
+            # {
+            #   on = ";";
+            #   run = "plugin bunny";
+            #   desc = "Start bunny.yazi";
+            # }
             {
               on = ["l"];
               run = "plugin smart-enter";
@@ -84,31 +84,26 @@ in {
               run = "plugin eza-preview";
               desc = "Toggle tree/list dir preview";
             }
-
             {
               on = ["-"];
               run = "plugin eza-preview '--inc-level'";
               desc = "Increment tree level";
             }
-
             {
               on = ["_"];
               run = "plugin eza-preview '--dec-level'";
               desc = "Decrement tree level";
             }
-
             {
               on = ["$"];
               run = "plugin eza-preview '--toggle-follow-symlinks'";
               desc = "Toggle tree follow symlinks";
             }
-
             {
               on = ["<C-d>"];
               run = "plugin diff";
               desc = "Diff the selected with the hovered file";
             }
-
             {
               on = ["t" "g"];
               run = "plugin lazygit";
@@ -119,46 +114,38 @@ in {
               run = "plugin vcs-files";
               desc = "Show Git file changes";
             }
-
             {
               on = ["T"];
               run = "plugin toggle-pane max-preview";
               desc = "Hide or show preview";
             }
-
             {
               on = ["M"];
               run = "plugin mount";
             }
-
             {
               on = ["<C-e>"];
               run = "seek 5";
             }
-
             {
               on = ["<C-y>"];
               run = "seek -5";
             }
-
             # {
             #   on = ["f" "g"];
             #   run = "plugin fg";
             #   desc = "find file by content";
             # }
-
             # {
             #   on = ["f" "f"];
             #   run = "plugin fg 'fzf'";
             #   desc = "find file by filename";
             # }
-
             # {
             #   on = ["f" "G"];
             #   run = "plugin fg 'rg'";
             #   desc = "find file by content (ripgrep match)";
             # }
-
             {
               on = ["C"];
               run = "plugin ouch zip";
@@ -195,7 +182,6 @@ in {
             }
           ];
         };
-
         open = {
           prepend_rules = [
             {
@@ -208,67 +194,40 @@ in {
             }
           ];
         };
-
         plugin = {
-          # prepend_fetchers = [
-          #   {
-          #     id = "git";
-          #     name = "*";
-          #     run = "git";
-          #   }
-          #
-          #   {
-          #     id = "git";
-          #     name = "*/";
-          #     run = "git";
-          #   }
-          # ];
           prepend_preloaders = [
             {
               mime = "{audio,video,image}/*";
               run = "mediainfo";
             }
-
             {
               mime = "application/subrip";
               run = "mediainfo";
             }
-
-            {
-              mime = "application/openxmlformats-officedocument.*";
-              run = "office";
-            }
-
-            {
-              mime = "application/oasis.opendocument.*";
-              run = "office";
-            }
-            {
-              mime = "application/ms-*";
-              run = "office";
-            }
-
-            {
-              mime = "application/msword";
-              run = "office";
-            }
-
-            {
-              name = "*.docx";
-              run = "office";
-            }
             # {
-            #   name = "*.csv";
-            #   run = "duckdb";
+            #   mime = "application/openxmlformats-officedocument.*";
+            #   run = "office";
+            # }
+            # {
+            #   mime = "application/oasis.opendocument.*";
+            #   run = "office";
+            # }
+            # {
+            #   mime = "application/ms-*";
+            #   run = "office";
+            # }
+            # {
+            #   mime = "application/msword";
+            #   run = "office";
+            # }
+            # {
+            #   name = "*.docx";
+            #   run = "office";
             # }
             {
               name = "*.tsv";
               run = "duckdb";
             }
-            # {
-            #   name = "*.json";
-            #   run = "duckdb";
-            # }
             {
               name = "*.parquet";
               run = "duckdb";
@@ -287,118 +246,90 @@ in {
               name = "*/";
               run = "eza-preview";
             }
-
             {
               mime = "{audio,video}/*";
               run = "mediainfo";
             }
-
             {
               name = "*.{jpg,png,webp}";
               run = "mediainfo";
             }
-
             {
               mime = "application/subrip";
               run = "mediainfo";
             }
-            # {
-            #   name = "*.csv";
-            #   run = "duckdb";
-            # }
             {
               name = "*.tsv";
               run = "duckdb";
             }
-            # {
-            #   name = "*.json";
-            #   run = "duckdb";
-            # }
             {
               name = "*.parquet";
               run = "duckdb";
             }
-
             {
               name = "*.csv";
               run = "rich-preview";
             }
-
             {
               name = "*.md";
               run = "rich-preview";
             }
-
             {
               name = "*.rst";
               run = "rich-preview";
             }
-
             {
               name = "*.ipynb";
               run = "rich-preview";
             }
-
             {
               name = "*.json";
               run = "rich-preview";
             }
-
-            {
-              mime = "application/openxmlformats-officedocument.*";
-              run = "office";
-            }
-
-            {
-              mime = "application/oasis.opendocument.*";
-              run = "office";
-            }
-
-            {
-              mime = "application/ms-*";
-              run = "office";
-            }
-
-            {
-              mime = "application/msword";
-              run = "office";
-            }
-
-            {
-              name = "*.docx";
-              run = "office";
-            }
-
+            # {
+            #   mime = "application/openxmlformats-officedocument.*";
+            #   run = "office";
+            # }
+            # {
+            #   mime = "application/oasis.opendocument.*";
+            #   run = "office";
+            # }
+            # {
+            #   mime = "application/ms-*";
+            #   run = "office";
+            # }
+            # {
+            #   mime = "application/msword";
+            #   run = "office";
+            # }
+            # {
+            #   name = "*.docx";
+            #   run = "office";
+            # }
             {
               mime = "application/*zip";
               run = "ouch";
             }
-
             {
               mime = "application/x-tar";
               run = "ouch";
             }
-
             {
               mime = "application/x-tar.gz";
               run = "ouch";
             }
-
             {
               mime = "application/x-bzip2";
               run = "ouch";
             }
-
             {
               mime = "application/x-7z-compressed";
               run = "ouch";
             }
-
             {
               mime = "application/x-rar";
               run = "ouch";
             }
-
             {
               mime = "application/x-xz";
               run = "ouch";
