@@ -390,7 +390,7 @@
         hostNames = builtins.attrNames (builtins.readDir hostDir);
         vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
         mkVmModules = name: {
-          modules = [fmfInputs.microvm.nixosModules.microvm];
+          modules = [inputs.microvm.nixosModules.microvm];
         };
         vmHostsConfig = builtins.listToAttrs (map (name: {
             inherit name;
@@ -409,10 +409,10 @@
           ];
 
           gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
+          base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
         };
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
-      systems.hosts.base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
 
       deploy = lib.mkDeploy {inherit (inputs) self;};
 
@@ -496,6 +496,10 @@
         snowfall = {
           path = ./templates/snowfall;
           description = "A template to quickly create a Snowfall based flake for managing systems; has some modules in it for examples...";
+        };
+        example-downstream-flake = {
+          path = ./templates/example-downstream-flake;
+          description = "A template to demonstrate and point to how to use this flake as an upstream source for NixOS Modules";
         };
       };
     };
