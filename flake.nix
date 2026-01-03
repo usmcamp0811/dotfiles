@@ -385,41 +385,31 @@
       #   unstable.nixosModules.services.k3s
       # ];
 
-      systems.hosts.butler.modules = with inputs; [
-        nixos-hardware.nixosModules.lenovo-thinkpad-p1
-        nixos-hardware.nixosModules.lenovo-thinkpad-p53
-      ];
+      systems.hosts = let
+        hostDir = ./systems/x86_64-linux;
+        hostNames = builtins.attrNames (builtins.readDir hostDir);
+        vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
+        mkVmModules = name: {
+          modules = [fmfInputs.microvm.nixosModules.microvm];
+        };
+        vmHostsConfig = builtins.listToAttrs (map (name: {
+            inherit name;
+            value = mkVmModules name;
+          })
+          vmHosts);
+      in
+        vmHostsConfig
+        // {
+          blue-ridge.modules = with inputs; [
+            disko.nixosModules.disko
+          ];
+          butler.modules = with inputs; [
+            nixos-hardware.nixosModules.lenovo-thinkpad-p1
+            nixos-hardware.nixosModules.lenovo-thinkpad-p53
+          ];
 
-      systems.hosts.gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
-
-      systems.hosts.blue-ridge.modules = with inputs; [
-        disko.nixosModules.disko
-      ];
-
-      # MicroVM guest configuration
-      systems.hosts.vm-vault.modules = with inputs; [
-        microvm.nixosModules.microvm
-      ];
-
-      systems.hosts.vm-websites.modules = with inputs; [
-        microvm.nixosModules.microvm
-      ];
-
-      systems.hosts.vm-lan-traefik.modules = with inputs; [
-        microvm.nixosModules.microvm
-      ];
-
-      systems.hosts.vm-pub-traefik.modules = with inputs; [
-        microvm.nixosModules.microvm
-      ];
-
-      systems.hosts.vm-adguard.modules = with inputs; [
-        microvm.nixosModules.microvm
-      ];
-
-      systems.hosts.vm-gitea.modules = with inputs; [
-        microvm.nixosModules.microvm
-      ];
+          gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
+        };
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
       systems.hosts.base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
