@@ -48,20 +48,20 @@ in {
         smart-enter = "${pkgs.yaziPlugins.smart-enter}";
         vcs-files = "${pkgs.yaziPlugins.vcs-files}";
 
-        office = "${inputs.office-yazi}";
+        # office = "${inputs.office-yazi}";
         rich-preview = "${pkgs.yaziPlugins.rich-preview}";
         eza-preview = "${inputs.eza-preview-yazi}";
         mediainfo = "${pkgs.yaziPlugins.mediainfo}";
-        fg = "${inputs.fzf-yazi}";
+        # fg = "${inputs.fzf-yazi}";
         glow = "${pkgs.yaziPlugins.glow}";
-        hexyl = "${inputs.hexyl-yazi}";
+        # hexyl = "${inputs.hexyl-yazi}";
         ouch = "${pkgs.yaziPlugins.ouch}";
         yatline = "${pkgs.yaziPlugins.yatline}";
         yatline-catppuccin = "${pkgs.yaziPlugins.yatline-catppuccin}";
         lazygit = "${pkgs.yaziPlugins.lazygit}";
         # githead = "${inputs.githead-yazi}";
         duckdb = "${pkgs.yaziPlugins.duckdb}";
-        bunny = "${inputs.bunny-yazi}";
+        # bunny = "${inputs.bunny-yazi}";
       };
       keymap = {
         mgr = {
