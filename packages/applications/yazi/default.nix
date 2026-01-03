@@ -1,49 +1,28 @@
 { lib
 , pkgs
 , inputs
+, makeWrapper
+, stdenv
 , ...
 }:
 with lib;
 with lib.fmf;
 let
-  # Patch the githead plugin to fix deprecated API
-  githead-patched = pkgs.stdenv.mkDerivation {
-    name = "githead-yazi-patched";
-    src = inputs.githead-yazi;
+  # Create a wrapped yazi with all plugins and config
+  campground-yazi = stdenv.mkDerivation {
+    name = "campground-yazi";
+
+    dontUnpack = true;
+    nativeBuildInputs = [ makeWrapper ];
 
     installPhase = ''
-      mkdir -p $out
-      cp -r $src/* $out/
-
-      # Fix deprecated ya.render() -> ui.render()
-      substituteInPlace $out/main.lua \
-        --replace-fail "ya.render()" "ui.render()"
-    '';
-  };
-
-  # Patch the yatline plugin to fix deprecated API
-  yatline-patched = pkgs.yaziPlugins.yatline.overrideAttrs (old: {
-    postPatch = (old.postPatch or "") + ''
-      # Fix any deprecated ya.truncate() -> ui.truncate()
-      find . -name "*.lua" -type f -exec sed -i 's/ya\.truncate(/ui.truncate(/g' {} +
-    '';
-  });
-
-  # Create custom yazi package with all the configs
-  campground-yazi = pkgs.symlinkJoin {
-    name = "campground-yazi";
-    paths = [ pkgs.yazi ];
-    buildInputs = [ pkgs.makeWrapper ];
-
-    postBuild = ''
-      # Create config directory structure
-      mkdir -p $out/share/yazi
+      # Create directory structure
+      mkdir -p $out/bin
+      mkdir -p $out/share/yazi/config
+      mkdir -p $out/share/yazi/plugins
 
       # Copy init.lua
-      cp ${./init.lua} $out/share/yazi/init.lua
-
-      # Create plugins directory
-      mkdir -p $out/share/yazi/plugins
+      cp ${./init.lua} $out/share/yazi/config/init.lua
 
       # Link all plugins
       ln -sf ${pkgs.yaziPlugins.chmod} $out/share/yazi/plugins/chmod.yazi
@@ -62,22 +41,34 @@ let
       ln -sf ${pkgs.yaziPlugins.glow} $out/share/yazi/plugins/glow.yazi
       ln -sf ${inputs.hexyl-yazi} $out/share/yazi/plugins/hexyl.yazi
       ln -sf ${pkgs.yaziPlugins.ouch} $out/share/yazi/plugins/ouch.yazi
-      ln -sf ${yatline-patched} $out/share/yazi/plugins/yatline.yazi
+      ln -sf ${pkgs.yaziPlugins.yatline} $out/share/yazi/plugins/yatline.yazi
       ln -sf ${pkgs.yaziPlugins.yatline-catppuccin} $out/share/yazi/plugins/yatline-catppuccin.yazi
       ln -sf ${pkgs.yaziPlugins.lazygit} $out/share/yazi/plugins/lazygit.yazi
-      ln -sf ${githead-patched} $out/share/yazi/plugins/githead.yazi
+      ln -sf ${inputs.githead-yazi} $out/share/yazi/plugins/githead.yazi
       ln -sf ${pkgs.yaziPlugins.duckdb} $out/share/yazi/plugins/duckdb.yazi
       ln -sf ${inputs.bunny-yazi} $out/share/yazi/plugins/bunny.yazi
 
       # Wrap the yazi binary to use our config
-      wrapProgram $out/bin/yazi \
-        --set YAZI_CONFIG_HOME "$out/share/yazi"
+      makeWrapper ${pkgs.yazi}/bin/yazi $out/bin/yazi \
+        --set YAZI_CONFIG_HOME "$out/share/yazi/config" \
+        --prefix PATH : ${lib.makeBinPath [
+          pkgs.mediainfo
+          pkgs.rich-cli
+          pkgs.ouch
+          pkgs.glow
+          pkgs.hexyl
+          pkgs.fzf
+          pkgs.eza
+          pkgs.duckdb
+        ]}
     '';
 
     meta = with lib; {
-      description = "Campground customized yazi file manager";
+      description = "Campground customized yazi file manager - portable version";
       homepage = "https://yazi-rs.github.io";
-      platforms = platforms.unix;
+      license = licenses.mit;
+      platforms = platforms.linux;
+      mainProgram = "yazi";
     };
   };
 in
