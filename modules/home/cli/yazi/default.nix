@@ -141,23 +141,23 @@ in {
               run = "seek -5";
             }
 
-            {
-              on = ["f" "g"];
-              run = "plugin fg";
-              desc = "find file by content";
-            }
+            # {
+            #   on = ["f" "g"];
+            #   run = "plugin fg";
+            #   desc = "find file by content";
+            # }
 
-            {
-              on = ["f" "f"];
-              run = "plugin fg 'fzf'";
-              desc = "find file by filename";
-            }
+            # {
+            #   on = ["f" "f"];
+            #   run = "plugin fg 'fzf'";
+            #   desc = "find file by filename";
+            # }
 
-            {
-              on = ["f" "G"];
-              run = "plugin fg 'rg'";
-              desc = "find file by content (ripgrep match)";
-            }
+            # {
+            #   on = ["f" "G"];
+            #   run = "plugin fg 'rg'";
+            #   desc = "find file by content (ripgrep match)";
+            # }
 
             {
               on = ["C"];
