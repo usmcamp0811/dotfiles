@@ -39,6 +39,12 @@ with lib.fmf; let
     echo "[clevis] Tang mode enabled; unlocking ${toString (length cfg.tang.devices)} device(s)"
     ${tangUnlockCommands}
   '';
+
+  unlockScript = pkgs.writeShellScript "fmf-clevis-unlock" (
+    if cfg.tang.enable
+    then tangPostCommands
+    else keyfilePostCommands
+  );
 in {
   options.fmf.system.clevis = with types; {
     enable = mkBoolOpt false "Whether or not to enable Clevis.";
@@ -50,6 +56,7 @@ in {
       mkOpt str "http://key-server:8080/zfs-keyfile"
       "The URL for the Clevis encrypted Keyfile";
 
+    # Defaults that match your current hardcoded values
     luksDevice = mkOpt str "/dev/nvme0n1p2" "Default LUKS block device to open (non-Tang mode).";
     luksName = mkOpt str "luks" "Default mapper name to use with cryptsetup (non-Tang mode).";
     luksKeyPath = mkOpt str "/luks.key" "Where to write the decrypted key inside initrd (non-Tang mode).";
@@ -60,6 +67,8 @@ in {
         instead of downloading/decrypting a remote keyfile.
       '';
 
+      # Supports “partition(s)” by letting you list multiple devices.
+      # Defaults to the same device/name you currently open, so flipping tang.enable=true “just works” for that case.
       devices =
         mkOpt (listOf (submodule ({...}: {
           options = {
@@ -74,6 +83,7 @@ in {
         ] "List of LUKS devices to unlock via Tang when tang.enable is true.";
     };
 
+    # Keep your current initrd ssh defaults as-is, but still configurable if you want.
     initrdSsh = {
       enable = mkBoolOpt true "Enable initrd SSH for remote unlock/debug (matches current behavior).";
       port = mkOpt types.port 22 "Initrd SSH port.";
@@ -87,6 +97,7 @@ in {
       ] "Host keys for initrd SSH.";
     };
 
+    # Keep your current kernel module + dhcp defaults
     initrdKernelModules =
       mkOpt (listOf str) ["iwlwifi" "igc" "nfsv4"]
       "Extra initrd kernel modules to make networking/NFS work in stage-1.";
@@ -95,24 +106,58 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [clevis];
 
-    boot.initrd.network = {
-      enable = true;
+    ##########################################################################
+    # Initrd networking + unlock flow (systemd stage-1)
+    ##########################################################################
+    # You have boot.initrd.systemd.enable = true in hardware.nix, so we must
+    # not use boot.initrd.network.postCommands. Use initrd systemd units instead.
+    boot.initrd.network.enable = true;
 
-      # Define once; choose behavior based on tang.enable
-      postCommands =
-        if cfg.tang.enable
-        then tangPostCommands
-        else keyfilePostCommands;
+    # Ensure required binaries exist in initrd.
+    boot.initrd.systemd.storePaths = [
+      pkgs.bash
+      pkgs.coreutils
+      pkgs.curl
+      pkgs.clevis
+      pkgs.cryptsetup
+    ];
 
-      ssh = mkIf cfg.initrdSsh.enable {
-        enable = true;
-        port = cfg.initrdSsh.port;
-        shell = cfg.initrdSsh.shell;
-        authorizedKeys = cfg.initrdSsh.authorizedKeys;
-        hostKeys = cfg.initrdSsh.hostKeys;
+    boot.initrd.systemd.services."fmf-clevis-unlock" = {
+      description = "FMF Clevis unlock (initrd)";
+      wantedBy = ["initrd.target"];
+
+      # We need network for Tang or keyfile download.
+      wants = ["network-online.target"];
+      after = ["network-online.target"];
+
+      # Make sure we unlock before systemd tries to mount the real root.
+      before = ["initrd-root-fs.target" "sysroot.mount"];
+
+      unitConfig = {
+        DefaultDependencies = false;
+      };
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${unlockScript}";
       };
     };
 
+    ##########################################################################
+    # Optional initrd SSH (kept as you had it)
+    ##########################################################################
+    boot.initrd.network.ssh = mkIf cfg.initrdSsh.enable {
+      enable = true;
+      port = cfg.initrdSsh.port;
+      shell = cfg.initrdSsh.shell;
+      authorizedKeys = cfg.initrdSsh.authorizedKeys;
+      hostKeys = cfg.initrdSsh.hostKeys;
+    };
+
+    ##########################################################################
+    # Modules + DHCP kernel param (kept)
+    ##########################################################################
     boot.initrd.availableKernelModules = cfg.initrdKernelModules;
     boot.kernelParams = ["ip=dhcp"];
   };
