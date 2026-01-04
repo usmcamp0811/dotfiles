@@ -13,10 +13,8 @@ in {
   options.fmf.system.clevis = with types; {
     enable = mkBoolOpt false "Whether or not to enable Clevis.";
 
-    hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
-
     keyfile-url =
-      mkOpt str "http://key-server:8080/zfs-keyfile"
+      mkOpt str "http://10.8.0.1/zfs-keyfile"
       "The URL for the Clevis encrypted Keyfile";
 
     # What /dev node to open (LUKS container partition)
