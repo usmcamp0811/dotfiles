@@ -56,15 +56,16 @@ in {
         # Clevis unlock service for Tang mode
         services.clevis-luks-unlock = mkIf (cfg.mode == "tang") {
           description = "Unlock LUKS with Clevis/Tang";
-          before = [ "systemd-cryptsetup@${cfg.luks-name}.service" ];
+          wantedBy = [ "systemd-cryptsetup@${cfg.luks-name}.service" ];
+          before = [ "systemd-cryptsetup@${cfg.luks-name}.service" "cryptsetup-pre.target" ];
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
+          unitConfig.DefaultDependencies = false;
           script = ''
             echo "Attempting to unlock ${cfg.luks-device} with Clevis/Tang..."
-            ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.luks-device} -n ${cfg.luks-name} || {
-              echo "Clevis unlock failed, falling back to password prompt"
-              exit 1
-            }
+            ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.luks-device} -n ${cfg.luks-name} && exit 0
+            echo "Clevis unlock failed, falling back to password prompt"
+            exit 0
           '';
           serviceConfig = {
             Type = "oneshot";
