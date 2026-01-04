@@ -16,116 +16,80 @@ in {
       mkOpt str "http://10.8.0.1/zfs-keyfile"
       "The URL for the Clevis encrypted Keyfile";
 
-    # What /dev node to open (LUKS container partition)
     luksDevice =
       mkOpt str "/dev/nvme0n1p2"
       "Block device path for the LUKS partition";
 
-    # The mapper name created by cryptsetup (appears under /dev/mapper/<name>)
-    # MUST match the disko name to avoid conflicts
     luksName =
       mkOpt str "crypted"
-      "Name for the opened LUKS mapping (must match disko.devices.disk.*.content.partitions.*.content.name)";
+      "Name for the opened LUKS mapping (must match disko name).";
 
-    # Where to write the decrypted key inside initrd
     luksKeyPath =
       mkOpt str "/luks.key"
       "Path in initrd where the decrypted keyfile will be written.";
 
-    # Optional: if you want to pin a specific key slot (usually leave null)
     luksKeySlot =
       mkOpt (nullOr int) null
       "Optional keyslot to use when opening the LUKS device. Null means default behavior.";
 
-    # Network kernel modules needed for your hardware
     networkModules =
       mkOpt (listOf str) []
-      "Kernel modules needed for network access during boot. Use lspci -v | grep -iA8 'network|ethernet' to find yours.";
+      "Kernel modules needed for network access during boot.";
   };
 
   config = mkIf cfg.enable {
-    # Disable disko's automatic LUKS unlock since we're using clevis
-    disko.devices.disk = lib.mkForce (
-      lib.mapAttrs (
-        name: disk:
-          disk
-          // {
-            content =
-              disk.content
-              // {
-                partitions =
-                  lib.mapAttrs (
-                    pname: part:
-                      if part.content.type or "" == "luks"
-                      then
-                        part
-                        // {
-                          content =
-                            part.content
-                            // {
-                              initrdUnlock = false; # Let clevis handle it
-                            };
-                        }
-                      else part
-                  )
-                  disk.content.partitions;
-              };
-          }
-      )
-      config.disko.devices.disk
-    );
-
     environment.systemPackages = with pkgs; [clevis cryptsetup curl];
+
+    # IMPORTANT: avoid self-referential forcing of disko.devices.disk here.
+    # Best practice: set initrdUnlock = false in the disko partition definition directly.
 
     boot.initrd.network = {
       enable = true;
 
-      # Use preLVMCommands instead of postCommands
-      # This runs BEFORE disko tries to mount filesystems
       preLVMCommands = ''
         set -euo pipefail
 
-        echo "Fetching encrypted keyfile from ${cfg.keyfile-url}..."
+        echo "Attempting clevis key fetch+decrypt..."
 
-        # Fetch encrypted keyfile and decrypt with clevis
-        enc="$(${pkgs.curl}/bin/curl -fsSL "${cfg.keyfile-url}" || {
-          echo "Failed to fetch keyfile from ${cfg.keyfile-url}"
-          echo "Network interfaces:"
-          ip addr
-          echo "Routes:"
-          ip route
-          exit 1
-        })"
-
-        key="$(echo "$enc" | ${pkgs.clevis}/bin/clevis decrypt || {
-          echo "Failed to decrypt keyfile with clevis"
-          exit 1
-        })"
-
-        # Write key to initrd path (avoid leaking to stdout)
         umask 0077
-        printf '%s' "$key" > "${cfg.luksKeyPath}"
 
-        echo "Keyfile decrypted successfully"
+        # If clevis path works, create a keyfile and open luks with it.
+        if enc="$(${pkgs.curl}/bin/curl -fsSL \
+              --connect-timeout 5 --max-time 15 \
+              "${cfg.keyfile-url}")"
+        then
+          if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
+          then
+            printf '%s' "$key" > "${cfg.luksKeyPath}"
 
-        # Open LUKS - check if already open first
-        if [ ! -e /dev/mapper/${cfg.luksName} ]; then
-          echo "Opening LUKS device ${cfg.luksDevice} as ${cfg.luksName}..."
-          ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
-            --key-file "${cfg.luksKeyPath}" \
-            ${optionalString (cfg.luksKeySlot != null) "--key-slot ${toString cfg.luksKeySlot}"} \
-            "${cfg.luksDevice}" \
-            "${cfg.luksName}" || {
-              echo "Failed to open LUKS device"
-              exit 1
-            }
-          echo "LUKS device opened successfully"
+            if [ ! -e /dev/mapper/${cfg.luksName} ]; then
+              echo "Opening LUKS device ${cfg.luksDevice} as ${cfg.luksName} using clevis key..."
+              ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
+                --key-file "${cfg.luksKeyPath}" \
+                ${optionalString (cfg.luksKeySlot != null) "--key-slot ${toString cfg.luksKeySlot}"} \
+                "${cfg.luksDevice}" \
+                "${cfg.luksName}"
+            else
+              echo "LUKS device ${cfg.luksName} already open"
+            fi
+
+            rm -f "${cfg.luksKeyPath}"
+            echo "Clevis unlock succeeded."
+            exit 0
+          else
+            echo "Clevis decrypt failed."
+          fi
         else
-          echo "LUKS device ${cfg.luksName} already open"
+          echo "Fetch failed for ${cfg.keyfile-url}"
         fi
 
-        # Clean up keyfile
-        rm -f "${cfg.luksKeyPath}"
+        # Fallback: prompt for passphrase (console + initrd ssh askpass)
+        echo "Falling back to passphrase prompt..."
+        if [ ! -e /dev/mapper/${cfg.luksName} ]; then
+          ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
+            "${cfg.luksDevice}" \
+            "${cfg.luksName}"
+        fi
       '';
 
       ssh = {
@@ -139,13 +103,16 @@ in {
       };
     };
 
-    boot.initrd.availableKernelModules = cfg.networkModules;
-    boot.kernelParams = ["ip=dhcp"];
+    # Don't clobber existing initrd modules / kernel params
+    boot.initrd.availableKernelModules = mkAfter cfg.networkModules;
+    boot.kernelParams = mkAfter ["ip=dhcp"];
 
-    # Add clevis tools to initrd
+    # Ensure the exact store-path binaries referenced by the script exist in initrd
     boot.initrd.extraUtilsCommands = ''
       copy_bin_and_libs ${pkgs.clevis}/bin/clevis
       copy_bin_and_libs ${pkgs.curl}/bin/curl
+      copy_bin_and_libs ${pkgs.cryptsetup}/bin/cryptsetup
+      copy_bin_and_libs ${pkgs.iproute2}/bin/ip
     '';
   };
 }
