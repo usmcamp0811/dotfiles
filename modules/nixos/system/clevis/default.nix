@@ -18,6 +18,27 @@ with lib.fmf; let
     '')
     cfg.tang.devices
   );
+
+  keyfilePostCommands = ''
+    set -euo pipefail
+
+    echo "[clevis] Fetching encrypted keyfile from: ${escapeShellArg cfg."keyfile-url"}"
+    enc="$(${pkgs.curl}/bin/curl -s ${escapeShellArg cfg."keyfile-url"})"
+
+    echo "$enc" | ${pkgs.clevis}/bin/clevis decrypt > ${escapeShellArg cfg.luksKeyPath}
+
+    ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
+      --key-file ${escapeShellArg cfg.luksKeyPath} \
+      ${escapeShellArg cfg.luksDevice} \
+      ${escapeShellArg cfg.luksName}
+  '';
+
+  tangPostCommands = ''
+    set -euo pipefail
+
+    echo "[clevis] Tang mode enabled; unlocking ${toString (length cfg.tang.devices)} device(s)"
+    ${tangUnlockCommands}
+  '';
 in {
   options.fmf.system.clevis = with types; {
     enable = mkBoolOpt false "Whether or not to enable Clevis.";
@@ -25,11 +46,10 @@ in {
     hostId = mkOpt str "12345678" "The output of head -c 8 /etc/machine-id";
 
     # Keep current default behavior (remote encrypted keyfile -> clevis decrypt -> cryptsetup luksOpen)
-    keyfile-url =
+    "keyfile-url" =
       mkOpt str "http://key-server:8080/zfs-keyfile"
       "The URL for the Clevis encrypted Keyfile";
 
-    # Defaults that match your current hardcoded values
     luksDevice = mkOpt str "/dev/nvme0n1p2" "Default LUKS block device to open (non-Tang mode).";
     luksName = mkOpt str "luks" "Default mapper name to use with cryptsetup (non-Tang mode).";
     luksKeyPath = mkOpt str "/luks.key" "Where to write the decrypted key inside initrd (non-Tang mode).";
@@ -40,8 +60,6 @@ in {
         instead of downloading/decrypting a remote keyfile.
       '';
 
-      # Supports “partition(s)” by letting you list multiple devices.
-      # Defaults to the same device/name you currently open, so flipping tang.enable=true “just works” for that case.
       devices =
         mkOpt (listOf (submodule ({...}: {
           options = {
@@ -56,7 +74,6 @@ in {
         ] "List of LUKS devices to unlock via Tang when tang.enable is true.";
     };
 
-    # Keep your current initrd ssh defaults as-is, but still configurable if you want.
     initrdSsh = {
       enable = mkBoolOpt true "Enable initrd SSH for remote unlock/debug (matches current behavior).";
       port = mkOpt types.port 22 "Initrd SSH port.";
@@ -70,7 +87,6 @@ in {
       ] "Host keys for initrd SSH.";
     };
 
-    # Keep your current kernel module + dhcp defaults
     initrdKernelModules =
       mkOpt (listOf str) ["iwlwifi" "igc" "nfsv4"]
       "Extra initrd kernel modules to make networking/NFS work in stage-1.";
@@ -82,32 +98,11 @@ in {
     boot.initrd.network = {
       enable = true;
 
-      # Default mode stays exactly like you have now.
-      postCommands = mkIf (!cfg.tang.enable) ''
-        set -euo pipefail
-
-        echo "[clevis] Fetching encrypted keyfile from: ${escapeShellArg cfg.keyfile-url}"
-        enc="$(${pkgs.curl}/bin/curl -s ${escapeShellArg cfg.keyfile-url})"
-
-        echo "$enc" | ${pkgs.clevis}/bin/clevis decrypt > ${escapeShellArg cfg.luksKeyPath}
-
-        # NOTE: You had `cat /luks.key` for debugging; keeping it is risky (it prints a secret).
-        # Leaving it commented to preserve your intent without leaking the key.
-        # cat ${escapeShellArg cfg.luksKeyPath}
-
-        ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
-          --key-file ${escapeShellArg cfg.luksKeyPath} \
-          ${escapeShellArg cfg.luksDevice} \
-          ${escapeShellArg cfg.luksName}
-      '';
-
-      # Tang mode: use the Tang binding stored in the LUKS header(s).
-      postCommands = mkIf cfg.tang.enable ''
-        set -euo pipefail
-
-        echo "[clevis] Tang mode enabled; unlocking ${toString (length cfg.tang.devices)} device(s)"
-        ${tangUnlockCommands}
-      '';
+      # Define once; choose behavior based on tang.enable
+      postCommands =
+        if cfg.tang.enable
+        then tangPostCommands
+        else keyfilePostCommands;
 
       ssh = mkIf cfg.initrdSsh.enable {
         enable = true;
