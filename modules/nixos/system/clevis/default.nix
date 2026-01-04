@@ -38,24 +38,60 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [clevis jose];
 
-    boot.initrd.network = {
-      enable = true;
+    boot.initrd = {
+      availableKernelModules = cfg.availableKernelModules;
 
-      postCommands =
-        if cfg.mode == "tang" then ''
-          # Tang mode: Use clevis to unlock LUKS directly
-          echo "Attempting to unlock ${cfg.luks-device} with Clevis/Tang..."
-          ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.luks-device} -n ${cfg.luks-name} || echo "Clevis unlock failed, falling back to password prompt"
-        ''
-        else ''
-          # HTTP keyfile mode (legacy)
-          echo "Fetching and decrypting keyfile from ${cfg.keyfile-url}..."
-          echo $(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt) > /luks.key
-          cat /luks.key
-          ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file /luks.key ${cfg.keyfile-luks-device} ${cfg.keyfile-luks-name}
-        '';
+      systemd = {
+        enable = true;
 
-      ssh = mkIf cfg.ssh-enable {
+        # Network configuration for Tang access
+        network = {
+          enable = true;
+          networks."10-initrd" = {
+            matchConfig.Type = "ether";
+            networkConfig.DHCP = "yes";
+          };
+        };
+
+        # Clevis unlock service for Tang mode
+        services.clevis-luks-unlock = mkIf (cfg.mode == "tang") {
+          description = "Unlock LUKS with Clevis/Tang";
+          before = [ "systemd-cryptsetup@${cfg.luks-name}.service" ];
+          wants = [ "network-online.target" ];
+          after = [ "network-online.target" ];
+          script = ''
+            echo "Attempting to unlock ${cfg.luks-device} with Clevis/Tang..."
+            ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.luks-device} -n ${cfg.luks-name} || {
+              echo "Clevis unlock failed, falling back to password prompt"
+              exit 1
+            }
+          '';
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+          };
+        };
+
+        # HTTP keyfile unlock service for legacy mode
+        services.clevis-http-unlock = mkIf (cfg.mode == "http-keyfile") {
+          description = "Unlock LUKS with HTTP Keyfile";
+          before = [ "systemd-cryptsetup@${cfg.keyfile-luks-name}.service" ];
+          wants = [ "network-online.target" ];
+          after = [ "network-online.target" ];
+          script = ''
+            echo "Fetching and decrypting keyfile from ${cfg.keyfile-url}..."
+            ${pkgs.curl}/bin/curl -s ${cfg.keyfile-url} | ${pkgs.clevis}/bin/clevis decrypt > /luks.key
+            ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file /luks.key ${cfg.keyfile-luks-device} ${cfg.keyfile-luks-name}
+          '';
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+          };
+        };
+      };
+
+      # SSH access in initrd (optional)
+      network.ssh = mkIf cfg.ssh-enable {
         enable = true;
         port = cfg.ssh-port;
         shell = "/bin/cryptsetup-askpass";
@@ -64,7 +100,6 @@ in {
       };
     };
 
-    boot.initrd.availableKernelModules = cfg.availableKernelModules;
     boot.kernelParams = ["ip=dhcp"];
   };
 }
