@@ -30,74 +30,70 @@ in {
     tang-luks-name = mkOpt str "crypted" "Name for Tang unlocked device";
   };
 
-  config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [clevis];
+  config = mkIf cfg.enable (mkMerge [
+    # Common configuration
+    {
+      environment.systemPackages = with pkgs; [clevis];
+      boot.initrd.availableKernelModules = ["iwlwifi" "igc" "nfsv4"];
+      boot.kernelParams = ["ip=dhcp"];
+    }
 
-    boot.initrd = mkMerge [
-      # Common configuration
-      {
-        availableKernelModules = ["iwlwifi" "igc" "nfsv4"];
-      }
-
-      # For non-systemd initrd (legacy)
-      (mkIf (!config.boot.initrd.systemd.enable) {
-        network = {
+    # For non-systemd initrd (legacy)
+    (mkIf (!config.boot.initrd.systemd.enable) {
+      boot.initrd.network = {
+        enable = true;
+        postCommands =
+          if cfg.mode == "tang" then ''
+            # Tang mode: use clevis to unlock directly
+            ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.tang-luks-device} -n ${cfg.tang-luks-name} || echo "Clevis/Tang unlock failed, falling back to password"
+          ''
+          else ''
+            # HTTP keyfile mode (original behavior)
+            echo $(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt) > /luks.key
+            cat /luks.key
+            cryptsetup luksOpen --key-file /luks.key ${cfg.luks-device} ${cfg.luks-name}
+          '';
+        ssh = {
           enable = true;
-          postCommands =
-            if cfg.mode == "tang" then ''
-              # Tang mode: use clevis to unlock directly
-              ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.tang-luks-device} -n ${cfg.tang-luks-name} || echo "Clevis/Tang unlock failed, falling back to password"
-            ''
-            else ''
-              # HTTP keyfile mode (original behavior)
-              echo $(echo $(${pkgs.curl}/bin/curl -s ${cfg.keyfile-url}) | ${pkgs.clevis}/bin/clevis decrypt) > /luks.key
-              cat /luks.key
-              cryptsetup luksOpen --key-file /luks.key ${cfg.luks-device} ${cfg.luks-name}
-            '';
-          ssh = {
-            enable = true;
-            port = 22;
-            shell = "/bin/cryptsetup-askpass";
-            authorizedKeys = [
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler"
-            ];
-            hostKeys = ["/etc/ssh/ssh_host_rsa_key" "/etc/ssh/ssh_host_ed25519_key"];
-          };
+          port = 22;
+          shell = "/bin/cryptsetup-askpass";
+          authorizedKeys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler"
+          ];
+          hostKeys = ["/etc/ssh/ssh_host_rsa_key" "/etc/ssh/ssh_host_ed25519_key"];
         };
-      })
+      };
+    })
 
-      # For systemd initrd
-      (mkIf config.boot.initrd.systemd.enable {
-        systemd.network = {
-          enable = true;
-          networks."10-initrd" = {
-            matchConfig.Type = "ether";
-            networkConfig.DHCP = "yes";
-          };
+    # For systemd initrd
+    (mkIf config.boot.initrd.systemd.enable {
+      boot.initrd.systemd.network = {
+        enable = true;
+        networks."10-initrd" = {
+          matchConfig.Type = "ether";
+          networkConfig.DHCP = "yes";
         };
+      };
 
-        systemd.services.clevis-unlock = {
-          description = "Unlock LUKS with Clevis";
-          before = [ "cryptsetup-pre.target" ];
-          wants = [ "network-online.target" ];
-          after = [ "network-online.target" ];
-          unitConfig.DefaultDependencies = false;
-          script =
-            if cfg.mode == "tang" then ''
-              ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.tang-luks-device} -n ${cfg.tang-luks-name} || echo "Clevis/Tang unlock failed"
-            ''
-            else ''
-              ${pkgs.curl}/bin/curl -s ${cfg.keyfile-url} | ${pkgs.clevis}/bin/clevis decrypt > /luks.key
-              ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file /luks.key ${cfg.luks-device} ${cfg.luks-name}
-            '';
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-          };
+      boot.initrd.systemd.services.clevis-unlock = {
+        description = "Unlock LUKS with Clevis";
+        before = [ "cryptsetup-pre.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+        unitConfig.DefaultDependencies = false;
+        script =
+          if cfg.mode == "tang" then ''
+            ${pkgs.clevis}/bin/clevis luks unlock -d ${cfg.tang-luks-device} -n ${cfg.tang-luks-name} || echo "Clevis/Tang unlock failed"
+          ''
+          else ''
+            ${pkgs.curl}/bin/curl -s ${cfg.keyfile-url} | ${pkgs.clevis}/bin/clevis decrypt > /luks.key
+            ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file /luks.key ${cfg.luks-device} ${cfg.luks-name}
+          '';
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
         };
-      })
-    ];
-
-    boot.kernelParams = ["ip=dhcp"];
-  };
+      };
+    })
+  ]);
 }
