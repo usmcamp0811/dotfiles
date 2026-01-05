@@ -11,7 +11,7 @@ with lib.fmf; let
 
   defaultInitrdAuthorizedKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler";
 
-  # If user leaves luksDevice at default, try to infer it from disko if there's exactly one luks partition.
+  # If luksDevice is null, try to infer it from disko when there's exactly one luks partition.
   inferredLuksDevice = let
     disks = config.disko.devices.disk or {};
     parts = lib.concatLists (
@@ -24,21 +24,17 @@ with lib.fmf; let
           (attrValues (disk.content.partitions or {}))
       ) (attrValues disks)
     );
-    luksParts =
-      builtins.filter (x: (x.part.content.type or "") == "luks") parts;
-    pick =
-      if builtins.length luksParts == 1
-      then let
-        diskDevice = (builtins.head luksParts).disk.device or null;
-        # disko in your case: ESP is part1, luks is part2
-        # We can only safely infer "-part2" when diskDevice is a /dev/disk/by-id/* path.
-      in
-        if diskDevice != null && lib.hasPrefix "/dev/disk/by-id/" diskDevice
-        then "${diskDevice}-part2"
-        else null
-      else null;
+    luksParts = builtins.filter (x: (x.part.content.type or "") == "luks") parts;
   in
-    pick;
+    if builtins.length luksParts == 1
+    then let
+      diskDevice = (builtins.head luksParts).disk.device or null;
+    in
+      # Your layout: ESP is part1, LUKS is part2
+      if diskDevice != null && lib.hasPrefix "/dev/disk/by-id/" diskDevice
+      then "${diskDevice}-part2"
+      else null
+    else null;
 
   effectiveLuksDevice =
     if cfg.luksDevice != null
@@ -52,7 +48,7 @@ in {
       mkOpt str "http://10.8.0.1/zfs-keyfile"
       "URL to fetch the Clevis-encrypted keyfile from (reachable in initrd).";
 
-    # Allow null so we can infer from disko when possible
+    # Allow null so we can infer from disko when possible.
     luksDevice =
       mkOpt (nullOr str) null
       "Block device path for the LUKS partition (e.g. /dev/disk/by-id/...-part2). If null, tries to infer from disko when possible.";
@@ -64,7 +60,13 @@ in {
     # Where to drop the key for initrd/systemd-cryptsetup
     keyDropPath =
       mkOpt str "/run/cryptsetup-keys.d"
-      "Directory in initrd to drop keyfiles for cryptsetup.";
+      "Directory in initrd to drop keyfiles for cryptsetup (key will be <keyDropPath>/<luksName>.key).";
+
+    # Optional: only used in the *fallback* manual luksOpen path (passphrase prompt),
+    # but kept because it can help if you pin a slot.
+    luksKeySlot =
+      mkOpt (nullOr int) null
+      "Optional keyslot to use (applies only to keyfile-based luksOpen, not the passphrase prompt).";
 
     enableInitrdSsh =
       mkBoolOpt true "Enable SSH in initrd for remote unlocking.";
@@ -91,7 +93,10 @@ in {
     assertions = [
       {
         assertion = effectiveLuksDevice != null;
-        message = "fmf.system.clevis: luksDevice is null and could not be inferred from disko. Set fmf.system.clevis.luksDevice (for edson it should be /dev/disk/by-id/ata-FPT310M4SSD256G_221209A00529-part2).";
+        message = ''
+          fmf.system.clevis: luksDevice is null and could not be inferred from disko.
+          Set fmf.system.clevis.luksDevice (for edson it should be /dev/disk/by-id/ata-FPT310M4SSD256G_221209A00529-part2).
+        '';
       }
     ];
 
@@ -103,44 +108,36 @@ in {
     boot.initrd.network = {
       enable = true;
 
-      # postCommands runs after initrd networking is up.
-      # We DO NOT luksOpen here; we just drop a keyfile for the normal unlock path.
+      # Runs after initrd networking is up.
+      # IMPORTANT: do not "exit" PID 1; everything is inside a subshell.
       postCommands = ''
         (
           set -euo pipefail
 
+          # If already open, nothing to do.
           if [ -e "/dev/mapper/${cfg.luksName}" ]; then
-            echo "LUKS device ${cfg.luksName} already open; skipping clevis unlock."
+            echo "LUKS device ${cfg.luksName} already open; skipping."
             exit 0
           fi
 
-          echo "Attempting clevis key fetch+decrypt..."
+          keydir="${cfg.keyDropPath}"
+          keyfile="$keydir/${cfg.luksName}.key"
+          mkdir -p "$keydir"
           umask 0077
 
+          echo "Fetching encrypted keyfile from ${cfg.keyfile-url}..."
           if enc="$(${pkgs.curl}/bin/curl -fsSL \
                 --connect-timeout ${toString cfg.curlConnectTimeoutSeconds} \
                 --max-time ${toString cfg.curlMaxTimeSeconds} \
                 "${cfg.keyfile-url}")"
           then
+            echo "Decrypting keyfile with clevis..."
             if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
             then
-              printf '%s' "$key" > "${cfg.luksKeyPath}"
-
-              echo "Opening LUKS device ${cfg.luksDevice} as ${cfg.luksName} using clevis key..."
-              ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
-                --key-file "${cfg.luksKeyPath}" \
-                ${optionalString (cfg.luksKeySlot != null) "--key-slot ${toString cfg.luksKeySlot}"} \
-                "${cfg.luksDevice}" \
-                "${cfg.luksName}" || true
-
-              rm -f "${cfg.luksKeyPath}"
-
-              if [ -e "/dev/mapper/${cfg.luksName}" ]; then
-                echo "Clevis unlock succeeded."
-                exit 0
-              else
-                echo "Clevis path ran, but LUKS is still not open."
-              fi
+              # Drop key for the normal initrd unlock path (systemd-cryptsetup / cryptsetup tooling)
+              printf '%s' "$key" > "$keyfile"
+              echo "Key dropped at $keyfile (initrd will use it to unlock ${cfg.luksName})"
+              exit 0
             else
               echo "Clevis decrypt failed."
             fi
@@ -152,10 +149,9 @@ in {
             ${pkgs.iproute2}/bin/ip route || true
           fi
 
-          echo "Falling back to passphrase prompt..."
-          ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
-            "${cfg.luksDevice}" \
-            "${cfg.luksName}"
+          # Fallback: prompt for passphrase on the correct device.
+          echo "Falling back to passphrase prompt for ${effectiveLuksDevice}..."
+          ${pkgs.cryptsetup}/bin/cryptsetup luksOpen "${effectiveLuksDevice}" "${cfg.luksName}"
         ) || true
       '';
 
@@ -168,6 +164,7 @@ in {
       };
     };
 
+    # Ensure referenced binaries exist in initrd
     boot.initrd.extraUtilsCommands = ''
       copy_bin_and_libs ${pkgs.clevis}/bin/clevis
       copy_bin_and_libs ${pkgs.curl}/bin/curl
