@@ -28,6 +28,7 @@ with lib.fmf; let
 
   saveCert2Vault = pkgs.writeShellScriptBin "save-certs" ''
     ACME_JSON="${cfg.acme-path}"
+    # Vault base path
     VAULT_BASE_PATH="${cfg.vault-path}"
 
     ROLE_ID=$(cat "${cfg.role-id}")
@@ -35,70 +36,69 @@ with lib.fmf; let
     export VAULT_ADDR="${cfg.vault-address}"
     export VAULT_TOKEN=$(${pkgs.curl}/bin/curl -s --request POST --data '{"role_id":"'$ROLE_ID'","secret_id":"'$SECRET_ID'"}' "$VAULT_ADDR/v1/auth/approle/login" | ${pkgs.jq}/bin/jq -r '.auth.client_token')
 
+    # Check if acme.json exists
     if [[ ! -f "$ACME_JSON" ]]; then
-      echo "Error: $ACME_JSON not found."
-      exit 1
+        echo "Error: $ACME_JSON not found."
+        exit 1
     fi
 
+    # Parse acme.json and extract certificates and keys
     certificates=$(${pkgs.jq}/bin/jq -c '.cloudflare.Certificates[]' "$ACME_JSON")
     if [[ -z "$certificates" ]]; then
-      echo "Error: No certificates found in $ACME_JSON."
-      exit 1
+        echo "Error: No certificates found in $ACME_JSON."
+        exit 1
     fi
 
+    # Loop through each certificate entry
     while IFS= read -r cert_entry; do
-      domain=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.domain.main')
-      cert=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.certificate')
-      key=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.key')
+        domain=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.domain.main')
+        cert=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.certificate')
+        key=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.key')
 
-      if [[ -z "$domain" || -z "$cert" || -z "$key" ]]; then
-        echo "Warning: Incomplete data for a certificate, skipping."
-        continue
-      fi
+        if [[ -z "$domain" || -z "$cert" || -z "$key" ]]; then
+            echo "Warning: Incomplete data for a certificate, skipping."
+            continue
+        fi
 
-      vault_path="$VAULT_BASE_PATH/$domain"
-      echo "Saving certificate for $domain to Vault at $vault_path..."
+        # Vault path for the domain
+        vault_path="$VAULT_BASE_PATH/$domain"
+        echo "Saving certificate for $domain to Vault at $vault_path..."
 
-      echo "$cert" | base64 -d > cert.pem
-      echo "$key" | base64 -d > key.pem
-      ${pkgs.vault-bin}/bin/vault kv put "$vault_path" cert=@cert.pem key=@key.pem
+        # Store in Vault using CLI
+        echo "$cert" | base64 -d > cert.pem
+        echo "$key" | base64 -d > key.pem
+        ${pkgs.vault-bin}/bin/vault kv put "$vault_path" cert=@cert.pem key=@key.pem
 
-      if [[ $? -ne 0 ]]; then
-        echo "Error: Failed to save certificate for $domain."
-      else
-        echo "Certificate for $domain saved successfully."
-      fi
+        if [[ $? -ne 0 ]]; then
+            echo "Error: Failed to save certificate for $domain."
+        else
+            echo "Certificate for $domain saved successfully."
+        fi
 
-      rm -f cert.pem key.pem
+        # Cleanup temporary files
+        rm -f cert.pem key.pem
     done <<< "$certificates"
 
     echo "All certificates processed."
   '';
 in {
   options.fmf.services.traefik = with types; {
-    enable = mkBoolOpt false "Enable an Tang;";
+    enable = mkBoolOpt false "Enable Traefik.";
     email = mkOpt str config.fmf.user.email "The email to use.";
-
-    # Note: this currently controls *whether the docker provider is enabled at all*.
-    docker-provider = mkBoolOpt false "Enable Traefik docker provider.";
-
+    docker-provider = mkBoolOpt false "Whether or not to enable the Docker provider.";
     acme-path =
       mkOpt str "/var/lib/traefik/acme.json"
       "The location Traefik saves the certs";
-
     domains = mkOption {
       type = listOf str;
       default = ["aicampground.com"];
       example = ["example.com" "example.org"];
       description = "List of domains.";
     };
-
     log-path =
       mkOpt str "/var/lib/traefik/access.log"
       "The location to store the access log.";
-
     insecure = mkBoolOpt false "Insecure dashboard?";
-
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
       default = {};
@@ -112,23 +112,39 @@ in {
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
 
+    # NEW: versions for Traefik's experimental.plugins (NOT localPlugins)
+    pluginVersions = mkOption {
+      type = attrsOf str;
+      default = {
+        cloudflarewarp = "v0.0.0";
+        fail2ban = "v0.0.0";
+      };
+      example = {
+        cloudflarewarp = "v1.2.3";
+        fail2ban = "v0.1.0";
+      };
+      description = ''
+        Versions for Traefik experimental plugins.
+
+        IMPORTANT: set these to real tags that exist in the plugin repos.
+        The default "v0.0.0" is just a placeholder to keep evaluation working.
+      '';
+    };
+
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-
     vault-path =
       mkOpt str "secret/campground/cloudflare"
       "The Vault path to the KV containing the KVs that are for each database";
-
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
-
     vault-address = mkOption {
       type = str;
       default = config.fmf.services.vault-agent.settings.vault.address;
@@ -137,48 +153,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    ##########################################################################
-    # Fix for your crash:
-    # Traefik buffer middleware writes temp files to /tmp. On this VM /tmp is on
-    # the tiny 3G rootfs, so large uploads => "no space left on device".
-    # Force Traefik temp files onto the big filesystem instead.
-    ##########################################################################
-    systemd.tmpfiles.rules = [
-      # Traefik service user should be able to write here
-      "d /var/lib/traefik/tmp 0750 traefik traefik - -"
-    ];
-
-    systemd.services.traefik.serviceConfig = {
-      # Put Traefik temp files on the large disk, not rootfs:/tmp
-      Environment = [
-        "TMPDIR=/var/lib/traefik/tmp"
-        "TMP=/var/lib/traefik/tmp"
-        "TEMP=/var/lib/traefik/tmp"
-      ];
-
-      # Ensure Traefik always restarts on failure
-      Restart = mkDefault "always";
-      RestartSec = "5s";
-
-      # Restart even on successful exit
-      RestartForceExitStatus = [0];
-
-      # Aggressive restart policy
-      StartLimitIntervalSec = 0; # Disable start rate limiting
-
-      # Ensure service is restarted if it becomes unresponsive
-      TimeoutStartSec = "60s";
-      TimeoutStopSec = "30s";
-    };
-
-    ##########################################################################
-    # If docker provider is disabled, don't add docker group and don't configure
-    # the provider (avoids the /var/run/docker.sock retry spam).
-    ##########################################################################
-    users.users.traefik = mkIf cfg.docker-provider {
-      extraGroups = ["docker"];
-    };
-
     systemd.services.saveCertsToVault = {
       description = "Save TLS Certs in Vault";
       serviceConfig = {
@@ -194,14 +168,35 @@ in {
       after = ["traefik.service"];
     };
 
+    systemd.services.traefik.serviceConfig = {
+      Restart = "always";
+      RestartSec = "5s";
+      RestartForceExitStatus = [0];
+      StartLimitIntervalSec = 0;
+      TimeoutStartSec = "60s";
+      TimeoutStopSec = "30s";
+    };
+
+    users.users.traefik = {extraGroups = ["docker"];};
+
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
 
       staticConfigOptions = {
-        experimental.localPlugins = {
-          cloudflarewarp.moduleName = "github.com/fma965/cloudflarewarp";
-          fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
+        # FIX: use experimental.plugins instead of experimental.localPlugins
+        # localPlugins causes nixpkgs traefik build to try to copy plugin sources into $out and it fails.
+        experimental = {
+          plugins = {
+            cloudflarewarp = {
+              moduleName = "github.com/fma965/cloudflarewarp";
+              version = cfg.pluginVersions.cloudflarewarp;
+            };
+            fail2ban = {
+              moduleName = "github.com/tomMoulard/fail2ban";
+              version = cfg.pluginVersions.fail2ban;
+            };
+          };
         };
 
         serversTransport = {
@@ -246,7 +241,6 @@ in {
                 permanent = true;
               };
             };
-
             websecure = {
               transport = {
                 respondingTimeouts = {
@@ -307,13 +301,7 @@ in {
           };
         };
 
-        # Only configure docker provider if enabled
-        providers = {
-          docker = mkIf cfg.docker-provider {
-            exposedByDefault = false;
-            endpoint = "unix:///var/run/docker.sock";
-          };
-        };
+        providers.docker.exposedByDefault = cfg.docker-provider;
 
         metrics = {
           prometheus = {
