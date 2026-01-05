@@ -106,37 +106,57 @@ in {
       # postCommands runs after initrd networking is up.
       # We DO NOT luksOpen here; we just drop a keyfile for the normal unlock path.
       postCommands = ''
-        set -euo pipefail
+        (
+          set -euo pipefail
 
-        # If already open, nothing to do.
-        if [ -e "/dev/mapper/${cfg.luksName}" ]; then
-          echo "LUKS device ${cfg.luksName} already open; skipping."
-          exit 0
-        fi
-
-        mkdir -p "${cfg.keyDropPath}"
-        umask 0077
-
-        keyfile="${cfg.keyDropPath}/${cfg.luksName}.key"
-
-        echo "Fetching encrypted keyfile from ${cfg.keyfile-url}..."
-        if enc="$(${pkgs.curl}/bin/curl -fsSL \
-              --connect-timeout ${toString cfg.curlConnectTimeoutSeconds} \
-              --max-time ${toString cfg.curlMaxTimeSeconds} \
-              "${cfg.keyfile-url}")"
-        then
-          echo "Decrypting keyfile with clevis..."
-          if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
-          then
-            printf '%s' "$key" > "$keyfile"
-            echo "Key dropped at $keyfile"
+          if [ -e "/dev/mapper/${cfg.luksName}" ]; then
+            echo "LUKS device ${cfg.luksName} already open; skipping clevis unlock."
             exit 0
           fi
-        fi
 
-        echo "Clevis key drop failed; falling back to passphrase prompt for ${effectiveLuksDevice}"
-        # This opens the correct device and creates /dev/mapper/${cfg.luksName}; then normal boot should proceed.
-        ${pkgs.cryptsetup}/bin/cryptsetup luksOpen "${effectiveLuksDevice}" "${cfg.luksName}"
+          echo "Attempting clevis key fetch+decrypt..."
+          umask 0077
+
+          if enc="$(${pkgs.curl}/bin/curl -fsSL \
+                --connect-timeout ${toString cfg.curlConnectTimeoutSeconds} \
+                --max-time ${toString cfg.curlMaxTimeSeconds} \
+                "${cfg.keyfile-url}")"
+          then
+            if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
+            then
+              printf '%s' "$key" > "${cfg.luksKeyPath}"
+
+              echo "Opening LUKS device ${cfg.luksDevice} as ${cfg.luksName} using clevis key..."
+              ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
+                --key-file "${cfg.luksKeyPath}" \
+                ${optionalString (cfg.luksKeySlot != null) "--key-slot ${toString cfg.luksKeySlot}"} \
+                "${cfg.luksDevice}" \
+                "${cfg.luksName}" || true
+
+              rm -f "${cfg.luksKeyPath}"
+
+              if [ -e "/dev/mapper/${cfg.luksName}" ]; then
+                echo "Clevis unlock succeeded."
+                exit 0
+              else
+                echo "Clevis path ran, but LUKS is still not open."
+              fi
+            else
+              echo "Clevis decrypt failed."
+            fi
+          else
+            echo "Fetch failed for ${cfg.keyfile-url}"
+            echo "Interfaces:"
+            ${pkgs.iproute2}/bin/ip addr || true
+            echo "Routes:"
+            ${pkgs.iproute2}/bin/ip route || true
+          fi
+
+          echo "Falling back to passphrase prompt..."
+          ${pkgs.cryptsetup}/bin/cryptsetup luksOpen \
+            "${cfg.luksDevice}" \
+            "${cfg.luksName}"
+        ) || true
       '';
 
       ssh = mkIf cfg.enableInitrdSsh {
