@@ -76,9 +76,11 @@ with lib.fmf; let
   '';
 in {
   options.fmf.services.traefik = with types; {
-    enable = mkBoolOpt false "Enable Traefik.";
+    enable = mkBoolOpt false "Enable an Tang;";
     email = mkOpt str config.fmf.user.email "The email to use.";
-    docker-provider = mkBoolOpt false "Whether or not to enable the Docker provider.";
+
+    # Note: this currently controls *whether the docker provider is enabled at all*.
+    docker-provider = mkBoolOpt false "Enable Traefik docker provider.";
 
     acme-path =
       mkOpt str "/var/lib/traefik/acme.json"
@@ -105,31 +107,14 @@ in {
 
     entrypoints = mkOption {
       type = jsonValue;
-      default = { web = { address = "0.0.0.0:80"; }; };
-      example = { web = { address = "0.0.0.0:80"; }; };
+      default = {web = {address = "0.0.0.0:80";};};
+      example = {web = {address = "0.0.0.0:80";};};
       description = "List of entrypoints for Traefik, mapping names to their address.";
-    };
-
-    pluginVersions = mkOption {
-      type = attrsOf str;
-      default = {
-        cloudflarewarp = "v0.0.0";
-        fail2ban = "v0.0.0";
-      };
-      example = {
-        cloudflarewarp = "v1.2.3";
-        fail2ban = "v0.1.0";
-      };
-      description = ''
-        Versions for Traefik experimental plugins.
-        Set these to real tags that exist in the plugin repos.
-      '';
     };
 
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
-
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
@@ -152,6 +137,48 @@ in {
   };
 
   config = mkIf cfg.enable {
+    ##########################################################################
+    # Fix for your crash:
+    # Traefik buffer middleware writes temp files to /tmp. On this VM /tmp is on
+    # the tiny 3G rootfs, so large uploads => "no space left on device".
+    # Force Traefik temp files onto the big filesystem instead.
+    ##########################################################################
+    systemd.tmpfiles.rules = [
+      # Traefik service user should be able to write here
+      "d /var/lib/traefik/tmp 0750 traefik traefik - -"
+    ];
+
+    systemd.services.traefik.serviceConfig = {
+      # Put Traefik temp files on the large disk, not rootfs:/tmp
+      Environment = [
+        "TMPDIR=/var/lib/traefik/tmp"
+        "TMP=/var/lib/traefik/tmp"
+        "TEMP=/var/lib/traefik/tmp"
+      ];
+
+      # Ensure Traefik always restarts on failure
+      Restart = lib.mkForce "always";
+      RestartSec = "5s";
+
+      # Restart even on successful exit
+      RestartForceExitStatus = [0];
+
+      # Aggressive restart policy
+      StartLimitIntervalSec = 0; # Disable start rate limiting
+
+      # Ensure service is restarted if it becomes unresponsive
+      TimeoutStartSec = "60s";
+      TimeoutStopSec = "30s";
+    };
+
+    ##########################################################################
+    # If docker provider is disabled, don't add docker group and don't configure
+    # the provider (avoids the /var/run/docker.sock retry spam).
+    ##########################################################################
+    users.users.traefik = mkIf cfg.docker-provider {
+      extraGroups = ["docker"];
+    };
+
     systemd.services.saveCertsToVault = {
       description = "Save TLS Certs in Vault";
       serviceConfig = {
@@ -167,35 +194,14 @@ in {
       after = ["traefik.service"];
     };
 
-    systemd.services.traefik.serviceConfig = {
-      # FIX: upstream module sets Restart="on-failure"; force our value
-      Restart = lib.mkForce "always";
-
-      RestartSec = "5s";
-      RestartForceExitStatus = [0];
-      StartLimitIntervalSec = 0;
-      TimeoutStartSec = "60s";
-      TimeoutStopSec = "30s";
-    };
-
-    users.users.traefik = { extraGroups = ["docker"]; };
-
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
 
       staticConfigOptions = {
-        experimental = {
-          plugins = {
-            cloudflarewarp = {
-              moduleName = "github.com/fma965/cloudflarewarp";
-              version = cfg.pluginVersions.cloudflarewarp;
-            };
-            fail2ban = {
-              moduleName = "github.com/tomMoulard/fail2ban";
-              version = cfg.pluginVersions.fail2ban;
-            };
-          };
+        experimental.localPlugins = {
+          cloudflarewarp.moduleName = "github.com/fma965/cloudflarewarp";
+          fail2ban.moduleName = "github.com/tomMoulard/fail2ban";
         };
 
         serversTransport = {
@@ -273,11 +279,11 @@ in {
                 certResolver = "cloudflare";
                 domains =
                   map
-                    (domain: {
-                      main = domain;
-                      sans = ["*.${domain}" "*.lan.${domain}"];
-                    })
-                    cfg.domains;
+                  (domain: {
+                    main = domain;
+                    sans = ["*.${domain}" "*.lan.${domain}"];
+                  })
+                  cfg.domains;
               };
             };
           }
@@ -301,40 +307,58 @@ in {
           };
         };
 
-        providers.docker.exposedByDefault = cfg.docker-provider;
+        # Only configure docker provider if enabled
+        providers = {
+          docker = mkIf cfg.docker-provider {
+            exposedByDefault = false;
+            endpoint = "unix:///var/run/docker.sock";
+          };
+        };
 
-        metrics.prometheus = {
-          entryPoint = "metrics";
-          addEntryPointsLabels = true;
-          addServicesLabels = true;
+        metrics = {
+          prometheus = {
+            entryPoint = "metrics";
+            addEntryPointsLabels = true;
+            addServicesLabels = true;
+          };
         };
       };
     };
 
-    fmf.services.vault-agent.services."traefik" = {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [
-            {
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
+    fmf = {
+      services = {
+        vault-agent = {
+          services = {
+            "traefik" = {
+              settings = {
+                vault.address = cfg.vault-address;
+                auto_auth = {
+                  method = [
+                    {
+                      type = "approle";
+                      config = {
+                        role_id_file_path = cfg.role-id;
+                        secret_id_file_path = cfg.secret-id;
+                        remove_secret_id_file_after_reading = false;
+                      };
+                    }
+                  ];
+                };
               };
-            }
-          ];
-        };
-      };
 
-      secrets.environment.templates.traefik = {
-        text = ''
-          {{ with secret "${cfg.vault-path}" }}
-          CF_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
-          CLOUDFLARE_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
-          {{ end }}
-        '';
+              secrets.environment.templates = {
+                traefik = {
+                  text = ''
+                    {{ with secret "${cfg.vault-path}" }}
+                    CF_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+                    CLOUDFLARE_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+                    {{ end }}
+                  '';
+                };
+              };
+            };
+          };
+        };
       };
     };
   };
