@@ -10,7 +10,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge";
+      url = "gitlab:crystal-forge/crystal-forge/112-not-making-new-generations-2";
       inputs.nixpkgs.follows = "unstable";
     };
 

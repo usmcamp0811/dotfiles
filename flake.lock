@@ -911,6 +911,7 @@
       },
       "original": {
         "owner": "crystal-forge",
+        "ref": "112-not-making-new-generations-2",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
