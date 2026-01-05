@@ -28,7 +28,6 @@ with lib.fmf; let
 
   saveCert2Vault = pkgs.writeShellScriptBin "save-certs" ''
     ACME_JSON="${cfg.acme-path}"
-    # Vault base path
     VAULT_BASE_PATH="${cfg.vault-path}"
 
     ROLE_ID=$(cat "${cfg.role-id}")
@@ -36,47 +35,41 @@ with lib.fmf; let
     export VAULT_ADDR="${cfg.vault-address}"
     export VAULT_TOKEN=$(${pkgs.curl}/bin/curl -s --request POST --data '{"role_id":"'$ROLE_ID'","secret_id":"'$SECRET_ID'"}' "$VAULT_ADDR/v1/auth/approle/login" | ${pkgs.jq}/bin/jq -r '.auth.client_token')
 
-    # Check if acme.json exists
     if [[ ! -f "$ACME_JSON" ]]; then
-        echo "Error: $ACME_JSON not found."
-        exit 1
+      echo "Error: $ACME_JSON not found."
+      exit 1
     fi
 
-    # Parse acme.json and extract certificates and keys
     certificates=$(${pkgs.jq}/bin/jq -c '.cloudflare.Certificates[]' "$ACME_JSON")
     if [[ -z "$certificates" ]]; then
-        echo "Error: No certificates found in $ACME_JSON."
-        exit 1
+      echo "Error: No certificates found in $ACME_JSON."
+      exit 1
     fi
 
-    # Loop through each certificate entry
     while IFS= read -r cert_entry; do
-        domain=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.domain.main')
-        cert=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.certificate')
-        key=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.key')
+      domain=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.domain.main')
+      cert=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.certificate')
+      key=$(echo "$cert_entry" | ${pkgs.jq}/bin/jq -r '.key')
 
-        if [[ -z "$domain" || -z "$cert" || -z "$key" ]]; then
-            echo "Warning: Incomplete data for a certificate, skipping."
-            continue
-        fi
+      if [[ -z "$domain" || -z "$cert" || -z "$key" ]]; then
+        echo "Warning: Incomplete data for a certificate, skipping."
+        continue
+      fi
 
-        # Vault path for the domain
-        vault_path="$VAULT_BASE_PATH/$domain"
-        echo "Saving certificate for $domain to Vault at $vault_path..."
+      vault_path="$VAULT_BASE_PATH/$domain"
+      echo "Saving certificate for $domain to Vault at $vault_path..."
 
-        # Store in Vault using CLI
-        echo "$cert" | base64 -d > cert.pem
-        echo "$key" | base64 -d > key.pem
-        ${pkgs.vault-bin}/bin/vault kv put "$vault_path" cert=@cert.pem key=@key.pem
+      echo "$cert" | base64 -d > cert.pem
+      echo "$key" | base64 -d > key.pem
+      ${pkgs.vault-bin}/bin/vault kv put "$vault_path" cert=@cert.pem key=@key.pem
 
-        if [[ $? -ne 0 ]]; then
-            echo "Error: Failed to save certificate for $domain."
-        else
-            echo "Certificate for $domain saved successfully."
-        fi
+      if [[ $? -ne 0 ]]; then
+        echo "Error: Failed to save certificate for $domain."
+      else
+        echo "Certificate for $domain saved successfully."
+      fi
 
-        # Cleanup temporary files
-        rm -f cert.pem key.pem
+      rm -f cert.pem key.pem
     done <<< "$certificates"
 
     echo "All certificates processed."
@@ -86,19 +79,24 @@ in {
     enable = mkBoolOpt false "Enable Traefik.";
     email = mkOpt str config.fmf.user.email "The email to use.";
     docker-provider = mkBoolOpt false "Whether or not to enable the Docker provider.";
+
     acme-path =
       mkOpt str "/var/lib/traefik/acme.json"
       "The location Traefik saves the certs";
+
     domains = mkOption {
       type = listOf str;
       default = ["aicampground.com"];
       example = ["example.com" "example.org"];
       description = "List of domains.";
     };
+
     log-path =
       mkOpt str "/var/lib/traefik/access.log"
       "The location to store the access log.";
+
     insecure = mkBoolOpt false "Insecure dashboard?";
+
     dynamicConfigOptions = lib.mkOption {
       type = lib.types.attrs;
       default = {};
@@ -107,12 +105,11 @@ in {
 
     entrypoints = mkOption {
       type = jsonValue;
-      default = {web = {address = "0.0.0.0:80";};};
-      example = {web = {address = "0.0.0.0:80";};};
+      default = { web = { address = "0.0.0.0:80"; }; };
+      example = { web = { address = "0.0.0.0:80"; }; };
       description = "List of entrypoints for Traefik, mapping names to their address.";
     };
 
-    # NEW: versions for Traefik's experimental.plugins (NOT localPlugins)
     pluginVersions = mkOption {
       type = attrsOf str;
       default = {
@@ -125,26 +122,28 @@ in {
       };
       description = ''
         Versions for Traefik experimental plugins.
-
-        IMPORTANT: set these to real tags that exist in the plugin repos.
-        The default "v0.0.0" is just a placeholder to keep evaluation working.
+        Set these to real tags that exist in the plugin repos.
       '';
     };
 
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
+
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
+
     vault-path =
       mkOpt str "secret/campground/cloudflare"
       "The Vault path to the KV containing the KVs that are for each database";
+
     kvVersion = mkOption {
       type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
+
     vault-address = mkOption {
       type = str;
       default = config.fmf.services.vault-agent.settings.vault.address;
@@ -169,7 +168,9 @@ in {
     };
 
     systemd.services.traefik.serviceConfig = {
-      Restart = "always";
+      # FIX: upstream module sets Restart="on-failure"; force our value
+      Restart = lib.mkForce "always";
+
       RestartSec = "5s";
       RestartForceExitStatus = [0];
       StartLimitIntervalSec = 0;
@@ -177,15 +178,13 @@ in {
       TimeoutStopSec = "30s";
     };
 
-    users.users.traefik = {extraGroups = ["docker"];};
+    users.users.traefik = { extraGroups = ["docker"]; };
 
     services.traefik = {
       enable = true;
       dynamicConfigOptions = cfg.dynamicConfigOptions;
 
       staticConfigOptions = {
-        # FIX: use experimental.plugins instead of experimental.localPlugins
-        # localPlugins causes nixpkgs traefik build to try to copy plugin sources into $out and it fails.
         experimental = {
           plugins = {
             cloudflarewarp = {
@@ -241,6 +240,7 @@ in {
                 permanent = true;
               };
             };
+
             websecure = {
               transport = {
                 respondingTimeouts = {
@@ -273,11 +273,11 @@ in {
                 certResolver = "cloudflare";
                 domains =
                   map
-                  (domain: {
-                    main = domain;
-                    sans = ["*.${domain}" "*.lan.${domain}"];
-                  })
-                  cfg.domains;
+                    (domain: {
+                      main = domain;
+                      sans = ["*.${domain}" "*.lan.${domain}"];
+                    })
+                    cfg.domains;
               };
             };
           }
@@ -303,50 +303,38 @@ in {
 
         providers.docker.exposedByDefault = cfg.docker-provider;
 
-        metrics = {
-          prometheus = {
-            entryPoint = "metrics";
-            addEntryPointsLabels = true;
-            addServicesLabels = true;
-          };
+        metrics.prometheus = {
+          entryPoint = "metrics";
+          addEntryPointsLabels = true;
+          addServicesLabels = true;
         };
       };
     };
 
-    fmf = {
-      services = {
-        vault-agent = {
-          services = {
-            "traefik" = {
-              settings = {
-                vault.address = cfg.vault-address;
-                auto_auth = {
-                  method = [
-                    {
-                      type = "approle";
-                      config = {
-                        role_id_file_path = cfg.role-id;
-                        secret_id_file_path = cfg.secret-id;
-                        remove_secret_id_file_after_reading = false;
-                      };
-                    }
-                  ];
-                };
+    fmf.services.vault-agent.services."traefik" = {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
               };
-
-              secrets.environment.templates = {
-                traefik = {
-                  text = ''
-                    {{ with secret "${cfg.vault-path}" }}
-                    CF_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
-                    CLOUDFLARE_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
-                    {{ end }}
-                  '';
-                };
-              };
-            };
-          };
+            }
+          ];
         };
+      };
+
+      secrets.environment.templates.traefik = {
+        text = ''
+          {{ with secret "${cfg.vault-path}" }}
+          CF_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+          CLOUDFLARE_DNS_API_TOKEN='{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLOUDFLARE_API_KEY }}{{ else }}{{ .Data.data.CLOUDFLARE_API_KEY }}{{ end }}'
+          {{ end }}
+        '';
       };
     };
   };
