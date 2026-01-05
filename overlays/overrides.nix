@@ -1,7 +1,14 @@
-{ nixpkgs, ... }:
+# Package overrides and modifications
+# Use this for packages that need custom patches or plugins
+{
+  nixpkgs,
+  ...
+}:
 final: prev: {
+  # Traefik with custom plugins
   traefik = prev.traefik.overrideAttrs (oldAttrs: {
-    postInstall = oldAttrs.postInstall or ''
+    postInstall = oldAttrs.postInstall or "" + ''
+      # Add CloudflareWarp plugin
       mkdir -p $out/bin/plugins-local/src/github.com/BilikoX/
       cp -r ${
         prev.fetchFromGitHub {
@@ -12,6 +19,7 @@ final: prev: {
         }
       } $out/bin/plugins-local/src/github.com/BilikoX/cloudflarewarp
 
+      # Add fail2ban plugin
       mkdir -p $out/bin/plugins-local/src/github.com/tomMoulard/
       cp -r ${
         prev.fetchFromGitHub {
