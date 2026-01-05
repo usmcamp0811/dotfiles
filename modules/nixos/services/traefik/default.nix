@@ -157,7 +157,7 @@ in {
       ];
 
       # Ensure Traefik always restarts on failure
-      Restart = "always";
+      Restart = mkDefault "always";
       RestartSec = "5s";
 
       # Restart even on successful exit
