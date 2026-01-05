@@ -137,6 +137,7 @@ in {
                       # Drop key for the normal initrd unlock path (systemd-cryptsetup / cryptsetup tooling)
                       printf '%s' "$key" > "$keyfile"
                       echo "Key dropped at $keyfile (initrd will use it to unlock ${cfg.luksName})"
+                      ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "$keyfile" "${effectiveLuksDevice}" "${cfg.luksName}"
                       exit 0
                     else
                       echo "Clevis decrypt failed."
