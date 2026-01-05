@@ -32,7 +32,7 @@ final: prev: {
   # Container tools
   compose2nix = compose2nix.packages.${prev.system}.default;
   nix2containerPkgs = nix2container.packages.${prev.system};
-  streamLayeredImageConf = flakeforge.packages.${prev.system}.flakeforgeTools.streamLayeredImageConf;
+  # streamLayeredImageConf comes from flakeforge overlay applied in flake.nix
 
   # Development environments
   scientific-fhs = inputs.scientific-fhs.packages.${prev.system}.scientific-fhs;

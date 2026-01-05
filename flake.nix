@@ -346,6 +346,7 @@
       };
 
       overlays = with inputs; [
+        # Must come first - provides nix-unstable for packages
         flake.overlays."package/flake"
         # attic.overlays.default
         devshell.overlays.default
@@ -356,6 +357,7 @@
         poetry2nix.overlays.default
         nix-topology.overlays.default
         funkwhale.overlays.default
+        flakeforge.overlay
         # yazi.overlays.default
         k0s-nix.overlays.default
         crystal-forge.overlays.default
