@@ -1,0 +1,11 @@
+[project]
+name = "asciify-them-wrapper"
+version = "1.0.1"
+description = "Wrapper for asciify-them"
+requires-python = ">=3.12"
+dependencies = [
+    "asciify-them>=1.0.1",
+]
+
+[project.scripts]
+asciify-them = "asciify.cli:main"
