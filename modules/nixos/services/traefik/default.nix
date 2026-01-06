@@ -340,8 +340,12 @@ in {
           };
         };
 
-        providers.docker.exposedByDefault = cfg.docker-provider;
-
+        providers = optionalAttrs cfg.docker-provider {
+          docker = {
+            exposedByDefault = true;
+            endpoint = "unix:///var/run/docker.sock";
+          };
+        };
         metrics.prometheus = {
           entryPoint = "metrics";
           addEntryPointsLabels = true;
