@@ -5,7 +5,6 @@
   color: @peach;
   font-weight: bold;
   background: linear-gradient(135deg, @surface0 0%, @surface1 100%);
-  border: 2px solid @surface2;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 

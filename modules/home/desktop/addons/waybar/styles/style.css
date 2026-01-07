@@ -8,7 +8,6 @@
 }
 
 window#waybar {
-  border: 2px solid @surface2;
   background: @mantle;
   box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.4);
   color: @theme_text_color;
@@ -22,7 +21,6 @@ window#waybar.hidden {
 
 tooltip {
   background: @base;
-  border: 1px solid @blue;
 }
 
 tooltip label {
@@ -60,7 +58,6 @@ box {
   margin: 0.5em;
   padding: 0.5em;
   background: @crust;
-  border: 2px solid @surface1;
   border-radius: 0.75em;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -70,7 +67,6 @@ box {
   margin: 0.5em;
   padding: 0.5em 1em;
   background: linear-gradient(135deg, @surface0 0%, @surface1 100%);
-  border: 2px solid @surface2;
   border-radius: 0.75em;
   color: @sky;
   font-weight: bold;
@@ -83,7 +79,6 @@ box {
   padding: 0.5em 1em;
   background: @red;
   color: @crust;
-  border: 2px solid @maroon;
   border-radius: 0.75em;
   font-weight: bold;
 }
@@ -94,7 +89,6 @@ box {
   padding: 0.5em 1em;
   margin: 0.5em;
   background: @crust;
-  border: 2px solid @surface1;
   color: @blue;
 }
 
@@ -102,7 +96,6 @@ box {
   padding: 0.5em 1em;
   margin: 0.5em;
   background: @crust;
-  border: 2px solid @surface1;
   color: @text;
   font-style: italic;
 }
