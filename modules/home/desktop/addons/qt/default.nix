@@ -73,13 +73,16 @@ in
       enable = true;
 
       platformTheme.name = mkDefault "qtct";
-      style = {
-        name = mkDefault cfg.theme.name;
-        package = mkDefault (cfg.theme.pkg.override {
-          accent = "blue";
-          variant = "macchiato";
-        });
-      };
+      # Don't set style.name or style.package here to avoid conflicts with Stylix
+      # Instead, rely on qt5ct/qt6ct config files above
     };
+
+    # Install the theme package separately
+    home.packages = [
+      (cfg.theme.pkg.override {
+        accent = "blue";
+        variant = "macchiato";
+      })
+    ];
   };
 }
