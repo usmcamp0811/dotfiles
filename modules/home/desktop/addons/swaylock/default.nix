@@ -17,7 +17,7 @@ in
     programs.swaylock = {
       enable = true;
       package = pkgs.swaylock-effects;
-      settings = {
+      settings = mkDefault {
         ignore-empty-password = true;
         disable-caps-lock-text = true;
         font = "MonaspiceAr Nerd Font";
