@@ -8,11 +8,28 @@ with lib;
 with lib.fmf; let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.fmf.desktop.addons.kitty;
+
+  # Pre-defined custom themes
+  customThemes = {
+    ayu = pkgs.fetchurl {
+      url = "https://raw.githubusercontent.com/jesse-c/ayu-kitty/master/kitty.conf";
+      sha256 = "17n2bvv37agz27zm098783c9qwz33lziadf3i0h4522xd2v4nkba";
+    };
+    # Add more themes here as needed
+  };
 in {
   options.fmf.desktop.addons.kitty = {
     enable = mkEnableOption "Kitty";
 
-    themeFile = mkOpt types.str "Modus_Vivendi" "Kitty theme to use";
+    themeFile = mkOpt types.str "Modus_Vivendi" "Built-in Kitty theme name to use (ignored if customTheme is set)";
+
+    customTheme = mkOpt (types.nullOr types.path) null ''
+      Path to a custom theme file (overrides themeFile).
+      You can reference pre-defined themes via the 'themes' option below,
+      or provide your own path/derivation.
+    '';
+
+    themes = mkOpt (types.attrsOf types.path) customThemes "Pre-defined custom themes (read-only)";
 
     # Free-form font options, defaulting to your current font block.
     # This is assigned to programs.kitty.font.
@@ -76,8 +93,8 @@ in {
       {
         enable = true;
 
-        # Theme (still controlled by cfg.themeFile)
-        themeFile = cfg.themeFile;
+        # Use built-in themeFile only if no custom theme is set
+        themeFile = mkIf (cfg.customTheme == null) cfg.themeFile;
         # themeFile = "Modus_Operandi";  # light
         # themeFile = "Seti";
 
@@ -86,6 +103,9 @@ in {
 
         # Settings now come from the option (with your defaults)
         settings = cfg.settings;
+
+        # Include custom theme if provided
+        extraConfig = mkIf (cfg.customTheme != null) (builtins.readFile cfg.customTheme);
       }
       // cfg.extraOptions;
   };
