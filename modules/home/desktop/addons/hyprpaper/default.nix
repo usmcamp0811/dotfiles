@@ -29,18 +29,16 @@ in {
     xdg.configFile = {
       "hypr/hyprpaper.conf".text =
         # bash
+        # ░█░█░█▀█░█░░░█░░░█▀█░█▀█░█▀█░█▀▀░█▀▄░█▀▀
+        # ░█▄█░█▀█░█░░░█░░░█▀▀░█▀█░█▀▀░█▀▀░█▀▄░▀▀█
+        # ░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░░░▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀
         ''
-          # ░█░█░█▀█░█░░░█░░░█▀█░█▀█░█▀█░█▀▀░█▀▄░█▀▀
-          # ░█▄█░█▀█░█░░░█░░░█▀▀░█▀█░█▀▀░█▀▀░█▀▄░▀▀█
-          # ░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░░░▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀
-
           ${concatStringsSep "\n"
             (map (wallpaper: "preload = ${wallpaper}") cfg.wallpapers)}
 
           ${concatStringsSep "\n"
             (map (monitor: "wallpaper = ${monitor.name},${monitor.wallpaper}")
               cfg.monitors)}
-
         '';
     };
 

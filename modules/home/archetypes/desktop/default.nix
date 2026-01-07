@@ -12,7 +12,7 @@ with lib.fmf; let
 in {
   options.fmf.archetypes.desktop = with types; {
     enable = mkEnableOption "desktop home enviornment";
-    display-name = mkOpt str "HDMI-A-3" "The name of the primary display";
+    display-name = mkOpt str "HDMI-A-2" "The name of the primary display";
   };
 
   config = mkIf cfg.enable {
