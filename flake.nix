@@ -201,6 +201,8 @@
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
+    stylix.url = "github:danth/stylix";
+    stylix.inputs.nixpkgs.follows = "nixpkgs";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
     pre-commit-hooks.inputs.nixpkgs.follows = "unstable";
 
@@ -373,6 +375,7 @@
           # dataflow2nix.nixosModules.airflow
           nix-topology.nixosModules.default
           catppuccin.nixosModules.catppuccin
+          stylix.nixosModules.stylix
           flakeforge.nixosModules.flakeforge
           funkwhale.nixosModules.default
           authentik-nix.nixosModules.default
