@@ -11,10 +11,7 @@ with lib.fmf; let
 
   # Pre-defined custom themes
   customThemes = {
-    ayu = pkgs.fetchurl {
-      url = "https://raw.githubusercontent.com/jesse-c/ayu-kitty/master/kitty.conf";
-      sha256 = "17n2bvv37agz27zm098783c9qwz33lziadf3i0h4522xd2v4nkba";
-    };
+    ayu = ./themes/ayu.conf;
     # Add more themes here as needed
   };
 in {
