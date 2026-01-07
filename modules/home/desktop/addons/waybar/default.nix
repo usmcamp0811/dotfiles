@@ -69,6 +69,9 @@ in {
   config = mkIf cfg.enable {
     # systemd.user.services.waybar.Service.ExecStart = mkIf cfg.debug (mkForce "${getExe config.programs.waybar.package} -l debug");
 
+    # Disable stylix theming for waybar to use custom styles
+    stylix.targets.waybar.enable = mkForce false;
+
     programs.waybar = {
       enable = true;
       # package = nixpkgs-wayland.packages.${system}.waybar;
@@ -81,7 +84,7 @@ in {
         # secondaryBar = mkMerge [ bar secondaryBar all-modules ];
       };
 
-      style = mkDefault "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
+      style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
     };
   };
 }
