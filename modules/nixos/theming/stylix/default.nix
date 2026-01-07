@@ -35,7 +35,7 @@ in {
       };
 
       emoji = {
-        package = mkOpt package pkgs.noto-fonts-emoji "Emoji font package.";
+        package = mkOpt package pkgs.noto-fonts-color-emoji "Emoji font package.";
         name = mkOpt str "Noto Color Emoji" "Emoji font name.";
       };
 
