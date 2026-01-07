@@ -10,6 +10,6 @@ with lib.fmf; {
   # Disable stylix waybar theming when waybar module is enabled
   # This allows our custom waybar styles to be used instead
   config = mkIf (config.fmf.desktop.addons.waybar.enable or false) {
-    stylix.targets.waybar.enable = mkForce false;
+    # stylix.targets.waybar.enable = mkForce false;
   };
 }
