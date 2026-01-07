@@ -4,8 +4,9 @@
   padding-right: 5px;
   color: @peach;
   font-weight: bold;
-  background-color: @surface0;
-  border: 2px solid @surface1;
+  background: linear-gradient(135deg, @surface0 0%, @surface1 100%);
+  border: 2px solid @surface2;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 #workspaces label {
@@ -15,24 +16,28 @@
 
 #workspaces button {
   padding: 0 0.5em;
-  background-color: @surface0;
+  background-color: transparent;
   color: @text;
   margin: 0.25em;
+  transition: all 0.3s ease;
 }
 
 #workspaces button.empty {
-  /* background-color: @surface2; */
   color: @overlay0;
+  opacity: 0.5;
 }
 
 #workspaces button.visible {
-  /* background-color: @surface2; */
   color: @blue;
+  background-color: rgba(137, 180, 250, 0.1);
+  border-radius: 0.5em;
 }
 
 #workspaces button.active {
-  /* background-color: @surface2; */
   color: @green;
+  background-color: rgba(166, 227, 161, 0.2);
+  border-radius: 0.5em;
+  font-weight: bold;
 }
 
 #workspaces button.urgent {

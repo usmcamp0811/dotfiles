@@ -5,8 +5,9 @@
   padding-right: 5px;
   color: @peach;
   font-weight: bold;
-  background-color: @surface0;
+  background: @crust;
   border: 2px solid @surface1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 #battery,
 #cpu,
@@ -15,6 +16,9 @@
 #disk,
 #network {
   padding: 0 0.5em;
+  margin: 0.2em;
+  background-color: rgba(49, 50, 68, 0.5);
+  border-radius: 0.5em;
 }
 
 /* Unique colors for modules */

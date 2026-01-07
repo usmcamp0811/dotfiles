@@ -4,17 +4,24 @@
   padding-right: 5px;
   color: @peach;
   font-weight: bold;
-  background-color: @surface0;
+  background: linear-gradient(135deg, @crust 0%, @surface0 100%);
   border: 2px solid @surface1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 #custom-notification,
 #custom-updates,
 #custom-github,
 #idle_inhibitor,
 #wireplumber,
-#pulseaudio
- {
+#pulseaudio {
   padding: 0 0.5em;
+  margin: 0.2em;
+}
+
+#audio {
+  background-color: rgba(166, 227, 161, 0.1);
+  border-radius: 0.5em;
+  padding: 0.3em;
 }
 
 #custom-updates.updated {

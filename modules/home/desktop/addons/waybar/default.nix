@@ -41,7 +41,6 @@ with lib.fmf; let
     "modules-left" = [
       "group/power"
       "hyprland/workspaces"
-      "custom/separator-left"
       "hyprland/window"
     ];
   };
@@ -53,9 +52,7 @@ with lib.fmf; let
 
     "modules-right" = [
       "group/tray"
-      "custom/separator-right"
       "group/stats"
-      "custom/separator-right"
       "group/notifications"
       "hyprland/submap"
       "custom/weather"
