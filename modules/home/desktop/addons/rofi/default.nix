@@ -21,9 +21,9 @@ in {
       enable = true;
       package = pkgs.rofi;
 
-      font = "MonaspiceNe Nerd Font 14";
+      font = mkDefault "MonaspiceNe Nerd Font 14";
       location = "center";
-      theme = "catppuccin";
+      theme = mkDefault "catppuccin";
 
       pass = {
         enable = true;

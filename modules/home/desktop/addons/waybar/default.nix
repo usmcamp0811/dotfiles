@@ -84,7 +84,7 @@ in {
         # secondaryBar = mkMerge [ bar secondaryBar all-modules ];
       };
 
-      style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
+      style = mkDefault "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
     };
   };
 }
