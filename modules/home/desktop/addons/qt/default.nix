@@ -72,13 +72,13 @@ in
     qt = {
       enable = true;
 
-      platformTheme.name = "qtct";
+      platformTheme.name = mkDefault "qtct";
       style = {
-        inherit (cfg.theme) name;
-        package = cfg.theme.pkg.override {
+        name = mkDefault cfg.theme.name;
+        package = mkDefault (cfg.theme.pkg.override {
           accent = "blue";
           variant = "macchiato";
-        };
+        });
       };
     };
   };

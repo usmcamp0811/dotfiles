@@ -68,31 +68,31 @@ in
       enable = true;
 
       cursorTheme = {
-        inherit (cfg.cursor) name;
-        package = cfg.cursor.pkg;
+        name = mkDefault cfg.cursor.name;
+        package = mkDefault cfg.cursor.pkg;
       };
 
-      font = { name = config.fmf.system.fonts.default; };
+      font = { name = mkDefault config.fmf.system.fonts.default; };
 
       gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
 
       gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
 
       iconTheme = {
-        inherit (cfg.icon) name;
-        package = cfg.icon.pkg;
+        name = mkDefault cfg.icon.name;
+        package = mkDefault cfg.icon.pkg;
       };
 
       theme = {
-        inherit (cfg.theme) name;
-        package = cfg.theme.pkg;
+        name = mkDefault cfg.theme.name;
+        package = mkDefault cfg.theme.pkg;
       };
     };
 
     home.pointerCursor = {
-      inherit (cfg.cursor) name;
-      inherit (cfg.cursor) size;
-      package = cfg.cursor.pkg;
+      name = mkDefault cfg.cursor.name;
+      size = mkDefault cfg.cursor.size;
+      package = mkDefault cfg.cursor.pkg;
       gtk.enable = true;
       x11.enable = true;
     };

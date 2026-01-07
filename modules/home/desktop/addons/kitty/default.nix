@@ -91,15 +91,18 @@ in {
         enable = true;
 
         # Use built-in themeFile only if no custom theme is set
-        themeFile = mkIf (cfg.customTheme == null) cfg.themeFile;
+        # mkDefault allows Stylix to override this
+        themeFile = mkIf (cfg.customTheme == null) (mkDefault cfg.themeFile);
         # themeFile = "Modus_Operandi";  # light
         # themeFile = "Seti";
 
         # Font now comes from the option (with your defaults)
-        font = cfg.font;
+        # mkDefault allows Stylix to override this
+        font = mkDefault cfg.font;
 
         # Settings now come from the option (with your defaults)
-        settings = cfg.settings;
+        # mkDefault allows Stylix to override this
+        settings = mkDefault cfg.settings;
 
         # Include custom theme if provided
         extraConfig = mkIf (cfg.customTheme != null) (builtins.readFile cfg.customTheme);
