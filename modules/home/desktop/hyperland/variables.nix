@@ -34,9 +34,9 @@ in {
         debug = {disable_logs = false;};
 
         decoration = {
-          active_opacity = 0.95;
-          fullscreen_opacity = 1.0;
-          inactive_opacity = 0.9;
+          active_opacity = mkDefault 0.95;
+          fullscreen_opacity = mkDefault 1.0;
+          inactive_opacity = mkDefault 0.9;
           rounding = 10;
 
           blur = {
@@ -57,8 +57,8 @@ in {
         general = {
           allow_tearing = true;
           border_size = 2;
-          "col.active_border" = "rgba(FF69B4FF)";
-          "col.inactive_border" = "rgb(5e6798)";
+          "col.active_border" = mkDefault "rgba(FF69B4FF)";
+          "col.inactive_border" = mkDefault "rgb(5e6798)";
           gaps_in = 5;
           gaps_out = 20;
           layout = "master";
