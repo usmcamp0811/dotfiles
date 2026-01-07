@@ -56,7 +56,8 @@ in
   };
   config = mkIf cfg.enable {
     xdg.configFile = {
-      "Kvantum".source = ./Kvantum;
+      # Kvantum config removed to avoid conflicts with Stylix
+      # Stylix will handle Kvantum theming when enabled
       "qt5ct/qt5ct.conf".text = lib.generators.toINI { } (settings // {
         Appearance = mergeAttrs settings.Appearance {
           color_scheme_path = colorSchemePath;
