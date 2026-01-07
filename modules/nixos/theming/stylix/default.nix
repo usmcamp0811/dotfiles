@@ -65,7 +65,6 @@ in {
       grub.enable = mkBoolOpt true "Theme GRUB bootloader.";
       gtk.enable = mkBoolOpt true "Theme GTK applications.";
       nixvim.enable = mkBoolOpt false "Theme NixVim (if using nixvim).";
-      waybar.enable = mkBoolOpt false "Theme Waybar (disable to use custom waybar styles).";
     };
   };
 
@@ -133,7 +132,6 @@ in {
         grub.enable = cfg.targets.grub.enable;
         gtk.enable = cfg.targets.gtk.enable;
         nixvim.enable = cfg.targets.nixvim.enable;
-        waybar.enable = cfg.targets.waybar.enable;
       };
     };
   };
