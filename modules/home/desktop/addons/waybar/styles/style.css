@@ -88,7 +88,6 @@ box {
   font-weight: 700;
   padding: 0.5em 1em;
   margin: 0.5em;
-  background: @crust;
   color: @blue;
 }
 
