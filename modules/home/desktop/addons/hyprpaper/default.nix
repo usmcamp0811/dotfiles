@@ -48,7 +48,7 @@ in {
       Install.WantedBy = ["hyprland-session.target"];
 
       Unit = {
-        Description = "Hyprpaper Service";
+        Description = lib.mkDefault "Hyprpaper Service";
         PartOf = ["graphical-session.target"];
       };
 
