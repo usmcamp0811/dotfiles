@@ -4,7 +4,7 @@
 , ...
 }:
 let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkIf mkDefault;
 
   cfg = config.fmf.apps.alacritty;
 in
@@ -19,7 +19,7 @@ in
     ];
     programs.alacritty = {
       enable = true;
-      settings = {
+      settings = mkDefault {
         font = {
           normal = {
             family = "FiraCode Nerd Font Mono";
