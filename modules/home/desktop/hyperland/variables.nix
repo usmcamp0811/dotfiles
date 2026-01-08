@@ -11,6 +11,7 @@ in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
+        splash = false;
         animations = {
           enabled = "yes";
 

@@ -41,7 +41,7 @@ in {
       clipboard_control = "write-clipboard write-primary read-clipboard read-primary";
 
       # Disable paste confirmation
-      paste_actions = "no-op";
+      paste_actions = "confirm-if-large";
 
       # Useful for remote control
       allow_remote_control = "yes";
