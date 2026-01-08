@@ -82,7 +82,7 @@ in {
     ];
 
     # Use nixos-boot configuration when enabled
-    services.nixos-boot = mkIf cfg.useNixosBoot {
+    nixos-boot = mkIf cfg.useNixosBoot {
       enable = true;
       theme = cfg.nixosBootTheme;
       bgColor = cfg.nixosBootBgColor;
