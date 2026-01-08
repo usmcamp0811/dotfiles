@@ -1,3 +1,4 @@
+# Use this for packages that need custom patches or plugins
 {nixpkgs, ...}: final: prev: {
   # Traefik with custom plugins
   traefik = prev.traefik.overrideAttrs (oldAttrs: {
@@ -28,32 +29,26 @@
       '';
   });
 
-  # Patch yaziPlugins.yatline: ya.truncate() -> ui.truncate()
-  yaziPlugins =
-    prev.yaziPlugins
-    // {
-      yatline = prev.yaziPlugins.yatline.overrideAttrs (oldAttrs: {
+  # Patch ALL yazi plugins: ya.truncate() -> ui.truncate()
+  yaziPlugins = let
+    patchYaTruncate = drv:
+      drv.overrideAttrs (oldAttrs: {
         postInstall =
           (oldAttrs.postInstall or "")
           + ''
             set -eu
 
-            # In nixpkgs' yatline plugin, main.lua is at $out/main.lua
-            target="$out/main.lua"
-            if [ ! -f "$target" ]; then
-              # Fallback: find it anywhere in the output
-              target="$(find "$out" -type f -name main.lua | head -n1 || true)"
+            # Patch every Lua file that still uses ya.truncate(
+            # (only if it exists, to avoid needless touching)
+            if rg -q 'ya\.truncate\s*\(' "$out" 2>/dev/null; then
+              while IFS= read -r -d "" f; do
+                if rg -q 'ya\.truncate\s*\(' "$f"; then
+                  substituteInPlace "$f" --replace 'ya.truncate(' 'ui.truncate('
+                fi
+              done < <(find "$out" -type f -name '*.lua' -print0)
             fi
-
-            if [ -z "$target" ] || [ ! -f "$target" ]; then
-              echo "ERROR: could not find yatline main.lua under $out"
-              find "$out" -maxdepth 3 -type f -print
-              exit 1
-            fi
-
-            substituteInPlace "$target" \
-              --replace 'ya.truncate(' 'ui.truncate('
           '';
       });
-    };
+  in
+    prev.lib.mapAttrs (_name: drv: patchYaTruncate drv) prev.yaziPlugins;
 }
