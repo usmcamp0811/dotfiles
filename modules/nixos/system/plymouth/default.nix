@@ -10,8 +10,8 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.system.plymouth;
 
-  # Check if nixos-boot is available
-  hasNixosBoot = inputs ? nixos-boot;
+  # nixos-boot is typically a flake input named "nixos-boot" (hyphenated)
+  hasNixosBoot = builtins.hasAttr "nixos-boot" inputs;
 in {
   options.fmf.system.plymouth = with types; {
     enable = mkBoolOpt false "Whether to enable Plymouth boot splash screen.";
@@ -29,14 +29,21 @@ in {
       - load_unload: Growing and shrinking NixOS logo animation
     '';
 
-    nixosBootBgColor = mkOpt (attrsOf int) {
-      red = 0;
-      green = 0;
-      blue = 0;
-    } ''
-      Background color for nixos-boot themes (RGB 0-255).
-      Default is black (0,0,0).
-    '';
+    nixosBootBgColor =
+      mkOpt (submodule {
+        options = {
+          red = mkOpt (ints.between 0 255) 0 "Red (0-255).";
+          green = mkOpt (ints.between 0 255) 0 "Green (0-255).";
+          blue = mkOpt (ints.between 0 255) 0 "Blue (0-255).";
+        };
+      }) {
+        red = 0;
+        green = 0;
+        blue = 0;
+      } ''
+        Background color for nixos-boot themes (RGB 0-255).
+        Default is black (0,0,0).
+      '';
 
     nixosBootDuration = mkOpt float 0.0 ''
       Duration in seconds to display the nixos-boot splash screen.
@@ -69,49 +76,61 @@ in {
     '';
   };
 
-  config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = !cfg.useNixosBoot || hasNixosBoot;
-        message = ''
-          fmf.system.plymouth.useNixosBoot is enabled but nixos-boot flake input is not available.
-          Add nixos-boot to your flake inputs:
-            inputs.nixos-boot.url = "github:Melkor333/nixos-boot";
-        '';
-      }
-    ];
+  config = mkIf cfg.enable (mkMerge [
+    {
+      assertions = [
+        {
+          assertion = (!cfg.useNixosBoot) || hasNixosBoot;
+          message = ''
+            fmf.system.plymouth.useNixosBoot is enabled but nixos-boot flake input is not available.
+            Add nixos-boot to your flake inputs:
+              inputs.nixos-boot.url = "github:Melkor333/nixos-boot";
+          '';
+        }
+      ];
+    }
 
-    # Disable stylix plymouth theming when using nixos-boot
-    stylix.targets.plymouth.enable = mkIf cfg.useNixosBoot (mkForce false);
+    # nixos-boot mode
+    (mkIf cfg.useNixosBoot {
+      # Avoid conflicts with normal plymouth / stylix plymouth theming
+      boot.plymouth.enable = mkForce false;
 
-    # Disable standard boot.plymouth when using nixos-boot to avoid conflicts
-    boot.plymouth.enable = mkIf cfg.useNixosBoot (mkForce false);
+      # Only touch Stylix if it's present; this is safe even if Stylix isn't used,
+      # because it's just an assignment into the option tree (it will error only if
+      # Stylix is imported but option is missing). If you *don't* always have Stylix,
+      # tell me and I'll guard this differently.
+      stylix.targets.plymouth.enable = mkForce false;
 
-    # Use nixos-boot configuration when enabled
-    nixos-boot = mkIf cfg.useNixosBoot {
-      enable = true;
-      theme = cfg.nixosBootTheme;
-      bgColor.red = cfg.nixosBootBgColor.red;
-      bgColor.green = cfg.nixosBootBgColor.green;
-      bgColor.blue = cfg.nixosBootBgColor.blue;
-      duration = cfg.nixosBootDuration;
-    };
+      "nixos-boot" = {
+        enable = true;
+        theme = cfg.nixosBootTheme;
+        bgColor = {
+          red = cfg.nixosBootBgColor.red;
+          green = cfg.nixosBootBgColor.green;
+          blue = cfg.nixosBootBgColor.blue;
+        };
+        duration = cfg.nixosBootDuration;
+      };
+    })
 
-    # Use standard Plymouth when not using nixos-boot
-    boot.plymouth = mkIf (!cfg.useNixosBoot) {
-      enable = true;
-      theme = cfg.theme;
-      logo = cfg.logo;
-    };
+    # standard Plymouth mode
+    (mkIf (!cfg.useNixosBoot) {
+      boot.plymouth = {
+        enable = true;
+        theme = cfg.theme;
+        logo = cfg.logo;
+      };
+    })
 
-    # Silent boot configuration (applies to both)
-    boot.kernelParams = mkIf cfg.silentBoot [
-      "quiet"
-      "splash"
-      "vt.global_cursor_default=0"
-    ];
-
-    boot.consoleLogLevel = mkIf cfg.silentBoot 0;
-    boot.initrd.verbose = mkIf cfg.silentBoot false;
-  };
+    # Silent boot settings (applies to either mode)
+    (mkIf cfg.silentBoot {
+      boot.kernelParams = [
+        "quiet"
+        "splash"
+        "vt.global_cursor_default=0"
+      ];
+      boot.consoleLogLevel = 0;
+      boot.initrd.verbose = false;
+    })
+  ]);
 }
