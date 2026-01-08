@@ -83,6 +83,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Plymouth boot theme with animated NixOS logo
+    nixos-boot.url = "github:Melkor333/nixos-boot";
+
     gBar.url = "github:scorpion-26/gBar";
     gBar.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -383,6 +386,7 @@
           nixos-router.nixosModules.default
           impermanence.nixosModules.impermanence
           microvm.nixosModules.host
+          nixos-boot.nixosModules.default
         ]
         ++ (lib.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules));
 
