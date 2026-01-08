@@ -40,6 +40,9 @@ in {
     settings = mkOpt (types.attrsOf types.str) {
       clipboard_control = "write-clipboard write-primary read-clipboard read-primary";
 
+      # Disable paste confirmation
+      paste_actions = "no-op";
+
       # Useful for remote control
       allow_remote_control = "yes";
       listen_on = "unix:/tmp/mykitty";
