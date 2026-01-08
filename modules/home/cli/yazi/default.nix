@@ -56,8 +56,8 @@ in {
         glow = "${pkgs.yaziPlugins.glow}";
         # hexyl = "${inputs.hexyl-yazi}";
         ouch = "${pkgs.yaziPlugins.ouch}";
-        yatline = "${pkgs.yaziPlugins.yatline}";
-        yatline-catppuccin = "${pkgs.yaziPlugins.yatline-catppuccin}";
+        # yatline = "${pkgs.yaziPlugins.yatline}";
+        # yatline-catppuccin = "${pkgs.yaziPlugins.yatline-catppuccin}";
         lazygit = "${pkgs.yaziPlugins.lazygit}";
         # githead = "${inputs.githead-yazi}";
         duckdb = "${pkgs.yaziPlugins.duckdb}";
