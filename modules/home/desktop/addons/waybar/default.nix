@@ -57,12 +57,11 @@ with lib.fmf; let
   };
 
   # Fetch waybar themes from dots-hypr repo
-  waybarThemes = builtins.fetchGit {
+  waybarThemes = pkgs.fetchgit {
     url = "https://github.com/raman164/dots-hypr.git";
-    ref = "main";
-    # Note: This will fetch latest, so themes may change over time
-    # Remove 'shallow = true' to get full history if needed
-    shallow = true;
+    rev = "refs/heads/main";
+    hash = lib.fakeHash;
+    sparseCheckout = [".config/waybar/themes"];
   };
 in {
 
