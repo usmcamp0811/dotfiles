@@ -11,7 +11,7 @@
     immich
     rkvm
     mealie
-    # yazi
-    # yaziPlugins
+    yazi
+    yaziPlugins
     ;
 }
