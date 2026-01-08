@@ -81,6 +81,9 @@ in {
       }
     ];
 
+    # Disable stylix plymouth theming when using nixos-boot
+    stylix.targets.plymouth.enable = mkIf cfg.useNixosBoot (mkForce false);
+
     # Use nixos-boot configuration when enabled
     nixos-boot = mkIf cfg.useNixosBoot {
       enable = true;
