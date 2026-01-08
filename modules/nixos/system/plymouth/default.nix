@@ -11,7 +11,7 @@ with lib.fmf; let
   cfg = config.fmf.system.plymouth;
 
   # Check if nixos-boot is available
-  hasNixosBoot = inputs ? nixos-boot or false;
+  hasNixosBoot = inputs ? nixos-boot;
 in {
   options.fmf.system.plymouth = with types; {
     enable = mkBoolOpt false "Whether to enable Plymouth boot splash screen.";
