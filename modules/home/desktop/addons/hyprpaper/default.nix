@@ -25,11 +25,7 @@ in {
     wallpapers = mkOpt (types.listOf types.path) [] "Wallpapers to preload.";
   };
 
-  config = mkIf cfg.enable (let
-    # Automatically collect all unique wallpapers from monitors
-    monitorWallpapers = lib.unique (map (m: m.wallpaper) cfg.monitors);
-    allWallpapers = lib.unique (cfg.wallpapers ++ monitorWallpapers);
-  in {
+  config = mkIf cfg.enable {
     xdg.configFile = {
       "hypr/hyprpaper.conf".text =
         # bash
@@ -38,11 +34,13 @@ in {
         # ░▀░▀░▀░▀░▀▀▀░▀▀▀░▀░░░▀░▀░▀░░░▀▀▀░▀░▀░▀▀▀
         ''
           ${concatStringsSep "\n"
-            (map (wallpaper: "preload = ${wallpaper}") allWallpapers)}
-
-          ${concatStringsSep "\n"
-            (map (monitor: "wallpaper = ${monitor.name},${monitor.wallpaper}")
-              cfg.monitors)}
+            (map (monitor: ''
+              wallpaper {
+                  monitor = ${monitor.name}
+                  path = ${monitor.wallpaper}
+                  fit_mode = cover
+              }
+            '') cfg.monitors)}
         '';
     };
 
@@ -59,5 +57,5 @@ in {
         Restart = "always";
       };
     };
-  });
+  };
 }
