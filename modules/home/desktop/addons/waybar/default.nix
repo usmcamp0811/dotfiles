@@ -64,12 +64,11 @@ with lib.fmf; let
     sparseCheckout = [".config/waybar/themes"];
   };
 in {
-
   options.fmf.desktop.addons.waybar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
     display = mkOpt str "DP-1" "the name of the output";
-    enableThemeSwitcher = mkBoolOpt true "Enable waybar theme switcher with multiple themes";
+    enableThemeSwitcher = mkBoolOpt false "Enable waybar theme switcher with multiple themes";
     staticTheme = mkOpt str "default" "Theme to use when theme switcher is disabled (default, or a theme name from waybar themes repo)";
   };
 
