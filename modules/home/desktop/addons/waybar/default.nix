@@ -70,6 +70,7 @@ in {
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
     display = mkOpt str "DP-1" "the name of the output";
     enableThemeSwitcher = mkBoolOpt true "Enable waybar theme switcher with multiple themes";
+    staticTheme = mkOpt str "default" "Theme to use when theme switcher is disabled (default, or a theme name from waybar themes repo)";
   };
 
   config = mkIf cfg.enable {
@@ -90,8 +91,12 @@ in {
       style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
     };
 
-    # Install waybar themes and theme switcher
-    home.file = mkIf cfg.enableThemeSwitcher {
+    # Allow theme switcher to override waybar config files
+    xdg.configFile."waybar/config".force = mkIf cfg.enableThemeSwitcher true;
+    xdg.configFile."waybar/style.css".force = mkIf cfg.enableThemeSwitcher true;
+
+    # Install waybar themes
+    home.file = mkIf (cfg.enableThemeSwitcher || cfg.staticTheme != "default") {
       # Copy all themes from dots-hypr repo
       ".config/waybar/themes-available" = {
         source = "${waybarThemes}/.config/waybar/themes";
@@ -106,39 +111,45 @@ in {
       ".config/waybar/themes-available/default/style.css" = {
         text = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
       };
+    };
 
-      # Theme switcher script
-      ".local/bin/waybar-theme-switcher" = {
-        executable = true;
-        text = ''
-          #!/usr/bin/env bash
+    # Theme switcher script (only when switcher is enabled)
+    home.file.".local/bin/waybar-theme-switcher" = mkIf cfg.enableThemeSwitcher {
+      executable = true;
+      text = ''
+        #!/usr/bin/env bash
 
-          THEMES_DIR="$HOME/.config/waybar/themes-available"
-          WAYBAR_CONFIG="$HOME/.config/waybar"
+        THEMES_DIR="$HOME/.config/waybar/themes-available"
+        WAYBAR_CONFIG="$HOME/.config/waybar"
 
-          # List available themes
-          THEME=$(ls "$THEMES_DIR" | ${getExe pkgs.rofi} -dmenu -p "Select Waybar Theme")
+        # List available themes
+        THEME=$(ls "$THEMES_DIR" | ${getExe pkgs.rofi} -dmenu -p "Select Waybar Theme")
 
-          if [ -n "$THEME" ]; then
-            # Backup home-manager generated files if they're not symlinks
-            if [ ! -L "$WAYBAR_CONFIG/config" ]; then
-              cp "$WAYBAR_CONFIG/config" "$WAYBAR_CONFIG/config.hm-backup" 2>/dev/null || true
-            fi
-            if [ ! -L "$WAYBAR_CONFIG/style.css" ]; then
-              cp "$WAYBAR_CONFIG/style.css" "$WAYBAR_CONFIG/style.css.hm-backup" 2>/dev/null || true
-            fi
-
-            # Create symlinks to selected theme
-            ln -sf "$THEMES_DIR/$THEME/config" "$WAYBAR_CONFIG/config"
-            ln -sf "$THEMES_DIR/$THEME/style.css" "$WAYBAR_CONFIG/style.css"
-
-            # Reload waybar
-            systemctl --user restart waybar.service
-
-            ${getExe pkgs.libnotify} "Waybar Theme" "Switched to theme: $THEME"
+        if [ -n "$THEME" ]; then
+          # Backup home-manager generated files if they're not symlinks
+          if [ ! -L "$WAYBAR_CONFIG/config" ]; then
+            cp "$WAYBAR_CONFIG/config" "$WAYBAR_CONFIG/config.hm-backup" 2>/dev/null || true
           fi
-        '';
-      };
+          if [ ! -L "$WAYBAR_CONFIG/style.css" ]; then
+            cp "$WAYBAR_CONFIG/style.css" "$WAYBAR_CONFIG/style.css.hm-backup" 2>/dev/null || true
+          fi
+
+          # Create symlinks to selected theme
+          ln -sf "$THEMES_DIR/$THEME/config" "$WAYBAR_CONFIG/config"
+          ln -sf "$THEMES_DIR/$THEME/style.css" "$WAYBAR_CONFIG/style.css"
+
+          # Reload waybar
+          systemctl --user restart waybar.service
+
+          ${getExe pkgs.libnotify} "Waybar Theme" "Switched to theme: $THEME"
+        fi
+      '';
+    };
+
+    # Apply static theme when switcher is disabled but a specific theme is selected
+    xdg.configFile = mkIf (!cfg.enableThemeSwitcher && cfg.staticTheme != "default") {
+      "waybar/config".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/config";
+      "waybar/style.css".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/style.css";
     };
   };
 }
