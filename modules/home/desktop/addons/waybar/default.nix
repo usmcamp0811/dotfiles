@@ -56,10 +56,20 @@ with lib.fmf; let
     ];
   };
 in {
+  # Fetch waybar themes from dots-hypr repo
+  waybarThemes = pkgs.fetchFromGitHub {
+    owner = "raman164";
+    repo = "dots-hypr";
+    rev = "main";
+    hash = lib.fakeHash;
+    sparseCheckout = [".config/waybar/themes"];
+  };
+
   options.fmf.desktop.addons.waybar = with types; {
     enable =
       mkBoolOpt false "Whether to enable gBar in the desktop environment.";
     display = mkOpt str "DP-1" "the name of the output";
+    enableThemeSwitcher = mkBoolOpt true "Enable waybar theme switcher with multiple themes";
   };
 
   config = mkIf cfg.enable {
@@ -78,6 +88,57 @@ in {
       };
 
       style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
+    };
+
+    # Install waybar themes and theme switcher
+    home.file = mkIf cfg.enableThemeSwitcher {
+      # Copy all themes from dots-hypr repo
+      ".config/waybar/themes-available" = {
+        source = "${waybarThemes}/.config/waybar/themes";
+        recursive = true;
+      };
+
+      # Save current/default theme
+      ".config/waybar/themes-available/default/config" = {
+        text = builtins.toJSON (mkMerge [bar mainBar all-modules]);
+      };
+
+      ".config/waybar/themes-available/default/style.css" = {
+        text = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
+      };
+
+      # Theme switcher script
+      ".local/bin/waybar-theme-switcher" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+
+          THEMES_DIR="$HOME/.config/waybar/themes-available"
+          WAYBAR_CONFIG="$HOME/.config/waybar"
+
+          # List available themes
+          THEME=$(ls "$THEMES_DIR" | ${getExe pkgs.rofi} -dmenu -p "Select Waybar Theme")
+
+          if [ -n "$THEME" ]; then
+            # Backup home-manager generated files if they're not symlinks
+            if [ ! -L "$WAYBAR_CONFIG/config" ]; then
+              cp "$WAYBAR_CONFIG/config" "$WAYBAR_CONFIG/config.hm-backup" 2>/dev/null || true
+            fi
+            if [ ! -L "$WAYBAR_CONFIG/style.css" ]; then
+              cp "$WAYBAR_CONFIG/style.css" "$WAYBAR_CONFIG/style.css.hm-backup" 2>/dev/null || true
+            fi
+
+            # Create symlinks to selected theme
+            ln -sf "$THEMES_DIR/$THEME/config" "$WAYBAR_CONFIG/config"
+            ln -sf "$THEMES_DIR/$THEME/style.css" "$WAYBAR_CONFIG/style.css"
+
+            # Reload waybar
+            systemctl --user restart waybar.service
+
+            ${getExe pkgs.libnotify} "Waybar Theme" "Switched to theme: $THEME"
+          fi
+        '';
+      };
     };
   };
 }

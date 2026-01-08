@@ -45,6 +45,7 @@ in {
             "$mainMod, N, exec, ${
               getExe' pkgs.swaynotificationcenter "swaync-client"
             } -t -sw"
+            "SUPER, S, exec, $HOME/.local/bin/waybar-theme-switcher"
             # "SUPER, V, clipman pick -t rofi
             "$mainMod, V, exec, ${getExe pkgs.cliphist} list | ${
               getExe config.programs.rofi.package
