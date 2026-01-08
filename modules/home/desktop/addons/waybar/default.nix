@@ -60,7 +60,7 @@ with lib.fmf; let
   waybarThemes = pkgs.fetchFromGitHub {
     owner = "raman164";
     repo = "dots-hypr";
-    rev = "main";
+    rev = "79969c00ccbd7b4e2e914f85f6e63b02f9e7c05b"; # Latest commit as of 2026-01-08
     hash = lib.fakeHash;
     sparseCheckout = [".config/waybar/themes"];
   };
