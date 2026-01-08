@@ -9,7 +9,7 @@
 
 window#waybar {
   background: @mantle;
-  box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.4);
+  border-radius: 0;
   color: @theme_text_color;
   transition-property: background-color;
   transition-duration: 0.5s;
