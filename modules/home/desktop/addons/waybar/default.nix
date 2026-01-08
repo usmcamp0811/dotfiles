@@ -91,9 +91,20 @@ in {
       style = "${theme}${style}${notificationsStyle}${powerStyle}${statsStyle}${workspacesStyle}";
     };
 
-    # Allow theme switcher to override waybar config files
-    xdg.configFile."waybar/config".force = mkIf cfg.enableThemeSwitcher true;
-    xdg.configFile."waybar/style.css".force = mkIf cfg.enableThemeSwitcher true;
+    # Configure waybar config files
+    xdg.configFile = mkMerge [
+      # Allow theme switcher to override waybar config files
+      (mkIf cfg.enableThemeSwitcher {
+        "waybar/config".force = true;
+        "waybar/style.css".force = true;
+      })
+
+      # Apply static theme when switcher is disabled but a specific theme is selected
+      (mkIf (!cfg.enableThemeSwitcher && cfg.staticTheme != "default") {
+        "waybar/config".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/config";
+        "waybar/style.css".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/style.css";
+      })
+    ];
 
     # Install waybar themes and theme switcher
     home.file = mkMerge [
@@ -150,11 +161,5 @@ in {
         };
       })
     ];
-
-    # Apply static theme when switcher is disabled but a specific theme is selected
-    xdg.configFile = mkIf (!cfg.enableThemeSwitcher && cfg.staticTheme != "default") {
-      "waybar/config".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/config";
-      "waybar/style.css".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/style.css";
-    };
   };
 }
