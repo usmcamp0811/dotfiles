@@ -35,7 +35,7 @@ with lib.fmf; let
     "position" = "top";
 
     "modules-left" = [
-      "group/power"
+      # "group/power"
       "hyprland/workspaces"
       "hyprland/window"
     ];

@@ -9,10 +9,9 @@ in {
     "tooltip-format" = ''
       <big>{:%Y %B}</big>
       <tt><small>{calendar}</small></tt>'';
-    "format" = ''
-      {:%a %b %d 
-       %H:%M }'';
-    "format-alt" = "{:%Y-%m-%d}";
+    "format" = "{:%H:%M}";
+    "format-alt" = "{:%a %b %d %H:%M}";
+    "on-click" = "";
   };
 
   "cpu" = {

@@ -3,7 +3,7 @@
 * */
 * {
   font-family: MonaspiceNe Nerd Font;
-  font-size: 10px;
+  font-size: 9px;
   border-radius: 0.75em;
 }
 
@@ -11,6 +11,8 @@ window#waybar {
   background: @mantle;
   border-radius: 0;
   color: @theme_text_color;
+  min-height: 0;
+  padding: 2px 0;
   transition-property: background-color;
   transition-duration: 0.5s;
 }
@@ -88,6 +90,7 @@ box {
   font-weight: 700;
   padding: 0.5em 1em;
   margin: 0.5em;
+  min-width: 180px;
   color: @blue;
 }
 

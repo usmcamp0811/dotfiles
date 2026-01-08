@@ -1,11 +1,7 @@
 # Packages from nixpkgs unstable channel
 # These are packages we want newer versions of from unstable
 # IMPORTANT: Avoid GUI-related packages here as they cause Firefox/Electron rebuilds
-{
-  channels,
-  ...
-}:
-final: prev: {
+{channels, ...}: final: prev: {
   # Self-hosted services (server-side only, no GUI dependencies)
   inherit
     (channels.unstable)
@@ -15,5 +11,6 @@ final: prev: {
     immich
     rkvm
     mealie
+    yazi
     ;
 }
