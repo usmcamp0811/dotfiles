@@ -84,11 +84,16 @@ in {
     # Disable stylix plymouth theming when using nixos-boot
     stylix.targets.plymouth.enable = mkIf cfg.useNixosBoot (mkForce false);
 
+    # Disable standard boot.plymouth when using nixos-boot to avoid conflicts
+    boot.plymouth.enable = mkIf cfg.useNixosBoot (mkForce false);
+
     # Use nixos-boot configuration when enabled
     nixos-boot = mkIf cfg.useNixosBoot {
       enable = true;
       theme = cfg.nixosBootTheme;
-      bgColor = cfg.nixosBootBgColor;
+      bgColor.red = cfg.nixosBootBgColor.red;
+      bgColor.green = cfg.nixosBootBgColor.green;
+      bgColor.blue = cfg.nixosBootBgColor.blue;
       duration = cfg.nixosBootDuration;
     };
 
