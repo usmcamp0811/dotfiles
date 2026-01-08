@@ -101,8 +101,8 @@ in {
 
       # Apply static theme when switcher is disabled but a specific theme is selected
       (mkIf (!cfg.enableThemeSwitcher && cfg.staticTheme != "default") {
-        "waybar/config".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/config";
-        "waybar/style.css".source = mkForce "${config.home.homeDirectory}/.config/waybar/themes-available/${cfg.staticTheme}/style.css";
+        "waybar/config".source = mkForce "${waybarThemes}/.config/waybar/themes/${cfg.staticTheme}/config";
+        "waybar/style.css".source = mkForce "${waybarThemes}/.config/waybar/themes/${cfg.staticTheme}/style.css";
       })
     ];
 
