@@ -60,7 +60,7 @@ with lib.fmf; let
   waybarThemes = pkgs.fetchgit {
     url = "https://github.com/raman164/dots-hypr.git";
     rev = "refs/heads/main";
-    hash = lib.fakeHash;
+    hash = "sha256-wan3PZK33823nLZvnHkWYOiXdY8p2P5BL7pu6GY36LI=";
     sparseCheckout = [".config/waybar/themes"];
   };
 in {
