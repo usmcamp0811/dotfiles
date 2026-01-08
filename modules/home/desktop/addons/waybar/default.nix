@@ -55,7 +55,7 @@ with lib.fmf; let
       "clock"
     ];
   };
-in {
+
   # Fetch waybar themes from dots-hypr repo
   waybarThemes = pkgs.fetchFromGitHub {
     owner = "raman164";
@@ -64,6 +64,7 @@ in {
     hash = lib.fakeHash;
     sparseCheckout = [".config/waybar/themes"];
   };
+in {
 
   options.fmf.desktop.addons.waybar = with types; {
     enable =
