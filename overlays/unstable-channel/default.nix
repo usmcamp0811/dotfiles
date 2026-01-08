@@ -12,5 +12,6 @@
     rkvm
     mealie
     yazi
+    yaziPlugins
     ;
 }
