@@ -14,17 +14,17 @@ in {
     sddmTheme = {
       enable = mkBoolOpt false "Whether to use sddm-nixos themes.";
       name = mkOpt (enum [
-        "Astronaut"
-        "Black-Hole"
-        "Japanese-Aesthetic"
-        "Pixel-Sakura-Static"
-        "Purple-Leaves"
-        "Cyberpunk"
-        "Post-Apocalyptic-Hacker"
-        "Hyprland-Kath"
-        "Pixel-Sakura"
-        "Jake-the-Dog"
-      ]) "Cyberpunk" "The sddm-nixos theme to use.";
+        "astronaut"
+        "black_hole"
+        "japanese_aesthetic"
+        "pixel_sakura_static"
+        "purple_leaves"
+        "cyberpunk"
+        "post-apocalyptic_hacker"
+        "hyprland_kath"
+        "pixel_sakura"
+        "jake_the_dog"
+      ]) "cyberpunk" "The sddm-nixos theme to use.";
     };
   };
 
