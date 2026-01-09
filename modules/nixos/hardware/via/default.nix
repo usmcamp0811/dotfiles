@@ -15,14 +15,23 @@ in {
     environment.systemPackages = [
       pkgs.via
     ];
-    # VIA/Vial udev rules for your specific Keychron device
+    # VIA/Vial udev rules for VIA-compatible keyboards
     services.udev.extraRules = ''
+      # Keychron keyboards
       # Your Keychron Link (3434:d030)
       KERNEL=="hidraw*", ATTRS{idVendor}=="3434", ATTRS{idProduct}=="d030", MODE="0666", GROUP="plugdev", TAG+="uaccess"
       # General Keychron VIA-compatible devices
       KERNEL=="hidraw*", ATTRS{idVendor}=="3434", MODE="0666", GROUP="plugdev", TAG+="uaccess"
       # Ensure WebHID can access the device
       SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3434", TAG+="uaccess"
+
+      # Framework Laptop 16 Keyboard modules
+      # Framework Laptop 16 Keyboard Module - ANSI (32ac:0012)
+      SUBSYSTEMS=="usb", ATTRS{idVendor}=="32ac", ATTRS{idProduct}=="0012", TAG+="uaccess"
+      # Framework Laptop 16 Numpad Module (32ac:0014)
+      SUBSYSTEMS=="usb", ATTRS{idVendor}=="32ac", ATTRS{idProduct}=="0014", TAG+="uaccess"
+      # Let regular users open the hidraw node (what WebHID needs)
+      KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="32ac", MODE="0660", GROUP="plugdev", TAG+="uaccess", TAG+="udev-acl"
     '';
     # Ensure user groups for device access
     users.groups.plugdev = {};
