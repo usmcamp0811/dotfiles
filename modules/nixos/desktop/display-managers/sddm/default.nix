@@ -46,19 +46,20 @@ in {
       displayManager = {
         sddm = {
           enable = true;
+          package = pkgs.kdePackages.sddm;
           wayland.enable = cfg.wayland;
-          extraPackages = with pkgs; [
-            sddm-astronaut
-            catppuccin-sddm-corners
-            # Qt6 packages for SDDM 0.21.0 and catppuccin theme
-            qt6.qtbase
-            qt6.qtdeclarative
-            qt6.qtwayland
-            qt6.qtsvg
-            qt6.qt5compat # For Qt5 compatibility layer some themes need
-            libsForQt5.qt5.qtmultimedia
+          extraPackages = [
+            pkgs.sddm-astronaut
+            pkgs.kdePackages.qtbase
+            pkgs.kdePackages.qtwayland
+            pkgs.kdePackages.qtmultimedia
           ];
           theme = cfg.theme;
+          settings = {
+            Theme = {
+              Current = "sddm-astronaut-theme";
+            };
+          };
         };
       };
 
