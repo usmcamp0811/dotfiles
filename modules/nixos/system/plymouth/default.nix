@@ -10,7 +10,11 @@ with lib.fmf; let
   cfg = config.fmf.system.plymouth;
 in {
   options.fmf.system.plymouth = with types; {
-    enable = mkBoolOpt false "Whether to enable Plymouth boot splash screen.";
+    enable = mkBoolOpt false ''
+      Whether to enable Plymouth boot splash screen.
+      When enabled, Plymouth will also theme the LUKS password prompt
+      if you have encrypted disks.
+    '';
 
     theme = mkOpt str "breeze" ''
       Plymouth theme to use.
@@ -24,6 +28,17 @@ in {
       - glow (glowing logo)
       - solar (solar system)
       - spinfinity (infinity spinner)
+    '';
+
+    themePackages = mkOpt (listOf package) [] ''
+      List of Plymouth theme packages to install.
+      Available packages from nixpkgs:
+      - pkgs.adi1090x-plymouth-themes (80+ themes collection)
+      - pkgs.catppuccin-plymouth (pastel theme)
+      - pkgs.plymouth-matrix-theme (Matrix animation)
+      - pkgs.plymouth-proxzima-theme (techno animation)
+      - pkgs.plymouth-blahaj-theme (IKEA shark)
+      - pkgs.nixos-bgrt-plymouth (NixOS spinning logo)
     '';
 
     logo =
@@ -44,6 +59,7 @@ in {
       enable = true;
       theme = mkDefault cfg.theme;
       logo = cfg.logo;
+      themePackages = cfg.themePackages;
     };
 
     # Silent boot settings
