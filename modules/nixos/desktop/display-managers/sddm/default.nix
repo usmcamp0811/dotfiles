@@ -9,17 +9,39 @@ in {
     enable = mkBoolOpt false "Whether or not to enable sddm.";
     wayland = mkBoolOpt true "Whether or not to use Wayland.";
     theme = mkOpt str "" "The theme to use.";
+
+    # SDDM-NixOS theme options
+    sddmTheme = {
+      enable = mkBoolOpt false "Whether to use sddm-nixos themes.";
+      name = mkOpt (enum [
+        "Astronaut"
+        "Black-Hole"
+        "Japanese-Aesthetic"
+        "Pixel-Sakura-Static"
+        "Purple-Leaves"
+        "Cyberpunk"
+        "Post-Apocalyptic-Hacker"
+        "Hyprland-Kath"
+        "Pixel-Sakura"
+        "Jake-the-Dog"
+      ]) "Cyberpunk" "The sddm-nixos theme to use.";
+    };
   };
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [ "d ${sddmHome}/.config 0711 sddm sddm" ];
+
+    # Import the sddm-nixos theme package if enabled
+    environment.systemPackages = mkIf cfg.sddmTheme.enable [
+      pkgs.fmf.sddm-themes
+    ];
 
     services = {
       displayManager = {
         sddm = {
           enable = true;
           wayland.enable = cfg.wayland;
-          theme = cfg.theme;
+          theme = if cfg.sddmTheme.enable then cfg.sddmTheme.name else cfg.theme;
         };
       };
 

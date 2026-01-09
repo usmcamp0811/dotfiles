@@ -30,6 +30,10 @@ in
           sddm = {
             enable = true;
             wayland = true;
+            sddmTheme = {
+              enable = true;
+              name = "Cyberpunk";  # You can change this to any of the available themes
+            };
           };
         };
         hyprland = enabled;
