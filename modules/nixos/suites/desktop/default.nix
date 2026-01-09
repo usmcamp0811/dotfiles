@@ -1,13 +1,13 @@
-{ options
-, config
-, lib
-, ...
+{
+  options,
+  config,
+  lib,
+  ...
 }:
 with lib;
 with lib.fmf; let
   cfg = config.fmf.suites.desktop;
-in
-{
+in {
   options.fmf.suites.desktop = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common desktop configuration.";
@@ -30,10 +30,10 @@ in
           sddm = {
             enable = true;
             wayland = true;
-            sddmTheme = {
-              enable = true;
-              # name can be overridden per-system
-            };
+            # sddmTheme = {
+            #   enable = true;
+            #   # name can be overridden per-system
+            # };
           };
         };
         hyprland = enabled;
