@@ -42,7 +42,7 @@ in {
   config = mkIf cfg.enable {
     boot.plymouth = {
       enable = true;
-      theme = cfg.theme;
+      theme = mkDefault cfg.theme;
       logo = cfg.logo;
     };
 
