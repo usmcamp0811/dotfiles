@@ -37,7 +37,7 @@ in {
     systemd.tmpfiles.rules = ["d ${sddmHome}/.config 0711 sddm sddm"];
 
     # Import the sddm-nixos theme package if enabled
-    environment.systemPackages = mkIf cfg.sddmTheme.enable [
+    environment.systemPackages = [
       pkgs.fmf.sddm-themes
       pkgs.catppuccin-sddm-corners
     ];
