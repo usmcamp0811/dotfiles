@@ -13,7 +13,7 @@ in {
   options.fmf.desktop.display-manager.sddm = with types; {
     enable = mkBoolOpt false "Whether or not to enable sddm.";
     wayland = mkBoolOpt true "Whether or not to use Wayland.";
-    theme = mkOpt str "black_hole" "The theme to use.";
+    theme = mkOpt str "${pkgs.where-is-my-sddm-theme.override {variants = ["qt5"];}}/share/sddm/themes/where_is_my_sddm_theme_qt5" "The theme to use.";
 
     # SDDM-NixOS theme options
     sddmTheme = {
