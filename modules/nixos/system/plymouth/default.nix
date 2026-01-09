@@ -26,10 +26,12 @@ in {
       - spinfinity (infinity spinner)
     '';
 
-    logo = mkOpt (nullOr path) null ''
-      Path to a custom logo to display during boot.
-      If null, uses the default NixOS logo or theme's default.
-    '';
+    logo =
+      mkOpt (nullOr path)
+      "${pkgs.nixos-icons}/share/icons/hicolor/48x48/apps/nix-snowflake-white.png" ''
+        Path to a custom logo to display during boot.
+        If null, uses the default NixOS logo or theme's default.
+      '';
 
     silentBoot = mkBoolOpt true ''
       Enable silent boot (hide kernel messages).
