@@ -32,7 +32,7 @@ in
             wayland = true;
             sddmTheme = {
               enable = true;
-              name = "cyberpunk";  # You can change this to any of the available themes
+              # name can be overridden per-system
             };
           };
         };
