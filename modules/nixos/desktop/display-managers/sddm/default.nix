@@ -1,14 +1,19 @@
-{ config, lib, options, pkgs, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   cfg = config.fmf.desktop.display-manager.sddm;
   sddmHome = config.users.users.sddm.home;
 in {
   options.fmf.desktop.display-manager.sddm = with types; {
     enable = mkBoolOpt false "Whether or not to enable sddm.";
     wayland = mkBoolOpt true "Whether or not to use Wayland.";
-    theme = mkOpt str "" "The theme to use.";
+    theme = mkOpt str "black_hole" "The theme to use.";
 
     # SDDM-NixOS theme options
     sddmTheme = {
@@ -29,7 +34,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [ "d ${sddmHome}/.config 0711 sddm sddm" ];
+    systemd.tmpfiles.rules = ["d ${sddmHome}/.config 0711 sddm sddm"];
 
     # Import the sddm-nixos theme package if enabled
     environment.systemPackages = mkIf cfg.sddmTheme.enable [
@@ -41,7 +46,10 @@ in {
         sddm = {
           enable = true;
           wayland.enable = cfg.wayland;
-          theme = if cfg.sddmTheme.enable then cfg.sddmTheme.name else cfg.theme;
+          theme =
+            if cfg.sddmTheme.enable
+            then cfg.sddmTheme.name
+            else cfg.theme;
         };
       };
 
@@ -49,8 +57,8 @@ in {
     };
 
     systemd.services.campground-user-icon = {
-      before = [ "display-manager.service" ];
-      wantedBy = [ "display-manager.service" ];
+      before = ["display-manager.service"];
+      wantedBy = ["display-manager.service"];
 
       script =
         # bash
@@ -85,7 +93,9 @@ in {
       };
     };
 
-    system.activationScripts.postInstallSddm = stringAfter [ "users" ] # bash
+    system.activationScripts.postInstallSddm =
+      stringAfter ["users"] # bash
+      
       ''
         echo "Setting sddm permissions for user icon"
         ${
