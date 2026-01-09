@@ -56,10 +56,7 @@ in {
             qt6.qtsvg
             qt6.qt5compat # For Qt5 compatibility layer some themes need
           ];
-          theme =
-            if cfg.sddmTheme.enable
-            then cfg.sddmTheme.name
-            else cfg.theme;
+          theme = cfg.theme;
         };
       };
 
