@@ -16,21 +16,21 @@ in {
     theme = mkOpt str "catppuccin-sddm-corners" "The theme to use.";
 
     # SDDM-NixOS theme options
-    sddmTheme = {
-      enable = mkBoolOpt false "Whether to use sddm-nixos themes.";
-      name = mkOpt (enum [
-        "astronaut"
-        "black_hole"
-        "japanese_aesthetic"
-        "pixel_sakura_static"
-        "purple_leaves"
-        "cyberpunk"
-        "post-apocalyptic_hacker"
-        "hyprland_kath"
-        "pixel_sakura"
-        "jake_the_dog"
-      ]) "cyberpunk" "The sddm-nixos theme to use.";
-    };
+    # sddmTheme = {
+    #   enable = mkBoolOpt false "Whether to use sddm-nixos themes.";
+    #   name = mkOpt (enum [
+    #     "astronaut"
+    #     "black_hole"
+    #     "japanese_aesthetic"
+    #     "pixel_sakura_static"
+    #     "purple_leaves"
+    #     "cyberpunk"
+    #     "post-apocalyptic_hacker"
+    #     "hyprland_kath"
+    #     "pixel_sakura"
+    #     "jake_the_dog"
+    #   ]) "cyberpunk" "The sddm-nixos theme to use.";
+    # };
   };
 
   config = mkIf cfg.enable {
@@ -39,6 +39,7 @@ in {
     # Import the sddm-nixos theme package if enabled
     environment.systemPackages = mkIf cfg.sddmTheme.enable [
       pkgs.fmf.sddm-themes
+      pkgs.catppuccin-sddm-corners
     ];
 
     services = {
@@ -47,6 +48,7 @@ in {
           enable = true;
           wayland.enable = cfg.wayland;
           extraPackages = with pkgs; [
+            catppuccin-sddm-corners
             # Qt6 packages for SDDM 0.21.0 and catppuccin theme
             qt6.qtbase
             qt6.qtdeclarative
@@ -58,13 +60,6 @@ in {
             if cfg.sddmTheme.enable
             then cfg.sddmTheme.name
             else cfg.theme;
-          settings = {
-            Theme = {
-              EnableAvatars = true;
-              FacesDir = "/etc/sddm/faces";
-              Background = "/etc/sddm/background.png";
-            };
-          };
         };
       };
 
