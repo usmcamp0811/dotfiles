@@ -107,8 +107,25 @@ in {
         # mkDefault allows Stylix to override this
         settings = mkDefault cfg.settings;
 
-        # Include custom theme if provided
-        extraConfig = mkIf (cfg.customTheme != null) (builtins.readFile cfg.customTheme);
+        # Include custom theme if provided, plus apply settings via extraConfig
+        # extraConfig settings won't be overridden by Stylix
+        extraConfig = ''
+          ${optionalString (cfg.customTheme != null) (builtins.readFile cfg.customTheme)}
+
+          # Settings that shouldn't be overridden by Stylix
+          clipboard_control ${cfg.settings.clipboard_control or "write-clipboard write-primary read-clipboard read-primary"}
+          paste_actions ${cfg.settings.paste_actions or "confirm-if-large"}
+          allow_remote_control ${cfg.settings.allow_remote_control or "yes"}
+          listen_on ${cfg.settings.listen_on or "unix:/tmp/mykitty"}
+          sync_to_monitor ${cfg.settings.sync_to_monitor or "yes"}
+          italic_font ${cfg.settings.italic_font or "auto"}
+          enable_audio_bell ${cfg.settings.enable_audio_bell or "no"}
+          cursor_blink_interval ${cfg.settings.cursor_blink_interval or "0"}
+          cursor_stop_blinking_after ${cfg.settings.cursor_stop_blinking_after or "0"}
+          inactive_text_alpha ${cfg.settings.inactive_text_alpha or "1.0"}
+          adjust_line_height ${cfg.settings.adjust_line_height or "2"}
+          confirm_os_window_close ${cfg.settings.confirm_os_window_close or "0"}
+        '';
       }
       // cfg.extraOptions;
   };
