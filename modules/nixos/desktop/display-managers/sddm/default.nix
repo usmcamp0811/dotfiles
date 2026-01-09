@@ -55,6 +55,7 @@ in {
             qt6.qtwayland
             qt6.qtsvg
             qt6.qt5compat # For Qt5 compatibility layer some themes need
+            kdePackages.qtmultimedia
           ];
           theme = cfg.theme;
         };
@@ -73,7 +74,7 @@ in {
           config_file=/var/lib/AccountsService/users/${config.fmf.user.name}
           icon_file=/run/current-system/sw/share/icons/user/${config.fmf.user.name}/${config.fmf.user.icon.fileName}
 
-          if ! [ -d "$(dirname "$config_file")" ]; then
+          if ! [ -d "$(dername "$config_file")" ]; then
             mkdir -p "$(dirname "$config_file")"
           fi
 
