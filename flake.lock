@@ -14007,6 +14007,21 @@
         "type": "github"
       }
     },
+    "nixos-boot": {
+      "locked": {
+        "lastModified": 1722927293,
+        "narHash": "sha256-8oCsiFyAuidAdhSz60Lu8+TwCPHxaeWixyv0xT0mLt4=",
+        "owner": "Melkor333",
+        "repo": "nixos-boot",
+        "rev": "afaed735149d0a06f234e54dd2d9db2e18dc64ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Melkor333",
+        "repo": "nixos-boot",
+        "type": "github"
+      }
+    },
     "nixos-cli": {
       "inputs": {
         "flake-compat": "flake-compat_43",
@@ -19167,6 +19182,7 @@
         "nixery-flake": "nixery-flake_4",
         "nixhelm": "nixhelm_3",
         "nixidy": "nixidy_3",
+        "nixos-boot": "nixos-boot",
         "nixos-cli": "nixos-cli_3",
         "nixos-generators": "nixos-generators_4",
         "nixos-hardware": "nixos-hardware_4",
