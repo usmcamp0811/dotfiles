@@ -13,7 +13,7 @@ in {
   options.fmf.desktop.display-manager.sddm = with types; {
     enable = mkBoolOpt false "Whether or not to enable sddm.";
     wayland = mkBoolOpt true "Whether or not to use Wayland.";
-    theme = mkOpt str "${pkgs.where-is-my-sddm-theme.override {variants = ["qt5"];}}/share/sddm/themes/where_is_my_sddm_theme_qt5" "The theme to use.";
+    theme = mkOpt str "catppuccin-sddm-corners" "The theme to use.";
 
     # SDDM-NixOS theme options
     sddmTheme = {
@@ -46,10 +46,25 @@ in {
         sddm = {
           enable = true;
           wayland.enable = cfg.wayland;
+          extraPackages = with pkgs; [
+            # Qt6 packages for SDDM 0.21.0 and catppuccin theme
+            qt6.qtbase
+            qt6.qtdeclarative
+            qt6.qtwayland
+            qt6.qtsvg
+            qt6.qt5compat # For Qt5 compatibility layer some themes need
+          ];
           theme =
             if cfg.sddmTheme.enable
             then cfg.sddmTheme.name
             else cfg.theme;
+          settings = {
+            Theme = {
+              EnableAvatars = true;
+              FacesDir = "/etc/sddm/faces";
+              Background = "/etc/sddm/background.png";
+            };
+          };
         };
       };
 
