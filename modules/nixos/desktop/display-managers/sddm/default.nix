@@ -48,6 +48,7 @@ in {
           enable = true;
           wayland.enable = cfg.wayland;
           extraPackages = with pkgs; [
+            sddm-astronaut
             catppuccin-sddm-corners
             # Qt6 packages for SDDM 0.21.0 and catppuccin theme
             qt6.qtbase
