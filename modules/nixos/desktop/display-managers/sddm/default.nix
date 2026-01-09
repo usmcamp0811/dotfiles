@@ -13,7 +13,7 @@ in {
   options.fmf.desktop.display-manager.sddm = with types; {
     enable = mkBoolOpt false "Whether or not to enable sddm.";
     wayland = mkBoolOpt true "Whether or not to use Wayland.";
-    theme = mkOpt str "sddm-astronaut-theme" "The theme to use.";
+    theme = mkOpt str "astronaut" "The theme to use.";
 
     # SDDM-NixOS theme options
     # sddmTheme = {
@@ -56,7 +56,7 @@ in {
             qt6.qtwayland
             qt6.qtsvg
             qt6.qt5compat # For Qt5 compatibility layer some themes need
-            kdePackages.qtmultimedia
+            libsForQt5.qt5.qtmultimedia
           ];
           theme = cfg.theme;
         };
