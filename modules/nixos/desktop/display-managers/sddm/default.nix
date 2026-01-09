@@ -13,7 +13,7 @@ in {
   options.fmf.desktop.display-manager.sddm = with types; {
     enable = mkBoolOpt false "Whether or not to enable sddm.";
     wayland = mkBoolOpt true "Whether or not to use Wayland.";
-    theme = mkOpt str "catppuccin-sddm-corners" "The theme to use.";
+    theme = mkOpt str "sddm-astronaut-theme" "The theme to use.";
 
     # SDDM-NixOS theme options
     # sddmTheme = {
@@ -39,7 +39,7 @@ in {
     # Import the sddm-nixos theme package if enabled
     environment.systemPackages = [
       pkgs.fmf.sddm-themes
-      pkgs.catppuccin-sddm-corners
+      pkgs.sddm-astronaut
     ];
 
     services = {
