@@ -64,8 +64,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [pkgs.swww];
-
     # Systemd service for swww daemon
     systemd.user.services.swww-daemon = {
       Unit = {
@@ -116,6 +114,7 @@ in {
 
     # Helper script for manual wallpaper changes
     home.packages = [
+      pkgs.swww
       (pkgs.writeShellScriptBin "swww-set" ''
         if [ $# -eq 0 ]; then
           echo "Usage: swww-set <wallpaper-path> [monitor]"
