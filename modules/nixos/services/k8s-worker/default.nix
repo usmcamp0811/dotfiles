@@ -5,14 +5,15 @@
   ...
 }:
 with lib; let
-  cfg = config.fmf.services.k8s-control-plane;
+  cfg = config.fmf.services.k8s-worker;
 in {
-  options.fmf.services.k8s-control-plane = {
-    enable = lib.mkEnableOption "Enable k8s control plane configuration";
+  options.fmf.services.k8s-worker = {
+    enable = lib.mkEnableOption "Enable k8s worker node configuration";
 
-    nodeId = lib.mkOption {
-      type = lib.types.int;
-      description = "Node ID (1, 2, or 3)";
+    nodeName = lib.mkOption {
+      type = lib.types.str;
+      default = config.networking.hostName;
+      description = "Node name for the worker";
     };
 
     interface = lib.mkOption {
@@ -21,34 +22,16 @@ in {
       description = "Network interface to use";
     };
 
-    vip = lib.mkOption {
+    serverUrl = lib.mkOption {
       type = lib.types.str;
-      default = "10.8.40.49";
-      description = "Virtual IP for k8s API";
-    };
-
-    nodeIps = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = ["10.8.40.50" "10.8.40.51" "10.8.40.52"];
-      description = "IPs of all control plane nodes";
-    };
-
-    dnsSan = lib.mkOption {
-      type = lib.types.str;
-      default = "k8s-api.lan.aicampground.com";
-      description = "DNS name for k8s API";
+      default = "https://10.8.40.49:6443";
+      description = "K8s control plane URL to connect to";
     };
 
     dataDir = lib.mkOption {
       type = lib.types.path;
       default = "/var/lib/rancher";
       description = "Data directory for k3s";
-    };
-
-    disabledServices = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = ["servicelb" "traefik"];
-      description = "K3s services to disable";
     };
 
     macAddress = lib.mkOption {
@@ -74,14 +57,15 @@ in {
       default = true;
       description = "Use DHCP for network configuration";
     };
+
+    extraK3sConfig = lib.mkOption {
+      type = lib.types.attrs;
+      default = {};
+      description = "Extra K3s agent configuration options";
+    };
   };
 
   config = lib.mkIf cfg.enable {
-    # Calculate node-specific values based on nodeId
-    # Node 1: priority 100, MASTER
-    # Node 2: priority 90, BACKUP
-    # Node 3: priority 80, BACKUP
-
     # Deterministic NIC name (only if MAC address is provided)
     systemd.network.links."10-${cfg.interface}" = lib.mkIf (cfg.macAddress != null) {
       matchConfig.MACAddress = cfg.macAddress;
@@ -104,49 +88,22 @@ in {
 
     networking.nameservers = cfg.nameservers;
 
-    # KeepAliveD configuration
-    fmf.services.keepalived = {
-      enable = true;
-      instances.k8s-api = {
-        interface = cfg.interface;
-        ips = [cfg.vip];
-        state =
-          if cfg.nodeId == 1
-          then "MASTER"
-          else "BACKUP";
-        # Priority: 100, 90, 80 for nodes 1, 2, 3
-        priority = 110 - (cfg.nodeId * 10);
-        virtualRouterId = 49;
-      };
-    };
-
-    # K3s configuration
+    # K3s worker configuration
     fmf.services.k3s = {
       enable = true;
-      role = "server";
-      clusterInit = cfg.nodeId == 1;
-      serverAddr = "https://${cfg.vip}:6443";
+      role = "agent";
+      serverAddr = cfg.serverUrl;
       config = {
-        disable = cfg.disabledServices;
-        cluster-init = cfg.nodeId == 1;
-        server =
-          if cfg.nodeId == 1
-          then null
-          else "https://${cfg.vip}:6443";
-        tls-san = [cfg.vip cfg.dnsSan] ++ cfg.nodeIps;
-        node-name = "k8s-control-${toString cfg.nodeId}";
+        node-name = cfg.nodeName;
         data-dir = cfg.dataDir;
-      };
+      } // cfg.extraK3sConfig;
     };
 
     # Firewall
     networking.firewall = {
       enable = lib.mkForce true;
       allowedTCPPorts = [
-        6443 # Kubernetes API
         10250 # Kubelet
-        2379 # etcd client
-        2380 # etcd peer
       ];
     };
   };
