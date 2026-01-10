@@ -62,8 +62,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [pkgs.mpvpaper];
-
     # Create systemd services for each monitor
     systemd.user.services = mkMerge (map (monitor: let
       serviceName = "mpvpaper-${replaceStrings ["*" " "] ["all" "-"] monitor.name}";
@@ -90,6 +88,7 @@ in {
 
     # Helper script to start mpvpaper manually
     home.packages = [
+      pkgs.mpvpaper
       (pkgs.writeShellScriptBin "mpvpaper-start" ''
         if [ $# -lt 2 ]; then
           echo "Usage: mpvpaper-start <monitor> <video-path> [mpv-options...]"
