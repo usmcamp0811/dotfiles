@@ -1,9 +1,13 @@
-{ lib, config, pkgs, ... }:
-with lib;
-let
-  cfg = config.campground.services.k8s-control-plane;
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+with lib; let
+  cfg = config.fmf.services.k8s-control-plane;
 in {
-  options.campground.services.k8s-control-plane = {
+  options.fmf.services.k8s-control-plane = {
     enable = lib.mkEnableOption "Enable k8s control plane configuration";
 
     nodeId = lib.mkOption {
@@ -72,7 +76,13 @@ in {
           type = "tap";
           id = "vm-k8s-control-${toString cfg.nodeId}";
           # MAC addresses: 50, 53, 54 for nodes 1, 2, 3
-          mac = "02:00:00:00:00:${if cfg.nodeId == 1 then "50" else if cfg.nodeId == 2 then "53" else "54"}";
+          mac = "02:00:00:00:00:${
+            if cfg.nodeId == 1
+            then "50"
+            else if cfg.nodeId == 2
+            then "53"
+            else "54"
+          }";
         }
       ];
 
@@ -83,7 +93,13 @@ in {
 
     # Deterministic NIC name
     systemd.network.links."10-lan0" = {
-      matchConfig.MACAddress = "02:00:00:00:00:${if cfg.nodeId == 1 then "50" else if cfg.nodeId == 2 then "53" else "54"}";
+      matchConfig.MACAddress = "02:00:00:00:00:${
+        if cfg.nodeId == 1
+        then "50"
+        else if cfg.nodeId == 2
+        then "53"
+        else "54"
+      }";
       linkConfig.Name = "lan0";
     };
 
@@ -113,7 +129,10 @@ in {
       instances.k8s-api = {
         interface = "lan0";
         ips = [cfg.vip];
-        state = if cfg.nodeId == 1 then "MASTER" else "BACKUP";
+        state =
+          if cfg.nodeId == 1
+          then "MASTER"
+          else "BACKUP";
         # Priority: 100, 90, 80 for nodes 1, 2, 3
         priority = 110 - (cfg.nodeId * 10);
         virtualRouterId = 49;
@@ -129,7 +148,10 @@ in {
       config = {
         disable = ["servicelb" "traefik"];
         cluster-init = cfg.nodeId == 1;
-        server = if cfg.nodeId == 1 then null else "https://${cfg.vip}:6443";
+        server =
+          if cfg.nodeId == 1
+          then null
+          else "https://${cfg.vip}:6443";
         tls-san = [cfg.vip cfg.dnsSan] ++ cfg.nodeIps;
         node-name = "vm-k8s-control-${toString cfg.nodeId}";
       };
@@ -139,10 +161,10 @@ in {
     networking.firewall = {
       enable = lib.mkForce true;
       allowedTCPPorts = [
-        6443  # Kubernetes API
+        6443 # Kubernetes API
         10250 # Kubelet
-        2379  # etcd client
-        2380  # etcd peer
+        2379 # etcd client
+        2380 # etcd peer
       ];
     };
   };
