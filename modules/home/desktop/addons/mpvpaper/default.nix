@@ -54,6 +54,7 @@ in {
         "osd-level=0"
         "no-input-default-bindings"
         "no-stop-screensaver"
+        "background=\\#000000"
       ];
       description = "Default mpv options applied to all wallpapers (without -- prefix, will be passed as -o option=value)";
     };
