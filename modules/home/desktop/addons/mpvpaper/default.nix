@@ -70,7 +70,8 @@ in {
     systemd.user.services = mkMerge (map (monitor: let
       serviceName = "mpvpaper-${replaceStrings ["*" " "] ["all" "-"] monitor.name}";
       allOptions = cfg.defaultMpvOptions ++ monitor.mpvOptions;
-      mpvOptionsStr = concatStringsSep " " (map (opt: "-o ${opt}") allOptions);
+      # Filter out empty options and format with -o prefix
+      mpvOptionsStr = concatStringsSep " " (map (opt: "-o ${opt}") (filter (opt: opt != "") allOptions));
     in {
       "${serviceName}" = mkIf cfg.autoStart {
         Unit = {
