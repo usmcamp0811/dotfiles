@@ -39,11 +39,14 @@ in {
     defaultMpvOptions = mkOption {
       type = types.listOf types.str;
       default = [
-        "--loop"
+        "--loop-file=inf"
         "--no-audio"
         "--panscan=1.0"
         "--no-osc"
         "--no-osd-bar"
+        "--osd-level=0"
+        "--no-input-default-bindings"
+        "--no-stop-screensaver"
       ];
       description = "Default mpv options applied to all wallpapers";
     };
