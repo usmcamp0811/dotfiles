@@ -3,7 +3,7 @@
 * */
 * {
   font-family: MonaspiceNe Nerd Font;
-  font-size: 9px;
+  font-size: 11px;
   border-radius: 0.75em;
 }
 
@@ -83,8 +83,8 @@ box {
 #clock {
   font-size: 14px;
   font-weight: 500;
-  padding: 0 10px;
-  margin: 0 5px;
+  padding: 0 5px;
+  margin: 0 3px;
   color: @sky;
 }
 

@@ -30,16 +30,14 @@
 
 #workspaces button.visible {
   color: @blue;
-  background-color: rgba(137, 180, 250, 0.12);
 }
 
 #workspaces button.active {
-  color: @green;
-  background-color: rgba(166, 227, 161, 0.25);
+  color: #b4fa50;
+  background-color: rgba(180, 250, 80, 0.25);
   font-weight: bold;
 }
 
 #workspaces button.urgent {
   color: @red;
-  background-color: rgba(243, 139, 168, 0.15);
 }
