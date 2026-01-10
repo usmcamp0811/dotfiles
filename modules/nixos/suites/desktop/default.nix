@@ -19,12 +19,11 @@ in {
     fmf = {
       theming.stylix = {
         enable = true;
-        wallpaper = "${pkgs.fmf.wallpapers}/share/wallpapers/pittsburgh-wallpaper.jpeg";
-        theme = cfg.theme;
+        theme = lib.mkForce "material-vivid";
         # Optional: customize fonts to match your current kitty config
         fonts.monospace = {
-          package = pkgs.nerd-fonts.fira-code;
-          name = "FiraCode Nerd Font Mono";
+          package = lib.mkForce pkgs.monaspace;
+          name = lib.mkForce "Monaspace Neon";
         };
         # Optional: match your kitty opacity
         opacity.terminal = 0.95;
