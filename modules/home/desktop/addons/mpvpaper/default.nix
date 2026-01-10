@@ -39,16 +39,16 @@ in {
     defaultMpvOptions = mkOption {
       type = types.listOf types.str;
       default = [
-        "--loop-file=inf"
-        "--no-audio"
-        "--panscan=1.0"
-        "--no-osc"
-        "--no-osd-bar"
-        "--osd-level=0"
-        "--no-input-default-bindings"
-        "--no-stop-screensaver"
+        "loop-file=inf"
+        "no-audio"
+        "panscan=1.0"
+        "no-osc"
+        "no-osd-bar"
+        "osd-level=0"
+        "no-input-default-bindings"
+        "no-stop-screensaver"
       ];
-      description = "Default mpv options applied to all wallpapers";
+      description = "Default mpv options applied to all wallpapers (without -- prefix)";
     };
 
     layer = mkOption {
@@ -69,7 +69,7 @@ in {
     systemd.user.services = mkMerge (map (monitor: let
       serviceName = "mpvpaper-${replaceStrings ["*" " "] ["all" "-"] monitor.name}";
       allOptions = cfg.defaultMpvOptions ++ monitor.mpvOptions;
-      optionsStr = concatStringsSep " " allOptions;
+      mpvOptionsStr = concatStringsSep " " (map (opt: "-o ${opt}") allOptions);
     in {
       "${serviceName}" = mkIf cfg.autoStart {
         Unit = {
@@ -80,7 +80,7 @@ in {
 
         Service = {
           Type = "simple";
-          ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper ${optionsStr} --layer ${cfg.layer} ${monitor.name} ${monitor.wallpaper}";
+          ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper --layer ${cfg.layer} ${mpvOptionsStr} ${monitor.name} ${monitor.wallpaper}";
           Restart = "on-failure";
           RestartSec = 3;
         };
@@ -116,9 +116,9 @@ in {
 
         # Start new mpvpaper
         ${pkgs.mpvpaper}/bin/mpvpaper \
-          ${concatStringsSep " " cfg.defaultMpvOptions} \
-          "$@" \
           --layer ${cfg.layer} \
+          ${concatStringsSep " " (map (opt: "-o ${opt}") cfg.defaultMpvOptions)} \
+          "$@" \
           "$MONITOR" \
           "$VIDEO" &
 
