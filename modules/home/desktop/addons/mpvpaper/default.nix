@@ -79,19 +79,11 @@ in {
       # Filter out empty options and format with -o prefix
       mpvOptionsStr = concatStringsSep " " (map (opt: "-o ${opt}") (filter (opt: opt != "") allOptions));
 
-      # Determine video source and playlist handling
-      hasPlaylist = monitor.playlist != [];
-      videoFiles = if hasPlaylist then monitor.playlist else if monitor.wallpaper != null then [monitor.wallpaper] else [];
-
-      # Validate configuration
-      _ = if videoFiles == [] then throw "Either wallpaper or playlist must be specified for monitor ${monitor.name}" else null;
-
-      # Create playlist file for multiple videos
-      playlistFile = pkgs.writeText "mpvpaper-playlist-${monitor.name}.m3u"
-        (concatStringsSep "\n" videoFiles);
-
-      # First video for mpvpaper argument
-      firstVideo = builtins.head videoFiles;
+      # Determine video source
+      videoSource =
+        if monitor.wallpaper != null then monitor.wallpaper
+        else if monitor.playlist != [] then builtins.head monitor.playlist
+        else throw "Either wallpaper or playlist must be specified for monitor ${monitor.name}";
 
       # Wrapper script to detect resolution and start mpvpaper
       startScript = pkgs.writeShellScript "mpvpaper-start-${monitor.name}" ''
@@ -111,14 +103,12 @@ in {
         VF_FILTER="vf=scale=$WIDTH:$HEIGHT:force_original_aspect_ratio=increase,crop=$WIDTH:$HEIGHT"
 
         # Start mpvpaper with detected resolution
-        # Pass playlist via loadfile-list option for proper playlist handling
         exec ${pkgs.mpvpaper}/bin/mpvpaper \
           --layer ${cfg.layer} \
           ${mpvOptionsStr} \
           -o "$VF_FILTER" \
-          -o playlist=${playlistFile} \
           ${monitor.name} \
-          ${firstVideo}
+          ${videoSource}
       '';
     in {
       "${serviceName}" = mkIf cfg.autoStart {
