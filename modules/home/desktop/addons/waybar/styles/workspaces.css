@@ -31,7 +31,7 @@
 }
 
 #workspaces button.active {
-  color: #b4fa50;
+  color: @green;
   font-weight: bold;
 }
 
