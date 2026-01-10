@@ -48,10 +48,10 @@ with lib.fmf; let
 
     "modules-right" = [
       "group/tray"
+      "custom/weather"
       "group/stats"
       "group/notifications"
       "hyprland/submap"
-      "custom/weather"
       "clock"
     ];
   };
