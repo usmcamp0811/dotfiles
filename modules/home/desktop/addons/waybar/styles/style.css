@@ -84,6 +84,7 @@ box {
 #clock {
   padding: 0 5px;
   margin: 0 2px;
+  font-weight: bold;
   color: @sky;
 }
 
