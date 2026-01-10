@@ -113,7 +113,7 @@ in {
         qt.force_platformtheme = "dark";
 
         fonts = {
-          default_family = ["DejaVu Sans Mono"];
+          default_family = lib.mkDefault ["DejaVu Sans Mono"];
           prompts = "default_size default_family";
           tabs.selected = "15pt default_family";
           tabs.unselected = "15pt default_family";
