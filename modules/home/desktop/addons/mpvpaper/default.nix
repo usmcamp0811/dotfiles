@@ -40,15 +40,16 @@ in {
       type = types.listOf types.str;
       default = [
         "loop-file=inf"
+        "loop-playlist=inf"
+        "keep-open=always"
+        "pause=no"
         "no-audio"
-        "panscan=1.0"
         "no-osc"
-        "no-osd-bar"
         "osd-level=0"
         "no-input-default-bindings"
         "no-stop-screensaver"
       ];
-      description = "Default mpv options applied to all wallpapers (without -- prefix)";
+      description = "Default mpv options applied to all wallpapers (without -- prefix, will be passed as -o option=value)";
     };
 
     layer = mkOption {
@@ -94,8 +95,8 @@ in {
       pkgs.mpvpaper
       (pkgs.writeShellScriptBin "mpvpaper-start" ''
         if [ $# -lt 2 ]; then
-          echo "Usage: mpvpaper-start <monitor> <video-path> [mpv-options...]"
-          echo "Example: mpvpaper-start DP-1 ~/videos/wallpaper.mp4 --loop --no-audio"
+          echo "Usage: mpvpaper-start <monitor> <video-path>"
+          echo "Example: mpvpaper-start eDP-1 ~/videos/wallpaper.mp4"
           echo ""
           echo "Available monitors:"
           ${pkgs.hyprland}/bin/hyprctl monitors | ${pkgs.gnugrep}/bin/grep "Monitor" | ${pkgs.gawk}/bin/awk '{print "  " $2}'
@@ -104,7 +105,6 @@ in {
 
         MONITOR="$1"
         VIDEO="$2"
-        shift 2
 
         if [ ! -f "$VIDEO" ]; then
           echo "Error: Video file not found: $VIDEO"
@@ -114,11 +114,10 @@ in {
         # Kill existing mpvpaper for this monitor
         ${pkgs.procps}/bin/pkill -f "mpvpaper.*$MONITOR"
 
-        # Start new mpvpaper
+        # Start new mpvpaper with proper looping options
         ${pkgs.mpvpaper}/bin/mpvpaper \
           --layer ${cfg.layer} \
           ${concatStringsSep " " (map (opt: "-o ${opt}") cfg.defaultMpvOptions)} \
-          "$@" \
           "$MONITOR" \
           "$VIDEO" &
 
