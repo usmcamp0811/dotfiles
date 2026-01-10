@@ -1,21 +1,29 @@
-{ options, config, lib, ... }:
+{
+  options,
+  config,
+  lib,
+  ...
+}:
 with lib;
-with lib.fmf;
-let cfg = config.fmf.hardware.networking;
+with lib.fmf; let
+  cfg = config.fmf.hardware.networking;
 in {
   options.fmf.hardware.networking = with types; {
     enable = mkBoolOpt false "Whether or not to enable networking support";
-    hosts = mkOpt attrs { }
+    hosts =
+      mkOpt attrs {}
       "An attribute set to merge with <option>networking.hosts</option>";
   };
 
   config = mkIf cfg.enable {
-    fmf.user.extraGroups = [ "networkmanager" ];
+    fmf.user.extraGroups = ["networkmanager"];
 
     networking = {
-      hosts = {
-        "127.0.0.1" = [ "local.test" ] ++ (cfg.hosts."127.0.0.1" or [ ]);
-      } // cfg.hosts;
+      hosts =
+        {
+          "127.0.0.1" = ["local.test"] ++ (cfg.hosts."127.0.0.1" or []);
+        }
+        // cfg.hosts;
 
       networkmanager = {
         enable = true;
@@ -24,7 +32,7 @@ in {
     };
 
     # TODO: Figure this out cause if its on jupyter is not accessible
-    networking.firewall = { enable = false; };
+    # networking.firewall = {enable = false;};
     # Fixes an issue that normally causes nixos-rebuild to fail.
     # https://github.com/NixOS/nixpkgs/issues/180175
     systemd.services.NetworkManager-wait-online.enable = false;
