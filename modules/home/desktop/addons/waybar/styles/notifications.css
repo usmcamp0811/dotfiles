@@ -39,8 +39,8 @@
 
 #custom-pipewire.muted,
 #pulseaudio.muted {
-  background-color: #90b1b1;
-  color: #2a5c45;
+  background-color: transparent;
+  color: @overlay0;
 }
 
 #keyboard-state {
@@ -54,7 +54,7 @@
 }
 
 #keyboard-state > label.locked {
-  background: rgba(0, 0, 0, 0.2);
+  background: transparent;
 }
 
 

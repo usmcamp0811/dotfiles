@@ -65,8 +65,9 @@ box {
 
 /* Weather styling - cleaner modern appearance */
 #custom-weather {
-  padding: 0 10px;
+  padding: 0 7px;
   margin: 0 5px;
+  background: transparent;
   color: @sky;
   font-weight: bold;
 }
@@ -83,8 +84,8 @@ box {
 #clock {
   font-size: 11px;
   font-weight: 500;
-  padding: 0 5px;
-  margin: 0 3px;
+  padding: 0 3px;
+  margin: 0 2px;
   color: @sky;
 }
 

@@ -34,10 +34,10 @@
 }
 
 #network.disconnected {
-  background-color: #f53c3c;
+  background-color: transparent;
 }
 
 #temperature.critical {
-  background-color: #eb4d4b;
+  background-color: transparent;
 }
 
