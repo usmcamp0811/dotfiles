@@ -121,8 +121,8 @@ in {
         Service = {
           Type = "simple";
           ExecStart = "${startScript}";
-          Restart = "on-failure";
-          RestartSec = 3;
+          Restart = "always";
+          RestartSec = 1;
         };
 
         Install.WantedBy = ["hyprland-session.target"];
