@@ -1,9 +1,11 @@
 #workspaces {
-  margin: 0 5px;
-  padding: 0 5px;
+  margin: 5px;
+  padding: 3px 8px;
   color: @peach;
   font-weight: bold;
-  background: transparent;
+  background: linear-gradient(135deg, @surface0 0%, @surface1 100%);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 #workspaces label {
@@ -12,11 +14,12 @@
 }
 
 #workspaces button {
-  padding: 0 5px;
-  margin: 0 2px;
+  padding: 0 8px;
+  margin: 2px;
   background-color: transparent;
   color: @text;
   border: none;
+  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
@@ -27,13 +30,16 @@
 
 #workspaces button.visible {
   color: @blue;
+  background-color: rgba(137, 180, 250, 0.12);
 }
 
 #workspaces button.active {
   color: @green;
+  background-color: rgba(166, 227, 161, 0.25);
   font-weight: bold;
 }
 
 #workspaces button.urgent {
   color: @red;
+  background-color: rgba(243, 139, 168, 0.15);
 }

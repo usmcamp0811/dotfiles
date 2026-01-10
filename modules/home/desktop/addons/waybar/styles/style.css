@@ -81,12 +81,11 @@ box {
 }
 
 #clock {
-  font-size: 13px;
-  font-weight: 700;
-  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 10px;
   margin: 0 5px;
-  min-width: 180px;
-  color: @blue;
+  color: @sky;
 }
 
 #window {
