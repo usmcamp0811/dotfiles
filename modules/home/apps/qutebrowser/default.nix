@@ -1,16 +1,15 @@
-{ lib
-, config
-, pkgs
-, ...
-}:
-let
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
 
   cfg = config.fmf.apps.qutebrowser;
   dir = ./qutebrowser;
   stylesheet = ./qutebrowser/reddit.css;
-in
-{
+in {
   options.fmf.apps.qutebrowser = {
     enable = mkEnableOption "qutebrowser";
   };
@@ -59,9 +58,9 @@ in
           # user_stylesheets = [stylesheet];
         };
 
-        content.blocking.whitelist = [ "thepiratebay.org" ];
+        content.blocking.whitelist = ["thepiratebay.org"];
 
-        editor.command = [ "kitty" "-e" "nvim" "{}" ];
+        editor.command = ["kitty" "-e" "nvim" "{}"];
 
         downloads = {
           open_dispatcher = "rifle";
@@ -74,7 +73,7 @@ in
           remove_finished = 5000;
         };
 
-        statusbar.widgets = [ "keypress" "url" "history" "tabs" "progress" ];
+        statusbar.widgets = ["keypress" "url" "history" "tabs" "progress"];
 
         tabs = {
           background = true;
@@ -92,11 +91,11 @@ in
 
         url = {
           default_page = "file://${config.xdg.configHome}/qutebrowser/startpage.html";
-          start_pages = [ "file://${config.xdg.configHome}/qutebrowser/startpage.html" ];
+          start_pages = ["file://${config.xdg.configHome}/qutebrowser/startpage.html"];
         };
 
         colors = {
-          messages.error.bg = "#b22222";
+          messages.error.bg = lib.mkDefault "#b22222";
           webpage.bg = "#1D252C";
           webpage.preferred_color_scheme = "dark";
 
@@ -114,13 +113,13 @@ in
         qt.force_platformtheme = "dark";
 
         fonts = {
-          default_family = [ "DejaVu Sans Mono" ];
+          default_family = ["DejaVu Sans Mono"];
           prompts = "default_size default_family";
           tabs.selected = "15pt default_family";
           tabs.unselected = "15pt default_family";
         };
 
-        completion.open_categories = [ "quickmarks" "bookmarks" "history" ];
+        completion.open_categories = ["quickmarks" "bookmarks" "history"];
 
         window.title_format = "{perc}{current_title}";
 
