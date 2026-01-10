@@ -22,8 +22,14 @@ in {
               description = "Monitor name (use '*' for all monitors)";
             };
             wallpaper = mkOption {
-              type = path;
-              description = "Path to video file (MP4, MKV, etc.)";
+              type = nullOr path;
+              default = null;
+              description = "Path to single video file (MP4, MKV, etc.)";
+            };
+            playlist = mkOption {
+              type = listOf path;
+              default = [];
+              description = "List of video files to play as a playlist";
             };
             mpvOptions = mkOption {
               type = listOf str;
@@ -73,6 +79,17 @@ in {
       # Filter out empty options and format with -o prefix
       mpvOptionsStr = concatStringsSep " " (map (opt: "-o ${opt}") (filter (opt: opt != "") allOptions));
 
+      # Create playlist file if needed
+      playlistFile =
+        if monitor.playlist != [] then
+          pkgs.writeText "mpvpaper-playlist-${monitor.name}"
+            (concatStringsSep "\n" monitor.playlist)
+        else if monitor.wallpaper != null then
+          pkgs.writeText "mpvpaper-playlist-${monitor.name}"
+            "${monitor.wallpaper}"
+        else
+          throw "Either wallpaper or playlist must be specified for monitor ${monitor.name}";
+
       # Wrapper script to detect resolution and start mpvpaper
       startScript = pkgs.writeShellScript "mpvpaper-start-${monitor.name}" ''
         # Get monitor resolution from hyprctl
@@ -90,13 +107,13 @@ in {
         # Build scale filter to fill screen completely
         VF_FILTER="vf=scale=$WIDTH:$HEIGHT:force_original_aspect_ratio=increase,crop=$WIDTH:$HEIGHT"
 
-        # Start mpvpaper with detected resolution
+        # Start mpvpaper with detected resolution and playlist
         exec ${pkgs.mpvpaper}/bin/mpvpaper \
           --layer ${cfg.layer} \
           ${mpvOptionsStr} \
           -o "$VF_FILTER" \
           ${monitor.name} \
-          ${monitor.wallpaper}
+          ${playlistFile}
       '';
     in {
       "${serviceName}" = mkIf cfg.autoStart {
