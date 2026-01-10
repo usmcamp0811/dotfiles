@@ -8,11 +8,12 @@
 }
 
 window#waybar {
-  background: @mantle;
-  border-radius: 0;
+  background: rgba(24, 24, 37, 0.85); /* Semi-transparent mantle color */
+  border-radius: 10px; /* Modern larger rounded corners */
+  margin: 5px; /* Floating bar effect */
   color: @theme_text_color;
   min-height: 0;
-  padding: 2px 0;
+  padding: 5px;
   transition-property: background-color;
   transition-duration: 0.5s;
 }
@@ -52,52 +53,45 @@ box {
 #custom-weather,
 #keyboard-state,
 #mpd {
-  padding: 0 1em;
+  padding: 0 10px;
+  margin: 0 5px;
 }
 
-/* Tray styling */
+/* Tray styling - simplified modern look */
 #tray {
-  margin: 0.5em;
-  padding: 0.5em;
-  background: @crust;
-  border-radius: 0.75em;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background: transparent;
+  padding: 0 7px;
 }
 
-/* Weather styling */
+/* Weather styling - cleaner modern appearance */
 #custom-weather {
-  margin: 0.5em;
-  padding: 0.5em 1em;
-  background: linear-gradient(135deg, @surface0 0%, @surface1 100%);
-  border-radius: 0.75em;
+  padding: 0 10px;
+  margin: 0 5px;
   color: @sky;
   font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Submap styling */
+/* Submap styling - modern minimal */
 #submap {
-  margin: 0.5em;
-  padding: 0.5em 1em;
-  background: @red;
-  color: @crust;
-  border-radius: 0.75em;
+  margin: 0 5px;
+  padding: 5px 10px;
+  background: transparent;
+  color: @red;
   font-weight: bold;
 }
 
 #clock {
   font-size: 13px;
   font-weight: 700;
-  padding: 0.5em 1em;
-  margin: 0.5em;
+  padding: 5px 10px;
+  margin: 0 5px;
   min-width: 180px;
   color: @blue;
 }
 
 #window {
-  padding: 0.5em 1em;
-  margin: 0.5em;
-  background: @crust;
+  padding: 5px 10px;
+  margin: 0 5px;
   color: @text;
   font-style: italic;
 }

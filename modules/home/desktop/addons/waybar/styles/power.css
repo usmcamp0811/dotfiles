@@ -1,34 +1,31 @@
-/* Custom styling for power menu */
+/* Custom styling for power menu - modern minimal */
 #power {
-  margin: 0.5em;
-  padding: 0.3em;
-  background: linear-gradient(135deg, @surface0 0%, @crust 100%);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  margin: 0 5px;
+  padding: 5px;
+  background: transparent;
 }
 
 #custom-wlogout {
   font-size: 1.5em;
-  padding: 0.3em 0.6em;
-  margin: 0.2em;
+  padding: 5px 10px;
+  margin: 0 2px;
   color: @blue;
-  background-color: rgba(137, 180, 250, 0.1);
-  border-radius: 0.5em;
+  background-color: transparent;
   transition: all 0.3s ease;
 }
 
 #custom-wlogout:hover {
-  background-color: rgba(137, 180, 250, 0.2);
+  color: @lavender;
 }
 
 #power .not-power {
   color: @red;
-  padding: 0.3em;
-  margin: 0.2em;
-  background-color: rgba(243, 139, 168, 0.1);
-  border-radius: 0.5em;
+  padding: 5px;
+  margin: 0 2px;
+  background-color: transparent;
   transition: all 0.3s ease;
 }
 
 #power .not-power:hover {
-  background-color: rgba(243, 139, 168, 0.2);
+  color: @maroon;
 }
