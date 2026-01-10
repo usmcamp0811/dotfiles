@@ -12,14 +12,14 @@ in {
   options.fmf.suites.desktop = with types; {
     enable =
       mkBoolOpt false "Whether or not to enable common desktop configuration.";
-    theme = mkOpt str "da-one-black" "Sylix theme to use";
+    theme = mkOpt str "material-vivid" "Sylix theme to use";
   };
 
   config = mkIf cfg.enable {
     fmf = {
       theming.stylix = {
         enable = true;
-        theme = lib.mkForce "material-vivid";
+        theme = lib.mkForce cfg.theme;
         # Optional: customize fonts to match your current kitty config
         fonts.monospace = {
           package = lib.mkForce pkgs.monaspace;
