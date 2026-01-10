@@ -138,13 +138,31 @@ in {
           exit 1
         fi
 
+        # Get monitor resolution from hyprctl
+        RESOLUTION=$(${pkgs.hyprland}/bin/hyprctl monitors -j | \
+          ${pkgs.jq}/bin/jq -r '.[] | select(.name=="'$MONITOR'") | "\(.width):\(.height)"')
+
+        if [ -z "$RESOLUTION" ]; then
+          echo "Error: Could not detect resolution for monitor $MONITOR"
+          exit 1
+        fi
+
+        WIDTH=$(echo $RESOLUTION | cut -d: -f1)
+        HEIGHT=$(echo $RESOLUTION | cut -d: -f2)
+
+        echo "Detected resolution: $WIDTH x $HEIGHT"
+
+        # Build scale filter to fill screen completely
+        VF_FILTER="vf=scale=$WIDTH:$HEIGHT:force_original_aspect_ratio=increase,crop=$WIDTH:$HEIGHT"
+
         # Kill existing mpvpaper for this monitor
         ${pkgs.procps}/bin/pkill -f "mpvpaper.*$MONITOR"
 
-        # Start new mpvpaper with proper looping options
+        # Start new mpvpaper with proper looping options and dynamic scaling
         ${pkgs.mpvpaper}/bin/mpvpaper \
           --layer ${cfg.layer} \
           ${concatStringsSep " " (map (opt: "-o ${opt}") cfg.defaultMpvOptions)} \
+          -o "$VF_FILTER" \
           "$MONITOR" \
           "$VIDEO" &
 
