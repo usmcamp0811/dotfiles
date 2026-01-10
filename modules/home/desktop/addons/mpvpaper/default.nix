@@ -72,6 +72,32 @@ in {
       allOptions = cfg.defaultMpvOptions ++ monitor.mpvOptions;
       # Filter out empty options and format with -o prefix
       mpvOptionsStr = concatStringsSep " " (map (opt: "-o ${opt}") (filter (opt: opt != "") allOptions));
+
+      # Wrapper script to detect resolution and start mpvpaper
+      startScript = pkgs.writeShellScript "mpvpaper-start-${monitor.name}" ''
+        # Get monitor resolution from hyprctl
+        RESOLUTION=$(${pkgs.hyprland}/bin/hyprctl monitors -j | \
+          ${pkgs.jq}/bin/jq -r '.[] | select(.name=="${monitor.name}") | "\(.width):\(.height)"')
+
+        if [ -z "$RESOLUTION" ]; then
+          echo "Error: Could not detect resolution for monitor ${monitor.name}"
+          exit 1
+        fi
+
+        WIDTH=$(echo $RESOLUTION | cut -d: -f1)
+        HEIGHT=$(echo $RESOLUTION | cut -d: -f2)
+
+        # Build scale filter to fill screen completely
+        VF_FILTER="vf=scale=$WIDTH:$HEIGHT:force_original_aspect_ratio=increase,crop=$WIDTH:$HEIGHT"
+
+        # Start mpvpaper with detected resolution
+        exec ${pkgs.mpvpaper}/bin/mpvpaper \
+          --layer ${cfg.layer} \
+          ${mpvOptionsStr} \
+          -o "$VF_FILTER" \
+          ${monitor.name} \
+          ${monitor.wallpaper}
+      '';
     in {
       "${serviceName}" = mkIf cfg.autoStart {
         Unit = {
@@ -82,7 +108,7 @@ in {
 
         Service = {
           Type = "simple";
-          ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper --layer ${cfg.layer} ${mpvOptionsStr} ${monitor.name} ${monitor.wallpaper}";
+          ExecStart = "${startScript}";
           Restart = "on-failure";
           RestartSec = 3;
         };
