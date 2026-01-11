@@ -1,4 +1,4 @@
-{ lib, ... }:
+{lib, ...}:
 with lib.fmf; {
   fmf = {
     user = {
@@ -8,6 +8,7 @@ with lib.fmf; {
       email = "matt@aicampground.com";
     };
     archetypes.headless = enabled;
+    services.syncthing = enabled;
   };
 
   home.stateVersion = "23.05";
