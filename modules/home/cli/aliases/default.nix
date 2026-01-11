@@ -34,6 +34,7 @@ with lib.fmf; let
     restart = "sudo systemctl restart";
     disable = "sudo systemctl disable";
     enable = "sudo systemctl enable";
+    clear-lock = "sudo kill $(ps aux | grep -E 'nixos-rebuild|switch-to-configuration' | grep -v grep | awk '{ print $2 }')";
     deploy-sys = "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
     flake-update = ''${pkgs.nix}/bin/nix flake update --option access-tokens "github.com=$GITHUB_TOKEN"'';
     kill = ''
