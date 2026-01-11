@@ -5,11 +5,9 @@
   ...
 }:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   cfg = config.fmf.services.syncthing;
-in
-{
+in {
   options.fmf.services.syncthing = with types; {
     enable = mkBoolOpt false "Whether or not to enable syncthing.";
   };
@@ -20,7 +18,7 @@ in
       tray = {
         enable = false;
       };
-      extraOptions = [ "--no-default-folder" ];
+      extraOptions = [];
     };
   };
 }
