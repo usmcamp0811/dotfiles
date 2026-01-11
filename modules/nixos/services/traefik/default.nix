@@ -193,6 +193,7 @@ in {
       vault-bin
     ];
 
+    networking.firewall.allowedTCPPorts = [443 80];
     # Force the stock Traefik package so nixpkgs doesn't try to vendor local plugins into $out/bin
     services.traefik.package = mkForce pkgs.traefik;
 

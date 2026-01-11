@@ -156,36 +156,38 @@ in {
 
       mailerPasswordFile = lib.mkIf cfg.mailer.enable secretPaths.smtpPassword;
 
-      settings = recursiveUpdate {
-        server = {
-          DOMAIN = cfg.domain;
-          HTTP_PORT = cfg.port;
-          ROOT_URL = "https://${cfg.domain}";
-          SSH_DOMAIN = cfg.domain;
-          SSH_PORT = cfg.sshPort;
-        };
+      settings =
+        recursiveUpdate {
+          server = {
+            DOMAIN = cfg.domain;
+            HTTP_PORT = cfg.port;
+            ROOT_URL = "https://${cfg.domain}";
+            SSH_DOMAIN = cfg.domain;
+            SSH_PORT = cfg.sshPort;
+          };
 
-        service = {
-          DISABLE_REGISTRATION = cfg.disableRegistration;
-        };
+          service = {
+            DISABLE_REGISTRATION = cfg.disableRegistration;
+          };
 
-        repository = {
-          ROOT = cfg.repositoryRoot;
-          DEFAULT_BRANCH = "main";
-        };
+          repository = {
+            ROOT = cfg.repositoryRoot;
+            DEFAULT_BRANCH = "main";
+          };
 
-        actions = {
-          ENABLED = cfg.enableActions;
-        };
+          actions = {
+            ENABLED = cfg.enableActions;
+          };
 
-        mailer = mkIf cfg.mailer.enable {
-          ENABLED = true;
-          SMTP_ADDR = cfg.mailer.host;
-          SMTP_PORT = cfg.mailer.port;
-          FROM = cfg.mailer.from;
-          USER = cfg.mailer.user;
-        };
-      } cfg.extraConfig;
+          mailer = mkIf cfg.mailer.enable {
+            ENABLED = true;
+            SMTP_ADDR = cfg.mailer.host;
+            SMTP_PORT = cfg.mailer.port;
+            FROM = cfg.mailer.from;
+            USER = cfg.mailer.user;
+          };
+        }
+        cfg.extraConfig;
     };
 
     # Copy Gitea secrets from Vault to persistent location
@@ -258,6 +260,7 @@ in {
     networking.firewall.allowedTCPPorts = [
       cfg.httpPort
       cfg.sshPort
+      cfg.port
     ];
 
     # System dependencies
