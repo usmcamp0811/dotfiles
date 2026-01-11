@@ -83,7 +83,7 @@ pkgs.writeShellScriptBin "nixos-gen-fzf" ''
         --preview='
           set -euo pipefail
           gen="$(echo {} | awk "{print \$1}")"
-          link="/nix/var/nix/profiles/system-${gen}-link"
+          link="/nix/var/nix/profiles/system-''${gen}-link"
           if [[ -e "$link" ]]; then
             echo "Link: $link"
             echo "Store: $(readlink -f "$link")"
@@ -109,7 +109,7 @@ pkgs.writeShellScriptBin "nixos-gen-fzf" ''
     fi
 
     gen="$(printf '%s\n' "$selection" | awk '{print $1}')"
-    link="/nix/var/nix/profiles/system-${gen}-link"
+    link="/nix/var/nix/profiles/system-''${gen}-link"
 
     if [[ ! -e "$link" ]]; then
       echo "Selected generation link does not exist: $link" >&2
