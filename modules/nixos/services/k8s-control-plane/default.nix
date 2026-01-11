@@ -12,7 +12,7 @@ in {
 
     nodeId = lib.mkOption {
       type = lib.types.int;
-      description = "Node ID (1, 2, or 3)";
+      description = "Node ID (0, 1, or 2)";
     };
 
     interface = lib.mkOption {
@@ -78,9 +78,9 @@ in {
 
   config = lib.mkIf cfg.enable {
     # Calculate node-specific values based on nodeId
-    # Node 1: priority 100, MASTER
+    # Node 0: priority 110, MASTER
+    # Node 1: priority 100, BACKUP
     # Node 2: priority 90, BACKUP
-    # Node 3: priority 80, BACKUP
 
     # Deterministic NIC name (only if MAC address is provided)
     systemd.network.links."10-${cfg.interface}" = lib.mkIf (cfg.macAddress != null) {
@@ -111,10 +111,10 @@ in {
         interface = cfg.interface;
         ips = [cfg.vip];
         state =
-          if cfg.nodeId == 1
+          if cfg.nodeId == 0
           then "MASTER"
           else "BACKUP";
-        # Priority: 100, 90, 80 for nodes 1, 2, 3
+        # Priority: 110, 100, 90 for nodes 0, 1, 2
         priority = 110 - (cfg.nodeId * 10);
         virtualRouterId = 49;
       };
@@ -124,13 +124,13 @@ in {
     fmf.services.k3s = {
       enable = true;
       role = "server";
-      clusterInit = cfg.nodeId == 1;
+      clusterInit = cfg.nodeId == 0;
       serverAddr = "https://${cfg.vip}:6443";
       config = {
         disable = cfg.disabledServices;
-        cluster-init = cfg.nodeId == 1;
+        cluster-init = cfg.nodeId == 0;
         server =
-          if cfg.nodeId == 1
+          if cfg.nodeId == 0
           then null
           else "https://${cfg.vip}:6443";
         tls-san = [cfg.vip cfg.dnsSan] ++ cfg.nodeIps;
