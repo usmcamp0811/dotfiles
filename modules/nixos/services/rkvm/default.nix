@@ -45,12 +45,7 @@ in {
     (mkIf cfg.enableServer {
       environment.systemPackages = with pkgs; [rkvm];
 
-      networking.firewall = {
-        # enable = true;
-        allowedTCPPorts = [
-          port
-        ];
-      };
+      networking.firewall.allowedTCPPorts = [port];
       systemd.services.rkvm = {
         description = "RKVM Service";
         wantedBy = ["multi-user.target"];
@@ -120,7 +115,6 @@ in {
         '';
       };
     })
-    5258
     {
       fmf.services.vault-agent = {
         services = {
