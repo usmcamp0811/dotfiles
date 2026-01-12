@@ -94,6 +94,9 @@ in {
   };
 
   config = mkIf cfg.enable {
+    networking.firewall.allowedTCPPorts = [
+      cfg.port
+    ];
     services.librenms = {
       enable = true;
       package = cfg.package;

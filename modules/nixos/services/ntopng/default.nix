@@ -176,6 +176,9 @@ in {
   };
 
   config = mkIf cfg.enable {
+    networking.firewall.allowedTCPPorts = [
+      cfg.port
+    ];
     services.ntopng = {
       enable = true;
 
