@@ -149,6 +149,9 @@ in {
     ];
 
     environment.etc."attic-config.toml".source = server-toml;
+    networking.firewall.allowedTCPPorts = [
+      8082
+    ];
     systemd.services.atticd = {
       wantedBy = ["multi-user.target"];
       after =
