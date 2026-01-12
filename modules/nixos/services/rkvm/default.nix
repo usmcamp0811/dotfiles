@@ -1,14 +1,16 @@
-{ options
-, config
-, lib
-, pkgs
-, ...
+{
+  options,
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.fmf; let
   cfg = config.fmf.desktop.addons.rkvm;
-in
-{
+  parts = lib.splitString ":" cfg.address;
+  port = lib.toInt (builtins.elemAt parts 1);
+in {
   options.fmf.desktop.addons.rkvm = with types; {
     enableServer =
       mkBoolOpt false "Whether to enable rkvm in the desktop environment.";
@@ -16,36 +18,42 @@ in
       mkBoolOpt false "Whether to enable rkvm in the desktop environment.";
     address =
       mkOpt str "0.0.0.0:5258"
-        "What IP and Port to listen on or the IP:Port of the server";
+      "What IP and Port to listen on or the IP:Port of the server";
     switch-keys = mkOpt str ''["left-alt", "left-ctrl"]'' "Switch Keys";
 
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      "Absolute path to the Vault secret-id";
     vault-path =
       mkOpt str "secret/campground/rkvm"
-        "The Vault path to the KV containing the rkvm secrets.";
+      "The Vault path to the KV containing the rkvm secrets.";
     vault-address = mkOption {
       type = str;
       default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
   };
   config = mkMerge [
     (mkIf cfg.enableServer {
-      environment.systemPackages = with pkgs; [ rkvm ];
+      environment.systemPackages = with pkgs; [rkvm];
 
+      networking.firewall = {
+        # enable = true;
+        allowedTCPPorts = [
+          port
+        ];
+      };
       systemd.services.rkvm = {
         description = "RKVM Service";
-        wantedBy = [ "multi-user.target" ];
+        wantedBy = ["multi-user.target"];
         serviceConfig = {
           ExecStart = "${pkgs.rkvm}/bin/rkvm-server /var/lib/rkvm/server.toml";
           # Add other service configurations as needed
@@ -77,11 +85,11 @@ in
       };
     })
     (mkIf cfg.enableClient {
-      environment.systemPackages = with pkgs; [ rkvm ];
+      environment.systemPackages = with pkgs; [rkvm];
 
       systemd.services.rkvm = {
         description = "RKVM Service";
-        wantedBy = [ "multi-user.target" ];
+        wantedBy = ["multi-user.target"];
         serviceConfig = {
           RestartSec = 120;
           Delegate = "yes";
@@ -112,6 +120,7 @@ in
         '';
       };
     })
+    5258
     {
       fmf.services.vault-agent = {
         services = {
