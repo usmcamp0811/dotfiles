@@ -676,6 +676,7 @@ in {
       };
     };
 
+    networking.firewall.allowedTCPPorts = [cfg.server.port];
     # ---- Vault Agent: render the files we consume above ----
     fmf.services.vault-agent.services."crystal-forge-setup" = {
       settings = {
