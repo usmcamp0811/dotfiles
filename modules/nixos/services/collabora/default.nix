@@ -21,5 +21,7 @@ in {
         extra_params = "--o:ssl.enable=false";
       };
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
   };
 }

@@ -51,6 +51,8 @@ in {
       rootCredentialsFile = "/var/lib/minio/minio-root-creds";
     };
 
+    networking.firewall.allowedTCPPorts = [ 9000 9001 ];
+
     systemd.services.copyMinioCreds = {
       description = "Copy the creds file for Minio";
       serviceConfig = {

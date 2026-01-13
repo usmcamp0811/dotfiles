@@ -141,6 +141,8 @@ in
       };
     };
 
+    networking.firewall.allowedTCPPorts = [ 13244 ];
+
     systemd.services.nextcloud-setup.serviceConfig.ExecStartPost = pkgs.writeScript "nextcloud-redis.sh" ''
       #!${pkgs.runtimeShell}
       nextcloud-occ config:system:set filelocking.enabled --value true --type bool

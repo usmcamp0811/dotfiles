@@ -108,6 +108,8 @@ in {
       };
       # user, group, dataDir, extraFlags, (configFile)
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.httpListenPort ];
   };
 }
 

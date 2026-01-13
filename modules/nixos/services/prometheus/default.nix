@@ -131,5 +131,7 @@ in {
         generateScrapeConfigs cfg.hostnames
         ++ cfg.additionalScrapeConfigs;
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.port cfg.exporter-port cfg.scriptExporterPort cfg.systemdExporterPort ];
   };
 }

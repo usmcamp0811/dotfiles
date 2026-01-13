@@ -99,5 +99,7 @@ in {
       loadModels = cfg.loadModels;
       acceleration = cfg.acceleration;
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
   };
 }

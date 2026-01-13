@@ -82,8 +82,8 @@ in {
       };
     };
 
-    # Open firewall port if needed
-    # networking.firewall.allowedTCPPorts = [ cfg.port ];
+    # Open firewall port
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
 
     # Add extra plugins to the package if specified
     nixpkgs.overlays = mkIf (cfg.extraPlugins != []) [

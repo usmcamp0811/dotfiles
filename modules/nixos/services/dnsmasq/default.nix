@@ -29,5 +29,8 @@ in {
       # listenAddress = cfg.settings.listenAddress;
       # interface = cfg.settings.interface;
     };
+
+    networking.firewall.allowedTCPPorts = [ 53 ];
+    networking.firewall.allowedUDPPorts = [ 53 ];
   };
 }

@@ -21,5 +21,7 @@ in
         HOST = "0.0.0.0";
       };
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
   };
 }

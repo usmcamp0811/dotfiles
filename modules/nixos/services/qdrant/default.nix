@@ -34,5 +34,7 @@ in {
       enable = true;
       settings = cfg.settings;
     };
+
+    networking.firewall.allowedTCPPorts = [ 6333 6334 ];
   };
 }

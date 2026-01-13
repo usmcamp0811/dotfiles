@@ -98,6 +98,8 @@ in
       # };
     };
 
+    networking.firewall.allowedTCPPorts = [ cfg.port (cfg.port + 1) ];
+
     fmf.services.postgresql = {
       enable = true;
       authentication = [

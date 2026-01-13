@@ -84,5 +84,7 @@ in {
         locations."= /assets/config.yml" = { alias = settings-path; };
       };
     };
+
+    networking.firewall.allowedTCPPorts = lib.optional (cfg.listen != null) (lib.toInt cfg.listen.port);
   };
 }

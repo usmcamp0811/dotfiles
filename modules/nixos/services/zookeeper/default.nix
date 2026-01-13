@@ -55,5 +55,7 @@ in
         admin.serverPort=8438
       ''; # Add your desired admin port here
     };
+
+    networking.firewall.allowedTCPPorts = [ 2181 2888 3888 8438 ];
   };
 }

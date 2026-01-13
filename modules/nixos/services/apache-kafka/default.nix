@@ -58,5 +58,7 @@ in {
         "-Xms1G" # Sets the initial memory allocation pool.
       ];
     };
+
+    networking.firewall.allowedTCPPorts = [ 9092 ];
   };
 }

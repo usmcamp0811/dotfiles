@@ -34,5 +34,7 @@ in
       buildMachinesFiles = [ ];
       useSubstitutes = true;
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
   };
 }

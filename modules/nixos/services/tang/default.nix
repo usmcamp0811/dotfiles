@@ -27,5 +27,7 @@ in
       listenStream = cfg.port;
       ipAddressAllow = cfg.ipAddressAllow;
     };
+
+    networking.firewall.allowedTCPPorts = builtins.map lib.strings.toInt cfg.port;
   };
 }

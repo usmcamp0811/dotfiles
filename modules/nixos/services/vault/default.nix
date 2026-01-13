@@ -193,6 +193,8 @@ in {
       '';
     };
 
+    networking.firewall.allowedTCPPorts = mkIf cfg.enable [ cfg.port ];
+
     systemd.services.vault.postStart = mkIf (cfg.enable && cfg.auto-unseal) ''
       ${unseal-script}/bin/celvis-unseal-vault || true
     '';

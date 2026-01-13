@@ -143,5 +143,23 @@ in
         ''}
       '';
     };
+
+    networking.firewall.allowedTCPPorts =
+      let
+        # Extract ports from frontend bind addresses (format: "IP:PORT")
+        frontendPorts = lib.flatten (lib.mapAttrsToList (name: frontend:
+          map (bind:
+            let
+              parts = lib.splitString ":" bind;
+              port = lib.last parts;
+            in
+              lib.toInt port
+          ) frontend.bind
+        ) cfg.frontends);
+
+        # Add stats port if enabled
+        statsPorts = lib.optional cfg.stats.enable cfg.stats.port;
+      in
+        frontendPorts ++ statsPorts;
   };
 }

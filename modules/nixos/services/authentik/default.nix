@@ -70,6 +70,9 @@ in
       enable = true;
       environmentFile = "${authentikDir}/environmentFile";
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
+
     systemd.services.authentikSecrets = {
       description = "Get Authentik Secrets";
       serviceConfig = {

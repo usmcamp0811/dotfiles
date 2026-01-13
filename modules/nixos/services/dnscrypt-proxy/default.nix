@@ -130,5 +130,8 @@ in {
 
     # Ensure state directory exists with correct permissions
     systemd.services.dnscrypt-proxy2.serviceConfig.StateDirectory = StateDirName;
+
+    networking.firewall.allowedTCPPorts = [ 5353 ];
+    networking.firewall.allowedUDPPorts = [ 5353 ];
   };
 }

@@ -41,5 +41,7 @@ in {
         '';
       };
     };
+
+    networking.firewall.allowedTCPPorts = [ cfg.port ];
   };
 }

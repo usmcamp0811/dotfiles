@@ -10,5 +10,7 @@ in {
   config = mkIf cfg.enable {
     # networking.timeServers = options.networking.timeServers.default ++ [ "0.arch.pool.ntp.org" ];
     services.ntp.enable = true;
+
+    networking.firewall.allowedUDPPorts = [ 123 ];
   };
 }
