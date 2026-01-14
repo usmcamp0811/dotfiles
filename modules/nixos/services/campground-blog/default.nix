@@ -5,11 +5,9 @@
   ...
 }:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   cfg = config.fmf.services.campground-blog;
-in
-{
+in {
   options.fmf.services.campground-blog = with types; {
     enable = mkBoolOpt false "Enable the Campground Blog";
     port = mkOpt int 28345 "Port to host the Blog on";
@@ -17,7 +15,7 @@ in
   };
 
   config = mkIf cfg.enable {
-
+    networking.firewall.allowedTCPPorts = [cfg.port];
     services.nginx = {
       enable = true;
       virtualHosts."${cfg.domain}" = {
