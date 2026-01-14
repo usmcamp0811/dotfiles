@@ -14,6 +14,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    networking.firewall.allowedTCPPorts = [cfg.port];
     services.nginx = {
       enable = true;
       virtualHosts."matt-camp.com" = {
