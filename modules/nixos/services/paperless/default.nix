@@ -1,34 +1,36 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   cfg = config.fmf.services.paperless;
   package = config.services.paperless.package;
   # Extract the default script
-  hacked-web-script =
-    let secretKeyFile = "${cfg.dataDir}/nixos-paperless-secret-key";
-    in ''
-      # Set the PAPERLESS_SOCIALACCOUNT_PROVIDERS variable
-      PAPERLESS_SOCIALACCOUNT_PROVIDERS=$(cat /var/lib/vault/paperless.oidc)
-      export PAPERLESS_SOCIALACCOUNT_PROVIDERS
-      if [[ ! -f '${secretKeyFile}' ]]; then
-        (
-          umask 0377
-          tr -dc A-Za-z0-9 < /dev/urandom | head -c64 | ${pkgs.moreutils}/bin/sponge '${secretKeyFile}'
-        )
-      fi
-      PAPERLESS_SECRET_KEY="$(cat '${secretKeyFile}')"
-      export PAPERLESS_SECRET_KEY
-      if [[ ! $PAPERLESS_SECRET_KEY ]]; then
-        echo "PAPERLESS_SECRET_KEY is empty, refusing to start."
-        exit 1
-      fi
-      exec ${package.python.pkgs.gunicorn}/bin/gunicorn \
-        -c ${package}/lib/paperless-ngx/gunicorn.conf.py paperless.asgi:application
-    '';
-
-in
-{
+  hacked-web-script = let
+    secretKeyFile = "${cfg.dataDir}/nixos-paperless-secret-key";
+  in ''
+    # Set the PAPERLESS_SOCIALACCOUNT_PROVIDERS variable
+    PAPERLESS_SOCIALACCOUNT_PROVIDERS=$(cat /var/lib/vault/paperless.oidc)
+    export PAPERLESS_SOCIALACCOUNT_PROVIDERS
+    if [[ ! -f '${secretKeyFile}' ]]; then
+      (
+        umask 0377
+        tr -dc A-Za-z0-9 < /dev/urandom | head -c64 | ${pkgs.moreutils}/bin/sponge '${secretKeyFile}'
+      )
+    fi
+    PAPERLESS_SECRET_KEY="$(cat '${secretKeyFile}')"
+    export PAPERLESS_SECRET_KEY
+    if [[ ! $PAPERLESS_SECRET_KEY ]]; then
+      echo "PAPERLESS_SECRET_KEY is empty, refusing to start."
+      exit 1
+    fi
+    exec ${package.python.pkgs.gunicorn}/bin/gunicorn \
+      -c ${package}/lib/paperless-ngx/gunicorn.conf.py paperless.asgi:application
+  '';
+in {
   options.fmf.services.paperless = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
     dataDir = mkOpt str "/var/lib/paperless" "Location to store data";
@@ -43,14 +45,15 @@ in
     oidc-auth = mkBoolOpt true "Enable Authentik Login";
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/paperless"
+      "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/paperless"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -68,12 +71,17 @@ in
         "local paperless paperless trust"
         "host paperless paperless 127.0.0.1/32 trust"
       ];
-      databases = [{
-        name = "paperless";
-        user = "paperless";
-      }];
+      databases = [
+        {
+          name = "paperless";
+          user = "paperless";
+        }
+      ];
     };
 
+    networking.firewall.allowedTCPPorts = [
+      cfg.port
+    ];
     services.paperless = {
       enable = true;
       dataDir = cfg.dataDir;
@@ -100,8 +108,7 @@ in
 
         PAPERLESS_TIKA_ENABLED = true;
         PAPERLESS_TIKA_ENDPOINT = "http://127.0.0.1:${cfg.tikaPort}";
-        PAPERLESS_TIKA_GOTENBERG_ENDPOINT =
-          "http://127.0.0.1:${cfg.gotenbergPort}";
+        PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://127.0.0.1:${cfg.gotenbergPort}";
 
         PAPERLESS_EMAIL_TASK_CRON = "*/5 * * * *";
         PAPERLESS_APPS =
@@ -113,10 +120,8 @@ in
       description = "Create Paperless environment file";
       serviceConfig = {
         Type = "oneshot";
-        User =
-          "root"; # Use the root user to create the folder and set permissions
-        ExecStartPre =
-          "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
+        User = "root"; # Use the root user to create the folder and set permissions
+        ExecStartPre = "${pkgs.coreutils}/bin/chown root:root /var/lib/vault"; # Set folder ownership to root
       };
       script = ''
         ${pkgs.coreutils}/bin/cp /tmp/detsys-vault/paperless.pass /var/lib/vault/paperless.pass
@@ -126,8 +131,8 @@ in
         ${pkgs.coreutils}/bin/chown paperless:paperless /var/lib/vault/paperless.pass
         ${pkgs.coreutils}/bin/chown paperless:paperless /var/lib/vault/paperless.oidc
       '';
-      wantedBy = [ "multi-user.target" ];
-      before = [ "paperless-web.service" ];
+      wantedBy = ["multi-user.target"];
+      before = ["paperless-web.service"];
     };
     systemd.services.paperless-web.script =
       mkIf cfg.oidc-auth hacked-web-script;
@@ -141,13 +146,13 @@ in
         "--chromium-allow-list=file:///tmp/.*"
       ];
 
-      ports = [ "127.0.0.1:${cfg.gotenbergPort}:3000" ];
+      ports = ["127.0.0.1:${cfg.gotenbergPort}:3000"];
     };
 
     virtualisation.oci-containers.containers.tika = {
       image = "apache/tika:2.4.0";
 
-      ports = [ "127.0.0.1:${cfg.tikaPort}:9998" ];
+      ports = ["127.0.0.1:${cfg.tikaPort}:9998"];
     };
 
     fmf.services.vault-agent.services = {
@@ -155,14 +160,16 @@ in
         settings = {
           vault.address = cfg.vault-address;
           auto_auth = {
-            method = [{
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }];
+            method = [
+              {
+                type = "approle";
+                config = {
+                  role_id_file_path = cfg.role-id;
+                  secret_id_file_path = cfg.secret-id;
+                  remove_secret_id_file_after_reading = false;
+                };
+              }
+            ];
           };
         };
         secrets = {
