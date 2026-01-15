@@ -52,6 +52,7 @@ in {
       environmentFile = "/var/lib/vault/vaultwarden.env";
     };
 
+    networking.firewall.allowedTCPPorts = [cfg.port];
     services.nginx = {
       enable = true;
       virtualHosts."vaultwarden.lan" = {
