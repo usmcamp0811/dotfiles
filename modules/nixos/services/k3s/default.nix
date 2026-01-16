@@ -100,8 +100,8 @@ in {
       moreFlags = cfg.extraFlags ++ (optionals (cfg.snapshotter != null) ["--snapshotter" cfg.snapshotter]);
     };
 
-    # Ensure fuse-overlayfs is in PATH for k3s service
-    systemd.services.k3s.path = mkIf (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs];
+    # Ensure fuse-overlayfs and fuse3 are in PATH for k3s service
+    systemd.services.k3s.path = mkIf (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3];
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
       description = "Store K3s node-token and kubeconfig in Vault";
@@ -165,7 +165,7 @@ in {
       };
     };
 
-    environment.systemPackages = [cfg.package] ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs]);
+    environment.systemPackages = [cfg.package] ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
     systemd.services.k3s.preStart = mkMerge [
       (mkIf (!cfg.clusterInit) (mkBefore ''
         mkdir -p /var/lib/rancher/k3s/server
