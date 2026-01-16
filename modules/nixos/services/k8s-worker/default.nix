@@ -63,6 +63,15 @@ in {
       default = {};
       description = "Extra K3s agent configuration options";
     };
+
+    snapshotter = lib.mkOption {
+      type = lib.types.nullOr (lib.types.enum ["overlayfs" "fuse-overlayfs" "native"]);
+      default = null;
+      description = ''
+        Container snapshotter to use. Set to "fuse-overlayfs" for virtiofs compatibility (e.g., MicroVMs).
+        If null, k3s will use its default (overlayfs).
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -93,6 +102,7 @@ in {
       enable = true;
       role = "agent";
       serverAddr = cfg.serverUrl;
+      snapshotter = cfg.snapshotter;
       config = {
         node-name = cfg.nodeName;
         data-dir = cfg.dataDir;

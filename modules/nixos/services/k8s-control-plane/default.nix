@@ -74,6 +74,15 @@ in {
       default = true;
       description = "Use DHCP for network configuration";
     };
+
+    snapshotter = lib.mkOption {
+      type = lib.types.nullOr (lib.types.enum ["overlayfs" "fuse-overlayfs" "native"]);
+      default = null;
+      description = ''
+        Container snapshotter to use. Set to "fuse-overlayfs" for virtiofs compatibility (e.g., MicroVMs).
+        If null, k3s will use its default (overlayfs).
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -126,6 +135,7 @@ in {
       role = "server";
       clusterInit = cfg.nodeId == 0;
       serverAddr = "https://${cfg.vip}:6443";
+      snapshotter = cfg.snapshotter;
       config = {
         disable = cfg.disabledServices;
         cluster-init = cfg.nodeId == 0;

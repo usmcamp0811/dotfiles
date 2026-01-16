@@ -45,6 +45,15 @@ in {
       description = "Extra flags passed to k3s.";
     };
 
+    snapshotter = mkOption {
+      type = types.nullOr (types.enum ["overlayfs" "fuse-overlayfs" "native"]);
+      default = null;
+      description = ''
+        Container snapshotter to use. Set to "fuse-overlayfs" for virtiofs compatibility (e.g., MicroVMs).
+        If null, k3s will use its default (overlayfs).
+      '';
+    };
+
     clusterInit = mkOption {
       type = types.bool;
       default = false;
@@ -88,7 +97,7 @@ in {
         in
           pkgs.writeText "k3s-config.yaml" configText
       );
-      moreFlags = cfg.extraFlags;
+      moreFlags = cfg.extraFlags ++ (optionals (cfg.snapshotter != null) ["--snapshotter" cfg.snapshotter]);
     };
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
