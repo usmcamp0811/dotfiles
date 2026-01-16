@@ -162,7 +162,7 @@ in {
       };
     };
 
-    environment.systemPackages = [cfg.package];
+    environment.systemPackages = [cfg.package] ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs]);
     systemd.services.k3s.preStart = mkMerge [
       (mkIf (!cfg.clusterInit) (mkBefore ''
         mkdir -p /var/lib/rancher/k3s/server
