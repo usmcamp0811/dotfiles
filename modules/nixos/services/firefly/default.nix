@@ -1,14 +1,20 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.fmf;
-let cfg = config.fmf.services.firefly;
+with lib.fmf; let
+  cfg = config.fmf.services.firefly;
 in {
   options.fmf.services.firefly = with types; {
     enable = mkBoolOpt false "Enable Firefly III.";
     port = mkOpt int 16244 "Port for firefly";
     firefly-user = mkOpt str "firefly" "user for Firefly III.";
     firefly-group = mkOpt str "firefly" "user for Firefly III.";
-    dataDir = mkOpt str "/var/lib/${cfg.firefly-user}"
+    dataDir =
+      mkOpt str "/var/lib/${cfg.firefly-user}"
       "Data directory for Firefly III.";
     settings = mkOption {
       type = attrs;
@@ -28,7 +34,8 @@ in {
     virtualHost =
       mkOpt str "firefly.lan.aicampground.com" "Virtual host for Firefly III.";
     package = mkOpt types.package pkgs.firefly-iii "Package for Firefly III.";
-    poolConfig = mkOpt attrs
+    poolConfig =
+      mkOpt attrs
       {
         "listen.owner" = mkDefault "nginx";
         "listen.group" = mkDefault "nginx";
@@ -42,14 +49,15 @@ in {
 
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path = mkOpt str "secret/campground/firefly"
+      "Absolute path to the Vault secret-id";
+    vault-path =
+      mkOpt str "secret/campground/firefly"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [ "v1" "v2" ];
+      type = enum ["v1" "v2"];
       default = "v2";
       description = "KV store version";
     };
@@ -68,23 +76,25 @@ in {
     services.nginx = {
       enable = true;
       virtualHosts.${cfg.virtualHost} = {
-        listen = [{
-          addr = "0.0.0.0";
-          port = cfg.port;
-        }];
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.port;
+          }
+        ];
       };
     };
 
     systemd.services.get-firefly-key = {
       description = "Gets the Firefly Key File";
-      wantedBy = [ "multi-user.target" ];
-      before = [ "firefly-iii-setup.service" ];
+      wantedBy = ["multi-user.target"];
+      before = ["firefly-iii-setup.service"];
       script = ''
         mkdir -p /var/lib/${cfg.firefly-user}
         cat /tmp/detsys-vault/key.file > /var/lib/${cfg.firefly-user}/key.file
         chown -R ${cfg.firefly-user}:${cfg.firefly-group} /var/lib/${cfg.firefly-user}/key.file
       '';
-      serviceConfig = { Type = "oneshot"; };
+      serviceConfig = {Type = "oneshot";};
     };
     users = {
       users = {
@@ -95,15 +105,17 @@ in {
           home = cfg.dataDir;
         };
       };
-      groups = { ${cfg.firefly-group} = { }; };
+      groups = {${cfg.firefly-group} = {};};
     };
     fmf.services.postgresql = {
       enable = true;
-      authentication = [ "local firefly firefly trust" ];
-      databases = [{
-        name = "firefly";
-        user = "firefly";
-      }];
+      authentication = ["local firefly firefly trust"];
+      databases = [
+        {
+          name = "firefly";
+          user = "firefly";
+        }
+      ];
     };
     services.firefly-iii = {
       enable = true;
@@ -116,6 +128,9 @@ in {
       enableNginx = true;
       poolConfig = cfg.poolConfig;
     };
+    networking.firewall.allowedTCPPorts = [
+      cfg.port
+    ];
     fmf.services = {
       vault-agent = {
         services = {
@@ -124,14 +139,16 @@ in {
               # replace with the address of your vault
               vault.address = cfg.vault-address;
               auto_auth = {
-                method = [{
-                  type = "approle";
-                  config = {
-                    role_id_file_path = cfg.role-id;
-                    secret_id_file_path = cfg.secret-id;
-                    remove_secret_id_file_after_reading = false;
-                  };
-                }];
+                method = [
+                  {
+                    type = "approle";
+                    config = {
+                      role_id_file_path = cfg.role-id;
+                      secret_id_file_path = cfg.secret-id;
+                      remove_secret_id_file_after_reading = false;
+                    };
+                  }
+                ];
               };
             };
             secrets = {
