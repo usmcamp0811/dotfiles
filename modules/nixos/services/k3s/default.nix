@@ -100,6 +100,9 @@ in {
       moreFlags = cfg.extraFlags ++ (optionals (cfg.snapshotter != null) ["--snapshotter" cfg.snapshotter]);
     };
 
+    # Ensure fuse-overlayfs is in PATH for k3s service
+    systemd.services.k3s.path = mkIf (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs];
+
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
       description = "Store K3s node-token and kubeconfig in Vault";
       after = [
