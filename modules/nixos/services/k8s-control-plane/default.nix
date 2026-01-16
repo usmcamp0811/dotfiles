@@ -134,7 +134,7 @@ in {
       enable = true;
       role = "server";
       clusterInit = cfg.nodeId == 0;
-      serverAddr = "https://${cfg.vip}:6443";
+      serverAddr = cfg.vip;
       snapshotter = cfg.snapshotter;
       config = {
         disable = cfg.disabledServices;

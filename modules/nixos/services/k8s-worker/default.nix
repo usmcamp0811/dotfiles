@@ -24,8 +24,8 @@ in {
 
     serverUrl = lib.mkOption {
       type = lib.types.str;
-      default = "https://10.8.40.49:6443";
-      description = "K8s control plane URL to connect to";
+      default = "10.8.40.49";
+      description = "K8s control plane IP or hostname (without https:// or port)";
     };
 
     dataDir = lib.mkOption {
