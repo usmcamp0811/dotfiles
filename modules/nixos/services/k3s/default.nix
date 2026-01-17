@@ -121,9 +121,9 @@ in {
 
           echo "Waiting for K3s to be fully ready..."
 
-          # Wait for k3s files to exist
-          until [ -f /var/lib/rancher/k3s/server/node-token ] && [ -f /etc/rancher/k3s/k3s.yaml ]; do
-            echo "Waiting for k3s files to be created..."
+          # Wait for kubeconfig to exist (this is created early in k3s startup)
+          until [ -f /etc/rancher/k3s/k3s.yaml ]; do
+            echo "Waiting for k3s kubeconfig to be created..."
             sleep 5
           done
 
@@ -141,8 +141,28 @@ in {
             sleep 5
           done
 
-          echo "K3s is ready. Reading K3s node-token and kubeconfig..."
-          NODE_TOKEN=$(< /var/lib/rancher/k3s/server/node-token)
+          echo "K3s is ready. Creating bootstrap token..."
+
+          # Create a bootstrap token for nodes to join the cluster
+          # Token format: <token-id>.<token-secret>
+          # TTL: 0 (never expires, or set to a specific duration like 24h)
+          NODE_TOKEN=$(${cfg.package}/bin/k3s token create --ttl 0 2>/dev/null || true)
+
+          # If token creation failed or returned empty, try to read from server token file
+          if [ -z "$NODE_TOKEN" ]; then
+            echo "Bootstrap token creation failed or not supported. Checking for server token file..."
+            if [ -f /var/lib/rancher/k3s/server/token ]; then
+              NODE_TOKEN=$(< /var/lib/rancher/k3s/server/token)
+              echo "Using server token from /var/lib/rancher/k3s/server/token"
+            else
+              echo "ERROR: No token available. Cannot proceed."
+              exit 1
+            fi
+          else
+            echo "Bootstrap token created successfully."
+          fi
+
+          echo "Reading kubeconfig..."
           KUBECONFIG_ORIG=$(cat /etc/rancher/k3s/k3s.yaml)
 
           HAPROXY_IP="${cfg.serverAddr}"
