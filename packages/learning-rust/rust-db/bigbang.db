@@ -1,0 +1,6 @@
+COLUMN rating
+Integer32(4)
+COLUMN show
+String("ep33")
+String("ep556")
+String("ep556")

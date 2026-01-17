@@ -1,0 +1,12 @@
+COLUMN ip
+String("10.8.0.113")
+String("10.8.0.34")
+String("127.0.0.1")
+String("reckless")
+String("reckless")
+COLUMN name
+String("reckless")
+String("gray")
+String("gray")
+String("gray")
+String("reckless")

@@ -1,3 +1,4 @@
+# path: (wherever this module lives in your flake)
 {
   lib,
   config,
