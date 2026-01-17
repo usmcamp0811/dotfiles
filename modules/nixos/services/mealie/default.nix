@@ -75,6 +75,9 @@ in {
         # "host    mealie    mealie   0.0.0.0/0 md5"
       ];
     };
+    networking.firewall.allowedTCPPorts = [
+      cfg.port
+    ];
     systemd.services.mealie.serviceConfig.User = cfg.user;
     systemd.services.mealie.serviceConfig.Group = cfg.user;
     services.mealie = {
