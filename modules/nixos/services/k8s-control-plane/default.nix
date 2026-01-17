@@ -101,7 +101,10 @@ in {
     systemd.network.networks."20-${cfg.interface}" = {
       matchConfig.Name = cfg.interface;
       networkConfig = {
-        DHCP = if cfg.useDHCP then "yes" else "no";
+        DHCP =
+          if cfg.useDHCP
+          then "yes"
+          else "no";
         IPv6AcceptRA = false;
       };
       linkConfig.RequiredForOnline = "routable";
@@ -138,7 +141,6 @@ in {
       snapshotter = cfg.snapshotter;
       config = {
         disable = cfg.disabledServices;
-        cluster-init = cfg.nodeId == 0;
         server =
           if cfg.nodeId == 0
           then null

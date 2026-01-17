@@ -121,11 +121,27 @@ in {
 
           echo "Waiting for K3s to be fully ready..."
 
+          # Wait for k3s files to exist
           until [ -f /var/lib/rancher/k3s/server/node-token ] && [ -f /etc/rancher/k3s/k3s.yaml ]; do
+            echo "Waiting for k3s files to be created..."
             sleep 5
           done
 
-          echo "Reading K3s node-token and kubeconfig..."
+          # Wait for k3s API to be responsive and node to be ready
+          echo "Waiting for k3s API to be responsive..."
+          MAX_RETRIES=60
+          RETRY_COUNT=0
+          until ${cfg.package}/bin/k3s kubectl get nodes 2>/dev/null | grep -q "Ready"; do
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+              echo "ERROR: k3s failed to become ready after $MAX_RETRIES attempts (5 minutes)"
+              exit 1
+            fi
+            echo "Waiting for k3s to be ready (attempt $RETRY_COUNT/$MAX_RETRIES)..."
+            sleep 5
+          done
+
+          echo "K3s is ready. Reading K3s node-token and kubeconfig..."
           NODE_TOKEN=$(< /var/lib/rancher/k3s/server/node-token)
           KUBECONFIG_ORIG=$(cat /etc/rancher/k3s/k3s.yaml)
 
