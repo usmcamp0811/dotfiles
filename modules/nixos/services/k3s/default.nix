@@ -118,14 +118,29 @@ in {
           pkgs.writeText "k3s-config.yaml" configText
       );
 
-      moreFlags =
+      extraFlags =
         cfg.extraFlags
         ++ (optionals (cfg.snapshotter != null) ["--snapshotter" cfg.snapshotter]);
     };
 
-    # Ensure fuse-overlayfs and fuse3 are in PATH for k3s service
+    # Add better logging for k3s service
+    systemd.services.k3s = {
+      environment = {
+        K3S_DEBUG = "false";  # Set to "true" for verbose logging if needed
+      };
+
+      serviceConfig = {
+        # Restart more aggressively on failure for joining nodes
+        RestartSec = mkIf (!cfg.clusterInit) "10s";
+        StartLimitBurst = mkIf (!cfg.clusterInit) 10;
+        StartLimitIntervalSec = mkIf (!cfg.clusterInit) "200s";
+      };
+    };
+
+    # Ensure required tools are in PATH for k3s service
     systemd.services.k3s.path =
-      mkIf (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3];
+      [pkgs.coreutils pkgs.gnugrep pkgs.curl]
+      ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
       description = "Store K3s node-token and kubeconfig in Vault";
@@ -163,22 +178,35 @@ in {
             sleep 5
           done
 
-          echo "K3s is ready. Creating bootstrap token..."
+          echo "K3s is ready. Getting cluster token..."
 
-          NODE_TOKEN=$(${cfg.package}/bin/k3s token create --ttl 0 2>/dev/null || true)
-
-          if [ -z "$NODE_TOKEN" ]; then
-            echo "Bootstrap token creation failed or not supported. Checking for server token file..."
-            if [ -f ${escapeShellArg serverTokenFile} ]; then
-              NODE_TOKEN=$(< ${escapeShellArg serverTokenFile})
-              echo "Using server token from ${serverTokenFile}"
+          # For HA clusters, we need the server token (node-token), not a temporary token
+          # The server token allows other control plane nodes to join the etcd cluster
+          if [ -f ${escapeShellArg nodeTokenFile} ]; then
+            NODE_TOKEN=$(cat ${escapeShellArg nodeTokenFile})
+            echo "Using server node-token from ${nodeTokenFile}"
+          elif [ -f ${escapeShellArg serverTokenFile} ]; then
+            NODE_TOKEN=$(cat ${escapeShellArg serverTokenFile})
+            echo "Using server token from ${serverTokenFile}"
+          else
+            echo "ERROR: No token file found at ${nodeTokenFile} or ${serverTokenFile}"
+            echo "Waiting for k3s to generate the token..."
+            sleep 5
+            if [ -f ${escapeShellArg nodeTokenFile} ]; then
+              NODE_TOKEN=$(cat ${escapeShellArg nodeTokenFile})
+              echo "Token found after waiting"
             else
-              echo "ERROR: No token available. Cannot proceed."
+              echo "ERROR: Still no token available. Cannot proceed."
               exit 1
             fi
-          else
-            echo "Bootstrap token created successfully."
           fi
+
+          if [ -z "$NODE_TOKEN" ]; then
+            echo "ERROR: Token is empty. Cannot proceed."
+            exit 1
+          fi
+
+          echo "Token retrieved successfully (length: ''${#NODE_TOKEN})"
 
           echo "Reading kubeconfig..."
           KUBECONFIG_ORIG=$(cat /etc/rancher/k3s/k3s.yaml)
@@ -226,12 +254,57 @@ in {
     # Joiners: copy the Vault-rendered token into the correct data-dir-derived token path.
     systemd.services.k3s.preStart = mkMerge [
       (mkIf (!cfg.clusterInit) (mkBefore ''
+        echo "K3s PreStart: Setting up node token for joining cluster..."
+
+        # Ensure directories exist
         mkdir -p ${escapeShellArg serverStateDir}
         mkdir -p /var/lib/rancher/k3s/server
+
+        # Wait for vault agent to provide the token (with timeout)
+        MAX_WAIT=30
+        WAIT_COUNT=0
+        while [ ! -f /tmp/detsys-vault/k3s-token ] || [ ! -s /tmp/detsys-vault/k3s-token ]; do
+          WAIT_COUNT=$((WAIT_COUNT + 1))
+          if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+            echo "ERROR: Vault token file not available after $MAX_WAIT seconds"
+            echo "Expected file: /tmp/detsys-vault/k3s-token"
+            exit 1
+          fi
+          echo "Waiting for vault agent to provide k3s-token (attempt $WAIT_COUNT/$MAX_WAIT)..."
+          sleep 1
+        done
+
+        # Copy token to both locations (for compatibility)
         cp /tmp/detsys-vault/k3s-token ${escapeShellArg nodeTokenFile}
-        cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server
-        chmod 0400 ${escapeShellArg nodeTokenFile}
-        chmod 0400 /var/lib/rancher/k3s/server
+        cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
+        cp /tmp/detsys-vault/k3s-token /var/lib/rancher/server/node-token
+
+        # Set restrictive permissions
+        chmod 0600 ${escapeShellArg nodeTokenFile}
+        chmod 0600 /var/lib/rancher/k3s/server/node-token
+        chmod 0600 /var/lib/rancher/server/node-token
+
+        echo "Token copied successfully from vault agent"
+        echo "Token hash: $(sha256sum ${escapeShellArg nodeTokenFile} | cut -d' ' -f1)"
+
+        # Wait for the K3s API server to be reachable before attempting to join
+        echo "Checking if K3s API server is reachable at ${serverAddr}..."
+        MAX_API_WAIT=60
+        API_WAIT_COUNT=0
+        while ! ${pkgs.curl}/bin/curl -sk --connect-timeout 2 ${serverAddr}/ping >/dev/null 2>&1; do
+          API_WAIT_COUNT=$((API_WAIT_COUNT + 1))
+          if [ $API_WAIT_COUNT -ge $MAX_API_WAIT ]; then
+            echo "WARNING: K3s API server not reachable after $MAX_API_WAIT attempts"
+            echo "Proceeding anyway - k3s will retry connection automatically"
+            break
+          fi
+          echo "Waiting for K3s API server (attempt $API_WAIT_COUNT/$MAX_API_WAIT)..."
+          sleep 2
+        done
+
+        if [ $API_WAIT_COUNT -lt $MAX_API_WAIT ]; then
+          echo "K3s API server is reachable. Ready to join cluster."
+        fi
       ''))
     ];
 
