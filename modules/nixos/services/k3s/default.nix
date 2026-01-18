@@ -132,9 +132,9 @@ in {
 
       serviceConfig = {
         # Restart more aggressively on failure for joining nodes
-        RestartSec = mkIf (!cfg.clusterInit) "10s";
-        StartLimitBurst = mkIf (!cfg.clusterInit) 10;
-        StartLimitIntervalSec = mkIf (!cfg.clusterInit) "200s";
+        RestartSec = mkIf (!cfg.clusterInit) (mkForce "10s");
+        StartLimitBurst = mkIf (!cfg.clusterInit) (mkForce 10);
+        StartLimitIntervalSec = mkIf (!cfg.clusterInit) (mkForce "200s");
       };
     };
 
