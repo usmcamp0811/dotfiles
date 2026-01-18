@@ -12,8 +12,10 @@ with lib.fmf; let
   # Derive k3s data-dir from cfg.config if provided; otherwise fall back to k3s default.
   # Supports either "data-dir" (k3s flag style) or dataDir (camelCase).
   dataDir =
-    if cfg.config ? "data-dir" then cfg.config."data-dir"
-    else if cfg.config ? dataDir then cfg.config.dataDir
+    if cfg.config ? "data-dir"
+    then cfg.config."data-dir"
+    else if cfg.config ? dataDir
+    then cfg.config.dataDir
     else "/var/lib/rancher/k3s";
 
   serverStateDir = "${dataDir}/server";
@@ -225,8 +227,11 @@ in {
     systemd.services.k3s.preStart = mkMerge [
       (mkIf (!cfg.clusterInit) (mkBefore ''
         mkdir -p ${escapeShellArg serverStateDir}
-        cp /tmp/detsys-vault/k3s-token ${escapeShellArg nodeTokenFile}
+        mkdir -p /var/lib/rancher/k3s/server
+        cp /tmp/detsys-vault/k3s-token ${escapeshellarg nodetokenfile}
+        cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server
         chmod 0400 ${escapeShellArg nodeTokenFile}
+        chmod 0400 /var/lib/rancher/k3s/server
       ''))
     ];
 
