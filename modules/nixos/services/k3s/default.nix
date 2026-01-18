@@ -8,10 +8,22 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s;
   serverAddr = "https://${cfg.serverAddr}:6443";
+
+  # Derive k3s data-dir from cfg.config if provided; otherwise fall back to k3s default.
+  # Supports either "data-dir" (k3s flag style) or dataDir (camelCase).
+  dataDir =
+    if cfg.config ? "data-dir" then cfg.config."data-dir"
+    else if cfg.config ? dataDir then cfg.config.dataDir
+    else "/var/lib/rancher/k3s";
+
+  serverStateDir = "${dataDir}/server";
+  nodeTokenFile = "${serverStateDir}/node-token";
+  serverTokenFile = "${serverStateDir}/token";
 in {
   options.fmf.services.k3s = {
     enable = mkEnableOption "Enable k3s cluster";
     package = lib.mkPackageOption pkgs "k3s" {};
+
     config = mkOption {
       type = types.attrs;
       default = {
@@ -24,9 +36,11 @@ in {
           clusterInit = true;
           tlsSan = [ "my-lb.example.com" "10.0.0.10" ];
           nodeName = "chesty";
+          "data-dir" = "/var/lib/rancher";
         }
       '';
     };
+
     role = mkOption {
       type = types.enum ["server" "agent"];
       default = "server";
@@ -89,19 +103,27 @@ in {
       package = cfg.package;
       clusterInit = cfg.clusterInit;
       role = cfg.role;
-      tokenFile = mkIf (!cfg.clusterInit) "/var/lib/rancher/k3s/server/node-token";
+
+      # IMPORTANT: tokenFile must match the effective data-dir.
+      tokenFile = mkIf (!cfg.clusterInit) nodeTokenFile;
+
       serverAddr = mkIf (!cfg.clusterInit) serverAddr;
+
       configPath = mkIf (cfg.role == "server") (
         let
           configText = lib.generators.toYAML {} cfg.config;
         in
           pkgs.writeText "k3s-config.yaml" configText
       );
-      moreFlags = cfg.extraFlags ++ (optionals (cfg.snapshotter != null) ["--snapshotter" cfg.snapshotter]);
+
+      moreFlags =
+        cfg.extraFlags
+        ++ (optionals (cfg.snapshotter != null) ["--snapshotter" cfg.snapshotter]);
     };
 
     # Ensure fuse-overlayfs and fuse3 are in PATH for k3s service
-    systemd.services.k3s.path = mkIf (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3];
+    systemd.services.k3s.path =
+      mkIf (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3];
 
     systemd.services.store-k3s-token = mkIf cfg.clusterInit {
       description = "Store K3s node-token and kubeconfig in Vault";
@@ -121,13 +143,11 @@ in {
 
           echo "Waiting for K3s to be fully ready..."
 
-          # Wait for kubeconfig to exist (this is created early in k3s startup)
           until [ -f /etc/rancher/k3s/k3s.yaml ]; do
             echo "Waiting for k3s kubeconfig to be created..."
             sleep 5
           done
 
-          # Wait for k3s API to be responsive and node to be ready
           echo "Waiting for k3s API to be responsive..."
           MAX_RETRIES=60
           RETRY_COUNT=0
@@ -143,17 +163,13 @@ in {
 
           echo "K3s is ready. Creating bootstrap token..."
 
-          # Create a bootstrap token for nodes to join the cluster
-          # Token format: <token-id>.<token-secret>
-          # TTL: 0 (never expires, or set to a specific duration like 24h)
           NODE_TOKEN=$(${cfg.package}/bin/k3s token create --ttl 0 2>/dev/null || true)
 
-          # If token creation failed or returned empty, try to read from server token file
           if [ -z "$NODE_TOKEN" ]; then
             echo "Bootstrap token creation failed or not supported. Checking for server token file..."
-            if [ -f /var/lib/rancher/k3s/server/token ]; then
-              NODE_TOKEN=$(< /var/lib/rancher/k3s/server/token)
-              echo "Using server token from /var/lib/rancher/k3s/server/token"
+            if [ -f ${escapeShellArg serverTokenFile} ]; then
+              NODE_TOKEN=$(< ${escapeShellArg serverTokenFile})
+              echo "Using server token from ${serverTokenFile}"
             else
               echo "ERROR: No token available. Cannot proceed."
               exit 1
@@ -201,11 +217,16 @@ in {
       };
     };
 
-    environment.systemPackages = [cfg.package] ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
+    environment.systemPackages =
+      [cfg.package]
+      ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
+
+    # Joiners: copy the Vault-rendered token into the correct data-dir-derived token path.
     systemd.services.k3s.preStart = mkMerge [
       (mkIf (!cfg.clusterInit) (mkBefore ''
-        mkdir -p /var/lib/rancher/k3s/server
-        cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server/node-token
+        mkdir -p ${escapeShellArg serverStateDir}
+        cp /tmp/detsys-vault/k3s-token ${escapeShellArg nodeTokenFile}
+        chmod 0400 ${escapeShellArg nodeTokenFile}
       ''))
     ];
 
