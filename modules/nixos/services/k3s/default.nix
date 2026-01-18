@@ -228,7 +228,7 @@ in {
       (mkIf (!cfg.clusterInit) (mkBefore ''
         mkdir -p ${escapeShellArg serverStateDir}
         mkdir -p /var/lib/rancher/k3s/server
-        cp /tmp/detsys-vault/k3s-token ${escapeshellarg nodetokenfile}
+        cp /tmp/detsys-vault/k3s-token ${escapeShellArg nodetokenfile}
         cp /tmp/detsys-vault/k3s-token /var/lib/rancher/k3s/server
         chmod 0400 ${escapeShellArg nodeTokenFile}
         chmod 0400 /var/lib/rancher/k3s/server
