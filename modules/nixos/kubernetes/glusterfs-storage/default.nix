@@ -59,10 +59,12 @@ in {
           name = "glusterfs-cluster";
           namespace = cfg.namespace;
         };
-        subsets = [{
-          addresses = map (ip: { inherit ip; }) cfg.servers;
-          ports = [{ port = 1; }]; # Dummy port
-        }];
+        subsets = [
+          {
+            addresses = map (ip: {inherit ip;}) cfg.servers;
+            ports = [{port = 1;}]; # Dummy port
+          }
+        ];
       };
 
       # Headless service for GlusterFS
@@ -75,7 +77,7 @@ in {
         };
         spec = {
           clusterIP = "None";
-          ports = [{ port = 1; }];
+          ports = [{port = 1;}];
         };
       };
 
@@ -98,24 +100,24 @@ in {
 
       # Example PersistentVolume showing how to use GlusterFS
       # This creates a 100Gi volume backed by your GlusterFS cluster
-      glusterfs-example-pv.content = {
-        apiVersion = "v1";
-        kind = "PersistentVolume";
-        metadata.name = "glusterfs-pv-example";
-        spec = {
-          capacity.storage = "100Gi";
-          accessModes = [ "ReadWriteMany" ];
-          persistentVolumeReclaimPolicy = "Retain";
-          storageClassName = cfg.storageClassName;
-          glusterfs = {
-            endpoints = "glusterfs-cluster";
-            path = cfg.volumeName;
-            readOnly = false;
-          };
-          # Reference to the endpoints in the same namespace
-          claimRef = null; # Available for any claim
-        };
-      };
+      # glusterfs-example-pv.content = {
+      #   apiVersion = "v1";
+      #   kind = "PersistentVolume";
+      #   metadata.name = "glusterfs-pv-example";
+      #   spec = {
+      #     capacity.storage = "100Gi";
+      #     accessModes = [ "ReadWriteMany" ];
+      #     persistentVolumeReclaimPolicy = "Retain";
+      #     storageClassName = cfg.storageClassName;
+      #     glusterfs = {
+      #       endpoints = "glusterfs-cluster";
+      #       path = cfg.volumeName;
+      #       readOnly = false;
+      #     };
+      #     # Reference to the endpoints in the same namespace
+      #     claimRef = null; # Available for any claim
+      #   };
+      # };
     };
   };
 }
