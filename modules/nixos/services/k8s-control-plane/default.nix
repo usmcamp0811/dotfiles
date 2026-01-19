@@ -41,7 +41,7 @@ in {
 
     dataDir = lib.mkOption {
       type = lib.types.path;
-      default = "/var/lib/rancher/k3s";
+      default = "/var/lib/rancher";
       description = "Data directory for k3s";
     };
 
