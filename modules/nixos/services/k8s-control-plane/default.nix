@@ -148,6 +148,8 @@ in {
         tls-san = [cfg.vip cfg.dnsSan] ++ cfg.nodeIps;
         node-name = "k8s-control-${toString cfg.nodeId}";
         data-dir = cfg.dataDir;
+        # Taint control plane nodes to prevent workload scheduling
+        node-taint = ["node-role.kubernetes.io/control-plane=true:NoSchedule"];
       };
     };
 
