@@ -118,10 +118,10 @@ in {
           pkgs.writeText "k3s-config.yaml" configText
       );
 
-      extraFlags = mkDefault (
-        cfg.extraFlags
-        ++ (optionals (cfg.snapshotter != null) ["--snapshotter" cfg.snapshotter])
-      );
+      extraFlags = mkMerge [
+        (mkDefault cfg.extraFlags)
+        (mkIf (cfg.snapshotter != null) (mkForce ["--snapshotter" cfg.snapshotter]))
+      ];
     };
 
     # Add better logging for k3s service
