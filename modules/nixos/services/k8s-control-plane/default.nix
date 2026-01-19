@@ -41,7 +41,7 @@ in {
 
     dataDir = lib.mkOption {
       type = lib.types.path;
-      default = "/var/lib/rancher/k3s";
+      default = "/var/lib/rancher";
       description = "Data directory for k3s";
     };
 
@@ -154,30 +154,35 @@ in {
     # Override tmpfiles rules to match custom data-dir
     # The NixOS k3s module hardcodes /var/lib/rancher/k3s, but we use /var/lib/rancher
     # So we need to create additional symlinks at the correct location
-    systemd.tmpfiles.settings."10-k3s-datadir-override" =
-      lib.mkIf (cfg.dataDir != "/var/lib/rancher/k3s") (
-        let
-          # Get the manifests and charts from the k3s service config
-          k3sCfg = config.services.k3s;
-          manifestDir = "${cfg.dataDir}/server/manifests";
-          chartDir = "${cfg.dataDir}/server/static/charts";
+    systemd.tmpfiles.settings."10-k3s-datadir-override" = lib.mkIf (cfg.dataDir != "/var/lib/rancher/k3s") (
+      let
+        # Get the manifests and charts from the k3s service config
+        k3sCfg = config.services.k3s;
+        manifestDir = "${cfg.dataDir}/server/manifests";
+        chartDir = "${cfg.dataDir}/server/static/charts";
 
-          # Create tmpfiles rules for each manifest
-          manifestRules = lib.mapAttrs' (name: manifest:
-            lib.nameValuePair "${manifestDir}/${manifest.target}" {
-              "L+".argument = toString manifest.source;
-            }
-          ) k3sCfg.manifests;
+        # Create tmpfiles rules for each manifest
+        manifestRules =
+          lib.mapAttrs' (
+            name: manifest:
+              lib.nameValuePair "${manifestDir}/${manifest.target}" {
+                "L+".argument = toString manifest.source;
+              }
+          )
+          k3sCfg.manifests;
 
-          # Create tmpfiles rules for each chart
-          chartRules = lib.mapAttrs' (name: chart:
-            lib.nameValuePair "${chartDir}/${name}.tgz" {
-              "L+".argument = toString chart;
-            }
-          ) k3sCfg.charts;
-        in
-          manifestRules // chartRules
-      );
+        # Create tmpfiles rules for each chart
+        chartRules =
+          lib.mapAttrs' (
+            name: chart:
+              lib.nameValuePair "${chartDir}/${name}.tgz" {
+                "L+".argument = toString chart;
+              }
+          )
+          k3sCfg.charts;
+      in
+        manifestRules // chartRules
+    );
 
     # Firewall
     networking.firewall = {
