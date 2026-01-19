@@ -165,14 +165,14 @@ in {
           # Create tmpfiles rules for each manifest
           manifestRules = lib.mapAttrs' (name: manifest:
             lib.nameValuePair "${manifestDir}/${manifest.target}" {
-              "L+".argument = manifest.source;
+              "L+".argument = toString manifest.source;
             }
           ) k3sCfg.manifests;
 
           # Create tmpfiles rules for each chart
           chartRules = lib.mapAttrs' (name: chart:
             lib.nameValuePair "${chartDir}/${name}.tgz" {
-              "L+".argument = chart;
+              "L+".argument = toString chart;
             }
           ) k3sCfg.charts;
         in
