@@ -1,13 +1,13 @@
-{ lib
-, config
-, pkgs
-, ...
+{
+  lib,
+  config,
+  pkgs,
+  ...
 }:
 with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.modules.traefik;
-in
-{
+in {
   options.fmf.services.k3s.modules.traefik = {
     enable = mkEnableOption "Enable Traefik and supporting manifests.";
   };
@@ -17,9 +17,9 @@ in
     services.k3s = {
       charts.traefik =
         pkgs.runCommand "traefik.tgz"
-          {
-            nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
-          } ''
+        {
+          nativeBuildInputs = [pkgs.gnutar pkgs.gzip];
+        } ''
           cp -r ${pkgs.nixhelmCharts.traefik.traefik} traefik
           tar -czf $out -C traefik .
         '';
@@ -69,7 +69,7 @@ in
           kind = "ClusterExternalSecret";
           metadata.name = "cloudflare-api-token-secret";
           spec = {
-            namespaceSelector.matchLabels = { "cloudflare-access" = "true"; };
+            namespaceSelector.matchLabels = {"cloudflare-access" = "true";};
             externalSecretSpec = {
               refreshInterval = "1h";
               secretStoreRef = {
@@ -102,13 +102,13 @@ in
             targetNamespace = "public-traefik";
             createNamespace = true;
             helmVersion = "v3";
-            valuesContent = lib.generators.toYAML { } {
+            valuesContent = lib.generators.toYAML {} {
               certificatesResolvers.cloudflare.acme = {
                 email = "cloudflare@aicampground.com";
                 storage = "/var/lib/traefik/acme.json";
                 dnsChallenge = {
                   provider = "cloudflare";
-                  resolvers = [ "1.1.1.1:53" "1.0.0.1:53" ];
+                  resolvers = ["1.1.1.1:53" "1.0.0.1:53"];
                 };
               };
               experimental.plugins.cloudflarewarp = {
@@ -121,7 +121,7 @@ in
                 accessMode = "ReadWriteOnce";
                 size = "1Gi";
                 path = "/var/lib/traefik";
-                storageClass = "local-path";
+                storageClass = "glusterfs";
               };
               env = [
                 {
@@ -142,7 +142,7 @@ in
                     {
                       key = "app.kubernetes.io/name";
                       operator = "In";
-                      values = [ "traefik" ];
+                      values = ["traefik"];
                     }
                   ];
                   topologyKey = "kubernetes.io/hostname";
@@ -192,9 +192,9 @@ in
             name = "traefik-static-config";
             namespace = "public-traefik";
           };
-          data."static.yaml" = lib.generators.toYAML { } (
+          data."static.yaml" = lib.generators.toYAML {} (
             lib.recursiveUpdate config.services.traefik.staticConfigOptions {
-              providers.kubernetesCRD = { };
+              providers.kubernetesCRD = {};
               providers.kubernetesIngress = {
                 ingressClass = "traefik";
                 publishedService = {
@@ -214,18 +214,18 @@ in
             name = "public-traefik-dynamic-config";
             namespace = "public-traefik";
           };
-          data."dynamic.yaml" = lib.generators.toYAML { } {
+          data."dynamic.yaml" = lib.generators.toYAML {} {
             http =
               {
                 routers =
                   lib.mapAttrs
-                    (_: val:
-                      lib.recursiveUpdate val {
-                        tls.certResolver = "cloudflare";
-                      })
-                    config.fmf.suites.public-hosting.dynamicConfigOptions.http.routers;
+                  (_: val:
+                    lib.recursiveUpdate val {
+                      tls.certResolver = "cloudflare";
+                    })
+                  config.fmf.suites.public-hosting.dynamicConfigOptions.http.routers;
               }
-              // (lib.removeAttrs config.fmf.suites.public-hosting.dynamicConfigOptions.http [ "routers" ]);
+              // (lib.removeAttrs config.fmf.suites.public-hosting.dynamicConfigOptions.http ["routers"]);
           };
         };
       };
