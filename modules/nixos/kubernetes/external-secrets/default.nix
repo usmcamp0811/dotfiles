@@ -62,7 +62,7 @@ in {
         ExecStart = pkgs.writeShellScript "vault-k8s-init" ''
           set -e
 
-          K8S_HOST=${serverAddr}
+          K8S_HOST=${cfg.serverAddr}
           NS=external-secrets
           SA=vault-auth
 
