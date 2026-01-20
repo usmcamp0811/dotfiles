@@ -10,6 +10,11 @@ with lib.fmf; let
 in {
   options.fmf.services.k3s.modules.external-secrets = {
     enable = mkEnableOption "Deploy External Secrets and Vault Store";
+    serverAddr = mkOption {
+      type = types.nullOr types.str;
+      default = "10.8.40.49";
+      description = "HA Proxy IP or K3s Server IP (used by agents).";
+    };
     vault-policy = mkOpt types.str "campground" "The Policy to give the `vault-auth` ServiceAccount";
     role-id =
       mkOpt types.str
@@ -57,7 +62,7 @@ in {
         ExecStart = pkgs.writeShellScript "vault-k8s-init" ''
           set -e
 
-          K8S_HOST=${config.services.k3s.serverAddr}
+          K8S_HOST=${serverAddr}
           NS=external-secrets
           SA=vault-auth
 
