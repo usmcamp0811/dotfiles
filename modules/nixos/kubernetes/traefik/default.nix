@@ -13,6 +13,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Enable external-secrets to provide the vault-backend ClusterSecretStore
+    fmf.services.k3s.modules.external-secrets.enable = true;
     fmf.services.k3s.modules.certificates.enable = true;
     services.k3s = {
       charts.traefik =
