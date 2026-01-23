@@ -391,6 +391,78 @@ in {
       };
     };
 
+    # SystemD service to deploy ClusterSecretStore and ExternalSecrets after CRDs are ready
+    systemd.services.external-secrets-deploy = {
+      description = "Deploy ClusterSecretStore and ExternalSecrets";
+      wantedBy = ["multi-user.target"];
+      after = ["k3s.service" "vault-k8s-init.service"];
+      wants = ["vault-k8s-init.service"];
+      requires = ["k3s.service"];
+
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        ExecStart = pkgs.writeShellScript "external-secrets-deploy" ''
+          set -euo pipefail
+
+          echo "Waiting for k3s API server to be ready..."
+          until ${pkgs.k3s}/bin/k3s kubectl get --raw /healthz >/dev/null 2>&1; do
+            echo "k3s API not ready, waiting..."
+            sleep 5
+          done
+
+          echo "Waiting for ClusterSecretStore CRD..."
+          until ${pkgs.k3s}/bin/k3s kubectl get crd clustersecretstores.external-secrets.io >/dev/null 2>&1; do
+            echo "clustersecretstores CRD not ready, waiting..."
+            sleep 5
+          done
+
+          echo "Waiting for ExternalSecret CRD..."
+          until ${pkgs.k3s}/bin/k3s kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; do
+            echo "externalsecrets CRD not ready, waiting..."
+            sleep 5
+          done
+
+          echo "CRDs are ready. Applying ClusterSecretStore..."
+          cat <<EOF | ${pkgs.k3s}/bin/k3s kubectl apply -f -
+          apiVersion: external-secrets.io/v1beta1
+          kind: ClusterSecretStore
+          metadata:
+            name: vault-backend
+          spec:
+            provider:
+              vault:
+                server: ${cfg.vault-address}
+                path: ${vaultMount}
+                version: ${cfg.kvVersion}
+                auth:
+                  kubernetes:
+                    mountPath: kubernetes
+                    role: external-secrets
+                    serviceAccountRef:
+                      name: vault-auth
+                      namespace: external-secrets
+          EOF
+
+          echo "ClusterSecretStore applied successfully."
+
+          # Apply ExternalSecrets if any are configured
+          if [ -n "${externalSecretsYaml}" ] && [ "${externalSecretsYaml}" != "# no ExternalSecrets configured"* ]; then
+            echo "Applying ExternalSecrets..."
+            cat <<'EOFES' | ${pkgs.k3s}/bin/k3s kubectl apply -f -
+          ${externalSecretsYaml}
+          EOFES
+            echo "ExternalSecrets applied successfully!"
+          else
+            echo "No ExternalSecrets configured, skipping."
+          fi
+
+          echo "External secrets deployment complete."
+        '';
+        RemainAfterExit = true;
+      };
+    };
+
     services.k3s.manifests = {
       external-secrets.content = {
         apiVersion = "helm.cattle.io/v1";
@@ -422,176 +494,6 @@ in {
         automountServiceAccountToken = true;
       };
 
-      # NEW: ConfigMap containing all ExternalSecret manifests to apply AFTER CRDs exist
-      external-secrets-definitions.content = {
-        apiVersion = "v1";
-        kind = "ConfigMap";
-        metadata = {
-          name = "external-secrets-definitions";
-          namespace = "kube-system";
-        };
-        data = {
-          "externalsecrets.yaml" = externalSecretsYaml;
-        };
-      };
-
-      # ServiceAccount for the ClusterSecretStore + ExternalSecrets deployment Job
-      external-secrets-deploy-sa.content = {
-        apiVersion = "v1";
-        kind = "ServiceAccount";
-        metadata = {
-          name = "apply-external-secrets-bootstrap";
-          namespace = "kube-system";
-        };
-      };
-
-      # ClusterRole for the deployment Job
-      external-secrets-deploy-clusterrole.content = {
-        apiVersion = "rbac.authorization.k8s.io/v1";
-        kind = "ClusterRole";
-        metadata = {
-          name = "apply-external-secrets-bootstrap";
-        };
-        rules = [
-          {
-            apiGroups = ["external-secrets.io"];
-            resources = ["clustersecretstores" "externalsecrets"];
-            verbs = ["get" "create" "update" "patch" "list"];
-          }
-          {
-            apiGroups = [""];
-            resources = ["configmaps"];
-            verbs = ["get" "list"];
-          }
-          {
-            apiGroups = ["apiextensions.k8s.io"];
-            resources = ["customresourcedefinitions"];
-            verbs = ["get" "list"];
-          }
-        ];
-      };
-
-      # ClusterRoleBinding for the deployment Job
-      external-secrets-deploy-clusterrolebinding.content = {
-        apiVersion = "rbac.authorization.k8s.io/v1";
-        kind = "ClusterRoleBinding";
-        metadata = {
-          name = "apply-external-secrets-bootstrap";
-        };
-        roleRef = {
-          apiGroup = "rbac.authorization.k8s.io";
-          kind = "ClusterRole";
-          name = "apply-external-secrets-bootstrap";
-        };
-        subjects = [
-          {
-            kind = "ServiceAccount";
-            name = "apply-external-secrets-bootstrap";
-            namespace = "kube-system";
-          }
-        ];
-      };
-
-      # Job to deploy ClusterSecretStore + ExternalSecrets after CRDs are ready
-      external-secrets-deploy-job.content = {
-        apiVersion = "batch/v1";
-        kind = "Job";
-        metadata = {
-          name = "apply-external-secrets-bootstrap";
-          namespace = "kube-system";
-        };
-        spec = {
-          backoffLimit = 10;
-          template = {
-            spec = {
-              restartPolicy = "OnFailure";
-              serviceAccountName = "apply-external-secrets-bootstrap";
-
-              volumes = [
-                {
-                  name = "externalsecrets";
-                  configMap = {
-                    name = "external-secrets-definitions";
-                    items = [
-                      {
-                        key = "externalsecrets.yaml";
-                        path = "externalsecrets.yaml";
-                      }
-                    ];
-                  };
-                }
-              ];
-
-              containers = [
-                {
-                  name = "apply";
-                  image = "rancher/kubectl:v1.28.3";
-                  volumeMounts = [
-                    {
-                      name = "externalsecrets";
-                      mountPath = "/manifests";
-                      readOnly = true;
-                    }
-                  ];
-                  command = ["/bin/sh" "-c"];
-                  args = [
-                    ''
-                      set -euo pipefail
-
-                      echo "Waiting for ClusterSecretStore CRD..."
-                      until kubectl get crd clustersecretstores.external-secrets.io >/dev/null 2>&1; do
-                        echo "clustersecretstores CRD not ready, waiting..."
-                        sleep 5
-                      done
-
-                      echo "Waiting for ExternalSecret CRD..."
-                      until kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; do
-                        echo "externalsecrets CRD not ready, waiting..."
-                        sleep 5
-                      done
-
-                      echo "Waiting for external-secrets-definitions ConfigMap..."
-                      until kubectl -n kube-system get configmap external-secrets-definitions >/dev/null 2>&1; do
-                        echo "ConfigMap not ready, waiting..."
-                        sleep 3
-                      done
-
-                      echo "Applying ClusterSecretStore..."
-                      cat <<EOF | kubectl apply -f -
-                      apiVersion: external-secrets.io/v1beta1
-                      kind: ClusterSecretStore
-                      metadata:
-                        name: vault-backend
-                      spec:
-                        provider:
-                          vault:
-                            server: ${cfg.vault-address}
-                            path: ${vaultMount}
-                            version: ${cfg.kvVersion}
-                            auth:
-                              kubernetes:
-                                mountPath: kubernetes
-                                role: external-secrets
-                                serviceAccountRef:
-                                  name: vault-auth
-                                  namespace: external-secrets
-                      EOF
-
-                      echo "ClusterSecretStore applied. Applying ExternalSecrets (if any)..."
-                      if [ -s /manifests/externalsecrets.yaml ]; then
-                        kubectl apply -f /manifests/externalsecrets.yaml
-                        echo "ExternalSecrets applied successfully!"
-                      else
-                        echo "No ExternalSecrets configured; skipping."
-                      fi
-                    ''
-                  ];
-                }
-              ];
-            };
-          };
-        };
-      };
     };
   };
 }
