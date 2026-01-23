@@ -1,4 +1,3 @@
-# path: (wherever this module lives in your flake)
 {
   lib,
   config,
@@ -16,6 +15,100 @@ with lib.fmf; let
 
   # Vault wants an https://... URL for kubernetes_host
   k8sHostUrl = "https://${cfg.serverAddr}:6443";
+
+  # Render a single ExternalSecret manifest from an item in cfg.externalSecrets
+  renderExternalSecret = es: let
+    # Defaults that keep the schema ergonomic
+    name = es.name;
+    namespace = es.namespace;
+    targetName = if es.targetName == null then es.name else es.targetName;
+    refreshInterval = es.refreshInterval;
+    storeName = es.secretStoreRef.name;
+    storeKind = es.secretStoreRef.kind;
+    creationPolicy = es.target.creationPolicy;
+    deletionPolicy = es.target.deletionPolicy;
+    templateType = es.target.templateType;
+    templateEngineVersion = es.target.templateEngineVersion;
+    templateData = es.target.templateData;
+    hasTemplateData = templateData != {};
+    data = es.data;
+    dataFromExtract = es.dataFromExtract;
+
+    # data: [{ secretKey = "..."; remoteRef = { key = "..."; property = nullOr "..."; version = nullOr "..."; }; }]
+    renderDataItem = item: let
+      propLine =
+        if item.remoteRef.property == null
+        then ""
+        else "\n        property: ${item.remoteRef.property}";
+      verLine =
+        if item.remoteRef.version == null
+        then ""
+        else "\n        version: ${item.remoteRef.version}";
+    in ''
+      - secretKey: ${item.secretKey}
+        remoteRef:
+          key: ${item.remoteRef.key}${propLine}${verLine}
+    '';
+
+    # dataFromExtract: [{ key = "..."; version = nullOr "..."; }]
+    renderExtractItem = item: let
+      verLine =
+        if item.version == null
+        then ""
+        else "\n        version: ${item.version}";
+    in ''
+      - extract:
+          key: ${item.key}${verLine}
+    '';
+
+    dataBlock =
+      if data == []
+      then ""
+      else ''
+        data:
+${lib.concatStringsSep "" (map renderDataItem data)}
+      '';
+
+    dataFromBlock =
+      if dataFromExtract == []
+      then ""
+      else ''
+        dataFrom:
+${lib.concatStringsSep "" (map renderExtractItem dataFromExtract)}
+      '';
+
+    templateBlock =
+      if !hasTemplateData && templateType == null && templateEngineVersion == null
+      then ""
+      else ''
+        template:
+${optionalString (templateType != null) "          type: ${templateType}\n"}${optionalString (templateEngineVersion != null) "          engineVersion: ${templateEngineVersion}\n"}${optionalString hasTemplateData ''
+          data:
+${lib.concatStringsSep "" (lib.mapAttrsToList (k: v: "            ${k}: ${toString v}\n") templateData)}''}
+      '';
+  in ''
+    apiVersion: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    metadata:
+      name: ${name}
+      namespace: ${namespace}
+    spec:
+      refreshInterval: ${refreshInterval}
+      secretStoreRef:
+        name: ${storeName}
+        kind: ${storeKind}
+      target:
+        name: ${targetName}
+        creationPolicy: ${creationPolicy}
+        deletionPolicy: ${deletionPolicy}
+${templateBlock}${dataFromBlock}${dataBlock}
+  '';
+
+  # One YAML file containing all ExternalSecret objects, applied by the deploy job after CRDs exist.
+  externalSecretsYaml =
+    if cfg.externalSecrets == []
+    then "# no ExternalSecrets configured\n"
+    else (lib.concatStringsSep "\n---\n" (map renderExternalSecret cfg.externalSecrets)) + "\n";
 in {
   options.fmf.services.k3s.modules.external-secrets = {
     enable = mkEnableOption "Deploy External Secrets and Vault Store";
@@ -53,6 +146,172 @@ in {
       default = "v2";
       description = "KV store version";
     };
+
+    # NEW: declarative ExternalSecret definitions applied by the same job that applies ClusterSecretStore
+    externalSecrets = mkOption {
+      type = types.listOf (types.submodule ({...}: {
+        options = {
+          name = mkOption {
+            type = types.str;
+            description = "ExternalSecret metadata.name";
+          };
+
+          namespace = mkOption {
+            type = types.str;
+            default = "external-secrets";
+            description = "Namespace where this ExternalSecret (and its target Secret) will live.";
+          };
+
+          refreshInterval = mkOption {
+            type = types.str;
+            default = "1h";
+            description = "ExternalSecret spec.refreshInterval (string duration).";
+          };
+
+          secretStoreRef = mkOption {
+            type = types.submodule ({...}: {
+              options = {
+                name = mkOption {
+                  type = types.str;
+                  default = "vault-backend";
+                  description = "Name of the SecretStore/ClusterSecretStore to reference.";
+                };
+                kind = mkOption {
+                  type = types.enum ["ClusterSecretStore" "SecretStore"];
+                  default = "ClusterSecretStore";
+                  description = "Kind of store reference (ClusterSecretStore recommended).";
+                };
+              };
+            });
+            default = {};
+            description = "spec.secretStoreRef";
+          };
+
+          targetName = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "If set, ExternalSecret spec.target.name; defaults to the ExternalSecret name.";
+          };
+
+          target = mkOption {
+            type = types.submodule ({...}: {
+              options = {
+                creationPolicy = mkOption {
+                  type = types.enum ["Owner" "Merge" "None"];
+                  default = "Owner";
+                  description = "ExternalSecret spec.target.creationPolicy";
+                };
+                deletionPolicy = mkOption {
+                  type = types.enum ["Delete" "Retain" "Merge"];
+                  default = "Retain";
+                  description = "ExternalSecret spec.target.deletionPolicy";
+                };
+
+                # Optional template controls (kept lightweight; you can expand later if you want full template support)
+                templateType = mkOption {
+                  type = types.nullOr types.str;
+                  default = null;
+                  description = "ExternalSecret spec.target.template.type (optional).";
+                };
+                templateEngineVersion = mkOption {
+                  type = types.nullOr types.str;
+                  default = null;
+                  description = "ExternalSecret spec.target.template.engineVersion (optional).";
+                };
+                templateData = mkOption {
+                  type = types.attrs;
+                  default = {};
+                  description = "ExternalSecret spec.target.template.data (optional attrset, stringy values).";
+                };
+              };
+            });
+            default = {};
+            description = "ExternalSecret spec.target options";
+          };
+
+          # Either do explicit key mapping...
+          data = mkOption {
+            type = types.listOf (types.submodule ({...}: {
+              options = {
+                secretKey = mkOption {
+                  type = types.str;
+                  description = "Key in the resulting Kubernetes Secret (spec.data[].secretKey).";
+                };
+                remoteRef = mkOption {
+                  type = types.submodule ({...}: {
+                    options = {
+                      key = mkOption {
+                        type = types.str;
+                        description = "Vault key path relative to the store mount/path (spec.data[].remoteRef.key).";
+                      };
+                      property = mkOption {
+                        type = types.nullOr types.str;
+                        default = null;
+                        description = "Optional property for JSON/structured secrets (spec.data[].remoteRef.property).";
+                      };
+                      version = mkOption {
+                        type = types.nullOr types.str;
+                        default = null;
+                        description = "Optional version (kv v2) (spec.data[].remoteRef.version).";
+                      };
+                    };
+                  });
+                  description = "Remote ref configuration.";
+                };
+              };
+            }));
+            default = [];
+            description = "ExternalSecret spec.data (explicit key mapping).";
+          };
+
+          # ...or extract an entire object into the Secret
+          dataFromExtract = mkOption {
+            type = types.listOf (types.submodule ({...}: {
+              options = {
+                key = mkOption {
+                  type = types.str;
+                  description = "Vault key to extract (spec.dataFrom[].extract.key).";
+                };
+                version = mkOption {
+                  type = types.nullOr types.str;
+                  default = null;
+                  description = "Optional version (kv v2) (spec.dataFrom[].extract.version).";
+                };
+              };
+            }));
+            default = [];
+            description = "ExternalSecret spec.dataFrom with extract (bulk import).";
+          };
+        };
+      }));
+      default = [];
+      description = ''
+        Declarative ExternalSecret objects. These are applied by a Job after the external-secrets CRDs exist
+        (same anti-race approach as the ClusterSecretStore apply).
+      '';
+      example = literalExpression ''
+        [
+          {
+            name = "postgres-creds";
+            namespace = "default";
+            refreshInterval = "15m";
+            secretStoreRef = { name = "vault-backend"; kind = "ClusterSecretStore"; };
+            targetName = "postgres-creds";
+            data = [
+              { secretKey = "username"; remoteRef = { key = "campground/k3s/postgres"; property = "username"; }; }
+              { secretKey = "password"; remoteRef = { key = "campground/k3s/postgres"; property = "password"; }; }
+            ];
+          }
+          {
+            name = "app-config";
+            namespace = "default";
+            dataFromExtract = [
+              { key = "campground/k3s/my-app/config"; }
+            ];
+          }
+        ]
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -60,7 +319,7 @@ in {
 
     services.k3s.charts.external-secrets =
       pkgs.runCommand "external-secrets.tgz"
-      {nativeBuildInputs = [pkgs.gnutar pkgs.gzip];} ''
+      { nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ]; } ''
         cp -r ${pkgs.nixhelmCharts.external-secrets.external-secrets} external-secrets
         tar -czf $out -C external-secrets .
       '';
@@ -163,12 +422,25 @@ in {
         automountServiceAccountToken = true;
       };
 
-      # ServiceAccount for the ClusterSecretStore deployment Job
+      # NEW: ConfigMap containing all ExternalSecret manifests to apply AFTER CRDs exist
+      external-secrets-definitions.content = {
+        apiVersion = "v1";
+        kind = "ConfigMap";
+        metadata = {
+          name = "external-secrets-definitions";
+          namespace = "kube-system";
+        };
+        data = {
+          "externalsecrets.yaml" = externalSecretsYaml;
+        };
+      };
+
+      # ServiceAccount for the ClusterSecretStore + ExternalSecrets deployment Job
       external-secrets-deploy-sa.content = {
         apiVersion = "v1";
         kind = "ServiceAccount";
         metadata = {
-          name = "apply-cluster-secret-store";
+          name = "apply-external-secrets-bootstrap";
           namespace = "kube-system";
         };
       };
@@ -178,13 +450,18 @@ in {
         apiVersion = "rbac.authorization.k8s.io/v1";
         kind = "ClusterRole";
         metadata = {
-          name = "apply-cluster-secret-store";
+          name = "apply-external-secrets-bootstrap";
         };
         rules = [
           {
             apiGroups = ["external-secrets.io"];
-            resources = ["clustersecretstores"];
-            verbs = ["get" "create" "update" "patch"];
+            resources = ["clustersecretstores" "externalsecrets"];
+            verbs = ["get" "create" "update" "patch" "list"];
+          }
+          {
+            apiGroups = [""];
+            resources = ["configmaps"];
+            verbs = ["get" "list"];
           }
           {
             apiGroups = ["apiextensions.k8s.io"];
@@ -199,30 +476,28 @@ in {
         apiVersion = "rbac.authorization.k8s.io/v1";
         kind = "ClusterRoleBinding";
         metadata = {
-          name = "apply-cluster-secret-store";
+          name = "apply-external-secrets-bootstrap";
         };
         roleRef = {
           apiGroup = "rbac.authorization.k8s.io";
           kind = "ClusterRole";
-          name = "apply-cluster-secret-store";
+          name = "apply-external-secrets-bootstrap";
         };
         subjects = [
           {
             kind = "ServiceAccount";
-            name = "apply-cluster-secret-store";
+            name = "apply-external-secrets-bootstrap";
             namespace = "kube-system";
           }
         ];
       };
 
-      # Job to deploy ClusterSecretStore after CRDs are ready
-      # This avoids race conditions where the ClusterSecretStore manifest
-      # is applied before the external-secrets Helm chart installs the CRDs
+      # Job to deploy ClusterSecretStore + ExternalSecrets after CRDs are ready
       external-secrets-deploy-job.content = {
         apiVersion = "batch/v1";
         kind = "Job";
         metadata = {
-          name = "apply-cluster-secret-store";
+          name = "apply-external-secrets-bootstrap";
           namespace = "kube-system";
         };
         spec = {
@@ -230,24 +505,58 @@ in {
           template = {
             spec = {
               restartPolicy = "OnFailure";
-              serviceAccountName = "apply-cluster-secret-store";
+              serviceAccountName = "apply-external-secrets-bootstrap";
+
+              volumes = [
+                {
+                  name = "externalsecrets";
+                  configMap = {
+                    name = "external-secrets-definitions";
+                    items = [
+                      {
+                        key = "externalsecrets.yaml";
+                        path = "externalsecrets.yaml";
+                      }
+                    ];
+                  };
+                }
+              ];
+
               containers = [
                 {
                   name = "apply";
                   image = "rancher/kubectl:v1.28.3";
+                  volumeMounts = [
+                    {
+                      name = "externalsecrets";
+                      mountPath = "/manifests";
+                      readOnly = true;
+                    }
+                  ];
                   command = ["/bin/sh" "-c"];
                   args = [
                     ''
-                      # Wait for CRD to exist
+                      set -euo pipefail
+
                       echo "Waiting for ClusterSecretStore CRD..."
-                      until kubectl get crd clustersecretstores.external-secrets.io; do
-                        echo "CRD not ready, waiting..."
+                      until kubectl get crd clustersecretstores.external-secrets.io >/dev/null 2>&1; do
+                        echo "clustersecretstores CRD not ready, waiting..."
                         sleep 5
                       done
 
-                      echo "CRD is ready, applying ClusterSecretStore..."
+                      echo "Waiting for ExternalSecret CRD..."
+                      until kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; do
+                        echo "externalsecrets CRD not ready, waiting..."
+                        sleep 5
+                      done
 
-                      # Apply the ClusterSecretStore
+                      echo "Waiting for external-secrets-definitions ConfigMap..."
+                      until kubectl -n kube-system get configmap external-secrets-definitions >/dev/null 2>&1; do
+                        echo "ConfigMap not ready, waiting..."
+                        sleep 3
+                      done
+
+                      echo "Applying ClusterSecretStore..."
                       cat <<EOF | kubectl apply -f -
                       apiVersion: external-secrets.io/v1beta1
                       kind: ClusterSecretStore
@@ -268,7 +577,13 @@ in {
                                   namespace: external-secrets
                       EOF
 
-                      echo "ClusterSecretStore applied successfully!"
+                      echo "ClusterSecretStore applied. Applying ExternalSecrets (if any)..."
+                      if [ -s /manifests/externalsecrets.yaml ]; then
+                        kubectl apply -f /manifests/externalsecrets.yaml
+                        echo "ExternalSecrets applied successfully!"
+                      else
+                        echo "No ExternalSecrets configured; skipping."
+                      fi
                     ''
                   ];
                 }
