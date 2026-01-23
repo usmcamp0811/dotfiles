@@ -163,29 +163,116 @@ in {
         automountServiceAccountToken = true;
       };
 
-      external-secrets-vault-store.content = {
-        apiVersion = "external-secrets.io/v1beta1";
-        kind = "ClusterSecretStore";
-        metadata.name = "vault-backend";
+      # ServiceAccount for the ClusterSecretStore deployment Job
+      external-secrets-deploy-sa.content = {
+        apiVersion = "v1";
+        kind = "ServiceAccount";
+        metadata = {
+          name = "apply-cluster-secret-store";
+          namespace = "kube-system";
+        };
+      };
+
+      # ClusterRole for the deployment Job
+      external-secrets-deploy-clusterrole.content = {
+        apiVersion = "rbac.authorization.k8s.io/v1";
+        kind = "ClusterRole";
+        metadata = {
+          name = "apply-cluster-secret-store";
+        };
+        rules = [
+          {
+            apiGroups = ["external-secrets.io"];
+            resources = ["clustersecretstores"];
+            verbs = ["get" "create" "update" "patch"];
+          }
+          {
+            apiGroups = ["apiextensions.k8s.io"];
+            resources = ["customresourcedefinitions"];
+            verbs = ["get" "list"];
+          }
+        ];
+      };
+
+      # ClusterRoleBinding for the deployment Job
+      external-secrets-deploy-clusterrolebinding.content = {
+        apiVersion = "rbac.authorization.k8s.io/v1";
+        kind = "ClusterRoleBinding";
+        metadata = {
+          name = "apply-cluster-secret-store";
+        };
+        roleRef = {
+          apiGroup = "rbac.authorization.k8s.io";
+          kind = "ClusterRole";
+          name = "apply-cluster-secret-store";
+        };
+        subjects = [
+          {
+            kind = "ServiceAccount";
+            name = "apply-cluster-secret-store";
+            namespace = "kube-system";
+          }
+        ];
+      };
+
+      # Job to deploy ClusterSecretStore after CRDs are ready
+      # This avoids race conditions where the ClusterSecretStore manifest
+      # is applied before the external-secrets Helm chart installs the CRDs
+      external-secrets-deploy-job.content = {
+        apiVersion = "batch/v1";
+        kind = "Job";
+        metadata = {
+          name = "apply-cluster-secret-store";
+          namespace = "kube-system";
+        };
         spec = {
-          provider.vault = {
-            # FIX: use cfg.*, not config.fmf.services.k3s.*
-            server = cfg.vault-address;
+          backoffLimit = 10;
+          template = {
+            spec = {
+              restartPolicy = "OnFailure";
+              serviceAccountName = "apply-cluster-secret-store";
+              containers = [
+                {
+                  name = "apply";
+                  image = "rancher/kubectl:v1.28.3";
+                  command = ["/bin/sh" "-c"];
+                  args = [
+                    ''
+                      # Wait for CRD to exist
+                      echo "Waiting for ClusterSecretStore CRD..."
+                      until kubectl get crd clustersecretstores.external-secrets.io; do
+                        echo "CRD not ready, waiting..."
+                        sleep 5
+                      done
 
-            # IMPORTANT:
-            # For Vault KV, this is the MOUNT name, not the whole secret path.
-            # With cfg.vault-path default "secret/campground/k3s", mount is "secret".
-            path = vaultMount;
+                      echo "CRD is ready, applying ClusterSecretStore..."
 
-            version = cfg.kvVersion;
+                      # Apply the ClusterSecretStore
+                      cat <<EOF | kubectl apply -f -
+                      apiVersion: external-secrets.io/v1beta1
+                      kind: ClusterSecretStore
+                      metadata:
+                        name: vault-backend
+                      spec:
+                        provider:
+                          vault:
+                            server: ${cfg.vault-address}
+                            path: ${vaultMount}
+                            version: ${cfg.kvVersion}
+                            auth:
+                              kubernetes:
+                                mountPath: kubernetes
+                                role: external-secrets
+                                serviceAccountRef:
+                                  name: vault-auth
+                                  namespace: external-secrets
+                      EOF
 
-            auth.kubernetes = {
-              mountPath = "kubernetes";
-              role = "external-secrets";
-              serviceAccountRef = {
-                name = "vault-auth";
-                namespace = "external-secrets";
-              };
+                      echo "ClusterSecretStore applied successfully!"
+                    ''
+                  ];
+                }
+              ];
             };
           };
         };
