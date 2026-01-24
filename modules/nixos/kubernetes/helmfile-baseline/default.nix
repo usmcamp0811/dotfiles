@@ -12,7 +12,6 @@
 #       kvPath = "secret/campground/k3s";
 #     };
 #   };
-
 {
   lib,
   config,
@@ -27,6 +26,11 @@ with lib.fmf; let
   vaultPathParts = lib.splitString "/" cfg.vault.kvPath;
   vaultMount = lib.head vaultPathParts; # e.g. "secret"
   vaultSubPath = lib.concatStringsSep "/" (lib.tail vaultPathParts); # e.g. "campground/k3s"
+
+  metallbAutoAssign =
+    if cfg.metallb.ipAddressPool.autoAssign
+    then "true"
+    else "false";
 in {
   options.fmf.services.k3s.helmfile.baseline = {
     enable = mkEnableOption "Deploy baseline Kubernetes infrastructure using Helmfile";
@@ -94,7 +98,8 @@ in {
         description = "Vault KV version";
       };
 
-      createClusterSecretStore = mkEnableOption "Create ClusterSecretStore for Vault" // {default = true;};
+      createClusterSecretStore =
+        mkEnableOption "Create ClusterSecretStore for Vault" // {default = true;};
     };
 
     # Layer 4: Service Mesh
@@ -168,7 +173,10 @@ in {
         chart = "metallb/metallb";
         layer = 1;
         wait = true;
-        timeout = 300;
+
+        # Bootstrap-friendly:
+        timeout = 900;
+        atomic = false;
       })
       # Layer 2: External Secrets Operator (with CRDs)
       ++ (optional cfg.externalSecrets.enable {
@@ -252,9 +260,7 @@ in {
           }
           // (
             if cfg.istio.ingressGateway.loadBalancerIP != null
-            then {
-              service.loadBalancerIP = cfg.istio.ingressGateway.loadBalancerIP;
-            }
+            then {service.loadBalancerIP = cfg.istio.ingressGateway.loadBalancerIP;}
             else {}
           );
       })
@@ -293,36 +299,8 @@ in {
         };
       });
 
-    # Create k3s manifests for configurations that need to wait for CRDs
+    # Keep k3s manifests ONLY for non-CRD-backed resources / things that are safe to apply early.
     services.k3s.manifests = {
-      # MetalLB IP Address Pool (waits for MetalLB CRDs)
-      metallb-ipaddresspool = mkIf cfg.metallb.enable {
-        content = {
-          apiVersion = "metallb.io/v1beta1";
-          kind = "IPAddressPool";
-          metadata = {
-            name = cfg.metallb.ipAddressPool.name;
-            namespace = "metallb-system";
-          };
-          spec = {
-            addresses = cfg.metallb.ipAddressPool.addresses;
-            autoAssign = cfg.metallb.ipAddressPool.autoAssign;
-          };
-        };
-      };
-
-      # MetalLB L2 Advertisement
-      metallb-l2advertisement = mkIf cfg.metallb.enable {
-        content = {
-          apiVersion = "metallb.io/v1beta1";
-          kind = "L2Advertisement";
-          metadata = {
-            name = "default";
-            namespace = "metallb-system";
-          };
-        };
-      };
-
       # Vault ServiceAccount for Kubernetes auth
       vault-auth-sa = mkIf cfg.externalSecrets.enable {
         content = {
@@ -333,36 +311,6 @@ in {
             namespace = "external-secrets";
           };
           automountServiceAccountToken = true;
-        };
-      };
-
-      # ClusterSecretStore for Vault (waits for External Secrets CRDs)
-      vault-cluster-secret-store = mkIf (cfg.externalSecrets.enable && cfg.vault.createClusterSecretStore) {
-        content = {
-          apiVersion = "external-secrets.io/v1beta1";
-          kind = "ClusterSecretStore";
-          metadata = {
-            name = "vault-backend";
-          };
-          spec = {
-            provider = {
-              vault = {
-                server = cfg.vault.address;
-                path = vaultMount;
-                version = cfg.vault.kvVersion;
-                auth = {
-                  kubernetes = {
-                    mountPath = "kubernetes";
-                    role = "external-secrets";
-                    serviceAccountRef = {
-                      name = "vault-auth";
-                      namespace = "external-secrets";
-                    };
-                  };
-                };
-              };
-            };
-          };
         };
       };
 
@@ -411,7 +359,53 @@ in {
       };
     };
 
-    # Add systemd service to configure Vault Kubernetes auth (runs after External Secrets is deployed)
+    # Apply MetalLB pool config AFTER Helmfile (avoids CRD race)
+    systemd.services.metallb-config = mkIf (cfg.metallb.enable && config.services.k3s.clusterInit) {
+      description = "Configure MetalLB IPAddressPool and L2Advertisement";
+      wantedBy = ["multi-user.target"];
+      after = ["network-online.target" "k3s.service" "helmfile-apply.service"];
+      wants = ["network-online.target"];
+      requires = ["k3s.service" "helmfile-apply.service"];
+
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        RemainAfterExit = true;
+        ExecStart = pkgs.writeShellScript "metallb-config" ''
+          set -euo pipefail
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+          echo "Waiting for MetalLB CRDs..."
+          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/ipaddresspools.metallb.io >/dev/null 2>&1; do
+            echo "IPAddressPool CRD not ready, waiting..."
+            sleep 5
+          done
+
+          echo "Applying MetalLB IPAddressPool + L2Advertisement..."
+          ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: ${cfg.metallb.ipAddressPool.name}
+            namespace: metallb-system
+          spec:
+            addresses:
+          ${lib.concatMapStringsSep "\n" (a: "    - ${a}") cfg.metallb.ipAddressPool.addresses}
+            autoAssign: ${metallbAutoAssign}
+          ---
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: default
+            namespace: metallb-system
+          YAML
+
+          echo "MetalLB config applied."
+        '';
+      };
+    };
+
+    # Configure Vault Kubernetes auth + create ClusterSecretStore AFTER external-secrets is installed
     systemd.services.vault-k8s-auth-init = mkIf (cfg.externalSecrets.enable && config.services.k3s.clusterInit) {
       description = "Configure Vault Kubernetes Authentication for External Secrets";
       wantedBy = ["multi-user.target"];
@@ -425,6 +419,8 @@ in {
         RemainAfterExit = true;
         ExecStart = pkgs.writeShellScript "vault-k8s-auth-init" ''
           set -euo pipefail
+
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
           NS=external-secrets
           SA=vault-auth
@@ -464,7 +460,8 @@ in {
           echo "Reading cluster CA..."
           ${pkgs.k3s}/bin/k3s kubectl -n "$NS" get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
 
-          K8S_HOST="https://$(${pkgs.k3s}/bin/k3s kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' | sed 's|https://||')"
+          # This already includes https://
+          K8S_HOST="$(${pkgs.k3s}/bin/k3s kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
 
           echo "Configuring Vault Kubernetes auth..."
           ${pkgs.vault}/bin/vault write auth/kubernetes/config \
@@ -480,6 +477,39 @@ in {
             ttl=24h
 
           rm -f /tmp/token.jwt /tmp/ca.crt
+
+          if [ "${
+            if cfg.vault.createClusterSecretStore
+            then "true"
+            else "false"
+          }" = "true" ]; then
+            echo "Waiting for ClusterSecretStore CRD..."
+            until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io >/dev/null 2>&1; do
+              echo "ClusterSecretStore CRD not ready, waiting..."
+              sleep 5
+            done
+
+            echo "Applying ClusterSecretStore..."
+            ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
+            apiVersion: external-secrets.io/v1beta1
+            kind: ClusterSecretStore
+            metadata:
+              name: vault-backend
+            spec:
+              provider:
+                vault:
+                  server: ${cfg.vault.address}
+                  path: ${vaultMount}
+                  version: ${cfg.vault.kvVersion}
+                  auth:
+                    kubernetes:
+                      mountPath: kubernetes
+                      role: external-secrets
+                      serviceAccountRef:
+                        name: vault-auth
+                        namespace: external-secrets
+            YAML
+          fi
 
           echo "Vault Kubernetes auth configured successfully!"
         '';
