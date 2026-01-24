@@ -320,14 +320,6 @@ in {
     # Generate helmfile.yaml from Nix
     environment.etc."helmfile/helmfile.yaml".source = helmfileYaml;
 
-    # Also write it to a readable location for debugging
-    environment.etc."helmfile/helmfile.yaml.debug".text = ''
-      # Generated Helmfile Configuration
-      # This file is generated from your NixOS configuration
-      # Location: fmf.services.k3s.helmfile
-      # See /etc/helmfile/helmfile.yaml for the actual YAML file used by helmfile
-    '';
-
     # SystemD service to apply helmfile
     systemd.services.helmfile-apply = {
       description = "Apply Helmfile releases to Kubernetes";
@@ -427,49 +419,49 @@ in {
 
     # IMPORTANT: Do NOT apply MetalLB CRD-backed objects as k3s static manifests.
     # They can race the Helm install. Apply them after helmfile succeeds.
-    systemd.services.metallb-config = mkIf (cfg.baselineInfrastructure.enable && cfg.baselineInfrastructure.metallb.enable && config.services.k3s.clusterInit) {
-      description = "Configure MetalLB IPAddressPool and L2Advertisement";
-      wantedBy = ["multi-user.target"];
-      after = ["network-online.target" "k3s.service" "helmfile-apply.service"];
-      wants = ["network-online.target"];
-      requires = ["k3s.service" "helmfile-apply.service"];
-
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        RemainAfterExit = true;
-        ExecStart = pkgs.writeShellScript "metallb-config" ''
-          set -euo pipefail
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-
-          echo "Waiting for MetalLB CRDs..."
-          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/ipaddresspools.metallb.io >/dev/null 2>&1; do
-            echo "IPAddressPool CRD not ready, waiting..."
-            sleep 5
-          done
-
-          echo "Applying MetalLB IPAddressPool + L2Advertisement..."
-          ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
-          apiVersion: metallb.io/v1beta1
-          kind: IPAddressPool
-          metadata:
-            name: ${cfg.baselineInfrastructure.metallb.ipAddressPool.name}
-            namespace: metallb-system
-          spec:
-            addresses:
-          ${lib.concatMapStringsSep "\n" (a: "    - ${a}") cfg.baselineInfrastructure.metallb.ipAddressPool.addresses}
-            autoAssign: ${metallbAutoAssign}
-          ---
-          apiVersion: metallb.io/v1beta1
-          kind: L2Advertisement
-          metadata:
-            name: default
-            namespace: metallb-system
-          YAML
-
-          echo "MetalLB config applied."
-        '';
-      };
-    };
+    # systemd.services.metallb-config = mkIf (cfg.baselineInfrastructure.enable && cfg.baselineInfrastructure.metallb.enable && config.services.k3s.clusterInit) {
+    #   description = "Configure MetalLB IPAddressPool and L2Advertisement";
+    #   wantedBy = ["multi-user.target"];
+    #   after = ["network-online.target" "k3s.service" "helmfile-apply.service"];
+    #   wants = ["network-online.target"];
+    #   requires = ["k3s.service" "helmfile-apply.service"];
+    #
+    #   serviceConfig = {
+    #     Type = "oneshot";
+    #     User = "root";
+    #     RemainAfterExit = true;
+    #     ExecStart = pkgs.writeShellScript "metallb-config" ''
+    #       set -euo pipefail
+    #       export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+    #
+    #       echo "Waiting for MetalLB CRDs..."
+    #       until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/ipaddresspools.metallb.io >/dev/null 2>&1; do
+    #         echo "IPAddressPool CRD not ready, waiting..."
+    #         sleep 5
+    #       done
+    #
+    #       echo "Applying MetalLB IPAddressPool + L2Advertisement..."
+    #       ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
+    #       apiVersion: metallb.io/v1beta1
+    #       kind: IPAddressPool
+    #       metadata:
+    #         name: ${cfg.baselineInfrastructure.metallb.ipAddressPool.name}
+    #         namespace: metallb-system
+    #       spec:
+    #         addresses:
+    #       ${lib.concatMapStringsSep "\n" (a: "    - ${a}") cfg.baselineInfrastructure.metallb.ipAddressPool.addresses}
+    #         autoAssign: ${metallbAutoAssign}
+    #       ---
+    #       apiVersion: metallb.io/v1beta1
+    #       kind: L2Advertisement
+    #       metadata:
+    #         name: default
+    #         namespace: metallb-system
+    #       YAML
+    #
+    #       echo "MetalLB config applied."
+    #     '';
+    #   };
+    # };
   };
 }
