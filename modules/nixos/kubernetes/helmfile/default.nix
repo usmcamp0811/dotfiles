@@ -334,7 +334,7 @@ in {
           echo ""
           echo "Applying Helmfile releases..."
           cd /etc/helmfile
-          ${pkgs.helmfile}/bin/helmfile --log-level debug apply --suppress-secrets
+          ${pkgs.helmfile}/bin/helmfile --log-level debug sync
 
           echo "Helmfile deployment complete!"
         '';
