@@ -20,11 +20,11 @@ with lib.fmf; let
       then release.dependsOn
       else [];
 
-    # Build values list from valuesContent attrset
+    # Build values list from valuesContent attrset - filter out nulls
     valuesList =
-      if release ? valuesContent
+      if release ? valuesContent && release.valuesContent != null
       then [release.valuesContent]
-      else if release ? values then release.values else [];
+      else if release ? values && release.values != null then release.values else [];
 
     # Build set list from setValues attrset
     setList =
@@ -47,7 +47,7 @@ with lib.fmf; let
       else baseRelease;
 
     withValues =
-      if valuesList != []
+      if valuesList != [] && valuesList != [null]
       then withNeeds // {values = valuesList;}
       else withNeeds;
 
@@ -57,7 +57,7 @@ with lib.fmf; let
       else withValues;
 
     withHooks =
-      if release ? hooks
+      if release ? hooks && release.hooks != []
       then withSet // {hooks = release.hooks;}
       else withSet;
   in
