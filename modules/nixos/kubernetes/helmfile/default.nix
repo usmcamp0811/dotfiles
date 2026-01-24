@@ -292,6 +292,14 @@ in {
       wants = ["network-online.target"];
       requires = ["k3s.service"];
 
+      path = with pkgs; [
+        kubernetes-helm
+        kubectl
+        git
+        gnutar
+        gzip
+      ];
+
       serviceConfig = {
         Type = "oneshot";
         User = "root";
