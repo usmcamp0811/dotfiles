@@ -80,7 +80,9 @@ with lib.fmf; let
     releases = map toHelmfileRelease (sortByLayer cfg.releases);
   };
 
-  helmfileYaml = lib.generators.toYAML {} helmfileConfig;
+  # Use pkgs.formats.yaml for proper YAML generation
+  yamlFormat = pkgs.formats.yaml {};
+  helmfileYaml = yamlFormat.generate "helmfile" helmfileConfig;
 in {
   options.fmf.services.k3s.helmfile = {
     enable = mkEnableOption "Use Helmfile to manage Kubernetes applications";
@@ -272,15 +274,14 @@ in {
     ];
 
     # Generate helmfile.yaml from Nix
-    environment.etc."helmfile/helmfile.yaml".text = helmfileYaml;
+    environment.etc."helmfile/helmfile.yaml".source = helmfileYaml;
 
     # Also write it to a readable location for debugging
     environment.etc."helmfile/helmfile.yaml.debug".text = ''
       # Generated Helmfile Configuration
       # This file is generated from your NixOS configuration
       # Location: fmf.services.k3s.helmfile
-
-      ${helmfileYaml}
+      # See /etc/helmfile/helmfile.yaml for the actual YAML file used by helmfile
     '';
 
     # SystemD service to apply helmfile
