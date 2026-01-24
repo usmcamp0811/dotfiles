@@ -418,10 +418,7 @@ in {
           done
 
           echo "Waiting for ClusterSecretStore CRD to be established..."
-          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io >/dev/null 2>&1; do
-            echo "clustersecretstores CRD not established, waiting..."
-            sleep 5
-          done
+          ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io
 
           echo "Waiting for ExternalSecret CRD to exist..."
           until ${pkgs.k3s}/bin/k3s kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; do
@@ -430,12 +427,15 @@ in {
           done
 
           echo "Waiting for ExternalSecret CRD to be established..."
-          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/externalsecrets.external-secrets.io >/dev/null 2>&1; do
-            echo "externalsecrets CRD not established, waiting..."
-            sleep 5
+          ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/externalsecrets.external-secrets.io
+
+          echo "CRDs report as established. Verifying API server can list ClusterSecretStores..."
+          until ${pkgs.k3s}/bin/k3s kubectl get clustersecretstores --all-namespaces >/dev/null 2>&1; do
+            echo "API server cannot list ClusterSecretStores yet, waiting..."
+            sleep 2
           done
 
-          echo "CRDs are ready and established. Applying ClusterSecretStore..."
+          echo "API is ready. Applying ClusterSecretStore..."
           cat <<EOF | ${pkgs.k3s}/bin/k3s kubectl apply -f -
           apiVersion: external-secrets.io/v1beta1
           kind: ClusterSecretStore
