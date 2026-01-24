@@ -429,11 +429,23 @@ in {
           echo "Waiting for ExternalSecret CRD to be established..."
           ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/externalsecrets.external-secrets.io
 
-          echo "CRDs report as established. Verifying API server can list ClusterSecretStores..."
+          echo "CRDs report as established. Verifying API server has registered the resources..."
+
+          # Check that api-resources includes clustersecretstores
+          until ${pkgs.k3s}/bin/k3s kubectl api-resources | grep -q "clustersecretstores"; do
+            echo "ClusterSecretStore not in api-resources yet, waiting..."
+            sleep 2
+          done
+
+          # Extra verification - try to list them
           until ${pkgs.k3s}/bin/k3s kubectl get clustersecretstores --all-namespaces >/dev/null 2>&1; do
             echo "API server cannot list ClusterSecretStores yet, waiting..."
             sleep 2
           done
+
+          # Give the API server cache a moment to fully sync
+          echo "Resources verified. Waiting 5 seconds for API server cache to sync..."
+          sleep 5
 
           echo "API is ready. Applying ClusterSecretStore..."
           cat <<EOF | ${pkgs.k3s}/bin/k3s kubectl apply -f -
