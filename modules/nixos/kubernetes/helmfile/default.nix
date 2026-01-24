@@ -24,13 +24,17 @@ with lib.fmf; let
     valuesList =
       if release ? valuesContent && release.valuesContent != null
       then [release.valuesContent]
-      else if release ? values && release.values != null then release.values else [];
+      else if release ? values && release.values != null
+      then release.values
+      else [];
 
     # Build set list from setValues attrset
     setList =
       if release ? setValues
       then lib.mapAttrsToList (name: value: {inherit name value;}) release.setValues
-      else if release ? set then release.set else [];
+      else if release ? set && release.set != null
+      then release.set
+      else [];
 
     baseRelease = {
       name = release.name;
@@ -60,8 +64,24 @@ with lib.fmf; let
       if release ? hooks && release.hooks != []
       then withSet // {hooks = release.hooks;}
       else withSet;
+
+    # Per-release overrides for helmDefaults-like knobs (only emit if explicitly set)
+    withAtomic =
+      if release ? atomic && release.atomic != null
+      then withHooks // {atomic = release.atomic;}
+      else withHooks;
+
+    withForce =
+      if release ? force && release.force != null
+      then withAtomic // {force = release.force;}
+      else withAtomic;
+
+    withRecreatePods =
+      if release ? recreatePods && release.recreatePods != null
+      then withForce // {recreatePods = release.recreatePods;}
+      else withForce;
   in
-    withHooks;
+    withRecreatePods;
 
   # Generate the complete helmfile configuration
   helmfileConfig = {
@@ -83,6 +103,11 @@ with lib.fmf; let
   # Use pkgs.formats.yaml for proper YAML generation
   yamlFormat = pkgs.formats.yaml {};
   helmfileYaml = yamlFormat.generate "helmfile" helmfileConfig;
+
+  metallbAutoAssign =
+    if cfg.baselineInfrastructure.metallb.ipAddressPool.autoAssign
+    then "true"
+    else "false";
 in {
   options.fmf.services.k3s.helmfile = {
     enable = mkEnableOption "Use Helmfile to manage Kubernetes applications";
@@ -144,6 +169,25 @@ in {
             type = types.int;
             default = 300;
             description = "Timeout in seconds for waiting";
+          };
+
+          # Per-release helm defaults overrides (optional)
+          atomic = mkOption {
+            type = types.nullOr types.bool;
+            default = null;
+            description = "Override helmDefaults.atomic for this release (null = use global default)";
+          };
+
+          force = mkOption {
+            type = types.nullOr types.bool;
+            default = null;
+            description = "Override helmDefaults.force for this release (null = use global default)";
+          };
+
+          recreatePods = mkOption {
+            type = types.nullOr types.bool;
+            default = null;
+            description = "Override helmDefaults.recreatePods for this release (null = use global default)";
           };
 
           valuesContent = mkOption {
@@ -319,13 +363,11 @@ in {
             sleep 5
           done
 
-          # Set KUBECONFIG for helmfile
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           export HELM_CACHE_HOME=/var/cache/helm
           export HELM_CONFIG_HOME=/var/lib/helm/config
           export HELM_DATA_HOME=/var/lib/helm/data
 
-          # Create helm directories
           mkdir -p /var/cache/helm /var/lib/helm/config /var/lib/helm/data
 
           echo "Helmfile configuration:"
@@ -351,7 +393,10 @@ in {
         chart = "metallb/metallb";
         layer = 1;
         wait = true;
-        timeout = 300;
+
+        # bootstrap-friendly defaults for metallb only
+        timeout = 900;
+        atomic = false;
       })
       # Layer 2: External Secrets Operator
       ++ (optional cfg.baselineInfrastructure.externalSecrets.enable {
@@ -380,28 +425,50 @@ in {
       })
     );
 
-    # Create MetalLB IPAddressPool manifest if MetalLB baseline is enabled
-    services.k3s.manifests = mkIf (cfg.baselineInfrastructure.enable && cfg.baselineInfrastructure.metallb.enable) {
-      metallb-ipaddresspool.content = {
-        apiVersion = "metallb.io/v1beta1";
-        kind = "IPAddressPool";
-        metadata = {
-          name = cfg.baselineInfrastructure.metallb.ipAddressPool.name;
-          namespace = "metallb-system";
-        };
-        spec = {
-          addresses = cfg.baselineInfrastructure.metallb.ipAddressPool.addresses;
-          autoAssign = cfg.baselineInfrastructure.metallb.ipAddressPool.autoAssign;
-        };
-      };
+    # IMPORTANT: Do NOT apply MetalLB CRD-backed objects as k3s static manifests.
+    # They can race the Helm install. Apply them after helmfile succeeds.
+    systemd.services.metallb-config = mkIf (cfg.baselineInfrastructure.enable && cfg.baselineInfrastructure.metallb.enable && config.services.k3s.clusterInit) {
+      description = "Configure MetalLB IPAddressPool and L2Advertisement";
+      wantedBy = ["multi-user.target"];
+      after = ["network-online.target" "k3s.service" "helmfile-apply.service"];
+      wants = ["network-online.target"];
+      requires = ["k3s.service" "helmfile-apply.service"];
 
-      metallb-l2advertisement.content = {
-        apiVersion = "metallb.io/v1beta1";
-        kind = "L2Advertisement";
-        metadata = {
-          name = "default";
-          namespace = "metallb-system";
-        };
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        RemainAfterExit = true;
+        ExecStart = pkgs.writeShellScript "metallb-config" ''
+          set -euo pipefail
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+          echo "Waiting for MetalLB CRDs..."
+          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/ipaddresspools.metallb.io >/dev/null 2>&1; do
+            echo "IPAddressPool CRD not ready, waiting..."
+            sleep 5
+          done
+
+          echo "Applying MetalLB IPAddressPool + L2Advertisement..."
+          ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: ${cfg.baselineInfrastructure.metallb.ipAddressPool.name}
+            namespace: metallb-system
+          spec:
+            addresses:
+          ${lib.concatMapStringsSep "\n" (a: "    - ${a}") cfg.baselineInfrastructure.metallb.ipAddressPool.addresses}
+            autoAssign: ${metallbAutoAssign}
+          ---
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: default
+            namespace: metallb-system
+          YAML
+
+          echo "MetalLB config applied."
+        '';
       };
     };
   };
