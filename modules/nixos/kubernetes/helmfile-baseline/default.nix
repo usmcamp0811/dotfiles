@@ -21,16 +21,6 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile.baseline;
-
-  # Split Vault path like "secret/campground/k3s"
-  vaultPathParts = lib.splitString "/" cfg.vault.kvPath;
-  vaultMount = lib.head vaultPathParts; # e.g. "secret"
-  vaultSubPath = lib.concatStringsSep "/" (lib.tail vaultPathParts); # e.g. "campground/k3s"
-
-  metallbAutoAssign =
-    if cfg.metallb.ipAddressPool.autoAssign
-    then "true"
-    else "false";
 in {
   options.fmf.services.k3s.helmfile.baseline = {
     enable = mkEnableOption "Deploy baseline Kubernetes infrastructure using Helmfile";
@@ -358,52 +348,6 @@ in {
         };
       };
     };
-
-    # Apply MetalLB pool config AFTER Helmfile (avoids CRD race)
-    # systemd.services.metallb-config = mkIf (cfg.metallb.enable && config.services.k3s.clusterInit) {
-    #   description = "Configure MetalLB IPAddressPool and L2Advertisement";
-    #   wantedBy = ["multi-user.target"];
-    #   after = ["network-online.target" "k3s.service" "helmfile-apply.service"];
-    #   wants = ["network-online.target"];
-    #   requires = ["k3s.service" "helmfile-apply.service"];
-    #
-    #   serviceConfig = {
-    #     Type = "oneshot";
-    #     User = "root";
-    #     RemainAfterExit = true;
-    #     ExecStart = pkgs.writeShellScript "metallb-config" ''
-    #       set -euo pipefail
-    #       export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-    #
-    #       echo "Waiting for MetalLB CRDs..."
-    #       until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/ipaddresspools.metallb.io >/dev/null 2>&1; do
-    #         echo "IPAddressPool CRD not ready, waiting..."
-    #         sleep 5
-    #       done
-    #
-    #       echo "Applying MetalLB IPAddressPool + L2Advertisement..."
-    #       ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
-    #       apiVersion: metallb.io/v1beta1
-    #       kind: IPAddressPool
-    #       metadata:
-    #         name: ${cfg.metallb.ipAddressPool.name}
-    #         namespace: metallb-system
-    #       spec:
-    #         addresses:
-    #       ${lib.concatMapStringsSep "\n" (a: "    - ${a}") cfg.metallb.ipAddressPool.addresses}
-    #         autoAssign: ${metallbAutoAssign}
-    #       ---
-    #       apiVersion: metallb.io/v1beta1
-    #       kind: L2Advertisement
-    #       metadata:
-    #         name: default
-    #         namespace: metallb-system
-    #       YAML
-    #
-    #       echo "MetalLB config applied."
-    #     '';
-    #   };
-    # };
 
     # Configure Vault Kubernetes auth + create ClusterSecretStore AFTER external-secrets is installed
     systemd.services.vault-k8s-auth-init = mkIf (cfg.externalSecrets.enable && config.services.k3s.clusterInit) {
