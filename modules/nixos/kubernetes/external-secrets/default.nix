@@ -411,19 +411,31 @@ in {
             sleep 5
           done
 
-          echo "Waiting for ClusterSecretStore CRD..."
+          echo "Waiting for ClusterSecretStore CRD to exist..."
           until ${pkgs.k3s}/bin/k3s kubectl get crd clustersecretstores.external-secrets.io >/dev/null 2>&1; do
-            echo "clustersecretstores CRD not ready, waiting..."
+            echo "clustersecretstores CRD not found, waiting..."
             sleep 5
           done
 
-          echo "Waiting for ExternalSecret CRD..."
+          echo "Waiting for ClusterSecretStore CRD to be established..."
+          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io >/dev/null 2>&1; do
+            echo "clustersecretstores CRD not established, waiting..."
+            sleep 5
+          done
+
+          echo "Waiting for ExternalSecret CRD to exist..."
           until ${pkgs.k3s}/bin/k3s kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; do
-            echo "externalsecrets CRD not ready, waiting..."
+            echo "externalsecrets CRD not found, waiting..."
             sleep 5
           done
 
-          echo "CRDs are ready. Applying ClusterSecretStore..."
+          echo "Waiting for ExternalSecret CRD to be established..."
+          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/externalsecrets.external-secrets.io >/dev/null 2>&1; do
+            echo "externalsecrets CRD not established, waiting..."
+            sleep 5
+          done
+
+          echo "CRDs are ready and established. Applying ClusterSecretStore..."
           cat <<EOF | ${pkgs.k3s}/bin/k3s kubectl apply -f -
           apiVersion: external-secrets.io/v1beta1
           kind: ClusterSecretStore
