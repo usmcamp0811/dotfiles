@@ -359,6 +359,59 @@ in {
       };
     };
 
+    # Clean up any pre-existing non-Helm MetalLB deployment BEFORE Helmfile runs
+    systemd.services.metallb-cleanup = mkIf (cfg.metallb.enable && config.services.k3s.clusterInit) {
+      description = "Clean up legacy MetalLB deployment before Helmfile install";
+      wantedBy = ["helmfile-apply.service"];
+      before = ["helmfile-apply.service"];
+      after = ["network-online.target" "k3s.service"];
+      wants = ["network-online.target"];
+      requires = ["k3s.service"];
+
+      serviceConfig = {
+        Type = "oneshot";
+        User = "root";
+        RemainAfterExit = true;
+        ExecStart = pkgs.writeShellScript "metallb-cleanup" ''
+          set -euo pipefail
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+          echo "Waiting for K3s to be ready..."
+          until ${pkgs.k3s}/bin/k3s kubectl get --raw /healthz >/dev/null 2>&1; do
+            echo "K3s API not ready, waiting..."
+            sleep 5
+          done
+
+          echo "Checking for existing MetalLB deployment..."
+
+          # Check if metallb namespace exists and has resources NOT managed by Helm
+          if ${pkgs.k3s}/bin/k3s kubectl get namespace metallb-system >/dev/null 2>&1; then
+            echo "Found metallb-system namespace, checking for Helm release..."
+
+            # If there's no Helm release for metallb, it was deployed another way - clean it up
+            if ! ${pkgs.kubernetes-helm}/bin/helm list -n metallb-system | grep -q metallb; then
+              echo "MetalLB exists but NOT managed by Helm - cleaning up legacy deployment..."
+
+              # Delete the entire namespace to ensure clean slate
+              ${pkgs.k3s}/bin/k3s kubectl delete namespace metallb-system --ignore-not-found=true --timeout=120s || true
+
+              echo "Waiting for namespace deletion to complete..."
+              until ! ${pkgs.k3s}/bin/k3s kubectl get namespace metallb-system >/dev/null 2>&1; do
+                echo "Waiting for metallb-system namespace to be deleted..."
+                sleep 2
+              done
+
+              echo "Legacy MetalLB deployment cleaned up successfully!"
+            else
+              echo "MetalLB is managed by Helm, no cleanup needed."
+            fi
+          else
+            echo "No existing MetalLB deployment found, ready for Helmfile install."
+          fi
+        '';
+      };
+    };
+
     # Apply MetalLB pool config AFTER Helmfile (avoids CRD race)
     systemd.services.metallb-config = mkIf (cfg.metallb.enable && config.services.k3s.clusterInit) {
       description = "Configure MetalLB IPAddressPool and L2Advertisement";
