@@ -349,8 +349,8 @@ in {
       };
     };
 
-    # Configure Vault Kubernetes auth + create ClusterSecretStore AFTER external-secrets is installed
-    systemd.services.vault-k8s-auth-init = mkIf (cfg.externalSecrets.enable && config.services.k3s.clusterInit) {
+    # Configure Vault Kubernetes auth and ClusterSecretStore AFTER external-secrets is installed
+    systemd.services.vault-k8s-auth-init = mkIf (cfg.externalSecrets.enable && cfg.vault.createClusterSecretStore && config.services.k3s.clusterInit) {
       description = "Configure Vault Kubernetes Authentication for External Secrets";
       wantedBy = ["multi-user.target"];
       after = ["network-online.target" "k3s.service" "helmfile-apply.service"];
@@ -420,6 +420,35 @@ in {
 
           rm -f /tmp/token.jwt /tmp/ca.crt
           echo "Vault Kubernetes auth configured successfully!"
+
+          echo "Waiting for External Secrets CRDs to be established..."
+          until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io 2>/dev/null; do
+            echo "ClusterSecretStore CRD not ready, waiting..."
+            sleep 5
+          done
+
+          echo "Creating ClusterSecretStore for Vault..."
+          ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
+          apiVersion: external-secrets.io/v1beta1
+          kind: ClusterSecretStore
+          metadata:
+            name: vault-backend
+          spec:
+            provider:
+              vault:
+                server: "${cfg.vault.address}"
+                path: "${cfg.vault.kvPath}"
+                version: "${cfg.vault.kvVersion}"
+                auth:
+                  kubernetes:
+                    mountPath: "kubernetes"
+                    role: "external-secrets"
+                    serviceAccountRef:
+                      name: "$SA"
+                      namespace: "$NS"
+          YAML
+
+          echo "ClusterSecretStore created successfully!"
         '';
       };
     };
