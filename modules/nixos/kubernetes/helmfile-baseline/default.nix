@@ -420,23 +420,21 @@ in {
         ExecStart = pkgs.writeShellScript "vault-k8s-auth-init" ''
           set -euo pipefail
 
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-
           NS=external-secrets
           SA=vault-auth
 
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           export VAULT_ADDR="${cfg.vault.address}"
           HOSTNAME=${config.networking.hostName}
 
-          # Wait for Vault credentials to be available
           echo "Waiting for Vault credentials..."
-          until [ -f /var/lib/vault/$HOSTNAME/role-id ] && [ -f /var/lib/vault/$HOSTNAME/secret-id ]; do
+          until [ -f "/var/lib/vault/$HOSTNAME/role-id" ] && [ -f "/var/lib/vault/$HOSTNAME/secret-id" ]; do
             echo "Vault credentials not found, waiting..."
             sleep 5
           done
 
-          ROLE_ID="$(cat /var/lib/vault/$HOSTNAME/role-id)"
-          SECRET_ID="$(cat /var/lib/vault/$HOSTNAME/secret-id)"
+          ROLE_ID="$(cat "/var/lib/vault/$HOSTNAME/role-id")"
+          SECRET_ID="$(cat "/var/lib/vault/$HOSTNAME/secret-id")"
 
           echo "Logging in to Vault using AppRole..."
           VAULT_TOKEN="$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
@@ -450,7 +448,7 @@ in {
 
           echo "Waiting for serviceaccount $NS/$SA to exist..."
           until ${pkgs.k3s}/bin/k3s kubectl -n "$NS" get sa "$SA" >/dev/null 2>&1; do
-            echo "ServiceAccount $SA not found, waiting..."
+            echo "ServiceAccount $NS/$SA not found, waiting..."
             sleep 2
           done
 
@@ -458,16 +456,16 @@ in {
           ${pkgs.k3s}/bin/k3s kubectl -n "$NS" create token "$SA" --duration=24h > /tmp/token.jwt
 
           echo "Reading cluster CA..."
-          ${pkgs.k3s}/bin/k3s kubectl -n "$NS" get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
+          ${pkgs.k3s}/bin/k3s kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
 
-          # This already includes https://
+          # This is already an https:// URL
           K8S_HOST="$(${pkgs.k3s}/bin/k3s kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
 
           echo "Configuring Vault Kubernetes auth..."
           ${pkgs.vault}/bin/vault write auth/kubernetes/config \
-            token_reviewer_jwt="$(< /tmp/token.jwt)" \
+            token_reviewer_jwt=@/tmp/token.jwt \
             kubernetes_host="$K8S_HOST" \
-            kubernetes_ca_cert="$(< /tmp/ca.crt)"
+            kubernetes_ca_cert=@/tmp/ca.crt
 
           echo "Writing Vault Kubernetes role external-secrets..."
           ${pkgs.vault}/bin/vault write auth/kubernetes/role/external-secrets \
@@ -477,40 +475,6 @@ in {
             ttl=24h
 
           rm -f /tmp/token.jwt /tmp/ca.crt
-
-          if [ "${
-            if cfg.vault.createClusterSecretStore
-            then "true"
-            else "false"
-          }" = "true" ]; then
-            echo "Waiting for ClusterSecretStore CRD..."
-            until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io >/dev/null 2>&1; do
-              echo "ClusterSecretStore CRD not ready, waiting..."
-              sleep 5
-            done
-
-            echo "Applying ClusterSecretStore..."
-            ${pkgs.k3s}/bin/k3s kubectl apply -f - <<'YAML'
-            apiVersion: external-secrets.io/v1beta1
-            kind: ClusterSecretStore
-            metadata:
-              name: vault-backend
-            spec:
-              provider:
-                vault:
-                  server: ${cfg.vault.address}
-                  path: ${vaultMount}
-                  version: ${cfg.vault.kvVersion}
-                  auth:
-                    kubernetes:
-                      mountPath: kubernetes
-                      role: external-secrets
-                      serviceAccountRef:
-                        name: vault-auth
-                        namespace: external-secrets
-            YAML
-          fi
-
           echo "Vault Kubernetes auth configured successfully!"
         '';
       };
