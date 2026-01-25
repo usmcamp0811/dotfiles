@@ -8,6 +8,18 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile.layers."20-secrets";
 
+  # Build the vault-k8s-init container image
+  vaultInitImage = pkgs.callPackage /config/packages/vault-k8s-init {};
+
+  # Load the image into the local container runtime (k3s uses containerd)
+  # This creates a script that loads the image
+  imageLoader = pkgs.writeShellScript "load-vault-init-image" ''
+    echo "Loading vault-k8s-init image into k3s containerd..."
+    ${pkgs.coreutils}/bin/cat ${vaultInitImage.image} | \
+      ${pkgs.k3s}/bin/k3s ctr images import -
+    echo "Image loaded successfully"
+  '';
+
   # Vault init Job manifest
   vaultInitJobManifest = pkgs.writeText "vault-init-job.yaml" ''
     apiVersion: v1
@@ -61,114 +73,19 @@ with lib.fmf; let
           restartPolicy: OnFailure
           containers:
             - name: vault-init
-              image: hashicorp/vault:1.15
+              image: localhost/vault-k8s-init:latest
+              imagePullPolicy: Never  # Image is loaded locally
               env:
                 - name: VAULT_ADDR
                   value: "${cfg.vaultAddress}"
+                - name: VAULT_KV_PATH
+                  value: "${cfg.vaultKvPath}"
+                - name: VAULT_KV_VERSION
+                  value: "${cfg.vaultKvVersion}"
+                - name: VAULT_POLICY
+                  value: "campground"
                 - name: HOSTNAME
                   value: "${config.networking.hostName}"
-              command: ["/bin/sh", "-c"]
-              args:
-                - |
-                  set -euo pipefail
-
-                  echo "Waiting for Vault credentials..."
-                  until [ -f "/var/lib/vault/$HOSTNAME/role-id" ] && [ -f "/var/lib/vault/$HOSTNAME/secret-id" ]; do
-                    echo "Vault credentials not found at /var/lib/vault/$HOSTNAME/, waiting..."
-                    sleep 5
-                  done
-
-                  ROLE_ID="$(cat "/var/lib/vault/$HOSTNAME/role-id")"
-                  SECRET_ID="$(cat "/var/lib/vault/$HOSTNAME/secret-id")"
-
-                  echo "Logging in to Vault using AppRole..."
-                  VAULT_TOKEN="$(vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
-                  export VAULT_TOKEN
-
-                  # Ensure external-secrets ServiceAccount exists
-                  echo "Ensuring ServiceAccount external-secrets/vault-auth exists..."
-                  kubectl apply -f - <<YAML
-                  apiVersion: v1
-                  kind: ServiceAccount
-                  metadata:
-                    name: vault-auth
-                    namespace: external-secrets
-                  automountServiceAccountToken: true
-                  YAML
-
-                  # Create token for Vault
-                  echo "Creating token for external-secrets/vault-auth..."
-                  kubectl -n external-secrets create token vault-auth --duration=24h > /tmp/token.jwt
-
-                  # Get cluster CA
-                  echo "Reading cluster CA..."
-                  kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
-
-                  K8S_HOST="$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
-
-                  # Configure Vault Kubernetes auth
-                  echo "Configuring Vault Kubernetes auth..."
-                  vault write auth/kubernetes/config \
-                    token_reviewer_jwt=@/tmp/token.jwt \
-                    kubernetes_host="$K8S_HOST" \
-                    kubernetes_ca_cert=@/tmp/ca.crt
-
-                  # Create Vault role
-                  echo "Writing Vault Kubernetes role external-secrets..."
-                  vault write auth/kubernetes/role/external-secrets \
-                    bound_service_account_names="vault-auth" \
-                    bound_service_account_namespaces="*" \
-                    policies="campground" \
-                    ttl=24h
-
-                  rm -f /tmp/token.jwt /tmp/ca.crt
-
-                  echo "Vault Kubernetes auth configured successfully!"
-
-                  # Wait for External Secrets webhook to be ready
-                  echo "Waiting for External Secrets webhook to be ready..."
-                  kubectl wait --for=condition=available --timeout=300s \
-                    deployment/external-secrets-webhook -n external-secrets || true
-
-                  # Additional wait for webhook to register
-                  sleep 10
-
-                  # Detect served ClusterSecretStore API version
-                  echo "Detecting served ClusterSecretStore API version..."
-                  CSS_VER="$(kubectl get crd clustersecretstores.external-secrets.io \
-                    -o jsonpath='{range .spec.versions[?(@.served==true)]}{.name}{"\n"}{end}' | head -n1)"
-
-                  if [ -z "$CSS_VER" ]; then
-                    echo "ERROR: Could not determine served version for ClusterSecretStore CRD"
-                    kubectl get crd clustersecretstores.external-secrets.io -o yaml | head -n 120
-                    exit 1
-                  fi
-
-                  echo "ClusterSecretStore apiVersion: external-secrets.io/$CSS_VER"
-
-                  # Create ClusterSecretStore
-                  echo "Creating ClusterSecretStore..."
-                  kubectl apply -f - <<YAML
-                  apiVersion: external-secrets.io/$CSS_VER
-                  kind: ClusterSecretStore
-                  metadata:
-                    name: vault-backend
-                  spec:
-                    provider:
-                      vault:
-                        server: "${cfg.vaultAddress}"
-                        path: "${cfg.vaultKvPath}"
-                        version: "${cfg.vaultKvVersion}"
-                        auth:
-                          kubernetes:
-                            mountPath: "kubernetes"
-                            role: "external-secrets"
-                            serviceAccountRef:
-                              name: vault-auth
-                              namespace: external-secrets
-                  YAML
-
-                  echo "ClusterSecretStore created successfully!"
               volumeMounts:
                 - name: vault-creds
                   mountPath: /var/lib/vault/${config.networking.hostName}
@@ -227,6 +144,23 @@ in {
 
     # Disable the old external-secrets module to avoid conflicts
     fmf.services.k3s.modules.external-secrets.enable = lib.mkForce false;
+
+    # Load the vault-k8s-init container image into k3s containerd
+    systemd.services.vault-k8s-init-image-load = {
+      description = "Load vault-k8s-init container image into k3s";
+      after = ["k3s.service"];
+      requires = ["k3s.service"];
+      wantedBy = ["multi-user.target"];
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "root";
+        ExecStart = imageLoader;
+      };
+
+      unitConfig.ConditionPathExists = "/etc/rancher/k3s/k3s.yaml";
+    };
 
     # The Vault init runs as a systemd oneshot service BEFORE helmfile
     # This ensures ClusterSecretStore exists before any releases that need it
