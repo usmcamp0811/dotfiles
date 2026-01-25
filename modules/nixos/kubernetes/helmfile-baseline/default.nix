@@ -392,8 +392,8 @@ in {
                       mountPath: "kubernetes"
                       role: "external-secrets"
                       serviceAccountRef:
-                        name: "${SA}"
-                        namespace: "${NS}"
+                        name: "''${SA}"
+                        namespace: "''${NS}"
             YAML
 
             echo "ClusterSecretStore created successfully!"
