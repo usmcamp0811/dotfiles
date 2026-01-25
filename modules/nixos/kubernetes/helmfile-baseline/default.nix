@@ -294,34 +294,29 @@ in {
                 echo "Vault Kubernetes auth configured successfully!"
 
                 echo "Creating ClusterSecretStore for Vault..."
-                # Wait for CRD to be fully registered and clear kubectl cache
-                echo "Waiting for ClusterSecretStore CRD to be fully available..."
-                sleep 5
 
-                # Clear kubectl's discovery cache to force refresh
-                rm -rf ~/.kube/cache ~/.kube/http-cache 2>/dev/null || true
-
-                # Verify CRD is available with retries
-                MAX_RETRIES=10
-                RETRY_COUNT=0
-                while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-                  if kubectl api-resources --api-group=external-secrets.io 2>/dev/null | grep -q ClusterSecretStore; then
-                    echo "ClusterSecretStore CRD confirmed in API resources"
-                    break
-                  fi
-                  RETRY_COUNT=$((RETRY_COUNT + 1))
-                  echo "Waiting for CRD to be available (attempt $RETRY_COUNT/$MAX_RETRIES)..."
+                # Wait for CRD to be established
+                echo "Waiting for ClusterSecretStore CRD to be established..."
+                until kubectl wait --for=condition=established --timeout=60s crd/clustersecretstores.external-secrets.io 2>/dev/null; do
+                  echo "CRD not established yet, retrying..."
                   sleep 2
                 done
 
-                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                  echo "ERROR: ClusterSecretStore CRD not found after $MAX_RETRIES attempts"
+                # Dynamically detect the served API versions
+                echo "Detecting served ClusterSecretStore API version..."
+                CSS_VER="$(kubectl get crd clustersecretstores.external-secrets.io \
+                  -o jsonpath='{range .spec.versions[?(@.served==true)]}{.name}{"\n"}{end}' | head -n1)"
+
+                if [ -z "$CSS_VER" ]; then
+                  echo "ERROR: Could not determine served version for ClusterSecretStore CRD"
+                  kubectl get crd clustersecretstores.external-secrets.io -o yaml | head -n 120
                   exit 1
                 fi
 
-                # Use server-side apply to bypass client-side discovery issues
-                cat <<YAML | kubectl apply --server-side=true -f -
-                apiVersion: external-secrets.io/v1beta1
+                echo "ClusterSecretStore apiVersion: external-secrets.io/$CSS_VER"
+
+                cat <<YAML | kubectl apply -f -
+                apiVersion: external-secrets.io/$CSS_VER
                 kind: ClusterSecretStore
                 metadata:
                   name: vault-backend
@@ -467,8 +462,21 @@ in {
               "-c"
               ''
                 echo "Creating ExternalSecret ${es.name} in namespace ${es.namespace}..."
+
+                # Detect served ExternalSecret API version
+                ES_VER="$(kubectl get crd externalsecrets.external-secrets.io \
+                  -o jsonpath='{range .spec.versions[?(@.served==true)]}{.name}{"\n"}{end}' | head -n1)"
+
+                if [ -z "$ES_VER" ]; then
+                  echo "ERROR: Could not determine served version for ExternalSecret CRD"
+                  kubectl get crd externalsecrets.external-secrets.io -o yaml | head -n 120
+                  exit 1
+                fi
+
+                echo "ExternalSecret apiVersion: external-secrets.io/$ES_VER"
+
                 kubectl apply -f - <<YAML
-                apiVersion: external-secrets.io/v1beta1
+                apiVersion: external-secrets.io/$ES_VER
                 kind: ExternalSecret
                 metadata:
                   name: ${es.name}
