@@ -294,6 +294,15 @@ in {
                 echo "Vault Kubernetes auth configured successfully!"
 
                 echo "Creating ClusterSecretStore for Vault..."
+                # Force kubectl to refresh its discovery cache and wait for CRD to be ready
+                echo "Waiting for ClusterSecretStore CRD to be fully available..."
+                sleep 3
+                kubectl api-resources --api-group=external-secrets.io | grep -q ClusterSecretStore || {
+                  echo "ERROR: ClusterSecretStore CRD not found in API resources"
+                  exit 1
+                }
+                echo "ClusterSecretStore CRD confirmed in API resources"
+
                 kubectl apply -f - <<YAML
                 apiVersion: external-secrets.io/v1beta1
                 kind: ClusterSecretStore
