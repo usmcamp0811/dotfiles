@@ -242,7 +242,7 @@ in {
 
                 NS=external-secrets
                 SA=vault-auth
-                VAULT_ADDR="${cfg.vault.address}"
+                export VAULT_ADDR="${cfg.vault.address}"
                 HOSTNAME="${config.networking.hostName}"
 
                 echo "Waiting for Vault credentials..."
