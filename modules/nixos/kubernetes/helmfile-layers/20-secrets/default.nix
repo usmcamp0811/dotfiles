@@ -225,6 +225,9 @@ in {
     # Ensure controllers layer is enabled
     fmf.services.k3s.helmfile.layers."10-controllers".enable = true;
 
+    # Disable the old external-secrets module to avoid conflicts
+    fmf.services.k3s.modules.external-secrets.enable = lib.mkForce false;
+
     # The Vault init runs as a systemd oneshot service BEFORE helmfile
     # This ensures ClusterSecretStore exists before any releases that need it
     systemd.services.vault-k8s-init = mkIf config.services.k3s.clusterInit {
