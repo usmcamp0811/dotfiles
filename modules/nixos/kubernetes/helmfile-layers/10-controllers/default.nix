@@ -27,22 +27,21 @@ in {
         wait = true;
         timeout = 600;
         setValues = {
-          installCRDs = "false";  # Already installed
+          installCRDs = "false"; # Already installed
           "global.cacerts.skipVerify" = "true";
         };
       }
 
-      # Cert-manager controller (CRDs already installed in layer 00)
+      # Cert-manager controller + CRDs (install once; webhook is required)
       {
         name = "cert-manager";
         namespace = "cert-manager";
         chart = "jetstack/cert-manager";
         layer = 10;
-        dependsOn = ["cert-manager/cert-manager-crds"];
         wait = true;
         timeout = 600;
         setValues = {
-          installCRDs = "false";  # Already installed
+          installCRDs = "true";
         };
       }
     ];

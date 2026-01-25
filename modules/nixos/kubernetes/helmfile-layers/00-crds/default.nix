@@ -29,22 +29,6 @@ in {
           "certController.enabled" = "false";
         };
       }
-
-      # Cert-manager CRDs only (no webhook, no cainjector)
-      {
-        name = "cert-manager-crds";
-        namespace = "cert-manager";
-        chart = "jetstack/cert-manager";
-        layer = 0;
-        dependsOn = [];
-        wait = true;
-        timeout = 300;
-        setValues = {
-          installCRDs = "true";
-          "webhook.enabled" = "false";
-          "cainjector.enabled" = "false";
-        };
-      }
     ];
 
     fmf.services.k3s.helmfile.repositories = [
