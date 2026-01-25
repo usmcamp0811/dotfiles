@@ -247,9 +247,11 @@ in {
     systemd.services.helmfile-apply = {
       description = "Apply Helmfile releases to Kubernetes";
       wantedBy = ["multi-user.target"];
-      after = ["network-online.target" "k3s.service"];
+      after = ["network-online.target" "k3s.service"]
+        ++ optional (config.fmf.services.k3s.helmfile.layers."20-secrets".enable or false) "vault-k8s-init.service";
       wants = ["network-online.target"];
-      requires = ["k3s.service"];
+      requires = ["k3s.service"]
+        ++ optional (config.fmf.services.k3s.helmfile.layers."20-secrets".enable or false) "vault-k8s-init.service";
 
       path = with pkgs; [
         kubernetes-helm
