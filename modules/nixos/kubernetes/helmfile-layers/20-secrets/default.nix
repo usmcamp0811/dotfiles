@@ -8,7 +8,7 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile.layers."20-secrets";
 
-  # Vault Kubernetes auth initialization script
+  # Vault Kubernetes auth initialization script - ONLY configures Vault
   vaultInitScript = pkgs.writeShellScriptBin "vault-k8s-init" ''
     set -euo pipefail
 
@@ -25,16 +25,13 @@ with lib.fmf; let
     VAULT_TOKEN="$(${pkgs.vault-bin}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
     export VAULT_TOKEN
 
-    # Ensure external-secrets ServiceAccount exists
-    echo "Ensuring ServiceAccount external-secrets/vault-auth exists..."
-    ${pkgs.kubectl}/bin/kubectl apply -f - <<YAML
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      name: vault-auth
-      namespace: external-secrets
-    automountServiceAccountToken: true
-    YAML
+    # Wait for external-secrets namespace and ServiceAccount to exist (created by helmfile)
+    echo "Waiting for external-secrets namespace and vault-auth ServiceAccount..."
+    until ${pkgs.kubectl}/bin/kubectl get namespace external-secrets &>/dev/null && \
+          ${pkgs.kubectl}/bin/kubectl get serviceaccount vault-auth -n external-secrets &>/dev/null; do
+      echo "Waiting for helmfile to create external-secrets/vault-auth ServiceAccount..."
+      sleep 5
+    done
 
     # Create token for Vault
     echo "Creating token for external-secrets/vault-auth..."
@@ -64,54 +61,6 @@ with lib.fmf; let
     rm -f /tmp/token.jwt /tmp/ca.crt
 
     echo "Vault Kubernetes auth configured successfully!"
-
-    # Wait for External Secrets webhook to be ready
-    echo "Waiting for External Secrets webhook to be ready..."
-    ${pkgs.kubectl}/bin/kubectl wait --for=condition=available --timeout=300s \
-      deployment/external-secrets-webhook -n external-secrets || {
-      echo "WARNING: Webhook deployment not available, checking pods..."
-      ${pkgs.kubectl}/bin/kubectl get pods -n external-secrets -l app.kubernetes.io/name=external-secrets-webhook
-    }
-
-    # Additional wait for webhook to register
-    sleep 10
-
-    # Detect served ClusterSecretStore API version
-    echo "Detecting served ClusterSecretStore API version..."
-    CSS_VER="$(${pkgs.kubectl}/bin/kubectl get crd clustersecretstores.external-secrets.io \
-      -o jsonpath='{range .spec.versions[?(@.served==true)]}{.name}{"\n"}{end}' | head -n1)"
-
-    if [ -z "$CSS_VER" ]; then
-      echo "ERROR: Could not determine served version for ClusterSecretStore CRD"
-      ${pkgs.kubectl}/bin/kubectl get crd clustersecretstores.external-secrets.io -o yaml | head -n 120
-      exit 1
-    fi
-
-    echo "ClusterSecretStore apiVersion: external-secrets.io/$CSS_VER"
-
-    # Create ClusterSecretStore
-    echo "Creating ClusterSecretStore..."
-    ${pkgs.kubectl}/bin/kubectl apply -f - <<YAML
-    apiVersion: external-secrets.io/$CSS_VER
-    kind: ClusterSecretStore
-    metadata:
-      name: vault-backend
-    spec:
-      provider:
-        vault:
-          server: "''${VAULT_ADDR}"
-          path: "''${VAULT_KV_PATH}"
-          version: "''${VAULT_KV_VERSION}"
-          auth:
-            kubernetes:
-              mountPath: "kubernetes"
-              role: "external-secrets"
-              serviceAccountRef:
-                name: vault-auth
-                namespace: external-secrets
-    YAML
-
-    echo "ClusterSecretStore created successfully!"
   '';
 in {
   options.fmf.services.k3s.helmfile.layers."20-secrets" = {
@@ -143,13 +92,76 @@ in {
     # Disable the old external-secrets module to avoid conflicts
     fmf.services.k3s.modules.external-secrets.enable = lib.mkForce false;
 
-    # The Vault init runs as a systemd oneshot service BEFORE helmfile
-    # This ensures ClusterSecretStore exists before any releases that need it
-    # Runs directly on the host with access to Vault AppRole credentials
+    # Helmfile releases for Kubernetes resources
+    fmf.services.k3s.helmfile.releases = [
+      # vault-auth ServiceAccount in external-secrets namespace
+      {
+        name = "vault-auth-serviceaccount";
+        namespace = "external-secrets";
+        chart = "raw";
+        layer = 20;
+        dependsOn = ["external-secrets/external-secrets"];
+        valuesContent = {
+          resources = [
+            {
+              apiVersion = "v1";
+              kind = "ServiceAccount";
+              metadata = {
+                name = "vault-auth";
+                namespace = "external-secrets";
+              };
+              automountServiceAccountToken = true;
+            }
+          ];
+        };
+      }
+
+      # ClusterSecretStore for Vault backend
+      {
+        name = "vault-cluster-secret-store";
+        namespace = "kube-system";
+        chart = "raw";
+        layer = 20;
+        dependsOn = ["external-secrets/external-secrets" "external-secrets/vault-auth-serviceaccount"];
+        valuesContent = {
+          resources = [
+            {
+              apiVersion = "external-secrets.io/v1";
+              kind = "ClusterSecretStore";
+              metadata = {
+                name = "vault-backend";
+              };
+              spec = {
+                provider = {
+                  vault = {
+                    server = cfg.vaultAddress;
+                    path = cfg.vaultKvPath;
+                    version = cfg.vaultKvVersion;
+                    auth = {
+                      kubernetes = {
+                        mountPath = "kubernetes";
+                        role = "external-secrets";
+                        serviceAccountRef = {
+                          name = "vault-auth";
+                          namespace = "external-secrets";
+                        };
+                      };
+                    };
+                  };
+                };
+              };
+            }
+          ];
+        };
+      }
+    ];
+
+    # The Vault init runs as a systemd oneshot service AFTER helmfile
+    # Helmfile creates ServiceAccount first, then this script configures Vault
     systemd.services.vault-k8s-init = mkIf config.services.k3s.clusterInit {
-      description = "Initialize Vault Kubernetes Auth and ClusterSecretStore";
-      after = ["k3s.service" "network-online.target"];
-      requires = ["k3s.service"];
+      description = "Configure Vault Kubernetes Auth Backend";
+      after = ["k3s.service" "network-online.target" "helmfile-apply.service"];
+      requires = ["k3s.service" "helmfile-apply.service"];
       wants = ["network-online.target"];
       wantedBy = ["multi-user.target"];
 
@@ -160,8 +172,6 @@ in {
         Environment = [
           "KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
           "VAULT_ADDR=${cfg.vaultAddress}"
-          "VAULT_KV_PATH=${cfg.vaultKvPath}"
-          "VAULT_KV_VERSION=${cfg.vaultKvVersion}"
           "VAULT_POLICY=campground"
           "HOSTNAME=${config.networking.hostName}"
         ];
