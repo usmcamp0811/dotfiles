@@ -25,17 +25,27 @@ with lib.fmf; let
     VAULT_TOKEN="$(${pkgs.vault-bin}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
     export VAULT_TOKEN
 
-    # Wait for external-secrets namespace and ServiceAccount to exist (created by helmfile)
-    echo "Waiting for external-secrets namespace and vault-auth ServiceAccount..."
-    until ${pkgs.kubectl}/bin/kubectl get namespace external-secrets &>/dev/null && \
-          ${pkgs.kubectl}/bin/kubectl get serviceaccount vault-auth -n external-secrets &>/dev/null; do
-      echo "Waiting for helmfile to create external-secrets/vault-auth ServiceAccount..."
+    # Wait for k3s to be ready
+    echo "Waiting for Kubernetes API to be ready..."
+    until ${pkgs.kubectl}/bin/kubectl get nodes &>/dev/null; do
+      echo "Waiting for Kubernetes API..."
       sleep 5
     done
 
+    # Create a temporary ServiceAccount for initial Vault configuration
+    echo "Creating temporary ServiceAccount for Vault auth setup..."
+    ${pkgs.kubectl}/bin/kubectl create namespace vault-init --dry-run=client -o yaml | ${pkgs.kubectl}/bin/kubectl apply -f -
+    ${pkgs.kubectl}/bin/kubectl apply -f - <<YAML
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: vault-init
+      namespace: vault-init
+    YAML
+
     # Create token for Vault
-    echo "Creating token for external-secrets/vault-auth..."
-    ${pkgs.kubectl}/bin/kubectl -n external-secrets create token vault-auth --duration=24h > /tmp/token.jwt
+    echo "Creating token for vault-init ServiceAccount..."
+    ${pkgs.kubectl}/bin/kubectl -n vault-init create token vault-init --duration=24h > /tmp/token.jwt
 
     # Get cluster CA
     echo "Reading cluster CA..."
@@ -156,12 +166,14 @@ in {
       }
     ];
 
-    # The Vault init runs as a systemd oneshot service AFTER helmfile
-    # Helmfile creates ServiceAccount first, then this script configures Vault
+    # The Vault init runs as a systemd oneshot service BEFORE helmfile
+    # Order: k3s → vault-k8s-init → helmfile-apply
+    # This configures Vault's Kubernetes auth so helmfile can create ClusterSecretStore
     systemd.services.vault-k8s-init = mkIf config.services.k3s.clusterInit {
       description = "Configure Vault Kubernetes Auth Backend";
-      after = ["k3s.service" "network-online.target" "helmfile-apply.service"];
-      requires = ["k3s.service" "helmfile-apply.service"];
+      after = ["k3s.service" "network-online.target"];
+      before = ["helmfile-apply.service"];
+      requires = ["k3s.service"];
       wants = ["network-online.target"];
       wantedBy = ["multi-user.target"];
 
