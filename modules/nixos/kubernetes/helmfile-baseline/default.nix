@@ -294,16 +294,33 @@ in {
                 echo "Vault Kubernetes auth configured successfully!"
 
                 echo "Creating ClusterSecretStore for Vault..."
-                # Force kubectl to refresh its discovery cache and wait for CRD to be ready
+                # Wait for CRD to be fully registered and clear kubectl cache
                 echo "Waiting for ClusterSecretStore CRD to be fully available..."
-                sleep 3
-                kubectl api-resources --api-group=external-secrets.io | grep -q ClusterSecretStore || {
-                  echo "ERROR: ClusterSecretStore CRD not found in API resources"
-                  exit 1
-                }
-                echo "ClusterSecretStore CRD confirmed in API resources"
+                sleep 5
 
-                kubectl apply -f - <<YAML
+                # Clear kubectl's discovery cache to force refresh
+                rm -rf ~/.kube/cache ~/.kube/http-cache 2>/dev/null || true
+
+                # Verify CRD is available with retries
+                MAX_RETRIES=10
+                RETRY_COUNT=0
+                while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+                  if kubectl api-resources --api-group=external-secrets.io 2>/dev/null | grep -q ClusterSecretStore; then
+                    echo "ClusterSecretStore CRD confirmed in API resources"
+                    break
+                  fi
+                  RETRY_COUNT=$((RETRY_COUNT + 1))
+                  echo "Waiting for CRD to be available (attempt $RETRY_COUNT/$MAX_RETRIES)..."
+                  sleep 2
+                done
+
+                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                  echo "ERROR: ClusterSecretStore CRD not found after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+
+                # Use server-side apply to bypass client-side discovery issues
+                cat <<YAML | kubectl apply --server-side=true -f -
                 apiVersion: external-secrets.io/v1beta1
                 kind: ClusterSecretStore
                 metadata:
