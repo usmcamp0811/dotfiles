@@ -51,7 +51,16 @@ with lib.fmf; let
 
   # --- NEW: de-dupe repos so helmfile doesn't "repo add" the same thing multiple times
   repoKey = r: "${r.name}|${r.url}|${toString (r.oci or false)}";
-  repositoriesDeduped = lib.uniqueBy repoKey cfg.repositories;
+
+  # Turn repos into [{ key = "..."; repo = {...}; }], unique by key, then map back to repo.
+  repositoriesDeduped =
+    map (x: x.repo)
+    (lib.unique
+      (map (r: {
+          key = repoKey r;
+          repo = r;
+        })
+        cfg.repositories));
 
   helmfileConfig = {
     repositories = repositoriesDeduped;
