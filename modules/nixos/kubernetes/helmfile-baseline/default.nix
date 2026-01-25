@@ -334,8 +334,8 @@ in {
             apiVersion: v1
             kind: ServiceAccount
             metadata:
-              name: ${SA}
-              namespace: ${NS}
+              name: ''${SA}
+              namespace: ''${NS}
             automountServiceAccountToken: true
             YAML
 
