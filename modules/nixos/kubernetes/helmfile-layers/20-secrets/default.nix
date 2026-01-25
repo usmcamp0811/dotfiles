@@ -9,7 +9,7 @@ with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile.layers."20-secrets";
 
   # Build the vault-k8s-init container image
-  vaultInitImage = pkgs.callPackage /config/packages/vault-k8s-init {};
+  vaultInitImage = pkgs.fmf.vault-k8s-init;
 
   # Load the image into the local container runtime (k3s uses containerd)
   # This creates a script that loads the image
