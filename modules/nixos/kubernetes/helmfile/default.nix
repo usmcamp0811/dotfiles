@@ -8,13 +8,15 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile;
 
+  # Use pkgs.formats.yaml for proper YAML generation + a permissive YAML value type.
+  yamlFormat = pkgs.formats.yaml {};
+
   # Helper to sort releases by layer
   sortByLayer = releases:
     lib.sort (a: b: (a.layer or 999) < (b.layer or 999)) releases;
 
   # Convert our Nix release definition to Helmfile YAML format
   toHelmfileRelease = release: let
-    # Build values list from valuesContent or values
     valuesList =
       if release ? valuesContent && release.valuesContent != null
       then [release.valuesContent]
@@ -22,7 +24,6 @@ with lib.fmf; let
       then release.values
       else [];
 
-    # Build set list from setValues or set
     setList =
       if release ? setValues
       then lib.mapAttrsToList (name: value: {inherit name value;}) release.setValues
@@ -30,7 +31,6 @@ with lib.fmf; let
       then release.set
       else [];
 
-    # Build optional attributes
     optionalAttrs = lib.optionalAttrs;
   in
     {
@@ -49,11 +49,9 @@ with lib.fmf; let
     // optionalAttrs (release ? force && release.force != null) {force = release.force;}
     // optionalAttrs (release ? recreatePods && release.recreatePods != null) {recreatePods = release.recreatePods;};
 
-  # Generate the complete helmfile configuration
   helmfileConfig = {
     repositories = cfg.repositories;
 
-    # Global defaults for all releases
     helmDefaults = {
       wait = true;
       timeout = 300;
@@ -62,17 +60,19 @@ with lib.fmf; let
       atomic = true;
     };
 
-    # Convert and sort releases by layer
     releases = map toHelmfileRelease (sortByLayer cfg.releases);
   };
 
-  # Use pkgs.formats.yaml for proper YAML generation
-  yamlFormat = pkgs.formats.yaml {};
   helmfileYaml = yamlFormat.generate "helmfile" helmfileConfig;
-
 in {
   options.fmf.services.k3s.helmfile = {
     enable = mkEnableOption "Use Helmfile to manage Kubernetes applications";
+
+    concurrency = mkOption {
+      type = types.int;
+      default = 1;
+      description = "Helmfile sync concurrency. Use 1 to avoid Helm lock conflicts.";
+    };
 
     releases = mkOption {
       type = types.listOf (types.submodule ({...}: {
@@ -133,7 +133,6 @@ in {
             description = "Timeout in seconds for waiting";
           };
 
-          # Per-release helm defaults overrides (optional)
           atomic = mkOption {
             type = types.nullOr types.bool;
             default = null;
@@ -153,13 +152,13 @@ in {
           };
 
           valuesContent = mkOption {
-            type = types.nullOr types.attrs;
+            type = types.nullOr yamlFormat.type;
             default = null;
-            description = "Values as a Nix attrset (will be converted to YAML)";
+            description = "Values as a Nix value (attrset/list/scalars) that will be converted to YAML";
           };
 
           values = mkOption {
-            type = types.nullOr (types.listOf types.attrs);
+            type = types.nullOr (types.listOf yamlFormat.type);
             default = null;
             description = "List of value sets (raw helmfile format)";
           };
@@ -243,10 +242,8 @@ in {
       kubectl
     ];
 
-    # Generate helmfile.yaml from Nix
     environment.etc."helmfile/helmfile.yaml".source = helmfileYaml;
 
-    # SystemD service to apply helmfile
     systemd.services.helmfile-apply = {
       description = "Apply Helmfile releases to Kubernetes";
       wantedBy = ["multi-user.target"];
@@ -294,7 +291,7 @@ in {
           echo ""
           echo "Applying Helmfile releases..."
           cd /etc/helmfile
-          ${pkgs.helmfile}/bin/helmfile --log-level debug sync
+          ${pkgs.helmfile}/bin/helmfile --log-level debug sync --concurrency ${toString cfg.concurrency}
 
           echo "Helmfile deployment complete!"
         '';
