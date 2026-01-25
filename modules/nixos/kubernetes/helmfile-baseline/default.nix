@@ -78,6 +78,61 @@ in {
 
       createClusterSecretStore =
         mkEnableOption "Create ClusterSecretStore for Vault" // {default = true;};
+
+      externalSecrets = mkOption {
+        type = types.listOf (types.submodule ({...}: {
+          options = {
+            name = mkOption {
+              type = types.str;
+              description = "ExternalSecret name";
+            };
+
+            namespace = mkOption {
+              type = types.str;
+              default = "kube-system";
+              description = "Namespace for the ExternalSecret";
+            };
+
+            layer = mkOption {
+              type = types.int;
+              default = 3;
+              description = "Deployment layer (must be >= 3, after ClusterSecretStore)";
+            };
+
+            vaultPath = mkOption {
+              type = types.str;
+              description = ''
+                Vault KV path relative to the kvPath.
+                Example: "../cloudflare" goes from secret/campground/k3s to secret/campground/cloudflare
+              '';
+            };
+
+            secretName = mkOption {
+              type = types.str;
+              description = "Name of the Kubernetes secret to create";
+            };
+
+            refreshInterval = mkOption {
+              type = types.str;
+              default = "1h";
+              description = "How often to refresh the secret from Vault";
+            };
+          };
+        }));
+        default = [];
+        description = "List of ExternalSecrets to create from Vault";
+        example = literalExpression ''
+          [
+            {
+              name = "cloudflare-api-token";
+              namespace = "kube-system";
+              layer = 3;
+              vaultPath = "../cloudflare";
+              secretName = "cloudflare-api-token";
+            }
+          ]
+        '';
+      };
     };
 
     istio = {
@@ -164,7 +219,27 @@ in {
           installCRDs = "true";
           "global.cacerts.skipVerify" = "true";
         };
-        hooks = [
+        hooks =
+          [
+            {
+              events = ["postsync"];
+              showlogs = true;
+              command = "sh";
+              args = [
+                "-c"
+                ''
+                  echo "Waiting for External Secrets CRDs to be established..."
+                  until kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io 2>/dev/null; do
+                    echo "ClusterSecretStore CRD not ready, waiting..."
+                    sleep 5
+                  done
+                  echo "ClusterSecretStore CRD is ready!"
+                ''
+              ];
+            }
+          ]
+          ++ optional
+          (cfg.vault.createClusterSecretStore && config.services.k3s.clusterInit)
           {
             events = ["postsync"];
             showlogs = true;
@@ -172,16 +247,86 @@ in {
             args = [
               "-c"
               ''
-                echo "Waiting for External Secrets CRDs to be established..."
-                until kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io 2>/dev/null; do
-                  echo "ClusterSecretStore CRD not ready, waiting..."
+                set -euo pipefail
+
+                NS=external-secrets
+                SA=vault-auth
+                VAULT_ADDR="${cfg.vault.address}"
+                HOSTNAME="${config.networking.hostName}"
+
+                echo "Waiting for Vault credentials..."
+                until [ -f "/var/lib/vault/$HOSTNAME/role-id" ] && [ -f "/var/lib/vault/$HOSTNAME/secret-id" ]; do
+                  echo "Vault credentials not found, waiting..."
                   sleep 5
                 done
-                echo "ClusterSecretStore CRD is ready!"
+
+                ROLE_ID="$(cat "/var/lib/vault/$HOSTNAME/role-id")"
+                SECRET_ID="$(cat "/var/lib/vault/$HOSTNAME/secret-id")"
+
+                echo "Logging in to Vault using AppRole..."
+                VAULT_TOKEN="$(vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
+                export VAULT_TOKEN
+
+                # Ensure the ServiceAccount exists
+                echo "Ensuring ServiceAccount $NS/$SA exists..."
+                kubectl apply -f - <<YAML
+                apiVersion: v1
+                kind: ServiceAccount
+                metadata:
+                  name: $SA
+                  namespace: $NS
+                automountServiceAccountToken: true
+                YAML
+
+                echo "Creating token for $NS/$SA..."
+                kubectl -n "$NS" create token "$SA" --duration=24h > /tmp/token.jwt
+
+                echo "Reading cluster CA..."
+                kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
+
+                K8S_HOST="$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
+
+                echo "Configuring Vault Kubernetes auth..."
+                vault write auth/kubernetes/config \
+                  token_reviewer_jwt=@/tmp/token.jwt \
+                  kubernetes_host="$K8S_HOST" \
+                  kubernetes_ca_cert=@/tmp/ca.crt
+
+                echo "Writing Vault Kubernetes role external-secrets..."
+                vault write auth/kubernetes/role/external-secrets \
+                  bound_service_account_names="$SA" \
+                  bound_service_account_namespaces="*" \
+                  policies="campground" \
+                  ttl=24h
+
+                rm -f /tmp/token.jwt /tmp/ca.crt
+                echo "Vault Kubernetes auth configured successfully!"
+
+                echo "Creating ClusterSecretStore for Vault..."
+                kubectl apply -f - <<YAML
+                apiVersion: external-secrets.io/v1beta1
+                kind: ClusterSecretStore
+                metadata:
+                  name: vault-backend
+                spec:
+                  provider:
+                    vault:
+                      server: "${cfg.vault.address}"
+                      path: "${cfg.vault.kvPath}"
+                      version: "${cfg.vault.kvVersion}"
+                      auth:
+                        kubernetes:
+                          mountPath: "kubernetes"
+                          role: "external-secrets"
+                          serviceAccountRef:
+                            name: $SA
+                            namespace: $NS
+                YAML
+
+                echo "ClusterSecretStore created successfully!"
               ''
             ];
-          }
-        ];
+          };
       })
       ++ (optional cfg.istio.enable {
         name = "istio-base";
@@ -275,130 +420,60 @@ in {
             };
           };
         };
-      });
-
-    # Configure Vault Kubernetes auth and ClusterSecretStore AFTER external-secrets is installed
-    systemd.services.vault-k8s-auth-init =
-      mkIf
-      (cfg.externalSecrets.enable
-        && cfg.vault.createClusterSecretStore
-        && config.services.k3s.clusterInit)
-      {
-        description = "Configure Vault Kubernetes Authentication for External Secrets";
-        wantedBy = ["multi-user.target"];
-        after = ["network-online.target" "k3s.service" "helmfile-apply.service"];
-        wants = ["network-online.target"];
-        requires = ["k3s.service" "helmfile-apply.service"];
-
-        path = with pkgs; [
-          vault
-          kubectl
+      })
+      # Add ExternalSecrets from vault.externalSecrets configuration
+      ++ (map (es: {
+        name = "externalsecret-${es.name}";
+        namespace = es.namespace;
+        chart = "external-secrets/external-secrets";  # Reference to keep helmfile happy
+        layer = es.layer;
+        dependsOn = ["external-secrets/external-secrets"];
+        wait = false;
+        timeout = 60;
+        atomic = false;
+        hooks = [
+          {
+            events = ["presync"];
+            showlogs = true;
+            command = "sh";
+            args = [
+              "-c"
+              ''
+                echo "Creating ExternalSecret ${es.name} in namespace ${es.namespace}..."
+                kubectl apply -f - <<YAML
+                apiVersion: external-secrets.io/v1beta1
+                kind: ExternalSecret
+                metadata:
+                  name: ${es.name}
+                  namespace: ${es.namespace}
+                spec:
+                  refreshInterval: ${es.refreshInterval}
+                  secretStoreRef:
+                    name: vault-backend
+                    kind: ClusterSecretStore
+                  target:
+                    name: ${es.secretName}
+                    creationPolicy: Owner
+                    deletionPolicy: Retain
+                  dataFrom:
+                    - extract:
+                        key: ${es.vaultPath}
+                YAML
+                echo "ExternalSecret ${es.name} created successfully!"
+              ''
+            ];
+          }
+          {
+            events = ["postsync"];
+            showlogs = true;
+            command = "sh";
+            args = [
+              "-c"
+              "echo 'Skipping actual Helm install for ExternalSecret ${es.name} (managed via kubectl)'"
+            ];
+          }
         ];
-
-        serviceConfig = {
-          Type = "oneshot";
-          User = "root";
-          RemainAfterExit = true;
-          ExecStart = pkgs.writeShellScript "vault-k8s-auth-init" ''
-            set -euo pipefail
-
-            NS=external-secrets
-            SA=vault-auth
-
-            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-            export VAULT_ADDR="${cfg.vault.address}"
-            HOSTNAME=${config.networking.hostName}
-
-            echo "Waiting for Vault credentials..."
-            until [ -f "/var/lib/vault/$HOSTNAME/role-id" ] && [ -f "/var/lib/vault/$HOSTNAME/secret-id" ]; do
-              echo "Vault credentials not found, waiting..."
-              sleep 5
-            done
-
-            ROLE_ID="$(cat "/var/lib/vault/$HOSTNAME/role-id")"
-            SECRET_ID="$(cat "/var/lib/vault/$HOSTNAME/secret-id")"
-
-            echo "Logging in to Vault using AppRole..."
-            VAULT_TOKEN="$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
-            export VAULT_TOKEN
-
-            echo "Waiting for namespace $NS to exist..."
-            until ${pkgs.k3s}/bin/k3s kubectl get ns "$NS" >/dev/null 2>&1; do
-              echo "Namespace $NS not found, waiting..."
-              sleep 2
-            done
-
-            # Ensure the ServiceAccount exists (do NOT rely on k3s manifests, to avoid objectset ownership conflicts)
-            echo "Ensuring ServiceAccount $NS/$SA exists..."
-            ${pkgs.k3s}/bin/k3s kubectl apply -f - <<YAML
-            apiVersion: v1
-            kind: ServiceAccount
-            metadata:
-              name: ''${SA}
-              namespace: ''${NS}
-            automountServiceAccountToken: true
-            YAML
-
-            echo "Waiting for serviceaccount $NS/$SA to exist..."
-            until ${pkgs.k3s}/bin/k3s kubectl -n "$NS" get sa "$SA" >/dev/null 2>&1; do
-              echo "ServiceAccount $NS/$SA not found, waiting..."
-              sleep 2
-            done
-
-            echo "Creating token for $NS/$SA..."
-            ${pkgs.k3s}/bin/k3s kubectl -n "$NS" create token "$SA" --duration=24h > /tmp/token.jwt
-
-            echo "Reading cluster CA..."
-            ${pkgs.k3s}/bin/k3s kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
-
-            K8S_HOST="$(${pkgs.k3s}/bin/k3s kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
-
-            echo "Configuring Vault Kubernetes auth..."
-            ${pkgs.vault}/bin/vault write auth/kubernetes/config \
-              token_reviewer_jwt=@/tmp/token.jwt \
-              kubernetes_host="$K8S_HOST" \
-              kubernetes_ca_cert=@/tmp/ca.crt
-
-            echo "Writing Vault Kubernetes role external-secrets..."
-            ${pkgs.vault}/bin/vault write auth/kubernetes/role/external-secrets \
-              bound_service_account_names="$SA" \
-              bound_service_account_namespaces="*" \
-              policies="campground" \
-              ttl=24h
-
-            rm -f /tmp/token.jwt /tmp/ca.crt
-            echo "Vault Kubernetes auth configured successfully!"
-
-            echo "Waiting for External Secrets CRDs to be established..."
-            until ${pkgs.k3s}/bin/k3s kubectl wait --for=condition=established --timeout=300s crd/clustersecretstores.external-secrets.io 2>/dev/null; do
-              echo "ClusterSecretStore CRD not ready, waiting..."
-              sleep 5
-            done
-
-            echo "Creating ClusterSecretStore for Vault..."
-            ${pkgs.k3s}/bin/k3s kubectl apply -f - <<YAML
-            apiVersion: external-secrets.io/v1beta1
-            kind: ClusterSecretStore
-            metadata:
-              name: vault-backend
-            spec:
-              provider:
-                vault:
-                  server: "${cfg.vault.address}"
-                  path: "${cfg.vault.kvPath}"
-                  version: "${cfg.vault.kvVersion}"
-                  auth:
-                    kubernetes:
-                      mountPath: "kubernetes"
-                      role: "external-secrets"
-                      serviceAccountRef:
-                        name: "''${SA}"
-                        namespace: "''${NS}"
-            YAML
-
-            echo "ClusterSecretStore created successfully!"
-          '';
-        };
-      };
+        valuesContent = {};
+      }) cfg.vault.externalSecrets);
   };
 }
