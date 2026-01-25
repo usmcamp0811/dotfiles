@@ -257,6 +257,11 @@ in {
         git
         gnutar
         gzip
+        bash
+        coreutils
+        vault-bin
+        gnugrep
+        gnused
       ];
 
       serviceConfig = {

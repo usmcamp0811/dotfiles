@@ -215,7 +215,7 @@ in {
             {
               events = ["postsync"];
               showlogs = true;
-              command = "sh";
+              command = "bash";
               args = [
                 "-c"
                 ''
