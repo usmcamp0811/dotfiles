@@ -302,6 +302,18 @@ in {
                   sleep 2
                 done
 
+                # Wait for External Secrets webhook pods to be ready
+                echo "Waiting for External Secrets webhook to be ready..."
+                kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=external-secrets-webhook -n external-secrets --timeout=120s 2>/dev/null || {
+                  echo "WARNING: Webhook pods not ready, waiting for webhook service to be available..."
+                  # If webhook pods aren't labeled correctly, wait for any external-secrets pods
+                  kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=external-secrets -n external-secrets --timeout=120s 2>/dev/null || true
+                }
+
+                # Additional wait for webhook endpoint to register
+                echo "Waiting for webhook endpoint to be available..."
+                sleep 10
+
                 # Dynamically detect the served API versions
                 echo "Detecting served ClusterSecretStore API version..."
                 CSS_VER="$(kubectl get crd clustersecretstores.external-secrets.io \
