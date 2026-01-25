@@ -98,9 +98,9 @@ in {
             description = ''
               Deployment layer for ordering. Lower numbers deploy first.
               Recommended layers:
-                1 - Infrastructure (MetalLB)
-                2 - Operators with CRDs (External Secrets, Cert-Manager)
-                3 - Stores and Secrets (ClusterSecretStore)
+                1 - Operators with CRDs (External Secrets, Cert-Manager)
+                2 - Infrastructure (MetalLB)
+                3 - Stores and Secrets (ClusterSecretStore, ExternalSecrets)
                 4 - Ingress/Service Mesh (Traefik, Istio)
                 5 - GitOps Platform (ArgoCD)
             '';

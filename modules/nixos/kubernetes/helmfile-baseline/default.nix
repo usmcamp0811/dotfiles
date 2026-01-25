@@ -198,21 +198,12 @@ in {
     # Add baseline infrastructure releases
     fmf.services.k3s.helmfile.releases =
       []
-      ++ (optional cfg.metallb.enable {
-        name = "metallb";
-        namespace = "metallb-system";
-        chart = "metallb/metallb";
-        layer = 1;
-        wait = true;
-        timeout = 900;
-        atomic = false;
-      })
       ++ (optional cfg.externalSecrets.enable {
         name = "external-secrets";
         namespace = "external-secrets";
         chart = "external-secrets/external-secrets";
-        layer = 2;
-        dependsOn = optional cfg.metallb.enable "metallb-system/metallb";
+        layer = 1;
+        dependsOn = [];
         wait = true;
         timeout = 300;
         setValues = {
@@ -327,6 +318,16 @@ in {
               ''
             ];
           };
+      })
+      ++ (optional cfg.metallb.enable {
+        name = "metallb";
+        namespace = "metallb-system";
+        chart = "metallb/metallb";
+        layer = 2;
+        dependsOn = optional cfg.externalSecrets.enable "external-secrets/external-secrets";
+        wait = true;
+        timeout = 900;
+        atomic = false;
       })
       ++ (optional cfg.istio.enable {
         name = "istio-base";
