@@ -49,8 +49,12 @@ with lib.fmf; let
     // optionalAttrs (release ? force && release.force != null) {force = release.force;}
     // optionalAttrs (release ? recreatePods && release.recreatePods != null) {recreatePods = release.recreatePods;};
 
+  # --- NEW: de-dupe repos so helmfile doesn't "repo add" the same thing multiple times
+  repoKey = r: "${r.name}|${r.url}|${toString (r.oci or false)}";
+  repositoriesDeduped = lib.uniqueBy repoKey cfg.repositories;
+
   helmfileConfig = {
-    repositories = cfg.repositories;
+    repositories = repositoriesDeduped;
 
     helmDefaults = {
       wait = true;
@@ -247,10 +251,12 @@ in {
     systemd.services.helmfile-apply = {
       description = "Apply Helmfile releases to Kubernetes";
       wantedBy = ["multi-user.target"];
-      after = ["network-online.target" "k3s.service"]
+      after =
+        ["network-online.target" "k3s.service"]
         ++ optional (config.fmf.services.k3s.helmfile.layers."20-secrets".enable or false) "vault-k8s-init.service";
       wants = ["network-online.target"];
-      requires = ["k3s.service"]
+      requires =
+        ["k3s.service"]
         ++ optional (config.fmf.services.k3s.helmfile.layers."20-secrets".enable or false) "vault-k8s-init.service";
 
       path = with pkgs; [
