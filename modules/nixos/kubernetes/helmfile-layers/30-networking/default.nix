@@ -93,6 +93,10 @@ in {
                 echo "Waiting for MetalLB controller to be ready..."
                 kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system
 
+                # Delete validating webhook to work around Service/CNI routing issue
+                echo "Removing MetalLB validating webhook (workaround for Service routing issue)..."
+                kubectl delete validatingwebhookconfiguration metallb-webhook-configuration --ignore-not-found=true
+
                 echo "Applying MetalLB configuration..."
                 kubectl apply -f ${metallbConfigManifest}
               ''
