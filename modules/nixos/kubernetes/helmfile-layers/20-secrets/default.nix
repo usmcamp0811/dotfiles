@@ -9,6 +9,7 @@ with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile.layers."20-secrets";
 
   # Vault Kubernetes auth initialization script - ONLY configures Vault
+  # This script is idempotent and safe to re-run
   vaultInitScript = pkgs.writeShellScriptBin "vault-k8s-init" ''
     set -euo pipefail
 
@@ -32,8 +33,36 @@ with lib.fmf; let
       sleep 5
     done
 
-    # Create a temporary ServiceAccount for initial Vault configuration
-    echo "Creating temporary ServiceAccount for Vault auth setup..."
+    # Check if Vault Kubernetes auth is already configured
+    echo "Checking if Vault Kubernetes auth is already configured..."
+    if ${pkgs.vault-bin}/bin/vault read auth/kubernetes/config &>/dev/null; then
+      echo "Vault Kubernetes auth already configured. Checking if reconfiguration is needed..."
+
+      # Get current K8s host to see if it matches
+      CURRENT_K8S_HOST="$(${pkgs.vault-bin}/bin/vault read -field=kubernetes_host auth/kubernetes/config 2>/dev/null || echo "")"
+      NEW_K8S_HOST="$(${pkgs.kubectl}/bin/kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
+
+      if [ "$CURRENT_K8S_HOST" = "$NEW_K8S_HOST" ]; then
+        echo "Vault Kubernetes auth already correctly configured (host: $CURRENT_K8S_HOST). Skipping reconfiguration."
+
+        # Still update the role in case policies changed
+        echo "Updating Vault Kubernetes role external-secrets (idempotent)..."
+        ${pkgs.vault-bin}/bin/vault write auth/kubernetes/role/external-secrets \
+          bound_service_account_names="vault-auth" \
+          bound_service_account_namespaces="*" \
+          policies="''${VAULT_POLICY:-campground}" \
+          ttl=24h
+
+        echo "Vault Kubernetes auth validated successfully!"
+        exit 0
+      else
+        echo "Kubernetes host changed from '$CURRENT_K8S_HOST' to '$NEW_K8S_HOST'. Reconfiguring..."
+      fi
+    fi
+
+    # Create a temporary ServiceAccount for Vault configuration
+    # This is idempotent - kubectl apply will create or update
+    echo "Creating/updating temporary ServiceAccount for Vault auth setup..."
     ${pkgs.kubectl}/bin/kubectl create namespace vault-init --dry-run=client -o yaml | ${pkgs.kubectl}/bin/kubectl apply -f -
     ${pkgs.kubectl}/bin/kubectl apply -f - <<YAML
     apiVersion: v1
@@ -43,7 +72,7 @@ with lib.fmf; let
       namespace: vault-init
     YAML
 
-    # Create token for Vault
+    # Create token for Vault (tokens are short-lived, safe to recreate)
     echo "Creating token for vault-init ServiceAccount..."
     ${pkgs.kubectl}/bin/kubectl -n vault-init create token vault-init --duration=24h > /tmp/token.jwt
 
@@ -53,14 +82,14 @@ with lib.fmf; let
 
     K8S_HOST="$(${pkgs.kubectl}/bin/kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
 
-    # Configure Vault Kubernetes auth
+    # Configure Vault Kubernetes auth (this write is idempotent)
     echo "Configuring Vault Kubernetes auth..."
     ${pkgs.vault-bin}/bin/vault write auth/kubernetes/config \
       token_reviewer_jwt=@/tmp/token.jwt \
       kubernetes_host="$K8S_HOST" \
       kubernetes_ca_cert=@/tmp/ca.crt
 
-    # Create Vault role
+    # Create/update Vault role (this write is idempotent)
     echo "Writing Vault Kubernetes role external-secrets..."
     ${pkgs.vault-bin}/bin/vault write auth/kubernetes/role/external-secrets \
       bound_service_account_names="vault-auth" \

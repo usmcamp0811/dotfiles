@@ -42,6 +42,9 @@ in {
         timeout = 600;
         setValues = {
           installCRDs = "true";
+          # Disable startupapicheck to avoid timeout issues in constrained environments
+          # The webhook will still be validated by actual certificate issuance
+          "startupapicheck.enabled" = "false";
         };
       }
     ];

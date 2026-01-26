@@ -47,6 +47,7 @@ in {
         dependsOn = [
           "external-secrets/external-secrets"
           "metallb-system/metallb"
+          "cert-manager/cert-manager" # Required for cert-manager.io/cluster-issuer annotation
         ];
         wait = true;
         timeout = 600;
