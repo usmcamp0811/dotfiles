@@ -137,7 +137,7 @@ in {
       {
         name = "vault-auth-serviceaccount";
         namespace = "external-secrets";
-        chart = "raw";
+        chart = "dysnix/raw";
         layer = 20;
         dependsOn = ["external-secrets/external-secrets"];
         valuesContent = {
@@ -159,7 +159,7 @@ in {
       {
         name = "vault-cluster-secret-store";
         namespace = "kube-system";
-        chart = "raw";
+        chart = "dysnix/raw";
         layer = 20;
         dependsOn = ["external-secrets/external-secrets" "external-secrets/vault-auth-serviceaccount"];
         valuesContent = {
@@ -192,6 +192,15 @@ in {
             }
           ];
         };
+      }
+    ];
+
+    # Add repository for raw chart (for deploying plain Kubernetes manifests)
+    fmf.services.k3s.helmfile.repositories = [
+      {
+        name = "dysnix";
+        url = "https://dysnix.github.io/charts";
+        oci = false;
       }
     ];
 

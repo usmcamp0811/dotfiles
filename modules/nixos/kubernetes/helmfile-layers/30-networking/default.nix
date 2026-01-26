@@ -81,8 +81,17 @@ in {
           {
             events = ["postsync"];
             showlogs = true;
-            command = "kubectl";
-            args = ["apply" "-f" "${metallbConfigManifest}"];
+            command = "sh";
+            args = [
+              "-c"
+              ''
+                echo "Waiting for MetalLB webhook to be ready..."
+                kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system || true
+                sleep 10
+                echo "Applying MetalLB configuration..."
+                kubectl apply -f ${metallbConfigManifest}
+              ''
+            ];
           }
         ];
       }
