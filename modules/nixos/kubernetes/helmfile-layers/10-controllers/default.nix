@@ -17,40 +17,20 @@ in {
     fmf.services.k3s.helmfile.layers."00-crds".enable = true;
 
     fmf.services.k3s.helmfile.releases = [
-      # External Secrets Operator (CRDs already installed in layer 00)
-      {
-        name = "external-secrets";
-        namespace = "external-secrets";
-        chart = "external-secrets/external-secrets";
-        layer = 10;
-        dependsOn = ["external-secrets/external-secrets-crds"];
-        wait = true;
-        timeout = 600;
-        setValues = {
-          installCRDs = "false"; # Already installed
-          "global.cacerts.skipVerify" = "true";
-        };
-        # Fix Helm ownership conflict from external-secrets-crds release
-        # The CRDs-only release creates ServiceAccounts that the full release tries to adopt
-        hooks = [
-          {
-            events = ["presync"];
-            showlogs = true;
-            command = "kubectl";
-            args = [
-              "annotate"
-              "serviceaccount"
-              "-n"
-              "external-secrets"
-              "external-secrets-cert-controller"
-              "external-secrets-webhook"
-              "external-secrets-crds"
-              "meta.helm.sh/release-name=external-secrets"
-              "--overwrite"
-            ];
-          }
-        ];
-      }
+      # # External Secrets Operator (installs CRDs + controllers in single release)
+      # {
+      #   name = "external-secrets";
+      #   namespace = "external-secrets";
+      #   chart = "external-secrets/external-secrets";
+      #   layer = 10;
+      #   dependsOn = [];
+      #   wait = true;
+      #   timeout = 600;
+      #   setValues = {
+      #     installCRDs = "true"; # Install CRDs with the main release
+      #     "global.cacerts.skipVerify" = "true";
+      #   };
+      # }
 
       # Cert-manager controller + CRDs (install once; webhook is required)
       {
