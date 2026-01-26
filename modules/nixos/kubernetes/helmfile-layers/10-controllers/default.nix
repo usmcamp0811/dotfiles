@@ -30,6 +30,26 @@ in {
           installCRDs = "false"; # Already installed
           "global.cacerts.skipVerify" = "true";
         };
+        # Fix Helm ownership conflict from external-secrets-crds release
+        # The CRDs-only release creates ServiceAccounts that the full release tries to adopt
+        hooks = [
+          {
+            events = ["presync"];
+            showlogs = true;
+            command = "kubectl";
+            args = [
+              "annotate"
+              "serviceaccount"
+              "-n"
+              "external-secrets"
+              "external-secrets-cert-controller"
+              "external-secrets-webhook"
+              "external-secrets-crds"
+              "meta.helm.sh/release-name=external-secrets"
+              "--overwrite"
+            ];
+          }
+        ];
       }
 
       # Cert-manager controller + CRDs (install once; webhook is required)

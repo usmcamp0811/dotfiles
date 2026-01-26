@@ -25,8 +25,11 @@ in {
         timeout = 300;
         setValues = {
           installCRDs = "true";
+          # Disable all components except CRDs to avoid Helm ownership conflicts
           "webhook.enabled" = "false";
           "certController.enabled" = "false";
+          # Completely disable the main controller deployment
+          "replicaCount" = "0";
         };
       }
     ];
