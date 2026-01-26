@@ -77,6 +77,11 @@ in {
         wait = true;
         timeout = 900;
         atomic = false;  # MetalLB can take a while
+        setValues = {
+          # Disable webhooks due to CNI/Service routing issues
+          # TODO: Re-enable once cluster networking is fixed
+          "controller.webhookMode" = "disabled";
+        };
         hooks = [
           {
             events = ["postsync"];
@@ -85,9 +90,9 @@ in {
             args = [
               "-c"
               ''
-                echo "Waiting for MetalLB webhook to be ready..."
-                kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system || true
-                sleep 10
+                echo "Waiting for MetalLB controller to be ready..."
+                kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system
+
                 echo "Applying MetalLB configuration..."
                 kubectl apply -f ${metallbConfigManifest}
               ''
