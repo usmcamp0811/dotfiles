@@ -162,6 +162,20 @@ in {
         chart = "dysnix/raw";
         layer = 20;
         dependsOn = ["external-secrets/external-secrets" "external-secrets/vault-auth-serviceaccount"];
+        # Delete external-secrets webhook to work around Service routing issue
+        hooks = [
+          {
+            events = ["presync"];
+            showlogs = true;
+            command = "kubectl";
+            args = [
+              "delete"
+              "validatingwebhookconfiguration"
+              "secretstore-validate"
+              "--ignore-not-found=true"
+            ];
+          }
+        ];
         valuesContent = {
           resources = [
             {
