@@ -8,108 +8,118 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile;
 
+  # Vault Kubernetes auth initialization script - ONLY configures Vault
+  # This script is idempotent and safe to re-run
+  vaultInitScript = pkgs.writeShellScriptBin "vault-k8s-init" ''
+    set -euo pipefail
+
+    echo "Waiting for Vault credentials..."
+    until [ -f "/var/lib/vault/$HOSTNAME/role-id" ] && [ -f "/var/lib/vault/$HOSTNAME/secret-id" ]; do
+      echo "Vault credentials not found at /var/lib/vault/$HOSTNAME/, waiting..."
+      sleep 5
+    done
+
+    ROLE_ID="$(cat "/var/lib/vault/$HOSTNAME/role-id")"
+    SECRET_ID="$(cat "/var/lib/vault/$HOSTNAME/secret-id")"
+
+    echo "Logging in to Vault using AppRole..."
+    VAULT_TOKEN="$(${pkgs.vault-bin}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")"
+    export VAULT_TOKEN
+
+    # Wait for k3s to be ready
+    echo "Waiting for Kubernetes API to be ready..."
+    until ${pkgs.kubectl}/bin/kubectl get nodes &>/dev/null; do
+      echo "Waiting for Kubernetes API..."
+      sleep 5
+    done
+
+    # Check if Vault Kubernetes auth is already configured
+    echo "Checking if Vault Kubernetes auth is already configured..."
+    if ${pkgs.vault-bin}/bin/vault read auth/kubernetes/config &>/dev/null; then
+      echo "Vault Kubernetes auth already configured. Checking if reconfiguration is needed..."
+
+      # Get current K8s host to see if it matches
+      CURRENT_K8S_HOST="$(${pkgs.vault-bin}/bin/vault read -field=kubernetes_host auth/kubernetes/config 2>/dev/null || echo "")"
+      NEW_K8S_HOST="https://kubernetes.default.svc:443"
+
+      if [ "$CURRENT_K8S_HOST" = "$NEW_K8S_HOST" ]; then
+        echo "Vault Kubernetes auth already correctly configured (host: $CURRENT_K8S_HOST). Skipping reconfiguration."
+
+        # Still update the role in case policies changed
+        echo "Updating Vault Kubernetes role external-secrets (idempotent)..."
+        ${pkgs.vault-bin}/bin/vault write auth/kubernetes/role/external-secrets \
+          bound_service_account_names="vault-auth" \
+          bound_service_account_namespaces="*" \
+          policies="''${VAULT_POLICY:-campground}" \
+          ttl=24h
+
+        echo "Vault Kubernetes auth validated successfully!"
+        exit 0
+      else
+        echo "Kubernetes host changed from '$CURRENT_K8S_HOST' to '$NEW_K8S_HOST'. Reconfiguring..."
+      fi
+    fi
+
+    # Create a temporary ServiceAccount for Vault configuration
+    echo "Creating/updating temporary ServiceAccount for Vault auth setup..."
+    ${pkgs.kubectl}/bin/kubectl create namespace vault-init --dry-run=client -o yaml | ${pkgs.kubectl}/bin/kubectl apply -f -
+    ${pkgs.kubectl}/bin/kubectl apply -f - <<YAML
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: vault-init
+      namespace: vault-init
+    YAML
+
+    # Create token for Vault
+    echo "Creating token for vault-init ServiceAccount..."
+    ${pkgs.kubectl}/bin/kubectl -n vault-init create token vault-init --duration=24h > /tmp/token.jwt
+
+    # Get cluster CA
+    echo "Reading cluster CA..."
+    ${pkgs.kubectl}/bin/kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
+
+    # Use the in-cluster Kubernetes service endpoint (reachable from pods)
+    K8S_HOST="https://kubernetes.default.svc:443"
+
+    # Configure Vault Kubernetes auth
+    echo "Configuring Vault Kubernetes auth..."
+    ${pkgs.vault-bin}/bin/vault write auth/kubernetes/config \
+      token_reviewer_jwt=@/tmp/token.jwt \
+      kubernetes_host="$K8S_HOST" \
+      kubernetes_ca_cert=@/tmp/ca.crt
+
+    # Create/update Vault role
+    echo "Writing Vault Kubernetes role external-secrets..."
+    ${pkgs.vault-bin}/bin/vault write auth/kubernetes/role/external-secrets \
+      bound_service_account_names="vault-auth" \
+      bound_service_account_namespaces="*" \
+      policies="''${VAULT_POLICY:-campground}" \
+      ttl=24h
+
+    rm -f /tmp/token.jwt /tmp/ca.crt
+
+    echo "Vault Kubernetes auth configured successfully!"
+  '';
+
   # Build helmfile.yaml using the kubernetes-helmfiles package
-  # Collect configuration from layer modules
-  helmfileYaml =
-    if cfg.usePackage
-    then
-      pkgs.fmf.kubernetes-helmfiles.mkBaseline {
-        # Vault configuration from 20-secrets layer
-        vaultAddress = cfg.layers."20-secrets".vaultAddress or pkgs.fmf.kubernetes-helmfiles.defaults.vaultAddress;
-        vaultKvPath = cfg.layers."20-secrets".vaultKvPath or pkgs.fmf.kubernetes-helmfiles.defaults.vaultKvPath;
-        vaultKvVersion = cfg.layers."20-secrets".vaultKvVersion or pkgs.fmf.kubernetes-helmfiles.defaults.vaultKvVersion;
+  helmfileYaml = pkgs.fmf.kubernetes-helmfiles.mkBaseline {
+    # Vault configuration
+    vaultAddress = cfg.baseline.vault.address;
+    vaultKvPath = cfg.baseline.vault.kvPath;
+    vaultKvVersion = cfg.baseline.vault.kvVersion;
 
-        # MetalLB configuration from 30-networking layer
-        metallb = cfg.layers."30-networking".metallb or pkgs.fmf.kubernetes-helmfiles.defaults.metallb;
+    # MetalLB configuration
+    metallb = cfg.baseline.metallb;
 
-        # ArgoCD configuration from 60-gitops layer
-        argocdIngressEnabled = cfg.layers."60-gitops".argocd.ingress.enable or false;
-        argocdIngressHost = cfg.layers."60-gitops".argocd.ingress.host or pkgs.fmf.kubernetes-helmfiles.defaults.argocd.ingressHost;
-        argocdIngressClass = cfg.layers."60-gitops".argocd.ingress.ingressClass or pkgs.fmf.kubernetes-helmfiles.defaults.argocd.ingressClass;
-      }
-    else
-      # Legacy: generate from cfg.releases
-      let
-        yamlFormat = pkgs.formats.yaml {};
-
-        # Helper to sort releases by layer
-        sortByLayer = releases:
-          lib.sort (a: b: (a.layer or 999) < (b.layer or 999)) releases;
-
-        # Convert our Nix release definition to Helmfile YAML format
-        toHelmfileRelease = release: let
-          valuesList =
-            if release ? valuesContent && release.valuesContent != null
-            then [release.valuesContent]
-            else if release ? values && release.values != null
-            then release.values
-            else [];
-
-          setList =
-            if release ? setValues
-            then lib.mapAttrsToList (name: value: {inherit name value;}) release.setValues
-            else if release ? set && release.set != null
-            then release.set
-            else [];
-
-          optionalAttrs = lib.optionalAttrs;
-        in
-          {
-            name = release.name;
-            namespace = release.namespace;
-            chart = release.chart;
-            createNamespace = release.createNamespace or true;
-            wait = release.wait or true;
-            timeout = release.timeout or 300;
-          }
-          // optionalAttrs (release ? dependsOn && release.dependsOn != []) {needs = release.dependsOn;}
-          // optionalAttrs (valuesList != [] && valuesList != [null]) {values = valuesList;}
-          // optionalAttrs (setList != []) {set = setList;}
-          // optionalAttrs (release ? hooks && release.hooks != []) {hooks = release.hooks;}
-          // optionalAttrs (release ? atomic && release.atomic != null) {atomic = release.atomic;}
-          // optionalAttrs (release ? force && release.force != null) {force = release.force;}
-          // optionalAttrs (release ? recreatePods && release.recreatePods != null) {recreatePods = release.recreatePods;};
-
-        # De-dupe repos
-        repoKey = r: "${r.name}|${r.url}|${toString (r.oci or false)}";
-
-        repositoriesDeduped =
-          map (x: x.repo)
-          (lib.unique
-            (map (r: {
-                key = repoKey r;
-                repo = r;
-              })
-              cfg.repositories));
-
-        helmfileConfig = {
-          repositories = repositoriesDeduped;
-
-          helmDefaults = {
-            wait = true;
-            timeout = 300;
-            recreatePods = false;
-            force = false;
-            atomic = true;
-          };
-
-          releases = map toHelmfileRelease (sortByLayer cfg.releases);
-        };
-      in
-        yamlFormat.generate "helmfile" helmfileConfig;
+    # ArgoCD configuration
+    argocdIngressEnabled = cfg.baseline.argocd.ingress.enable;
+    argocdIngressHost = cfg.baseline.argocd.ingress.host;
+    argocdIngressClass = cfg.baseline.argocd.ingress.ingressClass;
+  };
 in {
   options.fmf.services.k3s.helmfile = {
-    enable = mkEnableOption "Use Helmfile to manage Kubernetes applications";
-
-    usePackage = mkOption {
-      type = types.bool;
-      default = true;
-      description = ''
-        Use the kubernetes-helmfiles package to generate helmfile.yaml.
-        When true, helmfile is generated from layer module configuration.
-        When false, uses legacy cfg.releases approach.
-      '';
-    };
+    enable = mkEnableOption "Use Helmfile to manage Kubernetes applications with baseline infrastructure";
 
     concurrency = mkOption {
       type = types.int;
@@ -117,138 +127,118 @@ in {
       description = "Helmfile sync concurrency. Use 1 to avoid Helm lock conflicts.";
     };
 
-    # Legacy options (when usePackage = false)
-    releases = mkOption {
-      type = types.listOf (types.submodule ({...}: {
-        options = {
-          name = mkOption {
-            type = types.str;
-            description = "Release name";
-          };
+    baseline = {
+      # Vault / Secrets configuration (Layer 20)
+      vault = {
+        address = mkOption {
+          type = types.str;
+          example = "http://10.8.0.3:8200";
+          description = "Vault server address";
+        };
 
-          namespace = mkOption {
-            type = types.str;
-            description = "Namespace for the release";
-          };
+        kvPath = mkOption {
+          type = types.str;
+          default = "secret/campground/k3s";
+          description = "Vault KV path for Kubernetes secrets";
+        };
 
-          chart = mkOption {
-            type = types.str;
-            description = "Chart reference (repo/chart or path)";
-          };
+        kvVersion = mkOption {
+          type = types.enum ["v1" "v2"];
+          default = "v2";
+          description = "Vault KV version";
+        };
 
-          layer = mkOption {
-            type = types.int;
-            default = 999;
-            description = ''
-              Deployment layer for ordering. Lower numbers deploy first.
-            '';
-          };
+        enableK8sAuth = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable Vault Kubernetes auth backend initialization";
+        };
+      };
 
-          dependsOn = mkOption {
-            type = types.listOf types.str;
-            default = [];
-            description = ''
-              List of releases this depends on in "namespace/release-name" format.
-            '';
-          };
+      # MetalLB configuration (Layer 30)
+      metallb = mkOption {
+        type = types.submodule {
+          options = {
+            ipPool = mkOption {
+              type = types.submodule {
+                options = {
+                  name = mkOption {
+                    type = types.str;
+                    default = "default-pool";
+                    description = "IP address pool name";
+                  };
 
-          createNamespace = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Create namespace if it doesn't exist";
-          };
+                  addresses = mkOption {
+                    type = types.listOf types.str;
+                    example = ["10.8.40.100-10.8.40.255"];
+                    description = "IP address ranges for MetalLB";
+                  };
 
-          wait = mkOption {
-            type = types.bool;
-            default = true;
-            description = "Wait for resources to be ready";
-          };
-
-          timeout = mkOption {
-            type = types.int;
-            default = 300;
-            description = "Timeout in seconds";
-          };
-
-          atomic = mkOption {
-            type = types.nullOr types.bool;
-            default = null;
-            description = "Override helmDefaults.atomic";
-          };
-
-          force = mkOption {
-            type = types.nullOr types.bool;
-            default = null;
-            description = "Override helmDefaults.force";
-          };
-
-          recreatePods = mkOption {
-            type = types.nullOr types.bool;
-            default = null;
-            description = "Override helmDefaults.recreatePods";
-          };
-
-          valuesContent = mkOption {
-            type = types.nullOr types.attrs;
-            default = null;
-            description = "Values as Nix attrset";
-          };
-
-          values = mkOption {
-            type = types.nullOr (types.listOf types.attrs);
-            default = null;
-            description = "List of value sets";
-          };
-
-          setValues = mkOption {
-            type = types.attrs;
-            default = {};
-            description = "Key-value pairs to set via --set";
-          };
-
-          set = mkOption {
-            type = types.nullOr (types.listOf types.attrs);
-            default = null;
-            description = "List of set values";
-          };
-
-          hooks = mkOption {
-            type = types.listOf types.attrs;
-            default = [];
-            description = "Helmfile hooks";
+                  autoAssign = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Auto-assign IPs from this pool";
+                  };
+                };
+              };
+              default = {};
+              description = "MetalLB IP address pool configuration";
+            };
           };
         };
-      }));
-      default = [];
-      description = "List of Helm releases (legacy, when usePackage=false)";
+        default = {};
+        description = "MetalLB load balancer configuration";
+      };
+
+      # ArgoCD configuration (Layer 60)
+      argocd = {
+        ingress = {
+          enable = mkEnableOption "Create Ingress for ArgoCD";
+
+          host = mkOption {
+            type = types.str;
+            default = "";
+            example = "argocd.k8s.example.com";
+            description = "Hostname for ArgoCD ingress";
+          };
+
+          ingressClass = mkOption {
+            type = types.str;
+            default = "traefik-k8s";
+            description = "Ingress class to use";
+          };
+        };
+      };
     };
 
-    repositories = mkOption {
-      type = types.listOf (types.submodule ({...}: {
-        options = {
-          name = mkOption {
-            type = types.str;
-            description = "Repository name";
-          };
-
-          url = mkOption {
-            type = types.str;
-            description = "Repository URL";
-          };
-
-          oci = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Whether this is an OCI registry";
-          };
-        };
-      }));
-      default = [];
-      description = "Helm chart repositories (legacy, when usePackage=false)";
+    # Backward compatibility: layer-based configuration
+    layers = mkOption {
+      type = types.attrsOf types.attrs;
+      default = {};
+      description = "Layer-based configuration (legacy compatibility)";
     };
   };
 
   config = mkIf cfg.enable {
+    # Backward compatibility: map old layer config to new baseline config
+    fmf.services.k3s.helmfile.baseline = {
+      vault = mkIf (cfg.layers ? "20-secrets") {
+        address = mkDefault (cfg.layers."20-secrets".vaultAddress or cfg.baseline.vault.address);
+        kvPath = mkDefault (cfg.layers."20-secrets".vaultKvPath or cfg.baseline.vault.kvPath);
+        kvVersion = mkDefault (cfg.layers."20-secrets".vaultKvVersion or cfg.baseline.vault.kvVersion);
+      };
+
+      metallb = mkIf (cfg.layers ? "30-networking") (
+        mkDefault (cfg.layers."30-networking".metallb or cfg.baseline.metallb)
+      );
+
+      argocd.ingress = mkIf (cfg.layers ? "60-gitops") {
+        enable = mkDefault (cfg.layers."60-gitops".argocd.ingress.enable or cfg.baseline.argocd.ingress.enable);
+        host = mkDefault (cfg.layers."60-gitops".argocd.ingress.host or cfg.baseline.argocd.ingress.host);
+        ingressClass = mkDefault (cfg.layers."60-gitops".argocd.ingress.ingressClass or cfg.baseline.argocd.ingress.ingressClass);
+      };
+    };
+
     environment.systemPackages = with pkgs; [
       helmfile
       kubernetes-helm
@@ -257,16 +247,42 @@ in {
 
     environment.etc."helmfile/helmfile.yaml".source = helmfileYaml;
 
+    # Vault Kubernetes auth initialization service
+    systemd.services.vault-k8s-init = mkIf (cfg.baseline.vault.enableK8sAuth && config.services.k3s.clusterInit) {
+      description = "Configure Vault Kubernetes Auth Backend";
+      after = ["k3s.service" "network-online.target"];
+      before = ["helmfile-apply.service"];
+      requires = ["k3s.service"];
+      wants = ["network-online.target"];
+      wantedBy = ["multi-user.target"];
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "root";
+        Environment = [
+          "KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
+          "VAULT_ADDR=${cfg.baseline.vault.address}"
+          "VAULT_POLICY=campground"
+          "HOSTNAME=${config.networking.hostName}"
+        ];
+        ExecStart = "${vaultInitScript}/bin/vault-k8s-init";
+      };
+
+      unitConfig.ConditionPathExists = "/etc/rancher/k3s/k3s.yaml";
+    };
+
+    # Helmfile apply service
     systemd.services.helmfile-apply = {
       description = "Apply Helmfile releases to Kubernetes";
       wantedBy = ["multi-user.target"];
       after =
         ["network-online.target" "k3s.service"]
-        ++ optional (config.fmf.services.k3s.helmfile.layers."20-secrets".enable or false) "vault-k8s-init.service";
+        ++ optional cfg.baseline.vault.enableK8sAuth "vault-k8s-init.service";
       wants = ["network-online.target"];
       requires =
         ["k3s.service"]
-        ++ optional (config.fmf.services.k3s.helmfile.layers."20-secrets".enable or false) "vault-k8s-init.service";
+        ++ optional cfg.baseline.vault.enableK8sAuth "vault-k8s-init.service";
 
       path = with pkgs; [
         kubernetes-helm
