@@ -1,3 +1,6 @@
+# Layer 30: Networking
+# Configuration for MetalLB load balancer
+# Helmfile generation is handled by the kubernetes-helmfiles package
 {
   lib,
   config,
@@ -7,28 +10,6 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile.layers."30-networking";
-
-  # MetalLB L2Advertisement and IPAddressPool manifests
-  metallbConfigManifest = pkgs.writeText "metallb-config.yaml" ''
-    apiVersion: metallb.io/v1beta1
-    kind: IPAddressPool
-    metadata:
-      name: ${cfg.metallb.ipPool.name}
-      namespace: metallb-system
-    spec:
-      addresses:
-      ${concatMapStringsSep "\n" (addr: "  - ${addr}") cfg.metallb.ipPool.addresses}
-      autoAssign: ${if cfg.metallb.ipPool.autoAssign then "true" else "false"}
-    ---
-    apiVersion: metallb.io/v1beta1
-    kind: L2Advertisement
-    metadata:
-      name: ${cfg.metallb.ipPool.name}-l2
-      namespace: metallb-system
-    spec:
-      ipAddressPools:
-        - ${cfg.metallb.ipPool.name}
-  '';
 in {
   options.fmf.services.k3s.helmfile.layers."30-networking" = {
     enable = mkEnableOption "Deploy networking layer (MetalLB load balancer)";
@@ -64,54 +45,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Ensure secrets layer is enabled (though MetalLB doesn't need it currently)
+    # Ensure secrets layer is enabled
     fmf.services.k3s.helmfile.layers."20-secrets".enable = true;
 
-    fmf.services.k3s.helmfile.releases = mkIf cfg.metallb.enable [
-      {
-        name = "metallb";
-        namespace = "metallb-system";
-        chart = "metallb/metallb";
-        layer = 30;
-        dependsOn = ["external-secrets/external-secrets"];  # Wait for CRDs/controllers
-        wait = true;
-        timeout = 900;
-        atomic = false;  # MetalLB can take a while
-        setValues = {
-          # Disable webhooks due to CNI/Service routing issues
-          # TODO: Re-enable once cluster networking is fixed
-          "controller.webhookMode" = "disabled";
-        };
-        hooks = [
-          {
-            events = ["postsync"];
-            showlogs = true;
-            command = "sh";
-            args = [
-              "-c"
-              ''
-                echo "Waiting for MetalLB controller to be ready..."
-                kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system
-
-                # Delete validating webhook to work around Service/CNI routing issue
-                echo "Removing MetalLB validating webhook (workaround for Service routing issue)..."
-                kubectl delete validatingwebhookconfiguration metallb-webhook-configuration --ignore-not-found=true
-
-                echo "Applying MetalLB configuration..."
-                kubectl apply -f ${metallbConfigManifest}
-              ''
-            ];
-          }
-        ];
-      }
-    ];
-
-    fmf.services.k3s.helmfile.repositories = mkIf cfg.metallb.enable [
-      {
-        name = "metallb";
-        url = "https://metallb.github.io/metallb";
-        oci = false;
-      }
-    ];
+    # Enable helmfile with package-based generation
+    fmf.services.k3s.helmfile.enable = true;
   };
 }

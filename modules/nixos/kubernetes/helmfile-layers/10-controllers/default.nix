@@ -1,3 +1,6 @@
+# Layer 10: Controllers
+# This layer is now provided by the kubernetes-helmfiles package
+# This module only provides options for compatibility
 {
   lib,
   config,
@@ -9,57 +12,14 @@ with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile.layers."10-controllers";
 in {
   options.fmf.services.k3s.helmfile.layers."10-controllers" = {
-    enable = mkEnableOption "Deploy controllers layer (external-secrets operator, cert-manager)";
+    enable = mkEnableOption "Deploy controllers layer (cert-manager)";
   };
 
   config = mkIf cfg.enable {
     # Ensure CRDs layer is enabled
     fmf.services.k3s.helmfile.layers."00-crds".enable = true;
 
-    fmf.services.k3s.helmfile.releases = [
-      # # External Secrets Operator (installs CRDs + controllers in single release)
-      # {
-      #   name = "external-secrets";
-      #   namespace = "external-secrets";
-      #   chart = "external-secrets/external-secrets";
-      #   layer = 10;
-      #   dependsOn = [];
-      #   wait = true;
-      #   timeout = 600;
-      #   setValues = {
-      #     installCRDs = "true"; # Install CRDs with the main release
-      #     "global.cacerts.skipVerify" = "true";
-      #   };
-      # }
-
-      # Cert-manager controller + CRDs (install once; webhook is required)
-      {
-        name = "cert-manager";
-        namespace = "cert-manager";
-        chart = "jetstack/cert-manager";
-        layer = 10;
-        wait = true;
-        timeout = 600;
-        setValues = {
-          installCRDs = "true";
-          # Disable startupapicheck to avoid timeout issues in constrained environments
-          # The webhook will still be validated by actual certificate issuance
-          "startupapicheck.enabled" = "false";
-        };
-      }
-    ];
-
-    fmf.services.k3s.helmfile.repositories = [
-      {
-        name = "external-secrets";
-        url = "https://charts.external-secrets.io";
-        oci = false;
-      }
-      {
-        name = "jetstack";
-        url = "https://charts.jetstack.io";
-        oci = false;
-      }
-    ];
+    # This layer is automatically included in the kubernetes-helmfiles package baseline
+    fmf.services.k3s.helmfile.enable = true;
   };
 }
