@@ -203,7 +203,11 @@
   ];
 
   # Layer 60: GitOps
-  gitopsReleases = [
+  mkGitopsReleases = {
+    argocdIngressEnabled ? false,
+    argocdIngressHost ? "argocd.k8s.example.com",
+    argocdIngressClass ? "traefik-k8s",
+  }: [
     {
       name = "argocd";
       namespace = "argocd";
@@ -219,16 +223,27 @@
         {
           server = {
             service = {
-              type = "LoadBalancer";
+              type = "ClusterIP";
+            };
+          } // lib.optionalAttrs argocdIngressEnabled {
+            ingress = {
+              enabled = true;
+              ingressClassName = argocdIngressClass;
+              hostname = argocdIngressHost;
               annotations = {
-                "metallb.universe.tf/address-pool" = "default-pool";
+                "cert-manager.io/cluster-issuer" = "letsencrypt-prod";
+                "traefik.ingress.kubernetes.io/router.tls" = "true";
               };
+              tls = true;
             };
           };
         }
       ];
     }
   ];
+
+  # Default gitops releases (without ingress)
+  gitopsReleases = mkGitopsReleases {};
 
   # Repositories
   repositoriesList = [
@@ -257,6 +272,7 @@
   # Generate default releases with default config
   defaultSecretsReleases = mkSecretsReleases {};
   defaultNetworkingReleases = mkNetworkingReleases {};
+  defaultGitopsReleases = mkGitopsReleases {};
 
   # Helper to add createNamespace to all releases (matches helmfile module behavior)
   addCreateNamespace = release: release // {createNamespace = true;};
@@ -278,8 +294,8 @@
     releases = map addCreateNamespace defaultNetworkingReleases;
   };
 
-  gitopsLayer = yamlFormat.generate "60-gitops.yaml" {
-    releases = map addCreateNamespace gitopsReleases;
+  defaultGitopsLayer = yamlFormat.generate "60-gitops.yaml" {
+    releases = map addCreateNamespace defaultGitopsReleases;
   };
 
   repositoriesFile = yamlFormat.generate "repositories.yaml" {
@@ -292,9 +308,13 @@
     vaultKvPath ? defaults.vaultKvPath,
     vaultKvVersion ? defaults.vaultKvVersion,
     metallb ? defaults.metallb,
+    argocdIngressEnabled ? false,
+    argocdIngressHost ? "argocd.k8s.example.com",
+    argocdIngressClass ? "traefik-k8s",
   }: let
     secretsReleases = mkSecretsReleases {inherit vaultAddress vaultKvPath vaultKvVersion;};
     networkingReleases = mkNetworkingReleases {inherit metallb;};
+    gitopsReleases = mkGitopsReleases {inherit argocdIngressEnabled argocdIngressHost argocdIngressClass;};
 
     # Merge all releases in layer order and add createNamespace
     allReleases = map addCreateNamespace (
@@ -335,7 +355,7 @@ in
       cp ${controllersLayer} $out/layers/10-controllers.yaml
       cp ${defaultSecretsLayer} $out/layers/20-secrets.yaml
       cp ${defaultNetworkingLayer} $out/layers/30-networking.yaml
-      cp ${gitopsLayer} $out/layers/60-gitops.yaml
+      cp ${defaultGitopsLayer} $out/layers/60-gitops.yaml
       cp ${repositoriesFile} $out/repositories.yaml
       cp ${defaultBaseline} $out/helmfile.yaml
     '';
@@ -347,7 +367,7 @@ in
         controllers = controllersLayer;
         secrets = defaultSecretsLayer;
         networking = defaultNetworkingLayer;
-        gitops = gitopsLayer;
+        gitops = defaultGitopsLayer;
       };
 
       # Raw release data (Nix values, before YAML conversion)
@@ -356,12 +376,13 @@ in
         controllers = controllersReleases;
         secrets = defaultSecretsReleases;
         networking = defaultNetworkingReleases;
-        gitops = gitopsReleases;
+        gitops = defaultGitopsReleases;
       };
 
       # Functions to create custom layers/releases
       mkSecretsReleases = mkSecretsReleases;
       mkNetworkingReleases = mkNetworkingReleases;
+      mkGitopsReleases = mkGitopsReleases;
 
       # Function to create custom baseline
       mkBaseline = mkBaseline;
@@ -379,7 +400,7 @@ in
         controllers = controllersLayer;
         secrets = defaultSecretsLayer;
         networking = defaultNetworkingLayer;
-        gitops = gitopsLayer;
+        gitops = defaultGitopsLayer;
         repositories = repositoriesFile;
         baseline = defaultBaseline;
       };
