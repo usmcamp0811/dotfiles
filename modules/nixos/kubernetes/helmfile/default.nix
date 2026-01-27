@@ -8,78 +8,108 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.k3s.helmfile;
 
-  # Use pkgs.formats.yaml for proper YAML generation + a permissive YAML value type.
-  yamlFormat = pkgs.formats.yaml {};
+  # Build helmfile.yaml using the kubernetes-helmfiles package
+  # Collect configuration from layer modules
+  helmfileYaml =
+    if cfg.usePackage
+    then
+      pkgs.fmf.kubernetes-helmfiles.mkBaseline {
+        # Vault configuration from 20-secrets layer
+        vaultAddress = cfg.layers."20-secrets".vaultAddress or pkgs.fmf.kubernetes-helmfiles.defaults.vaultAddress;
+        vaultKvPath = cfg.layers."20-secrets".vaultKvPath or pkgs.fmf.kubernetes-helmfiles.defaults.vaultKvPath;
+        vaultKvVersion = cfg.layers."20-secrets".vaultKvVersion or pkgs.fmf.kubernetes-helmfiles.defaults.vaultKvVersion;
 
-  # Helper to sort releases by layer
-  sortByLayer = releases:
-    lib.sort (a: b: (a.layer or 999) < (b.layer or 999)) releases;
+        # MetalLB configuration from 30-networking layer
+        metallb = cfg.layers."30-networking".metallb or pkgs.fmf.kubernetes-helmfiles.defaults.metallb;
 
-  # Convert our Nix release definition to Helmfile YAML format
-  toHelmfileRelease = release: let
-    valuesList =
-      if release ? valuesContent && release.valuesContent != null
-      then [release.valuesContent]
-      else if release ? values && release.values != null
-      then release.values
-      else [];
+        # ArgoCD configuration from 60-gitops layer
+        argocdIngressEnabled = cfg.layers."60-gitops".argocd.ingress.enable or false;
+        argocdIngressHost = cfg.layers."60-gitops".argocd.ingress.host or pkgs.fmf.kubernetes-helmfiles.defaults.argocd.ingressHost;
+        argocdIngressClass = cfg.layers."60-gitops".argocd.ingress.ingressClass or pkgs.fmf.kubernetes-helmfiles.defaults.argocd.ingressClass;
+      }
+    else
+      # Legacy: generate from cfg.releases
+      let
+        yamlFormat = pkgs.formats.yaml {};
 
-    setList =
-      if release ? setValues
-      then lib.mapAttrsToList (name: value: {inherit name value;}) release.setValues
-      else if release ? set && release.set != null
-      then release.set
-      else [];
+        # Helper to sort releases by layer
+        sortByLayer = releases:
+          lib.sort (a: b: (a.layer or 999) < (b.layer or 999)) releases;
 
-    optionalAttrs = lib.optionalAttrs;
-  in
-    {
-      name = release.name;
-      namespace = release.namespace;
-      chart = release.chart;
-      createNamespace = release.createNamespace or true;
-      wait = release.wait or true;
-      timeout = release.timeout or 300;
-    }
-    // optionalAttrs (release ? dependsOn && release.dependsOn != []) {needs = release.dependsOn;}
-    // optionalAttrs (valuesList != [] && valuesList != [null]) {values = valuesList;}
-    // optionalAttrs (setList != []) {set = setList;}
-    // optionalAttrs (release ? hooks && release.hooks != []) {hooks = release.hooks;}
-    // optionalAttrs (release ? atomic && release.atomic != null) {atomic = release.atomic;}
-    // optionalAttrs (release ? force && release.force != null) {force = release.force;}
-    // optionalAttrs (release ? recreatePods && release.recreatePods != null) {recreatePods = release.recreatePods;};
+        # Convert our Nix release definition to Helmfile YAML format
+        toHelmfileRelease = release: let
+          valuesList =
+            if release ? valuesContent && release.valuesContent != null
+            then [release.valuesContent]
+            else if release ? values && release.values != null
+            then release.values
+            else [];
 
-  # --- NEW: de-dupe repos so helmfile doesn't "repo add" the same thing multiple times
-  repoKey = r: "${r.name}|${r.url}|${toString (r.oci or false)}";
+          setList =
+            if release ? setValues
+            then lib.mapAttrsToList (name: value: {inherit name value;}) release.setValues
+            else if release ? set && release.set != null
+            then release.set
+            else [];
 
-  # Turn repos into [{ key = "..."; repo = {...}; }], unique by key, then map back to repo.
-  repositoriesDeduped =
-    map (x: x.repo)
-    (lib.unique
-      (map (r: {
-          key = repoKey r;
-          repo = r;
-        })
-        cfg.repositories));
+          optionalAttrs = lib.optionalAttrs;
+        in
+          {
+            name = release.name;
+            namespace = release.namespace;
+            chart = release.chart;
+            createNamespace = release.createNamespace or true;
+            wait = release.wait or true;
+            timeout = release.timeout or 300;
+          }
+          // optionalAttrs (release ? dependsOn && release.dependsOn != []) {needs = release.dependsOn;}
+          // optionalAttrs (valuesList != [] && valuesList != [null]) {values = valuesList;}
+          // optionalAttrs (setList != []) {set = setList;}
+          // optionalAttrs (release ? hooks && release.hooks != []) {hooks = release.hooks;}
+          // optionalAttrs (release ? atomic && release.atomic != null) {atomic = release.atomic;}
+          // optionalAttrs (release ? force && release.force != null) {force = release.force;}
+          // optionalAttrs (release ? recreatePods && release.recreatePods != null) {recreatePods = release.recreatePods;};
 
-  helmfileConfig = {
-    repositories = repositoriesDeduped;
+        # De-dupe repos
+        repoKey = r: "${r.name}|${r.url}|${toString (r.oci or false)}";
 
-    helmDefaults = {
-      wait = true;
-      timeout = 300;
-      recreatePods = false;
-      force = false;
-      atomic = true;
-    };
+        repositoriesDeduped =
+          map (x: x.repo)
+          (lib.unique
+            (map (r: {
+                key = repoKey r;
+                repo = r;
+              })
+              cfg.repositories));
 
-    releases = map toHelmfileRelease (sortByLayer cfg.releases);
-  };
+        helmfileConfig = {
+          repositories = repositoriesDeduped;
 
-  helmfileYaml = yamlFormat.generate "helmfile" helmfileConfig;
+          helmDefaults = {
+            wait = true;
+            timeout = 300;
+            recreatePods = false;
+            force = false;
+            atomic = true;
+          };
+
+          releases = map toHelmfileRelease (sortByLayer cfg.releases);
+        };
+      in
+        yamlFormat.generate "helmfile" helmfileConfig;
 in {
   options.fmf.services.k3s.helmfile = {
     enable = mkEnableOption "Use Helmfile to manage Kubernetes applications";
+
+    usePackage = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Use the kubernetes-helmfiles package to generate helmfile.yaml.
+        When true, helmfile is generated from layer module configuration.
+        When false, uses legacy cfg.releases approach.
+      '';
+    };
 
     concurrency = mkOption {
       type = types.int;
@@ -87,6 +117,7 @@ in {
       description = "Helmfile sync concurrency. Use 1 to avoid Helm lock conflicts.";
     };
 
+    # Legacy options (when usePackage = false)
     releases = mkOption {
       type = types.listOf (types.submodule ({...}: {
         options = {
@@ -110,12 +141,6 @@ in {
             default = 999;
             description = ''
               Deployment layer for ordering. Lower numbers deploy first.
-              Recommended layers:
-                1 - Operators with CRDs (External Secrets, Cert-Manager)
-                2 - Infrastructure (MetalLB)
-                3 - Stores and Secrets (ClusterSecretStore, ExternalSecrets)
-                4 - Ingress/Service Mesh (Traefik, Istio)
-                5 - GitOps Platform (ArgoCD)
             '';
           };
 
@@ -124,7 +149,6 @@ in {
             default = [];
             description = ''
               List of releases this depends on in "namespace/release-name" format.
-              Example: ["external-secrets/external-secrets", "metallb-system/metallb"]
             '';
           };
 
@@ -137,69 +161,66 @@ in {
           wait = mkOption {
             type = types.bool;
             default = true;
-            description = "Wait for resources to be ready before marking release as successful";
+            description = "Wait for resources to be ready";
           };
 
           timeout = mkOption {
             type = types.int;
             default = 300;
-            description = "Timeout in seconds for waiting";
+            description = "Timeout in seconds";
           };
 
           atomic = mkOption {
             type = types.nullOr types.bool;
             default = null;
-            description = "Override helmDefaults.atomic for this release (null = use global default)";
+            description = "Override helmDefaults.atomic";
           };
 
           force = mkOption {
             type = types.nullOr types.bool;
             default = null;
-            description = "Override helmDefaults.force for this release (null = use global default)";
+            description = "Override helmDefaults.force";
           };
 
           recreatePods = mkOption {
             type = types.nullOr types.bool;
             default = null;
-            description = "Override helmDefaults.recreatePods for this release (null = use global default)";
+            description = "Override helmDefaults.recreatePods";
           };
 
           valuesContent = mkOption {
-            type = types.nullOr yamlFormat.type;
+            type = types.nullOr types.attrs;
             default = null;
-            description = "Values as a Nix value (attrset/list/scalars) that will be converted to YAML";
+            description = "Values as Nix attrset";
           };
 
           values = mkOption {
-            type = types.nullOr (types.listOf yamlFormat.type);
+            type = types.nullOr (types.listOf types.attrs);
             default = null;
-            description = "List of value sets (raw helmfile format)";
+            description = "List of value sets";
           };
 
           setValues = mkOption {
             type = types.attrs;
             default = {};
-            description = ''
-              Key-value pairs to set via --set flag.
-              Example: { "image.tag" = "v1.0.0"; "installCRDs" = "true"; }
-            '';
+            description = "Key-value pairs to set via --set";
           };
 
           set = mkOption {
             type = types.nullOr (types.listOf types.attrs);
             default = null;
-            description = "List of set values (raw helmfile format)";
+            description = "List of set values";
           };
 
           hooks = mkOption {
             type = types.listOf types.attrs;
             default = [];
-            description = "Helmfile hooks for this release";
+            description = "Helmfile hooks";
           };
         };
       }));
       default = [];
-      description = "List of Helm releases to manage with Helmfile";
+      description = "List of Helm releases (legacy, when usePackage=false)";
     };
 
     repositories = mkOption {
@@ -222,29 +243,8 @@ in {
           };
         };
       }));
-      default = [
-        {
-          name = "external-secrets";
-          url = "https://charts.external-secrets.io";
-        }
-        {
-          name = "argo";
-          url = "https://argoproj.github.io/argo-helm";
-        }
-        {
-          name = "traefik";
-          url = "https://helm.traefik.io/traefik";
-        }
-        {
-          name = "istio";
-          url = "https://istio-release.storage.googleapis.com/charts";
-        }
-        {
-          name = "metallb";
-          url = "https://metallb.github.io/metallb";
-        }
-      ];
-      description = "Helm chart repositories";
+      default = [];
+      description = "Helm chart repositories (legacy, when usePackage=false)";
     };
   };
 
