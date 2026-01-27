@@ -3,6 +3,9 @@
   pkgs,
   ...
 }: let
+  # Use pkgs.formats.yaml for proper YAML generation
+  yamlFormat = pkgs.formats.yaml {};
+
   # Default configuration values
   defaults = {
     vaultAddress = "http://10.8.0.3:8200";
@@ -17,137 +20,122 @@
     };
   };
 
-  # Helper to convert Nix attrset to YAML
-  toYAML = value: builtins.toJSON value;
+  # Layer data as Nix values (not YAML yet)
+  crdsReleases = [
+    {
+      name = "external-secrets";
+      namespace = "external-secrets";
+      chart = "external-secrets/external-secrets";
+      wait = true;
+      timeout = 300;
+    }
+  ];
 
-  # Layer 00: CRDs
-  crdsLayer = pkgs.writeText "00-crds.yaml" (toYAML {
-    releases = [
-      {
-        name = "external-secrets";
-        namespace = "external-secrets";
-        chart = "external-secrets/external-secrets";
-        version = null;
-        wait = true;
-        timeout = 300;
-      }
-    ];
-  });
-
-  # Layer 10: Controllers
-  controllersLayer = pkgs.writeText "10-controllers.yaml" (toYAML {
-    releases = [
-      {
-        name = "cert-manager";
-        namespace = "cert-manager";
-        chart = "jetstack/cert-manager";
-        version = null;
-        wait = true;
-        timeout = 600;
-        set = [
-          {
-            name = "installCRDs";
-            value = "true";
-          }
-          {
-            name = "startupapicheck.enabled";
-            value = "false";
-          }
-        ];
-      }
-    ];
-  });
+  controllersReleases = [
+    {
+      name = "cert-manager";
+      namespace = "cert-manager";
+      chart = "jetstack/cert-manager";
+      wait = true;
+      timeout = 600;
+      set = [
+        {
+          name = "installCRDs";
+          value = "true";
+        }
+        {
+          name = "startupapicheck.enabled";
+          value = "false";
+        }
+      ];
+    }
+  ];
 
   # Layer 20: Secrets (function to support configuration)
-  mkSecretsLayer = {
+  mkSecretsReleases = {
     vaultAddress ? defaults.vaultAddress,
     vaultKvPath ? defaults.vaultKvPath,
     vaultKvVersion ? defaults.vaultKvVersion,
-  }:
-    pkgs.writeText "20-secrets.yaml" (toYAML {
-      releases = [
+  }: [
+    {
+      name = "vault-auth-serviceaccount";
+      namespace = "external-secrets";
+      chart = "dysnix/raw";
+      needs = ["external-secrets/external-secrets"];
+      values = [
         {
-          name = "vault-auth-serviceaccount";
-          namespace = "external-secrets";
-          chart = "dysnix/raw";
-          version = null;
-          needs = ["external-secrets/external-secrets"];
-          values = [
+          resources = [
             {
-              resources = [
-                {
-                  apiVersion = "v1";
-                  kind = "ServiceAccount";
-                  metadata = {
-                    name = "vault-auth";
-                    namespace = "external-secrets";
-                  };
-                  automountServiceAccountToken = true;
-                }
-              ];
-            }
-          ];
-        }
-        {
-          name = "vault-cluster-secret-store";
-          namespace = "kube-system";
-          chart = "dysnix/raw";
-          version = null;
-          needs = [
-            "external-secrets/external-secrets"
-            "external-secrets/vault-auth-serviceaccount"
-          ];
-          hooks = [
-            {
-              events = ["presync"];
-              showlogs = true;
-              command = "kubectl";
-              args = [
-                "delete"
-                "validatingwebhookconfiguration"
-                "secretstore-validate"
-                "--ignore-not-found=true"
-              ];
-            }
-          ];
-          values = [
-            {
-              resources = [
-                {
-                  apiVersion = "external-secrets.io/v1";
-                  kind = "ClusterSecretStore";
-                  metadata = {
-                    name = "vault-backend";
-                  };
-                  spec = {
-                    provider = {
-                      vault = {
-                        server = vaultAddress;
-                        path = vaultKvPath;
-                        version = vaultKvVersion;
-                        auth = {
-                          kubernetes = {
-                            mountPath = "kubernetes";
-                            role = "external-secrets";
-                            serviceAccountRef = {
-                              name = "vault-auth";
-                              namespace = "external-secrets";
-                            };
-                          };
-                        };
-                      };
-                    };
-                  };
-                }
-              ];
+              apiVersion = "v1";
+              kind = "ServiceAccount";
+              metadata = {
+                name = "vault-auth";
+                namespace = "external-secrets";
+              };
+              automountServiceAccountToken = true;
             }
           ];
         }
       ];
-    });
+    }
+    {
+      name = "vault-cluster-secret-store";
+      namespace = "kube-system";
+      chart = "dysnix/raw";
+      needs = [
+        "external-secrets/external-secrets"
+        "external-secrets/vault-auth-serviceaccount"
+      ];
+      hooks = [
+        {
+          events = ["presync"];
+          showlogs = true;
+          command = "kubectl";
+          args = [
+            "delete"
+            "validatingwebhookconfiguration"
+            "secretstore-validate"
+            "--ignore-not-found=true"
+          ];
+        }
+      ];
+      values = [
+        {
+          resources = [
+            {
+              apiVersion = "external-secrets.io/v1";
+              kind = "ClusterSecretStore";
+              metadata = {
+                name = "vault-backend";
+              };
+              spec = {
+                provider = {
+                  vault = {
+                    server = vaultAddress;
+                    path = vaultKvPath;
+                    version = vaultKvVersion;
+                    auth = {
+                      kubernetes = {
+                        mountPath = "kubernetes";
+                        role = "external-secrets";
+                        serviceAccountRef = {
+                          name = "vault-auth";
+                          namespace = "external-secrets";
+                        };
+                      };
+                    };
+                  };
+                };
+              };
+            }
+          ];
+        }
+      ];
+    }
+  ];
 
   # Layer 30: Networking (function to support MetalLB configuration)
-  mkNetworkingLayer = {
+  mkNetworkingReleases = {
     metallb ? defaults.metallb,
   }: let
     metallbConfigManifest = ''
@@ -174,109 +162,129 @@
         ipAddressPools:
           - ${metallb.ipPool.name}
     '';
-  in
-    pkgs.writeText "30-networking.yaml" (toYAML {
-      releases = [
+  in [
+    {
+      name = "metallb";
+      namespace = "metallb-system";
+      chart = "metallb/metallb";
+      needs = ["external-secrets/external-secrets"];
+      wait = true;
+      timeout = 900;
+      atomic = false;  # MetalLB can take a while
+      set = [
         {
-          name = "metallb";
-          namespace = "metallb-system";
-          chart = "metallb/metallb";
-          version = null;
-          needs = ["external-secrets/external-secrets"];
-          wait = true;
-          timeout = 900;
-          set = [
-            {
-              name = "controller.webhookMode";
-              value = "disabled";
-            }
-          ];
-          hooks = [
-            {
-              events = ["postsync"];
-              showlogs = true;
-              command = "sh";
-              args = [
-                "-c"
-                ''
-                  echo "Waiting for MetalLB controller to be ready..."
-                  kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system
+          name = "controller.webhookMode";
+          value = "disabled";
+        }
+      ];
+      hooks = [
+        {
+          events = ["postsync"];
+          showlogs = true;
+          command = "sh";
+          args = [
+            "-c"
+            ''
+              echo "Waiting for MetalLB controller to be ready..."
+              kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system
 
-                  echo "Removing MetalLB validating webhook (workaround for Service routing issue)..."
-                  kubectl delete validatingwebhookconfiguration metallb-webhook-configuration --ignore-not-found=true
+              echo "Removing MetalLB validating webhook (workaround for Service routing issue)..."
+              kubectl delete validatingwebhookconfiguration metallb-webhook-configuration --ignore-not-found=true
 
-                  echo "Applying MetalLB configuration..."
-                  cat <<'METALLB_EOF' | kubectl apply -f -
-                  ${metallbConfigManifest}
-                  METALLB_EOF
-                ''
-              ];
-            }
+              echo "Applying MetalLB configuration..."
+              cat <<'METALLB_EOF' | kubectl apply -f -
+              ${metallbConfigManifest}
+              METALLB_EOF
+            ''
           ];
         }
       ];
-    });
+    }
+  ];
 
   # Layer 60: GitOps
-  gitopsLayer = pkgs.writeText "60-gitops.yaml" (toYAML {
-    releases = [
-      {
-        name = "argocd";
-        namespace = "argocd";
-        chart = "argo/argo-cd";
-        version = null;
-        needs = [
-          "external-secrets/external-secrets"
-          "metallb-system/metallb"
-          "cert-manager/cert-manager"
-        ];
-        wait = true;
-        timeout = 600;
-        values = [
-          {
-            server = {
-              service = {
-                type = "LoadBalancer";
-                annotations = {
-                  "metallb.universe.tf/address-pool" = "default-pool";
-                };
+  gitopsReleases = [
+    {
+      name = "argocd";
+      namespace = "argocd";
+      chart = "argo/argo-cd";
+      needs = [
+        "external-secrets/external-secrets"
+        "metallb-system/metallb"
+        "cert-manager/cert-manager"
+      ];
+      wait = true;
+      timeout = 600;
+      values = [
+        {
+          server = {
+            service = {
+              type = "LoadBalancer";
+              annotations = {
+                "metallb.universe.tf/address-pool" = "default-pool";
               };
             };
-          }
-        ];
-      }
-    ];
-  });
+          };
+        }
+      ];
+    }
+  ];
 
-  # Repositories configuration
-  repositories = pkgs.writeText "repositories.yaml" (toYAML {
-    repositories = [
-      {
-        name = "external-secrets";
-        url = "https://charts.external-secrets.io";
-      }
-      {
-        name = "jetstack";
-        url = "https://charts.jetstack.io";
-      }
-      {
-        name = "dysnix";
-        url = "https://dysnix.github.io/charts";
-      }
-      {
-        name = "metallb";
-        url = "https://metallb.github.io/metallb";
-      }
-      {
-        name = "argo";
-        url = "https://argoproj.github.io/argo-helm";
-      }
-    ];
-  });
+  # Repositories
+  repositoriesList = [
+    {
+      name = "external-secrets";
+      url = "https://charts.external-secrets.io";
+    }
+    {
+      name = "jetstack";
+      url = "https://charts.jetstack.io";
+    }
+    {
+      name = "dysnix";
+      url = "https://dysnix.github.io/charts";
+    }
+    {
+      name = "metallb";
+      url = "https://metallb.github.io/metallb";
+    }
+    {
+      name = "argo";
+      url = "https://argoproj.github.io/argo-helm";
+    }
+  ];
 
-  # Generate default layers
-  defaultSecretsLayer = mkSecretsLayer {};
-  defaultNetworkingLayer = mkNetworkingLayer {};
+  # Generate default releases with default config
+  defaultSecretsReleases = mkSecretsReleases {};
+  defaultNetworkingReleases = mkNetworkingReleases {};
+
+  # Helper to add createNamespace to all releases (matches helmfile module behavior)
+  addCreateNamespace = release: release // {createNamespace = true;};
+
+  # Create YAML files for individual layers
+  crdsLayer = yamlFormat.generate "00-crds.yaml" {
+    releases = map addCreateNamespace crdsReleases;
+  };
+
+  controllersLayer = yamlFormat.generate "10-controllers.yaml" {
+    releases = map addCreateNamespace controllersReleases;
+  };
+
+  defaultSecretsLayer = yamlFormat.generate "20-secrets.yaml" {
+    releases = map addCreateNamespace defaultSecretsReleases;
+  };
+
+  defaultNetworkingLayer = yamlFormat.generate "30-networking.yaml" {
+    releases = map addCreateNamespace defaultNetworkingReleases;
+  };
+
+  gitopsLayer = yamlFormat.generate "60-gitops.yaml" {
+    releases = map addCreateNamespace gitopsReleases;
+  };
+
+  repositoriesFile = yamlFormat.generate "repositories.yaml" {
+    repositories = repositoriesList;
+  };
 
   # Merge all layers into a baseline helmfile
   mkBaseline = {
@@ -285,30 +293,31 @@
     vaultKvVersion ? defaults.vaultKvVersion,
     metallb ? defaults.metallb,
   }: let
-    secretsLayer = mkSecretsLayer {inherit vaultAddress vaultKvPath vaultKvVersion;};
-    networkingLayer = mkNetworkingLayer {inherit metallb;};
+    secretsReleases = mkSecretsReleases {inherit vaultAddress vaultKvPath vaultKvVersion;};
+    networkingReleases = mkNetworkingReleases {inherit metallb;};
 
-    # Read and parse each layer
-    crdsReleases = (builtins.fromJSON (builtins.readFile crdsLayer)).releases;
-    controllersReleases = (builtins.fromJSON (builtins.readFile controllersLayer)).releases;
-    secretsReleases = (builtins.fromJSON (builtins.readFile secretsLayer)).releases;
-    networkingReleases = (builtins.fromJSON (builtins.readFile networkingLayer)).releases;
-    gitopsReleases = (builtins.fromJSON (builtins.readFile gitopsLayer)).releases;
-
-    # Merge all releases in layer order
-    allReleases =
+    # Merge all releases in layer order and add createNamespace
+    allReleases = map addCreateNamespace (
       crdsReleases
       ++ controllersReleases
       ++ secretsReleases
       ++ networkingReleases
-      ++ gitopsReleases;
-
-    repos = (builtins.fromJSON (builtins.readFile repositories)).repositories;
+      ++ gitopsReleases
+    );
   in
-    pkgs.writeText "helmfile.yaml" (toYAML {
-      repositories = repos;
+    yamlFormat.generate "helmfile.yaml" {
+      repositories = repositoriesList;
+
+      helmDefaults = {
+        wait = true;
+        timeout = 300;
+        recreatePods = false;
+        force = false;
+        atomic = true;
+      };
+
       releases = allReleases;
-    });
+    };
 
   # Default baseline
   defaultBaseline = mkBaseline {};
@@ -327,12 +336,12 @@ in
       cp ${defaultSecretsLayer} $out/layers/20-secrets.yaml
       cp ${defaultNetworkingLayer} $out/layers/30-networking.yaml
       cp ${gitopsLayer} $out/layers/60-gitops.yaml
-      cp ${repositories} $out/repositories.yaml
+      cp ${repositoriesFile} $out/repositories.yaml
       cp ${defaultBaseline} $out/helmfile.yaml
     '';
 
     passthru = {
-      # Individual layers
+      # Individual layers (YAML files)
       layers = {
         crds = crdsLayer;
         controllers = controllersLayer;
@@ -341,15 +350,25 @@ in
         gitops = gitopsLayer;
       };
 
-      # Functions to create custom layers
-      mkSecretsLayer = mkSecretsLayer;
-      mkNetworkingLayer = mkNetworkingLayer;
+      # Raw release data (Nix values, before YAML conversion)
+      releases = {
+        crds = crdsReleases;
+        controllers = controllersReleases;
+        secrets = defaultSecretsReleases;
+        networking = defaultNetworkingReleases;
+        gitops = gitopsReleases;
+      };
+
+      # Functions to create custom layers/releases
+      mkSecretsReleases = mkSecretsReleases;
+      mkNetworkingReleases = mkNetworkingReleases;
 
       # Function to create custom baseline
       mkBaseline = mkBaseline;
 
       # Repositories
-      repositories = repositories;
+      repositories = repositoriesFile;
+      repositoriesList = repositoriesList;
 
       # Default baseline
       baseline = defaultBaseline;
@@ -361,7 +380,7 @@ in
         secrets = defaultSecretsLayer;
         networking = defaultNetworkingLayer;
         gitops = gitopsLayer;
-        repositories = repositories;
+        repositories = repositoriesFile;
         baseline = defaultBaseline;
       };
     };
