@@ -358,7 +358,3 @@ Helmfile uses the `needs` field (not `dependsOn`) for release dependencies. The 
 ### Function Evaluation Errors
 
 When using `mkBaseline` or other functions, ensure all required parameters are provided or have defaults. Use `nix eval` with `--show-trace` for detailed error messages.
-
-## License
-
-Part of the Campground NixOS infrastructure configuration.
