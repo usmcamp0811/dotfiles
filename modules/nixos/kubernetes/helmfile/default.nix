@@ -217,6 +217,20 @@ in {
       default = {};
       description = "Layer-based configuration (legacy compatibility)";
     };
+
+    # Backward compatibility: releases option (unused when using package-based approach)
+    releases = mkOption {
+      type = types.listOf types.attrs;
+      default = [];
+      description = "Legacy releases list (ignored when using package-based helmfile generation)";
+    };
+
+    # Backward compatibility: repositories option (unused when using package-based approach)
+    repositories = mkOption {
+      type = types.listOf types.attrs;
+      default = [];
+      description = "Legacy repositories list (ignored when using package-based helmfile generation)";
+    };
   };
 
   config = mkIf cfg.enable {
