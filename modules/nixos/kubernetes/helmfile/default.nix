@@ -40,7 +40,7 @@ with lib.fmf; let
 
       # Get current K8s host to see if it matches
       CURRENT_K8S_HOST="$(${pkgs.vault-bin}/bin/vault read -field=kubernetes_host auth/kubernetes/config 2>/dev/null || echo "")"
-      NEW_K8S_HOST="https://kubernetes.default.svc:443"
+      NEW_K8S_HOST="$(${pkgs.kubectl}/bin/kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
 
       if [ "$CURRENT_K8S_HOST" = "$NEW_K8S_HOST" ]; then
         echo "Vault Kubernetes auth already correctly configured (host: $CURRENT_K8S_HOST). Skipping reconfiguration."
@@ -79,8 +79,9 @@ with lib.fmf; let
     echo "Reading cluster CA..."
     ${pkgs.kubectl}/bin/kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
 
-    # Use the in-cluster Kubernetes service endpoint (reachable from pods)
-    K8S_HOST="https://kubernetes.default.svc:443"
+    # Get the actual Kubernetes API server address
+    # Use the server address from kubeconfig (works from both inside and outside cluster)
+    K8S_HOST="$(${pkgs.kubectl}/bin/kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
 
     # Configure Vault Kubernetes auth
     echo "Configuring Vault Kubernetes auth..."
