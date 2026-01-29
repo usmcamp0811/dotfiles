@@ -40,9 +40,7 @@ with lib.fmf; let
 
       # Get current K8s host to see if it matches
       CURRENT_K8S_HOST="$(${pkgs.vault-bin}/bin/vault read -field=kubernetes_host auth/kubernetes/config 2>/dev/null || echo "")"
-      # HOST_IP="$(${pkgs.iproute2}/bin/ip route get 1 | ${pkgs.gnused}/bin/sed -n 's/.*src \([0-9.]*\).*/\1/p')"
-      CLUSTER_IP="${config.fmf.services.k8s-control-plane.vip}"
-      NEW_K8S_HOST="https://$CLUSTER_IP:6443"
+      NEW_K8S_HOST="${cfg.baseline.vault.kubernetesApiHost}"
 
       if [ "$CURRENT_K8S_HOST" = "$NEW_K8S_HOST" ]; then
         echo "Vault Kubernetes auth already correctly configured (host: $CURRENT_K8S_HOST). Skipping reconfiguration."
@@ -81,10 +79,8 @@ with lib.fmf; let
     echo "Reading cluster CA..."
     ${pkgs.kubectl}/bin/kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
 
-    # Get the host's actual IP address (not localhost)
-    # This is the IP that Vault (running outside the cluster) can use to reach the K8s API
-    HOST_IP="$(${pkgs.iproute2}/bin/ip route get 1 | ${pkgs.gnused}/bin/sed -n 's/.*src \([0-9.]*\).*/\1/p')"
-    K8S_HOST="https://$HOST_IP:6443"
+    # Use the configured Kubernetes API address that Vault can reach
+    K8S_HOST="${cfg.baseline.vault.kubernetesApiHost}"
 
     # Configure Vault Kubernetes auth
     echo "Configuring Vault Kubernetes auth..."
@@ -150,6 +146,16 @@ in {
           type = types.enum ["v1" "v2"];
           default = "v2";
           description = "Vault KV version";
+        };
+
+        kubernetesApiHost = mkOption {
+          type = types.str;
+          default = "https://${config.fmf.services.k8s-control-plane.vip}:6443";
+          example = "https://10.8.40.49:6443";
+          description = ''
+            Kubernetes API server address that Vault can reach from outside the cluster.
+            Defaults to the K8s control plane VIP.
+          '';
         };
 
         enableK8sAuth = mkOption {
