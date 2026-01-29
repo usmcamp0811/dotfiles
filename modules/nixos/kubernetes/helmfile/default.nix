@@ -36,25 +36,14 @@ with lib.fmf; let
     # Check if Vault Kubernetes auth is already configured
     echo "Checking if Vault Kubernetes auth is already configured..."
     if ${pkgs.vault-bin}/bin/vault read auth/kubernetes/config &>/dev/null; then
-      echo "Vault Kubernetes auth already configured. Checking if reconfiguration is needed..."
+      echo "Vault Kubernetes auth already configured. Verifying configuration..."
 
       # Get current K8s host to see if it matches
       CURRENT_K8S_HOST="$(${pkgs.vault-bin}/bin/vault read -field=kubernetes_host auth/kubernetes/config 2>/dev/null || echo "")"
       NEW_K8S_HOST="${cfg.baseline.vault.kubernetesApiHost}"
 
       if [ "$CURRENT_K8S_HOST" = "$NEW_K8S_HOST" ]; then
-        echo "Vault Kubernetes auth already correctly configured (host: $CURRENT_K8S_HOST). Skipping reconfiguration."
-
-        # Still update the role in case policies changed
-        echo "Updating Vault Kubernetes role external-secrets (idempotent)..."
-        ${pkgs.vault-bin}/bin/vault write auth/kubernetes/role/external-secrets \
-          bound_service_account_names="vault-auth" \
-          bound_service_account_namespaces="*" \
-          policies="''${VAULT_POLICY:-campground}" \
-          ttl=24h
-
-        echo "Vault Kubernetes auth validated successfully!"
-        exit 0
+        echo "Kubernetes host matches (host: $CURRENT_K8S_HOST). Will refresh token_reviewer_jwt and update config..."
       else
         echo "Kubernetes host changed from '$CURRENT_K8S_HOST' to '$NEW_K8S_HOST'. Reconfiguring..."
       fi
