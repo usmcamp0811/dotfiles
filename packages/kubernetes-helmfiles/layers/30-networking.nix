@@ -31,148 +31,170 @@
       ipAddressPools:
         - ${metallb.ipPool.name}
   '';
-in [
-  {
-    name = "metallb";
-    namespace = "metallb-system";
-    chart = "metallb/metallb";
-    needs = ["external-secrets/external-secrets"];
-    wait = true;
-    timeout = 900;
-    atomic = false; # MetalLB can take a while
-    set = [
-      {
-        name = "controller.webhookMode";
-        value = "disabled";
-      }
-    ];
-    hooks = [
-      {
-        events = ["postsync"];
-        showlogs = true;
-        command = "sh";
-        args = [
-          "-c"
-          ''
-            echo "Waiting for MetalLB controller to be ready..."
-            kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system
+in
+  [
+    {
+      name = "metallb";
+      namespace = "metallb-system";
+      chart = "metallb/metallb";
+      needs = ["external-secrets/external-secrets"];
+      wait = true;
+      timeout = 900;
+      atomic = false; # MetalLB can take a while
+      set = [
+        {
+          name = "controller.webhookMode";
+          value = "disabled";
+        }
+      ];
+      hooks = [
+        {
+          events = ["postsync"];
+          showlogs = true;
+          command = "sh";
+          args = [
+            "-c"
+            ''
+              echo "Waiting for MetalLB controller to be ready..."
+              kubectl wait --for=condition=available --timeout=120s deployment/metallb-controller -n metallb-system
 
-            echo "Removing MetalLB validating webhook (workaround for Service routing issue)..."
-            kubectl delete validatingwebhookconfiguration metallb-webhook-configuration --ignore-not-found=true
+              echo "Removing MetalLB validating webhook (workaround for Service routing issue)..."
+              kubectl delete validatingwebhookconfiguration metallb-webhook-configuration --ignore-not-found=true
 
-            echo "Applying MetalLB configuration..."
-            cat <<'METALLB_EOF' | kubectl apply -f -
-            ${metallbConfigManifest}
-            METALLB_EOF
-          ''
-        ];
-      }
-    ];
-  }
-]
-++ lib.optionals traefik.enabled [
-  # ExternalSecret for Cloudflare API token
-  {
-    name = "traefik-cloudflare-secret";
-    namespace = "traefik-k8s";
-    chart = "dysnix/raw";
-    needs = ["external-secrets/external-secrets"];
-    values = [
-      {
-        resources = [
-          {
-            apiVersion = "external-secrets.io/v1beta1";
-            kind = "ExternalSecret";
-            metadata = {
-              name = traefik.cloudflareSecretName;
-              namespace = "traefik-k8s";
-            };
-            spec = {
-              refreshInterval = "1h";
-              secretStoreRef = {
-                name = "vault-backend";
-                kind = "ClusterSecretStore";
-              };
-              target = {
+              echo "Applying MetalLB configuration..."
+              cat <<'METALLB_EOF' | kubectl apply -f -
+              ${metallbConfigManifest}
+              METALLB_EOF
+            ''
+          ];
+        }
+      ];
+    }
+  ]
+  ++ lib.optionals traefik.enabled [
+    # ExternalSecret for Cloudflare API token
+    {
+      name = "traefik-cloudflare-secret";
+      namespace = "traefik-k8s";
+      chart = "dysnix/raw";
+      needs = ["external-secrets/external-secrets"];
+
+      # Optional, but makes this rock-solid if CRDs are slow to register
+      hooks = [
+        {
+          events = ["presync"];
+          showlogs = true;
+          command = "sh";
+          args = [
+            "-c"
+            ''
+              echo "Waiting for ExternalSecrets CRD to exist..."
+              until kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; do
+                sleep 2
+              done
+            ''
+          ];
+        }
+      ];
+
+      values = [
+        {
+          resources = [
+            {
+              # ✅ FIX: use the CRD version most clusters actually have
+              apiVersion = "external-secrets.io/v1beta1";
+              kind = "ExternalSecret";
+              metadata = {
                 name = traefik.cloudflareSecretName;
-                creationPolicy = "Owner";
+                namespace = "traefik-k8s";
               };
-              data = [
-                {
-                  secretKey = traefik.cloudflareSecretKey;
-                  remoteRef = {
-                    key = "cloudflare";
-                    property = "dns_api_token";
-                  };
-                }
-              ];
-            };
-          }
-        ];
-      }
-    ];
-  }
-  # Traefik ingress controller
-  {
-    name = "traefik";
-    namespace = "traefik-k8s";
-    chart = "traefik/traefik";
-    needs = ["metallb-system/metallb" "traefik-k8s/traefik-cloudflare-secret"];
-    wait = true;
-    timeout = 300;
-    values = [
-      ''
-        service:
-          type: LoadBalancer
+              spec = {
+                refreshInterval = "1h";
+                secretStoreRef = {
+                  name = "vault-backend";
+                  kind = "ClusterSecretStore";
+                };
+                target = {
+                  name = traefik.cloudflareSecretName;
+                  creationPolicy = "Owner";
+                };
+                data = [
+                  {
+                    secretKey = traefik.cloudflareSecretKey;
+                    remoteRef = {
+                      key = "cloudflare";
+                      property = "dns_api_token";
+                    };
+                  }
+                ];
+              };
+            }
+          ];
+        }
+      ];
+    }
 
-        ports:
-          web:
-            port: 80
-            exposedPort: 80
-          websecure:
-            port: 443
-            exposedPort: 443
+    # Traefik ingress controller
+    {
+      name = "traefik";
+      namespace = "traefik-k8s";
+      chart = "traefik/traefik";
+      needs = ["metallb-system/metallb" "traefik-k8s/traefik-cloudflare-secret"];
+      wait = true;
+      timeout = 300;
+      values = [
+        ''
+          service:
+            type: LoadBalancer
 
-        ingressClass:
-          enabled: true
-          isDefaultClass: false
+          ports:
+            web:
+              port: 80
+              exposedPort: 80
+            websecure:
+              port: 443
+              exposedPort: 443
 
-        ingressRoute:
-          dashboard:
-            enabled: false
-
-        providers:
-          kubernetesCRD:
+          ingressClass:
             enabled: true
-            allowCrossNamespace: true
-          kubernetesIngress:
+            isDefaultClass: false
+
+          ingressRoute:
+            dashboard:
+              enabled: false
+
+          providers:
+            kubernetesCRD:
+              enabled: true
+              allowCrossNamespace: true
+            kubernetesIngress:
+              enabled: true
+              allowExternalNameServices: true
+
+          certResolvers:
+            cloudflare:
+              acme:
+                email: ${traefik.acmeEmail}
+                storage: /data/acme.json
+                dnsChallenge:
+                  provider: cloudflare
+                  resolvers:
+                    - "1.1.1.1:53"
+                    - "8.8.8.8:53"
+
+          env:
+            - name: CF_DNS_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ${traefik.cloudflareSecretName}
+                  key: ${traefik.cloudflareSecretKey}
+
+          persistence:
             enabled: true
-            allowExternalNameServices: true
-
-        certResolvers:
-          cloudflare:
-            acme:
-              email: ${traefik.acmeEmail}
-              storage: /data/acme.json
-              dnsChallenge:
-                provider: cloudflare
-                resolvers:
-                  - "1.1.1.1:53"
-                  - "8.8.8.8:53"
-
-        env:
-          - name: CF_DNS_API_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: ${traefik.cloudflareSecretName}
-                key: ${traefik.cloudflareSecretKey}
-
-        persistence:
-          enabled: true
-          accessMode: ReadWriteOnce
-          size: 128Mi
-          path: /data
-      ''
-    ];
-  }
-]
+            accessMode: ReadWriteOnce
+            size: 128Mi
+            path: /data
+        ''
+      ];
+    }
+  ]
