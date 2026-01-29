@@ -58,6 +58,19 @@ with lib.fmf; let
     metadata:
       name: vault-init
       namespace: vault-init
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: vault-init-tokenreview
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:auth-delegator
+    subjects:
+    - kind: ServiceAccount
+      name: vault-init
+      namespace: vault-init
     YAML
 
     # Create token for Vault
