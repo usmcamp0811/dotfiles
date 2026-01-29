@@ -79,7 +79,6 @@ in
       chart = "dysnix/raw";
       needs = ["external-secrets/external-secrets"];
 
-      # Optional, but makes this rock-solid if CRDs are slow to register
       hooks = [
         {
           events = ["presync"];
@@ -88,10 +87,12 @@ in
           args = [
             "-c"
             ''
-              echo "Waiting for ExternalSecrets CRD to exist..."
+              echo "Waiting for ExternalSecrets CRD to be discoverable..."
               until kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; do
                 sleep 2
               done
+              # extra: ensure discovery sees it (helps right after CRD install)
+              kubectl api-resources | rg -i 'externalsecrets' || true
             ''
           ];
         }
@@ -101,8 +102,7 @@ in
         {
           resources = [
             {
-              # ✅ FIX: use the CRD version most clusters actually have
-              apiVersion = "external-secrets.io/v1beta1";
+              apiVersion = "external-secrets.io/v1"; # keep v1
               kind = "ExternalSecret";
               metadata = {
                 name = traefik.cloudflareSecretName;
