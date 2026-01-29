@@ -87,7 +87,8 @@ with lib.fmf; let
     ${pkgs.vault-bin}/bin/vault write auth/kubernetes/config \
       token_reviewer_jwt=@/tmp/token.jwt \
       kubernetes_host="$K8S_HOST" \
-      kubernetes_ca_cert=@/tmp/ca.crt
+      kubernetes_ca_cert=@/tmp/ca.crt \
+      disable_iss_validation=true
 
     # Create/update Vault role
     echo "Writing Vault Kubernetes role external-secrets..."
