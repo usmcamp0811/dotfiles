@@ -40,8 +40,9 @@ with lib.fmf; let
 
       # Get current K8s host to see if it matches
       CURRENT_K8S_HOST="$(${pkgs.vault-bin}/bin/vault read -field=kubernetes_host auth/kubernetes/config 2>/dev/null || echo "")"
-      HOST_IP="$(${pkgs.iproute2}/bin/ip route get 1 | ${pkgs.gnused}/bin/sed -n 's/.*src \([0-9.]*\).*/\1/p')"
-      NEW_K8S_HOST="https://$HOST_IP:6443"
+      # HOST_IP="$(${pkgs.iproute2}/bin/ip route get 1 | ${pkgs.gnused}/bin/sed -n 's/.*src \([0-9.]*\).*/\1/p')"
+      CLUSTER_IP="${config.fmf.services.k8s-control-plane.vip}"
+      NEW_K8S_HOST="https://$CLUSTER_IP:6443"
 
       if [ "$CURRENT_K8S_HOST" = "$NEW_K8S_HOST" ]; then
         echo "Vault Kubernetes auth already correctly configured (host: $CURRENT_K8S_HOST). Skipping reconfiguration."
