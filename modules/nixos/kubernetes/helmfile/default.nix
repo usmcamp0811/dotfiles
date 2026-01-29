@@ -115,6 +115,14 @@ with lib.fmf; let
     # MetalLB configuration
     metallb = cfg.baseline.metallb;
 
+    # Traefik configuration
+    traefik = {
+      enabled = cfg.baseline.traefik.enable;
+      acmeEmail = cfg.baseline.traefik.acmeEmail;
+      cloudflareSecretName = cfg.baseline.traefik.cloudflareSecretName;
+      cloudflareSecretKey = cfg.baseline.traefik.cloudflareSecretKey;
+    };
+
     # ArgoCD configuration
     argocdIngressEnabled = cfg.baseline.argocd.ingress.enable;
     argocdIngressHost = cfg.baseline.argocd.ingress.host;
@@ -201,6 +209,34 @@ in {
         };
         default = {};
         description = "MetalLB load balancer configuration";
+      };
+
+      # Traefik configuration (Layer 30)
+      traefik = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable Traefik ingress controller";
+        };
+
+        acmeEmail = mkOption {
+          type = types.str;
+          default = "k8s-admin@aicampground.com";
+          example = "admin@example.com";
+          description = "Email address for ACME certificate registration";
+        };
+
+        cloudflareSecretName = mkOption {
+          type = types.str;
+          default = "cloudflare-api-token";
+          description = "Name of the Kubernetes secret containing the Cloudflare API token";
+        };
+
+        cloudflareSecretKey = mkOption {
+          type = types.str;
+          default = "token";
+          description = "Key name within the secret for the Cloudflare API token";
+        };
       };
 
       # ArgoCD configuration (Layer 60)

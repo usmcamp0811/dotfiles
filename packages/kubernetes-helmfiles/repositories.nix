@@ -20,4 +20,8 @@
     name = "argo";
     url = "https://argoproj.github.io/argo-helm";
   }
+  {
+    name = "traefik";
+    url = "https://traefik.github.io/charts";
+  }
 ]

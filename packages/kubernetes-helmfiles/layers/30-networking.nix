@@ -1,10 +1,11 @@
 # Layer 30: Networking
-# MetalLB load balancer with IP pool configuration
+# MetalLB load balancer with IP pool configuration and Traefik ingress controller
 {
   lib,
   defaults,
 }: {
   metallb ? defaults.metallb,
+  traefik ? defaults.traefik,
 }: let
   metallbConfigManifest = ''
     apiVersion: metallb.io/v1beta1
@@ -66,6 +67,112 @@ in [
           ''
         ];
       }
+    ];
+  }
+]
+++ lib.optionals traefik.enabled [
+  # ExternalSecret for Cloudflare API token
+  {
+    name = "traefik-cloudflare-secret";
+    namespace = "traefik-k8s";
+    chart = "dysnix/raw";
+    needs = ["external-secrets/external-secrets"];
+    values = [
+      {
+        resources = [
+          {
+            apiVersion = "external-secrets.io/v1beta1";
+            kind = "ExternalSecret";
+            metadata = {
+              name = traefik.cloudflareSecretName;
+              namespace = "traefik-k8s";
+            };
+            spec = {
+              refreshInterval = "1h";
+              secretStoreRef = {
+                name = "vault-backend";
+                kind = "ClusterSecretStore";
+              };
+              target = {
+                name = traefik.cloudflareSecretName;
+                creationPolicy = "Owner";
+              };
+              data = [
+                {
+                  secretKey = traefik.cloudflareSecretKey;
+                  remoteRef = {
+                    key = "cloudflare";
+                    property = "dns_api_token";
+                  };
+                }
+              ];
+            };
+          }
+        ];
+      }
+    ];
+  }
+  # Traefik ingress controller
+  {
+    name = "traefik";
+    namespace = "traefik-k8s";
+    chart = "traefik/traefik";
+    needs = ["metallb-system/metallb" "traefik-k8s/traefik-cloudflare-secret"];
+    wait = true;
+    timeout = 300;
+    values = [
+      ''
+        service:
+          type: LoadBalancer
+
+        ports:
+          web:
+            port: 80
+            exposedPort: 80
+          websecure:
+            port: 443
+            exposedPort: 443
+
+        ingressClass:
+          enabled: true
+          isDefaultClass: false
+
+        ingressRoute:
+          dashboard:
+            enabled: false
+
+        providers:
+          kubernetesCRD:
+            enabled: true
+            allowCrossNamespace: true
+          kubernetesIngress:
+            enabled: true
+            allowExternalNameServices: true
+
+        certResolvers:
+          cloudflare:
+            acme:
+              email: ${traefik.acmeEmail}
+              storage: /data/acme.json
+              dnsChallenge:
+                provider: cloudflare
+                resolvers:
+                  - "1.1.1.1:53"
+                  - "8.8.8.8:53"
+
+        env:
+          - name: CF_DNS_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: ${traefik.cloudflareSecretName}
+                key: ${traefik.cloudflareSecretKey}
+
+        persistence:
+          enabled: true
+          accessMode: ReadWriteOnce
+          size: 128Mi
+          path: /data
+      ''
     ];
   }
 ]

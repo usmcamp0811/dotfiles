@@ -14,7 +14,14 @@
 
   argocd = {
     ingressEnabled = false;
-    ingressHost = "argocd.k8s.example.com";
+    ingressHost = "argocd.k8s.aicampground.com";
     ingressClass = "traefik-k8s";
+  };
+
+  traefik = {
+    enabled = true;
+    acmeEmail = "k8s-admin@aicampground.com";
+    cloudflareSecretName = "cloudflare-api-token";
+    cloudflareSecretKey = "token";
   };
 }

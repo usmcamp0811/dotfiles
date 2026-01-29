@@ -21,7 +21,7 @@
   crdsReleases = mkCrdsReleases {};
   controllersReleases = mkControllersReleases {};
   defaultSecretsReleases = mkSecretsReleases {};
-  defaultNetworkingReleases = mkNetworkingReleases {};
+  defaultNetworkingReleases = mkNetworkingReleases {traefik = defaults.traefik;};
   defaultGitopsReleases = mkGitopsReleases {};
 
   # Helper to add createNamespace to all releases (matches helmfile module behavior)
@@ -58,12 +58,13 @@
     vaultKvPath ? defaults.vaultKvPath,
     vaultKvVersion ? defaults.vaultKvVersion,
     metallb ? defaults.metallb,
+    traefik ? defaults.traefik,
     argocdIngressEnabled ? defaults.argocd.ingressEnabled,
     argocdIngressHost ? defaults.argocd.ingressHost,
     argocdIngressClass ? defaults.argocd.ingressClass,
   }: let
     secretsReleases = mkSecretsReleases {inherit vaultAddress vaultKvPath vaultKvVersion;};
-    networkingReleases = mkNetworkingReleases {inherit metallb;};
+    networkingReleases = mkNetworkingReleases {inherit metallb traefik;};
     gitopsReleases = mkGitopsReleases {inherit argocdIngressEnabled argocdIngressHost argocdIngressClass;};
 
     # Merge all releases in layer order and add createNamespace
