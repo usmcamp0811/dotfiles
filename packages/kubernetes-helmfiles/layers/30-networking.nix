@@ -93,6 +93,23 @@ in
               done
               # extra: ensure discovery sees it (helps right after CRD install)
               kubectl api-resources | rg -i 'externalsecrets' || true
+
+              echo "Waiting for external-secrets webhook to be ready..."
+              # Wait for webhook pod to be ready
+              until kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=external-secrets-webhook -n external-secrets --timeout=10s >/dev/null 2>&1; do
+                echo "  Webhook pod not ready yet, waiting..."
+                sleep 5
+              done
+
+              # Wait for webhook endpoint to respond (verify it's actually listening)
+              WEBHOOK_POD=$(kubectl get pod -n external-secrets -l app.kubernetes.io/name=external-secrets-webhook -o jsonpath='{.items[0].metadata.name}')
+              echo "  Testing webhook connectivity from pod: $WEBHOOK_POD"
+              until kubectl exec -n external-secrets "$WEBHOOK_POD" -- sh -c 'nc -z -w5 127.0.0.1 10250 || wget -qO- --timeout=5 http://127.0.0.1:8081/readyz >/dev/null' 2>/dev/null; do
+                echo "  Webhook endpoint not responding yet, waiting..."
+                sleep 5
+              done
+
+              echo "  External-secrets webhook is ready!"
             ''
           ];
         }
