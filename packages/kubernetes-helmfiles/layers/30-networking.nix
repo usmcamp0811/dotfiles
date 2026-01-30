@@ -148,58 +148,69 @@ in
       wait = true;
       timeout = 300;
       values = [
-        ''
-          service:
-            type: LoadBalancer
+        {
+          service.type = "LoadBalancer";
 
-          ports:
-            web:
-              port: 80
-              exposedPort: 80
-            websecure:
-              port: 443
-              exposedPort: 443
+          ports = {
+            web = {
+              port = 80;
+              exposedPort = 80;
+            };
+            websecure = {
+              port = 443;
+              exposedPort = 443;
+            };
+          };
 
-          ingressClass:
-            enabled: true
-            isDefaultClass: false
+          ingressClass = {
+            enabled = true;
+            isDefaultClass = false;
+          };
 
-          ingressRoute:
-            dashboard:
-              enabled: false
+          ingressRoute.dashboard.enabled = false;
 
-          providers:
-            kubernetesCRD:
-              enabled: true
-              allowCrossNamespace: true
-            kubernetesIngress:
-              enabled: true
-              allowExternalNameServices: true
+          providers = {
+            kubernetesCRD = {
+              enabled = true;
+              allowCrossNamespace = true;
+            };
+            kubernetesIngress = {
+              enabled = true;
+              allowExternalNameServices = true;
+            };
+          };
 
-          certResolvers:
-            cloudflare:
-              acme:
-                email: ${traefik.acmeEmail}
-                storage: /data/acme.json
-                dnsChallenge:
-                  provider: cloudflare
-                  resolvers:
-                    - "1.1.1.1:53"
-                    - "8.8.8.8:53"
+          certResolvers.cloudflare = {
+            acme = {
+              email = traefik.acmeEmail;
+              storage = "/data/acme.json";
+              dnsChallenge = {
+                provider = "cloudflare";
+                resolvers = [
+                  "1.1.1.1:53"
+                  "8.8.8.8:53"
+                ];
+              };
+            };
+          };
 
-          env:
-            - name: CF_DNS_API_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: ${traefik.cloudflareSecretName}
-                  key: ${traefik.cloudflareSecretKey}
+          env = [
+            {
+              name = "CF_DNS_API_TOKEN";
+              valueFrom.secretKeyRef = {
+                name = traefik.cloudflareSecretName;
+                key = traefik.cloudflareSecretKey;
+              };
+            }
+          ];
 
-          persistence:
-            enabled: true
-            accessMode: ReadWriteOnce
-            size: 128Mi
-            path: /data
-        ''
+          persistence = {
+            enabled = true;
+            accessMode = "ReadWriteOnce";
+            size = "128Mi";
+            path = "/data";
+          };
+        }
       ];
     }
   ]
