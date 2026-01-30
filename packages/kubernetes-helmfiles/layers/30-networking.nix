@@ -180,19 +180,13 @@ in
             };
           };
 
-          certResolvers.cloudflare = {
-            acme = {
-              email = traefik.acmeEmail;
-              storage = "/data/acme.json";
-              dnsChallenge = {
-                provider = "cloudflare";
-                resolvers = [
-                  "1.1.1.1:53"
-                  "8.8.8.8:53"
-                ];
-              };
-            };
-          };
+          additionalArguments = [
+            "--certificatesresolvers.cloudflare.acme.email=${traefik.acmeEmail}"
+            "--certificatesresolvers.cloudflare.acme.storage=/data/acme.json"
+            "--certificatesresolvers.cloudflare.acme.dnschallenge=true"
+            "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
+            "--certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+          ];
 
           env = [
             {
