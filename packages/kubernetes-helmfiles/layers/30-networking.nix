@@ -95,7 +95,7 @@ in
               kubectl api-resources | grep -i 'externalsecrets' || true
 
               echo "Removing ExternalSecret validating webhook to avoid connectivity issues..."
-              kubectl delete validatingwebhookconfiguration validate.externalsecret.external-secrets.io --ignore-not-found=true
+              kubectl delete validatingwebhookconfiguration externalsecret-validate --ignore-not-found=true
 
               echo "ExternalSecret webhook validation disabled. Ready to create ExternalSecret."
             ''
