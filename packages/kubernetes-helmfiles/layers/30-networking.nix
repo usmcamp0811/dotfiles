@@ -128,7 +128,7 @@ in
                     secretKey = traefik.cloudflareSecretKey;
                     remoteRef = {
                       key = "cloudflare";
-                      property = "dns_api_token";
+                      property = "CLOUDFLARE_API_KEY";
                     };
                   }
                 ];
