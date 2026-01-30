@@ -162,7 +162,7 @@ in
             };
             traefik = {
               port = 9000;
-              expose = true;
+              expose.default = true;
               exposedPort = 8080;
             };
           };
