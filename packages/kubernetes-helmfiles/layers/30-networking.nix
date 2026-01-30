@@ -160,6 +160,11 @@ in
               port = 443;
               exposedPort = 443;
             };
+            traefik = {
+              port = 9000;
+              expose = true;
+              exposedPort = 8080;
+            };
           };
 
           ingressClass = {
@@ -167,7 +172,7 @@ in
             isDefaultClass = false;
           };
 
-          ingressRoute.dashboard.enabled = false;
+          ingressRoute.dashboard.enabled = true;
 
           providers = {
             kubernetesCRD = {
