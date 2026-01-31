@@ -7,7 +7,7 @@
 
   # Configuration defaults
   defaults = {
-    repoURL = "https://github.com/usmcamp0811/dotfiles.git"; # TODO: Update with actual repo URL
+    repoURL = "https://github.com/usmcamp0811/dotfiles.git";
     targetRevision = "nixos";
     clusterName = "campground";
   };
