@@ -114,6 +114,10 @@ in {
       enable = lib.mkForce true;
       allowedTCPPorts = [
         10250 # Kubelet
+        7946 # MetalLB memberlist (gossip protocol)
+      ];
+      allowedUDPPorts = [
+        7946 # MetalLB memberlist (gossip protocol)
       ];
     };
   };

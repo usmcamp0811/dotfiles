@@ -194,6 +194,10 @@ in {
         10250 # Kubelet
         2379 # etcd client
         2380 # etcd peer
+        7946 # MetalLB memberlist (gossip protocol)
+      ];
+      allowedUDPPorts = [
+        7946 # MetalLB memberlist (gossip protocol)
       ];
     };
   };
