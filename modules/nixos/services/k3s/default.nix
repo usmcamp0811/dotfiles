@@ -98,6 +98,46 @@ in {
       default = "v2";
       description = "KV store version";
     };
+
+    gitops = {
+      enable = mkEnableOption "Enable GitOps bootstrap with ArgoCD";
+
+      package = mkOption {
+        type = types.package;
+        default = pkgs.fmf.gitops;
+        description = "The gitops package containing the root app and manifests";
+      };
+
+      argocdVersion = mkOption {
+        type = types.str;
+        default = "7.7.0";
+        description = "ArgoCD Helm chart version to install";
+      };
+
+      argocdNamespace = mkOption {
+        type = types.str;
+        default = "argocd";
+        description = "Namespace for ArgoCD installation";
+      };
+
+      repoURL = mkOption {
+        type = types.str;
+        default = "https://github.com/usmcamp0811/dotfiles.git";
+        description = "Git repository URL for GitOps content";
+      };
+
+      targetRevision = mkOption {
+        type = types.str;
+        default = "nixos";
+        description = "Git branch/tag to sync from";
+      };
+
+      clusterName = mkOption {
+        type = types.str;
+        default = "campground";
+        description = "Cluster name (determines path in gitops repo)";
+      };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -332,13 +372,82 @@ in {
 
       secrets = {
         file = {
-          files = {
-            "k3s-token" = {
-              text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.node_token }}{{ else }}{{ .Data.data.node_token }}{{ end }}{{ end }}'';
-              permissions = "0400";
-              change-action = "restart";
-            };
-          };
+          files =
+            {
+              "k3s-token" = {
+                text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.node_token }}{{ else }}{{ .Data.data.node_token }}{{ end }}{{ end }}'';
+                permissions = "0400";
+                change-action = "restart";
+              };
+            }
+            // (
+              if cfg.gitops.enable
+              then {
+                # ArgoCD repository credentials (SSH deploy key)
+                "argocd-repo-secret" = {
+                  text = ''
+                    apiVersion: v1
+                    kind: Secret
+                    metadata:
+                      name: private-repo
+                      namespace: ${cfg.gitops.argocdNamespace}
+                      labels:
+                        argocd.argoproj.io/secret-type: repository
+                    type: Opaque
+                    stringData:
+                      type: git
+                      url: {{ with secret "secret/campground/argocd/repo" }}{{ .Data.data.url }}{{ end }}
+                      sshPrivateKey: |
+                    {{ with secret "secret/campground/argocd/repo" }}{{ .Data.data.ssh_private_key | indent 4 }}{{ end }}
+                  '';
+                  permissions = "0600";
+                  change-action = "none";
+                  # This file needs to be written to k3s manifests directory
+                  destination = "${serverStateDir}/manifests/10-argocd-repo-secret.yaml";
+                };
+              }
+              else {}
+            );
+        };
+      };
+    };
+
+    # GitOps Bootstrap Configuration
+    services.k3s = mkIf cfg.gitops.enable {
+      # Install ArgoCD using k3s HelmChart CRD
+      manifests."00-argocd-install".content = {
+        apiVersion = "helm.cattle.io/v1";
+        kind = "HelmChart";
+        metadata = {
+          name = "argocd";
+          namespace = "kube-system";
+        };
+        spec = {
+          repo = "https://argoproj.github.io/argo-helm";
+          chart = "argo-cd";
+          version = cfg.gitops.argocdVersion;
+          targetNamespace = cfg.gitops.argocdNamespace;
+          createNamespace = true;
+          helmVersion = "v3";
+          valuesContent = ''
+            server:
+              service:
+                type: ClusterIP
+              ingress:
+                enabled: false
+            configs:
+              params:
+                server.insecure: true
+          '';
+        };
+      };
+
+      # Install root Application pointing to GitOps repo
+      manifests."20-root-app" = {
+        target = "root-app.yaml";
+        source = cfg.gitops.package.mkRootApp {
+          inherit (cfg.gitops) repoURL targetRevision clusterName;
+          clusterPath = "packages/gitops/clusters/${cfg.gitops.clusterName}";
         };
       };
     };
