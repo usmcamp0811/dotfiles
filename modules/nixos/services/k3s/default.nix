@@ -336,8 +336,40 @@ in {
       [cfg.package]
       ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
-    # Joiners: copy the Vault-rendered token into the correct data-dir-derived token path.
+    # Bootstrap: copy GitOps bootstrap secret to k3s manifests directory
     systemd.services.k3s.preStart = mkMerge [
+      (mkIf (cfg.clusterInit && cfg.gitops.enable) (mkBefore ''
+        echo "K3s PreStart: Setting up GitOps bootstrap secret..."
+
+        # Ensure manifests directory exists
+        mkdir -p ${escapeShellArg serverStateDir}/manifests
+
+        # Wait for vault agent to provide the argocd repo secret (with timeout)
+        MAX_WAIT=30
+        WAIT_COUNT=0
+        while [ ! -f /tmp/detsys-vault/argocd-repo-secret.yaml ] || [ ! -s /tmp/detsys-vault/argocd-repo-secret.yaml ]; do
+          WAIT_COUNT=$((WAIT_COUNT + 1))
+          if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+            echo "WARNING: ArgoCD repo secret not available after $MAX_WAIT seconds"
+            echo "Expected file: /tmp/detsys-vault/argocd-repo-secret.yaml"
+            echo "ArgoCD will not be able to sync private repositories"
+            break
+          fi
+          echo "Waiting for vault agent to provide argocd-repo-secret (attempt $WAIT_COUNT/$MAX_WAIT)..."
+          sleep 1
+        done
+
+        # Copy secret to k3s manifests directory if it exists
+        if [ -f /tmp/detsys-vault/argocd-repo-secret.yaml ]; then
+          cp /tmp/detsys-vault/argocd-repo-secret.yaml ${escapeShellArg serverStateDir}/manifests/10-argocd-repo-secret.yaml
+          chmod 0600 ${escapeShellArg serverStateDir}/manifests/10-argocd-repo-secret.yaml
+          echo "ArgoCD repo secret copied successfully"
+        else
+          echo "WARNING: ArgoCD repo secret not found, skipping..."
+        fi
+      ''))
+
+      # Joiners: copy the Vault-rendered token into the correct data-dir-derived token path.
       (mkIf (!cfg.clusterInit) (mkBefore ''
         echo "K3s PreStart: Setting up node token for joining cluster..."
 
@@ -424,7 +456,7 @@ in {
               if cfg.gitops.enable
               then {
                 # ArgoCD repository credentials (SSH deploy key)
-                "argocd-repo-secret" = {
+                "argocd-repo-secret.yaml" = {
                   text = ''
                     apiVersion: v1
                     kind: Secret
@@ -441,9 +473,7 @@ in {
                     {{ with secret "secret/campground/argocd/repo" }}{{ .Data.data.ssh_private_key | indent 4 }}{{ end }}
                   '';
                   permissions = "0600";
-                  change-action = "none";
-                  # This file needs to be written to k3s manifests directory
-                  destination = "${serverStateDir}/manifests/10-argocd-repo-secret.yaml";
+                  change-action = "restart";
                 };
               }
               else {}
