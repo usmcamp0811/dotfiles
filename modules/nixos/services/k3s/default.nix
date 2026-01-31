@@ -204,11 +204,17 @@ in {
                   server.insecure: true
               repoServer:
                 livenessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: metrics
                   initialDelaySeconds: 30
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 5
                 readinessProbe:
+                  httpGet:
+                    path: /healthz
+                    port: metrics
                   initialDelaySeconds: 10
                   periodSeconds: 10
                   timeoutSeconds: 5
