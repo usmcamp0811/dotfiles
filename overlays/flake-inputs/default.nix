@@ -12,8 +12,7 @@
   nix2container,
   inputs,
   ...
-}:
-final: prev: {
+}: final: prev: {
   # Hyprland ecosystem
   hyprpaper = hyprpaper.packages.${prev.system}.default;
 
@@ -36,4 +35,7 @@ final: prev: {
 
   # Development environments
   scientific-fhs = inputs.scientific-fhs.packages.${prev.system}.scientific-fhs;
+
+  # Backlog.md - A tool for managing project collaboration between humans and AI Agents in a git ecosystem
+  backlog-md = inputs.backlog-md.packages.${prev.system}.backlog-md;
 }
