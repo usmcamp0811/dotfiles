@@ -30,6 +30,9 @@
     spec:
       ipAddressPools:
         - ${metallb.ipPool.name}
+      nodeSelectors:
+        - matchLabels:
+            node-role.kubernetes.io/control-plane: "true"
   '';
 in
   [
