@@ -101,6 +101,9 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # open ports for MetalLB
+    networking.firewall.allowedTCPPorts = [7946];
+    networking.firewall.allowedUDPPorts = [7946];
     services.k3s = {
       enable = true;
       package = cfg.package;
@@ -128,7 +131,7 @@ in {
     # Add better logging for k3s service
     systemd.services.k3s = {
       environment = {
-        K3S_DEBUG = "false";  # Set to "true" for verbose logging if needed
+        K3S_DEBUG = "false"; # Set to "true" for verbose logging if needed
       };
 
       serviceConfig = {
