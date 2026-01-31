@@ -166,6 +166,46 @@ in {
         (mkDefault cfg.extraFlags)
         (mkIf (cfg.snapshotter != null) (mkForce ["--snapshotter" cfg.snapshotter]))
       ];
+
+      # GitOps Bootstrap Manifests
+      manifests = mkIf cfg.gitops.enable {
+        # Install ArgoCD using k3s HelmChart CRD
+        "00-argocd-install".content = {
+          apiVersion = "helm.cattle.io/v1";
+          kind = "HelmChart";
+          metadata = {
+            name = "argocd";
+            namespace = "kube-system";
+          };
+          spec = {
+            repo = "https://argoproj.github.io/argo-helm";
+            chart = "argo-cd";
+            version = cfg.gitops.argocdVersion;
+            targetNamespace = cfg.gitops.argocdNamespace;
+            createNamespace = true;
+            helmVersion = "v3";
+            valuesContent = ''
+              server:
+                service:
+                  type: ClusterIP
+                ingress:
+                  enabled: false
+              configs:
+                params:
+                  server.insecure: true
+            '';
+          };
+        };
+
+        # Install root Application pointing to GitOps repo
+        "20-root-app" = {
+          target = "root-app.yaml";
+          source = cfg.gitops.package.mkRootApp {
+            inherit (cfg.gitops) repoURL targetRevision clusterName;
+            clusterPath = "packages/gitops/clusters/${cfg.gitops.clusterName}";
+          };
+        };
+      };
     };
 
     # Add better logging for k3s service
@@ -408,46 +448,6 @@ in {
               }
               else {}
             );
-        };
-      };
-    };
-
-    # GitOps Bootstrap Configuration
-    services.k3s = mkIf cfg.gitops.enable {
-      # Install ArgoCD using k3s HelmChart CRD
-      manifests."00-argocd-install".content = {
-        apiVersion = "helm.cattle.io/v1";
-        kind = "HelmChart";
-        metadata = {
-          name = "argocd";
-          namespace = "kube-system";
-        };
-        spec = {
-          repo = "https://argoproj.github.io/argo-helm";
-          chart = "argo-cd";
-          version = cfg.gitops.argocdVersion;
-          targetNamespace = cfg.gitops.argocdNamespace;
-          createNamespace = true;
-          helmVersion = "v3";
-          valuesContent = ''
-            server:
-              service:
-                type: ClusterIP
-              ingress:
-                enabled: false
-            configs:
-              params:
-                server.insecure: true
-          '';
-        };
-      };
-
-      # Install root Application pointing to GitOps repo
-      manifests."20-root-app" = {
-        target = "root-app.yaml";
-        source = cfg.gitops.package.mkRootApp {
-          inherit (cfg.gitops) repoURL targetRevision clusterName;
-          clusterPath = "packages/gitops/clusters/${cfg.gitops.clusterName}";
         };
       };
     };
