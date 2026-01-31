@@ -13,7 +13,7 @@
       url = "gitlab:crystal-forge/crystal-forge/112-not-making-new-generations-2";
       inputs.nixpkgs.follows = "unstable";
     };
-
+    backlog.url = "github:MrLesk/Backlog.md";
     zig2nix.url = "github:Cloudef/zig2nix";
     nixtheplanet.url = "github:MatthewCroughan/NixThePlanet";
     npmlock2nix = {
