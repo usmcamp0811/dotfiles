@@ -167,9 +167,19 @@ in {
         (mkIf (cfg.snapshotter != null) (mkForce ["--snapshotter" cfg.snapshotter]))
       ];
 
+      # GitOps Bootstrap: Serve ArgoCD chart via k3s static charts
+      charts = mkIf cfg.gitops.enable {
+        argocd = pkgs.runCommand "argocd.tgz" {
+          nativeBuildInputs = [pkgs.gnutar pkgs.gzip];
+        } ''
+          cp -r ${pkgs.nixhelmCharts.argoproj.argo-cd} argocd
+          tar -czf $out -C argocd .
+        '';
+      };
+
       # GitOps Bootstrap Manifests
       manifests = mkIf cfg.gitops.enable {
-        # Install ArgoCD using k3s HelmChart CRD
+        # Install ArgoCD using k3s HelmChart CRD with local chart
         "00-argocd-install".content = {
           apiVersion = "helm.cattle.io/v1";
           kind = "HelmChart";
@@ -178,12 +188,11 @@ in {
             namespace = "kube-system";
           };
           spec = {
-            repo = "https://argoproj.github.io/argo-helm";
-            chart = "argo-cd";
-            version = cfg.gitops.argocdVersion;
+            chart = "https://%{KUBERNETES_API}%/static/charts/argocd.tgz";
             targetNamespace = cfg.gitops.argocdNamespace;
             createNamespace = true;
             helmVersion = "v3";
+            insecureSkipTLSVerify = true;
             valuesContent = ''
               server:
                 service:
