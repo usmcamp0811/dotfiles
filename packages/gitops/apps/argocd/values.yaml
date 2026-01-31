@@ -1,0 +1,14 @@
+# ArgoCD Helm Chart Values
+# This file contains the values for the ArgoCD Helm chart self-management
+
+# Placeholder - will be populated with actual ArgoCD configuration
+global:
+  domain: argocd.campground.local
+
+server:
+  service:
+    type: ClusterIP
+
+configs:
+  params:
+    server.insecure: true  # Using Traefik for TLS termination
