@@ -202,6 +202,17 @@ in {
               configs:
                 params:
                   server.insecure: true
+              repoServer:
+                livenessProbe:
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+                readinessProbe:
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
             '';
           };
         };
