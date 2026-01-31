@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: platform
+  sources:
+    # Helm chart source
+    - repoURL: https://metallb.github.io/metallb
+      chart: metallb
+      targetRevision: 0.14.9  # Pinned version
+      helm:
+        values: |
+          controller:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          speaker:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+    # Manifests source (IPAddressPool and L2Advertisement)
+    - repoURL: https://github.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      path: packages/gitops/apps/metallb
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

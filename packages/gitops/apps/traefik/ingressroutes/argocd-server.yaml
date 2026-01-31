@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`argocd.k8s.aicampground.com`)
+      priority: 10
+      services:
+        - name: argocd-server
+          port: 443
+          scheme: https
+  tls:
+    certResolver: cloudflare

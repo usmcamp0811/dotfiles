@@ -1,14 +1,56 @@
 # ArgoCD Helm Chart Values
-# This file contains the values for the ArgoCD Helm chart self-management
+# Self-management configuration for ArgoCD
 
-# Placeholder - will be populated with actual ArgoCD configuration
 global:
-  domain: argocd.campground.local
+  domain: argocd.k8s.aicampground.com
 
+# Server configuration
 server:
   service:
     type: ClusterIP
 
+  ingress:
+    enabled: false  # Using Traefik IngressRoute instead
+
+  config:
+    # Repository credentials will be provided via bootstrap secret
+
+# Controller configuration
+controller:
+  metrics:
+    enabled: true
+
+# Dex (SSO) - disabled by default
+dex:
+  enabled: false
+
+# Redis configuration
+redis:
+  enabled: true
+
+# Repo server configuration
+repoServer:
+  metrics:
+    enabled: true
+
+# Application controller
+applicationSet:
+  enabled: true
+
+# Notifications controller
+notifications:
+  enabled: false
+
+# Configs
 configs:
   params:
     server.insecure: true  # Using Traefik for TLS termination
+
+  cm:
+    # Timeout settings
+    timeout.reconciliation: 180s
+    timeout.hard.reconciliation: 0s
+
+  rbac:
+    # Default RBAC policy
+    policy.default: role:readonly

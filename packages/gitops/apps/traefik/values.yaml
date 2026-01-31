@@ -1,0 +1,55 @@
+# Traefik Helm Chart Values
+
+service:
+  type: LoadBalancer
+
+ports:
+  web:
+    port: 80
+    exposedPort: 80
+  websecure:
+    port: 443
+    exposedPort: 443
+  traefik:
+    port: 9000
+    expose:
+      default: true
+    exposedPort: 8080
+
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+
+ingressRoute:
+  dashboard:
+    enabled: true
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+  kubernetesIngress:
+    enabled: true
+    allowExternalNameServices: true
+
+additionalArguments:
+  - "--certificatesresolvers.cloudflare.acme.email=k8s-admin@aicampground.com"
+  - "--certificatesresolvers.cloudflare.acme.storage=/data/acme.json"
+  - "--certificatesresolvers.cloudflare.acme.dnschallenge=true"
+  - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
+  - "--certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+  - "--api.dashboard=true"
+  - "--api.insecure=true"
+
+env:
+  - name: CF_DNS_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token
+        key: token
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 128Mi
+  path: /data
