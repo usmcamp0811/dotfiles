@@ -394,6 +394,108 @@ in {
         else
           echo "WARNING: ArgoCD repo secret not found, skipping..."
         fi
+
+        echo "K3s PreStart: Configuring Vault Kubernetes auth..."
+
+        # Wait for K3s API to be ready (we need it running to configure Vault)
+        echo "Waiting for K3s API server to start..."
+        MAX_K8S_WAIT=60
+        K8S_WAIT_COUNT=0
+        until ${pkgs.k3s}/bin/k3s kubectl get --raw /healthz >/dev/null 2>&1; do
+          K8S_WAIT_COUNT=$((K8S_WAIT_COUNT + 1))
+          if [ $K8S_WAIT_COUNT -ge $MAX_K8S_WAIT ]; then
+            echo "WARNING: K3s API not ready after $MAX_K8S_WAIT attempts"
+            echo "Skipping Vault Kubernetes auth configuration"
+            break
+          fi
+          echo "Waiting for K3s API (attempt $K8S_WAIT_COUNT/$MAX_K8S_WAIT)..."
+          sleep 2
+        done
+
+        # Only proceed if K3s is ready
+        if [ $K8S_WAIT_COUNT -lt $MAX_K8S_WAIT ]; then
+          echo "K3s API is ready. Configuring Vault Kubernetes auth..."
+
+          export VAULT_ADDR="${cfg.vault-address}"
+          HOSTNAME=${config.networking.hostName}
+
+          # Login to Vault using AppRole
+          ROLE_ID=$(cat ${cfg.role-id})
+          SECRET_ID=$(cat ${cfg.secret-id})
+          VAULT_TOKEN=$(${pkgs.vault-bin}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          export VAULT_TOKEN
+
+          # Wait for external-secrets namespace and vault-auth ServiceAccount
+          echo "Waiting for external-secrets namespace..."
+          MAX_NS_WAIT=30
+          NS_WAIT_COUNT=0
+          until ${pkgs.k3s}/bin/k3s kubectl get namespace external-secrets >/dev/null 2>&1; do
+            NS_WAIT_COUNT=$((NS_WAIT_COUNT + 1))
+            if [ $NS_WAIT_COUNT -ge $MAX_NS_WAIT ]; then
+              echo "WARNING: external-secrets namespace not found after $MAX_NS_WAIT attempts"
+              echo "Skipping Vault Kubernetes auth configuration"
+              break
+            fi
+            echo "Waiting for external-secrets namespace (attempt $NS_WAIT_COUNT/$MAX_NS_WAIT)..."
+            sleep 2
+          done
+
+          if [ $NS_WAIT_COUNT -lt $MAX_NS_WAIT ]; then
+            echo "Waiting for vault-auth ServiceAccount..."
+            MAX_SA_WAIT=30
+            SA_WAIT_COUNT=0
+            until ${pkgs.k3s}/bin/k3s kubectl get serviceaccount -n external-secrets vault-auth >/dev/null 2>&1; do
+              SA_WAIT_COUNT=$((SA_WAIT_COUNT + 1))
+              if [ $SA_WAIT_COUNT -ge $MAX_SA_WAIT ]; then
+                echo "WARNING: vault-auth ServiceAccount not found after $MAX_SA_WAIT attempts"
+                echo "Skipping Vault Kubernetes auth configuration"
+                break
+              fi
+              echo "Waiting for vault-auth ServiceAccount (attempt $SA_WAIT_COUNT/$MAX_SA_WAIT)..."
+              sleep 2
+            done
+
+            if [ $SA_WAIT_COUNT -lt $MAX_SA_WAIT ]; then
+              echo "vault-auth ServiceAccount found. Proceeding with Vault configuration..."
+
+              # Create ClusterRoleBinding for vault-auth
+              echo "Creating ClusterRoleBinding for vault-auth..."
+              ${pkgs.k3s}/bin/k3s kubectl create clusterrolebinding vault-auth-delegator \
+                --clusterrole=system:auth-delegator \
+                --serviceaccount=external-secrets:vault-auth \
+                --dry-run=client -o yaml | ${pkgs.k3s}/bin/k3s kubectl apply -f -
+
+              # Create token for Vault
+              echo "Creating token for vault-auth ServiceAccount..."
+              ${pkgs.k3s}/bin/k3s kubectl -n external-secrets create token vault-auth --duration=24h > /tmp/token.jwt
+
+              # Get cluster CA
+              echo "Reading cluster CA..."
+              ${pkgs.k3s}/bin/k3s kubectl -n kube-system get configmap kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > /tmp/ca.crt
+
+              # Configure Vault Kubernetes auth
+              echo "Configuring Vault Kubernetes auth backend..."
+              ${pkgs.vault-bin}/bin/vault write auth/kubernetes/config \
+                token_reviewer_jwt=@/tmp/token.jwt \
+                kubernetes_host="${cfg.serverAddr}:6443" \
+                kubernetes_ca_cert=@/tmp/ca.crt \
+                disable_iss_validation=true || echo "WARNING: Failed to configure Vault Kubernetes auth"
+
+              # Create Vault role for external-secrets
+              echo "Creating Vault Kubernetes role..."
+              ${pkgs.vault-bin}/bin/vault write auth/kubernetes/role/external-secrets \
+                bound_service_account_names="vault-auth" \
+                bound_service_account_namespaces="*" \
+                policies="campground" \
+                ttl=24h || echo "WARNING: Failed to create Vault Kubernetes role"
+
+              # Clean up
+              rm -f /tmp/token.jwt /tmp/ca.crt
+
+              echo "Vault Kubernetes auth configuration complete!"
+            fi
+          fi
+        fi
       ''))
 
       # Joiners: copy the Vault-rendered token into the correct data-dir-derived token path.

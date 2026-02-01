@@ -209,30 +209,21 @@ rm /tmp/token.jwt
 kubectl delete clustersecretstore vault-backend
 ```
 
-## GitOps Integration
+## Automated Setup with K3s GitOps
 
-The `vault-auth` ServiceAccount is managed by ArgoCD in the `vault-backend` Application. However, the ClusterRoleBinding must be created manually or added to your GitOps repo.
+**If you're using `fmf.services.k3s.gitops.enable = true`**, the entire Vault Kubernetes auth setup is **fully automated**!
 
-### Add ClusterRoleBinding to GitOps
+The k3s module's preStart script automatically:
+1. Waits for the K3s API to be ready
+2. Waits for ArgoCD to deploy the `external-secrets` namespace and `vault-auth` ServiceAccount
+3. Creates the `vault-auth-delegator` ClusterRoleBinding
+4. Logs into Vault using the host's AppRole credentials
+5. Configures Vault's Kubernetes auth backend
+6. Creates the Vault role for external-secrets
 
-Create `/config/packages/kubernetes-gitops/apps/external-secrets/vault-auth-clusterrolebinding.yaml`:
+**No manual intervention required!** Just deploy your cluster and everything is configured automatically.
 
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: vault-auth-delegator
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:auth-delegator
-subjects:
-- kind: ServiceAccount
-  name: vault-auth
-  namespace: external-secrets
-```
-
-This ensures the ClusterRoleBinding is automatically created when deploying the cluster.
+See `/config/modules/nixos/services/k3s/default.nix` lines 368-452 for the implementation.
 
 ## Architecture
 
