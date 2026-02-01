@@ -11,12 +11,12 @@ spec:
     # Helm chart source
     - repoURL: https://argoproj.github.io/argo-helm
       chart: argo-cd
-      targetRevision: 7.7.0  # Pinned version
+      targetRevision: 7.7.0 # Pinned version
       helm:
         valueFiles:
           - $values/apps/argocd/values.yaml
     # Values source (this repo)
-    - repoURL: https://github.com/usmcamp0811/dotfiles.git
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
       ref: values
   destination:
