@@ -8,9 +8,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/YourOrg/YourRepo.git  # Will be parameterized by Nix
-    targetRevision: nixos  # Will be parameterized by Nix
-    path: packages/gitops/clusters/campground  # Will be parameterized by Nix
+    repoURL: https://gitlab.com/usmcamp0811/dotfiles.git # Will be parameterized by Nix
+    targetRevision: nixos # Will be parameterized by Nix
+    path: packages/kubernetes-gitops/clusters/campground # Will be parameterized by Nix
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
