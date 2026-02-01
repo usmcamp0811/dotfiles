@@ -12,7 +12,6 @@ spec:
       priority: 10
       services:
         - name: argocd-server
-          port: 443
-          scheme: https
+          port: 8080
   tls:
     certResolver: cloudflare
