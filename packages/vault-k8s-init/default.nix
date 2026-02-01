@@ -8,8 +8,7 @@
   coreutils,
   gnugrep,
   ...
-}:
-let
+}: let
   # The vault-k8s-init script
   vault-k8s-init = writeShellScriptBin "vault-k8s-init" ''
     set -euo pipefail
@@ -115,35 +114,5 @@ let
 
     echo "ClusterSecretStore created successfully!"
   '';
-
-  # Build the Docker image
-  image = dockerTools.buildImage {
-    name = "vault-k8s-init";
-    tag = "latest";
-
-    copyToRoot = pkgs.buildEnv {
-      name = "image-root";
-      paths = [
-        vault-k8s-init
-        vault-bin
-        kubectl
-        coreutils
-        pkgs.bash
-        pkgs.cacert  # For TLS
-      ];
-      pathsToLink = [ "/bin" ];
-    };
-
-    config = {
-      Cmd = [ "${vault-k8s-init}/bin/vault-k8s-init" ];
-      Env = [
-        "PATH=/bin"
-        "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
-      ];
-    };
-  };
 in
-{
-  inherit image;
-  script = vault-k8s-init;
-}
+  vault-k8s-init
