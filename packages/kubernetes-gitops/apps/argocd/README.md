@@ -7,9 +7,25 @@ This directory contains the configuration for ArgoCD with Authentik OIDC authent
 - `values.yaml` - Helm chart values for ArgoCD including OIDC configuration
 - `externalsecrets/` - ExternalSecret manifests to sync OIDC credentials from Vault
 
+## Prerequisites
+
+### Vault Kubernetes Authentication
+
+**CRITICAL**: Before any ExternalSecrets will work (including the ArgoCD OIDC secret), you must configure Vault's Kubernetes authentication backend. This is a **one-time manual process** because Vault runs outside the cluster.
+
+See `/config/modules/nixos/services/k3s/README.md` section "One-Time Vault Kubernetes Auth Setup" for the complete procedure.
+
+**Quick verification that Vault K8s auth is configured:**
+```bash
+vault read auth/kubernetes/config
+vault read auth/kubernetes/role/external-secrets
+```
+
+If these commands fail, the ExternalSecret for ArgoCD OIDC will not sync.
+
 ## Vault Secret Structure
 
-The ArgoCD Authentik OIDC integration requires the following secrets in Vault at `secret/campground/k3s/argocd`:
+The ArgoCD Authentik OIDC integration requires the following secrets in Vault at `secret/campground/argocd`:
 
 ```json
 {
