@@ -1,0 +1,13 @@
+# Istio Base Chart Values
+# Installs CRDs and base resources for Istio
+
+# Default values are usually sufficient for istio-base
+# This chart primarily installs CRDs
+
+# Global settings
+global:
+  # Istio control plane revision (optional, for canary deployments)
+  # revision: "default"
+
+  # Enable validation webhook
+  validationEnabled: true

@@ -1,0 +1,56 @@
+# Istio Control Plane (istiod) Chart Values
+
+global:
+  # Istio proxy settings
+  proxy:
+    # Resources for Istio sidecar proxies
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 2000m
+        memory: 1024Mi
+
+# Pilot (istiod) configuration
+pilot:
+  # Number of istiod replicas
+  replicaCount: 1
+
+  # Resources for istiod
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2048Mi
+    limits:
+      cpu: 2000m
+      memory: 4096Mi
+
+  # Enable trace sampling (for observability)
+  traceSampling: 1.0
+
+# Telemetry v2 (metrics, tracing, access logs)
+telemetry:
+  enabled: true
+  v2:
+    enabled: true
+    # Access logging
+    accessLogPolicy:
+      enabled: false  # Set to true if you want access logs from Envoy proxies
+
+# Mesh configuration
+meshConfig:
+  # Default config for Envoy proxies
+  defaultConfig:
+    # Disable tracing by default (enable if you have a tracing backend)
+    tracing: {}
+
+  # Enable automatic protocol detection
+  enableAutoMtls: true
+
+  # Access log format (if enabled)
+  accessLogFile: /dev/stdout
+  accessLogFormat: ""
+
+# Ingress/Egress gateways are installed separately
+# (can be added later as separate Applications)

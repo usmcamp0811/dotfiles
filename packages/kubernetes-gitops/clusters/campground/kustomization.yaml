@@ -9,3 +9,5 @@ resources:
   - apps/vault-backend.yaml
   - apps/metallb.yaml
   - apps/traefik.yaml
+  - apps/istio-base.yaml
+  - apps/istiod.yaml
