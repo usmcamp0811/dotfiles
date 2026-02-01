@@ -8,9 +8,9 @@ metadata:
 spec:
   project: platform
   source:
-    repoURL: https://github.com/usmcamp0811/dotfiles.git
+    repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
     targetRevision: nixos
-    path: packages/gitops/apps/storage
+    path: packages/kubernetes-gitops/apps/storage
   destination:
     server: https://kubernetes.default.svc
     namespace: glusterfs-storage

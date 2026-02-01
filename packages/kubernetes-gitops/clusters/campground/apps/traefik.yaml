@@ -11,12 +11,12 @@ spec:
     # Helm chart source
     - repoURL: https://traefik.github.io/charts
       chart: traefik
-      targetRevision: 32.2.0  # Pinned version
+      targetRevision: 32.2.0 # Pinned version
       helm:
         valueFiles:
           - $values/apps/traefik/values.yaml
     # Values and IngressRoutes source
-    - repoURL: https://github.com/usmcamp0811/dotfiles.git
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
       ref: values
   destination:
