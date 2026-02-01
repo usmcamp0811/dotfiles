@@ -15,10 +15,25 @@ This directory contains the configuration for ArgoCD with Authentik OIDC authent
 
 See `/config/modules/nixos/services/k3s/README.md` section "One-Time Vault Kubernetes Auth Setup" for the complete procedure.
 
+**Quick setup (from a control plane node):**
+```bash
+# Set required environment variables
+export VAULT_ADDR=http://10.8.0.3:8200
+export VAULT_KV_PATH=secret/campground
+export VAULT_KV_VERSION=v2
+export VAULT_POLICY=campground
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+export HOSTNAME=vm-k8s-control-0
+
+# Run the setup script
+nix run /config#vault-k8s-init.script
+```
+
 **Quick verification that Vault K8s auth is configured:**
 ```bash
 vault read auth/kubernetes/config
 vault read auth/kubernetes/role/external-secrets
+kubectl get clustersecretstore vault-backend
 ```
 
 If these commands fail, the ExternalSecret for ArgoCD OIDC will not sync.

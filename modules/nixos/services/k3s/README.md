@@ -95,9 +95,53 @@ This module integrates with Vault for secrets management through the External Se
 4. `vault-auth` ServiceAccount exists in `external-secrets` namespace
 5. You have Vault access (root token or sufficient permissions)
 
-#### Step-by-Step Process
+#### Option A: Using the vault-k8s-init Script (Recommended)
+
+The easiest approach is to use the pre-built `vault-k8s-init` script from the fmf flake.
 
 **1. SSH to a control plane node (e.g., vm-k8s-control-0)**
+
+```bash
+ssh admin@10.8.40.50
+```
+
+**2. Set environment variables**
+
+```bash
+export VAULT_ADDR=http://10.8.0.3:8200
+export VAULT_KV_PATH=secret/campground
+export VAULT_KV_VERSION=v2
+export VAULT_POLICY=campground
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+export HOSTNAME=vm-k8s-control-0
+```
+
+**3. Run the vault-k8s-init script**
+
+This script handles all the setup automatically, including:
+- Creating the vault-auth ServiceAccount
+- Generating the K8s token and getting the CA cert
+- Configuring Vault Kubernetes auth
+- Creating the external-secrets role
+- Creating the ClusterSecretStore
+
+```bash
+nix run /config#vault-k8s-init.script
+```
+
+**4. Verify the configuration**
+
+```bash
+# Check ClusterSecretStore status
+kubectl get clustersecretstore vault-backend
+
+# Check for any ExternalSecrets and their sync status
+kubectl get externalsecrets -A
+```
+
+#### Option B: Manual Step-by-Step (If you need more control)
+
+**1. SSH to a control plane node**
 
 ```bash
 ssh admin@10.8.40.50
