@@ -104,7 +104,7 @@ in {
 
       package = mkOption {
         type = types.package;
-        default = pkgs.fmf.gitops;
+        default = pkgs.fmf.kubernetes-gitops;
         description = "The gitops package containing the root app and manifests";
       };
 

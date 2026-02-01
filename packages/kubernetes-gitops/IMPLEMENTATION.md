@@ -9,17 +9,20 @@ This document summarizes the GitOps baseline implementation for the Campground k
 A proper Nix package with dual outputs:
 
 **Output A: Root Application YAML**
+
 - Located at `$out/root-app.yaml`
 - Generated from parameterized function `mkRootApp`
 - Points ArgoCD to `packages/gitops/clusters/campground`
 - Configurable via parameters: `repoURL`, `targetRevision`, `clusterName`
 
 **Output B: Full GitOps Tree**
+
 - Contains entire `packages/gitops` directory structure
 - Includes all clusters, apps, bootstrap documentation
 - Available at `$out/` for validation and export
 
 **Build Command:**
+
 ```bash
 nix build .#gitops
 # Result includes both outputs
@@ -73,10 +76,11 @@ packages/gitops/
 Added GitOps bootstrap capability to the k3s module:
 
 **New Options:**
+
 ```nix
 fmf.services.k3s.gitops = {
   enable = true;
-  package = pkgs.fmf.gitops;
+  package = pkgs.fmf.kubernetes-gitops;
   argocdVersion = "7.7.0";
   argocdNamespace = "argocd";
   repoURL = "https://github.com/usmcamp0811/dotfiles.git";
@@ -110,6 +114,7 @@ Rendered to: `/var/lib/rancher/k3s/server/manifests/10-argocd-repo-secret.yaml`
 Template reads from Vault path: `secret/campground/argocd/repo`
 
 Required Vault fields:
+
 - `url` - Git repository URL
 - `ssh_private_key` - SSH private key for repo access
 
@@ -120,12 +125,14 @@ Rendered as Kubernetes Secret with label `argocd.argoproj.io/secret-type: reposi
 All applications use pinned chart versions and declarative configuration:
 
 #### ArgoCD Self-Management
+
 - **Chart:** `argo-cd` v7.7.0 from argoproj.github.io
 - **Multi-source:** Chart from Helm repo, values from Git
 - **Values:** `apps/argocd/values.yaml`
 - **Sync Wave:** 0 (infrastructure)
 
 #### Storage
+
 - **Type:** GlusterFS with manual provisioning
 - **Endpoints:** 10.8.0.176, 10.8.0.189
 - **StorageClass:** `glusterfs` (annotated as default)
@@ -133,11 +140,13 @@ All applications use pinned chart versions and declarative configuration:
 - **Sync Wave:** 0 (infrastructure)
 
 #### External Secrets
+
 - **Chart:** `external-secrets` v0.12.1 from charts.external-secrets.io
 - **CRDs:** Installed with chart
 - **Sync Wave:** 1 (dependencies for other apps)
 
 #### Vault Backend
+
 - **Components:**
   - ServiceAccount `vault-auth` in `external-secrets` namespace
   - ClusterSecretStore `vault-backend` pointing to Vault at 10.8.0.3:8200
@@ -146,6 +155,7 @@ All applications use pinned chart versions and declarative configuration:
 - **Sync Wave:** 1 (dependencies for other apps)
 
 #### MetalLB
+
 - **Chart:** `metallb` v0.14.9 from metallb.github.io
 - **Multi-source:** Chart from Helm repo, manifests from Git
 - **IP Pool:** 10.8.40.100 - 10.8.40.255
@@ -153,6 +163,7 @@ All applications use pinned chart versions and declarative configuration:
 - **Sync Wave:** 2 (networking infrastructure)
 
 #### Traefik
+
 - **Chart:** `traefik` v32.2.0 from traefik.github.io
 - **Multi-source:** Chart from Helm repo, values and IngressRoutes from Git
 - **LoadBalancer:** Uses MetalLB
@@ -200,6 +211,7 @@ Node Boot
 Current implementation uses deprecated in-tree GlusterFS plugin with manual provisioning.
 
 **Required for production:**
+
 - Implement Kadalu CSI driver (recommended)
   - Chart: https://kadalu.io/docs/k8s-storage/latest/
   - Simpler than official GlusterFS CSI
@@ -213,6 +225,7 @@ Current implementation uses deprecated in-tree GlusterFS plugin with manual prov
 Current implementation uses basic admin user with insecure server mode.
 
 **For production, add:**
+
 - OIDC/SAML integration (Authentik, Keycloak, etc.)
 - RBAC policies for team access
 - SSO secret via External Secrets
@@ -222,6 +235,7 @@ Current implementation uses basic admin user with insecure server mode.
 Current implementation is single-cluster (`campground`).
 
 **To add more clusters:**
+
 1. Create `packages/gitops/clusters/<cluster-name>/`
 2. Deploy with `clusterName = "<cluster-name>"`
 3. Optionally use same base apps, different values per cluster
@@ -235,6 +249,7 @@ Static node pool - no autoscaling implemented.
 No monitoring/logging baseline included.
 
 **Common additions:**
+
 - Prometheus + Grafana
 - Loki for logs
 - Alertmanager
@@ -247,12 +262,14 @@ No monitoring/logging baseline included.
 **Chose:** k3s HelmChart CRD for ArgoCD install
 
 **Why:**
+
 - Leverages k3s built-in Helm controller
 - No external helmfile/helm CLI needed at bootstrap
 - k3s handles chart download and lifecycle
 - Consistent with k3s patterns
 
 **Alternative:** Direct YAML manifests
+
 - Would require pre-rendering ArgoCD install YAML
 - More brittle (version changes require YAML regeneration)
 
@@ -261,12 +278,14 @@ No monitoring/logging baseline included.
 **Chose:** Multi-source Applications (chart + values from Git)
 
 **Why:**
+
 - Values are version-controlled in Git
 - Changes to values trigger ArgoCD sync
 - No external ConfigMap management
 - ArgoCD 2.6+ native feature
 
 **Alternative:** Helm chart with values in ConfigMap
+
 - Requires separate ConfigMap management
 - Values not in Git
 
@@ -275,14 +294,17 @@ No monitoring/logging baseline included.
 **Chose:** Vault Agent for bootstrap secrets, External Secrets for runtime
 
 **Why:**
+
 - ArgoCD needs repo credentials BEFORE External Secrets is running
 - Circular dependency: External Secrets → ArgoCD → External Secrets
 - Vault Agent runs as systemd service before k3s
 
 **Bootstrap secrets:**
+
 - ArgoCD Git repo credentials
 
 **Runtime secrets:**
+
 - Cloudflare API token
 - Application secrets
 
@@ -291,11 +313,13 @@ No monitoring/logging baseline included.
 **Chose:** Sync waves for ordering
 
 **Why:**
+
 - Explicit ordering (0, 1, 2, 3)
 - No complex dependency graphs
 - Clear understanding of bootstrap order
 
 **Waves:**
+
 - 0: Infrastructure (ArgoCD, Storage)
 - 1: Secret management (External Secrets, Vault)
 - 2: Networking (MetalLB)
@@ -306,6 +330,7 @@ No monitoring/logging baseline included.
 **Chose:** Nix package for GitOps content
 
 **Why:**
+
 - Declarative root app generation
 - Type-safe parameters
 - Build-time validation
@@ -313,6 +338,7 @@ No monitoring/logging baseline included.
 - Reproducible builds
 
 **Alternative:** Shell scripts to template YAML
+
 - More fragile
 - No build-time validation
 
