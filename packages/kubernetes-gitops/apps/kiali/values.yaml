@@ -16,7 +16,7 @@ deployment:
       memory: 512Mi
 
   # Secret for OIDC credentials (from ExternalSecret)
-  secret_name: "kiali"
+  secret_name: "kiali-oidc"
 
 # Kiali server configuration
 server:
