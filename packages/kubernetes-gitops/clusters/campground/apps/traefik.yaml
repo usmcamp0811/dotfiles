@@ -4,32 +4,33 @@ metadata:
   name: traefik
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "3" # only matters vs other *Applications* in app-of-apps
 spec:
   project: platform
 
   sources:
-    # 1) Helm chart source
+    # Helm chart
     - repoURL: https://traefik.github.io/charts
       chart: traefik
-      # Updated to a version that actually exists in the repo
-      targetRevision: 34.3.0
+      targetRevision: 32.2.0
       helm:
-        releaseName: traefik
         valueFiles:
-          # Your repo paths in logs look like: packages/kubernetes-gitops/apps/<app>/...
-          - $values/packages/kubernetes-gitops/apps/traefik/values.yaml
+          - $values/apps/traefik/values.yaml
 
-    # 2) Values repo (used by $values/...)
+    # Values ref for $values/...
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
       ref: values
 
-    # 3) OPTIONAL: extra manifests (IngressRoutes, Middleware, etc.) from your repo
-    # If you don't have extra manifests there, delete this source.
+    # Manifests in your repo (IngressRoutes, ExternalSecret, etc.)
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
-      path: packages/kubernetes-gitops/apps/traefik
+      path: apps/traefik
+      directory:
+        recurse: true
+        exclude: |
+          values.yaml
+          **/.gitkeep
 
   destination:
     server: https://kubernetes.default.svc
