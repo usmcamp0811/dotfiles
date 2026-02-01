@@ -122,7 +122,7 @@ in {
 
       repoURL = mkOption {
         type = types.str;
-        default = "https://github.com/usmcamp0811/dotfiles.git";
+        default = "https://gitlab.com/usmcamp0811/dotfiles.git";
         description = "Git repository URL for GitOps content";
       };
 
@@ -169,12 +169,13 @@ in {
 
       # GitOps Bootstrap: Serve ArgoCD chart via k3s static charts
       charts = mkIf cfg.gitops.enable {
-        argocd = pkgs.runCommand "argocd.tgz" {
-          nativeBuildInputs = [pkgs.gnutar pkgs.gzip];
-        } ''
-          cp -r ${pkgs.nixhelmCharts.argoproj.argo-cd} argocd
-          tar -czf $out -C argocd .
-        '';
+        argocd =
+          pkgs.runCommand "argocd.tgz" {
+            nativeBuildInputs = [pkgs.gnutar pkgs.gzip];
+          } ''
+            cp -r ${pkgs.nixhelmCharts.argoproj.argo-cd} argocd
+            tar -czf $out -C argocd .
+          '';
       };
 
       # GitOps Bootstrap Manifests
