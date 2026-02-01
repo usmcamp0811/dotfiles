@@ -23,6 +23,12 @@ server:
   # Web root path (if behind a reverse proxy)
   web_root: "/"
 
+  # FQDN for Kiali (used for OIDC redirects)
+  web_fqdn: "istio.k8s.aicampground.com"
+
+  # Web scheme
+  web_schema: "https"
+
   # Port
   port: 20001
 

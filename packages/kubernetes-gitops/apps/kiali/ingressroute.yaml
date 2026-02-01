@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kiali
+  namespace: istio-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`istio.k8s.aicampground.com`)
+      kind: Rule
+      services:
+        - name: kiali
+          port: 20001
+  tls:
+    certResolver: letsencrypt
