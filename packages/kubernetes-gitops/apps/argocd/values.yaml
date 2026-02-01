@@ -12,11 +12,6 @@ server:
   ingress:
     enabled: false  # Using Traefik IngressRoute instead
 
-  # Mount OIDC credentials as environment variables
-  envFrom:
-    - secretRef:
-        name: argocd-authentik-oidc
-
   config:
     # Repository credentials will be provided via bootstrap secret
 
@@ -61,8 +56,8 @@ configs:
     oidc.config: |
       name: Authentik
       issuer: https://auth.aicampground.com/application/o/argocd/
-      clientID: $argocd-authentik-oidc:oidc.authentik.clientId
-      clientSecret: $argocd-authentik-oidc:oidc.authentik.clientSecret
+      clientID: $oidc.authentik.clientId
+      clientSecret: $oidc.authentik.clientSecret
       requestedScopes:
         - openid
         - profile
@@ -73,8 +68,9 @@ configs:
           essential: true
 
   secret:
-    # ArgoCD will read OIDC credentials from argocd-authentik-oidc secret
-    # using the $<secret>:<key> syntax in the OIDC config above
+    # ArgoCD will read OIDC credentials from argocd-secret
+    # The credentials are added to argocd-secret via vault-agent rendered manifest
+    # which merges with the Helm-managed secret
     createSecret: true
 
   rbac:

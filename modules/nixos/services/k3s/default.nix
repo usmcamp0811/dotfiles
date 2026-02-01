@@ -649,13 +649,18 @@ in {
               if cfg.gitops.enable && cfg.gitops.enableAuthentikOIDC
               then {
                 # ArgoCD Authentik OIDC credentials
+                # These get added to argocd-secret via a strategic merge patch
+                # ArgoCD reads OIDC credentials from argocd-secret using $variable syntax
                 "argocd-authentik-oidc.yaml" = {
                   text = ''
                     apiVersion: v1
                     kind: Secret
                     metadata:
-                      name: argocd-authentik-oidc
+                      name: argocd-secret
                       namespace: ${cfg.gitops.argocdNamespace}
+                      annotations:
+                        # This will merge with the Helm-managed argocd-secret
+                        # K3s applies manifests with strategic merge patch
                     type: Opaque
                     stringData:
                       oidc.authentik.clientId: {{ with secret "secret/campground/argocd" }}{{ .Data.data.OIDC_CLIENT_ID }}{{ end }}

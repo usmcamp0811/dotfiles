@@ -40,15 +40,21 @@ fmf.services.k3s.gitops = {
 
 #### Authentik OIDC for ArgoCD
 
-When `gitops.enableAuthentikOIDC = true` (the default), the k3s preStart script automatically:
-- Waits for the `external-secrets` namespace and `vault-auth` ServiceAccount (deployed by ArgoCD)
+When `gitops.enableAuthentikOIDC = true` (the default), the module automatically:
+- Creates a vault-agent template that renders ArgoCD OIDC credentials from Vault
+- The credentials are added to the `argocd-secret` Secret (merged with Helm-managed secret)
+- Copies the rendered secret manifest to k3s manifests directory during preStart
+- Configures Vault's Kubernetes authentication backend for External Secrets Operator
+
+The k3s preStart script (after cluster starts) automatically:
+- Waits for the `external-secrets` namespace and `vault-auth` ServiceAccount
 - Creates the `vault-auth-delegator` ClusterRoleBinding
 - Configures Vault's Kubernetes authentication backend
 - Creates the Vault role for external-secrets
 
-This enables ExternalSecrets to sync ArgoCD OIDC credentials from Vault automatically.
+ArgoCD reads OIDC credentials from `argocd-secret` using `$oidc.authentik.clientId` and `$oidc.authentik.clientSecret` template variables.
 
-Set to `false` if you don't want Authentik OIDC for ArgoCD or don't use External Secrets.
+Set to `false` if you don't want Authentik OIDC for ArgoCD.
 
 ## Vault Integration
 
