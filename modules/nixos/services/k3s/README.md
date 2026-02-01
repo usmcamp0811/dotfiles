@@ -34,8 +34,21 @@ fmf.services.k3s.gitops = {
   targetRevision = "nixos";
   clusterName = "campground";
   argocdVersion = "7.7.0";
+  enableAuthentikOIDC = true;  # Default: true - enables automatic Vault K8s auth setup
 };
 ```
+
+#### Authentik OIDC for ArgoCD
+
+When `gitops.enableAuthentikOIDC = true` (the default), the k3s preStart script automatically:
+- Waits for the `external-secrets` namespace and `vault-auth` ServiceAccount (deployed by ArgoCD)
+- Creates the `vault-auth-delegator` ClusterRoleBinding
+- Configures Vault's Kubernetes authentication backend
+- Creates the Vault role for external-secrets
+
+This enables ExternalSecrets to sync ArgoCD OIDC credentials from Vault automatically.
+
+Set to `false` if you don't want Authentik OIDC for ArgoCD or don't use External Secrets.
 
 ## Vault Integration
 
@@ -278,6 +291,7 @@ See `default.nix` for complete options. Key options:
 - `serverAddr` - K3s API server address (for agents and joining servers)
 - `snapshotter` - Container snapshotter ("fuse-overlayfs" for MicroVMs)
 - `gitops.enable` - Enable ArgoCD bootstrap
+- `gitops.enableAuthentikOIDC` - Enable automatic Vault K8s auth setup for ArgoCD OIDC (default: `true`)
 - `vault-path` - Vault path for K3s secrets (default: `secret/campground/k3s`)
 
 ## Example: HA Control Plane Setup

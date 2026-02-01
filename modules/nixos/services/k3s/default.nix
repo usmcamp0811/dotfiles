@@ -137,6 +137,17 @@ in {
         default = "campground";
         description = "Cluster name (determines path in gitops repo)";
       };
+
+      enableAuthentikOIDC = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Enable Authentik OIDC authentication for ArgoCD.
+          When enabled, the k3s preStart script will automatically configure Vault Kubernetes auth
+          and create the necessary ClusterRoleBinding for ExternalSecrets to sync OIDC credentials.
+          Requires vault-auth ServiceAccount to exist in external-secrets namespace.
+        '';
+      };
     };
   };
 
@@ -395,7 +406,8 @@ in {
           echo "WARNING: ArgoCD repo secret not found, skipping..."
         fi
 
-        echo "K3s PreStart: Configuring Vault Kubernetes auth..."
+        ${optionalString cfg.gitops.enableAuthentikOIDC ''
+        echo "K3s PreStart: Configuring Vault Kubernetes auth for ArgoCD OIDC..."
 
         # Wait for K3s API to be ready (we need it running to configure Vault)
         echo "Waiting for K3s API server to start..."
@@ -413,7 +425,8 @@ in {
         done
 
         # Only proceed if K3s is ready
-        if [ $K8S_WAIT_COUNT -lt $MAX_K8S_WAIT ]; then
+        if [ $K8S_WAIT_COUNT -lt $MAX_K8S_WAIT ]; then''}
+          ${optionalString cfg.gitops.enableAuthentikOIDC ''
           echo "K3s API is ready. Configuring Vault Kubernetes auth..."
 
           export VAULT_ADDR="${cfg.vault-address}"
@@ -496,6 +509,7 @@ in {
             fi
           fi
         fi
+        ''}
       ''))
 
       # Joiners: copy the Vault-rendered token into the correct data-dir-derived token path.
