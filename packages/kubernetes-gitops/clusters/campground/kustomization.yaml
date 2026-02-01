@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - projects/platform-project.yaml
   - apps/argocd-self.yaml
-  - apps/argocd-externalsecrets.yaml
   - apps/storage.yaml
   - apps/external-secrets.yaml
   - apps/vault-backend.yaml

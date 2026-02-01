@@ -74,7 +74,7 @@ configs:
 
   secret:
     # ArgoCD will read OIDC credentials from environment variables
-    createSecret: false  # We're using ExternalSecret instead
+    createSecret: false  # We're using vault-agent rendered secret instead
 
   rbac:
     # Default RBAC policy

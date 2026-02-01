@@ -407,6 +407,29 @@ in {
         fi
 
         ${optionalString cfg.gitops.enableAuthentikOIDC ''
+        # Copy ArgoCD Authentik OIDC secret to k3s manifests directory
+        MAX_OIDC_WAIT=30
+        OIDC_WAIT_COUNT=0
+        while [ ! -f /tmp/detsys-vault/argocd-authentik-oidc.yaml ] || [ ! -s /tmp/detsys-vault/argocd-authentik-oidc.yaml ]; do
+          OIDC_WAIT_COUNT=$((OIDC_WAIT_COUNT + 1))
+          if [ $OIDC_WAIT_COUNT -ge $MAX_OIDC_WAIT ]; then
+            echo "WARNING: ArgoCD Authentik OIDC secret not available after $MAX_OIDC_WAIT seconds"
+            echo "Expected file: /tmp/detsys-vault/argocd-authentik-oidc.yaml"
+            echo "ArgoCD OIDC authentication will not work"
+            break
+          fi
+          echo "Waiting for vault agent to provide argocd-authentik-oidc secret (attempt $OIDC_WAIT_COUNT/$MAX_OIDC_WAIT)..."
+          sleep 1
+        done
+
+        if [ -f /tmp/detsys-vault/argocd-authentik-oidc.yaml ]; then
+          cp /tmp/detsys-vault/argocd-authentik-oidc.yaml ${escapeShellArg serverStateDir}/manifests/11-argocd-authentik-oidc.yaml
+          chmod 0600 ${escapeShellArg serverStateDir}/manifests/11-argocd-authentik-oidc.yaml
+          echo "ArgoCD Authentik OIDC secret copied successfully"
+        else
+          echo "WARNING: ArgoCD Authentik OIDC secret not found, skipping..."
+        fi
+
         echo "K3s PreStart: Configuring Vault Kubernetes auth for ArgoCD OIDC..."
 
         # Wait for K3s API to be ready (we need it running to configure Vault)
@@ -614,6 +637,28 @@ in {
                       url: {{ with secret "secret/campground/argocd/repo" }}{{ .Data.data.url }}{{ end }}
                       sshPrivateKey: |
                     {{ with secret "secret/campground/argocd/repo" }}{{ .Data.data.ssh_private_key | indent 4 }}{{ end }}
+                  '';
+                  permissions = "0600";
+                  change-action = "restart";
+                };
+              }
+              else {}
+            )
+            // (
+              if cfg.gitops.enable && cfg.gitops.enableAuthentikOIDC
+              then {
+                # ArgoCD Authentik OIDC credentials
+                "argocd-authentik-oidc.yaml" = {
+                  text = ''
+                    apiVersion: v1
+                    kind: Secret
+                    metadata:
+                      name: argocd-authentik-oidc
+                      namespace: ${cfg.gitops.argocdNamespace}
+                    type: Opaque
+                    stringData:
+                      clientId: {{ with secret "secret/campground/argocd" }}{{ .Data.data.OIDC_CLIENT_ID }}{{ end }}
+                      clientSecret: {{ with secret "secret/campground/argocd" }}{{ .Data.data.OIDC_CLIENT_SECRET }}{{ end }}
                   '';
                   permissions = "0600";
                   change-action = "restart";
