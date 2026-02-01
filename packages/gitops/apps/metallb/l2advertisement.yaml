@@ -8,3 +8,6 @@ spec:
     - default-pool
   interfaces:
     - enp0s6
+  nodeSelectors:
+    - matchLabels:
+        node-role.kubernetes.io/control-plane: "true"
