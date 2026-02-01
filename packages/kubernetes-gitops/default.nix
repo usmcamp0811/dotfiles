@@ -17,7 +17,7 @@
     repoURL ? defaults.repoURL,
     targetRevision ? defaults.targetRevision,
     clusterName ? defaults.clusterName,
-    clusterPath ? "packages/gitops/clusters/${clusterName}",
+    clusterPath ? "packages/kubernetes-gitops/clusters/${clusterName}",
   }: let
     rootAppContent = {
       apiVersion = "argoproj.io/v1alpha1";

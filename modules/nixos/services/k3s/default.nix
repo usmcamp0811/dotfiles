@@ -229,7 +229,7 @@ in {
           target = "root-app.yaml";
           source = cfg.gitops.package.mkRootApp {
             inherit (cfg.gitops) repoURL targetRevision clusterName;
-            clusterPath = "packages/gitops/clusters/${cfg.gitops.clusterName}";
+            clusterPath = "packages/kubernetes-gitops/clusters/${cfg.gitops.clusterName}";
           };
         };
       };
