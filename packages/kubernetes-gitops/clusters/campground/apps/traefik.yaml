@@ -7,21 +7,34 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   project: platform
+
   sources:
-    # Helm chart source
+    # 1) Helm chart source
     - repoURL: https://traefik.github.io/charts
       chart: traefik
-      targetRevision: 32.2.0 # Pinned version
+      # Updated to a version that actually exists in the repo
+      targetRevision: 34.3.0
       helm:
+        releaseName: traefik
         valueFiles:
-          - $values/apps/traefik/values.yaml
-    # Values and IngressRoutes source
+          # Your repo paths in logs look like: packages/kubernetes-gitops/apps/<app>/...
+          - $values/packages/kubernetes-gitops/apps/traefik/values.yaml
+
+    # 2) Values repo (used by $values/...)
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
       ref: values
+
+    # 3) OPTIONAL: extra manifests (IngressRoutes, Middleware, etc.) from your repo
+    # If you don't have extra manifests there, delete this source.
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      path: packages/kubernetes-gitops/apps/traefik
+
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik-k8s
+
   syncPolicy:
     automated:
       prune: true
