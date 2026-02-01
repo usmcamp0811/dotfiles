@@ -186,19 +186,29 @@ in {
         manifestRules // chartRules
     );
 
-    # Firewall
+    # Firewall - K3s control plane requirements
     networking.firewall = {
       enable = lib.mkForce true;
+
+      # Trust Kubernetes networking interfaces for pod-to-pod communication
+      trustedInterfaces = ["cni0" "flannel.1"];
+
+      # Required TCP ports for control plane
       allowedTCPPorts = [
-        6443 # Kubernetes API
-        10250 # Kubelet
-        2379 # etcd client
-        2380 # etcd peer
-        7946 # MetalLB memberlist (gossip protocol)
+        6443  # Kubernetes API server (required for all nodes)
+        10250 # Kubelet metrics
       ];
-      allowedUDPPorts = [
-        7946 # MetalLB memberlist (gossip protocol)
+
+      # etcd ports for HA control plane communication
+      allowedTCPPortRanges = [
+        {
+          from = 2379;
+          to = 2380;
+        }
       ];
+
+      # VXLAN traffic for Flannel overlay network (cross-node pod communication)
+      allowedUDPPorts = [8472];
     };
   };
 }

@@ -109,16 +109,28 @@ in {
       } // cfg.extraK3sConfig;
     };
 
-    # Firewall
+    # Firewall - K3s worker node requirements
     networking.firewall = {
       enable = lib.mkForce true;
+
+      # Trust Kubernetes networking interfaces for pod-to-pod communication
+      trustedInterfaces = ["cni0" "flannel.1"];
+
+      # Required TCP ports for worker nodes
       allowedTCPPorts = [
-        10250 # Kubelet
-        7946 # MetalLB memberlist (gossip protocol)
+        10250 # Kubelet metrics
       ];
-      allowedUDPPorts = [
-        7946 # MetalLB memberlist (gossip protocol)
+
+      # NodePort services range (allows external traffic to NodePort services)
+      allowedTCPPortRanges = [
+        {
+          from = 30000;
+          to = 32767;
+        }
       ];
+
+      # VXLAN traffic for Flannel overlay network (cross-node pod communication)
+      allowedUDPPorts = [8472];
     };
   };
 }
