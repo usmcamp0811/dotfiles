@@ -20,7 +20,7 @@ controller:
   metrics:
     enabled: true
 
-# Dex (SSO) - disabled by default
+# Dex (SSO) - disabled in favor of Authentik OIDC
 dex:
   enabled: false
 
@@ -51,6 +51,27 @@ configs:
     timeout.reconciliation: 180s
     timeout.hard.reconciliation: 0s
 
+    # OIDC Configuration for Authentik
+    url: https://argocd.k8s.aicampground.com
+    oidc.config: |
+      name: Authentik
+      issuer: https://auth.aicampground.com/application/o/argocd/
+      clientID: $argocd-authentik-oidc:clientId
+      clientSecret: $argocd-authentik-oidc:clientSecret
+      requestedScopes:
+        - openid
+        - profile
+        - email
+        - groups
+      requestedIDTokenClaims:
+        groups:
+          essential: true
+
   rbac:
     # Default RBAC policy
     policy.default: role:readonly
+
+    # RBAC policy for Authentik groups
+    policy.csv: |
+      g, ArgoCD Admins, role:admin
+      g, ArgoCD Viewers, role:readonly

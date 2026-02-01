@@ -1,0 +1,24 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: argocd-authentik-oidc
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: argocd-authentik-oidc
+    creationPolicy: Owner
+  data:
+    - secretKey: clientId
+      remoteRef:
+        key: argocd
+        property: OIDC_CLIENT_ID
+    - secretKey: clientSecret
+      remoteRef:
+        key: argocd
+        property: OIDC_CLIENT_SECRET
