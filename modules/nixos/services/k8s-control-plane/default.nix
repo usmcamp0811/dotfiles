@@ -197,6 +197,7 @@ in {
       allowedTCPPorts = [
         6443  # Kubernetes API server (required for all nodes)
         10250 # Kubelet metrics
+        7946  # MetalLB memberlist
       ];
 
       # etcd ports for HA control plane communication
@@ -205,10 +206,17 @@ in {
           from = 2379;
           to = 2380;
         }
+        {
+          from = 30000;  # NodePort range for LoadBalancer services
+          to = 32767;
+        }
       ];
 
       # VXLAN traffic for Flannel overlay network (cross-node pod communication)
-      allowedUDPPorts = [8472];
+      allowedUDPPorts = [
+        8472  # Flannel VXLAN
+        7946  # MetalLB memberlist
+      ];
     };
   };
 }

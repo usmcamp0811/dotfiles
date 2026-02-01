@@ -150,9 +150,13 @@ with lib.fmf; {
     enable = true;
     allowedTCPPorts = [
       10250 # Kubelet
+      7946  # MetalLB memberlist
     ];
     allowedTCPPortRanges = [
       { from = 30000; to = 32767; } # NodePort services
+    ];
+    allowedUDPPorts = [
+      7946  # MetalLB memberlist
     ];
   };
 
