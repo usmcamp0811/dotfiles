@@ -3,8 +3,8 @@ kind: ExternalSecret
 metadata:
   name: cloudflare-api-token
   namespace: traefik-k8s
-  # annotations:
-  #   argocd.argoproj.io/sync-wave: "1"
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   refreshInterval: 1h
   secretStoreRef:
