@@ -11,3 +11,4 @@ resources:
   - apps/traefik.yaml
   - apps/istio-base.yaml
   - apps/istiod.yaml
+  - apps/kiali.yaml

@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kiali
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"  # Install after istiod
+spec:
+  project: platform
+
+  sources:
+    # Helm chart
+    - repoURL: https://kiali.org/helm-charts
+      chart: kiali-server
+      targetRevision: 2.2.0  # Latest Kiali version
+      helm:
+        valueFiles:
+          - $values/packages/kubernetes-gitops/apps/kiali/values.yaml
+
+    # Values ref for $values/...
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      ref: values
+
+    # Manifests (ExternalSecret for OIDC)
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      path: packages/kubernetes-gitops/apps/kiali
+      directory:
+        recurse: true
+        exclude: |
+          values.yaml
+          **/.gitkeep
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: istio-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

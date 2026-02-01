@@ -1,0 +1,82 @@
+# Kiali Server Helm Chart Values
+# Observability console for Istio service mesh
+
+# Deployment configuration
+deployment:
+  # Number of replicas
+  replicas: 1
+
+  # Resources
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Secret for OIDC credentials (from ExternalSecret)
+  secret_name: "kiali"
+
+# Kiali server configuration
+server:
+  # Web root path (if behind a reverse proxy)
+  web_root: "/"
+
+  # Port
+  port: 20001
+
+# Authentication configuration
+auth:
+  # Use OpenID Connect (Authentik)
+  strategy: "openid"
+
+  openid:
+    # Authentik issuer URL
+    issuer_uri: "https://auth.aicampground.com/application/o/kiali/"
+
+    # Scopes to request
+    scopes:
+      - "openid"
+      - "profile"
+      - "email"
+      - "groups"
+
+    # Username claim
+    username_claim: "preferred_username"
+
+# External services configuration
+external_services:
+  # Prometheus for metrics (disabled for now - add when you deploy Prometheus)
+  prometheus:
+    url: "http://prometheus-kube-prometheus-prometheus.monitoring:9090"
+
+  # Grafana for dashboard links (disabled for now)
+  grafana:
+    enabled: false
+
+  # Jaeger for tracing (disabled for now)
+  tracing:
+    enabled: false
+
+# Istio configuration
+istio_namespace: "istio-system"
+
+# Kiali features
+kiali_feature_flags:
+  # Enable validations
+  validations:
+    ignore: []
+
+  # Disable unnecessary features for better performance
+  disabled_features: []
+
+# Login token configuration
+login_token:
+  # Token expiration (24 hours)
+  expiration_seconds: 86400
+
+# Deployment labels
+deployment_labels:
+  version: "v1"
+  app: "kiali"
