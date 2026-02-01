@@ -14,7 +14,7 @@ spec:
       targetRevision: 7.7.0 # Pinned version
       helm:
         valueFiles:
-          - $values/apps/argocd/values.yaml
+          - $values/packages/kubernetes-gitops/apps/argocd/values.yaml
     # Values source (this repo)
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
