@@ -15,7 +15,7 @@ spec:
       targetRevision: 35.0.1
       helm:
         valueFiles:
-          - $values/apps/traefik/values.yaml
+          - $values/packages/kubernetes-gitops/apps/traefik/values.yaml
 
     # Values ref for $values/...
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
@@ -25,7 +25,7 @@ spec:
     # Manifests in your repo (IngressRoutes, ExternalSecret, etc.)
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
-      path: apps/traefik
+      path: packages/kubernetes-gitops/apps/traefik
       directory:
         recurse: true
         exclude: |
