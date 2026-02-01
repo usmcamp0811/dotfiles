@@ -658,8 +658,8 @@ in {
                       namespace: ${cfg.gitops.argocdNamespace}
                     type: Opaque
                     stringData:
-                      clientId: {{ with secret "secret/campground/argocd" }}{{ .Data.data.OIDC_CLIENT_ID }}{{ end }}
-                      clientSecret: {{ with secret "secret/campground/argocd" }}{{ .Data.data.OIDC_CLIENT_SECRET }}{{ end }}
+                      oidc.authentik.clientId: {{ with secret "secret/campground/argocd" }}{{ .Data.data.OIDC_CLIENT_ID }}{{ end }}
+                      oidc.authentik.clientSecret: {{ with secret "secret/campground/argocd" }}{{ .Data.data.OIDC_CLIENT_SECRET }}{{ end }}
                   '';
                   permissions = "0600";
                   change-action = "restart";

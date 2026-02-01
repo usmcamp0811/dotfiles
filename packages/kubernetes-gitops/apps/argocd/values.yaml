@@ -61,8 +61,8 @@ configs:
     oidc.config: |
       name: Authentik
       issuer: https://auth.aicampground.com/application/o/argocd/
-      clientID: $clientId
-      clientSecret: $clientSecret
+      clientID: $argocd-authentik-oidc:oidc.authentik.clientId
+      clientSecret: $argocd-authentik-oidc:oidc.authentik.clientSecret
       requestedScopes:
         - openid
         - profile
@@ -73,8 +73,9 @@ configs:
           essential: true
 
   secret:
-    # ArgoCD will read OIDC credentials from environment variables
-    createSecret: false  # We're using vault-agent rendered secret instead
+    # ArgoCD will read OIDC credentials from argocd-authentik-oidc secret
+    # using the $<secret>:<key> syntax in the OIDC config above
+    createSecret: true
 
   rbac:
     # Default RBAC policy
