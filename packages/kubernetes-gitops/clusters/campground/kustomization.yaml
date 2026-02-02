@@ -1,16 +1,29 @@
+# /config/packages/kubernetes-gitops/clusters/campground/kustomization.yaml
+
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
+  # Argo projects / bootstrap
   - projects/platform-project.yaml
   - apps/argocd-self.yaml
-  - apps/storage.yaml
-  - apps/glusterfs-provisioner.yaml
+
+  # Storage (Gluster CSI)
+  - apps/glusterfs-csi.yaml
+  - apps/glusterfs-storage.yaml
+
+  # Secrets & infra
   - apps/external-secrets.yaml
   - apps/vault-backend.yaml
+
+  # Networking
   - apps/metallb.yaml
   - apps/traefik.yaml
+
+  # Observability
   - apps/prometheus.yaml
+
+  # Istio
   - apps/istio-base.yaml
   - apps/istiod.yaml
   - apps/kiali.yaml
