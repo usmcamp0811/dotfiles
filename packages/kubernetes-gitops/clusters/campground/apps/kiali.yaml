@@ -56,6 +56,13 @@ spec:
         - /metadata/ownerReferences
         - /metadata/resourceVersion
 
+    # Ignore ConfigMap to prevent ArgoCD/Helm fight
+    - kind: ConfigMap
+      name: kiali
+      namespace: istio-system
+      jsonPointers:
+        - /metadata/resourceVersion
+
   syncPolicy:
     automated:
       prune: true
