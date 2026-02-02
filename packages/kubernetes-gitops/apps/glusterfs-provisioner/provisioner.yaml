@@ -1,6 +1,4 @@
-# /config/packages/kubernetes-gitops/apps/glusterfs-provisioner/glusterfs-provisioner.yaml
 # GlusterFS Dynamic Provisioner
-
 ---
 apiVersion: v1
 kind: ServiceAccount
