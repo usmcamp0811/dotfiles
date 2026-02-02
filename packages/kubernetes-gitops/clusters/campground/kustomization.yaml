@@ -5,6 +5,7 @@ resources:
   - projects/platform-project.yaml
   - apps/argocd-self.yaml
   - apps/storage.yaml
+  - apps/glusterfs-provisioner.yaml
   - apps/external-secrets.yaml
   - apps/vault-backend.yaml
   - apps/metallb.yaml
