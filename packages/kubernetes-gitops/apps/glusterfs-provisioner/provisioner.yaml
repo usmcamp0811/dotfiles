@@ -65,7 +65,7 @@ spec:
       serviceAccountName: glusterfs-provisioner
       containers:
         - name: glusterfs-provisioner
-          image: gluster/glusterfs-simple-provisioner:latest
+          image: quay.io/external_storage/glusterfs-simple-provisioner:latest
           env:
             - name: PROVISIONER_NAME
               value: gluster.org/glusterfs-simple
