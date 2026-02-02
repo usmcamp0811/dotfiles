@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: glusterfs-provisioner
+  name: glusterfs-csi
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Deploy early
+    argocd.argoproj.io/sync-wave: "1" # early, before apps that need storage
 spec:
   project: platform
 
   source:
-    repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
-    targetRevision: nixos
-    path: packages/kubernetes-gitops/apps/glusterfs-provisioner
+    repoURL: https://github.com/levindecaro/csi-driver-glusterfs.git
+    targetRevision: main
+    path: deploy
 
   destination:
     server: https://kubernetes.default.svc
@@ -23,6 +23,7 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
     retry:
       limit: 5
       backoff:

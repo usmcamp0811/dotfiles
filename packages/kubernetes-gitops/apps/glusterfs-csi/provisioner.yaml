@@ -1,16 +1,18 @@
-# GlusterFS Dynamic Provisioner
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: glusterfs-storage
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: glusterfs-provisioner
+  name: glusterfs-subdir-provisioner
   namespace: glusterfs-storage
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: glusterfs-provisioner
+  name: glusterfs-subdir-provisioner
 rules:
   - apiGroups: [""]
     resources: ["persistentvolumes"]
@@ -26,54 +28,56 @@ rules:
     verbs: ["create", "update", "patch"]
   - apiGroups: [""]
     resources: ["endpoints"]
-    verbs: ["get", "list", "watch"]
-
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: glusterfs-provisioner
+  name: glusterfs-subdir-provisioner
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: glusterfs-provisioner
+  name: glusterfs-subdir-provisioner
 subjects:
   - kind: ServiceAccount
-    name: glusterfs-provisioner
+    name: glusterfs-subdir-provisioner
     namespace: glusterfs-storage
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: glusterfs-provisioner
+  name: glusterfs-subdir-provisioner
   namespace: glusterfs-storage
   labels:
-    app: glusterfs-provisioner
+    app: glusterfs-subdir-provisioner
 spec:
   replicas: 1
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
-      app: glusterfs-provisioner
+      app: glusterfs-subdir-provisioner
   template:
     metadata:
       labels:
-        app: glusterfs-provisioner
+        app: glusterfs-subdir-provisioner
     spec:
-      serviceAccountName: glusterfs-provisioner
+      serviceAccountName: glusterfs-subdir-provisioner
       containers:
-        - name: glusterfs-provisioner
-          image: quay.io/external_storage/glusterfs-simple-provisioner:latest
+        - name: provisioner
+          # Modern maintained subdir provisioner image (OCI/schema2)
+          image: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
           imagePullPolicy: IfNotPresent
           env:
             - name: PROVISIONER_NAME
-              value: gluster.org/glusterfs-simple
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
+              value: glusterfs.storage.k8s.io/subdir
+            - name: NFS_SERVER
+              value: "GLUSTER_HOST_1"
+            - name: NFS_PATH
+              value: "/GLUSTER_VOLUME"
+          volumeMounts:
+            - name: nfs
+              mountPath: /persistentvolumes
+      volumes:
+        - name: nfs
+          nfs:
+            server: "GLUSTER_HOST_1"
+            path: "/GLUSTER_VOLUME"
