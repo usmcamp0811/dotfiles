@@ -1,0 +1,60 @@
+# Prometheus (kube-prometheus-stack) Helm values
+# Provides Prometheus for Istio/Kiali metrics
+
+# Disable components we don't need for Istio monitoring
+alertmanager:
+  enabled: false
+
+grafana:
+  enabled: false
+
+# Prometheus configuration
+prometheus:
+  prometheusSpec:
+    # Storage
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+    # Resources
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+    # Scrape Istio metrics
+    additionalScrapeConfigs:
+      - job_name: 'istio-mesh'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - istio-system
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: istio-telemetry;prometheus
+
+      - job_name: 'envoy-stats'
+        metrics_path: /stats/prometheus
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: '.*-envoy-prom'
+
+# Disable node-exporter and kube-state-metrics if not needed
+nodeExporter:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true

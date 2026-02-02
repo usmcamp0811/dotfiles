@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"  # Install before Kiali
+spec:
+  project: platform
+
+  sources:
+    # Helm chart
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 69.2.0  # Latest stable
+      helm:
+        valueFiles:
+          - $values/packages/kubernetes-gitops/apps/prometheus/values.yaml
+
+    # Values ref
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
