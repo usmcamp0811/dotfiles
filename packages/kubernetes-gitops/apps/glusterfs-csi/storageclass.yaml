@@ -7,7 +7,7 @@ metadata:
 provisioner: gluster.csi.k8s.io
 parameters:
   server: 10.8.0.176
-  share: k8s-storage  # Update with your actual GlusterFS volume name
+  share: kubernetes
 mountOptions:
   - backup-volfile-servers=10.8.0.189
 reclaimPolicy: Delete
