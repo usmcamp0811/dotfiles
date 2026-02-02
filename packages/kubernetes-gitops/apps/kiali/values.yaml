@@ -1,9 +1,7 @@
-# values.yaml - Kiali with OIDC (Authentik)
-
 auth:
   strategy: openid
   openid:
-    client_id: "wbf92G5cpQGxRQMSNTih7bhy3Upuu1nFvrh11Qhj" # OIDC client_id (public, not secret)
+    client_id: "wbf92G5cpQGxRQMSNTih7bhy3Upuu1nFvrh11Qhj" # OIDC client_id (public)
     issuer_uri: https://auth.aicampground.com/application/o/kiali/
     scopes:
       - openid
@@ -11,8 +9,8 @@ auth:
       - email
     username_claim: preferred_username
 
-    # If you are NOT also configuring the Kubernetes API server for OIDC (most common),
-    # Kiali can't map IdP users to Kubernetes RBAC, so disable RBAC inside Kiali.
+    # Unless your Kubernetes API server is ALSO configured for OIDC and you want per-user RBAC,
+    # keep this true so Kiali doesn't try to map IdP users to K8s RBAC.
     disable_rbac: true
 
 server:
