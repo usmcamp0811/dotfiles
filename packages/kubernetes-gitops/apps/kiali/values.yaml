@@ -3,14 +3,14 @@
 auth:
   strategy: openid
   openid:
-    # client_id and client_secret are read from env vars injected by ExternalSecret
-    # DO NOT set them here as empty strings - that overrides the env vars
+    client_id: wbf92G5cpQGxRQMSNTih7bhy3Upuu1nFvrh11Qhj # OAuth2 client ID (not a secret)
     issuer_uri: https://auth.aicampground.com/application/o/kiali/
     scopes:
-    - openid
-    - profile
-    - email
+      - openid
+      - profile
+      - email
     username_claim: preferred_username
+    # client_secret is read from KIALI_AUTH_OPENID_CLIENT_SECRET env var (injected via custom_envs below)
 
 server:
   web_fqdn: istio.k8s.aicampground.com
@@ -26,20 +26,20 @@ deployment:
 
   # Inject OIDC credentials from ExternalSecret as environment variables
   custom_secrets:
-  - name: kiali-oidc
-    mount: /kiali-secret
+    - name: kiali-oidc
+      mount: /kiali-secret
 
   custom_envs:
-  - name: KIALI_AUTH_OPENID_CLIENT_ID
-    valueFrom:
-      secretKeyRef:
-        name: kiali-oidc
-        key: KIALI_AUTH_OPENID_CLIENT_ID
-  - name: KIALI_AUTH_OPENID_CLIENT_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: kiali-oidc
-        key: KIALI_AUTH_OPENID_CLIENT_SECRET
+    - name: KIALI_AUTH_OPENID_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: kiali-oidc
+          key: KIALI_AUTH_OPENID_CLIENT_ID
+    - name: KIALI_AUTH_OPENID_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: kiali-oidc
+          key: KIALI_AUTH_OPENID_CLIENT_SECRET
 
   resources:
     requests:
