@@ -1,16 +1,20 @@
+# /config/packages/kubernetes-gitops/apps/kiali/values.yaml
+# Kiali Helm values: OIDC via Authentik
+# Client secret is NOT set via env vars; Kiali reads it from:
+#   Secret name: kiali
+#   Key:        oidc-secret
+# in the same namespace as the Kiali pod (istio-system).
+
 auth:
   strategy: openid
   openid:
-    client_id: "wbf92G5cpQGxRQMSNTih7bhy3Upuu1nFvrh11Qhj" # OIDC client_id (public)
+    client_id: "wbf92G5cpQGxRQMSNTih7bhy3Upuu1nFvrh11Qhj"
     issuer_uri: https://auth.aicampground.com/application/o/kiali/
     scopes:
       - openid
       - profile
       - email
     username_claim: preferred_username
-
-    # Unless your Kubernetes API server is ALSO configured for OIDC and you want per-user RBAC,
-    # keep this true so Kiali doesn't try to map IdP users to K8s RBAC.
     disable_rbac: true
 
 server:

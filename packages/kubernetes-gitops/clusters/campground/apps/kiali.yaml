@@ -4,7 +4,7 @@ metadata:
   name: kiali
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"  # Install after istiod
+    argocd.argoproj.io/sync-wave: "4" # Install after istiod
 spec:
   project: platform
 
@@ -12,7 +12,7 @@ spec:
     # Helm chart
     - repoURL: https://kiali.org/helm-charts
       chart: kiali-server
-      targetRevision: 2.2.0  # Latest Kiali version
+      targetRevision: 2.2.0 # Latest Kiali version
       helm:
         valueFiles:
           - $values/packages/kubernetes-gitops/apps/kiali/values.yaml
@@ -35,6 +35,26 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-system
+
+  ignoreDifferences:
+    # external-secrets-operator owns status updates
+    - group: external-secrets.io
+      kind: ExternalSecret
+      jsonPointers:
+        - /status
+        - /metadata/resourceVersion
+
+    # external-secrets-operator owns the Secret metadata; Kiali reads the secret data.
+    # IMPORTANT: This MUST match the Secret name ExternalSecret creates.
+    # With the recommended Kiali OIDC setup, the Secret is named "kiali" and contains key "oidc-secret".
+    - kind: Secret
+      name: kiali
+      namespace: istio-system
+      jsonPointers:
+        - /metadata/annotations
+        - /metadata/labels
+        - /metadata/ownerReferences
+        - /metadata/resourceVersion
 
   syncPolicy:
     automated:
