@@ -1,8 +1,16 @@
-# Kiali Helm Chart Values
-# Location in GitLab: packages/kubernetes-gitops/apps/kiali/values.yaml
+# Kiali Helm Values with OIDC via Authentik
 
 auth:
-  strategy: anonymous  # Use anonymous - Kiali uses its service account for K8s API
+  strategy: openid
+  openid:
+    client_id: ""  # Leave empty - will be read from env var KIALI_AUTH_OPENID_CLIENT_ID
+    client_secret: ""  # Leave empty - will be read from env var KIALI_AUTH_OPENID_CLIENT_SECRET
+    issuer_uri: https://auth.aicampground.com/application/o/kiali/
+    scopes:
+    - openid
+    - profile
+    - email
+    username_claim: preferred_username
 
 server:
   web_fqdn: istio.k8s.aicampground.com
@@ -15,6 +23,23 @@ deployment:
     log_format: text
     sampler_rate: "1"
     time_field_format: 2006-01-02T15:04:05Z07:00
+
+  # Inject OIDC credentials from ExternalSecret as environment variables
+  custom_secrets:
+  - name: kiali-oidc
+    mount: /kiali-secret
+
+  custom_envs:
+  - name: KIALI_AUTH_OPENID_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: kiali-oidc
+        key: KIALI_AUTH_OPENID_CLIENT_ID
+  - name: KIALI_AUTH_OPENID_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: kiali-oidc
+        key: KIALI_AUTH_OPENID_CLIENT_SECRET
 
   resources:
     requests:
@@ -33,9 +58,3 @@ external_services:
     enabled: false
   tracing:
     enabled: false
-
-# Optional: Add Authentik SSO protection via Traefik ForwardAuth middleware
-# (uncomment and configure if you want SSO in front of anonymous Kiali)
-# ingress:
-#   annotations:
-#     traefik.ingress.kubernetes.io/router.middlewares: authentik-forwardauth@kubernetescrd
