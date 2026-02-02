@@ -3,8 +3,8 @@
 auth:
   strategy: openid
   openid:
-    client_id: ""  # Leave empty - will be read from env var KIALI_AUTH_OPENID_CLIENT_ID
-    client_secret: ""  # Leave empty - will be read from env var KIALI_AUTH_OPENID_CLIENT_SECRET
+    # client_id and client_secret are read from env vars injected by ExternalSecret
+    # DO NOT set them here as empty strings - that overrides the env vars
     issuer_uri: https://auth.aicampground.com/application/o/kiali/
     scopes:
     - openid
