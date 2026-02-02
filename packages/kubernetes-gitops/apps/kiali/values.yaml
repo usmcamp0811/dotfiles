@@ -1,16 +1,19 @@
-# Kiali Helm Values with OIDC via Authentik
+# values.yaml - Kiali with OIDC (Authentik)
 
 auth:
   strategy: openid
   openid:
-    client_id: wbf92G5cpQGxRQMSNTih7bhy3Upuu1nFvrh11Qhj # OAuth2 client ID (not a secret)
+    client_id: "wbf92G5cpQGxRQMSNTih7bhy3Upuu1nFvrh11Qhj" # OIDC client_id (public, not secret)
     issuer_uri: https://auth.aicampground.com/application/o/kiali/
     scopes:
       - openid
       - profile
       - email
     username_claim: preferred_username
-    # client_secret is read from KIALI_AUTH_OPENID_CLIENT_SECRET env var (injected via custom_envs below)
+
+    # If you are NOT also configuring the Kubernetes API server for OIDC (most common),
+    # Kiali can't map IdP users to Kubernetes RBAC, so disable RBAC inside Kiali.
+    disable_rbac: true
 
 server:
   web_fqdn: istio.k8s.aicampground.com
@@ -23,23 +26,6 @@ deployment:
     log_format: text
     sampler_rate: "1"
     time_field_format: 2006-01-02T15:04:05Z07:00
-
-  # Inject OIDC credentials from ExternalSecret as environment variables
-  custom_secrets:
-    - name: kiali-oidc
-      mount: /kiali-secret
-
-  custom_envs:
-    - name: KIALI_AUTH_OPENID_CLIENT_ID
-      valueFrom:
-        secretKeyRef:
-          name: kiali-oidc
-          key: KIALI_AUTH_OPENID_CLIENT_ID
-    - name: KIALI_AUTH_OPENID_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: kiali-oidc
-          key: KIALI_AUTH_OPENID_CLIENT_SECRET
 
   resources:
     requests:
