@@ -5,12 +5,12 @@ metadata:
   namespace: istio-system
 spec:
   entryPoints:
-    - websecure
+  - websecure
   routes:
-    - match: Host(`istio.k8s.aicampground.com`)
-      kind: Rule
-      services:
-        - name: kiali
-          port: 20001
+  - kind: Rule
+    match: Host(`istio.k8s.aicampground.com`)
+    services:
+    - name: kiali
+      port: 20001
   tls:
-    certResolver: letsencrypt
+    certResolver: cloudflare  # CRITICAL: Changed from 'letsencrypt' to 'cloudflare'
