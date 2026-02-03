@@ -11,7 +11,7 @@ spec:
       match: Host(`argocd.k8s.aicampground.com`)
       priority: 10
       services:
-        - name: argocd-server
+        - name: argocd-self-server
           port: 80
   tls:
     certResolver: cloudflare

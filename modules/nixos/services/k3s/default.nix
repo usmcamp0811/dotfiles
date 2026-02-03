@@ -148,6 +148,7 @@ in {
           Requires vault-auth ServiceAccount to exist in external-secrets namespace.
         '';
       };
+
     };
   };
 
@@ -196,12 +197,12 @@ in {
           apiVersion = "helm.cattle.io/v1";
           kind = "HelmChart";
           metadata = {
-            name = "argocd";
+            name = "argocd-bootstrap";
             namespace = "kube-system";
           };
           spec = {
             chart = "https://%{KUBERNETES_API}%/static/charts/argocd.tgz";
-            targetNamespace = cfg.gitops.argocdNamespace;
+            targetNamespace = "argocd-bootstrap";
             createNamespace = true;
             helmVersion = "v3";
             insecureSkipTLSVerify = true;

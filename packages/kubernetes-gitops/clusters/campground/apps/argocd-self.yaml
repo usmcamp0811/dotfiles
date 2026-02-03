@@ -19,6 +19,10 @@ spec:
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
       ref: values
+    # Cleanup job to scale down bootstrap ArgoCD
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      path: packages/kubernetes-gitops/apps/argocd/cleanup
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
