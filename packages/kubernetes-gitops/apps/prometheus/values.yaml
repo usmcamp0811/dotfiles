@@ -11,12 +11,12 @@ grafana:
 # Prometheus configuration
 prometheus:
   prometheusSpec:
-    # Storage - using dynamic GlusterFS provisioning
+    # Storage - using Longhorn
     retention: 7d
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: glusterfs-dynamic
+          storageClassName: longhorn
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:

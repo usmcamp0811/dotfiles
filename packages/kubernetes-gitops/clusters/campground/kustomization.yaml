@@ -8,9 +8,8 @@ resources:
   - projects/platform-project.yaml
   - apps/argocd-self.yaml
 
-  # Storage (Gluster CSI)
-  - apps/glusterfs-csi.yaml
-  - apps/glusterfs-storage.yaml
+  # Storage
+  - apps/longhorn.yaml
 
   # Secrets & infra
   - apps/external-secrets.yaml

@@ -45,6 +45,12 @@ with lib.fmf; {
         source = "/persist/vm-data/vm-k8s-worker";
         mountPoint = "/var/lib/rancher";
       }
+      {
+        proto = "virtiofs";
+        tag = "longhorn-storage";
+        source = "/persist/longhorn/vm-k8s-worker";
+        mountPoint = "/var/lib/longhorn";
+      }
     ];
 
     interfaces = [

@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: platform
+  sources:
+    # Helm chart source
+    - repoURL: https://charts.longhorn.io
+      chart: longhorn
+      targetRevision: 1.5.1
+      helm:
+        values: |
+          persistence:
+            defaultClass: false
+          defaultSettings:
+            defaultDataPath: /var/lib/longhorn
+    # Manifests source (StorageClass)
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      path: packages/kubernetes-gitops/apps/longhorn
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
