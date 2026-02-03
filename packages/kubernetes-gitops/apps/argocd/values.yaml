@@ -1,6 +1,11 @@
 # ArgoCD Helm Chart Values
 # Self-management configuration for ArgoCD
 
+# CRDs
+crds:
+  install: true
+  keep: true
+
 global:
   domain: argocd.k8s.aicampground.com
 
