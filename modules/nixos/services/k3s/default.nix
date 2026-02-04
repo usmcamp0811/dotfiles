@@ -200,12 +200,13 @@ in {
             namespace = "kube-system";
           };
           spec = {
-            chart = "https://%{KUBERNETES_API}%/static/charts/argocd.tgz";
+            chart = "argocd";
             targetNamespace = "argocd-bootstrap";
             createNamespace = true;
-            helmVersion = "v3";
-            insecureSkipTLSVerify = true;
             valuesContent = ''
+              crds:
+                install: true
+                keep: true
               server:
                 service:
                   type: ClusterIP
