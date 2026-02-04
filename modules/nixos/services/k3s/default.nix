@@ -433,7 +433,7 @@ in {
 
           KUBECONFIG_FIXED=$(
             printf '%s\n' "$KUBECONFIG_ORIG" \
-              | ${pkgs.gnused}/bin/sed "s|127\.0\.0\.1|$HAPROXY_IP|g"
+              | ${pkgs.busybox}/bin/sed "s|127\.0\.0\.1|$HAPROXY_IP|g"
           )
 
           VAULT_PATH="${cfg.vault-path}"
@@ -470,7 +470,7 @@ in {
     };
 
     environment.systemPackages =
-      [cfg.package pkgs.gnused]
+      [cfg.package pkgs.busybox]
       ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
     # Bootstrap: copy GitOps bootstrap secret to k3s manifests directory
