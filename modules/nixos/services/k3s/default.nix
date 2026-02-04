@@ -148,7 +148,6 @@ in {
           Requires vault-auth ServiceAccount to exist in external-secrets namespace.
         '';
       };
-
     };
   };
 
@@ -440,7 +439,7 @@ in {
           KUBECONFIG_ORIG=$(cat /etc/rancher/k3s/k3s.yaml)
 
           HAPROXY_IP="${cfg.serverAddr}"
-          KUBECONFIG_FIXED=$(echo "$KUBECONFIG_ORIG" | sed "s/127.0.0.1/$HAPROXY_IP/g")
+          KUBECONFIG_FIXED=$(echo "$KUBECONFIG_ORIG" | ${pkgs.gnused}/bin/sed "s/127.0.0.1/$HAPROXY_IP/g")
 
           VAULT_PATH="${cfg.vault-path}"
           export VAULT_ADDR="${cfg.vault-address}"
@@ -512,28 +511,28 @@ in {
         fi
 
         ${optionalString cfg.gitops.enableAuthentikOIDC ''
-        # Copy ArgoCD Authentik OIDC secret to k3s manifests directory
-        MAX_OIDC_WAIT=30
-        OIDC_WAIT_COUNT=0
-        while [ ! -f /tmp/detsys-vault/argocd-authentik-oidc.yaml ] || [ ! -s /tmp/detsys-vault/argocd-authentik-oidc.yaml ]; do
-          OIDC_WAIT_COUNT=$((OIDC_WAIT_COUNT + 1))
-          if [ $OIDC_WAIT_COUNT -ge $MAX_OIDC_WAIT ]; then
-            echo "WARNING: ArgoCD Authentik OIDC secret not available after $MAX_OIDC_WAIT seconds"
-            echo "Expected file: /tmp/detsys-vault/argocd-authentik-oidc.yaml"
-            echo "ArgoCD OIDC authentication will not work"
-            break
-          fi
-          echo "Waiting for vault agent to provide argocd-authentik-oidc secret (attempt $OIDC_WAIT_COUNT/$MAX_OIDC_WAIT)..."
-          sleep 1
-        done
+          # Copy ArgoCD Authentik OIDC secret to k3s manifests directory
+          MAX_OIDC_WAIT=30
+          OIDC_WAIT_COUNT=0
+          while [ ! -f /tmp/detsys-vault/argocd-authentik-oidc.yaml ] || [ ! -s /tmp/detsys-vault/argocd-authentik-oidc.yaml ]; do
+            OIDC_WAIT_COUNT=$((OIDC_WAIT_COUNT + 1))
+            if [ $OIDC_WAIT_COUNT -ge $MAX_OIDC_WAIT ]; then
+              echo "WARNING: ArgoCD Authentik OIDC secret not available after $MAX_OIDC_WAIT seconds"
+              echo "Expected file: /tmp/detsys-vault/argocd-authentik-oidc.yaml"
+              echo "ArgoCD OIDC authentication will not work"
+              break
+            fi
+            echo "Waiting for vault agent to provide argocd-authentik-oidc secret (attempt $OIDC_WAIT_COUNT/$MAX_OIDC_WAIT)..."
+            sleep 1
+          done
 
-        if [ -f /tmp/detsys-vault/argocd-authentik-oidc.yaml ]; then
-          cp /tmp/detsys-vault/argocd-authentik-oidc.yaml ${escapeShellArg serverStateDir}/manifests/11-argocd-authentik-oidc.yaml
-          chmod 0600 ${escapeShellArg serverStateDir}/manifests/11-argocd-authentik-oidc.yaml
-          echo "ArgoCD Authentik OIDC secret copied successfully"
-        else
-          echo "WARNING: ArgoCD Authentik OIDC secret not found, skipping..."
-        fi
+          if [ -f /tmp/detsys-vault/argocd-authentik-oidc.yaml ]; then
+            cp /tmp/detsys-vault/argocd-authentik-oidc.yaml ${escapeShellArg serverStateDir}/manifests/11-argocd-authentik-oidc.yaml
+            chmod 0600 ${escapeShellArg serverStateDir}/manifests/11-argocd-authentik-oidc.yaml
+            echo "ArgoCD Authentik OIDC secret copied successfully"
+          else
+            echo "WARNING: ArgoCD Authentik OIDC secret not found, skipping..."
+          fi
         ''}
       ''))
 
