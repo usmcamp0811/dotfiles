@@ -116,8 +116,8 @@ in {
 
       argocdNamespace = mkOption {
         type = types.str;
-        default = "argocd";
-        description = "Namespace for ArgoCD installation";
+        default = "argocd-bootstrap";
+        description = "Namespace for bootstrap ArgoCD installation";
       };
 
       repoURL = mkOption {

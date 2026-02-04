@@ -18,13 +18,14 @@
     targetRevision ? defaults.targetRevision,
     clusterName ? defaults.clusterName,
     clusterPath ? "packages/kubernetes-gitops/clusters/${clusterName}",
+    namespace ? "argocd-bootstrap", # Bootstrap ArgoCD runs in separate namespace
   }: let
     rootAppContent = {
       apiVersion = "argoproj.io/v1alpha1";
       kind = "Application";
       metadata = {
         name = "root";
-        namespace = "argocd";
+        inherit namespace;
         finalizers = [
           "resources-finalizer.argocd.argoproj.io"
         ];
@@ -37,7 +38,7 @@
         };
         destination = {
           server = "https://kubernetes.default.svc";
-          namespace = "argocd";
+          namespace = "argocd-bootstrap"; # Root app deploys to bootstrap namespace
         };
         syncPolicy = {
           automated = {

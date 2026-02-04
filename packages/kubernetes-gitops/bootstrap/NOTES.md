@@ -4,6 +4,24 @@
 
 This document explains how the k3s cluster bootstrap works with ArgoCD and Vault Agent.
 
+## Architecture: Two ArgoCD Instances
+
+The cluster uses **two separate ArgoCD instances** in different namespaces:
+
+1. **Bootstrap ArgoCD** (`argocd-bootstrap` namespace)
+   - Installed at cluster boot via k3s auto-apply manifests
+   - Manages the initial GitOps sync
+   - Deploys the self-managed ArgoCD instance
+   - Can remain running indefinitely or be manually removed after verification
+
+2. **Self-Managed ArgoCD** (`argocd` namespace)
+   - Deployed by bootstrap ArgoCD as an Application
+   - Manages all cluster applications including itself
+   - Production instance for ongoing operations
+   - Uses the domain: argocd.k8s.aicampground.com
+
+This separation eliminates conflicts between bootstrap and self-management, providing a clean transition path.
+
 ## Boot Sequence
 
 ### Stage 0: Pre-k3s (Vault Agent)
@@ -49,7 +67,7 @@ When k3s starts:
 
 2. **10-argocd-repo-secret.yaml**
    - Secret for Git repository access
-   - Must be in `argocd` namespace
+   - Must be in `argocd-bootstrap` namespace
    - Rendered by Vault Agent
    - Required before root app can sync
 
@@ -59,39 +77,57 @@ When k3s starts:
    - Points to `packages/gitops/clusters/campground`
    - Enables auto-sync with prune and selfHeal
 
-### Stage 2: ArgoCD Initialization
+### Stage 2: Bootstrap ArgoCD Initialization
 
-ArgoCD pods start:
+Bootstrap ArgoCD pods start in `argocd-bootstrap` namespace:
 
 1. API server becomes ready
 2. Application controller starts
 3. Repo server authenticates to Git using the bootstrap secret
 4. Root Application is processed
 
-### Stage 3: GitOps Sync
+### Stage 3: GitOps Sync & Self-Managed ArgoCD Deployment
 
-ArgoCD syncs the root Application:
+Bootstrap ArgoCD syncs the root Application:
 
 1. Fetches `packages/gitops/clusters/campground` from Git
 2. Discovers all child Applications in `apps/` directory
-3. Syncs each application in order (respecting dependencies)
+3. Syncs `argocd-self` Application first (wave 0)
+4. Self-managed ArgoCD is deployed to `argocd` namespace
+5. Self-managed ArgoCD takes over management of all other applications
 
 #### Sync Order
 
 Applications can specify sync waves for ordering:
 
-- Wave 0: argocd-self, storage (infrastructure)
+- Wave 0: argocd-self (self-managed ArgoCD in `argocd` namespace)
 - Wave 1: external-secrets, vault-backend (secret management)
 - Wave 2: metallb (networking infrastructure)
 - Wave 3: traefik (ingress)
 
 ### Stage 4: Steady State
 
-All applications are now managed by ArgoCD:
+All applications are now managed by self-managed ArgoCD in `argocd` namespace:
 
 - Changes to Git trigger automatic syncs
-- ArgoCD maintains desired state
+- ArgoCD maintains desired state including itself
 - Manual kubectl changes are reverted (prune + selfHeal enabled)
+- Bootstrap ArgoCD in `argocd-bootstrap` namespace can remain running or be manually removed
+
+#### Optional: Removing Bootstrap ArgoCD
+
+Once self-managed ArgoCD is verified working, you can optionally remove bootstrap ArgoCD:
+
+```bash
+# Scale down bootstrap ArgoCD
+kubectl scale deployment --all --replicas=0 -n argocd-bootstrap
+kubectl scale statefulset --all --replicas=0 -n argocd-bootstrap
+
+# Or delete the namespace entirely
+kubectl delete namespace argocd-bootstrap
+```
+
+Note: Removing bootstrap ArgoCD is optional. Both instances can safely coexist.
 
 ## Bootstrap Secrets
 
@@ -135,7 +171,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: private-repo
-  namespace: argocd
+  namespace: argocd-bootstrap
   labels:
     argocd.argoproj.io/secret-type: repository
 type: Opaque
@@ -161,12 +197,12 @@ Use numeric prefixes to control ordering:
 
 ## Troubleshooting
 
-### ArgoCD Not Starting
+### Bootstrap ArgoCD Not Starting
 
-Check:
+Check bootstrap ArgoCD:
 ```bash
-kubectl get pods -n argocd
-kubectl logs -n argocd deployment/argocd-server
+kubectl get pods -n argocd-bootstrap
+kubectl logs -n argocd-bootstrap deployment/argocd-server
 ```
 
 Verify ArgoCD install manifest was applied:
@@ -176,19 +212,33 @@ ls -la /var/lib/rancher/k3s/server/manifests/00-argocd-install.yaml
 
 ### Root Application Not Syncing
 
-Check repo credentials:
+Check repo credentials in bootstrap namespace:
 ```bash
-kubectl get secret -n argocd private-repo -o yaml
+kubectl get secret -n argocd-bootstrap private-repo -o yaml
 ```
 
 Check Application status:
 ```bash
-kubectl describe application -n argocd root
+kubectl describe application -n argocd-bootstrap root
 ```
 
 Check ArgoCD logs:
 ```bash
-kubectl logs -n argocd deployment/argocd-repo-server
+kubectl logs -n argocd-bootstrap deployment/argocd-repo-server
+```
+
+### Self-Managed ArgoCD Not Deploying
+
+Check if argocd-self Application exists:
+```bash
+kubectl get application -n argocd-bootstrap argocd-self
+kubectl describe application -n argocd-bootstrap argocd-self
+```
+
+Check self-managed ArgoCD pods:
+```bash
+kubectl get pods -n argocd
+kubectl logs -n argocd deployment/argocd-self-server
 ```
 
 ### Vault Agent Not Rendering Secrets
