@@ -379,6 +379,18 @@ in {
       wants = ["network-online.target"];
       requires = ["k3s.service"];
       wantedBy = ["multi-user.target"];
+
+      # IMPORTANT: This is the fix.
+      # Provide a stable PATH so the script does NOT depend on hardcoded /nix/store/... paths existing.
+      path = [
+        pkgs.coreutils
+        pkgs.gnugrep
+        pkgs.gnused
+        pkgs.jq
+        pkgs.vault
+        cfg.package
+      ];
+
       serviceConfig = {
         Type = "oneshot";
         User = "root";
@@ -395,7 +407,7 @@ in {
           echo "Waiting for k3s API to be responsive..."
           MAX_RETRIES=60
           RETRY_COUNT=0
-          until ${cfg.package}/bin/k3s kubectl get nodes 2>/dev/null | grep -q "Ready"; do
+          until k3s kubectl get nodes 2>/dev/null | grep -q "Ready"; do
             RETRY_COUNT=$((RETRY_COUNT + 1))
             if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
               echo "ERROR: k3s failed to become ready after $MAX_RETRIES attempts (5 minutes)"
@@ -439,7 +451,12 @@ in {
           KUBECONFIG_ORIG=$(cat /etc/rancher/k3s/k3s.yaml)
 
           HAPROXY_IP="${cfg.serverAddr}"
-          KUBECONFIG_FIXED=$(echo "$KUBECONFIG_ORIG" | ${pkgs.gnused}/bin/sed "s/127.0.0.1/$HAPROXY_IP/g")
+
+          # Safer delimiter + escaped dots to avoid accidental matches
+          KUBECONFIG_FIXED=$(
+            printf '%s\n' "$KUBECONFIG_ORIG" \
+              | sed "s|127\.0\.0\.1|$HAPROXY_IP|g"
+          )
 
           VAULT_PATH="${cfg.vault-path}"
           export VAULT_ADDR="${cfg.vault-address}"
@@ -449,13 +466,13 @@ in {
           SECRET_ID=$(cat /var/lib/vault/$HOSTNAME/secret-id)
 
           echo "Logging in to Vault using AppRole..."
-          VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           export VAULT_TOKEN
 
           echo "Fetching existing Vault values (if any)..."
-          EXISTING=$(${pkgs.vault}/bin/vault kv get -format=json "$VAULT_PATH" || echo '{}')
-          EXISTING_ROLE_ID=$(echo "$EXISTING" | ${pkgs.jq}/bin/jq -r '.data.data.role_id // empty')
-          EXISTING_SECRET_ID=$(echo "$EXISTING" | ${pkgs.jq}/bin/jq -r '.data.data.secret_id // empty')
+          EXISTING=$(vault kv get -format=json "$VAULT_PATH" || echo '{}')
+          EXISTING_ROLE_ID=$(printf '%s\n' "$EXISTING" | jq -r '.data.data.role_id // empty')
+          EXISTING_SECRET_ID=$(printf '%s\n' "$EXISTING" | jq -r '.data.data.secret_id // empty')
 
           ARGS=(
             node_token="$NODE_TOKEN"
@@ -465,7 +482,7 @@ in {
           [ -n "$EXISTING_SECRET_ID" ] && ARGS+=("secret_id=$EXISTING_SECRET_ID")
 
           echo "Storing K3s node-token and kubeconfig in Vault at $VAULT_PATH"
-          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" "''${ARGS[@]}"
+          vault kv put "$VAULT_PATH" "''${ARGS[@]}"
 
           echo "Done storing K3s token and kubeconfig."
         '';
