@@ -1,7 +1,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: argocd-self-server
+  name: argocd-server
   namespace: argocd
 spec:
   entryPoints:
@@ -11,7 +11,7 @@ spec:
       match: Host(`argocd.k8s.aicampground.com`)
       priority: 10
       services:
-        - name: argocd-self-server
+        - name: argocd-self-argocd-server
           port: 80
   tls:
     certResolver: cloudflare

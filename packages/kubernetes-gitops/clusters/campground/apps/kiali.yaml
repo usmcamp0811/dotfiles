@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: kiali
-  namespace: argocd
+  namespace: argocd-bootstrap
   annotations:
     argocd.argoproj.io/sync-wave: "4" # Install after istiod
 spec:
