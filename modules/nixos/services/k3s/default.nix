@@ -445,11 +445,11 @@ in {
           SECRET_ID=$(cat /var/lib/vault/$HOSTNAME/secret-id)
 
           echo "Logging in to Vault using AppRole..."
-          VAULT_TOKEN=$(${pkgs.vault}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
+          VAULT_TOKEN=$(${pkgs.vault-bin}/bin/vault write -field=token auth/approle/login role_id="$ROLE_ID" secret_id="$SECRET_ID")
           export VAULT_TOKEN
 
           echo "Fetching existing Vault values (if any)..."
-          EXISTING=$(${pkgs.vault}/bin/vault kv get -format=json "$VAULT_PATH" || echo '{}')
+          EXISTING=$(${pkgs.vault-bin}/bin/vault kv get -format=json "$VAULT_PATH" || echo '{}')
           EXISTING_ROLE_ID=$(printf '%s\n' "$EXISTING" | ${pkgs.jq}/bin/jq -r '.data.data.role_id // empty')
           EXISTING_SECRET_ID=$(printf '%s\n' "$EXISTING" | ${pkgs.jq}/bin/jq -r '.data.data.secret_id // empty')
 
@@ -461,7 +461,7 @@ in {
           [ -n "$EXISTING_SECRET_ID" ] && ARGS+=("role_id=$EXISTING_SECRET_ID")
 
           echo "Storing K3s node-token and kubeconfig in Vault at $VAULT_PATH"
-          ${pkgs.vault}/bin/vault kv put "$VAULT_PATH" "''${ARGS[@]}"
+          ${pkgs.vault-bin}/bin/vault kv put "$VAULT_PATH" "''${ARGS[@]}"
 
           echo "Done storing K3s token and kubeconfig."
         '';
