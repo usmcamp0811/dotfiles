@@ -200,7 +200,7 @@ in {
             namespace = "kube-system";
           };
           spec = {
-            chart = "https://%{KUBERNETES_API}%/static/charts/argocd.tgz";
+            chart = "https://${cfg.serverAddr}:6443/static/charts/argocd.tgz";
             targetNamespace = "argocd-bootstrap";
             createNamespace = true;
             valuesContent = ''
