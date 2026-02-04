@@ -116,8 +116,8 @@ in {
 
       argocdNamespace = mkOption {
         type = types.str;
-        default = "argocd-bootstrap";
-        description = "Namespace for bootstrap ArgoCD installation";
+        default = "argocd";
+        description = "Namespace for ArgoCD installation";
       };
 
       repoURL = mkOption {
@@ -196,12 +196,12 @@ in {
           apiVersion = "helm.cattle.io/v1";
           kind = "HelmChart";
           metadata = {
-            name = "argocd-bootstrap";
+            name = "argocd";
             namespace = "kube-system";
           };
           spec = {
             chart = "https://${cfg.serverAddr}:6443/static/charts/argocd.tgz";
-            targetNamespace = "argocd-bootstrap";
+            targetNamespace = cfg.gitops.argocdNamespace;
             createNamespace = true;
             valuesContent = ''
               crds:
