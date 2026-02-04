@@ -152,6 +152,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    environment.systemPackages = with pkgs; [gnused];
     # open ports for MetalLB
     networking.firewall.allowedTCPPorts = [7946];
     networking.firewall.allowedUDPPorts = [7946];
