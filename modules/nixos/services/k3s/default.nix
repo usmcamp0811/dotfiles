@@ -153,7 +153,7 @@ in {
 
   config = mkIf cfg.enable {
     # open ports for MetalLB (memberlist)
-    networking.firewall.allowedTCPPorts = [6443 7946];
+    networking.firewall.allowedTCPPorts = [443 6443 7946];
     networking.firewall.allowedUDPPorts = [7946];
     services.k3s = {
       enable = true;
