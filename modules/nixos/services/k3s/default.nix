@@ -152,7 +152,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [gnused];
     # open ports for MetalLB
     networking.firewall.allowedTCPPorts = [7946];
     networking.firewall.allowedUDPPorts = [7946];
@@ -471,7 +470,7 @@ in {
     };
 
     environment.systemPackages =
-      [cfg.package]
+      [cfg.package pkgs.gnused]
       ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
     # Bootstrap: copy GitOps bootstrap secret to k3s manifests directory
