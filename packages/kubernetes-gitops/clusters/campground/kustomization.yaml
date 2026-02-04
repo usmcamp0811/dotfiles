@@ -6,7 +6,6 @@ kind: Kustomization
 resources:
   # Argo projects / bootstrap
   - projects/platform-project.yaml
-  - apps/argocd-self.yaml
 
   # Storage
   - apps/longhorn.yaml
