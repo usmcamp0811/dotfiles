@@ -18,6 +18,9 @@ spec:
             defaultClass: false
           defaultSettings:
             defaultDataPath: /var/lib/longhorn
+          # Disable pre-upgrade checker for fresh installations
+          preUpgradeChecker:
+            jobEnabled: false
     # Manifests source (StorageClass)
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
