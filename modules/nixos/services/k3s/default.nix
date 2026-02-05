@@ -204,34 +204,94 @@ in {
             targetNamespace = cfg.gitops.argocdNamespace;
             createNamespace = true;
             valuesContent = ''
+              # ArgoCD Helm Chart Values
+              # Self-management configuration for ArgoCD
+
+              # CRDs
               crds:
                 install: true
                 keep: true
+
+              global:
+                domain: argocd.k8s.aicampground.com
+
+              # Server configuration
               server:
                 service:
                   type: ClusterIP
+
                 ingress:
-                  enabled: false
+                  enabled: false  # Using Traefik IngressRoute instead
+
+                config:
+                  # Repository credentials will be provided via bootstrap secret
+
+              # Controller configuration
+              controller:
+                metrics:
+                  enabled: true
+
+              # Dex (SSO) - disabled in favor of Authentik OIDC
+              dex:
+                enabled: false
+
+              # Redis configuration
+              redis:
+                enabled: true
+
+              # Repo server configuration
+              repoServer:
+                metrics:
+                  enabled: true
+
+              # Application controller
+              applicationSet:
+                enabled: true
+
+              # Notifications controller
+              notifications:
+                enabled: false
+
+              # Configs
               configs:
                 params:
-                  server.insecure: true
-              repoServer:
-                livenessProbe:
-                  httpGet:
-                    path: /healthz
-                    port: metrics
-                  initialDelaySeconds: 30
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 5
-                readinessProbe:
-                  httpGet:
-                    path: /healthz
-                    port: metrics
-                  initialDelaySeconds: 10
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 3
+                  server.insecure: true  # Using Traefik for TLS termination
+
+                cm:
+                  # Timeout settings
+                  timeout.reconciliation: 180s
+                  timeout.hard.reconciliation: 0s
+
+                  # OIDC Configuration for Authentik
+                  url: https://argocd.k8s.aicampground.com
+                  oidc.config: |
+                    name: Authentik
+                    issuer: https://auth.aicampground.com/application/o/argocd/
+                    clientID: $oidc.authentik.clientId
+                    clientSecret: $oidc.authentik.clientSecret
+                    requestedScopes:
+                      - openid
+                      - profile
+                      - email
+                      - groups
+                    requestedIDTokenClaims:
+                      groups:
+                        essential: true
+
+                secret:
+                  # ArgoCD will read OIDC credentials from argocd-secret
+                  # The credentials are added to argocd-secret via vault-agent rendered manifest
+                  # which merges with the Helm-managed secret
+                  createSecret: true
+
+                rbac:
+                  # Default RBAC policy
+                  policy.default: role:readonly
+
+                  # RBAC policy for Authentik groups
+                  policy.csv: |
+                    g, ArgoCD Admins, role:admin
+                    g, ArgoCD Viewers, role:readonly
             '';
           };
         };
