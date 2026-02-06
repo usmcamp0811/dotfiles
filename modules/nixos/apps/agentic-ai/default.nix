@@ -31,16 +31,15 @@ with lib.fmf; let
     USER_DATA_DIR="$SANDBOX_HOME/.config/Antigravity"
     mkdir -p "$USER_DATA_DIR" "$SANDBOX_HOME"/{.cache,.local/share}
 
-    # Clean common Electron single-instance locks (safe inside sandbox)
     rm -f "$USER_DATA_DIR"/Singleton{Lock,Cookie,Socket} 2>/dev/null || true
 
-    # Build optional device binds (GPU)
+    # Use the *real* Electron binary, not the launcher (launcher can override args)
+    REAL_ANTIGRAVITY="${pkgs.antigravity-fhs}/lib/antigravity/antigravity"
+
     dev_binds=""
     if [ -d /dev/dri ]; then
       dev_binds="$dev_binds --dev-bind /dev/dri /dev/dri"
     fi
-
-    # If you're on NVIDIA, this helps (no-op if not present)
     for n in /dev/nvidiactl /dev/nvidia0 /dev/nvidia1 /dev/nvidia-uvm /dev/nvidia-uvm-tools; do
       if [ -e "$n" ]; then
         dev_binds="$dev_binds --dev-bind $n $n"
@@ -69,7 +68,11 @@ with lib.fmf; let
       --setenv WAYLAND_DISPLAY "''${WAYLAND_DISPLAY}" \
       --setenv XDG_SESSION_TYPE "wayland" \
       --setenv DBUS_SESSION_BUS_ADDRESS "''${DBUS_SESSION_BUS_ADDRESS:-}" \
-      -- ${antigravityBin} \
+      --setenv ELECTRON_ENABLE_LOGGING "1" \
+      --setenv ELECTRON_ENABLE_STACK_DUMPING "1" \
+      --setenv LIBGL_ALWAYS_SOFTWARE "1" \
+      --setenv WLR_RENDERER_ALLOW_SOFTWARE "1" \
+      -- "$REAL_ANTIGRAVITY" \
         --user-data-dir="$USER_DATA_DIR" \
         --ozone-platform-hint=auto \
         --enable-features=WaylandWindowDecorations \
