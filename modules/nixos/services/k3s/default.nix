@@ -532,7 +532,12 @@ in {
 
     environment.systemPackages =
       [cfg.package pkgs.busybox]
-      ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
+      ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [
+        pkgs.openiscsi
+        pkgs.nfs-utils
+        pkgs.fuse-overlayfs
+        pkgs.fuse3
+      ]);
 
     # Bootstrap: copy GitOps bootstrap secret to k3s manifests directory
     systemd.services.k3s.preStart = mkMerge [
