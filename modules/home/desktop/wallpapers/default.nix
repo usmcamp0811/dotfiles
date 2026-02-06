@@ -15,7 +15,7 @@ in
         "Whether or not to add wallpapers to ~/Pictures/wallpapers.";
   };
   config = {
-    home.file = lib.foldl
+    home.file = lib.foldl'
       (acc: name:
         let
           wallpaper = wallpapers.${name};

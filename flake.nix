@@ -377,7 +377,7 @@
           vault-service.nixosModules.nixos-vault-service
           # dataflow2nix.nixosModules.airflow
           nix-topology.nixosModules.default
-          catppuccin.nixosModules.catppuccin
+          # catppuccin.nixosModules.catppuccin
           stylix.nixosModules.stylix
           flakeforge.nixosModules.flakeforge
           funkwhale.nixosModules.default

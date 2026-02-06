@@ -16,7 +16,7 @@ in
   };
   # TODO: Make this mine....
   config = {
-    fmf.home.file = lib.foldl
+    fmf.home.file = lib.foldl'
       (acc: name:
         let
           wallpaper = wallpapers.${name};

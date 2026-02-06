@@ -17,7 +17,7 @@ in rec {
     let
       hosts = self.nixosConfigurations or { };
       names = builtins.attrNames hosts;
-      nodes = lib.foldl (result: name:
+      nodes = lib.foldl' (result: name:
         let
           host = hosts.${name};
           user = host.config.fmf.user.name or null;
