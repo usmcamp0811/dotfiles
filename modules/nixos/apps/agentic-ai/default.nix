@@ -8,15 +8,11 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.apps.agentic-ai;
 
-  # Tools you want available (note: antigravity GUI won't run as ai on Wayland)
   aiPackages = with pkgs; [antigravity-fhs claude-code];
 
-  # Absolute store paths (stable references) to the *real* tools.
   claudeBin = "${pkgs.claude-code}/bin/claude";
-  antigravityBin = "${pkgs.antigravity-fhs}/bin/antigravity";
+  antigravityLauncher = "${pkgs.antigravity-fhs}/bin/antigravity";
 
-  # Run antigravity as the *calling user* but sandbox it with bubblewrap.
-  # This avoids Wayland permission issues while still restricting access to your real HOME.
   antigravitySandbox = pkgs.writeShellScriptBin "antigravity-sandbox" ''
     set -euo pipefail
 
@@ -31,13 +27,16 @@ with lib.fmf; let
     USER_DATA_DIR="$SANDBOX_HOME/.config/Antigravity"
     mkdir -p "$USER_DATA_DIR" "$SANDBOX_HOME"/{.cache,.local/share}
 
+    # Kill any existing antigravity instances so we don't hit Electron singleton weirdness.
+    pkill -u "$(id -u)" -f "antigravity" >/dev/null 2>&1 || true
+
+    # Clean common Electron locks (inside sandbox only)
     rm -f "$USER_DATA_DIR"/Singleton{Lock,Cookie,Socket} 2>/dev/null || true
 
-    launcher="${antigravityBin}"
-    launcher_real="$(readlink -f "$launcher" || echo "$launcher")"
+    # Figure out the "real" binary if present, otherwise fall back to launcher.
+    launcher_real="$(readlink -f "${antigravityLauncher}" || echo "${antigravityLauncher}")"
     pkg_root="$(dirname "$(dirname "$launcher_real")")"
 
-    # Prefer the real Electron binary if present; otherwise fall back to the launcher.
     real="$launcher_real"
     if [ -x "$pkg_root/lib/antigravity/antigravity" ]; then
       real="$pkg_root/lib/antigravity/antigravity"
@@ -55,7 +54,7 @@ with lib.fmf; let
       fi
     done
 
-    exec ${pkgs.bubblewrap}/bin/bwrap \
+    ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-user \
       --unshare-pid \
       --unshare-uts \
@@ -77,30 +76,42 @@ with lib.fmf; let
       --setenv WAYLAND_DISPLAY "''${WAYLAND_DISPLAY}" \
       --setenv XDG_SESSION_TYPE "wayland" \
       --setenv DBUS_SESSION_BUS_ADDRESS "''${DBUS_SESSION_BUS_ADDRESS:-}" \
-      --setenv ELECTRON_ENABLE_LOGGING "1" \
-      --setenv ELECTRON_ENABLE_STACK_DUMPING "1" \
       -- "$real" \
         --user-data-dir="$USER_DATA_DIR" \
         --ozone-platform-hint=auto \
         --enable-features=WaylandWindowDecorations \
         --enable-wayland-ime=true \
         --wayland-text-input-version=3 \
-        "$@"
+        "$@" &
+
+    pid=$!
+
+    # Best-effort: focus it if Hyprland sees it
+    if command -v hyprctl >/dev/null 2>&1; then
+      for _ in $(seq 1 60); do
+        if hyprctl clients 2>/dev/null | grep -q "class: antigravity"; then
+          hyprctl dispatch focuswindow "class:^antigravity$" >/dev/null 2>&1 || true
+          break
+        fi
+        sleep 0.1
+      done
+    fi
+
+    wait "$pid"
   '';
 
-  # Optional: run claude as the *calling user* but sandboxed (useful if you want repo access).
-  # This is NOT the default; default still runs claude as user "ai" for a stronger boundary.
+  # Optional: claude as your user, sandboxed to cwd (no sudo boundary).
   claudeSandbox = pkgs.writeShellScriptBin "claude-sandbox" ''
     set -euo pipefail
-
-    # Use current working dir as the only "project" surface
     WORK="''${PWD}"
-    TMPHOME="$(mktemp -d -t claude-home.XXXXXX)"
-    cleanup() { rm -rf "$TMPHOME"; }
-    trap cleanup EXIT
+    SANDBOX_HOME="''${XDG_DATA_HOME:-$HOME/.local/share}/claude-sandbox-home"
+    mkdir -p "$SANDBOX_HOME"/{.config,.cache,.local/share}
 
     exec ${pkgs.bubblewrap}/bin/bwrap \
-      --unshare-all \
+      --unshare-user \
+      --unshare-pid \
+      --unshare-uts \
+      --unshare-cgroup \
       --share-net \
       --die-with-parent \
       --new-session \
@@ -112,42 +123,95 @@ with lib.fmf; let
       --bind /tmp /tmp \
       --bind "$WORK" /work \
       --chdir /work \
-      --clearenv \
-      --setenv HOME "$TMPHOME" \
+      --bind "$SANDBOX_HOME" "$SANDBOX_HOME" \
+      --setenv HOME "$SANDBOX_HOME" \
       --setenv PATH "/run/current-system/sw/bin" \
       -- ${claudeBin} "$@"
   '';
 
-  # aido: routes known commands to the hardened invocations
   aido = pkgs.writeShellScriptBin "aido" ''
-    set -euo pipefail
-    if [ $# -eq 0 ]; then
-      echo "Usage: aido <command> [args...]"
-      echo "Common commands:"
-      echo "  claude|claude-code          (runs as ai user)"
-      echo "  claude-sandbox              (runs as you, sandboxed, repo-only)"
-      echo "  antigravity|antigravity-fhs (runs as you, sandboxed; Wayland-compatible)"
-      exit 1
-    fi
+        set -euo pipefail
 
-    CMD="$1"
-    shift
+        usage() {
+          cat <<'EOF'
+    Usage:
+      aido [--env KEY=VAL ...] [--preserve-env KEY ...] <command> [args...]
 
-    case "$CMD" in
-      claude|claude-code)
-        exec /run/wrappers/bin/sudo -u ai -g ai -- ${claudeBin} "$@"
-        ;;
-      claude-sandbox)
-        exec ${claudeSandbox}/bin/claude-sandbox "$@"
-        ;;
-      antigravity|antigravity-fhs)
-        exec ${antigravitySandbox}/bin/antigravity-sandbox "$@"
-        ;;
-      *)
-        # Default: run arbitrary commands as ai (still requires sudo rule permitting aido itself).
-        exec /run/wrappers/bin/sudo -u ai -g ai -- "$CMD" "$@"
-        ;;
-    esac
+    Commands:
+      claude|claude-code          runs as ai user (sudo), supports env forwarding
+      claude-sandbox              runs as you in bwrap, sandboxed to cwd
+      antigravity|antigravity-fhs runs as you in bwrap (Wayland-friendly)
+
+    Examples:
+      aido --env ANTHROPIC_API_KEY=... claude
+      ANTHROPIC_API_KEY=... aido --preserve-env ANTHROPIC_API_KEY claude
+      aido antigravity
+    EOF
+        }
+
+        if [ $# -eq 0 ]; then usage; exit 1; fi
+
+        # Collect env keys we want sudo to preserve
+        preserve_keys=()
+
+        # Parse env flags
+        while [ $# -gt 0 ]; do
+          case "$1" in
+            --env)
+              [ $# -ge 2 ] || { echo "aido: --env requires KEY=VAL" >&2; exit 2; }
+              kv="$2"
+              shift 2
+              key="''${kv%%=*}"
+              val="''${kv#*=}"
+              if [ -z "$key" ] || [ "$key" = "$val" ]; then
+                echo "aido: invalid --env '$kv' (expected KEY=VAL)" >&2
+                exit 2
+              fi
+              export "$key=$val"
+              preserve_keys+=("$key")
+              ;;
+            --preserve-env)
+              [ $# -ge 2 ] || { echo "aido: --preserve-env requires KEY" >&2; exit 2; }
+              key="$2"
+              shift 2
+              preserve_keys+=("$key")
+              ;;
+            --help|-h)
+              usage; exit 0 ;;
+            *)
+              break ;;
+          esac
+        done
+
+        [ $# -ge 1 ] || { usage; exit 2; }
+
+        CMD="$1"
+        shift
+
+        # Build sudo preserve-env argument if needed
+        preserve_arg=""
+        if [ "''${#preserve_keys[@]}" -gt 0 ]; then
+          # de-dupe
+          uniq_keys="$(printf "%s\n" "''${preserve_keys[@]}" | awk '!seen[$0]++' | paste -sd, -)"
+          preserve_arg="--preserve-env=$uniq_keys"
+        fi
+
+        case "$CMD" in
+          claude|claude-code)
+            # Run as ai, allow optional env passthrough
+            exec /run/wrappers/bin/sudo $preserve_arg -u ai -g ai -- ${claudeBin} "$@"
+            ;;
+          claude-sandbox)
+            exec ${claudeSandbox}/bin/claude-sandbox "$@"
+            ;;
+          antigravity|antigravity-fhs)
+            exec ${antigravitySandbox}/bin/antigravity-sandbox "$@"
+            ;;
+          *)
+            # Default: run arbitrary command as ai (no env passthrough unless you set preserve_keys)
+            exec /run/wrappers/bin/sudo $preserve_arg -u ai -g ai -- "$CMD" "$@"
+            ;;
+        esac
   '';
 in {
   options.fmf.apps.agentic-ai = {
@@ -177,26 +241,27 @@ in {
       pkgs.bubblewrap
     ];
 
-    # Sudo policy:
-    # - allowedUsers can run aido without password
-    # - and can run the *exact* claude binary as ai without password (hardened)
+    # IMPORTANT: sudoers should describe the command being executed, not "sudo ..." itself.
     #
-    # Note: antigravity does NOT use sudo (Wayland), so no sudo rule is needed for it.
-    security.sudo.extraRules =
-      map (user: {
-        users = [user];
-        commands = [
-          {
-            command = "${aido}/bin/aido";
-            options = ["NOPASSWD"];
-          }
-          {
-            command = "/run/wrappers/bin/sudo -u ai -g ai -- ${claudeBin}*";
-            options = ["NOPASSWD"];
-          }
-        ];
-      })
-      cfg.allowedUsers;
+    # - Allow users to run aido without password.
+    # - Allow them to run claude as user ai without password AND allow env passing (SETENV).
+    security.sudo.extraRules = map (user: {
+      users = [user];
+      commands = [
+        {
+          command = "${aido}/bin/aido";
+          options = ["NOPASSWD"];
+        }
+
+        # Allow running claude as ai, with arbitrary args, and allow env vars via --preserve-env / -E.
+        {
+          command = "${claudeBin} *";
+          options = ["NOPASSWD" "SETENV"];
+        }
+      ];
+      runAs = "ai";
+    })
+    cfg.allowedUsers;
 
     systemd.tmpfiles.rules = [
       "d /var/lib/ai 0750 ai ai -"
