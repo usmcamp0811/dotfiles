@@ -156,6 +156,14 @@ in {
     networking.firewall.allowedTCPPorts = [443 6443 7946];
     networking.firewall.allowedUDPPorts = [7946];
 
+    # Enable iSCSI kernel modules for Longhorn storage
+    boot.kernelModules = [
+      "iscsi_tcp"
+      "libiscsi"
+      "libiscsi_tcp"
+      "scsi_transport_iscsi"
+    ];
+
     # Enable iSCSI daemon for Longhorn storage
     services.openiscsi = {
       enable = true;
