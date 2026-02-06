@@ -155,6 +155,13 @@ in {
     # open ports for MetalLB (memberlist)
     networking.firewall.allowedTCPPorts = [443 6443 7946];
     networking.firewall.allowedUDPPorts = [7946];
+
+    # Enable iSCSI daemon for Longhorn storage
+    services.openiscsi = {
+      enable = true;
+      name = "iqn.2016-04.com.open-iscsi:${config.networking.hostName}";
+    };
+
     services.k3s = {
       enable = true;
       package = cfg.package;
@@ -321,9 +328,18 @@ in {
       };
     };
 
-    # Ensure required tools are in PATH for k3s service
+    # Ensure required tools are in PATH for k3s service (including Longhorn requirements)
     systemd.services.k3s.path =
-      [pkgs.coreutils pkgs.gnugrep pkgs.curl]
+      [
+        pkgs.coreutils
+        pkgs.gnugrep
+        pkgs.curl
+        pkgs.openiscsi
+        pkgs.nfs-utils        # NFSv4 client for Longhorn
+        pkgs.util-linux       # Provides nsenter, mount utilities
+        pkgs.e2fsprogs        # Filesystem utilities
+        pkgs.xfsprogs         # XFS filesystem support
+      ]
       ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
     # Configure Vault Kubernetes auth for ArgoCD OIDC (after k3s is running)
@@ -531,13 +547,16 @@ in {
     };
 
     environment.systemPackages =
-      [cfg.package pkgs.busybox]
-      ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [
+      [
+        cfg.package
+        pkgs.busybox
         pkgs.openiscsi
         pkgs.nfs-utils
-        pkgs.fuse-overlayfs
-        pkgs.fuse3
-      ]);
+        pkgs.util-linux
+        pkgs.e2fsprogs
+        pkgs.xfsprogs
+      ]
+      ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
     # Bootstrap: copy GitOps bootstrap secret to k3s manifests directory
     systemd.services.k3s.preStart = mkMerge [
