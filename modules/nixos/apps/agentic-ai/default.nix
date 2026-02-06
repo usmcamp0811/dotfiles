@@ -1,11 +1,15 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   cfg = config.fmf.apps.agentic-ai;
 
   # Tools you want available (note: antigravity GUI won't run as ai on Wayland)
-  aiPackages = with pkgs; [ antigravity-fhs claude-code ];
+  aiPackages = with pkgs; [antigravity-fhs claude-code];
 
   # Absolute store paths (stable references) to the *real* tools.
   claudeBin = "${pkgs.claude-code}/bin/claude";
@@ -19,12 +23,22 @@ let
     : "''${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR not set}"
     : "''${WAYLAND_DISPLAY:?WAYLAND_DISPLAY not set}"
 
-    TMPHOME="$(mktemp -d -t antigravity-home.XXXXXX)"
-    cleanup() { rm -rf "$TMPHOME"; }
-    trap cleanup EXIT
+    if [ -z "''${DBUS_SESSION_BUS_ADDRESS:-}" ] && [ -S "''${XDG_RUNTIME_DIR}/bus" ]; then
+      export DBUS_SESSION_BUS_ADDRESS="unix:path=''${XDG_RUNTIME_DIR}/bus"
+    fi
 
+    # Persistent sandbox home (NOT your real home)
+    SANDBOX_HOME="''${XDG_DATA_HOME:-$HOME/.local/share}/antigravity-sandbox-home"
+    mkdir -p "$SANDBOX_HOME"/{.config,.cache,.local/share}
+    USER_DATA_DIR="$SANDBOX_HOME/.config/Antigravity"
+    mkdir -p "$USER_DATA_DIR"
+
+    # Important: ensure Electron/Chromium writes state into the sandbox, not /home/mcamp
     exec ${pkgs.bubblewrap}/bin/bwrap \
-      --unshare-all \
+      --unshare-user \
+      --unshare-pid \
+      --unshare-uts \
+      --unshare-cgroup \
       --share-net \
       --die-with-parent \
       --new-session \
@@ -34,14 +48,20 @@ let
       --ro-bind /etc /etc \
       --ro-bind /run/current-system /run/current-system \
       --bind /tmp /tmp \
-      --bind "$XDG_RUNTIME_DIR" "$XDG_RUNTIME_DIR" \
-      --clearenv \
-      --setenv HOME "$TMPHOME" \
-      --setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR" \
-      --setenv WAYLAND_DISPLAY "$WAYLAND_DISPLAY" \
+      --bind "''${XDG_RUNTIME_DIR}" "''${XDG_RUNTIME_DIR}" \
+      --bind "$SANDBOX_HOME" "$SANDBOX_HOME" \
+      --setenv HOME "$SANDBOX_HOME" \
+      --setenv XDG_RUNTIME_DIR "''${XDG_RUNTIME_DIR}" \
+      --setenv WAYLAND_DISPLAY "''${WAYLAND_DISPLAY}" \
       --setenv XDG_SESSION_TYPE "wayland" \
-      --setenv PATH "/run/current-system/sw/bin" \
-      -- ${antigravityBin} "$@"
+      --setenv DBUS_SESSION_BUS_ADDRESS "''${DBUS_SESSION_BUS_ADDRESS:-}" \
+      -- ${antigravityBin} \
+        --user-data-dir="$USER_DATA_DIR" \
+        --ozone-platform-hint=auto \
+        --enable-features=WaylandWindowDecorations \
+        --enable-wayland-ime=true \
+        --wayland-text-input-version=3 \
+        "$@"
   '';
 
   # Optional: run claude as the *calling user* but sandboxed (useful if you want repo access).
@@ -105,17 +125,16 @@ let
         ;;
     esac
   '';
-in
-{
+in {
   options.fmf.apps.agentic-ai = {
     enable = mkBoolOpt false "Whether to enable the Agentic AI app helpers.";
     allowedUsers =
-      mkOpt (types.listOf types.str) [ "admin" ]
-        "Users allowed to use the aido command.";
+      mkOpt (types.listOf types.str) ["admin"]
+      "Users allowed to use the aido command.";
   };
 
   config = mkIf cfg.enable {
-    users.groups.ai = { };
+    users.groups.ai = {};
 
     users.users.ai = {
       isSystemUser = true;
@@ -141,18 +160,19 @@ in
     # Note: antigravity does NOT use sudo (Wayland), so no sudo rule is needed for it.
     security.sudo.extraRules =
       map (user: {
-        users = [ user ];
+        users = [user];
         commands = [
           {
             command = "${aido}/bin/aido";
-            options = [ "NOPASSWD" ];
+            options = ["NOPASSWD"];
           }
           {
             command = "/run/wrappers/bin/sudo -u ai -g ai -- ${claudeBin}*";
-            options = [ "NOPASSWD" ];
+            options = ["NOPASSWD"];
           }
         ];
-      }) cfg.allowedUsers;
+      })
+      cfg.allowedUsers;
 
     systemd.tmpfiles.rules = [
       "d /var/lib/ai 0750 ai ai -"
