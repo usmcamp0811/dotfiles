@@ -27,13 +27,26 @@ with lib.fmf; let
       export DBUS_SESSION_BUS_ADDRESS="unix:path=''${XDG_RUNTIME_DIR}/bus"
     fi
 
-    # Persistent sandbox home (NOT your real home)
     SANDBOX_HOME="''${XDG_DATA_HOME:-$HOME/.local/share}/antigravity-sandbox-home"
-    mkdir -p "$SANDBOX_HOME"/{.config,.cache,.local/share}
     USER_DATA_DIR="$SANDBOX_HOME/.config/Antigravity"
-    mkdir -p "$USER_DATA_DIR"
+    mkdir -p "$USER_DATA_DIR" "$SANDBOX_HOME"/{.cache,.local/share}
 
-    # Important: ensure Electron/Chromium writes state into the sandbox, not /home/mcamp
+    # Clean common Electron single-instance locks (safe inside sandbox)
+    rm -f "$USER_DATA_DIR"/Singleton{Lock,Cookie,Socket} 2>/dev/null || true
+
+    # Build optional device binds (GPU)
+    dev_binds=""
+    if [ -d /dev/dri ]; then
+      dev_binds="$dev_binds --dev-bind /dev/dri /dev/dri"
+    fi
+
+    # If you're on NVIDIA, this helps (no-op if not present)
+    for n in /dev/nvidiactl /dev/nvidia0 /dev/nvidia1 /dev/nvidia-uvm /dev/nvidia-uvm-tools; do
+      if [ -e "$n" ]; then
+        dev_binds="$dev_binds --dev-bind $n $n"
+      fi
+    done
+
     exec ${pkgs.bubblewrap}/bin/bwrap \
       --unshare-user \
       --unshare-pid \
@@ -44,6 +57,7 @@ with lib.fmf; let
       --new-session \
       --proc /proc \
       --dev /dev \
+      $dev_binds \
       --ro-bind /nix /nix \
       --ro-bind /etc /etc \
       --ro-bind /run/current-system /run/current-system \
