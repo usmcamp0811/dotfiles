@@ -33,8 +33,17 @@ with lib.fmf; let
 
     rm -f "$USER_DATA_DIR"/Singleton{Lock,Cookie,Socket} 2>/dev/null || true
 
-    # Use the *real* Electron binary, not the launcher (launcher can override args)
-    REAL_ANTIGRAVITY="${pkgs.antigravity-fhs}/lib/antigravity/antigravity"
+    launcher="${antigravityBin}"
+    launcher_real="$(readlink -f "$launcher" || echo "$launcher")"
+    pkg_root="$(dirname "$(dirname "$launcher_real")")"
+
+    # Prefer the real Electron binary if present; otherwise fall back to the launcher.
+    real="$launcher_real"
+    if [ -x "$pkg_root/lib/antigravity/antigravity" ]; then
+      real="$pkg_root/lib/antigravity/antigravity"
+    elif [ -x "$pkg_root/libexec/antigravity/antigravity" ]; then
+      real="$pkg_root/libexec/antigravity/antigravity"
+    fi
 
     dev_binds=""
     if [ -d /dev/dri ]; then
@@ -70,9 +79,7 @@ with lib.fmf; let
       --setenv DBUS_SESSION_BUS_ADDRESS "''${DBUS_SESSION_BUS_ADDRESS:-}" \
       --setenv ELECTRON_ENABLE_LOGGING "1" \
       --setenv ELECTRON_ENABLE_STACK_DUMPING "1" \
-      --setenv LIBGL_ALWAYS_SOFTWARE "1" \
-      --setenv WLR_RENDERER_ALLOW_SOFTWARE "1" \
-      -- "$REAL_ANTIGRAVITY" \
+      -- "$real" \
         --user-data-dir="$USER_DATA_DIR" \
         --ozone-platform-hint=auto \
         --enable-features=WaylandWindowDecorations \
