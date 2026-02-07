@@ -170,6 +170,14 @@ in {
       name = "iqn.2016-04.com.open-iscsi:${config.networking.hostName}";
     };
 
+    # Create FHS-compatible symlinks for Longhorn
+    # Longhorn uses nsenter to execute iscsiadm on the host, but expects it at /usr/bin
+    system.activationScripts.longhornFhsCompat = ''
+      mkdir -p /usr/bin
+      ln -sf /run/current-system/sw/bin/iscsiadm /usr/bin/iscsiadm
+      ln -sf /run/current-system/sw/bin/nsenter /usr/bin/nsenter
+    '';
+
     services.k3s = {
       enable = true;
       package = cfg.package;
