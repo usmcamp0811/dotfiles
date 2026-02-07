@@ -156,12 +156,21 @@ in {
     networking.firewall.allowedTCPPorts = [443 6443 7946];
     networking.firewall.allowedUDPPorts = [7946];
 
-    # Enable iSCSI kernel modules for Longhorn storage
+    # Enable kernel modules for Longhorn storage
+    # - iSCSI for block storage (RWO volumes)
+    # - NFS for ReadWriteMany (RWX) volumes (Longhorn uses NFS servers in containers)
+    boot.supportedFilesystems = ["nfs" "nfs4"];
     boot.kernelModules = [
+      # iSCSI modules
       "iscsi_tcp"
       "libiscsi"
       "libiscsi_tcp"
       "scsi_transport_iscsi"
+      # NFS modules
+      "nfs"
+      "nfsd"
+      "nfs_acl"
+      "lockd"
     ];
 
     # Enable iSCSI daemon for Longhorn storage
@@ -170,12 +179,20 @@ in {
       name = "iqn.2016-04.com.open-iscsi:${config.networking.hostName}";
     };
 
+    # Enable RPC services for NFS (required for Longhorn RWX volumes)
+    services.rpcbind.enable = true;
+
     # Create FHS-compatible symlinks for Longhorn
-    # Longhorn uses nsenter to execute iscsiadm on the host, but expects it at /usr/bin
+    # Longhorn uses nsenter to execute iscsiadm/mount.nfs on the host, but expects them at /usr/bin or /sbin
     system.activationScripts.longhornFhsCompat = ''
-      mkdir -p /usr/bin
+      mkdir -p /usr/bin /sbin /usr/sbin
       ln -sf /run/current-system/sw/bin/iscsiadm /usr/bin/iscsiadm
       ln -sf /run/current-system/sw/bin/nsenter /usr/bin/nsenter
+      # NFS utilities for RWX volume support
+      ln -sf /run/current-system/sw/bin/mount.nfs /sbin/mount.nfs
+      ln -sf /run/current-system/sw/bin/mount.nfs4 /sbin/mount.nfs4
+      ln -sf /run/current-system/sw/bin/rpc.statd /usr/sbin/rpc.statd
+      ln -sf /run/current-system/sw/bin/rpcbind /usr/sbin/rpcbind
     '';
 
     services.k3s = {
