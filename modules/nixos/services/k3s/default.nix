@@ -182,6 +182,36 @@ in {
     # Enable RPC services for NFS (required for Longhorn RWX volumes)
     services.rpcbind.enable = true;
 
+    # Extract kernel config for Longhorn's environment checker
+    # Longhorn expects to find kernel config at /boot/config-$(uname -r)
+    # but NixOS provides it at /proc/config.gz
+    systemd.services.longhorn-kernel-config = {
+      description = "Extract kernel config for Longhorn";
+      wantedBy = ["multi-user.target"];
+      after = ["local-fs.target"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+      script = ''
+        # Ensure /boot directory exists
+        mkdir -p /boot
+
+        KERNEL_VERSION=$(${pkgs.coreutils}/bin/uname -r)
+        CONFIG_FILE="/boot/config-$KERNEL_VERSION"
+
+        if [ -f /proc/config.gz ]; then
+          ${pkgs.gzip}/bin/zcat /proc/config.gz > "$CONFIG_FILE"
+          chmod 644 "$CONFIG_FILE"
+          echo "Extracted kernel config to $CONFIG_FILE for kernel version $KERNEL_VERSION"
+          echo "Longhorn will access this as /host/boot/config-$KERNEL_VERSION from its containers"
+        else
+          echo "ERROR: /proc/config.gz not available - kernel may not have CONFIG_IKCONFIG_PROC enabled"
+          exit 1
+        fi
+      '';
+    };
+
     # Create FHS-compatible symlinks for Longhorn
     # Longhorn uses nsenter to execute iscsiadm/mount.nfs on the host, but expects them at /usr/bin or /sbin
     system.activationScripts.longhornFhsCompat = ''
