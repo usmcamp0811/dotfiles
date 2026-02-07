@@ -122,11 +122,16 @@ in {
       ];
 
       # NodePort services range (allows external traffic to NodePort services)
+      # Longhorn instance manager ports (8500-9000)
       allowedTCPPortRanges = [
         {
           from = 30000;
           to = 32767;
         }
+        {
+          from = 8500;
+          to = 9000;
+        } # Longhorn instance managers
       ];
 
       # VXLAN traffic for Flannel overlay network (cross-node pod communication)
