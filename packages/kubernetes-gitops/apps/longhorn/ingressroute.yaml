@@ -9,6 +9,9 @@ spec:
   routes:
   - kind: Rule
     match: Host(`longhorn.k8s.aicampground.com`)
+    middlewares:
+    - name: authentik-forwardauth
+      namespace: longhorn-system
     services:
     - name: longhorn-frontend
       port: 80
