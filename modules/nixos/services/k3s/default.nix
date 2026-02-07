@@ -80,18 +80,22 @@ in {
       mkOpt types.str
       config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
+
     secret-id =
       mkOpt types.str
       config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
+
     vault-path =
       mkOpt types.str "secret/campground/k3s"
       "The Vault path to the KV containing the k0s secrets.";
+
     vault-address = mkOption {
       type = types.str;
       default = config.fmf.services.vault-agent.settings.vault.address;
       description = "The address of your Vault";
     };
+
     kvVersion = mkOption {
       type = types.enum ["v1" "v2"];
       default = "v2";
@@ -151,6 +155,32 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Ensure kubelet + rancher paths exist early
+    systemd.tmpfiles.rules = [
+      "d /var/lib/kubelet 0755 root root -"
+      "d /var/lib/rancher 0755 root root -"
+      "d /var/lib/rancher/k3s 0755 root root -"
+    ];
+
+    # Make /var/lib/kubelet a bind-mount and mark it rshared.
+    # Longhorn’s checks (and kubelet mount propagation) behave much better when
+    # kubelet has its own mountpoint with shared propagation.
+    fileSystems."/var/lib/kubelet" = {
+      device = "/var/lib/kubelet";
+      fsType = "none";
+      options = ["bind" "rshared"];
+      neededForBoot = true;
+    };
+
+    # (Optional but often helpful) make sure /var/lib/rancher is also rshared.
+    # If your kubelet rootDir ends up under k3s paths, this prevents surprises.
+    fileSystems."/var/lib/rancher" = {
+      device = "/var/lib/rancher";
+      fsType = "none";
+      options = ["bind" "rshared"];
+      neededForBoot = true;
+    };
+
     # open ports for MetalLB (memberlist)
     networking.firewall.allowedTCPPorts = [443 6443 7946];
     networking.firewall.allowedUDPPorts = [7946];
@@ -696,7 +726,7 @@ in {
             kubeconfig="$KUBECONFIG_FIXED"
           )
           [ -n "$EXISTING_ROLE_ID" ] && ARGS+=("role_id=$EXISTING_ROLE_ID")
-          [ -n "$EXISTING_SECRET_ID" ] && ARGS+=("role_id=$EXISTING_SECRET_ID")
+          [ -n "$EXISTING_SECRET_ID" ] && ARGS+=("secret_id=$EXISTING_SECRET_ID")
 
           echo "Storing K3s node-token and kubeconfig in Vault at $VAULT_PATH"
           ${pkgs.vault-bin}/bin/vault kv put "$VAULT_PATH" "''${ARGS[@]}"
@@ -837,14 +867,14 @@ in {
 
     fmf.services.vault-agent.services.k3s = {
       settings = {
-        vault.address = cfg.vault-address;
+        vault.address = cfg."vault-address";
         auto_auth = {
           method = [
             {
               type = "approle";
               config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
+                role_id_file_path = cfg."role-id";
+                secret_id_file_path = cfg."secret-id";
                 remove_secret_id_file_after_reading = false;
               };
             }
@@ -857,7 +887,7 @@ in {
           files =
             {
               "k3s-token" = {
-                text = ''{{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.node_token }}{{ else }}{{ .Data.data.node_token }}{{ end }}{{ end }}'';
+                text = ''{{ with secret "${cfg.vault-path}"}}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.node_token }}{{ else }}{{ .Data.data.node_token }}{{ end }}{{ end }}'';
                 permissions = "0400";
                 change-action = "restart";
               };
