@@ -159,6 +159,7 @@ in {
     # Enable kernel modules for Longhorn storage
     # - iSCSI for block storage (RWO volumes)
     # - NFS for ReadWriteMany (RWX) volumes (Longhorn uses NFS servers in containers)
+    # - dm_crypt for encrypted volumes
     boot.supportedFilesystems = ["nfs" "nfs4"];
     boot.kernelModules = [
       # iSCSI modules
@@ -166,11 +167,15 @@ in {
       "libiscsi"
       "libiscsi_tcp"
       "scsi_transport_iscsi"
-      # NFS modules
+      # NFS modules (some may be built into kernel)
       "nfs"
       "nfsd"
       "nfs_acl"
       "lockd"
+      "sunrpc"
+      # Encryption support
+      "dm_crypt"
+      "dm_mod"
     ];
 
     # Enable iSCSI daemon for Longhorn storage
@@ -179,8 +184,13 @@ in {
       name = "iqn.2016-04.com.open-iscsi:${config.networking.hostName}";
     };
 
-    # Enable RPC services for NFS (required for Longhorn RWX volumes)
+    # Enable NFS client support for Longhorn RWX volumes
+    # Longhorn uses containerized NFS servers for RWX volumes, but nodes need NFS client capabilities
     services.rpcbind.enable = true;
+
+    # Ensure RPC services start properly and modules load before k3s
+    systemd.services.k3s.after = ["rpcbind.service" "network-online.target"];
+    systemd.services.k3s.wants = ["rpcbind.service"];
 
     # Extract kernel config for Longhorn's environment checker
     # Longhorn expects to find kernel config at /boot/config-$(uname -r)
