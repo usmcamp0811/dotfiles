@@ -184,6 +184,16 @@ in {
       name = "iqn.2016-04.com.open-iscsi:${config.networking.hostName}";
     };
 
+    # Fix for Longhorn instance-manager pods accessing iscsiadm via nsenter
+    # Longhorn dynamically creates instance-manager pods that use nsenter to call iscsiadm
+    # in the iscsid service's namespace. By bind-mounting NixOS's bin directory to /bin,
+    # these pods can find iscsiadm at the expected path.
+    # See: https://github.com/longhorn/longhorn/issues/2166#issuecomment-2359937734
+    systemd.services.iscsid.serviceConfig = {
+      PrivateMounts = "yes";
+      BindPaths = "/run/current-system/sw/bin:/bin";
+    };
+
     # Ensure all Longhorn-required kernel modules load at boot
     # These are compiled as modules (=m) so must be explicitly loaded
     systemd.services.longhorn-kernel-modules = {
