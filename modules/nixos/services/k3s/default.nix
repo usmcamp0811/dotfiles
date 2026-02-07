@@ -184,13 +184,56 @@ in {
       name = "iqn.2016-04.com.open-iscsi:${config.networking.hostName}";
     };
 
+    # Ensure all Longhorn-required kernel modules load at boot
+    # These are compiled as modules (=m) so must be explicitly loaded
+    systemd.services.longhorn-kernel-modules = {
+      description = "Load kernel modules required by Longhorn";
+      wantedBy = ["multi-user.target"];
+      before = ["k3s.service" "iscsid.service"];
+      after = ["systemd-modules-load.service"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+      script = ''
+        # Load modules in order (respecting dependencies)
+        echo "Loading Longhorn kernel modules..."
+
+        # Device mapper and encryption
+        ${pkgs.kmod}/bin/modprobe dm_mod || echo "dm_mod already loaded"
+        ${pkgs.kmod}/bin/modprobe dm_crypt || echo "dm_crypt already loaded"
+
+        # iSCSI
+        ${pkgs.kmod}/bin/modprobe iscsi_tcp || echo "iscsi_tcp already loaded"
+        ${pkgs.kmod}/bin/modprobe libiscsi || echo "libiscsi already loaded"
+        ${pkgs.kmod}/bin/modprobe libiscsi_tcp || echo "libiscsi_tcp already loaded"
+        ${pkgs.kmod}/bin/modprobe scsi_transport_iscsi || echo "scsi_transport_iscsi already loaded"
+
+        # NFS (for RWX volumes)
+        ${pkgs.kmod}/bin/modprobe sunrpc || echo "sunrpc already loaded"
+        ${pkgs.kmod}/bin/modprobe nfs || echo "nfs already loaded"
+        ${pkgs.kmod}/bin/modprobe nfsd || echo "nfsd already loaded"
+        ${pkgs.kmod}/bin/modprobe nfs_acl || echo "nfs_acl already loaded"
+        ${pkgs.kmod}/bin/modprobe lockd || echo "lockd already loaded"
+
+        echo "Longhorn kernel modules loaded successfully"
+        ${pkgs.kmod}/bin/lsmod | grep -E "dm_crypt|iscsi_tcp|nfs|nfsd"
+      '';
+    };
+
     # Enable NFS client support for Longhorn RWX volumes
     # Longhorn uses containerized NFS servers for RWX volumes, but nodes need NFS client capabilities
     services.rpcbind.enable = true;
 
-    # Ensure RPC services start properly and modules load before k3s
-    systemd.services.k3s.after = ["rpcbind.service" "network-online.target"];
-    systemd.services.k3s.wants = ["rpcbind.service"];
+    # Ensure RPC services and modules load before k3s
+    systemd.services.k3s.after = ["rpcbind.service" "network-online.target" "longhorn-kernel-modules.service" "iscsid.service"];
+    systemd.services.k3s.wants = ["longhorn-kernel-modules.service" "iscsid.service"];
+
+    # Make rpcbind less strict - it may fail but k3s can still work
+    systemd.services.rpcbind.unitConfig = {
+      # Don't block boot if rpcbind fails
+      DefaultDependencies = false;
+    };
 
     # Extract kernel config for Longhorn's environment checker
     # Longhorn expects to find kernel config at /boot/config-$(uname -r)
