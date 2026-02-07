@@ -162,23 +162,46 @@ in {
       "d /var/lib/rancher/k3s 0755 root root -"
     ];
 
-    # Make /var/lib/kubelet a bind-mount and mark it rshared.
-    # Longhorn’s checks (and kubelet mount propagation) behave much better when
-    # kubelet has its own mountpoint with shared propagation.
-    fileSystems."/var/lib/kubelet" = {
+    # For bare-metal/physical hosts: create bind mounts with rshared propagation.
+    # For MicroVMs: these will be overridden by virtiofs mounts, but we handle
+    # propagation separately via systemd service below.
+    fileSystems."/var/lib/kubelet" = mkDefault {
       device = "/var/lib/kubelet";
       fsType = "none";
       options = ["bind" "rshared"];
       neededForBoot = true;
     };
 
-    # (Optional but often helpful) make sure /var/lib/rancher is also rshared.
-    # If your kubelet rootDir ends up under k3s paths, this prevents surprises.
-    fileSystems."/var/lib/rancher" = {
+    fileSystems."/var/lib/rancher" = mkDefault {
       device = "/var/lib/rancher";
       fsType = "none";
       options = ["bind" "rshared"];
       neededForBoot = true;
+    };
+
+    # Ensure mount propagation is set AFTER filesystems are mounted.
+    # This handles both bind mounts (bare-metal) and virtiofs mounts (MicroVMs).
+    # Longhorn requires shared propagation for proper mount handling.
+    systemd.services.longhorn-mount-propagation = {
+      description = "Ensure rshared mount propagation for Longhorn paths";
+      after = ["local-fs.target"];
+      before = ["k3s.service"];
+      wantedBy = ["multi-user.target"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+      script = ''
+        # Ensure /var/lib/kubelet exists and has rshared propagation
+        mkdir -p /var/lib/kubelet
+        ${pkgs.util-linux}/bin/mount --make-rshared /var/lib/kubelet || true
+
+        # Ensure /var/lib/rancher exists and has rshared propagation
+        mkdir -p /var/lib/rancher
+        ${pkgs.util-linux}/bin/mount --make-rshared /var/lib/rancher || true
+
+        echo "Mount propagation set to rshared for Longhorn paths"
+      '';
     };
 
     # open ports for MetalLB (memberlist)
