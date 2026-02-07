@@ -276,7 +276,7 @@ in {
     };
 
     # Create FHS-compatible symlinks for Longhorn
-    # Longhorn uses nsenter to execute iscsiadm/mount.nfs on the host, but expects them at /usr/bin or /sbin
+    # Longhorn uses nsenter to execute iscsiadm/mount.nfs/cryptsetup on the host, but expects them at /usr/bin or /sbin
     system.activationScripts.longhornFhsCompat = ''
       mkdir -p /usr/bin /sbin /usr/sbin
       ln -sf /run/current-system/sw/bin/iscsiadm /usr/bin/iscsiadm
@@ -286,6 +286,8 @@ in {
       ln -sf /run/current-system/sw/bin/mount.nfs4 /sbin/mount.nfs4
       ln -sf /run/current-system/sw/bin/rpc.statd /usr/sbin/rpc.statd
       ln -sf /run/current-system/sw/bin/rpcbind /usr/sbin/rpcbind
+      # Encryption support for encrypted volumes
+      ln -sf /run/current-system/sw/bin/cryptsetup /sbin/cryptsetup
     '';
 
     services.k3s = {
@@ -461,10 +463,11 @@ in {
         pkgs.gnugrep
         pkgs.curl
         pkgs.openiscsi
-        pkgs.nfs-utils        # NFSv4 client for Longhorn
+        pkgs.nfs-utils        # NFSv4 client for Longhorn RWX volumes
         pkgs.util-linux       # Provides nsenter, mount utilities
         pkgs.e2fsprogs        # Filesystem utilities
         pkgs.xfsprogs         # XFS filesystem support
+        pkgs.cryptsetup       # For Longhorn encrypted volumes (dm_crypt)
       ]
       ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
@@ -681,6 +684,7 @@ in {
         pkgs.util-linux
         pkgs.e2fsprogs
         pkgs.xfsprogs
+        pkgs.cryptsetup
       ]
       ++ (optionals (cfg.snapshotter == "fuse-overlayfs") [pkgs.fuse-overlayfs pkgs.fuse3]);
 
