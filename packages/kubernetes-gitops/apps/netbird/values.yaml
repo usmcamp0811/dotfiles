@@ -56,14 +56,18 @@ management:
       traefik.ingress.kubernetes.io/router.entrypoints: websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
     hosts:
-      - host: netbird.aicampground.com
+      - host: netbird.k8s.aicampground.com  # Internal K8s hostname
         paths:
           - path: /
             pathType: Prefix
     tls:
       - secretName: netbird-management-tls
         hosts:
-          - netbird.aicampground.com
+          - netbird.k8s.aicampground.com
+
+  service:
+    type: ClusterIP
+    port: 80
 
   ingressGrpc:
     enabled: true
@@ -73,14 +77,14 @@ management:
       traefik.ingress.kubernetes.io/router.entrypoints: websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
     hosts:
-      - host: netbird.aicampground.com
+      - host: netbird.k8s.aicampground.com
         paths:
           - path: /
             pathType: Prefix
     tls:
       - secretName: netbird-management-grpc-tls
         hosts:
-          - netbird.aicampground.com
+          - netbird.k8s.aicampground.com
 
 # Signal server
 signal:
@@ -112,14 +116,14 @@ signal:
       traefik.ingress.kubernetes.io/router.entrypoints: websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
     hosts:
-      - host: netbird.aicampground.com
+      - host: netbird.k8s.aicampground.com
         paths:
           - path: /signalexchange.SignalExchange
             pathType: Prefix
     tls:
       - secretName: netbird-signal-tls
         hosts:
-          - netbird.aicampground.com
+          - netbird.k8s.aicampground.com
 
 # Dashboard (UI)
 ui:
@@ -145,14 +149,14 @@ ui:
 
   # Dashboard environment configuration
   env:
-    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"
+    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"  # Public URL (via pub-traefik proxy)
     NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird.aicampground.com"
     AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
     AUTH_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
     AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
     USE_AUTH0: "false"
     AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    AUTH_REDIRECT_URI: "https://netbird.aicampground.com"
+    AUTH_REDIRECT_URI: "https://netbird.aicampground.com"  # Public URL
     AUTH_SILENT_REDIRECT_URI: "https://netbird.aicampground.com/silent-auth"
 
   ingress:
@@ -163,16 +167,17 @@ ui:
       traefik.ingress.kubernetes.io/router.entrypoints: websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
     hosts:
-      - host: netbird.aicampground.com
+      - host: netbird.k8s.aicampground.com
         paths:
           - path: /
             pathType: Prefix
     tls:
       - secretName: netbird-ui-tls
         hosts:
-          - netbird.aicampground.com
+          - netbird.k8s.aicampground.com
 
 # Coturn (TURN/STUN server)
+# Needs LoadBalancer for UDP - can't use Traefik for UDP
 relay:
   enabled: true
   replicaCount: 1
@@ -194,11 +199,14 @@ relay:
     type: LoadBalancer
     port: 3478
     protocol: UDP
+    # MetalLB will assign an IP from your pool
+    annotations:
+      metallb.universe.tf/allow-shared-ip: "netbird-coturn"
 
   # Coturn configuration
   env:
-    TURN_REALM: "netbird.aicampground.com"
-    TURN_EXTERNAL_IP: ""  # Will be auto-detected or set via LoadBalancer
+    TURN_REALM: "turn.netbird.aicampground.com"
+    TURN_EXTERNAL_IP: ""  # Will be auto-detected from LoadBalancer IP
 
 # Service Monitor for Prometheus
 serviceMonitor:
