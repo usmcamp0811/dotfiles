@@ -26,3 +26,6 @@ resources:
   - apps/istio-base.yaml
   - apps/istiod.yaml
   - apps/kiali.yaml
+
+  # VPN
+  - apps/netbird.yaml
