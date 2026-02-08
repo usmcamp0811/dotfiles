@@ -10,6 +10,7 @@ in {
     chestyfs = mkBoolOpt false "Whether or not to chestyfs mount.";
     k8s = mkBoolOpt false "Whether or not to k8s mount.";
     media = mkBoolOpt false "Whether or not to media mount.";
+    glusterfs-shared = mkBoolOpt false "Whether or not to mount highly available GlusterFS shared volume.";
   };
 
   config = mkIf cfg.enable {
@@ -34,6 +35,15 @@ in {
         what = "reckless:/export/nextcloud";
         where = "/mnt/nextcloud";
       })
+    ] ++ optionals cfg.glusterfs-shared [
+      (commonMountOptions // {
+        what = "10.8.0.9:/glusterfs/shared";
+        where = "/mnt/glusterfs-shared";
+        mountConfig = {
+          Options = "noatime,soft,timeo=10,retrans=2,_netdev";
+          TimeoutSec = "10s";
+        };
+      })
     ];
 
     systemd.automounts = let
@@ -45,6 +55,8 @@ in {
       (commonAutoMountOptions // { where = "/mnt/media"; })
       (commonAutoMountOptions // { where = "/mnt/webb"; })
       (commonAutoMountOptions // { where = "/mnt/nextcloud"; })
+    ] ++ optionals cfg.glusterfs-shared [
+      (commonAutoMountOptions // { where = "/mnt/glusterfs-shared"; })
     ];
     #   fileSystems."/mnt/webb" = {
     #     device = "webb:/webb";

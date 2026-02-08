@@ -19,24 +19,30 @@ This directory contains configuration for Longhorn, a cloud-native distributed b
 ## Deployment
 
 Longhorn is deployed via the ArgoCD Application at `clusters/campground/apps/longhorn.yaml` which:
-- Installs the Longhorn Helm chart from https://charts.longhorn.io
+- Installs the Longhorn Helm chart v1.9.1 from https://charts.longhorn.io
 - References this directory for additional manifests (StorageClass, ConfigMap)
 - Creates the `longhorn-system` namespace
 - Configures automated sync and self-healing
-- Sets NixOS-compatible PATH for longhorn-manager and longhorn-driver components
 
-### Upgrade Path
+### Fresh Install
+
+For a clean deployment (no existing data):
+```bash
+# Delete old Longhorn installation if it exists
+kubectl delete application longhorn -n argocd
+kubectl delete namespace longhorn-system
+
+# ArgoCD will automatically recreate with the new version
+# Or manually sync: argocd app sync longhorn
+```
+
+### Upgrading Existing Installations
 
 **IMPORTANT**: Longhorn only supports upgrading one minor version at a time:
-- ✅ 1.7.2 → 1.8.x → 1.9.x (supported)
-- ❌ 1.7.2 → 1.9.x (not supported - will fail with "upgrade path not supported")
+- ✅ 1.7.x → 1.8.x → 1.9.x (supported)
+- ❌ 1.7.x → 1.9.x (not supported - will fail)
 
-Current upgrade sequence:
-1. **Step 1**: Upgrade from 1.7.2 → 1.8.4 (current configuration)
-   - Wait for all pods to be healthy: `kubectl get pods -n longhorn-system`
-   - Verify all volumes are attached properly
-2. **Step 2**: Update `targetRevision: 1.9.1` in the ArgoCD Application
-   - ArgoCD will sync and complete the upgrade to 1.9.1
+If upgrading from an older version with data you care about, update `targetRevision` incrementally.
 
 ## NixOS Compatibility
 
