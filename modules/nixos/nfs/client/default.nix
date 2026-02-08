@@ -38,7 +38,7 @@ in {
     ] ++ optionals cfg.glusterfs-shared [
       (commonMountOptions // {
         what = "10.8.0.9:/glusterfs/shared";
-        where = "/mnt/glusterfs-shared";
+        where = "/mnt/gluster/shared";
         mountConfig = {
           Options = "noatime,soft,timeo=10,retrans=2,_netdev";
           TimeoutSec = "10s";
@@ -56,7 +56,7 @@ in {
       (commonAutoMountOptions // { where = "/mnt/webb"; })
       (commonAutoMountOptions // { where = "/mnt/nextcloud"; })
     ] ++ optionals cfg.glusterfs-shared [
-      (commonAutoMountOptions // { where = "/mnt/glusterfs-shared"; })
+      (commonAutoMountOptions // { where = "/mnt/gluster/shared"; })
     ];
     #   fileSystems."/mnt/webb" = {
     #     device = "webb:/webb";
