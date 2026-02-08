@@ -1,15 +1,20 @@
 # Netbird Helm values
 # VPN infrastructure with Authentik OIDC integration
 
-# Global settings
-domain: netbird.aicampground.com
-turnDomain: turn.netbird.aicampground.com
-oidcDomain: auth.aicampground.com
-
 # Management server
 management:
   enabled: true
-  replicas: 1
+  replicaCount: 1
+
+  # Configure via command-line arguments (not JSON config file)
+  podCommand:
+    args:
+      - --port=80
+      - --log-file=console
+      - --log-level=info
+      - --disable-anonymous-metrics=false
+      - --single-account-mode-domain=netbird.aicampground.com
+      - --dns-domain=dns.netbird.aicampground.com
 
   image:
     repository: netbirdio/management
@@ -27,61 +32,60 @@ management:
   service:
     type: ClusterIP
     port: 80
-    managementPort: 33073
-    metricsPort: 9092
 
-  # Authentik OIDC configuration
-  config:
-    httpConfig:
-      authAudience: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"  # Match fmf client-id
-      authUserIDClaim: "sub"
-      authIssuer: "https://auth.aicampground.com/application/o/netbird/"
-      authKeysLocation: "https://auth.aicampground.com/application/o/netbird/jwks/"
+  serviceGrpc:
+    type: ClusterIP
+    port: 33073
 
-    idpManagerConfig:
-      managerType: "authentik"
-      clientConfig:
-        issuer: "https://auth.aicampground.com/application/o/netbird/"
-        clientID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-        tokenEndpoint: "https://auth.aicampground.com/application/o/token/"
-        clientSecret: ""  # Will be injected from secret
-      extraConfig:
-        username: "NetBird"
-        # password will be injected from secret
-
-    pkceAuthorizationFlow:
-      providerConfig:
-        audience: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-        clientID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-        clientSecret: ""
-        scope: "openid profile email offline_access api"
-        authorizationEndpoint: "https://auth.aicampground.com/application/o/authorize/"
-        tokenEndpoint: "https://auth.aicampground.com/application/o/token/"
-        redirectURLs:
-          - "http://localhost:53000"
-
-    turnConfig:
-      turns:
-        - proto: "udp"
-          uri: "turn:turn.netbird.aicampground.com:3478"
-          username: "netbird"
-          # password will be injected from secret
-      # secret will be injected from secret
-
-  # Persistent storage
-  persistence:
+  metrics:
     enabled: true
-    storageClass: nfs-glusterfs
-    size: 1Gi
-    accessMode: ReadWriteOnce
+    port: 9090
 
-  # Secrets from Vault via ExternalSecrets
-  existingSecret: netbird-secrets
+  persistentVolume:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    storageClass: nfs-glusterfs
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: netbird.aicampground.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: netbird-management-tls
+        hosts:
+          - netbird.aicampground.com
+
+  ingressGrpc:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: netbird.aicampground.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: netbird-management-grpc-tls
+        hosts:
+          - netbird.aicampground.com
 
 # Signal server
 signal:
   enabled: true
-  replicas: 1
+  replicaCount: 1
 
   image:
     repository: netbirdio/signal
@@ -99,12 +103,28 @@ signal:
   service:
     type: ClusterIP
     port: 80
-    signalPort: 10000
 
-# Dashboard
-dashboard:
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: netbird.aicampground.com
+        paths:
+          - path: /signalexchange.SignalExchange
+            pathType: Prefix
+    tls:
+      - secretName: netbird-signal-tls
+        hosts:
+          - netbird.aicampground.com
+
+# Dashboard (UI)
+ui:
   enabled: true
-  replicas: 1
+  replicaCount: 1
 
   image:
     repository: netbirdio/dashboard
@@ -123,18 +143,39 @@ dashboard:
     type: ClusterIP
     port: 80
 
-  config:
-    authAuthority: "https://auth.aicampground.com/application/o/netbird/"
-    authSupportedScopes: "openid profile email offline_access api"
-    authAudience: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    authClientId: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    useAuth0: "false"
-    managementServer: "https://netbird.aicampground.com"
+  # Dashboard environment configuration
+  env:
+    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"
+    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird.aicampground.com"
+    AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
+    AUTH_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
+    AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
+    USE_AUTH0: "false"
+    AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
+    AUTH_REDIRECT_URI: "https://netbird.aicampground.com"
+    AUTH_SILENT_REDIRECT_URI: "https://netbird.aicampground.com/silent-auth"
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: netbird.aicampground.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: netbird-ui-tls
+        hosts:
+          - netbird.aicampground.com
 
 # Coturn (TURN/STUN server)
-coturn:
+relay:
   enabled: true
-  replicas: 1
+  replicaCount: 1
 
   image:
     repository: coturn/coturn
@@ -150,46 +191,18 @@ coturn:
       memory: 512Mi
 
   service:
-    type: LoadBalancer  # Needs external access
-    turnPort: 3478
+    type: LoadBalancer
+    port: 3478
     protocol: UDP
 
-  config:
-    realm: "netbird.aicampground.com"
-    # static-auth-secret will be injected from secret
-
-  existingSecret: netbird-secrets
-
-# Ingress configuration
-ingress:
-  enabled: true
-  className: traefik
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-
-  hosts:
-    - host: netbird.aicampground.com
-      paths:
-        - path: /
-          pathType: Prefix
-          service: dashboard
-        - path: /api
-          pathType: Prefix
-          service: management
-        - path: /signalexchange.SignalExchange
-          pathType: Prefix
-          service: signal
-
-  tls:
-    - secretName: netbird-tls
-      hosts:
-        - netbird.aicampground.com
+  # Coturn configuration
+  env:
+    TURN_REALM: "netbird.aicampground.com"
+    TURN_EXTERNAL_IP: ""  # Will be auto-detected or set via LoadBalancer
 
 # Service Monitor for Prometheus
 serviceMonitor:
   enabled: true
   labels:
-    release: prometheus  # Match prometheus serviceMonitorSelector
+    release: prometheus
   interval: 30s
