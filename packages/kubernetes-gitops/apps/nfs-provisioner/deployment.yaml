@@ -27,7 +27,7 @@ spec:
               mountPath: /persistentvolumes
           env:
             - name: PROVISIONER_NAME
-              value: nfs.campground.ai/kubernetes
+              value: nfs.aicampground.com/kubernetes
             - name: NFS_SERVER
               value: 10.8.0.9
             - name: NFS_PATH

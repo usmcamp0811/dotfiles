@@ -5,7 +5,7 @@ metadata:
   name: nfs-glusterfs
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
-provisioner: nfs.campground.ai/kubernetes
+provisioner: nfs.aicampground.com/kubernetes
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
