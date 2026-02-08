@@ -8,7 +8,7 @@ resources:
   - projects/platform-project.yaml
 
   # Storage
-  - apps/longhorn.yaml
+  # - apps/longhorn.yaml
   - apps/nfs-provisioner.yaml
 
   # Secrets & infra
