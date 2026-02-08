@@ -644,8 +644,8 @@ in {
       after = ["crystal-forge-setup.service"];
       wants = ["crystal-forge-setup.service"];
     };
-    systemd.services.crystal-forge-builder = lib.mkIf (cfg.client.enable && config.fmf.services.vault-agent.enable) {
-      after = ["crystal-forge-setup.service"];
+    systemd.services.crystal-forge-builder = lib.mkIf (cfg.build.enable && config.fmf.services.vault-agent.enable) {
+      after = ["crystal-forge-setup.service" "crystal-forge-server.service"];
       wants = ["crystal-forge-setup.service"];
       serviceConfig = {
         ReadWritePaths = [
