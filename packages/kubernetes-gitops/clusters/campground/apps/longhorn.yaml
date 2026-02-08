@@ -11,7 +11,7 @@ spec:
     # Helm chart source
     - repoURL: https://charts.longhorn.io
       chart: longhorn
-      targetRevision: 1.7.2
+      targetRevision: 1.9.1
       helm:
         skipCrds: false
         values: |
@@ -25,7 +25,13 @@ spec:
           # Ensure CRDs are installed
           crds:
             enabled: true
-    # Manifests source (StorageClass)
+
+          # NixOS compatibility: The host-level fmf.services.k3s module creates
+          # FHS-compatible symlinks and configures iscsid BindPaths which should
+          # handle most nsenter binary resolution issues. This ConfigMap provides
+          # the NixOS PATH as a fallback/reference.
+          # See: https://github.com/longhorn/longhorn/issues/2166
+    # Manifests source (StorageClass + NixOS ConfigMap)
     - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
       targetRevision: nixos
       path: packages/kubernetes-gitops/apps/longhorn
