@@ -29,11 +29,11 @@ spec:
             - name: PROVISIONER_NAME
               value: nfs.aicampground.com/kubernetes
             - name: NFS_SERVER
-              value: 10.8.0.9
+              value: 10.8.40.9
             - name: NFS_PATH
               value: /glusterfs/kubernetes
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.8.0.9
+            server: 10.8.40.9
             path: /glusterfs/kubernetes
