@@ -34,8 +34,11 @@ management:
     port: 80
 
   serviceGrpc:
-    type: ClusterIP
+    type: LoadBalancer
     port: 33073
+    annotations:
+      metallb.universe.tf/allow-shared-ip: "netbird-public"
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP as management
 
   metrics:
     enabled: true
@@ -48,43 +51,20 @@ management:
     size: 1Gi
     storageClass: nfs-glusterfs
 
+  # Disable ingress - use dedicated LoadBalancer instead
   ingress:
-    enabled: true
-    className: traefik
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: netbird.k8s.aicampground.com  # Internal K8s hostname
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: netbird-management-tls
-        hosts:
-          - netbird.k8s.aicampground.com
+    enabled: false
 
   service:
-    type: ClusterIP
-    port: 80
-
-  ingressGrpc:
-    enabled: true
-    className: traefik
+    type: LoadBalancer
+    port: 443
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: netbird.k8s.aicampground.com
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: netbird-management-grpc-tls
-        hosts:
-          - netbird.k8s.aicampground.com
+      metallb.universe.tf/allow-shared-ip: "netbird-public"
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Dedicated IP for Netbird HTTPS
+
+  # Disable GRPC ingress - using LoadBalancer
+  ingressGrpc:
+    enabled: false
 
 # Signal server
 signal:
@@ -105,25 +85,15 @@ signal:
       memory: 256Mi
 
   service:
-    type: ClusterIP
-    port: 80
-
-  ingress:
-    enabled: true
-    className: traefik
+    type: LoadBalancer
+    port: 10000
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: netbird.k8s.aicampground.com
-        paths:
-          - path: /signalexchange.SignalExchange
-            pathType: Prefix
-    tls:
-      - secretName: netbird-signal-tls
-        hosts:
-          - netbird.k8s.aicampground.com
+      metallb.universe.tf/allow-shared-ip: "netbird-public"
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP
+
+  # Disable ingress - using LoadBalancer
+  ingress:
+    enabled: false
 
 # Dashboard (UI)
 ui:
@@ -144,37 +114,27 @@ ui:
       memory: 256Mi
 
   service:
-    type: ClusterIP
+    type: LoadBalancer
     port: 80
+    annotations:
+      metallb.universe.tf/allow-shared-ip: "netbird-public"
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP
 
   # Dashboard environment configuration
   env:
-    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"  # Public URL (via pub-traefik proxy)
-    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird.aicampground.com"
+    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"
+    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird.aicampground.com:33073"
     AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
     AUTH_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
     AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
     USE_AUTH0: "false"
     AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    AUTH_REDIRECT_URI: "https://netbird.aicampground.com"  # Public URL
+    AUTH_REDIRECT_URI: "https://netbird.aicampground.com"
     AUTH_SILENT_REDIRECT_URI: "https://netbird.aicampground.com/silent-auth"
 
+  # Disable ingress - using LoadBalancer
   ingress:
-    enabled: true
-    className: traefik
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: netbird.k8s.aicampground.com
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: netbird-ui-tls
-        hosts:
-          - netbird.k8s.aicampground.com
+    enabled: false
 
 # Coturn (TURN/STUN server)
 # Needs LoadBalancer for UDP - can't use Traefik for UDP
@@ -199,9 +159,9 @@ relay:
     type: LoadBalancer
     port: 3478
     protocol: UDP
-    # MetalLB will assign an IP from your pool
     annotations:
       metallb.universe.tf/allow-shared-ip: "netbird-coturn"
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.102"  # Separate IP for UDP
 
   # Coturn configuration
   env:
