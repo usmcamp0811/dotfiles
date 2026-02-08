@@ -1,9 +1,26 @@
 stages:
   - updates
+  - renovate
   - build
   - update_flake
   - build_systems
   - deploy
+
+renovate:
+  stage: renovate
+  image: renovate/renovate:latest
+  script:
+    - |
+      echo "Running Renovate to check for dependency updates..."
+      renovate --platform gitlab --token "${GITLAB_TOKEN}" --autodiscover=false ${CI_PROJECT_PATH}
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RENOVATE_ENABLED == "true"'
+      when: always
+      allow_failure: true
+  variables:
+    LOG_LEVEL: "info"
+    RENOVATE_CONFIG_FILE: "renovate.json"
+    RENOVATE_AUTODISCOVER: "false"
 
 update_fmf_in_gitea:
   stage: updates
