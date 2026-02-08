@@ -12,7 +12,7 @@ spec:
     # Helm chart
     - repoURL: https://netbirdio.github.io/helms
       chart: netbird
-      targetRevision: 0.1.0  # Latest stable
+      targetRevision: 1.9.0  # Latest stable (app version 0.46.0)
       helm:
         valueFiles:
           - $values/packages/kubernetes-gitops/apps/netbird/values.yaml
