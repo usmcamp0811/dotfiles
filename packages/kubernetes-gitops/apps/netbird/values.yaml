@@ -6,7 +6,7 @@ management:
   enabled: true
   replicaCount: 1
 
-  # Configure via command-line arguments + JSON config
+  # Point to writable config on persistent volume
   podCommand:
     args:
       - --port=80
@@ -15,8 +15,9 @@ management:
       - --disable-anonymous-metrics=false
       - --single-account-mode-domain=netbird.aicampground.com
       - --dns-domain=dns.netbird.aicampground.com
+      - --config=/var/lib/netbird/management.json
 
-  # Minimal config - encryption key provided via env var
+  # Seed config - will be copied to writable location by lifecycle hook
   configmap: |
     {
       "Datadir": "/var/lib/netbird",
@@ -28,7 +29,20 @@ management:
       }
     }
 
-  # Use environment variables for PostgreSQL connection and encryption key
+  # Copy config from read-only ConfigMap to writable PV on first boot
+  lifecycle:
+    postStart:
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - |
+            if [ ! -f /var/lib/netbird/management.json ]; then
+              cp /etc/netbird/management.json /var/lib/netbird/management.json
+              chmod 644 /var/lib/netbird/management.json
+            fi
+
+  # Use environment variables for PostgreSQL connection
   envRaw:
     - name: NETBIRD_STORE_ENGINE_POSTGRES_DSN
       valueFrom:
