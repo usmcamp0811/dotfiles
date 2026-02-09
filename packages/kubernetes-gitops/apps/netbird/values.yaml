@@ -16,83 +16,19 @@ management:
       - --single-account-mode-domain=netbird.aicampground.com
       - --dns-domain=dns.netbird.aicampground.com
 
-  # Provide valid management.json configuration
-  configmap: |
-    {
-      "Stuns": [
-        {
-          "Proto": "udp",
-          "URI": "stun:stun.netbird.io:3478",
-          "Username": "",
-          "Password": null
-        }
-      ],
-      "TURNConfig": {
-        "Turns": [
-          {
-            "Proto": "udp",
-            "URI": "turn:turn.netbird.aicampground.com:3478",
-            "Username": "netbird",
-            "Password": ""
-          }
-        ],
-        "CredentialsTTL": "12h",
-        "Secret": "netbird-turn-secret",
-        "TimeBasedCredentials": false
-      },
-      "Signal": {
-        "Proto": "http",
-        "URI": "10.8.40.101:10000",
-        "Username": "",
-        "Password": null
-      },
-      "Datadir": "/var/lib/netbird",
-      "DataStoreEncryptionKey": "",
-      "StoreConfig": {
-        "Engine": "sqlite"
-      },
-      "HttpConfig": {
-        "Address": "0.0.0.0:80",
-        "AuthIssuer": "https://auth.aicampground.com/application/o/netbird/",
-        "AuthAudience": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
-        "AuthKeysLocation": "https://auth.aicampground.com/application/o/netbird/jwks/",
-        "AuthUserIDClaim": "sub",
-        "OIDCConfigEndpoint": "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration"
-      },
-      "IdpManagerConfig": {
-        "ManagerType": "authentik",
-        "ClientConfig": {
-          "Issuer": "https://auth.aicampground.com/application/o/netbird/",
-          "ClientID": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
-          "ClientSecret": "",
-          "TokenEndpoint": "https://auth.aicampground.com/application/o/token/",
-          "GrantType": "client_credentials"
-        },
-        "Auth0ClientCredentials": null,
-        "AzureClientCredentials": null,
-        "KeycloakClientCredentials": null,
-        "ZitadelClientCredentials": null,
-        "ExtraConfig": {
-          "Username": "NetBird",
-          "Password": ""
-        }
-      },
-      "PKCEAuthorizationFlow": {
-        "ProviderConfig": {
-          "Audience": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
-          "ClientID": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
-          "ClientSecret": "",
-          "TokenEndpoint": "https://auth.aicampground.com/application/o/token/",
-          "AuthorizationEndpoint": "https://auth.aicampground.com/application/o/authorize/",
-          "Scope": "openid profile email offline_access api",
-          "RedirectURLs": [
-            "http://localhost:53000"
-          ],
-          "UseIDToken": false
-        }
-      },
-      "DeviceAuthorizationFlow": null
-    }
+  # Use environment variables instead of configmap to avoid read-only filesystem issues
+  env:
+    NB_OIDC_CONFIG_ENDPOINT: "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration"
+    NB_AUTH_ISSUER: "https://auth.aicampground.com/application/o/netbird/"
+    NB_AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
+    NB_AUTH_KEYS_LOCATION: "https://auth.aicampground.com/application/o/netbird/jwks/"
+    NB_AUTH_USER_ID_CLAIM: "sub"
+    NB_IDP_MANAGER_TYPE: "authentik"
+    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
+    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
+    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_TOKEN_ENDPOINT: "https://auth.aicampground.com/application/o/token/"
+    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_AUTHORIZATION_ENDPOINT: "https://auth.aicampground.com/application/o/authorize/"
+    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_SCOPE: "openid profile email offline_access api"
 
   image:
     repository: netbirdio/management
@@ -128,6 +64,7 @@ management:
       - ReadWriteOnce
     size: 1Gi
     storageClass: nfs-glusterfs
+
 
   # Disable ingress - use dedicated LoadBalancer instead
   ingress:
