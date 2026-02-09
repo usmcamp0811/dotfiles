@@ -9,6 +9,14 @@ spec:
   project: platform
 
   sources:
+    # PostgreSQL cluster and other K8s resources
+    - repoURL: https://gitlab.com/usmcamp0811/dotfiles.git
+      targetRevision: nixos
+      path: packages/kubernetes-gitops/apps/netbird
+      directory:
+        include: "*.yaml"
+        exclude: "values.yaml"
+
     # Helm chart
     - repoURL: https://netbirdio.github.io/helms
       chart: netbird
