@@ -1,0 +1,63 @@
+# Simple PostgreSQL backup using pg_dump (matches NixOS approach)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: netbird-postgres-backups
+  namespace: netbird
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-glusterfs
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: netbird-postgres-backup
+  namespace: netbird
+spec:
+  schedule: "15 1 * * *"  # 1:15 AM daily (matches NixOS setup)
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: pg-dump
+            image: postgres:16-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              BACKUP_FILE="/backups/netbird_${TIMESTAMP}.sql.gz"
+
+              echo "Starting backup at $(date)"
+              pg_dump -h netbird-postgres-rw -U netbird netbird | gzip > "${BACKUP_FILE}"
+              echo "Backup completed: ${BACKUP_FILE}"
+
+              # Keep only last 30 days of backups
+              find /backups -name "netbird_*.sql.gz" -mtime +30 -delete
+
+              echo "Backup rotation completed"
+              ls -lh /backups/
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netbird-postgres-app
+                  key: password
+            volumeMounts:
+            - name: backups
+              mountPath: /backups
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: netbird-postgres-backups

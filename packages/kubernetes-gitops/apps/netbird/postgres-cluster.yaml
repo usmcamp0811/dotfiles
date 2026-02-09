@@ -40,21 +40,8 @@ spec:
       memory: "1Gi"
       cpu: "1000m"
 
-  # Backup configuration
-  backup:
-    barmanObjectStore:
-      destinationPath: "s3://netbird-postgres-backups/"
-      s3Credentials:
-        accessKeyId:
-          name: backup-storage-creds
-          key: ACCESS_KEY_ID
-        secretAccessKey:
-          name: backup-storage-creds
-          key: ACCESS_SECRET_KEY
-      wal:
-        compression: gzip
-        maxParallel: 2
-    retentionPolicy: "30d"
+  # Note: Backups handled by separate CronJob (see postgres-backup.yaml)
+  # This matches the NixOS approach using pg_dump to persistent storage
 
   monitoring:
     enablePodMonitor: true
