@@ -10,7 +10,6 @@ with lib.fmf; let
   cfg = config.fmf.tools.agentic-ai;
 
   # Read API key from a runtime file path (string) WITHOUT putting it in the Nix store.
-  # Note: This assumes the file exists on the machine at shell startup (e.g. /run/secrets/...).
   apiKeyLine = envVar: pathStr:
     mkIf (pathStr != null) ''
       if [[ -f "${pathStr}" ]]; then
@@ -44,12 +43,13 @@ in {
       mkOpt (types.nullOr types.str) null
       "Runtime path (string) to file containing DASHSCOPE_API_KEY (Qwen). Example: /run/secrets/dashscope_api_key";
 
+    # mkStrOpt isn't in your lib.fmf helpers, so use mkOpt types.str instead.
     aiderModel =
-      mkStrOpt "claude-opus-4-5-20251101"
+      mkOpt types.str "claude-opus-4-5-20251101"
       "Default model for aider (e.g. claude-opus-4-5-20251101, claude-sonnet-4-5-20250929).";
 
     opencodeModel =
-      mkStrOpt "claude-opus-4-5-20251101"
+      mkOpt types.str "claude-opus-4-5-20251101"
       "Default model for opencode.";
   };
 
