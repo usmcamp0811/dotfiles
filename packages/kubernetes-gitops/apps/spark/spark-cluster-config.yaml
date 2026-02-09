@@ -1,0 +1,169 @@
+# Spark ConfigMap for cluster configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-cluster-config
+  namespace: spark-jobs
+data:
+  spark-defaults.conf: |
+    # Spark cluster defaults
+    spark.master                     k8s://https://kubernetes.default.svc
+    spark.kubernetes.namespace       spark-jobs
+    spark.kubernetes.authenticate.driver.serviceAccountName spark
+
+    # Storage configuration
+    spark.hadoop.fs.defaultFS        file:///
+    spark.eventLog.enabled           true
+    spark.eventLog.dir               /var/log/spark/events
+    spark.history.fs.logDirectory    /var/log/spark/events
+
+    # Resource configuration
+    spark.driver.memory              2g
+    spark.executor.memory            4g
+    spark.executor.cores             2
+    spark.executor.instances         3
+
+    # Dynamic allocation
+    spark.dynamicAllocation.enabled            true
+    spark.dynamicAllocation.minExecutors       1
+    spark.dynamicAllocation.maxExecutors       10
+    spark.dynamicAllocation.initialExecutors   3
+
+    # Shuffle service
+    spark.shuffle.service.enabled    true
+
+    # UI configuration
+    spark.ui.port                    4040
+    spark.ui.prometheus.enabled      true
+
+    # Network configuration
+    spark.blockManager.port          7337
+    spark.driver.port                7078
+    spark.driver.blockManager.port   7079
+
+  log4j2.properties: |
+    # Root logger
+    rootLogger.level = info
+    rootLogger.appenderRef.stdout.ref = console
+
+    # Console appender
+    appender.console.type = Console
+    appender.console.name = console
+    appender.console.target = SYSTEM_OUT
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = %d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
+
+---
+# Spark History Server for monitoring job history
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-history-server
+  namespace: spark-jobs
+  labels:
+    app: spark-history-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 18080
+      targetPort: 18080
+      name: web
+  selector:
+    app: spark-history-server
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-history-server
+  namespace: spark-jobs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-history-server
+  template:
+    metadata:
+      labels:
+        app: spark-history-server
+    spec:
+      containers:
+      - name: spark-history-server
+        image: apache/spark:3.5.0
+        command:
+          - /opt/spark/sbin/start-history-server.sh
+        env:
+          - name: SPARK_NO_DAEMONIZE
+            value: "true"
+          - name: SPARK_HISTORY_OPTS
+            value: "-Dspark.history.fs.logDirectory=/var/log/spark/events"
+        ports:
+          - containerPort: 18080
+            name: web
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        volumeMounts:
+          - name: spark-events
+            mountPath: /var/log/spark/events
+      volumes:
+        - name: spark-events
+          persistentVolumeClaim:
+            claimName: spark-events
+
+---
+# PVC for Spark event logs
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spark-events
+  namespace: spark-jobs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-glusterfs
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+# ServiceAccount for Spark jobs
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+  namespace: spark-jobs
+
+---
+# Role for Spark driver pods
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spark-role
+  namespace: spark-jobs
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps"]
+    verbs: ["create", "get", "list", "watch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark-role-binding
+  namespace: spark-jobs
+subjects:
+  - kind: ServiceAccount
+    name: spark
+    namespace: spark-jobs
+roleRef:
+  kind: Role
+  name: spark-role
+  apiGroup: rbac.authorization.k8s.io

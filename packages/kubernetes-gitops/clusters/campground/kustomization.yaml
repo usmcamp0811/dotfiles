@@ -25,6 +25,9 @@ resources:
   # Database
   - apps/cloudnative-pg.yaml
 
+  # Data Processing
+  - apps/spark-operator.yaml
+
   # Istio
   - apps/istio-base.yaml
   - apps/istiod.yaml

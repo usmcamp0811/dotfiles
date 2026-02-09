@@ -1,0 +1,122 @@
+# Example Spark Application using the Spark Operator
+# This is a Pi calculation example to test the cluster
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: spark-pi-example
+  namespace: spark-jobs
+spec:
+  type: Scala
+  mode: cluster
+  image: apache/spark:3.5.0
+  imagePullPolicy: IfNotPresent
+  mainClass: org.apache.spark.examples.SparkPi
+  mainApplicationFile: local:///opt/spark/examples/jars/spark-examples_2.12-3.5.0.jar
+  arguments:
+    - "1000"  # Number of iterations
+
+  sparkVersion: "3.5.0"
+
+  restartPolicy:
+    type: OnFailure
+    onFailureRetries: 3
+    onFailureRetryInterval: 10
+    onSubmissionFailureRetries: 5
+    onSubmissionFailureRetryInterval: 20
+
+  driver:
+    cores: 1
+    memory: "2g"
+    labels:
+      version: 3.5.0
+    serviceAccount: spark
+
+    # Resource requests/limits
+    coreRequest: "500m"
+    memoryOverhead: "512m"
+
+    # Environment variables
+    env:
+      - name: SPARK_USER
+        value: spark
+
+  executor:
+    cores: 2
+    instances: 3
+    memory: "4g"
+    labels:
+      version: 3.5.0
+
+    # Resource requests/limits
+    coreRequest: "1000m"
+    memoryOverhead: "1g"
+
+  # Monitoring and metrics
+  monitoring:
+    exposeDriverMetrics: true
+    exposeExecutorMetrics: true
+    prometheus:
+      jmxExporterJar: "/prometheus/jmx_prometheus_javaagent-0.20.0.jar"
+      port: 8090
+
+  # Dynamic allocation
+  dynamicAllocation:
+    enabled: true
+    initialExecutors: 2
+    minExecutors: 1
+    maxExecutors: 10
+
+---
+# Example PySpark job
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: pyspark-example
+  namespace: spark-jobs
+spec:
+  type: Python
+  mode: cluster
+  image: apache/spark-py:3.5.0
+  imagePullPolicy: IfNotPresent
+  mainApplicationFile: local:///opt/spark/examples/src/main/python/pi.py
+  arguments:
+    - "100"
+
+  sparkVersion: "3.5.0"
+
+  restartPolicy:
+    type: Never
+
+  driver:
+    cores: 1
+    memory: "1g"
+    labels:
+      version: 3.5.0
+    serviceAccount: spark
+
+  executor:
+    cores: 1
+    instances: 2
+    memory: "2g"
+    labels:
+      version: 3.5.0
+
+  # Event log configuration for Spark History Server
+  sparkConf:
+    "spark.eventLog.enabled": "true"
+    "spark.eventLog.dir": "/var/log/spark/events"
+
+  volumes:
+    - name: spark-events
+      persistentVolumeClaim:
+        claimName: spark-events
+
+  driver:
+    volumeMounts:
+      - name: spark-events
+        mountPath: /var/log/spark/events
+
+  executor:
+    volumeMounts:
+      - name: spark-events
+        mountPath: /var/log/spark/events

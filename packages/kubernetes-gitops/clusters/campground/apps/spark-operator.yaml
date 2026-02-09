@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: spark-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"  # After storage, before apps
+spec:
+  project: platform
+
+  source:
+    repoURL: https://kubeflow.github.io/spark-operator
+    chart: spark-operator
+    targetRevision: 1.4.7  # Latest stable
+    helm:
+      values: |
+        # Spark Operator configuration
+        image:
+          repository: ghcr.io/kubeflow/spark-operator
+          tag: v1beta2-1.4.7-3.5.0
+
+        replicaCount: 1
+
+        controllerThreads: 10
+        ingressUrlFormat: ""
+
+        # Enable webhook for admission control
+        webhook:
+          enable: true
+          port: 8080
+
+        # Enable metrics for Prometheus
+        metrics:
+          enable: true
+          port: 10254
+          endpoint: /metrics
+          prefix: ""
+
+        # Service monitor for Prometheus integration
+        prometheus:
+          metrics:
+            enable: true
+
+        # Resource limits for operator
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        # Spark job namespace configuration
+        sparkJobNamespace: "spark-jobs"
+
+        # Enable batch scheduler support
+        batchScheduler:
+          enable: false
+
+        # Leader election for HA
+        leaderElection:
+          enable: true
+          lockName: "spark-operator-lock"
+          lockNamespace: "spark-operator"
+
+        # Webhook settings
+        webhookPort: 8080
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: spark-operator
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
