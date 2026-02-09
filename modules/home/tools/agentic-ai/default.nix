@@ -1,4 +1,3 @@
-# homeManagerModules/development/ai-coding.nix
 {
   lib,
   pkgs,
@@ -9,10 +8,13 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.tools.agentic-ai;
-  apiKeyLine = envVar: pathOpt:
-    mkIf (pathOpt != null) ''
-      if [[ -f "${pathOpt}" ]]; then
-        export ${envVar}="$(<"${pathOpt}")"
+
+  # Read API key from a runtime file path (string) WITHOUT putting it in the Nix store.
+  # Note: This assumes the file exists on the machine at shell startup (e.g. /run/secrets/...).
+  apiKeyLine = envVar: pathStr:
+    mkIf (pathStr != null) ''
+      if [[ -f "${pathStr}" ]]; then
+        export ${envVar}="$(<"${pathStr}")"
       fi
     '';
 in {
@@ -24,19 +26,23 @@ in {
     enableMistralVibe = mkBoolOpt true "Enable mistral-vibe CLI coding agent.";
     enableQwenCode = mkBoolOpt true "Enable qwen-code CLI for Qwen3-Coder models.";
 
-    # API key file inputs (prefer secrets via sops/agenix/vault-mounted files)
+    # IMPORTANT: these are STRINGS on purpose (not types.path)
+    # so they do NOT get copied into the Nix store.
     anthropicApiKeyFile =
-      mkOpt (types.nullOr types.path) null
-      "Path to file containing ANTHROPIC_API_KEY (Claude).";
+      mkOpt (types.nullOr types.str) null
+      "Runtime path (string) to file containing ANTHROPIC_API_KEY (Claude). Example: /run/secrets/anthropic_api_key";
+
     mistralApiKeyFile =
-      mkOpt (types.nullOr types.path) null
-      "Path to file containing MISTRAL_API_KEY.";
+      mkOpt (types.nullOr types.str) null
+      "Runtime path (string) to file containing MISTRAL_API_KEY. Example: /run/secrets/mistral_api_key";
+
     openaiApiKeyFile =
-      mkOpt (types.nullOr types.path) null
-      "Path to file containing OPENAI_API_KEY.";
+      mkOpt (types.nullOr types.str) null
+      "Runtime path (string) to file containing OPENAI_API_KEY. Example: /run/secrets/openai_api_key";
+
     dashscopeApiKeyFile =
-      mkOpt (types.nullOr types.path) null
-      "Path to file containing DASHSCOPE_API_KEY (Qwen).";
+      mkOpt (types.nullOr types.str) null
+      "Runtime path (string) to file containing DASHSCOPE_API_KEY (Qwen). Example: /run/secrets/dashscope_api_key";
 
     aiderModel =
       mkStrOpt "claude-opus-4-5-20251101"
@@ -55,7 +61,7 @@ in {
       ++ (optionals cfg.enableQwenCode [pkgs.llm-agents.qwen-code]);
 
     programs.zsh.initExtra = mkMerge [
-      # API keys (loaded from files if provided)
+      # API keys (loaded from runtime files if provided)
       (apiKeyLine "ANTHROPIC_API_KEY" cfg.anthropicApiKeyFile)
       (apiKeyLine "MISTRAL_API_KEY" cfg.mistralApiKeyFile)
       (apiKeyLine "OPENAI_API_KEY" cfg.openaiApiKeyFile)
