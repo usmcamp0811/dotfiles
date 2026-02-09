@@ -56,7 +56,7 @@ in {
   config = mkIf cfg.enable {
     home.packages =
       (optionals cfg.enableAider [pkgs.aider-chat])
-      ++ (optionals cfg.enableOpencode [pkgs.unstable.opencode])
+      ++ (optionals cfg.enableOpencode [pkgs.nix-unstable.opencode])
       ++ (optionals cfg.enableMistralVibe [pkgs.llm-agents.mistral-vibe])
       ++ (optionals cfg.enableQwenCode [pkgs.llm-agents.qwen-code]);
 
