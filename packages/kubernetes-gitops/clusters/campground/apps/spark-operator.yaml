@@ -11,60 +11,61 @@ spec:
   source:
     repoURL: https://kubeflow.github.io/spark-operator
     chart: spark-operator
-    targetRevision: 1.4.7  # Latest stable
+    targetRevision: 2.4.0  # Latest stable (app version 2.4.0)
     helm:
       values: |
-        # Spark Operator configuration
+        # Image configuration
         image:
-          repository: ghcr.io/kubeflow/spark-operator
-          tag: v1beta2-1.4.7-3.5.0
+          registry: ghcr.io
+          repository: kubeflow/spark-operator/controller
+          tag: ""  # Use chart appVersion (2.4.0)
+          pullPolicy: IfNotPresent
 
-        replicaCount: 1
+        # Controller configuration
+        controller:
+          replicas: 1
+          workers: 10  # Reconcile concurrency
+          logLevel: info
+          logEncoder: console
 
-        controllerThreads: 10
-        ingressUrlFormat: ""
+          # Leader election
+          leaderElection:
+            enable: true
+            leaseDuration: 15s
+            renewDeadline: 10s
+            retryPeriod: 2s
 
-        # Enable webhook for admission control
+          # Spark UI service
+          uiService:
+            enable: true
+
+          # Resource limits
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        # Webhook configuration
         webhook:
           enable: true
-          port: 8080
+          port: 9443
 
-        # Enable metrics for Prometheus
-        metrics:
-          enable: true
-          port: 10254
-          endpoint: /metrics
-          prefix: ""
-
-        # Service monitor for Prometheus integration
+        # Prometheus metrics
         prometheus:
           metrics:
             enable: true
+            port: 8080
+            endpoint: /metrics
+          podMonitor:
+            enable: true
+            labels:
+              release: prometheus  # Match prometheus serviceMonitorSelector
 
-        # Resource limits for operator
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
-
-        # Spark job namespace configuration
-        sparkJobNamespace: "spark-jobs"
-
-        # Enable batch scheduler support
-        batchScheduler:
-          enable: false
-
-        # Leader election for HA
-        leaderElection:
-          enable: true
-          lockName: "spark-operator-lock"
-          lockNamespace: "spark-operator"
-
-        # Webhook settings
-        webhookPort: 8080
+        # Limit operator to specific namespace (optional)
+        # sparkJobNamespace: spark-jobs
 
   destination:
     server: https://kubernetes.default.svc
