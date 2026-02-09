@@ -16,7 +16,7 @@ management:
       - --single-account-mode-domain=netbird.aicampground.com
       - --dns-domain=dns.netbird.aicampground.com
 
-  # Config without encryption key (will be set via env var from Vault)
+  # Minimal config - encryption key provided via env var
   configmap: |
     {
       "Datadir": "/var/lib/netbird",
@@ -35,7 +35,8 @@ management:
         secretKeyRef:
           name: netbird-postgres-app
           key: uri
-    - name: NB_DATASTORE_ENCRYPTION_KEY
+    # Correct env var name for datastore encryption key
+    - name: NETBIRD_DATASTORE_ENC_KEY
       valueFrom:
         secretKeyRef:
           name: netbird-secrets
@@ -87,7 +88,7 @@ management:
 
   service:
     type: LoadBalancer
-    port: 443
+    port: 80  # Match container port (no TLS termination at pod level)
     annotations:
       metallb.universe.tf/allow-shared-ip: "netbird-public"
       metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Dedicated IP for Netbird HTTPS
