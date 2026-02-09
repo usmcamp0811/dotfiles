@@ -1,5 +1,20 @@
 # Netbird Helm values
 # VPN infrastructure with Authentik OIDC integration
+#
+# LoadBalancer Configuration (Standalone Mode):
+# - 10.8.40.101: All TCP services (shared IP with multiple ports)
+#   - Port 80: Management HTTP API
+#   - Port 33073: Management gRPC API
+#   - Port 443: Dashboard UI
+#   - Port 10000: Signal server
+# - 10.8.40.102: Coturn TURN/STUN (UDP port 3478)
+#
+# External Proxy Configuration:
+# Point your external proxy/firewall to 10.8.40.101 and port forward:
+# - 443 → 10.8.40.101:443 (Dashboard HTTPS)
+# - 33073 → 10.8.40.101:33073 (gRPC API)
+# - 10000 → 10.8.40.101:10000 (Signal)
+# - 3478 → 10.8.40.102:3478 (TURN/STUN UDP)
 
 # Management server
 management:
@@ -73,16 +88,21 @@ management:
       cpu: 500m
       memory: 512Mi
 
+  # HTTP API service - LoadBalancer on port 80
   service:
-    type: ClusterIP
-    port: 80
-
-  serviceGrpc:
     type: LoadBalancer
-    port: 33073
+    port: 80  # Management HTTP API
     annotations:
       metallb.universe.tf/allow-shared-ip: "netbird-public"
-      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP as management
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Shared IP for all Netbird services
+
+  # gRPC API service - LoadBalancer on port 33073
+  serviceGrpc:
+    type: LoadBalancer
+    port: 33073  # Management gRPC API
+    annotations:
+      metallb.universe.tf/allow-shared-ip: "netbird-public"
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP
 
   metrics:
     enabled: true
@@ -95,17 +115,9 @@ management:
     size: 1Gi
     storageClass: nfs-glusterfs
 
-
   # Disable ingress - use dedicated LoadBalancer instead
   ingress:
     enabled: false
-
-  service:
-    type: LoadBalancer
-    port: 80  # Match container port (no TLS termination at pod level)
-    annotations:
-      metallb.universe.tf/allow-shared-ip: "netbird-public"
-      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Dedicated IP for Netbird HTTPS
 
   # Disable GRPC ingress - using LoadBalancer
   ingressGrpc:
@@ -132,12 +144,13 @@ signal:
       cpu: 200m
       memory: 256Mi
 
+  # Signal service - LoadBalancer on port 10000
   service:
     type: LoadBalancer
-    port: 10000
+    port: 10000  # Signal protocol
     annotations:
       metallb.universe.tf/allow-shared-ip: "netbird-public"
-      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP with other services
 
   # Disable ingress - using LoadBalancer
   ingress:
@@ -161,9 +174,11 @@ dashboard:
       cpu: 200m
       memory: 256Mi
 
+  # Dashboard HTTP service - LoadBalancer on port 443 (or 80)
   service:
     type: LoadBalancer
-    port: 80
+    port: 443  # Dashboard UI (external proxy forwards HTTPS here)
+    targetPort: 80  # Container serves on port 80
     annotations:
       metallb.universe.tf/allow-shared-ip: "netbird-public"
       metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP
@@ -185,7 +200,7 @@ dashboard:
     enabled: false
 
 # Coturn (TURN/STUN server)
-# Needs LoadBalancer for UDP - can't use Traefik for UDP
+# Needs separate LoadBalancer IP for UDP traffic
 relay:
   enabled: true
   replicaCount: 1
@@ -229,13 +244,14 @@ relay:
       cpu: 500m
       memory: 512Mi
 
+  # Coturn service - Separate LoadBalancer for UDP on port 3478
   service:
     type: LoadBalancer
-    port: 3478
+    port: 3478  # TURN/STUN UDP
     protocol: UDP
     annotations:
       metallb.universe.tf/allow-shared-ip: "netbird-coturn"
-      metallb.universe.tf/loadBalancerIPs: "10.8.40.102"  # Separate IP for UDP
+      metallb.universe.tf/loadBalancerIPs: "10.8.40.102"  # Separate IP for UDP traffic
 
   # Coturn configuration
   env:
