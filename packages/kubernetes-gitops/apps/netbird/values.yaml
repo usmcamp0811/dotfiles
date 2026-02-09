@@ -21,17 +21,24 @@ management:
     {
       "Datadir": "/var/lib/netbird",
       "StoreConfig": {
-        "Engine": "sqlite"
+        "Engine": "postgres"
       },
       "HttpConfig": {
         "OIDCConfigEndpoint": "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration"
       }
     }
 
-  # Use environment variables for additional config
-  env:
-    NB_AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    NB_AUTH_USER_ID_CLAIM: "sub"
+  # Use environment variables for PostgreSQL connection
+  envRaw:
+    - name: NETBIRD_STORE_ENGINE_POSTGRES_DSN
+      valueFrom:
+        secretKeyRef:
+          name: netbird-postgres-app
+          key: uri
+    - name: NB_AUTH_AUDIENCE
+      value: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
+    - name: NB_AUTH_USER_ID_CLAIM
+      value: "sub"
 
   image:
     repository: netbirdio/management

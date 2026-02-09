@@ -22,6 +22,9 @@ resources:
   # Observability
   - apps/prometheus.yaml
 
+  # Database
+  - apps/cloudnative-pg.yaml
+
   # Istio
   - apps/istio-base.yaml
   - apps/istiod.yaml
