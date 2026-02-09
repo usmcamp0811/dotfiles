@@ -320,6 +320,11 @@
       url = "github:malikwirin/jupyenv/25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      # Use unstable for newer Python deps (anyio 4.12+ for mistral-vibe)
+      inputs.nixpkgs.follows = "unstable";
+    };
   };
 
   outputs = inputs: let

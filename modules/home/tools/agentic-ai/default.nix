@@ -9,21 +9,6 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.tools.agentic-ai;
-
-  system = pkgs.stdenv.hostPlatform.system;
-
-  llmAgentsPkgs =
-    inputs.llm-agents.packages.${system} or (throw "inputs.llm-agents.packages.${system} is missing");
-
-  mistral-vibe = llmAgentsPkgs.mistral-vibe;
-  qwen-code = llmAgentsPkgs.qwen-code;
-
-  # Use unstable nixpkgs for opencode to get newer versions (streaming fixes, etc.)
-  pkgsUnstable = import inputs.unstable-nixpkgs {
-    inherit system;
-    config.allowUnfree = true;
-  };
-
   apiKeyLine = envVar: pathOpt:
     mkIf (pathOpt != null) ''
       if [[ -f "${pathOpt}" ]]; then
@@ -65,9 +50,9 @@ in {
   config = mkIf cfg.enable {
     home.packages =
       (optionals cfg.enableAider [pkgs.aider-chat])
-      ++ (optionals cfg.enableOpencode [pkgsUnstable.opencode])
-      ++ (optionals cfg.enableMistralVibe [mistral-vibe])
-      ++ (optionals cfg.enableQwenCode [qwen-code]);
+      ++ (optionals cfg.enableOpencode [pkgs.unstable.opencode])
+      ++ (optionals cfg.enableMistralVibe [pkgs.llm-agents.mistral-vibe])
+      ++ (optionals cfg.enableQwenCode [pkgs.llm-agents.qwen-code]);
 
     programs.zsh.initExtra = mkMerge [
       # API keys (loaded from files if provided)

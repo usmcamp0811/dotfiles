@@ -3,10 +3,10 @@
   channels,
   unstable,
   nixpkgs,
+  llm-agents,
   nixery-flake,
   ...
-}:
-final: prev: {
+}: final: prev: {
   # Python & ML development
   python3-11 = unstable.legacyPackages.${prev.system}.python311;
   python311Packages-unstable = unstable.legacyPackages.${prev.system}.python311Packages.mlflow;
@@ -17,6 +17,9 @@ final: prev: {
   mysqlclient-unstable = unstable.legacyPackages.${prev.system}.python311Packages.mysqlclient;
   gunicorn-unstable = unstable.legacyPackages.${prev.system}.python311Packages.gunicorn;
   poetry = nixpkgs.legacyPackages.${prev.system}.poetry;
+
+  # LLM Things
+  llm-agents = llm-agents.packages.${prev.system};
 
   # Python package building
   nix-python = channels.nixpkgs-python.packages.${prev.system};
