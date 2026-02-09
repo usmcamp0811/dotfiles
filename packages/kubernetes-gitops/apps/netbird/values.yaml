@@ -121,21 +121,8 @@ signal:
     tag: latest
     pullPolicy: IfNotPresent
 
-  # Container port configuration - match the --port arg
-  podCommand:
-    args:
-      - --port=10000
-      - --log-level=info
-      - --log-file=console
-
-  # Override container ports to match actual service port
-  ports:
-    - name: grpc
-      containerPort: 10000
-      protocol: TCP
-    - name: metrics
-      containerPort: 9090
-      protocol: TCP
+  # Set container port to match service port (10000)
+  containerPort: 10000
 
   resources:
     requests:
@@ -157,7 +144,7 @@ signal:
     enabled: false
 
 # Dashboard (UI)
-ui:
+dashboard:
   enabled: true
   replicaCount: 1
 
@@ -208,17 +195,10 @@ relay:
     tag: latest
     pullPolicy: IfNotPresent
 
-  # Override container ports - coturn uses 3478 for TURN/STUN, not 33080
-  ports:
-    - name: turn-udp
-      containerPort: 3478
-      protocol: UDP
-    - name: turn-tcp
-      containerPort: 3478
-      protocol: TCP
+  # Set container port to 3478 (TURN/STUN default)
+  containerPort: 3478
 
-  # Custom probes - coturn doesn't have HTTP endpoint, use UDP socket check
-  # Use exec probe to check if turnserver process is running
+  # Custom probes - coturn doesn't have HTTP endpoint, check process instead
   livenessProbe:
     exec:
       command:
