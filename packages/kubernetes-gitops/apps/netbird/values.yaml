@@ -6,7 +6,7 @@ management:
   enabled: true
   replicaCount: 1
 
-  # Configure via command-line arguments (not JSON config file)
+  # Configure via command-line arguments + JSON config
   podCommand:
     args:
       - --port=80
@@ -15,6 +15,84 @@ management:
       - --disable-anonymous-metrics=false
       - --single-account-mode-domain=netbird.aicampground.com
       - --dns-domain=dns.netbird.aicampground.com
+
+  # Provide valid management.json configuration
+  configmap: |
+    {
+      "Stuns": [
+        {
+          "Proto": "udp",
+          "URI": "stun:stun.netbird.io:3478",
+          "Username": "",
+          "Password": null
+        }
+      ],
+      "TURNConfig": {
+        "Turns": [
+          {
+            "Proto": "udp",
+            "URI": "turn:turn.netbird.aicampground.com:3478",
+            "Username": "netbird",
+            "Password": ""
+          }
+        ],
+        "CredentialsTTL": "12h",
+        "Secret": "netbird-turn-secret",
+        "TimeBasedCredentials": false
+      },
+      "Signal": {
+        "Proto": "http",
+        "URI": "10.8.40.101:10000",
+        "Username": "",
+        "Password": null
+      },
+      "Datadir": "/var/lib/netbird",
+      "DataStoreEncryptionKey": "",
+      "StoreConfig": {
+        "Engine": "sqlite"
+      },
+      "HttpConfig": {
+        "Address": "0.0.0.0:80",
+        "AuthIssuer": "https://auth.aicampground.com/application/o/netbird/",
+        "AuthAudience": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+        "AuthKeysLocation": "https://auth.aicampground.com/application/o/netbird/jwks/",
+        "AuthUserIDClaim": "sub",
+        "OIDCConfigEndpoint": "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration"
+      },
+      "IdpManagerConfig": {
+        "ManagerType": "authentik",
+        "ClientConfig": {
+          "Issuer": "https://auth.aicampground.com/application/o/netbird/",
+          "ClientID": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+          "ClientSecret": "",
+          "TokenEndpoint": "https://auth.aicampground.com/application/o/token/",
+          "GrantType": "client_credentials"
+        },
+        "Auth0ClientCredentials": null,
+        "AzureClientCredentials": null,
+        "KeycloakClientCredentials": null,
+        "ZitadelClientCredentials": null,
+        "ExtraConfig": {
+          "Username": "NetBird",
+          "Password": ""
+        }
+      },
+      "PKCEAuthorizationFlow": {
+        "ProviderConfig": {
+          "Audience": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+          "ClientID": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+          "ClientSecret": "",
+          "TokenEndpoint": "https://auth.aicampground.com/application/o/token/",
+          "AuthorizationEndpoint": "https://auth.aicampground.com/application/o/authorize/",
+          "Scope": "openid profile email offline_access api",
+          "RedirectURLs": [
+            "http://localhost:53000"
+          ],
+          "UseIDToken": false
+        }
+      },
+      "DeviceAuthorizationFlow": null
+    }
 
   image:
     repository: netbirdio/management
