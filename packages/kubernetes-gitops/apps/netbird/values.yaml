@@ -16,7 +16,7 @@ management:
       - --single-account-mode-domain=netbird.aicampground.com
       - --dns-domain=dns.netbird.aicampground.com
 
-  # Minimal valid JSON config - encryption key will be generated and stored in PV
+  # Config without encryption key (will be set via env var from Vault)
   configmap: |
     {
       "Datadir": "/var/lib/netbird",
@@ -28,13 +28,18 @@ management:
       }
     }
 
-  # Use environment variables for PostgreSQL connection
+  # Use environment variables for PostgreSQL connection and encryption key
   envRaw:
     - name: NETBIRD_STORE_ENGINE_POSTGRES_DSN
       valueFrom:
         secretKeyRef:
           name: netbird-postgres-app
           key: uri
+    - name: NB_DATASTORE_ENCRYPTION_KEY
+      valueFrom:
+        secretKeyRef:
+          name: netbird-secrets
+          key: data_store_encryption_key
     - name: NB_AUTH_AUDIENCE
       value: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
     - name: NB_AUTH_USER_ID_CLAIM
