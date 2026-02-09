@@ -16,19 +16,22 @@ management:
       - --single-account-mode-domain=netbird.aicampground.com
       - --dns-domain=dns.netbird.aicampground.com
 
-  # Use environment variables instead of configmap to avoid read-only filesystem issues
+  # Minimal valid JSON config - encryption key will be generated and stored in PV
+  configmap: |
+    {
+      "Datadir": "/var/lib/netbird",
+      "StoreConfig": {
+        "Engine": "sqlite"
+      },
+      "HttpConfig": {
+        "OIDCConfigEndpoint": "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration"
+      }
+    }
+
+  # Use environment variables for additional config
   env:
-    NB_OIDC_CONFIG_ENDPOINT: "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration"
-    NB_AUTH_ISSUER: "https://auth.aicampground.com/application/o/netbird/"
     NB_AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    NB_AUTH_KEYS_LOCATION: "https://auth.aicampground.com/application/o/netbird/jwks/"
     NB_AUTH_USER_ID_CLAIM: "sub"
-    NB_IDP_MANAGER_TYPE: "authentik"
-    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_TOKEN_ENDPOINT: "https://auth.aicampground.com/application/o/token/"
-    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_AUTHORIZATION_ENDPOINT: "https://auth.aicampground.com/application/o/authorize/"
-    NB_PKCE_AUTHORIZATION_FLOW_PROVIDER_CONFIG_SCOPE: "openid profile email offline_access api"
 
   image:
     repository: netbirdio/management
