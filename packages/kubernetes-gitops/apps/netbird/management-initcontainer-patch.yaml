@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netbird-management
+  namespace: netbird
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: inject-config
+          image: nixos/nix:latest
+          command:
+            - sh
+            - -c
+            - |
+              # Install jq via nix
+              echo "Installing jq..."
+              nix-env -iA nixpkgs.jq
+
+              # Copy base config and inject password
+              echo "Preparing config..."
+              cp /etc/netbird/management.json /var/lib/netbird/management.json
+
+              # Inject IDP_MANAGER_PASSWORD into ExtraConfig.Password
+              if [ -n "$IDP_MANAGER_PASSWORD" ]; then
+                echo "Injecting IDP password..."
+                jq --arg password "$IDP_MANAGER_PASSWORD" \
+                  '.IdpManagerConfig.ExtraConfig.Password = $password' \
+                  /var/lib/netbird/management.json > /tmp/management.json.tmp
+                mv /tmp/management.json.tmp /var/lib/netbird/management.json
+                echo "Password injected successfully"
+              else
+                echo "WARNING: IDP_MANAGER_PASSWORD not set"
+              fi
+
+              chmod 644 /var/lib/netbird/management.json
+              echo "Config prepared"
+          env:
+            - name: IDP_MANAGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netbird-secrets
+                  key: IDP_MANAGER_PASSWORD
+          volumeMounts:
+            - name: config
+              mountPath: /etc/netbird
+            - name: data
+              mountPath: /var/lib/netbird

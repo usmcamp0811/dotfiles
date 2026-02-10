@@ -60,41 +60,8 @@ management:
       }
     }
 
-  # initContainer to inject password into config using NixOS image with jq
-  initContainers:
-    - name: inject-config
-      image: nixos/nix:latest
-      command:
-        - sh
-        - -c
-        - |
-          # Install jq via nix
-          nix-env -iA nixpkgs.jq
-
-          # Copy base config and inject password
-          cp /etc/netbird/management.json /var/lib/netbird/management.json
-
-          # Inject IDP_MANAGER_PASSWORD into ExtraConfig.Password
-          if [ -n "$IDP_MANAGER_PASSWORD" ]; then
-            jq --arg password "$IDP_MANAGER_PASSWORD" \
-              '.IdpManagerConfig.ExtraConfig.Password = $password' \
-              /var/lib/netbird/management.json > /tmp/management.json.tmp
-            mv /tmp/management.json.tmp /var/lib/netbird/management.json
-          fi
-
-          chmod 644 /var/lib/netbird/management.json
-          echo "Config prepared with IDP password injected"
-      env:
-        - name: IDP_MANAGER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: netbird-secrets
-              key: IDP_MANAGER_PASSWORD
-      volumeMounts:
-        - name: config
-          mountPath: /etc/netbird
-        - name: data
-          mountPath: /var/lib/netbird
+  # Config initialization handled by separate initContainer patch
+  # See management-initcontainer-patch.yaml
 
   # Use environment variables for PostgreSQL connection
   envRaw:
