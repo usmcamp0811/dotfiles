@@ -40,7 +40,23 @@ management:
         "Engine": "postgres"
       },
       "HttpConfig": {
-        "OIDCConfigEndpoint": "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration"
+        "OIDCConfigEndpoint": "https://auth.aicampground.com/application/o/netbird/.well-known/openid-configuration",
+        "AuthAudience": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+        "AuthUserIDClaim": "sub",
+        "AuthIssuer": "https://auth.aicampground.com/application/o/netbird/",
+        "AuthKeysLocation": "https://auth.aicampground.com/application/o/netbird/jwks/"
+      },
+      "IdpManagerConfig": {
+        "ManagerType": "authentik",
+        "ClientConfig": {
+          "Issuer": "https://auth.aicampground.com/application/o/netbird/",
+          "ClientID": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+          "TokenEndpoint": "https://auth.aicampground.com/application/o/token/",
+          "ClientSecret": ""
+        },
+        "ExtraConfig": {
+          "Username": "NetBird"
+        }
       }
     }
 
@@ -70,6 +86,12 @@ management:
         secretKeyRef:
           name: netbird-secrets
           key: data_store_encryption_key
+    # IDP Manager password for Authentik service account sync
+    - name: IDP_MANAGER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: netbird-secrets
+          key: IDP_MANAGER_PASSWORD
     - name: NB_AUTH_AUDIENCE
       value: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
     - name: NB_AUTH_USER_ID_CLAIM
