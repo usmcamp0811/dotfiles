@@ -26,6 +26,12 @@ with lib; {
         createNamespace = true;
         helmVersion = "v3";
         insecureSkipTLSVerify = true;
+        valuesContent = ''
+          configs:
+            cm:
+              # Enable Helm support in Kustomize builds
+              kustomize.buildOptions: "--enable-helm"
+        '';
       };
     };
   };
