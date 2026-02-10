@@ -174,11 +174,10 @@ dashboard:
       cpu: 200m
       memory: 256Mi
 
-  # Dashboard HTTP service - LoadBalancer on port 443 (or 80)
+  # Dashboard HTTP service - LoadBalancer on port 80
   service:
     type: LoadBalancer
-    port: 443  # Dashboard UI (external proxy forwards HTTPS here)
-    targetPort: 80  # Container serves on port 80
+    port: 80  # Dashboard serves plain HTTP (external proxy should forward HTTP, not HTTPS)
     annotations:
       metallb.universe.tf/allow-shared-ip: "netbird-public"
       metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP
