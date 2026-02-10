@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netbird-management
+  namespace: netbird
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: inject-idp-password
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Preparing management config with IDP password..."
+
+              # Copy base config from ConfigMap
+              cp /etc/netbird/management.json /var/lib/netbird/management.json
+
+              # Replace PLACEHOLDER_IDP_PASSWORD with actual password
+              if [ -n "$IDP_MANAGER_PASSWORD" ]; then
+                sed "s/PLACEHOLDER_IDP_PASSWORD/$IDP_MANAGER_PASSWORD/g" \
+                  /var/lib/netbird/management.json > /tmp/management.json
+                mv /tmp/management.json /var/lib/netbird/management.json
+                echo "IDP password injected successfully"
+              else
+                echo "WARNING: IDP_MANAGER_PASSWORD not set!"
+                exit 1
+              fi
+
+              chmod 644 /var/lib/netbird/management.json
+              echo "Config ready"
+          env:
+            - name: IDP_MANAGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netbird-secrets
+                  key: IDP_MANAGER_PASSWORD
+          volumeMounts:
+            - name: config
+              mountPath: /etc/netbird
+            - name: data
+              mountPath: /var/lib/netbird

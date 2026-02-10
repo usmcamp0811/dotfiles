@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: netbird
+
+helmCharts:
+  - name: netbird
+    releaseName: netbird
+    repo: https://netbirdio.github.io/helms
+    version: 1.9.0
+    namespace: netbird
+    valuesFile: values.yaml
+
+resources:
+  - external-secret.yaml
+  - postgres.yaml
+
+patchesStrategicMerge:
+  - patches/management-initcontainer.yaml

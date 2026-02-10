@@ -62,23 +62,8 @@ management:
       }
     }
 
-  # Copy config from ConfigMap and inject IDP password
-  lifecycle:
-    postStart:
-      exec:
-        command:
-          - /bin/sh
-          - -c
-          - |
-            # Copy config from ConfigMap to writable volume
-            cp /etc/netbird/management.json /var/lib/netbird/management.json
-
-            # Replace placeholder with actual IDP password
-            if [ -n "$IDP_MANAGER_PASSWORD" ]; then
-              sed -i "s/PLACEHOLDER_IDP_PASSWORD/$IDP_MANAGER_PASSWORD/g" /var/lib/netbird/management.json
-            fi
-
-            chmod 644 /var/lib/netbird/management.json
+  # Password injection handled by initContainer via Kustomize patch
+  # See patches/management-initcontainer.yaml
 
   # Use environment variables for PostgreSQL connection
   envRaw:
