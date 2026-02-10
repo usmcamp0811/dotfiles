@@ -191,8 +191,9 @@ dashboard:
     AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
     USE_AUTH0: "false"
     AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    AUTH_REDIRECT_URI: "https://netbird.aicampground.com"
-    AUTH_SILENT_REDIRECT_URI: "https://netbird.aicampground.com/silent-auth"
+    # AUTH_REDIRECT_URI is relative path - dashboard will prepend NETBIRD_MGMT_API_ENDPOINT
+    AUTH_REDIRECT_URI: "/"
+    AUTH_SILENT_REDIRECT_URI: "/silent-auth"
 
   # Disable ingress - using LoadBalancer
   ingress:
