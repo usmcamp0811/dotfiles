@@ -213,28 +213,10 @@ relay:
   # Set container port to 3478 (TURN/STUN default)
   containerPort: 3478
 
-  # Custom probes - coturn doesn't have HTTP endpoint, check process instead
-  livenessProbe:
-    exec:
-      command:
-        - /bin/sh
-        - -c
-        - "pgrep -x turnserver"
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 3
-
-  readinessProbe:
-    exec:
-      command:
-        - /bin/sh
-        - -c
-        - "pgrep -x turnserver"
-    initialDelaySeconds: 5
-    periodSeconds: 5
-    timeoutSeconds: 3
-    failureThreshold: 3
+  # Disable probes - coturn doesn't provide HTTP endpoints
+  # The service runs continuously without needing health checks
+  livenessProbe: {}
+  readinessProbe: {}
 
   resources:
     requests:
