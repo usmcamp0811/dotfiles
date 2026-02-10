@@ -28,7 +28,7 @@ management:
       - --log-file=console
       - --log-level=info
       - --disable-anonymous-metrics=false
-      - --single-account-mode-domain=netbird.aicampground.com
+      - --single-account-mode-domain=netbird-api.aicampground.com
       - --dns-domain=dns.netbird.aicampground.com
       - --config=/var/lib/netbird/management.json
 
@@ -184,16 +184,18 @@ dashboard:
 
   # Dashboard environment configuration
   env:
-    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"
-    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird.aicampground.com:33073"
+    # Management API endpoint - separate hostname from dashboard
+    NETBIRD_MGMT_API_ENDPOINT: "https://netbird-api.aicampground.com"
+    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird-api.aicampground.com:33073"
     AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
     AUTH_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
     AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
     USE_AUTH0: "false"
     AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    # AUTH_REDIRECT_URI is relative path - dashboard will prepend NETBIRD_MGMT_API_ENDPOINT
-    AUTH_REDIRECT_URI: "/"
-    AUTH_SILENT_REDIRECT_URI: "/silent-auth"
+    # AUTH_REDIRECT_URI is relative path - dashboard will prepend with dashboard URL (https://netbird.aicampground.com)
+    # NOT the management API endpoint
+    AUTH_REDIRECT_URI: "https://netbird.aicampground.com/"
+    AUTH_SILENT_REDIRECT_URI: "https://netbird.aicampground.com/silent-auth"
 
   # Disable ingress - using LoadBalancer
   ingress:
