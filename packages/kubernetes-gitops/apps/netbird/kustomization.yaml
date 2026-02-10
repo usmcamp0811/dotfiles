@@ -13,7 +13,11 @@ helmCharts:
 
 resources:
   - external-secret.yaml
-  - postgres.yaml
+  - postgres-cluster.yaml
+  - postgres-backup.yaml
 
-patchesStrategicMerge:
-  - patches/management-initcontainer.yaml
+patches:
+  - path: patches/management-initcontainer.yaml
+    target:
+      kind: Deployment
+      name: netbird-management
