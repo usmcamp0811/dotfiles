@@ -185,8 +185,9 @@ dashboard:
   # Dashboard environment configuration
   env:
     # Management API endpoint - separate hostname from dashboard
+    # The management server runs both HTTP and gRPC on the same port (80)
     NETBIRD_MGMT_API_ENDPOINT: "https://netbird-api.aicampground.com"
-    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird-api.aicampground.com:33073"
+    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird-api.aicampground.com"
     # Dashboard URL - used for building OAuth redirect URIs
     NETBIRD_DASHBOARD_URL: "https://netbird.aicampground.com"
     AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
