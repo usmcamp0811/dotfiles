@@ -59,6 +59,22 @@ management:
           "Username": "NetBird",
           "Password": "PLACEHOLDER_IDP_PASSWORD"
         }
+      },
+      "PKCEAuthorizationFlow": {
+        "ProviderConfig": {
+          "Audience": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+          "ClientID": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
+          "ClientSecret": "",
+          "Scope": "openid profile email offline_access api",
+          "AuthorizationEndpoint": "https://auth.aicampground.com/application/o/authorize/",
+          "TokenEndpoint": "https://auth.aicampground.com/application/o/token/",
+          "RedirectURLs": [
+            "https://netbird.aicampground.com",
+            "https://netbird.aicampground.com/",
+            "https://netbird.aicampground.com/silent-auth"
+          ],
+          "UseIDToken": false
+        }
       }
     }
 
