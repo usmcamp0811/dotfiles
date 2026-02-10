@@ -210,22 +210,14 @@ dashboard:
       metallb.universe.tf/allow-shared-ip: "netbird-public"
       metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP with other services
 
-  # Dashboard environment configuration
+  # Dashboard environment configuration - match NixOS module exactly
   env:
-    # Management API endpoint - separate hostname from dashboard
-    # The management server runs both HTTP and gRPC on the same port (80)
     NETBIRD_MGMT_API_ENDPOINT: "https://netbird-api.aicampground.com"
-    NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://netbird-api.aicampground.com"
-    # Dashboard URL - used for building OAuth redirect URIs
-    NETBIRD_DASHBOARD_URL: "https://netbird.aicampground.com"
     AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
-    AUTH_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
     AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
-    USE_AUTH0: "false"
     AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
-    # AUTH_REDIRECT_URI should be relative paths when NETBIRD_DASHBOARD_URL is set
-    AUTH_REDIRECT_URI: "/"
-    AUTH_SILENT_REDIRECT_URI: "/silent-auth"
+    AUTH_CLIENT_ID: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
+    USE_AUTH0: "false"
 
   # Disable ingress - using LoadBalancer
   ingress:
