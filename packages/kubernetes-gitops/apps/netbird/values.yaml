@@ -52,7 +52,8 @@ management:
           "Issuer": "https://auth.aicampground.com/application/o/netbird/",
           "ClientID": "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U",
           "TokenEndpoint": "https://auth.aicampground.com/application/o/token/",
-          "ClientSecret": ""
+          "ClientSecret": "",
+          "GrantType": "password"
         },
         "ExtraConfig": {
           "Username": "NetBird",
