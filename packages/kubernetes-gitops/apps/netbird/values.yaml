@@ -210,9 +210,9 @@ dashboard:
       metallb.universe.tf/allow-shared-ip: "netbird-public"
       metallb.universe.tf/loadBalancerIPs: "10.8.40.101"  # Share same IP with other services
 
-  # Dashboard environment configuration - match NixOS module exactly
+  # Dashboard environment configuration - single endpoint with path routing
   env:
-    NETBIRD_MGMT_API_ENDPOINT: "https://netbird-api.aicampground.com"
+    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"
     AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
     AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
     AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
