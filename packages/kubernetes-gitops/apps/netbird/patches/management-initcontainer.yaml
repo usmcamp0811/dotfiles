@@ -53,6 +53,11 @@ spec:
                 secretKeyRef:
                   name: netbird-secrets
                   key: IDP_MANAGER_PASSWORD
+            - name: NETBIRD_DATASTORE_ENC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: netbird-secrets
+                  key: data_store_encryption_key
           volumeMounts:
             - name: config
               mountPath: /etc/netbird
