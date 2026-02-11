@@ -212,7 +212,7 @@ dashboard:
 
   # Dashboard environment configuration - match NixOS module exactly
   env:
-    NETBIRD_MGMT_API_ENDPOINT: "https://netbird-api.aicampground.com"
+    NETBIRD_MGMT_API_ENDPOINT: "https://netbird.aicampground.com"
     AUTH_AUTHORITY: "https://auth.aicampground.com/application/o/netbird/"
     AUTH_SUPPORTED_SCOPES: "openid profile email offline_access api"
     AUTH_AUDIENCE: "cDngatAca7vzV61toEzBSmqQCu7Z8YuhiTFRJH3U"
