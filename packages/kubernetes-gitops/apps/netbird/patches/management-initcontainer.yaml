@@ -4,15 +4,7 @@ metadata:
   name: netbird-management
   namespace: netbird
 spec:
-  # REQUIRED for apps/v1 Deployments
-  selector:
-    matchLabels:
-      app: netbird-management
-
   template:
-    metadata:
-      labels:
-        app: netbird-management
     spec:
       initContainers:
         - name: inject-idp-password
@@ -63,13 +55,3 @@ spec:
               readOnly: true
             - name: management
               mountPath: /var/lib/netbird
-
-      # IMPORTANT: your main netbird-management container must ALSO mount `management`
-      # at /var/lib/netbird so it reads the injected /var/lib/netbird/management.json.
-      #
-      # containers:
-      #   - name: netbird-management
-      #     image: <your-image>
-      #     volumeMounts:
-      #       - name: management
-      #         mountPath: /var/lib/netbird
