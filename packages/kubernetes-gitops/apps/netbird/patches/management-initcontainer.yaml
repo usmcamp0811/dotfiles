@@ -20,9 +20,11 @@ spec:
               cp /etc/netbird/management.json /var/lib/netbird/management.json
 
               # Replace PLACEHOLDER_IDP_PASSWORD with actual password
-              # Use awk to avoid sed escaping issues with special characters
+              # Use printf with proper escaping for special characters
               if [ -n "$IDP_MANAGER_PASSWORD" ]; then
-                awk -v pwd="$IDP_MANAGER_PASSWORD" '{gsub(/PLACEHOLDER_IDP_PASSWORD/, pwd); print}' \
+                # Escape backslashes and ampersands in password for awk
+                ESCAPED_PWD=$(printf '%s' "$IDP_MANAGER_PASSWORD" | awk '{gsub(/\\/, "\\\\"); gsub(/&/, "\\\\&"); print}')
+                awk -v pwd="$ESCAPED_PWD" '{gsub(/PLACEHOLDER_IDP_PASSWORD/, pwd); print}' \
                   /var/lib/netbird/management.json > /tmp/management.json
                 mv /tmp/management.json /var/lib/netbird/management.json
                 echo "IDP password injected successfully"

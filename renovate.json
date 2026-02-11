@@ -1,0 +1,97 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "description": "Automated dependency updates for Helm charts and ArgoCD applications",
+  "timezone": "America/New_York",
+  "schedule": [
+    "every weekend"
+  ],
+  "labels": [
+    "dependencies",
+    "renovate"
+  ],
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "semanticCommits": "enabled",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dependency Dashboard",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "branchConcurrentLimit": 10,
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates (security fixes)",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Helm charts weekly schedule",
+      "matchDatasources": ["helm"],
+      "schedule": ["every weekend"],
+      "groupName": "helm-charts"
+    },
+    {
+      "description": "Docker images weekly schedule",
+      "matchDatasources": ["docker"],
+      "schedule": ["every weekend"],
+      "groupName": "docker-images"
+    },
+    {
+      "description": "Group ArgoCD platform charts together",
+      "matchDatasources": ["helm"],
+      "matchPackagePatterns": ["prometheus", "istio", "kiali", "traefik", "metallb"],
+      "groupName": "platform-charts"
+    },
+    {
+      "description": "Require manual review for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["major-update", "needs-review"]
+    },
+    {
+      "description": "Require manual review for minor updates",
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "labels": ["minor-update"]
+    }
+  ],
+  "argocd": {
+    "fileMatch": [
+      "packages/kubernetes-gitops/clusters/.+\\.ya?ml$"
+    ]
+  },
+  "kubernetes": {
+    "fileMatch": [
+      "packages/kubernetes-gitops/apps/.+\\.ya?ml$"
+    ]
+  },
+  "helm-values": {
+    "fileMatch": [
+      "packages/kubernetes-gitops/apps/.+/values\\.ya?ml$"
+    ]
+  },
+  "regexManagers": [
+    {
+      "description": "Update ArgoCD Application targetRevision for Helm charts",
+      "fileMatch": [
+        "packages/kubernetes-gitops/clusters/.+\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s+chart:\\s+(?<packageName>.*)\\s+targetRevision:\\s+(?<currentValue>.*)"
+      ],
+      "datasourceTemplate": "helm"
+    }
+  ],
+  "hostRules": [
+    {
+      "description": "GitLab API access",
+      "matchHost": "gitlab.com",
+      "token": "{{ secrets.GITLAB_TOKEN }}"
+    }
+  ]
+}
