@@ -35,14 +35,16 @@ spec:
                   config = json.load(f)
 
               # Replace IDP password in nested config
+              # Password is already properly escaped by json.dump()
               if "IdpManagerConfig" in config and "ExtraConfig" in config["IdpManagerConfig"]:
                   config["IdpManagerConfig"]["ExtraConfig"]["Password"] = pw
 
               # Set DataStoreEncryptionKey to prevent auto-generation
               config["DataStoreEncryptionKey"] = enc_key
 
+              # Write with ensure_ascii=True to properly escape special chars
               with open(path, "w", encoding="utf-8") as f:
-                  json.dump(config, f, indent=2)
+                  json.dump(config, f, indent=2, ensure_ascii=True)
               PY
 
               chmod 0644 /var/lib/netbird/management.json
