@@ -64,14 +64,6 @@ spec:
             - name: management
               mountPath: /var/lib/netbird
 
-      # YOU MUST define the volumes you mount
-      volumes:
-        - name: config
-          configMap:
-            name: netbird-management-config
-        - name: management
-          emptyDir: {}
-
       # IMPORTANT: your main netbird-management container must ALSO mount `management`
       # at /var/lib/netbird so it reads the injected /var/lib/netbird/management.json.
       #
