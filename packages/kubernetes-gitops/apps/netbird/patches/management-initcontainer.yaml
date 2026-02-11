@@ -19,26 +19,30 @@ spec:
               # Copy base config from ConfigMap-mounted file
               cp /etc/netbird/management.json /var/lib/netbird/management.json
 
-              # JSON-escape password, then replace placeholder in file contents
+              # JSON-escape password and add encryption key
               python - <<'PY'
               import os, json
               path = "/var/lib/netbird/management.json"
               pw = os.environ.get("IDP_MANAGER_PASSWORD")
+              enc_key = os.environ.get("NETBIRD_DATASTORE_ENC_KEY")
+
               if not pw:
                   raise SystemExit("ERROR: IDP_MANAGER_PASSWORD not set!")
+              if not enc_key:
+                  raise SystemExit("ERROR: NETBIRD_DATASTORE_ENC_KEY not set!")
 
               with open(path, "r", encoding="utf-8") as f:
-                  txt = f.read()
+                  config = json.load(f)
 
-              esc = json.dumps(pw)[1:-1]  # json-escaped string content (no surrounding quotes)
+              # Replace IDP password in nested config
+              if "IdpManagerConfig" in config and "ExtraConfig" in config["IdpManagerConfig"]:
+                  config["IdpManagerConfig"]["ExtraConfig"]["Password"] = pw
 
-              if "PLACEHOLDER_IDP_PASSWORD" not in txt:
-                  raise SystemExit("ERROR: Placeholder PLACEHOLDER_IDP_PASSWORD not found in management.json")
-
-              txt = txt.replace("PLACEHOLDER_IDP_PASSWORD", esc)
+              # Set DataStoreEncryptionKey to prevent auto-generation
+              config["DataStoreEncryptionKey"] = enc_key
 
               with open(path, "w", encoding="utf-8") as f:
-                  f.write(txt)
+                  json.dump(config, f, indent=2)
               PY
 
               chmod 0644 /var/lib/netbird/management.json
