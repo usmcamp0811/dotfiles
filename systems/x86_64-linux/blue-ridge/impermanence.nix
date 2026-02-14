@@ -1,12 +1,7 @@
 # Impermanence configuration for blue-ridge router
 # Root filesystem is tmpfs (wiped on boot)
 # Only /nix and /persist survive reboots
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Enable impermanence
   environment.persistence."/persist/system" = {
     hideMounts = true;
@@ -82,10 +77,7 @@
           mode = "0700";
         }
       ];
-      files = [
-        ".bash_history"
-        ".zsh_history"
-      ];
+      files = [ ".bash_history" ".zsh_history" ];
     };
   };
 
@@ -98,17 +90,19 @@
   ];
 
   # Bind mount home directories to /persist
+  fileSystems."/persist".neededForBoot = true;
   fileSystems."/home/admin" = {
     device = "/persist/home/admin";
-    options = ["bind" "noatime"];
-    depends = ["/persist"];
+    options = [ "bind" "noatime" ];
+    depends = [ "/persist" ];
+    neededForBoot = true;
   };
 
   # Ensure users don't accidentally write to ephemeral home
   systemd.services.setup-ephemeral-home = {
     description = "Setup ephemeral home directory structure";
-    wantedBy = ["multi-user.target"];
-    after = ["local-fs.target"];
+    wantedBy = [ "multi-user.target" ];
+    after = [ "local-fs.target" ];
     script = ''
       # Ensure /home exists
       mkdir -p /home
@@ -122,15 +116,12 @@
   };
 
   # Warnings about impermanence
-  warnings =
-    if config.environment.persistence ? "/persist/system"
-    then []
-    else [
-      ''
-        Impermanence is configured but environment.persistence is not available.
-        Make sure the impermanence module is imported.
-      ''
-    ];
+  warnings = if config.environment.persistence ? "/persist/system" then
+    [ ]
+  else [''
+    Impermanence is configured but environment.persistence is not available.
+    Make sure the impermanence module is imported.
+  ''];
 
   # Helpful script to show what's persisted
   environment.systemPackages = [
