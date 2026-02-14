@@ -1,23 +1,16 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
 with lib.fmf;
 let
   cfg = config.fmf.services.borgbackup;
   fileExporterDir = config.fmf.services.prometheus.fileExporterDir;
 
-in
-{
+in {
   options.fmf.services.borgbackup = with types; {
     enable = mkBoolOpt false "Whether or not to enable Borg Backups.";
     jobs = lib.mkOption {
-      type = lib.types.attrsOf (
-        lib.types.submodule (
-          { config, ... }: # Access the config which contains `_module.args`
+      type = lib.types.attrsOf (lib.types.submodule
+        ({ config, ... }: # Access the config which contains `_module.args`
           {
             options = {
               paths = lib.mkOption {
@@ -39,7 +32,8 @@ in
               environment = {
                 BORG_RSH = lib.mkOption {
                   type = lib.types.str;
-                  default = "ssh -o 'StrictHostKeyChecking=no' -i /home/mcamp/.ssh/id_ed25519";
+                  default =
+                    "ssh -o 'StrictHostKeyChecking=no' -i /home/mcamp/.ssh/id_ed25519";
                   description = "SSH command for Borg to use.";
                 };
               };
@@ -62,7 +56,7 @@ in
                   Shell commands to run before the backup.
                   This can for example be used to mount file systems.
                 '';
-                default = '''';
+                default = "";
                 example = ''
                   # To add excluded paths at runtime
                   extraCreateArgs="$extraCreateArgs --exclude /some/path"
@@ -107,28 +101,36 @@ in
                 default = [ ];
                 example = [ "--remote-path=/path/to/borg" ];
               };
+              extraCreateArgs = mkOption {
+                type = with types; coercedTo (listOf str) escapeShellArgs str;
+                description = lib.mdDoc ''
+                  Additional arguments for {command}`borg create`.
+                  Use this for --exclude patterns.
+                '';
+                default = [ ];
+                example = [ "--exclude=/path/to/exclude" ];
+              };
+              exclude = mkOption {
+                type = with types; listOf str;
+                description = "Paths/patterns to exclude from backup.";
+                default = [ ];
+                example = [ "/var/log" "*.tmp" ];
+              };
             };
-          }
-        )
-      );
+          }));
       default = { };
       description = "Borg backup jobs configuration.";
     };
 
-    role-id =
-      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+    role-id = mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt str "secret/campground/borg"
-        "The Vault path to the KV containing the KVs that are for each database";
+      "Absolute path to the Vault secret-id";
+    vault-path = mkOpt str "secret/campground/borg"
+      "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
-      type = enum [
-        "v1"
-        "v2"
-      ];
+      type = enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -140,7 +142,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.borgbackup.jobs = lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
+    services.borgbackup.jobs =
+      lib.mapAttrs' (name: jobConfig: nameValuePair name jobConfig) cfg.jobs;
     systemd.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
       description = "Copy the passphrase for ${name} Borg Backup job";
       serviceConfig.Type = "oneshot";
@@ -151,36 +154,35 @@ in
       '';
       wantedBy = [ "multi-user.target" ];
     });
-    fmf.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs) (name: {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [
-            {
+    fmf.services.vault-agent.services = lib.genAttrs (lib.attrNames cfg.jobs)
+      (name: {
+        settings = {
+          vault.address = cfg.vault-address;
+          auto_auth = {
+            method = [{
               type = "approle";
               config = {
                 role_id_file_path = cfg.role-id;
                 secret_id_file_path = cfg.secret-id;
                 remove_secret_id_file_after_reading = false;
               };
-            }
-          ];
+            }];
+          };
         };
-      };
 
-      secrets = {
-        file = {
-          files = {
-            "${name}-borg-passphrase" = {
-              text = ''
-                {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
-              '';
-              permissions = "0600";
-              change-action = "restart";
+        secrets = {
+          file = {
+            files = {
+              "${name}-borg-passphrase" = {
+                text = ''
+                  {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${name} }}{{ else }}{{ .Data.data.${name} }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
+              };
             };
           };
         };
-      };
-    });
+      });
   };
 }
