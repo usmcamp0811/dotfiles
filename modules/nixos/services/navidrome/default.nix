@@ -19,12 +19,11 @@ in {
     enableInsightsCollector = mkOpt types.bool true
       "Enable anonymous insights collection for Navidrome.";
 
-    role-id =
-      mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
-        "Absolute path to the Vault role-id";
+    role-id = mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
     secret-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.secret-id
-        "Absolute path to the Vault secret-id";
+      "Absolute path to the Vault secret-id";
     vault-path = mkOpt str "secret/campground/navidrome"
       "The Vault path to the KV containing the KVs that are for each database";
     kvVersion = mkOption {
