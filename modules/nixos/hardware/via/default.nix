@@ -52,7 +52,7 @@ in {
     services.dbus.enable = true;
     xdg.portal = {
       enable = true;
-      extraPortals = [pkgs.xdg-desktop-portal-gtk];
+      extraPortals = lib.mkDefault [pkgs.xdg-desktop-portal-gtk];
     };
     # Make sure OpenGL stack is wired for Electron/Chromium apps
     hardware.graphics.enable = true;
