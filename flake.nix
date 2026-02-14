@@ -10,8 +10,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url =
-        "gitlab:crystal-forge/crystal-forge/112-not-making-new-generations-2";
+      url = "gitlab:crystal-forge/crystal-forge/112-not-making-new-generations-2";
       inputs.nixpkgs.follows = "unstable";
     };
     backlog.url = "github:MrLesk/Backlog.md";
@@ -27,8 +26,7 @@
     terranix.inputs.nixpkgs.follows = "nixpkgs";
     old-nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     nixpkgs.url = "github:nixos/nixpkgs/release-25.11";
-    pyarrow.url =
-      "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
+    pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     #nuenv
@@ -139,8 +137,7 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "unstable";
 
-    updated-ollama.url =
-      "github:nixos/nixpkgs/27dbbeec4f904960751678f949b22cf5aa3791d9";
+    updated-ollama.url = "github:nixos/nixpkgs/27dbbeec4f904960751678f949b22cf5aa3791d9";
 
     # Run unpatched dynamically compiled binaries
     nix-ld.url = "github:nix-community/nix-ld/";
@@ -164,7 +161,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    technofab = { url = "gitlab:TECHNOFAB/nix-packages"; };
+    technofab = {url = "gitlab:TECHNOFAB/nix-packages";};
     technofab.inputs.nixpkgs.follows = "nixpkgs";
 
     # GPG default configuration
@@ -188,8 +185,7 @@
 
     # Run unpatched dynamically compiled binaries
     nix-ld-rs = {
-      url =
-        "github:nix-community/nix-ld-rs/8af5fc9add315c251edea8f659b56fc7836a163f";
+      url = "github:nix-community/nix-ld-rs/8af5fc9add315c251edea8f659b56fc7836a163f";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -331,23 +327,23 @@
     };
   };
 
-  outputs = inputs:
-    let
-      inherit (inputs) deploy-rs;
+  outputs = inputs: let
+    inherit (inputs) deploy-rs;
 
-      lib = inputs.snowfall-lib.mkLib {
-        inherit inputs;
-        src = ./.;
-        snowfall = {
-          meta = {
-            name = "fmf";
-            title = "AI Campground";
-          };
-
-          namespace = "fmf";
+    lib = inputs.snowfall-lib.mkLib {
+      inherit inputs;
+      src = ./.;
+      snowfall = {
+        meta = {
+          name = "fmf";
+          title = "AI Campground";
         };
+
+        namespace = "fmf";
       };
-    in lib.mkFlake {
+    };
+  in
+    lib.mkFlake {
       channels-config = {
         allowUnfree = true;
         permittedInsecurePackages = [
@@ -376,14 +372,6 @@
         k0s-nix.overlays.default
         crystal-forge.overlays.default
         # kubenix.overlays.default
-        (final: prev: {
-          navidrome = prev.navidrome.overrideAttrs (old: {
-            nativeBuildInputs =
-              let nativeBuildInputs = old.nativeBuildInputs or [ ];
-              in (lib.filter (drv: drv != prev."pkg-config") nativeBuildInputs)
-              ++ [ prev.pkgconf ];
-          });
-        })
       ];
 
       systems.modules.nixos = with inputs;
@@ -404,7 +392,8 @@
           impermanence.nixosModules.impermanence
           microvm.nixosModules.host
           nixos-boot.nixosModules.default
-        ] ++ (lib.attrValues
+        ]
+        ++ (lib.attrValues
           (lib.filterAttrs (name: _: lib.hasPrefix "stig" name)
             crystal-forge.nixosModules));
 
@@ -417,50 +406,52 @@
         hostNames = builtins.attrNames (builtins.readDir hostDir);
         vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
         mkVmModules = name: {
-          modules = [ inputs.microvm.nixosModules.microvm ];
+          modules = [inputs.microvm.nixosModules.microvm];
         };
         vmHostsConfig = builtins.listToAttrs (map (name: {
-          inherit name;
-          value = mkVmModules name;
-        }) vmHosts);
-      in vmHostsConfig // {
-        blue-ridge.modules = with inputs; [ disko.nixosModules.disko ];
-        butler.modules = with inputs; [
-          nixos-hardware.nixosModules.lenovo-thinkpad-p1
-          nixos-hardware.nixosModules.lenovo-thinkpad-p53
-        ];
+            inherit name;
+            value = mkVmModules name;
+          })
+          vmHosts);
+      in
+        vmHostsConfig
+        // {
+          blue-ridge.modules = with inputs; [disko.nixosModules.disko];
+          butler.modules = with inputs; [
+            nixos-hardware.nixosModules.lenovo-thinkpad-p1
+            nixos-hardware.nixosModules.lenovo-thinkpad-p53
+          ];
 
-        gray.modules = with inputs;
-          [ nixos-hardware.nixosModules.framework-16-7040-amd ];
-        base.modules = [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
-      };
+          gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
+          base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
+        };
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
 
-      deploy = lib.mkDeploy { inherit (inputs) self; };
+      deploy = lib.mkDeploy {inherit (inputs) self;};
 
-      checks = builtins.mapAttrs
+      checks =
+        builtins.mapAttrs
         (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
         deploy-rs.lib;
 
       outputs-builder = channels: {
         # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and
         # which will break `deploy`.
-        hooks.pre-commit-check =
-          inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-            src = ./.;
-            hooks = {
-              nixpkgs-fmt.enable = true;
-              # flake8.enable = true;
-              # markdownlint.enable = true;
-              # yamllint.enable = true;
+        hooks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+          src = ./.;
+          hooks = {
+            nixpkgs-fmt.enable = true;
+            # flake8.enable = true;
+            # markdownlint.enable = true;
+            # yamllint.enable = true;
 
-              # deadnix.enable = true;
-            };
+            # deadnix.enable = true;
           };
+        };
         nixidyEnvs = inputs.nixidy.lib.mkEnvs {
           pkgs = channels.nixpkgs;
-          envs = { dev.modules = [ ./kubernetes/dev.nix ]; };
+          envs = {dev.modules = [./kubernetes/dev.nix];};
         };
 
         # # Router security checks
@@ -498,8 +489,7 @@
         };
         slidev = {
           path = ./templates/slidev;
-          description =
-            "A Template for making a flake with a devshell for running Slidev slides";
+          description = "A Template for making a flake with a devshell for running Slidev slides";
         };
         julia-project = {
           path = ./templates/julia-project;
@@ -507,28 +497,23 @@
         };
         simple-rust-package = {
           path = ./templates/simple-rust-package;
-          description =
-            "An Example of how to package a Rust app not in Snowfall but vanilla Nix";
+          description = "An Example of how to package a Rust app not in Snowfall but vanilla Nix";
         };
         python-package-with-tests = {
           path = ./templates/python-package-with-tests;
-          description =
-            "An Example of how to package Python with UV2Nix in vanilla Nix...also does checks and tests.";
+          description = "An Example of how to package Python with UV2Nix in vanilla Nix...also does checks and tests.";
         };
         basic-flake-system = {
           path = ./templates/basic-flake-system;
-          description =
-            "An Example of how to convert a vanilla NixOS system's configuration.nix to a flake.";
+          description = "An Example of how to convert a vanilla NixOS system's configuration.nix to a flake.";
         };
         snowfall = {
           path = ./templates/snowfall;
-          description =
-            "A template to quickly create a Snowfall based flake for managing systems; has some modules in it for examples...";
+          description = "A template to quickly create a Snowfall based flake for managing systems; has some modules in it for examples...";
         };
         example-downstream-flake = {
           path = ./templates/example-downstream-flake;
-          description =
-            "A template to demonstrate and point to how to use this flake as an upstream source for NixOS Modules";
+          description = "A template to demonstrate and point to how to use this flake as an upstream source for NixOS Modules";
         };
       };
     };

@@ -1,23 +1,27 @@
-{ config, lib, options, pkgs, system, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  system,
+  ...
+}:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   # inherit (inputs) hyprland;
   # inherit (inputs) nixpkgs-wayland;
   configure-gtk = pkgs.writeTextFile {
     name = "configure-gtk";
     destination = "/bin/configure-gtk";
     executable = true;
-    text =
-      let
-        schema = pkgs.gsettings-desktop-schemas;
-        datadir = "${schema}/share/gesettings/schemas/${schema.name}";
-      in
-      ''
-        export XDG_DATA_DIRS=${datadir}:$XDG_DATA_DIRS
-        gnome_schema=org.gnome.desktop.interface
-        gesettings set $gnome_schema gtk-theme 'Adwaita'
-      '';
+    text = let
+      schema = pkgs.gsettings-desktop-schemas;
+      datadir = "${schema}/share/gesettings/schemas/${schema.name}";
+    in ''
+      export XDG_DATA_DIRS=${datadir}:$XDG_DATA_DIRS
+      gnome_schema=org.gnome.desktop.interface
+      gesettings set $gnome_schema gtk-theme 'Adwaita'
+    '';
   };
   dbus-hyprland-environment = pkgs.writeTextFile {
     name = "dbus-hyprland-environment";
@@ -31,14 +35,15 @@ let
     '';
   };
   cfg = config.fmf.desktop.hyprland;
-  programs = lib.makeBinPath [ config.programs.hyprland.package ];
-in
-{
+  programs = lib.makeBinPath [config.programs.hyprland.package];
+in {
   options.fmf.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Whether or not to enable Hyprland.";
-    customConfigFiles = mkOpt attrs { }
+    customConfigFiles =
+      mkOpt attrs {}
       "Custom configuration files that can be used to override the default files.";
-    customFiles = mkOpt attrs { }
+    customFiles =
+      mkOpt attrs {}
       "Custom files that can be used to override the default files.";
     wallpaper = mkOpt (nullOr package) null "The wallpaper to display.";
   };
@@ -96,9 +101,11 @@ in
     xdg.portal = {
       enable = true;
       wlr.enable = true;
-      extraPortals =
-        [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gtk ];
-      config.common.default = [ "gtk" "hyprland" ];
+      extraPortals = lib.unique [
+        pkgs.xdg-desktop-portal-hyprland
+        pkgs.xdg-desktop-portal-gtk
+      ];
+      config.common.default = ["gtk" "hyprland"];
     };
 
     # For GTK applications, if needed

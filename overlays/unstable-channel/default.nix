@@ -13,5 +13,6 @@
     mealie
     yazi
     yaziPlugins
+    navidrome
     ;
 }
