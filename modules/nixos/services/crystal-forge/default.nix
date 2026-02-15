@@ -1,11 +1,7 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}:
+{ lib, config, pkgs, ... }:
 with lib;
-with lib.fmf; let
+with lib.fmf;
+let
   cfg = config.fmf.services.crystal-forge;
   host = config.networking.hostName;
 in {
@@ -13,7 +9,7 @@ in {
     enable = mkEnableOption "Enable the Crystal Forge service(s)";
 
     log_level = lib.mkOption {
-      type = lib.types.enum ["off" "error" "warn" "info" "debug" "trace"];
+      type = lib.types.enum [ "off" "error" "warn" "info" "debug" "trace" ];
       default = "info";
       description = "Log level for all Crystal Forge components.";
     };
@@ -46,7 +42,8 @@ in {
       passwordFile = mkOption {
         type = types.nullOr types.path;
         default = null;
-        description = "Optional path to a file containing the DB password. Overrides 'password'.";
+        description =
+          "Optional path to a file containing the DB password. Overrides 'password'.";
       };
       name = mkOption {
         type = types.str;
@@ -89,7 +86,8 @@ in {
       ssh_key_path = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
-        description = "SSH private key for Git auth. If null, a key may be generated.";
+        description =
+          "SSH private key for Git auth. If null, a key may be generated.";
       };
       ssh_known_hosts_path = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
@@ -151,7 +149,7 @@ in {
             };
           };
         });
-        default = [];
+        default = [ ];
         description = "Flakes to watch for changes.";
       };
       flake_polling_interval = lib.mkOption {
@@ -234,7 +232,7 @@ in {
       };
       systemd_properties = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = ["MemorySwapMax=2G" "TasksMax=3000"];
+        default = [ "MemorySwapMax=2G" "TasksMax=3000" ];
       };
     };
 
@@ -254,7 +252,7 @@ in {
       };
       extra_args = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [];
+        default = [ ];
       };
       whitelist_path = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
@@ -269,7 +267,7 @@ in {
     # === Cache (matches upstream completely) ===
     cache = {
       cache_type = lib.mkOption {
-        type = lib.types.enum ["S3" "Attic" "Http" "Nix"];
+        type = lib.types.enum [ "S3" "Attic" "Http" "Nix" ];
         default = "Nix";
       };
       push_to = lib.mkOption {
@@ -405,12 +403,12 @@ in {
             default = null;
           };
           deployment_policy = lib.mkOption {
-            type = lib.types.enum ["manual" "auto_latest" "pinned"];
+            type = lib.types.enum [ "manual" "auto_latest" "pinned" ];
             default = "manual";
           };
         };
       });
-      default = [];
+      default = [ ];
       description = "Systems to register.";
     };
 
@@ -418,14 +416,14 @@ in {
     environments = lib.mkOption {
       type = lib.types.listOf (lib.types.submodule {
         options = {
-          name = lib.mkOption {type = lib.types.str;};
-          description = lib.mkOption {type = lib.types.str;};
-          is_active = lib.mkOption {type = lib.types.bool;};
-          risk_profile = lib.mkOption {type = lib.types.str;};
-          compliance_level = lib.mkOption {type = lib.types.str;};
+          name = lib.mkOption { type = lib.types.str; };
+          description = lib.mkOption { type = lib.types.str; };
+          is_active = lib.mkOption { type = lib.types.bool; };
+          risk_profile = lib.mkOption { type = lib.types.str; };
+          compliance_level = lib.mkOption { type = lib.types.str; };
         };
       });
-      default = [];
+      default = [ ];
       description = "List of environments.";
     };
 
@@ -434,7 +432,8 @@ in {
       enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Enable Grafana datasource + dashboards for Crystal Forge.";
+        description =
+          "Enable Grafana datasource + dashboards for Crystal Forge.";
       };
 
       datasource = {
@@ -445,17 +444,20 @@ in {
         host = lib.mkOption {
           type = lib.types.str;
           default = cfg.database.host;
-          defaultText = lib.literalExpression "config.fmf.services.crystal-forge.database.host";
+          defaultText = lib.literalExpression
+            "config.fmf.services.crystal-forge.database.host";
         };
         port = lib.mkOption {
           type = lib.types.port;
           default = cfg.database.port;
-          defaultText = lib.literalExpression "config.fmf.services.crystal-forge.database.port";
+          defaultText = lib.literalExpression
+            "config.fmf.services.crystal-forge.database.port";
         };
         database = lib.mkOption {
           type = lib.types.str;
           default = cfg.database.name;
-          defaultText = lib.literalExpression "config.fmf.services.crystal-forge.database.name";
+          defaultText = lib.literalExpression
+            "config.fmf.services.crystal-forge.database.name";
         };
         user = lib.mkOption {
           type = lib.types.str;
@@ -466,7 +468,8 @@ in {
           default = null;
         };
         sslMode = lib.mkOption {
-          type = lib.types.enum ["disable" "require" "verify-ca" "verify-full"];
+          type =
+            lib.types.enum [ "disable" "require" "verify-ca" "verify-full" ];
           default = "disable";
         };
       };
@@ -494,23 +497,21 @@ in {
     env-file = lib.mkOption {
       type = lib.types.str;
       default = "/var/lib/crystal-forge/.config/crystal-forge-attic.env";
-      description = "Optional env file path (used by builder to source ATTIC_TOKEN, etc.)";
+      description =
+        "Optional env file path (used by builder to source ATTIC_TOKEN, etc.)";
     };
 
     # === Vault Agent glue (keep exactly as your downstream requires) ===
     role-id =
-      mkOpt types.str
-      config.fmf.services.vault-agent.settings.vault.role-id
+      mkOpt types.str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt types.str
-      config.fmf.services.vault-agent.settings.vault.secret-id
+      mkOpt types.str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt types.str "secret/campground/crystal-forge"
+    vault-path = mkOpt types.str "secret/campground/crystal-forge"
       "KV path containing CF secrets (attic token, s3 keys, per-host agent keys, etc.)";
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "Vault KV store version";
     };
@@ -528,24 +529,14 @@ in {
     services.crystal-forge = {
       enable = true;
 
-      inherit
-        (cfg)
-        log_level
-        database
-        local-database
-        auth
-        flakes
-        systems
-        environments
-        vulnix
-        cache
-        deployment
-        dashboards
-        ;
+      inherit (cfg)
+        log_level database local-database auth flakes systems environments
+        vulnix cache deployment dashboards;
 
       server = mkIf cfg.server.enable {
         enable = true;
-        inherit (cfg.server) host port eval_workers eval_max_memory_mb eval_check_cache;
+        inherit (cfg.server)
+          host port eval_workers eval_max_memory_mb eval_check_cache;
       };
 
       client = mkIf cfg.client.enable {
@@ -556,7 +547,9 @@ in {
       };
 
       # build is mostly pass-through; ensure systemd_properties always present
-      build = (cfg.build or {}) // {systemd_properties = cfg.build.systemd_properties or [];};
+      build = (cfg.build or { }) // {
+        systemd_properties = cfg.build.systemd_properties or [ ];
+      };
     };
 
     # ---- File/dir scaffolding (agent key, cache envs, etc.) ----
@@ -580,92 +573,97 @@ in {
     ];
 
     # ---- Simple setup step to copy Vault-rendered files into place ----
-    systemd.services.crystal-forge-setup = mkIf (config.fmf.services.vault-agent.enable) {
-      description = "Crystal Forge Setup - Copy Vault Agent Files";
-      wantedBy = ["multi-user.target"];
-      after =
-        lib.optional cfg.client.enable "vault-agent-crystal-forge-setup.service";
-      wants =
-        lib.optional cfg.client.enable "vault-agent-crystal-forge-setup.service";
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        User = "root";
-        Group = "root";
+    systemd.services.crystal-forge-setup =
+      mkIf (config.fmf.services.vault-agent.enable) {
+        description = "Crystal Forge Setup - Copy Vault Agent Files";
+        wantedBy = [ "multi-user.target" ];
+        after = lib.optional cfg.client.enable
+          "vault-agent-crystal-forge-setup.service";
+        wants = lib.optional cfg.client.enable
+          "vault-agent-crystal-forge-setup.service";
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          User = "root";
+          Group = "root";
+        };
+        script = ''
+          set -euo pipefail
+          echo "Starting Crystal Forge setup..."
+
+          mkdir -p /var/lib/crystal-forge-agent
+
+          ${lib.optionalString cfg.client.enable ''
+            echo "Waiting for Vault agent to render agent.key..."
+            timeout=300
+            elapsed=0
+            while [ ! -f /tmp/detsys-vault/agent.key ] && [ $elapsed -lt $timeout ]; do
+              sleep 2
+              elapsed=$((elapsed+2))
+            done
+            if [ ! -f /tmp/detsys-vault/agent.key ]; then
+              echo "ERROR: agent.key not found after $timeout seconds"
+              exit 1
+            fi
+            install -m0600 /tmp/detsys-vault/agent.key /var/lib/crystal-forge-agent/agent.key
+            echo "✅ Agent key installed"
+          ''}
+
+          ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type
+            == "Attic" && cfg.cache.push_to != null) ''
+              mkdir -p /var/lib/crystal-forge/.config
+              if [ -f /tmp/detsys-vault/attic-env ]; then
+                install -o crystal-forge -g crystal-forge -m0644 /tmp/detsys-vault/attic-env /var/lib/crystal-forge/.config/crystal-forge-attic.env
+                echo "✅ Attic env installed"
+              fi
+            ''}
+
+          ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type == "S3"
+            && cfg.cache.push_to != null) ''
+              mkdir -p /var/lib/crystal-forge/.config
+              if [ -f /tmp/detsys-vault/s3-env ]; then
+                install -o crystal-forge -g crystal-forge -m0644 /tmp/detsys-vault/s3-env /var/lib/crystal-forge/.config/crystal-forge-s3.env
+                echo "✅ S3 env installed"
+              fi
+              if [ -f /tmp/detsys-vault/signing-key ]; then
+                install -o crystal-forge -g crystal-forge -m0600 /tmp/detsys-vault/signing-key /var/lib/crystal-forge/signing-key
+                echo "✅ Signing key installed"
+              fi
+            ''}
+
+          echo "Crystal Forge setup completed"
+        '';
       };
-      script = ''
-        set -euo pipefail
-        echo "Starting Crystal Forge setup..."
-
-        mkdir -p /var/lib/crystal-forge-agent
-
-        ${lib.optionalString cfg.client.enable ''
-          echo "Waiting for Vault agent to render agent.key..."
-          timeout=300
-          elapsed=0
-          while [ ! -f /tmp/detsys-vault/agent.key ] && [ $elapsed -lt $timeout ]; do
-            sleep 2
-            elapsed=$((elapsed+2))
-          done
-          if [ ! -f /tmp/detsys-vault/agent.key ]; then
-            echo "ERROR: agent.key not found after $timeout seconds"
-            exit 1
-          fi
-          install -m0600 /tmp/detsys-vault/agent.key /var/lib/crystal-forge-agent/agent.key
-          echo "✅ Agent key installed"
-        ''}
-
-        ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) ''
-          mkdir -p /var/lib/crystal-forge/.config
-          if [ -f /tmp/detsys-vault/attic-env ]; then
-            install -m0644 /tmp/detsys-vault/attic-env /var/lib/crystal-forge/.config/crystal-forge-attic.env
-            echo "✅ Attic env installed"
-          fi
-        ''}
-
-        ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) ''
-          mkdir -p /var/lib/crystal-forge/.config
-          if [ -f /tmp/detsys-vault/s3-env ]; then
-            install -m0644 /tmp/detsys-vault/s3-env /var/lib/crystal-forge/.config/crystal-forge-s3.env
-            echo "✅ S3 env installed"
-          fi
-          if [ -f /tmp/detsys-vault/signing-key ]; then
-            install -o crystal-forge -g crystal-forge -m0600 /tmp/detsys-vault/signing-key /var/lib/crystal-forge/signing-key
-            echo "✅ Signing key installed"
-          fi
-        ''}
-
-        echo "Crystal Forge setup completed"
-      '';
-    };
 
     # Wire ordering so upstream units see the files
-    systemd.services.crystal-forge-agent = lib.mkIf (cfg.client.enable && config.fmf.services.vault-agent.enable) {
-      after = ["crystal-forge-setup.service"];
-      wants = ["crystal-forge-setup.service"];
-    };
-    systemd.services.crystal-forge-builder = lib.mkIf (cfg.build.enable && config.fmf.services.vault-agent.enable) {
-      after = ["crystal-forge-setup.service" "crystal-forge-server.service"];
-      wants = ["crystal-forge-setup.service"];
-      serviceConfig = {
-        ReadWritePaths = [
-          "/var/lib/crystal-forge"
-          "/tmp"
-          "/run/crystal-forge"
-          "/var/cache/crystal-forge-nix"
-        ];
-        EnvironmentFile =
-          lib.optionals (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) [
-            "-/var/lib/crystal-forge/.config/crystal-forge-s3.env"
-          ]
-          ++ lib.optionals (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) [
-            "-/var/lib/crystal-forge/.config/crystal-forge-attic.env"
-          ];
+    systemd.services.crystal-forge-agent =
+      lib.mkIf (cfg.client.enable && config.fmf.services.vault-agent.enable) {
+        after = [ "crystal-forge-setup.service" ];
+        wants = [ "crystal-forge-setup.service" ];
       };
-    };
+    systemd.services.crystal-forge-builder =
+      lib.mkIf (cfg.build.enable && config.fmf.services.vault-agent.enable) {
+        after =
+          [ "crystal-forge-setup.service" "crystal-forge-server.service" ];
+        wants = [ "crystal-forge-setup.service" ];
+        serviceConfig = {
+          ReadWritePaths = [
+            "/var/lib/crystal-forge"
+            "/tmp"
+            "/run/crystal-forge"
+            "/var/cache/crystal-forge-nix"
+          ];
+          EnvironmentFile = lib.optionals
+            (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null)
+            [ "-/var/lib/crystal-forge/.config/crystal-forge-s3.env" ]
+            ++ lib.optionals
+            (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null)
+            [ "-/var/lib/crystal-forge/.config/crystal-forge-attic.env" ];
+        };
+      };
     systemd.services.crystal-forge-server = lib.mkIf cfg.server.enable {
-      after = ["crystal-forge-setup.service"];
-      wants = ["crystal-forge-setup.service"];
+      after = [ "crystal-forge-setup.service" ];
+      wants = [ "crystal-forge-setup.service" ];
       serviceConfig = {
         ReadWritePaths = [
           "/var/lib/crystal-forge"
@@ -676,21 +674,19 @@ in {
       };
     };
 
-    networking.firewall.allowedTCPPorts = [cfg.server.port];
+    networking.firewall.allowedTCPPorts = [ cfg.server.port ];
     # ---- Vault Agent: render the files we consume above ----
     fmf.services.vault-agent.services."crystal-forge-setup" = {
       settings = {
         vault.address = cfg.vault-address;
-        auto_auth.method = [
-          {
-            type = "approle";
-            config = {
-              role_id_file_path = cfg.role-id;
-              secret_id_file_path = cfg.secret-id;
-              remove_secret_id_file_after_reading = false;
-            };
-          }
-        ];
+        auto_auth.method = [{
+          type = "approle";
+          config = {
+            role_id_file_path = cfg.role-id;
+            secret_id_file_path = cfg.secret-id;
+            remove_secret_id_file_after_reading = false;
+          };
+        }];
       };
       secrets.file.files = {
         # Agent private key (per-host key from KV)
@@ -703,39 +699,43 @@ in {
         };
 
         # Attic env (optional)
-        "attic-env" = lib.mkIf (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) {
-          text = ''
-            ATTIC_SERVER_URL=${cfg.cache.push_to}
-            ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}
-            ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name}
-            HOME=/var/lib/crystal-forge
-            XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
-          '';
-          permissions = "0644";
-          change-action = "restart";
-        };
+        "attic-env" = lib.mkIf
+          (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null) {
+            text = ''
+              ATTIC_SERVER_URL=${cfg.cache.push_to}
+              ATTIC_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.attic_token }}{{ else }}{{ .Data.data.attic_token }}{{ end }}{{ end }}
+              ATTIC_REMOTE_NAME=${cfg.cache.attic_cache_name}
+              HOME=/var/lib/crystal-forge
+              XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
+            '';
+            permissions = "0644";
+            change-action = "restart";
+          };
 
         # S3 env + signing key (optional)
-        "s3-env" = lib.mkIf (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) {
-          text = ''
-            AWS_ACCESS_KEY_ID={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.minio_access_key }}{{ else }}{{ .Data.data.minio_access_key }}{{ end }}{{ end }}
-            AWS_SECRET_ACCESS_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.minio_secret_key }}{{ else }}{{ .Data.data.minio_secret_key }}{{ end }}{{ end }}
-            ${lib.optionalString (cfg.cache.s3_region != null) "AWS_REGION=${cfg.cache.s3_region}"}
-            AWS_EC2_METADATA_DISABLED=true
-            HOME=/var/lib/crystal-forge
-            XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
-          '';
-          permissions = "0644";
-          change-action = "restart";
-        };
+        "s3-env" =
+          lib.mkIf (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) {
+            text = ''
+              AWS_ACCESS_KEY_ID={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.minio_access_key }}{{ else }}{{ .Data.data.minio_access_key }}{{ end }}{{ end }}
+              AWS_SECRET_ACCESS_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.minio_secret_key }}{{ else }}{{ .Data.data.minio_secret_key }}{{ end }}{{ end }}
+              ${lib.optionalString (cfg.cache.s3_region != null)
+              "AWS_REGION=${cfg.cache.s3_region}"}
+              AWS_EC2_METADATA_DISABLED=true
+              HOME=/var/lib/crystal-forge
+              XDG_CONFIG_HOME=/var/lib/crystal-forge/.config
+            '';
+            permissions = "0644";
+            change-action = "restart";
+          };
 
-        "signing-key" = lib.mkIf (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) {
-          text = ''
-            {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.signing_key }}{{ else }}{{ .Data.data.signing_key }}{{ end }}{{ end }}
-          '';
-          permissions = "0600";
-          change-action = "restart";
-        };
+        "signing-key" =
+          lib.mkIf (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null) {
+            text = ''
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.signing_key }}{{ else }}{{ .Data.data.signing_key }}{{ end }}{{ end }}
+            '';
+            permissions = "0600";
+            change-action = "restart";
+          };
       };
     };
   };
