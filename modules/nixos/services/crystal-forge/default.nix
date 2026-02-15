@@ -647,6 +647,7 @@ in {
           [ "crystal-forge-setup.service" "crystal-forge-server.service" ];
         wants = [ "crystal-forge-setup.service" ];
         serviceConfig = {
+          PermissionsStartOnly = true;
           ReadWritePaths = [
             "/var/lib/crystal-forge"
             "/tmp"
@@ -665,6 +666,7 @@ in {
       after = [ "crystal-forge-setup.service" ];
       wants = [ "crystal-forge-setup.service" ];
       serviceConfig = {
+        PermissionsStartOnly = true;
         ReadWritePaths = [
           "/var/lib/crystal-forge"
           "/tmp"

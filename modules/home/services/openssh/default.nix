@@ -12,8 +12,8 @@ let
   default-key =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler";
 
-  other-hosts = lib.filterAttrs (key: host:
-    key != name && (host.config.fmf.user.name or null) != null)
+  other-hosts = lib.filterAttrs
+    (key: host: key != name && (host.config.fmf.user.name or null) != null)
     ((inputs.self.nixosConfigurations or { })
       // (inputs.self.darwinConfigurations or { }));
 
