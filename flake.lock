@@ -19349,7 +19349,6 @@
         "technofab": "technofab_4",
         "terranix": "terranix_3",
         "unstable": "unstable_4",
-        "updated-ollama": "updated-ollama_3",
         "uv2nix": "uv2nix_7",
         "vault-service": "vault-service_4",
         "yaziline-yazi": "yaziline-yazi_3",
@@ -23152,22 +23151,6 @@
       }
     },
     "updated-ollama_2": {
-      "locked": {
-        "lastModified": 1732680587,
-        "narHash": "sha256-WndEhvcS8vFhcj9r0OTdUre/v9nMb4YLKSjJAU9ETtw=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "27dbbeec4f904960751678f949b22cf5aa3791d9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "27dbbeec4f904960751678f949b22cf5aa3791d9",
-        "type": "github"
-      }
-    },
-    "updated-ollama_3": {
       "locked": {
         "lastModified": 1732680587,
         "narHash": "sha256-WndEhvcS8vFhcj9r0OTdUre/v9nMb4YLKSjJAU9ETtw=",

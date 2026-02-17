@@ -4,10 +4,9 @@
   channels,
   nixpkgs,
   ...
-}:
-final: prev: {
+}: final: prev: {
   # Ollama from specific pinned commit
-  inherit (channels.updated-ollama) ollama ollama-cuda open-webui;
+  # inherit (channels.updated-ollama) ollama ollama-cuda open-webui;
 
   # QEMU from main nixpkgs
   qemu = nixpkgs.legacyPackages.${prev.system}.qemu;
