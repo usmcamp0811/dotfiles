@@ -107,11 +107,60 @@ in {
     xdg.configFile."opencode/opencode.json" = mkIf cfg.enableOpencode {
       text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
+
+        # Keep Anthropic plugin, add Ollama provider config
         plugin = ["opencode-anthropic-auth"];
+
+        # Default model (cloud)
+        model = "anthropic/claude-sonnet-4-5";
+
+        # Add Ollama as a custom provider (local)
+        provider = {
+          ollama = {
+            npm = "@ai-sdk/openai-compatible";
+            name = "Ollama";
+            options = {
+              # Ollama’s OpenAI-compatible endpoint
+              baseURL = "http://reckless:11434/v1";
+            };
+            models = {
+              # Add whatever local models you actually have pulled
+              "qwen3-coder" = {name = "qwen3-coder";};
+              # Examples you might also want:
+              # "qwen2.5-coder:7b" = { name = "qwen2.5-coder:7b"; };
+              # "codellama:13b" = { name = "codellama:13b"; };
+            };
+          };
+        };
+
+        # Keep your prompts
         mode = {
           build.prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
           plan.prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
         };
+
+        # Optional: pin “local” agents so you can switch fast in the UI
+        # agent = {
+        #   # uses default (Anthropic) model unless you override it here
+        #   build = {
+        #     model = "anthropic/claude-sonnet-4-5";
+        #     prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
+        #   };
+        #   plan = {
+        #     model = "anthropic/claude-sonnet-4-5";
+        #     prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
+        #   };
+        #
+        #   # local variants
+        #   "build-local" = {
+        #     model = "ollama/qwen3-coder";
+        #     prompt = "You are a senior software engineer. Be concise and produce production-ready code.";
+        #   };
+        #   "plan-local" = {
+        #     model = "ollama/qwen3-coder";
+        #     prompt = "Plan changes carefully. Output a clear step-by-step plan before edits.";
+        #   };
+        # };
       };
     };
   };
