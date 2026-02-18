@@ -125,10 +125,13 @@ in {
             };
             models = {
               # Add whatever local models you actually have pulled
-              "qwen3-coder" = {name = "qwen3-coder";};
-              # Examples you might also want:
-              # "qwen2.5-coder:7b" = { name = "qwen2.5-coder:7b"; };
-              # "codellama:13b" = { name = "codellama:13b"; };
+              "qwen3-coder" = {name = "qwen3:8b";};
+              "deepseek-r1:8b" = {name = "deepseek-r1:8b";};
+              "deepseek-r1:14b" = {name = "deepseek-r1:14b";};
+              "mistral-small3.2:latest" = {name = "mistral-small3.2:latest";};
+              "qwen2.5-coder:14b" = {name = "qwen2.5-coder:14b";};
+              "qwen2.5-coder:7b" = {name = "qwen2.5-coder:7b";};
+              "codellama:13b" = {name = "codellama:13b";};
             };
           };
         };
