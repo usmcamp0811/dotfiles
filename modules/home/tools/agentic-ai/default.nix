@@ -108,86 +108,56 @@ in {
       text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
 
-        # If you run into Anthropic credential blocking in OpenCode, pin a working plugin version.
-        # Otherwise you can keep "opencode-anthropic-auth" unpinned.
-        plugin = [
-          "opencode-anthropic-auth@0.0.9"
-        ];
+        # Anthropic OAuth plugin (as you had)
+        plugin = ["opencode-anthropic-auth"];
 
-        # Default model when you just start opencode (keep this cloud by default)
+        # Default model (cloud)
         model = "anthropic/claude-sonnet-4-5";
 
-        # Local Ollama provider via OpenAI-compatible adapter
+        # Ollama provider (local)
         provider = {
           ollama = {
             npm = "@ai-sdk/openai-compatible";
             name = "Ollama";
             options = {
               baseURL = "http://reckless:11434/v1";
-
-              # Some OpenAI-compatible stacks expect an apiKey field even if unused.
-              # Ollama ignores it, but the client library may require it.
-              apiKey = "ollama";
+              apiKey = "ollama"; # harmless; some clients require a value
             };
-
-            # These keys are OpenCode model *aliases*. The `name` is the actual Ollama model tag.
             models = {
-              "qwen2.5-coder-7b" = {name = "qwen2.5-coder:7b";};
-              "qwen2.5-coder-14b" = {name = "qwen2.5-coder:14b";};
-              "deepseek-r1-8b" = {name = "deepseek-r1:8b";};
-              "deepseek-r1-14b" = {name = "deepseek-r1:14b";};
-              "mistral-small" = {name = "mistral-small3.2:latest";};
-              "codellama-13b" = {name = "codellama:13b";};
+              # keys can be whatever, but using the exact tags avoids confusion
+              "qwen2.5-coder:7b" = {name = "qwen2.5-coder:7b";};
+              "qwen2.5-coder:14b" = {name = "qwen2.5-coder:14b";};
+              "deepseek-r1:8b" = {name = "deepseek-r1:8b";};
+              "deepseek-r1:14b" = {name = "deepseek-r1:14b";};
+              "mistral-small3.2:latest" = {name = "mistral-small3.2:latest";};
+              "codellama:13b" = {name = "codellama:13b";};
+              "qwen3:8b" = {name = "qwen3:8b";};
+              "qwen3-vl:latest" = {name = "qwen3-vl:latest";};
             };
           };
         };
 
-        # IMPORTANT: mode is deprecated; use agent instead.
-        # You can switch agents during a session, and @mention them as well. :contentReference[oaicite:3]{index=3}
+        # Keep your original Claude prompts, but do it via agents (recommended)
         agent = {
-          # Plan: use cloud model for huge context, analysis, architecture.
+          # Cloud agents (Claude) - same prompts you had originally
+          build = {
+            model = "anthropic/claude-sonnet-4-5";
+            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
+          };
           plan = {
             model = "anthropic/claude-sonnet-4-5";
-            prompt = ''
-              You are a senior engineer doing planning and review.
-              Do not edit files.
-              Output:
-              1) Key observations
-              2) Risks and edge cases
-              3) A step-by-step plan
-              4) If code changes are needed, list exact files and what will change
-            '';
+            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
           };
 
-          # Build: default to local for speed and privacy.
-          build = {
-            model = "ollama/qwen2.5-coder-14b";
-            prompt = ''
-              You are a senior engineer implementing changes.
-              Make the fewest changes needed.
-              Prefer production-ready code.
-              If you are unsure, add a short TODO and explain what you would verify.
-            '';
+          # Local agents (Ollama)
+          "build-local" = {
+            model = "ollama/qwen2.5-coder:14b";
+            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
           };
-
-          # Optional: a local plan agent (when you do not want cloud at all)
           "plan-local" = {
-            model = "ollama/qwen2.5-coder-14b";
-            prompt = ''
-              Plan changes carefully.
-              Do not edit files.
-              Provide a clear step-by-step plan, and list the exact files to touch.
-            '';
-          };
-
-          # Optional: a cloud build agent for hard cases
-          "build-cloud" = {
-            model = "anthropic/claude-sonnet-4-5";
-            prompt = ''
-              You are a senior engineer implementing changes.
-              Make minimal, safe edits.
-              Keep changes well-scoped and easy to review.
-            '';
+            # Pick your favorite local planner. deepseek-r1:14b is a good “thinky” choice.
+            model = "ollama/deepseek-r1:14b";
+            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
           };
         };
       };
