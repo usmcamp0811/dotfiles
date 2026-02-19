@@ -71,6 +71,17 @@ with lib.fmf; let
       # Pass all arguments to the regular ssh command
       command ssh "$@"
     '';
+    # -----------------------------
+    # git worktree helpers
+    # -----------------------------
+    wt = "git worktree";
+    wtl = "git worktree list";
+    wtr = "git worktree remove";
+    wta = ''
+      local b="''${1:?branch name required}"
+      local base="''${2:-main}"
+      git worktree add "../$b" -b "$b" "$base"
+    '';
     hyprmon = ''
       # Easily adjust monitors over ssh
       # Usage:
