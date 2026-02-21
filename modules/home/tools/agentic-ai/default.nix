@@ -104,42 +104,70 @@ in {
     };
 
     # OpenCode config: Claude OAuth compatibility via plugin + mode prompt workaround
-    xdg.configFile."opencode/opencode.json" = mkIf cfg.enableOpencode {
+    xdg.configFile."opencode/opencode.json" = {
+      # builtins.toJSON returns a JSON string; xdg.configFile expects `text`
       text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
 
-        # Anthropic OAuth plugin (as you had)
-        plugin = ["opencode-anthropic-auth"];
+        # Anthropic OAuth plugin (if you need it)
+        plugins = ["opencode-anthropic-auth"];
 
-        # Default model (cloud)
+        # Default cloud model (keeps your cloud fallback)
         model = "anthropic/claude-sonnet-4-5";
 
-        # Ollama provider (local)
         provider = {
           ollama = {
             npm = "@ai-sdk/openai-compatible";
             name = "Ollama";
             options = {
               baseURL = "http://reckless:11434/v1";
-              apiKey = "ollama"; # harmless; some clients require a value
+              apiKey = "ollama";
             };
             models = {
-              # keys can be whatever, but using the exact tags avoids confusion
-              "qwen2.5-coder:7b" = {name = "qwen2.5-coder:7b";};
-              "qwen2.5-coder:14b" = {name = "qwen2.5-coder:14b";};
-              "deepseek-r1:8b" = {name = "deepseek-r1:8b";};
-              "deepseek-r1:14b" = {name = "deepseek-r1:14b";};
-              "mistral-small3.2:latest" = {name = "mistral-small3.2:latest";};
-              "codellama:13b" = {name = "codellama:13b";};
-              "qwen3:8b" = {name = "qwen3:8b";};
-              "qwen3-vl:latest" = {name = "qwen3-vl:latest";};
+              # Use the exact saved model names you have on Ollama.
+              # Ensure these keys match any `agent.*.model` strings below.
+              "qwen2.5-coder:7b" = {
+                name = "qwen2.5-coder:7b";
+                tools = true;
+              };
+              "qwen2.5-coder:14b" = {
+                name = "qwen2.5-coder:14b";
+                tools = true;
+              };
+              "deepseek-r1:8b" = {
+                name = "deepseek-r1:8b";
+                tools = false;
+              };
+              "deepseek-r1:14b" = {
+                name = "deepseek-r1:14b";
+                tools = true;
+              };
+              "mistral-small3.2:latest" = {
+                name = "mistral-small3.2:latest";
+                tools = false;
+              };
+              "codellama:13b" = {
+                name = "codellama:13b";
+                tools = false;
+              };
+              "qwen3:8b" = {
+                name = "qwen3:8b";
+                tools = true;
+              };
+              "qwen3:8b-16k" = {
+                name = "qwen3:8b-16k";
+                tools = true;
+              };
+              "gpt-oss:20b" = {
+                name = "gpt-oss:20b";
+                tools = true;
+              };
             };
           };
         };
 
-        # Keep your original Claude prompts, but do it via agents (recommended)
         agent = {
-          # Cloud agents (Claude) - same prompts you had originally
+          # Cloud agents (Claude / Anthropic)
           build = {
             model = "anthropic/claude-sonnet-4-5";
             prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
@@ -149,15 +177,19 @@ in {
             prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
           };
 
-          # Local agents (Ollama)
+          # Local agents (refer to the provider model key names above)
           "build-local" = {
-            model = "ollama/qwen2.5-coder:14b";
+            model = "qwen2.5-coder:14b";
             prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
           };
           "plan-local" = {
-            # Pick your favorite local planner. deepseek-r1:14b is a good “thinky” choice.
-            model = "ollama/deepseek-r1:14b";
+            model = "deepseek-r1:14b";
             prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
+          };
+          # Example: using a model with increased context (if you saved it as qwen3:8b-16k)
+          "explainer-local" = {
+            model = "qwen3:8b-16k";
+            prompt = "You are a concise explainer and assistant for dev workflows.";
           };
         };
       };
