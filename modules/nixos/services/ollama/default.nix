@@ -1,18 +1,24 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 with lib;
-with lib.fmf;
-let cfg = config.fmf.services.ollama;
-
+with lib.fmf; let
+  cfg = config.fmf.services.ollama;
 in {
   options.fmf.services.ollama = with types; {
     enable = mkBoolOpt false "Enable Ollama.";
+
     environmentVariables = mkOption {
       type = types.attrsOf types.str;
-      default = { };
+      default = {};
       description = ''
         Set arbitrary environment variables for the Ollama service. These are only seen by the Ollama server (systemd service), not normal invocations like ollama run.
       '';
     };
+
     package = mkOption {
       type = types.package;
       default = pkgs.ollama-cuda;
@@ -20,6 +26,7 @@ in {
         The package to be used for Ollama service.
       '';
     };
+
     host = mkOption {
       type = types.str;
       default = "0.0.0.0";
@@ -27,6 +34,7 @@ in {
         The address on which the Ollama server listens.
       '';
     };
+
     port = mkOption {
       type = types.int;
       default = 11434;
@@ -34,6 +42,7 @@ in {
         The port on which the Ollama server listens.
       '';
     };
+
     user = mkOption {
       type = types.str;
       default = "ollama";
@@ -41,6 +50,7 @@ in {
         The user that runs the Ollama service.
       '';
     };
+
     group = mkOption {
       type = types.str;
       default = "ollama";
@@ -48,9 +58,10 @@ in {
         The group that runs the Ollama service.
       '';
     };
+
     loadModels = mkOption {
       type = types.listOf str;
-      default = [ ];
+      default = [];
       description = ''
         Download these models using ollama pull as soon as ollama.service has started.
 
@@ -59,6 +70,7 @@ in {
         Search for models of your choice from: https://ollama.com/library
       '';
     };
+
     modelsDir = mkOption {
       type = types.path;
       default = "/var/lib/ollama/models";
@@ -66,6 +78,7 @@ in {
         The directory where the Ollama models are stored.
       '';
     };
+
     home = mkOption {
       type = types.path;
       default = "/var/lib/ollama";
@@ -73,8 +86,9 @@ in {
         The home directory that the ollama service is started in.
       '';
     };
+
     acceleration = mkOption {
-      type = types.nullOr (types.enum [ false "rocm" "cuda" ]);
+      type = types.nullOr (types.enum [false "rocm" "cuda"]);
       default = null;
       description = ''
         What interface to use for hardware acceleration.
@@ -90,7 +104,15 @@ in {
     services.ollama = {
       enable = true;
       home = cfg.home;
-      environmentVariables = cfg.environmentVariables;
+
+      # Force Flash Attention on for the systemd service.
+      # (This does not affect `ollama run` unless you export it in your shell.)
+      environmentVariables =
+        cfg.environmentVariables
+        // {
+          OLLAMA_FLASH_ATTENTION = "1";
+        };
+
       host = cfg.host;
       port = cfg.port;
       user = cfg.user;
@@ -100,6 +122,6 @@ in {
       acceleration = cfg.acceleration;
     };
 
-    networking.firewall.allowedTCPPorts = [ cfg.port ];
+    networking.firewall.allowedTCPPorts = [cfg.port];
   };
 }
