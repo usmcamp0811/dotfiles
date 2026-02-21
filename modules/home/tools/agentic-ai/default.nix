@@ -129,38 +129,47 @@ in {
               "qwen2.5-coder:7b" = {
                 name = "qwen2.5-coder:7b";
                 tools = true;
+                options = {num_ctx = 16384;};
               };
               "qwen2.5-coder:14b" = {
                 name = "qwen2.5-coder:14b";
                 tools = true;
+                options = {num_ctx = 16384;};
               };
               "deepseek-r1:8b" = {
                 name = "deepseek-r1:8b";
                 tools = false;
+                options = {num_ctx = 16384;};
               };
               "deepseek-r1:14b" = {
                 name = "deepseek-r1:14b";
                 tools = true;
+                options = {num_ctx = 16384;};
               };
               "mistral-small3.2:latest" = {
                 name = "mistral-small3.2:latest";
                 tools = false;
+                options = {num_ctx = 16384;};
               };
               "codellama:13b" = {
                 name = "codellama:13b";
                 tools = false;
+                options = {num_ctx = 16384;};
               };
               "qwen3:8b" = {
                 name = "qwen3:8b";
                 tools = true;
+                options = {num_ctx = 16384;};
               };
               "qwen3:8b-16k" = {
                 name = "qwen3:8b-16k";
                 tools = true;
+                options = {num_ctx = 16384;};
               };
               "gpt-oss:20b" = {
                 name = "gpt-oss:20b";
                 tools = true;
+                options = {num_ctx = 16384;};
               };
             };
           };
