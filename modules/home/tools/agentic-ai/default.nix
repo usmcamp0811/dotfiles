@@ -110,7 +110,7 @@ in {
         "$schema" = "https://opencode.ai/config.json";
 
         # Anthropic OAuth plugin (if you need it)
-        plugins = ["opencode-anthropic-auth"];
+        plugin = ["opencode-anthropic-auth"];
 
         # Default cloud model (keeps your cloud fallback)
         model = "anthropic/claude-sonnet-4-5";
