@@ -105,100 +105,228 @@ in {
 
     # OpenCode config: Claude OAuth compatibility via plugin + mode prompt workaround
     xdg.configFile."opencode/opencode.json" = {
-      # builtins.toJSON returns a JSON string; xdg.configFile expects `text`
       text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
 
-        # Anthropic OAuth plugin (if you need it)
-        plugin = ["opencode-anthropic-auth"];
+        plugin = [
+          "opencode-anthropic-auth"
+        ];
 
-        # Default cloud model (keeps your cloud fallback)
+        # Default cloud fallback (used when agent doesn't override)
         model = "anthropic/claude-sonnet-4-5";
 
         provider = {
           ollama = {
+            # OpenAI-compatible adapter for Ollama's /v1 API
             npm = "@ai-sdk/openai-compatible";
             name = "Ollama";
             options = {
+              # MUST include /v1 for the OpenAI-compatible plugin.
               baseURL = "http://reckless:11434/v1";
+
+              # Ollama ignores this, but the adapter typically requires *something*.
               apiKey = "ollama";
+
+              # Helpful if the adapter supports it (harmless if ignored).
+              compatibility = "strict";
             };
+
             models = {
-              # Use the exact saved model names you have on Ollama.
-              # Ensure these keys match any `agent.*.model` strings below.
+              # General rule of thumb:
+              # - "tools = true" only for models you actually want doing tool calls.
+              # - Keep temperature low for coding to reduce nonsense.
+              # - Clamp max output (num_predict) so it can't run away.
+              #
+              # NOTE: Ollama accepts these options for many models; if one model
+              # misbehaves, drop options one-by-one to see what's unsupported.
+
               "qwen2.5-coder:7b" = {
                 name = "qwen2.5-coder:7b";
                 tools = true;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 16384;
+                  temperature = 0.2;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 2048;
+                  stop = ["</s>"];
+                };
               };
+
               "qwen2.5-coder:14b" = {
                 name = "qwen2.5-coder:14b";
                 tools = true;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 16384;
+                  temperature = 0.2;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 2048;
+                  stop = ["</s>"];
+                };
               };
+
+              # Reasoning models can be *very* sensitive to sampling.
+              # Keep them conservative, and prefer them for "plan", not "build".
               "deepseek-r1:8b" = {
                 name = "deepseek-r1:8b";
                 tools = false;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 16384;
+                  temperature = 0.3;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 1536;
+                  stop = ["</s>"];
+                };
               };
+
               "deepseek-r1:14b" = {
                 name = "deepseek-r1:14b";
-                tools = true;
-                options = {num_ctx = 16384;};
+                tools = false; # usually better as planner/reasoner without tools
+                options = {
+                  num_ctx = 16384;
+                  temperature = 0.3;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 1536;
+                  stop = ["</s>"];
+                };
               };
+
               "mistral-small3.2:latest" = {
                 name = "mistral-small3.2:latest";
                 tools = false;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 16384;
+                  temperature = 0.4;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 1536;
+                  stop = ["</s>"];
+                };
               };
+
               "codellama:13b" = {
                 name = "codellama:13b";
                 tools = false;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 8192;
+                  temperature = 0.25;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 1536;
+                  stop = ["</s>"];
+                };
               };
+
               "qwen3:8b" = {
                 name = "qwen3:8b";
                 tools = true;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 8192;
+                  temperature = 0.25;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 2048;
+                  stop = ["</s>"];
+                };
               };
+
               "qwen3:8b-16k" = {
                 name = "qwen3:8b-16k";
                 tools = true;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 16384;
+                  temperature = 0.25;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 2048;
+                  stop = ["</s>"];
+                };
               };
+
               "gpt-oss:20b" = {
                 name = "gpt-oss:20b";
                 tools = true;
-                options = {num_ctx = 16384;};
+                options = {
+                  num_ctx = 16384;
+                  temperature = 0.25;
+                  top_p = 0.9;
+                  repeat_penalty = 1.1;
+                  num_predict = 2048;
+                  stop = ["</s>"];
+                };
               };
             };
           };
         };
 
-        agent = {
-          # Cloud agents (Claude / Anthropic)
-          build = {
-            model = "anthropic/claude-sonnet-4-5";
-            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
-          };
-          plan = {
-            model = "anthropic/claude-sonnet-4-5";
-            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
+        agent = let
+          # Prompts are short on purpose: less persona, more constraints.
+          # (Long “you are X” prompts make locals drift / hallucinate more.)
+          base_rules = ''
+            You are an AI coding agent working in a real repository.
+            Do not invent files, commands, outputs, or CI results.
+            If you cannot verify something, say so and propose a concrete check.
+            Prefer NixOS-compatible instructions for system tasks.
+            When editing code, provide complete copy-pasteable code blocks (no git diffs).
+          '';
+
+          planner_rules = ''
+            ${base_rules}
+            Your job: produce a small, executable plan.
+            Output: numbered steps + verification commands.
+            Do not write code unless explicitly asked.
+          '';
+
+          builder_rules = ''
+            ${base_rules}
+            Your job: implement the requested change with minimal scope.
+            Keep changes small and focused. Avoid refactors unless required.
+            Include how to run/verify locally.
+          '';
+
+          coder_rules = ''
+            ${base_rules}
+            Your job: write correct, idiomatic code.
+            Prefer correctness over cleverness. Include edge cases and tests when relevant.
+          '';
+        in {
+          # Cloud agents
+          codex = {
+            model = "openai/codex-5-3";
+            prompt = coder_rules;
           };
 
-          # Local agents (refer to the provider model key names above)
+          plan = {
+            model = "anthropic/claude-sonnet-4-5";
+            prompt = planner_rules;
+          };
+
+          build = {
+            model = "anthropic/claude-sonnet-4-5";
+            prompt = builder_rules;
+          };
+
+          # Local agents
           "build-local" = {
             model = "qwen2.5-coder:14b";
-            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
+            prompt = builder_rules;
           };
+
           "plan-local" = {
             model = "deepseek-r1:14b";
-            prompt = "You are Claude Code, Anthropic's official CLI for Claude.";
+            prompt = planner_rules;
           };
-          # Example: using a model with increased context (if you saved it as qwen3:8b-16k)
+
           "explainer-local" = {
             model = "qwen3:8b-16k";
-            prompt = "You are a concise explainer and assistant for dev workflows.";
+            prompt = ''
+              ${base_rules}
+              Your job: explain concepts concisely with practical examples.
+              Prefer short sections and actionable guidance.
+            '';
           };
         };
       };
