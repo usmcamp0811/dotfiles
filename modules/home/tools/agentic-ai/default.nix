@@ -16,6 +16,9 @@ with lib.fmf; let
         export ${envVar}="$(<"${pathStr}")"
       fi
     '';
+
+  # Helper: convert attrset values to a list of strings safely for shell loops.
+  toShellList = xs: concatStringsSep " " (map escapeShellArg xs);
 in {
   options.fmf.tools.agentic-ai = {
     enable = mkBoolOpt false "Enable AI coding assistants (aider, opencode, mistral-vibe, qwen-code).";
@@ -24,6 +27,32 @@ in {
     enableOpencode = mkBoolOpt true "Enable opencode AI coding agent.";
     enableMistralVibe = mkBoolOpt true "Enable mistral-vibe CLI coding agent.";
     enableQwenCode = mkBoolOpt true "Enable qwen-code CLI for Qwen3-Coder models.";
+
+    # Skills
+    enableSkills = mkBoolOpt true "Enable agent skills for OpenCode (and install configured skills).";
+
+    # Local/vendored skills: attrset of name -> path-to-skill-directory
+    # Directory must contain SKILL.md (and optionally other files).
+    # These paths WILL be copied into the Nix store (skills are not secret).
+    opencodeSkills =
+      mkOpt (types.attrsOf types.path) {}
+      ''
+        Local skill directories to install into ~/.config/opencode/skills/<name>/.
+        Each directory should contain SKILL.md.
+      '';
+
+    # Remote skills installed via skills-installer (identifiers like @owner/repo/skill-name)
+    # Example: "@anthropics/claude-code/frontend-design"
+    remoteSkills =
+      mkOpt (types.listOf types.str) []
+      "Remote skills to install using skills-installer (for the opencode client).";
+
+    # OpenCode permission default for skills:
+    # allow = loads immediately, ask = prompt, deny = hidden/rejected
+    # (OpenCode uses pattern-based permissions.)  :contentReference[oaicite:2]{index=2}
+    opencodeSkillPermissionDefault =
+      mkOpt (types.enum ["allow" "ask" "deny"]) "allow"
+      "Default OpenCode permission for skills (applies to '*').";
 
     # IMPORTANT: these are STRINGS on purpose (not types.path)
     # so they do NOT get copied into the Nix store.
@@ -43,7 +72,6 @@ in {
       mkOpt (types.nullOr types.str) null
       "Runtime path (string) to file containing DASHSCOPE_API_KEY (Qwen). Example: /run/secrets/dashscope_api_key";
 
-    # mkStrOpt isn't in your lib.fmf helpers, so use mkOpt types.str instead.
     aiderModel =
       mkOpt types.str "claude-opus-4-5-20251101"
       "Default model for aider (e.g. claude-opus-4-5-20251101, claude-sonnet-4-5-20250929).";
@@ -58,7 +86,11 @@ in {
       (optionals cfg.enableAider [pkgs.aider-chat])
       ++ (optionals cfg.enableOpencode [pkgs.nix-unstable.opencode])
       ++ (optionals cfg.enableMistralVibe [pkgs.llm-agents.mistral-vibe])
-      ++ (optionals cfg.enableQwenCode [pkgs.llm-agents.qwen-code]);
+      ++ (optionals cfg.enableQwenCode [pkgs.llm-agents.qwen-code])
+      ++ (optionals (cfg.enableOpencode && cfg.enableSkills && cfg.remoteSkills != []) [
+        pkgs.llm-agents.skills-installer
+        pkgs.git
+      ]);
 
     programs.zsh.initExtra = mkMerge [
       # API keys (loaded from runtime files if provided)
@@ -103,7 +135,32 @@ in {
       '';
     };
 
-    # OpenCode config: Claude OAuth compatibility via plugin + mode prompt workaround
+    # Install local/vendored skills into OpenCode's global skills directory:
+    # ~/.config/opencode/skills/<name>/SKILL.md   :contentReference[oaicite:3]{index=3}
+    xdg.configFile =
+      mapAttrs'
+      (name: srcDir:
+        nameValuePair "opencode/skills/${name}" {
+          source = srcDir;
+          recursive = true;
+        })
+      (mkIf (cfg.enableOpencode && cfg.enableSkills) cfg.opencodeSkills);
+
+    # Install remote skills at activation time via skills-installer (client=opencode).
+    # skills-installer supports --client opencode :contentReference[oaicite:4]{index=4}
+    home.activation.installOpencodeSkills = mkIf (cfg.enableOpencode && cfg.enableSkills && cfg.remoteSkills != []) (
+      lib.hm.dag.entryAfter ["writeBoundary"] ''
+        echo "Installing OpenCode skills (skills-installer)..."
+        export PATH="${pkgs.llm-agents.skills-installer}/bin:${pkgs.git}/bin:$PATH"
+
+        for skill in ${toShellList cfg.remoteSkills}; do
+          echo "  - $skill"
+          skills-installer install --client opencode "$skill"
+        done
+      ''
+    );
+
+    # OpenCode config
     xdg.configFile."opencode/opencode.json" = {
       text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";
@@ -115,31 +172,24 @@ in {
         # Default cloud fallback (used when agent doesn't override)
         model = "anthropic/claude-sonnet-4-5";
 
+        # Allow skills by default so they show up to agents (pattern-based permissions). :contentReference[oaicite:5]{index=5}
+        permission = mkIf (cfg.enableOpencode && cfg.enableSkills) {
+          skill = {
+            "*" = cfg.opencodeSkillPermissionDefault;
+          };
+        };
+
         provider = {
           ollama = {
-            # OpenAI-compatible adapter for Ollama's /v1 API
             npm = "@ai-sdk/openai-compatible";
             name = "Ollama";
             options = {
-              # MUST include /v1 for the OpenAI-compatible plugin.
               baseURL = "http://reckless:11434/v1";
-
-              # Ollama ignores this, but the adapter typically requires *something*.
               apiKey = "ollama";
-
-              # Helpful if the adapter supports it (harmless if ignored).
               compatibility = "strict";
             };
 
             models = {
-              # General rule of thumb:
-              # - "tools = true" only for models you actually want doing tool calls.
-              # - Keep temperature low for coding to reduce nonsense.
-              # - Clamp max output (num_predict) so it can't run away.
-              #
-              # NOTE: Ollama accepts these options for many models; if one model
-              # misbehaves, drop options one-by-one to see what's unsupported.
-
               "qwen2.5-coder:7b" = {
                 name = "qwen2.5-coder:7b";
                 tools = true;
@@ -166,8 +216,6 @@ in {
                 };
               };
 
-              # Reasoning models can be *very* sensitive to sampling.
-              # Keep them conservative, and prefer them for "plan", not "build".
               "deepseek-r1:8b" = {
                 name = "deepseek-r1:8b";
                 tools = false;
@@ -183,7 +231,7 @@ in {
 
               "deepseek-r1:14b" = {
                 name = "deepseek-r1:14b";
-                tools = false; # usually better as planner/reasoner without tools
+                tools = false;
                 options = {
                   num_ctx = 16384;
                   temperature = 0.3;
@@ -263,8 +311,6 @@ in {
         };
 
         agent = let
-          # Prompts are short on purpose: less persona, more constraints.
-          # (Long “you are X” prompts make locals drift / hallucinate more.)
           base_rules = ''
             You are an AI coding agent working in a real repository.
             Do not invent files, commands, outputs, or CI results.
@@ -293,7 +339,6 @@ in {
             Prefer correctness over cleverness. Include edge cases and tests when relevant.
           '';
         in {
-          # Cloud agents
           codex = {
             model = "openai/codex-5-3";
             prompt = coder_rules;
@@ -309,7 +354,6 @@ in {
             prompt = builder_rules;
           };
 
-          # Local agents
           "build-local" = {
             model = "qwen2.5-coder:14b";
             prompt = builder_rules;
@@ -321,7 +365,7 @@ in {
           };
 
           "explainer-local" = {
-            model = "qwen3:8b-16k";
+            model = "qwen3:8b";
             prompt = ''
               ${base_rules}
               Your job: explain concepts concisely with practical examples.
