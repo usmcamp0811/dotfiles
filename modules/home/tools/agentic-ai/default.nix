@@ -1,4 +1,3 @@
-# fmf-flake/modules/home/tools/agentic-ai/default.nix
 {
   lib,
   pkgs,
@@ -359,7 +358,7 @@ in {
       };
 
     home.activation.installOpencodeSkills = mkIf (cfg.enableOpencode && cfg.enableSkills && cfg.remoteSkills != []) (
-      lib.hm.dag.entryAfter ["writeBoundary"] ''
+      inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
         echo "Installing OpenCode skills (skills-installer)..."
         export PATH="${pkgs.llm-agents.skills-installer}/bin:${pkgs.git}/bin:$PATH"
 
