@@ -11,14 +11,20 @@ with lib.fmf; let
 
   # Read API key from a runtime file path (string) WITHOUT putting it in the Nix store.
   apiKeyLine = envVar: pathStr:
-    mkIf (pathStr != null) ''
+    optionalString (pathStr != null) ''
       if [[ -f "${pathStr}" ]]; then
         export ${envVar}="$(<"${pathStr}")"
       fi
     '';
 
-  # Helper: convert attrset values to a list of strings safely for shell loops.
+  # Helper: convert list values to a list of strings safely for shell loops.
   toShellList = xs: concatStringsSep " " (map escapeShellArg xs);
+
+  # Helper: conditionally add attrs (pure expression, safe inside toJSON merges etc.)
+  optAttrs = cond: attrs:
+    if cond
+    then attrs
+    else {};
 in {
   options.fmf.tools.agentic-ai = {
     enable = mkBoolOpt false "Enable AI coding assistants (aider, opencode, mistral-vibe, qwen-code).";
@@ -42,14 +48,11 @@ in {
       '';
 
     # Remote skills installed via skills-installer (identifiers like @owner/repo/skill-name)
-    # Example: "@anthropics/claude-code/frontend-design"
     remoteSkills =
       mkOpt (types.listOf types.str) []
       "Remote skills to install using skills-installer (for the opencode client).";
 
     # OpenCode permission default for skills:
-    # allow = loads immediately, ask = prompt, deny = hidden/rejected
-    # (OpenCode uses pattern-based permissions.)  :contentReference[oaicite:2]{index=2}
     opencodeSkillPermissionDefault =
       mkOpt (types.enum ["allow" "ask" "deny"]) "allow"
       "Default OpenCode permission for skills (applies to '*').";
@@ -84,7 +87,7 @@ in {
   config = mkIf cfg.enable {
     home.packages =
       (optionals cfg.enableAider [pkgs.aider-chat])
-      ++ (optionals cfg.enableOpencode [pkgs.nix-unstable.opencode])
+      ++ (optionals cfg.enableOpencode [pkgs.llm-agents.opencode])
       ++ (optionals cfg.enableMistralVibe [pkgs.llm-agents.mistral-vibe])
       ++ (optionals cfg.enableQwenCode [pkgs.llm-agents.qwen-code])
       ++ (optionals (cfg.enableOpencode && cfg.enableSkills && cfg.remoteSkills != []) [
@@ -92,25 +95,23 @@ in {
         pkgs.git
       ]);
 
-    programs.zsh.initExtra = mkMerge [
-      # API keys (loaded from runtime files if provided)
+    # zsh init: build as one string (no mkMerge)
+    programs.zsh.initExtra = concatStringsSep "\n" [
       (apiKeyLine "ANTHROPIC_API_KEY" cfg.anthropicApiKeyFile)
       (apiKeyLine "MISTRAL_API_KEY" cfg.mistralApiKeyFile)
       (apiKeyLine "OPENAI_API_KEY" cfg.openaiApiKeyFile)
       (apiKeyLine "DASHSCOPE_API_KEY" cfg.dashscopeApiKeyFile)
 
-      # Tool defaults
-      (mkIf cfg.enableAider ''
+      (optionalString cfg.enableAider ''
         export AIDER_MODEL="${cfg.aiderModel}"
         export AIDER_PRETTY=true
         export AIDER_AUTO_COMMITS=false
       '')
 
-      (mkIf cfg.enableOpencode ''
+      (optionalString cfg.enableOpencode ''
         export OPENCODE_MODEL="${cfg.opencodeModel}"
       '')
 
-      # Convenience helper
       ''
         list-ai() {
           echo "Installed AI coding assistants:"
@@ -136,18 +137,17 @@ in {
     };
 
     # Install local/vendored skills into OpenCode's global skills directory:
-    # ~/.config/opencode/skills/<name>/SKILL.md   :contentReference[oaicite:3]{index=3}
-    xdg.configFile =
+    xdg.configFile = mkIf (cfg.enableOpencode && cfg.enableSkills) (
       mapAttrs'
       (name: srcDir:
         nameValuePair "opencode/skills/${name}" {
           source = srcDir;
           recursive = true;
         })
-      (mkIf (cfg.enableOpencode && cfg.enableSkills) cfg.opencodeSkills);
+      cfg.opencodeSkills
+    );
 
     # Install remote skills at activation time via skills-installer (client=opencode).
-    # skills-installer supports --client opencode :contentReference[oaicite:4]{index=4}
     home.activation.installOpencodeSkills = mkIf (cfg.enableOpencode && cfg.enableSkills && cfg.remoteSkills != []) (
       lib.hm.dag.entryAfter ["writeBoundary"] ''
         echo "Installing OpenCode skills (skills-installer)..."
@@ -162,218 +162,216 @@ in {
 
     # OpenCode config
     xdg.configFile."opencode/opencode.json" = {
-      text = builtins.toJSON {
-        "$schema" = "https://opencode.ai/config.json";
+      text = builtins.toJSON (
+        {
+          "$schema" = "https://opencode.ai/config.json";
 
-        plugin = [
-          "opencode-anthropic-auth"
-        ];
+          plugin = ["opencode-anthropic-auth"];
 
-        # Default cloud fallback (used when agent doesn't override)
-        model = "anthropic/claude-sonnet-4-5";
+          # Default cloud fallback (used when agent doesn't override)
+          model = "anthropic/claude-sonnet-4-5";
 
-        # Allow skills by default so they show up to agents (pattern-based permissions). :contentReference[oaicite:5]{index=5}
-        permission = mkIf (cfg.enableOpencode && cfg.enableSkills) {
-          skill = {
-            "*" = cfg.opencodeSkillPermissionDefault;
-          };
-        };
-
-        provider = {
-          ollama = {
-            npm = "@ai-sdk/openai-compatible";
-            name = "Ollama";
-            options = {
-              baseURL = "http://reckless:11434/v1";
-              apiKey = "ollama";
-              compatibility = "strict";
-            };
-
-            models = {
-              "qwen2.5-coder:7b" = {
-                name = "qwen2.5-coder:7b";
-                tools = true;
-                options = {
-                  num_ctx = 16384;
-                  temperature = 0.2;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 2048;
-                  stop = ["</s>"];
-                };
+          provider = {
+            ollama = {
+              npm = "@ai-sdk/openai-compatible";
+              name = "Ollama";
+              options = {
+                baseURL = "http://reckless:11434/v1";
+                apiKey = "ollama";
+                compatibility = "strict";
               };
 
-              "qwen2.5-coder:14b" = {
-                name = "qwen2.5-coder:14b";
-                tools = true;
-                options = {
-                  num_ctx = 16384;
-                  temperature = 0.2;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 2048;
-                  stop = ["</s>"];
+              models = {
+                "qwen2.5-coder:7b" = {
+                  name = "qwen2.5-coder:7b";
+                  tools = true;
+                  options = {
+                    num_ctx = 16384;
+                    temperature = 0.2;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 2048;
+                    stop = ["</s>"];
+                  };
                 };
-              };
 
-              "deepseek-r1:8b" = {
-                name = "deepseek-r1:8b";
-                tools = false;
-                options = {
-                  num_ctx = 16384;
-                  temperature = 0.3;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 1536;
-                  stop = ["</s>"];
+                "qwen2.5-coder:14b" = {
+                  name = "qwen2.5-coder:14b";
+                  tools = true;
+                  options = {
+                    num_ctx = 16384;
+                    temperature = 0.2;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 2048;
+                    stop = ["</s>"];
+                  };
                 };
-              };
 
-              "deepseek-r1:14b" = {
-                name = "deepseek-r1:14b";
-                tools = false;
-                options = {
-                  num_ctx = 16384;
-                  temperature = 0.3;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 1536;
-                  stop = ["</s>"];
+                "deepseek-r1:8b" = {
+                  name = "deepseek-r1:8b";
+                  tools = false;
+                  options = {
+                    num_ctx = 16384;
+                    temperature = 0.3;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 1536;
+                    stop = ["</s>"];
+                  };
                 };
-              };
 
-              "mistral-small3.2:latest" = {
-                name = "mistral-small3.2:latest";
-                tools = false;
-                options = {
-                  num_ctx = 16384;
-                  temperature = 0.4;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 1536;
-                  stop = ["</s>"];
+                "deepseek-r1:14b" = {
+                  name = "deepseek-r1:14b";
+                  tools = false;
+                  options = {
+                    num_ctx = 16384;
+                    temperature = 0.3;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 1536;
+                    stop = ["</s>"];
+                  };
                 };
-              };
 
-              "codellama:13b" = {
-                name = "codellama:13b";
-                tools = false;
-                options = {
-                  num_ctx = 8192;
-                  temperature = 0.25;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 1536;
-                  stop = ["</s>"];
+                "mistral-small3.2:latest" = {
+                  name = "mistral-small3.2:latest";
+                  tools = false;
+                  options = {
+                    num_ctx = 16384;
+                    temperature = 0.4;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 1536;
+                    stop = ["</s>"];
+                  };
                 };
-              };
 
-              "qwen3:8b" = {
-                name = "qwen3:8b";
-                tools = true;
-                options = {
-                  num_ctx = 8192;
-                  temperature = 0.25;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 2048;
-                  stop = ["</s>"];
+                "codellama:13b" = {
+                  name = "codellama:13b";
+                  tools = false;
+                  options = {
+                    num_ctx = 8192;
+                    temperature = 0.25;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 1536;
+                    stop = ["</s>"];
+                  };
                 };
-              };
 
-              "qwen3:8b-16k" = {
-                name = "qwen3:8b-16k";
-                tools = true;
-                options = {
-                  num_ctx = 16384;
-                  temperature = 0.25;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 2048;
-                  stop = ["</s>"];
+                "qwen3:8b" = {
+                  name = "qwen3:8b";
+                  tools = true;
+                  options = {
+                    num_ctx = 8192;
+                    temperature = 0.25;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 2048;
+                    stop = ["</s>"];
+                  };
                 };
-              };
 
-              "gpt-oss:20b" = {
-                name = "gpt-oss:20b";
-                tools = true;
-                options = {
-                  num_ctx = 16384;
-                  temperature = 0.25;
-                  top_p = 0.9;
-                  repeat_penalty = 1.1;
-                  num_predict = 2048;
-                  stop = ["</s>"];
+                "qwen3:8b-16k" = {
+                  name = "qwen3:8b-16k";
+                  tools = true;
+                  options = {
+                    num_ctx = 16384;
+                    temperature = 0.25;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 2048;
+                    stop = ["</s>"];
+                  };
+                };
+
+                "gpt-oss:20b" = {
+                  name = "gpt-oss:20b";
+                  tools = true;
+                  options = {
+                    num_ctx = 16384;
+                    temperature = 0.25;
+                    top_p = 0.9;
+                    repeat_penalty = 1.1;
+                    num_predict = 2048;
+                    stop = ["</s>"];
+                  };
                 };
               };
             };
           };
-        };
 
-        agent = let
-          base_rules = ''
-            You are an AI coding agent working in a real repository.
-            Do not invent files, commands, outputs, or CI results.
-            If you cannot verify something, say so and propose a concrete check.
-            Prefer NixOS-compatible instructions for system tasks.
-            When editing code, provide complete copy-pasteable code blocks (no git diffs).
-          '';
-
-          planner_rules = ''
-            ${base_rules}
-            Your job: produce a small, executable plan.
-            Output: numbered steps + verification commands.
-            Do not write code unless explicitly asked.
-          '';
-
-          builder_rules = ''
-            ${base_rules}
-            Your job: implement the requested change with minimal scope.
-            Keep changes small and focused. Avoid refactors unless required.
-            Include how to run/verify locally.
-          '';
-
-          coder_rules = ''
-            ${base_rules}
-            Your job: write correct, idiomatic code.
-            Prefer correctness over cleverness. Include edge cases and tests when relevant.
-          '';
-        in {
-          codex = {
-            model = "openai/codex-5-3";
-            prompt = coder_rules;
-          };
-
-          plan = {
-            model = "anthropic/claude-sonnet-4-5";
-            prompt = planner_rules;
-          };
-
-          build = {
-            model = "anthropic/claude-sonnet-4-5";
-            prompt = builder_rules;
-          };
-
-          "build-local" = {
-            model = "qwen2.5-coder:14b";
-            prompt = builder_rules;
-          };
-
-          "plan-local" = {
-            model = "deepseek-r1:14b";
-            prompt = planner_rules;
-          };
-
-          "explainer-local" = {
-            model = "qwen3:8b";
-            prompt = ''
-              ${base_rules}
-              Your job: explain concepts concisely with practical examples.
-              Prefer short sections and actionable guidance.
+          agent = let
+            base_rules = ''
+              You are an AI coding agent working in a real repository.
+              Do not invent files, commands, outputs, or CI results.
+              If you cannot verify something, say so and propose a concrete check.
+              Prefer NixOS-compatible instructions for system tasks.
+              When editing code, provide complete copy-pasteable code blocks (no git diffs).
             '';
+
+            planner_rules = ''
+              ${base_rules}
+              Your job: produce a small, executable plan.
+              Output: numbered steps + verification commands.
+              Do not write code unless explicitly asked.
+            '';
+
+            builder_rules = ''
+              ${base_rules}
+              Your job: implement the requested change with minimal scope.
+              Keep changes small and focused. Avoid refactors unless required.
+              Include how to run/verify locally.
+            '';
+
+            coder_rules = ''
+              ${base_rules}
+              Your job: write correct, idiomatic code.
+              Prefer correctness over cleverness. Include edge cases and tests when relevant.
+            '';
+          in {
+            codex = {
+              model = "openai/codex-5-3";
+              prompt = coder_rules;
+            };
+
+            plan = {
+              model = "anthropic/claude-sonnet-4-5";
+              prompt = planner_rules;
+            };
+
+            build = {
+              model = "anthropic/claude-sonnet-4-5";
+              prompt = builder_rules;
+            };
+
+            "build-local" = {
+              model = "qwen2.5-coder:14b";
+              prompt = builder_rules;
+            };
+
+            "plan-local" = {
+              model = "deepseek-r1:14b";
+              prompt = planner_rules;
+            };
+
+            "explainer-local" = {
+              model = "qwen3:8b";
+              prompt = ''
+                ${base_rules}
+                Your job: explain concepts concisely with practical examples.
+                Prefer short sections and actionable guidance.
+              '';
+            };
           };
-        };
-      };
+        }
+        // optAttrs (cfg.enableOpencode && cfg.enableSkills) {
+          permission = {
+            skill = {"*" = cfg.opencodeSkillPermissionDefault;};
+          };
+        }
+      );
     };
   };
 }
