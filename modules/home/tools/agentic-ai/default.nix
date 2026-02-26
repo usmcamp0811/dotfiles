@@ -39,7 +39,6 @@ in {
 
     # Local/vendored skills: attrset of name -> path-to-skill-directory
     # Directory must contain SKILL.md (and optionally other files).
-    # These paths WILL be copied into the Nix store (skills are not secret).
     opencodeSkills =
       mkOpt (types.attrsOf types.path) {}
       ''
@@ -368,7 +367,9 @@ in {
         }
         // optAttrs (cfg.enableOpencode && cfg.enableSkills) {
           permission = {
-            skill = {"*" = cfg.opencodeSkillPermissionDefault;};
+            skill = {
+              "*" = cfg.opencodeSkillPermissionDefault;
+            };
           };
         }
       );
