@@ -82,6 +82,7 @@ in {
       ++ (optionals (cfg.enableOpencode && cfg.enableSkills && cfg.remoteSkills != []) [
         pkgs.llm-agents.skills-installer
         pkgs.git
+        pkgs.mcp-nixos
       ]);
 
     programs.zsh.initExtra = concatStringsSep "\n" [
