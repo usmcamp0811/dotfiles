@@ -5,14 +5,6 @@ let
   cfg = config.fmf.tools.agentic-ai;
   remoteSkillsToInstall = cfg.remoteSkills;
 
-  distillCli = pkgs.writeShellApplication {
-    name = "distill";
-    runtimeInputs = [ pkgs.nodejs pkgs.steam-run ];
-    text = ''
-      exec steam-run npx --yes @samuelfaj/distill "$@"
-    '';
-  };
-
   apiKeyLine = envVar: pathStr:
     optionalString (pathStr != null) ''
       if [[ -f "${pathStr}" ]]; then
@@ -76,7 +68,7 @@ in {
       ++ (optionals cfg.enableOpencode [ pkgs.llm-agents.opencode ])
       ++ (optionals cfg.enableMistralVibe [ pkgs.llm-agents.mistral-vibe ])
       ++ (optionals cfg.enableQwenCode [ pkgs.llm-agents.qwen-code ])
-      ++ (optionals cfg.enableDistill [ distillCli ]) ++ (optionals
+      ++ (optionals cfg.enableDistill [ pkgs.fmf.distill ]) ++ (optionals
         (cfg.enableOpencode && cfg.enableSkills && remoteSkillsToInstall
           != [ ]) [ pkgs.llm-agents.skills-installer pkgs.git pkgs.mcp-nixos ]);
 
