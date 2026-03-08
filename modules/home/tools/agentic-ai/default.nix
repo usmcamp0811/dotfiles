@@ -7,9 +7,9 @@ let
 
   distillCli = pkgs.writeShellApplication {
     name = "distill";
-    runtimeInputs = [ pkgs.nodejs ];
+    runtimeInputs = [ pkgs.nodejs pkgs.steam-run ];
     text = ''
-      exec npx --yes @samuelfaj/distill "$@"
+      exec steam-run npx --yes @samuelfaj/distill "$@"
     '';
   };
 
