@@ -68,4 +68,13 @@ final: prev: {
       });
     })
   ];
+
+  # Fix binary name conflict: deno now ships a 'dx' binary which conflicts with dioxus-cli
+  # Remove the dx binary from deno since it's less commonly used than dioxus-cli's dx
+  deno = prev.deno.overrideAttrs (oldAttrs: {
+    postInstall = (oldAttrs.postInstall or "") + ''
+      # Remove dx binary to avoid conflict with dioxus-cli
+      rm -f $out/bin/dx
+    '';
+  });
 }
