@@ -54,6 +54,7 @@ Key Paths:
 This project uses **two separate ArgoCD instances**:
 
 ### 1. Bootstrap ArgoCD (`argocd-bootstrap` namespace)
+
 - **Purpose**: Platform infrastructure management
 - **Deployed by**: k3s (auto-deployed on every boot via HelmChart CRD)
 - **Repository**: `https://gitlab.com/usmcamp0811/dotfiles.git` (branch: `nixos`)
@@ -61,6 +62,7 @@ This project uses **two separate ArgoCD instances**:
 - **Application CRs**: All live in `argocd-bootstrap` namespace
 
 ### 2. Self-Managed ArgoCD (`argocd` namespace)
+
 - **Purpose**: Application development and non-platform workloads
 - **Deployed by**: Bootstrap ArgoCD (via `argocd-self` Application)
 - **Repository**: Currently same as bootstrap, but can be reconfigured for different repos
@@ -74,6 +76,7 @@ For detailed architecture, see: `packages/kubernetes-gitops/ARGOCD-ARCHITECTURE.
 ## Key Concepts
 
 ### Bootstrap Flow
+
 1. k3s starts
 2. Vault Agent renders bootstrap secrets to `/var/lib/rancher/k3s/server/manifests/`
 3. k3s auto-applies manifests (ArgoCD install, repo credentials, root app)
@@ -82,14 +85,17 @@ For detailed architecture, see: `packages/kubernetes-gitops/ARGOCD-ARCHITECTURE.
 6. Self-Managed ArgoCD becomes available for application workloads
 
 ### Namespace Conventions
+
 - `argocd-bootstrap`: Bootstrap ArgoCD + all its Application CRs
 - `argocd`: Self-Managed ArgoCD (deployed by Bootstrap)
 - Platform components: Each in their own namespace (e.g., `traefik-k8s`, `metallb-system`, `istio-system`)
 
 ### Application CR Placement Rule
+
 **Application CRs must live in the same namespace as the ArgoCD instance managing them.**
 
 Example:
+
 ```yaml
 # This Application CR lives in argocd-bootstrap namespace
 # because Bootstrap ArgoCD manages it
@@ -97,18 +103,20 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: traefik
-  namespace: argocd-bootstrap  # Application CR location
+  namespace: argocd-bootstrap # Application CR location
 spec:
   destination:
-    namespace: traefik-k8s  # Where Traefik actually deploys
+    namespace: traefik-k8s # Where Traefik actually deploys
 ```
 
 ### Secret Management
+
 - **Bootstrap Secrets**: Rendered by Vault Agent on k3s nodes (ArgoCD repo credentials, OIDC secrets)
 - **Runtime Secrets**: Managed by External Secrets Operator + Vault ClusterSecretStore
 - **Never committed to Git**: All secrets come from Vault
 
 ### Vault Integration
+
 - **Vault Instance**: External to k3s cluster (typically `vm-vault` at `10.8.0.3:8200`)
 - **Authentication Methods**:
   - AppRole: Used by k3s control plane hosts via Vault Agent
@@ -118,12 +126,14 @@ spec:
 ## Common Tasks
 
 ### Modifying Platform Infrastructure
+
 1. Edit files in `packages/kubernetes-gitops/`
 2. Ensure Application CRs are in `argocd-bootstrap` namespace
 3. Commit and push to GitOps repo
 4. Bootstrap ArgoCD auto-syncs changes
 
 ### Adding a New Platform Component
+
 1. Create Application CR: `packages/kubernetes-gitops/clusters/campground/apps/<name>.yaml`
    - Set `metadata.namespace: argocd-bootstrap`
    - Set appropriate sync-wave for ordering
@@ -132,11 +142,13 @@ spec:
 4. Bootstrap ArgoCD will detect and deploy
 
 ### Updating k3s Configuration
+
 1. Edit `modules/nixos/services/k3s/default.nix`
 2. Rebuild NixOS configuration on control plane nodes
 3. k3s will restart with new configuration
 
 ### Adding Application Workloads (Non-Platform)
+
 - Use Self-Managed ArgoCD in `argocd` namespace
 - Create Application CRs via UI or in `argocd` namespace
 - Can point to different Git repositories
@@ -144,11 +156,13 @@ spec:
 ## File Patterns
 
 ### NixOS Modules
+
 - Located in `modules/nixos/`
 - Use the `fmf` namespace for options (e.g., `fmf.services.k3s`)
 - Follow Nix module structure with `options` and `config` sections
 
 ### GitOps Manifests
+
 - Located in `packages/kubernetes-gitops/`
 - Structure:
   - `bootstrap/`: Root app template and notes
@@ -156,6 +170,7 @@ spec:
   - `apps/<app-name>/`: App-specific values and manifests
 
 ### Application CRs
+
 - All managed by Bootstrap ArgoCD live in `argocd-bootstrap` namespace
 - Use sync-waves for ordering (0 = first, higher numbers = later)
 - Multi-source pattern for Helm charts with values from Git
@@ -173,20 +188,24 @@ spec:
 ## Troubleshooting Patterns
 
 ### "namespace argocd does not exist" Error
+
 **Cause**: Application CRs in wrong namespace
 **Fix**: Move Application CRs to `argocd-bootstrap` namespace
 
 ### ArgoCD Not Syncing
+
 1. Check Application status: `kubectl get application -n argocd-bootstrap <name>`
 2. Check for sync errors: `kubectl describe application -n argocd-bootstrap <name>`
 3. Check ArgoCD logs: `kubectl logs -n argocd-bootstrap deployment/argocd-server`
 
 ### Vault Integration Issues
+
 1. Verify ClusterSecretStore: `kubectl get clustersecretstore vault-backend`
 2. Check External Secrets Operator logs: `kubectl logs -n external-secrets -l app.kubernetes.io/name=external-secrets`
 3. Verify Vault Kubernetes auth is configured: `vault read auth/kubernetes/config`
 
 ### k3s Bootstrap Issues
+
 1. Check manifests directory: `ls -la /var/lib/rancher/k3s/server/manifests/`
 2. Check HelmChart CRD: `kubectl get helmchart -n kube-system`
 3. Check vault-agent rendered secrets: `sudo ls -la /tmp/detsys-vault/`
@@ -218,6 +237,102 @@ kubectl get externalsecrets -A
 # Bootstrap: kubectl port-forward -n argocd-bootstrap svc/argocd-server 8080:80
 # Self-Managed: https://argocd.k8s.aicampground.com
 ```
+
+---
+
+<CRITICAL_INSTRUCTION>
+
+# SHELL OUTPUT DISTILLATION RULE (MANDATORY)
+
+To reduce noisy command output and improve signal extraction, agents MUST use `distill` when reading large non-interactive shell output.
+
+## DEFAULT RULE
+
+When running commands that may produce substantial stdout/stderr, the agent SHOULD pipe the output through `distill` and ask a narrow extraction question.
+
+Examples:
+
+- `nix flake check 2>&1 | distill "output exactly 3 lines: status, first failing check, root cause"`
+- `cargo test 2>&1 | distill "list only failing tests and the first error for each"`
+- `cargo clippy --all-targets --all-features 2>&1 | distill "show only actionable warnings that block merge"`
+- `git diff origin/dev...HEAD 2>&1 | distill "summarize risky behavior changes in 5 bullets max"`
+- `journalctl -u <service> -n 400 2>&1 | distill "give only the repeated error pattern and likely root cause"`
+
+## PROMPTING REQUIREMENT
+
+When using `distill`, the agent MUST use constrained prompts that request compact structured output.
+
+Preferred prompt patterns:
+
+- `answer in 2 lines`
+- `output only`
+- `one sentence only`
+- `exactly 3 lines: status, failing item, root cause`
+- `return JSON with ...`
+
+Agents MUST prefer extraction prompts over open-ended explanation prompts.
+
+## REQUIRED USE CASES
+
+Agents SHOULD use `distill` for:
+
+- `nix build`, `nix flake check`, `nixos-rebuild`, and other verbose Nix commands
+- compiler output
+- test output
+- lint output
+- long logs
+- large diffs
+- audit and scan output
+- search output such as `rg` when answering targeted codebase questions
+
+## DO NOT USE DISTILL WHEN
+
+Agents MUST NOT use `distill` when exact raw output is required, including:
+
+- commands whose exact output must be copied verbatim
+- interactive or TUI commands
+- commands producing machine-readable output that will be parsed directly
+- cases where truncation or summarization could hide required evidence
+- pre-flight proof commands whose full raw output must be pasted exactly
+
+Examples that MUST remain raw:
+
+- `pwd`
+- `git rev-parse --abbrev-ref HEAD`
+- `git rev-parse --show-toplevel`
+- `git status --porcelain`
+- `git worktree list`
+
+## VERIFICATION AND HONESTY REQUIREMENT
+
+`distill` is a lossy summarizer.
+Agents MUST treat it as a reading aid, not as proof that a command succeeded.
+
+If a command is used for mandatory verification, the agent MUST still determine the real exit status of the underlying command.
+The agent MUST NOT claim success based only on a `distill` summary.
+
+If there is any ambiguity, the agent MUST inspect the raw output or rerun the command without `distill`.
+
+## FAILURE HANDLING
+
+If `distill` is unavailable, misconfigured, or appears to pass input through unchanged, the agent MUST:
+
+1. Report that `distill` is not functioning correctly
+2. Fall back to raw command inspection
+3. Continue work without fabricating summarized results
+
+Agents MUST NOT pretend that `distill` produced a valid summary if it did not.
+
+## MODEL SELECTION GUIDANCE
+
+For general shell summarization, prefer a fast general-purpose local model.
+For code-heavy output, a code-oriented model MAY be used.
+
+The repository or user may define the preferred `distill` model separately.
+
+</CRITICAL_INSTRUCTION>
+
+---
 
 ## Documentation References
 
