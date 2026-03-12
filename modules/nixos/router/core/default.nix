@@ -1,39 +1,78 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, ... }:
 with lib;
-with lib.fmf; let
+with lib.fmf;
+let
   cfg = config.fmf.router;
 
-  # Generate NAT DNAT rules for port forwards
+  # Generate NAT DNAT rules for port forwards (single port)
   mkPortForwardNatRules = portForwards:
-    concatMapStrings (pf: let
-      destPort = if pf.destinationPort != null then pf.destinationPort else pf.port;
-      protocols = if pf.protocol == "both" then ["tcp" "udp"] else [pf.protocol];
-      comment = optionalString (pf.description != "") "# ${pf.description}\n      ";
-    in
-      concatMapStrings (proto: ''
-        ${comment}iifname "${cfg.wan.interface}" ${proto} dport ${toString pf.port} dnat to ${pf.destination}:${toString destPort}
-      '') protocols
-    ) portForwards;
+    concatMapStrings (pf:
+      let
+        destPort =
+          if pf.destinationPort != null then pf.destinationPort else pf.port;
+        protocols =
+          if pf.protocol == "both" then [ "tcp" "udp" ] else [ pf.protocol ];
+        comment =
+          optionalString (pf.description != "") "# ${pf.description}\n      ";
+      in concatMapStrings (proto: ''
+        ${comment}iifname "${cfg.wan.interface}" ${proto} dport ${
+          toString pf.port
+        } dnat to ${pf.destination}:${toString destPort}
+      '') protocols) portForwards;
+
+  # Generate NAT DNAT rules for port range forwards
+  mkPortRangeForwardNatRules = portRangeForwards:
+    concatMapStrings (pf:
+      let
+        protocols =
+          if pf.protocol == "both" then [ "tcp" "udp" ] else [ pf.protocol ];
+        comment =
+          optionalString (pf.description != "") "# ${pf.description}\n      ";
+        portRange = "${toString pf.fromPort}-${toString pf.toPort}";
+      in concatMapStrings (proto: ''
+        ${comment}iifname "${cfg.wan.interface}" ${proto} dport ${portRange} dnat to ${pf.destination}
+      '') protocols) portRangeForwards;
 
   # Generate firewall forward rules for port forwards
   mkPortForwardFilterRules = portForwards:
-    concatMapStrings (pf: let
-      destPort = if pf.destinationPort != null then pf.destinationPort else pf.port;
-      protocols = if pf.protocol == "both" then ["tcp" "udp"] else [pf.protocol];
-      comment = optionalString (pf.description != "") "# ${pf.description}\n        ";
-      protoList = if length protocols > 1 then "{${concatStringsSep ", " protocols}}" else head protocols;
-    in ''
-      ${comment}iifname "${cfg.wan.interface}" oifname "${cfg.lan.bridgeName}" ip daddr ${pf.destination} meta l4proto ${protoList} th dport ${toString destPort} ct state new accept
-    ''
-    ) portForwards;
+    concatMapStrings (pf:
+      let
+        destPort =
+          if pf.destinationPort != null then pf.destinationPort else pf.port;
+        protocols =
+          if pf.protocol == "both" then [ "tcp" "udp" ] else [ pf.protocol ];
+        comment =
+          optionalString (pf.description != "") "# ${pf.description}\n        ";
+        protoList = if length protocols > 1 then
+          "{${concatStringsSep ", " protocols}}"
+        else
+          head protocols;
+      in ''
+        ${comment}iifname "${cfg.wan.interface}" oifname "${cfg.lan.bridgeName}" ip daddr ${pf.destination} meta l4proto ${protoList} th dport ${
+          toString destPort
+        } ct state new accept
+      '') portForwards;
+
+  # Generate firewall forward rules for port range forwards
+  mkPortRangeForwardFilterRules = portRangeForwards:
+    concatMapStrings (pf:
+      let
+        protocols =
+          if pf.protocol == "both" then [ "tcp" "udp" ] else [ pf.protocol ];
+        comment =
+          optionalString (pf.description != "") "# ${pf.description}\n        ";
+        protoList = if length protocols > 1 then
+          "{${concatStringsSep ", " protocols}}"
+        else
+          head protocols;
+        portRange = "${toString pf.fromPort}-${toString pf.toPort}";
+      in ''
+        ${comment}iifname "${cfg.wan.interface}" oifname "${cfg.lan.bridgeName}" ip daddr ${pf.destination} meta l4proto ${protoList} th dport ${portRange} ct state new accept
+      '') portRangeForwards;
 in {
   options.fmf.router = {
-    enable = mkEnableOption "campground router core (WAN+LAN bridge, DHCP, NAT)";
+    enable =
+      mkEnableOption "campground router core (WAN+LAN bridge, DHCP, NAT)";
 
     wan = {
       interface = mkOption {
@@ -51,7 +90,8 @@ in {
       staticIPv4 = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "Static IPv4 CIDR for WAN when dhcp=false (e.g. 203.0.113.10/24)";
+        description =
+          "Static IPv4 CIDR for WAN when dhcp=false (e.g. 203.0.113.10/24)";
       };
     };
 
@@ -64,9 +104,9 @@ in {
 
       interfaces = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "Interfaces to enslave into the LAN bridge";
-        example = ["enp4s0" "enp3s0"];
+        example = [ "enp4s0" "enp3s0" ];
       };
 
       gateway = mkOption {
@@ -117,7 +157,7 @@ in {
 
       forwarders = mkOption {
         type = types.listOf types.str;
-        default = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
+        default = [ "1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4" ];
         description = ''
           Upstream DNS servers.
           Set to AdGuard IP (e.g., ["192.169.1.30"]) to use AdGuard for DNS filtering.
@@ -134,7 +174,8 @@ in {
       dnssecCheckUnsigned = mkOption {
         type = types.bool;
         default = true;
-        description = "Check unsigned DNSSEC replies and treat them as insecure";
+        description =
+          "Check unsigned DNSSEC replies and treat them as insecure";
       };
     };
 
@@ -156,12 +197,13 @@ in {
           destinationPort = mkOption {
             type = types.nullOr types.port;
             default = null;
-            description = "Internal port to forward to (defaults to same as external port)";
+            description =
+              "Internal port to forward to (defaults to same as external port)";
             example = 8080;
           };
 
           protocol = mkOption {
-            type = types.enum ["tcp" "udp" "both"];
+            type = types.enum [ "tcp" "udp" "both" ];
             default = "tcp";
             description = "Protocol to forward (tcp, udp, or both)";
           };
@@ -174,7 +216,7 @@ in {
           };
         };
       });
-      default = [];
+      default = [ ];
       description = "Declarative port forwarding rules";
       example = literalExpression ''
         [
@@ -195,6 +237,56 @@ in {
       '';
     };
 
+    portRangeForwards = mkOption {
+      type = types.listOf (types.submodule {
+        options = {
+          fromPort = mkOption {
+            type = types.port;
+            description = "Starting port of the range to forward from WAN";
+            example = 10000;
+          };
+
+          toPort = mkOption {
+            type = types.port;
+            description = "Ending port of the range to forward from WAN";
+            example = 10100;
+          };
+
+          destination = mkOption {
+            type = types.str;
+            description = "Internal IP address to forward to";
+            example = "192.168.1.100";
+          };
+
+          protocol = mkOption {
+            type = types.enum [ "tcp" "udp" "both" ];
+            default = "udp";
+            description = "Protocol to forward (tcp, udp, or both)";
+          };
+
+          description = mkOption {
+            type = types.str;
+            default = "";
+            description = "Description of this port range forward";
+            example = "WebRTC media ports";
+          };
+        };
+      });
+      default = [ ];
+      description = "Declarative port range forwarding rules";
+      example = literalExpression ''
+        [
+          {
+            fromPort = 10000;
+            toPort = 10100;
+            destination = "192.168.1.100";
+            protocol = "udp";
+            description = "WebRTC media ports";
+          }
+        ]
+      '';
+    };
+
     firewall = {
       allowPing = mkOption {
         type = types.bool;
@@ -205,7 +297,8 @@ in {
       extraRules = mkOption {
         type = types.lines;
         default = "";
-        description = "Extra nftables rules to append to the ruleset (for advanced use cases)";
+        description =
+          "Extra nftables rules to append to the ruleset (for advanced use cases)";
         example = ''
           table inet filter {
             chain input {
@@ -246,84 +339,67 @@ in {
       };
     };
 
-    systemd.network.networks =
-      {
-        # WAN
-        "20-wan" = {
-          matchConfig.Name = cfg.wan.interface;
-          networkConfig = {
-            DHCP = mkIf cfg.wan.dhcp "ipv4";
-          };
-          address = mkIf (!cfg.wan.dhcp && cfg.wan.staticIPv4 != null) [cfg.wan.staticIPv4];
-          linkConfig.RequiredForOnline = "routable";
-        };
+    systemd.network.networks = {
+      # WAN
+      "20-wan" = {
+        matchConfig.Name = cfg.wan.interface;
+        networkConfig = { DHCP = mkIf cfg.wan.dhcp "ipv4"; };
+        address = mkIf (!cfg.wan.dhcp && cfg.wan.staticIPv4 != null)
+          [ cfg.wan.staticIPv4 ];
+        linkConfig.RequiredForOnline = "routable";
+      };
 
-        # LAN bridge
-        "30-lan-bridge" = {
-          matchConfig.Name = cfg.lan.bridgeName;
-          networkConfig = {
-            Address = "${cfg.lan.gateway}/${toString cfg.lan.prefixLength}";
-          };
-          linkConfig.RequiredForOnline = "no";
+      # LAN bridge
+      "30-lan-bridge" = {
+        matchConfig.Name = cfg.lan.bridgeName;
+        networkConfig = {
+          Address = "${cfg.lan.gateway}/${toString cfg.lan.prefixLength}";
         };
-      }
-      // (listToAttrs (map (
-          iface:
-            nameValuePair "31-lan-${iface}" {
-              matchConfig.Name = iface;
-              networkConfig.Bridge = cfg.lan.bridgeName;
-              linkConfig.RequiredForOnline = "enslaved";
-            }
-        )
-        cfg.lan.interfaces));
+        linkConfig.RequiredForOnline = "no";
+      };
+    } // (listToAttrs (map (iface:
+      nameValuePair "31-lan-${iface}" {
+        matchConfig.Name = iface;
+        networkConfig.Bridge = cfg.lan.bridgeName;
+        linkConfig.RequiredForOnline = "enslaved";
+      }) cfg.lan.interfaces));
 
     ############################################################
     # DHCP + DNS (dnsmasq) on LAN
     ############################################################
     services.dnsmasq = mkIf (cfg.dhcp.enable || cfg.dns.enable) {
       enable = true;
-      settings =
-        {
-          interface = cfg.lan.bridgeName;
-          bind-interfaces = true;
-        }
-        // (lib.optionalAttrs cfg.dhcp.enable {
-          # DHCP (Butler needs this)
-          dhcp-range = [
-            "${cfg.dhcp.rangeStart},${cfg.dhcp.rangeEnd},${cfg.dhcp.leaseTime}"
-          ];
+      settings = {
+        interface = cfg.lan.bridgeName;
+        bind-interfaces = true;
+      } // (lib.optionalAttrs cfg.dhcp.enable {
+        # DHCP (Butler needs this)
+        dhcp-range = [
+          "${cfg.dhcp.rangeStart},${cfg.dhcp.rangeEnd},${cfg.dhcp.leaseTime}"
+        ];
 
-          dhcp-option = [
-            "option:router,${cfg.lan.gateway}"
-            "option:dns-server,${cfg.lan.gateway}"
-          ];
-        })
-        // (lib.optionalAttrs cfg.dns.enable {
-          no-resolv = true;
-          server = cfg.dns.forwarders;
-        })
-        // (lib.optionalAttrs (cfg.dns.enable && cfg.dns.enableDNSSEC) {
-          # DNSSEC validation
-          dnssec = true;
-          dnssec-check-unsigned = cfg.dns.dnssecCheckUnsigned;
-          # Use system trust anchor (required for DNSSEC)
-          conf-file = "${pkgs.dnsmasq}/share/dnsmasq/trust-anchors.conf";
-        });
+        dhcp-option = [
+          "option:router,${cfg.lan.gateway}"
+          "option:dns-server,${cfg.lan.gateway}"
+        ];
+      }) // (lib.optionalAttrs cfg.dns.enable {
+        no-resolv = true;
+        server = cfg.dns.forwarders;
+      }) // (lib.optionalAttrs (cfg.dns.enable && cfg.dns.enableDNSSEC) {
+        # DNSSEC validation
+        dnssec = true;
+        dnssec-check-unsigned = cfg.dns.dnssecCheckUnsigned;
+        # Use system trust anchor (required for DNSSEC)
+        conf-file = "${pkgs.dnsmasq}/share/dnsmasq/trust-anchors.conf";
+      });
     };
 
     # Ensure dnsmasq starts after network interfaces are ready
     systemd.services.dnsmasq = mkIf (cfg.dhcp.enable || cfg.dns.enable) {
-      after = [
-        "systemd-networkd.service"
-        "network-online.target"
-      ];
-      wants = [
-        "network-online.target"
-      ];
+      after = [ "systemd-networkd.service" "network-online.target" ];
+      wants = [ "network-online.target" ];
       # Small delay to ensure VLAN interfaces are fully initialized
-      serviceConfig = {
-        ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-      };
+      serviceConfig = { ExecStartPre = "${pkgs.coreutils}/bin/sleep 2"; };
     };
 
     ############################################################
@@ -348,10 +424,12 @@ in {
           tcp dport 53 accept
           udp dport 53 accept
 
-          ${optionalString cfg.firewall.allowPing ''
-          # Allow ICMP ping from WAN
-          ip protocol icmp icmp type echo-request accept
-          ''}
+          ${
+            optionalString cfg.firewall.allowPing ''
+              # Allow ICMP ping from WAN
+              ip protocol icmp icmp type echo-request accept
+            ''
+          }
         }
 
         chain forward {
@@ -365,18 +443,32 @@ in {
           # LAN -> WAN allowed
           iifname "${cfg.lan.bridgeName}" oifname "${cfg.wan.interface}" accept
 
-          ${optionalString (cfg.portForwards != []) ''
-          # Port forwarding rules
-          ${mkPortForwardFilterRules cfg.portForwards}''}
+          ${
+            optionalString (cfg.portForwards != [ ]) ''
+              # Port forwarding rules
+              ${mkPortForwardFilterRules cfg.portForwards}''
+          }
+          ${
+            optionalString (cfg.portRangeForwards != [ ]) ''
+              # Port range forwarding rules
+              ${mkPortRangeForwardFilterRules cfg.portRangeForwards}''
+          }
         }
       }
 
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority -100;
-          ${optionalString (cfg.portForwards != []) ''
-          # Port forwarding DNAT rules
-          ${mkPortForwardNatRules cfg.portForwards}''}
+          ${
+            optionalString (cfg.portForwards != [ ]) ''
+              # Port forwarding DNAT rules
+              ${mkPortForwardNatRules cfg.portForwards}''
+          }
+          ${
+            optionalString (cfg.portRangeForwards != [ ]) ''
+              # Port range forwarding DNAT rules
+              ${mkPortRangeForwardNatRules cfg.portRangeForwards}''
+          }
         }
 
         chain postrouting {

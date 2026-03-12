@@ -1,11 +1,7 @@
-{
-  lib,
-  config,
-  ...
-}:
+{ lib, config, ... }:
 with lib;
-with lib.fmf; let
-  cfg = config.fmf.services.mattermost;
+with lib.fmf;
+let cfg = config.fmf.services.mattermost;
 in {
   options.fmf.services.mattermost = with types; {
     enable = mkBoolOpt false "Enable Mattermost;";
@@ -14,20 +10,24 @@ in {
   config = mkIf cfg.enable {
     fmf.services.postgresql = {
       enable = true;
-      authentication = ["local mattermost mattermost trust"];
-      databases = [
-        {
-          name = "mattermost";
-          user = "mattermost";
-        }
-      ];
+      authentication = [ "local mattermost mattermost trust" ];
+      databases = [{
+        name = "mattermost";
+        user = "mattermost";
+      }];
     };
 
     # have to force this since we create the db elsewhere
-    services.postgresql = {enable = lib.mkForce true;};
+    services.postgresql = { enable = lib.mkForce true; };
     # open ports for calls
-    networking.firewall.allowedTCPPorts = [3478 8443 8045 8065];
-    networking.firewall.allowedUDPPorts = [3478 8443 8045];
+    # 8065: HTTP, 8045: Gossip protocol, 8443: Calls signaling, 3478: STUN
+    # UDP port range 10000-10100 for WebRTC media streams
+    networking.firewall.allowedTCPPorts = [ 3478 8443 8045 8065 ];
+    networking.firewall.allowedUDPPorts = [ 3478 8443 8045 ];
+    networking.firewall.allowedUDPPortRanges = [{
+      from = 10000;
+      to = 10100;
+    }];
 
     services.mattermost = {
       enable = true;
@@ -39,7 +39,7 @@ in {
       siteUrl = "https://mattermost.aicampground.com";
       # TODO: Move away from mutable
       mutableConfig = true;
-      matterircd = {enable = true;};
+      matterircd = { enable = true; };
 
       # TODO reevaluate option on fresh install
       # Database was created before this option existed. Also using this
@@ -50,7 +50,7 @@ in {
         ServiceSettings = {
           EnableEmailInvitations = true;
           EnableOAuthServiceProvider = true;
-          TrustedProxyIPHeader = ["X-Forwarded-For" "X-Real-IP"];
+          TrustedProxyIPHeader = [ "X-Forwarded-For" "X-Real-IP" ];
           AllowCorsFrom = "*";
         };
 
@@ -67,6 +67,14 @@ in {
           "MM_SQLSETTINGS_DRIVERNAME=postgres"
           "MM_SQLSETTINGS_DATASOURCE=postgres://mattermost@/mattermost?host=/run/postgresql/"
           "MM_SERVICESETTINGS_ALLOWEDUNTRUSTEDINTERNALCONNECTIONS=n8n.lan.aicampground.com"
+
+          # Calls plugin configuration
+          # Use public STUN servers for NAT traversal
+          "MM_PLUGINSETTINGS_PLUGINS_COM.MATTERMOST.CALLS_ICEHOSTOVERRIDE=mattermost.aicampground.com"
+          "MM_PLUGINSETTINGS_PLUGINS_COM.MATTERMOST.CALLS_RTCDSERVICEURL=https://mattermost.aicampground.com:8443"
+          ''
+            MM_PLUGINSETTINGS_PLUGINS_COM.MATTERMOST.CALLS_ICESERVERS=[{"urls":["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]}]''
+          "MM_PLUGINSETTINGS_PLUGINS_COM.MATTERMOST.CALLS_UDPSERVERPORT=8443"
 
           # Secret envfile contains:
           # MM_EMAILSETTINGS_CONNECTIONSECURITY=
