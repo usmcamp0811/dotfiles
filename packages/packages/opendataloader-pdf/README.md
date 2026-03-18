@@ -14,25 +14,12 @@ A Nix package for [OpenDataLoader PDF](https://github.com/opendataloader-project
 
 ## Usage
 
-### Basic Usage
+### In NixOS Configuration
 
 ```nix
-# In your NixOS configuration or flake
 {
   environment.systemPackages = [
     pkgs.fmf.opendataloader-pdf
-  ];
-}
-```
-
-### With Hybrid Dependencies
-
-For advanced features like OCR and AI-powered table extraction:
-
-```nix
-{
-  environment.systemPackages = [
-    pkgs.fmf.opendataloader-pdf.withHybrid
   ];
 }
 ```
@@ -41,22 +28,27 @@ For advanced features like OCR and AI-powered table extraction:
 
 ```bash
 # Convert PDF to Markdown
-opendataloader-pdf input.pdf --format markdown
+opendataloader-pdf input.pdf -f markdown
 
 # Convert to JSON with bounding boxes
-opendataloader-pdf input.pdf --format json
+opendataloader-pdf input.pdf -f json
 
 # Batch processing
 opendataloader-pdf file1.pdf file2.pdf folder/
+
+# See all options
+opendataloader-pdf --help
 ```
 
-### Python API
+### In Python Scripts
+
+The package includes the Python module, so you can also use it programmatically:
 
 ```python
 import opendataloader_pdf
 
 opendataloader_pdf.convert(
-    input_path=["file1.pdf", "file2.pdf", "folder/"],
+    input_path=["file1.pdf", "file2.pdf"],
     output_dir="output/",
     format="markdown,json"
 )
@@ -67,14 +59,35 @@ opendataloader_pdf.convert(
 - **Version**: 2.0.0
 - **License**: Apache 2.0
 - **Upstream**: https://github.com/opendataloader-project/opendataloader-pdf
+- **PyPI**: https://pypi.org/project/opendataloader-pdf/
+- **Java Requirement**: JDK 17 (included automatically)
 
-## Implementation Notes
+## Implementation
 
 This package:
-1. Fetches the source from GitHub
-2. Downloads the pre-built Java CLI from releases
-3. Builds the Python wrapper using `buildPythonPackage`
-4. Wraps the binaries to ensure Java (JDK 17) is available at runtime
-5. Provides a `.withHybrid` variant that includes optional dependencies for advanced features
+1. Fetches the Python wheel from PyPI (includes bundled JAR files)
+2. Creates a Python environment with the package installed
+3. Wraps it in a `writeShellApplication` for easy CLI use
+4. Ensures JDK 17 is available at runtime via `JAVA_HOME`
 
-The package structure follows the upstream Python package layout, with the Java CLI JARs bundled during the build process.
+The package follows the repository's pattern for executable applications while providing full Python module access.
+
+## Testing
+
+```bash
+# Build the package
+nix build .#opendataloader-pdf
+
+# Test the executable
+./result/bin/opendataloader-pdf --help
+
+# Run directly from flake
+nix run .#opendataloader-pdf -- --help
+```
+
+## Notes
+
+- The PyPI wheel includes all necessary JAR files
+- Java 11+ is required (package uses JDK 17)
+- For hybrid mode features (OCR, AI), additional dependencies may be needed
+- See upstream documentation for advanced features
