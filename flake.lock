@@ -17103,18 +17103,6 @@
         "url": "https://big.oisd.nl/domainswild"
       }
     },
-    "oisd_2": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-NhoyNHyBeseOCxgSbpwdSHf70Uldl4C6UA41qBGuoxw=",
-        "type": "file",
-        "url": "https://big.oisd.nl/domainswild"
-      },
-      "original": {
-        "type": "file",
-        "url": "https://big.oisd.nl/domainswild"
-      }
-    },
     "old-nixpkgs": {
       "locked": {
         "lastModified": 1735563628,
@@ -19451,7 +19439,6 @@
         "nur": "nur_4",
         "office-yazi": "office-yazi_3",
         "official-plugins-yazi": "official-plugins-yazi_3",
-        "oisd": "oisd_2",
         "old-nixpkgs": "old-nixpkgs_3",
         "onedark-yazi": "onedark-yazi_3",
         "poetry2nix": "poetry2nix_12",

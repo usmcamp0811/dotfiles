@@ -15,10 +15,40 @@ This provides stronger privacy than standard DoH (DNS over HTTPS), where the res
 ## Features
 
 - **ODoH Support**: Routes queries through relays for metadata privacy
-- **OISD Blocklist**: Integrated ad/malware blocking using the OISD big blocklist
+- **OISD Blocklist**: Integrated ad/malware blocking using the OISD big blocklist (fetched at build time)
 - **DNSSEC**: Cryptographic validation of DNS responses
 - **Flexible Configuration**: Customize servers, relays, and routing
 - **Fallback Ready**: Works alongside other DNS solutions
+
+## OISD Blocklist Updates
+
+The OISD blocklist is fetched at **build time** (not as a flake input) to avoid breaking downstream consumers when the nightly blocklist updates.
+
+### Updating the Blocklist Hash
+
+The blocklist hash should be updated periodically (weekly or monthly recommended):
+
+```bash
+# 1. Get the new hash
+nix-prefetch-url https://big.oisd.nl/domainswild
+
+# 2. Update the sha256 in modules/nixos/services/dnscrypt-proxy/default.nix
+#    Look for the oisd-blocklist definition and update:
+#    - sha256 = "NEW_HASH_HERE";
+#    - # Last updated: YYYY-MM-DD
+
+# 3. Test the change
+nix flake check
+
+# 4. Commit
+git add modules/nixos/services/dnscrypt-proxy/default.nix
+git commit -m "chore: update OISD blocklist hash"
+```
+
+**Why not a flake input?** The blocklist updates nightly. As a flake input, every update would change `flake.lock`, breaking consumers who haven't updated yet. Fetching at build time means:
+- Consumers aren't affected by blocklist updates
+- You control when to update (not forced nightly)
+- Flake remains stable for downstream users
 
 ## Basic Usage
 
