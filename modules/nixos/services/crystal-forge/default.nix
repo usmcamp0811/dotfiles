@@ -154,6 +154,16 @@ in {
         default = true;
         description = "Whether to check cache status during evaluation.";
       };
+      role_mapping = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = { };
+        example = { "Admins" = "admin"; "Developers" = "user"; };
+        description = ''
+          Mapping from OIDC group/role claim values to Crystal Forge roles.
+          Keys are the group names from the identity provider, values are
+          the Crystal Forge role names (e.g., "admin", "user").
+        '';
+      };
     };
 
     authentik = {
@@ -638,7 +648,8 @@ in {
       server = mkIf cfg.server.enable ({
         enable = true;
         inherit (cfg.server)
-          host port auth_mode eval_workers eval_max_memory_mb eval_check_cache;
+          host port auth_mode eval_workers eval_max_memory_mb eval_check_cache
+          role_mapping;
         oidc = {
           inherit (cfg.server.oidc)
             issuerUrl clientId clientSecret clientSecretFile redirectUri scopes
