@@ -138,6 +138,12 @@ in {
           type = lib.types.nullOr lib.types.str;
           default = null;
         };
+        bootstrapAdminGroup = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description =
+            "OIDC group name that should automatically receive Admin role.";
+        };
       };
       eval_workers = lib.mkOption {
         type = lib.types.int;
@@ -157,7 +163,10 @@ in {
       role_mapping = lib.mkOption {
         type = lib.types.attrsOf lib.types.str;
         default = { };
-        example = { "Admins" = "admin"; "Developers" = "user"; };
+        example = {
+          "Admins" = "admin";
+          "Developers" = "user";
+        };
         description = ''
           Mapping from OIDC group/role claim values to Crystal Forge roles.
           Keys are the group names from the identity provider, values are
@@ -191,6 +200,8 @@ in {
       clientSecretFile = mkOpt (types.nullOr types.path)
         "/var/lib/crystal-forge/oidc-client-secret"
         "Path for Authentik OIDC client secret.";
+      bootstrapAdminGroup = mkOpt (types.nullOr types.str) null
+        "Authentik group name that should automatically receive Admin role on bootstrap.";
     };
 
     # === Auth (matches upstream) ===
@@ -654,7 +665,7 @@ in {
           inherit (cfg.server.oidc)
             issuerUrl clientId clientSecret clientSecretFile redirectUri scopes
             emailClaim nameClaim givenNameClaim familyNameClaim rolesClaim
-            preferredUsernameClaim;
+            preferredUsernameClaim bootstrapAdminGroup;
         };
       } // lib.optionalAttrs cfg.authentik.enable {
         auth_mode = "oidc";
@@ -668,6 +679,7 @@ in {
           emailClaim = cfg.authentik.emailClaim;
           nameClaim = cfg.authentik.nameClaim;
           preferredUsernameClaim = cfg.authentik.preferredUsernameClaim;
+          bootstrapAdminGroup = cfg.authentik.bootstrapAdminGroup;
         };
       });
 
