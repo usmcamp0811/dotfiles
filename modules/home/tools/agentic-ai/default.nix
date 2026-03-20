@@ -42,8 +42,8 @@ let
       cp -r ${opencodeAnthropicAuthDeps}/node_modules .
     '';
     buildPhase = ''
-      patchShebangs node_modules/.bin
-      bun run build
+      patchShebangs node_modules
+      ${pkgs.nodejs}/bin/node node_modules/typescript/bin/tsc -p tsconfig.build.json
     '';
     installPhase = ''
       mkdir -p $out
