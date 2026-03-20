@@ -1518,16 +1518,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1774030243,
-        "narHash": "sha256-/wNRzUw8BXnSy6tDj1rXePaW6s0Lq4fSoXUFeoVk58w=",
+        "lastModified": 1774033111,
+        "narHash": "sha256-m39Xzyvq1hz6v5XvfH1xRgrXo2qNqf72M0mIAQraLFw=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "d64f614154fe6cf92234edcd3c0de4a00be07937",
+        "rev": "349457575a13e178ff32b513386da75389d11b9b",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-199-oidc-admin-role-fix",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
