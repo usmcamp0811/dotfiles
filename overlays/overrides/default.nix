@@ -78,17 +78,4 @@ final: prev: {
     '';
   });
 
-  # crystal-forge-web-ui currently injects pkgs.wasm-bindgen-cli (0.2.114) into
-  # Dioxus's wasm-bindgen lookup slot for 0.2.108, which makes dx fail version checks.
-  # Let dx use its bundled/compatible wasm-bindgen path by not overriding XDG_DATA_HOME.
-  crystal-forge-web-ui = prev.crystal-forge-web-ui.overrideAttrs (_oldAttrs: {
-    buildPhase = ''
-      ${prev.tailwindcss_4}/bin/tailwindcss \
-        -i ./tailwind.css \
-        -o ./assets/tailwind.min.css \
-        --minify
-
-      dx bundle --platform web --release
-    '';
-  });
 }

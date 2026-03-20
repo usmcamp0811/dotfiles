@@ -4,6 +4,8 @@ with lib.fmf;
 let
   cfg = config.fmf.services.crystal-forge;
   host = config.networking.hostName;
+  authentikIssuer =
+    "${cfg.authentik.baseUrl}/application/o/${cfg.authentik.providerSlug}/";
 in {
   options.fmf.services.crystal-forge = {
     enable = mkEnableOption "Enable the Crystal Forge service(s)";
@@ -64,6 +66,73 @@ in {
         default = 3000;
         description = "Server port";
       };
+      auth_mode = lib.mkOption {
+        type = lib.types.enum [ "local" "oidc" ];
+        default = "local";
+        description = "Authentication mode for Crystal Forge server.";
+      };
+      oidc = {
+        issuerUrl = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "OIDC issuer URL.";
+        };
+        clientId = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "OIDC client ID.";
+        };
+        clientSecret = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "OIDC client secret (prefer clientSecretFile).";
+        };
+        clientSecretFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Path to file containing OIDC client secret.";
+        };
+        clientSecretVaultField = lib.mkOption {
+          type = lib.types.str;
+          default = "CLIENT_SECRET";
+          description =
+            "Vault field name used to render the OIDC client secret file.";
+        };
+        redirectUri = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "OIDC callback URL for Crystal Forge.";
+        };
+        scopes = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ "openid" "profile" "email" ];
+          description = "OIDC scopes requested during login.";
+        };
+        emailClaim = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
+        nameClaim = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
+        givenNameClaim = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
+        familyNameClaim = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
+        rolesClaim = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
+        preferredUsernameClaim = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
+      };
       eval_workers = lib.mkOption {
         type = lib.types.int;
         default = 4;
@@ -79,6 +148,33 @@ in {
         default = true;
         description = "Whether to check cache status during evaluation.";
       };
+    };
+
+    authentik = {
+      enable =
+        mkBoolOpt false "Configure Crystal Forge OIDC settings for Authentik.";
+      baseUrl = mkOpt types.str "https://auth.aicampground.com"
+        "Base URL for Authentik.";
+      providerSlug = mkOpt types.str "crystal-forge"
+        "Authentik provider/application slug used in OIDC endpoints.";
+      clientId = mkOpt types.str "crystal-forge-web"
+        "OIDC client ID created in Authentik.";
+      redirectUri = mkOpt (types.nullOr types.str) null
+        "OIDC redirect URI for Crystal Forge (required when Authentik support is enabled).";
+      scopes = mkOpt (types.listOf types.str) [ "openid" "profile" "email" ]
+        "OIDC scopes for Authentik login.";
+      rolesClaim = mkOpt (types.nullOr types.str) "groups"
+        "Claim name for Authentik roles/groups.";
+      emailClaim =
+        mkOpt (types.nullOr types.str) "email" "Claim name for user email.";
+      nameClaim =
+        mkOpt (types.nullOr types.str) "name" "Claim name for display name.";
+      preferredUsernameClaim =
+        mkOpt (types.nullOr types.str) "preferred_username"
+        "Claim name for preferred username.";
+      clientSecretFile = mkOpt (types.nullOr types.path)
+        "/var/lib/crystal-forge/oidc-client-secret"
+        "Path for Authentik OIDC client secret.";
     };
 
     # === Auth (matches upstream) ===
@@ -533,11 +629,30 @@ in {
         log_level database local-database auth flakes systems environments
         vulnix cache deployment dashboards;
 
-      server = mkIf cfg.server.enable {
+      server = mkIf cfg.server.enable ({
         enable = true;
         inherit (cfg.server)
-          host port eval_workers eval_max_memory_mb eval_check_cache;
-      };
+          host port auth_mode eval_workers eval_max_memory_mb eval_check_cache;
+        oidc = {
+          inherit (cfg.server.oidc)
+            issuerUrl clientId clientSecret clientSecretFile redirectUri scopes
+            emailClaim nameClaim givenNameClaim familyNameClaim rolesClaim
+            preferredUsernameClaim;
+        };
+      } // lib.optionalAttrs cfg.authentik.enable {
+        auth_mode = "oidc";
+        oidc = {
+          issuerUrl = authentikIssuer;
+          clientId = cfg.authentik.clientId;
+          clientSecretFile = cfg.authentik.clientSecretFile;
+          redirectUri = cfg.authentik.redirectUri;
+          scopes = cfg.authentik.scopes;
+          rolesClaim = cfg.authentik.rolesClaim;
+          emailClaim = cfg.authentik.emailClaim;
+          nameClaim = cfg.authentik.nameClaim;
+          preferredUsernameClaim = cfg.authentik.preferredUsernameClaim;
+        };
+      });
 
       client = mkIf cfg.client.enable {
         enable = true;
@@ -628,6 +743,19 @@ in {
               if [ -f /tmp/detsys-vault/signing-key ]; then
                 install -o crystal-forge -g crystal-forge -m0600 /tmp/detsys-vault/signing-key /var/lib/crystal-forge/signing-key
                 echo "✅ Signing key installed"
+              fi
+            ''}
+
+          ${lib.optionalString (cfg.server.enable && cfg.server.auth_mode
+            == "oidc" && cfg.server.oidc.clientSecretFile != null) ''
+              if [ -f /tmp/detsys-vault/oidc-client-secret ]; then
+                mkdir -p "$(dirname ${
+                  escapeShellArg (toString cfg.server.oidc.clientSecretFile)
+                })"
+                install -o crystal-forge -g crystal-forge -m0600 /tmp/detsys-vault/oidc-client-secret ${
+                  escapeShellArg (toString cfg.server.oidc.clientSecretFile)
+                }
+                echo "✅ OIDC client secret installed"
               fi
             ''}
 
@@ -738,7 +866,36 @@ in {
             permissions = "0600";
             change-action = "restart";
           };
+
+        "oidc-client-secret" = lib.mkIf (cfg.server.enable
+          && cfg.server.auth_mode == "oidc" && cfg.server.oidc.clientSecretFile
+          != null) {
+            text = ''
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ index .Data "${cfg.server.oidc.clientSecretVaultField}" }}{{ else }}{{ index .Data.data "${cfg.server.oidc.clientSecretVaultField}" }}{{ end }}{{ end }}
+            '';
+            permissions = "0600";
+            change-action = "restart";
+          };
       };
     };
+
+    assertions = [
+      {
+        assertion = !cfg.authentik.enable || cfg.server.enable;
+        message =
+          "fmf.services.crystal-forge.authentik.enable requires crystal-forge.server.enable = true.";
+      }
+      {
+        assertion = !cfg.authentik.enable || cfg.authentik.redirectUri != null;
+        message =
+          "fmf.services.crystal-forge.authentik.redirectUri must be set when Authentik support is enabled.";
+      }
+      {
+        assertion = !cfg.authentik.enable || cfg.authentik.clientSecretFile
+          != null;
+        message =
+          "fmf.services.crystal-forge.authentik.clientSecretFile must be set when Authentik support is enabled.";
+      }
+    ];
   };
 }
