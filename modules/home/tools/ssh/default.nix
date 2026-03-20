@@ -7,10 +7,8 @@ in {
 
   config = mkIf cfg.enable {
     programs.ssh = {
-      extraConfig = ''
-        Host *
-          HostKeyAlgorithms +ssh-rsa
-      '';
+      enableDefaultConfig = false;
+      matchBlocks."*".extraOptions = { HostKeyAlgorithms = "+ssh-rsa"; };
     };
   };
 }

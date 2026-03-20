@@ -64,10 +64,9 @@ in {
   config = mkIf cfg.enable {
     programs.ssh = {
       enable = true;
+      enableDefaultConfig = false;
+      matchBlocks."*".extraOptions = { HostKeyAlgorithms = "+ssh-rsa"; };
       extraConfig = ''
-        Host *
-          HostKeyAlgorithms +ssh-rsa
-
         ${optionalString cfg.manage-other-hosts other-hosts-config}
         ${cfg.extraConfigs}
       '';

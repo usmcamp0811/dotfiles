@@ -44,6 +44,9 @@ in {
       mkOpt (types.enum [ "allow" "ask" "deny" ]) "allow"
       "Default OpenCode permission for skills (applies to '*').";
 
+    enableOpencodeAnthropicAuthPlugin = mkBoolOpt false
+      "Enable OpenCode Anthropic OAuth plugin. Leave disabled to use ANTHROPIC_API_KEY instead.";
+
     anthropicApiKeyFile = mkOpt (types.nullOr types.str) null
       "Runtime path (string) to file containing ANTHROPIC_API_KEY.";
 
@@ -72,7 +75,7 @@ in {
         (cfg.enableOpencode && cfg.enableSkills && remoteSkillsToInstall
           != [ ]) [ pkgs.llm-agents.skills-installer pkgs.git pkgs.mcp-nixos ]);
 
-    programs.zsh.initExtra = concatStringsSep "\n" [
+    programs.zsh.initContent = concatStringsSep "\n" [
       (apiKeyLine "ANTHROPIC_API_KEY" cfg.anthropicApiKeyFile)
       (apiKeyLine "MISTRAL_API_KEY" cfg.mistralApiKeyFile)
       (apiKeyLine "OPENAI_API_KEY" cfg.openaiApiKeyFile)
@@ -140,7 +143,6 @@ in {
       "opencode/opencode.json" = {
         text = builtins.toJSON ({
           "$schema" = "https://opencode.ai/config.json";
-          plugin = [ "opencode-anthropic-auth" ];
 
           # Default cloud fallback (used when agent doesn't override)
           model = "anthropic/claude-sonnet-4-5";
@@ -339,6 +341,8 @@ in {
               '';
             };
           };
+        } // optAttrs cfg.enableOpencodeAnthropicAuthPlugin {
+          plugin = [ "opencode-anthropic-auth" ];
         } // optAttrs (cfg.enableOpencode && cfg.enableSkills) {
           permission = {
             skill = { "*" = cfg.opencodeSkillPermissionDefault; };

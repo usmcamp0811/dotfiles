@@ -1,14 +1,10 @@
-{
-  lib,
-  pkgs,
-  config,
-  ...
-}:
+{ lib, pkgs, config, ... }:
 with lib;
-with lib.fmf; let
+with lib.fmf;
+let
   cfg = config.fmf.apps.agentic-ai;
 
-  aiPackages = with pkgs; [antigravity-fhs claude-code];
+  aiPackages = with pkgs; [ antigravity-fhs claude-code ];
 
   claudeBin = "${pkgs.claude-code}/bin/claude";
   antigravityLauncher = "${pkgs.antigravity-fhs}/bin/antigravity";
@@ -188,6 +184,12 @@ with lib.fmf; let
         CMD="$1"
         shift
 
+        if [ "$CMD" = "claude" ] || [ "$CMD" = "claude-code" ]; then
+          if [ -n "''${ANTHROPIC_API_KEY:-}" ]; then
+            preserve_keys+=("ANTHROPIC_API_KEY")
+          fi
+        fi
+
         # Build sudo preserve-env argument if needed
         preserve_arg=""
         if [ "''${#preserve_keys[@]}" -gt 0 ]; then
@@ -216,13 +218,12 @@ with lib.fmf; let
 in {
   options.fmf.apps.agentic-ai = {
     enable = mkBoolOpt false "Whether to enable the Agentic AI app helpers.";
-    allowedUsers =
-      mkOpt (types.listOf types.str) ["admin"]
+    allowedUsers = mkOpt (types.listOf types.str) [ "admin" ]
       "Users allowed to use the aido command.";
   };
 
   config = mkIf cfg.enable {
-    users.groups.ai = {};
+    users.groups.ai = { };
 
     users.users.ai = {
       isSystemUser = true;
@@ -234,37 +235,30 @@ in {
       packages = aiPackages;
     };
 
-    environment.systemPackages = [
-      aido
-      antigravitySandbox
-      claudeSandbox
-      pkgs.bubblewrap
-    ];
+    environment.systemPackages =
+      [ aido antigravitySandbox claudeSandbox pkgs.bubblewrap ];
 
     # IMPORTANT: sudoers should describe the command being executed, not "sudo ..." itself.
     #
     # - Allow users to run aido without password.
     # - Allow them to run claude as user ai without password AND allow env passing (SETENV).
     security.sudo.extraRules = map (user: {
-      users = [user];
+      users = [ user ];
       commands = [
         {
           command = "${aido}/bin/aido";
-          options = ["NOPASSWD"];
+          options = [ "NOPASSWD" ];
         }
 
         # Allow running claude as ai, with arbitrary args, and allow env vars via --preserve-env / -E.
         {
           command = "${claudeBin} *";
-          options = ["NOPASSWD" "SETENV"];
+          options = [ "NOPASSWD" "SETENV" ];
         }
       ];
       runAs = "ai";
-    })
-    cfg.allowedUsers;
+    }) cfg.allowedUsers;
 
-    systemd.tmpfiles.rules = [
-      "d /var/lib/ai 0750 ai ai -"
-    ];
+    systemd.tmpfiles.rules = [ "d /var/lib/ai 0750 ai ai -" ];
   };
 }
