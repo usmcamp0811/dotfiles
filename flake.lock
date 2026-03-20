@@ -1518,16 +1518,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1773924056,
-        "narHash": "sha256-Ls1urdI5OGf/uMrB3Heobdx8nec38ffXjTqH/zP5/KY=",
+        "lastModified": 1773976515,
+        "narHash": "sha256-/VxCIx9CIgOXK5/D0sDm0rhw4tFb1kxKFjBch2XWx14=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "d7a44c3f41b7bc14d647d634b922bfb744d15894",
+        "rev": "f911d6e7aa7169f9e5084ea6ee677f636a92ef1e",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-198-fix-wasm-bindgen-mismatch",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
