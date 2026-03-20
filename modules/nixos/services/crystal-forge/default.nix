@@ -6,6 +6,12 @@ let
   host = config.networking.hostName;
   authentikIssuer =
     "${cfg.authentik.baseUrl}/application/o/${cfg.authentik.providerSlug}/";
+  effectiveOidcEnabled = cfg.server.enable
+    && (cfg.authentik.enable || cfg.server.auth_mode == "oidc");
+  effectiveOidcClientSecretFile = if cfg.authentik.enable then
+    cfg.authentik.clientSecretFile
+  else
+    cfg.server.oidc.clientSecretFile;
 in {
   options.fmf.services.crystal-forge = {
     enable = mkEnableOption "Enable the Crystal Forge service(s)";
@@ -692,10 +698,8 @@ in {
       mkIf (config.fmf.services.vault-agent.enable) {
         description = "Crystal Forge Setup - Copy Vault Agent Files";
         wantedBy = [ "multi-user.target" ];
-        after = lib.optional cfg.client.enable
-          "vault-agent-crystal-forge-setup.service";
-        wants = lib.optional cfg.client.enable
-          "vault-agent-crystal-forge-setup.service";
+        after = [ "vault-agent-crystal-forge-setup.service" ];
+        wants = [ "vault-agent-crystal-forge-setup.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -746,18 +750,27 @@ in {
               fi
             ''}
 
-          ${lib.optionalString (cfg.server.enable && cfg.server.auth_mode
-            == "oidc" && cfg.server.oidc.clientSecretFile != null) ''
-              if [ -f /tmp/detsys-vault/oidc-client-secret ]; then
-                mkdir -p "$(dirname ${
-                  escapeShellArg (toString cfg.server.oidc.clientSecretFile)
-                })"
-                install -o crystal-forge -g crystal-forge -m0600 /tmp/detsys-vault/oidc-client-secret ${
-                  escapeShellArg (toString cfg.server.oidc.clientSecretFile)
-                }
-                echo "✅ OIDC client secret installed"
-              fi
-            ''}
+          ${lib.optionalString
+          (effectiveOidcEnabled && effectiveOidcClientSecretFile != null) ''
+            echo "Waiting for Vault agent to render oidc-client-secret..."
+            timeout=300
+            elapsed=0
+            while [ ! -f /tmp/detsys-vault/oidc-client-secret ] && [ $elapsed -lt $timeout ]; do
+              sleep 2
+              elapsed=$((elapsed+2))
+            done
+            if [ ! -f /tmp/detsys-vault/oidc-client-secret ]; then
+              echo "ERROR: oidc-client-secret not found after $timeout seconds"
+              exit 1
+            fi
+              mkdir -p "$(dirname ${
+                escapeShellArg (toString effectiveOidcClientSecretFile)
+              })"
+              install -o crystal-forge -g crystal-forge -m0600 /tmp/detsys-vault/oidc-client-secret ${
+                escapeShellArg (toString effectiveOidcClientSecretFile)
+              }
+              echo "✅ OIDC client secret installed"
+          ''}
 
           echo "Crystal Forge setup completed"
         '';
@@ -867,9 +880,8 @@ in {
             change-action = "restart";
           };
 
-        "oidc-client-secret" = lib.mkIf (cfg.server.enable
-          && cfg.server.auth_mode == "oidc" && cfg.server.oidc.clientSecretFile
-          != null) {
+        "oidc-client-secret" = lib.mkIf
+          (effectiveOidcEnabled && effectiveOidcClientSecretFile != null) {
             text = ''
               {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ index .Data "${cfg.server.oidc.clientSecretVaultField}" }}{{ else }}{{ index .Data.data "${cfg.server.oidc.clientSecretVaultField}" }}{{ end }}{{ end }}
             '';
