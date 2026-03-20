@@ -17464,6 +17464,23 @@
         "type": "github"
       }
     },
+    "opencode-anthropic-auth": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1774008565,
+        "narHash": "sha256-VUhShn/Pg3SWW0xjc0TO4bVtlUilnadHbAs+CY3V6nc=",
+        "owner": "Thesam1798",
+        "repo": "opencode-anthropic-auth",
+        "rev": "78ac824951ccb6e39c036f8ff3933dc23a877cea",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Thesam1798",
+        "ref": "fix/claude-code-oauth-compatibility",
+        "repo": "opencode-anthropic-auth",
+        "type": "github"
+      }
+    },
     "optnix": {
       "inputs": {
         "flake-compat": "flake-compat_64",
@@ -19441,6 +19458,7 @@
         "official-plugins-yazi": "official-plugins-yazi_3",
         "old-nixpkgs": "old-nixpkgs_3",
         "onedark-yazi": "onedark-yazi_3",
+        "opencode-anthropic-auth": "opencode-anthropic-auth",
         "poetry2nix": "poetry2nix_12",
         "pre-commit-hooks": "pre-commit-hooks_18",
         "process-compose-flake": "process-compose-flake_5",
