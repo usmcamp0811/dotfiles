@@ -15,6 +15,40 @@ let
   toShellList = xs: concatStringsSep " " (map escapeShellArg xs);
 
   optAttrs = cond: attrs: if cond then attrs else { };
+  opencodeAnthropicAuthDeps = pkgs.stdenvNoCC.mkDerivation {
+    pname = "opencode-anthropic-auth-deps";
+    version = "0.1.0";
+    src = inputs.opencode-anthropic-auth;
+    nativeBuildInputs = [ pkgs.bun ];
+    buildPhase = ''
+      bun install --frozen-lockfile --no-progress --ignore-scripts --no-cache
+      rm -rf node_modules/.cache
+    '';
+    installPhase = ''
+      mkdir -p $out
+      cp -r node_modules $out/
+    '';
+    outputHashAlgo = "sha256";
+    outputHashMode = "recursive";
+    outputHash = "sha256-ik8TVMjmjQgBCF/wjukBx0BrEp4rNkMl200jCZL2HDQ=";
+  };
+
+  opencodeAnthropicAuth = pkgs.stdenvNoCC.mkDerivation {
+    pname = "opencode-anthropic-auth";
+    version = "0.1.0";
+    src = inputs.opencode-anthropic-auth;
+    nativeBuildInputs = [ pkgs.bun pkgs.nodejs ];
+    configurePhase = ''
+      cp -r ${opencodeAnthropicAuthDeps}/node_modules .
+    '';
+    buildPhase = ''
+      bun run build
+    '';
+    installPhase = ''
+      mkdir -p $out
+      cp -r dist package.json node_modules $out/
+    '';
+  };
 in {
   options.fmf.tools.agentic-ai = {
     enable = mkBoolOpt false
@@ -44,7 +78,7 @@ in {
       mkOpt (types.enum [ "allow" "ask" "deny" ]) "allow"
       "Default OpenCode permission for skills (applies to '*').";
 
-    enableOpencodeAnthropicAuthPlugin = mkBoolOpt false
+    enableOpencodeAnthropicAuthPlugin = mkBoolOpt true
       "Enable OpenCode Anthropic OAuth plugin. Leave disabled to use ANTHROPIC_API_KEY instead.";
 
     anthropicApiKeyFile = mkOpt (types.nullOr types.str) null
@@ -342,7 +376,7 @@ in {
             };
           };
         } // optAttrs cfg.enableOpencodeAnthropicAuthPlugin {
-          plugin = [ "opencode-anthropic-auth" ];
+          plugin = [ "file://${opencodeAnthropicAuth}" ];
         } // optAttrs (cfg.enableOpencode && cfg.enableSkills) {
           permission = {
             skill = { "*" = cfg.opencodeSkillPermissionDefault; };

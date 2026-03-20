@@ -13,6 +13,10 @@
       url = "gitlab:crystal-forge/crystal-forge/TASK-198-fix-wasm-bindgen-mismatch";
       inputs.nixpkgs.follows = "unstable";
     };
+    opencode-anthropic-auth = {
+      url = "github:Thesam1798/opencode-anthropic-auth/fix/claude-code-oauth-compatibility";
+      flake = false;
+    };
     backlog.url = "github:MrLesk/Backlog.md";
     zig2nix.url = "github:Cloudef/zig2nix";
     nixtheplanet.url = "github:MatthewCroughan/NixThePlanet";
