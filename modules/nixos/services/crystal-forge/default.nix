@@ -359,6 +359,54 @@ in {
       };
     };
 
+    # === Builder API mode (upstream builder.* config) ===
+    builder = {
+      enable_api_mode = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable Crystal Forge builder API mode.";
+      };
+      builder_id = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description =
+          "Builder UUID used when the builder authenticates to the Crystal Forge API.";
+      };
+      server_url = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Crystal Forge API base URL for builder API mode.";
+      };
+      private_key_path = lib.mkOption {
+        type = lib.types.path;
+        default = "/var/lib/crystal-forge/builder-api.key";
+        description =
+          "Path to the Ed25519 private key used by builder API mode.";
+      };
+      private_key_vault_field = lib.mkOption {
+        type = lib.types.str;
+        default = "${host}-builder";
+        description =
+          "Vault field name used to render the builder API private key.";
+      };
+      poll_interval = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 5;
+        description = "Builder API job poll interval in seconds.";
+      };
+      heartbeat_interval = lib.mkOption {
+        type = lib.types.ints.unsigned;
+        default = 30;
+        description = "Builder API heartbeat interval in seconds.";
+      };
+      max_concurrent_jobs = lib.mkOption {
+        type = lib.types.nullOr lib.types.ints.positive;
+        default = null;
+        description =
+          "Optional maximum concurrent jobs override for builder API mode.";
+      };
+    };
+
     # === Vulnix (matches upstream) ===
     vulnix = {
       timeout = lib.mkOption {
@@ -714,6 +762,9 @@ in {
       # agent-side
       "d /var/lib/crystal-forge-agent 0750 root root -"
       "f /var/lib/crystal-forge-agent/agent.key 0600 root root - -"
+      "f ${
+        toString cfg.builder.private_key_path
+      } 0600 crystal-forge crystal-forge - -"
     ];
 
     # ---- Simple setup step to copy Vault-rendered files into place ----
@@ -749,6 +800,28 @@ in {
             fi
             install -m0600 /tmp/detsys-vault/agent.key /var/lib/crystal-forge-agent/agent.key
             echo "✅ Agent key installed"
+          ''}
+
+          ${lib.optionalString
+          (cfg.build.enable && cfg.builder.enable_api_mode) ''
+            echo "Waiting for Vault agent to render builder.key..."
+            timeout=300
+            elapsed=0
+            while [ ! -f /tmp/detsys-vault/builder.key ] && [ $elapsed -lt $timeout ]; do
+              sleep 2
+              elapsed=$((elapsed+2))
+            done
+            if [ ! -f /tmp/detsys-vault/builder.key ]; then
+              echo "ERROR: builder.key not found after $timeout seconds"
+              exit 1
+            fi
+            mkdir -p "$(dirname ${
+              escapeShellArg (toString cfg.builder.private_key_path)
+            })"
+            install -o crystal-forge -g crystal-forge -m0600 /tmp/detsys-vault/builder.key ${
+              escapeShellArg (toString cfg.builder.private_key_path)
+            }
+            echo "✅ Builder API key installed"
           ''}
 
           ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type
@@ -824,6 +897,26 @@ in {
             ++ lib.optionals
             (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null)
             [ "-/var/lib/crystal-forge/.config/crystal-forge-attic.env" ];
+          Environment = lib.optionals cfg.builder.enable_api_mode [
+            "CRYSTAL_FORGE__BUILDER__ENABLE_API_MODE=true"
+            "CRYSTAL_FORGE__BUILDER__PRIVATE_KEY_PATH=${
+              toString cfg.builder.private_key_path
+            }"
+            "CRYSTAL_FORGE__BUILDER__POLL_INTERVAL=${
+              toString cfg.builder.poll_interval
+            }"
+            "CRYSTAL_FORGE__BUILDER__HEARTBEAT_INTERVAL=${
+              toString cfg.builder.heartbeat_interval
+            }"
+          ] ++ lib.optionals (cfg.builder.builder_id != null)
+            [ "CRYSTAL_FORGE__BUILDER__BUILDER_ID=${cfg.builder.builder_id}" ]
+            ++ lib.optionals (cfg.builder.server_url != null)
+            [ "CRYSTAL_FORGE__BUILDER__SERVER_URL=${cfg.builder.server_url}" ]
+            ++ lib.optionals (cfg.builder.max_concurrent_jobs != null) [
+              "CRYSTAL_FORGE__BUILDER__MAX_CONCURRENT_JOBS=${
+                toString cfg.builder.max_concurrent_jobs
+              }"
+            ];
         };
       };
     systemd.services.crystal-forge-server = lib.mkIf cfg.server.enable {
@@ -863,6 +956,15 @@ in {
           permissions = "0600";
           change-action = "restart";
         };
+
+        "builder.key" =
+          lib.mkIf (cfg.build.enable && cfg.builder.enable_api_mode) {
+            text = ''
+              {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ index .Data "${cfg.builder.private_key_vault_field}" }}{{ else }}{{ index .Data.data "${cfg.builder.private_key_vault_field}" }}{{ end }}{{ end }}
+            '';
+            permissions = "0600";
+            change-action = "restart";
+          };
 
         # Attic env (optional)
         "attic-env" = lib.mkIf
@@ -930,6 +1032,12 @@ in {
           != null;
         message =
           "fmf.services.crystal-forge.authentik.clientSecretFile must be set when Authentik support is enabled.";
+      }
+      {
+        assertion = !cfg.builder.enable_api_mode
+          || (cfg.builder.builder_id != null && cfg.builder.server_url != null);
+        message =
+          "fmf.services.crystal-forge.builder.enable_api_mode requires builder_id and server_url to be set.";
       }
     ];
   };
