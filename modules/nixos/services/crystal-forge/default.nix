@@ -824,6 +824,26 @@ in {
             echo "✅ Builder API key installed"
           ''}
 
+          # Install cache encryption key for server
+          echo "Waiting for Vault agent to render cache-encryption.key..."
+          timeout=300
+          elapsed=0
+          while [ ! -f /tmp/detsys-vault/cache-encryption.key ] && [ $elapsed -lt $timeout ]; do
+            sleep 2
+            elapsed=$((elapsed+2))
+          done
+          if [ ! -f /tmp/detsys-vault/cache-encryption.key ]; then
+            echo "ERROR: cache-encryption.key not found after $timeout seconds"
+            exit 1
+          fi
+          mkdir -p /var/lib/crystal-forge/.config
+          # Create an EnvironmentFile with the encryption key
+          KEY_CONTENT=$(cat /tmp/detsys-vault/cache-encryption.key)
+          echo "CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY=$KEY_CONTENT" > /tmp/cache-encryption.env.tmp
+          install -o crystal-forge -g crystal-forge -m0600 /tmp/cache-encryption.env.tmp /var/lib/crystal-forge/.config/cache-encryption.env
+          rm /tmp/cache-encryption.env.tmp
+          echo "✅ Cache encryption key installed"
+
           ${lib.optionalString (cfg.build.enable && cfg.cache.cache_type
             == "Attic" && cfg.cache.push_to != null) ''
               mkdir -p /var/lib/crystal-forge/.config
@@ -930,6 +950,9 @@ in {
           "/run/crystal-forge"
           "/var/cache/crystal-forge-nix"
         ];
+        # Load cache encryption key from Vault-rendered secret
+        EnvironmentFile =
+          [ "/var/lib/crystal-forge/.config/cache-encryption.env" ];
       };
     };
 
@@ -965,6 +988,15 @@ in {
             permissions = "0600";
             change-action = "restart";
           };
+
+        # Cache encryption key (required for encrypting cache secrets in database)
+        "cache-encryption.key" = {
+          text = ''
+            {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}
+          '';
+          permissions = "0600";
+          change-action = "restart";
+        };
 
         # Attic env (optional)
         "attic-env" = lib.mkIf
