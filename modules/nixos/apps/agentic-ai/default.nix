@@ -4,7 +4,7 @@ with lib.fmf;
 let
   cfg = config.fmf.apps.agentic-ai;
 
-  aiPackages = with pkgs; [ antigravity-fhs claude-code ];
+  aiPackages = with pkgs; [ antigravity-fhs claude-code nodejs ];
 
   claudeBin = "${pkgs.claude-code}/bin/claude";
   antigravityLauncher = "${pkgs.antigravity-fhs}/bin/antigravity";
@@ -215,6 +215,16 @@ let
             ;;
         esac
   '';
+
+  # Claude config with Backlog.md MCP server
+  claudeConfig = pkgs.writeText "claude-config.json" (builtins.toJSON {
+    mcpServers = {
+      backlog = {
+        command = "${pkgs.nodejs}/bin/npx";
+        args = [ "-y" "@jlowin/mcp-backlog" ];
+      };
+    };
+  });
 in {
   options.fmf.apps.agentic-ai = {
     enable = mkBoolOpt false "Whether to enable the Agentic AI app helpers.";
@@ -259,6 +269,11 @@ in {
       runAs = "ai";
     }) cfg.allowedUsers;
 
-    systemd.tmpfiles.rules = [ "d /var/lib/ai 0750 ai ai -" ];
+    systemd.tmpfiles.rules = [
+      "d /var/lib/ai 0750 ai ai -"
+      "d /var/lib/ai/.config 0750 ai ai -"
+      "d /var/lib/ai/.config/Claude 0750 ai ai -"
+      "L+ /var/lib/ai/.config/Claude/config.json - - - - ${claudeConfig}"
+    ];
   };
 }
