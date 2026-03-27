@@ -10,7 +10,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-217-sync-divergence-logging";
+      url = "gitlab:crystal-forge/crystal-forge/b8afb16391fae6cdf7942465687d585419810de5";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
