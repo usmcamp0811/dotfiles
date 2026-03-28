@@ -11,7 +11,7 @@
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
       url =
-        "gitlab:crystal-forge/crystal-forge/3e4d5d9dc29cff6ffa63a612e15c3859fdc9a1ef";
+        "gitlab:crystal-forge/crystal-forge/f856456ab868a88d5d421231688acb17c7b90098";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
