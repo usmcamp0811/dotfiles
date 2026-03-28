@@ -10,7 +10,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/0b1b095c89e69cec64b347531e6f6252fb52c4e1";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-220-fix-flakes-browser-crash";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
