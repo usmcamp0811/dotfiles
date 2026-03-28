@@ -1527,8 +1527,8 @@
       },
       "original": {
         "owner": "crystal-forge",
+        "ref": "TASK-220-fix-flakes-browser-crash",
         "repo": "crystal-forge",
-        "rev": "4d6225d6b9ef3ae2eba1a426b18619f42d81ba00",
         "type": "gitlab"
       }
     },
