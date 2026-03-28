@@ -403,11 +403,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1773958881,
-        "narHash": "sha256-Nf8IaUoMP+pX6fSp3JFc++I2UOWp8cx4w7twh5RWiwQ=",
+        "lastModified": 1774103317,
+        "narHash": "sha256-UYQUXRJRZNp+dg6D6MTE8y6aNqx+mxAmmRtNPIWEEpw=",
         "owner": "MrLesk",
         "repo": "Backlog.md",
-        "rev": "2202982c096c7d3f39bc313d2044874020639b5b",
+        "rev": "037c5d1522539a6858d85632745f10795432896e",
         "type": "github"
       },
       "original": {
