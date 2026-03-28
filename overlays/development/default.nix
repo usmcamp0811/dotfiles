@@ -17,6 +17,7 @@
   mysqlclient-unstable = unstable.legacyPackages.${prev.system}.python311Packages.mysqlclient;
   gunicorn-unstable = unstable.legacyPackages.${prev.system}.python311Packages.gunicorn;
   poetry = nixpkgs.legacyPackages.${prev.system}.poetry;
+  backlog-md = channels.backlog.packages.${prev.system}.backlog-md;
 
   # LLM Things
   llm-agents = llm-agents.packages.${prev.system};
