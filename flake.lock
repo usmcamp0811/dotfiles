@@ -1527,8 +1527,8 @@
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
         "repo": "crystal-forge",
+        "rev": "0b1b095c89e69cec64b347531e6f6252fb52c4e1",
         "type": "gitlab"
       }
     },
