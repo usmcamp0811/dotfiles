@@ -906,8 +906,8 @@ in {
           [ "crystal-forge-setup.service" "crystal-forge-server.service" ];
         wants = [ "crystal-forge-setup.service" ];
         # Cache destination type may be configured dynamically in the Crystal Forge UI
-        # (database), so always include attic in builder PATH.
-        path = [ pkgs.attic ];
+        # (database), so always include attic client in builder PATH.
+        path = [ pkgs.attic-client ];
         serviceConfig = {
           PermissionsStartOnly = true;
           ReadWritePaths = [
