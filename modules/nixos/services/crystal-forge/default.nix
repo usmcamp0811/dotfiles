@@ -905,6 +905,7 @@ in {
         after =
           [ "crystal-forge-setup.service" "crystal-forge-server.service" ];
         wants = [ "crystal-forge-setup.service" ];
+        path = lib.optionals (cfg.cache.cache_type == "Attic") [ pkgs.attic ];
         serviceConfig = {
           PermissionsStartOnly = true;
           ReadWritePaths = [
