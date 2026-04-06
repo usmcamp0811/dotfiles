@@ -824,8 +824,8 @@ in {
             echo "✅ Builder API key installed"
           ''}
 
-          ${lib.optionalString cfg.server.enable ''
-            # Install cache encryption key for server
+          ${lib.optionalString (cfg.server.enable || cfg.build.enable) ''
+            # Install cache encryption key for server/builder
             echo "Waiting for Vault agent to render cache-encryption.key..."
             timeout=300
             elapsed=0
@@ -913,7 +913,9 @@ in {
             "/run/crystal-forge"
             "/var/cache/crystal-forge-nix"
           ];
-          EnvironmentFile = lib.optionals
+          EnvironmentFile =
+            [ "-/var/lib/crystal-forge/.config/cache-encryption.env" ]
+            ++ lib.optionals
             (cfg.cache.cache_type == "S3" && cfg.cache.push_to != null)
             [ "-/var/lib/crystal-forge/.config/crystal-forge-s3.env" ]
             ++ lib.optionals
