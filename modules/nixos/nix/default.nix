@@ -1,15 +1,9 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  inputs,
-  ...
-}:
+{ options, config, pkgs, lib, inputs, ... }:
 with lib;
-with lib.fmf; let
+with lib.fmf;
+let
   cfg = config.fmf.nix;
-  substituters-submodule = types.submodule ({...}: {
+  substituters-submodule = types.submodule ({ ... }: {
     options = with types; {
       key =
         mkOpt (nullOr str) null "The trusted public key for this substituter.";
@@ -18,35 +12,31 @@ with lib.fmf; let
 in {
   options.fmf.nix = with types; {
     enable = mkBoolOpt true "Whether or not to manage nix configuration.";
-    package = mkOpt package pkgs.nixVersions.stable "Which nix package to use.";
+    package = mkOpt package inputs.nix-patched.packages.${pkgs.system}.default
+      "Which nix package to use (defaults to patched 2.34.5 for CVE-2026-39860).";
     additional-authorized-users =
-      mkOpt (listOf str) [] "List of authorized users";
+      mkOpt (listOf str) [ ] "List of authorized users";
 
     default-substituter = {
       url = mkOpt str "https://cache.nixos.org" "The url for the substituter.";
-      key =
-        mkOpt str
+      key = mkOpt str
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
         "The trusted public key for the substituter.";
     };
 
-    extra-substituters =
-      mkOpt (attrsOf substituters-submodule) {}
+    extra-substituters = mkOpt (attrsOf substituters-submodule) { }
       "Extra substituters to configure.";
 
     role-id =
-      mkOpt types.str
-      config.fmf.services.vault-agent.settings.vault.role-id
+      mkOpt types.str config.fmf.services.vault-agent.settings.vault.role-id
       "Absolute path to the Vault role-id";
     secret-id =
-      mkOpt types.str
-      config.fmf.services.vault-agent.settings.vault.secret-id
+      mkOpt types.str config.fmf.services.vault-agent.settings.vault.secret-id
       "Absolute path to the Vault secret-id";
-    vault-path =
-      mkOpt types.str "secret/campground/netrc"
+    vault-path = mkOpt types.str "secret/campground/netrc"
       "The Vault path to the KV containing the KVs that are for a properly formated netrc file text";
     kvVersion = mkOption {
-      type = types.enum ["v1" "v2"];
+      type = types.enum [ "v1" "v2" ];
       default = "v2";
       description = "KV store version";
     };
@@ -58,18 +48,13 @@ in {
   };
 
   config = mkIf cfg.enable {
-    assertions =
-      mapAttrsToList
-      (name: value: {
-        assertion = value.key != null;
-        message = "fmf.nix.extra-substituters.${name}.key must be set";
-      })
-      cfg.extra-substituters;
+    assertions = mapAttrsToList (name: value: {
+      assertion = value.key != null;
+      message = "fmf.nix.extra-substituters.${name}.key must be set";
+    }) cfg.extra-substituters;
     environment.systemPackages = with pkgs; [
       fmf.nixos-revision
-      (fmf.nixos-hosts.override {
-        hosts = inputs.self.nixosConfigurations;
-      })
+      (fmf.nixos-hosts.override { hosts = inputs.self.nixosConfigurations; })
       deploy-rs
       nixfmt-classic
       nix-index
@@ -77,12 +62,11 @@ in {
       nix-output-monitor
       flake-checker
     ];
-    systemd.services.nix-daemon.serviceConfig.Environment = "NETRC=/var/lib/nixos/netrc";
+    systemd.services.nix-daemon.serviceConfig.Environment =
+      "NETRC=/var/lib/nixos/netrc";
 
     systemd.services.nix-daemon = {
-      environment = {
-        NETRC = "/var/lib/nixos/netrc";
-      };
+      environment = { NETRC = "/var/lib/nixos/netrc"; };
     };
 
     # TODO: Figure out if I can just use it straigh from the /tmp/detsys-vault/netrc location
@@ -92,16 +76,15 @@ in {
         Type = "oneshot";
         User = "root";
         ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /var/lib/nixos";
-        ExecStart = "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /var/lib/nixos/netrc";
-        before = ["nix-daemon.service"];
+        ExecStart =
+          "${pkgs.coreutils}/bin/cp /tmp/detsys-vault/netrc /var/lib/nixos/netrc";
+        before = [ "nix-daemon.service" ];
       };
-      wantedBy = ["multi-user.target"];
+      wantedBy = [ "multi-user.target" ];
     };
     # In your nixos configuration (probably in modules/nixos/nix/ or similar)
     nix = let
-      users =
-        ["root" config.fmf.user.name]
-        ++ cfg.additional-authorized-users
+      users = [ "root" config.fmf.user.name ] ++ cfg.additional-authorized-users
         ++ (optional config.fmf.services.hydra.enable "hydra")
         ++ (optional config.fmf.services.nixery.enable "nixery");
     in {
@@ -111,33 +94,31 @@ in {
         path = inputs.nixpkgs;
       };
 
-      settings =
-        {
-          experimental-features = ["nix-command" "flakes"];
-          fallback = true;
-          http-connections = 50;
-          warn-dirty = false;
-          log-lines = 50;
-          sandbox = "relaxed";
-          auto-optimise-store = true;
-          trusted-users = users;
-          allowed-users = users;
-          netrc-file = "/var/lib/nixos/netrc";
-          extra-sandbox-paths = ["/var/lib/nixos/netrc"];
+      settings = {
+        experimental-features = [ "nix-command" "flakes" ];
+        fallback = true;
+        http-connections = 50;
+        warn-dirty = false;
+        log-lines = 50;
+        sandbox = "relaxed";
+        auto-optimise-store = true;
+        trusted-users = users;
+        allowed-users = users;
+        netrc-file = "/var/lib/nixos/netrc";
+        extra-sandbox-paths = [ "/var/lib/nixos/netrc" ];
 
-          substituters =
-            # [ cfg.default-substituter.url ]
-            # ++
-            mapAttrsToList (name: _value: name) cfg.extra-substituters;
-          trusted-public-keys =
-            # [ cfg.default-substituter.key ]
-            # ++
-            mapAttrsToList (_name: value: value.key) cfg.extra-substituters;
-        }
-        // (lib.optionalAttrs config.fmf.tools.direnv.enable {
-          keep-outputs = true;
-          keep-derivations = true;
-        });
+        substituters =
+          # [ cfg.default-substituter.url ]
+          # ++
+          mapAttrsToList (name: _value: name) cfg.extra-substituters;
+        trusted-public-keys =
+          # [ cfg.default-substituter.key ]
+          # ++
+          mapAttrsToList (_name: value: value.key) cfg.extra-substituters;
+      } // (lib.optionalAttrs config.fmf.tools.direnv.enable {
+        keep-outputs = true;
+        keep-derivations = true;
+      });
 
       gc = {
         automatic = true;
@@ -154,16 +135,14 @@ in {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
-          method = [
-            {
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }
-          ];
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = cfg.role-id;
+              secret_id_file_path = cfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
         };
       };
       secrets = {
