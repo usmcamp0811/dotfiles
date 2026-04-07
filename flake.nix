@@ -14,7 +14,7 @@
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
-      url = "github:Thesam1798/opencode-anthropic-auth/fix/claude-code-oauth-compatibility";
+      url = "github:Thesam1798/opencode-anthropic-auth";
       flake = false;
     };
     backlog.url = "github:MrLesk/Backlog.md";
