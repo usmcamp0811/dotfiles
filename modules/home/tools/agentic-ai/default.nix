@@ -38,7 +38,7 @@ with lib.fmf; let
     '';
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-tiowZ8B7cQsRStSsaGWAkzPW0DDvDlPtgE+KWIvba64=";
+    outputHash = "sha256-KuJgqiHPGvj7matYLcdLzNHLGHcRdj3A+jUBJHmRFrs=";
   };
 
   opencodeAnthropicAuth = pkgs.stdenvNoCC.mkDerivation {
