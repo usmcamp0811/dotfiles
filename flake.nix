@@ -208,7 +208,7 @@
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix/release-25.11";
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
-    stylix.url = "github:danth/stylix";
+    stylix.url = "github:danth/stylix/release-25.11";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
     pre-commit-hooks.inputs.nixpkgs.follows = "unstable";
