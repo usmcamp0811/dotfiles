@@ -1518,11 +1518,11 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1775788088,
-        "narHash": "sha256-7Otn7bydJa2b6wfP5P8lvuU9AQooTrQY4jMftSU7P00=",
+        "lastModified": 1775836319,
+        "narHash": "sha256-Tj3vdrWdaMY/rzRVjpcYJNeNKLKjpJQ+AxeWGoQCo4g=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "3d05e4517207cbed3892d0ade529da820cebb9a6",
+        "rev": "0cddf2476ce5702c21e8098f44829d95c24f087f",
         "type": "gitlab"
       },
       "original": {
@@ -17593,15 +17593,15 @@
     "opencode-anthropic-auth": {
       "flake": false,
       "locked": {
-        "lastModified": 1775534250,
-        "narHash": "sha256-8HDdPAsGbB8rzWjS0Pb19kk57ywhkpRGSGp0Ti0uHuU=",
-        "owner": "Thesam1798",
+        "lastModified": 1775825136,
+        "narHash": "sha256-6p/ezJ1OzQuO+bfCdyLh/PJqcH4g5mFneEUVIlSCJ20=",
+        "owner": "ex-machina-co",
         "repo": "opencode-anthropic-auth",
-        "rev": "7ad207b00b2d61c04e225c2d5dfdd4143e25e9b9",
+        "rev": "df1153d90b4acbaad384620969ca574fa4656b10",
         "type": "github"
       },
       "original": {
-        "owner": "Thesam1798",
+        "owner": "ex-machina-co",
         "repo": "opencode-anthropic-auth",
         "type": "github"
       }
