@@ -1518,16 +1518,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1775920802,
-        "narHash": "sha256-4oPGWqLu2jDBc5cLCwJ0QTIw0WR/ARxm+c1KMO3LJhs=",
+        "lastModified": 1775928477,
+        "narHash": "sha256-iguXm5yfkPcVVpVbAfm19vgdqPm470VpWetZy8Dbdx0=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "68a5d95af5880e7a8d1c4754b5d08b395017b170",
+        "rev": "335a275702e7e09d8ad528db8479361b226cb48b",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-264-fix-systems-edit-modal-overlay",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
