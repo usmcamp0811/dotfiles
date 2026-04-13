@@ -14,5 +14,11 @@
     yazi
     yaziPlugins
     navidrome
+    netbird
+    netbird-ui
+    netbird-signal
+    netbird-upload
+    netbird-dashboard
+    netbird-management
     ;
 }
