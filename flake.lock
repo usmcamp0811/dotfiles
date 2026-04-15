@@ -1518,16 +1518,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1776049697,
-        "narHash": "sha256-tiS6GBwqUe02iZSGH1pA0T9h7E1EBD8zAUR+2uGnxZs=",
+        "lastModified": 1776215755,
+        "narHash": "sha256-oTNYqPdPjYmy8kEihFxUy/T6w7O9vqb0T7g9va7fTqM=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "615c4b0e00723c8ae605bb783a2e78e9fcf45cc7",
+        "rev": "2dfa3071035c6b260b63d835ea1bc7eec7a7366e",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-269-system-cve-tab-refinement",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
