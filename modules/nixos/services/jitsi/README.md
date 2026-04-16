@@ -1,0 +1,356 @@
+# Jitsi Meet NixOS Module
+
+A comprehensive NixOS module for deploying Jitsi Meet video conferencing with Vault-based secret management.
+
+## Features
+
+- **Full Jitsi Meet Stack**: Includes Jitsi Meet, Jitsi Videobridge, Jicofo, and Prosody XMPP server
+- **Integrated TURN Server**: Optional Coturn integration for WebRTC connectivity
+- **Vault Integration**: Secure secret management using HashiCorp Vault via vault-agent
+- **Automatic SSL**: ACME/Let's Encrypt integration for automatic SSL certificates
+- **Firewall Management**: Automatic firewall configuration for all required ports
+- **Highly Configurable**: Extensive options for customizing the deployment
+
+## Quick Start
+
+### Basic Configuration
+
+```nix
+{
+  fmf.services.jitsi = {
+    enable = true;
+    hostName = "meet.example.com";
+    
+    acme.email = "admin@example.com";
+    
+    # Vault configuration
+    vault = {
+      enable = true;
+      vault-path = "secret/campground/jitsi";
+      kvVersion = "v2";
+    };
+  };
+}
+```
+
+### Required Vault Secrets
+
+Store the following secrets in your Vault at the configured path (default: `secret/campground/jitsi`):
+
+For KV v2 (default):
+```bash
+vault kv put secret/campground/jitsi \
+  TURN_SECRET="$(openssl rand -hex 32)" \
+  COMPONENT_SECRET="$(openssl rand -hex 32)" \
+  VIDEOBRIDGE_SECRET="$(openssl rand -hex 32)"
+```
+
+For KV v1:
+```bash
+vault write secret/campground/jitsi \
+  TURN_SECRET="$(openssl rand -hex 32)" \
+  COMPONENT_SECRET="$(openssl rand -hex 32)" \
+  VIDEOBRIDGE_SECRET="$(openssl rand -hex 32)"
+```
+
+### Secret Descriptions
+
+- **TURN_SECRET**: Shared secret for the TURN server authentication
+- **COMPONENT_SECRET**: Secret for XMPP component authentication between Jitsi services
+- **VIDEOBRIDGE_SECRET**: Secret for Jitsi Videobridge authentication with Jicofo
+
+## Configuration Options
+
+### Core Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `enable` | bool | `false` | Enable Jitsi Meet |
+| `hostName` | string | `"meet.aicampground.com"` | Hostname for Jitsi Meet |
+
+### Nginx Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `nginx.enable` | bool | `true` | Enable nginx for Jitsi Meet |
+| `nginx.port` | int | `443` | HTTPS port |
+| `nginx.httpPort` | int | `80` | HTTP port (redirects to HTTPS) |
+
+### TURN Server (Coturn) Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `coturn.enable` | bool | `true` | Enable integrated TURN server |
+| `coturn.port` | int | `3478` | TURN server port |
+| `coturn.minPort` | int | `49152` | Minimum relay port |
+| `coturn.maxPort` | int | `49252` | Maximum relay port |
+
+### Videobridge Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `videobridge.enable` | bool | `true` | Enable Jitsi Videobridge |
+| `videobridge.openFirewall` | bool | `true` | Open firewall ports |
+| `videobridge.port` | int | `10000` | Videobridge UDP port |
+
+### Vault Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `vault.enable` | bool | `true` | Enable Vault integration |
+| `vault.vault-path` | string | `"secret/campground/jitsi"` | Vault KV path |
+| `vault.kvVersion` | enum | `"v2"` | Vault KV version (`"v1"` or `"v2"`) |
+
+### ACME/SSL Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `acme.enable` | bool | `true` | Enable ACME for SSL |
+| `acme.email` | string | `""` | Email for ACME registration |
+
+## Advanced Configuration
+
+### Custom Interface Configuration
+
+```nix
+{
+  fmf.services.jitsi = {
+    enable = true;
+    hostName = "meet.example.com";
+    
+    interfaceConfig = {
+      SHOW_JITSI_WATERMARK = false;
+      DEFAULT_BACKGROUND = "#1a1a1a";
+      VERTICAL_FILMSTRIP = true;
+      TOOLBAR_ALWAYS_VISIBLE = false;
+      # Add more interface customizations
+    };
+  };
+}
+```
+
+### Custom Jitsi Configuration
+
+```nix
+{
+  fmf.services.jitsi = {
+    enable = true;
+    hostName = "meet.example.com";
+    
+    config = {
+      enableWelcomePage = true;
+      prejoinPageEnabled = true;
+      startAudioMuted = 5;
+      startVideoMuted = 5;
+      channelLastN = 20;
+      p2p.enabled = true;
+      # Add more Jitsi config options
+    };
+  };
+}
+```
+
+### Disable TURN Server
+
+If you want to use an external TURN server or don't need one:
+
+```nix
+{
+  fmf.services.jitsi = {
+    enable = true;
+    hostName = "meet.example.com";
+    
+    coturn.enable = false;
+    
+    config.p2p.stunServers = [
+      { urls = "stun:stun.l.google.com:19302"; }
+    ];
+  };
+}
+```
+
+### Custom Vault Role/Secret IDs
+
+```nix
+{
+  fmf.services.jitsi = {
+    enable = true;
+    
+    vault = {
+      enable = true;
+      role-id = "/path/to/custom/role-id";
+      secret-id = "/path/to/custom/secret-id";
+      vault-address = "https://vault.example.com:8200";
+    };
+  };
+}
+```
+
+## Network Requirements
+
+The module automatically configures the following firewall ports:
+
+### TCP Ports
+- `443` (HTTPS) - Jitsi Meet web interface
+- `80` (HTTP) - Redirects to HTTPS (if ACME is enabled)
+- `3478` (TURN/TCP) - Coturn TURN server (if enabled)
+- `49152-49252` (TCP relay) - Coturn relay ports (if enabled)
+
+### UDP Ports
+- `10000` (UDP) - Jitsi Videobridge media
+- `3478` (TURN/UDP) - Coturn TURN server (if enabled)
+- `49152-49252` (UDP relay) - Coturn relay ports (if enabled)
+
+## Deployment Flow
+
+1. **Vault Setup**: Store required secrets in Vault
+2. **NixOS Configuration**: Enable the module in your system configuration
+3. **Vault Agent**: Automatically retrieves secrets on boot
+4. **Service Startup**: All Jitsi components start with proper authentication
+5. **ACME**: Automatically obtains SSL certificates (if enabled)
+6. **Ready**: Access Jitsi Meet at your configured hostname
+
+## Integration with Other fmf-flake Services
+
+### With Traefik
+
+```nix
+{
+  fmf.services.jitsi = {
+    enable = true;
+    hostName = "meet.example.com";
+    nginx.enable = false; # Disable nginx, use Traefik instead
+    acme.enable = false;  # Let Traefik handle SSL
+  };
+  
+  # Configure Traefik to proxy to Jitsi
+  services.traefik = {
+    # ... your Traefik configuration
+  };
+}
+```
+
+### With Custom Vault Agent Settings
+
+```nix
+{
+  fmf.services.vault-agent = {
+    enable = true;
+    settings = {
+      vault.address = "https://vault.internal:8200";
+      vault.role-id = "/etc/vault/role-id";
+      vault.secret-id = "/etc/vault/secret-id";
+    };
+  };
+  
+  fmf.services.jitsi = {
+    enable = true;
+    # Will automatically use vault-agent settings above
+  };
+}
+```
+
+## Troubleshooting
+
+### Check Vault Agent Status
+
+```bash
+systemctl status vault-agent@jitsi-secrets
+journalctl -u vault-agent@jitsi-secrets -f
+```
+
+### Verify Secrets are Retrieved
+
+```bash
+ls -la /tmp/detsys-vault/
+cat /tmp/detsys-vault/jitsi-turn-secret
+```
+
+### Check Jitsi Services
+
+```bash
+systemctl status jitsi-videobridge2
+systemctl status jicofo
+systemctl status prosody
+systemctl status coturn  # if enabled
+```
+
+### Check Logs
+
+```bash
+journalctl -u jitsi-videobridge2 -f
+journalctl -u jicofo -f
+journalctl -u prosody -f
+journalctl -u coturn -f  # if enabled
+```
+
+### Common Issues
+
+1. **TURN Server Not Working**: Ensure the `TURN_SECRET` in Vault matches and coturn has restarted
+2. **Certificate Issues**: Check ACME configuration and ensure DNS is properly configured
+3. **Vault Secrets Not Loading**: Verify vault-agent has correct role-id and secret-id paths
+4. **Firewall Blocking**: Ensure all required ports are open on your router/firewall
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Vault Server                         │
+│                  (HashiCorp Vault)                          │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         │ AppRole Auth
+                         │
+                    ┌────▼─────┐
+                    │  Vault   │
+                    │  Agent   │
+                    └────┬─────┘
+                         │
+         ┌───────────────┼───────────────┐
+         │               │               │
+    ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
+    │  TURN   │    │Component│    │Videobridge│
+    │ Secret  │    │ Secret  │    │  Secret  │
+    └────┬────┘    └────┬────┘    └────┬─────┘
+         │              │              │
+    ┌────▼─────────────────────────────▼──────┐
+    │         Jitsi Meet Stack                │
+    │  ┌──────────┐  ┌──────────┐            │
+    │  │ Prosody  │  │  Jicofo  │            │
+    │  │  XMPP    │◄─┤Conference│            │
+    │  │          │  │  Focus   │            │
+    │  └────┬─────┘  └────┬─────┘            │
+    │       │             │                   │
+    │  ┌────▼─────────────▼─────┐            │
+    │  │   Jitsi Videobridge    │            │
+    │  │    (Media Routing)     │            │
+    │  └────────────────────────┘            │
+    │                                         │
+    │  ┌──────────┐  ┌──────────┐            │
+    │  │  Coturn  │  │  Nginx   │            │
+    │  │   TURN   │  │  Reverse │            │
+    │  │  Server  │  │  Proxy   │            │
+    │  └──────────┘  └──────────┘            │
+    └─────────────────────────────────────────┘
+```
+
+## References
+
+- [Jitsi Meet Documentation](https://jitsi.github.io/handbook/)
+- [NixOS Jitsi Module](https://search.nixos.org/options?query=services.jitsi-meet)
+- [Coturn Documentation](https://github.com/coturn/coturn)
+- [Vault Agent](https://developer.hashicorp.com/vault/docs/agent)
+
+## Contributing
+
+This module is part of the fmf-flake project. Follow the existing patterns:
+
+1. Use `lib.fmf` helper functions (`mkOpt`, `mkBoolOpt`, etc.)
+2. Integrate with `fmf.services.vault-agent` for secrets
+3. Follow the `fmf.services.*` namespace convention
+4. Document all options clearly
+5. Provide sensible defaults
+
+## License
+
+Same as fmf-flake (see repository LICENSE)
