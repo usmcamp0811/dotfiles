@@ -1,15 +1,15 @@
-{lib, ...}:
+{ lib, ... }:
 with lib;
 with lib.fmf; {
-  imports = [./hardware.nix];
+  imports = [ ./hardware.nix ];
 
-  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   fmf = {
     user = {
       name = "mcamp";
       fullName = "Matt Camp";
       email = "matt@aicampground.com";
-      extraGroups = ["wheel" "docker"];
+      extraGroups = [ "wheel" "docker" ];
       uid = 10000;
     };
     archetypes = {
@@ -54,19 +54,17 @@ with lib.fmf; {
     nfs.client.enable = true;
     # tools.attic = enabled;
 
-    hardware = {nvidia = enabled;};
+    hardware = { nvidia = enabled; };
     services = {
       glusterfs = {
         enable = true;
-        peers = ["reckless"];
-        volumes = [
-          {
-            name = "kubernetes";
-            brickDirs = ["/glusterfs/kubernetes"];
-            replicaCount = 2;
-            transport = "tcp";
-          }
-        ];
+        peers = [ "reckless" ];
+        volumes = [{
+          name = "kubernetes";
+          brickDirs = [ "/glusterfs/kubernetes" ];
+          replicaCount = 2;
+          transport = "tcp";
+        }];
       };
       netbird.client.enable = true;
       k3s = {
@@ -79,9 +77,7 @@ with lib.fmf; {
         # enable = true;
         role = "server";
         clusterInit = true;
-        extraFlags = [
-          "--tls-san 10.8.0.197"
-        ];
+        extraFlags = [ "--tls-san 10.8.0.197" ];
       };
 
       vault = {
@@ -112,25 +108,17 @@ with lib.fmf; {
           api_addr = "http://lucas:8200"
         '';
 
-        policies =
-          builtins.foldl'
-          (policies: file:
-            policies
-            // {
-              "${snowfall.path.get-file-name-without-extension file}" = file;
-            })
-          {}
-          (builtins.filter (snowfall.path.has-file-extension "hcl")
-            (builtins.map
-              (path:
-                ../daly/vault/policies
-                + "/${
-                  builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
-                }")
-              (snowfall.fs.get-files ../daly/vault/policies)));
+        policies = builtins.foldl' (policies: file:
+          policies // {
+            "${snowfall.path.get-file-name-without-extension file}" = file;
+          }) { } (builtins.filter (snowfall.path.has-file-extension "hcl")
+            (builtins.map (path:
+              ../daly/vault/policies + "/${
+                builtins.baseNameOf (builtins.unsafeDiscardStringContext path)
+              }") (snowfall.fs.get-files ../daly/vault/policies)));
       };
-      n8n = {enable = true;};
-      chromadb = {enable = true;};
+      n8n = { enable = true; };
+      chromadb = { enable = true; };
       # onlyoffice = { enable = true; };
       ollama = {
         enable = true;
@@ -201,6 +189,46 @@ with lib.fmf; {
         enable = true;
         port = 3249;
       };
+      jitsi = {
+        enable = true;
+        hostName = "meet.aicampground.com";
+
+        acme = {
+          enable = true;
+          email = "matt@aicampground.com";
+        };
+
+        vault = {
+          enable = true;
+          vault-path = "secret/campground/jitsi";
+          kvVersion = "v2";
+        };
+
+        # TURN server for WebRTC
+        coturn = {
+          enable = true;
+          port = 3478;
+          minPort = 49152;
+          maxPort = 49252;
+        };
+
+        # Custom interface configuration
+        interfaceConfig = {
+          SHOW_JITSI_WATERMARK = false;
+          DEFAULT_BACKGROUND = "#1a1a1a";
+          VERTICAL_FILMSTRIP = true;
+          TOOLBAR_ALWAYS_VISIBLE = false;
+        };
+
+        # Meeting configuration
+        config = {
+          enableWelcomePage = true;
+          prejoinPageEnabled = true;
+          startAudioMuted = 10;
+          startVideoMuted = 10;
+          p2p.enabled = true;
+        };
+      };
       zfs-key-server = {
         enable = true;
         port = 8123;
@@ -217,7 +245,7 @@ with lib.fmf; {
       };
       user-secrets = {
         enable = true;
-        users.mcamp = {files = ["id_ed25519" "passwords"];};
+        users.mcamp = { files = [ "id_ed25519" "passwords" ]; };
       };
       vault-agent = {
         enable = true;
