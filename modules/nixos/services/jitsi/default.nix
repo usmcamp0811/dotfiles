@@ -129,17 +129,40 @@ in {
     services.jitsi-meet = {
       enable = true;
       hostName = cfg.hostName;
-
+      
       nginx.enable = cfg.nginx.enable;
-
+      
       # Jitsi Videobridge
       videobridge = {
         enable = cfg.videobridge.enable;
-        openFirewall = cfg.videobridge.openFirewall;
-        config = {
-          videobridge = {
-            http-servers = { public = { port = cfg.videobridge.port; }; };
-          };
+        passwordFile = mkIf cfg.vault.enable "/tmp/detsys-vault/videobridge-secret";
+      };
+
+      # Jicofo (Conference Focus)
+      jicofo.enable = cfg.jicofo.enable;
+
+      # Prosody XMPP server
+      prosody.enable = cfg.prosody.enable;
+
+      # Interface configuration
+      interfaceConfig = cfg.interfaceConfig;
+
+      # Main configuration
+      config = cfg.config;
+
+      # TURN server configuration if enabled
+      extraConfig = cfg.extraConfig + optionalString cfg.coturn.enable ''
+        config.p2p.stunServers = [
+          { urls: 'stun:${cfg.hostName}:${toString cfg.coturn.port}' }
+        ];
+      '';
+    };
+
+    # Additional Jitsi Videobridge configuration
+    services.jitsi-videobridge = mkIf cfg.videobridge.enable {
+      openFirewall = cfg.videobridge.openFirewall;
+      # Note: The NixOS module automatically configures XMPP connection to localhost
+    };
         };
       };
 
@@ -282,13 +305,47 @@ in {
         settings = {
           vault.address = cfg.vault.vault-address;
           auto_auth = {
-            method = [{
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.vault.role-id;
-                secret_id_file_path = cfg.vault.secret-id;
-                remove_secret_id_file_after_reading = false;
+            method = [
+              {
+                type = "approle";
+                config = {
+                  role_id_file_path = cfg.vault.role-id;
+                  secret_id_file_path = cfg.vault.secret-id;
+                  remove_secret_id_file_after_reading = false;
+                };
+              }
+            ];
+          };
+        };
+        secrets = {
+          file = {
+            files = {
+              "jitsi-turn-secret" = mkIf cfg.coturn.enable {
+                text = ''
+                  {{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.TURN_SECRET }}{{ else }}{{ .Data.data.TURN_SECRET }}{{ end }}{{ end }}
+                '';
+                permissions = "0600";
+                change-action = "restart";
               };
+              "videobridge-secret" = {
+                text = ''
+                  {{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.VIDEOBRIDGE_SECRET }}{{ else }}{{ .Data.data.VIDEOBRIDGE_SECRET }}{{ end }}{{ end }}
+                '';
+                permissions = "0640";
+                change-action = "restart";
+              };
+            };
+          };
+        };
+      };
+    };
+
+    # Ensure videobridge secret has correct ownership for jitsi-meet group
+    systemd.services.jitsi-videobridge2 = mkIf (cfg.enable && cfg.vault.enable && cfg.videobridge.enable) {
+      serviceConfig = {
+        SupplementaryGroups = [ "jitsi-meet" ];
+      };
+    };
             }];
           };
         };
