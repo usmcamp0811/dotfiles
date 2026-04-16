@@ -129,13 +129,14 @@ in {
     services.jitsi-meet = {
       enable = true;
       hostName = cfg.hostName;
-      
+
       nginx.enable = cfg.nginx.enable;
-      
+
       # Jitsi Videobridge
       videobridge = {
         enable = cfg.videobridge.enable;
-        passwordFile = mkIf cfg.vault.enable "/tmp/detsys-vault/videobridge-secret";
+        passwordFile =
+          mkIf cfg.vault.enable "/tmp/detsys-vault/videobridge-secret";
       };
 
       # Jicofo (Conference Focus)
@@ -162,33 +163,6 @@ in {
     services.jitsi-videobridge = mkIf cfg.videobridge.enable {
       openFirewall = cfg.videobridge.openFirewall;
       # Note: The NixOS module automatically configures XMPP connection to localhost
-    };
-        };
-      };
-
-      # Jicofo (Conference Focus)
-      jicofo.enable = cfg.jicofo.enable;
-
-      # Prosody XMPP server
-      prosody.enable = cfg.prosody.enable;
-
-      # Interface configuration
-      interfaceConfig = cfg.interfaceConfig;
-
-      # Main configuration
-      config = cfg.config // {
-        hosts = {
-          domain = cfg.hostName;
-          muc = "conference.${cfg.hostName}";
-        };
-      };
-
-      # TURN server configuration if enabled
-      extraConfig = cfg.extraConfig + optionalString cfg.coturn.enable ''
-        config.p2p.stunServers = [
-          { urls: 'stun:${cfg.hostName}:${toString cfg.coturn.port}' }
-        ];
-      '';
     };
 
     # Coturn TURN server configuration
@@ -293,9 +267,16 @@ in {
       }];
     };
 
-    # Systemd services for TURN server permissions
-    systemd.services = mkIf cfg.coturn.enable {
-      coturn.serviceConfig.Group = mkForce "turnserver";
+    # Systemd services configuration
+    systemd.services = {
+      # TURN server permissions
+      coturn =
+        mkIf cfg.coturn.enable { serviceConfig.Group = mkForce "turnserver"; };
+
+      # Ensure videobridge secret has correct ownership for jitsi-meet group
+      jitsi-videobridge2 = mkIf (cfg.vault.enable && cfg.videobridge.enable) {
+        serviceConfig.SupplementaryGroups = [ "jitsi-meet" ];
+      };
     };
 
     # Vault Agent integration for secrets
@@ -305,16 +286,14 @@ in {
         settings = {
           vault.address = cfg.vault.vault-address;
           auto_auth = {
-            method = [
-              {
-                type = "approle";
-                config = {
-                  role_id_file_path = cfg.vault.role-id;
-                  secret_id_file_path = cfg.vault.secret-id;
-                  remove_secret_id_file_after_reading = false;
-                };
-              }
-            ];
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.vault.role-id;
+                secret_id_file_path = cfg.vault.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
           };
         };
         secrets = {
@@ -332,45 +311,6 @@ in {
                   {{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.VIDEOBRIDGE_SECRET }}{{ else }}{{ .Data.data.VIDEOBRIDGE_SECRET }}{{ end }}{{ end }}
                 '';
                 permissions = "0640";
-                change-action = "restart";
-              };
-            };
-          };
-        };
-      };
-    };
-
-    # Ensure videobridge secret has correct ownership for jitsi-meet group
-    systemd.services.jitsi-videobridge2 = mkIf (cfg.enable && cfg.vault.enable && cfg.videobridge.enable) {
-      serviceConfig = {
-        SupplementaryGroups = [ "jitsi-meet" ];
-      };
-    };
-            }];
-          };
-        };
-        secrets = {
-          file = {
-            files = {
-              "jitsi-turn-secret" = mkIf cfg.coturn.enable {
-                text = ''
-                  {{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.TURN_SECRET }}{{ else }}{{ .Data.data.TURN_SECRET }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-              "jitsi-component-secret" = {
-                text = ''
-                  {{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.COMPONENT_SECRET }}{{ else }}{{ .Data.data.COMPONENT_SECRET }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
-                change-action = "restart";
-              };
-              "videobridge-secret" = {
-                text = ''
-                  {{ with secret "${cfg.vault.vault-path}" }}{{ if eq "${cfg.vault.kvVersion}" "v1" }}{{ .Data.VIDEOBRIDGE_SECRET }}{{ else }}{{ .Data.data.VIDEOBRIDGE_SECRET }}{{ end }}{{ end }}
-                '';
-                permissions = "0600";
                 change-action = "restart";
               };
             };
