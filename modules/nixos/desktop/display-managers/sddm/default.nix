@@ -1,12 +1,7 @@
-{
-  config,
-  lib,
-  options,
-  pkgs,
-  ...
-}:
+{ config, lib, options, pkgs, ... }:
 with lib;
-with lib.fmf; let
+with lib.fmf;
+let
   cfg = config.fmf.desktop.display-manager.sddm;
   sddmHome = config.users.users.sddm.home;
 in {
@@ -34,13 +29,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = ["d ${sddmHome}/.config 0711 sddm sddm"];
+    systemd.tmpfiles.rules = [ "d ${sddmHome}/.config 0711 sddm sddm" ];
 
     # Import the sddm-nixos theme package if enabled
-    environment.systemPackages = [
-      pkgs.fmf.sddm-themes
-      pkgs.sddm-astronaut
-    ];
+    environment.systemPackages = [ pkgs.fmf.sddm-themes pkgs.sddm-astronaut ];
 
     services = {
       displayManager = {
@@ -55,11 +47,7 @@ in {
             pkgs.kdePackages.qtmultimedia
           ];
           theme = cfg.theme;
-          settings = {
-            Theme = {
-              Current = "sddm-astronaut-theme";
-            };
-          };
+          settings = { Theme = { Current = "sddm-astronaut-theme"; }; };
         };
       };
 
@@ -67,8 +55,8 @@ in {
     };
 
     systemd.services.campground-user-icon = {
-      before = ["display-manager.service"];
-      wantedBy = ["display-manager.service"];
+      before = [ "display-manager.service" ];
+      wantedBy = [ "display-manager.service" ];
 
       script =
         # bash
@@ -76,7 +64,7 @@ in {
           config_file=/var/lib/AccountsService/users/${config.fmf.user.name}
           icon_file=/run/current-system/sw/share/icons/user/${config.fmf.user.name}/${config.fmf.user.icon.fileName}
 
-          if ! [ -d "$(dername "$config_file")" ]; then
+          if ! [ -d "$(dirname "$config_file")" ]; then
             mkdir -p "$(dirname "$config_file")"
           fi
 
@@ -103,14 +91,11 @@ in {
       };
     };
 
-    system.activationScripts.postInstallSddm =
-      stringAfter ["users"] # bash
-      
+    system.activationScripts.postInstallSddm = stringAfter [ "users" ] # bash
+
       ''
         echo "Setting sddm permissions for user icon"
-        ${
-          getExe' pkgs.acl "setfacl"
-        } -m u:sddm:x /home/${config.fmf.user.name}
+        ${getExe' pkgs.acl "setfacl"} -m u:sddm:x /home/${config.fmf.user.name}
         ${
           getExe' pkgs.acl "setfacl"
         } -m u:sddm:r /home/${config.fmf.user.name}/.face || true
