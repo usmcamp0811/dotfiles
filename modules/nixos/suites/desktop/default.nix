@@ -1,13 +1,7 @@
-{
-  pkgs,
-  options,
-  config,
-  lib,
-  ...
-}:
+{ pkgs, options, config, lib, ... }:
 with lib;
-with lib.fmf; let
-  cfg = config.fmf.suites.desktop;
+with lib.fmf;
+let cfg = config.fmf.suites.desktop;
 in {
   options.fmf.suites.desktop = with types; {
     enable =
