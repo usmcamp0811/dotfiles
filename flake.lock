@@ -1519,16 +1519,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1776541958,
-        "narHash": "sha256-C7lmlbtGASMl7GOs83U+BIYuz5R7OhjBCzw3Fn1ZquA=",
+        "lastModified": 1776633775,
+        "narHash": "sha256-ympn4yK3BkJIrgMaxFDpCCO84XWvAzbYQMUldUNd1y8=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "09bd4041ad4a9e777562ccc6a286416b092a3a64",
+        "rev": "8e24620d063b19f70200ee52017c2cd4c1899956",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-278-design-system-ui-ux",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
