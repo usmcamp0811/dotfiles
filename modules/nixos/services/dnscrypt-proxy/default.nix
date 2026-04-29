@@ -12,7 +12,7 @@ let
     # This hash will need to be updated periodically, but won't break consumers
     # Run: nix-prefetch-url https://big.oisd.nl/domainswild
     # Last updated: 2026-03-17
-    sha256 = "0iwmp1rcjmhk8vciz3gsmny2k8kb61gfsrcrhrlw8ffca9hh75d1";
+    sha256 = "sha256-2ZUkM3p/frhbWrah5UX5cTs+dqV25Jb+ntHk6SkrMqg=";
   };
 
   blocklist_base = builtins.readFile oisd-blocklist;
