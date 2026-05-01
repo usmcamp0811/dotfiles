@@ -144,7 +144,11 @@ in {
       ++ (optionals cfg.enableQwenCode [ pkgs.llm-agents.qwen-code ])
       ++ (optionals cfg.enableDistill [ pkgs.fmf.distill ]) ++ (optionals
         (cfg.enableOpencode && cfg.enableSkills && remoteSkillsToInstall
-          != [ ]) [ pkgs.llm-agents.skills-installer pkgs.git pkgs.mcp-nixos ]);
+          != [ ]) [
+          pkgs.llm-agents.skills-installer
+          pkgs.git
+          inputs.mcp-nixos.packages.${pkgs.system}.mcp-nixos
+        ]);
 
     programs.zsh.initContent = concatStringsSep "\n" [
       (apiKeyLine "ANTHROPIC_API_KEY" cfg.anthropicApiKeyFile)
