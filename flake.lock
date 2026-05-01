@@ -1518,16 +1518,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1777584147,
-        "narHash": "sha256-B6J9L2+YsJu+EGCQeqf4+OQK2yEd6PDbyKmFG1IANu4=",
+        "lastModified": 1777600237,
+        "narHash": "sha256-BEw/9fveycFb/PuwOzSY4HT+LoMZAqpCy+e2s1CpY3c=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "baf80ba2c5b9222c3463fba2138c87e36a2b5b44",
+        "rev": "83ca95e03d81d00a382e1b794ba173c316ebb6a3",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-286-hotfix-builder-auth-401",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
