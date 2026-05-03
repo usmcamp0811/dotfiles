@@ -1518,16 +1518,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1777838131,
-        "narHash": "sha256-UxZ+UySyFufN+0I5bHrn7oeFm2p3yS+2mkpOtt8fTCg=",
+        "lastModified": 1777840781,
+        "narHash": "sha256-ffRowKWFKemj+zDhLlsYz5wm8PBUN2veLELK+P4ArMI=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "be58dbbc510eac90daa357b943525fea34809998",
+        "rev": "f9657972a2835a1104fabb029b967ae205e3956c",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "TASK-276.1-hardening-modal-polish",
+        "ref": "dev",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
