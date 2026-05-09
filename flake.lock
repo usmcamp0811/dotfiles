@@ -287,6 +287,7 @@
         "flake-compat": "flake-compat",
         "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",
+        "napalm": "napalm",
         "nixpkgs": "nixpkgs",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",
@@ -294,16 +295,17 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1778025198,
-        "narHash": "sha256-qjaBctoLy5NHLa/tDvIPrmZMkhHnZ5sHFtuaFYATyro=",
+        "lastModified": 1778025010,
+        "narHash": "sha256-ADUNLiTgxzaPxt8OyOh+UQJXGqA5jjkHACqTlElYsdQ=",
         "owner": "marcelcoding",
         "repo": "authentik-nix",
-        "rev": "608667991a461358e87d70f999b29d19d743a7b3",
+        "rev": "2b63c4e7e7ef9162a22f5cb0e5e2a4c3e20b8ca5",
         "type": "github"
       },
       "original": {
         "owner": "marcelcoding",
         "repo": "authentik-nix",
+        "rev": "2b63c4e7e7ef9162a22f5cb0e5e2a4c3e20b8ca5",
         "type": "github"
       }
     },
@@ -313,7 +315,7 @@
         "flake-compat": "flake-compat_2",
         "flake-parts": "flake-parts_2",
         "flake-utils": "flake-utils_3",
-        "napalm": "napalm",
+        "napalm": "napalm_2",
         "nixpkgs": "nixpkgs_3",
         "pyproject-build-systems": "pyproject-build-systems_2",
         "pyproject-nix": "pyproject-nix_2",
@@ -340,7 +342,7 @@
         "flake-compat": "flake-compat_3",
         "flake-parts": "flake-parts_3",
         "flake-utils": "flake-utils_4",
-        "napalm": "napalm_2",
+        "napalm": "napalm_3",
         "nixpkgs": "nixpkgs_4",
         "pyproject-build-systems": "pyproject-build-systems_3",
         "pyproject-nix": "pyproject-nix_3",
@@ -12084,6 +12086,32 @@
     "napalm": {
       "inputs": {
         "flake-utils": [
+          "authentik-nix",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "authentik-nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1725806412,
+        "narHash": "sha256-lGZjkjds0p924QEhm/r0BhAxbHBJE1xMOldB/HmQH04=",
+        "owner": "willibutz",
+        "repo": "napalm",
+        "rev": "b492440d9e64ae20736d3bec5c7715ffcbde83f5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "willibutz",
+        "ref": "avoid-foldl-stack-overflow",
+        "repo": "napalm",
+        "type": "github"
+      }
+    },
+    "napalm_2": {
+      "inputs": {
+        "flake-utils": [
           "campground-nvim",
           "campground",
           "authentik-nix",
@@ -12111,7 +12139,7 @@
         "type": "github"
       }
     },
-    "napalm_2": {
+    "napalm_3": {
       "inputs": {
         "flake-utils": [
           "campground-nvim",
