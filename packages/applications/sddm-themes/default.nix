@@ -9,14 +9,14 @@
 in
   stdenv.mkDerivation rec {
     pname = "sddm-theme-${themeName}";
-    version = "unstable-2025-01-06";
+    version = "unstable-2025-12-06";
 
     # Using a working fork since the original repository was deleted
     src = fetchFromGitHub {
       owner = "Keyitdev";
       repo = "sddm-astronaut-theme";
-      rev = "cca4b07cd6cbcf1738fb41e7ffb6be27f8ad5cfc";
-      sha256 = "sha256-9F0+fwljnNlAcfedPDcZb4wr87PyaPq4/o/pT7yLOPg=";
+      rev = "d73842c761f7d7859f3bdd80e4360f09180fad41";
+      sha256 = "sha256-1lvbvs58w1jx2y490vb4vpwqs685rl4mnk952945hzcn2dbidppv";
     };
 
     dontBuild = true;
