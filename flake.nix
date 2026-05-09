@@ -24,8 +24,8 @@
       url = "github:nix-community/npmlock2nix";
       flake = false;
     };
-    # Pin authentik to older version (2b63c4e - before latest npm infrastructure changes)
-    authentik-nix.url = "github:marcelcoding/authentik-nix/2b63c4e7e7ef9162a22f5cb0e5e2a4c3e20b8ca5";
+    # Pin authentik to 2025.10.3 (last version before migration bug in 2025.12+/2026.x)
+    authentik-nix.url = "github:marcelcoding/authentik-nix/e929253deddb8398c7010b28187d9d43603db950";
     # authentik-nix.inputs.nixpkgs.follows = "unstable";
     terranix.url = "github:terranix/terranix";
     terranix.inputs.nixpkgs.follows = "nixpkgs";
