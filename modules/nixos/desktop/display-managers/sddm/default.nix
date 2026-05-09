@@ -32,7 +32,7 @@ in {
     systemd.tmpfiles.rules = [ "d ${sddmHome}/.config 0711 sddm sddm" ];
 
     # Import the sddm-nixos theme package if enabled
-    environment.systemPackages = [ pkgs.fmf.sddm-themes pkgs.sddm-astronaut ];
+    environment.systemPackages = [ pkgs.fmf.sddm-themes ];
 
     services = {
       displayManager = {
@@ -41,7 +41,7 @@ in {
           package = pkgs.kdePackages.sddm;
           wayland.enable = cfg.wayland;
           extraPackages = [
-            pkgs.sddm-astronaut
+            pkgs.fmf.sddm-themes
             pkgs.kdePackages.qtbase
             pkgs.kdePackages.qtwayland
             pkgs.kdePackages.qtmultimedia

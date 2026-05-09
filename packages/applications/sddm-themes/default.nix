@@ -9,13 +9,14 @@
 in
   stdenv.mkDerivation rec {
     pname = "sddm-theme-${themeName}";
-    version = "unstable-2024-11-15";
+    version = "unstable-2025-01-06";
 
+    # Using a working fork since the original repository was deleted
     src = fetchFromGitHub {
-      owner = "lifeashansen";
-      repo = "sddm-nixos";
-      rev = "5e39e0841d4942757079779b4f0087f921288af6";
-      sha256 = "sha256-bqMnJs59vWkksJCm+NOJWgsuT4ABSyIZwnABC3JLcSc=";
+      owner = "Keyitdev";
+      repo = "sddm-astronaut-theme";
+      rev = "cca4b07cd6cbcf1738fb41e7ffb6be27f8ad5cfc";
+      sha256 = "sha256-9F0+fwljnNlAcfedPDcZb4wr87PyaPq4/o/pT7yLOPg=";
     };
 
     dontBuild = true;
@@ -32,46 +33,37 @@ in
     installPhase = ''
       runHook preInstall
 
-      # Create individual theme directories for each configuration
-      for themeConf in Themes/*.conf; do
-        themeName=$(basename "$themeConf" .conf)
-        themeDir="$out/share/sddm/themes/$themeName"
+      # Create theme directory
+      themeDir="$out/share/sddm/themes/sddm-astronaut-theme"
+      mkdir -p "$themeDir"
 
-        mkdir -p "$themeDir"
+      # Copy all theme files
+      cp -r * "$themeDir/"
 
-        # Copy all shared resources to each theme
-        cp -r Assets "$themeDir/"
-        cp -r Backgrounds "$themeDir/"
-        cp -r Components "$themeDir/"
-        cp -r Fonts "$themeDir/"
-
-        # Copy the Main.qml and metadata
-        cp Main.qml "$themeDir/"
-        cp "$themeConf" "$themeDir/theme.conf"
-
-        # Create metadata.desktop for this theme
+      # Create metadata.desktop if it doesn't exist
+      if [ ! -f "$themeDir/metadata.desktop" ]; then
         cat > "$themeDir/metadata.desktop" <<EOF
 [SddmGreeterTheme]
-Name=$themeName
-Description=Beautiful SDDM theme - $themeName variant
-Author=lifeashansen
+Name=Astronaut
+Description=Beautiful SDDM astronaut theme with Qt6 support
+Author=Keyitdev
 Copyright=GPL3+
 License=GPL3+
 Type=sddm-theme
 Version=1.0
-Theme-Id=$themeName
+Theme-Id=sddm-astronaut-theme
 Theme-API=2.0
 ConfigFile=theme.conf
 MainScript=Main.qml
 EOF
-      done
+      fi
 
       runHook postInstall
     '';
 
     meta = with lib; {
-      description = "Collection of beautiful SDDM themes with Qt6 support";
-      homepage = "https://github.com/lifeashansen/sddm-nixos";
+      description = "Beautiful SDDM astronaut theme with Qt6 support";
+      homepage = "https://github.com/Keyitdev/sddm-astronaut-theme";
       license = licenses.gpl3Plus;
       platforms = platforms.linux;
       maintainers = [];
