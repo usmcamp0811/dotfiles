@@ -1,4 +1,4 @@
-{lib, ...}:
+{lib, pkgs, ...}:
 with lib;
 with lib.fmf; {
   imports = [./hardware.nix];
@@ -210,6 +210,13 @@ with lib.fmf; {
       };
     };
   };
+
+  # Temporary workaround: skip building upstream Authentik docs package,
+  # which currently fails in Nix build for this host.
+  services.authentik.authentikComponents.docs = pkgs.runCommand "goauthentik-docs-placeholder" {} ''
+    mkdir -p "$out/static"
+    printf '%s\n' 'authentik docs build disabled on daly' > "$out/index.html"
+  '';
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
