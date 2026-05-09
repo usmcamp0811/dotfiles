@@ -16,7 +16,7 @@ in
       owner = "Keyitdev";
       repo = "sddm-astronaut-theme";
       rev = "d73842c761f7d7859f3bdd80e4360f09180fad41";
-      sha256 = "sha256-1lvbvs58w1jx2y490vb4vpwqs685rl4mnk952945hzcn2dbidppv";
+      sha256 = "sha256-+94WVxOWfVhIEiVNWwnNBRmN+d1kbZCIF10Gjorea9M=";
     };
 
     dontBuild = true;
