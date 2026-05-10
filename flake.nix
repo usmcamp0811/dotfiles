@@ -10,7 +10,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/dev";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-294-fix-deploy-tab";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
@@ -25,7 +25,7 @@
       flake = false;
     };
     # Pin authentik to 2025.10.3 (last version before migration bug in 2025.12+/2026.x)
-    authentik-nix.url = "github:nix-community/authentik-nix/fa8d3ea7335ee2adf4d1a633bc725199def62791";
+    authentik-nix.url = "github:nix-community/authentik-nix?ref=version/2026.2.2";
     # authentik-nix.inputs.nixpkgs.follows = "unstable";
     terranix.url = "github:terranix/terranix";
     terranix.inputs.nixpkgs.follows = "nixpkgs";
