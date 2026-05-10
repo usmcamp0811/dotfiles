@@ -25,7 +25,7 @@
       flake = false;
     };
     # Pin authentik to 2025.10.3 (last version before migration bug in 2025.12+/2026.x)
-    authentik-nix.url = "github:nix-community/authentik-nix?ref=version/2025.12.4";
+    authentik-nix.url = "github:nix-community/authentik-nix/fa8d3ea7335ee2adf4d1a633bc725199def62791";
     # authentik-nix.inputs.nixpkgs.follows = "unstable";
     terranix.url = "github:terranix/terranix";
     terranix.inputs.nixpkgs.follows = "nixpkgs";
