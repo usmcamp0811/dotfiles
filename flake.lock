@@ -280,15 +280,15 @@
       "locked": {
         "lastModified": 1765971510,
         "narHash": "sha256-HdGpVTqPguAvkDbgjWi38sGUaI0MvxJJX2bFVZTKXaE=",
-        "owner": "marcelcoding",
+        "owner": "nix-community",
         "repo": "authentik-nix",
         "rev": "e929253deddb8398c7010b28187d9d43603db950",
         "type": "github"
       },
       "original": {
-        "owner": "marcelcoding",
+        "owner": "nix-community",
+        "ref": "version/2025.10.3",
         "repo": "authentik-nix",
-        "rev": "e929253deddb8398c7010b28187d9d43603db950",
         "type": "github"
       }
     },
