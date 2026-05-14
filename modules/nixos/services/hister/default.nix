@@ -394,7 +394,7 @@ in
       description = "Regex patterns for sensitive content redaction.";
       example = literalExpression ''
         {
-          aws_access_key = "(^|[\\s\"''])AKIA[0-9A-Z]{16}([\\s\"'']|$)";
+          aws_access_key = "AKIA[0-9A-Z]{16}";
           github_token = "(ghp|gho|ghu|ghs|ghr)_[a-zA-Z0-9]{36}";
         }
       '';

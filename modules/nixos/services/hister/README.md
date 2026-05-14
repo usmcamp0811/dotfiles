@@ -271,7 +271,7 @@ Once the service is running:
     enable = true;
     
     sensitiveContentPatterns = {
-      aws_access_key = "(^|[s\"''])AKIA[0-9A-Z]{16}([s\"'']|$)";
+      aws_access_key = "AKIA[0-9A-Z]{16}";
       github_token = "(ghp|gho|ghu|ghs|ghr)_[a-zA-Z0-9]{36}";
       custom_pattern = "SECRET_[A-Z0-9]+";
     };
