@@ -160,6 +160,11 @@ in {
         default = true;
         description = "Whether to check cache status during evaluation.";
       };
+      allow_private_cache_test_targets = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Allow cache credential tests against private/local IP targets by default.";
+      };
       role_mapping = lib.mkOption {
         type = lib.types.attrsOf lib.types.str;
         default = { };
@@ -708,6 +713,7 @@ in {
         enable = true;
         inherit (cfg.server)
           host port auth_mode eval_workers eval_max_memory_mb eval_check_cache
+          allow_private_cache_test_targets
           role_mapping;
         oidc = {
           inherit (cfg.server.oidc)
