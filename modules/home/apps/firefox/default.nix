@@ -9,7 +9,7 @@ in {
   };
 
   config = mkIf cfg.enable (mkMerge [
-    (mkIf (hasAttrByPath [ "stylix" "targets" "firefox" "profileNames" ] options) {
+    (optionalAttrs (hasAttrByPath [ "stylix" "targets" "firefox" "profileNames" ] options) {
       stylix.targets.firefox.profileNames = [ "default" ];
     })
 
