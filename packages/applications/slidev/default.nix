@@ -42,14 +42,14 @@ with lib; let
         hash = cfg.srcHash;
       };
 
-      nativeBuildInputs = [pkgs.nodejs cfg.pnpm.configHook pkgs.makeWrapper];
+      nativeBuildInputs = [pkgs.nodejs pkgs.pnpmConfigHook pkgs.makeWrapper];
 
-      pnpmDeps = cfg.pnpm.fetchDeps {
+      pnpmDeps = pkgs.fetchPnpmDeps {
         pname = "slidev";
         version = cfg.version;
         src = finalAttrs.src;
         hash = cfg.depsHash;
-        fetcherVersion = 1;
+        fetcherVersion = 3;
       };
 
       buildPhase = ''

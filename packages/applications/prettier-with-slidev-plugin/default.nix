@@ -15,12 +15,12 @@ with lib.fmf; let
       hash = "sha256-AIlOwylRuZ6/I4whoc/dJdGRQoldWVzTucABsnCEREo=";
     };
 
-    nativeBuildInputs = [pkgs.nodejs pkgs.pnpm_9.configHook pkgs.makeWrapper];
+    nativeBuildInputs = [pkgs.nodejs pkgs.pnpmConfigHook pkgs.makeWrapper];
 
-    pnpmDeps = pkgs.pnpm_9.fetchDeps {
+    pnpmDeps = pkgs.fetchPnpmDeps {
       inherit (finalAttrs) pname version src;
       hash = "sha256-EHISiqPo2hevf9ear0I7oAQs3rzagnd6M2zPrHwn0ig=";
-      fetcherVersion = 1;
+      fetcherVersion = 3;
     };
 
     buildPhase = ''

@@ -931,6 +931,7 @@ in {
             (cfg.cache.cache_type == "Attic" && cfg.cache.push_to != null)
             [ "-/var/lib/crystal-forge/.config/crystal-forge-attic.env" ];
           Environment = lib.optionals cfg.builder.enable_api_mode [
+            "CRYSTAL_FORGE__BUILD__API_MODE=true"
             "CRYSTAL_FORGE__BUILDER__ENABLE_API_MODE=true"
             "CRYSTAL_FORGE__BUILDER__PRIVATE_KEY_PATH=${
               toString cfg.builder.private_key_path

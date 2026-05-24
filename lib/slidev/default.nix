@@ -98,12 +98,12 @@
     pkgs.stdenv.mkDerivation {
       inherit pname version src;
 
-      nativeBuildInputs = [pkgs.nodejs pnpm.configHook];
+      nativeBuildInputs = [pkgs.nodejs pkgs.pnpmConfigHook];
 
-      pnpmDeps = pnpm.fetchDeps {
+      pnpmDeps = pkgs.fetchPnpmDeps {
         inherit pname version src;
         hash = depsHash;
-        fetcherVersion = 1;
+        fetcherVersion = 3;
       };
 
       installPhase = ''

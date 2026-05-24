@@ -9,6 +9,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+    stylix.targets.firefox.profileNames = [ "default" ];
+
     # environment.systemPackages = with pkgs; [
     #   nssTools
     #   firefox
