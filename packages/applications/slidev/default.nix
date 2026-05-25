@@ -42,7 +42,7 @@ with lib; let
         hash = cfg.srcHash;
       };
 
-      nativeBuildInputs = [pkgs.nodejs pkgs.pnpmConfigHook pkgs.makeWrapper];
+      nativeBuildInputs = [pkgs.nodejs cfg.pnpm pkgs.pnpmConfigHook pkgs.makeWrapper];
 
       pnpmDeps = pkgs.fetchPnpmDeps {
         pname = "slidev";

@@ -98,7 +98,7 @@
     pkgs.stdenv.mkDerivation {
       inherit pname version src;
 
-      nativeBuildInputs = [pkgs.nodejs pkgs.pnpmConfigHook];
+      nativeBuildInputs = [pkgs.nodejs pnpm pkgs.pnpmConfigHook];
 
       pnpmDeps = pkgs.fetchPnpmDeps {
         inherit pname version src;
