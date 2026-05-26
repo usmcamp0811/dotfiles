@@ -129,12 +129,12 @@ in {
       after = [ "zfs-import.target" "network-online.target" ];
       before = [ "zfs-mount.service" ];
       wants = [ "network-online.target" ];
-      # Critical: requiredBy ensures zfs-mount.service waits for us
-      requiredBy = [ "zfs-mount.service" ];
+      wantedBy = [ "zfs-mount.service" ];
       
       # Only run if there are pools with unavailable keys
       unitConfig = {
         ConditionPathExists = "/sys/module/zfs";
+        DefaultDependencies = false;
       };
       
       serviceConfig = {
