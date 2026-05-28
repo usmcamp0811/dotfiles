@@ -10,7 +10,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-311-refactor-builders-view";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-322-cve-view-refactor";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
