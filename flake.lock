@@ -1536,11 +1536,11 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1780169692,
-        "narHash": "sha256-niWWazjdT88UXyRG+GjD3lA0LdJSslDCP9gNtIzOxiw=",
+        "lastModified": 1780173093,
+        "narHash": "sha256-cP+eCjNBikiSxiYyTLaVO6ul0bN/I4eThojAVouqDSc=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "d79bdc49f1b881723d7e8d6c9766321f685bc17c",
+        "rev": "c87ad855433fb055f99f215ad1729a153790bc30",
         "type": "gitlab"
       },
       "original": {
