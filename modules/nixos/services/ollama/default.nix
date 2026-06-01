@@ -87,17 +87,6 @@ in {
       '';
     };
 
-    acceleration = mkOption {
-      type = types.nullOr (types.enum [false "rocm" "cuda"]);
-      default = null;
-      description = ''
-        What interface to use for hardware acceleration.
-        - null: default behavior depending on GPU support
-        - false: disable GPU, only use CPU
-        - "rocm": supported by most modern AMD GPUs
-        - "cuda": supported by most modern NVIDIA GPUs
-      '';
-    };
   };
 
   config = mkIf cfg.enable {
@@ -119,7 +108,7 @@ in {
       group = cfg.group;
       models = cfg.modelsDir;
       loadModels = cfg.loadModels;
-      acceleration = cfg.acceleration;
+      package = cfg.package;
     };
 
     networking.firewall.allowedTCPPorts = [cfg.port];

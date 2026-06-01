@@ -471,7 +471,7 @@ in {
       open-webui = enabled;
       ollama = {
         enable = true;
-        acceleration = "cuda";
+        package = pkgs.ollama-cuda;
         # host = "0.0.0.0";
       };
       file-share = enabled;

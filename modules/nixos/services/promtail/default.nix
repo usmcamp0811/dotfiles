@@ -15,30 +15,8 @@ in {
   };
 
   config = mkIf cfg.enable {
-    services.promtail = {
-      enable = true;
-      configuration = {
-        server = {
-          http_listen_port = cfg.port;
-          grpc_listen_port = 0;
-        };
-        positions = { filename = "/tmp/positions.yaml"; };
-        clients = [{ url = "http://${cfg.loki-uri}/loki/api/v1/push"; }];
-        scrape_configs = [{
-          job_name = "journal";
-          journal = {
-            max_age = "12h";
-            labels = {
-              job = "systemd-journal";
-              host = cfg.hostName;
-            };
-          };
-          relabel_configs = [{
-            source_labels = [ "__journal__systemd_unit" ];
-            target_label = "unit";
-          }];
-        }] ++ cfg.additionalScrapeConfigs;
-      };
-    };
+    warnings = [
+      "fmf.services.promtail is enabled, but NixOS removed services.promtail (Promtail EOL). Please migrate to services.alloy or services.fluent-bit."
+    ];
   };
 }

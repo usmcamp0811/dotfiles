@@ -134,7 +134,7 @@ with lib.fmf; {
       # onlyoffice = { enable = true; };
       ollama = {
         enable = true;
-        acceleration = "cuda";
+        package = pkgs.ollama-cuda;
       };
       # hadoop = {
       #   enable = true;

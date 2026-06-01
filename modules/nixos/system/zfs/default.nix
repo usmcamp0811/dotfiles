@@ -26,12 +26,20 @@ in {
 
     networking.hostId = cfg.hostId;
 
-    boot.initrd.network = {
+    boot.initrd.network.enable = true;
+    boot.initrd.systemd = {
       enable = true;
-      postCommands = ''
+      services.zfs-initrd-network-unlock = {
+        description = "Unlock ZFS in initrd via Tang/Clevis";
+        wantedBy = [ "initrd.target" ];
+        after = [ "initrd-network.target" "systemd-udev-settle.service" ];
+        wants = [ "initrd-network.target" ];
+        before = [ "sysroot.mount" ];
+        path = with pkgs; [ curl clevis gawk zfs ];
+        serviceConfig.Type = "oneshot";
+        script = ''
         # Extended initial delay for network and Tang server to be ready
         sleep 5
-        export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:$PATH"
         
         echo "[ZFS Unlock] Importing all ZFS pools..."
         zpool import -a;
@@ -43,7 +51,7 @@ in {
         MAX_RETRIES=3
         
         while [ -z "$ENCRYPTED_KEYFILE" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          ENCRYPTED_KEYFILE=$(${pkgs.curl}/bin/curl -s -f --connect-timeout 5 --max-time 10 ${cfg.keyfile-url})
+          ENCRYPTED_KEYFILE=$(curl -s -f --connect-timeout 5 --max-time 10 ${cfg.keyfile-url})
           if [ -z "$ENCRYPTED_KEYFILE" ]; then
             RETRY_COUNT=$((RETRY_COUNT + 1))
             echo "[ZFS Unlock] Failed to fetch keyfile (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 3 seconds..."
@@ -100,14 +108,16 @@ in {
 
         killall zfs
       '';
-      ssh = {
-        enable = true;
-        port = 22;
-        authorizedKeys = cfg.public_keys;
-        # TODO: Do somehting to make sure these keys exist. Currently wont exist until you ssh somewhere for the first time.
-        hostKeys =
-          [ "/etc/ssh/ssh_host_rsa_key" "/etc/ssh/ssh_host_ed25519_key" ];
       };
+    };
+
+    boot.initrd.network.ssh = {
+      enable = true;
+      port = 22;
+      authorizedKeys = cfg.public_keys;
+      # TODO: Do somehting to make sure these keys exist. Currently wont exist until you ssh somewhere for the first time.
+      hostKeys =
+        [ "/etc/ssh/ssh_host_rsa_key" "/etc/ssh/ssh_host_ed25519_key" ];
     };
     # use this lspci -v | grep -iA8 'network\|ethernet' to then ask Chad what modules to use here
     boot.initrd.availableKernelModules =
@@ -179,8 +189,8 @@ in {
         DECRYPT_SUCCESS=0
         
         while [ $DECRYPT_SUCCESS -eq 0 ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          if curl -fsSL --connect-timeout 5 --max-time 10 ${cfg.keyfile-url} \
-             | clevis decrypt > "$KEYFILE_PATH" 2>/dev/null; then
+          if ${pkgs.curl}/bin/curl -fsSL --connect-timeout 5 --max-time 10 ${cfg.keyfile-url} \
+             | ${pkgs.clevis}/bin/clevis decrypt > "$KEYFILE_PATH" 2>/dev/null; then
             DECRYPT_SUCCESS=1
           else
             RETRY_COUNT=$((RETRY_COUNT + 1))

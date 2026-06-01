@@ -93,6 +93,7 @@
   fileSystems."/persist".neededForBoot = true;
   fileSystems."/home/admin" = {
     device = "/persist/home/admin";
+    fsType = "none";
     options = [ "bind" "noatime" ];
     depends = [ "/persist" ];
     neededForBoot = true;

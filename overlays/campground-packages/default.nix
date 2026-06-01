@@ -83,6 +83,7 @@ final: prev: {
 
   # Yarn packaging from old nixpkgs
   mkYarnPackage = old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
+  yarn2nix-moretea = old-nixpkgs.legacyPackages.${prev.system}.yarn2nix-moretea;
 
   # Comma for quick package running
   comma = comma.packages.${final.system}.comma;

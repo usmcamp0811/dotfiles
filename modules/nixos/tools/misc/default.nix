@@ -38,7 +38,7 @@ in
       devour
       usbutils
       pciutils
-      neofetch
+      fastfetch
       libnotify
       # sbomnix
       bash
