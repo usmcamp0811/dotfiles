@@ -3,6 +3,7 @@ with lib;
 with lib.fmf;
 let
   cfg = config.fmf.nix;
+  system = pkgs.stdenv.hostPlatform.system;
   substituters-submodule = types.submodule ({ ... }: {
     options = with types; {
       key =
@@ -12,7 +13,7 @@ let
 in {
   options.fmf.nix = with types; {
     enable = mkBoolOpt true "Whether or not to manage nix configuration.";
-    package = mkOpt package inputs.nix-patched.packages.${pkgs.system}.default
+    package = mkOpt package inputs.nix-patched.packages.${system}.default
       "Which nix package to use (defaults to patched 2.34.5 for CVE-2026-39860).";
     additional-authorized-users =
       mkOpt (listOf str) [ ] "List of authorized users";

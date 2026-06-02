@@ -3,6 +3,7 @@ with lib;
 with lib.fmf;
 let
   cfg = config.fmf.tools.agentic-ai;
+  system = pkgs.stdenv.hostPlatform.system;
   remoteSkillsToInstall = cfg.remoteSkills;
   opencodeAnthropicMaxFixVersion = "0.1.1";
   opencodeAnthropicMaxFixPlugin =
@@ -147,7 +148,7 @@ in {
           != [ ]) [
           pkgs.llm-agents.skills-installer
           pkgs.git
-          inputs.mcp-nixos.packages.${pkgs.system}.mcp-nixos
+          inputs.mcp-nixos.packages.${system}.mcp-nixos
         ]);
 
     programs.zsh.initContent = concatStringsSep "\n" [

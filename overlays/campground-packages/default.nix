@@ -20,7 +20,9 @@
   lib,
   ...
 }:
-final: prev: {
+final: prev: let
+  system = prev.stdenv.hostPlatform.system;
+in {
   # Services framework
   services-flake = import process-compose-flake.lib {pkgs = final;};
 
@@ -33,15 +35,15 @@ final: prev: {
           lib.mapAttrs (_chart: drv: drv)
           charts
       )
-      nixhelm.chartsDerivations.${prev.system}
+      nixhelm.chartsDerivations.${system}
   );
   nixhelm = nixhelm;
-  nixidy-cli = nixidy.packages.${prev.system}.default;
+  nixidy-cli = nixidy.packages.${system}.default;
   nixidy-lib = nixidy.lib;
 
   # Crystal Forge slides
-  cf-slides = crystal-forge.packages.${prev.system}.slides;
-  cf-slides-campground = crystal-forge.packages.${prev.system}.slides.overrideAttrs (old: {
+  cf-slides = crystal-forge.packages.${system}.slides;
+  cf-slides-campground = crystal-forge.packages.${system}.slides.overrideAttrs (old: {
     postBuild =
       (old.postBuild or "")
       + ''
@@ -52,14 +54,14 @@ final: prev: {
   });
 
   # Neovim
-  campground-nvim = campground-nvim.packages.${prev.system}.nvim;
-  neovim = campground-nvim.packages.${prev.system}.nvim;
+  campground-nvim = campground-nvim.packages.${system}.nvim;
+  neovim = campground-nvim.packages.${system}.nvim;
 
   # macOS image builder
-  makeDarwinImage = nixtheplanet.legacyPackages.${prev.system}.makeDarwinImage;
+  makeDarwinImage = nixtheplanet.legacyPackages.${system}.makeDarwinImage;
 
   # Neovide from old-nixpkgs
-  neovide = old-nixpkgs.legacyPackages.${prev.system}.neovide;
+  neovide = old-nixpkgs.legacyPackages.${system}.neovide;
 
   # WASM tools
   wasm-bindgen-cli = unstable.legacyPackages.x86_64-linux.wasm-bindgen-cli_0_2_100;
@@ -82,11 +84,11 @@ final: prev: {
   });
 
   # Yarn packaging from old nixpkgs
-  mkYarnPackage = old-nixpkgs.legacyPackages.${prev.system}.mkYarnPackage;
-  yarn2nix-moretea = old-nixpkgs.legacyPackages.${prev.system}.yarn2nix-moretea;
+  mkYarnPackage = old-nixpkgs.legacyPackages.${system}.mkYarnPackage;
+  yarn2nix-moretea = old-nixpkgs.legacyPackages.${system}.yarn2nix-moretea;
 
   # Comma for quick package running
-  comma = comma.packages.${final.system}.comma;
+  comma = comma.packages.${system}.comma;
 
   # Packages from old-nixpkgs
   inherit (channels.old-nixpkgs) ckb-next postgresql16Packages postgresql14Packages;
@@ -118,5 +120,5 @@ final: prev: {
     ;
 
   # Jupyter environment builder
-  inherit (jupyenv.lib.${final.system}) mkJupyterlabNew mkKernel;
+  inherit (jupyenv.lib.${system}) mkJupyterlabNew mkKernel;
 }

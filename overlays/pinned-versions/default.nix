@@ -4,12 +4,14 @@
   channels,
   nixpkgs,
   ...
-}: final: prev: {
+}: final: prev: let
+  system = prev.stdenv.hostPlatform.system;
+in {
   # Ollama from specific pinned commit
   # inherit (channels.updated-ollama) ollama ollama-cuda open-webui;
 
   # QEMU from main nixpkgs
-  qemu = nixpkgs.legacyPackages.${prev.system}.qemu;
+  qemu = nixpkgs.legacyPackages.${system}.qemu;
 
   # Pin opencode to v1.3.13 inside llm-agents
   # llm-agents = prev.llm-agents // {

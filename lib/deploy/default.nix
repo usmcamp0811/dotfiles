@@ -25,7 +25,7 @@ in rec {
     nodes = lib.foldl' (result: name: let
       host = hosts.${name};
       user = host.config.fmf.user.name or null;
-      inherit (host.pkgs) system;
+      system = host.pkgs.stdenv.hostPlatform.system;
     in
       result
       // {

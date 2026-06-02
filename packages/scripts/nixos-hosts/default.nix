@@ -21,7 +21,7 @@
   in
     lib.replaceStrings findPatterns replaceValues src;
 
-  formatted-hosts = mapAttrsToList (name: host: "${name},${host.pkgs.system}") hosts;
+  formatted-hosts = mapAttrsToList (name: host: "${name},${host.pkgs.stdenv.hostPlatform.system}") hosts;
 
   hosts-csv = writeText "hosts.csv" ''
     Name,System

@@ -448,7 +448,7 @@
       outputs-builder = channels: {
         # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and
         # which will break `deploy`.
-        hooks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
+        hooks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.stdenv.hostPlatform.system}.run {
           src = ./.;
           hooks = {
             nixpkgs-fmt.enable = true;
