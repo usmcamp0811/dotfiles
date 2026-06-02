@@ -15,7 +15,8 @@ in {
     alsa-monitor = mkOpt attrs {} "Alsa configuration.";
     nodes = mkOpt (listOf attrs) [] "Audio nodes to pass to Pipewire as `context.objects`.";
     modules = mkOpt (listOf attrs) [] "Audio modules to pass to Pipewire as `context.modules`.";
-    extra-packages = mkOpt (listOf package) [pkgs.qjackctl pkgs.easyeffects] "Additional packages to install.";
+    extra-packages = mkOpt (listOf package) [pkgs.qjackctl] "Additional packages to install.";
+    include-easyeffects = mkBoolOpt true "Whether to include easyeffects (may fail on some systems due to broken dependencies).";
   };
 
   config = mkIf cfg.enable {
@@ -79,7 +80,10 @@ in {
       "snd_hda_intel.power_save_controller=0"
     ];
 
-    environment.systemPackages = with pkgs; [pulsemixer pavucontrol] ++ cfg.extra-packages;
+    environment.systemPackages = with pkgs; 
+      [pulsemixer pavucontrol] 
+      ++ cfg.extra-packages
+      ++ lib.optionals cfg.include-easyeffects [pkgs.easyeffects];
 
     fmf.user.extraGroups = ["audio"];
 

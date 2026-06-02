@@ -8,6 +8,7 @@ in
 {
   options.fmf.tools.misc = with types; {
     enable = mkBoolOpt false "Whether or not to enable common utilities.";
+    include-gui-tools = mkBoolOpt true "Whether to include GUI tools like flameshot (disable for headless servers).";
   };
 
   config = mkIf cfg.enable {
@@ -33,7 +34,6 @@ in
       zig
       btop
       deno
-      flameshot
       neovim
       devour
       usbutils
@@ -54,6 +54,8 @@ in
       lshw
       borgbackup
       yt-dlp
+    ] ++ lib.optionals cfg.include-gui-tools [
+      flameshot
     ];
   };
 }
