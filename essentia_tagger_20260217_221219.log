@@ -1,0 +1,35 @@
+
+================================================================================
+ESSENTIA MUSIC TAGGER - LOG FILE
+Generated: 2026-02-17 22:12:19
+================================================================================
+
+
+CONFIGURATION:
+--------------------------------------------------------------------------------
+Target Directory: /export/media/music
+Model Directory: /nix/store/nafbmvh146csfabn71yzb37gs9ig27ch-essentia-to-metadata-models-2026-02-17/share/essentia_models
+
+Genre Settings:
+  - Number of genres: 3
+  - Confidence threshold: 15.0%
+  - Genre format: parent_child
+
+Mood Settings:
+  - Enable moods: True
+  - Confidence threshold: 0.5%
+
+Other Settings:
+  - Dry run mode: False
+  - Write confidence tags: True
+  - Overwrite existing: True
+  - Verbose output: True
+================================================================================
+
+🎸 Essentia Tagger [LIVE]
+   Path: /export/media/music
+   Genres: 3 (threshold: 15.0%)
+   Moods: enabled (threshold: 0.50%)
+
+
+🔄 Loading models...

@@ -4,5 +4,14 @@
 final: prev: let
   system = prev.stdenv.hostPlatform.system;
 in {
-  nix-unstable = unstable.legacyPackages.${system};
+  # Import unstable with explicit config to allow unfree packages (including CUDA)
+  nix-unstable = import unstable {
+    inherit system;
+    config = {
+      allowUnfree = true;
+      cudaSupport = true;
+      # Allow all unfree packages without restriction
+      allowUnfreePredicate = _: true;
+    };
+  };
 }
