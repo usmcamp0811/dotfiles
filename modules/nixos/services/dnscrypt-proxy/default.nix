@@ -1,7 +1,11 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   cfg = config.fmf.services.dnscrypt-proxy;
 
   # OISD blocklist for dnscrypt-proxy
@@ -12,7 +16,7 @@ let
     # This hash will need to be updated periodically, but won't break consumers
     # Run: nix-prefetch-url https://big.oisd.nl/domainswild
     # Last updated: 2026-06-01
-    sha256 = "sha256-1VRfxFtBtH3vMPcYJwoVXOzJdYEG/XHEfgp8QoLY81Q=";
+    sha256 = "sha256-GJbwQv+VeduVyAm4tJU071LBy/a0Yh5xMIBCdpmSMr8=";
   };
 
   blocklist_base = builtins.readFile oisd-blocklist;
@@ -26,13 +30,16 @@ let
   StatePath = "/var/lib/${StateDirName}";
 in {
   options.fmf.services.dnscrypt-proxy = with types; {
-    enable = mkBoolOpt false
+    enable =
+      mkBoolOpt false
       "Enable dnscrypt-proxy with ODoH (Oblivious DNS over HTTPS)";
 
-    listenAddresses = mkOpt (listOf str) [ "127.0.0.1:5353" "[::1]:5353" ]
+    listenAddresses =
+      mkOpt (listOf str) ["127.0.0.1:5353" "[::1]:5353"]
       "Local addresses and ports to listen on";
 
-    serverNames = mkOpt (listOf str) [ "odoh-cloudflare" "odoh-snowstorm" ]
+    serverNames =
+      mkOpt (listOf str) ["odoh-cloudflare" "odoh-snowstorm"]
       "ODoH servers to use";
 
     odohServers = mkBoolOpt true "Enable Oblivious DoH servers";
@@ -58,16 +65,17 @@ in {
       routes = mkOpt (listOf attrs) [
         {
           server_name = "odoh-snowstorm";
-          via = [ "odohrelay-crypto-sx" ];
+          via = ["odohrelay-crypto-sx"];
         }
         {
           server_name = "odoh-cloudflare";
-          via = [ "odohrelay-crypto-sx" ];
+          via = ["odohrelay-crypto-sx"];
         }
       ] "ODoH routing configuration (server -> relay mapping)";
     };
 
-    extraSettings = mkOpt attrs { }
+    extraSettings =
+      mkOpt attrs {}
       "Additional settings to merge into dnscrypt-proxy configuration";
   };
 
@@ -85,8 +93,7 @@ in {
               "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md"
               "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
             ];
-            minisign_key =
-              "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+            minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
             cache_file = "${StatePath}/public-resolvers.md";
           };
 
@@ -96,8 +103,7 @@ in {
               "https://download.dnscrypt.info/resolvers-list/v3/relays.md"
             ];
             cache_file = "${StatePath}/relays.md";
-            minisign_key =
-              "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+            minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
           };
 
           sources.odoh-servers = {
@@ -106,8 +112,7 @@ in {
               "https://download.dnscrypt.info/resolvers-list/v3/odoh-servers.md"
             ];
             cache_file = "${StatePath}/odoh-servers.md";
-            minisign_key =
-              "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+            minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
           };
 
           sources.odoh-relays = {
@@ -116,8 +121,7 @@ in {
               "https://download.dnscrypt.info/resolvers-list/v3/odoh-relays.md"
             ];
             cache_file = "${StatePath}/odoh-relays.md";
-            minisign_key =
-              "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+            minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
           };
 
           # Anonymized DNS (ODoH) configuration
@@ -149,7 +153,7 @@ in {
     systemd.services.dnscrypt-proxy2.serviceConfig.StateDirectory =
       StateDirName;
 
-    networking.firewall.allowedTCPPorts = [ 5353 ];
-    networking.firewall.allowedUDPPorts = [ 5353 ];
+    networking.firewall.allowedTCPPorts = [5353];
+    networking.firewall.allowedUDPPorts = [5353];
   };
 }
