@@ -27,6 +27,14 @@ in {
       mkOpt (types.nullOr types.path) null
       "Path to secret key file. If null, generated under dataDir.";
 
+    apiTokenPeppersFile =
+      mkOpt (types.nullOr types.path) null
+      "Path to NetBox API token peppers file. If null, generated under dataDir.";
+
+    apiTokenPeppersFile =
+      mkOpt (types.nullOr types.path) null
+      "Path to NetBox API token peppers file. If null, generated under dataDir.";
+
     dataDir =
       mkOpt types.path "/var/lib/netbox"
       "Directory where NetBox stores static files/media and generated secret key.";
@@ -149,6 +157,48 @@ in {
       '';
     };
 
+    systemd.services.netbox-generate-api-token-peppers = mkIf (cfg.apiTokenPeppersFile == null) {
+      description = "Generate NetBox API token peppers file";
+      before = ["netbox.service"];
+      wantedBy = ["netbox.service"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "netbox";
+        Group = "netbox";
+      };
+      script = ''
+        peppersFile="${cfg.dataDir}/api-token-peppers"
+        if [ ! -f "$peppersFile" ]; then
+          install -d -m 0750 -o netbox -g netbox "${cfg.dataDir}"
+          ${pkgs.openssl}/bin/openssl rand -hex 32 > "$peppersFile"
+          chmod 600 "$peppersFile"
+          chown netbox:netbox "$peppersFile"
+        fi
+      '';
+    };
+
+    systemd.services.netbox-generate-api-token-peppers = mkIf (cfg.apiTokenPeppersFile == null) {
+      description = "Generate NetBox API token peppers file";
+      before = ["netbox.service"];
+      wantedBy = ["netbox.service"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "netbox";
+        Group = "netbox";
+      };
+      script = ''
+        peppersFile="${cfg.dataDir}/api-token-peppers"
+        if [ ! -f "$peppersFile" ]; then
+          install -d -m 0750 -o netbox -g netbox "${cfg.dataDir}"
+          ${pkgs.openssl}/bin/openssl rand -hex 32 > "$peppersFile"
+          chmod 600 "$peppersFile"
+          chown netbox:netbox "$peppersFile"
+        fi
+      '';
+    };
+
     # Upstream NixOS NetBox module
     services.netbox = {
       enable = true;
@@ -160,6 +210,16 @@ in {
         if cfg.secretKeyFile != null
         then cfg.secretKeyFile
         else "${cfg.dataDir}/secret-key";
+
+      apiTokenPeppersFile =
+        if cfg.apiTokenPeppersFile != null
+        then cfg.apiTokenPeppersFile
+        else "${cfg.dataDir}/api-token-peppers";
+
+      apiTokenPeppersFile =
+        if cfg.apiTokenPeppersFile != null
+        then cfg.apiTokenPeppersFile
+        else "${cfg.dataDir}/api-token-peppers";
 
       dataDir = cfg.dataDir;
       plugins = cfg.plugins;
