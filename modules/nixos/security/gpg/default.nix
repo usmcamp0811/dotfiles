@@ -78,7 +78,10 @@ in {
       paperkey
       gnupg
       pinentry-curses
-      pinentry-qt
+      # Use the GTK/GNOME pinentry instead of pinentry-qt: the Qt build pulls
+      # in Qt6/KDE -> pyside6, which fails to build on nixpkgs 26.05.
+      # pinentry-gnome3 has no pyside6 dependency.
+      pinentry-gnome3
       paperkey
       # guideDesktopItem
       # reload-yubikey
