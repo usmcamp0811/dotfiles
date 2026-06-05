@@ -56,7 +56,10 @@ in {
           # ░▀░▀░▀░░░▀░░░░░▀▀▀░░▀░░▀░▀░▀░▀░░▀░░▀▀▀░▀░░
 
           # Startup background apps
-          "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-authentication-agent-1 &"
+          # Use the GNOME polkit agent instead of the KDE one: the KDE agent
+          # pulls in KDE6 frameworks -> pyside6, which fails to build on
+          # nixpkgs 26.05. polkit_gnome has no pyside6 dependency.
+          "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1 &"
           # "${getExe pkgs.openrgb} --startminimized --profile default"
           # "${getExe pkgs._1password-gui} --silent"
           "command -v ${getExe pkgs.cliphist} && ${

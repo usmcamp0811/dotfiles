@@ -34,7 +34,7 @@ in {
           "float, class:error"
           "float, class:splash"
           "float, class:confirmreset"
-          "float, class:org.kde.polkit-kde-authentication-agent-1"
+          "float, class:polkit-gnome-authentication-agent-1"
           "float, class:^(wdisplays)$"
           "size 1100 600, class:^(wdisplays)$"
           "float, class:^(blueman-manager)$"
@@ -92,9 +92,9 @@ in {
           "dimaround, class:^(gcr-prompter)$"
 
           # Require input
-          "bordercolor rgba(ed8796FF), class:org.kde.polkit-kde-authentication-agent-1"
-          "dimaround, class:org.kde.polkit-kde-authentication-agent-1"
-          "stayfocused, class:org.kde.polkit-kde-authentication-agent-1"
+          "bordercolor rgba(ed8796FF), class:polkit-gnome-authentication-agent-1"
+          "dimaround, class:polkit-gnome-authentication-agent-1"
+          "stayfocused, class:polkit-gnome-authentication-agent-1"
           "stayfocused, class:Rofi"
           "nofocus, class:^(steam)$, title:^()$"
 

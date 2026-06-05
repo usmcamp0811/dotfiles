@@ -15,7 +15,11 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      libreoffice-qt
+      # Use the GTK build instead of libreoffice-qt: the Qt build pulls in
+      # libreoffice-kde-dependencies -> KDE6 frameworks -> pyside6, which
+      # fails to compile on nixpkgs 26.05. The GTK build has no pyside6
+      # dependency and is functionally equivalent for our use.
+      libreoffice
       hunspell
       hunspellDicts.uk_UA
       hunspellDicts.th_TH
