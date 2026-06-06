@@ -54,7 +54,6 @@ in
       gnugrep
       zfs
       coreutils
-      psmisc
       # Include jose which clevis depends on
       jose
     ];
@@ -177,8 +176,12 @@ in
               fi
             fi
 
-            log "Calling killall zfs to continue boot"
-            ${pkgs.psmisc}/bin/killall zfs
+            # The 26.05 systemd initrd ordering above makes the generated
+            # zfs-import-* units wait until this service has finished, so there
+            # is no longer a blocked `zfs` process to kill here. Return success
+            # explicitly so a successful unlock does not get marked failed just
+            # because no `zfs` process existed yet.
+            exit 0
           '';
         };
       };
