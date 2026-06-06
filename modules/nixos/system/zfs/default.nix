@@ -50,6 +50,7 @@ in {
       curl 
       clevis 
       gawk 
+      gnugrep
       zfs 
       coreutils 
       psmisc
@@ -89,19 +90,16 @@ in {
         path = with pkgs; [ curl clevis gawk zfs ];
         serviceConfig.Type = "oneshot";
         script = ''
-        # Set PATH to include all required binaries
-        export PATH="${pkgs.coreutils}/bin:${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:${pkgs.zfs}/bin:${pkgs.psmisc}/bin:$PATH"
-        
         log() {
           echo "[ZFS Unlock] $1"
         }
 
         log "Initrd unlock service started"
         log "Sleeping 5 seconds to wait for network and Tang server"
-        sleep 5
+        ${pkgs.coreutils}/bin/sleep 5
         
         log "Importing all ZFS pools"
-        zpool import -a
+        ${pkgs.zfs}/bin/zpool import -a
         IMPORT_STATUS=$?
         log "zpool import -a exited with status $IMPORT_STATUS"
 
@@ -112,13 +110,13 @@ in {
         MAX_RETRIES=3
         
         while [ -z "$ENCRYPTED_KEYFILE" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          ENCRYPTED_KEYFILE=$(curl -s -f --connect-timeout 5 --max-time 10 ${cfg.keyfile-url})
+          ENCRYPTED_KEYFILE=$(${pkgs.curl}/bin/curl -s -f --connect-timeout 5 --max-time 10 ${cfg.keyfile-url})
           CURL_STATUS=$?
           log "curl attempt $((RETRY_COUNT + 1)) exited with status $CURL_STATUS"
           if [ -z "$ENCRYPTED_KEYFILE" ]; then
             RETRY_COUNT=$((RETRY_COUNT + 1))
             log "Failed to fetch non-empty keyfile (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 3 seconds"
-            sleep 3
+            ${pkgs.coreutils}/bin/sleep 3
           fi
         done
         
@@ -148,7 +146,7 @@ in {
             # Load the key for each encrypted ZFS dataset
             UNLOCK_SUCCESS=0
             UNLOCK_FAILED=0
-            LOCKED_DATASETS=$(zfs get keystatus -H -o name,value -t filesystem,volume | grep "unavailable" | awk '{print $1}' || true)
+            LOCKED_DATASETS=$(${pkgs.zfs}/bin/zfs get keystatus -H -o name,value -t filesystem,volume | ${pkgs.gnugrep}/bin/grep "unavailable" | ${pkgs.gawk}/bin/awk '{print $1}' || true)
             if [ -z "$LOCKED_DATASETS" ]; then
               log "No locked datasets found after decryption"
             else
@@ -160,7 +158,7 @@ in {
               log "Loading key for: $dataset"
               # Use -L prompt to override the dataset's keylocation property
               # This allows us to pipe the passphrase regardless of the stored keylocation value
-              if echo -n "$PASSPHRASE" | zfs load-key -L prompt "$dataset" 2>&1; then
+              if ${pkgs.coreutils}/bin/echo -n "$PASSPHRASE" | ${pkgs.zfs}/bin/zfs load-key -L prompt "$dataset" 2>&1; then
                 UNLOCK_SUCCESS=$((UNLOCK_SUCCESS + 1))
                 log "Successfully loaded key for $dataset"
               else
@@ -178,7 +176,7 @@ in {
         fi
 
         log "Calling killall zfs to continue boot"
-        killall zfs
+        ${pkgs.psmisc}/bin/killall zfs
       '';
         };
       };
