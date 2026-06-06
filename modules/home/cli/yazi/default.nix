@@ -185,11 +185,13 @@ in {
         open = {
           prepend_rules = [
             {
-              name = "*.{svg,png,jpg,jpeg,gif}";
+              # yazi renamed the `name` rule field to `url` (glob); `name`
+              # is no longer accepted in [open]/[plugin] rules.
+              url = "*.{svg,png,jpg,jpeg,gif}";
               use = "openImage";
             }
             {
-              name = "*.pdf";
+              url = "*.pdf";
               use = "openPdf";
             }
           ];
@@ -225,25 +227,25 @@ in {
             #   run = "office";
             # }
             {
-              name = "*.tsv";
+              url = "*.tsv";
               run = "duckdb";
             }
             {
-              name = "*.parquet";
+              url = "*.parquet";
               run = "duckdb";
             }
             {
-              name = "*.db";
+              url = "*.db";
               run = "duckdb";
             }
             {
-              name = "*.duckdb";
+              url = "*.duckdb";
               run = "duckdb";
             }
           ];
           prepend_previewers = [
             {
-              name = "*/";
+              url = "*/";
               run = "eza-preview";
             }
             {
@@ -251,7 +253,7 @@ in {
               run = "mediainfo";
             }
             {
-              name = "*.{jpg,png,webp}";
+              url = "*.{jpg,png,webp}";
               run = "mediainfo";
             }
             {
@@ -259,31 +261,31 @@ in {
               run = "mediainfo";
             }
             {
-              name = "*.tsv";
+              url = "*.tsv";
               run = "duckdb";
             }
             {
-              name = "*.parquet";
+              url = "*.parquet";
               run = "duckdb";
             }
             {
-              name = "*.csv";
+              url = "*.csv";
               run = "rich-preview";
             }
             {
-              name = "*.md";
+              url = "*.md";
               run = "rich-preview";
             }
             {
-              name = "*.rst";
+              url = "*.rst";
               run = "rich-preview";
             }
             {
-              name = "*.ipynb";
+              url = "*.ipynb";
               run = "rich-preview";
             }
             {
-              name = "*.json";
+              url = "*.json";
               run = "rich-preview";
             }
             # {

@@ -200,6 +200,14 @@ in {
         security = {
           admin_user = "$__env{ADMIN_USER}";
           admin_password = "$__env{ADMIN_PASSWORD}";
+          # As of NixOS 26.05, services.grafana.settings.security.secret_key no
+          # longer has a default value and must be set explicitly. We pin it to
+          # Grafana's historical built-in default so that any datasource
+          # passwords / secrets already encrypted in existing Grafana databases
+          # remain decryptable after the upgrade (no re-encryption needed).
+          # See the 26.05 release notes and:
+          # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#secret_key
+          secret_key = lib.mkDefault "SW2YcwTIb9zpOOhoPsMm";
         };
         server = {
           root_url = "https://${cfg.domain}";
