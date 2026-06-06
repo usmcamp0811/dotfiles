@@ -96,7 +96,94 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ clevis ];
+    environment.systemPackages = with pkgs; [
+      clevis
+      (writeScriptBin "zfs-unlock-manual" ''
+        #!${pkgs.bash}/bin/bash
+        set -e
+
+        echo "=== Manual ZFS Unlock Script ==="
+        echo ""
+
+        echo "Step 1: Checking for pools to import..."
+        if ${pkgs.zfs}/bin/zpool import 2>&1 | ${pkgs.gnugrep}/bin/grep -q "pool:"; then
+          echo "Found pools that need importing:"
+          ${pkgs.zfs}/bin/zpool import
+          echo ""
+          read -p "Import all pools? (y/n) " -n 1 -r
+          echo
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            ${pkgs.zfs}/bin/zpool import -a -N
+            echo "Pools imported"
+          fi
+        else
+          echo "All pools already imported"
+        fi
+
+        echo ""
+        echo "Step 2: Checking for locked datasets..."
+        LOCKED=$(${pkgs.zfs}/bin/zfs get -H -o name,value keystatus -t filesystem,volume | ${pkgs.gawk}/bin/awk '$2 == "unavailable" { print $1 }' || true)
+
+        if [ -z "$LOCKED" ]; then
+          echo "✓ No locked datasets found! All datasets are unlocked."
+          echo ""
+          echo "Step 3: Mounting datasets..."
+          ${pkgs.zfs}/bin/zfs mount -a
+          echo "✓ Done!"
+          exit 0
+        fi
+
+        echo "Found locked datasets:"
+        echo "$LOCKED"
+        echo ""
+
+        read -p "Attempt automatic unlock via Tang? (y/n) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          KEYFILE=$(${pkgs.coreutils}/bin/mktemp)
+          trap "${pkgs.coreutils}/bin/shred -u $KEYFILE 2>/dev/null || ${pkgs.coreutils}/bin/rm -f $KEYFILE" EXIT
+
+          echo "Step 3: Fetching and decrypting keyfile from Tang server..."
+          if ${pkgs.curl}/bin/curl -fsSL --connect-timeout 5 --max-time 10 ${cfg.keyfile-url} | ${pkgs.clevis}/bin/clevis decrypt > "$KEYFILE" 2>&1; then
+            echo "✓ Successfully decrypted keyfile"
+            echo ""
+            echo "Step 4: Loading keys for locked datasets..."
+
+            SUCCESS=0
+            FAILED=0
+
+            for dataset in $LOCKED; do
+              echo "  Unlocking $dataset..."
+              if ${pkgs.zfs}/bin/zfs load-key -L "file://$KEYFILE" "$dataset" 2>&1; then
+                echo "  ✓ Successfully unlocked $dataset"
+                SUCCESS=$((SUCCESS + 1))
+              else
+                echo "  ✗ Failed to unlock $dataset"
+                FAILED=$((FAILED + 1))
+              fi
+            done
+
+            echo ""
+            echo "Summary: $SUCCESS unlocked, $FAILED failed"
+
+            if [ $SUCCESS -gt 0 ]; then
+              echo ""
+              echo "Step 5: Mounting datasets..."
+              ${pkgs.zfs}/bin/zfs mount -a
+              echo "✓ Done!"
+            fi
+          else
+            echo "✗ Failed to fetch/decrypt keyfile from Tang server"
+            echo ""
+            echo "Manual unlock command: sudo zfs load-key <dataset>"
+            exit 1
+          fi
+        else
+          echo ""
+          echo "Manual unlock command: sudo zfs load-key <dataset>"
+        fi
+      '')
+    ];
 
     boot.supportedFilesystems = [ "zfs" ];
     boot.zfs.requestEncryptionCredentials = true;
