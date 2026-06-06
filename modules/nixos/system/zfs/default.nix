@@ -113,7 +113,7 @@ in {
           log "Network may not be ready or Tang server may be unreachable"
           log "You can unlock manually via SSH or at the console prompt"
         else
-          log "Keyfile retrieved successfully (${pkgs.coreutils}/bin/printf '%s' "$ENCRYPTED_KEYFILE" | ${pkgs.coreutils}/bin/wc -c) bytes, decrypting with Clevis/Tang"
+          log "Keyfile retrieved successfully (\$(printf '%s' \"\$ENCRYPTED_KEYFILE\" | wc -c) bytes), decrypting with Clevis/Tang"
           
           # Decrypt the keyfile
           export PASSPHRASE="$(echo "$ENCRYPTED_KEYFILE" | ${pkgs.clevis}/bin/clevis decrypt 2>&1)"
