@@ -9,6 +9,24 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.cli.yazi;
+
+  # yazi 26.5.x renamed the `name` rule field to `url` in `[filetype].rules`
+  # (and in `[open]`/`[plugin]` rules). Several upstream flavors (e.g.
+  # onedark.yazi, material-ocean.yazi) are unmaintained and still ship the old
+  # `{ name = "*", ... }` syntax in their flavor.toml, which makes yazi fail to
+  # parse the theme with: "at least one of `url` or `mime` must be specified".
+  #
+  # Patch each flavor's flavor.toml at build time, renaming the inline-table
+  # rule field `{ name = ` -> `{ url = `. This is a no-op for flavors that are
+  # already up to date (e.g. kanagawa.yazi).
+  patchFlavor = name: src:
+    pkgs.runCommand "yazi-flavor-${name}" { } ''
+      cp -r ${src} $out
+      chmod -R u+w $out
+      if [ -f "$out/flavor.toml" ]; then
+        ${pkgs.gnused}/bin/sed -i 's/{ name = /{ url = /g' "$out/flavor.toml"
+      fi
+    '';
 in {
   options.fmf.cli.yazi = {enable = mkEnableOption "Yazi";};
 
@@ -31,9 +49,9 @@ in {
       enableNushellIntegration = true;
       shellWrapperName = "lr";
       flavors = {
-        kanagawa = "${inputs.kanagawa-yazi}";
-        material-ocean = "${inputs.material-ocean-yazi}";
-        onedark = "${inputs.onedark-yazi}";
+        kanagawa = "${patchFlavor "kanagawa" inputs.kanagawa-yazi}";
+        material-ocean = "${patchFlavor "material-ocean" inputs.material-ocean-yazi}";
+        onedark = "${patchFlavor "onedark" inputs.onedark-yazi}";
       };
       theme.flavor = {
         dark = "onedark";
