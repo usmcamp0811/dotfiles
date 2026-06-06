@@ -45,8 +45,8 @@ in {
 
     boot.initrd.network.enable = true;
     
-    # Add packages to initrd so they're available for the unlock script
-    boot.initrd.systemd.packages = with pkgs; [ 
+    # Add package closures to initrd so binaries are actually available
+    boot.initrd.systemd.storePaths = with pkgs; [ 
       curl 
       clevis 
       gawk 
@@ -54,6 +54,8 @@ in {
       zfs 
       coreutils 
       psmisc
+      # Include jose which clevis depends on
+      jose
     ];
     
     boot.initrd.systemd = {
