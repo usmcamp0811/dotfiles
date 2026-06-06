@@ -65,7 +65,7 @@ let
     if [ $DECRYPT_SUCCESS -eq 0 ] || [ ! -s "$KEYFILE_PATH" ]; then
       echo "[ZFS Unlock] ERROR: Failed to fetch/decrypt a usable keyfile"
 
-      if [ "${ZFS_INTERACTIVE_FALLBACK:-0}" = "1" ]; then
+      if [ "''${ZFS_INTERACTIVE_FALLBACK:-0}" = "1" ]; then
         prompt_for_remaining_keys
         exit $?
       fi
@@ -92,7 +92,7 @@ let
       exit 0
     fi
 
-    if [ "${ZFS_INTERACTIVE_FALLBACK:-0}" = "1" ]; then
+    if [ "''${ZFS_INTERACTIVE_FALLBACK:-0}" = "1" ]; then
       prompt_for_remaining_keys
       exit $?
     fi
