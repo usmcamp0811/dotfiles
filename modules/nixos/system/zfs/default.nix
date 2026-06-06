@@ -46,6 +46,9 @@ in {
     boot.initrd.network.enable = true;
     boot.initrd.systemd = {
       enable = true;
+      
+      # Ensure required packages are available in initrd
+      storePaths = with pkgs; [ curl clevis gawk zfs coreutils util-linux ];
 
       # As of NixOS 26.05, stage-1 initrd uses systemd by default. NixOS
       # generates a `zfs-import-<pool>.service` for each pool needed at boot,
