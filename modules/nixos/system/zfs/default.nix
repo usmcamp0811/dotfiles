@@ -81,6 +81,9 @@ in {
         path = with pkgs; [ curl clevis gawk zfs ];
         serviceConfig.Type = "oneshot";
         script = ''
+        # Set PATH to include all required binaries
+        export PATH="${pkgs.coreutils}/bin:${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:${pkgs.zfs}/bin:${pkgs.util-linux}/bin:$PATH"
+        
         log() {
           echo "[ZFS Unlock] $1"
         }
