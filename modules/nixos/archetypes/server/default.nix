@@ -13,7 +13,7 @@ in
     enable = mkBoolOpt false "Whether or not to enable the server archetype.";
     k8s = mkBoolOpt false "Is this a K8s Node?";
     keyfile-url =
-      mkOpt str "http://10.8.0.55:8123/zfs-keyfile" "URL to get zfs keyfile";
+      mkOpt str "http://10.8.0.1/zfs-keyfile" "URL to get zfs keyfile";
     hostId = mkOpt str "" "ZFS Host ID";
     isLeader = mkBoolOpt false "Whether or not k0s leader";
   };
