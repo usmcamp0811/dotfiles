@@ -1,7 +1,24 @@
 { options, config, pkgs, lib, ... }:
 with lib;
 with lib.fmf;
-let cfg = config.fmf.system.zfs;
+let
+  cfg = config.fmf.system.zfs;
+
+  # Compute the ZFS pools that are imported in the initrd (i.e. the pools that
+  # contain filesystems needed for boot, such as the root pool). This mirrors
+  # the logic in nixpkgs' tasks/filesystems/zfs.nix so we can hook the exact
+  # generated `zfs-import-<pool>` initrd services.
+  #
+  # A filesystem is needed for boot if it is explicitly marked neededForBoot,
+  # or its mountpoint is one of the boot-critical paths (matching the
+  # `utils.fsNeededForBoot` predicate in nixpkgs without depending on `utils`).
+  neededForBootMounts = [ "/" "/nix" "/nix/store" "/var" "/var/log" "/var/lib" "/var/lib/nixos" "/etc" "/usr" ];
+  fsNeededForBoot = fs: fs.neededForBoot or false || lib.elem fs.mountPoint neededForBootMounts;
+  datasetToPool = x: lib.elemAt (lib.splitString "/" x) 0;
+  fsToPool = fs: datasetToPool fs.device;
+  zfsFilesystems = lib.filter (x: x.fsType == "zfs") config.system.build.fileSystems;
+  initrdRootPools =
+    lib.unique (map fsToPool (lib.filter fsNeededForBoot zfsFilesystems));
 in {
   options.fmf.system.zfs = with types; {
     enable = mkBoolOpt false "Whether or not to configure zfs.";
@@ -29,12 +46,35 @@ in {
     boot.initrd.network.enable = true;
     boot.initrd.systemd = {
       enable = true;
-      services.zfs-initrd-network-unlock = {
+
+      # As of NixOS 26.05, stage-1 initrd uses systemd by default. NixOS
+      # generates a `zfs-import-<pool>.service` for each pool needed at boot,
+      # and when `boot.zfs.requestEncryptionCredentials` is true that service
+      # calls `systemd-ask-password` directly to prompt for the key.
+      #
+      # Our network-based Tang/Clevis unlock (`zfs-initrd-network-unlock`) ran
+      # as an *unordered* peer of those import services, so the password prompt
+      # would win the race and ask for the key even though we could fetch it
+      # from the key server. Order the generated import services AFTER our
+      # unlock service so the key is already loaded (keystatus=available) by
+      # the time the import service checks -- it then skips the prompt.
+      #
+      # This is ordering-only (no `requires`), so if the network unlock fails
+      # (key server unreachable, off-network, etc.) the import service still
+      # runs and falls back to prompting at the console / via SSH.
+      services = (lib.genAttrs
+        (map (pool: "zfs-import-${pool}") initrdRootPools)
+        (_: {
+          after = [ "zfs-initrd-network-unlock.service" ];
+          wants = [ "zfs-initrd-network-unlock.service" ];
+        })) // {
+        zfs-initrd-network-unlock = {
         description = "Unlock ZFS in initrd via Tang/Clevis";
         wantedBy = [ "initrd.target" ];
         after = [ "initrd-network.target" "systemd-udev-settle.service" ];
         wants = [ "initrd-network.target" ];
-        before = [ "sysroot.mount" ];
+        before = [ "sysroot.mount" ]
+          ++ map (pool: "zfs-import-${pool}.service") initrdRootPools;
         path = with pkgs; [ curl clevis gawk zfs ];
         serviceConfig.Type = "oneshot";
         script = ''
@@ -108,6 +148,7 @@ in {
 
         killall zfs
       '';
+        };
       };
     };
 
