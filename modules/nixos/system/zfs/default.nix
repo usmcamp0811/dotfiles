@@ -48,7 +48,22 @@ in {
       enable = true;
       
       # Ensure required packages are available in initrd
-      storePaths = with pkgs; [ curl clevis gawk zfs coreutils util-linux ];
+      storePaths = with pkgs; [ 
+        "${curl}/bin/curl"
+        "${clevis}/bin/clevis" 
+        "${clevis}/bin/clevis-decrypt"
+        "${clevis}/bin/clevis-decrypt-tang"
+        "${gawk}/bin/gawk"
+        "${gawk}/bin/awk"
+        "${zfs}/bin/zfs"
+        "${zfs}/bin/zpool"
+        "${coreutils}/bin/coreutils"
+        "${coreutils}/bin/sleep"
+        "${coreutils}/bin/echo"
+        "${coreutils}/bin/printf"
+        "${coreutils}/bin/wc"
+        "${util-linux}/bin/killall"
+      ];
 
       # As of NixOS 26.05, stage-1 initrd uses systemd by default. NixOS
       # generates a `zfs-import-<pool>.service` for each pool needed at boot,
