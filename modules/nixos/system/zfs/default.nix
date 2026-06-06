@@ -44,26 +44,19 @@ in {
     networking.hostId = cfg.hostId;
 
     boot.initrd.network.enable = true;
+    
+    # Add packages to initrd so they're available for the unlock script
+    boot.initrd.systemd.packages = with pkgs; [ 
+      curl 
+      clevis 
+      gawk 
+      zfs 
+      coreutils 
+      psmisc
+    ];
+    
     boot.initrd.systemd = {
       enable = true;
-      
-      # Ensure required packages are available in initrd
-      storePaths = with pkgs; [ 
-        "${curl}/bin/curl"
-        "${clevis}/bin/clevis" 
-        "${clevis}/bin/clevis-decrypt"
-        "${clevis}/bin/clevis-decrypt-tang"
-        "${gawk}/bin/gawk"
-        "${gawk}/bin/awk"
-        "${zfs}/bin/zfs"
-        "${zfs}/bin/zpool"
-        "${coreutils}/bin/coreutils"
-        "${coreutils}/bin/sleep"
-        "${coreutils}/bin/echo"
-        "${coreutils}/bin/printf"
-        "${coreutils}/bin/wc"
-        "${psmisc}/bin/killall"
-      ];
 
       # As of NixOS 26.05, stage-1 initrd uses systemd by default. NixOS
       # generates a `zfs-import-<pool>.service` for each pool needed at boot,
