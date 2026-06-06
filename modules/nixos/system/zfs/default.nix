@@ -186,7 +186,12 @@ in {
     ];
 
     boot.supportedFilesystems = [ "zfs" ];
-    boot.zfs.requestEncryptionCredentials = true;
+    # The generated initrd `zfs-import-<pool>` units prompt via
+    # `systemd-ask-password` when this is true. That races/conflicts with the
+    # Tang/Clevis stage-1 unlock path and still produces a passphrase prompt
+    # after `zfs-initrd-network-unlock` has run. Keep the prompt path disabled
+    # here and rely on our initrd SSH + manual unlock fallback instead.
+    boot.zfs.requestEncryptionCredentials = false;
     services.zfs.autoScrub.enable = true;
     services.nfs.server.enable = true;
 
