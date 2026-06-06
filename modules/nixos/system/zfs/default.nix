@@ -6,12 +6,33 @@ let
   zfsUnlockScript = ''
     set +e
 
+    get_locked_roots() {
+      for dataset in $(zfs get -H -o name,value keystatus -t filesystem,volume | awk '$2 == "unavailable" { print $1 }'); do
+        zfs get -H -o value encryptionroot "$dataset"
+      done | grep -v '^-$' | sort -u
+    }
+
+    prompt_for_remaining_keys() {
+      REMAINING_LOCKED="$(get_locked_roots)"
+
+      if [ -z "$REMAINING_LOCKED" ]; then
+        return 0
+      fi
+
+      echo "[ZFS Unlock] Falling back to interactive passphrase prompt..."
+
+      for dataset in $REMAINING_LOCKED; do
+        echo "[ZFS Unlock] Prompting for encryption root: $dataset"
+        zfs load-key -L prompt "$dataset" || true
+      done
+
+      [ -z "$(get_locked_roots)" ]
+    }
+
     echo "[ZFS Unlock] Importing available pools without mounting..."
     zpool import -a -N || true
 
-    LOCKED_ROOTS=$(for dataset in $(zfs get -H -o name,value keystatus -t filesystem,volume | awk '$2 == "unavailable" { print $1 }'); do
-      zfs get -H -o value encryptionroot "$dataset"
-    done | grep -v '^-$' | sort -u)
+    LOCKED_ROOTS="$(get_locked_roots)"
 
     if [ -z "$LOCKED_ROOTS" ]; then
       echo "[ZFS Unlock] No locked encryption roots found"
@@ -43,6 +64,12 @@ let
 
     if [ $DECRYPT_SUCCESS -eq 0 ] || [ ! -s "$KEYFILE_PATH" ]; then
       echo "[ZFS Unlock] ERROR: Failed to fetch/decrypt a usable keyfile"
+
+      if [ "${ZFS_INTERACTIVE_FALLBACK:-0}" = "1" ]; then
+        prompt_for_remaining_keys
+        exit $?
+      fi
+
       exit 1
     fi
 
@@ -61,8 +88,13 @@ let
 
     echo "[ZFS Unlock] Summary: $UNLOCK_SUCCESS unlocked, $UNLOCK_FAILED failed"
 
-    if [ $UNLOCK_SUCCESS -gt 0 ]; then
+    if [ -z "$(get_locked_roots)" ]; then
       exit 0
+    fi
+
+    if [ "${ZFS_INTERACTIVE_FALLBACK:-0}" = "1" ]; then
+      prompt_for_remaining_keys
+      exit $?
     fi
 
     exit 1
@@ -186,12 +218,7 @@ in {
     ];
 
     boot.supportedFilesystems = [ "zfs" ];
-    # The generated initrd `zfs-import-<pool>` units prompt via
-    # `systemd-ask-password` when this is true. That races/conflicts with the
-    # Tang/Clevis stage-1 unlock path and still produces a passphrase prompt
-    # after `zfs-initrd-network-unlock` has run. Keep the prompt path disabled
-    # here and rely on our initrd SSH + manual unlock fallback instead.
-    boot.zfs.requestEncryptionCredentials = false;
+    boot.zfs.requestEncryptionCredentials = true;
     services.zfs.autoScrub.enable = true;
     services.nfs.server.enable = true;
 
@@ -235,6 +262,7 @@ in {
         serviceConfig.Type = "oneshot";
         script = ''
           sleep 5
+          export ZFS_INTERACTIVE_FALLBACK=1
           ${zfsUnlockScript}
       '';
         };
