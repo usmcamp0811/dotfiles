@@ -78,67 +78,84 @@ in {
         path = with pkgs; [ curl clevis gawk zfs ];
         serviceConfig.Type = "oneshot";
         script = ''
-        # Extended initial delay for network and Tang server to be ready
+        log() {
+          echo "[ZFS Unlock] $1"
+        }
+
+        log "Initrd unlock service started"
+        log "Sleeping 5 seconds to wait for network and Tang server"
         sleep 5
         
-        echo "[ZFS Unlock] Importing all ZFS pools..."
-        zpool import -a;
+        log "Importing all ZFS pools"
+        zpool import -a
+        IMPORT_STATUS=$?
+        log "zpool import -a exited with status $IMPORT_STATUS"
 
         # Retrieve and decrypt the passphrase with retry logic
-        echo "[ZFS Unlock] Fetching encrypted keyfile from ${cfg.keyfile-url}..."
+        log "Fetching encrypted keyfile from ${cfg.keyfile-url}"
         ENCRYPTED_KEYFILE=""
         RETRY_COUNT=0
         MAX_RETRIES=3
         
         while [ -z "$ENCRYPTED_KEYFILE" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
           ENCRYPTED_KEYFILE=$(curl -s -f --connect-timeout 5 --max-time 10 ${cfg.keyfile-url})
+          CURL_STATUS=$?
+          log "curl attempt $((RETRY_COUNT + 1)) exited with status $CURL_STATUS"
           if [ -z "$ENCRYPTED_KEYFILE" ]; then
             RETRY_COUNT=$((RETRY_COUNT + 1))
-            echo "[ZFS Unlock] Failed to fetch keyfile (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 3 seconds..."
+            log "Failed to fetch non-empty keyfile (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 3 seconds"
             sleep 3
           fi
         done
         
         if [ -z "$ENCRYPTED_KEYFILE" ]; then
-          echo "[ZFS Unlock] ERROR: Failed to fetch encrypted keyfile after $MAX_RETRIES attempts"
-          echo "[ZFS Unlock] Network may not be ready or Tang server may be unreachable"
-          echo "[ZFS Unlock] You can unlock manually via SSH or at the console prompt"
+          log "ERROR: Failed to fetch encrypted keyfile after $MAX_RETRIES attempts"
+          log "Network may not be ready or Tang server may be unreachable"
+          log "You can unlock manually via SSH or at the console prompt"
         else
-          echo "[ZFS Unlock] Keyfile retrieved successfully, decrypting with Clevis/Tang..."
+          log "Keyfile retrieved successfully (${pkgs.coreutils}/bin/printf '%s' "$ENCRYPTED_KEYFILE" | ${pkgs.coreutils}/bin/wc -c) bytes, decrypting with Clevis/Tang"
           
           # Decrypt the keyfile
           export PASSPHRASE="$(echo "$ENCRYPTED_KEYFILE" | ${pkgs.clevis}/bin/clevis decrypt 2>&1)"
           DECRYPT_STATUS=$?
+          log "clevis decrypt exited with status $DECRYPT_STATUS"
           
           if [ $DECRYPT_STATUS -ne 0 ]; then
-            echo "[ZFS Unlock] ERROR: Clevis decryption failed with status $DECRYPT_STATUS"
-            echo "[ZFS Unlock] Tang server may be unavailable or keyfile may be corrupted"
-            echo "[ZFS Unlock] You can unlock manually via SSH or at the console prompt"
+            log "ERROR: Clevis decryption failed with status $DECRYPT_STATUS"
+            log "Tang server may be unavailable or keyfile may be corrupted"
+            log "You can unlock manually via SSH or at the console prompt"
             unset PASSPHRASE
           elif [ -z "$PASSPHRASE" ]; then
-            echo "[ZFS Unlock] ERROR: Decrypted passphrase is empty"
-            echo "[ZFS Unlock] You can unlock manually via SSH or at the console prompt"
+            log "ERROR: Decrypted passphrase is empty"
+            log "You can unlock manually via SSH or at the console prompt"
           else
-            echo "[ZFS Unlock] Decryption successful, loading keys into ZFS..."
+            log "Decryption successful, discovering locked datasets"
             
             # Load the key for each encrypted ZFS dataset
             UNLOCK_SUCCESS=0
             UNLOCK_FAILED=0
+            LOCKED_DATASETS=$(zfs get keystatus -H -o name,value -t filesystem,volume | grep "unavailable" | awk '{print $1}' || true)
+            if [ -z "$LOCKED_DATASETS" ]; then
+              log "No locked datasets found after decryption"
+            else
+              log "Locked datasets to unlock: $LOCKED_DATASETS"
+            fi
             
-            for dataset in $(zfs get keystatus -H -o name,value -t filesystem,volume | grep "unavailable" | awk '{print $1}')
+            for dataset in $LOCKED_DATASETS
             do
-              echo "[ZFS Unlock] Loading key for: $dataset"
+              log "Loading key for: $dataset"
               # Use -L prompt to override the dataset's keylocation property
               # This allows us to pipe the passphrase regardless of the stored keylocation value
               if echo -n "$PASSPHRASE" | zfs load-key -L prompt "$dataset" 2>&1; then
                 UNLOCK_SUCCESS=$((UNLOCK_SUCCESS + 1))
+                log "Successfully loaded key for $dataset"
               else
                 UNLOCK_FAILED=$((UNLOCK_FAILED + 1))
-                echo "[ZFS Unlock] WARNING: Failed to load key for $dataset"
+                log "WARNING: Failed to load key for $dataset"
               fi
             done
             
-            echo "[ZFS Unlock] Summary: $UNLOCK_SUCCESS datasets unlocked successfully, $UNLOCK_FAILED failed"
+            log "Summary: $UNLOCK_SUCCESS datasets unlocked successfully, $UNLOCK_FAILED failed"
             
             # Clear passphrase from memory
             unset PASSPHRASE
@@ -146,6 +163,7 @@ in {
           fi
         fi
 
+        log "Calling killall zfs to continue boot"
         killall zfs
       '';
         };
@@ -199,8 +217,11 @@ in {
       
       script = ''
         set +e  # Don't exit on error, we want to try all datasets
+        log() {
+          echo "[ZFS Phase2 Unlock] $1"
+        }
         
-        echo "[ZFS Phase2 Unlock] Checking for encrypted datasets with unavailable keys..."
+        log "Checking for encrypted datasets with unavailable keys"
         
         # Get list of locked encryption roots (not child datasets)
         LOCKED_ROOTS=$(zfs get -H -o name,value,source encryptionroot,keystatus -t filesystem,volume \
@@ -208,13 +229,13 @@ in {
           | sort -u)
         
         if [ -z "$LOCKED_ROOTS" ]; then
-          echo "[ZFS Phase2 Unlock] No locked encryption roots found, all keys already loaded"
+          log "No locked encryption roots found, all keys already loaded"
           exit 0
         fi
         
         LOCKED_COUNT=$(echo "$LOCKED_ROOTS" | wc -l)
-        echo "[ZFS Phase2 Unlock] Found $LOCKED_COUNT locked encryption roots, attempting unlock..."
-        echo "[ZFS Phase2 Unlock] Fetching encrypted keyfile from ${cfg.keyfile-url}..."
+        log "Found $LOCKED_COUNT locked encryption roots: $LOCKED_ROOTS"
+        log "Fetching encrypted keyfile from ${cfg.keyfile-url}"
         
         # Create secure tmpfs location for passphrase (root-only, in-memory)
         KEYFILE_DIR=$(mktemp -d -p /run zfs-unlock.XXXXXX)
@@ -233,29 +254,30 @@ in {
           if ${pkgs.curl}/bin/curl -fsSL --connect-timeout 5 --max-time 10 ${cfg.keyfile-url} \
              | ${pkgs.clevis}/bin/clevis decrypt > "$KEYFILE_PATH" 2>/dev/null; then
             DECRYPT_SUCCESS=1
+            log "Fetch/decrypt attempt $((RETRY_COUNT + 1)) succeeded"
           else
             RETRY_COUNT=$((RETRY_COUNT + 1))
             if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-              echo "[ZFS Phase2 Unlock] Failed to fetch/decrypt keyfile (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 3 seconds..."
+              log "Failed to fetch/decrypt keyfile (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 3 seconds"
               sleep 3
             fi
           fi
         done
         
         if [ $DECRYPT_SUCCESS -eq 0 ]; then
-          echo "[ZFS Phase2 Unlock] ERROR: Failed to fetch/decrypt keyfile after $MAX_RETRIES attempts"
-          echo "[ZFS Phase2 Unlock] Manual unlock required via: zfs load-key -a"
+          log "ERROR: Failed to fetch/decrypt keyfile after $MAX_RETRIES attempts"
+          log "Manual unlock required via: zfs load-key -a"
           exit 1
         fi
         
         # Verify we got a non-empty passphrase
         if [ ! -s "$KEYFILE_PATH" ]; then
-          echo "[ZFS Phase2 Unlock] ERROR: Decrypted passphrase is empty"
-          echo "[ZFS Phase2 Unlock] Manual unlock required via: zfs load-key -a"
+          log "ERROR: Decrypted passphrase is empty"
+          log "Manual unlock required via: zfs load-key -a"
           exit 1
         fi
         
-        echo "[ZFS Phase2 Unlock] Decryption successful, loading keys for encryption roots..."
+        log "Decryption successful, loading keys for encryption roots"
         
         # Load keys for all locked encryption roots
         UNLOCK_SUCCESS=0
@@ -263,16 +285,17 @@ in {
         
         for dataset in $LOCKED_ROOTS
         do
-          echo "[ZFS Phase2 Unlock] Loading key for encryption root: $dataset"
+          log "Loading key for encryption root: $dataset"
           if zfs load-key -L prompt "$dataset" < "$KEYFILE_PATH" 2>&1; then
             UNLOCK_SUCCESS=$((UNLOCK_SUCCESS + 1))
+            log "Successfully loaded key for $dataset"
           else
             UNLOCK_FAILED=$((UNLOCK_FAILED + 1))
-            echo "[ZFS Phase2 Unlock] WARNING: Failed to load key for $dataset"
+            log "WARNING: Failed to load key for $dataset"
           fi
         done
         
-        echo "[ZFS Phase2 Unlock] Summary: $UNLOCK_SUCCESS encryption roots unlocked, $UNLOCK_FAILED failed"
+        log "Summary: $UNLOCK_SUCCESS encryption roots unlocked, $UNLOCK_FAILED failed"
         
         # Cleanup happens via trap
         
