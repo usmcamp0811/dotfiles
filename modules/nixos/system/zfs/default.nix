@@ -1,24 +1,7 @@
 { options, config, pkgs, lib, ... }:
 with lib;
 with lib.fmf;
-let
-  cfg = config.fmf.system.zfs;
-
-  # Compute the ZFS pools that are imported in the initrd (i.e. the pools that
-  # contain filesystems needed for boot, such as the root pool). This mirrors
-  # the logic in nixpkgs' tasks/filesystems/zfs.nix so we can hook the exact
-  # generated `zfs-import-<pool>` initrd services.
-  #
-  # A filesystem is needed for boot if it is explicitly marked neededForBoot,
-  # or its mountpoint is one of the boot-critical paths (matching the
-  # `utils.fsNeededForBoot` predicate in nixpkgs without depending on `utils`).
-  neededForBootMounts = [ "/" "/nix" "/nix/store" "/var" "/var/log" "/var/lib" "/var/lib/nixos" "/etc" "/usr" ];
-  fsNeededForBoot = fs: fs.neededForBoot or false || lib.elem fs.mountPoint neededForBootMounts;
-  datasetToPool = x: lib.elemAt (lib.splitString "/" x) 0;
-  fsToPool = fs: datasetToPool fs.device;
-  zfsFilesystems = lib.filter (x: x.fsType == "zfs") config.system.build.fileSystems;
-  initrdRootPools =
-    lib.unique (map fsToPool (lib.filter fsNeededForBoot zfsFilesystems));
+let cfg = config.fmf.system.zfs;
 in {
   options.fmf.system.zfs = with types; {
     enable = mkBoolOpt false "Whether or not to configure zfs.";
@@ -43,43 +26,12 @@ in {
 
     networking.hostId = cfg.hostId;
 
-    boot.initrd.network.enable = true;
-    boot.initrd.systemd = {
+    boot.initrd.network = {
       enable = true;
-
-      # As of NixOS 26.05, stage-1 initrd uses systemd by default. NixOS
-      # generates a `zfs-import-<pool>.service` for each pool needed at boot,
-      # and when `boot.zfs.requestEncryptionCredentials` is true that service
-      # calls `systemd-ask-password` directly to prompt for the key.
-      #
-      # Our network-based Tang/Clevis unlock (`zfs-initrd-network-unlock`) ran
-      # as an *unordered* peer of those import services, so the password prompt
-      # would win the race and ask for the key even though we could fetch it
-      # from the key server. Order the generated import services AFTER our
-      # unlock service so the key is already loaded (keystatus=available) by
-      # the time the import service checks -- it then skips the prompt.
-      #
-      # This is ordering-only (no `requires`), so if the network unlock fails
-      # (key server unreachable, off-network, etc.) the import service still
-      # runs and falls back to prompting at the console / via SSH.
-      services = (lib.genAttrs
-        (map (pool: "zfs-import-${pool}") initrdRootPools)
-        (_: {
-          after = [ "zfs-initrd-network-unlock.service" ];
-          wants = [ "zfs-initrd-network-unlock.service" ];
-        })) // {
-        zfs-initrd-network-unlock = {
-        description = "Unlock ZFS in initrd via Tang/Clevis";
-        wantedBy = [ "initrd.target" ];
-        after = [ "initrd-network.target" "systemd-udev-settle.service" ];
-        wants = [ "initrd-network.target" ];
-        before = [ "sysroot.mount" ]
-          ++ map (pool: "zfs-import-${pool}.service") initrdRootPools;
-        path = with pkgs; [ curl clevis gawk zfs ];
-        serviceConfig.Type = "oneshot";
-        script = ''
+      postCommands = ''
         # Extended initial delay for network and Tang server to be ready
         sleep 5
+        export PATH="${pkgs.curl}/bin:${pkgs.clevis}/bin:${pkgs.gawk}/bin:$PATH"
         
         echo "[ZFS Unlock] Importing all ZFS pools..."
         zpool import -a;
@@ -91,7 +43,7 @@ in {
         MAX_RETRIES=3
         
         while [ -z "$ENCRYPTED_KEYFILE" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          ENCRYPTED_KEYFILE=$(curl -s -f --connect-timeout 5 --max-time 10 ${cfg.keyfile-url})
+          ENCRYPTED_KEYFILE=$(${pkgs.curl}/bin/curl -s -f --connect-timeout 5 --max-time 10 ${cfg.keyfile-url})
           if [ -z "$ENCRYPTED_KEYFILE" ]; then
             RETRY_COUNT=$((RETRY_COUNT + 1))
             echo "[ZFS Unlock] Failed to fetch keyfile (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 3 seconds..."
@@ -148,17 +100,14 @@ in {
 
         killall zfs
       '';
-        };
+      ssh = {
+        enable = true;
+        port = 22;
+        authorizedKeys = cfg.public_keys;
+        # TODO: Do somehting to make sure these keys exist. Currently wont exist until you ssh somewhere for the first time.
+        hostKeys =
+          [ "/etc/ssh/ssh_host_rsa_key" "/etc/ssh/ssh_host_ed25519_key" ];
       };
-    };
-
-    boot.initrd.network.ssh = {
-      enable = true;
-      port = 22;
-      authorizedKeys = cfg.public_keys;
-      # TODO: Do somehting to make sure these keys exist. Currently wont exist until you ssh somewhere for the first time.
-      hostKeys =
-        [ "/etc/ssh/ssh_host_rsa_key" "/etc/ssh/ssh_host_ed25519_key" ];
     };
     # use this lspci -v | grep -iA8 'network\|ethernet' to then ask Chad what modules to use here
     boot.initrd.availableKernelModules =
@@ -230,8 +179,8 @@ in {
         DECRYPT_SUCCESS=0
         
         while [ $DECRYPT_SUCCESS -eq 0 ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          if ${pkgs.curl}/bin/curl -fsSL --connect-timeout 5 --max-time 10 ${cfg.keyfile-url} \
-             | ${pkgs.clevis}/bin/clevis decrypt > "$KEYFILE_PATH" 2>/dev/null; then
+          if curl -fsSL --connect-timeout 5 --max-time 10 ${cfg.keyfile-url} \
+             | clevis decrypt > "$KEYFILE_PATH" 2>/dev/null; then
             DECRYPT_SUCCESS=1
           else
             RETRY_COUNT=$((RETRY_COUNT + 1))
