@@ -49,7 +49,7 @@ with lib.fmf; let
     '';
     zfs-unlock = ''
       HOST=$1
-      ssh root@$HOST "zpool import -a; zfs load-key -a && killall zfs"
+      ssh root@$HOST "zpool import -a -N && zfs load-key -a"
     '';
     # TODO: Add some function to get all virtual IPs and add them to allowed_hosts
     ssh = ''

@@ -45,6 +45,8 @@ in {
     (mkIf cfg.enableServer {
       environment.systemPackages = with pkgs; [rkvm];
 
+      boot.kernelModules = [ "uinput" ];
+
       networking.firewall.allowedTCPPorts = [port];
       systemd.services.rkvm = {
         description = "RKVM Service";
@@ -58,29 +60,21 @@ in {
           mkdir -p /var/lib/rkvm
           cp /tmp/detsys-vault/cert.crt /var/lib/rkvm/
           cp /tmp/detsys-vault/cert.key /var/lib/rkvm/
-          cat > /var/lib/rkvm/server.toml << EOF
-          # TOML configuration goes here
-          listen = "${cfg.address}"
-          # See `switch-keys.md` in the repository root for the list of all possible keys.
-          switch-keys = ${cfg.switch-keys}
-          # Whether switch key presses should be propagated on the server and its clients.
-          # Optional, defaults to true.
-          # propagate-switch-keys = true
-          certificate = "/var/lib/rkvm/cert.crt"
-          key = "/var/lib/rkvm/cert.key"
-
-          # This is to prevent malicious clients from connecting to the server.
-          # Make sure this matches your client's config.
-          #
-          # Change this to your own value before deploying rkvm.
-          password = "$RKVM_PASS"
-          EOF
+          cat > /var/lib/rkvm/server.toml <<EOF
+listen = "${cfg.address}"
+switch-keys = ${cfg.switch-keys}
+certificate = "/var/lib/rkvm/cert.crt"
+key = "/var/lib/rkvm/cert.key"
+password = "$RKVM_PASS"
+EOF
           chmod 600 /var/lib/rkvm/server.toml
         '';
       };
     })
     (mkIf cfg.enableClient {
       environment.systemPackages = with pkgs; [rkvm];
+
+      boot.kernelModules = [ "uinput" ];
 
       systemd.services.rkvm = {
         description = "RKVM Service";

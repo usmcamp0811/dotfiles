@@ -358,5 +358,12 @@ in {
         };
       };
     };
+
+    home.activation.fixYaziLegacyFlavorRules = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      if [ -d "$HOME/.config/yazi/flavors" ]; then
+        ${pkgs.findutils}/bin/find "$HOME/.config/yazi/flavors" -path '*/flavor.toml' -type f -exec \
+          ${pkgs.gnused}/bin/sed -i 's/{ name = /{ url = /g' {} +
+      fi
+    '';
   };
 }
