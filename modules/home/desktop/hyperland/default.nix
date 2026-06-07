@@ -28,6 +28,9 @@ in
   imports = [ ./apps.nix ./binds.nix ./variables.nix ./windowrules.nix ];
 
   config = mkIf cfg.enable {
+    # Force home-manager to overwrite hyprland.conf even if it exists
+    xdg.configFile."hypr/hyprland.conf".force = true;
+    
     wayland.windowManager.hyprland = {
       enable = true;
       configType = "hyprlang";
