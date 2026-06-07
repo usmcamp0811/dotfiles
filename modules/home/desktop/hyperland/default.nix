@@ -30,6 +30,7 @@ in
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       enable = true;
+      configType = "hyprlang";
       extraConfig =
         # bash
         ''
