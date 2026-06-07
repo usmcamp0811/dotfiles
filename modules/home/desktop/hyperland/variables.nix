@@ -34,9 +34,6 @@ in {
         debug = {disable_logs = false;};
 
         decoration = {
-          active_opacity = mkDefault 0.95;
-          fullscreen_opacity = mkDefault 1.0;
-          inactive_opacity = mkDefault 0.9;
           rounding = 10;
 
           blur = {
@@ -67,7 +64,10 @@ in {
 
         xwayland = {force_zero_scaling = true;};
 
-        cursor.no_hardware_cursors = true;
+        cursor = {
+          no_hardware_cursors = true;
+        };
+        
         gestures = {
           # workspace_swipe = true;
           # workspace_swipe_fingers = 3;
@@ -92,7 +92,6 @@ in {
         master = {
           # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
           # new_is_master = true;
-          special_scale_factor = 0.8;
           mfact = 0.55;
           new_on_top = false;
           # no_gaps_when_only = false;

@@ -11,7 +11,7 @@ in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       settings = {
-        windowrule = [
+        windowrulev2 = [
           # ░█░█░▀█▀░█▀█░█▀▄░█▀█░█░█░░░█▀▄░█░█░█░░░█▀▀░█▀▀
           # ░█▄█░░█░░█░█░█░█░█░█░█▄█░░░█▀▄░█░█░█░░░█▀▀░▀▀█
           # ░▀░▀░▀▀▀░▀░▀░▀▀░░▀▀▀░▀░▀░░░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀
@@ -129,35 +129,35 @@ in {
           "workspace 3, class:^(GitKraken)$"
           "workspace 3, class:^(kitty)$,title:^(nvim).*" # TODO: Doesnt seem to work even though it says it matches
           # Gaming
-          "workspace 4 silent, class:^(Steam|steam)$"
-          "workspace 4 silent, class:^(Steam|steam)., title:^(Steam|steam)$"
-          "workspace 4 silent, class:^(gamescope|steam_app).*"
+          "workspace 4, class:^(Steam|steam)$"
+          "workspace 4, class:^(Steam|steam)., title:^(Steam|steam)$"
+          "workspace 4, class:^(gamescope|steam_app).*"
           "workspace 4, class:^(heroic)$"
           "workspace 4, class:^(lutris)$"
           "workspace 4, class:.*(cemu|yuzu|ryujinx|emulationstation|retroarch).*"
           "workspace 4, title:.*(cemu|yuzu|ryujinx|emulationstation|retroarch).*"
           # Mail
-          "workspace 5 silent, class:^(thunderbird)$"
-          "workspace 5 silent, class:^(Mailspring)$"
+          "workspace 5, class:^(thunderbird)$"
+          "workspace 5, class:^(Mailspring)$"
           # Messaging
-          "workspace 6 silent, title:^(Slack)$"
-          "workspace 6 silent, title:^(Mattermost)$"
-          "workspace 6 silent, class:^(Caprine)$"
-          "workspace 6 silent, class:^(org.telegram.desktop)$"
-          "workspace 6 silent, class:^(discord)$"
-          "workspace 6 silent, class:^(zoom)$"
-          "workspace 6 silent, class:^(Element)$"
+          "workspace 6, title:^(Slack)$"
+          "workspace 6, title:^(Mattermost)$"
+          "workspace 6, class:^(Caprine)$"
+          "workspace 6, class:^(org.telegram.desktop)$"
+          "workspace 6, class:^(discord)$"
+          "workspace 6, class:^(zoom)$"
+          "workspace 6, class:^(Element)$"
           # Media
           "workspace 7, class:^(mpv|vlc|mpdevil)$"
-          "workspace 7 silent, class:^(Spotify)$"
-          "workspace 7 silent, title:^(Spotify)$"
-          "workspace 7 silent, title:^(Spotify Free)$"
+          "workspace 7, class:^(Spotify)$"
+          "workspace 7, title:^(Spotify)$"
+          "workspace 7, title:^(Spotify Free)$"
           "tile, class:^(Spotify)$"
           "tile, class:^(Spotify Free)$"
-          "workspace 7 silent, class:^(elisa)$"
+          "workspace 7, class:^(elisa)$"
           #Remote
-          "workspace 8 silent, class:^(virt-manager|qemu)$"
-          "workspace 8 silent, class:^(gnome-connections)$"
+          "workspace 8, class:^(virt-manager|qemu)$"
+          "workspace 8, class:^(gnome-connections)$"
           "workspace 8, class:^(looking-glass-client)$"
         ];
       };
