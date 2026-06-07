@@ -57,9 +57,14 @@ in {
         };
 
         preStart = ''
+          ${pkgs.kmod}/bin/modprobe uinput
           mkdir -p /var/lib/rkvm
           cp /tmp/detsys-vault/cert.crt /var/lib/rkvm/
           cp /tmp/detsys-vault/cert.key /var/lib/rkvm/
+          if [ ! -e /dev/uinput ]; then
+            echo "rkvm requires /dev/uinput, but it is still missing after loading uinput" >&2
+            exit 1
+          fi
           cat > /var/lib/rkvm/server.toml <<EOF
 listen = "${cfg.address}"
 switch-keys = ${cfg.switch-keys}
@@ -93,8 +98,13 @@ EOF
         };
 
         preStart = ''
+          ${pkgs.kmod}/bin/modprobe uinput
           mkdir -p /var/lib/rkvm
           cp /tmp/detsys-vault/cert.crt /var/lib/rkvm/
+          if [ ! -e /dev/uinput ]; then
+            echo "rkvm requires /dev/uinput, but it is still missing after loading uinput" >&2
+            exit 1
+          fi
           cat > /var/lib/rkvm/client.toml << EOF
           server = "${cfg.address}"
           certificate = "/var/lib/rkvm/cert.crt"
