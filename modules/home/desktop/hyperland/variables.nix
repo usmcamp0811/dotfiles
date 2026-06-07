@@ -12,7 +12,7 @@ in {
     wayland.windowManager.hyprland = {
       settings = {
         animations = {
-          enabled = "yes";
+          enabled = true;
 
           # Some default animations, see https://wiki.hyprland.org/Configuring/Animations/ for more
           bezier = [
@@ -40,7 +40,7 @@ in {
           rounding = 10;
 
           blur = {
-            enabled = "yes";
+            enabled = true;
             passes = 4;
             size = 5;
           };
@@ -67,7 +67,7 @@ in {
 
         xwayland = {force_zero_scaling = true;};
 
-        cursor.no_hardware_cursors = 1;
+        cursor.no_hardware_cursors = true;
         gestures = {
           # workspace_swipe = true;
           # workspace_swipe_fingers = 3;
@@ -81,9 +81,9 @@ in {
           kb_options = "caps:swapescape";
 
           touchpad = {
-            natural_scroll = "no";
+            natural_scroll = false;
             disable_while_typing = true;
-            tap-to-click = true;
+            tap_to_click = true;
           };
 
           sensitivity = 0; # -1.0 - 1.0, 0 means no modification.
