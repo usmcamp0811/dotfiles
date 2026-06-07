@@ -47,8 +47,6 @@ in {
           # See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
           force_split = 0;
           preserve_split = true; # you probably want this
-          pseudotile =
-            true; # master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
         };
 
         general = {
@@ -83,7 +81,7 @@ in {
           touchpad = {
             natural_scroll = false;
             disable_while_typing = true;
-            tap_to_click = true;
+            tap-to-click = true;
           };
 
           sensitivity = 0; # -1.0 - 1.0, 0 means no modification.
@@ -96,7 +94,6 @@ in {
           new_on_top = false;
           # no_gaps_when_only = false;
           orientation = "left";
-          inherit_fullscreen = true;
           # always_center_master = true;
         };
 
