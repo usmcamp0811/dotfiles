@@ -78,6 +78,8 @@ in
 
       gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
 
+      gtk4.theme = config.gtk.theme;
+
       iconTheme = {
         name = mkDefault cfg.icon.name;
         package = mkDefault cfg.icon.pkg;

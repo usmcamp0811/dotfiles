@@ -73,7 +73,7 @@ in {
       };
 
       Service = {
-        ExecStart = "${pkgs.swww}/bin/swww-daemon";
+        ExecStart = "${pkgs.awww}/bin/awww-daemon";
         Restart = "on-failure";
         RestartSec = 3;
       };
@@ -97,7 +97,7 @@ in {
         ExecStart = let
           wallpaperScript = pkgs.writeShellScript "swww-set-wallpapers" ''
             ${concatStringsSep "\n" (map (monitor: ''
-              ${pkgs.swww}/bin/swww img \
+              ${pkgs.awww}/bin/awww img \
                 --outputs ${monitor.name} \
                 --transition-type ${cfg.transition.type} \
                 --transition-duration ${toString cfg.transition.duration} \
@@ -114,7 +114,7 @@ in {
 
     # Helper script for manual wallpaper changes
     home.packages = [
-      pkgs.swww
+      pkgs.awww
       (pkgs.writeShellScriptBin "swww-set" ''
         if [ $# -eq 0 ]; then
           echo "Usage: swww-set <wallpaper-path> [monitor]"
@@ -135,7 +135,7 @@ in {
           MONITOR_FLAG="--outputs $MONITOR"
         fi
 
-        ${pkgs.swww}/bin/swww img \
+        ${pkgs.awww}/bin/awww img \
           $MONITOR_FLAG \
           --transition-type ${cfg.transition.type} \
           --transition-duration ${toString cfg.transition.duration} \

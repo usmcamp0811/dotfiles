@@ -86,13 +86,10 @@ in
       cfg.authorizedKeys;
 
     fmf.home.extraOptions = {
-      programs.zsh.shellAliases = foldl
-        (aliases: system:
-          aliases // {
-            "ssh-${system}" = "ssh ${system} -t tmux a";
-          })
-        { }
-        (builtins.attrNames other-hosts);
+      programs.zsh.shellAliases = builtins.listToAttrs (map (system: {
+        name = "ssh-${system}";
+        value = "ssh ${system} -t tmux a";
+      }) (builtins.attrNames other-hosts));
     };
   };
 }

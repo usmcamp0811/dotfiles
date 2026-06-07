@@ -36,6 +36,7 @@ in
     environment.systemPackages = with pkgs; [ clevis ];
 
     boot.supportedFilesystems = [ "zfs" ];
+    boot.zfs.forceImportRoot = true;
     boot.zfs.requestEncryptionCredentials = true;
     services.zfs.autoScrub.enable = true;
     services.nfs.server.enable = true;

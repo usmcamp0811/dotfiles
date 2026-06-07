@@ -113,7 +113,7 @@ in {
         "$term" = "${getExe pkgs.kitty}";
         "$browser" = "${getExe pkgs.brave}";
         "$editor" = "${getExe pkgs.neovim}";
-        "$explorer" = "${getExe pkgs.xfce.thunar}";
+        "$explorer" = "${getExe pkgs.thunar}";
         "$music" = "${getExe pkgs.spotify}";
         "$launcher" = "${getExe config.programs.rofi.package} -show drun -n";
         "$launcher_alt" = "${getExe config.programs.rofi.package} -show calc";

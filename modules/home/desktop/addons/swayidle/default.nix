@@ -19,22 +19,13 @@ in
       enable = true;
       package = pkgs.swayidle;
 
-      events = [
-        {
-          event = "before-sleep";
-          command = "${getExe config.programs.swaylock.package} -defF";
-        }
-        {
-          event = "after-resume";
-          command = "${
-            getExe' config.wayland.windowManager.hyprland.package "hyprctl"
-          } dispatch dpms on";
-        }
-        {
-          event = "lock";
-          command = "${getExe config.programs.swaylock.package} -defF";
-        }
-      ];
+      events = {
+        before-sleep = "${getExe config.programs.swaylock.package} -defF";
+        after-resume = "${
+          getExe' config.wayland.windowManager.hyprland.package "hyprctl"
+        } dispatch dpms on";
+        lock = "${getExe config.programs.swaylock.package} -defF";
+      };
       timeouts = [
         {
           timeout = 900;

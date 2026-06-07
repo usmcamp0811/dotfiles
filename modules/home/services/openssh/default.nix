@@ -65,7 +65,7 @@ in {
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
-      matchBlocks."*".extraOptions = { HostKeyAlgorithms = "+ssh-rsa"; };
+      settings."*" = { HostKeyAlgorithms = "+ssh-rsa"; };
       extraConfig = ''
         ${optionalString cfg.manage-other-hosts other-hosts-config}
         ${cfg.extraConfigs}
@@ -81,9 +81,9 @@ in {
         chmod 600 "${config.home.homeDirectory}/.ssh/authorized_keys"
       '';
 
-    programs.zsh.shellAliases = foldl (aliases: system:
-      aliases // {
-        "ssh-${system}" = "ssh ${system} -t tmux a";
-      }) { } (builtins.attrNames other-hosts);
+    programs.zsh.shellAliases = builtins.listToAttrs (map (system: {
+      name = "ssh-${system}";
+      value = "ssh ${system} -t tmux a";
+    }) (builtins.attrNames other-hosts));
   };
 }

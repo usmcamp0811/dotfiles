@@ -71,6 +71,7 @@ in {
   config = mkIf cfg.enable {
     stylix = {
       enable = true;
+      enableReleaseChecks = false;
 
       # Use base16 scheme by name
       base16Scheme = "${pkgs.base16-schemes}/share/themes/${cfg.theme}.yaml";
