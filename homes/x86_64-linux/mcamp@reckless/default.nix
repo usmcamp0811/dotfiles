@@ -24,7 +24,7 @@ with lib.fmf; {
     desktop = {
       addons.kitty.themeFile = "Seti";
       hyprland.startup = [
-        ''${pkgs.hyprland}/bin/hyprctl --instance 0 keyword monitor "keyword monitor "DP-2, disable"''
+        ''${pkgs.hyprland}/bin/hyprctl --instance 0 keyword monitor "DP-2, disable"''
       ];
     };
     services.protonmail-bridge = enabled;
