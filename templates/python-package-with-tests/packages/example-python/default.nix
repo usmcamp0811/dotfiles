@@ -52,7 +52,7 @@ let
 
   pyapp = pythonSet.mkVirtualEnv "example-python-env" workspace.deps.default;
 in {
-  pythonSets = { "${pkgs.system}" = pythonSet; };
+  pythonSets = { "${pkgs.stdenv.hostPlatform.system}" = pythonSet; };
   default = pyapp;
   python = pythonSet.python;
 }

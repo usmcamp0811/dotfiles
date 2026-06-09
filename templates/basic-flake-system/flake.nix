@@ -31,7 +31,7 @@
       # Define an overlay that adds a stub package
       overlays.default = final: prev: {
         # Example stub overlay: expose hello as myPackage
-        campfetch = self.inputs.fmf.packages.${final.system}.campfetch;
+        campfetch = self.inputs.fmf.packages.${final.stdenv.hostPlatform.system}.campfetch;
       };
 
       # Define a NixOS configuration using configuration.nix

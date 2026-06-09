@@ -113,6 +113,7 @@ in {
         };
 
         programs.zsh.enable = true;
+        programs.zsh.dotDir = "/home/${cfg.name}";
 
         programs.zsh.history = {
           size = 10000;
