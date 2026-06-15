@@ -88,7 +88,6 @@ in
       WLR_NO_HARDWARE_CURSORS = "1";
       QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
       SDL_VIDEODRIVER = "wayland";
-      WLR_DRM_NO_ATOMIC = "1";
       WLR_RENDERER = "vulkan";
       XDG_CURRENT_DESKTOP = "Hyprland";
       XDG_SESSION_DESKTOP = "Hyprland";
@@ -98,6 +97,10 @@ in
       __GL_GSYNC_ALLOWED = "0";
       __GL_VRR_ALLOWED = "0";
       GTK_USE_PORTAL = "1";
+    } // lib.optionalAttrs (lib.any (x: lib.hasPrefix "nvidia" x) (config.services.xserver.videoDrivers or [])) {
+      # WLR_DRM_NO_ATOMIC is a workaround for buggy NVIDIA atomic modesetting.
+      # It breaks display init on AMD/Intel GPUs, so only set for NVIDIA.
+      WLR_DRM_NO_ATOMIC = "1";
     };
 
     xdg.portal = {
