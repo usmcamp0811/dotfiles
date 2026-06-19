@@ -10,7 +10,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-348.1-cves-parity";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-340.1-policies-view-editor-parity";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
