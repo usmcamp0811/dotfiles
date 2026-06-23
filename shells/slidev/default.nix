@@ -9,7 +9,7 @@ with lib.fmf; let
     buildInputs = with pkgs; [
       pnpm
       nodejs
-      fmf.slidev
+      slidev-cli
     ];
   };
 in

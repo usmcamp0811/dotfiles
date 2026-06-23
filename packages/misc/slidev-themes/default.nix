@@ -41,8 +41,8 @@ with lib.fmf; let
       rev = "v0.3.6";
       hash = "sha256-JcdkZBcf059Pk5lqwGIlcTHmfIM54no98adeHe+TNBs=";
     };
-    depsHash = "sha256-NKQ/MISoYnQFYMfcb8vOTE+YF1/AUHYRlGU4qNQalVY=";
-    pnpm = pkgs.pnpm_9;
+    depsHash = "sha256-n1VIwehFBeIAceCsn15wJSi3AX2IHw5GMP9RsW8AhWc=";
+    pnpm = pkgs.pnpm_10;
   };
   mokkapps-theme = buildPnpmTheme {
     inherit pkgs;
@@ -55,7 +55,8 @@ with lib.fmf; let
       hash = "sha256-m2RXHI+vvszYaDxO38mLdxMKZbtUgAMrdSJBCINgQSc=";
     };
     depsHash = "sha256-ZJh47LQamNh1kPd8c/JTlkcQp9k2MwKLkIw+f+102DE=";
-    pnpm = pkgs.pnpm_9;
+    pnpm = pkgs.pnpm_10;
+    meta.broken = true; # Lockfile incompatible with pnpm_10
   };
   eavise-theme = buildPnpmTheme {
     inherit pkgs;
@@ -68,7 +69,8 @@ with lib.fmf; let
       hash = "sha256-svILnvGD7SoECrhg6lSwDDWVcgxQONwCGw/nBYDpMOQ=";
     };
     depsHash = "sha256-7BWUjHR1BtVtOvYGVFYVia3vKiaWFKHiQTL+mI8qNDY=";
-    pnpm = pkgs.pnpm_9;
+    pnpm = pkgs.pnpm_10;
+    meta.broken = true; # Lockfile incompatible with pnpm_10
   };
   dataroots-theme = buildYarnTheme {
     pkgs = pkgs;
@@ -100,6 +102,7 @@ with lib.fmf; let
     meta = {
       description = "Mokkapps theme with custom global-bottom.vue";
       license = lib.licenses.mit;
+      broken = true; # Depends on broken mokkapps-theme
     };
   };
   slidev-themes = buildPnpmTheme {
@@ -113,11 +116,12 @@ with lib.fmf; let
       hash = "sha256-t6sg/nSbr2ytMHN1yuQy/kEDLyAYHXFVwcN1naeGhQc=";
     };
     depsHash = "sha256-7aY8Md7Je6SEAnkhzCpkRSOG5Q4A1wHqK34qMEG8HJo=";
-    pnpm = pkgs.pnpm_8;
+    pnpm = pkgs.pnpm_10;
+    meta.broken = true; # Lockfile incompatible with pnpm_10
   };
 in
-slidev-themes
+neversink-theme
   // {
-  inherit csscade-theme neversink-theme eavise-theme dataroots-theme;
+  inherit csscade-theme neversink-theme eavise-theme dataroots-theme slidev-themes;
   mokkapps-theme = custom-mokkapps-theme;
 }

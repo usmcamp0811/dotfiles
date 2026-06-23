@@ -6,7 +6,14 @@
 }:
 with lib;
 with lib.fmf; let
-  slidev = pkgs.fmf.slidev.v0_50_0;
+  # Use the nixpkgs slidev-cli, but we need to wrap it to provide node_modules
+  # for the mkSlide function which expects node_modules to be available
+  slidev = pkgs.runCommand "slidev-compat" {} ''
+    mkdir -p $out/bin
+    mkdir -p $out/node_modules
+    ln -s ${pkgs.slidev-cli}/bin/slidev $out/bin/slidev
+    ln -s ${pkgs.slidev-cli}/lib/node_modules/slidev-cli/node_modules/* $out/node_modules/
+  '';
   stdenv = pkgs.stdenv;
   mac-builder = mkSlide {
     inherit lib stdenv slidev;
@@ -42,7 +49,7 @@ with lib.fmf; let
     mac-builder = mac-builder;
     beyond-yaml = beyond-yaml;
     devsecops-revolution = slides;
-    crystal-forge = pkgs.cf-slides-campground;
+    # crystal-forge = pkgs.cf-slides-campground; # Temporarily disabled - uses old pnpm API
   };
 
   index-page = makeIndexPage {
@@ -108,7 +115,7 @@ with lib.fmf; let
       mkdir -p node_modules/prism-theme-vars
       touch pnpm-lock.yaml
 
-      ${pkgs.fmf.slidev.v0_50_0}/bin/slidev "$SLIDE_FILE" --remote
+      ${pkgs.slidev-cli}/bin/slidev "$SLIDE_FILE" --remote
     '';
   };
 in

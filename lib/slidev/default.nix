@@ -54,7 +54,20 @@
         mkdir -p node_modules
 
         # Copy all top-level packages from slidev
-        cp -r ${slidev}/node_modules/* node_modules/
+        # Handle both the compat wrapper and direct slidev-cli
+        if [ -L "${slidev}/node_modules" ]; then
+          # Compat wrapper with symlinks
+          cp -rL ${slidev}/node_modules/* node_modules/
+        elif [ -d "${slidev}/node_modules" ]; then
+          # Direct node_modules directory
+          cp -r ${slidev}/node_modules/* node_modules/
+        elif [ -d "${slidev}/lib/node_modules/slidev-cli/node_modules" ]; then
+          # nixpkgs slidev-cli structure
+          cp -r ${slidev}/lib/node_modules/slidev-cli/node_modules/* node_modules/
+        else
+          echo "Error: Could not find node_modules in slidev package"
+          exit 1
+        fi
 
         # Inject extra packages (like sass-embedded)
         ${builtins.concatStringsSep "\n" (builtins.map (pkg: ''
@@ -64,6 +77,21 @@
           extraNodePackages)}
 
         cp ${markdown} ./slides.md
+        
+        # Create vite.config.ts to allow assets from public directory
+        cat > vite.config.ts <<EOF
+        import { defineConfig } from 'vite'
+        
+        export default defineConfig({
+          server: {
+            fs: {
+              strict: false,
+              allow: ['.', '/build']
+            }
+          }
+        })
+        EOF
+        
         slidev build --base "${urlBase}"
 
         runHook postBuild
@@ -92,7 +120,7 @@
     version,
     src,
     depsHash,
-    pnpm,
+    pnpm ? pkgs.pnpm_10,
     meta ? {},
   }:
     pkgs.stdenv.mkDerivation {
@@ -101,7 +129,7 @@
       nativeBuildInputs = [pkgs.nodejs pnpm pkgs.pnpmConfigHook];
 
       pnpmDeps = pkgs.fetchPnpmDeps {
-        inherit pname version src;
+        inherit pname version src pnpm;
         hash = depsHash;
         fetcherVersion = 3;
       };
