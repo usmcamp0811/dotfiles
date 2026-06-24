@@ -117,7 +117,7 @@ in {
         direnv = enabled;
         virtmanager = enabled; # don't forget to add to libvirtd group
         emoji-picker = enabled;
-        jupyter = enabled;
+        # jupyter = enabled;  # Disabled: triggers 3+ hour openblas builds on some systems
         # julia = enabled;
         node = enabled;
         yt-dlp = enabled;
