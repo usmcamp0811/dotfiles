@@ -701,55 +701,68 @@ in {
   # =========================
   # Config: pure passthrough
   # =========================
-  config = mkIf cfg.enable {
-    services.crystal-forge = {
-      enable = true;
-
-      inherit (cfg)
-        log_level database local-database auth flakes systems environments
-        vulnix cache deployment dashboards;
-
-      server = mkIf cfg.server.enable ({
+  config = lib.mkMerge [
+    (mkIf cfg.enable {
+      services.crystal-forge = {
         enable = true;
-        inherit (cfg.server)
-          host port auth_mode eval_workers eval_max_memory_mb eval_check_cache
-          allow_private_cache_test_targets
-          role_mapping;
-        oidc = {
-          inherit (cfg.server.oidc)
-            issuerUrl clientId clientSecret clientSecretFile redirectUri scopes
-            emailClaim nameClaim givenNameClaim familyNameClaim rolesClaim
-            preferredUsernameClaim bootstrapAdminGroup;
+
+        inherit (cfg)
+          log_level database local-database auth flakes systems environments
+          vulnix cache deployment dashboards;
+
+        server = mkIf cfg.server.enable ({
+          enable = true;
+          inherit (cfg.server)
+            host port auth_mode eval_workers eval_max_memory_mb eval_check_cache
+            allow_private_cache_test_targets
+            role_mapping;
+          oidc = {
+            inherit (cfg.server.oidc)
+              issuerUrl clientId clientSecret clientSecretFile redirectUri scopes
+              emailClaim nameClaim givenNameClaim familyNameClaim rolesClaim
+              preferredUsernameClaim bootstrapAdminGroup;
+          };
+        } // lib.optionalAttrs cfg.authentik.enable {
+          auth_mode = "oidc";
+          oidc = {
+            issuerUrl = authentikIssuer;
+            clientId = cfg.authentik.clientId;
+            clientSecretFile = cfg.authentik.clientSecretFile;
+            redirectUri = cfg.authentik.redirectUri;
+            scopes = cfg.authentik.scopes;
+            rolesClaim = cfg.authentik.rolesClaim;
+            emailClaim = cfg.authentik.emailClaim;
+            nameClaim = cfg.authentik.nameClaim;
+            preferredUsernameClaim = cfg.authentik.preferredUsernameClaim;
+            bootstrapAdminGroup = cfg.authentik.bootstrapAdminGroup;
+          };
+        });
+
+        client = mkIf cfg.client.enable {
+          enable = true;
+          inherit (cfg.client) server_host server_port;
+          # Always give upstream a concrete path; we provision the file below.
+          private_key = "/var/lib/crystal-forge-agent/agent.key";
         };
-      } // lib.optionalAttrs cfg.authentik.enable {
-        auth_mode = "oidc";
-        oidc = {
-          issuerUrl = authentikIssuer;
-          clientId = cfg.authentik.clientId;
-          clientSecretFile = cfg.authentik.clientSecretFile;
-          redirectUri = cfg.authentik.redirectUri;
-          scopes = cfg.authentik.scopes;
-          rolesClaim = cfg.authentik.rolesClaim;
-          emailClaim = cfg.authentik.emailClaim;
-          nameClaim = cfg.authentik.nameClaim;
-          preferredUsernameClaim = cfg.authentik.preferredUsernameClaim;
-          bootstrapAdminGroup = cfg.authentik.bootstrapAdminGroup;
+
+        # build is mostly pass-through; ensure systemd_properties always present
+        build = (cfg.build or { }) // {
+          systemd_properties = cfg.build.systemd_properties or [ ];
         };
-      });
-
-      client = mkIf cfg.client.enable {
-        enable = true;
-        inherit (cfg.client) server_host server_port;
-        # Always give upstream a concrete path; we provision the file below.
-        private_key = "/var/lib/crystal-forge-agent/agent.key";
       };
+    })
 
-      # build is mostly pass-through; ensure systemd_properties always present
-      build = (cfg.build or { }) // {
-        systemd_properties = cfg.build.systemd_properties or [ ];
+    # Builder API mode configuration - separate to ensure proper priority
+    (mkIf (cfg.enable && cfg.builder.enable_api_mode) {
+      services.crystal-forge.build = {
+        enable = lib.mkForce true;
+        api_mode = true;
+        api_key_file = cfg.builder.private_key_path;
+        server_url = cfg.builder.server_url;
       };
-    };
+    })
 
+    (mkIf cfg.enable {
     # ---- File/dir scaffolding (agent key, cache envs, etc.) ----
     systemd.tmpfiles.rules = [
       "d /var/lib/crystal-forge 0755 crystal-forge crystal-forge -"
@@ -1062,29 +1075,30 @@ in {
       };
     };
 
-    assertions = [
-      {
-        assertion = !cfg.authentik.enable || cfg.server.enable;
-        message =
-          "fmf.services.crystal-forge.authentik.enable requires crystal-forge.server.enable = true.";
-      }
-      {
-        assertion = !cfg.authentik.enable || cfg.authentik.redirectUri != null;
-        message =
-          "fmf.services.crystal-forge.authentik.redirectUri must be set when Authentik support is enabled.";
-      }
-      {
-        assertion = !cfg.authentik.enable || cfg.authentik.clientSecretFile
-          != null;
-        message =
-          "fmf.services.crystal-forge.authentik.clientSecretFile must be set when Authentik support is enabled.";
-      }
-      {
-        assertion = !cfg.builder.enable_api_mode
-          || (cfg.builder.builder_id != null && cfg.builder.server_url != null);
-        message =
-          "fmf.services.crystal-forge.builder.enable_api_mode requires builder_id and server_url to be set.";
-      }
-    ];
-  };
+      assertions = [
+        {
+          assertion = !cfg.authentik.enable || cfg.server.enable;
+          message =
+            "fmf.services.crystal-forge.authentik.enable requires crystal-forge.server.enable = true.";
+        }
+        {
+          assertion = !cfg.authentik.enable || cfg.authentik.redirectUri != null;
+          message =
+            "fmf.services.crystal-forge.authentik.redirectUri must be set when Authentik support is enabled.";
+        }
+        {
+          assertion = !cfg.authentik.enable || cfg.authentik.clientSecretFile
+            != null;
+          message =
+            "fmf.services.crystal-forge.authentik.clientSecretFile must be set when Authentik support is enabled.";
+        }
+        {
+          assertion = !cfg.builder.enable_api_mode
+            || (cfg.builder.builder_id != null && cfg.builder.server_url != null);
+          message =
+            "fmf.services.crystal-forge.builder.enable_api_mode requires builder_id and server_url to be set.";
+        }
+      ];
+    })
+  ];
 }
