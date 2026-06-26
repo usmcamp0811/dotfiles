@@ -95,7 +95,7 @@ in {
 
       ''
         echo "Setting sddm permissions for user icon"
-        ${getExe' pkgs.acl "setfacl"} -m u:sddm:x /home/${config.fmf.user.name}
+        ${getExe' pkgs.acl "setfacl"} -m u:sddm:x /home/${config.fmf.user.name} || true
         ${
           getExe' pkgs.acl "setfacl"
         } -m u:sddm:r /home/${config.fmf.user.name}/.face || true
