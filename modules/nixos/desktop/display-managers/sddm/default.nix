@@ -95,10 +95,17 @@ in {
 
       ''
         echo "Setting sddm permissions for user icon"
-        ${getExe' pkgs.acl "setfacl"} -m u:sddm:x /home/${config.fmf.user.name} || true
-        ${
-          getExe' pkgs.acl "setfacl"
-        } -m u:sddm:r /home/${config.fmf.user.name}/.face || true
+        # Only set ACLs if home directory is writable and files exist
+        if [ -w /home/${config.fmf.user.name} ]; then
+          ${getExe' pkgs.acl "setfacl"} -m u:sddm:x /home/${config.fmf.user.name} 2>/dev/null || true
+          if [ -f /home/${config.fmf.user.name}/.face ]; then
+            ${
+              getExe' pkgs.acl "setfacl"
+            } -m u:sddm:r /home/${config.fmf.user.name}/.face 2>/dev/null || true
+          fi
+        else
+          echo "Skipping SDDM ACL setup: home directory not writable or doesn't exist yet"
+        fi
       '';
   };
 }
