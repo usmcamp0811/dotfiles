@@ -1516,8 +1516,8 @@ in {
         description = "Server port";
       };
       private_key = lib.mkOption {
-        type = lib.types.nullOr lib.types.path;
-        default = null;
+        type = lib.types.path;
+        default = "/var/lib/crystal-forge-agent/private.key";
         description = "Path to Ed25519 private key file";
       };
     };
@@ -2221,6 +2221,11 @@ in {
       };
       preStart = ''
         mkdir -p /var/lib/crystal-forge-agent
+        if [ ! -f "${cfg.client.private_key}" ]; then
+          echo "Generating Crystal Forge agent private key at ${cfg.client.private_key}..."
+          ${pkgs.coreutils}/bin/head -c 32 /dev/urandom | ${pkgs.coreutils}/bin/base64 > "${cfg.client.private_key}"
+          chmod 600 "${cfg.client.private_key}"
+        fi
         ${configScriptAgent}
       '';
 
