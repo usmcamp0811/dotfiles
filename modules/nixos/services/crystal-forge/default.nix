@@ -49,6 +49,8 @@
       client = {
         server_host = cfg.client.server_host;
         server_port = cfg.client.server_port;
+      }
+      // lib.optionalAttrs (cfg.client.private_key != null) {
         private_key = toString cfg.client.private_key;
       };
     }
@@ -1514,7 +1516,8 @@ in {
         description = "Server port";
       };
       private_key = lib.mkOption {
-        type = lib.types.path;
+        type = lib.types.nullOr lib.types.path;
+        default = null;
         description = "Path to Ed25519 private key file";
       };
     };
