@@ -2281,10 +2281,6 @@ in {
 
     assertions = [
       {
-        assertion = cfg.client.enable -> (cfg.client.private_key != null);
-        message = "Crystal Forge client requires a private key file";
-      }
-      {
         assertion =
           cfg.server.enable
           || cfg.client.enable
