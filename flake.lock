@@ -1509,10 +1509,10 @@
       },
       "locked": {
         "lastModified": 1764217918,
-        "narHash": "sha256-NvFPMfNuCUCWRUzP71ZpnEPgPGxB+H7AeDrYeAVi57Q=",
+        "narHash": "sha256-GFonIuzYrqhNrXxO7WuNoCN5fjkXWvO7NnspIa9S0Jk=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "a5fd3ee30236379eac5b7bc3ddc09a25aab4b59d",
+        "rev": "c94b369c6e3883a76acbb6ebdfffd6363396f10f",
         "type": "gitlab"
       },
       "original": {
