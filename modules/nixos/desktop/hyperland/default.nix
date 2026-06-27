@@ -97,7 +97,7 @@ in
       __GL_GSYNC_ALLOWED = "0";
       __GL_VRR_ALLOWED = "0";
       GTK_USE_PORTAL = "1";
-    } // lib.optionalAttrs (lib.any (x: lib.hasPrefix "nvidia" x) (config.services.xserver.videoDrivers or [])) {
+    } // lib.optionalAttrs (lib.any (x: lib.hasPrefix "nvidia" x) (config.services.xserver.videoDrivers or [ ])) {
       # WLR_DRM_NO_ATOMIC is a workaround for buggy NVIDIA atomic modesetting.
       # It breaks display init on AMD/Intel GPUs, so only set for NVIDIA.
       WLR_DRM_NO_ATOMIC = "1";
@@ -153,5 +153,14 @@ in
       package = pkgs.hyprland;
       portalPackage = pkgs.xdg-desktop-portal-hyprland;
     };
+
+    # Having `uwsm` in systemPackages (above) makes NixOS auto-generate a
+    # "Hyprland (uwsm-managed)" session entry. Display managers may default to
+    # (or remember) that uwsm session, which fails to launch on some hardware
+    # (e.g. AMD Phoenix iGPUs): black screen on login -> back to the greeter.
+    # Force the plain, non-uwsm `hyprland` session as the default so every
+    # Hyprland host gets the working session out of the box. Use mkDefault so a
+    # system can still opt into a different session (qtile, uwsm, etc.).
+    services.displayManager.defaultSession = lib.mkDefault "hyprland";
   };
 }
