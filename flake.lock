@@ -1535,16 +1535,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1782431600,
-        "narHash": "sha256-ylVNM9waVIJ2T5nS0TrQQD/IsMjM5Pp2dGdPCV9sVLA=",
+        "lastModified": 1782530363,
+        "narHash": "sha256-GFonIuzYrqhNrXxO7WuNoCN5fjkXWvO7NnspIa9S0Jk=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "c91dd08e5e0235cf3fa16c218fc4ccec9438e1a4",
+        "rev": "c94b369c6e3883a76acbb6ebdfffd6363396f10f",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-282-builder-stuck-building-recovery",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
