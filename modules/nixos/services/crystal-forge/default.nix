@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  cfg = config.services.crystal-forge;
+  cfg = config.fmf.services.crystal-forge;
   tomlFormat = pkgs.formats.toml {};
   postgres_pkg = config.services.postgresql.package;
 
@@ -381,7 +381,7 @@
     exec ${pkgs.crystal-forge.default.agent}/bin/agent "$@"
   '';
 in {
-  options.services.crystal-forge = {
+  options.fmf.services.crystal-forge = {
     enable = lib.mkEnableOption "Crystal Forge service(s)";
 
     log_level = lib.mkOption {
@@ -541,7 +541,7 @@ in {
           type = lib.types.str;
           default = cfg.database.host;
           defaultText =
-            lib.literalExpression "config.services.crystal-forge.database.host";
+            lib.literalExpression "config.fmf.services.crystal-forge.database.host";
           description = "PostgreSQL host for Grafana to connect to";
         };
 
@@ -549,7 +549,7 @@ in {
           type = lib.types.port;
           default = cfg.database.port;
           defaultText =
-            lib.literalExpression "config.services.crystal-forge.database.port";
+            lib.literalExpression "config.fmf.services.crystal-forge.database.port";
           description = "PostgreSQL port for Grafana to connect to";
         };
 
@@ -557,7 +557,7 @@ in {
           type = lib.types.str;
           default = cfg.database.name;
           defaultText =
-            lib.literalExpression "config.services.crystal-forge.database.name";
+            lib.literalExpression "config.fmf.services.crystal-forge.database.name";
           description = "Database name for Grafana to connect to";
         };
 
@@ -1322,7 +1322,7 @@ in {
           description = lib.mdDoc ''
             OIDC issuer URL.
 
-            Required when `services.crystal-forge.server.auth_mode = "oidc"`.
+            Required when `fmf.services.crystal-forge.server.auth_mode = "oidc"`.
           '';
         };
 
@@ -1333,7 +1333,7 @@ in {
           description = lib.mdDoc ''
             OIDC client ID.
 
-            Required when `services.crystal-forge.server.auth_mode = "oidc"`.
+            Required when `fmf.services.crystal-forge.server.auth_mode = "oidc"`.
           '';
         };
 
@@ -1365,7 +1365,7 @@ in {
           description = lib.mdDoc ''
             OIDC redirect URI registered with the provider.
 
-            Required when `services.crystal-forge.server.auth_mode = "oidc"`.
+            Required when `fmf.services.crystal-forge.server.auth_mode = "oidc"`.
           '';
         };
 
@@ -2267,7 +2267,7 @@ in {
       - Does not support distributed builds across networks
 
       Recommended migration to API mode:
-        1. Set: services.crystal-forge.build.api_mode = true;
+        1. Set: fmf.services.crystal-forge.build.api_mode = true;
         2. Deploy the configuration (builder API key will be auto-generated)
         3. Check systemd logs for the builder public key
         4. Register the builder in Crystal Forge UI using the public key
