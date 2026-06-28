@@ -7,6 +7,7 @@
   cfg = config.fmf.services.crystal-forge;
   tomlFormat = pkgs.formats.toml {};
   postgres_pkg = config.services.postgresql.package;
+  agentVaultKeyPath = "/tmp/detsys-vault/${config.networking.hostName}.key";
 
   # Recursively remove any null values so TOML generation won’t choke.
   stripNulls = v:
@@ -1520,9 +1521,37 @@ in {
       };
       private_key = lib.mkOption {
         type = lib.types.path;
-        default = "/var/lib/crystal-forge-agent/private.key";
+        default =
+          if config.fmf.services.vault-agent.enable
+          then agentVaultKeyPath
+          else "/var/lib/crystal-forge-agent/private.key";
         description = "Path to Ed25519 private key file";
       };
+    };
+    role-id = lib.mkOption {
+      type = lib.types.str;
+      default = config.fmf.services.vault-agent.settings.vault.role-id;
+      description = "Absolute path to the Vault AppRole role-id file";
+    };
+    secret-id = lib.mkOption {
+      type = lib.types.str;
+      default = config.fmf.services.vault-agent.settings.vault.secret-id;
+      description = "Absolute path to the Vault AppRole secret-id file";
+    };
+    vault-path = lib.mkOption {
+      type = lib.types.str;
+      default = "secret/campground/crystal-forge";
+      description = "Vault KV path containing per-host Crystal Forge agent keys";
+    };
+    kvVersion = lib.mkOption {
+      type = lib.types.enum ["v1" "v2"];
+      default = "v2";
+      description = "Vault KV engine version for the Crystal Forge agent key path";
+    };
+    vault-address = lib.mkOption {
+      type = lib.types.str;
+      default = config.fmf.services.vault-agent.settings.vault.address;
+      description = "Vault address used to retrieve Crystal Forge agent keys";
     };
     env-file = lib.mkOption {
       type = lib.types.str;
@@ -1543,6 +1572,30 @@ in {
       trusted-public-keys =
         lib.mkIf (cfg.deployment.cache_public_key != null)
         [cfg.deployment.cache_public_key];
+    };
+
+    fmf.services.vault-agent.services."crystal-forge-agent" = lib.mkIf (cfg.client.enable && config.fmf.services.vault-agent.enable) {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
+        };
+      };
+      secrets.file.files."${config.networking.hostName}.key" = {
+        text = ''
+          {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${config.networking.hostName} }}{{ else }}{{ .Data.data.${config.networking.hostName} }}{{ end }}{{ end }}'';
+        permissions = "0600";
+        change-action = "restart";
+      };
     };
 
     users.users.crystal-forge = lib.mkIf (cfg.server.enable || cfg.build.enable) {
@@ -2216,6 +2269,10 @@ in {
       preStart = ''
         mkdir -p /var/lib/crystal-forge-agent
         if [ ! -f "${cfg.client.private_key}" ]; then
+          ${lib.optionalString (config.fmf.services.vault-agent.enable && toString cfg.client.private_key == agentVaultKeyPath) ''
+            echo "ERROR: Crystal Forge agent key was not rendered by Vault at ${cfg.client.private_key}" >&2
+            exit 1
+          ''}
           echo "Generating Crystal Forge agent private key at ${cfg.client.private_key}..."
           ${pkgs.coreutils}/bin/head -c 32 /dev/urandom | ${pkgs.coreutils}/bin/base64 > "${cfg.client.private_key}"
           chmod 600 "${cfg.client.private_key}"
@@ -2254,7 +2311,7 @@ in {
         ];
         # Also ensure read-only access to CA bundle (good practice):
         ReadOnlyPaths = ["/etc/ssl/certs"];
-        PrivateTmp = true;
+        PrivateTmp = !(config.fmf.services.vault-agent.enable && toString cfg.client.private_key == agentVaultKeyPath);
         Restart = "always";
         RestartSec = 5;
       };
