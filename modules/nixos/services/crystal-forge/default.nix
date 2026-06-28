@@ -2311,7 +2311,7 @@ in {
         ];
         # Also ensure read-only access to CA bundle (good practice):
         ReadOnlyPaths = ["/etc/ssl/certs"];
-        PrivateTmp = !(config.fmf.services.vault-agent.enable && toString cfg.client.private_key == agentVaultKeyPath);
+        PrivateTmp = true;
         Restart = "always";
         RestartSec = 5;
       };
