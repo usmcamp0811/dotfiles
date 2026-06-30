@@ -334,12 +334,16 @@
   serverScript = pkgs.writeShellScript "crystal-forge-server" ''
     export CRYSTAL_FORGE_CONFIG="${serverConfigPath}"
 
-    ${lib.optionalString (cfg.cache.encryption_key_file != null) ''
-      if [ -f "${cfg.cache.encryption_key_file}" ]; then
-        export CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY="$(cat "${cfg.cache.encryption_key_file}")"
+    ${lib.optionalString (cfg.cache.encryption_key_file != null || config.fmf.services.vault-agent.enable) ''
+      KEY_FILE="${
+        if cfg.cache.encryption_key_file != null
+        then cfg.cache.encryption_key_file
+        else "/var/lib/crystal-forge/secrets/cache-encryption-key"
+      }"
+      if [ -f "$KEY_FILE" ]; then
+        export CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY="$(cat "$KEY_FILE")"
       else
-        echo "ERROR: Cache encryption key file not found: ${cfg.cache.encryption_key_file}" >&2
-        exit 1
+        echo "WARNING: Cache encryption key file not found: $KEY_FILE" >&2
       fi
     ''}
 
@@ -361,12 +365,16 @@
     export TMPDIR="/var/lib/crystal-forge/tmp"
     export HOME="/var/lib/crystal-forge"
 
-    ${lib.optionalString (cfg.cache.encryption_key_file != null) ''
-      if [ -f "${cfg.cache.encryption_key_file}" ]; then
-        export CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY="$(cat "${cfg.cache.encryption_key_file}")"
+    ${lib.optionalString (cfg.cache.encryption_key_file != null || config.fmf.services.vault-agent.enable) ''
+      KEY_FILE="${
+        if cfg.cache.encryption_key_file != null
+        then cfg.cache.encryption_key_file
+        else "/var/lib/crystal-forge/secrets/cache-encryption-key"
+      }"
+      if [ -f "$KEY_FILE" ]; then
+        export CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY="$(cat "$KEY_FILE")"
       else
-        echo "ERROR: Cache encryption key file not found: ${cfg.cache.encryption_key_file}" >&2
-        exit 1
+        echo "WARNING: Cache encryption key file not found: $KEY_FILE" >&2
       fi
     ''}
 
@@ -1620,10 +1628,11 @@ in {
           ];
         };
       };
-      secrets.environment.templates."cache-key" = {
+      secrets.file.files."crystal-forge-server-cache-key" = {
         text = ''
-          CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY={{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}
-        '';
+          {{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}'';
+        permissions = "0400";
+        change-action = "restart";
       };
     };
 
@@ -1644,11 +1653,31 @@ in {
           ];
         };
       };
-      secrets.environment.templates."cache-key" = {
+      secrets.file.files."crystal-forge-builder-cache-key" = {
         text = ''
-          CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY={{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}
-        '';
+          {{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}'';
+        permissions = "0400";
+        change-action = "restart";
       };
+    };
+
+    # Copy vault-agent files to /var/lib/crystal-forge for access
+    systemd.services.detsys-vaultAgent-crystal-forge-server = lib.mkIf (cfg.server.enable && config.fmf.services.vault-agent.enable) {
+      serviceConfig.ExecStartPost = pkgs.writeShellScript "copy-server-cache-key" ''
+        mkdir -p /var/lib/crystal-forge/secrets
+        cp /tmp/detsys-vault/crystal-forge-server-cache-key /var/lib/crystal-forge/secrets/cache-encryption-key
+        chown crystal-forge:crystal-forge /var/lib/crystal-forge/secrets/cache-encryption-key
+        chmod 0400 /var/lib/crystal-forge/secrets/cache-encryption-key
+      '';
+    };
+
+    systemd.services.detsys-vaultAgent-crystal-forge-builder = lib.mkIf (cfg.build.enable && config.fmf.services.vault-agent.enable) {
+      serviceConfig.ExecStartPost = pkgs.writeShellScript "copy-builder-cache-key" ''
+        mkdir -p /var/lib/crystal-forge/secrets
+        cp /tmp/detsys-vault/crystal-forge-builder-cache-key /var/lib/crystal-forge/secrets/cache-encryption-key
+        chown crystal-forge:crystal-forge /var/lib/crystal-forge/secrets/cache-encryption-key
+        chmod 0400 /var/lib/crystal-forge/secrets/cache-encryption-key
+      '';
     };
 
     users.users.crystal-forge = lib.mkIf (cfg.server.enable || cfg.build.enable) {
@@ -2095,13 +2124,10 @@ in {
             KillMode = "control-group";
 
             # Make sure we load the environment file
-            EnvironmentFile =
-              [
-                "-${cfg.env-file}"
-                "-/var/lib/crystal-forge/.config/crystal-forge-attic.env"
-              ]
-              ++ lib.optional (cfg.build.enable && config.fmf.services.vault-agent.enable)
-              "/run/keys/environment/crystal-forge-builder/cache-key.EnvFile";
+            EnvironmentFile = [
+              "-${cfg.env-file}"
+              "-/var/lib/crystal-forge/.config/crystal-forge-attic.env"
+            ];
 
             NoNewPrivileges = true;
             ProtectSystem = "no";
@@ -2238,10 +2264,7 @@ in {
         Group = "crystal-forge";
         WorkingDirectory = "/var/lib/crystal-forge";
 
-        EnvironmentFile =
-          ["-${cfg.env-file}"]
-          ++ lib.optional (cfg.server.enable && config.fmf.services.vault-agent.enable)
-          "/run/keys/environment/crystal-forge-server/cache-key.EnvFile";
+        EnvironmentFile = ["-${cfg.env-file}"];
 
         # Filesystem permissions
         StateDirectory = "crystal-forge";
