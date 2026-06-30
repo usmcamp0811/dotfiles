@@ -2154,18 +2154,20 @@ in {
       wants = lib.optional cfg.local-database "postgresql.service"
         ++ lib.optional config.fmf.services.vault-agent.enable "crystal-forge-setup.service";
 
-      path = with pkgs; [
-        nix
-        git
-        openssh
-        nix-fast-build
-        nix-eval-jobs
-        vulnix
-        coreutils
-        findutils
-        gnused
-        gnugrep
-      ];
+      path = with pkgs;
+        [
+          nix
+          git
+          openssh
+          nix-fast-build
+          nix-eval-jobs
+          vulnix
+          coreutils
+          findutils
+          gnused
+          gnugrep
+        ]
+        ++ lib.optional (cfg.cache.cache_type == "Attic") attic-client;
 
       environment =
         {
