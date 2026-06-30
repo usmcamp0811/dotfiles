@@ -1369,18 +1369,17 @@ in {
 
         clientSecretFile = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
-          default =
-            if config.fmf.services.vault-agent.enable && cfg.server.enable && cfg.server.auth_mode == "oidc"
-            then "/var/lib/crystal-forge/secrets/oidc-client-secret"
+          default = 
+            if config.fmf.services.vault-agent.enable
+            then "/var/lib/crystal-forge/oidc-client-secret"
             else null;
           description = lib.mdDoc ''
             Path to a file containing the OIDC client secret.
 
             This is the recommended way to provide secrets.
             
-            When vault-agent is enabled and auth_mode is "oidc", this defaults to
-            "/var/lib/crystal-forge/secrets/oidc-client-secret" which is automatically
-            populated from Vault at the path specified by `vault-path` with key "CLIENT_SECRET".
+            When vault-agent is enabled, defaults to "/var/lib/crystal-forge/oidc-client-secret"
+            which is populated from Vault at `vault-path` with key "CLIENT_SECRET".
           '';
         };
 
@@ -1673,9 +1672,9 @@ in {
           
           ${lib.optionalString (cfg.server.enable && cfg.server.auth_mode == "oidc") ''
             if [ -f /tmp/detsys-vault/oidc-client-secret ]; then
-              cp /tmp/detsys-vault/oidc-client-secret /var/lib/crystal-forge/secrets/oidc-client-secret
-              chown crystal-forge:crystal-forge /var/lib/crystal-forge/secrets/oidc-client-secret
-              chmod 0400 /var/lib/crystal-forge/secrets/oidc-client-secret
+              cp /tmp/detsys-vault/oidc-client-secret /var/lib/crystal-forge/oidc-client-secret
+              chown crystal-forge:crystal-forge /var/lib/crystal-forge/oidc-client-secret
+              chmod 0400 /var/lib/crystal-forge/oidc-client-secret
               echo "OIDC client secret copied successfully"
             else
               echo "WARNING: /tmp/detsys-vault/oidc-client-secret not found"
