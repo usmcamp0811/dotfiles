@@ -1630,7 +1630,7 @@ in {
       };
       secrets.file.files."cache-encryption-key" = {
         text = ''
-          {{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}'';
+          {{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ index .Data " cache_encryption_key" }}{{ else }}{{ index .Data.data " cache_encryption_key" }}{{ end }}{{ end }}'';
         permissions = "0400";
         change-action = "restart";
       };
