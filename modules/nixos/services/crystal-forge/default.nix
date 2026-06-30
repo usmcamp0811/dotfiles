@@ -1109,8 +1109,16 @@ in {
       };
       encryption_key_file = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
-        default = null;
+        default =
+          if config.fmf.services.vault-agent.enable
+          then "/tmp/detsys-vault/crystal-forge-cache-encryption-key"
+          else null;
         description = "Path to file containing CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY for encrypting cache credentials at rest";
+      };
+      vault_path_cache = lib.mkOption {
+        type = lib.types.str;
+        default = "secret/campground/crystal-forge";
+        description = "Vault KV path containing Crystal Forge cache encryption key";
       };
       # Attic-specific options
       attic_token = lib.mkOption {
@@ -1594,6 +1602,31 @@ in {
         text = ''
           {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${config.networking.hostName} }}{{ else }}{{ .Data.data.${config.networking.hostName} }}{{ end }}{{ end }}'';
         permissions = "0600";
+        change-action = "restart";
+      };
+    };
+
+    # Vault Agent service for crystal-forge server to manage cache encryption key
+    fmf.services.vault-agent.services."crystal-forge-server" = lib.mkIf (cfg.server.enable && config.fmf.services.vault-agent.enable) {
+      settings = {
+        vault.address = cfg.vault-address;
+        auto_auth = {
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = cfg.role-id;
+                secret_id_file_path = cfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
+        };
+      };
+      secrets.file.files."crystal-forge-cache-encryption-key" = {
+        text = ''
+          {{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.encryption_key }}{{ else }}{{ .Data.data.encryption_key }}{{ end }}{{ end }}'';
+        permissions = "0400";
         change-action = "restart";
       };
     };
