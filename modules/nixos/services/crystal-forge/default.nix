@@ -1611,8 +1611,8 @@ in {
       };
     };
 
-    # Vault Agent service for crystal-forge server to manage cache encryption key
-    fmf.services.vault-agent.services."crystal-forge-server" = lib.mkIf (cfg.server.enable && config.fmf.services.vault-agent.enable) {
+    # Vault Agent service for crystal-forge setup (shared secrets for server and builder)
+    fmf.services.vault-agent.services."crystal-forge-setup" = lib.mkIf ((cfg.server.enable || cfg.build.enable) && config.fmf.services.vault-agent.enable) {
       settings = {
         vault.address = cfg.vault-address;
         auto_auth = {
@@ -1628,7 +1628,7 @@ in {
           ];
         };
       };
-      secrets.file.files."crystal-forge-server-cache-key" = {
+      secrets.file.files."cache-encryption-key" = {
         text = ''
           {{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}'';
         permissions = "0400";
@@ -1636,48 +1636,29 @@ in {
       };
     };
 
-    # Vault Agent service for crystal-forge builder to manage cache encryption key
-    fmf.services.vault-agent.services."crystal-forge-builder" = lib.mkIf (cfg.build.enable && config.fmf.services.vault-agent.enable) {
-      settings = {
-        vault.address = cfg.vault-address;
-        auto_auth = {
-          method = [
-            {
-              type = "approle";
-              config = {
-                role_id_file_path = cfg.role-id;
-                secret_id_file_path = cfg.secret-id;
-                remove_secret_id_file_after_reading = false;
-              };
-            }
-          ];
-        };
+    # Helper service to copy vault-agent secrets to /var/lib/crystal-forge
+    systemd.services.crystal-forge-setup = lib.mkIf ((cfg.server.enable || cfg.build.enable) && config.fmf.services.vault-agent.enable) {
+      description = "Crystal Forge Setup - Copy secrets from vault-agent";
+      wantedBy = ["multi-user.target"];
+      after = ["detsys-vaultAgent-crystal-forge-setup.service"];
+      wants = ["detsys-vaultAgent-crystal-forge-setup.service"];
+      
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = pkgs.writeShellScript "crystal-forge-setup" ''
+          mkdir -p /var/lib/crystal-forge/secrets
+          if [ -f /tmp/detsys-vault/cache-encryption-key ]; then
+            cp /tmp/detsys-vault/cache-encryption-key /var/lib/crystal-forge/secrets/cache-encryption-key
+            chown crystal-forge:crystal-forge /var/lib/crystal-forge/secrets/cache-encryption-key
+            chmod 0400 /var/lib/crystal-forge/secrets/cache-encryption-key
+            echo "Cache encryption key copied successfully"
+          else
+            echo "WARNING: /tmp/detsys-vault/cache-encryption-key not found"
+            exit 1
+          fi
+        '';
       };
-      secrets.file.files."crystal-forge-builder-cache-key" = {
-        text = ''
-          {{ with secret "${cfg.cache.vault_path_cache}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.cache_encryption_key }}{{ else }}{{ .Data.data.cache_encryption_key }}{{ end }}{{ end }}'';
-        permissions = "0400";
-        change-action = "restart";
-      };
-    };
-
-    # Copy vault-agent files to /var/lib/crystal-forge for access
-    systemd.services.detsys-vaultAgent-crystal-forge-server = lib.mkIf (cfg.server.enable && config.fmf.services.vault-agent.enable) {
-      serviceConfig.ExecStartPost = pkgs.writeShellScript "copy-server-cache-key" ''
-        mkdir -p /var/lib/crystal-forge/secrets
-        cp /tmp/detsys-vault/crystal-forge-server-cache-key /var/lib/crystal-forge/secrets/cache-encryption-key
-        chown crystal-forge:crystal-forge /var/lib/crystal-forge/secrets/cache-encryption-key
-        chmod 0400 /var/lib/crystal-forge/secrets/cache-encryption-key
-      '';
-    };
-
-    systemd.services.detsys-vaultAgent-crystal-forge-builder = lib.mkIf (cfg.build.enable && config.fmf.services.vault-agent.enable) {
-      serviceConfig.ExecStartPost = pkgs.writeShellScript "copy-builder-cache-key" ''
-        mkdir -p /var/lib/crystal-forge/secrets
-        cp /tmp/detsys-vault/crystal-forge-builder-cache-key /var/lib/crystal-forge/secrets/cache-encryption-key
-        chown crystal-forge:crystal-forge /var/lib/crystal-forge/secrets/cache-encryption-key
-        chmod 0400 /var/lib/crystal-forge/secrets/cache-encryption-key
-      '';
     };
 
     users.users.crystal-forge = lib.mkIf (cfg.server.enable || cfg.build.enable) {
@@ -2032,8 +2013,10 @@ in {
     in {
       description = "Crystal Forge Builder";
       wantedBy = ["multi-user.target"];
-      after = lib.optional cfg.local-database "postgresql.service";
-      wants = lib.optional cfg.local-database "postgresql.service";
+      after = lib.optional cfg.local-database "postgresql.service"
+        ++ lib.optional config.fmf.services.vault-agent.enable "crystal-forge-setup.service";
+      wants = lib.optional cfg.local-database "postgresql.service"
+        ++ lib.optional config.fmf.services.vault-agent.enable "crystal-forge-setup.service";
 
       path = with pkgs;
         [nix git vulnix systemd nix-fast-build nix-eval-jobs]
@@ -2166,8 +2149,10 @@ in {
     systemd.services.crystal-forge-server = lib.mkIf cfg.server.enable {
       description = "Crystal Forge Server";
       wantedBy = ["multi-user.target"];
-      after = lib.optional cfg.local-database "postgresql.service";
-      wants = lib.optional cfg.local-database "postgresql.service";
+      after = lib.optional cfg.local-database "postgresql.service"
+        ++ lib.optional config.fmf.services.vault-agent.enable "crystal-forge-setup.service";
+      wants = lib.optional cfg.local-database "postgresql.service"
+        ++ lib.optional config.fmf.services.vault-agent.enable "crystal-forge-setup.service";
 
       path = with pkgs; [
         nix
