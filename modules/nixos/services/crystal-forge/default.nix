@@ -1369,11 +1369,18 @@ in {
 
         clientSecretFile = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
-          default = null;
+          default =
+            if config.fmf.services.vault-agent.enable && cfg.server.enable && cfg.server.auth_mode == "oidc"
+            then "/var/lib/crystal-forge/secrets/oidc-client-secret"
+            else null;
           description = lib.mdDoc ''
             Path to a file containing the OIDC client secret.
 
             This is the recommended way to provide secrets.
+            
+            When vault-agent is enabled and auth_mode is "oidc", this defaults to
+            "/var/lib/crystal-forge/secrets/oidc-client-secret" which is automatically
+            populated from Vault at the path specified by `vault-path` with key "CLIENT_SECRET".
           '';
         };
 
@@ -1634,6 +1641,12 @@ in {
         permissions = "0400";
         change-action = "restart";
       };
+      secrets.file.files."oidc-client-secret" = lib.mkIf (cfg.server.enable && cfg.server.auth_mode == "oidc") {
+        text = ''
+          {{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.CLIENT_SECRET }}{{ else }}{{ .Data.data.CLIENT_SECRET }}{{ end }}{{ end }}'';
+        permissions = "0400";
+        change-action = "restart";
+      };
     };
 
     # Helper service to copy vault-agent secrets to /var/lib/crystal-forge
@@ -1657,6 +1670,18 @@ in {
             echo "WARNING: /tmp/detsys-vault/cache-encryption-key not found"
             exit 1
           fi
+          
+          ${lib.optionalString (cfg.server.enable && cfg.server.auth_mode == "oidc") ''
+            if [ -f /tmp/detsys-vault/oidc-client-secret ]; then
+              cp /tmp/detsys-vault/oidc-client-secret /var/lib/crystal-forge/secrets/oidc-client-secret
+              chown crystal-forge:crystal-forge /var/lib/crystal-forge/secrets/oidc-client-secret
+              chmod 0400 /var/lib/crystal-forge/secrets/oidc-client-secret
+              echo "OIDC client secret copied successfully"
+            else
+              echo "WARNING: /tmp/detsys-vault/oidc-client-secret not found"
+              exit 1
+            fi
+          ''}
         '';
       };
     };
