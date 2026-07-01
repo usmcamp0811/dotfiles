@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/dev";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-375.4-verified-source-re-evaluation";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
