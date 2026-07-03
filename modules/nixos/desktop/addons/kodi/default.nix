@@ -32,13 +32,15 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      # Kodi with native Wayland support
-      kodi-wayland
-    ] ++ lib.optionals cfg.jellyfin.enable [
-      # Jellyfin addon for Kodi
-      kodi-wayland.packages.jellyfin
-    ];
+    environment.systemPackages = with pkgs;
+      [
+        # Kodi with native Wayland support
+        kodi-wayland
+      ]
+      ++ lib.optionals cfg.jellyfin.enable [
+        # Jellyfin addon for Kodi
+        kodi-wayland.packages.jellyfin
+      ];
 
     # Add the specified user to groups needed for hardware access
     users.users = lib.mkIf (cfg.user != null) {
@@ -57,7 +59,6 @@ in {
       enable = true;
       extraPackages = with pkgs; [
         intel-media-driver
-        vaapiIntel
         vaapiVdpau
         libvdpau-va-gl
       ];
@@ -74,9 +75,9 @@ in {
     # Auto-start Kodi in kiosk mode (fullscreen, no window decorations)
     systemd.user.services.kodi = lib.mkIf cfg.autoStart {
       description = "Kodi Media Center";
-      after = [ "graphical-session.target" ];
-      partOf = [ "graphical-session.target" ];
-      wantedBy = [ "graphical-session.target" ];
+      after = ["graphical-session.target"];
+      partOf = ["graphical-session.target"];
+      wantedBy = ["graphical-session.target"];
       serviceConfig = {
         ExecStart = ''
           ${pkgs.kodi-wayland}/bin/kodi --fullscreen --standalone
