@@ -93,9 +93,9 @@ in
       kdePackages.gwenview  # Image viewer
       
       # Utilities
-      libsForQt5.filelight  # Disk usage analyzer
-      libsForQt5.spectacle  # Screenshots
-      libsForQt5.ark  # Archive manager
+      kdePackages.filelight  # Disk usage analyzer
+      kdePackages.spectacle  # Screenshots
+      kdePackages.ark  # Archive manager
     ] ++ optionals cfg.tv-mode [
       # Additional TV-optimized apps
       kodi  # Media center (already configured elsewhere, but ensure it's available)
