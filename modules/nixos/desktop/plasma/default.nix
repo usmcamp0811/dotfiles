@@ -61,7 +61,6 @@ in
     };
     
     services.displayManager = {
-      autoNumlock = mkDefault true;
       defaultSession = mkDefault (if cfg.wayland then "plasma" else "plasmax11");
       autoLogin = mkIf cfg.suspend {
         enable = mkDefault false;  # Disable autoLogin if suspend is enabled for security
