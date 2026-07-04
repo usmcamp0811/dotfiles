@@ -51,6 +51,9 @@ in
     # KDE Plasma 6 with Wayland support
     services.desktopManager.plasma6.enable = true;
     
+    # Disable power-profiles-daemon if TLP is enabled (common conflict on laptops)
+    services.power-profiles-daemon.enable = mkForce (!config.services.tlp.enable);
+    
     services.displayManager = {
       sddm = {
         enable = true;
