@@ -54,8 +54,8 @@ in
     # Disable power-profiles-daemon if TLP is enabled (common conflict on laptops)
     services.power-profiles-daemon.enable = mkForce (!config.services.tlp.enable);
     
-    # Configure display manager (but allow fmf.desktop.display-manager.sddm to override)
-    fmf.desktop.display-manager.sddm = mkIf (!config.fmf.desktop.display-manager.sddm.enable) {
+    # Configure display manager with SDDM
+    fmf.desktop.display-manager.sddm = {
       enable = mkDefault true;
       wayland = mkDefault cfg.wayland;
     };
