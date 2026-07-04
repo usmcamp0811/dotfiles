@@ -54,15 +54,17 @@ in
     # Disable power-profiles-daemon if TLP is enabled (common conflict on laptops)
     services.power-profiles-daemon.enable = mkForce (!config.services.tlp.enable);
     
+    # Configure display manager (but allow fmf.desktop.display-manager.sddm to override)
+    fmf.desktop.display-manager.sddm = mkIf (!config.fmf.desktop.display-manager.sddm.enable) {
+      enable = mkDefault true;
+      wayland = mkDefault cfg.wayland;
+    };
+    
     services.displayManager = {
-      sddm = {
-        enable = true;
-        wayland.enable = cfg.wayland;
-        autoNumlock = true;
-      };
-      defaultSession = if cfg.wayland then "plasma" else "plasmax11";
+      autoNumlock = mkDefault true;
+      defaultSession = mkDefault (if cfg.wayland then "plasma" else "plasmax11");
       autoLogin = mkIf cfg.suspend {
-        enable = false;  # Disable autoLogin if suspend is enabled for security
+        enable = mkDefault false;  # Disable autoLogin if suspend is enabled for security
       };
     };
 
