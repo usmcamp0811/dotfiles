@@ -20,9 +20,9 @@ in
     
     tv-mode = mkBoolOpt false "Whether to optimize for TV/10-foot interface use.";
     
-    wallpaper = mkOpt (oneOf [ str package ])
-      pkgs.fmf.wallpapers.nord-rainbow-dark-nix
-      "The wallpaper to use.";
+    wallpaper = mkOpt (nullOr (oneOf [ str package ]))
+      null
+      "The wallpaper to use. Set to null to use Plasma default.";
     
     scale = mkOpt (oneOf [ str int float ]) 1.0
       "Global scaling factor for the desktop (useful for 4K TVs).";
@@ -142,13 +142,13 @@ in
           })
           cfg.autostart-apps)))
         
-        # Set wallpaper path
-        {
+        # Set wallpaper path (if provided)
+        (mkIf (cfg.wallpaper != null) {
           ".local/share/wallpapers/custom-wallpaper".source =
             if lib.isDerivation cfg.wallpaper
             then cfg.wallpaper
-            else pkgs.fetchurl { url = cfg.wallpaper; sha256 = lib.fakeSha256; };
-        }
+            else builtins.fetchurl cfg.wallpaper;
+        })
       ];
 
       # Basic Plasma configuration via files
