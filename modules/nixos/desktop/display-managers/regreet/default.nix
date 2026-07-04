@@ -62,10 +62,10 @@ in {
 
         GTK = {
           application_prefer_dark_theme = true;
-          cursor_theme_name = "${config.fmf.desktop.addons.gtk.cursor.name}";
-          font_name = "${config.fmf.system.fonts.default} * 12";
-          icon_theme_name = "${config.fmf.desktop.addons.gtk.icon.name}";
-          theme_name = "${config.fmf.desktop.addons.gtk.theme.name}";
+          cursor_theme_name = mkDefault "${config.fmf.desktop.addons.gtk.cursor.name}";
+          font_name = mkDefault "${config.fmf.system.fonts.default} * 12";
+          icon_theme_name = mkDefault "${config.fmf.desktop.addons.gtk.icon.name}";
+          theme_name = mkDefault "${config.fmf.desktop.addons.gtk.theme.name}";
         };
       };
     };

@@ -5,7 +5,7 @@
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
       # url = "gitlab:crystal-forge/crystal-forge/TASK-376-system-detail-history-logs-refactor";
-      url = "gitlab:crystal-forge/crystal-forge/TASK-375.4-verified-source-re-evaluation";
+      url = "gitlab:crystal-forge/crystal-forge/dev";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
