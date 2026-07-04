@@ -117,226 +117,79 @@ in
     programs.kdeconnect.enable = true;
 
     # Home-manager configuration for Plasma
+    # Note: Advanced Plasma configuration requires plasma-manager home-manager module
+    # For now, users can configure Plasma manually through System Settings
     fmf.home.extraOptions = {
-      # Plasma configuration via plasma-manager
-      programs.plasma = {
-        enable = true;
+      # Create autostart entries
+      home.file = mkMerge [
+        (mkIf (cfg.autostart-apps != [ ]) (listToAttrs (map
+          (app: {
+            name = ".config/autostart/${app}.desktop";
+            value = {
+              text = ''
+                [Desktop Entry]
+                Type=Application
+                Exec=${app}
+                Hidden=false
+                NoDisplay=false
+                X-GNOME-Autostart-enabled=true
+                Name=${app}
+              '';
+            };
+          })
+          cfg.autostart-apps)))
         
-        # Workspace behavior for TV mode
-        workspace = mkIf cfg.tv-mode {
-          clickItemTo = "open";  # Single-click to open
+        # Set wallpaper path
+        {
+          ".local/share/wallpapers/custom-wallpaper".source =
+            if lib.isDerivation cfg.wallpaper
+            then cfg.wallpaper
+            else pkgs.fetchurl { url = cfg.wallpaper; sha256 = lib.fakeSha256; };
+        }
+      ];
+
+      # Basic Plasma configuration via files
+      xdg.configFile = mkMerge [
+        # Disable screen locker in TV mode
+        (mkIf cfg.tv-mode {
+          "kscreenlockerrc".text = ''
+            [Daemon]
+            Autolock=false
+            LockOnResume=false
+          '';
           
-          # Theme and appearance
-          theme = "breeze-dark";
-          colorScheme = "BreezeDark";
+          # Disable power management
+          "powermanagementprofilesrc".text = ''
+            [AC]
+            DimDisplay=false
+            TurnOffDisplay=0
+          '';
           
-          # Cursor settings
-          cursor = {
-            theme = "breeze_cursors";
-            size = cfg.cursor-size;
-          };
-        };
-
-        # Hotkeys optimized for remote control
-        hotkeys.commands = mkIf cfg.tv-mode {
-          "launch-kodi" = {
-            name = "Launch Kodi";
-            key = "Meta+K";
-            command = "kodi";
-          };
-          "launch-browser" = {
-            name = "Launch Browser";  
-            key = "Meta+B";
-            command = if config.fmf.apps.firefox.enable then "firefox" else "plasma-browser";
-          };
-        };
-
-        # Panels configuration
-        panels = mkIf cfg.tv-mode [
-          {
-            location = "bottom";
-            height = cfg.panel-height;
-            hiding = "none";  # Always visible for TV
-            floating = false;
+          # KWin compositor settings
+          "kwinrc".text = ''
+            [Compositing]
+            Backend=${if cfg.wayland then "wayland" else "OpenGL"}
+            GLCore=true
             
-            widgets = [
-              {
-                kickoff = {
-                  icon = "nix-snowflake";
-                  sortAlphabetically = true;
-                };
-              }
-              "org.kde.plasma.icontasks"
-              "org.kde.plasma.marginsseparator"
-              {
-                systemTray.items = {
-                  shown = [
-                    "org.kde.plasma.networkmanagement"
-                    "org.kde.plasma.bluetooth"
-                    "org.kde.plasma.volume"
-                  ];
-                  hidden = [
-                    "org.kde.plasma.battery"
-                  ];
-                };
-              }
-              {
-                digitalClock = {
-                  time.format = "24h";
-                  date = {
-                    enable = true;
-                    format = "longDate";
-                    position = "besideTime";
-                  };
-                };
-              }
-            ];
-          }
-        ];
-
-        # Shortcuts for TV-friendly navigation
-        shortcuts = mkIf cfg.tv-mode {
-          "kwin" = {
-            "Show Desktop" = "Meta+D";
-            "Switch to Desktop 1" = "Meta+1";
-            "Switch to Desktop 2" = "Meta+2";
-            "Switch to Desktop 3" = "Meta+3";
-            "Switch to Desktop 4" = "Meta+4";
-            "Walk Through Windows" = "Meta+Tab";
-            "Walk Through Windows (Reverse)" = "Meta+Shift+Tab";
-            "Toggle Present Windows (All desktops)" = "Meta+W";
-            "Toggle Present Windows (Current desktop)" = "Meta+A";
-          };
-          "plasmashell" = {
-            "activate task manager entry 1" = [ ];  # Disable default app shortcuts
-            "activate task manager entry 2" = [ ];
-            "activate task manager entry 3" = [ ];
-            "activate task manager entry 4" = [ ];
-            "activate task manager entry 5" = [ ];
-            "activate task manager entry 6" = [ ];
-            "activate task manager entry 7" = [ ];
-            "activate task manager entry 8" = [ ];
-            "activate task manager entry 9" = [ ];
-            "activate task manager entry 10" = [ ];
-          };
-        };
-
-        # Window rules for TV mode
-        window-rules = mkIf cfg.tv-mode [
-          {
-            description = "Kodi Fullscreen";
-            match = {
-              window-class = {
-                value = "kodi";
-                type = "substring";
-              };
-            };
-            apply = {
-              fullscreen = {
-                value = true;
-                apply = "initially";
-              };
-              noborder = {
-                value = true;
-                apply = "force";
-              };
-            };
-          }
-        ];
-
-        # Configure fonts for TV viewing
-        fonts = mkIf cfg.tv-mode {
-          general = {
-            family = "Noto Sans";
-            pointSize = cfg.font-size;
-          };
-          fixedWidth = {
-            family = "FiraCode Nerd Font";
-            pointSize = cfg.font-size;
-          };
-        };
-
-        # Autostart applications
-        configFile = mkMerge [
-          (mkIf (cfg.autostart-apps != [ ]) {
-            "autostart" = listToAttrs (map
-              (app: {
-                name = "${app}.desktop";
-                value = {
-                  source = "${pkgs.kdePackages.plasma-workspace}/share/applications/${app}.desktop";
-                };
-              })
-              cfg.autostart-apps);
-          })
+            [Windows]
+            BorderlessMaximizedWindows=true
+            Placement=Centered
+            
+            [Desktops]
+            Number=4
+            Rows=1
+          '';
           
-          # TV-specific settings
-          (mkIf cfg.tv-mode {
-            # Disable screen saver and power management
-            "kscreenlockerrc" = {
-              "Daemon" = {
-                "Autolock" = false;
-                "LockOnResume" = false;
-              };
-            };
+          # Global KDE settings
+          "kdeglobals".text = ''
+            [KDE]
+            SingleClick=${if cfg.tv-mode then "true" else "false"}
             
-            "powermanagementprofilesrc" = {
-              "AC" = {
-                "DimDisplay" = false;
-                "TurnOffDisplay" = 0;  # Never turn off display
-              };
-            };
-            
-            # Configure KWin for TV
-            "kwinrc" = {
-              "Compositing" = {
-                "Backend" = if cfg.wayland then "wayland" else "OpenGL";
-                "GLCore" = true;
-                "GLPreferBufferSwap" = "a";
-                "GLTextureFilter" = 2;  # Accurate filtering
-                "HiddenPreviews" = 5;
-                "OpenGLIsUnsafe" = false;
-                "WindowsBlockCompositing" = false;  # Always use compositing
-              };
-              
-              "Plugins" = {
-                "blurEnabled" = true;
-                "contrastEnabled" = true;
-                "slideEnabled" = true;
-                "zoomEnabled" = true;
-              };
-              
-              "Windows" = {
-                "BorderlessMaximizedWindows" = true;  # Maximize without borders
-                "Placement" = "Centered";
-                "RollOverDesktops" = true;
-              };
-              
-              "Desktops" = {
-                "Number" = 4;
-                "Rows" = 1;
-              };
-            };
-            
-            # Configure display scaling
-            "kdeglobals" = {
-              "KScreen" = {
-                "ScaleFactor" = cfg.scale;
-              };
-              
-              # Large icons for TV
-              "Icons" = {
-                "Size" = cfg.icon-size;
-              };
-            };
-          })
-        ];
-      };
-
-      # Set wallpaper
-      home.file.".local/share/wallpapers/custom-wallpaper".source =
-        if lib.isDerivation cfg.wallpaper
-        then cfg.wallpaper
-        else pkgs.fetchurl { url = cfg.wallpaper; };
+            [Icons]
+            Size=${toString cfg.icon-size}
+          '';
+        })
+      ];
     };
   };
 }
