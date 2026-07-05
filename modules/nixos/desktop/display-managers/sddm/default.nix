@@ -1,7 +1,12 @@
-{ config, lib, options, pkgs, ... }:
+{
+  config,
+  lib,
+  options,
+  pkgs,
+  ...
+}:
 with lib;
-with lib.fmf;
-let
+with lib.fmf; let
   cfg = config.fmf.desktop.display-manager.sddm;
   sddmHome = config.users.users.sddm.home;
 in {
@@ -29,16 +34,15 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [ "d ${sddmHome}/.config 0711 sddm sddm" ];
+    systemd.tmpfiles.rules = ["d ${sddmHome}/.config 0711 sddm sddm"];
 
     # Import the sddm-nixos theme package if enabled
-    environment.systemPackages = [ pkgs.fmf.sddm-themes ];
+    environment.systemPackages = [pkgs.fmf.sddm-themes];
 
     services = {
       displayManager = {
         sddm = {
           enable = true;
-          package = pkgs.kdePackages.sddm;
           wayland.enable = cfg.wayland;
           extraPackages = [
             pkgs.fmf.sddm-themes
@@ -47,7 +51,7 @@ in {
             pkgs.kdePackages.qtmultimedia
           ];
           theme = cfg.theme;
-          settings = { Theme = { Current = "sddm-astronaut-theme"; }; };
+          settings = {Theme = {Current = "sddm-astronaut-theme";};};
         };
       };
 
@@ -55,8 +59,8 @@ in {
     };
 
     systemd.services.campground-user-icon = {
-      before = [ "display-manager.service" ];
-      wantedBy = [ "display-manager.service" ];
+      before = ["display-manager.service"];
+      wantedBy = ["display-manager.service"];
 
       script =
         # bash
@@ -91,8 +95,9 @@ in {
       };
     };
 
-    system.activationScripts.postInstallSddm = stringAfter [ "users" ] # bash
-
+    system.activationScripts.postInstallSddm =
+      stringAfter ["users"] # bash
+      
       ''
         echo "Setting sddm permissions for user icon"
         # Only set ACLs if home directory is writable and files exist
@@ -100,8 +105,8 @@ in {
           ${getExe' pkgs.acl "setfacl"} -m u:sddm:x /home/${config.fmf.user.name} 2>/dev/null || true
           if [ -f /home/${config.fmf.user.name}/.face ]; then
             ${
-              getExe' pkgs.acl "setfacl"
-            } -m u:sddm:r /home/${config.fmf.user.name}/.face 2>/dev/null || true
+          getExe' pkgs.acl "setfacl"
+        } -m u:sddm:r /home/${config.fmf.user.name}/.face 2>/dev/null || true
           fi
         else
           echo "Skipping SDDM ACL setup: home directory not writable or doesn't exist yet"
