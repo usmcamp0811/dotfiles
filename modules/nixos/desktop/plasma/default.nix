@@ -152,6 +152,40 @@ in
             then cfg.wallpaper
             else builtins.fetchurl cfg.wallpaper;
         })
+
+        # TV mode: set panels to auto-hide
+        (mkIf cfg.tv-mode {
+          ".local/bin/panel-autohide".text = ''
+            #!/usr/bin/env bash
+            # Set all Plasma panels to auto-hide (visibility=2).
+            # Runs on each login to catch any new panels added at runtime.
+            set -euo pipefail
+            CONFIG="''${XDG_CONFIG_HOME:-$HOME/.config}/plasma-org.kde.plasma.desktop-appletsrc"
+            [ -f "$CONFIG" ] || exit 0
+
+            for id in $(seq 1 20); do
+              type=$(kreadconfig6 --file "$CONFIG" --group Containments --group "$id" --key formFactor 2>/dev/null || true)
+              if [ "$type" = "2" ]; then
+                kwriteconfig6 --file "$CONFIG" --group Containments --group "$id" --group General --key visibility 2
+              fi
+            done
+
+            # Notify Plasma to reload panel config
+            qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.refreshCurrentShell 2>/dev/null || true
+          '';
+          ".local/bin/panel-autohide".executable = true;
+
+          ".config/autostart/panel-autohide.desktop".text = ''
+            [Desktop Entry]
+            Type=Application
+            Exec=%h/.local/bin/panel-autohide
+            Hidden=false
+            NoDisplay=false
+            X-GNOME-Autostart-enabled=true
+            Name=Panel Auto-Hide
+            Comment=Set Plasma panels to auto-hide
+          '';
+        })
       ];
 
       # Basic Plasma configuration via files
