@@ -1535,16 +1535,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1783093455,
-        "narHash": "sha256-XUaK+ozD+hhmNQm5nqPQ3cXdLQhXQLtfNM3fA301gNw=",
+        "lastModified": 1783263229,
+        "narHash": "sha256-NSQJSpc8N5EPRzFaE8J6C+S4DIuk0S+M6mvKEsl/cgk=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "21d462bb24ad297b68dfdaee783b242ce513f0ee",
+        "rev": "bcf37809f6747200a2629d085c2328167acc0dfc",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-378-agent-observability-heartbeat",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
