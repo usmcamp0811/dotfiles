@@ -27,6 +27,8 @@ in
     scale = mkOpt (oneOf [ str int float ]) 1.0
       "Global scaling factor for the desktop (useful for 4K TVs).";
     
+    dark-mode = mkBoolOpt false "Whether to use dark color scheme.";
+    
     font-size = mkOpt int 10 "Base font size in points.";
     
     cursor-size = mkOpt int 24 "Cursor size in pixels.";
@@ -154,8 +156,37 @@ in
 
       # Basic Plasma configuration via files
       xdg.configFile = mkMerge [
-        # Disable screen locker in TV mode
+        # Global KDE settings (always set base config)
+        {
+          "kdeglobals".text = let
+            sections = [
+              (optionalString cfg.dark-mode ''
+                [General]
+                ColorScheme=BreezeDark
+              '')
+              ''
+                [KDE]
+                SingleClick=${if cfg.tv-mode then "true" else "false"}
+              ''
+              (optionalString cfg.tv-mode ''
+                [Icons]
+                Size=${toString cfg.icon-size}
+              '')
+            ];
+          in lib.concatStringsSep "\n" (lib.filter (s: s != "") sections);
+        }
+
+        # Dark mode settings
+        (mkIf cfg.dark-mode {
+          "plasmarc".text = ''
+            [Theme]
+            name=breeze-dark
+          '';
+        })
+
+        # TV mode settings
         (mkIf cfg.tv-mode {
+          # Disable screen locker
           "kscreenlockerrc".text = ''
             [Daemon]
             Autolock=false
@@ -169,7 +200,7 @@ in
             TurnOffDisplay=0
           '';
           
-          # KWin compositor settings
+          # KWin compositor settings for TV / airmouse
           "kwinrc".text = ''
             [Compositing]
             Backend=${if cfg.wayland then "wayland" else "OpenGL"}
@@ -182,15 +213,10 @@ in
             [Desktops]
             Number=4
             Rows=1
-          '';
-          
-          # Global KDE settings
-          "kdeglobals".text = ''
-            [KDE]
-            SingleClick=${if cfg.tv-mode then "true" else "false"}
             
-            [Icons]
-            Size=${toString cfg.icon-size}
+            [org.kde.kdecoration2]
+            BorderSize=Tiny
+            CloseDoubleClickOnMenuIcon=false
           '';
         })
       ];
