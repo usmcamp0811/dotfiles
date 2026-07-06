@@ -113,12 +113,17 @@ in {
       enable = true;
       port = cfg.sshPort;
       # Shell removed: cryptsetup-askpass is not available in systemd stage 1.
-      # The default (systemctl default) is used instead.
+      # The default shell allows the user to run cryptsetup manually and
+      # then `systemctl default` to continue boot.
       authorizedKeys = cfg.sshAuthorizedKeys;
       hostKeys = cfg.sshHostKeys;
     };
 
-    # Systemd service to fetch clevis key before cryptsetup tries to unlock
+    # Systemd service to fetch clevis key before cryptsetup tries to unlock.
+    # This only drops the key into /run/cryptsetup-keys.d/; it does NOT
+    # run cryptsetup luksOpen directly.  systemd-cryptsetup will pick up
+    # the key automatically.  If the fetch fails, no key is dropped and
+    # systemd-cryptsetup will prompt for a password on the console.
     boot.initrd.systemd.services.fetch-clevis-key = {
       wantedBy = ["initrd.target"];
       after = ["network-online.target"];
@@ -148,10 +153,8 @@ in {
           echo "Decrypting keyfile with clevis..."
           if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
           then
-            # Drop key for the normal initrd unlock path (systemd-cryptsetup / cryptsetup tooling)
             printf '%s' "$key" > "$keyfile"
-            echo "Key dropped at $keyfile (initrd will use it to unlock ${cfg.luksName})"
-            ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "$keyfile" "${effectiveLuksDevice}" "${cfg.luksName}"
+            echo "Key dropped at $keyfile (systemd-cryptsetup will use it to unlock ${cfg.luksName})"
             exit 0
           else
             echo "Clevis decrypt failed."
@@ -164,9 +167,9 @@ in {
           ${pkgs.iproute2}/bin/ip route || true
         fi
 
-        # Fallback: prompt for passphrase on the correct device.
-        echo "Falling back to passphrase prompt for ${effectiveLuksDevice}..."
-        ${pkgs.cryptsetup}/bin/cryptsetup luksOpen "${effectiveLuksDevice}" "${cfg.luksName}"
+        # No key was obtained.  systemd-cryptsetup will prompt on console
+        # for a password.  If SSH is enabled, the user can also SSH in,
+        # manually unlock, then run `systemctl default`.
       '';
     };
 
