@@ -105,77 +105,73 @@ in {
     boot.kernelParams = mkAfter ["ip=dhcp"];
     boot.initrd.availableKernelModules = mkAfter cfg.networkModules;
 
-    # Enable network in initrd (used for systemd-networkd in systemd stage 1)
-    boot.initrd.network.enable = true;
-
-    # SSH in initrd for remote unlock
-    boot.initrd.network.ssh = mkIf cfg.enableInitrdSsh {
+    boot.initrd.network = {
       enable = true;
-      port = cfg.sshPort;
-      # Shell removed: cryptsetup-askpass is not available in systemd stage 1.
-      # The default (systemctl default) is used instead.
-      authorizedKeys = cfg.sshAuthorizedKeys;
-      hostKeys = cfg.sshHostKeys;
-    };
 
-    # Systemd service to fetch clevis key before cryptsetup tries to unlock
-    boot.initrd.systemd.services.fetch-clevis-key = {
-      wantedBy = ["initrd.target"];
-      after = ["network-online.target"];
-      before = ["systemd-cryptsetup@${cfg.luksName}.service"];
-      unitConfig.DefaultDependencies = false;
-      serviceConfig.Type = "oneshot";
-      script = ''
-        set -euo pipefail
+      # Runs after initrd networking is up.
+      # IMPORTANT: do not "exit" PID 1; everything is inside a subshell.
+      postCommands = ''
+                (
+                  set -euo pipefail
 
-        # If already open, nothing to do.
-        if [ -e "/dev/mapper/${cfg.luksName}" ]; then
-          echo "LUKS device ${cfg.luksName} already open; skipping."
-          exit 0
-        fi
+                  # If already open, nothing to do.
+                  if [ -e "/dev/mapper/${cfg.luksName}" ]; then
+                    echo "LUKS device ${cfg.luksName} already open; skipping."
+                    exit 0
+                  fi
 
-        keydir="${cfg.keyDropPath}"
-        keyfile="$keydir/${cfg.luksName}.key"
-        mkdir -p "$keydir"
-        umask 0077
+                  keydir="${cfg.keyDropPath}"
+                  keyfile="$keydir/${cfg.luksName}.key"
+                  mkdir -p "$keydir"
+                  umask 0077
 
-        echo "Fetching encrypted keyfile from ${cfg.keyfile-url}..."
-        if enc="$(${pkgs.curl}/bin/curl -fsSL \
-              --connect-timeout ${toString cfg.curlConnectTimeoutSeconds} \
-              --max-time ${toString cfg.curlMaxTimeSeconds} \
-              "${cfg.keyfile-url}")"
-        then
-          echo "Decrypting keyfile with clevis..."
-          if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
-          then
-            # Drop key for the normal initrd unlock path (systemd-cryptsetup / cryptsetup tooling)
-            printf '%s' "$key" > "$keyfile"
-            echo "Key dropped at $keyfile (initrd will use it to unlock ${cfg.luksName})"
-            ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "$keyfile" "${effectiveLuksDevice}" "${cfg.luksName}"
-            exit 0
-          else
-            echo "Clevis decrypt failed."
-          fi
-        else
-          echo "Fetch failed for ${cfg.keyfile-url}"
-          echo "Interfaces:"
-          ${pkgs.iproute2}/bin/ip addr || true
-          echo "Routes:"
-          ${pkgs.iproute2}/bin/ip route || true
-        fi
+                  echo "Fetching encrypted keyfile from ${cfg.keyfile-url}..."
+                  if enc="$(${pkgs.curl}/bin/curl -fsSL \
+                        --connect-timeout ${toString cfg.curlConnectTimeoutSeconds} \
+                        --max-time ${toString cfg.curlMaxTimeSeconds} \
+                        "${cfg.keyfile-url}")"
+                  then
+                    echo "Decrypting keyfile with clevis..."
+                    if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
+                    then
+                      # Drop key for the normal initrd unlock path (systemd-cryptsetup / cryptsetup tooling)
+                      printf '%s' "$key" > "$keyfile"
+                      echo "Key dropped at $keyfile (initrd will use it to unlock ${cfg.luksName})"
+                      ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "$keyfile" "${effectiveLuksDevice}" "${cfg.luksName}"
+                      exit 0
+                    else
+                      echo "Clevis decrypt failed."
+                    fi
+                  else
+                    echo "Fetch failed for ${cfg.keyfile-url}"
+                    echo "Interfaces:"
+                    ${pkgs.iproute2}/bin/ip addr || true
+                    echo "Routes:"
+                    ${pkgs.iproute2}/bin/ip route || true
+                  fi
 
-        # Fallback: prompt for passphrase on the correct device.
-        echo "Falling back to passphrase prompt for ${effectiveLuksDevice}..."
-        ${pkgs.cryptsetup}/bin/cryptsetup luksOpen "${effectiveLuksDevice}" "${cfg.luksName}"
+                  # Fallback: prompt for passphrase on the correct device.
+                  echo "Falling back to passphrase prompt for ${effectiveLuksDevice}..."
+                  ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "${cfg.keyDropPath}/${cfg.luksName}" "${effectiveLuksDevice}" "${cfg.luksName}"
+        luksOpen --key-file /luks.key
+                ) || true
       '';
+
+      ssh = mkIf cfg.enableInitrdSsh {
+        enable = true;
+        port = cfg.sshPort;
+        shell = "/bin/cryptsetup-askpass";
+        authorizedKeys = cfg.sshAuthorizedKeys;
+        hostKeys = cfg.sshHostKeys;
+      };
     };
 
-    # Ensure referenced binaries exist in initrd via store paths (systemd stage 1)
-    boot.initrd.systemd.storePaths = [
-      "${pkgs.clevis}/bin/clevis"
-      "${pkgs.curl}/bin/curl"
-      "${pkgs.cryptsetup}/bin/cryptsetup"
-      "${pkgs.iproute2}/bin/ip"
-    ];
+    # Ensure referenced binaries exist in initrd
+    boot.initrd.extraUtilsCommands = ''
+      copy_bin_and_libs ${pkgs.clevis}/bin/clevis
+      copy_bin_and_libs ${pkgs.curl}/bin/curl
+      copy_bin_and_libs ${pkgs.cryptsetup}/bin/cryptsetup
+      copy_bin_and_libs ${pkgs.iproute2}/bin/ip
+    '';
   };
 }
