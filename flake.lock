@@ -1544,7 +1544,7 @@
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "TASK-378-agent-observability-heartbeat",
+        "ref": "TASK-378.1-system-events-timeline",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
