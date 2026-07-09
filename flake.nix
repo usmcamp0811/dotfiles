@@ -20,7 +20,7 @@
       flake = false;
     };
     # Pin authentik to 2025.12.4
-    authentik-nix.url = "github:nix-community/authentik-nix";
+    authentik-nix.url = "github:nix-community/authentik-nix?ref=version/2025.12.4";
     # authentik-nix.inputs.nixpkgs.follows = "unstable";
     terranix.url = "github:terranix/terranix";
     terranix.inputs.nixpkgs.follows = "nixpkgs";
