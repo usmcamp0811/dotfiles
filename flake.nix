@@ -5,6 +5,7 @@
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
       url = "gitlab:crystal-forge/crystal-forge/TASK-384-systems-deployment-progress";
+
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
