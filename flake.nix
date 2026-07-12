@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-385-flakes-sync-errors-sidebar-badges";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-390-remote-builders-complete";
 
       inputs.nixpkgs.follows = "unstable";
     };
