@@ -41,6 +41,7 @@
           eval_check_cache = cfg.server.eval_check_cache;
           allow_private_cache_test_targets =
             cfg.server.allow_private_cache_test_targets;
+          trust_forwarded_builder_https = cfg.server.trust_forwarded_builder_https;
         }
         // lib.optionalAttrs (cfg.server.role_mapping != {}) {
           role_mapping = cfg.server.role_mapping;
@@ -1505,6 +1506,28 @@ in {
 
           Keep disabled unless you explicitly need to test internal Attic/cache
           hosts from the admin UI.
+        '';
+      };
+
+      trust_forwarded_builder_https = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = lib.mdDoc ''
+          Whether to trust X-Forwarded-Proto headers when registering remote builders.
+
+          When enabled, the server will accept HTTPS builder URLs even when receiving
+          HTTP registration requests if X-Forwarded-Proto: https is present (e.g.,
+          when behind a reverse proxy).
+
+          **Default**: true (fmf flake default - suitable for typical reverse proxy setups)
+          **Upstream default**: false (conservative default)
+
+          **Enable when**: Running behind a reverse proxy (Traefik, nginx, etc.) that
+          handles TLS termination and sets X-Forwarded-Proto headers.
+
+          **Security note**: Only enable if you trust your reverse proxy to set these
+          headers correctly. Do not enable if the server is directly exposed to untrusted
+          networks. Set to `false` if not using a reverse proxy.
         '';
       };
 
