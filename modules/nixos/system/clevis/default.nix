@@ -167,8 +167,31 @@ in {
     };
 
     # Ensure referenced binaries exist in initrd
+    # nixpkgs 26.05: clevis v22 wraps the real binary as .clevis-wrapped
+    # with separate clevis-decrypt* sub-binaries.  The wrapper sets up a
+    # full PATH referencing many store paths; we copy the wrapped binary,
+    # all decrypt sub-binaries, and strip the absolute store references
+    # from the wrapper so the scripts fall back to initrd-local PATH lookups.
     boot.initrd.extraUtilsCommands = ''
-      copy_bin_and_libs ${pkgs.clevis}/bin/clevis
+      # Clevis: copy the wrapped binary and rename it to clevis
+      copy_bin_and_libs ${pkgs.clevis}/bin/.clevis-wrapped
+      mv "$out"/bin/{.clevis-wrapped,clevis}
+
+      # Copy all clevis-decrypt* sub-binaries (decrypt, decrypt-tang,
+      # decrypt-tpm2, decrypt-sss, decrypt-null)
+      for BIN in ${pkgs.clevis}/bin/clevis-decrypt*; do
+        copy_bin_and_libs "$BIN"
+      done
+
+      # Strip store path references from clevis scripts so they work in the
+      # minimal initrd environment with busybox / basic PATH lookups.
+      for BIN in "$out"/bin/clevis "$out"/bin/clevis-decrypt*; do
+        sed -i "$BIN" \
+          -e 's,${pkgs.bash},,g' \
+          -e 's,${pkgs.coreutils},,g'
+      done
+
+      # curl, cryptsetup, ip — same as before
       copy_bin_and_libs ${pkgs.curl}/bin/curl
       copy_bin_and_libs ${pkgs.cryptsetup}/bin/cryptsetup
       copy_bin_and_libs ${pkgs.iproute2}/bin/ip
