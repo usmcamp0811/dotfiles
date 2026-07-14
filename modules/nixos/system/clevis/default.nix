@@ -9,6 +9,9 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.system.clevis;
 
+  # Detect which initrd system is active
+  isSystemdStage1 = config.boot.initrd.systemd.enable or false;
+
   defaultInitrdAuthorizedKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINLbrIDbLSEpfOc4onBP8y6aKCNEN5rEe0J3h7klfKzG mcamp@butler";
 
   # If luksDevice is null, try to infer it from disko when there's exactly one luks partition.
@@ -40,6 +43,52 @@ with lib.fmf; let
     if cfg.luksDevice != null
     then cfg.luksDevice
     else inferredLuksDevice;
+
+  # Common shell script for fetching + decrypting the keyfile
+  fetchDecryptScript = ''
+    set -euo pipefail
+
+    # If already open, nothing to do.
+    if [ -e "/dev/mapper/${cfg.luksName}" ]; then
+      echo "LUKS device ${cfg.luksName} already open; skipping."
+      exit 0
+    fi
+
+    keydir="${cfg.keyDropPath}"
+    keyfile="$keydir/${cfg.luksName}.key"
+    mkdir -p "$keydir"
+    umask 0077
+
+    echo "Fetching encrypted keyfile from ${cfg.keyfile-url}..."
+    if enc="$(${pkgs.curl}/bin/curl -fsSL \
+          --connect-timeout ${toString cfg.curlConnectTimeoutSeconds} \
+          --max-time ${toString cfg.curlMaxTimeSeconds} \
+          "${cfg.keyfile-url}")"
+    then
+      echo "Decrypting keyfile with clevis..."
+      if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
+      then
+        # Drop key for the normal initrd unlock path (systemd-cryptsetup / cryptsetup tooling)
+        printf '%s' "$key" > "$keyfile"
+        echo "Key dropped at $keyfile (initrd will use it to unlock ${cfg.luksName})"
+        ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "$keyfile" "${effectiveLuksDevice}" "${cfg.luksName}"
+        exit 0
+      else
+        echo "Clevis decrypt failed."
+      fi
+    else
+      echo "Fetch failed for ${cfg.keyfile-url}"
+      echo "Interfaces:"
+      ${pkgs.iproute2}/bin/ip addr || true
+      echo "Routes:"
+      ${pkgs.iproute2}/bin/ip route || true
+    fi
+
+    # Fallback: prompt for passphrase on the correct device.
+    echo "Falling back to passphrase prompt for ${effectiveLuksDevice}..."
+    ${pkgs.cryptsetup}/bin/cryptsetup luksOpen "${effectiveLuksDevice}" "${cfg.luksName}"
+  '';
+
 in {
   options.fmf.system.clevis = with types; {
     enable = mkBoolOpt false "Enable Clevis-based initrd key drop-in for LUKS unlock.";
@@ -105,80 +154,121 @@ in {
     boot.kernelParams = mkAfter ["ip=dhcp"];
     boot.initrd.availableKernelModules = mkAfter cfg.networkModules;
 
-    boot.initrd.network = {
+    # ── SYSTEMD STAGE 1 PATH (default in NixOS 26.05+) ────────────────
+    boot.initrd.systemd = mkIf isSystemdStage1 {
+      # Networking in initrd so we can fetch the keyfile
+      network.enable = true;
+
+      # Wait for link-local / DHCP address before proceeding
+      network.wait-online.enable = true;
+
+      # Add clevis, curl, cryptsetup, ip, and (optionally) openssh to the initrd
+      storePaths =
+        [
+          # Clevis v22: main binary is .clevis-wrapped; need the sub-binaries too
+          (lib.getBin pkgs.clevis)
+          "${pkgs.curl}/bin/curl"
+          "${pkgs.cryptsetup}/bin/cryptsetup"
+          "${pkgs.iproute2}/bin/ip"
+        ]
+        ++ lib.optionals cfg.enableInitrdSsh [
+          (lib.getBin pkgs.openssh)
+        ];
+
+      # Symlink clevis + tools into /bin so PATH lookups work
+      extraBin = {
+        clevis = "${pkgs.clevis}/bin/clevis";
+        curl = "${pkgs.curl}/bin/curl";
+        cryptsetup = "${pkgs.cryptsetup}/bin/cryptsetup";
+        ip = "${pkgs.iproute2}/bin/ip";
+      };
+
+      # Service that fetches + decrypts the keyfile early in initrd boot,
+      # before systemd-cryptsetup tries to unlock the LUKS device.
+      services.clevis-init = {
+        description = "Clevis LUKS auto-unlock via HTTP keyfile fetch";
+
+        # Run as early as possible after network is up, before cryptsetup
+        after = ["systemd-networkd.service" "network-online.target"];
+        wants = ["network-online.target"];
+        wantedBy = ["initrd.target"];
+        before = ["cryptsetup-pre.target"];
+
+        unitConfig = {
+          DefaultDependencies = false;
+          ConditionPathIsReadWrite = "/run";
+        };
+
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = ["${pkgs.writeShellScript "clevis-init-sd" fetchDecryptScript}"];
+          StandardOutput = "journal+console";
+          StandardError = "journal+console";
+        };
+      };
+
+      # SSH access for remote debugging (if enabled)
+      # NixOS 26.05 systemd stage 1 supports openssh in initrd
+      contents = mkIf cfg.enableInitrdSsh (
+        let
+          # Build an authorized_keys file from configured keys
+          authorizedKeysFile = pkgs.writeText "initrd-ssh-authorized-keys" ''
+            ${concatStringsSep "\n" cfg.sshAuthorizedKeys}
+          '';
+        in {
+          "/etc/ssh/ssh_host_rsa_key".source = lib.elemAt cfg.sshHostKeys 0;
+          "/etc/ssh/ssh_host_ed25519_key".source = lib.elemAt cfg.sshHostKeys 1;
+          "/root/.ssh/authorized_keys".source = authorizedKeysFile;
+        }
+      );
+
+      # SSH daemon service
+      services.sshd = mkIf cfg.enableInitrdSsh {
+        description = "SSH Server in initrd";
+        wants = ["systemd-networkd.service"];
+        after = ["systemd-networkd.service"];
+        wantedBy = ["initrd.target"];
+
+        serviceConfig = {
+          ExecStart = "${pkgs.openssh}/bin/sshd -D -p ${toString cfg.sshPort} -h /etc/ssh/ssh_host_rsa_key -h /etc/ssh/ssh_host_ed25519_key";
+          Type = "simple";
+          StandardOutput = "journal+console";
+          StandardError = "journal+console";
+        };
+      };
+    };
+
+    # ── LEGACY INITRD PATH (for NixOS <26.05 or explicit opt-out of systemd stage 1) ──
+    boot.initrd.network = mkIf (!isSystemdStage1) {
       enable = true;
 
       # Runs after initrd networking is up.
       # IMPORTANT: do not "exit" PID 1; everything is inside a subshell.
       postCommands = ''
-                (
-                  set -euo pipefail
-
-                  # If already open, nothing to do.
-                  if [ -e "/dev/mapper/${cfg.luksName}" ]; then
-                    echo "LUKS device ${cfg.luksName} already open; skipping."
-                    exit 0
-                  fi
-
-                  keydir="${cfg.keyDropPath}"
-                  keyfile="$keydir/${cfg.luksName}.key"
-                  mkdir -p "$keydir"
-                  umask 0077
-
-                  echo "Fetching encrypted keyfile from ${cfg.keyfile-url}..."
-                  if enc="$(${pkgs.curl}/bin/curl -fsSL \
-                        --connect-timeout ${toString cfg.curlConnectTimeoutSeconds} \
-                        --max-time ${toString cfg.curlMaxTimeSeconds} \
-                        "${cfg.keyfile-url}")"
-                  then
-                    echo "Decrypting keyfile with clevis..."
-                    if key="$(printf '%s' "$enc" | ${pkgs.clevis}/bin/clevis decrypt)"
-                    then
-                      # Drop key for the normal initrd unlock path (systemd-cryptsetup / cryptsetup tooling)
-                      printf '%s' "$key" > "$keyfile"
-                      echo "Key dropped at $keyfile (initrd will use it to unlock ${cfg.luksName})"
-                      ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "$keyfile" "${effectiveLuksDevice}" "${cfg.luksName}"
-                      exit 0
-                    else
-                      echo "Clevis decrypt failed."
-                    fi
-                  else
-                    echo "Fetch failed for ${cfg.keyfile-url}"
-                    echo "Interfaces:"
-                    ${pkgs.iproute2}/bin/ip addr || true
-                    echo "Routes:"
-                    ${pkgs.iproute2}/bin/ip route || true
-                  fi
-
-                  # Fallback: prompt for passphrase on the correct device.
-                  echo "Falling back to passphrase prompt for ${effectiveLuksDevice}..."
-                  ${pkgs.cryptsetup}/bin/cryptsetup luksOpen --key-file "${cfg.keyDropPath}/${cfg.luksName}" "${effectiveLuksDevice}" "${cfg.luksName}"
-        luksOpen --key-file /luks.key
-                ) || true
+        (
+          ${fetchDecryptScript}
+        ) || true
       '';
 
       ssh = mkIf cfg.enableInitrdSsh {
         enable = true;
         port = cfg.sshPort;
-        shell = "/bin/cryptsetup-askpass";
+        shell = "/bin/sh";  # cryptsetup-askpass not available; use bare sh
         authorizedKeys = cfg.sshAuthorizedKeys;
         hostKeys = cfg.sshHostKeys;
       };
     };
 
-    # Ensure referenced binaries exist in initrd
+    # Ensure referenced binaries exist in legacy initrd
     # nixpkgs 26.05: clevis v22 wraps the real binary as .clevis-wrapped
-    # with separate clevis-decrypt* sub-binaries.  The wrapper sets up a
-    # full PATH referencing many store paths; we copy the wrapped binary,
-    # all decrypt sub-binaries, and strip the absolute store references
-    # from the wrapper so the scripts fall back to initrd-local PATH lookups.
-    boot.initrd.extraUtilsCommands = ''
+    # with separate clevis-decrypt* sub-binaries.
+    boot.initrd.extraUtilsCommands = mkIf (!isSystemdStage1) ''
       # Clevis: copy the wrapped binary and rename it to clevis
       copy_bin_and_libs ${pkgs.clevis}/bin/.clevis-wrapped
       mv "$out"/bin/{.clevis-wrapped,clevis}
 
-      # Copy all clevis-decrypt* sub-binaries (decrypt, decrypt-tang,
-      # decrypt-tpm2, decrypt-sss, decrypt-null)
+      # Copy all clevis-decrypt* sub-binaries
       for BIN in ${pkgs.clevis}/bin/clevis-decrypt*; do
         copy_bin_and_libs "$BIN"
       done
@@ -191,7 +281,7 @@ in {
           -e 's,${pkgs.coreutils},,g'
       done
 
-      # curl, cryptsetup, ip — same as before
+      # curl, cryptsetup, ip
       copy_bin_and_libs ${pkgs.curl}/bin/curl
       copy_bin_and_libs ${pkgs.cryptsetup}/bin/cryptsetup
       copy_bin_and_libs ${pkgs.iproute2}/bin/ip
