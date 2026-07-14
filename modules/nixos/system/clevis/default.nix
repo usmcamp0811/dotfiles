@@ -209,16 +209,28 @@ in {
       };
 
       # SSH access for remote debugging (if enabled)
-      # NixOS 26.05 systemd stage 1 supports openssh in initrd
+      # NixOS 26.05 systemd stage 1 supports openssh in initrd.
+      #
+      # NOTE: boot.initrd.systemd.contents sources must be Nix *store paths*
+      # (derivations), not host filesystem paths.  We generate fresh host keys
+      # at build time with ssh-keygen for reproducibility from pure Nix.
+      # The sshHostKeys option is only used for the legacy initrd path.
       contents = mkIf cfg.enableInitrdSsh (
         let
-          # Build an authorized_keys file from configured keys
           authorizedKeysFile = pkgs.writeText "initrd-ssh-authorized-keys" ''
             ${concatStringsSep "\n" cfg.sshAuthorizedKeys}
           '';
+
+          # Generate a fresh host key at build time producing a store-path file.
+          mkHostKey = type: pkgs.runCommandLocal "initrd-ssh-host-key-${type}" {
+            nativeBuildInputs = [pkgs.openssh];
+          } ''
+            install -d "$out"
+            ssh-keygen -q -t ${type} -N "" -f "$out/ssh_host_${type}_key"
+          '' + "/ssh_host_${type}_key";
         in {
-          "/etc/ssh/ssh_host_rsa_key".source = lib.elemAt cfg.sshHostKeys 0;
-          "/etc/ssh/ssh_host_ed25519_key".source = lib.elemAt cfg.sshHostKeys 1;
+          "/etc/ssh/ssh_host_rsa_key".source = mkHostKey "rsa";
+          "/etc/ssh/ssh_host_ed25519_key".source = mkHostKey "ed25519";
           "/root/.ssh/authorized_keys".source = authorizedKeysFile;
         }
       );
