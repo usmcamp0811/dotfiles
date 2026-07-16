@@ -301,7 +301,7 @@
 
     # OISD blocklist is now fetched via builtins.fetchurl from GitLab Pages
     # (https://usmcamp0811.gitlab.io/dotfiles/domainswild) in the dnscrypt-proxy module.
-    # The Pages site is updated on demand via the CI pages job (see .gitlab-ci.yml).
+    # The Pages site is updated on demand via the create-pages CI job (see .gitlab-ci.yml).
 
     uv2nix.url = "github:pyproject-nix/uv2nix";
     pyproject-nix.url = "github:pyproject-nix/pyproject.nix";

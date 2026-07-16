@@ -9,12 +9,15 @@ with lib.fmf; let
   cfg = config.fmf.services.dnscrypt-proxy;
 
   # OISD blocklist for dnscrypt-proxy
-  # Fetched from GitLab Pages at evaluation time.
-  # The create-pages job in .gitlab-ci.yml fetches from the upstream URL and
-  # publishes to: https://usmcamp0811.gitlab.io/dotfiles/domainswild
-  # Using builtins.fetchurl means no hash to bump — we trust our own Pages.
-  oisd-blocklist = builtins.fetchurl
-    "https://usmcamp0811.gitlab.io/dotfiles/domainswild";
+  # Fetched from GitLab Pages with hash verification.
+  # The create-pages CI job fetches the upstream file, computes the hash,
+  # updates this file, and publishes to Pages.
+  # See .gitlab-ci.yml for the CI job.
+  oisd-blocklist = pkgs.fetchurl {
+    url = "https://usmcamp0811.gitlab.io/dotfiles/domainswild";
+    # Hash auto-updated by CI (trigger create-pages job in CI/CD → Pipelines)
+    sha256 = "sha256-1vYJjHIkcI4uXjp3nBlos7sWF49+RF048qbgE9MjJ9M=";
+  };
 
   blocklist_base = builtins.readFile oisd-blocklist;
   blocklist_txt = pkgs.writeText "blocklist.txt" ''
