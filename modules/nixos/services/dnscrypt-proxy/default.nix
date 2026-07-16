@@ -15,8 +15,8 @@ with lib.fmf; let
     url = "https://big.oisd.nl/domainswild";
     # This hash will need to be updated periodically, but won't break consumers
     # Run: nix-prefetch-url https://big.oisd.nl/domainswild
-    # Last updated: 2026-06-26
-    sha256 = "sha256-9mit6Oz6z43QnIMLIHw6pHPo/mULOuWgRLA43jk2+i4=";
+    # Last updated: 2026-07-16
+    sha256 = "sha256-Pf9cteOhtSNgBUftGaVOgDpKsIDomUZeW9AuGOWO2xU=";
   };
 
   blocklist_base = builtins.readFile oisd-blocklist;
