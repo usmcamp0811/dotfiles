@@ -321,7 +321,7 @@ pages:
     - nix
   script:
     - mkdir -p public
-    - curl -sSL -o public/domainswild "https://big.oisd.nl/domainswild"
+    - nix shell nixpkgs#curl -c curl -sSL -o public/domainswild "https://big.oisd.nl/domainswild"
   artifacts:
     paths:
       - public
