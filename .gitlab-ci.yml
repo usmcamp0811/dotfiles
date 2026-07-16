@@ -311,6 +311,25 @@ nvim_update:
     - if: '$CI_PIPELINE_SOURCE == "trigger" && $FLAKE_UPDATE != "true"'
       allow_failure: false
 
+# Fetch the OISD domainswild blocklist and host on GitLab Pages
+# Provides a stable URL for Nix builds to consume:
+#   https://usmcamp0811.gitlab.io/dotfiles/domainswild
+# Create a scheduled pipeline with DOMAINSWILD_UPDATE=true to refresh daily.
+pages:
+  stage: deploy
+  tags:
+    - nix
+  script:
+    - mkdir -p public
+    - curl -sSL -o public/domainswild "https://big.oisd.nl/domainswild"
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week
+  rules:
+    - when: manual
+      allow_failure: true
+
 crystal_forge_update:
   stage: updates
   script: |
