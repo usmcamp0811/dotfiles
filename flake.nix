@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-392-design-delta-2026-07-14";
+      url = "gitlab:crystal-forge/crystal-forge/dev";
 
       inputs.nixpkgs.follows = "unstable";
     };
