@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-397-flakes-view-database-only-read-path";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-398-alerts-attention-incidents";
 
       inputs.nixpkgs.follows = "unstable";
     };
