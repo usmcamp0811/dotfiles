@@ -1493,7 +1493,7 @@
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "dev",
+        "ref": "TASK-397-eval-errors-silently-drop",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
