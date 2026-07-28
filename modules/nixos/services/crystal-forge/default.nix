@@ -2337,6 +2337,15 @@ in {
         ProtectKernelModules = true;
         ProtectControlGroups = true;
 
+        # Resource containment — prevents runaway evaluator descendants from
+        # exhausting host memory and swap (matching upstream module defaults).
+        MemoryHigh = "60%";
+        MemoryMax = "75%";
+        MemorySwapMax = "2G";
+        CPUQuota = "400%";
+        KillMode = "control-group";
+        OOMPolicy = "stop";
+
         Restart = "always";
         RestartSec = 5;
       };
