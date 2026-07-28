@@ -365,6 +365,7 @@ in {
           host = "0.0.0.0";
           port = 3444;
           eval_workers = 1;
+          auto_hardening_scans = false;
           systemd_memory_high = "24G";
           systemd_memory_max = "32G";
           systemd_memory_swap_max = "1G";
