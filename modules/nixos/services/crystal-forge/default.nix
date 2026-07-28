@@ -1461,7 +1461,7 @@ in {
       };
       eval_workers = lib.mkOption {
         type = lib.types.int;
-        default = 4;
+        default = 2;
         description = lib.mdDoc ''
           Number of worker threads for nix-eval-jobs parallel evaluation.
           Set to 0 to automatically use the number of CPU cores available.
@@ -1475,10 +1475,13 @@ in {
         type = lib.types.int;
         default = 4096;
         description = lib.mdDoc ''
-          Maximum memory size per worker in MB for nix-eval-jobs.
+          Worker restart threshold in MB for nix-eval-jobs.
 
-          Each evaluation worker will be limited to this amount of memory.
-          Default is 4096 MB (4 GB) per worker.
+          nix-eval-jobs checks this threshold after evaluating an attribute and
+          then restarts an oversized worker. It is not a hard per-worker memory
+          boundary, and a worker can exceed it while evaluating an attribute.
+          Default is 4096 MB (4 GB) per worker. Use the server systemd memory
+          options for hard cgroup containment.
 
           Adjust based on available system memory and the number of workers.
         '';
@@ -1494,6 +1497,41 @@ in {
           already built (in local store or binary cache) vs need building.
 
           Disable if cache checking is slow or causing issues.
+        '';
+      };
+
+      systemd_memory_high = lib.mkOption {
+        type = lib.types.nullOr (lib.types.either lib.types.int lib.types.str);
+        default = "60%";
+        example = "24G";
+        description = lib.mdDoc ''
+          MemoryHigh for crystal-forge-server and evaluator descendants.
+        '';
+      };
+
+      systemd_memory_max = lib.mkOption {
+        type = lib.types.nullOr (lib.types.either lib.types.int lib.types.str);
+        default = "75%";
+        example = "32G";
+        description = lib.mdDoc ''
+          Hard MemoryMax for crystal-forge-server and evaluator descendants.
+        '';
+      };
+
+      systemd_memory_swap_max = lib.mkOption {
+        type = lib.types.nullOr (lib.types.either lib.types.int lib.types.str);
+        default = "2G";
+        example = "1G";
+        description = lib.mdDoc ''
+          Maximum swap usage for crystal-forge-server and evaluator descendants.
+        '';
+      };
+
+      systemd_tasks_max = lib.mkOption {
+        type = lib.types.nullOr lib.types.int;
+        default = 2048;
+        description = lib.mdDoc ''
+          Maximum tasks in the server cgroup, including evaluator descendants.
         '';
       };
 
@@ -1760,6 +1798,16 @@ in {
           lib.mkIf (cfg.build.systemd_cpu_quota != null)
           (toString cfg.build.systemd_cpu_quota + "%");
         TasksMax = "infinity"; # Keep this as a reasonable default
+      };
+    };
+
+    systemd.slices.crystal-forge = lib.mkIf (cfg.server.enable || cfg.build.enable) {
+      description = "Crystal Forge aggregate resource boundary";
+      sliceConfig = {
+        MemoryHigh = "56G";
+        MemoryMax = "64G";
+        MemorySwapMax = "2G";
+        TasksMax = 4096;
       };
     };
 
@@ -2205,6 +2253,8 @@ in {
     systemd.services.crystal-forge-server = lib.mkIf cfg.server.enable {
       description = "Crystal Forge Server";
       wantedBy = ["multi-user.target"];
+      startLimitIntervalSec = 300;
+      startLimitBurst = 2;
       after = lib.optional cfg.local-database "postgresql.service"
         ++ lib.optional config.fmf.services.vault-agent.enable "crystal-forge-setup.service";
       wants = lib.optional cfg.local-database "postgresql.service"
@@ -2306,6 +2356,7 @@ in {
         User = "crystal-forge";
         Group = "crystal-forge";
         WorkingDirectory = "/var/lib/crystal-forge";
+        Slice = "crystal-forge.slice";
 
         EnvironmentFile = ["-${cfg.env-file}"];
 
@@ -2337,17 +2388,20 @@ in {
         ProtectKernelModules = true;
         ProtectControlGroups = true;
 
-        # Resource containment — prevents runaway evaluator descendants from
-        # exhausting host memory and swap (matching upstream module defaults).
-        MemoryHigh = "60%";
-        MemoryMax = "75%";
-        MemorySwapMax = "2G";
-        CPUQuota = "400%";
+        MemoryAccounting = true;
+        MemoryHigh = lib.mkIf (cfg.server.systemd_memory_high != null)
+          (toString cfg.server.systemd_memory_high);
+        MemoryMax = lib.mkIf (cfg.server.systemd_memory_max != null)
+          (toString cfg.server.systemd_memory_max);
+        MemorySwapMax = lib.mkIf (cfg.server.systemd_memory_swap_max != null)
+          (toString cfg.server.systemd_memory_swap_max);
+        TasksMax = lib.mkIf (cfg.server.systemd_tasks_max != null)
+          cfg.server.systemd_tasks_max;
         KillMode = "control-group";
         OOMPolicy = "stop";
 
-        Restart = "always";
-        RestartSec = 5;
+        Restart = "on-failure";
+        RestartSec = 30;
       };
     };
 

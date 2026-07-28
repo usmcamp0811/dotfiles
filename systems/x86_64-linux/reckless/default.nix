@@ -122,7 +122,9 @@ in {
 
         # Build configuration to enable cache pushing
         build = {
-          enable = true;
+          # Disable the local builder while diagnosing the server OOM. Remote
+          # API builders such as webb should perform builds.
+          enable = false;
 
           # BUILD CONCURRENCY
           max_concurrent_derivations = 1; # 3 parallel builds
@@ -131,7 +133,7 @@ in {
           # Math: 3 × 2 × 4 = 24 cores (leaves 8 for system/eval)
 
           # SYSTEMD LIMITS
-          systemd_memory_max = "64G"; # 32GB per build (3 × 32G = 96GB, safe)
+          systemd_memory_max = "32G";
           systemd_cpu_quota = 1600; # 8 cores per build scope (not per derivation!)
           use_systemd_scope = true;
           systemd_timeout_stop_sec = 900;
@@ -144,6 +146,8 @@ in {
           timeout = "8h";
 
           systemd_properties = [
+            "MemorySwapMax=1G"
+            "TasksMax=2000"
             "Environment=ATTIC_SERVER_URL=https://attic.aicampground.com/campground"
             "Environment=ATTIC_REMOTE_NAME=campground"
           ];
@@ -360,6 +364,10 @@ in {
           enable = true;
           host = "0.0.0.0";
           port = 3444;
+          eval_workers = 1;
+          systemd_memory_high = "24G";
+          systemd_memory_max = "32G";
+          systemd_memory_swap_max = "1G";
         };
 
         # Database configuration (using defaults)
