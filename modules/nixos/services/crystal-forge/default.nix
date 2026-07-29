@@ -17,18 +17,6 @@ in {
   # per-host config -- this only forwards option values to upstream.
 
   options.fmf.services.crystal-forge = {
-    # ── Vault-specific options (used by crystal-forge-setup service) ──────
-    vault_path_cache = lib.mkOption {
-      type = lib.types.str;
-      default = "secret/campground/crystal-forge";
-      description = "Vault KV path for the Attic cache encryption key.";
-    };
-    kvVersion = lib.mkOption {
-      type = lib.types.str;
-      default = "v2";
-      description = "Vault KV engine version (v1 or v2).";
-    };
-
     # ── Options forwarded to upstream services.crystal-forge.* ────────────
     enable = lib.mkEnableOption "Crystal Forge service(s)";
     log_level = lib.mkOption {
@@ -77,25 +65,15 @@ in {
       hardening = lib.mkDefault vCfg.hardening;
     };
 
-    # ── Vault-agent: render cache encryption key as file ─────────────────
-    # No settings block = inherits global fmf.services.vault-agent.settings
-    # which has the correct role-id/secret-id paths per host.
-    fmf.services.vault-agent.services."crystal-forge-setup" = lib.mkIf
-      (config.fmf.services.vault-agent.enable or false) {
-      secrets.file.files."cache-encryption-key" = {
-        text = ''
-          {{ with secret "${vCfg.vault_path_cache}" }}{{ if eq "${vCfg.kvVersion}" "v1" }}{{ .Data.value }}{{ else }}{{ .Data.data.value }}{{ end }}{{ end }}'';
-        permissions = "0400";
-        change-action = "restart";
-      };
-    };
-
     # ── Setup service: copy vault-rendered files to expected paths ────────
+    # Relies on the globally-configured fmf.services.vault-agent having already
+    # rendered secrets to /tmp/detsys-vault/.  Does NOT create its own vault-
+    # agent instance because the global vault-agent config format conflicts
+    # with per-service settings inheritance.
     systemd.services.crystal-forge-setup = lib.mkIf
       (config.fmf.services.vault-agent.enable or false) {
       description = "Copy vault-rendered Crystal Forge secrets to service paths";
-      after = ["detsys-vaultAgent-crystal-forge-setup.service"];
-      wants = ["detsys-vaultAgent-crystal-forge-setup.service"];
+      after = ["postgresql.service" "network-online.target"];
       before = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       wantedBy = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       serviceConfig = {
