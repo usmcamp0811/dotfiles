@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 let
-  # Vault-agent injects the agent private key here when enabled.
   agentVaultKeyPath = "/tmp/detsys-vault/${config.networking.hostName}.key";
 
   # Helper: accept any type (attrs, list, scalar) and forward to upstream.
@@ -20,18 +19,14 @@ in {
   # THIN WRAPPER AROUND THE UPSTREAM services.crystal-forge MODULE
   #
   # Snowfall's `namespace = "fmf"` makes host config attributes land under
-  # `fmf.services.crystal-forge.*`.  This module defines those namespace
-  # options with generic types and forwards each value to the upstream
-  # `services.crystal-forge.*` (imported in /config/flake.nix).
+  # `fmf.services.crystal-forge.*`.  This module defines forwarding stubs so
+  # host configs can use that namespace, then sets services.crystal-forge.*
+  # on the upstream module (imported in /config/flake.nix).
   #
-  # The actual systemd services, slices, Nix subprocess management, and
-  # resource limits all come from the upstream module.  Only deployment-
-  # specific overrides live here.
-  #
-  # TO ADD VAULT-AGENT SECRET INJECTION: set path and text/template on
-  # fmf.services.vault-agent.services."crystal-forge-server".secrets.*
-  # See the vault-agent README at:
-  #   modules/nixos/services/vault-agent/README.md
+  # All actual systemd services, slices, and Nix subprocess management come
+  # from upstream.  Only vault-agent secret injection lives here, following
+  # the same `secrets.environment.templates` pattern as other services
+  # (navidrome, traefik, attic, grafana, etc.).
   # ---------------------------------------------------------------------------
 
   options.fmf.services.crystal-forge = {
@@ -83,7 +78,7 @@ in {
     hardening = mkFwd "hardening";
   };
 
-  # ── Forward fmf-namespace options to upstream services ──────────────────
+  # ── Forward fmf-namespace options + vault-agent integration ────────────
   config = let
     vCfg = config.fmf.services.crystal-forge;
   in lib.mkIf vCfg.enable {
@@ -98,9 +93,13 @@ in {
       deployment = lib.mkDefault vCfg.deployment;
       local-database = lib.mkDefault vCfg.local-database;
       vulnix = lib.mkDefault vCfg.vulnix;
-      client = lib.mkDefault (vCfg.client // {
-        private_key = agentVaultKeyPath;
-      });
+      # Provide default private_key path.  The common suite sets
+      # client.enable = true but does not set private_key, relying on
+      # vault-agent to render the key to agentVaultKeyPath.
+      client = lib.mkIf (vCfg.client != {}) (lib.mkDefault
+        (vCfg.client // {
+          private_key = agentVaultKeyPath;
+        }));
       dashboards = lib.mkDefault vCfg.dashboards;
       auth = lib.mkDefault vCfg.auth;
       environments = lib.mkDefault vCfg.environments;
@@ -109,17 +108,62 @@ in {
       hardening = lib.mkDefault vCfg.hardening;
     };
 
-    # ── Attic client in server PATH (needed for cache push credential deliv.) ─
+    # ── Vault-agent: render cache encryption key for Attic push ───────────
+    # Follows the same secrets.environment.templates pattern as navidrome,
+    # traefik, attic, and other services in this flake.
+    fmf.services.vault-agent.services."crystal-forge-server" = {
+      settings = {
+        vault.address = vCfg.vault-address;
+        auto_auth = {
+          method = [{
+            type = "approle";
+            config = {
+              role_id_file_path = vCfg.role-id;
+              secret_id_file_path = vCfg.secret-id;
+              remove_secret_id_file_after_reading = false;
+            };
+          }];
+        };
+      };
+      secrets.environment.templates = {
+        "cache-encryption-key" = {
+          text = ''
+            {{ with secret "${vCfg.vault_path_cache}/cache-encryption-key" }}
+            CRYSTAL_FORGE_CACHE_ENCRYPTION_KEY={{ if eq "${vCfg.kvVersion}" "v1" }}{{ .Data.value }}{{ else }}{{ .Data.data.value }}{{ end }}
+            {{ end }}
+          '';
+        };
+      };
+    };
+
+    # ── Vault-agent: agent private key (when client.enable) ───────────────
+    fmf.services.vault-agent.services."crystal-forge-agent" = lib.mkIf
+      (vCfg.client.enable or false) {
+        settings = {
+          vault.address = vCfg.vault-address;
+          auto_auth = {
+            method = [{
+              type = "approle";
+              config = {
+                role_id_file_path = vCfg.role-id;
+                secret_id_file_path = vCfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }];
+          };
+        };
+        secrets.environment.templates."agent-key" = {
+          text = ''
+            {{ with secret "${vCfg.vault-path}/${config.networking.hostName}" }}
+            CRYSTAL_FORGE_AGENT_PRIVATE_KEY={{ if eq "${vCfg.kvVersion}" "v1" }}{{ .Data.value }}{{ else }}{{ .Data.data.value }}{{ end }}
+            {{ end }}
+          '';
+        };
+      };
+
+    # ── Attic client in server PATH ──────────────────────────────────────
     systemd.services.crystal-forge-server = {
       path = lib.mkAfter [ pkgs.attic-client ];
     };
-
-    # ── vault-agent secret injection guide (uncomment and adjust paths) ─────
-    # fmf.services.vault-agent.services."crystal-forge-server" = {
-    #   secrets.environment.templates."cache-encryption-key" = {
-    #     text = ''{{ with secret "${vCfg.vault_path_cache}/cache-encryption-key" }}{{ .Data.data.value }}{{ end }}'';
-    #     path = "/var/lib/crystal-forge/secrets/cache-encryption-key";
-    #   };
-    # };
   };
 }
