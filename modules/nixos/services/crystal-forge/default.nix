@@ -46,7 +46,9 @@ in {
       enable = true;
       server = lib.mkDefault vCfg.server;
       build = lib.mkDefault vCfg.build;
-      cache = lib.mkDefault vCfg.cache;
+      cache = lib.mkDefault (vCfg.cache // {
+        encryption_key_file = "/var/lib/crystal-forge/secrets/cache-encryption-key";
+      });
       database = lib.mkDefault vCfg.database;
       deployment = lib.mkDefault vCfg.deployment;
       local-database = lib.mkDefault vCfg.local-database;
