@@ -54,7 +54,7 @@ in {
       local-database = lib.mkDefault vCfg.local-database;
       vulnix = lib.mkDefault vCfg.vulnix;
       client = lib.mkDefault (vCfg.client // {
-        private_key = "/tmp/detsys-vault/${config.networking.hostName}.key";
+        private_key = "/var/lib/crystal-forge-agent/private.key";
       });
       dashboards = lib.mkDefault vCfg.dashboards;
       auth = lib.mkDefault vCfg.auth;
