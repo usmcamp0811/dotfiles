@@ -1539,6 +1539,17 @@ in {
         '';
       };
 
+      # IMPORTANT: Keep this false (the default) on memory-constrained hosts.
+      # Setting it to true caused a production OOM on 2026-07-28: every
+      # finalized system re-enqueued the entire commit's derivation set, and
+      # each inserted row immediately spawned a full `nix eval` subprocess.
+      # Nine concurrent hardening evaluators overlapped one bulk nix-eval-jobs
+      # run, driving the server cgroup to 58.5 GiB / 1.9 GiB swap with 0 B
+      # available and the API unresponsive.
+      #
+      # When false, the crystal-forge-hardening worker still runs and processes
+      # scans queued via the manual API endpoint — only automatic post-commit
+      # enqueueing is suppressed.
       auto_hardening_scans = lib.mkOption {
         type = lib.types.bool;
         default = false;
@@ -2367,9 +2378,16 @@ in {
         User = "crystal-forge";
         Group = "crystal-forge";
         WorkingDirectory = "/var/lib/crystal-forge";
+        # Must match the slice defined above.  "crystal-forge-hardening" nests
+        # under crystal-forge.slice.  "hardening-crystal-forge" would instead
+        # attach to the root-level hardening.slice — see slice hierarchy note.
         Slice = "crystal-forge-hardening.slice";
         EnvironmentFile = ["-${cfg.env-file}"];
+        # Kill all Nix subprocess descendants when the service stops or OOMs,
+        # not just the direct hardening-worker process.
         KillMode = "control-group";
+        # If the kernel OOM-kills something in this cgroup, stop the whole
+        # service rather than leaving a partially-alive worker.
         OOMPolicy = "stop";
         Restart = "on-failure";
         RestartSec = 30;
@@ -2490,6 +2508,9 @@ in {
         User = "crystal-forge";
         Group = "crystal-forge";
         WorkingDirectory = "/var/lib/crystal-forge";
+        # Place the API server in the aggregate crystal-forge.slice so its
+        # memory and the memory of all Nix subprocess descendants count toward
+        # the aggregate cap defined in systemd.slices.crystal-forge above.
         Slice = "crystal-forge.slice";
 
         EnvironmentFile = ["-${cfg.env-file}"];
