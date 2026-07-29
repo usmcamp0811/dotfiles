@@ -1849,6 +1849,10 @@ in {
       };
     };
 
+    # Aggregate resource boundary that caps the combined memory of the API
+    # server, the hardening worker, and all their Nix subprocess descendants.
+    # crystal-forge-server.service and crystal-forge-hardening.service must
+    # both set Slice = "crystal-forge.slice" to be covered by this boundary.
     systemd.slices.crystal-forge = lib.mkIf (cfg.server.enable || cfg.build.enable) {
       description = "Crystal Forge aggregate resource boundary";
       sliceConfig = {
@@ -1859,8 +1863,19 @@ in {
       };
     };
 
-    # crystal-forge-hardening.slice is a child of crystal-forge.slice because
-    # systemd derives the parent from the leftmost dash-prefix segments.
+    # ── Slice hierarchy note ─────────────────────────────────────────────────
+    # systemd derives a slice's parent from its name by splitting on dashes,
+    # so the LEFTMOST prefix segments determine ancestry:
+    #
+    #   crystal-forge-hardening.slice
+    #       → parent: crystal-forge.slice   ✓  (what we want)
+    #
+    #   hardening-crystal-forge.slice
+    #       → parent: hardening.slice       ✗  (root level, NOT under crystal-forge)
+    #
+    # IMPORTANT: The slice attribute name and the Slice= assignment in
+    # crystal-forge-hardening.service MUST both use "crystal-forge-hardening"
+    # to achieve nesting under crystal-forge.slice.  Do not swap the words.
     systemd.slices.crystal-forge-hardening = lib.mkIf (cfg.server.enable && cfg.hardening.enable) {
       description = "Crystal Forge hardening worker resource boundary";
       sliceConfig = {
