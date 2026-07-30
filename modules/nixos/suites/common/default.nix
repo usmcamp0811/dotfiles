@@ -100,6 +100,7 @@ in {
             fallback_to_local_build = false;
             # require_sigs = false;
           };
+          build.allow_import_from_derivation = true;
           client = {
             enable = true;
             server_host = "crystal-forge.aicampground.com";
