@@ -45,7 +45,9 @@ in {
     services.crystal-forge = {
       inherit (vCfg) log_level;
       enable = true;
-      server = lib.mkDefault vCfg.server;
+      server = lib.mkDefault (lib.recursiveUpdate {
+        trust_forwarded_builder_https = true;
+      } vCfg.server);
       build = lib.mkDefault vCfg.build;
       cache = lib.mkDefault (vCfg.cache // {
         encryption_key_file = "/var/lib/crystal-forge/secrets/cache-encryption-key";
