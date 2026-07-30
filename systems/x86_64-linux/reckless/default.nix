@@ -142,6 +142,7 @@ in {
           use_substitutes = true;
           poll_interval = "5s";
           sandbox = true;
+          allow_import_from_derivation = true;
           max_silent_time = "3h";
           timeout = "8h";
 
