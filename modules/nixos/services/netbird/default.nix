@@ -56,9 +56,12 @@ with lib.fmf;
     };
 
     config = mkIf (cfg.server.enable || cfg.client.enable) {
+      # netbird-ui 0.75.1's desktop entry includes environment variables, which
       services.netbird = {
         enable = true;
 
+        # NixOS's NetBird client wrapper cannot currently rewrite.
+        ui.enable = false;
         server = mkIf cfg.server.enable {
           enableNginx = lib.mkForce true;
           domain = cfg.server.netbird-domain;
