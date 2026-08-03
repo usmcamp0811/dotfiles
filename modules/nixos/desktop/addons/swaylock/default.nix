@@ -14,7 +14,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [swaylock-effects];
+    # Always install video background packages - they're small and optional to use
+    environment.systemPackages = with pkgs; [
+      swaylock-effects
+      swaylock-plugin
+      mpvpaper
+    ];
+    
     security.pam.services.swaylock = {};
+    security.pam.services.swaylock-plugin = {};
   };
 }

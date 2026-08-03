@@ -7,7 +7,12 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.desktop.addons.swayidle;
-  # inherit (inputs) nixpkgs-wayland;
+  swaylockCfg = config.fmf.desktop.addons.swaylock;
+  
+  # Use video-lock if enabled, otherwise use regular swaylock
+  lockCommand = if swaylockCfg.useVideoBackground
+    then "${pkgs.writeShellScript "lock" ''exec video-lock''}"
+    else "${getExe config.programs.swaylock.package} -defF";
 in
 {
   options.fmf.desktop.addons.swayidle = with types; {
@@ -20,16 +25,16 @@ in
       package = pkgs.swayidle;
 
       events = {
-        before-sleep = "${getExe config.programs.swaylock.package} -defF";
+        before-sleep = lockCommand;
         after-resume = "${
           getExe' config.wayland.windowManager.hyprland.package "hyprctl"
         } dispatch dpms on";
-        lock = "${getExe config.programs.swaylock.package} -defF";
+        lock = lockCommand;
       };
       timeouts = [
         {
           timeout = 900;
-          command = "${getExe config.programs.swaylock.package} -defF";
+          command = lockCommand;
         }
         {
           timeout = 1200;

@@ -7,11 +7,37 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.desktop.addons.swaylock;
+  
+  videoLockScript = pkgs.writeShellScriptBin "video-lock" ''
+    set -euo pipefail
+    
+    VIDEO_DIR="${cfg.videoDirectory}"
+    
+    # Find a random video from the directory
+    if [ -d "$VIDEO_DIR" ] && [ "$(ls -A "$VIDEO_DIR"/*.{mp4,mkv,webm} 2>/dev/null)" ]; then
+      VIDEO=$(find "$VIDEO_DIR" -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.webm" \) | shuf -n 1)
+    else
+      # Fallback to a static lock if no videos found
+      exec ${pkgs.swaylock-effects}/bin/swaylock
+      exit 0
+    fi
+    
+    exec ${pkgs.swaylock-plugin}/bin/swaylock-plugin \
+      --command "${pkgs.mpvpaper}/bin/mpvpaper -o \"no-audio --loop-file=inf --panscan=1.0\" ALL \"$VIDEO\""
+  '';
 in
 {
   options.fmf.desktop.addons.swaylock = with types; {
     enable =
       mkBoolOpt false "Whether to enable swaylock in the desktop environment.";
+    
+    useVideoBackground = mkBoolOpt false "Whether to use video backgrounds for the lock screen";
+    
+    videoDirectory = mkOption {
+      type = str;
+      default = "${config.home.homeDirectory}/Videos";
+      description = "Directory containing lock screen videos";
+    };
   };
   config = mkIf cfg.enable {
     programs.swaylock = {
@@ -73,5 +99,8 @@ in
         debug = true;
       };
     };
+    
+    # Add video-lock script to PATH when video backgrounds are enabled
+    home.packages = mkIf cfg.useVideoBackground [ videoLockScript ];
   };
 }

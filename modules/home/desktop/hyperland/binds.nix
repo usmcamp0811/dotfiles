@@ -7,6 +7,12 @@
 with lib;
 with lib.fmf; let
   cfg = config.fmf.desktop.hyprland;
+  swaylockCfg = config.fmf.desktop.addons.swaylock;
+  
+  # Use video-lock if enabled, otherwise use regular swaylock
+  lockCommand = if swaylockCfg.useVideoBackground
+    then "video-lock"
+    else "${getExe config.programs.swaylock.package}";
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
@@ -38,9 +44,7 @@ in {
             # "SUPER_ALT, SPACE, exec, $launcher_alt"
             # "SUPER_SHIFT, SPACE, exec, $launcher_shift"
             # "$mainMod, A, exec, $launchpad"
-            "$SUPER, L, exec, ${
-              getExe config.programs.swaylock.package
-            } --grace 0 --fade-in 0"
+            "$SUPER, L, exec, ${lockCommand} --grace 0 --fade-in 0"
             # "$mainMod, T, exec, $term btop"
             "$mainMod, N, exec, ${
               getExe' pkgs.swaynotificationcenter "swaync-client"
