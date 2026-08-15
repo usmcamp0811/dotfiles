@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-412-cf-xccdf-interchange";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-418-cross-framework-requirements";
 
       inputs.nixpkgs.follows = "unstable";
     };

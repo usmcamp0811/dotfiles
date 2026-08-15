@@ -1478,22 +1478,23 @@
         "nixpkgs": [
           "unstable"
         ],
+        "nixpkgs-dioxus-cli": "nixpkgs-dioxus-cli",
         "nixpkgs-stable": "nixpkgs-stable_7",
         "process-compose-flake": "process-compose-flake_4",
         "services-flake": "services-flake_4",
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1786461516,
-        "narHash": "sha256-B0DJE8SVw58yLrp4xPZzjXSETyUtBakOSgK1Rl8B0qw=",
+        "lastModified": 1786808625,
+        "narHash": "sha256-/U6MBYuLk0SwMj08T/pJeYnntIYRw1OCfiwp/3niLhg=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "ac50867531686927a687343d85ddf125357d3520",
+        "rev": "bfb365b60276990f72f09d39c46a3c13d233eacb",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "TASK-412-cf-xccdf-interchange",
+        "ref": "TASK-418-cross-framework-requirements",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
@@ -14543,6 +14544,22 @@
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "a62e6edd6d5e1fa0329b8653c801147986f8d446",
+        "type": "github"
+      }
+    },
+    "nixpkgs-dioxus-cli": {
+      "locked": {
+        "lastModified": 1774078191,
+        "narHash": "sha256-nyxxxW1/2ouu9dU0I02ul5pHrmUrE1JVFhfFlmYe3Lw=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "09061f748ee21f68a089cd5d91ec1859cd93d0be",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "09061f748ee21f68a089cd5d91ec1859cd93d0be",
         "type": "github"
       }
     },
