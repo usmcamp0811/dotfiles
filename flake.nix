@@ -221,7 +221,7 @@
     nixhelm.inputs.nixpkgs.follows = "unstable";
 
     # kubenix.url = "github:hall/kubenix";
-    k0s-nix.url = "github:johbo/k0s-nix";
+    k0s-nix.url = "github:nix-community/k0s-nix";
     kube-gen.url = "github:farcaller/nix-kube-generators";
     nixidy.url = "github:arnarg/nixidy";
     nix2container.url = "github:nlewo/nix2container";
