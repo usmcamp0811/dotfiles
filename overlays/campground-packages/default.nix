@@ -113,7 +113,6 @@ in {
     blueman
     djvulibre
     home-manager-path
-    hyprcursor
     sway-unwrapped
     switch-to-configuration-ng
     vulnix
