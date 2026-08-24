@@ -61,7 +61,22 @@ final: prev: {
   # fastmcp has a flaky network test (test_full_oauth_flow_with_mock_provider)
   # that fails during build - disable all tests for fastmcp
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-    (python-final: python-prev: {
+    (python-final: python-prev: let
+      patchQtile = package: let
+        patched = package.overridePythonAttrs (old: {
+          # The REPL socket can be reset under builder load. Keep the rest of
+          # qtile's test suite enabled.
+          disabledTests = (old.disabledTests or [ ]) ++ [
+            "test_repl_server_executes_code"
+          ];
+        });
+      in
+        patched
+        // {
+          # The NixOS qtile module uses this to inject extra Python packages.
+          override = args: patchQtile (package.override args);
+        };
+    in {
       fastmcp = python-prev.fastmcp.overridePythonAttrs (old: {
         doCheck = false;
         nativeCheckInputs = [ ];
@@ -74,6 +89,8 @@ final: prev: {
           "test_cache_hit_rate"
         ];
       });
+
+      qtile = patchQtile python-prev.qtile;
     })
   ];
 
