@@ -3,7 +3,7 @@
   lib,
   ...
 }: let
-  images = builtins.attrNames (builtins.readDir ./wallpapers);
+  images = lib.filesystem.listFilesRecursive ./wallpapers;
   mkWallpaper = name: src: let
     fileName = builtins.baseNameOf src;
     pkg = pkgs.stdenvNoCC.mkDerivation {
@@ -29,7 +29,7 @@
       # eg. mywallpaper.png -> mywallpaper
       name = lib.snowfall.path.get-file-name-without-extension image;
     in
-      acc // {"${name}" = mkWallpaper name (./wallpapers + "/${image}");})
+      acc // {"${name}" = mkWallpaper name image;})
     {}
     images;
   installTarget = "$out/share/wallpapers";
@@ -45,8 +45,7 @@ in
 
     installPhase = ''
       mkdir -p ${installTarget}
-
-      find * -type f -mindepth 0 -maxdepth 0 -exec cp ./{} ${installTarget}/{} ';'
+      ${lib.concatStringsSep "\n" (builtins.attrValues installWallpapers)}
     '';
 
     passthru = {inherit names;} // wallpapers;
