@@ -2,6 +2,9 @@
 { channels, unstable, nixpkgs, llm-agents, nixery-flake, ... }:
 final: prev: let
   system = prev.stdenv.hostPlatform.system;
+  upstreamLlmAgents = llm-agents.packages.${system};
+  sharedLlmAgents =
+    (llm-agents.overlays.shared-nixpkgs final prev).llm-agents;
 in {
   # Python & ML development
   python3-11 = unstable.legacyPackages.${system}.python311;
@@ -21,7 +24,11 @@ in {
   poetry = nixpkgs.legacyPackages.${system}.poetry;
 
   # LLM Things
-  llm-agents = llm-agents.packages.${system};
+  llm-agents = upstreamLlmAgents // {
+    # Build mistral-vibe against this flake's Python package set so local
+    # compatibility fixes apply to its dependencies.
+    mistral-vibe = sharedLlmAgents.mistral-vibe;
+  };
 
   # Python package building
   nix-python = channels.nixpkgs-python.packages.${system};
