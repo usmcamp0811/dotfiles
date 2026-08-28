@@ -24,7 +24,7 @@ in {
     #
     port = mkOpt types.int 49452 "Port to use";
     listenAddress = mkOpt types.str "0.0.0.0" "Listen Address";
-    base-url = mkOpt types.str "https://mealie.lan.aicampground.com" "base url";
+    base-url = mkOpt types.str "https://mealie.aicampground.com" "base url";
 
     role-id =
       mkOpt types.str
