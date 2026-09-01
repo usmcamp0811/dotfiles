@@ -1418,6 +1418,21 @@
         "url": "https://flakehub.com/f/ipetkov/crane/0.17.%2A"
       }
     },
+    "crane_3": {
+      "locked": {
+        "lastModified": 1787326676,
+        "narHash": "sha256-lWhBbBvC05/xwivKBBiM2YNizpmgqCgyOIzomvRuwxs=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "692f7e9ef2ece8125b466f66f2af532b3edaed0d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
     "crowdsec": {
       "inputs": {
         "flake-utils": "flake-utils_9",
@@ -1473,6 +1488,7 @@
     },
     "crystal-forge_2": {
       "inputs": {
+        "crane": "crane_3",
         "flake-utils": "flake-utils_84",
         "nixos-compose": "nixos-compose_2",
         "nixpkgs": [
@@ -1485,11 +1501,11 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1788194008,
-        "narHash": "sha256-0Gg57yNmiMnlvHogmvPDoSXKRdrQUKxBzH4TwMSYZhU=",
+        "lastModified": 1788265811,
+        "narHash": "sha256-q7kojqtAY6EXo+7xbi/NZ1MZUQZDgx2HM4e+Q/L+BR8=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "79571bf8649d2bed9cc92988f83e5d0aa3ef36b4",
+        "rev": "da7ae7de480c485ee79db676f8d99893bf07c572",
         "type": "gitlab"
       },
       "original": {
