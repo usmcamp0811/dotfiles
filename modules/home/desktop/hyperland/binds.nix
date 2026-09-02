@@ -8,9 +8,10 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.desktop.hyprland;
   swaylockCfg = config.fmf.desktop.addons.swaylock;
-  
+
   # Use video-lock if enabled, otherwise use regular swaylock
-  lockCommand = if swaylockCfg.useVideoBackground
+  lockCommand =
+    if swaylockCfg.useVideoBackground
     then "video-lock"
     else "${getExe config.programs.swaylock.package}";
 in {
@@ -78,7 +79,7 @@ in {
             } \"$file\" && ${
               getExe pkgs.libnotify
             } --icon \"$file\" 'Screenshot Saved'"
-            "SHIFT, Print, exec, file=\"/home/${config.fmf.user.name})/Pictures/screenshots/$(date +'%Y%m%d_%H%M%S.png')\" && ${
+            "SHIFT, Print, exec, file=\"/home/${config.fmf.user.name}/Pictures/screenshots/$(date +'%Y%m%d_%H%M%S.png')\" && ${
               getExe pkgs.grim
             } -g \"$(slurp)\" \"$file\" && ${
               getExe pkgs.libnotify
@@ -213,15 +214,16 @@ in {
           # ░▀░▀░▀▀▀░▀░▀░▀░▀░▀▀▀░▀░░░▀░▀░▀▀▀░▀▀▀
           # Switch workspaces with CTRL_ALT + [0-9]
           ++ (builtins.concatLists (builtins.genList (x: let
-            ws = let
-              c = (x + 1) / 10;
-            in
-              builtins.toString (x + 1 - (c * 10));
-          in [
-            "$ALT, ${ws}, workspace, ${toString (x + 1)}"
-            "$ALT_SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}"
-            "$SUPER_SHIFT, ${ws}, movetoworkspacesilent, ${toString (x + 1)}"
-          ]) 10));
+              ws = let
+                c = (x + 1) / 10;
+              in
+                builtins.toString (x + 1 - (c * 10));
+            in [
+              "$ALT, ${ws}, workspace, ${toString (x + 1)}"
+              "$ALT_SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}"
+              "$SUPER_SHIFT, ${ws}, movetoworkspacesilent, ${toString (x + 1)}"
+            ])
+            10));
         # Move/resize windows with mainMod + LMB/RMB and dragging
         bindm = [
           "$mainMod, mouse:272, movewindow #left click"
