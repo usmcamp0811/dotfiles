@@ -1501,16 +1501,16 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1788286890,
-        "narHash": "sha256-6dEY1Wg9nRLwJDpXXjfEztas2molLZSa7fwxBYsX9I8=",
+        "lastModified": 1788290132,
+        "narHash": "sha256-7XIOrLda5YbuwGcuKWgA0T6d74ZdX96L7yhe8c7xcUk=",
         "owner": "crystal-forge",
         "repo": "crystal-forge",
-        "rev": "207bafad93f413ada037de6a2a1167ef8701ab59",
+        "rev": "701151f4237d912ac1065474ec39c0315b86a1ed",
         "type": "gitlab"
       },
       "original": {
         "owner": "crystal-forge",
-        "ref": "TASK-433-policy-poam-workflows",
+        "ref": "dev",
         "repo": "crystal-forge",
         "type": "gitlab"
       }
