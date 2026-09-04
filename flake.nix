@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-325-functional-fleet-cve-rescan";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-440-system-config-flake-parity";
 
       inputs.nixpkgs.follows = "unstable";
     };
