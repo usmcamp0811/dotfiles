@@ -9,12 +9,9 @@ with lib.fmf; let
   cfg = config.fmf.services.airflow;
   isServer = cfg.role == "server";
 
-  airflowApplication = pkgs.apache-airflow.override {
+  airflowPackage = pkgs.apache-airflow.override {
     enabledProviders = ["celery" "postgres"];
   };
-  airflowPackage = airflowApplication.pythonPackages.python.withPackages (_: [
-    airflowApplication.pythonPackages.apache-airflow
-  ]);
 
   airflowEnvironment = {
     AIRFLOW_HOME = cfg.path;
