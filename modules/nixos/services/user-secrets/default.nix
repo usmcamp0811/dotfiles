@@ -60,7 +60,8 @@ in {
               name = "${user}-${secret}";
               value = {
                 text = ''
-                  {{ with secret "${cfg.vault-path}/${user}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${secret} }}{{ else }}{{ .Data.data.${secret} }}{{ end }}{{ end }}'';
+                  {{ with secret "${cfg.vault-path}/${user}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.${secret} }}{{ else }}{{ .Data.data.${secret} }}{{ end }}{{ end }}
+                '';
                 permissions = "0400";
                 change-action = "restart";
               };
