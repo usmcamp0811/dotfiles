@@ -1,0 +1,54 @@
+{
+  "_comment": [
+    "Calibration for the 'driveway' Reolink camera.",
+    "All pixel coordinates are expressed in REFERENCE FRAME space (see reference_size),",
+    "which matches reference.jpg. They are rescaled to the native video resolution at runtime,",
+    "and warped by the per-clip alignment transform to compensate for camera drift.",
+    "",
+    "Speed is measured as a two-gate speed trap:  speed = baseline_ft / (t_gate_b - t_gate_a).",
+    "No pixels-per-foot scale is used, so lens perspective does not affect the result.",
+    "",
+    "The two gates are drawn through each mailbox post base, both aimed at 'cross_road_vanishing_point'.",
+    "That makes the gates PARALLEL on the ground plane, so the 28.8 ft separation holds for",
+    "either lane rather than only at the shoulder. Retune that point if speeds look lane-biased.",
+    "",
+    "Verify with:  analyze-security-camera --calibrate <clip.mp4> -o overlay.jpg"
+  ],
+
+  "camera": "driveway",
+  "reference_size": [1920, 1080],
+
+  "baseline_ft": 28.8,
+  "baseline_note": "Laser-measured, inside face of mailbox 507 to inside face of the neighbour's mailbox.",
+
+  "cross_road_vanishing_point": [1114.5, -123.0],
+
+  "landmarks": {
+    "mailbox_507_base": [644.5, 518.0],
+    "mailbox_neighbour_base": [1703.0, 748.5]
+  },
+
+  "gates": {
+    "a": {
+      "name": "mailbox_507",
+      "line": [[609.0, 566.0], [834.0, 260.0]]
+    },
+    "b": {
+      "name": "mailbox_neighbour",
+      "line": [[1737.0, 798.0], [1468.0, 400.0]]
+    }
+  },
+
+  "road_polygon": [
+    [430.0, 560.0],
+    [980.0, 236.0],
+    [1920.0, 470.0],
+    [1920.0, 880.0],
+    [1180.0, 690.0]
+  ],
+
+  "detection": {
+    "min_track_frames": 3,
+    "stationary_px": 40.0
+  }
+}
