@@ -3,28 +3,42 @@
   lib,
   ...
 }: let
-  # Use the upstream PyTorch wheels: they ship CUDA, are in the binary cache, and
-  # avoid a multi-hour local CUDA rebuild. The packageOverrides + `self` idiom
-  # makes the swap propagate to every transitive consumer (ultralytics, thop,
-  # torchvision) so only one `torch` ends up in the environment.
-  python = pkgs.python3.override {
-    self = python;
-    packageOverrides = _final: prev: {
-      torch = prev.torch-bin;
-      torchvision = prev.torchvision-bin;
-      torchaudio = prev.torchaudio-bin;
-    };
+  ps = pkgs.python3Packages;
+
+  # PyTorch comes from the upstream wheels (`torch-bin`) rather than nixpkgs'
+  # source build, because the cached nixpkgs `torch` is CPU-only and a local
+  # CUDA source build is a multi-hour job.
+  #
+  # The swap is applied as a *targeted* override on just the packages that
+  # actually consume torch. The tempting alternative --
+  #   python3.override { self = python; packageOverrides = ...; }
+  # -- rebuilds the entire Python package set (48 derivations here, including
+  # unrelated things like cython and seaborn) because every package ends up
+  # referencing the overridden `self`. Overriding only the three real consumers
+  # keeps everything else on the binary cache and cuts that to 8 derivations.
+  #
+  # All three must be overridden together: leaving any of them on the stock
+  # `torch` would put two different torch builds in the same environment, which
+  # collides at buildEnv time.
+  torchBin = ps.torch-bin;
+  torchvisionBin = ps.torchvision-bin;
+
+  thopBin = ps.ultralytics-thop.override {torch = torchBin;};
+
+  ultralyticsBin = ps.ultralytics.override {
+    torch = torchBin;
+    torchvision = torchvisionBin;
+    ultralytics-thop = thopBin;
   };
 
-  pythonEnv = python.withPackages (ps:
-    with ps; [
-      ultralytics
-      opencv4
-      numpy
-      lap # ByteTrack's linear-assignment solver
-      torch
-      torchvision
-    ]);
+  pythonEnv = pkgs.python3.withPackages (_: [
+    ultralyticsBin
+    torchBin
+    torchvisionBin
+    ps.opencv4
+    ps.numpy
+    ps.lap # ByteTrack's linear-assignment solver
+  ]);
 
   # Pinned weights so the tool never reaches out to GitHub at runtime.
   yoloWeights = pkgs.fetchurl {
