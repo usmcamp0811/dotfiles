@@ -23,6 +23,15 @@
 
   "cross_road_vanishing_point": [1114.5, -123.0],
 
+  "_road_vanishing_point_comment": [
+    "Where the road's own edges converge, i.e. the vanishing point of the direction",
+    "of travel. Together with cross_road_vanishing_point it defines the ground plane's",
+    "horizon, which is what lets a single image point be converted into a distance",
+    "along the road (see 'projective_track_fit' in the README).",
+    "Leave null to disable that fallback. Measure it with --fit-road-vp rather than by eye."
+  ],
+  "road_vanishing_point": null,
+
   "landmarks": {
     "mailbox_507_base": [644.5, 518.0],
     "mailbox_neighbour_base": [1703.0, 748.5]
