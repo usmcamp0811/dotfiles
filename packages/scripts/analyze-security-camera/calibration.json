@@ -5,8 +5,8 @@
     "which matches reference.jpg. They are rescaled to the native video resolution at runtime,",
     "and warped by the per-clip alignment transform to compensate for camera drift.",
     "",
-    "Speed is measured as a two-gate speed trap:  speed = baseline_ft / (t_gate_b - t_gate_a).",
-    "No pixels-per-foot scale is used, so lens perspective does not affect the result.",
+    "Speed first uses a two-gate speed trap. If a triggered clip starts after one gate,",
+    "the ground-plane homography maps the full track to feet and fits distance vs time.",
     "",
     "The two gates are drawn through each mailbox post base, both aimed at 'cross_road_vanishing_point'.",
     "That makes the gates PARALLEL on the ground plane, so the 28.8 ft separation holds for",
@@ -23,14 +23,43 @@
 
   "cross_road_vanishing_point": [1114.5, -123.0],
 
-  "_road_vanishing_point_comment": [
-    "Where the road's own edges converge, i.e. the vanishing point of the direction",
-    "of travel. Together with cross_road_vanishing_point it defines the ground plane's",
-    "horizon, which is what lets a single image point be converted into a distance",
-    "along the road (see 'projective_track_fit' in the README).",
-    "Leave null to disable that fallback. Measure it with --fit-road-vp rather than by eye."
-  ],
-  "road_vanishing_point": null,
+  "road_vanishing_point": [-1488.0, 208.0],
+  "road_vanishing_point_quality": "provisional_from_visible_road_edges",
+  "road_vanishing_point_note": "Intersection of the near and far asphalt-edge lines in reference.jpg. Replace with a multi-track fit when more clips are available.",
+
+  "ground_plane": {
+    "enabled": false,
+    "axis_note": "Origin is the left driveway/asphalt corner. X runs right along the road; Y runs across the road away from the camera.",
+    "measurement_note": "16.92 ft driveway width; 20.07/30.57 ft from left/right corners to manhole; 20.42 ft across road at left corner.",
+    "quality": "provisional",
+    "quality_note": "The far-road-edge pixel is estimated from the reference image. Replace it using a visible marker at the measured endpoint for evidence-grade calibration.",
+    "points": [
+      {
+        "name": "driveway_left_asphalt_corner",
+        "pixel": [905.0, 600.0],
+        "world_ft": [0.0, 0.0],
+        "source": "measured"
+      },
+      {
+        "name": "driveway_right_asphalt_corner",
+        "pixel": [1600.0, 715.0],
+        "world_ft": [16.92, 0.0],
+        "source": "measured"
+      },
+      {
+        "name": "street_manhole_center",
+        "pixel": [925.0, 437.0],
+        "world_ft": [-7.2528, 18.7137],
+        "source": "triangulated_from_20.07ft_and_30.57ft"
+      },
+      {
+        "name": "far_road_edge_across_left_corner",
+        "pixel": [963.0, 400.0],
+        "world_ft": [0.0, 20.42],
+        "source": "pixel_estimated_world_measured"
+      }
+    ]
+  },
 
   "landmarks": {
     "mailbox_507_base": [644.5, 518.0],

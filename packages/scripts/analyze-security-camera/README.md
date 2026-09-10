@@ -29,11 +29,20 @@ is tracked, the tool records the exact moment it crosses each gate and divides:
 average_speed = 28.8 ft / (t_gate_b - t_gate_a)
 ```
 
-**Only time is measured.** No pixels-per-foot scale is ever computed, so lens
-perspective, foreshortening and the steep camera angle cannot bias the result.
-This is the same principle as a police speed trap or a track timing gate.
+That two-gate result is preferred whenever available. Motion-triggered clips can
+start after a vehicle has already crossed one mailbox, though. In that case the
+tool fits the vehicle's complete image trajectory, intersects it with both gates,
+and uses the **projective cross-ratio** with the road's vanishing point to convert
+every observed position into feet along the road. A robust line fit of
+distance-versus-time then gives speed. This works even when the car never appears
+at one of the gates.
 
-Two refinements make it hold up in practice:
+The fallback reports `method: "projective_track_fit"` and fit diagnostics. Its
+current calibration is deliberately labelled `provisional`: the road vanishing
+point was fitted from visible asphalt edges and still needs validation against a
+known-speed drive or several complete two-gate tracks.
+
+Two refinements make both methods hold up in practice:
 
 ### 1. The gates are parallel *on the ground*, not in the image
 
@@ -89,7 +98,7 @@ Top level:
 
 | field            | meaning                                                      |
 | ---------------- | ------------------------------------------------------------ |
-| `schema_version` | Bump this when the shape changes. Currently `1`.              |
+| `schema_version` | Bump this when the shape changes. Currently `2`.              |
 | `source`         | Path, camera, `recorded_at` (parsed from filename), fps, size |
 | `analysis`       | Model, device, baseline, and the alignment audit trail        |
 | `counts`         | Quick roll-ups for cheap aggregate queries                    |
@@ -133,11 +142,13 @@ Each object:
 
 Notes for the database:
 
-- `speed` is `null` whenever the object did not cleanly traverse both gates.
-  `speed_unavailable_reason` then tells you why — one of `stationary`,
-  `crossed_neither_gate`, `did_not_cross_gate_a`, `did_not_cross_gate_b`,
-  `degenerate_gate_times`. **Filter on `speed IS NOT NULL` for traffic stats**,
-  and treat the rest as presence-only events.
+- A complete gate traversal uses `two_gate_time_of_flight`; a partial traversal
+  uses `projective_track_fit`. The latter includes `fit_rmse_ft`,
+  `fit_r_squared`, rejected-frame counts, and `gate_fallback_reason`.
+- `speed` is `null` only when neither method has enough stable motion. The
+  `speed_unavailable_reason` explains why. **Filter on `speed IS NOT NULL` for
+  traffic stats**, and consider filtering provisional measurements separately
+  until the calibration has been validated.
 - `kind` is the useful grouping column: `vehicle`, `cyclist`, `pedestrian`.
 - `label` is the raw COCO class: `car`, `truck`, `bus`, `motorcycle`, `bicycle`,
   `person`. COCO's `truck` covers pickups and box trucks; `car` covers sedans and
@@ -226,6 +237,8 @@ Key fields:
 | ----------------------------- | -------------------------------------------------------------- |
 | `baseline_ft`                 | The 28.8 ft measurement. Override per-run with `--baseline-ft`. |
 | `cross_road_vanishing_point`  | Where road-perpendicular lines converge. Controls gate skew.    |
+| `road_vanishing_point`        | Where trajectories along the street converge; used by the partial-track fallback. |
+| `ground_plane`                | Recorded survey measurements. Disabled until the far-edge pixel is marked precisely. |
 | `gates.a` / `gates.b`         | The gate segments. `a` is the 507 mailbox, `b` the neighbour's. |
 | `landmarks`                   | Mailbox post bases, drawn on the overlay for reference.         |
 | `road_polygon`                | Drives the `on_road` flag.                                      |
@@ -240,6 +253,14 @@ the two directions** — if left-bound and right-bound traffic show consistently
 different average speeds, the gates are not truly parallel on the ground and
 `cross_road_vanishing_point` needs adjusting. That asymmetry is the most
 sensitive tell available without a ground-truth run.
+
+The current projective fallback is **not evidence-grade yet**. Its output says
+`calibration_quality: "provisional_from_visible_road_edges"` and
+`confidence: "provisional"`. A known-speed pass, or fitting the road vanishing
+point from multiple full vehicle tracks, is required before changing that label
+to `measured`. The recorded survey measurements are retained in
+`ground_plane`, but its homography is disabled until a marker photo identifies
+the exact far-road-edge pixel.
 
 ---
 

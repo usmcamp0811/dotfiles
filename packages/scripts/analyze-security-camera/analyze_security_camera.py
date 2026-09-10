@@ -35,8 +35,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-TOOL_VERSION = "0.1.0"
-SCHEMA_VERSION = 1
+TOOL_VERSION = "0.2.0"
+SCHEMA_VERSION = 2
 
 FT_S_TO_MPH = 0.681818181818
 FT_S_TO_KPH = 1.09728
@@ -215,6 +215,254 @@ def point_in_poly(pt, poly) -> bool:
         return False
     c = np.array(poly, dtype=np.float32).reshape(-1, 1, 2)
     return cv2.pointPolygonTest(c, (float(pt[0]), float(pt[1])), False) >= 0
+
+
+def build_ground_homography(calib: dict, M: np.ndarray, sx: float, sy: float):
+    """Build an image-pixel -> ground-feet homography for the aligned clip."""
+    plane = calib.get("ground_plane")
+    if not plane or not plane.get("enabled", False):
+        return None, {"available": False, "reason": "disabled_pending_marker_photo"}
+    points = plane.get("points", []) if plane else []
+    if len(points) < 4:
+        return None, {"available": False, "reason": "fewer_than_four_ground_control_points"}
+
+    image = transform_pts([p["pixel"] for p in points], M, sx, sy)
+    world = [p["world_ft"] for p in points]
+    H, _ = cv2.findHomography(
+        np.asarray(image, dtype=np.float64),
+        np.asarray(world, dtype=np.float64),
+        method=0,
+    )
+    if H is None or not np.isfinite(H).all():
+        return None, {"available": False, "reason": "homography_solution_failed"}
+
+    projected = cv2.perspectiveTransform(
+        np.asarray(image, dtype=np.float64).reshape(-1, 1, 2), H
+    ).reshape(-1, 2)
+    errors = np.linalg.norm(projected - np.asarray(world), axis=1)
+    info = {
+        "available": True,
+        "quality": plane.get("quality", "unknown"),
+        "quality_note": plane.get("quality_note"),
+        "control_points": len(points),
+        "reprojection_rmse_ft": round(float(np.sqrt(np.mean(errors ** 2))), 4),
+        "points": [
+            {
+                "name": p["name"],
+                "source": p.get("source"),
+                "world_ft": p["world_ft"],
+            }
+            for p in points
+        ],
+    }
+    return H, info
+
+
+def line_intersection(a, b):
+    """Intersection of two finite-point-defined infinite lines."""
+    p1 = np.array([a[0][0], a[0][1], 1.0], dtype=np.float64)
+    p2 = np.array([a[1][0], a[1][1], 1.0], dtype=np.float64)
+    q1 = np.array([b[0][0], b[0][1], 1.0], dtype=np.float64)
+    q2 = np.array([b[1][0], b[1][1], 1.0], dtype=np.float64)
+    hit = np.cross(np.cross(p1, p2), np.cross(q1, q2))
+    if abs(hit[2]) < 1e-9:
+        return None
+    return hit[:2] / hit[2]
+
+
+def projective_track_coordinates(track: list[dict], gate_a, gate_b, road_vp, baseline_ft: float):
+    """Map a vehicle track to feet along the road using a cross-ratio.
+
+    The fitted trajectory intersects the two mailbox gates at known world
+    coordinates 0 and baseline_ft. Its third reference is the road vanishing
+    point, whose world coordinate is infinity. Those three references uniquely
+    map every point on the trajectory from image position to road distance.
+    """
+    image = np.asarray([p["pt"] for p in track], dtype=np.float64)
+    if len(image) < 6:
+        return None, "projective_track_too_short"
+
+    fit = cv2.fitLine(image.astype(np.float32), cv2.DIST_L2, 0, 0.01, 0.01).reshape(-1)
+    direction = np.asarray([float(fit[0]), float(fit[1])], dtype=np.float64)
+    origin = np.asarray([float(fit[2]), float(fit[3])], dtype=np.float64)
+    track_line = [origin - direction * 10000.0, origin + direction * 10000.0]
+
+    pa = line_intersection(track_line, gate_a)
+    pb = line_intersection(track_line, gate_b)
+    if pa is None or pb is None:
+        return None, "projective_gate_intersection_failed"
+
+    # Scalar image coordinate along the fitted trajectory. Projecting the
+    # calibrated VP onto that trajectory tolerates a few pixels of line-fit and
+    # calibration error while preserving the correct projective coordinate.
+    scalar = lambda p: float(np.dot(np.asarray(p, dtype=np.float64) - origin, direction))
+    sa, sb, sv = scalar(pa), scalar(pb), scalar(road_vp)
+    if abs(sb - sa) < 1e-6:
+        return None, "projective_gate_intersection_failed"
+
+    scale = baseline_ft * (sv - sb) / (sb - sa)
+    result = []
+    for p in track:
+        sp = scalar(p["pt"])
+        denom = sv - sp
+        if abs(denom) < 1e-6:
+            continue
+        x = scale * (sp - sa) / denom
+        if np.isfinite(x) and abs(x) < 1000.0:
+            result.append({"t": float(p["t"]), "x": float(x)})
+    return result, None
+
+
+def cross_ratio_track_speed(track: list[dict], gate_a, gate_b, road_vp,
+                            baseline_ft: float, calibration_quality: str):
+    projected, failure = projective_track_coordinates(
+        track, gate_a, gate_b, road_vp, baseline_ft
+    )
+    if projected is None:
+        return None, failure
+
+    t = np.asarray([p["t"] for p in projected], dtype=np.float64)
+    x = np.asarray([p["x"] for p in projected], dtype=np.float64)
+    if float(t[-1] - t[0]) < 0.3:
+        return None, "projective_track_too_short"
+    fit = robust_line_fit(t, x)
+    if fit is None:
+        return None, "projective_fit_failed"
+    velocity, _offset, mask, rmse, r2 = fit
+    used_t = t[mask]
+    duration = float(used_t[-1] - used_t[0])
+    distance_ft = abs(velocity) * duration
+    mph = abs(velocity) * FT_S_TO_MPH
+
+    if distance_ft < 5.0:
+        return None, "projective_distance_too_short"
+    if not (1.0 <= mph <= 120.0):
+        return None, "projective_speed_implausible"
+    if r2 < 0.65:
+        return None, "projective_fit_unstable"
+
+    if calibration_quality != "measured":
+        confidence = "provisional"
+    elif r2 >= 0.95 and rmse <= 1.0 and int(mask.sum()) >= 12:
+        confidence = "high"
+    elif r2 >= 0.85 and rmse <= 2.0:
+        confidence = "medium"
+    else:
+        confidence = "low"
+
+    speed = {
+        "ft_per_s": round(abs(velocity), 2),
+        "mph": round(mph, 1),
+        "kph": round(abs(velocity) * FT_S_TO_KPH, 1),
+        "method": "projective_track_fit",
+        "distance_ft": round(distance_ft, 2),
+        "duration_s": round(duration, 4),
+        "frames_used": int(mask.sum()),
+        "frames_rejected": int(len(t) - mask.sum()),
+        "fit_rmse_ft": round(rmse, 3),
+        "fit_r_squared": round(r2, 4),
+        "calibration_quality": calibration_quality,
+        "confidence": confidence,
+    }
+    return (speed, "right" if velocity > 0 else "left"), None
+
+
+def map_track_to_ground(track: list[dict], H: np.ndarray) -> list[dict]:
+    image = np.asarray([p["pt"] for p in track], dtype=np.float64).reshape(-1, 1, 2)
+    world = cv2.perspectiveTransform(image, H).reshape(-1, 2)
+    result = []
+    for p, xy in zip(track, world):
+        if np.isfinite(xy).all() and -100.0 <= xy[1] <= 100.0:
+            result.append({"t": float(p["t"]), "x": float(xy[0]), "y": float(xy[1])})
+    return result
+
+
+def robust_line_fit(t: np.ndarray, values: np.ndarray):
+    """Iteratively reject tracker jumps and fit value = slope*t + intercept."""
+    mask = np.ones(len(t), dtype=bool)
+    for _ in range(4):
+        if int(mask.sum()) < 5:
+            return None
+        slope, intercept = np.polyfit(t[mask], values[mask], 1)
+        residual = values - (slope * t + intercept)
+        med = float(np.median(residual[mask]))
+        mad = float(np.median(np.abs(residual[mask] - med)))
+        limit = max(0.75, 3.5 * 1.4826 * mad)
+        new_mask = np.abs(residual - med) <= limit
+        if np.array_equal(mask, new_mask):
+            break
+        mask = new_mask
+
+    slope, intercept = np.polyfit(t[mask], values[mask], 1)
+    fitted = slope * t[mask] + intercept
+    residual = values[mask] - fitted
+    rmse = float(np.sqrt(np.mean(residual ** 2)))
+    total = float(np.sum((values[mask] - np.mean(values[mask])) ** 2))
+    r2 = 1.0 - float(np.sum(residual ** 2)) / total if total > 1e-9 else 0.0
+    return float(slope), float(intercept), mask, rmse, r2
+
+
+def projective_track_speed(track: list[dict], H: np.ndarray, calibration_quality: str):
+    """Measure speed from every available track point after mapping it to feet."""
+    ground = map_track_to_ground(track, H)
+    if len(ground) < 6:
+        return None, "projective_track_too_short"
+
+    t = np.asarray([p["t"] for p in ground], dtype=np.float64)
+    x = np.asarray([p["x"] for p in ground], dtype=np.float64)
+    y = np.asarray([p["y"] for p in ground], dtype=np.float64)
+    duration = float(t[-1] - t[0])
+    if duration < 0.3:
+        return None, "projective_track_too_short"
+
+    xfit = robust_line_fit(t, x)
+    if xfit is None:
+        return None, "projective_fit_failed"
+    vx, _x0, mask, x_rmse, x_r2 = xfit
+
+    # Report lateral stability as an audit metric. We do not include lateral
+    # movement in road speed: X is explicitly the direction along the street.
+    yfit = robust_line_fit(t[mask], y[mask])
+    vy = yfit[0] if yfit else 0.0
+    y_rmse = yfit[3] if yfit else 0.0
+
+    used_t = t[mask]
+    distance_ft = abs(vx) * float(used_t[-1] - used_t[0])
+    mph = abs(vx) * FT_S_TO_MPH
+    if distance_ft < 5.0:
+        return None, "projective_distance_too_short"
+    if not (1.0 <= mph <= 120.0):
+        return None, "projective_speed_implausible"
+    if x_r2 < 0.65:
+        return None, "projective_fit_unstable"
+
+    if calibration_quality != "measured":
+        confidence = "provisional"
+    elif x_r2 >= 0.95 and x_rmse <= 1.0 and int(mask.sum()) >= 12:
+        confidence = "high"
+    elif x_r2 >= 0.85 and x_rmse <= 2.0:
+        confidence = "medium"
+    else:
+        confidence = "low"
+
+    speed = {
+        "ft_per_s": round(abs(vx), 2),
+        "mph": round(mph, 1),
+        "kph": round(abs(vx) * FT_S_TO_KPH, 1),
+        "method": "projective_track_fit",
+        "distance_ft": round(distance_ft, 2),
+        "duration_s": round(float(used_t[-1] - used_t[0]), 4),
+        "frames_used": int(mask.sum()),
+        "frames_rejected": int(len(t) - mask.sum()),
+        "fit_rmse_ft": round(x_rmse, 3),
+        "fit_r_squared": round(x_r2, 4),
+        "lateral_velocity_ft_s": round(float(vy), 3),
+        "lateral_rmse_ft": round(float(y_rmse), 3),
+        "calibration_quality": calibration_quality,
+        "confidence": confidence,
+    }
+    direction = "right" if vx > 0 else "left"
+    return (speed, direction), None
 
 
 # --------------------------------------------------------------------------
@@ -525,6 +773,15 @@ def main() -> int:
     for key, g in calib["gates"].items():
         gates[key] = {"name": g["name"], "line": transform_pts(g["line"], M, sx, sy)}
     road_poly = transform_pts(calib["road_polygon"], M, sx, sy) if calib.get("road_polygon") else []
+    ground_H, ground_info = build_ground_homography(calib, M, sx, sy)
+    road_vp = None
+    if calib.get("road_vanishing_point") is not None:
+        road_vp = transform_pts([calib["road_vanishing_point"]], M, sx, sy)[0]
+    projection_info = {
+        "available": road_vp is not None,
+        "road_vanishing_point_quality": calib.get("road_vanishing_point_quality", "unknown"),
+        "road_vanishing_point_note": calib.get("road_vanishing_point_note"),
+    }
 
     # ---- calibrate mode over a real clip ---------------------------------
     if args.calibrate:
@@ -538,6 +795,9 @@ def main() -> int:
         }
         ref_road = transform_pts(calib["road_polygon"], M, 1.0, 1.0) if calib.get("road_polygon") else []
         ref_lm = {k: transform_pts([v], M, 1.0, 1.0)[0] for k, v in calib.get("landmarks", {}).items()}
+        for p in calib.get("ground_plane", {}).get("points", []):
+            label = f"GCP {p['name']} ({p['world_ft'][0]:.1f},{p['world_ft'][1]:.1f})ft"
+            ref_lm[label] = transform_pts([p["pixel"]], M, 1.0, 1.0)[0]
         out = draw_overlay(base, ref_gates, ref_lm, ref_road, thickness=3)
         dest = args.output or Path("calibration-overlay.jpg")
         cv2.imwrite(str(dest), out)
@@ -670,16 +930,17 @@ def main() -> int:
 
         speed = None
         reason = None
+        gate_failure = None
         direction = "right" if dx > 0 else ("left" if dx < 0 else None)
 
         if not moving:
             reason = "stationary"
         elif ca is None and cb is None:
-            reason = "crossed_neither_gate"
+            gate_failure = "crossed_neither_gate"
         elif ca is None:
-            reason = "did_not_cross_gate_a"
+            gate_failure = "did_not_cross_gate_a"
         elif cb is None:
-            reason = "did_not_cross_gate_b"
+            gate_failure = "did_not_cross_gate_b"
         else:
             delta = cb["t"] - ca["t"]
             direction = "right" if delta > 0 else "left"
@@ -707,6 +968,37 @@ def main() -> int:
                     "frames_between_gates": round(gap_frames, 2),
                     "confidence": conf,
                 }
+
+        # Motion-triggered clips often begin after the vehicle has already
+        # crossed one mailbox. In that case use every track point, mapped onto
+        # the measured road plane, instead of returning a null speed.
+        if moving and speed is None and road_vp is not None:
+            projective, projective_failure = cross_ratio_track_speed(
+                pts,
+                gates["a"]["line"],
+                gates["b"]["line"],
+                road_vp,
+                baseline_ft,
+                calib.get("road_vanishing_point_quality", "unknown"),
+            )
+            if projective is not None:
+                speed, direction = projective
+                speed["gate_fallback_reason"] = gate_failure
+                reason = None
+            else:
+                reason = projective_failure
+        elif moving and speed is None and ground_H is not None:
+            projective, projective_failure = projective_track_speed(
+                pts, ground_H, ground_info.get("quality", "unknown")
+            )
+            if projective is not None:
+                speed, direction = projective
+                speed["gate_fallback_reason"] = gate_failure
+                reason = None
+            else:
+                reason = projective_failure
+        elif moving and speed is None:
+            reason = gate_failure or "ground_plane_unavailable"
 
         if kind == "vehicle" and color:
             description = f"{color['name']} {label}"
@@ -784,6 +1076,8 @@ def main() -> int:
             "device": str(device),
             "baseline_ft": baseline_ft,
             "alignment": align_info,
+            "road_projection": projection_info,
+            "ground_plane": ground_info,
         },
         "counts": {
             "total": len(objects),
