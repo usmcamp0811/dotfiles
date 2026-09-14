@@ -105,8 +105,16 @@ in {
         auto-optimise-store = true;
         trusted-users = users;
         allowed-users = users;
+      } // (lib.optionalAttrs (builtins.pathExists "/var/lib/nixos/netrc") {
+        # Only reference the netrc file if it actually exists on this
+        # machine. `extra-sandbox-paths` in particular is not tolerant of
+        # missing paths - Nix hard-fails *every* sandboxed build/eval if any
+        # listed path doesn't exist, which previously broke deployments on
+        # any system where vault-agent/copyNETRC hadn't populated this file
+        # yet (e.g. a freshly installed host).
         netrc-file = "/var/lib/nixos/netrc";
         extra-sandbox-paths = [ "/var/lib/nixos/netrc" ];
+      }) // {
 
         substituters =
           # [ cfg.default-substituter.url ]

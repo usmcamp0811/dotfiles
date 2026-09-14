@@ -1,40 +1,53 @@
 {
   pkgs,
   lib,
+  # CUDA is opt-in. The default CPU build is served entirely from the binary
+  # cache (zero local derivations). Enabling CUDA costs ~8 local builds,
+  # including nccl and libnvshmem, which are NOT in cache.nixos.org and not in
+  # cuda-maintainers.cachix.org for this nixpkgs pin -- budget an hour or so.
+  #
+  #   nix build .#analyze-security-camera.override { withCuda = true; }
+  withCuda ? false,
   ...
 }: let
   ps = pkgs.python3Packages;
 
-  # PyTorch comes from the upstream wheels (`torch-bin`) rather than nixpkgs'
-  # source build, because the cached nixpkgs `torch` is CPU-only and a local
-  # CUDA source build is a multi-hour job.
+  # nixpkgs' cached `torch` is CPU-only, so a GPU build has to come from the
+  # upstream wheels (`torch-bin`).
   #
   # The swap is applied as a *targeted* override on just the packages that
   # actually consume torch. The tempting alternative --
   #   python3.override { self = python; packageOverrides = ...; }
-  # -- rebuilds the entire Python package set (48 derivations here, including
+  # -- rebuilds the entire Python package set (48 derivations, including
   # unrelated things like cython and seaborn) because every package ends up
   # referencing the overridden `self`. Overriding only the three real consumers
-  # keeps everything else on the binary cache and cuts that to 8 derivations.
+  # keeps everything else on the binary cache and cuts that to 8.
   #
   # All three must be overridden together: leaving any of them on the stock
   # `torch` would put two different torch builds in the same environment, which
   # collides at buildEnv time.
-  torchBin = ps.torch-bin;
-  torchvisionBin = ps.torchvision-bin;
-
-  thopBin = ps.ultralytics-thop.override {torch = torchBin;};
-
-  ultralyticsBin = ps.ultralytics.override {
-    torch = torchBin;
-    torchvision = torchvisionBin;
-    ultralytics-thop = thopBin;
+  cudaPkgs = rec {
+    torch = ps.torch-bin;
+    torchvision = ps.torchvision-bin;
+    ultralytics-thop = ps.ultralytics-thop.override {inherit torch;};
+    ultralytics = ps.ultralytics.override {
+      inherit torch torchvision ultralytics-thop;
+    };
   };
 
+  cpuPkgs = {
+    inherit (ps) torch torchvision ultralytics;
+  };
+
+  selected =
+    if withCuda
+    then cudaPkgs
+    else cpuPkgs;
+
   pythonEnv = pkgs.python3.withPackages (_: [
-    ultralyticsBin
-    torchBin
-    torchvisionBin
+    selected.ultralytics
+    selected.torch
+    selected.torchvision
     ps.opencv4
     ps.numpy
     ps.lap # ByteTrack's linear-assignment solver
