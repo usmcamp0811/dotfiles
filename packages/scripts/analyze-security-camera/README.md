@@ -18,77 +18,106 @@ else (logs, progress) goes to stderr.
 
 ## How the speed is measured
 
-This is the part worth understanding, because it is what makes the numbers
-trustworthy.
+A calibrated **pinhole camera model** gives a homography from image pixels to
+feet on the road plane. Every track point is mapped through it and
+distance-versus-time is fitted robustly, so the measurement uses the whole track
+rather than two instants. The method reports `ground_plane_track_fit`.
 
-The two mailboxes are **28.8 ft apart** (laser-measured, inside face to inside
-face). A "gate" line is drawn through the base of each mailbox post. As an object
-is tracked, the tool records the exact moment it crosses each gate and divides:
+### How the camera model was obtained
 
-```
-average_speed = 28.8 ft / (t_gate_b - t_gate_a)
-```
+Not by eyeballing road edges — that was the previous approach and it was wrong
+by a factor that made a moving car read 6.8 mph. Each piece comes from data:
 
-That two-gate result is preferred whenever available. Motion-triggered clips can
-start after a vehicle has already crossed one mailbox, though. In that case the
-tool fits the vehicle's complete image trajectory, intersects it with both gates,
-and uses the **projective cross-ratio** with the road's vanishing point to convert
-every observed position into feet along the road. A robust line fit of
-distance-versus-time then gives speed. This works even when the car never appears
-at one of the gates.
+| quantity | source | residual |
+| -------- | ------ | -------- |
+| horizon line | a person of known height standing at 8 road-surface stations in a calibration walk | 2.6 px |
+| road vanishing point | 38 real vehicle tracks across 45 clips | — |
+| cross-road direction, camera height | the only two fitted parameters, solved against four laser distances | 1.1% rms |
+| focal length | follows from the two vanishing points being orthogonal ground directions | — |
 
-The fallback reports `method: "projective_track_fit"` and fit diagnostics. Its
-current calibration is deliberately labelled `provisional`: the road vanishing
-point was fitted from visible asphalt edges and still needs validation against a
-known-speed drive or several complete two-gate tracks.
+The horizon trick is the load-bearing one. For a constant-height object standing
+on a plane, `(y_feet − y_head)` is *linear* in `(x_feet, y_feet)`, so the horizon
+falls straight out of least squares. It also yields the camera height as a
+by-product — **11.8 ft**, a sane eave height, which is a free sanity check.
 
-Two refinements make both methods hold up in practice:
+Two things that were quietly wrong before and are now enforced:
 
-### 1. The gates are parallel *on the ground*, not in the image
+- Stations on the **elevated far lawn** are excluded. They are not on the road
+  plane and including them tilted the fit (horizon residual 6.2 px → 2.6 px).
+- The **driveway edges are not used** for the cross-road direction. The driveway
+  slopes, so its edges do not lie in the road plane.
 
-Naively you would draw two vertical lines in the image. But two vertical image
-lines do **not** correspond to two parallel lines on the road — they converge or
-diverge, so the real distance between them changes depending on which lane the
-car is in. A far-lane car would be timed over a different distance than 28.8 ft.
+### Validation
 
-Instead both gates are aimed at a shared **cross-road vanishing point**
-(`cross_road_vanishing_point` in `calibration.json`). That is the point where
-lines perpendicular to the road converge in the image — obtained from the
-driveway edges, which run perpendicular to the street. Gates drawn through that
-point are genuinely parallel on the ground plane, so 28.8 ft holds in **either
-lane**.
+Four laser-tape distances, reproduced by the model:
 
-### 2. The camera drifts, so every clip is re-registered
+| measurement | laser | model | error |
+| ----------- | ----- | ----- | ----- |
+| driveway width | 16.92 ft | 16.60 ft | −1.9% |
+| left corner → manhole | 20.07 ft | 20.14 ft | +0.4% |
+| right corner → manhole | 30.57 ft | 30.46 ft | −0.4% |
+| mailbox 507 → neighbour post | 28.80 ft | 29.05 ft | +0.9% |
 
-The camera is not perfectly rigid. Comparing clips across days shows the frame
-shifting by **~110 px at 4K** (measured between the 2026-08-31 and 2026-09-05
-clips). Left uncorrected that is roughly a **5% speed error**, because the gates
-end up over different patches of real road.
+Two free parameters were fitted against these four numbers, so this is close to
+but not fully independent. Genuinely independent checks:
 
-So before detection, each clip's **static background** (median of 9 frames, which
-removes moving traffic) is feature-matched against the stored `reference.jpg`
-using ORB + RANSAC. The resulting similarity transform is applied to the gate
-coordinates. The transform is sanity-checked — scale must stay within ±10% and
-translation under 400 px — and silently falls back to identity if matching fails,
-which is reported in `analysis.alignment` so you can audit it.
+- The **24″×18″ yard sign** in the calibration walk reproduces to **−0.4% mean**.
+- The **two-gate timing cross-check** (below) agrees to **+3.2% mean, 5.7% rms**.
 
-Disable with `--no-align` if you ever need the raw fixed gates.
+### The two-gate cross-check
 
-### Accuracy
+Time of flight between the two mailbox gates is still computed, now as an
+*independent check* rather than the primary answer. It needs only two crossing
+times and the surveyed baseline — it shares the tracker with the primary method
+but none of its geometry — so agreement between them is real evidence. It
+appears as `speed_cross_check`, including `agreement_pct`.
 
-At 15 fps a car at 30 mph crosses the 28.8 ft baseline in about 10 frames.
-Crossings are interpolated to **sub-frame** precision, so the dominant error is
-tracker jitter rather than frame quantisation. Each measurement carries a
-`confidence` field derived from how many frames the object spent between gates:
+Over a 147-clip sample, the two methods agreed within ±10% on 89% of the
+vehicles that crossed both gates.
 
-| frames between gates | confidence | rough meaning          |
-| -------------------- | ---------- | ---------------------- |
-| ≥ 6                  | `high`     | ~±1 mph                |
-| 3 – 6                | `medium`   | ~±3 mph                |
-| < 3                  | `low`      | treat as indicative    |
+### Frame-edge clipping
 
-Anything moving fast enough to land in `low` is going *very* quickly past the
-house; consider that signal in itself.
+A bounding box touching the frame border is **truncated**, so its centre is no
+longer the object's centre. As a vehicle leaves frame the box stops growing and
+the derived ground point stalls — which reads as sudden braking.
+
+Measured on a real clip: a car holding ~106 px/frame dropped to ~40 px/frame the
+instant its box hit the right edge, dragging the reported speed from ~12 mph to
+**6.8 mph**. Those points are now excluded from speed (kept for metadata), and
+`speed.frames_edge_clipped_dropped` records how many were discarded. Tracks left
+with too few clean frames report `too_few_unclipped_frames` rather than a wrong
+number — about 10% of vehicle tracks.
+
+### Frame rate
+
+These Reolink files carry a bogus first presentation timestamp: frames 0 and 1
+are 25 ms apart while every other gap is 66.6 ms. That drags `CAP_PROP_FPS` to
+15.063 when the clip is really ~14.93. Speed scales linearly with frame rate, so
+the rate is now taken from the **median gap between real timestamps**, reported
+in `analysis.timing`.
+
+### The camera drifts, so every clip is re-registered
+
+The camera is not perfectly rigid; the frame shifts by ~110 px at 4K across
+days. Before detection, each clip's **static background** (median of 9 frames,
+which removes moving traffic) is feature-matched against the stored
+`reference.jpg` using ORB + RANSAC, and the camera model is composed with the
+resulting similarity transform. Sanity-checked — scale within ±10%, translation
+under 400 px — and falls back to identity if matching fails, reported in
+`analysis.alignment`.
+
+Disable with `--no-align`.
+
+### Known limitation
+
+Right-bound traffic measures **+14.6% faster** than left-bound (medians 18.0 vs
+15.7 mph over 94 on-road vehicles). The two directions occupy different lanes
+(Y ≈ 6.7 ft vs 12.9 ft), so lane and direction are confounded in the available
+data and this **cannot currently be separated** into "residual cross-road
+calibration error" versus "traffic genuinely is faster one way".
+
+Treat cross-direction comparisons with caution until resolved. See
+*Closing the direction asymmetry* below.
 
 ---
 
@@ -124,16 +153,31 @@ Each object:
   "bbox_first": [1201.4, 640.2, 1480.9, 812.0],
   "bbox_last": [3310.7, 900.1, 3720.2, 1140.6],
   "speed": {
-    "ft_per_s": 40.2,
-    "mph": 27.4,
-    "kph": 44.1,
-    "method": "two_gate_time_of_flight",
-    "distance_ft": 28.8,
-    "gate_a_time_s": 1.5333,
-    "gate_b_time_s": 2.25,
-    "delta_t_s": 0.7167,
-    "frames_between_gates": 10.75,
+    "ft_per_s": 24.2,
+    "mph": 16.5,
+    "kph": 26.5,
+    "method": "ground_plane_track_fit",
+    "distance_ft": 31.4,
+    "duration_s": 1.2998,
+    "frames_used": 20,
+    "frames_rejected": 1,
+    "frames_edge_clipped_dropped": 3,
+    "fit_rmse_ft": 0.21,
+    "fit_r_squared": 0.9971,
+    "lateral_velocity_ft_s": 0.14,
+    "lateral_rmse_ft": 0.19,
+    "calibration_quality": "measured",
     "confidence": "high"
+  },
+  "speed_cross_check": {
+    "method": "two_gate_time_of_flight",
+    "ft_per_s": 24.9,
+    "mph": 17.0,
+    "distance_ft": 29.05,
+    "delta_t_s": 1.1667,
+    "frames_between_gates": 17.4,
+    "confidence": "high",
+    "agreement_pct": 3.0
   },
   "speed_unavailable_reason": null,
   "snapshot": null
@@ -142,13 +186,19 @@ Each object:
 
 Notes for the database:
 
-- A complete gate traversal uses `two_gate_time_of_flight`; a partial traversal
-  uses `projective_track_fit`. The latter includes `fit_rmse_ft`,
-  `fit_r_squared`, rejected-frame counts, and `gate_fallback_reason`.
-- `speed` is `null` only when neither method has enough stable motion. The
-  `speed_unavailable_reason` explains why. **Filter on `speed IS NOT NULL` for
-  traffic stats**, and consider filtering provisional measurements separately
-  until the calibration has been validated.
+- `speed.method` is `ground_plane_track_fit` for essentially all measurements.
+  `two_gate_time_of_flight` appears in `speed` only in the rare case where the
+  geometry fit failed but both gate crossings were clean.
+- `speed_cross_check` is populated when the vehicle crossed both gates. Its
+  `agreement_pct` is the single most useful health metric you can aggregate —
+  if it drifts away from zero, the calibration has moved.
+- `speed.frames_edge_clipped_dropped` counts frames discarded because the box
+  touched the frame border. A large value means the vehicle was only briefly
+  fully visible; treat the measurement as weaker than its `confidence` suggests.
+- `speed` is `null` when there is not enough clean motion. The
+  `speed_unavailable_reason` explains why — most commonly `stationary` (parked
+  cars, ~38% of vehicle tracks) or `too_few_unclipped_frames` (~10%).
+  **Filter on `speed IS NOT NULL` for traffic stats.**
 - `kind` is the useful grouping column: `vehicle`, `cyclist`, `pedestrian`.
 - `label` is the raw COCO class: `car`, `truck`, `bus`, `motorcycle`, `bicycle`,
   `person`. COCO's `truck` covers pickups and box trucks; `car` covers sedans and
@@ -181,7 +231,7 @@ padding, and burns in a caption bar:
 
 ```
 red car  -  heading right
-31.4 mph (50.5 km/h) measured over 28.8 ft  [high confidence]
+16.5 mph (26.5 km/h) measured over 31.4 ft  [high confidence]
 2026-09-05T08:05:54.930000   (t+2.41s)
 ```
 
@@ -221,46 +271,62 @@ nix run .#analyze-security-camera -- clip.mp4 --calibrate -o overlay.jpg
 nix run .#analyze-security-camera -- --calibrate -o overlay.jpg
 ```
 
-Check that:
+The overlay draws a **one-foot ground grid**. Check that:
 
-1. Each green/orange gate passes through the **base of its mailbox post** (where
-   the post meets the ground — not the mailbox itself, which is several feet up
-   and would be wrong by parallax).
-2. Each gate spans the **full width of the road**, so cars in either lane cross it.
-3. The gates look like they are **perpendicular to the road** — as if painted
-   across the tarmac. If they look skewed, adjust
-   `cross_road_vanishing_point`.
+1. The grid **lies flat on the asphalt** — lines should look painted on the road,
+   not floating above or sinking into it.
+2. The green cross-road lines look **perpendicular to the road**, and the orange
+   along-road lines stay **parallel to the kerb** all the way across the frame.
+3. Each gate passes through the **base of its mailbox post** (where the post
+   meets the ground — not the mailbox itself, which is several feet up and would
+   be wrong by parallax).
 
 Key fields:
 
 | field                         | meaning                                                        |
 | ----------------------------- | -------------------------------------------------------------- |
-| `baseline_ft`                 | The 28.8 ft measurement. Override per-run with `--baseline-ft`. |
-| `cross_road_vanishing_point`  | Where road-perpendicular lines converge. Controls gate skew.    |
-| `road_vanishing_point`        | Where trajectories along the street converge; used by the partial-track fallback. |
-| `ground_plane`                | Recorded survey measurements. Disabled until the far-edge pixel is marked precisely. |
-| `gates.a` / `gates.b`         | The gate segments. `a` is the 507 mailbox, `b` the neighbour's. |
-| `landmarks`                   | Mailbox post bases, drawn on the overlay for reference.         |
+| `camera_model.H_image_to_ground` | The homography. Everything else in that block documents how it was derived. |
+| `camera_model.validation`     | Laser distances vs model. Regenerate if you retune anything.    |
+| `camera_model.horizon`        | Fitted from the calibration walk. Both vanishing points must lie on it. |
+| `road_vanishing_point`        | From 38 vehicle tracks. Sets the along-road direction.          |
+| `cross_road_vanishing_point`  | Fitted. Sets lateral scale — the suspect for lane-dependent bias. |
+| `baseline_ft`                 | 29.05 ft, gate to gate. Cross-check only. Override with `--baseline-ft`. |
+| `survey`                      | Laser measurements kept for validation. **Not** used to build the model. |
+| `gates.a` / `gates.b`         | Gate segments, regenerated from the model as true cross-road lines. |
 | `road_polygon`                | Drives the `on_road` flag.                                      |
-| `detection.min_track_frames`  | Drop tracks shorter than this (noise suppression).              |
 | `detection.stationary_px`     | Movement below this counts as parked.                           |
 
-### Sanity-checking the speeds
+### Closing the direction asymmetry
 
-The honest way to validate: drive past at a known speedometer reading and check
-what the tool reports. Failing that, watch for a **systematic difference between
-the two directions** — if left-bound and right-bound traffic show consistently
-different average speeds, the gates are not truly parallel on the ground and
-`cross_road_vanishing_point` needs adjusting. That asymmetry is the most
-sensitive tell available without a ground-truth run.
+The one known defect is the **+14.6% right-bound vs left-bound** difference. To
+resolve it, in rough order of cost:
 
-The current projective fallback is **not evidence-grade yet**. Its output says
-`calibration_quality: "provisional_from_visible_road_edges"` and
-`confidence: "provisional"`. A known-speed pass, or fitting the road vanishing
-point from multiple full vehicle tracks, is required before changing that label
-to `measured`. The recorded survey measurements are retained in
-`ground_plane`, but its homography is disabled until a marker photo identifies
-the exact far-road-edge pixel.
+1. **Re-pick the survey pixels.** Two are demonstrably off: `street_manhole_center`
+   sits on the right *edge* of the manhole rather than its centre, and
+   `driveway_left_asphalt_corner` sits slightly into the grass. Both feed the
+   validation residuals and one of them feeds the fitted parameters.
+2. **Tune `cross_road_vanishing_point` against symmetry.** Dump tracks with
+   `--include-track` over a few hundred clips, then scan the cross-road vanishing
+   point for the value that minimises the left/right median difference *while*
+   keeping the laser residuals near 1%. If a single value does both, the
+   asymmetry was calibration; if nothing does, it is real traffic.
+3. **A known-speed pass.** Drive past at a held speedometer reading, in *both*
+   directions, and record the clip names. This is the only thing that settles it
+   outright, and it would also let `camera_model.quality` be asserted rather than
+   argued.
+
+### A note on what was wrong before
+
+The previous calibration was not merely imprecise. Its two vanishing points did
+not lie on a common horizon (they were 171 px and 320 px off), which implied a
+**135° lens** on a camera that is actually ~68°. The `ground_plane` homography it
+shipped was built from four near-collinear control points and came out
+**sign-flipped** — it placed the two mailboxes 26.6 ft apart *in the wrong order*.
+It was disabled, correctly, and the cross-ratio fallback that ran instead
+under-read a real car by roughly a factor of two.
+
+If you ever see the mailbox separation come back negative from
+`camera_model.H_image_to_ground`, that failure mode has returned.
 
 ---
 
@@ -277,7 +343,7 @@ analyze-security-camera [VIDEO] [options]
       --imgsz INT          Inference resolution (default 1280)
       --device STR         'cpu' or a CUDA index (default: auto-detect)
       --model PATH         Override the pinned YOLO weights
-      --baseline-ft FLOAT  Override the 28.8 ft gate separation
+      --baseline-ft FLOAT  Override the 29.05 ft gate separation (cross-check only)
 
       --no-align           Skip camera-drift compensation
       --calibrate          Render the gate overlay and exit

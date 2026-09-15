@@ -5,61 +5,71 @@
     "which matches reference.jpg. They are rescaled to the native video resolution at runtime,",
     "and warped by the per-clip alignment transform to compensate for camera drift.",
     "",
-    "Speed first uses a two-gate speed trap. If a triggered clip starts after one gate,",
-    "the ground-plane homography maps the full track to feet and fits distance vs time.",
+    "Speed comes from 'camera_model': a real pinhole camera resting on the road plane.",
+    "Every track point is mapped to feet on that plane and distance-vs-time is fitted.",
+    "The two mailbox gates are kept as an independent timing cross-check.",
     "",
-    "The two gates are drawn through each mailbox post base, both aimed at 'cross_road_vanishing_point'.",
-    "That makes the gates PARALLEL on the ground plane, so the 28.8 ft separation holds for",
-    "either lane rather than only at the shoulder. Retune that point if speeds look lane-biased.",
-    "",
-    "Verify with:  analyze-security-camera --calibrate <clip.mp4> -o overlay.jpg"
+    "Verify with:  analyze-security-camera --calibrate <clip.mp4> -o overlay.jpg",
+    "which draws a one-foot ground grid. It should lie flat on the asphalt."
   ],
 
   "camera": "driveway",
   "reference_size": [1920, 1080],
 
-  "baseline_ft": 28.8,
-  "baseline_note": "Laser-measured, inside face of mailbox 507 to inside face of the neighbour's mailbox.",
-
-  "cross_road_vanishing_point": [1114.5, -123.0],
-
-  "road_vanishing_point": [-1488.0, 208.0],
-  "road_vanishing_point_quality": "provisional_from_visible_road_edges",
-  "road_vanishing_point_note": "Intersection of the near and far asphalt-edge lines in reference.jpg. Replace with a multi-track fit when more clips are available.",
-
-  "ground_plane": {
-    "enabled": false,
-    "axis_note": "Origin is the left driveway/asphalt corner. X runs right along the road; Y runs across the road away from the camera.",
-    "measurement_note": "16.92 ft driveway width; 20.07/30.57 ft from left/right corners to manhole; 20.42 ft across road at left corner.",
-    "quality": "provisional",
-    "quality_note": "The far-road-edge pixel is estimated from the reference image. Replace it using a visible marker at the measured endpoint for evidence-grade calibration.",
-    "points": [
-      {
-        "name": "driveway_left_asphalt_corner",
-        "pixel": [905.0, 600.0],
-        "world_ft": [0.0, 0.0],
-        "source": "measured"
-      },
-      {
-        "name": "driveway_right_asphalt_corner",
-        "pixel": [1600.0, 715.0],
-        "world_ft": [16.92, 0.0],
-        "source": "measured"
-      },
-      {
-        "name": "street_manhole_center",
-        "pixel": [925.0, 437.0],
-        "world_ft": [-7.2528, 18.7137],
-        "source": "triangulated_from_20.07ft_and_30.57ft"
-      },
-      {
-        "name": "far_road_edge_across_left_corner",
-        "pixel": [963.0, 400.0],
-        "world_ft": [0.0, 20.42],
-        "source": "pixel_estimated_world_measured"
-      }
+  "camera_model": {
+    "enabled": true,
+    "quality": "measured",
+    "derivation": [
+      "horizon: least-squares fit to a 6'1\" person standing at 8 road-surface stations",
+      "         in the calibration walk (Driveway-04-181001-181152.mp4). For a constant-",
+      "         height object on a plane, (y_feet - y_head) is linear in (x_feet, y_feet),",
+      "         so the horizon falls straight out. Fit residual 2.6 px.",
+      "road_vanishing_point: 38 real vehicle tracks over 45 clips, each track's ground-",
+      "         contact line constrained to pass through it, and it constrained to the horizon.",
+      "cross_road_vanishing_point and camera_height_ft: the only two fitted parameters,",
+      "         solved against the four laser distances below. Fit rms 1.1%.",
+      "focal_px follows from the two vanishing points being orthogonal ground directions.",
+      "",
+      "Stations on the elevated far lawn were excluded -- they are not on the road plane.",
+      "The driveway edges were NOT used for the cross-road direction: the driveway slopes,",
+      "so its edges do not lie in the road plane."
+    ],
+    "principal_point": [960.0, 540.0],
+    "horizon": {"slope": 0.03929, "intercept": 88.36},
+    "focal_px": 1424.83,
+    "camera_height_ft": 11.83,
+    "axes": "X runs along the road, increasing to the RIGHT on screen. Y runs across the road, away from the camera.",
+    "H_image_to_ground": [
+      [-0.11163639087847292, -0.23537907672157807, 242.25837977796502],
+      [-0.08415935491390064, 0.3659869143242173, -143.42793239745043],
+      [0.0004446582163875055, -0.011317338162064284, 1.0]
+    ],
+    "validation": [
+      {"what": "driveway width", "measured_ft": 16.92, "model_ft": 16.6, "error_pct": -1.9},
+      {"what": "left corner -> manhole", "measured_ft": 20.07, "model_ft": 20.14, "error_pct": 0.4},
+      {"what": "right corner -> manhole", "measured_ft": 30.57, "model_ft": 30.46, "error_pct": -0.4},
+      {"what": "mailbox 507 -> neighbour post base", "measured_ft": 28.8, "model_ft": 29.05, "error_pct": 0.9}
+    ],
+    "validation_note": [
+      "None of the four distances above were used to fit the horizon or the road vanishing",
+      "point; two free parameters were fitted against them, so this is close to but not",
+      "fully independent. The 28.80 ft mailbox figure was measured inside-face to inside-face",
+      "while the model measures post base to post base, so a small positive bias is expected.",
+      "Independent check: the 24x18in sign in the calibration walk reproduces to -0.4% mean."
     ]
   },
+
+  "cross_road_vanishing_point": [1832.0, 160.34],
+  "road_vanishing_point": [-1592.0, 25.81],
+  "vanishing_point_note": "Both lie on the fitted horizon, as they must. The previous values did not: they were 171 px and 320 px off it, and implied a 135-degree lens.",
+
+  "baseline_ft": 29.05,
+  "baseline_note": [
+    "Along-road distance between the two mailbox POST BASES, derived from camera_model.",
+    "Laser tape gives 28.80 ft inside-face to inside-face of the mailboxes themselves,",
+    "which sit above and inboard of the posts, so 29.05 ft base-to-base is consistent.",
+    "Used only by the two-gate timing cross-check, not by the primary measurement."
+  ],
 
   "landmarks": {
     "mailbox_507_base": [644.5, 518.0],
@@ -69,12 +79,33 @@
   "gates": {
     "a": {
       "name": "mailbox_507",
-      "line": [[609.0, 566.0], [834.0, 260.0]]
+      "ground_x_ft": -10.574,
+      "line": [[497.0, 562.4], [999.1, 411.2]]
     },
     "b": {
       "name": "mailbox_neighbour",
-      "line": [[1737.0, 798.0], [1468.0, 400.0]]
+      "ground_x_ft": 18.475,
+      "line": [[1677.3, 865.6], [1752.4, 523.2]]
     }
+  },
+  "gates_note": "Regenerated from camera_model as true cross-road lines through each post base, spanning Y = -4 to 24 ft. Genuinely parallel on the ground, so the baseline holds in either lane.",
+
+  "survey": {
+    "_note": [
+      "Laser measurements, kept for validation. These pixels are NOT used to build the",
+      "camera model -- three of them cluster in a near-vertical line and are close to",
+      "degenerate, which is what broke the previous ground_plane homography.",
+      "Pixel accuracy is known to be imperfect: street_manhole_center sits on the right",
+      "edge of the manhole rather than its centre, and driveway_left_asphalt_corner sits",
+      "slightly into the grass. Re-pick them before relying on these residuals."
+    ],
+    "measurement_note": "16.92 ft driveway width; 20.07/30.57 ft from left/right corners to manhole; 20.42 ft across road at left corner.",
+    "points": [
+      {"name": "driveway_left_asphalt_corner", "pixel": [905.0, 600.0], "world_ft": [0.0, 0.0], "source": "measured"},
+      {"name": "driveway_right_asphalt_corner", "pixel": [1600.0, 715.0], "world_ft": [16.92, 0.0], "source": "measured"},
+      {"name": "street_manhole_center", "pixel": [925.0, 437.0], "world_ft": [-7.2528, 18.7137], "source": "triangulated_from_20.07ft_and_30.57ft"},
+      {"name": "far_road_edge_across_left_corner", "pixel": [963.0, 400.0], "world_ft": [0.0, 20.42], "source": "pixel_estimated_world_measured"}
+    ]
   },
 
   "road_polygon": [

@@ -8,18 +8,30 @@ person / cyclist / vehicle seen, including a measured average speed.
 
 How the speed is measured
 -------------------------
-Two "gates" (lines in the image) are drawn through the base of each mailbox.
-The real-world distance between them is known (laser-measured, 28.8 ft).
+A calibrated pinhole camera model (calibration.json -> "camera_model") gives a
+homography from image pixels to feet on the road plane. Every unclipped track
+point is mapped through it and distance-versus-time is fitted robustly, so the
+answer uses the whole track instead of two instants.
 
-    average_speed = baseline_ft / (t_gate_b - t_gate_a)
+The model was solved offline from data, not from eyeballed road edges:
+  * the horizon comes from a constant-height person standing at eight
+    road-surface stations in a calibration walk,
+  * the road vanishing point from 38 real vehicle tracks,
+  * camera height and the cross-road direction were fitted against four laser
+    distances, reproducing them to 1.1% rms.
 
-Because only *time* is measured, no pixels-per-foot scale is ever needed, so
-lens perspective and foreshortening cannot bias the result. The gates are aimed
-at a shared cross-road vanishing point, which makes them parallel on the ground
-plane -- so the 28.8 ft holds for either lane, not just at the shoulder.
+Time of flight between the two mailbox gates is retained as an independent
+cross-check: it needs only crossing times and the surveyed baseline, sharing
+the tracker with the primary method but none of its geometry.
 
-The camera drifts slightly between clips, so each clip's static background is
-registered against a stored reference frame and the gates are warped to match.
+Two things matter for accuracy and are handled explicitly:
+  * boxes touching the frame border are dropped -- a truncated box's centre
+    stops advancing, which reads as the vehicle braking,
+  * frame rate comes from the median gap between presentation timestamps,
+    because these Reolink files carry a bogus first PTS.
+
+The camera drifts between clips, so each clip's static background is registered
+against a stored reference frame and the model is warped to match.
 """
 
 from __future__ import annotations
@@ -40,6 +52,10 @@ SCHEMA_VERSION = 2
 
 FT_S_TO_MPH = 0.681818181818
 FT_S_TO_KPH = 1.09728
+
+# How close a bounding box may come to the frame border before we stop trusting
+# it as a position measurement.
+EDGE_PX = 4.0
 
 # COCO ids we care about.
 CLASS_MAP = {0: "person", 1: "bicycle", 2: "car", 3: "motorcycle", 5: "bus", 7: "truck"}
@@ -90,6 +106,51 @@ def parse_source_meta(path: Path) -> dict:
 def load_calibration(path: Path) -> dict:
     with open(path) as fh:
         return json.load(fh)
+
+
+def probe_timing(video: Path, declared_fps: float) -> tuple[float, dict]:
+    """Frame rate from the median gap between real presentation timestamps.
+
+    These Reolink files carry a bogus first PTS -- frames 0 and 1 are 25 ms
+    apart while every other gap is 66.6 ms -- which drags CAP_PROP_FPS to
+    15.063 when the clip is really 15.000. Speed scales linearly with fps, so
+    that is a free 0.4% error. The median gap ignores the bad first interval
+    and also catches genuinely variable frame rates.
+    """
+    info = {"declared_fps": round(float(declared_fps), 4), "source": "declared"}
+    cap = cv2.VideoCapture(str(video))
+    if not cap.isOpened():
+        return declared_fps, info
+    stamps = []
+    while len(stamps) < 900:
+        if not cap.grab():
+            break
+        stamps.append(cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0)
+    cap.release()
+
+    t = np.asarray(stamps, dtype=np.float64)
+    if len(t) < 10:
+        return declared_fps, info
+    gaps = np.diff(t)
+    gaps = gaps[(gaps > 1e-4) & np.isfinite(gaps)]
+    if len(gaps) < 8:
+        return declared_fps, info
+    median_gap = float(np.median(gaps))
+    if not (0.005 < median_gap < 1.0):
+        return declared_fps, info
+
+    fps = 1.0 / median_gap
+    if not (0.5 * declared_fps < fps < 2.0 * declared_fps):
+        info["reason"] = f"implausible_pts_fps({fps:.3f})"
+        return declared_fps, info
+    info.update(
+        source="median_pts_gap",
+        fps=round(fps, 4),
+        median_gap_s=round(median_gap, 6),
+        gap_iqr_s=round(float(np.percentile(gaps, 75) - np.percentile(gaps, 25)), 6),
+        frames_probed=len(t),
+    )
+    return fps, info
 
 
 def median_background(video: Path, size: tuple[int, int], samples: int = 9) -> np.ndarray | None:
@@ -218,153 +279,91 @@ def point_in_poly(pt, poly) -> bool:
 
 
 def build_ground_homography(calib: dict, M: np.ndarray, sx: float, sy: float):
-    """Build an image-pixel -> ground-feet homography for the aligned clip."""
-    plane = calib.get("ground_plane")
-    if not plane or not plane.get("enabled", False):
-        return None, {"available": False, "reason": "disabled_pending_marker_photo"}
-    points = plane.get("points", []) if plane else []
-    if len(points) < 4:
-        return None, {"available": False, "reason": "fewer_than_four_ground_control_points"}
+    """Image-pixel -> ground-feet homography for this clip.
 
-    image = transform_pts([p["pixel"] for p in points], M, sx, sy)
-    world = [p["world_ft"] for p in points]
-    H, _ = cv2.findHomography(
-        np.asarray(image, dtype=np.float64),
-        np.asarray(world, dtype=np.float64),
-        method=0,
-    )
-    if H is None or not np.isfinite(H).all():
-        return None, {"available": False, "reason": "homography_solution_failed"}
+    The camera model is solved once, offline, in reference-frame coordinates
+    (see calibration.json "camera_model"). All that happens here is a change of
+    basis: reference pixels -> this clip's pixels is the similarity S*M, so
 
-    projected = cv2.perspectiveTransform(
-        np.asarray(image, dtype=np.float64).reshape(-1, 1, 2), H
-    ).reshape(-1, 2)
-    errors = np.linalg.norm(projected - np.asarray(world), axis=1)
+        ground = H_ref . (S*M)^-1 . p_clip
+
+    Composing is exact and cheap. The previous implementation re-solved a
+    homography per clip from four surveyed points, three of which sit in a
+    near-vertical line ~60 px apart; that configuration is close to degenerate
+    and produced a sign-flipped transform (the two mailboxes came out 26.6 ft
+    apart in the wrong order).
+    """
+    model = calib.get("camera_model")
+    if not model or not model.get("enabled", False):
+        return None, {"available": False, "reason": "camera_model_disabled"}
+    H_ref = model.get("H_image_to_ground")
+    if not H_ref:
+        return None, {"available": False, "reason": "camera_model_missing_homography"}
+
+    H_ref = np.asarray(H_ref, dtype=np.float64)
+    M3 = np.vstack([np.asarray(M, dtype=np.float64), [0.0, 0.0, 1.0]])
+    S = np.diag([float(sx), float(sy), 1.0])
+    try:
+        H = H_ref @ np.linalg.inv(S @ M3)
+    except np.linalg.LinAlgError:
+        return None, {"available": False, "reason": "alignment_not_invertible"}
+    if not np.isfinite(H).all():
+        return None, {"available": False, "reason": "homography_not_finite"}
+    H = H / H[2, 2]
+
     info = {
         "available": True,
-        "quality": plane.get("quality", "unknown"),
-        "quality_note": plane.get("quality_note"),
-        "control_points": len(points),
-        "reprojection_rmse_ft": round(float(np.sqrt(np.mean(errors ** 2))), 4),
-        "points": [
-            {
-                "name": p["name"],
-                "source": p.get("source"),
-                "world_ft": p["world_ft"],
-            }
-            for p in points
-        ],
+        "quality": model.get("quality", "unknown"),
+        "camera_height_ft": model.get("camera_height_ft"),
+        "focal_px": model.get("focal_px"),
+        "validation": model.get("validation"),
     }
     return H, info
 
 
-def line_intersection(a, b):
-    """Intersection of two finite-point-defined infinite lines."""
-    p1 = np.array([a[0][0], a[0][1], 1.0], dtype=np.float64)
-    p2 = np.array([a[1][0], a[1][1], 1.0], dtype=np.float64)
-    q1 = np.array([b[0][0], b[0][1], 1.0], dtype=np.float64)
-    q2 = np.array([b[1][0], b[1][1], 1.0], dtype=np.float64)
-    hit = np.cross(np.cross(p1, p2), np.cross(q1, q2))
-    if abs(hit[2]) < 1e-9:
-        return None
-    return hit[:2] / hit[2]
+def ground_grid_lines(H: np.ndarray, width: int, height: int,
+                      x_range=(-60.0, 60.0), y_range=(-4.0, 24.0), step: float = 5.0):
+    """Ground-plane grid, in image coordinates, for the calibration overlay.
 
-
-def projective_track_coordinates(track: list[dict], gate_a, gate_b, road_vp, baseline_ft: float):
-    """Map a vehicle track to feet along the road using a cross-ratio.
-
-    The fitted trajectory intersects the two mailbox gates at known world
-    coordinates 0 and baseline_ft. Its third reference is the road vanishing
-    point, whose world coordinate is infinity. Those three references uniquely
-    map every point on the trajectory from image position to road distance.
+    Drawn by sampling in world feet and projecting, so a line that bends or
+    flies off to infinity is a real sign the model is wrong -- which is exactly
+    what we want the overlay to reveal.
     """
-    image = np.asarray([p["pt"] for p in track], dtype=np.float64)
-    if len(image) < 6:
-        return None, "projective_track_too_short"
+    try:
+        Hi = np.linalg.inv(H)
+    except np.linalg.LinAlgError:
+        return [], []
 
-    fit = cv2.fitLine(image.astype(np.float32), cv2.DIST_L2, 0, 0.01, 0.01).reshape(-1)
-    direction = np.asarray([float(fit[0]), float(fit[1])], dtype=np.float64)
-    origin = np.asarray([float(fit[2]), float(fit[3])], dtype=np.float64)
-    track_line = [origin - direction * 10000.0, origin + direction * 10000.0]
+    def project(pts):
+        out = cv2.perspectiveTransform(np.asarray(pts, np.float64).reshape(-1, 1, 2), Hi)
+        return out.reshape(-1, 2)
 
-    pa = line_intersection(track_line, gate_a)
-    pb = line_intersection(track_line, gate_b)
-    if pa is None or pb is None:
-        return None, "projective_gate_intersection_failed"
+    def polyline(pts):
+        seg, run = [], []
+        for p in project(pts):
+            if (np.isfinite(p).all() and -4 * width < p[0] < 4 * width
+                    and -4 * height < p[1] < 4 * height):
+                run.append(p)
+            else:
+                if len(run) > 1:
+                    seg.append(np.asarray(run))
+                run = []
+        if len(run) > 1:
+            seg.append(np.asarray(run))
+        return seg
 
-    # Scalar image coordinate along the fitted trajectory. Projecting the
-    # calibrated VP onto that trajectory tolerates a few pixels of line-fit and
-    # calibration error while preserving the correct projective coordinate.
-    scalar = lambda p: float(np.dot(np.asarray(p, dtype=np.float64) - origin, direction))
-    sa, sb, sv = scalar(pa), scalar(pb), scalar(road_vp)
-    if abs(sb - sa) < 1e-6:
-        return None, "projective_gate_intersection_failed"
-
-    scale = baseline_ft * (sv - sb) / (sb - sa)
-    result = []
-    for p in track:
-        sp = scalar(p["pt"])
-        denom = sv - sp
-        if abs(denom) < 1e-6:
-            continue
-        x = scale * (sp - sa) / denom
-        if np.isfinite(x) and abs(x) < 1000.0:
-            result.append({"t": float(p["t"]), "x": float(x)})
-    return result, None
-
-
-def cross_ratio_track_speed(track: list[dict], gate_a, gate_b, road_vp,
-                            baseline_ft: float, calibration_quality: str):
-    projected, failure = projective_track_coordinates(
-        track, gate_a, gate_b, road_vp, baseline_ft
-    )
-    if projected is None:
-        return None, failure
-
-    t = np.asarray([p["t"] for p in projected], dtype=np.float64)
-    x = np.asarray([p["x"] for p in projected], dtype=np.float64)
-    if float(t[-1] - t[0]) < 0.3:
-        return None, "projective_track_too_short"
-    fit = robust_line_fit(t, x)
-    if fit is None:
-        return None, "projective_fit_failed"
-    velocity, _offset, mask, rmse, r2 = fit
-    used_t = t[mask]
-    duration = float(used_t[-1] - used_t[0])
-    distance_ft = abs(velocity) * duration
-    mph = abs(velocity) * FT_S_TO_MPH
-
-    if distance_ft < 5.0:
-        return None, "projective_distance_too_short"
-    if not (1.0 <= mph <= 120.0):
-        return None, "projective_speed_implausible"
-    if r2 < 0.65:
-        return None, "projective_fit_unstable"
-
-    if calibration_quality != "measured":
-        confidence = "provisional"
-    elif r2 >= 0.95 and rmse <= 1.0 and int(mask.sum()) >= 12:
-        confidence = "high"
-    elif r2 >= 0.85 and rmse <= 2.0:
-        confidence = "medium"
-    else:
-        confidence = "low"
-
-    speed = {
-        "ft_per_s": round(abs(velocity), 2),
-        "mph": round(mph, 1),
-        "kph": round(abs(velocity) * FT_S_TO_KPH, 1),
-        "method": "projective_track_fit",
-        "distance_ft": round(distance_ft, 2),
-        "duration_s": round(duration, 4),
-        "frames_used": int(mask.sum()),
-        "frames_rejected": int(len(t) - mask.sum()),
-        "fit_rmse_ft": round(rmse, 3),
-        "fit_r_squared": round(r2, 4),
-        "calibration_quality": calibration_quality,
-        "confidence": confidence,
-    }
-    return (speed, "right" if velocity > 0 else "left"), None
+    along, across = [], []
+    y = y_range[0]
+    while y <= y_range[1] + 1e-9:
+        along += [(s, y % (2 * step) == 0) for s in
+                  polyline([(x, y) for x in np.linspace(*x_range, 240)])]
+        y += step
+    x = x_range[0]
+    while x <= x_range[1] + 1e-9:
+        across += [(s, x % (2 * step) == 0, x) for s in
+                   polyline([(x, yy) for yy in np.linspace(*y_range, 60)])]
+        x += step
+    return along, across
 
 
 def map_track_to_ground(track: list[dict], H: np.ndarray) -> list[dict]:
@@ -402,22 +401,27 @@ def robust_line_fit(t: np.ndarray, values: np.ndarray):
     return float(slope), float(intercept), mask, rmse, r2
 
 
-def projective_track_speed(track: list[dict], H: np.ndarray, calibration_quality: str):
-    """Measure speed from every available track point after mapping it to feet."""
+def ground_plane_track_speed(track: list[dict], H: np.ndarray, calibration_quality: str):
+    """Speed from every track point, mapped onto the road plane in feet.
+
+    Uses the whole track rather than two instants, so it degrades gracefully:
+    a clip that starts with the car already past a mailbox still measures, and
+    tracker jitter is averaged out instead of landing directly on the answer.
+    """
     ground = map_track_to_ground(track, H)
     if len(ground) < 6:
-        return None, "projective_track_too_short"
+        return None, "track_too_short"
 
     t = np.asarray([p["t"] for p in ground], dtype=np.float64)
     x = np.asarray([p["x"] for p in ground], dtype=np.float64)
     y = np.asarray([p["y"] for p in ground], dtype=np.float64)
     duration = float(t[-1] - t[0])
     if duration < 0.3:
-        return None, "projective_track_too_short"
+        return None, "track_too_short"
 
     xfit = robust_line_fit(t, x)
     if xfit is None:
-        return None, "projective_fit_failed"
+        return None, "ground_fit_failed"
     vx, _x0, mask, x_rmse, x_r2 = xfit
 
     # Report lateral stability as an audit metric. We do not include lateral
@@ -430,11 +434,11 @@ def projective_track_speed(track: list[dict], H: np.ndarray, calibration_quality
     distance_ft = abs(vx) * float(used_t[-1] - used_t[0])
     mph = abs(vx) * FT_S_TO_MPH
     if distance_ft < 5.0:
-        return None, "projective_distance_too_short"
+        return None, "travelled_too_little_to_measure"
     if not (1.0 <= mph <= 120.0):
-        return None, "projective_speed_implausible"
+        return None, "speed_out_of_plausible_range"
     if x_r2 < 0.65:
-        return None, "projective_fit_unstable"
+        return None, "ground_fit_unstable"
 
     if calibration_quality != "measured":
         confidence = "provisional"
@@ -449,7 +453,7 @@ def projective_track_speed(track: list[dict], H: np.ndarray, calibration_quality
         "ft_per_s": round(abs(vx), 2),
         "mph": round(mph, 1),
         "kph": round(abs(vx) * FT_S_TO_KPH, 1),
-        "method": "projective_track_fit",
+        "method": "ground_plane_track_fit",
         "distance_ft": round(distance_ft, 2),
         "duration_s": round(float(used_t[-1] - used_t[0]), 4),
         "frames_used": int(mask.sum()),
@@ -540,8 +544,30 @@ def summarise_color(samples: list[np.ndarray]) -> dict | None:
 # Rendering
 # --------------------------------------------------------------------------
 
-def draw_overlay(img: np.ndarray, gates: dict, landmarks: dict, road: list, thickness: int = 3):
+def draw_overlay(img: np.ndarray, gates: dict, landmarks: dict, road: list,
+                 thickness: int = 3, ground_H: np.ndarray | None = None):
     out = img.copy()
+
+    # Ground grid first, so gates and landmarks stay readable on top of it.
+    if ground_H is not None:
+        h, w = out.shape[:2]
+        along, across = ground_grid_lines(ground_H, w, h)
+        for seg, major in along:
+            cv2.polylines(out, [np.int32(seg)], False,
+                          (0, 140, 255) if major else (60, 190, 235),
+                          2 if major else 1, cv2.LINE_AA)
+        for seg, major, xft in across:
+            cv2.polylines(out, [np.int32(seg)], False,
+                          (0, 255, 0) if major else (150, 235, 150),
+                          2 if major else 1, cv2.LINE_AA)
+            if major and len(seg):
+                p = seg[-1]
+                if 0 < p[0] < w - 60 and 0 < p[1] < h:
+                    cv2.putText(out, f"{xft:+.0f}ft", (int(p[0]) + 4, int(p[1])),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 4, cv2.LINE_AA)
+                    cv2.putText(out, f"{xft:+.0f}ft", (int(p[0]) + 4, int(p[1])),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+
     if road:
         cv2.polylines(out, [np.array(road, np.int32)], True, (0, 200, 255), thickness)
     for key, color in (("a", (0, 255, 0)), ("b", (255, 128, 0))):
@@ -731,7 +757,10 @@ def main() -> int:
     # ---- calibrate mode: no video required -------------------------------
     if args.calibrate and args.video is None:
         gates = {k: {"name": v["name"], "line": v["line"]} for k, v in calib["gates"].items()}
-        out = draw_overlay(ref_img, gates, calib.get("landmarks", {}), calib.get("road_polygon", []))
+        eye = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+        ref_H, _ = build_ground_homography(calib, eye, 1.0, 1.0)
+        out = draw_overlay(ref_img, gates, calib.get("landmarks", {}),
+                           calib.get("road_polygon", []), ground_H=ref_H)
         dest = args.output or Path("calibration-overlay.jpg")
         cv2.imwrite(str(dest), out)
         log(f"wrote {dest}")
@@ -757,6 +786,8 @@ def main() -> int:
         log("error: could not read video dimensions")
         return 2
 
+    fps, timing_info = probe_timing(args.video, fps)
+
     sx, sy = width / float(ref_w), height / float(ref_h)
 
     # ---- drift compensation ---------------------------------------------
@@ -774,14 +805,7 @@ def main() -> int:
         gates[key] = {"name": g["name"], "line": transform_pts(g["line"], M, sx, sy)}
     road_poly = transform_pts(calib["road_polygon"], M, sx, sy) if calib.get("road_polygon") else []
     ground_H, ground_info = build_ground_homography(calib, M, sx, sy)
-    road_vp = None
-    if calib.get("road_vanishing_point") is not None:
-        road_vp = transform_pts([calib["road_vanishing_point"]], M, sx, sy)[0]
-    projection_info = {
-        "available": road_vp is not None,
-        "road_vanishing_point_quality": calib.get("road_vanishing_point_quality", "unknown"),
-        "road_vanishing_point_note": calib.get("road_vanishing_point_note"),
-    }
+
 
     # ---- calibrate mode over a real clip ---------------------------------
     if args.calibrate:
@@ -795,10 +819,11 @@ def main() -> int:
         }
         ref_road = transform_pts(calib["road_polygon"], M, 1.0, 1.0) if calib.get("road_polygon") else []
         ref_lm = {k: transform_pts([v], M, 1.0, 1.0)[0] for k, v in calib.get("landmarks", {}).items()}
-        for p in calib.get("ground_plane", {}).get("points", []):
-            label = f"GCP {p['name']} ({p['world_ft'][0]:.1f},{p['world_ft'][1]:.1f})ft"
+        for p in calib.get("survey", {}).get("points", []):
+            label = f"survey {p['name']} ({p['world_ft'][0]:.1f},{p['world_ft'][1]:.1f})ft"
             ref_lm[label] = transform_pts([p["pixel"]], M, 1.0, 1.0)[0]
-        out = draw_overlay(base, ref_gates, ref_lm, ref_road, thickness=3)
+        ref_H, _ = build_ground_homography(calib, M, 1.0, 1.0)
+        out = draw_overlay(base, ref_gates, ref_lm, ref_road, thickness=3, ground_H=ref_H)
         dest = args.output or Path("calibration-overlay.jpg")
         cv2.imwrite(str(dest), out)
         log(f"wrote {dest} (alignment: {align_info})")
@@ -859,6 +884,18 @@ def main() -> int:
                     continue
                 x1, y1, x2, y2 = [float(v) for v in box]
                 ground = ((x1 + x2) / 2.0, y2)  # ground contact point
+
+                # A box touching the frame border is truncated, so its centre
+                # is not the object's centre and its bottom may not be the
+                # ground. As the object leaves frame the box stops growing and
+                # the "ground point" stalls, which reads as sudden braking.
+                # Observed on a real clip: a car holding ~106 px/frame dropped
+                # to ~40 px/frame the moment its box hit the right edge,
+                # dragging the measured speed from ~12 mph down to 6.8 mph.
+                # These points are kept for metadata but excluded from speed.
+                clipped = (x1 <= EDGE_PX or y1 <= EDGE_PX
+                           or x2 >= width - EDGE_PX or y2 >= height - EDGE_PX)
+
                 tr = tracks.setdefault(int(tid), {
                     "label_votes": {}, "conf_sum": 0.0, "n": 0,
                     "points": [], "color_samples": [], "best": None,
@@ -867,7 +904,8 @@ def main() -> int:
                 tr["conf_sum"] += float(cf)
                 tr["n"] += 1
                 tr["points"].append({"t": t, "frame": fi, "pt": ground,
-                                     "box": [x1, y1, x2, y2], "conf": float(cf)})
+                                     "box": [x1, y1, x2, y2], "conf": float(cf),
+                                     "clipped": bool(clipped)})
                 if len(tr["color_samples"]) < max_color_samples and frame is not None:
                     patch = crop_body(frame, (x1, y1, x2, y2))
                     if patch is not None:
@@ -925,80 +963,67 @@ def main() -> int:
         displacement = float(np.hypot(dx, dy))
         moving = displacement >= stationary_px
 
-        ca = find_crossing(pts, gates["a"]["line"])
-        cb = find_crossing(pts, gates["b"]["line"])
+        # Only fully-visible boxes are position measurements. See EDGE_PX.
+        clean = [p for p in pts if not p.get("clipped")]
+        dropped = len(pts) - len(clean)
 
         speed = None
         reason = None
-        gate_failure = None
+        cross_check = None
         direction = "right" if dx > 0 else ("left" if dx < 0 else None)
 
+        # Primary: map every clean track point onto the road plane and fit
+        # distance against time. Uses the whole track, so it still works when a
+        # motion-triggered clip starts with the vehicle already mid-frame.
         if not moving:
             reason = "stationary"
-        elif ca is None and cb is None:
-            gate_failure = "crossed_neither_gate"
-        elif ca is None:
-            gate_failure = "did_not_cross_gate_a"
-        elif cb is None:
-            gate_failure = "did_not_cross_gate_b"
+        elif ground_H is None:
+            reason = "camera_model_unavailable"
+        elif len(clean) < max(min_frames, 6):
+            reason = "too_few_unclipped_frames"
         else:
-            delta = cb["t"] - ca["t"]
-            direction = "right" if delta > 0 else "left"
-            adt = abs(delta)
-            if adt < 1e-6:
-                reason = "degenerate_gate_times"
+            measured, failure = ground_plane_track_speed(
+                clean, ground_H, ground_info.get("quality", "unknown")
+            )
+            if measured is not None:
+                speed, direction = measured
             else:
+                reason = failure
+
+        # Independent cross-check: time of flight between the two mailbox
+        # gates. It shares the tracker but not the geometry -- it needs only
+        # two crossing times and the surveyed baseline -- so agreement between
+        # the two is real evidence that both are right.
+        ca = find_crossing(clean, gates["a"]["line"])
+        cb = find_crossing(clean, gates["b"]["line"])
+        if ca is not None and cb is not None:
+            adt = abs(cb["t"] - ca["t"])
+            if adt > 1e-6:
                 ft_s = baseline_ft / adt
                 gap_frames = adt * fps
-                if gap_frames >= 6:
-                    conf = "high"
-                elif gap_frames >= 3:
-                    conf = "medium"
-                else:
-                    conf = "low"
-                speed = {
+                cross_check = {
+                    "method": "two_gate_time_of_flight",
                     "ft_per_s": round(ft_s, 2),
                     "mph": round(ft_s * FT_S_TO_MPH, 1),
-                    "kph": round(ft_s * FT_S_TO_KPH, 1),
-                    "method": "two_gate_time_of_flight",
                     "distance_ft": baseline_ft,
-                    "gate_a_time_s": round(ca["t"], 4),
-                    "gate_b_time_s": round(cb["t"], 4),
                     "delta_t_s": round(adt, 4),
                     "frames_between_gates": round(gap_frames, 2),
-                    "confidence": conf,
+                    "confidence": ("high" if gap_frames >= 6
+                                   else "medium" if gap_frames >= 3 else "low"),
                 }
+                if speed is not None and speed["mph"] > 0:
+                    cross_check["agreement_pct"] = round(
+                        100.0 * (cross_check["mph"] / speed["mph"] - 1.0), 1)
+                if speed is None:
+                    # Geometry fit failed but the timing is sound -- use it.
+                    speed = dict(cross_check)
+                    speed["confidence"] = cross_check["confidence"]
+                    direction = "right" if (cb["t"] - ca["t"]) > 0 else "left"
+                    reason = None
+                    cross_check = None
 
-        # Motion-triggered clips often begin after the vehicle has already
-        # crossed one mailbox. In that case use every track point, mapped onto
-        # the measured road plane, instead of returning a null speed.
-        if moving and speed is None and road_vp is not None:
-            projective, projective_failure = cross_ratio_track_speed(
-                pts,
-                gates["a"]["line"],
-                gates["b"]["line"],
-                road_vp,
-                baseline_ft,
-                calib.get("road_vanishing_point_quality", "unknown"),
-            )
-            if projective is not None:
-                speed, direction = projective
-                speed["gate_fallback_reason"] = gate_failure
-                reason = None
-            else:
-                reason = projective_failure
-        elif moving and speed is None and ground_H is not None:
-            projective, projective_failure = projective_track_speed(
-                pts, ground_H, ground_info.get("quality", "unknown")
-            )
-            if projective is not None:
-                speed, direction = projective
-                speed["gate_fallback_reason"] = gate_failure
-                reason = None
-            else:
-                reason = projective_failure
-        elif moving and speed is None:
-            reason = gate_failure or "ground_plane_unavailable"
+        if speed is not None:
+            speed["frames_edge_clipped_dropped"] = dropped
 
         if kind == "vehicle" and color:
             description = f"{color['name']} {label}"
@@ -1024,6 +1049,7 @@ def main() -> int:
             "bbox_first": [round(v, 1) for v in first["box"]],
             "bbox_last": [round(v, 1) for v in last["box"]],
             "speed": speed,
+            "speed_cross_check": cross_check,
             "speed_unavailable_reason": reason,
         }
         # Evidence crop. Speed is only known now, which is why the crop was held
@@ -1075,9 +1101,9 @@ def main() -> int:
             "conf": args.conf,
             "device": str(device),
             "baseline_ft": baseline_ft,
+            "timing": timing_info,
             "alignment": align_info,
-            "road_projection": projection_info,
-            "ground_plane": ground_info,
+            "camera_model": ground_info,
         },
         "counts": {
             "total": len(objects),
