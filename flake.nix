@@ -161,7 +161,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    technofab = {url = "gitlab:TECHNOFAB/nix-packages";};
+    technofab = {
+      url = "gitlab:TECHNOFAB/nix-packages";
+    };
     technofab.inputs.nixpkgs.follows = "nixpkgs";
 
     # GPG default configuration
@@ -330,24 +332,31 @@
       url = "github:NixOS/nix/2.34.5";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-grpc-store = {
+      url = "github:Mic92/nix-grpc-store";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs: let
-    inherit (inputs) deploy-rs;
+  outputs =
+    inputs:
+    let
+      inherit (inputs) deploy-rs;
 
-    lib = inputs.snowfall-lib.mkLib {
-      inherit inputs;
-      src = ./.;
-      snowfall = {
-        meta = {
-          name = "fmf";
-          title = "AI Campground";
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
+        snowfall = {
+          meta = {
+            name = "fmf";
+            title = "AI Campground";
+          };
+
+          namespace = "fmf";
         };
-
-        namespace = "fmf";
       };
-    };
-  in
+    in
     lib.mkFlake {
       channels-config = {
         allowUnfree = true;
@@ -380,7 +389,8 @@
         # kubenix.overlays.default
       ];
 
-      systems.modules.nixos = with inputs;
+      systems.modules.nixos =
+        with inputs;
         [
           nixtheplanet.nixosModules.macos-ventura
           home-manager.nixosModules.home-manager
@@ -398,66 +408,72 @@
           impermanence.nixosModules.impermanence
           microvm.nixosModules.host
           nixos-boot.nixosModules.default
+          nix-grpc-store.nixosModules.default
         ]
-        ++ (lib.attrValues
-          (lib.filterAttrs (name: _: lib.hasPrefix "stig" name)
-            crystal-forge.nixosModules));
+        ++ (lib.attrValues (
+          lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules
+        ));
 
       # systemds.hosts.lucas.modules = with inputs; [
       #   unstable.nixosModules.services.k3s
       # ];
 
-      systems.hosts = let
-        hostDir = ./systems/x86_64-linux;
-        hostNames = builtins.attrNames (builtins.readDir hostDir);
-        vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
-        mkVmModules = name: {
-          modules = [inputs.microvm.nixosModules.microvm];
-        };
-        vmHostsConfig = builtins.listToAttrs (map (name: {
-            inherit name;
-            value = mkVmModules name;
-          })
-          vmHosts);
-      in
+      systems.hosts =
+        let
+          hostDir = ./systems/x86_64-linux;
+          hostNames = builtins.attrNames (builtins.readDir hostDir);
+          vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
+          mkVmModules = name: {
+            modules = [ inputs.microvm.nixosModules.microvm ];
+          };
+          vmHostsConfig = builtins.listToAttrs (
+            map (name: {
+              inherit name;
+              value = mkVmModules name;
+            }) vmHosts
+          );
+        in
         vmHostsConfig
         // {
-          blue-ridge.modules = with inputs; [disko.nixosModules.disko];
+          blue-ridge.modules = with inputs; [ disko.nixosModules.disko ];
           butler.modules = with inputs; [
             nixos-hardware.nixosModules.lenovo-thinkpad-p1
             nixos-hardware.nixosModules.lenovo-thinkpad-p53
           ];
 
-          gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
-          base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
+          gray.modules = with inputs; [ nixos-hardware.nixosModules.framework-16-7040-amd ];
+          base.modules = [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
         };
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
 
-      deploy = lib.mkDeploy {inherit (inputs) self;};
+      deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks =
-        builtins.mapAttrs
-        (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
-        deploy-rs.lib;
+      checks = builtins.mapAttrs (
+        _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+      ) deploy-rs.lib;
 
       outputs-builder = channels: {
         # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and
         # which will break `deploy`.
-        hooks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.stdenv.hostPlatform.system}.run {
-          src = ./.;
-          hooks = {
-            nixpkgs-fmt.enable = true;
-            # flake8.enable = true;
-            # markdownlint.enable = true;
-            # yamllint.enable = true;
+        hooks.pre-commit-check =
+          inputs.pre-commit-hooks.lib.${channels.nixpkgs.stdenv.hostPlatform.system}.run
+            {
+              src = ./.;
+              hooks = {
+                nixpkgs-fmt.enable = true;
+                # flake8.enable = true;
+                # markdownlint.enable = true;
+                # yamllint.enable = true;
 
-            # deadnix.enable = true;
-          };
-        };
+                # deadnix.enable = true;
+              };
+            };
         nixidyEnvs = inputs.nixidy.lib.mkEnvs {
           pkgs = channels.nixpkgs;
-          envs = {dev.modules = [./kubernetes/dev.nix];};
+          envs = {
+            dev.modules = [ ./kubernetes/dev.nix ];
+          };
         };
 
         # # Router security checks
