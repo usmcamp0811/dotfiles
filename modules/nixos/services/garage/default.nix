@@ -10,33 +10,33 @@ with lib.fmf; let
 
   garageEnvironmentFile = "/run/keys/environment/garage/garage.EnvFile";
 
-  # Upstream `services.garage` only auto-manages ownership of
-  # `metadata_dir`/`data_dir` when the path starts with `/var/lib/garage`:
-  # those paths are put in `StateDirectory = "garage"`, which -- combined
-  # with `DynamicUser = true` (the upstream default) -- makes systemd
-  # create and chown them to the service's ephemeral dynamic UID on every
-  # start. Anything outside that prefix (e.g. a dedicated
-  # `/persist/garage/data` mount/dataset) is instead merely added to
-  # `ReadWritePaths`, which only grants sandbox access -- it does NOT
-  # chown the directory. With `DynamicUser = true`, that directory is then
-  # only ever accessible by root, so Garage fails with
-  # "IO error: Permission denied" as soon as it tries to open it.
+  # Upstream `services.garage` defaults to `DynamicUser = true`, and only
+  # auto-chowns `metadata_dir`/`data_dir` to that ephemeral UID when the
+  # path textually starts with `/var/lib/garage` (via
+  # `StateDirectory = "garage"`). That heuristic breaks the moment either
+  # directory is -- or lives inside -- a *separately mounted* filesystem
+  # (a dedicated ZFS dataset, a bind mount, etc), which is a very common
+  # setup for Garage's often-large data_dir: mounting something on top of
+  # a directory replaces its visible ownership with whatever the mounted
+  # filesystem's own root inode has, regardless of any chown applied to
+  # the mountpoint beforehand or its `/var/lib/garage` prefix. The result
+  # is the same either way: Garage fails at startup with
+  # "IO error: Permission denied" the moment it opens that directory.
   #
-  # Fall back to a static `garage` user/group (and own/create those custom
-  # paths ourselves) whenever `metadataDir`/`dataDir` point outside
-  # `/var/lib/garage`. Hosts that leave both at their defaults are
-  # untouched and keep upstream's `DynamicUser` behavior.
-  isDefaultGaragePath = path: hasPrefix "/var/lib/garage" path;
-
+  # Sidestep this entirely with a static `garage` user/group: create and
+  # chown `metadataDir` and every `dataDir` path ourselves via
+  # `systemd.tmpfiles.rules` (which runs after local filesystems are
+  # mounted, so this applies correctly even when one of them is a
+  # separate mount), and run the unit as that fixed user instead of a
+  # dynamic one. This is the only consumer of this module in either flake
+  # at the time of writing, so there's no other host relying on
+  # `DynamicUser` behavior here.
   dataDirPaths =
     if builtins.isList cfg.dataDir
     then map (d: d.path) cfg.dataDir
     else [cfg.dataDir];
 
-  customGaragePaths =
-    filter (p: !(isDefaultGaragePath p)) ([cfg.metadataDir] ++ dataDirPaths);
-
-  needsStaticGarageUser = customGaragePaths != [];
+  garageOwnedPaths = [cfg.metadataDir] ++ dataDirPaths;
 
   garageSettings =
     {
@@ -250,20 +250,25 @@ in {
       environmentFile = garageEnvironmentFile;
     };
 
-    # See `needsStaticGarageUser` above: only touched when
-    # metadataDir/dataDir point outside `/var/lib/garage`.
-    users.users.garage = mkIf needsStaticGarageUser {
+    # See the comment on `garageOwnedPaths` above: always run Garage as a
+    # static user and own its directories ourselves, since DynamicUser's
+    # auto-chown can't be relied on once any of them is a separate mount.
+    users.users.garage = {
       isSystemUser = true;
       group = "garage";
       description = "Garage Object Storage";
     };
-    users.groups.garage = mkIf needsStaticGarageUser {};
+    users.groups.garage = {};
 
+    # `d` (not `Z`/recursive) deliberately: this only sets ownership/mode
+    # on the directory itself, not on Garage's own file contents inside
+    # it, and it re-applies on every boot after local filesystems (and
+    # thus any separate data_dir mount) are up --
+    # systemd-tmpfiles-setup.service runs after local-fs.target.
     systemd.tmpfiles.rules =
-      optionals needsStaticGarageUser
-      (map (p: "d ${p} 0750 garage garage - -") customGaragePaths);
+      map (p: "d ${p} 0750 garage garage - -") garageOwnedPaths;
 
-    systemd.services.garage.serviceConfig = mkIf needsStaticGarageUser {
+    systemd.services.garage.serviceConfig = {
       DynamicUser = false;
       User = "garage";
       Group = "garage";
