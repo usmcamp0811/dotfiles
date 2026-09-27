@@ -29,6 +29,16 @@
     pyarrow.url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    # Every nixpkgs revision that ever existed, reachable from one flake
+    # input, fetched lazily (only the revision a request actually resolves
+    # to is ever fetched/evaluated). Use `lib.fmf.multiversePackage` to pull
+    # an exact package version out of it instead of adding a dedicated
+    # pinned `nixpkgs` input every time FMF needs one specific version.
+    # This flake deliberately has no inputs of its own, so it must NOT
+    # `.follows` anything here.
+    # See: https://github.com/fzakaria/nixpkgs-multiverse
+    nixpkgs-multiverse.url = "github:fzakaria/nixpkgs-multiverse";
+
     #nuenv
     nuenv.url = "github:DeterminateSystems/nuenv";
     nuenv.inputs.nixpkgs.follows = "nixpkgs";

@@ -14930,6 +14930,21 @@
         "type": "github"
       }
     },
+    "nixpkgs-multiverse": {
+      "locked": {
+        "lastModified": 1790413912,
+        "narHash": "sha256-zgA2towO1+BWpUxQLZKwDsm9SVUERRbWA7e2E7urA1Q=",
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "rev": "d41f0aada0b4e18ff1eee6224404a9bc0dbd1112",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "type": "github"
+      }
+    },
     "nixpkgs-python": {
       "inputs": {
         "flake-compat": "flake-compat_31",
@@ -19610,6 +19625,7 @@
         "nixos-hardware": "nixos-hardware_4",
         "nixos-router": "nixos-router_2",
         "nixpkgs": "nixpkgs_76",
+        "nixpkgs-multiverse": "nixpkgs-multiverse",
         "nixpkgs-python": "nixpkgs-python_4",
         "nixpkgs-wayland": "nixpkgs-wayland_4",
         "nixtheplanet": "nixtheplanet_3",

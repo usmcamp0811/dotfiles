@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  inputs,
   ...
 }:
 with lib;
@@ -95,6 +96,52 @@ with lib.fmf; let
 in {
   options.fmf.services.traefik = with types; {
     enable = mkBoolOpt false "Enable Traefik";
+
+    version = mkOption {
+      type = nullOr str;
+      default = null;
+      example = "3.7.13";
+      description = ''
+        Pin an exact Traefik version, resolved via nixpkgs-multiverse
+        (`lib.fmf.multiversePackage`) instead of this flake's own
+        `pkgs.traefik`. Ignored if `package` is set.
+
+        Defaults to `null` (use `pkgs.traefik`): as of this writing,
+        the nixpkgs this flake pins already ships Traefik 3.7.13, which
+        fixes CVE-2026-85594 (GHSA-m6wx-622r-48r9, a
+        `crossProviderNamespaces` bypass in the Kubernetes Ingress
+        provider, fixed in upstream v3.7.11) plus several
+        High/Critical CVEs disclosed and fixed afterwards
+        (GHSA-qqjf-53cj-pwvv, GHSA-w4v4-9rw7-5326, GHSA-v67p-phpq-fc8x,
+        GHSA-f52w-8j3h-j724, GHSA-8fcf-v89g-xpg6 -- see
+        <https://github.com/traefik/traefik/releases/tag/v3.7.13>), so no
+        override is needed today.
+
+        Set this explicitly (e.g. `"3.7.13"`) to pin that version
+        regardless of what the coherent nixpkgs channel currently ships --
+        for example if it ever regresses to an older Traefik, or a future
+        fix lands in Traefik before it reaches nixpkgs. A version set here
+        is resolved from nixpkgs-multiverse's own historical index, as a
+        standalone closure: it does NOT get this module's
+        `localPlugins`-adjacent Traefik plugin vendoring overlay
+        (`overlays/overrides`'s CloudflareWarp/fail2ban `postInstall`)
+        applied to it. Hosts that rely on that baked-in vendoring should
+        leave this at `null`, or supply `package` with the same vendoring
+        re-applied.
+      '';
+    };
+
+    package = mkOption {
+      type = nullOr package;
+      default = null;
+      description = ''
+        Explicit Traefik package override; takes precedence over
+        `version`. Leave as `null` to resolve from `version` (via
+        nixpkgs-multiverse) or, if `version` is also `null`, to use
+        `pkgs.traefik`.
+      '';
+    };
+
     email = mkOpt str config.fmf.user.email "The email to use.";
     docker-provider = mkBoolOpt false "Whether or not to enable Docker provider exposedByDefault.";
     acme-path =
@@ -194,8 +241,21 @@ in {
     ];
 
     networking.firewall.allowedTCPPorts = [443 80];
-    # Force the stock Traefik package so nixpkgs doesn't try to vendor local plugins into $out/bin
-    services.traefik.package = mkForce pkgs.traefik;
+    # Force the stock Traefik package so nixpkgs doesn't try to vendor local plugins into $out/bin.
+    # Resolution order: explicit `package` override > `version` pinned via
+    # nixpkgs-multiverse > this flake's own (already-patched) `pkgs.traefik`.
+    services.traefik.package = mkForce (
+      if cfg.package != null
+      then cfg.package
+      else if cfg.version != null
+      then
+        lib.fmf.multiversePackage {
+          inherit inputs pkgs;
+          name = "traefik";
+          version = cfg.version;
+        }
+      else pkgs.traefik
+    );
 
     # Ensure Traefik runs from /var/lib/traefik so ./plugins-local is discovered
     systemd.services.traefik.serviceConfig = {
