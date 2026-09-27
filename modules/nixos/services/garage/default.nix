@@ -10,6 +10,34 @@ with lib.fmf; let
 
   garageEnvironmentFile = "/run/keys/environment/garage/garage.EnvFile";
 
+  # Upstream `services.garage` only auto-manages ownership of
+  # `metadata_dir`/`data_dir` when the path starts with `/var/lib/garage`:
+  # those paths are put in `StateDirectory = "garage"`, which -- combined
+  # with `DynamicUser = true` (the upstream default) -- makes systemd
+  # create and chown them to the service's ephemeral dynamic UID on every
+  # start. Anything outside that prefix (e.g. a dedicated
+  # `/persist/garage/data` mount/dataset) is instead merely added to
+  # `ReadWritePaths`, which only grants sandbox access -- it does NOT
+  # chown the directory. With `DynamicUser = true`, that directory is then
+  # only ever accessible by root, so Garage fails with
+  # "IO error: Permission denied" as soon as it tries to open it.
+  #
+  # Fall back to a static `garage` user/group (and own/create those custom
+  # paths ourselves) whenever `metadataDir`/`dataDir` point outside
+  # `/var/lib/garage`. Hosts that leave both at their defaults are
+  # untouched and keep upstream's `DynamicUser` behavior.
+  isDefaultGaragePath = path: hasPrefix "/var/lib/garage" path;
+
+  dataDirPaths =
+    if builtins.isList cfg.dataDir
+    then map (d: d.path) cfg.dataDir
+    else [cfg.dataDir];
+
+  customGaragePaths =
+    filter (p: !(isDefaultGaragePath p)) ([cfg.metadataDir] ++ dataDirPaths);
+
+  needsStaticGarageUser = customGaragePaths != [];
+
   garageSettings =
     {
       metadata_dir = cfg.metadataDir;
@@ -220,6 +248,25 @@ in {
 
       # Secrets are rendered at runtime by the FMF Vault Agent module.
       environmentFile = garageEnvironmentFile;
+    };
+
+    # See `needsStaticGarageUser` above: only touched when
+    # metadataDir/dataDir point outside `/var/lib/garage`.
+    users.users.garage = mkIf needsStaticGarageUser {
+      isSystemUser = true;
+      group = "garage";
+      description = "Garage Object Storage";
+    };
+    users.groups.garage = mkIf needsStaticGarageUser {};
+
+    systemd.tmpfiles.rules =
+      optionals needsStaticGarageUser
+      (map (p: "d ${p} 0750 garage garage - -") customGaragePaths);
+
+    systemd.services.garage.serviceConfig = mkIf needsStaticGarageUser {
+      DynamicUser = false;
+      User = "garage";
+      Group = "garage";
     };
 
     networking.firewall.allowedTCPPorts =
