@@ -347,6 +347,12 @@
       url = "github:Mic92/nix-grpc-store";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # S3-backed Nix binary cache with garbage collection
+    niks3 = {
+      url = "github:Mic92/niks3";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
