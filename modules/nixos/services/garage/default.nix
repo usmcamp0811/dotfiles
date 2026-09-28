@@ -562,8 +562,16 @@ in {
       };
     };
 
+    # Only register vault-agent wiring for garage-provision when there's
+    # actually at least one bucket's Vault-sourced credentials to render:
+    # the layout-only bootstrap above needs no secrets of its own (it
+    # reuses garage.service's own already-rendered GARAGE_RPC_SECRET via
+    # garageEnvironmentFile). Vault Agent's config parser hard-errors on
+    # an empty `template` list ("error parsing 'template': error
+    # converting config"), so this must NOT be registered with zero
+    # templates.
     fmf.services.vault-agent.services.${provisionServiceName} =
-      mkIf (cfg.layout.enable || cfg.buckets != {}) {
+      mkIf (cfg.buckets != {}) {
         settings = {
           vault.address = cfg.vault-address;
 
