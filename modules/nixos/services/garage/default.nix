@@ -134,6 +134,11 @@ with lib.fmf; let
 
   garageBin = "${cfg.package}/bin/garage";
 
+  # Extract the TCP port out of a "host:port" bind address, matching the
+  # convention already used for this option elsewhere (e.g. the niks3
+  # module reads cfg.s3ApiBindAddress the same way).
+  portOfBindAddr = addr: toInt (last (splitString ":" addr));
+
   # Idempotently: (1) assign+apply a single-node cluster layout if this
   # node doesn't already have one, and (2) ensure every configured
   # bucket, its API key, and that key's permissions on the bucket exist.
@@ -152,12 +157,18 @@ with lib.fmf; let
     JQ=${escapeShellArg "${pkgs.jq}/bin/jq"}
 
     echo "garage-provision: waiting for the local Garage RPC to come up"
+    rpc_ready=0
     for _ in $(seq 1 60); do
       if "$GARAGE" json-api GetClusterStatus >/dev/null 2>&1; then
+        rpc_ready=1
         break
       fi
       sleep 1
     done
+    if [ "$rpc_ready" -ne 1 ]; then
+      echo "garage-provision: Garage RPC did not become ready within 60 seconds" >&2
+      exit 1
+    fi
 
     ${optionalString cfg.layout.enable ''
       node_id_override=${escapeShellArg (
@@ -185,10 +196,28 @@ with lib.fmf; let
         node_id="$(echo "$status" | "$JQ" -r '.nodes[0].id')"
       fi
 
-      has_role="$(echo "$status" | "$JQ" -r --arg id "$node_id" '[.nodes[] | select(.id == $id) | .role][0] // empty')"
-      if [ -z "$has_role" ]; then
+      layout="$("$GARAGE" json-api GetClusterLayout)"
+      current_role="$(echo "$layout" | "$JQ" -r --arg id "$node_id" '[.roles[] | select(.id == $id)][0] // empty')"
+
+      if [ -z "$current_role" ]; then
+        # This node has no role yet. Before staging our own change, make
+        # sure nobody else already has changes staged: GetClusterLayout's
+        # stagedRoleChanges/stagedParameters reflect the *next* layout
+        # version, and ApplyClusterLayout applies whatever is currently
+        # staged -- not just what we're about to add. Blindly calling
+        # UpdateClusterLayout+ApplyClusterLayout here could therefore
+        # apply a concurrent/manual operator's in-progress layout edit
+        # together with ours. This bootstrap path is only meant to
+        # assign a single node's very first role, so refuse instead of
+        # guessing when the layout isn't in the clean state we expect.
+        staged_count="$(echo "$layout" | "$JQ" -r '.stagedRoleChanges | length')"
+        staged_params="$(echo "$layout" | "$JQ" -r 'if .stagedParameters == null then "null" else "set" end')"
+        if [ "$staged_count" != "0" ] || [ "$staged_params" != "null" ]; then
+          echo "garage-provision: refusing to assign a cluster layout for node $node_id: the layout already has staged (unapplied) changes from a previous or concurrent operation. Inspect them with 'garage layout show', then either apply or revert (garage layout apply / garage layout revert) before this unit can bootstrap." >&2
+          exit 1
+        fi
+
         echo "garage-provision: assigning cluster layout to node $node_id"
-        layout="$("$GARAGE" json-api GetClusterLayout)"
         version="$(echo "$layout" | "$JQ" -r '.version')"
         next_version=$((version + 1))
         update_body="$("$JQ" -n --arg id "$node_id" --arg zone "$zone" --argjson capacity "$capacity_json" \
@@ -197,7 +226,35 @@ with lib.fmf; let
         apply_body="$("$JQ" -n --argjson version "$next_version" '{version: $version}')"
         "$GARAGE" json-api ApplyClusterLayout "$apply_body" >/dev/null
       else
-        echo "garage-provision: node $node_id already has a cluster layout role, skipping"
+        # A role already exists: this bootstrap-only provisioner never
+        # modifies an existing cluster layout (changing zone/capacity on
+        # a live node is a storage-affecting operation that should be
+        # done deliberately by hand), but it does refuse to silently
+        # ignore a configuration change that no longer matches reality.
+        role_zone="$(echo "$current_role" | "$JQ" -r '.zone')"
+        role_capacity="$(echo "$current_role" | "$JQ" -r '.capacity // "null"')"
+
+        if [ "$role_zone" != "$zone" ]; then
+          echo "garage-provision: fmf.services.garage.layout.zone is '$zone' but Garage currently has zone '$role_zone' for node $node_id; refusing to silently change the cluster layout. Either update the Nix config to match, or change the layout by hand (garage layout assign) and adjust the config afterwards." >&2
+          exit 1
+        fi
+
+        if [ "$capacity_json" = "null" ] && [ "$role_capacity" != "null" ]; then
+          echo "garage-provision: fmf.services.garage.layout.gateway is true but Garage currently has a storage capacity of $role_capacity bytes for node $node_id; refusing to silently change the cluster layout." >&2
+          exit 1
+        fi
+
+        if [ "$capacity_json" != "null" ] && [ "$role_capacity" = "null" ]; then
+          echo "garage-provision: fmf.services.garage.layout.capacity is $capacity_json but Garage currently has node $node_id configured as a gateway (no storage capacity); refusing to silently change the cluster layout." >&2
+          exit 1
+        fi
+
+        if [ "$capacity_json" != "null" ] && [ "$role_capacity" != "null" ] && [ "$capacity_json" != "$role_capacity" ]; then
+          echo "garage-provision: fmf.services.garage.layout.capacity is $capacity_json bytes but Garage currently has $role_capacity bytes for node $node_id; refusing to silently change the cluster layout." >&2
+          exit 1
+        fi
+
+        echo "garage-provision: node $node_id's cluster layout role matches configuration, skipping"
       fi
     ''}
 
@@ -218,13 +275,54 @@ with lib.fmf; let
 
         echo "garage-provision: ensuring key $key_name"
         get_key_body="$("$JQ" -n --arg id "$access_key_id" '{id: $id}')"
-        if ! "$GARAGE" json-api GetKeyInfo "$get_key_body" >/dev/null 2>&1; then
+        if key_info="$("$GARAGE" json-api GetKeyInfo "$get_key_body" 2>/dev/null)"; then
+          # The Vault-sourced access key already exists in Garage. Keep
+          # its recorded name in sync with keyName -- purely cosmetic
+          # (it never changes which credential has access), but avoids
+          # the label silently drifting from the Nix config.
+          existing_name="$(echo "$key_info" | "$JQ" -r '.name')"
+          if [ "$existing_name" != "$key_name" ]; then
+            echo "garage-provision: renaming key $access_key_id from '$existing_name' to '$key_name'"
+            rename_body="$("$JQ" -n --arg id "$access_key_id" --arg name "$key_name" '{id: $id, body: {name: $name}}')"
+            "$GARAGE" json-api UpdateKey "$rename_body" >/dev/null
+          fi
+        else
+          # The Vault-sourced access key doesn't exist in Garage yet.
+          # keyName is this bucket's logical ownership marker, so before
+          # importing a "new" key under that name, make sure no *other*
+          # key is already registered as key_name: if one is, Vault has
+          # rotated this bucket's credential (old id -> new id) and the
+          # old key is still sitting in Garage with live permissions.
+          # Importing the new id without revoking the old one would
+          # leave the rotated-out credential valid indefinitely, so fail
+          # loudly and let an operator resolve it deliberately rather
+          # than silently granting a second, unrevoked key access.
+          existing_by_name="$("$GARAGE" json-api ListKeys | "$JQ" -r --arg name "$key_name" '[.[] | select(.name == $name)][0].id // empty')"
+          if [ -n "$existing_by_name" ]; then
+            echo "garage-provision: refusing to import a new key for bucket $bucket_name: Vault provided access_key_id $access_key_id, but a key named '$key_name' already exists in Garage with a different id ($existing_by_name). This looks like a key rotation -- once you've confirmed the old key ($existing_by_name) is no longer needed, revoke it manually (garage key delete $existing_by_name), then re-run this service." >&2
+            exit 1
+          fi
+
           import_body="$("$JQ" -n --arg id "$access_key_id" --arg secret "$secret_access_key" --arg name "$key_name" \
             '{accessKeyId: $id, secretAccessKey: $secret, name: $name}')"
           "$GARAGE" json-api ImportKey "$import_body" >/dev/null
         fi
 
         bucket_id="$("$GARAGE" json-api GetBucketInfo "$get_bucket_body" | "$JQ" -r '.id')"
+
+        echo "garage-provision: reconciling permissions for key $key_name on bucket $bucket_name"
+        # AllowBucketKey only ever grants: a `false` field is a no-op,
+        # not a revocation. To actually reconcile permissions down as
+        # well as up, first DenyBucketKey the inverse of what's desired
+        # (revoking anything that should no longer be granted), then
+        # AllowBucketKey the desired set.
+        deny_body="$("$JQ" -n --arg bucket "$bucket_id" --arg key "$access_key_id" \
+          --argjson read ${boolToString (!bucket.permissions.read)} \
+          --argjson write ${boolToString (!bucket.permissions.write)} \
+          --argjson owner ${boolToString (!bucket.permissions.owner)} \
+          '{bucketId: $bucket, accessKeyId: $key, permissions: {read: $read, write: $write, owner: $owner}}')"
+        "$GARAGE" json-api DenyBucketKey "$deny_body" >/dev/null
+
         allow_body="$("$JQ" -n --arg bucket "$bucket_id" --arg key "$access_key_id" \
           --argjson read ${boolToString bucket.permissions.read} \
           --argjson write ${boolToString bucket.permissions.write} \
@@ -493,16 +591,16 @@ in {
 
     networking.firewall.allowedTCPPorts =
       optionals cfg.openFirewall [
-        3900
+        (portOfBindAddr cfg.s3ApiBindAddress)
       ]
       ++ optionals cfg.openRpcFirewall [
-        3901
+        (portOfBindAddr cfg.rpcBindAddress)
       ]
       ++ optionals (cfg.web.enable && cfg.web.openFirewall) [
-        3902
+        (portOfBindAddr cfg.web.bindAddress)
       ]
       ++ optionals (cfg.admin.enable && cfg.admin.openFirewall) [
-        3903
+        (portOfBindAddr cfg.admin.bindAddress)
       ];
 
     fmf.services.vault-agent.services.garage = {
