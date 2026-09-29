@@ -11,16 +11,30 @@ with lib.fmf; let
 
   vaultAgentName = "niks3";
 
-  # Path to a Vault-templated secret file rendered by the niks3
-  # vault-agent service below. This mirrors nixos-vault-service's own
-  # `${environmentFilesRoot}${serviceName}/${name}.EnvFile` convention
-  # as a plain string constant (rather than looking it up via
-  # `config.fmf.services.vault-agent.services.niks3...path`), since that
-  # attribute only exists once this module's own `config` block below
-  # actually registers it -- something NixOS's module system can force
-  # while evaluating unrelated options (e.g. checking for unmatched
-  # definitions), even when this module is otherwise disabled.
-  envPath = name: "/run/keys/environment/${vaultAgentName}/${name}.EnvFile";
+  # Path to a Vault-templated *secret file* (as opposed to an
+  # EnvironmentFile) rendered by the niks3 vault-agent service below.
+  # This mirrors nixos-vault-service's own
+  # `${secretFilesRoot}${name}` convention (secretFilesRoot =
+  # "/tmp/detsys-vault/") as a plain string constant, for the same
+  # reason envPath-style helpers elsewhere in this codebase are plain
+  # constants rather than looking up `config.fmf.services.vault-agent...`:
+  # that attribute only exists once this module's own `config` block
+  # below actually registers it -- something NixOS's module system can
+  # force while evaluating unrelated options, even when this module is
+  # otherwise disabled.
+  #
+  # Deliberately *not* using `secrets.environment.templates`
+  # (`/run/keys/environment/...`) here: those files are hardcoded by
+  # nixos-vault-service to mode 0400 owned by whatever user renders them
+  # (effectively root), with no way to override -- fine for
+  # EnvironmentFile= consumption (systemd/PID1 reads it as root before
+  # dropping privileges), but useless for niks3-server, which opens
+  # these paths itself as the unprivileged `niks3` user via CLI
+  # arguments. `secrets.file.files` instead `chown`s the rendered file
+  # to the *consuming unit's own* configured User/Group (niks3:niks3
+  # here) after each render, which is what actually makes it readable
+  # by the very process that needs to open it.
+  vaultSecretFilePath = name: "/tmp/detsys-vault/${name}";
 
   vaultSecretTemplate = path: kvVersion: field: ''
     {{ with secret "${path}" }}{{ if eq "${kvVersion}" "v1" }}{{ .Data.${field} }}{{ else }}{{ .Data.data.${field} }}{{ end }}{{ end }}
@@ -74,25 +88,25 @@ with lib.fmf; let
     if cfg.s3.accessKeyFile != null
     then cfg.s3.accessKeyFile
     else if usesVaultS3Creds
-    then envPath "s3-access-key-id"
+    then vaultSecretFilePath "s3-access-key-id"
     else null;
 
   resolvedSecretKeyFile =
     if cfg.s3.secretKeyFile != null
     then cfg.s3.secretKeyFile
     else if usesVaultS3Creds
-    then envPath "s3-secret-access-key"
+    then vaultSecretFilePath "s3-secret-access-key"
     else null;
 
   resolvedApiTokenFile =
     if cfg.apiTokenFile != null
     then cfg.apiTokenFile
-    else envPath "api-token";
+    else vaultSecretFilePath "api-token";
 
   resolvedSignKeyFiles =
     if cfg.signKeyFiles != []
     then cfg.signKeyFiles
-    else optional cfg.signKey.enable (envPath "sign-key");
+    else optional cfg.signKey.enable (vaultSecretFilePath "sign-key");
 in {
   imports = [inputs.niks3.nixosModules.niks3];
 
@@ -393,21 +407,18 @@ in {
         (toInt (last (splitString ":" cfg.httpAddr)))
       ];
 
-    # niks3.service/niks3-gc.service read their Vault-sourced secret files
-    # (S3 keys, API token, signing key) directly at the application level
-    # (as CLI-argument file paths), running as the unprivileged `niks3`
-    # user -- unlike e.g. GARAGE_RPC_SECRET, which garage.service receives
-    # via systemd's own EnvironmentFile= loading (done as root, before
-    # privilege drop, bypassing file permissions entirely). Those rendered
-    # files live under /run/keys/environment/..., which is group `keys`
-    # and not world-readable; the auto-wired JoinsNamespaceOf= makes that
-    # path *visible* to niks3's mount namespace, but ordinary Unix DAC
-    # permission checks still apply based on the *reading process's own*
-    # uid/gid -- so `niks3` also needs to actually be a member of `keys`
-    # to open them, the same way a login user would.
-    systemd.services.niks3.serviceConfig.SupplementaryGroups = ["keys"];
-    systemd.services.niks3-gc.serviceConfig.SupplementaryGroups =
-      mkIf cfg.gc.enable ["keys"];
+    # niks3-gc.service isn't the unit nixos-vault-service auto-infects
+    # (that only happens for a systemd service whose name exactly
+    # matches the vault-agent service name, "niks3" here), but it reads
+    # the same Vault-sourced apiTokenFile as niks3.service. Since that
+    # secret file is rendered into the "niks3" vault-agent sidecar's own
+    # PrivateTmp (see vaultSecretFilePath above), niks3-gc needs to
+    # explicitly join *that same* sidecar's mount namespace itself to
+    # see it -- otherwise it gets its own empty, unrelated private /tmp.
+    systemd.services.niks3-gc = mkIf cfg.gc.enable {
+      after = ["detsys-vaultAgent-${vaultAgentName}.service"];
+      unitConfig.JoinsNamespaceOf = "detsys-vaultAgent-${vaultAgentName}.service";
+    };
 
     fmf.services.vault-agent.services.${vaultAgentName} = {
       settings = {
@@ -428,10 +439,18 @@ in {
         };
       };
 
-      secrets.environment = {
+      # `secrets.file.files` (not `secrets.environment.templates`):
+      # these are consumed as file *paths* by niks3-server's own CLI
+      # args, opened directly by the unprivileged `niks3` user, so they
+      # need to be `chown`ed to that user -- which is exactly what
+      # `secrets.file.files` does (to the target unit's own User/Group)
+      # and `secrets.environment.templates` deliberately cannot (hardcoded
+      # to mode 0400, effectively root-only, since it exists to feed
+      # systemd's own EnvironmentFile= loading instead).
+      secrets.file = {
         change-action = "restart";
 
-        templates =
+        files =
           {
             "api-token".text = vaultSecretTemplate cfg.vault-path cfg.kvVersion "api_token";
           }
