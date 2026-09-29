@@ -393,6 +393,22 @@ in {
         (toInt (last (splitString ":" cfg.httpAddr)))
       ];
 
+    # niks3.service/niks3-gc.service read their Vault-sourced secret files
+    # (S3 keys, API token, signing key) directly at the application level
+    # (as CLI-argument file paths), running as the unprivileged `niks3`
+    # user -- unlike e.g. GARAGE_RPC_SECRET, which garage.service receives
+    # via systemd's own EnvironmentFile= loading (done as root, before
+    # privilege drop, bypassing file permissions entirely). Those rendered
+    # files live under /run/keys/environment/..., which is group `keys`
+    # and not world-readable; the auto-wired JoinsNamespaceOf= makes that
+    # path *visible* to niks3's mount namespace, but ordinary Unix DAC
+    # permission checks still apply based on the *reading process's own*
+    # uid/gid -- so `niks3` also needs to actually be a member of `keys`
+    # to open them, the same way a login user would.
+    systemd.services.niks3.serviceConfig.SupplementaryGroups = ["keys"];
+    systemd.services.niks3-gc.serviceConfig.SupplementaryGroups =
+      mkIf cfg.gc.enable ["keys"];
+
     fmf.services.vault-agent.services.${vaultAgentName} = {
       settings = {
         vault.address = cfg.vault-address;
