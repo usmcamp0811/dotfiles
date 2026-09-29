@@ -640,10 +640,16 @@ in {
     };
 
     # Idempotently bootstrap the cluster layout and any configured
-    # buckets/keys. Runs as the `garage` user so it can read the same
-    # garageEnvironmentFile (GARAGE_RPC_SECRET) the daemon itself uses,
-    # and so vault-agent chowns the bucket credential files below to a
-    # user that can actually read them.
+    # buckets/keys. Runs as root (not the `garage` user): the daemon
+    # itself only ever reads garageEnvironmentFile (GARAGE_RPC_SECRET)
+    # via systemd's own EnvironmentFile= loading, which happens in PID1
+    # as root *before* dropping to User=garage -- root bypasses that
+    # file's permission bits entirely. This script instead sources that
+    # same file itself, from inside its own already-unprivileged
+    # process, which silently fails (empty GARAGE_RPC_SECRET, no error)
+    # if the `garage` user can't traverse into /run/keys/environment/*
+    # (it isn't a member of the `keys` group, so by default it can't).
+    # Running this oneshot as root sidesteps that mismatch entirely.
     systemd.services.${provisionServiceName} = mkIf (cfg.layout.enable || cfg.buckets != {}) {
       description = "Idempotently configure the Garage cluster layout, buckets, and API keys";
       wantedBy = ["multi-user.target"];
@@ -654,8 +660,6 @@ in {
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        User = "garage";
-        Group = "garage";
         ExecStart = "${provisionScript}";
       };
     };
