@@ -40,4 +40,14 @@ in {
 
   # Backlog.md - A tool for managing project collaboration between humans and AI Agents in a git ecosystem
   backlog-md = inputs.backlog.packages.${system}.backlog-md;
+
+  # ai-jail - OS sandbox (bubblewrap + Landlock + seccomp) for AI coding agents.
+  # The flake's package is already wrapped with BWRAP_BIN pointing at a store bwrap.
+  # doCheck is off because upstream's test suite includes a Landlock test
+  # (apply_net_rules_v4_unavailable_hard_fails_with_documented_wording) whose
+  # result depends on the build host's kernel Landlock ABI, and it fails in
+  # our build sandbox (763 pass, 1 fails).
+  ai-jail = inputs.ai-jail.packages.${system}.default.overrideAttrs (_: {
+    doCheck = false;
+  });
 }

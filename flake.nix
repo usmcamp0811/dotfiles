@@ -337,6 +337,12 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    # ai-jail: bubblewrap/Landlock/seccomp sandbox for running AI agents
+    ai-jail = {
+      url = "github:akitaonrails/ai-jail";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     # Patched Nix for CVE-2026-39860
     nix-patched = {
       url = "github:NixOS/nix/2.34.5";
