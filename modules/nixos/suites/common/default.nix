@@ -71,6 +71,7 @@ in {
       cache = {
         public = enabled;
         campground = enabled;
+        niks3 = enabled;
       };
 
       cli-apps = {flake = enabled;};
