@@ -108,6 +108,10 @@ in {
             server_port = 443;
           };
         };
+        # grpc:// store plugin on every host (VM configs mkForce this off).
+        # Only the plugin: farm access (a client certificate) and farm nodes
+        # are opt-in per host.
+        nix-grpc-store.client.enable = true;
         openssh = {
           enable = true;
           authorizedKeys = [
