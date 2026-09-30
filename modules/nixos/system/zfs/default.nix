@@ -101,8 +101,15 @@ in
             log "network-online.target reached, starting unlock attempts"
         
             log "Importing all ZFS pools"
-            ${pkgs.zfs}/bin/zpool import -a
-            IMPORT_STATUS=$?
+            # NixOS runs unit scripts with `set -e`, and `zpool import -a`
+            # exits non-zero if ANY visible pool can't be imported (e.g. a
+            # foreign pool last used by another host, like leftover disks
+            # from a previous machine). That used to abort this whole service
+            # before the key was ever fetched, so the boot fell back to the
+            # passphrase prompt. Tolerate it, and deliberately do NOT use -f:
+            # we must never force-import pools that belong to another system.
+            IMPORT_STATUS=0
+            ${pkgs.zfs}/bin/zpool import -a || IMPORT_STATUS=$?
             log "zpool import -a exited with status $IMPORT_STATUS"
 
             # Retrieve and decrypt the passphrase with retry logic
