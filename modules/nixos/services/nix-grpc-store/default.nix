@@ -32,6 +32,9 @@ with lib.fmf; let
 
   wantsCerts = cfg.node.enable || cfg.lb.enable || cfg.client.useFarm;
 
+  # Upper bound on waiting for Vault-rendered secrets (see the units below).
+  startTimeout = "60s";
+
   # The PKI mount, derived from the issue path ("<mount>/issue/<role>"), and
   # where its CA certificate is read from. pkiCert's `.CA` is NOT trusted as the
   # trust anchor on its own: a mount can hand back a stale certificate for the
@@ -373,9 +376,18 @@ in {
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
+          # A oneshot has NO start timeout by default. This unit is ordered
+          # behind the Vault sidecar below, so without a cap one stuck secret
+          # would hold up `switch-to-configuration` and boot (multi-user.target)
+          # indefinitely. Fail instead and let everything else proceed.
+          TimeoutStartSec = startTimeout;
         };
         script = certsScript;
       };
+
+      # Same reasoning for the sidecar: it only reports ready once every
+      # monitored secret file has been rendered, so bound that wait.
+      systemd.services."detsys-vaultAgent-${certsUnit}".serviceConfig.TimeoutStartSec = startTimeout;
 
       fmf.services.vault-agent.services.${certsUnit} = {
         settings = vaultAgentSettings;
@@ -478,6 +490,9 @@ in {
         after = ["${certsUnit}.service"];
         wants = ["${certsUnit}.service"];
       };
+
+      # The daemon's niks3-token sidecar blocks the daemon's start the same way.
+      systemd.services."detsys-vaultAgent-nix-grpc-daemon".serviceConfig.TimeoutStartSec = startTimeout;
 
       # nix-grpc-daemon.service is "infected" by name: the token is rendered
       # into the sidecar's namespace the daemon joins, and chowned to the

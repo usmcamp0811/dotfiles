@@ -115,6 +115,12 @@ in {
       cfg.settings
     ];
 
+    # The sidecar only reports ready once the token file is rendered; bound that
+    # wait so a Vault problem cannot hold up a switch or boot.
+    systemd.services."detsys-vaultAgent-${vaultAgentName}" = mkIf usesVault {
+      serviceConfig.TimeoutStartSec = "60s";
+    };
+
     fmf.services.vault-agent.services.${vaultAgentName} = mkIf usesVault {
       settings = {
         vault.address = cfg.vault-address;
