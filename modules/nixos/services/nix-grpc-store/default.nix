@@ -296,7 +296,7 @@ in {
 
     pki = {
       path =
-        mkOpt str "campground-pki/issue/grpc-farm"
+        mkOpt str "grpc-farm-pki/issue/grpc-farm"
         "Vault PKI issue path (mount/issue/role) used to mint the mTLS certificates.";
 
       caPath =
