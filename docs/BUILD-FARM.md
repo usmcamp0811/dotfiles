@@ -279,6 +279,7 @@ vault read auth/approle/role/<role-name>      # check token_policies first
 vault policy write grpc-farm-issuer - <<'EOF'
 path "pki/issue/grpc-farm" { capabilities = ["update"] }
 path "secret/data/niks3"   { capabilities = ["read"] }
+path "pki/cert/ca"         { capabilities = ["read"] }
 EOF
 
 # token_policies REPLACES the whole list, so include the role's existing policies:
@@ -380,6 +381,7 @@ balancer, and add a builder of that system.
 |---|---|
 | `nix-grpc-store-certs` fails: "no certificate rendered by vault-agent yet" | vault-agent has no cert. See `journalctl -u detsys-vaultAgent-nix-grpc-store-certs`: permission denied means [step 3](#3-let-each-hosts-approle-use-it); role not found means [step 2](#2-create-the-pki-role). |
 | "certificate and private key do not match, not installing" | Should not happen; the old files stay in place. Restart vault-agent and investigate. |
+| "no available CA validates the issued certificate, not installing" | The CA Vault returns is not valid for the issued cert, e.g. an **expired CA certificate** for a still-good CA key. Compare `vault read pki/cert/ca` with `curl -s <vault>/v1/pki/ca/pem \| openssl x509 -noout -dates`, and fix or remove the stale issuer in Vault. |
 | Daemon restarts in a loop at first boot | Certificates are not there yet (see above). |
 | Client: `no connected, non-draining worker for system ...` | No builder for that system is connected. Check the builders' `journalctl -u nix-grpc-daemon` for `scheduler_disconnected`. |
 | `asking the scheduler again` repeats | A builder's `ip` is not the address envoy reaches it at. |

@@ -32,6 +32,18 @@ with lib.fmf; let
 
   wantsCerts = cfg.node.enable || cfg.lb.enable || cfg.client.useFarm;
 
+  # The PKI mount, derived from the issue path ("<mount>/issue/<role>"), and
+  # where its CA certificate is read from. pkiCert's `.CA` is NOT trusted as the
+  # trust anchor on its own: a mount can hand back a stale certificate for the
+  # CA key (we hit an expired self-signed copy while leaves were being issued
+  # fine). The CA read from here is tried first and, either way, a CA is only
+  # installed if it actually validates the issued leaf (see certsScript).
+  pkiMount = head (splitString "/issue/" cfg.pki.path);
+  caPath =
+    if cfg.pki.caPath != null
+    then cfg.pki.caPath
+    else "${pkiMount}/cert/ca";
+
   vaultSecretTemplate = path: kvVersion: field: ''
     {{ with secret "${path}" }}{{ if eq "${kvVersion}" "v1" }}{{ .Data.${field} }}{{ else }}{{ .Data.data.${field} }}{{ end }}{{ end }}
   '';
@@ -118,6 +130,12 @@ with lib.fmf; let
       mv -f "$5.new" "$5"
     }
 
+    # CA certificate read straight from the PKI mount (preferred trust anchor).
+    fetched="$work/fetched.ca"
+    if [ -s "${vaultFile "farm-ca.pem"}" ]; then
+      cp "${vaultFile "farm-ca.pem"}" "$fetched"
+    fi
+
     rc=0
     handle() { # id key_owner key_group key_mode
       local id="$1" owner="$2" group="$3" mode="$4"
@@ -142,10 +160,31 @@ with lib.fmf; let
         return 0
       fi
 
-      cat "$work/$id.leaf" "$work/$id.ca" > "$work/$id.chain"
+      # Pick a CA that really validates this leaf (signature AND validity
+      # dates). Prefer the one read from the mount; fall back to pkiCert's.
+      ca=""
+      for cand in "$fetched" "$work/$id.ca"; do
+        [ -s "$cand" ] || continue
+        if openssl verify -CAfile "$cand" "$work/$id.leaf" >/dev/null 2>&1; then
+          ca="$cand"
+          break
+        fi
+      done
+      if [ -z "$ca" ]; then
+        echo "$id: no available CA validates the issued certificate, not installing:" >&2
+        for cand in "$fetched" "$work/$id.ca"; do
+          [ -s "$cand" ] || continue
+          echo "  tried $(basename "$cand"): $(openssl x509 -noout -subject -enddate -in "$cand" | tr '\n' ' ')" >&2
+          openssl verify -CAfile "$cand" "$work/$id.leaf" 2>&1 | sed 's/^/    /' >&2 || true
+        done
+        rc=1
+        return 0
+      fi
+
+      cat "$work/$id.leaf" "$ca" > "$work/$id.chain"
       place "$work/$id.key"   "$mode" "$owner" "$group" ${certDir}/$id.key
       place "$work/$id.chain" 0644    root     root     ${certDir}/$id.crt
-      place "$work/$id.ca"    0644    root     root     ${certDir}/ca.crt
+      place "$ca"             0644    root     root     ${certDir}/ca.crt
       echo "$id: installed $(openssl x509 -noout -subject -enddate -in "$work/$id.leaf" | tr '\n' ' ')"
     }
 
@@ -260,6 +299,14 @@ in {
         mkOpt str "campground-pki/issue/grpc-farm"
         "Vault PKI issue path (mount/issue/role) used to mint the mTLS certificates.";
 
+      caPath =
+        mkOpt (nullOr str) null
+        ''
+          Vault path the PKI mount's CA certificate is read from (field
+          "certificate"). Defaults to "<mount>/cert/ca", with <mount> taken from
+          `path`. A CA is only ever installed if it validates the issued leaf.
+        '';
+
       ttl =
         mkOpt str "72h"
         "Lifetime of issued certificates. vault-agent renews them at ~90% of this.";
@@ -337,7 +384,14 @@ in {
         # (= reinstalls). The daemons/envoy pick renewed files up from disk.
         secrets.file = {
           change-action = "restart";
-          files = mapAttrs' (id: v: nameValuePair "farm-${id}.pem" {text = v.tpl;}) enabledIdentities;
+          files =
+            (mapAttrs' (id: v: nameValuePair "farm-${id}.pem" {text = v.tpl;}) enabledIdentities)
+            // {
+              # The mount's CA certificate (unlike the leaves, this is public).
+              "farm-ca.pem".text = ''
+                {{ with secret "${caPath}" }}{{ .Data.certificate }}{{ end }}
+              '';
+            };
         };
       };
     })
