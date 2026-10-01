@@ -247,8 +247,8 @@ in {
 
     farm = {
       address =
-        mkOpt str "farm.lan.aicampground.com:50051"
-        "host:port of the balancer, as clients see it.";
+        mkOpt str "farm.lan.aicampground.com:443"
+        "host:port of the farm as clients see it. Defaults to the LAN traefik TCP/SNI passthrough in front of the envoy balancer (lb.port).";
 
       schedulerAddress =
         mkOpt str "10.8.0.176:50052"
