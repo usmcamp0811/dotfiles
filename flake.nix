@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "gitlab:crystal-forge/crystal-forge/TASK-326.2-scanning-cve-triage-parity";
+      url = "gitlab:crystal-forge/crystal-forge/TASK-470-niks3-cache-support";
 
       inputs.nixpkgs.follows = "unstable";
     };
@@ -361,24 +361,22 @@
     };
   };
 
-  outputs =
-    inputs:
-    let
-      inherit (inputs) deploy-rs;
+  outputs = inputs: let
+    inherit (inputs) deploy-rs;
 
-      lib = inputs.snowfall-lib.mkLib {
-        inherit inputs;
-        src = ./.;
-        snowfall = {
-          meta = {
-            name = "fmf";
-            title = "AI Campground";
-          };
-
-          namespace = "fmf";
+    lib = inputs.snowfall-lib.mkLib {
+      inherit inputs;
+      src = ./.;
+      snowfall = {
+        meta = {
+          name = "fmf";
+          title = "AI Campground";
         };
+
+        namespace = "fmf";
       };
-    in
+    };
+  in
     lib.mkFlake {
       channels-config = {
         allowUnfree = true;
@@ -411,8 +409,7 @@
         # kubenix.overlays.default
       ];
 
-      systems.modules.nixos =
-        with inputs;
+      systems.modules.nixos = with inputs;
         [
           nixtheplanet.nixosModules.macos-ventura
           home-manager.nixosModules.home-manager
@@ -440,61 +437,63 @@
       #   unstable.nixosModules.services.k3s
       # ];
 
-      systems.hosts =
-        let
-          hostDir = ./systems/x86_64-linux;
-          hostNames = builtins.attrNames (builtins.readDir hostDir);
-          vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
-          mkVmModules = name: {
-            modules = [ inputs.microvm.nixosModules.microvm ];
-          };
-          vmHostsConfig = builtins.listToAttrs (
-            map (name: {
-              inherit name;
-              value = mkVmModules name;
-            }) vmHosts
-          );
-        in
+      systems.hosts = let
+        hostDir = ./systems/x86_64-linux;
+        hostNames = builtins.attrNames (builtins.readDir hostDir);
+        vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
+        mkVmModules = name: {
+          modules = [inputs.microvm.nixosModules.microvm];
+        };
+        vmHostsConfig = builtins.listToAttrs (
+          map (name: {
+            inherit name;
+            value = mkVmModules name;
+          })
+          vmHosts
+        );
+      in
         vmHostsConfig
         // {
-          blue-ridge.modules = with inputs; [ disko.nixosModules.disko ];
+          blue-ridge.modules = with inputs; [disko.nixosModules.disko];
           butler.modules = with inputs; [
             nixos-hardware.nixosModules.lenovo-thinkpad-p1
             nixos-hardware.nixosModules.lenovo-thinkpad-p53
           ];
 
-          gray.modules = with inputs; [ nixos-hardware.nixosModules.framework-16-7040-amd ];
-          base.modules = [ ({ ... }: { amazonImage.sizeMB = 32 * 1024; }) ];
+          gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
+          base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
         };
 
       # Fixed bug in Amazon image builder: https://github.com/nix-community/nixos-generators/issues/150
 
-      deploy = lib.mkDeploy { inherit (inputs) self; };
+      deploy = lib.mkDeploy {inherit (inputs) self;};
 
-      checks = builtins.mapAttrs (
-        _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
-      ) deploy-rs.lib;
+      checks =
+        builtins.mapAttrs (
+          _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+        )
+        deploy-rs.lib;
 
       outputs-builder = channels: {
         # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and
         # which will break `deploy`.
         hooks.pre-commit-check =
           inputs.pre-commit-hooks.lib.${channels.nixpkgs.stdenv.hostPlatform.system}.run
-            {
-              src = ./.;
-              hooks = {
-                nixpkgs-fmt.enable = true;
-                # flake8.enable = true;
-                # markdownlint.enable = true;
-                # yamllint.enable = true;
+          {
+            src = ./.;
+            hooks = {
+              nixpkgs-fmt.enable = true;
+              # flake8.enable = true;
+              # markdownlint.enable = true;
+              # yamllint.enable = true;
 
-                # deadnix.enable = true;
-              };
+              # deadnix.enable = true;
             };
+          };
         nixidyEnvs = inputs.nixidy.lib.mkEnvs {
           pkgs = channels.nixpkgs;
           envs = {
-            dev.modules = [ ./kubernetes/dev.nix ];
+            dev.modules = [./kubernetes/dev.nix];
           };
         };
 
