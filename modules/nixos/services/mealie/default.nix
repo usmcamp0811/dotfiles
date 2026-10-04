@@ -142,6 +142,7 @@ in {
                 WEB_CONCURRENCY=1
                 OIDC_AUTH_ENABLED=true
                 OIDC_SIGNUP_ENABLED=true
+                OIDC_REQUIRES_EMAIL_VERIFICATION=false
                 OPENAI_BASE_URL=http://reckless:11434/v1
                 OPENAI_API_KEY=mysecretkey
                 OPENAI_MODEL=phi3.5:latest
