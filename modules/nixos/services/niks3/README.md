@@ -182,8 +182,30 @@ shred -u /tmp/niks3-cert.json
 chmod 600 client.key
 ```
 
-Because the server certificate comes from the farm CA, pushers must trust it:
-give the client `ca.crt` (e.g. Crystal Forge's "custom server CA" field).
+Because the server certificate comes from the farm CA, pushers must trust it.
+**Pass a bundle, not `ca.crt` alone:** the niks3 client uses a single CA setting
+for every request, including the presigned uploads to the public S3 host
+(`s3.<domain>`, a normal public certificate). With only the farm CA those uploads
+fail with `x509: certificate signed by unknown authority`. So `--ca-cert` (and
+e.g. Crystal Forge's "custom server CA" field) needs the farm CA **plus** the
+public roots:
+
+```bash
+cat ca.crt /etc/ssl/certs/ca-certificates.crt > ca-bundle.pem
+```
+
+(A way to avoid this entirely would be a publicly trusted cert for the push
+hostname on nginx, e.g. ACME DNS-01; not done here.)
+
+### One-shot onboarding script
+
+`niks3-onboard` (package `packages/scripts/niks3-onboard`; `nix run
+.#niks3-onboard -- <name>`) does all of the above and writes a ready-to-use
+directory: it issues the cert from Vault as `niks3-push-<name>` (default 180
+days), and writes `client.crt`, `client.key`, `ca.crt`, `ca-bundle.pem`, a
+`push.sh` wrapper and a `README.txt` with the serial, expiry and revoke command.
+`--tar` also writes a `.tar.gz` to hand to someone (it contains the private key).
+It needs a Vault login whose token may write `grpc-farm-pki/issue/niks3-push-client`.
 
 ## Client configuration
 
@@ -191,7 +213,7 @@ Push with the niks3 CLI (certificate only, no token):
 
 ```bash
 niks3 push --server-url https://push.niks3.example.com \
-  --client-cert client.crt --client-key client.key --ca-cert ca.crt <paths>
+  --client-cert client.crt --client-key client.key --ca-cert ca-bundle.pem <paths>
 ```
 
 (With a client certificate and no token configured, the CLI sends no bearer
@@ -209,7 +231,7 @@ fmf.services.niks3-auto-upload = {
     enable = true;
     clientCert = "/path/to/client.crt";
     clientKey = "/path/to/client.key";
-    caCert = "/path/to/ca.crt";
+    caCert = "/path/to/ca-bundle.pem";
   };
 };
 ```
