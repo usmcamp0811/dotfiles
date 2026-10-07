@@ -108,7 +108,8 @@ with lib.fmf; let
         fi
       done
 
-      if [ "$is_known" = "false" ] && [ "$current_policy" != "default" ] && [ "$current_policy" != "root" ]; then
+      # default, root and default-ceiling are built into Vault and cannot be deleted
+      if [ "$is_known" = "false" ] && [ "$current_policy" != "default" ] && [ "$current_policy" != "root" ] && [ "$current_policy" != "default-ceiling" ]; then
         echo "Removing policy: $current_policy"
         vault policy delete "$current_policy"
       else
