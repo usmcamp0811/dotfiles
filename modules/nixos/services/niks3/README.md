@@ -40,7 +40,8 @@ Consequences worth knowing:
 
 | Action | Credential |
 |---|---|
-| Push | niks3 **API token** (bearer) — plus a **client cert** if the push endpoint requires mTLS (see below) |
+| Push (public endpoint) | a **client certificate + key** (mTLS). That is the *only* credential: no API token |
+| Push (trusted LAN endpoint) | niks3 **API token** (bearer) |
 | Pull | nothing on the trusted LAN endpoint; **basic auth** (netrc) on a public endpoint |
 | Upload NAR bytes to S3 | the presigned URL niks3 returned (nothing to configure) |
 | Garage bucket key | niks3 server only |
@@ -49,9 +50,12 @@ Stock Nix cannot present a TLS client certificate to a substituter (it has
 `ssl-cert-file` for the CA only). So **pulls cannot use mTLS**; use basic auth
 via `netrc-file`, or keep pulls on a trusted network.
 
-niks3 accepts the API token as an alternative to mTLS. If you terminate mTLS in
-niks3 itself, the token still works, so mTLS alone does not *enforce* anything.
-Enforce it at the reverse proxy instead (next section).
+niks3 itself accepts *either* an API token *or* a verified client certificate,
+and it cannot be told to refuse the token. A pusher that only holds a
+certificate never needs the token, but the token keeps working for anyone who
+has it, on any endpoint that reaches niks3's plain-HTTP port. That is why the
+public push endpoint exposes only an mTLS-gated route and the token stays on the
+trusted LAN.
 
 ## Server configuration
 
@@ -74,109 +78,138 @@ Vault secrets (KV, default `secret/campground/...`):
 - `secret/campground/garage` — Garage RPC secret / admin token
 - `secret/campground/garage/buckets/niks3` — `access_key_id`, `secret_access_key`
 
-## Exposing it publicly with enforced client certs
+## Exposing it publicly with mTLS-only pushers
 
-niks3's own mTLS support is for nginx in front (`nginx.mtls`) or native TLS
-(`--tls-client-ca`); this module does not wire either (use `settings` if you
-need them). Neither *enforces* mTLS because of the token fallback, and native
-TLS would also break the local GC job (it calls the server over plain HTTP).
+Verifying a certificate at a reverse proxy is *not* the same as niks3 trusting
+it: niks3 only honours a verified identity if it is told to
+(`--mtls-proxy-header` / `--mtls-proxy-socket`), and it only trusts that header
+on a **private unix socket** (it strips it on the network port). Upstream wires
+this through its nginx integration (`nginx.mtls`), exposed here via `settings`:
 
-The pattern used in Campground instead is to enforce at the reverse proxy
-(Traefik), using **two hostnames**, because Traefik applies client-cert policy
-per SNI hostname, not per path:
+```nix
+fmf.services.niks3 = {
+  nginx = { enable = true; domain = "push.niks3.example.com"; };
+  settings.nginx = {
+    enableACME = false; forceSSL = false;   # cert comes from elsewhere (below)
+    mtls = {
+      enable = true;
+      require = true;                       # ssl_verify_client on
+      clientCAFile = "/path/to/client-ca.pem";
+      boundSubjects = ["CN=niks3-push-*"];  # only these identities may write
+    };
+  };
+};
+```
+
+nginx runs on the niks3 host and listens on 443. A cert whose subject doesn't
+match `boundSubjects` (e.g. a build-farm cert from the same CA) passes nginx but
+gets 401 from niks3. Don't instead have an external proxy (Traefik on another
+host) assert the "verified" header over the network: niks3 would then trust that
+header on its normal port, so anything that can reach the port could forge admin
+access.
+
+Because the proxy must see the client's certificate, the public front door
+(Traefik) **passes TLS through** for the push hostname instead of terminating it.
+Consequences: the server certificate for that name is not a Let's Encrypt cert
+at Traefik (it is issued to nginx, e.g. from Vault PKI, so pushers must trust
+that CA), and Traefik HTTP middlewares such as its fail2ban plugin cannot apply
+(rate limiting moves to nginx, keyed on the client cert subject, since Traefik
+hides the source IP).
+
+Hostnames (Traefik applies TLS policy per SNI name, not per path, so use three):
 
 | Hostname | Routes | Auth |
 |---|---|---|
 | `niks3.<domain>` | **allowlist** of what niks3's read proxy serves: `/`, `/index.html`, `/nix-cache-info`, `/<hash>.narinfo`, `/nar/*`, `/log/*`, `/realisations/*` | basic auth (pull) |
-| `push.niks3.<domain>` | `/api` only | client cert required (`RequireAndVerifyClientCert`) + the API token |
+| `push.niks3.<domain>` | TLS passthrough to nginx; only `/api/*` is served (404 otherwise) | client cert (mTLS) |
 | `s3.<domain>` | Garage S3 API | presigned-URL signatures |
 
-The pull host not routing `/api` is what stops anyone pushing through it with a
-stolen token. `/metrics` is served unauthenticated by niks3, so don't route it
-publicly. An allowlist (rather than "everything but /api") also keeps
-`/health*` and any future niks3 endpoint off the public pull host. The path set
-mirrors niks3's `IsValidCachePath` in `server/proxy.go` — re-check it when
-bumping the niks3 input.
-
-Keep each hostname **single-purpose**:
-
-- `push.niks3` — only `/api`; no cache reads, no `/metrics`.
-- `niks3` — only cache reads; no `/api`.
-- `s3` — Garage's S3 API only (never the Garage admin API); the bucket stays
-  private, so authorization is purely the SigV4 signature on the presigned URL.
-
-Writes deliberately use **two independent barriers**: the client cert (checked
-at the proxy) and the niks3 bearer token (checked by niks3). Leaking one is not
-enough to push. Don't try to have the proxy spoof niks3's trusted-proxy mTLS
-headers to drop the token: with a proxy on another host that adds a
-trusted-header boundary for little gain.
+An allowlist on the pull host (rather than "everything but /api") keeps
+`/metrics` (served unauthenticated by niks3), `/health*` and any future endpoint
+off it. The path set mirrors niks3's `IsValidCachePath` in `server/proxy.go`;
+re-check it when bumping the niks3 input. Keep each hostname single-purpose;
+`s3` exposes Garage's S3 API only (never its admin API) and the bucket stays
+private, so authorization is purely the SigV4 signature on each URL.
 
 Practical notes:
 
-- `push.niks3.<domain>` is two labels deep: a `*.<domain>` wildcard cert does
-  **not** cover it. Give the router its own ACME certificate.
 - Put the push and S3 hostnames on **DNS-only** (not Cloudflare-proxied). The
-  proxy terminates TLS, so origin mTLS can't work, and large NAR uploads hit
+  proxy would terminate TLS, so origin mTLS can't work, and large NAR uploads hit
   proxy body limits.
 - LAN clients should resolve the public names internally (split DNS) rather than
   hairpinning through the WAN.
-- The traefik `fail2ban` plugin used here is a per-IP **request-rate limiter**,
-  not a status-code-aware fail2ban: every request counts toward `maxretry`.
-  Small values (e.g. `maxretry = 4`) will ban a legitimate uploader. Use loose
-  thresholds. Real failure-based banning needs a host fail2ban reading the
-  access log.
-- Reference implementation: `campground.suites.public-hosting` in the Campground
-  repo (routes, TLS option, middleware).
+- Reference implementation: `systems/x86_64-linux/vm-niks3` and
+  `campground.suites.public-hosting` in the Campground repo.
+
+### Vault PKI roles this needs (create by hand)
+
+Server cert for nginx (rendered by vault-agent) and long-lived pusher certs, on
+the same CA as the build farm (`grpc-farm-pki`), with **separate roles** so a
+pusher can never obtain a server-flagged cert:
+
+```bash
+vault write grpc-farm-pki/roles/niks3-push-server \
+  allowed_domains="push.niks3.example.com" allow_bare_domains=true \
+  allow_subdomains=false server_flag=true client_flag=false \
+  key_type=ec key_bits=256 ttl=720h max_ttl=2160h
+
+vault write grpc-farm-pki/roles/niks3-push-client \
+  allowed_domains="niks3-push-*" allow_glob_domains=true allow_bare_domains=true \
+  allow_subdomains=false server_flag=false client_flag=true \
+  key_type=ec key_bits=256 ttl=4320h max_ttl=8760h
+```
+
+The niks3 host's AppRole needs `update` on `grpc-farm-pki/issue/niks3-push-server`
+and `read` on `grpc-farm-pki/cert/ca`. nginx trusts *every* cert on that CA, so
+`boundSubjects` is what actually limits who may write; a long-lived client role
+is only as safe as who may call `issue/niks3-push-client`. A dedicated PKI mount
+keeps farm certs and push certs fully separate if that matters to you.
 
 ## Vault: getting credentials for a pusher
 
-Run these yourself with your own Vault token.
-
-**Client cert + key** (from the `grpc-farm-pki` PKI; CN must match `ci-*`,
-`worker-*` or `lb-*`; role max TTL is 168h):
+Run these yourself with your own Vault token. The pusher gets a certificate and
+key, **not** the niks3 API token and **not** any Garage key (Garage upload
+authorization is the presigned URLs niks3 hands back):
 
 ```bash
 umask 077
-vault write -format=json grpc-farm-pki/issue/grpc-farm \
-  common_name=ci-<name> ttl=72h > /tmp/niks3-cert.json
+vault write -format=json grpc-farm-pki/issue/niks3-push-client \
+  common_name=niks3-push-<name> ttl=4320h > /tmp/niks3-cert.json
 jq -r .data.certificate /tmp/niks3-cert.json > client.crt
 jq -r .data.private_key /tmp/niks3-cert.json > client.key
+jq -r .data.issuing_ca  /tmp/niks3-cert.json > ca.crt   # to verify the server
 shred -u /tmp/niks3-cert.json
 chmod 600 client.key
 ```
 
-**API token** (the file must contain only the token, no trailing newline):
-
-```bash
-vault read -format=json secret/campground/data/niks3 | jq -j .data.data.api_token > niks3-token
-chmod 600 niks3-token
-```
-
-Hosts with `fmf.services.nix-grpc-store.client.useFarm = true` already have an
-auto-renewed cert at `/var/lib/nix-grpc-store/client.{crt,key}`; prefer that for
-long-running pushers over hand-issued 7-day certs.
-
-**Certificate lifetime:** the `grpc-farm` role allows at most **168h**. A
-pusher that stores one certificate for months (e.g. a credential held by
-another system) needs a different arrangement: a dedicated PKI role/mount with a
-longer `max_ttl`, or having that system fetch short-lived certs from Vault. Note
-the proxy trusts *any* cert from the CA it is configured with, so a longer-lived
-role on the shared farm CA widens who can push; a dedicated mount keeps farm
-certs and push certs separate.
+Because the server certificate comes from the farm CA, pushers must trust it:
+give the client `ca.crt` (e.g. Crystal Forge's "custom server CA" field).
 
 ## Client configuration
 
-Push (uploader):
+Push with the niks3 CLI (certificate only, no token):
+
+```bash
+niks3 push --server-url https://push.niks3.example.com \
+  --client-cert client.crt --client-key client.key --ca-cert ca.crt <paths>
+```
+
+(With a client certificate and no token configured, the CLI sends no bearer
+token.) The upstream NixOS auto-upload module always passes `--auth-token-path`
+and the client rejects an empty token file, so for that module give it a
+placeholder non-empty token file; the server accepts the certificate first and
+never needs the token to be valid:
 
 ```nix
 fmf.services.niks3-auto-upload = {
   enable = true;
   serverUrl = "https://push.niks3.example.com";
-  # authTokenFile = "/path/to/niks3-token";  # default: from Vault
+  authTokenFile = "/etc/niks3/unused-token";   # any non-empty file
   settings.mtls = {
     enable = true;
-    clientCert = "/var/lib/nix-grpc-store/client.crt";
-    clientKey = "/var/lib/nix-grpc-store/client.key";
+    clientCert = "/path/to/client.crt";
+    clientKey = "/path/to/client.key";
+    caCert = "/path/to/ca.crt";
   };
 };
 ```
@@ -216,11 +249,12 @@ nix.settings = {
 - **Reads are integrity-protected by signatures, confidentiality by your auth.**
   If the cache holds nothing sensitive you could leave reads public and rely on
   the signing key; keep read auth if it can contain internal closures.
-- **Crystal Forge (TASK-470 niks3 cache support) models write auth as either a
-  static token *or* mTLS, never both, and private reads as mTLS only** (per
-  `docs/knowledge/caches/niks3-cache.md` on that branch). The layout above
-  (mTLS + token for writes, basic auth for reads) therefore isn't expressible
-  there yet. That is a Crystal Forge limitation, not a niks3 one.
+- **Crystal Forge (TASK-470 niks3 cache support)** models write auth as a static
+  token *or* mTLS (exclusive), and private reads as mTLS only (per
+  `docs/knowledge/caches/niks3-cache.md` on that branch; docs only, code not
+  read). mTLS-only writes fit this layout. **Basic-auth reads do not**: private
+  reads there are mTLS, which stock Nix cannot do and this setup doesn't offer on
+  the pull host. That is a Crystal Forge gap, not a niks3 one.
 - **Narinfo probes are noisy.** niks3's default priority (30) is lower than
   cache.nixos.org (40), so Nix queries niks3 first for every path. Expect a very
   high rate of HEAD requests, mostly 404, in Garage's log.
