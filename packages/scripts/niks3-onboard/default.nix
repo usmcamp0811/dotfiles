@@ -17,21 +17,25 @@
     text = ''
       usage() {
         cat <<'EOF'
-      niks3-onboard - create the files a machine/person needs to push to niks3
+      niks3-onboard - create the mTLS files a machine/person needs for the niks3 cache
 
       Usage: niks3-onboard <name> [options]
 
+      By default the certificate can PUSH (and read). With --pull it is read-only.
+
         <name>            who/what this is for, e.g. "butler" or "alice-laptop"
                           (letters, digits and dashes; the cert CN becomes
-                          niks3-push-<name>)
+                          niks3-push-<name> or niks3-pull-<name>)
 
       Options:
+        --pull            read-only certificate (CN niks3-pull-<name>, role
+                          niks3-pull-client) for machines that only substitute
         --ttl <dur>       certificate lifetime (default: 4320h = 180 days;
                           the Vault role allows at most 8760h)
-        --out <dir>       output directory (default: ./niks3-push-<name>)
+        --out <dir>       output directory (default: ./niks3-<push|pull>-<name>)
         --tar             also write <dir>.tar.gz to hand to someone
-        --server-url <u>  push endpoint (default: https://push.niks3.aicampground.com)
-        --role <role>     Vault PKI role (default: niks3-push-client)
+        --server-url <u>  endpoint (default: https://niks3.aicampground.com)
+        --role <role>     Vault PKI role (default: niks3-push-client, or niks3-pull-client with --pull)
         --pki <mount>     Vault PKI mount (default: grpc-farm-pki)
         -h, --help        this help
 
@@ -48,8 +52,9 @@
       ttl="4320h"
       out=""
       tar_it=false
-      server_url="https://push.niks3.aicampground.com"
-      role="niks3-push-client"
+      server_url="https://niks3.aicampground.com"
+      role=""
+      kind="push"
       pki="grpc-farm-pki"
 
       while [ $# -gt 0 ]; do
@@ -58,6 +63,7 @@
           --ttl) ttl="$2"; shift 2 ;;
           --out) out="$2"; shift 2 ;;
           --tar) tar_it=true; shift ;;
+          --pull) kind="pull"; shift ;;
           --server-url) server_url="$2"; shift 2 ;;
           --role) role="$2"; shift 2 ;;
           --pki) pki="$2"; shift 2 ;;
@@ -75,8 +81,9 @@
       fi
 
       vault_bin="''${VAULT_BIN:-${pkgs.vault-bin}/bin/vault}"
-      cn="niks3-push-$name"
-      out="''${out:-./niks3-push-$name}"
+      cn="niks3-$kind-$name"
+      if [ -z "$role" ]; then role="niks3-$kind-client"; fi
+      out="''${out:-./niks3-$kind-$name}"
 
       if [ -e "$out" ]; then
         echo "refusing to overwrite existing $out" >&2
@@ -115,7 +122,8 @@
       expires="$(openssl x509 -in "$out/client.crt" -noout -enddate | cut -d= -f2)"
       subject="$(openssl x509 -in "$out/client.crt" -noout -subject | sed 's/^subject= *//')"
 
-      cat >"$out/push.sh" <<EOF
+      if [ "$kind" = push ]; then
+        cat >"$out/push.sh" <<EOF
       #!/usr/bin/env bash
       # Push store paths to niks3:  ./push.sh <store paths...>   e.g. ./push.sh ./result
       set -euo pipefail
@@ -126,10 +134,10 @@
         --client-cert "\$here/client.crt" --client-key "\$here/client.key" \\
         --ca-cert "\$here/ca-bundle.pem" "\$@"
       EOF
-      chmod 700 "$out/push.sh"
+        chmod 700 "$out/push.sh"
 
-      cat >"$out/README.txt" <<EOF
-      niks3 push credentials for: $name
+        cat >"$out/README.txt" <<EOF
+      niks3 PUSH credentials for: $name   (this certificate can also read)
       Subject:  $subject
       Serial:   $serial
       Expires:  $expires
@@ -158,6 +166,38 @@
         - Renew before $expires by running niks3-onboard again.
         - Revoke (admin): vault write $pki/revoke serial_number=$serial
       EOF
+      else
+        cat >"$out/README.txt" <<EOF
+      niks3 PULL (read-only) credentials for: $name
+      Subject:  $subject
+      Serial:   $serial
+      Expires:  $expires
+      Endpoint: $server_url
+
+      Install (as root; the nix daemon reads these, so keep the key root-only)
+        install -d -m 0755 /etc/niks3
+        install -m 0644 client.crt ca-bundle.pem /etc/niks3/
+        install -m 0600 client.key /etc/niks3/
+
+      Nix >= 2.34 passes the certificate on the substituter URL:
+
+        # nix.conf  (NixOS: nix.settings.substituters / .ssl-cert-file)
+        extra-substituters = $server_url?tls-certificate=/etc/niks3/client.crt&tls-private-key=/etc/niks3/client.key
+        ssl-cert-file = /etc/niks3/ca-bundle.pem
+        extra-trusted-public-keys = <public half of the niks3 signing key>
+
+      Quick test
+        curl --cert client.crt --key client.key --cacert ca-bundle.pem $server_url/nix-cache-info
+
+      Notes
+        - ssl-cert-file is GLOBAL for the nix daemon, so it must be the bundle
+          (private CA + public roots), not ca.crt alone, or other caches break.
+        - Needs Nix >= 2.34 (check: nix --version).
+        - This certificate cannot push.
+        - Renew before $expires by running niks3-onboard --pull again.
+        - Revoke (admin): vault write $pki/revoke serial_number=$serial
+      EOF
+      fi
 
       if [ "$tar_it" = true ]; then
         tar -C "$(dirname "$out")" -czf "$out.tar.gz" "$(basename "$out")"
@@ -170,7 +210,7 @@
       echo "  subject  $subject" >&2
       echo "  serial   $serial" >&2
       echo "  expires  $expires" >&2
-      echo "  test:    cd $out && nix build nixpkgs#hello && ./push.sh ./result" >&2
+      echo "  see $out/README.txt" >&2
     '';
   };
 in

@@ -42,13 +42,15 @@ Consequences worth knowing:
 |---|---|
 | Push (public endpoint) | a **client certificate + key** (mTLS). That is the *only* credential: no API token |
 | Push (trusted LAN endpoint) | niks3 **API token** (bearer) |
-| Pull | nothing on the trusted LAN endpoint; **basic auth** (netrc) on a public endpoint |
+| Pull (public endpoint) | a **client certificate**, read-only (`CN=niks3-pull-*`) or a push cert; Nix >= 2.34 passes it via the substituter URL |
+| Pull (trusted LAN) | nothing, via a restricted read-only listener |
 | Upload NAR bytes to S3 | the presigned URL niks3 returned (nothing to configure) |
 | Garage bucket key | niks3 server only |
 
-Stock Nix cannot present a TLS client certificate to a substituter (it has
-`ssl-cert-file` for the CA only). So **pulls cannot use mTLS**; use basic auth
-via `netrc-file`, or keep pulls on a trusted network.
+Nix can present a TLS client certificate to a substituter from 2.34 on (per-store
+`tls-certificate` / `tls-private-key`, set as URL query parameters), so pulls can
+use mTLS too. Older Nix cannot; use basic auth via `netrc-file` for those, or
+keep them on a trusted network.
 
 niks3 itself accepts *either* an API token *or* a verified client certificate,
 and it cannot be told to refuse the token. A pusher that only holds a
@@ -88,14 +90,15 @@ this through its nginx integration (`nginx.mtls`), exposed here via `settings`:
 
 ```nix
 fmf.services.niks3 = {
-  nginx = { enable = true; domain = "push.niks3.example.com"; };
+  nginx = { enable = true; domain = "niks3.example.com"; };
   settings.nginx = {
     enableACME = false; forceSSL = false;   # cert comes from elsewhere (below)
     mtls = {
       enable = true;
       require = true;                       # ssl_verify_client on
       clientCAFile = "/path/to/client-ca.pem";
-      boundSubjects = ["CN=niks3-push-*"];  # only these identities may write
+      boundSubjects = ["CN=niks3-push-*"];      # may write (and read)
+      boundSubjectsRead = ["CN=niks3-pull-*"];  # read-only; also gates reads for everyone else
     };
   };
 };
@@ -116,18 +119,34 @@ that CA), and Traefik HTTP middlewares such as its fail2ban plugin cannot apply
 (rate limiting moves to nginx, keyed on the client cert subject, since Traefik
 hides the source IP).
 
-Hostnames (Traefik applies TLS policy per SNI name, not per path, so use three):
+Hostnames (Traefik applies TLS policy per SNI name, not per path):
 
 | Hostname | Routes | Auth |
 |---|---|---|
-| `niks3.<domain>` | **allowlist** of what niks3's read proxy serves: `/`, `/index.html`, `/nix-cache-info`, `/<hash>.narinfo`, `/nar/*`, `/log/*`, `/realisations/*` | basic auth (pull) |
-| `push.niks3.<domain>` | TLS passthrough to nginx; only `/api/*` is served (404 otherwise) | client cert (mTLS) |
+| `niks3.<domain>` (and an alias `push.niks3.<domain>`) | TLS passthrough to nginx; reads **and** pushes, `/metrics` and health endpoints return 404 | client cert (mTLS) for everything |
 | `s3.<domain>` | Garage S3 API | presigned-URL signatures |
 
-An allowlist on the pull host (rather than "everything but /api") keeps
-`/metrics` (served unauthenticated by niks3), `/health*` and any future endpoint
-off it. The path set mirrors niks3's `IsValidCachePath` in `server/proxy.go`;
-re-check it when bumping the niks3 input. Keep each hostname single-purpose;
+Because reads are gated, a cert subject decides what a client may do:
+
+- `boundSubjects` (e.g. `CN=niks3-push-*`): may push (and read).
+- `boundSubjectsRead` (e.g. `CN=niks3-pull-*`): read-only. Nobody without a
+  matching cert can list or fetch anything, so the cache contents are not
+  discoverable.
+
+Nix (>= 2.34) can present a client certificate for reads via per-store settings
+`tls-certificate` / `tls-private-key`, passed as query parameters on the
+substituter URL (they do not show up in `nix config show`; see
+`man nix3-help-stores`). The niks3 CLI itself only has `push`, `gc` and `pins`;
+there is no CLI pull command, Nix does the reading.
+
+**Gating reads is global to niks3**, not per listener: once `boundSubjectsRead`
+is set, the plain port (:5751) also rejects anonymous reads. To keep a trusted
+LAN reading anonymously, run a second nginx listener that only the LAN reverse
+proxy may reach, serves only the cache paths, and asserts a *read-only* subject
+over the unix socket (see `systems/x86_64-linux/vm-niks3` in Campground). It
+can never push because the asserted subject only matches `boundSubjectsRead`.
+Pushing from the LAN with the API token still uses :5751 directly.
+
 `s3` exposes Garage's S3 API only (never its admin API) and the bucket stays
 private, so authorization is purely the SigV4 signature on each URL.
 
@@ -149,12 +168,17 @@ pusher can never obtain a server-flagged cert:
 
 ```bash
 vault write grpc-farm-pki/roles/niks3-push-server \
-  allowed_domains="push.niks3.example.com" allow_bare_domains=true \
+  allowed_domains="niks3.example.com,push.niks3.example.com" allow_bare_domains=true \
   allow_subdomains=false server_flag=true client_flag=false \
   key_type=ec key_bits=256 ttl=720h max_ttl=2160h
 
 vault write grpc-farm-pki/roles/niks3-push-client \
   allowed_domains="niks3-push-*" allow_glob_domains=true allow_bare_domains=true \
+  allow_subdomains=false server_flag=false client_flag=true \
+  key_type=ec key_bits=256 ttl=4320h max_ttl=8760h
+
+vault write grpc-farm-pki/roles/niks3-pull-client \
+  allowed_domains="niks3-pull-*" allow_glob_domains=true allow_bare_domains=true \
   allow_subdomains=false server_flag=false client_flag=true \
   key_type=ec key_bits=256 ttl=4320h max_ttl=8760h
 ```
@@ -212,7 +236,7 @@ It needs a Vault login whose token may write `grpc-farm-pki/issue/niks3-push-cli
 Push with the niks3 CLI (certificate only, no token):
 
 ```bash
-niks3 push --server-url https://push.niks3.example.com \
+niks3 push --server-url https://niks3.example.com \
   --client-cert client.crt --client-key client.key --ca-cert ca-bundle.pem <paths>
 ```
 
@@ -225,7 +249,7 @@ never needs the token to be valid:
 ```nix
 fmf.services.niks3-auto-upload = {
   enable = true;
-  serverUrl = "https://push.niks3.example.com";
+  serverUrl = "https://niks3.example.com";
   authTokenFile = "/etc/niks3/unused-token";   # any non-empty file
   settings.mtls = {
     enable = true;
@@ -236,20 +260,21 @@ fmf.services.niks3-auto-upload = {
 };
 ```
 
-Pull from outside the trusted network:
-
-```
-# /etc/nix/netrc  (root-owned, 0600)
-machine niks3.example.com login <user> password <password>
-```
+Pull from outside the trusted network (needs a read or push certificate; issue
+one with `niks3-onboard <name> --pull`):
 
 ```nix
 nix.settings = {
-  netrc-file = "/etc/nix/netrc";
-  extra-substituters = ["https://niks3.example.com"];
+  extra-substituters = ["https://niks3.example.com?tls-certificate=/etc/niks3/client.crt&tls-private-key=/etc/niks3/client.key"];
+  ssl-cert-file = "/etc/niks3/ca-bundle.pem";  # GLOBAL: must be the bundle
   extra-trusted-public-keys = ["<public half of the niks3 sign_key>"];
 };
 ```
+
+The nix daemon reads the key, so keep it root-readable. `ssl-cert-file` applies to
+all of the daemon's downloads, so it must contain the public roots as well as the
+private CA. If a certificate is missing or expired the substituter fails and Nix
+disables it for 60 seconds before falling back to other caches.
 
 (`fmf.cache.niks3` does this for the trusted-LAN URL and key by default.)
 
