@@ -17,31 +17,35 @@ with lib.fmf; let
   # fmf.services.nix-grpc-store.
   certsUnit = "niks3-pull-certs";
   renderedFile = "/tmp/detsys-vault/pull.pem";
+  renderedMountCa = "/tmp/detsys-vault/pull-ca.pem";
+  certMarker = "#--CERT--";
   keyMarker = "#--KEY--";
 
   # Upper bound on waiting for Vault-rendered secrets, so a Vault problem can
   # never hold up boot or a switch.
   startTimeout = "60s";
 
-  # The default location of the public CA certificate (the Vault PKI mount that
-  # signs niks3's server certificate). It is public, not a secret, so it lives
-  # in the repo. Create it with:
-  #   vault read -field=certificate grpc-farm-pki/cert/ca > farm-ca.pem
-  defaultCaFile = ./farm-ca.pem;
-  haveDefaultCa = builtins.pathExists defaultCaFile;
-
   # MicroVMs keep the anonymous LAN path (one Vault cert per VM isn't worth it).
   isVm = hasPrefix "vm-" config.networking.hostName;
   hasVaultAgent = config.fmf.services.vault-agent.enable;
 
+  # The PKI mount, derived from the issue path ("<mount>/issue/<role>"), and
+  # where its CA certificate is read from (public; not a secret).
+  pkiMount = head (splitString "/issue/" mtls.pki.path);
+  caPath =
+    if mtls.pki.caPath != null
+    then mtls.pki.caPath
+    else "${pkiMount}/cert/ca";
+
   # niks3's server certificate comes from a private CA, but Nix's `ssl-cert-file`
   # is global to the nix daemon (cache.nixos.org etc.), so it must hold the
-  # private CA AND the normal roots. Built at evaluation time from a store path,
-  # so it can never be missing at boot (a missing ssl-cert-file would break every
-  # download, not just this cache).
-  caBundle = pkgs.runCommand "niks3-ca-bundle.pem" {} ''
-    cat ${mtls.caFile} ${config.security.pki.caBundle} > $out
-  '';
+  # private CA AND the normal roots. It is a runtime file: the oneshot rebuilds
+  # it, atomically, from the CA Vault returns. A missing ssl-cert-file would
+  # break EVERY download (not just this cache), so a fallback copy of the system
+  # roots is placed at activation (tmpfiles `C`: only if absent) and the file
+  # therefore always exists, even before the first successful Vault run.
+  bundleFile = "${mtls.certDir}/ca-bundle.pem";
+  systemBundle = config.security.pki.caBundle;
 
   # Nix >= 2.34 takes the client certificate as per-store settings.
   mtlsUrl = "${mtls.url}?tls-certificate=${mtls.certDir}/client.crt&tls-private-key=${mtls.certDir}/client.key";
@@ -81,9 +85,12 @@ with lib.fmf; let
       exit 1
     fi
 
-    awk -v cert="$work/leaf" -v key="$work/key" '
-      BEGIN { out = cert }
-      $0 == "${keyMarker}" { out = key; next }
+    # one pkiCert request -> CA, certificate and key together, so a cert can
+    # never be paired with the wrong key
+    awk -v ca="$work/issued.ca" -v cert="$work/leaf" -v key="$work/key" '
+      BEGIN { out = ca }
+      $0 == "${certMarker}" { out = cert; next }
+      $0 == "${keyMarker}"  { out = key;  next }
       { print > out }
     ' "$in"
 
@@ -93,20 +100,39 @@ with lib.fmf; let
       exit 1
     fi
 
-    # And never install a certificate our (build-time) CA does not vouch for:
-    # that would mean the CA baked into this configuration is stale.
-    if ! openssl verify -CAfile ${mtls.caFile} "$work/leaf" >/dev/null 2>&1; then
-      echo "niks3-pull-certs: issued certificate does not verify against ${mtls.caFile}; not installing (is fmf.cache.niks3.mtls.caFile current?)" >&2
-      openssl verify -CAfile ${mtls.caFile} "$work/leaf" >&2 || true
+    # Pick a CA that really validates this leaf (signature AND validity dates):
+    # the one read from the mount first, then the one pkiCert returned. The CA
+    # becomes part of the nix daemon's trust bundle, so only a CA that vouches
+    # for the certificate Vault just issued is ever installed.
+    ca=""
+    for cand in "${renderedMountCa}" "$work/issued.ca"; do
+      [ -s "$cand" ] || continue
+      if openssl verify -CAfile "$cand" "$work/leaf" >/dev/null 2>&1; then
+        ca="$cand"
+        break
+      fi
+    done
+    if [ -z "$ca" ]; then
+      echo "niks3-pull-certs: no available CA validates the issued certificate, not installing" >&2
+      for cand in "${renderedMountCa}" "$work/issued.ca"; do
+        [ -s "$cand" ] || continue
+        echo "  tried $(basename "$cand"): $(openssl x509 -noout -subject -enddate -in "$cand" | tr '\n' ' ')" >&2
+      done
       exit 1
     fi
 
+    cat "$ca" ${systemBundle} > "$work/bundle"
+
     install -d -m 0755 ${mtls.certDir}
-    install -m 0644 -o root -g root "$work/leaf" ${mtls.certDir}/client.crt.new
-    install -m 0600 -o root -g root "$work/key"  ${mtls.certDir}/client.key.new
+    install -m 0644 -o root -g root "$work/leaf"   ${mtls.certDir}/client.crt.new
+    install -m 0600 -o root -g root "$work/key"    ${mtls.certDir}/client.key.new
+    install -m 0644 -o root -g root "$ca"          ${mtls.certDir}/ca.crt.new
+    install -m 0644 -o root -g root "$work/bundle" ${bundleFile}.new
     # key first, then certificate: a reader never sees a new cert with an old key
     mv -f ${mtls.certDir}/client.key.new ${mtls.certDir}/client.key
     mv -f ${mtls.certDir}/client.crt.new ${mtls.certDir}/client.crt
+    mv -f ${mtls.certDir}/ca.crt.new     ${mtls.certDir}/ca.crt
+    mv -f ${bundleFile}.new              ${bundleFile}
     echo "niks3-pull-certs: installed $(openssl x509 -noout -subject -enddate -in "$work/leaf" | tr '\n' ' ')"
   '';
 in {
@@ -129,50 +155,46 @@ in {
 
     mtls = {
       enable =
-        mkOpt bool (!isVm && hasVaultAgent && haveDefaultCa)
+        mkOpt bool (!isVm && hasVaultAgent)
         ''
           Pull from the internet-facing, client-certificate-gated endpoint
           (`mtls.url`) instead of `url`. vault-agent issues this host a
           read-only certificate (CN niks3-pull-<hostname>) from Vault PKI, a
           oneshot installs it under `mtls.certDir`, and Nix is given the
           substituter URL with `tls-certificate` / `tls-private-key` (Nix >=
-          2.34). Use this for hosts that are not on the trusted LAN, where
-          `url` is reachable without credentials. Needs
-          fmf.services.vault-agent.
+          2.34). Works on or off the trusted LAN, where `url` is reachable
+          without credentials.
 
-          Also sets the (global) `ssl-cert-file` to a bundle of the private CA
-          and the system roots.
+          The CA that signs niks3's server certificate is fetched from Vault
+          too (nothing is stored in git) and added to a bundle that becomes the
+          (global) `ssl-cert-file`, together with the system roots.
 
           Defaults to on for physical hosts (hostname not `vm-*`) that run
-          vault-agent, once the public CA file exists (see `caFile`); off
-          otherwise, so a flake without that file is unaffected.
+          vault-agent, and off otherwise. Needs the Vault role in `pki.path`
+          and AppRole access to it, so set it to false in flakes without that.
         '';
 
       url =
         mkOpt str "https://niks3.aicampground.com"
         "Client-certificate-gated niks3 endpoint.";
 
-      caFile =
-        mkOpt (nullOr path) (
-          if builtins.pathExists defaultCaFile
-          then defaultCaFile
-          else null
-        )
-        ''
-          Public CA certificate (PEM) that signs both niks3's server certificate
-          and the pull certificates. Defaults to ./farm-ca.pem next to this
-          module if that file exists (it must be `git add`ed). Create it with
-          `vault read -field=certificate grpc-farm-pki/cert/ca`.
-        '';
-
       certDir =
         mkOpt str "/var/lib/niks3-pull"
-        "Where the issued client certificate and key are installed.";
+        "Where the issued client certificate, key and CA bundle are installed.";
 
       pki = {
         path =
           mkOpt str "grpc-farm-pki/issue/niks3-pull-client"
           "Vault PKI issue path (mount/issue/role) for the read-only client certificate.";
+
+        caPath =
+          mkOpt (nullOr str) null
+          ''
+            Vault path the PKI mount's CA certificate is read from (field
+            "certificate"). Defaults to "<mount>/cert/ca", with <mount> taken
+            from `path`. A CA is only ever installed if it validates the issued
+            certificate.
+          '';
 
         ttl =
           mkOpt str "720h"
@@ -197,13 +219,7 @@ in {
 
   config = mkIf cfg.enable (mkMerge [
     {
-      warnings =
-        optional (!isVm && hasVaultAgent && !mtls.enable && mtls.caFile == null) ''
-          fmf.cache.niks3: client-certificate pulls are NOT enabled on ${host}: the public CA file
-          modules/nixos/cache/niks3/farm-ca.pem is missing (or not `git add`ed). Create it with:
-            vault read -field=certificate grpc-farm-pki/cert/ca > modules/nixos/cache/niks3/farm-ca.pem
-        ''
-        ++ optional (cfg.publicKey == null) ''
+      warnings = optional (cfg.publicKey == null) ''
         fmf.cache.niks3 is enabled but fmf.cache.niks3.publicKey is not set, so
         ${substituterUrl} is not being used as a substituter. Set publicKey to the
         public half of niks3's signing key (`nix key convert-secret-to-public`).
@@ -217,16 +233,20 @@ in {
     (mkIf mtls.enable {
       assertions = [
         {
-          assertion = mtls.caFile != null;
-          message = "fmf.cache.niks3.mtls needs fmf.cache.niks3.mtls.caFile (the public Vault PKI CA). Create modules/nixos/cache/niks3/farm-ca.pem (and git add it) with: vault read -field=certificate grpc-farm-pki/cert/ca";
-        }
-        {
           assertion = config.fmf.services.vault-agent.enable;
           message = "fmf.cache.niks3.mtls needs fmf.services.vault-agent.enable = true (the client certificate is issued through Vault).";
         }
       ];
 
-      nix.settings.ssl-cert-file = "${caBundle}";
+      nix.settings.ssl-cert-file = bundleFile;
+
+      # Always-present fallback for ssl-cert-file (see bundleFile above):
+      # `C` copies only if the target does not exist, so a bundle the oneshot
+      # already built is never overwritten.
+      systemd.tmpfiles.rules = [
+        "d ${mtls.certDir} 0755 root root -"
+        "C ${bundleFile} 0644 root root - ${systemBundle}"
+      ];
 
       systemd.services.${certsUnit} = {
         description = "Install the niks3 pull client certificate issued by Vault PKI";
@@ -251,10 +271,17 @@ in {
         # (= reinstalls); nix reads the files on each connection.
         secrets.file = {
           change-action = "restart";
-          files."pull.pem".text = ''
-            {{ with pkiCert "${mtls.pki.path}" "common_name=niks3-pull-${host}" "ttl=${mtls.pki.ttl}" }}{{ .Cert }}${keyMarker}
-            {{ .Key }}{{ end }}
-          '';
+          files = {
+            "pull.pem".text = ''
+              {{ with pkiCert "${mtls.pki.path}" "common_name=niks3-pull-${host}" "ttl=${mtls.pki.ttl}" }}{{ .CA }}${certMarker}
+              {{ .Cert }}${keyMarker}
+              {{ .Key }}{{ end }}
+            '';
+            # The mount's CA certificate (public). Preferred trust anchor.
+            "pull-ca.pem".text = ''
+              {{ with secret "${caPath}" }}{{ .Data.certificate }}{{ end }}
+            '';
+          };
         };
       };
     })

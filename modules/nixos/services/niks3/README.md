@@ -278,36 +278,37 @@ disables it for 60 seconds before falling back to other caches.
 
 ### Automatic pull certificates (`fmf.cache.niks3.mtls`)
 
-Instead of hand-issuing a pull cert per machine, use `fmf.cache.niks3.mtls`
-(needs `fmf.services.vault-agent`). It is on **by default for physical hosts**
-(hostname not `vm-*`) that run vault-agent, once the public CA file exists:
-
-```bash
-vault read -field=certificate grpc-farm-pki/cert/ca > modules/nixos/cache/niks3/farm-ca.pem
-git add modules/nixos/cache/niks3/farm-ca.pem
-```
-
-Without that file it stays off (and warns), so a flake that consumes fmf but has
-not set this up is unaffected. Force it either way per host with
-`fmf.cache.niks3.mtls.enable`. When on:
+Instead of hand-issuing a pull cert per machine, `fmf.cache.niks3.mtls` has
+vault-agent do it (needs `fmf.services.vault-agent`). It is **on by default for
+physical hosts** (hostname not `vm-*`) that run vault-agent; set
+`fmf.cache.niks3.mtls.enable` to force it either way. When on:
 
 - vault-agent issues the host a read-only certificate (`CN=niks3-pull-<hostname>`,
-  default 720h, renewed at ~90%) from `grpc-farm-pki/issue/niks3-pull-client`;
-- the `niks3-pull-certs` oneshot installs it to `/var/lib/niks3-pull/` (key `0600`
-  root). It refuses a mismatched key, or a cert that the baked-in CA does not
-  verify (a stale CA), and keeps the previous files on failure;
+  default 720h, renewed at ~90%) from `grpc-farm-pki/issue/niks3-pull-client`,
+  and also reads the mount's CA from `grpc-farm-pki/cert/ca`. Nothing is stored
+  in git;
+- the `niks3-pull-certs` oneshot installs, under `/var/lib/niks3-pull/`, the
+  certificate and key (`0600` root), the CA, and `ca-bundle.pem` (that CA plus
+  the system roots). It refuses a mismatched key, and it only installs a CA that
+  actually validates the certificate Vault just issued; on any failure it keeps
+  the previous files;
 - the substituter becomes `mtls.url` with `?tls-certificate=…&tls-private-key=…`
   instead of the LAN URL;
-- `nix.settings.ssl-cert-file` is set to a build-time bundle of the private CA
-  (`mtls.caFile`, public; default `./farm-ca.pem` next to the module) plus the
-  system roots. It is a store path, so it can never be missing at boot (a missing
-  `ssl-cert-file` would break every download, not just this cache).
+- `nix.settings.ssl-cert-file` points at `ca-bundle.pem`. Because a missing
+  `ssl-cert-file` would break every download (cache.nixos.org too), a fallback
+  copy of the system roots is placed there at activation (tmpfiles `C`, only if
+  absent), so the file exists even before the first successful Vault run.
 
 Every AppRole that should do this needs `update` on
-`grpc-farm-pki/issue/niks3-pull-client`. An expired or missing cert only disables
-this one substituter (Nix backs off for 60 s and falls back); it does not break
-builds. Hosts on the trusted LAN can skip all this and keep using the anonymous
-LAN URL (the default).
+`grpc-farm-pki/issue/niks3-pull-client` and `read` on `grpc-farm-pki/cert/ca`.
+Until the first run succeeds, or if the cert is missing or expired, only this one
+substituter fails (Nix backs off for 60 s and falls back); builds still work.
+Hosts on the trusted LAN can skip all this and keep using the anonymous LAN URL.
+
+Security note: `ssl-cert-file` is global to the nix daemon, so the CA added to
+that bundle is trusted for *every* HTTPS download the daemon does, not just
+niks3. That is the same trust you already place in whoever controls that PKI
+mount; it is not scoped by hostname. Keep access to the mount's signing key tight.
 
 (`fmf.cache.niks3` does this for the trusted-LAN URL and key by default.)
 
