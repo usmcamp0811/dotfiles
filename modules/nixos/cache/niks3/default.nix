@@ -28,6 +28,11 @@ with lib.fmf; let
   # in the repo. Create it with:
   #   vault read -field=certificate grpc-farm-pki/cert/ca > farm-ca.pem
   defaultCaFile = ./farm-ca.pem;
+  haveDefaultCa = builtins.pathExists defaultCaFile;
+
+  # MicroVMs keep the anonymous LAN path (one Vault cert per VM isn't worth it).
+  isVm = hasPrefix "vm-" config.networking.hostName;
+  hasVaultAgent = config.fmf.services.vault-agent.enable;
 
   # niks3's server certificate comes from a private CA, but Nix's `ssl-cert-file`
   # is global to the nix daemon (cache.nixos.org etc.), so it must hold the
@@ -124,7 +129,7 @@ in {
 
     mtls = {
       enable =
-        mkBoolOpt false
+        mkOpt bool (!isVm && hasVaultAgent && haveDefaultCa)
         ''
           Pull from the internet-facing, client-certificate-gated endpoint
           (`mtls.url`) instead of `url`. vault-agent issues this host a
@@ -137,6 +142,10 @@ in {
 
           Also sets the (global) `ssl-cert-file` to a bundle of the private CA
           and the system roots.
+
+          Defaults to on for physical hosts (hostname not `vm-*`) that run
+          vault-agent, once the public CA file exists (see `caFile`); off
+          otherwise, so a flake without that file is unaffected.
         '';
 
       url =
@@ -188,7 +197,13 @@ in {
 
   config = mkIf cfg.enable (mkMerge [
     {
-      warnings = optional (cfg.publicKey == null) ''
+      warnings =
+        optional (!isVm && hasVaultAgent && !mtls.enable && mtls.caFile == null) ''
+          fmf.cache.niks3: client-certificate pulls are NOT enabled on ${host}: the public CA file
+          modules/nixos/cache/niks3/farm-ca.pem is missing (or not `git add`ed). Create it with:
+            vault read -field=certificate grpc-farm-pki/cert/ca > modules/nixos/cache/niks3/farm-ca.pem
+        ''
+        ++ optional (cfg.publicKey == null) ''
         fmf.cache.niks3 is enabled but fmf.cache.niks3.publicKey is not set, so
         ${substituterUrl} is not being used as a substituter. Set publicKey to the
         public half of niks3's signing key (`nix key convert-secret-to-public`).

@@ -278,8 +278,18 @@ disables it for 60 seconds before falling back to other caches.
 
 ### Automatic pull certificates (`fmf.cache.niks3.mtls`)
 
-Instead of hand-issuing a pull cert per machine, set
-`fmf.cache.niks3.mtls.enable = true` (needs `fmf.services.vault-agent`). Then:
+Instead of hand-issuing a pull cert per machine, use `fmf.cache.niks3.mtls`
+(needs `fmf.services.vault-agent`). It is on **by default for physical hosts**
+(hostname not `vm-*`) that run vault-agent, once the public CA file exists:
+
+```bash
+vault read -field=certificate grpc-farm-pki/cert/ca > modules/nixos/cache/niks3/farm-ca.pem
+git add modules/nixos/cache/niks3/farm-ca.pem
+```
+
+Without that file it stays off (and warns), so a flake that consumes fmf but has
+not set this up is unaffected. Force it either way per host with
+`fmf.cache.niks3.mtls.enable`. When on:
 
 - vault-agent issues the host a read-only certificate (`CN=niks3-pull-<hostname>`,
   default 720h, renewed at ~90%) from `grpc-farm-pki/issue/niks3-pull-client`;
