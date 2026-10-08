@@ -276,6 +276,29 @@ all of the daemon's downloads, so it must contain the public roots as well as th
 private CA. If a certificate is missing or expired the substituter fails and Nix
 disables it for 60 seconds before falling back to other caches.
 
+### Automatic pull certificates (`fmf.cache.niks3.mtls`)
+
+Instead of hand-issuing a pull cert per machine, set
+`fmf.cache.niks3.mtls.enable = true` (needs `fmf.services.vault-agent`). Then:
+
+- vault-agent issues the host a read-only certificate (`CN=niks3-pull-<hostname>`,
+  default 720h, renewed at ~90%) from `grpc-farm-pki/issue/niks3-pull-client`;
+- the `niks3-pull-certs` oneshot installs it to `/var/lib/niks3-pull/` (key `0600`
+  root). It refuses a mismatched key, or a cert that the baked-in CA does not
+  verify (a stale CA), and keeps the previous files on failure;
+- the substituter becomes `mtls.url` with `?tls-certificate=…&tls-private-key=…`
+  instead of the LAN URL;
+- `nix.settings.ssl-cert-file` is set to a build-time bundle of the private CA
+  (`mtls.caFile`, public; default `./farm-ca.pem` next to the module) plus the
+  system roots. It is a store path, so it can never be missing at boot (a missing
+  `ssl-cert-file` would break every download, not just this cache).
+
+Every AppRole that should do this needs `update` on
+`grpc-farm-pki/issue/niks3-pull-client`. An expired or missing cert only disables
+this one substituter (Nix backs off for 60 s and falls back); it does not break
+builds. Hosts on the trusted LAN can skip all this and keep using the anonymous
+LAN URL (the default).
+
 (`fmf.cache.niks3` does this for the trusted-LAN URL and key by default.)
 
 ## Operational notes
