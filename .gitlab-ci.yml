@@ -338,7 +338,10 @@ create-pages:
         sed -i "s|sha256 = \"$CURRENT_HASH\"|sha256 = \"$HASH\"|" modules/nixos/services/dnscrypt-proxy/default.nix
         git config user.email 'ci-bot@gitlab.com'
         git config user.name 'CI Bot'
-        git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/dotfiles.git
+        # CI_DEPLOY_USER/CI_DEPLOY_PASSWORD are not a Git-write credential here.
+        # Use the job token; the project must allow Git pushes with CI_JOB_TOKEN
+        # under Settings → CI/CD → Job token permissions.
+        git remote set-url origin "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
         git add modules/nixos/services/dnscrypt-proxy/default.nix
         git commit -m "CI: update OISD blocklist hash"
         git push origin HEAD:${CI_DEFAULT_BRANCH}
