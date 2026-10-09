@@ -42,7 +42,8 @@ with lib.fmf; let
       hash = "sha256-JcdkZBcf059Pk5lqwGIlcTHmfIM54no98adeHe+TNBs=";
     };
     depsHash = "sha256-n1VIwehFBeIAceCsn15wJSi3AX2IHw5GMP9RsW8AhWc=";
-    pnpm = pkgs.pnpm_10;
+    # pnpm_10 (10.34.0) is marked insecure in nixpkgs; use the maintained 10.x
+    pnpm = pkgs.pnpm_10_latest;
   };
   mokkapps-theme = buildPnpmTheme {
     inherit pkgs;

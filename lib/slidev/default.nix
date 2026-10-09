@@ -120,7 +120,7 @@
     version,
     src,
     depsHash,
-    pnpm ? pkgs.pnpm_10,
+    pnpm ? pkgs.pnpm_10_latest,
     meta ? {},
   }:
     pkgs.stdenv.mkDerivation {
