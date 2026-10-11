@@ -1532,12 +1532,12 @@
         "rev": "4232dd4228a9f8b2fe6ad7d717c3082ffbf28f31",
         "revCount": 4583,
         "type": "git",
-        "url": "ssh://git@gitlab.com/crystal-forge/crystal-forge.git"
+        "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
       "original": {
         "ref": "TASK-470-niks3-cache-support",
         "type": "git",
-        "url": "ssh://git@gitlab.com/crystal-forge/crystal-forge.git"
+        "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       }
     },
     "darwin": {

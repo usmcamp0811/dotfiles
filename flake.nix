@@ -4,8 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      # url = "gitlab:crystal-forge/crystal-forge/TASK-470-niks3-cache-support";
-      url = "git+ssh://git@gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-470-niks3-cache-support";
+      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-470-niks3-cache-support";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
