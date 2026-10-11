@@ -377,6 +377,9 @@
     };
   in
     lib.mkFlake {
+      # nixpkgs 26.11 dropped x86_64-darwin; flake-utils-plus defaults to including it
+      supportedSystems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
+
       channels-config = {
         allowUnfree = true;
         permittedInsecurePackages = [
@@ -467,11 +470,12 @@
 
       deploy = lib.mkDeploy {inherit (inputs) self;};
 
+      # nixpkgs 26.11 dropped x86_64-darwin, so don't build deploy checks for it
       checks =
         builtins.mapAttrs (
           _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
         )
-        deploy-rs.lib;
+        (builtins.removeAttrs deploy-rs.lib ["x86_64-darwin"]);
 
       outputs-builder = channels: {
         # this needs to be `hooks` not `checks` because `checks` will get run with `deploy` and
