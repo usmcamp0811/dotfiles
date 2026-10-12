@@ -59,6 +59,10 @@ in
       settings = {
         disable_startup_analytics = true;
         avatars = cfg.avatars;
+        # The worker overrides this with its own loopback listener. Do not put
+        # AUTHENTIK_LISTEN__HTTP in the shared EnvironmentFile: systemd gives
+        # that file precedence over the worker's per-unit Environment setting.
+        listen.http = mkDefault "0.0.0.0:${toString cfg.port}";
         AUTHENTIK_OUTPOST_URL = "https://auth.aicampground.com";
         AUTHENTIK_DEFAULT_USER_SETTINGS__PATH = "/";
         AUTHENTIK_INSECURE = true;
@@ -91,6 +95,15 @@ in
         "authentik-ldap.service"
         "authentik-radius.service"
       ];
+      # Refresh the runtime EnvironmentFile before any consumer starts, rather
+      # than allowing a stale copy to override the worker's listener on boot.
+      requiredBy = [
+        "authentik-migrate.service"
+        "authentik-worker.service"
+        "authentik.service"
+        "authentik-ldap.service"
+        "authentik-radius.service"
+      ];
     };
     fmf.services.vault-agent.services = {
       authentikSecrets = {
@@ -117,7 +130,6 @@ in
                   AUTHENTIK_HOST=https://auth.aicampground.com
                   AUTHENTIK_TOKEN={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_TOKEN }}{{ else }}{{ .Data.data.AUTHENTIK_TOKEN }}{{ end }}{{ end }}
                   AUTHENTIK_SECRET_KEY={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_SECRET_KEY }}{{ else }}{{ .Data.data.AUTHENTIK_SECRET_KEY }}{{ end }}{{ end }}
-                  AUTHENTIK_LISTEN__HTTP=0.0.0.0:${toString cfg.port}
                   AUTHENTIK_EMAIL__HOST={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__HOST }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__HOST }}{{ end }}{{ end }}
                   AUTHENTIK_EMAIL__PORT={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__PORT }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__PORT }}{{ end }}{{ end }}
                   AUTHENTIK_EMAIL__USERNAME={{ with secret "${cfg.vault-path}" }}{{ if eq "${cfg.kvVersion}" "v1" }}{{ .Data.AUTHENTIK_EMAIL__USERNAME }}{{ else }}{{ .Data.data.AUTHENTIK_EMAIL__USERNAME }}{{ end }}{{ end }}
