@@ -18,8 +18,8 @@
       url = "github:nix-community/npmlock2nix";
       flake = false;
     };
-    # Pin authentik to 2025.12.4
-    authentik-nix.url = "github:nix-community/authentik-nix?ref=version/2025.12.4";
+    # Latest stable Authentik; upgrade existing databases through each release series.
+    authentik-nix.url = "github:nix-community/authentik-nix?ref=version/2026.8.3";
     # authentik-nix.inputs.nixpkgs.follows = "unstable";
     terranix.url = "github:terranix/terranix";
     terranix.inputs.nixpkgs.follows = "nixpkgs";
