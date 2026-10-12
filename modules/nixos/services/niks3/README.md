@@ -80,6 +80,111 @@ Vault secrets (KV, default `secret/campground/...`):
 - `secret/campground/garage` — Garage RPC secret / admin token
 - `secret/campground/garage/buckets/niks3` — `access_key_id`, `secret_access_key`
 
+## Watchdogs and automatic recovery
+
+Recovery is part of **this niks3 NixOS module**, not a VM/host-specific module.
+It is enabled by default when `fmf.services.niks3.enable = true` and requires no
+new secrets. nginx monitoring is only installed when niks3's nginx frontend is
+enabled (through `nginx.enable` or `settings.nginx.enable`).
+
+```nix
+fmf.services.niks3 = {
+  enable = true;
+  watchdog = {
+    enable = true;
+    timeout = "30s";
+    checkInterval = "30s";
+    startupDelay = "2min";
+    nginx = {
+      enable = true;
+      healthPort = 8082;
+    };
+  };
+};
+```
+
+| Option (`watchdog.*`) | Default | Purpose |
+|---|---|---|
+| `enable` | `true` | Enable native niks3 watchdog and periodic recovery checks |
+| `timeout` | `"30s"` | Native systemd WATCHDOG heartbeat deadline |
+| `checkInterval` | `"30s"` | Time after a check finishes before the next check |
+| `startupDelay` | `"2min"` | Initial timer delay after boot |
+| `healthUrl` | direct `httpAddr` + `/health`, wildcard addresses mapped to loopback | niks3 liveness probe |
+| `nginx.enable` | `true` | Check nginx if niks3's nginx frontend is enabled |
+| `nginx.healthPort` | `8082` | Unused loopback-only nginx health port |
+
+### What is checked
+
+- **Native niks3 watchdog:** the upstream server already sends systemd
+  `WATCHDOG=1` heartbeats; its heartbeat loop is gated on a PostgreSQL ping.
+  The deadline is exposed through `watchdog.timeout`. Both services retain their
+  upstream `Restart=always`/10-second behavior, and startup-rate limiting is
+  disabled for monitored services so repeated failures do not strand them.
+- **`niks3-watchdog.timer`:** checks that `niks3.service` is active and its
+  direct, unauthenticated `/health` endpoint returns HTTP **200**. This handler
+  is liveness-only and does not query PostgreSQL or S3. Do not replace it with
+  `/readyz` or a URL through nginx: those test different failure domains.
+- **`niks3-nginx-watchdog.timer`:** requires active nginx and HTTP **204** from
+  `http://127.0.0.1:<healthPort>/healthz`, served directly by a loopback-only nginx
+  virtual host. It does not require Vault credentials or mTLS and opens no
+  firewall port.
+
+Three failed probes, five seconds apart, trigger a service restart followed by
+up to six recovery probes. Checks do not overlap. Startup, shutdown and reload
+operations are left alone; nginx's check also avoids interrupting a niks3
+lifecycle transition. Before restarting niks3, its systemd `Requires`/`BindsTo`
+dependencies (e.g. sockets, local PostgreSQL, Vault Agent) must be active. Missing
+dependencies fail/log the check instead of being repeatedly restarted.
+
+This does not mean database outages can never restart niks3: the **native**
+heartbeat watchdog is database-gated. The HTTP timer deliberately uses
+liveness, not readiness, to avoid adding another database-driven restart loop.
+Restarting niks3 may restart services marked `PartOf=niks3.service`, including
+nginx/certificate setup in Campground's configuration. Active uploads or downloads
+can be interrupted. Watchdogs do not restart PostgreSQL or Garage themselves.
+
+If `httpAddr` binds a specific interface, the default probe uses that address.
+For an unusual listener, override `watchdog.healthUrl` with a directly reachable
+local `/health` URL. Choose a different unused `nginx.healthPort` if 8082 is taken.
+`watchdog.enable = false` disables both timers and the native heartbeat deadline;
+ordinary crash restart behavior remains. `watchdog.nginx.enable = false` disables
+only nginx monitoring without altering the niks3 watchdog.
+
+### Status, failure reporting and maintenance
+
+```bash
+systemctl list-timers niks3-watchdog.timer niks3-nginx-watchdog.timer --no-pager
+sudo journalctl -u niks3-watchdog.service -u niks3-nginx-watchdog.service \
+  -u niks3.service -u nginx.service -n 100 --no-pager
+```
+
+Successful oneshot checks normally return to `inactive (dead)`. Failed restarts,
+timeouts, unavailable dependencies and unsuccessful recovery are visible in the
+unit result and journal. These checks **do not send email/chat notifications**;
+use your monitoring system for alerts and end-to-end cache/TLS/DNS checks.
+
+The timers deliberately restart a manually stopped service. Before maintenance,
+stop the applicable timers and in-flight checks first:
+
+```bash
+sudo systemctl stop niks3-watchdog.timer niks3-nginx-watchdog.timer
+sudo systemctl stop niks3-watchdog.service niks3-nginx-watchdog.service
+sudo systemctl stop niks3.service nginx.service
+```
+
+When maintenance is complete:
+
+```bash
+sudo systemctl start niks3.service nginx.service
+sudo systemctl start niks3-watchdog.timer niks3-nginx-watchdog.timer
+```
+
+Omit nginx units when the frontend is disabled. Because niks3 is socket-activated,
+stopping just the service is not complete isolation: client traffic can activate
+it again. Stop its socket units too if your maintenance requires that isolation.
+Only test deliberate crashes/stops on a disposable instance or during a scheduled
+outage; do not interrupt an active cache build or upload.
+
 ## Exposing it publicly with mTLS-only pushers
 
 Verifying a certificate at a reverse proxy is *not* the same as niks3 trusting

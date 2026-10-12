@@ -107,6 +107,92 @@ with lib.fmf; let
     if cfg.signKeyFiles != []
     then cfg.signKeyFiles
     else optional cfg.signKey.enable (vaultSecretFilePath "sign-key");
+
+  localHttpAddr = let
+    address = config.services.niks3.httpAddr;
+  in
+    if hasPrefix ":" address
+    then "127.0.0.1${address}"
+    else replaceStrings ["0.0.0.0" "[::]"] ["127.0.0.1" "[::1]"] address;
+
+  nginxWatchdogEnabled =
+    cfg.watchdog.enable && cfg.watchdog.nginx.enable && config.services.niks3.nginx.enable;
+
+  # Keep recovery in the niks3 module so physical hosts and VMs share the same
+  # behavior. The probe is liveness-only; readiness failures need dependency
+  # repair, not blind restarts of an otherwise responsive service.
+  mkWatchdog = {unit, url, status, dependencies ? [], transitions ? []}: {
+    description = "Check and recover ${unit}";
+    after = [unit];
+    path = [pkgs.curl pkgs.systemd pkgs.coreutils];
+    serviceConfig = {
+      Type = "oneshot";
+      TimeoutStartSec = "3min";
+      PrivateTmp = true;
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      NoNewPrivileges = true;
+      RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
+    };
+    script = ''
+      set -euo pipefail
+
+      healthy() {
+        systemctl is-active --quiet ${escapeShellArg unit} || return 1
+        local code
+        code=$(curl --noproxy '*' --silent --show-error --fail \
+          --connect-timeout 2 --max-time 5 --output /dev/null \
+          --write-out '%{http_code}' ${escapeShellArg url}) || return 1
+        [ "$code" = ${escapeShellArg status} ]
+      }
+
+      # Leave ongoing activation, shutdown and reload work to systemd.
+      for watched_unit in ${escapeShellArgs ([unit] ++ transitions)}; do
+        case "$(systemctl show "$watched_unit" --property=ActiveState --value)" in
+          activating|deactivating|reloading) exit 0 ;;
+        esac
+      done
+
+      for attempt in 1 2 3; do
+        if healthy; then exit 0; fi
+        if [ "$attempt" -lt 3 ]; then sleep 5; fi
+      done
+
+      ${optionalString (dependencies != []) ''
+        for dependency in ${escapeShellArgs dependencies}; do
+          if ! systemctl is-active --quiet "$dependency"; then
+            echo "${unit} watchdog: dependency $dependency is unavailable; not restarting" >&2
+            exit 1
+          fi
+        done
+      ''}
+
+      echo "${unit} watchdog: three probes failed; restarting" >&2
+      systemctl reset-failed ${escapeShellArg unit}
+      systemctl restart ${escapeShellArg unit}
+
+      for attempt in 1 2 3 4 5 6; do
+        if healthy; then
+          echo "${unit} watchdog: service recovered"
+          exit 0
+        fi
+        sleep 5
+      done
+      echo "${unit} watchdog: ERROR service is still unhealthy after restart; check its dependency and service journals" >&2
+      exit 1
+    '';
+  };
+
+  mkWatchdogTimer = unit: {
+    description = "Periodically run ${unit}";
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnBootSec = cfg.watchdog.startupDelay;
+      OnUnitInactiveSec = cfg.watchdog.checkInterval;
+      AccuracySec = "5s";
+      Unit = unit;
+    };
+  };
 in {
   imports = [inputs.niks3.nixosModules.niks3];
 
@@ -277,6 +363,18 @@ in {
         "Domain name for the nginx virtual host. Required when nginx.enable is true.";
     };
 
+    watchdog = {
+      enable = mkBoolOpt true "Enable niks3's native systemd watchdog and periodic HTTP recovery checks.";
+      timeout = mkOpt str "30s" "Native niks3 WATCHDOG heartbeat deadline (systemd duration).";
+      checkInterval = mkOpt str "30s" "Time after a check finishes before the next check (systemd duration).";
+      startupDelay = mkOpt str "2min" "Initial watchdog delay after boot (systemd duration).";
+      healthUrl = mkOpt str "http://${localHttpAddr}/health" "Direct niks3 liveness URL; do not use nginx or the database-dependent /readyz endpoint.";
+      nginx = {
+        enable = mkBoolOpt true "Also watch nginx when services.niks3.nginx.enable is true.";
+        healthPort = mkOpt port 8082 "Unused loopback-only nginx HTTP health port.";
+      };
+    };
+
     gc = {
       enable = mkBoolOpt true "Enable niks3's periodic garbage collection timer.";
 
@@ -401,6 +499,39 @@ in {
       })
       cfg.settings
     ];
+
+    # Upstream niks3 already sends sd_notify WATCHDOG heartbeats and defaults
+    # to Restart=always/10s. Expose the deadline and retain automatic retries.
+    systemd.services.niks3 = {
+      serviceConfig.WatchdogSec = mkForce (if cfg.watchdog.enable then cfg.watchdog.timeout else "0");
+      unitConfig.StartLimitIntervalSec = mkIf cfg.watchdog.enable (mkForce 0);
+    };
+    systemd.services.niks3-watchdog = mkIf cfg.watchdog.enable (mkWatchdog {
+      unit = "niks3.service";
+      url = cfg.watchdog.healthUrl;
+      status = "200";
+      # Don't try to recover a stopped server while its local Postgres, socket
+      # or Vault dependencies are unavailable. Report the failure instead.
+      dependencies = unique (config.systemd.services.niks3.requires ++ config.systemd.services.niks3.bindsTo);
+    });
+    systemd.timers.niks3-watchdog = mkIf cfg.watchdog.enable (mkWatchdogTimer "niks3-watchdog.service");
+
+    services.nginx.virtualHosts."niks3-nginx-watchdog" = mkIf nginxWatchdogEnabled {
+      listen = [{addr = "127.0.0.1"; port = cfg.watchdog.nginx.healthPort;}];
+      locations."= /healthz".return = "204";
+      locations."/".return = "404";
+      extraConfig = "access_log off;";
+    };
+    systemd.services.nginx = mkIf nginxWatchdogEnabled {
+      unitConfig.StartLimitIntervalSec = mkForce 0;
+    };
+    systemd.services.niks3-nginx-watchdog = mkIf nginxWatchdogEnabled (mkWatchdog {
+      unit = "nginx.service";
+      url = "http://127.0.0.1:${toString cfg.watchdog.nginx.healthPort}/healthz";
+      status = "204";
+      transitions = ["niks3.service"];
+    });
+    systemd.timers.niks3-nginx-watchdog = mkIf nginxWatchdogEnabled (mkWatchdogTimer "niks3-nginx-watchdog.service");
 
     networking.firewall.allowedTCPPorts =
       optionals cfg.openFirewall [
