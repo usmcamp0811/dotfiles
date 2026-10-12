@@ -59,10 +59,6 @@ in
       settings = {
         disable_startup_analytics = true;
         avatars = cfg.avatars;
-        # The worker overrides this with its own loopback listener. Do not put
-        # AUTHENTIK_LISTEN__HTTP in the shared EnvironmentFile: systemd gives
-        # that file precedence over the worker's per-unit Environment setting.
-        listen.http = mkDefault "0.0.0.0:${toString cfg.port}";
         AUTHENTIK_OUTPOST_URL = "https://auth.aicampground.com";
         AUTHENTIK_DEFAULT_USER_SETTINGS__PATH = "/";
         AUTHENTIK_INSECURE = true;
@@ -76,6 +72,12 @@ in
     };
 
     networking.firewall.allowedTCPPorts = [ cfg.port ];
+
+    # Bind the UI listener explicitly on the server unit only. The 2026.5 Go
+    # entrypoint needs this runtime setting; the worker keeps its own listener.
+    # Never put it back in the shared EnvironmentFile, which overrides both.
+    systemd.services.authentik.environment.AUTHENTIK_LISTEN__HTTP =
+      "0.0.0.0:${toString cfg.port}";
 
     systemd.services.authentikSecrets = {
       description = "Get Authentik Secrets";
