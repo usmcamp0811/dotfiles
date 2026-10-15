@@ -11,6 +11,35 @@ with lib.fmf; let
 in {
   options.fmf.services.immich = with types; {
     enable = mkBoolOpt false "Enable Immich;";
+
+    version = mkOption {
+      type = nullOr str;
+      default = null;
+      example = "3.3.3";
+      description = ''
+        Pin an exact Immich version, resolved via nixpkgs-multiverse
+        (`lib.fmf.multiversePackage`). Ignored if `package` is set.
+
+        Defaults to `null`: use `pkgs.immich`, which this flake takes from
+        the `unstable` channel (see `overlays/unstable-channel`).
+
+        nixpkgs-multiverse only indexes nixos channel tips, so a version
+        newer than the locked `nixpkgs-multiverse` input's newest indexed
+        channel revision fails evaluation with a list of known versions.
+        Update that input once `nixos-unstable` has caught up.
+      '';
+    };
+
+    package = mkOption {
+      type = nullOr package;
+      default = null;
+      description = ''
+        Explicit Immich package; takes precedence over `version`. Leave as
+        `null` to resolve from `version` or, if that is also `null`, to use
+        `pkgs.immich`.
+      '';
+    };
+
     mediaLocation =
       mkOpt path "/var/lib/immich" "Directory used to store media files.";
     port = mkOpt int 13001 "Port to expose Immich on";
@@ -76,6 +105,19 @@ in {
     # Enable services.immich using the upstream service module
     services.immich = {
       enable = true;
+      # Resolution order: explicit `package` > `version` via nixpkgs-multiverse
+      # > the module default (`pkgs.immich`).
+      package =
+        if cfg.package != null
+        then cfg.package
+        else if cfg.version != null
+        then
+          lib.fmf.multiversePackage {
+            inherit inputs pkgs;
+            name = "immich";
+            version = cfg.version;
+          }
+        else pkgs.immich;
       mediaLocation = cfg.mediaLocation;
       port = cfg.port;
       host = cfg.host;
