@@ -1525,11 +1525,11 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1791860641,
-        "narHash": "sha256-G76UB64QOnyIi7L+Lal76xAimjFyU0dzTNv6S1jW+vg=",
+        "lastModified": 1792029662,
+        "narHash": "sha256-LZ+yA+gGDuTfSo/Pbm/JkDdpgr63k/Cte5UZbcmSu+w=",
         "ref": "TASK-470-niks3-cache-support",
-        "rev": "269b58ad8f73d5f8ca5225899b802e433bfbdb9c",
-        "revCount": 4591,
+        "rev": "9f0cb90cea4c7c2c5929fcbccd1ed058fa5fa255",
+        "revCount": 4597,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
