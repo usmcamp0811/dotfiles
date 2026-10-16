@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=dev";
+      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-488-eval-drawer-pixel-parity";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
