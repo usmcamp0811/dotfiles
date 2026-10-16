@@ -10,8 +10,16 @@ with lib.fmf; let
   cfg = config.fmf.tools.agentic-ai;
   system = pkgs.stdenv.hostPlatform.system;
   remoteSkillsToInstall = cfg.remoteSkills;
-  opencodeAnthropicMaxFixVersion = "0.1.1";
-  opencodeAnthropicMaxFixPlugin = "op-anthropic-auth@${opencodeAnthropicMaxFixVersion}";
+  # OpenCode v1 Anthropic OAuth plugin. Anthropic gates model access on the
+  # reported Claude Code version (e.g. "Claude Code 2.1.87 does not support this
+  # model; version 2.1.280 or newer is required"). The previous plugin,
+  # `op-anthropic-auth` (all releases through 0.1.4), hardcodes 2.1.87 and so
+  # cannot reach newer models such as Opus 5.x. 1.8.6 reports 2.1.284 and honors
+  # ANTHROPIC_CLAUDE_CODE_VERSION, so a future gate bump needs no release.
+  # Keep this at the 1.x line while OpenCode is v1 (`plugin`, not `plugins`).
+  opencodeAnthropicMaxFixPackage = "@ex-machina/opencode-anthropic-auth";
+  opencodeAnthropicMaxFixVersion = "1.8.6";
+  opencodeAnthropicMaxFixPlugin = "${opencodeAnthropicMaxFixPackage}@${opencodeAnthropicMaxFixVersion}";
 
   opencodeAnthropicMaxFixScript = pkgs.writeShellScript "opencode-anthropic-max-fix.sh" ''
     set -euo pipefail
@@ -21,22 +29,32 @@ with lib.fmf; let
 
     [[ -f "$package_json" ]] || exit 0
 
-    PACKAGE_JSON="$package_json" VERSION="${opencodeAnthropicMaxFixVersion}" ${pkgs.nodejs}/bin/node <<'EOF'
+    PACKAGE_JSON="$package_json" PKG="${opencodeAnthropicMaxFixPackage}" VERSION="${opencodeAnthropicMaxFixVersion}" ${pkgs.nodejs}/bin/node <<'EOF'
     const fs = require("node:fs");
 
     const path = process.env.PACKAGE_JSON;
+    const pkg = process.env.PKG;
     const version = process.env.VERSION;
 
     const json = JSON.parse(fs.readFileSync(path, "utf8"));
     if (!json.dependencies) json.dependencies = {};
 
-    if (json.dependencies["op-anthropic-auth"] !== version) {
-      json.dependencies["op-anthropic-auth"] = version;
+    let changed = false;
+    // Drop the superseded plugin: it hardcodes Claude Code 2.1.87.
+    if (json.dependencies["op-anthropic-auth"] !== undefined) {
+      delete json.dependencies["op-anthropic-auth"];
+      changed = true;
+    }
+    if (json.dependencies[pkg] !== version) {
+      json.dependencies[pkg] = version;
+      changed = true;
+    }
+    if (changed) {
       fs.writeFileSync(path, JSON.stringify(json, null, 2) + "\n");
     }
     EOF
 
-    installed_version="$(${pkgs.nodejs}/bin/node -e 'const fs=require("node:fs"); try { const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); process.stdout.write(p.version || ""); } catch { process.stdout.write(""); }' "$cache_dir/node_modules/op-anthropic-auth/package.json")"
+    installed_version="$(${pkgs.nodejs}/bin/node -e 'const fs=require("node:fs"); try { const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); process.stdout.write(p.version || ""); } catch { process.stdout.write(""); }' "$cache_dir/node_modules/${opencodeAnthropicMaxFixPackage}/package.json")"
 
     if [[ "$installed_version" != "${opencodeAnthropicMaxFixVersion}" ]]; then
       ${pkgs.nodejs}/bin/npm install --prefix "$cache_dir" --no-save --silent "${opencodeAnthropicMaxFixPlugin}" >/dev/null
