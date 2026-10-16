@@ -144,7 +144,7 @@ in {
       "URL of the niks3 cache. Reads are served by niks3's read proxy, so this one URL is all clients need.";
 
     publicKey =
-      mkOpt (nullOr str) "reckless-niks3-1:ithnB9sIBPvw6J8XfdTjwLhk7zOQYGhaEXz4ZGfA7oc="
+      mkOpt (nullOr str) "niks3-campground-1:GyAEyqlwuxporKjJr9RhvtKCMgVBa+1q0sbah1y4KYE="
       ''
         Public half of niks3's narinfo signing key (the Vault "sign_key"
         secret), in "name:base64" form. Produce it from the secret key with
