@@ -1525,11 +1525,11 @@
         "snowfall-lib": "snowfall-lib_9"
       },
       "locked": {
-        "lastModified": 1792199312,
-        "narHash": "sha256-bLgoIdW2fbap2RcOhGTpzONpzVQbl/5ly34V+2lvcfY=",
+        "lastModified": 1792247168,
+        "narHash": "sha256-NGK4ovJEl9hZ2mRVLeRSLamp/M5t3k89KciOZQefurU=",
         "ref": "TASK-488-eval-drawer-pixel-parity",
-        "rev": "1ffd419f0cfb2d9d9f6355950c13bd679001f77d",
-        "revCount": 4569,
+        "rev": "0c1800498d2122e21654c8b4a43cae81567a3b89",
+        "revCount": 4570,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
