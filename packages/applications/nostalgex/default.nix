@@ -55,6 +55,10 @@ in
       runHook postInstall
     '';
 
+    # Lets fmf.services.nostalgex warn when enrichment is switched on for a
+    # build that has no Supabase values to enrich with.
+    passthru.enrichmentConfigured = supabaseUrl != "" && supabaseAnonKey != "";
+
     meta = with lib; {
       description = "Retro cable TV channel guide for a Plex, Jellyfin or Emby library (self-hosted web tuner)";
       longDescription = ''
