@@ -287,7 +287,7 @@ create-pages:
     - nix build .#campground --out-link result
     - mkdir -p public/campground
     - cp -a result/share/campground/. public/campground/
-    - curl -fsSL "${CI_PAGES_URL}/domainswild" -o public/domainswild
+    - nix shell nixpkgs#curl --command curl -fsSL "${CI_PAGES_URL}/domainswild" -o public/domainswild
   artifacts:
     paths:
       - public
