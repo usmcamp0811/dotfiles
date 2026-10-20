@@ -225,9 +225,9 @@ nvim_update:
     - if: '$CI_PIPELINE_SOURCE == "trigger" && $FLAKE_UPDATE != "true"'
       allow_failure: false
 
-# Fetch the OISD domainswild blocklist and host on GitLab Pages.
+# Fetch the OISD domainswild blocklist and refresh the combined Pages site.
 # Also computes the hash and auto-updates the Nix module so builds are
-# reproducible.  Trigger manually from CI/CD → Pipelines → Run pipeline → play ▶
+# reproducible. Trigger manually from CI/CD → Pipelines → Run pipeline → play ▶
 create-pages:
   stage: deploy
   image: alpine:latest
@@ -245,6 +245,11 @@ create-pages:
     # Copy to public/ for Pages (always)
     - mkdir -p public
     - cp /tmp/domainswild public/domainswild
+    # Keep the Campground documentation alongside the blocklist. This job and
+    # the automatic documentation job must publish the same root layout.
+    - nix build .#campground --out-link result
+    - mkdir -p public/campground
+    - cp -a result/share/campground/. public/campground/
     # If the hash changed, update the Nix module and push
     - |
       if [ "$HASH" != "$CURRENT_HASH" ]; then
@@ -270,18 +275,19 @@ create-pages:
     - when: manual
       allow_failure: true
 
-# Publish the self-contained Campground documentation site. `campground` is a
-# stable Pages path rather than the project root: the existing root deployment
-# serves /domainswild for dnscrypt-proxy. Each other branch gets an isolated
-# preview so a feature branch can never overwrite the published documentation.
+# Publish the self-contained Campground documentation site. It lives below
+# /campground; the project root still serves /domainswild for dnscrypt-proxy.
+# Preserve the existing blocklist in each automatic deployment so either Pages
+# job can finish last without replacing the other job's content.
 .campground-pages-template: &campground_pages_template
   stage: deploy
   tags:
     - nix
   script:
     - nix build .#campground --out-link result
-    - mkdir -p public
-    - cp -a result/share/campground/. public/
+    - mkdir -p public/campground
+    - cp -a result/share/campground/. public/campground/
+    - curl -fsSL "${CI_PAGES_URL}/domainswild" -o public/domainswild
   artifacts:
     paths:
       - public
@@ -290,10 +296,6 @@ create-pages:
 
 campground-pages:
   <<: *campground_pages_template
-  pages:
-    publish: public
-    path_prefix: "campground"
-    expire_in: never
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
