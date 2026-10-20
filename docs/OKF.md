@@ -98,6 +98,22 @@ something from outside the site.
 
 ## Reading them in a browser
 
+### Generated module options
+
+The **options** bundle is generated during `nix build .#campground` using
+`pkgs.nixosOptionsDoc` and a documentation-only NixOS evaluation. It lists public
+`fmf.*` option names, types, descriptions and defining modules, grouped by namespace,
+with links to authored module guides where available. Search with `bundle:options`.
+Generated pages are not committed and are rebuilt automatically by Pages CI.
+
+This is a schema reference, not a real host evaluation: defaults and examples are
+omitted because some module defaults require host-specific or Vault configuration.
+The unfinished `rmf/example-flask-app` module is excluded because it redeclares
+`fmf.controls` and cannot be evaluated alongside the real RMF module. No secret or
+dummy host values are supplied, and no review/trust claims are generated.
+
+### Authored bundles
+
 `campground` renders all three bundles as a static website: one page per document, a tree
 for the bundle you are in, an outline and a "Linked from" list beside each page, and
 search. Nothing is served and nothing is fetched from the internet, so it works offline

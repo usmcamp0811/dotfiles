@@ -23,6 +23,8 @@ in
 
     cp -r ${src}/packages/scripts/okf tool
     (cd tool && python -m unittest)
+    cp -r ${src}/packages/applications/campground options-tool
+    (cd options-tool && python -m unittest)
 
     cd ${src}
     okf check docs modules systems
@@ -32,6 +34,9 @@ in
     okf site verify ${site}
     test -f ${site}/index.html
     test -f ${site}/search.html
+    test -f ${site}/options/index.html
+    grep -q 'fmf.services.immich.enable' ${site}/options/fmf/services/immich.html
+    grep -q 'Module guide' ${site}/options/fmf/services/immich.html
 
     # Works offline: no page loads a script, stylesheet or image from elsewhere.
     if grep -rEl --include='*.html' '<(script|link|img)[^>]*(src|href)="(https?:)?//' ${site}; then
