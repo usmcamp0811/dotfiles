@@ -282,6 +282,9 @@ create-pages:
     - nix build .#campground --out-link result
     - mkdir -p public
     - cp -a result/share/campground/. public/
+  artifacts:
+    paths:
+      - public
   pages:
     publish: public
 
@@ -290,6 +293,7 @@ campground-pages:
   pages:
     publish: public
     path_prefix: "campground"
+    expire_in: never
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
