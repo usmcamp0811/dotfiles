@@ -14,7 +14,7 @@ sh <(curl -L https://nixos.org/nix/install) --daemon
 
 ### Enable Flakes
 
-Add the following to `~/.config/nix/nix.conf or /etc/nix/nix.conf`:
+Add the following to `~/.config/nix/nix.conf` or `/etc/nix/nix.conf`:
 
 ```
 experimental-features = nix-command flakes
@@ -67,7 +67,7 @@ inputs = {
 };
 ```
 
-_Note: You can't mix styles if you are nesting things. The follwing is **not** valid._
+_Note: You can't mix styles if you are nesting things. The following is **not** valid._
 
 ```nix
 inputs.flakeA.url = "gitlab:owner/repoA/branch";
@@ -102,7 +102,7 @@ This section is where you can create Nix variables that are the outputs of Nix f
 
 #### `[` ... `](` ... `)` block
 
-This section is part of the `flake.nix` that is a little more strucutred. There are some standardized outputs that most all Flakes should have, such as `packages` or `devShells`.
+This section is part of the `flake.nix` that is a little more structured. There are some standardized outputs that most all Flakes should have, such as `packages` or `devShells`.
 
 ## Make an Executable Shell Script
 
@@ -135,7 +135,7 @@ so we can use it elsewhere in our Flake. Below we also define the `julia` enviro
 
 ## Making a Shell Environment
 
-The following should generally go in the `let` `in` block of the `outputs` section of your flake or in something that gets imported into it. It is a function call that returns a `buildEnv` that we call `shell-env`. This isn't 100% necessary that we do it seperate like we are, but it will allow us to define our environment once, and use it in both a `devShell` and a OCI compliant container. The function takes a couple of named arguments, the first being `name` which we just give it a descriptive name. The second argument is `paths` which is effectively a list of packages to include. For our example we include `julia-env` which we defined above.
+The following should generally go in the `let` `in` block of the `outputs` section of your flake or in something that gets imported into it. It is a function call that returns a `buildEnv` that we call `shell-env`. This isn't 100% necessary that we do it separate like we are, but it will allow us to define our environment once, and use it in both a `devShell` and a OCI compliant container. The function takes a couple of named arguments, the first being `name` which we just give it a descriptive name. The second argument is `paths` which is effectively a list of packages to include. For our example we include `julia-env` which we defined above.
 
 ```nix
  shell-env = pkgs.buildEnv rec {
@@ -146,9 +146,9 @@ The following should generally go in the `let` `in` block of the `outputs` secti
  };
 ```
 
-Below is the actual definition of our shell. There are two arguments (that we have defined here) to pass into the `mkShell` function, `buildInputs` and `shellHook`. The `buildInputs` is the packages you want to have in your shell environment. Normally you could just place your packages you want inside the list, but because we don't want to repeat our selves we broke out the above `buildEnv` and just use that in the `buildInput` section.
+Below is the actual definition of our shell. There are two arguments (that we have defined here) to pass into the `mkShell` function, `buildInputs` and `shellHook`. The `buildInputs` is the packages you want to have in your shell environment. Normally you could just place your packages you want inside the list, but because we don't want to repeat ourselves we broke out the above `buildEnv` and just use that in the `buildInput` section.
 
-The `shellHook` can be thought of as your shell's entrypoint script. It will execute when you enter your shell everytime. For our example we are just echoing some text into the `figlet` program.
+The `shellHook` can be thought of as your shell's entrypoint script. It will execute when you enter your shell every time. For our example we are just echoing some text into the `figlet` program.
 
 ```nix
  shell = pkgs.mkShell {
@@ -199,7 +199,7 @@ _NOTE: You can define as many shells and packages as it makes sense for your fla
 
 Flakes don't necessarily get installed. You can use any flake directly from the remote `git` repository that it resides or from within the local repository on your computer.
 
-If this flake was in our current directory and it also resided on Gitlab (because GitHub is the devil!) then we could get a shell in our environment we defined either of these two ways.
+If this flake was in our current directory and it also resided on Gitlab then we could get a shell in our environment we defined either of these two ways.
 
 ```bash
 # local and in the root of the repo

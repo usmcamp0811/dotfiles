@@ -8,8 +8,6 @@ tags: [services, glusterfs]
 
 # GlusterFS NixOS Module
 
-This module configures a GlusterFS server using a declarative interface under `campground.services.glusterfs`.
-
 ## Features
 
 - Enables the GlusterFS service on NixOS

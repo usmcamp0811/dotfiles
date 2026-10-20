@@ -7,8 +7,6 @@ tags: [blue-ridge]
 
 # Encryption Options for Blue Ridge Router
 
-This guide compares different encryption approaches for a router that requires unattended boot.
-
 ## The Dilemma
 
 **Conflicting Requirements:**

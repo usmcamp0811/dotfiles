@@ -199,7 +199,7 @@ sudo journalctl --vacuum-time=7d   # Keep only 7 days of logs
 
 ## Best Practices
 
-### ✅ DO
+### DO
 - Save important files to `/persist/home/admin`
 - Use declarative configuration for everything
 - Add service state directories to persistence config
@@ -207,7 +207,7 @@ sudo journalctl --vacuum-time=7d   # Keep only 7 days of logs
 - Test persistence by rebooting frequently
 - Review `show-persisted` output periodically
 
-### ❌ DON'T
+### DON'T
 - Store important data in `/tmp` or `/var/tmp`
 - Rely on files in root filesystem
 - Manually modify `/etc` (use NixOS config instead)

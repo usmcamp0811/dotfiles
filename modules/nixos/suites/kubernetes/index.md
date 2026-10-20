@@ -4,4 +4,4 @@
 
 # Troubleshooting
 
-* [🧠 k0s Troubleshooting Guide (NixOS)](TROUBLESHOOTING.md) - This doc summarizes all issues encountered across controllers and workers in my NixOS-based k0s cluster, along with how I fixed them.
+* [k0s Troubleshooting Guide (NixOS)](TROUBLESHOOTING.md) - This doc summarizes all issues encountered across controllers and workers in my NixOS-based k0s cluster, along with how I fixed them.

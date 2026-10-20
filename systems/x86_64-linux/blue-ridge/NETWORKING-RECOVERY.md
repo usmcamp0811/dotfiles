@@ -268,8 +268,8 @@ Where `installer.nix` contains:
 
 ## Summary
 
-**Problem:** `campground.router.enable` was commented out/false
-**Solution:** Set `campground.router.enable = true;`
-**Prevention:** Add assertions to catch this at build time
+- **Problem:** `campground.router.enable` was commented out/false
+- **Solution:** Set `campground.router.enable = true;`
+- **Prevention:** Add assertions to catch this at build time
 
 The router module handles ALL networking - if it's disabled, you get no network at all.

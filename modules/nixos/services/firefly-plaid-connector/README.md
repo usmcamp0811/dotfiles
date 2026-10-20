@@ -8,9 +8,6 @@ tags: [services, firefly-plaid-connector]
 
 # Firefly III Plaid Connector 2 Setup Guide
 
-## Introduction
-This guide will walk you through setting up the Plaid Connector 2 for Firefly III, allowing you to link your financial accounts to Firefly III for easy transaction tracking.
-
 ## Prerequisites
 - A Firefly III instance running.
 - Basic knowledge of Docker and command-line operations.

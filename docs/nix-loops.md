@@ -174,5 +174,4 @@ packageSet = Dict(mkPackage.(packages))
 
 Nix relies on recursion and higher-order functions instead of traditional loops. Understanding `map`,
 `listToAttrs`, and `fold` will allow you to manipulate data effectively. By comparing with Python and
-Julia, you can see how similar concepts exist across different paradigms, even when syntax differs. Happy
-coding in Nix!
+Julia, you can see how similar concepts exist across different paradigms, even when syntax differs.

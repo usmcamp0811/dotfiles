@@ -8,8 +8,6 @@ tags: [services, dnscrypt-proxy]
 
 # dnscrypt-proxy with ODoH Module
 
-This NixOS module provides privacy-preserving DNS resolution using dnscrypt-proxy with Oblivious DNS over HTTPS (ODoH).
-
 ## What is ODoH?
 
 ODoH (Oblivious DNS over HTTPS) is a protocol that separates knowledge of **who** is making a DNS query from **what** the query is:

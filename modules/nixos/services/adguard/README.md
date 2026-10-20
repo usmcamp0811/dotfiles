@@ -8,8 +8,6 @@ tags: [services, adguard]
 
 # AdGuard Home Module
 
-A comprehensive NixOS module for AdGuard Home - a network-wide ad blocker and privacy protection tool.
-
 ## Features
 
 - **DNS-based ad blocking** - Block ads, trackers, and malicious domains network-wide

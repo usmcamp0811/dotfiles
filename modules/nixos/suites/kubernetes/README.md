@@ -12,7 +12,7 @@ This is a summary for bootstrapping and managing your k0s HA control plane using
 
 ---
 
-## 🛠 Prerequisites
+## Prerequisites
 
 - A working NixOS flake system with the `campground` Kubernetes suite and services.
 - Vault running and preconfigured for AppRole-based secrets exchange.
@@ -21,7 +21,7 @@ This is a summary for bootstrapping and managing your k0s HA control plane using
 
 ---
 
-## 🚦 Deployment Process
+## Deployment Process
 
 ### 1. Bootstrap the First Controller
 
@@ -43,7 +43,7 @@ This controller will generate and push tokens + certs into Vault.
 
 ### 2. Add a Second Controller
 
-Deploy second node with:
+Deploy the second node with:
 
 ```nix
 isLeader = false;
@@ -80,7 +80,7 @@ This ensures a clean etcd join and safe cluster state.
 
 ---
 
-## 🧠 Important Notes
+## Important Notes
 
 - Use the `kubernetes` suite module to bring in **HAProxy** + **Keepalived** on **worker** nodes.
 - All `k0s` tokens and certs are managed by Vault and synced via `vault-agent` and `systemd` oneshot jobs.
@@ -103,7 +103,7 @@ Other values caused CNI failures (pods wouldn't start).
 
 ---
 
-## 🔍 Cluster State Check
+## Cluster State Check
 
 - Control Plane Health: http://10.8.0.88:9000
 - Controllers joined?
@@ -128,9 +128,9 @@ Then use `k9s` or any kubectl tools.
 
 ---
 
-## 🧩 Worker Setup
+## Worker Setup
 
-After control plane is healthy, add workers using:
+After the control plane is healthy, add workers using:
 
 ```nix
 role = "worker";

@@ -7,8 +7,6 @@ tags: [services, jitsi]
 
 # Vault Setup for Jitsi Meet
 
-This guide explains how to configure HashiCorp Vault for use with the Jitsi Meet module.
-
 ## Prerequisites
 
 - HashiCorp Vault instance (e.g., `vault.aicampground.com:8200`)

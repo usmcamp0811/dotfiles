@@ -8,8 +8,6 @@ tags: [services, k3s]
 
 # K3s Module
 
-NixOS module for deploying and managing K3s clusters with GitOps support.
-
 ## Features
 
 - K3s cluster deployment (server or agent mode)

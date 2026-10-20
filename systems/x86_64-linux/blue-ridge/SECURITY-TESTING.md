@@ -7,8 +7,6 @@ tags: [blue-ridge]
 
 # Blue Ridge Router Security Testing
 
-This document describes how to test the security of your blue-ridge router.
-
 ## Available Security Tests
 
 ### 1. Automated NixOS Test Suite
@@ -16,21 +14,21 @@ This document describes how to test the security of your blue-ridge router.
 The comprehensive automated security test that runs in a VM.
 
 **What it tests:**
-- ✅ No services exposed on WAN
-- ✅ SSH only accessible from LAN
-- ✅ Firewall properly configured with default deny
-- ✅ DNS not acting as open resolver
-- ✅ DHCP only on LAN
-- ✅ No UPnP or SNMP exposed
-- ✅ No default credentials work
-- ✅ Root login disabled
-- ✅ Kernel hardening enabled
-- ✅ fail2ban protecting SSH
-- ✅ IPv6 disabled (as configured)
-- ✅ Impermanence active
-- ✅ Helper scripts available
-- ✅ No accidental port forwarding
-- ✅ Proper file permissions
+- No services exposed on WAN
+- SSH only accessible from LAN
+- Firewall properly configured with default deny
+- DNS not acting as open resolver
+- DHCP only on LAN
+- No UPnP or SNMP exposed
+- No default credentials work
+- Root login disabled
+- Kernel hardening enabled
+- fail2ban protecting SSH
+- IPv6 disabled (as configured)
+- Impermanence active
+- Helper scripts available
+- No accidental port forwarding
+- Proper file permissions
 
 **Run the test:**
 
@@ -348,13 +346,13 @@ For comprehensive vulnerability scanning:
 
 The router configuration addresses many CIS Benchmark requirements:
 
-- ✅ Disable unused network protocols
-- ✅ Ensure packet redirect sending is disabled
-- ✅ Ensure source routed packets are not accepted
-- ✅ Ensure ICMP redirects are not accepted
-- ✅ Ensure suspicious packets are logged
-- ✅ Ensure TCP SYN Cookies is enabled
-- ✅ Ensure IPv6 router advertisements are not accepted
+- Disable unused network protocols
+- Ensure packet redirect sending is disabled
+- Ensure source routed packets are not accepted
+- Ensure ICMP redirects are not accepted
+- Ensure suspicious packets are logged
+- Ensure TCP SYN Cookies is enabled
+- Ensure IPv6 router advertisements are not accepted
 
 ### NIST Guidelines
 

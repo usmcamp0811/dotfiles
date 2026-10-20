@@ -7,8 +7,6 @@ tags: [blue-ridge]
 
 # Blue Ridge Router Installation Guide with Impermanence
 
-This guide covers installing NixOS on the blue-ridge router with impermanence enabled.
-
 **Two installation methods:**
 1. **Automated with Disko** (recommended) - Uses declarative disk partitioning
 2. **Manual partitioning** - Traditional manual setup (see below)

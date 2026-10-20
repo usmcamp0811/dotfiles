@@ -1,17 +1,17 @@
 ---
 type: Troubleshooting
-title: 🧠 k0s Troubleshooting Guide (NixOS)
+title: k0s Troubleshooting Guide (NixOS)
 description: This doc summarizes all issues encountered across controllers and workers in my NixOS-based k0s cluster, along with how I fixed them.
 tags: [suites, kubernetes]
 ---
 
-# 🧠 k0s Troubleshooting Guide (NixOS)
+# k0s Troubleshooting Guide (NixOS)
 
 This doc summarizes all issues encountered across **controllers and workers** in my NixOS-based k0s cluster, along with how I fixed them. For future me.
 
 ---
 
-## 1. ❌ kube-router CrashLoopBackOff
+## 1. kube-router CrashLoopBackOff
 
 **Symptoms:**
 
@@ -32,7 +32,7 @@ kubectl rollout restart ds kube-router -n kube-system
 
 ---
 
-## 2. ❌ API Server Unreachable (`10.96.0.1:443`)
+## 2. API Server Unreachable (`10.96.0.1:443`)
 
 **Symptoms:**
 
@@ -49,7 +49,7 @@ sudo systemctl restart k0s-controller
 
 ---
 
-## 3. ❌ Etcd Certificate IP Mismatch
+## 3. Etcd Certificate IP Mismatch
 
 **Symptoms:**
 
@@ -66,7 +66,7 @@ start k0s-controller
 
 ---
 
-## 4. ❌ Konnectivity Tunnel Failure (`No agent available`)
+## 4. Konnectivity Tunnel Failure (`No agent available`)
 
 **Symptoms:**
 
@@ -83,7 +83,7 @@ kubectl rollout restart ds konnectivity-agent -n kube-system
 
 ---
 
-## 5. ❌ Unable to Wipe `/var/lib/k0s/` (Device Busy)
+## 5. Unable to Wipe `/var/lib/k0s/` (Device Busy)
 
 **Symptoms:**
 
@@ -103,7 +103,7 @@ start k0s-worker
 
 ---
 
-## 6. ✅ How to Reset a Worker (NixOS)
+## 6. How to Reset a Worker (NixOS)
 
 **Fix:**
 
@@ -118,7 +118,7 @@ sudo nixos-rebuild switch --flake .#<hostname>
 
 ---
 
-## 7. 🧪 Quick API Server Test
+## 7. Quick API Server Test
 
 ```sh
 curl -k https://10.96.0.1:443

@@ -24,6 +24,6 @@ okf_version: "0.2"
 
 # Runbook
 
-* [CVE-2026-39860 Fix for fmf-flake](CVE-2026-39860-MITIGATION.md) - Critical Security Vulnerability in Nix (CVSS 9.0) - PATCHED - CVE: CVE-2026-39860 - GitHub Advisory: GHSA-g3g9-5vj6-r3gj - Severity: Critical (9.0/10) - Impact: Privilege escalation to root in…
+* [CVE-2026-39860 Fix for fmf-flake](CVE-2026-39860-MITIGATION.md) - Mitigation for CVE-2026-39860 in fmf-flake by upgrading to Nix 2.34.5.
 * [Quick Start: Patching CVE-2026-39860](CVE-2026-39860-QUICKSTART.md) - Your fmf-flake has been updated to use Nix 2.34.5 (patched) instead of the vulnerable Nix 2.31.3.
 * [Reformat & Install NixOS](Install.md) - Reformat a drive and install NixOS from a live USB, with BTRFS or ZFS partitioning.

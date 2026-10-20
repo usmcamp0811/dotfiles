@@ -7,23 +7,6 @@ tags: [router]
 
 # Router Module Testing Guide
 
-Comprehensive testing procedures for the Campground router modules.
-
-## Table of Contents
-
-- [Testing Overview](#testing-overview)
-- [Pre-Deployment Testing](#pre-deployment-testing)
-- [Basic Router Tests](#basic-router-tests)
-- [Zone Isolation Tests](#zone-isolation-tests)
-- [Security Tests](#security-tests)
-- [Port Forwarding Tests](#port-forwarding-tests)
-- [DNS and DHCP Tests](#dns-and-dhcp-tests)
-- [Performance Tests](#performance-tests)
-- [Automated Testing](#automated-testing)
-- [Troubleshooting Tests](#troubleshooting-tests)
-
----
-
 ## Testing Overview
 
 ### Test Environments
@@ -130,10 +113,10 @@ ip addr show
 ```
 
 **Pass Criteria:**
-- ✅ All physical interfaces are UP
-- ✅ br-lan has correct IP address
-- ✅ All VLAN interfaces exist (if zones enabled)
-- ✅ All VLAN interfaces have correct IP addresses
+- All physical interfaces are UP
+- br-lan has correct IP address
+- All VLAN interfaces exist (if zones enabled)
+- All VLAN interfaces have correct IP addresses
 
 ### Test 2: Routing and Forwarding
 
@@ -153,9 +136,9 @@ ip route show
 ```
 
 **Pass Criteria:**
-- ✅ IP forwarding is enabled
-- ✅ Default route points to WAN
-- ✅ LAN/zone routes are present
+- IP forwarding is enabled
+- Default route points to WAN
+- LAN/zone routes are present
 
 ### Test 3: NAT and Masquerading
 
@@ -172,8 +155,8 @@ nft list table ip nat
 ```
 
 **Pass Criteria:**
-- ✅ NAT table exists
-- ✅ Masquerade rule for WAN interface is present
+- NAT table exists
+- Masquerade rule for WAN interface is present
 
 ### Test 4: Basic Connectivity
 
@@ -191,11 +174,11 @@ ping -c 4 google.com    # DNS + Internet
 ```
 
 **Pass Criteria:**
-- ✅ Router can ping internet
-- ✅ Router can resolve DNS
-- ✅ LAN client can ping router
-- ✅ LAN client can ping internet
-- ✅ LAN client can resolve DNS
+- Router can ping internet
+- Router can resolve DNS
+- LAN client can ping router
+- LAN client can ping internet
+- LAN client can resolve DNS
 
 ### Test 5: Firewall Basic Rules
 
@@ -217,9 +200,9 @@ nft list chain inet filter forward
 ```
 
 **Pass Criteria:**
-- ✅ nftables service is active
-- ✅ Default policy is DROP for input and forward chains
-- ✅ Established/related connections are allowed
+- nftables service is active
+- Default policy is DROP for input and forward chains
+- Established/related connections are allowed
 
 ---
 
@@ -263,9 +246,9 @@ ping 192.169.30.100   # Guest device - CHECK ISOLATION LEVEL
 ```
 
 **Pass Criteria (Full Isolation):**
-- ✅ Zones cannot ping each other (except via explicit routes)
-- ✅ All zones can ping their gateway
-- ✅ All zones can ping internet (if `allowInternet = true`)
+- Zones cannot ping each other (except via explicit routes)
+- All zones can ping their gateway
+- All zones can ping internet (if `allowInternet = true`)
 
 ### Test 7: Inter-Zone Routes
 
@@ -295,9 +278,9 @@ nft list table inet zones | grep 8123
 ```
 
 **Pass Criteria:**
-- ✅ Allowed protocol/port/IP works
-- ✅ Non-allowed protocol/port/IP fails
-- ✅ Firewall rule is present in nftables
+- Allowed protocol/port/IP works
+- Non-allowed protocol/port/IP fails
+- Firewall rule is present in nftables
 
 ### Test 8: Zone Internet Access
 
@@ -313,8 +296,8 @@ nft list table inet zones | grep -A 5 "Zone -> WAN"
 ```
 
 **Pass Criteria:**
-- ✅ Zones with `allowInternet = true` can reach internet
-- ✅ Zones with `allowInternet = false` cannot reach internet
+- Zones with `allowInternet = true` can reach internet
+- Zones with `allowInternet = false` cannot reach internet
 
 ---
 
@@ -341,9 +324,9 @@ cat /etc/ssh/sshd_config | grep ListenAddress
 ```
 
 **Pass Criteria:**
-- ✅ SSH accessible from LAN
-- ✅ SSH not accessible from WAN
-- ✅ SSH listening on LAN IP only
+- SSH accessible from LAN
+- SSH not accessible from WAN
+- SSH listening on LAN IP only
 
 ### Test 10: fail2ban
 
@@ -370,10 +353,10 @@ nft list ruleset | grep <your-IP>
 ```
 
 **Pass Criteria:**
-- ✅ fail2ban service is running
-- ✅ SSH jail is active
-- ✅ Brute force attempts result in ban
-- ✅ Banned IP appears in nftables
+- fail2ban service is running
+- SSH jail is active
+- Brute force attempts result in ban
+- Banned IP appears in nftables
 
 ### Test 11: WAN Exposure
 
@@ -389,8 +372,8 @@ nmap -Pn -p 1-65535 <WAN_IP>
 ```
 
 **Pass Criteria:**
-- ✅ No unexpected open ports on WAN
-- ✅ Only configured port forwards are accessible
+- No unexpected open ports on WAN
+- Only configured port forwards are accessible
 
 ### Test 12: Kernel Hardening
 
@@ -406,7 +389,7 @@ sysctl net.ipv4.conf.all.rp_filter  # Expected: 1
 ```
 
 **Pass Criteria:**
-- ✅ All security parameters are set correctly
+- All security parameters are set correctly
 
 ### Test 13: Security Audit
 
@@ -425,9 +408,9 @@ router-security-check
 ```
 
 **Pass Criteria:**
-- ✅ All services show as active
-- ✅ No suspicious SSH attempts
-- ✅ No unexpected active connections
+- All services show as active
+- No suspicious SSH attempts
+- No unexpected active connections
 
 ---
 
@@ -464,9 +447,9 @@ nft list table inet filter | grep 443
 ```
 
 **Pass Criteria:**
-- ✅ External connection reaches internal server
-- ✅ NAT DNAT rule exists
-- ✅ Firewall forward rule exists
+- External connection reaches internal server
+- NAT DNAT rule exists
+- Firewall forward rule exists
 
 ### Test 15: Port Forward with Different Destination Port
 
@@ -494,8 +477,8 @@ nft list table ip nat | grep 2222
 ```
 
 **Pass Criteria:**
-- ✅ Connection to WAN:2222 reaches 192.169.1.10:22
-- ✅ NAT rule shows correct port translation
+- Connection to WAN:2222 reaches 192.169.1.10:22
+- NAT rule shows correct port translation
 
 ---
 
@@ -522,10 +505,10 @@ cat /etc/resolv.conf
 ```
 
 **Pass Criteria:**
-- ✅ dnsmasq service is running
-- ✅ Client receives IP in configured range
-- ✅ Client receives correct gateway
-- ✅ Client receives correct DNS server
+- dnsmasq service is running
+- Client receives IP in configured range
+- Client receives correct gateway
+- Client receives correct DNS server
 
 ### Test 17: Static DHCP Leases
 
@@ -558,9 +541,9 @@ ping thermostat  # Should resolve to 192.169.20.100
 ```
 
 **Pass Criteria:**
-- ✅ dnsmasq config has static lease entry
-- ✅ Device receives assigned IP
-- ✅ Hostname resolves correctly
+- dnsmasq config has static lease entry
+- Device receives assigned IP
+- Hostname resolves correctly
 
 ### Test 18: DNS Resolution
 
@@ -584,9 +567,9 @@ journalctl -u dnsmasq -f
 ```
 
 **Pass Criteria:**
-- ✅ DNS queries are resolved
-- ✅ DNSSEC validation works (if enabled)
-- ✅ dnsmasq forwards to configured upstream DNS
+- DNS queries are resolved
+- DNSSEC validation works (if enabled)
+- dnsmasq forwards to configured upstream DNS
 
 ### Test 19: Per-Zone DNS
 
@@ -613,8 +596,8 @@ cat /etc/dnsmasq.conf | grep "tag:br-lan.30"
 ```
 
 **Pass Criteria:**
-- ✅ Guest clients receive correct DNS servers via DHCP
-- ✅ DNS queries go to configured servers
+- Guest clients receive correct DNS servers via DHCP
+- DNS queries go to configured servers
 
 ---
 
@@ -645,8 +628,8 @@ iperf3 -c <external-server>
 ```
 
 **Pass Criteria:**
-- ✅ LAN throughput > 900 Mbps (for gigabit)
-- ✅ WAN throughput matches ISP speed
+- LAN throughput > 900 Mbps (for gigabit)
+- WAN throughput matches ISP speed
 
 ### Test 21: Latency Test
 
@@ -666,8 +649,8 @@ ping -c 100 1.1.1.1
 ```
 
 **Pass Criteria:**
-- ✅ LAN latency < 1ms
-- ✅ WAN latency similar to baseline (router adds minimal overhead)
+- LAN latency < 1ms
+- WAN latency similar to baseline (router adds minimal overhead)
 
 ### Test 22: Connection Tracking
 
@@ -692,8 +675,8 @@ dmesg | grep conntrack
 ```
 
 **Pass Criteria:**
-- ✅ Connection tracking works
-- ✅ No conntrack errors under load
+- Connection tracking works
+- No conntrack errors under load
 
 ---
 
@@ -719,8 +702,8 @@ router-pentest-internal
 ```
 
 **Pass Criteria:**
-- ✅ All security checks pass
-- ✅ No critical issues reported
+- All security checks pass
+- No critical issues reported
 
 ### Test 24: Pentest Tools (External)
 
@@ -741,8 +724,8 @@ router-pentest-external <WAN_IP>
 ```
 
 **Pass Criteria:**
-- ✅ No unexpected services exposed
-- ✅ No critical vulnerabilities
+- No unexpected services exposed
+- No critical vulnerabilities
 
 ### Test 25: Pentest Tools (Zones)
 
@@ -759,8 +742,8 @@ router-pentest-zones
 ```
 
 **Pass Criteria:**
-- ✅ All zone isolation tests pass
-- ✅ Inter-zone routes work as configured
+- All zone isolation tests pass
+- Inter-zone routes work as configured
 
 ---
 
@@ -783,8 +766,8 @@ systemctl --failed
 ```
 
 **Pass Criteria:**
-- ✅ All services are active
-- ✅ No failed services
+- All services are active
+- No failed services
 
 ### Test 27: Log Review
 
@@ -811,8 +794,8 @@ journalctl -u fail2ban -n 100
 ```
 
 **Pass Criteria:**
-- ✅ No critical errors
-- ✅ No repeated warnings
+- No critical errors
+- No repeated warnings
 
 ### Test 28: Configuration Consistency
 
@@ -835,8 +818,8 @@ cat /etc/systemd/network/*
 ```
 
 **Pass Criteria:**
-- ✅ Running config matches declared config
-- ✅ No unexpected configuration
+- Running config matches declared config
+- No unexpected configuration
 
 ---
 

@@ -8,8 +8,6 @@ tags: [services, openvpn]
 
 # README: Setting Up an OpenVPN Server with Vault-Generated Certificates on NixOS
 
-This README provides a comprehensive guide on how to set up an OpenVPN server on NixOS, with certificates generated and managed by HashiCorp Vault.
-
 ## Prerequisites
 
 - A running Vault instance
@@ -20,7 +18,7 @@ This README provides a comprehensive guide on how to set up an OpenVPN server on
 
 Enable the PKI secrets engine and configure it to issue certificates.
 
-We set `ttl=8760h` meaning the cert if valid for 1 year. We don't set `max_ttl` so that we can just renew the certificate and not change things.
+We set `ttl=8760h`, meaning the cert is valid for 1 year. We don't set `max_ttl` so that we can just renew the certificate and not change things.
 
 ```bash
 vault secrets enable -path=campground-pki pki
@@ -54,8 +52,6 @@ vault write campground-pki/roles/vpn-client-role \
 
 ## Step 2.1: Create TLS Key
 
-This helps avoid 
-
 The `tls-auth` key in OpenVPN serves as an additional layer of security on top of the TLS control channel to harden it against DoS attacks, port scanning, and buffer overflow vulnerabilities. It's a shared secret key that is used by both the server and all its clients.
 
 The key essentially signs each packet's HMAC hash with a signature that can only be verified by the opposite side knowing the same `tls-auth` key. This provides an early stage filter for unauthorized clients and potentially malicious third parties.
@@ -68,7 +64,7 @@ The `tls-auth` directive adds this HMAC signature to the TLS control channel to 
 
 It's not mandatory but is an extra layer of security.
 
-generate it like this:
+Generate it like this:
 
 ```
 openvpn --genkey secret ta.key 
@@ -82,7 +78,7 @@ This can't be generated on the fly because the clients need it also
 
 Issue a certificate based on the role created. The `common_name` is crucial as it identifies the certificate.
 
-This needs to be take and put into the vpn server because this is the server cert
+This needs to be taken and put into the VPN server because this is the server cert.
 
 ```bash
 vault write campground-pki/issue/server-role common_name="vpn.aicampground.com"
@@ -147,9 +143,6 @@ openssl dhparam -out dh.pem 2048
 - **Error Handling**: Log errors for debugging.
 - **Firewall Rules**: Ensure your firewall allows traffic on the OpenVPN port (default 1194/UDP).
 
-By following these steps, you should have a fully functional OpenVPN server with certificates managed by Vault.
-
-
 ### Generating Client Certificates
 
 You can create a new role in Vault specifically for OpenVPN clients and then issue certificates based on that role. Here's how you can set it up:
@@ -191,9 +184,6 @@ Vault's PKI secrets engine allows you to revoke certificates. To revoke a certif
     ```
 
     You can download the updated CRL from Vault and place it in the specified path.
-
-By following these steps, you can generate client certificates and also have the ability to revoke them when needed.
-
 
 ### Vault PKI Setup
 
@@ -282,7 +272,3 @@ vault write pki/revoke serial_number="XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:
 ```
 
 This will revoke the certificate and update the CRL.
-
----
-
-By following this guide, you'll have a functional OpenVPN server with Vault-managed certificates, and the ability to track and revoke them as needed.

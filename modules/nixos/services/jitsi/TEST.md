@@ -7,8 +7,6 @@ tags: [services, jitsi]
 
 # Jitsi Module Testing Guide
 
-This document provides testing procedures for the Jitsi Meet NixOS module.
-
 ## Syntax Validation
 
 ### Test Module Discovery

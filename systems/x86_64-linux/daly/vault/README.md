@@ -7,8 +7,6 @@ tags: [daly, vault]
 
 # Vault Setup on NixOS
 
-This README outlines the steps required to set up Vault on a NixOS system.
-
 ## Prerequisites
 
 - Make sure you have run `update-sys` to update your system.
@@ -48,9 +46,6 @@ vault write -f -field=secret_id auth/approle/role/vault/secret-id | sudo tee /va
 sudo chown vault:vault /var/lib/vault/*-id
 sudo chmod 0400 /var/lib/vault/*-id
 ```
-
-After completing these steps, your Vault setup should be operational.
-
 
 ### Additional Useful Things
 

@@ -6,8 +6,6 @@ description: This document describes the video lock screen feature in the fmf fl
 
 # Video Lock Screen Configuration (fmf module)
 
-This document describes the video lock screen feature in the fmf flake.
-
 ## Overview
 
 The `fmf.desktop.addons.swaylock` module now supports video backgrounds using `swaylock-plugin` and `mpvpaper`. When enabled, the lock screen will randomly select and play a video from a configured directory.

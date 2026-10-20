@@ -202,7 +202,3 @@ policies = {
 - **Auto-Unseal Issues**: Ensure the unseal key is correctly encrypted with Tang and accessible at the specified path.
 - **Policy Errors**: Verify that the HCL files are correctly formatted and pass Vault's syntax checks.
 - **Service Logs**: Use `journalctl -u vault` to view logs and debug service issues.
-
-```
-
-```

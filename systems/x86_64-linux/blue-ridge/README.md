@@ -8,8 +8,6 @@ tags: [blue-ridge]
 
 # Blue Ridge Router Configuration
 
-NixOS-based home router configuration for Intel N100 4-LAN mini PC with impermanence.
-
 ## Hardware
 
 - **CPU**: Intel N100 (Alder Lake-N)

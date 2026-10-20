@@ -8,8 +8,6 @@ tags: [router, zones]
 
 # Network Zones Module
 
-VLAN-based network segmentation with zone-based firewall for the Campground router.
-
 ## Overview
 
 The zones module allows you to create isolated network segments (zones) using VLANs, each with its own subnet, DHCP, DNS, and firewall rules. This is perfect for separating different types of devices (trusted LAN, WiFi, IoT, guests) while maintaining fine-grained control over inter-zone communication.
@@ -292,10 +290,10 @@ The zones module supports a hybrid approach for multi-VLAN networks with central
 
 AdGuard Home currently only supports **one DHCP server on one interface** (see [AdGuardHome#3539](https://github.com/AdguardTeam/AdGuardHome/issues/3539)). The hybrid approach gives you:
 
-✅ **AdGuard DNS filtering** on all VLANs
-✅ **AdGuard DHCP** on your main LAN (servers, VMs)
-✅ **Per-VLAN DHCP pools** via dnsmasq
-✅ **Simple configuration** - one AdGuard instance
+- **AdGuard DNS filtering** on all VLANs
+- **AdGuard DHCP** on your main LAN (servers, VMs)
+- **Per-VLAN DHCP pools** via dnsmasq
+- **Simple configuration** - one AdGuard instance
 
 ### Configuration
 

@@ -75,7 +75,3 @@ To integrate the User Secrets Service into your NixOS system configuration:
 ## Limitations
 
 - **File Names**: The file names (or secret keys) cannot contain periods (`.`). If they do, the service will fail, and the error might be challenging to diagnose.
-
-## Conclusion
-
-The User Secrets Service provides a streamlined way to manage user-specific secrets on NixOS systems using HashiCorp's Vault. With a simple configuration, you can ensure that each user's secrets are securely fetched and stored, providing both convenience and security. Always be cautious with the naming of your secrets to avoid potential issues.

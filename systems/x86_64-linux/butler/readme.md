@@ -8,8 +8,6 @@ tags: [butler]
 
 # Smedley Butler
 
-![Smedley Butler](../../../docs/images/butler.jpg)
-
 ## Personal Information
 
 **Birth Name:** Smedley Darlington Butler  

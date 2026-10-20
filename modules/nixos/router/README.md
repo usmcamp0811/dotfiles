@@ -7,8 +7,6 @@ tags: [router]
 
 # Router Modules
 
-Custom NixOS modules for easy router configuration with security hardening.
-
 ## Overview
 
 These modules provide a simplified, declarative way to configure a NixOS system as a home router with enterprise-grade security features. They're designed to be equivalent to OpenWRT baseline functionality but with NixOS benefits like declarative configuration, atomic updates, and easy rollbacks.

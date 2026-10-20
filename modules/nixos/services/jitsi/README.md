@@ -8,8 +8,6 @@ tags: [services, jitsi]
 
 # Jitsi Meet NixOS Module
 
-A comprehensive NixOS module for deploying Jitsi Meet video conferencing with Vault-based secret management.
-
 ## Features
 
 - **Full Jitsi Meet Stack**: Includes Jitsi Meet, Jitsi Videobridge, Jicofo, and Prosody XMPP server

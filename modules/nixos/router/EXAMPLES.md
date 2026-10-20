@@ -7,22 +7,6 @@ tags: [router]
 
 # Router Configuration Examples
 
-Complete real-world configuration examples for the Campground router modules.
-
-## Table of Contents
-
-- [Basic Home Router](#basic-home-router)
-- [Home Router with IoT Isolation](#home-router-with-iot-isolation)
-- [Advanced Multi-Zone Setup](#advanced-multi-zone-setup)
-- [Work-from-Home Setup](#work-from-home-setup)
-- [Guest Network Configuration](#guest-network-configuration)
-- [Port Forwarding Examples](#port-forwarding-examples)
-- [AdGuard Integration](#adguard-integration)
-- [Static DHCP Leases](#static-dhcp-leases)
-- [VPN Server Setup](#vpn-server-setup)
-
----
-
 ## Basic Home Router
 
 Simple home router with single LAN network, no VLANs.

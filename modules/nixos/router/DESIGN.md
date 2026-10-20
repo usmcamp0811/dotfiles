@@ -7,22 +7,6 @@ tags: [router]
 
 # Router Module Design Decisions
 
-Documentation of design decisions, rationale, and trade-offs for the Campground router modules.
-
-## Table of Contents
-
-- [Core Design Principles](#core-design-principles)
-- [Technology Choices](#technology-choices)
-- [Module Organization](#module-organization)
-- [Network Architecture Decisions](#network-architecture-decisions)
-- [Security Design](#security-design)
-- [Performance Considerations](#performance-considerations)
-- [Trade-offs and Limitations](#trade-offs-and-limitations)
-- [Alternatives Considered](#alternatives-considered)
-- [Future Considerations](#future-considerations)
-
----
-
 ## Core Design Principles
 
 ### 1. Declarative Over Imperative

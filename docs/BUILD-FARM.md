@@ -6,9 +6,6 @@ description: 'A generic guide to the build farm module in this flake: what it do
 
 # Nix Build Farm (`fmf.services.nix-grpc-store`)
 
-A generic guide to the build farm module in this flake: what it does, how to wire it
-into a host configuration, and what has to exist in Vault before it will run.
-
 It wraps [nix-grpc-store](https://github.com/Mic92/nix-grpc-store); that project's
 [farm guide](https://github.com/Mic92/nix-grpc-store/blob/main/docs/farm.md) is the
 reference for the underlying daemon. All names, addresses and domains below are
@@ -17,22 +14,6 @@ reference for the underlying daemon. All names, addresses and domains below are
 > **Status:** the module evaluates cleanly, but it has been validated by
 > evaluation only. Treat the first real deployment as the test. See
 > [Known gaps](#known-gaps).
-
-## Table of contents
-
-- [The idea in one minute](#the-idea-in-one-minute)
-- [Example layout](#example-layout)
-- [How a build travels](#how-a-build-travels)
-- [How the module is wired](#how-the-module-is-wired)
-- [Security model](#security-model)
-- [Vault setup (do this first)](#vault-setup-do-this-first)
-- [Deploying](#deploying)
-- [Checking that it works](#checking-that-it-works)
-- [Everyday changes](#everyday-changes)
-- [Troubleshooting](#troubleshooting)
-- [Known gaps](#known-gaps)
-
----
 
 ## The idea in one minute
 

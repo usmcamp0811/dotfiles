@@ -74,7 +74,3 @@ Below are the steps to integrate the Paperless module into your NixOS system con
 2. Ensure that the PostgreSQL database and user `paperless` are properly created and configured before starting the Paperless service.
 
 3. Access the Paperless web interface and complete the setup process by providing the necessary details.
-
-## Conclusion
-
-This module abstracts away much of the manual configuration and setup, making it straightforward to get Paperless up and running on a NixOS system. By following the configurations outlined above, you can have a Paperless instance running with PostgreSQL as the database backend, ready to help you manage your documents efficiently.

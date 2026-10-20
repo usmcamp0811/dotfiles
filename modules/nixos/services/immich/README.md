@@ -8,9 +8,6 @@ tags: [services, immich]
 
 # fmf.services.immich
 
-Wraps the upstream `services.immich` NixOS module with Postgres (via
-`fmf.services.postgresql`), Redis and machine learning defaults.
-
 ## Choosing the Immich version
 
 By default Immich comes from `pkgs.immich`, which this flake takes from the

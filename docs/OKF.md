@@ -114,7 +114,8 @@ dummy host values are supplied, and no review/trust claims are generated.
 
 ### Authored bundles
 
-`campground` renders all three bundles as a static website: one page per document, a tree
+`campground` renders the authored bundles and generated options as a static website:
+one page per document, a tree
 for the bundle you are in, an outline and a "Linked from" list beside each page, and
 search. Nothing is served and nothing is fetched from the internet, so it works offline
 straight from the Nix store.
@@ -140,7 +141,7 @@ solid olive means machine-confirmed, and a heavy brass line means human-reviewed
 every page is dotted, because nothing has been reviewed yet. A page whose `stale_after` has
 passed also shows a warning.
 
-The footer theme picker remembers your choice in that browser. The four local themes are
+The footer theme picker remembers your choice in that browser. The available themes are
 **Field manual** (the default; olive and brass), **Trail map** (survey blue and green),
 **Man page** (dense monospace), **Lantern** (always-dark forest and gold), and **TOC**
 (a slate tactical operations center with a subtle grid). **OKF Visualizer** mirrors the
@@ -149,9 +150,9 @@ Visualizer Dark** is its dark Slate companion. The selected theme follows intern
 search results, including when the site is opened from `file://`. The launcher can select one
 for a visit with `--theme`; it does not need a rebuild.
 
-The site is built from the markdown and images only, so it rebuilds when documentation
-changes and not when code does. Links to code files (for example `default.nix`) show as
-plain text, since the site does not contain them.
+Authored pages are built from Markdown and images; the options reference is generated
+from module schemas. Links to code files (for example `default.nix`) show as plain text,
+since the site does not contain them.
 
 A downstream flake can publish its own bundles the same way:
 

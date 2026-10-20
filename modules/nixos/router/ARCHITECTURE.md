@@ -7,19 +7,6 @@ tags: [router]
 
 # Router Module Architecture
 
-Complete architectural documentation for the Campground router modules.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Module Hierarchy](#module-hierarchy)
-- [Component Interactions](#component-interactions)
-- [Network Stack](#network-stack)
-- [Data Flow](#data-flow)
-- [Service Dependencies](#service-dependencies)
-- [Configuration Processing](#configuration-processing)
-- [Firewall Architecture](#firewall-architecture)
-
 ## Overview
 
 The Campground router is a modular NixOS-based router system designed to provide enterprise-grade routing and security features with the benefits of declarative configuration, atomic updates, and easy rollbacks.
