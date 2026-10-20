@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: AdGuard Home Module
+description: A comprehensive NixOS module for AdGuard Home - a network-wide ad blocker and privacy protection tool.
+resource: ./default.nix
+tags: [services, adguard]
+---
+
 # AdGuard Home Module
 
 A comprehensive NixOS module for AdGuard Home - a network-wide ad blocker and privacy protection tool.

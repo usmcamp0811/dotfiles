@@ -1,3 +1,10 @@
+---
+type: Host
+title: Vault Setup on NixOS
+description: This README outlines the steps required to set up Vault on a NixOS system.
+tags: [daly, vault]
+---
+
 # Vault Setup on NixOS
 
 This README outlines the steps required to set up Vault on a NixOS system.

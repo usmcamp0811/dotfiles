@@ -1,3 +1,9 @@
+---
+type: Note
+title: AWS EC2 instance from a local VHD
+description: Steps to create an AWS EC2 instance from a local VHD image, uploaded through an S3 bucket.
+---
+
 
 ## AWS EC2 Instance Creation Using a Local VHD
 

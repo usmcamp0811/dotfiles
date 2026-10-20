@@ -1,3 +1,11 @@
+---
+type: Host
+title: webb
+description: NixOS host webb, named after Jim Webb.
+resource: ./default.nix
+tags: [webb]
+---
+
 # Jim Webb
 
 ![Jim Webb](../../../docs/images/webb.jpg)

@@ -1,3 +1,11 @@
+---
+type: Host
+title: Blue Ridge Router Configuration
+description: NixOS-based home router configuration for Intel N100 4-LAN mini PC with impermanence.
+resource: ./default.nix
+tags: [blue-ridge]
+---
+
 # Blue Ridge Router Configuration
 
 NixOS-based home router configuration for Intel N100 4-LAN mini PC with impermanence.

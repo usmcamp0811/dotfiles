@@ -1,3 +1,10 @@
+---
+type: Runbook
+title: Impermanence Quick Reference
+description: Your router's root filesystem (/) is tmpfs - it exists only in RAM and is wiped on every reboot.
+tags: [blue-ridge]
+---
+
 # Impermanence Quick Reference
 
 ## What is Impermanence?

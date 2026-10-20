@@ -1,3 +1,11 @@
+---
+type: Host
+title: lucas
+description: NixOS host lucas, named after Marine Jacklyn Harold Lucas.
+resource: ./default.nix
+tags: [lucas]
+---
+
 # Jacklyn Harold Lucas
 
 ![Jack Lucas](../../../docs/images/lucas.jpg)

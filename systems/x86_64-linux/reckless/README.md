@@ -1,3 +1,11 @@
+---
+type: Host
+title: reckless
+description: NixOS host reckless, named after Sergeant Reckless, a pack horse.
+resource: ./default.nix
+tags: [reckless]
+---
+
 # Sergeant Reckless
 
 ![Sergeant Reckless](../../../docs/images/reckless.jpg)

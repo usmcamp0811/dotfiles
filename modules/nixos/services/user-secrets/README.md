@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: User Secrets Service for NixOS
+description: The User Secrets Service is a NixOS module designed to securely fetch and manage user-specific secrets from HashiCorp's Vault.
+resource: ./default.nix
+tags: [services, user-secrets]
+---
+
 # User Secrets Service for NixOS
 
 ## Overview

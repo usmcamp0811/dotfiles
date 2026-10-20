@@ -1,3 +1,10 @@
+---
+type: Runbook
+title: Blue Ridge Networking Recovery Guide
+description: The router module is disabled in the configuration, so no networking is set up.
+tags: [blue-ridge]
+---
+
 # Blue Ridge Networking Recovery Guide
 
 ## Problem: No networking after installation

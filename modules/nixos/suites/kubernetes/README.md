@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: k0s High Availability Kubernetes on NixOS
+description: This is a summary for bootstrapping and managing your k0s HA control plane using your NixOS system flake setup.
+resource: ./default.nix
+tags: [suites, kubernetes]
+---
+
 # k0s High Availability Kubernetes on NixOS
 
 This is a summary for bootstrapping and managing your k0s HA control plane using your NixOS system flake setup. It documents the nuanced steps required to stand up a working cluster, especially around the phased leader promotion process and networking configuration.

@@ -1,3 +1,11 @@
+---
+type: Home Manager Module
+title: Nix Module for Qtile Configuration
+description: Configure Qtile, a tiling window manager, with this Nix module.
+resource: ./default.nix
+tags: [home, desktop, qtile]
+---
+
 # Nix Module for Qtile Configuration
 
 Configure Qtile, a tiling window manager, with this Nix module. Customize wallpaper, Redshift settings, and screen lock time.

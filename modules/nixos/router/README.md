@@ -1,3 +1,10 @@
+---
+type: Overview
+title: Router Modules
+description: Custom NixOS modules for easy router configuration with security hardening.
+tags: [router]
+---
+
 # Router Modules
 
 Custom NixOS modules for easy router configuration with security hardening.
@@ -199,31 +206,22 @@ campground.router.security = {
 
 ### Network Topology
 
-```
-Internet
-   ↓
-WAN Interface (enp1s0)
-   ↓
-[NAT/Firewall]
-   ↓
-LAN Bridge (br-lan)
-   ├── enp2s0
-   ├── enp3s0
-   └── enp4s0
-       ↓
-   LAN Devices
+```mermaid
+flowchart TD
+  internet["Internet"] --> wan["WAN Interface (enp1s0)"] --> firewall["NAT/Firewall"] --> bridge["LAN Bridge (br-lan)"]
+  bridge --> enp2s0["enp2s0"] --> devices["LAN Devices"]
+  bridge --> enp3s0["enp3s0"] --> devices
+  bridge --> enp4s0["enp4s0"] --> devices
 ```
 
 ### Service Dependencies
 
-```
-systemd-networkd → Creates bridge and assigns interfaces
-        ↓
-   kea-dhcp4 → Provides DHCP on br-lan
-        ↓
-    unbound → DNS resolver with DNSSEC
-        ↓
-   nftables → Firewall and NAT
+```mermaid
+flowchart TD
+  networkd["systemd-networkd"] -->|Creates bridge and assigns interfaces| kea["kea-dhcp4"]
+  kea -->|Provides DHCP on br-lan| unbound["unbound"]
+  unbound -->|DNS resolver with DNSSEC| nftables["nftables"]
+  nftables --> firewall["Firewall and NAT"]
 ```
 
 ## DNSSEC Configuration

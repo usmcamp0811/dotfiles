@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: fmf.services.immich
+description: Wraps the upstream services.immich NixOS module with Postgres (via fmf.services.postgresql), Redis and machine learning defaults.
+resource: ./default.nix
+tags: [services, immich]
+---
+
 # fmf.services.immich
 
 Wraps the upstream `services.immich` NixOS module with Postgres (via

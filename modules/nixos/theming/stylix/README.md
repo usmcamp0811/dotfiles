@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Stylix Theming Module
+description: This module provides a unified theming system for your NixOS configuration using Stylix.
+resource: ./default.nix
+tags: [theming, stylix]
+---
+
 # Stylix Theming Module
 
 This module provides a unified theming system for your NixOS configuration using [Stylix](https://github.com/danth/stylix).

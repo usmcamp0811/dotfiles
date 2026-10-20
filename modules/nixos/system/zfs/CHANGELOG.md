@@ -1,3 +1,10 @@
+---
+type: Changelog
+title: ZFS Tang/Clevis Unlock Module Changelog
+description: After HBA card installation (SAS9300), ZFS pools (ChestyPoolr, MotorPool) were failing to auto-unlock, resulting in password prompts during phase 2 boot via systemd-ask-password.
+tags: [system, zfs]
+---
+
 # ZFS Tang/Clevis Unlock Module Changelog
 
 ## 2026-05-24 - Enhanced Error Handling and Retry Logic

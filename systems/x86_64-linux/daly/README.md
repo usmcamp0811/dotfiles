@@ -1,3 +1,11 @@
+---
+type: Host
+title: daly
+description: NixOS host daly, named after Marine Dan Daly.
+resource: ./default.nix
+tags: [daly]
+---
+
 # Dan Daly
 
 ![Dan Daly](../../../docs/images/daly.jpg)

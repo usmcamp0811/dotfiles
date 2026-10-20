@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Network Zones Module
+description: VLAN-based network segmentation with zone-based firewall for the Campground router.
+resource: ./default.nix
+tags: [router, zones]
+---
+
 # Network Zones Module
 
 VLAN-based network segmentation with zone-based firewall for the Campground router.
@@ -17,22 +25,13 @@ The zones module allows you to create isolated network segments (zones) using VL
 
 ## Network Architecture
 
-```
-                    Internet
-                       │
-                      WAN
-                       │
-                 ┌─────┴─────┐
-                 │  Router   │
-                 │ (br-lan)  │
-                 └─────┬─────┘
-                       │
-        ┌──────────────┼──────────────┬──────────────┐
-        │              │              │              │
-   VLAN Native    VLAN 10        VLAN 20        VLAN 30
-   (untagged)      (WiFi)         (IoT)         (Guest)
-        │              │              │              │
-   192.169.1.x   192.169.10.x   192.169.20.x   192.169.30.x
+```mermaid
+flowchart TD
+  internet["Internet"] --> wan["WAN"] --> router["Router<br/>(br-lan)"]
+  router --> native["VLAN Native<br/>(untagged)<br/>192.169.1.x"]
+  router --> wifi["VLAN 10<br/>(WiFi)<br/>192.169.10.x"]
+  router --> iot["VLAN 20<br/>(IoT)<br/>192.169.20.x"]
+  router --> guest["VLAN 30<br/>(Guest)<br/>192.169.30.x"]
 ```
 
 ## Configuration
@@ -353,20 +352,14 @@ router = {
 
 ### Traffic Flow
 
-```
-WiFi Client (192.169.10.x)
-  ↓ (DHCP Request)
-Blue Ridge dnsmasq
-  ↓ (DHCP Response: IP=192.169.10.50, DNS=192.169.1.30)
-WiFi Client
-  ↓ (DNS Query: example.com)
-AdGuard Home (192.169.1.30)
-  ↓ (Filtering, logging)
-Upstream DNS (1.1.1.1)
-  ↓ (Response)
-AdGuard Home
-  ↓ (Filtered response)
-WiFi Client
+```mermaid
+flowchart TD
+  client["WiFi Client (192.169.10.x)"] -->|DHCP Request| dnsmasq["Blue Ridge dnsmasq"]
+  dnsmasq -->|DHCP Response: IP=192.169.10.50, DNS=192.169.1.30| client
+  client -->|DNS Query: example.com| adguard["AdGuard Home (192.169.1.30)"]
+  adguard -->|Filtering, logging| upstream["Upstream DNS (1.1.1.1)"]
+  upstream -->|Response| adguard
+  adguard -->|Filtered response| client
 ```
 
 ### Firewall Rules

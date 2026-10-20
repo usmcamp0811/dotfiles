@@ -1,3 +1,9 @@
+---
+type: Guide
+title: Wazuh in fmf-flake
+description: Downstream flakes can pin your historical Wazuh behavior by pinning your flake revision in inputs.
+---
+
 # Wazuh in fmf-flake
 
 This flake now provides:

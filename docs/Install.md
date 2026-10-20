@@ -1,3 +1,9 @@
+---
+type: Runbook
+title: Reformat & Install NixOS
+description: Reformat a drive and install NixOS from a live USB, with BTRFS or ZFS partitioning.
+---
+
 # Reformat & Install NixOS
 
 If you need a video or something to see this stuff in action checkout these two YouTube videos:

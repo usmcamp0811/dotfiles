@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Jitsi Meet NixOS Module
+description: A comprehensive NixOS module for deploying Jitsi Meet video conferencing with Vault-based secret management.
+resource: ./default.nix
+tags: [services, jitsi]
+---
+
 # Jitsi Meet NixOS Module
 
 A comprehensive NixOS module for deploying Jitsi Meet video conferencing with Vault-based secret management.
@@ -292,45 +300,25 @@ journalctl -u coturn -f  # if enabled
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Vault Server                         │
-│                  (HashiCorp Vault)                          │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         │ AppRole Auth
-                         │
-                    ┌────▼─────┐
-                    │  Vault   │
-                    │  Agent   │
-                    └────┬─────┘
-                         │
-         ┌───────────────┼───────────────┐
-         │               │               │
-    ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
-    │  TURN   │    │Component│    │Videobridge│
-    │ Secret  │    │ Secret  │    │  Secret  │
-    └────┬────┘    └────┬────┘    └────┬─────┘
-         │              │              │
-    ┌────▼─────────────────────────────▼──────┐
-    │         Jitsi Meet Stack                │
-    │  ┌──────────┐  ┌──────────┐            │
-    │  │ Prosody  │  │  Jicofo  │            │
-    │  │  XMPP    │◄─┤Conference│            │
-    │  │          │  │  Focus   │            │
-    │  └────┬─────┘  └────┬─────┘            │
-    │       │             │                   │
-    │  ┌────▼─────────────▼─────┐            │
-    │  │   Jitsi Videobridge    │            │
-    │  │    (Media Routing)     │            │
-    │  └────────────────────────┘            │
-    │                                         │
-    │  ┌──────────┐  ┌──────────┐            │
-    │  │  Coturn  │  │  Nginx   │            │
-    │  │   TURN   │  │  Reverse │            │
-    │  │  Server  │  │  Proxy   │            │
-    │  └──────────┘  └──────────┘            │
-    └─────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  vault["Vault Server<br/>(HashiCorp Vault)"] -->|AppRole Auth| agent["Vault Agent"]
+  agent --> turnSecret["TURN Secret"]
+  agent --> componentSecret["Component Secret"]
+  agent --> videobridgeSecret["Videobridge Secret"]
+  subgraph jitsi["Jitsi Meet Stack"]
+    prosody["Prosody<br/>XMPP"]
+    jicofo["Jicofo<br/>Conference Focus"]
+    videobridge["Jitsi Videobridge<br/>(Media Routing)"]
+    coturn["Coturn<br/>TURN Server"]
+    nginx["Nginx<br/>Reverse Proxy"]
+    jicofo --> prosody
+    prosody --> videobridge
+    jicofo --> videobridge
+  end
+  turnSecret --> coturn
+  componentSecret --> prosody
+  videobridgeSecret --> videobridge
 ```
 
 ## References

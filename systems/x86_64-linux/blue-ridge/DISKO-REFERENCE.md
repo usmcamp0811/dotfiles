@@ -1,3 +1,10 @@
+---
+type: Reference
+title: Disko Quick Reference for Blue Ridge
+description: Disko is a declarative disk partitioning tool for NixOS that allows you to define your entire disk layout in Nix configuration.
+tags: [blue-ridge]
+---
+
 # Disko Quick Reference for Blue Ridge
 
 ## What is Disko?

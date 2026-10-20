@@ -1,3 +1,9 @@
+---
+type: Reference
+title: Service Dependency Map
+description: Complete mapping of all services across the infrastructure with dependency relationships.
+---
+
 # Service Dependency Map
 
 Complete mapping of all services across the infrastructure with dependency relationships.

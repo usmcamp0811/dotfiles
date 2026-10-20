@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: niks3 (Nix binary cache) — server, uploader, and access model
+description: 'The niks3 binary cache: server module, auto-upload hook, client substituter setup and access model.'
+resource: ./default.nix
+tags: [services, niks3]
+---
+
 # niks3 (Nix binary cache) — server, uploader, and access model
 
 Modules involved:
@@ -16,11 +24,17 @@ upstream NixOS module (`inputs.niks3.nixosModules.niks3`).
 
 niks3 has **no upload proxy**. A push is two conversations:
 
-```
-pusher ──(1) niks3 API: "I have these paths"──► niks3        (auth: API token, + mTLS if you front it that way)
-pusher ◄─(2) presigned S3 PUT URLs ───────────── niks3
-pusher ──(3) PUT the NARs ────────────────────► S3 (Garage)  (auth: the URL's signature)
-pusher ──(4) niks3 API: "done" ───────────────► niks3
+```mermaid
+sequenceDiagram
+    participant P as Pusher
+    participant N as niks3
+    participant S as S3 / Garage
+    P->>N: 1. I have these paths
+    Note right of N: API token and optional mTLS
+    N-->>P: 2. Presigned S3 PUT URLs
+    P->>S: 3. Upload NARs
+    Note right of S: URL signature authorizes upload
+    P->>N: 4. Done
 ```
 
 A pull is only talking to niks3. With `settings.readProxy.enable = true` niks3

@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: K3s Module
+description: NixOS module for deploying and managing K3s clusters with GitOps support.
+resource: ./default.nix
+tags: [services, k3s]
+---
+
 # K3s Module
 
 NixOS module for deploying and managing K3s clusters with GitOps support.
@@ -62,40 +70,29 @@ This module integrates with Vault for secrets management through the External Se
 
 ### Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ External (not in K8s cluster)                               │
-│                                                             │
-│  ┌──────────────┐                                          │
-│  │  Vault       │  (vm-vault, 10.8.0.3:8200)               │
-│  │              │                                          │
-│  │  AppRole ────┼──> Used by control plane hosts          │
-│  │  K8s Auth ───┼──> Used by pods via ServiceAccount      │
-│  └──────────────┘                                          │
-└─────────────────────────────────────────────────────────────┘
-                          │
-                          │ (1) Manual one-time setup
-                          ↓
-┌─────────────────────────────────────────────────────────────┐
-│ Kubernetes Cluster                                          │
-│                                                             │
-│  ┌───────────────────────────────────────────────────┐     │
-│  │ external-secrets namespace                        │     │
-│  │                                                   │     │
-│  │  ServiceAccount: vault-auth ──────────────────┐  │     │
-│  │                                                │  │     │
-│  │  ClusterSecretStore: vault-backend             │  │     │
-│  │    ├─ Uses Kubernetes auth                     │  │     │
-│  │    └─ References: vault-auth ServiceAccount ───┘  │     │
-│  └───────────────────────────────────────────────────┘     │
-│                                                             │
-│  ┌───────────────────────────────────────────────────┐     │
-│  │ argocd namespace                                  │     │
-│  │                                                   │     │
-│  │  ExternalSecret: argocd-authentik-oidc            │     │
-│  │    └─ Syncs from: vault-backend                   │     │
-│  └───────────────────────────────────────────────────┘     │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  subgraph external["External (not in K8s cluster)"]
+    vault["Vault<br/>(vm-vault, 10.8.0.3:8200)"]
+    appRole["AppRole"]
+    k8sAuth["K8s Auth"]
+    vault --> appRole
+    vault --> k8sAuth
+  end
+  appRole -->|Used by control plane hosts| controlPlane["Control plane hosts"]
+  k8sAuth -->|Used by pods via ServiceAccount| serviceAccount
+  vault -->|1. Manual one-time setup| secretStore
+  subgraph cluster["Kubernetes Cluster"]
+    subgraph externalSecrets["external-secrets namespace"]
+      serviceAccount["ServiceAccount: vault-auth"]
+      secretStore["ClusterSecretStore: vault-backend"]
+      secretStore -->|Uses Kubernetes auth| k8sAuth
+      secretStore -->|References: vault-auth ServiceAccount| serviceAccount
+    end
+    subgraph argocd["argocd namespace"]
+      externalSecret["ExternalSecret: argocd-authentik-oidc"] -->|Syncs from: vault-backend| secretStore
+    end
+  end
 ```
 
 ### One-Time Vault Kubernetes Auth Setup

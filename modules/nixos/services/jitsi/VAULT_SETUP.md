@@ -1,3 +1,10 @@
+---
+type: Runbook
+title: Vault Setup for Jitsi Meet
+description: This guide explains how to configure HashiCorp Vault for use with the Jitsi Meet module.
+tags: [services, jitsi]
+---
+
 # Vault Setup for Jitsi Meet
 
 This guide explains how to configure HashiCorp Vault for use with the Jitsi Meet module.

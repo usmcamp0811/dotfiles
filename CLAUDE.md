@@ -175,6 +175,20 @@ spec:
 - Use sync-waves for ordering (0 = first, higher numbers = later)
 - Multi-source pattern for Helm charts with values from Git
 
+## Knowledge Bundles (OKF)
+
+`docs/`, `modules/` and `systems/` are [Open Knowledge Format](https://github.com/GoogleCloudPlatform/open-knowledge-format)
+v0.2 bundles: markdown with YAML frontmatter, in place. To find something, read the bundle's
+`index.md` (entries grouped by `type`, each with a one-line description) and follow the links down
+instead of grepping. Conventions are in `docs/OKF.md`.
+
+- A new or edited document needs frontmatter with at least `type`, then `okf index --write <bundle>`.
+- Never add `verified: { by: human:... }` unless a person actually reviewed the document, and do not
+  invent `generated`, `sources` or `stale_after` values. A missing `verified` means unverified.
+- Check with `nix build .#checks.x86_64-linux.okf` (or `nix run .#okf -- check docs modules systems`).
+- To read them rendered, `nix run .#campground` opens a static, offline website of all three bundles in a
+  browser (`-- --search 'words'` opens the search page; `-- --theme lantern` chooses a look; `-- --print` prints the URL instead).
+
 ## Important Reminders for Claude
 
 1. **Namespace Convention**: Application CRs managed by Bootstrap ArgoCD go in `argocd-bootstrap`, not `argocd`

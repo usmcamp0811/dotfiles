@@ -1,3 +1,9 @@
+---
+type: Overview
+title: System-Level Applications and Configurations
+description: Welcome to the directory for system-wide configurations, designed to manage applications and services that affect the entire system.
+---
+
 # System-Level Applications and Configurations
 
 Welcome to the directory for system-wide configurations, designed to manage applications and services that affect the entire system.

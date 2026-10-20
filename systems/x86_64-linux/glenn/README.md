@@ -1,3 +1,11 @@
+---
+type: Host
+title: glenn
+description: NixOS host glenn, named after John Glenn.
+resource: ./default.nix
+tags: [glenn]
+---
+
 # John Glenn
 
 ![John Glenn](../../../docs/images/glenn.jpg)

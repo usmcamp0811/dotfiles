@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: 'README: Setting Up an OpenVPN Server with Vault-Generated Certificates on NixOS'
+description: This README provides a comprehensive guide on how to set up an OpenVPN server on NixOS, with certificates generated and managed by HashiCorp Vault.
+resource: ./default.nix
+tags: [services, openvpn]
+---
+
 # README: Setting Up an OpenVPN Server with Vault-Generated Certificates on NixOS
 
 This README provides a comprehensive guide on how to set up an OpenVPN server on NixOS, with certificates generated and managed by HashiCorp Vault.

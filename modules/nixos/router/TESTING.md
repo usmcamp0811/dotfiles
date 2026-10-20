@@ -1,3 +1,10 @@
+---
+type: Test Guide
+title: Router Module Testing Guide
+description: Comprehensive testing procedures for the Campground router modules.
+tags: [router]
+---
+
 # Router Module Testing Guide
 
 Comprehensive testing procedures for the Campground router modules.

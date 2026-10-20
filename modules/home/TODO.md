@@ -1,3 +1,9 @@
+---
+type: Todo
+title: 'TODO: Configs that Need porting to Nix'
+tags: [home]
+---
+
 # TODO: Configs that Need porting to Nix
 
 - [x] Alacritty

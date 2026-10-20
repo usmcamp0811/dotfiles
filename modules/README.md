@@ -1,3 +1,9 @@
+---
+type: Overview
+title: Modules
+description: Overview of the modules directory, which is divided into darwin, home and nixos modules.
+---
+
 # Modules
 
 Organize your Nix configurations with ease using the following directory structure:

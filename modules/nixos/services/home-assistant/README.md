@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Home Assistant (fmf.services.home-assistant)
+description: Runs the NixOS Home Assistant Core service, using fmf's usual enable/options wrapper and optional Vault Agent AppRole sidecar.
+resource: ./default.nix
+tags: [services, home-assistant]
+---
+
 # Home Assistant (`fmf.services.home-assistant`)
 
 Runs the NixOS Home Assistant **Core** service, using fmf's usual enable/options

@@ -1,3 +1,10 @@
+---
+type: Tutorial
+title: TUTORIAL
+description: This tutorial explains how to set up an encrypted ZFS root partition on NixOS that auto-unlocks using Clevis.
+tags: [system, zfs]
+---
+
 ### NixOS Configuration Tutorial: ZFS Encrypted Root with Auto Unlock
 
 This tutorial explains how to set up an encrypted ZFS root partition on NixOS that auto-unlocks using Clevis. The guide focuses on the essential elements for such a system setup.

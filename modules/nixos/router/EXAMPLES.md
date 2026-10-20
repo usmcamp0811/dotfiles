@@ -1,3 +1,10 @@
+---
+type: Examples
+title: Router Configuration Examples
+description: Complete real-world configuration examples for the Campground router modules.
+tags: [router]
+---
+
 # Router Configuration Examples
 
 Complete real-world configuration examples for the Campground router modules.
@@ -87,28 +94,15 @@ Simple home router with single LAN network, no VLANs.
 
 ### Network Topology
 
-```
-Internet
-   │
-   │ DHCP
-   ▼
-WAN (enp1s0)
-   │
-   │
-┌──┴─────────────────┐
-│   Router           │
-│   192.168.1.1      │
-└──┬─────────────────┘
-   │
-   │ br-lan (bridge)
-   │
-   ├── enp2s0
-   ├── enp3s0
-   └── enp4s0
-       │
-       ▼
-   LAN Devices
-   (192.168.1.50-200)
+```mermaid
+flowchart TD
+  internet["Internet"] -->|DHCP| wan["WAN (enp1s0)"] --> router["Router<br/>192.168.1.1"]
+  router -->|br-lan bridge| enp2s0["enp2s0"]
+  router -->|br-lan bridge| enp3s0["enp3s0"]
+  router -->|br-lan bridge| enp4s0["enp4s0"]
+  enp2s0 --> devices["LAN Devices<br/>(192.168.1.50-200)"]
+  enp3s0 --> devices
+  enp4s0 --> devices
 ```
 
 ---
@@ -239,29 +233,16 @@ Router with separate WiFi and IoT networks, isolating IoT devices from main LAN.
 
 ### Network Topology
 
-```
-Internet
-   │
-   ▼
-WAN (enp1s0)
-   │
-┌──┴────────────────────────────┐
-│   Router                      │
-└──┬────────────────────────────┘
-   │ br-lan (bridge)
-   │
-   ├─────────────────┬─────────────────┬──────────────────┐
-   │                 │                 │                  │
-VLAN Native      VLAN 10           VLAN 20              │
-(untagged)        (WiFi)            (IoT)               │
-   │                 │                 │                  │
-192.168.1.x     192.168.10.x      192.168.20.x      enp2s0/3s0/4s0
-   │                 │                 │
-   │                 │                 │
-   ▼                 ▼                 ▼
-Servers/VMs       WiFi AP          IoT Devices
-Desktops          Phones           Smart Home
-                  Laptops
+```mermaid
+flowchart TD
+  internet["Internet"] --> wan["WAN (enp1s0)"] --> router["Router"]
+  router -->|br-lan bridge| native["VLAN Native<br/>untagged<br/>192.168.1.x"]
+  router -->|br-lan bridge| wifi["VLAN 10<br/>WiFi<br/>192.168.10.x"]
+  router -->|br-lan bridge| iot["VLAN 20<br/>IoT<br/>192.168.20.x"]
+  router -->|br-lan bridge| ports["enp2s0/3s0/4s0"]
+  native --> servers["Servers/VMs<br/>Desktops"]
+  wifi --> wifiDevices["WiFi AP<br/>Phones<br/>Laptops"]
+  iot --> iotDevices["IoT Devices<br/>Smart Home"]
 ```
 
 ### Network Access Matrix
@@ -491,31 +472,17 @@ Complete home network with LAN, WiFi, IoT, and Guest zones with granular securit
 
 ### Network Topology
 
-```
-                    Internet
-                       │
-                       ▼
-                  WAN (enp1s0)
-                       │
-        ┌──────────────┴──────────────┐
-        │        Router               │
-        │      192.169.1.1            │
-        └──────────────┬──────────────┘
-                       │ br-lan
-                       │
-        ┌──────────────┼──────────────┬──────────────┐
-        │              │              │              │
-   VLAN Native    VLAN 10        VLAN 20        VLAN 30
-   (untagged)      (WiFi)         (IoT)         (Guest)
-        │              │              │              │
-   192.169.1.x   192.169.10.x   192.169.20.x   192.169.30.x
-        │              │              │              │
-        ▼              ▼              ▼              ▼
-   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐
-   │Servers  │   │WiFi AP  │   │Hue      │   │Guest    │
-   │VMs      │   │Phones   │   │Thermostat│  │Devices  │
-   │Desktops │   │Laptops  │   │Cameras  │   │         │
-   └─────────┘   └─────────┘   └─────────┘   └─────────┘
+```mermaid
+flowchart TD
+  internet["Internet"] --> wan["WAN (enp1s0)"] --> router["Router<br/>192.169.1.1"]
+  router -->|br-lan| native["VLAN Native<br/>(untagged)<br/>192.169.1.x"]
+  router -->|br-lan| wifi["VLAN 10<br/>(WiFi)<br/>192.169.10.x"]
+  router -->|br-lan| iot["VLAN 20<br/>(IoT)<br/>192.169.20.x"]
+  router -->|br-lan| guest["VLAN 30<br/>(Guest)<br/>192.169.30.x"]
+  native --> servers["Servers<br/>VMs<br/>Desktops"]
+  wifi --> wifiDevices["WiFi AP<br/>Phones<br/>Laptops"]
+  iot --> iotDevices["Hue<br/>Thermostat<br/>Cameras"]
+  guest --> guestDevices["Guest<br/>Devices"]
 ```
 
 ### Security Matrix
@@ -993,20 +960,14 @@ Router with AdGuard Home for DNS filtering across all zones.
 
 ### Traffic Flow
 
-```
-WiFi Client (192.169.10.x)
-  ↓ (DHCP Request)
-Blue Ridge dnsmasq
-  ↓ (DHCP Response: IP=192.169.10.50, DNS=192.169.1.30)
-WiFi Client
-  ↓ (DNS Query: example.com)
-AdGuard Home (192.169.1.30)
-  ↓ (Filtering, logging)
-Upstream DNS (1.1.1.1)
-  ↓ (Response)
-AdGuard Home
-  ↓ (Filtered response)
-WiFi Client
+```mermaid
+flowchart TD
+  client["WiFi Client\n192.169.10.x"] --> dhcpRequest["DHCP request"] --> dnsmasq["Blue Ridge dnsmasq"]
+  dnsmasq --> dhcpResponse["DHCP response\n192.169.10.50\nDNS 192.169.1.30"] --> client
+  client --> dnsQuery["DNS query\nexample.com"] --> adguard["AdGuard Home\n192.169.1.30"]
+  adguard --> filtering["Filtering and logging"] --> upstream["Upstream DNS\n1.1.1.1"]
+  upstream --> response["DNS response"] --> adguard
+  adguard --> filteredResponse["Filtered response"] --> client
 ```
 
 ---

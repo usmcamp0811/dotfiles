@@ -26,6 +26,10 @@
 
 Welcome to AI Campground, your gateway to my personalized Nix ecosystem. This repository is a comprehensive collection of my NixOS and generic Nix configurations, forming a cohesive, well-documented setup. I’m committed to providing detailed READMEs to share my journey, insights, and solutions to challenges encountered along the way.
 
+## Documentation
+
+Browse the rendered [Campground documentation](https://usmcamp0811.gitlab.io/dotfiles/campground/), including modules, systems, diagrams, search, and trust metadata. It is rebuilt and deployed to GitLab Pages on every commit.
+
 ## Getting Started
 
 Before diving in, ensure that you have Nix installed on your system. If not, you can download and install it from the official [Nix website](https://nixos.org/download.html).

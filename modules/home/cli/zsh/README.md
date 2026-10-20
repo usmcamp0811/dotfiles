@@ -1,3 +1,11 @@
+---
+type: Home Manager Module
+title: ZSH Configuration
+description: This Nix module offers a comprehensive setup for ZSH.
+resource: ./default.nix
+tags: [home, cli, zsh]
+---
+
 # ZSH Configuration
 
 This Nix module offers a comprehensive setup for ZSH. It incorporates features like command completion, autosuggestions, syntax highlighting, and Oh My Zsh integration.
