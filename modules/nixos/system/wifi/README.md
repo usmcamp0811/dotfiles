@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: WiFi Setup Guide with Vault Secrets
+description: Store WiFi passwords in Vault and consume them from NixOS, with KV v1 or v2.
+resource: ./default.nix
+tags: [system, wifi]
+---
+
 # WiFi Setup Guide with Vault Secrets
 
 After setting up your Vault server/container and logging in, follow this guide to store passwords or secrets in Vault.

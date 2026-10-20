@@ -1,3 +1,9 @@
+---
+type: Guide
+title: 'nixpkgs-multiverse: pinning one package version without a new flake input'
+description: This flake now has nixpkgs-multiverse as an input, and a small library helper, lib.fmf.multiversePackage, that resolves it.
+---
+
 # nixpkgs-multiverse: pinning one package version without a new flake input
 
 ## Summary

@@ -1,3 +1,11 @@
+---
+type: Host
+title: mattis
+description: NixOS host mattis, named after Marine Jim Mattis.
+resource: ./default.nix
+tags: [mattis]
+---
+
 # Jim Mattis
 
 ![Jim Mattis](../../../docs/images/mattis.jpg)

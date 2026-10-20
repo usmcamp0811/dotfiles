@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: How to Use Hashicorp Vault for Managing Secrets on NixOS
+description: This guide will walk you through the process of securely providing secrets to a NixOS system using Hashicorp Vault.
+resource: ./default.nix
+tags: [services, vault-agent]
+---
+
 # How to Use Hashicorp Vault for Managing Secrets on NixOS
 
 This guide will walk you through the process of securely providing secrets to a NixOS system using Hashicorp Vault. It assumes that you already have a Hashicorp Vault server up and running, and that your NixOS configuration is set up using [Snowfall-lib](https://github.com/snowfallorg/lib). The method described here is inspired by [Jake Hamilton](https://github.com/jakehamilton).

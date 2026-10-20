@@ -1,3 +1,10 @@
+---
+type: Troubleshooting
+title: 🧠 k0s Troubleshooting Guide (NixOS)
+description: This doc summarizes all issues encountered across controllers and workers in my NixOS-based k0s cluster, along with how I fixed them.
+tags: [suites, kubernetes]
+---
+
 # 🧠 k0s Troubleshooting Guide (NixOS)
 
 This doc summarizes all issues encountered across **controllers and workers** in my NixOS-based k0s cluster, along with how I fixed them. For future me.

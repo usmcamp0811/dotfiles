@@ -1,3 +1,11 @@
+---
+type: Host
+title: gray
+description: NixOS host gray, named after Marine Al Gray.
+resource: ./default.nix
+tags: [gray]
+---
+
 # Al Gray
 
 ![Al Gray](../../../docs/images/gray.jpg)

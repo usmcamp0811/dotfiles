@@ -1,3 +1,11 @@
+---
+type: Host
+title: chesty
+description: NixOS host chesty, named after Marine Chesty Puller.
+resource: ./default.nix
+tags: [chesty]
+---
+
 # Chesty Puller
 
 ![Chesty Puller](../../../docs/images/chesty.jpg)

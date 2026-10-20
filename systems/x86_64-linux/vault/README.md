@@ -1,3 +1,10 @@
+---
+type: Host
+title: Vault MicroVM
+description: This is a lightweight MicroVM that runs on the blue-ridge host.
+tags: [vault]
+---
+
 # Vault MicroVM
 
 This is a lightweight MicroVM that runs on the `blue-ridge` host. It's designed to run critical infrastructure services like Vault and Traefik that should be coupled with the router - if the router is down, these services being down is the same failure domain.

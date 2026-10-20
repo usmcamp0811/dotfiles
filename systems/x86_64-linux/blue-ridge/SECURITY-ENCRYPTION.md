@@ -1,3 +1,10 @@
+---
+type: Reference
+title: Encryption Options for Blue Ridge Router
+description: This guide compares different encryption approaches for a router that requires unattended boot.
+tags: [blue-ridge]
+---
+
 # Encryption Options for Blue Ridge Router
 
 This guide compares different encryption approaches for a router that requires unattended boot.

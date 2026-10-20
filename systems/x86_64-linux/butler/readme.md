@@ -1,3 +1,11 @@
+---
+type: Host
+title: butler
+description: NixOS host butler, named after Marine Smedley Butler.
+resource: ./default.nix
+tags: [butler]
+---
+
 # Smedley Butler
 
 ![Smedley Butler](../../../docs/images/butler.jpg)

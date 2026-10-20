@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: ZFS Encrypted Root Partition Module for NixOS
+description: This NixOS module enables encrypted ZFS root partitions, featuring options for manual and automated unlocking.
+resource: ./default.nix
+tags: [system, zfs]
+---
+
 # ZFS Encrypted Root Partition Module for NixOS
 
 This NixOS module enables encrypted ZFS root partitions, featuring options for manual and automated unlocking. Ideal for encrypted storage, remote unlocking, and auto-reboot capabilities.

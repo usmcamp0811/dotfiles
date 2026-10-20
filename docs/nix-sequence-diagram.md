@@ -1,3 +1,9 @@
+---
+type: Note
+title: How Nix Works
+description: This diagram provides a high-level overview of how a Nix script is processed.
+---
+
 # How Nix Works
 
 This diagram provides a high-level overview of how a Nix script is processed. It illustrates the flow

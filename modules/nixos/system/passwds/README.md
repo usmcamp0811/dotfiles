@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Local User Passwords Module for NixOS
+description: This module provides a way to set local user passwords using Vault in NixOS.
+resource: ./default.nix
+tags: [system, passwds]
+---
+
 # Local User Passwords Module for NixOS
 
 This module provides a way to set local user passwords using Vault in NixOS. It allows systems to securely manage user passwords, including the root user, by fetching them from a Vault instance.

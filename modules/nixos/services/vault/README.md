@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Vault NixOS Module
+description: This module simplifies the configuration and management of HashiCorp Vault on NixOS.
+resource: ./default.nix
+tags: [services, vault]
+---
+
 # Vault NixOS Module
 
 This module simplifies the configuration and management of HashiCorp Vault on NixOS. It supports features

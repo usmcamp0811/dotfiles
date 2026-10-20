@@ -1,3 +1,10 @@
+---
+type: Changelog
+title: Changelog
+description: All notable changes to the Jitsi Meet NixOS module will be documented in this file.
+tags: [services, jitsi]
+---
+
 # Changelog
 
 All notable changes to the Jitsi Meet NixOS module will be documented in this file.

@@ -1,3 +1,9 @@
+---
+type: Note
+title: 'Loops in Nix: A Comprehensive Guide'
+description: Nix is a functional programming language, meaning it does not have traditional imperative loops like Python or Julia.
+---
+
 # Loops in Nix: A Comprehensive Guide
 
 ## Introduction

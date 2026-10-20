@@ -1,3 +1,9 @@
+---
+type: Note
+title: LevelUp Your Nix
+description: Installing Nix and enabling flakes, then starting from a template.
+---
+
 # LevelUp Your Nix
 
 ## Installing Nix

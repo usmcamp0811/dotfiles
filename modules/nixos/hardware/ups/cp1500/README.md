@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: CyberPower USB UPS monitoring and script hooks
+description: fmf.hardware.ups.cp1500 supports CyberPower USB HID UPSes with matching vendor and product IDs, including the PR1500LCDRT2U, USB 0764:0601.
+resource: ./default.nix
+tags: [hardware, ups, cp1500]
+---
+
 # CyberPower USB UPS monitoring and script hooks
 
 `fmf.hardware.ups.cp1500` supports CyberPower USB HID UPSes with matching vendor

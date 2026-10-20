@@ -1,3 +1,9 @@
+---
+type: Guide
+title: Nix Build Farm (fmf.services.nix-grpc-store)
+description: 'A generic guide to the build farm module in this flake: what it does, how to wire it into a host configuration, and what has to exist in Vault before it will run.'
+---
+
 # Nix Build Farm (`fmf.services.nix-grpc-store`)
 
 A generic guide to the build farm module in this flake: what it does, how to wire it

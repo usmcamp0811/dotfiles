@@ -1,3 +1,10 @@
+---
+type: Reference
+title: Blue Ridge Router Security Testing
+description: This document describes how to test the security of your blue-ridge router.
+tags: [blue-ridge]
+---
+
 # Blue Ridge Router Security Testing
 
 This document describes how to test the security of your blue-ridge router.

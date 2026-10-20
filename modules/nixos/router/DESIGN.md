@@ -1,3 +1,10 @@
+---
+type: Design
+title: Router Module Design Decisions
+description: Documentation of design decisions, rationale, and trade-offs for the Campground router modules.
+tags: [router]
+---
+
 # Router Module Design Decisions
 
 Documentation of design decisions, rationale, and trade-offs for the Campground router modules.

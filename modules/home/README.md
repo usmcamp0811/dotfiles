@@ -1,3 +1,10 @@
+---
+type: Overview
+title: User-Level Applications and Configurations
+description: Welcome to the directory for user-specific configurations, designed exclusively for use with home-manager.
+tags: [home]
+---
+
 # User-Level Applications and Configurations
 
 Welcome to the directory for user-specific configurations, designed exclusively for use with `home-manager`.

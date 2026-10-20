@@ -1,3 +1,10 @@
+---
+type: Test Guide
+title: Jitsi Module Testing Guide
+description: This document provides testing procedures for the Jitsi Meet NixOS module.
+tags: [services, jitsi]
+---
+
 # Jitsi Module Testing Guide
 
 This document provides testing procedures for the Jitsi Meet NixOS module.

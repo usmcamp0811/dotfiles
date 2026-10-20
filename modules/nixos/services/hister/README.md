@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Hister NixOS Module
+description: A NixOS module for Hister - Your own personal search engine for indexing and searching your browsing history and local files.
+resource: ./default.nix
+tags: [services, hister]
+---
+
 # Hister NixOS Module
 
 A NixOS module for [Hister](https://github.com/asciimoo/hister) - Your own personal search engine for indexing and searching your browsing history and local files.

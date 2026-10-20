@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: NixOS Paperless Module
+description: The NixOS Paperless module facilitates the deployment and management of the Paperless document management system on your NixOS setup using a flake.
+resource: ./default.nix
+tags: [services, paperless]
+---
+
 # NixOS Paperless Module
 
 ## Overview

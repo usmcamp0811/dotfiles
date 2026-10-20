@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: dnscrypt-proxy with ODoH Module
+description: This NixOS module provides privacy-preserving DNS resolution using dnscrypt-proxy with Oblivious DNS over HTTPS (ODoH).
+resource: ./default.nix
+tags: [services, dnscrypt-proxy]
+---
+
 # dnscrypt-proxy with ODoH Module
 
 This NixOS module provides privacy-preserving DNS resolution using dnscrypt-proxy with Oblivious DNS over HTTPS (ODoH).
@@ -268,31 +276,12 @@ journalctl -u dnscrypt-proxy2 -f
 
 ## Architecture
 
-```
-┌──────────────┐
-│ Your Device  │
-└──────┬───────┘
-       │ DNS Query
-       ▼
-┌──────────────────┐
-│ dnscrypt-proxy   │ ← Listening on 127.0.0.1:5353
-│ (localhost)      │
-└──────┬───────────┘
-       │ Encrypted Query + Your IP
-       ▼
-┌──────────────────┐
-│  ODoH Relay      │ ← Sees: Your IP, can't read query
-│  (e.g. crypto.sx)│
-└──────┬───────────┘
-       │ Encrypted Query + Relay IP
-       ▼
-┌──────────────────┐
-│ ODoH Resolver    │ ← Sees: Query, only knows relay IP
-│ (e.g. Cloudflare)│
-└──────┬───────────┘
-       │ DNS Response
-       ▼
-    (returns back through relay)
+```mermaid
+flowchart TD
+  device["Your Device"] -->|DNS Query| proxy["dnscrypt-proxy<br/>(localhost)<br/>Listening on 127.0.0.1:5353"]
+  proxy -->|Encrypted Query + Your IP| relay["ODoH Relay<br/>(e.g. crypto.sx)<br/>Sees: Your IP, can't read query"]
+  relay -->|Encrypted Query + Relay IP| resolver["ODoH Resolver<br/>(e.g. Cloudflare)<br/>Sees: Query, only knows relay IP"]
+  resolver -->|DNS Response| response["Returns back through relay"]
 ```
 
 ## Privacy Benefits

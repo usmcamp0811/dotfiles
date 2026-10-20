@@ -1,3 +1,10 @@
+---
+type: Architecture
+title: Router Module Architecture
+description: Complete architectural documentation for the Campground router modules.
+tags: [router]
+---
+
 # Router Module Architecture
 
 Complete architectural documentation for the Campground router modules.
@@ -120,56 +127,25 @@ modules/nixos/router/
 
 ### Boot Sequence
 
-```
-1. systemd-networkd starts
-   ↓
-2. Creates br-lan bridge
-   ↓
-3. Creates VLAN interfaces (br-lan.10, br-lan.20, etc.)
-   ↓
-4. Assigns IP addresses to interfaces
-   ↓
-5. dnsmasq starts (DHCP + DNS)
-   ↓
-6. nftables loads firewall rules
-   ↓
-7. sshd starts (binds to br-lan IP)
-   ↓
-8. fail2ban starts (monitors SSH)
+```mermaid
+flowchart TD
+  A["1. systemd-networkd starts"] --> B["2. Creates br-lan bridge"]
+  B --> C["3. Creates VLAN interfaces (br-lan.10, br-lan.20, etc.)"]
+  C --> D["4. Assigns IP addresses to interfaces"]
+  D --> E["5. dnsmasq starts (DHCP + DNS)"]
+  E --> F["6. nftables loads firewall rules"]
+  F --> G["7. sshd starts (binds to br-lan IP)"]
+  G --> H["8. fail2ban starts (monitors SSH)"]
 ```
 
 ### Module Interaction Flow
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  User Configuration                  │
-│            (systems/.../default.nix)                 │
-└─────────────────┬───────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────┐
-│              Core Router Module                      │
-│  • WAN/LAN interfaces                               │
-│  • NAT/Masquerading                                 │
-│  • Base firewall                                    │
-│  • DHCP/DNS (dnsmasq)                               │
-│  • Port forwarding                                  │
-└────┬─────────────────────────┬──────────────────────┘
-     │                         │
-     ▼                         ▼
-┌────────────────┐    ┌────────────────────────────┐
-│ Security       │    │ Zones Module               │
-│ Module         │    │  • VLAN interfaces         │
-│  • SSH         │    │  • Per-zone DHCP           │
-│  • fail2ban    │    │  • Zone firewall           │
-│  • Kernel      │    │  • Inter-zone routing      │
-│    hardening   │    └──────────┬─────────────────┘
-└────────────────┘               │
-                                 ▼
-                    ┌─────────────────────────┐
-                    │  Pentest Tools          │
-                    │  (Optional)             │
-                    └─────────────────────────┘
+```mermaid
+flowchart TD
+  user["User Configuration<br/>(systems/.../default.nix)"] --> core["Core Router Module<br/>- WAN/LAN interfaces<br/>- NAT/Masquerading<br/>- Base firewall<br/>- DHCP/DNS (dnsmasq)<br/>- Port forwarding"]
+  core --> security["Security Module<br/>- SSH<br/>- fail2ban<br/>- Kernel hardening"]
+  core --> zones["Zones Module<br/>- VLAN interfaces<br/>- Per-zone DHCP<br/>- Zone firewall<br/>- Inter-zone routing"]
+  zones --> pentest["Pentest Tools<br/>(Optional)"]
 ```
 
 ## Network Stack
@@ -239,107 +215,77 @@ systemd.network.networks."40-br-lan.10" = {
 
 ### Inbound Traffic (Internet → LAN)
 
-```
-Internet
-  ↓
-WAN (enp1s0)
-  ↓
-nftables PREROUTING (nat table)
-  ├─→ DNAT (port forwarding rules)
-  └─→ Original destination
-       ↓
-nftables FORWARD (filter table)
-  ├─→ Established/Related: ACCEPT
-  ├─→ Port forward rules: ACCEPT
-  └─→ Default: DROP
-       ↓
-LAN/Zone Interface (br-lan, br-lan.10, etc.)
-  ↓
-Destination Host
+```mermaid
+flowchart TD
+  internet["Internet"] --> wan["WAN (enp1s0)"] --> prerouting["nftables PREROUTING (nat table)"]
+  prerouting --> dnat["DNAT (port forwarding rules)"]
+  prerouting --> original["Original destination"]
+  dnat --> forward["nftables FORWARD (filter table)"]
+  original --> forward
+  forward --> established["Established/Related: ACCEPT"]
+  forward --> portForward["Port forward rules: ACCEPT"]
+  forward --> drop["Default: DROP"]
+  established --> zone["LAN/Zone Interface (br-lan, br-lan.10, etc.)"]
+  portForward --> zone
+  zone --> destination["Destination Host"]
 ```
 
 ### Outbound Traffic (LAN → Internet)
 
-```
-LAN Device
-  ↓
-LAN/Zone Interface (br-lan, br-lan.10, etc.)
-  ↓
-nftables FORWARD (filter table)
-  ├─→ Zone → WAN allowed: ACCEPT
-  └─→ Otherwise: DROP
-       ↓
-nftables POSTROUTING (nat table)
-  └─→ MASQUERADE (source NAT)
-       ↓
-WAN (enp1s0)
-  ↓
-Internet
+```mermaid
+flowchart TD
+  device["LAN Device"] --> zone["LAN/Zone Interface (br-lan, br-lan.10, etc.)"] --> forward["nftables FORWARD (filter table)"]
+  forward --> allowed["Zone to WAN allowed: ACCEPT"]
+  forward --> drop["Otherwise: DROP"]
+  allowed --> postrouting["nftables POSTROUTING (nat table)"] --> masquerade["MASQUERADE (source NAT)"] --> wan["WAN (enp1s0)"] --> internet["Internet"]
 ```
 
 ### Inter-Zone Traffic (WiFi → LAN)
 
-```
-WiFi Device (192.169.10.x)
-  ↓
-br-lan.10 (WiFi zone)
-  ↓
-nftables FORWARD (zones table, priority 1)
-  ├─→ Established/Related: ACCEPT
-  ├─→ Inter-zone route exists: ACCEPT
-  │   └─→ Port/protocol restrictions applied
-  ├─→ Isolation level "partial": ACCEPT (LAN only)
-  ├─→ Isolation level "none": ACCEPT (all zones)
-  └─→ Default: DROP
-       ↓
-br-lan (LAN zone)
-  ↓
-LAN Device (192.169.1.x)
+```mermaid
+flowchart TD
+  wifi["WiFi Device (192.169.10.x)"] --> wifiZone["br-lan.10 (WiFi zone)"] --> forward["nftables FORWARD (zones table, priority 1)"]
+  forward --> established["Established/Related: ACCEPT"]
+  forward --> route["Inter-zone route exists: ACCEPT"] --> restrictions["Port/protocol restrictions applied"]
+  forward --> partial["Isolation level 'partial': ACCEPT (LAN only)"]
+  forward --> none["Isolation level 'none': ACCEPT (all zones)"]
+  forward --> drop["Default: DROP"]
+  established --> lanZone["br-lan (LAN zone)"]
+  restrictions --> lanZone
+  partial --> lanZone
+  none --> lanZone
+  lanZone --> lan["LAN Device (192.169.1.x)"]
 ```
 
 ### DNS Resolution Flow
 
 #### Standard Configuration (Router DNS)
 
-```
-Client (DHCP)
-  ↓ (Gets DNS server = 192.169.1.1)
-Router dnsmasq (192.169.1.1:53)
-  ↓ (Forwards to upstream)
-Upstream DNS (1.1.1.1, 1.0.0.1, etc.)
-  ↓
-Response → dnsmasq → Client
+```mermaid
+flowchart TD
+  client["Client (DHCP)"] -->|Gets DNS server = 192.169.1.1| dnsmasq["Router dnsmasq (192.169.1.1:53)"]
+  dnsmasq -->|Forwards to upstream| upstream["Upstream DNS (1.1.1.1, 1.0.0.1, etc.)"]
+  upstream --> response["Response"] --> dnsmasq --> client
 ```
 
 #### AdGuard Configuration
 
-```
-Client (DHCP)
-  ↓ (Gets DNS server = 192.169.1.30)
-AdGuard Home (192.169.1.30:53)
-  ↓ (Filtering, blocking)
-  ↓ (Forwards to upstream)
-Upstream DNS (1.1.1.1, 1.0.0.1, etc.)
-  ↓
-Response → AdGuard → Client
+```mermaid
+flowchart TD
+  client["Client (DHCP)"] -->|Gets DNS server = 192.169.1.30| adguard["AdGuard Home (192.169.1.30:53)"]
+  adguard -->|Filtering, blocking| filtered["Filtered query"]
+  filtered -->|Forwards to upstream| upstream["Upstream DNS (1.1.1.1, 1.0.0.1, etc.)"]
+  upstream --> response["Response"] --> adguard --> client
 ```
 
 ## Service Dependencies
 
 ### Critical Path Dependencies
 
-```
-systemd-networkd.service
-  ↓ (creates network interfaces)
-network-online.target
-  ↓
-dnsmasq.service (DHCP + DNS)
-  ↓
-nftables.service (firewall)
-  ↓
-sshd.service (management access)
-  ↓
-fail2ban.service (SSH protection)
+```mermaid
+flowchart TD
+  networkd["systemd-networkd.service"] -->|creates network interfaces| online["network-online.target"]
+  online --> dnsmasq["dnsmasq.service (DHCP + DNS)"] --> nftables["nftables.service (firewall)"] --> sshd["sshd.service (management access)"] --> fail2ban["fail2ban.service (SSH protection)"]
 ```
 
 ### Startup Timing
@@ -376,31 +322,18 @@ The 2-second delay ensures VLAN interfaces are fully initialized before services
 
 ### Nix Evaluation Flow
 
-```
-User Config (systems/.../default.nix)
-  ↓
-fmf.router.* options set
-  ↓
-Core module (core/default.nix)
-  ├─→ Generates systemd-networkd configs
-  ├─→ Generates dnsmasq settings
-  └─→ Generates nftables ruleset (base)
-       ↓
-Zones module (zones/default.nix)
-  ├─→ Generates VLAN netdevs
-  ├─→ Extends dnsmasq settings
-  └─→ Extends nftables ruleset (zone rules)
-       ↓
-Security module (security/default.nix)
-  ├─→ Configures SSH
-  ├─→ Configures fail2ban
-  └─→ Sets kernel parameters
-       ↓
-Final NixOS configuration
-  ↓
-nixos-rebuild
-  ↓
-Running system
+```mermaid
+flowchart TD
+  user["User Config (systems/.../default.nix)"] --> options["fmf.router.* options set"] --> core["Core module (core/default.nix)"]
+  core --> networkd["Generates systemd-networkd configs"]
+  core --> dnsmasq["Generates dnsmasq settings"]
+  core --> baseRules["Generates nftables ruleset (base)"] --> zones["Zones module (zones/default.nix)"]
+  zones --> netdevs["Generates VLAN netdevs"]
+  zones --> extendedDnsmasq["Extends dnsmasq settings"]
+  zones --> zoneRules["Extends nftables ruleset (zone rules)"] --> security["Security module (security/default.nix)"]
+  security --> ssh["Configures SSH"]
+  security --> fail2ban["Configures fail2ban"]
+  security --> kernel["Sets kernel parameters"] --> configuration["Final NixOS configuration"] --> rebuild["nixos-rebuild"] --> running["Running system"]
 ```
 
 ### Port Forward Generation

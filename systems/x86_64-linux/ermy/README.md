@@ -1,3 +1,11 @@
+---
+type: Host
+title: ermy
+description: NixOS host ermy, named after R. Lee Ermey.
+resource: ./default.nix
+tags: [ermy]
+---
+
 # R. Lee Ermey
 
 ![R. Lee Ermey](../../../docs/images/ermy.jpg)

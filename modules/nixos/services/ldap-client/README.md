@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: LDAP Client Module for NixOS
+description: This module provides LDAP client support for NixOS.
+resource: ./default.nix
+tags: [services, ldap-client]
+---
+
 # LDAP Client Module for NixOS
 
 This module provides LDAP client support for NixOS. It allows systems to enable LDAP users and configure LDAP support. It also includes a script to watch for new user directories in `/home` and create the necessary folders for LDAP users so they can use `home-manager`.

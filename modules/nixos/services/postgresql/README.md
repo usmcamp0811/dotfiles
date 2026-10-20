@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: NixOS PostgreSQL Module with Vault Integration
+description: This is a custom NixOS module designed to manage PostgreSQL databases.
+resource: ./default.nix
+tags: [services, postgresql]
+---
+
 # NixOS PostgreSQL Module with Vault Integration
 
 ## Overview

@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: Nostalgex web tuner (fmf.services.nostalgex)
+description: Serves the Nostalgex web tuner, a retro cable-TV channel guide for a Plex, Jellyfin or Emby library, with Nginx.
+resource: ./default.nix
+tags: [services, nostalgex]
+---
+
 # Nostalgex web tuner (`fmf.services.nostalgex`)
 
 Serves the [Nostalgex](https://www.nostalgex.app/self-host) web tuner, a retro

@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: GlusterFS NixOS Module
+description: This module configures a GlusterFS server using a declarative interface under campground.services.glusterfs.
+resource: ./default.nix
+tags: [services, glusterfs]
+---
+
 # GlusterFS NixOS Module
 
 This module configures a GlusterFS server using a declarative interface under `campground.services.glusterfs`.

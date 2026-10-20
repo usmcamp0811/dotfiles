@@ -1,3 +1,11 @@
+---
+type: Home Manager Module
+title: OpenSSH Configuration Module
+description: This Nix module provides a flexible and customizable way to configure OpenSSH support within the Campground environment.
+resource: ./default.nix
+tags: [home, services, openssh]
+---
+
 # OpenSSH Configuration Module
 
 This Nix module provides a flexible and customizable way to configure OpenSSH support within the Campground environment. It allows you to manage authorized keys, port settings, and other host configurations.

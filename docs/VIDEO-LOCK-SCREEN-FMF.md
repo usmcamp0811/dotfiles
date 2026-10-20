@@ -1,3 +1,9 @@
+---
+type: Guide
+title: Video Lock Screen Configuration (fmf module)
+description: This document describes the video lock screen feature in the fmf flake.
+---
+
 # Video Lock Screen Configuration (fmf module)
 
 This document describes the video lock screen feature in the fmf flake.

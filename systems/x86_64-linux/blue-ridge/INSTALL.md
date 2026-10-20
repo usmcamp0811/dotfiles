@@ -1,3 +1,10 @@
+---
+type: Runbook
+title: Blue Ridge Router Installation Guide with Impermanence
+description: This guide covers installing NixOS on the blue-ridge router with impermanence enabled.
+tags: [blue-ridge]
+---
+
 # Blue Ridge Router Installation Guide with Impermanence
 
 This guide covers installing NixOS on the blue-ridge router with impermanence enabled.
