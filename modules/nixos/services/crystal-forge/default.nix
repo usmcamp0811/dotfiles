@@ -11,6 +11,25 @@ let
     default = [];
     description = "Forwarded to services.crystal-forge.${desc}";
   };
+  # crystal-forge's own unit test asserts that the `nix` on its PATH is exactly
+  # 2.34.8: the nix in *its* flake's nixpkgs pin. Its packaging deliberately uses
+  # whatever Nix the consuming nixpkgs provides (`pkgs.nix-eval-jobs.nix`, see its
+  # overlays/default), so built against fmf's nixpkgs that is whatever the channel
+  # ships (2.34.9 after the Oct 21 unstable bump) and the build fails in
+  # checkPhase although nothing is wrong with the code. crystal-forge's own CI
+  # still runs the test against its pin; every other test still runs here.
+  # Drop this once the test stops hard-coding a patch release.
+  pinnedNixTest = "handlers::api::builders::tests::niks3_pinned_nix_accepts_remote_metadata_and_refresh_flags";
+  # crane renders the cargo command into `checkPhase` when the package is
+  # defined, so changing `cargoTestExtraArgs` afterwards has no effect: the
+  # command itself is edited. The assertion turns a future change to that command
+  # into a clear evaluation error instead of a silently ignored override.
+  testArgs = "--lib --bins";
+  serverPackage = pkgs.crystal-forge.default.cf-server-drv.overrideAttrs (old:
+    assert lib.assertMsg (lib.hasInfix testArgs old.checkPhase)
+    "crystal-forge's cf-server checkPhase no longer ends in `${testArgs}`; update the pinned-nix test skip in fmf's services/crystal-forge module."; {
+      checkPhase = lib.replaceStrings [testArgs] ["${testArgs} -- --skip ${pinnedNixTest}"] old.checkPhase;
+    });
 in {
   # Snowfall namespace wrapper for the upstream services.crystal-forge module.
   # All services, slices, vault-agent injection come from upstream or
@@ -47,6 +66,7 @@ in {
       enable = true;
       server = lib.mkDefault (lib.recursiveUpdate {
         trust_forwarded_builder_https = true;
+        package = serverPackage;
       } vCfg.server);
       build = lib.mkDefault vCfg.build;
       cache = lib.mkDefault (vCfg.cache // {
@@ -76,6 +96,10 @@ in {
       (config.fmf.services.vault-agent.enable or false) {
       description = "Copy vault-rendered Crystal Forge secrets to service paths";
       after = ["postgresql.service" "network-online.target"];
+      # `after` only orders; without `wants` nothing pulls the target in, which is
+      # what NixOS warns about ("ordered after network-online.target but doesn't
+      # depend on it").
+      wants = ["network-online.target"];
       before = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       wantedBy = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       serviceConfig = {
