@@ -107,7 +107,6 @@ in {
     pdsadmin
     k3s
     pnpm_9
-    beets
     zathura
     clippy
     blueman
@@ -117,6 +116,34 @@ in {
     switch-to-configuration-ng
     vulnix
     ;
+
+  # beets comes from unstable, so it uses unstable's python set, where
+  # pyrate-limiter 4.5.0 is built from source (not in any binary cache). nixpkgs
+  # already skips test_limiter_01 as "timing-sensitive, fails under load", but not
+  # these two siblings in the same file, and they fail on a busy farm builder with
+  # `AssertionError` at tests/helpers.py:80. One failed test fails pyrate-limiter,
+  # then requests-ratelimiter, beets, home-manager-path and the whole system.
+  # Same cause and same fix as nixpkgs' existing entry; drop this once nixpkgs
+  # disables them itself. Scoped to beets' python set so nothing else rebuilds.
+  beets = let
+    unstablePython = channels.unstable.python3.override (old: {
+      packageOverrides =
+        channels.unstable.lib.composeExtensions
+        (old.packageOverrides or (_: _: {}))
+        (_: pyPrev: {
+          pyrate-limiter = pyPrev.pyrate-limiter.overridePythonAttrs (prevAttrs: {
+            disabledTests =
+              (prevAttrs.disabledTests or [])
+              ++ [
+                "test_limiter_async_factory_get"
+                "test_limiter_async_factory_get_weight0"
+              ];
+          });
+        });
+      self = unstablePython;
+    });
+  in
+    channels.unstable.beets.override {python3 = unstablePython;};
 
   # Jupyter environment builder
   inherit (jupyenv.lib.${system}) mkJupyterlabNew mkKernel;
