@@ -10,6 +10,14 @@ with lib.fmf; let
   cfg = config.fmf.tools.agentic-ai;
   system = pkgs.stdenv.hostPlatform.system;
   remoteSkillsToInstall = cfg.remoteSkills;
+  # Preserve the legacy @owner/repo/skill option format while using the
+  # replacement skills CLI. Other entries are passed through as sources.
+  remoteSkillArgs = skill: let
+    legacy = builtins.match "@([^/]+)/([^/]+)/([^/]+)" skill;
+  in
+    if legacy == null
+    then [skill]
+    else ["${builtins.elemAt legacy 0}/${builtins.elemAt legacy 1}" "--skill" (builtins.elemAt legacy 2)];
   # OpenCode v1 Anthropic OAuth plugin. Anthropic gates model access on the
   # reported Claude Code version (e.g. "Claude Code 2.1.87 does not support this
   # model; version 2.1.280 or newer is required"). The previous plugin,
@@ -136,7 +144,7 @@ in {
 
     remoteSkills =
       mkOpt (types.listOf types.str) []
-      "Remote skills to install using skills-installer (for the opencode client).";
+      "Remote skills to install globally for OpenCode using skills; accepts @owner/repo/skill or a skills CLI source.";
 
     opencodeSkillPermissionDefault =
       mkOpt (types.enum ["allow" "ask" "deny"]) "allow"
@@ -184,7 +192,7 @@ in {
           && cfg.enableSkills
           && remoteSkillsToInstall
           != []) [
-          pkgs.llm-agents.skills-installer
+          pkgs.llm-agents.skills
           pkgs.git
           pkgs.mcp-nixos
         ]);
@@ -475,13 +483,12 @@ in {
       mkIf
       (cfg.enableOpencode && cfg.enableSkills && remoteSkillsToInstall != [])
       (inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
-        echo "Installing OpenCode skills (skills-installer)..."
-        export PATH="${pkgs.llm-agents.skills-installer}/bin:${pkgs.git}/bin:$PATH"
+        echo "Installing OpenCode skills (skills)..."
+        export PATH="${pkgs.llm-agents.skills}/bin:${pkgs.git}/bin:$PATH"
 
-        for skill in ${toShellList remoteSkillsToInstall}; do
-          echo "  - $skill"
-          skills-installer install --client opencode "$skill"
-        done
+        ${concatMapStringsSep "\n" (skill: ''
+          skills add ${escapeShellArgs (remoteSkillArgs skill)} --global --agent opencode --yes
+        '') remoteSkillsToInstall}
       '');
 
     home.activation.opencodeAnthropicMaxFix =
