@@ -41,7 +41,14 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    networking.firewall.extraCommands = "iptables -A INPUT -p vrrp -j ACCEPT";
+    # Use the active firewall backend instead of requiring downstream suites
+    # to discard legacy extraCommands when enabling nftables.
+    networking.firewall = {
+      extraCommands = lib.mkIf (!config.networking.nftables.enable)
+        "iptables -A INPUT -p vrrp -j ACCEPT";
+      extraInputRules = lib.mkIf config.networking.nftables.enable
+        "ip protocol vrrp accept";
+    };
     services.keepalived.enable = true;
     services.keepalived.vrrpInstances = lib.mapAttrs'
       (name: instanceCfg:
