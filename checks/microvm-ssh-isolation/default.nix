@@ -9,10 +9,13 @@
     };
     config.Cmd = ["/bin/sleep" "infinity"];
   };
-in pkgs.testers.nixosTest {
-  name = "microvm-ssh-isolation";
+  testBackend = backend: let
+    useNftables = backend == "nftables";
+    guard = if useNftables then "nftables.service" else "microvm-ssh-isolation.service";
+  in pkgs.testers.nixosTest {
+  name = "microvm-ssh-isolation-${backend}";
 
-  nodes.host = {lib, ...}: {
+  nodes.host = {lib, config, ...}: {
     imports = [../../modules/nixos/security/microvm-ssh-isolation];
     # Only interface metadata is needed: veth access ports emulate TAP ingress
     # without building a nested fleet. Exercise all three upstream resolvers,
@@ -24,6 +27,13 @@ in pkgs.testers.nixosTest {
       # Before 23.11 NixOS defaults flushRuleset to true. The isolation module
       # must override that default so reloads retain Docker's dynamic rules.
       system.stateVersion = "23.05";
+      assertions = [
+        { assertion = config.networking.firewall.backend == backend;
+          message = "Isolation must preserve the original ${backend} firewall backend."; }
+        { assertion = config.networking.nftables.enable == useNftables;
+          message = "The independent guard must not enable NixOS nftables."; }
+      ];
+      environment.etc."firewall-backend".text = config.networking.firewall.backend;
       virtualisation.memorySize = 1536;
       virtualisation.diskSize = 2048;
       virtualisation.docker = {
@@ -47,11 +57,12 @@ in pkgs.testers.nixosTest {
         enable = true;
         allowedTCPPorts = [22 2222 8080];
       };
-      networking.nftables.tables.existing_router = {
+      networking.nftables.enable = lib.mkIf useNftables true;
+      networking.nftables.tables = lib.mkIf useNftables { existing_router = {
         family = "inet";
         content = "chain input { type filter hook input priority 0; policy accept; }";
-      };
-      environment.systemPackages = [pkgs.socat pkgs.iproute2 pkgs.dnsmasq (pkgs.python3.withPackages (p: [p.scapy]))];
+      }; };
+      environment.systemPackages = [pkgs.nftables pkgs.iptables pkgs.socat pkgs.iproute2 pkgs.dnsmasq (pkgs.python3.withPackages (p: [p.scapy]))];
       systemd.services."microvm@vm-other".serviceConfig = {
         Type = "oneshot";
         ExecStart = "${pkgs.coreutils}/bin/true";
@@ -63,7 +74,17 @@ in pkgs.testers.nixosTest {
     import json
 
     host.start()
-    host.wait_for_unit("nftables.service")
+    guard = "${guard}"
+    host.wait_for_unit(guard)
+    def check_backend():
+        assert host.succeed("cat /etc/firewall-backend").strip() == "${backend}"
+        if "${backend}" == "nftables":
+            host.succeed("nft list table inet nixos-fw")
+        else:
+            host.succeed("iptables -S nixos-fw")
+            host.fail("systemctl is-active nftables.service")
+    check_backend()
+    ${lib.optionalString (!useNftables) ''host.succeed("nft 'add table inet existing_router; add chain inet existing_router input { type filter hook input priority 0; policy accept; }'")''}
     host.succeed("nft list table inet existing_router")
     host.succeed("ip link add br-test type bridge; ip link set br-test up")
     host.succeed("ip addr add 10.8.0.1/24 dev br-test; ip addr add 10.8.0.2/24 dev br-test; ip -6 addr add fd08::1/64 dev br-test")
@@ -155,11 +176,14 @@ in pkgs.testers.nixosTest {
     with subtest("Docker DNS and NAT work with guest isolation enabled"):
         docker_dns()
 
-    with subtest("nft reload preserves externally managed tables and Docker DNS/NAT"):
+    with subtest("guard reload preserves externally managed tables and Docker DNS/NAT"):
         host.succeed("nft add table inet external_dynamic")
         host.succeed("nft 'add set inet external_dynamic marker { type ipv4_addr; elements = { 192.0.2.10 }; }'")
         dynamic_table = host.succeed("nft list table inet external_dynamic")
-        host.succeed("systemctl reload nftables.service")
+        # Two reloads exercise the add/flush transaction with an existing table.
+        host.succeed(f"systemctl reload {guard}")
+        host.succeed(f"systemctl reload {guard}")
+        check_backend()
         assert host.succeed("nft list table inet external_dynamic") == dynamic_table
         host.succeed("nft list table inet existing_router")
         docker_dns()
@@ -176,13 +200,26 @@ in pkgs.testers.nixosTest {
         connect("other", "10.8.0.1", 8080, True)
         connect(None, "10.8.0.4", 22, True)
 
-    with subtest("declared non-autostart VM requires a successful initial nft load"):
+    ${lib.optionalString (!useNftables) ''
+    with subtest("independent guard stop is fail-closed and restart is idempotent"):
+        host.succeed(f"systemctl stop {guard}")
+        host.succeed("nft list table bridge fmf_microvm_ssh_isolation")
+        connect("other", "10.8.0.1", 22, False)
+        docker_dns()
+        host.succeed(f"systemctl start {guard}")
+    ''}
+
+    with subtest("declared non-autostart VM requires a successful initial guard load"):
         host.succeed("systemctl start microvm@vm-other.service")
-        host.succeed("systemctl stop microvm@vm-other.service nftables.service")
-        host.succeed("mkdir -p /run/systemd/system/nftables.service.d")
-        host.succeed("printf '[Service]\\nExecStart=\\nExecStart=/run/current-system/sw/bin/false\\n' > /run/systemd/system/nftables.service.d/fail.conf")
+        host.succeed(f"systemctl stop microvm@vm-other.service {guard}")
+        host.succeed(f"mkdir -p /run/systemd/system/{guard}.d")
+        host.succeed(f"printf '[Service]\\nExecStart=\\nExecStart=/run/current-system/sw/bin/false\\n' > /run/systemd/system/{guard}.d/fail.conf")
         host.succeed("systemctl daemon-reload")
         host.fail("systemctl start microvm@vm-other.service")
         host.fail("systemctl is-active microvm@vm-other.service")
   '';
-}
+};
+in pkgs.linkFarm "microvm-ssh-isolation-backends" (map (backend: {
+  name = backend;
+  path = testBackend backend;
+}) ["iptables" "nftables"])

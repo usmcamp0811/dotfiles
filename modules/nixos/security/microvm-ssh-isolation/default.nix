@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.fmf.security.microvm-ssh-isolation;
@@ -21,6 +22,33 @@
     lib.optionalString ((taps.${exception.vm} or []) != []) ''
       iifname ${names taps.${exception.vm}} ${if exception.family == "ip" then "ip" else "ip6"} daddr ${exception.destination} meta l4proto tcp tcp dport ${ports exception.ports} counter return comment ${builtins.toJSON exception.reason}
     '') cfg.exceptions;
+  nftables = config.networking.nftables;
+  guard = if nftables.enable then "nftables" else "microvm-ssh-isolation";
+  tableContent = ''
+    chain guest_ingress {
+      # Access ports only: reject single and stacked guest VLAN tags.
+      ether type { 0x8100, 0x88a8 } counter drop
+      # Only replies, not arbitrary established guest-originated flows.
+      ct state established ct direction reply counter return
+      ${exceptions}
+      meta l4proto tcp tcp dport ${ports cfg.sshPorts} counter drop
+    }
+    chain prerouting {
+      # Bridge conntrack/defragmentation runs at -200. Match L4 after it,
+      # including IPv6 extension headers and reassembled IP fragments.
+      type filter hook prerouting priority -150; policy accept;
+      iifname ${names allTaps} jump guest_ingress
+    }
+  '';
+  # `add` tolerates an existing table. Flush and rebuild only our table in a
+  # single transaction, so a failed load leaves the previous guard intact.
+  guardRules = pkgs.writeText "microvm-ssh-isolation.nft" ''
+    add table bridge fmf_microvm_ssh_isolation
+    flush table bridge fmf_microvm_ssh_isolation
+    table bridge fmf_microvm_ssh_isolation {
+      ${tableContent}
+    }
+  '';
 in {
   options.fmf.security.microvm-ssh-isolation = {
     enable = lib.mkEnableOption "bridge-ingress MicroVM SSH isolation";
@@ -69,41 +97,40 @@ in {
     }
     (lib.mkIf (allTaps != []) {
       boot.kernelModules = ["nf_conntrack_bridge"];
-      networking.nftables.enable = true;
       # Older stateVersions default to flushing the entire ruleset on reload,
       # which destroys Docker's dynamically managed NAT/filter tables. When
       # using named tables, replace only NixOS-owned tables instead. Leave
       # legacy complete rulesets (e.g. routers) under their owner's control.
       networking.nftables.flushRuleset = lib.mkIf (
-        config.networking.nftables.ruleset == ""
-        && config.networking.nftables.rulesetFile == null
+        nftables.enable && nftables.ruleset == ""
+        && nftables.rulesetFile == null
       ) false;
       # A separate bridge table composes with the router's inet ruleset and
       # NixOS' nft firewall. Do not replace either of those rulesets.
-      networking.nftables.tables.fmf_microvm_ssh_isolation = {
+      networking.nftables.tables = lib.mkIf nftables.enable { fmf_microvm_ssh_isolation = {
         family = "bridge";
-        content = ''
-          chain guest_ingress {
-            # Access ports only: reject single and stacked guest VLAN tags.
-            ether type { 0x8100, 0x88a8 } counter drop
-            # Only replies, not arbitrary established guest-originated flows.
-            ct state established ct direction reply counter return
-            ${exceptions}
-            meta l4proto tcp tcp dport ${ports cfg.sshPorts} counter drop
-          }
-          chain prerouting {
-            # Bridge conntrack/defragmentation runs at -200. Match L4 after it,
-            # including IPv6 extension headers and reassembled IP fragments.
-            type filter hook prerouting priority -150; policy accept;
-            iifname ${names allTaps} jump guest_ingress
-          }
-        '';
-      };
+        content = tableContent;
+      }; };
       systemd.services = lib.mapAttrs' (name: _: lib.nameValuePair "microvm@${name}" {
-        requires = ["nftables.service"];
-        after = ["nftables.service"];
+        requires = ["${guard}.service"];
+        after = ["${guard}.service"];
       }) vms // {
-        nftables.after = ["systemd-modules-load.service"];
+        nftables = lib.mkIf nftables.enable {
+          after = ["systemd-modules-load.service"];
+        };
+        microvm-ssh-isolation = lib.mkIf (!nftables.enable) {
+          description = "MicroVM bridge SSH isolation (independent of host firewall)";
+          wantedBy = ["multi-user.target"];
+          after = ["systemd-modules-load.service"];
+          reloadIfChanged = true;
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = "${pkgs.nftables}/bin/nft -f ${guardRules}";
+            ExecReload = "${pkgs.nftables}/bin/nft -f ${guardRules}";
+            # Deliberately no ExecStop: stopping must leave guests protected.
+          };
+        };
       };
     })
   ]);

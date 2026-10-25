@@ -50,12 +50,21 @@ spoofable source address. `family` defaults to `ip`; use `ip6` for IPv6.
 - Host-to-guest SSH remains possible; guest SSH authentication settings are not
   modified. This is not a blanket established-connection exemption for existing
   guest-originated SSH sessions.
-- The module enables nftables and bridge conntrack and adds a separate
-  `bridge fmf_microvm_ssh_isolation` table. Declared MicroVM services require
-  successful nftables startup. Stopping nftables can stop dependent guests.
-- Other firewall modules must support the nft backend. fmf's keepalived module
-  selects its rule according to the active backend rather than overwriting
-  other firewall commands.
+- The module loads bridge conntrack and owns only the
+  `bridge fmf_microvm_ssh_isolation` table. It does **not** enable the global
+  nftables service or switch the host firewall backend.
+- Hosts already using nftables receive a named table in that service. For named
+  rulesets, global ruleset flushing is disabled to preserve Docker's dynamically
+  managed rules. Legacy complete rulesets remain under their owner's control.
+- Other hosts use `microvm-ssh-isolation.service`, which atomically updates only
+  the guard table. Reloads preserve unrelated rules; stopping this service leaves
+  its rules installed. Use a reload, not a stop, to update the guard.
+- Declared MicroVM services require successful startup of the selected guard
+  service. Stopping that service can stop dependent guests. Migrating an older
+  deployment from the global nftables dependency may also stop guests during
+  activation: verify the guard, then check/restart affected guests deliberately.
+- fmf's keepalived module selects its rule according to the active firewall
+  backend rather than overwriting other firewall commands.
 
 This is direct SSH-port isolation, not complete network segmentation. Other
 service exploits, tunnels/overlays, arbitrary alternative SSH ports, and
@@ -72,8 +81,10 @@ nix build --no-write-lock-file --no-link -L \
   'path:.#checks.x86_64-linux.microvm-ssh-isolation'
 ```
 
-The isolated runtime test emulates guest TAP ingress with bridged veth network
-namespaces. It covers IPv4/IPv6, source spoofing, interface-bound exceptions,
-host-initiated traffic, non-SSH services, VLAN tags/fragments/extension headers,
-firewall composition and initial firewall-load failure. It does not exercise
-production runners or SSH credentials.
+The isolated runtime tests exercise both original iptables and preexisting
+nftables host backends, emulating TAP ingress with bridged veth namespaces.
+They cover IPv4/IPv6, spoofing, interface-bound exceptions, host-initiated
+traffic, non-SSH services, VLAN tags/fragments/extension headers, actual Docker
+container DNS/NAT, dynamic table preservation across reloads, and initial guard
+failure. They do not exercise production runners, live backend transitions, or
+SSH credentials.
