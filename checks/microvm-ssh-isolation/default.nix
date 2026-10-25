@@ -40,7 +40,13 @@
         enable = true;
         storageDriver = "overlay2";
       };
-      boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+      boot.kernelModules = ["br_netfilter"];
+      boot.kernel.sysctl = {
+        "net.ipv4.ip_forward" = 1;
+        "net.ipv6.conf.all.forwarding" = 1;
+        "net.bridge.bridge-nf-call-iptables" = 1;
+        "net.bridge.bridge-nf-call-ip6tables" = 1;
+      };
       microvm.vms = {
         vm-vault.flake.nixosConfigurations.vm-vault.config = guest "tap-vault";
         vm-other = {autostart = false; evaluatedConfig.config = guest "tap-other";};
@@ -48,6 +54,7 @@
       };
       fmf.security.microvm-ssh-isolation = {
         enable = true;
+        dockerBridgeInterfaces = ["br-test"];
         sshPorts = [22 2222];
         exceptions = [{vm = "vm-vault"; destination = "10.8.0.1"; reason = "Vault recovery";}];
       };
@@ -88,9 +95,12 @@
     host.succeed("nft list table inet existing_router")
     host.succeed("ip link add br-test type bridge; ip link set br-test up")
     host.succeed("ip addr add 10.8.0.1/24 dev br-test; ip addr add 10.8.0.2/24 dev br-test; ip -6 addr add fd08::1/64 dev br-test")
-    for name, number in [("vault", 3), ("other", 4), ("third", 5)]:
-        host.succeed(f"ip netns add {name}; ip link add tap-{name} type veth peer name eth0 netns {name}")
-        host.succeed(f"ip link set tap-{name} master br-test; ip link set tap-{name} up")
+    # The uplink is deliberately not declared as a VM TAP: it represents the
+    # remote bridge/Vault peer reached over a physical host's LAN uplink.
+    for name, number in [("vault", 3), ("other", 4), ("third", 5), ("peer", 6)]:
+        interface = "uplink-peer" if name == "peer" else f"tap-{name}"
+        host.succeed(f"ip netns add {name}; ip link add {interface} type veth peer name eth0 netns {name}")
+        host.succeed(f"ip link set {interface} master br-test; ip link set {interface} up")
         host.succeed(f"ip -n {name} link set lo up; ip -n {name} link set eth0 up")
         host.succeed(f"ip -n {name} addr add 10.8.0.{number}/24 dev eth0; ip -n {name} -6 addr add fd08::{number}/64 dev eth0 nodad")
     # This guest deliberately has no default route: replies to Docker's
@@ -99,7 +109,11 @@
     host.succeed("ip netns exec other dnsmasq --interface=eth0 --bind-interfaces --no-resolv --no-hosts --local=/gitlab.test/ --address=/gitlab.test/192.0.2.10 --user=root --pid-file=/run/test-dnsmasq.pid --log-facility=/run/test-dnsmasq.log")
     host.wait_for_unit("docker.service")
     host.succeed("docker load < ${dnsImage}")
-    host.succeed("docker run -d --name dns-client --network bridge --dns 10.8.0.4 microvm-dns-test:local")
+    host.succeed("docker run -d --restart=always --name dns-client --network bridge --dns 10.8.0.4 microvm-dns-test:local")
+    for port in [22, 8200]:
+        host.succeed(f"ip netns exec peer socat TCP4-LISTEN:{port},reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
+        host.succeed(f"ip netns exec peer socat TCP6-LISTEN:{port},ipv6only=1,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
+    host.wait_until_succeeds("ip netns exec peer ss -lnt | grep ':8200 '")
     host.succeed("socat TCP4-LISTEN:22,bind=10.8.0.1,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
     host.succeed("socat TCP6-LISTEN:22,ipv6only=1,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
     host.succeed("socat TCP4-LISTEN:2222,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
@@ -117,6 +131,61 @@
         program += f"s.connect(({address!r}, {port})); s.sendall(b'works'); assert s.recv(5) == b'works'"
         command = (f"ip netns exec {ns} " if ns else "") + "python -c " + __import__("shlex").quote(program)
         (host.succeed if allowed else host.fail)(command)
+
+    # Docker's default bridge is IPv4-only in this fixture. Explicitly simulate
+    # its IPv6 FORWARD -> DOCKER-USER path and DROP policy; IPv4 uses real Docker.
+    # Forwarding is already enabled at boot, so recent Docker need not change
+    # the IPv4 policy itself. Reproduce the live host's DROP policy explicitly.
+    host.succeed("iptables -P FORWARD DROP")
+    host.succeed("ip6tables -I FORWARD 1 -j DOCKER-USER; ip6tables -P FORWARD DROP")
+
+    def bridge_rules(foreign=False):
+        for family in ["iptables", "ip6tables"]:
+            forward = host.succeed(f"{family} -S FORWARD").splitlines()
+            assert forward[0] == "-P FORWARD DROP", forward
+            host.succeed(f"{family} -C FORWARD -j DOCKER-USER")
+            rules = host.succeed(f"{family} -S DOCKER-USER").splitlines()
+            jumps = [rule for rule in rules if "-j FMF-MICROVM-BRIDGES" in rule]
+            assert jumps == ["-A DOCKER-USER -j FMF-MICROVM-BRIDGES"], rules
+            assert rules[1] == jumps[0], rules
+            # Exact chain contents prove other ingress/egress interfaces are
+            # not accepted, and stale bridge exceptions cannot survive refresh.
+            assert host.succeed(f"{family} -S FMF-MICROVM-BRIDGES").splitlines() == [
+                "-N FMF-MICROVM-BRIDGES",
+                "-A FMF-MICROVM-BRIDGES -i br-test -o br-test -j ACCEPT",
+            ]
+            if foreign:
+                host.succeed(f"{family} -C DOCKER-USER -j FOREIGN-TEST")
+                host.succeed(f"{family} -C FOREIGN-TEST -m comment --comment foreign-marker -j RETURN")
+        for key in ["iptables", "ip6tables"]:
+            assert host.succeed(f"sysctl -n net.bridge.bridge-nf-call-{key}").strip() == "1"
+
+    def peer_connectivity():
+        for address in ["10.8.0.6", "fd08::6"]:
+            connect(None, address, 8200, True)
+            connect("third", address, 8200, True)
+            connect("third", address, 22, False)
+            connect(None, address, 22, True)
+
+    with subtest("Docker FORWARD DROP reproduces guest-to-remote-Vault failure"):
+        bridge_rules()
+        host.succeed("iptables -D DOCKER-USER -j FMF-MICROVM-BRIDGES")
+        connect(None, "10.8.0.6", 8200, True)
+        connect("third", "10.8.0.6", 8200, False)
+        # Seed duplicate owned jumps, stale owned bridge rules, and foreign
+        # rules. Docker postStart must repair only its own state on restart.
+        for family in ["iptables", "ip6tables"]:
+            host.succeed(f"{family} -N FOREIGN-TEST")
+            host.succeed(f"{family} -A FOREIGN-TEST -m comment --comment foreign-marker -j RETURN")
+            host.succeed(f"{family} -I DOCKER-USER 1 -j FOREIGN-TEST")
+            host.succeed(f"{family} -A DOCKER-USER -j FMF-MICROVM-BRIDGES")
+            host.succeed(f"{family} -A DOCKER-USER -j FMF-MICROVM-BRIDGES")
+            host.succeed(f"{family} -A FMF-MICROVM-BRIDGES -i br-stale -o br-stale -j ACCEPT")
+        host.succeed("systemctl restart docker.service")
+        host.wait_for_unit("docker.service")
+        host.wait_until_succeeds("test $(docker inspect -f '{{.State.Running}}' dns-client) = true")
+        bridge_rules(foreign=True)
+        peer_connectivity()
 
     with subtest("guest origins denied on every fleet SSH port; other services pass"):
         for ns in ["other", "third"]:
@@ -175,6 +244,8 @@
 
     with subtest("Docker DNS and NAT work with guest isolation enabled"):
         docker_dns()
+        bridge_rules(foreign=True)
+        peer_connectivity()
 
     with subtest("guard reload preserves externally managed tables and Docker DNS/NAT"):
         host.succeed("nft add table inet external_dynamic")
@@ -187,6 +258,8 @@
         assert host.succeed("nft list table inet external_dynamic") == dynamic_table
         host.succeed("nft list table inet existing_router")
         docker_dns()
+        bridge_rules(foreign=True)
+        peer_connectivity()
         # Check a fresh container as well as the one alive during reload.
         answer = host.succeed("docker run --rm --network bridge --dns 10.8.0.4 microvm-dns-test:local /bin/nslookup gitlab.test")
         assert "192.0.2.10" in answer, answer
@@ -199,6 +272,19 @@
         connect("vault", "10.8.0.1", 22, True)
         connect("other", "10.8.0.1", 8080, True)
         connect(None, "10.8.0.4", 22, True)
+
+    with subtest("firewall restart and repeated Docker restart preserve bridge exceptions"):
+        host.succeed("systemctl restart ${if useNftables then "nftables" else "firewall"}.service")
+        check_backend()
+        bridge_rules(foreign=True)
+        peer_connectivity()
+        docker_dns()
+        host.succeed("systemctl restart docker.service")
+        host.wait_for_unit("docker.service")
+        host.wait_until_succeeds("test $(docker inspect -f '{{.State.Running}}' dns-client) = true")
+        bridge_rules(foreign=True)
+        peer_connectivity()
+        docker_dns()
 
     ${lib.optionalString (!useNftables) ''
     with subtest("independent guard stop is fail-closed and restart is idempotent"):

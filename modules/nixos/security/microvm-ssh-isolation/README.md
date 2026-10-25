@@ -16,6 +16,30 @@ the local host's configured SSH ports. Without flake inventory it uses port 22
 and the local host's SSH ports. Additional ports can be supplied through
 `fmf.security.microvm-ssh-isolation.sshPorts`.
 
+The suite also discovers declared Linux bridges from systemd-networkd netdevs
+and `networking.bridges`. On Docker hosts with local guest TAPs it supplies
+these as `dockerBridgeInterfaces`. To use the security module directly, list
+the guest LAN bridges explicitly, for example:
+
+```nix
+fmf.security.microvm-ssh-isolation.dockerBridgeInterfaces = ["br0"];
+```
+
+Docker's iptables backend can set `FORWARD DROP`, which also blocks ordinary
+bridged VM traffic when bridge netfilter is enabled. The integration runs after
+each Docker start/restart, linking `DOCKER-USER` to the owned
+`FMF-MICROVM-BRIDGES` chain for IPv4 and IPv6. It accepts only same-bridge traffic
+(`-i br0 -o br0` in this example). Other traffic returns to Docker's rules; the
+FORWARD policy, Docker NAT, and unrelated rules are not changed. The native
+bridge SSH guard still blocks prohibited SSH before this forwarding allowance.
+
+The owned chain is rebuilt on Docker restart to remove stale bridge entries;
+the owned jump is idempotent and other `DOCKER-USER` rules are retained. Bridge
+configuration changes update Docker's post-start hook and can restart Docker
+during activation, so plan around active containers. An empty list disables
+this integration; Docker's native nftables backend and `iptables = false` are
+not supported when the bridge list is nonempty.
+
 Alternatively, enable only the security module and explicitly select ports:
 
 ```nix
@@ -85,6 +109,9 @@ The isolated runtime tests exercise both original iptables and preexisting
 nftables host backends, emulating TAP ingress with bridged veth namespaces.
 They cover IPv4/IPv6, spoofing, interface-bound exceptions, host-initiated
 traffic, non-SSH services, VLAN tags/fragments/extension headers, actual Docker
-container DNS/NAT, dynamic table preservation across reloads, and initial guard
-failure. They do not exercise production runners, live backend transitions, or
-SSH credentials.
+container DNS/NAT, dynamic table preservation across reloads, bridge-netfilter
+with FORWARD DROP, post-start bridge-rule restoration after Docker restart,
+foreign-rule preservation, and initial guard failure. IPv6's Docker-user
+forwarding path is explicitly simulated in the test; IPv4 uses Docker's real
+chains with an explicitly selected DROP policy. The tests do not exercise
+production runners, live backend transitions, or SSH credentials.

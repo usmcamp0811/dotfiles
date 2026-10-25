@@ -15,6 +15,48 @@
   interfaces = lib.mapAttrs (name: vm: (guestConfig name vm).microvm.interfaces) vms;
   taps = lib.mapAttrs (_: ifaces: map (iface: iface.id) (builtins.filter (iface: iface.type == "tap") ifaces)) interfaces;
   allTaps = lib.unique (lib.concatLists (builtins.attrValues taps));
+  docker = config.virtualisation.docker;
+  dockerOptions = lib.replaceStrings ["\n" "\t"] [" " " "] docker.extraOptions;
+  dockerHasOption = pattern: builtins.match ".*--${pattern}( .*|$)" dockerOptions != null;
+  dockerBridgeRules = pkgs.writeText "microvm-docker-bridges.rules" ''
+    :FMF-MICROVM-BRIDGES - [0:0]
+    -F FMF-MICROVM-BRIDGES
+    ${lib.concatMapStringsSep "\n" (bridge:
+      "-A FMF-MICROVM-BRIDGES -i ${bridge} -o ${bridge} -j ACCEPT"
+    ) (lib.unique cfg.dockerBridgeInterfaces)}
+  '';
+  dockerBridgeScript = pkgs.writeShellScript "microvm-docker-bridges" ''
+    set -euo pipefail
+    for family in iptables ip6tables; do
+      # Use the same pkgs.iptables tools as the Docker package. With IPv6
+      # disabled Docker may not have created DOCKER-USER yet. Declaring it
+      # below is harmless: we never link it from FORWARD ourselves.
+      deletes=""
+      createDockerUser=""
+      if rules=$("${pkgs.iptables}/bin/$family" -w -t filter -S DOCKER-USER 2>/dev/null); then
+        while IFS= read -r rule; do
+          if [[ "$rule" == "-A DOCKER-USER -j FMF-MICROVM-BRIDGES" ]]; then
+            deletes+=$'-D DOCKER-USER -j FMF-MICROVM-BRIDGES\n'
+          fi
+        done <<< "$rules"
+      else
+        createDockerUser=":DOCKER-USER - [0:0]"
+      fi
+      # --noflush preserves Docker and third-party rules. Only our chain is
+      # flushed, removing stale bridges; moving our jump to first position
+      # happens in the same per-family transaction as the chain rebuild.
+      # Never redeclare an existing DOCKER-USER: even with --noflush, a
+      # user-chain declaration can flush that chain on iptables backends.
+      "${pkgs.iptables}/bin/$family-restore" --wait --noflush <<EOF
+    *filter
+    $createDockerUser
+    $(< ${dockerBridgeRules})
+    $deletes
+    -I DOCKER-USER 1 -j FMF-MICROVM-BRIDGES
+    COMMIT
+    EOF
+    done
+  '';
   nftSet = values: "{ ${lib.concatStringsSep ", " values} }";
   names = values: nftSet (map builtins.toJSON values);
   ports = values: nftSet (map toString values);
@@ -56,6 +98,18 @@ in {
       type = lib.types.listOf lib.types.port;
       default = [22];
       description = "Fleet SSH destination ports blocked for guest-originated TCP, including guest-to-guest and external traffic.";
+    };
+    dockerBridgeInterfaces = lib.mkOption {
+      type = lib.types.listOf (lib.types.strMatching "[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,14}");
+      default = [];
+      description = ''
+        Exact Linux bridge names whose same-bridge traffic is accepted before
+        Docker's forwarding rules, for IPv4 and IPv6. Wildcards are forbidden;
+        names must be 1–15 characters. Requires local guest TAPs and Docker's
+        iptables firewall backend with iptables enabled (the native Docker
+        nftables backend is unsupported). The bridge-ingress SSH guard still
+        applies. An empty list disables this Docker integration.
+      '';
     };
     exceptions = lib.mkOption {
       default = [];
@@ -132,6 +186,25 @@ in {
           };
         };
       };
+    })
+    (lib.mkIf (allTaps != [] && docker.enable && cfg.dockerBridgeInterfaces != []) {
+      assertions = [
+        {
+          assertion = (docker.daemon.settings.iptables or true) != false
+            && !(dockerHasOption "iptables(=| +)false");
+          message = "MicroVM Docker bridge exceptions require virtualisation.docker.daemon.settings.iptables to be enabled.";
+        }
+        {
+          assertion = (docker.daemon.settings."firewall-backend" or "iptables") == "iptables"
+            && !(dockerHasOption "firewall-backend(=| +)nftables");
+          message = "MicroVM Docker bridge exceptions require Docker's iptables backend; the native Docker nftables backend is unsupported.";
+        }
+      ];
+      # Docker is Type=notify: postStart runs after daemon initialization and
+      # on every restart, composing with any existing postStart hooks.
+      systemd.services.docker.postStart = lib.mkAfter ''
+        ${dockerBridgeScript}
+      '';
     })
   ]);
 }
