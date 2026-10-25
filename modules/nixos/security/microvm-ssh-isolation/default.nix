@@ -70,6 +70,14 @@ in {
     (lib.mkIf (allTaps != []) {
       boot.kernelModules = ["nf_conntrack_bridge"];
       networking.nftables.enable = true;
+      # Older stateVersions default to flushing the entire ruleset on reload,
+      # which destroys Docker's dynamically managed NAT/filter tables. When
+      # using named tables, replace only NixOS-owned tables instead. Leave
+      # legacy complete rulesets (e.g. routers) under their owner's control.
+      networking.nftables.flushRuleset = lib.mkIf (
+        config.networking.nftables.ruleset == ""
+        && config.networking.nftables.rulesetFile == null
+      ) false;
       # A separate bridge table composes with the router's inet ruleset and
       # NixOS' nft firewall. Do not replace either of those rulesets.
       networking.nftables.tables.fmf_microvm_ssh_isolation = {
