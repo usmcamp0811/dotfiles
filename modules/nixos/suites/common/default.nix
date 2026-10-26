@@ -97,7 +97,7 @@ in {
           deployment = {
             cache_url = "https://attic.aicampground.com/campground";
             cache_public_key = "campground:rBZu4QGW0Rkj/u13zd/qNcdrDc+XBReGJbPQx/nf3R4=";
-            deployment_poll_interval = "5";
+            deployment_poll_interval = "5s";
             fallback_to_local_build = false;
             # require_sigs = false;
           };
