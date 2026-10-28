@@ -1,7 +1,12 @@
 {pkgs, ...}: let
   # Deliberately invalid, tiny files: router startup/listing must not load them.
   fakeModel = pkgs.writeText "test-model.gguf" "not-real-model-weights";
-in pkgs.testers.nixosTest {
+  gpt = ((import ../../lib/llama-cpp-models {}).llamaCppModels {inherit pkgs;}).gpt-oss-20b;
+# OpenCode 1.19.4's usable() uses context minus max output when limit.input is
+# absent. Check the shared default without realizing the GGUF derivation.
+in assert gpt.contextSize == 32768;
+assert gpt.contextSize - gpt.maxOutputTokens == 30720;
+pkgs.testers.nixosTest {
   name = "llama-cpp-authenticated-router";
   nodes.server = {config, lib, ...}: {
     imports = [../../modules/nixos/services/llama-cpp];
@@ -20,7 +25,7 @@ in pkgs.testers.nixosTest {
       router = {
         enable = true;
         models = {
-          test-a = {package = fakeModel; contextSize = 2048;};
+          test-a = {package = fakeModel; contextSize = gpt.contextSize;};
           test-b = {package = fakeModel; contextSize = 4096;};
         };
       };

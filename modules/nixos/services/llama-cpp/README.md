@@ -13,7 +13,7 @@ Hugging Face revisions and published LFS SHA256 hashes. There is no mutable
 
 | Package suffix after `llama-model-` | Bytes | Default context |
 | --- | ---: | ---: |
-| `gpt-oss-20b-mxfp4` | 12,109,566,624 | 8192 |
+| `gpt-oss-20b-mxfp4` | 12,109,566,624 | 32768 |
 | `qwen36-35b-a3b-ud-iq3-s` | 13,676,723,168 | 8192 |
 | `qwen3-coder-30b-a3b-ud-q3-k-xl` | 13,806,312,608 | 4096 |
 | `devstral-small-2-24b-q4-k-m` | 14,334,446,752 | 2048 |
@@ -92,6 +92,16 @@ to CPU RAM. Devstral's 2K context is especially restrictive for agent prompts.
 No projector is included: Qwen3.6 and Devstral are configured for text only.
 Measure on the actual GPU and validate streaming/tool calls before depending
 on any model for unattended agent work.
+
+GPT-OSS uses 32K in both server presets and OpenCode metadata. The earlier 8K
+window left only about 6K usable in OpenCode 1.19.4; fixed instructions and tool
+schemas can exceed that even for a short message and trigger repeated
+compaction. Keep automatic compaction enabled; do not merely advertise more
+context than the server allocates. Restart the server and OpenCode and use a
+fresh session after changing the limit. The other three profiles retain their
+small experimental windows and may also be unsuitable for full OpenCode tool
+prompts until individually tuned. Increasing them on a 16 GiB GPU can require
+more CPU offload. No real-model memory/performance result is implied here.
 
 ## Client
 

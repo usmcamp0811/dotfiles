@@ -5,7 +5,9 @@
     gpt-oss-20b = {
       package = pkgs.fmf.llama-model-gpt-oss-20b-mxfp4;
       name = "GPT-OSS 20B (MXFP4)";
-      contextSize = 8192;
+      # OpenCode sends instructions and tool schemas even for a short message.
+      # 8K left only ~6K usable and could overflow before normal conversation.
+      contextSize = 32768;
       maxOutputTokens = 2048;
     };
     "qwen3.6-35b-a3b" = {
