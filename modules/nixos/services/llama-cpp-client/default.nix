@@ -27,6 +27,7 @@ in {
         {assertion = builtins.hasAttr cfg.user config.users.users; message = "llama.cpp client user must already exist.";}
         {assertion = !cfg.vault.enable || (cfg.vault.path != "" && cfg.apiKeyFile == "/var/lib/vault/users/${cfg.user}/llama_api_key"); message = "llama.cpp Vault client requires vault.path and the default user-secrets apiKeyFile.";}
         {assertion = !cfg.vault.enable || config.fmf.services.vault-agent.enable; message = "llama.cpp Vault client requires fmf.services.vault-agent.enable.";}
+        {assertion = !cfg.vault.enable || cfg.vault.kvVersion != 2 || lib.hasInfix "/data/" cfg.vault.path; message = "llama.cpp client vault.path must include /data/ for KV v2.";}
       ];
       home-manager.users.${cfg.user}.fmf.tools.agentic-ai.llamaCpp = {
         enable = true;

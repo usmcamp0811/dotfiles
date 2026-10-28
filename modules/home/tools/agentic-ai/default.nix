@@ -19,14 +19,6 @@ with lib.fmf; let
     fi
     exec ${pkgs.llm-agents.opencode}/bin/opencode "$@"
   '' else pkgs.llm-agents.opencode;
-  # Preserve the legacy @owner/repo/skill option format while using the
-  # replacement skills CLI. Other entries are passed through as sources.
-  remoteSkillArgs = skill: let
-    legacy = builtins.match "@([^/]+)/([^/]+)/([^/]+)" skill;
-  in
-    if legacy == null
-    then [skill]
-    else ["${builtins.elemAt legacy 0}/${builtins.elemAt legacy 1}" "--skill" (builtins.elemAt legacy 2)];
   # OpenCode v1 Anthropic OAuth plugin. Anthropic gates model access on the
   # reported Claude Code version (e.g. "Claude Code 2.1.87 does not support this
   # model; version 2.1.280 or newer is required"). The previous plugin,
@@ -167,6 +159,8 @@ in {
     remoteSkills =
       mkOpt (types.listOf types.str) []
       "Remote skills to install globally for OpenCode using skills; accepts @owner/repo/skill or a skills CLI source.";
+    remoteSkillsStrict = mkBoolOpt false
+      "Fail activation when a remote skill install fails; otherwise warn and continue. Remote installs are skipped during Home Manager dry runs.";
 
     opencodeSkillPermissionDefault =
       mkOpt (types.enum ["allow" "ask" "deny"]) "allow"
@@ -534,9 +528,12 @@ in {
         echo "Installing OpenCode skills (skills)..."
         export PATH="${pkgs.llm-agents.skills}/bin:${pkgs.git}/bin:$PATH"
 
-        ${concatMapStringsSep "\n" (skill: ''
-          skills add ${escapeShellArgs (remoteSkillArgs skill)} --global --agent opencode --yes
-        '') remoteSkillsToInstall}
+        ${import ./install-skills.nix {
+          inherit lib;
+          sources = remoteSkillsToInstall;
+          command = "${pkgs.llm-agents.skills}/bin/skills";
+          strict = cfg.remoteSkillsStrict;
+        }}
       '');
 
     home.activation.opencodeAnthropicMaxFix =

@@ -288,8 +288,11 @@ with lib; rec {
           containsDollar = builtins.elem "$" (lib.splitString "" value);
           containsNewline = builtins.elem "\n" (lib.splitString "" value);
         in
-        if containsDollar || containsNewline then ''
-          function '${name}'() {
+        if containsDollar || containsNewline then
+          assert lib.assertMsg (builtins.match "[a-zA-Z_][a-zA-Z0-9_-]*" name != null)
+            "Invalid shell function alias name: ${name}";
+          ''
+          ${name}() {
             ${value}
           }
         '' else

@@ -58,6 +58,12 @@ the rendered file path, not the key in argv or the store, and rejects a missing
 or malformed key before startup. A rendered-key change restarts the service.
 There is no separate credential-installation service or new Vault admin logic.
 The existing Vault Agent settings/AppRole and read policy must be provisioned.
+The per-service Agent configuration explicitly inherits the address and
+`role-id`/`secret-id` file paths from
+`fmf.services.vault-agent.settings.vault`, just like `user-secrets` does. An
+enabled Agent without those settings is rejected during Nix evaluation.
+For KV v2, `vault.path` must be the API path containing `/data/`; `kvVersion`
+selects the response nesting (`.Data.data`), not a different secret mount.
 
 For an externally provisioned root-readable file instead, leave Vault disabled
 and set `apiKeyFile = "/run/secrets/inference-key";`. That path is passed through
@@ -130,3 +136,16 @@ verifies presets are listed without loading weights, checks unauthenticated
 inference is rejected and tests systemd credential delivery. It neither contacts
 Vault nor downloads weights. It does not validate GPU memory fit, actual model
 generation/tool behavior, production Vault permissions, or site proxy routing.
+
+Additional checks require no Vault server or live credential files:
+
+```bash
+nix build --no-link \
+  .#checks.x86_64-linux.llama-cpp-vault-config \
+  .#checks.x86_64-linux.agentic-ai-activation
+```
+
+They verify nonempty per-service AppRole configuration, the shared private
+namespace and KV v2 template nesting, and mock optional skill installs under
+strict-shell/dry-run conditions. Remote-skill installation failures warn rather
+than abort Home Manager unless `fmf.tools.agentic-ai.remoteSkillsStrict = true`.

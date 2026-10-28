@@ -1,6 +1,7 @@
 {lib, config, pkgs, ...}: let
   inherit (lib) mkOption mkIf types;
   cfg = config.fmf.services.llama-cpp;
+  vaultDefaults = config.fmf.services.vault-agent.settings.vault or {};
   vaultKey = config.fmf.services.vault-agent.services.llama-cpp.secrets.file.files.api-key.path;
 in {
   options.fmf.services.llama-cpp = {
@@ -55,6 +56,8 @@ in {
         {assertion = !cfg.router.enable || cfg.router.models != {}; message = "llama.cpp router requires at least one model.";}
         {assertion = !cfg.vault.enable || cfg.vault.path != ""; message = "Set the llama.cpp Vault API path.";}
         {assertion = !cfg.vault.enable || config.fmf.services.vault-agent.enable; message = "llama.cpp Vault authentication requires fmf.services.vault-agent.enable.";}
+        {assertion = !cfg.vault.enable || lib.all (value: value != "") [(vaultDefaults.address or "") (vaultDefaults.role-id or "") (vaultDefaults.secret-id or "")]; message = "llama.cpp Vault Agent requires a Vault address and AppRole role-id/secret-id file paths in fmf.services.vault-agent.settings.vault.";}
+        {assertion = !cfg.vault.enable || cfg.vault.kvVersion != 2 || lib.hasInfix "/data/" cfg.vault.path; message = "llama.cpp vault.path must be the KV v2 API path (including /data/), not the CLI/logical secret path.";}
         {assertion = cfg.apiKeyFile == null || (!lib.hasPrefix "/nix/store/" cfg.apiKeyFile && lib.hasPrefix "/" cfg.apiKeyFile); message = "llama.cpp API keys must be runtime absolute paths outside /nix/store.";}
         {assertion = !cfg.vault.enable || cfg.apiKeyFile == null; message = "Select either llama.cpp vault.enable or apiKeyFile, not both.";}
       ];
@@ -111,6 +114,19 @@ in {
         DynamicUser = lib.mkForce false;
         User = "llama-cpp";
         Group = "llama-cpp";
+      };
+      # As in user-secrets/nix-grpc-store, configure the service's agent
+      # explicitly. Registering a template alone leaves auto_auth.method empty.
+      fmf.services.vault-agent.services.llama-cpp.settings = {
+        vault.address = vaultDefaults.address or "";
+        auto_auth.method = [{
+          type = "approle";
+          config = {
+            role_id_file_path = vaultDefaults.role-id or "";
+            secret_id_file_path = vaultDefaults.secret-id or "";
+            remove_secret_id_file_after_reading = false;
+          };
+        }];
       };
       fmf.services.vault-agent.services.llama-cpp.secrets.file.files.api-key = {
         text = ''
