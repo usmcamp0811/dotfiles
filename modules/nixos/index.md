@@ -6,6 +6,7 @@
 
 * [hardware](hardware/) - 1 concept
 * [router](router/) - Custom NixOS modules for easy router configuration with security hardening.
+* [security](security/) - 1 concept
 * [services](services/) - 21 concepts
 * [suites](suites/) - 2 concepts
 * [system](system/) - 5 concepts

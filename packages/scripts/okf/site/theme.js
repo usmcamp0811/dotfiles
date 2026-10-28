@@ -52,14 +52,30 @@
     }
   }
 
+  // The header button flips between a pair of themes (dark and light) when the current theme has one.
+  var pairs = { "navy": "navy-light", "navy-light": "navy" };
+
   document.addEventListener("DOMContentLoaded", function () {
     setTheme(selected, false);
     var picker = document.getElementById("theme");
+    var mode = document.getElementById("modetoggle");
+    function syncMode() { if (mode) { mode.hidden = !pairs[root.getAttribute("data-theme")]; } }
+    if (mode) {
+      mode.addEventListener("click", function () {
+        var next = pairs[root.getAttribute("data-theme")];
+        if (!next) { return; }
+        setTheme(next, true);
+        if (picker) { picker.value = next; }
+        syncMode();
+      });
+    }
+    syncMode();
     if (!picker) { return; }
     picker.parentElement.hidden = false;
     picker.value = selected;
     picker.addEventListener("change", function () {
       setTheme(picker.value, true);
+      syncMode();
     });
   });
 })();

@@ -146,9 +146,68 @@ class SiteTest(unittest.TestCase):
     def test_backlinks_come_from_documents_not_indexes(self):
         self.build()
         beta = self.html("docs/b.html")
-        self.assertIn("Linked from", beta)
-        self.assertIn(">Alpha</a>", beta.split("Linked from")[1])
-        self.assertNotIn("index.html", beta.split("Linked from")[1].split("</section>")[0])
+        self.assertIn("<h2>Backlinks</h2>", beta)
+        self.assertIn(">Alpha</a>", beta.split("<h2>Backlinks</h2>")[1])
+        self.assertNotIn("index.html", beta.split("<h2>Backlinks</h2>")[1].split("</section>")[0])
+        # Outgoing links are listed too, from the same Markdown links.
+        self.assertIn(">Beta</a>", self.html("docs/a.html").split("<h2>Links to</h2>")[1])
+
+    def graph(self, rel: str = "assets/graph-data.js") -> dict:
+        text = self.html(rel)
+        return json.loads(text.removeprefix("window.OKF_GRAPH = ").removesuffix(";\n"))
+
+    def test_graph_has_a_node_per_document_and_an_edge_per_link(self):
+        self.build()
+        data = self.graph()
+        self.assertEqual(
+            sorted(n["t"] for n in data["nodes"]),
+            sorted(["Alpha", "Beta", "Gamma", "Delta", "Long descriptive title", "webb", "<script>alert(1)</script>"]),
+        )  # indexes and the log are navigation, not nodes
+        url = [n["u"] for n in data["nodes"]]
+        self.assertEqual(
+            {(url[a], url[b]) for a, b in data["edges"]},
+            {("docs/a.html", "docs/b.html"), ("docs/a.html", "docs/sub/c.html")},  # not the broken, code or directory links
+        )
+        alpha = next(n for n in data["nodes"] if n["t"] == "Alpha")
+        self.assertEqual((alpha["y"], alpha["b"], alpha["g"]), ("Guide", "docs", ["one", "two"]))
+
+    def test_graph_data_is_deterministic(self):
+        self.build()
+        first = self.html("assets/graph-data.js")
+        self.out = self.tmp / "out2"
+        self.build()
+        self.assertEqual(first, self.html("assets/graph-data.js"))
+
+    def test_graph_page_links_every_document_as_text(self):
+        self.build()
+        page = self.html("graph.html")
+        self.assertIn('<canvas id="graph"', page)
+        self.assertIn('src="assets/graph.js"', page)
+        self.assertLess(page.index("assets/graph-data.js"), page.index("assets/graph.js"))
+        self.assertIn("GRAPH // 7 documents, 2 links", page)
+        for href, title in (("docs/a.html", "Alpha"), ("docs/sub/c.html", "Gamma"), ("systems/x86_64-linux/webb/README.html", "webb")):
+            self.assertIn(f'<a href="{href}">{title}</a>', page)
+        self.assertIn('<option value="two">two</option>', page)
+        self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt;", page)
+        for rel in ("index.html", "docs/a.html"):
+            self.assertIn('class="graphlink"', self.html(rel))
+
+    def test_local_graph_is_only_on_documents_and_says_when_there_is_nothing(self):
+        self.build()
+        alpha = self.html("docs/a.html")
+        self.assertRegex(alpha, r'<section class="localgraph" data-node="\d+" data-up="\.\./">')
+        self.assertIn('href="../graph.html?focus=docs%2Fa.html"', alpha)
+        self.assertIn('src="../assets/graph.js"', alpha)
+        self.assertNotIn("localgraph", self.html("docs/index.html"))
+        self.assertNotIn("graph.js", self.html("docs/log.html"))
+        self.assertIn("No links to or from this document.", self.html("docs/sub/d.html"))
+
+    def test_home_page_offers_the_real_entry_points(self):
+        self.build()
+        home = self.html("index.html")
+        self.assertIn('href="search.html"', home)
+        self.assertIn("7 documents, 2 links between them", home)
+        self.assertIn('href="search.html?q=tag%3Aone"', home)
 
     def test_one_h1_per_page(self):
         self.build()
@@ -216,11 +275,51 @@ class SiteTest(unittest.TestCase):
         self.build(theme="lantern")
         page = self.html("docs/a.html")
         self.assertIn('data-theme="lantern"', page)
-        self.assertIn('data-themes="field-manual trail-map manpage lantern toc okf-visualizer okf-visualizer-dark"', page)
+        self.assertIn('data-themes="navy navy-light usmc docusaurus field-manual trail-map manpage lantern toc okf-visualizer okf-visualizer-dark"', page)
         self.assertIn('src="../assets/theme.js"', page)
         self.assertIn('<select id="theme">', page)
         with self.assertRaisesRegex(ValueError, "unknown theme"):
             okf_site.Site([self.docs], "T", "S", theme="nope")
+
+    def test_navy_is_the_default_theme_and_the_others_stay_available(self):
+        self.populate()
+        self.assertEqual(okf.main(["site", "build", "--out", str(self.out), str(self.docs)]), 0)
+        self.assertIn('data-theme="navy"', self.html("index.html"))
+        css = self.html("assets/style.css")
+        for theme, marker in (("navy", "#0a1020"), ("navy-light", "#1d4ed8"), ("usmc", "#101410"), ("docusaurus", "#25c2a0")):
+            self.assertIn(f'html[data-theme="{theme}"]', css)
+            self.assertIn(marker, css)
+        for theme in ("usmc", "navy-light"):
+            self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--theme", theme, str(self.docs)]), 0)
+            self.assertIn(f'data-theme="{theme}"', self.html("index.html"))
+
+    def test_every_page_has_the_same_chrome(self):
+        # Home, search and graph used to drop the sidebar; the layout must not change between pages.
+        self.build()
+        for rel in ("index.html", "search.html", "graph.html", "docs/a.html", "docs/index.html", "docs/log.html"):
+            page = self.html(rel)
+            self.assertRegex(page, r'<nav class="side" id="docnav" aria-label="Documents"><details class="navwrap" open>', rel)
+            self.assertIn('<nav class="bundles"', page, rel)
+            self.assertIn('role="search"', page, rel)
+            self.assertIn('<aside class="rail">', page, rel)
+        home = self.html("index.html")
+        self.assertIn('<a href="index.html" aria-current="page">Home</a>', home)
+        self.assertIn('<a href="graph.html">Knowledge graph</a>', home)
+        self.assertIn('<summary>docs</summary>', home)
+        self.assertIn('<a href="docs/a.html">Alpha</a>', home)  # a bundle's top level
+        self.assertIn('<a href="docs/sub/index.html">sub</a>', home)
+        self.assertIn('aria-current="page">Knowledge graph</a>', self.html("graph.html"))
+
+    def test_header_has_brand_tabs_search_and_actions(self):
+        self.build(start="docs/b.md")
+        page = self.html("docs/a.html")
+        for part in ('class="brandrow"', 'class="bundles"', 'role="search"', 'class="top-actions"', 'id="modetoggle"'):
+            self.assertIn(part, page)
+        self.assertIn('<a class="cta" href="../docs/b.html">Get started</a>', page)
+        bare = okf_site.Site([self.docs], "T", "S")  # no start page, so no button
+        self.assertNotIn('class="cta"', bare.page_html(next(p for p in bare.pages if p.kind == "concept")))
+        self.assertIn("@font-face", self.html("assets/style.css"))
+        self.assertIn("fonts/space-grotesk-700.woff2", self.html("assets/style.css"))
 
     def test_toc_theme_is_available_from_the_cli(self):
         self.populate()
@@ -257,7 +356,7 @@ class SiteTest(unittest.TestCase):
         landing = self.html("index.html")
         self.assertIn('href="docs/index.html"', landing)
         self.assertIn('href="systems/index.html"', landing)
-        self.assertIn("Start with", landing)
+        self.assertIn("Start here", landing)
         self.assertIn('href="docs/b.html"', landing)
 
     def test_verify_reports_a_missing_target(self):

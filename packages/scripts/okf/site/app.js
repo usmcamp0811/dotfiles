@@ -12,6 +12,24 @@
     }
   });
 
+  // The left sidebar can be folded away on a wide screen; the choice is remembered.
+  // On a narrow screen the tree already collapses (below), so the button stays hidden.
+  var toggle = document.getElementById("navtoggle"), docnav = document.getElementById("docnav");
+  if (toggle && docnav && docnav.firstElementChild) {
+    var folded = false;
+    try { folded = localStorage.getItem("okf-nav") === "hidden"; } catch (_) { /* file:// may forbid storage */ }
+    var apply = function () {
+      document.documentElement.classList.toggle("nav-hidden", folded);
+      toggle.setAttribute("aria-expanded", folded ? "false" : "true");
+    };
+    toggle.hidden = false;
+    apply();
+    toggle.addEventListener("click", function () {
+      folded = !folded; apply();
+      try { localStorage.setItem("okf-nav", folded ? "hidden" : "shown"); } catch (_) { /* optional */ }
+    });
+  }
+
   // On a narrow screen the document tree starts closed so the page comes first.
   // Without JavaScript it simply stays open.
   var tree = document.querySelector(".navwrap");

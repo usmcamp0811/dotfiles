@@ -64,12 +64,13 @@ deterministic, so `okf index` doubles as a staleness check.
 
 ## site
 
-Renders bundles as a self-contained static website: one page per document plus a landing
-page and a search page. No CDN, no web fonts and no server; every page works from
-`file://` and offline.
+Renders bundles as a self-contained static website: one page per document, landing and search
+pages, and a generated interactive graph page. Resolved Markdown links power the graph and
+backlinks; no graph library or server is required. Fonts and all other assets are bundled locally,
+so every page works from `file://` and offline.
 
 ```bash
-okf site build --out ./site --title "Campground" --theme field-manual --start docs/OKF.md docs modules systems
+okf site build --out ./site --title "Campground" --theme docusaurus --start docs/OKF.md docs modules systems
 okf site verify ./site        # every local href, src and form action must exist
 ```
 
@@ -90,6 +91,9 @@ keeps working. Bundle directory names must therefore be unique.
 - **Search** runs in the browser over title, description, tags, type and body text. It
   understands `type:`, `tag:`, `bundle:` and `trust:` filters. The index is loaded with a
   script tag rather than `fetch`, which is what lets it work from `file://`.
+- **Graph and backlinks** are generated from the renderer's already-resolved Markdown links.
+  Each concept is a node; valid links between concepts are edges. The graph data is deterministic
+  JSON embedded as a local script, and the canvas interaction has a text-list fallback.
 - **`okf site build` fails** if the finished site has a broken local reference, and refuses
   to overwrite a non-empty directory that it did not create.
 
@@ -103,7 +107,7 @@ pkgs.fmf.okf.mkSite {
   bundles = ["docs" "modules"];
   title = "My knowledge";
   start = "docs/OKF.md";              # optional: the landing page points here
-  theme = "trail-map";                # optional: field-manual, trail-map, manpage, lantern, toc, okf-visualizer, okf-visualizer-dark
+  theme = "trail-map";                # optional (default navy): navy, navy-light, usmc, docusaurus, field-manual, trail-map, manpage, lantern, toc, okf-visualizer, okf-visualizer-dark
 }
 ```
 

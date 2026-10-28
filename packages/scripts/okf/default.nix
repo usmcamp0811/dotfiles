@@ -37,6 +37,22 @@ with lib.fmf; let
     hash = "sha256-B+N9+pezN8zIU2XVft35m5cG8J2ztZsmDQMzsjs0PEs=";
   };
 
+  # Roboto (body) and Space Grotesk (headings), Latin subsets as woff2 from @fontsource, both
+  # under the SIL Open Font License. style.css declares them with relative urls; they are copied
+  # into the site, so nothing is fetched at view time. Without them pages use system fonts.
+  fontFile = family: version: weight: hash:
+    pkgs.fetchurl {
+      url = "https://unpkg.com/@fontsource/${family}@${version}/files/${family}-latin-${weight}-normal.woff2";
+      inherit hash;
+    };
+  fonts = pkgs.linkFarm "okf-fonts" [
+    {name = "roboto-400.woff2"; path = fontFile "roboto" "5.3.0" "400" "sha256-QlwHE6gXb5InPTeFmcfqxX3n+vq9S9DtRXtw64+A03E=";}
+    {name = "roboto-500.woff2"; path = fontFile "roboto" "5.3.0" "500" "sha256-W8w6oYDn8m9kPNWyYhzXwt4ZPQZh2ROpSv09SIGno0s=";}
+    {name = "roboto-700.woff2"; path = fontFile "roboto" "5.3.0" "700" "sha256-udZtFwgVb3Za2lGTm8JO0lna+mnrYxs25ENoD+nhWHk=";}
+    {name = "space-grotesk-500.woff2"; path = fontFile "space-grotesk" "5.3.0" "500" "sha256-GxqBMdnt+XXZ3s7oHi8r9QSBL3pPSY5VAPKKYT4i5kw=";}
+    {name = "space-grotesk-700.woff2"; path = fontFile "space-grotesk" "5.3.0" "700" "sha256-NfiuxWz9XL/bA8xoczpUoLBbs2F//NX9MyutwLBFylU=";}
+  ];
+
   # Build a static website from OKF bundles, plus a launcher that opens it.
   #
   #   pkgs.fmf.okf.mkSite {
@@ -54,7 +70,7 @@ with lib.fmf; let
     subtitle ? "Notes, runbooks and reference, read from their source files.",
     start ? null,
     exclude ? [],
-    theme ? "field-manual",
+    theme ? "navy",
     withMermaid ? true,
   }:
     pkgs.stdenvNoCC.mkDerivation {
@@ -77,10 +93,14 @@ with lib.fmf; let
           ${concatMapStringsSep " " (pattern: "--exclude ${escapeShellArg pattern}") exclude} \
           ${concatMapStringsSep " " (bundle: escapeShellArg "${src}/${bundle}") bundles}
 
+        mkdir -p "$out/share/${name}/assets/fonts"
+        cp -L ${fonts}/*.woff2 "$out/share/${name}/assets/fonts/"
+
         install -Dm755 ${./launch.sh} "$out/bin/${name}"
         substituteInPlace "$out/bin/${name}" \
           --replace-fail "@name@" ${escapeShellArg name} \
-          --replace-fail "@site@" "$out/share/${name}"
+          --replace-fail "@site@" "$out/share/${name}" \
+          --replace-fail "@python@" "${python-env}/bin/python"
 
         runHook postInstall
       '';

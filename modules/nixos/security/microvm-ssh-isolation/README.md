@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: MicroVM SSH isolation
+description: Filters guest-originated SSH at bridge ingress while preserving ordinary bridged traffic.
+resource: ./default.nix
+tags: [security, microvm, networking]
+---
+
 # MicroVM SSH isolation
 
 `fmf.security.microvm-ssh-isolation` filters guest-originated traffic at the

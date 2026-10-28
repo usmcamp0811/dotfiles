@@ -13,18 +13,23 @@ Run these commands from the flake root:
 
 ```bash
 nix run .#campground
-nix run .#campground -- --theme okf-visualizer-dark
+nix run .#campground -- --theme usmc
 nix run .#campground -- --search 'bundle:options immich'
 nix run .#campground -- --browser firefox options/index.html
 nix run .#campground -- --print
+nix run .#campground -- --serve --bind 0.0.0.0 --port 8080
 ```
 
-The launcher opens local HTML from the Nix store; no web server is required.
-`--print` prints the URL without opening a browser. Use `--browser`, `OKF_BROWSER`,
+By default the launcher opens local HTML from the Nix store; no web server is required.
+`--serve` instead serves it over HTTP (`--bind` defaults to 127.0.0.1, `--port` to 8080)
+and opens no browser; it has no authentication, so use `0.0.0.0` only on a trusted network.
+`--print` prints the URL without opening a browser or serving. Use `--browser`, `OKF_BROWSER`,
 or `BROWSER` to select a browser, or let the launcher choose an installed one.
 
-The footer theme picker changes the presentation. The selected theme follows
-internal links and search submissions, including under `file://`.
+The default is the dark navy theme with blue links and restrained red accents. The header button
+switches between dark and light navy; the footer picker also offers the Marine Corps, Docusaurus,
+and other treatments. Theme choice follows internal links and search submissions, including under
+`file://`.
 
 ## Content
 
@@ -35,8 +40,10 @@ internal links and search submissions, including under `file://`.
 | `systems` | Host documentation in `systems/` |
 | `options` | Build-generated reference for public `fmf.*` NixOS options |
 
-The site includes local search, page outlines, backlinks, trust metadata, syntax
-highlighting, and Mermaid rendering from a pinned local asset. Viewing the built
+The site includes local search, page outlines, generated backlinks, global and per-document
+interactive knowledge graphs, trust metadata, syntax highlighting, and Mermaid rendering from a
+pinned local asset. The graph is generated from existing Markdown links and runs entirely in the
+browser with no graph library or backend. Viewing the built
 site requires no CDN or network access. Building it may fetch Nix inputs and
 dependencies.
 

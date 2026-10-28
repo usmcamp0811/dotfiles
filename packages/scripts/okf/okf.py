@@ -725,8 +725,8 @@ def main(argv: list[str] | None = None) -> int:
                        help="one line under the title on the landing page")
     build.add_argument("--start", metavar="BUNDLE/PATH.md",
                         help="a document the landing page points new readers to, e.g. docs/OKF.md")
-    build.add_argument("--theme", choices=("field-manual", "trail-map", "manpage", "lantern", "toc", "okf-visualizer", "okf-visualizer-dark"),
-                       default="field-manual", help="default colour and type treatment")
+    build.add_argument("--theme", choices=("navy", "navy-light", "usmc", "docusaurus", "field-manual", "trail-map", "manpage", "lantern", "toc", "okf-visualizer", "okf-visualizer-dark"),
+                       default="navy", help="default colour and type treatment")
     build.add_argument("--mermaid", metavar="FILE", help="local mermaid.min.js to render mermaid fences offline")
     build.set_defaults(func=cmd_site_build)
     verify = site_sub.add_parser("verify", help="check every local link in a built site")
